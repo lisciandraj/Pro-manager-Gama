@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GAMA Stock V9">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
+<title>GAMA Stock Manager V9 PRO PRO</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
+header{background:#111827;color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
+.wrap{max-width:1150px;margin:auto;padding:12px}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.card{background:#fff;border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px #0001}.kpi{font-size:25px;font-weight:800}.muted{font-size:12px;color:#6b7280}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;z-index:30;display:grid;grid-template-columns:repeat(9,1fr);gap:3px;padding:7px;box-shadow:0 -4px 18px #0002}.tab{border:0;background:#e5e7eb;border-radius:9px;padding:8px 2px;font-size:9px}.tab.active{background:#111827;color:#fff}
+section{display:none}section.active{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-weight:650;margin:7px 0 4px}input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:9px;font-size:16px;background:#fff}textarea{min-height:80px}
+button{border:0;border-radius:9px;padding:12px 14px;font-weight:700;cursor:pointer}.primary{background:#111827;color:#fff}.secondary{background:#e5e7eb}.danger{background:#b91c1c;color:#fff}.success{background:#047857;color:#fff}.warning{background:#b45309;color:#fff}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.scanner{display:grid;grid-template-columns:1fr auto;gap:7px}
+table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}th,td{padding:9px;border-bottom:1px solid #eee;text-align:left;font-size:12px;vertical-align:middle}
+.low{color:#b91c1c;font-weight:800}.ok{color:#047857;font-weight:800}.in{color:#047857;font-weight:800}.out{color:#b91c1c;font-weight:800}
+.product-img{width:58px;height:58px;object-fit:cover;border-radius:10px;background:#eee}.empty-img{font-size:30px}
+.photo-preview{display:none;width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:8px}
+#camera{display:none;width:100%;max-height:55vh;margin-top:10px;border-radius:12px;background:#111}
+.notice{background:#fff7ed;border-left:4px solid #ea580c;padding:11px;border-radius:8px;font-size:13px}.audit{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.invoice-preview{background:#fff;border-radius:10px;padding:18px;margin-top:15px}.totals{max-width:320px;margin-left:auto}.totals div{display:flex;justify-content:space-between;padding:5px}.grand{border-top:2px solid #111827;font-size:18px;font-weight:800;padding-top:8px}
+.barcodebox{text-align:center;border:1px dashed #9ca3af;border-radius:10px;padding:15px;margin-top:12px}.barcodebox svg{width:100%;height:140px}
+.badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e5e7eb;font-size:11px;font-weight:700}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
+@media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
+@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}}
+</style>
+
+<style>
+:root{--gama-teal:#087C8B;--gama-dark:#075C69;--gama-orange:#F47A2A;--gama-orange2:#FF8B45;--gama-bg:#F4F7F8;--gama-line:#E1E9EC;--gama-text:#173246}
+body{background:var(--gama-bg);color:var(--gama-text)}header.gamaHeader{background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 16px;box-shadow:0 2px 12px #17324612}.brandMobile{display:flex;align-items:center;gap:10px}.brandMobile img{width:55px;height:55px;object-fit:cover;border-radius:10px}.brandMobile h1{margin:0;font-size:20px;color:var(--gama-teal)}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:#71808a}.onlineDot{position:absolute;right:16px;top:22px;color:#138A69;font-size:12px;font-weight:700}.card{border:1px solid var(--gama-line);box-shadow:0 3px 16px #1732460d}.tabs{background:#fff;border-top:1px solid var(--gama-line)}.tab{background:#EEF3F4;color:var(--gama-text)}.tab.active{background:var(--gama-teal);color:#fff}.primary{background:var(--gama-teal)}.danger{background:#C94F45}.success{background:#128C68}.warning{background:#B66A18}.secondary{background:#EEF3F4;color:var(--gama-text)}input,select,textarea{border-color:#D4E0E4}.notice{border-left-color:var(--gama-orange);background:#FFF6EF}
+.dashHead{display:flex;justify-content:space-between;align-items:end;margin:10px 0 16px}.dashHead h2{margin:0;font-size:24px}.dashHead p{margin:3px 0;color:#71808a}.dashFilters{display:flex;gap:7px}.dashFilters select{width:auto;min-width:125px;padding:9px}.dashCards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.dashCard{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 3px 16px #1732460d}.dashCard span{display:block;color:#71808a;font-size:12px;font-weight:700}.dashCard strong{display:block;font-size:25px;margin-top:8px;color:var(--gama-text)}.dashCard em{font-size:11px;color:#138A69;font-style:normal;font-weight:700}.dashGrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}.dashPanel{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 3px 16px #1732460d;min-height:190px}.chartPanel{grid-row:span 2}.panelTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panelTitle b{display:block;font-size:14px}.panelTitle small{display:block;color:#81909a;font-size:11px;margin-top:3px}.panelTitle>strong{font-size:15px;color:var(--gama-teal)}.chartBox{height:360px}.chartBox svg{width:100%;height:100%;overflow:visible}.chartGridLine{stroke:#E9EFF1;stroke-width:1}.chartLabel{font-size:10px;fill:#87949D}.chartDot{fill:#fff;stroke:var(--gama-orange);stroke-width:3}.chartDot.selected{fill:var(--gama-orange);stroke:#fff;stroke-width:4}.summaryList div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #EDF1F2;font-size:13px}.summaryList div:last-child{border:0}.summaryList span{color:#71808a}.summaryList b{color:var(--gama-text)}.dashTopRow{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #EDF1F2;font-size:12px}.rank{width:22px;height:22px;border-radius:50%;background:#EEF7F8;color:var(--gama-teal);display:grid;place-items:center;font-weight:800}.dashMove{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #EDF1F2;font-size:11px}.moveIcon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800}.moveIn{background:#E7F6F0;color:#138A69}.moveOut{background:#FFF0EC;color:#C94F45}.dashMove small{display:block;color:#84919A}.dashMove b{margin-left:auto}.gamaFooter{color:#82919A}
+@media(max-width:700px){body{padding-bottom:78px}.gamaHeader{padding:9px 12px!important}.brandMobile img{width:46px;height:46px}.brandMobile h1{font-size:16px}.brandMobile small{font-size:10px}.onlineDot{display:none}.wrap{padding:10px}.tabs{overflow-x:auto;display:flex;gap:5px;padding:7px}.tab{min-width:74px;font-size:10px;padding:9px 6px;flex:none}.dashHead{align-items:stretch;flex-direction:column;gap:10px}.dashFilters{display:grid;grid-template-columns:1fr 1fr}.dashFilters select{width:100%;min-width:0}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{padding:12px}.dashCard strong{font-size:20px}.dashGrid{grid-template-columns:1fr}.chartPanel{grid-row:auto}.chartBox{height:230px}.dashPanel{min-height:auto}.actions{grid-template-columns:1fr 1fr}.scanner{grid-template-columns:1fr auto}.row{grid-template-columns:1fr}table{font-size:11px}}
+</style>
+
+<style>
+:root{--gama-teal:#087C8B;--gama-orange:#F47A2A;--gama-bg:#F7F9FA;--gama-line:#E4EBEE;--gama-text:#18324A}
+body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaHeader{position:sticky!important;top:0;z-index:40;background:#fff!important;color:var(--gama-text)!important;border-bottom:1px solid var(--gama-line);height:76px;padding:9px 14px!important;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px #18324a0c}.headIcon{width:38px;height:38px;padding:0;border:0;background:transparent;color:#607282;font-size:25px;display:grid;place-items:center}.headIcon.plus{background:var(--gama-orange);color:#fff;border-radius:50%;font-size:24px}.brandMobile{flex:1;display:flex;align-items:center;gap:9px;min-width:0}.brandMobile img{width:52px;height:52px;object-fit:contain;border-radius:0}.brandMobile h1{font-size:19px;color:var(--gama-text)!important}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:#7b8992;font-size:10px}.headActions{display:flex;gap:2px}.wrap{max-width:1250px;margin:auto;padding:14px}.tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff!important;border-top:1px solid var(--gama-line);display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:7px 5px;box-shadow:0 -4px 18px #18324a12}.tab{background:#fff!important;color:#63717c!important;border-radius:11px;padding:7px 2px;font-size:18px;display:flex;flex-direction:column;align-items:center;gap:3px}.tab span{font-size:9px;font-weight:700}.tab.active{background:#fff7f1!important;color:var(--gama-orange)!important}.dashHead{margin:4px 2px 15px}.dashHead h2{font-size:25px;letter-spacing:-.4px}.dashHead p{font-size:13px}.dashFilters select{border-radius:9px}.dashCards{grid-template-columns:repeat(6,1fr);gap:10px}.dashCard{padding:14px;border-radius:13px}.dashCard strong{font-size:21px}.dashGrid{grid-template-columns:1.7fr 1fr 1fr}.chartPanel{grid-column:span 2;grid-row:span 2}.dashPanel{border-radius:13px;padding:15px}.donutLayout{display:flex;align-items:center;gap:14px}.donut{width:112px;height:112px;min-width:112px;border-radius:50%;background:conic-gradient(var(--gama-orange) 0 46%,var(--gama-teal) 46% 78%,#5FA6B2 78% 100%);position:relative}.donut:after{content:"";position:absolute;inset:28px;background:#fff;border-radius:50%}.legend{font-size:11px;flex:1}.legend div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid #edf1f2}.legend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.legend b{white-space:nowrap}.moreGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.moreGrid button{background:#fff;border:1px solid var(--gama-line);padding:18px;text-align:left;border-radius:14px;color:var(--gama-text);box-shadow:0 3px 14px #18324a0a}.moreGrid b,.moreGrid small{display:block;margin-top:5px}.moreGrid small{color:#7b8992;font-weight:500}.dashMove b{color:var(--gama-orange)}
+@media(max-width:700px){.wrap{padding:12px}.dashHead{gap:8px}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{min-height:102px}.dashGrid{grid-template-columns:1fr;gap:10px}.chartPanel{grid-column:auto;grid-row:auto}.chartBox{height:225px}.donutLayout{gap:12px}.donut{width:100px;height:100px;min-width:100px}.donut:after{inset:25px}.dashPanel{min-height:0}.headActions .headIcon:last-child{display:none}.brandMobile h1{font-size:16px}.brandMobile img{width:45px;height:45px}.moreGrid{grid-template-columns:1fr 1fr}.tabs{grid-template-columns:repeat(7,1fr)}}
+@media(min-width:900px){body{padding-bottom:0}.tabs{position:sticky;top:76px;bottom:auto;display:flex;justify-content:flex-start;gap:6px;border:0;box-shadow:none;padding:8px 14px;background:#fff!important;overflow:auto}.tab{flex-direction:row;min-width:auto;padding:9px 12px;font-size:13px}.tab span{font-size:12px}.dashCards{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<header class="gamaHeader"><button class="headIcon" onclick="showTab('more',document.querySelector('.tab:last-child'))">☰</button><div class="brandMobile"><img src="gama-logo.jpg"><div><h1>GAMA <span>Stock Manager</span></h1><small>Inventario • Facturación • Auditoría</small></div></div><div class="headActions"><button class="headIcon" onclick="focusGlobalSearch()">⌕</button><button class="headIcon plus" onclick="showTab('billing',document.querySelectorAll('.tab')[5])">＋</button><button class="headIcon" aria-label="Notificaciones">♧<sup style="font-size:9px;color:#fff;background:#F47A2A;border-radius:9px;padding:2px 4px;position:relative;top:-12px;left:9px">3</sup></button></div></header>
+<div class="wrap">
+
+<div class="tabs">
+<button class="tab active" onclick="showTab('dashboard',this)">▦<span>Dashboard</span></button><button class="tab" onclick="showTab('home',this)">⌂<span>Inicio</span></button>
+<button class="tab" onclick="showTab('products',this)">◇<span>Productos</span></button><button class="tab" onclick="showTab('clients',this)">♙<span>Clientes</span></button>
+<button class="tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button class="tab" onclick="showTab('billing',this)">▤<span>Facturación</span></button><button class="tab" onclick="showTab('more',this)">•••<span>Más</span></button>
+</div>
+
+<section id="more"><div class="dashHead"><div><h2>Más</h2><p>Herramientas de gestión</p></div></div><div class="moreGrid"><button onclick="showTab('stock',this)">📊<b>Stock</b><small>Inventario actual</small></button><button onclick="showTab('audit',this)">🔐<b>Audit Trail</b><small>Movimientos auditados</small></button><button onclick="showTab('backup',this)">💾<b>Backup</b><small>Excel / JSON</small></button><button onclick="showTab('barcode',this)">🏷️<b>Códigos</b><small>Generar códigos</small></button></div></section>
+<section id="dashboard">
+<div class="dashHead"><div><h2>Dashboard</h2><p>Visión general de ventas e inventario</p></div><div class="dashFilters"><select id="dashYear" onchange="renderDashboard()"></select><select id="dashMonth" onchange="renderDashboard()"><option value="all">Todo el año</option><option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option></select></div></div>
+<div class="dashCards"><div class="dashCard"><span>Ventas del período</span><strong id="dashSales">$0.00</strong><em>USD</em></div><div class="dashCard"><span>Facturas</span><strong id="dashInvoices">0</strong><em>emitidas</em></div><div class="dashCard"><span>Ticket promedio</span><strong id="dashAvg">$0.00</strong><em>por factura</em></div><div class="dashCard"><span>Stock bajo</span><strong id="dashLow">0</strong><em>productos</em></div></div>
+<div class="dashGrid"><div class="dashPanel chartPanel"><div class="panelTitle"><div><b>Ventas por mes</b><small>Evolución anual</small></div><strong id="dashYearTotal">$0.00</strong></div><div class="chartBox"><svg viewBox="0 0 720 280" preserveAspectRatio="none"><defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F47A2A" stop-opacity=".32"/><stop offset="1" stop-color="#F47A2A" stop-opacity="0"/></linearGradient></defs><g id="chartGrid"></g><path id="chartArea" fill="url(#salesGrad)"/><path id="chartLine" fill="none" stroke="#F47A2A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g id="chartDots"></g><g id="chartLabels"></g></svg></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Resumen anual</b><small id="dashYearLabel"></small></div></div><div class="summaryList"><div><span>Ventas</span><b id="sumSales">$0.00</b></div><div><span>Facturas</span><b id="sumInvoices">0</b></div><div><span>Promedio mensual</span><b id="sumMonthly">$0.00</b></div><div><span>Productos</span><b id="sumProducts">0</b></div><div><span>Clientes</span><b id="sumClients">0</b></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por categoría</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="categoryDonut" class="donut"></div><div id="categoryLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por método de pago</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="paymentDonut" class="donut"></div><div id="paymentLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Top productos</b><small>Por ventas</small></div></div><div id="dashTop"></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Últimos movimientos</b><small>Actividad reciente</small></div></div><div id="dashMoves"></div></div></div>
+</section>
+<section id="home">
+<div class="card"><h2>Escanear producto</h2>
+<div class="scanner"><input id="homeBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('homeBarcode')">📷 Escanear</button></div>
+<button class="primary" style="width:100%;margin-top:9px" onclick="searchProduct()">🔎 Buscar</button>
+<div id="homeResult"></div><video id="camera" playsinline></video>
+<div class="actions"><button class="primary" onclick="openMovement('IN')">➕ Entrada IN</button><button class="danger" onclick="openMovement('OUT')">➖ Salida OUT</button></div>
+</div>
+<div class="card"><h3>💾 Copias de seguridad</h3>
+<p class="muted">Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
+<div class="actions"><button class="primary" onclick="exportExcel()">📊 Exportar Excel</button><button class="secondary" onclick="exportJSONBackup()">💾 Copia completa</button></div>
+</div>
+<div class="card"><h3>🔐 Principio de auditoría</h3><p class="muted">Cada movimiento registra fecha/hora, usuario, producto, código de barras, cantidad, stock anterior, stock posterior, motivo y origen. Los movimientos no se editan ni se eliminan: una corrección se realiza mediante un nuevo movimiento compensatorio.</p></div>
+</section>
+
+<section id="products">
+<div class="card">
+<h2>📦 Ficha completa del producto</h2>
+<div class="notice">V6: precio, IVA, foto, edición y eliminación. El precio y el IVA se reutilizan automáticamente en facturación.</div>
+<div class="row">
+<div><label>Código de barras *</label><input id="pBarcode"></div><div><label>Nombre *</label><input id="pName"></div>
+<div><label>Referencia</label><input id="pRef"></div><div><label>Categoría</label><input id="pCat"></div>
+<div><label>Ubicación</label><input id="pLoc"></div><div><label>Stock mínimo</label><input id="pMin" type="number" min="0" value="0"></div>
+<div><label>💰 Precio de venta (USD) *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
+<div><label>IVA del producto</label><select id="pIva"><option value="15">15%</option><option value="13">13%</option><option value="5">5%</option><option value="0">0%</option></select></div>
+<div><label>📸 Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div class="muted">Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
+</div>
+<div class="actions"><button class="primary" onclick="createProduct()">➕ Crear producto</button><button class="secondary" onclick="clearProductForm()">↺ Limpiar</button></div>
+<input type="hidden" id="editingBarcode">
+</div>
+<div class="card"><h2>Productos disponibles</h2><input id="productSearch" oninput="renderProducts(this.value)" placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
+</section>
+
+
+<section id="clients">
+<div class="card">
+<h2>👥 Ficha del cliente</h2>
+<div class="notice">Guarda los datos una sola vez. En facturación solo tendrás que buscar y seleccionar el nombre del cliente.</div>
+<div class="row">
+<div><label>Nombre / Razón social *</label><input id="cName"></div>
+<div><label>Identificación *</label><input id="cId" placeholder="RUC / Cédula / Pasaporte"></div>
+<div><label>Tipo de identificación</label><select id="cIdType"><option>RUC</option><option>Cédula</option><option>Pasaporte</option></select></div>
+<div><label>Dirección</label><input id="cAddress"></div>
+<div><label>Teléfono</label><input id="cPhone" type="tel"></div>
+<div><label>Correo electrónico</label><input id="cEmail" type="email"></div>
+<div><label>Ciudad</label><input id="cCity"></div>
+<div><label>Provincia</label><input id="cProvince"></div>
+<div><label>Observaciones</label><input id="cNotes"></div>
+</div>
+<input type="hidden" id="editingClientId">
+<div class="actions"><button class="primary" onclick="saveClient()">💾 Guardar cliente</button><button class="secondary" onclick="clearClientForm()">↺ Limpiar</button></div>
+</div>
+<div class="card">
+<h2>Lista de clientes</h2>
+<input id="clientSearch" oninput="renderClients(this.value)" placeholder="Buscar por nombre, identificación, ciudad...">
+<div id="clientsTable"></div>
+</div>
+</section>
+
+
+<section id="backup">
+<div class="card">
+<h2>💾 Copias de seguridad y restauración</h2>
+<div class="notice"><b>V7:</b> exporta o restaura tus bases de datos. Antes de importar o restaurar, crea una copia de seguridad.</div>
+<h3>📤 Exportar</h3>
+<div class="actions">
+<button class="primary" onclick="exportExcel()">📊 Excel — Productos + Clientes + Auditoría</button>
+<button class="secondary" onclick="exportJSONBackup()">💾 Copia completa JSON</button>
+</div>
+<h3>📥 Importar Excel</h3>
+<p class="muted">Importa el Excel generado por Stock Manager. Productos se fusionan por código de barras y Clientes por identificación.</p>
+<input id="excelImport" type="file" accept=".xls,.xml">
+<button class="primary" style="width:100%;margin-top:8px" onclick="importExcel()">📥 Importar / fusionar Excel</button>
+<div id="importResult"></div>
+<h3>📥 Restaurar JSON</h3>
+<input id="jsonImport" type="file" accept=".json,application/json">
+<button class="warning" style="width:100%;margin-top:8px" onclick="restoreJSON()">⚠️ Restaurar copia completa</button>
+<p class="muted">La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
+</div>
+</section>
+<section id="movement">
+<div class="card"><h2>🔄 Registrar movimiento</h2>
+<div class="scanner"><input id="moveBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')">📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
+<div class="row"><div><label>Tipo</label><select id="moveType"><option value="IN">IN — Entrada</option><option value="OUT">OUT — Salida</option></select></div>
+<div><label>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
+<div><label>Motivo</label><select id="moveReason"><option>Recepción</option><option>Venta</option><option>Producción</option><option>Consumo</option><option>Rotura</option><option>Muestra</option><option>Inventario</option><option>Corrección de inventario</option><option>Otro</option></select></div>
+<div><label>Usuario / operador</label><input id="moveUser" value="Admin"></div></div>
+<label>Comentario de auditoría</label><textarea id="moveComment" placeholder="Motivo o comentario adicional"></textarea>
+<button class="primary" style="width:100%;margin-top:10px" onclick="registerMovement()">💾 Registrar y auditar movimiento</button>
+</div>
+</section>
+
+<section id="stock"><div class="card"><h2>📊 Inventario actual</h2><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button><div id="stockTable"></div></div></section>
+
+<section id="billing">
+<div class="card"><h2>🧾 Nueva factura</h2>
+<div class="notice">El precio de cada producto se obtiene directamente de su ficha. Al generar la venta, el stock se descuenta y se crea un movimiento auditado con origen <b>Facturación</b>.</div>
+<div class="row"><div><label>RUC emisor</label><input id="sellerRuc"></div><div><label>Razón social</label><input id="sellerName"></div><div><label>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
+<div style="grid-column:1/-1"><label>👥 Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="">Selecciona un cliente...</option></select></div>
+<div><label>Identificación cliente</label><input id="clientId" readonly></div><div><label>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label>Dirección</label><input id="clientAddress" readonly></div><div><label>Correo</label><input id="clientEmail" type="email" readonly></div><div><label>Forma de pago</label><select id="payment"><option>Transferencia</option><option>Tarjeta de crédito</option><option>Tarjeta de débito</option><option>Efectivo</option><option>Otros</option></select></div></div>
+<h3>Detalle</h3><div class="scanner"><input id="invoiceBarcode" placeholder="Código de barras del producto"><button class="secondary" onclick="scan('invoiceBarcode')">📷 Escanear</button></div>
+<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()">➕ Añadir</button></div></div>
+<div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()">🧾 Generar factura</button><button class="secondary" onclick="printInvoice()">🖨️ Imprimir</button></div><div id="invoicePreview"></div>
+</div></section>
+
+<section id="audit">
+<div class="card"><h2>🔐 Audit Trail — Movimientos de stock</h2>
+<div class="notice"><b>Registro inmutable a nivel de interfaz:</b> no existe botón para editar o borrar un movimiento. Las correcciones deben registrarse como nuevos movimientos.</div>
+<div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
+<div class="actions"><button class="secondary" onclick="exportAudit()">📤 Exportar Audit Trail CSV</button><button class="warning" onclick="createCorrection()">↩️ Corrección auditada</button></div>
+<div id="auditTable"></div>
+</div>
+</section>
+
+<section id="barcode"><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="window.print()">🖨️ Imprimir etiqueta</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+
+</div>
+<script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
+<script>
+const KEY='stock_manager_v6_ecuador';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"moves":[],"invoices":[]}');
+db.products=db.products||[];db.moves=db.moves||[];db.invoices=db.invoices||[];db.clients=db.clients||[];
+let invoiceItems=[];
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function showTab(id,btn){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderAll();window.scrollTo({top:0,behavior:'smooth'})}
+function openMovement(type){showTab('movement',document.querySelectorAll('.tab')[2]);$('moveType').value=type;$('moveBarcode').focus()}
+function product(b){return db.products.find(p=>p.barcode===b)}
+function uid(prefix='MOV'){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
+function compressPhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let i=new Image();i.onload=()=>{let max=700,s=Math.min(1,max/i.width,max/i.height),c=document.createElement('canvas');c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};i.onerror=reject;i.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+$('pPhoto').addEventListener('change',()=>{let f=$('pPhoto').files[0];if(f){$('pPreview').src=URL.createObjectURL(f);$('pPreview').style.display='block'}});
+
+async function createProduct(){
+ let editing=$('editingBarcode').value,b=$('pBarcode').value.trim(),n=$('pName').value.trim();
+ if(!b||!n)return alert('El código de barras y el nombre son obligatorios.');
+ if(!editing&&product(b))return alert('Este código de barras ya existe.');
+ let old=editing?product(editing):null,photo=old?.photo||'';
+ if($('pPhoto').files[0])photo=await compressPhoto($('pPhoto').files[0]);
+ if(old){
+  old.barcode=b;old.name=n;old.ref=$('pRef').value.trim();old.cat=$('pCat').value.trim();old.loc=$('pLoc').value.trim();old.min=Number($('pMin').value)||0;old.price=Number($('pPrice').value)||0;old.iva=Number($('pIva').value);old.photo=photo;
+  alert('Producto actualizado correctamente.');
+ }else{
+  db.products.push({barcode:b,name:n,ref:$('pRef').value.trim(),cat:$('pCat').value.trim(),loc:$('pLoc').value.trim(),min:Number($('pMin').value)||0,price:Number($('pPrice').value)||0,iva:Number($('pIva').value),photo,stock:0});
+  alert('Producto creado correctamente.');
+ }
+ clearProductForm();save();
+}
+function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pPrice').value=p.price||0;$('pIva').value=p.iva??15;if(p.photo){$('pPreview').src=p.photo;$('pPreview').style.display='block'}showTab('products',document.querySelectorAll('.tab')[1]);window.scrollTo({top:0,behavior:'smooth'})}
+function clearProductForm(){$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc'].forEach(id=>$(id).value='');$('pMin').value=0;$('pPrice').value=0;$('pIva').value=15;$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
+function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
+function renderProducts(filter=''){let q=filter.toLowerCase(),a=db.products.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));$('productsTable').innerHTML='<table><tr><th>Foto</th><th>Código</th><th>Producto</th><th>Stock</th><th>Precio USD</th><th>IVA</th><th>Ubicación</th><th>Acciones</th></tr>'+a.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.barcode}</td><td>${p.name}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td><button class="secondary" onclick="editProduct('${p.barcode}')">✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')">🗑️ Eliminar</button></td></tr>`).join('')+'</table>'}
+
+
+function saveClient(){
+ const name=$('cName').value.trim(),id=$('cId').value.trim();
+ if(!name||!id)return alert('El nombre y la identificación son obligatorios.');
+ const editing=$('editingClientId').value;
+ if(!editing && db.clients.some(c=>c.id===id))return alert('Ya existe un cliente con esta identificación.');
+ let c=editing?db.clients.find(x=>x.id===editing):null;
+ if(c){Object.assign(c,{name,id,idType:$('cIdType').value,address:$('cAddress').value.trim(),phone:$('cPhone').value.trim(),email:$('cEmail').value.trim(),city:$('cCity').value.trim(),province:$('cProvince').value.trim(),notes:$('cNotes').value.trim()});alert('Cliente actualizado.')}
+ else{db.clients.push({id,name,idType:$('cIdType').value,address:$('cAddress').value.trim(),phone:$('cPhone').value.trim(),email:$('cEmail').value.trim(),city:$('cCity').value.trim(),province:$('cProvince').value.trim(),notes:$('cNotes').value.trim()});alert('Cliente guardado.')}
+ clearClientForm();save()
+}
+function editClient(id){
+ const c=db.clients.find(x=>x.id===id);if(!c)return;
+ $('editingClientId').value=c.id;$('cName').value=c.name;$('cId').value=c.id;$('cIdType').value=c.idType||'RUC';$('cAddress').value=c.address||'';$('cPhone').value=c.phone||'';$('cEmail').value=c.email||'';$('cCity').value=c.city||'';$('cProvince').value=c.province||'';$('cNotes').value=c.notes||'';
+ showTab('clients',document.querySelectorAll('.tab')[2]);window.scrollTo({top:0,behavior:'smooth'})
+}
+function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC'}
+function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
+function renderClients(filter=''){
+ const q=(filter||'').toLowerCase(),a=db.clients.filter(c=>(c.name+' '+c.id+' '+c.city+' '+c.province+' '+c.email).toLowerCase().includes(q));
+ $('clientsTable').innerHTML='<table><tr><th>Cliente</th><th>Identificación</th><th>Dirección</th><th>Ciudad</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr>'+
+ a.map(c=>`<tr><td><b>${c.name}</b></td><td>${c.idType||''} ${c.id}</td><td>${c.address||'-'}</td><td>${c.city||'-'}</td><td>${c.phone||'-'}</td><td>${c.email||'-'}</td><td><button class="secondary" onclick="editClient('${c.id}')">✏️ Editar</button> <button class="danger" onclick="deleteClient('${c.id}')">🗑️</button></td></tr>`).join('')+'</table>'
+}
+function populateClientSelect(){
+ const current=$('clientSelect').value;
+ $('clientSelect').innerHTML='<option value="">Selecciona un cliente...</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name} — ${c.id}</option>`).join('');
+ if(current&&db.clients.some(c=>c.id===current))$('clientSelect').value=current;
+}
+function selectClientForInvoice(){
+ const c=db.clients.find(x=>x.id===$('clientSelect').value);
+ $('clientId').value=c?c.id:'';$('clientName').value=c?c.name:'';$('clientAddress').value=c?c.address||'':'';$('clientEmail').value=c?c.email||'':'';
+}
+function exportExcel(){
+ const sheets={
+  Productos:[['Código','Nombre','Referencia','Categoría','Ubicación','Stock','Stock mínimo','Precio USD','IVA','Tiene foto'],...db.products.map(p=>[p.barcode,p.name,p.ref,p.cat,p.loc,p.stock,p.min,p.price,p.iva,p.photo?'Sí':'No'])],
+  Clientes:[['Nombre / Razón social','Tipo ID','Identificación','Dirección','Teléfono','Email','Ciudad','Provincia','Observaciones'],...db.clients.map(c=>[c.name,c.idType,c.id,c.address,c.phone,c.email,c.city,c.province,c.notes])],
+  Auditoria:[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])]
+ };
+ let out='PK'; // marker: generate SpreadsheetML 2003 XML below
+ const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ let xml='<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="h"><Font ss:Bold="1"/></Style></Styles>';
+ for(const [name,rows] of Object.entries(sheets)){xml+=`<Worksheet ss:Name="${esc(name)}"><Table>`;rows.forEach((r,i)=>{xml+='<Row>'+r.map(v=>`<Cell${i===0?' ss:StyleID="h"':''}><Data ss:Type="String">${esc(v)}</Data></Cell>`).join('')+'</Row>'});xml+='</Table></Worksheet>'}
+ xml+='</Workbook>';
+ const blob=new Blob([xml],{type:'application/vnd.ms-excel'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock_manager_backup_'+new Date().toISOString().slice(0,10)+'.xls';a.click()
+}
+function exportJSONBackup(){
+ const blob=new Blob([JSON.stringify({version:'V6.1',exportedAt:new Date().toISOString(),data:db},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock_manager_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click()
+}
+function auditMovement({p,type,qty,user,reason,comment,source='IN/OUT',reference=''}){let before=p.stock,after=type==='IN'?before+qty:before-qty;let id=uid();db.moves.unshift({id,date:new Date().toISOString(),type,barcode:p.barcode,name:p.name,qty,user:user||'Admin',reason,comment:comment||'',source,reference,stockBefore:before,stockAfter:after});p.stock=after;return id}
+function registerMovement(){let p=product($('moveBarcode').value.trim()),q=Number($('moveQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');if($('moveType').value==='OUT'&&p.stock<q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);auditMovement({p,type:$('moveType').value,qty:q,user:$('moveUser').value,reason:$('moveReason').value,comment:$('moveComment').value,source:'IN/OUT'});$('moveInfo').textContent=`${p.name} — stock actual: ${p.stock}`;save();alert('Movimiento registrado en el Audit Trail.')}
+function searchProduct(){let p=product($('homeBarcode').value.trim());$('homeResult').innerHTML=p?`<p><b>${p.name}</b><br>Stock: ${p.stock}<br>Precio: $${Number(p.price||0).toFixed(2)}<br>${p.photo?`<img class="product-img" src="${p.photo}">`:''}</p>`:'<p class="low">Producto no encontrado.</p>'}
+
+function addInvoiceItem(){let p=product($('invoiceBarcode').value.trim()),q=Number($('invoiceQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');let already=invoiceItems.reduce((a,x)=>a+x.q*(x.p.barcode===p.barcode),0);if(p.stock<already+q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);invoiceItems.push({p,q});$('invoiceBarcode').value='';$('invoiceProductInfo').textContent='';renderInvoiceItems()}
+function renderInvoiceItems(){$('invoiceItems').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>'+invoiceItems.map((x,i)=>`<tr><td>${x.p.photo?`<img class="product-img" src="${x.p.photo}">`:'📦'}</td><td>${x.p.name}</td><td>${x.q}</td><td>$${Number(x.p.price||0).toFixed(2)}</td><td>$${(x.q*Number(x.p.price||0)).toFixed(2)}</td><td><button class="danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`).join('')+'</table>'}
+function removeInvoiceItem(i){invoiceItems.splice(i,1);renderInvoiceItems()}
+$('invoiceBarcode').addEventListener('input',()=>{let p=product($('invoiceBarcode').value.trim());$('invoiceProductInfo').textContent=p?`${p.name} — Precio: $${Number(p.price||0).toFixed(2)} — Stock: ${p.stock}`:''});
+function generateInvoice(){if(!$('sellerRuc').value||!$('sellerName').value)return alert('Completa el RUC y la razón social.');if(!$('clientId').value||!$('clientName').value)return alert('Completa los datos del cliente.');if(!invoiceItems.length)return alert('Añade al menos un producto.');let sub=invoiceItems.reduce((a,x)=>a+x.q*Number(x.p.price||0),0),rate=15,tax=sub*rate/100,total=sub+tax,number=($('sellerEst').value||'001')+'-'+($('sellerPoint').value||'001')+'-'+String(db.invoices.length+1).padStart(9,'0'),ref=uid('FAC');let inv={id:ref,number,date:new Date().toISOString(),clientId:$('clientId').value,client:$('clientName').value,items:invoiceItems.map(x=>({name:x.p.name,barcode:x.p.barcode,qty:x.q,price:Number(x.p.price||0)})),sub,tax,total,rate,pay:$('payment').value};for(let x of invoiceItems){if(x.p.stock<x.q)return alert(`Stock insuficiente para ${x.p.name}`)}for(let x of invoiceItems)auditMovement({p:x.p,type:'OUT',qty:x.q,user:'Admin',reason:'Venta',comment:'Salida generada por factura '+number,source:'Facturación',reference:number});db.invoices.unshift(inv);$('invoicePreview').innerHTML=invoiceHTML(inv);invoiceItems=[];renderInvoiceItems();save();alert('Factura generada y salidas de stock registradas en el Audit Trail.')}
+function invoiceHTML(i){return `<div class="invoice-preview"><h2>FACTURA</h2><b>${$('sellerName').value}</b><br>RUC: ${$('sellerRuc').value}<br>No. ${i.number}<br>Fecha: ${new Date(i.date).toLocaleDateString('es-EC')}<hr><b>Cliente:</b> ${i.client}<br>Identificación: ${i.clientId}<br>${$('clientAddress').value||''}<br>${$('clientEmail').value||''}<table><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span>IVA ${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago: ${i.pay}</p></div>`}
+function printInvoice(){if(!$('invoicePreview').innerHTML)return alert('Genera primero la factura.');window.print()}
+
+function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+a.map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore}</td><td>${m.stockAfter}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'}
+function createCorrection(){let b=prompt('Código de barras del producto a corregir:');if(!b)return;let p=product(b);if(!p)return alert('Producto no encontrado.');let target=Number(prompt(`Stock actual: ${p.stock}. ¿Cuál debe ser el stock correcto?`));if(!Number.isFinite(target)||target<0)return alert('Valor inválido.');let delta=target-p.stock;if(delta===0)return alert('No hay diferencia de stock.');let type=delta>0?'IN':'OUT',reason='Corrección de inventario',comment=prompt('Motivo obligatorio de la corrección:')||'';if(!comment)return alert('La corrección requiere un comentario.');if(type==='OUT'&&p.stock<Math.abs(delta))return alert('Stock insuficiente.');auditMovement({p,type,qty:Math.abs(delta),user:'Admin',reason,comment,source:'Corrección auditada'});save();alert('Corrección registrada como nuevo evento. El movimiento anterior no fue modificado.')}
+function exportAudit(){let rows=[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='audit-trail-stock.csv';a.click()}
+
+const C39={"0":"101001101101","1":"110100101011","2":"101100101011","3":"110110010101","4":"101001101011","5":"110100110101","6":"101100110101","7":"101001011011","8":"110100101101","9":"101100101101","A":"110101001011","B":"101101001011","C":"110110100101","D":"101011001011","E":"110101100101","F":"101101100101","G":"101010011011","H":"110101001101","I":"101101001101","J":"101011001101","K":"110101010011","L":"101101010011","M":"110110101001","N":"101011010011","O":"110101101001","P":"101101101001","Q":"101010110011","R":"110101011001","S":"101101011001","T":"101011011001","U":"110010101011","V":"100110101011","W":"110011010101","X":"100101101011","Y":"110010110101","Z":"100110110101","-":"100101011011",".":"110010101101"," ":"100110101101","$":"100100100101","/":"100100101001","+":"100101001001","%":"101001001001"};
+function code39Bits(s){s=s.toUpperCase();if(!s||[...s].some(c=>!C39[c]))throw Error('Carácter no permitido en Code 39.');let b='';for(const c of '*'+s+'*')b+=C39[c]+'0';return b}
+const EL=["0001101","0011001","0010011","0111101","0100011","0110001","0101111","0111011","0110111","0001011"],EG=["0100111","0110011","0011011","0100001","0011101","0111001","0000101","0010001","0001001","0010111"],ER=["1110010","1100110","1101100","1000010","1001110","1000110","1010000","1000100","1001000","1110100"],EP=["LLLLLL","LLGLGG","LLGGLG","LLGGGL","LGLLGG","LGGLLG","LGGGLL","LGLGLG","LGLGGL","LGGLGL"];
+function eanBits(v){v=v.replace(/\D/g,'');if(v.length===13)v=v.slice(0,12);if(v.length!==12)throw Error('EAN-13 requiere 12 dígitos.');let s=0;for(let i=0;i<12;i++)s+=+v[i]*(i%2?3:1);let code=v+((10-s%10)%10),p=EP[+code[0]],b='101';for(let i=1;i<=6;i++)b+=p[i-1]=='L'?EL[+code[i]]:EG[+code[i]];b+='01010';for(let i=7;i<13;i++)b+=ER[+code[i]];return [b,code]}
+function generateBarcode(){let err=$('barcodeError');err.textContent='';try{let raw=$('barcodeValue').value.trim(),bits,label;if($('barcodeType').value==='EAN13'){[bits,label]=eanBits(raw)}else{bits=code39Bits(raw);label=raw.toUpperCase()}let ns='http://www.w3.org/2000/svg',svg=$('barcodeSvg'),w=bits.length*3+40;svg.setAttribute('viewBox',`0 0 ${w} 150`);svg.innerHTML='';let x=20;for(const b of bits){if(b==='1'){let r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',10);r.setAttribute('width',3);r.setAttribute('height',100);r.setAttribute('fill','#000');svg.appendChild(r)}x+=3}let t=document.createElementNS(ns,'text');t.setAttribute('x',w/2);t.setAttribute('y',135);t.setAttribute('text-anchor','middle');t.setAttribute('font-family','monospace');t.setAttribute('font-size','16');t.textContent=label;svg.appendChild(t);$('barcodeText').textContent=label}catch(e){err.textContent=e.message}}
+
+async function scan(target){let v=$('camera');v.style.display='block';try{if(!window.ZXingBrowser)throw Error();let ds=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();if(!ds.length)throw Error();let d=ds.find(x=>/back|rear|environment|trasera|arrière/i.test(x.label))||ds[ds.length-1],r=new ZXingBrowser.BrowserMultiFormatReader(),controls;controls=await r.decodeFromVideoDevice(d.deviceId,v,res=>{if(res){$(target).value=res.getText();controls.stop();v.srcObject=null;v.style.display='none';if(target==='invoiceBarcode'){let p=product(res.getText());$('invoiceProductInfo').textContent=p?`${p.name} — Precio: $${Number(p.price||0).toFixed(2)} — Stock: ${p.stock}`:'Producto no encontrado'}else if(target==='moveBarcode'){let p=product(res.getText());$('moveInfo').textContent=p?`${p.name} — stock actual: ${p.stock}`:'Producto no encontrado'}else searchProduct()}})}catch(e){v.style.display='none';alert('No se pudo usar la cámara. Abre la aplicación con HTTPS y permite la cámara en Safari.')}}
+function exportCSV(){let rows=[['Código','Nombre','Referencia','Categoría','Ubicación','Stock','Mínimo','Precio USD','IVA'],...db.products.map(p=>[p.barcode,p.name,p.ref,p.cat,p.loc,p.stock,p.min,p.price,p.iva])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='inventario.csv';a.click()}
+
+function norm(s){return String(s??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function parseSpreadsheetXML(text){
+ const doc=new DOMParser().parseFromString(text,'application/xml');
+ if(doc.querySelector('parsererror'))throw Error('Archivo Excel XML no válido.');
+ const sheets={};
+ doc.querySelectorAll('Worksheet').forEach(ws=>{
+  const name=ws.getAttribute('ss:Name')||ws.getAttribute('Name')||'Hoja';
+  sheets[name]=[...ws.querySelectorAll('Row')].map(r=>[...r.querySelectorAll('Data')].map(d=>d.textContent));
+ });
+ return sheets;
+}
+function rowsObj(rows){if(!rows||!rows.length)return[];let h=rows[0].map(norm);return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??''])))}
+async function importExcel(){
+ const f=$('excelImport').files[0];if(!f)return alert('Selecciona un archivo .xls exportado por Stock Manager.');
+ try{
+  const sheets=parseSpreadsheetXML(await f.text());let ap=0,up=0,ac=0,uc=0;
+  for(const o of rowsObj(sheets.Productos||[])){
+   const b=o['código'];if(!b)continue;let p=product(b);
+   const d={name:o['nombre']||'',ref:o['referencia']||'',cat:o['categoría']||'',loc:o['ubicación']||'',stock:Number(o['stock'])||0,min:Number(o['stock mínimo'])||0,price:Number(o['precio usd'])||0,iva:Number(o['iva'])||0};
+   if(p){Object.assign(p,d);up++}else{db.products.push({barcode:b,...d,photo:''});ap++}
+  }
+  for(const o of rowsObj(sheets.Clientes||[])){
+   const id=o['identificación'];if(!id)continue;let c=db.clients.find(x=>x.id===id);
+   const d={id,name:o['nombre / razón social']||'',idType:o['tipo id']||'RUC',address:o['dirección']||'',phone:o['teléfono']||'',email:o['email']||'',city:o['ciudad']||'',province:o['provincia']||'',notes:o['observaciones']||''};
+   if(c){Object.assign(c,d);uc++}else{db.clients.push(d);ac++}
+  }
+  save();$('importResult').innerHTML=`<div class="notice">Importación completada — Productos: ${ap} nuevos / ${up} actualizados. Clientes: ${ac} nuevos / ${uc} actualizados.</div>`;
+ }catch(e){alert('Error de importación: '+e.message)}
+}
+function restoreJSON(){
+ const f=$('jsonImport').files[0];if(!f)return alert('Selecciona una copia JSON.');
+ if(!confirm('ATENCIÓN: se reemplazarán Productos, Clientes, Movimientos y Facturas. ¿Continuar?'))return;
+ const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.data||!Array.isArray(x.data.products)||!Array.isArray(x.data.clients))throw Error('Copia no reconocida.');db={products:x.data.products,clients:x.data.clients,moves:x.data.moves||[],invoices:x.data.invoices||[]};save();alert('Copia restaurada correctamente.')}catch(e){alert('Copia inválida: '+e.message)}};r.readAsText(f)
+}
+
+function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='#dfe8eb';$(legendId).innerHTML='<div class="muted">Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['#F47A2A','#087C8B','#5FA6B2','#9BC8D0','#D8E6E9'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
+function focusGlobalSearch(){let el=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',document.querySelectorAll('.tab')[2]);setTimeout(()=>el?.focus(),50)}
+function dashMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function dashMonths(y){let a=Array(12).fill(0);db.invoices.forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
+function renderDashboard(){
+ if(!$('dashYear'))return;let years=[new Date().getFullYear(),...db.invoices.map(i=>new Date(i.date).getFullYear())].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>b-a);let cur=Number($('dashYear').value)||new Date().getFullYear();$('dashYear').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');if(!years.includes(cur))cur=years[0];$('dashYear').value=cur;
+ let mo=$('dashMonth').value, invoices=db.invoices.filter(i=>{let d=new Date(i.date);return d.getFullYear()===cur&&(mo==='all'||d.getMonth()===Number(mo))});let sales=invoices.reduce((a,i)=>a+Number(i.total||0),0),avg=invoices.length?sales/invoices.length:0;let months=dashMonths(cur),yearTotal=months.reduce((a,b)=>a+b,0);
+ $('dashSales').textContent=dashMoney(sales);$('dashInvoices').textContent=invoices.length;$('dashAvg').textContent=dashMoney(avg);$('dashLow').textContent=db.products.filter(p=>Number(p.stock||0)<=Number(p.min||0)).length;$('dashYearTotal').textContent=dashMoney(yearTotal);$('dashYearLabel').textContent=String(cur);$('sumSales').textContent=dashMoney(yearTotal);$('sumInvoices').textContent=db.invoices.filter(i=>new Date(i.date).getFullYear()===cur).length;$('sumMonthly').textContent=dashMoney(yearTotal/12);$('sumProducts').textContent=db.products.length;$('sumClients').textContent=db.clients.length;
+ let max=Math.max(...months,1),pts=months.map((v,i)=>[30+i*60,(220-(v/max)*175)]),path=pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');$('chartLine').setAttribute('d',path);$('chartArea').setAttribute('d',path+' L690 225 L30 225 Z');$('chartGrid').innerHTML=[50,100,150,200].map(y=>`<line class="chartGridLine" x1="30" y1="${y}" x2="690" y2="${y}"/>`).join('');$('chartDots').innerHTML=pts.map((p,i)=>`<circle class="chartDot ${mo==i?'selected':''}" cx="${p[0]}" cy="${p[1]}" r="5"><title>${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}: ${dashMoney(months[i])}</title></circle>`).join('');$('chartLabels').innerHTML=pts.map((p,i)=>`<text class="chartLabel" x="${p[0]}" y="248" text-anchor="middle">${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}</text>`).join('');
+ let prod={};invoices.forEach(inv=>(inv.items||[]).forEach(x=>{let k=x.barcode||x.name;if(!prod[k])prod[k]={name:x.name,qty:0,sales:0};prod[k].qty+=Number(x.qty||0);prod[k].sales+=Number(x.qty||0)*Number(x.price||0)}));let top=Object.values(prod).sort((a,b)=>b.sales-a.sales).slice(0,5);$('dashTop').innerHTML=top.length?top.map((x,i)=>`<div class="dashTopRow"><span class="rank">${i+1}</span><span>${x.name}<br><small>${x.qty} unidades</small></span><b>${dashMoney(x.sales)}</b></div>`).join(''):'<div class="muted">No hay ventas en este periodo.</div>';
+ 
+ let cat={},pay={};invoices.forEach(inv=>{(inv.items||[]).forEach(x=>{let p=product(x.barcode);let k=p?.cat||'Otros';cat[k]=(cat[k]||0)+Number(x.qty||0)*Number(x.price||0)});let pk=inv.pay||'Otros';pay[pk]=(pay[pk]||0)+Number(inv.total||0)});renderDonut('categoryDonut','categoryLegend',cat);renderDonut('paymentDonut','paymentLegend',pay);
+$('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span class="moveIcon ${m.type==='IN'?'moveIn':'moveOut'}">${m.type==='IN'?'＋':'↗'}</span><span><b>${m.name}</b><small>${new Date(m.date).toLocaleString('es-EC')} · ${m.reason||m.source||''}</small></span><b>${m.type==='IN'?'+':'−'}${m.qty}</b></div>`).join('')||'<div class="muted">Sin movimientos.</div>';
+}
+function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+db.products.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>';renderAudit()}
+renderAll();
+</script>
+</body></html>

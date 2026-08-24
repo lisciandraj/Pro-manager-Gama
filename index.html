@@ -519,8 +519,7 @@ $('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span
 function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+db.products.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>';renderAudit()}
 showTab('mainmenu',null);
 </script>
+<script src="gama-v10-stable.js?v=1"></script>
 <script src="gama-v10-language.js?v=stable"></script>
 <script src="gama-v10-stable.js?v=1"></script>
-<script src="gama-v10-pro.js?v=10.3"></script>
-<script src="gama-v10-language.js?v=10.3"></script>
 </body></html>

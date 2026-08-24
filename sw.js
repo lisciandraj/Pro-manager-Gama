@@ -1,4 +1,4 @@
-const CACHE='gama-stock-v10-2';
+const CACHE='gama-stock-v10-5';
 const DESIGN_CSS=`
 :root{--gama-teal:#087f88;--gama-dark:#063f49;--gama-orange:#f47a22;--gama-bg:#f5f7fa;--gama-text:#173246;--gama-muted:#73818b;--gama-line:#e1e8ec;--gama-card:#fff}
 body{background:var(--gama-bg)!important;color:var(--gama-text)!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important}

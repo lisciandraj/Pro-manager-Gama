@@ -33,6 +33,7 @@ jobs:
           marker='let timer;new MutationObserver'
           if marker in s:
               s=s.split(marker,1)[0]+'})();\n'
+          s=s.replace('function translate(lang){','window.translate=function translate(lang){',1)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Make scanner lazy
@@ -55,6 +56,7 @@ jobs:
           ! grep -q 'gama-logo-header-fix' index.html
           ! grep -q 'https://unpkg.com/@zxing/browser@0.2.1' index.html
           grep -q 'await window.loadZXing()' index.html
+          grep -q 'window.translate=function translate' gama-v10-language.js
           node --check gama-v10-stable.js
           node --check sw.js
       - name: Commit stabilization
@@ -62,4 +64,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html gama-v10-language.js
-          if git diff --cached --quiet; then echo 'Already stable'; else git commit -m 'Stabilize V10 and remove duplicate scripts'; git push; fi
+          if git diff --cached --quiet; then echo 'Already stable'; else git commit -m 'Stabilize language switcher and V10 runtime'; git push; fi

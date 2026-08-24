@@ -1,0 +1,26 @@
+name: GAMA V10.5 finalize
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Force V10.5 cache and language assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('sw.js'); s=p.read_text(encoding='utf-8'); s=s.replace("const CACHE='gama-stock-v10-2'","const CACHE='gama-stock-v10-5'"); p.write_text(s,encoding='utf-8')
+          p=Path('index.html'); s=p.read_text(encoding='utf-8')
+          for tag in ['<script src="gama-v10-pro.js"></script>','<script src="gama-v10-language.js"></script>']:
+              if tag not in s: s=s.replace('</body>',tag+'\n</body>')
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          if git diff --cached --quiet; then echo 'Already finalized'; else git commit -m 'Finalize V10.5 logo and full multilingual UI'; git push; fi

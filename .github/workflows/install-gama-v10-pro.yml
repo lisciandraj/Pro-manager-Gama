@@ -1,0 +1,31 @@
+name: Install GAMA V10 Pro UI
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  install-ui:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject direct UI script into index
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="gama-v10-pro.js"></script>'
+          if tag not in s:
+              s=s.replace('</body>', tag+'\n</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Validate and commit
+        run: |
+          grep -q 'gama-v10-pro.js' index.html
+          grep -q 'gama-pro-direct' gama-v10-pro.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then echo 'UI already installed'; else git commit -m 'Install direct GAMA V10 Pro UI'; git push; fi

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="GAMA Stock V9">
+<meta name="apple-mobile-web-app-title" content="GAMA Stock V10">
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
-<title>GAMA Stock Manager V9 PRO PRO</title>
+<title>GAMA Stock Manager V10</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
 header{background:#111827;color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
@@ -41,9 +41,188 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 @media(max-width:700px){.wrap{padding:12px}.dashHead{gap:8px}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{min-height:102px}.dashGrid{grid-template-columns:1fr;gap:10px}.chartPanel{grid-column:auto;grid-row:auto}.chartBox{height:225px}.donutLayout{gap:12px}.donut{width:100px;height:100px;min-width:100px}.donut:after{inset:25px}.dashPanel{min-height:0}.headActions .headIcon:last-child{display:none}.brandMobile h1{font-size:16px}.brandMobile img{width:45px;height:45px}.moreGrid{grid-template-columns:1fr 1fr}.tabs{grid-template-columns:repeat(7,1fr)}}
 @media(min-width:900px){body{padding-bottom:0}.tabs{position:sticky;top:76px;bottom:auto;display:flex;justify-content:flex-start;gap:6px;border:0;box-shadow:none;padding:8px 14px;background:#fff!important;overflow:auto}.tab{flex-direction:row;min-width:auto;padding:9px 12px;font-size:13px}.tab span{font-size:12px}.dashCards{grid-template-columns:repeat(6,1fr)}}
 </style>
+
+<style>
+:root{
+ --gama-teal:#087C8B;--gama-teal-dark:#075C69;--gama-orange:#F47A2A;--gama-orange-light:#FF8B45;
+ --gama-bg:#F5F7FA;--gama-line:#E2E8EC;--gama-text:#173246;--gama-muted:#71808A;
+}
+body{padding-bottom:0;background:var(--gama-bg)}
+header.gamaHeader{position:sticky;top:0;background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 14px;box-shadow:0 2px 12px #17324610;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.headerLeft{display:flex;align-items:center;gap:9px;min-width:0}
+.brandMobile{display:flex;align-items:center;gap:10px;min-width:0}
+.brandMobile img{width:54px;height:54px;object-fit:cover;border-radius:8px}
+.brandMobile h1{margin:0;font-size:19px;color:var(--gama-text);white-space:nowrap}
+.brandMobile h1 span{color:var(--gama-teal)}
+.brandMobile h1 b{color:var(--gama-orange)}
+.brandMobile small{display:block;color:var(--gama-muted);font-size:11px;margin-top:2px}
+.headActions{display:flex;align-items:center;gap:7px}
+.headIcon{width:38px;height:38px;padding:0;border:1px solid var(--gama-line);background:#fff;color:var(--gama-text);display:grid;place-items:center;border-radius:10px;font-size:22px}
+.headIcon.plus{background:var(--gama-orange);border-color:var(--gama-orange);color:#fff}
+.backHome{display:none;font-size:30px;background:#F0F5F6;color:var(--gama-teal);border-color:#D9E6E9}
+.wrap{max-width:1180px;margin:auto;padding:18px}
+section{display:none}section.active{display:block}
+.pageBack{margin:2px 0 12px}
+.pageBack button{background:transparent;color:var(--gama-teal);padding:5px 0;font-size:13px}
+.mainmenu{padding-top:4px}
+.menuIntro{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 17px}
+.menuIntro h2{margin:0;color:var(--gama-text);font-size:27px;letter-spacing:-.4px}
+.menuIntro p{margin:4px 0 0;color:var(--gama-muted);font-size:13px}
+.onlineBadge{display:flex;align-items:center;gap:6px;color:#128C68;font-size:12px;font-weight:700}
+.onlineBadge i{width:8px;height:8px;border-radius:50%;background:#128C68;display:inline-block}
+.appGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.appTile{background:#fff;border:1px solid var(--gama-line);border-radius:14px;min-height:138px;padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--gama-text);box-shadow:0 3px 13px #1732460b;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+.appTile:active{transform:scale(.98)}
+.appTile:hover{transform:translateY(-1px);box-shadow:0 7px 20px #17324613;border-color:#D4E3E7}
+.appIcon{width:58px;height:58px;border-radius:15px;display:grid;place-items:center}
+.appIcon.teal{background:#E8F5F6;color:var(--gama-teal)}
+.appIcon.orange{background:#FFF0E7;color:var(--gama-orange)}
+.appIcon svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.appIcon svg path:first-child{fill:currentColor;stroke:none}
+.appTile b{font-size:14px;line-height:1.15;text-align:center}
+.appTile small{font-size:10px;color:var(--gama-muted);text-align:center;line-height:1.2}
+.menuFooter{margin-top:18px;padding:11px 4px;border-top:1px solid var(--gama-line);display:flex;justify-content:space-between;color:var(--gama-muted);font-size:11px}
+.menuFooter i{width:7px;height:7px;border-radius:50%;background:#128C68;display:inline-block;margin-right:5px}
+.tabs{display:none!important}
+.gamaFooter{margin-top:20px}
+@media(max-width:900px){
+ .appGrid{grid-template-columns:repeat(4,1fr)}
+ .appTile{min-height:132px}
+}
+@media(max-width:700px){
+ body{padding-bottom:0}
+ header.gamaHeader{padding:8px 10px}
+ .brandMobile img{width:43px;height:43px}
+ .brandMobile h1{font-size:15px}
+ .brandMobile small{font-size:9px}
+ .brandMobile h1 b{font-size:14px}
+ .headActions .headIcon:first-child{display:none}
+ .headIcon{width:35px;height:35px}
+ .backHome{width:34px;height:34px}
+ .wrap{padding:11px}
+ .menuIntro{align-items:flex-start;flex-direction:column;gap:7px;margin-bottom:12px}
+ .menuIntro h2{font-size:23px}
+ .menuIntro p{font-size:12px}
+ .appGrid{grid-template-columns:repeat(3,1fr);gap:9px}
+ .appTile{min-height:118px;border-radius:12px;padding:10px 5px}
+ .appIcon{width:47px;height:47px;border-radius:13px}
+ .appIcon svg{width:27px;height:27px}
+ .appTile b{font-size:12px}
+ .appTile small{font-size:9px}
+ .menuFooter{font-size:10px}
+ .pageBack{margin-bottom:8px}
+}
+@media(max-width:390px){
+ .appGrid{grid-template-columns:repeat(2,1fr);gap:9px}
+ .appTile{min-height:125px}
+ .appIcon{width:50px;height:50px}
+ .appTile b{font-size:13px}
+}
+</style>
+
 </head>
-<body>
-<header class="gamaHeader"><button class="headIcon" onclick="showTab('more',document.querySelector('.tab:last-child'))">☰</button><div class="brandMobile"><img src="gama-logo.jpg"><div><h1>GAMA <span>Stock Manager</span></h1><small>Inventario • Facturación • Auditoría</small></div></div><div class="headActions"><button class="headIcon" onclick="focusGlobalSearch()">⌕</button><button class="headIcon plus" onclick="showTab('billing',document.querySelectorAll('.tab')[5])">＋</button><button class="headIcon" aria-label="Notificaciones">♧<sup style="font-size:9px;color:#fff;background:#F47A2A;border-radius:9px;padding:2px 4px;position:relative;top:-12px;left:9px">3</sup></button></div></header>
+<body data-version="10" data-design="gama-erp-main-menu">
+
+<header class="gamaHeader">
+  <div class="headerLeft">
+    <button id="globalBack" class="headIcon backHome" onclick="showTab('mainmenu',null)" aria-label="Volver al menú principal">‹</button>
+    <div class="brandMobile">
+      <img src="gama-logo.jpg" alt="GAMA">
+      <div>
+        <h1>GAMA <span>Stock Manager</span> <b>V10</b></h1>
+        <small>Inventario • Facturación • Auditoría — Ecuador</small>
+      </div>
+    </div>
+  </div>
+  <div class="headActions">
+    <button class="headIcon" onclick="focusGlobalSearch()" aria-label="Buscar">⌕</button>
+    <button class="headIcon plus" onclick="showTab('billing',null)" aria-label="Nueva factura">＋</button>
+    <button class="headIcon" onclick="showTab('mainmenu',null)" aria-label="Menú principal">☰</button>
+  </div>
+</header>
+
+
+<section id="mainmenu" class="mainmenu active">
+  <div class="menuIntro">
+    <div>
+      <h2>Menú principal</h2>
+      <p>Accede rápidamente a todas las funciones de GAMA Stock Manager.</p>
+    </div>
+    <span class="onlineBadge"><i></i> En línea</span>
+  </div>
+
+  <div class="appGrid">
+    <button class="appTile" onclick="showTab('dashboard',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M4 19V9h4v10H4Zm6 0V4h4v15h-4Zm6 0v-7h4v7h-4Z"/></svg></span><b>Dashboard</b><small>Ventas y KPIs</small>
+    </button>
+    <button class="appTile" onclick="showTab('home',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg></span><b>Inicio</b><small>Escaneo rápido</small>
+    </button>
+    <button class="appTile" onclick="showTab('products',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 0v9m8-4.5-8 4.5m-8-4.5 8 4.5"/></svg></span><b>Productos</b><small>Fichas y precios</small>
+    </button>
+    <button class="appTile" onclick="showTab('clients',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.2 2.7-5 6-5s6 1.8 6 5M15 15c3.1 0 5.5 1.6 5.5 5"/></svg></span><b>Clientes</b><small>Base de clientes</small>
+    </button>
+    <button class="appTile" onclick="showTab('movement',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M5 7h13m0 0-3-3m3 3-3 3M19 17H6m0 0 3-3m-3 3 3 3"/></svg></span><b>IN / OUT</b><small>Entradas y salidas</small>
+    </button>
+
+    <button class="appTile" onclick="showTab('billing',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6V3Zm9 0v4h4M8 11h7M8 14h5"/><circle cx="17.5" cy="17.5" r="3"/><path d="M17.5 16v3m-1.2-1.5h2.4"/></svg></span><b>Facturación</b><small>Ventas y facturas</small>
+    </button>
+    <button class="appTile" onclick="showTab('stock',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM7 4h10v3H7zM8 11h8M8 15h5"/></svg></span><b>Inventario</b><small>Stock actual</small>
+    </button>
+    <button class="appTile" onclick="showTab('audit',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/></svg></span><b>Audit Trail</b><small>Trazabilidad</small>
+    </button>
+    <button class="appTile" onclick="showTab('dashboard',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-6"/></svg></span><b>Reportes</b><small>Ventas y análisis</small>
+    </button>
+    <button class="appTile" onclick="showTab('barcode',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"/></svg></span><b>Códigos de barras</b><small>Generar códigos</small>
+    </button>
+
+    <button class="appTile" onclick="showTab('home',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="m7 12 3 3 7-7"/></svg></span><b>Escáner</b><small>Escaneo cámara</small>
+    </button>
+    <button class="appTile" onclick="showTab('backup',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M5 13v6h14v-6"/></svg></span><b>Backup</b><small>Copias de seguridad</small>
+    </button>
+    <button class="appTile" onclick="showTab('backup',null);setTimeout(()=>document.getElementById('excelImport')?.focus(),50)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><b>Excel</b><small>Importar / exportar</small>
+    </button>
+    <button class="appTile" onclick="showTab('products',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M4 7h16M7 12h10M10 17h4"/></svg></span><b>Catálogo</b><small>Productos disponibles</small>
+    </button>
+    <button class="appTile" onclick="showTab('clients',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/><path d="M18 5v4M16 7h4"/></svg></span><b>Clientes frecuentes</b><small>Acceso a clientes</small>
+    </button>
+
+    <button class="appTile" onclick="showTab('movement',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M7 5v14M17 5v14M4 8l3-3 3 3M14 16l3 3 3-3"/></svg></span><b>Movimientos</b><small>Historial IN / OUT</small>
+    </button>
+    <button class="appTile" onclick="showTab('stock',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M5 19V9m5 10V5m5 14v-7m4 7V3"/></svg></span><b>Stock</b><small>Control de existencias</small>
+    </button>
+    <button class="appTile" onclick="showTab('billing',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M8 9h8M8 13h5M8 16h3"/></svg></span><b>Facturas</b><small>Documentos emitidos</small>
+    </button>
+    <button class="appTile" onclick="showTab('audit',null)">
+      <span class="appIcon teal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></span><b>Historial</b><small>Actividad registrada</small>
+    </button>
+    <button class="appTile" onclick="showTab('backup',null)">
+      <span class="appIcon orange"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3M8 11h8M8 15h5"/></svg></span><b>Datos</b><small>Gestionar copias</small>
+    </button>
+  </div>
+
+  <div class="menuFooter">
+    <span><i></i> Sistema local activo</span>
+    <small>GAMA Stock Manager V10</small>
+  </div>
+</section>
+
 <div class="wrap">
 
 <div class="tabs">
@@ -52,13 +231,13 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 <button class="tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button class="tab" onclick="showTab('billing',this)">▤<span>Facturación</span></button><button class="tab" onclick="showTab('more',this)">•••<span>Más</span></button>
 </div>
 
-<section id="more"><div class="dashHead"><div><h2>Más</h2><p>Herramientas de gestión</p></div></div><div class="moreGrid"><button onclick="showTab('stock',this)">📊<b>Stock</b><small>Inventario actual</small></button><button onclick="showTab('audit',this)">🔐<b>Audit Trail</b><small>Movimientos auditados</small></button><button onclick="showTab('backup',this)">💾<b>Backup</b><small>Excel / JSON</small></button><button onclick="showTab('barcode',this)">🏷️<b>Códigos</b><small>Generar códigos</small></button></div></section>
-<section id="dashboard">
+<section id="more"><div class="card"><h2>Más</h2><p class="muted">Las funciones están disponibles desde el menú principal.</p><button class="primary" onclick="showTab('mainmenu',null)">‹ Menú principal</button></div></section>
+<section id="dashboard"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="dashHead"><div><h2>Dashboard</h2><p>Visión general de ventas e inventario</p></div><div class="dashFilters"><select id="dashYear" onchange="renderDashboard()"></select><select id="dashMonth" onchange="renderDashboard()"><option value="all">Todo el año</option><option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option></select></div></div>
 <div class="dashCards"><div class="dashCard"><span>Ventas del período</span><strong id="dashSales">$0.00</strong><em>USD</em></div><div class="dashCard"><span>Facturas</span><strong id="dashInvoices">0</strong><em>emitidas</em></div><div class="dashCard"><span>Ticket promedio</span><strong id="dashAvg">$0.00</strong><em>por factura</em></div><div class="dashCard"><span>Stock bajo</span><strong id="dashLow">0</strong><em>productos</em></div></div>
 <div class="dashGrid"><div class="dashPanel chartPanel"><div class="panelTitle"><div><b>Ventas por mes</b><small>Evolución anual</small></div><strong id="dashYearTotal">$0.00</strong></div><div class="chartBox"><svg viewBox="0 0 720 280" preserveAspectRatio="none"><defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F47A2A" stop-opacity=".32"/><stop offset="1" stop-color="#F47A2A" stop-opacity="0"/></linearGradient></defs><g id="chartGrid"></g><path id="chartArea" fill="url(#salesGrad)"/><path id="chartLine" fill="none" stroke="#F47A2A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g id="chartDots"></g><g id="chartLabels"></g></svg></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Resumen anual</b><small id="dashYearLabel"></small></div></div><div class="summaryList"><div><span>Ventas</span><b id="sumSales">$0.00</b></div><div><span>Facturas</span><b id="sumInvoices">0</b></div><div><span>Promedio mensual</span><b id="sumMonthly">$0.00</b></div><div><span>Productos</span><b id="sumProducts">0</b></div><div><span>Clientes</span><b id="sumClients">0</b></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por categoría</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="categoryDonut" class="donut"></div><div id="categoryLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por método de pago</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="paymentDonut" class="donut"></div><div id="paymentLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Top productos</b><small>Por ventas</small></div></div><div id="dashTop"></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Últimos movimientos</b><small>Actividad reciente</small></div></div><div id="dashMoves"></div></div></div>
 </section>
-<section id="home">
+<section id="home"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>Escanear producto</h2>
 <div class="scanner"><input id="homeBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('homeBarcode')">📷 Escanear</button></div>
 <button class="primary" style="width:100%;margin-top:9px" onclick="searchProduct()">🔎 Buscar</button>
@@ -72,7 +251,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 <div class="card"><h3>🔐 Principio de auditoría</h3><p class="muted">Cada movimiento registra fecha/hora, usuario, producto, código de barras, cantidad, stock anterior, stock posterior, motivo y origen. Los movimientos no se editan ni se eliminan: una corrección se realiza mediante un nuevo movimiento compensatorio.</p></div>
 </section>
 
-<section id="products">
+<section id="products"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card">
 <h2>📦 Ficha completa del producto</h2>
 <div class="notice">V6: precio, IVA, foto, edición y eliminación. El precio y el IVA se reutilizan automáticamente en facturación.</div>
@@ -91,7 +270,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 </section>
 
 
-<section id="clients">
+<section id="clients"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card">
 <h2>👥 Ficha del cliente</h2>
 <div class="notice">Guarda los datos una sola vez. En facturación solo tendrás que buscar y seleccionar el nombre del cliente.</div>
@@ -117,7 +296,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 </section>
 
 
-<section id="backup">
+<section id="backup"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card">
 <h2>💾 Copias de seguridad y restauración</h2>
 <div class="notice"><b>V7:</b> exporta o restaura tus bases de datos. Antes de importar o restaurar, crea una copia de seguridad.</div>
@@ -137,7 +316,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 <p class="muted">La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
 </div>
 </section>
-<section id="movement">
+<section id="movement"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>🔄 Registrar movimiento</h2>
 <div class="scanner"><input id="moveBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')">📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
 <div class="row"><div><label>Tipo</label><select id="moveType"><option value="IN">IN — Entrada</option><option value="OUT">OUT — Salida</option></select></div>
@@ -149,9 +328,9 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 </div>
 </section>
 
-<section id="stock"><div class="card"><h2>📊 Inventario actual</h2><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button><div id="stockTable"></div></div></section>
+<section id="stock"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>📊 Inventario actual</h2><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button><div id="stockTable"></div></div></section>
 
-<section id="billing">
+<section id="billing"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>🧾 Nueva factura</h2>
 <div class="notice">El precio de cada producto se obtiene directamente de su ficha. Al generar la venta, el stock se descuenta y se crea un movimiento auditado con origen <b>Facturación</b>.</div>
 <div class="row"><div><label>RUC emisor</label><input id="sellerRuc"></div><div><label>Razón social</label><input id="sellerName"></div><div><label>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
@@ -162,7 +341,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 <div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()">🧾 Generar factura</button><button class="secondary" onclick="printInvoice()">🖨️ Imprimir</button></div><div id="invoicePreview"></div>
 </div></section>
 
-<section id="audit">
+<section id="audit"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>🔐 Audit Trail — Movimientos de stock</h2>
 <div class="notice"><b>Registro inmutable a nivel de interfaz:</b> no existe botón para editar o borrar un movimiento. Las correcciones deben registrarse como nuevos movimientos.</div>
 <div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
@@ -171,7 +350,7 @@ body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaH
 </div>
 </section>
 
-<section id="barcode"><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="window.print()">🖨️ Imprimir etiqueta</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="window.print()">🖨️ Imprimir etiqueta</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
@@ -182,8 +361,14 @@ db.products=db.products||[];db.moves=db.moves||[];db.invoices=db.invoices||[];db
 let invoiceItems=[];
 const $=id=>document.getElementById(id);
 function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
-function showTab(id,btn){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderAll();window.scrollTo({top:0,behavior:'smooth'})}
-function openMovement(type){showTab('movement',document.querySelectorAll('.tab')[2]);$('moveType').value=type;$('moveBarcode').focus()}
+function showTab(id,btn){
+ document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+ const target=$(id); if(target)target.classList.add('active');
+ const back=$('globalBack'); if(back)back.style.display=(id==='mainmenu')?'none':'grid';
+ renderAll();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function openMovement(type){showTab('movement',null);$('moveType').value=type;$('moveBarcode').focus()}
 function product(b){return db.products.find(p=>p.barcode===b)}
 function uid(prefix='MOV'){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
 function compressPhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let i=new Image();i.onload=()=>{let max=700,s=Math.min(1,max/i.width,max/i.height),c=document.createElement('canvas');c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};i.onerror=reject;i.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
@@ -204,7 +389,7 @@ async function createProduct(){
  }
  clearProductForm();save();
 }
-function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pPrice').value=p.price||0;$('pIva').value=p.iva??15;if(p.photo){$('pPreview').src=p.photo;$('pPreview').style.display='block'}showTab('products',document.querySelectorAll('.tab')[1]);window.scrollTo({top:0,behavior:'smooth'})}
+function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pPrice').value=p.price||0;$('pIva').value=p.iva??15;if(p.photo){$('pPreview').src=p.photo;$('pPreview').style.display='block'}showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
 function clearProductForm(){$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc'].forEach(id=>$(id).value='');$('pMin').value=0;$('pPrice').value=0;$('pIva').value=15;$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
 function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
 function renderProducts(filter=''){let q=filter.toLowerCase(),a=db.products.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));$('productsTable').innerHTML='<table><tr><th>Foto</th><th>Código</th><th>Producto</th><th>Stock</th><th>Precio USD</th><th>IVA</th><th>Ubicación</th><th>Acciones</th></tr>'+a.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.barcode}</td><td>${p.name}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td><button class="secondary" onclick="editProduct('${p.barcode}')">✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')">🗑️ Eliminar</button></td></tr>`).join('')+'</table>'}
@@ -223,7 +408,7 @@ function saveClient(){
 function editClient(id){
  const c=db.clients.find(x=>x.id===id);if(!c)return;
  $('editingClientId').value=c.id;$('cName').value=c.name;$('cId').value=c.id;$('cIdType').value=c.idType||'RUC';$('cAddress').value=c.address||'';$('cPhone').value=c.phone||'';$('cEmail').value=c.email||'';$('cCity').value=c.city||'';$('cProvince').value=c.province||'';$('cNotes').value=c.notes||'';
- showTab('clients',document.querySelectorAll('.tab')[2]);window.scrollTo({top:0,behavior:'smooth'})
+ showTab('clients',null);window.scrollTo({top:0,behavior:'smooth'})
 }
 function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC'}
 function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
@@ -318,7 +503,7 @@ function restoreJSON(){
 }
 
 function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='#dfe8eb';$(legendId).innerHTML='<div class="muted">Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['#F47A2A','#087C8B','#5FA6B2','#9BC8D0','#D8E6E9'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
-function focusGlobalSearch(){let el=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',document.querySelectorAll('.tab')[2]);setTimeout(()=>el?.focus(),50)}
+function focusGlobalSearch(){let el=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',null);setTimeout(()=>el?.focus(),50)}
 function dashMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function dashMonths(y){let a=Array(12).fill(0);db.invoices.forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
 function renderDashboard(){
@@ -332,6 +517,6 @@ function renderDashboard(){
 $('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span class="moveIcon ${m.type==='IN'?'moveIn':'moveOut'}">${m.type==='IN'?'＋':'↗'}</span><span><b>${m.name}</b><small>${new Date(m.date).toLocaleString('es-EC')} · ${m.reason||m.source||''}</small></span><b>${m.type==='IN'?'+':'−'}${m.qty}</b></div>`).join('')||'<div class="muted">Sin movimientos.</div>';
 }
 function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+db.products.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>';renderAudit()}
-renderAll();
+showTab('mainmenu',null);
 </script>
 </body></html>

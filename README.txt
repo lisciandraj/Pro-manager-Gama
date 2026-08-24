@@ -1,13 +1,28 @@
-GAMA STOCK MANAGER V9 PRO — MOBILE
+GAMA STOCK MANAGER V10 — MOBILE
 
-IMPORTANT: le fichier index.html est à la RACINE de ce ZIP.
+V10 conserva las funciones de V9:
+- Dashboard de ventas por mes/año
+- Productos con precio, IVA y foto
+- Clientes
+- Facturación
+- Entradas / Salidas
+- Inventario
+- Audit Trail
+- Backup JSON
+- Exportación/importación Excel
+- Generador de códigos de barras
+- Escáner de cámara
 
-Nouveau design GAMA : dashboard professionnel, cartes KPI, graphique des ventes, catégories, paiements, résumé annuel, top produits, derniers mouvements et navigation mobile.
+CAMBIO PRINCIPAL V10:
+- Primera pantalla = menú principal tipo ERP móvil.
+- Iconos grandes por función.
+- Paleta GAMA (teal + naranja).
+- Sin barra de navegación fija inferior.
+- Cada módulo tiene un botón "‹ Menú principal" y el encabezado incluye un botón de retorno.
+- No se añade ninguna imagen de diseño nueva: los iconos son SVG inline/CSS y se conserva el logo GAMA existente.
 
-Les 6 anciens rectangles du précédent écran d'accueil ont été supprimés.
-
-Fonctionnalités conservées : produits, code-barres, photos, prix, IVA, clients, facturation, IN/OUT, audit trail, Excel/JSON backup, import Excel, génération de codes-barres.
-
-La base V9 utilise une nouvelle clé localStorage pour éviter de mélanger les anciennes données de test avec la nouvelle interface.
-
-INSTALLATION GITHUB PAGES : copier index.html, manifest.json, sw.js, gama-logo.jpg et les icônes directement dans la racine du dépôt. Ne pas conserver un ancien index.html à côté.
+Para actualizar en GitHub Pages:
+1. Sustituir todos los archivos antiguos por los de este ZIP.
+2. Abrir la URL con ?v=10.
+3. Probar primero en Safari.
+4. Después recrear la app en la pantalla de inicio si se desea.

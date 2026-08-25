@@ -8,9 +8,6 @@ function css(){
  const s=document.createElement('style');s.id='gamaProductScannerStyle';s.textContent=`
  .gamaScanOrange,.gamaPhoneScanBtn{background:${ORANGE}!important;color:#fff!important;border-color:${ORANGE}!important;box-shadow:0 3px 10px rgba(244,122,42,.20)!important}
  .gamaScanOrange:active,.gamaPhoneScanBtn:active{transform:scale(.98)}
- .gamaProductScanRow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}
- .gamaProductScanBtn{height:46px;white-space:nowrap}
- @media(max-width:700px){.gamaProductScanRow{grid-template-columns:1fr auto}.gamaProductScanBtn{padding:11px 12px}}
  #gamaProductScanner{position:fixed;inset:0;z-index:100001;background:#08181f;color:#fff;display:flex;flex-direction:column;padding:18px;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
  #gamaProductScanner .gpsh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
  #gamaProductScanner .gpsv{position:relative;flex:1;overflow:hidden;border-radius:18px;background:#000}
@@ -19,10 +16,6 @@ function css(){
  #gamaProductScanner .gpsstatus{text-align:center;font-weight:700;font-size:14px;padding:14px 4px 4px}
  #gamaProductScanner .gpsclose{border:0;background:#fff;color:#173246;border-radius:12px;padding:10px 14px;font-weight:800}
  `;document.head.appendChild(s);
-}
-function removeBack(){
- document.querySelectorAll('.pageBack').forEach(x=>x.remove());
- document.querySelectorAll('button').forEach(b=>{const t=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();if(t==='‹ menú principal'||t==='menu principal'||t.includes('‹ menú principal'))b.remove()});
 }
 function setBarcode(value){
  const input=document.getElementById('pBarcode');if(!input)return false;
@@ -64,15 +57,8 @@ async function openProductScanner(){
   status.textContent='Apunte la cámara al código de barras';
  }catch(e){status.textContent=e?.name==='NotAllowedError'?'Permita el acceso a la cámara en Safari.':'No se pudo activar el lector.'}
 }
-function productButton(){
- if(document.getElementById('gamaProductScanBtn'))return;
- const input=document.getElementById('pBarcode');if(!input)return;
- const wrap=input.parentElement;if(!wrap)return;
- const row=document.createElement('div');row.className='gamaProductScanRow';wrap.parentNode.insertBefore(row,wrap);row.appendChild(wrap);
- const b=document.createElement('button');b.id='gamaProductScanBtn';b.type='button';b.className='gamaScanOrange gamaProductScanBtn';b.textContent='📷 Escanear';
- b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openProductScanner()});row.appendChild(b);
-}
-function bind(){css();removeBack();productButton();document.querySelectorAll('button').forEach(b=>{const t=(b.textContent||'').toLowerCase();if(t.includes('escane')||t.includes('scanner'))b.classList.add('gamaScanOrange')})}
+window.startProductBarcodeScan=openProductScanner;
+function bind(){css();document.querySelectorAll('button').forEach(b=>{const t=(b.textContent||'').toLowerCase();if(t.includes('escane')||t.includes('scanner'))b.classList.add('gamaScanOrange')})}
 function boot(){bind();new MutationObserver(()=>bind()).observe(document.body,{subtree:true,childList:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

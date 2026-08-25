@@ -22,7 +22,22 @@ jobs:
           s=re.sub(r'\n?<script>.*?gamaScannerV4Style.*?</script>', '', s, flags=re.S)
           if 'id="pBarcode"' not in s:
               raise SystemExit('pBarcode field missing')
-          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=10"></script>\n<script>\n(function(){\n  function cleanup(){\n    const section=document.getElementById("products");\n    if(!section)return;\n    const input=document.getElementById("pBarcode");\n    const box=input?.closest(".scanner");\n    const buttons=[...section.querySelectorAll("button")].filter(b=>/escane|scanner/i.test((b.textContent||"")));\n    if(!buttons.length)return;\n    const keep=(box&&[...box.querySelectorAll("button")].find(b=>/escane|scanner/i.test(b.textContent||"")))||buttons[0];\n    buttons.forEach(b=>{if(b!==keep)b.remove()});\n    keep.classList.add("gamaPhoneScanBtn");\n    keep.type="button";\n    if(!keep.dataset.gamaScannerBound){\n      keep.dataset.gamaScannerBound="1";\n      keep.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();if(window.startGamaScan)window.startGamaScan("pBarcode");},true);\n    }\n  }\n  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",cleanup,{once:true});else cleanup();\n  new MutationObserver(cleanup).observe(document.body,{subtree:true,childList:true});\n  setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);\n})();\n</script>\n'
+          tag='<script src="gama-menu-final2.js?v=4"></script>\n<script src="gama-scanner-phone.js?v=10"></script>\n<script>\n(function(){\n  function cleanup(){\n    const section=document.getElementById("products");\n    if(!section)return;\n    const input=document.getElementById("pBarcode");\n    const box=input?.closest(".scanner");\n    const buttons=[...section.querySelectorAll("button")].filter(b=>/escane|scanner/i.test((b.textContent||"")));
+    if(!buttons.length)return;
+    const keep=(box&&[...box.querySelectorAll("button")].find(b=>/escane|scanner/i.test(b.textContent||"")))||buttons[0];
+    buttons.forEach(b=>{if(b!==keep)b.remove()});
+    keep.classList.add("gamaPhoneScanBtn");
+    keep.type="button";
+    if(!keep.dataset.gamaScannerBound){
+      keep.dataset.gamaScannerBound="1";
+      keep.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();if(window.startGamaScan)window.startGamaScan("pBarcode");},true);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",cleanup,{once:true});else cleanup();
+  new MutationObserver(cleanup).observe(document.body,{subtree:true,childList:true});
+  setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
+})();
+</script>\n'
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY

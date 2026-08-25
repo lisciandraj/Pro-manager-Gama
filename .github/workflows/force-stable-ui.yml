@@ -17,9 +17,6 @@ jobs:
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          # iOS Safari was still using the legacy PNG because an explicit
-          # apple-touch-icon takes precedence over the web-app manifest.
-          # Remove it so the new GAMA V10 SVG manifest icon is selected.
           s=re.sub(r'\n?<link rel="apple-touch-icon"[^>]*>', '', s)
           for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone','gama-product-scanner','gama-access-control']:
               s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
@@ -30,23 +27,40 @@ jobs:
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Validate product scanner, access control and iOS icon installation
+          python3 -m pip install --quiet cairosvg
+          python3 - <<'PY'
+          import cairosvg
+          cairosvg.svg2png(url='gama-logo-v10-minimal.svg',write_to='gama-icon-v10.png',output_width=180,output_height=180)
+          PY
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('manifest.json')
+          m=json.loads(p.read_text())
+          m['name']='GAMA Stock Manager V10 Pro'
+          m['short_name']='GAMA V10'
+          m['icons']=[{'src':'gama-icon-v10.png?v=2','sizes':'180x180','type':'image/png','purpose':'any maskable'}]
+          p.write_text(json.dumps(m,separators=(',',':')),encoding='utf-8')
+          PY
+      - name: Validate scanner, access control and iOS icon
         run: |
           grep -q 'id="pBarcode"' index.html
           grep -q 'gama-scanner-phone.js?v=10' index.html
           grep -q 'gama-access-control.js?v=1' index.html
-          grep -q 'gama-logo-v10-minimal.svg' manifest.json
+          grep -q 'gama-icon-v10.png?v=2' manifest.json
+          test -f gama-icon-v10.png
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-access-control.js' index.html | wc -l)" -eq 1
           ! grep -q 'gama-product-scanner.js' index.html
           ! grep -q 'gamaProductScanBtn' index.html
           ! grep -q 'apple-touch-icon' index.html
+          file gama-icon-v10.png | grep -q PNG
           node --check gama-access-control.js
-      - name: Commit
+      - name: Commit generated icon and cleaned HTML
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
+          git add index.html manifest.json gama-icon-v10.png
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: use GAMA V10 manifest icon on iOS'
+          git commit -m 'fix: install definitive GAMA V10 iOS icon'
           git push

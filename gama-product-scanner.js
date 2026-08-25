@@ -20,11 +20,15 @@ function css(){
 function dedupeProductButtons(){
  const input=document.getElementById('pBarcode');
  if(!input)return;
- const parent=input.closest('.scanner')||input.parentElement;
- if(!parent)return;
- const buttons=[...parent.querySelectorAll('button')].filter(b=>/escane|scanner/i.test((b.textContent||'')));
- buttons.slice(1).forEach(b=>b.remove());
- if(buttons[0])buttons[0].classList.add('gamaScanOrange');
+ const scanner=input.closest('.scanner')||input.parentElement;
+ if(!scanner)return;
+ const keep=[...scanner.querySelectorAll('button')].find(b=>/escane|scanner/i.test(b.textContent||''));
+ if(keep)keep.classList.add('gamaScanOrange');
+ /* Remove any second scanner button injected into the Products card by an older helper. */
+ const productSection=document.getElementById('products');
+ if(!productSection)return;
+ const all=[...productSection.querySelectorAll('button')].filter(b=>/escane|scanner/i.test(b.textContent||''));
+ all.forEach(b=>{if(b!==keep)b.remove()});
 }
 function setBarcode(value){
  const v=String(value??'').trim();if(!v)return false;

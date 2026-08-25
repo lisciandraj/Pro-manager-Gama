@@ -8,28 +8,31 @@
     if(!host){
       host=document.createElement('div');
       host.id='gamaFixedTopActions';
-      header.appendChild(host);
     }
+    if(host.parentElement!==header) header.appendChild(host);
     return host;
   }
   function isCloudButton(el){
     var t=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-    return /comptes\s+cloud|compte\s+cloud|cloud/.test(t);
+    return /comptes\s+cloud|compte\s+cloud/.test(t);
   }
   function moveActions(){
     var host=ensureHost();
     if(!host) return;
     var user=document.getElementById('gamaACLUser');
     if(user && user.parentElement!==host) host.appendChild(user);
-    var candidates=document.querySelectorAll('button,a,[role="button"]');
-    for(var i=0;i<candidates.length;i++){
-      var el=candidates[i];
-      if(el===host || host.contains(el)) continue;
-      if(isCloudButton(el)){
-        el.id=el.id||'gamaCloudAdminBtn';
-        if(el.parentElement!==host) host.appendChild(el);
-        break;
+    var cloud=document.getElementById('gamaCloudAdminBtn');
+    if(!cloud){
+      var candidates=document.querySelectorAll('button,a,[role="button"]');
+      for(var i=0;i<candidates.length;i++){
+        var el=candidates[i];
+        if(el===host || host.contains(el)) continue;
+        if(isCloudButton(el)){ cloud=el; break; }
       }
+    }
+    if(cloud){
+      cloud.id='gamaCloudAdminBtn';
+      if(cloud.parentElement!==host) host.appendChild(cloud);
     }
   }
   function inject(){
@@ -38,25 +41,24 @@
     s.id='gamaFixedHeaderStyle';
     s.textContent=`
       header.gamaHeader{position:sticky!important;top:0!important;z-index:1000!important}
-      #gamaFixedTopActions{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-left:auto;flex-wrap:wrap;max-width:60%}
-      #gamaFixedTopActions #gamaACLUser{position:static!important;right:auto!important;top:auto!important;z-index:auto!important;margin:0!important;white-space:nowrap}
-      #gamaFixedTopActions #gamaCloudAdminBtn{position:static!important;margin:0!important;white-space:nowrap}
+      #gamaFixedTopActions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:6px!important;margin-left:auto!important;flex:0 0 auto!important;max-width:65%!important;position:static!important}
+      #gamaFixedTopActions #gamaACLUser{position:static!important;right:auto!important;top:auto!important;z-index:auto!important;margin:0!important;white-space:nowrap!important;display:block!important}
+      #gamaFixedTopActions #gamaCloudAdminBtn{position:static!important;right:auto!important;top:auto!important;z-index:auto!important;margin:0!important;white-space:nowrap!important}
       @media(max-width:700px){
-        header.gamaHeader{height:auto!important;min-height:76px;padding:7px 9px 9px!important;align-items:flex-start!important;flex-wrap:wrap!important}
-        .headerLeft{flex:1 1 100%!important;min-width:0!important}
-        .headActions{position:absolute!important;right:9px!important;top:9px!important}
-        .brandMobile{padding-right:45px!important}
-        #gamaFixedTopActions{order:3;width:100%;max-width:none;margin:2px 0 0!important;justify-content:flex-end;gap:6px;flex-wrap:nowrap;overflow:visible}
-        #gamaFixedTopActions #gamaACLUser{font-size:10px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
-        #gamaFixedTopActions #gamaACLUser button{padding:5px 7px;margin-left:3px;font-size:10px}
-        #gamaFixedTopActions #gamaCloudAdminBtn{font-size:11px;padding:8px 10px;max-width:38vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        header.gamaHeader{height:auto!important;min-height:76px!important;padding:7px 9px 9px!important;align-items:center!important;flex-wrap:wrap!important}
+        .headerLeft{flex:1 1 auto!important;min-width:0!important}
+        .headActions{position:static!important;flex:0 0 auto!important}
+        .brandMobile{padding-right:0!important}
+        #gamaFixedTopActions{order:3!important;width:100%!important;max-width:none!important;flex:1 0 100%!important;margin:4px 0 0!important;justify-content:flex-end!important;gap:6px!important;flex-wrap:nowrap!important;overflow:visible!important}
+        #gamaFixedTopActions #gamaACLUser{font-size:10px!important;padding:5px 7px!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:62vw!important}
+        #gamaFixedTopActions #gamaACLUser button{padding:5px 7px!important;margin-left:3px!important;font-size:10px!important}
+        #gamaFixedTopActions #gamaCloudAdminBtn{font-size:11px!important;padding:8px 10px!important;max-width:38vw!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
       }
-      @media(min-width:701px){#gamaFixedTopActions{margin-left:10px}}
     `;
     document.head.appendChild(s);
   }
   function run(){inject();moveActions()}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
   new MutationObserver(run).observe(document.documentElement,{subtree:true,childList:true});
-  setTimeout(run,100);setTimeout(run,500);setTimeout(run,1500);setTimeout(run,3000);
+  [100,500,1000,2000,4000].forEach(function(ms){setTimeout(run,ms)});
 })();

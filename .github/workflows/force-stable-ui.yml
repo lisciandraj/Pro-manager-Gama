@@ -63,4 +63,5 @@ jobs:
           git add index.html manifest.json gama-icon-v10.png
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'fix: install definitive GAMA V10 iOS icon'
+          git pull --rebase origin main
           git push

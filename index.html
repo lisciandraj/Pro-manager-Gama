@@ -520,5 +520,26 @@ function renderAll(){renderDashboard();renderProducts($('productSearch')?.value|
 showTab('mainmenu',null);
 </script>
 <script src="gama-menu-final2.js?v=3"></script>
-<script src="gama-scanner-phone.js?v=1"></script>
+<script src="gama-scanner-phone.js?v=4"></script>
+<script>
+(()=>{
+  'use strict';
+  const STYLE='gamaScannerV4Style';
+  const norm=s=>(s||'').replace(/\s+/g,' ').trim().toLowerCase();
+  function clean(){document.querySelectorAll('a,button').forEach(el=>{const t=norm(el.textContent);if(t.includes('menú principal')&&t.startsWith('‹')){el.remove();}});}
+  function style(){if(document.getElementById(STYLE))return;const st=document.createElement('style');st.id=STYLE;st.textContent='.gamaPhoneScanBtn{background:#128c68!important;color:#fff!important;border:0!important;box-shadow:0 3px 10px rgba(18,140,104,.22)!important}.gamaPhoneScanBtn:active{transform:scale(.98)}#gamaScannerV4{position:fixed;inset:0;z-index:99999;background:#08181f;display:flex;flex-direction:column;padding:16px;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}#gamaScannerV4 .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}#gamaScannerV4 .h b{font-size:18px}#gamaScannerV4 .close{background:#fff;color:#173246;border:0;border-radius:12px;padding:10px 14px;font-weight:800}#gamaScannerV4 .video{position:relative;flex:1;min-height:0;background:#000;border-radius:18px;overflow:hidden;display:flex;align-items:center;justify-content:center}#gamaScannerV4 video{width:100%;height:100%;object-fit:cover}#gamaScannerV4 .frame{position:absolute;width:min(82vw,440px);height:170px;border:3px solid #37c98f;border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,.3)}#gamaScannerV4 .status{text-align:center;font-weight:700;padding:14px 4px 6px}#gamaScannerV4 .torch{display:none;background:#17343b;color:#fff;border:1px solid #4a646c;border-radius:12px;padding:10px;font-weight:700;margin-top:6px}';document.head.appendChild(st)}
+  let overlay=null,stream=null,controls=null,scanning=false;
+  const input=()=>document.querySelector('input[placeholder*="Código de barras" i]')||document.querySelector('#invoiceBarcode')||document.querySelector('input[name*="barcode" i]');
+  const close=()=>{scanning=false;try{controls&&controls.stop()}catch(e){}controls=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}if(overlay){overlay.remove();overlay=null}};
+  const fill=code=>{const i=input();if(i){i.value=code;i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));i.focus()}close()};
+  async function start(){close();style();overlay=document.createElement('div');overlay.id='gamaScannerV4';overlay.innerHTML='<div class="h"><b>Escanear código de barras</b><button class="close" type="button">Cerrar</button></div><div class="video"><video playsinline muted autoplay></video><div class="frame"></div></div><div class="status">Activando cámara…</div><button class="torch" type="button">Linterna</button>';document.body.appendChild(overlay);const v=overlay.querySelector('video'),status=overlay.querySelector('.status'),torch=overlay.querySelector('.torch');overlay.querySelector('.close').onclick=close;
+    if(!navigator.mediaDevices?.getUserMedia){status.textContent='La cámara no está disponible en este navegador.';return}
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});v.srcObject=stream;await v.play();const track=stream.getVideoTracks()[0];const caps=track.getCapabilities?.()||{};if(caps.torch){torch.style.display='block';torch.onclick=()=>track.applyConstraints({advanced:[{torch:!track.__gamaTorch}]}).then(()=>track.__gamaTorch=!track.__gamaTorch).catch(()=>{})}
+      if('BarcodeDetector' in window){let fs=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','code_93','itf','qr_code','data_matrix'];try{const sup=await BarcodeDetector.getSupportedFormats();fs=fs.filter(x=>sup.includes(x))}catch(e){}if(fs.length){const d=new BarcodeDetector({formats:fs});scanning=true;const loop=async()=>{if(!scanning)return;try{if(v.readyState>=2){const c=await d.detect(v);if(c[0]?.rawValue){fill(c[0].rawValue);return}}}catch(e){}requestAnimationFrame(loop)};status.textContent='Apunte la cámara al código de barras';loop();return}}
+      status.textContent='Preparando lector…';const z=document.createElement('script');z.src='https://unpkg.com/@zxing/browser@0.2.1';z.onload=async()=>{try{const r=new ZXingBrowser.BrowserMultiFormatReader();scanning=true;controls=await r.decodeFromStream(stream,v,res=>{if(res?.getText)fill(res.getText())});status.textContent='Apunte la cámara al código de barras'}catch(e){status.textContent='No se pudo iniciar el lector.'}};z.onerror=()=>status.textContent='No se pudo cargar el lector.';document.head.appendChild(z);
+    }catch(e){status.textContent=e?.name==='NotAllowedError'?'Autorice l’accès à la caméra dans Safari.':'No se pudo activar la cámara.'}}
+  function bind(){clean();document.querySelectorAll('button').forEach(b=>{if(norm(b.textContent).includes('escanear')&&!b.dataset.gamaScannerV4){b.dataset.gamaScannerV4='1';b.classList.add('gamaPhoneScanBtn');b.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();start()},true)}})}
+  style();bind();new MutationObserver(bind).observe(document.body,{subtree:true,childList:true});
+})();
+</script>
 </body></html>

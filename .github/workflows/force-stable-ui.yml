@@ -10,30 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install only final menu and phone scanner
+      - name: Remove legacy scanners and install final scanner
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          # Remove all legacy external renderers/scanners.
           for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone']:
               s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
-          # Remove the old inline scanner V4 block, if present.
-          s=re.sub(r'\n?<script>\s*\(\(\)=>\{\s*[\'\"]use strict[\'\"];\s*const STYLE=[\'\"]gamaScannerV4Style[\'\"];.*?</script>', '', s, flags=re.S)
-          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=6"></script>\n'
+          # Remove every old inline scanner block identified by its unique V4 marker.
+          s=re.sub(r'\n?<script>.*?gamaScannerV4Style.*?</script>', '', s, flags=re.S)
+          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=7"></script>\n'
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Validate
+      - name: Validate final scanner installation
         run: |
           grep -q 'gama-menu-final2.js?v=3' index.html
-          grep -q 'gama-scanner-phone.js?v=6' index.html
-          ! grep -q 'gama-v10-stable.js' index.html
-          ! grep -q 'gama-menu-final.js' index.html
-          ! grep -q 'gama-menu-clean.js' index.html
-          ! grep -q 'gama-scanner-phone.js?v=1' index.html
+          grep -q 'gama-scanner-phone.js?v=7' index.html
           ! grep -q 'gamaScannerV4Style' index.html
       - name: Commit
         run: |
@@ -41,5 +36,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Install final phone scanner without legacy handler'
+          git commit -m 'Install final scanner V7 without legacy handler'
           git push

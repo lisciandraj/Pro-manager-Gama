@@ -23,7 +23,7 @@ jobs:
           if 'id="pBarcode"' not in s:
               raise SystemExit('pBarcode field missing')
           s=s.replace('gama-scanner-phone.js?v=8','gama-scanner-phone.js?v=9')
-          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=9"></script>\n<script src="gama-product-scanner.js?v=3"></script>\n'
+          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=9"></script>\n<script src="gama-product-scanner.js?v=4"></script>\n'
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
@@ -31,7 +31,7 @@ jobs:
         run: |
           grep -q 'id="pBarcode"' index.html
           grep -q 'gama-scanner-phone.js?v=9' index.html
-          grep -q 'gama-product-scanner.js?v=3' index.html
+          grep -q 'gama-product-scanner.js?v=4' index.html
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
           ! grep -q 'gamaProductScanBtn' index.html
           ! grep -q 'gamaScannerV4Style' index.html
@@ -41,5 +41,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Deploy product scanner V3 without duplicate button'
+          git commit -m 'Deploy product scanner V4 and remove duplicate button'
           git push

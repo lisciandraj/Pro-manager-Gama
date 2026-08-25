@@ -1,4 +1,4 @@
-name: Install final clean Spanish menu
+name: Install one clean Spanish menu
 on:
   push:
     branches: [main]
@@ -10,28 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace previous menu script with final renderer
+      - name: Keep only the clean menu renderer
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          s=re.sub(r'\n?<script src="gama-v10-stable\.js\?v=[^"]+"></script>', '', s)
-          s=re.sub(r'\n?<script src="gama-menu-final\.js\?v=[^"]+"></script>', '', s)
-          tag='<script src="gama-menu-final.js?v=1"></script>'
-          s=s.replace('</body>', tag+'\n</body>')
+          patterns=[
+            r'\n?<script src="gama-v10-stable\.js\?v=[^"]+"></script>',
+            r'\n?<script src="gama-menu-final\.js\?v=[^"]+"></script>',
+            r'\n?<script src="gama-menu-clean\.js\?v=[^"]+"></script>',
+            r'\n?<script src="gama-v10-language\.js\?v=[^"]+"></script>'
+          ]
+          for pat in patterns:
+              s=re.sub(pat,'',s)
+          tag='<script src="gama-menu-clean.js?v=2"></script>'
+          s=s.replace('</body>',tag+'\n</body>')
           p.write_text(s,encoding='utf-8')
           PY
       - name: Validate
         run: |
-          grep -q 'gama-menu-final.js?v=1' index.html
+          grep -q 'gama-menu-clean.js?v=2' index.html
           ! grep -q 'gama-v10-stable.js?v=' index.html
+          ! grep -q 'gama-menu-final.js?v=' index.html
+          ! grep -q 'gama-v10-language.js?v=' index.html
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Install final clean Spanish menu'
+          git commit -m 'Use single clean Spanish menu renderer'
           git push

@@ -1,6 +1,16 @@
 /* GAMA V11 - Control de acceso: administrador / comercial / almacenero */
 (function(){
 'use strict';
+(function loadGamaCloud(){
+  if(window.GamaCloud || window.__gamaCloudLoading) return;
+  window.__gamaCloudLoading=true;
+  var s=document.createElement('script');
+  s.src='gama-supabase.js?v=1';
+  s.async=true;
+  s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));};
+  s.onerror=function(){console.warn('[GAMA] Supabase central layer could not be loaded.');};
+  document.head.appendChild(s);
+})();
 const UKEY='gama_users_v1', SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
 const ROLES={admin:{label:'Administrador',perms:'*'},commercial:{label:'Comercial',perms:['dashboard','products','clients','billing','reports','suppliers','matrix']},magasinier:{label:'Almacenero',perms:['dashboard','products','movement','stock','barcode','locations','units']}};
@@ -9,7 +19,7 @@ function users(){try{const x=JSON.parse(localStorage.getItem(UKEY)||'[]');return
 function saveUsers(x){localStorage.setItem(UKEY,JSON.stringify(x))}
 function session(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){return null}}
 function setSession(x){x?localStorage.setItem(SKEY,JSON.stringify(x)):localStorage.removeItem(SKEY)}
-function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[c]))}
+function esc(v){return String(v??'').replace(/[&<>\\\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[c]))}
 async function hash(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function allowed(id){const s=session();if(!s)return false;const r=ROLES[s.role];return !!r&&(r.perms==='*'||r.perms.includes(id))}
 function injectCss(){if($('gamaACLStyle'))return;const s=document.createElement('style');s.id='gamaACLStyle';s.textContent=`#gamaLogin{position:fixed;inset:0;background:#F5F7FA;z-index:99999;display:grid;place-items:center;padding:20px}#gamaLogin .aclBox{width:min(440px,100%);background:#fff;border:1px solid #E4EBEE;border-radius:22px;padding:26px;box-shadow:0 12px 40px #17324618}#gamaLogin h1{margin:0 0 5px;color:#18324A;font-size:25px}#gamaLogin p{color:#71808a;margin:5px 0 18px}.aclLogo{font-weight:900;color:#087C8B;font-size:20px;margin-bottom:20px}.aclLogo span{color:#F47A2A}.aclErr{color:#C94F45;background:#FFF0EC;padding:10px;border-radius:9px;margin-top:10px;font-size:13px}.aclUser{position:fixed;right:14px;top:82px;z-index:60;background:#fff;border:1px solid #E4EBEE;border-radius:999px;padding:6px 10px;font-size:11px;box-shadow:0 3px 12px #17324612}.aclUser button{padding:5px 8px;margin-left:5px;background:#EEF3F4;color:#18324A}.aclRole{font-weight:800;color:#087C8B}.aclUsersGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.aclPanel{background:#fff;border:1px solid #E4EBEE;border-radius:15px;padding:16px}.aclPanel h3{margin-top:0}.aclTable{width:100%;overflow:auto}.aclTable table{min-width:700px;width:100%;border-collapse:collapse}.aclTable th,.aclTable td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px}.aclBadge{display:inline-block;padding:4px 8px;border-radius:999px;background:#E8F5F6;color:#087C8B;font-weight:800}.aclHidden{display:none!important}@media(max-width:700px){.aclUsersGrid{grid-template-columns:1fr}}`;document.head.appendChild(s)}

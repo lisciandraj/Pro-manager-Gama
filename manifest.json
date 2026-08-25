@@ -1,1 +1,1 @@
-{"name":"GAMA Stock Manager V10 Pro","short_name":"GAMA V10","start_url":"./?v=14","scope":"./","display":"standalone","background_color":"#020F2F","theme_color":"#020F2F","icons":[{"src":"gama-icon-v10.png?v=2","sizes":"180x180","type":"image/png","purpose":"any maskable"}]}
+{"name":"GAMA Stock Manager V15","short_name":"GAMA Stock","start_url":"./?v=15","scope":"./","display":"standalone","background_color":"#020F2F","theme_color":"#020F2F","icons":[{"src":"gama-app-icon-v15.svg?v=15","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}

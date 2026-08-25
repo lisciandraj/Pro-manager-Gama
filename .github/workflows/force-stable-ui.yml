@@ -2,6 +2,9 @@ name: Install definitive GAMA UI
 on:
   push:
     branches: [main]
+concurrency:
+  group: gama-main-index-mutators
+  cancel-in-progress: false
 permissions:
   contents: write
 jobs:

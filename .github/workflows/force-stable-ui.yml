@@ -30,16 +30,17 @@ jobs:
           python3 -m pip install --quiet cairosvg
           python3 - <<'PY'
           import cairosvg
-          cairosvg.svg2png(url='gama-logo-v10-minimal.svg',write_to='gama-icon-v10.png',output_width=180,output_height=180)
+          cairosvg.svg2png(url='gama-app-icon-v15.svg',write_to='gama-icon-v10.png',output_width=180,output_height=180)
           PY
           python3 - <<'PY'
           import json
           from pathlib import Path
           p=Path('manifest.json')
           m=json.loads(p.read_text())
-          m['name']='GAMA Stock Manager V10 Pro'
-          m['short_name']='GAMA V10'
-          m['icons']=[{'src':'gama-icon-v10.png?v=2','sizes':'180x180','type':'image/png','purpose':'any maskable'}]
+          m['name']='GAMA Stock Manager V15'
+          m['short_name']='GAMA Stock'
+          m['start_url']='./?v=15'
+          m['icons']=[{'src':'gama-icon-v10.png?v=15','sizes':'180x180','type':'image/png','purpose':'any maskable'}]
           p.write_text(json.dumps(m,separators=(',',':')),encoding='utf-8')
           PY
       - name: Validate scanner, access control and iOS icon
@@ -47,7 +48,7 @@ jobs:
           grep -q 'id="pBarcode"' index.html
           grep -q 'gama-scanner-phone.js?v=10' index.html
           grep -q 'gama-access-control.js?v=1' index.html
-          grep -q 'gama-icon-v10.png?v=2' manifest.json
+          grep -q 'gama-icon-v10.png?v=15' manifest.json
           test -f gama-icon-v10.png
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-access-control.js' index.html | wc -l)" -eq 1
@@ -62,6 +63,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html manifest.json gama-icon-v10.png
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: install definitive GAMA V10 iOS icon'
+          git commit -m 'fix: install definitive GAMA V15 iOS icon'
           git pull --rebase origin main
           git push

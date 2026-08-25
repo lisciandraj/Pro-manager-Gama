@@ -1,8 +1,8 @@
-/* GAMA phone barcode scanner: removes inactive back link and provides a real camera scanner. */
+/* GAMA phone barcode scanner: real camera scanner with reliable target-field autofill. */
 (function(){
 'use strict';
 const ZXING_URL='https://unpkg.com/@zxing/browser@0.2.1';
-let overlay=null, stream=null, zxingControls=null, scanning=false;
+let overlay=null, stream=null, zxingControls=null, scanning=false, scanTarget=null;
 function norm(v){return (v||'').replace(/\s+/g,' ').trim().toLowerCase();}
 function removeInactiveBack(){
  document.querySelectorAll('a,button').forEach(el=>{
@@ -13,7 +13,9 @@ function removeInactiveBack(){
    }
  });
 }
-function findBarcodeInput(){
+function findBarcodeInput(preferredButton){
+ const local=preferredButton?.closest('.scanner')?.querySelector('input[placeholder*="Código de barras" i],input[name*="barcode" i],input[id*="barcode" i],input');
+ if(local)return local;
  return document.querySelector('input[placeholder*="Código de barras" i]')||document.querySelector('input[name*="barcode" i]')||document.querySelector('input[id*="barcode" i]');
 }
 function ensureUI(){
@@ -24,8 +26,23 @@ function getButton(){
  return [...document.querySelectorAll('button')].find(b=>norm(b.textContent).includes('escanear'))||null;
 }
 function fillCode(code){
- const input=findBarcodeInput();
- if(input){input.focus();input.value=code;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}
+ const input=scanTarget||findBarcodeInput();
+ if(input){
+   input.value=String(code).trim();
+   input.dispatchEvent(new Event('input',{bubbles:true}));
+   input.dispatchEvent(new Event('change',{bubbles:true}));
+   input.dispatchEvent(new Event('blur',{bubbles:true}));
+   input.focus();
+   if(input.id==='invoiceBarcode'){
+     const p=window.product?window.product(input.value.trim()):null;
+     const info=document.getElementById('invoiceProductInfo');
+     if(info)info.textContent=p?`${p.name} — Precio: $${Number(p.price||0).toFixed(2)} — Stock: ${p.stock}`:'Producto no encontrado';
+   }else if(input.id==='moveBarcode'){
+     const p=window.product?window.product(input.value.trim()):null;
+     const info=document.getElementById('moveInfo');
+     if(info)info.textContent=p?`${p.name} — stock actual: ${p.stock}`:'Producto no encontrado';
+   }
+ }
  closeScanner();
 }
 function closeScanner(){
@@ -53,8 +70,10 @@ async function nativeScan(video,status){
  };
  requestAnimationFrame(loop);status.textContent='Apunte la cámara al código de barras';return true;
 }
-async function startScanner(){
- if(overlay)closeScanner();ensureUI();
+async function startScanner(targetInput){
+ if(overlay)closeScanner();
+ scanTarget=targetInput||findBarcodeInput();
+ ensureUI();
  overlay=document.createElement('div');overlay.id='gamaPhoneScanner';
  overlay.innerHTML='<div class="gpsHead"><div class="gpsTitle">Escanear código de barras</div><button class="gpsClose" type="button">Cerrar</button></div><div class="gpsVideoWrap"><video playsinline muted autoplay></video><div class="gpsFrame"></div></div><div class="gpsStatus">Activando cámara…</div><button class="gpsTorch" type="button" style="display:none">Linterna</button>';
  document.body.appendChild(overlay);
@@ -75,7 +94,16 @@ async function startScanner(){
 }
 function bind(){
  removeInactiveBack();ensureUI();
- const btn=getButton();if(btn&&!btn.dataset.gamaPhoneScanner){btn.dataset.gamaPhoneScanner='1';btn.classList.add('gamaPhoneScanBtn');const clone=btn.cloneNode(true);clone.classList.add('gamaPhoneScanBtn');clone.dataset.gamaPhoneScanner='1';btn.replaceWith(clone);clone.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();startScanner();},true);}
+ const btn=getButton();
+ if(btn&&!btn.dataset.gamaPhoneScanner){
+   btn.dataset.gamaPhoneScanner='1';btn.classList.add('gamaPhoneScanBtn');
+   const clone=btn.cloneNode(true);clone.classList.add('gamaPhoneScanBtn');clone.dataset.gamaPhoneScanner='1';btn.replaceWith(clone);
+   clone.addEventListener('click',e=>{
+     e.preventDefault();e.stopImmediatePropagation();
+     const target=findBarcodeInput(clone);
+     startScanner(target);
+   },true);
+ }
 }
 function boot(){bind();if(window.showTab&&!window.showTab.__gamaScanner){const old=window.showTab;window.showTab=function(){const r=old.apply(this,arguments);setTimeout(bind,40);return r};window.showTab.__gamaScanner=true;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

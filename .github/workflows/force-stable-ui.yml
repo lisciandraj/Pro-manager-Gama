@@ -10,25 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove legacy scanners and install final scanner
+      - name: Install final UI helpers
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone']:
+          for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone','gama-product-scanner']:
               s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
-          # Remove every old inline scanner block identified by its unique V4 marker.
           s=re.sub(r'\n?<script>.*?gamaScannerV4Style.*?</script>', '', s, flags=re.S)
-          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=7"></script>\n'
+          tag='<script src="gama-menu-final2.js?v=3"></script>\n<script src="gama-scanner-phone.js?v=8"></script>\n<script src="gama-product-scanner.js?v=1"></script>\n'
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Validate final scanner installation
+      - name: Validate
         run: |
-          grep -q 'gama-menu-final2.js?v=3' index.html
-          grep -q 'gama-scanner-phone.js?v=7' index.html
+          grep -q 'gama-scanner-phone.js?v=8' index.html
+          grep -q 'gama-product-scanner.js?v=1' index.html
           ! grep -q 'gamaScannerV4Style' index.html
       - name: Commit
         run: |
@@ -36,5 +35,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Install final scanner V7 without legacy handler'
+          git commit -m 'Install product scanner and GAMA orange scanner buttons'
           git push

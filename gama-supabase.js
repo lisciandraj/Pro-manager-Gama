@@ -1,12 +1,13 @@
 /* GAMA V10 — central Supabase data layer
- * The browser must use the project's public anon/publishable key only.
- * NEVER put a service_role key in this file.
+ * The browser must use the project's public publishable key only.
+ * NEVER put a secret/service_role key in this file.
  */
 (function () {
   'use strict';
 
   const SUPABASE_URL = 'https://mknsaibrewksgomuslev.supabase.co';
-  const SUPABASE_ANON_KEY = window.GAMA_SUPABASE_ANON_KEY || '';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
+  const SUPABASE_ANON_KEY = window.GAMA_SUPABASE_ANON_KEY || SUPABASE_PUBLISHABLE_KEY;
   let client = null;
   let realtime = [];
 
@@ -34,7 +35,7 @@
   async function init() {
     if (!SUPABASE_ANON_KEY) {
       emit('gama:cloud-status', { ready: false, configured: false, reason: 'missing_public_key' });
-      console.warn('[GAMA] Supabase is ready in code but the public anon/publishable key is missing.');
+      console.warn('[GAMA] Supabase public publishable key is missing.');
       return null;
     }
 

@@ -17,6 +17,10 @@ jobs:
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
+          # iOS Safari was still using the legacy PNG because an explicit
+          # apple-touch-icon takes precedence over the web-app manifest.
+          # Remove it so the new GAMA V10 SVG manifest icon is selected.
+          s=re.sub(r'\n?<link rel="apple-touch-icon"[^>]*>', '', s)
           for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone','gama-product-scanner','gama-access-control']:
               s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
           s=re.sub(r'\n?<script>.*?gamaScannerV4Style.*?</script>', '', s, flags=re.S)
@@ -26,15 +30,17 @@ jobs:
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Validate product scanner and access control installation
+      - name: Validate product scanner, access control and iOS icon installation
         run: |
           grep -q 'id="pBarcode"' index.html
           grep -q 'gama-scanner-phone.js?v=10' index.html
           grep -q 'gama-access-control.js?v=1' index.html
+          grep -q 'gama-logo-v10-minimal.svg' manifest.json
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-access-control.js' index.html | wc -l)" -eq 1
           ! grep -q 'gama-product-scanner.js' index.html
           ! grep -q 'gamaProductScanBtn' index.html
+          ! grep -q 'apple-touch-icon' index.html
           node --check gama-access-control.js
       - name: Commit
         run: |
@@ -42,5 +48,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Add role based access control'
+          git commit -m 'fix: use GAMA V10 manifest icon on iOS'
           git push

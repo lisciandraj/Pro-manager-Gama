@@ -1,18 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F4F7F8"/></linearGradient>
-  <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F47A2A"/><stop offset="1" stop-color="#FF8B45"/></linearGradient>
-</defs>
-<rect width="512" height="512" rx="104" fill="url(#bg)"/>
-<path d="M0 410 Q135 500 285 512 H0Z" fill="#F47A2A"/>
-<path d="M512 400 Q390 505 225 512 H512Z" fill="#087C8B"/>
-<path d="M115 270 A145 145 0 1 1 397 270" fill="none" stroke="#087C8B" stroke-width="25" stroke-linecap="round"/>
-<path d="M111 155 L111 122 M401 155 L401 122 M255 113 L255 145" stroke="#087C8B" stroke-width="18" stroke-linecap="round"/>
-<path d="M160 172 Q210 198 256 270 Q300 187 405 75" fill="none" stroke="url(#orange)" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M163 286 L256 265 L350 286 L256 327Z" fill="#B88F5B"/>
-<path d="M163 286 L256 327 L256 390 L163 350Z" fill="#D2A86F"/>
-<path d="M350 286 L256 327 L256 390 L350 350Z" fill="#C79D65"/>
-<path d="M163 286 L205 246 L256 265 L307 246 L350 286 L304 305 L256 288 L208 305Z" fill="#E0B87C"/>
-<text x="256" y="428" text-anchor="middle" font-family="Arial,sans-serif" font-size="67" font-weight="800" letter-spacing="4" fill="#F47A2A">GAMA</text>
-<text x="256" y="468" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" font-weight="800" letter-spacing="5" fill="#087C8B">STOCK MANAGER</text>
+<rect width="512" height="512" rx="104" fill="#020F2F"/>
+<path d="M135 236 256 166 377 236 256 306 135 236Z" fill="none" stroke="#FF9A18" stroke-width="15" stroke-linejoin="round"/>
+<path d="M135 236v116l121 70V306M377 236v116l-121 70" fill="none" stroke="#FF9A18" stroke-width="15" stroke-linejoin="round"/>
+<path d="M256 166v140" stroke="#FF9A18" stroke-width="15"/>
+<path d="M185 207 306 277" stroke="#087CDB" stroke-width="12" stroke-linecap="round"/>
+<path d="M306 277v66l-50 29" fill="none" stroke="#087CDB" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M102 157 A174 174 0 0 1 395 125" fill="none" stroke="#FF9A18" stroke-width="10" stroke-linecap="round"/>
+<path d="M407 171 A174 174 0 0 1 123 397" fill="none" stroke="#087CDB" stroke-width="10" stroke-linecap="round"/>
+<text x="256" y="454" text-anchor="middle" font-family="Arial,sans-serif" font-size="52" font-weight="800" letter-spacing="5" fill="#FFFFFF">GAMA</text>
+<text x="256" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#087CDB">STOCK MANAGER</text>
 </svg>

@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GAMA Stock V10">
-<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
 <title>GAMA Stock Manager V10</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
@@ -634,6 +634,30 @@ showTab('mainmenu',null);
   setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
 })();
 </script>
+<script>
+(function(){
+  function cleanup(){
+    const section=document.getElementById("products");
+    if(!section)return;
+    const input=document.getElementById("pBarcode");
+    const box=input?.closest(".scanner");
+    const buttons=[...section.querySelectorAll("button")].filter(b=>/escane|scanner/i.test((b.textContent||"")));
+    if(!buttons.length)return;
+    const keep=(box&&[...box.querySelectorAll("button")].find(b=>/escane|scanner/i.test(b.textContent||"")))||buttons[0];
+    buttons.forEach(b=>{if(b!==keep)b.remove()});
+    keep.classList.add("gamaPhoneScanBtn");
+    keep.type="button";
+    if(!keep.dataset.gamaScannerBound){
+      keep.dataset.gamaScannerBound="1";
+      keep.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();if(window.startGamaScan)window.startGamaScan("pBarcode");},true);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",cleanup,{once:true});else cleanup();
+  new MutationObserver(cleanup).observe(document.body,{subtree:true,childList:true});
+  setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
+})();
+</script>
+<script src="gama-role-spanish.js?v=1"></script>
 <script src="gama-menu-final2.js?v=4"></script>
 <script src="gama-scanner-phone.js?v=10"></script>
 <script>
@@ -659,7 +683,6 @@ showTab('mainmenu',null);
   setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
 })();
 </script>
-<script src="gama-role-spanish.js?v=1"></script>
 <script src="gama-access-control.js?v=1"></script>
 <script src="gama-proveedores-matriz.js?v=2"></script>
 </body></html>

@@ -1,0 +1,1 @@
+GAMA logout fix deployed. Fixed header logout button now uses a real button element, click + touch handling, clears local/session storage, signs out cloud session, removes session UI and reloads with cache-busting query.

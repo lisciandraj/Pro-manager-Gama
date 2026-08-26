@@ -1,4 +1,4 @@
-/* GAMA V10 - definitive Spanish menu */
+/* GAMA V10 - definitive Spanish menu + Excel import integration */
 (function(){
 'use strict';
 const ITEMS=[
@@ -25,13 +25,35 @@ pin:'<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy
 barcode:'<path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"/>',
 ruler:'<path d="m5 19 14-14 2 2-14 14-2-2Z"/><path d="m8 16 2 2m1-5 2 2m1-5 2 2"/>',
 help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 4.5 1.8c-1.2 1.2-2 1.5-2 3M12 17h.01"/>'};
+
+function ensureExcelModule(){
+  let section=document.getElementById('reports');
+  if(!section){
+    section=document.createElement('section');
+    section.id='reports';
+    document.body.appendChild(section);
+  }
+  section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';
+  if(!document.getElementById('gamaExcelLoader')){
+    const s=document.createElement('script');
+    s.id='gamaExcelLoader';
+    s.src='gama-excel-import-v1.js?v=20260826-2';
+    s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();
+    s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2>Importar Excel</h2><p class="low">No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>';};
+    document.head.appendChild(s);
+  }else if(window.GamaExcelImport){window.GamaExcelImport.render();}
+}
+function openItem(x){
+  if(x[1]==='reports'){ensureExcelModule(); if(window.showTab)window.showTab('reports',null); return;}
+  if(window.showTab)window.showTab(x[1],null);
+}
 function render(){
  const host=document.getElementById('mainmenu');if(!host)return;
  document.documentElement.lang='es';document.querySelectorAll('.gamaLanguage').forEach(e=>e.remove());
  const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';
- s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #e1e9ec!important;border-radius:18px!important;box-shadow:0 5px 18px rgba(24,50,74,.07)!important;color:#173246!important;cursor:pointer!important}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Card:nth-child(5n+2) .gamaF2Icon,#mainmenu .gamaF2Card:nth-child(5n+5) .gamaF2Icon{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}}';
+ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #e1e9ec!important;border-radius:18px!important;box-shadow:0 5px 18px rgba(24,50,74,.07)!important;color:#173246!important;cursor:pointer!important}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Card:nth-child(5n+2) .gamaF2Icon,#mainmenu .gamaF2Card:nth-child(5n+5) .gamaF2Icon{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Card:nth-child(9) .gamaF2Icon{background:#fff0e5!important;padding:8px!important}#mainmenu .gamaF2Card:nth-child(9) .gamaF2Icon img{width:44px!important;height:44px!important;object-fit:contain!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}}';
  host.replaceChildren();const h=document.createElement('h2');h.textContent='Menú principal';h.style.cssText='margin:22px 18px 8px;color:#173246;font-size:28px';const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Stock Manager.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';const grid=document.createElement('div');grid.className='gamaF2Grid';
- ITEMS.forEach(x=>{const b=document.createElement('button');b.type='button';b.className='gamaF2Card';const icon=document.createElement('span');icon.className='gamaF2Icon';icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];b.append(icon,label);b.onclick=()=>window.showTab&&window.showTab(x[1],null);grid.appendChild(b)});host.append(h,p,grid);
+ ITEMS.forEach((x,i)=>{const b=document.createElement('button');b.type='button';b.className='gamaF2Card';const icon=document.createElement('span');icon.className='gamaF2Icon';if(x[1]==='reports'){const img=document.createElement('img');img.src='gama-excel-import-icon.svg?v=20260826-2';img.alt='';icon.appendChild(img);}else{icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';}const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];b.append(icon,label);b.onclick=()=>openItem(x);grid.appendChild(b)});host.append(h,p,grid);
 }
 function removeRedundantMainMenuBack(){const targets=[...document.body.querySelectorAll('a,button,[role="button"],div,p,span')].filter(el=>{if(el.closest('#mainmenu'))return false;const text=(el.textContent||'').replace(/\s+/g,' ').trim();return /^‹\s*Menú principal\s*>?$/.test(text)||/^<\s*Menú principal\s*>?$/.test(text)});targets.forEach(el=>{if(el.children.length===0||/a|button/i.test(el.tagName))el.remove()})}
 function bootCleanup(){removeRedundantMainMenuBack();new MutationObserver(removeRedundantMainMenuBack).observe(document.body,{subtree:true,childList:true});setTimeout(removeRedundantMainMenuBack,100);setTimeout(removeRedundantMainMenuBack,500);setTimeout(removeRedundantMainMenuBack,1500)}

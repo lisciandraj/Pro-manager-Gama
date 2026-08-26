@@ -1,0 +1,26 @@
+name: Validate GAMA purchases
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate JavaScript
+        run: |
+          node --check gama-purchases-v14.js
+          node --check gama-excel-module-loader.js
+      - name: Validate integration references
+        run: |
+          grep -q 'gama-purchases-v14.js' gama-excel-module-loader.js
+          grep -q 'gamaShowPurchases' gama-purchases-v14.js
+          grep -q 'gama_receive_purchase' gama-purchases-v14.js
+          grep -q 'purchase_orders' gama-purchases-v14.js
+          grep -q 'purchase_order_lines' gama-purchases-v14.js

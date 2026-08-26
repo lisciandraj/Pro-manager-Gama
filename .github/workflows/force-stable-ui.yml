@@ -21,12 +21,12 @@ jobs:
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           s=re.sub(r'\n?<link rel="apple-touch-icon"[^>]*>', '', s)
-          for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone','gama-product-scanner','gama-access-control','gama-fixed-header']:
+          for name in ['gama-v10-stable','gama-menu-final','gama-menu-clean','gama-menu-final2','gama-scanner-phone','gama-product-scanner','gama-access-control','gama-fixed-header','gama-import-excel']:
               s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
           s=re.sub(r'\n?<script>.*?gamaScannerV4Style.*?</script>', '', s, flags=re.S)
           if 'id="pBarcode"' not in s:
               raise SystemExit('pBarcode field missing')
-          tag='<script src="gama-menu-final2.js?v=4"></script>\n<script src="gama-scanner-phone.js?v=10"></script>\n<script>\n(function(){\n  function cleanup(){\n    const section=document.getElementById("products");\n    if(!section)return;\n    const input=document.getElementById("pBarcode");\n    const box=input?.closest(".scanner");\n    const buttons=[...section.querySelectorAll("button")].filter(b=>/escane|scanner/i.test((b.textContent||"")));\n    if(!buttons.length)return;\n    const keep=(box&&[...box.querySelectorAll("button")].find(b=>/escane|scanner/i.test(b.textContent||"")))||buttons[0];\n    buttons.forEach(b=>{if(b!==keep)b.remove()});\n    keep.classList.add("gamaPhoneScanBtn");\n    keep.type="button";\n    if(!keep.dataset.gamaScannerBound){\n      keep.dataset.gamaScannerBound="1";\n      keep.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();if(window.startGamaScan)window.startGamaScan("pBarcode");},true);\n    }\n  }\n  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",cleanup,{once:true});else cleanup();\n  new MutationObserver(cleanup).observe(document.body,{subtree:true,childList:true});\n  setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);\n})();\n</script>\n<script src="gama-access-control.js?v=1"></script>\n<script src="gama-fixed-header.js?v=1"></script>\n'
+          tag='<script src="gama-menu-final2.js?v=5"></script>\n<script src="gama-scanner-phone.js?v=10"></script>\n<script>\n(function(){\n  function cleanup(){\n    const section=document.getElementById("products");\n    if(!section)return;\n    const input=document.getElementById("pBarcode");\n    const box=input?.closest(".scanner");\n    const buttons=[...section.querySelectorAll("button")].filter(b=>/escane|scanner/i.test((b.textContent||"")));\n    if(!buttons.length)return;\n    const keep=(box&&[...box.querySelectorAll("button")].find(b=>/escane|scanner/i.test(b.textContent||"")))||buttons[0];\n    buttons.forEach(b=>{if(b!==keep)b.remove()});\n    keep.classList.add("gamaPhoneScanBtn");\n    keep.type="button";\n    if(!keep.dataset.gamaScannerBound){\n      keep.dataset.gamaScannerBound="1";\n      keep.addEventListener("click",function(e){e.preventDefault();e.stopImmediatePropagation();if(window.startGamaScan)window.startGamaScan("pBarcode");},true);\n    }\n  }\n  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",cleanup,{once:true});else cleanup();\n  new MutationObserver(cleanup).observe(document.body,{subtree:true,childList:true});\n  setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);\n})();\n</script>\n<script src="gama-access-control.js?v=1"></script>\n<script src="gama-fixed-header.js?v=1"></script>\n<script src="gama-import-excel.js?v=1"></script>\n'
           s=s.replace('</body>',tag+'</body>')
           p.write_text(s,encoding='utf-8')
           PY
@@ -46,23 +46,27 @@ jobs:
           m['icons']=[{'src':'gama-icon-v10.png?v=15','sizes':'180x180','type':'image/png','purpose':'any maskable'}]
           p.write_text(json.dumps(m,separators=(',',':')),encoding='utf-8')
           PY
-      - name: Validate scanner, access control and iOS icon
+      - name: Validate scanner, access control, Excel import and iOS icon
         run: |
           grep -q 'id="pBarcode"' index.html
           grep -q 'gama-scanner-phone.js?v=10' index.html
           grep -q 'gama-access-control.js?v=1' index.html
           grep -q 'gama-fixed-header.js?v=1' index.html
+          grep -q 'gama-import-excel.js?v=1' index.html
           grep -q 'gama-icon-v10.png?v=15' manifest.json
           test -f gama-icon-v10.png
+          test -f gama-import-excel.js
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-access-control.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-fixed-header.js' index.html | wc -l)" -eq 1
+          test "$(grep -o 'gama-import-excel.js' index.html | wc -l)" -eq 1
           ! grep -q 'gama-product-scanner.js' index.html
           ! grep -q 'gamaProductScanBtn' index.html
           ! grep -q 'apple-touch-icon' index.html
           file gama-icon-v10.png | grep -q PNG
           node --check gama-access-control.js
           node --check gama-fixed-header.js
+          node --check gama-import-excel.js
       - name: Commit generated icon and cleaned HTML
         run: |
           git config user.name 'github-actions[bot]'
@@ -71,5 +75,5 @@ jobs:
           git rebase origin/main
           git add index.html manifest.json gama-icon-v10.png
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: install definitive GAMA V15 iOS icon'
+          git commit -m 'feat: install GAMA Excel import module'
           git push origin HEAD:main

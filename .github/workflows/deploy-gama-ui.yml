@@ -19,8 +19,10 @@ jobs:
           grep -q '<!doctype html>' index.html
           test -f gama-standard-ui.js
           test -f gama-purchases-v14.js
+          test -f gama-suppliers-cloud-bridge.js
           node --check gama-standard-ui.js
           node --check gama-purchases-v14.js
+          node --check gama-suppliers-cloud-bridge.js
       - name: Integrate current modules
         run: |
           python3 - <<'PY'
@@ -35,6 +37,7 @@ jobs:
             'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
             'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-11"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
+            'gama-suppliers-cloud-bridge':'<script src="gama-suppliers-cloud-bridge.js?v=1"></script>',
             'gama-standard-ui':'<script src="gama-standard-ui.js?v=8"></script>',
           }
           for name in modules:
@@ -64,6 +67,7 @@ select:focus{outline:auto!important}
         run: |
           grep -q 'gama-standard-ui.js?v=8' index.html
           grep -q 'gama-purchases-v14.js?v=20260827-11' index.html
+          grep -q 'gama-suppliers-cloud-bridge.js?v=1' index.html
           grep -q 'GAMA NATIVE CONTROLS V2' index.html
       - name: Commit integration
         run: |
@@ -71,5 +75,5 @@ select:focus{outline:auto!important}
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: deploy native iOS select controls'
+          git commit -m 'fix: migrate legacy suppliers to cloud'
           git push origin HEAD:main

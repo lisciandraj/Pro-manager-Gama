@@ -1,8 +1,13 @@
-/* GAMA V11 — central products + stock adapter */
+/* GAMA V12 — central products + stock adapter */
 (function(){'use strict';
   function boot(){
     if(!window.GamaCloud)return setTimeout(boot,250);
     const C=window.GamaCloud;
+    if(typeof C.select!=='function'){
+      C.select=function(table,columns){
+        return C.db().then(function(client){return client.from(table).select(columns||'*');});
+      };
+    }
     const api={
       async listProducts(options){return C.list('products',options||{order:'name',ascending:true});},
       async getProduct(id){const c=await C.db();return c.from('products').select('*').eq('id',id).maybeSingle();},

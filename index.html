@@ -782,7 +782,34 @@ showTab('mainmenu',null);
 <script src="gama-central-sync.js?v=1"></script>
 <script src="gama-excel-import.js?v=4"></script>
 <script src="gama-excel-module-loader.js?v=5"></script>
-<script src="gama-purchases-v14.js?v=20260827-8"></script>
+<script src="gama-purchases-v14.js?v=20260827-9"></script>
 <script src="gama-proveedores-matriz.js?v=2"></script>
-<script src="gama-standard-ui.js?v=2"></script>
+<script src="gama-standard-ui.js?v=6"></script>
+
+<!-- GAMA EMPTY MODULES HARD BLOCK V2 -->
+<style id="gamaEmptyModulesBlock">.gamaDisabledModule{display:none!important}</style>
+<script>
+(function(){
+  const disabled=['notificaciones','tareas','agenda','etiquetas','ubicaciones','unidades','ayuda y soporte','import excel','importar excel'];
+  const norm=v=>String(v||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('es');
+  function clean(){
+    const root=document.getElementById('mainmenu')||document.body;
+    root.querySelectorAll('button,a,[role="button"],.gamaF2Card,.menu-card,.module-card,.card').forEach(el=>{
+      const text=norm(el.textContent);
+      if(disabled.some(x=>text===x || text.includes(x))){el.classList.add('gamaDisabledModule');el.setAttribute('aria-hidden','true');el.setAttribute('tabindex','-1');}
+    });
+    document.querySelectorAll('section').forEach(sec=>{
+      const id=norm(sec.id);
+      if(['notifications','tasks','reports','labels','locations','units','support','calendar'].includes(id)){sec.classList.remove('active');sec.classList.add('gamaDisabledModule');sec.setAttribute('hidden','');}
+    });
+    document.querySelectorAll('.tab').forEach(tab=>{
+      const text=norm(tab.textContent);
+      if(disabled.some(x=>text===x || text.includes(x)))tab.classList.add('gamaDisabledModule');
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();
+  new MutationObserver(clean).observe(document.documentElement,{childList:true,subtree:true});
+  window.gamaCleanEmptyModules=clean;
+})();
+</script>
 </body></html>

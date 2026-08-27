@@ -4,6 +4,9 @@ on:
     branches: [main]
 permissions:
   contents: write
+concurrency:
+  group: gama-main-index-mutators
+  cancel-in-progress: false
 jobs:
   install:
     if: github.actor != 'github-actions[bot]'
@@ -11,31 +14,46 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Valider JavaScript des modules
-        run: node --check gama-proveedores-matriz.js
-      - name: Integrar módulos
+        run: |
+          node --check gama-proveedores-matriz.js
+          node --check gama-purchases-v14.js
+          node --check gama-supabase.js
+          node --check gama-central-sync.js
+      - name: Intégrer les modules sans écraser les autres fonctionnalités
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          s=re.sub(r'\n?<script src="gama-proveedores-matriz\.js[^"]*"></script>', '', s)
-          tag='<script src="gama-proveedores-matriz.js?v=2"></script>\n'
+          for name in ['gama-proveedores-matriz','gama-purchases-v13','gama-purchases-v14','gama-supabase','gama-central-sync']:
+              s=re.sub(r'\n?<script src="'+name+r'\.js[^\"]*"></script>', '', s)
+          tag='''<script src="gama-supabase.js?v=13"></script>\n<script src="gama-central-sync.js?v=1"></script>\n<script src="gama-purchases-v14.js?v=20260827-1"></script>\n<script src="gama-proveedores-matriz.js?v=2"></script>\n'''
           if '</body>' not in s:
               raise SystemExit('index.html inválido: falta </body>')
-          s=s.replace('</body>',tag+'</body>')
+          if 'id="pBarcode"' not in s:
+              raise SystemExit('index.html inválido: falta pBarcode')
+          s=s.replace('</body>',tag+'</body>',1)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Validar integración
+      - name: Validar integración finale
         run: |
-          test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
+          grep -q 'gama-supabase.js?v=13' index.html
+          grep -q 'gama-central-sync.js?v=1' index.html
+          grep -q 'gama-purchases-v14.js?v=20260827-1' index.html
           grep -q 'gama-proveedores-matriz.js?v=2' index.html
-          grep -q 'id="pBarcode"' index.html
+          test "$(grep -o 'gama-supabase.js' index.html | wc -l)" -eq 1
+          test "$(grep -o 'gama-central-sync.js' index.html | wc -l)" -eq 1
+          test "$(grep -o 'gama-purchases-v14.js' index.html | wc -l)" -eq 1
+          test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
+          test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git rebase origin/main
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Validate and install suppliers matrix modules'
+          git commit -m 'fix: keep GAMA cloud, purchases and supplier modules integrated'
           git push

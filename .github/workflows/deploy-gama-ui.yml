@@ -33,24 +33,43 @@ jobs:
             'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
             'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
             'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-10"></script>',
+            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-11"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
-            'gama-standard-ui':'<script src="gama-standard-ui.js?v=7"></script>',
+            'gama-standard-ui':'<script src="gama-standard-ui.js?v=8"></script>',
           }
           for name in modules:
             s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js[^\"]*"></script>', '', s)
           s=s.replace('</body>','\n'.join(modules.values())+'\n</body>',1)
           p.write_text(s,encoding='utf-8')
           PY
+      - name: Restore native form controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='/* GAMA NATIVE CONTROLS V2 */'
+          block='''<style id="gamaNativeControlsV2">
+/* GAMA NATIVE CONTROLS V2 */
+select,select option{appearance:auto!important;-webkit-appearance:auto!important}
+select{position:static!important;z-index:auto!important;pointer-events:auto!important;touch-action:auto!important;transform:none!important;filter:none!important}
+select:focus{outline:auto!important}
+.gamaStdHeader,.gamaStdHeader *{pointer-events:auto}
+</style>'''
+          if marker not in s:
+            s=s.replace('</head>',block+'\n</head>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
       - name: Validate integration
         run: |
-          grep -q 'gama-standard-ui.js?v=7' index.html
-          grep -q 'gama-purchases-v14.js?v=20260827-10' index.html
+          grep -q 'gama-standard-ui.js?v=8' index.html
+          grep -q 'gama-purchases-v14.js?v=20260827-11' index.html
+          grep -q 'GAMA NATIVE CONTROLS V2' index.html
       - name: Commit integration
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: deploy stable native form controls'
+          git commit -m 'fix: deploy native iOS select controls'
           git push origin HEAD:main

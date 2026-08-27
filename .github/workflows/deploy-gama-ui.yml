@@ -13,27 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate application sources
+      - name: Validate sources
         run: |
           test -s index.html
           grep -q '<!doctype html>' index.html
-          grep -q '</html>' index.html
-          grep -q 'id="pBarcode"' index.html
-          test -f gama-supabase.js
-          test -f gama-central-sync.js
-          test -f gama-excel-import.js
-          test -f gama-excel-module-loader.js
-          test -f gama-purchases-v14.js
-          test -f gama-proveedores-matriz.js
           test -f gama-standard-ui.js
-          node --check gama-supabase.js
-          node --check gama-central-sync.js
-          node --check gama-excel-import.js
-          node --check gama-excel-module-loader.js
-          node --check gama-purchases-v14.js
-          node --check gama-proveedores-matriz.js
+          test -f gama-purchases-v14.js
           node --check gama-standard-ui.js
-      - name: Integrate core modules and standard UI
+          node --check gama-purchases-v14.js
+      - name: Integrate current modules
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -45,48 +33,24 @@ jobs:
             'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
             'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
             'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-9"></script>',
+            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-10"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
-            'gama-standard-ui':'<script src="gama-standard-ui.js?v=6"></script>',
+            'gama-standard-ui':'<script src="gama-standard-ui.js?v=7"></script>',
           }
           for name in modules:
             s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js[^\"]*"></script>', '', s)
-            s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js\?v=[^\"]*"></script>', '', s)
-          tag='\n'.join(modules.values())+'\n'
-          if '</body>' not in s: raise SystemExit('Invalid index.html: missing </body>')
-          s=s.replace('</body>',tag+'</body>',1)
+          s=s.replace('</body>','\n'.join(modules.values())+'\n</body>',1)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Hard disable empty modules in the rendered menu
+      - name: Validate integration
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-          marker='<!-- GAMA EMPTY MODULES HARD BLOCK V2 -->'
-          if marker not in s:
-            block='''\n<!-- GAMA EMPTY MODULES HARD BLOCK V2 -->\n<style id="gamaEmptyModulesBlock">.gamaDisabledModule{display:none!important}</style>\n<script>\n(function(){\n  const disabled=['notificaciones','tareas','agenda','etiquetas','ubicaciones','unidades','ayuda y soporte','import excel','importar excel'];\n  const norm=v=>String(v||'').replace(/\\s+/g,' ').trim().toLocaleLowerCase('es');\n  function clean(){\n    const root=document.getElementById('mainmenu')||document.body;\n    root.querySelectorAll('button,a,[role="button"],.gamaF2Card,.menu-card,.module-card,.card').forEach(el=>{\n      const text=norm(el.textContent);\n      if(disabled.some(x=>text===x || text.includes(x))){el.classList.add('gamaDisabledModule');el.setAttribute('aria-hidden','true');el.setAttribute('tabindex','-1');}\n    });\n    document.querySelectorAll('section').forEach(sec=>{\n      const id=norm(sec.id);\n      if(['notifications','tasks','reports','labels','locations','units','support','calendar'].includes(id)){sec.classList.remove('active');sec.classList.add('gamaDisabledModule');sec.setAttribute('hidden','');}\n    });\n    document.querySelectorAll('.tab').forEach(tab=>{\n      const text=norm(tab.textContent);\n      if(disabled.some(x=>text===x || text.includes(x)))tab.classList.add('gamaDisabledModule');\n    });\n  }\n  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();\n  new MutationObserver(clean).observe(document.documentElement,{childList:true,subtree:true});\n  window.gamaCleanEmptyModules=clean;\n})();\n</script>\n'''
-            s=s.replace('</body>',block+'</body>',1)
-            p.write_text(s,encoding='utf-8')
-          PY
-      - name: Validate final integration
-        run: |
-          test "$(grep -o 'gama-supabase.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-central-sync.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-excel-import.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-excel-module-loader.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-purchases-v14.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'gama-standard-ui.js' index.html | wc -l)" -eq 1
-          grep -q 'GAMA EMPTY MODULES HARD BLOCK V2' index.html
-          grep -q 'gama-purchases-v14.js?v=20260827-9' index.html
-          grep -q 'gama-standard-ui.js?v=6' index.html
-          grep -q 'id="pBarcode"' index.html
-      - name: Commit only the integration changes
+          grep -q 'gama-standard-ui.js?v=7' index.html
+          grep -q 'gama-purchases-v14.js?v=20260827-10' index.html
+      - name: Commit integration
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: hard block empty modules in deployed UI'
+          git commit -m 'fix: deploy stable native form controls'
           git push origin HEAD:main

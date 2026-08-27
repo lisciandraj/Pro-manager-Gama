@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: gama-main-index-mutators
+  cancel-in-progress: false
 jobs:
   install:
     if: github.actor != 'github-actions[bot]'

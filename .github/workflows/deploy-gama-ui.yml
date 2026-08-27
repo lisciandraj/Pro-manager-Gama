@@ -41,9 +41,9 @@ jobs:
           modules={
             'gama-supabase':'<script src="gama-supabase.js?v=13"></script>',
             'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
-            'gama-excel-import':'<script src="gama-excel-import.js?v=2"></script>',
-            'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=2"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-1"></script>',
+            'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
+            'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
+            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-5"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
           }
           for name in modules:
@@ -62,7 +62,8 @@ jobs:
           test "$(grep -o 'gama-purchases-v14.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
-          grep -q 'gama-purchases-v14.js?v=20260827-1' index.html
+          grep -q 'gama-purchases-v14.js?v=20260827-5' index.html
+          grep -q 'gama-excel-module-loader.js?v=5' index.html
           grep -q 'gama-supabase.js?v=13' index.html
           grep -q 'gama-central-sync.js?v=1' index.html
       - name: Commit only the integration changes

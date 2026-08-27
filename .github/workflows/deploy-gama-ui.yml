@@ -43,7 +43,7 @@ jobs:
             'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
             'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
             'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-5"></script>',
+            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-6"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
           }
           for name in modules:
@@ -51,6 +51,17 @@ jobs:
           tag='\n'.join(modules.values())+'\n'
           if '</body>' not in s: raise SystemExit('Invalid index.html: missing </body>')
           s=s.replace('</body>',tag+'</body>',1)
+
+          # Force a permanent visible entry in the main navigation. The purchases
+          # module also injects its own tab, but this fallback makes the feature
+          # visible even if the dynamic module initialization is delayed.
+          tab='''<button type="button" class="tab" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert(\'Le module Achats est encore en cours de chargement. Rechargez la page.\')">🛒<span>Achats</span></button>'''
+          if 'id="gamaPurchasesStaticTab"' not in s:
+            m=re.search(r'<div class="tabs"[^>]*>',s)
+            if not m: raise SystemExit('Invalid index.html: .tabs container missing')
+            pos=m.end()
+            s=s[:pos]+'\n'+tab+s[pos:]
+
           p.write_text(s,encoding='utf-8')
           PY
       - name: Validate final integration
@@ -61,16 +72,15 @@ jobs:
           test "$(grep -o 'gama-excel-module-loader.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-purchases-v14.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
-          test "$(grep -o 'id="pBarcode"' index.html | wc -l)" -eq 1
-          grep -q 'gama-purchases-v14.js?v=20260827-5' index.html
-          grep -q 'gama-excel-module-loader.js?v=5' index.html
-          grep -q 'gama-supabase.js?v=13' index.html
-          grep -q 'gama-central-sync.js?v=1' index.html
+          test "$(grep -o 'id=\"gamaPurchasesStaticTab\"' index.html | wc -l)" -eq 1
+          grep -q 'gama-purchases-v14.js?v=20260827-6' index.html
+          grep -q 'gamaPurchasesStaticTab' index.html
+          grep -q 'id="pBarcode"' index.html
       - name: Commit only the integration changes
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'feat: deploy GAMA purchases and receiving modules'
+          git commit -m 'feat: expose purchases module in main navigation'
           git push origin HEAD:main

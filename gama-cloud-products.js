@@ -27,6 +27,10 @@
     window.GamaCloudProducts=api;
     C.getSession().then(r=>{if(r&&r.data&&r.data.session)api.startRealtime();});
     window.addEventListener('gama:auth-change',e=>{if(e.detail&&e.detail.session)api.startRealtime();});
+    /* Always load the supplier bridge from a script that is already guaranteed to be loaded. */
+    if(!document.getElementById('gamaSupplierBridgeLoader')){
+      const s=document.createElement('script');s.id='gamaSupplierBridgeLoader';s.src='gama-purchases-supplier-bridge.js?v=3';s.async=true;document.head.appendChild(s);
+    }
   }
   boot();
 })();

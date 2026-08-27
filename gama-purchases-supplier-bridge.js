@@ -1,42 +1,13 @@
-/* GAMA — bridge legacy/local suppliers into Compras V2 */
+/* GAMA — supplier bridge V3 */
 (function(){
 'use strict';
-function looksLikeSupplier(o,forced){
-  if(!o||typeof o!=='object'||Array.isArray(o))return false;
-  const name=String(o.name||o.nombre||o.razon_social||o.business_name||'').trim();
-  if(!name)return false;
-  if(o.purchase_price!==undefined||o.sale_price!==undefined||o.barcode!==undefined||o.stock!==undefined)return false;
-  if(forced)return true;
-  return !!(o.tax_id||o.ruc||o.nif||o.contact_name||o.contacto||o.proveedor||o.supplier||o.company||o.empresa);
-}
-function normalize(o){return {legacy_id:o.id||null,name:String(o.name||o.nombre||o.razon_social||o.business_name).trim(),tax_id:o.tax_id||o.ruc||o.nif||null,address:o.address||o.direccion||null,city:o.city||o.ciudad||null,province:o.province||o.provincia||null,postal_code:o.postal_code||o.codigo_postal||null,country:o.country||o.pais||null,phone:o.phone||o.telefono||null,email:o.email||null,contact_name:o.contact_name||o.contacto||null,notes:o.notes||o.notas||null,active:o.active!==false};}
-function legacySuppliers(){
-  const out=[]; const seen=new Set(); const add=(o,forced)=>{if(!looksLikeSupplier(o,forced))return;const s=normalize(o),k=s.name.toLowerCase();if(!seen.has(k)){seen.add(k);out.push(s)}};
-  try{
-    for(let i=0;i<localStorage.length;i++){
-      const key=String(localStorage.key(i)||''), raw=localStorage.getItem(key); if(!raw)continue;
-      let v; try{v=JSON.parse(raw)}catch(e){continue}
-      const forced=/(supplier|suppliers|proveedor|proveedores|gama_supplier)/i.test(key);
-      const arr=Array.isArray(v)?v:(v&&Array.isArray(v.data)?v.data:(v&&Array.isArray(v.suppliers)?v.suppliers:null));
-      if(arr)arr.forEach(o=>add(o,forced));
-    }
-    for(const key of Object.keys(window)){if(!/(supplier|proveedor)/i.test(key))continue;try{const v=window[key];const arr=Array.isArray(v)?v:(v&&Array.isArray(v.data)?v.data:null);if(arr)arr.forEach(o=>add(o,true))}catch(e){}}
-  }catch(e){console.warn('[GAMA supplier bridge]',e)}
-  return out;
-}
-async function cloudSupplier(s){
-  const C=window.GamaCloud;if(!C)return null;
-  try{const r=await C.db();const q=await r.from('suppliers').select('*').eq('name',s.name).limit(1);if(q.data&&q.data[0])return q.data[0];const ins=await C.insert('suppliers',s);if(ins.data)return ins.data}catch(e){console.warn('[GAMA supplier bridge cloud]',e)}
-  return null;
-}
-async function run(){
-  const sel=document.getElementById('gp14Supplier');if(!sel)return setTimeout(run,500);
-  const legacy=legacySuppliers();
-  for(const s of legacy){if(!Array.from(sel.options).some(o=>o.textContent.toLowerCase().startsWith(s.name.toLowerCase()))){const opt=document.createElement('option');opt.value='legacy:'+btoa(unescape(encodeURIComponent(s.name)));opt.textContent=s.name+(s.tax_id?' — '+s.tax_id:'');opt.dataset.legacy=JSON.stringify(s);sel.appendChild(opt)}}
-  if(sel.dataset.gamaBridge==='1')return;
-  sel.dataset.gamaBridge='1';
-  sel.addEventListener('change',async function(){if(!this.value.startsWith('legacy:'))return;const opt=this.options[this.selectedIndex];let s;try{s=JSON.parse(opt.dataset.legacy||'{}')}catch(e){return}const saved=await cloudSupplier(s);if(saved&&saved.id){opt.value=saved.id;opt.dataset.legacy='';this.value=saved.id;this.dispatchEvent(new Event('change',{bubbles:true}))}else alert('No se ha podido sincronizar el proveedor con la nube. Comprueba tu conexión o permisos de Supabase.')});
-}
-function boot(){run();const mo=new MutationObserver(()=>run());mo.observe(document.body,{childList:true,subtree:true})}
+const KEY='gama_suppliers_v1';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readLocal(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
+function normalize(o){const name=String(o?.name||o?.nombre||o?.razon_social||o?.business_name||'').trim();return name?{legacy_id:o.id||null,name,tax_id:o.tax||o.tax_id||o.ruc||o.nif||null,address:o.address||o.direccion||null,city:o.city||o.ciudad||null,province:o.province||o.provincia||null,postal_code:o.postal_code||o.codigo_postal||null,country:o.country||o.pais||null,phone:o.phone||o.telefono||null,email:o.email||null,contact_name:o.contact||o.contact_name||o.contacto||null,notes:o.notes||o.notas||null,active:o.active!==false}:null}
+function localSuppliers(){const out=[];const seen=new Set();readLocal().forEach(o=>{const s=normalize(o);if(s&&!seen.has(s.name.toLowerCase())){seen.add(s.name.toLowerCase());out.push(s)}});return out}
+async function cloudSupplier(s){try{const C=window.GamaCloud;if(!C)return null;const db=await C.db();const q=await db.from('suppliers').select('*').eq('name',s.name).limit(1);if(q.data?.[0])return q.data[0];const r=await C.insert('suppliers',s);return r.data||null}catch(e){console.warn('[GAMA supplier bridge]',e);return null}}
+function install(){const sel=document.getElementById('gp14Supplier');if(!sel)return;const locals=localSuppliers();locals.forEach(s=>{const exists=[...sel.options].some(o=>o.dataset.gamaLocalName?.toLowerCase()===s.name.toLowerCase()||o.textContent.trim().toLowerCase().startsWith(s.name.toLowerCase()));if(exists)return;const o=document.createElement('option');o.value='legacy:'+encodeURIComponent(s.name);o.textContent=s.name+(s.tax_id?' — '+s.tax_id:'');o.dataset.gamaLocalName=s.name;o.dataset.gamaSupplier=JSON.stringify(s);sel.appendChild(o)});if(sel.dataset.gamaBridgeV3==='1')return;sel.dataset.gamaBridgeV3='1';sel.addEventListener('change',async function(){const o=this.options[this.selectedIndex];if(!o?.dataset.gamaSupplier)return;const s=JSON.parse(o.dataset.gamaSupplier);const saved=await cloudSupplier(s);if(saved?.id){o.value=saved.id;o.dataset.gamaSupplier='';this.value=saved.id}else alert('No se pudo sincronizar este proveedor con la nube.');});}
+function boot(){install();setInterval(install,1000);new MutationObserver(install).observe(document.body,{childList:true,subtree:true})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

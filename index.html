@@ -226,6 +226,7 @@ section{display:none}section.active{display:block}
 <div class="wrap">
 
 <div class="tabs">
+<button type="button" class="tab" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('Le module Achats est encore en cours de chargement. Rechargez la page.')">🛒<span>Achats</span></button>
 <button class="tab active" onclick="showTab('dashboard',this)">▦<span>Dashboard</span></button><button class="tab" onclick="showTab('home',this)">⌂<span>Inicio</span></button>
 <button class="tab" onclick="showTab('products',this)">◇<span>Productos</span></button><button class="tab" onclick="showTab('clients',this)">♙<span>Clientes</span></button>
 <button class="tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button class="tab" onclick="showTab('billing',this)">▤<span>Facturación</span></button><button class="tab" onclick="showTab('more',this)">•••<span>Más</span></button>
@@ -781,6 +782,6 @@ showTab('mainmenu',null);
 <script src="gama-central-sync.js?v=1"></script>
 <script src="gama-excel-import.js?v=4"></script>
 <script src="gama-excel-module-loader.js?v=5"></script>
-<script src="gama-purchases-v14.js?v=20260827-5"></script>
+<script src="gama-purchases-v14.js?v=20260827-6"></script>
 <script src="gama-proveedores-matriz.js?v=2"></script>
 </body></html>

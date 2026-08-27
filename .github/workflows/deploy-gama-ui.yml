@@ -45,12 +45,13 @@ jobs:
             'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
             'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
             'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-7"></script>',
+            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-8"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
-            'gama-standard-ui':'<script src="gama-standard-ui.js?v=1"></script>',
+            'gama-standard-ui':'<script src="gama-standard-ui.js?v=2"></script>',
           }
           for name in modules:
             s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js[^\"]*"></script>', '', s)
+            s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js\?v=[^\"]*"></script>', '', s)
           tag='\n'.join(modules.values())+'\n'
           if '</body>' not in s: raise SystemExit('Invalid index.html: missing </body>')
           s=s.replace('</body>',tag+'</body>',1)
@@ -65,8 +66,8 @@ jobs:
           test "$(grep -o 'gama-purchases-v14.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-proveedores-matriz.js' index.html | wc -l)" -eq 1
           test "$(grep -o 'gama-standard-ui.js' index.html | wc -l)" -eq 1
-          grep -q 'gama-purchases-v14.js?v=20260827-7' index.html
-          grep -q 'gama-standard-ui.js?v=1' index.html
+          grep -q 'gama-purchases-v14.js?v=20260827-8' index.html
+          grep -q 'gama-standard-ui.js?v=2' index.html
           grep -q 'id="pBarcode"' index.html
       - name: Commit only the integration changes
         run: |

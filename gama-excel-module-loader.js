@@ -13,13 +13,29 @@
     const sec=document.getElementById('gama-excel-import-section');if(sec){sec.style.display='block';sec.classList.add('active');}
     document.getElementById('mainmenu')?.setAttribute('hidden','');mountExcel();window.scrollTo({top:0,behavior:'smooth'});
   }
+  function openPurchases(){
+    if(window.gamaShowPurchases){window.gamaShowPurchases();return;}
+    loadScript('gama-purchases-v14.js?v=20260827-1').then(function(){if(window.gamaShowPurchases)window.gamaShowPurchases();}).catch(function(e){console.warn('[GAMA] Achats:',e);alert('Le module Achats n’a pas pu être chargé. Actualisez la page.');});
+  }
   function installExcelButton(){
     const host=document.querySelector('#mainmenu .gamaF2Grid,#mainmenu .gamaMenuGrid,#mainmenu');if(!host||host.querySelector('[data-gama-excel]'))return;
     const b=document.createElement('button');b.type='button';b.className='gamaF2Card gamaMenuCard';b.dataset.gamaExcel='1';b.innerHTML='<span class="gamaF2Icon gamaMenuIcon" style="background:#fff0e5!important"><img src="gama-excel-import-icon.svg?v=2" alt="" style="width:58px;height:58px;object-fit:contain"></span><span class="gamaF2Title gamaMenuTitle">Import Excel</span>';b.onclick=openExcel;host.appendChild(b);
   }
   function installPurchasesButton(){
-    const host=document.querySelector('.tabs');if(!host||host.querySelector('[data-gama-purchases-v14]')||document.getElementById('gamaPurchasesV14Tab'))return;
-    const b=document.createElement('button');b.id='gamaPurchasesV14Tab';b.type='button';b.className='tab';b.dataset.gamaPurchasesV14='1';b.innerHTML='🛒<span>Achats</span>';b.onclick=function(){if(window.gamaShowPurchases)window.gamaShowPurchases();};host.appendChild(b);
+    const host=document.querySelector('#mainmenu .appGrid');
+    if(host&&!host.querySelector('[data-gama-purchases-v14-card]')){
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='appTile';
+      b.dataset.gamaPurchasesV14Card='1';
+      b.innerHTML='<span class="appIcon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-1.5 7H7L5.5 5H4Zm3 7v7h10v-7M9 19h6M8 5l1.5-2h5L16 5"/><circle cx="9" cy="21" r="1"/><circle cx="17" cy="21" r="1"/></svg></span><b>Achats</b><small>Commandes fournisseurs</small>';
+      b.onclick=openPurchases;
+      host.insertBefore(b,host.firstChild);
+    }
+    const tabHost=document.querySelector('.tabs');
+    if(tabHost&&!tabHost.querySelector('[data-gama-purchases-v14]')){
+      const b=document.createElement('button');b.id='gamaPurchasesV14Tab';b.type='button';b.className='tab';b.dataset.gamaPurchasesV14='1';b.innerHTML='🛒<span>Achats</span>';b.onclick=openPurchases;tabHost.appendChild(b);
+    }
   }
   async function boot(){
     try{
@@ -31,5 +47,6 @@
     new MutationObserver(function(){mountExcel();installExcelButton();installPurchasesButton();}).observe(document.body,{subtree:true,childList:true});
   }
   window.GamaOpenExcelImport=openExcel;
+  window.GamaOpenPurchases=openPurchases;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

@@ -1,32 +1,19 @@
 /* GAMA V10 — main menu, single source of truth */
 (function(){
 'use strict';
-
 const ITEMS=[
- ['Dashboard','dashboard','chart','teal','Ventas y KPIs'],
- ['Inicio','home','home','orange','Escaneo rápido'],
- ['Productos','products','cube','teal','Fichas y precios'],
- ['Clientes','clients','users','orange','Base de clientes'],
- ['IN / OUT','movement','move','teal','Entradas y salidas'],
- ['Facturación','billing','invoice','orange','Ventas y facturas'],
- ['Inventario','stock','stock','teal','Stock actual'],
- ['Audit Trail','audit','audit','orange','Trazabilidad'],
- ['Reportes','dashboard','pie','teal','Ventas y análisis'],
- ['Códigos de barras','barcode','barcode','orange','Generar códigos'],
- ['Escáner','home','scan','teal','Escaneo cámara'],
- ['Backup','backup','cloud','orange','Copias de seguridad'],
- ['Excel','excel','sheet','teal','Importar / exportar'],
- ['Catálogo','products','catalog','orange','Productos disponibles'],
- ['Clientes frecuentes','clients','frequent','teal','Acceso a clientes'],
- ['Movimientos','movement','move','orange','Historial IN / OUT'],
- ['Stock','stock','stock','teal','Consulta de stock'],
- ['Facturas','billing','invoice','orange','Documentos emitidos'],
- ['Historial','audit','history','teal','Actividad registrada'],
- ['Datos','backup','data','orange','Gestionar copias'],
- ['Proveedores','suppliers','truck','teal','Proveedores y compras'],
- ['Compras','purchases','cart','orange','Pedidos y recepción']
+ ['Dashboard','dashboard','chart','teal','Ventas y KPIs'],['Inicio','home','home','orange','Escaneo rápido'],
+ ['Productos','products','cube','teal','Fichas y precios'],['Clientes','clients','users','orange','Base de clientes'],
+ ['IN / OUT','movement','move','teal','Entradas y salidas'],['Facturación','billing','invoice','orange','Ventas y facturas'],
+ ['Inventario','stock','stock','teal','Stock actual'],['Audit Trail','audit','audit','orange','Trazabilidad'],
+ ['Reportes','dashboard','pie','teal','Ventas y análisis'],['Códigos de barras','barcode','barcode','orange','Generar códigos'],
+ ['Escáner','home','scan','teal','Escaneo cámara'],['Backup','backup','cloud','orange','Copias de seguridad'],
+ ['Excel','excel','sheet','teal','Importar / exportar'],['Catálogo','products','catalog','orange','Productos disponibles'],
+ ['Clientes frecuentes','clients','frequent','teal','Acceso a clientes'],['Movimientos','movement','move','orange','Historial IN / OUT'],
+ ['Stock','stock','stock','teal','Consulta de stock'],['Facturas','billing','invoice','orange','Documentos emitidos'],
+ ['Historial','audit','history','teal','Actividad registrada'],['Datos','backup','data','orange','Gestionar copias'],
+ ['Proveedores','suppliers','truck','teal','Proveedores y compras'],['Compras','purchases','cart','orange','Pedidos y recepción']
 ];
-
 const ICONS={
  chart:'<path d="M4 19V10m5 9V6m5 13v-8m5 8V3"/><path d="m4 9 5-4 5 3 6-6"/>',
  home:'<path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/>',
@@ -48,43 +35,26 @@ const ICONS={
  truck:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
  purchases:'<path d="M4 5h3l2 10h9l2-7H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>'
 };
-
-function openItem(id,label){
- document.body.classList.remove('gamaMainMenuActive');
- if(id==='purchases'){
-   if(typeof window.gamaShowPurchases==='function') return window.gamaShowPurchases();
-   alert('El módulo Compras todavía está cargando. Recarga la página.');
-   return;
- }
- if(id==='excel'){
-   if(typeof window.showTab==='function') window.showTab('backup',null);
-   setTimeout(()=>document.getElementById('excelImport')?.focus(),80);
-   return;
- }
- if(typeof window.showTab==='function') window.showTab(id,null);
+function setMainMenuState(active){document.body.classList.toggle('gamaMainMenuActive',!!active)}
+function openItem(id){
+ setMainMenuState(false);
+ if(id==='purchases')return typeof window.gamaShowPurchases==='function'?window.gamaShowPurchases():alert('El módulo Compras todavía está cargando. Recarga la página.');
+ if(id==='excel'){if(typeof window.showTab==='function')window.showTab('backup',null);setTimeout(()=>document.getElementById('excelImport')?.focus(),80);return}
+ if(typeof window.showTab==='function')window.showTab(id,null);
 }
-
 function render(){
- const host=document.getElementById('mainmenu');
- if(!host)return;
- host.replaceChildren();
- document.body.classList.add('gamaMainMenuActive');
- const intro=document.createElement('div');
- intro.className='menuIntro';
+ const host=document.getElementById('mainmenu');if(!host)return;host.replaceChildren();setMainMenuState(true);
+ const intro=document.createElement('div');intro.className='menuIntro';
  intro.innerHTML='<div><h2>Menú principal</h2><p>Accede rápidamente a todas las funciones de GAMA Stock Manager.</p></div><span class="onlineBadge"><i></i> En línea</span>';
  const grid=document.createElement('div');grid.className='appGrid';
- ITEMS.forEach(([label,id,icon,tone,sub])=>{
-  const b=document.createElement('button');b.type='button';b.className='appTile';
-  b.innerHTML='<span class="appIcon '+tone+'"><svg viewBox="0 0 24 24">'+ICONS[icon]+'</svg></span><b></b><small></small>';
-  b.querySelector('b').textContent=label;b.querySelector('small').textContent=sub;
-  b.addEventListener('click',()=>openItem(id,label));grid.appendChild(b);
- });
- const footer=document.createElement('div');footer.className='menuFooter';
- footer.innerHTML='<span><i></i> Sistema local activo</span><small>GAMA Stock Manager V10</small>';
+ ITEMS.forEach(([label,id,icon,tone,sub])=>{const b=document.createElement('button');b.type='button';b.className='appTile';b.innerHTML='<span class="appIcon '+tone+'"><svg viewBox="0 0 24 24">'+ICONS[icon]+'</svg></span><b></b><small></small>';b.querySelector('b').textContent=label;b.querySelector('small').textContent=sub;b.addEventListener('click',()=>openItem(id));grid.appendChild(b)});
+ const footer=document.createElement('div');footer.className='menuFooter';footer.innerHTML='<span><i></i> Sistema local activo</span><small>GAMA Stock Manager V10</small>';
  host.append(intro,grid,footer);
 }
-
-function boot(){render()}
+function installNavigationHook(){
+ if(window.showTab&& !window.showTab.__gamaMenuState){const old=window.showTab;const wrapped=function(id,el){if(id==='mainmenu'){setMainMenuState(true);const r=old.apply(this,arguments);setTimeout(render,0);return r}setMainMenuState(false);return old.apply(this,arguments)};wrapped.__gamaMenuState=true;wrapped.__gamaOriginal=old;window.showTab=wrapped}
+}
+function boot(){render();installNavigationHook()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 window.GAMA_MODULES={open:openItem,list:()=>ITEMS.map(x=>({label:x[0],id:x[1]}))};
 })();

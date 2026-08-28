@@ -36,21 +36,21 @@ jobs:
           s=p.read_text(encoding='utf-8')
           s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=10', s)
           s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=8', s)
-          s=re.sub(r'gama-role-spanish\.js\?v=[^"\']+', 'gama-role-spanish.js?v=5', s)
-          s=re.sub(r'gama-fixed-header\.js\?v=[^"\']+', 'gama-fixed-header.js?v=5', s)
+          s=re.sub(r'gama-role-spanish\.js\?v=[^"\']+', 'gama-role-spanish.js?v=6', s)
+          s=re.sub(r'gama-fixed-header\.js\?v=[^"\']+', 'gama-fixed-header.js?v=6', s)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Validate cache versions
         run: |
           grep -q 'gama-standard-ui.js?v=10' index.html
           grep -q 'gama-menu-final2.js?v=8' index.html
-          grep -q 'gama-role-spanish.js?v=5' index.html
-          grep -q 'gama-fixed-header.js?v=5' index.html
+          grep -q 'gama-role-spanish.js?v=6' index.html
+          grep -q 'gama-fixed-header.js?v=6' index.html
       - name: Commit deployment references
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'chore: refresh top bar and module styles'
+          git commit -m 'chore: refresh mobile top bar cache'
           git push origin HEAD:main

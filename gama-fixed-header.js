@@ -1,4 +1,4 @@
-/* GAMA — fixed header, sans interception des boutons */
+/* GAMA — fixed header stable */
 (function(){
 'use strict';
 function inject(){
@@ -7,7 +7,9 @@ function inject(){
  s.id='gamaFixedHeaderStyle';
  s.textContent=`
  header.gamaHeader{position:sticky!important;top:0!important;z-index:5000!important;isolation:isolate!important}
- header.gamaHeader .headIcon.plus{display:inline-flex!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important}
+ header.gamaHeader .headIcon.plus,
+ header.gamaHeader #globalBack,
+ header.gamaHeader .backHome{display:none!important}
  `;
  document.head.appendChild(s);
 }

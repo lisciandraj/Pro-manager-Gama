@@ -36,11 +36,11 @@ jobs:
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           replacements={
-            'gama-standard-ui.js?v=10':'gama-standard-ui.js?v=11',
-            'gama-menu-final2.js?v=8':'gama-menu-final2.js?v=9',
-            'gama-role-spanish.js?v=7':'gama-role-spanish.js?v=8',
-            'gama-fixed-header.js?v=7':'gama-fixed-header.js?v=8',
-            'gama-access-control.js?v=1':'gama-access-control.js?v=2'
+            'gama-standard-ui.js?v=11':'gama-standard-ui.js?v=12',
+            'gama-menu-final2.js?v=9':'gama-menu-final2.js?v=10',
+            'gama-role-spanish.js?v=8':'gama-role-spanish.js?v=9',
+            'gama-fixed-header.js?v=8':'gama-fixed-header.js?v=9',
+            'gama-access-control.js?v=2':'gama-access-control.js?v=3'
           }
           for old,new in replacements.items():
               s=s.replace(old,new)
@@ -48,11 +48,11 @@ jobs:
           PY
       - name: Validate cache versions
         run: |
-          grep -q 'gama-standard-ui.js?v=11' index.html
-          grep -q 'gama-menu-final2.js?v=9' index.html
-          grep -q 'gama-role-spanish.js?v=8' index.html
-          grep -q 'gama-fixed-header.js?v=8' index.html
-          grep -q 'gama-access-control.js?v=2' index.html
+          grep -q 'gama-standard-ui.js?v=12' index.html
+          grep -q 'gama-menu-final2.js?v=10' index.html
+          grep -q 'gama-role-spanish.js?v=9' index.html
+          grep -q 'gama-fixed-header.js?v=9' index.html
+          grep -q 'gama-access-control.js?v=3' index.html
       - name: Commit deployment references
         run: |
           git config user.name 'github-actions[bot]'

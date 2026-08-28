@@ -1,33 +1,24 @@
-/* GAMA — ajustes de barra superior. Módulo visuel isolado. */
-(function(){
-'use strict';
-function inject(){
+/* GAMA — barra superior base, sin superposición */
+(function(){'use strict';
+function boot(){
  if(document.getElementById('gamaTopBarFix'))return;
- const s=document.createElement('style');s.id='gamaTopBarFix';
+ var s=document.createElement('style');s.id='gamaTopBarFix';
  s.textContent=`
- /* Barra superior base */
  header.gamaHeader{position:sticky!important;top:0!important;z-index:5000!important}
- /* El botón + de nueva factura queda eliminado: Facturación sigue disponible en el menú. */
  header.gamaHeader .headIcon.plus{display:none!important}
- /* La flecha de retorno no se muestra. */
  header.gamaHeader #globalBack,header.gamaHeader .backHome{display:none!important}
- /* Compte actif : toujours visible dans la barre supérieure. */
- #gamaACLUser{position:absolute!important;top:50%!important;right:150px!important;left:auto!important;transform:translateY(-50%)!important;z-index:6001!important;max-width:42vw!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:none!important;margin:0!important}
- #gamaACLUser button{pointer-events:auto!important;touch-action:manipulation!important}
- /* Compte Cloud : même barre, à droite. */
- #gamaCloudAdminBtn{position:absolute!important;top:50%!important;right:12px!important;transform:translateY(-50%)!important;z-index:6002!important;margin:0!important;padding:8px 11px!important;white-space:nowrap!important}
+ header.gamaHeader .headActions{display:flex!important;align-items:center!important;gap:7px!important;margin-left:auto!important;order:3!important;position:static!important}
+ header.gamaHeader #gamaActiveAccount{position:static!important;transform:none!important;order:1!important;max-width:360px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ header.gamaHeader #gamaCloudAdminBtn{position:static!important;transform:none!important;order:2!important;flex:0 0 auto!important}
  @media(max-width:700px){
-   header.gamaHeader{min-height:76px!important;height:76px!important}
-   #gamaACLUser{right:116px!important;max-width:calc(100vw - 220px)!important;font-size:10px!important;padding:5px 7px!important}
-   #gamaACLUser button{font-size:10px!important;padding:5px 6px!important}
-   #gamaCloudAdminBtn{right:7px!important;max-width:105px!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:10px!important;padding:7px 7px!important}
+  header.gamaHeader{min-height:76px!important;height:auto!important}
+  header.gamaHeader .headActions{gap:4px!important}
+  header.gamaHeader #gamaActiveAccount{max-width:42vw!important;font-size:10px!important;padding:6px 8px!important}
+  header.gamaHeader #gamaActiveAccount span{display:none!important}
+  header.gamaHeader #gamaCloudAdminBtn{max-width:110px!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:10px!important;padding:7px 8px!important}
  }
  `;
  document.head.appendChild(s);
 }
-function cleanBack(){
- document.querySelectorAll('header.gamaHeader .backHome,header.gamaHeader #globalBack').forEach(x=>x.remove());
-}
-function boot(){inject();cleanBack();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

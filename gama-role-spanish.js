@@ -34,9 +34,9 @@ function apply(){
   home=document.createElement('button');
   home.type='button';home.className='gamaHomeButton';home.title='Volver al menú principal';home.setAttribute('aria-label','Volver al menú principal');home.textContent='⌂';
   home.onclick=function(){
-   document.querySelectorAll('section').forEach(x=>{x.classList.remove('active');x.style.removeProperty('display');x.removeAttribute('hidden')});
-   const m=document.getElementById('mainmenu');
-   if(m){m.classList.add('active');m.style.setProperty('display','block','important');m.removeAttribute('hidden')}
+   if(typeof window.showTab==='function'){
+    window.showTab('mainmenu',null);
+   }
    window.scrollTo(0,0);
   };
   h.appendChild(home);

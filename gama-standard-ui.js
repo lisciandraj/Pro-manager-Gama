@@ -14,7 +14,18 @@ function removeEmptyModules(){EMPTY_IDS.forEach(id=>{const sec=document.getEleme
 function standardize(){addStyles();const b=document.getElementById('globalBack');if(b)b.remove();removeEmptyModules();document.querySelectorAll('section').forEach(addStandardHeader)}
 function forceView(id){if(EMPTY_IDS.has(id)){menu();return}document.querySelectorAll('section').forEach(s=>{const active=s.id===id;s.classList.toggle('active',active);s.style.setProperty('display',active?'block':'none','important');if(active)s.removeAttribute('hidden')});const target=document.getElementById(id);if(target){target.removeAttribute('hidden');target.style.setProperty('display','block','important');target.classList.add('active')}standardize()}
 function patchShowTab(){const current=window.showTab;if(typeof current!=='function'||current.__gamaPatched)return false;if(current.__gamaWrapper)return true;const original=current;function fixedShowTab(id,btn){if(EMPTY_IDS.has(id)){menu();return}try{original.call(this,id,btn)}catch(e){console.warn('[GAMA navigation]',e)}forceView(id)}fixedShowTab.__gamaPatched=true;fixedShowTab.__gamaWrapper=true;fixedShowTab.__gamaOriginal=original;window.showTab=fixedShowTab;return true}
-function boot(){standardize();patchShowTab();let timer=null;const observer=new MutationObserver(()=>{if(timer)return;timer=setTimeout(()=>{timer=null;standardize();patchShowTab()},150)});observer.observe(document.body,{childList:true,subtree:true});window.gamaStandardUIReady=true}
+function loadTMS(){
+ if(window.gamaTMS) { injectTile(); return; }
+ if(document.getElementById('gama-tms-loader')) return;
+ const s=document.createElement('script');s.id='gama-tms-loader';s.src='gama-tms-module.js?v=2';s.onload=injectTile;s.onerror=()=>console.warn('[GAMA TMS] module failed to load');document.body.appendChild(s);
+}
+function injectTile(){
+ const grid=document.querySelector('#mainmenu .appGrid');
+ if(!grid||grid.querySelector('[data-gama-tms-tile]')) return;
+ const b=document.createElement('button');b.className='appTile';b.setAttribute('data-gama-tms-tile','1');b.type='button';b.onclick=()=>window.gamaTMS?.open('planning');b.innerHTML='<span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span><b>Livraisons</b><small>TMS • tournées & POD</small>';
+ grid.appendChild(b);
+}
+function boot(){standardize();patchShowTab();loadTMS();let timer=null;const observer=new MutationObserver(()=>{if(timer)return;timer=setTimeout(()=>{timer=null;standardize();patchShowTab();injectTile()},150)});observer.observe(document.body,{childList:true,subtree:true});window.gamaStandardUIReady=true}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 window.gamaStandardBackToMenu=menu;

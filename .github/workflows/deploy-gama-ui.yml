@@ -18,77 +18,34 @@ jobs:
           test -s index.html
           grep -q '<!doctype html>' index.html
           test -f gama-standard-ui.js
-          test -f gama-purchases-v14.js
-          test -f gama-supabase.js
-          test -f gama-purchases-supplier-bridge.js
-          test -f gama-delivery-module.js
+          test -f gama-menu-final2.js
           test -f gama-tms-module.js
           node --check gama-standard-ui.js
-          node --check gama-purchases-v14.js
-          node --check gama-supabase.js
-          node --check gama-purchases-supplier-bridge.js
-          node --check gama-delivery-module.js
+          node --check gama-menu-final2.js
           node --check gama-tms-module.js
-      - name: Integrate current modules
+      - name: Bump modular UI loaders
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          modules={
-            'gama-supabase':'<script src="gama-supabase.js?v=15"></script>',
-            'gama-central-sync':'<script src="gama-central-sync.js?v=1"></script>',
-            'gama-excel-import':'<script src="gama-excel-import.js?v=4"></script>',
-            'gama-excel-module-loader':'<script src="gama-excel-module-loader.js?v=5"></script>',
-            'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-13"></script>',
-            'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
-            'gama-purchases-supplier-bridge':'<script src="gama-purchases-supplier-bridge.js?v=3"></script>',
-            'gama-delivery-module':'<script src="gama-delivery-module.js?v=2"></script>',
-            'gama-tms-module':'<script src="gama-tms-module.js?v=1"></script>',
-            'gama-standard-ui':'<script src="gama-standard-ui.js?v=10"></script>',
-          }
-          for name in modules:
-            s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js[^\"]*"></script>', '', s)
-          s=s.replace('</body>','\n'.join(modules.values())+'\n</body>',1)
-          tile='''\n    <button class="appTile" onclick="gamaTMS.open('planning')">\n      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span><b>Livraisons</b><small>TMS • tournées & POD</small>\n    </button>\n'''
-          if '<b>Livraisons</b>' not in s:
-            marker='  <div class="appGrid">'
-            s=s.replace(marker,marker+tile,1)
+          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=8', s)
+          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=5', s)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Restore native form controls
+      - name: Validate modular integration
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-          marker='/* GAMA NATIVE CONTROLS V4 */'
-          block='''<style id="gamaNativeControlsV4">
-/* GAMA NATIVE CONTROLS V4 */
-select,select option{appearance:auto!important;-webkit-appearance:auto!important}
-select{position:static!important;z-index:auto!important;pointer-events:auto!important;touch-action:auto!important;transform:none!important;filter:none!important}
-select:focus{outline:auto!important}
-</style>'''
-          if marker not in s:
-            s=s.replace('</head>',block+'\n</head>',1)
-          p.write_text(s,encoding='utf-8')
-          PY
-      - name: Validate integration
-        run: |
-          grep -q 'gama-standard-ui.js?v=10' index.html
-          grep -q 'gama-purchases-v14.js?v=20260827-13' index.html
-          grep -q 'gama-purchases-supplier-bridge.js?v=3' index.html
-          grep -q 'gama-delivery-module.js?v=2' index.html
-          grep -q 'gama-tms-module.js?v=1' index.html
-          grep -q '<b>Livraisons</b>' index.html
-          grep -q 'gamaTMS.open' index.html
-          grep -q 'GAMA NATIVE CONTROLS V4' index.html
-      - name: Commit integration
+          grep -q 'gama-standard-ui.js?v=8' index.html
+          grep -q 'gama-menu-final2.js?v=5' index.html
+          grep -q 'gama-tms-module.js' gama-standard-ui.js
+          grep -q "label:'Entregas / TMS'" gama-standard-ui.js
+          grep -q 'gamaTMS' gama-tms-module.js
+      - name: Commit deployment references
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'feat: integrate GAMA TMS delivery workflow'
+          git commit -m 'chore: refresh modular UI loaders'
           git push origin HEAD:main

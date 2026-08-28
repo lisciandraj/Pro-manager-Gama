@@ -21,10 +21,12 @@ jobs:
           test -f gama-purchases-v14.js
           test -f gama-supabase.js
           test -f gama-purchases-supplier-bridge.js
+          test -f gama-delivery-module.js
           node --check gama-standard-ui.js
           node --check gama-purchases-v14.js
           node --check gama-supabase.js
           node --check gama-purchases-supplier-bridge.js
+          node --check gama-delivery-module.js
       - name: Integrate current modules
         run: |
           python3 - <<'PY'
@@ -40,6 +42,7 @@ jobs:
             'gama-purchases-v14':'<script src="gama-purchases-v14.js?v=20260827-13"></script>',
             'gama-proveedores-matriz':'<script src="gama-proveedores-matriz.js?v=2"></script>',
             'gama-purchases-supplier-bridge':'<script src="gama-purchases-supplier-bridge.js?v=3"></script>',
+            'gama-delivery-module':'<script src="gama-delivery-module.js?v=1"></script>',
             'gama-standard-ui':'<script src="gama-standard-ui.js?v=10"></script>',
           }
           for name in modules:
@@ -69,6 +72,7 @@ select:focus{outline:auto!important}
           grep -q 'gama-standard-ui.js?v=10' index.html
           grep -q 'gama-purchases-v14.js?v=20260827-13' index.html
           grep -q 'gama-purchases-supplier-bridge.js?v=3' index.html
+          grep -q 'gama-delivery-module.js?v=1' index.html
           grep -q 'GAMA NATIVE CONTROLS V4' index.html
       - name: Commit integration
         run: |
@@ -76,5 +80,5 @@ select:focus{outline:auto!important}
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: deterministic supplier dropdown deployment'
+          git commit -m 'feat: integrate GAMA delivery module'
           git push origin HEAD:main

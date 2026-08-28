@@ -52,7 +52,7 @@ jobs:
             s=re.sub(r'\n?<script src="'+re.escape(name)+r'\.js[^\"]*"></script>', '', s)
           s=s.replace('</body>','\n'.join(modules.values())+'\n</body>',1)
           tile='''\n    <button class="appTile" onclick="gamaTMS.open('planning')">\n      <span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span><b>Livraisons</b><small>TMS • tournées & POD</small>\n    </button>\n'''
-          if 'gamaTMS.open(' not in s:
+          if '<b>Livraisons</b>' not in s:
             marker='  <div class="appGrid">'
             s=s.replace(marker,marker+tile,1)
           p.write_text(s,encoding='utf-8')
@@ -81,6 +81,7 @@ select:focus{outline:auto!important}
           grep -q 'gama-purchases-supplier-bridge.js?v=3' index.html
           grep -q 'gama-delivery-module.js?v=2' index.html
           grep -q 'gama-tms-module.js?v=1' index.html
+          grep -q '<b>Livraisons</b>' index.html
           grep -q 'gamaTMS.open' index.html
           grep -q 'GAMA NATIVE CONTROLS V4' index.html
       - name: Commit integration

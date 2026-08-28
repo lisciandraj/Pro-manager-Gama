@@ -20,9 +20,11 @@ jobs:
           test -f gama-standard-ui.js
           test -f gama-menu-final2.js
           test -f gama-tms-module.js
+          test -f gama-role-spanish.js
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
           node --check gama-tms-module.js
+          node --check gama-role-spanish.js
       - name: Bump modular UI loaders
         run: |
           python3 - <<'PY'
@@ -30,14 +32,16 @@ jobs:
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=8', s)
-          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=5', s)
+          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=9', s)
+          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=6', s)
+          s=re.sub(r'gama-role-spanish\.js\?v=[^"\']+', 'gama-role-spanish.js?v=2', s)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Validate modular integration
         run: |
-          grep -q 'gama-standard-ui.js?v=8' index.html
-          grep -q 'gama-menu-final2.js?v=5' index.html
+          grep -q 'gama-standard-ui.js?v=9' index.html
+          grep -q 'gama-menu-final2.js?v=6' index.html
+          grep -q 'gama-role-spanish.js?v=2' index.html
           grep -q 'gama-tms-module.js' gama-standard-ui.js
           grep -q "label:'Entregas / TMS'" gama-standard-ui.js
           grep -q 'gamaTMS' gama-tms-module.js
@@ -47,5 +51,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'chore: refresh modular UI loaders'
+          git commit -m 'chore: refresh modular UI loader cache'
           git push origin HEAD:main

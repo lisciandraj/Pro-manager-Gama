@@ -1,4 +1,4 @@
-/* GAMA V12 — central Supabase data layer */
+/* GAMA V15 — central Supabase data layer */
 (function(){'use strict';
 const SUPABASE_URL='https://mknsaibrewksgomuslev.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
@@ -16,8 +16,8 @@ async function list(table,options){const c=await db();options=options||{};let q=
 async function insert(table,row){return (await db()).from(table).insert(row).select().single()}
 async function update(table,id,row){return (await db()).from(table).update(row).eq('id',id).select().single()}
 async function remove(table,id){return (await db()).from(table).delete().eq('id',id)}
-async function subscribe(table,callback){const c=await db();const ch=c.channel('gama-'+table).on('postgres_changes',{event:'*',schema:'public',table},p=>{emit('gama:data-change',{table,payload:p});if(typeof callback==='function')callback(p)}).subscribe();realtime.push(ch);return ch}
+async function subscribe(table,callback){const c=await db();const ch=c.channel('gama-'+table+'-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table},p=>{emit('gama:data-change',{table,payload:p});if(typeof callback==='function')callback(p)}).subscribe();realtime.push(ch);return ch}
 function unsubscribeAll(){if(!client)return;realtime.forEach(ch=>{try{client.removeChannel(ch)}catch(e){}});realtime=[]}
 window.GamaCloud={url:SUPABASE_URL,init,db,getSession,signIn,signOut,getProfile,list,insert,update,remove,subscribe,unsubscribeAll,tables:{profiles:'profiles',products:'products',suppliers:'suppliers',customers:'customers',stockMovements:'stock_movements',invoices:'invoices',invoiceLines:'invoice_lines',commercialMatrix:'commercial_matrix'}};
-window.GamaCloudReady=init().then(function(){['gama-cloud-products.js?v=17','gama-cloud-auth.js?v=17','gama-purchases-supplier-bridge.js?v=4'].forEach(function(src){const s=document.createElement('script');s.src=src;s.async=true;document.head.appendChild(s)});return window.GamaCloud});
+window.GamaCloudReady=init().then(function(){['gama-cloud-products.js?v=17','gama-cloud-auth.js?v=17','gama-purchases-supplier-bridge.js?v=4','gama-cloud-users.js?v=15'].forEach(function(src){const s=document.createElement('script');s.src=src;s.async=true;document.head.appendChild(s)});return window.GamaCloud});
 })();

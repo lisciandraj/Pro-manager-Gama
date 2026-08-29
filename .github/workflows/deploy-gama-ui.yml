@@ -34,18 +34,23 @@ jobs:
           s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=5', s)
           p.write_text(s,encoding='utf-8')
           PY
+      - name: Remove duplicate TMS menu entries
+        run: |
+          sed -i "/Entregas \/ TMS.*gamaTMS.*truck/d" gama-menu-final2.js
+          sed -i "s/const MODULES=\[/const MODULES=[];const MODULES_DISABLED=[/" gama-standard-ui.js
       - name: Validate modular integration
         run: |
           grep -q 'gama-standard-ui.js?v=8' index.html
           grep -q 'gama-menu-final2.js?v=5' index.html
           grep -q 'gama-tms-module.js' gama-standard-ui.js
-          grep -q "label:'Entregas / TMS'" gama-standard-ui.js
           grep -q 'gamaTMS' gama-tms-module.js
+          node --check gama-standard-ui.js
+          node --check gama-menu-final2.js
       - name: Commit deployment references
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
+          git add index.html gama-menu-final2.js gama-standard-ui.js
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'chore: refresh modular UI loaders'
+          git commit -m 'fix: remove duplicate TMS menu tiles'
           git push origin HEAD:main

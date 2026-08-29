@@ -1,8 +1,9 @@
-/* GAMA TMS menu loader — visible tile + lazy module loading */
+/* GAMA TMS menu loader — TMS remains available programmatically, but is not shown as a dashboard tile. */
 (function(){
   'use strict';
   const TMS_SRC='gama-tms-module.js?v=2';
   let loading=null;
+
   function loadTMS(){
     if(window.gamaTMS) return Promise.resolve(window.gamaTMS);
     if(loading) return loading;
@@ -16,21 +17,27 @@
     });
     return loading;
   }
+
   function openTMS(){
     loadTMS().then(()=>window.gamaTMS.open('planning')).catch(e=>alert(e.message));
   }
-  function injectTile(){
-    const grid=document.querySelector('#mainmenu .appGrid, .appGrid');
-    if(!grid || grid.querySelector('[data-gama-tms-tile]')) return;
-    const b=document.createElement('button');
-    b.type='button'; b.className='appTile'; b.dataset.gamaTmsTile='1'; b.onclick=openTMS;
-    b.innerHTML='<span class="appIcon teal"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span><b>Livraisons</b><small>TMS • tournées & POD</small>';
-    grid.appendChild(b);
+
+  // Do not inject a TMS tile into the main menu.
+  // Remove any duplicate/legacy TMS tiles if another script already created them.
+  function removeTMSTiles(){
+    document.querySelectorAll('[data-gama-tms-tile]').forEach(el=>el.remove());
+    document.querySelectorAll('#mainmenu .appTile').forEach(el=>{
+      const text=(el.textContent||'').trim().toLowerCase();
+      if(text.includes('tms') || text.includes('entregas / tms') || text.includes('livraisons')) el.remove();
+    });
   }
+
   function boot(){
-    injectTile();
-    new MutationObserver(injectTile).observe(document.body,{childList:true,subtree:true});
+    removeTMSTiles();
+    new MutationObserver(removeTMSTiles).observe(document.body,{childList:true,subtree:true});
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
   window.gamaOpenTMS=openTMS;
 })();

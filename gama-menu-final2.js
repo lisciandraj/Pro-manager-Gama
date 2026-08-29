@@ -11,7 +11,6 @@ const ITEMS=[
  ['Auditoría','audit','audit'],
  ['Proveedores','suppliers','truck'],
  ['Compras','gamaPurchasesV14','cart'],
- ['Entregas / TMS','gamaTMS','truck'],
  ['Importar Excel','reports','spreadsheet'],
  ['Configuración','settings','gear'],
  ['Copias de seguridad','backup','cloud'],

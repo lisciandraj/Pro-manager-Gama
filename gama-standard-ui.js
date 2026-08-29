@@ -8,7 +8,7 @@ const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Import Excel','Importar E
 const TITLES={products:['📦 Productos','Gestión de productos, precios y existencias'],clients:['👥 Clientes','Gestión de clientes y contactos'],suppliers:['🏭 Proveedores','Gestión de proveedores y condiciones de compra'],stock:['📊 Inventario','Control de existencias y movimientos'],movement:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],movements:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],billing:['🧾 Facturación','Facturas, ventas y cobros'],audit:['🔎 Auditoría','Historial de operaciones y trazabilidad'],settings:['⚙️ Configuración','Configuración de GAMA Stock Manager'],backup:['💾 Copias de seguridad','Exportación y restauración de datos'],barcode:['🏷️ Códigos de barras','Generación e impresión de etiquetas']};
 
 /* Architecture: every new module only needs one registry entry. */
-const MODULES=[
+const MODULES=[];const MODULES_DISABLED=[
  {id:'gamaTMS',label:'Entregas / TMS',icon:'truck',script:'gama-tms-module.js?v=20260828-3',open:()=>window.gamaTMS?.open('planning')}
 ];
 const ICONS={truck:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>'};

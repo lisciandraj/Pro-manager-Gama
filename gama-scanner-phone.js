@@ -17,3 +17,7 @@ function bindInitial(){style();document.querySelectorAll('button').forEach(b=>{i
 document.addEventListener('click',e=>{const b=e.target.closest?.('button');if(!b||!b.classList.contains('gamaPhoneScanBtn'))return;e.preventDefault();e.stopImmediatePropagation();const input=b.closest('.scanner')?.querySelector('input')||getTarget();if(input)start(input.id)},true);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindInitial,{once:true});else bindInitial();
 })();
+(function(){
+  function loadClientModules(){if(document.getElementById('gamaClientModulesLoader'))return;const s=document.createElement('script');s.id='gamaClientModulesLoader';s.src='gama-client-modules.js?v=20260830-1';s.async=false;document.head.appendChild(s)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadClientModules,{once:true});else loadClientModules();
+})();

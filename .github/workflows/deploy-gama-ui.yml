@@ -36,10 +36,6 @@ jobs:
           s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=7', s)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Remove duplicate TMS menu entries
-        run: |
-          sed -i "/Entregas \/ TMS.*gamaTMS.*truck/d" gama-menu-final2.js
-          sed -i "s/const MODULES=\[/const MODULES=[];const MODULES_DISABLED=[/" gama-standard-ui.js
       - name: Validate modular integration
         run: |
           grep -q 'gama-standard-ui.js?v=8' index.html
@@ -47,6 +43,8 @@ jobs:
           grep -q 'gama-tms-module.js' gama-standard-ui.js
           grep -q 'gamaTMS' gama-tms-module.js
           grep -q 'gama-client-modules.js' gama-menu-final2.js
+          grep -q "Matriz comercial" gama-menu-final2.js
+          grep -q "Entregas / TMS" gama-menu-final2.js
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
       - name: Commit deployment references

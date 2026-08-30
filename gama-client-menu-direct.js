@@ -1,0 +1,11 @@
+(()=>{
+'use strict';
+const MENU='mainmenu',GRID='.gamaF2Grid';
+const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+function icons(){return {cat:'<path d="M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2"/>',req:'<path d="M4 5h16v14H4z"/><path d="m4 12 4 4h8l4-4"/><path d="M12 5v7m0 0-2-2m2 2 2-2"/>'}}
+function card(id,title,desc,svg){const b=document.createElement('button');b.id=id;b.type='button';b.className='gamaF2Card';b.dataset.gamaDirect='1';b.title=desc;b.innerHTML='<span class="gamaF2Icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">'+svg+'</svg></span><span class="gamaF2Title">'+title+'</span>';return b}
+function loadClient(){const old=document.getElementById('gamaClientDirectLoader');if(old)old.remove();const s=document.createElement('script');s.id='gamaClientDirectLoader';s.src='https://lisciandraj.github.io/Pro-manager-Gama/gama-client-modules.js?v=20260831-direct';document.head.appendChild(s)}
+function ensure(){const host=document.getElementById(MENU),grid=host?.querySelector(GRID);if(!grid)return false;const realCat=document.getElementById('gamaClientCatalogTile'),realReq=document.getElementById('gamaClientRequestsTile');if(realCat&&realReq){document.querySelectorAll('[data-gama-direct="1"]').forEach(x=>x.remove());return true;}document.querySelectorAll('[data-gama-direct="1"]').forEach(x=>x.remove());const ic=icons();const cat=card('gamaDirectCatalog','Catalogue client','Produits disponibles à la vente',ic.cat);const req=card('gamaDirectRequests','Demandes clients','Demandes de commande reçues',ic.req);grid.append(cat,req);cat.onclick=async()=>{loadClient();for(let i=0;i<20&&!document.getElementById('gamaClientCatalogTile');i++)await wait(100);document.getElementById('gamaClientCatalogTile')?.click()};req.onclick=async()=>{loadClient();for(let i=0;i<20&&!document.getElementById('gamaClientRequestsTile');i++)await wait(100);document.getElementById('gamaClientRequestsTile')?.click()};return true}
+function boot(){ensure();const o=new MutationObserver(()=>ensure());o.observe(document.body,{childList:true,subtree:true});window.gamaClientDirectReady=true;}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();

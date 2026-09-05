@@ -16,10 +16,9 @@ jobs:
       - name: Validate JavaScript
         run: |
           node --check gama-purchases-v14.js
-          node --check gama-excel-module-loader.js
       - name: Validate integration references
         run: |
-          grep -q 'gama-purchases-v14.js' gama-excel-module-loader.js
+          grep -q 'gama-purchases-v14.js' index.html
           grep -q 'gamaShowPurchases' gama-purchases-v14.js
           grep -q 'gama_receive_purchase' gama-purchases-v14.js
           grep -q 'purchase_orders' gama-purchases-v14.js

@@ -2,9 +2,9 @@
 (function(){
 'use strict';
 const STYLE='gamaStandardUIStyleV8';
-const SKIP=new Set(['mainmenu','login','loginSection','auth','gamaPurchasesV14','gama-tms-section']);
-const EMPTY_IDS=new Set(['notifications','tasks','reports','labels','locations','units','support','calendar']);
-const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Import Excel','Importar Excel','Etiquetas','Ubicaciones','Unidades','Ayuda y soporte','Agenda']);
+const SKIP=new Set(['mainmenu','login','loginSection','auth','gamaPurchasesV14','gama-tms-section','reports']);
+const EMPTY_IDS=new Set(['notifications','tasks','labels','locations','units','support','calendar']);
+const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Etiquetas','Ubicaciones','Unidades','Ayuda y soporte','Agenda']);
 const TITLES={products:['📦 Productos','Gestión de productos, precios y existencias'],clients:['👥 Clientes','Gestión de clientes y contactos'],suppliers:['🏭 Proveedores','Gestión de proveedores y condiciones de compra'],stock:['📊 Inventario','Control de existencias y movimientos'],movement:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],movements:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],billing:['🧾 Presupuestos','Genera y envía presupuestos a tus clientes'],audit:['🔎 Auditoría','Historial de operaciones y trazabilidad'],settings:['⚙️ Configuración','Configuración de GAMA Stock Manager'],backup:['💾 Copias de seguridad','Exportación y restauración de datos'],barcode:['🏷️ Códigos de barras','Generación e impresión de etiquetas']};
 
 /* Architecture: every new module only needs one registry entry. */

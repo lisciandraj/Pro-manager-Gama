@@ -41,17 +41,17 @@ async function load(){
   const status=document.getElementById('cuStatus'),body=document.getElementById('cuRows');
   if(!status||!body)return;
   try{
-    status.textContent='Synchronisation avec le cloud…';
+    status.textContent='Sincronizando con la nube…';
     const r=await window.GamaCloud.list('profiles',{order:'created_at',ascending:false});
     if(r.error)throw r.error;
     const rows=Array.isArray(r.data)?r.data:[];
-    body.innerHTML=rows.length?rows.map(x=>`<tr><td><b>${esc(x.full_name||'Sans nom')}</b></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(ROLE[x.role]||x.role||'Utilisateur')}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Désactivé':'● Actif'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('fr-FR'):'—'}</td><td class="cuId">${esc(x.id)}</td></tr>`).join(''):'<tr><td colspan="6">Aucun utilisateur trouvé dans Supabase.</td></tr>';
+    body.innerHTML=rows.length?rows.map(x=>`<tr><td><b>${esc(x.full_name||'Sin nombre')}</b></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(ROLE[x.role]||x.role||'Usuario')}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Desactivado':'● Activo'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('es-EC'):'—'}</td><td class="cuId">${esc(x.id)}</td></tr>`).join(''):'<tr><td colspan="6">No se encontraron usuarios en Supabase.</td></tr>';
     document.getElementById('cuCount').textContent=`${rows.length} utilisateur${rows.length>1?'s':''}`;
-    status.textContent=`Dernière synchronisation : ${new Date().toLocaleTimeString('fr-FR')}`;
+    status.textContent=`Última sincronización: ${new Date().toLocaleTimeString('es-EC')}`;
   }catch(e){
     console.error('[GAMA Cloud Users]',e);
     status.textContent='Erreur de lecture du cloud : '+(e.message||e);
-    body.innerHTML='<tr><td colspan="6" class="cuInactive">Impossible de lire la table profiles. Vérifiez la policy SELECT RLS dans Supabase.</td></tr>';
+    body.innerHTML='<tr><td colspan="6" class="cuInactive">No se pudo leer la tabla profiles. Verifica la política SELECT RLS en Supabase.</td></tr>';
   }
 }
 const observer=new MutationObserver(()=>{

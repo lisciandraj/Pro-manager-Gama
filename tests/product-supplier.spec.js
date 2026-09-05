@@ -45,4 +45,28 @@ test.describe('Product list — assign a supplier', () => {
 
     await expect(page.locator('#productsTable')).toContainText('Papelera Central');
   });
+
+  // Regression test: the product form only ever exposed the sale price;
+  // purchase_price could only ever be set indirectly by receiving a
+  // purchase order, with no way to enter it directly on the product sheet
+  // itself. Compras (unit cost defaults) and the sales-margin report both
+  // read purchase_price, so it needs to be directly editable.
+  test('setting a distinct purchase price and sale price persists both correctly', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+
+    await page.evaluate(() => window.editProduct('PAP-01'));
+    await expect(page.locator('#pCost')).toHaveValue('3');
+    await expect(page.locator('#pPrice')).toHaveValue('6');
+
+    await page.fill('#pCost', '4.25');
+    await page.fill('#pPrice', '9.99');
+    await page.click('button:has-text("Crear producto")');
+
+    await expect.poll(() => page.evaluate(() => window.__DB.products.find(p => p.id === 'p1')?.purchase_price)).toBe(4.25);
+    await expect.poll(() => page.evaluate(() => window.__DB.products.find(p => p.id === 'p1')?.sale_price)).toBe(9.99);
+
+    await expect(page.locator('#productsTable')).toContainText('$4.25');
+    await expect(page.locator('#productsTable')).toContainText('$9.99');
+  });
 });

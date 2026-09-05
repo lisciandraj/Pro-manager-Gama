@@ -37,12 +37,10 @@ function build(q){
  doc.text('Documento informativo. No constituye una factura.',14,y);
  return doc.output('blob');
 }
-async function send({q,email,subject,body,filename}){
- let blob=null;
- try{blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
- const mailtoUrl='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+async function sendDocument({blob,email,subject,body,filename}){
+ const mailtoUrl='mailto:'+(email||'')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
  if(!blob){
-  alert('No se pudo generar el PDF del presupuesto. Se abrirá el correo sin adjunto.');
+  alert('No se pudo generar el PDF del documento. Se abrirá el correo sin adjunto.');
   window.location.href=mailtoUrl;
   return;
  }
@@ -52,8 +50,13 @@ async function send({q,email,subject,body,filename}){
   catch(e){if(e&&e.name==='AbortError')return}
  }
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();
- alert('Se descargó el PDF del presupuesto. Los enlaces de correo no permiten adjuntar archivos automáticamente: adjúntalo manualmente en el correo que se abrirá a continuación.');
+ alert('Se descargó el PDF. Los enlaces de correo no permiten adjuntar archivos automáticamente: adjúntalo manualmente en el correo que se abrirá a continuación.');
  window.location.href=mailtoUrl;
 }
-window.GamaQuotePdf={build,send};
+async function send({q,email,subject,body,filename}){
+ let blob=null;
+ try{blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
+ return sendDocument({blob,email,subject,body,filename});
+}
+window.GamaQuotePdf={build,send,sendDocument};
 })();

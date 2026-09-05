@@ -183,3 +183,51 @@ test.describe('TMS — proof-of-delivery photo capture', () => {
     expect(saved).toMatch(/^data:image\/png;base64,/);
   });
 });
+
+test.describe('TMS — tracking has no manual status override', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('gama-tms-v1', JSON.stringify({
+        deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', date: today, timeWindow: '', priority: 'Normal', weight: 2, volume: 0.5, status: 'Planificada', events: [], notes: '', proof: null }],
+        drivers: [{ id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
+        routes: [{ id: 'rt1', date: today, driverId: 'drv1', driver: 'Conductor 1', vehicle: 'Camión 1', stops: ['del1'], distance: 5, weight: 2, volume: 0.5, status: 'Planificada', createdAt: new Date().toISOString() }],
+        history: [],
+      }));
+    });
+    await page.route('**/gama-supabase.js*', route => route.abort());
+    await page.route('**/@supabase/**', route => route.abort());
+  });
+
+  test('only "POD" is offered per stop, and validating it stamps arrival and delivery time', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    await page.click('button.tmsTab:has-text("Seguimiento del conductor")');
+
+    await expect(page.locator('.tms')).toContainText('Ferretería Sol');
+    await expect(page.locator('button:has-text("En ruta")')).toHaveCount(0);
+    await expect(page.locator('button:has-text("Llegado")')).toHaveCount(0);
+    await expect(page.locator('button:has-text("POD")')).toHaveCount(1);
+
+    await page.click('button:has-text("POD")');
+    await expect(page.locator('.tmsForm div:has(label:text("Hora real de llegada")) input')).toHaveValue('Se registrará al validar');
+
+    const box = await page.locator('#tSig').boundingBox();
+    await page.mouse.move(box.x + 20, box.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 100, box.y + 60);
+    await page.mouse.up();
+
+    page.once('dialog', d => d.accept());
+    await page.click('button:has-text("Validar entrega")');
+    await page.waitForTimeout(300);
+
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0]);
+    expect(saved.status).toBe('Entregada');
+    expect(saved.actualArrival).toBeTruthy();
+    expect(saved.deliveredAt).toBeTruthy();
+    expect(saved.proof?.signature).toMatch(/^data:image\/png;base64,/);
+  });
+});

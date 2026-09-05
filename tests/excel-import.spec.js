@@ -50,4 +50,38 @@ test.describe('Importar Excel', () => {
     await page.waitForTimeout(500);
     await expect(page.locator('#mainmenu :text("Achats")')).toHaveCount(0);
   });
+
+  // Regression test: a real product file with French column headers ("Nom du
+  // produit", "Code barre", "Référence unique", "Prix de vente (€)", "Stock
+  // minimum", "Catégorie") produced 0 usable rows because the alias table
+  // only recognized Spanish/English header names.
+  test('auto-detects French column headers with no fixed order', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.waitForTimeout(300);
+
+    const mapped = await page.evaluate(() => {
+      const row = {
+        'Catégorie': 'Épicerie',
+        'Nom du produit': 'Café Arabica 500g',
+        'Zone de stockage': 'Z01-A01',
+        'Prix de vente (€)': '8.90',
+        'Code barre': '376000000001',
+        'Stock minimum': 10,
+        'Référence unique': 'CAF-ARA-500',
+        'TVA': '6%',
+      };
+      return window.GamaExcelImport._mapRowForTests(row, 'products');
+    });
+
+    expect(mapped).toMatchObject({
+      name: 'Café Arabica 500g',
+      sku: 'CAF-ARA-500',
+      barcode: '376000000001',
+      category: 'Épicerie',
+      min_stock: 10,
+      price: '8.90',
+    });
+  });
 });

@@ -155,3 +155,67 @@ test.describe('Importar Excel', () => {
     });
   });
 });
+
+const fs = require('fs');
+const path = require('path');
+const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
+const TINY_FILE = { name: 'clientes.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('x') };
+
+// Re-importing the same file (or a file listing the same contact twice) used
+// to create a fresh row every time — the reported symptom was ending up with
+// the same client loaded over and over. Rows whose name + address already
+// exist are now skipped and reported separately.
+test.describe('Importar Excel — duplicados', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+      // Stand in for the XLSX CDN parser so the real file -> parse -> import
+      // path runs without a network dependency.
+      // @ts-ignore
+      window.XLSX = {
+        read: () => ({ SheetNames: ['Clientes'], Sheets: { Clientes: {} } }),
+        // @ts-ignore
+        utils: { sheet_to_json: () => window.__ROWS__ || [] },
+      };
+      // @ts-ignore
+      window.__DB = {
+        products: [], suppliers: [], invoices: [], invoice_lines: [],
+        purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
+        customers: [{ id: 'c1', name: 'Distribuidora Andina S.A.', address: 'Av. 10 de Agosto N45-120', active: true }],
+      };
+    });
+    await page.route('**/gama-supabase.js*', route =>
+      route.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD })
+    );
+    await page.route('**/@supabase/**', route => route.abort());
+    await page.route('**/cdn.jsdelivr.net/npm/xlsx**', route => route.abort());
+  });
+
+  test('skips clients whose name and address already exist', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.waitForTimeout(300);
+
+    await page.evaluate(() => {
+      // @ts-ignore - one already in the DB, one new, and one repeated twice in the file
+      window.__ROWS__ = [
+        { 'Nombre / Razón social': 'Distribuidora Andina S.A.', 'Dirección': 'Av. 10 de Agosto N45-120', 'Correo electrónico': 'a@x.ec' },
+        { 'Nombre / Razón social': 'Comercial El Dorado', 'Dirección': 'Calle 9 de Octubre 312', 'Correo electrónico': 'b@x.ec' },
+        { 'Nombre / Razón social': 'comercial el dorado', 'Dirección': 'calle 9 de octubre 312', 'Correo electrónico': 'b@x.ec' },
+      ];
+    });
+
+    await page.click('.gamaExcelTypes button[data-type="clients"]');
+    await page.setInputFiles('#gamaExcelFile', TINY_FILE);
+    await expect(page.locator('#gamaExcelStatus')).toContainText('3 fila(s) detectada(s)');
+
+    await page.click('#gamaExcelImport');
+
+    await expect(page.locator('#gamaExcelStatus')).toContainText('1 fila(s) importada(s)');
+    await expect(page.locator('#gamaExcelStatus')).toContainText('2 duplicada(s) omitida(s)');
+
+    const names = await page.evaluate(() => window.__DB.customers.map(c => c.name));
+    expect(names).toEqual(['Distribuidora Andina S.A.', 'Comercial El Dorado']);
+  });
+});

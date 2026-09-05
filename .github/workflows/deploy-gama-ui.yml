@@ -37,7 +37,14 @@ jobs:
       - name: Remove duplicate TMS menu entries
         run: |
           sed -i "/Entregas \/ TMS.*gamaTMS.*truck/d" gama-menu-final2.js
-          sed -i "s/const MODULES=\[/const MODULES=[];const MODULES_DISABLED=[/" gama-standard-ui.js
+          # Idempotency guard: the plain sed below matches "const MODULES=["
+          # regardless of whether the split already happened, so re-running it
+          # on an already-split file re-injects "const MODULES_DISABLED=["
+          # a second time and breaks the file with a duplicate-declaration
+          # SyntaxError. Only split once.
+          if ! grep -q 'MODULES_DISABLED' gama-standard-ui.js; then
+            sed -i "s/const MODULES=\[/const MODULES=[];const MODULES_DISABLED=[/" gama-standard-ui.js
+          fi
       - name: Validate modular integration
         run: |
           grep -q 'gama-standard-ui.js?v=8' index.html

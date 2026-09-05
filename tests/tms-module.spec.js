@@ -139,3 +139,47 @@ test.describe('TMS — route optimization', () => {
     await expect(page.locator('.tms')).toContainText('Ver ruta');
   });
 });
+
+// A 1x1 transparent PNG, used to simulate picking/taking a delivery photo
+// without depending on a real camera or a fixture file on disk.
+const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
+
+test.describe('TMS — proof-of-delivery photo capture', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('gama-tms-v1', JSON.stringify({
+        deliveries: [{ id: 'del1', customer: 'Panadería Norte', address: 'Calle 10 y Av. Amazonas', date: today, timeWindow: '', priority: 'Normal', weight: 2, volume: 0.5, status: 'Pendiente de preparación', events: [], notes: '', proof: null }],
+        drivers: [{ id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
+        routes: [],
+        history: [],
+      }));
+    });
+    await page.route('**/gama-supabase.js*', route => route.abort());
+    await page.route('**/@supabase/**', route => route.abort());
+  });
+
+  test('selecting a photo saves it immediately with no extra button, and stays on the same screen', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    await page.click('button.tmsTab:has-text("Prueba de entrega")');
+    await page.click('button:has-text("Abrir prueba de entrega")');
+
+    await expect(page.locator('.tms')).toContainText('Panadería Norte');
+    await expect(page.locator('button:has-text("Guardar foto")')).toHaveCount(0);
+    await expect(page.locator('.tmsCard img')).toHaveCount(0);
+
+    await page.setInputFiles('#tPhoto', { name: 'proof.png', mimeType: 'image/png', buffer: TINY_PNG });
+
+    await expect(page.locator('.tmsCard img')).toHaveCount(1);
+    await expect(page.locator('.tmsCard img')).toHaveAttribute('src', /^data:image\/png;base64,/);
+    // Still on the same proof-capture screen, not bounced back to a list.
+    await expect(page.locator('.tms')).toContainText('Panadería Norte');
+    await expect(page.locator('#tSig')).toBeVisible();
+
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0].proof?.photo);
+    expect(saved).toMatch(/^data:image\/png;base64,/);
+  });
+});

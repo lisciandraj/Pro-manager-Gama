@@ -53,8 +53,12 @@ test.describe('Importar Excel', () => {
 
   // Regression test: a real product file with French column headers ("Nom du
   // produit", "Code barre", "Référence unique", "Prix de vente (€)", "Stock
-  // minimum", "Catégorie") produced 0 usable rows because the alias table
-  // only recognized Spanish/English header names.
+  // minimum", "Catégorie", "Zone de stockage", "TVA") produced 0 usable rows
+  // because the alias table only recognized Spanish/English header names.
+  // Also covers a second bug found alongside it: the mapped field names
+  // (sku/price/cost/unit) didn't match the real `products` table columns
+  // (reference/sale_price/purchase_price — `unit` has no column at all), so
+  // every actual import would have failed with a "column not found" error.
   test('auto-detects French column headers with no fixed order', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
@@ -77,11 +81,13 @@ test.describe('Importar Excel', () => {
 
     expect(mapped).toMatchObject({
       name: 'Café Arabica 500g',
-      sku: 'CAF-ARA-500',
+      reference: 'CAF-ARA-500',
       barcode: '376000000001',
       category: 'Épicerie',
+      location: 'Z01-A01',
+      tax_rate: 6,
       min_stock: 10,
-      price: '8.90',
+      sale_price: 8.9,
     });
   });
 });

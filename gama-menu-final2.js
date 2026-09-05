@@ -6,7 +6,7 @@ const ITEMS=[
  ['Productos','products','cube'],
  ['Clientes','clients','users'],
  ['Entradas / Salidas','movement','move'],
- ['Facturación','billing','invoice'],
+ ['Presupuestos','billing','invoice'],
  ['Inventario','stock','stock'],
  ['Auditoría','audit','audit'],
  ['Proveedores','suppliers','truck'],

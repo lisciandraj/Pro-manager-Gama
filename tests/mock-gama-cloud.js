@@ -15,11 +15,20 @@
     options = options || {};
     let rows = (window.__DB[table] || []).slice();
     if (options.eq) Object.keys(options.eq).forEach(k => { rows = rows.filter(r => r[k] === options.eq[k]); });
+    if (options.in) Object.keys(options.in).forEach(k => { rows = rows.filter(r => (options.in[k] || []).includes(r[k])); });
     if (options.order) rows.sort((a, b) => {
       const av = a[options.order], bv = b[options.order];
       const cmp = av > bv ? 1 : av < bv ? -1 : 0;
       return options.ascending !== false ? cmp : -cmp;
     });
+    if (options.range) rows = rows.slice(options.range[0], options.range[1] + 1);
+    else if (options.limit) rows = rows.slice(0, options.limit);
+    // A narrow select() must not hand back columns the caller did not ask for —
+    // that is the whole point of keeping POD photos out of the index query.
+    if (options.select && options.select !== '*') {
+      const cols = options.select.split(',').map(c => c.trim()).filter(Boolean);
+      rows = rows.map(r => { const o = {}; cols.forEach(c => { o[c] = r[c]; }); return o; });
+    }
     return rows;
   }
   // Mirrors the real gama_receive_purchase Postgres function closely enough
@@ -57,12 +66,28 @@
   window.GamaCloud = {
     getSession: async () => ({ data: { session: { user: { id: window.__DB._profile.id } } } }),
     getProfile: async () => ({ data: window.__DB._profile }),
-    list: async (table, options) => ({ data: rowsFor(table, options), error: null }),
+    list: async (table, options) => {
+      // Recorded so tests can assert on query shape (e.g. that the POD archive
+      // index selects only its key columns and never the base64 payloads).
+      window.__DB.__calls = window.__DB.__calls || [];
+      window.__DB.__calls.push({ table, select: (options || {}).select || '*' });
+      return { data: rowsFor(table, options), error: null };
+    },
     select: async (table) => ({ data: rowsFor(table, {}), error: null }),
     insert: async (table, row) => {
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];
       window.__DB[table].push(withId);
+      return { data: withId, error: null };
+    },
+    upsert: async (table, row, options) => {
+      const key = (options && options.onConflict) || 'id';
+      window.__DB[table] = window.__DB[table] || [];
+      const arr = window.__DB[table];
+      const idx = arr.findIndex(r => r[key] === row[key]);
+      if (idx >= 0) { arr[idx] = { ...arr[idx], ...row }; return { data: arr[idx], error: null }; }
+      const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
+      arr.push(withId);
       return { data: withId, error: null };
     },
     update: async (table, id, row) => {

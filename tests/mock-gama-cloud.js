@@ -17,9 +17,22 @@
   // Modelling it here keeps that boundary under test.
   const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at'];
   function catalogRows() {
+    // Mirrors the catalog_products view: the price shown is the one from the
+    // price list of the customer whose email matches the session, falling back
+    // to the product's base price.
+    const email = String((window.__DB._profile || {}).email || '').toLowerCase();
+    const me = (window.__DB.customers || []).find(c => c.active !== false && String(c.email || '').toLowerCase() === email && email);
+    const items = (window.__DB.price_list_items || []).filter(i => me && i.price_list_id === me.price_list_id);
     return (window.__DB.products || [])
       .filter(p => p.active !== false)
-      .map(p => { const o = {}; CATALOG_COLUMNS.forEach(c => { if (c in p) o[c] = p[c]; }); return o; });
+      .map(p => {
+        const o = {}; CATALOG_COLUMNS.forEach(c => { if (c in p) o[c] = p[c]; });
+        const hit = items.find(i => i.product_id === p.id);
+        o.base_price = p.sale_price;
+        o.contract_price = !!hit;
+        if (hit) o.sale_price = hit.unit_price;
+        return o;
+      });
   }
   function rowsFor(table, options) {
     options = options || {};
@@ -91,10 +104,11 @@
       return { data: withId, error: null };
     },
     upsert: async (table, row, options) => {
-      const key = (options && options.onConflict) || 'id';
+      // onConflict may name a composite key, e.g. 'price_list_id,product_id'.
+      const keys = String((options && options.onConflict) || 'id').split(',').map(k => k.trim());
       window.__DB[table] = window.__DB[table] || [];
       const arr = window.__DB[table];
-      const idx = arr.findIndex(r => r[key] === row[key]);
+      const idx = arr.findIndex(r => keys.every(k => r[k] === row[k]));
       if (idx >= 0) { arr[idx] = { ...arr[idx], ...row }; return { data: arr[idx], error: null }; }
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       arr.push(withId);
@@ -112,6 +126,19 @@
     },
     subscribe: () => {},
     db: async () => ({
+      from: table => {
+        const filters = [];
+        const chain = {
+          delete: () => chain,
+          eq: (col, val) => { filters.push([col, val]); return chain; },
+          then: (resolve) => {
+            const before = (window.__DB[table] || []).length;
+            window.__DB[table] = (window.__DB[table] || []).filter(r => !filters.every(([c, v]) => r[c] === v));
+            return Promise.resolve({ data: null, error: null, count: before - window.__DB[table].length }).then(resolve);
+          },
+        };
+        return chain;
+      },
       rpc: async (fn, args) => {
         if (fn === 'gama_receive_purchase') return rpcReceivePurchase(args || {});
         return { data: null, error: null };

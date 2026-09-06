@@ -1,9 +1,18 @@
 /* GAMA V12 — centralized Supabase source of truth + Realtime mirror */
 (function(){'use strict';
+/* Este archivo se carga dos veces: con <script> desde index.html y de forma
+   dinámica desde gama-access-control.js en cuanto GamaCloud está listo. Sin
+   esta guarda se ejecutaban dos copias del módulo: boot() sólo corría en la
+   primera (tiene su propio candado), pero las asignaciones a window de la
+   segunda pisaban a las de la primera. Las dos copias no comparten estado, así
+   que window.gamaPriceFor acababa leyendo el mapa de tarifas vacío de la copia
+   que nunca cargó nada: el cliente con tarifa se presupuestaba a precio base.
+   gama-supabase.js lleva la misma guarda por el mismo motivo. */
+if(window.__gamaCentralSync)return;window.__gamaCentralSync=true;
 const LOCAL_KEY='stock_manager_v6_ecuador';let ready=false,loading=false;let profilesById={};const $=id=>document.getElementById(id);
 function localSnapshot(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'null')}catch(e){return null}}function clearLocalBusinessData(){try{localStorage.removeItem(LOCAL_KEY)}catch(e){}}function uid(){return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').userId||null}
 function mapProduct(p){return {id:p.id,barcode:p.barcode||'',name:p.name||'',ref:p.reference||'',cat:p.category||'',loc:p.location||'',supplierId:p.supplier_id||'',min:Number(p.min_stock||0),stock:Number(p.stock||0),price:Number(p.sale_price||0),purchase_price:Number(p.purchase_price||0),iva:Number(p.tax_rate??15),photo:p.photo_data||'',active:p.active!==false}}
-function mapClient(c){return {cloudId:c.id,id:c.identification||'',name:c.name||'',idType:'RUC',address:c.address||'',phone:c.phone||'',email:c.email||'',city:c.city||'',province:c.province||'',notes:c.notes||'',active:c.active!==false}}
+function mapClient(c){return {cloudId:c.id,priceListId:c.price_list_id||null,id:c.identification||'',name:c.name||'',idType:'RUC',address:c.address||'',phone:c.phone||'',email:c.email||'',city:c.city||'',province:c.province||'',notes:c.notes||'',active:c.active!==false}}
 function userLabel(userId){if(!userId)return'Sistema';return profilesById[userId]||'Usuario desconocido'}
 function mapMove(m){const p=db.products.find(x=>x.id===m.product_id);return {cloudId:m.id,id:m.id,date:m.created_at,type:(m.type==='in'?'IN':m.type==='out'?'OUT':'ADJUSTMENT'),barcode:p?.barcode||'',name:p?.name||'',qty:Number(m.quantity||0),user:userLabel(m.user_id),reason:m.reason||'',comment:m.comment||'',source:'Cloud',reference:'',stockBefore:m.stock_before===null||m.stock_before===undefined?null:Number(m.stock_before),stockAfter:m.stock_after===null||m.stock_after===undefined?null:Number(m.stock_after)}}
 function mapInvoice(i,lines){const p=(lines||[]).map(l=>{const pr=db.products.find(x=>x.id===l.product_id);return {name:pr?.name||'',barcode:pr?.barcode||'',qty:Number(l.quantity),price:Number(l.unit_price)}});return {cloudId:i.id,id:i.id,number:i.invoice_number||'',date:i.issue_date,clientId:db.clients.find(c=>c.cloudId===i.customer_id)?.id||'',client:db.clients.find(c=>c.cloudId===i.customer_id)?.name||'',items:p,sub:Number(i.subtotal),tax:Number(i.tax),total:Number(i.total),rate:p.length?Number(lines[0]?.tax_rate||15):15,pay:(i.notes&&!i.notes.startsWith('GAMA_META:'))?i.notes:''}}
@@ -50,8 +59,36 @@ async function purgeClientCloud(id){const c=(db.archivedClients||[]).find(x=>x.c
  if(!confirm('¿Borrar definitivamente a «'+c.name+'»?\n\nEsta accion no se puede deshacer. Solo es posible si el cliente no tiene facturas ni solicitudes.'))return;
  const r=await GamaCloud.remove('customers',c.cloudId);
  if(r.error)alert(GamaArchive.friendlyError(r.error,'client'));else await loadAll()}
-async function generateInvoiceCloud(){if(!validateQuoteForm())return;const customer=db.clients.find(c=>c.id===$('clientId').value);if(!customer)return alert('Cliente no encontrado en Cloud.');const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices?.length||0);const session=(await GamaCloud.getSession()).data.session;const inv=await GamaCloud.insert('invoices',{invoice_number:number,customer_id:customer.cloudId,user_id:session?.user?.id||null,status:'issued',issue_date:new Date().toISOString(),subtotal:sub,tax,total,notes:$('payment').value||null});if(inv.error){alert('No se pudo crear el presupuesto: '+inv.error.message);return}for(const x of invoiceItems){const line=await GamaCloud.insert('invoice_lines',{invoice_id:inv.data.id,product_id:x.p.id,quantity:x.q,unit_price:Number(x.p.price||0),tax_rate:rate,line_total:x.q*Number(x.p.price||0)*(1+rate/100)});if(line.error){alert('El presupuesto se creó pero una línea falló: '+line.error.message);return}}const localInv={id:inv.data.id,number,date:inv.data.issue_date,clientId:customer.id,client:customer.name,clientEmail:customer.email,clientAddress:customer.address,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};finishQuote(localInv);await loadAll();alert('Presupuesto generado en la base central. Puedes imprimirlo o enviarlo por correo al cliente.')}
-function selectClientForInvoiceCloud(){const c=db.clients.find(x=>x.id===$('clientSelect').value);$('clientId').value=c?c.id:'';$('clientName').value=c?c.name:'';$('clientAddress').value=c?c.address||'':'';$('clientEmail').value=c?c.email||'':''}
+async function generateInvoiceCloud(){if(!validateQuoteForm())return;const customer=db.clients.find(c=>c.id===$('clientId').value);if(!customer)return alert('Cliente no encontrado en Cloud.');const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices?.length||0);const session=(await GamaCloud.getSession()).data.session;const inv=await GamaCloud.insert('invoices',{invoice_number:number,customer_id:customer.cloudId,user_id:session?.user?.id||null,status:'issued',issue_date:new Date().toISOString(),subtotal:sub,tax,total,notes:$('payment').value||null});if(inv.error){alert('No se pudo crear el presupuesto: '+inv.error.message);return}for(const x of invoiceItems){const line=await GamaCloud.insert('invoice_lines',{invoice_id:inv.data.id,product_id:x.p.id,quantity:x.q,unit_price:window.gamaPriceFor(x.p),tax_rate:rate,line_total:x.q*window.gamaPriceFor(x.p)*(1+rate/100)});if(line.error){alert('El presupuesto se creó pero una línea falló: '+line.error.message);return}}const localInv={id:inv.data.id,number,date:inv.data.issue_date,clientId:customer.id,client:customer.name,clientEmail:customer.email,clientAddress:customer.address,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};finishQuote(localInv);await loadAll();alert('Presupuesto generado en la base central. Puedes imprimirlo o enviarlo por correo al cliente.')}
+/* Tarifas por año de contrato: al elegir el cliente se cargan los precios de
+   su tarifa. Sólo se listan allí los productos cuyo precio difiere, así que lo
+   que falte cae en el precio base de la ficha. */
+let contractPrices={},contractListId=null;
+window.gamaPriceFor=function(p){
+ if(!p)return 0;
+ const v=contractPrices[p.id];
+ return v===undefined?Number(p.price||0):Number(v);
+};
+window.gamaHasContractPrice=function(p){return !!p&&contractPrices[p.id]!==undefined};
+async function loadContractPrices(listId){
+ contractPrices={};contractListId=listId||null;
+ if(!listId)return;
+ try{
+  const r=await GamaCloud.list('price_list_items',{eq:{price_list_id:listId}});
+  if(r.error)throw r.error;
+  (r.data||[]).forEach(i=>{contractPrices[i.product_id]=Number(i.unit_price)});
+ }catch(e){console.warn('[GAMA Tarifas] no se pudieron leer los precios del cliente',e)}
+}
+async function selectClientForInvoiceCloud(){
+ const c=db.clients.find(x=>x.id===$('clientSelect').value);
+ $('clientId').value=c?c.id:'';$('clientName').value=c?c.name:'';
+ $('clientAddress').value=c?c.address||'':'';$('clientEmail').value=c?c.email||'':'';
+ await loadContractPrices(c?c.priceListId:null);
+ // Al cambiar de cliente se vuelve a valorar lo que ya esté en el presupuesto.
+ if(typeof window.renderInvoiceItems==='function')window.renderInvoiceItems();
+ const tag=$('quoteTariff');
+ if(tag)tag.textContent=c&&c.priceListId?'Tarifa del cliente aplicada':(c?'Precio base (sin tarifa asignada)':'');
+}
 function populateClientSelectCloud(){const s=$('clientSelect');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Selecciona un cliente...</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name} — ${c.id}</option>`).join('');if(cur&&db.clients.some(c=>c.id===cur))s.value=cur}
 async function boot(){if(window.__gamaCentralSyncBoot)return;window.__gamaCentralSyncBoot=true;while(!window.GamaCloud)await new Promise(r=>setTimeout(r,150));while(!window.GamaCloudReady)await new Promise(r=>setTimeout(r,150));try{await window.GamaCloudReady;await migrateLocalOnce();await loadAll();if(window.GamaCloudProducts){window.addEventListener('gama:products-cloud-change',scheduleReload);window.addEventListener('gama:stock-cloud-change',scheduleReload)}['customers','suppliers','invoices','invoice_lines'].forEach(table=>GamaCloud.subscribe(table,scheduleReload));window.save=function(){try{renderAll()}catch(e){}return true};window.createProduct=createProductCloud;window.saveClient=saveClientCloud;window.registerMovement=registerMovementCloud;window.createCorrection=createCorrectionCloud;window.restoreProduct=restoreProductCloud;window.purgeProduct=purgeProductCloud;window.restoreClient=restoreClientCloud;window.purgeClient=purgeClientCloud;window.deleteProduct=deleteProductCloud;window.deleteClient=deleteClientCloud;window.generateInvoice=generateInvoiceCloud;window.selectClientForInvoice=selectClientForInvoiceCloud;window.populateClientSelect=populateClientSelectCloud;const oldShowTab=window.showTab;window.showTab=function(id,btn){oldShowTab(id,btn);if(id==='billing')populateClientSelectCloud()};document.body.dataset.dataSource='supabase-central';const badge=document.querySelector('.onlineBadge');if(badge)badge.innerHTML='<i></i> Cloud • Tiempo real'}catch(e){console.error('[GAMA] central sync boot failed',e)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

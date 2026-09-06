@@ -59,7 +59,11 @@ test.describe('Proveedores — central directory', () => {
     await expect(page.locator('#supList')).toContainText('Papelera del Sur');
   });
 
-  test('deleting a supplier removes it from the central table', async ({ page }) => {
+  // Suppliers are archived rather than deleted: one attached to products or
+  // purchase orders cannot be removed without breaking those references, and
+  // that constraint used to surface as a raw Postgres error. The row stays,
+  // flagged inactive, and moves to the Archivados tab.
+  test('archiving a supplier hides it from the directory but keeps the row', async ({ page }) => {
     page.on('dialog', d => d.accept());
 
     await page.goto('/index.html');
@@ -69,9 +73,27 @@ test.describe('Proveedores — central directory', () => {
 
     await page.click('#supList [data-del="sup2"]');
 
-    await expect.poll(() =>
-      page.evaluate(() => window.__DB.suppliers.map(s => s.id))
-    ).not.toContain('sup2');
     await expect(page.locator('#supList')).not.toContainText('TecnoSuministros Ecuador');
+    await expect.poll(() =>
+      page.evaluate(() => window.__DB.suppliers.find(s => s.id === 'sup2')?.active)
+    ).toBe(false);
+  });
+
+  test('the archived tab shows it and restores it', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+
+    await page.goto('/index.html');
+    await page.waitForTimeout(500);
+    await page.click('#mainmenu .gamaF2Card:has-text("Proveedores")');
+    await page.click('#supList [data-del="sup2"]');
+    await expect(page.locator('#supList')).not.toContainText('TecnoSuministros Ecuador');
+
+    await page.click('.gamaArcTabs button:has-text("Archivados")');
+    await expect(page.locator('#supList')).toContainText('TecnoSuministros Ecuador');
+
+    await page.click('#supList [data-restore="sup2"]');
+    await expect.poll(() =>
+      page.evaluate(() => window.__DB.suppliers.find(s => s.id === 'sup2')?.active)
+    ).toBe(true);
   });
 });

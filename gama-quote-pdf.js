@@ -37,26 +37,54 @@ function build(q){
  doc.text('Documento informativo. No constituye una factura.',14,y);
  return doc.output('blob');
 }
+/* Windows y macOS aceptan navigator.share con archivos, pero su hoja de
+   compartir adjunta el PDF y descarta "text": el correo salía en blanco. En
+   escritorio se usa por eso el enlace mailto, que sí redacta el mensaje, más
+   la descarga del PDF para adjuntarlo. La hoja de compartir se reserva al
+   móvil, donde adjuntar a mano es lo doloroso. */
+function touchPrimary(){try{return !!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)}catch(e){return false}}
+/* Los clientes de correo cortan las URL largas (Outlook y el shell de Windows
+   rondan los 2 000 caracteres) y lo hacen en silencio. Mejor recortar nosotros
+   y decirlo que entregar un mensaje truncado a media frase. */
+const MAILTO_MAX=1800;
+function buildMailto({email,subject,body}){
+ const url=t=>'mailto:'+(email||'')+'?subject='+encodeURIComponent(subject||'')+'&body='+encodeURIComponent(t||'');
+ let text=String(body||''),truncated=false;
+ while(text.length>120&&url(text).length>MAILTO_MAX){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+ if(truncated)text=text.replace(/\s+\S*$/,'')+'\n\n[…] El detalle completo está en el PDF adjunto.';
+ return{url:url(text),truncated};
+}
+function download(blob,filename){
+ const href=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=href;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(href),30000);
+}
+function openMail(url){window.location.href=url}
+async function copyToClipboard(text){try{await navigator.clipboard.writeText(text);return true}catch(e){return false}}
 async function sendDocument({blob,email,subject,body,filename}){
- const mailtoUrl='mailto:'+(email||'')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
  if(!blob){
-  alert('No se pudo generar el PDF del documento. Se abrirá el correo sin adjunto.');
-  window.location.href=mailtoUrl;
+  alert('No se pudo generar el PDF del documento. Se abrirá el correo, ya redactado, sin adjunto.');
+  api.openMail(buildMailto({email,subject,body}).url);
   return;
  }
- const file=new File([blob],filename,{type:'application/pdf'});
- if(navigator.canShare&&navigator.canShare({files:[file]})){
-  try{await navigator.share({files:[file],title:subject,text:body});return}
+ if(touchPrimary()&&navigator.canShare&&navigator.canShare({files:[new File([blob],filename,{type:'application/pdf'})]})){
+  try{await navigator.share({files:[new File([blob],filename,{type:'application/pdf'})],title:subject,text:body});return}
   catch(e){if(e&&e.name==='AbortError')return}
  }
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();
- alert('Se descargó el PDF. Los enlaces de correo no permiten adjuntar archivos automáticamente: adjúntalo manualmente en el correo que se abrirá a continuación.');
- window.location.href=mailtoUrl;
+ download(blob,filename);
+ const mail=buildMailto({email,subject,body});
+ const copied=mail.truncated?await copyToClipboard(String(body||'')):false;
+ alert('Se descargó «'+filename+'».\n\nSe abrirá tu correo con el asunto y el mensaje ya redactados: solo falta adjuntar ese archivo.'
+  +(mail.truncated?'\n\nEl mensaje es largo y se ha resumido para que el correo no lo corte.'+(copied?' El texto completo está copiado en el portapapeles.':''):''));
+ api.openMail(mail.url);
 }
 async function send({q,email,subject,body,filename}){
  let blob=null;
  try{blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
  return sendDocument({blob,email,subject,body,filename});
 }
-window.GamaQuotePdf={build,send,sendDocument};
+/* openMail se llama a través de api para poder sustituirlo en las pruebas
+   sin navegar de verdad a un mailto:. */
+const api={build,send,sendDocument,buildMailto,openMail};
+window.GamaQuotePdf=api;
 })();

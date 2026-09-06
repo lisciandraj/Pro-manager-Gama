@@ -6,12 +6,12 @@
 'use strict';
 (function loadGamaCloud(){
   if(window.GamaCloud || window.__gamaCloudLoading){
-    if(window.GamaCloud && !window.__gamaCentralSyncLoading){var cs=document.createElement('script');cs.src='gama-central-sync.js?v=1';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;}
+    if(window.GamaCloud && !window.__gamaCentralSyncLoading){var cs=document.createElement('script');cs.src='gama-central-sync.js?v=2';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;}
     return;
   }
   window.__gamaCloudLoading=true;
   var s=document.createElement('script');s.src='gama-supabase.js?v=14';s.async=true;
-  s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));var cs=document.createElement('script');cs.src='gama-central-sync.js?v=1';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;};
+  s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));var cs=document.createElement('script');cs.src='gama-central-sync.js?v=2';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;};
   s.onerror=function(){console.warn('[GAMA] Supabase central layer could not be loaded.');offline();};document.head.appendChild(s);
 })();
 const SKEY='gama_session_v1';

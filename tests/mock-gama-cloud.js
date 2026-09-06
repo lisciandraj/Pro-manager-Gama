@@ -11,9 +11,19 @@
   window.__DB._profile = window.__DB._profile || { id: 'test-admin-uid', full_name: 'Test Admin', role: 'administrador', active: true };
   let idc = 1;
   function nextId(table) { return table[0] + (idc++); }
+  // catalog_products is a database view over products that deliberately omits
+  // purchase_price, supplier_id and location: a "cliente" account may browse
+  // the catalogue without seeing margins, suppliers or warehouse locations.
+  // Modelling it here keeps that boundary under test.
+  const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at'];
+  function catalogRows() {
+    return (window.__DB.products || [])
+      .filter(p => p.active !== false)
+      .map(p => { const o = {}; CATALOG_COLUMNS.forEach(c => { if (c in p) o[c] = p[c]; }); return o; });
+  }
   function rowsFor(table, options) {
     options = options || {};
-    let rows = (window.__DB[table] || []).slice();
+    let rows = table === 'catalog_products' ? catalogRows() : (window.__DB[table] || []).slice();
     if (options.eq) Object.keys(options.eq).forEach(k => { rows = rows.filter(r => r[k] === options.eq[k]); });
     if (options.in) Object.keys(options.in).forEach(k => { rows = rows.filter(r => (options.in[k] || []).includes(r[k])); });
     if (options.order) rows.sort((a, b) => {

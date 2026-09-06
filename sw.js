@@ -8,7 +8,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (request.mode === 'navigate' || request.destination === 'document') {
-    event.respondWith(fetch(request, {cache:'no-store'}).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put('./index.html',copy)).catch(()=>{}); return response; }).catch(()=>caches.match('./index.html').then(response=>response||caches.match('./')));
+    event.respondWith(fetch(request, {cache:'no-store'}).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put('./index.html',copy)).catch(()=>{}); return response; }).catch(()=>caches.match('./index.html').then(response=>response||caches.match('./'))));
     return;
   }
   if (request.destination === 'script' || request.destination === 'style') {

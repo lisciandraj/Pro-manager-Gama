@@ -20,9 +20,11 @@ jobs:
           test -f gama-standard-ui.js
           test -f gama-menu-final2.js
           test -f gama-tms-module.js
+          test -f gama-role-spanish.js
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
           node --check gama-tms-module.js
+          node --check gama-role-spanish.js
       - name: Bump modular UI loaders
         run: |
           python3 - <<'PY'
@@ -34,30 +36,31 @@ jobs:
           s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=6', s)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Remove duplicate TMS menu entries
-        run: |
-          sed -i "/Entregas \/ TMS.*gamaTMS.*truck/d" gama-menu-final2.js
-          # Idempotency guard: the plain sed below matches "const MODULES=["
-          # regardless of whether the split already happened, so re-running it
-          # on an already-split file re-injects "const MODULES_DISABLED=["
-          # a second time and breaks the file with a duplicate-declaration
-          # SyntaxError. Only split once.
-          if ! grep -q 'MODULES_DISABLED' gama-standard-ui.js; then
-            sed -i "s/const MODULES=\[/const MODULES=[];const MODULES_DISABLED=[/" gama-standard-ui.js
-          fi
+      # The old "Remove duplicate TMS menu entries" step lived here. It patched
+      # two things that no longer exist: a TMS tile in gama-menu-final2.js
+      # (removed long ago, so its sed was a no-op) and a MODULES_DISABLED split
+      # in gama-standard-ui.js. That second sed actively fought the codebase —
+      # it re-injected on every push to main the dead array the source tree had
+      # deliberately dropped. The source is now the single point of truth for
+      # the menu; CI only validates it.
       - name: Validate modular integration
         run: |
           grep -q 'gama-standard-ui.js?v=8' index.html
           grep -q 'gama-menu-final2.js?v=6' index.html
-          grep -q 'gama-tms-module.js' gama-standard-ui.js
+          # gama-role-spanish.js is the one live TMS loader: it is the only file
+          # that references gama-tms-module.js. Assert against it, not against a
+          # loader that has been deleted.
+          grep -q 'gama-tms-module.js' gama-role-spanish.js
           grep -q 'gamaTMS' gama-tms-module.js
+          # Exactly one loader — guards against a competing loader creeping back.
+          test "$(grep -l 'gama-tms-module\.js' *.js | wc -l)" = 1
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
       - name: Commit deployment references
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html gama-menu-final2.js gama-standard-ui.js
+          git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: remove duplicate TMS menu tiles'
+          git commit -m 'chore: bump modular UI loader versions'
           git push origin HEAD:main

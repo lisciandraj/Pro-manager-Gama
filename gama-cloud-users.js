@@ -1,7 +1,7 @@
 /* GAMA V17 — Usuarios y accesos: lista central Supabase + realtime */
 (function(){
 'use strict';
-const ROLE={administrador:'Administrador',admin:'Administrador',comercial:'Comercial',commercial:'Comercial',almacenero:'Almacenero',magasinier:'Almacenero'};
+const ROLE={administrador:'Administrador',admin:'Administrador',comercial:'Comercial',commercial:'Comercial',almacenero:'Almacenero',magasinier:'Almacenero',cliente:'Cliente',client:'Cliente'};
 const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
 let realtime=null, booted=false, selfId=null;
 function wait(){

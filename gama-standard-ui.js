@@ -8,9 +8,9 @@ const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Etiquetas','Ubicaciones',
 const TITLES={products:['📦 Productos','Gestión de productos, precios y existencias'],clients:['👥 Clientes','Gestión de clientes y contactos'],suppliers:['🏭 Proveedores','Gestión de proveedores y condiciones de compra'],stock:['📊 Inventario','Control de existencias y movimientos'],movement:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],movements:['🔄 Movimientos','Entradas, salidas y ajustes de inventario'],billing:['🧾 Presupuestos','Genera y envía presupuestos a tus clientes'],audit:['🔎 Auditoría','Historial de operaciones y trazabilidad'],settings:['⚙️ Configuración','Configuración de GAMA Stock Manager'],backup:['💾 Copias de seguridad','Exportación y restauración de datos'],barcode:['🏷️ Códigos de barras','Generación e impresión de etiquetas']};
 
 /* Architecture: every new module only needs one registry entry. */
-const MODULES=[];const MODULES_DISABLED=[
- {id:'gamaTMS',label:'Entregas / TMS',icon:'truck',script:'gama-tms-module.js?v=20260828-3',open:()=>window.gamaTMS?.open('planning')}
-];
+/* Registro de módulos: añadir una entrada aquí basta para que aparezca en el menú.
+   El TMS no está aquí: lo inyecta gama-role-spanish.js, que es quien lo carga de verdad. */
+const MODULES=[];
 const ICONS={truck:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>'};
 
 function menu(){document.querySelectorAll('section').forEach(s=>{s.classList.remove('active');s.style.setProperty('display','none','important')});const m=document.getElementById('mainmenu');if(m){m.removeAttribute('hidden');m.classList.add('active');m.style.setProperty('display','block','important')}document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'})}

@@ -269,7 +269,7 @@ section{display:none}section.active{display:block}
 <div class="actions"><button class="primary" onclick="createProduct()">➕ Crear producto</button><button class="secondary" onclick="clearProductForm()">↺ Limpiar</button></div>
 <input type="hidden" id="editingBarcode">
 </div>
-<div class="card"><h2>Productos disponibles</h2><input id="productSearch" oninput="renderProducts(this.value)" placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
+<div class="card"><h2>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
 </section>
 
 
@@ -293,7 +293,7 @@ section{display:none}section.active{display:block}
 </div>
 <div class="card">
 <h2>Lista de clientes</h2>
-<input id="clientSearch" oninput="renderClients(this.value)" placeholder="Buscar por nombre, identificación, ciudad...">
+<input id="clientSearch" oninput="GamaPage.reset('clients');renderClients(this.value)" placeholder="Buscar por nombre, identificación, ciudad...">
 <div id="clientsTable"></div>
 </div>
 </section>
@@ -347,7 +347,7 @@ section{display:none}section.active{display:block}
 <section id="audit"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>🔐 Audit Trail — Movimientos de stock</h2>
 <div class="notice"><b>Registro inmutable a nivel de interfaz:</b> no existe botón para editar o borrar un movimiento. Las correcciones deben registrarse como nuevos movimientos.</div>
-<div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
+<div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
 <div class="actions"><button class="secondary" onclick="exportAudit()">📤 Exportar Audit Trail CSV</button><button class="warning" onclick="createCorrection()">↩️ Corrección auditada</button></div>
 <div id="auditTable"></div>
 </div>
@@ -357,6 +357,9 @@ section{display:none}section.active{display:block}
 
 </div>
 
+<script src="gama-pagination.js?v=1"></script>
+<!-- Si el ayudante de paginación no carga, las listas se muestran enteras en vez de romper la página. -->
+<script>window.GamaPage=window.GamaPage||{SIZE:20,slice:function(k,r){return r||[]},controls:function(){return ''},go:function(){},register:function(){},reset:function(){},pageCount:function(){return 1},page:function(){return 0}};</script>
 <script>
 const KEY='stock_manager_v6_ecuador';
 let db=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"moves":[],"invoices":[]}');
@@ -396,7 +399,7 @@ function populateSupplierSelect(){const s=$('pSupplier');if(!s)return;const cur=
 function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';if(p.photo){$('pPreview').src=p.photo;$('pPreview').style.display='block'}showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
 function clearProductForm(){$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc'].forEach(id=>$(id).value='');$('pMin').value=0;$('pCost').value=0;$('pPrice').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
 function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
-function renderProducts(filter=''){populateSupplierSelect();let q=filter.toLowerCase(),a=db.products.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));$('productsTable').innerHTML='<table><tr><th>Foto</th><th>Código</th><th>Producto</th><th>Stock</th><th>Precio compra</th><th>Precio venta</th><th>IVA</th><th>Ubicación</th><th>Proveedor</th><th>Acciones</th></tr>'+a.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.barcode}</td><td>${p.name}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td><button class="secondary" onclick="editProduct('${p.barcode}')">✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')">🗑️ Eliminar</button></td></tr>`).join('')+'</table>'}
+function renderProducts(filter=''){populateSupplierSelect();let q=filter.toLowerCase(),a=db.products.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));$('productsTable').innerHTML='<table><tr><th>Foto</th><th>Código</th><th>Producto</th><th>Stock</th><th>Precio compra</th><th>Precio venta</th><th>IVA</th><th>Ubicación</th><th>Proveedor</th><th>Acciones</th></tr>'+GamaPage.slice('products',a).map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.barcode}</td><td>${p.name}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td><button class="secondary" onclick="editProduct('${p.barcode}')">✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')">🗑️ Eliminar</button></td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
 
 
 function saveClient(){
@@ -419,7 +422,7 @@ function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clie
 function renderClients(filter=''){
  const q=(filter||'').toLowerCase(),a=db.clients.filter(c=>(c.name+' '+c.id+' '+c.city+' '+c.province+' '+c.email).toLowerCase().includes(q));
  $('clientsTable').innerHTML='<table><tr><th>Cliente</th><th>Identificación</th><th>Dirección</th><th>Ciudad</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr>'+
- a.map(c=>`<tr><td><b>${c.name}</b></td><td>${c.idType||''} ${c.id}</td><td>${c.address||'-'}</td><td>${c.city||'-'}</td><td>${c.phone||'-'}</td><td>${c.email||'-'}</td><td><button class="secondary" onclick="editClient('${c.id}')">✏️ Editar</button> <button class="danger" onclick="deleteClient('${c.id}')">🗑️</button></td></tr>`).join('')+'</table>'
+ GamaPage.slice('clients',a).map(c=>`<tr><td><b>${c.name}</b></td><td>${c.idType||''} ${c.id}</td><td>${c.address||'-'}</td><td>${c.city||'-'}</td><td>${c.phone||'-'}</td><td>${c.email||'-'}</td><td><button class="secondary" onclick="editClient('${c.id}')">✏️ Editar</button> <button class="danger" onclick="deleteClient('${c.id}')">🗑️</button></td></tr>`).join('')+'</table>'+GamaPage.controls('clients',a.length)
 }
 function populateClientSelect(){
  const current=$('clientSelect').value;
@@ -464,7 +467,7 @@ function invoiceHTML(i){return `<div class="invoice-preview"><h2>PRESUPUESTO</h2
 function printInvoice(){if(!$('invoicePreview').innerHTML)return alert('Genera primero el presupuesto.');window.print()}
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
-function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+a.map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'}
+function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
 function createCorrection(){let b=prompt('Código de barras del producto a corregir:');if(!b)return;let p=product(b);if(!p)return alert('Producto no encontrado.');let target=Number(prompt(`Stock actual: ${p.stock}. ¿Cuál debe ser el stock correcto?`));if(!Number.isFinite(target)||target<0)return alert('Valor inválido.');let delta=target-p.stock;if(delta===0)return alert('No hay diferencia de stock.');let type=delta>0?'IN':'OUT',reason='Corrección de inventario',comment=prompt('Motivo obligatorio de la corrección:')||'';if(!comment)return alert('La corrección requiere un comentario.');if(type==='OUT'&&p.stock<Math.abs(delta))return alert('Stock insuficiente.');auditMovement({p,type,qty:Math.abs(delta),user:'Admin',reason,comment,source:'Corrección auditada'});save();alert('Corrección registrada como nuevo evento. El movimiento anterior no fue modificado.')}
 function exportAudit(){let rows=[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='audit-trail-stock.csv';a.click()}
 
@@ -526,7 +529,11 @@ function renderDashboard(){
  let cat={},pay={};invoices.forEach(inv=>{(inv.items||[]).forEach(x=>{let p=product(x.barcode);let k=p?.cat||'Otros';cat[k]=(cat[k]||0)+Number(x.qty||0)*Number(x.price||0)});let pk=inv.pay||'Otros';pay[pk]=(pay[pk]||0)+Number(inv.total||0)});renderDonut('categoryDonut','categoryLegend',cat);renderDonut('paymentDonut','paymentLegend',pay);
 $('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span class="moveIcon ${m.type==='IN'?'moveIn':'moveOut'}">${m.type==='IN'?'＋':'↗'}</span><span><b>${m.name}</b><small>${new Date(m.date).toLocaleString('es-EC')} · ${m.reason||m.source||''}</small></span><b>${m.type==='IN'?'+':'−'}${m.qty}</b></div>`).join('')||'<div class="muted">Sin movimientos.</div>';
 }
-function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+db.products.map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>';renderAudit()}
+GamaPage.register('products',()=>renderProducts($('productSearch')?.value||''));
+GamaPage.register('clients',()=>renderClients($('clientSearch')?.value||''));
+GamaPage.register('audit',()=>renderAudit());
+GamaPage.register('stock',()=>renderAll());
+function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+GamaPage.slice('stock',db.products).map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>'+GamaPage.controls('stock',db.products.length);renderAudit()}
 showTab('mainmenu',null);
 </script>
 <script>
@@ -819,10 +826,10 @@ showTab('mainmenu',null);
 <script src="gama-purchase-order-pdf.js?v=1"></script>
 <script src="gama-supabase.js?v=13"></script>
 <script src="gama-central-sync.js?v=1"></script>
-<script src="gama-purchases-v14.js?v=20260827-10"></script>
-<script src="gama-proveedores-matriz.js?v=3"></script>
-<script src="gama-client-catalog.js?v=2"></script>
-<script src="gama-customer-requests.js?v=1"></script>
+<script src="gama-purchases-v14.js?v=20260906-1"></script>
+<script src="gama-proveedores-matriz.js?v=4"></script>
+<script src="gama-client-catalog.js?v=3"></script>
+<script src="gama-customer-requests.js?v=2"></script>
 <script src="gama-sales-report.js?v=1"></script>
 <script src="gama-standard-ui.js?v=8"></script>
 </body></html>

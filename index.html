@@ -29,7 +29,7 @@ table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-sp
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
 @media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
 @media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}}
-</style>
+.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}</style>
 
 <style>
 :root{--gama-teal:#087C8B;--gama-dark:#075C69;--gama-orange:#F47A2A;--gama-orange2:#FF8B45;--gama-bg:#E4EAF0;--gama-line:#C9D6DF;--gama-text:#173246}
@@ -334,7 +334,7 @@ section{display:none}section.active{display:block}
 </div>
 </section>
 
-<section id="stock"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>📊 Inventario actual</h2><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button><div id="stockTable"></div></div></section>
+<section id="stock"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>📊 Inventario actual</h2><div class="stockBar"><input id="stockSearch" placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="">Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()"> Sólo stock bajo</label><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
 
 <section id="billing"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
 <div class="card"><h2>🧾 Nuevo presupuesto</h2>
@@ -362,6 +362,8 @@ section{display:none}section.active{display:block}
 
 <script src="gama-pagination.js?v=1"></script>
 <script src="gama-archive.js?v=1"></script>
+<script src="gama-sort.js?v=1"></script>
+<script>window.GamaSort=window.GamaSort||{get:function(){return null},set:function(){},go:function(){},register:function(){},th:function(k,c,l){return "<th>"+l+"</th>"},apply:function(k,r){return r}};</script>
 <script>window.GamaArchive=window.GamaArchive||{mode:function(){return "active"},register:function(){},go:function(){},tabs:function(){return ""},friendlyError:function(e){return String(e&&e.message||e)}};</script>
 <!-- Si el ayudante de paginación no carga, las listas se muestran enteras en vez de romper la página. -->
 <script>window.GamaPage=window.GamaPage||{SIZE:20,slice:function(k,r){return r||[]},controls:function(){return ''},go:function(){},register:function(){},reset:function(){},pageCount:function(){return 1},page:function(){return 0}};</script>
@@ -537,8 +539,43 @@ $('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span
 GamaArchive.register('products',()=>renderProducts(document.getElementById('productSearch')?.value||''));GamaArchive.register('clients',()=>renderClients(document.getElementById('clientSearch')?.value||''));GamaPage.register('products',()=>renderProducts($('productSearch')?.value||''));
 GamaPage.register('clients',()=>renderClients($('clientSearch')?.value||''));
 GamaPage.register('audit',()=>renderAudit());
-GamaPage.register('stock',()=>renderAll());
-function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();$('stockTable').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Código</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>'+GamaPage.slice('stock',db.products).map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${p.name}</td><td>${p.barcode}</td><td>${p.stock}</td><td>$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>'+GamaPage.controls('stock',db.products.length);renderAudit()}
+GamaPage.register('stock',()=>renderStock());GamaSort.register('stock',()=>renderStock());
+/* El script en línea no tiene un escapador propio: los nombres de producto
+   pueden traer comillas o < y se insertan con innerHTML. */
+const sEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function stockCategories(){return [...new Set(db.products.map(p=>p.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'))}
+function populateStockCategories(){const sel=$('stockCategory');if(!sel)return;const keep=sel.value;
+ sel.innerHTML='<option value="">Todas las categorías</option>'+stockCategories().map(c=>`<option value="${sEsc(c)}">${sEsc(c)}</option>`).join('');
+ if(keep&&stockCategories().includes(keep))sel.value=keep}
+/* Accesores de ordenación: el stock y el precio se comparan como números — con
+   texto, 9 saldría después de 10. */
+const STOCK_SORT={name:p=>p.name||'',barcode:p=>p.barcode||'',cat:p=>p.cat||'',
+ stock:p=>Number(p.stock||0),price:p=>Number(p.price||0),
+ status:p=>Number(p.stock||0)-Number(p.min||0)};
+function renderStock(){
+ const host=$('stockTable');if(!host)return;
+ populateStockCategories();
+ const q=($('stockSearch')?.value||'').toLowerCase().trim();
+ const cat=$('stockCategory')?.value||'';
+ const onlyLow=!!$('stockOnlyLow')?.checked;
+ let rows=db.products.filter(p=>(!cat||p.cat===cat)
+   &&(!onlyLow||Number(p.stock||0)<=Number(p.min||0))
+   &&(!q||((p.name||'')+' '+(p.barcode||'')+' '+(p.ref||'')).toLowerCase().includes(q)));
+ rows=GamaSort.apply('stock',rows,STOCK_SORT);
+ const low=rows.filter(p=>Number(p.stock||0)<=Number(p.min||0)).length;
+ const units=rows.reduce((a,p)=>a+Number(p.stock||0),0);
+ const value=rows.reduce((a,p)=>a+Number(p.stock||0)*Number(p.purchase_price||0),0);
+ $('stockSummary').innerHTML=`<span><b>${rows.length}</b> artículo(s)</span><span><b>${units}</b> unidad(es)</span>`
+  +`<span class="${low?'low':''}"><b>${low}</b> con stock bajo</span>`
+  +`<span>Valor a precio de compra: <b>$${value.toFixed(2)}</b></span>`;
+ if(!rows.length){host.innerHTML='<div class="gamaArcEmpty">Ningún producto coincide con el filtro.</div>';return}
+ host.innerHTML='<table><tr><th>Foto</th>'
+  +GamaSort.th('stock','name','Producto')+GamaSort.th('stock','barcode','Código')
+  +GamaSort.th('stock','cat','Categoría')+GamaSort.th('stock','stock','Stock','right')
+  +GamaSort.th('stock','price','Precio','right')+GamaSort.th('stock','status','Estado')
+  +'</tr>'+GamaPage.slice('stock',rows).map(p=>`<tr><td>${p.photo?`<img class="product-img" src="${p.photo}">`:'📦'}</td><td>${sEsc(p.name)}</td><td>${sEsc(p.barcode)}</td><td>${sEsc(p.cat||'-')}</td><td style="text-align:right">${p.stock}</td><td style="text-align:right">$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>'+GamaPage.controls('stock',rows.length);
+}
+function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();renderStock();renderAudit()}
 showTab('mainmenu',null);
 </script>
 <script>

@@ -1,24 +1,52 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
 
-// TMS is entirely localStorage-based (key "gama-tms-v1"), independent of
-// Supabase, and is force-loaded on every boot by gama-role-spanish.js which
-// injects the "Entregas / TMS" tile into the main menu grid.
+const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** Boots the app with the in-memory cloud mock and a seeded TMS dataset.
+ *  TMS used to keep everything in localStorage under "gama-tms-v1"; it now
+ *  reads and writes the tms_* tables, so the tests seed window.__DB instead. */
+async function boot(page, seed = {}) {
+  await page.addInitScript(([seedData, day]) => {
+    localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+    // Skip the one-time localStorage import unless a test is exercising it.
+    if (!seedData.__migrate) localStorage.setItem('gama_tms_migrated_v1', '1');
+    if (seedData.__legacy) localStorage.setItem('gama-tms-v1', JSON.stringify(seedData.__legacy));
+    // @ts-ignore
+    window.__DB = {
+      products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+      purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
+      tms_drivers: seedData.drivers || [],
+      tms_deliveries: seedData.deliveries || [],
+      tms_routes: seedData.routes || [],
+      tms_proofs: seedData.proofs || [],
+      tms_events: seedData.events || [],
+      tms_settings: seedData.settings || [],
+      __today: day,
+    };
+  }, [seed, today()]);
+  await page.route('**/gama-supabase.js*', route =>
+    route.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD })
+  );
+  await page.route('**/@supabase/**', route => route.abort());
+  await page.goto('/index.html');
+  await page.waitForTimeout(500);
+  await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+}
+
+const DRIVERS = [
+  { id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', max_weight: 3500, max_volume: 18, enabled: true, created_at: '2026-01-01T00:00:00Z' },
+  { id: 'drv2', name: 'Conductor 2', phone: '', vehicle: 'Furgoneta 2', max_weight: 1200, max_volume: 8, enabled: true, created_at: '2026-01-02T00:00:00Z' },
+];
+
 test.describe('TMS — fleet management', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-    });
-    await page.route('**/gama-supabase.js*', route => route.abort());
-    await page.route('**/@supabase/**', route => route.abort());
-  });
-
   test('editing a driver updates their name and vehicle in place', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    await boot(page, { drivers: DRIVERS });
     await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-
     await expect(page.locator('.tms')).toContainText('Conductor 1');
 
     const firstCard = page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first();
@@ -32,12 +60,15 @@ test.describe('TMS — fleet management', () => {
     await expect(page.locator('.tms')).toContainText('Ana Torres');
     await expect(page.locator('.tms')).toContainText('Camión 9');
     await expect(page.locator('.tms')).not.toContainText('Conductor 1');
+
+    // Persisted to the table, not to a browser key.
+    const row = await page.evaluate(() => window.__DB.tms_drivers.find(d => d.id === 'drv1'));
+    expect(row.name).toBe('Ana Torres');
+    expect(row.vehicle).toBe('Camión 9');
   });
 
   test('deleting a driver with no active route removes them immediately', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    await boot(page, { drivers: DRIVERS });
     await page.click('button.tmsTab:has-text("Conductores y vehículos")');
 
     page.once('dialog', async d => { expect(d.message()).toContain('Eliminar a Conductor 2'); await d.accept(); });
@@ -46,22 +77,14 @@ test.describe('TMS — fleet management', () => {
 
     await expect(page.locator('.tms')).not.toContainText('Conductor 2');
     await expect(page.locator('.tms')).toContainText('Conductor 1');
+    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
   });
 
   test('deleting a driver with an active route today is blocked', async ({ page }) => {
-    await page.addInitScript(() => {
-      const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem('gama-tms-v1', JSON.stringify({
-        deliveries: [],
-        drivers: [{ id: 'drv1', name: 'Conductor Activo', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
-        routes: [{ id: 'rt1', date: today, driverId: 'drv1', driver: 'Conductor Activo', vehicle: 'Camión 1', stops: [], distance: 0, weight: 0, volume: 0, status: 'Planificada', createdAt: new Date().toISOString() }],
-        history: [],
-      }));
+    await boot(page, {
+      drivers: [{ id: 'drv1', name: 'Conductor Activo', phone: '', vehicle: 'Camión 1', max_weight: 3500, max_volume: 18, enabled: true, created_at: '2026-01-01T00:00:00Z' }],
+      routes: [{ id: 'rt1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor Activo', vehicle: 'Camión 1', stops: [], distance: 0, weight: 0, volume: 0, status: 'Planificada', created_at: '2026-01-01T00:00:00Z' }],
     });
-
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
     await page.click('button.tmsTab:has-text("Conductores y vehículos")');
 
     let dialogMessage = '';
@@ -70,31 +93,18 @@ test.describe('TMS — fleet management', () => {
 
     await expect.poll(() => dialogMessage).toContain('ruta activa');
     await expect(page.locator('.tms')).toContainText('Conductor Activo');
+    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
   });
 });
 
 test.describe('TMS — proof-of-delivery archive', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-      const iso = new Date().toISOString();
-      localStorage.setItem('gama-tms-v1', JSON.stringify({
-        deliveries: [
-          { id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', date: iso.slice(0, 10), timeWindow: '', priority: 'Normal', weight: 5, volume: 1, status: 'Entregada', events: [], notes: 'Dejado en recepción', deliveredAt: iso, proof: { photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE' } },
-        ],
-        drivers: [{ id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
-        routes: [],
-        history: [],
-      }));
-    });
-    await page.route('**/gama-supabase.js*', route => route.abort());
-    await page.route('**/@supabase/**', route => route.abort());
-  });
-
   test('a delivered order with proof shows up in the archive dropdown with its photo and signature', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    const iso = new Date().toISOString();
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', delivery_date: today(), time_window: '', priority: 'Normal', weight: 5, volume: 1, status: 'Entregada', notes: 'Dejado en recepción', delivered_at: iso, created_at: iso }],
+      proofs: [{ delivery_id: 'del1', photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE', captured_at: iso }],
+    });
     await page.click('button.tmsTab:has-text("Prueba de entrega")');
 
     await expect(page.locator('#tProofSelect')).toBeVisible();
@@ -103,29 +113,40 @@ test.describe('TMS — proof-of-delivery archive', () => {
     await expect(page.locator('.tmsProof img').nth(1)).toHaveAttribute('src', /SIGNATURE/);
     await expect(page.locator('.tms')).toContainText('Dejado en recepción');
   });
+
+  // The archive index must stay cheap: listing which deliveries have a proof
+  // must not drag every base64 photo across the wire. Only the selected POD
+  // fetches its own image.
+  test('the archive index query does not pull photo payloads', async ({ page }) => {
+    const iso = new Date().toISOString();
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
+      proofs: [{ delivery_id: 'del1', photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE', captured_at: iso }],
+    });
+    const proofCalls = await page.evaluate(() =>
+      (window.__DB.__calls || []).filter(c => c.table === 'tms_proofs').map(c => c.select)
+    );
+    // The index call must exist and must be narrow.
+    expect(proofCalls.length).toBeGreaterThan(0);
+    expect(proofCalls).toContain('delivery_id,captured_at');
+    expect(proofCalls.some(s => s === '*')).toBeFalsy();
+
+    // Opening one POD is what fetches its image, and only that row's.
+    await page.click('button.tmsTab:has-text("Prueba de entrega")');
+    await expect(page.locator('.tmsProof img').first()).toHaveAttribute('src', /PHOTO/);
+  });
 });
 
 test.describe('TMS — route optimization', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-    });
-    await page.route('**/gama-supabase.js*', route => route.abort());
-    await page.route('**/@supabase/**', route => route.abort());
-    // Geocoding used to have no timeout, so a slow/unreachable Nominatim
-    // could stall optimize() indefinitely. Aborting it immediately here
-    // both keeps the test fast and proves optimize() still completes and
-    // creates a route when geocoding fails.
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-  });
-
   test('optimizing still creates a route even when geocoding is unavailable', async ({ page }) => {
     const dialogs = [];
     page.on('dialog', async d => { dialogs.push(d.message()); await d.accept(); });
-
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    // Geocoding used to have no timeout, so a slow/unreachable Nominatim could
+    // stall optimize() indefinitely. Aborting it proves optimize() completes
+    // and still creates a route when geocoding fails.
+    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
+    await boot(page, { drivers: DRIVERS });
 
     await page.fill('#tCustomer', 'Cliente Prueba');
     await page.fill('#tAddress', 'Calle Falsa 123, Quito, Ecuador');
@@ -133,10 +154,11 @@ test.describe('TMS — route optimization', () => {
     await expect(page.locator('.tms')).toContainText('Cliente Prueba');
 
     await page.click('#tOptimize');
-    await expect.poll(() => dialogs.length, { timeout: 8000 }).toBeGreaterThan(0);
+    await expect.poll(() => dialogs.length, { timeout: 10000 }).toBeGreaterThan(0);
 
     expect(dialogs[0]).toContain('ruta(s) creada(s)');
     await expect(page.locator('.tms')).toContainText('Ver ruta');
+    expect(await page.evaluate(() => window.__DB.tms_routes.length)).toBeGreaterThan(0);
   });
 });
 
@@ -145,25 +167,11 @@ test.describe('TMS — route optimization', () => {
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
 
 test.describe('TMS — proof-of-delivery photo capture', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-      const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem('gama-tms-v1', JSON.stringify({
-        deliveries: [{ id: 'del1', customer: 'Panadería Norte', address: 'Calle 10 y Av. Amazonas', date: today, timeWindow: '', priority: 'Normal', weight: 2, volume: 0.5, status: 'Pendiente de preparación', events: [], notes: '', proof: null }],
-        drivers: [{ id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
-        routes: [],
-        history: [],
-      }));
+  test('selecting a photo saves it to the database immediately and stays on the same screen', async ({ page }) => {
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [{ id: 'del1', customer: 'Panadería Norte', address: 'Calle 10 y Av. Amazonas', delivery_date: today(), status: 'Pendiente de preparación', created_at: new Date().toISOString() }],
     });
-    await page.route('**/gama-supabase.js*', route => route.abort());
-    await page.route('**/@supabase/**', route => route.abort());
-  });
-
-  test('selecting a photo saves it immediately with no extra button, and stays on the same screen', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
     await page.click('button.tmsTab:has-text("Prueba de entrega")');
     await page.click('button:has-text("Abrir prueba de entrega")');
 
@@ -174,36 +182,26 @@ test.describe('TMS — proof-of-delivery photo capture', () => {
     await page.setInputFiles('#tPhoto', { name: 'proof.png', mimeType: 'image/png', buffer: TINY_PNG });
 
     await expect(page.locator('.tmsCard img')).toHaveCount(1);
-    await expect(page.locator('.tmsCard img')).toHaveAttribute('src', /^data:image\/png;base64,/);
+    await expect(page.locator('.tmsCard img')).toHaveAttribute('src', /^data:image\/(png|jpeg);base64,/);
     // Still on the same proof-capture screen, not bounced back to a list.
     await expect(page.locator('.tms')).toContainText('Panadería Norte');
     await expect(page.locator('#tSig')).toBeVisible();
 
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0].proof?.photo);
-    expect(saved).toMatch(/^data:image\/png;base64,/);
+    // The whole point of the migration: the POD lands in the database, and
+    // nothing is left behind in the browser.
+    const saved = await page.evaluate(() => window.__DB.tms_proofs.find(p => p.delivery_id === 'del1'));
+    expect(saved.photo).toMatch(/^data:image\/(png|jpeg);base64,/);
+    expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).toBeNull();
   });
 });
 
 test.describe('TMS — tracking has no manual status override', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-      const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem('gama-tms-v1', JSON.stringify({
-        deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', date: today, timeWindow: '', priority: 'Normal', weight: 2, volume: 0.5, status: 'Planificada', events: [], notes: '', proof: null }],
-        drivers: [{ id: 'drv1', name: 'Conductor 1', phone: '', vehicle: 'Camión 1', maxWeight: 3500, maxVolume: 18, enabled: true }],
-        routes: [{ id: 'rt1', date: today, driverId: 'drv1', driver: 'Conductor 1', vehicle: 'Camión 1', stops: ['del1'], distance: 5, weight: 2, volume: 0.5, status: 'Planificada', createdAt: new Date().toISOString() }],
-        history: [],
-      }));
-    });
-    await page.route('**/gama-supabase.js*', route => route.abort());
-    await page.route('**/@supabase/**', route => route.abort());
-  });
-
   test('only "POD" is offered per stop, and validating it stamps arrival and delivery time', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', delivery_date: today(), status: 'Planificada', created_at: new Date().toISOString() }],
+      routes: [{ id: 'rt1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor 1', vehicle: 'Camión 1', stops: ['del1'], distance: 5, weight: 2, volume: 0.5, status: 'Planificada', created_at: new Date().toISOString() }],
+    });
     await page.click('button.tmsTab:has-text("Seguimiento del conductor")');
 
     await expect(page.locator('.tms')).toContainText('Ferretería Sol');
@@ -222,12 +220,95 @@ test.describe('TMS — tracking has no manual status override', () => {
 
     page.once('dialog', d => d.accept());
     await page.click('button:has-text("Validar entrega")');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0]);
+    const saved = await page.evaluate(() => window.__DB.tms_deliveries.find(d => d.id === 'del1'));
     expect(saved.status).toBe('Entregada');
-    expect(saved.actualArrival).toBeTruthy();
-    expect(saved.deliveredAt).toBeTruthy();
-    expect(saved.proof?.signature).toMatch(/^data:image\/png;base64,/);
+    expect(saved.actual_arrival).toBeTruthy();
+    expect(saved.delivered_at).toBeTruthy();
+    const proof = await page.evaluate(() => window.__DB.tms_proofs.find(p => p.delivery_id === 'del1'));
+    expect(proof.signature).toMatch(/^data:image\/png;base64,/);
+  });
+});
+
+test.describe('TMS — one-time import of the old localStorage dataset', () => {
+  test('legacy drivers, deliveries and proofs are copied into the database once', async ({ page }) => {
+    const iso = new Date().toISOString();
+    await boot(page, {
+      __migrate: true,
+      __legacy: {
+        drivers: [{ id: 'old-d1', name: 'Luis Pérez', phone: '099', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
+        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso, notes: 'Entregado ayer', proof: { photo: 'data:image/png;base64,OLDPHOTO', signature: 'data:image/png;base64,OLDSIG' } }],
+        routes: [],
+        history: [{ id: 'h1', at: iso, deliveryId: 'old-x1', type: 'Entregada', note: 'Prueba registrada', customer: 'Cliente Histórico' }],
+      },
+    });
+
+    await expect(page.locator('.tms')).toContainText('Cliente Histórico');
+
+    const state = await page.evaluate(() => ({
+      drivers: window.__DB.tms_drivers.map(d => d.name),
+      deliveries: window.__DB.tms_deliveries.map(d => d.customer),
+      proofs: window.__DB.tms_proofs.map(p => p.photo),
+      events: window.__DB.tms_events.length,
+      flag: localStorage.getItem('gama_tms_migrated_v1'),
+    }));
+    expect(state.drivers).toContain('Luis Pérez');
+    expect(state.deliveries).toContain('Cliente Histórico');
+    expect(state.proofs[0]).toContain('OLDPHOTO');
+    expect(state.events).toBeGreaterThan(0);
+    expect(state.flag).toBe('1');
+
+    // Re-opening must not import a second copy.
+    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
+    await page.click('button.tmsTab:has-text("Planificación")');
+    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
+  });
+
+  // The "already migrated elsewhere" check must not key off drivers: a
+  // colleague opening TMS on an empty workstation seeds two demo drivers, and
+  // keying off those would make this browser believe the import was already
+  // done and silently strand a real delivery history.
+  test('demo drivers created on another workstation do not block the import', async ({ page }) => {
+    const iso = new Date().toISOString();
+    await boot(page, {
+      __migrate: true,
+      drivers: [
+        { id: 'seed1', name: 'Conductor 1', vehicle: 'Camión 1', max_weight: 3500, max_volume: 18, enabled: true, created_at: iso },
+        { id: 'seed2', name: 'Conductor 2', vehicle: 'Furgoneta 2', max_weight: 1200, max_volume: 8, enabled: true, created_at: iso },
+      ],
+      __legacy: {
+        drivers: [{ id: 'old-d1', name: 'Luis Pérez', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
+        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso, proof: { photo: 'data:image/png;base64,OLDPHOTO', signature: null } }],
+        routes: [], history: [],
+      },
+    });
+
+    await expect(page.locator('.tms')).toContainText('Cliente Histórico');
+    const names = await page.evaluate(() => window.__DB.tms_drivers.map(d => d.name));
+    expect(names).toContain('Luis Pérez');
+  });
+
+  test('a history already uploaded from another device is not duplicated, and the local copy is kept', async ({ page }) => {
+    const iso = new Date().toISOString();
+    let warning = '';
+    page.on('dialog', async d => { warning = d.message(); await d.accept(); });
+    await boot(page, {
+      __migrate: true,
+      deliveries: [{ id: 'cloud1', customer: 'Ya En La Nube', address: 'Calle Cloud 1', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
+      __legacy: {
+        drivers: [{ id: 'old-d1', name: 'Luis Pérez', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
+        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso }],
+        routes: [], history: [],
+      },
+    });
+
+    await expect(page.locator('.tms')).toContainText('Ya En La Nube');
+    // No second copy of the same history.
+    const customers = await page.evaluate(() => window.__DB.tms_deliveries.map(d => d.customer));
+    expect(customers).not.toContain('Cliente Histórico');
+    expect(warning).toContain('no se ha importado');
+    // Nothing is destroyed: the browser copy is still there to recover from.
+    expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).not.toBeNull();
   });
 });

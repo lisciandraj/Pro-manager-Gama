@@ -111,3 +111,32 @@ test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ p
   expect(r.saved.length).toBe(1);
   expect(r.saved[0]).toMatch(/^pruebas-entrega.*\.pdf$/);
 });
+
+// La etiqueta de código de barras tenía el mismo window.print(): la misma
+// trampa en otra pantalla. Se comprueba igual, por el cableado.
+test('la etiqueta de código de barras también se baja en PDF', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await boot(page);
+
+  await page.evaluate(() => {
+    // @ts-ignore
+    window.__printed = 0; window.print = () => { window.__printed++; };
+    // @ts-ignore
+    window.__saved = [];
+    // @ts-ignore  jsPDF no existe aquí: se sustituye por un doble mínimo.
+    window.GamaPdf.jsPDF = () => function () { return { addImage() {} }; };
+    // @ts-ignore
+    window.GamaPdf.save = (doc, name) => { window.__saved.push(name); };
+  });
+
+  await page.click('#mainmenu .gamaF2Card:has-text("Códigos de barras")');
+  await page.fill('#barcodeValue', 'PROD-00001');
+  await page.click('#barcode button:has-text("Generar")');
+  await page.click('#barcode button:has-text("Descargar etiqueta")');
+  await page.waitForTimeout(900);
+
+  const r = await page.evaluate(() => ({ printed: window.__printed, saved: window.__saved }));
+  expect(r.printed, 'la etiqueta volvió a llamar a window.print()').toBe(0);
+  expect(r.saved.length).toBe(1);
+  expect(r.saved[0]).toMatch(/^etiqueta.*\.pdf$/);
+});

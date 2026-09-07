@@ -356,7 +356,7 @@ section{display:none}section.active{display:block}
 </div>
 </section>
 
-<section id="barcode"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="window.print()">🖨️ Imprimir etiqueta</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()">📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 
@@ -554,6 +554,33 @@ function downloadInvoicePdf(){
 }
 /* Se conserva el nombre antiguo: había accesos directos y llamadas sueltas. */
 function printInvoice(){downloadInvoicePdf()}
+/* La etiqueta de código de barras tenía el mismo window.print() y por tanto la
+   misma trampa. El SVG generado se pasa a imagen y de ahí al PDF. */
+function downloadBarcodePdf(){
+ const svg=document.getElementById('barcodeSvg');
+ if(!svg||!svg.querySelector('rect'))return alert('Genera primero el código de barras.');
+ if(!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
+ try{
+  const box=svg.getBoundingClientRect();
+  const w=Math.max(1,Math.round(box.width||300)),h=Math.max(1,Math.round(box.height||120));
+  const xml=new XMLSerializer().serializeToString(svg);
+  const img=new Image();
+  img.onload=()=>{
+   try{
+    const c=document.createElement('canvas');
+    c.width=w*3;c.height=h*3;                       // x3: una etiqueta impresa borrosa no sirve
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img,0,0,c.width,c.height);
+    const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[80,50]});
+    doc.addImage(c.toDataURL('image/png'),'PNG',5,8,70,34);
+    window.GamaPdf.save(doc,window.GamaPdf.fileName('etiqueta',$('barcodeValue').value));
+   }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
+  };
+  img.onerror=()=>alert('No se pudo leer el código de barras generado.');
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+ }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
+}
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
 function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}

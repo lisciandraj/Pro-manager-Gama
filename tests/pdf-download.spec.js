@@ -111,3 +111,68 @@ test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ p
   expect(r.saved.length).toBe(1);
   expect(r.saved[0]).toMatch(/^pruebas-entrega.*\.pdf$/);
 });
+
+// El mismo fallo apareció tres veces en tres pantallas: el presupuesto, la
+// etiqueta de código de barras y el archivo de presupuestos. En vez de una
+// prueba por pantalla —que sólo cubre las que ya conozco— este guardián
+// recorre el código y falla en cuanto el patrón reaparezca en cualquier sitio.
+// No necesita navegador, así que es casi instantáneo.
+const SRC = fs.readdirSync(path.join(__dirname, '..'))
+  .filter(f => (f.endsWith('.js') || f === 'index.html') && !f.startsWith('sw.'));
+
+/** Quita comentarios: una explicación no es una llamada. */
+function code(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+}
+
+test('ninguna pantalla llama a window.print() ni abre una ventana para imprimir', () => {
+  const culpables = [];
+  for (const f of SRC) {
+    const src = code(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'));
+    if (/window\.print\s*\(/.test(src)) culpables.push(f + ': window.print()');
+    // window.open + print es el otro disfraz: una ventana sin barra del
+    // navegador de la que el usuario no puede salir.
+    if (/window\.open\s*\(/.test(src) && /\.print\s*\(\s*\)/.test(src)) culpables.push(f + ': window.open() + print()');
+  }
+  expect(culpables,
+    'vuelve a haber una impresión que deja al usuario encerrado en la aplicación instalada'
+  ).toEqual([]);
+});
+
+// El comprobante de UNA entrega es el documento que se enseña en un litigio:
+// tiene que llevar la fecha, el lugar, la firma y la foto de ESA entrega. Lo
+// que puede romperse en silencio es que le llegue la entrega equivocada.
+test('el comprobante lleva los datos de la entrega seleccionada', async ({ page }) => {
+  const HOY = new Date().toISOString().slice(0, 10);
+  await boot(page, {
+    tms_drivers: [{ id: 'd1', name: 'Luis', vehicle: 'Furgón', max_weight: 900, max_volume: 6, enabled: true }],
+    tms_deliveries: [{ id: 'e1', customer: 'Supermaxi', address: '54 rue du Nord', delivery_date: HOY, status: 'Entregada', delivered_at: '2026-08-31T23:25:49.000Z', driver_id: 'd1' }],
+    tms_proofs: [{ delivery_id: 'e1', signature: 'data:image/png;base64,iVBORw0KGgo=', photo: 'data:image/jpeg;base64,/9j/4AAQ', captured_at: new Date().toISOString() }],
+  });
+
+  await page.evaluate(() => {
+    // @ts-ignore
+    window.__saved = [];
+    // @ts-ignore
+    window.GamaPdf.proofCertificate = e => { window.__cert = e; return { fake: true }; };
+    // @ts-ignore
+    window.GamaPdf.save = (doc, name) => { window.__saved.push(name); };
+  });
+
+  await page.evaluate(() => window.gamaTMS.open());
+  await page.waitForTimeout(900);
+  await page.click('.tmsTab:has-text("Prueba de entrega"), button:has-text("Prueba de entrega")');
+  await page.waitForTimeout(600);
+  await page.click('#tProofOne');
+  await page.waitForTimeout(900);
+
+  const r = await page.evaluate(() => ({ cert: window.__cert, saved: window.__saved }));
+  expect(r.cert, 'el comprobante no llegó a armarse').toBeTruthy();
+  expect(r.cert.cliente).toBe('Supermaxi');
+  expect(r.cert.direccion).toBe('54 rue du Nord');       // el lugar
+  expect(r.cert.fecha).toBe('2026-08-31T23:25:49.000Z'); // la fecha
+  expect(r.cert.conductor).toBe('Luis');
+  expect(r.cert.firma).toContain('data:image/png');      // la firma
+  expect(r.cert.foto).toContain('data:image/jpeg');      // la foto
+  expect(r.saved[0]).toMatch(/^entrega.*\.pdf$/);
+});

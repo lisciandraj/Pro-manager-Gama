@@ -10,7 +10,7 @@
     return;
   }
   window.__gamaCloudLoading=true;
-  var s=document.createElement('script');s.src='gama-supabase.js?v=15';s.async=true;
+  var s=document.createElement('script');s.src='gama-supabase.js?v=16';s.async=true;
   s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));var cs=document.createElement('script');cs.src='gama-central-sync.js?v=6';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;};
   s.onerror=function(){console.warn('[GAMA] Supabase central layer could not be loaded.');offline();};document.head.appendChild(s);
 })();

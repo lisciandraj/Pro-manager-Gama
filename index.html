@@ -28,7 +28,7 @@ table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-sp
 .badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e5e7eb;font-size:11px;font-weight:700}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
 @media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
-@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}}
+@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}body:has(#barcode.active) *{visibility:hidden!important}body:has(#barcode.active) .barcodebox,body:has(#barcode.active) .barcodebox *{visibility:visible!important}body:has(#barcode.active) .barcodebox{position:absolute!important;left:0;top:0;width:100%;border:0!important;padding:0!important;margin:0!important}}
 .stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:#e8f5f6;color:#087c8b;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:#fff0e5;color:#c75e18}.quoteWas{color:#8c99a3;text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:#087c8b;font-weight:700;font-size:12px}</style>
 
 <style>
@@ -356,7 +356,7 @@ section{display:none}section.active{display:block}
 </div>
 </section>
 
-<section id="barcode"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="window.print()">🖨️ Imprimir etiqueta</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()">📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 
@@ -554,6 +554,48 @@ function downloadInvoicePdf(){
 }
 /* Se conserva el nombre antiguo: había accesos directos y llamadas sueltas. */
 function printInvoice(){downloadInvoicePdf()}
+/* La etiqueta de código de barras tenía el mismo window.print() y por tanto la
+   misma trampa. El SVG generado se pasa a imagen y de ahí al PDF. */
+function downloadBarcodePdf(){
+ const svg=document.getElementById('barcodeSvg');
+ if(!svg||!svg.querySelector('rect'))return alert('Genera primero el código de barras.');
+ if(!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
+ try{
+  /* Las medidas salen del viewBox, no de lo que ocupa en pantalla: si se
+     tomaran de la pantalla, la proporción cambiaría con el ancho del móvil y
+     las barras saldrían estiradas. Un código de barras deformado puede dejar
+     de leerse, que es justo para lo que sirve la etiqueta. */
+  const vb=(svg.getAttribute('viewBox')||'0 0 300 150').split(/\s+/).map(Number);
+  const w=vb[2]||300,h=vb[3]||150;
+  // El SVG sólo tiene viewBox; sin width/height explícitos el navegador no
+  // sabe a qué tamaño rasterizarlo al cargarlo como imagen.
+  const copia=svg.cloneNode(true);
+  copia.setAttribute('width',w);copia.setAttribute('height',h);
+  copia.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const xml=new XMLSerializer().serializeToString(copia);
+  const img=new Image();
+  img.onload=()=>{
+   try{
+    const esc=3;                                   // x3: una etiqueta borrosa no se escanea
+    const c=document.createElement('canvas');
+    c.width=w*esc;c.height=h*esc;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img,0,0,c.width,c.height);
+    /* Etiqueta de 80x50 mm con SÓLO el código de barras: nada de la pantalla
+       que hay alrededor. Se encaja respetando la proporción. */
+    const LW=80,LH=50,MG=6;
+    const escala=Math.min((LW-2*MG)/w,(LH-2*MG)/h);
+    const iw=w*escala,ih=h*escala;
+    const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[LW,LH]});
+    doc.addImage(c.toDataURL('image/png'),'PNG',(LW-iw)/2,(LH-ih)/2,iw,ih);
+    window.GamaPdf.save(doc,window.GamaPdf.fileName('etiqueta',$('barcodeValue').value));
+   }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
+  };
+  img.onerror=()=>alert('No se pudo leer el código de barras generado.');
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+ }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
+}
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
 function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
@@ -718,14 +760,14 @@ showTab('mainmenu',null);
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="gama-quote-pdf.js?v=4"></script>
 <script src="gama-purchase-order-pdf.js?v=1"></script>
-<script src="gama-supabase.js?v=15"></script>
+<script src="gama-supabase.js?v=16"></script>
 <script src="gama-central-sync.js?v=6"></script>
 <script src="gama-purchases-v14.js?v=20260906-1"></script>
 <script src="gama-proveedores-matriz.js?v=5"></script>
 <script src="gama-client-catalog.js?v=5"></script>
 <script src="gama-customer-requests.js?v=3"></script>
 <script src="gama-sales-report.js?v=2"></script>
-<script src="gama-pdf.js?v=1"></script>
+<script src="gama-pdf.js?v=2"></script>
 <script src="gama-photos.js?v=2"></script>
 <script src="gama-price-lists.js?v=2"></script>
 <script src="gama-standard-ui.js?v=8"></script>

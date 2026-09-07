@@ -29,7 +29,7 @@ table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-sp
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
 @media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
 @media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}}
-.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:#e8f5f6;color:#087c8b;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteTariff{display:block;margin-top:5px;color:#087c8b;font-weight:700;font-size:12px}</style>
+.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:#e8f5f6;color:#087c8b;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:#fff0e5;color:#c75e18}.quoteWas{color:#8c99a3;text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:#087c8b;font-weight:700;font-size:12px}</style>
 
 <style>
 :root{--gama-teal:#087C8B;--gama-dark:#075C69;--gama-orange:#F47A2A;--gama-orange2:#FF8B45;--gama-bg:#E4EAF0;--gama-line:#C9D6DF;--gama-text:#173246}
@@ -488,19 +488,57 @@ function registerMovement(){let p=product($('moveBarcode').value.trim()),q=Numbe
 function searchProduct(){let p=product($('homeBarcode').value.trim());$('homeResult').innerHTML=p?`<p><b>${p.name}</b><br>Stock: ${p.stock}<br>Precio: $${Number(p.price||0).toFixed(2)}<br>${p.photo?`<img class="product-img" src="${p.photo}">`:''}</p>`:'<p class="low">Producto no encontrado.</p>'}
 
 function addInvoiceItem(){let p=product($('invoiceBarcode').value.trim()),q=Number($('invoiceQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');let already=invoiceItems.reduce((a,x)=>a+x.q*(x.p.barcode===p.barcode),0);if(p.stock<already+q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);invoiceItems.push({p,q});$('invoiceBarcode').value='';$('invoiceProductInfo').textContent='';renderInvoiceItems()}
-function renderInvoiceItems(){$('invoiceItems').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>'+invoiceItems.map((x,i)=>`<tr><td>${gamaPhotoCell(x.p)}</td><td>${x.p.name}</td><td>${x.q}</td><td>$${gamaPriceFor(x.p).toFixed(2)}${gamaHasContractPrice(x.p)?' <small class="quoteTag">tarifa</small>':''}</td><td>$${(x.q*gamaPriceFor(x.p)).toFixed(2)}</td><td><button class="danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`).join('')+'</table>'}
+function renderInvoiceItems(){$('invoiceItems').innerHTML='<table><tr><th>Foto</th><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>'+invoiceItems.map((x,i)=>{
+ const ref=gamaPriceFor(x.p),precio=quoteLinePrice(x),ajustado=x.price!==undefined&&x.price!==null;
+ // El precio de referencia se deja a la vista tachado: quien firma el
+ // presupuesto tiene que ver de cuánto era el descuento, no sólo el resultado.
+ const pct=ref>0?Math.round((precio-ref)/ref*100):0;
+ const marca=ajustado
+  ?`<small class="quoteWas">antes $${ref.toFixed(2)}</small> <small class="quoteTag quoteOffer">oferta ${pct>0?'+':''}${pct}%</small>`
+  :(gamaHasContractPrice(x.p)?' <small class="quoteTag">tarifa</small>':'');
+ return `<tr><td>${gamaPhotoCell(x.p)}</td><td>${x.p.name}</td><td>${x.q}</td>`
+  +`<td class="quotePriceCell"><input type="number" min="0" step="0.01" value="${precio.toFixed(2)}" aria-label="Precio de ${x.p.name}" onchange="setInvoiceItemPrice(${i},this.value)">`
+  +(ajustado?`<button class="secondary quoteUndo" title="Volver al precio de la tarifa" onclick="clearInvoiceItemPrice(${i})">↺</button>`:'')
+  +`<div>${marca}</div></td>`
+  +`<td>$${(x.q*precio).toFixed(2)}</td><td><button class="danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`;
+}).join('')+'</table>'}
 function removeInvoiceItem(i){invoiceItems.splice(i,1);renderInvoiceItems()}
+/* Precio efectivo de una línea del presupuesto.
+
+   Manda el precio escrito a mano si lo hay; si no, el de la tarifa del cliente;
+   si tampoco, el precio base de la ficha. Todo lo que necesite un precio —la
+   tabla, los totales, el impreso y la línea que se guarda— pasa por aquí. Es
+   deliberado: cuando este cálculo estaba repetido en cuatro sitios, dos de
+   ellos se quedaron con el precio base y el documento no cuadraba consigo
+   mismo. */
+function quoteLinePrice(x){
+ if(!x)return 0;
+ return x.price===undefined||x.price===null?gamaPriceFor(x.p):Number(x.price);
+}
+/* Un precio a mano vale para ESTE cliente. Al cambiar de cliente se descartan:
+   arrastrar la oferta de uno al presupuesto de otro es justo el error que no
+   se ve hasta que el cliente lo ve. */
+window.gamaResetQuoteOverrides=function(){invoiceItems.forEach(x=>{delete x.price})};
+function setInvoiceItemPrice(i,value){
+ const x=invoiceItems[i];if(!x)return;
+ const n=parseFloat(String(value).replace(',','.'));
+ if(!Number.isFinite(n)||n<0){renderInvoiceItems();return}
+ // Volver al precio de la tarifa se marca quitando el ajuste, no fijándolo.
+ if(Math.abs(n-gamaPriceFor(x.p))<0.005)delete x.price;else x.price=n;
+ renderInvoiceItems();
+}
+function clearInvoiceItemPrice(i){const x=invoiceItems[i];if(!x)return;delete x.price;renderInvoiceItems()}
 $('invoiceBarcode').addEventListener('input',()=>{let p=product($('invoiceBarcode').value.trim());$('invoiceProductInfo').textContent=p?`${p.name} — Precio: $${gamaPriceFor(p).toFixed(2)}${gamaHasContractPrice(p)?' (tarifa del cliente)':''} — Stock: ${p.stock}`:''});
 function validateQuoteForm(){if(!$('sellerRuc').value||!$('sellerName').value){alert('Completa el RUC y la razón social.');return false}if(!$('clientId').value||!$('clientName').value){alert('Completa los datos del cliente.');return false}if(!invoiceItems.length){alert('Añade al menos un producto.');return false}return true}
-function quoteTotals(){const sub=invoiceItems.reduce((a,x)=>a+x.q*gamaPriceFor(x.p),0),rate=15,tax=sub*rate/100,total=sub+tax;return{sub,rate,tax,total}}
+function quoteTotals(){const sub=invoiceItems.reduce((a,x)=>a+x.q*quoteLinePrice(x),0),rate=15,tax=sub*rate/100,total=sub+tax;return{sub,rate,tax,total}}
 function quoteNumber(count){return($('sellerEst').value||'001')+'-'+($('sellerPoint').value||'001')+'-'+String(count+1).padStart(9,'0')}
 /* El precio congelado en el presupuesto es el que se acaba de facturar: si el
    cliente tiene tarifa, el impreso y el PDF deben mostrar ese precio, no el
    precio base de la ficha, o no cuadraría con sus propios totales. */
-function quoteItemsSnapshot(){return invoiceItems.map(x=>({name:x.p.name,barcode:x.p.barcode,qty:x.q,price:gamaPriceFor(x.p)}))}
+function quoteItemsSnapshot(){return invoiceItems.map(x=>({name:x.p.name,barcode:x.p.barcode,qty:x.q,price:quoteLinePrice(x),listPrice:gamaPriceFor(x.p)}))}
 function finishQuote(inv){lastQuote=inv;$('invoicePreview').innerHTML=invoiceHTML(inv);invoiceItems=[];renderInvoiceItems()}
 function generateInvoice(){if(!validateQuoteForm())return;const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices.length),ref=uid('COT');let inv={id:ref,number,date:new Date().toISOString(),clientId:$('clientId').value,client:$('clientName').value,clientEmail:$('clientEmail').value,clientAddress:$('clientAddress').value,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};db.invoices.unshift(inv);finishQuote(inv);save();alert('Presupuesto generado. Puedes imprimirlo o enviarlo por correo al cliente.')}
-function invoiceHTML(i){return `<div class="invoice-preview"><h2>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br>No. ${i.number}<br>Fecha: ${new Date(i.date).toLocaleDateString('es-EC')}<hr><b>Cliente:</b> ${i.client}<br>Identificación: ${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span>IVA ${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low">Documento informativo. No constituye una factura.</p></div>`}
+function invoiceHTML(i){return `<div class="invoice-preview"><h2>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br>No. ${i.number}<br>Fecha: ${new Date(i.date).toLocaleDateString('es-EC')}<hr><b>Cliente:</b> ${i.client}<br>Identificación: ${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span>IVA ${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low">Documento informativo. No constituye una factura.</p></div>`}
 function printInvoice(){if(!$('invoicePreview').innerHTML)return alert('Genera primero el presupuesto.');window.print()}
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
@@ -667,7 +705,7 @@ showTab('mainmenu',null);
 <script src="gama-quote-pdf.js?v=4"></script>
 <script src="gama-purchase-order-pdf.js?v=1"></script>
 <script src="gama-supabase.js?v=15"></script>
-<script src="gama-central-sync.js?v=5"></script>
+<script src="gama-central-sync.js?v=6"></script>
 <script src="gama-purchases-v14.js?v=20260906-1"></script>
 <script src="gama-proveedores-matriz.js?v=5"></script>
 <script src="gama-client-catalog.js?v=5"></script>

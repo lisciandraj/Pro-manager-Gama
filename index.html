@@ -28,7 +28,7 @@ table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-sp
 .badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e5e7eb;font-size:11px;font-weight:700}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
 @media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
-@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}}
+@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}body:has(#barcode.active) *{visibility:hidden!important}body:has(#barcode.active) .barcodebox,body:has(#barcode.active) .barcodebox *{visibility:visible!important}body:has(#barcode.active) .barcodebox{position:absolute!important;left:0;top:0;width:100%;border:0!important;padding:0!important;margin:0!important}}
 .stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:#e8f5f6;color:#087c8b;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:#fff0e5;color:#c75e18}.quoteWas{color:#8c99a3;text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:#087c8b;font-weight:700;font-size:12px}</style>
 
 <style>
@@ -561,19 +561,34 @@ function downloadBarcodePdf(){
  if(!svg||!svg.querySelector('rect'))return alert('Genera primero el código de barras.');
  if(!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
  try{
-  const box=svg.getBoundingClientRect();
-  const w=Math.max(1,Math.round(box.width||300)),h=Math.max(1,Math.round(box.height||120));
-  const xml=new XMLSerializer().serializeToString(svg);
+  /* Las medidas salen del viewBox, no de lo que ocupa en pantalla: si se
+     tomaran de la pantalla, la proporción cambiaría con el ancho del móvil y
+     las barras saldrían estiradas. Un código de barras deformado puede dejar
+     de leerse, que es justo para lo que sirve la etiqueta. */
+  const vb=(svg.getAttribute('viewBox')||'0 0 300 150').split(/\s+/).map(Number);
+  const w=vb[2]||300,h=vb[3]||150;
+  // El SVG sólo tiene viewBox; sin width/height explícitos el navegador no
+  // sabe a qué tamaño rasterizarlo al cargarlo como imagen.
+  const copia=svg.cloneNode(true);
+  copia.setAttribute('width',w);copia.setAttribute('height',h);
+  copia.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const xml=new XMLSerializer().serializeToString(copia);
   const img=new Image();
   img.onload=()=>{
    try{
+    const esc=3;                                   // x3: una etiqueta borrosa no se escanea
     const c=document.createElement('canvas');
-    c.width=w*3;c.height=h*3;                       // x3: una etiqueta impresa borrosa no sirve
+    c.width=w*esc;c.height=h*esc;
     const ctx=c.getContext('2d');
     ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
     ctx.drawImage(img,0,0,c.width,c.height);
-    const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[80,50]});
-    doc.addImage(c.toDataURL('image/png'),'PNG',5,8,70,34);
+    /* Etiqueta de 80x50 mm con SÓLO el código de barras: nada de la pantalla
+       que hay alrededor. Se encaja respetando la proporción. */
+    const LW=80,LH=50,MG=6;
+    const escala=Math.min((LW-2*MG)/w,(LH-2*MG)/h);
+    const iw=w*escala,ih=h*escala;
+    const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[LW,LH]});
+    doc.addImage(c.toDataURL('image/png'),'PNG',(LW-iw)/2,(LH-ih)/2,iw,ih);
     window.GamaPdf.save(doc,window.GamaPdf.fileName('etiqueta',$('barcodeValue').value));
    }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
   };

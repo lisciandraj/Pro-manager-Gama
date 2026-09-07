@@ -272,6 +272,29 @@ function setupSignature(canvas,d){
  };
 }
 async function viewProofArchive(id){proofArchiveId=id;await ensureProof(id);render('proof')}
+/* Informe de todas las pruebas archivadas. Las fotos y las firmas se piden a la
+   base sólo cuando se miran, así que aquí hay que traer las que falten antes de
+   armar el PDF: si no, saldrían entregas sin prueba. */
+async function downloadProofReport(){
+ const btn=section().querySelector('#tProofPdf');
+ if(!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
+ const entregas=archiveList();
+ if(!entregas.length)return alert('No hay ninguna prueba de entrega archivada.');
+ const texto=btn?btn.textContent:'';
+ if(btn){btn.disabled=true;btn.textContent='Preparando el informe…'}
+ try{
+  for(const d of entregas)await ensureProof(d.id);
+  const filas=entregas.map(d=>{
+   const pr=proofCache[d.id]||null;
+   return {cliente:d.customer,direccion:d.address,fecha:d.deliveredAt||d.date,
+    conductor:(db.drivers.find(x=>x.id===d.driverId)||{}).name||'',
+    firma:pr&&pr.signature||'',foto:pr&&pr.photo||''};
+  });
+  const doc=window.GamaPdf.proofReport(filas,'Pruebas de entrega — GAMA');
+  window.GamaPdf.save(doc,window.GamaPdf.fileName('pruebas-entrega',new Date().toISOString().slice(0,10)));
+ }catch(e){console.error('[GAMA PDF pruebas]',e);alert('No se pudo generar el informe: '+(e&&e.message||e))}
+ finally{if(btn){btn.disabled=false;btn.textContent=texto}}
+}
 async function saveDepot(){
  const x=section();
  try{
@@ -294,7 +317,7 @@ if(tab==='proof'){
  const selId=defaultProofId();
  const sel=delivered.find(d=>d.id===selId);
  const pr=sel?proofCache[sel.id]:null;
- body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.customer)}</b><small>${esc(d.address)}</small></div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty">Todas las entregas de hoy están terminadas.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<label>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty">Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty">Sin firma</div>'}</div></div><p style="font-size:12px;color:#71808a;margin-top:8px">Entregado: ${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p>`:''}`:'<div class="tmsEmpty">Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
+ body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.customer)}</b><small>${esc(d.address)}</small></div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty">Todas las entregas de hoy están terminadas.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px">📄 Descargar informe PDF</button>`:''}${delivered.length?`<label>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty">Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty">Sin firma</div>'}</div></div><p style="font-size:12px;color:#71808a;margin-top:8px">Entregado: ${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p>`:''}`:'<div class="tmsEmpty">Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
 }
 if(tab==='fleet'){
  const editing=editingDriverId?db.drivers.find(x=>x.id===editingDriverId):null;
@@ -307,6 +330,7 @@ if(tab==='history')body=`<div class="tmsCard"><div class="tmsTitle"><b>Historial
  const da=x.querySelector('#dAdd');if(da)da.onclick=saveDriver;
  const dc=x.querySelector('#dCancelEdit');if(dc)dc.onclick=cancelDriverEdit;
  const ps=x.querySelector('#tProofSelect');if(ps)ps.onchange=()=>viewProofArchive(ps.value);
+ const pp=x.querySelector('#tProofPdf');if(pp)pp.onclick=downloadProofReport;
  const sd=x.querySelector('#tSaveDepot');if(sd)sd.onclick=saveDepot;
 }
 function mapsUrl(r){const s=routeStops(r),valid=s.filter(x=>!x.isDepot||x.address);if(valid.length<2)return '#';const o=encodeURIComponent(valid[0].address),dest=encodeURIComponent(valid[valid.length-1].address),wp=valid.slice(1,-1).map(x=>encodeURIComponent(x.address)).join('|');return'https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+dest+(wp?'&waypoints='+wp:'')+'&travelmode=driving'}
@@ -330,5 +354,5 @@ function renderProofDetail(id){
  };
 }
 GamaPage.register('tmsDeliveries',()=>render('planning'));GamaPage.register('tmsHistory',()=>render('history'));
-window.gamaTMS={open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive};
+window.gamaTMS={open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive,downloadProofReport};
 })();

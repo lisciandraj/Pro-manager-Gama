@@ -344,7 +344,7 @@ section{display:none}section.active{display:block}
 <div><label>Identificación cliente</label><input id="clientId" readonly></div><div><label>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label>Dirección</label><input id="clientAddress" readonly></div><div><label>Correo</label><input id="clientEmail" type="email" readonly></div><div><label>Forma de pago</label><select id="payment"><option>Transferencia</option><option>Tarjeta de crédito</option><option>Tarjeta de débito</option><option>Efectivo</option><option>Otros</option></select></div></div>
 <h3>Detalle</h3><div class="scanner"><input id="invoiceBarcode" placeholder="Código de barras del producto"><button class="secondary" onclick="scan('invoiceBarcode')">📷 Escanear</button></div>
 <div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()">➕ Añadir</button></div></div>
-<div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()">🧾 Generar presupuesto</button><button class="secondary" onclick="printInvoice()">🖨️ Imprimir</button><button class="secondary" onclick="emailInvoice()">📧 Enviar por correo</button></div><div id="invoicePreview"></div>
+<div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()">🧾 Generar presupuesto</button><button class="secondary" onclick="downloadInvoicePdf()">📄 Descargar PDF</button><button class="secondary" onclick="emailInvoice()">📧 Enviar por correo</button></div><div id="invoicePreview"></div>
 </div></section>
 
 <section id="audit"><div class="pageBack"><button onclick="showTab(\'mainmenu\',null)">‹ Menú principal</button></div>
@@ -539,7 +539,21 @@ function quoteItemsSnapshot(){return invoiceItems.map(x=>({name:x.p.name,barcode
 function finishQuote(inv){lastQuote=inv;$('invoicePreview').innerHTML=invoiceHTML(inv);invoiceItems=[];renderInvoiceItems()}
 function generateInvoice(){if(!validateQuoteForm())return;const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices.length),ref=uid('COT');let inv={id:ref,number,date:new Date().toISOString(),clientId:$('clientId').value,client:$('clientName').value,clientEmail:$('clientEmail').value,clientAddress:$('clientAddress').value,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};db.invoices.unshift(inv);finishQuote(inv);save();alert('Presupuesto generado. Puedes imprimirlo o enviarlo por correo al cliente.')}
 function invoiceHTML(i){return `<div class="invoice-preview"><h2>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br>No. ${i.number}<br>Fecha: ${new Date(i.date).toLocaleDateString('es-EC')}<hr><b>Cliente:</b> ${i.client}<br>Identificación: ${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span>IVA ${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low">Documento informativo. No constituye una factura.</p></div>`}
-function printInvoice(){if(!$('invoicePreview').innerHTML)return alert('Genera primero el presupuesto.');window.print()}
+/* Antes esto llamaba a window.print(), que abre el diálogo del sistema encima
+   de la propia página. En la aplicación instalada el usuario se quedaba
+   encerrado: sin diálogo visible que cerrar y sin manera de volver atrás, había
+   que cerrar la aplicación entera. Un PDF se abre en el visor del dispositivo,
+   que siempre trae su botón de volver — y desde ahí también se imprime. */
+function downloadInvoicePdf(){
+ if(!lastQuote)return alert('Genera primero el presupuesto.');
+ if(!window.GamaQuotePdf||!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
+ try{
+  const doc=window.GamaQuotePdf.build(lastQuote);
+  window.GamaPdf.save(doc,window.GamaPdf.fileName('presupuesto',lastQuote.number));
+ }catch(e){console.error('[GAMA PDF]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}
+}
+/* Se conserva el nombre antiguo: había accesos directos y llamadas sueltas. */
+function printInvoice(){downloadInvoicePdf()}
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
 function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th>Fecha/hora</th><th>Tipo</th><th>Producto</th><th>Código</th><th>Cant.</th><th>Antes</th><th>Después</th><th>Usuario</th><th>Motivo</th><th>Origen</th><th>Referencia</th><th>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
@@ -711,6 +725,7 @@ showTab('mainmenu',null);
 <script src="gama-client-catalog.js?v=5"></script>
 <script src="gama-customer-requests.js?v=3"></script>
 <script src="gama-sales-report.js?v=2"></script>
+<script src="gama-pdf.js?v=1"></script>
 <script src="gama-photos.js?v=2"></script>
 <script src="gama-price-lists.js?v=2"></script>
 <script src="gama-standard-ui.js?v=8"></script>

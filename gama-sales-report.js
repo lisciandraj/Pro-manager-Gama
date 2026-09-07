@@ -26,7 +26,7 @@ window.gamaShowSalesReport=show;
 function rangeStart(){if(range==='all')return null;const d=new Date();d.setDate(d.getDate()-Number(range));return d.toISOString()}
 function renderList(hostId,rows,sub){const host=$(hostId);if(!host)return;host.innerHTML=rows.length?rows.map((r,i)=>`<div class="srRow"><span><span class="srRank">${i+1}</span><b>${esc(r.name)}</b></span><span>${sub(r)}</span></div>`).join(''):'<div class="srEmpty">Sin ventas en este periodo.</div>'}
 async function load(){if(!canView())return;inject();const a=$('srByQty');if(a)a.innerHTML='<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>';try{
-  const pr=await C().list('products',{order:'name',ascending:true});if(pr.error)throw pr.error;
+  const pr=await C().list('products',{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active',order:'name',ascending:true});if(pr.error)throw pr.error;
   const productMap=new Map((pr.data||[]).map(p=>[String(p.id),p]));
   const start=rangeStart();
   const invOpts={select:'id',order:'issue_date',ascending:false};

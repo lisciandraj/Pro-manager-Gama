@@ -9,7 +9,7 @@
       };
     }
     const api={
-      async listProducts(options){return C.list('products',options||{order:'name',ascending:true});},
+      async listProducts(options){return C.list('products',options||{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active,has_photo',order:'name',ascending:true});},
       async getProduct(id){const c=await C.db();return c.from('products').select('*').eq('id',id).maybeSingle();},
       async getByBarcode(barcode){const c=await C.db();return c.from('products').select('*').eq('barcode',String(barcode).trim()).maybeSingle();},
       async createProduct(product){return C.insert('products',product);},

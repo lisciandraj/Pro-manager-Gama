@@ -117,6 +117,82 @@ async function hydrate(root,table){
  pending.forEach(el=>io.observe(el));
 }
 
+/* ---- Reducción de las fotos ya guardadas ----
+
+   La imagen más grande que enseña la aplicación es la tarjeta del catálogo:
+   140 px de alto. La ficha del producto la muestra a 120 px en modo cover, que
+   en una pantalla retina pide 240 px de lado. Por eso el objetivo es 320 px:
+   sigue estando por encima de lo que hace falta y pesa una fracción.
+
+   Medido sobre las nueve fotos reales del proyecto: 1377 kB -> 112 kB (-92 %),
+   sin diferencia visible a los tamaños a los que se muestran. */
+/* Estas dos cifras son las mismas que usa compressPhoto() al subir una foto
+   nueva (en index.html y en gama-excel-import-v1.js). Si se cambian aquí, hay
+   que cambiarlas allí: si no, cada foto nueva entraría sobredimensionada y
+   habría que volver a pasar el optimizador. */
+const TARGET_MAX=320, TARGET_QUALITY=0.60;
+const MIN_GAIN=0.90;   // hay que bajar al menos un 10 % para que valga la pena
+
+/* Vuelve a codificar una foto. Devuelve null si el navegador no puede leerla,
+   para que quien llame la deje como está en vez de guardar algo roto. */
+function shrink(dataUrl,max,quality){
+ return new Promise(resolve=>{
+  const img=new Image();
+  img.onload=()=>{
+   try{
+    const s=Math.min(1,(max||TARGET_MAX)/img.width,(max||TARGET_MAX)/img.height);
+    const c=document.createElement('canvas');
+    c.width=Math.max(1,Math.round(img.width*s));
+    c.height=Math.max(1,Math.round(img.height*s));
+    const ctx=c.getContext('2d');
+    ctx.imageSmoothingQuality='high';
+    ctx.drawImage(img,0,0,c.width,c.height);
+    resolve(c.toDataURL('image/jpeg',quality===undefined?TARGET_QUALITY:quality));
+   }catch(e){resolve(null)}
+  };
+  img.onerror=()=>resolve(null);
+  img.src=dataUrl;
+ });
+}
+
+/* Recorre las fotos guardadas y reescribe las que adelgacen de verdad.
+
+   Se hace aquí, en el navegador de quien lo pide, y no desde fuera: el canvas
+   sólo existe en el navegador, y así la escritura pasa por la sesión y los
+   permisos del propio usuario. Las fotos van de una en una para no cargar
+   megas en memoria y para poder informar del avance. */
+async function optimizeAll(onProgress){
+ const api=window.GamaCloud;
+ if(!api)throw new Error('Sin conexión con GAMA Cloud.');
+ const idx=await api.list('products',{select:'id,name,has_photo',eq:{has_photo:true},order:'name',ascending:true});
+ if(idx.error)throw idx.error;
+ const items=idx.data||[];
+ const out={total:items.length,reducidas:0,sinCambio:0,fallidas:0,antes:0,despues:0};
+ for(let i=0;i<items.length;i++){
+  const p=items[i];
+  if(typeof onProgress==='function')onProgress(i,items.length,p.name);
+  try{
+   const r=await api.list('products',{select:'id,photo_data',eq:{id:p.id}});
+   if(r.error)throw r.error;
+   const original=(r.data&&r.data[0]&&r.data[0].photo_data)||'';
+   if(!original){out.sinCambio++;continue}
+   const nueva=await shrink(original);
+   out.antes+=original.length;
+   /* Sólo se reescribe si el ahorro es de verdad. Recodificar un JPEG siempre
+      pierde algo de calidad, así que sin este margen una segunda pasada volvería
+      a tocar fotos ya optimizadas — arañando un 1 % de peso y otra generación de
+      pérdida cada vez. Con el 10 %, volver a lanzarlo no hace nada. */
+   if(!nueva||nueva.length>original.length*MIN_GAIN){out.despues+=original.length;out.sinCambio++;continue}
+   const u=await api.update('products',p.id,{photo_data:nueva});
+   if(u.error)throw u.error;
+   cache.set(p.id,nueva);
+   out.despues+=nueva.length;out.reducidas++;
+  }catch(e){console.warn('[GAMA Fotos] no se pudo optimizar',p.name,e);out.fallidas++}
+ }
+ if(typeof onProgress==='function')onProgress(items.length,items.length,'');
+ return out;
+}
+
 /* El hueco ocupa lo mismo que la foto que va a sustituir: sin esto las filas
    daban un salto al llegar las imagenes. */
 (function css(){
@@ -126,5 +202,5 @@ async function hydrate(root,table){
  (document.head||document.documentElement).appendChild(st);
 })();
 
-window.GamaPhotos={get,put,seed,forget,load,slot,hydrate,cache};
+window.GamaPhotos={get,put,seed,forget,load,slot,hydrate,cache,shrink,optimizeAll,TARGET_MAX,TARGET_QUALITY};
 })();

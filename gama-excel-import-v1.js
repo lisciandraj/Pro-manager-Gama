@@ -70,10 +70,10 @@ function compressPhoto(file){
    img.onerror=()=>reject(new Error('Archivo de imagen no válido'));
    img.onload=()=>{
     try{
-     const max=700,s=Math.min(1,max/img.width,max/img.height),c=document.createElement('canvas');
+     const max=560,s=Math.min(1,max/img.width,max/img.height),c=document.createElement('canvas');
      c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));
      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-     resolve(c.toDataURL('image/jpeg',.78));
+     resolve(c.toDataURL('image/jpeg',.72));
     }catch(e){reject(e)}
    };
    img.src=r.result;
@@ -90,7 +90,7 @@ async function loadPhotos(fileList){
  if(!api){st.textContent='La conexión con la nube de GAMA no está disponible.';return}
  st.textContent='Comprobando '+files.length+' foto(s) con tu catálogo…';
  let products=[];
- try{const r=await api.list('products',{select:'id,name,reference,photo_data'});if(r.error)throw r.error;products=r.data||[]}
+ try{const r=await api.list('products',{select:'id,name,reference,has_photo'});if(r.error)throw r.error;products=r.data||[]}
  catch(e){st.textContent='Error al leer los productos: '+(e.message||e);return}
  const idx=refIndex(products),usedRefs=new Map();
  photoState.matches=files.map(f=>{
@@ -113,7 +113,7 @@ function photoPreview(){
  p.innerHTML='<table><thead><tr><th></th><th>Archivo</th><th>Referencia</th><th>Producto</th><th>Estado</th></tr></thead><tbody>'
   +photoState.matches.map((m,i)=>{
    const state=m.error?'<span class="gamaPhotoBad">'+esc(m.error)+'</span>'
-    :m.product.photo_data?'<span class="gamaPhotoWarn">Reemplaza la foto actual</span>'
+    :m.product.has_photo?'<span class="gamaPhotoWarn">Reemplaza la foto actual</span>'
     :'<span class="gamaPhotoOk">Listo para importar</span>';
    return '<tr><td><img class="gamaPhotoThumb" data-thumb="'+i+'" alt=""></td><td>'+esc(m.file.name)+'</td><td>'+esc(m.ref)+'</td><td>'+esc(m.product?m.product.name:'—')+'</td><td>'+state+'</td></tr>';
   }).join('')+'</tbody></table>';
@@ -130,8 +130,8 @@ async function importPhotos(){
  const api=window.GamaCloud;
  if(!api){alert('La conexión con la nube de GAMA no está disponible.');return}
  const keep=document.getElementById('gamaPhotoKeep').checked;
- const todo=photoState.matches.filter(m=>m.product&&!(keep&&m.product.photo_data));
- const skippedKept=photoState.matches.filter(m=>m.product&&keep&&m.product.photo_data).length;
+ const todo=photoState.matches.filter(m=>m.product&&!(keep&&m.product.has_photo));
+ const skippedKept=photoState.matches.filter(m=>m.product&&keep&&m.product.has_photo).length;
  if(!todo.length){st.textContent='No hay ninguna foto que importar.';return}
  btn.disabled=true;
  let ok=0,fail=0;
@@ -142,7 +142,7 @@ async function importPhotos(){
    const photo=await compressPhoto(m.file);
    const r=await api.update('products',m.product.id,{photo_data:photo});
    if(r&&r.error)throw r.error;
-   m.product.photo_data=photo;
+   m.product.has_photo=true;if(window.GamaPhotos)GamaPhotos.seed(m.product.id,photo);
    ok++;
   }catch(e){console.error('[GAMA Fotos]',m.file.name,e);fail++}
  }

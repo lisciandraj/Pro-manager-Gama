@@ -15,7 +15,7 @@
   // purchase_price, supplier_id and location: a "cliente" account may browse
   // the catalogue without seeing margins, suppliers or warehouse locations.
   // Modelling it here keeps that boundary under test.
-  const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at'];
+  const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at', 'has_photo'];
   function catalogRows() {
     // Mirrors the catalog_products view: the price shown is the one from the
     // price list of the customer whose email matches the session, falling back
@@ -27,6 +27,7 @@
       .filter(p => p.active !== false)
       .map(p => {
         const o = {}; CATALOG_COLUMNS.forEach(c => { if (c in p) o[c] = p[c]; });
+        o.has_photo = !!p.photo_data;
         const hit = items.find(i => i.product_id === p.id);
         o.base_price = p.sale_price;
         o.contract_price = !!hit;
@@ -37,6 +38,9 @@
   function rowsFor(table, options) {
     options = options || {};
     let rows = table === 'catalog_products' ? catalogRows() : (window.__DB[table] || []).slice();
+    // products.has_photo es una columna generada en la base: se deriva aqui
+    // para que una consulta estrecha pueda pedirla sin traerse la foto.
+    if (table === 'products') rows = rows.map(r => ({ ...r, has_photo: !!r.photo_data }));
     if (options.eq) Object.keys(options.eq).forEach(k => { rows = rows.filter(r => r[k] === options.eq[k]); });
     if (options.in) Object.keys(options.in).forEach(k => { rows = rows.filter(r => (options.in[k] || []).includes(r[k])); });
     if (options.order) rows.sort((a, b) => {

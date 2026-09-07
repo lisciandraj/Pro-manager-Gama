@@ -19,7 +19,7 @@ window.emailGamaCloudInvoice=function(id){const inv=cloudInvoices.find(x=>String
 async function load(){const billing=ensureSection();if(!billing||!window.GamaCloud)return;const rows=document.getElementById('giaRows');if(rows)rows.innerHTML='<div class="giaEmpty"><span class="gamaSpin"></span>Sincronizando con la nube…</div>';const q=(document.getElementById('giaSearch')?.value||'').trim();try{
   const cr=await window.GamaCloud.list('customers',{order:'name',ascending:true});if(cr.error)throw cr.error;allCustomers=cr.data||[];
   const customersMap=new Map(allCustomers.map(x=>[String(x.id),x]));
-  const pr=await window.GamaCloud.list('products',{order:'name',ascending:true});if(pr.error)throw pr.error;
+  const pr=await window.GamaCloud.list('products',{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active',order:'name',ascending:true});if(pr.error)throw pr.error;
   const products=new Map((pr.data||[]).map(x=>[String(x.id),x]));
   let invoiceRows=[];
   if(q){

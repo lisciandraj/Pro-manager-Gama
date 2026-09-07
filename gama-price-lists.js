@@ -21,7 +21,7 @@ async function load(){
  try{
   const [l,p,c]=await Promise.all([
    api.list('price_lists',{order:'year',ascending:false}),
-   api.list('products',{order:'name',ascending:true}),
+   api.list('products',{select:'id,name,sale_price,active',order:'name',ascending:true}),
    api.list('customers',{order:'name',ascending:true}),
   ]);
   if(l.error)throw l.error;

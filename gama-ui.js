@@ -65,12 +65,17 @@ function css(){
 .gamaStdActions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
 .gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:11px 15px;font-weight:750;font-size:14px;cursor:pointer;min-height:44px;width:auto}
 .gamaStdBack:hover,.gamaStdAction:hover{background:#E3EBED}
+/* En el teléfono esta cabecera se comía la primera pantalla entera: el texto a
+   tamaño de escritorio y un botón por línea dejaban el módulo empezando fuera
+   de la vista. Se aprieta la tipografía y los botones se reparten la fila
+   —caben dos de 132 px hasta en una pantalla de 360—, sin quitar nada. */
 @media(max-width:760px){
- .gamaStdHeader{flex-direction:column;align-items:stretch;padding:16px;gap:14px}
- .gamaStdHeader h2{font-size:22px}
- .gamaStdHeader p{font-size:13.5px;margin-top:8px}
- .gamaStdActions{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
- .gamaStdBack,.gamaStdAction{width:100%}
+ .gamaStdHeader{flex-direction:column;align-items:stretch;padding:14px;gap:11px}
+ .gamaStdHeader h2{font-size:19px}
+ .gamaStdHeader p{font-size:12.5px;line-height:1.45;margin-top:6px}
+ .gamaStdKicker{font-size:9px;letter-spacing:1.4px;margin-bottom:3px}
+ .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+ .gamaStdBack,.gamaStdAction{width:100%;padding:10px 10px;font-size:13px}
 }`;
  (document.head||document.documentElement).appendChild(s);
 }

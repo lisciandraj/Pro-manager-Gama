@@ -333,8 +333,24 @@ function css(){
 #hr .hrPlanLeyenda i.pend{background:#fff;border:1.5px dashed #71808a}
 #hr .hrPlanDetalle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:10px;background:#f8fbfb}
 #hr .hrPlanDetalle small{display:block;color:#61717c;font-size:11.5px;margin-top:2px}
-@media(max-width:900px){#hr .hrGrid{grid-template-columns:1fr}#hr .hrKpis{grid-template-columns:1fr 1fr}
- #hr .hrPlanFila{grid-template-columns:120px 1fr}#hr .hrPlanNombre b{font-size:11.5px}}`;
+/* minmax(0,1fr) y no 1fr: «1fr» es «minmax(auto,1fr)», y ese mínimo automático
+   es el del contenido. La tabla de empleados lleva min-width:560px a propósito
+   —una tabla necesita sitio y por eso .hrTable tiene su propio scroll—, pero
+   con «1fr» ese mínimo se escapaba a la columna y estiraba la rejilla, las dos
+   tarjetas y el documento entero a 598 px en cualquier teléfono. El navegador
+   respondía alejando el zoom para que cupiera: de ahí que la cabecera y las
+   tarjetas salieran encogidas. Acotando la pista, la tabla vuelve a
+   desplazarse dentro de su caja y la página mide lo que mide la pantalla. */
+@media(max-width:900px){#hr .hrGrid{grid-template-columns:minmax(0,1fr)}#hr .hrKpis{grid-template-columns:1fr 1fr}
+ #hr .hrPlanFila{grid-template-columns:120px 1fr}#hr .hrPlanNombre b{font-size:11.5px}}
+/* Las tres pestañas se partían en dos filas, con «Planificación» sola abajo.
+   Repartidas a partes iguales entran en una; el icono sobra ahí, y sin él la
+   palabra cabe entera. Este bloque va DESPUÉS de las reglas de base a
+   propósito: una media query no añade especificidad, así que escrito antes se
+   quedaba sin efecto contra un selector idéntico. */
+@media(max-width:760px){#hr .hrTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ #hr .hrTabs button{padding:10px 4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #hr .hrTabIco{display:none}}`;
  document.head.appendChild(s);
 }
 
@@ -702,9 +718,12 @@ function render(){
  if(!admin&&(tab==='empleados'||tab==='ausencias'))tab=tab==='empleados'?'miFicha':'misDias';
  if(admin&&(tab==='miFicha'||tab==='misDias'))tab=tab==='miFicha'?'empleados':'ausencias';
 
+ // El icono va en su propio span: en el teléfono las tres pestañas se reparten
+ // el ancho y «Planificación» no cabe con el emoji delante, así que allí se
+ // esconde el icono en vez de cortar la palabra.
  const pestanas=admin
-  ? [['empleados','👥 Empleados'],['ausencias','📅 Ausencias'],['planificacion','🗓️ Planificación']]
-  : [['miFicha','🪪 Mi ficha'],['misDias','📩 Mis días'],['planificacion','🗓️ Planificación']];
+  ? [['empleados','👥','Empleados'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']]
+  : [['miFicha','🪪','Mi ficha'],['misDias','📩','Mis días'],['planificacion','🗓️','Planificación']];
 
  s.innerHTML=window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
@@ -713,8 +732,8 @@ function render(){
      : 'Tus datos de empleado, tus vacaciones y el calendario del equipo. Pide tus días desde aquí: la solicitud queda pendiente hasta que un administrador la apruebe. De tus compañeros ves cuándo están fuera y por qué motivo, para poder organizaros; sus datos personales y el comentario que escribieron, no.',
    actions:'<button type="button" class="gamaStdAction" id="hrRefresh">↻ Actualizar</button>'
  })
- +`<div class="hrTabs">${pestanas.map(([id,txt])=>
-    `<button type="button" class="${tab===id?'on':''}" data-tab="${id}">${txt}</button>`).join('')}</div>`
+ +`<div class="hrTabs">${pestanas.map(([id,ico,txt])=>
+    `<button type="button" class="${tab===id?'on':''}" data-tab="${id}"><span class="hrTabIco">${ico}</span> ${txt}</button>`).join('')}</div>`
  +(admin?kpis():'')
  +'<div id="hrMsg" class="hrMsg"></div>'
  +(tab==='empleados'?employeesTab()

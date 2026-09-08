@@ -30,8 +30,8 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
       window.__DB.suppliers = [{ id: 'sup1', name: 'Papelera Central', active: true }];
       // @ts-ignore
       window.__DB.products = [
-        { id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, purchase_price: 3.5, sale_price: 6, active: true, supplier_id: 'sup1' },
-        { id: 'p2', name: 'Grapas', reference: 'GRA-01', stock: 100, min_stock: 10, purchase_price: 1.2, sale_price: 2, active: true, supplier_id: 'sup1' },
+        { id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, price_a: 3.5, sale_price: 6, active: true, supplier_id: 'sup1' },
+        { id: 'p2', name: 'Grapas', reference: 'GRA-01', stock: 100, min_stock: 10, price_a: 1.2, sale_price: 2, active: true, supplier_id: 'sup1' },
       ];
       // @ts-ignore
       window.gamaShowPurchases();

@@ -12,6 +12,11 @@ const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'U
 const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)&&n>=0?n:null};
 
 let lists=[],items=[],products=[],customers=[],selected=null,busy=false;
+/* Proveedores de categoría C: precios especiales por contrato, producto a
+   producto. Un proveedor C sin precio especial para un producto factura al
+   precio de compra de la categoría A (grossiste) — misma lógica de "cae al
+   precio base" que las tarifas de clientes, pero sobre products.price_a. */
+let suppliers=[],supplierContracts=[],selectedSupplier=null;
 
 function msg(t,err){const m=$('plMsg');if(!m)return;m.className='plMsg'+(err?' plErr':' plOk');m.textContent=t;if(!t)m.className='plMsg'}
 function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(e.message||e.details)||e),true)}
@@ -19,18 +24,21 @@ function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(
 async function load(){
  const api=C();if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
  try{
-  const [l,p,c]=await Promise.all([
+  const [l,p,c,s]=await Promise.all([
    api.list('price_lists',{order:'year',ascending:false}),
-   api.list('products',{select:'id,name,sale_price,active',order:'name',ascending:true}),
+   api.list('products',{select:'id,name,sale_price,price_a,active',order:'name',ascending:true}),
    api.list('customers',{order:'name',ascending:true}),
+   api.list('suppliers',{order:'name',ascending:true}),
   ]);
   if(l.error)throw l.error;
   lists=l.data||[];
   products=(p.data||[]).filter(x=>x.active!==false);
   customers=(c.data||[]).filter(x=>x.active!==false);
+  suppliers=(s.data||[]).filter(x=>x.active!==false&&x.category==='C');
   if(selected&&!lists.some(x=>x.id===selected))selected=null;
   if(!selected&&lists.length)selected=lists[0].id;
-  await loadItems();
+  if(selectedSupplier&&!suppliers.some(x=>x.id===selectedSupplier))selectedSupplier=null;
+  await Promise.all([loadItems(),loadSupplierContracts()]);
   render();
  }catch(e){fail(e,'No se pudieron cargar las tarifas')}
 }
@@ -41,8 +49,16 @@ async function loadItems(){
  if(r.error)throw r.error;
  items=r.data||[];
 }
+async function loadSupplierContracts(){
+ supplierContracts=[];
+ if(!selectedSupplier)return;
+ const r=await C().list('supplier_contract_prices',{eq:{supplier_id:selectedSupplier}});
+ if(r.error)throw r.error;
+ supplierContracts=r.data||[];
+}
 function productName(id){const p=products.find(x=>x.id===id);return p?p.name:'(producto archivado)'}
 function basePrice(id){const p=products.find(x=>x.id===id);return p?Number(p.sale_price||0):0}
+function purchaseBasePrice(id){const p=products.find(x=>x.id===id);return p?Number(p.price_a||0):0}
 
 /* ---- acciones ---- */
 async function createList(){
@@ -98,6 +114,58 @@ async function assignCustomer(id,listId){
  catch(e){fail(e,'No se pudo asignar la tarifa')}
 }
 
+/* ---- proveedores de categoría C: precios especiales por contrato ---- */
+function selectSupplierContract(id){selectedSupplier=id;msg('');(async()=>{try{await loadSupplierContracts();render()}catch(e){fail(e,'No se pudo abrir el contrato del proveedor')}})()}
+async function setSupplierContractPrice(productId,value){
+ const price=num(value);
+ if(price===null)return msg('Precio inválido.',true);
+ if(!selectedSupplier)return msg('Elige un proveedor de categoría C.',true);
+ try{
+  const r=await C().upsert('supplier_contract_prices',{supplier_id:selectedSupplier,product_id:productId,unit_price:price},{onConflict:'supplier_id,product_id'});
+  if(r.error)throw r.error;
+  await loadSupplierContracts();render();msg('Precio especial actualizado.');
+ }catch(e){fail(e,'No se pudo guardar el precio especial')}
+}
+async function addSupplierContractItem(){
+ const pid=$('scProduct').value,price=num($('scPrice').value);
+ if(!pid)return msg('Elige un producto.',true);
+ if(price===null)return msg('Indica un precio válido.',true);
+ await setSupplierContractPrice(pid,price);
+ $('scPrice').value='';
+}
+async function removeSupplierContractItem(productId){
+ try{
+  const c=await C().db();
+  const r=await c.from('supplier_contract_prices').delete().eq('supplier_id',selectedSupplier).eq('product_id',productId);
+  if(r.error)throw r.error;
+  await loadSupplierContracts();render();msg('Precio especial retirado: el producto vuelve al precio de la categoría A (grossiste).');
+ }catch(e){fail(e,'No se pudo retirar el precio especial')}
+}
+/* Resolución del precio de compra según la categoría del proveedor:
+   A = grossiste, B = detalle, C = precio especial pactado o, si no hay
+   ninguno pactado para ese producto, el precio de la categoría A por
+   defecto. `contractMap` es opcional: {product_id: unit_price}. */
+window.gamaSupplierPurchasePriceFor=function(product,supplier,contractMap){
+ if(!product)return 0;
+ const cat=(supplier&&supplier.category)||'A';
+ if(cat==='B')return Number(product.price_b||product.priceB||0);
+ if(cat==='C'){
+  const special=contractMap?contractMap[product.id]:undefined;
+  if(special!==undefined)return Number(special);
+ }
+ return Number(product.price_a||product.priceA||0);
+};
+window.gamaLoadSupplierContractMap=async function(supplierId){
+ const map={};
+ if(!supplierId||!C())return map;
+ try{
+  const r=await C().list('supplier_contract_prices',{eq:{supplier_id:supplierId}});
+  if(r.error)throw r.error;
+  (r.data||[]).forEach(i=>{map[i.product_id]=Number(i.unit_price)});
+ }catch(e){console.warn('[GAMA Tarifas] no se pudieron leer los precios especiales del proveedor',e)}
+ return map;
+};
+
 /* ---- pantalla ---- */
 function section(){
  let s=$('price-lists');
@@ -109,7 +177,7 @@ function css(){
  const s=document.createElement('style');s.id='plCss';
  s.textContent=`#price-lists .plGrid{display:grid;grid-template-columns:320px 1fr;gap:12px;align-items:start}
 #price-lists .card{background:#fff;border:1px solid var(--gama-line,#c9d6df);border-radius:14px;padding:16px;margin-bottom:12px}
-.plList{background:#fff;border:1px solid #e4ebee;border-radius:11px;overflow:hidden;margin-bottom:12px}
+.plList,.scList{background:#fff;border:1px solid #e4ebee;border-radius:11px;overflow:hidden;margin-bottom:12px}
 .plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid #edf1f2;cursor:pointer}
 .plItem:last-child{border-bottom:0}
 .plItem.on{background:#e8f5f6}
@@ -133,6 +201,8 @@ function render(){
  const s=section(),cur=lists.find(x=>x.id===selected)||null;
  const mine=cur?customers.filter(c=>c.price_list_id===cur.id):[];
  const listed=new Set(items.map(i=>i.product_id));
+ const curSupplier=suppliers.find(x=>x.id===selectedSupplier)||null;
+ const scListed=new Set(supplierContracts.map(i=>i.product_id));
  s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas por año de contrato',lead:'Precios pactados por año de contrato.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
@@ -149,8 +219,39 @@ function render(){
     </div>`).join(''):'<div class="plEmpty">Aún no hay tarifas.</div>'}</div>
   </div>
   <div>${cur?renderDetail(cur,mine,listed):'<div class="card"><div class="plEmpty">Crea o elige una tarifa a la izquierda.</div></div>'}</div>
+ </div>
+ <div class="plGrid" style="margin-top:12px">
+  <div>
+   <div class="card">
+    <h3>Proveedores · Categoría C</h3>
+    <p class="muted">Precios especiales de compra pactados por contrato. Un producto sin precio especial se compra al precio de la categoría A (grossiste).</p>
+   </div>
+   <div class="scList">${suppliers.length?suppliers.map(x=>`<div class="plItem${x.id===selectedSupplier?' on':''}" data-pick-sup="${esc(x.id)}">
+     <div><b>${esc(x.name)}</b><small>Categoría C</small></div>
+    </div>`).join(''):'<div class="plEmpty">No hay proveedores de categoría C.</div>'}</div>
+  </div>
+  <div>${curSupplier?renderSupplierDetail(curSupplier,scListed):'<div class="card"><div class="plEmpty">Elige un proveedor de categoría C a la izquierda.</div></div>'}</div>
  </div>`;
  bind();
+}
+function renderSupplierDetail(sup,listed){
+ const free=products.filter(p=>!listed.has(p.id));
+ return `<div class="card">
+  <h3>${esc(sup.name)} — precios especiales</h3>
+  <div class="plRow" style="margin-top:8px">
+   <div><label>Producto</label><select id="scProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — cat. A ${money(p.price_a)}</option>`).join(''):'<option value="">Todos los productos ya tienen precio especial</option>'}</select></div>
+   <div><label>Precio especial (contrato)</label><input id="scPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+   <div><button class="primary" id="scAdd">Añadir</button></div>
+  </div>
+  ${supplierContracts.length?`<table class="plTable"><thead><tr><th>Producto</th><th>Precio cat. A</th><th>Precio especial</th><th>Diferencia</th><th></th></tr></thead><tbody>
+   ${supplierContracts.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
+     const base=purchaseBasePrice(i.product_id),d=Number(i.unit_price)-base;
+     return `<tr><td>${esc(productName(i.product_id))}</td><td>${money(base)}</td>
+      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-sc-price="${esc(i.product_id)}"></td>
+      <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)}</td>
+      <td><button class="danger" data-sc-drop="${esc(i.product_id)}">×</button></td></tr>`}).join('')}
+   </tbody></table>`:'<div class="plEmpty">Ningún precio especial todavía: este proveedor factura al precio de la categoría A.</div>'}
+ </div>`;
 }
 function renderDetail(cur,mine,listed){
  const free=products.filter(p=>!listed.has(p.id));
@@ -173,8 +274,9 @@ function renderDetail(cur,mine,listed){
  </div>
  <div class="card">
   <h3>Clientes con esta tarifa <small class="muted">(${mine.length})</small></h3>
+  <p class="muted">Sólo los clientes de categoría C usan tarifa. Un producto que no figure aquí se les factura al precio de venta grossiste (Categoría A).</p>
   <div class="plRow" style="margin-top:8px">
-   <div><label>Añadir un cliente</label><select id="plCustomer"><option value="">Selecciona…</option>${customers.filter(c=>c.price_list_id!==cur.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.price_list_id?' — hoy en otra tarifa':''}</option>`).join('')}</select></div>
+   <div><label>Añadir un cliente</label><select id="plCustomer"><option value="">Selecciona…</option>${customers.filter(c=>c.price_list_id!==cur.id&&(c.category||'A')==='C').map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.price_list_id?' — hoy en otra tarifa':''}</option>`).join('')}</select></div>
    <div></div><div><button class="primary" id="plAssign">Asignar</button></div>
   </div>
   ${mine.length?`<table class="plTable"><tbody>${mine.map(c=>`<tr><td>${esc(c.name)}<br><small class="muted">${esc(c.email||'sin correo')}</small></td><td style="text-align:right"><button class="secondary" data-unassign="${esc(c.id)}">Quitar</button></td></tr>`).join('')}</tbody></table>`:'<div class="plEmpty">Ningún cliente usa esta tarifa todavía.</div>'}
@@ -192,6 +294,10 @@ function bind(){
  s.querySelectorAll('[data-drop]').forEach(b=>b.onclick=()=>removeItem(b.dataset.drop));
  const as=$('plAssign');if(as)as.onclick=()=>{const v=$('plCustomer').value;if(!v)return msg('Elige un cliente.',true);assignCustomer(v,selected)};
  s.querySelectorAll('[data-unassign]').forEach(b=>b.onclick=()=>assignCustomer(b.dataset.unassign,null));
+ s.querySelectorAll('[data-pick-sup]').forEach(el=>el.onclick=()=>selectSupplierContract(el.dataset.pickSup));
+ const sa=$('scAdd');if(sa)sa.onclick=addSupplierContractItem;
+ s.querySelectorAll('[data-sc-price]').forEach(i=>i.onchange=()=>setSupplierContractPrice(i.dataset.scPrice,i.value));
+ s.querySelectorAll('[data-sc-drop]').forEach(b=>b.onclick=()=>removeSupplierContractItem(b.dataset.scDrop));
 }
 async function open(){
  css();

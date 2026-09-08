@@ -16,7 +16,7 @@ const PRODUCTS = Array.from({ length: 25 }, (_, i) => ({
   stock: 10,
   min_stock: 1,
   sale_price: 5,
-  purchase_price: 2,
+  price_a: 2,
   tax_rate: 15,
   active: true,
 }));

@@ -16,8 +16,8 @@ const Y = new Date().getFullYear();
 // junto a las que sí lo respetan. Eso no se ve en una captura — los números
 // parecen correctos— y es justo lo que esta prueba fija.
 const PRODUCTS = [
-  { id: 'p1', name: 'Cemento 50kg', barcode: 'B1', sale_price: 10, purchase_price: 6, tax_rate: 15, stock: 40, min_stock: 2, active: true },
-  { id: 'p2', name: 'Arena m3', barcode: 'B2', sale_price: 25, purchase_price: 20, tax_rate: 15, stock: 10, min_stock: 2, active: true },
+  { id: 'p1', name: 'Cemento 50kg', barcode: 'B1', sale_price: 10, price_a: 6, tax_rate: 15, stock: 40, min_stock: 2, active: true },
+  { id: 'p2', name: 'Arena m3', barcode: 'B2', sale_price: 25, price_a: 20, tax_rate: 15, stock: 10, min_stock: 2, active: true },
 ];
 const INVOICES = [
   { id: 'i1', number: '000000001', issue_date: new Date(Y, 0, 15).toISOString(), total: 115, subtotal: 100 },

@@ -23,9 +23,24 @@ const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDate
 const today=()=>new Date().toISOString().slice(0,10);
 
 const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permiso:'📄 Permiso',formacion:'🎓 Formación',otro:'• Otro'};
+/* El equipo ve el motivo de cada ausencia —vacaciones, enfermedad, permiso…—
+   porque para organizarse hace falta saberlo. Lo que no sale de su tabla es el
+   comentario escrito a mano, que puede llevar un detalle médico o personal. */
 const STATUS={pendiente:'Pendiente',aprobada:'Aprobada',rechazada:'Rechazada'};
 
 let employees=[],absences=[],tab='empleados',editing=null,busy=false;
+/* Los datos sensibles —sueldo, cédula, contrato, y el comentario escrito a mano
+   de una ausencia— viven en hr_employee_private y hr_absence_private, con su
+   propia política. Las tablas base sólo guardan lo que el equipo necesita para
+   el calendario: quién, qué puesto, qué motivo y qué días.
+
+   Por eso aquí se piden las cuatro y se juntan por id: a un compañero la base
+   le devuelve la mitad privada vacía, y la ficha le llega sin sueldo sin que
+   este archivo tenga que decidir nada. */
+let mine=null,perfiles=[],myUid=null;
+
+const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
+const isAdmin=()=>role()==='admin'||role()==='administrador';
 /* Planificación: el día sobre el que se centra la vista y su amplitud. */
 let planAnchor=new Date(),planView='semana',planPick=null;
 
@@ -64,23 +79,45 @@ function onLeaveToday(){
  return absences.filter(a=>a.status==='aprobada'&&a.start_date<=t&&a.end_date>=t);
 }
 
+/* Una sola consulta por tabla para los dos perfiles: lo que cambia no es la
+   consulta sino lo que la base devuelve. Un empleado pide hr_employees y le
+   llega SU ficha; el administrador pide lo mismo y le llegan todas. La
+   diferencia la pone RLS, no este archivo — así no hay una rama del código que
+   se pueda saltar desde la consola del navegador. */
 async function load(){
  const api=C();
  if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
  try{
-  const [e,a]=await Promise.all([
+  const [e,a,ep,ap,ses]=await Promise.all([
    api.list('hr_employees',{order:'full_name',ascending:true}),
    api.list('hr_absences',{order:'start_date',ascending:false}),
+   api.list('hr_employee_private',{}),
+   api.list('hr_absence_private',{}),
+   api.getSession(),
   ]);
   if(e.error)throw e.error;
   if(a.error)throw a.error;
-  employees=e.data||[];absences=a.data||[];
+  myUid=ses?.data?.session?.user?.id||null;
+  const priv=new Map((ep.error?[]:(ep.data||[])).map(r=>[r.employee_id,r]));
+  const privA=new Map((ap.error?[]:(ap.data||[])).map(r=>[r.absence_id,r]));
+  employees=(e.data||[]).map(x=>Object.assign({},x,priv.get(x.id)||{}));
+  absences=(a.data||[]).map(x=>Object.assign({},x,privA.get(x.id)||{}));
+  mine=employees.find(x=>x.profile_id&&x.profile_id===myUid)||null;
+  if(isAdmin())await loadProfiles();
   render();
  }catch(err){fail(err,'No se pudieron cargar los datos de RRHH')}
 }
+/* Las cuentas de acceso, para poder ligar una ficha a un usuario. Sólo el
+   administrador las lee. */
+async function loadProfiles(){
+ try{
+  const r=await C().list('profiles',{select:'id,full_name,email,role,active',order:'full_name',ascending:true});
+  perfiles=r.error?[]:(r.data||[]).filter(p=>p.active!==false&&p.role!=='cliente');
+ }catch(e){perfiles=[]}
+}
 
 /* ---- empleados ---- */
-const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes'];
+const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes','hrAccount'];
 function clearEmployee(){editing=null;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='＋ Guardar empleado';msg('')}
 
 async function saveEmployee(){
@@ -88,24 +125,34 @@ async function saveEmployee(){
  const name=($('hrName').value||'').trim();
  if(!name)return msg('El nombre del empleado es obligatorio.',true);
  const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
+ // Lo que el equipo puede ver…
  const row={
   full_name:name,
+  position:($('hrPosition').value||'').trim()||null,
+  department:($('hrDept').value||'').trim()||null,
+  profile_id:$('hrAccount')?.value||null,
+ };
+ // …y lo que sólo ven el interesado y recursos humanos.
+ const priv={
   identification:($('hrId').value||'').trim()||null,
   email:($('hrEmail').value||'').trim()||null,
   phone:($('hrPhone').value||'').trim()||null,
-  position:($('hrPosition').value||'').trim()||null,
-  department:($('hrDept').value||'').trim()||null,
   contract_type:$('hrContract').value||null,
   hire_date:$('hrHire').value||null,
   end_date:$('hrEnd').value||null,
   salary:num($('hrSalary').value),
   annual_leave_days:num($('hrLeaveDays').value)??15,
+  notes:($('hrNotes').value||'').trim()||null,
  };
- const notes=($('hrNotes').value||'').trim();row.notes=notes||null;
  busy=true;
  try{
   const r=editing?await C().update('hr_employees',editing,row):await C().insert('hr_employees',row);
   if(r.error)throw r.error;
+  const id=editing||r.data?.id;
+  if(id){
+   const u=await C().upsert('hr_employee_private',Object.assign({employee_id:id},priv),{onConflict:'employee_id'});
+   if(u.error)throw u.error;
+  }
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
  }catch(e){fail(e,'No se pudo guardar el empleado')}
@@ -124,7 +171,7 @@ function editEmployee(id){
  set('hrContract',p.contract_type||'');
  set('hrHire',p.hire_date||'');set('hrEnd',p.end_date||'');
  set('hrSalary',p.salary??'');set('hrLeaveDays',p.annual_leave_days??15);
- set('hrNotes',p.notes||'');
+ set('hrNotes',p.notes||'');set('hrAccount',p.profile_id||'');
  msg('Editando la ficha de '+p.full_name+'.');
  $('hrName')?.scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -139,9 +186,13 @@ async function archiveEmployee(id,on){
 }
 
 /* ---- ausencias ---- */
+/* Un empleado sólo puede pedir para sí mismo y siempre pendiente. Esto es
+   comodidad de interfaz, no la barrera: la política de hr_absences rechaza en
+   la base cualquier inserción con otro empleado o con un estado ya aprobado. */
 async function addAbsence(){
  if(busy)return;
- const employee_id=$('hrAbsEmployee').value;
+ const sel=$('hrAbsEmployee');
+ const employee_id=sel?sel.value:(mine&&mine.id)||'';
  const start_date=$('hrAbsFrom').value,end_date=$('hrAbsTo').value;
  if(!employee_id)return msg('Elige un empleado.',true);
  if(!start_date||!end_date)return msg('Indica la fecha de inicio y la de fin.',true);
@@ -150,11 +201,17 @@ async function addAbsence(){
  try{
   const r=await C().insert('hr_absences',{
    employee_id,kind:$('hrAbsKind').value,start_date,end_date,
-   status:$('hrAbsStatus').value,
-   reason:($('hrAbsReason').value||'').trim()||null});
+   status:isAdmin()?($('hrAbsStatus')?.value||'pendiente'):'pendiente'});
   if(r.error)throw r.error;
+  const motivo=($('hrAbsReason').value||'').trim();
+  if(motivo&&r.data?.id){
+   const m=await C().insert('hr_absence_private',{absence_id:r.data.id,reason:motivo});
+   // El comentario es un extra: si no se pudiera guardar, la ausencia ya está
+   // pedida y perderla sería peor que quedarse sin la nota.
+   if(m.error)console.warn('[GAMA RRHH] no se guardó el comentario',m.error);
+  }
   $('hrAbsFrom').value='';$('hrAbsTo').value='';$('hrAbsReason').value='';
-  msg('Ausencia registrada.');
+  msg(isAdmin()?'Ausencia registrada.':'Solicitud enviada. Queda pendiente de aprobación.');
   await load();
  }catch(e){fail(e,'No se pudo registrar la ausencia')}
  finally{busy=false}
@@ -212,6 +269,16 @@ function css(){
 #hr .hrActs{display:flex;gap:6px;flex-wrap:wrap}
 #hr .hrActs button{padding:6px 9px;font-size:11px;width:auto}
 #hr .hrOff td{opacity:.55}
+#hr .hrDatos{display:grid;gap:1px;background:#edf1f2;border:1px solid #edf1f2;border-radius:10px;overflow:hidden}
+#hr .hrDato{display:flex;justify-content:space-between;gap:12px;padding:11px 13px;background:#fff;font-size:13px}
+#hr .hrDato span{color:#71808a}
+#hr .hrDato b{color:#18324a;text-align:right}
+#hr .hrSaldo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+#hr .hrSaldo>div{background:#f8fafb;border:1px solid #e4ebee;border-radius:11px;padding:12px;text-align:center}
+#hr .hrSaldo span{display:block;color:#71808a;font-size:11px;font-weight:700}
+#hr .hrSaldo b{display:block;margin-top:5px;font-size:24px;color:#18324a}
+#hr .hrSaldoLibre{background:#e8f5f6!important;border-color:#b9dde1!important}
+#hr .hrSaldoLibre b{color:#087c8b}
 
 /* ---- planificación ----
    La rejilla es una sola cuadrícula por fila: las columnas de fondo ocupan
@@ -299,7 +366,7 @@ function employeesTab(){
    <td>${p.salary==null?'—':money(p.salary)}</td>
    <td>${used} / ${total}<small>días laborables ${year}</small>
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
-   <td>${off?'<span class="hrBadge">Archivado</span>':'<span class="hrBadge ok">Activo</span>'}</td>
+   <td>${off?'<span class="hrBadge">Archivado</span>':'<span class="hrBadge ok">Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px">🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px">Sin cuenta</span>'}</td>
    <td><div class="hrActs">
     <button type="button" class="secondary" data-edit="${esc(p.id)}">✏️ Editar</button>
     <button type="button" class="${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}">${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
@@ -333,6 +400,12 @@ function employeesTab(){
     <div><label>Sueldo mensual (USD)</label><input id="hrSalary" type="number" min="0" step="0.01" placeholder="0.00"></div>
     <div><label>Vacaciones al año (días laborables)</label><input id="hrLeaveDays" type="number" min="0" step="0.5" value="15"></div>
    </div>
+   <label>Cuenta de acceso</label>
+   <select id="hrAccount">
+    <option value="">Sin cuenta — no puede entrar en GAMA</option>
+    ${perfiles.map(u=>`<option value="${esc(u.id)}">${esc(u.full_name||u.email||u.id)}${u.email?' · '+esc(u.email):''}</option>`).join('')}
+   </select>
+   <div class="muted" style="font-size:11.5px;margin-top:-2px">Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
    <label>Observaciones</label><textarea id="hrNotes" placeholder="Formación, idiomas, licencia de conducir…"></textarea>
    <div class="actions">
     <button type="button" class="primary" id="hrSave">${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
@@ -526,8 +599,8 @@ function planTab(){
       <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+workingDays(sel.start_date,sel.end_date)+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
-      ${sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}">✓ Aprobar</button>`:''}
-      ${sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}">✕ Rechazar</button>`:''}
+      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}">✓ Aprobar</button>`:''}
+      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}">✕ Rechazar</button>`:''}
       <button type="button" class="secondary" id="hrPlanCerrar">Cerrar</button>
     </div>
    </div>`:''}
@@ -541,22 +614,114 @@ function planMover(n){
  else{d.setDate(d.getDate()+7*n);planAnchor=d}
 }
 
+/* ---- lo que ve un empleado ---- */
+function myCardTab(){
+ const yo=mine;
+ if(!yo){
+  return `<div class="card"><div class="hrEmpty">Tu cuenta todavía no está ligada a una ficha de empleado.<br>
+   Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
+ }
+ const year=new Date().getFullYear();
+ const total=Number(yo.annual_leave_days||0),used=usedLeave(yo.id,year),quedan=Math.max(0,total-used);
+ const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
+ const dato=(k,v)=>v?`<div class="hrDato"><span>${esc(k)}</span><b>${esc(v)}</b></div>`:'';
+ return `<div class="hrGrid">
+  <div class="card">
+   <h3>Mi ficha</h3>
+   <div class="hrDatos">
+    ${dato('Nombre',yo.full_name)}
+    ${dato('Puesto',yo.position)}
+    ${dato('Departamento',yo.department)}
+    ${dato('Tipo de contrato',yo.contract_type)}
+    ${yo.salary==null?'':dato('Sueldo mensual',money(yo.salary))}
+    ${yo.hire_date?dato('Fecha de alta',day(yo.hire_date)):''}
+    ${dato('Cédula / RUC',yo.identification)}
+    ${dato('Correo',yo.email)}
+    ${dato('Teléfono',yo.phone)}
+   </div>
+   <div class="muted" style="font-size:11.5px;margin-top:12px">Si algún dato no es correcto, avisa a un administrador: la ficha la mantiene recursos humanos.</div>
+  </div>
+  <div class="card">
+   <h3>Mis vacaciones ${year}</h3>
+   <div class="hrSaldo">
+    <div><span>Días pactados</span><b>${total}</b></div>
+    <div><span>Usados</span><b>${used}</b></div>
+    <div class="hrSaldoLibre"><span>Te quedan</span><b>${quedan}</b></div>
+   </div>
+   <div class="hrBar" style="max-width:none"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div>
+   <div class="muted" style="font-size:11.5px;margin-top:8px">Se cuentan días laborables, de lunes a viernes. Sólo descuentan los días ya aprobados.</div>
+  </div>
+ </div>`;
+}
+
+function myRequestsTab(){
+ const yo=mine;
+ // absences trae las de todo el equipo —hacen falta para el calendario—, así
+ // que aquí se filtran las propias.
+ const mias=yo?absences.filter(a=>a.employee_id===yo.id):[];
+ const filas=mias.map(a=>{
+  const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
+  return `<tr>
+   <td><b>${esc(KINDS[a.kind]||a.kind)}</b><small>${esc(a.reason||'')}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
+   <td><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
+   <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}">Retirar</button>`:''}</td>
+  </tr>`;
+ }).join('');
+
+ return `<div class="hrGrid">
+  <div class="card">
+   <h3>Pedir días</h3>
+   ${yo?'':'<div class="hrEmpty">Tu cuenta no está ligada a una ficha de empleado, así que todavía no puedes pedir días.</div>'}
+   ${yo?`<label>Motivo</label>
+   <select id="hrAbsKind">${Object.keys(KINDS).map(k=>`<option value="${k}">${KINDS[k]}</option>`).join('')}</select>
+   <div class="row">
+    <div><label>Desde *</label><input id="hrAbsFrom" type="date" value="${today()}"></div>
+    <div><label>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
+   </div>
+   <label>Comentario</label><textarea id="hrAbsReason" placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
+   <div class="actions"><button type="button" class="primary" id="hrAbsAdd">📩 Enviar solicitud</button></div>
+   <div class="muted" style="font-size:11.5px;margin-top:8px">La solicitud queda <b>pendiente</b> hasta que un administrador la apruebe. Mientras lo esté, puedes retirarla.</div>`:''}
+  </div>
+  <div class="card">
+   <h3>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
+   ${mias.length?`<div class="hrTable"><table>
+     <thead><tr><th>Motivo</th><th>Periodo</th><th>Estado</th><th></th></tr></thead>
+     <tbody>${filas}</tbody></table></div>`
+    :'<div class="hrEmpty">Todavía no has pedido ningún día.</div>'}
+  </div>
+ </div>`;
+}
+
 function render(){
  css();
  const s=section();
+ const admin=isAdmin();
+ // Un empleado que entra por primera vez cae en «Mi ficha», no en una
+ // pestaña de administración que no va a poder usar.
+ if(!admin&&(tab==='empleados'||tab==='ausencias'))tab=tab==='empleados'?'miFicha':'misDias';
+ if(admin&&(tab==='miFicha'||tab==='misDias'))tab=tab==='miFicha'?'empleados':'ausencias';
+
+ const pestanas=admin
+  ? [['empleados','👥 Empleados'],['ausencias','📅 Ausencias'],['planificacion','🗓️ Planificación']]
+  : [['miFicha','🪪 Mi ficha'],['misDias','📩 Mis días'],['planificacion','🗓️ Planificación']];
+
  s.innerHTML=window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
-   lead:'La ficha de cada empleado —puesto, contrato, sueldo y vacaciones pactadas— y el registro de sus ausencias: vacaciones, bajas por enfermedad, permisos y formación. El saldo de vacaciones de cada persona se descuenta solo a medida que apruebas sus días.',
+   lead:admin
+     ? 'La ficha de cada empleado —puesto, contrato, sueldo y vacaciones pactadas— y el registro de sus ausencias: vacaciones, bajas por enfermedad, permisos y formación. El saldo de vacaciones se descuenta solo a medida que apruebas los días, y en la ficha puedes ligar a cada persona con su cuenta de acceso para que pida sus días ella misma.'
+     : 'Tus datos de empleado, tus vacaciones y el calendario del equipo. Pide tus días desde aquí: la solicitud queda pendiente hasta que un administrador la apruebe. De tus compañeros ves cuándo están fuera y por qué motivo, para poder organizaros; sus datos personales y el comentario que escribieron, no.',
    actions:'<button type="button" class="gamaStdAction" id="hrRefresh">↻ Actualizar</button>'
  })
- +`<div class="hrTabs">
-   <button type="button" class="${tab==='empleados'?'on':''}" data-tab="empleados">👥 Empleados</button>
-   <button type="button" class="${tab==='ausencias'?'on':''}" data-tab="ausencias">📅 Ausencias</button>
-   <button type="button" class="${tab==='planificacion'?'on':''}" data-tab="planificacion">🗓️ Planificación</button>
-  </div>`
- +kpis()
+ +`<div class="hrTabs">${pestanas.map(([id,txt])=>
+    `<button type="button" class="${tab===id?'on':''}" data-tab="${id}">${txt}</button>`).join('')}</div>`
+ +(admin?kpis():'')
  +'<div id="hrMsg" class="hrMsg"></div>'
- +(tab==='empleados'?employeesTab():tab==='ausencias'?absencesTab():planTab());
+ +(tab==='empleados'?employeesTab()
+  :tab==='ausencias'?absencesTab()
+  :tab==='miFicha'?myCardTab()
+  :tab==='misDias'?myRequestsTab()
+  :planTab());
  bind();
 }
 

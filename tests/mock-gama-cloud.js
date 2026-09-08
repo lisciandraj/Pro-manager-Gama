@@ -35,9 +35,39 @@
         return o;
       });
   }
+  // Espejo de las politicas de RRHH. Las tablas base las lee todo el personal
+  // —el calendario del equipo las necesita—; lo sensible vive en las tablas
+  // privadas, que solo devuelven la fila propia salvo al administrador. El
+  // doble lo reproduce para que lo que comprueba una prueba en pantalla sea lo
+  // mismo que devolveria Postgres.
+  function hrRole() {
+    try { return JSON.parse(localStorage.getItem('gama_session_v1') || '{}').role || ''; }
+    catch (e) { return ''; }
+  }
+  function hrIsAdmin() { const r = hrRole(); return r === 'admin' || r === 'administrador'; }
+  function hrIsStaff() { return ['admin', 'administrador', 'commercial', 'comercial', 'magasinier', 'almacenero'].includes(hrRole()); }
+  function hrMyProfile() { return (window.__DB._session || {}).profile_id || null; }
+  function hrMyEmployeeIds() {
+    const me = hrMyProfile();
+    return (window.__DB.hr_employees || []).filter(e => !!me && e.profile_id === me).map(e => e.id);
+  }
+  function hrRows(table) {
+    if (table === 'hr_employees' || table === 'hr_absences') {
+      return hrIsStaff() ? (window.__DB[table] || []).slice() : [];
+    }
+    if (hrIsAdmin()) return (window.__DB[table] || []).slice();
+    const mias = hrMyEmployeeIds();
+    if (table === 'hr_employee_private') {
+      return (window.__DB.hr_employee_private || []).filter(r => mias.includes(r.employee_id));
+    }
+    const abs = (window.__DB.hr_absences || []).filter(a => mias.includes(a.employee_id)).map(a => a.id);
+    return (window.__DB.hr_absence_private || []).filter(r => abs.includes(r.absence_id));
+  }
   function rowsFor(table, options) {
     options = options || {};
-    let rows = table === 'catalog_products' ? catalogRows() : (window.__DB[table] || []).slice();
+    let rows = table === 'catalog_products' ? catalogRows()
+      : /^hr_(employees|absences|employee_private|absence_private)$/.test(table) ? hrRows(table)
+      : (window.__DB[table] || []).slice();
     // products.has_photo es una columna generada en la base: se deriva aqui
     // para que una consulta estrecha pueda pedirla sin traerse la foto.
     if (table === 'products') rows = rows.map(r => ({ ...r, has_photo: !!r.photo_data }));
@@ -96,7 +126,10 @@
     return { data: { purchase_order_id: po.id, status: po.status }, error: null };
   }
   window.GamaCloud = {
-    getSession: async () => ({ data: { session: { user: { id: window.__DB._profile.id } } } }),
+    // hr_employees.profile_id apunta a profiles.id, que es el id del usuario
+    // autenticado: una prueba que fija _session.profile_id tiene que verlo
+    // tambien aqui, o la aplicacion no reconoceria al empleado como "yo".
+    getSession: async () => ({ data: { session: { user: { id: (window.__DB._session || {}).profile_id || window.__DB._profile.id } } } }),
     getProfile: async () => ({ data: window.__DB._profile }),
     list: async (table, options) => {
       // Recorded so tests can assert on query shape (e.g. that the POD archive

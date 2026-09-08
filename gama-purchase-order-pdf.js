@@ -35,7 +35,7 @@ function build(o){
  doc.setFont(undefined,'normal');
  if(o.notes){doc.setFontSize(10);doc.text('Notas: '+esc(o.notes),14,y,{maxWidth:180});y+=10}
  doc.setFontSize(9);
- doc.text('Documento generado por GAMA Stock Manager. No constituye una factura.',14,y);
+ doc.text('Documento generado por GAMA Enterprise Resource Planning. No constituye una factura.',14,y);
  return doc.output('blob');
 }
 async function send({o,email,subject,body,filename}){

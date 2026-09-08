@@ -18,8 +18,8 @@ const SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
 const ROLES={
  admin:{label:'Administrador',perms:'*'},
- commercial:{label:'Comercial',perms:['dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists']},
- magasinier:{label:'Almacenero',perms:['dashboard','products','movement','stock','barcode','locations','units','tms']},
+ commercial:{label:'Comercial',perms:['dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr']},
+ magasinier:{label:'Almacenero',perms:['dashboard','products','movement','stock','barcode','locations','units','tms','hr']},
  client:{label:'Cliente',perms:['client-catalog']}
 };
 const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);

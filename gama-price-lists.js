@@ -133,7 +133,7 @@ function render(){
  const s=section(),cur=lists.find(x=>x.id===selected)||null;
  const mine=cur?customers.filter(c=>c.price_list_id===cur.id):[];
  const listed=new Set(items.map(i=>i.product_id));
- s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas por año de contrato',lead:'Una tarifa agrupa a todos los clientes que firmaron el mismo año, así que se mantiene una sola rejilla de precios y no una por cliente. Sólo hace falta listar aquí los productos cuyo precio cambia: todo lo demás se factura al precio base de la ficha.'})}
+ s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas por año de contrato',lead:'Precios pactados por año de contrato.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>

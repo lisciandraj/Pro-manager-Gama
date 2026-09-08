@@ -60,8 +60,7 @@ function render(){
  const s=section();
  const head=window.GamaUI.header({
   title:'⚙️ Configuración',
-  lead:'Activa o desactiva los módulos de GAMA según lo que use tu empresa. Un módulo desactivado desaparece del menú y de las pestañas para todos los usuarios, y no se puede abrir por ninguna vía. Aquí siguen apareciendo todos, para poder volver a encenderlos cuando quieras.',
-  actions:'<button type="button" class="gamaStdAction" id="cfgRefresh">↻ Actualizar</button>'
+  lead:'Activa o desactiva los módulos de GAMA.'
  });
 
  if(!isAdmin()){
@@ -98,8 +97,6 @@ function render(){
 function bind(){
  const s=section();
  window.GamaUI.bindBack(s);
- const r=$('cfgRefresh');
- if(r)r.onclick=()=>{window.GamaModules.load().then(render).catch(()=>{})};
  s.querySelectorAll('[data-mod]').forEach(input=>{
   input.onchange=async()=>{
    if(busy){input.checked=!input.checked;return}

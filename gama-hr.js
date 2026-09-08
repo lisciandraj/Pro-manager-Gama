@@ -728,9 +728,8 @@ function render(){
  s.innerHTML=window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
    lead:admin
-     ? 'La ficha de cada empleado —puesto, contrato, sueldo y vacaciones pactadas— y el registro de sus ausencias: vacaciones, bajas por enfermedad, permisos y formación. El saldo de vacaciones se descuenta solo a medida que apruebas los días, y en la ficha puedes ligar a cada persona con su cuenta de acceso para que pida sus días ella misma.'
-     : 'Tus datos de empleado, tus vacaciones y el calendario del equipo. Pide tus días desde aquí: la solicitud queda pendiente hasta que un administrador la apruebe. De tus compañeros ves cuándo están fuera y por qué motivo, para poder organizaros; sus datos personales y el comentario que escribieron, no.',
-   actions:'<button type="button" class="gamaStdAction" id="hrRefresh">↻ Actualizar</button>'
+     ? 'Empleados, ausencias y calendario del equipo.'
+     : 'Tus datos, tus días y el calendario del equipo.'
  })
  +`<div class="hrTabs">${pestanas.map(([id,ico,txt])=>
     `<button type="button" class="${tab===id?'on':''}" data-tab="${id}"><span class="hrTabIco">${ico}</span> ${txt}</button>`).join('')}</div>`
@@ -747,7 +746,6 @@ function render(){
 function bind(){
  const s=section();
  window.GamaUI.bindBack(s);
- const r=$('hrRefresh');if(r)r.onclick=load;
  s.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;planPick=null;render()});
  const save=$('hrSave');if(save)save.onclick=saveEmployee;
  const clr=$('hrClear');if(clr)clr.onclick=()=>{clearEmployee();render()};

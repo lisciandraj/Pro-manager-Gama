@@ -3,9 +3,9 @@
    Cada módulo se había escrito con su propia cabecera: gp14Head, srHead,
    ccHead, crHead, cuHead, tmsHead, gamaPMHead, gamaExcelHead… Ocho maquetados
    distintos para lo mismo, con el botón de volver en un sitio diferente en
-   cada pantalla y una descripción de una línea (o ninguna). Aquí vive el
-   único: título, dos o tres líneas que explican para qué sirve el módulo, y
-   el botón de volver siempre en la misma esquina.
+   cada pantalla. Aquí vive el único, y es siempre el mismo: antetítulo de la
+   aplicación, título, UNA línea que dice para qué sirve el módulo, y el botón
+   de volver. Nada más — ver header() para por qué no hay nada más.
 
    Se carga antes que los módulos para que todos puedan pedirla. */
 (function(){
@@ -24,24 +24,27 @@ function backToMenu(){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* Devuelve el HTML de la cabecera.
-   - title  : con su emoji, tal cual se enseña.
-   - lead   : 2–3 frases en lenguaje llano. Es la ayuda de la pantalla: si algo
-              hay que explicar, se explica aquí y no en un aviso suelto dentro
-              del formulario.
-   - actions: HTML de botones propios del módulo (actualizar, optimizar…). El
-              de volver lo pone siempre esta función, y va el primero. */
+/* Devuelve el HTML de la cabecera. Sólo admite dos cosas:
+   - title : con su emoji, tal cual se enseña.
+   - lead  : UNA frase en lenguaje llano que diga para qué sirve la pantalla.
+
+   No hay parámetro de botones ni de antetítulo, y es a propósito. Antes cada
+   módulo podía añadir los suyos —«Actualizar» en cuatro sitios, «Optimizar
+   rutas» en otro— y la cabecera acababa siendo distinta en cada pantalla, que
+   es justo lo que esta función existía para evitar. Al no aceptarlos, la
+   cabecera es idéntica en los trece módulos por construcción y no por que
+   nadie se acuerde: título, una línea, y el botón de volver. Lo que un módulo
+   necesite hacer va en su propio contenido, donde el usuario lo busca. */
 function header(opts){
  const o=opts||{};
  return '<div class="gamaStdHeader" data-gama-standard-header="1">'
   +'<div class="gamaStdText">'
-  +'<div class="gamaStdKicker">'+esc(o.kicker||'GAMA ENTERPRISE RESOURCE PLANNING')+'</div>'
+  +'<div class="gamaStdKicker">GAMA ENTERPRISE RESOURCE PLANNING</div>'
   +'<h2>'+esc(o.title||'Módulo')+'</h2>'
   +(o.lead?'<p>'+esc(o.lead)+'</p>':'')
   +'</div>'
   +'<div class="gamaStdActions">'
   +'<button type="button" class="gamaStdBack" aria-label="Volver al menú">← Volver al menú</button>'
-  +(o.actions||'')
   +'</div></div>';
 }
 
@@ -65,10 +68,10 @@ function css(){
 .gamaStdActions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
 .gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:11px 15px;font-weight:750;font-size:14px;cursor:pointer;min-height:44px;width:auto}
 .gamaStdBack:hover,.gamaStdAction:hover{background:#E3EBED}
-/* En el teléfono esta cabecera se comía la primera pantalla entera: el texto a
-   tamaño de escritorio y un botón por línea dejaban el módulo empezando fuera
-   de la vista. Se aprieta la tipografía y los botones se reparten la fila
-   —caben dos de 132 px hasta en una pantalla de 360—, sin quitar nada. */
+/* En el teléfono esta cabecera se comía la primera pantalla entera con el texto
+   a tamaño de escritorio. Se aprieta la tipografía. La rejilla de acciones se
+   deja en auto-fit aunque hoy sólo haya un botón: así el de volver ocupa la
+   fila entera —que es lo que se quiere— sin depender de cuántos haya. */
 @media(max-width:760px){
  .gamaStdHeader{flex-direction:column;align-items:stretch;padding:14px;gap:11px}
  .gamaStdHeader h2{font-size:19px}

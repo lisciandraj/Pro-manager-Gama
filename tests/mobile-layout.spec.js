@@ -18,7 +18,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 // documento a 598 px en cualquier teléfono.
 
 const SEED = {
-  products: [{ id: 'p1', name: 'Producto de prueba', reference: 'REF-1', category: 'General', sale_price: 10, price_a: 5, tax_rate: 15, stock: 8, active: true, created_at: hoy() }],
+  products: [{ id: 'p1', name: 'Producto de prueba', reference: 'REF-1', category: 'General', sale_price: 10, purchase_price: 5, tax_rate: 15, stock: 8, active: true, created_at: hoy() }],
   suppliers: [{ id: 's1', name: 'Proveedor Uno', active: true }],
   customers: [{ id: 'c1', name: 'Cliente Uno', active: true, email: 'c@e.com' }],
   invoices: [], invoice_lines: [], purchase_orders: [], purchase_order_lines: [],

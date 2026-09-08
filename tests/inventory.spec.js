@@ -8,9 +8,9 @@ const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js
 // The inventory screen was a flat, unfiltered, unsorted dump of every product.
 // It now filters by category and sorts on any column.
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B300', name: 'Zapata de freno', reference: 'R3', category: 'Frenos', stock: 9, min_stock: 2, sale_price: 30, price_a: 10, tax_rate: 15, active: true },
-  { id: 'p2', barcode: 'B100', name: 'Aceite 5W30', reference: 'R1', category: 'Lubricantes', stock: 100, min_stock: 5, sale_price: 12.5, price_a: 6, tax_rate: 15, active: true },
-  { id: 'p3', barcode: 'B200', name: 'Ámbar reflectante', reference: 'R2', category: 'Frenos', stock: 1, min_stock: 4, sale_price: 5, price_a: 2, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B300', name: 'Zapata de freno', reference: 'R3', category: 'Frenos', stock: 9, min_stock: 2, sale_price: 30, purchase_price: 10, tax_rate: 15, active: true },
+  { id: 'p2', barcode: 'B100', name: 'Aceite 5W30', reference: 'R1', category: 'Lubricantes', stock: 100, min_stock: 5, sale_price: 12.5, purchase_price: 6, tax_rate: 15, active: true },
+  { id: 'p3', barcode: 'B200', name: 'Ámbar reflectante', reference: 'R2', category: 'Frenos', stock: 1, min_stock: 4, sale_price: 5, purchase_price: 2, tax_rate: 15, active: true },
 ];
 
 async function openInventory(page, products = PRODUCTS) {

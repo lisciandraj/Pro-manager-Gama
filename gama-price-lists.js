@@ -274,8 +274,9 @@ function renderDetail(cur,mine,listed){
  </div>
  <div class="card">
   <h3>Clientes con esta tarifa <small class="muted">(${mine.length})</small></h3>
+  <p class="muted">Sólo los clientes de categoría C usan tarifa. Un producto que no figure aquí se les factura al precio de venta grossiste (Categoría A).</p>
   <div class="plRow" style="margin-top:8px">
-   <div><label>Añadir un cliente</label><select id="plCustomer"><option value="">Selecciona…</option>${customers.filter(c=>c.price_list_id!==cur.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.price_list_id?' — hoy en otra tarifa':''}</option>`).join('')}</select></div>
+   <div><label>Añadir un cliente</label><select id="plCustomer"><option value="">Selecciona…</option>${customers.filter(c=>c.price_list_id!==cur.id&&(c.category||'A')==='C').map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.price_list_id?' — hoy en otra tarifa':''}</option>`).join('')}</select></div>
    <div></div><div><button class="primary" id="plAssign">Asignar</button></div>
   </div>
   ${mine.length?`<table class="plTable"><tbody>${mine.map(c=>`<tr><td>${esc(c.name)}<br><small class="muted">${esc(c.email||'sin correo')}</small></td><td style="text-align:right"><button class="secondary" data-unassign="${esc(c.id)}">Quitar</button></td></tr>`).join('')}</tbody></table>`:'<div class="plEmpty">Ningún cliente usa esta tarifa todavía.</div>'}

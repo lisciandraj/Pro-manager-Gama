@@ -30,8 +30,8 @@ async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin'
 }
 
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM-50', category: 'Obra', stock: 40, min_stock: 5, sale_price: 10, purchase_price: 6, tax_rate: 15, active: true },
-  { id: 'p2', barcode: 'B2', name: 'Arena m3', reference: 'ARE-1', category: 'Obra', stock: 20, min_stock: 2, sale_price: 20, purchase_price: 12, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM-50', category: 'Obra', stock: 40, min_stock: 5, sale_price: 10, price_a: 6, price_b: 7, tax_rate: 15, active: true },
+  { id: 'p2', barcode: 'B2', name: 'Arena m3', reference: 'ARE-1', category: 'Obra', stock: 20, min_stock: 2, sale_price: 20, price_a: 12, price_b: 14, tax_rate: 15, active: true },
 ];
 // c1 signed in 2024 and gets the 2024 grid; c2 has no tariff and pays base price.
 const CUSTOMERS = [
@@ -232,7 +232,7 @@ test.describe('Tarifas — catálogo del cliente', () => {
   });
 
   // The catalogue is a "cliente"-facing view: a tariff must not become a way to
-  // read margins. catalog_products still hides purchase_price and supplier_id.
+  // read margins. catalog_products still hides price_a, price_b and supplier_id.
   test('the tariff-resolved catalogue still hides purchase prices and suppliers', async ({ page }) => {
     await boot(page, {
       products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024],
@@ -244,7 +244,7 @@ test.describe('Tarifas — catálogo del cliente', () => {
 
     const leaked = await page.evaluate(async () => {
       const r = await window.GamaCloud.list('catalog_products', {});
-      return (r.data || []).some(p => 'purchase_price' in p || 'supplier_id' in p);
+      return (r.data || []).some(p => 'price_a' in p || 'price_b' in p || 'supplier_id' in p);
     });
     expect(leaked).toBe(false);
   });

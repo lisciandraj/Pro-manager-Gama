@@ -12,8 +12,8 @@
   let idc = 1;
   function nextId(table) { return table[0] + (idc++); }
   // catalog_products is a database view over products that deliberately omits
-  // purchase_price, supplier_id and location: a "cliente" account may browse
-  // the catalogue without seeing margins, suppliers or warehouse locations.
+  // price_a, price_b, supplier_id and location: a "cliente" account may browse
+  // the catalogue without seeing purchase costs, suppliers or warehouse locations.
   // Modelling it here keeps that boundary under test.
   const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at', 'has_photo'];
   function catalogRows() {
@@ -114,7 +114,6 @@
       if (!product) return { data: null, error: { message: 'PRODUCT_NOT_FOUND' } };
       const before = Number(product.stock || 0);
       product.stock = before + line.quantity;
-      product.purchase_price = pol.unit_cost;
       pol.received_quantity = (pol.received_quantity || 0) + line.quantity;
       window.__DB.stock_movements = window.__DB.stock_movements || [];
       window.__DB.stock_movements.push({ id: nextId('stock_movements'), product_id: product.id, type: 'in', quantity: line.quantity, stock_before: before, stock_after: product.stock, user_id: window.__DB._profile.id, created_at: new Date().toISOString() });

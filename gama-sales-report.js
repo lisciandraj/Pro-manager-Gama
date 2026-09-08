@@ -78,7 +78,7 @@ async function render(year,month){
  cargando();
  try{
   const {desde,hasta}=rango(year,month);
-  const pr=await C().list('products',{select:'id,name,purchase_price,active',order:'name',ascending:true});
+  const pr=await C().list('products',{select:'id,name,price_a,active',order:'name',ascending:true});
   if(pr.error)throw pr.error;
   const productos=new Map((pr.data||[]).map(p=>[String(p.id),p]));
 
@@ -101,7 +101,7 @@ async function render(year,month){
   lineas.forEach(l=>{
    const p=productos.get(String(l.product_id));
    const qty=Number(l.quantity||0),precio=Number(l.unit_price||0),ingreso=qty*precio;
-   const costo=p?Number(p.purchase_price||0):0,margen=(precio-costo)*qty;
+   const costo=p?Number(p.price_a||0):0,margen=(precio-costo)*qty;
    margenTotal+=margen;
    const k=String(l.product_id);
    if(!porProducto.has(k))porProducto.set(k,{name:p?.name||'Producto eliminado',qty:0,revenue:0,margin:0});

@@ -30,8 +30,8 @@ async function boot(page, db = {}) {
 }
 
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B1', name: 'Tornillo facturado', reference: 'SKU-1', category: 'Ferretería', stock: 0, min_stock: 0, sale_price: 10, purchase_price: 4, tax_rate: 15, active: true },
-  { id: 'p2', barcode: 'B2', name: 'Tuerca libre', reference: 'SKU-2', category: 'Ferretería', stock: 0, min_stock: 0, sale_price: 5, purchase_price: 2, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B1', name: 'Tornillo facturado', reference: 'SKU-1', category: 'Ferretería', stock: 0, min_stock: 0, sale_price: 10, price_a: 4, tax_rate: 15, active: true },
+  { id: 'p2', barcode: 'B2', name: 'Tuerca libre', reference: 'SKU-2', category: 'Ferretería', stock: 0, min_stock: 0, sale_price: 5, price_a: 2, tax_rate: 15, active: true },
 ];
 
 test.describe('Archivar en lugar de borrar', () => {

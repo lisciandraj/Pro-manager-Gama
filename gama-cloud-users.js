@@ -61,7 +61,7 @@ async function load(){
     status.textContent=`Última sincronización: ${new Date().toLocaleTimeString('es-EC')}`;
   }catch(e){
     console.error('[GAMA Cloud Users]',e);
-    status.textContent='Erreur de lecture du cloud : '+(e.message||e);
+    status.textContent='No se pudieron leer los usuarios: '+(e.message||e);
     body.innerHTML='<tr><td colspan="6" class="cuInactive">No se pudo leer la tabla profiles. Verifica la política SELECT RLS en Supabase.</td></tr>';
   }
 }

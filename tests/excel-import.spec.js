@@ -33,13 +33,18 @@ test.describe('Importar Excel', () => {
     await expect(page.locator('#reports > .gamaStdHeader')).toHaveCount(0);
   });
 
-  test('has its own working back-to-menu button', async ({ page }) => {
+  // Antes cada módulo se dibujaba su propio botón de volver (aquí
+  // #gamaExcelBack) y acababa en un sitio distinto en cada pantalla. Ahora
+  // todos usan el de la cabecera común. Lo que se comprueba sigue siendo lo
+  // mismo: que desde aquí se puede volver, y que hay UN botón, no dos.
+  test('vuelve al menú con el botón de la cabecera común', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
     await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
     await page.waitForTimeout(300);
 
-    await page.click('#gamaExcelBack');
+    await expect(page.locator('#reports .gamaStdBack')).toHaveCount(1);
+    await page.click('#reports .gamaStdBack');
 
     await expect(page.locator('#mainmenu')).toBeVisible();
     await expect(page.locator('#reports')).toBeHidden();

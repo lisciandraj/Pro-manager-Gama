@@ -250,15 +250,14 @@ section{display:none}section.active{display:block}
 <div class="wrap">
 
 <div class="tabs">
-<button type="button" class="tab" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')">🛒<span>Achats</span></button>
+<button type="button" class="tab" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')">🛒<span>Compras</span></button>
 <button class="tab active" onclick="showTab('dashboard',this)">▦<span>Dashboard</span></button><button class="tab" onclick="showTab('home',this)">⌂<span>Inicio</span></button>
 <button class="tab" onclick="showTab('products',this)">◇<span>Productos</span></button><button class="tab" onclick="showTab('clients',this)">♙<span>Clientes</span></button>
 <button class="tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button class="tab" onclick="showTab('billing',this)">▤<span>Facturación</span></button><button class="tab" onclick="showTab('more',this)">•••<span>Más</span></button>
 </div>
 
-<section id="more"><div class="card"><h2>Más</h2><p class="muted">Las funciones están disponibles desde el menú principal.</p><button class="primary" onclick="showTab('mainmenu',null)">‹ Menú principal</button></div></section>
 <section id="dashboard">
-<div class="dashHead"><div><h2>Dashboard</h2><p>Visión general de ventas e inventario</p></div><div class="dashFilters"><select id="dashYear" onchange="renderDashboard()"></select><select id="dashMonth" onchange="renderDashboard()"><option value="all">Todo el año</option><option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option></select></div></div>
+<div class="dashHead"><div class="dashFilters"><select id="dashYear" onchange="renderDashboard()"></select><select id="dashMonth" onchange="renderDashboard()"><option value="all">Todo el año</option><option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option></select></div></div>
 <div class="dashCards"><div class="dashCard"><span>Ventas del período</span><strong id="dashSales">$0.00</strong><em>USD</em></div><div class="dashCard"><span>Facturas</span><strong id="dashInvoices">0</strong><em>emitidas</em></div><div class="dashCard"><span>Ticket promedio</span><strong id="dashAvg">$0.00</strong><em>por factura</em></div><div class="dashCard"><span>Stock bajo</span><strong id="dashLow">0</strong><em>productos</em></div></div>
 <div class="dashGrid"><div class="dashPanel chartPanel"><div class="panelTitle"><div><b>Ventas por mes</b><small>Evolución anual</small></div><strong id="dashYearTotal">$0.00</strong></div><div class="chartBox"><svg viewBox="0 0 720 280" preserveAspectRatio="none"><defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F47A2A" stop-opacity=".32"/><stop offset="1" stop-color="#F47A2A" stop-opacity="0"/></linearGradient></defs><g id="chartGrid"></g><path id="chartArea" fill="url(#salesGrad)"/><path id="chartLine" fill="none" stroke="#F47A2A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g id="chartDots"></g><g id="chartLabels"></g></svg></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Resumen anual</b><small id="dashYearLabel"></small></div></div><div class="summaryList"><div><span>Ventas</span><b id="sumSales">$0.00</b></div><div><span>Facturas</span><b id="sumInvoices">0</b></div><div><span>Promedio mensual</span><b id="sumMonthly">$0.00</b></div><div><span>Productos</span><b id="sumProducts">0</b></div><div><span>Clientes</span><b id="sumClients">0</b></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por categoría</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="categoryDonut" class="donut"></div><div id="categoryLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Ventas por método de pago</b><small>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="paymentDonut" class="donut"></div><div id="paymentLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Top productos</b><small>Por ventas</small></div></div><div id="dashTop"></div></div><div class="dashPanel"><div class="panelTitle"><div><b>Últimos movimientos</b><small>Actividad reciente</small></div></div><div id="dashMoves"></div></div></div>
 </section>
@@ -322,7 +321,6 @@ section{display:none}section.active{display:block}
 
 <section id="backup">
 <div class="card">
-<h2>💾 Copias de seguridad y restauración</h2>
 <h3>📤 Exportar</h3>
 <div class="actions">
 <button class="primary" onclick="exportExcel()">📊 Excel — Productos + Clientes + Auditoría</button>
@@ -340,8 +338,7 @@ section{display:none}section.active{display:block}
 </div>
 </section>
 <section id="movement">
-<div class="card"><h2>🔄 Registrar movimiento</h2>
-<div class="scanner"><input id="moveBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')">📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
+<div class="card"><div class="scanner"><input id="moveBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')">📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
 <div class="row"><div><label>Tipo</label><select id="moveType"><option value="IN">IN — Entrada</option><option value="OUT">OUT — Salida</option></select></div>
 <div><label>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
 <div><label>Motivo</label><select id="moveReason"><option>Recepción</option><option>Venta</option><option>Producción</option><option>Consumo</option><option>Rotura</option><option>Muestra</option><option>Inventario</option><option>Corrección de inventario</option><option>Otro</option></select></div>
@@ -351,7 +348,7 @@ section{display:none}section.active{display:block}
 </div>
 </section>
 
-<section id="stock"><div class="card"><h2>📊 Inventario actual</h2><div class="stockBar"><input id="stockSearch" placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="">Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()"> Sólo stock bajo</label><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
+<section id="stock"><div class="card"><div class="stockBar"><input id="stockSearch" placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="">Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()"> Sólo stock bajo</label><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
 
 <section id="billing">
 <div class="card"><h2>🧾 Nuevo presupuesto</h2>
@@ -364,14 +361,13 @@ section{display:none}section.active{display:block}
 </div></section>
 
 <section id="audit">
-<div class="card"><h2>🔐 Audit Trail — Movimientos de stock</h2>
-<div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
+<div class="card"><div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
 <div class="actions"><button class="secondary" onclick="exportAudit()">📤 Exportar Audit Trail CSV</button><button class="warning" onclick="createCorrection()">↩️ Corrección auditada</button></div>
 <div id="auditTable"></div>
 </div>
 </section>
 
-<section id="barcode"><div class="card"><h2>🏷️ Generador de códigos de barras</h2><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()">📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="card"><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()">📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 

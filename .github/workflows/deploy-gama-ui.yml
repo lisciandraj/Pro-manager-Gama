@@ -18,11 +18,15 @@ jobs:
           test -s index.html
           grep -q '<!doctype html>' index.html
           test -f gama-ui.js
+          test -f gama-modules.js
           test -f gama-standard-ui.js
           test -f gama-menu-final2.js
           test -f gama-tms-module.js
           test -f gama-role-spanish.js
           node --check gama-ui.js
+          node --check gama-modules.js
+          node --check gama-hr.js
+          node --check gama-settings.js
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
           node --check gama-tms-module.js
@@ -34,8 +38,8 @@ jobs:
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=9', s)
-          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=9', s)
+          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=10', s)
+          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=10', s)
           p.write_text(s,encoding='utf-8')
           PY
       # The old "Remove duplicate TMS menu entries" step lived here. It patched
@@ -48,8 +52,9 @@ jobs:
       - name: Validate modular integration
         run: |
           grep -q 'gama-ui.js' index.html
-          grep -q 'gama-standard-ui.js?v=9' index.html
-          grep -q 'gama-menu-final2.js?v=9' index.html
+          grep -q 'gama-modules.js' index.html
+          grep -q 'gama-standard-ui.js?v=10' index.html
+          grep -q 'gama-menu-final2.js?v=10' index.html
           # gama-role-spanish.js is the one live TMS loader: it is the only file
           # that references gama-tms-module.js. Assert against it, not against a
           # loader that has been deleted.

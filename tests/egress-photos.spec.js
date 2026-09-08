@@ -36,8 +36,8 @@ async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin'
 }
 
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B1', name: 'Con foto', reference: 'R1', category: 'Obra', stock: 5, min_stock: 1, sale_price: 10, price_a: 6, tax_rate: 15, active: true, photo_data: PHOTO },
-  { id: 'p2', barcode: 'B2', name: 'Sin foto', reference: 'R2', category: 'Obra', stock: 5, min_stock: 1, sale_price: 20, price_a: 12, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B1', name: 'Con foto', reference: 'R1', category: 'Obra', stock: 5, min_stock: 1, sale_price: 10, purchase_price: 6, tax_rate: 15, active: true, photo_data: PHOTO },
+  { id: 'p2', barcode: 'B2', name: 'Sin foto', reference: 'R2', category: 'Obra', stock: 5, min_stock: 1, sale_price: 20, purchase_price: 12, tax_rate: 15, active: true },
 ];
 
 // La consulta dedicada 'id,photo_data' es justamente el arreglo: trae la foto

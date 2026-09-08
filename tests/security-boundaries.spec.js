@@ -19,7 +19,7 @@ test.describe('Límites de seguridad', () => {
       // @ts-ignore
       window.__DB = {
         products: [
-          { id: 'p1', name: 'Tornillo', reference: 'SKU-1', category: 'Ferretería', barcode: 'B1', stock: 5, sale_price: 10, price_a: 4, price_b: 5, supplier_id: 's1', location: 'Z01-A01', active: true },
+          { id: 'p1', name: 'Tornillo', reference: 'SKU-1', category: 'Ferretería', barcode: 'B1', stock: 5, sale_price: 10, purchase_price: 4, supplier_id: 's1', location: 'Z01-A01', active: true },
         ],
         suppliers: [], customers: [], invoices: [], invoice_lines: [],
         purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
@@ -42,8 +42,7 @@ test.describe('Límites de seguridad', () => {
     // And the view itself hands back nothing commercially sensitive.
     const row = await page.evaluate(async () => (await window.GamaCloud.list('catalog_products', {})).data[0]);
     expect(row.name).toBe('Tornillo');
-    expect(row).not.toHaveProperty('price_a');
-    expect(row).not.toHaveProperty('price_b');
+    expect(row).not.toHaveProperty('purchase_price');
     expect(row).not.toHaveProperty('supplier_id');
     expect(row).not.toHaveProperty('location');
   });

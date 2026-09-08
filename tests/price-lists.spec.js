@@ -30,17 +30,17 @@ async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin'
 }
 
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM-50', category: 'Obra', stock: 40, min_stock: 5, sale_price: 10, sale_price_b: 13, price_a: 6, price_b: 7, tax_rate: 15, active: true },
-  { id: 'p2', barcode: 'B2', name: 'Arena m3', reference: 'ARE-1', category: 'Obra', stock: 20, min_stock: 2, sale_price: 20, sale_price_b: 26, price_a: 12, price_b: 14, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM-50', category: 'Obra', stock: 40, min_stock: 5, sale_price: 10, sale_price_b: 13, purchase_price: 6, tax_rate: 15, active: true },
+  { id: 'p2', barcode: 'B2', name: 'Arena m3', reference: 'ARE-1', category: 'Obra', stock: 20, min_stock: 2, sale_price: 20, sale_price_b: 26, purchase_price: 12, tax_rate: 15, active: true },
 ];
 // c1 is categoría C: signed in 2024 and gets the 2024 grid. c2 is categoría A
-// (grossiste), has no tariff and pays the price on the product sheet.
+// (mayorista), has no tariff and pays the price on the product sheet.
 const CUSTOMERS = [
   { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'andes@example.com', address: 'Quito', active: true, category: 'C', price_list_id: 'pl2024' },
   { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 'sol@example.com', address: 'Guayaquil', active: true, category: 'A', price_list_id: null },
 ];
 // Categoría B pays the retail price on the product sheet; a categoría C
-// customer with no tariff assigned falls back to the grossiste price (A).
+// customer with no tariff assigned falls back to the mayorista price (A).
 const CUSTOMER_B = { id: 'c3', name: 'Detallista Norte', identification: '0993', email: 'detal@example.com', address: 'Cuenca', active: true, category: 'B', price_list_id: null };
 const CUSTOMER_C_SIN_TARIFA = { id: 'c4', name: 'Obras del Sur', identification: '0994', email: 'sur@example.com', address: 'Loja', active: true, category: 'C', price_list_id: null };
 const LIST_2024 = { id: 'pl2024', name: 'Tarifa 2024', year: 2024, active: true };
@@ -167,7 +167,7 @@ test.describe('Tarifas — presupuestos', () => {
     await expect(page.locator('#invoiceItems')).toContainText('$16.00');
 
     await page.selectOption('#clientSelect', '0992');
-    await expect(page.locator('#quoteTariff')).toHaveText('Categoría A · precio grossiste');
+    await expect(page.locator('#quoteTariff')).toHaveText('Categoría A · precio mayorista');
     await expect(page.locator('#invoiceItems')).toContainText('$20.00'); // 2 x $10
     await expect(page.locator('#invoiceItems')).not.toContainText('tarifa');
   });
@@ -205,7 +205,7 @@ test.describe('Tarifas — presupuestos', () => {
   });
 
   // The customer's category picks the price: B is the retail price on the
-  // product sheet, not the grossiste price everyone else gets.
+  // product sheet, not the mayorista price everyone else gets.
   test('a categoria B customer is quoted at the retail price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
@@ -217,20 +217,20 @@ test.describe('Tarifas — presupuestos', () => {
     await expect(page.locator('#invoiceProductInfo')).toContainText('$13.00');
     await page.fill('#invoiceQty', '2');
     await page.click('#billing button:has-text("Añadir")');
-    // 2 x $13 retail, not 2 x $10 grossiste.
+    // 2 x $13 retail, not 2 x $10 mayorista.
     await expect(page.locator('#invoiceItems')).toContainText('$26.00');
     await expect(page.locator('#invoiceItems')).not.toContainText('tarifa');
   });
 
   // A categoria C customer is one who signed a contract, but until a tariff is
-  // assigned there is no pactado price: they pay the grossiste price (A), never
+  // assigned there is no pactado price: they pay the mayorista price (A), never
   // the retail one and never zero.
-  test('a categoria C customer with no tariff assigned falls back to the grossiste price', async ({ page }) => {
+  test('a categoria C customer with no tariff assigned falls back to the mayorista price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_C_SIN_TARIFA] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
 
     await page.selectOption('#clientSelect', '0994');
-    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C sin tarifa asignada: precio grossiste (A)');
+    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C sin tarifa asignada: precio mayorista (A)');
 
     await page.fill('#invoiceBarcode', 'B1');
     await expect(page.locator('#invoiceProductInfo')).toContainText('$10.00');
@@ -285,7 +285,7 @@ test.describe('Tarifas — catálogo del cliente', () => {
   });
 
   // The catalogue is a "cliente"-facing view: a tariff must not become a way to
-  // read margins. catalog_products still hides price_a, price_b and supplier_id.
+  // read margins. catalog_products still hides purchase_price and supplier_id.
   test('the tariff-resolved catalogue still hides purchase prices and suppliers', async ({ page }) => {
     await boot(page, {
       products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024],
@@ -297,7 +297,7 @@ test.describe('Tarifas — catálogo del cliente', () => {
 
     const leaked = await page.evaluate(async () => {
       const r = await window.GamaCloud.list('catalog_products', {});
-      return (r.data || []).some(p => 'price_a' in p || 'price_b' in p || 'supplier_id' in p);
+      return (r.data || []).some(p => 'purchase_price' in p || 'supplier_id' in p);
     });
     expect(leaked).toBe(false);
   });

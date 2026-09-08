@@ -35,7 +35,7 @@ test.describe('Compras: registering a reception', () => {
       // @ts-ignore
       window.__DB.suppliers = [{ id: 'sup1', name: 'Papelera Central', email: 'compras@papelera.test', active: true }];
       // @ts-ignore
-      window.__DB.products = [{ id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, price_a: 3, sale_price: 6, active: true, supplier_id: 'sup1' }];
+      window.__DB.products = [{ id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, purchase_price: 3, sale_price: 6, active: true, supplier_id: 'sup1' }];
       // @ts-ignore
       window.__DB.purchase_orders = [{ id: 'po1', supplier_id: 'sup1', order_number: 'OC-000001', order_date: new Date().toISOString(), status: 'sent', subtotal: 35, tax: 0, total: 35, notes: null }];
       // @ts-ignore
@@ -68,7 +68,7 @@ test.describe('Compras: registering a reception', () => {
       // @ts-ignore
       window.__DB.suppliers = [{ id: 'sup1', name: 'Papelera Central', active: true }];
       // @ts-ignore
-      window.__DB.products = [{ id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, price_a: 3, sale_price: 6, active: true, supplier_id: 'sup1' }];
+      window.__DB.products = [{ id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, purchase_price: 3, sale_price: 6, active: true, supplier_id: 'sup1' }];
       // @ts-ignore
       window.__DB.purchase_orders = [{ id: 'po1', supplier_id: 'sup1', order_number: 'OC-000001', order_date: new Date().toISOString(), status: 'sent', subtotal: 35, tax: 0, total: 35, notes: null }];
       // @ts-ignore

@@ -31,7 +31,7 @@ async function boot(page, db = {}) {
 }
 
 const PRODUCTS = [
-  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM', category: 'Obra', stock: 40, min_stock: 1, sale_price: 10, price_a: 6, tax_rate: 15, active: true },
+  { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM', category: 'Obra', stock: 40, min_stock: 1, sale_price: 10, purchase_price: 6, tax_rate: 15, active: true },
 ];
 const CUSTOMERS = [
   { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true, price_list_id: 'pl2024' },

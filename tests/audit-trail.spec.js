@@ -16,7 +16,7 @@ test.describe('Audit Trail — stock before/after and real account', () => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
       // @ts-ignore - seeded before gama-central-sync's first loadAll() runs
       window.__DB = {
-        products: [{ id: 'p1', name: 'Papel A4', barcode: 'PAP-01', reference: 'PAP-01', stock: 42, min_stock: 5, sale_price: 6, price_a: 3, tax_rate: 15, active: true }],
+        products: [{ id: 'p1', name: 'Papel A4', barcode: 'PAP-01', reference: 'PAP-01', stock: 42, min_stock: 5, sale_price: 6, purchase_price: 3, tax_rate: 15, active: true }],
         customers: [], suppliers: [], invoices: [], invoice_lines: [],
         purchase_orders: [], purchase_order_lines: [],
         stock_movements: [

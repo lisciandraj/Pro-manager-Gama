@@ -35,7 +35,7 @@ function header(opts){
  const o=opts||{};
  return '<div class="gamaStdHeader" data-gama-standard-header="1">'
   +'<div class="gamaStdText">'
-  +'<div class="gamaStdKicker">'+esc(o.kicker||'GAMA STOCK MANAGER')+'</div>'
+  +'<div class="gamaStdKicker">'+esc(o.kicker||'GAMA ENTERPRISE RESOURCE PLANNING')+'</div>'
   +'<h2>'+esc(o.title||'Módulo')+'</h2>'
   +(o.lead?'<p>'+esc(o.lead)+'</p>':'')
   +'</div>'

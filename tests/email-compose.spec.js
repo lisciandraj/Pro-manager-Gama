@@ -28,7 +28,7 @@ async function loadModule(page) {
   });
 }
 
-const BODY = 'Estimado/a Ferretería Sol,\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: 000123\n\n- Tornillo x10 — $1.00 c/u\n\nTOTAL: $10.00\n\nGAMA Stock Manager';
+const BODY = 'Estimado/a Ferretería Sol,\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: 000123\n\n- Tornillo x10 — $1.00 c/u\n\nTOTAL: $10.00\n\nGAMA Enterprise Resource Planning';
 
 async function sendOnDesktop(page, body = BODY, email = 'cliente@example.com') {
   return page.evaluate(async ([b, e]) => {

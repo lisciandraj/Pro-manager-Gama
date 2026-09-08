@@ -1,1 +1,1 @@
-{"name":"GAMA Stock Manager V15","short_name":"GAMA Stock","start_url":"./?v=15","scope":"./","display":"standalone","background_color":"#020F2F","theme_color":"#020F2F","icons":[{"src":"gama-icon-v10.png?v=15","sizes":"180x180","type":"image/png","purpose":"any maskable"}]}
+{"name":"GAMA Enterprise Resource Planning","short_name":"GAMA ERP","start_url":"./?v=15","scope":"./","display":"standalone","background_color":"#020F2F","theme_color":"#020F2F","icons":[{"src":"gama-icon-v10.png?v=15","sizes":"180x180","type":"image/png","purpose":"any maskable"}]}

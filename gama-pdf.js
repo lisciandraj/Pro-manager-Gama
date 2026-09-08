@@ -97,7 +97,7 @@ function proofCertificate(e){
  doc.text('COMPROBANTE DE ENTREGA',P,y);
  doc.setFont(undefined,'normal');
  y+=7;doc.setFontSize(9);doc.setTextColor(110,110,110);
- doc.text('GAMA Stock Manager · documento generado el '+fecha(new Date()),P,y);
+ doc.text('GAMA Enterprise Resource Planning · documento generado el '+fecha(new Date()),P,y);
  doc.setTextColor(0,0,0);
  y+=6;doc.setDrawColor(24,50,74);doc.setLineWidth(0.6);doc.line(P,y,P+ANCHO,y);y+=10;
 

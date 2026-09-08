@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GAMA Stock V10">
 <link rel="manifest" href="manifest.json">
-<title>GAMA Stock Manager V10</title>
+<title>GAMA Enterprise Resource Planning</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
 header{background:#111827;color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
@@ -153,8 +153,7 @@ section{display:none}section.active{display:block}
     <div class="brandMobile">
       <img src="gama-logo.jpg" alt="GAMA">
       <div>
-        <h1>GAMA <span>Stock Manager</span> <b>V10</b></h1>
-        <small>Inventario • Facturación • Auditoría — Ecuador</small>
+        <h1>GAMA <span>Enterprise Resource Planning</span> <b>V10</b></h1>
       </div>
     </div>
   </div>
@@ -170,7 +169,7 @@ section{display:none}section.active{display:block}
   <div class="menuIntro">
     <div>
       <h2>Menú principal</h2>
-      <p>Accede rápidamente a todas las funciones de GAMA Stock Manager.</p>
+      <p>Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.</p>
     </div>
     <span class="onlineBadge"><i></i> En línea</span>
   </div>
@@ -243,7 +242,7 @@ section{display:none}section.active{display:block}
 
   <div class="menuFooter">
     <span><i></i> Sistema local activo</span>
-    <small>GAMA Stock Manager V10</small>
+    <small>GAMA Enterprise Resource Planning V10</small>
   </div>
 </section>
 
@@ -327,7 +326,7 @@ section{display:none}section.active{display:block}
 <button class="secondary" onclick="exportJSONBackup()">💾 Copia completa JSON</button>
 </div>
 <h3>📥 Importar Excel</h3>
-<p class="muted">Importa el Excel generado por Stock Manager. Productos se fusionan por código de barras y Clientes por identificación.</p>
+<p class="muted">Importa el Excel generado por GAMA. Productos se fusionan por código de barras y Clientes por identificación.</p>
 <input id="excelImport" type="file" accept=".xls,.xml">
 <button class="primary" style="width:100%;margin-top:8px" onclick="importExcel()">📥 Importar / fusionar Excel</button>
 <div id="importResult"></div>
@@ -371,7 +370,7 @@ section{display:none}section.active{display:block}
 
 </div>
 
-<script src="gama-ui.js?v=1"></script>
+<script src="gama-ui.js?v=2"></script>
 <script src="gama-modules.js?v=2"></script>
 <script src="gama-pagination.js?v=1"></script>
 <script src="gama-archive.js?v=1"></script>
@@ -637,7 +636,7 @@ function parseSpreadsheetXML(text){
 }
 function rowsObj(rows){if(!rows||!rows.length)return[];let h=rows[0].map(norm);return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??''])))}
 async function importExcel(){
- const f=$('excelImport').files[0];if(!f)return alert('Selecciona un archivo .xls exportado por Stock Manager.');
+ const f=$('excelImport').files[0];if(!f)return alert('Selecciona un archivo .xls exportado por GAMA.');
  try{
   const sheets=parseSpreadsheetXML(await f.text());let ap=0,up=0,ac=0,uc=0;
   for(const o of rowsObj(sheets.Productos||[])){
@@ -740,7 +739,7 @@ showTab('mainmenu',null);
   setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
 })();
 </script>
-<script src="gama-menu-final2.js?v=11"></script>
+<script src="gama-menu-final2.js?v=12"></script>
 <script src="gama-scanner-phone.js?v=10"></script>
 <script src="gama-access-control.js?v=6"></script>
 <script src="gama-fixed-header.js?v=4"></script>
@@ -773,19 +772,19 @@ showTab('mainmenu',null);
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="gama-quote-pdf.js?v=4"></script>
-<script src="gama-purchase-order-pdf.js?v=1"></script>
-<script src="gama-supabase.js?v=17"></script>
+<script src="gama-quote-pdf.js?v=5"></script>
+<script src="gama-purchase-order-pdf.js?v=2"></script>
+<script src="gama-supabase.js?v=18"></script>
 <script src="gama-central-sync.js?v=6"></script>
-<script src="gama-purchases-v14.js?v=20260908-ui1"></script>
+<script src="gama-purchases-v14.js?v=20260908-erp1"></script>
 <script src="gama-proveedores-matriz.js?v=7"></script>
 <script src="gama-client-catalog.js?v=6"></script>
 <script src="gama-customer-requests.js?v=4"></script>
 <script src="gama-sales-report.js?v=4"></script>
-<script src="gama-pdf.js?v=2"></script>
+<script src="gama-pdf.js?v=3"></script>
 <script src="gama-photos.js?v=2"></script>
 <script src="gama-price-lists.js?v=3"></script>
-<script src="gama-hr.js?v=3"></script>
+<script src="gama-hr.js?v=4"></script>
 <script src="gama-settings.js?v=1"></script>
 <script src="gama-standard-ui.js?v=11"></script>
 </body></html>

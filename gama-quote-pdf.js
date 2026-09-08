@@ -11,7 +11,7 @@ function build(q){
  let y=20;
  doc.setFontSize(18);doc.text('PRESUPUESTO',14,y);y+=10;
  doc.setFontSize(11);
- doc.text(esc(q.seller||'GAMA Stock Manager'),14,y);y+=6;
+ doc.text(esc(q.seller||'GAMA Enterprise Resource Planning'),14,y);y+=6;
  doc.text('RUC: '+esc(q.sellerRuc||'-'),14,y);y+=6;
  doc.text('N.º: '+esc(q.number||'-'),14,y);y+=6;
  doc.text('Fecha: '+esc(q.dateLabel||''),14,y);y+=10;

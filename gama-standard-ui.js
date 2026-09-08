@@ -11,17 +11,17 @@ const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Etiquetas','Ubicaciones',
    un aviso naranja suelto dentro del formulario está ahora aquí arriba, donde
    se lee una vez al entrar y no estorba el resto del tiempo. */
 const TITLES={
- products:['📦 Productos','Crea tus productos y consulta el catálogo completo. El precio de venta y el IVA que guardes aquí se reutilizan solos al preparar un presupuesto. Los productos que dejes de vender se archivan: salen de las listas pero nunca se pierden.'],
- clients:['👥 Clientes','Guarda los datos de cada cliente una sola vez. Después, para hacerle un presupuesto, sólo tendrás que elegirlo por su nombre. Los clientes que ya no atiendas se archivan y se pueden restaurar cuando quieras.'],
- stock:['📊 Inventario','Las existencias de todos tus productos, actualizadas al momento. Los que estén por debajo de su stock mínimo se marcan en rojo. Puedes buscar, filtrar por categoría y exportar la lista a Excel.'],
- movement:['🔄 Movimientos','Registra una entrada o una salida de mercancía escaneando el código de barras. Cada movimiento queda firmado con la fecha, el usuario y el stock antes y después.'],
- movements:['🔄 Movimientos','Registra una entrada o una salida de mercancía escaneando el código de barras. Cada movimiento queda firmado con la fecha, el usuario y el stock antes y después.'],
- billing:['🧾 Presupuestos','Elige un cliente, añade productos y descarga el presupuesto en PDF o mándalo por correo. El precio sale de la ficha del producto —o de la tarifa del cliente— y puedes ajustarlo en una línea para una oferta puntual. Es un documento comercial: no descuenta stock.'],
- audit:['🔎 Auditoría','Historial completo de todas las entradas y salidas de stock. Nada se puede editar ni borrar: para corregir un error se registra un movimiento nuevo que lo compensa.'],
- backup:['💾 Copias de seguridad','Exporta tus productos, clientes y auditoría a Excel, o guarda una copia completa de la base en un archivo. Haz siempre una copia antes de importar o restaurar: la restauración reemplaza los datos actuales.'],
- barcode:['🏷️ Códigos de barras','Escribe una referencia y genera su código de barras. Descárgalo en PDF ya recortado al tamaño de una etiqueta adhesiva, listo para imprimir y pegar en el producto.'],
- home:['🔎 Consulta rápida','Escanea o teclea un código de barras para ver la ficha de un producto al instante, y registra desde ahí mismo una entrada o una salida.'],
- dashboard:['📈 Panel de control','Toda la analítica del negocio en una pantalla: ventas, presupuestos, ticket promedio, margen estimado y stock bajo, con la evolución mes a mes, el reparto por categoría y por forma de pago, y los productos que más vendes por cantidad y por ingresos. Elige el año y el mes arriba: todo lo que ves debajo habla de ese mismo periodo.'],
+ products:['📦 Productos','Crea tus productos y consulta el catálogo.'],
+ clients:['👥 Clientes','La ficha de cada cliente, en un solo sitio.'],
+ stock:['📊 Inventario','Las existencias de todos tus productos.'],
+ movement:['🔄 Movimientos','Registra entradas y salidas de mercancía.'],
+ movements:['🔄 Movimientos','Registra entradas y salidas de mercancía.'],
+ billing:['🧾 Presupuestos','Presupuestos para tus clientes, en PDF.'],
+ audit:['🔎 Auditoría','Historial de todas las entradas y salidas.'],
+ backup:['💾 Copias de seguridad','Exporta tus datos y guarda copias de la base.'],
+ barcode:['🏷️ Códigos de barras','Genera códigos de barras para imprimir.'],
+ home:['🔎 Consulta rápida','Escanea un código y ve la ficha al instante.'],
+ dashboard:['📈 Panel de control','Toda la analítica del negocio en una pantalla.'],
 };
 
 /* Architecture: every new module only needs one registry entry. */

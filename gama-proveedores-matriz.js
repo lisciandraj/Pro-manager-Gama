@@ -5,8 +5,8 @@ const SUP_KEY='gama_suppliers_v1', MAT_KEY='gama_matrix_v1';
 /* La descripción de cada pantalla, en un solo sitio: section() sólo escribe la
    cabecera la primera vez, así que si el texto estuviera repetido ganaría el
    de quien llame antes — que es justo lo que pasaba con la matriz. */
-const SUP_LEAD='Guarda aquí el contacto, el RUC y las condiciones de cada proveedor. Son los mismos que aparecen al elegir proveedor en la ficha de un producto y al preparar un pedido de compra. Los que dejes de usar se archivan y se pueden restaurar.';
-const MAT_LEAD='Calcula el precio de venta a partir del precio de compra y del margen que quieras ganar. Añade una referencia, indica cuánto te cuesta y qué margen buscas, y la tabla te dice a cuánto venderla y cuánto beneficio deja.';
+const SUP_LEAD='El contacto y las condiciones de cada proveedor.';
+const MAT_LEAD='Calcula el precio de venta según tu margen.';
 const $=id=>document.getElementById(id);
 function load(k,fallback=[]){try{const v=JSON.parse(localStorage.getItem(k)||'null');return Array.isArray(v)?v:fallback}catch(e){return fallback}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}

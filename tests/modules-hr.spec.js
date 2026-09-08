@@ -127,6 +127,51 @@ test('RRHH descuenta las vacaciones aprobadas en días laborables', async ({ pag
   await expect(page.locator('#hr tbody tr').first(), 'un fin de semana no gasta vacaciones').toContainText('5 / 15');
 });
 
+// La planificación es la misma información en un calendario. Lo que puede
+// romperse en silencio es la colocación: una barra corrida un día, o dos
+// ausencias de la misma persona superpuestas de modo que una tape a la otra y
+// parezca que sólo hay una.
+test('la planificación coloca cada ausencia en su día y separa las que se solapan', async ({ page }) => {
+  const HOY = new Date();
+  // Lunes de la semana en curso, para que la vista caiga siempre encima.
+  const lunes = new Date(HOY); lunes.setDate(lunes.getDate() - ((lunes.getDay() + 6) % 7));
+  const d = n => { const x = new Date(lunes); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+
+  await boot(page, 'admin', {
+    hr_employees: [{ id: 'e1', full_name: 'María Pérez', position: 'Almacenera', active: true, annual_leave_days: 15 }],
+    hr_absences: [
+      // Lunes a miércoles, aprobada.
+      { id: 'a1', employee_id: 'e1', kind: 'vacaciones', start_date: d(0), end_date: d(2), days: 3, status: 'aprobada' },
+      // Martes a jueves: pisa a la anterior, así que va en otro carril.
+      { id: 'a2', employee_id: 'e1', kind: 'permiso', start_date: d(1), end_date: d(3), days: 3, status: 'pendiente' },
+    ],
+  });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(600);
+  await page.click('#hr .hrTabs button:has-text("Planificación")');
+  await page.waitForTimeout(500);
+
+  const barras = page.locator('#hr .hrPlanBarra');
+  await expect(barras).toHaveCount(2);
+
+  // La primera ocupa las columnas 1 a 3 (lunes a miércoles), la segunda 2 a 4.
+  const cols = await barras.evaluateAll(els => els.map(e => [e.style.gridColumn, e.style.gridRow]));
+  expect(cols[0][0]).toBe('1 / 4');
+  expect(cols[1][0]).toBe('2 / 5');
+  expect(cols[0][1], 'las dos ausencias se pisan: deben ir en carriles distintos').not.toBe(cols[1][1]);
+
+  // La pendiente se distingue de la concedida sin tener que leerla.
+  await expect(page.locator('#hr .hrPlanBarra.pend')).toHaveCount(1);
+
+  // Al pulsarla se puede aprobar desde aquí.
+  await page.locator('#hr .hrPlanBarra.pend').click();
+  await page.waitForTimeout(300);
+  await expect(page.locator('#hr .hrPlanDetalle')).toContainText('María Pérez');
+  await page.click('#hr .hrPlanDetalle button:has-text("Aprobar")');
+  await page.waitForTimeout(600);
+  await expect(page.locator('#hr .hrPlanBarra.pend'), 'la barra sigue marcada como pendiente').toHaveCount(0);
+});
+
 // Guardián de cableado. Un módulo nuevo se declara en tres sitios: el menú, el
 // mapa de perfiles y el catálogo de Configuración. Si falta en alguno se rompe
 // en silencio — «Compras» e «Importar Excel» llevaban tiempo fuera del mapa de

@@ -1,7 +1,10 @@
-/* GAMA — Recursos humanos: fichas de empleado y ausencias.
+/* GAMA — Recursos humanos: fichas de empleado, ausencias y planificación.
 
-   Dos pestañas porque son dos cosas distintas: la plantilla, que cambia poco, y
-   las ausencias, que se registran a diario.
+   Tres pestañas porque son tres cosas distintas: la plantilla, que cambia poco;
+   las ausencias, que se registran a diario; y la planificación, que es la misma
+   información puesta en un calendario — una fila por empleado y una columna por
+   día— para ver de un vistazo quién falta y cuándo se solapan dos personas, que
+   es justo lo que no se puede leer en una lista ordenada por fecha.
 
    Sobre los días: la base guarda en hr_absences.days los días NATURALES del
    periodo (una columna generada, fin - inicio + 1). El saldo de vacaciones, en
@@ -23,6 +26,16 @@ const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permis
 const STATUS={pendiente:'Pendiente',aprobada:'Aprobada',rechazada:'Rechazada'};
 
 let employees=[],absences=[],tab='empleados',editing=null,busy=false;
+/* Planificación: el día sobre el que se centra la vista y su amplitud. */
+let planAnchor=new Date(),planView='semana',planPick=null;
+
+/* Las fechas se manejan con las partes locales, nunca con toISOString(): al
+   este de Greenwich un new Date('2026-09-07') se convierte en el día anterior
+   por la noche, y una ausencia aparecería corrida un día en la rejilla. */
+function ymd(d){const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function fromYmd(s){const [y,m,d]=String(s||'').split('-').map(Number);return new Date(y,(m||1)-1,d||1)}
+const DIA_MS=86400000;
+function diffDays(a,b){return Math.round((fromYmd(ymd(b))-fromYmd(ymd(a)))/DIA_MS)}
 
 function msg(t,err){const m=$('hrMsg');if(!m)return;m.textContent=t||'';m.className='hrMsg'+(t?(err?' hrErr':' hrOk'):'')}
 function fail(e,what){console.warn('[GAMA RRHH]',what,e);msg(what+': '+(e&&(e.message||e.details)||e),true)}
@@ -199,7 +212,62 @@ function css(){
 #hr .hrActs{display:flex;gap:6px;flex-wrap:wrap}
 #hr .hrActs button{padding:6px 9px;font-size:11px;width:auto}
 #hr .hrOff td{opacity:.55}
-@media(max-width:900px){#hr .hrGrid{grid-template-columns:1fr}#hr .hrKpis{grid-template-columns:1fr 1fr}}`;
+
+/* ---- planificación ----
+   La rejilla es una sola cuadrícula por fila: las columnas de fondo ocupan
+   todos los carriles (grid-row 1/-1) y las barras se colocan encima en el
+   suyo. Así el fondo, los fines de semana y el día de hoy se pintan una vez y
+   las barras se superponen sin descuadrar nada. */
+#hr .hrPlanBarraSup{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+#hr .hrPlanNav{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#hr .hrPlanNav button{width:auto;padding:8px 13px}
+/* capitalize pondría mayúscula en cada palabra: «Septiembre De 2026». En
+   español sólo la lleva la primera, y los meses abreviados van en minúscula. */
+#hr .hrPlanTitulo{font-size:15px;color:#18324a;margin-left:4px}
+#hr .hrPlanTitulo::first-letter{text-transform:uppercase}
+#hr .hrPlanVistas{display:flex;gap:6px}
+#hr .hrPlanVistas button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer;width:auto;font-size:13px}
+#hr .hrPlanVistas button.on{background:#087c8b;border-color:#087c8b;color:#fff}
+#hr .hrPlanScroll{overflow-x:auto;border:1px solid #e4ebee;border-radius:12px}
+#hr .hrPlan{min-width:640px}
+#hr .hrPlanFila{display:grid;grid-template-columns:170px 1fr;border-bottom:1px solid #edf1f2}
+#hr .hrPlanFila:last-child{border-bottom:0}
+#hr .hrPlanNombre{padding:9px 11px;border-right:1px solid #e4ebee;background:#fff;position:sticky;left:0;z-index:3}
+#hr .hrPlanNombre b{display:block;font-size:12.5px;color:#18324a;line-height:1.25}
+#hr .hrPlanNombre small{display:block;color:#81909a;font-size:10.5px;margin-top:1px}
+#hr .hrPlanCabecera{background:#f8fafb;border-bottom:1px solid #e4ebee}
+#hr .hrPlanCabecera .hrPlanNombre{background:#f8fafb;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;font-weight:800;display:flex;align-items:flex-end}
+#hr .hrPlanCeldas{display:grid;grid-template-columns:repeat(var(--cols),minmax(38px,1fr));grid-auto-rows:22px;align-content:center;gap:3px 0;padding:6px 0;position:relative}
+#hr .hrPlanDias{grid-auto-rows:auto;padding:7px 0}
+#hr .hrPlanDia{text-align:center;font-size:11px;color:#18324a;border-right:1px solid #edf1f2}
+#hr .hrPlanDia:last-child{border-right:0}
+#hr .hrPlanDia small{display:block;color:#81909a;font-size:9.5px;text-transform:uppercase}
+#hr .hrPlanDia b{display:block;font-size:13px}
+#hr .hrPlanDia.fin{background:#f4f7f8;color:#8c99a3}
+#hr .hrPlanDia.hoy{background:#fff6ef;box-shadow:inset 0 -3px 0 #f47a2a}
+#hr .hrPlanCol{grid-row:1/-1;border-right:1px solid #f1f5f6}
+#hr .hrPlanCol:last-of-type{border-right:0}
+#hr .hrPlanCol.fin{background:#f7fafb}
+#hr .hrPlanCol.hoy{background:#fff6ef}
+#hr .hrPlanBarra{position:relative;z-index:2;display:flex;align-items:center;min-width:0;height:22px;margin:0 2px;padding:0 7px;border:0;border-radius:6px;cursor:pointer;background:var(--c);color:#fff;font-weight:700;font-size:10.5px;text-align:left;width:auto;overflow:hidden}
+#hr .hrPlanBarra span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hr .hrPlanBarra:hover{filter:brightness(1.08)}
+#hr .hrPlanBarra:focus-visible{outline:3px solid #18324a;outline-offset:1px}
+/* Pendiente de aprobar: hueca y con el borde a rayas, para que no se confunda
+   con lo ya concedido de un vistazo. */
+#hr .hrPlanBarra.pend{background:#fff;color:var(--c);border:1.5px dashed var(--c)}
+/* Una ausencia que empieza antes o acaba después del periodo se recorta: la
+   punta plana avisa de que sigue fuera de la vista. */
+#hr .hrPlanBarra.cortaIzq{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
+#hr .hrPlanBarra.cortaDer{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+#hr .hrPlanPie{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#61717c}
+#hr .hrPlanLeyenda{display:inline-flex;align-items:center;gap:6px}
+#hr .hrPlanLeyenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+#hr .hrPlanLeyenda i.pend{background:#fff;border:1.5px dashed #71808a}
+#hr .hrPlanDetalle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:10px;background:#f8fbfb}
+#hr .hrPlanDetalle small{display:block;color:#61717c;font-size:11.5px;margin-top:2px}
+@media(max-width:900px){#hr .hrGrid{grid-template-columns:1fr}#hr .hrKpis{grid-template-columns:1fr 1fr}
+ #hr .hrPlanFila{grid-template-columns:120px 1fr}#hr .hrPlanNombre b{font-size:11.5px}}`;
  document.head.appendChild(s);
 }
 
@@ -327,6 +395,152 @@ function absencesTab(){
  </div>`;
 }
 
+/* ---- planificación ----
+   Una fila por empleado y una columna por día, con las ausencias pintadas como
+   barras que ocupan su periodo entero. De un vistazo se ve quién falta y
+   cuándo se solapan dos personas, que es lo que no se puede leer en la lista.
+
+   Dos ausencias de la misma persona que se pisan van en carriles distintos
+   dentro de su fila; si no, la de arriba taparía a la de abajo y parecería que
+   sólo hay una. */
+const PLAN_COLORES={vacaciones:'#087c8b',enfermedad:'#c94f45',permiso:'#b66a18',formacion:'#5b62b5',otro:'#71808a'};
+
+function planRango(){
+ const base=new Date(planAnchor);
+ if(planView==='mes'){
+  return {desde:new Date(base.getFullYear(),base.getMonth(),1),
+          hasta:new Date(base.getFullYear(),base.getMonth()+1,0)};
+ }
+ const desde=new Date(base);
+ desde.setDate(desde.getDate()-((desde.getDay()+6)%7));   // la semana empieza el lunes
+ const hasta=new Date(desde);hasta.setDate(hasta.getDate()+6);
+ return {desde,hasta};
+}
+function planDias(desde,hasta){
+ const out=[];
+ for(const d=new Date(desde);d<=hasta;d.setDate(d.getDate()+1))out.push(new Date(d));
+ return out;
+}
+/* Reparte en carriles las ausencias que se solapan: la primera que cabe en un
+   carril libre se queda ahí, y si ninguno está libre se abre uno nuevo. */
+function planCarriles(items){
+ const finDeCarril=[];
+ items.forEach(a=>{
+  let i=finDeCarril.findIndex(fin=>fin<a._d0);
+  if(i<0){finDeCarril.push(a._d1);i=finDeCarril.length-1}else finDeCarril[i]=a._d1;
+  a._carril=i+1;
+ });
+ return Math.max(1,finDeCarril.length);
+}
+
+function planTab(){
+ const {desde,hasta}=planRango();
+ const dias=planDias(desde,hasta);
+ const cols=dias.length;
+ const hoy=today();
+ const desdeY=ymd(desde),hastaY=ymd(hasta);
+
+ const titulo=planView==='mes'
+  ? desde.toLocaleDateString('es-EC',{month:'long',year:'numeric'})
+  : desde.toLocaleDateString('es-EC',{day:'numeric',month:'short'})+' – '+hasta.toLocaleDateString('es-EC',{day:'numeric',month:'short',year:'numeric'});
+
+ // Sólo la plantilla activa: un archivado no tiene por qué ocupar una fila.
+ const gente=employees.filter(e=>e.active!==false);
+
+ const cabecera=dias.map(d=>{
+  const w=d.getDay(),esHoy=ymd(d)===hoy;
+  return `<div class="hrPlanDia${w===0||w===6?' fin':''}${esHoy?' hoy':''}">
+    <small>${d.toLocaleDateString('es-EC',{weekday:'short'})}</small><b>${d.getDate()}</b></div>`;
+ }).join('');
+
+ const fondo=dias.map((d,i)=>{
+  const w=d.getDay(),esHoy=ymd(d)===hoy;
+  return `<div class="hrPlanCol${w===0||w===6?' fin':''}${esHoy?' hoy':''}" style="grid-column:${i+1}"></div>`;
+ }).join('');
+
+ const filas=gente.map(p=>{
+  // Una ausencia entra si toca el periodo, aunque empiece antes o acabe después.
+  const suyas=absences
+   .filter(a=>a.employee_id===p.id&&a.status!=='rechazada'&&a.start_date<=hastaY&&a.end_date>=desdeY)
+   .sort((a,b)=>a.start_date.localeCompare(b.start_date))
+   .map(a=>Object.assign({},a,{_d0:a.start_date,_d1:a.end_date}));
+  const carriles=planCarriles(suyas);
+
+  const barras=suyas.map(a=>{
+   // Se recorta a la ventana visible y se marca si se sale por algún lado.
+   const ini=Math.max(0,diffDays(desde,fromYmd(a.start_date)));
+   const fin=Math.min(cols-1,diffDays(desde,fromYmd(a.end_date)));
+   const cortaIzq=a.start_date<desdeY,cortaDer=a.end_date>hastaY;
+   const color=PLAN_COLORES[a.kind]||PLAN_COLORES.otro;
+   const pend=a.status==='pendiente';
+   const etiqueta=(KINDS[a.kind]||a.kind).replace(/^\S+\s/,'');
+   const detalle=employeeName(a.employee_id)+' · '+(KINDS[a.kind]||a.kind)+' · '
+     +day(a.start_date)+' → '+day(a.end_date)+' · '+(STATUS[a.status]||a.status);
+   return `<button type="button" class="hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
+     data-plan="${esc(a.id)}" title="${esc(detalle)}"
+     style="grid-column:${ini+1}/${fin+2};grid-row:${a._carril};--c:${color}">
+     <span>${esc(etiqueta)}${pend?' ·pendiente':''}</span></button>`;
+  }).join('');
+
+  return `<div class="hrPlanFila">
+    <div class="hrPlanNombre"><b>${esc(p.full_name)}</b><small>${esc(p.position||'')}</small></div>
+    <div class="hrPlanCeldas" style="--cols:${cols};grid-template-rows:repeat(${carriles},22px)">
+      ${fondo}${barras||''}
+    </div>
+  </div>`;
+ }).join('');
+
+ const leyenda=Object.keys(PLAN_COLORES).map(k=>
+   `<span class="hrPlanLeyenda"><i style="background:${PLAN_COLORES[k]}"></i>${esc((KINDS[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
+  +'<span class="hrPlanLeyenda"><i class="pend"></i>Pendiente de aprobar</span>';
+
+ const sel=planPick&&absences.find(a=>a.id===planPick);
+
+ return `<div class="card">
+  <div class="hrPlanBarraSup">
+   <div class="hrPlanNav">
+    <button type="button" class="secondary" id="hrPlanHoy">Hoy</button>
+    <button type="button" class="secondary" id="hrPlanPrev" aria-label="Periodo anterior">‹</button>
+    <button type="button" class="secondary" id="hrPlanNext" aria-label="Periodo siguiente">›</button>
+    <b class="hrPlanTitulo">${esc(titulo)}</b>
+   </div>
+   <div class="hrPlanVistas">
+    <button type="button" class="${planView==='semana'?'on':''}" data-vista="semana">Semana</button>
+    <button type="button" class="${planView==='mes'?'on':''}" data-vista="mes">Mes</button>
+   </div>
+  </div>
+
+  ${gente.length?`<div class="hrPlanScroll"><div class="hrPlan">
+    <div class="hrPlanFila hrPlanCabecera">
+     <div class="hrPlanNombre">Empleado</div>
+     <div class="hrPlanCeldas hrPlanDias" style="--cols:${cols}">${cabecera}</div>
+    </div>
+    ${filas}
+   </div></div>`
+  :'<div class="hrEmpty">Añade empleados en la pestaña «Empleados» para verlos aquí.</div>'}
+
+  <div class="hrPlanPie">${leyenda}</div>
+
+  ${sel?`<div class="hrPlanDetalle">
+    <div><b>${esc(employeeName(sel.employee_id))}</b> · ${esc(KINDS[sel.kind]||sel.kind)}
+      <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+workingDays(sel.start_date,sel.end_date)+' laborables':''}</small>
+      ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
+    <div class="hrActs">
+      ${sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}">✓ Aprobar</button>`:''}
+      ${sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}">✕ Rechazar</button>`:''}
+      <button type="button" class="secondary" id="hrPlanCerrar">Cerrar</button>
+    </div>
+   </div>`:''}
+ </div>`;
+}
+
+/* Un mes se avanza por su día 1: sumar 30 días desde un 31 se saltaría un mes. */
+function planMover(n){
+ const d=new Date(planAnchor);
+ if(planView==='mes')planAnchor=new Date(d.getFullYear(),d.getMonth()+n,1);
+ else{d.setDate(d.getDate()+7*n);planAnchor=d}
+}
+
 function render(){
  css();
  const s=section();
@@ -338,10 +552,11 @@ function render(){
  +`<div class="hrTabs">
    <button type="button" class="${tab==='empleados'?'on':''}" data-tab="empleados">👥 Empleados</button>
    <button type="button" class="${tab==='ausencias'?'on':''}" data-tab="ausencias">📅 Ausencias</button>
+   <button type="button" class="${tab==='planificacion'?'on':''}" data-tab="planificacion">🗓️ Planificación</button>
   </div>`
  +kpis()
  +'<div id="hrMsg" class="hrMsg"></div>'
- +(tab==='empleados'?employeesTab():absencesTab());
+ +(tab==='empleados'?employeesTab():tab==='ausencias'?absencesTab():planTab());
  bind();
 }
 
@@ -349,7 +564,7 @@ function bind(){
  const s=section();
  window.GamaUI.bindBack(s);
  const r=$('hrRefresh');if(r)r.onclick=load;
- s.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
+ s.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;planPick=null;render()});
  const save=$('hrSave');if(save)save.onclick=saveEmployee;
  const clr=$('hrClear');if(clr)clr.onclick=()=>{clearEmployee();render()};
  const add=$('hrAbsAdd');if(add)add.onclick=addAbsence;
@@ -358,6 +573,13 @@ function bind(){
  s.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>setAbsenceStatus(b.dataset.ok,'aprobada'));
  s.querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>setAbsenceStatus(b.dataset.no,'rechazada'));
  s.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removeAbsence(b.dataset.del));
+ // Planificación
+ s.querySelectorAll('[data-vista]').forEach(b=>b.onclick=()=>{planView=b.dataset.vista;render()});
+ const hoyBtn=$('hrPlanHoy');if(hoyBtn)hoyBtn.onclick=()=>{planAnchor=new Date();render()};
+ const prev=$('hrPlanPrev');if(prev)prev.onclick=()=>{planMover(-1);render()};
+ const next=$('hrPlanNext');if(next)next.onclick=()=>{planMover(1);render()};
+ s.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{planPick=planPick===b.dataset.plan?null:b.dataset.plan;render()});
+ const cerrar=$('hrPlanCerrar');if(cerrar)cerrar.onclick=()=>{planPick=null;render()};
 }
 
 function open(){

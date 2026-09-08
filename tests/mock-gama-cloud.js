@@ -43,6 +43,11 @@
     if (table === 'products') rows = rows.map(r => ({ ...r, has_photo: !!r.photo_data }));
     if (options.eq) Object.keys(options.eq).forEach(k => { rows = rows.filter(r => r[k] === options.eq[k]); });
     if (options.in) Object.keys(options.in).forEach(k => { rows = rows.filter(r => (options.in[k] || []).includes(r[k])); });
+    // gte/lte los usa el analisis de ventas para acotar el periodo. Sin ellos
+    // el doble devolvia TODAS las facturas y una prueba de periodo no probaba
+    // nada: pasaria igual aunque el filtro no se enviara.
+    if (options.gte) Object.keys(options.gte).forEach(k => { rows = rows.filter(r => r[k] >= options.gte[k]); });
+    if (options.lte) Object.keys(options.lte).forEach(k => { rows = rows.filter(r => r[k] <= options.lte[k]); });
     if (options.order) rows.sort((a, b) => {
       const av = a[options.order], bv = b[options.order];
       const cmp = av > bv ? 1 : av < bv ? -1 : 0;

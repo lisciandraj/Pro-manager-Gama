@@ -1,53 +1,123 @@
-/* GAMA — Informe de ventas: productos más vendidos y márgenes */
+/* GAMA — Análisis de ventas dentro del Panel de control.
+
+   Esto era un módulo aparte, «Informe de ventas», con su propia pantalla y su
+   propio selector de periodo (30 / 90 días / todo). Convivía con un Panel de
+   control que analizaba lo mismo con OTRO selector —año y mes— y con una
+   tarjeta «Top productos» que decía casi lo mismo que «Más vendidos por
+   ingresos». Dos pantallas, dos periodos y dos cifras que podían no coincidir
+   para responder a la misma pregunta.
+
+   Ahora hay una sola pantalla de análisis. Este archivo aporta lo que el panel
+   no sabía calcular —el margen y los más vendidos por cantidad— y lo hace para
+   el periodo que marca el propio panel, así que todo lo que se ve en pantalla
+   habla del mismo intervalo.
+
+   La diferencia de origen importa: el panel se dibuja con db.invoices, el
+   espejo local, mientras que estos paneles consultan la nube, porque el margen
+   necesita el precio de compra de cada producto y las líneas de factura, que
+   el espejo no guarda. */
 (function(){
 'use strict';
+if(window.GamaSalesReport)return;
+
 const $=id=>document.getElementById(id);
 const C=()=>window.GamaCloud;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const sessionRole=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role||''}catch(e){return ''}};
 const canView=()=>['admin','commercial'].includes(sessionRole());
-let range='30';
-function inject(){if($('gamaSalesReport'))return;const s=document.createElement('section');s.id='gamaSalesReport';s.innerHTML=`
-${window.GamaUI.header({title:'📈 Informe de ventas',lead:'Qué se vende de verdad: los diez productos con más unidades y los diez que más ingresos dejan, en el periodo que elijas. Debajo de cada uno tienes el margen estimado con el precio de compra actual.',actions:'<button type="button" class="gamaStdAction" id="srRefresh">↻ Actualizar</button>'})}
-<div class="card"><label>Periodo</label><select id="srRange"><option value="30">Últimos 30 días</option><option value="90">Últimos 90 días</option><option value="all">Todo el historial</option></select></div>
-<div class="srKpis"><div><span>Ventas totales</span><b id="srKSales">$0,00</b></div><div><span>Unidades vendidas</span><b id="srKUnits">0</b></div><div><span>Margen estimado</span><b id="srKMargin">$0,00</b></div></div>
-<div class="srGrid">
-<div class="card"><h3>🏆 Más vendidos por cantidad</h3><div id="srByQty"><div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div></div></div>
-<div class="card"><h3>💰 Más vendidos por ingresos</h3><div id="srByRevenue"></div></div>
-</div>
-<p class="srNote muted">El margen se estima con el precio de compra actual de cada producto; no refleja el costo histórico exacto en la fecha de cada venta.</p>`;
-(document.querySelector('.wrap')||document.body).appendChild(s);style();bind()}
-function style(){if($('srCss'))return;const s=document.createElement('style');s.id='srCss';s.textContent=`#gamaSalesReport{display:none}.srKpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.srKpis>div{background:#fff;border:1px solid #e2e8ec;border-radius:13px;padding:13px}.srKpis span{display:block;color:#71808a;font-size:11px;font-weight:700}.srKpis b{display:block;margin-top:6px;font-size:21px;color:#18324a}.srGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.srRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #edf1f2;font-size:12px}.srRow:last-child{border-bottom:0}.srRank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#eef7f8;color:#087c8b;font-weight:800;font-size:11px;margin-right:8px}.srEmpty{text-align:center;padding:20px;color:#71808a}.srNote{margin-top:10px;font-size:11px}@media(max-width:800px){.srGrid{grid-template-columns:1fr}.srKpis{grid-template-columns:1fr}}`;document.head.appendChild(s)}
-function bind(){window.GamaUI.bindBack($('gamaSalesReport'));$('srRefresh').onclick=load;$('srRange').onchange=()=>{range=$('srRange').value;load()}}
-function show(){inject();document.querySelectorAll('section').forEach(s=>{s.classList.remove('active');s.style.display='none'});const sec=$('gamaSalesReport');sec.classList.add('active');sec.style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));load();window.scrollTo({top:0,behavior:'smooth'})}
-window.gamaShowSalesReport=show;
-function rangeStart(){if(range==='all')return null;const d=new Date();d.setDate(d.getDate()-Number(range));return d.toISOString()}
-function renderList(hostId,rows,sub){const host=$(hostId);if(!host)return;host.innerHTML=rows.length?rows.map((r,i)=>`<div class="srRow"><span><span class="srRank">${i+1}</span><b>${esc(r.name)}</b></span><span>${sub(r)}</span></div>`).join(''):'<div class="srEmpty">Sin ventas en este periodo.</div>'}
-async function load(){if(!canView())return;inject();const a=$('srByQty');if(a)a.innerHTML='<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>';try{
-  const pr=await C().list('products',{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active',order:'name',ascending:true});if(pr.error)throw pr.error;
-  const productMap=new Map((pr.data||[]).map(p=>[String(p.id),p]));
-  const start=rangeStart();
-  const invOpts={select:'id',order:'issue_date',ascending:false};
-  if(start)invOpts.gte={issue_date:start};
-  const ir=await C().list('invoices',invOpts);if(ir.error)throw ir.error;
-  const invoiceIds=(ir.data||[]).map(i=>i.id);
-  let lineRows=[];
-  if(invoiceIds.length){const lr=await C().list('invoice_lines',{in:{invoice_id:invoiceIds}});if(lr.error)throw lr.error;lineRows=lr.data||[]}
-  const byProduct=new Map();
-  let totalSales=0,totalUnits=0,totalMargin=0;
-  lineRows.forEach(l=>{
-    const p=productMap.get(String(l.product_id));
-    const qty=Number(l.quantity||0),unitPrice=Number(l.unit_price||0),revenue=qty*unitPrice;
-    const cost=p?Number(p.purchase_price||0):0,margin=(unitPrice-cost)*qty;
-    totalSales+=revenue;totalUnits+=qty;totalMargin+=margin;
-    const key=String(l.product_id);
-    if(!byProduct.has(key))byProduct.set(key,{name:p?.name||'Producto eliminado',qty:0,revenue:0,margin:0});
-    const row=byProduct.get(key);row.qty+=qty;row.revenue+=revenue;row.margin+=margin;
+
+/* Evita que dos repintados seguidos —cambiar de año y de mes al vuelo— se
+   pisen y deje en pantalla el resultado del más lento. */
+let peticion=0;
+
+function style(){
+ if($('srCss'))return;
+ const s=document.createElement('style');s.id='srCss';
+ s.textContent=`.srRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #edf1f2;font-size:12px}
+.srRow:last-child{border-bottom:0}
+.srRank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#eef7f8;color:#087c8b;font-weight:800;font-size:11px;margin-right:8px}
+.srEmpty{text-align:center;padding:20px;color:#71808a;font-size:12px}
+.srNote{margin-top:10px;font-size:11px;color:#81909a}`;
+ document.head.appendChild(s);
+}
+
+/* El periodo del panel (año + mes) traducido a un intervalo de fechas. */
+function rango(year,month){
+ const y=Number(year)||new Date().getFullYear();
+ if(month==='all'||month===''||month==null){
+  return {desde:new Date(y,0,1),hasta:new Date(y,11,31,23,59,59,999)};
+ }
+ const m=Number(month);
+ return {desde:new Date(y,m,1),hasta:new Date(y,m+1,0,23,59,59,999)};
+}
+
+function lista(hostId,filas,sub){
+ const host=$(hostId);if(!host)return;
+ host.innerHTML=filas.length
+  ? filas.map((r,i)=>`<div class="srRow"><span><span class="srRank">${i+1}</span><b>${esc(r.name)}</b></span><span>${sub(r)}</span></div>`).join('')
+  : '<div class="srEmpty">Sin ventas en este periodo.</div>';
+}
+function cargando(){
+ ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)h.innerHTML='<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>'});
+}
+function error(txt){
+ ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)h.innerHTML='<div class="srEmpty">'+esc(txt)+'</div>'});
+ const m=$('dashMargin');if(m)m.textContent='—';
+}
+
+/* Rellena los paneles de análisis del Panel de control para el periodo dado.
+   Lo llama renderDashboard(); si la pantalla no está montada, no hace nada. */
+async function render(year,month){
+ if(!$('srByQty'))return;
+ style();
+ if(!canView()){error('Tu perfil no puede ver el análisis de ventas.');return}
+ if(!C()){error('Sin conexión con GAMA Cloud.');return}
+
+ const mio=++peticion;
+ cargando();
+ try{
+  const {desde,hasta}=rango(year,month);
+  const pr=await C().list('products',{select:'id,name,purchase_price,active',order:'name',ascending:true});
+  if(pr.error)throw pr.error;
+  const productos=new Map((pr.data||[]).map(p=>[String(p.id),p]));
+
+  const ir=await C().list('invoices',{select:'id',order:'issue_date',ascending:false,
+    gte:{issue_date:desde.toISOString()},lte:{issue_date:hasta.toISOString()}});
+  if(ir.error)throw ir.error;
+  const ids=(ir.data||[]).map(i=>i.id);
+
+  let lineas=[];
+  if(ids.length){
+   const lr=await C().list('invoice_lines',{in:{invoice_id:ids}});
+   if(lr.error)throw lr.error;
+   lineas=lr.data||[];
+  }
+  // Otro repintado llegó después: el suyo manda.
+  if(mio!==peticion)return;
+
+  const porProducto=new Map();
+  let margenTotal=0;
+  lineas.forEach(l=>{
+   const p=productos.get(String(l.product_id));
+   const qty=Number(l.quantity||0),precio=Number(l.unit_price||0),ingreso=qty*precio;
+   const costo=p?Number(p.purchase_price||0):0,margen=(precio-costo)*qty;
+   margenTotal+=margen;
+   const k=String(l.product_id);
+   if(!porProducto.has(k))porProducto.set(k,{name:p?.name||'Producto eliminado',qty:0,revenue:0,margin:0});
+   const r=porProducto.get(k);r.qty+=qty;r.revenue+=ingreso;r.margin+=margen;
   });
-  $('srKSales').textContent=money(totalSales);$('srKUnits').textContent=totalUnits;$('srKMargin').textContent=money(totalMargin);
-  const rows=[...byProduct.values()];
-  renderList('srByQty',[...rows].sort((x,y)=>y.qty-x.qty).slice(0,10),r=>`${r.qty} uds · ${money(r.revenue)}`);
-  renderList('srByRevenue',[...rows].sort((x,y)=>y.revenue-x.revenue).slice(0,10),r=>`${money(r.revenue)} · margen ${money(r.margin)}`);
-}catch(e){console.error('[GAMA Sales Report]',e);if(a)a.innerHTML='<div class="srEmpty">No se pudo cargar el informe: '+esc(e.message||e)+'</div>'}}
+
+  const m=$('dashMargin');if(m)m.textContent=money(margenTotal);
+  const filas=[...porProducto.values()];
+  lista('srByQty',[...filas].sort((a,b)=>b.qty-a.qty).slice(0,10),r=>`${r.qty} uds · ${money(r.revenue)}`);
+  lista('srByRevenue',[...filas].sort((a,b)=>b.revenue-a.revenue).slice(0,10),r=>`${money(r.revenue)} · margen ${money(r.margin)}`);
+ }catch(e){
+  if(mio!==peticion)return;
+  console.error('[GAMA Análisis de ventas]',e);
+  error('No se pudo cargar el análisis: '+(e.message||e));
+ }
+}
+
+window.GamaSalesReport={render};
 })();

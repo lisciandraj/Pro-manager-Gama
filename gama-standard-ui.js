@@ -21,7 +21,7 @@ const TITLES={
  backup:['💾 Copias de seguridad','Exporta tus productos, clientes y auditoría a Excel, o guarda una copia completa de la base en un archivo. Haz siempre una copia antes de importar o restaurar: la restauración reemplaza los datos actuales.'],
  barcode:['🏷️ Códigos de barras','Escribe una referencia y genera su código de barras. Descárgalo en PDF ya recortado al tamaño de una etiqueta adhesiva, listo para imprimir y pegar en el producto.'],
  home:['🔎 Consulta rápida','Escanea o teclea un código de barras para ver la ficha de un producto al instante, y registra desde ahí mismo una entrada o una salida.'],
- dashboard:['📈 Panel de control','Un vistazo a la marcha del negocio: ventas del periodo, número de presupuestos, ticket promedio y productos en stock bajo, con la evolución mes a mes.'],
+ dashboard:['📈 Panel de control','Toda la analítica del negocio en una pantalla: ventas, presupuestos, ticket promedio, margen estimado y stock bajo, con la evolución mes a mes, el reparto por categoría y por forma de pago, y los productos que más vendes por cantidad y por ingresos. Elige el año y el mes arriba: todo lo que ves debajo habla de ese mismo periodo.'],
 };
 
 /* Architecture: every new module only needs one registry entry. */

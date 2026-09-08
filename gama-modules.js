@@ -25,7 +25,7 @@ if(window.GamaModules)return;
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
 const CATALOG=[
- {id:'dashboard',          label:'Panel de control'},
+ {id:'dashboard',          label:'Panel de control y análisis'},
  {id:'products',           label:'Productos'},
  {id:'clients',            label:'Clientes'},
  {id:'movement',           label:'Entradas / Salidas'},
@@ -35,7 +35,6 @@ const CATALOG=[
  {id:'suppliers',          label:'Proveedores'},
  {id:'matrix',             label:'Matriz comercial'},
  {id:'gamaPurchasesV14',   label:'Compras'},
- {id:'gamaSalesReport',    label:'Informe de ventas'},
  {id:'price-lists',        label:'Tarifas'},
  {id:'reports',            label:'Importar Excel'},
  {id:'backup',             label:'Copias de seguridad'},

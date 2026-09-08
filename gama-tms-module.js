@@ -9,17 +9,32 @@ const C=()=>window.GamaCloud;
 const readLocal=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
-let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{}};
+let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[]};
 let editingDriverId=null,proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
 
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
-const drvFrom=r=>({id:r.id,name:r.name,phone:r.phone||'',vehicle:r.vehicle||'',maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),enabled:r.enabled!==false});
+const drvFrom=r=>({id:r.id,name:r.name,phone:r.phone||'',vehicle:r.vehicle||'',maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),enabled:r.enabled!==false,employeeId:r.employee_id||null});
 const delFrom=r=>({id:r.id,customer:r.customer,address:r.address,date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||''});
 const rtFrom=r=>({id:r.id,date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at});
 const evFrom=r=>({id:r.id,at:r.at,deliveryId:r.delivery_id,type:r.type,note:r.note||'',customer:r.customer||''});
 
 function fail(e,what){const m=e&&(e.message||e.error_description||e.details)||'Error desconocido';console.warn('[GAMA TMS]',what,e);alert(what+' : '+m);}
 function findDelivery(id){return db.deliveries.find(d=>d.id===id)||db.archive.find(d=>d.id===id)||null}
+
+/* ---- enlace con RRHH ----
+   Un conductor puede estar enlazado a la ficha de un empleado. Cuando ese
+   empleado tiene una ausencia aprobada que cubre el día, el conductor no sale
+   de ruta: el reparto no cuenta con él y la ficha lo avisa.
+   Sólo cuentan las ausencias APROBADAS. Una solicitud pendiente todavía no
+   está concedida y no puede dejar sin conductor a las entregas del día. */
+const ABS_ETIQUETA={vacaciones:'Vacaciones',enfermedad:'Baja por enfermedad',permiso:'Permiso',formacion:'Formación',otro:'Ausencia'};
+const absLabel=a=>ABS_ETIQUETA[a&&a.kind]||'Ausencia';
+function empName(id){const e=db.employees.find(x=>x.id===id);return e?(e.full_name||''):''}
+function driverAbsence(d,date){
+ if(!d||!d.employeeId)return null;
+ const day=date||today();
+ return db.absences.find(a=>a.employee_id===d.employeeId&&a.status==='aprobada'&&String(a.start_date)<=day&&String(a.end_date)>=day)||null;
+}
 
 /* ---- carga ---- */
 async function fetchAll(){
@@ -45,6 +60,21 @@ async function fetchAll(){
   const arch=await api.list('tms_deliveries',{in:{id:ids},order:'delivered_at',ascending:false});
   db.archive=(arch.data||[]).map(delFrom);
  }else db.archive=[];
+ await fetchHr(api,t);
+}
+/* Fichas de empleado y ausencias que todavía no han terminado (las pasadas ya
+   no afectan a ninguna ruta). Va aparte y sin propagar el error: si el rol no
+   puede leer RRHH la lista vuelve vacía y el transporte sigue funcionando como
+   antes, sin bloquear a nadie. */
+async function fetchHr(api,t){
+ try{
+  const [emp,abs]=await Promise.all([
+   api.list('hr_employees',{order:'full_name',ascending:true}),
+   api.list('hr_absences',{gte:{end_date:t},order:'start_date',ascending:true}),
+  ]);
+  db.employees=emp.error?[]:(emp.data||[]);
+  db.absences=abs.error?[]:(abs.data||[]);
+ }catch(e){console.warn('[GAMA TMS] RRHH no disponible',e);db.employees=[];db.absences=[]}
 }
 async function ensureProof(id){
  if(!id||proofCache[id]!==undefined)return proofCache[id];
@@ -117,7 +147,7 @@ async function log(delivery,type,note){
 }
 
 function styles(){if(document.getElementById('gama-tms-style'))return;const s=document.createElement('style');s.id='gama-tms-style';s.textContent=`
-.tms{max-width:1280px;margin:auto}.tmsBtn{border:0;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.tmsPrimary{background:#087C8B;color:#fff}.tmsOrange{background:#F47A2A;color:#fff}.tmsLight{background:#EEF3F4;color:#18324A}.tmsDanger{background:#C94F45;color:#fff}.tmsTabs{display:flex;gap:6px;overflow:auto;margin-bottom:12px}.tmsTab{border:1px solid #dbe5e8;background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;white-space:nowrap}.tmsTab.active{background:#087C8B;color:#fff}.tmsKpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}.tmsKpi{background:#fff;border:1px solid #e2e8ec;border-radius:12px;padding:11px}.tmsKpi span{display:block;color:#71808a;font-size:10px;font-weight:700}.tmsKpi strong{font-size:20px;display:block;margin-top:4px}.tmsGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}.tmsCard{background:#fff;border:1px solid #e2e8ec;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 3px 16px #18324a0d}.tmsCard summary{cursor:pointer;font-weight:800;list-style:none}.tmsCard summary::-webkit-details-marker{display:none}.tmsCard summary:before{content:'▸ ';color:#087C8B}.tmsCard[open] summary:before{content:'▾ '}.tmsTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.tmsTitle b{font-size:14px}.tmsTitle small{color:#81909a}.tmsTable{width:100%;border-collapse:collapse}.tmsTable th,.tmsTable td{padding:8px;border-bottom:1px solid #edf1f2;text-align:left;font-size:11px;vertical-align:middle}.tmsTable th{font-size:10px;color:#71808a}.tmsBadge{display:inline-block;border-radius:999px;padding:4px 8px;background:#eef3f4;color:#18324a;font-size:10px;font-weight:800}.tmsBadge.ok{background:#e7f6f0;color:#138a69}.tmsBadge.warn{background:#fff0e5;color:#c75e18}.tmsBadge.red{background:#fff0ec;color:#c94f45}.tmsForm{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tmsForm .full{grid-column:1/-1}.tmsForm label{display:block!important;font-size:10px!important;color:#61717c!important;margin:3px 0!important}.tmsForm input,.tmsForm select,.tmsForm textarea{width:100%;box-sizing:border-box;padding:9px!important;border:1px solid #d4e0e4;border-radius:8px;font-size:13px!important}.tmsRoute{border:1px solid #e4ebee;border-radius:11px;padding:10px;margin-bottom:10px}.tmsRouteHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.tmsRouteHead b{font-size:13px}.tmsRouteHead small{color:#71808a}.tmsStop{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;border-top:1px solid #edf1f2;padding:9px 0}.tmsNum{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#e8f5f6;color:#087C8B;font-weight:900}.tmsStop b{font-size:12px}.tmsStop small{display:block;color:#81909a;margin-top:2px}.tmsStop strong{font-size:10px;color:#F47A2A;text-align:right}.tmsTimeline{border-left:2px solid #dce7ea;margin-left:6px;padding-left:12px}.tmsEvent{position:relative;margin:0 0 12px}.tmsEvent:before{content:'';position:absolute;left:-19px;top:4px;width:9px;height:9px;border-radius:50%;background:#087C8B}.tmsEvent b{font-size:11px}.tmsEvent small{display:block;color:#81909a;font-size:10px;margin-top:2px}.tmsProof{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tmsProof img{max-width:100%;border-radius:8px;border:1px solid #dbe5e8}.tmsSig{width:100%;height:160px;border:1px dashed #b9cbd0;border-radius:9px;background:#fff;touch-action:none}.tmsEmpty{padding:25px;text-align:center;color:#81909a}.tmsLive{display:inline-flex;align-items:center;gap:6px}.tmsLive i{width:8px;height:8px;border-radius:50%;background:#138a69;display:inline-block}.tmsPrint{display:none}@media print{.tmsPrint{display:block}.tmsNoPrint{display:none!important}.tmsCard{box-shadow:none}.tmsGrid{display:block}}@media(max-width:900px){.tmsGrid{grid-template-columns:1fr}.tmsKpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.tmsKpis{grid-template-columns:1fr 1fr}.tmsForm,.tmsProof{grid-template-columns:1fr}.tmsForm .full{grid-column:auto}.tmsTable{display:block;overflow:auto;white-space:nowrap}}
+.tms{max-width:1280px;margin:auto}.tmsBtn{border:0;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.tmsPrimary{background:#087C8B;color:#fff}.tmsOrange{background:#F47A2A;color:#fff}.tmsLight{background:#EEF3F4;color:#18324A}.tmsDanger{background:#C94F45;color:#fff}.tmsTabs{display:flex;gap:6px;overflow:auto;margin-bottom:12px}.tmsTab{border:1px solid #dbe5e8;background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;white-space:nowrap}.tmsTab.active{background:#087C8B;color:#fff}.tmsKpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}.tmsKpi{background:#fff;border:1px solid #e2e8ec;border-radius:12px;padding:11px}.tmsKpi span{display:block;color:#71808a;font-size:10px;font-weight:700}.tmsKpi strong{font-size:20px;display:block;margin-top:4px}.tmsGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}.tmsCard{background:#fff;border:1px solid #e2e8ec;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 3px 16px #18324a0d}.tmsCard summary{cursor:pointer;font-weight:800;list-style:none}.tmsCard summary::-webkit-details-marker{display:none}.tmsCard summary:before{content:'▸ ';color:#087C8B}.tmsCard[open] summary:before{content:'▾ '}.tmsTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.tmsTitle b{font-size:14px}.tmsTitle small{color:#81909a}.tmsTable{width:100%;border-collapse:collapse}.tmsTable th,.tmsTable td{padding:8px;border-bottom:1px solid #edf1f2;text-align:left;font-size:11px;vertical-align:middle}.tmsTable th{font-size:10px;color:#71808a}.tmsBadge{display:inline-block;border-radius:999px;padding:4px 8px;background:#eef3f4;color:#18324a;font-size:10px;font-weight:800}.tmsBadge.ok{background:#e7f6f0;color:#138a69}.tmsBadge.warn{background:#fff0e5;color:#c75e18}.tmsBadge.red{background:#fff0ec;color:#c94f45}.tmsForm{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tmsForm .full{grid-column:1/-1}.tmsForm label{display:block!important;font-size:10px!important;color:#61717c!important;margin:3px 0!important}.tmsForm input,.tmsForm select,.tmsForm textarea{width:100%;box-sizing:border-box;padding:9px!important;border:1px solid #d4e0e4;border-radius:8px;font-size:13px!important}.tmsRoute{border:1px solid #e4ebee;border-radius:11px;padding:10px;margin-bottom:10px}.tmsRouteHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.tmsRouteHead b{font-size:13px}.tmsRouteHead small{color:#71808a}.tmsStop{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;border-top:1px solid #edf1f2;padding:9px 0}.tmsNum{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#e8f5f6;color:#087C8B;font-weight:900}.tmsStop b{font-size:12px}.tmsStop small{display:block;color:#81909a;margin-top:2px}.tmsStop strong{font-size:10px;color:#F47A2A;text-align:right}.tmsTimeline{border-left:2px solid #dce7ea;margin-left:6px;padding-left:12px}.tmsEvent{position:relative;margin:0 0 12px}.tmsEvent:before{content:'';position:absolute;left:-19px;top:4px;width:9px;height:9px;border-radius:50%;background:#087C8B}.tmsEvent b{font-size:11px}.tmsEvent small{display:block;color:#81909a;font-size:10px;margin-top:2px}.tmsProof{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tmsProof img{max-width:100%;border-radius:8px;border:1px solid #dbe5e8}.tmsSig{width:100%;height:160px;border:1px dashed #b9cbd0;border-radius:9px;background:#fff;touch-action:none}.tmsEnlace{font-size:11px;margin:4px 0 8px;color:#138a69;font-weight:700}.tmsEnlace.tmsSinEnlace{color:#81909a;font-weight:600}.tmsAbsente{font-size:11px;margin:4px 0 8px;padding:6px 8px;border-radius:8px;background:#fff0ec;color:#c94f45;font-weight:800}.tmsEmpty{padding:25px;text-align:center;color:#81909a}.tmsLive{display:inline-flex;align-items:center;gap:6px}.tmsLive i{width:8px;height:8px;border-radius:50%;background:#138a69;display:inline-block}.tmsPrint{display:none}@media print{.tmsPrint{display:block}.tmsNoPrint{display:none!important}.tmsCard{box-shadow:none}.tmsGrid{display:block}}@media(max-width:900px){.tmsGrid{grid-template-columns:1fr}.tmsKpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.tmsKpis{grid-template-columns:1fr 1fr}.tmsForm,.tmsProof{grid-template-columns:1fr}.tmsForm .full{grid-column:auto}.tmsTable{display:block;overflow:auto;white-space:nowrap}}
 `;document.head.appendChild(s)}
 function section(){let x=document.getElementById('gama-tms-section');if(x)return x;x=document.createElement('section');x.id='gama-tms-section';x.style.display='none';(document.querySelector('.wrap')||document.body).appendChild(x);return x}
 function showSection(){document.querySelectorAll('section').forEach(s=>{s.classList.remove('active');s.style.display='none'});const x=section();x.classList.add('active');x.style.display='block';document.getElementById('mainmenu')?.setAttribute('hidden','');return x}
@@ -150,8 +180,16 @@ async function optimize(){
  const api=C();
  const pending=db.deliveries.filter(d=>d.date===today()&&!['Entregada','Cancelada'].includes(d.status));
  if(!pending.length){alert('No hay entregas para optimizar hoy.');return}
- const drivers=db.drivers.filter(x=>x.enabled!==false);
- if(!drivers.length){alert('Añada al menos un conductor/vehículo.');return}
+ const activos=db.drivers.filter(x=>x.enabled!==false);
+ // Los que hoy están de vacaciones o de baja no entran en el reparto.
+ const ausentes=activos.filter(x=>driverAbsence(x,today()));
+ const drivers=activos.filter(x=>!driverAbsence(x,today()));
+ if(!drivers.length){
+  alert(ausentes.length
+   ?'Ningún conductor disponible hoy: '+ausentes.map(x=>x.name+' ('+absLabel(driverAbsence(x,today())).toLowerCase()+')').join(', ')+'.'
+   :'Añada al menos un conductor/vehículo.');
+  return;
+ }
  for(const d of pending)await geocode(d);
  try{
   // Se rehacen las rutas del día que aún no están terminadas.
@@ -171,7 +209,9 @@ async function optimize(){
   }
   for(const d of rem){await api.update('tms_deliveries',d.id,{status:'Excepción'});await log(d,'CAPACIDAD','No hay capacidad disponible para esta entrega')}
   await reload('planning');
-  alert(created+' ruta(s) creada(s).'+(rem.length?' '+rem.length+' entrega(s) en excepción.':''));
+  alert(created+' ruta(s) creada(s).'
+   +(rem.length?' '+rem.length+' entrega(s) en excepción.':'')
+   +(ausentes.length?' '+ausentes.length+' conductor(es) ausente(s) hoy, fuera del reparto.':''));
  }catch(e){fail(e,'No se pudieron crear las rutas')}
 }
 async function addDelivery(){
@@ -187,6 +227,9 @@ async function addDelivery(){
 async function saveDriver(){
  const f=id=>document.getElementById(id);
  const row={name:f('dName').value.trim()||'Conductor',phone:f('dPhone').value.trim()||null,vehicle:f('dVehicle').value.trim()||'Vehículo',max_weight:+f('dWeight').value||1000,max_volume:+f('dVolume').value||5};
+ // El desplegable sólo existe si el usuario puede leer RRHH; si no, no se toca
+ // el enlace para no borrarlo sin querer al editar un conductor.
+ const emp=f('dEmployee');if(emp)row.employee_id=emp.value||null;
  try{
   if(editingDriverId){
    await C().update('tms_drivers',editingDriverId,row);
@@ -327,12 +370,46 @@ async function saveDepot(){
  }catch(e){fail(e,'No se pudieron guardar los parámetros')}
 }
 
+/* ---- ficha de conductor (pestaña «Conductores y vehículos») ---- */
+const fechaCorta=s=>{const [y,m,d]=String(s||'').split('-');return d?d+'/'+m+'/'+y:String(s||'')};
+function driverCard(d){
+ const aus=driverAbsence(d,today());
+ const nombre=d.employeeId?empName(d.employeeId):'';
+ const enlace=aus
+  ? `<p class="tmsAbsente">🚫 ${esc(absLabel(aus))} hasta el ${fechaCorta(aus.end_date)} — no disponible para el reparto</p>`
+  : d.employeeId
+   ? `<p class="tmsEnlace">👤 ${esc(nombre||'Empleado de RRHH')} · disponible</p>`
+   : '<p class="tmsEnlace tmsSinEnlace">👤 Sin empleado enlazado — sus ausencias no se tienen en cuenta</p>';
+ return `<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.name)}</b><small>${esc(d.vehicle)}</small></div>`
+  +`<p style="font-size:11px">${d.maxWeight} kg · ${d.maxVolume} m³ ${d.phone?'· '+esc(d.phone):''}</p>`
+  +enlace
+  +`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="tmsBtn tmsLight" onclick="gamaTMS.toggleDriver('${d.id}')">${d.enabled===false?'Activar':'Desactivar'}</button><button class="tmsBtn tmsLight" onclick="gamaTMS.editDriver('${d.id}')">✏️ Editar</button><button class="tmsBtn tmsDanger" onclick="gamaTMS.deleteDriver('${d.id}')">🗑️ Eliminar</button></div></div>`;
+}
+/* Aviso en la planificación: quién no sale hoy y por qué. Se ve antes de pulsar
+   «Optimizar», que es cuando importa. */
+function avisoAusencias(){
+ const fuera=db.drivers.filter(d=>d.enabled!==false&&driverAbsence(d,today()));
+ if(!fuera.length)return '';
+ return `<p class="tmsAbsente">🚫 Hoy no reparten: ${fuera.map(d=>esc(d.name)+' ('+esc(absLabel(driverAbsence(d,today())).toLowerCase())+')').join(', ')}.</p>`;
+}
+/* Desplegable de empleados. Un empleado sólo puede estar enlazado a un
+   conductor, así que los ya ocupados no se ofrecen (salvo el del que se está
+   editando). Si no hay fichas visibles no se pinta: sin RRHH no hay enlace. */
+function employeeField(editing){
+ if(!db.employees.length)return '';
+ const ocupados=new Set(db.drivers.filter(x=>x.employeeId&&(!editing||x.id!==editing.id)).map(x=>x.employeeId));
+ const sel=editing?editing.employeeId:null;
+ const libres=db.employees.filter(e=>e.active!==false&&(!ocupados.has(e.id)||e.id===sel));
+ return `<div class="full"><label>Empleado enlazado (RRHH)</label><select id="dEmployee"><option value="">— Sin enlazar —</option>`
+  +libres.map(e=>`<option value="${e.id}"${e.id===sel?' selected':''}>${esc(e.full_name)}${e.position?' — '+esc(e.position):''}</option>`).join('')
+  +`</select><small style="display:block;color:#71808a;font-size:11px;margin-top:4px">Cuando el empleado tenga vacaciones o una baja aprobada en RRHH, el conductor quedará fuera del reparto esos días.</small></div>`;
+}
 function render(tab){
  currentTab=tab;
  const x=section(),ds=db.deliveries.filter(d=>d.date===today()),pending=ds.filter(d=>!['Entregada','Cancelada'].includes(d.status)).length,del=ds.filter(d=>d.status==='Entregada').length,exceptions=ds.filter(d=>d.status==='Excepción').length,planned=db.routes.filter(r=>r.date===today()&&r.status!=='Terminada').length;
  const tabs=[['planning','Planificación'],['tracking','Seguimiento del conductor'],['proof','Prueba de entrega'],['fleet','Conductores y vehículos'],['history','Historial']];
  let body='';
-if(tab==='planning')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Nueva entrega</b><small>Pedidos / preparación</small></div><div class="tmsForm"><div><label>Cliente</label><input id="tCustomer" placeholder="Nombre del cliente"></div><div><label>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label>Dirección</label><input id="tAddress" placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label>Prioridad</label><select id="tPriority"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div><div><label>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px">Añadir entrega</button></div><div class="tmsCard"><div class="tmsTitle"><b>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="tmsTable"><thead><tr><th>Cliente</th><th>Franja</th><th>Carga</th><th>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds).map(d=>`<tr><td><b>${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty">No hay entregas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Optimizar rutas de hoy</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><p style="font-size:12px;color:#71808a">Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic.</p><button class="tmsBtn tmsOrange" id="tOptimize">Optimizar todas las rutas</button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:#81909a">${routeStops(r).filter(s=>!s.isDepot).length} paradas · ${esc(r.status)}</p><button class="tmsBtn tmsLight" onclick="gamaTMS.open('tracking')">Ver ruta</button> <button class="tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty">No hay rutas planificadas.</div>'}</div></div><details class="tmsCard"><summary>⚙️ Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" placeholder="Dirección de salida / regreso"></div><div><label>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''}>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''}>No</option></select></div></div><button class="tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px">Guardar</button></details></div></div>`;
+if(tab==='planning')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Nueva entrega</b><small>Pedidos / preparación</small></div><div class="tmsForm"><div><label>Cliente</label><input id="tCustomer" placeholder="Nombre del cliente"></div><div><label>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label>Dirección</label><input id="tAddress" placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label>Prioridad</label><select id="tPriority"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div><div><label>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px">Añadir entrega</button></div><div class="tmsCard"><div class="tmsTitle"><b>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="tmsTable"><thead><tr><th>Cliente</th><th>Franja</th><th>Carga</th><th>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds).map(d=>`<tr><td><b>${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty">No hay entregas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Optimizar rutas de hoy</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><p style="font-size:12px;color:#71808a">Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.</p>${avisoAusencias()}<button class="tmsBtn tmsOrange" id="tOptimize">Optimizar todas las rutas</button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:#81909a">${routeStops(r).filter(s=>!s.isDepot).length} paradas · ${esc(r.status)}</p><button class="tmsBtn tmsLight" onclick="gamaTMS.open('tracking')">Ver ruta</button> <button class="tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty">No hay rutas planificadas.</div>'}</div></div><details class="tmsCard"><summary>⚙️ Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" placeholder="Dirección de salida / regreso"></div><div><label>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''}>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''}>No</option></select></div></div><button class="tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px">Guardar</button></details></div></div>`;
 if(tab==='tracking')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Seguimiento de las rutas</b><small>${planned} activa(s)</small></div>${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${esc(r.status)}</small></div>${routeStops(r).filter(s=>!s.isDepot).map((d,i)=>`<div class="tmsStop"><span class="tmsNum">${i+1}</span><div><b>${esc(d.customer)}</b><small>${esc(d.address)}${d.timeWindow?' · '+esc(d.timeWindow):''}</small></div><strong>${esc(d.status)}<br>${d.actualArrival?new Date(d.actualArrival).toLocaleTimeString():''}</strong></div><div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">POD</button></div>`).join('')}</div>`).join('')||'<div class="tmsEmpty">No hay rutas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Eventos recientes</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><div class="tmsTimeline">${db.history.slice(0,12).map(h=>`<div class="tmsEvent"><b>${esc(h.type)} · ${esc(h.customer)}</b><small>${new Date(h.at).toLocaleString()} ${esc(h.note)}</small></div>`).join('')||'<div class="tmsEmpty">No hay eventos.</div>'}</div></div></div></div>`;
 if(tab==='proof'){
  const toCapture=ds.filter(d=>d.status!=='Entregada');
@@ -344,7 +421,8 @@ if(tab==='proof'){
 }
 if(tab==='fleet'){
  const editing=editingDriverId?db.drivers.find(x=>x.id===editingDriverId):null;
- body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Conductores y vehículos</b><small>${db.drivers.length}</small></div>${db.drivers.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.name)}</b><small>${esc(d.vehicle)}</small></div><p style="font-size:11px">${d.maxWeight} kg · ${d.maxVolume} m³ ${d.phone?'· '+esc(d.phone):''}</p><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="tmsBtn tmsLight" onclick="gamaTMS.toggleDriver('${d.id}')">${d.enabled===false?'Activar':'Desactivar'}</button><button class="tmsBtn tmsLight" onclick="gamaTMS.editDriver('${d.id}')">✏️ Editar</button><button class="tmsBtn tmsDanger" onclick="gamaTMS.deleteDriver('${d.id}')">🗑️ Eliminar</button></div></div>`).join('')||'<div class="tmsEmpty">Añade tu primer conductor y vehículo.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>${editing?'Editar conductor':'Añadir un conductor'}</b></div><div class="tmsForm"><div><label>Nombre</label><input id="dName" value="${esc(editing?.name||'')}"></div><div><label>Teléfono</label><input id="dPhone" value="${esc(editing?.phone||'')}"></div><div><label>Vehículo</label><input id="dVehicle" placeholder="Camión 3" value="${esc(editing?.vehicle||'')}"></div><div><label>Capacidad kg</label><input id="dWeight" type="number" value="${editing?editing.maxWeight:1000}"></div><div><label>Capacidad m³</label><input id="dVolume" type="number" step="0.1" value="${editing?editing.maxVolume:5}"></div></div><div style="display:flex;gap:8px;margin-top:8px"><button class="tmsBtn tmsPrimary" id="dAdd">${editing?'Guardar cambios':'Añadir'}</button>${editing?'<button class="tmsBtn tmsLight" id="dCancelEdit">Cancelar</button>':''}</div></div></div>`;
+ const ausentesHoy=db.drivers.filter(d=>d.enabled!==false&&driverAbsence(d,today())).length;
+ body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Conductores y vehículos</b><small>${db.drivers.length}${ausentesHoy?' · '+ausentesHoy+' ausente(s) hoy':''}</small></div>${db.drivers.map(driverCard).join('')||'<div class="tmsEmpty">Añade tu primer conductor y vehículo.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>${editing?'Editar conductor':'Añadir un conductor'}</b></div><div class="tmsForm"><div><label>Nombre</label><input id="dName" value="${esc(editing?.name||'')}"></div><div><label>Teléfono</label><input id="dPhone" value="${esc(editing?.phone||'')}"></div><div><label>Vehículo</label><input id="dVehicle" placeholder="Camión 3" value="${esc(editing?.vehicle||'')}"></div><div><label>Capacidad kg</label><input id="dWeight" type="number" value="${editing?editing.maxWeight:1000}"></div><div><label>Capacidad m³</label><input id="dVolume" type="number" step="0.1" value="${editing?editing.maxVolume:5}"></div>${employeeField(editing)}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="tmsBtn tmsPrimary" id="dAdd">${editing?'Guardar cambios':'Añadir'}</button>${editing?'<button class="tmsBtn tmsLight" id="dCancelEdit">Cancelar</button>':''}</div></div></div>`;
 }
 if(tab==='history')body=`<div class="tmsCard"><div class="tmsTitle"><b>Historial de rutas y entregas</b><small>${db.history.length} eventos</small></div>${db.history.length?`<table class="tmsTable"><thead><tr><th>Fecha</th><th>Cliente</th><th>Evento</th><th>Detalle</th></tr></thead><tbody>${GamaPage.slice('tmsHistory',db.history).map(h=>`<tr><td>${new Date(h.at).toLocaleString('es-ES')}</td><td>${esc(h.customer)}</td><td><span class="tmsBadge">${esc(h.type)}</span></td><td>${esc(h.note)}</td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsHistory',db.history.length)}`:'<div class="tmsEmpty">No hay historial.</div>'}</div>`;
  x.innerHTML=`<div class="tms">${window.GamaUI.header({title:'🚚 Transporte y entregas',lead:'Planifica las entregas del día, repártelas entre tus conductores por capacidad y cercanía, y sigue cada ruta en directo. Al entregar, el conductor guarda la foto y la firma del cliente: quedan archivadas y puedes descargar el comprobante de cualquier entrega en PDF.',actions:'<button type="button" class="gamaStdAction tmsNoPrint" onclick="gamaTMS.open(\'planning\')">Optimizar rutas</button>'})}<div class="tmsKpis"><div class="tmsKpi"><span>Entregas</span><strong>${ds.length}</strong></div><div class="tmsKpi"><span>Pendientes</span><strong>${pending}</strong></div><div class="tmsKpi"><span>Entregadas</span><strong>${del}</strong></div><div class="tmsKpi"><span>Excepciones</span><strong>${exceptions}</strong></div><div class="tmsKpi"><span>Rutas</span><strong>${planned}</strong></div><div class="tmsKpi"><span>Estado</span><strong>CLOUD</strong></div></div><div class="tmsTabs">${tabs.map(t=>`<button class="tmsTab ${tab===t[0]?'active':''}" onclick="gamaTMS.open('${t[0]}')">${t[1]}</button>`).join('')}</div>${body}</div><div class="tmsPrint"><h2>GAMA TMS — hoja de ruta</h2>${db.routes.filter(r=>r.date===today()).map(r=>`<h3>${esc(r.driver)} · ${esc(r.vehicle)}</h3>${routeStops(r).filter(s=>!s.isDepot).map((d,i)=>`<p>${i+1}. <b>${esc(d.customer)}</b> — ${esc(d.address)}</p>`).join('')}`).join('')}</div>`;

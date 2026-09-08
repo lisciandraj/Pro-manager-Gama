@@ -14,7 +14,7 @@ async function boot(page, role = 'admin', db = {}) {
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
       price_lists: [], price_list_items: [], customer_requests: [],
-      hr_employees: [], hr_absences: [], app_modules: [],
+      hr_employees: [], hr_absences: [], hr_employee_private: [], hr_absence_private: [], app_modules: [],
     }, seed);
   }, [role, db]);
   await page.route('**/gama-supabase.js*', route =>
@@ -204,16 +204,25 @@ test('cada entrada del menú está en el mapa de perfiles y en el catálogo de m
 // que no aparezcan ni el sueldo ajeno ni el motivo de una baja, y que nadie
 // que no sea administrador tenga a mano el botón de aprobar.
 const PLANTILLA = [
-  { id: 'e1', full_name: 'María Pérez', position: 'Comercial', salary: 900, annual_leave_days: 15, active: true, profile_id: 'u-maria' },
-  { id: 'e2', full_name: 'Luis Gómez', position: 'Almacenero', salary: 2500, annual_leave_days: 15, active: true, profile_id: null },
+  { id: 'e1', full_name: 'María Pérez', position: 'Comercial', active: true, profile_id: 'u-maria' },
+  { id: 'e2', full_name: 'Luis Gómez', position: 'Almacenero', active: true, profile_id: null },
+];
+// Lo sensible vive en su propia tabla, con su propia política.
+const PLANTILLA_PRIV = [
+  { employee_id: 'e1', salary: 900, annual_leave_days: 15, identification: '0912' },
+  { employee_id: 'e2', salary: 2500, annual_leave_days: 15, identification: '0999' },
 ];
 const AUSENCIAS = [
-  { id: 'a1', employee_id: 'e1', kind: 'vacaciones', start_date: '2026-09-07', end_date: '2026-09-11', days: 5, status: 'aprobada', reason: 'verano' },
-  { id: 'a2', employee_id: 'e2', kind: 'enfermedad', start_date: '2026-09-08', end_date: '2026-09-10', days: 3, status: 'aprobada', reason: 'diagnóstico confidencial' },
+  { id: 'a1', employee_id: 'e1', kind: 'vacaciones', start_date: '2026-09-07', end_date: '2026-09-11', days: 5, status: 'aprobada' },
+  { id: 'a2', employee_id: 'e2', kind: 'enfermedad', start_date: '2026-09-08', end_date: '2026-09-10', days: 3, status: 'aprobada' },
+];
+const AUSENCIAS_PRIV = [
+  { absence_id: 'a1', reason: 'verano' },
+  { absence_id: 'a2', reason: 'diagnóstico confidencial' },
 ];
 
 test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', async ({ page }) => {
-  await page.addInitScript(([emp, abs]) => {
+  await page.addInitScript(([emp, abs, empp, absp]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'commercial', name: 'María' }));
     // @ts-ignore
     window.__DB = {
@@ -221,10 +230,10 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
       purchase_orders: [], purchase_order_lines: [], stock_movements: [],
       profiles: [{ id: 'u-maria', full_name: 'María Pérez', role: 'comercial', active: true }],
       price_lists: [], price_list_items: [], customer_requests: [],
-      hr_employees: emp, hr_absences: abs, app_modules: [],
-      _session: { profile_id: 'u-maria' },
+      hr_employees: emp, hr_absences: abs, hr_employee_private: empp, hr_absence_private: absp,
+      app_modules: [], _session: { profile_id: 'u-maria' },
     };
-  }, [PLANTILLA, AUSENCIAS]);
+  }, [PLANTILLA, AUSENCIAS, PLANTILLA_PRIV, AUSENCIAS_PRIV]);
   await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD }));
   await page.route('**/@supabase/**', r => r.abort());
   await page.goto('/index.html');
@@ -249,8 +258,9 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
   await page.click('#hr .hrTabs button:has-text("Planificación")');
   await page.waitForTimeout(500);
   await expect(page.locator('#hr')).toContainText('Luis Gómez');
-  await expect(page.locator('#hr')).toContainText('Ausente');
-  await expect(page.locator('#hr'), 'la enfermedad de un compañero no se anuncia').not.toContainText('Enfermedad');
+  // El tipo sí se ve —para organizarse hace falta—, el comentario no.
+  await expect(page.locator('#hr')).toContainText('Enfermedad');
+  await expect(page.locator('#hr'), 'el comentario de un compañero no debe salir').not.toContainText('confidencial');
 
   // Y no puede resolver nada desde ahí.
   await page.locator('#hr .hrPlanBarra').first().click();
@@ -259,7 +269,8 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
 });
 
 test('el administrador conserva la vista completa y puede ligar ficha y cuenta', async ({ page }) => {
-  await boot(page, 'admin', { hr_employees: PLANTILLA, hr_absences: AUSENCIAS });
+  await boot(page, 'admin', { hr_employees: PLANTILLA, hr_absences: AUSENCIAS,
+    hr_employee_private: PLANTILLA_PRIV, hr_absence_private: AUSENCIAS_PRIV });
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(800);
 

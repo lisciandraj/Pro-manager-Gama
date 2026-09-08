@@ -23,18 +23,21 @@ const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDate
 const today=()=>new Date().toISOString().slice(0,10);
 
 const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permiso:'📄 Permiso',formacion:'🎓 Formación',otro:'• Otro'};
-/* «ausencia» no es un motivo que se pueda elegir: es lo que la vista compartida
-   devuelve en lugar de «enfermedad» cuando quien mira es un compañero. Al
-   equipo le basta con saber que ese día no está. */
-const KIND_LABEL=Object.assign({ausencia:'🚫 Ausente'},KINDS);
+/* El equipo ve el motivo de cada ausencia —vacaciones, enfermedad, permiso…—
+   porque para organizarse hace falta saberlo. Lo que no sale de su tabla es el
+   comentario escrito a mano, que puede llevar un detalle médico o personal. */
 const STATUS={pendiente:'Pendiente',aprobada:'Aprobada',rechazada:'Rechazada'};
 
 let employees=[],absences=[],tab='empleados',editing=null,busy=false;
-/* El calendario del equipo llega por dos vistas que enseñan MENOS columnas que
-   las tablas: ni sueldos ni motivos escritos a mano. Las usan los dos perfiles
-   —al administrador le dan lo mismo que la tabla— para que la planificación se
-   dibuje con un solo camino. */
-let directory=[],calendar=[],mine=null,perfiles=[];
+/* Los datos sensibles —sueldo, cédula, contrato, y el comentario escrito a mano
+   de una ausencia— viven en hr_employee_private y hr_absence_private, con su
+   propia política. Las tablas base sólo guardan lo que el equipo necesita para
+   el calendario: quién, qué puesto, qué motivo y qué días.
+
+   Por eso aquí se piden las cuatro y se juntan por id: a un compañero la base
+   le devuelve la mitad privada vacía, y la ficha le llega sin sueldo sin que
+   este archivo tenga que decidir nada. */
+let mine=null,perfiles=[],myUid=null;
 
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
 const isAdmin=()=>role()==='admin'||role()==='administrador';
@@ -69,7 +72,7 @@ function usedLeave(employeeId,year){
   .filter(a=>a.employee_id===employeeId&&a.kind==='vacaciones'&&a.status==='aprobada'&&String(a.start_date||'').slice(0,4)===String(year))
   .reduce((sum,a)=>sum+workingDays(a.start_date,a.end_date),0);
 }
-function employeeName(id){return (directory.find(e=>e.id===id)||employees.find(e=>e.id===id)||{}).full_name||'Empleado'}
+function employeeName(id){return (employees.find(e=>e.id===id)||{}).full_name||'Empleado'}
 /* Una ausencia está en curso si hoy cae dentro de su periodo y está aprobada. */
 function onLeaveToday(){
  const t=today();
@@ -85,18 +88,21 @@ async function load(){
  const api=C();
  if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
  try{
-  const [e,a,d,c]=await Promise.all([
+  const [e,a,ep,ap,ses]=await Promise.all([
    api.list('hr_employees',{order:'full_name',ascending:true}),
    api.list('hr_absences',{order:'start_date',ascending:false}),
-   api.list('hr_directory',{order:'full_name',ascending:true}),
-   api.list('hr_calendar',{order:'start_date',ascending:false}),
+   api.list('hr_employee_private',{}),
+   api.list('hr_absence_private',{}),
+   api.getSession(),
   ]);
   if(e.error)throw e.error;
   if(a.error)throw a.error;
-  employees=e.data||[];absences=a.data||[];
-  directory=d.error?[]:(d.data||[]);
-  calendar=c.error?[]:(c.data||[]);
-  mine=directory.find(x=>x.is_me)||(!isAdmin()&&employees.length===1?employees[0]:null);
+  myUid=ses?.data?.session?.user?.id||null;
+  const priv=new Map((ep.error?[]:(ep.data||[])).map(r=>[r.employee_id,r]));
+  const privA=new Map((ap.error?[]:(ap.data||[])).map(r=>[r.absence_id,r]));
+  employees=(e.data||[]).map(x=>Object.assign({},x,priv.get(x.id)||{}));
+  absences=(a.data||[]).map(x=>Object.assign({},x,privA.get(x.id)||{}));
+  mine=employees.find(x=>x.profile_id&&x.profile_id===myUid)||null;
   if(isAdmin())await loadProfiles();
   render();
  }catch(err){fail(err,'No se pudieron cargar los datos de RRHH')}
@@ -119,25 +125,34 @@ async function saveEmployee(){
  const name=($('hrName').value||'').trim();
  if(!name)return msg('El nombre del empleado es obligatorio.',true);
  const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
+ // Lo que el equipo puede ver…
  const row={
   full_name:name,
+  position:($('hrPosition').value||'').trim()||null,
+  department:($('hrDept').value||'').trim()||null,
+  profile_id:$('hrAccount')?.value||null,
+ };
+ // …y lo que sólo ven el interesado y recursos humanos.
+ const priv={
   identification:($('hrId').value||'').trim()||null,
   email:($('hrEmail').value||'').trim()||null,
   phone:($('hrPhone').value||'').trim()||null,
-  position:($('hrPosition').value||'').trim()||null,
-  department:($('hrDept').value||'').trim()||null,
   contract_type:$('hrContract').value||null,
   hire_date:$('hrHire').value||null,
   end_date:$('hrEnd').value||null,
   salary:num($('hrSalary').value),
   annual_leave_days:num($('hrLeaveDays').value)??15,
-  profile_id:$('hrAccount')?.value||null,
+  notes:($('hrNotes').value||'').trim()||null,
  };
- const notes=($('hrNotes').value||'').trim();row.notes=notes||null;
  busy=true;
  try{
   const r=editing?await C().update('hr_employees',editing,row):await C().insert('hr_employees',row);
   if(r.error)throw r.error;
+  const id=editing||r.data?.id;
+  if(id){
+   const u=await C().upsert('hr_employee_private',Object.assign({employee_id:id},priv),{onConflict:'employee_id'});
+   if(u.error)throw u.error;
+  }
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
  }catch(e){fail(e,'No se pudo guardar el empleado')}
@@ -186,9 +201,15 @@ async function addAbsence(){
  try{
   const r=await C().insert('hr_absences',{
    employee_id,kind:$('hrAbsKind').value,start_date,end_date,
-   status:isAdmin()?($('hrAbsStatus')?.value||'pendiente'):'pendiente',
-   reason:($('hrAbsReason').value||'').trim()||null});
+   status:isAdmin()?($('hrAbsStatus')?.value||'pendiente'):'pendiente'});
   if(r.error)throw r.error;
+  const motivo=($('hrAbsReason').value||'').trim();
+  if(motivo&&r.data?.id){
+   const m=await C().insert('hr_absence_private',{absence_id:r.data.id,reason:motivo});
+   // El comentario es un extra: si no se pudiera guardar, la ausencia ya está
+   // pedida y perderla sería peor que quedarse sin la nota.
+   if(m.error)console.warn('[GAMA RRHH] no se guardó el comentario',m.error);
+  }
   $('hrAbsFrom').value='';$('hrAbsTo').value='';$('hrAbsReason').value='';
   msg(isAdmin()?'Ausencia registrada.':'Solicitud enviada. Queda pendiente de aprobación.');
   await load();
@@ -455,7 +476,7 @@ function absencesTab(){
    Dos ausencias de la misma persona que se pisan van en carriles distintos
    dentro de su fila; si no, la de arriba taparía a la de abajo y parecería que
    sólo hay una. */
-const PLAN_COLORES={vacaciones:'#087c8b',enfermedad:'#c94f45',permiso:'#b66a18',formacion:'#5b62b5',otro:'#71808a',ausencia:'#8593a0'};
+const PLAN_COLORES={vacaciones:'#087c8b',enfermedad:'#c94f45',permiso:'#b66a18',formacion:'#5b62b5',otro:'#71808a'};
 
 function planRango(){
  const base=new Date(planAnchor);
@@ -497,7 +518,7 @@ function planTab(){
   : desde.toLocaleDateString('es-EC',{day:'numeric',month:'short'})+' – '+hasta.toLocaleDateString('es-EC',{day:'numeric',month:'short',year:'numeric'});
 
  // Sólo la plantilla activa: un archivado no tiene por qué ocupar una fila.
- const gente=(directory.length?directory:employees).filter(e=>e.active!==false);
+ const gente=employees.filter(e=>e.active!==false);
 
  const cabecera=dias.map(d=>{
   const w=d.getDay(),esHoy=ymd(d)===hoy;
@@ -512,7 +533,7 @@ function planTab(){
 
  const filas=gente.map(p=>{
   // Una ausencia entra si toca el periodo, aunque empiece antes o acabe después.
-  const suyas=(calendar.length?calendar:absences)
+  const suyas=absences
    .filter(a=>a.employee_id===p.id&&a.status!=='rechazada'&&a.start_date<=hastaY&&a.end_date>=desdeY)
    .sort((a,b)=>a.start_date.localeCompare(b.start_date))
    .map(a=>Object.assign({},a,{_d0:a.start_date,_d1:a.end_date}));
@@ -525,8 +546,8 @@ function planTab(){
    const cortaIzq=a.start_date<desdeY,cortaDer=a.end_date>hastaY;
    const color=PLAN_COLORES[a.kind]||PLAN_COLORES.otro;
    const pend=a.status==='pendiente';
-   const etiqueta=(KIND_LABEL[a.kind]||a.kind).replace(/^\S+\s/,'');
-   const detalle=employeeName(a.employee_id)+' · '+(KIND_LABEL[a.kind]||a.kind)+' · '
+   const etiqueta=(KINDS[a.kind]||a.kind).replace(/^\S+\s/,'');
+   const detalle=employeeName(a.employee_id)+' · '+(KINDS[a.kind]||a.kind)+' · '
      +day(a.start_date)+' → '+day(a.end_date)+' · '+(STATUS[a.status]||a.status);
    return `<button type="button" class="hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
      data-plan="${esc(a.id)}" title="${esc(detalle)}"
@@ -542,11 +563,11 @@ function planTab(){
   </div>`;
  }).join('');
 
- const leyenda=Object.keys(PLAN_COLORES).filter(k=>isAdmin()?k!=='ausencia':k!=='enfermedad').map(k=>
-   `<span class="hrPlanLeyenda"><i style="background:${PLAN_COLORES[k]}"></i>${esc((KIND_LABEL[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
+ const leyenda=Object.keys(PLAN_COLORES).map(k=>
+   `<span class="hrPlanLeyenda"><i style="background:${PLAN_COLORES[k]}"></i>${esc((KINDS[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
   +'<span class="hrPlanLeyenda"><i class="pend"></i>Pendiente de aprobar</span>';
 
- const sel=planPick&&(calendar.length?calendar:absences).find(a=>a.id===planPick);
+ const sel=planPick&&absences.find(a=>a.id===planPick);
 
  return `<div class="card">
   <div class="hrPlanBarraSup">
@@ -574,7 +595,7 @@ function planTab(){
   <div class="hrPlanPie">${leyenda}</div>
 
   ${sel?`<div class="hrPlanDetalle">
-    <div><b>${esc(employeeName(sel.employee_id))}</b> · ${esc(KIND_LABEL[sel.kind]||sel.kind)}
+    <div><b>${esc(employeeName(sel.employee_id))}</b> · ${esc(KINDS[sel.kind]||sel.kind)}
       <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+workingDays(sel.start_date,sel.end_date)+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
@@ -595,7 +616,7 @@ function planMover(n){
 
 /* ---- lo que ve un empleado ---- */
 function myCardTab(){
- const yo=employees.find(e=>e.profile_id)||employees[0]||null;
+ const yo=mine;
  if(!yo){
   return `<div class="card"><div class="hrEmpty">Tu cuenta todavía no está ligada a una ficha de empleado.<br>
    Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
@@ -634,8 +655,11 @@ function myCardTab(){
 }
 
 function myRequestsTab(){
- const yo=employees.find(e=>e.profile_id)||employees[0]||null;
- const filas=absences.map(a=>{
+ const yo=mine;
+ // absences trae las de todo el equipo —hacen falta para el calendario—, así
+ // que aquí se filtran las propias.
+ const mias=yo?absences.filter(a=>a.employee_id===yo.id):[];
+ const filas=mias.map(a=>{
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
    <td><b>${esc(KINDS[a.kind]||a.kind)}</b><small>${esc(a.reason||'')}</small></td>
@@ -660,8 +684,8 @@ function myRequestsTab(){
    <div class="muted" style="font-size:11.5px;margin-top:8px">La solicitud queda <b>pendiente</b> hasta que un administrador la apruebe. Mientras lo esté, puedes retirarla.</div>`:''}
   </div>
   <div class="card">
-   <h3>Mis solicitudes <small class="muted">(${absences.length})</small></h3>
-   ${absences.length?`<div class="hrTable"><table>
+   <h3>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
+   ${mias.length?`<div class="hrTable"><table>
      <thead><tr><th>Motivo</th><th>Periodo</th><th>Estado</th><th></th></tr></thead>
      <tbody>${filas}</tbody></table></div>`
     :'<div class="hrEmpty">Todavía no has pedido ningún día.</div>'}
@@ -686,7 +710,7 @@ function render(){
    title:'🧑‍💼 Recursos humanos',
    lead:admin
      ? 'La ficha de cada empleado —puesto, contrato, sueldo y vacaciones pactadas— y el registro de sus ausencias: vacaciones, bajas por enfermedad, permisos y formación. El saldo de vacaciones se descuenta solo a medida que apruebas los días, y en la ficha puedes ligar a cada persona con su cuenta de acceso para que pida sus días ella misma.'
-     : 'Tus datos de empleado, tus vacaciones y el calendario del equipo. Pide tus días desde aquí: la solicitud queda pendiente hasta que un administrador la apruebe. Del resto de tus compañeros sólo ves cuándo están fuera, nunca sus datos ni el motivo.',
+     : 'Tus datos de empleado, tus vacaciones y el calendario del equipo. Pide tus días desde aquí: la solicitud queda pendiente hasta que un administrador la apruebe. De tus compañeros ves cuándo están fuera y por qué motivo, para poder organizaros; sus datos personales y el comentario que escribieron, no.',
    actions:'<button type="button" class="gamaStdAction" id="hrRefresh">↻ Actualizar</button>'
  })
  +`<div class="hrTabs">${pestanas.map(([id,txt])=>

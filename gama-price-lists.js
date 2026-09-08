@@ -109,7 +109,7 @@ function css(){
  const s=document.createElement('style');s.id='plCss';
  s.textContent=`#price-lists .plGrid{display:grid;grid-template-columns:320px 1fr;gap:12px;align-items:start}
 #price-lists .card{background:#fff;border:1px solid var(--gama-line,#c9d6df);border-radius:14px;padding:16px;margin-bottom:12px}
-.plList{border:1px solid #e4ebee;border-radius:11px;overflow:hidden}
+.plList{background:#fff;border:1px solid #e4ebee;border-radius:11px;overflow:hidden;margin-bottom:12px}
 .plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid #edf1f2;cursor:pointer}
 .plItem:last-child{border-bottom:0}
 .plItem.on{background:#e8f5f6}
@@ -125,8 +125,7 @@ function css(){
 .plTable input{width:110px;padding:6px;text-align:right}
 .plDelta{font-weight:800}.plDelta.up{color:#138a69}.plDelta.down{color:#c94f45}
 .plEmpty{padding:20px;text-align:center;color:#81909a}
-.plNote{background:#f8fbfb;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:9px;padding:11px;font-size:13px;color:#4c5c68;margin-bottom:12px}
-@media(max-width:900px){#price-lists .plGrid{grid-template-columns:1fr}.plRow{grid-template-columns:1fr}}`;
+@media(max-width:900px){#price-lists .plGrid{grid-template-columns:1fr}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}`;
  document.head.appendChild(s);
 }
 function render(){
@@ -134,11 +133,7 @@ function render(){
  const s=section(),cur=lists.find(x=>x.id===selected)||null;
  const mine=cur?customers.filter(c=>c.price_list_id===cur.id):[];
  const listed=new Set(items.map(i=>i.product_id));
- s.innerHTML=`<div class="wrap"><div class="card"><div class="gamaPMHead"><div>
-  <h2>🏷️ Tarifas por año de contrato</h2>
-  <p class="muted">Aplica precios distintos según el año en que cada cliente firmó.</p>
- </div></div>
- <div class="plNote">Sólo hace falta listar aquí los productos cuyo precio <b>difiere</b> del precio base de la ficha. Todo lo que no esté en la tarifa se factura al precio base.</div>
+ s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas por año de contrato',lead:'Una tarifa agrupa a todos los clientes que firmaron el mismo año, así que se mantiene una sola rejilla de precios y no una por cliente. Sólo hace falta listar aquí los productos cuyo precio cambia: todo lo demás se factura al precio base de la ficha.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>
@@ -154,7 +149,7 @@ function render(){
     </div>`).join(''):'<div class="plEmpty">Aún no hay tarifas.</div>'}</div>
   </div>
   <div>${cur?renderDetail(cur,mine,listed):'<div class="card"><div class="plEmpty">Crea o elige una tarifa a la izquierda.</div></div>'}</div>
- </div></div></div>`;
+ </div>`;
  bind();
 }
 function renderDetail(cur,mine,listed){
@@ -187,6 +182,7 @@ function renderDetail(cur,mine,listed){
 }
 function bind(){
  const s=section();
+ window.GamaUI.bindBack(s);
  s.querySelectorAll('[data-pick]').forEach(el=>el.onclick=e=>{if(e.target.closest('button'))return;selectList(el.dataset.pick)});
  s.querySelectorAll('[data-archive]').forEach(b=>b.onclick=e=>{e.stopPropagation();archiveList(b.dataset.archive)});
  s.querySelectorAll('[data-restore]').forEach(b=>b.onclick=e=>{e.stopPropagation();restoreList(b.dataset.restore)});

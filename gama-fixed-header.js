@@ -39,6 +39,19 @@
       cloud.id='gamaCloudAdminBtn';
       if(cloud.parentElement!==host) host.appendChild(cloud);
     }
+    /* El botón de la nube se coloca por encima de la cabecera, así que el
+       nombre de la aplicación tiene que dejarle sitio o se solapan. Sólo lo
+       ve un administrador: se marca la cabecera para no robarle ancho al
+       nombre cuando el botón no está. */
+    var header=document.querySelector('header.gamaHeader');
+    if(header){
+      header.classList.toggle('gamaHasCloudBtn', !!cloud);
+      /* Se mide el botón en vez de estimarlo: reservar un 44vw a ojo le
+         quitaba al nombre casi el doble de lo que el botón ocupa de verdad, y
+         lo partía en tres líneas. */
+      if(cloud) header.style.setProperty('--gamaCloudBtnW', Math.ceil(cloud.getBoundingClientRect().width)+'px');
+      else header.style.removeProperty('--gamaCloudBtnW');
+    }
   }
 
   function inject(){
@@ -151,6 +164,19 @@
           min-width:0!important;
           max-width:calc(100% - 62px)!important;
         }
+
+        /* El ancho real del botón, más su margen y un respiro. */
+        header.gamaHeader.gamaHasCloudBtn .headerLeft{
+          max-width:calc(100% - var(--gamaCloudBtnW,120px) - 24px)!important;
+        }
+        /* Y que el nombre parta en dos líneas antes que meterse debajo de
+           nada: en la cabecera del teléfono caben. */
+        header.gamaHeader .brandMobile h1{
+          white-space:normal!important;
+          overflow-wrap:anywhere!important;
+          line-height:1.15!important;
+        }
+        header.gamaHeader .brandMobile{min-width:0!important}
 
         .headActions{position:static!important}
 

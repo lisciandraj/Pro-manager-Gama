@@ -196,3 +196,78 @@ test('cada entrada del menú está en el mapa de perfiles y en el catálogo de m
   }
   expect(fallos, 'un módulo del menú no está declarado en todas partes').toEqual([]);
 });
+
+// Un empleado entra en RRHH para pedir sus días y ver quién falta, no para
+// leer la ficha de sus compañeros. La barrera de verdad está en la base —RLS
+// en hr_employees y hr_absences, y dos vistas que enseñan menos columnas—,
+// probada aparte contra Postgres. Aquí se fija lo que debe llegar a pantalla:
+// que no aparezcan ni el sueldo ajeno ni el motivo de una baja, y que nadie
+// que no sea administrador tenga a mano el botón de aprobar.
+const PLANTILLA = [
+  { id: 'e1', full_name: 'María Pérez', position: 'Comercial', salary: 900, annual_leave_days: 15, active: true, profile_id: 'u-maria' },
+  { id: 'e2', full_name: 'Luis Gómez', position: 'Almacenero', salary: 2500, annual_leave_days: 15, active: true, profile_id: null },
+];
+const AUSENCIAS = [
+  { id: 'a1', employee_id: 'e1', kind: 'vacaciones', start_date: '2026-09-07', end_date: '2026-09-11', days: 5, status: 'aprobada', reason: 'verano' },
+  { id: 'a2', employee_id: 'e2', kind: 'enfermedad', start_date: '2026-09-08', end_date: '2026-09-10', days: 3, status: 'aprobada', reason: 'diagnóstico confidencial' },
+];
+
+test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', async ({ page }) => {
+  await page.addInitScript(([emp, abs]) => {
+    localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'commercial', name: 'María' }));
+    // @ts-ignore
+    window.__DB = {
+      products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+      purchase_orders: [], purchase_order_lines: [], stock_movements: [],
+      profiles: [{ id: 'u-maria', full_name: 'María Pérez', role: 'comercial', active: true }],
+      price_lists: [], price_list_items: [], customer_requests: [],
+      hr_employees: emp, hr_absences: abs, app_modules: [],
+      _session: { profile_id: 'u-maria' },
+    };
+  }, [PLANTILLA, AUSENCIAS]);
+  await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD }));
+  await page.route('**/@supabase/**', r => r.abort());
+  await page.goto('/index.html');
+  await page.waitForTimeout(1500);
+
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(800);
+
+  // Sus pestañas, no las de administración.
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Mi ficha/, /Mis días/, /Planificación/]);
+  await expect(page.locator('#hr')).toContainText('María Pérez');
+  await expect(page.locator('#hr'), 'aparece el sueldo de un compañero').not.toContainText('2.500');
+
+  // Pide días para sí misma y siempre pendiente: sin elegir empleado ni estado.
+  await page.click('#hr .hrTabs button:has-text("Mis días")');
+  await page.waitForTimeout(400);
+  await expect(page.locator('#hrAbsEmployee')).toHaveCount(0);
+  await expect(page.locator('#hrAbsStatus')).toHaveCount(0);
+  await expect(page.locator('#hr'), 'se ve el motivo de la baja de un compañero').not.toContainText('confidencial');
+
+  // El calendario del equipo sí, pero la baja ajena sin decir que es una baja.
+  await page.click('#hr .hrTabs button:has-text("Planificación")');
+  await page.waitForTimeout(500);
+  await expect(page.locator('#hr')).toContainText('Luis Gómez');
+  await expect(page.locator('#hr')).toContainText('Ausente');
+  await expect(page.locator('#hr'), 'la enfermedad de un compañero no se anuncia').not.toContainText('Enfermedad');
+
+  // Y no puede resolver nada desde ahí.
+  await page.locator('#hr .hrPlanBarra').first().click();
+  await page.waitForTimeout(300);
+  await expect(page.locator('#hr .hrPlanDetalle button:has-text("Aprobar")')).toHaveCount(0);
+});
+
+test('el administrador conserva la vista completa y puede ligar ficha y cuenta', async ({ page }) => {
+  await boot(page, 'admin', { hr_employees: PLANTILLA, hr_absences: AUSENCIAS });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(800);
+
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/]);
+  await expect(page.locator('#hr')).toContainText('2.500');          // los sueldos siguen ahí
+  await expect(page.locator('#hrAccount'), 'falta el enlace con la cuenta').toHaveCount(1);
+
+  await page.click('#hr .hrTabs button:has-text("Planificación")');
+  await page.waitForTimeout(500);
+  await expect(page.locator('#hr'), 'el administrador debe ver el motivo real').toContainText('Enfermedad');
+});

@@ -35,9 +35,54 @@
         return o;
       });
   }
+  // Espejo de las vistas hr_directory y hr_calendar: ensenan MENOS columnas
+  // que las tablas. Aqui se reproduce ese recorte —y el enmascarado de la baja
+  // por enfermedad— para que una prueba pueda comprobar que un companero no ve
+  // ni el sueldo ni el motivo escrito a mano.
+  function hrRole() {
+    try { return JSON.parse(localStorage.getItem('gama_session_v1') || '{}').role || ''; }
+    catch (e) { return ''; }
+  }
+  function hrIsAdmin() { const r = hrRole(); return r === 'admin' || r === 'administrador'; }
+  function hrMyProfile() { return (window.__DB._session || {}).profile_id || null; }
+  function hrDirectoryRows() {
+    const me = hrMyProfile();
+    return (window.__DB.hr_employees || []).map(e => ({
+      id: e.id, full_name: e.full_name, position: e.position,
+      department: e.department, active: e.active, is_me: !!me && e.profile_id === me,
+    }));
+  }
+  function hrCalendarRows() {
+    const me = hrMyProfile();
+    const emp = window.__DB.hr_employees || [];
+    return (window.__DB.hr_absences || []).filter(a => a.status !== 'rechazada').map(a => {
+      const e = emp.find(x => x.id === a.employee_id) || {};
+      const propia = hrIsAdmin() || (!!me && e.profile_id === me);
+      return {
+        id: a.id, employee_id: a.employee_id, start_date: a.start_date, end_date: a.end_date,
+        days: a.days, status: a.status,
+        kind: propia ? a.kind : (a.kind === 'enfermedad' ? 'ausencia' : a.kind),
+        reason: propia ? a.reason : null,
+        is_me: !!me && e.profile_id === me,
+      };
+    });
+  }
+  // RLS de hr_employees y hr_absences: un empleado solo ve lo suyo.
+  function hrOwnRows(table) {
+    if (hrIsAdmin()) return (window.__DB[table] || []).slice();
+    const me = hrMyProfile();
+    const emp = window.__DB.hr_employees || [];
+    if (table === 'hr_employees') return emp.filter(e => !!me && e.profile_id === me);
+    const mias = emp.filter(e => !!me && e.profile_id === me).map(e => e.id);
+    return (window.__DB.hr_absences || []).filter(a => mias.includes(a.employee_id));
+  }
   function rowsFor(table, options) {
     options = options || {};
-    let rows = table === 'catalog_products' ? catalogRows() : (window.__DB[table] || []).slice();
+    let rows = table === 'catalog_products' ? catalogRows()
+      : table === 'hr_directory' ? hrDirectoryRows()
+      : table === 'hr_calendar' ? hrCalendarRows()
+      : (table === 'hr_employees' || table === 'hr_absences') ? hrOwnRows(table)
+      : (window.__DB[table] || []).slice();
     // products.has_photo es una columna generada en la base: se deriva aqui
     // para que una consulta estrecha pueda pedirla sin traerse la foto.
     if (table === 'products') rows = rows.map(r => ({ ...r, has_photo: !!r.photo_data }));

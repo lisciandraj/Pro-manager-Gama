@@ -1,0 +1,153 @@
+// @ts-check
+const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
+
+async function boot(page, role = 'admin', db = {}) {
+  await page.addInitScript(([r, seed]) => {
+    localStorage.setItem('gama_session_v1', JSON.stringify({ role: r, name: 'Test' }));
+    // @ts-ignore
+    window.__DB = Object.assign({
+      products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+      purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
+      price_lists: [], price_list_items: [], customer_requests: [],
+      hr_employees: [], hr_absences: [], app_modules: [],
+    }, seed);
+  }, [role, db]);
+  await page.route('**/gama-supabase.js*', route =>
+    route.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD })
+  );
+  await page.route('**/@supabase/**', route => route.abort());
+  await page.goto('/index.html');
+  await page.waitForTimeout(1500);
+}
+
+// Lo que promete Configuración es una sola cosa: un módulo apagado no se ve y
+// no se abre POR NINGUNA VÍA. Esconder la tarjeta es lo fácil; lo que se rompe
+// en silencio es la segunda mitad — que quede una ruta abierta (showTab, una
+// pestaña, el clic directo de una tarjeta) por la que se llegue igual.
+test('un módulo desactivado desaparece del menú y no se puede abrir', async ({ page }) => {
+  const avisos = [];
+  page.on('dialog', d => { avisos.push(d.message()); d.accept(); });
+  await boot(page, 'admin');
+
+  const tarjeta = page.locator('#mainmenu .gamaF2Card:has-text("Auditoría")');
+  await expect(tarjeta).toBeVisible();
+
+  await page.evaluate(() => window.GamaOpenSettings());
+  await page.waitForTimeout(500);
+  await page.uncheck('#settings input[data-mod="audit"]');
+  await page.waitForTimeout(600);
+
+  // Queda guardado en la nube, no sólo en este navegador.
+  const fila = await page.evaluate(() => window.__DB.app_modules.find(m => m.id === 'audit'));
+  expect(fila.enabled).toBe(false);
+
+  await page.evaluate(() => window.GamaUI.backToMenu());
+  await page.waitForTimeout(400);
+  await expect(tarjeta, 'la tarjeta sigue en el menú').toBeHidden();
+  await expect(page.locator('.tabs .tab:has-text("Auditoría")')).toHaveCount(0);
+
+  // Y la ruta directa tampoco vale.
+  avisos.length = 0;
+  await page.evaluate(() => window.showTab('audit', null));
+  await page.waitForTimeout(400);
+  expect(avisos.join(' ')).toContain('desactivado');
+  await expect(page.locator('#audit'), 'la pantalla se mostró pese al aviso').toBeHidden();
+
+  // Volver a encenderlo lo devuelve al menú.
+  await page.evaluate(() => window.GamaOpenSettings());
+  await page.waitForTimeout(500);
+  await page.check('#settings input[data-mod="audit"]');
+  await page.waitForTimeout(600);
+  await page.evaluate(() => window.GamaUI.backToMenu());
+  await page.waitForTimeout(400);
+  await expect(tarjeta).toBeVisible();
+});
+
+// Configuración no puede apagarse a sí misma: es la única pantalla desde la
+// que se vuelve a encender lo demás.
+test('Configuración no se apaga a sí misma', async ({ page }) => {
+  await boot(page, 'admin');
+  await page.evaluate(() => window.GamaOpenSettings());
+  await page.waitForTimeout(500);
+  await expect(page.locator('#settings input[data-mod="settings"]')).toBeDisabled();
+});
+
+// Quien no es administrador no ve los interruptores. La barrera de verdad no
+// está aquí sino en la política RLS de app_modules, que sólo deja escribir al
+// administrador; esto es no enseñar un botón que la base va a rechazar.
+test('sin ser administrador no hay interruptores ni RRHH', async ({ page }) => {
+  await boot(page, 'commercial');
+  await page.evaluate(() => window.GamaOpenSettings());
+  await page.waitForTimeout(500);
+  await expect(page.locator('#settings .cfgDenied')).toHaveCount(1);
+  await expect(page.locator('#settings input[data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
+  await expect(page.locator('#mainmenu .gamaF2Card:has-text("Recursos humanos")')).toBeHidden();
+});
+
+// El saldo de vacaciones se cuenta en días LABORABLES; la base guarda días
+// naturales. Confundirlos daría a cada empleado más días de los pactados.
+test('RRHH descuenta las vacaciones aprobadas en días laborables', async ({ page }) => {
+  await boot(page, 'admin');
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(600);
+
+  await page.fill('#hrName', 'María Pérez');
+  await page.fill('#hrLeaveDays', '15');
+  await page.click('#hrSave');
+  await page.waitForTimeout(500);
+
+  await page.click('#hr .hrTabs button:has-text("Ausencias")');
+  await page.waitForTimeout(300);
+  // Lunes 7 a viernes 11 de septiembre de 2026: 5 días naturales y 5 laborables.
+  await page.fill('#hrAbsFrom', '2026-09-07');
+  await page.fill('#hrAbsTo', '2026-09-11');
+  await page.selectOption('#hrAbsStatus', 'aprobada');
+  await page.click('#hrAbsAdd');
+  await page.waitForTimeout(600);
+
+  await page.click('#hr .hrTabs button:has-text("Empleados")');
+  await page.waitForTimeout(300);
+  await expect(page.locator('#hr tbody tr').first()).toContainText('5 / 15');
+
+  // Y un fin de semana entero no consume saldo: sábado 12 y domingo 13.
+  await page.click('#hr .hrTabs button:has-text("Ausencias")');
+  await page.waitForTimeout(300);
+  await page.fill('#hrAbsFrom', '2026-09-12');
+  await page.fill('#hrAbsTo', '2026-09-13');
+  await page.selectOption('#hrAbsStatus', 'aprobada');
+  await page.click('#hrAbsAdd');
+  await page.waitForTimeout(600);
+  await page.click('#hr .hrTabs button:has-text("Empleados")');
+  await page.waitForTimeout(300);
+  await expect(page.locator('#hr tbody tr').first(), 'un fin de semana no gasta vacaciones').toContainText('5 / 15');
+});
+
+// Guardián de cableado. Un módulo nuevo se declara en tres sitios: el menú, el
+// mapa de perfiles y el catálogo de Configuración. Si falta en alguno se rompe
+// en silencio — «Compras» e «Importar Excel» llevaban tiempo fuera del mapa de
+// perfiles, así que su tarjeta estaba oculta para todo el que no fuera
+// administrador, y el interruptor tampoco habría podido reconocerlas.
+test('cada entrada del menú está en el mapa de perfiles y en el catálogo de módulos', () => {
+  const menu = fs.readFileSync(path.join(ROOT, 'gama-menu-final2.js'), 'utf8');
+  const acl = fs.readFileSync(path.join(ROOT, 'gama-access-control.js'), 'utf8');
+  const mods = fs.readFileSync(path.join(ROOT, 'gama-modules.js'), 'utf8');
+
+  const items = [...menu.matchAll(/\['([^']+)','([^']+)','[^']+'\]/g)].map(m => [m[1], m[2]]);
+  expect(items.length, 'no se pudo leer el menú').toBeGreaterThan(10);
+
+  const mapaSrc = acl.match(/const MENU_MAP=\{([^}]*)\}/)[1];
+  const mapa = Object.fromEntries([...mapaSrc.matchAll(/'([^']+)':'([^']+)'/g)].map(m => [m[1], m[2]]));
+  const catalogo = new Set([...mods.matchAll(/\{id:'([^']+)'/g)].map(m => m[1]));
+
+  const fallos = [];
+  for (const [label, id] of items) {
+    if (mapa[label] !== id) fallos.push(`MENU_MAP le falta ${label} -> ${id} (tiene ${mapa[label]})`);
+    if (!catalogo.has(id)) fallos.push(`GamaModules.CATALOG le falta ${id}`);
+  }
+  expect(fallos, 'un módulo del menú no está declarado en todas partes').toEqual([]);
+});

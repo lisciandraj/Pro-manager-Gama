@@ -26,7 +26,7 @@ function addTMSCard(){
  b.className='gamaF2Card';
  b.setAttribute('data-gama-tms-card','1');
  b.innerHTML='<span class="gamaF2Icon" style="background:#e8f5f6;color:#087c8b"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span><span class="gamaF2Title">Entregas / TMS</span>';
- b.onclick=()=>window.gamaTMS.open('planning');
+ b.onclick=()=>{if(window.GamaModules&&!window.GamaModules.enabled('tms')){alert('Este módulo está desactivado en Configuración.');return}window.gamaTMS.open('planning')};
  grid.appendChild(b);
  return true;
 }

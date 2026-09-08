@@ -26,6 +26,10 @@ async function boot(page, seed = {}) {
       tms_proofs: seedData.proofs || [],
       tms_events: seedData.events || [],
       tms_settings: seedData.settings || [],
+      // El transporte lee RRHH para saber quién está de vacaciones o de baja.
+      hr_employees: seedData.employees || [],
+      hr_absences: seedData.absences || [],
+      hr_employee_private: [], hr_absence_private: [],
       __today: day,
     };
   }, [seed, today()]);
@@ -310,5 +314,85 @@ test.describe('TMS — one-time import of the old localStorage dataset', () => {
     expect(warning).toContain('no se ha importado');
     // Nothing is destroyed: the browser copy is still there to recover from.
     expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).not.toBeNull();
+  });
+});
+
+// Un conductor enlazado a una ficha de RRHH no sale de ruta mientras esté de
+// vacaciones o de baja. Lo delicado aquí no es esconderlo en la pantalla —eso
+// es cosmético— sino que el REPARTO no cuente con él: si optimize() le sigue
+// asignando entregas, el aviso de la ficha no sirve de nada.
+test.describe('TMS — conductores enlazados a RRHH', () => {
+  const EMPLEADOS = [
+    { id: 'emp1', full_name: 'Ana Torres', position: 'Conductora', active: true },
+    { id: 'emp2', full_name: 'Luis Paredes', position: 'Conductor', active: true },
+  ];
+  // drv1 es el primero de la lista: si el reparto lo ignora es porque está
+  // ausente, no porque le haya tocado el segundo turno.
+  const ENLAZADOS = [
+    { ...DRIVERS[0], employee_id: 'emp1' },
+    { ...DRIVERS[1], employee_id: 'emp2' },
+  ];
+  const ausencia = (id, employee_id, status, kind = 'vacaciones') => ({
+    id, employee_id, kind, status, start_date: today(), end_date: today(),
+  });
+
+  test('un conductor de vacaciones queda fuera del reparto', async ({ page }) => {
+    const dialogs = [];
+    page.on('dialog', async d => { dialogs.push(d.message()); await d.accept(); });
+    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
+    await boot(page, {
+      drivers: ENLAZADOS,
+      employees: EMPLEADOS,
+      absences: [ausencia('abs1', 'emp1', 'aprobada')],
+    });
+
+    // El aviso se ve antes de pulsar «Optimizar», que es cuando importa.
+    await expect(page.locator('.tms')).toContainText('Hoy no reparten: Conductor 1 (vacaciones)');
+
+    await page.fill('#tCustomer', 'Cliente Prueba');
+    await page.fill('#tAddress', 'Calle Falsa 123, Quito, Ecuador');
+    await page.click('button:has-text("Añadir entrega")');
+    await expect(page.locator('.tms')).toContainText('Cliente Prueba');
+
+    await page.click('#tOptimize');
+    await expect.poll(() => dialogs.length, { timeout: 10000 }).toBeGreaterThan(0);
+
+    const rutas = await page.evaluate(() => window.__DB.tms_routes);
+    expect(rutas.length).toBe(1);
+    expect(rutas[0].driver_id, 'la entrega se asignó al conductor ausente').toBe('drv2');
+
+    // Y la ficha del conductor dice por qué no está disponible.
+    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
+    const ficha = page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first();
+    await expect(ficha).toContainText('Vacaciones');
+    await expect(ficha).toContainText('no disponible');
+    await expect(page.locator('.tmsRoute').filter({ hasText: 'Conductor 2' }).first()).toContainText('Luis Paredes');
+  });
+
+  test('una solicitud de ausencia pendiente no bloquea al conductor', async ({ page }) => {
+    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
+    await boot(page, {
+      drivers: ENLAZADOS,
+      employees: EMPLEADOS,
+      // Pedida, todavía no concedida: no puede dejar sin conductor al reparto.
+      absences: [ausencia('abs1', 'emp1', 'pendiente')],
+    });
+    await expect(page.locator('.tms')).not.toContainText('Hoy no reparten');
+    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
+    await expect(page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first()).toContainText('disponible');
+  });
+
+  test('se puede enlazar un conductor con una ficha de empleado', async ({ page }) => {
+    await boot(page, { drivers: [DRIVERS[0]], employees: EMPLEADOS });
+    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
+    await expect(page.locator('.tmsRoute').first()).toContainText('Sin empleado enlazado');
+
+    await page.locator('.tmsRoute').first().locator('button:has-text("✏️ Editar")').click();
+    await page.selectOption('#dEmployee', 'emp1');
+    await page.click('button:has-text("Guardar cambios")');
+
+    await expect(page.locator('.tmsRoute').first()).toContainText('Ana Torres');
+    const fila = await page.evaluate(() => window.__DB.tms_drivers.find(d => d.id === 'drv1'));
+    expect(fila.employee_id).toBe('emp1');
   });
 });

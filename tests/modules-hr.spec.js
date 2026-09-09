@@ -13,7 +13,7 @@ async function boot(page, role = 'admin', db = {}) {
     window.__DB = Object.assign({
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
       hr_employees: [], hr_absences: [], hr_employee_private: [], hr_absence_private: [], app_modules: [],
     }, seed);
   }, [role, db]);
@@ -229,7 +229,7 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [],
       profiles: [{ id: 'u-maria', full_name: 'María Pérez', role: 'comercial', active: true }],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
       hr_employees: emp, hr_absences: abs, hr_employee_private: empp, hr_absence_private: absp,
       app_modules: [], _session: { profile_id: 'u-maria' },
     };

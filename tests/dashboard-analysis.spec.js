@@ -35,7 +35,7 @@ async function boot(page) {
     window.__DB = {
       products: prod, suppliers: [], customers: [], invoices: inv, invoice_lines: lines,
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
       hr_employees: [], hr_absences: [], app_modules: [],
     };
   }, [PRODUCTS, INVOICES, LINES]);

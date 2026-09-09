@@ -24,7 +24,7 @@ async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin'
     window.__DB = Object.assign({
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
     }, seed);
   }, [db, session]);
   await page.route('**/gama-supabase.js*', route =>

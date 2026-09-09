@@ -1,8 +1,9 @@
-/* GAMA — Tarifas por año de contrato.
-   Una tarifa agrupa a todos los clientes que firmaron el mismo año: se
-   mantiene una rejilla, no una por cliente. Sólo se listan los productos cuyo
-   precio difiere del precio base de la ficha; el resto cae en ese precio base,
-   así una tarifa nueva no obliga a reescribir todo el catálogo. */
+/* GAMA — Tarifas especiales.
+   Un precio negociado vale para UN cliente y UN producto: no hay rejillas
+   compartidas ni años de contrato. Sólo se listan aquí los productos cuyo
+   precio se pactó aparte; todo lo demás cae en el precio de la ficha según la
+   categoría del cliente, así que pactar un precio nunca obliga a reescribir el
+   catálogo entero. Sólo los clientes de categoría C tienen precios especiales. */
 (function(){
 'use strict';
 const C=()=>window.GamaCloud;
@@ -11,7 +12,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)&&n>=0?n:null};
 
-let lists=[],items=[],products=[],customers=[],selected=null,busy=false;
+let customers=[],products=[],items=[],selected=null,busy=false;
 
 function msg(t,err){const m=$('plMsg');if(!m)return;m.className='plMsg'+(err?' plErr':' plOk');m.textContent=t;if(!t)m.className='plMsg'}
 function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(e.message||e.details)||e),true)}
@@ -19,63 +20,43 @@ function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(
 async function load(){
  const api=C();if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
  try{
-  const [l,p,c]=await Promise.all([
-   api.list('price_lists',{order:'year',ascending:false}),
-   api.list('products',{select:'id,name,sale_price,active',order:'name',ascending:true}),
+  const [c,p]=await Promise.all([
    api.list('customers',{order:'name',ascending:true}),
+   api.list('products',{select:'id,name,sale_price,sale_price_b,active',order:'name',ascending:true}),
   ]);
-  if(l.error)throw l.error;
-  lists=l.data||[];
+  if(c.error)throw c.error;
+  if(p.error)throw p.error;
+  customers=(c.data||[]).filter(x=>x.active!==false&&(x.category||'A')==='C');
   products=(p.data||[]).filter(x=>x.active!==false);
-  customers=(c.data||[]).filter(x=>x.active!==false);
-  if(selected&&!lists.some(x=>x.id===selected))selected=null;
-  if(!selected&&lists.length)selected=lists[0].id;
+  if(selected&&!customers.some(x=>x.id===selected))selected=null;
   await loadItems();
   render();
- }catch(e){fail(e,'No se pudieron cargar las tarifas')}
+ }catch(e){fail(e,'No se pudieron cargar las tarifas especiales')}
 }
 async function loadItems(){
  items=[];
  if(!selected)return;
- const r=await C().list('price_list_items',{eq:{price_list_id:selected}});
+ const r=await C().list('customer_special_prices',{eq:{customer_id:selected}});
  if(r.error)throw r.error;
  items=r.data||[];
 }
 function productName(id){const p=products.find(x=>x.id===id);return p?p.name:'(producto archivado)'}
+/* El precio de referencia es el que pagaría ese cliente sin nada pactado: el
+   mayorista de la ficha, porque la categoría C cae ahí por defecto. */
 function basePrice(id){const p=products.find(x=>x.id===id);return p?Number(p.sale_price||0):0}
 
 /* ---- acciones ---- */
-async function createList(){
- const name=$('plName').value.trim(),year=parseInt($('plYear').value,10);
- if(!name)return msg('Pon un nombre a la tarifa, por ejemplo «Tarifa 2024».',true);
- try{
-  const r=await C().insert('price_lists',{name,year:Number.isFinite(year)?year:null,active:true});
-  if(r.error)throw r.error;
-  selected=r.data.id;$('plName').value='';$('plYear').value='';
-  msg('Tarifa «'+name+'» creada.');
-  await load();
- }catch(e){fail(e,'No se pudo crear la tarifa')}
-}
-async function selectList(id){selected=id;msg('');try{await loadItems();render()}catch(e){fail(e,'No se pudo abrir la tarifa')}}
-async function archiveList(id){
- const l=lists.find(x=>x.id===id);if(!l)return;
- if(!confirm('¿Archivar la tarifa «'+l.name+'»?\n\nLos clientes que la tengan asignada volverán al precio base.'))return;
- try{const r=await C().update('price_lists',id,{active:false});if(r.error)throw r.error;await load()}
- catch(e){fail(e,'No se pudo archivar')}
-}
-async function restoreList(id){
- try{const r=await C().update('price_lists',id,{active:true});if(r.error)throw r.error;await load()}
- catch(e){fail(e,'No se pudo restaurar')}
-}
-/* Se usa upsert porque la clave es (tarifa, producto): volver a poner precio a
-   un producto ya listado debe corregirlo, no fallar por duplicado. */
+function selectCustomer(id){selected=id;msg('');(async()=>{try{await loadItems();render()}catch(e){fail(e,'No se pudo abrir el cliente')}})()}
+/* Se usa upsert porque la clave es (cliente, producto): volver a poner precio
+   a un producto ya pactado debe corregirlo, no fallar por duplicado. */
 async function setItemPrice(productId,value){
  const price=num(value);
  if(price===null)return msg('Precio inválido.',true);
+ if(!selected)return msg('Elige un cliente.',true);
  try{
-  const r=await C().upsert('price_list_items',{price_list_id:selected,product_id:productId,unit_price:price},{onConflict:'price_list_id,product_id'});
+  const r=await C().upsert('customer_special_prices',{customer_id:selected,product_id:productId,unit_price:price},{onConflict:'customer_id,product_id'});
   if(r.error)throw r.error;
-  await loadItems();render();msg('Precio actualizado.');
+  await loadItems();render();msg('Precio especial actualizado.');
  }catch(e){fail(e,'No se pudo guardar el precio')}
 }
 async function addItem(){
@@ -88,14 +69,10 @@ async function addItem(){
 async function removeItem(productId){
  try{
   const c=await C().db();
-  const r=await c.from('price_list_items').delete().eq('price_list_id',selected).eq('product_id',productId);
+  const r=await c.from('customer_special_prices').delete().eq('customer_id',selected).eq('product_id',productId);
   if(r.error)throw r.error;
-  await loadItems();render();msg('Producto retirado de la tarifa: vuelve al precio base.');
- }catch(e){fail(e,'No se pudo retirar el producto')}
-}
-async function assignCustomer(id,listId){
- try{const r=await C().update('customers',id,{price_list_id:listId||null});if(r.error)throw r.error;await load()}
- catch(e){fail(e,'No se pudo asignar la tarifa')}
+  await loadItems();render();msg('Precio especial retirado: el producto vuelve al precio mayorista.');
+ }catch(e){fail(e,'No se pudo retirar el precio especial')}
 }
 
 /* ---- pantalla ---- */
@@ -115,7 +92,6 @@ function css(){
 .plItem.on{background:#e8f5f6}
 .plItem b{display:block;font-size:13px}
 .plItem small{color:#7b8992;font-size:11px}
-.plItem.off b{color:#8c99a3;text-decoration:line-through}
 .plMsg{margin:10px 0;font-size:13px}
 .plMsg.plOk{color:#138a69}.plMsg.plErr{color:#c94f45;font-weight:700}
 .plRow{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}
@@ -130,39 +106,34 @@ function css(){
 }
 function render(){
  css();
- const s=section(),cur=lists.find(x=>x.id===selected)||null;
- const mine=cur?customers.filter(c=>c.price_list_id===cur.id):[];
+ const s=section(),cur=customers.find(x=>x.id===selected)||null;
  const listed=new Set(items.map(i=>i.product_id));
- s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas por año de contrato',lead:'Precios pactados por año de contrato.'})}
+ s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>
    <div class="card">
-    <h3>Nueva tarifa</h3>
-    <label>Nombre</label><input id="plName" placeholder="Tarifa 2024">
-    <label>Año de firma</label><input id="plYear" type="number" min="2000" max="2100" placeholder="2024">
-    <button class="primary" id="plCreate" style="margin-top:10px;width:100%">＋ Crear tarifa</button>
+    <h3>Clientes de categoría C</h3>
+    <p class="muted">Sólo un cliente de categoría C tiene precios negociados. La categoría se asigna en su ficha, en 👥 Clientes.</p>
    </div>
-   <div class="plList">${lists.length?lists.map(l=>`<div class="plItem${l.id===selected?' on':''}${l.active===false?' off':''}" data-pick="${esc(l.id)}">
-     <div><b>${esc(l.name)}</b><small>${l.year||'sin año'} · ${customers.filter(c=>c.price_list_id===l.id).length} cliente(s)</small></div>
-     <button class="secondary" data-${l.active===false?'restore':'archive'}="${esc(l.id)}">${l.active===false?'♻️':'🗄️'}</button>
-    </div>`).join(''):'<div class="plEmpty">Aún no hay tarifas.</div>'}</div>
+   <div class="plList">${customers.length?customers.map(c=>`<div class="plItem${c.id===selected?' on':''}" data-pick="${esc(c.id)}">
+     <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>
+    </div>`).join(''):'<div class="plEmpty">Ningún cliente de categoría C todavía.</div>'}</div>
   </div>
-  <div>${cur?renderDetail(cur,mine,listed):'<div class="card"><div class="plEmpty">Crea o elige una tarifa a la izquierda.</div></div>'}</div>
- </div>
+  <div>${cur?renderDetail(cur,listed):'<div class="card"><div class="plEmpty">Elige un cliente a la izquierda.</div></div>'}</div>
  </div>`;
  bind();
 }
-function renderDetail(cur,mine,listed){
+function renderDetail(cur,listed){
  const free=products.filter(p=>!listed.has(p.id));
  return `<div class="card">
-  <h3>${esc(cur.name)} — precios</h3>
+  <h3>${esc(cur.name)} — precios negociados</h3>
   <div class="plRow" style="margin-top:8px">
-   <div><label>Producto</label><select id="plProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — base ${money(p.sale_price)}</option>`).join(''):'<option value="">Todos los productos ya tienen precio</option>'}</select></div>
-   <div><label>Precio de esta tarifa</label><input id="plPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+   <div><label>Producto</label><select id="plProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — mayorista ${money(p.sale_price)}</option>`).join(''):'<option value="">Todos los productos ya tienen precio pactado</option>'}</select></div>
+   <div><label>Precio negociado</label><input id="plPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
    <div><button class="primary" id="plAdd">Añadir</button></div>
   </div>
-  ${items.length?`<table class="plTable"><thead><tr><th>Producto</th><th>Precio base</th><th>Precio tarifa</th><th>Diferencia</th><th></th></tr></thead><tbody>
+  ${items.length?`<table class="plTable"><thead><tr><th>Producto</th><th>Precio mayorista</th><th>Precio negociado</th><th>Diferencia</th><th></th></tr></thead><tbody>
    ${items.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
@@ -170,30 +141,16 @@ function renderDetail(cur,mine,listed){
       <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
       <td><button class="danger" data-drop="${esc(i.product_id)}">×</button></td></tr>`}).join('')}
-   </tbody></table>`:'<div class="plEmpty">Ningún precio específico todavía: todo se factura al precio base.</div>'}
- </div>
- <div class="card">
-  <h3>Clientes con esta tarifa <small class="muted">(${mine.length})</small></h3>
-  <p class="muted">Sólo los clientes de categoría C usan tarifa. Un producto que no figure aquí se les factura al precio de venta mayorista (Categoría A).</p>
-  <div class="plRow" style="margin-top:8px">
-   <div><label>Añadir un cliente</label><select id="plCustomer"><option value="">Selecciona…</option>${customers.filter(c=>c.price_list_id!==cur.id&&(c.category||'A')==='C').map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.price_list_id?' — hoy en otra tarifa':''}</option>`).join('')}</select></div>
-   <div></div><div><button class="primary" id="plAssign">Asignar</button></div>
-  </div>
-  ${mine.length?`<table class="plTable"><tbody>${mine.map(c=>`<tr><td>${esc(c.name)}<br><small class="muted">${esc(c.email||'sin correo')}</small></td><td style="text-align:right"><button class="secondary" data-unassign="${esc(c.id)}">Quitar</button></td></tr>`).join('')}</tbody></table>`:'<div class="plEmpty">Ningún cliente usa esta tarifa todavía.</div>'}
+   </tbody></table>`:'<div class="plEmpty">Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
  </div>`;
 }
 function bind(){
  const s=section();
  window.GamaUI.bindBack(s);
- s.querySelectorAll('[data-pick]').forEach(el=>el.onclick=e=>{if(e.target.closest('button'))return;selectList(el.dataset.pick)});
- s.querySelectorAll('[data-archive]').forEach(b=>b.onclick=e=>{e.stopPropagation();archiveList(b.dataset.archive)});
- s.querySelectorAll('[data-restore]').forEach(b=>b.onclick=e=>{e.stopPropagation();restoreList(b.dataset.restore)});
- const c=$('plCreate');if(c)c.onclick=createList;
+ s.querySelectorAll('[data-pick]').forEach(el=>el.onclick=e=>{if(e.target.closest('button'))return;selectCustomer(el.dataset.pick)});
  const a=$('plAdd');if(a)a.onclick=addItem;
  s.querySelectorAll('[data-price]').forEach(i=>i.onchange=()=>setItemPrice(i.dataset.price,i.value));
  s.querySelectorAll('[data-drop]').forEach(b=>b.onclick=()=>removeItem(b.dataset.drop));
- const as=$('plAssign');if(as)as.onclick=()=>{const v=$('plCustomer').value;if(!v)return msg('Elige un cliente.',true);assignCustomer(v,selected)};
- s.querySelectorAll('[data-unassign]').forEach(b=>b.onclick=()=>assignCustomer(b.dataset.unassign,null));
 }
 async function open(){
  css();
@@ -201,7 +158,7 @@ async function open(){
  document.querySelectorAll('section').forEach(x=>{const on=x.id==='price-lists';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
  document.getElementById('mainmenu')?.setAttribute('hidden','');
  if(busy)return;busy=true;
- s.innerHTML='<div class="wrap"><div class="card"><div class="plEmpty">Cargando tarifas…</div></div></div>';
+ s.innerHTML='<div class="wrap"><div class="card"><div class="plEmpty">Cargando tarifas especiales…</div></div></div>';
  try{await load()}finally{busy=false}
  window.scrollTo({top:0,behavior:'smooth'});
 }

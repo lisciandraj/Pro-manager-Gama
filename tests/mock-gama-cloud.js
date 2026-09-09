@@ -18,13 +18,13 @@
   const CATALOG_COLUMNS = ['id', 'name', 'reference', 'category', 'barcode', 'sale_price', 'tax_rate', 'stock', 'photo_data', 'active', 'created_at', 'has_photo'];
   function catalogRows() {
     // Mirrors the catalog_products view: the price shown is resolved for the
-    // customer whose email matches the session — their contract price when the
-    // product is in their tariff (categoría C), otherwise the price of their
+    // customer whose email matches the session — their negotiated price when
+    // one exists for the product (categoría C), otherwise the price of their
     // category: B is the retail price, A (and a C with nothing pactado for the
     // product) the mayorista price on the product sheet.
     const email = String((window.__DB._profile || {}).email || '').toLowerCase();
     const me = (window.__DB.customers || []).find(c => c.active !== false && String(c.email || '').toLowerCase() === email && email);
-    const items = (window.__DB.price_list_items || []).filter(i => me && i.price_list_id === me.price_list_id);
+    const items = (window.__DB.customer_special_prices || []).filter(i => me && i.customer_id === me.id);
     const category = (me && me.category) || 'A';
     return (window.__DB.products || [])
       .filter(p => p.active !== false)
@@ -149,7 +149,7 @@
       return { data: withId, error: null };
     },
     upsert: async (table, row, options) => {
-      // onConflict may name a composite key, e.g. 'price_list_id,product_id'.
+      // onConflict may name a composite key, e.g. 'customer_id,product_id'.
       const keys = String((options && options.onConflict) || 'id').split(',').map(k => k.trim());
       window.__DB[table] = window.__DB[table] || [];
       const arr = window.__DB[table];

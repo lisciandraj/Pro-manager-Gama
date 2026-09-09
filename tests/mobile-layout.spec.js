@@ -22,7 +22,7 @@ const SEED = {
   suppliers: [{ id: 's1', name: 'Proveedor Uno', active: true }],
   customers: [{ id: 'c1', name: 'Cliente Uno', active: true, email: 'c@e.com' }],
   invoices: [], invoice_lines: [], purchase_orders: [], purchase_order_lines: [],
-  stock_movements: [], profiles: [], price_lists: [], price_list_items: [],
+  stock_movements: [], profiles: [], customer_special_prices: [],
   customer_requests: [], app_modules: [],
   hr_employees: [
     { id: 'e1', full_name: 'Ana Torres', position: 'Conductora', department: 'Logística', active: true },

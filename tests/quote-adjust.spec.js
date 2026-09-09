@@ -19,7 +19,7 @@ async function boot(page, db = {}) {
     window.__DB = Object.assign({
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
     }, seed);
   }, db);
   await page.route('**/gama-supabase.js*', route =>
@@ -34,11 +34,10 @@ const PRODUCTS = [
   { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM', category: 'Obra', stock: 40, min_stock: 1, sale_price: 10, purchase_price: 6, tax_rate: 15, active: true },
 ];
 const CUSTOMERS = [
-  { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true, price_list_id: 'pl2024' },
-  { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 's@e.com', address: 'Guayaquil', active: true, price_list_id: null },
+  { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true, category: 'C' },
+  { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 's@e.com', address: 'Guayaquil', active: true, category: 'A' },
 ];
-const LIST = { id: 'pl2024', name: 'Tarifa 2024', year: 2024, active: true };
-const ITEM = { price_list_id: 'pl2024', product_id: 'p1', unit_price: 8 };
+const SPECIAL = { customer_id: 'c1', product_id: 'p1', unit_price: 8 };
 
 /** Pone una línea en el presupuesto para el cliente indicado. */
 async function abrirPresupuesto(page, identificacion) {
@@ -53,7 +52,7 @@ const linea = page => page.locator('#invoiceItems tr', { hasText: 'Cemento 50kg'
 
 test.describe('Presupuestos — ajustar el precio de una línea', () => {
   test('el precio escrito a mano manda en la línea y en los totales', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await abrirPresupuesto(page, '0991');
 
     // Parte del precio de la tarifa del cliente, no del precio base.
@@ -72,7 +71,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
   });
 
   test('el botón ↺ devuelve la línea al precio de la tarifa', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await abrirPresupuesto(page, '0991');
 
     await linea(page).locator('.quotePriceCell input').fill('6.5');
@@ -88,7 +87,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
   // Volver a escribir el precio de la tarifa no es "una oferta del 0 %": es no
   // tener oferta. Si no, el impreso enseñaría un tachado sin descuento.
   test('reescribir el precio de la tarifa quita el ajuste', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await abrirPresupuesto(page, '0991');
 
     const precio = linea(page).locator('.quotePriceCell input');
@@ -102,7 +101,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
   });
 
   test('un precio inválido no se acepta y la línea no se estropea', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await abrirPresupuesto(page, '0991');
 
     const precio = linea(page).locator('.quotePriceCell input');
@@ -114,7 +113,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
   // El error que no se ve hasta que lo ve el cliente: pactar una oferta con
   // uno y que se arrastre al presupuesto del siguiente.
   test('cambiar de cliente descarta la oferta escrita a mano', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await abrirPresupuesto(page, '0991');
 
     const precio = linea(page).locator('.quotePriceCell input');
@@ -129,7 +128,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
 
   test('el presupuesto generado guarda e imprime el precio ajustado', async ({ page }) => {
     page.on('dialog', d => d.accept());
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST], price_list_items: [ITEM] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
     await page.fill('#sellerRuc', '1790012345001');
     await page.fill('#sellerName', 'GAMA Test S.A.');

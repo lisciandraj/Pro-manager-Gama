@@ -96,13 +96,25 @@ function css(){
 .plMsg.plOk{color:#138a69}.plMsg.plErr{color:#c94f45;font-weight:700}
 .plRow{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}
 .plTableWrap{width:100%;overflow-x:auto;margin-top:10px}
-.plTable{width:100%;min-width:520px;border-collapse:collapse}
+/* min-width:min-content en vez de una anchura fija: con 520 px clavados, si
+   las columnas pedían más, las celdas se salían por la derecha sin que el
+   contenedor contara ese sobrante como algo que desplazar. */
+.plTable{width:100%;min-width:min-content;border-collapse:collapse}
+.plBtnTxt{display:none}
 .plTable th,.plTable td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px}
 .plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
 .plTable input{width:110px;padding:6px;text-align:right}
 .plDelta{font-weight:800}.plDelta.up{color:#138a69}.plDelta.down{color:#c94f45}
 .plEmpty{padding:20px;text-align:center;color:#81909a}
-@media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}`;
+@media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
+/* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
+   aplicación. Aquí sólo queda lo propio: el ancho que necesita la etiqueta más
+   larga —«PRECIO NEGOCIADO», que partida en dos se leía peor que el dato— y la
+   palabra del botón de retirar, que en la tabla sobra porque su columna no
+   tiene título y basta la ×. */
+@media(max-width:760px){.plTable{--gamaCardsLabel:132px}
+ .plBtnTxt{display:inline}
+}`;
  document.head.appendChild(s);
 }
 function render(){
@@ -139,9 +151,9 @@ function renderDetail(cur,listed){
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
      return `<tr><td>${esc(productName(i.product_id))}</td><td>${money(base)}</td>
-      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}"></td>
+      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
-      <td><button class="danger" data-drop="${esc(i.product_id)}">×</button></td></tr>`}).join('')}
+      <td><button class="danger" data-drop="${esc(i.product_id)}" title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt"> Retirar</span></button></td></tr>`}).join('')}
    </tbody></table></div>`:'<div class="plEmpty">Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
  </div>`;
 }

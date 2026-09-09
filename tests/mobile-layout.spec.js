@@ -130,12 +130,22 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
     const m = await medir(page);
     expect(m.sw, `la tabla de precios negociados estira la página: ${m.peor}`).toBeLessThanOrEqual(m.vw + 1);
 
-    // Acotar la columna no puede haber aplastado la tabla: sigue teniendo su
-    // propio desplazamiento dentro de la tarjeta.
+    // Acotar la columna no puede haber aplastado la tabla ni haberle quitado
+    // columnas: en el teléfono cada producto se apila en una ficha con sus
+    // cinco datos y ya no queda nada que arrastrar, ni por fuera ni dentro de
+    // la propia tabla. (Antes esto exigía justo lo contrario —que la tabla se
+    // desplazara dentro de su caja— porque ésa era entonces la única salida al
+    // problema de que la página se ensanchara.)
     expect(await page.evaluate(() => {
-      const t = document.querySelector('#price-lists .plTableWrap');
-      return t ? t.scrollWidth > t.clientWidth : false;
-    }), 'la tabla de precios ya no se desplaza dentro de su caja').toBe(true);
+      const caja = document.querySelector('#price-lists .plTableWrap');
+      const tabla = caja && caja.querySelector('table');
+      const fila = tabla && [...tabla.rows].find(r => !r.hasAttribute('data-gama-head'));
+      return caja && fila ? {
+        fuera: caja.scrollWidth - caja.clientWidth,
+        dentro: tabla.scrollWidth - tabla.clientWidth,
+        celdas: fila.cells.length,
+      } : null;
+    }), 'los precios negociados ya no se leen enteros sin arrastrarlos').toEqual({ fuera: 0, dentro: 0, celdas: 5 });
   });
 
   test('ningún módulo del menú desborda a lo ancho en un teléfono de 390 px', async ({ page }) => {

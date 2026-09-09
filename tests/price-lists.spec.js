@@ -288,3 +288,75 @@ test.describe('Tarifas especiales — catálogo del cliente', () => {
     expect(leaked).toBe(false);
   });
 });
+
+// En el teléfono esta pantalla tenía DOS desplazamientos laterales metidos uno
+// dentro del otro: el de .plTableWrap y, dentro, el de la propia <table>, que
+// lo trae de la regla global de index.html (display:block, overflow-x:auto y
+// white-space:nowrap para toda tabla de la aplicación). Se arrastraba una caja
+// para descubrir que había otra dentro.
+test.describe('Tarifas especiales — la tabla de precios en el teléfono', () => {
+  /** Lo que habría que arrastrar, por fuera y por dentro. */
+  const arrastre = page => page.evaluate(() => {
+    const wrap = document.querySelector('#price-lists .plTableWrap');
+    const tabla = wrap.querySelector('table');
+    return {
+      fuera: wrap.scrollWidth - wrap.clientWidth,
+      dentro: tabla.scrollWidth - tabla.clientWidth,
+      filas: wrap.querySelectorAll('tbody tr').length,
+    };
+  });
+
+  // Nombres largos a propósito: son los que destapan el desplazamiento de
+  // dentro. Con «Arena m3» la fila cabe y el segundo arrastre no se nota.
+  const PRODUCTOS_LARGOS = PRODUCTS.map((p, i) => ({
+    ...p, name: ['Cemento Portland tipo I saco de 50 kg', 'Arena de río lavada por m3'][i] || p.name,
+  }));
+
+  async function abrir(page, ancho) {
+    await page.setViewportSize({ width: ancho, height: 844 });
+    await boot(page, {
+      products: PRODUCTOS_LARGOS, customers: CUSTOMERS,
+      customer_special_prices: [SPECIAL_C1, { customer_id: 'c1', product_id: 'p2', unit_price: 22 }],
+    });
+    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.waitForTimeout(700);
+    await page.click('[data-pick="c1"]');
+    await page.waitForTimeout(500);
+  }
+
+  test('cada producto se apila en una ficha, sin arrastre por fuera ni por dentro', async ({ page }) => {
+    await abrir(page, 390);
+    expect(await arrastre(page)).toEqual({ fuera: 0, dentro: 0, filas: 2 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth));
+
+    // Apilada, cada dato lleva delante el nombre de su columna: sin la cabecera
+    // de la tabla, «$20,00» a secas no diría si es el mayorista o el pactado.
+    const etiquetas = await page.evaluate(() =>
+      [...document.querySelectorAll('#price-lists .plTable tbody tr:first-child td')]
+        .map(td => getComputedStyle(td, '::before').content).join(' '));
+    expect(etiquetas).toContain('Precio mayorista');
+    expect(etiquetas).toContain('Precio negociado');
+    // Y el botón de retirar deja de ser una « × » suelta.
+    await expect(page.locator('#price-lists .plTable tbody tr').first().locator('button.danger')).toContainText('Retirar');
+  });
+
+  // Lo que de verdad se viene a hacer aquí es cambiar un precio: apilada, la
+  // pantalla tiene que seguir sirviendo para eso.
+  test('el precio se sigue pudiendo corregir desde la ficha apilada', async ({ page }) => {
+    await abrir(page, 390);
+    await page.fill('#price-lists input[data-price="p1"]', '7.5');
+    await page.locator('#price-lists input[data-price="p1"]').blur();
+    await expect.poll(() => page.evaluate(() =>
+      (window.__DB.customer_special_prices.find(i => i.product_id === 'p1') || {}).unit_price)).toBe(7.5);
+  });
+
+  test('en el escritorio la tabla sigue siendo una tabla y no deja nada fuera de alcance', async ({ page }) => {
+    await abrir(page, 1280);
+    const m = await arrastre(page);
+    expect(m.filas).toBe(2);
+    expect(m.fuera).toBe(0);
+    expect(await page.evaluate(() =>
+      getComputedStyle(document.querySelector('#price-lists .plTable thead')).display)).not.toBe('none');
+  });
+});

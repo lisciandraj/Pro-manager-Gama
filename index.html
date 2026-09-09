@@ -312,7 +312,7 @@ section{display:none}section.active{display:block}
 <div><label>Correo electrónico</label><input id="cEmail" type="email"></div>
 <div><label>Ciudad</label><input id="cCity"></div>
 <div><label>Provincia</label><input id="cProvince"></div>
-<div><label>Categoría de precios</label><select id="cCategory"><option value="A">A · Grossiste (por defecto)</option><option value="B">B · Venta al detalle</option><option value="C">C · Contrato especial (tarifa)</option></select></div>
+<div><label>Categoría de precios</label><select id="cCategory"><option value="A">A · Mayorista (por defecto)</option><option value="B">B · Venta al detalle</option><option value="C">C · Contrato especial (tarifa)</option></select></div>
 <div><label>Observaciones</label><input id="cNotes"></div>
 </div>
 <p class="muted">La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).</p>
@@ -385,6 +385,7 @@ section{display:none}section.active{display:block}
 <script src="gama-archive.js?v=1"></script>
 <script src="gama-sort.js?v=1"></script>
 <script src="gama-select-search.js?v=1"></script>
+<script src="gama-tables.js?v=1"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
    aquí: es un precio pactado producto a producto en su tarifa, y quien lo
@@ -802,8 +803,8 @@ showTab('mainmenu',null);
 <script src="gama-sales-report.js?v=6"></script>
 <script src="gama-pdf.js?v=3"></script>
 <script src="gama-photos.js?v=2"></script>
-<script src="gama-price-lists.js?v=8"></script>
-<script src="gama-hr.js?v=7"></script>
+<script src="gama-price-lists.js?v=10"></script>
+<script src="gama-hr.js?v=9"></script>
 <script src="gama-settings.js?v=2"></script>
 <script src="gama-standard-ui.js?v=12"></script>
 </body></html>

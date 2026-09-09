@@ -5,12 +5,11 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// Tarifas por año de contrato. GAMA signs multi-year contracts and the price a
-// customer pays depends on the year they signed, not on who they are: customers
-// who signed the same year share one grid. A tariff only lists the products
-// whose price *differs* from the product sheet, so everything not listed falls
-// back to the base price — that fallback is the part most likely to rot, so it
-// is asserted on every layer here (management screen, quote, client catalogue).
+// Tarifas especiales: un precio negociado vale para UN cliente y UN producto.
+// Sólo se guardan los productos cuyo precio se pactó aparte, así que todo lo
+// que falte cae en el precio de la ficha según la categoría del cliente — ese
+// repli es la parte más frágil, y se comprueba en las tres capas: pantalla de
+// gestión, presupuesto y catálogo del cliente.
 async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin' }) {
   await page.addInitScript(([seed, sess]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify(sess));
@@ -18,7 +17,7 @@ async function boot(page, db = {}, session = { role: 'admin', name: 'Test Admin'
     window.__DB = Object.assign({
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [],
+      customer_special_prices: [],
     }, seed);
   }, [db, session]);
   await page.route('**/gama-supabase.js*', route =>
@@ -33,32 +32,32 @@ const PRODUCTS = [
   { id: 'p1', barcode: 'B1', name: 'Cemento 50kg', reference: 'CEM-50', category: 'Obra', stock: 40, min_stock: 5, sale_price: 10, sale_price_b: 13, purchase_price: 6, tax_rate: 15, active: true },
   { id: 'p2', barcode: 'B2', name: 'Arena m3', reference: 'ARE-1', category: 'Obra', stock: 20, min_stock: 2, sale_price: 20, sale_price_b: 26, purchase_price: 12, tax_rate: 15, active: true },
 ];
-// c1 is categoría C: signed in 2024 and gets the 2024 grid. c2 is categoría A
-// (mayorista), has no tariff and pays the price on the product sheet.
+// c1 es categoría C: tiene precios negociados. c2 es categoría A (mayorista),
+// no tiene nada pactado y paga el precio de la ficha.
 const CUSTOMERS = [
-  { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'andes@example.com', address: 'Quito', active: true, category: 'C', price_list_id: 'pl2024' },
-  { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 'sol@example.com', address: 'Guayaquil', active: true, category: 'A', price_list_id: null },
+  { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'andes@example.com', address: 'Quito', active: true, category: 'C' },
+  { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 'sol@example.com', address: 'Guayaquil', active: true, category: 'A' },
 ];
-// Categoría B pays the retail price on the product sheet; a categoría C
-// customer with no tariff assigned falls back to the mayorista price (A).
-const CUSTOMER_B = { id: 'c3', name: 'Detallista Norte', identification: '0993', email: 'detal@example.com', address: 'Cuenca', active: true, category: 'B', price_list_id: null };
-const CUSTOMER_C_SIN_TARIFA = { id: 'c4', name: 'Obras del Sur', identification: '0994', email: 'sur@example.com', address: 'Loja', active: true, category: 'C', price_list_id: null };
-const LIST_2024 = { id: 'pl2024', name: 'Tarifa 2024', year: 2024, active: true };
-// Cemento at 8 instead of 10; Arena deliberately absent -> falls back to 20.
-const ITEM_2024 = { price_list_id: 'pl2024', product_id: 'p1', unit_price: 8 };
+// Categoría B paga el precio al detalle de la ficha; una categoría C sin nada
+// pactado cae en el precio mayorista (A).
+const CUSTOMER_B = { id: 'c3', name: 'Detallista Norte', identification: '0993', email: 'detal@example.com', address: 'Cuenca', active: true, category: 'B' };
+const CUSTOMER_C_SIN_TARIFA = { id: 'c4', name: 'Obras del Sur', identification: '0994', email: 'sur@example.com', address: 'Loja', active: true, category: 'C' };
+// Cemento a 8 en vez de 10; Arena deliberadamente ausente -> cae en 20.
+const SPECIAL_C1 = { customer_id: 'c1', product_id: 'p1', unit_price: 8 };
 
-test.describe('Tarifas — pantalla de gestión', () => {
-  test('creates a tariff, prices a product, and shows the gap against the base price', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: [{ ...CUSTOMERS[0], price_list_id: null }, CUSTOMERS[1]] });
+test.describe('Tarifas especiales — pantalla de gestión', () => {
+  test('only categoría C customers are offered, and pricing a product shows the gap', async ({ page }) => {
+    await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B] });
     await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
-    await expect(page.locator('#price-lists')).toContainText('Aún no hay tarifas');
 
-    await page.fill('#plName', 'Tarifa 2024');
-    await page.fill('#plYear', '2024');
-    await page.click('#plCreate');
-    await page.waitForTimeout(500);
-    await expect(page.locator('.plList')).toContainText('Tarifa 2024');
-    await expect(page.locator('#price-lists')).toContainText('Ningún precio específico todavía');
+    // c2 (A) y c3 (B) no negocian precios: no aparecen en la lista.
+    await expect(page.locator('.plList')).toContainText('Constructora Andes');
+    await expect(page.locator('.plList')).not.toContainText('Ferretería Sol');
+    await expect(page.locator('.plList')).not.toContainText('Detallista Norte');
+
+    await page.click('[data-pick="c1"]');
+    await page.waitForTimeout(400);
+    await expect(page.locator('#price-lists')).toContainText('Ningún precio negociado todavía');
 
     await page.selectOption('#plProduct', 'p1');
     await page.fill('#plPrice', '8');
@@ -67,21 +66,23 @@ test.describe('Tarifas — pantalla de gestión', () => {
 
     // La pantalla usa el formato es-EC ($10,00), no el toFixed(2) del presupuesto.
     const row = page.locator('.plTable tr', { hasText: 'Cemento 50kg' });
-    await expect(row).toContainText('$10,00'); // precio base
+    await expect(row).toContainText('$10,00'); // precio mayorista de referencia
     await expect(row.locator('input[data-price]')).toHaveValue('8');
     await expect(row.locator('.plDelta')).toContainText('-20.0%'); // -$2 sobre $10
 
-    const stored = await page.evaluate(() => window.__DB.price_list_items);
+    const stored = await page.evaluate(() => window.__DB.customer_special_prices);
     expect(stored).toHaveLength(1);
-    expect(stored[0].unit_price).toBe(8);
+    expect(stored[0]).toMatchObject({ customer_id: 'c1', product_id: 'p1', unit_price: 8 });
   });
 
-  // The composite key (tariff, product) is what makes a re-price a correction
-  // instead of a duplicate row — a second row would make the applied price
-  // depend on read order.
-  test('re-pricing a listed product corrects the row instead of duplicating it', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [{ ...ITEM_2024 }] });
+  // La clave compuesta (cliente, producto) es lo que hace que volver a poner
+  // precio sea una corrección y no una fila duplicada: con dos filas, el precio
+  // aplicado dependería del orden de lectura.
+  test('re-pricing a product corrects the row instead of duplicating it', async ({ page }) => {
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [{ ...SPECIAL_C1 }] });
     await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.click('[data-pick="c1"]');
+    await page.waitForTimeout(400);
 
     const input = page.locator('input[data-price="p1"]');
     await expect(input).toHaveValue('8');
@@ -89,48 +90,33 @@ test.describe('Tarifas — pantalla de gestión', () => {
     await input.blur();
     await page.waitForTimeout(500);
 
-    const stored = await page.evaluate(() => window.__DB.price_list_items);
+    const stored = await page.evaluate(() => window.__DB.customer_special_prices);
     expect(stored).toHaveLength(1);
     expect(stored[0].unit_price).toBe(7.5);
   });
 
-  test('removing a product from the tariff returns it to the base price', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [{ ...ITEM_2024 }] });
+  test('removing a negotiated price returns the product to the mayorista price', async ({ page }) => {
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [{ ...SPECIAL_C1 }] });
     await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
-    // Hay dos .plTable en la pantalla: precios y clientes de la tarifa.
-    await expect(page.locator('.plTable').first()).toContainText('Cemento 50kg');
+    await page.click('[data-pick="c1"]');
+    await page.waitForTimeout(400);
+    await expect(page.locator('.plTable')).toContainText('Cemento 50kg');
 
     await page.click('button[data-drop="p1"]');
     await page.waitForTimeout(500);
 
-    await expect(page.locator('#price-lists')).toContainText('Ningún precio específico todavía');
-    expect(await page.evaluate(() => window.__DB.price_list_items)).toHaveLength(0);
-  });
-
-  test('assigns and unassigns a customer to the tariff', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: [{ ...CUSTOMERS[0], price_list_id: null }, CUSTOMERS[1]], price_lists: [LIST_2024] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
-    await expect(page.locator('#price-lists')).toContainText('Ningún cliente usa esta tarifa');
-
-    await page.selectOption('#plCustomer', 'c1');
-    await page.click('#plAssign');
-    await page.waitForTimeout(500);
-    expect(await page.evaluate(() => window.__DB.customers.find(c => c.id === 'c1').price_list_id)).toBe('pl2024');
-    await expect(page.locator('.plList')).toContainText('1 cliente(s)');
-
-    await page.click('button[data-unassign="c1"]');
-    await page.waitForTimeout(500);
-    expect(await page.evaluate(() => window.__DB.customers.find(c => c.id === 'c1').price_list_id)).toBe(null);
+    await expect(page.locator('#price-lists')).toContainText('Ningún precio negociado todavía');
+    expect(await page.evaluate(() => window.__DB.customer_special_prices)).toHaveLength(0);
   });
 });
 
-test.describe('Tarifas — presupuestos', () => {
-  test('a customer with a tariff is quoted at their contract price, listed items only', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024] });
+test.describe('Tarifas especiales — presupuestos', () => {
+  test('a customer with negotiated prices is quoted at them, for those products only', async ({ page }) => {
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
 
     await page.selectOption('#clientSelect', '0991');
-    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C · tarifa del cliente aplicada');
+    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C · precios negociados aplicados');
 
     // Priced in the tariff: $8, not the $10 on the product sheet.
     await page.fill('#invoiceBarcode', 'B1');
@@ -156,8 +142,8 @@ test.describe('Tarifas — presupuestos', () => {
   // Regression: switching customer has to re-value what is already in the
   // basket. Leaving the old prices in place would quote one customer at
   // another's contract.
-  test('switching to a customer without a tariff re-values the pending basket', async ({ page }) => {
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024] });
+  test('switching to a customer without negotiated prices re-values the pending basket', async ({ page }) => {
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
 
     await page.selectOption('#clientSelect', '0991');
@@ -175,9 +161,9 @@ test.describe('Tarifas — presupuestos', () => {
   // The printed quote, the totals and the stored invoice line all have to agree
   // on one price. They did not: the snapshot and line_total kept using the base
   // price while unit_price and the totals used the tariff.
-  test('the generated quote stores and prints the contract price everywhere', async ({ page }) => {
+  test('the generated quote stores and prints the negotiated price everywhere', async ({ page }) => {
     page.on('dialog', d => d.accept());
-    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024] });
+    await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
 
     await page.fill('#sellerRuc', '1790012345001');
@@ -225,12 +211,12 @@ test.describe('Tarifas — presupuestos', () => {
   // A categoria C customer is one who signed a contract, but until a tariff is
   // assigned there is no pactado price: they pay the mayorista price (A), never
   // the retail one and never zero.
-  test('a categoria C customer with no tariff assigned falls back to the mayorista price', async ({ page }) => {
+  test('a categoria C customer with nothing negotiated falls back to the mayorista price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_C_SIN_TARIFA] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
 
     await page.selectOption('#clientSelect', '0994');
-    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C sin tarifa asignada: precio mayorista (A)');
+    await expect(page.locator('#quoteTariff')).toHaveText('Categoría C sin precios negociados: precio mayorista');
 
     await page.fill('#invoiceBarcode', 'B1');
     await expect(page.locator('#invoiceProductInfo')).toContainText('$10.00');
@@ -240,12 +226,12 @@ test.describe('Tarifas — presupuestos', () => {
   });
 });
 
-test.describe('Tarifas — catálogo del cliente', () => {
+test.describe('Tarifas especiales — catálogo del cliente', () => {
   const CLIENT_SESSION = { role: 'client', name: 'Andes', email: 'andes@example.com' };
 
-  test('a signed-in customer browses the catalogue at their contract price', async ({ page }) => {
+  test('a signed-in customer browses the catalogue at their negotiated price', async ({ page }) => {
     await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024],
+      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
       _profile: { id: 'client-uid', full_name: 'Andes', role: 'cliente', active: true, email: 'andes@example.com' },
     }, CLIENT_SESSION);
 
@@ -258,9 +244,9 @@ test.describe('Tarifas — catálogo del cliente', () => {
     await expect(page.locator('.ccProduct', { hasText: 'Arena m3' }).locator('.ccPrice')).toContainText('20,00');
   });
 
-  test('a customer with no tariff sees the base prices', async ({ page }) => {
+  test('a customer with nothing negotiated sees the base prices', async ({ page }) => {
     await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024],
+      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
       _profile: { id: 'client-uid', full_name: 'Sol', role: 'cliente', active: true, email: 'sol@example.com' },
     }, { role: 'client', name: 'Sol', email: 'sol@example.com' });
 
@@ -273,7 +259,7 @@ test.describe('Tarifas — catálogo del cliente', () => {
 
   test('a categoria B customer browses the catalogue at the retail price', async ({ page }) => {
     await boot(page, {
-      products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B], price_lists: [LIST_2024], price_list_items: [ITEM_2024],
+      products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B], customer_special_prices: [SPECIAL_C1],
       _profile: { id: 'client-uid-b', full_name: 'Detallista Norte', role: 'cliente', active: true, email: 'detal@example.com' },
     }, { role: 'client', name: 'Detallista Norte', email: 'detal@example.com' });
 
@@ -286,9 +272,9 @@ test.describe('Tarifas — catálogo del cliente', () => {
 
   // The catalogue is a "cliente"-facing view: a tariff must not become a way to
   // read margins. catalog_products still hides purchase_price and supplier_id.
-  test('the tariff-resolved catalogue still hides purchase prices and suppliers', async ({ page }) => {
+  test('the resolved catalogue still hides purchase prices and suppliers', async ({ page }) => {
     await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, price_lists: [LIST_2024], price_list_items: [ITEM_2024],
+      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
       _profile: { id: 'client-uid', full_name: 'Andes', role: 'cliente', active: true, email: 'andes@example.com' },
     }, CLIENT_SESSION);
 

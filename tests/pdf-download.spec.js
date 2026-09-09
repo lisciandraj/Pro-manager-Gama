@@ -25,7 +25,7 @@ async function boot(page, db = {}) {
     window.__DB = Object.assign({
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      price_lists: [], price_list_items: [], customer_requests: [],
+      customer_special_prices: [], customer_requests: [],
       tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     }, seed);
   }, db);

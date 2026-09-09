@@ -16,7 +16,7 @@ function localSnapshot(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||
    con has_photo; la foto la trae GamaPhotos sólo para las filas visibles. */
 const PRODUCT_COLUMNS='id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,created_at';
 function mapProduct(p){return {id:p.id,barcode:p.barcode||'',name:p.name||'',description:p.description||'',ref:p.reference||'',cat:p.category||'',family:p.family||'',lines:p.lines||'',brand:p.brand||'',presentation:p.presentation||'',loc:p.location||'',supplierId:p.supplier_id||'',min:Number(p.min_stock||0),maxStock:Number(p.max_stock||0),qtyCarton:Number(p.qty_per_carton||0),weightG:Number(p.weight_g||0),volumeCm3:Number(p.volume_cm3||0),stock:Number(p.stock||0),price:Number(p.sale_price||0),salePriceB:Number(p.sale_price_b||0),purchase_price:Number(p.purchase_price||0),iva:Number(p.tax_rate??15),photo:p.photo_data||'',hasPhoto:p.photo_data?true:!!p.has_photo,active:p.active!==false}}
-function mapClient(c){return {cloudId:c.id,priceListId:c.price_list_id||null,category:c.category||'A',id:c.identification||'',name:c.name||'',idType:'RUC',address:c.address||'',phone:c.phone||'',email:c.email||'',city:c.city||'',province:c.province||'',notes:c.notes||'',active:c.active!==false}}
+function mapClient(c){return {cloudId:c.id,category:c.category||'A',id:c.identification||'',name:c.name||'',idType:'RUC',address:c.address||'',phone:c.phone||'',email:c.email||'',city:c.city||'',province:c.province||'',notes:c.notes||'',active:c.active!==false}}
 function userLabel(userId){if(!userId)return'Sistema';return profilesById[userId]||'Usuario desconocido'}
 function mapMove(m){const p=db.products.find(x=>x.id===m.product_id);return {cloudId:m.id,id:m.id,date:m.created_at,type:(m.type==='in'?'IN':m.type==='out'?'OUT':'ADJUSTMENT'),barcode:p?.barcode||'',name:p?.name||'',qty:Number(m.quantity||0),user:userLabel(m.user_id),reason:m.reason||'',comment:m.comment||'',source:'Cloud',reference:'',stockBefore:m.stock_before===null||m.stock_before===undefined?null:Number(m.stock_before),stockAfter:m.stock_after===null||m.stock_after===undefined?null:Number(m.stock_after)}}
 function mapInvoice(i,lines){const p=(lines||[]).map(l=>{const pr=db.products.find(x=>x.id===l.product_id);return {name:pr?.name||'',barcode:pr?.barcode||'',qty:Number(l.quantity),price:Number(l.unit_price)}});return {cloudId:i.id,id:i.id,number:i.invoice_number||'',date:i.issue_date,clientId:db.clients.find(c=>c.cloudId===i.customer_id)?.id||'',client:db.clients.find(c=>c.cloudId===i.customer_id)?.name||'',items:p,sub:Number(i.subtotal),tax:Number(i.tax),total:Number(i.total),rate:p.length?Number(lines[0]?.tax_rate||15):15,pay:(i.notes&&!i.notes.startsWith('GAMA_META:'))?i.notes:''}}
@@ -76,10 +76,10 @@ async function purgeClientCloud(id){const c=(db.archivedClients||[]).find(x=>x.c
  const r=await GamaCloud.remove('customers',c.cloudId);
  if(r.error)alert(GamaArchive.friendlyError(r.error,'client'));else await loadAll()}
 async function generateInvoiceCloud(){if(!validateQuoteForm())return;const customer=db.clients.find(c=>c.id===$('clientId').value);if(!customer)return alert('Cliente no encontrado en Cloud.');const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices?.length||0);const session=(await GamaCloud.getSession()).data.session;const inv=await GamaCloud.insert('invoices',{invoice_number:number,customer_id:customer.cloudId,user_id:session?.user?.id||null,status:'issued',issue_date:new Date().toISOString(),subtotal:sub,tax,total,notes:$('payment').value||null});if(inv.error){alert('No se pudo crear el presupuesto: '+inv.error.message);return}for(const x of invoiceItems){const line=await GamaCloud.insert('invoice_lines',{invoice_id:inv.data.id,product_id:x.p.id,quantity:x.q,unit_price:window.quoteLinePrice(x),tax_rate:rate,line_total:x.q*window.quoteLinePrice(x)*(1+rate/100)});if(line.error){alert('El presupuesto se creó pero una línea falló: '+line.error.message);return}}const localInv={id:inv.data.id,number,date:inv.data.issue_date,clientId:customer.id,client:customer.name,clientEmail:customer.email,clientAddress:customer.address,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};finishQuote(localInv);await loadAll();alert('Presupuesto generado en la base central. Puedes imprimirlo o enviarlo por correo al cliente.')}
-/* Tarifas por año de contrato: al elegir el cliente se cargan los precios de
-   su tarifa. Sólo se listan allí los productos cuyo precio difiere, así que lo
-   que falte cae en el precio base de la ficha. */
-let contractPrices={},contractListId=null,contractCategory='A';
+/* Tarifas especiales: al elegir el cliente se cargan sus precios negociados.
+   Sólo se guardan allí los productos cuyo precio se pactó aparte, así que lo
+   que falte cae en el precio de la ficha según su categoría. */
+let contractPrices={},contractCategory='A';
 /* Categoría del cliente: A factura al precio mayorista de la ficha, B al
    precio al detalle y C al precio pactado en su tarifa. Un cliente C cae en
    el precio de la categoría A cuando el producto no está en su tarifa. */
@@ -90,21 +90,21 @@ window.gamaPriceFor=function(p){
  return window.gamaCategoryPrice(p,contractCategory);
 };
 window.gamaHasContractPrice=function(p){return !!p&&contractPrices[p.id]!==undefined};
-async function loadContractPrices(listId){
- contractPrices={};contractListId=listId||null;
- if(!listId)return;
+async function loadContractPrices(customerId){
+ contractPrices={};
+ if(!customerId)return;
  try{
-  const r=await GamaCloud.list('price_list_items',{eq:{price_list_id:listId}});
+  const r=await GamaCloud.list('customer_special_prices',{eq:{customer_id:customerId}});
   if(r.error)throw r.error;
   (r.data||[]).forEach(i=>{contractPrices[i.product_id]=Number(i.unit_price)});
- }catch(e){console.warn('[GAMA Tarifas] no se pudieron leer los precios del cliente',e)}
+ }catch(e){console.warn('[GAMA Tarifas] no se pudieron leer los precios negociados del cliente',e)}
 }
 async function selectClientForInvoiceCloud(){
  const c=db.clients.find(x=>x.id===$('clientSelect').value);
  $('clientId').value=c?c.id:'';$('clientName').value=c?c.name:'';
  $('clientAddress').value=c?c.address||'':'';$('clientEmail').value=c?c.email||'':'';
  contractCategory=c?c.category||'A':'A';
- await loadContractPrices(c?c.priceListId:null);
+ await loadContractPrices(c&&contractCategory==='C'?c.cloudId:null);
  // Al cambiar de cliente se vuelve a valorar lo que ya esté en el presupuesto,
  // y se descartan los precios escritos a mano: una oferta se pactó con ESTE
  // cliente, arrastrarla al presupuesto de otro es un error que no se ve.
@@ -112,7 +112,7 @@ async function selectClientForInvoiceCloud(){
  if(typeof window.renderInvoiceItems==='function')window.renderInvoiceItems();
  const tag=$('quoteTariff');
  if(tag)tag.textContent=!c?'':contractCategory==='C'
-  ?(c.priceListId?'Categoría C · tarifa del cliente aplicada':'Categoría C sin tarifa asignada: precio mayorista (A)')
+  ?(Object.keys(contractPrices).length?'Categoría C · precios negociados aplicados':'Categoría C sin precios negociados: precio mayorista')
   :(contractCategory==='B'?'Categoría B · precio al detalle':'Categoría A · precio mayorista');
 }
 function populateClientSelectCloud(){const s=$('clientSelect');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Selecciona un cliente...</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name} — ${c.id}</option>`).join('');if(cur&&db.clients.some(c=>c.id===cur))s.value=cur}

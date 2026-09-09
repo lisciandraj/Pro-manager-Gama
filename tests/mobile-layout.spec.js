@@ -20,9 +20,10 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 const SEED = {
   products: [{ id: 'p1', name: 'Producto de prueba', reference: 'REF-1', category: 'General', sale_price: 10, purchase_price: 5, tax_rate: 15, stock: 8, active: true, created_at: hoy() }],
   suppliers: [{ id: 's1', name: 'Proveedor Uno', active: true }],
-  customers: [{ id: 'c1', name: 'Cliente Uno', active: true, email: 'c@e.com' }],
+  customers: [{ id: 'c1', name: 'Cliente Uno', active: true, email: 'c@e.com', category: 'C' }],
   invoices: [], invoice_lines: [], purchase_orders: [], purchase_order_lines: [],
-  stock_movements: [], profiles: [], customer_special_prices: [],
+  stock_movements: [], profiles: [],
+  customer_special_prices: [{ id: 'sp1', customer_id: 'c1', product_id: 'p1', unit_price: 5 }],
   customer_requests: [], app_modules: [],
   hr_employees: [
     { id: 'e1', full_name: 'Ana Torres', position: 'Conductora', department: 'Logística', active: true },
@@ -108,6 +109,28 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
     });
     expect(r.filas, 'las pestañas se parten en varias filas').toBe(1);
     expect(r.cortadas, 'hay pestañas con el texto cortado').toEqual([]);
+  });
+
+  // La pantalla de Tarifas sólo pinta su tabla tras elegir un cliente, así que
+  // el barrido del menú la veía siempre vacía: el desbordamiento vivía en la
+  // tabla de precios negociados y ninguna prueba llegaba a ella.
+  test('los precios negociados de un cliente caben en una pantalla de 390 px', async ({ page }) => {
+    await bootTelefono(page, 390);
+    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.waitForTimeout(900);
+    await page.click('[data-pick="c1"]');
+    await page.waitForTimeout(600);
+
+    await expect(page.locator('.plTable')).toBeVisible();
+    const m = await medir(page);
+    expect(m.sw, `la tabla de precios negociados estira la página: ${m.peor}`).toBeLessThanOrEqual(m.vw + 1);
+
+    // Acotar la columna no puede haber aplastado la tabla: sigue teniendo su
+    // propio desplazamiento dentro de la tarjeta.
+    expect(await page.evaluate(() => {
+      const t = document.querySelector('#price-lists .plTableWrap');
+      return t ? t.scrollWidth > t.clientWidth : false;
+    }), 'la tabla de precios ya no se desplaza dentro de su caja').toBe(true);
   });
 
   test('ningún módulo del menú desborda a lo ancho en un teléfono de 390 px', async ({ page }) => {

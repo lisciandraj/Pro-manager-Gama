@@ -141,7 +141,11 @@
       window.__DB.__calls.push({ table, select: (options || {}).select || '*' });
       return { data: rowsFor(table, options), error: null };
     },
-    select: async (table) => ({ data: rowsFor(table, {}), error: null }),
+    // Deliberadamente NO hay select(): el GamaCloud de verdad no lo tiene. El
+    // doble sí lo ofrecía, y por eso una pantalla entera —Compras— pudo pasar
+    // por las pruebas llamando a C().select() y caerse en producción con
+    // «C().select is not a function». Un doble más permisivo que lo real no
+    // prueba nada: prueba el doble.
     insert: async (table, row) => {
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];

@@ -78,3 +78,93 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
     expect(dialogs).toContain('Selecciona un proveedor.');
   });
 });
+
+// El proveedor de un pedido se escribía a mano teniendo la ficha del producto
+// el dato delante. Escribirlo a mano es donde se cuela el pedido hecho al
+// proveedor equivocado, y eso llega hasta el correo que se le manda.
+test.describe('Compras: el proveedor se pone solo desde la ficha del producto', () => {
+  async function abrir(page, productos) {
+    await page.addInitScript(() => {
+      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+    });
+    await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD }));
+    await page.route('**/@supabase/**', r => r.abort());
+    await page.goto('/index.html');
+    await page.waitForTimeout(600);
+    await page.evaluate(ps => {
+      // @ts-ignore
+      window.__DB.suppliers = [
+        { id: 'sup1', name: 'TecnoSuministros Ecuador', active: true },
+        { id: 'sup2', name: 'Logística y Suministros Loja', active: true },
+        { id: 'sup3', name: 'Proveedor archivado', active: false },
+      ];
+      // @ts-ignore
+      window.__DB.products = ps;
+      // @ts-ignore
+      window.gamaShowPurchases();
+    }, productos);
+    await page.waitForTimeout(700);
+  }
+
+  const PRODUCTOS = [
+    { id: 'p1', name: 'Compote de manzana', reference: 'COM-01', stock: 5, min_stock: 2, purchase_price: 3.5, sale_price: 6, active: true, supplier_id: 'sup1' },
+    { id: 'p2', name: 'Brio mate', reference: 'BEB-453', stock: 9, min_stock: 2, purchase_price: 1.25, sale_price: 3, active: true, supplier_id: 'sup2' },
+    { id: 'p3', name: 'Producto suelto', reference: 'SUE-01', stock: 4, min_stock: 1, purchase_price: 2, sale_price: 4, active: true, supplier_id: null },
+    { id: 'p4', name: 'De proveedor archivado', reference: 'ARC-01', stock: 4, min_stock: 1, purchase_price: 9, sale_price: 12, active: true, supplier_id: 'sup3' },
+  ];
+
+  // Elegir por código y no por la interfaz: lo que se prueba es la regla, no
+  // el buscador de la lista, que tiene sus propias pruebas.
+  const elegir = (page, id) => page.evaluate(v => {
+    const s = document.getElementById('gp14Product');
+    s.value = v;
+    s.dispatchEvent(new Event('change', { bubbles: true }));
+  }, id);
+
+  test('el proveedor y el precio de compra se rellenan al elegir el producto', async ({ page }) => {
+    await abrir(page, PRODUCTOS);
+    await expect(page.locator('#gp14Supplier')).toHaveValue('');
+
+    await elegir(page, 'p1');
+    await expect(page.locator('#gp14Supplier')).toHaveValue('sup1');
+    await expect(page.locator('#gp14Cost')).toHaveValue('3.50');
+    await expect(page.locator('#gp14Msg')).toContainText('TecnoSuministros Ecuador');
+
+    // Cambiar de producto con el pedido todavía vacío cambia el proveedor: no
+    // hay nada dentro a lo que le importe.
+    await elegir(page, 'p2');
+    await expect(page.locator('#gp14Supplier')).toHaveValue('sup2');
+    await expect(page.locator('#gp14Cost')).toHaveValue('1.25');
+  });
+
+  test('un producto sin proveedor, o con uno archivado, no inventa ninguno', async ({ page }) => {
+    await abrir(page, PRODUCTOS);
+
+    await elegir(page, 'p3');
+    await expect(page.locator('#gp14Supplier'), 'se puso un proveedor de la nada').toHaveValue('');
+    await expect(page.locator('#gp14Cost')).toHaveValue('2.00');
+
+    // Su proveedor existe pero está archivado: no sale en la lista, así que
+    // mejor el hueco vacío que un proveedor que no se puede elegir.
+    await elegir(page, 'p4');
+    await expect(page.locator('#gp14Supplier')).toHaveValue('');
+    await expect(page.locator('#gp14Cost')).toHaveValue('9.00');
+  });
+
+  // Un pedido es de UN proveedor. Con líneas dentro, cambiárselo por debajo
+  // movería de sitio lo que ya hay.
+  test('con el pedido empezado no se le cambia el proveedor: se avisa', async ({ page }) => {
+    await abrir(page, PRODUCTOS);
+
+    await elegir(page, 'p2');
+    await page.fill('#gp14Qty', '3');
+    await page.click('#gp14Add');
+    await expect(page.locator('#gp14Draft')).toContainText('Brio mate');
+
+    await elegir(page, 'p1');
+    await expect(page.locator('#gp14Supplier'), 'le cambió el proveedor a un pedido empezado').toHaveValue('sup2');
+    await expect(page.locator('#gp14Msg')).toContainText('va a otro proveedor');
+    // El precio sí se actualiza: ése es del producto que se está añadiendo.
+    await expect(page.locator('#gp14Cost')).toHaveValue('3.50');
+  });
+});

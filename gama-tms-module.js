@@ -9,12 +9,12 @@ const C=()=>window.GamaCloud;
 const readLocal=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
-let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[]};
+let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[],customers:[]};
 let editingDriverId=null,proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
 
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
 const drvFrom=r=>({id:r.id,name:r.name,phone:r.phone||'',vehicle:r.vehicle||'',maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),enabled:r.enabled!==false,employeeId:r.employee_id||null});
-const delFrom=r=>({id:r.id,customer:r.customer,address:r.address,date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||''});
+const delFrom=r=>({id:r.id,customer:r.customer,address:r.address,customerId:r.customer_id||null,date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||''});
 const rtFrom=r=>({id:r.id,date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at});
 const evFrom=r=>({id:r.id,at:r.at,deliveryId:r.delivery_id,type:r.type,note:r.note||'',customer:r.customer||''});
 
@@ -61,6 +61,16 @@ async function fetchAll(){
   db.archive=(arch.data||[]).map(delFrom);
  }else db.archive=[];
  await fetchHr(api,t);
+ await fetchCustomers(api);
+}
+/* Los clientes van aparte y sin propagar el error, igual que RRHH: si el rol
+   no puede leerlos el desplegable se queda vacío y el transporte sigue
+   funcionando con los campos escritos a mano. */
+async function fetchCustomers(api){
+ try{
+  const r=await api.list('customers',{select:'id,name,address,email,active',order:'name',ascending:true});
+  db.customers=r.error?[]:(r.data||[]).filter(c=>c.active!==false);
+ }catch(e){db.customers=[]}
 }
 /* Fichas de empleado y ausencias que todavía no han terminado (las pasadas ya
    no afectan a ninguna ruta). Va aparte y sin propagar el error: si el rol no
@@ -217,9 +227,10 @@ async function optimize(){
 async function addDelivery(){
  const f=id=>document.getElementById(id);
  const customer=f('tCustomer').value.trim(),address=f('tAddress').value.trim();
+ const customerId=f('tCustomerPick')?.value||null;
  if(!customer||!address){alert('El cliente y la dirección son obligatorios.');return}
  try{
-  const r=await C().insert('tms_deliveries',{customer,address,delivery_date:f('tDate').value||today(),time_window:f('tWindow')?.value.trim()||null,priority:f('tPriority')?.value||'Normal',weight:+(f('tWeight')?.value)||0,volume:+(f('tVolume')?.value)||0,status:'Pendiente de preparación'});
+  const r=await C().insert('tms_deliveries',{customer,address,customer_id:customerId,delivery_date:f('tDate').value||today(),time_window:f('tWindow')?.value.trim()||null,priority:f('tPriority')?.value||'Normal',weight:+(f('tWeight')?.value)||0,volume:+(f('tVolume')?.value)||0,status:'Pendiente de preparación'});
   if(r.data)await log(delFrom(r.data),'Creada');
   await reload('planning');
  }catch(e){fail(e,'No se pudo crear la entrega')}
@@ -341,6 +352,52 @@ async function downloadProofCertificate(id){
  }catch(e){console.error('[GAMA PDF comprobante]',e);alert('No se pudo generar el comprobante: '+(e&&e.message||e))}
  finally{if(btn){btn.disabled=false;btn.textContent=texto}}
 }
+/* La ficha del cliente rellena la empresa y la dirección de la entrega. Los
+   dos campos quedan editables a propósito: una entrega puntual a otra
+   dirección es corriente, y el enlace con la ficha se conserva igual, que es
+   lo que luego permite mandarle el comprobante a su correo. */
+function fillFromCustomer(x,id){
+ const c=db.customers.find(y=>String(y.id)===String(id));
+ if(!c)return;
+ const nombre=x.querySelector('#tCustomer'),direccion=x.querySelector('#tAddress');
+ if(nombre)nombre.value=c.name||'';
+ if(direccion)direccion.value=c.address||'';
+}
+/* El mismo comprobante que se descarga, pero con el correo del cliente y el
+   mensaje ya escritos. En el móvil se comparte el PDF directamente; en el
+   escritorio se descarga y se abre el compositor. Si la entrega se escribió a
+   mano o el cliente no tiene correo en su ficha, se avisa y se abre igual: el
+   asunto y el cuerpo ya están puestos y sólo falta teclear la dirección. */
+async function emailProofCertificate(id){
+ if(!window.GamaPdf||!window.GamaQuotePdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
+ const d=archiveList().find(x=>x.id===id);
+ if(!d)return alert('No se encontró la entrega.');
+ const btn=section().querySelector('#tProofMail');
+ const texto=btn?btn.textContent:'';
+ if(btn){btn.disabled=true;btn.textContent='Preparando…'}
+ try{
+  const pr=await ensureProof(d.id);
+  const conductor=(db.drivers.find(x=>x.id===d.driverId)||{}).name||'';
+  const doc=window.GamaPdf.proofCertificate({
+   cliente:d.customer,direccion:d.address,fecha:d.deliveredAt||d.date,
+   conductor,referencia:d.reference||d.notes||'',
+   firma:pr&&pr.signature||'',foto:pr&&pr.photo||''
+  });
+  const fecha=new Date(d.deliveredAt||d.date||Date.now());
+  const dia=fecha.toISOString().slice(0,10),legible=fecha.toLocaleDateString('es-EC');
+  const cliente=db.customers.find(c=>String(c.id)===String(d.customerId));
+  const email=cliente&&cliente.email||'';
+  if(!email)alert('Este cliente no tiene un correo registrado: complétalo manualmente al enviar.');
+  await window.GamaQuotePdf.sendDocument({
+   blob:doc.output('blob'),
+   email,
+   subject:'Comprobante de entrega — '+legible,
+   body:'Estimado/a '+(d.customer||'cliente')+',\n\nAdjuntamos el comprobante de la entrega realizada el '+legible+' en '+(d.address||'')+'.'+(conductor?'\nTransportista: '+conductor+'.':'')+'\n\nQuedamos a su disposición para cualquier consulta.\n\nGAMA Enterprise Resource Planning',
+   filename:window.GamaPdf.fileName('entrega',dia+'-'+(d.customer||''))
+  });
+ }catch(e){console.error('[GAMA PDF comprobante correo]',e);alert('No se pudo preparar el envío: '+(e&&e.message||e))}
+ finally{if(btn){btn.disabled=false;btn.textContent=texto}}
+}
 async function downloadProofReport(){
  const btn=section().querySelector('#tProofPdf');
  if(!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
@@ -409,7 +466,7 @@ function render(tab){
  const x=section(),ds=db.deliveries.filter(d=>d.date===today()),pending=ds.filter(d=>!['Entregada','Cancelada'].includes(d.status)).length,del=ds.filter(d=>d.status==='Entregada').length,exceptions=ds.filter(d=>d.status==='Excepción').length,planned=db.routes.filter(r=>r.date===today()&&r.status!=='Terminada').length;
  const tabs=[['planning','Planificación'],['tracking','Seguimiento del conductor'],['proof','Prueba de entrega'],['fleet','Conductores y vehículos'],['history','Historial']];
  let body='';
-if(tab==='planning')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Nueva entrega</b><small>Pedidos / preparación</small></div><div class="tmsForm"><div><label>Cliente</label><input id="tCustomer" placeholder="Nombre del cliente"></div><div><label>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label>Dirección</label><input id="tAddress" placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label>Prioridad</label><select id="tPriority"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div><div><label>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px">Añadir entrega</button></div><div class="tmsCard"><div class="tmsTitle"><b>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="tmsTable"><thead><tr><th>Cliente</th><th>Franja</th><th>Carga</th><th>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds).map(d=>`<tr><td><b>${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty">No hay entregas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Optimizar rutas de hoy</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><p style="font-size:12px;color:#71808a">Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.</p>${avisoAusencias()}<button class="tmsBtn tmsOrange" id="tOptimize">Optimizar todas las rutas</button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:#81909a">${routeStops(r).filter(s=>!s.isDepot).length} paradas · ${esc(r.status)}</p><button class="tmsBtn tmsLight" onclick="gamaTMS.open('tracking')">Ver ruta</button> <button class="tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty">No hay rutas planificadas.</div>'}</div></div><details class="tmsCard"><summary>⚙️ Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" placeholder="Dirección de salida / regreso"></div><div><label>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''}>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''}>No</option></select></div></div><button class="tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px">Guardar</button></details></div></div>`;
+if(tab==='planning')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Nueva entrega</b><small>Pedidos / preparación</small></div><div class="tmsForm"><div class="full"><label>Cliente registrado</label><select id="tCustomerPick"><option value="">— Escribir a mano —</option>${db.customers.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div><div><label>Cliente</label><input id="tCustomer" placeholder="Nombre del cliente"></div><div><label>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label>Dirección</label><input id="tAddress" placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label>Prioridad</label><select id="tPriority"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div><div><label>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px">Añadir entrega</button></div><div class="tmsCard"><div class="tmsTitle"><b>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="tmsTable"><thead><tr><th>Cliente</th><th>Franja</th><th>Carga</th><th>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds).map(d=>`<tr><td><b>${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty">No hay entregas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Optimizar rutas de hoy</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><p style="font-size:12px;color:#71808a">Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.</p>${avisoAusencias()}<button class="tmsBtn tmsOrange" id="tOptimize">Optimizar todas las rutas</button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:#81909a">${routeStops(r).filter(s=>!s.isDepot).length} paradas · ${esc(r.status)}</p><button class="tmsBtn tmsLight" onclick="gamaTMS.open('tracking')">Ver ruta</button> <button class="tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty">No hay rutas planificadas.</div>'}</div></div><details class="tmsCard"><summary>⚙️ Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" placeholder="Dirección de salida / regreso"></div><div><label>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''}>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''}>No</option></select></div></div><button class="tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px">Guardar</button></details></div></div>`;
 if(tab==='tracking')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b>Seguimiento de las rutas</b><small>${planned} activa(s)</small></div>${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${esc(r.status)}</small></div>${routeStops(r).filter(s=>!s.isDepot).map((d,i)=>`<div class="tmsStop"><span class="tmsNum">${i+1}</span><div><b>${esc(d.customer)}</b><small>${esc(d.address)}${d.timeWindow?' · '+esc(d.timeWindow):''}</small></div><strong>${esc(d.status)}<br>${d.actualArrival?new Date(d.actualArrival).toLocaleTimeString():''}</strong></div><div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">POD</button></div>`).join('')}</div>`).join('')||'<div class="tmsEmpty">No hay rutas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b>Eventos recientes</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><div class="tmsTimeline">${db.history.slice(0,12).map(h=>`<div class="tmsEvent"><b>${esc(h.type)} · ${esc(h.customer)}</b><small>${new Date(h.at).toLocaleString()} ${esc(h.note)}</small></div>`).join('')||'<div class="tmsEmpty">No hay eventos.</div>'}</div></div></div></div>`;
 if(tab==='proof'){
  const toCapture=ds.filter(d=>d.status!=='Entregada');
@@ -417,7 +474,7 @@ if(tab==='proof'){
  const selId=defaultProofId();
  const sel=delivered.find(d=>d.id===selId);
  const pr=sel?proofCache[sel.id]:null;
- body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.customer)}</b><small>${esc(d.address)}</small></div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty">Todas las entregas de hoy están terminadas.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px">📄 Descargar informe PDF</button>`:''}${delivered.length?`<label>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty">Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty">Sin firma</div>'}</div></div><p style="font-size:12px;color:#71808a;margin-top:8px">Entregado: ${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p><button class="tmsBtn tmsPrimary" id="tProofOne" style="width:100%">📄 Descargar comprobante de esta entrega</button>`:''}`:'<div class="tmsEmpty">Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
+ body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.customer)}</b><small>${esc(d.address)}</small></div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')">Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty">Todas las entregas de hoy están terminadas.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px">📄 Descargar informe PDF</button>`:''}${delivered.length?`<label>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty">Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty">Sin firma</div>'}</div></div><p style="font-size:12px;color:#71808a;margin-top:8px">Entregado: ${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p><button class="tmsBtn tmsPrimary" id="tProofOne" style="width:100%">📄 Descargar comprobante de esta entrega</button><button class="tmsBtn tmsLight" id="tProofMail" style="width:100%;margin-top:8px">✉️ Enviar el comprobante al cliente</button>`:''}`:'<div class="tmsEmpty">Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
 }
 if(tab==='fleet'){
  const editing=editingDriverId?db.drivers.find(x=>x.id===editingDriverId):null;
@@ -434,6 +491,8 @@ if(tab==='history')body=`<div class="tmsCard"><div class="tmsTitle"><b>Historial
  const ps=x.querySelector('#tProofSelect');if(ps)ps.onchange=()=>viewProofArchive(ps.value);
  const pp=x.querySelector('#tProofPdf');if(pp)pp.onclick=downloadProofReport;
  const po=x.querySelector('#tProofOne');if(po)po.onclick=()=>downloadProofCertificate(defaultProofId());
+ const pm=x.querySelector('#tProofMail');if(pm)pm.onclick=()=>emailProofCertificate(defaultProofId());
+ const cp=x.querySelector('#tCustomerPick');if(cp)cp.onchange=()=>fillFromCustomer(x,cp.value);
  const sd=x.querySelector('#tSaveDepot');if(sd)sd.onclick=saveDepot;
 }
 function mapsUrl(r){const s=routeStops(r),valid=s.filter(x=>!x.isDepot||x.address);if(valid.length<2)return '#';const o=encodeURIComponent(valid[0].address),dest=encodeURIComponent(valid[valid.length-1].address),wp=valid.slice(1,-1).map(x=>encodeURIComponent(x.address)).join('|');return'https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+dest+(wp?'&waypoints='+wp:'')+'&travelmode=driving'}

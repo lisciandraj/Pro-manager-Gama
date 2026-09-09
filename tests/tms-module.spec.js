@@ -18,7 +18,7 @@ async function boot(page, seed = {}) {
     if (seedData.__legacy) localStorage.setItem('gama-tms-v1', JSON.stringify(seedData.__legacy));
     // @ts-ignore
     window.__DB = {
-      products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+      products: [], suppliers: [], customers: seedData.customers || [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
       tms_drivers: seedData.drivers || [],
       tms_deliveries: seedData.deliveries || [],
@@ -139,6 +139,137 @@ test.describe('TMS — proof-of-delivery archive', () => {
     // Opening one POD is what fetches its image, and only that row's.
     await page.click('button.tmsTab:has-text("Prueba de entrega")');
     await expect(page.locator('.tmsProof img').first()).toHaveAttribute('src', /PHOTO/);
+  });
+});
+
+// La empresa y la dirección se tecleaban a mano en cada entrega, aunque el
+// cliente ya estuviera en su ficha: se copiaban mal y no había forma de saber
+// a qué correo mandarle luego el comprobante.
+test.describe('TMS — la entrega se rellena desde la ficha del cliente', () => {
+  const CLIENTES = [
+    { id: 'cli1', name: 'Ferretería Sol', address: 'Av. Principal 100, Quito', email: 'sol@example.com', active: true },
+    { id: 'cli2', name: 'Constructora Andes', address: 'Calle 5 y 6, Cuenca', email: '', active: true },
+  ];
+
+  test('elegir un cliente rellena la empresa y la dirección, y la entrega guarda el enlace', async ({ page }) => {
+    await boot(page, { drivers: DRIVERS.slice(0, 1), customers: CLIENTES });
+
+    await page.selectOption('#tCustomerPick', 'cli1');
+    await expect(page.locator('#tCustomer')).toHaveValue('Ferretería Sol');
+    await expect(page.locator('#tAddress')).toHaveValue('Av. Principal 100, Quito');
+
+    await page.click('#tAdd');
+    await page.waitForTimeout(600);
+
+    const guardada = await page.evaluate(() => window.__DB.tms_deliveries[0]);
+    expect(guardada).toMatchObject({
+      customer: 'Ferretería Sol',
+      address: 'Av. Principal 100, Quito',
+      customer_id: 'cli1',
+    });
+  });
+
+  // Una entrega puntual a otra dirección es corriente: los campos siguen
+  // siendo editables y el enlace con la ficha se conserva, que es lo que
+  // permite mandarle el comprobante a su correo.
+  test('la dirección se puede cambiar sin perder el enlace con el cliente', async ({ page }) => {
+    await boot(page, { drivers: DRIVERS.slice(0, 1), customers: CLIENTES });
+
+    await page.selectOption('#tCustomerPick', 'cli1');
+    await page.fill('#tAddress', 'Bodega temporal, Machala');
+    await page.click('#tAdd');
+    await page.waitForTimeout(600);
+
+    const guardada = await page.evaluate(() => window.__DB.tms_deliveries[0]);
+    expect(guardada.address).toBe('Bodega temporal, Machala');
+    expect(guardada.customer_id).toBe('cli1');
+  });
+});
+
+// El comprobante sólo se podía descargar: había que buscar el correo del
+// cliente a mano y escribir el mensaje cada vez.
+test.describe('TMS — enviar el comprobante al cliente', () => {
+  test('prepara el correo con la dirección de la ficha, el asunto y el PDF', async ({ page }) => {
+    const envios = [];
+    await page.exposeFunction('__captureSend', (args) => { envios.push(args); });
+
+    const iso = new Date().toISOString();
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      customers: [{ id: 'cli1', name: 'Ferretería Sol', address: 'Av. Principal 100', email: 'sol@example.com', active: true }],
+      deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', customer_id: 'cli1', delivery_date: today(), status: 'Entregada', delivered_at: iso, driver_id: 'drv1', created_at: iso }],
+      proofs: [{ delivery_id: 'del1', photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE', captured_at: iso }],
+    });
+    await page.click('button.tmsTab:has-text("Prueba de entrega")');
+    await page.waitForTimeout(400);
+
+    // El PDF, el Web Share y el mailto ya están cubiertos por el envío de
+    // presupuestos con el que se comparten: aquí se comprueba lo que se le
+    // entrega a esa maquinaria.
+    await page.evaluate(() => {
+      // jsPDF llega por CDN y aquí no hay red: se sustituye el dibujo del
+      // comprobante por un doble, como en pdf-download.spec.js.
+      // @ts-ignore
+      window.GamaPdf.proofCertificate = e => { window.__cert = e; return { output: () => new Blob(['pdf']) }; };
+      // @ts-ignore
+      window.GamaQuotePdf.sendDocument = (args) => {
+        // @ts-ignore
+        window.__captureSend({ email: args.email, subject: args.subject, body: args.body, filename: args.filename, tienePdf: !!args.blob });
+        return Promise.resolve();
+      };
+    });
+
+    await page.click('#tProofMail');
+    await expect.poll(() => envios.length).toBe(1);
+
+    expect(envios[0].email).toBe('sol@example.com');
+    expect(envios[0].subject).toContain('Comprobante de entrega');
+    expect(envios[0].body).toContain('Ferretería Sol');
+    expect(envios[0].body).toContain('Av. Principal 100');
+    expect(envios[0].body).toContain('Conductor 1');
+    expect(envios[0].tienePdf, 'el comprobante no viaja adjunto').toBe(true);
+
+    // El comprobante se arma con los datos de esa entrega, no de otra.
+    const cert = await page.evaluate(() => window.__cert);
+    expect(cert).toMatchObject({ cliente: 'Ferretería Sol', direccion: 'Av. Principal 100', conductor: 'Conductor 1' });
+    expect(cert.firma).toContain('SIGNATURE');
+    expect(cert.foto).toContain('PHOTO');
+  });
+
+  // Sin correo en la ficha no se puede bloquear el envío: se avisa y se abre
+  // igual el compositor, con todo escrito menos la dirección.
+  test('sin correo en la ficha avisa pero prepara igual el mensaje', async ({ page }) => {
+    const envios = [];
+    const avisos = [];
+    await page.exposeFunction('__captureSend', (args) => { envios.push(args); });
+
+    const iso = new Date().toISOString();
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      customers: [{ id: 'cli2', name: 'Constructora Andes', address: 'Calle 5', email: '', active: true }],
+      deliveries: [{ id: 'del1', customer: 'Constructora Andes', address: 'Calle 5', customer_id: 'cli2', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
+      proofs: [{ delivery_id: 'del1', photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE', captured_at: iso }],
+    });
+    page.on('dialog', async d => { avisos.push(d.message()); await d.accept(); });
+    await page.click('button.tmsTab:has-text("Prueba de entrega")');
+    await page.waitForTimeout(400);
+
+    await page.evaluate(() => {
+      // @ts-ignore
+      window.GamaPdf.proofCertificate = () => ({ output: () => new Blob(['pdf']) });
+      // @ts-ignore
+      window.GamaQuotePdf.sendDocument = (args) => {
+        // @ts-ignore
+        window.__captureSend({ email: args.email, subject: args.subject });
+        return Promise.resolve();
+      };
+    });
+
+    await page.click('#tProofMail');
+    await expect.poll(() => envios.length).toBe(1);
+    expect(envios[0].email).toBe('');
+    expect(envios[0].subject).toContain('Comprobante de entrega');
+    expect(avisos.join(' ')).toContain('correo');
   });
 });
 

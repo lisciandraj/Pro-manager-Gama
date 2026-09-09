@@ -104,6 +104,7 @@ function css(){
 .plTable th,.plTable td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px}
 .plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
 .plTable input{width:110px;padding:6px;text-align:right}
+.plContrato{display:block;color:#7b8992;font-size:10.5px}
 .plDelta{font-weight:800}.plDelta.up{color:#138a69}.plDelta.down{color:#c94f45}
 .plEmpty{padding:20px;text-align:center;color:#81909a}
 @media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
@@ -127,7 +128,7 @@ function render(){
   <div>
    <div class="card">
     <h3>Clientes de categoría C</h3>
-    <p class="muted">Sólo un cliente de categoría C tiene precios negociados. La categoría se asigna en su ficha, en 👥 Clientes.</p>
+    <p class="muted">Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importación Excel y corregir aquí producto a producto cuando el contrato cambia.</p>
    </div>
    <div class="plList">${customers.length?customers.map(c=>`<div class="plItem${c.id===selected?' on':''}" data-pick="${esc(c.id)}">
      <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>
@@ -150,7 +151,7 @@ function renderDetail(cur,listed){
    ${items.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
-     return `<tr><td>${esc(productName(i.product_id))}</td><td>${money(base)}</td>
+     return `<tr><td>${esc(productName(i.product_id))}${i.contract_ref?`<small class="plContrato">Contrato ${esc(i.contract_ref)}</small>`:''}</td><td>${money(base)}</td>
       <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
       <td><button class="danger" data-drop="${esc(i.product_id)}" title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt"> Retirar</span></button></td></tr>`}).join('')}

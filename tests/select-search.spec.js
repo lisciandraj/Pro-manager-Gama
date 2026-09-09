@@ -5,10 +5,12 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// El buscador de las listas desplegables. Lo que hay que proteger no es que
-// aparezca una caja de texto, sino las tres promesas que la hacen usable: que
-// filtre de verdad, que no aparezca donde estorba, y que NO rompa el <select>
-// de siempre — media aplicación lee su .value y escucha su change.
+// Buscar escribiendo en una lista larga. Lo que hay que proteger no es que
+// aparezca una caja de texto, sino las cuatro promesas que la hacen usable:
+// que lo escrito recorte la lista que se despliega debajo, que elegir en ella
+// le escriba el valor al <select> de siempre y le lance su change —de ese
+// change cuelga media aplicación—, que no aparezca donde estorba, y que el
+// <select> siga estando ahí para todo lo que ya lo maneja.
 async function boot(page, db = {}) {
   await page.addInitScript((seed) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
@@ -28,7 +30,7 @@ async function boot(page, db = {}) {
 }
 
 // Doce clientes: por encima de las 8 opciones a partir de las cuales la lista
-// deja de leerse de un vistazo y el buscador se enseña.
+// deja de leerse de un vistazo y se convierte en un campo de búsqueda.
 const CUSTOMERS = [
   { id: 'c1', name: 'Constructora Andes', identification: '0991', email: 'andes@example.com', address: 'Quito', active: true, category: 'A' },
   { id: 'c2', name: 'Ferretería Sol', identification: '0992', email: 'sol@example.com', address: 'Guayaquil', active: true, category: 'A' },
@@ -44,119 +46,146 @@ const CUSTOMERS = [
   { id: 'c12', name: 'Servicios Oriente', identification: '1003', email: 'oriente@example.com', address: 'Tena', active: true, category: 'A' },
 ];
 
-// Cada campo de búsqueda declara con aria-controls la lista que recorta, así
-// que ese es también el asidero más honesto para encontrarlo desde aquí.
-const box = page => page.locator('.gamaFindBox[aria-controls="clientSelect"]');
-const find = page => page.locator('.gamaFind:has(.gamaFindBox[aria-controls="clientSelect"])');
-// Opciones que el usuario vería si abriera la lista: las escondidas por el
-// filtro no salen en el desplegable, así que tampoco cuentan aquí.
-const visibleOptions = page => page.evaluate(() =>
-  Array.from(document.getElementById('clientSelect').options).filter(o => !o.hidden).map(o => o.textContent.trim()));
+// Cada campo declara con data-gama-for la lista a la que sirve: ése es el
+// asidero honesto para encontrarlo desde aquí.
+const campo = page => page.locator('.gamaFindBox[data-gama-for="clientSelect"]');
+const combo = page => page.locator('.gamaFind:has(.gamaFindBox[data-gama-for="clientSelect"])');
+const opciones = page => combo(page).locator('.gamaFindOpt');
 
-test.describe('Listas desplegables — buscar escribiendo', () => {
-  test('la lista larga estrena buscador y escribir la recorta', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
+async function abrirPresupuestos(page) {
+  await boot(page, { customers: CUSTOMERS });
+  await page.evaluate(() => window.showTab('billing', null));
+  await expect(campo(page)).toBeVisible();
+}
 
-    // La lista de clientes nace vacía en el HTML y la rellena la nube: el
-    // buscador tiene que aparecer cuando llegan los datos, no al cargar.
-    await expect(box(page)).toBeVisible();
-    await expect(box(page)).toHaveAttribute('placeholder', /12 opciones/);
+test.describe('Listas largas — se busca escribiendo', () => {
+  test('lo escrito recorta la lista que se despliega debajo del campo', async ({ page }) => {
+    await abrirPresupuestos(page);
+    await expect(campo(page)).toHaveAttribute('placeholder', /12 opciones/);
 
-    await box(page).fill('ferre');
-    expect(await visibleOptions(page)).toEqual(['Selecciona un cliente...', 'Ferretería Sol — 0992']);
-    await expect(find(page).locator('.gamaFindHint')).toContainText('1 de 12');
+    // Al enfocar, sin escribir nada, se ve la lista entera: quien no sabe qué
+    // escribir puede mirar.
+    await campo(page).click();
+    await expect(opciones(page)).toHaveCount(12);
 
-    // Lo que no casa se esconde y además se desactiva: si el navegador no
-    // hiciera caso del hidden —Safari lo ha ignorado durante años— saldría en
-    // gris en vez de salir como si el buscador no hiciera nada. Y al vaciar el
-    // campo hay que deshacer las DOS cosas, o la lista quedaría inservible.
-    expect(await page.evaluate(() =>
-      Array.from(document.getElementById('clientSelect').options).filter(o => o.disabled).length)).toBe(11);
+    await campo(page).fill('ferre');
+    await expect(opciones(page)).toHaveCount(1);
+    await expect(opciones(page).first()).toContainText('Ferretería Sol');
+    await expect(combo(page).locator('.gamaFindHint')).toContainText('1 de 12');
 
-    // Vaciar el campo devuelve la lista entera, y elegible.
-    await box(page).fill('');
-    expect((await visibleOptions(page)).length).toBe(13);
-    expect(await page.evaluate(() =>
-      Array.from(document.getElementById('clientSelect').options).filter(o => o.disabled).length)).toBe(0);
+    // Y lo tecleado se resalta dentro de cada resultado.
+    await expect(opciones(page).first().locator('b')).toContainText('Ferre');
   });
 
   test('busca sin tildes, sin mayúsculas y por palabras sueltas', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
-    await expect(box(page)).toBeVisible();
+    await abrirPresupuestos(page);
 
     // Nadie escribe «Cañón» con la tilde y la eñe para buscar.
-    await box(page).fill('CANON');
-    expect(await visibleOptions(page)).toContain('Papelería Cañón — 0993');
+    await campo(page).fill('CANON');
+    await expect(opciones(page)).toHaveCount(1);
+    await expect(opciones(page).first()).toContainText('Papelería Cañón');
 
     // Dos palabras en el orden en que uno se acuerda, no en el del texto.
-    await box(page).fill('sur obras');
-    expect(await visibleOptions(page)).toEqual(['Selecciona un cliente...', 'Obras del Sur — 0994']);
+    await campo(page).fill('sur obras');
+    await expect(opciones(page)).toHaveCount(1);
+    await expect(opciones(page).first()).toContainText('Obras del Sur');
 
     // También por la identificación, que es lo que trae la factura en la mano.
-    await box(page).fill('1003');
-    expect(await visibleOptions(page)).toEqual(['Selecciona un cliente...', 'Servicios Oriente — 1003']);
+    await campo(page).fill('1003');
+    await expect(opciones(page)).toHaveCount(1);
+    await expect(opciones(page).first()).toContainText('Servicios Oriente');
 
-    await box(page).fill('zzzz');
-    expect(await visibleOptions(page)).toEqual(['Selecciona un cliente...']);
-    await expect(find(page).locator('.gamaFindHint')).toContainText('Ninguna opción coincide');
+    await campo(page).fill('zzzz');
+    await expect(opciones(page)).toHaveCount(0);
+    await expect(combo(page)).toContainText('Ninguna opción coincide');
   });
 
-  // Lo importante de esta: el <select> sigue siendo el de siempre. «Intro»
-  // escribe su .value y lanza su change, que es de quien cuelga el onchange
-  // en línea del HTML que rellena la ficha del cliente.
-  test('«Intro» elige la primera coincidencia y dispara el change del select', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
-    await expect(box(page)).toBeVisible();
+  // Lo importante de ésta: el <select> sigue siendo el dueño del valor.
+  // Elegir en la lista le escribe el valor y le lanza el change, que es de
+  // quien cuelga el onchange en línea del HTML que rellena la ficha.
+  test('elegir en la lista escribe el valor en el select y dispara su change', async ({ page }) => {
+    await abrirPresupuestos(page);
 
-    await box(page).fill('talleres');
-    await box(page).press('Enter');
+    await campo(page).fill('talleres');
+    await opciones(page).first().click();
 
     await expect(page.locator('#clientSelect')).toHaveValue('0997');
     await expect(page.locator('#clientName')).toHaveValue('Talleres Vega');
     await expect(page.locator('#clientEmail')).toHaveValue('vega@example.com');
+    // Y el campo enseña lo elegido, no lo tecleado.
+    await expect(campo(page)).toHaveValue(/Talleres Vega/);
   });
 
-  test('una lista corta no estrena buscador', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
-    await expect(box(page)).toBeVisible();
+  test('con el teclado: flechas para recorrer e «Intro» para elegir', async ({ page }) => {
+    await abrirPresupuestos(page);
 
-    // «Forma de pago» tiene cinco opciones: se leen de un vistazo y un campo
-    // de búsqueda encima sólo sería estorbo.
-    const pago = page.locator('.gamaFind:has(.gamaFindBox[aria-controls="payment"])');
-    await expect(pago).toHaveCount(1);
-    await expect(pago).toBeHidden();
+    await campo(page).fill('o');           // varias coinciden
+    await expect(opciones(page).first()).toHaveClass(/on/);
+    await campo(page).press('ArrowDown');
+    await expect(opciones(page).nth(1)).toHaveClass(/on/);
+    const segunda = (await opciones(page).nth(1).textContent()) || '';
+    await campo(page).press('Enter');
+
+    // La lista se cierra; sus opciones siguen en el DOM, sólo dejan de verse.
+    await expect(combo(page).locator('.gamaFindMenu')).toBeHidden();
+    await expect(campo(page)).toHaveValue(segunda.trim());
+    expect(await page.evaluate(() => document.getElementById('clientSelect').value)).not.toBe('');
   });
 
-  // Los doce meses pasan del umbral de 8 opciones y aun así no llevan
-  // buscador: no son datos que crezcan, son un vocabulario que uno se sabe, y
-  // buscarlos cuesta más que mirarlos. Para eso está data-gama-nofind.
+  // Un texto a medio escribir que no corresponde a nada haría creer que hay
+  // algo elegido cuando no lo hay.
+  test('salir del campo a medio escribir devuelve lo que estaba elegido', async ({ page }) => {
+    await abrirPresupuestos(page);
+
+    await campo(page).fill('talleres');
+    await opciones(page).first().click();
+    await expect(campo(page)).toHaveValue(/Talleres Vega/);
+
+    await campo(page).fill('xyz sin sentido');
+    await page.locator('#sellerRuc').click();
+    await page.waitForTimeout(300);
+    await expect(campo(page)).toHaveValue(/Talleres Vega/);
+    await expect(page.locator('#clientSelect')).toHaveValue('0997');
+  });
+
+  test('una lista corta se queda con su desplegable de siempre', async ({ page }) => {
+    await abrirPresupuestos(page);
+
+    // «Forma de pago» tiene cinco opciones: se leen de un vistazo y el
+    // desplegable nativo —en el teléfono, la rueda del sistema— es mejor.
+    await expect(page.locator('.gamaFind:has(.gamaFindBox[data-gama-for="payment"])')).toBeHidden();
+    await expect(page.locator('#payment')).toBeVisible();
+    expect(await page.evaluate(() =>
+      document.getElementById('payment').classList.contains('gamaFindOculto'))).toBe(false);
+  });
+
+  // Los doce meses pasan del umbral y aun así no se convierten: no son datos
+  // que crezcan, son un vocabulario que uno se sabe. Para eso data-gama-nofind.
   test('una lista larga pero fija se queda fuera con data-gama-nofind', async ({ page }) => {
     await boot(page, { customers: CUSTOMERS });
     await page.evaluate(() => window.showTab('dashboard', null));
 
     expect(await page.locator('#dashMonth option').count()).toBeGreaterThan(8);
-    // Ni siquiera se le construye: a #payment se le pone y se le oculta, aquí
-    // no hay nada que ocultar. Y la barra de filtros sigue entera.
-    await expect(page.locator('.gamaFindBox[aria-controls="dashMonth"]')).toHaveCount(0);
-    await expect(page.locator('#dashYear')).toBeVisible();
+    await expect(page.locator('.gamaFindBox[data-gama-for="dashMonth"]')).toHaveCount(0);
     await expect(page.locator('#dashMonth')).toBeVisible();
   });
 
-  // El caso feo: se filtra, y acto seguido la lista se encoge por debajo del
-  // umbral (cambia el proveedor, se archiva medio catálogo…). Si el campo se
-  // escondiera sin vaciarse, las opciones seguirían recortadas y no quedaría a
-  // la vista ningún sitio donde borrar lo escrito.
-  test('al encogerse la lista el filtro se olvida y no deja opciones escondidas', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
-    await expect(box(page)).toBeVisible();
+  // El <select> no se va de la página: sigue siendo el que guarda el valor y
+  // todo lo que ya lo maneja —el código de un módulo, una prueba— lo encuentra
+  // donde siempre. Por eso se esconde sin display:none ni visibility:hidden.
+  test('el select sigue en la página y se le puede seguir escribiendo desde fuera', async ({ page }) => {
+    await abrirPresupuestos(page);
 
-    await box(page).fill('ferre');
-    expect((await visibleOptions(page)).length).toBe(2);
+    await page.selectOption('#clientSelect', '0993');
+    await expect(page.locator('#clientName')).toHaveValue('Papelería Cañón');
+    // Y el campo se entera de lo que le han escrito por detrás.
+    await expect(campo(page)).toHaveValue(/Papelería Cañón/);
+  });
+
+  test('al encogerse la lista vuelve el desplegable de siempre, sin filtro pegado', async ({ page }) => {
+    await abrirPresupuestos(page);
+    await campo(page).fill('ferre');
+    await expect(opciones(page)).toHaveCount(1);
 
     await page.evaluate(() => {
       document.getElementById('clientSelect').innerHTML =
@@ -164,28 +193,9 @@ test.describe('Listas desplegables — buscar escribiendo', () => {
       window.GamaSelectSearch.scan();
     });
 
-    await expect(box(page)).toBeHidden();
-    await expect(box(page)).toHaveValue('');
-    expect(await visibleOptions(page)).toEqual(['Selecciona un cliente...', 'Constructora Andes']);
-  });
-
-  // Si el filtro escondiera la opción elegida o el hueco vacío, el usuario se
-  // quedaría sin poder deshacer lo que acaba de elegir.
-  test('lo elegido y el hueco vacío nunca los esconde el filtro', async ({ page }) => {
-    await boot(page, { customers: CUSTOMERS });
-    await page.evaluate(() => window.showTab('billing', null));
-    await expect(box(page)).toBeVisible();
-
-    await page.selectOption('#clientSelect', '0991');
-    await box(page).fill('ferre');
-
-    const shown = await visibleOptions(page);
-    expect(shown).toContain('Selecciona un cliente...');
-    expect(shown).toContain('Constructora Andes — 0991');
-    expect(shown).toContain('Ferretería Sol — 0992');
-    expect(shown.length).toBe(3);
-    // Y el recuento cuenta coincidencias, no lo que se dejó a la vista: el
-    // cliente ya elegido no es un resultado de la búsqueda.
-    await expect(find(page).locator('.gamaFindHint')).toContainText('1 de 12');
+    await expect(combo(page)).toBeHidden();
+    await expect(page.locator('#clientSelect')).toBeVisible();
+    expect(await page.evaluate(() =>
+      document.getElementById('clientSelect').classList.contains('gamaFindOculto'))).toBe(false);
   });
 });

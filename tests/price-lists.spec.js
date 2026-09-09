@@ -360,3 +360,4 @@ test.describe('Tarifas especiales — la tabla de precios en el teléfono', () =
       getComputedStyle(document.querySelector('#price-lists .plTable thead')).display)).not.toBe('none');
   });
 });
+

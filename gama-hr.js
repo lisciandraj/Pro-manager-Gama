@@ -255,14 +255,7 @@ function css(){
    cuando se queda corta hay que arrastrarla de lado para llegar a los botones
    de cada fila. El sitio se lo lleva quien lo necesita. */
 #hr .hrGrid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:12px;align-items:start}
-/* overflow-x y no overflow:auto. «auto» a secas también abre el eje vertical, y
-   en el teléfono basta un pixel de sobra —el redondeo de la altura de una fila
-   lo produce solo— para que la caja se quede con el gesto de arrastrar hacia
-   arriba: el dedo cae dentro de la tabla y la página no se mueve. Ese tirón es
-   lo que se siente como que «no va fluido». Y overscroll-behavior-x:contain
-   corta lo otro: que el arrastre lateral, al llegar al borde, se lo quede el
-   navegador y dispare su gesto de volver atrás. */
-#hr .hrTable{width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#hr .hrTable{width:100%;overflow-x:auto}
 /* min-width:min-content y no los 560 px de antes. Con una anchura fija, si las
    columnas pedían más que la caja —un nombre largo, «Prestación de servicios»—
    la tabla se quedaba clavada al 100 % y las celdas se salían por su derecha:
@@ -386,41 +379,11 @@ function css(){
 @media(max-width:760px){#hr .hrTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
  #hr .hrTabs button{padding:10px 4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  #hr .hrTabIco{display:none}}
-/* Y en el teléfono se quita el problema en vez de suavizarlo. Una tabla de seis
-   columnas en 336 px de ancho pide 560 y hay que arrastrarla de lado para ver
-   el sueldo, las vacaciones y los botones: por muy fino que fuera ese arrastre
-   seguiría siendo leer a través de una rendija. Cada fila pasa a ser una ficha
-   apilada, con el nombre de titular y el resto etiquetado con su columna —de
-   ahí el data-col de cada celda—, y así no queda nada que desplazar. La última
-   celda son los botones y la primera el titular: ésas van sin etiqueta. */
-@media(max-width:760px){
- #hr .hrTable{overflow:visible}
- /* El overflow y el white-space son de la regla global «table» de index.html,
-    que le pone a TODA tabla display:block, su propio overflow-x:auto y
-    nowrap. Apilada en fichas eso sobra y hace daño: el texto no se partía
-    —«Viaje familiar programado desde marzo» se quedaba en una línea de 370 px
-    dentro de una ficha de 336— y como la tabla trae su propio desplazamiento,
-    lo que sobraba se escondía en un scroll interior que en el teléfono ni se
-    ve. Dos capas de desplazamiento anidadas es justo lo que se siente como
-    que la pantalla va a tirones. */
- #hr .hrTable table{display:block;min-width:0;overflow:visible;white-space:normal}
- #hr .hrTable thead{display:none}
- #hr .hrTable tbody{display:block}
- #hr .hrTable tr{display:block;background:#fff;border:1px solid #e4ebee;border-radius:12px;padding:11px 13px;margin-bottom:9px}
- /* La etiqueta va posicionada y no en una columna de rejilla: una celda trae
-    su valor, un <small> debajo y a veces una barra, y como items de rejilla
-    cada uno se habría ido a una casilla —el «Alta: 5/9/2022» acababa bajo la
-    etiqueta y el badge estirado de lado a lado—. Sacándola del flujo, dentro
-    de la celda todo sigue siendo lo que era. */
- #hr .hrTable td{position:relative;display:block;border:0;padding:7px 0 7px 92px;font-size:12.5px}
- #hr .hrTable td::before{position:absolute;left:0;top:9px;width:84px;content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#71808a}
- #hr .hrTable td:first-child,#hr .hrTable td:last-child{padding-left:0}
- #hr .hrTable td:first-child::before,#hr .hrTable td:last-child::before{content:none}
- #hr .hrTable td:first-child{padding:0 0 9px;margin-bottom:3px;border-bottom:1px solid #edf1f2;font-size:13.5px}
- #hr .hrTable td:last-child:not(:empty){padding-top:10px}
- #hr .hrTable td:empty{display:none}
- #hr .hrTable .hrBar{max-width:none}
-}`;
+/* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
+   aplicación: copia de la cabecera el nombre de cada columna, apila cada fila
+   y endurece el gesto. Aquí sólo queda lo que es de esta tabla y nada más. */
+@media(max-width:760px){#hr .hrTable{--gamaCardsLabel:92px}
+ #hr .hrTable .hrBar{max-width:none}}`;
  document.head.appendChild(s);
 }
 
@@ -446,13 +409,13 @@ function employeesTab(){
   const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
   const off=p.active===false;
   return `<tr class="${off?'hrOff':''}">
-   <td data-col="Empleado"><b>${esc(p.full_name)}</b><small>${esc(p.position||'Sin puesto')}${p.department?' · '+esc(p.department):''}</small>
+   <td><b>${esc(p.full_name)}</b><small>${esc(p.position||'Sin puesto')}${p.department?' · '+esc(p.department):''}</small>
        <small>${esc(p.identification||'')}</small></td>
-   <td data-col="Contrato">${esc(p.contract_type||'—')}<small>Alta: ${day(p.hire_date)}</small>${p.end_date?`<small>Baja: ${day(p.end_date)}</small>`:''}</td>
-   <td data-col="Sueldo">${p.salary==null?'—':money(p.salary)}</td>
-   <td data-col="Vacaciones">${used} / ${total}<small>días laborables ${year}</small>
+   <td>${esc(p.contract_type||'—')}<small>Alta: ${day(p.hire_date)}</small>${p.end_date?`<small>Baja: ${day(p.end_date)}</small>`:''}</td>
+   <td>${p.salary==null?'—':money(p.salary)}</td>
+   <td>${used} / ${total}<small>días laborables ${year}</small>
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
-   <td data-col="Estado">${off?'<span class="hrBadge">Archivado</span>':'<span class="hrBadge ok">Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px">🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px">Sin cuenta</span>'}</td>
+   <td>${off?'<span class="hrBadge">Archivado</span>':'<span class="hrBadge ok">Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px">🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px">Sin cuenta</span>'}</td>
    <td><div class="hrActs">
     <button type="button" class="secondary" data-edit="${esc(p.id)}">✏️ Editar</button>
     <button type="button" class="${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}">${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
@@ -514,10 +477,10 @@ function absencesTab(){
  const rows=absences.map(a=>{
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
-   <td data-col="Empleado"><b>${esc(employeeName(a.employee_id))}</b><small>${esc(KINDS[a.kind]||a.kind)}</small></td>
-   <td data-col="Periodo">${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
-   <td data-col="Estado"><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
-   <td data-col="Comentario">${esc(a.reason||'—')}</td>
+   <td><b>${esc(employeeName(a.employee_id))}</b><small>${esc(KINDS[a.kind]||a.kind)}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
+   <td><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
+   <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
     ${a.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(a.id)}">✓ Aprobar</button>`:''}
     ${a.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(a.id)}">✕ Rechazar</button>`:''}
@@ -748,9 +711,9 @@ function myRequestsTab(){
  const filas=mias.map(a=>{
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
-   <td data-col="Motivo"><b>${esc(KINDS[a.kind]||a.kind)}</b><small>${esc(a.reason||'')}</small></td>
-   <td data-col="Periodo">${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
-   <td data-col="Estado"><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
+   <td><b>${esc(KINDS[a.kind]||a.kind)}</b><small>${esc(a.reason||'')}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
+   <td><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
    <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}">Retirar</button>`:''}</td>
   </tr>`;
  }).join('');

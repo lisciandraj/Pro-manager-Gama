@@ -224,3 +224,122 @@ test.describe('Importar Excel — duplicados', () => {
     expect(names).toEqual(['Distribuidora Andina S.A.', 'Comercial El Dorado']);
   });
 });
+
+// Las tarifas de contrato de un proveedor llegan en su propio archivo, con sus
+// propios encabezados, y hay que casarlas con NUESTRAS fichas: el proveedor por
+// nombre o por RUC, el producto por referencia o por código de barras. Lo que
+// no case no se inventa; se cuenta y se dice por qué.
+test.describe('Importar Excel — tarifas de proveedor', () => {
+  // A diferencia del resto del archivo, aquí sí hace falta la nube: lo que se
+  // prueba es el casado contra nuestras fichas y la escritura de la tarifa.
+  const MOCK = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
+  async function abrir(page) {
+    await page.addInitScript(() => {
+      localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
+      // @ts-ignore
+      window.__DB = {
+        products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+        purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
+        customer_special_prices: [], supplier_contract_prices: [], customer_requests: [], app_modules: [],
+      };
+    });
+    await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK }));
+    await page.goto('/index.html');
+    await page.waitForTimeout(700);
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.waitForTimeout(400);
+  }
+
+  test('el botón está junto a los otros tipos de importación', async ({ page }) => {
+    await abrir(page);
+    await expect(page.locator('[data-type="supplierPrices"]')).toBeVisible();
+    await expect(page.locator('[data-type="supplierPrices"]')).toContainText('Tarifas de proveedor');
+  });
+
+  test('reconoce los encabezados de una lista de precios, en español y en francés', async ({ page }) => {
+    await abrir(page);
+    const es = await page.evaluate(() => window.GamaExcelImport._mapRowForTests({
+      'Proveedor': 'TecnoSuministros Ecuador',
+      'RUC proveedor': '0991234567001',
+      'Referencia': 'COM-01',
+      'Precio contrato': '4,25',
+      'N.º contrato': 'CTR-2026-01',
+    }, 'supplierPrices'));
+    expect(es).toMatchObject({
+      supplier: 'TecnoSuministros Ecuador', supplier_tax_id: '0991234567001',
+      reference: 'COM-01', unit_cost: 4.25, contract_ref: 'CTR-2026-01',
+    });
+
+    const fr = await page.evaluate(() => window.GamaExcelImport._mapRowForTests({
+      'Fournisseur': 'Logística y Suministros Loja',
+      'Code barre': '376000000001',
+      'Prix unitaire': '12.50',
+      'Contrat': 'FR-99',
+    }, 'supplierPrices'));
+    expect(fr).toMatchObject({
+      supplier: 'Logística y Suministros Loja', barcode: '376000000001',
+      unit_cost: 12.5, contract_ref: 'FR-99',
+    });
+  });
+
+  test('casa proveedor y producto, y dice qué se quedó fuera y por qué', async ({ page }) => {
+    await abrir(page);
+    const resultado = await page.evaluate(async () => {
+      window.__DB.suppliers = [
+        { id: 's1', name: 'TecnoSuministros Ecuador', tax_id: '0991234567001', active: true },
+        { id: 's2', name: 'Logística y Suministros Loja', tax_id: '0992', active: true },
+      ];
+      window.__DB.products = [
+        { id: 'p1', name: 'Compote', reference: 'COM-01', barcode: '376000000001', purchase_price: 6, active: true },
+        { id: 'p2', name: 'Brio mate', reference: 'BEB-453', barcode: '376000000002', purchase_price: 3, active: true },
+      ];
+      window.__DB.supplier_contract_prices = [];
+      const st = { textContent: '' };
+      await window.GamaExcelImport._importTariffsForTests(window.GamaCloud, [
+        // por nombre de proveedor y referencia de producto
+        { supplier: 'tecnosuministros ecuador', reference: 'COM-01', unit_cost: 4.25, contract_ref: 'CTR-2026-01' },
+        // por RUC del proveedor y código de barras del producto
+        { supplier_tax_id: '0992', barcode: '376000000002', unit_cost: 2.1 },
+        // el proveedor no es nuestro
+        { supplier: 'Alguien que no existe', reference: 'COM-01', unit_cost: 9 },
+        // la referencia es la del proveedor, no la nuestra
+        { supplier: 'TecnoSuministros Ecuador', reference: 'REF-SUYA-77', unit_cost: 9 },
+        // sin precio utilizable
+        { supplier: 'TecnoSuministros Ecuador', reference: 'BEB-453', unit_cost: null },
+      ], st);
+      return { texto: st.textContent, filas: window.__DB.supplier_contract_prices };
+    });
+
+    expect(resultado.filas).toHaveLength(2);
+    expect(resultado.filas).toContainEqual(expect.objectContaining(
+      { supplier_id: 's1', product_id: 'p1', unit_cost: 4.25, contract_ref: 'CTR-2026-01' }));
+    expect(resultado.filas).toContainEqual(expect.objectContaining(
+      { supplier_id: 's2', product_id: 'p2', unit_cost: 2.1 }));
+
+    // El recuento explica cada descarte: con un archivo de proveedor lo que
+    // casi siempre falla es la referencia, y «3 errores» a secas no se arregla.
+    expect(resultado.texto).toContain('2 tarifa(s) guardada(s)');
+    expect(resultado.texto).toContain('1 sin proveedor reconocido');
+    expect(resultado.texto).toContain('1 sin producto reconocido');
+    expect(resultado.texto).toContain('1 sin precio válido');
+  });
+
+  // El caso de uso entero: el contrato cambia, el proveedor manda su lista
+  // nueva y se vuelve a subir. Tiene que CORREGIR el precio, no duplicarlo.
+  test('volver a subir la tarifa corrige el precio en vez de duplicarlo', async ({ page }) => {
+    await abrir(page);
+    const filas = await page.evaluate(async () => {
+      window.__DB.suppliers = [{ id: 's1', name: 'TecnoSuministros Ecuador', tax_id: '0991', active: true }];
+      window.__DB.products = [{ id: 'p1', name: 'Compote', reference: 'COM-01', purchase_price: 6, active: true }];
+      window.__DB.supplier_contract_prices = [];
+      const st = { textContent: '' };
+      const fila = ref => [{ supplier: 'TecnoSuministros Ecuador', reference: 'COM-01', unit_cost: ref, contract_ref: 'CTR-' + ref }];
+      await window.GamaExcelImport._importTariffsForTests(window.GamaCloud, fila(4.25), st);
+      await window.GamaExcelImport._importTariffsForTests(window.GamaCloud, fila(3.9), st);
+      return window.__DB.supplier_contract_prices;
+    });
+
+    expect(filas, 'la segunda subida duplicó la tarifa en vez de corregirla').toHaveLength(1);
+    expect(filas[0]).toMatchObject({ supplier_id: 's1', product_id: 'p1', unit_cost: 3.9, contract_ref: 'CTR-3.9' });
+  });
+});

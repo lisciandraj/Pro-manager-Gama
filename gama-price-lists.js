@@ -95,14 +95,48 @@ function css(){
 .plMsg{margin:10px 0;font-size:13px}
 .plMsg.plOk{color:#138a69}.plMsg.plErr{color:#c94f45;font-weight:700}
 .plRow{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}
-.plTableWrap{width:100%;overflow-x:auto;margin-top:10px}
-.plTable{width:100%;min-width:520px;border-collapse:collapse}
+/* overflow-x y no «auto» a secas: éste abre también el eje vertical, y basta un
+   pixel de sobra para que la caja se quede con el gesto de subir la página.
+   overscroll-behavior-x:contain evita lo otro, que el arrastre lateral al
+   llegar al borde dispare el gesto de volver atrás del navegador. */
+.plTableWrap{width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;margin-top:10px}
+/* min-width:min-content en vez de una anchura fija: con 520 px clavados, si
+   las columnas pedían más, las celdas se salían por la derecha sin que el
+   contenedor contara ese sobrante como algo que desplazar. */
+.plTable{width:100%;min-width:min-content;border-collapse:collapse}
+.plBtnTxt{display:none}
 .plTable th,.plTable td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px}
 .plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
 .plTable input{width:110px;padding:6px;text-align:right}
 .plDelta{font-weight:800}.plDelta.up{color:#138a69}.plDelta.down{color:#c94f45}
 .plEmpty{padding:20px;text-align:center;color:#81909a}
-@media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}`;
+@media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
+/* En el teléfono había DOS desplazamientos laterales metidos uno dentro del
+   otro: el de .plTableWrap (186 px) y, dentro, el de la propia <table>, que lo
+   trae de la regla global de index.html —display:block, su propio
+   overflow-x:auto y white-space:nowrap para toda tabla de la aplicación—. Se
+   arrastraba una caja para descubrir que había otra dentro. Apilando cada
+   producto en una ficha no queda ninguna: el nombre hace de titular y cada
+   dato lleva delante el nombre de su columna, de ahí el data-col de cada
+   celda. El botón de retirar enseña su palabra sólo aquí; en la tabla la
+   columna no tiene título y basta la ×. */
+@media(max-width:760px){
+ .plTableWrap{overflow:visible}
+ .plTable{display:block;min-width:0;overflow:visible;white-space:normal}
+ .plTable thead{display:none}
+ .plTable tbody{display:block}
+ .plTable tr{display:block;background:#fff;border:1px solid #e4ebee;border-radius:12px;padding:11px 13px;margin-bottom:9px}
+ /* La columna de etiquetas da para «PRECIO NEGOCIADO» en una línea: es la más
+    larga de las cuatro y partida en dos se leía peor que el dato. */
+ .plTable td{position:relative;display:block;border:0;padding:7px 0 7px 132px;font-size:12.5px}
+ .plTable td::before{position:absolute;left:0;top:9px;width:124px;content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#71808a}
+ .plTable td:first-child,.plTable td:last-child{padding-left:0}
+ .plTable td:first-child::before,.plTable td:last-child::before{content:none}
+ .plTable td:first-child{padding:0 0 9px;margin-bottom:3px;border-bottom:1px solid #edf1f2;font-size:13.5px;font-weight:700}
+ .plTable td:last-child{padding-top:10px}
+ .plTable td:last-child button{width:auto;padding:9px 15px}
+ .plBtnTxt{display:inline}
+}`;
  document.head.appendChild(s);
 }
 function render(){
@@ -138,10 +172,10 @@ function renderDetail(cur,listed){
    ${items.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
-     return `<tr><td>${esc(productName(i.product_id))}</td><td>${money(base)}</td>
-      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}"></td>
-      <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
-      <td><button class="danger" data-drop="${esc(i.product_id)}">×</button></td></tr>`}).join('')}
+     return `<tr><td data-col="Producto">${esc(productName(i.product_id))}</td><td data-col="Precio mayorista">${money(base)}</td>
+      <td data-col="Precio negociado"><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
+      <td class="plDelta ${d>0?'up':d<0?'down':''}" data-col="Diferencia">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
+      <td><button class="danger" data-drop="${esc(i.product_id)}" title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt"> Retirar</span></button></td></tr>`}).join('')}
    </tbody></table></div>`:'<div class="plEmpty">Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
  </div>`;
 }

@@ -313,7 +313,17 @@ function css(){
 #hr .hrPlanVistas{display:flex;gap:6px}
 #hr .hrPlanVistas button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer;width:auto;font-size:13px}
 #hr .hrPlanVistas button.on{background:#087c8b;border-color:#087c8b;color:#fff}
-#hr .hrPlanScroll{overflow-x:auto;border:1px solid #e4ebee;border-radius:12px}
+/* El calendario sí tiene que arrastrarse de lado —siete días, o treinta y uno,
+   no caben en un teléfono y no hay forma de apilarlos—, así que aquí no se
+   quita el desplazamiento: se arregla. overflow-y:hidden porque poner sólo
+   overflow-x deja el otro eje en «visible», y el navegador lo asciende a
+   «auto»: la caja se queda entonces con el gesto de subir la página y el dedo
+   que cae dentro del calendario no la mueve. Y overscroll-behavior-x:contain
+   porque el arrastre aquí es largo —306 px en la vista de semana, 926 en la
+   de mes— y llegar al borde era de lo más fácil: allí se lo quedaba el
+   navegador y disparaba su gesto de volver atrás. La columna de nombres se
+   queda fija (position:sticky) para no perder de vista de quién es cada fila. */
+#hr .hrPlanScroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid #e4ebee;border-radius:12px}
 #hr .hrPlan{min-width:640px}
 #hr .hrPlanFila{display:grid;grid-template-columns:170px 1fr;border-bottom:1px solid #edf1f2}
 #hr .hrPlanFila:last-child{border-bottom:0}
@@ -385,7 +395,15 @@ function css(){
    celda son los botones y la primera el titular: ésas van sin etiqueta. */
 @media(max-width:760px){
  #hr .hrTable{overflow:visible}
- #hr .hrTable table{display:block;min-width:0}
+ /* El overflow y el white-space son de la regla global «table» de index.html,
+    que le pone a TODA tabla display:block, su propio overflow-x:auto y
+    nowrap. Apilada en fichas eso sobra y hace daño: el texto no se partía
+    —«Viaje familiar programado desde marzo» se quedaba en una línea de 370 px
+    dentro de una ficha de 336— y como la tabla trae su propio desplazamiento,
+    lo que sobraba se escondía en un scroll interior que en el teléfono ni se
+    ve. Dos capas de desplazamiento anidadas es justo lo que se siente como
+    que la pantalla va a tirones. */
+ #hr .hrTable table{display:block;min-width:0;overflow:visible;white-space:normal}
  #hr .hrTable thead{display:none}
  #hr .hrTable tbody{display:block}
  #hr .hrTable tr{display:block;background:#fff;border:1px solid #e4ebee;border-radius:12px;padding:11px 13px;margin-bottom:9px}

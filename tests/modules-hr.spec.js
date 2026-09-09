@@ -347,3 +347,87 @@ test('en el teléfono la plantilla se apila en fichas y no hay nada que arrastra
   expect(etiquetas.join(' ')).toContain('Sueldo');
   expect(etiquetas.join(' ')).toContain('Vacaciones');
 });
+
+// Los otros dos listados del módulo comparten .hrTable con la plantilla, así
+// que se apilan igual — y con ellos aparecía la segunda mitad del problema:
+// la regla global «table» de index.html le pone a toda tabla su propio
+// overflow-x y white-space:nowrap. Apiladas en fichas eso dejaba el texto sin
+// partir y lo que sobraba se escondía en un desplazamiento interior que en el
+// teléfono ni se ve — dos capas de arrastre anidadas.
+const AUSENCIAS_LARGAS = [
+  { id: 'a1', employee_id: 'e1', kind: 'vacaciones', start_date: '2026-09-14', end_date: '2026-09-18', days: 5, status: 'aprobada', reason: 'Viaje familiar programado desde marzo' },
+  { id: 'a2', employee_id: 'e1', kind: 'formacion', start_date: '2026-11-03', end_date: '2026-11-07', days: 5, status: 'pendiente', reason: 'Curso de manejo de montacargas y seguridad industrial en Guayaquil' },
+];
+
+/** Cada .hrTable de la pantalla: cuánto habría que arrastrar, por fuera y por dentro. */
+const arrastreDeLasTablas = page => page.evaluate(() =>
+  [...document.querySelectorAll('#hr .hrTable')].map(caja => ({
+    caja: caja.scrollWidth - caja.clientWidth,
+    // La <table> trae su propio overflow-x de la regla global: si aquí sobra
+    // algo, es un segundo desplazamiento escondido dentro del primero.
+    tabla: (t => t.scrollWidth - t.clientWidth)(caja.querySelector('table')),
+    filas: caja.querySelectorAll('tbody tr').length,
+  })));
+
+test('en el teléfono el historial de ausencias se apila sin arrastre escondido', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await boot(page, 'admin', { hr_employees: FICHAS_ANCHAS, hr_absences: AUSENCIAS_LARGAS });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(700);
+
+  await page.click('#hr .hrTabs button:has-text("Ausencias")');
+  await page.waitForTimeout(600);
+  expect(await arrastreDeLasTablas(page)).toEqual([{ caja: 0, tabla: 0, filas: 2 }]);
+  // Y el comentario largo se lee entero: si no se partiera, cabría en una línea.
+  expect(await page.evaluate(() => {
+    const td = [...document.querySelectorAll('#hr .hrTable tbody td')]
+      .find(td => td.textContent.includes('montacargas'));
+    return td.getBoundingClientRect().height;
+  })).toBeGreaterThan(24);
+});
+
+// El tercer listado que comparte .hrTable, y el único que ve un empleado.
+test('en el teléfono mis solicitudes también se apilan, sin arrastre escondido', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(([emp, abs]) => {
+    localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'commercial', name: 'María' }));
+    // @ts-ignore
+    window.__DB = {
+      products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
+      purchase_orders: [], purchase_order_lines: [], stock_movements: [],
+      profiles: [{ id: 'u-maria', full_name: 'María Pérez', role: 'comercial', active: true }],
+      customer_special_prices: [], customer_requests: [],
+      hr_employees: emp, hr_absences: abs, hr_employee_private: [], hr_absence_private: [],
+      app_modules: [], _session: { profile_id: 'u-maria' },
+    };
+  }, [[{ id: 'e1', full_name: 'María Pérez', position: 'Comercial', active: true, profile_id: 'u-maria' }], AUSENCIAS_LARGAS]);
+  await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD }));
+  await page.route('**/@supabase/**', r => r.abort());
+  await page.goto('/index.html');
+  await page.waitForTimeout(1500);
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(700);
+
+  await page.click('#hr .hrTabs button:has-text("Mis días")');
+  await page.waitForTimeout(600);
+  expect(await arrastreDeLasTablas(page)).toEqual([{ caja: 0, tabla: 0, filas: 2 }]);
+  // Y el botón de retirar sigue a mano en la que está pendiente.
+  await expect(page.locator('#hr .hrTable button:has-text("Retirar")')).toHaveCount(1);
+});
+
+test('el calendario del equipo sigue desplazándose, pero sin robarle el gesto a la página', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await boot(page, 'admin', { hr_employees: FICHAS_ANCHAS, hr_absences: AUSENCIAS_LARGAS });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(700);
+  await page.click('#hr .hrTabs button:has-text("Planificación")');
+  await page.waitForTimeout(600);
+
+  // Siete días no se apilan: aquí el arrastre lateral se queda, y por eso
+  // tiene que estar bien puesto.
+  expect(await page.evaluate(() => {
+    const s = document.querySelector('#hr .hrPlanScroll');
+    const cs = getComputedStyle(s);
+    return { arrastraX: s.scrollWidth > s.clientWidth, ejeY: cs.overflowY, rebote: cs.overscrollBehaviorX };
+  })).toEqual({ arrastraX: true, ejeY: 'hidden', rebote: 'contain' });
+});

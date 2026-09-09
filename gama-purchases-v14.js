@@ -2,7 +2,7 @@
 (function(){
   'use strict';
   const MOD='gamaPurchasesV14';
-  let orders=[], lines=[], products=[], suppliers=[], contratos=[];
+  let orders=[], lines=[], products=[], suppliers=[];
   let loading=false, selectedId=null, draft=[];
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const C=()=>window.GamaCloud;
@@ -45,20 +45,6 @@
      debajo movería de sitio lo que ya hay dentro. En ese caso sólo se avisa,
      que es lo que hace falta para darse cuenta. Con el pedido todavía vacío no
      hay nada que mover, así que se cambia sin ceremonia. */
-  /* Lo pactado con ese proveedor manda sobre el precio de compra de la ficha:
-     para eso se carga el contrato. Sin contrato para ese par, la ficha. */
-  function costeDe(pid,sid){
-   const c=contratos.find(x=>String(x.product_id)===String(pid)&&String(x.supplier_id)===String(sid));
-   if(c)return {coste:Number(c.unit_cost||0),contrato:c.contract_ref||''};
-   const p=products.find(x=>String(x.id)===String(pid));
-   return {coste:Number((p&&p.purchase_price)||0),contrato:null};
-  }
-  function ponCoste(){
-   const pid=$('gp14Product').value;if(!pid)return;
-   const {coste,contrato}=costeDe(pid,$('gp14Supplier').value);
-   $('gp14Cost').value=coste.toFixed(2);
-   if(contrato!==null&&!draft.length)msg('Precio de contrato aplicado'+(contrato?' ('+contrato+')':'')+'.',true);
-  }
   function productoElegido(){
    const p=products.find(x=>x.id===$('gp14Product').value);
    if(!p)return;
@@ -76,9 +62,8 @@
       buscador de la lista tiene que enseñar lo que acaba de elegirse. */
    ss.dispatchEvent(new Event('change',{bubbles:true}));
    if(!draft.length)msg('Proveedor puesto desde la ficha del producto: '+prov.name,true);
-   ponCoste();
   }
-  function bind(){window.GamaUI.bindBack($('gamaPurchasesV14'));$('gp14Filter').onchange=()=>{GamaPage.reset('purchaseOrders');renderOrders()};GamaPage.register('purchaseOrders',renderOrders);$('gp14Add').onclick=addDraft;$('gp14Save').onclick=saveOrder;$('gp14Clear').onclick=clearForm;$('gp14Product').onchange=()=>{productoElegido();ponCoste()};$('gp14Supplier').onchange=ponCoste}
+  function bind(){window.GamaUI.bindBack($('gamaPurchasesV14'));$('gp14Filter').onchange=()=>{GamaPage.reset('purchaseOrders');renderOrders()};GamaPage.register('purchaseOrders',renderOrders);$('gp14Add').onclick=addDraft;$('gp14Save').onclick=saveOrder;$('gp14Clear').onclick=clearForm;$('gp14Product').onchange=productoElegido}
   function show(){inject();document.querySelectorAll('section').forEach(s=>{s.classList.remove('active');s.style.display=s.id==='gamaPurchasesV14'?'block':'none'});const sec=$('gamaPurchasesV14');sec.classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));load();window.scrollTo({top:0,behavior:'smooth'})}
   window.gamaShowPurchases=show;
   function installTab(){const host=document.querySelector('.tabs');if(!host||$('gamaPurchasesV14Tab'))return;const b=document.createElement('button');b.id='gamaPurchasesV14Tab';b.type='button';b.className='tab';b.innerHTML='🛒<span>Compras</span>';b.onclick=show;host.appendChild(b)}
@@ -101,7 +86,7 @@
      pantalla llamaba a uno inexistente y se caía entera con «C().select is not
      a function» antes de pintar un solo pedido. El doble de las pruebas sí
      ofrecía ese método, así que ninguna prueba lo vio venir; ya no lo ofrece. */
-  async function load(){if(loading||!C())return;loading=true;try{const [a,b,c,d,t]=await Promise.all([C().list('purchase_orders'),C().list('purchase_order_lines'),C().list('products',{select:PRODUCT_COLS}),C().list('suppliers',{select:'id,name,tax_id,email,active'}),C().list('supplier_contract_prices',{select:'supplier_id,product_id,unit_cost,contract_ref'})]);if(a.error)throw a.error;orders=a.data||[];lines=b.data||[];products=c.data||[];suppliers=d.data||[];/* Un perfil sin permiso para leer tarifas no puede quedarse sin pantalla: se compra al precio de la ficha y ya. */contratos=t.error?[]:(t.data||[]);populate();renderOrders();renderKpis();renderLowStock()}catch(e){console.warn('[GAMA Compras]',e);const m=$('gp14Msg');if(m)m.textContent='No se han podido cargar los datos: '+(e.message||e)}finally{loading=false}}
+  async function load(){if(loading||!C())return;loading=true;try{const [a,b,c,d]=await Promise.all([C().list('purchase_orders'),C().list('purchase_order_lines'),C().list('products',{select:PRODUCT_COLS}),C().list('suppliers',{select:'id,name,tax_id,email,active'})]);if(a.error)throw a.error;orders=a.data||[];lines=b.data||[];products=c.data||[];suppliers=d.data||[];populate();renderOrders();renderKpis();renderLowStock()}catch(e){console.warn('[GAMA Compras]',e);const m=$('gp14Msg');if(m)m.textContent='No se han podido cargar los datos: '+(e.message||e)}finally{loading=false}}
   function renderLowStock(){const host=$('gp14LowStock');if(!host)return;const low=products.filter(p=>p.active!==false&&Number(p.min_stock)>0&&Number(p.stock)<Number(p.min_stock));if(!low.length){host.style.display='none';host.innerHTML='';return}host.style.display='block';const groups=new Map();low.forEach(p=>{const key=p.supplier_id||'__none';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)});const cards=[...groups.entries()].map(([sid,items])=>{const name=sid==='__none'?'Sin proveedor asignado':supplierName(sid);const rows=items.map(p=>{const suggest=Math.max(1,Math.ceil(Number(p.min_stock)-Number(p.stock)));return `<div class="gp14LowRow"><div><b>${esc(p.name)}</b><small>${esc(p.reference||p.barcode||'')}</small></div><span>${esc(p.stock)} / ${esc(p.min_stock)}</span><span>+${suggest}</span></div>`}).join('');const canAct=sid!=='__none';return `<div class="gp14LowGroup"><div class="gp14LowGroupHead"><b>${esc(name)}</b>${canAct&&canOrder()?`<button class="secondary" type="button" onclick="window.gamaAddLowStockGroup('${esc(sid)}')">＋ Añadir al pedido</button>`:canAct?'':'<span class="muted">Asigna un proveedor en Productos</span>'}</div>${rows}</div>`}).join('');host.innerHTML=`<h3>⚠️ Stock bajo — ${low.length} producto${low.length>1?'s':''}</h3>${cards}`}
   window.gamaAddLowStockGroup=function(sid){if(!canOrder())return alert('Tu perfil no puede crear pedidos a proveedores.');const low=products.filter(p=>p.active!==false&&Number(p.min_stock)>0&&Number(p.stock)<Number(p.min_stock)&&p.supplier_id===sid);if(!low.length)return;$('gp14Supplier').value=sid;low.forEach(p=>{const suggest=Math.max(1,Math.ceil(Number(p.min_stock)-Number(p.stock)));const existing=draft.find(x=>x.product_id===p.id);if(existing)existing.quantity=Math.max(existing.quantity,suggest);else draft.push({product_id:p.id,quantity:suggest,unit_cost:Number(p.purchase_price||0)})});renderDraft();msg(low.length>1?'Se añadieron '+low.length+' productos sugeridos al pedido.':'Se añadió 1 producto sugerido al pedido.',true);document.querySelector('.gp14Form')?.scrollIntoView({behavior:'smooth',block:'start'})};
   function supplierName(id){return suppliers.find(x=>x.id===id)?.name||'Proveedor'}

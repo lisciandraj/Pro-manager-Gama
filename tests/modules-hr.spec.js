@@ -282,3 +282,68 @@ test('el administrador conserva la vista completa y puede ligar ficha y cuenta',
   await page.waitForTimeout(500);
   await expect(page.locator('#hr'), 'el administrador debe ver el motivo real').toContainText('Enfermedad');
 });
+
+// La plantilla se leía a través de una rendija. Dos averías distintas, y la de
+// escritorio era la peor: la tabla se quedaba clavada al 100 % de su caja
+// aunque sus columnas pidieran más, así que las celdas se salían por la
+// derecha, los botones de Editar y Archivar salían cortados y el contenedor
+// ni siquiera se enteraba de que hubiera algo que desplazar — no había forma
+// de llegar a ellos. En el teléfono el problema era el otro: seis columnas en
+// 336 px que había que arrastrar de lado.
+const FICHAS_ANCHAS = [
+  { id: 'e1', full_name: 'María Jaramillo Vélez', identification: '0912345678', position: 'Almacenera', department: 'Bodega', contract_type: 'Indefinido', hire_date: '2023-04-01', salary: 620, annual_leave_days: 15, active: true },
+  { id: 'e2', full_name: 'Carlos Andrés Peñafiel', identification: '0923456789', position: 'Comercial', department: 'Ventas', contract_type: 'Plazo fijo', hire_date: '2024-01-15', salary: 750, annual_leave_days: 15, active: true },
+  { id: 'e3', full_name: 'Lucía Moreira', identification: '0934567890', position: 'Contadora', department: 'Administración', contract_type: 'Prestación de servicios', hire_date: '2022-09-05', salary: 900, annual_leave_days: 15, active: false },
+];
+
+// Mide la tabla de la plantilla: cuánto ocupa de verdad, cuánto de eso alcanza
+// su caja, y si los botones de alguna fila se salen de lo alcanzable.
+const medirPlantilla = page => page.evaluate(() => {
+  const caja = document.querySelector('#hr .hrTable');
+  const tabla = caja.querySelector('table');
+  const borde = caja.getBoundingClientRect().right + caja.scrollWidth - caja.clientWidth;
+  return {
+    anchoCaja: caja.clientWidth,
+    alcanzable: caja.scrollWidth,
+    anchoTabla: tabla.scrollWidth,
+    botonesFuera: [...caja.querySelectorAll('tbody tr .hrActs')]
+      .filter(a => a.getBoundingClientRect().right > borde + 1).length,
+    filas: caja.querySelectorAll('tbody tr').length,
+  };
+});
+
+test('en el escritorio la plantilla enseña sus botones sin dejar nada fuera de alcance', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await boot(page, 'admin', { hr_employees: FICHAS_ANCHAS });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(700);
+
+  const m = await medirPlantilla(page);
+  expect(m.filas).toBe(3);
+  // Lo que la tabla ocupa tiene que caber en lo que la caja deja alcanzar. Si
+  // la tabla mide más, hay contenido al que no se llega ni desplazándose.
+  expect(m.anchoTabla).toBeLessThanOrEqual(m.alcanzable);
+  expect(m.botonesFuera, 'hay filas con los botones fuera de alcance').toBe(0);
+});
+
+test('en el teléfono la plantilla se apila en fichas y no hay nada que arrastrar de lado', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await boot(page, 'admin', { hr_employees: FICHAS_ANCHAS });
+  await page.evaluate(() => window.GamaOpenHR());
+  await page.waitForTimeout(700);
+
+  const m = await medirPlantilla(page);
+  expect(m.alcanzable).toBe(m.anchoCaja);
+  expect(m.botonesFuera).toBe(0);
+  // Y la página tampoco se ensancha por su culpa.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth));
+
+  // Apilada, cada celda lleva delante el nombre de su columna: sin la cabecera
+  // de la tabla, «$620,00» a secas no diría de qué es.
+  const etiquetas = await page.evaluate(() =>
+    [...document.querySelectorAll('#hr .hrTable tbody tr:first-child td')]
+      .map(td => getComputedStyle(td, '::before').content));
+  expect(etiquetas.join(' ')).toContain('Sueldo');
+  expect(etiquetas.join(' ')).toContain('Vacaciones');
+});

@@ -86,14 +86,19 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
       expect(m.sw, `«${pestana}» estira la página: ${m.peor}`).toBeLessThanOrEqual(m.vw + 1);
     }
 
-    // La tabla sigue teniendo su propio desplazamiento: acotar la columna no
-    // puede haberla aplastado ni haberle quitado columnas.
+    // La plantilla no estira la página, pero tampoco se la ha aplastado ni le
+    // faltan columnas: en el teléfono cada empleado se apila en una ficha con
+    // sus seis datos y ya no queda nada que arrastrar de lado. (Antes esta
+    // comprobación exigía justo lo contrario —que la tabla se desplazara
+    // dentro de su caja— porque ésa era entonces la única salida al problema
+    // de que la página se ensanchara.)
     await page.click('#hr .hrTabs button:has-text("Empleados")');
     await page.waitForTimeout(600);
     expect(await page.evaluate(() => {
       const t = document.querySelector('#hr .hrTable');
-      return t ? t.scrollWidth > t.clientWidth : false;
-    }), 'la tabla de empleados ya no se desplaza dentro de su caja').toBe(true);
+      const fila = t && t.querySelector('tbody tr');
+      return t && fila ? { arrastre: t.scrollWidth - t.clientWidth, celdas: fila.cells.length } : null;
+    }), 'la plantilla ya no se lee entera sin arrastrarla').toEqual({ arrastre: 0, celdas: 6 });
   });
 
   test('las tres pestañas de RRHH caben en una fila y no se cortan a 360 px', async ({ page }) => {

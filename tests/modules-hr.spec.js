@@ -30,8 +30,6 @@ async function boot(page, role = 'admin', db = {}) {
 // en silencio es la segunda mitad — que quede una ruta abierta (showTab, una
 // pestaña, el clic directo de una tarjeta) por la que se llegue igual.
 test('un módulo desactivado desaparece del menú y no se puede abrir', async ({ page }) => {
-  const avisos = [];
-  page.on('dialog', d => { avisos.push(d.message()); d.accept(); });
   await boot(page, 'admin');
 
   const tarjeta = page.locator('#mainmenu .gamaF2Card:has-text("Auditoría")');
@@ -51,11 +49,13 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   await expect(tarjeta, 'la tarjeta sigue en el menú').toBeHidden();
   await expect(page.locator('.tabs .tab:has-text("Auditoría")')).toHaveCount(0);
 
-  // Y la ruta directa tampoco vale.
-  avisos.length = 0;
+  // Y la ruta directa tampoco vale. El aviso ya no es un alert() del
+  // navegador sino el propio de la aplicación (gama-toast.js): se limpian
+  // los anteriores para leer sólo el que provoca esta llamada.
+  await page.evaluate(() => document.getElementById('gamaToasts')?.replaceChildren());
   await page.evaluate(() => window.showTab('audit', null));
   await page.waitForTimeout(400);
-  expect(avisos.join(' ')).toContain('desactivado');
+  await expect(page.locator('#gamaToasts')).toContainText('desactivado');
   await expect(page.locator('#audit'), 'la pantalla se mostró pese al aviso').toBeHidden();
 
   // Volver a encenderlo lo devuelve al menú.

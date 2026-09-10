@@ -91,11 +91,12 @@ test.describe('TMS — fleet management', () => {
     });
     await page.click('button.tmsTab:has-text("Conductores y vehículos")');
 
-    let dialogMessage = '';
-    page.once('dialog', async d => { dialogMessage = d.message(); await d.accept(); });
+    // Este aviso era un alert() y ahora es el aviso propio de la aplicación
+    // (gama-toast.js). El confirm() de borrar un conductor sigue siendo el
+    // del navegador: devuelve sí o no y detiene la ejecución hasta tenerlo.
     await page.click('.tmsRoute button:has-text("🗑️ Eliminar")');
 
-    await expect.poll(() => dialogMessage).toContain('ruta activa');
+    await expect(page.locator('#gamaToasts')).toContainText('ruta activa');
     await expect(page.locator('.tms')).toContainText('Conductor Activo');
     expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
   });
@@ -240,7 +241,6 @@ test.describe('TMS — enviar el comprobante al cliente', () => {
   // igual el compositor, con todo escrito menos la dirección.
   test('sin correo en la ficha avisa pero prepara igual el mensaje', async ({ page }) => {
     const envios = [];
-    const avisos = [];
     await page.exposeFunction('__captureSend', (args) => { envios.push(args); });
 
     const iso = new Date().toISOString();
@@ -250,7 +250,6 @@ test.describe('TMS — enviar el comprobante al cliente', () => {
       deliveries: [{ id: 'del1', customer: 'Constructora Andes', address: 'Calle 5', customer_id: 'cli2', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
       proofs: [{ delivery_id: 'del1', photo: 'data:image/png;base64,PHOTO', signature: 'data:image/png;base64,SIGNATURE', captured_at: iso }],
     });
-    page.on('dialog', async d => { avisos.push(d.message()); await d.accept(); });
     await page.click('button.tmsTab:has-text("Prueba de entrega")');
     await page.waitForTimeout(400);
 
@@ -269,14 +268,12 @@ test.describe('TMS — enviar el comprobante al cliente', () => {
     await expect.poll(() => envios.length).toBe(1);
     expect(envios[0].email).toBe('');
     expect(envios[0].subject).toContain('Comprobante de entrega');
-    expect(avisos.join(' ')).toContain('correo');
+    await expect(page.locator('#gamaToasts')).toContainText('correo');
   });
 });
 
 test.describe('TMS — route optimization', () => {
   test('optimizing still creates a route even when geocoding is unavailable', async ({ page }) => {
-    const dialogs = [];
-    page.on('dialog', async d => { dialogs.push(d.message()); await d.accept(); });
     // Geocoding used to have no timeout, so a slow/unreachable Nominatim could
     // stall optimize() indefinitely. Aborting it proves optimize() completes
     // and still creates a route when geocoding fails.
@@ -289,9 +286,7 @@ test.describe('TMS — route optimization', () => {
     await expect(page.locator('.tms')).toContainText('Cliente Prueba');
 
     await page.click('#tOptimize');
-    await expect.poll(() => dialogs.length, { timeout: 10000 }).toBeGreaterThan(0);
-
-    expect(dialogs[0]).toContain('ruta(s) creada(s)');
+    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
     await expect(page.locator('.tms')).toContainText('Ver ruta');
     expect(await page.evaluate(() => window.__DB.tms_routes.length)).toBeGreaterThan(0);
   });
@@ -426,8 +421,6 @@ test.describe('TMS — one-time import of the old localStorage dataset', () => {
 
   test('a history already uploaded from another device is not duplicated, and the local copy is kept', async ({ page }) => {
     const iso = new Date().toISOString();
-    let warning = '';
-    page.on('dialog', async d => { warning = d.message(); await d.accept(); });
     await boot(page, {
       __migrate: true,
       deliveries: [{ id: 'cloud1', customer: 'Ya En La Nube', address: 'Calle Cloud 1', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
@@ -442,7 +435,7 @@ test.describe('TMS — one-time import of the old localStorage dataset', () => {
     // No second copy of the same history.
     const customers = await page.evaluate(() => window.__DB.tms_deliveries.map(d => d.customer));
     expect(customers).not.toContain('Cliente Histórico');
-    expect(warning).toContain('no se ha importado');
+    await expect(page.locator('#gamaToasts')).toContainText('no se ha importado');
     // Nothing is destroyed: the browser copy is still there to recover from.
     expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).not.toBeNull();
   });
@@ -468,8 +461,6 @@ test.describe('TMS — conductores enlazados a RRHH', () => {
   });
 
   test('un conductor de vacaciones queda fuera del reparto', async ({ page }) => {
-    const dialogs = [];
-    page.on('dialog', async d => { dialogs.push(d.message()); await d.accept(); });
     await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
     await boot(page, {
       drivers: ENLAZADOS,
@@ -485,8 +476,9 @@ test.describe('TMS — conductores enlazados a RRHH', () => {
     await page.click('button:has-text("Añadir entrega")');
     await expect(page.locator('.tms')).toContainText('Cliente Prueba');
 
+    // El aviso de que la ruta ya está hecha marca el final de optimize().
     await page.click('#tOptimize');
-    await expect.poll(() => dialogs.length, { timeout: 10000 }).toBeGreaterThan(0);
+    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
 
     const rutas = await page.evaluate(() => window.__DB.tms_routes);
     expect(rutas.length).toBe(1);

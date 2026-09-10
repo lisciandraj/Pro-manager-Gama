@@ -64,9 +64,6 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
   });
 
   test('cannot create a purchase order without selecting a supplier', async ({ page }) => {
-    const dialogs = [];
-    page.on('dialog', async (dialog) => { dialogs.push(dialog.message()); await dialog.accept(); });
-
     await page.goto('/index.html');
     await page.waitForTimeout(500);
     await page.evaluate(() => {
@@ -74,8 +71,11 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
       window.gamaShowPurchases();
     });
 
+    // El aviso ya no es un alert() del navegador sino el aviso propio de la
+    // aplicación (gama-toast.js). Lo que se comprueba es lo mismo: que avisa,
+    // y con qué.
     await page.click('#gp14Save');
-    expect(dialogs).toContain('Selecciona un proveedor.');
+    await expect(page.locator('#gamaToasts')).toContainText('Selecciona un proveedor.');
   });
 });
 

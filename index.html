@@ -6,7 +6,8 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="GAMA Stock">
+<meta name="apple-mobile-web-app-title" content="GAMA ERP">
+<meta name="description" content="Inventario, compras, ventas y facturación de GAMA en una sola aplicación.">
 <link rel="manifest" href="manifest.json">
 <title>GAMA Enterprise Resource Planning</title>
 <style>
@@ -141,6 +142,62 @@ section{display:none}section.active{display:block}
  .appTile{min-height:125px}
  .appIcon{width:50px;height:50px}
  .appTile b{font-size:13px}
+}
+</style>
+
+<style>
+/* GAMA — Capa de acabado.
+   Las cuatro hojas de arriba son el histórico: cada una se escribió encima
+   de la anterior. Ésta no repinta nada de aquéllas —el gris del lienzo y el
+   borde de las tarjetas del menú están medidos por pruebas de contraste y se
+   quedan exactamente como están—: sólo pone lo que a una aplicación de
+   gestión se le supone y aquí no había. Un botón que no responde al ratón ni
+   al teclado, o un formulario de doce campos donde no se ve cuál tiene el
+   cursor, es lo que separa una herramienta interna de un producto. */
+
+/* Foco visible. El único aviso de dónde estaba el teclado era el anillo por
+   defecto del navegador, que varias hojas de módulo tapaban. Con
+   :focus-visible el ratón no lo dispara al pulsar, así que no estorba a
+   quien no lo necesita. */
+:focus-visible{outline:3px solid var(--gama-teal,#087C8B);outline-offset:2px}
+
+/* Botones: respuesta al pasar por encima, al pulsar, y un deshabilitado que
+   se distingue de uno activo —hasta ahora eran idénticos—. */
+button{transition:background-color .12s ease,box-shadow .12s ease,transform .08s ease,opacity .12s ease}
+button:active{transform:translateY(1px)}
+button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+.primary{box-shadow:0 2px 8px rgba(8,124,139,.25)}
+.primary:hover:not(:disabled){background:#075C69}
+.secondary:hover:not(:disabled){background:#E1E9EB}
+.danger:hover:not(:disabled){background:#B34339}
+.success:hover:not(:disabled){background:#0F7A5B}
+.warning:hover:not(:disabled){background:#9E5B14}
+.headIcon{transition:background-color .12s ease,border-color .12s ease,color .12s ease}
+.headIcon:hover{background:#EAF6F7;border-color:#BFE0E4;color:var(--gama-teal,#087C8B)}
+
+/* Campos. En un formulario largo, sin marca de foco hay que buscar el cursor
+   a ojo; y un campo de sólo lectura parecía uno vacío que no aceptaba nada. */
+input,select,textarea{transition:border-color .12s ease,box-shadow .12s ease}
+input:hover:not(:disabled),select:hover:not(:disabled),textarea:hover:not(:disabled){border-color:#AFC2CC}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,#087C8B);box-shadow:0 0 0 3px rgba(8,124,139,.18)}
+input:disabled,select:disabled,textarea:disabled{background:#F1F4F6;color:#8A98A2;cursor:not-allowed}
+input[readonly]{background:#F8FAFB;color:#5C6B76}
+::placeholder{color:#9AA7B0}
+
+/* Tablas, sólo en escritorio: por debajo de 760px gama-tables.js apila cada
+   fila en una ficha y estas reglas no pintan nada. Cuando siguen siendo
+   tablas, la cabecera tiene que distinguirse del dato y la fila bajo el
+   cursor marcarse, que es lo que evita perder el renglón a la doceava
+   columna. */
+@media(min-width:761px){
+ th{font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:#5C6B76}
+ tbody tr:nth-child(even):not([data-gama-head]){background:#FAFCFC}
+ tbody tr:not([data-gama-head]):hover{background:#F1F7F8}
+}
+
+@media(prefers-reduced-motion:reduce){
+ button,input,select,textarea,.headIcon{transition:none}
+ button:active{transform:none}
 }
 </style>
 
@@ -815,4 +872,5 @@ showTab('mainmenu',null);
 <script src="gama-hr.js?v=9"></script>
 <script src="gama-settings.js?v=2"></script>
 <script src="gama-standard-ui.js?v=12"></script>
+<script src="gama-sidebar.js?v=1"></script>
 </body></html>

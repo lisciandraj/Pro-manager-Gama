@@ -36,6 +36,8 @@ nav.gamaSidebar{display:none}
   }
   body.gamaHasSidebar #mainmenu,body.gamaHasSidebar .wrap{margin-left:248px}
 }
+.gamaSideGroup{margin:14px 8px 4px;font-size:10px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:#8494A0}
+.gamaSideGroup:first-child{margin-top:2px}
 .gamaSideLink{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:9px;color:var(--gama-text,#173246);background:transparent;border:0;text-align:left;font-size:13.5px;font-weight:650;cursor:pointer;width:100%;transition:background-color .12s ease,color .12s ease}
 .gamaSideLink:hover{background:#EAF6F7;color:var(--gama-teal,#087C8B)}
 .gamaSideLink svg{width:19px;height:19px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
@@ -71,10 +73,22 @@ function build(){
   const el=nav();
   el.replaceChildren();
   el.appendChild(link('Inicio',HOME_ICON,()=>window.GamaUI?.backToMenu?.()));
+  /* Los grupos son los mismos que los del menú de tarjetas, y se leen de las
+     propias tarjetas: así no hay una segunda lista que mantener al día. */
+  let grupoActual='';
   cards.forEach(card=>{
     const label=(card.querySelector('.gamaF2Title')?.textContent||'').trim();
     const svg=card.querySelector('.gamaF2Icon svg')?.innerHTML||'';
     if(!label)return;
+    const grupo=card.dataset.gamaGrupo||(card.hasAttribute('data-gama-tms-card')?'Logística':'');
+    if(grupo&&grupo!==grupoActual){
+      grupoActual=grupo;
+      const h=document.createElement('div');
+      h.className='gamaSideGroup';
+      h.dataset.gamaGrupo=grupo;
+      h.textContent=grupo;
+      el.appendChild(h);
+    }
     el.appendChild(link(label,svg,()=>card.click()));
   });
   document.body.classList.add('gamaHasSidebar');
@@ -100,6 +114,16 @@ function refreshVisibility(){
     if(b.dataset.gamaSideLabel==='Inicio')return;
     b.hidden=!visible.has(b.dataset.gamaSideLabel);
   });
+  /* Un rótulo sin ningún enlace visible detrás sobra: pasa cuando el perfil
+     no tiene acceso a ninguno de los módulos de ese grupo. */
+  let rotulo=null,vivos=0;
+  [...el.children].forEach(n=>{
+    if(n.classList.contains('gamaSideGroup')){
+      if(rotulo)rotulo.hidden=!vivos;
+      rotulo=n;vivos=0;
+    }else if(n.classList.contains('gamaSideLink')&&!n.hidden)vivos++;
+  });
+  if(rotulo)rotulo.hidden=!vivos;
 }
 
 function tick(){

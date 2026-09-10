@@ -1,28 +1,39 @@
 /* GAMA V10 - menú definitivo en español + Entregas/TMS */
 (function(){
 'use strict';
+/* [rótulo, pantalla, icono, grupo]. El grupo es sólo para el menú: veinte
+   módulos en una única rejilla se leen como un muro de iconos y encontrar
+   «Matriz comercial» exigía recorrerlos todos. Agrupados —y con el buscador
+   de aquí arriba— se llega a cualquiera de un vistazo o escribiendo tres
+   letras. El orden de la lista sigue siendo el orden dentro de su grupo. */
 const ITEMS=[
- ['Panel de control','dashboard','chart'],
- ['Productos','products','cube'],
- ['Clientes','clients','users'],
- ['Entradas / Salidas','movement','move'],
- ['Presupuestos','billing','invoice'],
- ['Inventario','stock','stock'],
- ['Auditoría','audit','audit'],
- ['Proveedores','suppliers','truck'],
- ['Compras','gamaPurchasesV14','cart'],
- ['Tarifas','price-lists','tag'],
- ['CRM','crm','handshake'],
- ['Importar Excel','reports','spreadsheet'],
- ['Matriz comercial','matrix','matrix'],
- ['Recursos humanos','hr','badge'],
- ['Configuración','settings','gear'],
- ['Copias de seguridad','backup','cloud'],
- ['Usuarios','users','user'],
- ['Códigos de barras','barcode','barcode'],
- ['Catálogo de productos','client-catalog','catalog'],
- ['Solicitudes de clientes','customer-requests','request']
+ ['Panel de control','dashboard','chart','Resumen'],
+ ['Presupuestos','billing','invoice','Ventas'],
+ ['Clientes','clients','users','Ventas'],
+ ['CRM','crm','handshake','Ventas'],
+ ['Solicitudes de clientes','customer-requests','request','Ventas'],
+ ['Catálogo de productos','client-catalog','catalog','Ventas'],
+ ['Tarifas','price-lists','tag','Ventas'],
+ ['Productos','products','cube','Inventario y compras'],
+ ['Entradas / Salidas','movement','move','Inventario y compras'],
+ ['Inventario','stock','stock','Inventario y compras'],
+ ['Compras','gamaPurchasesV14','cart','Inventario y compras'],
+ ['Proveedores','suppliers','truck','Inventario y compras'],
+ ['Matriz comercial','matrix','matrix','Inventario y compras'],
+ ['Códigos de barras','barcode','barcode','Inventario y compras'],
+ ['Importar Excel','reports','spreadsheet','Administración'],
+ ['Recursos humanos','hr','badge','Administración'],
+ ['Auditoría','audit','audit','Administración'],
+ ['Usuarios','users','user','Administración'],
+ ['Configuración','settings','gear','Administración'],
+ ['Copias de seguridad','backup','cloud','Administración']
 ];
+/* El orden en que se enseñan los grupos. «Logística» va la última y vacía a
+   propósito: la tarjeta de Entregas/TMS la añade gama-role-spanish.js cuando
+   el módulo termina de cargar, y al añadirla al final de la rejilla cae
+   justo debajo de este rótulo. Si el módulo no carga —o el perfil no lo
+   tiene— el rótulo se esconde solo (ver la regla :has del CSS). */
+const GRUPOS=['Resumen','Ventas','Inventario y compras','Administración','Logística'];
 const I={
  handshake:'<path d="M11 6.5 8.8 8.7a2 2 0 0 0 0 2.8l.3.3a2 2 0 0 0 2.8 0l1.2-1.2 3.4 3.4a1.6 1.6 0 0 1-2.3 2.3l-.5-.5"/><path d="M3 7.5 6 5l4 1 3.5-1.5L21 7.5"/><path d="M21 7.5v6M3 7.5v6"/>',
 chart:'<path d="M4 19V10m5 9V6m5 13v-8m5 8V3"/><path d="m4 9 5-4 5 3 6-6"/>',
@@ -46,7 +57,69 @@ matrix:'<path d="M4 19V5M4 19h16M8 16V9m4 7V6m4 10v-4"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
 function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';document.body.appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260910-tarifas2';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2>Importar Excel</h2><p class="low">No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
 function openItem(x){if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
-function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang='es';document.querySelectorAll('.gamaLanguage').forEach(e=>e.remove());const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #C3D2DC!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(23,50,70,.07),0 6px 18px rgba(23,50,70,.10)!important;color:#173246!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}#mainmenu .gamaF2Card:hover{border-color:#087c8b!important;box-shadow:0 2px 4px rgba(23,50,70,.08),0 12px 26px rgba(23,50,70,.16)!important;transform:translateY(-2px)}#mainmenu .gamaF2Card:focus-visible{outline:3px solid #087c8b!important;outline-offset:2px}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Card:nth-child(5n+2) .gamaF2Icon,#mainmenu .gamaF2Card:nth-child(5n+5) .gamaF2Icon{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}}';host.replaceChildren();const h=document.createElement('h2');h.textContent='Menú principal';h.style.cssText='margin:22px 18px 8px;color:#173246;font-size:28px';const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';const grid=document.createElement('div');grid.className='gamaF2Grid';ITEMS.forEach(x=>{const b=document.createElement('button');b.type='button';b.className='gamaF2Card';const icon=document.createElement('span');icon.className='gamaF2Icon';icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];b.append(icon,label);b.onclick=()=>openItem(x);grid.appendChild(b)});host.append(h,p,grid)}
+
+/* Un rótulo de grupo se esconde cuando no le queda ninguna tarjeta visible
+   detrás: puede pasar porque el perfil no tenga acceso a ninguna —el control
+   de acceso les pone .aclHidden— o porque el buscador las haya descartado.
+   Se resuelve en CSS con :has() y el combinador de hermanos, sin observador:
+   el guardarraíl de rendimiento del proyecto acota cuántos puede haber. */
+function reglasDeGrupo(){
+ return GRUPOS.map(g=>{
+  const visible=g==='Logística'
+   ?'.gamaF2Card[data-gama-tms-card]:not(.aclHidden):not(.gamaF2NoMatch)'
+   :`.gamaF2Card[data-gama-grupo="${g}"]:not(.aclHidden):not(.gamaF2NoMatch)`;
+  return `#mainmenu .gamaF2Section[data-gama-grupo="${g}"]:not(:has(~ ${visible})){display:none}`;
+ }).join('');
+}
+
+function buscar(termino){
+ const t=(termino||'').trim().toLowerCase();
+ let visibles=0;
+ document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>{
+  const rotulo=(c.querySelector('.gamaF2Title')?.textContent||'').toLowerCase();
+  const coincide=!t||rotulo.includes(t);
+  c.classList.toggle('gamaF2NoMatch',!coincide);
+  if(coincide&&!c.classList.contains('aclHidden'))visibles++;
+ });
+ const vacio=document.getElementById('gamaF2Vacio');
+ if(vacio)vacio.hidden=!(t&&!visibles);
+}
+
+function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang='es';document.querySelectorAll('.gamaLanguage').forEach(e=>e.remove());const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';/* auto-fill en vez de cinco columnas fijas: al agrupar, un grupo de seis
+   tarjetas dejaba una sola huérfana en la fila siguiente y un hueco enorme
+   al lado. Dejando que la rejilla ajuste el número de columnas al ancho
+   disponible —que además cambia cuando aparece la barra lateral— los grupos
+   llenan sus filas. */
+s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(196px,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #C3D2DC!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(23,50,70,.07),0 6px 18px rgba(23,50,70,.10)!important;color:#173246!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}#mainmenu .gamaF2Card:hover{border-color:#087c8b!important;box-shadow:0 2px 4px rgba(23,50,70,.08),0 12px 26px rgba(23,50,70,.16)!important;transform:translateY(-2px)}#mainmenu .gamaF2Card:active{transform:translateY(-1px) scale(.99)}#mainmenu .gamaF2Card:focus-visible{outline:3px solid #087c8b!important;outline-offset:2px}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Icon.gamaF2Naranja{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}'
+ +'#mainmenu .gamaF2Section{grid-column:1/-1;margin:10px 2px 0;font-size:11px;font-weight:850;letter-spacing:1.3px;text-transform:uppercase;color:#6d7d88}#mainmenu .gamaF2Section:first-child{margin-top:0}#mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}'
+ +'#mainmenu .gamaF2Buscador{margin:0 18px 4px;position:relative;max-width:420px}#mainmenu .gamaF2Buscador input{width:100%;box-sizing:border-box;padding:12px 14px 12px 40px;border:1px solid #C3D2DC;border-radius:12px;background:#fff;font-size:15px;color:#173246}#mainmenu .gamaF2Buscador input:focus{outline:none;border-color:#087c8b;box-shadow:0 0 0 3px rgba(8,124,139,.18)}#mainmenu .gamaF2Buscador svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:#71808a;stroke-width:2;pointer-events:none}'
+ +'#mainmenu .gamaF2Vacio{margin:14px 18px 0;padding:22px;text-align:center;color:#6d7d88;font-size:14px;background:#fff;border:1px dashed #C3D2DC;border-radius:14px}'
+ +reglasDeGrupo()
+ +'@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}#mainmenu .gamaF2Buscador{margin:0 10px 2px;max-width:none}#mainmenu .gamaF2Section{margin:8px 2px 0}#mainmenu .gamaF2Vacio{margin:12px 10px 0}}';
+ host.replaceChildren();
+ const h=document.createElement('h2');h.textContent='Menú principal';h.style.cssText='margin:22px 18px 8px;color:#173246;font-size:28px';
+ const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';
+ const caja=document.createElement('div');caja.className='gamaF2Buscador';
+ caja.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
+ const input=document.createElement('input');input.type='search';input.id='gamaF2Buscar';input.placeholder='Buscar un módulo…';input.setAttribute('aria-label','Buscar un módulo');
+ input.oninput=()=>buscar(input.value);
+ caja.appendChild(input);
+ const grid=document.createElement('div');grid.className='gamaF2Grid';
+ let n=0;
+ GRUPOS.forEach(g=>{
+  const rotulo=document.createElement('div');rotulo.className='gamaF2Section';rotulo.dataset.gamaGrupo=g;rotulo.textContent=g;
+  grid.appendChild(rotulo);
+  ITEMS.filter(x=>x[3]===g).forEach(x=>{
+   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';b.dataset.gamaGrupo=g;
+   const icon=document.createElement('span');icon.className='gamaF2Icon'+(n++%2?' gamaF2Naranja':'');
+   icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';
+   const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];
+   b.append(icon,label);b.onclick=()=>openItem(x);grid.appendChild(b);
+  });
+ });
+ const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;vacio.textContent='Ningún módulo coincide con la búsqueda.';
+ host.append(h,p,caja,grid,vacio);
+}
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la
    página para borrar los botones «‹ Menú principal» que index.html repetía en

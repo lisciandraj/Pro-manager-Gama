@@ -142,12 +142,47 @@ async function embudo(){
  });
 }
 
-/* ---- pantalla ---- */
+/* ---- pantalla ----
+
+   El CRM es UN módulo con varias pantallas y UNA sola tarjeta en el menú: el
+   control de acceso decide una vez, en la puerta, y a partir de ahí se navega
+   por dentro sin pasar por el menú. Cada pantalla se apunta aquí con su
+   nombre y su función de apertura —registrar()— y la barra de navegación se
+   pinta sola, así que añadir la siguiente (contactos, oportunidades, agenda)
+   es una línea y no otra barra escrita a mano que se olvide de actualizar. */
 function section(){
  let s=$('crm');
  if(!s){s=document.createElement('section');s.id='crm';(document.querySelector('.wrap')||document.body).appendChild(s)}
  return s;
 }
+const PANTALLAS=[];
+let actual='panel';
+function registrar(id,label,abrir){if(!PANTALLAS.some(p=>p.id===id))PANTALLAS.push({id,label,abrir})}
+function nav(){
+ if(PANTALLAS.length<2)return '';
+ return `<div class="crmNav">${PANTALLAS.map(p=>
+  `<button type="button" class="${p.id===actual?'on':''}" data-crm-ir="${esc(p.id)}">${esc(p.label)}</button>`).join('')}</div>`;
+}
+/* La cabecera común de GAMA más la navegación del módulo. Todas las pantallas
+   del CRM empiezan por aquí, para que el título y el botón de volver estén
+   siempre en el mismo sitio. */
+function cabecera(lead){
+ return window.GamaUI.header({title:'🤝 CRM',lead:lead||'Prospectos, oportunidades y actividad comercial.'})+nav();
+}
+/* Conecta lo que la cabecera trae: el botón de volver y la navegación. Se
+   llama después de cada innerHTML, que no arrastra los onclick. */
+function bind(root){
+ const r=root||section();
+ window.GamaUI.bindBack(r);
+ r.querySelectorAll('[data-crm-ir]').forEach(b=>{b.onclick=()=>ir(b.dataset.crmIr)});
+}
+function ir(id){
+ const p=PANTALLAS.find(x=>x.id===id)||PANTALLAS[0];
+ if(!p)return Promise.resolve();
+ actual=p.id;
+ return Promise.resolve(p.abrir());
+}
+
 function css(){
  if($('crmCss'))return;
  const s=document.createElement('style');s.id='crmCss';
@@ -157,6 +192,9 @@ function css(){
 #crm .crmKpi b{display:block;margin-top:6px;font-size:22px;color:#18324a}
 #crm .crmKpi small{display:block;margin-top:3px;color:#81909a;font-size:11px}
 #crm .card{background:#fff;border:1px solid var(--gama-line,#c9d6df);border-radius:14px;padding:16px;margin-bottom:12px}
+#crm .crmNav{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+#crm .crmNav button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto;min-height:40px}
+#crm .crmNav button.on{background:#087c8b;border-color:#087c8b;color:#fff}
 #crm .crmEmbudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 #crm .crmCol{background:#f8fafb;border:1px solid #e4ebee;border-radius:11px;padding:11px}
 #crm .crmCol b{display:block;font-size:12.5px;color:#18324a}
@@ -165,6 +203,7 @@ function css(){
 #crm .crmCol.ganada{background:#e7f6f0;border-color:#bfe6d6}
 #crm .crmCol.perdida{background:#fff0ec;border-color:#f2cfc7}
 #crm .crmMsg{margin:10px 0;font-size:13px}
+#crm .crmMsg.ok{color:#138a69}
 #crm .crmMsg.err{color:#c94f45;font-weight:700}
 #crm .crmVacio{padding:20px;text-align:center;color:#81909a}
 @media(max-width:900px){#crm .crmKpis{grid-template-columns:1fr 1fr}}`;
@@ -175,7 +214,7 @@ function kpi(etiqueta,valor,pie){
 }
 function pintar(r,cols){
  const s=section();
- s.innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
+ s.innerHTML=`${cabecera()}
  <div id="crmMsg" class="crmMsg"></div>
  <div class="crmKpis">
   ${kpi('Embudo abierto',money(r.potencial),r.oportunidades+' oportunidad(es)')}
@@ -201,30 +240,24 @@ function pintar(r,cols){
   ${r.oportunidades===0&&r.ganadas===0&&r.perdidas===0
    ? '<div class="crmVacio">Ninguna oportunidad todavía. En cuanto se cree la primera, el embudo se llena solo.</div>':''}
  </div>`;
- window.GamaUI.bindBack(s);
+ bind(s);
 }
 function fallo(e){
  const m=$('crmMsg');
  const texto='No se pudieron cargar los datos del CRM: '+((e&&(e.message||e.details))||e);
  console.warn('[GAMA CRM]',e);
  if(m){m.className='crmMsg err';m.textContent=texto}
- else section().innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}<div class="crmMsg err">${esc(texto)}</div>`;
- window.GamaUI.bindBack(section());
+ else section().innerHTML=`${cabecera()}<div class="crmMsg err">${esc(texto)}</div>`;
+ bind(section());
 }
 
 let cargando=false;
-async function open(){
+async function panel(){
  css();
  const s=section();
- document.querySelectorAll('section').forEach(x=>{const on=x.id==='crm';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
- $('mainmenu')?.setAttribute('hidden','');
- if(!puedeUsar()){
-  s.innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
-   <div class="card"><div class="crmVacio">Tu perfil no tiene acceso al CRM.</div></div>`;
-  window.GamaUI.bindBack(s);return;
- }
  if(cargando)return;cargando=true;
- s.innerHTML='<div class="wrap"><div class="card"><div class="crmVacio">Cargando el CRM…</div></div></div>';
+ s.innerHTML=`${cabecera()}<div class="card"><div class="crmVacio">Cargando el CRM…</div></div>`;
+ bind(s);
  try{
   const [r,cols]=await Promise.all([resumen(),embudo()]);
   pintar(r,cols);
@@ -232,12 +265,34 @@ async function open(){
  finally{cargando=false}
  window.scrollTo({top:0,behavior:'smooth'});
 }
+registrar('panel','Cuadro de mando',panel);
+
+/* Enciende la sección del CRM y apaga todo lo demás. Es lo que hace cualquier
+   módulo de GAMA al abrirse; vive aquí para que las pantallas del CRM no lo
+   repitan. */
+function mostrar(){
+ document.querySelectorAll('section').forEach(x=>{const on=x.id==='crm';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
+ $('mainmenu')?.setAttribute('hidden','');
+}
+async function open(){
+ css();
+ const s=section();
+ mostrar();
+ if(!puedeUsar()){
+  s.innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
+   <div class="card"><div class="crmVacio">Tu perfil no tiene acceso al CRM.</div></div>`;
+  window.GamaUI.bindBack(s);return;
+ }
+ await ir(actual);
+}
 
 window.GamaCRM={
  open,
  // La capa de datos, para las pantallas que vienen después.
  cols:COLS, referenciales, comerciales, nombreDe, resumen, embudo, cuantos, suma,
  puedeUsar, esAdmin, money, esc,
+ // El armazón de pantalla: registrarse, pintarse dentro y navegar.
+ registrar, ir, cabecera, bind, section, mostrar, css,
 };
 window.GamaOpenCRM=open;
 })();

@@ -138,6 +138,29 @@ test.describe('CRM — núcleo del módulo', () => {
       (window.__DB.__calls || []).filter(c => /^crm_/.test(c.table)).length)).toBeGreaterThan(3);
   });
 
+  // La tarjeta no debería llegar siquiera a verse: el control de acceso la
+  // esconde a quien no tiene el permiso. Eso depende de que el módulo esté en
+  // MENU_MAP, que es lo que se me olvidó y cazó modules-hr.spec.js — pero
+  // aquél sólo lee el fichero; esto comprueba lo que pasa en pantalla.
+  test('la tarjeta del CRM no se le enseña a un perfil sin permiso', async ({ page }) => {
+    await boot(page, {}, 'magasinier');
+    await page.waitForTimeout(800);
+    // El control de acceso no borra la tarjeta: le pone aclHidden, que es
+    // display:none. Así que lo que hay que mirar es si SE VE, no si existe.
+    await expect(page.locator('#mainmenu .gamaF2Card:has-text("CRM")')).toBeHidden();
+  });
+
+  // El otro lado de lo mismo, y en su propia prueba porque boot() reimpone el
+  // perfil en cada navegación: cambiarlo a mitad de una prueba no cambia nada.
+  test('un comercial sí ve la tarjeta y puede abrir el CRM', async ({ page }) => {
+    await boot(page, {}, 'commercial');
+    await page.waitForTimeout(800);
+    await expect(page.locator('#mainmenu .gamaF2Card:has-text("CRM")')).toBeVisible();
+    await page.click('#mainmenu .gamaF2Card:has-text("CRM")');
+    await page.waitForTimeout(800);
+    await expect(page.locator('#crm .crmKpi')).not.toHaveCount(0);
+  });
+
   // El perfil de almacén no tiene nada que hacer aquí, y la pantalla lo dice
   // en vez de enseñar cifras vacías. Las políticas RLS son la frontera de
   // verdad; esto es la mitad cliente de la misma decisión.

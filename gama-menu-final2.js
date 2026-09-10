@@ -92,10 +92,10 @@ function render(){const host=document.getElementById('mainmenu');if(!host)return
    llenan sus filas. */
 s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(196px,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #C3D2DC!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(23,50,70,.07),0 6px 18px rgba(23,50,70,.10)!important;color:#173246!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}#mainmenu .gamaF2Card:hover{border-color:#087c8b!important;box-shadow:0 2px 4px rgba(23,50,70,.08),0 12px 26px rgba(23,50,70,.16)!important;transform:translateY(-2px)}#mainmenu .gamaF2Card:active{transform:translateY(-1px) scale(.99)}#mainmenu .gamaF2Card:focus-visible{outline:3px solid #087c8b!important;outline-offset:2px}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Icon.gamaF2Naranja{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}'
  +'#mainmenu .gamaF2Section{grid-column:1/-1;margin:10px 2px 0;font-size:11px;font-weight:850;letter-spacing:1.3px;text-transform:uppercase;color:#6d7d88}#mainmenu .gamaF2Section:first-child{margin-top:0}#mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}'
- +'#mainmenu .gamaF2Buscador{margin:0 18px 4px;position:relative;max-width:420px}#mainmenu .gamaF2Buscador input{width:100%;box-sizing:border-box;padding:12px 14px 12px 40px;border:1px solid #C3D2DC;border-radius:12px;background:#fff;font-size:15px;color:#173246}#mainmenu .gamaF2Buscador input:focus{outline:none;border-color:#087c8b;box-shadow:0 0 0 3px rgba(8,124,139,.18)}#mainmenu .gamaF2Buscador svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:#71808a;stroke-width:2;pointer-events:none}'
+ +'#mainmenu .gamaF2Buscador{margin:0 18px 4px;position:relative;max-width:420px}#mainmenu .gamaF2Buscador input{width:100%;box-sizing:border-box;padding:12px 14px 12px 40px;border:1px solid #C3D2DC;border-radius:12px;background:#fff;font-size:15px;color:#173246}#mainmenu .gamaF2Buscador input:focus{outline:none;border-color:#087c8b;box-shadow:0 0 0 3px rgba(8,124,139,.18)}#mainmenu .gamaF2Buscador svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:#71808a;stroke-width:2;pointer-events:none}#mainmenu .gamaF2Buscador kbd{position:absolute;right:11px;top:50%;transform:translateY(-50%);padding:2px 7px;border:1px solid #C3D2DC;border-bottom-width:2px;border-radius:6px;background:#F4F7F9;color:#6D7D88;font:700 11px/1.5 inherit;pointer-events:none}#mainmenu .gamaF2Buscador input:focus~kbd{opacity:0}'
  +'#mainmenu .gamaF2Vacio{margin:14px 18px 0;padding:22px;text-align:center;color:#6d7d88;font-size:14px;background:#fff;border:1px dashed #C3D2DC;border-radius:14px}'
  +reglasDeGrupo()
- +'@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}#mainmenu .gamaF2Buscador{margin:0 10px 2px;max-width:none}#mainmenu .gamaF2Section{margin:8px 2px 0}#mainmenu .gamaF2Vacio{margin:12px 10px 0}}';
+ +'@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}#mainmenu .gamaF2Buscador{margin:0 10px 2px;max-width:none}#mainmenu .gamaF2Buscador kbd{display:none}#mainmenu .gamaF2Section{margin:8px 2px 0}#mainmenu .gamaF2Vacio{margin:12px 10px 0}}';
  host.replaceChildren();
  const h=document.createElement('h2');h.textContent='Menú principal';h.style.cssText='margin:22px 18px 8px;color:#173246;font-size:28px';
  const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';
@@ -103,7 +103,9 @@ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-column
  caja.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
  const input=document.createElement('input');input.type='search';input.id='gamaF2Buscar';input.placeholder='Buscar un módulo…';input.setAttribute('aria-label','Buscar un módulo');
  input.oninput=()=>buscar(input.value);
+ input.onkeydown=e=>{if(e.key==='Escape'){input.value='';buscar('');input.blur()}};
  caja.appendChild(input);
+ const tecla=document.createElement('kbd');tecla.textContent='/';tecla.setAttribute('aria-hidden','true');caja.appendChild(tecla);
  const grid=document.createElement('div');grid.className='gamaF2Grid';
  let n=0;
  GRUPOS.forEach(g=>{
@@ -127,5 +129,20 @@ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-column
    entera en cada repintado, en el móvil. Los botones ya no se escriben —cada
    pantalla lleva la cabecera común, con su único botón de volver— así que el
    barrido sobra. */
+/* «/» lleva el foco al buscador, como en cualquier herramienta de uso
+   diario. Sólo cuando el menú es la pantalla visible y no se está
+   escribiendo ya en un campo: así no le quita la tecla a ningún módulo ni
+   al lector de códigos de barras, que escribe en el campo que tenga el
+   foco. */
+document.addEventListener('keydown',function(e){
+ if(e.key!=='/'||e.ctrlKey||e.metaKey||e.altKey)return;
+ const menu=document.getElementById('mainmenu');
+ if(!menu||!menu.classList.contains('active'))return;
+ const t=e.target;
+ if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;
+ const input=document.getElementById('gamaF2Buscar');
+ if(!input)return;
+ e.preventDefault();input.focus();input.select();
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();

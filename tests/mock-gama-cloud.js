@@ -179,6 +179,20 @@
       return { message: 'new row violates check constraint "crm_opp_no_ganada_y_perdida"' };
     return null;
   }
+  // Espejo de los CHECK de crm_activities: una actividad cuelga de algo, y una
+  // pendiente exige fecha. Sin esto el doble aceptaria una nota que no cuelga
+  // de nadie —imposible de volver a encontrar— y una tarea sin fecha, que no
+  // saldria en la agenda ni contaria como vencida en el cuadro de mando.
+  function chocaActividad(row, id) {
+    const previa = (window.__DB.crm_activities || []).find(r => r.id === id) || {};
+    const f = Object.assign({}, previa, row);
+    const anclas = ['lead_id', 'customer_id', 'contact_id', 'opportunity_id', 'invoice_id', 'customer_request_id'];
+    if (!anclas.some(k => f[k] != null))
+      return { message: 'new row violates check constraint "crm_act_colgada_de_algo"' };
+    if (f.status === 'pendiente' && f.due_at == null)
+      return { message: 'new row violates check constraint "crm_act_pendiente_con_fecha"' };
+    return null;
+  }
   window.GamaCloud = {
     // hr_employees.profile_id apunta a profiles.id, que es el id del usuario
     // autenticado: una prueba que fija _session.profile_id tiene que verlo
@@ -216,6 +230,10 @@
         const e = chocaOportunidad(row, null);
         if (e) return { data: null, error: e };
       }
+      if (table === 'crm_activities') {
+        const e = chocaActividad(row, null);
+        if (e) return { data: null, error: e };
+      }
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];
       window.__DB[table].push(withId);
@@ -239,6 +257,10 @@
       }
       if (table === 'crm_opportunities') {
         const e = chocaOportunidad(row, id);
+        if (e) return { data: null, error: e };
+      }
+      if (table === 'crm_activities') {
+        const e = chocaActividad(row, id);
         if (e) return { data: null, error: e };
       }
       const arr = window.__DB[table] || [];

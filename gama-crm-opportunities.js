@@ -39,14 +39,14 @@ const fallo=(e,que)=>U.error(e,que,'Oportunidades');
 const LEAD='Oportunidades: las ventas en curso, etapa por etapa.';
 const LISTA=CRM.cols.opportunities;
 const FORM=LISTA+',description,competitors';
-const PROD_COLS='id,name,reference,sale_price,active';
+const PROD_COLS='id,name,reference,sale_price,tax_rate,active';
 const CLIENTE_COLS='id,name,active';
 const LEAD_COLS='id,company,first_name,last_name,active';
 
 const PRIORIDADES={baja:'Baja',media:'Media',alta:'Alta'};
 
 let opos=[],lineas=[],clientes=[],prospectos=[],contactos=[],productos=[],gente=[],ref={etapas:[],origenes:[],motivos:[]};
-let vista='embudo',abierto=null,busca='',cargando=false,perdiendo=null;
+let vista='embudo',abierto=null,busca='',cargando=false,perdiendo=null,presupuesto=null;
 
 let mi;
 async function quienSoy(){
@@ -275,7 +275,21 @@ function bloqueLineas(){
    +'</tbody><tfoot><tr><td colspan="4"><b>Total</b></td><td class="r"><b>'+esc(money(sumaLineas()))+'</b></td><td></td></tr></tfoot>'
    +'</table></div>'
    :'<div class="crmVacio">Ninguna línea todavía: el importe es el que se haya escrito arriba.</div>')
+  +bloquePresupuesto()
   +'</div>';
+}
+
+function bloquePresupuesto(){
+ const o=abierto||{};
+ if(o.quote_invoice_id){
+  const n=presupuesto?(presupuesto.invoice_number||('archivo '+presupuesto.archive_number)):'';
+  return '<div class="crmAviso">Presupuesto generado'+(n?' <b>'+esc(n)+'</b>':'')
+   +(presupuesto?' · '+esc(CRM.money(presupuesto.total)):'')
+   +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>';
+ }
+ if(!o.customer_id)return '<div class="crmAviso">Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
+ if(!lineas.length)return '';
+ return '<div class="crmAcciones"><button type="button" class="primary" id="crmOPresu">Generar presupuesto</button></div>';
 }
 
 /* ---- guardar ---- */
@@ -331,7 +345,7 @@ async function guardar(){
   else{d.created_by=await quienSoy();d.active=true;r=await C().insert('crm_opportunities',d)}
   if(r.error)throw r.error;
   await cargar();
-  vista='embudo';abierto=null;lineas=[];
+  vista='embudo';abierto=null;lineas=[];presupuesto=null;
   pintar('Oportunidad guardada.','ok');
  }catch(e){fallo(e,'No se pudo guardar la oportunidad')}
 }
@@ -371,6 +385,7 @@ async function abrir(id){
   const o=(r.data||[])[0];
   if(!o){msg('Esa oportunidad ya no existe.','err');return}
   await cargarLineas(id);
+  await cargarPresupuesto(o.quote_invoice_id);
   abierto=o;vista='ficha';pintar();
  }catch(e){fallo(e,'No se pudo abrir la oportunidad')}
 }
@@ -416,6 +431,71 @@ async function quitarLinea(id){
  }catch(e){fallo(e,'No se pudo quitar el producto')}
 }
 
+/* ---- el presupuesto ----
+
+   Aquí termina el ciclo. GAMA no factura todavía: lo que cierra una venta es un
+   PRESUPUESTO, que vive en invoices, la tabla que ya existe. El CRM no crea una
+   segunda tabla de documentos ni un segundo numerador; escribe donde escriben
+   Solicitudes de clientes y el módulo de Presupuestos, con el mismo
+   GAMA_META en las notas para saber de dónde salió cada uno.
+
+   Sobre las cifras: los consumidores del presupuesto —el archivo, el PDF, el
+   informe de ventas— calculan cada línea como cantidad × precio y leen los
+   totales de la cabecera. Así que line_total se escribe SIN IVA, para que la
+   suma de las líneas sea exactamente el subtotal, y el IVA va aparte. */
+async function cargarPresupuesto(id){
+ presupuesto=null;
+ if(!id)return;
+ const r=await C().list('invoices',{select:'id,invoice_number,status,total,issue_date,archive_number',eq:{id:id},limit:1});
+ if(!r.error)presupuesto=(r.data||[])[0]||null;
+}
+/* El descuento de la línea no cabe en invoice_lines —no tiene esa columna—, así
+   que se aplica al precio. El presupuesto enseña el precio realmente pactado,
+   que es lo que el cliente tiene que leer. */
+const precioPactado=l=>Math.round(Number(l.unit_price||0)*(1-Number(l.discount||0)/100)*100)/100;
+async function generarPresupuesto(){
+ const o=abierto;
+ if(!o||!o.id)return;
+ if(o.quote_invoice_id){msg('Esta oportunidad ya tiene un presupuesto. Se abre desde 🧾 Presupuestos.','err');return}
+ /* Un presupuesto se le hace a un CLIENTE. Un prospecto todavía no tiene ficha
+    de cliente, así que el camino es convertirlo primero —que es justo lo que
+    hace el botón de Prospectos— y no inventar aquí un cliente a medias. */
+ if(!o.customer_id){msg('Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.','err');return}
+ if(!lineas.length){msg('Añade al menos un producto antes de generar el presupuesto.','err');return}
+ try{
+  const uid=await quienSoy();
+  const filas=lineas.map(l=>{
+   const p=productos.find(x=>String(x.id)===String(l.product_id));
+   const precio=precioPactado(l);
+   const total=Math.round(Number(l.quantity||0)*precio*100)/100;
+   return {product_id:l.product_id,quantity:Number(l.quantity||0),unit_price:precio,
+    tax_rate:Number((p&&p.tax_rate)||0),line_total:total};
+  });
+  const subtotal=Math.round(filas.reduce((t,f)=>t+f.line_total,0)*100)/100;
+  const iva=Math.round(filas.reduce((t,f)=>t+f.line_total*f.tax_rate/100,0)*100)/100;
+  const inv=await C().insert('invoices',{
+   customer_id:o.customer_id,user_id:uid||null,status:'draft',
+   issue_date:new Date().toISOString(),subtotal:subtotal,tax:iva,total:Math.round((subtotal+iva)*100)/100,
+   notes:'GAMA_META:'+JSON.stringify({source:'crm_opportunity',opportunityId:o.id,reference:o.reference}),
+  });
+  if(inv.error)throw inv.error;
+  const invId=inv.data&&inv.data.id;
+  if(!invId)throw new Error('La nube no devolvió el presupuesto creado.');
+  for(const f of filas){
+   const li=await C().insert('invoice_lines',Object.assign({invoice_id:invId},f));
+   /* Si una línea falla, el presupuesto ya existe: decirlo con esas palabras
+      en vez de dejar creer que no se hizo nada y que se repita la operación. */
+   if(li.error)throw new Error('El presupuesto se creó pero una línea falló ('+(li.error.message||li.error)+'). Revísalo en 🧾 Presupuestos antes de repetir.');
+  }
+  const up=await C().update('crm_opportunities',o.id,{quote_invoice_id:invId});
+  if(up.error)throw new Error('El presupuesto se creó pero no quedó enlazado con la oportunidad ('+(up.error.message||up.error)+').');
+  abierto.quote_invoice_id=invId;
+  await cargarPresupuesto(invId);
+  await cargar();
+  pintar('Presupuesto creado y enlazado con la oportunidad.','ok');
+ }catch(e){fallo(e,'No se pudo generar el presupuesto')}
+}
+
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
  const s=CRM.section();
@@ -459,7 +539,7 @@ function conectar(){
   if(e&&p)p.value=e.is_won?100:e.is_lost?0:Number(e.default_probability||0);
  };
  const g=$('crmOGuardar');if(g)g.onclick=guardar;
- const c=$('crmOCancelar');if(c)c.onclick=()=>{vista='embudo';abierto=null;lineas=[];pintar()};
+ const c=$('crmOCancelar');if(c)c.onclick=()=>{vista='embudo';abierto=null;lineas=[];presupuesto=null;pintar()};
  const add=$('crmLAdd');if(add)add.onclick=anadirLinea;
  const pr=$('crmLProd');
  if(pr)pr.onchange=()=>{
@@ -468,6 +548,7 @@ function conectar(){
   if(p&&campoPrecio)campoPrecio.value=Number(p.sale_price||0);
  };
  s.querySelectorAll('[data-quitar]').forEach(x=>{x.onclick=()=>quitarLinea(x.dataset.quitar)});
+ const pu=$('crmOPresu');if(pu)pu.onclick=generarPresupuesto;
  const ok=$('crmOPerder');if(ok)ok.onclick=darPorPerdida;
  const no=$('crmOPerderNo');if(no)no.onclick=()=>{perdiendo=null;pintar()};
 }
@@ -515,7 +596,7 @@ async function abrirPantalla(){
  CRM.bind(s);
  try{
   await cargar();
-  vista='embudo';abierto=null;lineas=[];perdiendo=null;
+  vista='embudo';abierto=null;lineas=[];perdiendo=null;presupuesto=null;
   pintar();
  }catch(e){
   s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';

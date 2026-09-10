@@ -50,7 +50,7 @@ const TIPOS={empresa:'Empresa',particular:'Particular'};
 const CATEGORIAS=[['A','A — mayorista'],['B','B — minorista'],['C','C — precios negociados']];
 
 let leads=[],clientes=[],gente=[],origenes=[];
-let vista='lista',abierto=null,busca='',filtro='',cargando=false,forzar=false,borrador=null;
+let vista='lista',abierto=null,busca='',filtro='',cargando=false,forzar=false,borrador=null,puntos=null;
 
 let mi;
 async function quienSoy(){
@@ -344,8 +344,13 @@ async function abrir(id,comoConversion){
   if(r.error)throw r.error;
   const l=(r.data||[])[0];
   if(!l){msg('Ese prospecto ya no existe.','err');return}
-  abierto=l;forzar=false;borrador=null;
+  abierto=l;forzar=false;borrador=null;puntos=null;
   vista=comoConversion?'convertir':'ficha';
+  /* El desglose se calcula al abrir UNA ficha y no en la lista: son varias
+     consultas por prospecto, y en una lista de mil serían miles. */
+  if(!comoConversion&&CRM.puntuacion){
+   try{puntos=await CRM.puntuacion.calcular(l)}catch(e){console.warn('[GAMA CRM Prospectos] puntuación',e)}
+  }
   pintar();
  }catch(e){fallo(e,'No se pudo abrir el prospecto')}
 }
@@ -377,7 +382,8 @@ async function archivar(id,activo){
 function pintar(aviso,tipo){
  const s=CRM.section();
  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
-  +(vista==='ficha'?ficha():vista==='convertir'?convertir():lista());
+  +(vista==='ficha'?ficha()+(puntos&&CRM.puntuacion?CRM.puntuacion.panel(puntos):'')
+    :vista==='convertir'?convertir():lista());
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
@@ -408,6 +414,18 @@ function conectar(){
  const cv=$('crmLConvertir');if(cv)cv.onclick=()=>{forzar=false;borrador=null;vista='convertir';pintar()};
  const ok=$('crmCOk');if(ok)ok.onclick=()=>convertirYa(null);
  const cc=$('crmCCancel');if(cc)cc.onclick=()=>{vista='lista';abierto=null;forzar=false;borrador=null;pintar()};
+ const ap=$('crmPtsAplicar');
+ if(ap)ap.onclick=async()=>{
+  try{
+   await CRM.puntuacion.guardar(abierto,puntos.total);
+   /* La puntuación vive en la ficha, así que el campo de la pantalla tiene que
+      enseñar lo mismo que se acaba de guardar. */
+   const c=$('crmLScore');if(c)c.value=puntos.total;
+   if(abierto)abierto.score=puntos.total;
+   await cargar();
+   msg('Puntuación guardada: '+puntos.total+' de 100.','ok');
+  }catch(e){fallo(e,'No se pudo guardar la puntuación')}
+ };
  const fz=$('crmCForzar');if(fz)fz.onclick=()=>{borrador=leerConversion();forzar=true;pintar('De acuerdo: se creará una ficha nueva con lo que has escrito.','ok')};
 }
 function css(){
@@ -433,7 +451,7 @@ async function abrirPantalla(){
  CRM.bind(s);
  try{
   await cargar();
-  vista='lista';abierto=null;forzar=false;borrador=null;
+  vista='lista';abierto=null;forzar=false;borrador=null;puntos=null;
   pintar();
  }catch(e){
   s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';

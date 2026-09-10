@@ -5,15 +5,18 @@
    módulos en una única rejilla se leen como un muro de iconos y encontrar
    «Matriz comercial» exigía recorrerlos todos. Agrupados —y con el buscador
    de aquí arriba— se llega a cualquiera de un vistazo o escribiendo tres
-   letras. El orden de la lista sigue siendo el orden dentro de su grupo. */
+   letras.
+
+   El orden importa, y no sólo por estética: un rótulo que es subcadena de
+   otro se lleva por delante al que va después cuando algo elige la tarjeta
+   por su texto —así es como la abren las pruebas de punta a punta—. Aquí
+   hay dos casos, y los dos tienen que quedar en este orden:
+     «Productos» antes que «Catálogo de productos»
+     «Clientes»  antes que «Solicitudes de clientes»
+   Por eso Inventario va antes que Ventas. Al mover un módulo de grupo, o
+   al reordenar los grupos, hay que volver a comprobarlo. */
 const ITEMS=[
  ['Panel de control','dashboard','chart','Resumen'],
- ['Presupuestos','billing','invoice','Ventas'],
- ['Clientes','clients','users','Ventas'],
- ['CRM','crm','handshake','Ventas'],
- ['Solicitudes de clientes','customer-requests','request','Ventas'],
- ['Catálogo de productos','client-catalog','catalog','Ventas'],
- ['Tarifas','price-lists','tag','Ventas'],
  ['Productos','products','cube','Inventario y compras'],
  ['Entradas / Salidas','movement','move','Inventario y compras'],
  ['Inventario','stock','stock','Inventario y compras'],
@@ -21,6 +24,12 @@ const ITEMS=[
  ['Proveedores','suppliers','truck','Inventario y compras'],
  ['Matriz comercial','matrix','matrix','Inventario y compras'],
  ['Códigos de barras','barcode','barcode','Inventario y compras'],
+ ['Presupuestos','billing','invoice','Ventas'],
+ ['Clientes','clients','users','Ventas'],
+ ['CRM','crm','handshake','Ventas'],
+ ['Solicitudes de clientes','customer-requests','request','Ventas'],
+ ['Catálogo de productos','client-catalog','catalog','Ventas'],
+ ['Tarifas','price-lists','tag','Ventas'],
  ['Importar Excel','reports','spreadsheet','Administración'],
  ['Recursos humanos','hr','badge','Administración'],
  ['Auditoría','audit','audit','Administración'],
@@ -33,7 +42,7 @@ const ITEMS=[
    el módulo termina de cargar, y al añadirla al final de la rejilla cae
    justo debajo de este rótulo. Si el módulo no carga —o el perfil no lo
    tiene— el rótulo se esconde solo (ver la regla :has del CSS). */
-const GRUPOS=['Resumen','Ventas','Inventario y compras','Administración','Logística'];
+const GRUPOS=['Resumen','Inventario y compras','Ventas','Administración','Logística'];
 const I={
  handshake:'<path d="M11 6.5 8.8 8.7a2 2 0 0 0 0 2.8l.3.3a2 2 0 0 0 2.8 0l1.2-1.2 3.4 3.4a1.6 1.6 0 0 1-2.3 2.3l-.5-.5"/><path d="M3 7.5 6 5l4 1 3.5-1.5L21 7.5"/><path d="M21 7.5v6M3 7.5v6"/>',
 chart:'<path d="M4 19V10m5 9V6m5 13v-8m5 8V3"/><path d="m4 9 5-4 5 3 6-6"/>',

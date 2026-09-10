@@ -182,7 +182,12 @@ test('cada entrada del menú está en el mapa de perfiles y en el catálogo de m
   const acl = fs.readFileSync(path.join(ROOT, 'gama-access-control.js'), 'utf8');
   const mods = fs.readFileSync(path.join(ROOT, 'gama-modules.js'), 'utf8');
 
-  const items = [...menu.matchAll(/\['([^']+)','([^']+)','[^']+'\]/g)].map(m => [m[1], m[2]]);
+  // Se acota a la lista ITEMS y se toleran los campos que una entrada lleve
+  // detrás del icono —hoy el grupo del menú—: lo que este guardián vigila es
+  // que cada módulo esté declarado en los tres sitios, no cuántas columnas
+  // tiene la tabla. Sin acotar, el propio GRUPOS entraría como una entrada más.
+  const itemsSrc = menu.match(/const ITEMS=\[([\s\S]*?)\n\];/)[1];
+  const items = [...itemsSrc.matchAll(/\['([^']+)','([^']+)','[^']+'(?:,'[^']+')*\]/g)].map(m => [m[1], m[2]]);
   expect(items.length, 'no se pudo leer el menú').toBeGreaterThan(10);
 
   const mapaSrc = acl.match(/const MENU_MAP=\{([^}]*)\}/)[1];

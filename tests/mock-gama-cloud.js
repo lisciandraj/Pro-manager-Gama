@@ -164,6 +164,21 @@
     return otro ? { message: 'duplicate key value violates unique constraint "crm_contacts_principal_'
       + (fila.customer_id ? 'cliente' : 'lead') + '_idx"' } : null;
   }
+  // Espejo de los CHECK de crm_opportunities. Sin ellos el doble aceptaria una
+  // oportunidad colgada de un cliente Y de un prospecto, o perdida sin motivo,
+  // o ganada y perdida a la vez: las tres cosas que Postgres rechaza y que una
+  // pantalla puede escribir sin darse cuenta al reabrir algo ya cerrado.
+  function chocaOportunidad(row, id) {
+    const previa = (window.__DB.crm_opportunities || []).find(r => r.id === id) || {};
+    const f = Object.assign({}, previa, row);
+    const c = f.customer_id != null, l = f.lead_id != null;
+    if (c === l) return { message: 'new row violates check constraint "crm_opp_uno_u_otro"' };
+    if (f.lost_at != null && f.lost_reason_id == null)
+      return { message: 'new row violates check constraint "crm_opp_perdida_con_motivo"' };
+    if (f.won_at != null && f.lost_at != null)
+      return { message: 'new row violates check constraint "crm_opp_no_ganada_y_perdida"' };
+    return null;
+  }
   window.GamaCloud = {
     // hr_employees.profile_id apunta a profiles.id, que es el id del usuario
     // autenticado: una prueba que fija _session.profile_id tiene que verlo
@@ -197,6 +212,10 @@
         const e = chocaPrincipal(row, null);
         if (e) return { data: null, error: e };
       }
+      if (table === 'crm_opportunities') {
+        const e = chocaOportunidad(row, null);
+        if (e) return { data: null, error: e };
+      }
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];
       window.__DB[table].push(withId);
@@ -216,6 +235,10 @@
     update: async (table, id, row) => {
       if (table === 'crm_contacts') {
         const e = chocaPrincipal(row, id);
+        if (e) return { data: null, error: e };
+      }
+      if (table === 'crm_opportunities') {
+        const e = chocaOportunidad(row, id);
         if (e) return { data: null, error: e };
       }
       const arr = window.__DB[table] || [];

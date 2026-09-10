@@ -193,6 +193,19 @@
       return { message: 'new row violates check constraint "crm_act_pendiente_con_fecha"' };
     return null;
   }
+  // Espejo de crm_targets_persona_idx y crm_targets_empresa_idx: UN objetivo por
+  // (quien, tipo, periodo), con la fila de empresa (profile_id nulo) en su
+  // propio indice. Sin esto el doble aceptaria dos objetivos para el mismo mes
+  // y la pantalla podria duplicar en vez de corregir.
+  function chocaObjetivo(row, id) {
+    const previa = (window.__DB.crm_targets || []).find(r => r.id === id) || {};
+    const f = Object.assign({}, previa, row);
+    const otro = (window.__DB.crm_targets || []).find(r =>
+      r.id !== id && r.period_kind === f.period_kind && r.period_start === f.period_start &&
+      String(r.profile_id || '') === String(f.profile_id || ''));
+    return otro ? { message: 'duplicate key value violates unique constraint "crm_targets_'
+      + (f.profile_id ? 'persona' : 'empresa') + '_idx"' } : null;
+  }
   window.GamaCloud = {
     // hr_employees.profile_id apunta a profiles.id, que es el id del usuario
     // autenticado: una prueba que fija _session.profile_id tiene que verlo
@@ -234,6 +247,10 @@
         const e = chocaActividad(row, null);
         if (e) return { data: null, error: e };
       }
+      if (table === 'crm_targets') {
+        const e = chocaObjetivo(row, null);
+        if (e) return { data: null, error: e };
+      }
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];
       window.__DB[table].push(withId);
@@ -261,6 +278,10 @@
       }
       if (table === 'crm_activities') {
         const e = chocaActividad(row, id);
+        if (e) return { data: null, error: e };
+      }
+      if (table === 'crm_targets') {
+        const e = chocaObjetivo(row, id);
         if (e) return { data: null, error: e };
       }
       const arr = window.__DB[table] || [];

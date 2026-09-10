@@ -10,7 +10,7 @@ base, la autenticación, los usuarios, los perfiles, los clientes, los productos
 y los presupuestos que ya existían. No hay segunda tabla de clientes, ni
 segundo login, ni segundo numerador de documentos.
 
-Una sola tarjeta en el menú (`CRM`), y dentro seis pantallas.
+Una sola tarjeta en el menú (`CRM`), y dentro siete pantallas.
 
 ## Las pantallas
 
@@ -22,6 +22,7 @@ Una sola tarjeta en el menú (`CRM`), y dentro seis pantallas.
 | Actividades | `gama-crm-activities.js` | ¿Qué se ha hecho y qué falta por hacer? |
 | Contactos | `gama-crm-contacts.js` | ¿Con quién se habla en cada empresa? |
 | Informes | `gama-crm-reports.js` | ¿De dónde vienen las ventas y por qué se pierden? |
+| Objetivos | `gama-crm-targets.js` | ¿Cuánto hay que vender, y cuánto se lleva? |
 
 `gama-crm-scoring.js` no es una pantalla: es el motor de puntuación y el
 enchufe de IA. Ver más abajo.
@@ -65,6 +66,7 @@ validación de formulario; no se saltan un CHECK.
 | `crm_act_colgada_de_algo` | Se exige elegir la ficha de la que cuelga. |
 | `crm_act_pendiente_con_fecha` | Una pendiente sin fecha se rechaza y se explica. |
 | `crm_leads_score_check` | La puntuación se recorta a 100 y se dice. |
+| `crm_targets_persona_idx` / `_empresa_idx` | Volver a fijar el objetivo de un periodo ya fijado lo CORRIGE, no crea un segundo. |
 
 Dos cosas que el navegador **no calcula nunca**:
 
@@ -84,6 +86,24 @@ porque `profiles_self_read` sólo deja leer la fila propia y un comercial no
 podía poner nombre al responsable de un prospecto ajeno. Ver
 `supabase-migration-2026-09-crm-team.sql` — incluye por qué se concede `SELECT`
 y nada más.
+
+## Objetivos
+
+`crm_targets` guarda cuánto tiene que vender cada comercial —o la empresa
+entera, con `profile_id` nulo— en un mes, un trimestre o un año. Lo conseguido
+se cuenta con la MISMA definición que en Informes: por fecha de **cierre** de
+la oportunidad ganada. Si las dos pantallas contaran distinto, dirección y
+comercial acabarían discutiendo sobre dos números que se llaman igual.
+
+El formulario sólo se le enseña al administrador. Eso es una **comodidad de
+pantalla, no una frontera de seguridad**: la política RLS de `crm_targets`
+admite escribir a los dos perfiles comerciales, como en el resto del CRM. Si
+los objetivos tienen que ser sólo del administrador de verdad, es una migración
+que cambia la política, no un `if` en el navegador.
+
+Aquí sí se borra, y es lo correcto: un objetivo es una decisión, no un hecho
+ocurrido. Retirarlo no pierde trazabilidad de nada — lo vendido sigue en las
+oportunidades.
 
 ## El ciclo, de punta a punta
 

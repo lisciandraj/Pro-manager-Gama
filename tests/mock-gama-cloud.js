@@ -81,6 +81,11 @@
     // nada: pasaria igual aunque el filtro no se enviara.
     if (options.gte) Object.keys(options.gte).forEach(k => { rows = rows.filter(r => r[k] >= options.gte[k]); });
     if (options.lte) Object.keys(options.lte).forEach(k => { rows = rows.filter(r => r[k] <= options.lte[k]); });
+    // lt/gt existen en el cliente real (list() de gama-supabase.js). El doble
+    // los reproduce porque el CRM cuenta con ellos lo vencido, y un doble que
+    // ignora un filtro haría pasar una prueba que en producción no filtra nada.
+    if (options.lt) Object.keys(options.lt).forEach(k => { rows = rows.filter(r => r[k] < options.lt[k]); });
+    if (options.gt) Object.keys(options.gt).forEach(k => { rows = rows.filter(r => r[k] > options.gt[k]); });
     if (options.order) rows.sort((a, b) => {
       const av = a[options.order], bv = b[options.order];
       const cmp = av > bv ? 1 : av < bv ? -1 : 0;
@@ -139,7 +144,17 @@
       // index selects only its key columns and never the base64 payloads).
       window.__DB.__calls = window.__DB.__calls || [];
       window.__DB.__calls.push({ table, select: (options || {}).select || '*' });
-      return { data: rowsFor(table, options), error: null };
+      const o = options || {};
+      const rows = rowsFor(table, options);
+      // count/head como en PostgREST: el recuento se calcula ANTES del limit,
+      // y con head:true no vuelve ni una fila. Si el doble devolviera las filas
+      // igualmente, una pantalla podría contar sobre ellas y parecer correcta
+      // mientras en producción recibe data:null.
+      if (o.count) {
+        const total = rowsFor(table, Object.assign({}, o, { limit: undefined, range: undefined })).length;
+        return { data: o.head ? null : rows, count: total, error: null };
+      }
+      return { data: rows, error: null };
     },
     // Deliberadamente NO hay select(): el GamaCloud de verdad no lo tiene. El
     // doble sí lo ofrecía, y por eso una pantalla entera —Compras— pudo pasar

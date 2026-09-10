@@ -36,6 +36,7 @@ const CATALOG=[
  {id:'matrix',             label:'Matriz comercial'},
  {id:'gamaPurchasesV14',   label:'Compras'},
  {id:'price-lists',        label:'Tarifas'},
+ {id:'crm',               label:'CRM'},
  {id:'reports',            label:'Importar Excel'},
  {id:'backup',             label:'Copias de seguridad'},
  {id:'barcode',            label:'Códigos de barras'},

@@ -1,0 +1,71 @@
+-- ===========================================================================
+-- GAMA · Módulo CRM — esquema completo (fase 4)
+-- ===========================================================================
+-- Aplicado en producción el 2026-09-10 en siete migraciones:
+--   gama_crm_01_audit_and_helpers
+--   gama_crm_02_lookups
+--   gama_crm_03_leads
+--   gama_crm_04_contacts
+--   gama_crm_05_opportunities
+--   gama_crm_06_activities_targets_customers
+--   gama_crm_07_fix_touch_search_path
+--
+-- DECISIONES QUE EXPLICAN EL ESQUEMA
+--
+-- 1. No hay segunda base de clientes. crm_leads es lo que TODAVÍA no es un
+--    cliente; al convertirlo se crea el customer y el prospecto guarda a cuál
+--    apunta, para no perder de dónde salió ni cuánto costó ganarlo.
+--
+-- 2. No hay tabla de comerciales: son profiles, los usuarios que ya existen.
+--
+-- 3. El ciclo termina en el presupuesto. GAMA no factura todavía y no tiene
+--    pedidos ni pagos, así que una oportunidad ganada enlaza con la fila de
+--    invoices que la cerró —que en GAMA ES el presupuesto— y ahí acaba.
+--
+-- 4. UNA tabla de actividades para llamadas, correos, reuniones, tareas, notas
+--    y seguimientos. Por debajo son lo mismo: algo que pasó o que tiene que
+--    pasar, con fecha y con alguien. Separarlas obligaría a unir cuatro tablas
+--    para pintar UNA línea de tiempo, que es el objeto central de un CRM.
+--
+-- 5. Las reglas viven en la base y no en los formularios: dos pestañas abiertas
+--    se saltan cualquier validación de pantalla, pero no un CHECK.
+--
+-- 6. RLS con el par de perfiles que ya usaba customer_special_prices
+--    (administrador, comercial). No se inventan roles nuevos, así que NINGUNA
+--    política existente se toca. Cuando haga falta MANAGER/LECTOR será su
+--    propia migración, con sus pruebas, porque toca todas las políticas.
+--
+-- Lo único que se modifica de una tabla existente son tres columnas nullables
+-- en customers (owner_id, source_id, crm_score). mapClient() de
+-- gama-central-sync.js copia campo a campo, así que las ignora sin enterarse.
+--
+-- El texto completo de cada migración está en el historial de Supabase; este
+-- archivo es el documento de referencia del esquema, no el que se ejecuta.
+--
+-- TABLAS (11 + auditoría)
+--   crm_sources             origen del prospecto (10 sembrados)
+--   crm_lost_reasons        motivo de pérdida (7 sembrados)
+--   crm_pipeline_stages     etapas del embudo (8 sembradas, is_won/is_lost)
+--   crm_leads               prospectos
+--   crm_contacts            personas, colgadas de un cliente O de un prospecto
+--   crm_opportunities       oportunidades; weighted_amount es columna calculada
+--   crm_opportunity_lines   productos de la oportunidad
+--   crm_activities          llamadas, correos, reuniones, tareas, notas…
+--   crm_targets             objetivos por comercial o de empresa
+--   crm_scoring_rules       reglas de puntuación (5 sembradas)
+--   gama_audit              quién tocó qué y qué campo cambió
+--
+-- REGLAS COMPROBADAS CONTRA LA BASE (no sólo escritas)
+--   · un contacto cuelga de un cliente O de un prospecto, nunca de los dos
+--     ni de ninguno
+--   · lo mismo para una oportunidad
+--   · un prospecto «convertido» exige el cliente que se creó
+--   · una oportunidad perdida exige motivo
+--   · una actividad cuelga al menos de algo
+--   · una tarea pendiente exige fecha
+--   · un solo contacto principal por ficha
+--   · una sola etapa ganadora y una sola perdedora
+--   · la referencia OP-nnnnnn la pone una secuencia de la base, no el
+--     navegador: el módulo de compras la calcula con max()+1 en el cliente y
+--     dos pestañas a la vez dan el mismo número
+--   · un UPDATE que no cambia nada no ensucia la auditoría

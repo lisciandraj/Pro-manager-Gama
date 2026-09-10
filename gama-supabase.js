@@ -17,7 +17,16 @@ async function getSession(){return (await db()).auth.getSession()}
 async function signIn(email,password){return (await db()).auth.signInWithPassword({email,password})}
 async function signOut(){const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
 async function getProfile(){const c=await db(),r=await c.auth.getSession(),u=r.data?.session?.user;if(!u)return {data:null,error:null};return c.from('profiles').select('*').eq('id',u.id).maybeSingle()}
-async function list(table,options){const c=await db();options=options||{};let q=c.from(table).select(options.select||'*',options.count?{count:options.count}:undefined);if(options.order)q=q.order(options.order,{ascending:options.ascending!==false});if(options.eq)Object.keys(options.eq).forEach(k=>q=q.eq(k,options.eq[k]));if(options.ilike)Object.keys(options.ilike).forEach(k=>q=q.ilike(k,options.ilike[k]));if(options.in)Object.keys(options.in).forEach(k=>q=q.in(k,options.in[k]));if(options.gte)Object.keys(options.gte).forEach(k=>q=q.gte(k,options.gte[k]));if(options.lte)Object.keys(options.lte).forEach(k=>q=q.lte(k,options.lte[k]));if(options.range)q=q.range(options.range[0],options.range[1]);else if(options.limit)q=q.limit(options.limit);return q}
+/* list() acepta: select, count, head, order/ascending, eq, ilike, in, gte, lte,
+   lt, gt, range, limit. Lo que no esté en esa lista se IGNORA en silencio, que
+   es la trampa que ya costó una pantalla entera —Compras llamaba a un select()
+   que no existía— y que aquí habría contado como «vencidas» todas las tareas
+   abiertas. Si hace falta un filtro nuevo, se añade aquí; no se inventa en la
+   pantalla que lo necesita.
+
+   head:true va con count: pide a la nube el número sin traer ni una fila. Es
+   la diferencia entre contar 50.000 filas y descargarlas. */
+async function list(table,options){const c=await db();options=options||{};let q=c.from(table).select(options.select||'*',options.count?{count:options.count,head:!!options.head}:undefined);if(options.order)q=q.order(options.order,{ascending:options.ascending!==false});if(options.eq)Object.keys(options.eq).forEach(k=>q=q.eq(k,options.eq[k]));if(options.ilike)Object.keys(options.ilike).forEach(k=>q=q.ilike(k,options.ilike[k]));if(options.in)Object.keys(options.in).forEach(k=>q=q.in(k,options.in[k]));if(options.gte)Object.keys(options.gte).forEach(k=>q=q.gte(k,options.gte[k]));if(options.lte)Object.keys(options.lte).forEach(k=>q=q.lte(k,options.lte[k]));if(options.lt)Object.keys(options.lt).forEach(k=>q=q.lt(k,options.lt[k]));if(options.gt)Object.keys(options.gt).forEach(k=>q=q.gt(k,options.gt[k]));if(options.range)q=q.range(options.range[0],options.range[1]);else if(options.limit)q=q.limit(options.limit);return q}
 async function insert(table,row){return (await db()).from(table).insert(row).select().single()}
 /* upsert: para tablas cuya clave no es "id" (p. ej. tms_proofs.delivery_id) o de fila única (tms_settings). */
 async function upsert(table,row,options){return (await db()).from(table).upsert(row,options||{}).select().single()}

@@ -28,13 +28,13 @@ const CRM=window.GamaCRM;
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);
 const esc=CRM.esc;
-const val=id=>{const e=$(id);return e?String(e.value||'').trim():''};
-const nulo=v=>v===''?null:v;
-const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const terms=q=>norm(q).split(/\s+/).filter(Boolean);
-/* Para comparar identificaciones: «1790012345001» y «1790012345-001» son la
-   misma, y quien las teclea no siempre pone el guion en el mismo sitio. */
-const clave=v=>norm(v).replace(/[^a-z0-9]/g,'');
+/* Formularios, fechas, textos y avisos los pone el núcleo: son los mismos en
+   todas las pantallas del CRM. */
+const U=CRM.util;
+const val=U.valor,nulo=U.nulo,norm=U.norm,terms=U.terms,clave=U.clave;
+const fecha=U.fecha,paraInput=U.paraInput,desdeInput=U.desdeInput;
+const campo=U.campo,campoSelect=U.campoSelect,opciones=U.opciones,msg=U.msg;
+const fallo=(e,que)=>U.error(e,que,'Prospectos');
 
 const LEAD='Prospectos: quien todavía no es cliente. Al convertirlo se crea su ficha en Clientes.';
 /* La lista pide el juego estrecho del núcleo; la ficha, al abrir UNA fila,
@@ -91,25 +91,9 @@ function subtitulo(l){
  if(l.company&&p)return p+(l.job_title?' · '+l.job_title:'');
  return l.job_title||'';
 }
-function fecha(iso){
- if(!iso)return '—';
- const d=new Date(iso);
- return isNaN(d.getTime())?'—':d.toLocaleDateString('es-EC',{day:'2-digit',month:'2-digit',year:'numeric'});
-}
 function vencido(iso){const d=new Date(iso);return !isNaN(d.getTime())&&d.getTime()<Date.now()}
-/* El navegador da y espera hora local en datetime-local; la base guarda UTC.
-   La conversión va aquí, en un sitio, y no en cada campo. */
-function paraInput(iso){
- if(!iso)return '';
- const d=new Date(iso);if(isNaN(d.getTime()))return '';
- const p=n=>String(n).padStart(2,'0');
- return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
-}
-function desdeInput(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d.toISOString()}
 function clienteDe(l){return l.converted_customer_id?clientes.find(c=>String(c.id)===String(l.converted_customer_id))||null:null}
 
-function msg(t,tipo){const m=$('crmMsg');if(!m)return;m.className='crmMsg'+(tipo?' '+tipo:'');m.textContent=t||''}
-function fallo(e,que){console.warn('[GAMA CRM Prospectos]',que,e);msg(que+': '+((e&&(e.message||e.details))||e),'err')}
 
 /* ---- lista ---- */
 function visibles(){
@@ -186,18 +170,6 @@ function fila(l){
 }
 
 /* ---- ficha ---- */
-function campo(id,label,valor,tipo){
- return '<div><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="'+(tipo||'text')+'" value="'+esc(valor||'')+'"></div>';
-}
-function campoSelect(id,label,mapa,sel){
- return '<div><label for="'+id+'">'+esc(label)+'</label><select id="'+id+'" data-gama-nofind>'
-  +Object.keys(mapa).map(k=>'<option value="'+k+'"'+(sel===k?' selected':'')+'>'+esc(mapa[k])+'</option>').join('')
-  +'</select></div>';
-}
-function opciones(pares,sel){
- return '<option value="">— sin asignar —</option>'
-  +pares.map(p=>'<option value="'+esc(p[0])+'"'+(String(sel||'')===String(p[0])?' selected':'')+'>'+esc(p[1])+'</option>').join('');
-}
 function nuevo(){return {kind:'empresa',status:'nuevo',priority:'media',score:0,active:true,owner_id:mi||null}}
 
 function ficha(){
@@ -441,44 +413,15 @@ function conectar(){
 function css(){
  if($('crmLeadsCss'))return;
  const s=document.createElement('style');s.id='crmLeadsCss';
- s.textContent='#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:12px}'
- +'#crm .crmBar input,#crm .crmBar select{min-height:42px}'
- +'#crm .crmTablaWrap{width:100%;overflow-x:auto}'
- /* min-width:min-content y no una anchura fija: con un ancho clavado las
-    celdas se salen por la derecha sin que el contenedor cuente ese sobrante
-    como algo que desplazar, y los botones quedan fuera de alcance. */
- +'#crm .crmTabla{width:100%;min-width:min-content;border-collapse:collapse}'
- +'#crm .crmTabla th,#crm .crmTabla td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12.5px;vertical-align:top}'
- +'#crm .crmTabla th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}'
- +'#crm .crmTabla td.r,#crm .crmTabla th.r{text-align:right}'
- +'#crm .crmSub{display:block;color:#7b8992;font-size:11px}'
- +'#crm .crmLink{color:#087c8b;font-weight:700}'
- +'#crm .crmTarde{color:#c94f45;font-weight:800;font-size:11px}'
- +'#crm .crmEstado,#crm .crmPri{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}'
- +'#crm .crmEstado{background:#eef3f4;color:#4c5c68}'
- +'#crm .crmEstado.e-calificado{background:#e4f1fb;color:#1b5f8c}'
+ /* La lista, la barra y el formulario los viste ya la hoja del núcleo, que la
+    comparten todas las pantallas. Aquí sólo van los colores propios de los
+    estados de un prospecto y el aviso de ficha repetida. */
+ s.textContent='#crm .crmEstado.e-calificado{background:#e4f1fb;color:#1b5f8c}'
  +'#crm .crmEstado.e-convertido{background:#e7f6f0;color:#12795c}'
  +'#crm .crmEstado.e-perdido,#crm .crmEstado.e-no_calificado{background:#fff0ec;color:#b4483c}'
- +'#crm .crmPri{background:#f2f5f6;color:#61717c}'
  +'#crm .crmPri.p-alta{background:#fdefe4;color:#9a5314}'
  +'#crm .crmPri.p-baja{background:#f4f6f7;color:#8a97a0}'
- +'#crm .crmAcc{white-space:nowrap}'
- +'#crm .crmAcc button{width:auto;margin:0 3px 3px 0;padding:7px 11px;font-size:12px;min-height:38px}'
- +'#crm .crmForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}'
- +'#crm .crmForm label,#crm .crmNotas label{display:block;font-size:11px;font-weight:800;color:#61717c;margin-bottom:3px}'
- +'#crm .crmNotas{margin-top:10px}'
- +'#crm .crmNotas textarea{width:100%;padding:9px;border:1px solid #c9d6df;border-radius:9px;font:inherit;font-size:13px}'
- +'#crm .crmAcciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}'
- +'#crm .crmAcciones button{width:auto;min-height:44px}'
- +'#crm .crmAviso{background:#f8fbfb;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:9px;padding:11px;font-size:13px;color:#4c5c68;margin-bottom:12px}'
- +'#crm .crmAviso.crmDup{background:#fff8f1;border-color:#f0dcc6;border-left-color:#d98324}'
- +'#crm .crmAviso .crmAcciones{margin-top:9px}'
- /* En el teléfono la barra se apila y la tabla la convierte en fichas
-    gama-tables.js, como en el resto de la aplicación. */
- +'@media(max-width:760px){#crm .crmBar{grid-template-columns:minmax(0,1fr)}'
- +'#crm .crmBar button{width:100%}'
- +'#crm .crmTabla{--gamaCardsLabel:118px}'
- +'#crm .crmAcc button{margin:0 4px 4px 0}}';
+ +'#crm .crmAviso.crmDup{background:#fff8f1;border-color:#f0dcc6;border-left-color:#d98324}';
  document.head.appendChild(s);
 }
 

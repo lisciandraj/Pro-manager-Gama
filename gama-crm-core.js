@@ -26,6 +26,55 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 
+/* ---- piezas compartidas ----
+   Cada pantalla del CRM pinta formularios, escribe fechas y compara textos.
+   Escribirlo una vez aqui es lo que hace que la siguiente pantalla sea una
+   pantalla y no otra copia de las mismas veinte lineas. */
+const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const terms=q=>norm(q).split(/\s+/).filter(Boolean);
+/* Para comparar identificaciones y telefonos: «1790012345001» y
+   «1790012345-001» son el mismo, y quien los teclea no siempre pone el guion
+   en el mismo sitio. */
+const clave=v=>norm(v).replace(/[^a-z0-9]/g,'');
+const valor=id=>{const e=$(id);return e?String(e.value||'').trim():''};
+const nulo=v=>v===''?null:v;
+
+function fecha(iso){
+ if(!iso)return '—';
+ const d=new Date(iso);
+ return isNaN(d.getTime())?'—':d.toLocaleDateString('es-EC',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+/* El navegador da y espera hora local en datetime-local; la base guarda UTC.
+   La conversion va aqui, en un sitio, y no en cada campo. */
+function paraInput(iso){
+ if(!iso)return '';
+ const d=new Date(iso);if(isNaN(d.getTime()))return '';
+ const p=n=>String(n).padStart(2,'0');
+ return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+function desdeInput(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d.toISOString()}
+
+function campo(id,label,val,tipo){
+ return '<div><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="'+(tipo||'text')+'" value="'+esc(val||'')+'"></div>';
+}
+function campoSelect(id,label,mapa,sel){
+ return '<div><label for="'+id+'">'+esc(label)+'</label><select id="'+id+'" data-gama-nofind>'
+  +Object.keys(mapa).map(k=>'<option value="'+k+'"'+(sel===k?' selected':'')+'>'+esc(mapa[k])+'</option>').join('')
+  +'</select></div>';
+}
+function opciones(pares,sel,vacio){
+ return '<option value="">'+esc(vacio||'— sin asignar —')+'</option>'
+  +pares.map(p=>'<option value="'+esc(p[0])+'"'+(String(sel||'')===String(p[0])?' selected':'')+'>'+esc(p[1])+'</option>').join('');
+}
+
+/* Todas las pantallas del CRM escriben en el mismo sitio, #crmMsg, que cada
+   una repinta con su contenido. */
+function msg(t,tipo){const m=$('crmMsg');if(!m)return;m.className='crmMsg'+(tipo?' '+tipo:'');m.textContent=t||''}
+function error(e,que,donde){
+ console.warn('[GAMA CRM'+(donde?' '+donde:'')+']',que,e);
+ msg(que+': '+((e&&(e.message||e.details))||e),'err');
+}
+
 /* Las columnas que pide cada tabla, escritas una vez. */
 const COLS={
  stages:'id,name,sort_order,default_probability,is_won,is_lost,active',
@@ -69,12 +118,22 @@ async function referenciales(recargar){
  return ref;
 }
 
-/* Los comerciales son los usuarios que ya existen. No hay tabla propia. */
+/* Los comerciales son los usuarios que ya existen. No hay tabla propia.
+
+   Se leen de crm_team y NO de profiles: la politica profiles_self_read solo
+   deja leer la fila propia salvo al administrador, asi que un comercial veia
+   una lista de una sola persona —el mismo— y un guion en los prospectos de sus
+   companeros. crm_team es una vista de solo lectura sobre profiles que expone
+   id, nombre, correo y perfil de los usuarios comerciales activos, y solo a
+   administrador y comercial. La politica de profiles sigue intacta.
+
+   La vista ya filtra por activo y por perfil, asi que aqui no se vuelve a
+   filtrar: la frontera esta en la base, que es donde no se puede saltar. */
 let personas=null;
 async function comerciales(){
  if(personas)return personas;
- const r=await C().list('profiles',{select:'id,full_name,email,role,active',order:'full_name',ascending:true});
- personas=r.error?[]:(r.data||[]).filter(p=>p.active!==false&&[...ADMIN,...COMERCIAL].includes(String(p.role||'')));
+ const r=await C().list('crm_team',{select:'id,full_name,email,role',order:'full_name',ascending:true});
+ personas=r.error?[]:(r.data||[]);
  return personas;
 }
 const nombreDe=(id,lista)=>{const p=(lista||[]).find(x=>String(x.id)===String(id));return p?(p.full_name||p.email||'—'):'—'};
@@ -206,7 +265,42 @@ function css(){
 #crm .crmMsg.ok{color:#138a69}
 #crm .crmMsg.err{color:#c94f45;font-weight:700}
 #crm .crmVacio{padding:20px;text-align:center;color:#81909a}
-@media(max-width:900px){#crm .crmKpis{grid-template-columns:1fr 1fr}}`;
+/* De aquí abajo, lo que comparten TODAS las listas y fichas del CRM. Vive en
+   el núcleo y no en la primera pantalla que lo necesitó: si vive en una
+   pantalla, abrir otra primero la deja sin estilo. */
+#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:12px}
+#crm .crmBar input,#crm .crmBar select{min-height:42px}
+#crm .crmTablaWrap{width:100%;overflow-x:auto}
+/* min-width:min-content y no una anchura fija: con un ancho clavado las celdas
+   se salen por la derecha sin que el contenedor cuente ese sobrante como algo
+   que desplazar, y los botones quedan fuera de alcance. */
+#crm .crmTabla{width:100%;min-width:min-content;border-collapse:collapse}
+#crm .crmTabla th,#crm .crmTabla td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12.5px;vertical-align:top}
+#crm .crmTabla th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
+#crm .crmTabla td.r,#crm .crmTabla th.r{text-align:right}
+#crm .crmSub{display:block;color:#7b8992;font-size:11px}
+#crm .crmLink{color:#087c8b;font-weight:700}
+#crm .crmTarde{color:#c94f45;font-weight:800;font-size:11px}
+#crm .crmEstado,#crm .crmPri{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+#crm .crmEstado{background:#eef3f4;color:#4c5c68}
+#crm .crmPri{background:#f2f5f6;color:#61717c}
+#crm .crmAcc{white-space:nowrap}
+#crm .crmAcc button{width:auto;margin:0 3px 3px 0;padding:7px 11px;font-size:12px;min-height:38px}
+#crm .crmForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+#crm .crmForm label,#crm .crmNotas label{display:block;font-size:11px;font-weight:800;color:#61717c;margin-bottom:3px}
+#crm .crmNotas{margin-top:10px}
+#crm .crmNotas textarea{width:100%;padding:9px;border:1px solid #c9d6df;border-radius:9px;font:inherit;font-size:13px}
+#crm .crmAcciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#crm .crmAcciones button{width:auto;min-height:44px}
+#crm .crmAviso{background:#f8fbfb;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:9px;padding:11px;font-size:13px;color:#4c5c68;margin-bottom:12px}
+#crm .crmAviso .crmAcciones{margin-top:9px}
+@media(max-width:900px){#crm .crmKpis{grid-template-columns:1fr 1fr}}
+/* En el teléfono la barra se apila y las tablas las convierte en fichas
+   gama-tables.js, como en el resto de la aplicación. */
+@media(max-width:760px){#crm .crmBar{grid-template-columns:minmax(0,1fr)}
+ #crm .crmBar button{width:100%}
+ #crm .crmTabla{--gamaCardsLabel:118px}
+ #crm .crmAcc button{margin:0 4px 4px 0}}`;
  document.head.appendChild(s);
 }
 function kpi(etiqueta,valor,pie){
@@ -293,6 +387,8 @@ window.GamaCRM={
  puedeUsar, esAdmin, money, esc,
  // El armazón de pantalla: registrarse, pintarse dentro y navegar.
  registrar, ir, cabecera, bind, section, mostrar, css,
+ // Las piezas que repite cada pantalla: formularios, fechas, textos, avisos.
+ util:{norm,terms,clave,valor,nulo,fecha,paraInput,desdeInput,campo,campoSelect,opciones,msg,error},
 };
 window.GamaOpenCRM=open;
 })();

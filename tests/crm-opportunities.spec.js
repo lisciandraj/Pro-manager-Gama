@@ -31,8 +31,8 @@ async function boot(page, extra = {}, rol = 'admin') {
     // @ts-ignore
     window.__DB = Object.assign({
       products: [
-        { id: 'p1', name: 'Estantería metálica', reference: 'EST-01', sale_price: 120, active: true, photo_data: 'x'.repeat(400) },
-        { id: 'p2', name: 'Taladro', reference: 'TAL-01', sale_price: 200, active: true },
+        { id: 'p1', name: 'Estantería metálica', reference: 'EST-01', sale_price: 120, tax_rate: 15, active: true, photo_data: 'x'.repeat(400) },
+        { id: 'p2', name: 'Taladro', reference: 'TAL-01', sale_price: 200, tax_rate: 15, active: true },
       ],
       suppliers: [],
       customers: [{ id: 'c1', name: 'Ferretería Central', active: true }],
@@ -325,6 +325,92 @@ test.describe('CRM — Oportunidades', () => {
       (window.__DB.__calls || []).filter(c => c.table === 'products').map(c => c.select));
     expect(prods.length).toBeGreaterThan(0);
     prods.forEach(s => expect(s).not.toMatch(/photo_data/));
+  });
+
+  // Fase 12: aquí termina el ciclo. GAMA no factura todavía, así que lo que
+  // cierra una venta es un presupuesto, y vive en la tabla invoices que YA
+  // existe. El CRM no crea una segunda tabla de documentos.
+  test('generar el presupuesto escribe en invoices y lo enlaza con la oportunidad', async ({ page }) => {
+    await boot(page);
+    await embudo(page);
+    await page.click('#crm .crmTarjeta:has-text("Estanterías bodega")');
+    await page.waitForTimeout(800);
+    await page.selectOption('#crmLProd', 'p1');
+    await page.waitForTimeout(300);
+    await page.fill('#crmLCant', '10');
+    await page.fill('#crmLDto', '10');
+    await page.click('#crmLAdd');
+    await page.waitForTimeout(800);
+
+    await page.click('#crmOPresu');
+    await page.waitForTimeout(900);
+
+    const estado = await db(page, () => {
+      // @ts-ignore
+      const inv = window.__DB.invoices[0];
+      // @ts-ignore
+      const lin = window.__DB.invoice_lines.filter(l => l.invoice_id === inv.id);
+      // @ts-ignore
+      const o = window.__DB.crm_opportunities.find(x => x.id === 'o1');
+      return { inv, lin, enlace: o.quote_invoice_id };
+    });
+    expect(estado.enlace).toBe(estado.inv.id);
+    expect(estado.inv.customer_id).toBe('c1');
+    expect(estado.inv.status).toBe('draft');
+    // El descuento no cabe en invoice_lines: se aplica al precio, que es lo que
+    // el cliente tiene que leer. 120 − 10 % = 108.
+    expect(estado.lin).toHaveLength(1);
+    expect(estado.lin[0].unit_price).toBe(108);
+    expect(estado.lin[0].quantity).toBe(10);
+    // line_total SIN IVA, para que la suma de líneas sea el subtotal exacto:
+    // es como lo leen el archivo, el PDF y el informe de ventas.
+    expect(estado.lin[0].line_total).toBe(1080);
+    expect(estado.inv.subtotal).toBe(1080);
+    // El IVA sale de la ficha del producto, no de una constante escrita aquí.
+    expect(estado.inv.tax).toBe(162);       // 1080 × 15 %
+    expect(estado.inv.total).toBe(1242);
+    // Y queda dicho de dónde salió, con el mismo GAMA_META que usa Solicitudes.
+    expect(estado.inv.notes).toContain('crm_opportunity');
+    expect(estado.inv.notes).toContain('o1');
+    await expect(page.locator('#crm .crmAviso')).toContainText('Presupuesto generado');
+  });
+
+  test('no se genera un segundo presupuesto para la misma oportunidad', async ({ page }) => {
+    await boot(page);
+    await embudo(page);
+    await page.click('#crm .crmTarjeta:has-text("Estanterías bodega")');
+    await page.waitForTimeout(800);
+    await page.selectOption('#crmLProd', 'p2');
+    await page.waitForTimeout(300);
+    await page.click('#crmLAdd');
+    await page.waitForTimeout(800);
+    await page.click('#crmOPresu');
+    await page.waitForTimeout(900);
+    expect(await db(page, () => window.__DB.invoices.length)).toBe(1);
+
+    // El botón ya no está: en su sitio queda el presupuesto que existe.
+    await expect(page.locator('#crmOPresu')).toHaveCount(0);
+    await expect(page.locator('#crm .crmAviso')).toContainText('Presupuesto generado');
+  });
+
+  // Un presupuesto se le hace a un cliente. Un prospecto no tiene ficha de
+  // cliente todavía, y el camino es convertirlo, no inventar aquí un cliente.
+  test('una oportunidad de prospecto no genera presupuesto: manda a convertirlo', async ({ page }) => {
+    await boot(page);
+    await embudo(page);
+    await page.click('#crm .crmTarjeta:has-text("Herramienta eléctrica")');
+    await page.waitForTimeout(800);
+    await expect(page.locator('#crmOPresu')).toHaveCount(0);
+    await expect(page.locator('#crm .crmAviso')).toContainText('Convierte antes el prospecto');
+    expect(await db(page, () => window.__DB.invoices.length)).toBe(0);
+  });
+
+  test('sin productos no se ofrece generar el presupuesto', async ({ page }) => {
+    await boot(page);
+    await embudo(page);
+    await page.click('#crm .crmTarjeta:has-text("Estanterías bodega")');
+    await page.waitForTimeout(800);
+    await expect(page.locator('#crmOPresu')).toHaveCount(0);
   });
 
   test('el perfil de almacén no llega al embudo', async ({ page }) => {

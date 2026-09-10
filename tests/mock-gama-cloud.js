@@ -66,9 +66,22 @@
     const abs = (window.__DB.hr_absences || []).filter(a => mias.includes(a.employee_id)).map(a => a.id);
     return (window.__DB.hr_absence_private || []).filter(r => abs.includes(r.absence_id));
   }
+  // crm_team es una vista sobre profiles: los usuarios a los que el CRM puede
+  // asignar algo. Existe porque profiles solo deja leer la fila propia, asi que
+  // un comercial no podia poner nombre al responsable de un prospecto ajeno. La
+  // vista expone cuatro columnas de los perfiles comerciales activos, y nada a
+  // quien no sea administrador o comercial. El doble lo reproduce para que la
+  // frontera que prueba una prueba sea la que aplica Postgres.
+  function teamRows() {
+    if (!['admin', 'administrador', 'commercial', 'comercial'].includes(hrRole())) return [];
+    return (window.__DB.profiles || [])
+      .filter(p => p.active !== false && ['administrador', 'comercial'].includes(String(p.role || '')))
+      .map(p => ({ id: p.id, full_name: p.full_name, email: p.email, role: p.role }));
+  }
   function rowsFor(table, options) {
     options = options || {};
     let rows = table === 'catalog_products' ? catalogRows()
+      : table === 'crm_team' ? teamRows()
       : /^hr_(employees|absences|employee_private|absence_private)$/.test(table) ? hrRows(table)
       : (window.__DB[table] || []).slice();
     // products.has_photo es una columna generada en la base: se deriva aqui
@@ -133,6 +146,24 @@
     po.status = allReceived ? 'received' : anyReceived ? 'partial' : po.status;
     return { data: { purchase_order_id: po.id, status: po.status }, error: null };
   }
+  // Espejo de los indices unicos parciales crm_contacts_principal_cliente_idx y
+  // crm_contacts_principal_lead_idx: UN solo contacto principal ACTIVO por
+  // ficha. Sin esto el doble aceptaria dos, y una pantalla que se olvidara de
+  // quitarle el puesto al anterior pasaria las pruebas para caerse en
+  // produccion con una violacion de clave unica. Un doble mas permisivo que lo
+  // real no prueba nada: prueba el doble.
+  function chocaPrincipal(row, id) {
+    const previa = (window.__DB.crm_contacts || []).find(r => r.id === id) || {};
+    const fila = Object.assign({}, previa, row);
+    if (!fila.is_primary || fila.active === false) return null;
+    const col = fila.customer_id ? 'customer_id' : 'lead_id';
+    const val = fila[col];
+    if (!val) return null;
+    const otro = (window.__DB.crm_contacts || []).find(r =>
+      r.id !== id && r.is_primary && r.active !== false && r[col] === val);
+    return otro ? { message: 'duplicate key value violates unique constraint "crm_contacts_principal_'
+      + (fila.customer_id ? 'cliente' : 'lead') + '_idx"' } : null;
+  }
   window.GamaCloud = {
     // hr_employees.profile_id apunta a profiles.id, que es el id del usuario
     // autenticado: una prueba que fija _session.profile_id tiene que verlo
@@ -162,6 +193,10 @@
     // «C().select is not a function». Un doble más permisivo que lo real no
     // prueba nada: prueba el doble.
     insert: async (table, row) => {
+      if (table === 'crm_contacts') {
+        const e = chocaPrincipal(row, null);
+        if (e) return { data: null, error: e };
+      }
       const withId = { id: nextId(table), created_at: new Date().toISOString(), ...row };
       window.__DB[table] = window.__DB[table] || [];
       window.__DB[table].push(withId);
@@ -179,6 +214,10 @@
       return { data: withId, error: null };
     },
     update: async (table, id, row) => {
+      if (table === 'crm_contacts') {
+        const e = chocaPrincipal(row, id);
+        if (e) return { data: null, error: e };
+      }
       const arr = window.__DB[table] || [];
       const idx = arr.findIndex(r => r.id === id);
       if (idx >= 0) arr[idx] = { ...arr[idx], ...row };

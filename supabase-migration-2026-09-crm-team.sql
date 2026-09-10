@@ -1,0 +1,76 @@
+-- ===========================================================================
+-- GAMA · CRM — directorio de responsables (fase 9, migración aditiva)
+-- ===========================================================================
+-- Aplicada en producción el 2026-09-10 como: gama_crm_08_team_directory_view
+--
+-- EL PROBLEMA
+--
+-- El CRM necesita poner nombre a un responsable: en el desplegable «Responsable»
+-- de un prospecto, y en la columna de la lista. Los responsables son los
+-- usuarios que ya existen (profiles), porque el CRM no inventa una tabla de
+-- comerciales.
+--
+-- Pero la política de profiles es:
+--
+--   profiles_self_read : (id = auth.uid()) OR (current_user_role() = 'administrador')
+--
+-- Es decir: un comercial sólo puede leer SU PROPIA fila. En la práctica veía
+-- un desplegable con una sola persona —él mismo, sin poder asignar nada a un
+-- compañero— y un guion en los prospectos de los demás.
+--
+-- LA DECISIÓN
+--
+-- No se toca esa política. Ampliarla obligaría a repensar quién puede leer los
+-- datos de quién en TODA la aplicación, y el encargo dice explícitamente que no
+-- se rompa lo que ya funciona.
+--
+-- En su lugar, una vista de SOLO LECTURA con las cuatro columnas que hacen
+-- falta. Es el mismo patrón que catalog_products, que ya existía en GAMA: la
+-- vista pertenece a postgres, así que no pasa por la RLS de la tabla, y el
+-- filtro de perfil va DENTRO de la propia vista.
+--
+--   create or replace view public.crm_team
+--   with (security_barrier = true) as
+--   select p.id, p.full_name, p.email, p.role
+--   from public.profiles p
+--   where p.active is true
+--     and p.role in ('administrador','comercial')
+--     and private.current_user_role() in ('administrador','comercial');
+--
+--   revoke all on public.crm_team from public, anon, authenticated;
+--   grant select on public.crm_team to authenticated;
+--
+-- POR QUÉ CADA LÍNEA
+--
+-- · security_barrier — el filtro de filas (sólo activos, y sólo los dos
+--   perfiles comerciales) no debe poder saltárselo un operador con fugas
+--   metido en un WHERE desde fuera.
+--
+-- · grant SELECT y nada más — es una vista sobre UNA tabla sin agregados, así
+--   que Postgres la haría actualizable sola. Un INSERT o un UPDATE a través de
+--   ella escribiría en profiles SIN pasar por su RLS. Comprobado: un comercial
+--   que lo intenta recibe «permission denied for view crm_team».
+--
+-- · role in (...) dentro de la vista — un almacenero o un cliente no reciben
+--   cero columnas: reciben cero FILAS, que es lo mismo que no existir.
+--
+-- COMPROBADO CONTRA LA BASE, no sólo escrito (suplantando a cada usuario real):
+--
+--   Jimmy Lisciandra  (administrador) → 2 filas
+--   Paula Martinez    (comercial)     → 2 filas   ← esto es lo que se arregla
+--   Teddy boy         (almacenero)    → 0 filas
+--   Costa Azul        (cliente)       → 0 filas
+--   sin sesión                        → 0 filas
+--   comercial intentando UPDATE       → permission denied for view crm_team
+--
+--   profiles conserva sus dos políticas: profiles_admin_write y
+--   profiles_self_read. Ninguna política existente se modificó.
+--
+-- EN EL CÓDIGO
+--
+-- gama-crm-core.js · comerciales() lee crm_team en vez de profiles, y ya no
+-- filtra por activo ni por perfil en el navegador: la frontera está en la base,
+-- que es donde no se puede saltar.
+--
+-- tests/mock-gama-cloud.js reproduce la vista (teamRows), para que lo que
+-- comprueba una prueba sea lo que devolvería Postgres y no algo más permisivo.

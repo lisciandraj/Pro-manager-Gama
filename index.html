@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 24262)
+Total output lines: 882
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -377,153 +380,7 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 <div><label>Observaciones</label><input id="cNotes"></div>
 </div>
 <p class="muted">La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).</p>
-<input type="hidden" id="editingClientId">
-<div class="actions"><button class="primary" onclick="saveClient()">💾 Guardar cliente</button><button class="secondary" onclick="clearClientForm()">↺ Limpiar</button></div>
-</div>
-<div class="card">
-<h2>Lista de clientes</h2>
-<input id="clientSearch" oninput="GamaPage.reset('clients');renderClients(this.value)" placeholder="Buscar por nombre, identificación, ciudad...">
-<div id="clientsTable"></div>
-</div>
-</section>
-
-
-<section id="backup">
-<div class="card">
-<h3>📤 Exportar</h3>
-<div class="actions">
-<button class="primary" onclick="exportExcel()">📊 Excel — Productos + Clientes + Auditoría</button>
-<button class="secondary" onclick="exportJSONBackup()">💾 Copia completa JSON</button>
-</div>
-<h3>📥 Importar Excel</h3>
-<p class="muted">Importa el Excel generado por GAMA. Productos se fusionan por código de barras y Clientes por identificación.</p>
-<input id="excelImport" type="file" accept=".xls,.xml">
-<button class="primary" style="width:100%;margin-top:8px" onclick="importExcel()">📥 Importar / fusionar Excel</button>
-<div id="importResult"></div>
-<h3>📥 Restaurar JSON</h3>
-<input id="jsonImport" type="file" accept=".json,application/json">
-<button class="warning" style="width:100%;margin-top:8px" onclick="restoreJSON()">⚠️ Restaurar copia completa</button>
-<p class="muted">La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
-</div>
-</section>
-<section id="movement">
-<div class="card"><div class="scanner"><input id="moveBarcode" placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')">📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
-<div class="row"><div><label>Tipo</label><select id="moveType"><option value="IN">IN — Entrada</option><option value="OUT">OUT — Salida</option></select></div>
-<div><label>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
-<div><label>Motivo</label><select id="moveReason" data-gama-nofind><option>Recepción</option><option>Venta</option><option>Producción</option><option>Consumo</option><option>Rotura</option><option>Muestra</option><option>Inventario</option><option>Corrección de inventario</option><option>Otro</option></select></div>
-<div><label>Usuario / operador</label><input id="moveUser" value="Admin"></div></div>
-<label>Comentario de auditoría</label><textarea id="moveComment" placeholder="Motivo o comentario adicional"></textarea>
-<button class="primary" style="width:100%;margin-top:10px" onclick="registerMovement()">💾 Registrar y auditar movimiento</button>
-</div>
-</section>
-
-<section id="stock"><div class="card"><div class="stockBar"><input id="stockSearch" placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="">Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()"> Sólo stock bajo</label><button class="secondary" onclick="exportCSV()">📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
-
-<section id="billing">
-<div class="card"><h2>🧾 Nuevo presupuesto</h2>
-<div class="row"><div><label>RUC emisor</label><input id="sellerRuc"></div><div><label>Razón social</label><input id="sellerName"></div><div><label>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
-<div style="grid-column:1/-1"><label>👥 Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="">Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
-<div><label>Identificación cliente</label><input id="clientId" readonly></div><div><label>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label>Dirección</label><input id="clientAddress" readonly></div><div><label>Correo</label><input id="clientEmail" type="email" readonly></div><div><label>Forma de pago</label><select id="payment"><option>Transferencia</option><option>Tarjeta de crédito</option><option>Tarjeta de débito</option><option>Efectivo</option><option>Otros</option></select></div></div>
-<h3>Detalle</h3><div class="scanner"><input id="invoiceBarcode" placeholder="Código de barras del producto"><button class="secondary" onclick="scan('invoiceBarcode')">📷 Escanear</button></div>
-<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()">➕ Añadir</button></div></div>
-<div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()">🧾 Generar presupuesto</button><button class="secondary" onclick="downloadInvoicePdf()">📄 Descargar PDF</button><button class="secondary" onclick="emailInvoice()">📧 Enviar por correo</button></div><div id="invoicePreview"></div>
-</div></section>
-
-<section id="audit">
-<div class="card"><div class="row"><div><label>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" placeholder="Producto, código, usuario, comentario..."></div><div><label>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="">Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
-<div class="actions"><button class="secondary" onclick="exportAudit()">📤 Exportar Audit Trail CSV</button><button class="warning" onclick="createCorrection()">↩️ Corrección auditada</button></div>
-<div id="auditTable"></div>
-</div>
-</section>
-
-<section id="barcode"><div class="card"><label>Tipo</label><select id="barcodeType"><option value="CODE39">Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label>Referencia / número</label><input id="barcodeValue" placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()">🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()">📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
-
-</div>
-
-<script src="gama-ui.js?v=4"></script>
-<script src="gama-modules.js?v=4"></script>
-<script src="gama-pagination.js?v=1"></script>
-<script src="gama-archive.js?v=1"></script>
-<script src="gama-sort.js?v=1"></script>
-<script src="gama-select-search.js?v=2"></script>
-<script src="gama-tables.js?v=1"></script>
-<script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
-   base de la ficha y B el precio al detalle. La categoría C no se resuelve
-   aquí: es un precio pactado producto a producto en su tarifa, y quien lo
-   tenga cae en este mismo precio A cuando el producto no está en la tarifa. */
-window.gamaCategoryPrice=function(p,category){return Number((category==='B'?p&&p.salePriceB:p&&p.price)||0)};
-window.gamaQuoteCategory='A';
-window.gamaPriceFor=window.gamaPriceFor||function(p){return p?window.gamaCategoryPrice(p,window.gamaQuoteCategory):0};window.gamaHasContractPrice=window.gamaHasContractPrice||function(){return false};
-/* Celda de foto. Las listas ya no traen photo_data (1,4 MB por recarga para
-   nueve fotos): traen has_photo y aquí se pinta un hueco que GamaPhotos
-   rellena en un solo viaje con las fotos de las filas visibles. En modo local,
-   sin nube, el producto sí lleva su foto encima y se pinta directamente. */
-window.gamaPhotoCell=function(p){
- if(!p)return '📦';
- if(p.photo)return '<img class="product-img" loading="lazy" src="'+p.photo+'" alt="">';
- if(p.hasPhoto&&window.GamaPhotos&&p.id){gamaHydratePhotos();return window.GamaPhotos.slot(p.id)}
- return '📦';
-};
-/* Las listas se repintan enteras con innerHTML; se agrupa la hidratación para
-   no lanzar una consulta por celda. */
-let gamaPhotoTimer=null;
-function gamaHydratePhotos(){if(gamaPhotoTimer||!window.GamaPhotos)return;gamaPhotoTimer=setTimeout(()=>{gamaPhotoTimer=null;window.GamaPhotos.hydrate()},0)}</script>
-<script>window.GamaSort=window.GamaSort||{get:function(){return null},set:function(){},go:function(){},register:function(){},th:function(k,c,l){return "<th>"+l+"</th>"},apply:function(k,r){return r}};</script>
-<script>window.GamaArchive=window.GamaArchive||{mode:function(){return "active"},register:function(){},go:function(){},tabs:function(){return ""},friendlyError:function(e){return String(e&&e.message||e)}};</script>
-<!-- Si el ayudante de paginación no carga, las listas se muestran enteras en vez de romper la página. -->
-<script>window.GamaPage=window.GamaPage||{SIZE:20,slice:function(k,r){return r||[]},controls:function(){return ''},go:function(){},register:function(){},reset:function(){},pageCount:function(){return 1},page:function(){return 0}};</script>
-<script>
-const KEY='stock_manager_v6_ecuador';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"moves":[],"invoices":[]}');
-db.products=db.products||[];db.moves=db.moves||[];db.invoices=db.invoices||[];db.clients=db.clients||[];
-let invoiceItems=[];let lastQuote=null;
-const $=id=>document.getElementById(id);
-function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
-function showTab(id,btn){
- document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
- const target=$(id); if(target)target.classList.add('active');
- const back=$('globalBack'); if(back)back.style.display=(id==='mainmenu')?'none':'grid';
- renderAll();
- window.scrollTo({top:0,behavior:'smooth'});
-}
-function openMovement(type){showTab('movement',null);$('moveType').value=type;$('moveBarcode').focus()}
-function product(b){return db.products.find(p=>p.barcode===b)}
-function uid(prefix='MOV'){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
-function compressPhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let i=new Image();i.onload=()=>{let max=320,s=Math.min(1,max/i.width,max/i.height),c=document.createElement('canvas');c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.6))};i.onerror=reject;i.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
-$('pPhoto').addEventListener('change',()=>{let f=$('pPhoto').files[0];if(f){$('pPreview').src=URL.createObjectURL(f);$('pPreview').style.display='block'}});
-
-async function createProduct(){
- let editing=$('editingBarcode').value,b=$('pBarcode').value.trim(),n=$('pName').value.trim();
- if(!b||!n)return alert('El código de barras y el nombre son obligatorios.');
- if(!editing&&product(b))return alert('Este código de barras ya existe.');
- let old=editing?product(editing):null,photo=old?.photo||'';
- if($('pPhoto').files[0])photo=await compressPhoto($('pPhoto').files[0]);
- if(old){
-  old.barcode=b;old.name=n;old.ref=$('pRef').value.trim();old.cat=$('pCat').value.trim();old.description=$('pDescription').value.trim();old.family=$('pFamily').value.trim();old.lines=$('pLines').value.trim();old.brand=$('pBrand').value.trim();old.presentation=$('pPresentation').value.trim();old.loc=$('pLoc').value.trim();old.min=Number($('pMin').value)||0;old.maxStock=Number($('pMaxStock').value)||0;old.qtyCarton=Number($('pQtyCarton').value)||0;old.weightG=Number($('pWeight').value)||0;old.volumeCm3=Number($('pVolume').value)||0;old.purchase_price=Number($('pCost').value)||0;old.price=Number($('pPrice').value)||0;old.salePriceB=Number($('pSalePriceB').value)||0;old.iva=Number($('pIva').value);old.photo=photo;
-  alert('Producto actualizado correctamente.');
- }else{
-  db.products.push({barcode:b,name:n,ref:$('pRef').value.trim(),cat:$('pCat').value.trim(),description:$('pDescription').value.trim(),family:$('pFamily').value.trim(),lines:$('pLines').value.trim(),brand:$('pBrand').value.trim(),presentation:$('pPresentation').value.trim(),loc:$('pLoc').value.trim(),min:Number($('pMin').value)||0,maxStock:Number($('pMaxStock').value)||0,qtyCarton:Number($('pQtyCarton').value)||0,weightG:Number($('pWeight').value)||0,volumeCm3:Number($('pVolume').value)||0,purchase_price:Number($('pCost').value)||0,price:Number($('pPrice').value)||0,salePriceB:Number($('pSalePriceB').value)||0,iva:Number($('pIva').value),photo,stock:0});
-  alert('Producto creado correctamente.');
- }
- clearProductForm();save();
-}
-function populateSupplierSelect(){const s=$('pSupplier');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Sin proveedor</option>'+(db.suppliers||[]).map(x=>`<option value="${x.id}">${(x.name||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</option>`).join('');if(cur&&(db.suppliers||[]).some(x=>x.id===cur))s.value=cur}
-function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
-/* La ficha muestra la foto en grande: es la unica pantalla que necesita el
-   original, asi que se pide justo aqui y para un solo producto. */
-function gamaShowProductPhoto(p){
- const el=$('pPreview');if(!el)return;
- el.src='';el.style.display='none';
- if(p.photo){el.src=p.photo;el.style.display='block';return}
- if(!p.hasPhoto||!window.GamaPhotos||!p.id)return;
- GamaPhotos.load([p.id]).then(([data])=>{
-  // El usuario puede haber cambiado de ficha mientras llegaba la foto.
-  if(data&&$('editingBarcode').value===p.barcode){el.src=data;el.style.display='block'}
- }).catch(()=>{});
-}
-function clearProductForm(){$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
-function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
-function renderProducts(filter=''){populateSupplierSelect();const arch=GamaArchive.mode('products')==='archived',src=arch?(db.archivedProducts||[]):db.products;let q=filter.toLowerCase(),a=src.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));if(arch&&!a.length){$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+'<div class="gamaArcEmpty">No hay productos archivados.</div>';return}$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+(arch?'<div class="gamaArcNote">Estos productos no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.</div>':'')+'<table><tr><th>Foto</th><th>Código</th><th>Producto</th><th>Marca</th><th>Stock</th><th>Precio compra</th><th>Venta A</th><th>Venta B</th><th>IVA</th><th>Ubicación</th><th>Proveedor</th><th>Acciones</th></tr>'+GamaPage.slice('products',a).map(p=>`<tr><td>${gamaPhotoCell(p)}</td><td>${p.barcode}</td><td>${p.name}</td><td>${p.brand||'-'}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>$${Number(p.salePriceB||0).toFixed(2)}</td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td>${arch?`<button class="secondary" onclick="restoreProduct('${p.id}')">♻️ Restaurar</button> <button class="danger" onclick="purgeProduct('${p.id}')">🗑️ Borrar definitivamente</button>`:`<button class="secondary" onclick="editProduct('${p.barcode}')">✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')">🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
+<input type="hidden" id="editingC…4262 tokens truncated…ck="deleteProduct('${p.barcode}')">🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
 
 
 function saveClient(){
@@ -820,7 +677,7 @@ showTab('mainmenu',null);
   setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
 })();
 </script>
-<script src="gama-menu-final2.js?v=12"></script>
+<script src="gama-menu-final2.js?v=13"></script>
 <script src="gama-scanner-phone.js?v=10"></script>
 <script src="gama-access-control.js?v=8"></script>
 <script src="gama-fixed-header.js?v=5"></script>

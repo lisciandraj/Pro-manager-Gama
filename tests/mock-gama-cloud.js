@@ -210,6 +210,72 @@
     return { data: r, error: null };
   }
 
+  // Conteos físicos. Lo que importa reproducir: el stock NO se mueve al
+  // apuntar lo contado, sino al validar; y validar dos veces no ajusta dos
+  // veces, porque el estado se comprueba antes de tocar nada.
+  function generaLineas(args) {
+    const role = window.__DB._profile.role;
+    if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'ROLE_NOT_ALLOWED' } };
+    const c = (window.__DB.inventory_counts || []).find(x => x.id === args.p_count_id);
+    if (!c) return { data: null, error: { message: 'COUNT_NOT_FOUND' } };
+    if (!['draft', 'in_progress'].includes(c.status)) return { data: null, error: { message: 'COUNT_NOT_EDITABLE' } };
+    const ubis = (window.__DB.warehouse_locations || []).filter(l => l.warehouse_id === c.warehouse_id).map(l => l.id);
+    window.__DB.inventory_count_lines = window.__DB.inventory_count_lines || [];
+    let n = 0;
+    (window.__DB.stock_quants || []).filter(q => ubis.includes(q.location_id)).forEach(q => {
+      const ya = window.__DB.inventory_count_lines.find(l => l.count_id === c.id && l.product_id === q.product_id && l.location_id === q.location_id);
+      if (ya) { if (ya.counted_quantity === null || ya.counted_quantity === undefined) ya.expected_quantity = q.quantity; return; }
+      window.__DB.inventory_count_lines.push({
+        id: nextId('inventory_count_lines'), count_id: c.id, product_id: q.product_id,
+        location_id: q.location_id, expected_quantity: Number(q.quantity || 0),
+        counted_quantity: null, validated: false,
+      });
+      n++;
+    });
+    c.status = 'in_progress';
+    c.started_at = c.started_at || new Date().toISOString();
+    return { data: n, error: null };
+  }
+  function validaConteo(args) {
+    const role = window.__DB._profile.role;
+    if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'ROLE_NOT_ALLOWED' } };
+    const c = (window.__DB.inventory_counts || []).find(x => x.id === args.p_count_id);
+    if (!c) return { data: null, error: { message: 'COUNT_NOT_FOUND' } };
+    if (c.status === 'validated') return { data: null, error: { message: 'COUNT_ALREADY_VALIDATED' } };
+    if (c.status === 'cancelled') return { data: null, error: { message: 'COUNT_CANCELLED' } };
+    let ajustes = 0;
+    (window.__DB.inventory_count_lines || [])
+      .filter(l => l.count_id === c.id && l.counted_quantity !== null && l.counted_quantity !== undefined && !l.validated)
+      .forEach(l => {
+        const contado = Number(l.counted_quantity);
+        if (contado !== Number(l.expected_quantity)) {
+          const q = quant(l.product_id, l.location_id, true);
+          const totalAntes = quantsDe(l.product_id).reduce((s, x) => s + Number(x.quantity || 0), 0);
+          const delta = contado - Number(q.quantity || 0);
+          q.quantity = contado;
+          window.__DB.stock_movements = window.__DB.stock_movements || [];
+          window.__DB.stock_movements.push({
+            id: nextId('stock_movements'), product_id: l.product_id,
+            type: delta > 0 ? 'in' : 'out', quantity: Math.abs(delta),
+            reason: 'Inventario físico',
+            comment: 'Conteo ' + c.reference + ' · esperado ' + l.expected_quantity + ', contado ' + contado,
+            user_id: window.__DB._profile.id, created_at: new Date().toISOString(),
+            stock_before: totalAntes, stock_after: totalAntes + delta,
+            source_location_id: delta < 0 ? l.location_id : null,
+            destination_location_id: delta > 0 ? l.location_id : null,
+            movement_type: 'inventory_adjustment',
+            reference_type: 'inventory_count', reference_id: c.id,
+          });
+          sincronizaStock(l.product_id);
+          ajustes++;
+        }
+        l.validated = true;
+      });
+    c.status = 'validated';
+    c.completed_at = new Date().toISOString();
+    return { data: { count_id: c.id, adjustments: ajustes }, error: null };
+  }
+
   function rpcReceivePurchase(args) {
     const role = window.__DB._profile.role;
     if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'FORBIDDEN' } };
@@ -404,6 +470,8 @@
         if (fn === 'gama_stock_transfer') return mueveStock(args || {});
         if (fn === 'gama_stock_reserve') return reservaStock(args || {});
         if (fn === 'gama_stock_unreserve') return liberaReserva(args || {});
+        if (fn === 'gama_count_generate_lines') return generaLineas(args || {});
+        if (fn === 'gama_count_validate') return validaConteo(args || {});
         return { data: null, error: null };
       },
     }),

@@ -32,6 +32,7 @@ const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'U
 const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:2});
 
 let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=new Map();
+let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null;
 let pestana='existencias',disponibleV2=null,cargando=false;
 
 /* ---------- datos ---------- */
@@ -56,6 +57,16 @@ async function cargar(){
   disponibleV2=true;
   almacenes=w.data||[];ubicaciones=l.data||[];quants=q.data||[];
   productos=(p.data||[]).filter(x=>x.active!==false);
+  const [rr,sp,cc]=await Promise.all([
+   C().list('reorder_rules',{}),
+   C().list('suppliers',{select:'id,name'}),
+   C().list('inventory_counts',{order:'created_at',ascending:false,limit:20})
+  ]);
+  /* Las tablas de las fases 5 y 6 pueden no estar aplicadas todavía: si
+     faltan, esas dos pestañas se quedan vacías y el resto sigue igual. */
+  reglas=rr.error?[]:(rr.data||[]);
+  proveedores=sp.error?[]:(sp.data||[]);
+  conteos=cc.error?null:(cc.data||[]);
   await cargarEntrante();
  }catch(e){console.warn('[GAMA Inventario V2]',e);disponibleV2=false}
  finally{cargando=false}
@@ -162,6 +173,8 @@ function pintar(){
  })+`<div class="ivTabs">
 <button type="button" data-iv-tab="existencias">Existencias</button>
 <button type="button" data-iv-tab="transferencias">Transferencias</button>
+<button type="button" data-iv-tab="reabastecimiento">Reabastecimiento</button>
+<button type="button" data-iv-tab="conteos">Inventario físico</button>
 <button type="button" data-iv-tab="ubicaciones">Ubicaciones</button>
 </div><div id="ivCuerpo"></div>`;
  window.GamaUI.bindBack(sec);
@@ -179,6 +192,8 @@ Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div>
  if(disponibleV2===null){cuerpo.innerHTML='<div class="ivCard muted"><span class="gamaSpin"></span>Cargando existencias…</div>';return}
  if(pestana==='existencias')pintarExistencias(cuerpo);
  else if(pestana==='transferencias')pintarTransferencias(cuerpo);
+ else if(pestana==='reabastecimiento')pintarReabastecimiento(cuerpo);
+ else if(pestana==='conteos')pintarConteos(cuerpo);
  else pintarUbicaciones(cuerpo);
 }
 
@@ -349,7 +364,11 @@ const ERRORES={
  AUTH_REQUIRED:'La sesión ha caducado. Vuelva a entrar.',
  PRODUCT_NOT_FOUND:'El producto no existe.',
  RESERVED_EXCEEDS_QUANTITY:'Quedaría menos stock del que hay reservado.',
- INSUFFICIENT_AVAILABLE:'No hay suficiente stock disponible para reservar.'
+ INSUFFICIENT_AVAILABLE:'No hay suficiente stock disponible para reservar.',
+ COUNT_ALREADY_VALIDATED:'Este recuento ya estaba validado.',
+ COUNT_NOT_EDITABLE:'Este recuento ya no admite cambios.',
+ COUNT_CANCELLED:'Este recuento está cancelado.',
+ COUNT_NOT_FOUND:'El recuento no existe.'
 };
 function mensaje(e){
  const t=String(e?.message||e||'');
@@ -373,6 +392,180 @@ async function historial(){
 <td>${num(m.quantity)}</td></tr>`}).join('')+'</table>';
   if(window.GamaTable)window.GamaTable.scan();
  }catch(_){host.innerHTML='<div class="muted">No se pudo leer el historial.</div>'}
+}
+
+
+/* ---------- reabastecimiento ---------- */
+
+/* Los límites salen de la regla del producto si la hay, y si no de la ficha
+   —min_stock/max_stock—, que es de donde salían hasta ahora. */
+function limites(p){
+ const r=reglas.find(x=>x.product_id===p.id&&x.active!==false);
+ return {
+  minimo:Number((r?r.min_quantity:p.min_stock)||0),
+  maximo:Number((r?r.max_quantity:p.max_stock)||0),
+  proveedor:(r&&r.supplier_id)||p.supplier_id||null,
+  regla:!!r
+ };
+}
+
+/* Se repone cuando lo previsto —lo disponible más lo que viene de camino— cae
+   por debajo del mínimo. La cantidad sugerida sube hasta el máximo; si el
+   producto no tiene máximo, lo único honesto es subir hasta el mínimo, y se
+   dice cuál de los dos se usó. */
+function sugerencia(r){
+ const l=limites(r.producto);
+ const previsto=r.previsto===null?r.disponible:r.previsto;
+ if(!l.minimo||previsto>=l.minimo)return null;
+ const objetivo=l.maximo>0?l.maximo:l.minimo;
+ const cantidad=Math.max(0,objetivo-previsto);
+ return cantidad>0?{cantidad,objetivo,hastaMaximo:l.maximo>0,limites:l,previsto}:null;
+}
+
+function pintarReabastecimiento(host){
+ const filas=productos.map(p=>resumen(p)).map(r=>({r,s:sugerencia(r)})).filter(x=>x.s);
+ const nombreProveedor=id=>{const s=proveedores.find(x=>x.id===id);return s?s.name:'—'};
+ host.innerHTML=`<div class="ivCard">
+<h3 style="margin:0 0 4px">Productos que hay que reponer</h3>
+<p class="muted" style="margin:0 0 12px">Se repone cuando lo previsto cae por debajo del mínimo. Previsto es lo disponible más lo que ya viene de camino, así que un producto con una compra en marcha no vuelve a pedirse.</p>
+${filas.length?`<table><tr><th>Producto</th><th>On hand</th><th>Reservado</th><th>Disponible</th><th>Entrante</th><th>Previsto</th><th>Mínimo</th><th>Máximo</th><th>Sugerido</th><th>Proveedor</th></tr>`
++filas.map(({r,s})=>`<tr>
+<td><b>${esc(r.producto.name)}</b>${s.limites.regla?'<small class="ivSub">regla propia</small>':''}</td>
+<td>${num(r.onHand)}</td>
+<td>${r.reservado?num(r.reservado):'—'}</td>
+<td>${num(r.disponible)}</td>
+<td>${r.entrante===null?'—':num(r.entrante)}</td>
+<td><b>${num(s.previsto)}</b></td>
+<td>${num(s.limites.minimo)}</td>
+<td>${s.limites.maximo?num(s.limites.maximo):'—'}</td>
+<td><b>${num(s.cantidad)}</b>${s.hastaMaximo?'':'<small class="ivSub">hasta el mínimo</small>'}</td>
+<td>${esc(nombreProveedor(s.limites.proveedor))}</td>
+</tr>`).join('')+'</table>'
+:'<div class="muted">Ningún producto está por debajo de su mínimo.</div>'}
+<p class="muted" style="margin:12px 0 0">La sugerencia no crea ninguna orden de compra: pedir sigue siendo cosa del módulo de Compras.</p>
+</div>`;
+ if(window.GamaTable)window.GamaTable.scan();
+}
+
+/* ---------- inventario físico ---------- */
+
+function pintarConteos(host){
+ if(conteos===null){
+  host.innerHTML=`<div class="ivCard"><div class="ivAviso"><b>El inventario físico todavía no está activo.</b><br>
+Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`;
+  return;
+ }
+ if(conteoAbierto){pintarConteoAbierto(host);return}
+ host.innerHTML=`<div class="ivCard">
+<h3 style="margin:0 0 4px">Nuevo recuento</h3>
+<p class="muted" style="margin:0 0 12px">Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
+<div class="ivForm">
+ <div><label for="ivcAlmacen">Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
+ <div><label for="ivcReferencia">Referencia</label><input id="ivcReferencia" placeholder="Ej. Recuento septiembre"></div>
+</div>
+<button type="button" class="primary" id="ivcCrear" style="width:100%;margin-top:13px">Crear y generar líneas</button>
+</div>
+<div class="ivCard"><h3 style="margin:0 0 10px">Recuentos</h3>${
+ conteos.length?`<table><tr><th>Referencia</th><th>Almacén</th><th>Estado</th><th>Creado</th><th></th></tr>`
+ +conteos.map(c=>{
+   const a=almacenes.find(x=>x.id===c.warehouse_id);
+   return `<tr><td><b>${esc(c.reference)}</b></td><td>${esc(a?a.name:'—')}</td>
+<td><span class="ivEstado ${c.status==='validated'?'ok':c.status==='cancelled'?'sobre':'bajo'}">${esc(ESTADO_CONTEO[c.status]||c.status)}</span></td>
+<td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}</td>
+<td><button type="button" class="secondary" data-ivc-abrir="${esc(c.id)}">Abrir</button></td></tr>`}).join('')+'</table>'
+ :'<div class="muted">Todavía no hay recuentos.</div>'}</div>`;
+ $('ivcCrear').onclick=crearConteo;
+ host.querySelectorAll('[data-ivc-abrir]').forEach(b=>b.onclick=()=>abrirConteo(b.dataset.ivcAbrir));
+ if(window.GamaTable)window.GamaTable.scan();
+}
+
+const ESTADO_CONTEO={draft:'Borrador',in_progress:'En curso',validated:'Validado',cancelled:'Cancelado'};
+
+async function crearConteo(){
+ const btn=$('ivcCrear'),alm=$('ivcAlmacen').value,ref=$('ivcReferencia').value.trim();
+ if(!alm)return window.gamaToast('Elija un almacén.');
+ if(!ref)return window.gamaToast('Ponga una referencia al recuento.');
+ const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Creando…';
+ try{
+  const r=await C().insert('inventory_counts',{warehouse_id:alm,reference:ref,status:'draft'});
+  if(r.error)throw r.error;
+  const c=await C().db();
+  const {error}=await c.rpc('gama_count_generate_lines',{p_count_id:r.data.id});
+  if(error)throw error;
+  window.gamaToast('Recuento creado con sus líneas.');
+  await cargar();await abrirConteo(r.data.id);
+ }catch(e){console.warn('[GAMA conteo]',e);window.gamaToast(mensaje(e))}
+ finally{btn.disabled=false;btn.textContent=rotulo}
+}
+
+async function abrirConteo(id){
+ try{
+  const r=await C().list('inventory_count_lines',{eq:{count_id:id}});
+  if(r.error)throw r.error;
+  lineas=r.data||[];
+  conteoAbierto=(conteos||[]).find(c=>c.id===id)||{id,reference:'',status:'in_progress'};
+  pintar();
+ }catch(e){window.gamaToast(mensaje(e))}
+}
+
+function pintarConteoAbierto(host){
+ const c=conteoAbierto;
+ const cerrado=c.status==='validated'||c.status==='cancelled';
+ const nombre=id=>{const p=productos.find(x=>x.id===id);return p?p.name:'—'};
+ host.innerHTML=`<div class="ivCard">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+ <div><h3 style="margin:0 0 3px">${esc(c.reference||'Recuento')}</h3>
+ <p class="muted" style="margin:0">${esc(ESTADO_CONTEO[c.status]||c.status)} · ${lineas.length} línea${lineas.length===1?'':'s'}</p></div>
+ <button type="button" class="secondary" id="ivcVolver">← Recuentos</button>
+</div>
+${cerrado?'<div class="ivAviso" style="margin-top:12px">Este recuento ya está cerrado: sus líneas no se pueden cambiar.</div>':''}
+<div style="margin-top:14px" id="ivcLineas"></div>
+${cerrado?'':'<button type="button" class="primary" id="ivcValidar" style="width:100%;margin-top:14px">Validar y ajustar existencias</button>'}
+</div>`;
+ $('ivcVolver').onclick=()=>{conteoAbierto=null;pintar()};
+ const host2=$('ivcLineas');
+ host2.innerHTML=lineas.length?'<table><tr><th>Producto</th><th>Ubicación</th><th>Esperado</th><th>Contado</th><th>Diferencia</th></tr>'
+  +lineas.map(l=>{
+   const dif=l.counted_quantity===null||l.counted_quantity===undefined?null:Number(l.counted_quantity)-Number(l.expected_quantity);
+   return `<tr>
+<td><b>${esc(nombre(l.product_id))}</b></td>
+<td>${esc((ubicacion(l.location_id)||{}).code||'—')}</td>
+<td>${num(l.expected_quantity)}</td>
+<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="1" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
+<td>${dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}</td>
+</tr>`}).join('')+'</table>'
+  :'<div class="muted">Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>';
+ host2.querySelectorAll('[data-ivc-linea]').forEach(i=>i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value));
+ if(!cerrado&&$('ivcValidar'))$('ivcValidar').onclick=validarConteo;
+ if(window.GamaTable)window.GamaTable.scan();
+}
+
+/* Apuntar lo contado NO mueve existencias: sólo guarda la línea. El stock se
+   mueve al validar, y por la puerta de siempre. */
+async function apuntar(id,valor){
+ const n=valor===''?null:Number(valor);
+ if(n!==null&&(!Number.isFinite(n)||n<0))return window.gamaToast('La cantidad contada no es válida.');
+ try{
+  const r=await C().update('inventory_count_lines',id,{counted_quantity:n});
+  if(r.error)throw r.error;
+  const l=lineas.find(x=>x.id===id);if(l)l.counted_quantity=n;
+  pintarConteoAbierto($('ivCuerpo'));
+ }catch(e){window.gamaToast(mensaje(e))}
+}
+
+async function validarConteo(){
+ const btn=$('ivcValidar');
+ const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Validando…';
+ try{
+  const c=await C().db();
+  const {data,error}=await c.rpc('gama_count_validate',{p_count_id:conteoAbierto.id});
+  if(error)throw error;
+  const n=(data&&data.adjustments)||0;
+  window.gamaToast(n?`Recuento validado: ${n} ajuste${n===1?'':'s'} de existencias.`:'Recuento validado sin diferencias.');
+  conteoAbierto=null;
+  await cargar();pintar();
+ }catch(e){console.warn('[GAMA conteo]',e);window.gamaToast(mensaje(e))}
+ finally{btn.disabled=false;btn.textContent=rotulo}
 }
 
 /* ---------- ubicaciones ---------- */
@@ -412,5 +605,5 @@ async function abrir(){
 }
 
 window.GamaOpenWarehouses=abrir;
-window.GamaInventoryV2={abrir,cargar,resumen,estado,get datos(){return{almacenes,ubicaciones,quants,productos,entrante}}};
+window.GamaInventoryV2={abrir,cargar,resumen,estado,sugerencia,limites,get datos(){return{almacenes,ubicaciones,quants,productos,entrante}}};
 })();

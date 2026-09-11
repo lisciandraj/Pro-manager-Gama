@@ -18,8 +18,8 @@ const SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
 const ROLES={
  admin:{label:'Administrador',perms:'*'},
- commercial:{label:'Comercial',perms:['dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm']},
- magasinier:{label:'Almacenero',perms:['dashboard','products','movement','stock','barcode','locations','units','tms','hr']},
+ commercial:{label:'Comercial',perms:['dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses']},
+ magasinier:{label:'Almacenero',perms:['dashboard','products','movement','stock','warehouses','barcode','locations','units','tms','hr']},
  client:{label:'Cliente',perms:['client-catalog']}
 };
 const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);
@@ -50,7 +50,7 @@ async function logout(){
  location.href=location.pathname+'?logout='+Date.now();
 }
 function userBar(){const s=session();if(!s)return;injectCss();let d=$('gamaACLUser');if(!d){d=document.createElement('div');d.id='gamaACLUser';d.className='aclUser';document.body.appendChild(d)}d.innerHTML=`👤 <b>${esc(s.name||s.username)}</b> · <span class="aclRole">${esc(ROLES[s.role]?.label||s.role)}</span><button type="button" id="aclLogout">Cerrar sesión</button>`;const b=$('aclLogout');b.onclick=e=>{e.preventDefault();e.stopPropagation();logout()};b.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();logout()},{passive:false})}
-const MENU_MAP={'Panel de control':'dashboard','Productos':'products','Clientes':'clients','Entradas / Salidas':'movement','Presupuestos':'billing','Inventario':'stock','Auditoría':'audit','Proveedores':'suppliers','Compras':'gamaPurchasesV14','Importar Excel':'reports','Informes':'reports','Matriz comercial':'matrix','CRM':'crm','Configuración':'settings','Recursos humanos':'hr','Copias de seguridad':'backup','Usuarios':'users','Notificaciones':'notifications','Tareas':'tasks','Agenda':'calendar','Etiquetas':'labels','Ubicaciones':'locations','Códigos de barras':'barcode','Unidades':'units','Ayuda y soporte':'support','Catálogo de productos':'client-catalog','Solicitudes de clientes':'customer-requests','Entregas / TMS':'tms','Tarifas':'price-lists'};
+const MENU_MAP={'Panel de control':'dashboard','Productos':'products','Clientes':'clients','Entradas / Salidas':'movement','Presupuestos':'billing','Inventario':'stock','Almacenes y existencias':'warehouses','Auditoría':'audit','Proveedores':'suppliers','Compras':'gamaPurchasesV14','Importar Excel':'reports','Informes':'reports','Matriz comercial':'matrix','CRM':'crm','Configuración':'settings','Recursos humanos':'hr','Copias de seguridad':'backup','Usuarios':'users','Notificaciones':'notifications','Tareas':'tasks','Agenda':'calendar','Etiquetas':'labels','Ubicaciones':'locations','Códigos de barras':'barcode','Unidades':'units','Ayuda y soporte':'support','Catálogo de productos':'client-catalog','Solicitudes de clientes':'customer-requests','Entregas / TMS':'tms','Tarifas':'price-lists'};
 function filterMenu(){const host=$('mainmenu');if(!host)return;host.querySelectorAll('.gamaF2Card').forEach(b=>{const t=b.querySelector('.gamaF2Title');if(!t)return;b.classList.toggle('aclHidden',!allowed(MENU_MAP[t.textContent.trim()]||''))})}
 function filterTabs(){document.querySelectorAll('.tabs .tab').forEach(b=>{const t=(b.textContent||'').trim().toLowerCase();const map=t.includes('panel')?'dashboard':t.includes('produ')?'products':t.includes('cliente')?'clients':t.includes('entrada')||t.includes('salida')?'movement':t.includes('factur')?'billing':t.includes('invent')?'stock':t.includes('prove')?'suppliers':t.includes('informe')?'reports':t.includes('usuario')?'users':null;if(map)b.classList.toggle('aclHidden',!allowed(map))})}
 function hook(){

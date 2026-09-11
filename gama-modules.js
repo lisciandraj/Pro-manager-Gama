@@ -31,6 +31,7 @@ const CATALOG=[
  {id:'movement',           label:'Entradas / Salidas'},
  {id:'billing',            label:'Presupuestos'},
  {id:'stock',              label:'Inventario'},
+ {id:'warehouses',         label:'Almacenes y existencias'},
  {id:'audit',              label:'Auditoría'},
  {id:'suppliers',          label:'Proveedores'},
  {id:'matrix',             label:'Matriz comercial'},

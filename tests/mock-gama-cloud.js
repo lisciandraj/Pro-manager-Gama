@@ -119,6 +119,97 @@
   // current_user_role() (always a raw Spanish profiles.role value) against
   // a garbled list of French/English terms, which silently rejected every
   // admin's reception with FORBIDDEN.
+  // ---- Inventario V2 -------------------------------------------------------
+  // El doble reproduce las restricciones que Postgres impone de verdad: los
+  // CHECK de stock_quants (ni negativo ni reservado por encima de lo que hay),
+  // el bloqueo de rol y el invariante SUM(quants) = products.stock. Un doble
+  // más permisivo que el backend no prueba nada: prueba el doble.
+  function quantsDe(productId) {
+    return (window.__DB.stock_quants || []).filter(q => q.product_id === productId);
+  }
+  function sincronizaStock(productId) {
+    const total = quantsDe(productId).reduce((s, q) => s + Number(q.quantity || 0), 0);
+    const p = (window.__DB.products || []).find(x => x.id === productId);
+    if (p) p.stock = total;
+    return total;
+  }
+  function quant(productId, locationId, crear) {
+    window.__DB.stock_quants = window.__DB.stock_quants || [];
+    let q = window.__DB.stock_quants.find(x => x.product_id === productId && x.location_id === locationId);
+    if (!q && crear) {
+      q = { id: nextId('stock_quants'), product_id: productId, location_id: locationId, quantity: 0, reserved_quantity: 0 };
+      window.__DB.stock_quants.push(q);
+    }
+    return q;
+  }
+  function mueveStock(args) {
+    const role = window.__DB._profile.role;
+    if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'ROLE_NOT_ALLOWED' } };
+    const qty = Number(args.p_quantity);
+    if (!(qty > 0)) return { data: null, error: { message: 'INVALID_QUANTITY' } };
+    if (args.p_source_location_id === args.p_destination_location_id) return { data: null, error: { message: 'SAME_LOCATION' } };
+    const product = (window.__DB.products || []).find(p => p.id === args.p_product_id);
+    if (!product) return { data: null, error: { message: 'PRODUCT_NOT_FOUND' } };
+
+    // Se valida ANTES de crear nada. En Postgres el `raise exception` deshace
+    // la transacción entera, así que un traslado rechazado no deja ni rastro;
+    // si aquí se crearan los quants primero, el doble se quedaría con una fila
+    // a cero que la base real nunca habría guardado.
+    const origen = quant(args.p_product_id, args.p_source_location_id, false);
+    const disponible = Number(origen ? origen.quantity : 0) - Number(origen ? origen.reserved_quantity : 0);
+    // Lo reservado sigue comprometido donde está: no se puede mover.
+    if (disponible < qty) return { data: null, error: { message: 'INSUFFICIENT_STOCK' } };
+    const destino = quant(args.p_product_id, args.p_destination_location_id, true);
+
+    const totalAntes = quantsDe(args.p_product_id).reduce((s, q) => s + Number(q.quantity || 0), 0);
+    origen.quantity = Number(origen.quantity || 0) - qty;
+    destino.quantity = Number(destino.quantity || 0) + qty;
+
+    window.__DB.stock_movements = window.__DB.stock_movements || [];
+    const mov = {
+      id: nextId('stock_movements'), product_id: args.p_product_id, type: 'adjustment', quantity: qty,
+      reason: args.p_reason || 'Transferencia interna', comment: args.p_comment || null,
+      user_id: window.__DB._profile.id, created_at: new Date().toISOString(),
+      // Una transferencia no cambia el total del producto, sólo dónde está.
+      stock_before: totalAntes, stock_after: totalAntes,
+      source_location_id: args.p_source_location_id, destination_location_id: args.p_destination_location_id,
+      movement_type: 'internal_transfer',
+    };
+    window.__DB.stock_movements.push(mov);
+    sincronizaStock(args.p_product_id);
+    return { data: mov, error: null };
+  }
+  function reservaStock(args) {
+    const role = window.__DB._profile.role;
+    if (!['administrador', 'almacenero', 'comercial'].includes(role)) return { data: null, error: { message: 'ROLE_NOT_ALLOWED' } };
+    const qty = Number(args.p_quantity);
+    if (!(qty > 0)) return { data: null, error: { message: 'INVALID_QUANTITY' } };
+    // Igual que en el traslado: si no hay para reservar, no queda nada creado.
+    const q = quant(args.p_product_id, args.p_location_id, false);
+    const disponible = Number(q ? q.quantity : 0) - Number(q ? q.reserved_quantity : 0);
+    if (disponible < qty) return { data: null, error: { message: 'INSUFFICIENT_AVAILABLE' } };
+    q.reserved_quantity = Number(q.reserved_quantity || 0) + qty;
+    window.__DB.stock_reservations = window.__DB.stock_reservations || [];
+    const r = {
+      id: nextId('stock_reservations'), product_id: args.p_product_id, location_id: args.p_location_id,
+      quantity: qty, reference_type: args.p_reference_type || null, reference_id: args.p_reference_id || null,
+      status: 'active', created_by: window.__DB._profile.id, created_at: new Date().toISOString(), released_at: null,
+    };
+    window.__DB.stock_reservations.push(r);
+    return { data: r, error: null };
+  }
+  function liberaReserva(args) {
+    const r = (window.__DB.stock_reservations || []).find(x => x.id === args.p_reservation_id);
+    if (!r) return { data: null, error: { message: 'RESERVATION_NOT_FOUND' } };
+    // Soltar dos veces la misma reserva no resta dos veces.
+    if (r.status !== 'active') return { data: r, error: null };
+    const q = quant(r.product_id, r.location_id, true);
+    q.reserved_quantity = Math.max(0, Number(q.reserved_quantity || 0) - Number(r.quantity || 0));
+    r.status = args.p_consumed ? 'consumed' : 'released';
+    r.released_at = new Date().toISOString();
+    return { data: r, error: null };
+  }
+
   function rpcReceivePurchase(args) {
     const role = window.__DB._profile.role;
     if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'FORBIDDEN' } };
@@ -310,6 +401,9 @@
       },
       rpc: async (fn, args) => {
         if (fn === 'gama_receive_purchase') return rpcReceivePurchase(args || {});
+        if (fn === 'gama_stock_transfer') return mueveStock(args || {});
+        if (fn === 'gama_stock_reserve') return reservaStock(args || {});
+        if (fn === 'gama_stock_unreserve') return liberaReserva(args || {});
         return { data: null, error: null };
       },
     }),

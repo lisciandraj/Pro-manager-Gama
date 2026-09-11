@@ -335,3 +335,42 @@ verdad. La comprobación, una vez aplicadas las migraciones, es lanzar dos
 transferencias cruzadas A→B y B→A del mismo producto en dos sesiones y
 verificar que ninguna queda bloqueada y que el invariante de arriba sigue
 dando cero filas.
+
+### Comprobación previa contra la base de producción (11-09-2026)
+
+Hecha en sólo lectura, antes de aplicar nada. Ninguna de las tablas de
+Inventario V2 existe todavía, así que las tres migraciones están pendientes y
+el punto de partida es éste:
+
+| | |
+|---|---|
+| Productos | 49 |
+| Con stock distinto de cero | 9 |
+| Stock total | 1143 |
+| Stock negativo | **0** |
+| Stock nulo o fraccionario | 0 |
+| Movimientos en el histórico | 13 |
+| Órdenes de compra abiertas | 0 |
+
+Que no haya **ni un solo stock negativo** es la condición que hacía falta
+comprobar antes de nada: `stock_quants` lleva un `check (quantity >= 0)`, así
+que un stock negativo habría hecho fallar el traspaso del histórico entero. No
+lo hay, y el traspaso creará exactamente 9 quants.
+
+**Lo que va a salir de `products.location`.** Hay 49 valores distintos, uno por
+producto: casi todos con forma de zona y hueco (`Z01-A01` … `Z06-A02`), más
+`A10`, `A10-12`, `A10-49`, `A10-83`, `A-387` y uno literalmente llamado `Nan`
+—resto de una importación de Excel, con 1 unidad de stock—. La migración crea
+una ubicación por cada valor distinto, así que creará también la llamada
+`Nan`. Es deliberado: la instrucción es no perder datos, y decidir por cuenta
+propia que un valor de la ficha de un producto es basura sería justamente
+perderlos. Renombrarla o fusionarla se hace después, desde la pestaña de
+Ubicaciones, sabiendo qué producto había detrás.
+
+**Sobre el reabastecimiento.** 41 de los 49 productos están por debajo de su
+mínimo, y **sólo 1 tiene máximo**. Es decir que el caso normal en esta base no
+es el de manual —«repón hasta el máximo»— sino el otro: sin máximo, la
+sugerencia sube hasta el mínimo y la fila lo dice con un «hasta el mínimo».
+Inventarse un techo habría sido pedir de más con cara de dato. Como ése es el
+caso que manda en la base real, tiene su propia prueba en
+`inventory-count.spec.js`.

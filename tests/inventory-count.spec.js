@@ -185,6 +185,42 @@ test.describe('Inventario V2 — reabastecimiento', () => {
     await expect(page.locator('#ivCuerpo')).toContainText('Ningún producto está por debajo de su mínimo');
   });
 
+  // El caso que manda en la base de verdad: casi ningún producto tiene máximo.
+  // Sin máximo no hay a dónde subir, así que la sugerencia sube hasta el
+  // mínimo y la fila lo dice —inventarse un máximo sería pedir de más con
+  // cara de dato.
+  test('sin máximo la sugerencia sube hasta el mínimo, y la fila lo dice', async ({ page }) => {
+    const db = JSON.parse(JSON.stringify(BASE));
+    db.products = [
+      { id: 'p1', name: 'Cemento', reference: 'CEM', sale_price: 10, purchase_price: 6, stock: 4, min_stock: 10, active: true },
+      // max_stock a 0 vale lo mismo que no tenerlo: no es un techo.
+      { id: 'p2', name: 'Arena', reference: 'ARE', sale_price: 4, purchase_price: 2, stock: 1, min_stock: 6, max_stock: 0, active: true },
+    ];
+    db.stock_quants = [
+      { id: 'q1', product_id: 'p1', location_id: 'l1', quantity: 4, reserved_quantity: 0 },
+      { id: 'q2', product_id: 'p2', location_id: 'l1', quantity: 1, reserved_quantity: 0 },
+    ];
+    await abrir(page, db);
+    await page.click('[data-iv-tab="reabastecimiento"]');
+    await page.waitForTimeout(400);
+
+    const cemento = page.locator('#ivCuerpo tr', { hasText: 'Cemento' });
+    await expect(cemento).toContainText('6');            // 10 − 4
+    await expect(cemento).toContainText('hasta el mínimo');
+    const arena = page.locator('#ivCuerpo tr', { hasText: 'Arena' });
+    await expect(arena).toContainText('5');              // 6 − 1
+    await expect(arena).toContainText('hasta el mínimo');
+
+    // Y las cifras salen de la función, no de leer la tabla de reojo.
+    const s = await page.evaluate(() => {
+      const iv = window.GamaInventoryV2;
+      const p = iv.datos.productos.find(x => x.id === 'p1');
+      const r = iv.sugerencia(iv.resumen(p));
+      return { cantidad: r.cantidad, objetivo: r.objetivo, hastaMaximo: r.hastaMaximo };
+    });
+    expect(s).toEqual({ cantidad: 6, objetivo: 10, hastaMaximo: false });
+  });
+
   test('lo reservado sí cuenta para reponer: apartado no es vendible', async ({ page }) => {
     const db = JSON.parse(JSON.stringify(BASE));
     // 12 en total pero 9 reservados: disponible 3, por debajo del mínimo de 10.

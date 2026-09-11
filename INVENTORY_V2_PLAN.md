@@ -374,3 +374,78 @@ sugerencia sube hasta el mínimo y la fila lo dice con un «hasta el mínimo».
 Inventarse un techo habría sido pedir de más con cara de dato. Como ése es el
 caso que manda en la base real, tiene su propia prueba en
 `inventory-count.spec.js`.
+
+---
+
+## 9. Aplicado en producción — 11-09-2026
+
+Las tres migraciones están **aplicadas**, en el orden de la tabla de arriba.
+Lo que sigue es lo que se comprobó después, contra la base de verdad, no
+contra el doble de las pruebas.
+
+### El traspaso del histórico
+
+| | Antes | Después |
+|---|---|---|
+| Suma de `products.stock` | 1143 | 1143 |
+| Suma de `stock_quants.quantity` | — | **1143** |
+| Productos con stock y sin quant | — | 0 |
+| Filas que rompen el invariante | — | 0 |
+
+Un almacén, 50 ubicaciones (las 49 que salieron de `products.location` más la
+raíz `STOCK`) y 9 quants, uno por cada producto con existencias. No se perdió
+ni una unidad.
+
+### Las RPC, ejecutadas de verdad
+
+Todo lo de abajo se ejecutó contra este PostgreSQL dentro de una transacción
+que después se deshizo, así que el estado quedó intacto —13 movimientos, cero
+reservas, cero conteos, 1143 = 1143—:
+
+- **Traslado** de 5 unidades: origen 12→7, destino 0→5, total del producto
+  quieto en 12, movimiento `internal_transfer` con `stock_before = stock_after`.
+- **Reserva** de 4: `reserved_quantity` a 4, y el traslado de lo reservado
+  rechazado con `INSUFFICIENT_STOCK`. Lo apartado no se mueve.
+- **Ajuste** a cantidad objetivo: destino 5→9, total 12→16, movimiento `in` de 4.
+- **Liberar** dos veces la misma reserva: 0 y 0. Idempotente de verdad.
+- **Conteo físico**: 9 líneas generadas, apuntar «contado 9 donde había 12» no
+  movió nada (stock en 12, 13 movimientos), y sólo al validar bajó a 9 dejando
+  su `inventory_adjustment` con el comentario «Conteo … esperado 12, contado 9».
+  Validarlo otra vez: `COUNT_ALREADY_VALIDATED`.
+
+### Quién puede qué — comprobado con los perfiles reales
+
+|  | traslado | ajuste | reserva | entrada manual |
+|---|---|---|---|---|
+| `almacenero` | sí | sí | sí | sí |
+| `comercial` | ROLE_NOT_ALLOWED | ROLE_NOT_ALLOWED | **sí** | ROLE_NOT_ALLOWED |
+| `cliente` | ROLE_NOT_ALLOWED | ROLE_NOT_ALLOWED | ROLE_NOT_ALLOWED | ROLE_NOT_ALLOWED |
+| sin sesión | AUTH_REQUIRED | — | — | — |
+
+Un comercial puede apartar género para un presupuesto, que es su trabajo, pero
+no puede mover ni corregir existencias. Un cliente no entra.
+
+### La puerta de atrás, cerrada
+
+Leyendo como `authenticated` —como llega el navegador, con las RLS puestas—:
+
+- Un `cliente` ve **0** almacenes, **0** ubicaciones, **0** quants, **0**
+  reservas. La logística interna no es asunto suyo.
+- Un `almacenero` ve el almacén, las 50 ubicaciones y los 9 quants.
+- Y un `almacenero` autenticado intentando escribir existencias a mano, que es
+  exactamente lo que sería un PATCH de PostgREST desde la consola del
+  navegador: `UPDATE` 0 filas, `DELETE` 0 filas, `INSERT` rechazado con
+  *new row violates row-level security policy*.
+
+Es la frase del encargo cumplida donde había que cumplirla: el frontend no es
+la única protección contra una incoherencia de stock. No es que la pantalla no
+ofrezca el botón; es que la base no deja.
+
+### Lo que sigue sin estar demostrado
+
+La concurrencia. Este PostgreSQL no tiene `dblink` ni `pg_background`, así que
+desde aquí no se pueden abrir dos sesiones a la vez y lanzar dos traslados
+cruzados A→B y B→A. El orden de bloqueo estable por `location_id` está escrito
+para evitar el interbloqueo y los `for update` están donde tienen que estar,
+pero **eso es un argumento, no una prueba**. Queda pendiente de comprobar con
+dos conexiones reales.

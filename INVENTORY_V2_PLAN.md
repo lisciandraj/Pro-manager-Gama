@@ -252,7 +252,17 @@ generando ajustes normales: un conteo no es una puerta trasera.
 Sin crear órdenes automáticas.
 
 **Fase 7 — Integración con Compras.** Recepción hacia una ubicación concreta,
-extendiendo `gama_receive_purchase` en vez de duplicarla.
+extendiendo `gama_receive_purchase` en vez de duplicarla: se conserva su firma
+exacta —para no crear una sobrecarga ambigua— y cada línea del jsonb admite un
+`location_id` opcional. La ficha del pedido ofrece el destino agrupado por
+almacén, con la ubicación por defecto ya seleccionada.
+
+Ese `opcional` es deliberado y es lo que hace la fase compatible hacia atrás:
+la pantalla de Compras consulta `warehouses` y `warehouse_locations` de forma
+tolerante, y si la migración todavía no está aplicada no enseña el desplegable
+y envía las líneas sin destino, que es exactamente lo que hacía antes. Una
+pantalla de compras no puede dejar de recibir mercancía porque falte una tabla
+nueva; la prueba `purchase-receive-location.spec.js` fija las dos ramas.
 
 ### Concurrencia
 

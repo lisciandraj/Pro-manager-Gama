@@ -142,6 +142,14 @@
     }
     return q;
   }
+  // Espejo de private.gama_default_location(): la ubicación STOCK del almacén
+  // PRINCIPAL, que la migración de la fase 1 siempre deja creada.
+  function ubicacionPorDefecto() {
+    const w = (window.__DB.warehouses || []).find(x => x.code === 'PRINCIPAL');
+    if (!w) return null;
+    const l = (window.__DB.warehouse_locations || []).find(x => x.warehouse_id === w.id && x.code === 'STOCK');
+    return l ? l.id : null;
+  }
   function mueveStock(args) {
     const role = window.__DB._profile.role;
     if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'ROLE_NOT_ALLOWED' } };
@@ -290,12 +298,28 @@
       if ((pol.received_quantity || 0) + line.quantity > pol.quantity) return { data: null, error: { message: 'RECEIPT_EXCEEDS_ORDERED' } };
       const product = (window.__DB.products || []).find(p => p.id === pol.product_id);
       if (!product) return { data: null, error: { message: 'PRODUCT_NOT_FOUND' } };
-      const before = Number(product.stock || 0);
-      product.stock = before + line.quantity;
+      // Con la fase 1 aplicada la mercancía entra en una ubicación concreta y
+      // products.stock pasa a ser la suma de los quants; sin ella la función
+      // sigue siendo la de siempre. Las dos ramas existen de verdad: una base
+      // sin migrar no tiene dónde poner un quant.
+      const conUbicaciones = (window.__DB.warehouse_locations || []).length > 0;
+      const destino = conUbicaciones ? (line.location_id || ubicacionPorDefecto()) : null;
+      if (conUbicaciones && !destino) return { data: null, error: { message: 'LOCATION_NOT_FOUND' } };
+      const before = conUbicaciones
+        ? quantsDe(product.id).reduce((s, q) => s + Number(q.quantity || 0), 0)
+        : Number(product.stock || 0);
+      if (conUbicaciones) {
+        const q = quant(product.id, destino, true);
+        q.quantity = Number(q.quantity || 0) + line.quantity;
+        sincronizaStock(product.id);
+      } else {
+        product.stock = before + line.quantity;
+      }
       product.purchase_price = pol.unit_cost;
       pol.received_quantity = (pol.received_quantity || 0) + line.quantity;
       window.__DB.stock_movements = window.__DB.stock_movements || [];
-      window.__DB.stock_movements.push({ id: nextId('stock_movements'), product_id: product.id, type: 'in', quantity: line.quantity, stock_before: before, stock_after: product.stock, user_id: window.__DB._profile.id, created_at: new Date().toISOString() });
+      window.__DB.stock_movements.push(Object.assign({ id: nextId('stock_movements'), product_id: product.id, type: 'in', quantity: line.quantity, stock_before: before, stock_after: before + line.quantity, user_id: window.__DB._profile.id, created_at: new Date().toISOString() },
+        conUbicaciones ? { destination_location_id: destino, movement_type: 'receipt', reference_type: 'purchase_order', reference_id: args.p_purchase_order_id } : {}));
     }
     const allLines = (window.__DB.purchase_order_lines || []).filter(l => l.purchase_order_id === args.p_purchase_order_id);
     const allReceived = allLines.length > 0 && allLines.every(l => (l.received_quantity || 0) >= l.quantity);

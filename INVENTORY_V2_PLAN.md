@@ -273,3 +273,65 @@ mismo orden (por `location_id`) para evitar interbloqueos. Las restricciones
 `check` de `stock_quants` son la última línea: aunque una RPC tuviera un fallo
 lógico, Postgres no deja que el stock quede negativo ni que lo reservado supere
 lo que hay.
+
+---
+
+## 8. Puesta en producción
+
+Las tres migraciones se aplican **a mano** contra Supabase, en este orden, y
+cada una es idempotente: volver a ejecutarla no rompe nada.
+
+| # | Fichero | Qué deja |
+|---|---------|----------|
+| 1 | `supabase-migration-2026-09-inventory-v2-phase1.sql` | `warehouses`, `warehouse_locations`, `stock_quants`, las columnas nuevas de `stock_movements`, las RLS y el traspaso del histórico |
+| 2 | `supabase-migration-2026-09-inventory-v2-rpc.sql` | `stock_reservations` y las RPC: transferencia, ajuste, reserva, y el reemplazo de `gama_receive_purchase` y `gama_register_stock_movement` |
+| 3 | `supabase-migration-2026-09-inventory-v2-counts.sql` | `inventory_counts`, `inventory_count_lines`, `reorder_rules` y las RPC de recuento |
+
+El orden importa: la 2 crea funciones que referencian tablas de la 1, y la 3
+llama a `gama_stock_adjust`, que crea la 2.
+
+**Antes de la 1**, conviene dejar constancia de la foto de partida, porque es
+contra ella contra la que se comprueba que el traspaso no perdió nada:
+
+```sql
+select count(*) filter (where coalesce(stock,0) <> 0) as con_stock,
+       coalesce(sum(stock),0) as total
+  from products;
+```
+
+**Después de la 1**, esas dos cifras tienen que aparecer intactas del otro
+lado. Cero filas en esta consulta es la condición de que todo cuadre, y sigue
+siendo cierta después de cualquier operación posterior:
+
+```sql
+select p.id, p.stock, coalesce(sum(q.quantity),0) as quants
+  from products p
+  left join stock_quants q on q.product_id = p.id
+ group by p.id, p.stock
+having coalesce(sum(q.quantity),0) <> coalesce(p.stock,0);
+```
+
+Cada migración lleva sus propias comprobaciones de sólo lectura al final del
+fichero.
+
+### Mientras tanto
+
+El frontend no espera a nada de esto. Con las migraciones sin aplicar,
+«Almacenes y existencias» avisa de que la migración no está aplicada y el
+resto de la aplicación —Inventario, Compras, Ventas— funciona exactamente
+igual que antes. Ése es el criterio con el que está escrito todo el código de
+estas siete fases, y lo que fijan las pruebas: ninguna pantalla existente
+puede empeorar porque falte una tabla nueva.
+
+### Lo que las pruebas no demuestran
+
+El doble de `tests/mock-gama-cloud.js` reproduce las restricciones de
+Postgres —los `check` de `stock_quants`, los roles, el invariante
+`SUM(quants) = products.stock`— pero es de un solo hilo: **no puede demostrar
+la concurrencia**. Que dos traslados simultáneos no se pisen, y que dos
+recepciones a la vez no dupliquen un quant, depende de los `select … for
+update` y de los índices únicos, y sólo se comprueba contra un Postgres de
+verdad. La comprobación, una vez aplicadas las migraciones, es lanzar dos
+transferencias cruzadas A→B y B→A del mismo producto en dos sesiones y
+verificar que ninguna queda bloqueada y que el invariante de arriba sigue
+dando cero filas.

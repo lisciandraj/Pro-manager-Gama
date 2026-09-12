@@ -17,3 +17,5 @@ Los controles SQL también bloquean el cambio directo de estado, el inicio de un
 - Regresión de pedidos de venta y del módulo TMS en Playwright.
 
 Las pruebas de cámara y lector simulan la lectura; no sustituyen una prueba con el dispositivo físico.
+
+Si una expedición anterior no tenía código, completar el código en la ficha del producto y actualizar el control de carga. Se completan únicamente los códigos ausentes de expediciones pendientes; los códigos ya guardados no se sustituyen.

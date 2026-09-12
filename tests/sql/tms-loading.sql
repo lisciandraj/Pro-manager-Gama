@@ -27,6 +27,14 @@ begin
  r:=public.gama_sales_action('ship',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_date',current_date+1,'lines',jsonb_build_array(jsonb_build_object('line_id',lid,'location_id',loc,'quantity',2),jsonb_build_object('line_id',lid,'location_id',loc2,'quantity',2),jsonb_build_object('line_id',lid2,'location_id',loc,'quantity',1))));sid:=(r->>'id')::uuid;
  select tms_delivery_id into tid from public.sales_deliveries where id=sid;
  if tid is null then raise exception 'FAIL_AUTOMATIC_TMS'; end if;
+ -- Simulate a legacy line missing its snapshot; saving the product code repairs only that line.
+ execute 'reset role';
+ update public.sales_delivery_lines set loading_barcode=null where delivery_id=sid and order_line_id=lid2;
+ update public.products set barcode=code2 where id=pid2;
+ if exists(select 1 from public.sales_delivery_lines where delivery_id=sid and loading_barcode is null) then raise exception 'FAIL_LEGACY_BARCODE_RECOVERY'; end if;
+ update public.products set barcode='CHANGED-'||code where id=pid;
+ if exists(select 1 from public.sales_delivery_lines where delivery_id=sid and order_line_id=lid and loading_barcode<>code) then raise exception 'FAIL_SNAPSHOT_OVERWRITTEN'; end if;
+ execute 'set local role authenticated';
  r:=public.gama_loading_action('manifest',jsonb_build_object('delivery_id',tid));
  if jsonb_array_length(r->'lines')<>3 or (r->>'complete')::boolean then raise exception 'FAIL_MANIFEST'; end if;
  if not exists(select 1 from jsonb_array_elements(public.gama_loading_action('list','{}')) a where a->>'id'=tid::text) then raise exception 'FAIL_FUTURE_DELIVERY_MISSING'; end if;

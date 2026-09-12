@@ -1,0 +1,20 @@
+name: Validate product identity and photos
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  products:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --check gama-excel-import-v1.js
+      - run: npx playwright test tests/product-identity.spec.js tests/photo-import.spec.js tests/excel-import.spec.js tests/product-supplier.spec.js --workers=2

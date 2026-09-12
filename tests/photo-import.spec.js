@@ -44,7 +44,7 @@ test.describe('Importar fotos de productos', () => {
     await openPhotoTab(page);
     await expect(page.locator('#gamaExcelPanelPhotos')).toBeVisible();
     await expect(page.locator('#gamaExcelPanelData')).toBeHidden();
-    await expect(page.locator('#gamaExcelPanelPhotos')).toContainText('nombre del archivo es la referencia del producto');
+    await expect(page.locator('#gamaExcelPanelPhotos')).toContainText('referencia, el nombre del producto o ambos');
 
     // Switching back leaves the Excel flow untouched.
     await page.click('.gamaExcelModes button:has-text("Datos desde Excel")');
@@ -187,4 +187,41 @@ test.describe('Importar fotos de productos', () => {
     expect(out.blankRefsIgnored).toBe(1);
     expect(out.empty).toBeTruthy();
   });
+});
+
+test('names alone and reference plus name in photo titles resolve and save', async ({page}) => {
+ await openPhotoTab(page);
+ await page.setInputFiles('#gamaPhotoFiles', [img('Tornillo hexagonal.jpg'), img('foto SKU-002 Tuerca M8 frente.png'), img('Sin referencia.png')]);
+ await expect(page.locator('#gamaPhotoStatus')).toContainText('3 con producto correspondiente');
+ await page.click('#gamaPhotoImport');
+ await expect(page.locator('#gamaPhotoStatus')).toContainText('3 foto(s) asignada(s)');
+ expect(await page.evaluate(()=>window.__DB.products.filter(p=>p.photo_data).length)).toBe(3);
+});
+
+test('legacy duplicate references require a distinguishing name', async ({page}) => {
+ await openPhotoTab(page,[{id:'a',name:'Producto rojo',reference:'DUP'},{id:'b',name:'Producto azul',reference:'DUP'}]);
+ await page.setInputFiles('#gamaPhotoFiles',[img('DUP.jpg')]);
+ await expect(page.locator('#gamaPhotoImport')).toBeDisabled();
+ await page.setInputFiles('#gamaPhotoFiles',[img('foto DUP Producto azul frente.jpg')]);
+ await page.click('#gamaPhotoImport');
+ await expect(page.locator('#gamaPhotoStatus')).toContainText('1 foto(s) asignada(s)');
+ expect(await page.evaluate(()=>window.__DB.products.find(p=>p.id==='a').photo_data)).toBeFalsy();
+ expect(await page.evaluate(()=>window.__DB.products.find(p=>p.id==='b').photo_data)).toBeTruthy();
+});
+
+test('partial identifiers and contradictory reference/name never assign a photo', async ({page}) => {
+ await openPhotoTab(page);
+ await page.setInputFiles('#gamaPhotoFiles',[img('SKU-0010.jpg'),img('SKU-001 Tuerca M8.jpg')]);
+ await expect(page.locator('#gamaPhotoImport')).toBeDisabled();
+ await expect(page.locator('#gamaPhotoPreview')).toContainText('productos diferentes');
+});
+
+test('photo matching reads beyond the first catalogue page', async ({page}) => {
+ const products=Array.from({length:1005},(_,i)=>({id:'p'+String(i).padStart(5,'0'),name:'Producto '+i,reference:'REF-'+i,barcode:'B'+i}));
+ await openPhotoTab(page,products);
+ await page.setInputFiles('#gamaPhotoFiles',[img('REF-1004 Producto 1004.jpg')]);
+ await expect(page.locator('#gamaPhotoStatus')).toContainText('1 con producto correspondiente');
+ await page.click('#gamaPhotoImport');
+ await expect(page.locator('#gamaPhotoStatus')).toContainText('1 foto(s) asignada(s)');
+ expect(await page.evaluate(()=>window.__DB.products.find(p=>p.reference==='REF-1004').photo_data)).toBeTruthy();
 });

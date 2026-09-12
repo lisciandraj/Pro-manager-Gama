@@ -131,7 +131,7 @@ test('ninguna pantalla esconde arrastre lateral dentro de una tabla', async ({ p
   await boot(page);
   const nombres = await page.evaluate(() =>
     [...document.querySelectorAll('#mainmenu .gamaF2Card')]
-      .map(c => ((c.querySelector('h3,b,strong') || c).textContent || '').trim().split('\n')[0].slice(0, 34))
+      .map(c => ((c.querySelector('.gamaF2Title,h3,b,strong') || c).textContent || '').trim().split('\n')[0].slice(0, 34))
       .filter(Boolean));
   expect(nombres.length, 'el menú no se pintó').toBeGreaterThan(10);
 
@@ -139,7 +139,7 @@ test('ninguna pantalla esconde arrastre lateral dentro de una tabla', async ({ p
   for (const n of nombres) {
     await page.evaluate(() => window.GamaUI.backToMenu());
     await page.waitForTimeout(200);
-    await page.click(`#mainmenu .gamaF2Card:has-text(${JSON.stringify(n)})`).catch(() => {});
+    await page.click(`#mainmenu .gamaF2Card:has-text(${JSON.stringify(n)})`);
     await page.waitForTimeout(800);
     const sobra = await page.evaluate(() => {
       const sec = document.querySelector('section.active');

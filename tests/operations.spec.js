@@ -59,14 +59,16 @@ test('direct links load an old delivery and an exact purchase dossier',async({pa
  await expect(page.locator('#gama-tms-section')).toContainText('Entrega antigua');await expect(page.locator('#tSigSave')).toBeVisible();
 });
 
-test('notifications card survives legacy cleanup and opens a visible screen',async({page})=>{
+test('notifications card survives UI updates and opens a visible screen',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await boot(page);
- await page.evaluate(()=>window.gamaCleanEmptyModules());
+ await page.evaluate(()=>window.GamaOperations.refreshBadge());
  const card=page.locator('#mainmenu [data-go-nav="notifications"]');
  await expect(card).toBeVisible();
  await card.click();
- await page.evaluate(()=>window.gamaCleanEmptyModules());
+ await page.evaluate(()=>window.GamaOperations.refreshBadge());
  await expect(page.locator('#notifications')).toBeVisible();
  await expect(page.locator('#notifications #goAlerts')).toBeVisible();
  await expect(page.locator('#notifications')).not.toHaveClass(/gamaDisabledModule/);
+ expect(errors).toEqual([]);
 });

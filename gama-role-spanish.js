@@ -1,12 +1,6 @@
-/* GAMA V11 - Spanish access role labels + TMS menu integration */
+/* GAMA — Cargador único y acceso al módulo TMS. */
 (function(){
 'use strict';
-const MAP={'Magasinier':'Almacenero','Commercial':'Comercial'};
-function translate(root=document.body){
- const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
- const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);
- nodes.forEach(x=>{let v=x.nodeValue;Object.keys(MAP).forEach(k=>{v=v.split(k).join(MAP[k])});if(v!==x.nodeValue)x.nodeValue=v});
-}
 function loadTMS(){
  if(document.getElementById('gamaTMSModuleLoader'))return;
  const s=document.createElement('script');
@@ -31,11 +25,10 @@ function addTMSCard(){
  return true;
 }
 function boot(){
- translate();
  loadTMS();
  addTMSCard();
- const observer=new MutationObserver(()=>{translate();addTMSCard()});
- observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+ const observer=new MutationObserver(()=>{addTMSCard()});
+ observer.observe(document.body,{subtree:true,childList:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

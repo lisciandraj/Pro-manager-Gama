@@ -5,7 +5,7 @@ function loadTMS(){
  if(document.getElementById('gamaTMSModuleLoader'))return;
  const s=document.createElement('script');
  s.id='gamaTMSModuleLoader';
- s.src='gama-tms-module.js?v=20260912-p2-1';
+ s.src='gama-tms-module.js?v=20260913-proof1';
  s.onload=()=>addTMSCard();
  s.onerror=()=>console.warn('[GAMA TMS] No se pudo cargar el módulo TMS');
  document.body.appendChild(s);

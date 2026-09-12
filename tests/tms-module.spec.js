@@ -307,12 +307,14 @@ test.describe('TMS — proof-of-delivery photo capture', () => {
 
     await expect(page.locator('.tms')).toContainText('Panadería Norte');
     await expect(page.locator('button:has-text("Guardar foto")')).toHaveCount(0);
-    await expect(page.locator('.tmsCard img')).toHaveCount(0);
+    await expect(page.locator('.tmsCard img:visible')).toHaveCount(0);
 
+    await page.locator('#tSig').evaluate(c=>{const ctx=c.getContext('2d');ctx.fillStyle='blue';ctx.fillRect(20,20,4,4)});
     await page.setInputFiles('#tPhoto', { name: 'proof.png', mimeType: 'image/png', buffer: TINY_PNG });
 
     await expect(page.locator('.tmsCard img')).toHaveCount(1);
     await expect(page.locator('.tmsCard img')).toHaveAttribute('src', /^data:image\/(png|jpeg);base64,/);
+    expect(await page.locator('#tSig').evaluate(c=>Array.from(c.getContext('2d').getImageData(21,21,1,1).data))).toEqual([0,0,255,255]);
     // Still on the same proof-capture screen, not bounced back to a list.
     await expect(page.locator('.tms')).toContainText('Panadería Norte');
     await expect(page.locator('#tSig')).toBeVisible();
@@ -518,4 +520,13 @@ test.describe('TMS — conductores enlazados a RRHH', () => {
     const fila = await page.evaluate(() => window.__DB.tms_drivers.find(d => d.id === 'drv1'));
     expect(fila.employee_id).toBe('emp1');
   });
+});
+
+test('POD blocks an unstarted shipment before capture and opens its exact loading dossier',async({page})=>{
+ await boot(page,{deliveries:[{id:'blocked',customer:'Same customer',address:'Quito',delivery_date:today(),status:'Planificada'}]});
+ await page.evaluate(()=>{__DB.sales_deliveries=[{id:'s1',number:'EX-16',tms_delivery_id:'blocked',loading_required:true,departed_at:null}];GamaLoading.open=async id=>{window.__loadingTarget=id}});
+ await page.evaluate(()=>gamaTMS.openProof('blocked'));
+ await expect(page.locator('.tms')).toContainText('EX-16');await expect(page.locator('#tPhoto')).toHaveCount(0);await expect(page.locator('#tSigSave')).toHaveCount(0);
+ await page.click('#tProofLoading');expect(await page.evaluate(()=>__loadingTarget)).toBe('blocked');
+ await page.evaluate(()=>__DB.sales_deliveries[0].departed_at=new Date().toISOString());await page.click('#tProofRetry');await expect(page.locator('#tSigSave')).toBeVisible();await expect(page.locator('.tms h2')).toContainText('EX-16');
 });

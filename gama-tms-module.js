@@ -10,6 +10,7 @@ const readLocal=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stri
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
 let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[],customers:[]};
+let proofViewVersion=0;
 let editingDriverId=null,proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
 
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
@@ -163,6 +164,7 @@ function section(){let x=document.getElementById('gama-tms-section');if(x)return
 function showSection(){document.querySelectorAll('section').forEach(s=>{s.classList.remove('active');s.style.display='none'});const x=section();x.classList.add('active');x.style.display='block';document.getElementById('mainmenu')?.setAttribute('hidden','');return x}
 
 async function open(tab){
+ proofViewVersion++;
  styles();
  const x=showSection();
  tab=tab||'planning';
@@ -302,7 +304,7 @@ async function captureProof(id){
   const prev=await ensureProof(id);
   const saved=await C().upsert('tms_proofs',{delivery_id:id,photo,signature:prev?.signature||null,captured_at:now()},{onConflict:'delivery_id'});if(saved.error)throw saved.error;
   proofCache[id]={delivery_id:id,photo,signature:prev?.signature||null};
-  renderProofDetail(id);
+  const preview=document.getElementById('tProofPhotoPreview');if(preview&&document.getElementById('tPhoto')===file){preview.src=photo;preview.hidden=false}
  }catch(e){fail(e,'No se pudo guardar la foto')}
 }
 function setupSignature(canvas,d){
@@ -464,6 +466,7 @@ function employeeField(editing){
   +`</select><small style="display:block;color:#71808a;font-size:11px;margin-top:4px">Cuando el empleado tenga vacaciones o una baja aprobada en RRHH, el conductor quedará fuera del reparto esos días.</small></div>`;
 }
 function render(tab){
+ proofViewVersion++;
  currentTab=tab;
  const x=section(),ds=db.deliveries.filter(d=>d.date===today()),pending=ds.filter(d=>!['Entregada','Cancelada'].includes(d.status)).length,del=ds.filter(d=>d.status==='Entregada').length,exceptions=ds.filter(d=>d.status==='Excepción').length,planned=db.routes.filter(r=>r.date===today()&&r.status!=='Terminada').length;
  const tabs=[['planning','Planificación'],['loading','Control de carga'],['tracking','Seguimiento del conductor'],['proof','Prueba de entrega'],['fleet','Conductores y vehículos'],['history','Historial']];
@@ -504,13 +507,22 @@ async function openProof(id){
  if(!await ready())return;
  const d=findDelivery(id);if(!d)return;
  await ensureProof(id);
- renderProofDetail(id);
+ await renderProofDetail(id);
 }
-function renderProofDetail(id){
+async function renderProofDetail(id){
  const d=findDelivery(id);if(!d)return;
  const pr=proofCache[id]||null;
- const x=section();
- x.innerHTML=`<div class="tms"><div class="gamaStdHeader" data-gama-standard-header="1"><div class="gamaStdText"><div class="gamaStdKicker">Transporte y entregas</div><h2>📦 Prueba de entrega</h2><p>${esc(d.customer)} · ${esc(d.address)}</p></div><div class="gamaStdActions"><button type="button" class="gamaStdAction" onclick="gamaTMS.open('tracking')">← Volver a las rutas</button></div></div><div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Foto de entrega</b><small>Cámara del teléfono</small></div><input id="tPhoto" type="file" accept="image/*" capture="environment"><p class="muted" style="font-size:11px;margin:6px 0 0">La foto se guarda automáticamente en la nube al tomarla o seleccionarla.</p>${pr?.photo?'<img src="'+pr.photo+'" style="display:block;max-width:100%;margin-top:10px;border-radius:8px">':''}</div><div class="tmsCard"><div class="tmsTitle"><b>Firma del cliente</b><small>Firma manuscrita</small></div><canvas id="tSig" class="tmsSig" width="700" height="300"></canvas><div style="margin-top:8px"><button class="tmsBtn tmsLight" id="tSigClear">Borrar</button> <button class="tmsBtn tmsPrimary" id="tSigSave">Validar entrega</button></div></div></div><div class="tmsCard"><div class="tmsTitle"><b>Información de entrega</b></div><div class="tmsForm"><div><label>Hora real de llegada</label><input value="${d.actualArrival?new Date(d.actualArrival).toLocaleString('es-ES'):'Se registrará al validar'}" disabled></div><div><label>Hora de entrega</label><input value="${d.deliveredAt?new Date(d.deliveredAt).toLocaleString('es-ES'):'Por confirmar'}" disabled></div><div class="full"><label>Notas del conductor</label><textarea id="tNotes" rows="3" placeholder="Reserva, ausencia, observación…">${esc(d.notes||'')}</textarea></div></div><button class="tmsBtn tmsLight" id="tNotesSave">Guardar notas</button></div></div>`;
+ const x=section(),token=++proofViewVersion;
+ x.innerHTML='<div class="tms"><div class="tmsCard">Comprobando expedición y salida…</div></div>';
+ let shipment;
+ try{const r=await C().list('sales_deliveries',{select:'id,number,loading_required,departed_at',eq:{tms_delivery_id:id}});if(r.error)throw r.error;shipment=r.data?.[0]}
+ catch(e){if(token!==proofViewVersion)return;x.innerHTML='<div class="tms"><div class="tmsCard"><p>No se pudo comprobar la salida. Reintenta antes de capturar la prueba.</p><button class="tmsBtn tmsPrimary" id="tProofRetry">Reintentar</button></div></div>';document.getElementById('tProofRetry').onclick=()=>renderProofDetail(id);return}
+ if(token!==proofViewVersion)return;
+ if(d.status==='Cancelada'||(shipment?.loading_required&&!shipment.departed_at)){
+  x.innerHTML=`<div class="tms"><div class="tmsCard"><h2>Prueba de entrega · ${esc(shipment?.number||'TMS')}</h2><p>${esc(d.customer)} · ${esc(d.address)}</p><p>${esc(d.date)} · ${esc(d.status)}</p><p role="alert">${d.status==='Cancelada'?'Esta entrega está cancelada.':'La expedición todavía no tiene una salida validada. Completa el control de carga y confirma la salida antes de registrar la prueba de entrega.'}</p>${d.status!=='Cancelada'?'<button class="tmsBtn tmsPrimary" id="tProofLoading">Ir al control de carga</button>':''}<button class="tmsBtn tmsLight" id="tProofBack">Volver a entregas</button><button class="tmsBtn tmsLight" id="tProofRetry">Comprobar de nuevo</button></div></div>`;
+  document.getElementById('tProofLoading')?.addEventListener('click',()=>window.GamaLoading.open(id));document.getElementById('tProofBack').onclick=()=>open('proof');document.getElementById('tProofRetry').onclick=()=>renderProofDetail(id);return;
+ }
+ x.innerHTML=`<div class="tms"><div class="gamaStdHeader" data-gama-standard-header="1"><div class="gamaStdText"><div class="gamaStdKicker">Transporte y entregas</div><h2>📦 Prueba de entrega · ${esc(shipment?.number||'TMS')}</h2><p>${esc(d.customer)} · ${esc(d.address)}</p></div><div class="gamaStdActions"><button type="button" class="gamaStdAction" onclick="gamaTMS.open('tracking')">← Volver a las rutas</button></div></div><div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b>Foto de entrega</b><small>Cámara del teléfono</small></div><input id="tPhoto" type="file" accept="image/*" capture="environment"><p class="muted" style="font-size:11px;margin:6px 0 0">La foto se guarda automáticamente en la nube al tomarla o seleccionarla.</p><img id="tProofPhotoPreview" ${pr?.photo?'src="'+esc(pr.photo)+'"':'hidden'} style="max-width:100%;margin-top:10px;border-radius:8px"></div><div class="tmsCard"><div class="tmsTitle"><b>Firma del cliente</b><small>Firma manuscrita</small></div><canvas id="tSig" class="tmsSig" width="700" height="300"></canvas><div style="margin-top:8px"><button class="tmsBtn tmsLight" id="tSigClear">Borrar</button> <button class="tmsBtn tmsPrimary" id="tSigSave">Validar entrega</button></div></div></div><div class="tmsCard"><div class="tmsTitle"><b>Información de entrega</b></div><div class="tmsForm"><div><label>Hora real de llegada</label><input value="${d.actualArrival?new Date(d.actualArrival).toLocaleString('es-ES'):'Se registrará al validar'}" disabled></div><div><label>Hora de entrega</label><input value="${d.deliveredAt?new Date(d.deliveredAt).toLocaleString('es-ES'):'Por confirmar'}" disabled></div><div class="full"><label>Notas del conductor</label><textarea id="tNotes" rows="3" placeholder="Reserva, ausencia, observación…">${esc(d.notes||'')}</textarea></div></div><button class="tmsBtn tmsLight" id="tNotesSave">Guardar notas</button></div></div>`;
  setupSignature(document.getElementById('tSig'),d);
  document.getElementById('tPhoto').onchange=()=>captureProof(id);
  document.getElementById('tNotesSave').onclick=async()=>{
@@ -523,6 +535,6 @@ GamaPage.register('tmsDeliveries',()=>render('planning'));GamaPage.register('tms
 window.gamaTMS={openDelivery:async id=>{
  if(!window.gamaAccessAllowed?.('tms'))throw Error('Acceso no permitido.');
  await open('proof');const r=await C().list('tms_deliveries',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Entrega no disponible.');
- db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await ensureProof(id);renderProofDetail(id);
+ db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await ensureProof(id);await renderProofDetail(id);
 },open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive,downloadProofReport,downloadProofCertificate};
 })();

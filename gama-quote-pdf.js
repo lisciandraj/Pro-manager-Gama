@@ -9,7 +9,7 @@ const logoReady=Promise.resolve();
 function build(q){
  if(!window.jspdf?.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
  const doc=new window.jspdf.jsPDF(),ink=[24,50,74],teal=[8,124,139];let y=0;
- function header(){y=window.GamaPdfTemplate.header(doc,{title:'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
+ function header(){y=window.GamaPdfTemplate.header(doc,{title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
  function tableHead(){room(15);doc.setFillColor(...teal);doc.rect(14,y-5,182,9,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
@@ -32,7 +32,7 @@ function build(q){
  if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
  if(q.notes)paragraph(q.notes,9);
- window.GamaPdfTemplate.footer(doc,'Documento informativo. No constituye una factura.');
+ window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':'Documento informativo. No constituye una factura.');
  return doc.output('blob');
 }
 /* Windows y macOS aceptan navigator.share con archivos, pero su hoja de

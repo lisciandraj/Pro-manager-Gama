@@ -32,6 +32,7 @@ async function boot(page) {
   await page.addInitScript(([prod, inv, lines]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test' }));
     // @ts-ignore
+    window.__financialInvoices=inv.map(i=>({id:i.id,date:i.issue_date,total:i.total,items:lines.filter(l=>l.invoice_id===i.id).map(l=>({product_id:l.product_id,qty:l.quantity,price:l.unit_price}))}));
     window.__DB = {
       products: prod, suppliers: [], customers: [], invoices: inv, invoice_lines: lines,
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],

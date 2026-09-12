@@ -518,6 +518,15 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_quote_reservations')return {data:[]};
+        if(fn==='gama_internal_invoice_action'){
+          window.__internalCalls=window.__internalCalls||[];window.__internalCalls.push(args);
+          if(window.__internalError)return {error:{message:window.__internalError}};
+          if(args.p_action==='report')return {data:window.__financialInvoices||[]};
+          if(args.p_action==='create')return {data:(window.__DB.external_invoices||[]).find(i=>i.source_quote_id===args.p_data.quote_id)};
+          if(args.p_action==='link_external')return {data:(window.__DB.external_invoices||[]).find(i=>i.id===args.p_data.invoice_id)};
+        }
+
         if (fn === 'gama_receive_purchase') return rpcReceivePurchase(args || {});
         if (fn === 'gama_stock_transfer') return mueveStock(args || {});
         if (fn === 'gama_stock_reserve') return reservaStock(args || {});

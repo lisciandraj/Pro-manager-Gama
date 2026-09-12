@@ -637,11 +637,11 @@ function restoreJSON(){
 function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='#dfe8eb';$(legendId).innerHTML='<div class="muted">Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['#F47A2A','#087C8B','#5FA6B2','#9BC8D0','#D8E6E9'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
 function focusGlobalSearch(){let el=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',null);setTimeout(()=>el?.focus(),50)}
 function dashMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-function dashMonths(y){let a=Array(12).fill(0);db.invoices.forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
+function dashMonths(y){let a=Array(12).fill(0);(window.GamaFinancialInvoices||[]).forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
 function renderDashboard(){
- if(!$('dashYear'))return;let years=[new Date().getFullYear(),...db.invoices.map(i=>new Date(i.date).getFullYear())].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>b-a);let cur=Number($('dashYear').value)||new Date().getFullYear();$('dashYear').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');if(!years.includes(cur))cur=years[0];$('dashYear').value=cur;
- let mo=$('dashMonth').value, invoices=db.invoices.filter(i=>{let d=new Date(i.date);return d.getFullYear()===cur&&(mo==='all'||d.getMonth()===Number(mo))});let sales=invoices.reduce((a,i)=>a+Number(i.total||0),0),avg=invoices.length?sales/invoices.length:0;let months=dashMonths(cur),yearTotal=months.reduce((a,b)=>a+b,0);
- $('dashSales').textContent=dashMoney(sales);$('dashInvoices').textContent=invoices.length;$('dashAvg').textContent=dashMoney(avg);$('dashLow').textContent=db.products.filter(p=>Number(p.stock||0)<=Number(p.min||0)).length;$('dashYearTotal').textContent=dashMoney(yearTotal);$('dashYearLabel').textContent=String(cur);$('sumSales').textContent=dashMoney(yearTotal);$('sumInvoices').textContent=db.invoices.filter(i=>new Date(i.date).getFullYear()===cur).length;$('sumMonthly').textContent=dashMoney(yearTotal/12);$('sumProducts').textContent=db.products.length;$('sumClients').textContent=db.clients.length;
+ if(!$('dashYear'))return;let years=[new Date().getFullYear(),...(window.GamaFinancialInvoices||[]).map(i=>new Date(i.date).getFullYear())].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>b-a);let cur=Number($('dashYear').value)||new Date().getFullYear();$('dashYear').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');if(!years.includes(cur))cur=years[0];$('dashYear').value=cur;
+ let mo=$('dashMonth').value, invoices=(window.GamaFinancialInvoices||[]).filter(i=>{let d=new Date(i.date);return d.getFullYear()===cur&&(mo==='all'||d.getMonth()===Number(mo))});let sales=invoices.reduce((a,i)=>a+Number(i.total||0),0),avg=invoices.length?sales/invoices.length:0;let months=dashMonths(cur),yearTotal=months.reduce((a,b)=>a+b,0);
+ $('dashSales').textContent=dashMoney(sales);$('dashInvoices').textContent=invoices.length;$('dashAvg').textContent=dashMoney(avg);$('dashLow').textContent=db.products.filter(p=>Number(p.stock||0)<=Number(p.min||0)).length;$('dashYearTotal').textContent=dashMoney(yearTotal);$('dashYearLabel').textContent=String(cur);$('sumSales').textContent=dashMoney(yearTotal);$('sumInvoices').textContent=(window.GamaFinancialInvoices||[]).filter(i=>new Date(i.date).getFullYear()===cur).length;$('sumMonthly').textContent=dashMoney(yearTotal/12);$('sumProducts').textContent=db.products.length;$('sumClients').textContent=db.clients.length;
  let max=Math.max(...months,1),pts=months.map((v,i)=>[30+i*60,(220-(v/max)*175)]),path=pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');$('chartLine').setAttribute('d',path);$('chartArea').setAttribute('d',path+' L690 225 L30 225 Z');$('chartGrid').innerHTML=[50,100,150,200].map(y=>`<line class="chartGridLine" x1="30" y1="${y}" x2="690" y2="${y}"/>`).join('');$('chartDots').innerHTML=pts.map((p,i)=>`<circle class="chartDot ${mo==i?'selected':''}" cx="${p[0]}" cy="${p[1]}" r="5"><title>${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}: ${dashMoney(months[i])}</title></circle>`).join('');$('chartLabels').innerHTML=pts.map((p,i)=>`<text class="chartLabel" x="${p[0]}" y="248" text-anchor="middle">${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}</text>`).join('');
  /* Los más vendidos y el margen los calcula gama-sales-report.js contra la
     nube, para ESTE mismo periodo: necesita el precio de compra y las líneas de
@@ -724,7 +724,7 @@ showTab('mainmenu',null);
 <!-- GAMA EMPTY MODULES HARD BLOCK V2 -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="gama-pdf-template.js?v=20260912-1"></script>
-<script src="gama-quote-pdf.js?v=20260912-brand1"></script>
+<script src="gama-quote-pdf.js?v=20260912-internal1"></script>
 <script src="gama-purchase-order-pdf.js?v=20260912-brand1"></script>
 <script src="gama-supabase.js?v=19"></script>
 <script src="gama-central-sync.js?v=10"></script>
@@ -732,7 +732,7 @@ showTab('mainmenu',null);
 <script src="gama-proveedores-matriz.js?v=10"></script>
 <script src="gama-client-catalog.js?v=8"></script>
 <script src="gama-customer-requests.js?v=sales1-5"></script>
-<script src="gama-sales-report.js?v=6"></script>
+<script src="gama-sales-report.js?v=20260912-internal1"></script>
 <script src="gama-pdf.js?v=20260912-brand1"></script>
 <script src="gama-photos.js?v=2"></script>
 <script src="gama-price-lists.js?v=13"></script>
@@ -747,11 +747,12 @@ showTab('mainmenu',null);
 <script src="gama-hr.js?v=9"></script>
 <script src="gama-settings.js?v=2"></script>
 <script src="gama-inventory-v2.js?v=20260912-p2-1"></script>
-<script src="gama-sales.js?v=20260912-fulfillment1"></script>
-<script src="gama-quotes.js?v=20260912-action1"></script>
+<script src="gama-sales.js?v=20260912-internal1"></script>
+<script src="gama-quotes.js?v=20260912-internal1"></script>
 <script src="gama-fulfillment.js?v=20260912-brand1"></script>
 <script src="gama-tms-loading.js?v=20260912-2"></script>
-<script src="gama-operations.js?v=20260912-action1"></script>
+<script src="gama-internal-invoices.js?v=20260912-1"></script>
+<script src="gama-operations.js?v=20260912-internal1"></script>
 <script src="gama-standard-ui.js?v=12"></script>
 <script src="gama-sidebar.js?v=1"></script>
 </body></html>

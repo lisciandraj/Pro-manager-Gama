@@ -1,21 +1,6 @@
-/* GAMA — Análisis de ventas dentro del Panel de control.
-
-   Esto era un módulo aparte, «Informe de ventas», con su propia pantalla y su
-   propio selector de periodo (30 / 90 días / todo). Convivía con un Panel de
-   control que analizaba lo mismo con OTRO selector —año y mes— y con una
-   tarjeta «Top productos» que decía casi lo mismo que «Más vendidos por
-   ingresos». Dos pantallas, dos periodos y dos cifras que podían no coincidir
-   para responder a la misma pregunta.
-
-   Ahora hay una sola pantalla de análisis. Este archivo aporta lo que el panel
-   no sabía calcular —el margen y los más vendidos por cantidad— y lo hace para
-   el periodo que marca el propio panel, así que todo lo que se ve en pantalla
-   habla del mismo intervalo.
-
-   La diferencia de origen importa: el panel se dibuja con db.invoices, el
-   espejo local, mientras que estos paneles consultan la nube, porque el margen
-   necesita el precio de compra de cada producto y las líneas de factura, que
-   el espejo no guarda. */
+/* GAMA — Análisis de ventas del registro financiero único.
+   Facturas internas y externas vigentes, sin presupuestos ni duplicados.
+   El margen es estimado con el coste de compra actual del producto. */
 (function(){
 'use strict';
 if(window.GamaSalesReport)return;
@@ -82,17 +67,8 @@ async function render(year,month){
   if(pr.error)throw pr.error;
   const productos=new Map((pr.data||[]).map(p=>[String(p.id),p]));
 
-  const ir=await C().list('invoices',{select:'id',order:'issue_date',ascending:false,
-    gte:{issue_date:desde.toISOString()},lte:{issue_date:hasta.toISOString()}});
-  if(ir.error)throw ir.error;
-  const ids=(ir.data||[]).map(i=>i.id);
-
-  let lineas=[];
-  if(ids.length){
-   const lr=await C().list('invoice_lines',{in:{invoice_id:ids}});
-   if(lr.error)throw lr.error;
-   lineas=lr.data||[];
-  }
+  const financial=await window.GamaInternalInvoices.financialData();
+  const lineas=financial.filter(i=>{const d=new Date(i.date);return d>=desde&&d<=hasta}).flatMap(i=>(i.items||[]).map(l=>({product_id:l.product_id,quantity:l.qty,unit_price:l.price})));
   // Otro repintado llegó después: el suyo manda.
   if(mio!==peticion)return;
 

@@ -17,6 +17,6 @@ test('external reference updates the internal dossier, not another invoice',asyn
 });
 test('clients cannot create internal invoices',async({page})=>{await boot(page,'client');await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('#giIssue')).toHaveCount(0);expect(await page.evaluate(()=>(window.__internalCalls||[]).filter(x=>x.p_action==='create').length)).toBe(0)});
 test('financial dashboard excludes unconverted quotes',async({page})=>{await boot(page);await page.evaluate(async()=>{await GamaInternalInvoices.financialData(true);showTab('dashboard');renderDashboard()});await page.selectOption('#dashYear','2026');await expect(page.locator('#dashInvoices')).toHaveText('1');await expect(page.locator('#dashSales')).toContainText('34.50')});
-test('internal PDF retains branded template and non-fiscal label',async({page})=>{
- await boot(page);await page.addScriptTag({path:'/tmp/gama-jspdf.umd.min.js'});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;await d.saveAs('/tmp/gama-internal-invoice-qa.pdf');expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
+test('internal PDF export uses the frozen invoice and internal document type',async({page})=>{
+ await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',total:34.5});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
 });

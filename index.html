@@ -684,13 +684,14 @@ function downloadBarcodePdf(){
     const ctx=c.getContext('2d');
     ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
     ctx.drawImage(img,0,0,c.width,c.height);
-    /* Etiqueta de 80x50 mm con SÓLO el código de barras: nada de la pantalla
-       que hay alrededor. Se encaja respetando la proporción. */
+    /* Etiqueta GAMA de 80x50 mm. El código conserva su proporción
+       y una zona libre independiente del encabezado. */
     const LW=80,LH=50,MG=6;
-    const escala=Math.min((LW-2*MG)/w,(LH-2*MG)/h);
+    const escala=Math.min((LW-2*MG)/w,(LH-18)/h);
     const iw=w*escala,ih=h*escala;
     const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[LW,LH]});
-    doc.addImage(c.toDataURL('image/png'),'PNG',(LW-iw)/2,(LH-ih)/2,iw,ih);
+    window.GamaPdfTemplate.label(doc);
+    doc.addImage(c.toDataURL('image/png'),'PNG',(LW-iw)/2,13+(LH-13-ih)/2,iw,ih);
     window.GamaPdf.save(doc,window.GamaPdf.fileName('etiqueta',$('barcodeValue').value));
    }catch(e){console.error('[GAMA PDF etiqueta]',e);alert('No se pudo generar la etiqueta: '+(e&&e.message||e))}
   };
@@ -862,8 +863,9 @@ showTab('mainmenu',null);
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="gama-quote-pdf.js?v=20260912-1"></script>
-<script src="gama-purchase-order-pdf.js?v=2"></script>
+<script src="gama-pdf-template.js?v=20260912-1"></script>
+<script src="gama-quote-pdf.js?v=20260912-brand1"></script>
+<script src="gama-purchase-order-pdf.js?v=20260912-brand1"></script>
 <script src="gama-supabase.js?v=19"></script>
 <script src="gama-central-sync.js?v=10"></script>
 <script src="gama-purchases-v14.js?v=20260912-chain1"></script>
@@ -871,7 +873,7 @@ showTab('mainmenu',null);
 <script src="gama-client-catalog.js?v=8"></script>
 <script src="gama-customer-requests.js?v=sales1-5"></script>
 <script src="gama-sales-report.js?v=6"></script>
-<script src="gama-pdf.js?v=3"></script>
+<script src="gama-pdf.js?v=20260912-brand1"></script>
 <script src="gama-photos.js?v=2"></script>
 <script src="gama-price-lists.js?v=13"></script>
 <script src="gama-crm-core.js?v=3"></script>
@@ -887,7 +889,7 @@ showTab('mainmenu',null);
 <script src="gama-inventory-v2.js?v=1"></script>
 <script src="gama-sales.js?v=20260912-fulfillment1"></script>
 <script src="gama-quotes.js?v=20260912-fulfillment1"></script>
-<script src="gama-fulfillment.js?v=20260912-1"></script>
+<script src="gama-fulfillment.js?v=20260912-brand1"></script>
 <script src="gama-tms-loading.js?v=20260912-2"></script>
 <script src="gama-standard-ui.js?v=12"></script>
 <script src="gama-sidebar.js?v=1"></script>

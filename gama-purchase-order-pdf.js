@@ -3,41 +3,30 @@
 'use strict';
 function esc(v){return String(v??'')}
 function build(o){
- if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
- const {jsPDF}=window.jspdf,doc=new jsPDF();
- let y=20;
- doc.setFontSize(18);doc.text('PEDIDO A PROVEEDOR',14,y);y+=10;
- doc.setFontSize(11);
- doc.text('N.º: '+esc(o.number||'-'),14,y);y+=6;
- doc.text('Fecha: '+esc(o.dateLabel||''),14,y);y+=6;
- if(o.expectedLabel){doc.text('Fecha prevista: '+esc(o.expectedLabel),14,y);y+=6}
- y+=4;
- doc.text('Proveedor: '+esc(o.supplier||''),14,y);y+=6;
- if(o.supplierEmail){doc.text(esc(o.supplierEmail),14,y);y+=6}
- if(o.supplierPhone){doc.text(esc(o.supplierPhone),14,y);y+=6}
- if(o.supplierAddress){doc.text(esc(o.supplierAddress),14,y);y+=6}
- y+=4;
- doc.setFont(undefined,'bold');
- doc.text('Producto',14,y);doc.text('Ref.',95,y);doc.text('Cant.',140,y);doc.text('P. compra',158,y);doc.text('Subtotal',180,y);
- doc.setFont(undefined,'normal');y+=3;doc.setLineWidth(0.2);doc.line(14,y,196,y);y+=6;
+ const l=window.GamaPdfTemplate.layout({title:'Pedido a proveedor',reference:o.number,date:'Fecha: '+esc(o.dateLabel||''),detail:o.expectedLabel?'Fecha prevista: '+o.expectedLabel:''}),doc=l.doc;
+ l.section('Proveedor');
+ [o.supplier,o.supplierEmail,o.supplierPhone,o.supplierAddress].filter(Boolean).forEach(v=>l.text(v));
+ function columns(){l.room(16);doc.setFillColor(...window.GamaPdfTemplate.teal);doc.rect(14,l.y-5,182,9,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');[['Producto / referencia',16],['Cant.',119],['P. compra',140],['Subtotal',177]].forEach(([v,x])=>doc.text(v,x,l.y));l.y+=10}
+ columns();
  (o.items||[]).forEach(x=>{
-  if(y>270){doc.addPage();y=20}
-  doc.text(esc(x.name),14,y,{maxWidth:78});
-  doc.text(esc(x.reference||''),95,y,{maxWidth:42});
-  doc.text(String(x.qty),140,y);
-  doc.text('$'+Number(x.cost||0).toFixed(2),158,y);
-  doc.text('$'+(Number(x.qty||0)*Number(x.cost||0)).toFixed(2),180,y);
-  y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  const lines=doc.splitTextToSize(esc(x.name)+(x.reference?' / '+x.reference:''),97);
+  let first=true;
+  while(lines.length){
+   if(l.y+10>270){l.next();columns()}
+   const chunk=lines.splice(0,Math.max(1,Math.floor((266-l.y)/4)));
+   doc.setTextColor(...window.GamaPdfTemplate.ink);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(chunk,16,l.y);
+   if(first){doc.text(String(x.qty),131,l.y,{align:'right'});doc.text('$'+Number(x.cost||0).toFixed(2),166,l.y,{align:'right'});doc.text('$'+(Number(x.qty||0)*Number(x.cost||0)).toFixed(2),194,l.y,{align:'right'});first=false}
+   l.y+=chunk.length*4+5;
+  }
+  doc.setDrawColor(224,232,236);doc.setLineWidth(.2);doc.line(14,l.y-3,196,l.y-3);
  });
- y+=1;doc.line(14,y,196,y);y+=8;
- doc.setFont(undefined,'bold');
- doc.text('TOTAL: $'+Number(o.total||0).toFixed(2),150,y);y+=10;
- doc.setFont(undefined,'normal');
- if(o.notes){doc.setFontSize(10);doc.text('Notas: '+esc(o.notes),14,y,{maxWidth:180});y+=10}
- doc.setFontSize(9);
- doc.text('Documento generado por GAMA Enterprise Resource Planning. No constituye una factura.',14,y);
+ l.room(20);l.y+=4;l.text('TOTAL: $'+Number(o.total||0).toFixed(2),14,true);
+ if(o.notes){l.section('Notas');l.text(o.notes)}
+ l.finish('Pedido de compra. No constituye una factura.');
  return doc.output('blob');
 }
+
 async function send({o,email,subject,body,filename}){
  let blob=null;
  try{blob=build(o)}catch(e){console.warn('[GAMA Purchase PDF]',e)}

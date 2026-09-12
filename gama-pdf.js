@@ -52,108 +52,26 @@ const fecha=v=>{try{return new Date(v).toLocaleString('es-EC')}catch(e){return S
    llama —este módulo no consulta la base— para que sirva igual a una entrega
    suelta que a un listado. */
 function proofReport(entregas,titulo){
- const doc=new (jsPDF())();
- let y=20;
- doc.setFontSize(18);doc.text(titulo||'Pruebas de entrega',14,y);y+=8;
- doc.setFontSize(9);doc.setTextColor(110,110,110);
- doc.text('Generado el '+fecha(new Date()),14,y);y+=10;
- doc.setTextColor(0,0,0);
- const filas=entregas||[];
- if(!filas.length){doc.setFontSize(11);doc.text('No hay ninguna prueba de entrega en este periodo.',14,y);return doc}
- filas.forEach((e,i)=>{
-  // Una entrega no se parte entre dos páginas: se salta antes.
-  if(y>250){doc.addPage();y=20}
-  doc.setFontSize(12);
-  doc.text(String(i+1)+'. '+(e.cliente||'Sin cliente'),14,y);y+=6;
-  doc.setFontSize(9);doc.setTextColor(90,90,90);
-  if(e.direccion){doc.text(String(e.direccion).slice(0,110),14,y);y+=5}
-  if(e.fecha){doc.text('Entregado: '+fecha(e.fecha),14,y);y+=5}
-  if(e.conductor){doc.text('Conductor: '+e.conductor,14,y);y+=5}
-  doc.setTextColor(0,0,0);
-  if(e.firma){
-   try{doc.addImage(e.firma,'PNG',14,y,50,20);y+=24}
-   catch(err){doc.setFontSize(9);doc.text('(firma no legible)',14,y);y+=6}
-  }
-  if(e.foto){
-   try{doc.addImage(e.foto,'JPEG',14,y,45,34);y+=38}
-   catch(err){doc.setFontSize(9);doc.text('(foto no legible)',14,y);y+=6}
-  }
-  y+=4;
-  doc.setDrawColor(220);doc.line(14,y,196,y);y+=8;
- });
- return doc;
+ const l=window.GamaPdfTemplate.layout({title:titulo||'Pruebas de entrega',date:'Generado el '+fecha(new Date())});
+ const rows=entregas||[];
+ if(!rows.length)l.text('No hay ninguna prueba de entrega en este periodo.');
+ rows.forEach((e,i)=>{if(i)l.next();proofContent(l,e,i+1)});
+ return l.finish('Registro de pruebas de entrega.');
 }
-
-/* Comprobante de UNA entrega, en UNA página. Sirve para un litigio: quien lo
-   recibe tiene que ver de un vistazo quién firmó, qué día, a qué hora y en qué
-   dirección, con la firma y la foto delante. Repartirlo en dos hojas obligaría
-   a demostrar que la segunda pertenece a la primera. */
-function proofCertificate(e){
- const doc=new (jsPDF())();
- const P=16, ANCHO=210-2*P;
- let y=20;
-
- doc.setFontSize(20);doc.setFont(undefined,'bold');
- doc.text('COMPROBANTE DE ENTREGA',P,y);
- doc.setFont(undefined,'normal');
- y+=7;doc.setFontSize(9);doc.setTextColor(110,110,110);
- doc.text('GAMA Enterprise Resource Planning · documento generado el '+fecha(new Date()),P,y);
- doc.setTextColor(0,0,0);
- y+=6;doc.setDrawColor(24,50,74);doc.setLineWidth(0.6);doc.line(P,y,P+ANCHO,y);y+=10;
-
- /* Los datos primero y en texto: si la foto o la firma no se pudieran pintar,
-    el documento sigue diciendo quién, cuándo y dónde. */
- const filas=[
-  ['Cliente', e.cliente||'-'],
-  ['Dirección de entrega', e.direccion||'-'],
-  ['Fecha y hora de entrega', e.fecha?fecha(e.fecha):'-'],
-  ['Conductor', e.conductor||'-'],
- ];
- if(e.referencia)filas.push(['Referencia',e.referencia]);
- doc.setFontSize(10);
- filas.forEach(([k,v])=>{
-  doc.setTextColor(110,110,110);doc.text(k,P,y);
-  doc.setTextColor(0,0,0);doc.setFont(undefined,'bold');
-  doc.text(doc.splitTextToSize(String(v),ANCHO-52),P+52,y);
-  doc.setFont(undefined,'normal');
-  y+=8;
- });
- y+=4;doc.setDrawColor(215,215,215);doc.setLineWidth(0.3);doc.line(P,y,P+ANCHO,y);y+=10;
-
- /* Encaja la imagen en su hueco sin deformarla: una firma estirada pierde
-    valor como prueba. Si jsPDF no sabe leerla, se dice y se sigue. */
- function imagen(dataUrl,titulo,maxW,maxH){
-  doc.setFontSize(10);doc.setTextColor(110,110,110);doc.text(titulo,P,y);doc.setTextColor(0,0,0);y+=5;
-  if(!dataUrl){
-   doc.setFontSize(9);doc.setTextColor(150,150,150);
-   doc.text('No se capturó.',P,y+5);doc.setTextColor(0,0,0);y+=14;return;
-  }
-  let w=maxW,h=maxH;
-  try{
-   const pr=doc.getImageProperties(dataUrl);
-   const k=Math.min(maxW/pr.width,maxH/pr.height);
-   w=pr.width*k;h=pr.height*k;
-  }catch(err){}
-  try{
-   const x=P+(maxW-w)/2;
-   doc.addImage(dataUrl,x,y,w,h);
-   // El marco va después: la imagen es opaca y taparía la línea.
-   doc.setDrawColor(215,215,215);doc.setLineWidth(0.3);
-   doc.rect(x,y,w,h);
-   y+=h+9;
-  }catch(err){
-   doc.setFontSize(9);doc.setTextColor(150,150,150);
-   doc.text('(no se pudo incluir la imagen)',P,y+5);doc.setTextColor(0,0,0);y+=14;
-  }
+function proofContent(l,e,index){
+ l.section(index?'Entrega '+index:'Datos de la entrega');
+ for(const [k,v] of [['Cliente',e.cliente],['Dirección de entrega',e.direccion],['Fecha y hora de entrega',e.fecha?fecha(e.fecha):''],['Conductor',e.conductor],['Referencia',e.referencia]]){
+  if(k==='Referencia'&&!v)continue;
+  l.text(k+': '+(v||'-'),10);
  }
- imagen(e.firma,'Firma de quien recibió',ANCHO,38);
- imagen(e.foto,'Fotografía tomada en la entrega',ANCHO,92);
-
- doc.setFontSize(8);doc.setTextColor(110,110,110);
- const pie='La firma y la fotografía fueron capturadas por el conductor en el momento de la entrega y quedan registradas junto a la fecha y la hora indicadas.';
- doc.text(doc.splitTextToSize(pie,ANCHO),P,282);
- doc.setTextColor(0,0,0);
- return doc;
+ l.y+=2;
+ l.image(e.firma,'Firma de quien recibió',32);
+ l.image(e.foto,'Fotografía tomada en la entrega',75);
+}
+function proofCertificate(e){
+ const l=window.GamaPdfTemplate.layout({title:'Comprobante de entrega',reference:e.referencia,date:'Generado el '+fecha(new Date())});
+ proofContent(l,e);
+ return l.finish('Firma y fotografía registradas junto a los datos de la entrega.');
 }
 
 window.GamaPdf={save,fileName,proofReport,proofCertificate,money,jsPDF};

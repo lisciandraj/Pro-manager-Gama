@@ -605,5 +605,9 @@ async function abrir(){
 }
 
 window.GamaOpenWarehouses=abrir;
-window.GamaInventoryV2={abrir,cargar,resumen,estado,sugerencia,limites,get datos(){return{almacenes,ubicaciones,quants,productos,entrante}}};
+window.GamaInventoryV2={openCount:async id=>{
+ if(!window.gamaAccessAllowed?.('warehouses'))throw Error('Acceso no permitido.');
+ await abrir();const r=await C().list('inventory_counts',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Recuento no disponible.');
+ conteos=(conteos||[]).filter(c=>c.id!==id).concat(r.data);pestana='conteos';await abrirConteo(id);
+},abrir,cargar,resumen,estado,sugerencia,limites,get datos(){return{almacenes,ubicaciones,quants,productos,entrante}}};
 })();

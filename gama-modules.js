@@ -25,6 +25,8 @@ if(window.GamaModules)return;
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
 const CATALOG=[
+ {id:'operations', label:'Control comercial y logístico'},
+ {id:'notifications', label:'Notificaciones y bloqueos'},
  {id:'dashboard',          label:'Panel de control y análisis'},
  {id:'products',           label:'Productos'},
  {id:'clients',            label:'Clientes'},

@@ -520,5 +520,9 @@ function renderProofDetail(id){
  };
 }
 GamaPage.register('tmsDeliveries',()=>render('planning'));GamaPage.register('tmsHistory',()=>render('history'));
-window.gamaTMS={open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive,downloadProofReport,downloadProofCertificate};
+window.gamaTMS={openDelivery:async id=>{
+ if(!window.gamaAccessAllowed?.('tms'))throw Error('Acceso no permitido.');
+ await open('proof');const r=await C().list('tms_deliveries',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Entrega no disponible.');
+ db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await ensureProof(id);renderProofDetail(id);
+},open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive,downloadProofReport,downloadProofCertificate};
 })();

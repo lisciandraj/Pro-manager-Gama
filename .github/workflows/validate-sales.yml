@@ -16,10 +16,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: node --check gama-operations.js
       - run: node --check gama-fulfillment.js
       - run: node --check gama-sales.js
       - run: node --check gama-quotes.js
       - run: node --check gama-quote-pdf.js
       - run: node --check gama-tms-loading.js
       - run: node --check gama-tms-module.js
-      - run: npx playwright test tests/fulfillment.spec.js tests/sales-orders.spec.js tests/tms-loading.spec.js tests/tms-module.spec.js tests/client-quotes.spec.js tests/security-boundaries.spec.js tests/module-header.spec.js --workers=2
+      - run: npx playwright test tests/operations.spec.js tests/fulfillment.spec.js tests/sales-orders.spec.js tests/tms-loading.spec.js tests/tms-module.spec.js tests/client-quotes.spec.js tests/security-boundaries.spec.js tests/module-header.spec.js --workers=2

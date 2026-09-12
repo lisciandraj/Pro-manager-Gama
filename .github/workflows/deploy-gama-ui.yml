@@ -27,6 +27,7 @@ jobs:
           node --check gama-pdf.js
           node --check gama-quote-pdf.js
           node --check gama-purchase-order-pdf.js
+          node --check gama-operations.js
           node --check gama-fulfillment.js
           node --check gama-ui.js
           node --check gama-modules.js

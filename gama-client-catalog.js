@@ -5,55 +5,46 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 let cart=[],products=[],favorites=[];
 function isClient(){try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role==='client'}catch(_){return false}}
-function inject(){if($('gamaClientCatalogStyle'))return;const s=document.createElement('style');s.id='gamaClientCatalogStyle';s.textContent=`#client-catalog{display:none}#client-catalog.active{display:block}.cc{background:#fff;border:1px solid #E2E8EC;border-radius:16px;padding:16px;box-shadow:0 3px 16px #1732460d}.ccTools{display:flex;gap:9px;align-items:center;margin:16px 0;flex-wrap:wrap}.ccTools input{flex:1 1 260px;min-width:0;width:auto}.ccTools select{flex:0 0 auto;width:240px;min-width:0;padding:11px;border-radius:10px;border:1px solid #d4e0e4}.ccTools .badge{flex:0 0 auto;white-space:nowrap}
+function inject(){if($('gamaClientCatalogStyle'))return;const s=document.createElement('style');s.id='gamaClientCatalogStyle';s.textContent=`#client-catalog{display:none}#client-catalog.active{display:block}.cc{container-type:inline-size;background:#fff;border:1px solid #E2E8EC;border-radius:16px;padding:16px;box-shadow:0 3px 16px #1732460d}.ccTools{display:flex;gap:9px;align-items:center;margin:16px 0;flex-wrap:wrap}.ccTools input{flex:1 1 260px;min-width:0;width:auto}.ccTools select{flex:0 0 auto;width:240px;min-width:0;padding:11px;border-radius:10px;border:1px solid #d4e0e4}.ccTools .badge{flex:0 0 auto;white-space:nowrap}
 /* La ficha del catálogo es la única pantalla que ve un cliente, así que se
    parece a lo que un cliente conoce: foto, de qué es, qué lleva, y el precio
    con y sin IVA —que en una compra entre empresas es la cifra que se compara—.
    Lo que se enseña sale de la vista catalog_products y de nada más: esa vista
    esconde a propósito el precio de compra, el proveedor y la ubicación. */
-.ccGrid{display:grid;grid-template-columns:1fr;gap:12px}
-.ccProduct{display:grid;grid-template-columns:180px 1fr 220px;grid-template-areas:'media info precio' 'acciones acciones acciones';gap:8px 20px;border:1px solid #E2E8EC;border-radius:14px;padding:16px 18px;background:#fff;box-shadow:0 1px 2px #1732460a;transition:box-shadow .12s ease,border-color .12s ease}
+.ccGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ccGrid>.gamaPager{grid-column:1/-1}
+.ccProduct{display:grid;min-width:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto auto;grid-template-areas:'media' 'info' 'precio' 'acciones';gap:10px;border:1px solid #E2E8EC;border-radius:14px;padding:14px;background:#fff;box-shadow:0 1px 2px #1732460a;transition:box-shadow .12s ease,border-color .12s ease}
 .ccProduct:hover{border-color:#CBD9E0;box-shadow:0 2px 4px #1732460f,0 10px 24px #17324612}
 .ccMedia{grid-area:media;position:relative;display:grid;place-items:center}
-.ccProduct img,.ccNoImg{width:100%;height:150px;object-fit:contain;border-radius:10px;background:#F7F9FA}
+.ccProduct img,.ccNoImg{width:100%;height:140px;object-fit:contain;border-radius:10px;background:#F7F9FA}
 .ccNoImg{display:grid;place-items:center;font-size:42px}
 .ccFlag{position:absolute;top:6px;left:6px;background:#E8F5F6;color:#087C8B;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:850}
 .ccInfo{grid-area:info;min-width:0}
-.ccProduct h3{font-size:17px;margin:0 0 3px;line-height:1.25;color:#173246}
-.ccMeta{font-size:11.5px;color:#71808A}
-.ccPuntos{list-style:none;margin:10px 0 0;padding:0;font-size:13px;color:#4E5F6B;line-height:1.5}
-.ccPuntos li{position:relative;padding-left:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ccPuntos li:before{content:'';position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;background:#9FB3BE}
+.ccProduct h3{overflow-wrap:anywhere;font-size:15px;margin:0 0 3px;line-height:1.25;color:#173246}
+.ccBarcode{font-size:12px;color:#516572;overflow-wrap:anywhere;margin-top:5px}.ccMeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:#71808A;margin-top:6px;overflow-wrap:anywhere}
 .ccStock{display:inline-block;margin-top:10px;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;background:#E7F6F0;color:#0F7A5B}
 .ccStock.bajo{background:#FFF3E6;color:#9E5B14}
 .ccStock.agotado{background:#F1F4F6;color:#6D7D88}
-.ccPrecio{grid-area:precio;text-align:right;align-self:start}
+.ccPrecio{grid-area:precio;text-align:left;align-self:end}
 .ccPrecio b{display:block;font-size:23px;font-weight:900;color:#173246;letter-spacing:-.4px;line-height:1.15}
 .ccPrecio b span{font-size:12.5px;font-weight:750;color:#5C6B76;letter-spacing:0}
 .ccPrecioIva{font-size:13px;color:#71808A;margin-top:2px}
 .ccPrecio small{display:block;font-size:11px;color:#8A98A2;margin-top:5px}
-.ccAcciones{grid-area:acciones;display:flex;gap:10px;align-items:center;margin-top:12px;padding-top:13px;border-top:1px solid #EDF1F3}
-.ccAdd{flex:1;background:#F47A2A;color:#fff;font-weight:800;font-size:14px;border-radius:10px;padding:13px;display:flex;align-items:center;justify-content:center;gap:8px}
+.ccAcciones{grid-area:acciones;display:flex;gap:10px;align-items:center;margin-top:0;padding-top:10px;border-top:1px solid #EDF1F3}
+.ccAdd{flex:1;background:#F47A2A;color:#fff;font-weight:800;font-size:12px;min-height:44px;min-width:0;border-radius:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:8px}
 .ccAdd:hover:not(:disabled){background:#E06D20}
 .ccAdd.dentro{background:#0F7A5B}
 .ccAdd.dentro:hover:not(:disabled){background:#0C6549}
-.ccQty{display:grid;grid-template-columns:42px 62px 42px;gap:0;flex:0 0 auto;border:1px solid #D4E0E4;border-radius:10px;overflow:hidden}
+.ccQty{display:grid;grid-template-columns:32px 42px 32px;gap:0;flex:0 0 auto;border:1px solid #D4E0E4;border-radius:10px;overflow:hidden}
 .ccQty button{background:#fff;color:#173246;border-radius:0;font-size:17px;padding:11px 0}
 .ccQty button:hover{background:#EEF3F4}
-.ccQty input{text-align:center;border:0;border-left:1px solid #D4E0E4;border-right:1px solid #D4E0E4;border-radius:0;font-size:15px;font-weight:700;padding:11px 0}
+.ccQty input{min-width:0;width:100%;text-align:center;border:0;border-left:1px solid #D4E0E4;border-right:1px solid #D4E0E4;border-radius:0;font-size:15px;font-weight:700;padding:11px 0}
 .ccQty input:focus{box-shadow:none;outline:2px solid #087C8B;outline-offset:-2px}.ccCartQty{grid-template-columns:32px 1fr 32px;gap:4px}.ccCartQty button{padding:6px 0;font-size:14px}.ccCartQty input{padding:6px 2px;font-size:13px}.ccCartRow small{display:block;color:#7b8992;font-size:11px;margin-top:2px}.ccCart{margin-top:18px;border:1px solid #E2E8EC;border-radius:14px;background:#F8FAFB;padding:14px}.ccCartHead{display:flex;justify-content:space-between;align-items:center}.ccCartHead h3{margin:0}.ccCartRow{display:grid;grid-template-columns:1fr 122px 85px 32px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #E2E8EC;font-size:12px}.ccCartRow:last-child{border-bottom:0}
 .ccResumen{margin:12px 0 4px;padding-top:11px;border-top:1px solid #E2E8EC;font-size:13px}
 .ccResumen div{display:flex;justify-content:space-between;padding:4px 0;color:#5C6B76}
 .ccResumen b{color:#173246}
 .ccResumenTotal{margin-top:4px;padding-top:8px!important;border-top:1px solid #E2E8EC;font-size:15px;font-weight:800;color:#173246}
-.ccResumenTotal b{font-size:17px;color:#087C8B}.ccDel{background:#FFF0EC;color:#C94F45;padding:6px}.ccMsg{margin-top:8px;font-size:12px;font-weight:700}.ccOk{color:#138A69}.ccErr{color:#C94F45}.ccFav{margin-top:14px;border:1px solid #E2E8EC;border-radius:14px;background:#fff;padding:14px}.ccFavHead{display:flex;justify-content:space-between;align-items:center}.ccFavHead h3{margin:0;font-size:15px}.ccFavRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #EDF1F2;font-size:12px}.ccFavRow:last-child{border-bottom:0}.ccFavActions{display:flex;gap:6px}@media(max-width:820px){
- .ccProduct{grid-template-columns:120px 1fr;grid-template-areas:'media info' 'precio precio' 'acciones acciones';gap:6px 14px;padding:14px}
- .ccProduct img,.ccNoImg{height:104px}
- .ccProduct h3{font-size:15px}
- .ccPrecio{text-align:left;margin-top:10px}
- .ccPrecio b{font-size:20px}
- .ccPuntos{font-size:12.5px;margin-top:8px}
-}
+.ccResumenTotal b{font-size:17px;color:#087C8B}.ccDel{background:#FFF0EC;color:#C94F45;padding:6px}.ccMsg{margin-top:8px;font-size:12px;font-weight:700}.ccOk{color:#138A69}.ccErr{color:#C94F45}.ccFav{margin-top:14px;border:1px solid #E2E8EC;border-radius:14px;background:#fff;padding:14px}.ccFavHead{display:flex;justify-content:space-between;align-items:center}.ccFavHead h3{margin:0;font-size:15px}.ccFavRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #EDF1F2;font-size:12px}.ccFavRow:last-child{border-bottom:0}.ccFavActions{display:flex;gap:6px}@container(max-width:900px){.ccGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container(max-width:580px){.ccGrid{grid-template-columns:minmax(0,1fr)}.ccProduct img,.ccNoImg{height:150px}}
 @media(max-width:560px){
  /* En el teléfono, las cuatro columnas del pedido dejaban el nombre en una
     tira de 100px: «Cemento Portland tipo I saco de 50 kg» salía en cuatro
@@ -96,16 +87,6 @@ const lineaIva=p=>{const r=ivaDe(p);return r?money(conIva(p))+' IVA incl.':r===0
    comercial que enseñar —la vista no expone la descripción de la ficha—, así
    que se dice lo que un comprador necesita para decidir: qué referencia es,
    de qué categoría y con qué IVA se factura. */
-function puntos(p){
- const l=[];
- if(p.reference)l.push('Referencia '+esc(p.reference));
- else if(p.barcode)l.push('Código '+esc(p.barcode));
- if(p.category)l.push('Categoría: '+esc(p.category));
- const r=ivaDe(p);
- if(r)l.push('IVA '+r+'% sobre el precio sin impuestos');
- else if(r===0)l.push('Producto exento de IVA');
- return l.slice(0,3).map(x=>'<li>'+x+'</li>').join('');
-}
 function existencias(p){
  const n=Number(p.stock);
  if(!Number.isFinite(n))return '';
@@ -117,7 +98,7 @@ function ficha(p){
  const qty=cart.find(x=>x.product_id===p.id)?.quantity||0;
  return `<article class="ccProduct">
 <div class="ccMedia">${ccPhoto(p)}${p.contract_price?'<span class="ccFlag">Precio pactado</span>':''}</div>
-<div class="ccInfo"><h3>${esc(p.name)}</h3><div class="ccMeta">${esc(p.reference||p.barcode||'')}${p.category?' · '+esc(p.category):''}</div><ul class="ccPuntos">${puntos(p)}</ul>${existencias(p)}</div>
+<div class="ccInfo"><h3>${esc(p.name)}</h3>${p.barcode?'<div class="ccBarcode">Código de barras: '+esc(p.barcode)+'</div>':''}<div class="ccMeta">${p.reference?'<span>Ref. '+esc(p.reference)+'</span>':''}${p.category?'<span>'+esc(p.category)+'</span>':''}</div>${existencias(p)}</div>
 <div class="ccPrecio"><b class="ccPrice">${money(p.sale_price)} <span>sin IVA</span></b><div class="ccPrecioIva">${lineaIva(p)}</div><small>Precio por unidad</small></div>
 <div class="ccAcciones">
 <div class="ccQty"><button type="button" data-minus="${esc(p.id)}" aria-label="Quitar uno">−</button><input type="number" min="0" value="${qty}" data-input="${esc(p.id)}" aria-label="Cantidad de ${esc(p.name)}"><button type="button" data-plus="${esc(p.id)}" aria-label="Añadir uno">+</button></div>

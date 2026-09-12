@@ -269,6 +269,19 @@ test.describe('CRM — Oportunidades', () => {
     expect(estado.importe).toBe(0);
   });
 
+  test('un presupuesto CRM ofrece continuar al pedido de venta sin resaisie', async ({ page }) => {
+    await boot(page, {
+      crm_opportunities: [{ ...OPOS[0], quote_invoice_id: 'quote-1' }],
+      invoices: [{ id: 'quote-1', invoice_number: 'PRE-000001', customer_id: 'c1', status: 'draft', total: 1380, issue_date: '2026-09-12' }],
+    });
+    await embudo(page);
+    await page.click('#crm .crmTarjeta:has-text("Estanterías bodega")');
+    await page.waitForTimeout(600);
+    const button=page.locator('[data-gs-source="quote"][data-gs-source-id="quote-1"]');
+    await expect(button).toBeVisible();
+    await expect(button).toContainText('pedido de venta');
+  });
+
   test('no se añade una línea sin producto, ni con cantidad cero', async ({ page }) => {
     await boot(page);
     await embudo(page);

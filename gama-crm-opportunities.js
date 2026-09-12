@@ -285,7 +285,8 @@ function bloquePresupuesto(){
   const n=presupuesto?(presupuesto.invoice_number||('archivo '+presupuesto.archive_number)):'';
   return '<div class="crmAviso">Presupuesto generado'+(n?' <b>'+esc(n)+'</b>':'')
    +(presupuesto?' · '+esc(CRM.money(presupuesto.total)):'')
-   +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>';
+   +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>'
+   +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'">Crear / ver pedido de venta</button></div>':'');
  }
  if(!o.customer_id)return '<div class="crmAviso">Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
  if(!lineas.length)return '';

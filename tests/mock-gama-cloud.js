@@ -284,6 +284,33 @@
     return { data: { count_id: c.id, adjustments: ajustes }, error: null };
   }
 
+  // Receipt allocation mirrors the production trigger: oldest confirmed sales
+  // order first, without ever reserving more than the newly available stock.
+  function allocatePendingSales(productId) {
+    const orderById = new Map((window.__DB.sales_orders || []).map(o => [o.id, o]));
+    const pending = (window.__DB.sales_order_lines || [])
+      .filter(l => l.product_id === productId && orderById.get(l.order_id)?.status === 'confirmed')
+      .sort((a, b) => String(orderById.get(a.order_id)?.created_at || '').localeCompare(String(orderById.get(b.order_id)?.created_at || '')));
+    for (const line of pending) {
+      const shipped = (window.__DB.sales_delivery_lines || []).filter(x => x.order_line_id === line.id).reduce((s, x) => s + Number(x.quantity || 0), 0);
+      const linked = new Set((window.__DB.sales_reservation_links || []).filter(x => x.line_id === line.id).map(x => x.reservation_id));
+      const reserved = (window.__DB.stock_reservations || []).filter(x => linked.has(x.id) && x.status === 'active').reduce((s, x) => s + Number(x.quantity || 0), 0);
+      let need = Number(line.quantity || 0) - shipped - reserved;
+      for (const q of quantsDe(productId)) {
+        if (need <= 0) break;
+        const take = Math.min(need, Number(q.quantity || 0) - Number(q.reserved_quantity || 0));
+        if (take <= 0) continue;
+        q.reserved_quantity = Number(q.reserved_quantity || 0) + take;
+        window.__DB.stock_reservations = window.__DB.stock_reservations || [];
+        window.__DB.sales_reservation_links = window.__DB.sales_reservation_links || [];
+        const r = { id: nextId('stock_reservations'), product_id: productId, location_id: q.location_id, quantity: take, reference_type: 'sales_order', reference_id: line.order_id, status: 'active', created_by: window.__DB._profile.id, created_at: new Date().toISOString(), released_at: null };
+        window.__DB.stock_reservations.push(r);
+        window.__DB.sales_reservation_links.push({ reservation_id: r.id, line_id: line.id });
+        need -= take;
+      }
+    }
+  }
+
   function rpcReceivePurchase(args) {
     const role = window.__DB._profile.role;
     if (!['administrador', 'almacenero'].includes(role)) return { data: null, error: { message: 'FORBIDDEN' } };
@@ -320,6 +347,7 @@
       window.__DB.stock_movements = window.__DB.stock_movements || [];
       window.__DB.stock_movements.push(Object.assign({ id: nextId('stock_movements'), product_id: product.id, type: 'in', quantity: line.quantity, stock_before: before, stock_after: before + line.quantity, user_id: window.__DB._profile.id, created_at: new Date().toISOString() },
         conUbicaciones ? { destination_location_id: destino, movement_type: 'receipt', reference_type: 'purchase_order', reference_id: args.p_purchase_order_id } : {}));
+      if (conUbicaciones) allocatePendingSales(product.id);
     }
     const allLines = (window.__DB.purchase_order_lines || []).filter(l => l.purchase_order_id === args.p_purchase_order_id);
     const allReceived = allLines.length > 0 && allLines.every(l => (l.received_quantity || 0) >= l.quantity);

@@ -33,18 +33,19 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
         { id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, purchase_price: 3.5, sale_price: 6, active: true, supplier_id: 'sup1' },
         { id: 'p2', name: 'Grapas', reference: 'GRA-01', stock: 100, min_stock: 10, purchase_price: 1.2, sale_price: 2, active: true, supplier_id: 'sup1' },
       ];
+      window.__DB.replenishment_needs = [{product_id:'p1',name:'Papel A4',reference:'PAP-01',supplier_id:'sup1',on_hand:5,reserved:0,available:5,incoming:0,sales_demand:0,suggested_purchase:15}];
       // @ts-ignore
       window.gamaShowPurchases();
     });
 
     const lowStockCard = page.locator('#gp14LowStock');
-    await expect(lowStockCard).toContainText('Stock bajo');
+    await expect(lowStockCard).toContainText('Necesidades de aprovisionamiento');
     await expect(lowStockCard).toContainText('Papelera Central');
     await expect(lowStockCard).toContainText('Papel A4');
     // Grapas has plenty of stock (100 >= 10) and must not show up as low stock.
     await expect(lowStockCard).not.toContainText('Grapas');
 
-    await page.click('#gp14LowStock button:has-text("Añadir al pedido")');
+    await page.click('#gp14LowStock button:has-text("Preparar pedido")');
 
     await expect(page.locator('#gp14Draft')).toContainText('Papel A4');
     await expect(page.locator('#gp14Supplier')).toHaveValue('sup1');
@@ -76,6 +77,19 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
     // y con qué.
     await page.click('#gp14Save');
     await expect(page.locator('#gamaToasts')).toContainText('Selecciona un proveedor.');
+  });
+
+  test('covered demand does not fall back to a physical-stock suggestion', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.evaluate(async () => {
+      await window.GamaCloudReady;
+      window.__DB.products = [{id:'p1',name:'Covered product',active:true,stock:0,min_stock:20,supplier_id:'sup1'}];
+      window.__DB.replenishment_needs = [];
+      window.gamaShowPurchases();
+    });
+    await expect(page.locator('#gp14LowStock')).toBeHidden();
+    await page.evaluate(() => window.gamaAddLowStockGroup('sup1'));
+    await expect(page.locator('#gp14Draft')).not.toContainText('Covered product');
   });
 });
 

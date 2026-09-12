@@ -18,7 +18,7 @@ async function native(video,status,token){if(!('BarcodeDetector'in window))retur
 async function start(id){
  const requested=id||getTarget()?.id||'';close();targetId=requested;style();const el=getTarget(targetId);if(!el)return;targetId=el.id;
  overlay=document.createElement('div');overlay.id='gamaPhoneScanner';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','Escanear código de barras');
- overlay.innerHTML='<div class="h"><div class="title">Escanear código de barras</div><button class="close" type="button">Cerrar</button></div><div class="video"><video playsinline webkit-playsinline muted autoplay></video><div class="frame"></div></div><div class="status" role="status" aria-live="polite">Activando cámara…</div><p class="help" hidden></p><div class="recovery"><button type="button" class="retry">Reintentar cámara</button><button type="button" class="manual">Introducir código</button></div>';
+ overlay.innerHTML='<div class="h"><div class="title">Escanear código de barras</div><button class="close" type="button">Cerrar</button></div><div class="video"><video playsinline webkit-playsinline muted autoplay></video><div class="frame"></div></div><div class="status" role="status" aria-live="polite">Activando cámara…</div><p class="help" hidden></p><a class="diagnostic" href="./camera-check.html" hidden style="color:#fff;padding:8px 0">Probar cámara fuera del ERP</a><div class="diagnosticCode" hidden style="font-size:12px;overflow-wrap:anywhere"></div><div class="recovery"><button type="button" class="retry">Reintentar cámara</button><button type="button" class="manual">Introducir código</button></div>';
  (el.closest('dialog[open]')||document.body).appendChild(overlay);
  const host=overlay,video=host.querySelector('video'),status=host.querySelector('.status'),help=host.querySelector('.help'),retry=host.querySelector('.retry');
  video.muted=true;video.defaultMuted=true;video.playsInline=true;
@@ -31,7 +31,7 @@ async function start(id){
   const controls=await reader.decodeFromStream(stream,video,result=>{if(token!==generation)return;const code=typeof result==='string'?result:(result?.getText?.()||result?.text||result?.rawValue||'');if(code)fill(code)});
   if(token!==generation){controls?.stop();return}zxingControls=controls;status.textContent='Apunte la cámara al código de barras';
  }
- function failed(e,stage,token){if(token!==generation)return;clearTimeout(pendingTimer);retry.disabled=false;
+ function failed(e,stage,token){if(token!==generation)return;clearTimeout(pendingTimer);retry.disabled=false;host.querySelector('.diagnostic').hidden=false;const diagnostic=host.querySelector('.diagnosticCode');diagnostic.hidden=false;diagnostic.textContent='Cámara v3 · '+stage+' · '+(e?.name||'Error')+' · '+String(e?.message||'').slice(0,240);
   if(stage==='play'&&e?.name==='NotAllowedError'){
    status.textContent='Cámara autorizada. Toca «Iniciar vídeo» para mostrar la imagen.';retry.textContent='Iniciar vídeo';retry.onclick=()=>play(token);return;
   }
@@ -42,7 +42,7 @@ async function start(id){
  }
  async function play(token){if(token!==generation)return;retry.disabled=true;let timer;try{await Promise.race([video.play(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('VIDEO_TIMEOUT')),12000)})])}catch(e){failed(e,'play',token);return}finally{clearTimeout(timer)}if(token!==generation)return;retry.disabled=false;retry.textContent='Reintentar cámara';retry.onclick=acquire;try{await decode(token)}catch(e){failed(e,'decoder',token)}}
  async function acquire(){
-  const token=++generation;release();help.hidden=true;retry.disabled=true;retry.textContent='Reintentar cámara';status.textContent='Activando cámara…';
+  const token=++generation;release();help.hidden=true;host.querySelector('.diagnostic').hidden=true;host.querySelector('.diagnosticCode').hidden=true;retry.disabled=true;retry.textContent='Reintentar cámara';status.textContent='Activando cámara…';
   pendingTimer=setTimeout(()=>{if(token!==generation)return;generation++;release();status.textContent='La cámara no respondió. Acepta el permiso si aparece y vuelve a intentar.';retry.disabled=false},15000);
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw Error('CAMERA_UNAVAILABLE');

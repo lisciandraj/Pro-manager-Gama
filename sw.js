@@ -1,4 +1,4 @@
-const CACHE = 'gama-camera-20260912-2';
+const CACHE = 'gama-camera-20260912-3';
 const APP_SHELL = ['./', './index.html', './manifest.json'];
 self.addEventListener('install', event => { self.skipWaiting(); event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL).catch(() => {}))); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
@@ -7,6 +7,8 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Keep the isolated hardware diagnostic outside the ERP navigation cache.
+  if (url.pathname.endsWith('/camera-check.html')) return;
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(fetch(request, {cache:'no-store'}).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put('./index.html',copy)).catch(()=>{}); return response; }).catch(()=>caches.match('./index.html').then(response=>response||caches.match('./'))));
     return;

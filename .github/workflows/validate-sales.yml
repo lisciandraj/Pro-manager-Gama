@@ -23,4 +23,4 @@ jobs:
       - run: node --check gama-quote-pdf.js
       - run: node --check gama-tms-loading.js
       - run: node --check gama-tms-module.js
-      - run: npx playwright test tests/scanner-camera.spec.js tests/operations.spec.js tests/fulfillment.spec.js tests/sales-orders.spec.js tests/tms-loading.spec.js tests/tms-module.spec.js tests/client-quotes.spec.js tests/security-boundaries.spec.js tests/module-header.spec.js --workers=2
+      - run: npx playwright test tests/scanner-integration.spec.js tests/scanner-camera.spec.js tests/operations.spec.js tests/fulfillment.spec.js tests/sales-orders.spec.js tests/tms-loading.spec.js tests/tms-module.spec.js tests/client-quotes.spec.js tests/security-boundaries.spec.js tests/module-header.spec.js --workers=2

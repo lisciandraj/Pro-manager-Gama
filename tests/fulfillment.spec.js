@@ -25,9 +25,9 @@ async function boot(page,state='picking',role='magasinier'){
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
  await expect(page.locator('#gfPreparation')).toContainText('PR-00000001');
 }
-test('picking checks two scanned codes and preserves the retry key after an error',async({page})=>{
- await boot(page);await page.locator('[data-gf-pick]').click();await page.locator('#gfLocationCode').fill('A01');await page.locator('#gfProductCode').fill('WRONG');await page.locator('#gfQty').fill('2');
- await page.evaluate(()=>window.__error='PRODUCT_SCAN_MISMATCH');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('código no corresponde');await expect(page.locator('#gfLocationCode')).toHaveValue('A01');
+test('picking uses the assigned location, checks product scan and preserves the retry key',async({page})=>{
+ await boot(page);await page.locator('[data-gf-pick]').click();await expect(page.locator('#gfLocationCode')).toHaveCount(0);await page.locator('#gfProductCode').fill('WRONG');await page.locator('#gfQty').fill('2');
+ await page.evaluate(()=>window.__error='PRODUCT_SCAN_MISMATCH');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('código no corresponde');await expect(page.locator('#gfProductCode')).toHaveValue('WRONG');
  // A retry of the unchanged payload reuses the same key. Edits after a rejected transaction also remain safe.
  await page.evaluate(()=>window.__error=null);await page.locator('#gfProductCode').fill('CAFE-01');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
  const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data).toMatchObject({location_code:'A01',product_code:'CAFE-01',quantity:2,preparation_id:'prep',pick_line_id:'pl'});

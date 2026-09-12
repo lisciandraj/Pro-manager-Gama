@@ -11,7 +11,7 @@ begin
  insert into public.products(name,reference,barcode,stock) values('P2-'||gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),0) returning id into p;
  insert into public.sales_orders(request_key,customer_id,customer_name,status,created_by,created_at) values(gen_random_uuid(),c,'P2 test','confirmed',a,'2050-01-10T12:00:00Z') returning id into o;
  insert into public.sales_order_lines(order_id,product_id,product_name,quantity,unit_price,tax_rate) values(o,p,'P2',10,10,15) returning id into l;
- insert into public.invoices(customer_id,user_id,quote_state,quote_sent_at,quote_valid_until,quote_revision,quote_details) values(c,a,'sent',now()-interval '3 days',current_date-1,1,'{"client":"P2 test"}') returning id into q;
+ insert into public.invoices(customer_id,user_id,quote_state,quote_sent_at,quote_valid_until,quote_revision,quote_details) values(c,a,'sent',now()-interval '8 days',current_date-1,1,'{"client":"P2 test"}') returning id into q;
  insert into public.purchase_orders(supplier_id,order_number,status,expected_date) values(v,'P2-'||gen_random_uuid(),'partial',now()-interval '2 days') returning id into po;
  insert into public.purchase_order_lines(purchase_order_id,product_id,quantity,received_quantity,unit_cost) values(po,p,10,3,5);
  insert into public.inventory_counts(warehouse_id,reference,status,created_by) values(w,'P2 test','in_progress',a) returning id into ic;
@@ -37,6 +37,24 @@ begin
  or not exists(select 1 from jsonb_array_elements(out->'alerts') x where x->>'alert_key'='count:'||ic)
  or not exists(select 1 from jsonb_array_elements(out->'alerts') x where x->>'alert_key'='backorder:'||o) then raise exception 'FAIL_MISSING_ALERT_KIND';end if;
 
+
+ execute 'reset role';
+ update public.products set min_stock=5,active=true where id=p;
+ update public.external_invoices set issue_date=current_date-10,due_date=(now() at time zone 'America/Guayaquil')::date-1 where id=ei;
+ out:=public.gama_operations_action('snapshot','{"state":"all","offset":100000}');
+ if jsonb_array_length(out->'alerts')<>0 or (out#>>'{action_center,shortage}')::int<1 or (out#>>'{action_center,overdue_invoice}')::numeric<18 then raise exception 'FAIL_CENTER_PAGINATION';end if;
+ if not exists(select 1 from private.gama_live_alerts where alert_key='low_stock:'||p) then raise exception 'FAIL_LOW_STOCK';end if;
+ if not exists(select 1 from private.gama_live_alerts where alert_key='overdue_invoice:'||ei and detail like '%18.00 USD%') then raise exception 'FAIL_OVERDUE_BALANCE';end if;
+ update public.external_invoices set due_date=(now() at time zone 'America/Guayaquil')::date where id=ei;
+ if exists(select 1 from private.gama_live_alerts where alert_key='overdue_invoice:'||ei) then raise exception 'FAIL_DUE_TODAY';end if;
+ update public.external_invoices set due_date=current_date-2,fiscal_status='cancelled' where id=ei;
+ if exists(select 1 from private.gama_live_alerts where alert_key='overdue_invoice:'||ei) then raise exception 'FAIL_CANCELLED_INVOICE';end if;
+ update public.external_invoices set fiscal_status='unverified',due_date=null where id=ei;
+ update public.invoices set quote_sent_at=now()-interval '7 days' where id=q;
+ if exists(select 1 from private.gama_live_alerts where alert_key='quote:'||q) then raise exception 'FAIL_QUOTE_BOUNDARY';end if;
+ update public.invoices set quote_sent_at=now()-interval '7 days 1 second' where id=q;
+ if not exists(select 1 from private.gama_live_alerts where alert_key='quote:'||q) then raise exception 'FAIL_QUOTE_OVER_SEVEN';end if;
+ execute 'set local role authenticated';
  perform public.gama_operations_action('handle',jsonb_build_object('key',al->>'alert_key','fingerprint',al->>'fingerprint','status','snoozed','note','Waiting for supplier'));
  out:=public.gama_operations_action('snapshot','{"state":"snoozed"}');
  if not exists(select 1 from jsonb_array_elements(out->'alerts') x where x->>'alert_key'='shortage:'||o and x->>'handling'='snoozed') then raise exception 'FAIL_SNOOZE';end if;
@@ -55,7 +73,7 @@ begin
  insert into auth.users(id,email) values(cl,cl||'@test.invalid'),(wh,wh||'@test.invalid');
  insert into public.profiles(id,role,active) values(cl,'cliente',true),(wh,'almacenero',true) on conflict(id) do update set role=excluded.role,active=true;
  perform set_config('request.jwt.claim.sub',wh::text,true);execute 'set local role authenticated';out:=public.gama_operations_action('snapshot');
- if out->>'finance'<>'false' or out#>'{metrics,invoiced}'<>'null'::jsonb or exists(select 1 from jsonb_array_elements(out->'alerts') x where x->>'kind' in ('quote','unbilled')) then raise exception 'FAIL_WAREHOUSE_FINANCE';end if;
+ if out->>'finance'<>'false' or out#>'{action_center,overdue_invoice}'<>'null'::jsonb or out#>'{metrics,invoiced}'<>'null'::jsonb or exists(select 1 from jsonb_array_elements(out->'alerts') x where x->>'kind' in ('quote','unbilled')) then raise exception 'FAIL_WAREHOUSE_FINANCE';end if;
  perform set_config('request.jwt.claim.sub',cl::text,true);
  deny:=false;begin perform public.gama_operations_action('snapshot');exception when others then if sqlerrm like '%ROLE_NOT_ALLOWED%' then deny:=true;else raise;end if;end;if not deny then raise exception 'FAIL_CLIENT';end if;
  perform set_config('request.jwt.claim.sub','',true);

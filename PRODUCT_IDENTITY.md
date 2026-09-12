@@ -6,7 +6,7 @@ Los duplicados anteriores a la instalación se conservan con su historial. Se pu
 
 ## Importar fotos
 
-En **Importar Excel → Fotos de productos**, selecciona las imágenes y revisa la correspondencia antes de pulsar **Importar fotos**. Ejemplos para el producto `Tornillo hexagonal`, referencia `SKU-001`:
+En **Importar datos → Fotos de productos**, selecciona las imágenes y revisa la correspondencia antes de pulsar **Importar fotos**. Ejemplos para el producto `Tornillo hexagonal`, referencia `SKU-001`:
 
 - `SKU-001.jpg`
 - `Tornillo hexagonal.png`

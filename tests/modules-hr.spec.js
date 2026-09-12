@@ -174,7 +174,7 @@ test('la planificación coloca cada ausencia en su día y separa las que se sola
 
 // Guardián de cableado. Un módulo nuevo se declara en tres sitios: el menú, el
 // mapa de perfiles y el catálogo de Configuración. Si falta en alguno se rompe
-// en silencio — «Compras» e «Importar Excel» llevaban tiempo fuera del mapa de
+// en silencio — «Compras» e «Importar datos» llevaban tiempo fuera del mapa de
 // perfiles, así que su tarjeta estaba oculta para todo el que no fuera
 // administrador, y el interruptor tampoco habría podido reconocerlas.
 test('cada entrada del menú está en el mapa de perfiles y en el catálogo de módulos', () => {

@@ -39,7 +39,7 @@ const CATALOG=[
  {id:'price-lists',        label:'Tarifas'},
  {id:'sales-orders',       label:'Pedidos de venta'},
  {id:'crm',               label:'CRM'},
- {id:'reports',            label:'Importar Excel'},
+ {id:'reports',            label:'Importar datos'},
  {id:'backup',             label:'Copias de seguridad'},
  {id:'barcode',            label:'Códigos de barras'},
  {id:'client-catalog',     label:'Catálogo de productos'},

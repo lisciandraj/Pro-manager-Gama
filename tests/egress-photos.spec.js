@@ -225,7 +225,7 @@ test.describe('Fotos — optimizar las ya guardadas', () => {
     const big = await bigPhoto(page);
     await page.evaluate(b => { window.__DB.products[0].photo_data = b; }, big);
 
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.click('.gamaExcelModes button:has-text("Optimizar fotos")');
     await expect(page.locator('#gamaExcelPanelOptimize')).toBeVisible();
     await expect(page.locator('#gamaExcelPanelPhotos')).toBeHidden();

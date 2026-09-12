@@ -128,7 +128,7 @@ function render(){
   <div>
    <div class="card">
     <h3>Clientes de categoría C</h3>
-    <p class="muted">Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importación Excel y corregir aquí producto a producto cuando el contrato cambia.</p>
+    <p class="muted">Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
    </div>
    <div class="plList">${customers.length?customers.map(c=>`<div class="plItem${c.id===selected?' on':''}" data-pick="${esc(c.id)}">
      <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>

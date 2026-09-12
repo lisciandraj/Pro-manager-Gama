@@ -1,12 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-// Regression test for re-enabling "Importar Excel" in production: it used to
+// Regression test for re-enabling "Importar datos" in production: it used to
 // be force-hidden by three separate mechanisms (gama-standard-ui.js's
 // EMPTY_IDS/EMPTY_LABELS, and a duplicate "hard block" list inline in
 // index.html), and a timing race used to leave a stale generic "Módulo"
 // header stuck above the module's own branded header.
-test.describe('Importar Excel', () => {
+test.describe('Importar datos', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
@@ -22,12 +22,12 @@ test.describe('Importar Excel', () => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
 
-    const tile = page.locator('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    const tile = page.locator('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await expect(tile).toBeVisible();
 
     await tile.click();
 
-    await expect(page.locator('#excel-import-module')).toContainText('Importación Excel');
+    await expect(page.locator('#excel-import-module')).toContainText('Importar datos');
     // No leftover "Módulo" fallback header stuck above the module's own header.
     await expect(page.locator('#reports')).not.toContainText('Módulo');
     await expect(page.locator('#reports > .gamaStdHeader')).toHaveCount(0);
@@ -40,7 +40,7 @@ test.describe('Importar Excel', () => {
   test('vuelve al menú con el botón de la cabecera común', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.waitForTimeout(300);
 
     await expect(page.locator('#reports .gamaStdBack')).toHaveCount(1);
@@ -67,7 +67,7 @@ test.describe('Importar Excel', () => {
   test('auto-detects French column headers with no fixed order', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.waitForTimeout(300);
 
     const mapped = await page.evaluate(() => {
@@ -107,7 +107,7 @@ test.describe('Importar Excel', () => {
   test('auto-detects compound Spanish headers for clients and suppliers', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.waitForTimeout(300);
 
     const mapped = await page.evaluate(() => {
@@ -170,7 +170,7 @@ const TINY_FILE = { name: 'clientes.xlsx', mimeType: 'application/vnd.openxmlfor
 // to create a fresh row every time — the reported symptom was ending up with
 // the same client loaded over and over. Rows whose name + address already
 // exist are now skipped and reported separately.
-test.describe('Importar Excel — duplicados', () => {
+test.describe('Importar datos — duplicados', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
@@ -199,7 +199,7 @@ test.describe('Importar Excel — duplicados', () => {
   test('skips clients whose name and address already exist', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -230,7 +230,7 @@ test.describe('Importar Excel — duplicados', () => {
 // propios encabezados, y hay que casarlas con NUESTRAS fichas: el cliente por
 // nombre o por RUC, el producto por referencia o por código de barras. Lo que
 // no case no se inventa; se cuenta y se dice por qué.
-test.describe('Importar Excel — tarifas de cliente', () => {
+test.describe('Importar datos — tarifas de cliente', () => {
   // A diferencia del resto del archivo, aquí sí hace falta la nube: lo que se
   // prueba es el casado contra nuestras fichas y la escritura de la tarifa.
   const MOCK = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
@@ -247,7 +247,7 @@ test.describe('Importar Excel — tarifas de cliente', () => {
     await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK }));
     await page.goto('/index.html');
     await page.waitForTimeout(700);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await page.waitForTimeout(400);
   }
 

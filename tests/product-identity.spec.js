@@ -38,7 +38,7 @@ test('Excel reports database duplicates and errors without counting successful i
   const insert=window.GamaCloud.insert;
   window.GamaCloud.insert=async(table,row)=>row.name==='Duplicado'?{error:{code:'23505',message:'Ya existe un producto con este nombre.'}}:row.name==='Error'?{error:{code:'42501',message:'Permiso denegado'}}:insert(table,row);
  });
- await page.click('#mainmenu .gamaF2Card:has-text("Importar Excel")');
+ await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
  await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\n')});
  await expect(page.locator('#gamaExcelImport')).toBeEnabled();await page.click('#gamaExcelImport');
  await expect(page.locator('#gamaExcelStatus')).toContainText('1 fila(s) importada(s), 1 duplicada(s) omitida(s), 1 error(es)');

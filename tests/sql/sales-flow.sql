@@ -1,3 +1,4 @@
+-- Load fulfillment-test-helpers.sql in the same rollback transaction first.
 -- Run inside BEGIN ... ROLLBACK. Fixtures and all mutations must be rolled back.
 -- Requires the migration and at least one active admin profile.
 do $$
@@ -29,14 +30,14 @@ begin
  denied:=false;begin update public.sales_order_lines set quantity=999 where id=line_id;exception when insufficient_privilege then denied:=true;end;
  if not denied then raise exception 'FAIL_DIRECT_WRITE_ALLOWED'; end if;
  payload:=jsonb_build_object('order_id',o->>'id','request_key',ship_key,'lines',jsonb_build_array(jsonb_build_object('line_id',line_id,'location_id',loc_id,'quantity',60)));
- o2:=public.gama_sales_action('ship',payload);
- perform public.gama_sales_action('ship',payload);
+ o2:=pg_temp.gama_test_prepared_ship('ship',payload);
+ perform pg_temp.gama_test_prepared_ship('ship',payload);
  if (select count(*) from public.sales_deliveries where order_id=(o->>'id')::uuid)<>1 then raise exception 'FAIL_SHIP_IDEMPOTENCE'; end if;
  if (select stock from public.products where id=v_product_id)<>40 then raise exception 'FAIL_STOCK_AFTER_SHIPMENT'; end if;
  if (select sum(sq.reserved_quantity) from public.stock_quants sq where sq.product_id=v_product_id)<>40 then raise exception 'FAIL_RESERVATION_AFTER_SHIPMENT'; end if;
  -- A second line failure must roll back first-line changes, dispatch and TMS.
  denied:=false;begin
-  perform public.gama_sales_action('ship',jsonb_build_object('order_id',o->>'id','request_key',gen_random_uuid(),'lines',jsonb_build_array(jsonb_build_object('line_id',line_id,'location_id',loc_id,'quantity',10),jsonb_build_object('line_id',line_id,'location_id',loc_id,'quantity',50))));
+  perform pg_temp.gama_test_prepared_ship('ship',jsonb_build_object('order_id',o->>'id','request_key',gen_random_uuid(),'lines',jsonb_build_array(jsonb_build_object('line_id',line_id,'location_id',loc_id,'quantity',10),jsonb_build_object('line_id',line_id,'location_id',loc_id,'quantity',50))));
  exception when others then if SQLERRM in ('EXCEEDS_ORDERED','INSUFFICIENT_RESERVED') then denied:=true;else raise;end if;end;
  if not denied or (select stock from public.products where id=v_product_id)<>40 then raise exception 'FAIL_ATOMIC_SHIPMENT'; end if;
  payload:=jsonb_build_object('order_id',o->>'id','request_key',invoice_key,'number','TEST-'||gen_random_uuid(),'issuer_ruc','1234567890001','customer_identification',(select identification from public.customers where id=client_id),'issue_date',current_date,'subtotal',600,'tax',90,'fiscal_status','authorized','lines',jsonb_build_array(jsonb_build_object('line_id',line_id,'quantity',60)));
@@ -75,7 +76,7 @@ begin
  if other_id is not null then
   perform set_config('request.jwt.claim.sub',other_id::text,true);
   execute 'set local role authenticated';
-  denied:=false;begin perform public.gama_sales_action('ship',jsonb_build_object('order_id',o->>'id'));exception when others then if SQLERRM='ROLE_NOT_ALLOWED' then denied:=true;else raise;end if;end;
+  denied:=false;begin perform pg_temp.gama_test_prepared_ship('ship',jsonb_build_object('order_id',o->>'id'));exception when others then if SQLERRM='ROLE_NOT_ALLOWED' then denied:=true;else raise;end if;end;
   if not denied then raise exception 'FAIL_COMMERCIAL_DISPATCH'; end if;
   execute 'reset role';
  end if;

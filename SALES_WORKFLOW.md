@@ -1,5 +1,8 @@
 # Pedidos de venta y facturación externa
 
+> Flujo actualizado: ver [FULFILLMENT_P1.md](FULFILLMENT_P1.md) para el dossier,
+> picking/packing obligatorio, propuestas de entrega y retornos.
+
 Entrada: **Ventas → Pedidos de venta**. El módulo contiene Pedidos, Expediciones,
 Pendiente de facturar y Facturas externas. También hay un botón «Crear / ver
 pedido» en cada presupuesto archivado y solicitud de cliente.
@@ -38,9 +41,10 @@ pedido» en cada presupuesto archivado y solicitud de cliente.
   pero sólo «autorizada» cuenta como facturado autorizado. Rechazados/cancelados
   conservan su historial y dejan de apartar cantidades.
 - La cancelación del pedido sólo se permite antes de expediciones y sin facturas
-  vigentes. Un pedido ya expedido requiere un futuro flujo de devolución; cancelar
+  vigentes. Un pedido ya expedido utiliza el flujo de retorno del dossier; cancelar
   en TMS o anular una factura no significa que haya regresado mercancía.
-- Esta entrega no implementa cobros, notas de crédito, emisión SRI ni integración
+- El registro de cobros se documenta en COMMERCIAL-CHAIN.md y los abonos externos
+  en FULFILLMENT_P1.md. No se implementa emisión SRI ni integración
   API con proveedores. El indicador de ventas del dashboard anterior conserva su
   comportamiento y no debe confundirse con este registro fiscal separado.
 - El módulo reutiliza el modelo de una empresa de la instalación actual; no añade

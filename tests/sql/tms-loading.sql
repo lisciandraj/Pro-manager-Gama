@@ -1,3 +1,4 @@
+-- Load fulfillment-test-helpers.sql in the same rollback transaction first.
 -- Run within BEGIN/ROLLBACK; scans and Auth fixtures are never kept.
 do $$
 #variable_conflict use_column
@@ -24,7 +25,7 @@ begin
  select id into lid from public.sales_order_lines where order_id=oid and product_id=pid;
  select id into lid2 from public.sales_order_lines where order_id=oid and product_id=pid2;
  perform set_config('request.jwt.claim.sub',operator_id::text,true);
- r:=public.gama_sales_action('ship',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_date',current_date+1,'lines',jsonb_build_array(jsonb_build_object('line_id',lid,'location_id',loc,'quantity',2),jsonb_build_object('line_id',lid,'location_id',loc2,'quantity',2),jsonb_build_object('line_id',lid2,'location_id',loc,'quantity',1))));sid:=(r->>'id')::uuid;
+ r:=pg_temp.gama_test_prepared_ship('ship',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_date',current_date+1,'lines',jsonb_build_array(jsonb_build_object('line_id',lid,'location_id',loc,'quantity',2),jsonb_build_object('line_id',lid,'location_id',loc2,'quantity',2),jsonb_build_object('line_id',lid2,'location_id',loc,'quantity',1))));sid:=(r->>'id')::uuid;
  select tms_delivery_id into tid from public.sales_deliveries where id=sid;
  if tid is null then raise exception 'FAIL_AUTOMATIC_TMS'; end if;
  -- Simulate a legacy line missing its snapshot; saving the product code repairs only that line.
@@ -36,7 +37,7 @@ begin
  if exists(select 1 from public.sales_delivery_lines where delivery_id=sid and order_line_id=lid and loading_barcode<>code) then raise exception 'FAIL_SNAPSHOT_OVERWRITTEN'; end if;
  execute 'set local role authenticated';
  r:=public.gama_loading_action('manifest',jsonb_build_object('delivery_id',tid));
- if jsonb_array_length(r->'lines')<>3 or (r->>'complete')::boolean then raise exception 'FAIL_MANIFEST'; end if;
+ if jsonb_array_length(r->'lines')<>2 or (r->>'complete')::boolean then raise exception 'FAIL_MANIFEST'; end if;
  if not exists(select 1 from jsonb_array_elements(public.gama_loading_action('list','{}')) a where a->>'id'=tid::text) then raise exception 'FAIL_FUTURE_DELIVERY_MISSING'; end if;
  rejected:=false;begin perform public.gama_loading_action('depart',jsonb_build_object('delivery_id',tid,'driver_id',driver,'version',0));exception when others then if sqlerrm='LOADING_INCOMPLETE' then rejected:=true;else raise;end if;end;
  if not rejected then raise exception 'FAIL_EMPTY_DEPART'; end if;

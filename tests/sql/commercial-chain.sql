@@ -1,3 +1,4 @@
+-- Load fulfillment-test-helpers.sql in the same rollback transaction first.
 -- Run after 20260912125649_commercial_transaction_chain.sql.
 -- The caller must wrap this file in BEGIN/ROLLBACK; no fixture is persistent.
 do $$
@@ -112,7 +113,7 @@ begin
     raise exception 'FAIL_NON_SALES_RESERVATION_DEMAND';
   end if;
 
-  result:=public.gama_sales_action('ship',jsonb_build_object(
+  result:=pg_temp.gama_test_prepared_ship('ship',jsonb_build_object(
     'order_id',order_id,'request_key',gen_random_uuid(),'delivery_date',current_date,
     'lines',jsonb_build_array(jsonb_build_object('line_id',order_line_id,'location_id',location_id,'quantity',6))));
   select id into delivery_id from public.sales_deliveries where order_id=commercial_chain.order_id order by dispatched_at desc limit 1;

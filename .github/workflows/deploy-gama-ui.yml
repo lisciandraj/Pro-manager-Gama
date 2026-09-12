@@ -23,6 +23,7 @@ jobs:
           test -f gama-menu-final2.js
           test -f gama-tms-module.js
           test -f gama-role-spanish.js
+          node --check gama-fulfillment.js
           node --check gama-ui.js
           node --check gama-modules.js
           node --check gama-hr.js

@@ -115,13 +115,13 @@ function panel(res){
  return '<div class="card crmPuntos"><h3>Puntuación: '+res.total+' / 100</h3>'
   +(res.recortado?'<p class="muted">Suman '+res.bruto+' puntos; la ficha guarda 100, que es el máximo.</p>':'')
   +(res.lineas.length
-   ?'<table class="crmTabla"><thead><tr><th>Por qué</th><th class="r">Veces</th><th class="r">Puntos</th></tr></thead><tbody>'
+   ?'<table class="crmTabla"><thead><tr><th data-gi=ea9540cfd593>Por qué</th><th class="r" data-gi=145a6f56de3e>Veces</th><th class="r" data-gi=55a18e3a79c7>Puntos</th></tr></thead><tbody>'
     +res.lineas.map(l=>'<tr><td><b>'+esc(l.regla.label)+'</b><small class="crmSub">'+esc(l.explica)+'</small></td>'
       +'<td class="r">'+l.veces+'</td><td class="r"><b>'+l.puntos+'</b></td></tr>').join('')
     +'</tbody></table>'
-   :'<div class="crmVacio">Todavía no ha pasado nada que puntúe: ni reuniones, ni oportunidades a su nombre.</div>')
+   :'<div class="crmVacio" data-gi=b3af09f3659e>Todavía no ha pasado nada que puntúe: ni reuniones, ni oportunidades a su nombre.</div>')
   +(res.pendientes.length
-   ?'<div class="crmAviso">Estas reglas están configuradas pero hoy no se pueden contar: <b>'
+   ?'<div class="crmAviso" data-gi=c67c8d342b67>Estas reglas están configuradas pero hoy no se pueden contar: <b>'
     +res.pendientes.map(r=>esc(r.label)).join('</b>, <b>')+'</b>. '
     +'GAMA envía los correos desde el programa de correo del usuario, sin seguimiento, '
     +'así que no hay forma honesta de saber si se abrieron. En cuanto el envío lleve seguimiento, contarán solas.</div>'

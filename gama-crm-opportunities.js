@@ -141,13 +141,13 @@ function coincide(o){
 function embudo(){
  const vivas=opos.filter(o=>o.active!==false&&coincide(o));
  return '<div class="crmBar">'
-  +'<input id="crmOBusca" type="search" placeholder="Buscar por título, referencia, ficha o responsable…" value="'+esc(busca)+'" aria-label="Buscar oportunidades">'
+  +'<input id="crmOBusca" type="search" data-gi-placeholder=b225411b831f placeholder="Buscar por título, referencia, ficha o responsable…" value="'+esc(busca)+'" data-gi-aria-label=de5df58e745e aria-label="Buscar oportunidades">'
   +'<span></span>'
-  +'<button type="button" class="primary" id="crmONueva">+ Nueva oportunidad</button>'
+  +'<button type="button" class="primary" id="crmONueva" data-gi=74c382621239>+ Nueva oportunidad</button>'
   +'</div>'
   +(ref.etapas.length
    ?'<div class="crmTablero">'+ref.etapas.map(e=>columna(e,vivas.filter(o=>String(o.stage_id)===String(e.id)))).join('')+'</div>'
-   :'<div class="card"><div class="crmVacio">Todavía no hay etapas configuradas.</div></div>')
+   :'<div class="card"><div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div></div>')
   +(vivas.length?'':'<div class="card"><div class="crmVacio">'
    +(opos.length?'Ninguna oportunidad coincide con la búsqueda.':'Ninguna oportunidad todavía. La primera se crea con «+ Nueva oportunidad».')
    +'</div></div>');
@@ -179,11 +179,11 @@ function tarjeta(o){
 function panelPerdida(){
  const o=opos.find(x=>String(x.id)===String(perdiendo.id));
  return '<div class="card crmPerdida"><h3>¿Por qué se perdió «'+esc(o?o.title:'')+'»?</h3>'
-  +'<p class="muted">La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.</p>'
-  +'<div class="crmForm"><div><label for="crmOMotivo">Motivo</label><select id="crmOMotivo">'
+  +'<p class="muted" data-gi=f6887961a882>La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.</p>'
+  +'<div class="crmForm"><div><label for="crmOMotivo" data-gi=c7b288b1c0bb>Motivo</label><select id="crmOMotivo">'
    +opciones(ref.motivos.map(m=>[m.id,m.name]),'','— elige un motivo —')+'</select></div></div>'
-  +'<div class="crmAcciones"><button type="button" class="primary" id="crmOPerder">Darla por perdida</button>'
-  +'<button type="button" id="crmOPerderNo">Cancelar</button></div></div>';
+  +'<div class="crmAcciones"><button type="button" class="primary" id="crmOPerder" data-gi=570796602b41>Darla por perdida</button>'
+  +'<button type="button" id="crmOPerderNo" data-gi=bb9dbb406dcb>Cancelar</button></div></div>';
 }
 
 /* ---- ficha ---- */
@@ -206,62 +206,62 @@ function ficha(){
   +(e&&e.is_won?'<div class="crmAviso">Ganada'+(o.won_at?' el '+esc(fecha(o.won_at)):'')+'.</div>':'')
   +'<div class="crmForm">'
    +campo('crmOTitulo','Título',o.title)
-   +'<div><label for="crmOTipo">Es de</label><select id="crmOTipo" data-gama-nofind>'
-    +'<option value="cliente"'+(tipo==='cliente'?' selected':'')+'>Un cliente</option>'
-    +'<option value="prospecto"'+(tipo==='prospecto'?' selected':'')+'>Un prospecto</option></select></div>'
+   +'<div><label for="crmOTipo" data-gi=d75c8d409668>Es de</label><select id="crmOTipo" data-gama-nofind>'
+    +'<option value="cliente"'+(tipo==='cliente'?' selected':'')+' data-gi=e7d26f15eb71>Un cliente</option>'
+    +'<option value="prospecto"'+(tipo==='prospecto'?' selected':'')+' data-gi=ec5c6d9f290e>Un prospecto</option></select></div>'
    +'<div id="crmOCajaCliente"'+(tipo==='cliente'?'':' hidden')+'>'
-    +'<label for="crmOCliente">Cliente</label><select id="crmOCliente">'
+    +'<label for="crmOCliente" data-gi=f851d9a83ab0>Cliente</label><select id="crmOCliente">'
     +opciones(clientesVivos().map(c=>[c.id,c.name]),o.customer_id,'— elige un cliente —')+'</select></div>'
    +'<div id="crmOCajaProspecto"'+(tipo==='prospecto'?'':' hidden')+'>'
-    +'<label for="crmOProspecto">Prospecto</label><select id="crmOProspecto">'
+    +'<label for="crmOProspecto" data-gi=cd8a1cafd6a4>Prospecto</label><select id="crmOProspecto">'
     +opciones(prospectosVivos().map(p=>[p.id,nombreLead(p)]),o.lead_id,'— elige un prospecto —')+'</select></div>'
-   +'<div><label for="crmOContacto">Contacto</label><select id="crmOContacto">'
+   +'<div><label for="crmOContacto" data-gi=771b96b0812d>Contacto</label><select id="crmOContacto">'
     +opciones(contactosDe(tipo,quien).map(k=>[k.id,nombreContacto(k)]),o.contact_id,'— sin contacto —')+'</select></div>'
-   +'<div><label for="crmOEtapa">Etapa</label><select id="crmOEtapa" data-gama-nofind>'
+   +'<div><label for="crmOEtapa" data-gi=a9d09b2d2c04>Etapa</label><select id="crmOEtapa" data-gama-nofind>'
     +ref.etapas.map(x=>'<option value="'+esc(x.id)+'"'+(String(x.id)===String(o.stage_id)?' selected':'')+'>'+esc(x.name)+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmOProb">Probabilidad (%)</label><input id="crmOProb" type="number" min="0" max="100" step="1" value="'+Number(o.probability||0)+'"></div>'
+   +'<div><label for="crmOProb" data-gi=c52ce14aa5cd>Probabilidad (%)</label><input id="crmOProb" type="number" min="0" max="100" step="1" value="'+Number(o.probability||0)+'"></div>'
    /* Con líneas, el importe lo mandan los productos: dejarlo escribir a mano
       sería dejar que el embudo diga una cifra que no cuadra con lo que se
       está vendiendo. */
-   +'<div><label for="crmOImporte">Importe</label><input id="crmOImporte" type="number" min="0" step="0.01" value="'
+   +'<div><label for="crmOImporte" data-gi=572a3acfd983>Importe</label><input id="crmOImporte" type="number" min="0" step="0.01" value="'
     +Number(conLineas?sumaLineas():(o.amount||0))+'"'+(conLineas?' readonly aria-readonly="true"':'')+'>'
-    +(conLineas?'<small class="crmSub">Lo suman los productos de abajo.</small>':'')+'</div>'
-   +'<div><label for="crmOCierre">Cierre previsto</label><input id="crmOCierre" type="date" value="'+esc(o.expected_close_date||'')+'"></div>'
-   +'<div><label for="crmOPri">Prioridad</label><select id="crmOPri" data-gama-nofind>'
+    +(conLineas?'<small class="crmSub" data-gi=c5e65fe231d8>Lo suman los productos de abajo.</small>':'')+'</div>'
+   +'<div><label for="crmOCierre" data-gi=b1ea81c22503>Cierre previsto</label><input id="crmOCierre" type="date" value="'+esc(o.expected_close_date||'')+'"></div>'
+   +'<div><label for="crmOPri" data-gi=dbae0b2a1a74>Prioridad</label><select id="crmOPri" data-gama-nofind>'
     +Object.keys(PRIORIDADES).map(k=>'<option value="'+k+'"'+((o.priority||'media')===k?' selected':'')+'>'+esc(PRIORIDADES[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmOResp">Responsable</label><select id="crmOResp">'
+   +'<div><label for="crmOResp" data-gi=62c1aec4ffc8>Responsable</label><select id="crmOResp">'
     +opciones(gente.map(p=>[p.id,p.full_name||p.email]),o.owner_id)+'</select></div>'
-   +'<div><label for="crmOOrigen">Origen</label><select id="crmOOrigen">'
+   +'<div><label for="crmOOrigen" data-gi=167a940c6278>Origen</label><select id="crmOOrigen">'
     +opciones(ref.origenes.map(x=>[x.id,x.name]),o.source_id)+'</select></div>'
-   +'<div><label for="crmOMotivoF">Motivo de pérdida</label><select id="crmOMotivoF">'
+   +'<div><label for="crmOMotivoF" data-gi=c6aa9550ae0f>Motivo de pérdida</label><select id="crmOMotivoF">'
     +opciones(ref.motivos.map(m=>[m.id,m.name]),o.lost_reason_id,'— sólo si se pierde —')+'</select></div>'
    +campo('crmOCompe','Competencia',o.competitors)
   +'</div>'
-  +'<div class="crmNotas"><label for="crmODesc">Descripción</label><textarea id="crmODesc" rows="3">'+esc(o.description||'')+'</textarea></div>'
+  +'<div class="crmNotas"><label for="crmODesc" data-gi=ee00b96fff26>Descripción</label><textarea id="crmODesc" rows="3">'+esc(o.description||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmOGuardar">Guardar</button>'
-   +'<button type="button" id="crmOCancelar">Cancelar</button>'
+   +'<button type="button" class="primary" id="crmOGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button type="button" id="crmOCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>'
   +(esNueva
-    ?'<div class="card"><div class="crmVacio">Los productos se añaden en cuanto la oportunidad está guardada: hasta entonces no hay a qué colgarlos.</div></div>'
+    ?'<div class="card"><div class="crmVacio" data-gi=d5ef10f934e0>Los productos se añaden en cuanto la oportunidad está guardada: hasta entonces no hay a qué colgarlos.</div></div>'
     :bloqueLineas());
 }
 function bloqueLineas(){
  const libres=productos.filter(p=>!lineas.some(l=>String(l.product_id)===String(p.id)));
- return '<div class="card"><h3>Productos</h3>'
-  +'<p class="muted">Lo que se está vendiendo. En cuanto hay una línea, el importe de la oportunidad lo suman ellas.</p>'
+ return '<div class="card"><h3 data-gi=f598138f026c>Productos</h3>'
+  +'<p class="muted" data-gi=ed8f026aade0>Lo que se está vendiendo. En cuanto hay una línea, el importe de la oportunidad lo suman ellas.</p>'
   +'<div class="crmForm">'
-   +'<div><label for="crmLProd">Producto</label><select id="crmLProd">'
+   +'<div><label for="crmLProd" data-gi=77b9238931ed>Producto</label><select id="crmLProd">'
     +opciones(libres.map(p=>[p.id,p.name+(p.reference?' · '+p.reference:'')]),'','— elige un producto —')+'</select></div>'
-   +'<div><label for="crmLCant">Cantidad</label><input id="crmLCant" type="number" min="0.001" step="0.001" value="1"></div>'
-   +'<div><label for="crmLPrecio">Precio unitario</label><input id="crmLPrecio" type="number" min="0" step="0.01" value="0"></div>'
-   +'<div><label for="crmLDto">Descuento (%)</label><input id="crmLDto" type="number" min="0" max="100" step="0.1" value="0"></div>'
-   +'<div><label>&nbsp;</label><button type="button" class="primary" id="crmLAdd">Añadir</button></div>'
+   +'<div><label for="crmLCant" data-gi=8930e00fcc39>Cantidad</label><input id="crmLCant" type="number" min="0.001" step="0.001" value="1"></div>'
+   +'<div><label for="crmLPrecio" data-gi=c363bae32bb0>Precio unitario</label><input id="crmLPrecio" type="number" min="0" step="0.01" value="0"></div>'
+   +'<div><label for="crmLDto" data-gi=fa5dd397e503>Descuento (%)</label><input id="crmLDto" type="number" min="0" max="100" step="0.1" value="0"></div>'
+   +'<div><label>&nbsp;</label><button type="button" class="primary" id="crmLAdd" data-gi=7542a5e800f9>Añadir</button></div>'
   +'</div>'
   +(lineas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-   +'<th>Producto</th><th class="r">Cantidad</th><th class="r">Precio</th><th class="r">Dto.</th><th class="r">Total</th><th></th>'
+   +'<th data-gi=77b9238931ed>Producto</th><th class="r" data-gi=8930e00fcc39>Cantidad</th><th class="r" data-gi=2e4385b6057f>Precio</th><th class="r" data-gi=178503aa09d0>Dto.</th><th class="r" data-gi=c9b3c38247f7>Total</th><th></th>'
    +'</tr></thead><tbody>'
    +lineas.map(l=>{
      const p=productos.find(x=>String(x.id)===String(l.product_id));
@@ -270,11 +270,11 @@ function bloqueLineas(){
       +'<td class="r">'+esc(money(l.unit_price))+'</td>'
       +'<td class="r">'+Number(l.discount||0)+' %</td>'
       +'<td class="r"><b>'+esc(money(totalLinea(l)))+'</b></td>'
-      +'<td class="crmAcc"><button type="button" class="danger" data-quitar="'+esc(l.id)+'" title="Quitar la línea">×</button></td></tr>';
+      +'<td class="crmAcc"><button type="button" class="danger" data-quitar="'+esc(l.id)+'" data-gi-title=178d5bfceb0a title="Quitar la línea">×</button></td></tr>';
     }).join('')
-   +'</tbody><tfoot><tr><td colspan="4"><b>Total</b></td><td class="r"><b>'+esc(money(sumaLineas()))+'</b></td><td></td></tr></tfoot>'
+   +'</tbody><tfoot><tr><td colspan="4"><b data-gi=c9b3c38247f7>Total</b></td><td class="r"><b>'+esc(money(sumaLineas()))+'</b></td><td></td></tr></tfoot>'
    +'</table></div>'
-   :'<div class="crmVacio">Ninguna línea todavía: el importe es el que se haya escrito arriba.</div>')
+   :'<div class="crmVacio" data-gi=da930414eeee>Ninguna línea todavía: el importe es el que se haya escrito arriba.</div>')
   +bloquePresupuesto()
   +'</div>';
 }
@@ -286,11 +286,11 @@ function bloquePresupuesto(){
   return '<div class="crmAviso">Presupuesto generado'+(n?' <b>'+esc(n)+'</b>':'')
    +(presupuesto?' · '+esc(CRM.money(presupuesto.total)):'')
    +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>'
-   +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'">Crear / ver pedido de venta</button></div>':'');
+   +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'" data-gi=7a96eba94173>Crear / ver pedido de venta</button></div>':'');
  }
- if(!o.customer_id)return '<div class="crmAviso">Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
+ if(!o.customer_id)return '<div class="crmAviso" data-gi=fbb5bdeba43d>Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
  if(!lineas.length)return '';
- return '<div class="crmAcciones"><button type="button" class="primary" id="crmOPresu">Generar presupuesto</button></div>';
+ return '<div class="crmAcciones"><button type="button" class="primary" id="crmOPresu" data-gi=f3db8ba5ef50>Generar presupuesto</button></div>';
 }
 
 /* ---- guardar ---- */
@@ -593,7 +593,7 @@ async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Cargando el embudo…</div></div>';
+ s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=e33a44a48f2b>Cargando el embudo…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

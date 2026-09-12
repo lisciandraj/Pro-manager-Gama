@@ -155,16 +155,16 @@ function coincide(a){
 }
 function barra(){
  return '<div class="crmBar">'
-  +'<input id="crmABusca" type="search" placeholder="Buscar por asunto, ficha o responsable…" value="'+esc(busca)+'" aria-label="Buscar actividades">'
-  +'<select id="crmATipo" data-gama-nofind aria-label="Filtrar por tipo"><option value="">Todos los tipos</option>'
+  +'<input id="crmABusca" type="search" data-gi-placeholder=84bb781ef8b5 placeholder="Buscar por asunto, ficha o responsable…" value="'+esc(busca)+'" data-gi-aria-label=76a7e9c2baca aria-label="Buscar actividades">'
+  +'<select id="crmATipo" data-gama-nofind data-gi-aria-label=68b338e60429 aria-label="Filtrar por tipo"><option value="" data-gi=7edada4fac1c>Todos los tipos</option>'
    +Object.keys(TIPOS).map(k=>'<option value="'+k+'"'+(filtroTipo===k?' selected':'')+'>'+esc(TIPOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="primary" id="crmANueva">+ Nueva actividad</button>'
+  +'<button type="button" class="primary" id="crmANueva" data-gi=d05a7589481c>+ Nueva actividad</button>'
   +'</div>'
   +'<div class="crmNav crmSubNav">'
-   +'<button type="button" class="'+(vista==='agenda'?'on':'')+'" data-vista="agenda">Agenda</button>'
-   +'<button type="button" class="'+(vista==='historia'?'on':'')+'" data-vista="historia">Historia</button>'
-   +'<button type="button" class="'+(soloMias?'on':'')+'" id="crmAMias">Sólo las mías</button>'
+   +'<button type="button" class="'+(vista==='agenda'?'on':'')+'" data-vista="agenda" data-gi=0fdf485f5bfd>Agenda</button>'
+   +'<button type="button" class="'+(vista==='historia'?'on':'')+'" data-vista="historia" data-gi=47980267f3cd>Historia</button>'
+   +'<button type="button" class="'+(soloMias?'on':'')+'" id="crmAMias" data-gi=93d9143cb744>Sólo las mías</button>'
   +'</div>';
 }
 function agenda(){
@@ -174,7 +174,7 @@ function agenda(){
  return '<div class="card">'
   +(tarde?'<div class="crmAviso crmDup"><b>'+tarde+'</b> actividad(es) vencida(s). Son las de arriba.</div>':'')
   +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-    +'<th>Actividad</th><th>Ficha</th><th>Vence</th><th>Responsable</th><th></th></tr></thead><tbody>'
+    +'<th data-gi=d134a8ecb32a>Actividad</th><th data-gi=94bb534e4e0f>Ficha</th><th data-gi=0fb4618723af>Vence</th><th data-gi=62c1aec4ffc8>Responsable</th><th></th></tr></thead><tbody>'
     +filas.map(filaAgenda).join('')+'</tbody></table></div>'
    :'<div class="crmVacio">'+(actos.length?'Nada pendiente que coincida con el filtro.':'Nada pendiente. Cuando haya una tarea o un seguimiento, aparecerá aquí ordenado por fecha.')+'</div>')
   +'</div>';
@@ -186,12 +186,12 @@ function filaAgenda(a){
    +'<small class="crmSub">'+esc(TIPOS[a.kind]||a.kind)+' · '+esc(ESTADOS[a.status]||a.status)+'</small></td>'
   +'<td><span class="crmEstado e-'+esc(q.tipo)+'">'+esc(q.etiqueta)+'</span>'
    +'<small class="crmSub">'+esc(q.nombre)+'</small></td>'
-  +'<td>'+esc(cuando(a.due_at))+(vencida(a)?' <span class="crmTarde">vencida</span>':'')+'</td>'
+  +'<td>'+esc(cuando(a.due_at))+(vencida(a)?' <span class="crmTarde" data-gi=515d75cfc7e2>vencida</span>':'')+'</td>'
   +'<td>'+esc(CRM.nombreDe(a.owner_id,gente))+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" class="primary" data-hecha="'+esc(a.id)+'">Hecha</button>'
-   +'<button type="button" data-abrir="'+esc(a.id)+'">Abrir</button>'
-   +'<button type="button" data-cancelar="'+esc(a.id)+'" title="Cancelar la actividad">✕</button>'
+   +'<button type="button" class="primary" data-hecha="'+esc(a.id)+'" data-gi=760938776de3>Hecha</button>'
+   +'<button type="button" data-abrir="'+esc(a.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +'<button type="button" data-cancelar="'+esc(a.id)+'" data-gi-title=0eab0b7d5842 title="Cancelar la actividad">✕</button>'
   +'</td></tr>';
 }
 function historia(){
@@ -251,32 +251,32 @@ function ficha(){
  return '<div class="card">'
   +'<h3>'+(esNueva?'Nueva actividad':esc(a.subject||''))+'</h3>'
   +'<div class="crmForm">'
-   +'<div><label for="crmAKind">Tipo</label><select id="crmAKind" data-gama-nofind>'
+   +'<div><label for="crmAKind" data-gi=3868d2843d59>Tipo</label><select id="crmAKind" data-gama-nofind>'
     +Object.keys(TIPOS).map(k=>'<option value="'+k+'"'+((a.kind||'llamada')===k?' selected':'')+'>'+esc(TIPOS[k])+'</option>').join('')
    +'</select></div>'
    +campo('crmASubject','Asunto',a.subject)
-   +'<div><label for="crmAAncla">Cuelga de</label><select id="crmAAncla" data-gama-nofind>'
+   +'<div><label for="crmAAncla" data-gi=5f024fbe1061>Cuelga de</label><select id="crmAAncla" data-gama-nofind>'
     +Object.keys(ANCLAS).map(k=>'<option value="'+k+'"'+(tipo===k?' selected':'')+'>'+esc(ANCLAS[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmAQuien">Ficha</label><select id="crmAQuien">'
+   +'<div><label for="crmAQuien" data-gi=94bb534e4e0f>Ficha</label><select id="crmAQuien">'
     +opciones(listaAncla(tipo),idAncla(a,tipo),'— elige una ficha —')+'</select></div>'
-   +'<div><label for="crmAStatus">Estado</label><select id="crmAStatus" data-gama-nofind>'
+   +'<div><label for="crmAStatus" data-gi=98e5acddb6c4>Estado</label><select id="crmAStatus" data-gama-nofind>'
     +Object.keys(ESTADOS).map(k=>'<option value="'+k+'"'+((a.status||'hecha')===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmAPri">Prioridad</label><select id="crmAPri" data-gama-nofind>'
+   +'<div><label for="crmAPri" data-gi=dbae0b2a1a74>Prioridad</label><select id="crmAPri" data-gama-nofind>'
     +Object.keys(PRIORIDADES).map(k=>'<option value="'+k+'"'+((a.priority||'media')===k?' selected':'')+'>'+esc(PRIORIDADES[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmAResp">Responsable</label><select id="crmAResp">'
+   +'<div><label for="crmAResp" data-gi=62c1aec4ffc8>Responsable</label><select id="crmAResp">'
     +opciones(gente.map(p=>[p.id,p.full_name||p.email]),a.owner_id)+'</select></div>'
-   +'<div><label for="crmADue">Vence</label><input id="crmADue" type="datetime-local" value="'+esc(paraInput(a.due_at))+'">'
+   +'<div><label for="crmADue" data-gi=0fb4618723af>Vence</label><input id="crmADue" type="datetime-local" value="'+esc(paraInput(a.due_at))+'">'
     +'<small class="crmSub" id="crmADueNota"></small></div>'
-   +'<div><label for="crmARemind">Recordar</label><input id="crmARemind" type="datetime-local" value="'+esc(paraInput(a.remind_at))+'"></div>'
+   +'<div><label for="crmARemind" data-gi=2adc391bd989>Recordar</label><input id="crmARemind" type="datetime-local" value="'+esc(paraInput(a.remind_at))+'"></div>'
   +'</div>'
-  +'<div class="crmNotas"><label for="crmABody">Detalle</label><textarea id="crmABody" rows="4">'+esc(a.body||'')+'</textarea></div>'
+  +'<div class="crmNotas"><label for="crmABody" data-gi=426234e72a5b>Detalle</label><textarea id="crmABody" rows="4">'+esc(a.body||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmAGuardar">Guardar</button>'
-   +'<button type="button" id="crmACancelarF">Cancelar</button>'
-   +(esNueva||!abierta(a)?'':'<button type="button" id="crmAHecha">Marcar como hecha</button>')
+   +'<button type="button" class="primary" id="crmAGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button type="button" id="crmACancelarF" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +(esNueva||!abierta(a)?'':'<button type="button" id="crmAHecha" data-gi=3d8020c17aa8>Marcar como hecha</button>')
   +'</div></div>';
 }
 function leerFicha(){
@@ -439,7 +439,7 @@ async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Cargando la agenda…</div></div>';
+ s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=719d2ba21491>Cargando la agenda…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

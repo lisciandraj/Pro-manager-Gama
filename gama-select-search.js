@@ -81,7 +81,7 @@ function pintar(sel){
  if(st.activo<0&&lista.length)st.activo=0;
  st.menu.innerHTML=lista.length
   ? lista.map((o,i)=>`<div class="gamaFindOpt${i===st.activo?' on':''}" role="option" id="${st.id}-o${i}" aria-selected="${i===st.activo}" data-i="${i}">${resaltar(etiqueta(o),ts)}</div>`).join('')
-  : '<div class="gamaFindNada">Ninguna opción coincide.</div>';
+  : '<div class="gamaFindNada" data-gi=f49a88162a94>Ninguna opción coincide.</div>';
  st.menu.querySelectorAll('[data-i]').forEach(el=>{
   /* mousedown y no click: el click llega después del blur del campo, y para
      entonces la lista ya se habría cerrado bajo el dedo. */

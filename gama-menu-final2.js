@@ -70,7 +70,7 @@ tag:'<path d="M3 12V5.5A2.5 2.5 0 0 1 5.5 3H12l9 9-9 9-9-9Z"/><circle cx="7.5" c
 matrix:'<path d="M4 19V5M4 19h16M8 16V9m4 7V6m4 10v-4"/>',
 warehouse:'<path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M7 20v-6h10v6M7 14h10"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
-function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';document.body.appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260912-datos1';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2>Importar datos</h2><p class="low">No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
+function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';document.body.appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260913-i18n1';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
 function openItem(x){if(['operations','notifications'].includes(x[1])){window.GamaOperations?.open(x[1]);return}if(x[1]==='quotes'){window.GamaQuotes?.open();return}if(x[1]==='client-deliveries'){window.GamaQuotes?.deliveries();return}if(x[1]==='sales-orders'){window.GamaSales?.open();return}if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='warehouses'){if(window.showTab)window.showTab('warehouses',null);window.GamaOpenWarehouses?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
 
 /* Un rótulo de grupo se esconde cuando no le queda ninguna tarjeta visible
@@ -100,7 +100,7 @@ function buscar(termino){
  if(vacio)vacio.hidden=!(t&&!visibles);
 }
 
-function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang='es';document.querySelectorAll('.gamaLanguage').forEach(e=>e.remove());const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';/* auto-fill en vez de cinco columnas fijas: al agrupar, un grupo de seis
+function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang=window.GamaI18n?.language||'es';const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';/* auto-fill en vez de cinco columnas fijas: al agrupar, un grupo de seis
    tarjetas dejaba una sola huérfana en la fila siguiente y un hueco enorme
    al lado. Dejando que la rejilla ajuste el número de columnas al ancho
    disponible —que además cambia cuando aparece la barra lateral— los grupos
@@ -127,10 +127,10 @@ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-column
   const rotulo=document.createElement('div');rotulo.className='gamaF2Section';rotulo.dataset.gamaGrupo=g;rotulo.textContent=g;
   grid.appendChild(rotulo);
   ITEMS.filter(x=>x[3]===g).forEach(x=>{
-   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';b.dataset.gamaGrupo=g;
+   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
    const icon=document.createElement('span');icon.className='gamaF2Icon'+(n++%2?' gamaF2Naranja':'');
    icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';
-   const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];
+   const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    b.append(icon,label);if(x[1]==='notifications')b.dataset.goNav='notifications';b.onclick=()=>openItem(x);grid.appendChild(b);
   });
  });

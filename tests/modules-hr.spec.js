@@ -135,7 +135,8 @@ test('la planificación coloca cada ausencia en su día y separa las que se sola
   const HOY = new Date();
   // Lunes de la semana en curso, para que la vista caiga siempre encima.
   const lunes = new Date(HOY); lunes.setDate(lunes.getDate() - ((lunes.getDay() + 6) % 7));
-  const d = n => { const x = new Date(lunes); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+  // Calendar dates must not shift to the previous day when run near local midnight.
+  const d = n => { const x = new Date(lunes); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
 
   await boot(page, 'admin', {
     hr_employees: [{ id: 'e1', full_name: 'María Pérez', position: 'Almacenera', active: true, annual_leave_days: 15 }],

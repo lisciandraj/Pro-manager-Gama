@@ -131,14 +131,14 @@ function tabla(titulo,pie,filas,maximo){
  return '<div class="card"><h3>'+esc(titulo)+'</h3>'
   +'<p class="muted">'+esc(pie)+'</p>'
   +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-   +'<th>Concepto</th><th class="r">Cuántas</th><th class="r">Importe</th><th>Peso</th>'
+   +'<th data-gi=fd0137cd1dfe>Concepto</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th data-gi=c27dd5dd9f3c>Peso</th>'
    +'</tr></thead><tbody>'
    +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td>'
      +'<td class="r">'+f.n+'</td>'
      +'<td class="r">'+esc(money(f.importe))+'</td>'
      +'<td>'+barra(f.importe,maximo)+'</td></tr>').join('')
    +'</tbody></table></div>'
-  :'<div class="crmVacio">Nada que contar en este periodo.</div>')
+  :'<div class="crmVacio" data-gi=54c486f1693a>Nada que contar en este periodo.</div>')
   +'</div>';
 }
 function kpi(etiqueta,valor,pie){
@@ -163,7 +163,7 @@ function pintar(){
 
  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
   +'<div class="crmBar">'
-   +'<select id="crmRPeriodo" data-gama-nofind aria-label="Periodo del informe">'
+   +'<select id="crmRPeriodo" data-gama-nofind data-gi-aria-label=cc9980e1f3f4 aria-label="Periodo del informe">'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(periodo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select><span></span><span></span>'
   +'</div>'
@@ -175,16 +175,16 @@ function pintar(){
   +'</div>'
   /* El embudo es AHORA y no del periodo, y se dice: un pipeline «de enero» no
      significa nada, porque el pipeline es lo que hay vivo hoy. */
-  +'<div class="card"><h3>Embudo vivo, hoy</h3>'
-   +'<p class="muted">Una foto del pipeline abierto en este momento. No depende del periodo elegido: lo que está en curso está en curso.</p>'
+  +'<div class="card"><h3 data-gi=42cb8612a914>Embudo vivo, hoy</h3>'
+   +'<p class="muted" data-gi=750b0685463f>Una foto del pipeline abierto en este momento. No depende del periodo elegido: lo que está en curso está en curso.</p>'
    +(embudoAhora.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-     +'<th>Etapa</th><th class="r">Cuántas</th><th class="r">Importe</th><th class="r">Ponderado</th><th>Peso</th>'
+     +'<th data-gi=a9d09b2d2c04>Etapa</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th class="r" data-gi=b1bc7c7298d8>Ponderado</th><th data-gi=c27dd5dd9f3c>Peso</th>'
      +'</tr></thead><tbody>'
      +embudoAhora.map(x=>'<tr><td><b>'+esc(x.nombre)+'</b></td><td class="r">'+x.n+'</td>'
        +'<td class="r">'+esc(money(x.importe))+'</td><td class="r">'+esc(money(x.ponderado))+'</td>'
        +'<td>'+barra(x.importe,maxEmbudo)+'</td></tr>').join('')
      +'</tbody></table></div>'
-    :'<div class="crmVacio">Ninguna oportunidad abierta.</div>')
+    :'<div class="crmVacio" data-gi=e13bc07ee4be>Ninguna oportunidad abierta.</div>')
   +'</div>'
   +mesAMes()
   +tabla('De dónde vino lo ganado','Por origen del prospecto. Dice en qué vale la pena gastar el esfuerzo comercial.',
@@ -193,8 +193,8 @@ function pintar(){
      porComercial,Math.max.apply(null,[0].concat(porComercial.map(x=>x.importe))))
   +tabla('Por qué se perdió','El motivo de cada oportunidad perdida, con lo que costó. Es la lista de lo que hay que corregir.',
      porMotivo,Math.max.apply(null,[0].concat(porMotivo.map(x=>x.importe))))
-  +'<div class="card"><h3>Prospectos entrados</h3>'
-   +'<p class="muted">Los que nacieron en el periodo, por origen. Comparado con la tabla de arriba dice qué origen trae volumen y cuál trae dinero.</p>'
+  +'<div class="card"><h3 data-gi=697d9b93e4ee>Prospectos entrados</h3>'
+   +'<p class="muted" data-gi=566494faed71>Los que nacieron en el periodo, por origen. Comparado con la tabla de arriba dice qué origen trae volumen y cuál trae dinero.</p>'
    +cuerpoProspectos()
   +'</div>';
  CRM.bind(s);
@@ -204,8 +204,8 @@ function pintar(){
 function mesAMes(){
  const filas=porMes();
  const max=Math.max.apply(null,[0].concat(filas.map(f=>f.ganadas+f.perdidas)));
- return '<div class="card"><h3>Mes a mes</h3>'
-  +'<p class="muted">Cerradas por mes, contadas por su fecha de cierre. Verde ganadas, rojo perdidas.</p>'
+ return '<div class="card"><h3 data-gi=4fccf43e5f04>Mes a mes</h3>'
+  +'<p class="muted" data-gi=a9a4a36f12d5>Cerradas por mes, contadas por su fecha de cierre. Verde ganadas, rojo perdidas.</p>'
   +(filas.length?'<div class="crmMeses">'+filas.map(f=>
     '<div class="crmMes"><b>'+esc(etiquetaMes(f.mes))+'</b>'
     +'<div class="crmMesBarras">'
@@ -213,16 +213,16 @@ function mesAMes(){
     +'</div>'
     +'<small>'+f.ganadas+' ganada(s) · '+f.perdidas+' perdida(s)</small>'
     +'<small>'+esc(money(f.importe))+'</small></div>').join('')+'</div>'
-   :'<div class="crmVacio">Nada cerrado en este periodo.</div>')
+   :'<div class="crmVacio" data-gi=2381564c4afb>Nada cerrado en este periodo.</div>')
   +'</div>';
 }
 function cuerpoProspectos(){
  const filas=agrupa(datos.prospectos.map(p=>({source_id:p.source_id,amount:0})),'source_id',
   k=>nombreRef(k,datos.ref.origenes,'Sin origen'));
- if(!filas.length)return '<div class="crmVacio">Ningún prospecto nuevo en este periodo.</div>';
+ if(!filas.length)return '<div class="crmVacio" data-gi=75ff4bb5a70f>Ningún prospecto nuevo en este periodo.</div>';
  const max=Math.max.apply(null,[0].concat(filas.map(f=>f.n)));
  return '<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-  +'<th>Origen</th><th class="r">Prospectos</th><th>Peso</th></tr></thead><tbody>'
+  +'<th data-gi=167a940c6278>Origen</th><th class="r" data-gi=06a2af8bb433>Prospectos</th><th data-gi=c27dd5dd9f3c>Peso</th></tr></thead><tbody>'
   +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td><td class="r">'+f.n+'</td>'
     +'<td>'+barra(f.n,max)+'</td></tr>').join('')
   +'</tbody></table></div>';
@@ -246,7 +246,7 @@ async function abrirPantalla(recarga){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Calculando…</div></div>';
+ if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=bef25b458155>Calculando…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

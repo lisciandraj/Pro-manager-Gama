@@ -31,7 +31,7 @@ function patch(){
   let s=document.getElementById('users');
   if(!s){s=document.createElement('section');s.id='users';(document.querySelector('.wrap')||document.body).appendChild(s)}
   if(s.querySelector('.cloudUsersV17'))return;
-  s.innerHTML=`${window.GamaUI.header({title:'👥 Usuarios y accesos',lead:'Quién entra en GAMA y con qué permisos.'})}<div class="card cloudUsersV17"><div class="cuBar"><h3>Usuarios cloud</h3><span class="cuOnline"><i></i> Cloud conectado</span></div><div id="cuPending" class="cuPending" hidden></div><div id="cuStatus" class="cuStatus">Cargando usuarios…</div><div class="cuTable"><table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead><tbody id="cuRows"></tbody></table></div><div class="cuFoot"><span id="cuCount">0 usuarios</span><span>● Actualización automática activa</span></div></div>`;
+  s.innerHTML=`${window.GamaUI.header({title:'👥 Usuarios y accesos',lead:'Quién entra en GAMA y con qué permisos.'})}<div class="card cloudUsersV17"><div class="cuBar"><h3 data-gi=a1a13eae50f0>Usuarios cloud</h3><span class="cuOnline"><i></i> Cloud conectado</span></div><div id="cuPending" class="cuPending" hidden></div><div id="cuStatus" class="cuStatus" data-gi=633d7ba5f776>Cargando usuarios…</div><div class="cuTable"><table><thead><tr><th data-gi=562bb15757a8>Nombre</th><th>Email</th><th data-gi=fb9f51fe9250>Rol</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th data-gi=fb89a30ba7f6>Acciones</th></tr></thead><tbody id="cuRows"></tbody></table></div><div class="cuFoot"><span id="cuCount">0 usuarios</span><span data-gi=49469fa2cf35>● Actualización automática activa</span></div></div>`;
   window.GamaUI.bindBack(s);
   if(!document.getElementById('cuStyle')){const st=document.createElement('style');st.id='cuStyle';st.textContent=`.cloudUsersV17{border-radius:16px}.cuBar,.cuFoot{display:flex;justify-content:space-between;align-items:center;gap:12px}.cuOnline{padding:8px 11px;border-radius:999px;background:#E7F6F0;color:#138A69;font-size:11px;font-weight:800;white-space:nowrap}.cuOnline i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#138A69;margin-right:5px}.cuInfo{margin:14px 0;padding:11px 13px;border-left:4px solid #087C8B;background:#F0F8F9;border-radius:8px;font-size:12px;color:#50616C}.cuBar{margin-top:16px}.cuBar h3{margin:0}.cuStatus{margin:10px 0;color:#71808A;font-size:12px}.cuPending{margin:12px 0;padding:11px 13px;border-left:4px solid #F47A2A;background:#FFF6EF;border-radius:8px;font-size:13px;font-weight:700;color:#8A4A12}.cuTable select{padding:6px;border:1px solid #c9d6df;border-radius:7px;font-size:12px;width:auto}.cuTable{overflow:auto;border:1px solid #E4EBEE;border-radius:12px}.cuTable table{width:100%;min-width:780px;border-collapse:collapse;display:table}.cuTable th,.cuTable td{padding:11px 12px;text-align:left;border-bottom:1px solid #EDF1F2;font-size:12px;white-space:nowrap}.cuTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808A;background:#F8FAFB}.cuTable tr:last-child td{border-bottom:0}.cuBadge{display:inline-block;padding:5px 8px;border-radius:999px;background:#E8F5F6;color:#087C8B;font-weight:800}.cuActive{color:#138A69;font-weight:800}.cuInactive{color:#C94F45;font-weight:800}.cuId{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#7B8992}.cuFoot{margin-top:9px;color:#71808A;font-size:11px}.cuFoot span:last-child{color:#138A69}@media(max-width:700px){.cuBar{align-items:flex-start}.cuFoot{align-items:flex-start;flex-direction:column}}`;document.head.appendChild(st)}
 }
@@ -49,11 +49,11 @@ async function load(){
     const ROLES=['administrador','comercial','almacenero','cliente'];
     body.innerHTML=rows.length?rows.map(x=>{
       const self=x.id===selfId;
-      const actions=self?'<b>Tu cuenta</b>':
-        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${r}"${r===x.role?' selected':''}>${esc(ROLE[r]||r)}</option>`).join('')}</select> `+
-        `<button class="${x.active===false?'primary':'secondary'}" data-cu-toggle="${esc(x.id)}" data-cu-next="${x.active===false?'1':'0'}">${x.active===false?'✓ Aprobar':'Desactivar'}</button>`;
+      const actions=self?'<b data-gi=d30c5ae09ef0>Tu cuenta</b>':
+        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${r}"${r===x.role?' selected':''} data-gi-live>${esc(ROLE[r]||r)}</option>`).join('')}</select> `+
+        `<button class="${x.active===false?'primary':'secondary'}" data-cu-toggle="${esc(x.id)}" data-cu-next="${x.active===false?'1':'0'}" data-gi-live>${x.active===false?'✓ Aprobar':'Desactivar'}</button>`;
       return `<tr><td><b>${esc(x.full_name||'Sin nombre')}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(ROLE[x.role]||x.role||'Usuario')}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Pendiente / desactivado':'● Activo'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('es-EC'):'—'}</td><td>${actions}</td></tr>`;
-    }).join(''):'<tr><td colspan="6">No se encontraron usuarios en Supabase.</td></tr>';
+    }).join(''):'<tr><td colspan="6" data-gi=ed24da31a76e>No se encontraron usuarios en Supabase.</td></tr>';
     wireActions();
     const pending=rows.filter(x=>x.active===false).length, banner=document.getElementById('cuPending');
     if(banner){banner.hidden=!pending;banner.textContent=pending?`${pending} cuenta(s) pendiente(s) de aprobación. Mientras no las apruebes no pueden leer ningún dato.`:'';}
@@ -62,7 +62,7 @@ async function load(){
   }catch(e){
     console.error('[GAMA Cloud Users]',e);
     status.textContent='No se pudieron leer los usuarios: '+(e.message||e);
-    body.innerHTML='<tr><td colspan="6" class="cuInactive">No se pudo leer la tabla profiles. Verifica la política SELECT RLS en Supabase.</td></tr>';
+    body.innerHTML='<tr><td colspan="6" class="cuInactive" data-gi=fc66cd550451>No se pudo leer la tabla profiles. Verifica la política SELECT RLS en Supabase.</td></tr>';
   }
 }
 /* Toda cuenta nueva nace desactivada (trigger gama_on_auth_user_created) y no

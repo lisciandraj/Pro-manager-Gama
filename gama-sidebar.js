@@ -48,11 +48,11 @@ nav.gamaSidebar{display:none}
   document.head.appendChild(s);
 }
 
-function link(label,svg,onClick){
+function link(label,svg,onClick,moduleId='mainmenu'){
   const b=document.createElement('button');
   b.type='button';
   b.className='gamaSideLink';
-  b.dataset.gamaSideLabel=label;
+  b.dataset.gamaSideLabel=label;b.dataset.gamaModule=moduleId;
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+svg+'</svg><span></span>';
   b.querySelector('span').textContent=label;
   b.onclick=()=>{
@@ -77,7 +77,7 @@ function build(){
      propias tarjetas: así no hay una segunda lista que mantener al día. */
   let grupoActual='';
   cards.forEach(card=>{
-    const label=(card.querySelector('.gamaF2Title')?.textContent||'').trim();
+    const label=(card.querySelector('.gamaF2Title')?.dataset.gamaSource||card.querySelector('.gamaF2Title')?.textContent||'').trim();
     const svg=card.querySelector('.gamaF2Icon svg')?.innerHTML||'';
     if(!label)return;
     const grupo=card.dataset.gamaGrupo||(card.hasAttribute('data-gama-tms-card')?'Logística':'');
@@ -89,7 +89,7 @@ function build(){
       h.textContent=grupo;
       el.appendChild(h);
     }
-    el.appendChild(link(label,svg,()=>card.click()));
+    el.appendChild(link(label,svg,()=>card.click(),card.dataset.gamaModule));
   });
   document.body.classList.add('gamaHasSidebar');
   measure();
@@ -109,10 +109,10 @@ function refreshVisibility(){
   if(!el)return;
   const grid=document.querySelector('#mainmenu .gamaF2Grid');
   if(!grid)return;
-  const visible=new Set([...grid.querySelectorAll('.gamaF2Card')].filter(c=>!c.classList.contains('aclHidden')).map(c=>(c.querySelector('.gamaF2Title')?.textContent||'').trim()));
+  const visible=new Set([...grid.querySelectorAll('.gamaF2Card')].filter(c=>!c.classList.contains('aclHidden')).map(c=>c.dataset.gamaModule));
   el.querySelectorAll('.gamaSideLink').forEach(b=>{
-    if(b.dataset.gamaSideLabel==='Inicio')return;
-    b.hidden=!visible.has(b.dataset.gamaSideLabel);
+    if(b.dataset.gamaModule==='mainmenu')return;
+    b.hidden=!visible.has(b.dataset.gamaModule);
   });
   /* Un rótulo sin ningún enlace visible detrás sobra: pasa cuando el perfil
      no tiene acceso a ninguno de los módulos de ese grupo. */

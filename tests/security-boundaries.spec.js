@@ -86,6 +86,6 @@ test.describe('Límites de seguridad', () => {
     expect(src).toContain('cuPending');
     // The current administrator gets no controls on their own row.
     expect(src).toContain('const self=x.id===selfId');
-    expect(src).toContain("self?'<b>Tu cuenta</b>'");
+    expect(src).toMatch(/self\?'<b(?:\s+data-gi=[a-f0-9]+)?>Tu cuenta<\/b>'/);
   });
 });

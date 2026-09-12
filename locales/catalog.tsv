@@ -1,0 +1,1314 @@
+# Spanish source	French	English
+Menú principal	Menu principal	Main menu
+Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.	Accédez rapidement à toutes les fonctions de GAMA Enterprise Resource Planning.	Quickly access all GAMA Enterprise Resource Planning features.
+Buscar un módulo	Rechercher un module	Search modules
+Buscar un módulo…	Rechercher un module…	Search modules…
+Ningún módulo coincide con la búsqueda.	Aucun module ne correspond à la recherche.	No modules match your search.
+Resumen	Vue d’ensemble	Overview
+Inventario y compras	Stock et achats	Inventory and purchasing
+Administración	Administration	Administration
+Logística	Logistique	Logistics
+Panel de control	Tableau de bord	Dashboard
+Panel de control y análisis	Tableau de bord et analyses	Dashboard and analytics
+Control comercial y logístico	Suivi commercial et logistique	Sales and logistics dashboard
+Notificaciones	Notifications	Notifications
+Notificaciones y bloqueos	Notifications et blocages	Notifications and blockers
+Productos	Produits	Products
+Almacenes y existencias	Entrepôts et stocks	Warehouses and stock
+Entradas / Salidas	Entrées / Sorties	Stock in / out
+Inventario	Inventaire	Inventory
+Compras	Achats	Purchasing
+Proveedores	Fournisseurs	Suppliers
+Matriz comercial	Matrice commerciale	Pricing matrix
+Códigos de barras	Codes-barres	Barcodes
+Presupuestos	Devis	Quotes
+Mis presupuestos	Mes devis	My quotes
+Mis entregas	Mes livraisons	My deliveries
+Clientes	Clients	Customers
+Pedidos de venta	Commandes clients	Sales orders
+Solicitudes de clientes	Demandes clients	Customer requests
+Catálogo de productos	Catalogue produits	Product catalogue
+Tarifas	Tarifs	Price lists
+Importar datos	Importer des données	Import data
+Recursos humanos	Ressources humaines	Human resources
+Auditoría	Piste d’audit	Audit trail
+Usuarios	Utilisateurs	Users
+Configuración	Paramètres	Settings
+Copias de seguridad	Sauvegardes	Backups
+Entregas / TMS	Livraisons / TMS	Deliveries / TMS
+Transporte y entregas	Transport et livraisons	Transport and deliveries
+Formulario anterior de presupuestos	Ancien formulaire de devis	Legacy quote form
+Presupuestos y validación cliente	Devis et validation client	Quotes and customer approval
+Mis entregas y pruebas	Mes livraisons et justificatifs	My deliveries and proofs
+Usuarios y accesos	Utilisateurs et accès	Users and access
+Crea tus productos y consulta el catálogo.	Créez vos produits et consultez le catalogue.	Create products and browse the catalogue.
+La ficha de cada cliente, en un solo sitio.	Toutes les informations de chaque client au même endroit.	Each customer’s details in one place.
+Las existencias de todos tus productos.	Les stocks de tous vos produits.	Stock levels for all your products.
+Registra entradas y salidas de mercancía.	Enregistrez les entrées et sorties de marchandises.	Record incoming and outgoing goods.
+Presupuestos para tus clientes, en PDF.	Des devis PDF pour vos clients.	PDF quotes for your customers.
+Historial de todas las entradas y salidas.	Historique de toutes les entrées et sorties.	History of all stock movements.
+Exporta tus datos y guarda copias de la base.	Exportez vos données et sauvegardez la base.	Export your data and save database backups.
+Genera códigos de barras para imprimir.	Générez des codes-barres à imprimer.	Generate printable barcodes.
+Consulta rápida	Consultation rapide	Quick lookup
+Escanea un código y ve la ficha al instante.	Scannez un code pour afficher sa fiche.	Scan a code to view its details instantly.
+Toda la analítica del negocio en una pantalla.	Tous les indicateurs de l’entreprise sur un écran.	All your business analytics on one screen.
+Volver al menú	Retour au menu	Back to menu
+Movimientos	Mouvements	Stock movements
+Inicio	Accueil	Home
+Dashboard	Tableau de bord	Dashboard
+Facturación	Facturation	Billing
+Más	Plus	More
+Todo el año	Toute l’année	Full year
+Enero	Janvier	January
+Febrero	Février	February
+Marzo	Mars	March
+Abril	Avril	April
+Mayo	Mai	May
+Junio	Juin	June
+Julio	Juillet	July
+Agosto	Août	August
+Septiembre	Septembre	September
+Octubre	Octobre	October
+Noviembre	Novembre	November
+Diciembre	Décembre	December
+Ventas del período	Ventes de la période	Period sales
+Facturas	Factures	Invoices
+emitidas	émises	issued
+Ticket promedio	Panier moyen	Average invoice
+por factura	par facture	per invoice
+Stock bajo	Stock faible	Low stock
+productos	produits	products
+Margen estimado	Marge estimée	Estimated margin
+del periodo	de la période	for the period
+Ventas por mes	Ventes par mois	Monthly sales
+Evolución anual	Évolution annuelle	Annual trend
+Resumen anual	Bilan annuel	Annual overview
+Ventas	Ventes	Sales
+Promedio mensual	Moyenne mensuelle	Monthly average
+Ventas por categoría	Ventes par catégorie	Sales by category
+Periodo seleccionado	Période sélectionnée	Selected period
+Ventas por método de pago	Ventes par mode de paiement	Sales by payment method
+Más vendidos por cantidad	Meilleures ventes en quantité	Best sellers by quantity
+Unidades del periodo	Unités sur la période	Units for the period
+Más vendidos por ingresos	Meilleures ventes en chiffre d’affaires	Best sellers by revenue
+Con el margen estimado	Avec la marge estimée	With estimated margin
+El margen se estima con el precio de compra actual de cada producto; no refleja el costo histórico exacto en la fecha de cada venta.	La marge est estimée au prix d’achat actuel de chaque produit, et non à son coût historique à la date de vente.	Margin uses each product’s current purchase price, not its exact historical cost at the time of sale.
+Últimos movimientos	Derniers mouvements	Latest movements
+Actividad reciente	Activité récente	Recent activity
+Escanear producto	Scanner le produit	Scan product
+Escanear	Scanner	Scan
+Buscar	Rechercher	Search
+Entrada IN	Entrée IN	Stock in
+Salida OUT	Sortie OUT	Stock out
+Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.	Exportez les produits, clients et audits dans des fichiers Excel compatibles.	Export products, customers and audit data to compatible Excel files.
+Exportar Excel	Exporter en Excel	Export Excel
+Copia completa	Sauvegarde complète	Full backup
+Ficha completa del producto	Fiche produit complète	Full product details
+Nombre *	Nom *	Name *
+Referencia	Référence	Reference
+Categoría	Catégorie	Category
+Familia	Famille	Family
+Líneas	Lignes	Lines
+Marca	Marque	Brand
+Presentación	Conditionnement	Packaging
+Ubicación	Emplacement	Location
+Stock mínimo	Stock minimum	Minimum stock
+Stock máximo	Stock maximum	Maximum stock
+Cantidad por cartón	Quantité par carton	Units per carton
+Peso (g)	Poids (g)	Weight (g)
+Volumen (cm³)	Volume (cm³)	Volume (cm³)
+Proveedor	Fournisseur	Supplier
+Sin proveedor	Sans fournisseur	No supplier
+Descripción	Description	Description
+Precio de compra (USD)	Prix d’achat (USD)	Purchase price (USD)
+Precio de venta mayorista (USD) — Categoría A *	Prix de gros (USD) — Catégorie A *	Wholesale price (USD) — Category A *
+Precio de venta al detalle (USD) — Categoría B	Prix de détail (USD) — Catégorie B	Retail price (USD) — Category B
+IVA del producto	TVA du produit	Product VAT
+Foto del producto	Photo du produit	Product photo
+Foto tomada con la cámara o seleccionada desde Fotos.	Photo prise avec l’appareil photo ou choisie dans la galerie.	Take a photo or select one from your gallery.
+Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo 🏷️ Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).	Les prix dépendent de la catégorie client. La catégorie C (prix négocié par contrat) se gère dans Tarifs. Sans prix négocié, le prix de gros (catégorie A) s’applique.	Prices depend on the customer category. Category C contract prices are managed in Price lists. Products without an agreed price use the category A wholesale price.
+Crear producto	Créer un produit	Create product
+Limpiar	Effacer	Clear
+Productos disponibles	Produits disponibles	Available products
+Ficha del cliente	Fiche client	Customer details
+Nombre / Razón social *	Nom / Raison sociale *	Name / Company name *
+Identificación *	Identifiant fiscal *	Tax ID *
+Tipo de identificación	Type d’identifiant	ID type
+Cédula	Carte d’identité	National ID
+Pasaporte	Passeport	Passport
+Dirección	Adresse	Address
+Teléfono	Téléphone	Phone
+Correo electrónico	E-mail	Email
+Ciudad	Ville	City
+Provincia	Province	Province
+Categoría de precios	Catégorie tarifaire	Price category
+A · Mayorista (por defecto)	A · Grossiste (par défaut)	A · Wholesale (default)
+B · Venta al detalle	B · Vente au détail	B · Retail
+C · Contrato especial (tarifa)	C · Contrat spécial (tarif)	C · Special contract (price list)
+Observaciones	Observations	Remarks
+La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).	La catégorie détermine le prix : A pour le gros, B pour le détail, C pour le prix négocié. Si le produit n’a pas de tarif négocié, le prix A s’applique.	The category determines the price: A for wholesale, B for retail and C for agreed prices. Products without an agreed price use category A.
+Guardar cliente	Enregistrer le client	Save customer
+Lista de clientes	Liste des clients	Customer list
+Exportar	Exporter	Export
+Excel — Productos + Clientes + Auditoría	Excel — Produits + Clients + Audit	Excel — Products + Customers + Audit
+Copia completa JSON	Sauvegarde complète JSON	Full JSON backup
+Importa el Excel generado por GAMA. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel GAMA. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a GAMA Excel file. Products are merged by barcode and customers by ID.
+Importar / fusionar Excel	Importer / fusionner Excel	Import / merge Excel
+Restaurar JSON	Restaurer un JSON	Restore JSON
+Restaurar copia completa	Restaurer la sauvegarde complète	Restore full backup
+La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.	La restauration JSON remplace les produits, clients, mouvements et factures.	JSON restore replaces products, customers, movements and invoices.
+Tipo	Type	Type
+IN — Entrada	IN — Entrée	IN — Incoming
+OUT — Salida	OUT — Sortie	OUT — Outgoing
+Cantidad	Quantité	Quantity
+Motivo	Motif	Reason
+Recepción	Réception	Receipt
+Venta	Vente	Sale
+Producción	Production	Production
+Consumo	Consommation	Consumption
+Rotura	Casse	Breakage
+Muestra	Échantillon	Sample
+Corrección de inventario	Correction d’inventaire	Inventory adjustment
+Otro	Autre	Other
+Usuario / operador	Utilisateur / opérateur	User / operator
+Comentario de auditoría	Commentaire d’audit	Audit comment
+Registrar y auditar movimiento	Enregistrer et tracer le mouvement	Record and audit movement
+Todas las categorías	Toutes les catégories	All categories
+Sólo stock bajo	Stocks faibles uniquement	Low stock only
+Exportar CSV	Exporter en CSV	Export CSV
+Nuevo presupuesto	Nouveau devis	New quote
+RUC emisor	RUC de l’émetteur	Issuer RUC
+Razón social	Raison sociale	Company name
+Establecimiento	Établissement	Establishment
+Punto de emisión	Point d’émission	Issue point
+Cliente	Client	Customer
+Selecciona un cliente...	Sélectionnez un client…	Select a customer…
+Identificación cliente	Identifiant client	Customer ID
+Nombre / Razón social cliente	Nom / Raison sociale du client	Customer name / Company name
+Correo	E-mail	Email
+Forma de pago	Mode de paiement	Payment method
+Transferencia	Virement	Bank transfer
+Tarjeta de crédito	Carte de crédit	Credit card
+Tarjeta de débito	Carte de débit	Debit card
+Efectivo	Espèces	Cash
+Otros	Autres	Other
+Detalle	Détail	Details
+Añadir	Ajouter	Add
+Generar presupuesto	Générer le devis	Generate quote
+Descargar PDF	Télécharger le PDF	Download PDF
+Enviar por correo	Envoyer par e-mail	Send by email
+Filtrar tipo	Filtrer par type	Filter by type
+Todos	Tous	All
+Exportar Audit Trail CSV	Exporter la piste d’audit en CSV	Export audit trail CSV
+Corrección auditada	Correction tracée	Audited correction
+Code 39 — referencias internas	Code 39 — références internes	Code 39 — internal references
+Referencia / número	Référence / numéro	Reference / number
+Generar	Générer	Generate
+Descargar etiqueta en PDF	Télécharger l’étiquette PDF	Download PDF label
+No hay productos archivados.	Aucun produit archivé.	No archived products.
+Estos productos no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.	Ces produits ne figurent plus dans les listes ni la facturation. Vous pouvez les restaurer à tout moment.	These products are hidden from lists and billing. You can restore them at any time.
+Foto	Photo	Photo
+Código	Code	Code
+Producto	Produit	Product
+Precio compra	Prix d’achat	Purchase price
+Venta A	Vente A	Sale A
+Venta B	Vente B	Sale B
+IVA	TVA	VAT
+Acciones	Actions	Actions
+Restaurar	Restaurer	Restore
+Borrar definitivamente	Supprimer définitivement	Delete permanently
+Editar	Modifier	Edit
+Archivar	Archiver	Archive
+Estos clientes no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.	Ces clients ne figurent plus dans les listes ni la facturation. Vous pouvez les restaurer à tout moment.	These customers are hidden from lists and billing. You can restore them at any time.
+Identificación	Identifiant	ID
+Producto no encontrado.	Produit introuvable.	Product not found.
+Cant.	Qté	Qty.
+Precio	Prix	Price
+Subtotal	Sous-total	Subtotal
+tarifa	tarif	price list
+PRESUPUESTO	DEVIS	QUOTE
+TOTAL	TOTAL	TOTAL
+Documento informativo. No constituye una factura.	Document informatif. Ne constitue pas une facture.	For information only. This is not an invoice.
+Fecha/hora	Date/heure	Date/time
+Antes	Avant	Before
+Después	Après	After
+Usuario	Utilisateur	User
+Origen	Origine	Source
+Comentario	Commentaire	Comment
+Sin datos	Aucune donnée	No data
+Sin movimientos.	Aucun mouvement.	No movements.
+Valor a precio de compra	Valeur au prix d’achat	Value at purchase price
+Ningún producto coincide con el filtro.	Aucun produit ne correspond au filtre.	No products match the filter.
+Sin conexión con GAMA Cloud	Connexion à GAMA Cloud indisponible	No connection to GAMA Cloud
+Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.	Les comptes sont centralisés dans le cloud. Vérifiez votre connexion Internet et réessayez.	Accounts are managed in the cloud. Check your internet connection and try again.
+Reintentar	Réessayer	Retry
+Cerrar sesión	Se déconnecter	Sign out
+Cerrando sesión…	Déconnexion…	Signing out…
+Cuentas cloud	Comptes cloud	Cloud accounts
+Comptes cloud	Comptes cloud	Cloud accounts
+Mis pedidos favoritos	Mes commandes favorites	My favourite orders
+Sin favoritos guardados.	Aucun favori enregistré.	No saved favourites.
+Mi pedido	Ma commande	My order
+Su pedido está vacío.	Votre commande est vide.	Your order is empty.
+Subtotal sin IVA	Sous-total HT	Subtotal excluding VAT
+Total con IVA	Total TTC	Total including VAT
+Enviar pedido	Envoyer la commande	Submit order
+Guardar como favorito	Enregistrer comme favori	Save as favourite
+Cargar	Charger	Load
+Sin existencias	Rupture de stock	Out of stock
+En stock	En stock	In stock
+Precio pactado	Prix négocié	Agreed price
+sin IVA	HT	excluding VAT
+Precio por unidad	Prix à l’unité	Price per unit
+No se encontraron productos.	Aucun produit trouvé.	No products found.
+Iniciar sesión	Se connecter	Sign in
+Inicie sesión con su cuenta GAMA centralizada.	Connectez-vous avec votre compte GAMA.	Sign in with your GAMA account.
+Contraseña	Mot de passe	Password
+No se encontraron usuarios centralizados.	Aucun utilisateur trouvé.	No users found.
+Cerrar	Fermer	Close
+Crear un usuario cloud	Créer un utilisateur cloud	Create a cloud user
+Nombre completo	Nom complet	Full name
+Perfil	Profil	Profile
+Cliente — acceso al catálogo y pedidos	Client — accès au catalogue et aux commandes	Customer — catalogue and order access
+Comercial	Commercial	Salesperson
+Almacenero	Magasinier	Warehouse operator
+Administrador	Administrateur	Administrator
+Crear cuenta	Créer un compte	Create account
+Usuarios cloud	Utilisateurs cloud	Cloud users
+Nombre	Nom	Name
+Estado	Statut	Status
+Creado el	Créé le	Created on
+Cargando…	Chargement…	Loading…
+Cargando usuarios…	Chargement des utilisateurs…	Loading users…
+Rol	Rôle	Role
+Creado	Créé	Created
+Actualización automática activa	Actualisation automatique activée	Automatic refresh enabled
+Tu cuenta	Votre compte	Your account
+No se encontraron usuarios en Supabase.	Aucun utilisateur trouvé dans Supabase.	No users found in Supabase.
+No se pudo leer la tabla profiles. Verifica la política SELECT RLS en Supabase.	Impossible de lire les profils. Vérifiez la politique SELECT RLS dans Supabase.	Could not read profiles. Check the SELECT RLS policy in Supabase.
+Todos los tipos	Tous les types	All types
+Nueva actividad	Nouvelle activité	New activity
+Agenda	Agenda	Schedule
+Historia	Historique	History
+Sólo las mías	Uniquement les miennes	Only mine
+Actividad	Activité	Activity
+Ficha	Fiche	Record
+Vence	Échéance	Due
+Responsable	Responsable	Owner
+vencida	échue	overdue
+Hecha	Terminée	Done
+Abrir	Ouvrir	Open
+Cuelga de	Rattaché à	Linked to
+Prioridad	Priorité	Priority
+Recordar	Rappel	Remind
+Guardar	Enregistrer	Save
+Cancelar	Annuler	Cancel
+Marcar como hecha	Marquer comme terminée	Mark as done
+Cargando la agenda…	Chargement de l’agenda…	Loading schedule…
+Sólo de clientes	Clients uniquement	Customers only
+Sólo de prospectos	Prospects uniquement	Leads only
+Sólo los principales	Principaux uniquement	Primary only
+Nuevo contacto	Nouveau contact	New contact
+Principal	Principal	Primary
+Pertenece a	Appartient à	Belongs to
+Un cliente	Un client	A customer
+Un prospecto	Un prospect	A lead
+Prospecto	Prospect	Lead
+Papel en la decisión	Rôle dans la décision	Decision-making role
+Sólo puede haber uno. Si ya hay otro, deja de serlo automáticamente.	Un seul contact principal est possible. Le précédent sera remplacé automatiquement.	Only one primary contact is allowed. Any previous primary contact is replaced automatically.
+Notas	Notes	Notes
+Cargando contactos…	Chargement des contacts…	Loading contacts…
+Embudo comercial	Pipeline commercial	Sales pipeline
+Todavía no hay etapas configuradas.	Aucune étape configurée.	No stages configured yet.
+Ninguna oportunidad todavía. En cuanto se cree la primera, el embudo se llena solo.	Aucune opportunité. Le pipeline apparaîtra dès la première création.	No opportunities yet. The pipeline fills automatically when you create one.
+Cargando el CRM…	Chargement du CRM…	Loading CRM…
+Tu perfil no tiene acceso al CRM.	Votre profil n’a pas accès au CRM.	Your role does not have CRM access.
+Todos los estados	Tous les statuts	All statuses
+Nuevo prospecto	Nouveau prospect	New lead
+vencido	échu	overdue
+Convertir	Convertir	Convert
+Ya convertido en el cliente	Déjà converti en client	Already converted to customer
+Puntuación (0–100)	Score (0–100)	Score (0–100)
+Próximo seguimiento	Prochain suivi	Next follow-up
+Convertir en cliente	Convertir en client	Convert to customer
+Ya hay un cliente que coincide	Un client correspondant existe déjà	A matching customer already exists
+Enlazar con este cliente	Associer à ce client	Link to this customer
+Crear otra ficha de todas formas	Créer tout de même une autre fiche	Create another record anyway
+Crear el cliente	Créer le client	Create customer
+Cargando prospectos…	Chargement des prospects…	Loading leads…
+Nueva oportunidad	Nouvelle opportunité	New opportunity
+Darla por perdida	Marquer comme perdue	Mark as lost
+Es de	Appartient à	Belongs to
+Contacto	Contact	Contact
+Etapa	Étape	Stage
+Probabilidad (%)	Probabilité (%)	Probability (%)
+Importe	Montant	Amount
+Lo suman los productos de abajo.	Calculé à partir des produits ci-dessous.	Calculated from the products below.
+Cierre previsto	Clôture prévue	Expected close
+Motivo de pérdida	Motif de perte	Loss reason
+Los productos se añaden en cuanto la oportunidad está guardada: hasta entonces no hay a qué colgarlos.	Enregistrez l’opportunité avant d’y ajouter des produits.	Save the opportunity before adding products.
+Lo que se está vendiendo. En cuanto hay una línea, el importe de la oportunidad lo suman ellas.	Produits proposés. Dès qu’une ligne existe, leur somme détermine le montant de l’opportunité.	Products being sold. Once lines are added, their sum determines the opportunity amount.
+Precio unitario	Prix unitaire	Unit price
+Descuento (%)	Remise (%)	Discount (%)
+Dto.	Rem.	Disc.
+Total	Total	Total
+Ninguna línea todavía: el importe es el que se haya escrito arriba.	Aucune ligne : le montant est celui saisi ci-dessus.	No lines yet: the amount is the value entered above.
+Crear / ver pedido de venta	Créer / voir la commande client	Create / view sales order
+Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.	Un devis nécessite un client. Convertissez d’abord le prospect depuis Prospects.	A quote requires a customer. Convert the lead from Leads first.
+Cargando el embudo…	Chargement du pipeline…	Loading pipeline…
+Concepto	Indicateur	Item
+Cuántas	Nombre	Count
+Peso	Poids	Weight
+Nada que contar en este periodo.	Aucune donnée sur cette période.	No data for this period.
+Embudo vivo, hoy	Pipeline actuel	Current pipeline
+Una foto del pipeline abierto en este momento. No depende del periodo elegido: lo que está en curso está en curso.	Vue des opportunités actuellement ouvertes, indépendamment de la période sélectionnée.	A snapshot of currently open opportunities, regardless of the selected period.
+Ponderado	Pondéré	Weighted
+Ninguna oportunidad abierta.	Aucune opportunité ouverte.	No open opportunities.
+Prospectos entrados	Nouveaux prospects	New leads
+Mes a mes	Mois par mois	Month by month
+Cerradas por mes, contadas por su fecha de cierre. Verde ganadas, rojo perdidas.	Opportunités clôturées par mois. Vert : gagnées, rouge : perdues.	Opportunities by closing month. Green: won; red: lost.
+Nada cerrado en este periodo.	Aucune clôture sur cette période.	Nothing closed in this period.
+Ningún prospecto nuevo en este periodo.	Aucun nouveau prospect sur cette période.	No new leads in this period.
+Prospectos	Prospects	Leads
+Calculando…	Calcul en cours…	Calculating…
+Por qué	Motif	Reason
+Veces	Occurrences	Times
+Puntos	Points	Points
+Todavía no ha pasado nada que puntúe: ni reuniones, ni oportunidades a su nombre.	Aucune activité ne génère encore de points : ni réunion ni opportunité.	No scoring activity yet: no meetings or opportunities.
+Estas reglas están configuradas pero hoy no se pueden contar	Ces règles sont configurées mais ne peuvent pas être évaluées actuellement	These rules are configured but cannot currently be evaluated
+Fijar un objetivo	Définir un objectif	Set a target
+Periodo	Période	Period
+Quién	Qui	Who
+Objetivo	Objectif	Target
+Conseguido	Réalisé	Achieved
+Avance	Progression	Progress
+suma de todo el equipo	total de l’équipe	whole team total
+cumplido	atteint	achieved
+Cambiar	Modifier	Change
+Para quién	Pour qui	For whom
+Año	Année	Year
+Mes	Mois	Month
+Trimestre	Trimestre	Quarter
+Objetivo en USD	Objectif en USD	Target in USD
+Cargando objetivos…	Chargement des objectifs…	Loading targets…
+No se pudieron cargar las solicitudes. Verifica las políticas RLS.	Impossible de charger les demandes. Vérifiez les politiques RLS.	Could not load requests. Check RLS policies.
+Solicitud	Demande	Request
+Fecha	Date	Date
+Total sin IVA	Total HT	Total excluding VAT
+Total solicitado sin IVA	Total demandé HT	Requested total excluding VAT
+Crear / ver pedido	Créer / voir la commande	Create / view order
+Validar y crear presupuesto	Valider et créer le devis	Approve and create quote
+Crear presupuesto	Créer le devis	Create quote
+Ver presupuesto	Voir le devis	View quote
+Transferir a Presupuestos	Transférer vers les devis	Transfer to quotes
+Seleccione el cliente del presupuesto.	Sélectionnez le client du devis.	Select the customer for the quote.
+Cliente del presupuesto	Client du devis	Quote customer
+Seleccionar un cliente	Sélectionner un client	Select a customer
+Volver	Retour	Back
+Datos desde Excel	Données Excel	Data from Excel
+Fotos de productos	Photos des produits	Product photos
+Optimizar fotos	Optimiser les photos	Optimise photos
+Selecciona o arrastra un archivo Excel	Sélectionnez ou déposez un fichier Excel	Select or drop an Excel file
+Formatos compatibles: .xlsx, .xls y .csv	Formats acceptés : .xlsx, .xls et .csv	Supported formats: .xlsx, .xls and .csv
+Ningún archivo seleccionado.	Aucun fichier sélectionné.	No file selected.
+Tarifas de cliente	Tarifs clients	Customer price lists
+Selecciona un archivo para mostrar una vista previa.	Sélectionnez un fichier pour afficher un aperçu.	Select a file to show a preview.
+Descargar plantilla	Télécharger le modèle	Download template
+Selecciona o arrastra las fotos de tus productos	Sélectionnez ou déposez les photos de vos produits	Select or drop your product photos
+Formatos compatibles: .jpg, .png y .webp — puedes seleccionar varias a la vez	Formats acceptés : .jpg, .png et .webp — sélection multiple possible	Supported formats: .jpg, .png and .webp — multiple selection allowed
+El nombre del archivo puede contener la	Le nom du fichier peut contenir	The file name may contain the
+referencia, el nombre del producto o ambos	la référence, le nom du produit ou les deux	reference, product name or both
+Ninguna foto seleccionada.	Aucune photo sélectionnée.	No photo selected.
+Conservar las fotos que ya existen (no reemplazarlas)	Conserver les photos existantes (sans les remplacer)	Keep existing photos (do not replace them)
+Selecciona fotos para comprobar la correspondencia con tus productos.	Sélectionnez des photos pour vérifier leur correspondance avec vos produits.	Select photos to check product matching.
+Importar fotos	Importer les photos	Import photos
+Pulsa el botón para revisar las fotos guardadas.	Cliquez pour vérifier les photos enregistrées.	Click to review saved photos.
+Todavía no se ha optimizado nada.	Aucune optimisation effectuée.	Nothing optimised yet.
+Optimizar las fotos guardadas	Optimiser les photos enregistrées	Optimise saved photos
+Archivo	Fichier	File
+Reemplaza la foto actual	Remplace la photo actuelle	Replaces current photo
+Listo para importar	Prêt à importer	Ready to import
+Motivo / resultado del control	Motif / résultat du contrôle	Reason / check result
+Cámara	Appareil photo	Camera
+Cargando preparación y retornos…	Chargement de la préparation et des retours…	Loading preparation and returns…
+Reintentar dossier	Recharger le dossier	Retry dossier
+Dossier del pedido	Dossier de la commande	Order dossier
+Próxima acción	Prochaine action	Next action
+Preparación y bultos	Préparation et colis	Picking and packages
+Disponibilidad y acuerdos	Disponibilité et accords	Availability and agreements
+Retornos	Retours	Returns
+Expediciones	Expéditions	Shipments
+Facturas y cobros	Factures et encaissements	Invoices and payments
+Ver presupuesto aceptado	Voir le devis accepté	View accepted quote
+Ver solicitud inicial	Voir la demande initiale	View original request
+Preparación y embalaje	Préparation et emballage	Picking and packing
+No hay preparación activa.	Aucune préparation active.	No active preparation.
+Iniciar preparación	Démarrer la préparation	Start picking
+Crear bulto	Créer un colis	Create package
+Validar embalaje	Valider l’emballage	Validate packing
+Expedir bultos controlados	Expédier les colis contrôlés	Dispatch checked packages
+Cancelar preparación	Annuler la préparation	Cancel picking
+Incidencia	Incident	Issue
+Etiqueta / imprimir	Étiquette / imprimer	Label / print
+Anular bulto	Annuler le colis	Void package
+Disponibilidad, fechas y acuerdos	Disponibilité, dates et accords	Availability, dates and agreements
+Las compras previstas son compartidas por todos los pedidos. Su fecha no es una promesa al cliente.	Les achats prévus sont partagés entre les commandes. Leur date n’est pas un engagement envers le client.	Planned purchases are shared across orders. Their dates are not customer commitments.
+Proponer entrega / sustitución	Proposer une livraison / substitution	Propose delivery / substitution
+Registrar acuerdo externo	Enregistrer un accord externe	Record external agreement
+Retirar propuesta	Retirer la proposition	Withdraw proposal
+Retornos, rechazos y cambios	Retours, refus et échanges	Returns, rejections and exchanges
+Registrar retorno / rechazo	Enregistrer un retour / refus	Record return / rejection
+Los retornos se vinculan a una expedición.	Les retours sont liés à une expédition.	Returns are linked to a shipment.
+Recibir en cuarentena	Réceptionner en quarantaine	Receive into quarantine
+Registrar inspección	Enregistrer l’inspection	Record inspection
+Cancelar solicitud	Annuler la demande	Cancel request
+Añadir foto	Ajouter une photo	Add photo
+Vincular abono externo	Associer un avoir externe	Link external credit note
+Ver pedido de cambio	Voir la commande d’échange	View replacement order
+Yo	Moi	Me
+Se tomarán las reservas disponibles por ubicación. Las cantidades sin stock quedan pendientes.	Les réservations disponibles seront utilisées par emplacement. Les quantités manquantes resteront en attente.	Available reservations are used by location. Out-of-stock quantities remain pending.
+Faltante	Manquant	Missing
+Dañado	Endommagé	Damaged
+El aviso conserva la reserva; la corrección física se realiza mediante inventario.	Le signalement conserve la réservation ; le stock physique se corrige par inventaire.	Reporting preserves the reservation; physical stock is corrected through inventory.
+Todos los productos recogidos deben estar dentro de bultos controlados. Si faltan cantidades del pedido, explica el envío parcial.	Tous les produits préparés doivent être dans des colis contrôlés. Justifiez toute expédition partielle.	All picked products must be in checked packages. Explain any partial shipment.
+Motivo de entrega parcial (si corresponde)	Motif de livraison partielle (si nécessaire)	Partial delivery reason (if applicable)
+Los productos recogidos vuelven a sus ubicaciones de origen y conservan la reserva del pedido. Los bultos quedan anulados.	Les produits préparés retournent à leur emplacement et restent réservés. Les colis sont annulés.	Picked products return to their locations and remain reserved. Packages are voided.
+Respuesta	Réponse	Response
+Aceptada	Acceptée	Accepted
+Rechazada	Refusée	Rejected
+Confirma que la mercancía ha regresado físicamente. Se registrará en la zona de cuarentena del almacén seleccionado, bloqueada para venta.	Confirmez le retour physique de la marchandise. Elle sera placée en quarantaine dans l’entrepôt choisi, bloquée à la vente.	Confirm that goods have physically returned. They will be quarantined in the selected warehouse and blocked from sale.
+Resultado	Résultat	Result
+Conforme: reintegrar al stock	Conforme : réintégrer au stock	Passed: return to stock
+No conforme: dar de baja	Non conforme : mettre au rebut	Failed: write off
+Conforme: reintegrar y crear cambio sin cobro	Conforme : réintégrer et créer un échange gratuit	Passed: return to stock and create free replacement
+No conforme: dar de baja y crear cambio sin cobro	Non conforme : mettre au rebut et créer un échange gratuit	Failed: write off and create free replacement
+El cambio crea un pedido del mismo producto y cantidad, vinculado al retorno, con precio cero. Se prepara y expide por el flujo normal.	L’échange crée une commande à prix nul du même produit et de la même quantité, liée au retour, préparée et expédiée normalement.	The replacement creates a zero-price order for the same product and quantity, linked to the return and processed normally.
+Registra el abono de tu software fiscal. Este registro no emite documentos ni modifica cobros.	Enregistrez l’avoir de votre logiciel fiscal. Cet enregistrement n’émet aucun document et ne modifie pas les encaissements.	Record the credit note from your tax software. This does not issue documents or change payments.
+Factura	Facture	Invoice
+Ubicación del almacén / destino	Emplacement de l’entrepôt / destination	Warehouse location / destination
+Escanea de nuevo cada producto incluido para comprobar el contenido. Usa cantidad cero para dejarlo fuera de este bulto.	Scannez à nouveau chaque produit pour vérifier le contenu. Une quantité nulle exclut le produit de ce colis.	Scan each product again to check the contents. Use zero quantity to exclude it from this package.
+Opción	Option	Option
+Entrega parcial	Livraison partielle	Partial delivery
+Esperar entrega completa	Attendre la livraison complète	Wait for complete delivery
+Sustituir producto	Remplacer le produit	Substitute product
+Producto de reemplazo	Produit de remplacement	Replacement product
+Seleccionar…	Sélectionner…	Select…
+Condiciones / explicación	Conditions / explication	Terms / explanation
+El cliente podrá responder desde Presupuestos → Opciones de entrega. También puedes registrar su acuerdo externo.	Le client pourra répondre depuis Devis → Options de livraison. Vous pouvez aussi enregistrer son accord externe.	The customer can reply in Quotes → Delivery options. You can also record an external agreement.
+Línea expedida	Ligne expédiée	Shipped line
+La solicitud no modifica el stock. Confirma la recepción cuando la mercancía llegue.	La demande ne modifie pas le stock. Confirmez la réception à l’arrivée des marchandises.	The request does not change stock. Confirm receipt when the goods arrive.
+Foto del retorno (PNG, JPEG o WebP, máximo 2 MB)	Photo du retour (PNG, JPEG ou WebP, 2 Mo maximum)	Return photo (PNG, JPEG or WebP, maximum 2 MB)
+ETIQUETA DE BULTO	ÉTIQUETTE DE COLIS	PACKAGE LABEL
+Opciones de entrega	Options de livraison	Delivery options
+Revisa las condiciones antes de aceptar. La aceptación queda registrada en el pedido.	Vérifiez les conditions avant d’accepter. L’accord sera enregistré dans la commande.	Review the terms before accepting. Acceptance is recorded in the order.
+Aceptar condiciones	Accepter les conditions	Accept terms
+Rechazar	Refuser	Reject
+No hay propuestas.	Aucune proposition.	No proposals.
+Anterior	Précédent	Previous
+Siguiente	Suivant	Next
+Todavía no hay una prueba registrada.	Aucune preuve enregistrée.	No proof recorded yet.
+Empleados activos	Employés actifs	Active employees
+Ausentes hoy	Absents aujourd’hui	Absent today
+Pendientes de aprobar	En attente d’approbation	Awaiting approval
+Archivado	Archivé	Archived
+Activo	Actif	Active
+Con cuenta	Avec compte	With account
+Sin cuenta	Sans compte	No account
+Nombre y apellidos *	Nom et prénom *	Full name *
+Cédula / RUC	Carte d’identité / RUC	National ID / RUC
+Puesto	Poste	Job title
+Departamento	Département	Department
+Tipo de contrato	Type de contrat	Contract type
+Sin especificar	Non précisé	Unspecified
+Indefinido	Durée indéterminée	Permanent
+Plazo fijo	Durée déterminée	Fixed-term
+Eventual	Temporaire	Temporary
+Prueba	Essai	Trial
+Prestación de servicios	Prestation de services	Service contract
+Pasantía	Stage	Internship
+Fecha de alta	Date d’entrée	Start date
+Fecha de baja	Date de sortie	End date
+Sueldo mensual (USD)	Salaire mensuel (USD)	Monthly salary (USD)
+Vacaciones al año (días laborables)	Congés annuels (jours ouvrés)	Annual leave (working days)
+Cuenta de acceso	Compte d’accès	Access account
+Sin cuenta — no puede entrar en GAMA	Sans compte — pas d’accès à GAMA	No account — cannot access GAMA
+Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.	Lier un compte permet à la personne de consulter sa fiche, demander des congés et voir le calendrier. Sans compte, seuls les gestionnaires gèrent la fiche.	Linking an account lets the person view their details, request leave and check the team calendar. Without an account, only managers handle the record.
+Plantilla	Effectif	Staff
+Empleado	Employé	Employee
+Contrato	Contrat	Contract
+Sueldo	Salaire	Salary
+Vacaciones	Congés	Leave
+Todavía no hay empleados. Añade el primero con el formulario de al lado.	Aucun employé. Ajoutez le premier avec le formulaire.	No employees yet. Add one using the form.
+Aprobar	Approuver	Approve
+Registrar una ausencia	Enregistrer une absence	Record an absence
+Empleado *	Employé *	Employee *
+Añade primero un empleado	Ajoutez d’abord un employé	Add an employee first
+Desde *	Du *	From *
+Hasta *	Au *	To *
+Pendiente	En attente	Pending
+Aprobada	Approuvée	Approved
+Registrar ausencia	Enregistrer l’absence	Record absence
+Quién está fuera hoy	Qui est absent aujourd’hui	Who is away today
+Hoy no falta nadie.	Personne n’est absent aujourd’hui.	Nobody is absent today.
+Historial de ausencias	Historique des absences	Absence history
+Todavía no hay ausencias registradas.	Aucune absence enregistrée.	No absences recorded yet.
+Hoy	Aujourd’hui	Today
+Semana	Semaine	Week
+Añade empleados en la pestaña «Empleados» para verlos aquí.	Ajoutez des employés dans l’onglet « Employés » pour les afficher ici.	Add employees in the Employees tab to see them here.
+Tu cuenta todavía no está ligada a una ficha de empleado.	Votre compte n’est pas encore lié à une fiche employé.	Your account is not linked to an employee record yet.
+Pídele a un administrador que la enlace desde Recursos humanos → Empleados.	Demandez à un administrateur de le lier depuis Ressources humaines → Employés.	Ask an administrator to link it in Human resources → Employees.
+Mi ficha	Ma fiche	My details
+Si algún dato no es correcto, avisa a un administrador: la ficha la mantiene recursos humanos.	Si une donnée est incorrecte, prévenez un administrateur. Les ressources humaines gèrent votre fiche.	If any detail is incorrect, tell an administrator. Human resources maintains your record.
+Días pactados	Jours accordés	Agreed days
+Usados	Utilisés	Used
+Te quedan	Restants	Remaining
+Se cuentan días laborables, de lunes a viernes. Sólo descuentan los días ya aprobados.	Seuls les jours ouvrés du lundi au vendredi sont comptés. Seuls les congés approuvés sont déduits.	Working days run Monday to Friday. Only approved leave is deducted.
+Retirar	Retirer	Withdraw
+Pedir días	Demander des congés	Request leave
+Tu cuenta no está ligada a una ficha de empleado, así que todavía no puedes pedir días.	Votre compte n’est pas lié à une fiche employé : vous ne pouvez pas encore demander de congés.	Your account is not linked to an employee record, so you cannot request leave yet.
+Enviar solicitud	Envoyer la demande	Submit request
+La solicitud queda	La demande reste	The request remains
+pendiente	en attente	pending
+Mis solicitudes	Mes demandes	My requests
+Todavía no has pedido ningún día.	Vous n’avez encore demandé aucun jour.	You have not requested any leave yet.
+Se copiará el presupuesto aceptado. La factura interna alimenta los KPI, el saldo por cobrar y los cobros. No emite un comprobante fiscal ni mueve stock.	Le devis accepté sera copié. La facture interne alimente les KPI, les créances et les encaissements. Elle n’émet aucun document fiscal et ne modifie pas le stock.	The accepted quote will be copied. The internal invoice feeds KPIs, receivables and payments. It does not issue a tax document or move stock.
+Fecha de factura	Date de facture	Invoice date
+Vencimiento	Échéance	Due date
+Documento interno · sin validez fiscal	Document interne · sans valeur fiscale	Internal document · not valid for tax purposes
+Descargar PDF GAMA	Télécharger le PDF GAMA	Download GAMA PDF
+Copiar datos	Copier les données	Copy data
+Datos para el software de facturación	Données pour le logiciel de facturation	Data for billing software
+Número externo	Numéro externe	External number
+Cliente / identificación	Client / identifiant	Customer / ID
+Software	Logiciel	Software
+Fecha externa	Date externe	External date
+Estado externo	Statut externe	External status
+Subtotal externo	Sous-total externe	External subtotal
+IVA externo	TVA externe	External VAT
+Clave de acceso	Clé d’accès	Access key
+El estado externo no cambia por sí solo la factura interna. Para anular su importe financiero, utiliza la anulación interna en el dossier.	Le statut externe ne modifie pas seul la facture interne. Utilisez l’annulation interne du dossier pour annuler son montant financier.	External status alone does not change the internal invoice. Use internal cancellation in the dossier to void its financial amount.
+Existencias	Stocks	Stock levels
+Transferencias	Transferts	Transfers
+Reabastecimiento	Réapprovisionnement	Replenishment
+Inventario físico	Inventaire physique	Physical inventory
+Ubicaciones	Emplacements	Locations
+Inventario V2 todavía no está activo.	L’inventaire V2 n’est pas encore actif.	Inventory V2 is not active yet.
+Falta aplicar en Supabase la migración	Migration à appliquer dans Supabase	Apply this migration in Supabase
+Todos los almacenes	Tous les entrepôts	All warehouses
+Sin stock	Sans stock	Out of stock
+Con reservas	Avec réservations	With reservations
+Sobre stock	Surstock	Overstock
+No hay existencias que coincidan.	Aucun stock correspondant.	No matching stock.
+Almacén	Entrepôt	Warehouse
+On hand	Stock physique	On hand
+Reservado	Réservé	Reserved
+Disponible	Disponible	Available
+Entrante	À recevoir	Incoming
+Previsto	Prévu	Forecast
+Mínimo	Minimum	Minimum
+Máximo	Maximum	Maximum
+Costo	Coût	Cost
+Valor	Valeur	Value
+Valor del stock	Valeur du stock	Stock value
+Productos bajo mínimo	Produits sous le minimum	Products below minimum
+Unidades reservadas	Unités réservées	Reserved units
+Mover existencias de una ubicación a otra	Transférer du stock entre emplacements	Move stock between locations
+El traslado es de una sola pieza: o se mueve entero o no se mueve nada. Lo reservado no se puede mover.	Le transfert est intégral ou annulé. Les quantités réservées ne peuvent pas être transférées.	Transfers are all-or-nothing. Reserved stock cannot be moved.
+Elija un producto…	Choisissez un produit…	Choose a product…
+Desde	Du	From
+Ubicación de origen…	Emplacement d’origine…	Source location…
+Hacia	Vers	To
+Ubicación de destino…	Emplacement de destination…	Destination location…
+Confirmar transferencia	Confirmer le transfert	Confirm transfer
+Últimos traslados	Derniers transferts	Latest transfers
+Destino	Destination	Destination
+Todavía no hay traslados registrados.	Aucun transfert enregistré.	No transfers recorded yet.
+No se pudo leer el historial.	Impossible de lire l’historique.	Could not read history.
+Productos que hay que reponer	Produits à réapprovisionner	Products to replenish
+Se repone cuando lo previsto cae por debajo del mínimo. Previsto es lo disponible más lo que ya viene de camino, así que un producto con una compra en marcha no vuelve a pedirse.	Le réapprovisionnement est proposé lorsque le stock prévu (disponible + attendu) passe sous le minimum, pour éviter les achats en double.	Replenishment is suggested when forecast stock (available plus incoming) falls below minimum, avoiding duplicate purchases.
+Sugerido	Suggéré	Suggested
+regla propia	règle personnalisée	custom rule
+hasta el mínimo	jusqu’au minimum	up to minimum
+Ningún producto está por debajo de su mínimo.	Aucun produit sous son minimum.	No products are below minimum.
+La sugerencia no crea ninguna orden de compra: pedir sigue siendo cosa del módulo de Compras.	La suggestion ne crée pas de commande : passez la commande depuis Achats.	Suggestions do not create purchase orders. Place orders in Purchasing.
+El inventario físico todavía no está activo.	L’inventaire physique n’est pas encore actif.	Physical inventory is not active yet.
+Nuevo recuento	Nouveau comptage	New count
+Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.	Le comptage part du stock théorique. Le stock n’est ajusté qu’à la validation, avec traçabilité de chaque écart.	Counts start from recorded stock. Stock changes only on validation, with each difference recorded in the audit trail.
+Crear y generar líneas	Créer et générer les lignes	Create and generate lines
+Recuentos	Comptages	Counts
+Todavía no hay recuentos.	Aucun comptage.	No counts yet.
+Este recuento ya está cerrado: sus líneas no se pueden cambiar.	Ce comptage est clôturé : ses lignes ne peuvent plus être modifiées.	This count is closed: its lines cannot be changed.
+Validar y ajustar existencias	Valider et ajuster les stocks	Validate and adjust stock
+Esperado	Attendu	Expected
+Contado	Compté	Counted
+Diferencia	Écart	Difference
+Este recuento no tiene líneas: el almacén no tiene existencias registradas.	Ce comptage est vide : aucun stock enregistré dans cet entrepôt.	This count has no lines: the warehouse has no recorded stock.
+No hay almacenes dados de alta.	Aucun entrepôt enregistré.	No warehouses registered.
+Sin ubicaciones.	Aucun emplacement.	No locations.
+Archivo de presupuestos	Archives des devis	Quote archive
+Archivo cloud central • numeración incremental desde 000000001.	Archives cloud centralisées • numérotation à partir de 000000001.	Central cloud archive • numbering starts at 000000001.
+Actualizar	Actualiser	Refresh
+Número de archivo	Numéro d’archive	Archive number
+No se pudieron cargar los presupuestos en la nube. Verifica los permisos RLS de Supabase.	Impossible de charger les devis. Vérifiez les droits RLS de Supabase.	Could not load cloud quotes. Check Supabase RLS permissions.
+N° archivo	N° d’archive	Archive no.
+Presupuesto	Devis	Quote
+No se pudo cargar el módulo Excel. Recarga la aplicación.	Impossible de charger le module Excel. Rechargez l’application.	Could not load the Excel module. Reload the application.
+Ver dossiers	Voir les dossiers	View dossiers
+Actividad del periodo	Activité de la période	Period activity
+Hasta	Au	To
+Aplicar periodo	Appliquer la période	Apply period
+Cómo se calculan	Méthode de calcul	How these are calculated
+Fechas de Ecuador. Pedidos: creación de pedidos actualmente confirmados. Expediciones: despacho. Entregas: entrega real, incluidas las creadas directamente en TMS. Facturas internas y registros externos: fecha de factura, cada documento contado una vez; se excluyen anuladas y rechazadas. Cobros: fecha del pago confirmado. Estas etapas son independientes y no forman una conversión de la misma cohorte.	Dates d’Équateur. Commandes : création des commandes actuellement confirmées. Expéditions : départ. Livraisons : livraison réelle, y compris celles créées dans TMS. Factures : date de facture, comptées une fois, hors annulations et rejets. Encaissements : date du paiement confirmé. Ces étapes sont indépendantes et ne suivent pas une même cohorte.	Ecuador dates. Orders: creation of currently confirmed orders. Shipments: dispatch. Deliveries: actual delivery, including direct TMS entries. Invoices: invoice date, counted once, excluding voided and rejected documents. Payments: confirmed payment date. These stages are independent, not a conversion funnel for one cohort.
+Situación actual · todos los periodos	Situation actuelle · toutes périodes	Current position · all periods
+Las facturas por verificar apartan cantidades. Los cobros anulados no cuentan. Los abonos externos de retornos se consultan en el dossier; no se descuentan automáticamente del saldo.	Les factures à vérifier réservent des quantités. Les paiements annulés sont exclus. Les avoirs externes des retours sont visibles dans le dossier, sans déduction automatique du solde.	Unverified invoices earmark quantities. Voided payments are excluded. External return credit notes appear in the dossier and are not automatically deducted from the balance.
+Centro de acción	Centre d’action	Action centre
+Situación actual, incluidas las alertas pospuestas. Selecciona una categoría y actúa sobre cada dossier.	Situation actuelle, alertes reportées incluses. Sélectionnez une catégorie pour agir sur chaque dossier.	Current position, including snoozed alerts. Select a category to act on each dossier.
+Alertas y dossiers pendientes	Alertes et dossiers en attente	Alerts and pending dossiers
+Se cierran automáticamente al desaparecer su causa. Tomar o posponer una alerta no cambia el pedido ni el stock.	Les alertes se ferment quand leur cause disparaît. Prendre en charge ou reporter une alerte ne modifie ni commande ni stock.	Alerts close automatically when their cause is resolved. Taking or snoozing an alert does not change orders or stock.
+Seguimiento	Suivi	Follow-up
+Abrir dossier	Ouvrir le dossier	Open dossier
+Tomar a mi cargo	Prendre en charge	Take ownership
+Posponer 24 h	Reporter de 24 h	Snooze for 24 h
+Reactivar	Réactiver	Reactivate
+No hay alertas para este filtro.	Aucune alerte pour ce filtre.	No alerts for this filter.
+Cargando datos…	Chargement des données…	Loading data…
+Nota de seguimiento	Note de suivi	Follow-up note
+Clientes de categoría C	Clients de catégorie C	Category C customers
+Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.	Les prix négociés concernent les clients de catégorie C, définie dans leur fiche. Importez-les en masse via Importer des données ou modifiez-les ici par produit.	Negotiated prices apply to category C customers, set in their customer record. Bulk import them via Import data or edit them here per product.
+Ningún cliente de categoría C todavía.	Aucun client de catégorie C.	No category C customers yet.
+Elige un cliente a la izquierda.	Choisissez un client à gauche.	Choose a customer on the left.
+Todos los productos ya tienen precio pactado	Tous les produits ont déjà un prix négocié	All products already have agreed prices
+Precio negociado	Prix négocié	Negotiated price
+Precio mayorista	Prix de gros	Wholesale price
+Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.	Aucun prix négocié : le prix de gros de la fiche s’applique à tous les produits.	No negotiated prices yet: all products use their listed wholesale price.
+Cargando tarifas especiales…	Chargement des tarifs spéciaux…	Loading special prices…
+Conéctate a la nube para ver los proveedores.	Connectez-vous au cloud pour voir les fournisseurs.	Connect to the cloud to view suppliers.
+Estos proveedores no aparecen en las listas ni en Compras. Puedes restaurarlos cuando quieras.	Ces fournisseurs ne figurent plus dans les listes ni les achats. Vous pouvez les restaurer à tout moment.	These suppliers are hidden from lists and purchasing. You can restore them at any time.
+Borrar	Supprimer	Delete
+No hay proveedores archivados.	Aucun fournisseur archivé.	No archived suppliers.
+No hay proveedores registrados.	Aucun fournisseur enregistré.	No suppliers registered.
+Nuevo proveedor	Nouveau fournisseur	New supplier
+Nombre / razón social *	Nom / raison sociale *	Name / company name *
+RUC / identificación	RUC / identifiant	RUC / ID
+Persona de contacto	Personne de contact	Contact person
+Ciudad / país	Ville / pays	City / country
+Información clave	Informations clés	Key information
+Guardar proveedor	Enregistrer le fournisseur	Save supplier
+Proveedores registrados	Fournisseurs enregistrés	Registered suppliers
+Cargando proveedores…	Chargement des fournisseurs…	Loading suppliers…
+Referencias en matriz	Références dans la matrice	Matrix references
+Compra total	Total des achats	Total purchase cost
+Venta total calculada	Total des ventes calculé	Calculated sales total
+Agregar / recalcular una referencia	Ajouter / recalculer une référence	Add / recalculate a reference
+Producto *	Produit *	Product *
+Seleccionar producto	Sélectionner un produit	Select a product
+Precio de compra unitario (USD) *	Prix d’achat unitaire (USD) *	Unit purchase price (USD) *
+Margen comercial objetivo (%)	Marge commerciale cible (%)	Target sales margin (%)
+Precio de reventa automático = precio de compra ÷ (1 − margen objetivo).	Prix de revente automatique = prix d’achat ÷ (1 − marge cible).	Automatic resale price = purchase price ÷ (1 − target margin).
+Añadir a la matriz	Ajouter à la matrice	Add to matrix
+Reiniciar	Réinitialiser	Reset
+Matriz compra / reventa	Matrice achat / revente	Purchase / resale matrix
+Compra	Achat	Purchase
+Margen	Marge	Margin
+Reventa auto	Revente auto	Auto resale
+Beneficio	Bénéfice	Profit
+Eliminar	Supprimer	Delete
+Ninguna referencia en la matriz.	Aucune référence dans la matrice.	No references in the matrix.
+Pedidos	Commandes	Orders
+Pendientes de recepción	En attente de réception	Awaiting receipt
+Recepciones parciales	Réceptions partielles	Partial receipts
+Recibidos	Reçus	Received
+Total de compras	Total des achats	Total purchases
+Nuevo pedido a proveedor	Nouvelle commande fournisseur	New purchase order
+Proveedor *	Fournisseur *	Supplier *
+Seleccionar proveedor…	Sélectionner un fournisseur…	Select a supplier…
+Fecha prevista	Date prévue	Expected date
+Referencia del proveedor	Référence fournisseur	Supplier reference
+Seleccionar producto…	Sélectionner un produit…	Select a product…
+Precio de compra unitario	Prix d’achat unitaire	Unit purchase price
+Añadir producto	Ajouter un produit	Add product
+Crear pedido	Créer la commande	Create order
+Pedidos a proveedores	Commandes fournisseurs	Purchase orders
+El inventario solo aumenta al registrar la recepción.	Le stock augmente uniquement lors de la réception.	Stock increases only when receipt is recorded.
+Borradores	Brouillons	Drafts
+Pedidos realizados	Commandes passées	Orders placed
+Recepción parcial	Réception partielle	Partial receipt
+Cancelados	Annulés	Cancelled
+No hay productos en el pedido.	Aucun produit dans la commande.	No products in the order.
+Recibir en	Réceptionner dans	Receive into
+Preparar pedido	Préparer la commande	Prepare order
+Asigna un proveedor en Productos	Attribuez un fournisseur dans Produits	Assign a supplier in Products
+Calculadas con stock físico, reservas de ventas, demanda pendiente y compras ya en camino.	Calculées à partir du stock physique, des réservations, de la demande en attente et des achats en cours.	Calculated from physical stock, sales reservations, pending demand and incoming purchases.
+Necesidades actuales de los productos del dossier, descontando compras en camino. Revisa las cantidades antes de guardar.	Besoins actuels du dossier, achats en cours déduits. Vérifiez les quantités avant d’enregistrer.	Current needs for dossier products, minus incoming purchases. Review quantities before saving.
+Hay productos sin proveedor: asígnalo en Productos para comprarlos.	Certains produits n’ont pas de fournisseur. Attribuez-en un dans Produits pour les commander.	Some products have no supplier. Assign one in Products before purchasing.
+No hay pedidos para mostrar.	Aucune commande à afficher.	No orders to display.
+Entrada	Entrée	Incoming
+Completo	Complet	Complete
+Comentario de recepción	Commentaire de réception	Receipt comment
+Enviar pedido por correo	Envoyer la commande par e-mail	Email order
+Registrar recepción	Enregistrer la réception	Record receipt
+Cancelar pedido	Annuler la commande	Cancel order
+Todas las cantidades ya han sido recibidas.	Toutes les quantités ont été réceptionnées.	All quantities have been received.
+Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.	Vérifiez le message et choisissez votre messagerie. Vous pouvez le modifier avant l’envoi.	Review the message and choose your email app. You can edit it before sending.
+Para	À	To
+Asunto	Objet	Subject
+Mensaje	Message	Message
+Abrir Gmail	Ouvrir Gmail	Open Gmail
+Abrir Outlook	Ouvrir Outlook	Open Outlook
+Mi aplicación de correo	Ma messagerie	My email app
+Copiar mensaje	Copier le message	Copy message
+Volver a intentar	Réessayer	Try again
+Formulario y archivo anteriores	Ancien formulaire et archives	Legacy form and archive
+Vigencia	Validité	Validity
+Ver	Voir	View
+No hay presupuestos disponibles.	Aucun devis disponible.	No quotes available.
+Preparado para	Préparé pour	Prepared for
+Entrega	Livraison	Delivery
+Pago	Paiement	Payment
+Condiciones	Conditions	Terms
+Preparar correo	Préparer l’e-mail	Prepare email
+Editar todos los campos	Modifier tous les champs	Edit all fields
+Enviar al cliente en la aplicación	Envoyer au client dans l’application	Send to customer in the app
+Reabrir para modificar	Rouvrir pour modifier	Reopen to edit
+Cancelar presupuesto	Annuler le devis	Cancel quote
+Al aceptar, se crea el pedido y se reservan las existencias disponibles. Las cantidades faltantes quedan pendientes de reposición.	L’acceptation crée la commande et réserve le stock disponible. Les quantités manquantes restent en attente de réapprovisionnement.	Acceptance creates the order and reserves available stock. Missing quantities await replenishment.
+He revisado y acepto los productos, importes y condiciones.	J’ai vérifié et j’accepte les produits, montants et conditions.	I have reviewed and accept the products, amounts and terms.
+Medio de aceptación	Mode d’acceptation	Acceptance method
+Presencial	En personne	In person
+Referencia del acuerdo	Référence de l’accord	Agreement reference
+Ver pedido y reservas	Voir la commande et les réservations	View order and reservations
+Crear / ver factura interna	Créer / voir la facture interne	Create / view internal invoice
+Puedes consultar las expediciones y sus pruebas en Mis entregas.	Consultez les expéditions et leurs preuves dans Mes livraisons.	View shipments and proofs in My deliveries.
+Estado de las cantidades	État des quantités	Quantity status
+Pedido	Commandé	Ordered
+Expedido	Expédié	Shipped
+Pendiente de reposición	En attente de réapprovisionnement	Awaiting replenishment
+Historial de versiones y aceptación	Historique des versions et de l’acceptation	Version and acceptance history
+Todos los valores propuestos se pueden modificar. Sustituye un producto o aplica un descuento antes de enviar.	Toutes les valeurs proposées sont modifiables. Remplacez un produit ou appliquez une remise avant l’envoi.	All suggested values can be edited. Substitute a product or apply a discount before sending.
+Ficha cliente	Fiche client	Customer details
+Productos y oferta	Produits et offre	Products and offer
+Condiciones comerciales	Conditions commerciales	Commercial terms
+Guardar borrador	Enregistrer le brouillon	Save draft
+Descripción en el presupuesto	Description dans le devis	Quote description
+Quitar producto	Retirer le produit	Remove product
+Prueba de entrega	Preuve de livraison	Proof of delivery
+Todavía no hay una prueba de entrega registrada.	Aucune preuve de livraison enregistrée.	No proof of delivery recorded yet.
+No hay entregas asociadas a tu cuenta.	Aucune livraison associée à votre compte.	No deliveries linked to your account.
+Sin ventas en este periodo.	Aucune vente sur cette période.	No sales in this period.
+Nuevo pedido	Nouvelle commande	New order
+Cantidades confirmadas sin factura vinculada. Los registros por verificar también apartan cantidades para evitar duplicados. La expedición y la facturación son independientes.	Quantités confirmées sans facture liée. Les documents à vérifier réservent aussi des quantités pour éviter les doublons. Expédition et facturation sont indépendantes.	Confirmed quantities without a linked invoice. Unverified records also earmark quantities to prevent duplicates. Shipping and billing are independent.
+La salida de stock se registra al validar la expedición. La entrega al cliente se sigue en Transporte y entregas.	La sortie de stock est enregistrée à la validation de l’expédition. La livraison se suit dans Transport et livraisons.	Stock is deducted when shipment is validated. Track customer delivery in Transport and deliveries.
+Expedición	Expédition	Shipment
+Transporte	Transport	Transport
+Ver pedido	Voir la commande	View order
+No hay expediciones.	Aucune expédition.	No shipments.
+Facturas internas y registros externos: cada importe se cuenta una sola vez.	Factures internes et registres externes : chaque montant est compté une seule fois.	Internal invoices and external records: each amount is counted once.
+Cobrado	Encaissé	Collected
+Saldo	Solde	Balance
+Cobro	Encaissement	Payment
+Tipo / estado	Type / statut	Type / status
+Ver vínculo	Voir le lien	View link
+Vincula una factura desde el detalle de un pedido confirmado.	Associez une facture depuis le détail d’une commande confirmée.	Link an invoice from a confirmed order’s details.
+Cargando pedido…	Chargement de la commande…	Loading order…
+Volver a la lista	Retour à la liste	Back to list
+Confirmar y reservar	Confirmer et réserver	Confirm and reserve
+Reservar pendientes	Réserver les quantités en attente	Reserve pending quantities
+Preparar / expedir	Préparer / expédier	Pick / ship
+Vincular factura externa	Associer une facture externe	Link external invoice
+Stock físico	Stock physique	Physical stock
+Reservado pedido	Réservé pour la commande	Reserved for order
+Disponible global	Disponible global	Total available
+Por aprovisionar	À approvisionner	To procure
+Por expedir	À expédier	To ship
+Facturado interno / autorizado	Facturé en interne / autorisé	Internally invoiced / authorised
+Sin vincular	Non associé	Unlinked
+Físico − todas las reservas = disponible. El faltante alimenta automáticamente las necesidades de compra; las recepciones se asignan primero a los pedidos confirmados más antiguos.	Stock physique − réservations = disponible. Les manquants alimentent les besoins d’achat. Les réceptions sont attribuées d’abord aux commandes confirmées les plus anciennes.	Physical stock minus reservations equals available stock. Shortages feed purchasing needs. Receipts go to the oldest confirmed orders first.
+Expediciones vinculadas	Expéditions associées	Linked shipments
+Ver carga en TMS	Voir le chargement dans TMS	View loading in TMS
+Ver prueba de entrega	Voir la preuve de livraison	View proof of delivery
+Aún no hay expediciones.	Aucune expédition pour le moment.	No shipments yet.
+Facturas internas, externas y cobros	Factures internes, externes et encaissements	Internal invoices, external invoices and payments
+Las facturas internas alimentan los KPI y los cobros. La referencia externa no duplica el importe.	Les factures internes alimentent les KPI et les encaissements. La référence externe ne double pas le montant.	Internal invoices feed KPIs and payments. The external reference does not duplicate the amount.
+ANULADO	ANNULÉ	VOIDED
+Anular cobro	Annuler l’encaissement	Void payment
+Asociar expediciones	Associer des expéditions	Link shipments
+Ver / copiar factura interna	Voir / copier la facture interne	View / copy internal invoice
+Referencia externa	Référence externe	External reference
+Adjuntar PDF / XML	Joindre un PDF / XML	Attach PDF / XML
+Registrar cobro	Enregistrer un encaissement	Record payment
+Aún no hay facturas vinculadas.	Aucune facture associée.	No linked invoices yet.
+Historial reciente	Historique récent	Recent history
+Pedido directo	Commande directe	Direct order
+Presupuesto existente	Devis existant	Existing quote
+Solicitud de cliente	Demande client	Customer request
+Documento de origen	Document d’origine	Source document
+Últimos 200 documentos	200 derniers documents	Last 200 documents
+Dirección de entrega	Adresse de livraison	Delivery address
+Precio unitario sin IVA	Prix unitaire HT	Unit price excluding VAT
+IVA (%)	TVA (%)	VAT (%)
+El pedido se guarda como borrador. Confírmalo después de revisar sus líneas.	La commande est enregistrée en brouillon. Confirmez-la après vérification des lignes.	The order is saved as a draft. Confirm it after reviewing the lines.
+Quitar	Retirer	Remove
+PDF / XML (opcional, hasta 2 archivos de 5 MB)	PDF / XML (facultatif, 2 fichiers de 5 Mo maximum)	PDF / XML (optional, up to 2 files of 5 MB)
+Expediciones cubiertas	Expéditions couvertes	Covered shipments
+Marca las salidas incluidas en este documento.	Cochez les expéditions incluses dans ce document.	Select the shipments included in this document.
+Todavía no hay expediciones: la factura quedará vinculada al pedido y podrá asociarse a una salida más adelante.	Aucune expédition : la facture sera liée à la commande et pourra être associée à une expédition ultérieurement.	No shipments yet: the invoice will be linked to the order and can be associated with a shipment later.
+Copia los datos del documento emitido en tu otro software. El estado es una declaración manual. GAMA comprobará el receptor y los importes; no emitirá una factura.	Copiez les données du document émis dans votre autre logiciel. Le statut est déclaré manuellement. GAMA vérifie le destinataire et les montants sans émettre de facture.	Copy the document issued in your other software. Status is manually declared. GAMA checks the recipient and amounts without issuing an invoice.
+Número de factura	Numéro de facture	Invoice number
+RUC del emisor	RUC de l’émetteur	Issuer RUC
+Identificación del receptor	Identifiant du destinataire	Recipient ID
+Software emisor	Logiciel émetteur	Issuing software
+Fecha de emisión	Date d’émission	Issue date
+Clave de acceso (opcional)	Clé d’accès (facultative)	Access key (optional)
+Estado declarado	Statut déclaré	Declared status
+Por verificar	À vérifier	Unverified
+Autorizada según software emisor	Autorisée selon le logiciel émetteur	Authorised per issuing software
+Líneas de esta factura	Lignes de cette facture	Invoice lines
+Cantidad en factura	Quantité facturée	Invoiced quantity
+Subtotal del documento	Sous-total du document	Document subtotal
+IVA del documento	TVA du document	Document VAT
+Selecciona las expediciones de este pedido que cubre la factura. Los vínculos existentes se conservan.	Sélectionnez les expéditions couvertes par la facture. Les liens existants sont conservés.	Select the order’s shipments covered by this invoice. Existing links are kept.
+Medio	Moyen	Method
+Tarjeta	Carte	Card
+Cheque	Chèque	Cheque
+Referencia bancaria / recibo	Référence bancaire / reçu	Bank reference / receipt
+Cuenta / caja	Compte / caisse	Account / cash register
+El cobro se conservará en el historial y volverá a abrir el saldo de la factura.	L’encaissement restera dans l’historique et le solde de la facture sera rouvert.	The payment remains in history and the invoice balance reopens.
+La factura se conserva en el historial y su importe deja de contar en los KPI. No anula el documento externo ni modifica el stock.	La facture reste dans l’historique mais son montant est exclu des KPI. Le document externe et le stock ne sont pas modifiés.	The invoice remains in history but its amount is excluded from KPIs. The external document and stock are unchanged.
+Registra el cambio confirmado en el software emisor. Cancelar aquí no anula un documento ante el SRI y no devuelve mercancía al stock.	Enregistrez le changement confirmé dans le logiciel émetteur. Annuler ici n’annule aucun document auprès du SRI et ne remet pas de marchandises en stock.	Record the change confirmed in the issuing software. Cancelling here does not void a document with the SRI or return goods to stock.
+Autorizada	Autorisée	Authorised
+Cancelada en el software emisor	Annulée dans le logiciel émetteur	Cancelled in issuing software
+Motivo / referencia de comprobación	Motif / référence de vérification	Reason / verification reference
+Escanear código de barras	Scanner un code-barres	Scan barcode
+Activando cámara…	Activation de l’appareil photo…	Starting camera…
+Probar cámara fuera del ERP	Tester l’appareil photo hors ERP	Test camera outside ERP
+Reintentar cámara	Réessayer l’appareil photo	Retry camera
+Introducir código	Saisir le code	Enter code
+Ninguna opción coincide.	Aucune option correspondante.	No matching options.
+Esta pantalla es sólo para administradores.	Cet écran est réservé aux administrateurs.	This screen is for administrators only.
+Pide a un administrador que cambie los módulos activos.	Demandez à un administrateur de modifier les modules actifs.	Ask an administrator to change active modules.
+Módulos de la aplicación	Modules de l’application	Application modules
+Cargando expediciones…	Chargement des expéditions…	Loading shipments…
+Control de carga por escaneo	Contrôle du chargement par scan	Scan-based loading check
+Las expediciones validadas en Pedidos de venta aparecen aquí automáticamente. Escanea los productos cargados antes de confirmar la salida.	Les expéditions validées dans Commandes clients apparaissent ici. Scannez les produits chargés avant de confirmer le départ.	Shipments validated in Sales orders appear here automatically. Scan loaded products before confirming departure.
+No hay expediciones pendientes de carga.	Aucune expédition en attente de chargement.	No shipments awaiting loading.
+Cargando líneas de la expedición…	Chargement des lignes de l’expédition…	Loading shipment lines…
+Esta entrega no está vinculada a una expedición que requiera escaneo.	Cette livraison n’est pas liée à une expédition nécessitant un scan.	This delivery is not linked to a shipment requiring scanning.
+Volver al control de carga	Retour au contrôle du chargement	Back to loading check
+Volver a expediciones	Retour aux expéditions	Back to shipments
+Cargado	Chargé	Loaded
+Control	Contrôle	Check
+Falta un código de barras. Complétalo en la ficha del producto y pulsa Actualizar antes de escanear.	Un code-barres manque. Complétez la fiche produit et actualisez avant de scanner.	A barcode is missing. Add it to the product record and refresh before scanning.
+Registrar productos cargados	Enregistrer les produits chargés	Record loaded products
+Código de barras	Code-barres	Barcode
+Cantidad de este escaneo	Quantité de ce scan	Quantity for this scan
+Abrir cámara	Ouvrir l’appareil photo	Open camera
+Registrar escaneo	Enregistrer le scan	Record scan
+Cada lectura registra 1 unidad por defecto. Para un lote, indica la cantidad cargada de ese producto. No se descuenta stock otra vez.	Chaque scan enregistre 1 unité par défaut. Pour un lot, saisissez la quantité chargée. Le stock n’est pas déduit à nouveau.	Each scan records 1 unit by default. For a batch, enter the loaded quantity. Stock is not deducted again.
+Conductor y vehículo de salida	Conducteur et véhicule de départ	Departure driver and vehicle
+Confirmar salida hacia el cliente	Confirmer le départ vers le client	Confirm departure to customer
+Solo se permite salir cuando todas las líneas y cantidades están verificadas.	Le départ n’est possible qu’après vérification de toutes les lignes et quantités.	Departure is allowed only after every line and quantity has been checked.
+Historial de escaneos y correcciones	Historique des scans et corrections	Scan and correction history
+Corregir este escaneo	Corriger ce scan	Correct this scan
+Todavía no hay escaneos.	Aucun scan enregistré.	No scans yet.
+Cargando datos de transporte…	Chargement des données de transport…	Loading transport data…
+Sin empleado enlazado — sus ausencias no se tienen en cuenta	Aucun employé lié — ses absences ne sont pas prises en compte	No linked employee — absences are not taken into account
+Empleado enlazado (RRHH)	Employé lié (RH)	Linked employee (HR)
+Sin enlazar	Non lié	Not linked
+Cuando el empleado tenga vacaciones o una baja aprobada en RRHH, el conductor quedará fuera del reparto esos días.	Les jours de congé ou d’absence approuvés dans les RH excluent le conducteur des tournées.	Approved leave or absence in HR excludes the driver from deliveries on those days.
+Nueva entrega	Nouvelle livraison	New delivery
+Pedidos / preparación	Commandes / préparation	Orders / picking
+Cliente registrado	Client enregistré	Registered customer
+Escribir a mano	Saisir manuellement	Enter manually
+Detalles opcionales (franja horaria, prioridad, carga)	Détails facultatifs (créneau, priorité, chargement)	Optional details (time window, priority, load)
+Franja horaria	Créneau horaire	Time window
+Normal	Normale	Normal
+Alta	Haute	High
+Urgente	Urgente	Urgent
+Peso (kg)	Poids (kg)	Weight (kg)
+Volumen (m³)	Volume (m³)	Volume (m³)
+Añadir entrega	Ajouter une livraison	Add delivery
+Entregas de hoy	Livraisons du jour	Today’s deliveries
+Franja	Créneau	Time window
+Carga	Chargement	Load
+Control de carga	Contrôle du chargement	Loading check
+No hay entregas hoy.	Aucune livraison aujourd’hui.	No deliveries today.
+Optimizar rutas de hoy	Optimiser les tournées du jour	Optimise today’s routes
+Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.	Répartissez les livraisons selon la capacité et la proximité. Les conducteurs absents ou en congé dans les RH sont exclus.	Allocate today’s deliveries by driver capacity and proximity. Drivers on approved HR leave are excluded.
+Optimizar todas las rutas	Optimiser toutes les tournées	Optimise all routes
+Ver ruta	Voir la tournée	View route
+No hay rutas planificadas.	Aucune tournée planifiée.	No planned routes.
+Configuración avanzada del depósito	Paramètres avancés du dépôt	Advanced depot settings
+Dirección del depósito	Adresse du dépôt	Depot address
+Regreso al depósito	Retour au dépôt	Return to depot
+Sí	Oui	Yes
+No	Non	No
+Seguimiento de las rutas	Suivi des tournées	Route tracking
+No hay rutas hoy.	Aucune tournée aujourd’hui.	No routes today.
+Eventos recientes	Événements récents	Recent events
+No hay eventos.	Aucun événement.	No events.
+Entregas pendientes de prueba	Livraisons en attente de preuve	Deliveries awaiting proof
+Abrir prueba de entrega	Ouvrir la preuve de livraison	Open proof of delivery
+Todas las entregas de hoy están terminadas.	Toutes les livraisons du jour sont terminées.	All today’s deliveries are complete.
+Archivo de pruebas de entrega	Archives des preuves de livraison	Proof of delivery archive
+Descargar informe PDF	Télécharger le rapport PDF	Download PDF report
+Selecciona una entrega	Sélectionnez une livraison	Select a delivery
+Sin foto	Sans photo	No photo
+Sin firma	Sans signature	No signature
+Descargar comprobante de esta entrega	Télécharger le justificatif de livraison	Download delivery receipt
+Enviar el comprobante al cliente	Envoyer le justificatif au client	Send receipt to customer
+Aún no hay pruebas de entrega archivadas.	Aucune preuve de livraison archivée.	No archived delivery proofs yet.
+Conductores y vehículos	Conducteurs et véhicules	Drivers and vehicles
+Añade tu primer conductor y vehículo.	Ajoutez votre premier conducteur et véhicule.	Add your first driver and vehicle.
+Vehículo	Véhicule	Vehicle
+Capacidad kg	Capacité kg	Capacity kg
+Capacidad m³	Capacité m³	Capacity m³
+Historial de rutas y entregas	Historique des tournées et livraisons	Route and delivery history
+Evento	Événement	Event
+No hay historial.	Aucun historique.	No history.
+Entregas	Livraisons	Deliveries
+Pendientes	En attente	Pending
+Entregadas	Livrées	Delivered
+Excepciones	Exceptions	Exceptions
+Rutas	Tournées	Routes
+GAMA TMS — hoja de ruta	GAMA TMS — feuille de route	GAMA TMS — route sheet
+Comprobando expedición y salida…	Vérification de l’expédition et du départ…	Checking shipment and departure…
+No se pudo comprobar la salida. Reintenta antes de capturar la prueba.	Impossible de vérifier le départ. Réessayez avant de saisir la preuve.	Could not verify departure. Retry before capturing proof.
+Ir al control de carga	Accéder au contrôle du chargement	Go to loading check
+Volver a entregas	Retour aux livraisons	Back to deliveries
+Comprobar de nuevo	Vérifier à nouveau	Check again
+Volver a las rutas	Retour aux tournées	Back to routes
+Foto de entrega	Photo de livraison	Delivery photo
+Cámara del teléfono	Appareil photo du téléphone	Phone camera
+La foto se guarda automáticamente en la nube al tomarla o seleccionarla.	La photo est enregistrée automatiquement dans le cloud après capture ou sélection.	The photo is saved automatically to the cloud when taken or selected.
+Firma del cliente	Signature du client	Customer signature
+Firma manuscrita	Signature manuscrite	Handwritten signature
+Validar entrega	Valider la livraison	Confirm delivery
+Información de entrega	Informations de livraison	Delivery information
+Hora real de llegada	Heure réelle d’arrivée	Actual arrival time
+Hora de entrega	Heure de livraison	Delivery time
+Notas del conductor	Notes du conducteur	Driver notes
+Guardar notas	Enregistrer les notes	Save notes
+Borrador	Brouillon	Draft
+Confirmado	Confirmé	Confirmed
+Cancelado	Annulé	Cancelled
+Autorizada (declarado)	Autorisée (déclaré)	Authorised (declared)
+Pago parcial	Paiement partiel	Partially paid
+Pagada	Payée	Paid
+Vencida	Échue	Overdue
+Enviado	Envoyé	Sent
+Aceptado	Accepté	Accepted
+Rechazado	Refusé	Rejected
+Planificada	Planifiée	Planned
+En tránsito	En transit	In transit
+Entregada	Livrée	Delivered
+Excepción	Exception	Exception
+Cancelada	Annulée	Cancelled
+Terminada	Terminée	Finished
+Activas	Actives	Active
+A mi cargo	À ma charge	Assigned to me
+Pospuestas	Reportées	Snoozed
+Todas	Toutes	All
+En tratamiento	En cours de traitement	In progress
+Notificaciones · Centro de acción	Notifications · Centre d’action	Notifications · Action centre
+Alertas accionables y seguimiento de cada etapa.	Alertes avec actions et suivi de chaque étape.	Actionable alerts and tracking at every stage.
+Ver indicadores	Voir les indicateurs	View KPIs
+Ver notificaciones	Voir les notifications	View notifications
+Pedidos confirmados	Commandes confirmées	Confirmed orders
+Creados en el periodo	Créées sur la période	Created in the period
+Fecha de salida de stock	Date de sortie du stock	Stock dispatch date
+Entregas completadas	Livraisons effectuées	Completed deliveries
+Fecha de entrega real	Date réelle de livraison	Actual delivery date
+Facturación registrada	Facturation enregistrée	Recorded billing
+Cobros	Encaissements	Payments
+Cobros confirmados del periodo	Encaissements confirmés de la période	Confirmed payments for the period
+Pedidos bloqueados	Commandes bloquées	Blocked orders
+Cantidad sin stock reservado	Quantités sans stock réservé	Quantities without reserved stock
+Reliquats	Reliquats	Backorders
+Pedidos parcialmente expedidos	Commandes partiellement expédiées	Partially shipped orders
+Entregas atrasadas	Livraisons en retard	Late deliveries
+Fecha prevista superada	Date prévue dépassée	Expected date exceeded
+Inventarios con diferencias	Inventaires avec écarts	Counts with discrepancies
+Recuentos pendientes de validar	Comptages à valider	Counts awaiting validation
+Pendiente de facturar	Reste à facturer	Remaining to invoice
+Pedidos confirmados, IVA incluido	Commandes confirmées, TVA incluse	Confirmed orders, including VAT
+Expedido sin factura	Expédié non facturé	Shipped but not invoiced
+Parte ya expedida del pendiente	Partie déjà expédiée du reste à facturer	Already shipped portion of the unbilled amount
+Saldo por cobrar	Solde à encaisser	Outstanding receivables
+Todas las facturas vigentes	Toutes les factures actives	All active invoices
+pedidos bloqueados por falta de stock	commandes bloquées par manque de stock	orders blocked by stock shortages
+entregas atrasadas	livraisons en retard	late deliveries
+presupuestos sin respuesta desde hace más de 7 días	devis sans réponse depuis plus de 7 jours	quotes unanswered for more than 7 days
+productos bajo stock mínimo	produits sous le stock minimum	products below minimum stock
+recepciones de proveedores atrasadas	réceptions fournisseurs en retard	late supplier receipts
+en facturas vencidas	de factures échues	in overdue invoices
+Ver / Preparar compra	Voir / Préparer un achat	View / Prepare purchase
+Ver en TMS	Voir dans TMS	View in TMS
+Preparar recordatorio	Préparer une relance	Prepare reminder
+Crear compra	Créer un achat	Create purchase
+Ver productos	Voir les produits	View products
+Ver cobros	Voir les encaissements	View payments
+Preparar compra	Préparer un achat	Prepare purchase
+Facturas vencidas	Factures échues	Overdue invoices
+Presupuestos sin respuesta	Devis sans réponse	Unanswered quotes
+Recepciones atrasadas	Réceptions en retard	Late receipts
+Entregas fallidas	Livraisons échouées	Failed deliveries
+Diferencias de inventario	Écarts d’inventaire	Inventory discrepancies
+Pedido bloqueado por stock	Commande bloquée par le stock	Order blocked by stock
+Planificación	Planification	Planning
+Seguimiento del conductor	Suivi du conducteur	Driver tracking
+Historial	Historique	History
+Empleados	Employés	Employees
+Ausencias	Absences	Absences
+Mis días	Mes congés	My leave
+Guardar cambios	Enregistrer les modifications	Save changes
+Guardar empleado	Enregistrer l’employé	Save employee
+Activar	Activer	Enable
+Desactivar	Désactiver	Disable
+Emisor	Émetteur	Issuer
+Dirección del emisor	Adresse de l’émetteur	Issuer address
+Nombre del cliente	Nom du client	Customer name
+Identificación del cliente	Identifiant du client	Customer ID
+Correo del cliente	E-mail du client	Customer email
+Dirección del cliente	Adresse du client	Customer address
+Plazo / condiciones de entrega	Délai / conditions de livraison	Delivery time / terms
+Aceptar y confirmar pedido	Accepter et confirmer la commande	Accept and confirm order
+Confirmar aceptación del cliente	Confirmer l’acceptation du client	Confirm customer acceptance
+Ver entrega y prueba	Voir la livraison et la preuve	View delivery and proof
+Ver entrega	Voir la livraison	View delivery
+Aceptar este presupuesto	Accepter ce devis	Accept this quote
+Registrar aceptación externa	Enregistrer une acceptation externe	Record external acceptance
+Revisa las condiciones, valida y sigue tu pedido.	Vérifiez les conditions, validez et suivez votre commande.	Review terms, approve and track your order.
+Estado de entrega, productos y pruebas de recepción.	Statut de livraison, produits et preuves de réception.	Delivery status, products and proof of receipt.
+Entregas de clientes	Livraisons clients	Customer deliveries
+Pedidos, expediciones y documentos de facturación externa.	Commandes, expéditions et documents de facturation externe.	Orders, shipments and external billing documents.
+Anular factura interna	Annuler la facture interne	Void internal invoice
+Actualizar estado declarado	Actualiser le statut déclaré	Update declared status
+Ver pendientes de salida	Voir les départs en attente	View pending departures
+Ver también salidas registradas	Voir aussi les départs enregistrés	Include recorded departures
+Ver control de carga	Voir le contrôle du chargement	View loading check
+Escanear y validar carga	Scanner et valider le chargement	Scan and validate load
+Añadir al pedido	Ajouter à la commande	Add to order
+Oportunidades	Opportunités	Opportunities
+Actividades	Activités	Activities
+Contactos	Contacts	Contacts
+Informes	Rapports	Reports
+Objetivos	Objectifs	Targets
+Nuevo	Nouveau	New
+Contactado	Contacté	Contacted
+Calificado	Qualifié	Qualified
+Convertido	Converti	Converted
+Descartado	Écarté	Discarded
+Abierta	Ouverte	Open
+Ganada	Gagnée	Won
+Perdida	Perdue	Lost
+En curso	En cours	In progress
+Reunión	Réunion	Meeting
+Llamada	Appel	Call
+Tarea	Tâche	Task
+Visita	Visite	Visit
+Baja	Basse	Low
+Media	Moyenne	Medium
+Sin asignar	Non attribué	Unassigned
+Sin cliente	Sans client	No customer
+Sin contacto	Sans contact	No contact
+Sin responsable	Sans responsable	No owner
+No hay resultados.	Aucun résultat.	No results.
+Sin resultados para tu búsqueda.	Aucun résultat pour votre recherche.	No results for your search.
+No hay presupuestos archivados.	Aucun devis archivé.	No archived quotes.
+Acceso denegado para este perfil.	Accès refusé pour ce profil.	Access denied for this role.
+Este módulo está desactivado en Configuración.	Ce module est désactivé dans les paramètres.	This module is disabled in Settings.
+La versión enviada dejará de estar disponible para aceptar. ¿Reabrir?	La version envoyée ne pourra plus être acceptée. Rouvrir ?	The sent version will no longer be available for acceptance. Reopen?
+¿Confirmar esta acción?	Confirmer cette action ?	Confirm this action?
+¿Confirmar que toda la mercancía está cargada y autorizar la salida hacia el cliente?	Confirmer le chargement complet et autoriser le départ vers le client ?	Confirm all goods are loaded and authorise departure to the customer?
+¿Aceptar estas condiciones de entrega?	Accepter ces conditions de livraison ?	Accept these delivery terms?
+¿Rechazar esta propuesta?	Refuser cette proposition ?	Reject this proposal?
+No se pudo completar la operación.	Impossible de terminer l’opération.	Could not complete the operation.
+Esta entrega está cancelada.	Cette livraison est annulée.	This delivery is cancelled.
+La expedición todavía no tiene una salida validada. Completa el control de carga y confirma la salida antes de registrar la prueba de entrega.	Le départ de cette expédition n’est pas validé. Terminez le contrôle du chargement et confirmez le départ avant d’enregistrer la preuve de livraison.	This shipment has no validated departure. Complete loading checks and confirm departure before recording proof of delivery.
+Cantidad recogida	Quantité préparée	Picked quantity
+Escanear recogida	Scanner la préparation	Scan picking
+Registrar recogida	Enregistrer la préparation	Record picking
+Se registrará al validar	Enregistrée à la validation	Recorded on confirmation
+Por confirmar	À confirmer	To be confirmed
+Reserva, ausencia, observación…	Réserve, absence, observation…	Reservation, absence, remark…
+Cámara activa. Cargando lector…	Appareil photo actif. Chargement du lecteur…	Camera active. Loading scanner…
+Apunte la cámara al código de barras	Pointez l’appareil photo vers le code-barres	Point the camera at the barcode
+Cámara autorizada. Toca «Iniciar vídeo» para mostrar la imagen.	Appareil photo autorisé. Touchez « Démarrer la vidéo » pour afficher l’image.	Camera authorised. Tap “Start video” to show the image.
+Iniciar vídeo	Démarrer la vidéo	Start video
+El navegador no permite acceder a la cámara.	Le navigateur bloque l’accès à l’appareil photo.	The browser does not allow camera access.
+En iPhone: abre GAMA en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir GAMA tras cambiar el permiso.	Sur iPhone : ouvrez GAMA dans Safari, puis menu de la page → réglages du site → Appareil photo, et autorisez l’accès. Touchez ensuite Réessayer l’appareil photo. Depuis l’icône d’accueil, fermez et rouvrez GAMA après modification de l’autorisation.	On iPhone: open GAMA in Safari, then page menu → website settings → Camera, and allow access. Tap Retry camera. If opened from the home screen, close and reopen GAMA after changing permission.
+No se pudo cargar el lector. Comprueba tu conexión y reintenta.	Impossible de charger le lecteur. Vérifiez votre connexion et réessayez.	Could not load the scanner. Check your connection and retry.
+No se encontró una cámara disponible.	Aucun appareil photo disponible.	No available camera found.
+La cámara está ocupada. Cierra otras aplicaciones que la utilicen y reintenta.	L’appareil photo est occupé. Fermez les autres applications qui l’utilisent et réessayez.	The camera is busy. Close other apps using it and retry.
+La cámara no respondió. Acepta el permiso si aparece y vuelve a intentar.	L’appareil photo ne répond pas. Acceptez l’autorisation si elle apparaît et réessayez.	The camera did not respond. Accept the permission prompt if shown and retry.
+No se pudo guardar la foto	Impossible d’enregistrer la photo	Could not save photo
+No se pudo registrar la prueba de entrega	Impossible d’enregistrer la preuve de livraison	Could not record proof of delivery
+Salida bloqueada: escanea todas las cantidades de cada línea.	Départ bloqué : scannez toutes les quantités de chaque ligne.	Departure blocked: scan all quantities on every line.
+Preparando…	Préparation…	Preparing…
+Preparando el informe…	Préparation du rapport…	Preparing report…
+Guardado	Enregistré	Saved
+Guardando…	Enregistrement…	Saving…
+Copiado	Copié	Copied
+No se pudo copiar	Impossible de copier	Could not copy
+Cerrar aviso	Fermer la notification	Dismiss notification
+Buscar producto	Rechercher un produit	Search products
+Buscar un producto...	Rechercher un produit…	Search products…
+Buscar por nombre, referencia o código de barras…	Rechercher par nom, référence ou code-barres…	Search by name, reference or barcode…
+Buscar cliente	Rechercher un client	Search customers
+Buscar proveedor	Rechercher un fournisseur	Search suppliers
+Buscar…	Rechercher…	Search…
+Seleccionar	Sélectionner	Select
+Opcional	Facultatif	Optional
+Obligatorio	Obligatoire	Required
+Nombre para este pedido favorito:	Nom de cette commande favorite :	Name for this favourite order:
+Página {0}	Page {0}	Page {0}
+{0} productos	{0} produits	{0} products
+{0} usuarios	{0} utilisateurs	{0} users
+{0} presupuestos	{0} devis	{0} quotes
+{0} solicitudes	{0} demandes	{0} requests
+{0} de {1}	{0} sur {1}	{0} of {1}
+{0} facturas internas / externas	{0} factures internes / externes	{0} internal / external invoices
+En el pedido ({0})	Dans la commande ({0})	In the order ({0})
+Activa o desactiva los módulos de GAMA.	Activez ou désactivez les modules GAMA.	Enable or disable GAMA modules.
+Albarán, lote, transporte, incidencia…	Bon de livraison, lot, transport, incident…	Delivery note, batch, transport, issue…
+Archivar contacto	Archiver le contact	Archive contact
+Archivar prospecto	Archiver le prospect	Archive lead
+Añadir uno	Ajouter une unité	Add one
+Buscar actividades	Rechercher des activités	Search activities
+Buscar contactos	Rechercher des contacts	Search contacts
+Buscar oportunidades	Rechercher des opportunités	Search opportunities
+Buscar pedidos por cliente	Rechercher des commandes par client	Search orders by customer
+Buscar por asunto, ficha o responsable…	Rechercher par objet, fiche ou responsable…	Search by subject, record or owner…
+Buscar por cliente	Rechercher par client	Search by customer
+Buscar por cliente, correo o número…	Rechercher par client, e-mail ou numéro…	Search by customer, email or number…
+Buscar por nombre, cargo, correo o ficha…	Rechercher par nom, poste, e-mail ou fiche…	Search by name, job title, email or record…
+Buscar por nombre, ciudad, contacto...	Rechercher par nom, ville ou contact…	Search by name, city or contact…
+Buscar por nombre, correo, teléfono o ciudad…	Rechercher par nom, e-mail, téléphone ou ville…	Search by name, email, phone or city…
+Buscar por nombre, código o referencia	Rechercher par nom, code ou référence	Search by name, code or reference
+Buscar por nombre, identificación, ciudad...	Rechercher par nom, identifiant ou ville…	Search by name, ID or city…
+Buscar por número, cliente o RUC/Cédula...	Rechercher par numéro, client ou identifiant fiscal…	Search by number, customer or tax ID…
+Buscar por producto o referencia…	Rechercher par produit ou référence…	Search by product or reference…
+Buscar por título, referencia, ficha o responsable…	Rechercher par titre, référence, fiche ou responsable…	Search by title, reference, record or owner…
+Buscar prospectos	Rechercher des prospects	Search leads
+Buscar un producto…	Rechercher un produit…	Search products…
+Calle, número, CP, ciudad, país	Rue, numéro, code postal, ville, pays	Street, number, postcode, city, country
+Camión 3	Camion 3	Truck 3
+Cancelar la actividad	Annuler l’activité	Cancel activity
+Certificado médico, asunto propio…	Certificat médical, motif personnel…	Medical certificate, personal matter…
+Comentario o indicación para el pedido…	Commentaire ou instruction pour la commande…	Comment or instructions for the order…
+Condiciones de pago, plazos, productos, observaciones...	Conditions de paiement, délais, produits, observations…	Payment terms, lead times, products, remarks…
+Código de barras del producto	Code-barres du produit	Product barcode
+Descripción detallada del producto	Description détaillée du produit	Detailed product description
+Dirección completa	Adresse complète	Full address
+Dirección de salida / regreso	Adresse de départ / retour	Departure / return address
+Dónde está cada producto y cuánto queda disponible.	Où se trouve chaque produit et quelle quantité reste disponible.	Where each product is and how much is available.
+Ej. Almacenero	Ex. Magasinier	E.g. Warehouse operator
+Ej. Bodega	Ex. Entrepôt	E.g. Warehouse
+Ej. Caja x12	Ex. Carton de 12	E.g. Box of 12
+Ej. María Pérez	Ex. María Pérez	E.g. María Pérez
+Ej. PROD-00001	Ex. PROD-00001	E.g. PROD-00001
+Ej. Proveedor ABC	Ex. Fournisseur ABC	E.g. Supplier ABC
+Ej. Recuento septiembre	Ex. Comptage de septembre	E.g. September count
+Ej.: correo de María, 12/09/2026, asunto…	Ex. : e-mail de María, 12/09/2026, objet…	E.g. María’s email, 12/09/2026, subject…
+Elija sus productos y envíe el pedido a GAMA.	Choisissez vos produits et envoyez la commande à GAMA.	Choose your products and submit the order to GAMA.
+Filtrar contactos	Filtrer les contacts	Filter contacts
+Filtrar por estado	Filtrer par statut	Filter by status
+Filtrar por tipo	Filtrer par type	Filter by type
+Formación, idiomas, licencia de conducir…	Formation, langues, permis de conduire…	Training, languages, driving licence…
+Importa datos desde Excel y fotos de tus productos.	Importez des données Excel et les photos de vos produits.	Import Excel data and product photos.
+Lector USB/Bluetooth o cámara	Lecteur USB/Bluetooth ou appareil photo	USB/Bluetooth scanner or camera
+Los pedidos que envían tus clientes.	Les commandes envoyées par vos clients.	Orders submitted by your customers.
+Motivo del traslado (opcional)	Motif du transfert (facultatif)	Transfer reason (optional)
+Motivo o comentario adicional	Motif ou commentaire complémentaire	Reason or additional comment
+Motivo o detalle para quien lo apruebe…	Motif ou détail pour la personne qui approuve…	Reason or details for the approver…
+Mínimo 8 caracteres	8 caractères minimum	At least 8 characters
+N.º de pedido del proveedor	N° de commande fournisseur	Supplier order no.
+Nueva factura	Nouvelle facture	New invoice
+Pedidos a proveedores y su recepción.	Commandes fournisseurs et réceptions.	Purchase orders and receipts.
+Periodo anterior	Période précédente	Previous period
+Periodo del informe	Période du rapport	Report period
+Periodo siguiente	Période suivante	Next period
+Planifica las entregas del día y sigue las rutas.	Planifiez les livraisons du jour et suivez les tournées.	Plan daily deliveries and track routes.
+Precios negociados por cliente y producto.	Prix négociés par client et produit.	Negotiated prices by customer and product.
+Primero hace falta un cliente o un prospecto	Un client ou un prospect est d’abord nécessaire	A customer or lead is required first
+Producto, código, usuario, comentario...	Produit, code, utilisateur, commentaire…	Product, code, user, comment…
+Prospectos, oportunidades y actividad comercial.	Prospects, opportunités et activité commerciale.	Leads, opportunities and sales activity.
+Quitar del pedido	Retirer de la commande	Remove from order
+Quitar el objetivo	Supprimer l’objectif	Remove target
+Quitar la línea	Supprimer la ligne	Remove line
+Quitar uno	Retirer une unité	Remove one
+Quién entra en GAMA y con qué permisos.	Qui accède à GAMA et avec quels droits.	Who accesses GAMA and with which permissions.
+Restaurar contacto	Restaurer le contact	Restore contact
+Restaurar prospecto	Restaurer le prospect	Restore lead
+Retirar el precio especial	Retirer le prix spécial	Remove special price
+Tipo de periodo	Type de période	Period type
+Transporte, condiciones, información del proveedor…	Transport, conditions, informations fournisseur…	Transport, terms, supplier information…
+Volver al precio de la tarifa	Revenir au prix du tarif	Revert to price list price
+Buscar y elegir en la lista	Rechercher et choisir dans la liste	Search and choose from the list
+Escribe para buscar entre {0} opciones…	Rechercher parmi {0} options…	Search among {0} options…
+Sin opciones disponibles	Aucune option disponible	No options available
+Las cuentas mostradas a continuación provienen directamente de la tabla	Les comptes ci-dessous proviennent directement de la table	The accounts below come directly from the table
+La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.	Un motif est obligatoire pour une opportunité perdue, afin d’analyser les causes et d’améliorer les ventes.	Lost opportunities require a reason so losses can be analysed and sales improved.
+Los que nacieron en el periodo, por origen. Comparado con la tabla de arriba dice qué origen trae volumen y cuál trae dinero.	Nouveaux prospects de la période par origine. Comparez avec le tableau ci-dessus pour identifier les sources de volume et de revenus.	New leads in the period by source. Compare with the table above to identify sources of volume and revenue.
+Vuelve a guardar las fotos ya subidas a un tamaño ajustado a la pantalla (	Réenregistrez les photos dans un format adapté à l’écran (	Resave uploaded photos at a screen-appropriate size (
+Nuevo empleado	Nouvel employé	New employee
+Editar empleado	Modifier l’employé	Edit employee
+Factura interna	Facture interne	Internal invoice
+Crear factura interna	Créer une facture interne	Create internal invoice
+Pendiente de copiar al software de facturación.	À recopier dans le logiciel de facturation.	Awaiting transfer to billing software.
+Preparación	Préparation	Picking
+Bulto	Colis	Package
+Bultos	Colis	Packages
+Escanear embalaje	Scanner l’emballage	Scan packing
+Anular preparación	Annuler la préparation	Void picking
+Cargando	Chargement	Loading
+Guardado correctamente.	Enregistré avec succès.	Saved successfully.
+No se recibieron los datos.	Aucune donnée reçue.	No data received.
+El dossier cambió. Actualiza las alertas.	Le dossier a changé. Actualisez les alertes.	The dossier has changed. Refresh alerts.
+Tu sesión no permite acceder a estos datos.	Votre session ne permet pas d’accéder à ces données.	Your session cannot access this data.
+Revisa las fechas del periodo.	Vérifiez les dates de la période.	Check the period dates.
+Cloud conectado	Cloud connecté	Cloud connected
+Sincronizando con la nube…	Synchronisation avec le cloud…	Syncing with the cloud…
+{0} unidades sin reservar	{0} unités non réservées	{0} unreserved units
+No calificado	Non qualifié	Unqualified
+Perdido	Perdu	Lost
+Empresa	Entreprise	Company
+Particular	Particulier	Individual
+Decisor	Décideur	Decision maker
+Prescriptor	Prescripteur	Influencer
+Comprador	Acheteur	Buyer
+Demostración	Démonstration	Demo
+Nota	Note	Note
+Una oportunidad	Une opportunité	An opportunity
+Un contacto	Un contact	A contact
+Enfermedad	Maladie	Sickness
+Permiso	Autorisation d’absence	Authorised leave
+Formación	Formation	Training
+Por preparar	À préparer	To pick
+En preparación	En préparation	Picking
+Lista para expedir	Prête à expédier	Ready to ship
+Expedida	Expédiée	Shipped
+Retorno solicitado	Retour demandé	Return requested
+En cuarentena	En quarantaine	In quarantine
+Reintegrado	Réintégré	Restocked
+Cambio creado	Échange créé	Replacement created
+Pendiente de aceptación	En attente d’acceptation	Awaiting acceptance
+Retirada	Retirée	Withdrawn
+sin asignar	non attribué	unassigned
+elige una ficha	choisissez une fiche	choose a record
+elige un cliente	choisissez un client	choose a customer
+elige un prospecto	choisissez un prospect	choose a lead
+sin definir	non défini	undefined
+elige un motivo	choisissez un motif	choose a reason
+sin contacto	sans contact	no contact
+sólo si se pierde	uniquement en cas de perte	only if lost
+elige un producto	choisissez un produit	choose a product
+Crear / abrir factura	Créer / ouvrir la facture	Create / open invoice
+Datos copiados.	Données copiées.	Data copied.
+Selecciona y copia el texto.	Sélectionnez et copiez le texte.	Select and copy the text.
+Pendiente de preparación	En attente de préparation	Awaiting picking
+Correo electrónico y contraseña son obligatorios.	L’e-mail et le mot de passe sont obligatoires.	Email and password are required.
+Iniciando sesión…	Connexion…	Signing in…
+No se puede iniciar sesión. Compruebe sus credenciales.	Connexion impossible. Vérifiez vos identifiants.	Unable to sign in. Check your credentials.
+Cuenta no autorizada o desactivada.	Compte non autorisé ou désactivé.	Account not authorised or disabled.
+No se puede conectar con GAMA Cloud. Compruebe su conexión e inténtelo de nuevo.	Connexion à GAMA Cloud impossible. Vérifiez votre connexion et réessayez.	Unable to connect to GAMA Cloud. Check your connection and try again.

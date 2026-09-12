@@ -55,15 +55,15 @@ function paraInput(iso){
 function desdeInput(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d.toISOString()}
 
 function campo(id,label,val,tipo){
- return '<div><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="'+(tipo||'text')+'" value="'+esc(val||'')+'"></div>';
+ return '<div><label data-gi-live for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="'+(tipo||'text')+'" value="'+esc(val||'')+'"></div>';
 }
 function campoSelect(id,label,mapa,sel){
- return '<div><label for="'+id+'">'+esc(label)+'</label><select id="'+id+'" data-gama-nofind>'
+ return '<div><label data-gi-live for="'+id+'">'+esc(label)+'</label><select id="'+id+'" data-gama-nofind>'
   +Object.keys(mapa).map(k=>'<option value="'+k+'"'+(sel===k?' selected':'')+'>'+esc(mapa[k])+'</option>').join('')
   +'</select></div>';
 }
 function opciones(pares,sel,vacio){
- return '<option value="">'+esc(vacio||'— sin asignar —')+'</option>'
+ return '<option data-gi-live value="">'+esc(vacio||'— sin asignar —')+'</option>'
   +pares.map(p=>'<option value="'+esc(p[0])+'"'+(String(sel||'')===String(p[0])?' selected':'')+'>'+esc(p[1])+'</option>').join('');
 }
 
@@ -220,7 +220,7 @@ function registrar(id,label,abrir){if(!PANTALLAS.some(p=>p.id===id))PANTALLAS.pu
 function nav(){
  if(PANTALLAS.length<2)return '';
  return `<div class="crmNav">${PANTALLAS.map(p=>
-  `<button type="button" class="${p.id===actual?'on':''}" data-crm-ir="${esc(p.id)}">${esc(p.label)}</button>`).join('')}</div>`;
+  `<button type="button" class="${p.id===actual?'on':''}" data-crm-ir="${esc(p.id)}" data-gi-live>${esc(p.label)}</button>`).join('')}</div>`;
 }
 /* La cabecera común de GAMA más la navegación del módulo. Todas las pantallas
    del CRM empiezan por aquí, para que el título y el botón de volver estén
@@ -323,16 +323,16 @@ function pintar(r,cols){
   ${kpi('Oportunidad media',money(r.medio),'sobre las abiertas')}
  </div>
  <div class="card">
-  <h3>Embudo comercial</h3>
+  <h3 data-gi=33bcdbcca6bc>Embudo comercial</h3>
   ${cols.length?`<div class="crmEmbudo">${cols.map(c=>`
    <div class="crmCol${c.etapa.is_won?' ganada':c.etapa.is_lost?' perdida':''}">
     <b>${esc(c.etapa.name)}</b><i>${c.n}</i>
     <small>${money(c.total)}</small>
     ${c.etapa.is_won||c.etapa.is_lost?'':`<small>ponderado ${money(c.ponderado)}</small>`}
    </div>`).join('')}</div>`
-  :'<div class="crmVacio">Todavía no hay etapas configuradas.</div>'}
+  :'<div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div>'}
   ${r.oportunidades===0&&r.ganadas===0&&r.perdidas===0
-   ? '<div class="crmVacio">Ninguna oportunidad todavía. En cuanto se cree la primera, el embudo se llena solo.</div>':''}
+   ? '<div class="crmVacio" data-gi=4b416698f585>Ninguna oportunidad todavía. En cuanto se cree la primera, el embudo se llena solo.</div>':''}
  </div>`;
  bind(s);
 }
@@ -350,7 +350,7 @@ async function panel(){
  css();
  const s=section();
  if(cargando)return;cargando=true;
- s.innerHTML=`${cabecera()}<div class="card"><div class="crmVacio">Cargando el CRM…</div></div>`;
+ s.innerHTML=`${cabecera()}<div class="card"><div class="crmVacio" data-gi=86bffaa6fba4>Cargando el CRM…</div></div>`;
  bind(s);
  try{
   const [r,cols]=await Promise.all([resumen(),embudo()]);
@@ -374,7 +374,7 @@ async function open(){
  mostrar();
  if(!puedeUsar()){
   s.innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
-   <div class="card"><div class="crmVacio">Tu perfil no tiene acceso al CRM.</div></div>`;
+   <div class="card"><div class="crmVacio" data-gi=0db875f7987c>Tu perfil no tiene acceso al CRM.</div></div>`;
   window.GamaUI.bindBack(s);return;
  }
  await ir(actual);

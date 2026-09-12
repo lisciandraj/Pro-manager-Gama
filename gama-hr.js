@@ -394,9 +394,9 @@ function kpis(){
  const year=new Date().getFullYear();
  const enfermos=absences.filter(a=>a.kind==='enfermedad'&&String(a.start_date||'').slice(0,4)===String(year)).length;
  return `<div class="hrKpis">
-  <div class="hrKpi"><span>Empleados activos</span><b>${activos}</b></div>
-  <div class="hrKpi"><span>Ausentes hoy</span><b>${fuera}</b></div>
-  <div class="hrKpi"><span>Pendientes de aprobar</span><b>${pend}</b></div>
+  <div class="hrKpi"><span data-gi=e0a032ea89a6>Empleados activos</span><b>${activos}</b></div>
+  <div class="hrKpi"><span data-gi=24635c11f693>Ausentes hoy</span><b>${fuera}</b></div>
+  <div class="hrKpi"><span data-gi=8159fcc540c4>Pendientes de aprobar</span><b>${pend}</b></div>
   <div class="hrKpi"><span>Bajas por enfermedad ${year}</span><b>${enfermos}</b></div>
  </div>`;
 }
@@ -411,62 +411,62 @@ function employeesTab(){
   return `<tr class="${off?'hrOff':''}">
    <td><b>${esc(p.full_name)}</b><small>${esc(p.position||'Sin puesto')}${p.department?' · '+esc(p.department):''}</small>
        <small>${esc(p.identification||'')}</small></td>
-   <td>${esc(p.contract_type||'—')}<small>Alta: ${day(p.hire_date)}</small>${p.end_date?`<small>Baja: ${day(p.end_date)}</small>`:''}</td>
+   <td>${esc(p.contract_type||'—')}<small><span data-gi=cdd3851b36eb>Alta: </span>${day(p.hire_date)}</small>${p.end_date?`<small><span data-gi=82a0a91a8205>Baja: </span>${day(p.end_date)}</small>`:''}</td>
    <td>${p.salary==null?'—':money(p.salary)}</td>
    <td>${used} / ${total}<small>días laborables ${year}</small>
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
-   <td>${off?'<span class="hrBadge">Archivado</span>':'<span class="hrBadge ok">Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px">🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px">Sin cuenta</span>'}</td>
+   <td>${off?'<span class="hrBadge" data-gi=eac5386d4211>Archivado</span>':'<span class="hrBadge ok" data-gi=723858144bd5>Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px" data-gi=19074913530e>🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px" data-gi=b4c10bd2c2fc>Sin cuenta</span>'}</td>
    <td><div class="hrActs">
-    <button type="button" class="secondary" data-edit="${esc(p.id)}">✏️ Editar</button>
-    <button type="button" class="${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}">${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
+    <button type="button" class="secondary" data-edit="${esc(p.id)}" data-gi=e3bd2ee1d054>✏️ Editar</button>
+    <button type="button" class="${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}" data-gi-live>${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
    </div></td></tr>`;
  }).join('');
 
  return `<div class="hrGrid">
   <div class="card">
    <h3>${editing?'Editar empleado':'Nuevo empleado'}</h3>
-   <label>Nombre y apellidos *</label><input id="hrName" placeholder="Ej. María Pérez">
+   <label data-gi=0be48a5a67cc>Nombre y apellidos *</label><input id="hrName" data-gi-placeholder=d6730d8299a4 placeholder="Ej. María Pérez">
    <div class="row">
-    <div><label>Cédula / RUC</label><input id="hrId" placeholder="0912345678"></div>
-    <div><label>Teléfono</label><input id="hrPhone" type="tel" placeholder="+593…"></div>
+    <div><label data-gi=48fdf0f9d94c>Cédula / RUC</label><input id="hrId" placeholder="0912345678"></div>
+    <div><label data-gi=f1186abd0b8b>Teléfono</label><input id="hrPhone" type="tel" placeholder="+593…"></div>
    </div>
-   <label>Correo electrónico</label><input id="hrEmail" type="email" placeholder="correo@ejemplo.com">
+   <label data-gi=ec64dc30a483>Correo electrónico</label><input id="hrEmail" type="email" placeholder="correo@ejemplo.com">
    <div class="row">
-    <div><label>Puesto</label><input id="hrPosition" placeholder="Ej. Almacenero"></div>
-    <div><label>Departamento</label><input id="hrDept" placeholder="Ej. Bodega"></div>
+    <div><label data-gi=888f25ceee71>Puesto</label><input id="hrPosition" data-gi-placeholder=47f913f15782 placeholder="Ej. Almacenero"></div>
+    <div><label data-gi=4695dca246f0>Departamento</label><input id="hrDept" data-gi-placeholder=749ad86d9ec3 placeholder="Ej. Bodega"></div>
    </div>
-   <label>Tipo de contrato</label>
+   <label data-gi=d27403823536>Tipo de contrato</label>
    <select id="hrContract">
-    <option value="">Sin especificar</option>
-    <option>Indefinido</option><option>Plazo fijo</option><option>Eventual</option>
-    <option>Prueba</option><option>Prestación de servicios</option><option>Pasantía</option>
+    <option value="" data-gi=e545b02d8dee>Sin especificar</option>
+    <option data-gi=eddd72ca1009>Indefinido</option><option data-gi=d9460e0cb708>Plazo fijo</option><option data-gi=42413a38c5a9>Eventual</option>
+    <option data-gi=ac3f091ca341>Prueba</option><option data-gi=817e41b7b714>Prestación de servicios</option><option data-gi=daa9133ba2c4>Pasantía</option>
    </select>
    <div class="row">
-    <div><label>Fecha de alta</label><input id="hrHire" type="date"></div>
-    <div><label>Fecha de baja</label><input id="hrEnd" type="date"></div>
+    <div><label data-gi=62956ad3a5c1>Fecha de alta</label><input id="hrHire" type="date"></div>
+    <div><label data-gi=fb3e9da06db4>Fecha de baja</label><input id="hrEnd" type="date"></div>
    </div>
    <div class="row">
-    <div><label>Sueldo mensual (USD)</label><input id="hrSalary" type="number" min="0" step="0.01" placeholder="0.00"></div>
-    <div><label>Vacaciones al año (días laborables)</label><input id="hrLeaveDays" type="number" min="0" step="0.5" value="15"></div>
+    <div><label data-gi=88ba39e35667>Sueldo mensual (USD)</label><input id="hrSalary" type="number" min="0" step="0.01" placeholder="0.00"></div>
+    <div><label data-gi=2890d09262cb>Vacaciones al año (días laborables)</label><input id="hrLeaveDays" type="number" min="0" step="0.5" value="15"></div>
    </div>
-   <label>Cuenta de acceso</label>
+   <label data-gi=f5500ac97424>Cuenta de acceso</label>
    <select id="hrAccount">
-    <option value="">Sin cuenta — no puede entrar en GAMA</option>
+    <option value="" data-gi=0f017572f959>Sin cuenta — no puede entrar en GAMA</option>
     ${perfiles.map(u=>`<option value="${esc(u.id)}">${esc(u.full_name||u.email||u.id)}${u.email?' · '+esc(u.email):''}</option>`).join('')}
    </select>
-   <div class="muted" style="font-size:11.5px;margin-top:-2px">Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
-   <label>Observaciones</label><textarea id="hrNotes" placeholder="Formación, idiomas, licencia de conducir…"></textarea>
+   <div class="muted" style="font-size:11.5px;margin-top:-2px" data-gi=3acee7e660f1>Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
+   <label data-gi=8ef60b6d94c0>Observaciones</label><textarea id="hrNotes" data-gi-placeholder=1dc4813dafd6 placeholder="Formación, idiomas, licencia de conducir…"></textarea>
    <div class="actions">
-    <button type="button" class="primary" id="hrSave">${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
-    <button type="button" class="secondary" id="hrClear">↺ Limpiar</button>
+    <button type="button" class="primary" id="hrSave" data-gi-live>${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
+    <button type="button" class="secondary" id="hrClear" data-gi=681b0f02838a>↺ Limpiar</button>
    </div>
   </div>
   <div class="card">
-   <h3>Plantilla <small class="muted">(${employees.length})</small></h3>
+   <h3 data-gi=65ebd9bd0f84>Plantilla <small class="muted">(${employees.length})</small></h3>
    ${employees.length?`<div class="hrTable"><table>
-     <thead><tr><th>Empleado</th><th>Contrato</th><th>Sueldo</th><th>Vacaciones</th><th>Estado</th><th></th></tr></thead>
+     <thead><tr><th data-gi=6f0babb30673>Empleado</th><th data-gi=1951861239ed>Contrato</th><th data-gi=193df56cd57c>Sueldo</th><th data-gi=04c60d643e4c>Vacaciones</th><th data-gi=98e5acddb6c4>Estado</th><th></th></tr></thead>
      <tbody>${rows}</tbody></table></div>`
-    :'<div class="hrEmpty">Todavía no hay empleados. Añade el primero con el formulario de al lado.</div>'}
+    :'<div class="hrEmpty" data-gi=bb5a96d44ddc>Todavía no hay empleados. Añade el primero con el formulario de al lado.</div>'}
   </div>
  </div>`;
 }
@@ -477,42 +477,42 @@ function absencesTab(){
  const rows=absences.map(a=>{
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
-   <td><b>${esc(employeeName(a.employee_id))}</b><small>${esc(KINDS[a.kind]||a.kind)}</small></td>
+   <td><b>${esc(employeeName(a.employee_id))}</b><small><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></small></td>
    <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
-   <td><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
+   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
-    ${a.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(a.id)}">✓ Aprobar</button>`:''}
-    ${a.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(a.id)}">✕ Rechazar</button>`:''}
+    ${a.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
+    ${a.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
     <button type="button" class="danger" data-del="${esc(a.id)}">🗑️</button>
    </div></td></tr>`;
  }).join('');
 
  return `<div class="hrGrid">
   <div class="card">
-   <h3>Registrar una ausencia</h3>
-   <label>Empleado *</label>
-   <select id="hrAbsEmployee">${vivos.length?vivos.map(e=>`<option value="${esc(e.id)}">${esc(e.full_name)}</option>`).join(''):'<option value="">Añade primero un empleado</option>'}</select>
-   <label>Motivo</label>
-   <select id="hrAbsKind">${Object.keys(KINDS).map(k=>`<option value="${k}">${KINDS[k]}</option>`).join('')}</select>
+   <h3 data-gi=72a86bcb4b1f>Registrar una ausencia</h3>
+   <label data-gi=6020a9dd08e5>Empleado *</label>
+   <select id="hrAbsEmployee">${vivos.length?vivos.map(e=>`<option value="${esc(e.id)}">${esc(e.full_name)}</option>`).join(''):'<option value="" data-gi=e918e93df678>Añade primero un empleado</option>'}</select>
+   <label data-gi=c7b288b1c0bb>Motivo</label>
+   <select id="hrAbsKind">${Object.keys(KINDS).map(k=>`<option value="${k}" data-gi-live>${KINDS[k]}</option>`).join('')}</select>
    <div class="row">
-    <div><label>Desde *</label><input id="hrAbsFrom" type="date" value="${today()}"></div>
-    <div><label>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
+    <div><label data-gi=29ee9938a74c>Desde *</label><input id="hrAbsFrom" type="date" value="${today()}"></div>
+    <div><label data-gi=66b3c7fb42f9>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
    </div>
-   <label>Estado</label>
-   <select id="hrAbsStatus"><option value="pendiente">Pendiente</option><option value="aprobada">Aprobada</option></select>
-   <label>Comentario</label><textarea id="hrAbsReason" placeholder="Certificado médico, asunto propio…"></textarea>
-   <div class="actions"><button type="button" class="primary" id="hrAbsAdd">＋ Registrar ausencia</button></div>
+   <label data-gi=98e5acddb6c4>Estado</label>
+   <select id="hrAbsStatus"><option value="pendiente" data-gi=2ef68536d8e2>Pendiente</option><option value="aprobada" data-gi=80b504a3cd9c>Aprobada</option></select>
+   <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=5c0130f03047 placeholder="Certificado médico, asunto propio…"></textarea>
+   <div class="actions"><button type="button" class="primary" id="hrAbsAdd" data-gi=14ee9bb5d9a1>＋ Registrar ausencia</button></div>
   </div>
   <div class="card">
-   <h3>Quién está fuera hoy</h3>
-   ${hoy.length?hoy.map(a=>`<div class="hrBadge ok" style="margin:0 6px 6px 0">${esc(employeeName(a.employee_id))} · ${esc(KINDS[a.kind]||a.kind)} hasta ${day(a.end_date)}</div>`).join('')
-    :'<div class="muted">Hoy no falta nadie.</div>'}
-   <h3>Historial de ausencias <small class="muted">(${absences.length})</small></h3>
+   <h3 data-gi=38d61a2d5404>Quién está fuera hoy</h3>
+   ${hoy.length?hoy.map(a=>`<div class="hrBadge ok" style="margin:0 6px 6px 0">${esc(employeeName(a.employee_id))} · <span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span> hasta ${day(a.end_date)}</div>`).join('')
+    :'<div class="muted" data-gi=bf3e32312381>Hoy no falta nadie.</div>'}
+   <h3 data-gi=f43b26519010>Historial de ausencias <small class="muted">(${absences.length})</small></h3>
    ${absences.length?`<div class="hrTable"><table>
-     <thead><tr><th>Empleado</th><th>Periodo</th><th>Estado</th><th>Comentario</th><th></th></tr></thead>
+     <thead><tr><th data-gi=6f0babb30673>Empleado</th><th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=53c367898434>Comentario</th><th></th></tr></thead>
      <tbody>${rows}</tbody></table></div>`
-    :'<div class="hrEmpty">Todavía no hay ausencias registradas.</div>'}
+    :'<div class="hrEmpty" data-gi=30887522852b>Todavía no hay ausencias registradas.</div>'}
   </div>
  </div>`;
 }
@@ -621,36 +621,36 @@ function planTab(){
  return `<div class="card">
   <div class="hrPlanBarraSup">
    <div class="hrPlanNav">
-    <button type="button" class="secondary" id="hrPlanHoy">Hoy</button>
-    <button type="button" class="secondary" id="hrPlanPrev" aria-label="Periodo anterior">‹</button>
-    <button type="button" class="secondary" id="hrPlanNext" aria-label="Periodo siguiente">›</button>
+    <button type="button" class="secondary" id="hrPlanHoy" data-gi=55133d4e6eb6>Hoy</button>
+    <button type="button" class="secondary" id="hrPlanPrev" data-gi-aria-label=266784dff37a aria-label="Periodo anterior">‹</button>
+    <button type="button" class="secondary" id="hrPlanNext" data-gi-aria-label=acdd18b1c536 aria-label="Periodo siguiente">›</button>
     <b class="hrPlanTitulo">${esc(titulo)}</b>
    </div>
    <div class="hrPlanVistas">
-    <button type="button" class="${planView==='semana'?'on':''}" data-vista="semana">Semana</button>
-    <button type="button" class="${planView==='mes'?'on':''}" data-vista="mes">Mes</button>
+    <button type="button" class="${planView==='semana'?'on':''}" data-vista="semana" data-gi=51656a29fb46>Semana</button>
+    <button type="button" class="${planView==='mes'?'on':''}" data-vista="mes" data-gi=024261f9bfba>Mes</button>
    </div>
   </div>
 
   ${gente.length?`<div class="hrPlanScroll"><div class="hrPlan">
     <div class="hrPlanFila hrPlanCabecera">
-     <div class="hrPlanNombre">Empleado</div>
+     <div class="hrPlanNombre" data-gi=6f0babb30673>Empleado</div>
      <div class="hrPlanCeldas hrPlanDias" style="--cols:${cols}">${cabecera}</div>
     </div>
     ${filas}
    </div></div>`
-  :'<div class="hrEmpty">Añade empleados en la pestaña «Empleados» para verlos aquí.</div>'}
+  :'<div class="hrEmpty" data-gi=57ce01807e78>Añade empleados en la pestaña «Empleados» para verlos aquí.</div>'}
 
   <div class="hrPlanPie">${leyenda}</div>
 
   ${sel?`<div class="hrPlanDetalle">
-    <div><b>${esc(employeeName(sel.employee_id))}</b> · ${esc(KINDS[sel.kind]||sel.kind)}
+    <div><b>${esc(employeeName(sel.employee_id))}</b> · <span data-gi-live>${esc(KINDS[sel.kind]||sel.kind)}</span>
       <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+workingDays(sel.start_date,sel.end_date)+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
-      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}">✓ Aprobar</button>`:''}
-      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}">✕ Rechazar</button>`:''}
-      <button type="button" class="secondary" id="hrPlanCerrar">Cerrar</button>
+      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
+      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+      <button type="button" class="secondary" id="hrPlanCerrar" data-gi=aeccae342e4b>Cerrar</button>
     </div>
    </div>`:''}
  </div>`;
@@ -667,7 +667,7 @@ function planMover(n){
 function myCardTab(){
  const yo=mine;
  if(!yo){
-  return `<div class="card"><div class="hrEmpty">Tu cuenta todavía no está ligada a una ficha de empleado.<br>
+  return `<div class="card"><div class="hrEmpty" data-gi=3bce45fcf14e>Tu cuenta todavía no está ligada a una ficha de empleado.<br data-gi=b09ad5d3000c>
    Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
  }
  const year=new Date().getFullYear();
@@ -676,7 +676,7 @@ function myCardTab(){
  const dato=(k,v)=>v?`<div class="hrDato"><span>${esc(k)}</span><b>${esc(v)}</b></div>`:'';
  return `<div class="hrGrid">
   <div class="card">
-   <h3>Mi ficha</h3>
+   <h3 data-gi=b1c44421d26c>Mi ficha</h3>
    <div class="hrDatos">
     ${dato('Nombre',yo.full_name)}
     ${dato('Puesto',yo.position)}
@@ -688,17 +688,17 @@ function myCardTab(){
     ${dato('Correo',yo.email)}
     ${dato('Teléfono',yo.phone)}
    </div>
-   <div class="muted" style="font-size:11.5px;margin-top:12px">Si algún dato no es correcto, avisa a un administrador: la ficha la mantiene recursos humanos.</div>
+   <div class="muted" style="font-size:11.5px;margin-top:12px" data-gi=f4655fc1977c>Si algún dato no es correcto, avisa a un administrador: la ficha la mantiene recursos humanos.</div>
   </div>
   <div class="card">
    <h3>Mis vacaciones ${year}</h3>
    <div class="hrSaldo">
-    <div><span>Días pactados</span><b>${total}</b></div>
-    <div><span>Usados</span><b>${used}</b></div>
-    <div class="hrSaldoLibre"><span>Te quedan</span><b>${quedan}</b></div>
+    <div><span data-gi=187f4841b0af>Días pactados</span><b>${total}</b></div>
+    <div><span data-gi=77c1b82cb1d7>Usados</span><b>${used}</b></div>
+    <div class="hrSaldoLibre"><span data-gi=8fca1d80df6e>Te quedan</span><b>${quedan}</b></div>
    </div>
    <div class="hrBar" style="max-width:none"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div>
-   <div class="muted" style="font-size:11.5px;margin-top:8px">Se cuentan días laborables, de lunes a viernes. Sólo descuentan los días ya aprobados.</div>
+   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi=46035131b36f>Se cuentan días laborables, de lunes a viernes. Sólo descuentan los días ya aprobados.</div>
   </div>
  </div>`;
 }
@@ -711,33 +711,33 @@ function myRequestsTab(){
  const filas=mias.map(a=>{
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
-   <td><b>${esc(KINDS[a.kind]||a.kind)}</b><small>${esc(a.reason||'')}</small></td>
+   <td><b><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></b><small>${esc(a.reason||'')}</small></td>
    <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
-   <td><span class="hrBadge ${cls}">${esc(STATUS[a.status]||a.status)}</span></td>
-   <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}">Retirar</button>`:''}</td>
+   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
+   <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
   </tr>`;
  }).join('');
 
  return `<div class="hrGrid">
   <div class="card">
-   <h3>Pedir días</h3>
-   ${yo?'':'<div class="hrEmpty">Tu cuenta no está ligada a una ficha de empleado, así que todavía no puedes pedir días.</div>'}
-   ${yo?`<label>Motivo</label>
-   <select id="hrAbsKind">${Object.keys(KINDS).map(k=>`<option value="${k}">${KINDS[k]}</option>`).join('')}</select>
+   <h3 data-gi=1fc7c7b3584e>Pedir días</h3>
+   ${yo?'':'<div class="hrEmpty" data-gi=26d051bd4f8d>Tu cuenta no está ligada a una ficha de empleado, así que todavía no puedes pedir días.</div>'}
+   ${yo?`<label data-gi=c7b288b1c0bb>Motivo</label>
+   <select id="hrAbsKind">${Object.keys(KINDS).map(k=>`<option value="${k}" data-gi-live>${KINDS[k]}</option>`).join('')}</select>
    <div class="row">
-    <div><label>Desde *</label><input id="hrAbsFrom" type="date" value="${today()}"></div>
-    <div><label>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
+    <div><label data-gi=29ee9938a74c>Desde *</label><input id="hrAbsFrom" type="date" value="${today()}"></div>
+    <div><label data-gi=66b3c7fb42f9>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
    </div>
-   <label>Comentario</label><textarea id="hrAbsReason" placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
-   <div class="actions"><button type="button" class="primary" id="hrAbsAdd">📩 Enviar solicitud</button></div>
-   <div class="muted" style="font-size:11.5px;margin-top:8px">La solicitud queda <b>pendiente</b> hasta que un administrador la apruebe. Mientras lo esté, puedes retirarla.</div>`:''}
+   <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=afe18510d3eb placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
+   <div class="actions"><button type="button" class="primary" id="hrAbsAdd" data-gi=e3f27a649cc6>📩 Enviar solicitud</button></div>
+   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi=9fe6fcd1c764>La solicitud queda <b data-gi=b66292585132>pendiente</b> hasta que un administrador la apruebe. Mientras lo esté, puedes retirarla.</div>`:''}
   </div>
   <div class="card">
-   <h3>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
+   <h3 data-gi=12bc372ef7e7>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
    ${mias.length?`<div class="hrTable"><table>
-     <thead><tr><th>Motivo</th><th>Periodo</th><th>Estado</th><th></th></tr></thead>
+     <thead><tr><th data-gi=c7b288b1c0bb>Motivo</th><th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=98e5acddb6c4>Estado</th><th></th></tr></thead>
      <tbody>${filas}</tbody></table></div>`
-    :'<div class="hrEmpty">Todavía no has pedido ningún día.</div>'}
+    :'<div class="hrEmpty" data-gi=52e9de7ee71f>Todavía no has pedido ningún día.</div>'}
   </div>
  </div>`;
 }

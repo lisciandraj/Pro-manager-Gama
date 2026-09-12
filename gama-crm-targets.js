@@ -122,14 +122,14 @@ function lista(){
   ||String(deQuien(a)).localeCompare(String(deQuien(b)),'es'));
  return '<div class="card">'
   +'<div class="crmBar">'
-   +'<select id="crmTTipo" data-gama-nofind aria-label="Tipo de periodo">'
+   +'<select id="crmTTipo" data-gama-nofind data-gi-aria-label=3111c28c597b aria-label="Tipo de periodo">'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(tipo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select><span></span>'
-   +(CRM.esAdmin()?'<button type="button" class="primary" id="crmTNuevo">+ Fijar un objetivo</button>':'<span></span>')
+   +(CRM.esAdmin()?'<button type="button" class="primary" id="crmTNuevo" data-gi=02a719ad013a>+ Fijar un objetivo</button>':'<span></span>')
   +'</div>'
   +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
-    +'<th>Periodo</th><th>Quién</th><th class="r">Objetivo</th><th class="r">Conseguido</th>'
-    +'<th class="r">Avance</th><th>Peso</th>'+(CRM.esAdmin()?'<th></th>':'')+'</tr></thead><tbody>'
+    +'<th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=aa952cf4a386>Quién</th><th class="r" data-gi=e9daca354ed6>Objetivo</th><th class="r" data-gi=8104f50d9d77>Conseguido</th>'
+    +'<th class="r" data-gi=a3a09e188e03>Avance</th><th data-gi=c27dd5dd9f3c>Peso</th>'+(CRM.esAdmin()?'<th></th>':'')+'</tr></thead><tbody>'
     +filas.map(fila).join('')+'</tbody></table></div>'
    :'<div class="crmVacio">'
     +(CRM.esAdmin()
@@ -144,15 +144,15 @@ function fila(o){
  const falta=Math.max(0,meta-hecho);
  return '<tr>'
   +'<td><b>'+esc(etiqueta(o.period_start,o.period_kind))+'</b></td>'
-  +'<td>'+esc(deQuien(o))+(o.profile_id?'':'<small class="crmSub">suma de todo el equipo</small>')+'</td>'
+  +'<td>'+esc(deQuien(o))+(o.profile_id?'':'<small class="crmSub" data-gi=010aeab7e27c>suma de todo el equipo</small>')+'</td>'
   +'<td class="r">'+esc(money(meta))+'</td>'
   +'<td class="r"><b>'+esc(money(hecho))+'</b></td>'
   +'<td class="r"><b class="'+(pc>=100?'crmVerde':'')+'">'+pc+' %</b>'
-   +(falta>0?'<small class="crmSub">faltan '+esc(money(falta))+'</small>':'<small class="crmSub">cumplido</small>')+'</td>'
+   +(falta>0?'<small class="crmSub">faltan '+esc(money(falta))+'</small>':'<small class="crmSub" data-gi=3f17f08a0e37>cumplido</small>')+'</td>'
   +'<td>'+barra(pc)+'</td>'
   +(CRM.esAdmin()?'<td class="crmAcc">'
-    +'<button type="button" data-abrir="'+esc(o.id)+'">Cambiar</button>'
-    +'<button type="button" class="danger" data-quitar="'+esc(o.id)+'" title="Quitar el objetivo">×</button>'
+    +'<button type="button" data-abrir="'+esc(o.id)+'" data-gi=b32216792412>Cambiar</button>'
+    +'<button type="button" class="danger" data-quitar="'+esc(o.id)+'" data-gi-title=9b5a990ea5f2 title="Quitar el objetivo">×</button>'
    +'</td>':'')
   +'</tr>';
 }
@@ -166,27 +166,27 @@ function ficha(){
  return '<div class="card">'
   +'<h3>'+(o.id?'Cambiar el objetivo':'Fijar un objetivo')+'</h3>'
   +'<div class="crmForm">'
-   +'<div><label for="crmTQuien">Para quién</label><select id="crmTQuien">'
+   +'<div><label for="crmTQuien" data-gi=0aa73d48beee>Para quién</label><select id="crmTQuien">'
     +opciones(gente.map(p=>[p.id,p.full_name||p.email]),o.profile_id,'Toda la empresa')+'</select></div>'
-   +'<div><label for="crmTKind">Periodo</label><select id="crmTKind" data-gama-nofind>'
+   +'<div><label for="crmTKind" data-gi=fb5065f3c8c1>Periodo</label><select id="crmTKind" data-gama-nofind>'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(kind===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmTAnio">Año</label><select id="crmTAnio" data-gama-nofind>'
+   +'<div><label for="crmTAnio" data-gi=9100502b8574>Año</label><select id="crmTAnio" data-gama-nofind>'
     +anios.map(x=>'<option value="'+x[0]+'"'+(String(a)===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')
    +'</select></div>'
-   +'<div id="crmTCajaMes"'+(kind==='mes'?'':' hidden')+'><label for="crmTMes">Mes</label><select id="crmTMes" data-gama-nofind>'
+   +'<div id="crmTCajaMes"'+(kind==='mes'?'':' hidden')+'><label for="crmTMes" data-gi=024261f9bfba>Mes</label><select id="crmTMes" data-gama-nofind>'
     +Array.from({length:12},(_,i)=>i+1).map(x=>'<option value="'+x+'"'+(kind==='mes'&&m===x?' selected':'')+'>'
       +esc(new Date(Date.UTC(2000,x-1,1)).toLocaleDateString('es-EC',{month:'long',timeZone:'UTC'}))+'</option>').join('')
    +'</select></div>'
-   +'<div id="crmTCajaTri"'+(kind==='trimestre'?'':' hidden')+'><label for="crmTTri">Trimestre</label><select id="crmTTri" data-gama-nofind>'
+   +'<div id="crmTCajaTri"'+(kind==='trimestre'?'':' hidden')+'><label for="crmTTri" data-gi=211e806f6cd1>Trimestre</label><select id="crmTTri" data-gama-nofind>'
     +Object.keys(TRIMESTRES).map(k=>'<option value="'+k+'"'+(kind==='trimestre'&&String(m)===k?' selected':'')+'>'+esc(TRIMESTRES[k])+'</option>').join('')
    +'</select></div>'
-   +'<div><label for="crmTMeta">Objetivo en USD</label><input id="crmTMeta" type="number" min="0" step="0.01" value="'+Number(o.amount_goal||0)+'"></div>'
+   +'<div><label for="crmTMeta" data-gi=285e9036c83a>Objetivo en USD</label><input id="crmTMeta" type="number" min="0" step="0.01" value="'+Number(o.amount_goal||0)+'"></div>'
   +'</div>'
-  +'<div class="crmNotas"><label for="crmTNotas">Notas</label><textarea id="crmTNotas" rows="3">'+esc(o.notes||'')+'</textarea></div>'
+  +'<div class="crmNotas"><label for="crmTNotas" data-gi=8a6172e21a87>Notas</label><textarea id="crmTNotas" rows="3">'+esc(o.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmTGuardar">Guardar</button>'
-   +'<button type="button" id="crmTCancelar">Cancelar</button>'
+   +'<button type="button" class="primary" id="crmTGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button type="button" id="crmTCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 function leerFicha(){
@@ -295,7 +295,7 @@ async function abrirPantalla(recarga){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Cargando objetivos…</div></div>';
+ if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=34f2ce489322>Cargando objetivos…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

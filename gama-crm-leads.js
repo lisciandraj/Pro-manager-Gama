@@ -122,11 +122,11 @@ function lista(){
  const pagina=window.GamaPage?window.GamaPage.slice('crmLeads',filas):filas;
  return '<div class="card">'
   +'<div class="crmBar">'
-  +'<input id="crmLeadBusca" type="search" placeholder="Buscar por nombre, correo, teléfono o ciudad…" value="'+esc(busca)+'" aria-label="Buscar prospectos">'
-  +'<select id="crmLeadFiltro" data-gama-nofind aria-label="Filtrar por estado"><option value="">Todos los estados</option>'
+  +'<input id="crmLeadBusca" type="search" data-gi-placeholder=d57d8d9e854c placeholder="Buscar por nombre, correo, teléfono o ciudad…" value="'+esc(busca)+'" data-gi-aria-label=7daa3bc9f28f aria-label="Buscar prospectos">'
+  +'<select id="crmLeadFiltro" data-gama-nofind data-gi-aria-label=74580843ea91 aria-label="Filtrar por estado"><option value="" data-gi=ecda92faab01>Todos los estados</option>'
   +Object.keys(ESTADOS).map(k=>'<option value="'+k+'"'+(filtro===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="primary" id="crmLeadNuevo">+ Nuevo prospecto</button>'
+  +'<button type="button" class="primary" id="crmLeadNuevo" data-gi=0891a0aeae90>+ Nuevo prospecto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmLeads',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch))
@@ -159,13 +159,13 @@ function fila(l){
   +'<td class="r">'+Number(l.score||0)+'</td>'
   +'<td>'+esc(CRM.nombreDe(l.owner_id,gente))+'</td>'
   +'<td>'+esc(l.city||'—')+'</td>'
-  +'<td>'+(l.next_followup_at?esc(fecha(l.next_followup_at))+(vencido(l.next_followup_at)?' <span class="crmTarde">vencido</span>':''):'—')+'</td>'
+  +'<td>'+(l.next_followup_at?esc(fecha(l.next_followup_at))+(vencido(l.next_followup_at)?' <span class="crmTarde" data-gi=0fac49727df0>vencido</span>':''):'—')+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" data-abrir="'+esc(l.id)+'">Abrir</button>'
-   +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="primary" data-convertir="'+esc(l.id)+'">Convertir</button>':'')
+   +'<button type="button" data-abrir="'+esc(l.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="primary" data-convertir="'+esc(l.id)+'" data-gi=f6be98ab4faa>Convertir</button>':'')
    +(l.active!==false
-     ?'<button type="button" data-archivar="'+esc(l.id)+'" title="Archivar prospecto">🗄️</button>'
-     :'<button type="button" data-restaurar="'+esc(l.id)+'" title="Restaurar prospecto">↩︎</button>')
+     ?'<button type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto">🗄️</button>'
+     :'<button type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto">↩︎</button>')
   +'</td></tr>';
 }
 
@@ -176,7 +176,7 @@ function ficha(){
  const l=abierto||{},esNuevo=!l.id,cli=clienteDe(l);
  return '<div class="card">'
   +'<h3>'+(esNuevo?'Nuevo prospecto':esc(nombre(l)))+'</h3>'
-  +(cli?'<div class="crmAviso">Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
+  +(cli?'<div class="crmAviso" data-gi=21c3f52c58af>Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
     +(l.converted_at?' el '+esc(fecha(l.converted_at)):'')
     +'. Lo comercial se lleva desde su ficha de cliente; aquí queda el rastro de dónde salió.</div>':'')
   +'<div class="crmForm">'
@@ -194,27 +194,27 @@ function ficha(){
    +campo('crmLWeb','Sitio web',l.website)
    +campo('crmLIndustry','Sector',l.industry)
    +campo('crmLSize','Tamaño',l.company_size)
-   +'<div><label for="crmLSource">Origen</label><select id="crmLSource">'+opciones(origenes.map(o=>[o.id,o.name]),l.source_id)+'</select></div>'
-   +'<div><label for="crmLOwner">Responsable</label><select id="crmLOwner">'+opciones(gente.map(p=>[p.id,p.full_name||p.email]),l.owner_id)+'</select></div>'
+   +'<div><label for="crmLSource" data-gi=167a940c6278>Origen</label><select id="crmLSource">'+opciones(origenes.map(o=>[o.id,o.name]),l.source_id)+'</select></div>'
+   +'<div><label for="crmLOwner" data-gi=62c1aec4ffc8>Responsable</label><select id="crmLOwner">'+opciones(gente.map(p=>[p.id,p.full_name||p.email]),l.owner_id)+'</select></div>'
    /* Un prospecto ya convertido no enseña desplegable de estado: la base sólo
       acepta «convertido» acompañado del cliente creado, y ofrecerlo aquí sería
       ofrecer un guardado que va a fallar. */
    +(l.status==='convertido'
-     ?'<div><label for="crmLStatusRO">Estado</label><input id="crmLStatusRO" value="Convertido" readonly aria-readonly="true"></div>'
-     :'<div><label for="crmLStatus">Estado</label><select id="crmLStatus" data-gama-nofind>'
+     ?'<div><label for="crmLStatusRO" data-gi=98e5acddb6c4>Estado</label><input id="crmLStatusRO" value="Convertido" readonly aria-readonly="true"></div>'
+     :'<div><label for="crmLStatus" data-gi=98e5acddb6c4>Estado</label><select id="crmLStatus" data-gama-nofind>'
       +ESTADOS_EDITABLES.map(k=>'<option value="'+k+'"'+((l.status||'nuevo')===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
       +'</select></div>')
-   +'<div><label for="crmLPriority">Prioridad</label><select id="crmLPriority" data-gama-nofind>'
+   +'<div><label for="crmLPriority" data-gi=dbae0b2a1a74>Prioridad</label><select id="crmLPriority" data-gama-nofind>'
     +Object.keys(PRIORIDADES).map(k=>'<option value="'+k+'"'+((l.priority||'media')===k?' selected':'')+'>'+esc(PRIORIDADES[k])+'</option>').join('')
     +'</select></div>'
-   +'<div><label for="crmLScore">Puntuación (0–100)</label><input id="crmLScore" type="number" min="0" max="100" step="1" value="'+Number(l.score||0)+'"></div>'
-   +'<div><label for="crmLNext">Próximo seguimiento</label><input id="crmLNext" type="datetime-local" value="'+esc(paraInput(l.next_followup_at))+'"></div>'
+   +'<div><label for="crmLScore" data-gi=41b4c45c9de6>Puntuación (0–100)</label><input id="crmLScore" type="number" min="0" max="100" step="1" value="'+Number(l.score||0)+'"></div>'
+   +'<div><label for="crmLNext" data-gi=a6e615d30d6f>Próximo seguimiento</label><input id="crmLNext" type="datetime-local" value="'+esc(paraInput(l.next_followup_at))+'"></div>'
   +'</div>'
-  +'<div class="crmNotas"><label for="crmLNotes">Notas</label><textarea id="crmLNotes" rows="4">'+esc(l.notes||'')+'</textarea></div>'
+  +'<div class="crmNotas"><label for="crmLNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmLNotes" rows="4">'+esc(l.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmLGuardar">Guardar</button>'
-   +'<button type="button" id="crmLCancelar">Cancelar</button>'
-   +(!esNuevo&&l.status!=='convertido'&&l.active!==false?'<button type="button" id="crmLConvertir">Convertir en cliente</button>':'')
+   +'<button type="button" class="primary" id="crmLGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button type="button" id="crmLCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +(!esNuevo&&l.status!=='convertido'&&l.active!==false?'<button type="button" id="crmLConvertir" data-gi=80cb06b598bb>Convertir en cliente</button>':'')
   +'</div></div>';
 }
 function leerFicha(){
@@ -278,14 +278,14 @@ function convertir(){
   +'<h3>Convertir «'+esc(nombre(l))+'» en cliente</h3>'
   +'<p class="muted">Se crea una ficha en 👥 Clientes con estos datos y el prospecto queda apuntando a ella. '
   +'A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</p>'
-  +(dup?'<div class="crmAviso crmDup">Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
+  +(dup?'<div class="crmAviso crmDup" data-gi=7c5a74355dd5>Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
     +(dup.identification?' ('+esc(dup.identification)+')':'')+'. Enlázalo en vez de abrir otra ficha de la misma empresa.'
-    +'<div class="crmAcciones"><button type="button" class="primary" data-enlazar="'+esc(dup.id)+'">Enlazar con este cliente</button>'
-    +'<button type="button" id="crmCForzar">Crear otra ficha de todas formas</button></div></div>':'')
+    +'<div class="crmAcciones"><button type="button" class="primary" data-enlazar="'+esc(dup.id)+'" data-gi=558052cf6335>Enlazar con este cliente</button>'
+    +'<button type="button" id="crmCForzar" data-gi=ee7e3dc7f20d>Crear otra ficha de todas formas</button></div></div>':'')
   +'<div class="crmForm">'
    +campo('crmCName','Nombre del cliente',d.name)
    +campo('crmCId','Identificación (RUC / cédula)',d.identification)
-   +'<div><label for="crmCCat">Categoría</label><select id="crmCCat" data-gama-nofind>'
+   +'<div><label for="crmCCat" data-gi=558bb20a82ed>Categoría</label><select id="crmCCat" data-gama-nofind>'
     +CATEGORIAS.map(c=>'<option value="'+c[0]+'"'+(d.category===c[0]?' selected':'')+'>'+esc(c[1])+'</option>').join('')+'</select></div>'
    +campo('crmCEmail','Correo',d.email,'email')
    +campo('crmCPhone','Teléfono',d.phone,'tel')
@@ -293,10 +293,10 @@ function convertir(){
    +campo('crmCCity','Ciudad',d.city)
    +campo('crmCProv','Provincia',d.province)
   +'</div>'
-  +'<div class="crmNotas"><label for="crmCNotes">Notas</label><textarea id="crmCNotes" rows="3">'+esc(d.notes||'')+'</textarea></div>'
+  +'<div class="crmNotas"><label for="crmCNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmCNotes" rows="3">'+esc(d.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmCOk">Crear el cliente</button>'
-   +'<button type="button" id="crmCCancel">Cancelar</button>'
+   +'<button type="button" class="primary" id="crmCOk" data-gi=dad1994d204f>Crear el cliente</button>'
+   +'<button type="button" id="crmCCancel" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 async function convertirYa(existente){
@@ -447,7 +447,7 @@ async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Cargando prospectos…</div></div>';
+ s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=55799a3fc6c5>Cargando prospectos…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

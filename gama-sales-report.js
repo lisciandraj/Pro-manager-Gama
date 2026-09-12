@@ -41,7 +41,7 @@ function lista(hostId,filas,sub){
  const host=$(hostId);if(!host)return;
  host.innerHTML=filas.length
   ? filas.map((r,i)=>`<div class="srRow"><span><span class="srRank">${i+1}</span><b>${esc(r.name)}</b></span><span>${sub(r)}</span></div>`).join('')
-  : '<div class="srEmpty">Sin ventas en este periodo.</div>';
+  : '<div class="srEmpty" data-gi=a849b2c8aab1>Sin ventas en este periodo.</div>';
 }
 function cargando(){
  ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)h.innerHTML='<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>'});

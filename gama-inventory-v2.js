@@ -171,11 +171,11 @@ function pintar(){
   title:'🏬 Almacenes y existencias',
   lead:'Dónde está cada producto y cuánto queda disponible.'
  })+`<div class="ivTabs">
-<button type="button" data-iv-tab="existencias">Existencias</button>
-<button type="button" data-iv-tab="transferencias">Transferencias</button>
-<button type="button" data-iv-tab="reabastecimiento">Reabastecimiento</button>
-<button type="button" data-iv-tab="conteos">Inventario físico</button>
-<button type="button" data-iv-tab="ubicaciones">Ubicaciones</button>
+<button type="button" data-iv-tab="existencias" data-gi=51d1f9fcef5a>Existencias</button>
+<button type="button" data-iv-tab="transferencias" data-gi=7964b01de247>Transferencias</button>
+<button type="button" data-iv-tab="reabastecimiento" data-gi=b8d29c42edf0>Reabastecimiento</button>
+<button type="button" data-iv-tab="conteos" data-gi=50b30c964d90>Inventario físico</button>
+<button type="button" data-iv-tab="ubicaciones" data-gi=f2f6d7256e7e>Ubicaciones</button>
 </div><div id="ivCuerpo"></div>`;
  window.GamaUI.bindBack(sec);
  sec.querySelectorAll('[data-iv-tab]').forEach(b=>{
@@ -184,7 +184,7 @@ function pintar(){
  });
  const cuerpo=$('ivCuerpo');
  if(disponibleV2===false){
-  cuerpo.innerHTML=`<div class="ivCard"><div class="ivAviso"><b>Inventario V2 todavía no está activo.</b><br>
+  cuerpo.innerHTML=`<div class="ivCard"><div class="ivAviso"><b data-gi=382d7e0a2ad5>Inventario V2 todavía no está activo.</b><br data-gi=227cc70e0fe2>
 Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-phase1.sql</code>.
 Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div></div>`;
   return;
@@ -205,15 +205,15 @@ function pintarExistencias(host){
  host.innerHTML=`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
 <div class="ivFiltros">
- <input id="ivBuscar" type="search" placeholder="Buscar por producto o referencia…" aria-label="Buscar producto">
- <select id="ivAlmacen" aria-label="Almacén"><option value="">Todos los almacenes</option>${opcionesAlmacen}</select>
- <select id="ivCategoria" aria-label="Categoría"><option value="">Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
- <select id="ivEstadoFiltro" aria-label="Estado">
-  <option value="">Todos los estados</option>
-  <option value="bajo">Stock bajo</option>
-  <option value="agotado">Sin stock</option>
-  <option value="reservado">Con reservas</option>
-  <option value="sobre">Sobre stock</option>
+ <input id="ivBuscar" type="search" data-gi-placeholder=63ccace81217 placeholder="Buscar por producto o referencia…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
+ <select id="ivAlmacen" data-gi-aria-label=9a91575b8e4b aria-label="Almacén"><option value="" data-gi=c27ceb62ad08>Todos los almacenes</option>${opcionesAlmacen}</select>
+ <select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
+ <select id="ivEstadoFiltro" data-gi-aria-label=98e5acddb6c4 aria-label="Estado">
+  <option value="" data-gi=ecda92faab01>Todos los estados</option>
+  <option value="bajo" data-gi=9ae983d98529>Stock bajo</option>
+  <option value="agotado" data-gi=f562218d7957>Sin stock</option>
+  <option value="reservado" data-gi=cda5503e85c6>Con reservas</option>
+  <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
  </select>
 </div>
 <div id="ivTabla"></div>
@@ -245,12 +245,12 @@ function tabla(){
  const host=$('ivTabla');if(!host)return;
  const rows=filas();
  pintarKpis(rows);
- if(!rows.length){host.innerHTML='<div class="muted">No hay existencias que coincidan.</div>';return}
+ if(!rows.length){host.innerHTML='<div class="muted" data-gi=0c22de3a52d5>No hay existencias que coincidan.</div>';return}
  const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows):rows;
  host.innerHTML='<table><tr>'
-  +'<th>Producto</th><th>Referencia</th><th>Categoría</th><th>Almacén</th>'
-  +'<th>On hand</th><th>Reservado</th><th>Disponible</th><th>Entrante</th><th>Previsto</th>'
-  +'<th>Mínimo</th><th>Máximo</th><th>Costo</th><th>Valor</th><th>Estado</th></tr>'
+  +'<th data-gi=77b9238931ed>Producto</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=558bb20a82ed>Categoría</th><th data-gi=9a91575b8e4b>Almacén</th>'
+  +'<th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th>'
+  +'<th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=1fecb6bc9f3e>Costo</th><th data-gi=b2f530c46991>Valor</th><th data-gi=98e5acddb6c4>Estado</th></tr>'
   +pagina.map(r=>{
    const e=estado(r);
    const sitios=[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))];
@@ -282,10 +282,10 @@ function pintarKpis(rows){
  const sin=rows.filter(r=>r.onHand<=0).length;
  const res=rows.reduce((s,r)=>s+r.reservado,0);
  host.innerHTML=`
-<div class="ivKpi"><span>Valor del stock</span><b>${money(valor)}</b></div>
-<div class="ivKpi"><span>Productos bajo mínimo</span><b>${bajo}</b></div>
-<div class="ivKpi"><span>Sin existencias</span><b>${sin}</b></div>
-<div class="ivKpi"><span>Unidades reservadas</span><b>${num(res)}</b></div>`;
+<div class="ivKpi"><span data-gi=2b6191504cd7>Valor del stock</span><b>${money(valor)}</b></div>
+<div class="ivKpi"><span data-gi=d8fa61c9be01>Productos bajo mínimo</span><b>${bajo}</b></div>
+<div class="ivKpi"><span data-gi=be6038d25214>Sin existencias</span><b>${sin}</b></div>
+<div class="ivKpi"><span data-gi=3cc912339414>Unidades reservadas</span><b>${num(res)}</b></div>`;
 }
 
 /* ---------- transferencias ---------- */
@@ -299,20 +299,20 @@ function opcionesUbicacion(){
 
 function pintarTransferencias(host){
  host.innerHTML=`<div class="ivCard">
-<h3 style="margin:0 0 4px">Mover existencias de una ubicación a otra</h3>
-<p class="muted" style="margin:0 0 14px">El traslado es de una sola pieza: o se mueve entero o no se mueve nada. Lo reservado no se puede mover.</p>
+<h3 style="margin:0 0 4px" data-gi=d9bf9cf48ea6>Mover existencias de una ubicación a otra</h3>
+<p class="muted" style="margin:0 0 14px" data-gi=812c6c18a9e3>El traslado es de una sola pieza: o se mueve entero o no se mueve nada. Lo reservado no se puede mover.</p>
 <div class="ivForm">
- <div><label for="ivtProducto">Producto</label>
-  <select id="ivtProducto"><option value="">Elija un producto…</option>${productos.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}${p.reference?' ('+esc(p.reference)+')':''}</option>`).join('')}</select></div>
- <div><label for="ivtOrigen">Desde</label><select id="ivtOrigen"><option value="">Ubicación de origen…</option>${opcionesUbicacion()}</select></div>
- <div><label for="ivtDestino">Hacia</label><select id="ivtDestino"><option value="">Ubicación de destino…</option>${opcionesUbicacion()}</select></div>
- <div><label for="ivtCantidad">Cantidad</label><input id="ivtCantidad" type="number" min="1" step="1" value="1"></div>
- <div style="grid-column:1/-1"><label for="ivtComentario">Comentario</label><input id="ivtComentario" placeholder="Motivo del traslado (opcional)"></div>
+ <div><label for="ivtProducto" data-gi=77b9238931ed>Producto</label>
+  <select id="ivtProducto"><option value="" data-gi=a48e47394441>Elija un producto…</option>${productos.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}${p.reference?' ('+esc(p.reference)+')':''}</option>`).join('')}</select></div>
+ <div><label for="ivtOrigen" data-gi=8b4e93e928df>Desde</label><select id="ivtOrigen"><option value="" data-gi=217a19b653e2>Ubicación de origen…</option>${opcionesUbicacion()}</select></div>
+ <div><label for="ivtDestino" data-gi=d40aa32cd30a>Hacia</label><select id="ivtDestino"><option value="" data-gi=3a32f837bea9>Ubicación de destino…</option>${opcionesUbicacion()}</select></div>
+ <div><label for="ivtCantidad" data-gi=8930e00fcc39>Cantidad</label><input id="ivtCantidad" type="number" min="1" step="1" value="1"></div>
+ <div style="grid-column:1/-1"><label for="ivtComentario" data-gi=53c367898434>Comentario</label><input id="ivtComentario" data-gi-placeholder=b697e5de1174 placeholder="Motivo del traslado (opcional)"></div>
 </div>
 <div class="ivSaldo" id="ivtSaldo"></div>
-<button type="button" class="primary" id="ivtConfirmar" style="width:100%;margin-top:14px">Confirmar transferencia</button>
+<button type="button" class="primary" id="ivtConfirmar" style="width:100%;margin-top:14px" data-gi=a32cd62ae09f>Confirmar transferencia</button>
 </div>
-<div class="ivCard"><h3 style="margin:0 0 10px">Últimos traslados</h3><div id="ivtHistorial" class="muted">—</div></div>`;
+<div class="ivCard"><h3 style="margin:0 0 10px" data-gi=32fca927bb3d>Últimos traslados</h3><div id="ivtHistorial" class="muted">—</div></div>`;
  ['ivtProducto','ivtOrigen','ivtDestino'].forEach(id=>{const el=$(id);if(el)el.onchange=saldo});
  $('ivtConfirmar').onclick=transferir;
  saldo();
@@ -326,9 +326,9 @@ function saldo(){
  const qO=quants.find(q=>q.product_id===pid&&q.location_id===org);
  const qD=dst?quants.find(q=>q.product_id===pid&&q.location_id===dst):null;
  const onO=Number(qO?.quantity||0),resO=Number(qO?.reserved_quantity||0);
- host.innerHTML=`<div>Origen · <b>${num(onO)}</b> en existencia</div>
-<div>Origen · <b>${num(onO-resO)}</b> disponible${resO?` <span class="ivSub">(${num(resO)} reservado)</span>`:''}</div>
-${dst?`<div>Destino · <b>${num(Number(qD?.quantity||0))}</b> en existencia</div>`:''}`;
+ host.innerHTML=`<div data-gi=1e31d11b109e>Origen · <b>${num(onO)}</b> en existencia</div>
+<div data-gi=1e31d11b109e>Origen · <b>${num(onO-resO)}</b> disponible${resO?` <span class="ivSub">(${num(resO)} reservado)</span>`:''}</div>
+${dst?`<div data-gi=d3b6805b5841>Destino · <b>${num(Number(qD?.quantity||0))}</b> en existencia</div>`:''}`;
 }
 
 async function transferir(){
@@ -381,8 +381,8 @@ async function historial(){
  try{
   const r=await C().list('stock_movements',{select:'id,product_id,quantity,created_at,source_location_id,destination_location_id,movement_type,comment',order:'created_at',ascending:false,limit:10});
   const rows=(r.data||[]).filter(m=>m.movement_type==='internal_transfer');
-  if(!rows.length){host.innerHTML='<div class="muted">Todavía no hay traslados registrados.</div>';return}
-  host.innerHTML='<table><tr><th>Fecha</th><th>Producto</th><th>Desde</th><th>Hacia</th><th>Cantidad</th></tr>'
+  if(!rows.length){host.innerHTML='<div class="muted" data-gi=73e92889385c>Todavía no hay traslados registrados.</div>';return}
+  host.innerHTML='<table><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8b4e93e928df>Desde</th><th data-gi=d40aa32cd30a>Hacia</th><th data-gi=8930e00fcc39>Cantidad</th></tr>'
    +rows.map(m=>{
     const p=productos.find(x=>x.id===m.product_id);
     return `<tr><td>${esc(new Date(m.created_at).toLocaleString('es-EC'))}</td>
@@ -391,7 +391,7 @@ async function historial(){
 <td>${esc((ubicacion(m.destination_location_id)||{}).code||'—')}</td>
 <td>${num(m.quantity)}</td></tr>`}).join('')+'</table>';
   if(window.GamaTable)window.GamaTable.scan();
- }catch(_){host.innerHTML='<div class="muted">No se pudo leer el historial.</div>'}
+ }catch(_){host.innerHTML='<div class="muted" data-gi=006f539c9aa6>No se pudo leer el historial.</div>'}
 }
 
 
@@ -426,11 +426,11 @@ function pintarReabastecimiento(host){
  const filas=productos.map(p=>resumen(p)).map(r=>({r,s:sugerencia(r)})).filter(x=>x.s);
  const nombreProveedor=id=>{const s=proveedores.find(x=>x.id===id);return s?s.name:'—'};
  host.innerHTML=`<div class="ivCard">
-<h3 style="margin:0 0 4px">Productos que hay que reponer</h3>
-<p class="muted" style="margin:0 0 12px">Se repone cuando lo previsto cae por debajo del mínimo. Previsto es lo disponible más lo que ya viene de camino, así que un producto con una compra en marcha no vuelve a pedirse.</p>
-${filas.length?`<table><tr><th>Producto</th><th>On hand</th><th>Reservado</th><th>Disponible</th><th>Entrante</th><th>Previsto</th><th>Mínimo</th><th>Máximo</th><th>Sugerido</th><th>Proveedor</th></tr>`
+<h3 style="margin:0 0 4px" data-gi=410609c8f18b>Productos que hay que reponer</h3>
+<p class="muted" style="margin:0 0 12px" data-gi=cf0b3d08ddea>Se repone cuando lo previsto cae por debajo del mínimo. Previsto es lo disponible más lo que ya viene de camino, así que un producto con una compra en marcha no vuelve a pedirse.</p>
+${filas.length?`<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th><th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=53d6521cbfdb>Sugerido</th><th data-gi=e746643f4479>Proveedor</th></tr>`
 +filas.map(({r,s})=>`<tr>
-<td><b>${esc(r.producto.name)}</b>${s.limites.regla?'<small class="ivSub">regla propia</small>':''}</td>
+<td><b>${esc(r.producto.name)}</b>${s.limites.regla?'<small class="ivSub" data-gi=96f2fb0afade>regla propia</small>':''}</td>
 <td>${num(r.onHand)}</td>
 <td>${r.reservado?num(r.reservado):'—'}</td>
 <td>${num(r.disponible)}</td>
@@ -438,11 +438,11 @@ ${filas.length?`<table><tr><th>Producto</th><th>On hand</th><th>Reservado</th><t
 <td><b>${num(s.previsto)}</b></td>
 <td>${num(s.limites.minimo)}</td>
 <td>${s.limites.maximo?num(s.limites.maximo):'—'}</td>
-<td><b>${num(s.cantidad)}</b>${s.hastaMaximo?'':'<small class="ivSub">hasta el mínimo</small>'}</td>
+<td><b>${num(s.cantidad)}</b>${s.hastaMaximo?'':'<small class="ivSub" data-gi=b6ad26ff71fd>hasta el mínimo</small>'}</td>
 <td>${esc(nombreProveedor(s.limites.proveedor))}</td>
 </tr>`).join('')+'</table>'
-:'<div class="muted">Ningún producto está por debajo de su mínimo.</div>'}
-<p class="muted" style="margin:12px 0 0">La sugerencia no crea ninguna orden de compra: pedir sigue siendo cosa del módulo de Compras.</p>
+:'<div class="muted" data-gi=6017a18207dd>Ningún producto está por debajo de su mínimo.</div>'}
+<p class="muted" style="margin:12px 0 0" data-gi=74c8f187aa38>La sugerencia no crea ninguna orden de compra: pedir sigue siendo cosa del módulo de Compras.</p>
 </div>`;
  if(window.GamaTable)window.GamaTable.scan();
 }
@@ -451,29 +451,29 @@ ${filas.length?`<table><tr><th>Producto</th><th>On hand</th><th>Reservado</th><t
 
 function pintarConteos(host){
  if(conteos===null){
-  host.innerHTML=`<div class="ivCard"><div class="ivAviso"><b>El inventario físico todavía no está activo.</b><br>
+  host.innerHTML=`<div class="ivCard"><div class="ivAviso"><b data-gi=66c1ec9818d7>El inventario físico todavía no está activo.</b><br data-gi=227cc70e0fe2>
 Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`;
   return;
  }
  if(conteoAbierto){pintarConteoAbierto(host);return}
  host.innerHTML=`<div class="ivCard">
-<h3 style="margin:0 0 4px">Nuevo recuento</h3>
-<p class="muted" style="margin:0 0 12px">Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
+<h3 style="margin:0 0 4px" data-gi=1f8440f32309>Nuevo recuento</h3>
+<p class="muted" style="margin:0 0 12px" data-gi=9f7ced168427>Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
 <div class="ivForm">
- <div><label for="ivcAlmacen">Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
- <div><label for="ivcReferencia">Referencia</label><input id="ivcReferencia" placeholder="Ej. Recuento septiembre"></div>
+ <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
+ <div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
 </div>
-<button type="button" class="primary" id="ivcCrear" style="width:100%;margin-top:13px">Crear y generar líneas</button>
+<button type="button" class="primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
 </div>
-<div class="ivCard"><h3 style="margin:0 0 10px">Recuentos</h3>${
- conteos.length?`<table><tr><th>Referencia</th><th>Almacén</th><th>Estado</th><th>Creado</th><th></th></tr>`
+<div class="ivCard"><h3 style="margin:0 0 10px" data-gi=49c303591a2b>Recuentos</h3>${
+ conteos.length?`<table><tr><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=9a91575b8e4b>Almacén</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th></th></tr>`
  +conteos.map(c=>{
    const a=almacenes.find(x=>x.id===c.warehouse_id);
    return `<tr><td><b>${esc(c.reference)}</b></td><td>${esc(a?a.name:'—')}</td>
 <td><span class="ivEstado ${c.status==='validated'?'ok':c.status==='cancelled'?'sobre':'bajo'}">${esc(ESTADO_CONTEO[c.status]||c.status)}</span></td>
 <td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}</td>
-<td><button type="button" class="secondary" data-ivc-abrir="${esc(c.id)}">Abrir</button></td></tr>`}).join('')+'</table>'
- :'<div class="muted">Todavía no hay recuentos.</div>'}</div>`;
+<td><button type="button" class="secondary" data-ivc-abrir="${esc(c.id)}" data-gi=a01a5fce396e>Abrir</button></td></tr>`}).join('')+'</table>'
+ :'<div class="muted" data-gi=379b33723552>Todavía no hay recuentos.</div>'}</div>`;
  $('ivcCrear').onclick=crearConteo;
  host.querySelectorAll('[data-ivc-abrir]').forEach(b=>b.onclick=()=>abrirConteo(b.dataset.ivcAbrir));
  if(window.GamaTable)window.GamaTable.scan();
@@ -516,15 +516,15 @@ function pintarConteoAbierto(host){
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
  <div><h3 style="margin:0 0 3px">${esc(c.reference||'Recuento')}</h3>
  <p class="muted" style="margin:0">${esc(ESTADO_CONTEO[c.status]||c.status)} · ${lineas.length} línea${lineas.length===1?'':'s'}</p></div>
- <button type="button" class="secondary" id="ivcVolver">← Recuentos</button>
+ <button type="button" class="secondary" id="ivcVolver" data-gi=168ed65792a2>← Recuentos</button>
 </div>
-${cerrado?'<div class="ivAviso" style="margin-top:12px">Este recuento ya está cerrado: sus líneas no se pueden cambiar.</div>':''}
+${cerrado?'<div class="ivAviso" style="margin-top:12px" data-gi=fa6448081c49>Este recuento ya está cerrado: sus líneas no se pueden cambiar.</div>':''}
 <div style="margin-top:14px" id="ivcLineas"></div>
-${cerrado?'':'<button type="button" class="primary" id="ivcValidar" style="width:100%;margin-top:14px">Validar y ajustar existencias</button>'}
+${cerrado?'':'<button type="button" class="primary" id="ivcValidar" style="width:100%;margin-top:14px" data-gi=9fe3da1b140d>Validar y ajustar existencias</button>'}
 </div>`;
  $('ivcVolver').onclick=()=>{conteoAbierto=null;pintar()};
  const host2=$('ivcLineas');
- host2.innerHTML=lineas.length?'<table><tr><th>Producto</th><th>Ubicación</th><th>Esperado</th><th>Contado</th><th>Diferencia</th></tr>'
+ host2.innerHTML=lineas.length?'<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=bd091ce27ef6>Esperado</th><th data-gi=a57f17f4753d>Contado</th><th data-gi=e702db1e219e>Diferencia</th></tr>'
   +lineas.map(l=>{
    const dif=l.counted_quantity===null||l.counted_quantity===undefined?null:Number(l.counted_quantity)-Number(l.expected_quantity);
    return `<tr>
@@ -534,7 +534,7 @@ ${cerrado?'':'<button type="button" class="primary" id="ivcValidar" style="width
 <td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="1" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
 <td>${dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}</td>
 </tr>`}).join('')+'</table>'
-  :'<div class="muted">Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>';
+  :'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>';
  host2.querySelectorAll('[data-ivc-linea]').forEach(i=>i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value));
  if(!cerrado&&$('ivcValidar'))$('ivcValidar').onclick=validarConteo;
  if(window.GamaTable)window.GamaTable.scan();
@@ -571,7 +571,7 @@ async function validarConteo(){
 /* ---------- ubicaciones ---------- */
 
 function pintarUbicaciones(host){
- if(!almacenes.length){host.innerHTML='<div class="ivCard muted">No hay almacenes dados de alta.</div>';return}
+ if(!almacenes.length){host.innerHTML='<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>';return}
  host.innerHTML=almacenes.map(a=>{
   const suyas=ubicaciones.filter(u=>u.warehouse_id===a.id);
   const hijas=pid=>suyas.filter(u=>(u.parent_id||null)===pid);
@@ -585,7 +585,7 @@ function pintarUbicaciones(host){
   };
   return `<div class="ivCard"><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
 <p class="muted" style="margin:0 0 10px">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p>
-<ul class="ivArbol">${rama(null)||'<li class="muted">Sin ubicaciones.</li>'}</ul></div>`;
+<ul class="ivArbol">${rama(null)||'<li class="muted" data-gi=14a1bc526eda>Sin ubicaciones.</li>'}</ul></div>`;
  }).join('');
 }
 

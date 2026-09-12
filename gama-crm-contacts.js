@@ -119,14 +119,14 @@ function lista(){
  const hayFichas=clientesVivos().length||prospectosVivos().length;
  return '<div class="card">'
   +'<div class="crmBar">'
-  +'<input id="crmKBusca" type="search" placeholder="Buscar por nombre, cargo, correo o ficha…" value="'+esc(busca)+'" aria-label="Buscar contactos">'
-  +'<select id="crmKFiltro" data-gama-nofind aria-label="Filtrar contactos">'
-   +'<option value="">Todos</option>'
-   +'<option value="cliente"'+(filtro==='cliente'?' selected':'')+'>Sólo de clientes</option>'
-   +'<option value="prospecto"'+(filtro==='prospecto'?' selected':'')+'>Sólo de prospectos</option>'
-   +'<option value="principal"'+(filtro==='principal'?' selected':'')+'>Sólo los principales</option>'
+  +'<input id="crmKBusca" type="search" data-gi-placeholder=afa85cc7b90f placeholder="Buscar por nombre, cargo, correo o ficha…" value="'+esc(busca)+'" data-gi-aria-label=823ed074bbfd aria-label="Buscar contactos">'
+  +'<select id="crmKFiltro" data-gama-nofind data-gi-aria-label=b3ea0e2f9837 aria-label="Filtrar contactos">'
+   +'<option value="" data-gi=bd02b9a7d71d>Todos</option>'
+   +'<option value="cliente"'+(filtro==='cliente'?' selected':'')+' data-gi=7f14d56c1358>Sólo de clientes</option>'
+   +'<option value="prospecto"'+(filtro==='prospecto'?' selected':'')+' data-gi=59f8c98ad191>Sólo de prospectos</option>'
+   +'<option value="principal"'+(filtro==='principal'?' selected':'')+' data-gi=6a53aa508564>Sólo los principales</option>'
   +'</select>'
-  +'<button type="button" class="primary" id="crmKNuevo"'+(hayFichas?'':' disabled title="Primero hace falta un cliente o un prospecto"')+'>+ Nuevo contacto</button>'
+  +'<button type="button" class="primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmContactos',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch,hayFichas))
@@ -149,7 +149,7 @@ function fila(k){
  const q=deQuien(k);
  return '<tr>'
   +'<td><b>'+esc(nombre(k))+'</b>'
-   +(k.is_primary?'<small class="crmSub crmPrin">★ Principal</small>':'')+'</td>'
+   +(k.is_primary?'<small class="crmSub crmPrin" data-gi=c7e9dbd47fc5>★ Principal</small>':'')+'</td>'
   +'<td><span class="crmEstado e-'+esc(q.tipo)+'">'+esc(q.etiqueta)+'</span>'
    +'<small class="crmSub">'+esc(q.nombre)+'</small></td>'
   +'<td>'+esc(k.job_title||'—')+'</td>'
@@ -157,13 +157,13 @@ function fila(k){
   +'<td>'+(k.email?esc(k.email):'')+(k.email&&k.phone?'<small class="crmSub">'+esc(k.phone)+'</small>':k.phone?esc(k.phone):'')
    +(!k.email&&!k.phone?'—':'')+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" data-abrir="'+esc(k.id)+'">Abrir</button>'
+   +'<button type="button" data-abrir="'+esc(k.id)+'" data-gi=a01a5fce396e>Abrir</button>'
    +(k.active!==false?'<button type="button" data-principal="'+esc(k.id)+'" title="'
      +(k.is_primary?'Dejar de ser el contacto principal':'Marcar como contacto principal')+'">'
      +(k.is_primary?'★':'☆')+'</button>':'')
    +(k.active!==false
-     ?'<button type="button" data-archivar="'+esc(k.id)+'" title="Archivar contacto">🗄️</button>'
-     :'<button type="button" data-restaurar="'+esc(k.id)+'" title="Restaurar contacto">↩︎</button>')
+     ?'<button type="button" data-archivar="'+esc(k.id)+'" data-gi-title=5b51573be49d title="Archivar contacto">🗄️</button>'
+     :'<button type="button" data-restaurar="'+esc(k.id)+'" data-gi-title=828f5b5c5e83 title="Restaurar contacto">↩︎</button>')
   +'</td></tr>';
 }
 
@@ -178,19 +178,19 @@ function formulario(){
   +'<h3>'+(esNuevo?'Nuevo contacto':esc(nombre(k)))+'</h3>'
   +(q?'<div class="crmAviso">'+esc(q.etiqueta)+': <b>'+esc(q.nombre)+'</b>.</div>':'')
   +'<div class="crmForm">'
-   +'<div><label for="crmKTipo">Pertenece a</label><select id="crmKTipo" data-gama-nofind>'
-    +'<option value="cliente"'+(tipo==='cliente'?' selected':'')+'>Un cliente</option>'
-    +'<option value="prospecto"'+(tipo==='prospecto'?' selected':'')+'>Un prospecto</option>'
+   +'<div><label for="crmKTipo" data-gi=c3c815fe5d29>Pertenece a</label><select id="crmKTipo" data-gama-nofind>'
+    +'<option value="cliente"'+(tipo==='cliente'?' selected':'')+' data-gi=e7d26f15eb71>Un cliente</option>'
+    +'<option value="prospecto"'+(tipo==='prospecto'?' selected':'')+' data-gi=ec5c6d9f290e>Un prospecto</option>'
    +'</select></div>'
    /* Los dos desplegables se pintan siempre y se enseña el que toca. Repintar
       al cambiar de tipo le borraría al usuario lo que acabara de escribir, y
       el buscador de listas largas se cuelga del padre del select, así que
       esconder el envoltorio esconde los dos a la vez. */
    +'<div id="crmKCajaCliente"'+(tipo==='cliente'?'':' hidden')+'>'
-    +'<label for="crmKCliente">Cliente</label><select id="crmKCliente">'
+    +'<label for="crmKCliente" data-gi=f851d9a83ab0>Cliente</label><select id="crmKCliente">'
     +opciones(clientesVivos().map(c=>[c.id,c.name]),k.customer_id,'— elige un cliente —')+'</select></div>'
    +'<div id="crmKCajaProspecto"'+(tipo==='prospecto'?'':' hidden')+'>'
-    +'<label for="crmKProspecto">Prospecto</label><select id="crmKProspecto">'
+    +'<label for="crmKProspecto" data-gi=cd8a1cafd6a4>Prospecto</label><select id="crmKProspecto">'
     +opciones(prospectosVivos().map(p=>[p.id,nombreLead(p)]),k.lead_id,'— elige un prospecto —')+'</select></div>'
    +campo('crmKFirst','Nombre',k.first_name)
    +campo('crmKLast','Apellidos',k.last_name)
@@ -198,16 +198,16 @@ function formulario(){
    +campo('crmKEmail','Correo',k.email,'email')
    +campo('crmKPhone','Teléfono',k.phone,'tel')
    +campo('crmKLinkedin','LinkedIn',k.linkedin)
-   +'<div><label for="crmKRol">Papel en la decisión</label><select id="crmKRol" data-gama-nofind>'
+   +'<div><label for="crmKRol" data-gi=4245df1a52f1>Papel en la decisión</label><select id="crmKRol" data-gama-nofind>'
     +opciones(Object.keys(PAPELES).map(x=>[x,PAPELES[x]]),k.decision_role,'— sin definir —')+'</select></div>'
   +'</div>'
   +'<div class="crmCheck"><label><input type="checkbox" id="crmKPrincipal"'+(k.is_primary?' checked':'')+'> '
    +'Es el contacto principal de esta ficha</label>'
-   +'<small>Sólo puede haber uno. Si ya hay otro, deja de serlo automáticamente.</small></div>'
-  +'<div class="crmNotas"><label for="crmKNotes">Notas</label><textarea id="crmKNotes" rows="4">'+esc(k.notes||'')+'</textarea></div>'
+   +'<small data-gi=6933452541f9>Sólo puede haber uno. Si ya hay otro, deja de serlo automáticamente.</small></div>'
+  +'<div class="crmNotas"><label for="crmKNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmKNotes" rows="4">'+esc(k.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmKGuardar">Guardar</button>'
-   +'<button type="button" id="crmKCancelar">Cancelar</button>'
+   +'<button type="button" class="primary" id="crmKGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button type="button" id="crmKCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 function leerFormulario(){
@@ -354,7 +354,7 @@ async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio">Cargando contactos…</div></div>';
+ s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>';
  CRM.bind(s);
  try{
   await cargar();

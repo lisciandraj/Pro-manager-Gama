@@ -127,14 +127,14 @@ function render(){
  <div class="plGrid">
   <div>
    <div class="card">
-    <h3>Clientes de categoría C</h3>
-    <p class="muted">Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
+    <h3 data-gi=9940d9727373>Clientes de categoría C</h3>
+    <p class="muted" data-gi=d4df14e92434>Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
    </div>
    <div class="plList">${customers.length?customers.map(c=>`<div class="plItem${c.id===selected?' on':''}" data-pick="${esc(c.id)}">
      <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>
-    </div>`).join(''):'<div class="plEmpty">Ningún cliente de categoría C todavía.</div>'}</div>
+    </div>`).join(''):'<div class="plEmpty" data-gi=7b1e7c6efa4b>Ningún cliente de categoría C todavía.</div>'}</div>
   </div>
-  <div>${cur?renderDetail(cur,listed):'<div class="card"><div class="plEmpty">Elige un cliente a la izquierda.</div></div>'}</div>
+  <div>${cur?renderDetail(cur,listed):'<div class="card"><div class="plEmpty" data-gi=9e990897a970>Elige un cliente a la izquierda.</div></div>'}</div>
  </div>`;
  bind();
 }
@@ -143,19 +143,19 @@ function renderDetail(cur,listed){
  return `<div class="card">
   <h3>${esc(cur.name)} — precios negociados</h3>
   <div class="plRow" style="margin-top:8px">
-   <div><label>Producto</label><select id="plProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — mayorista ${money(p.sale_price)}</option>`).join(''):'<option value="">Todos los productos ya tienen precio pactado</option>'}</select></div>
-   <div><label>Precio negociado</label><input id="plPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
-   <div><button class="primary" id="plAdd">Añadir</button></div>
+   <div><label data-gi=77b9238931ed>Producto</label><select id="plProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — mayorista ${money(p.sale_price)}</option>`).join(''):'<option value="" data-gi=5f658258e2cf>Todos los productos ya tienen precio pactado</option>'}</select></div>
+   <div><label data-gi=141fa2c4db47>Precio negociado</label><input id="plPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+   <div><button class="primary" id="plAdd" data-gi=7542a5e800f9>Añadir</button></div>
   </div>
-  ${items.length?`<div class="plTableWrap"><table class="plTable"><thead><tr><th>Producto</th><th>Precio mayorista</th><th>Precio negociado</th><th>Diferencia</th><th></th></tr></thead><tbody>
+  ${items.length?`<div class="plTableWrap"><table class="plTable"><thead><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=77f9d8fe382b>Precio mayorista</th><th data-gi=141fa2c4db47>Precio negociado</th><th data-gi=e702db1e219e>Diferencia</th><th></th></tr></thead><tbody>
    ${items.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
-     return `<tr><td>${esc(productName(i.product_id))}${i.contract_ref?`<small class="plContrato">Contrato ${esc(i.contract_ref)}</small>`:''}</td><td>${money(base)}</td>
+     return `<tr><td>${esc(productName(i.product_id))}${i.contract_ref?`<small class="plContrato"><span data-gi=1951861239ed>Contrato </span>${esc(i.contract_ref)}</small>`:''}</td><td>${money(base)}</td>
       <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
-      <td><button class="danger" data-drop="${esc(i.product_id)}" title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt"> Retirar</span></button></td></tr>`}).join('')}
-   </tbody></table></div>`:'<div class="plEmpty">Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
+      <td><button class="danger" data-drop="${esc(i.product_id)}" data-gi-title=8f68e025d672 title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt" data-gi=0eeac7f5e703> Retirar</span></button></td></tr>`}).join('')}
+   </tbody></table></div>`:'<div class="plEmpty" data-gi=e5486130f3fc>Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
  </div>`;
 }
 function bind(){
@@ -172,7 +172,7 @@ async function open(){
  document.querySelectorAll('section').forEach(x=>{const on=x.id==='price-lists';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
  document.getElementById('mainmenu')?.setAttribute('hidden','');
  if(busy)return;busy=true;
- s.innerHTML='<div class="wrap"><div class="card"><div class="plEmpty">Cargando tarifas especiales…</div></div></div>';
+ s.innerHTML='<div class="wrap"><div class="card"><div class="plEmpty" data-gi=276804734ffe>Cargando tarifas especiales…</div></div></div>';
  try{await load()}finally{busy=false}
  window.scrollTo({top:0,behavior:'smooth'});
 }

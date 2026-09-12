@@ -44,7 +44,7 @@ function header(opts){
   +(o.lead?'<p>'+esc(o.lead)+'</p>':'')
   +'</div>'
   +'<div class="gamaStdActions">'
-  +'<button type="button" class="gamaStdBack" aria-label="Volver al menú">← Volver al menú</button>'
+  +'<button type="button" class="gamaStdBack" data-gi-aria-label=e9df153cdec6 aria-label="Volver al menú" data-gi=bbd0054a231d>← Volver al menú</button>'
   +'</div></div>';
 }
 

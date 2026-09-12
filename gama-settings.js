@@ -64,7 +64,7 @@ function render(){
  });
 
  if(!isAdmin()){
-  s.innerHTML=head+'<div class="card"><div class="cfgDenied">Esta pantalla es sólo para administradores.<br>Pide a un administrador que cambie los módulos activos.</div></div>';
+  s.innerHTML=head+'<div class="card"><div class="cfgDenied" data-gi=4b59f5b1b185>Esta pantalla es sólo para administradores.<br data-gi=fb999bc1aecc>Pide a un administrador que cambie los módulos activos.</div></div>';
   window.GamaUI.bindBack(s);
   return;
  }
@@ -86,7 +86,7 @@ function render(){
   </div>`).join('');
 
  s.innerHTML=head+`<div class="card">
-  <h3>Módulos de la aplicación</h3>
+  <h3 data-gi=ba8656559345>Módulos de la aplicación</h3>
   <div class="cfgCount">${activos} de ${mods.length} activos</div>
   <div id="cfgMsg" class="cfgMsg"></div>
   <div class="cfgList">${rows}</div>

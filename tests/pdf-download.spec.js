@@ -57,6 +57,7 @@ test('el presupuesto se baja en PDF sin pasar por window.print()', async ({ page
   });
 
   await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
   await page.fill('#sellerRuc', '1790012345001');
   await page.fill('#sellerName', 'GAMA Test S.A.');
   await page.selectOption('#clientSelect', '0991');

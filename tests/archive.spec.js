@@ -78,6 +78,7 @@ test.describe('Archivar en lugar de borrar', () => {
   test('an archived product can no longer be invoiced by barcode', async ({ page }) => {
     await boot(page, { products: [{ ...PRODUCTS[0], active: false }, PRODUCTS[1]] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.fill('#invoiceBarcode', 'B2');
     await expect(page.locator('#invoiceProductInfo')).toContainText('Tuerca libre');

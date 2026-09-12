@@ -114,6 +114,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   test('a customer with negotiated prices is quoted at them, for those products only', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0991');
     await expect(page.locator('#quoteTariff')).toHaveText('Categoría C · precios negociados aplicados');
@@ -145,6 +146,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   test('switching to a customer without negotiated prices re-values the pending basket', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0991');
     await page.fill('#invoiceBarcode', 'B1');
@@ -165,6 +167,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
     page.on('dialog', d => d.accept());
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.fill('#sellerRuc', '1790012345001');
     await page.fill('#sellerName', 'GAMA Test S.A.');
@@ -195,6 +198,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   test('a categoria B customer is quoted at the retail price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0993');
     await expect(page.locator('#quoteTariff')).toHaveText('Categoría B · precio al detalle');
@@ -214,6 +218,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   test('a categoria C customer with nothing negotiated falls back to the mayorista price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_C_SIN_TARIFA] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0994');
     await expect(page.locator('#quoteTariff')).toHaveText('Categoría C sin precios negociados: precio mayorista');

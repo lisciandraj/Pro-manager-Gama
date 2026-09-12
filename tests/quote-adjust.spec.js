@@ -42,6 +42,7 @@ const SPECIAL = { customer_id: 'c1', product_id: 'p1', unit_price: 8 };
 /** Pone una línea en el presupuesto para el cliente indicado. */
 async function abrirPresupuesto(page, identificacion) {
   await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
   await page.selectOption('#clientSelect', identificacion);
   await page.fill('#invoiceBarcode', 'B1');
   await page.fill('#invoiceQty', '3');
@@ -130,6 +131,7 @@ test.describe('Presupuestos — ajustar el precio de una línea', () => {
     page.on('dialog', d => d.accept());
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL] });
     await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+  await page.locator('#gqLegacy').click();
     await page.fill('#sellerRuc', '1790012345001');
     await page.fill('#sellerName', 'GAMA Test S.A.');
     await page.selectOption('#clientSelect', '0991');

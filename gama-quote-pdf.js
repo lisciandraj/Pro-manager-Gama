@@ -5,39 +5,38 @@ function esc(v){return String(v??'')}
 /* esc() no escapa: sólo alimenta a jsPDF. Todo lo que entra en innerHTML
    pasa por escHtml, porque un nombre de cliente puede contener < o ". */
 function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let logoData=null;
+const logoReady=new Promise(resolve=>{const img=new Image();img.onload=()=>{try{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/jpeg')}catch(_){}resolve()};img.onerror=()=>resolve();img.src='gama-logo.jpg'});
 function build(q){
- if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
- const {jsPDF}=window.jspdf,doc=new jsPDF();
- let y=20;
- doc.setFontSize(18);doc.text('PRESUPUESTO',14,y);y+=10;
- doc.setFontSize(11);
- doc.text(esc(q.seller||'GAMA Enterprise Resource Planning'),14,y);y+=6;
- doc.text('RUC: '+esc(q.sellerRuc||'-'),14,y);y+=6;
- doc.text('N.º: '+esc(q.number||'-'),14,y);y+=6;
- doc.text('Fecha: '+esc(q.dateLabel||''),14,y);y+=10;
- doc.text('Cliente: '+esc(q.client||''),14,y);y+=6;
- if(q.clientId){doc.text('Identificación: '+esc(q.clientId),14,y);y+=6}
- if(q.clientAddress){doc.text(esc(q.clientAddress),14,y);y+=6}
- if(q.clientEmail){doc.text(esc(q.clientEmail),14,y);y+=6}
- y+=4;
- doc.setFont(undefined,'bold');
- doc.text('Producto',14,y);doc.text('Cant.',110,y);doc.text('Precio',140,y);doc.text('Subtotal',170,y);
- doc.setFont(undefined,'normal');y+=3;doc.setLineWidth(0.2);doc.line(14,y,196,y);y+=6;
+ if(!window.jspdf?.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
+ const doc=new window.jspdf.jsPDF(),ink=[24,50,74],teal=[8,124,139];let y=0;
+ function header(){
+  if(logoData)doc.addImage(logoData,'JPEG',14,12,25,25,undefined,'FAST');
+  else{doc.setFontSize(24);doc.setTextColor(...teal);doc.text('GAMA',14,26)}
+  doc.setFontSize(19);doc.setTextColor(...ink);doc.setFont(undefined,'bold');doc.text('PRESUPUESTO',196,22,{align:'right'});
+  doc.setFontSize(10);doc.text(esc(q.number||'—'),196,30,{align:'right'});doc.setFont(undefined,'normal');
+  doc.setFontSize(9);doc.text('Fecha: '+esc(q.dateLabel||''),196,36,{align:'right'});
+  if(q.validUntil)doc.text('Válido hasta: '+esc(q.validUntil)+' · v'+esc(q.revision||1),196,42,{align:'right'});
+  doc.setDrawColor(...teal);doc.setLineWidth(1);doc.line(14,47,196,47);y=55;
+ }
+ function room(h){if(y+h>272){doc.addPage();header()}}
+ function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
+ function tableHead(){room(15);doc.setFillColor(...teal);doc.rect(14,y-5,182,9,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
+ header();paragraph(q.seller||'GAMA',12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9);
+ paragraph('PREPARADO PARA',9);paragraph(q.client||'');paragraph([q.clientId,q.clientAddress,q.clientEmail].filter(Boolean).join(' · '),9);
+ if(q.delivery_address)paragraph('Entrega: '+q.delivery_address+(q.delivery_terms?' · '+q.delivery_terms:''),9);
+ tableHead();
  (q.items||[]).forEach(x=>{
-  if(y>270){doc.addPage();y=20}
-  doc.text(esc(x.name),14,y,{maxWidth:90});
-  doc.text(String(x.qty),110,y);
-  doc.text('$'+Number(x.price||0).toFixed(2),140,y);
-  doc.text('$'+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),170,y);
-  y+=7;
+  doc.setFontSize(9);const lines=doc.splitTextToSize(esc(x.name),78),h=Math.max(9,lines.length*4+4);
+  if(y+h>270){doc.addPage();header();tableHead()}
+  doc.setFontSize(9);doc.text(lines,16,y);doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text('$'+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text('$'+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});
+  y+=h;doc.setDrawColor(224,232,236);doc.setLineWidth(0.2);doc.line(14,y-4,196,y-4);
  });
- y+=1;doc.line(14,y,196,y);y+=8;
- doc.text('Subtotal: $'+Number(q.sub||0).toFixed(2),140,y);y+=6;
- doc.text('IVA '+esc(q.rate||0)+'%: $'+Number(q.tax||0).toFixed(2),140,y);y+=6;
- doc.setFont(undefined,'bold');
- doc.text('TOTAL: $'+Number(q.total||0).toFixed(2),140,y);y+=10;
- doc.setFont(undefined,'normal');doc.setFontSize(9);
- doc.text('Documento informativo. No constituye una factura.',14,y);
+ room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: $'+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: $'+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  $'+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
+ if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
+ if(q.terms)paragraph('Condiciones: '+q.terms,9);
+ if(q.notes)paragraph(q.notes,9);
+ const count=doc.getNumberOfPages();for(let i=1;i<=count;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(100,117,130);doc.text('Documento informativo. No constituye una factura.',14,285);doc.text(i+' / '+count,196,285,{align:'right'})}
  return doc.output('blob');
 }
 /* Windows y macOS aceptan navigator.share con archivos, pero su hoja de
@@ -120,11 +119,11 @@ async function sendDocument({blob,email,subject,body,filename}){
 }
 async function send({q,email,subject,body,filename}){
  let blob=null;
- try{blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
+ try{await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
  return sendDocument({blob,email,subject,body,filename});
 }
 /* openMail, openTab e isMobile se llaman a través de api para poder
    sustituirlos en las pruebas sin navegar de verdad ni depender del equipo. */
-const api={build,send,sendDocument,buildMailto,composeDialog,openMail,openTab,isMobile,gmailUrl,outlookUrl};
+const api={build,logoReady,send,sendDocument,buildMailto,composeDialog,openMail,openTab,isMobile,gmailUrl,outlookUrl};
 window.GamaQuotePdf=api;
 })();

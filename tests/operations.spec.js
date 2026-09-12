@@ -58,3 +58,15 @@ test('direct links load an old delivery and an exact purchase dossier',async({pa
  await page.evaluate(()=>GamaOperations.dossier({target:'delivery',target_id:'old-delivery'}));
  await expect(page.locator('#gama-tms-section')).toContainText('Entrega antigua');await expect(page.locator('#tSigSave')).toBeVisible();
 });
+
+test('notifications card survives legacy cleanup and opens a visible screen',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>window.gamaCleanEmptyModules());
+ const card=page.locator('#mainmenu [data-go-nav="notifications"]');
+ await expect(card).toBeVisible();
+ await card.click();
+ await page.evaluate(()=>window.gamaCleanEmptyModules());
+ await expect(page.locator('#notifications')).toBeVisible();
+ await expect(page.locator('#notifications #goAlerts')).toBeVisible();
+ await expect(page.locator('#notifications')).not.toHaveClass(/gamaDisabledModule/);
+});

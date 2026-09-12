@@ -4,7 +4,7 @@
 const STYLE='gamaStandardUIStyleV8';
 const SKIP=new Set(['mainmenu','login','loginSection','auth','gamaPurchasesV14','gama-tms-section','reports']);
 const EMPTY_IDS=new Set(['tasks','labels','locations','units','support','calendar','more']);
-const EMPTY_LABELS=new Set(['Notificaciones','Tareas','Etiquetas','Ubicaciones','Unidades','Ayuda y soporte','Agenda']);
+const EMPTY_LABELS=new Set(['Tareas','Etiquetas','Ubicaciones','Unidades','Ayuda y soporte','Agenda']);
 
 /* Título y descripción de cada pantalla. La descripción son dos o tres frases
    en lenguaje llano: es la ayuda del módulo. Todo lo que antes se explicaba en

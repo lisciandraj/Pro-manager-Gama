@@ -88,11 +88,11 @@ const flags={
  es:'<path fill="#aa151b" d="M0 0h30v20H0z"/><path fill="#f1bf00" d="M0 5h30v10H0z"/>'
 };
 function mount(){
- const header=document.querySelector('header.gamaHeader'),host=document.querySelector('#gamaCloudLogin .box')||header;if(!host)return;
+ const host=document.getElementById('gamaSettingsLanguage');if(!host)return;
  let bar=document.getElementById('gamaLanguagePicker');if(!bar){
   bar=document.createElement('div');bar.id='gamaLanguagePicker';bar.setAttribute('role','group');bar.setAttribute('aria-label','Language / Langue / Idioma');bar.setAttribute('translate','no');
   for(const [code,flag,label] of [['fr','🇫🇷','Français'],['en','🇬🇧','English'],['es','🇪🇸','Español']]){
-   const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">'+flags[code]+'</svg>';b.onclick=()=>setLanguage(code);bar.appendChild(b);
+   const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">'+flags[code]+'</svg><span>'+label+'</span>';b.onclick=()=>setLanguage(code);bar.appendChild(b);
   }host.appendChild(bar);
  }
  if(bar.parentElement!==host)host.appendChild(bar);
@@ -108,16 +108,11 @@ function setLanguage(code){
 function boot(){
  document.documentElement.lang=language;
  const s=document.createElement('style');s.id='gamaLanguageCss';s.textContent=`
-html body header.gamaHeader{padding-bottom:48px!important;min-height:116px!important;height:auto!important}
-header.gamaHeader #gamaFixedTopActions{bottom:44px!important}
-#gamaLanguagePicker{position:absolute;right:10px;bottom:4px;display:flex;align-items:center;gap:4px;z-index:7000;pointer-events:auto}
-#gamaLanguagePicker button{font-size:23px;line-height:1;width:44px;height:40px;min-height:40px;padding:5px;border:2px solid transparent;background:transparent;border-radius:9px;cursor:pointer;touch-action:manipulation}
+#gamaLanguagePicker{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:16px 0}
+#gamaLanguagePicker button{display:flex;align-items:center;gap:10px;min-height:48px;padding:12px 16px;border:2px solid transparent;background:#eef3f4;color:#18324a;border-radius:10px;cursor:pointer;touch-action:manipulation;font-size:15px;width:auto}
 #gamaLanguagePicker svg{display:block;width:28px;height:19px;border-radius:2px;box-shadow:0 0 0 1px #17324622}
 #gamaLanguagePicker button[aria-pressed="true"]{border-color:#087c8b;background:#e8f5f6}
 #gamaLanguagePicker button:focus-visible{outline:3px solid #f47a2a;outline-offset:1px}
-@media(max-width:700px){html body header.gamaHeader{height:168px!important;min-height:168px!important;padding-bottom:102px!important}}
-#gamaCloudLogin #gamaLanguagePicker{position:static;justify-content:center;margin-top:16px}
-#gamaCloudLogin #gamaLanguagePicker button{width:44px;height:40px;margin:0;padding:5px;box-shadow:none}
 @media print{#gamaLanguagePicker{display:none!important}}`;
  document.head.appendChild(s);scan(document.body);mount();
  observer=new MutationObserver(records=>{for(const r of records){
@@ -129,6 +124,6 @@ header.gamaHeader #gamaFixedTopActions{bottom:44px!important}
 }
 // Dialog messages use the same reviewed catalogue; typed defaults and answers stay untouched.
 for(const name of ['confirm','prompt']){const native=window[name]?.bind(window);if(native)window[name]=(message,...args)=>native(t(message),...args)}
-window.GamaI18n={t,setLanguage,scan,get language(){return language},get locale(){return {es:'es-EC',fr:'fr-FR',en:'en-GB'}[language]}};
+window.GamaI18n={t,setLanguage,scan,mount,get language(){return language},get locale(){return {es:'es-EC',fr:'fr-FR',en:'en-GB'}[language]}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

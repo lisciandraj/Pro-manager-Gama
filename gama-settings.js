@@ -1,6 +1,7 @@
 /* GAMA — Configuración: qué módulos se ven en la aplicación.
 
-   Sólo para administradores. La comprobación que de verdad manda no está aquí
+   Las preferencias personales están disponibles para todos. La gestión de
+   módulos es sólo para administradores. La comprobación que de verdad manda no está aquí
    sino en la base: la política RLS de app_modules deja escribir únicamente al
    perfil «administrador». Lo de esta pantalla es no enseñar interruptores a
    quien la base va a rechazar de todas formas.
@@ -60,12 +61,14 @@ function render(){
  const s=section();
  const head=window.GamaUI.header({
   title:'⚙️ Configuración',
-  lead:'Activa o desactiva los módulos de GAMA.'
+  lead:'Personaliza el idioma de la aplicación.'
  });
 
+ const preferences='<div class="card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
  if(!isAdmin()){
-  s.innerHTML=head+'<div class="card"><div class="cfgDenied" data-gi=4b59f5b1b185>Esta pantalla es sólo para administradores.<br data-gi=fb999bc1aecc>Pide a un administrador que cambie los módulos activos.</div></div>';
+  s.innerHTML=head+preferences;
   window.GamaUI.bindBack(s);
+  window.GamaI18n?.mount();
   return;
  }
 
@@ -85,12 +88,13 @@ function render(){
    </label>
   </div>`).join('');
 
- s.innerHTML=head+`<div class="card">
+ s.innerHTML=head+preferences+`<div class="card">
   <h3 data-gi=ba8656559345>Módulos de la aplicación</h3>
   <div class="cfgCount">${activos} de ${mods.length} activos</div>
   <div id="cfgMsg" class="cfgMsg"></div>
   <div class="cfgList">${rows}</div>
  </div>`;
+ window.GamaI18n?.mount();
  bind();
 }
 

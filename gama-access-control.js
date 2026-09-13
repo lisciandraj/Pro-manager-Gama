@@ -18,9 +18,9 @@ const SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
 const ROLES={
  admin:{label:'Administrador',perms:'*'},
- commercial:{label:'Comercial',perms:['operations','notifications','gamaPurchasesV14','dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses','sales-orders','quotes','client-deliveries']},
- magasinier:{label:'Almacenero',perms:['operations','notifications','gamaPurchasesV14','dashboard','products','movement','stock','warehouses','barcode','tms','hr','sales-orders']},
- client:{label:'Cliente',perms:['client-catalog','quotes','client-deliveries']}
+ commercial:{label:'Comercial',perms:['settings','operations','notifications','gamaPurchasesV14','dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses','sales-orders','quotes','client-deliveries']},
+ magasinier:{label:'Almacenero',perms:['settings','operations','notifications','gamaPurchasesV14','dashboard','products','movement','stock','warehouses','barcode','tms','hr','sales-orders']},
+ client:{label:'Cliente',perms:['settings','client-catalog','quotes','client-deliveries']}
 };
 const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);
 /* La sesión la escribe gama-cloud-auth.js tras validar contra Supabase.

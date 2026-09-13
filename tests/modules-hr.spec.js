@@ -84,7 +84,7 @@ test('sin ser administrador no hay interruptores ni RRHH', async ({ page }) => {
   await boot(page, 'commercial');
   await page.evaluate(() => window.GamaOpenSettings());
   await page.waitForTimeout(500);
-  await expect(page.locator('#settings .cfgDenied')).toHaveCount(1);
+  await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
   await expect(page.locator('#settings input[data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
   await expect(page.locator('#mainmenu .gamaF2Card:has-text("Recursos humanos")')).toBeHidden();
 });

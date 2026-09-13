@@ -5,11 +5,13 @@ async function boot(page,role='admin'){
  await page.addInitScript(({invoice,role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));window.__DB={products:[],customers:[],invoices:[{id:'q1',invoice_number:'COT-001',quote_state:'accepted',quote_details:{client:'Andes'},total:34.5}],invoice_lines:[],external_invoices:[invoice]};window.__deliveryValidated=true;window.__financialInvoices=[{id:invoice.id,date:'2026-09-12T12:00:00',total:34.5,items:[]}]},{invoice,role});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.goto('/index.html');await page.waitForTimeout(1200);
 }
-test('accepted quote creates internal invoice with dates and exact copy data',async({page})=>{
- await boot(page);await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1');GamaSales.openOrder=async id=>{window.__order=id};const saved=__DB.external_invoices[0];__DB.external_invoices=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,a)=>fn==='gama_internal_invoice_action'&&a.p_action==='create'?(__internalCalls.push(a),__DB.external_invoices.push(saved),{data:saved}):c.rpc(fn,a)}}});
- await page.click('#gqInternalInvoice');await page.fill('#giDue','2026-12-31');await page.locator('dialog #gsSave').click();
- await expect(page.locator('#giText')).toContainText('FI-2026-00000001');await expect(page.locator('#giText')).toContainText('Café');await expect(page.locator('#giText')).toContainText('Entregar después de las 15h <cliente>');await expect(page.locator('#giText')).toContainText('34.5');
- expect(await page.evaluate(()=>__internalCalls.find(x=>x.p_action==='create').p_data)).toMatchObject({quote_id:'q1',due_date:'2026-12-31'});await expect(page.locator('#quotes')).toBeVisible();expect(await page.evaluate(()=>window.__order)).toBeUndefined();await expect(page.locator('dialog test')).toHaveCount(0);
+test('validated delivery invoice is opened without a second creation step',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1')});
+ await page.click('#gqInternalInvoice');
+ await expect(page.locator('#giText')).toContainText('FI-2026-00000001');
+ await expect(page.locator('#giText')).toContainText('34.5');
+ await expect(page.locator('#giIssue')).toHaveCount(0);
+ expect(await page.evaluate(()=>(__internalCalls||[]).some(x=>x.p_action==='create'))).toBe(false);
 });
 test('external reference updates the internal dossier, not another invoice',async({page})=>{
  await boot(page);await page.evaluate(()=>{GamaSales.openOrder=async()=>{};GamaInternalInvoices.link('fi1')});await expect(page.locator('dialog input')).toHaveCount(1);await page.fill('#giNumber','001-001-123');await page.locator('dialog #gsSave').click();
@@ -26,9 +28,13 @@ test('quote list groups its invoice and external reference without unrelated inv
  await expect(page.locator('.gqLinked')).toContainText('COT-001');await expect(page.locator('.gqLinked')).toContainText('FI-2026-00000001');await expect(page.locator('.gqLinked')).toContainText('001-002-0000456');await expect(page.locator('.gqLinked')).not.toContainText('UNRELATED');await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
  await page.locator('[data-gq-invoice]').click();await expect(page.locator('#giText')).toBeVisible();await page.locator('#giLink').click();await expect(page.locator('#giNumber')).toHaveValue('001-002-0000456');await expect(page.locator('#quotes')).toBeVisible();
 });
-test('creates from accepted quote list and links external number while staying in the same module',async({page})=>{
- await boot(page);await page.evaluate(()=>{const saved=__DB.external_invoices[0];__DB.external_invoices=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,a)=>{if(fn==='gama_internal_invoice_action'&&a.p_action==='create'){__DB.external_invoices.push(saved);return {data:saved}}if(fn==='gama_internal_invoice_action'&&a.p_action==='link_external'){Object.assign(saved,{external_number:a.p_data.number,software:a.p_data.software});return {data:saved}}return c.rpc(fn,a)}}}});await page.evaluate(()=>GamaQuotes.open());await page.locator('[data-gq-create-invoice]').click();await page.locator('dialog #gsSave').click();await expect(page.locator('#giText')).toBeVisible();await page.locator('dialog #gsClose').click();await expect(page.locator('.gqLinked')).toContainText('FI-2026-00000001');await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await page.locator('[data-gq-external]').click();await page.fill('#giNumber','001-001-123');await page.locator('dialog #gsSave').click();await expect(page.locator('.gqLinked')).toContainText('001-001-123');await expect(page.locator('#quotes')).toBeVisible();expect(await page.evaluate(()=>__DB.external_invoices.length)).toBe(1);
+test('quote list displays automatically generated invoices after refresh',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.external_invoices=[];GamaQuotes.open()});
+ await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
+ await expect(page.locator('.gqLinked')).toContainText('automáticamente');
+ await page.evaluate(i=>{__DB.external_invoices=[i];GamaQuotes.open()},invoice);
+ await expect(page.locator('.gqLinked')).toContainText('FI-2026-00000001');
+ await page.locator('[data-gq-invoice]').click();await expect(page.locator('#giText')).toBeVisible();
 });
 test('unaccepted quote and client profile never expose internal invoice creation in the list',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.invoices[0].quote_state='sent';__DB.external_invoices=[];GamaQuotes.open()});await expect(page.locator('.gqLinked')).toBeVisible();await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
@@ -38,8 +44,8 @@ test('unaccepted quote and client profile never expose internal invoice creation
 test('invoice creation waits for validated delivery and keeps existing invoices accessible',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.external_invoices=[];window.__deliveryValidated=false;GamaQuotes.open()});
  await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await expect(page.locator('.gqLinked')).toContainText('prueba firmada');
- await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('dialog')).toContainText('prueba firmada');await expect(page.locator('#giIssue')).toHaveCount(0);
+ await expect(page.locator('.gqLinked')).toContainText('firma del cliente');
+ await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('dialog')).toContainText('firma del cliente');await expect(page.locator('#giIssue')).toHaveCount(0);
  expect(await page.evaluate(()=>(__internalCalls||[]).filter(x=>x.p_action==='create').length)).toBe(0);
  await page.locator('dialog #gsClose').click();
  await page.evaluate(i=>{__DB.external_invoices=[i];GamaInternalInvoices.create('q1')},invoice);

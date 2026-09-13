@@ -544,3 +544,12 @@ test('pending proof list includes other dates and excludes cancelled deliveries'
  await expect(page.locator('#gama-tms-section .tmsRoute')).not.toContainText(['Cancelled client']);
  await expect(page.locator('button[onclick*="openProof(\'future\')"]')).toBeVisible();
 });
+
+test('delivery cannot be validated with an empty customer signature',async({page})=>{
+ await boot(page,{deliveries:[{id:'unsigned',customer:'Unsigned',address:'Quito',delivery_date:today(),status:'En tránsito'}]});
+ await page.evaluate(()=>gamaTMS.openProof('unsigned'));
+ page.once('dialog',d=>d.accept());
+ await page.click('#tSigSave');
+ expect(await page.evaluate(()=>__DB.tms_proofs.length)).toBe(0);
+ expect(await page.evaluate(()=>__DB.tms_deliveries[0].status)).toBe('En tránsito');
+});

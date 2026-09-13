@@ -325,12 +325,15 @@ function setupSignature(canvas,d){
  c.onmousedown=start;c.onmousemove=move;c.onmouseup=end;c.onmouseleave=end;c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=end;
  document.getElementById('tSigClear').onclick=()=>ctx.clearRect(0,0,c.width,c.height);
  document.getElementById('tSigSave').onclick=async()=>{
+  const pixels=ctx.getImageData(0,0,c.width,c.height).data;
+  if(!pixels.some((v,i)=>i%4===3&&v>0)){alert(window.GamaI18n?.t('La firma del cliente es obligatoria.')||'La firma del cliente es obligatoria.');return}
   const signature=c.toDataURL('image/png'),stamp=now();
   try{
    const prev=await ensureProof(d.id);
    const saved=await C().upsert('tms_proofs',{delivery_id:d.id,photo:prev?.photo||null,signature,captured_at:stamp},{onConflict:'delivery_id'});if(saved.error)throw saved.error;
    proofCache[d.id]={...saved.data,delivery_id:d.id,photo:prev?.photo||null,signature};
    const delivered=await C().update('tms_deliveries',d.id,{status:'Entregada',actual_arrival:d.actualArrival||stamp,delivered_at:stamp});if(delivered.error)throw delivered.error;
+   window.dispatchEvent(new Event('gama:sales-change'));
    await log(d,'Entregada','Prueba de entrega registrada');
    proofArchiveId=d.id;
    await reload('tracking');

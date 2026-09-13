@@ -27,6 +27,7 @@ begin
  assert (select count(*) from private.gama_live_alerts where target_id=i)=1,'NO_DUPLICATE_ALERT';
  execute 'set local role authenticated';
  res:=public.gama_payment_action('list',jsonb_build_object('order_id',o,'status','all'));
+ assert res#>>'{rows,0,number}' like 'FAC-%' and res#>>'{rows,0,order_number}' like 'PED-%','CANONICAL_DOSSIER_REFERENCES';
  assert (res->>'total')::integer=1 and jsonb_array_length(res->'rows')=1,'LIST_FILTER_PAGINATION';
  res:=public.gama_payment_action('list',jsonb_build_object('order_id',o,'search','not-a-matching-invoice'));
  assert (res->>'total')::integer=0 and jsonb_array_length(res->'rows')=0,'EMPTY_LIST';

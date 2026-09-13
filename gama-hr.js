@@ -740,7 +740,9 @@ function render(){
  const admin=isAdmin();
  // Un empleado que entra por primera vez cae en «Mi ficha», no en una
  // pestaña de administración que no va a poder usar.
- if(!admin&&(tab==='empleados'||tab==='ausencias'))tab=tab==='empleados'?'miFicha':'misDias';
+ if(tab==='misDias')tab='ausencias';
+ if(tab==='tiempo')tab=admin?'empleados':'miFicha';
+ if(!admin&&tab==='empleados')tab='miFicha';
 
 
  // El icono va en su propio span: en el teléfono las tres pestañas se reparten
@@ -748,9 +750,8 @@ function render(){
  // esconde el icono en vez de cortar la palabra.
  const pestanas=admin
   ? [['empleados','👥','Empleados'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']]
-  : [['miFicha','🪪','Mi ficha'],['misDias','📩','Mis días'],['planificacion','🗓️','Planificación']];
+  : [['miFicha','🪪','Mi ficha'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']];
 
- if(admin&&mine)pestanas.push(['misDias','📩','Mis días']);
  if(window.GamaHRP1)pestanas.push(...window.GamaHRP1.tabs());
  s.innerHTML=window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
@@ -763,9 +764,8 @@ function render(){
  +(admin?kpis():'')
  +'<div id="hrMsg" class="hrMsg"></div>'
  +(tab==='empleados'?employeesTab()
-  :tab==='ausencias'?absencesTab()
+  :tab==='ausencias'?(admin?absencesTab():myRequestsTab())
   :tab==='miFicha'?myCardTab()
-  :tab==='misDias'?myRequestsTab()
   :tab==='planificacion'?planTab():window.GamaHRP1?.render(tab)||'');
  window.GamaHRP1?.decorate();
  bind();

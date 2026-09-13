@@ -249,12 +249,12 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
   await page.waitForTimeout(800);
 
   // Sus pestañas, no las de administración.
-  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Mi ficha/, /Mis días/, /Planificación/, /Horarios y fichajes/, /Mis documentos/, /Mi nómina/]);
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Mi ficha/, /Ausencias/, /Planificación/, /Mis documentos/, /Mi nómina/]);
   await expect(page.locator('#hr')).toContainText('María Pérez');
   await expect(page.locator('#hr'), 'aparece el sueldo de un compañero').not.toContainText('2.500');
 
   // Pide días para sí misma y siempre pendiente: sin elegir empleado ni estado.
-  await page.click('#hr .hrTabs button:has-text("Mis días")');
+  await page.click('#hr .hrTabs button:has-text("Ausencias")');
   await page.waitForTimeout(400);
   await expect(page.locator('#hrAbsEmployee')).toHaveCount(0);
   await expect(page.locator('#hrAbsStatus')).toHaveCount(0);
@@ -280,7 +280,7 @@ test('el administrador conserva la vista completa y puede ligar ficha y cuenta',
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(800);
 
-  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/, /Horarios y fichajes/, /Reglas de vacaciones/, /Documentos e historial/, /Nómina y costes/, /Permisos RH/]);
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/, /Reglas de vacaciones/, /Documentos e historial/, /Nómina y costes/, /Permisos RH/]);
   await expect(page.locator('#hr')).toContainText('2.500');          // los sueldos siguen ahí
   await expect(page.locator('#hrAccount'), 'falta el enlace con la cuenta').toHaveCount(1);
 
@@ -414,7 +414,7 @@ test('en el teléfono mis solicitudes también se apilan, sin arrastre escondido
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(700);
 
-  await page.click('#hr .hrTabs button:has-text("Mis días")');
+  await page.click('#hr .hrTabs button:has-text("Ausencias")');
   await page.waitForTimeout(600);
   expect(await arrastreDeLasTablas(page)).toEqual([{ caja: 0, tabla: 0, filas: 2 }]);
   // Y el botón de retirar sigue a mano en la que está pendiente.

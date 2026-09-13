@@ -1516,3 +1516,25 @@ Completado	Terminé	Completed
 Bloqueado	Bloqué	Blocked
 Cerrado	Clôturé	Closed
 En ruta	En tournée	On route
+De la solicitud del cliente al cobro: avance, necesidades y requisitos.	De la demande client au paiement : avancement, besoins et prérequis.	From customer request to payment: progress, needs and prerequisites.
+Expediente entregado, facturado y pagado	Dossier livré, facturé et payé	Case delivered, invoiced and paid
+Completar la facturación del pedido.	Terminer la facturation de la commande.	Complete order invoicing.
+Registrar o verificar la referencia de facturación externa.	Enregistrer ou vérifier la référence de facturation externe.	Record or verify the external invoice reference.
+Registrar los cobros pendientes o relanzar las facturas vencidas.	Enregistrer les paiements restants ou relancer les factures échues.	Record outstanding payments or follow up overdue invoices.
+Ver facturas y registrar cobros	Voir les factures et enregistrer les paiements	View invoices and record payments
+9. Facturación interna y externa	9. Facturation interne et externe	9. Internal and external invoicing
+Crear la factura interna o vincular la factura emitida en el software externo.	Créer la facture interne ou rattacher la facture émise dans le logiciel externe.	Create the internal invoice or link the invoice issued in external software.
+Cubrir todas las líneas del pedido y verificar la referencia externa.	Facturer toutes les lignes de commande et vérifier la référence externe.	Invoice all order lines and verify the external reference.
+La referencia externa de una factura interna no genera un segundo importe.	La référence externe d’une facture interne ne génère pas un second montant.	An internal invoice’s external reference does not create a second amount.
+Referencia externa pendiente de registrar o verificar.	Référence externe à enregistrer ou vérifier.	External reference awaiting registration or verification.
+10. Pago del cliente	10. Paiement client	10. Customer payment
+Registrar cada pago con fecha, importe, medio y referencia.	Enregistrer chaque paiement avec date, montant, moyen et référence.	Record each payment with date, amount, method and reference.
+Solo los cobros confirmados reducen el saldo; los pagos anulados se excluyen.	Seuls les paiements confirmés réduisent le solde ; les paiements annulés sont exclus.	Only confirmed payments reduce the balance; voided payments are excluded.
+Saldar cada factura y completar la facturación antes de cerrar el expediente.	Solder chaque facture et terminer la facturation avant de clôturer le dossier.	Settle each invoice and complete invoicing before closing the case.
+Saldo pendiente	Solde restant	Outstanding balance
+Importe vencido	Montant échu	Overdue amount
+Facturas y pagos del expediente	Factures et paiements du dossier	Case invoices and payments
+La facturación y los anticipos pueden registrarse antes de completar la entrega.	La facturation et les acomptes peuvent être enregistrés avant la livraison complète.	Invoices and advance payments can be recorded before delivery is complete.
+Factura externa	Facture externe	External invoice
+Ver factura y cobros	Voir la facture et les paiements	View invoice and payments
+Entrega completa; seguimiento financiero pendiente	Livraison complète ; suivi financier en cours	Delivery complete; financial follow-up pending

@@ -1312,3 +1312,138 @@ Iniciando sesión…	Connexion…	Signing in…
 No se puede iniciar sesión. Compruebe sus credenciales.	Connexion impossible. Vérifiez vos identifiants.	Unable to sign in. Check your credentials.
 Cuenta no autorizada o desactivada.	Compte non autorisé ou désactivé.	Account not authorised or disabled.
 No se puede conectar con GAMA Cloud. Compruebe su conexión e inténtelo de nuevo.	Connexion à GAMA Cloud impossible. Vérifiez votre connexion et réessayez.	Unable to connect to GAMA Cloud. Check your connection and try again.
+Horarios y fichajes	Horaires et pointages	Schedules and attendance
+Reglas de vacaciones	Règles de congés	Leave rules
+Documentos e historial	Documents et historique	Documents and history
+Nómina y costes	Paie et coûts	Payroll and costs
+Permisos RH	Droits RH	HR permissions
+Mis documentos	Mes documents	My documents
+Mi nómina	Ma paie	My payroll
+Validaciones del equipo	Validations de l’équipe	Team approvals
+Calendario de trabajo	Calendrier de travail	Work calendar
+Vigente desde	Applicable à partir du	Effective from
+Días trabajados (0=domingo, 6=sábado)	Jours travaillés (0=dimanche, 6=samedi)	Working days (0=Sunday, 6=Saturday)
+Horas por día	Heures par jour	Hours per day
+Guardar horario	Enregistrer l’horaire	Save schedule
+Días trabajados	Jours travaillés	Working days
+Días festivos	Jours fériés	Public holidays
+Añadir festivo	Ajouter un jour férié	Add holiday
+Adquisición y saldo de vacaciones	Acquisition et solde de congés	Leave accrual and balance
+Derecho anual	Droit annuel	Annual entitlement
+Días trasladados	Jours reportés	Carried-over days
+Ajuste	Ajustement	Adjustment
+Adquisición	Acquisition	Accrual
+Anual prorrateada	Annuelle au prorata	Prorated annual
+Mensual: meses completados	Mensuelle : mois terminés	Monthly: completed months
+Inicio de actividad	Début d’activité	Employment start
+Fin de actividad	Fin d’activité	Employment end
+Motivo del ajuste / apertura	Motif de l’ajustement / ouverture	Adjustment / opening reason
+La adquisición se prorratea por días de actividad. El modo mensual incorpora los meses completados. El traslado se confirma manualmente y queda registrado.	L’acquisition est calculée au prorata des jours d’activité. Le mode mensuel intègre les mois terminés. Le report est confirmé manuellement et historisé.	Accrual is prorated by employment days. Monthly mode includes completed months. Carryover is confirmed manually and recorded.
+Guardar cuenta anual	Enregistrer le compteur annuel	Save annual account
+Derecho adquirido	Droit acquis	Accrued entitlement
+Consumido	Consommé	Used
+Mi fichaje	Mon pointage	My attendance
+Sin fichaje abierto	Aucun pointage ouvert	No open attendance
+Pausa	Pause	Break
+Reanudar	Reprendre	Resume
+Salida	Sortie	Clock out
+El fichaje usa la hora del servidor. Las horas trabajadas y extraordinarias requieren validación.	Le pointage utilise l’heure du serveur. Les heures travaillées et supplémentaires doivent être validées.	Attendance uses server time. Worked hours and overtime require approval.
+Vincula una cuenta a la ficha del empleado para fichar.	Associez un compte à la fiche du salarié pour pointer.	Link an account to the employee record to clock in.
+Horario de trabajo	Horaire de travail	Work schedule
+Pausa prevista (min)	Pause prévue (min)	Planned break (min)
+Programar turno	Planifier un créneau	Schedule shift
+Turnos y horas	Créneaux et heures	Shifts and hours
+Horas trabajadas	Heures travaillées	Worked hours
+Horas extraordinarias	Heures supplémentaires	Overtime
+Corregir	Corriger	Correct
+Añadir documento	Ajouter un document	Add document
+Anexo	Avenant	Amendment
+Identidad	Identité	Identity
+Documento reemplazado	Document remplacé	Replaced document
+Archivo PDF, JPG o PNG (10 MB máx.)	Fichier PDF, JPG ou PNG (10 Mo max.)	PDF, JPG or PNG file (max. 10 MB)
+Guardar documento	Enregistrer le document	Save document
+Reemplazado	Remplacé	Replaced
+Historial de cambios	Historique des modifications	Change history
+Autor	Auteur	Author
+Coste empleador	Coût employeur	Employer cost
+Neto a pagar	Net à payer	Net payable
+Pendiente de pago	Reste à payer	Unpaid balance
+Registro interno importado del software de nómina. Solo las nóminas validadas cuentan como coste; los pagos reducen el saldo y no duplican el coste.	Registre interne alimenté par le logiciel de paie. Seules les paies validées comptent dans les coûts ; les paiements réduisent le solde sans doubler le coût.	Internal register populated from payroll software. Only validated payroll counts as cost; payments reduce the balance without duplicating the cost.
+Registrar nómina externa	Enregistrer une paie externe	Record external payroll
+Referencia externa única	Référence externe unique	Unique external reference
+Bruto	Brut	Gross
+Neto	Net	Net
+Centro de coste	Centre de coût	Cost centre
+Importar CSV de nómina	Importer un CSV de paie	Import payroll CSV
+Descarga el modelo, completa una fila por empleado y mes, revisa la vista previa y confirma la importación. Los duplicados se rechazan.	Téléchargez le modèle, complétez une ligne par salarié et mois, vérifiez l’aperçu puis confirmez l’import. Les doublons sont refusés.	Download the template, complete one row per employee and month, review the preview, then confirm import. Duplicates are rejected.
+Descargar modelo	Télécharger le modèle	Download template
+Archivo CSV	Fichier CSV	CSV file
+Registro de nóminas	Registre des paies	Payroll register
+Registrar pago	Enregistrer un paiement	Record payment
+Pagos de nómina	Paiements de paie	Payroll payments
+Roles RH	Rôles RH	HR roles
+Responsable RH	Responsable RH	HR manager
+Responsable de equipo	Responsable d’équipe	Team manager
+Asignar rol	Attribuer le rôle	Assign role
+Responsable de cada empleado	Responsable de chaque salarié	Employee line manager
+Guardar responsable	Enregistrer le responsable	Save manager
+El responsable valida las ausencias y las horas de su equipo. Los salarios y documentos privados quedan reservados a RH y al empleado.	Le responsable valide les absences et les heures de son équipe. Les salaires et documents privés restent réservés aux RH et au salarié.	The manager approves team absences and hours. Salaries and private documents remain restricted to HR and the employee.
+Completa los campos obligatorios.	Complétez les champs obligatoires.	Complete the required fields.
+Días de semana inválidos.	Jours de la semaine invalides.	Invalid weekdays.
+¿Retirar este festivo? Los saldos se recalcularán.	Retirer ce jour férié ? Les soldes seront recalculés.	Remove this holiday? Balances will be recalculated.
+¿Retirar este turno?	Retirer ce créneau ?	Remove this shift?
+¿Confirmar el cambio de estado?	Confirmer le changement de statut ?	Confirm status change?
+Motivo de anulación	Motif d’annulation	Cancellation reason
+¿Retirar este rol?	Retirer ce rôle ?	Remove this role?
+Corrección de fichaje	Correction de pointage	Attendance correction
+Pausa (min)	Pause (min)	Break (min)
+Motivo de corrección	Motif de correction	Correction reason
+Guardar corrección	Enregistrer la correction	Save correction
+Referencia de pago única	Référence de paiement unique	Unique payment reference
+Confirmar pago	Confirmer le paiement	Confirm payment
+Archivo no permitido o superior a 10 MB.	Fichier non autorisé ou supérieur à 10 Mo.	File type not allowed or larger than 10 MB.
+El documento anterior debe pertenecer al mismo empleado.	Le document précédent doit appartenir au même salarié.	The previous document must belong to the same employee.
+Archivo cargado, pero no se pudo registrar el documento. Contacta con RH.	Fichier chargé, mais le document n’a pas pu être enregistré. Contactez les RH.	File uploaded, but the document could not be registered. Contact HR.
+CSV inválido.	CSV invalide.	Invalid CSV.
+Columnas CSV incorrectas.	Colonnes CSV incorrectes.	Incorrect CSV columns.
+CSV demasiado grande.	CSV trop volumineux.	CSV is too large.
+Importa entre 1 y 500 filas.	Importez entre 1 et 500 lignes.	Import between 1 and 500 rows.
+Empleado, periodo o referencia inválidos.	Salarié, période ou référence invalide.	Invalid employee, period or reference.
+Importes inválidos.	Montants invalides.	Invalid amounts.
+El coste empleador debe incluir el bruto y el neto.	Le coût employeur doit couvrir le brut et le net.	Employer cost must cover gross and net pay.
+Nómina duplicada: empleado/mes o referencia.	Paie en doublon : salarié/mois ou référence.	Duplicate payroll: employee/month or reference.
+Confirmar importación	Confirmer l’importation	Confirm import
+Primer día	Premier jour	First day
+Último día	Dernier jour	Last day
+Día completo	Journée complète	Full day
+Medio día	Demi-journée	Half day
+El saldo considera el horario, los festivos y las vacaciones aprobadas.	Le solde tient compte des horaires, des jours fériés et des congés approuvés.	The balance accounts for work schedules, public holidays and approved leave.
+Sin registros.	Aucun enregistrement.	No records.
+No se pudo anular la ausencia	Impossible d’annuler l’absence	Unable to cancel absence
+Costes salariales del periodo	Coûts salariaux de la période	Payroll costs for the period
+Coste validado	Coût validé	Validated cost
+Pagos del periodo	Paiements de la période	Payments in period
+Consultar nómina	Consulter la paie	View payroll
+Nóminas por mes de devengo. Pagos por fecha de pago. No se suman ambos como gastos.	Paies selon le mois de rattachement. Paiements selon leur date. Ces montants ne sont pas additionnés comme dépenses.	Payroll by accrual month. Payments by payment date. These amounts are not added together as expenses.
+No se pudieron cargar los costes salariales.	Impossible de charger les coûts salariaux.	Unable to load payroll costs.
+Overlapping shift	Ce créneau chevauche un autre horaire.	Overlapping shift
+Overlapping approved absence	Une absence approuvée couvre déjà cette période.	Overlapping approved absence
+Payment exceeds remaining net salary	Le paiement dépasse le salaire net restant à payer.	Payment exceeds remaining net salary
+Validate payroll first	Validez d’abord la paie.	Validate payroll first
+Correction reason required	Un motif de correction est obligatoire.	Correction reason required
+A reason is required	Un motif est obligatoire.	A reason is required
+Anular	Annuler	Cancel
+Caducidad	Expiration	Expiry
+Cuenta	Compte	Account
+Documentos	Documents	Documents
+Fin	Fin	End
+Pagado	Payé	Paid
+Título	Titre	Title
+Validar	Valider	Validate
+Overlapping attendance	Ce pointage chevauche un autre pointage.	Overlapping attendance
+Insufficient leave balance for {1}	Solde de congés insuffisant pour {1}	Insufficient leave balance for {1}
+Cancel payments first	Annulez d’abord les paiements.	Cancel payments first
+Validated payroll is immutable	Une paie validée ne peut plus être modifiée.	Validated payroll cannot be edited.
+An attendance is already open	Un pointage est déjà ouvert.	An attendance is already open.
+No open attendance	Aucun pointage ouvert.	No open attendance.
+La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes retirarla mientras esté pendiente.	La demande reste en attente de validation par les RH ou votre responsable. Vous pouvez la retirer tant qu’elle est en attente.	The request remains pending until HR or your manager approves it. You can withdraw it while pending.

@@ -1,16 +1,5 @@
-/* GAMA — Recursos humanos: fichas de empleado, ausencias y planificación.
-
-   Tres pestañas porque son tres cosas distintas: la plantilla, que cambia poco;
-   las ausencias, que se registran a diario; y la planificación, que es la misma
-   información puesta en un calendario — una fila por empleado y una columna por
-   día— para ver de un vistazo quién falta y cuándo se solapan dos personas, que
-   es justo lo que no se puede leer en una lista ordenada por fecha.
-
-   Sobre los días: la base guarda en hr_absences.days los días NATURALES del
-   periodo (una columna generada, fin - inicio + 1). El saldo de vacaciones, en
-   cambio, se cuenta en días LABORABLES, que es como se pactan los contratos.
-   Son cifras distintas y mezclarlas daría un saldo equivocado, así que la
-   lista enseña los naturales y el saldo se calcula aparte, aquí. */
+/* GAMA HR — employee records, leave requests and team absence calendar.
+   HR P1 adds work calendars, audited workflows, documents and external payroll. */
 (function(){
 'use strict';
 if(window.GamaHR)return;
@@ -20,15 +9,15 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDateString('es-EC')}catch(e){return String(v)}};
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
 const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permiso:'📄 Permiso',formacion:'🎓 Formación',otro:'• Otro'};
 /* El equipo ve el motivo de cada ausencia —vacaciones, enfermedad, permiso…—
    porque para organizarse hace falta saberlo. Lo que no sale de su tabla es el
    comentario escrito a mano, que puede llevar un detalle médico o personal. */
-const STATUS={pendiente:'Pendiente',aprobada:'Aprobada',rechazada:'Rechazada'};
+const STATUS={pendiente:'Pendiente',aprobada:'Aprobada',rechazada:'Rechazada',cancelada:'Cancelada'};
 
-let employees=[],absences=[],tab='empleados',editing=null,busy=false;
+let employees=[],absences=[],tab='empleados',editing=null,busy=false,loadVersion=0;
 /* Los datos sensibles —sueldo, cédula, contrato, y el comentario escrito a mano
    de una ausencia— viven en hr_employee_private y hr_absence_private, con su
    propia política. Las tablas base sólo guardan lo que el equipo necesita para
@@ -40,7 +29,8 @@ let employees=[],absences=[],tab='empleados',editing=null,busy=false;
 let mine=null,perfiles=[],myUid=null;
 
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
-const isAdmin=()=>role()==='admin'||role()==='administrador';
+const isSystemAdmin=()=>role()==='admin'||role()==='administrador';
+const isAdmin=()=>isSystemAdmin()||!!window.GamaHRP1?.isHR;
 /* Planificación: el día sobre el que se centra la vista y su amplitud. */
 let planAnchor=new Date(),planView='semana',planPick=null;
 
@@ -68,9 +58,8 @@ function workingDays(from,to){
 }
 /* Vacaciones aprobadas que consumen saldo del año en curso. */
 function usedLeave(employeeId,year){
- return absences
-  .filter(a=>a.employee_id===employeeId&&a.kind==='vacaciones'&&a.status==='aprobada'&&String(a.start_date||'').slice(0,4)===String(year))
-  .reduce((sum,a)=>sum+workingDays(a.start_date,a.end_date),0);
+ if(window.GamaHRP1)return window.GamaHRP1.used(employeeId,year);
+ return absences.filter(a=>a.employee_id===employeeId&&a.kind==='vacaciones'&&a.status==='aprobada').reduce((sum,a)=>sum+workingDays(a.start_date>year+'-01-01'?a.start_date:year+'-01-01',a.end_date<year+'-12-31'?a.end_date:year+'-12-31'),0);
 }
 function employeeName(id){return (employees.find(e=>e.id===id)||{}).full_name||'Empleado'}
 /* Una ausencia está en curso si hoy cae dentro de su periodo y está aprobada. */
@@ -85,6 +74,7 @@ function onLeaveToday(){
    diferencia la pone RLS, no este archivo — así no hay una rama del código que
    se pueda saltar desde la consola del navegador. */
 async function load(){
+ const version=++loadVersion;
  const api=C();
  if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
  try{
@@ -95,21 +85,28 @@ async function load(){
    api.list('hr_absence_private',{}),
    api.getSession(),
   ]);
+  if(version!==loadVersion)return;
   if(e.error)throw e.error;
   if(a.error)throw a.error;
+  if(ep.error)throw ep.error;
+  if(ap.error)throw ap.error;
   myUid=ses?.data?.session?.user?.id||null;
   const priv=new Map((ep.error?[]:(ep.data||[])).map(r=>[r.employee_id,r]));
   const privA=new Map((ap.error?[]:(ap.data||[])).map(r=>[r.absence_id,r]));
   employees=(e.data||[]).map(x=>Object.assign({},x,priv.get(x.id)||{}));
   absences=(a.data||[]).map(x=>Object.assign({},x,privA.get(x.id)||{}));
   mine=employees.find(x=>x.profile_id&&x.profile_id===myUid)||null;
+  if(window.GamaHRP1&&await window.GamaHRP1.load({employees,absences,myUid,admin:isSystemAdmin()})===false)return;
+  if(version!==loadVersion)return;
   if(isAdmin())await loadProfiles();
+  if(version!==loadVersion)return;
   render();
  }catch(err){fail(err,'No se pudieron cargar los datos de RRHH')}
 }
 /* Las cuentas de acceso, para poder ligar una ficha a un usuario. Sólo el
    administrador las lee. */
 async function loadProfiles(){
+ if(window.GamaHRP1?.directory.length){perfiles=window.GamaHRP1.directory;return}
  try{
   const r=await C().list('profiles',{select:'id,full_name,email,role,active',order:'full_name',ascending:true});
   perfiles=r.error?[]:(r.data||[]).filter(p=>p.active!==false&&p.role!=='cliente');
@@ -146,13 +143,8 @@ async function saveEmployee(){
  };
  busy=true;
  try{
-  const r=editing?await C().update('hr_employees',editing,row):await C().insert('hr_employees',row);
+  const r=await(await C().db()).rpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
   if(r.error)throw r.error;
-  const id=editing||r.data?.id;
-  if(id){
-   const u=await C().upsert('hr_employee_private',Object.assign({employee_id:id},priv),{onConflict:'employee_id'});
-   if(u.error)throw u.error;
-  }
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
  }catch(e){fail(e,'No se pudo guardar el empleado')}
@@ -201,7 +193,9 @@ async function addAbsence(){
  try{
   const r=await C().insert('hr_absences',{
    employee_id,kind:$('hrAbsKind').value,start_date,end_date,
-   status:isAdmin()?($('hrAbsStatus')?.value||'pendiente'):'pendiente'});
+   start_fraction:Number($('hpStartFraction')?.value||1),end_fraction:Number($('hpEndFraction')?.value||1),
+   status:isAdmin()?($('hrAbsStatus')?.value||'pendiente'):'pendiente',
+   decision_reason:['rechazada','cancelada'].includes($('hrAbsStatus')?.value)?$('hrAbsReason').value:null});
   if(r.error)throw r.error;
   const motivo=($('hrAbsReason').value||'').trim();
   if(motivo&&r.data?.id){
@@ -218,19 +212,17 @@ async function addAbsence(){
 }
 async function setAbsenceStatus(id,status){
  try{
-  const r=await C().update('hr_absences',id,{status});
+  const reason=status==='rechazada'?prompt(window.GamaI18n?.t('Motivo')||'Motivo'):null;
+  if(status==='rechazada'&&!reason?.trim())return;
+  const r=await C().update('hr_absences',id,{status,decision_reason:reason});
   if(r.error)throw r.error;
   await load();
  }catch(e){fail(e,'No se pudo cambiar el estado de la ausencia')}
 }
 async function removeAbsence(id){
- const a=absences.find(x=>x.id===id);
- if(!confirm('¿Borrar esta ausencia de '+employeeName(a&&a.employee_id)+'?\n\nEsta acción no se puede deshacer.'))return;
- try{
-  const r=await C().remove('hr_absences',id);
-  if(r.error)throw r.error;
-  await load();
- }catch(e){fail(e,'No se pudo borrar la ausencia')}
+ const reason=prompt(window.GamaI18n?.t('Motivo de anulación')||'Motivo de anulación');
+ if(!reason?.trim())return;
+ try{const r=await C().update('hr_absences',id,{status:'cancelada',decision_reason:reason});if(r.error)throw r.error;await load()}catch(e){fail(e,'No se pudo anular la ausencia')}
 }
 
 /* ---- pantalla ---- */
@@ -376,8 +368,8 @@ function css(){
    palabra cabe entera. Este bloque va DESPUÉS de las reglas de base a
    propósito: una media query no añade especificidad, así que escrito antes se
    quedaba sin efecto contra un selector idéntico. */
-@media(max-width:760px){#hr .hrTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
- #hr .hrTabs button{padding:10px 4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){#hr .hrTabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:5px;padding-bottom:6px}
+ #hr .hrTabs button{padding:10px 12px;font-size:12px;white-space:nowrap;flex:0 0 auto;min-height:44px}
  #hr .hrTabIco{display:none}}
 /* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
    aplicación: copia de la cabecera el nombre de cada columna, apila cada fila
@@ -404,7 +396,7 @@ function kpis(){
 function employeesTab(){
  const year=new Date().getFullYear();
  const rows=employees.map(p=>{
-  const total=Number(p.annual_leave_days||0);
+  const total=window.GamaHRP1?window.GamaHRP1.entitlement(p.id,year):Number(p.annual_leave_days||0);
   const used=usedLeave(p.id,year);
   const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
   const off=p.active===false;
@@ -478,13 +470,13 @@ function absencesTab(){
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
    <td><b>${esc(employeeName(a.employee_id))}</b><small><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></small></td>
-   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
     ${a.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
     ${a.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
-    <button type="button" class="danger" data-del="${esc(a.id)}">🗑️</button>
+    ${a.status!=='cancelada'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi-live data-gi=030a5cd7677c>Anular</button>`:''}
    </div></td></tr>`;
  }).join('');
 
@@ -645,7 +637,7 @@ function planTab(){
 
   ${sel?`<div class="hrPlanDetalle">
     <div><b>${esc(employeeName(sel.employee_id))}</b> · <span data-gi-live>${esc(KINDS[sel.kind]||sel.kind)}</span>
-      <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+workingDays(sel.start_date,sel.end_date)+' laborables':''}</small>
+      <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(sel.employee_id,sel.start_date,sel.end_date,sel.start_fraction??1,sel.end_fraction??1):workingDays(sel.start_date,sel.end_date))+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
       ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
@@ -671,7 +663,7 @@ function myCardTab(){
    Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
  }
  const year=new Date().getFullYear();
- const total=Number(yo.annual_leave_days||0),used=usedLeave(yo.id,year),quedan=Math.max(0,total-used);
+ const total=window.GamaHRP1?window.GamaHRP1.entitlement(yo.id,year):Number(yo.annual_leave_days||0),used=usedLeave(yo.id,year),quedan=Math.max(0,total-used);
  const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
  const dato=(k,v)=>v?`<div class="hrDato"><span>${esc(k)}</span><b>${esc(v)}</b></div>`:'';
  return `<div class="hrGrid">
@@ -693,12 +685,12 @@ function myCardTab(){
   <div class="card">
    <h3>Mis vacaciones ${year}</h3>
    <div class="hrSaldo">
-    <div><span data-gi=187f4841b0af>Días pactados</span><b>${total}</b></div>
+    <div><span data-gi-live data-gi=54021b97e1a0>Derecho adquirido</span><b>${total}</b></div>
     <div><span data-gi=77c1b82cb1d7>Usados</span><b>${used}</b></div>
     <div class="hrSaldoLibre"><span data-gi=8fca1d80df6e>Te quedan</span><b>${quedan}</b></div>
    </div>
    <div class="hrBar" style="max-width:none"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div>
-   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi=46035131b36f>Se cuentan días laborables, de lunes a viernes. Sólo descuentan los días ya aprobados.</div>
+   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi-live data-gi=2760b037a40d>El saldo considera el horario, los festivos y las vacaciones aprobadas.</div>
   </div>
  </div>`;
 }
@@ -712,7 +704,7 @@ function myRequestsTab(){
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
    <td><b><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></b><small>${esc(a.reason||'')}</small></td>
-   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+workingDays(a.start_date,a.end_date)+' laborables':''}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
    <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
   </tr>`;
@@ -730,7 +722,7 @@ function myRequestsTab(){
    </div>
    <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=afe18510d3eb placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
    <div class="actions"><button type="button" class="primary" id="hrAbsAdd" data-gi=e3f27a649cc6>📩 Enviar solicitud</button></div>
-   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi=9fe6fcd1c764>La solicitud queda <b data-gi=b66292585132>pendiente</b> hasta que un administrador la apruebe. Mientras lo esté, puedes retirarla.</div>`:''}
+   <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi-live data-gi=66bbbee747ed>La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes retirarla mientras esté pendiente.</div>`:''}
   </div>
   <div class="card">
    <h3 data-gi=12bc372ef7e7>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
@@ -749,7 +741,7 @@ function render(){
  // Un empleado que entra por primera vez cae en «Mi ficha», no en una
  // pestaña de administración que no va a poder usar.
  if(!admin&&(tab==='empleados'||tab==='ausencias'))tab=tab==='empleados'?'miFicha':'misDias';
- if(admin&&(tab==='miFicha'||tab==='misDias'))tab=tab==='miFicha'?'empleados':'ausencias';
+
 
  // El icono va en su propio span: en el teléfono las tres pestañas se reparten
  // el ancho y «Planificación» no cabe con el emoji delante, así que allí se
@@ -758,6 +750,8 @@ function render(){
   ? [['empleados','👥','Empleados'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']]
   : [['miFicha','🪪','Mi ficha'],['misDias','📩','Mis días'],['planificacion','🗓️','Planificación']];
 
+ if(admin&&mine)pestanas.push(['misDias','📩','Mis días']);
+ if(window.GamaHRP1)pestanas.push(...window.GamaHRP1.tabs());
  s.innerHTML=window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
    lead:admin
@@ -772,8 +766,10 @@ function render(){
   :tab==='ausencias'?absencesTab()
   :tab==='miFicha'?myCardTab()
   :tab==='misDias'?myRequestsTab()
-  :planTab());
+  :tab==='planificacion'?planTab():window.GamaHRP1?.render(tab)||'');
+ window.GamaHRP1?.decorate();
  bind();
+ window.GamaHRP1?.bind(tab,load);
 }
 
 function bind(){
@@ -797,7 +793,8 @@ function bind(){
  const cerrar=$('hrPlanCerrar');if(cerrar)cerrar.onclick=()=>{planPick=null;render()};
 }
 
-function open(){
+function open(requestedTab){
+ if(typeof requestedTab==='string')tab=requestedTab;
  css();
  const s=section();
  if(!s.innerHTML)render();
@@ -812,6 +809,7 @@ function open(){
  load();
 }
 
+window.addEventListener('gama:auth-change',()=>{loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))$('hr').innerHTML=''});
 window.GamaHR={open,load};
 window.GamaOpenHR=open;
 })();

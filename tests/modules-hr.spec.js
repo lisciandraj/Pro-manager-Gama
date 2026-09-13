@@ -249,7 +249,7 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
   await page.waitForTimeout(800);
 
   // Sus pestañas, no las de administración.
-  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Mi ficha/, /Mis días/, /Planificación/]);
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Mi ficha/, /Mis días/, /Planificación/, /Horarios y fichajes/, /Mis documentos/, /Mi nómina/]);
   await expect(page.locator('#hr')).toContainText('María Pérez');
   await expect(page.locator('#hr'), 'aparece el sueldo de un compañero').not.toContainText('2.500');
 
@@ -280,7 +280,7 @@ test('el administrador conserva la vista completa y puede ligar ficha y cuenta',
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(800);
 
-  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/]);
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/, /Horarios y fichajes/, /Reglas de vacaciones/, /Documentos e historial/, /Nómina y costes/, /Permisos RH/]);
   await expect(page.locator('#hr')).toContainText('2.500');          // los sueldos siguen ahí
   await expect(page.locator('#hrAccount'), 'falta el enlace con la cuenta').toHaveCount(1);
 

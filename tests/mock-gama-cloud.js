@@ -47,7 +47,7 @@
     try { return JSON.parse(localStorage.getItem('gama_session_v1') || '{}').role || ''; }
     catch (e) { return ''; }
   }
-  function hrIsAdmin() { const r = hrRole(); return r === 'admin' || r === 'administrador'; }
+  function hrIsAdmin() { const r = hrRole(); return r === 'admin' || r === 'administrador' || (window.__DB.hr_permissions||[]).some(p=>p.profile_id===hrMyProfile()&&p.role==='hr'); }
   function hrIsStaff() { return ['admin', 'administrador', 'commercial', 'comercial', 'magasinier', 'almacenero'].includes(hrRole()); }
   function hrMyProfile() { return (window.__DB._session || {}).profile_id || null; }
   function hrMyEmployeeIds() {
@@ -518,6 +518,15 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_hr_directory')return {data:hrIsAdmin()?(window.__DB.profiles||[]):[]};
+        if(fn==='gama_hr_save_employee'){
+          const id=args.p_id||nextId('hr_employees');
+          const rows=window.__DB.hr_employees=window.__DB.hr_employees||[];
+          const old=rows.find(r=>r.id===id);if(old)Object.assign(old,args.p_employee);else rows.push({id,active:true,...args.p_employee});
+          const priv=window.__DB.hr_employee_private=window.__DB.hr_employee_private||[];
+          const p=priv.find(r=>r.employee_id===id);if(p)Object.assign(p,args.p_private);else priv.push({employee_id:id,...args.p_private});
+          return {data:id,error:null};
+        }
         if(fn==='gama_quote_reservations')return {data:[]};
         if(fn==='gama_internal_invoice_action'){
           window.__internalCalls=window.__internalCalls||[];window.__internalCalls.push(args);

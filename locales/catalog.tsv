@@ -1544,3 +1544,9 @@ Todavía no hay factura asociada.	Aucune facture associée pour le moment.	No in
 Ver factura interna	Voir la facture interne	View internal invoice
 Ver / actualizar referencia externa	Voir / modifier la référence externe	View / update external reference
 Asociar número externo	Associer un numéro externe	Link external number
+Número de factura oficial	Numéro de facture officielle	Official invoice number
+Referencia opcional para la trazabilidad. Puedes añadirla, corregirla o dejarla vacía.	Référence facultative pour la traçabilité. Vous pouvez l’ajouter, la corriger ou la laisser vide.	Optional traceability reference. You can add it, correct it or leave it blank.
+Número oficial no indicado (opcional).	Numéro officiel non renseigné (facultatif).	Official number not entered (optional).
+9. Facturación interna	9. Facturation interne	9. Internal invoicing
+Crear la factura interna desde el presupuesto aceptado.	Créer la facture interne depuis le devis accepté.	Create the internal invoice from the accepted quote.
+Cubrir todas las líneas del pedido. El número oficial externo es opcional.	Facturer toutes les lignes de commande. Le numéro officiel externe est facultatif.	Invoice all order lines. The official external number is optional.

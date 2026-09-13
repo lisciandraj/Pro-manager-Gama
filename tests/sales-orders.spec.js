@@ -17,18 +17,12 @@ async function boot(page,role='admin'){
 }
 test('menu, quantities and shipment references the checked preparation in one call',async({page})=>{
  await boot(page);await page.locator('[data-gs-order]').first().click();
- await expect(page.locator('#gsMain')).toContainText('Confirmado');await expect(page.locator('#gsMain')).toContainText('Sin vincular');await page.screenshot({path:'test-results/sales-desktop.png',fullPage:true});
+ await expect(page.locator('#gsInvoice')).toHaveCount(0);await expect(page.locator('#gsMain')).toContainText('Confirmado');await expect(page.locator('#gsMain')).toContainText('Sin vincular');await page.screenshot({path:'test-results/sales-desktop.png',fullPage:true});
  await page.locator('#gsShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
  await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
  const calls=await page.evaluate(()=>window.__salesCalls);expect(calls).toHaveLength(1);expect(calls[0].p_action).toBe('ship');expect(calls[0].p_data.preparation_id).toBe('prep-1');expect(calls[0].p_data.lines).toBeUndefined();expect(calls[0].p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
 });
-test('manual invoice sends customer, quantities and real attachment; no stock RPC',async({page})=>{
- await boot(page);await page.locator('[data-gs-order]').first().click();await page.locator('#gsInvoice').click();
- await page.locator('#gsInvNumber').fill('001-001-000000123');await page.locator('#gsIssuer').fill('1234567890001');await page.locator('[data-invoice-qty]').fill('60');await page.locator('#gsSubtotal').fill('600');await page.locator('#gsInvoiceTax').fill('90');
- await page.locator('#gsFiles').setInputFiles({name:'factura.xml',mimeType:'application/xml',buffer:Buffer.from('<factura/>')});
- await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
- const a=await page.evaluate(()=>window.__salesCalls);expect(a).toHaveLength(1);expect(a[0].p_action).toBe('invoice');expect(a[0].p_data.customer_identification).toBe('1234567890');expect(a[0].p_data.subtotal).toBe(600);expect(a[0].p_data.files[0].content_base64).toBe(Buffer.from('<factura/>').toString('base64'));
-});
+
 test('failed mutation keeps entered data and reuses the retry key',async({page})=>{
  await boot(page);await page.locator('[data-gs-order]').first().click();await page.locator('#gsShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
  await page.evaluate(()=>window.__salesResponse={error:{message:'INSUFFICIENT_RESERVED'}});await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('reserva ha cambiado');await expect(page.locator('#gfShipNote')).toHaveValue('Envío de bultos controlados');
@@ -53,17 +47,7 @@ test('order detail separates physical, reserved, available and purchasing shorta
  await expect(row).toContainText('100');
  await expect(row).toContainText('0');
 });
-test('external invoice is linked to the selected partial delivery',async({page})=>{
- await boot(page);
- await page.evaluate(({order,line,location})=>{window.__DB.sales_deliveries.push({id:'delivery-1',number:'EX-00000001',order_id:order,tms_delivery_id:'tms-1',dispatched_at:'2026-09-12T08:00:00Z'});window.__DB.sales_delivery_lines.push({id:'dl-1',delivery_id:'delivery-1',order_line_id:line,location_id:location,quantity:60});window.__DB.tms_deliveries.push({id:'tms-1',customer:'Cliente de prueba',status:'Entregada',delivery_date:'2026-09-12'})},ID);
- await page.locator('[data-gs-order]').first().click();await page.locator('#gsInvoice').click();
- await expect(page.locator('[data-invoice-delivery]')).toBeChecked();
- await page.locator('#gsInvNumber').fill('001-001-000000124');await page.locator('#gsIssuer').fill('1234567890001');await page.locator('[data-invoice-qty]').fill('60');await page.locator('#gsSubtotal').fill('600');await page.locator('#gsInvoiceTax').fill('90');await page.locator('#gsSave').click();
- await expect(page.locator('dialog')).toHaveCount(0);
- const call=await page.evaluate(()=>window.__salesCalls.find(x=>x.p_action==='invoice'));
- expect(call.p_data.delivery_ids).toEqual(['delivery-1']);
- expect(await page.evaluate(()=>window.__commercialCalls.length)).toBe(0);
-});
+
 test('partial payment sends amount, method and an idempotency key',async({page})=>{
  await boot(page);
  await page.evaluate(({order,line})=>{window.__DB.external_invoices.push({id:'invoice-1',order_id:order,number:'001-001-000000125',issuer_ruc:'1234567890001',software:'Fiscal',issue_date:'2026-09-12',due_date:'2026-10-12',subtotal:600,tax:90,total:690,fiscal_status:'authorized',created_at:'2026-09-12T10:00:00Z'});window.__DB.external_invoice_lines.push({id:'il-1',invoice_id:'invoice-1',order_line_id:line,quantity:60})},ID);

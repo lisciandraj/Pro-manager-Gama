@@ -40,7 +40,7 @@ test('tracks internal/external invoice once, partial and voided payments, overdu
   __DB.external_invoice_payments=[{id:'p1',invoice_id:'i1',amount:40,status:'confirmed'},{id:'p2',invoice_id:'i1',amount:60,status:'cancelled'}];
  });await page.locator('#gdfRefresh').click();await expect(page.locator('.gdfStep').nth(8)).toHaveClass(/done/);await expect(page.locator('.gdfStep').nth(9)).toHaveClass(/blocked/);await expect(page.locator('#gdfFinance')).toContainText('60,00');await expect(page.locator('#gdfDetail')).toContainText('seguimiento financiero pendiente');
  await page.evaluate(()=>__DB.external_invoice_payments[1].status='confirmed');await page.locator('#gdfRefresh').click();await expect(page.locator('#gdfDetail')).toContainText('Expediente entregado, facturado y pagado');
- await page.evaluate(()=>__DB.external_invoices[0].external_status='unverified');await page.locator('#gdfRefresh').click();await expect(page.locator('.gdfStep').nth(8)).toHaveClass(/active/);await expect(page.locator('#gdfDetail')).not.toContainText('Expediente entregado, facturado y pagado');
+ await page.evaluate(()=>Object.assign(__DB.external_invoices[0],{external_status:null,external_number:null}));await page.locator('#gdfRefresh').click();await expect(page.locator('.gdfStep').nth(8)).toHaveClass(/done/);await expect(page.locator('#gdfDetail')).toContainText('Expediente entregado, facturado y pagado');
  await page.evaluate(()=>GamaOperations.dossier=a=>window.__target=a);await page.locator('[data-action="payment"]').click();expect(await page.evaluate(()=>window.__target)).toEqual({target:'invoice',target_id:'i1'});
 });
 test('financial coverage is per line and canceled invoices and payments do not settle the case',async({page})=>{

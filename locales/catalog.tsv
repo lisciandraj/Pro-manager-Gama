@@ -1550,3 +1550,4 @@ Número oficial no indicado (opcional).	Numéro officiel non renseigné (faculta
 9. Facturación interna	9. Facturation interne	9. Internal invoicing
 Crear la factura interna desde el presupuesto aceptado.	Créer la facture interne depuis le devis accepté.	Create the internal invoice from the accepted quote.
 Cubrir todas las líneas del pedido. El número oficial externo es opcional.	Facturer toutes les lignes de commande. Le numéro officiel externe est facultatif.	Invoice all order lines. The official external number is optional.
+Comentario del cliente	Commentaire client	Customer comment

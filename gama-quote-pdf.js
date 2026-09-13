@@ -31,6 +31,7 @@ function build(q){
  room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: $'+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: $'+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  $'+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
  if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
+ if(q.customer_comment)paragraph('Comentario del cliente: '+q.customer_comment,9);
  if(q.notes)paragraph(q.notes,9);
  window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':'Documento informativo. No constituye una factura.');
  return doc.output('blob');

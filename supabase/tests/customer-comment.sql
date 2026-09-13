@@ -1,0 +1,20 @@
+begin;
+do $$ declare u uuid;c uuid;p uuid;q uuid;o uuid;rq uuid;r jsonb;again jsonb;
+begin
+ select id into u from public.profiles where active and role='administrador' limit 1;
+ select id into c from public.customers limit 1;select id into p from public.products limit 1;
+ perform set_config('request.jwt.claim.sub',u::text,true);
+ insert into public.invoices(customer_id,quote_state,subtotal,tax,total,quote_details) values(c,'accepted',10,0,10,'{"client":"QA","notes":"Commercial terms"}') returning id into q;
+ insert into public.customer_requests(created_by,customer_id,invoice_id,notes) values(u,c,q,E'Llamar antes <cliente>\nDespués de las 15h') returning id into rq;
+ insert into public.sales_orders(request_key,customer_id,customer_name,status,source_quote_id,created_by) values(gen_random_uuid(),c,'QA','confirmed',q,u) returning id into o;
+ insert into public.sales_order_lines(order_id,product_id,product_name,quantity,unit_price,tax_rate) values(o,p,'QA',1,10,0);
+ execute 'set local role authenticated';
+ r:=public.gama_internal_invoice_action('create',jsonb_build_object('quote_id',q));
+ if r#>>'{document_snapshot,details,customer_comment}' is distinct from E'Llamar antes <cliente>\nDespués de las 15h' then raise exception 'COMMENT_NOT_COPIED';end if;
+ if r#>>'{document_snapshot,details,notes}' is distinct from 'Commercial terms' then raise exception 'NOTES_OVERWRITTEN';end if;
+ execute 'reset role';
+ update public.customer_requests set notes='Changed later' where id=rq;
+ again:=public.gama_internal_invoice_action('create',jsonb_build_object('quote_id',q));
+ if again->>'id'<>r->>'id' or again#>>'{document_snapshot,details,customer_comment}' is distinct from r#>>'{document_snapshot,details,customer_comment}' then raise exception 'SNAPSHOT_NOT_FROZEN';end if;
+end $$;
+rollback;

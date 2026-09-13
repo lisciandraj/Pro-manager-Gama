@@ -41,3 +41,10 @@ test('mobile quote editor and client document fit viewport',async({page})=>{
 test('category C proposes the contractual price and still allows editing it',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__DB.customers[0].category='C';window.__DB.customer_special_prices=[{customer_id:'c1',product_id:'p1',unit_price:7}];return GamaQuotes.open()});await page.locator('#gqNew').click();await page.locator('#gqCustomer').selectOption('c1');await page.locator('#gqAdd').click();await page.locator('[data-k="product_id"]').selectOption('p1');await expect(page.locator('[data-k="list_price"]')).toHaveValue('7');await page.locator('[data-k="list_price"]').fill('6');await page.locator('#gqSave').click();expect((await page.evaluate(()=>__quoteCalls))[0].p_data.lines[0].list_price).toBe(6);
 });
+
+test('request comment survives quote editing and reaches PDF data',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.invoices[0].quote_state='draft';__DB.customer_requests=[{id:'r1',invoice_id:'q1',notes:'Llamar antes <cliente>\nEntregar por la tarde'}]});await openQuote(page);
+ await expect(page.locator('.gqPaper')).toContainText('Llamar antes <cliente>');await expect(page.locator('.gqPaper cliente')).toHaveCount(0);
+ await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__commentPdf=q;return new Blob(['QA'],{type:'application/pdf'})}});await page.locator('#gqPdf').click();expect(await page.evaluate(()=>__commentPdf.customer_comment)).toBe('Llamar antes <cliente>\nEntregar por la tarde');
+ await page.locator('#gqEdit').click();await expect(page.locator('#gqd_customer_comment')).toHaveValue('Llamar antes <cliente>\nEntregar por la tarde');await page.locator('#gqSave').click();expect(await page.evaluate(()=>__quoteCalls.find(c=>c.p_action==='save').p_data.details.customer_comment)).toBe('Llamar antes <cliente>\nEntregar por la tarde');
+});

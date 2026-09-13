@@ -283,11 +283,6 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 <button class="primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Productos + Clientes + Auditoría</button>
 <button class="secondary" onclick="exportJSONBackup()" data-gi=98c0409192c9>💾 Copia completa JSON</button>
 </div>
-<h3 data-gi=973fc4b4c576>📥 Importar datos</h3>
-<p class="muted" data-gi=b4fd80b58fd6>Importa el Excel generado por GAMA. Productos se fusionan por código de barras y Clientes por identificación.</p>
-<input id="excelImport" type="file" accept=".xls,.xml">
-<button class="primary" style="width:100%;margin-top:8px" onclick="importExcel()" data-gi=0321ff60de34>📥 Importar / fusionar Excel</button>
-<div id="importResult"></div>
 <h3 data-gi=1130376c0e96>📥 Restaurar JSON</h3>
 <input id="jsonImport" type="file" accept=".json,application/json">
 <button class="warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=ce5c923a8a49>⚠️ Restaurar copia completa</button>
@@ -613,23 +608,6 @@ function parseSpreadsheetXML(text){
  return sheets;
 }
 function rowsObj(rows){if(!rows||!rows.length)return[];let h=rows[0].map(norm);return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??''])))}
-async function importExcel(){
- const f=$('excelImport').files[0];if(!f)return alert('Selecciona un archivo .xls exportado por GAMA.');
- try{
-  const sheets=parseSpreadsheetXML(await f.text());let ap=0,up=0,ac=0,uc=0;
-  for(const o of rowsObj(sheets.Productos||[])){
-   const b=o['código'];if(!b)continue;let p=product(b);
-   const d={name:o['nombre']||'',ref:o['referencia']||'',cat:o['categoría']||'',loc:o['ubicación']||'',stock:Number(o['stock'])||0,min:Number(o['stock mínimo'])||0,price:Number(o['precio usd'])||0,iva:Number(o['iva'])||0};
-   if(p){Object.assign(p,d);up++}else{db.products.push({barcode:b,...d,photo:''});ap++}
-  }
-  for(const o of rowsObj(sheets.Clientes||[])){
-   const id=o['identificación'];if(!id)continue;let c=db.clients.find(x=>x.id===id);
-   const d={id,name:o['nombre / razón social']||'',idType:o['tipo id']||'RUC',address:o['dirección']||'',phone:o['teléfono']||'',email:o['email']||'',city:o['ciudad']||'',province:o['provincia']||'',notes:o['observaciones']||''};
-   if(c){Object.assign(c,d);uc++}else{db.clients.push(d);ac++}
-  }
-  save();$('importResult').innerHTML=`<div class="notice">Importación completada — Productos: ${ap} nuevos / ${up} actualizados. Clientes: ${ac} nuevos / ${uc} actualizados.</div>`;
- }catch(e){alert('Error de importación: '+e.message)}
-}
 function restoreJSON(){
  const f=$('jsonImport').files[0];if(!f)return alert('Selecciona una copia JSON.');
  if(!confirm('ATENCIÓN: se reemplazarán Productos, Clientes, Movimientos y Facturas. ¿Continuar?'))return;

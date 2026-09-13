@@ -18,13 +18,13 @@ async function boot(page,role='admin'){
 test('menu, quantities and shipment references the checked preparation in one call',async({page})=>{
  await boot(page);await page.locator('[data-gs-order]').first().click();
  await expect(page.locator('#gsInvoice')).toHaveCount(0);await expect(page.locator('#gsMain')).toContainText('Confirmado');await expect(page.locator('#gsMain')).toContainText('Sin vincular');await page.screenshot({path:'test-results/sales-desktop.png',fullPage:true});
- await page.locator('#gsShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
+ await page.locator('#gsShip').click();await page.locator('#gfShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
  await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
  const calls=await page.evaluate(()=>window.__salesCalls);expect(calls).toHaveLength(1);expect(calls[0].p_action).toBe('ship');expect(calls[0].p_data.preparation_id).toBe('prep-1');expect(calls[0].p_data.lines).toBeUndefined();expect(calls[0].p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
 });
 
 test('failed mutation keeps entered data and reuses the retry key',async({page})=>{
- await boot(page);await page.locator('[data-gs-order]').first().click();await page.locator('#gsShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
+ await boot(page);await page.locator('[data-gs-order]').first().click();await page.locator('#gsShip').click();await page.locator('#gfShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
  await page.evaluate(()=>window.__salesResponse={error:{message:'INSUFFICIENT_RESERVED'}});await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('reserva ha cambiado');await expect(page.locator('#gfShipNote')).toHaveValue('Envío de bultos controlados');
  await page.evaluate(()=>window.__salesResponse=null);await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const a=await page.evaluate(()=>window.__salesCalls);expect(a[0].p_data.request_key).toBe(a[1].p_data.request_key);
 });

@@ -23,22 +23,18 @@ async function boot(page,state='picking',role='magasinier'){
   if(fn==='gama_sales_action'){window.__calls.push(args);return {data:{id:'shipment'}}}
   return c.rpc(fn,args);
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
- await expect(page.locator('#gfPreparation')).toContainText('PR-00000001');
+ await expect(page.locator('#gfDossier')).toContainText('Dossier');
 }
 test('preparation records quantities without barcode controls and preserves retry key',async({page})=>{
- await boot(page);await expect(page.locator('#gfPack')).toHaveCount(0);await page.locator('[data-gf-pick]').click();await expect(page.locator('#gfProductCode')).toHaveCount(0);await expect(page.locator('[data-gf-camera]')).toHaveCount(0);await page.locator('#gfQty').fill('2');
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await expect(page.locator('#gfPack')).toBeVisible();await page.locator('[data-gf-pick]').click();await expect(page.locator('#gfProductCode')).toHaveCount(0);await expect(page.locator('[data-gf-camera]')).toHaveCount(0);await page.locator('#gfQty').fill('2');
  await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await page.locator('#gsSave').click();await expect(page.locator('#gfQty')).toHaveValue('2');await page.evaluate(()=>window.__error=null);await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
  const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data.product_code).toBeUndefined();expect(calls[1].p_data.quantity).toBe(2);
 });
-test('TMS packing records exact contents, barcode, weight and dimensions without leaving TMS',async({page})=>{
- await boot(page);await page.evaluate(async()=>{__DB.sales_deliveries=[{id:'ship',order_id:__DB.sales_orders[0].id}];__f.preparations[0].status='shipped';__f.preparations[0].shipment_id='ship';const host=document.createElement('div');host.id='tmsPackagesTest';document.body.append(host);await GamaFulfillment.tmsPackages('ship',host,()=>{window.__tmsRefreshed=true})});
- await page.locator('#glPack').click();await page.locator('#gfPackCode0').fill('CAFE-01');await page.locator('#gfPackQty0').fill('3');
- for(const[id,value]of Object.entries({weight_kg:'1.5',length_cm:'20',width_cm:'15',height_cm:'10'}))await page.locator('#'+id).fill(value);
- await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_action).toBe('package');expect(c.p_data.lines).toEqual([{pick_line_id:'pl',product_code:'CAFE-01',quantity:3}]);expect(await page.evaluate(()=>__tmsRefreshed)).toBe(true);
+test('dedicated preparation checks carton barcodes and keeps the module open',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfPack').click();await page.locator('#gfPackCode0').fill('CAFE-01');await page.locator('#gfPackQty0').fill('4');for(const [id,v]of Object.entries({weight_kg:'1',length_cm:'20',width_cm:'15',height_cm:'10'}))await page.locator('#'+id).fill(v);await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#order-preparation')).toBeVisible();expect((await page.evaluate(()=>__calls[0])).p_data.lines).toEqual([{pick_line_id:'pl',product_code:'CAFE-01',quantity:4}]);
 });
-test('validated quantities can be sent to TMS without any packages',async({page})=>{
- await boot(page);await page.locator('#gfFinish').click();await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
- await page.locator('#gsShip').click();await expect(page.locator('dialog')).toContainText('TMS');await page.locator('#gfDate').fill('2026-09-21');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls.find(c=>c.p_action==='ship'));expect(c.p_data.preparation_id).toBe('prep');expect(c.p_data.lines).toBeUndefined();
+test('closing preparation and handoff to transport stays in logistics',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfFinish').click();await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await page.locator('#gfShip').click();await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#order-preparation')).toBeVisible();expect((await page.evaluate(()=>__calls.find(c=>c.p_action==='ship'))).p_data.preparation_id).toBe('prep');
 });
 test('dossier shows incoming dates separately from agreed dates and sends substitution proposal',async({page})=>{
  await boot(page,'queued','admin');await expect(page.locator('#gfShortages')).toContainText('OC-01');await expect(page.locator('#gfShortages')).toContainText('Sin confirmar');await page.locator('[data-gf-option]').click();await page.locator('#gfKind').selectOption('substitute');await page.locator('#gfReplacement').selectOption('p2');await page.locator('#gfQty').fill('2');await page.locator('#gfPrice').fill('9');await page.locator('#gfPromise').fill('2026-09-20');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_data).toMatchObject({kind:'substitute',replacement_product_id:'p2',quantity:2,unit_price:9,promised_date:'2026-09-20'});
@@ -49,7 +45,7 @@ test('warehouse can receive and inspect returns without access to fiscal credit 
 });
 test('mobile dossier and picking dialog fit viewport and escape notes',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>window.__f.options=[{id:'op',line_id:window.__DB.sales_order_lines[0].id,kind:'partial',quantity:2,status:'proposed',notes:'<img src=x onerror=alert(1)>'}]);await page.locator('#gsReload').click();await expect(page.locator('#gfShortages')).toContainText('<img src=x');await expect(page.locator('#gfShortages img')).toHaveCount(0);
- await page.screenshot({path:'test-results/fulfillment-mobile.png',fullPage:true});await page.locator('[data-gf-pick]').click();expect(await page.locator('dialog').evaluate(el=>el.getBoundingClientRect().width)).toBeLessThanOrEqual(390);await page.screenshot({path:'test-results/fulfillment-scan-mobile.png',fullPage:true});
+ await page.screenshot({path:'test-results/fulfillment-mobile.png',fullPage:true});await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('[data-gf-pick]').click();expect(await page.locator('dialog').evaluate(el=>el.getBoundingClientRect().width)).toBeLessThanOrEqual(390);await page.screenshot({path:'test-results/fulfillment-scan-mobile.png',fullPage:true});
 });
 test('Code 39 label encodes the package alphabet with standard patterns',async({page})=>{
  await boot(page);const svg=await page.evaluate(()=>GamaFulfillment.barcode('PK-00000001'));expect(svg).toContain('PK-00000001');expect((svg.match(/<rect /g)||[]).length).toBe(66);
@@ -61,3 +57,5 @@ test('client portal exposes proposed conditions and sends explicit acceptance',a
  await page.locator('#gfClientOptions').click();await expect(page.locator('#gfClientOptionsPanel')).toContainText('Té');await expect(page.locator('#gfClientOptionsPanel')).toContainText('IVA 15%');
  page.once('dialog',d=>d.accept());await page.locator('[data-decision="accepted"]').click();await expect.poll(()=>page.evaluate(()=>window.__calls.some(c=>c.p_action==='respond_option'))).toBe(true);const call=await page.evaluate(()=>window.__calls.find(c=>c.p_action==='respond_option'));expect(call.p_data).toMatchObject({option_id:'option',decision:'accepted'});
 });
+
+test('preparation menu is in logistics and unavailable to clients',async({page})=>{await boot(page);await page.evaluate(()=>showTab('mainmenu'));await expect(page.locator('.gamaF2Card[data-gama-module="order-preparation"]')).toBeVisible();await page.locator('.gamaF2Card[data-gama-module="order-preparation"]').click();await expect(page.locator('#order-preparation')).toBeVisible();await page.evaluate(()=>{showTab('mainmenu');localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));GamaPreparation.open()});await expect(page.locator('#order-preparation.active')).toHaveCount(0)});

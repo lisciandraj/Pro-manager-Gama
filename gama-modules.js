@@ -49,6 +49,7 @@ const CATALOG=[
  {id:'barcode',            label:'Códigos de barras'},
  {id:'client-catalog',     label:'Catálogo de productos'},
  {id:'customer-requests',  label:'Solicitudes de clientes'},
+ {id:'order-preparation', label:'Preparación de pedidos'},
  {id:'tms',                label:'Transporte y entregas'},
  {id:'hr',                 label:'Recursos humanos'},
  {id:'users',              label:'Usuarios y accesos'},

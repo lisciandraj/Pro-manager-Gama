@@ -10,27 +10,8 @@ async function boot(page){
  await page.waitForTimeout(600);await page.evaluate(()=>GamaLoading.open());await page.locator('[data-gl-delivery]').click();
 }
 async function scan(page,code,quantity='1'){await page.locator('#glBarcode').fill(code);await page.locator('#glQty').fill(quantity);await page.locator('#glBarcode').press('Enter')}
-test('all shipment lines must be scanned before the departure button unlocks',async({page})=>{
- await boot(page);await expect(page.locator('#glDepart')).toBeDisabled();await scan(page,'0012345678905');await expect(page.locator('#glDepart')).toBeDisabled();await expect(page.locator('.glTable')).toContainText('Por escanear');await scan(page,'0098765432105');await expect(page.locator('#glDepart')).toBeEnabled();await expect(page.locator('#gamaLoadingHost')).toContainText('2 / 2 líneas verificadas');await page.screenshot({path:'test-results/tms-loading-complete.png',fullPage:true});
+test('transport has no product scanner and departs prepared parcels',async({page})=>{
+ await boot(page);await expect(page.locator('#glBarcode,#glCamera,#glScan,#glPack')).toHaveCount(0);await expect(page.locator('#glDepart')).toBeDisabled();await page.evaluate(()=>__cargo.complete=true);await page.locator('#glReload').click();await expect(page.locator('#glDepart')).toBeEnabled();await page.locator('#glDepart').click();await expect(page.locator('#glDepart')).toHaveCount(0);expect(await page.evaluate(()=>__loadingCalls.some(c=>c.p_action==='scan'))).toBe(false);
 });
-test('wrong barcode and overscan errors preserve the scan fields',async({page})=>{
- await boot(page);await page.evaluate(()=>window.__loadError='WRONG_PRODUCT');await scan(page,'WRONG');await expect(page.locator('#glMessage')).toContainText('no pertenece');await expect(page.locator('#glBarcode')).toHaveValue('WRONG');await page.evaluate(()=>window.__loadError='EXCEEDS_CARGO_QUANTITY');await scan(page,'0012345678905','9');await expect(page.locator('#glMessage')).toContainText('supera');await expect(page.locator('#glQty')).toHaveValue('9');await expect(page.locator('#glDepart')).toBeDisabled();
-});
-test('network retry reuses its request UUID and a different scan gets another UUID',async({page})=>{
- await boot(page);await page.evaluate(()=>window.__loadError='network error');await scan(page,'0012345678905');await expect(page.locator('#glMessage')).toContainText('network');await page.locator('#glScan').click();await expect.poll(async()=>page.evaluate(()=>__loadingCalls.filter(x=>x.p_action==='scan').length)).toBe(2);await scan(page,'0098765432105');const a=await page.evaluate(()=>__loadingCalls.filter(x=>x.p_action==='scan'));expect(a[0].p_data.request_key).toBe(a[1].p_data.request_key);expect(a[2].p_data.request_key).not.toBe(a[1].p_data.request_key);
-});
-test('phone camera targets the loading field and submits a decoded barcode',async({page})=>{
- await boot(page);await page.evaluate(()=>window.startGamaScan=id=>window.__cameraTarget=id);await page.locator('#glCamera').click();expect(await page.evaluate(()=>__cameraTarget)).toBe('glBarcode');await page.evaluate(()=>{const e=document.getElementById('glBarcode');e.value='0012345678905';e.dispatchEvent(new CustomEvent('gama:barcode-scanned',{bubbles:true,detail:{code:e.value}}))});await expect.poll(async()=>page.evaluate(()=>__loadingCalls.filter(x=>x.p_action==='scan').length)).toBe(1);const a=await page.evaluate(()=>__loadingCalls.find(x=>x.p_action==='scan'));expect(a.p_data.barcode).toBe('0012345678905');expect(a.p_data.quantity).toBe(1);
-});
-test('departure sends the checked version and driver, then closes loading',async({page})=>{
- await boot(page);await scan(page,'0012345678905');await scan(page,'0098765432105');page.once('dialog',d=>d.accept());await page.locator('#glDepart').click();await expect(page.locator('#gamaLoadingHost')).toContainText('Salida registrada');await expect(page.locator('#glScanForm')).toHaveCount(0);const a=await page.evaluate(()=>__loadingCalls.find(x=>x.p_action==='depart'));expect(a.p_data).toEqual({delivery_id:'t1',version:5,driver_id:'drv1'});
-});
-test('voiding a scan submits its ID and a reason without deleting history',async({page})=>{
- await boot(page);await page.locator('#gamaLoadingHost summary').click();page.once('dialog',d=>d.accept('Producto retirado del camión'));await page.locator('[data-gl-void]').click();await expect.poll(async()=>page.evaluate(()=>__loadingCalls.filter(x=>x.p_action==='void_scan').length)).toBe(1);const a=await page.evaluate(()=>__loadingCalls.find(x=>x.p_action==='void_scan'));expect(a.p_data).toEqual({delivery_id:'t1',scan_id:'scan1',reason:'Producto retirado del camión'});
-});
-test('mobile cargo screen fits and exposes scanner and quantities',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page);await expect(page.locator('#glCamera')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);await page.screenshot({path:'test-results/tms-loading-mobile.png',fullPage:true});
-});
-test('manual TMS deliveries without sales lines display an explanatory message',async({page})=>{
- await boot(page);await page.evaluate(()=>{window.__cargo={managed:false,delivery:{id:'t1'},shipment:null,lines:[],scans:[]}});await page.locator('#glReload').click();await expect(page.locator('#gamaLoadingHost')).toContainText('no está vinculada');await expect(page.locator('#glScanForm')).toHaveCount(0);
-});
+test('transport refresh preserves driver and stale departure errors',async({page})=>{await boot(page);await page.evaluate(()=>{__cargo.complete=true;__loadError=null});await page.locator('#glReload').click();await page.evaluate(()=>__loadError='LOADING_CHANGED');await page.locator('#glDepart').click();await expect(page.locator('#glMessage')).toContainText('ha cambiado');await expect(page.locator('#glDriver')).toHaveValue('drv1')});
+test('mobile transport fits without barcode controls',async({page})=>{await page.setViewportSize({width:390,height:844});await boot(page);await expect(page.locator('#glBarcode,#glCamera')).toHaveCount(0);expect(await page.locator('#gamaLoadingHost').evaluate(el=>el.getBoundingClientRect().width)).toBeLessThanOrEqual(390)});

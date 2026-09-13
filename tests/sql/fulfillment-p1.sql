@@ -36,6 +36,9 @@ begin
  denied:=false;begin perform public.gama_stock_unreserve(sid);exception when others then if sqlerrm like '%FULFILLMENT_RESERVATION_LOCKED%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_PICKED_RELEASE';end if;
 
+ denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm='PACKING_INCOMPLETE' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'FAIL_UNCHECKED_CARTONS';end if;
+ res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'weight_kg',1,'length_cm',20,'width_cm',20,'height_cm',10,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'product_code',bc,'quantity',4))));pkg:=(res->>'id')::uuid;
  denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_PARTIAL_REASON';end if;
  res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','wait','quantity',12,'promised_date',current_date+5));opt:=(res->>'id')::uuid;
@@ -44,17 +47,13 @@ begin
  if not denied then raise exception 'FAIL_WAIT_AGREEMENT';end if;
  res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','partial','quantity',4));opt:=(res->>'id')::uuid;
  perform public.gama_fulfillment_action('respond_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'option_id',opt,'decision','accepted','agreement_reference','Email partial'));
- denied:=false;begin perform public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'preparation_id',prep,'request_key',gen_random_uuid()));exception when others then if sqlerrm='PACKAGE_CONTROL_IN_TMS' then denied:=true;else raise;end if;end;
- if not denied then raise exception 'FAIL_PACKAGE_BEFORE_TMS';end if;
  perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'reason','Entrega parcial acordada'));
  keyid:=gen_random_uuid();data:=jsonb_build_object('order_id',oid,'preparation_id',prep,'request_key',keyid);
  res:=public.gama_sales_action('ship',data);shipid:=(res->>'id')::uuid;perform public.gama_sales_action('ship',data);
  if (select sum(quantity) from public.stock_quants where product_id=prod)<>6 then raise exception 'FAIL_SHIP_STOCK';end if;
  if (select shipment_id from public.fulfillment_preparations where id=prep)<>shipid then raise exception 'FAIL_PREP_LINK';end if;
- perform public.gama_loading_action('scan',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid),'request_key',gen_random_uuid(),'barcode',bc,'quantity',4));
- if (public.gama_loading_action('manifest',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)))->>'complete')::boolean then raise exception 'FAIL_UNPACKED_DEPARTURE_GATE';end if;
- res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'weight_kg',1,'length_cm',20,'width_cm',20,'height_cm',10,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'product_code',bc,'quantity',4))));pkg:=(res->>'id')::uuid;
- if (select loading_version from public.sales_deliveries where id=shipid)<2 then raise exception 'FAIL_PACKAGE_VERSION';end if;
+ denied:=false;begin perform public.gama_loading_action('scan',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)));exception when others then if sqlerrm='INVALID_ACTION' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'FAIL_TMS_STILL_SCANS';end if;
  perform public.gama_fulfillment_action('void_package',jsonb_build_object('order_id',oid,'preparation_id',prep,'package_id',pkg,'reason','Corregir bulto','request_key',gen_random_uuid()));
  if (public.gama_loading_action('manifest',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)))->>'complete')::boolean then raise exception 'FAIL_VOID_PACKAGE_GATE';end if;
  res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'weight_kg',1,'length_cm',20,'width_cm',20,'height_cm',10,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'product_code',bc,'quantity',4))));pkg:=(res->>'id')::uuid;

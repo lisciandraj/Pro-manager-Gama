@@ -1570,3 +1570,32 @@ Enviar las cantidades preparadas al equipo de logística en TMS.	Transmettre les
 Crear la expedición y controlar los bultos en TMS.	Créer l’expédition et contrôler les colis dans le TMS.	Create the shipment and check parcels in TMS.
 En TMS, embalar los productos con peso y dimensiones, escanear la carga y asignar conductor y vehículo antes de salir.	Dans le TMS, enregistrer les colis avec poids et dimensions, scanner le chargement et affecter le conducteur et le véhicule avant le départ.	In TMS, record parcels with weight and dimensions, scan cargo and assign driver and vehicle before departure.
 Lote activo: previsto / preparado	Lot actif : prévu / préparé	Active batch: planned / prepared
+Preparación de pedidos	Préparation des commandes	Order preparation
+Prepara las cantidades, escanea los productos de cada cartón y cierra la preparación antes de enviarla al transporte.	Préparez les quantités, scannez les produits de chaque carton et fermez la préparation avant transmission au transport.	Prepare quantities, scan the products in each carton and close preparation before handing it over for transport.
+Lista de pedidos	Liste des commandes	Order list
+Abrir preparación	Ouvrir la préparation	Open preparation
+Cerrar preparación	Fermer la préparation	Close preparation
+Cartones preparados	Cartons préparés	Prepared cartons
+Comprueba y cierra todos los bultos antes de enviar la preparación al transporte. Justifica cualquier entrega parcial.	Contrôlez et fermez tous les colis avant transmission au transport. Justifiez toute livraison partielle.	Check and close every parcel before handing preparation over for transport. Explain any partial delivery.
+Los bultos preparados y cerrados se enviarán al TMS para su transporte al cliente.	Les colis préparés et fermés seront transmis au TMS pour leur transport chez le client.	Prepared and sealed parcels will be sent to TMS for transport to the customer.
+Preparación cerrada: enviar los bultos al transporte.	Préparation fermée : transmettre les colis au transport.	Preparation closed: hand the parcels over for transport.
+Registrar las cantidades y escanear los productos colocados en cada cartón.	Enregistrer les quantités et scanner les produits placés dans chaque carton.	Record quantities and scan the products placed in each carton.
+Primero registra las cantidades, controla los cartones y cierra la preparación.	Enregistrez les quantités, contrôlez les cartons puis fermez la préparation.	Record quantities, check cartons and close preparation first.
+Registra el contenido, peso y dimensiones de cada bulto.	Enregistrez le contenu, le poids et les dimensions de chaque colis.	Record the contents, weight and dimensions of each parcel.
+Salida de bultos	Départ des colis	Parcel departure
+Transporte de bultos preparados	Transport des colis préparés	Transport of prepared parcels
+Los productos se verifican en Preparación de pedidos. Aquí se asignan el conductor y el vehículo y se confirma la salida.	Les produits sont contrôlés dans Préparation des commandes. Ici, affectez le conducteur et le véhicule, puis confirmez le départ.	Products are checked in Order preparation. Assign the driver and vehicle and confirm departure here.
+Bultos preparados · pendiente de salida	Colis préparés · départ en attente	Parcels prepared · awaiting departure
+Completar la preparación de los cartones	Terminer la préparation des cartons	Complete carton preparation
+Ver transporte	Voir le transport	View transport
+Salida cerrada	Départ enregistré	Departure recorded
+Esta entrega no está vinculada a un pedido preparado.	Cette livraison n’est pas liée à une commande préparée.	This delivery is not linked to a prepared order.
+Preparación incompleta: termina el control de los cartones en Preparación de pedidos.	Préparation incomplète : terminez le contrôle des cartons dans Préparation des commandes.	Preparation incomplete: finish checking cartons in Order preparation.
+La preparación ha cambiado. Actualiza antes de confirmar la salida.	La préparation a changé. Actualisez avant de confirmer le départ.	Preparation has changed. Refresh before confirming departure.
+Selecciona un conductor con vehículo.	Sélectionnez un conducteur avec véhicule.	Select a driver with a vehicle.
+El conductor no está disponible.	Le conducteur n’est pas disponible.	The driver is unavailable.
+La salida ya está cerrada.	Le départ est déjà enregistré.	Departure has already been recorded.
+Confirma la salida en TMS antes de registrar la entrega.	Confirmez le départ dans le TMS avant d’enregistrer la livraison.	Confirm departure in TMS before recording delivery.
+Escanear los productos de cada cartón y cerrar la preparación antes de enviar al TMS.	Scanner les produits de chaque carton et fermer la préparation avant transmission au TMS.	Scan each carton’s products and close preparation before sending to TMS.
+Recibir en TMS los bultos preparados y cerrados.	Recevoir dans le TMS les colis préparés et fermés.	Receive prepared and sealed parcels in TMS.
+Asignar conductor y vehículo y confirmar la salida de los bultos, sin volver a escanear los productos.	Affecter le conducteur et le véhicule, puis confirmer le départ des colis sans rescanner les produits.	Assign driver and vehicle and confirm parcel departure without rescanning products.

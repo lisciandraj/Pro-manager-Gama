@@ -287,7 +287,7 @@ test.describe('TMS — route optimization', () => {
 
     await page.click('#tOptimize');
     await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
-    await expect(page.locator('.tms')).toContainText('Ver ruta');
+    await expect(page.locator('.tms')).toContainText('Google Maps');
     expect(await page.evaluate(() => window.__DB.tms_routes.length)).toBeGreaterThan(0);
   });
 });
@@ -327,21 +327,22 @@ test.describe('TMS — proof-of-delivery photo capture', () => {
   });
 });
 
-test.describe('TMS — tracking has no manual status override', () => {
-  test('only "POD" is offered per stop, and validating it stamps arrival and delivery time', async ({ page }) => {
+test.describe('TMS — proof capture has no manual status override', () => {
+  test('proof capture remains accessible and validating it stamps arrival and delivery time', async ({ page }) => {
     await boot(page, {
       drivers: DRIVERS.slice(0, 1),
       deliveries: [{ id: 'del1', customer: 'Ferretería Sol', address: 'Av. Principal 100', delivery_date: today(), status: 'Planificada', created_at: new Date().toISOString() }],
       routes: [{ id: 'rt1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor 1', vehicle: 'Camión 1', stops: ['del1'], distance: 5, weight: 2, volume: 0.5, status: 'Planificada', created_at: new Date().toISOString() }],
     });
-    await page.click('button.tmsTab:has-text("Seguimiento del conductor")');
+    await expect(page.locator('button.tmsTab:has-text("Seguimiento del conductor")')).toHaveCount(0);
+    await page.click('button.tmsTab:has-text("Prueba de entrega")');
 
     await expect(page.locator('.tms')).toContainText('Ferretería Sol');
     await expect(page.locator('button:has-text("En ruta")')).toHaveCount(0);
     await expect(page.locator('button:has-text("Llegado")')).toHaveCount(0);
-    await expect(page.locator('button:has-text("POD")')).toHaveCount(1);
+    await expect(page.locator('button:has-text("Abrir prueba de entrega")')).toHaveCount(1);
 
-    await page.click('button:has-text("POD")');
+    await page.click('button:has-text("Abrir prueba de entrega")');
     await expect(page.locator('.tmsForm div:has(label:text("Hora real de llegada")) input')).toHaveValue('Se registrará al validar');
 
     const box = await page.locator('#tSig').boundingBox();

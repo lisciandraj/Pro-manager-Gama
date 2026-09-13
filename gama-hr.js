@@ -809,7 +809,7 @@ function open(requestedTab){
  load();
 }
 
-window.addEventListener('gama:auth-change',()=>{loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))$('hr').innerHTML=''});
+window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!myUid||nextUid===myUid))return;loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))$('hr').innerHTML=''});
 window.GamaHR={open,load};
 window.GamaOpenHR=open;
 })();

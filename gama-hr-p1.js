@@ -95,6 +95,6 @@ async function mountFinance(host,from,to){
  host.querySelector('[data-open-payroll]').onclick=()=>window.GamaHR.open('nomina');
  }catch(e){if(host.isConnected)host.textContent=T('No se pudieron cargar los costes salariales.')}
 }
-window.addEventListener('gama:auth-change',()=>{generation++;ctx={};data={};directory=[];hr=false;manager=false;selected=''});
+window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!ctx.myUid||nextUid===ctx.myUid))return;generation++;ctx={};data={};directory=[];hr=false;manager=false;selected=''});
 window.GamaHRP1={mountFinance,load,render,bind,tabs,decorate,days,used,entitlement,balance,get isHR(){return hr},get isManager(){return manager},get directory(){return directory},canManage,parseCSV,hours,overtime};
 })();

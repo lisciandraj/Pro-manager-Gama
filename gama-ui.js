@@ -68,6 +68,20 @@ function css(){
 .gamaStdActions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
 .gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:11px 15px;font-weight:750;font-size:14px;cursor:pointer;min-height:44px;width:auto}
 .gamaStdBack:hover,.gamaStdAction:hover{background:#E3EBED}
+/* Shared GAMA outline for light controls, including dynamically loaded modules. */
+body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),
+body #aclLogout,
+body button.tmsTab:not(.active),
+body .crmNav button:not(.on),
+body .gamaArcTabs button:not(.on),
+body #mainmenu .gamaF2Card{
+ border:2px solid #087C8B!important;
+}
+body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):focus-visible,
+body #aclLogout:focus-visible{
+ outline:3px solid #087C8B!important;outline-offset:3px;
+}
+
 /* En el teléfono esta cabecera se comía la primera pantalla entera con el texto
    a tamaño de escritorio. Se aprieta la tipografía. La rejilla de acciones se
    deja en auto-fit aunque hoy sólo haya un botón: así el de volver ocupa la

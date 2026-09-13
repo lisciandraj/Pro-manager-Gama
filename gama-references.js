@@ -11,7 +11,7 @@ async function attach(table,result,client){
  for(let offset=0;offset<parents.length;offset+=100){const r=await client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference').in('document_id',parents.slice(offset,offset+100));if(r.error)return {...result,data:null,error:r.error};refs.push(...r.data);}
  const get=(t,id)=>refs.find(r=>r.table_name===t&&r.document_id===id);
  for(const r of rows){const ref=get(table,r[key]);if(!ref)continue;r.dossier_number=ref.dossier_number;r.dossier_reference=ref.document_reference;
-  r.dossier_label='DOS-'+String(ref.dossier_number).padStart(8,'0');
+  r.dossier_label='EXP-'+String(ref.dossier_number).padStart(8,'0');
   if(table==='invoices'){r.original_number=r.invoice_number;r.invoice_number=ref.document_reference;}
   else if(['sales_orders','sales_deliveries','fulfillment_preparations','customer_returns','external_invoices'].includes(table)){
    r.original_number=r.number;

@@ -1452,3 +1452,67 @@ El idioma se guarda en este dispositivo.	La langue est mémorisée sur cet appar
 Personaliza el idioma de la aplicación.	Choisissez la langue de l’application.	Choose your application language.
 Parámetros de acceso	Paramètres d’accès	Access settings
 Disponible permanentemente.	Toujours disponible.	Always available.
+Seguimiento de expedientes	Suivi de dossier	Case tracking
+De la solicitud del cliente a la entrega: avance, necesidades y requisitos.	De la demande client à la livraison : avancement, besoins et prérequis.	From customer request to delivery: progress, needs and prerequisites.
+Buscar expediente	Rechercher un dossier	Search cases
+No hay expedientes disponibles.	Aucun dossier disponible.	No cases available.
+Los expedientes aparecerán al registrar una solicitud, un presupuesto o un pedido.	Les dossiers apparaîtront dès la création d’une demande, d’un devis ou d’une commande.	Cases appear when a request, quote or order is created.
+No se pudo cargar el expediente. Actualiza para reintentar; el avance no está confirmado.	Impossible de charger le dossier. Actualisez pour réessayer ; l’avancement n’est pas confirmé.	Could not load the case. Refresh to retry; progress is unconfirmed.
+Solicitud de cliente	Demande client	Customer request
+Pedido de venta	Commande client	Sales order
+Sin etapa previa registrada	Sans étape préalable enregistrée	No prior stage recorded
+Requisitos para avanzar	Prérequis pour avancer	Requirements to proceed
+Abrir pedido y resolver requisitos	Ouvrir la commande et traiter les prérequis	Open order and resolve requirements
+1. Solicitud del cliente	1. Demande client	1. Customer request
+Identificar al cliente, los productos y las cantidades solicitadas.	Identifier le client, les produits et les quantités demandées.	Identify the customer, products and requested quantities.
+Puede iniciarse directamente con un presupuesto o un pedido.	Le parcours peut commencer directement par un devis ou une commande.	The journey can start directly with a quote or an order.
+Ver solicitud	Voir la demande	View request
+2. Presupuesto	2. Devis	2. Quote
+Completar emisor, cliente, dirección, productos, precios y vigencia.	Compléter l’émetteur, le client, l’adresse, les produits, les prix et la validité.	Complete the issuer, customer, address, products, prices and validity.
+Enviar el presupuesto al cliente para su validación.	Envoyer le devis au client pour validation.	Send the quote to the customer for approval.
+3. Validación y pedido	3. Validation et commande	3. Approval and order
+Registrar la aceptación del cliente o confirmar el pedido directo.	Enregistrer l’acceptation du client ou confirmer la commande directe.	Record customer acceptance or confirm the direct order.
+Para una aceptación externa, indicar el medio y la referencia del acuerdo.	Pour une acceptation externe, préciser le moyen et la référence de l’accord.	For external acceptance, specify the channel and agreement reference.
+Presupuesto vencido: revisar la vigencia antes de aceptar.	Devis expiré : revoir sa validité avant acceptation.	Expired quote: review validity before acceptance.
+Registrar validación	Enregistrer la validation	Record approval
+4. Stock y reservas	4. Stock et réservations	4. Stock and reservations
+Reservar existencias para las cantidades pendientes.	Réserver le stock pour les quantités restantes.	Reserve stock for outstanding quantities.
+Reponer faltantes o registrar un acuerdo de entrega parcial con el cliente.	Réapprovisionner les manquants ou enregistrer un accord de livraison partielle avec le client.	Replenish shortages or record a partial delivery agreement with the customer.
+Cantidad sin reservar	Quantité non réservée	Unreserved quantity
+5. Preparación y embalaje	5. Préparation et emballage	5. Picking and packing
+Recoger y escanear los productos del lote reservado.	Prélever et scanner les produits du lot réservé.	Pick and scan products in the reserved batch.
+Embalar todas las cantidades recogidas en bultos con peso y dimensiones.	Emballer toutes les quantités prélevées dans des colis avec poids et dimensions.	Pack all picked quantities into packages with weight and dimensions.
+Una expedición parcial necesita el motivo y respetar el acuerdo del cliente.	Une expédition partielle nécessite un motif et doit respecter l’accord du client.	A partial shipment requires a reason and must respect the customer agreement.
+Lote activo: previsto / recogido / embalado	Lot actif : prévu / prélevé / emballé	Active batch: planned / picked / packed
+6. Expedición y salida	6. Expédition et départ	6. Shipment and departure
+Crear la expedición con los bultos completos.	Créer l’expédition avec les colis complets.	Create the shipment with complete packages.
+Escanear todas las cantidades de carga y asignar conductor y vehículo antes de confirmar la salida.	Scanner toutes les quantités chargées et attribuer conducteur et véhicule avant de confirmer le départ.	Scan all loaded quantities and assign a driver and vehicle before confirming departure.
+Expedido / pedido	Expédié / commandé	Shipped / ordered
+7. Transporte al cliente	7. Transport vers le client	7. Transport to customer
+Planificar la ruta, la dirección y la fecha de entrega.	Planifier la tournée, l’adresse et la date de livraison.	Plan the route, address and delivery date.
+Resolver retrasos o incidencias de cada expedición.	Traiter les retards ou incidents de chaque expédition.	Resolve delays or incidents for each shipment.
+Cada expedición se sigue por separado en la lista inferior.	Chaque expédition est suivie séparément dans la liste ci-dessous.	Each shipment is tracked separately in the list below.
+8. Entrega y prueba	8. Livraison et preuve	8. Delivery and proof
+Registrar la recepción y la firma del cliente en la prueba de entrega.	Enregistrer la réception et la signature du client dans la preuve de livraison.	Record receipt and the customer’s signature in the delivery proof.
+Completar todas las cantidades del pedido; una entrega parcial no cierra el expediente.	Livrer toutes les quantités commandées ; une livraison partielle ne clôture pas le dossier.	Deliver all ordered quantities; a partial delivery does not close the case.
+Entregado / con prueba firmada / pedido	Livré / avec preuve signée / commandé	Delivered / with signed proof / ordered
+Expediente cerrado	Dossier clôturé	Case closed
+Entrega completa con prueba	Livraison complète avec preuve	Delivery complete with proof
+Expediente en curso	Dossier en cours	Case in progress
+El avance se calcula desde los documentos vinculados. Los controles se validan en cada módulo al ejecutar la acción.	L’avancement est calculé à partir des documents liés. Les contrôles sont validés dans chaque module lors de l’action.	Progress is calculated from linked documents. Each module validates its checks when an action is performed.
+Expediciones y entregas	Expéditions et livraisons	Shipments and deliveries
+Estado no disponible	Statut indisponible	Status unavailable
+No se pudo abrir el documento.	Impossible d’ouvrir le document.	Could not open the document.
+Enviar o validar el presupuesto.	Envoyer ou valider le devis.	Send or approve the quote.
+Revisar la solicitud y crear el presupuesto o pedido.	Examiner la demande et créer le devis ou la commande.	Review the request and create the quote or order.
+Confirmar el pedido.	Confirmer la commande.	Confirm the order.
+Resolver faltantes y acordar las entregas parciales.	Traiter les manquants et convenir des livraisons partielles.	Resolve shortages and agree partial deliveries.
+Completar preparación y expedición.	Terminer la préparation et l’expédition.	Complete picking and shipment.
+Completar carga y confirmar salida.	Terminer le chargement et confirmer le départ.	Complete loading and confirm departure.
+Completar las entregas y registrar las pruebas firmadas.	Terminer les livraisons et enregistrer les preuves signées.	Complete deliveries and record signed proofs.
+Cantidades por producto	Quantités par produit	Quantities by product
+Pedido / expedido / reservado / faltante	Commandé / expédié / réservé / manquant	Ordered / shipped / reserved / shortage
+Completado	Terminé	Completed
+Bloqueado	Bloqué	Blocked
+Cerrado	Clôturé	Closed
+En ruta	En tournée	On route

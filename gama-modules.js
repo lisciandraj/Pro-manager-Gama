@@ -41,6 +41,7 @@ const CATALOG=[
  {id:'matrix',             label:'Matriz comercial'},
  {id:'gamaPurchasesV14',   label:'Compras'},
  {id:'price-lists',        label:'Tarifas'},
+ {id:'dossier-flow',       label:'Seguimiento de expedientes'},
  {id:'sales-orders',       label:'Pedidos de venta'},
  {id:'crm',               label:'CRM'},
  {id:'reports',            label:'Importar datos'},

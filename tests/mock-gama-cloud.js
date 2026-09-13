@@ -535,6 +535,7 @@
         if(fn==='gama_internal_invoice_action'){
           window.__internalCalls=window.__internalCalls||[];window.__internalCalls.push(args);
           if(window.__internalError)return {error:{message:window.__internalError}};
+          if(args.p_action==='eligibility')return {data:args.p_data.quote_ids.map(quote_id=>({quote_id,ready:window.__deliveryValidated===true,invoice_id:(window.__DB.external_invoices||[]).find(i=>i.source_quote_id===quote_id&&i.fiscal_status!=='cancelled')?.id}))};
           if(args.p_action==='report')return {data:window.__financialInvoices||[]};
           if(args.p_action==='create')return {data:(window.__DB.external_invoices||[]).find(i=>i.source_quote_id===args.p_data.quote_id)};
           if(args.p_action==='link_external')return {data:(window.__DB.external_invoices||[]).find(i=>i.id===args.p_data.invoice_id)};

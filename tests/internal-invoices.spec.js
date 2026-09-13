@@ -2,11 +2,11 @@ const {test,expect}=require('@playwright/test'),fs=require('fs'),path=require('p
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const invoice={id:'fi1',order_id:'o1',number:'FI-2026-00000001',source_quote_id:'q1',document_kind:'internal',fiscal_status:'unverified',issue_date:'2026-09-12',subtotal:30,tax:4.5,total:34.5,document_snapshot:{quote_number:'COT-001',order_number:'PV-001',customer:'Andes <test>',customer_identification:'0991',details:{seller:'GAMA',client:'Andes',clientId:'0991',payment:'Transferencia',customer_comment:'Entregar después de las 15h <cliente>\nLlamar antes'},lines:[{product_id:'p1',name:'Café',reference:'CAFE',qty:3,price:10,taxRate:15,subtotal:30,tax:4.5}]}};
 async function boot(page,role='admin'){
- await page.addInitScript(({invoice,role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));window.__DB={products:[],customers:[],invoices:[{id:'q1',invoice_number:'COT-001',quote_state:'accepted',quote_details:{client:'Andes'},total:34.5}],invoice_lines:[],external_invoices:[invoice]};window.__financialInvoices=[{id:invoice.id,date:'2026-09-12T12:00:00',total:34.5,items:[]}]},{invoice,role});
+ await page.addInitScript(({invoice,role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));window.__DB={products:[],customers:[],invoices:[{id:'q1',invoice_number:'COT-001',quote_state:'accepted',quote_details:{client:'Andes'},total:34.5}],invoice_lines:[],external_invoices:[invoice]};window.__deliveryValidated=true;window.__financialInvoices=[{id:invoice.id,date:'2026-09-12T12:00:00',total:34.5,items:[]}]},{invoice,role});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.goto('/index.html');await page.waitForTimeout(1200);
 }
 test('accepted quote creates internal invoice with dates and exact copy data',async({page})=>{
- await boot(page);await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1');GamaSales.openOrder=async id=>{window.__order=id}});
+ await boot(page);await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1');GamaSales.openOrder=async id=>{window.__order=id};const saved=__DB.external_invoices[0];__DB.external_invoices=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,a)=>fn==='gama_internal_invoice_action'&&a.p_action==='create'?(__internalCalls.push(a),__DB.external_invoices.push(saved),{data:saved}):c.rpc(fn,a)}}});
  await page.click('#gqInternalInvoice');await page.fill('#giDue','2026-12-31');await page.locator('dialog #gsSave').click();
  await expect(page.locator('#giText')).toContainText('FI-2026-00000001');await expect(page.locator('#giText')).toContainText('Café');await expect(page.locator('#giText')).toContainText('Entregar después de las 15h <cliente>');await expect(page.locator('#giText')).toContainText('34.5');
  expect(await page.evaluate(()=>__internalCalls.find(x=>x.p_action==='create').p_data)).toMatchObject({quote_id:'q1',due_date:'2026-12-31'});await expect(page.locator('#quotes')).toBeVisible();expect(await page.evaluate(()=>window.__order)).toBeUndefined();await expect(page.locator('dialog test')).toHaveCount(0);
@@ -33,4 +33,15 @@ test('creates from accepted quote list and links external number while staying i
 test('unaccepted quote and client profile never expose internal invoice creation in the list',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.invoices[0].quote_state='sent';__DB.external_invoices=[];GamaQuotes.open()});await expect(page.locator('.gqLinked')).toBeVisible();await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
  await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));__DB.__calls=[];GamaQuotes.open()});await expect(page.locator('.gqLinked')).toHaveCount(0);expect(await page.evaluate(()=>__DB.__calls.some(c=>c.table==='external_invoices'))).toBe(false);
+});
+
+test('invoice creation waits for validated delivery and keeps existing invoices accessible',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.external_invoices=[];window.__deliveryValidated=false;GamaQuotes.open()});
+ await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
+ await expect(page.locator('.gqLinked')).toContainText('prueba firmada');
+ await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('dialog')).toContainText('prueba firmada');await expect(page.locator('#giIssue')).toHaveCount(0);
+ expect(await page.evaluate(()=>(__internalCalls||[]).filter(x=>x.p_action==='create').length)).toBe(0);
+ await page.locator('dialog #gsClose').click();
+ await page.evaluate(i=>{__DB.external_invoices=[i];GamaInternalInvoices.create('q1')},invoice);
+ await expect(page.locator('#giText')).toBeVisible();
 });

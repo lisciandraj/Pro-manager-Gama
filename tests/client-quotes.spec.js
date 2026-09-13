@@ -14,7 +14,7 @@ async function boot(page,role='admin'){
   return c.rpc(fn,args);
  }}}});await page.waitForTimeout(900);
 }
-async function openQuote(page){await page.locator('.gamaF2Card').filter({has:page.getByText('Presupuestos',{exact:true})}).click();await page.locator('[data-gq-open]').click()}
+async function openQuote(page){await page.locator('.gamaF2Card').filter({has:page.getByText('Presupuestos y facturas',{exact:true})}).click();await page.locator('[data-gq-open]').click()}
 test('client can review and accept only after checking the agreement, with current revision',async({page})=>{
  await boot(page,'client');await openQuote(page);await expect(page.locator('#gqEdit')).toHaveCount(0);await page.locator('#gqAccept').click();await expect(page.locator('#gqMessage')).toContainText('Confirma');expect(await page.evaluate(()=>__quoteCalls)).toHaveLength(0);
  await page.locator('#gqAgree').check();await page.locator('#gqAccept').click();await expect(page.locator('#gqReservations')).toContainText('Pendiente de reposición');expect(await page.evaluate(()=>__quoteCalls[0].p_data)).toEqual({id:'q1',revision:3});await page.screenshot({path:'test-results/client-accepted.png',fullPage:true});

@@ -32,7 +32,7 @@ const CATALOG=[
  {id:'clients',            label:'Clientes'},
  {id:'movement',           label:'Entradas / Salidas'},
  {id:'billing',            label:'Formulario anterior de presupuestos'},
- {id:'quotes',             label:'Presupuestos y validación cliente'},
+ {id:'quotes',             label:'Presupuestos y facturas'},
  {id:'client-deliveries',  label:'Mis entregas y pruebas'},
  {id:'stock',              label:'Inventario'},
  {id:'warehouses',         label:'Almacenes y existencias'},

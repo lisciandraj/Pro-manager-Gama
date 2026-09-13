@@ -506,10 +506,14 @@
     db: async () => ({
       from: table => {
         const filters = [];
+        let readMode=false;
         const chain = {
+          select: () => {readMode=true;return chain},
+          in: (col, vals) => {filters.push([col,vals,true]);return chain},
           delete: () => chain,
           eq: (col, val) => { filters.push([col, val]); return chain; },
           then: (resolve) => {
+            if(readMode)return Promise.resolve({data:JSON.parse(JSON.stringify((window.__DB[table]||[]).filter(r=>filters.every(([c,v,many])=>many?v.includes(r[c]):r[c]===v)))),error:null}).then(resolve);
             const before = (window.__DB[table] || []).length;
             window.__DB[table] = (window.__DB[table] || []).filter(r => !filters.every(([c, v]) => r[c] === v));
             return Promise.resolve({ data: null, error: null, count: before - window.__DB[table].length }).then(resolve);

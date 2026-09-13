@@ -27,7 +27,7 @@ const ITEMS=[
  ['Proveedores','suppliers','truck','Inventario y compras'],
  ['Matriz comercial','matrix','matrix','Inventario y compras'],
  ['Códigos de barras','barcode','barcode','Inventario y compras'],
- ['Presupuestos','quotes','invoice','Ventas'],
+ ['Presupuestos y facturas','quotes','invoice','Ventas'],
  ['Mis entregas','client-deliveries','truck','Ventas'],
  ['Clientes','clients','users','Ventas'],
  ['Seguimiento de expedientes','dossier-flow','request','Ventas'],

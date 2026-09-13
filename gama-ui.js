@@ -75,7 +75,7 @@ body button.tmsTab:not(.active),
 body .crmNav button:not(.on),
 body .gamaArcTabs button:not(.on),
 body #mainmenu .gamaF2Card{
- border:2px solid #087C8B!important;
+ border:1px solid #087C8B!important;
 }
 body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):focus-visible,
 body #aclLogout:focus-visible{

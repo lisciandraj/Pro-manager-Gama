@@ -530,3 +530,17 @@ test('POD blocks an unstarted shipment before capture and opens its exact loadin
  await page.click('#tProofLoading');expect(await page.evaluate(()=>__loadingTarget)).toBe('blocked');
  await page.evaluate(()=>__DB.sales_deliveries[0].departed_at=new Date().toISOString());await page.click('#tProofRetry');await expect(page.locator('#tSigSave')).toBeVisible();await expect(page.locator('.tms h2')).toContainText('EX-16');
 });
+
+test('pending proof list includes other dates and excludes cancelled deliveries',async({page})=>{
+ await boot(page,{deliveries:[
+  {id:'future',dossier_reference:'ENT-00000148',customer:'Future client',address:'Quito',delivery_date:'2099-09-14',status:'En tránsito'},
+  {id:'past',customer:'Overdue client',address:'Quito',delivery_date:'2020-01-01',status:'En tránsito'},
+  {id:'cancel',customer:'Cancelled client',address:'Quito',delivery_date:today(),status:'Cancelada'}
+ ]});
+ await page.evaluate(()=>gamaTMS.open('proof'));
+ await expect(page.locator('#gama-tms-section')).toContainText('ENT-00000148');
+ await expect(page.locator('#gama-tms-section')).toContainText('2099-09-14');
+ await expect(page.locator('#gama-tms-section')).toContainText('Overdue client');
+ await expect(page.locator('#gama-tms-section .tmsRoute')).not.toContainText(['Cancelled client']);
+ await expect(page.locator('button[onclick*="openProof(\'future\')"]')).toBeVisible();
+});

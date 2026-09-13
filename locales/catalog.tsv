@@ -1608,3 +1608,41 @@ La factura interna se genera automáticamente al validar la última entrega con 
 La firma del cliente es obligatoria.	La signature du client est obligatoire.	The customer’s signature is required.
 Facturación automática pendiente de revisión	Facturation automatique à vérifier	Automatic invoicing requires review
 Factura creada automáticamente tras la entrega	Facture créée automatiquement après la livraison	Invoice created automatically after delivery
+
+Pagos de clientes	Paiements clients	Customer payments
+Facturas, vencimientos desde la entrega y seguimiento de cobros.	Factures, échéances depuis la livraison et suivi des paiements.	Invoices, due dates from delivery and payment tracking.
+Pendientes de cobro	Paiements en attente	Outstanding payments
+Próximo a vencer	Échéance proche	Due soon
+Plazo por configurar	Délai à configurer	Payment terms required
+Entrega pendiente	Livraison en attente	Awaiting delivery
+Anulada / rechazada	Annulée / rejetée	Cancelled / rejected
+Buscar factura o cliente	Rechercher une facture ou un client	Search invoice or customer
+Ver todos los pagos	Voir tous les paiements	View all payments
+Importes del filtro seleccionado. Los pagos anulados no reducen el saldo.	Montants du filtre sélectionné. Les paiements annulés ne réduisent pas le solde.	Amounts for the selected filter. Cancelled payments do not reduce the balance.
+Factura / cliente	Facture / client	Invoice / customer
+Plazo de pago	Délai de paiement	Payment terms
+Ver / registrar pago	Voir / enregistrer un paiement	View / record payment
+No hay facturas para este filtro.	Aucune facture pour ce filtre.	No invoices for this filter.
+Volver a pagos	Retour aux paiements	Back to payments
+Configura el plazo de pago en la ficha del cliente para calcular el vencimiento.	Renseignez le délai de paiement dans la fiche client pour calculer l’échéance.	Set the payment terms in the customer record to calculate the due date.
+El vencimiento se calculará al completar las entregas vinculadas con fecha real y firma.	L’échéance sera calculée lorsque les livraisons liées seront terminées avec date réelle et signature.	The due date will be calculated when linked deliveries have an actual delivery date and signature.
+Ver expediente	Voir le dossier	View case
+Contenido de la factura	Contenu de la facture	Invoice contents
+Historial de pagos	Historique des paiements	Payment history
+Aún no hay pagos registrados.	Aucun paiement enregistré.	No payments recorded yet.
+No se pudieron cargar los pagos. Actualiza para reintentar.	Impossible de charger les paiements. Actualisez pour réessayer.	Payments could not be loaded. Refresh to retry.
+No se pudo cargar la factura.	Impossible de charger la facture.	The invoice could not be loaded.
+La factura ya no requiere este recordatorio. Actualiza los pagos.	Cette facture ne nécessite plus de relance. Actualisez les paiements.	This invoice no longer requires a reminder. Refresh payments.
+Plazo de pago desde la entrega (días) *	Délai de paiement depuis la livraison (jours) *	Payment terms from delivery (days) *
+0 = pago a la entrega. Se aplica a las facturas pendientes; los pagos completos conservan su plazo.	0 = paiement à la livraison. S’applique aux factures non soldées ; les factures réglées conservent leur délai.	0 = payment on delivery. Applies to outstanding invoices; settled invoices retain their terms.
+Indica un plazo de pago entre 0 y 3650 días.	Indiquez un délai de paiement entre 0 et 3650 jours.	Enter payment terms between 0 and 3650 days.
+Pagos próximos a vencer	Paiements bientôt à échéance	Payments due soon
+Pago próximo a vencer	Paiement bientôt à échéance	Payment due soon
+Preparar recordatorio de pago	Préparer une relance de paiement	Prepare payment reminder
+pagos próximos a vencer	paiements bientôt à échéance	payments due soon
+Ver pagos	Voir les paiements	View payments
+10. Pago y cierre del expediente	10. Paiement et clôture du dossier	10. Payment and case closure
+Abrir pagos del expediente	Ouvrir les paiements du dossier	Open case payments
+Expediente cerrado · entregado, facturado y pagado	Dossier clôturé · livré, facturé et payé	Case closed · delivered, invoiced and paid
+Completa el correo electrónico en la ficha del cliente antes de preparar el recordatorio.	Renseignez l’adresse e-mail dans la fiche client avant de préparer la relance.	Enter the email in the customer record before preparing a reminder.
+Busca el cliente en la lista para editar su plazo.	Recherchez le client dans la liste pour modifier son délai.	Find the customer in the list to edit payment terms.

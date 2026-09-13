@@ -27,6 +27,7 @@ if(window.GamaModules)return;
 const CATALOG=[
  {id:'operations', label:'Control comercial y logístico'},
  {id:'notifications', label:'Notificaciones y bloqueos'},
+ {id:'payments', label:'Pagos de clientes'},
  {id:'dashboard',          label:'Panel de control y análisis'},
  {id:'products',           label:'Productos'},
  {id:'clients',            label:'Clientes'},

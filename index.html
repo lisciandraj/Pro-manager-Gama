@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=20260913-legacyinvoicefix1"></script>
+<script src="gama-i18n-catalog.js?v=20260913-payments1"></script>
 <script src="gama-i18n.js?v=20260913-accesssettings1"></script>
 <script src="gama-toast.js?v=20260913-i18n1"></script>
 <title>GAMA Enterprise Resource Planning</title>
@@ -262,6 +262,7 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 <div><label data-gi=efcbd8e9deb9>Ciudad</label><input id="cCity"></div>
 <div><label data-gi=685531279037>Provincia</label><input id="cProvince"></div>
 <div><label data-gi=304243e85f24>Categoría de precios</label><select id="cCategory"><option value="A" data-gi=837ad5f0c4eb>A · Mayorista (por defecto)</option><option value="B" data-gi=a717b8976df3>B · Venta al detalle</option><option value="C" data-gi=d05567974d8c>C · Contrato especial (tarifa)</option></select></div>
+<div><label data-gi-live data-gi=157758d72518>Plazo de pago desde la entrega (días) *</label><input id="cPaymentTerms" type="number" min="0" max="3650" step="1" required inputmode="numeric"><small data-gi-live data-gi=8ca8d69b6e80>0 = pago a la entrega. Se aplica a las facturas pendientes; los pagos completos conservan su plazo.</small></div>
 <div><label data-gi=8ef60b6d94c0>Observaciones</label><input id="cNotes"></div>
 </div>
 <p class="muted" data-gi=9bb856df8bf1>La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).</p>
@@ -324,7 +325,7 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 </div>
 
 <script src="gama-ui.js?v=20260913-tablecontrast1"></script>
-<script src="gama-modules.js?v=20260913-prepmodule1"></script>
+<script src="gama-modules.js?v=20260913-payments1"></script>
 <script src="gama-pagination.js?v=20260913-i18n1"></script>
 <script src="gama-archive.js?v=20260913-i18n1"></script>
 <script src="gama-sort.js?v=20260913-i18n1"></script>
@@ -429,10 +430,10 @@ function saveClient(){
 }
 function editClient(id){
  const c=db.clients.find(x=>x.id===id);if(!c)return;
- $('editingClientId').value=c.id;$('cName').value=c.name;$('cId').value=c.id;$('cIdType').value=c.idType||'RUC';$('cAddress').value=c.address||'';$('cPhone').value=c.phone||'';$('cEmail').value=c.email||'';$('cCity').value=c.city||'';$('cProvince').value=c.province||'';$('cCategory').value=c.category||'A';$('cNotes').value=c.notes||'';
+ $('editingClientId').value=c.id;$('cName').value=c.name;$('cId').value=c.id;$('cIdType').value=c.idType||'RUC';$('cAddress').value=c.address||'';$('cPhone').value=c.phone||'';$('cEmail').value=c.email||'';$('cCity').value=c.city||'';$('cProvince').value=c.province||'';$('cCategory').value=c.category||'A';$('cNotes').value=c.notes||'';$('cPaymentTerms').value=c.paymentTermsDays??'';
  showTab('clients',null);window.scrollTo({top:0,behavior:'smooth'})
 }
-function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC';$('cCategory').value='A'}
+function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','cPaymentTerms','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC';$('cCategory').value='A'}
 function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
 function renderClients(filter=''){const cliArch=GamaArchive.mode('clients')==='archived',cliSrc=cliArch?(db.archivedClients||[]):db.clients;
  const q=(filter||'').toLowerCase(),a=cliSrc.filter(c=>(c.name+' '+c.id+' '+c.city+' '+c.province+' '+c.email).toLowerCase().includes(q));
@@ -698,7 +699,7 @@ showTab('mainmenu',null);
 <script src="gama-menu-final2.js?v=15"></script>
 <script src="gama-scanner-phone.js?v=20260913-i18n1"></script>
 <script src="gama-references.js?v=20260913-refses1"></script>
-<script src="gama-access-control.js?v=20260913-clientheader1"></script>
+<script src="gama-access-control.js?v=20260913-payments1"></script>
 <script src="gama-fixed-header.js?v=20260913-i18n1"></script>
 <script src="gama-role-spanish.js?v=20260913-tmshistory1"></script>
 
@@ -708,7 +709,7 @@ showTab('mainmenu',null);
 <script src="gama-quote-pdf.js?v=20260913-comment1"></script>
 <script src="gama-purchase-order-pdf.js?v=20260913-i18n1"></script>
 <script src="gama-supabase.js?v=20260913-refs1"></script>
-<script src="gama-central-sync.js?v=20260913-i18n1"></script>
+<script src="gama-central-sync.js?v=20260913-payments1"></script>
 <script src="gama-purchases-v14.js?v=20260913-i18n1"></script>
 <script src="gama-proveedores-matriz.js?v=20260913-i18n1"></script>
 <script src="gama-client-catalog.js?v=20260913-refs1"></script>
@@ -735,8 +736,9 @@ showTab('mainmenu',null);
 <script src="gama-fulfillment.js?v=20260913-prepmodule1"></script>
 <script src="gama-tms-loading.js?v=20260913-prepmodule1"></script>
 <script src="gama-internal-invoices.js?v=20260913-autoinvoice1"></script>
-<script src="gama-dossier-flow.js?v=20260913-autoinvoice1"></script>
-<script src="gama-operations.js?v=20260913-hrp1"></script>
+<script src="gama-dossier-flow.js?v=20260913-payments1"></script>
+<script src="gama-payments.js?v=20260913-payments1"></script>
+<script src="gama-operations.js?v=20260913-payments1"></script>
 <script src="gama-standard-ui.js?v=12"></script>
 <script src="gama-sidebar.js?v=20260913-i18n1"></script>
 </body></html>

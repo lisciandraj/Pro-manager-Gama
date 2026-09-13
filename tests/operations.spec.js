@@ -78,7 +78,7 @@ test('action center uses complete totals and category buttons reset pagination',
  await boot(page);await page.evaluate(()=>{__ops.action_center={shortage:3,late_delivery:2,quote:5,low_stock:4,receipt:2,overdue_invoice:4850}});
  await page.evaluate(()=>GamaOperations.open('notifications'));
  await expect(page.locator('#goActionCenter')).toContainText('3 pedidos bloqueados');await expect(page.locator('#goActionCenter')).toContainText('5 presupuestos');
- await expect(page.locator('#goActionCenter [data-go-filter]')).toHaveCount(6);
+ await expect(page.locator('#goActionCenter [data-go-filter]')).toHaveCount(7);
  await page.locator('#goActionCenter [data-go-filter="overdue_invoice"]').click();
  expect(await page.evaluate(()=>__opsCalls.at(-1).p_data)).toMatchObject({kind:'overdue_invoice',state:'all',offset:0});
  await page.evaluate(()=>{gamaPrepareActionPurchase=async x=>{window.__purchase=x}});await page.locator('[data-go-action]').click();expect(await page.evaluate(()=>__purchase)).toEqual({order_id:'o1'});

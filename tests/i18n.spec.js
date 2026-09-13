@@ -97,6 +97,34 @@ test('settings exposes language to all roles without exposing module switches or
  expect(await page.evaluate(()=>document.querySelector('header.gamaHeader').getBoundingClientRect().height)).toBeLessThan(168);
  await page.evaluate(()=>GamaUI.backToMenu());
  await expect(page.locator('#gamaLanguagePicker')).toBeHidden();
- await expect(page.locator('#mainmenu [data-gama-module="settings"]')).toContainText('Paramètres');
+ await expect(page.locator('#mainmenu [data-gama-module="settings"]')).toContainText('Configuration');
  await page.reload();await expect(page.locator('html')).toHaveAttribute('lang','fr');
+});
+test('access settings is separate and restricted, personal configuration has no switches even for admin',async({page})=>{
+ await boot(page);await page.locator('#mainmenu [data-gama-module="settings"]').click();
+ await expect(page.locator('#settings input[data-mod]')).toHaveCount(0);
+ await page.evaluate(()=>GamaUI.backToMenu());
+ await page.locator('#mainmenu [data-gama-module="access-settings"]').click();
+ await expect(page.locator('#access-settings input[data-mod="products"]')).toBeVisible();
+ await expect(page.locator('#access-settings input[data-mod="access-settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings #gamaLanguagePicker')).toHaveCount(0);
+});
+for(const role of ['commercial','magasinier','client'])test(`access settings denied to ${role}, configuration available`,async({page})=>{
+ await boot(page,role);await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
+ await expect(page.locator('#mainmenu [data-gama-module="settings"]')).toBeVisible();
+ await page.evaluate(()=>GamaOpenAccessSettings());await expect(page.locator('#access-settings input')).toHaveCount(0);
+ await page.evaluate(()=>GamaOpenSettings());await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
+ await page.evaluate(()=>window.showTab('access-settings'));await expect(page.locator('#settings')).toBeVisible();
+});
+test('login language selector translates immediately and returns to configuration after login closes',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaOpenSettings());
+ await page.evaluate(()=>{const d=document.createElement('div');d.id='gamaCloudLogin';d.style='position:fixed;inset:0;background:white;z-index:100000';d.innerHTML='<div class="box"><h1 data-gi-live>Iniciar sesión</h1><input id="loginEmailTest" value="client@example.com"></div>';document.body.append(d)});
+ await page.locator('#gamaCloudLogin [data-language="fr"]').click();
+ await expect(page.locator('#gamaCloudLogin h1')).toHaveText('Se connecter');
+ await expect(page.locator('#loginEmailTest')).toHaveValue('client@example.com');
+ await expect(page.locator('header #gamaLanguagePicker')).toHaveCount(0);
+ await page.evaluate(()=>document.getElementById('gamaCloudLogin').remove());
+ await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
+ await expect(page.locator('#settings [data-language="fr"]')).toHaveAttribute('aria-pressed','true');
 });

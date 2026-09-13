@@ -35,9 +35,9 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   const tarjeta = page.locator('#mainmenu .gamaF2Card:has-text("Auditoría")');
   await expect(tarjeta).toBeVisible();
 
-  await page.evaluate(() => window.GamaOpenSettings());
+  await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.uncheck('#settings input[data-mod="audit"]');
+  await page.uncheck('#access-settings input[data-mod="audit"]');
   await page.waitForTimeout(600);
 
   // Queda guardado en la nube, no sólo en este navegador.
@@ -59,9 +59,9 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   await expect(page.locator('#audit'), 'la pantalla se mostró pese al aviso').toBeHidden();
 
   // Volver a encenderlo lo devuelve al menú.
-  await page.evaluate(() => window.GamaOpenSettings());
+  await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.check('#settings input[data-mod="audit"]');
+  await page.check('#access-settings input[data-mod="audit"]');
   await page.waitForTimeout(600);
   await page.evaluate(() => window.GamaUI.backToMenu());
   await page.waitForTimeout(400);
@@ -72,9 +72,9 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
 // que se vuelve a encender lo demás.
 test('Configuración no se apaga a sí misma', async ({ page }) => {
   await boot(page, 'admin');
-  await page.evaluate(() => window.GamaOpenSettings());
+  await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await expect(page.locator('#settings input[data-mod="settings"]')).toBeDisabled();
+  await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
 });
 
 // Quien no es administrador no ve los interruptores. La barrera de verdad no

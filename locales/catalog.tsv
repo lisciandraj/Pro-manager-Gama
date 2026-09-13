@@ -33,7 +33,7 @@ Importar datos	Importer des données	Import data
 Recursos humanos	Ressources humaines	Human resources
 Auditoría	Piste d’audit	Audit trail
 Usuarios	Utilisateurs	Users
-Configuración	Paramètres	Settings
+Configuración	Configuration	Configuration
 Copias de seguridad	Sauvegardes	Backups
 Entregas / TMS	Livraisons / TMS	Deliveries / TMS
 Transporte y entregas	Transport et livraisons	Transport and deliveries
@@ -1450,3 +1450,5 @@ La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes re
 Idioma de la aplicación	Langue de l’application	Application language
 El idioma se guarda en este dispositivo.	La langue est mémorisée sur cet appareil.	The language is saved on this device.
 Personaliza el idioma de la aplicación.	Choisissez la langue de l’application.	Choose your application language.
+Parámetros de acceso	Paramètres d’accès	Access settings
+Disponible permanentemente.	Toujours disponible.	Always available.

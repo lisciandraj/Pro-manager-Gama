@@ -88,7 +88,7 @@ const flags={
  es:'<path fill="#aa151b" d="M0 0h30v20H0z"/><path fill="#f1bf00" d="M0 5h30v10H0z"/>'
 };
 function mount(){
- const host=document.getElementById('gamaSettingsLanguage');if(!host)return;
+ const host=document.querySelector('#gamaCloudLogin .box')||document.getElementById('gamaSettingsLanguage');if(!host)return;
  let bar=document.getElementById('gamaLanguagePicker');if(!bar){
   bar=document.createElement('div');bar.id='gamaLanguagePicker';bar.setAttribute('role','group');bar.setAttribute('aria-label','Language / Langue / Idioma');bar.setAttribute('translate','no');
   for(const [code,flag,label] of [['fr','🇫🇷','Français'],['en','🇬🇧','English'],['es','🇪🇸','Español']]){
@@ -113,10 +113,12 @@ function boot(){
 #gamaLanguagePicker svg{display:block;width:28px;height:19px;border-radius:2px;box-shadow:0 0 0 1px #17324622}
 #gamaLanguagePicker button[aria-pressed="true"]{border-color:#087c8b;background:#e8f5f6}
 #gamaLanguagePicker button:focus-visible{outline:3px solid #f47a2a;outline-offset:1px}
+#gamaCloudLogin #gamaLanguagePicker{justify-content:center}
+#gamaCloudLogin #gamaLanguagePicker button{min-width:0;margin:0}
 @media print{#gamaLanguagePicker{display:none!important}}`;
  document.head.appendChild(s);scan(document.body);mount();
  observer=new MutationObserver(records=>{for(const r of records){
-  if(r.type==='childList'){for(const n of r.addedNodes)queue(n.nodeType===1?n:n.parentElement)}
+  if(r.type==='childList'){if(r.removedNodes.length)queue(r.target);for(const n of r.addedNodes)queue(n.nodeType===1?n:n.parentElement)}
   else queue(r.target.nodeType===3?r.target.parentElement:r.target);
  }});
  observer.observe(document.body,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['placeholder','title','aria-label']});

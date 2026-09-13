@@ -51,6 +51,7 @@ const CATALOG=[
  {id:'tms',                label:'Transporte y entregas'},
  {id:'hr',                 label:'Recursos humanos'},
  {id:'users',              label:'Usuarios y accesos'},
+ {id:'access-settings',label:'Parámetros de acceso',locked:true},
  {id:'settings',           label:'Configuración', locked:true},
 ];
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));

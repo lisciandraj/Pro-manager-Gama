@@ -471,11 +471,11 @@ function absencesTab(){
   return `<tr>
    <td><b>${esc(employeeName(a.employee_id))}</b><small><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></small></td>
    <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
-   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
+   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
-    ${a.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
-    ${a.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+    ${a.status!=='aprobada'&&a.status!=='cancelada'?`<button type="button" class="success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
+    ${a.status!=='rechazada'&&a.status!=='cancelada'?`<button type="button" class="secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
     ${a.status!=='cancelada'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi-live data-gi=030a5cd7677c>Anular</button>`:''}
    </div></td></tr>`;
  }).join('');
@@ -705,7 +705,7 @@ function myRequestsTab(){
   return `<tr>
    <td><b><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></b><small>${esc(a.reason||'')}</small></td>
    <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
-   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span></td>
+   <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
   </tr>`;
  }).join('');

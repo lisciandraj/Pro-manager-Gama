@@ -36,6 +36,18 @@ drop policy hr_absences_admin on public.hr_absences;
 drop policy hr_absences_self_delete on public.hr_absences;
 revoke delete on public.hr_absences from authenticated;
 create policy hr_absences_manage on public.hr_absences for all to authenticated using(private.hr_manage(employee_id)) with check(private.hr_manage(employee_id));
+-- Free-text decisions stay out of the team-readable absence table.
+create table public.hr_absence_decisions (
+ id uuid primary key default gen_random_uuid(),absence_id uuid not null references public.hr_absences(id) deferrable initially deferred,
+ employee_id uuid not null references public.hr_employees(id),status text not null,reason text not null,
+ reviewed_by uuid not null references public.profiles(id),created_at timestamptz not null default clock_timestamp()
+);
+create index hr_absence_decisions_employee_idx on public.hr_absence_decisions(employee_id);
+create index hr_absence_decisions_absence_idx on public.hr_absence_decisions(absence_id,created_at desc);
+alter table public.hr_absence_decisions enable row level security;
+revoke all on public.hr_absence_decisions from anon,authenticated;
+grant select on public.hr_absence_decisions to authenticated;
+create policy hr_decisions_read on public.hr_absence_decisions for select to authenticated using(private.hr_manage(employee_id) or private.hr_own(employee_id));
 create table public.hr_work_patterns (
  id uuid primary key default gen_random_uuid(), employee_id uuid not null references public.hr_employees(id),
  effective_from date not null, weekdays integer[] not null default '{1,2,3,4,5}', daily_hours numeric not null default 8 check(daily_hours>0 and daily_hours<=24),
@@ -153,6 +165,7 @@ revoke all on function private.hr_leave_days(uuid,date,date,numeric,numeric),pri
 create or replace function private.hr_guard_absence() returns trigger language plpgsql security definer set search_path='' as $$
  declare y integer; consumed numeric; d date; begin
  if auth.uid() is null then raise exception 'Authentication required'; end if;
+ if tg_op='UPDATE' and old.status='cancelada' and new.status<>old.status then raise exception 'Cancelled absence cannot be reopened'; end if;
  if tg_op='UPDATE' and (new.employee_id<>old.employee_id or new.id<>old.id) then raise exception 'Employee cannot be changed'; end if;
  if new.start_date<date '2000-01-01' or new.end_date>date '2200-12-31' or new.end_date-new.start_date>730 then raise exception 'Invalid absence period'; end if;
  if new.start_date=new.end_date then new.end_fraction=new.start_fraction; end if;
@@ -176,6 +189,10 @@ create or replace function private.hr_guard_absence() returns trigger language p
    end loop;
   end if;
  end if;
+ if nullif(trim(new.decision_reason),'') is not null then
+ insert into public.hr_absence_decisions(absence_id,employee_id,status,reason,reviewed_by) values(new.id,new.employee_id,new.status,new.decision_reason,auth.uid());
+ end if;
+ new.decision_reason=null;
  return new;
  end $$;
 revoke all on function private.hr_guard_absence() from public,anon,authenticated;

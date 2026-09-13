@@ -66,4 +66,13 @@ reset role;
 -- Internal computation, only as database owner (not exposed to callers).
 select pg_temp.assert_true(private.hr_leave_days((select id from hr_test_employees where kind='employee'),'2026-12-30','2026-12-31',0.5,1)=1.5,'half day in first year');
 select pg_temp.assert_true(private.hr_leave_days((select id from hr_test_employees where kind='employee'),'2027-01-01','2027-01-04',1,1)=1,'holiday excluded next year');
+select set_config('request.jwt.claim.sub',(select id::text from hr_test_ids where kind='employee'),true);
+set local role authenticated;
+insert into public.hr_absences(employee_id,start_date,end_date) select id,'2026-10-01','2026-10-01' from hr_test_employees where kind='employee';
+update public.hr_absences set status='cancelada',decision_reason='Confidential cancellation' where employee_id=(select id from hr_test_employees where kind='employee') and status='pendiente';
+select pg_temp.assert_true((select bool_and(decision_reason is null) from public.hr_absences where employee_id in(select id from hr_test_employees)),'free text absent from team calendar');
+select pg_temp.assert_true((select count(*)=1 from public.hr_absence_decisions where employee_id=(select id from hr_test_employees where kind='employee')),'owner reads cancellation reason');
+select set_config('request.jwt.claim.sub',(select id::text from hr_test_ids where kind='other'),true);
+select pg_temp.assert_true((select count(*)=0 from public.hr_absence_decisions),'colleague cannot read decision reasons');
+reset role;
 select 'HR P1 database checks passed' as result;

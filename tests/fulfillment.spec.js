@@ -25,21 +25,20 @@ async function boot(page,state='picking',role='magasinier'){
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
  await expect(page.locator('#gfPreparation')).toContainText('PR-00000001');
 }
-test('picking uses the assigned location, checks product scan and preserves the retry key',async({page})=>{
- await boot(page);await page.locator('[data-gf-pick]').click();await expect(page.locator('#gfLocationCode')).toHaveCount(0);await page.locator('#gfProductCode').fill('WRONG');await page.locator('#gfQty').fill('2');
- await page.evaluate(()=>window.__error='PRODUCT_SCAN_MISMATCH');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('código no corresponde');await expect(page.locator('#gfProductCode')).toHaveValue('WRONG');
- // A retry of the unchanged payload reuses the same key. Edits after a rejected transaction also remain safe.
- await page.evaluate(()=>window.__error=null);await page.locator('#gfProductCode').fill('CAFE-01');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
- const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data).toMatchObject({location_code:'A01',product_code:'CAFE-01',quantity:2,preparation_id:'prep',pick_line_id:'pl'});
+test('preparation records quantities without barcode controls and preserves retry key',async({page})=>{
+ await boot(page);await expect(page.locator('#gfPack')).toHaveCount(0);await page.locator('[data-gf-pick]').click();await expect(page.locator('#gfProductCode')).toHaveCount(0);await expect(page.locator('[data-gf-camera]')).toHaveCount(0);await page.locator('#gfQty').fill('2');
+ await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await page.locator('#gsSave').click();await expect(page.locator('#gfQty')).toHaveValue('2');await page.evaluate(()=>window.__error=null);await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
+ const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data.product_code).toBeUndefined();expect(calls[1].p_data.quantity).toBe(2);
 });
-test('packing records exact contents, rescan, weight and dimensions',async({page})=>{
- await boot(page);await page.locator('#gfPack').click();await page.locator('#gfPackCode0').fill('CAFE-01');await page.locator('#gfPackQty0').fill('3');
+test('TMS packing records exact contents, barcode, weight and dimensions without leaving TMS',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{__DB.sales_deliveries=[{id:'ship',order_id:__DB.sales_orders[0].id}];__f.preparations[0].status='shipped';__f.preparations[0].shipment_id='ship';const host=document.createElement('div');host.id='tmsPackagesTest';document.body.append(host);await GamaFulfillment.tmsPackages('ship',host,()=>{window.__tmsRefreshed=true})});
+ await page.locator('#glPack').click();await page.locator('#gfPackCode0').fill('CAFE-01');await page.locator('#gfPackQty0').fill('3');
  for(const[id,value]of Object.entries({weight_kg:'1.5',length_cm:'20',width_cm:'15',height_cm:'10'}))await page.locator('#'+id).fill(value);
- await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_action).toBe('package');expect(c.p_data.lines).toEqual([{pick_line_id:'pl',product_code:'CAFE-01',quantity:3}]);expect(c.p_data.weight_kg).toBe(1.5);
+ await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_action).toBe('package');expect(c.p_data.lines).toEqual([{pick_line_id:'pl',product_code:'CAFE-01',quantity:3}]);expect(await page.evaluate(()=>__tmsRefreshed)).toBe(true);
 });
-test('unpacked order cannot open dispatch, packed order dispatches by preparation ID',async({page})=>{
- await boot(page);await page.locator('#gsShip').click();await expect(page.locator('#gsMessage')).toContainText('valida los bultos');await expect(page.locator('dialog')).toHaveCount(0);
- await page.evaluate(()=>window.__f.preparations[0].status='packed');await page.locator('#gsShip').click();await expect(page.locator('dialog')).toContainText('bultos');await page.locator('#gfDate').fill('2026-09-21');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_data.preparation_id).toBe('prep');expect(c.p_data.lines).toBeUndefined();
+test('validated quantities can be sent to TMS without any packages',async({page})=>{
+ await boot(page);await page.locator('#gfFinish').click();await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
+ await page.locator('#gsShip').click();await expect(page.locator('dialog')).toContainText('TMS');await page.locator('#gfDate').fill('2026-09-21');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls.find(c=>c.p_action==='ship'));expect(c.p_data.preparation_id).toBe('prep');expect(c.p_data.lines).toBeUndefined();
 });
 test('dossier shows incoming dates separately from agreed dates and sends substitution proposal',async({page})=>{
  await boot(page,'queued','admin');await expect(page.locator('#gfShortages')).toContainText('OC-01');await expect(page.locator('#gfShortages')).toContainText('Sin confirmar');await page.locator('[data-gf-option]').click();await page.locator('#gfKind').selectOption('substitute');await page.locator('#gfReplacement').selectOption('p2');await page.locator('#gfQty').fill('2');await page.locator('#gfPrice').fill('9');await page.locator('#gfPromise').fill('2026-09-20');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_data).toMatchObject({kind:'substitute',replacement_product_id:'p2',quantity:2,unit_price:9,promised_date:'2026-09-20'});

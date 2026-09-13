@@ -1551,3 +1551,22 @@ Número oficial no indicado (opcional).	Numéro officiel non renseigné (faculta
 Crear la factura interna desde el presupuesto aceptado.	Créer la facture interne depuis le devis accepté.	Create the internal invoice from the accepted quote.
 Cubrir todas las líneas del pedido. El número oficial externo es opcional.	Facturer toutes les lignes de commande. Le numéro officiel externe est facultatif.	Invoice all order lines. The official external number is optional.
 Comentario del cliente	Commentaire client	Customer comment
+Validar preparación	Valider la préparation	Validate preparation
+Registrar preparación	Enregistrer la préparation	Record preparation
+Enviar al TMS	Envoyer au TMS	Send to TMS
+Control de bultos · Logística	Contrôle des colis · Logistique	Parcel checks · Logistics
+Cargando bultos…	Chargement des colis…	Loading parcels…
+Registra el contenido, peso y dimensiones de cada bulto. Todos los productos deben estar embalados antes de la salida.	Enregistrez le contenu, le poids et les dimensions de chaque colis. Tous les produits doivent être emballés avant le départ.	Record the contents, weight and dimensions of each parcel. All products must be packed before departure.
+El control de bultos se realiza en TMS después de enviar la preparación.	Le contrôle des colis se fait dans le TMS après transmission de la préparation.	Parcel checks take place in TMS after handing over the preparation.
+Primero registra las cantidades y valida la preparación.	Enregistrez les quantités puis validez la préparation.	Record quantities and validate preparation first.
+Almacenero asignado: registrar las cantidades preparadas. El control de bultos se realiza en TMS.	Magasinier affecté : enregistrer les quantités préparées. Le contrôle des colis se fait dans le TMS.	Assigned warehouse operator: record prepared quantities. Parcel checks take place in TMS.
+El equipo de logística controlará los bultos y los códigos de barras en TMS. Si faltan cantidades del pedido, explica el envío parcial.	La logistique contrôlera les colis et les codes-barres dans le TMS. Justifiez toute expédition partielle.	Logistics will check parcels and barcodes in TMS. Explain any partial shipment.
+Escanea cada producto incluido para comprobar el contenido. Usa cantidad cero para dejarlo fuera de este bulto.	Scannez chaque produit pour contrôler le contenu. Saisissez zéro pour l’exclure de ce colis.	Scan each included product to check the contents. Enter zero to exclude it from this parcel.
+Salida bloqueada: controla los bultos y escanea todas las cantidades de cada línea.	Départ bloqué : contrôlez les colis et scannez toutes les quantités de chaque ligne.	Departure blocked: check parcels and scan every quantity on each line.
+Solo se permite salir cuando los bultos y todas las cantidades están verificados.	Le départ nécessite le contrôle des colis et de toutes les quantités.	Departure requires verification of parcels and all quantities.
+5. Preparación	5. Préparation	5. Preparation
+Registrar las cantidades preparadas del lote reservado.	Enregistrer les quantités préparées du lot réservé.	Record prepared quantities from the reserved batch.
+Enviar las cantidades preparadas al equipo de logística en TMS.	Transmettre les quantités préparées à la logistique dans le TMS.	Send prepared quantities to logistics in TMS.
+Crear la expedición y controlar los bultos en TMS.	Créer l’expédition et contrôler les colis dans le TMS.	Create the shipment and check parcels in TMS.
+En TMS, embalar los productos con peso y dimensiones, escanear la carga y asignar conductor y vehículo antes de salir.	Dans le TMS, enregistrer les colis avec poids et dimensions, scanner le chargement et affecter le conducteur et le véhicule avant le départ.	In TMS, record parcels with weight and dimensions, scan cargo and assign driver and vehicle before departure.
+Lote activo: previsto / preparado	Lot actif : prévu / préparé	Active batch: planned / prepared

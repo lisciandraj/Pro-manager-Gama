@@ -82,6 +82,12 @@ body #aclLogout:focus-visible{
  outline:3px solid #087C8B!important;outline-offset:3px;
 }
 
+/* Visible row separators on desktop, including tables rendered by modules. */
+@media screen and (min-width:761px){
+ body table th,body table td{border-bottom:1px solid #8BAEB8!important}
+ body table thead th{border-bottom:2px solid #087C8B!important}
+}
+
 /* En el teléfono esta cabecera se comía la primera pantalla entera con el texto
    a tamaño de escritorio. Se aprieta la tipografía. La rejilla de acciones se
    deja en auto-fit aunque hoy sólo haya un botón: así el de volver ocupa la

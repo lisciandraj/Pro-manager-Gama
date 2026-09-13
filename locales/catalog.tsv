@@ -1606,3 +1606,5 @@ La entrega está validada. Se copiará el presupuesto aceptado. La factura inter
 No hay entregas pendientes de prueba.	Aucune livraison en attente de preuve.	No deliveries awaiting proof.
 La factura interna se genera automáticamente al validar la última entrega con la firma del cliente.	La facture interne est générée automatiquement à la validation de la dernière livraison avec la signature du client.	The internal invoice is generated automatically when the final delivery is validated with the customer’s signature.
 La firma del cliente es obligatoria.	La signature du client est obligatoire.	The customer’s signature is required.
+Facturación automática pendiente de revisión	Facturation automatique à vérifier	Automatic invoicing requires review
+Factura creada automáticamente tras la entrega	Facture créée automatiquement après la livraison	Invoice created automatically after delivery

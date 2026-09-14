@@ -82,6 +82,31 @@ body #aclLogout:focus-visible{
  outline:3px solid #087C8B!important;outline-offset:3px;
 }
 
+/* Desktop monitors need clear surface boundaries, not only subtle shadows.
+   Keep semantic status colours and the existing mobile theme. */
+@media screen and (min-width:761px){
+ body{--gama-bg:#CFDBE5;--gama-line:#8FA6B5;background:var(--gama-bg)}
+ body :is(.gamaStdHeader,.card,.dashCard,.dashPanel,.gkPanel,.gsCard,.gpCard,.tmsCard,.tmsKpi):not(.gpStatus){
+  background:#fff;border:1px solid #8FA6B5;box-shadow:0 2px 4px #17324618,0 6px 18px #17324614;
+ }
+ body .gamaStdHeader{border-color:#8FA6B5}
+ body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),body #aclLogout{
+  background:#DCE8ED!important;color:#173246!important;border:2px solid #087C8B!important;
+  box-shadow:0 2px 3px #17324618;
+ }
+ body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):hover,body #aclLogout:hover{background:#C8DFE5!important}
+ body button:is(.primary,.tmsPrimary){border:1px solid #075C69;box-shadow:0 3px 7px #075C6938}
+ body section :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]){
+  border:2px solid #7D98A8;background:#F7FAFC;color:#173246;
+ }
+ body section :is(input,select,textarea):focus-visible{outline:3px solid #087C8B;outline-offset:2px}
+ body #knowledge .gkProps>div{background:#DFE9EF;border:1px solid #9CB2C0}
+ body #knowledge .gkTree button[aria-current=true]{background:#CCE8EC;border-left:4px solid #087C8B;color:#075C69}
+ body #knowledge .gkTree ul{border-left:2px solid #8FA6B5}
+ body #knowledge .gkProperty{background:#F3F7FA;border-color:#8FA6B5}
+ body #knowledge .gkResult{background:#E4EEF3;border-color:#8FA6B5}
+}
+
 /* Visible row separators on desktop, including tables rendered by modules. */
 @media screen and (min-width:761px){
  body table th,body table td{border-bottom:1px solid #8BAEB8!important}

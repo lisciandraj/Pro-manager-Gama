@@ -244,6 +244,7 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 <p class="muted" data-gi=a84a2a9267ff>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo 🏷️ Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
 <div class="actions"><button class="primary" onclick="createProduct()" data-gi=a757fc04d14d>➕ Crear producto</button><button class="secondary" onclick="clearProductForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
 <input type="hidden" id="editingBarcode">
+<input type="hidden" id="editingProductId">
 </div>
 <div class="card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
 </section>
@@ -384,10 +385,12 @@ function gamaProductDuplicate(values,old){
  return '';
 }
 async function createProduct(){
- let editing=$('editingBarcode').value,b=$('pBarcode').value.trim(),n=$('pName').value.trim();
+ let editingId=$('editingProductId').value,editing=$('editingBarcode').value,b=$('pBarcode').value.trim(),n=$('pName').value.trim();
  if(!b||!n)return alert('El código de barras y el nombre son obligatorios.');
- if(!editing&&product(b))return alert('Este código de barras ya existe.');
- let old=editing?product(editing):null,photo=old?.photo||'';
+ const old=editingId?db.products.find(p=>p.id===editingId):editing?product(editing):null;
+ if((editingId||editing)&&!old)return alert('Producto no encontrado.');
+ if(!old&&product(b))return alert('Este código de barras ya existe.');
+ let photo=old?.photo||'';
  const duplicate=gamaProductDuplicate({name:n,barcode:b,ref:$('pRef').value.trim()},old);if(duplicate)return alert(duplicate);
  if($('pPhoto').files[0])photo=await compressPhoto($('pPhoto').files[0]);
  if(old){
@@ -400,7 +403,7 @@ async function createProduct(){
  clearProductForm();save();
 }
 function populateSupplierSelect(){const s=$('pSupplier');if(!s)return;const cur=s.value;s.innerHTML='<option value="" data-gi=480def1d15a8>Sin proveedor</option>'+(db.suppliers||[]).map(x=>`<option value="${x.id}">${(x.name||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</option>`).join('');if(cur&&(db.suppliers||[]).some(x=>x.id===cur))s.value=cur}
-function editProduct(b){let p=product(b);if(!p)return;$('editingBarcode').value=p.barcode;$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
+function editProduct(b,id){let p=id?db.products.find(p=>p.id===id):product(b);if(!p)return;$('editingProductId').value=p.id||'';$('editingBarcode').value=p.barcode||'';$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
 /* La ficha muestra la foto en grande: es la unica pantalla que necesita el
    original, asi que se pide justo aqui y para un solo producto. */
 function gamaShowProductPhoto(p){
@@ -410,12 +413,12 @@ function gamaShowProductPhoto(p){
  if(!p.hasPhoto||!window.GamaPhotos||!p.id)return;
  GamaPhotos.load([p.id]).then(([data])=>{
   // El usuario puede haber cambiado de ficha mientras llegaba la foto.
-  if(data&&$('editingBarcode').value===p.barcode){el.src=data;el.style.display='block'}
+  if(data&&$('editingProductId').value===p.id){el.src=data;el.style.display='block'}
  }).catch(()=>{});
 }
-function clearProductForm(){$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
+function clearProductForm(){$('editingProductId').value='';$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
 function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
-function renderProducts(filter=''){populateSupplierSelect();const arch=GamaArchive.mode('products')==='archived',src=arch?(db.archivedProducts||[]):db.products;let q=filter.toLowerCase(),a=src.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));if(arch&&!a.length){$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+'<div class="gamaArcEmpty" data-gi=5aee36d9b693>No hay productos archivados.</div>';return}$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+(arch?'<div class="gamaArcNote" data-gi=6da28771166e>Estos productos no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.</div>':'')+'<table><tr><th data-gi=494e0843d958>Foto</th><th data-gi=f58b85570398>Código</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8e2ca9b0cc8a>Marca</th><th>Stock</th><th data-gi=d69ff29572f5>Precio compra</th><th data-gi=ff80a4c5df9b>Venta A</th><th data-gi=9315e60d00dc>Venta B</th><th data-gi=ba6da46c5e1c>IVA</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=e746643f4479>Proveedor</th><th data-gi=fb89a30ba7f6>Acciones</th></tr>'+GamaPage.slice('products',a).map(p=>`<tr><td>${gamaPhotoCell(p)}</td><td>${p.barcode}</td><td>${p.name}</td><td>${p.brand||'-'}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>$${Number(p.salePriceB||0).toFixed(2)}</td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td>${arch?`<button class="secondary" onclick="restoreProduct('${p.id}')" data-gi=010ad8d3a1f4>♻️ Restaurar</button> <button class="danger" onclick="purgeProduct('${p.id}')" data-gi=edb9598321a5>🗑️ Borrar definitivamente</button>`:`<button class="secondary" onclick="editProduct('${p.barcode}')" data-gi=e3bd2ee1d054>✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')" data-gi=5d653a516214>🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
+function renderProducts(filter=''){populateSupplierSelect();const arch=GamaArchive.mode('products')==='archived',src=arch?(db.archivedProducts||[]):db.products;let q=filter.toLowerCase(),a=src.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));if(arch&&!a.length){$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+'<div class="gamaArcEmpty" data-gi=5aee36d9b693>No hay productos archivados.</div>';return}$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+(arch?'<div class="gamaArcNote" data-gi=6da28771166e>Estos productos no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.</div>':'')+'<table><tr><th data-gi=494e0843d958>Foto</th><th data-gi=f58b85570398>Código</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8e2ca9b0cc8a>Marca</th><th>Stock</th><th data-gi=d69ff29572f5>Precio compra</th><th data-gi=ff80a4c5df9b>Venta A</th><th data-gi=9315e60d00dc>Venta B</th><th data-gi=ba6da46c5e1c>IVA</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=e746643f4479>Proveedor</th><th data-gi=fb89a30ba7f6>Acciones</th></tr>'+GamaPage.slice('products',a).map(p=>`<tr><td>${gamaPhotoCell(p)}</td><td>${p.barcode}</td><td>${p.name}</td><td>${p.brand||'-'}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>$${Number(p.salePriceB||0).toFixed(2)}</td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td>${arch?`<button class="secondary" onclick="restoreProduct('${p.id}')" data-gi=010ad8d3a1f4>♻️ Restaurar</button> <button class="danger" onclick="purgeProduct('${p.id}')" data-gi=edb9598321a5>🗑️ Borrar definitivamente</button>`:`<button class="secondary" onclick="editProduct('${p.barcode}','${p.id||''}')" data-gi=e3bd2ee1d054>✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')" data-gi=5d653a516214>🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
 
 
 function saveClient(){
@@ -699,7 +702,7 @@ showTab('mainmenu',null);
 <script src="gama-menu-final2.js?v=15"></script>
 <script src="gama-scanner-phone.js?v=20260913-i18n1"></script>
 <script src="gama-references.js?v=20260913-refses1"></script>
-<script src="gama-access-control.js?v=20260914-clientgroup1"></script>
+<script src="gama-access-control.js?v=20260914-productedit1"></script>
 <script src="gama-fixed-header.js?v=20260913-i18n1"></script>
 <script src="gama-role-spanish.js?v=20260913-tmshistory1"></script>
 
@@ -709,7 +712,7 @@ showTab('mainmenu',null);
 <script src="gama-quote-pdf.js?v=20260913-comment1"></script>
 <script src="gama-purchase-order-pdf.js?v=20260913-i18n1"></script>
 <script src="gama-supabase.js?v=20260913-refs1"></script>
-<script src="gama-central-sync.js?v=20260913-payments1"></script>
+<script src="gama-central-sync.js?v=20260914-productedit1"></script>
 <script src="gama-purchases-v14.js?v=20260913-i18n1"></script>
 <script src="gama-proveedores-matriz.js?v=20260913-i18n1"></script>
 <script src="gama-client-catalog.js?v=20260914-clientgroup1"></script>

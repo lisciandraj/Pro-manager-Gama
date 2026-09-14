@@ -1,11 +1,12 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('fs');const path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
-async function setup(page){
- await page.addInitScript(()=>{
+async function setup(page,extraProducts=[]){
+ await page.addInitScript((extraProducts)=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Test Admin'}));
   window.__DB={products:[{id:'p1',name:'Papel A4',reference:'REF-1',barcode:'B1',stock:1,active:true},{id:'p2',name:'Archivado',reference:'REF-2',barcode:'B2',active:false}],customers:[],suppliers:[],profiles:[],invoices:[],invoice_lines:[],stock_movements:[]};
- });
+  window.__DB.products.push(...extraProducts);
+ },extraProducts);
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
  await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');
@@ -43,4 +44,27 @@ test('Excel reports database duplicates and errors without counting successful i
  await expect(page.locator('#gamaExcelImport')).toBeEnabled();await page.click('#gamaExcelImport');
  await expect(page.locator('#gamaExcelStatus')).toContainText('1 fila(s) importada(s), 1 duplicada(s) omitida(s), 1 error(es)');
  expect(await page.evaluate(()=>window.__DB.products.length)).toBe(3);
+});
+
+test('adding a barcode updates the selected imported product without recreating it',async({page})=>{
+ await setup(page,[
+  {id:'import-1',name:'Importado primero',reference:'IMP-1',barcode:null,stock:7,active:true},
+  {id:'import-2',name:'Importado segundo',reference:'IMP-2',barcode:'',stock:23,photo_data:'retained-photo',active:true}
+ ]);
+ await page.evaluate(()=>window.showTab('products'));
+ await page.locator('#productsTable tr').filter({hasText:'Importado segundo'}).locator('button[onclick^="editProduct"]').click();
+ await expect(page.locator('#pName')).toHaveValue('Importado segundo');
+ await expect(page.locator('#editingProductId')).toHaveValue('import-2');
+ await page.locator('#pBarcode').fill('B1');
+ await page.evaluate(()=>window.createProduct());
+ await expect(page.locator('#gamaToasts')).toContainText('código de barras');
+ await expect(page.locator('#editingProductId')).toHaveValue('import-2');
+ await page.locator('#pBarcode').fill('0012345678905');
+ await page.evaluate(()=>window.createProduct());
+ const rows=await page.evaluate(()=>window.__DB.products);
+ expect(rows).toHaveLength(4);
+ expect(rows.find(p=>p.id==='import-1')).toMatchObject({barcode:null,stock:7});
+ expect(rows.find(p=>p.id==='import-2')).toMatchObject({barcode:'0012345678905',stock:23,photo_data:'retained-photo',reference:'IMP-2'});
+ await expect(page.locator('#editingProductId')).toHaveValue('');
+ await expect(page.locator('#editingBarcode')).toHaveValue('');
 });

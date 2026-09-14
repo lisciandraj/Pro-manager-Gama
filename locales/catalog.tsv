@@ -1647,3 +1647,8 @@ Expediente cerrado · entregado, facturado y pagado	Dossier clôturé · livré,
 Completa el correo electrónico en la ficha del cliente antes de preparar el recordatorio.	Renseignez l’adresse e-mail dans la fiche client avant de préparer la relance.	Enter the email in the customer record before preparing a reminder.
 Busca el cliente en la lista para editar su plazo.	Recherchez le client dans la liste pour modifier son délai.	Find the customer in the list to edit payment terms.
 Prepara, escanea y cierra los pedidos antes de enviarlos al transporte.	Préparez, scannez et finalisez les commandes avant leur transport.	Prepare, scan and finish orders before handing them over for transport.
+Secciones	Rubriques	Sections
+Solicitud vinculada	Demande liée	Linked request
+Solicitud no disponible.	Demande indisponible.	Request unavailable.
+Esta solicitud está cancelada o rechazada.	Cette demande est annulée ou refusée.	This request has been cancelled or rejected.
+Esta solicitud ya tiene un pedido. Consulta el expediente.	Cette demande a déjà une commande. Consultez le dossier.	This request already has an order. View its dossier.

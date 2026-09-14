@@ -49,7 +49,6 @@ const CATALOG=[
  {id:'backup',             label:'Copias de seguridad'},
  {id:'barcode',            label:'Códigos de barras'},
  {id:'client-catalog',     label:'Catálogo de productos'},
- {id:'customer-requests',  label:'Solicitudes de clientes'},
  {id:'order-preparation', label:'Preparación de pedidos'},
  {id:'tms',                label:'Transporte y entregas'},
  {id:'hr',                 label:'Recursos humanos'},
@@ -74,6 +73,7 @@ function write(){
 }
 
 function enabled(id){
+ if(id==='customer-requests')id='quotes';
  if(!id||LOCKED.has(id))return true;
  return !off.has(id);
 }
@@ -102,6 +102,7 @@ async function load(){
 }
 
 async function setEnabled(id,on){
+ if(id==='customer-requests')id='quotes';
  if(LOCKED.has(id))throw new Error('Este módulo no se puede desactivar.');
  const api=window.GamaCloud;
  if(!api)throw new Error('Sin conexión con GAMA Cloud.');

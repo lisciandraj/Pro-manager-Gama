@@ -35,7 +35,6 @@ const ITEMS=[
  ['Pagos de clientes','payments','banknote','Ventas'],
  ['Preparación de pedidos','order-preparation','checklist','Logística'],
  ['CRM','crm','handshake','Ventas'],
- ['Solicitudes de clientes','customer-requests','message','Ventas'],
  ['Catálogo de productos','client-catalog','catalog','Ventas'],
  ['Tarifas','price-lists','tag','Ventas'],
  ['Importar datos','reports','spreadsheet','Administración'],

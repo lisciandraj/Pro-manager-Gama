@@ -67,7 +67,7 @@ function hook(){
  userBar();filterMenu();filterTabs();
  const old=window.showTab;
  if(old&&!old.__gamaACL){
-  window.showTab=function(id,el){if(id!=='mainmenu'&&id!=='menu'&&!moduleOn(id)){alert('Este módulo está desactivado en Configuración.');return false}if(NAV_IDS.has(id))return old.apply(this,arguments);if(!allowed(id)){alert('Acceso denegado para este perfil.');return false}return old.apply(this,arguments)};
+  window.showTab=function(id,el){if(id!=='mainmenu'&&id!=='menu'&&!moduleOn(id)){alert('Este módulo está desactivado en Configuración.');return false}if(NAV_IDS.has(id))return old.apply(this,arguments);if(!allowed(id)){alert('Acceso denegado para este perfil.');return false}if(id==='customer-requests'){window.GamaQuotes?.openRequests();return false}return old.apply(this,arguments)};
   window.showTab.__gamaACL=true;
  }
  new MutationObserver(()=>{filterMenu();filterTabs()}).observe(document.body,{subtree:true,childList:true});

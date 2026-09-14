@@ -28,14 +28,14 @@ const ITEMS=[
  ['Matriz comercial','matrix','matrix','Inventario y compras'],
  ['Códigos de barras','barcode','barcode','Inventario y compras'],
  ['Presupuestos y facturas','quotes','invoice','Ventas'],
- ['Mis entregas','client-deliveries','pin','Ventas'],
+ ['Mis entregas','client-deliveries','pin','Cliente'],
  ['Clientes','clients','users','Ventas'],
  ['Seguimiento de expedientes','dossier-flow','folder','Ventas'],
  ['Pedidos de venta','sales-orders','bag','Ventas'],
  ['Pagos de clientes','payments','banknote','Ventas'],
  ['Preparación de pedidos','order-preparation','checklist','Logística'],
  ['CRM','crm','handshake','Ventas'],
- ['Catálogo de productos','client-catalog','catalog','Ventas'],
+ ['Catálogo de productos','client-catalog','catalog','Cliente'],
  ['Tarifas','price-lists','tag','Ventas'],
  ['Importar datos','reports','spreadsheet','Administración'],
  ['Recursos humanos','hr','badge','Administración'],
@@ -50,7 +50,7 @@ const ITEMS=[
    el módulo termina de cargar, y al añadirla al final de la rejilla cae
    justo debajo de este rótulo. Si el módulo no carga —o el perfil no lo
    tiene— el rótulo se esconde solo (ver la regla :has del CSS). */
-const GRUPOS=['Resumen','Inventario y compras','Ventas','Administración','Logística'];
+const GRUPOS=['Resumen','Inventario y compras','Ventas','Cliente','Administración','Logística'];
 const I={
 lock:'<rect x="5" y="10" width="14" height="12" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>',
 message:'<path d="M21 14a3 3 0 0 1-3 3H9l-6 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8Z"/><path d="M7 8h10M7 12h6"/>',

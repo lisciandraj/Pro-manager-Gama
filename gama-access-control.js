@@ -18,7 +18,7 @@ const SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
 const ROLES={
  admin:{label:'Administrador',perms:'*'},
- commercial:{label:'Comercial',perms:['payments','dossier-flow','settings','operations','notifications','gamaPurchasesV14','dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses','sales-orders','quotes','client-deliveries']},
+ commercial:{label:'Comercial',perms:['payments','dossier-flow','settings','operations','notifications','gamaPurchasesV14','dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses','sales-orders','quotes']},
  magasinier:{label:'Almacenero',perms:['dossier-flow','settings','operations','notifications','gamaPurchasesV14','dashboard','products','movement','stock','warehouses','barcode','tms','order-preparation','hr','sales-orders']},
  client:{label:'Cliente',perms:['settings','client-catalog','quotes','client-deliveries']}
 };

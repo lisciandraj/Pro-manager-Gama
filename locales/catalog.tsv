@@ -1652,3 +1652,41 @@ Solicitud vinculada	Demande liée	Linked request
 Solicitud no disponible.	Demande indisponible.	Request unavailable.
 Esta solicitud está cancelada o rechazada.	Cette demande est annulée ou refusée.	This request has been cancelled or rejected.
 Esta solicitud ya tiene un pedido. Consulta el expediente.	Cette demande a déjà une commande. Consultez le dossier.	This request already has an order. View its dossier.
+
+Knowledge · Base de conocimientos	Knowledge · Base de connaissances	Knowledge · Knowledge base
+Artículos, procedimientos y guías para el equipo.	Articles, procédures et guides pour l’équipe.	Articles, procedures and guides for the team.
+Buscar en los artículos	Rechercher dans les articles	Search articles
+Título, contenido y propiedades	Titre, contenu et propriétés	Title, content and properties
+Nuevo artículo	Nouvel article	New article
+Editar artículo	Modifier l’article	Edit article
+Crear subartículo	Créer un sous-article	Create subarticle
+Subartículos	Sous-articles	Subarticles
+Artículo principal	Article principal	Parent article
+Contenido	Contenu	Content
+Título de sección	Titre de section	Section heading
+Lista	Liste	List
+Negrita	Gras	Bold
+Vista previa	Aperçu	Preview
+Propiedades personalizadas	Propriétés personnalisées	Custom properties
+Añadir propiedad	Ajouter une propriété	Add property
+Guardar artículo	Enregistrer l’article	Save article
+Nombre de la propiedad	Nom de la propriété	Property name
+Opciones separadas por comas	Options séparées par des virgules	Comma-separated options
+Quitar propiedad	Retirer la propriété	Remove property
+Texto	Texte	Text
+Número	Nombre	Number
+Sí / No	Oui / Non	Yes / No
+Selección	Sélection	Selection
+Resultados de búsqueda	Résultats de recherche	Search results
+artículos	articles	articles
+No hay artículos para esta búsqueda.	Aucun article pour cette recherche.	No articles match this search.
+Aún no hay artículos.	Aucun article pour le moment.	No articles yet.
+Última actualización	Dernière mise à jour	Last updated
+¿Descartar los cambios sin guardar?	Abandonner les modifications non enregistrées ?	Discard unsaved changes?
+No se pudieron cargar los artículos. Pulsa Actualizar para reintentar.	Impossible de charger les articles. Cliquez sur Actualiser pour réessayer.	Articles could not be loaded. Click Refresh to try again.
+Máximo 30 propiedades por artículo.	Maximum 30 propriétés par article.	Maximum 30 properties per article.
+El título y el contenido son obligatorios.	Le titre et le contenu sont obligatoires.	Title and content are required.
+Cada propiedad debe tener un nombre único.	Chaque propriété doit avoir un nom unique.	Each property must have a unique name.
+El artículo fue modificado por otra persona. Copia tus cambios y pulsa Actualizar.	L’article a été modifié par une autre personne. Copiez vos changements puis cliquez sur Actualiser.	Someone else modified this article. Copy your changes and click Refresh.
+Artículo guardado.	Article enregistré.	Article saved.
+No se pudo guardar el artículo.	Impossible d’enregistrer l’article.	Could not save the article.

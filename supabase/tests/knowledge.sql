@@ -1,0 +1,37 @@
+begin;
+create temp table knowledge_test_users(kind text primary key,id uuid default gen_random_uuid());
+insert into knowledge_test_users(kind) values('administrador'),('comercial'),('almacenero'),('cliente'),('inactive');
+insert into auth.users(id,email) select id,'knowledge-'||id||'@example.invalid' from knowledge_test_users;
+insert into public.profiles(id,full_name,role,active) select id,'Knowledge QA',case when kind='inactive' then 'administrador' else kind end,kind<>'inactive' from knowledge_test_users on conflict(id) do update set role=excluded.role,active=excluded.active;
+grant select on knowledge_test_users to authenticated;
+create function pg_temp.assert_true(ok boolean,label text) returns void language plpgsql as $$begin if ok is distinct from true then raise exception 'ASSERT FAILED: %',label;end if;end$$;
+create function pg_temp.expect_error(q text) returns void language plpgsql as $$begin begin execute q;exception when others then return;end;raise exception 'EXPECTED ERROR: %',q;end$$;
+select set_config('request.jwt.claim.sub',(select id::text from knowledge_test_users where kind='administrador'),true);
+set local role authenticated;
+insert into public.knowledge_articles(slug,title,body) values('qa-knowledge-root','Root QA','Root content');
+insert into public.knowledge_articles(slug,parent_id,title,body,properties) select 'qa-knowledge-child',id,'Child QA','Child content','[{"label":"Stock","type":"number","value":0},{"label":"Review","type":"date","value":"2026-09-14"},{"label":"Ready","type":"boolean","value":false},{"label":"Type","type":"select","options":["Guide"],"value":"Guide"}]'::jsonb from public.knowledge_articles where slug='qa-knowledge-root';
+update public.knowledge_articles set body='Updated' where slug='qa-knowledge-child' and version=1;
+select pg_temp.assert_true((select version=2 from public.knowledge_articles where slug='qa-knowledge-child'),'version increment');
+update public.knowledge_articles set body='Stale overwrite' where slug='qa-knowledge-child' and version=1;
+select pg_temp.assert_true((select body='Updated' from public.knowledge_articles where slug='qa-knowledge-child'),'optimistic conflict');
+select pg_temp.expect_error($q$update public.knowledge_articles set parent_id=(select id from public.knowledge_articles where slug='qa-knowledge-child') where slug='qa-knowledge-root'$q$);
+select pg_temp.expect_error($q$insert into public.knowledge_articles(title,body,properties) values('Invalid','Content','[{"label":"Bad","type":"boolean","value":"yes"}]')$q$);
+select pg_temp.expect_error($q$insert into public.knowledge_articles(title,body,properties) values('Invalid','Content','[{"label":"x","type":"text","value":"a"},{"label":"X","type":"text","value":"b"}]')$q$);
+select pg_temp.expect_error($q$delete from public.knowledge_articles where slug='qa-knowledge-root'$q$);
+reset role;
+do $$declare u record;n integer;begin
+ for u in select * from knowledge_test_users where kind<>'administrador' loop
+  perform set_config('request.jwt.claim.sub',u.id::text,true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.knowledge_articles where slug='qa-knowledge-root';
+  perform pg_temp.assert_true(n=case when u.kind in ('comercial','almacenero') then 1 else 0 end,'read role '||u.kind);
+  perform pg_temp.expect_error($q$insert into public.knowledge_articles(title,body) values('Forbidden','Forbidden')$q$);
+  update public.knowledge_articles set body='Forbidden' where slug='qa-knowledge-root';
+  get diagnostics n=row_count;
+  perform pg_temp.assert_true(n=0,'no updates '||u.kind);
+  execute 'reset role';
+ end loop;
+end$$;
+select pg_temp.assert_true(not has_table_privilege('anon','public.knowledge_articles','SELECT'),'no anonymous access');
+select pg_temp.assert_true((select count(*)=1 from public.knowledge_articles where slug='gama-getting-started'),'guide created once');
+rollback;

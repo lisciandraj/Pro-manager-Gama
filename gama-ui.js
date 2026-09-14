@@ -68,14 +68,15 @@ function css(){
 .gamaStdActions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
 .gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:11px 15px;font-weight:750;font-size:14px;cursor:pointer;min-height:44px;width:auto}
 .gamaStdBack:hover,.gamaStdAction:hover{background:#E3EBED}
-/* Shared GAMA outline for light controls, including dynamically loaded modules. */
+/* Button surfaces provide contrast; reserve outlines for keyboard focus. */
 body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),
 body #aclLogout,
 body button.tmsTab:not(.active),
 body .crmNav button:not(.on),
 body .gamaArcTabs button:not(.on),
-body #mainmenu .gamaF2Card{
- border:1px solid #087C8B!important;
+body #mainmenu .gamaF2Card,
+body #mainmenu .gamaF2Card:hover{
+ border:1px solid transparent!important;
 }
 body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):focus-visible,
 body #aclLogout:focus-visible{
@@ -91,11 +92,11 @@ body #aclLogout:focus-visible{
  }
  body .gamaStdHeader{border-color:#8FA6B5}
  body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),body #aclLogout{
-  background:#DCE8ED!important;color:#173246!important;border:2px solid #087C8B!important;
+  background:#DCE8ED!important;color:#173246!important;border:2px solid transparent!important;
   box-shadow:0 2px 3px #17324618;
  }
  body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):hover,body #aclLogout:hover{background:#C8DFE5!important}
- body button:is(.primary,.tmsPrimary){border:1px solid #075C69;box-shadow:0 3px 7px #075C6938}
+ body button:is(.primary,.tmsPrimary){border:1px solid transparent;box-shadow:0 3px 7px #075C6938}
  body section :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]){
   border:2px solid #7D98A8;background:#F7FAFC;color:#173246;
  }

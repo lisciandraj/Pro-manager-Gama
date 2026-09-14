@@ -454,3 +454,32 @@ test.describe('CRM — Oportunidades', () => {
     expect(medidas.pagina).toBe(true);
   });
 });
+
+test('dragging cards saves the stage, handles won/lost and supports cancelling a loss',async({page})=>{
+ await boot(page);await embudo(page);
+ const card=()=>page.locator('[data-oportunidad="o1"]');
+ await card().dragTo(col(page,'e2'));
+ await expect(col(page,'e2').locator('[data-oportunidad="o1"]')).toBeVisible();
+ expect(await db(page,()=>window.__DB.crm_opportunities.find(o=>o.id==='o1').probability)).toBe(60);
+ await card().dragTo(col(page,'e3'));
+ await expect(col(page,'e3').locator('[data-oportunidad="o1"]')).toBeVisible();
+ expect(await db(page,()=>window.__DB.crm_opportunities.find(o=>o.id==='o1').probability)).toBe(100);
+ await card().dragTo(col(page,'e4'));await expect(page.locator('#crmOMotivo')).toBeVisible();
+ await page.locator('#crmOPerderNo').click();await expect(col(page,'e3').locator('[data-oportunidad="o1"]')).toBeVisible();
+ await card().dragTo(col(page,'e4'));await page.locator('#crmOMotivo').selectOption('m1');await page.locator('#crmOPerder').click();
+ await expect(col(page,'e4').locator('[data-oportunidad="o1"]')).toBeVisible();
+ expect(await db(page,()=>window.__DB.crm_opportunities.find(o=>o.id==='o1').lost_reason_id)).toBe('m1');
+ await card().dragTo(col(page,'e1'));await expect(col(page,'e1').locator('[data-oportunidad="o1"]')).toBeVisible();
+ expect(await db(page,()=>window.__DB.crm_opportunities.find(o=>o.id==='o1').lost_at)).toBeNull();
+});
+test('failed drop keeps original stage and unlocks the card for retry',async({page})=>{
+ await boot(page);await embudo(page);
+ await page.evaluate(()=>{const old=GamaCloud.update;window.__failDrop=true;GamaCloud.update=async(...args)=>window.__failDrop?{error:{message:'Network unavailable'}}:old(...args)});
+ await page.locator('[data-oportunidad="o1"]').dragTo(col(page,'e2'));
+ await expect(page.locator('#crmMsg')).toContainText('Network unavailable');
+ await expect(col(page,'e1').locator('[data-oportunidad="o1"]')).toHaveAttribute('draggable','true');
+ await expect(page.locator('[data-mover="o1"]')).toHaveValue('e1');
+ await page.evaluate(()=>window.__failDrop=false);
+ await page.locator('[data-oportunidad="o1"]').dragTo(col(page,'e2'));
+ await expect(col(page,'e2').locator('[data-oportunidad="o1"]')).toBeVisible();
+});

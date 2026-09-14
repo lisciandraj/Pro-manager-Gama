@@ -48,6 +48,7 @@ const PRIORIDADES={baja:'Baja',media:'Media',alta:'Alta'};
 let opos=[],lineas=[],clientes=[],prospectos=[],contactos=[],productos=[],gente=[],ref={etapas:[],origenes:[],motivos:[]};
 let vista='embudo',abierto=null,busca='',cargando=false,perdiendo=null,presupuesto=null;
 
+let arrastrando=null,moviendo=false;
 let mi;
 async function quienSoy(){
  if(mi!==undefined)return mi;
@@ -162,7 +163,7 @@ function columna(e,suyas){
 }
 function tarjeta(o){
  const q=deQuien(o);
- return '<div class="crmTarjeta'+(tarde(o)?' tarde':'')+'" data-oportunidad="'+esc(o.id)+'">'
+ return '<div class="crmTarjeta'+(tarde(o)?' tarde':'')+'" draggable="true" data-oportunidad="'+esc(o.id)+'">'
   +'<div class="crmTarjTit"><b>'+esc(o.title)+'</b>'
    +'<span class="crmPri p-'+esc(o.priority)+'">'+esc(PRIORIDADES[o.priority]||o.priority)+'</span></div>'
   +'<small class="crmSub">'+esc(q.nombre)+'</small>'
@@ -351,24 +352,28 @@ async function guardar(){
  }catch(e){fallo(e,'No se pudo guardar la oportunidad')}
 }
 async function mover(id,etapaId){
+ if(moviendo||perdiendo||!window.gamaAccessAllowed?.('crm'))return;
  const o=opos.find(x=>String(x.id)===String(id));
  const e=etapaDe(etapaId);
  if(!o||!e)return;
  if(String(o.stage_id)===String(e.id))return;
  if(e.is_lost){perdiendo={id:id,etapa:etapaId};pintar();return}
+ bloquearMovimiento(true);
  try{
   const d=Object.assign({stage_id:e.id,probability:e.is_won?100:Number(e.default_probability||0)},sellos(e,null));
   const r=await C().update('crm_opportunities',id,d);
   if(r.error)throw r.error;
   await cargar();
   pintar('«'+o.title+'» pasa a '+e.name+'.','ok');
- }catch(err){fallo(err,'No se pudo mover la oportunidad')}
+ }catch(err){pintar();fallo(err,'No se pudo mover la oportunidad')}
+ finally{bloquearMovimiento(false)}
 }
 async function darPorPerdida(){
- if(!perdiendo)return;
+ if(!perdiendo||moviendo)return;
  const motivo=val('crmOMotivo');
  if(!motivo){msg('Elige un motivo.','err');return}
  const e=etapaDe(perdiendo.etapa);
+ bloquearMovimiento(true);
  try{
   const d=Object.assign({stage_id:perdiendo.etapa,probability:0},sellos(e,motivo));
   const r=await C().update('crm_opportunities',perdiendo.id,d);
@@ -377,6 +382,7 @@ async function darPorPerdida(){
   await cargar();
   pintar('Oportunidad dada por perdida, con su motivo.','ok');
  }catch(err){fallo(err,'No se pudo dar por perdida')}
+ finally{bloquearMovimiento(false)}
 }
 async function abrir(id){
  try{
@@ -506,6 +512,42 @@ function pintar(aviso,tipo){
  conectar();
  if(aviso)msg(aviso,tipo);
 }
+function bloquearMovimiento(value){
+ moviendo=value;
+ const s=CRM.section();
+ s.querySelectorAll('[data-mover],#crmOPerder,#crmOPerderNo').forEach(x=>x.disabled=value);
+ s.querySelectorAll('[data-oportunidad]').forEach(x=>{x.draggable=!value;x.setAttribute('aria-busy',String(value))});
+}
+function limpiarArrastre(){
+ arrastrando=null;
+ CRM.section().querySelectorAll('.crmArrastrando,.crmDestino').forEach(x=>x.classList.remove('crmArrastrando','crmDestino'));
+}
+function conectarArrastre(s){
+ s.querySelectorAll('[data-oportunidad]').forEach(card=>{
+  card.ondragstart=e=>{
+   if(moviendo||perdiendo||!window.gamaAccessAllowed?.('crm')||e.target.closest('select,button,input')){e.preventDefault();return}
+   arrastrando=card.dataset.oportunidad;
+   e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',arrastrando);
+   card.classList.add('crmArrastrando');
+  };
+  card.ondragend=limpiarArrastre;
+ });
+ s.querySelectorAll('[data-etapa]').forEach(column=>{
+  column.ondragover=e=>{
+   if(!arrastrando||moviendo)return;
+   const o=opos.find(x=>String(x.id)===arrastrando);
+   if(!o||String(o.stage_id)===column.dataset.etapa)return;
+   e.preventDefault();e.dataTransfer.dropEffect='move';
+   s.querySelectorAll('.crmDestino').forEach(x=>{if(x!==column)x.classList.remove('crmDestino')});
+   column.classList.add('crmDestino');
+  };
+  column.ondragleave=e=>{if(!column.contains(e.relatedTarget))column.classList.remove('crmDestino')};
+  column.ondrop=e=>{
+   if(!arrastrando||moviendo)return;
+   e.preventDefault();const id=arrastrando;limpiarArrastre();mover(id,column.dataset.etapa);
+  };
+ });
+}
 function conectar(){
  const s=CRM.section();
  const b=$('crmOBusca');
@@ -518,9 +560,10 @@ function conectar(){
  if(nv)nv.onclick=()=>{abierto=nueva();lineas=[];vista='ficha';pintar()};
  s.querySelectorAll('[data-mover]').forEach(x=>{x.onchange=()=>mover(x.dataset.mover,x.value)});
  s.querySelectorAll('[data-oportunidad]').forEach(x=>{x.onclick=e=>{
-  if(e.target.closest('select'))return;
+  if(moviendo||arrastrando||e.target.closest('select'))return;
   abrir(x.dataset.oportunidad);
  }});
+ conectarArrastre(s);
  const t=$('crmOTipo');
  if(t)t.onchange=()=>{
   const cli=t.value==='cliente';
@@ -575,6 +618,7 @@ function css(){
  +'#crm .crmColVacia{text-align:center;color:#b3c0c7;padding:10px 0}'
  +'#crm .crmTarjeta{background:#fff;border:1px solid #e2e8ec;border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}'
  +'#crm .crmTarjeta:hover{border-color:#087c8b}'
+ +'#crm .crmTarjeta[draggable=true]{cursor:grab}#crm .crmTarjeta.crmArrastrando{opacity:.45;cursor:grabbing}#crm .crmTablero .crmCol{min-height:180px}#crm .crmTablero .crmCol.crmDestino{background:#d8eff1;border:2px dashed #087c8b}#crm .crmTarjeta[aria-busy=true]{opacity:.65;cursor:wait}'
  +'#crm .crmTarjeta.tarde{border-left:3px solid #c94f45}'
  +'#crm .crmTarjTit{display:flex;gap:6px;align-items:flex-start;justify-content:space-between}'
  +'#crm .crmTarjTit b{font-size:12.5px;color:#18324a;min-width:0}'

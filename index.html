@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-180.png?v=20260915-gama-logo">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=20260914-knowledge1"></script>
+<script src="gama-i18n-catalog.js?v=20260915-export1"></script>
 <script src="gama-i18n.js?v=20260913-accesssettings1"></script>
 <script src="gama-toast.js?v=20260913-i18n1"></script>
 <title>GAMA Enterprise Resource Planning</title>
@@ -174,6 +174,8 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 }
 </style>
 
+<script defer src="gama-export-schema.js?v=20260915-1"></script>
+<script defer src="gama-excel-export.js?v=20260915-1"></script>
 </head>
 <body data-version="10" data-design="gama-erp-main-menu">
 
@@ -283,7 +285,7 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 <div class="card">
 <h3 data-gi=bb79f8467eda>📤 Exportar</h3>
 <div class="actions">
-<button class="primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Productos + Clientes + Auditoría</button>
+<button class="primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Todos los módulos</button>
 <button class="secondary" onclick="exportJSONBackup()" data-gi=98c0409192c9>💾 Copia completa JSON</button>
 </div>
 <h3 data-gi=1130376c0e96>📥 Restaurar JSON</h3>
@@ -456,19 +458,7 @@ function selectClientForInvoice(){
  window.gamaResetQuoteOverrides?.();
  renderInvoiceItems();
 }
-function exportExcel(){
- const sheets={
-  Productos:[['Código','Nombre','Descripción','Familia','Líneas','Marca','Presentación','Referencia','Categoría','Ubicación','Stock','Stock mínimo','Stock máximo','Cantidad por cartón','Peso (g)','Volumen (cm3)','Precio compra','Precio venta A','Precio venta B','IVA','Tiene foto'],...db.products.map(p=>[p.barcode,p.name,p.description,p.family,p.lines,p.brand,p.presentation,p.ref,p.cat,p.loc,p.stock,p.min,p.maxStock,p.qtyCarton,p.weightG,p.volumeCm3,p.purchase_price,p.price,p.salePriceB,p.iva,p.photo?'Sí':'No'])],
-  Clientes:[['Nombre / Razón social','Tipo ID','Identificación','Categoría','Dirección','Teléfono','Email','Ciudad','Provincia','Observaciones'],...db.clients.map(c=>[c.name,c.idType,c.id,c.category||'A',c.address,c.phone,c.email,c.city,c.province,c.notes])],
-  Auditoria:[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])]
- };
- let out='PK'; // marker: generate SpreadsheetML 2003 XML below
- const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
- let xml='<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="h"><Font ss:Bold="1"/></Style></Styles>';
- for(const [name,rows] of Object.entries(sheets)){xml+=`<Worksheet ss:Name="${esc(name)}"><Table>`;rows.forEach((r,i)=>{xml+='<Row>'+r.map(v=>`<Cell${i===0?' ss:StyleID="h"':''}><Data ss:Type="String">${esc(v)}</Data></Cell>`).join('')+'</Row>'});xml+='</Table></Worksheet>'}
- xml+='</Workbook>';
- const blob=new Blob([xml],{type:'application/vnd.ms-excel'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock_manager_backup_'+new Date().toISOString().slice(0,10)+'.xls';a.click()
-}
+function exportExcel(){return window.GamaExcelExport.run()}
 function exportJSONBackup(){
  const blob=new Blob([JSON.stringify({version:'V6.1',exportedAt:new Date().toISOString(),data:db},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock_manager_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click()
 }

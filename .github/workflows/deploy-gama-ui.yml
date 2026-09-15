@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Validate sources
         run: |
           test -s index.html
@@ -28,6 +31,8 @@ jobs:
           node --check gama-quote-pdf.js
           node --check gama-purchase-order-pdf.js
           node --check gama-payments.js
+          node --check gama-assistant-ia.js
+          node --test tests/assistant-server.test.mjs
           node --check gama-operations.js
           node --check gama-fulfillment.js
           node --check gama-ui.js

@@ -101,18 +101,6 @@ function reglasDeGrupo(){
  }).join('');
 }
 
-function buscar(termino){
- const t=(termino||'').trim().toLowerCase();
- let visibles=0;
- document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>{
-  const rotulo=(c.querySelector('.gamaF2Title')?.textContent||'').toLowerCase();
-  const coincide=!t||rotulo.includes(t);
-  c.classList.toggle('gamaF2NoMatch',!coincide);
-  if(coincide&&!c.classList.contains('aclHidden'))visibles++;
- });
- const vacio=document.getElementById('gamaF2Vacio');
- if(vacio)vacio.hidden=!(t&&!visibles);
-}
 
 function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang=window.GamaI18n?.language||'es';const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';/* auto-fill en vez de cinco columnas fijas: al agrupar, un grupo de seis
    tarjetas dejaba una sola huérfana en la fila siguiente y un hueco enorme
@@ -130,9 +118,9 @@ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-column
  const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';
  const caja=document.createElement('div');caja.className='gamaF2Buscador';
  caja.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
- const input=document.createElement('input');input.type='search';input.id='gamaF2Buscar';input.placeholder='Buscar un módulo…';input.setAttribute('aria-label','Buscar un módulo');
- input.oninput=()=>buscar(input.value);
- input.onkeydown=e=>{if(e.key==='Escape'){input.value='';buscar('');input.blur()}};
+ const input=document.createElement('input');input.type='search';input.id='gamaF2Buscar';input.placeholder='Buscar en GAMA…';input.setAttribute('aria-label','Buscar en GAMA');
+ input.onfocus=()=>window.GamaGlobalSearch?.open(input.value);
+ input.oninput=()=>window.GamaGlobalSearch?.open(input.value);
  caja.appendChild(input);
  const tecla=document.createElement('kbd');tecla.textContent='/';tecla.setAttribute('aria-hidden','true');caja.appendChild(tecla);
  const grid=document.createElement('div');grid.className='gamaF2Grid';
@@ -149,7 +137,8 @@ s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-column
   });
  });
  const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;vacio.textContent='Ningún módulo coincide con la búsqueda.';
- host.append(h,p,caja,grid,vacio);
+ host.append(h,p,caja,grid);
+ window.GamaGlobalSearch?.mount(input);
 }
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la

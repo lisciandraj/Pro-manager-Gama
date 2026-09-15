@@ -1,0 +1,39 @@
+const {test,expect}=require('@playwright/test');
+const fs=require('fs'),path=require('path');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
+async function boot(page,role='admin'){
+ await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Search QA'}));localStorage.setItem('gama_language_v1','fr')},role);
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
+ await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
+ await page.evaluate(role=>{
+  window.__searchCalls=[];window.__searchDelay=0;window.__searchFailure=false;window.__opened=[];
+  const roles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',client:'cliente'};
+  GamaCloud.getProfile=async()=>({data:{id:'qa',role:roles[role],active:true}});
+  window.__searchData={products:[{id:'p1',name:'Coca Cola',reference:'CC-01',barcode:'789456123',category:'Boissons',active:true},{id:'p2',name:'Coca <img src=x onerror=alert(1)>',reference:'CC-02',active:true}],customers:[{id:'c1',name:'Juan Perez',identification:'123',email:'juan@example.test',active:true}],crm_contacts:[{id:'k1',first_name:'Juan',last_name:'Pérez',job_title:'Achats',active:true}],suppliers:[{id:'s1',name:'Juan Perez fournisseur',active:true}],sales_orders:[{id:'o1',number:'OLD-293',customer_name:'Juan Perez',status:'confirmed'}],gama_document_references:[{table_name:'sales_orders',document_id:'o1',dossier_number:293,document_reference:'PED-00000293'}],knowledge_articles:[{id:'a1',title:'Procédure Coca Cola',body:'Ranger les bouteilles par lot.',slug:'coca',parent_id:null,properties:[],updated_at:'2026-09-15T12:00:00Z'}]};
+  function q(table,data){const log={table,filters:[],start:0,end:29};__searchCalls.push(log);let single=false;const chain={select(v){log.select=v;return chain},or(v){log.or=v;return chain},order(){return chain},limit(n){log.end=n-1;return chain},range(a,b){log.start=a;log.end=b;return chain},eq(k,v){log.filters.push([k,v]);return chain},in(k,v){log.filters.push([k,v,true]);return chain},lt(){return chain},not(){return chain},abortSignal(s){log.signal=s;return chain},maybeSingle(){single=true;return chain},then(resolve,reject){return new Promise(r=>setTimeout(r,__searchDelay)).then(()=>{if(__searchFailure&&table==='products')return {error:{message:'unavailable'}};let rows=data||__searchData[table]||[];if(Array.isArray(rows)){rows=rows.filter(r=>log.filters.every(([k,v,m])=>m?v.includes(r[k]):r[k]===v)).slice(log.start,log.end+1);if(single)rows=rows[0]||null}return {data:structuredClone(rows),error:null}}).then(resolve,reject)}};return chain}
+  GamaCloud.db=async()=>({from:t=>q(t),rpc:(name,args)=>{const data=name==='gama_payment_action'?{total:1,rows:[{id:'i1',number:'FAC-00000283',customer_name:'Juan Perez',total:100,paid:25,balance:75,payment_status:'partial'}]}:[];return q(name,data)}});
+  GamaSales.openOrder=async id=>__opened.push(['order',id]);GamaPayments.open=async o=>__opened.push(['invoice',o.invoiceId]);
+ },role);
+}
+async function search(page,q){await page.locator('#gamaF2Buscar').click();await page.locator('#gspInput').fill(q);await expect(page.locator('#gspStatus')).not.toHaveText('Recherche en cours…');await expect(page.locator('#gspList [role=option]').first()).toBeVisible();}
+test('Spotlight replaces module filtering, ranks barcode matches and opens a safe record preview',async({page})=>{
+ await boot(page);const count=await page.locator('#mainmenu .gamaF2Card:visible').count();await search(page,'789456123');await expect(page.locator('#gspList')).toContainText('Coca Cola');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');await expect(page.locator('.gspRecord')).toContainText('789456123');await page.locator('.gspRecord [data-close]').click();await expect(page.locator('#gamaSpotlight')).not.toBeVisible();expect(await page.locator('#mainmenu .gamaF2Card:visible').count()).toBe(count);
+ await page.keyboard.press('Control+k');await page.locator('#gspInput').fill('Coca');await expect(page.locator('#gspList')).toContainText('<img');await expect(page.locator('#gspList img')).toHaveCount(0);await page.keyboard.press('Escape');await expect(page.locator('#gamaSpotlight')).not.toBeVisible();
+});
+test('cross-module person search, canonical order reference and unpaid invoice deep links',async({page})=>{
+ await boot(page);await search(page,'Juan Perez');await expect(page.locator('#gspList')).toContainText('Contacts');await expect(page.locator('#gspList')).toContainText('Fournisseurs');await page.locator('#gspInput').fill('CMD-293');await expect(page.locator('#gspList')).toContainText('PED-00000293');await page.locator('#gspList [role=option]').click();expect(await page.evaluate(()=>__opened)).toContainEqual(['order','o1']);
+ await search(page,'factures impayées');await expect(page.locator('#gspHint')).toContainText('paiements partiels');await expect(page.locator('#gspList')).toContainText('75');await page.locator('#gspList [role=option]').click();expect(await page.evaluate(()=>__opened)).toContainEqual(['invoice','i1']);
+});
+for(const role of ['client','magasinier'])test('search queries only permitted sources for '+role,async({page})=>{
+ await boot(page,role);await search(page,'Coca');const tables=await page.evaluate(()=>__searchCalls.map(c=>c.table));expect(tables).not.toContain('external_invoices');expect(tables).not.toContain('external_invoice_payments');expect(tables).not.toContain('customers');expect(tables).not.toContain('crm_contacts');if(role==='client')expect(tables).not.toContain('knowledge_articles');
+});
+test('late responses cannot survive logout, query changes or disabled modules; errors are visible',async({page})=>{
+ await boot(page);await page.locator('#gamaF2Buscar').click();await page.evaluate(()=>__searchDelay=200);await page.locator('#gspInput').fill('Coca');await page.locator('#gspInput').fill('Juan');await expect(page.locator('#gspList')).toContainText('Juan');await expect(page.locator('#gspList')).not.toContainText('Coca');
+ await page.evaluate(()=>{__searchFailure=true;__searchDelay=0});await page.locator('#gspInput').fill('Coca');await expect(page.locator('.gspError')).toBeVisible();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:modules-change')));await expect(page.locator('#gamaSpotlight')).not.toBeVisible();
+ await page.keyboard.press('Control+k');await page.evaluate(()=>{__searchDelay=300;window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}))});await expect(page.locator('#gamaSpotlight')).not.toBeVisible();await expect(page.locator('#gspList')).toBeEmpty();
+});
+test('Knowledge opens the selected article, responsive layout and translations',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await search(page,'Coca');await expect(page.locator('#gspList')).toContainText('Knowledge');expect(await page.locator('#gamaSpotlight').evaluate(d=>d.scrollWidth<=d.clientWidth)).toBe(true);await page.screenshot({path:'test-results/spotlight-mobile.png'});
+ await page.locator('#gspList [role=option]').filter({hasText:'Procédure Coca Cola'}).click();await expect(page.locator('#gkArticleTitle')).toHaveText('Procédure Coca Cola');
+ await page.setViewportSize({width:1440,height:1000});await page.evaluate(()=>GamaI18n.setLanguage('en'));await page.keyboard.press('Control+k');await expect(page.locator('#gspInput')).toHaveAttribute('placeholder','Search GAMA…');await page.locator('#gspInput').fill('unpaid invoices');await expect(page.locator('#gspHint')).toContainText('Unpaid invoices');await expect(page.locator('#gspList')).toContainText('FAC-00000283');await page.screenshot({path:'test-results/spotlight-desktop.png'});
+});

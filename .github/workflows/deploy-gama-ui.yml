@@ -31,6 +31,9 @@ jobs:
           node --check gama-quote-pdf.js
           node --check gama-purchase-order-pdf.js
           node --check gama-payments.js
+          node --check gama-global-search-core.js
+          node --check gama-global-search.js
+          node --test tests/global-search-core.test.cjs
           node --check gama-assistant-ia.js
           node --test tests/assistant-server.test.mjs
           node --check gama-operations.js

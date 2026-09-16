@@ -16,7 +16,7 @@
    Por eso Inventario va antes que Ventas. Al mover un módulo de grupo, o
    al reordenar los grupos, hay que volver a comprobarlo. */
 const ITEMS=[
- ['Proyectos','projects','folder','Resumen'],
+ ['Proyectos','projects','project','Administración'],
  ['Asistente IA','assistant-ia','message','Resumen'],
  ['Panel de control','dashboard','chart','Resumen'],
  ['Control comercial y logístico','operations','gauge','Resumen'],
@@ -55,6 +55,7 @@ const ITEMS=[
    tiene— el rótulo se esconde solo (ver la regla :has del CSS). */
 const GRUPOS=['Resumen','Inventario y compras','Ventas','Cliente','Administración','Logística'];
 const I={
+project:'<path d="M4 3v18h17"/><rect x="7" y="5" width="6" height="3" rx=".5"/><rect x="11" y="10" width="8" height="3" rx=".5"/><rect x="15" y="15" width="6" height="3" rx=".5"/>',
 knowledge:'<path d="M5 3h12a2 2 0 0 1 2 2v16H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2ZM3 17h16M8 3v8l3-2 3 2V3"/>',
 lock:'<rect x="5" y="10" width="14" height="12" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>',
 message:'<path d="M21 14a3 3 0 0 1-3 3H9l-6 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8Z"/><path d="M7 8h10M7 12h6"/>',

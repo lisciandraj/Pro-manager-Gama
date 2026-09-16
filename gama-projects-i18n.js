@@ -1719,5 +1719,10 @@ window.GamaProjectsText={
   "Ya hay una compra en preparación. Guárdala o vacíala antes de crear una compra del proyecto.",
   "Un achat est déjà en préparation. Enregistrez-le ou videz le formulaire avant de créer l’achat du projet.",
   "A purchase is already being prepared. Save it or clear the form before creating the project purchase."
+ ],
+ "projects_lead": [
+  "Crea, planifica y sigue los proyectos de tu equipo.",
+  "Créez, planifiez et suivez les projets de votre équipe.",
+  "Create, plan and track your team’s projects."
  ]
 };

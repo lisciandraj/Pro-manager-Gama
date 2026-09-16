@@ -83,9 +83,9 @@ body #aclLogout:focus-visible{
  outline:3px solid #087C8B!important;outline-offset:3px;
 }
 
-/* Desktop monitors need clear surface boundaries, not only subtle shadows.
-   Keep semantic status colours and the existing mobile theme. */
-@media screen and (min-width:761px){
+/* Share the desktop palette across portrait, landscape and desktop screens.
+   Responsive rules below adjust layout; surface colours stay the same. */
+@media screen{
  body{--gama-bg:#BFCFDB;--gama-line:#8FA6B5;background:var(--gama-bg)}
  body :is(.gamaStdHeader,.card,.dashCard,.dashPanel,.gkPanel,.gqCard,.gsCard,.gpCard,.tmsCard,.tmsKpi):not(.gpStatus){
   background:#fff;border:1px solid #8FA6B5;box-shadow:0 2px 4px #17324618,0 6px 18px #17324614;

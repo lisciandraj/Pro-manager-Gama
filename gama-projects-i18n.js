@@ -1,5 +1,12 @@
 /* Project module translations: ES / FR / EN. User data is never translated. */
 window.GamaProjectsText={
+"delete_item": ["Eliminar elemento", "Supprimer l’élément", "Delete item"],
+"delete_permanently": ["Eliminar definitivamente", "Supprimer définitivement", "Delete permanently"],
+"delete_item_help": ["El elemento se eliminará de las vistas y de los cálculos del proyecto. Sus comentarios, documentos y enlaces se conservarán en el proyecto. Los impactos ya aplicados no se revierten. El historial se conserva y la referencia no se reutiliza.", "L’élément sera retiré des vues et des calculs du projet. Ses commentaires, documents et liens seront conservés dans le projet. Les impacts déjà appliqués ne sont pas annulés. L’historique est conservé et la référence ne sera pas réutilisée.", "The item will be removed from project views and calculations. Its comments, documents and links will remain on the project. Previously applied impacts are not reversed. History is retained and the reference will not be reused."],
+"delete_item_confirm": ["Confirmo la eliminación de este elemento.", "Je confirme la suppression de cet élément.", "I confirm deletion of this item."],
+"item_deleted": ["Elemento eliminado.", "Élément supprimé.", "Item deleted."],
+"PM_DELETE_CONFIRM_REQUIRED": ["Confirma la eliminación.", "Confirmez la suppression.", "Confirm deletion."],
+"PM_DELETE_REFERENCED": ["Primero elimina o reasigna los elementos vinculados: hijos, dependencias, RACI o impactos de cambios.", "Supprimez ou réaffectez d’abord les éléments liés : éléments enfants, dépendances, RACI ou impacts de changements.", "First remove or reassign linked items: children, dependencies, RACI or change impacts."],
  "projects": [
   "Proyectos",
   "Projets",

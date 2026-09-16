@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');const fs=require('fs'),path=requ
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const uid='00000000-0000-0000-0000-000000000001',member='00000000-0000-0000-0000-000000000002';
 async function boot(page,role='admin'){
- const db=new PGlite();await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916093638_project_management.sql'),'utf8'));
+ const db=new PGlite();await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916093638_project_management.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916214905_project_item_deletion.sql'),'utf8'));
  await db.exec(`insert into auth.users values ('${uid}','qa@example.invalid'),('${member}','member@example.invalid');insert into public.profiles(id,full_name,role,active) values ('${uid}','Jimmy QA','${role==='client'?'cliente':'administrador'}',true),('${member}','Maria QA','comercial',true);select set_config('request.jwt.claim.sub','${uid}',false);set role authenticated;`);
  const rpc=async(a,d={})=>(await db.query('select public.gama_projects_action($1,$2) result',[a,d])).rows[0].result;
  await page.exposeFunction('__pmServer',async(a,d)=>{try{return {data:await rpc(a,d)}}catch(e){return {error:{message:e.message,code:e.code}}}});
@@ -30,5 +30,39 @@ test('accepted quote links once, reports download as PDF and Excel, notification
  await page.locator('#pmMore').selectOption('reports');
  for(const format of ['pdf','xlsx']){await page.locator('[data-pm-action=report][data-type=financial_report]').click();await field(page,'format').selectOption(format);const download=page.waitForEvent('download');await page.locator('.pmDialog [type=submit]').click();const file=await download;expect(file.suggestedFilename()).toBe(project.reference+'-financial_report.'+format);const saved=testInfo.outputPath('financial-report.'+format);await file.saveAs(saved);const bytes=fs.readFileSync(saved);expect(bytes.length).toBeGreaterThan(1000);expect(bytes.subarray(0,format==='pdf'?4:2).toString()).toBe(format==='pdf'?'%PDF':'PK');await expect(page.locator('.pmDialog')).toHaveCount(0);}
  await call('update_project',{project_id:project.id,version:project.version,estimate_remaining:100});await page.evaluate(async()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(name,args)=>name==='gama_operations_action'?Promise.resolve({data:{from:'2026-09-01',to:'2026-09-16',generated_at:new Date().toISOString(),finance:true,warehouse:true,active_count:0,total:0,counts:{},action_center:{},metrics:{},alerts:[]}}):c.rpc(name,args)}};await GamaOperations.open('notifications')});await expect(page.locator('[data-pm-alerts]')).toContainText('DEV-QA');await page.locator('[data-pm-alerts] [data-pm-target-tab=budget]').first().click();await expect(page.locator('#pmEstimate')).toBeVisible();await expect(page.locator('#pmMain h2')).toHaveText('DEV-QA');
+ }finally{await db.close()}
+});
+
+test('delete item confirmation, dependency guidance, translations and refreshed lists',async({page})=>{
+ test.setTimeout(90000);const {db,call,rpc}=await boot(page);try{
+ const pid=(await call('create_project',{name:'Deletion QA',start_date:'2026-09-01',due_date:'2026-12-01'})).project_id;
+ const phase=(await call('save_item',{project_id:pid,kind:'phase',title:'Parent QA'})).id;
+ const task=(await call('save_item',{project_id:pid,kind:'task',title:'Task to delete',phase_id:phase})).id;
+ await page.setViewportSize({width:390,height:844});await menu(page);await page.locator('[data-pm-project]').first().click();
+ await page.evaluate(id=>GamaProjects.open({projectId:id,tab:'plan'}),pid);
+ await page.locator(`[data-pm-action=item][data-id="${phase}"]`).first().click();
+ await page.locator('[data-pm-action=delete_item]').click();
+ await expect(page.locator('.pmDialog')).toContainText('Supprimez ou réaffectez');
+ await expect(page.locator('.pmDialog [type=submit]')).toHaveCount(0);
+ await page.locator(`.pmDialog [data-pm-action=item][data-id="${task}"]`).click();
+ await page.locator('[data-pm-action=delete_item]').click();
+ await expect(page.locator('.pmDialog')).toContainText('Task to delete');
+ await page.locator('.pmDialog [data-pm-close]').click();
+ expect((await rpc('detail',{project_id:pid})).items.some(i=>i.id===task)).toBe(true);
+ for(const [lang,label] of [['es','Eliminar elemento'],['en','Delete item'],['fr','Supprimer l’élément']]){
+  await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);
+  await page.evaluate(({pid,task})=>GamaProjects.open({projectId:pid,itemId:task}),{pid,task});
+  await expect(page.locator('[data-pm-action=delete_item]')).toHaveText(label);
+  await page.locator('.pmDialog [data-pm-close]').click();
+ }
+ await page.evaluate(({pid,task})=>GamaProjects.open({projectId:pid,itemId:task}),{pid,task});
+ await page.locator('[data-pm-action=delete_item]').click();
+ await page.locator('.pmDialog [type=submit]').click();
+ expect((await rpc('detail',{project_id:pid})).items.some(i=>i.id===task)).toBe(true);
+ await page.locator('.pmDialog [name=confirmed]').check();
+ await page.locator('.pmDialog [type=submit]').click();
+ await expect(page.locator('.pmDialog')).toHaveCount(0);
+ await expect(page.locator('#pmMessage')).toHaveText('Élément supprimé.');
+ expect((await rpc('detail',{project_id:pid})).items.some(i=>i.id===task)).toBe(false);
  }finally{await db.close()}
 });

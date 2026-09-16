@@ -22,7 +22,8 @@ const groups=[
  ['Knowledge','Knowledge','Knowledge',['knowledge_articles']],
  ['Audit','Auditoría','Audit',['gama_audit']],
  ['Configuration','Configuración','Configuration',['app_modules','profiles','gama_document_references']],
- ['Facturation SRI','Facturación SRI','SRI invoicing',[]]
+ ['Facturation SRI','Facturación SRI','SRI invoicing',[]],
+ ['Projets','Proyectos','Projects',['pm_projects','pm_items','pm_members','pm_templates','pm_comments','pm_files','pm_links']]
 ];
 const prefixes={crm_:6,fulfillment_:8,stock_:12,inventory_:12,tms_:14,customer_return:15,hr_:16,sri_:20};
 function group(t){const i=groups.findIndex(g=>g[3].includes(t));if(i>=0)return i;for(const [p,n]of Object.entries(prefixes))if(t.startsWith(p))return n;throw Error('Unmapped export table: '+t)}
@@ -47,5 +48,5 @@ async function run(){if(busy)return;busy=true;const buttons=[...document.querySe
  append(summary,tr('Sommaire','Resumen','Summary'));sheets.forEach((rows,i)=>{if(rows.length)append(rows,groups[i][{fr:0,es:1,en:2}[lang()]??1])});
  XLSX.writeFile(wb,'GAMA_export_'+new Date().toISOString().replace(/[:.]/g,'-')+'.xlsx',{compression:true});status(denied?tr('Export terminé. Consultez le sommaire pour les accès refusés.','Exportación terminada. Consulte los accesos denegados en el resumen.','Export complete. See summary for denied access.'):tr('Export Excel terminé.','Exportación Excel terminada.','Excel export complete.'));
  }catch(e){console.error('[GAMA export]',e);status(tr('Export interrompu : aucun fichier incomplet téléchargé. ','Exportación interrumpida: no se descargó ningún archivo incompleto. ','Export stopped: no incomplete file downloaded. ')+(e.message||e));}finally{busy=false;buttons.forEach(b=>b.disabled=false)}}
-window.GamaExcelExport={run,readTable,block,group};
+window.GamaExcelExport={run,readTable,block,group,loadXLSX};
 })();

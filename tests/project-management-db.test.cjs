@@ -1,0 +1,3 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {PGlite}=require('@electric-sql/pglite');
+test('Project SQL contracts: RLS, workflow, rollup, conflicts, change application, closure and audit',async()=>{const db=new PGlite();try{await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916093638_project_management.sql'),'utf8'));const rows=await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/tests/project-management.sql'),'utf8'));assert.match(rows.at(-1).rows[0].result,/passed/)}finally{await db.close()}});

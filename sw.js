@@ -1,4 +1,4 @@
-const CACHE = 'gama-search-20260915-1';
+const CACHE = 'gama-projects-20260916-1';
 const APP_SHELL = ['./', './index.html', './manifest.json?v=20260915-gama-logo', './gama-i18n-catalog.js?v=20260913-prepmodule1', './gama-i18n.js?v=20260913-accesssettings1'];
 self.addEventListener('install', event => { self.skipWaiting(); event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL).catch(() => {}))); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });

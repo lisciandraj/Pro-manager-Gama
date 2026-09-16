@@ -582,6 +582,7 @@ function conectar(){
   const p=$('crmOProb');
   if(e&&p)p.value=e.is_won?100:e.is_lost?0:Number(e.default_probability||0);
  };
+ if(abierto?.id&&ref.etapas.find(x=>x.id===abierto.stage_id)?.is_won)window.GamaProjects?.sourceButton('opportunity',abierto.id,$('crmOGuardar')?.parentElement);
  const g=$('crmOGuardar');if(g)g.onclick=guardar;
  const c=$('crmOCancelar');if(c)c.onclick=()=>{vista='embudo';abierto=null;lineas=[];presupuesto=null;pintar()};
  const add=$('crmLAdd');if(add)add.onclick=anadirLinea;

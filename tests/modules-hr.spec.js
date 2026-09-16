@@ -228,6 +228,8 @@ const AUSENCIAS_PRIV = [
 ];
 
 test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', async ({ page }) => {
+  // Fixed fixtures are in this week; keep the security assertions date-independent.
+  await page.clock.setFixedTime(new Date('2026-09-09T12:00:00Z'));
   await page.addInitScript(([emp, abs, empp, absp]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'commercial', name: 'María' }));
     // @ts-ignore

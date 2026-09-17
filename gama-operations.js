@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD'}),num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:3});
+const money=v=>window.GamaCurrency.format(v),num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:3});
 const kinds={all:'Todas',low_stock:'Productos bajo mínimo',overdue_invoice:'Facturas vencidas',due_soon_invoice:'Pagos próximos a vencer',quote:'Presupuestos sin respuesta',shortage:'Pedidos bloqueados',receipt:'Recepciones atrasadas',failed_delivery:'Entregas fallidas',late_delivery:'Entregas atrasadas',backorder:'Reliquats',stock_variance:'Diferencias de inventario',unbilled:'Pendiente de facturar'};
 let version=0,snapshot=null,screen='operations',offset=0,kind='all',state='active',from='',to='',timer=null;
 const allowed=()=>window.gamaAccessAllowed?.('operations')||window.gamaAccessAllowed?.('notifications');

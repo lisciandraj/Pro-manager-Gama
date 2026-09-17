@@ -65,21 +65,21 @@ test('el análisis de ventas vive en el Panel de control y sigue su periodo', as
 
   // Todo el año: los dos productos y el margen de ambos.
   // Cemento 10 x (10 - 6) = 40; arena 2 x (25 - 20) = 10.
-  await expect(page.locator('#dashMargin')).toHaveText('$50.00');
+  await expect(page.locator('#dashMargin')).toHaveText('$50,00');
   await expect(page.locator('#srByQty')).toContainText('Cemento 50kg');
   await expect(page.locator('#srByQty')).toContainText('Arena m3');
 
   // Enero: sólo el cemento, y su margen.
   await page.selectOption('#dashMonth', '0');
   await page.waitForTimeout(1000);
-  await expect(page.locator('#dashMargin'), 'el margen no siguió al periodo del panel').toHaveText('$40.00');
+  await expect(page.locator('#dashMargin'), 'el margen no siguió al periodo del panel').toHaveText('$40,00');
   await expect(page.locator('#srByQty')).toContainText('Cemento 50kg');
   await expect(page.locator('#srByQty'), 'una venta de marzo aparece en enero').not.toContainText('Arena m3');
 
   // Marzo: sólo la arena.
   await page.selectOption('#dashMonth', '2');
   await page.waitForTimeout(1000);
-  await expect(page.locator('#dashMargin')).toHaveText('$10.00');
-  await expect(page.locator('#srByRevenue')).toContainText('margen $10.00');
+  await expect(page.locator('#dashMargin')).toHaveText('$10,00');
+  await expect(page.locator('#srByRevenue')).toContainText('margen $10,00');
   await expect(page.locator('#srByRevenue')).not.toContainText('Cemento 50kg');
 });

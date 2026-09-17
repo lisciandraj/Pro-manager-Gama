@@ -8,7 +8,7 @@ if(window.GamaSalesReport)return;
 const $=id=>document.getElementById(id);
 const C=()=>window.GamaCloud;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=n=>window.GamaCurrency.format(n);
 const sessionRole=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role||''}catch(e){return ''}};
 const canView=()=>['admin','commercial'].includes(sessionRole());
 

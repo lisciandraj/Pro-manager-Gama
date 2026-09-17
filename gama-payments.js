@@ -4,7 +4,7 @@
 const ID='payments',$=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
-const money=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{style:'currency',currency:'USD'});
+const money=v=>window.GamaCurrency.format(v);
 const labels={open:'Pendientes de cobro',all:'Todas',pending:'Pendiente',partial:'Pago parcial',due_soon:'Próximo a vencer',overdue:'Vencida',paid:'Pagada',missing_terms:'Plazo por configurar',awaiting_delivery:'Entrega pendiente',cancelled:'Anulada / rechazada'};
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
 let generation=0,offset=0,orderId='',search='',status='open',invoiceId=null;

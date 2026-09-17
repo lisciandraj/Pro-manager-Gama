@@ -1711,3 +1711,197 @@ Sin peso o volumen en la ficha de	Sans poids ni volume sur la fiche de	No weight
 La preparación continúa; completa la ficha del producto para el transporte.	La préparation continue ; complétez la fiche produit pour le transport.	Preparation continues; complete the product sheet for transport.
 Peso total	Poids total	Total weight
 Volumen total	Volume total	Total volume
+Contabilidad	Comptabilité	Accounting
+Vista general	Vue d’ensemble	Overview
+Cuentas por cobrar	Créances clients	Accounts receivable
+Cuentas por pagar	Dettes fournisseurs	Accounts payable
+Banco y caja	Banque et caisse	Bank and cash
+Cierres	Clôtures	Closings
+Parámetros	Paramètres	Settings
+Pagos	Paiements	Payments
+Gastos	Dépenses	Expenses
+Impuestos	Taxes	Taxes
+Lo que vendes, lo que gastas, lo que te deben y tu tesorería.	Ce que vous vendez, ce que vous dépensez, ce qu’on vous doit et votre trésorerie.	What you sell, what you spend, what you are owed and your cash.
+Resultado del mes	Résultat du mois	Result for the month
+Resultado del año	Résultat de l’année	Result for the year
+Ingresos del mes	Revenus du mois	Income this month
+Gastos del mes	Dépenses du mois	Expenses this month
+Ingresos sin impuestos. Gastos: gastos contabilizados y facturas de proveedor, sin impuestos.	Revenus hors taxes. Dépenses : dépenses comptabilisées et factures fournisseurs, hors taxes.	Income excluding tax. Expenses: posted expenses and supplier bills, excluding tax.
+Tesorería	Trésorerie	Cash
+Saldo de las cuentas	Solde des comptes	Account balance
+Entradas del mes	Entrées du mois	Money in this month
+Salidas del mes	Sorties du mois	Money out this month
+Variación del mes	Variation du mois	Change this month
+Sin conciliar	Non rapproché	Unreconciled
+Todavía no hay cuentas de banco o caja. Créalas en Banco y caja.	Aucun compte bancaire ou de caisse pour l’instant. Créez-les dans Banque et caisse.	No bank or cash account yet. Create them in Bank and cash.
+Facturado	Facturé	Invoiced
+Pendiente de cobro	Reste à encaisser	Outstanding
+Vencido	En retard	Overdue
+Retraso medio de pago	Retard moyen de paiement	Average payment delay
+Ver cuentas por cobrar	Voir les créances clients	View accounts receivable
+Ver cuentas por pagar	Voir les dettes fournisseurs	View accounts payable
+Vence en 30 días	Échéance sous 30 jours	Due within 30 days
+Impuestos del periodo	Taxes de la période	Tax for the period
+Impuesto recaudado	Taxe collectée	Tax collected
+Impuesto deducible	Taxe déductible	Deductible tax
+Saldo estimado	Solde estimé	Estimated balance
+Estimación interna a partir de tus documentos. No es una declaración fiscal ni sustituye al software legal de tu país.	Estimation interne à partir de vos documents. Ce n’est pas une déclaration fiscale et cela ne remplace pas le logiciel légal de votre pays.	Internal estimate from your own documents. It is not a tax return and does not replace the legally required software in your country.
+Principales gastos del año	Principales dépenses de l’année	Main expenses this year
+Puntos de atención	Points d’attention	Things to look at
+Movimientos bancarios sin conciliar	Mouvements bancaires non rapprochés	Unreconciled bank movements
+Gastos sin justificante	Dépenses sans justificatif	Expenses without a receipt
+Asientos descuadrados	Écritures déséquilibrées	Unbalanced entries
+Estas alertas también aparecen en el Centro de acción de GAMA.	Ces alertes apparaissent aussi dans le Centre d’actions de GAMA.	These alerts also appear in the GAMA action centre.
+Balance de antigüedad	Balance âgée	Ageing balance
+¿Quién nos debe dinero?	Qui nous doit de l’argent ?	Who owes us money?
+¿A quién debemos dinero?	À qui devons-nous de l’argent ?	Who do we owe money to?
+Retraso	Retard	Late by
+días	jours	days
+Los cobros se registran en Pagos de clientes; aquí se consultan y se agrupan por antigüedad.	Les encaissements se saisissent dans Paiements clients ; ils sont consultés et regroupés par ancienneté ici.	Collections are recorded in Customer payments; here they are read and grouped by age.
+No hay facturas de proveedor para este filtro.	Aucune facture fournisseur pour ce filtre.	No supplier bill matches this filter.
+Gastos contabilizados del periodo	Dépenses comptabilisées de la période	Posted expenses for the period
+Registros	Enregistrements	Records
+Registrar un gasto	Enregistrer une dépense	Record an expense
+Justificante	Justificatif	Receipt
+Falta	Manquant	Missing
+Contabilizar	Comptabiliser	Post
+Un gasto en borrador puede editarse o eliminarse. Una vez contabilizado sólo se anula, y la anulación contrapasa su asiento.	Une dépense en brouillon peut être modifiée ou supprimée. Une fois comptabilisée, elle ne peut qu’être annulée, et l’annulation contre-passe son écriture.	A draft expense can be edited or deleted. Once posted it can only be cancelled, and cancelling reverses its entry.
+Anular el gasto	Annuler la dépense	Cancel the expense
+El motivo queda en el historial de auditoría.	Le motif est conservé dans l’historique d’audit.	The reason is kept in the audit trail.
+Importe sin impuestos	Montant hors taxes	Amount excluding tax
+Impuesto	Taxe	Tax
+Importe total	Montant total	Total amount
+Medio de pago	Moyen de paiement	Payment method
+Cuenta de banco o caja	Compte bancaire ou caisse	Bank or cash account
+El total se calcula solo desde el importe sin impuestos y el impuesto; puedes corregirlo.	Le total est calculé automatiquement à partir du montant hors taxes et de la taxe ; vous pouvez le corriger.	The total is computed from the untaxed amount and the tax; you can correct it.
+Justificantes del gasto	Justificatifs de la dépense	Expense receipts
+Todavía no hay justificantes.	Aucun justificatif pour l’instant.	No receipt yet.
+Añadir PDF, JPG, PNG o WebP (máximo 2 MB)	Ajouter un PDF, JPG, PNG ou WebP (2 Mo maximum)	Add a PDF, JPG, PNG or WebP (2 MB maximum)
+El archivo supera el tamaño permitido.	Le fichier dépasse la taille autorisée.	The file is larger than allowed.
+Facturas de proveedor	Factures fournisseurs	Supplier bills
+Registrar una factura de proveedor	Enregistrer une facture fournisseur	Record a supplier bill
+No hay facturas de proveedor registradas.	Aucune facture fournisseur enregistrée.	No supplier bill recorded.
+Los pedidos de compra siguen en el módulo Compras. Aquí se registra la factura recibida y su pago, que es lo que mueve la tesorería.	Les commandes d’achat restent dans le module Achats. Ici on enregistre la facture reçue et son paiement, qui est ce qui déplace la trésorerie.	Purchase orders stay in the Purchases module. Here you record the bill received and its payment, which is what moves the cash.
+Número de la factura	Numéro de la facture	Bill number
+Plazo de pago (días)	Délai de paiement (jours)	Payment terms (days)
+Base imponible	Base hors taxes	Net amount
+Al guardar se crea el asiento en el diario de compras y la factura aparece en cuentas por pagar.	L’enregistrement crée l’écriture au journal des achats et la facture apparaît dans les dettes fournisseurs.	Saving creates the entry in the purchases journal and the bill appears under accounts payable.
+Anular la factura	Annuler la facture	Cancel the bill
+Registrar un pago a proveedor	Enregistrer un paiement fournisseur	Record a supplier payment
+Cifra de negocio	Chiffre d’affaires	Revenue
+Total del periodo	Total de la période	Total for the period
+Meses con actividad	Mois avec activité	Months with activity
+Importes sin impuestos, desde las facturas registradas. Las anuladas y rechazadas no cuentan.	Montants hors taxes, à partir des factures enregistrées. Les factures annulées et rejetées ne comptent pas.	Amounts excluding tax, from the invoices recorded. Cancelled and rejected ones do not count.
+No hay datos en este periodo.	Aucune donnée sur cette période.	No data for this period.
+Cobros y pagos	Encaissements et décaissements	Money in and out
+Cobrado de clientes	Encaissé des clients	Collected from customers
+Pagado a proveedores	Payé aux fournisseurs	Paid to suppliers
+Los cobros de clientes se registran en Pagos de clientes y los pagos a proveedores en Compras. Esta pantalla los reúne para ver el saldo neto.	Les encaissements clients se saisissent dans Paiements clients et les paiements fournisseurs dans Achats. Cet écran les réunit pour voir le solde net.	Customer collections are recorded in Customer payments and supplier payments in Purchases. This screen brings them together to show the net position.
+Ir a Pagos de clientes	Aller aux paiements clients	Go to customer payments
+Cuentas de banco y caja	Comptes bancaires et caisses	Bank and cash accounts
+Saldo total	Solde total	Total balance
+Cuentas activas	Comptes actifs	Active accounts
+Añadir una cuenta	Ajouter un compte	Add an account
+Saldo inicial	Solde initial	Opening balance
+El saldo actual es el saldo inicial más los cobros y menos los pagos y gastos asignados a la cuenta.	Le solde actuel est le solde initial plus les encaissements, moins les paiements et dépenses affectés au compte.	The current balance is the opening balance plus collections, less the payments and expenses assigned to the account.
+Conciliación bancaria	Rapprochement bancaire	Bank reconciliation
+Importar CSV	Importer un CSV	Import CSV
+Conciliar	Rapprocher	Reconcile
+Deshacer	Annuler le rapprochement	Undo
+GAMA propone correspondencias; nunca concilia solo. Tú validas cada asociación.	GAMA propose des correspondances ; il ne rapproche jamais tout seul. Vous validez chaque association.	GAMA proposes matches; it never reconciles on its own. You approve every match.
+Cuenta contable	Compte comptable	Ledger account
+Movimientos de la cuenta	Mouvements du compte	Account movements
+Entradas	Entrées	In
+Salidas	Sorties	Out
+Sin movimientos en el periodo.	Aucun mouvement sur la période.	No movement in the period.
+Importar movimientos bancarios	Importer des mouvements bancaires	Import bank movements
+Columnas esperadas: fecha, referencia, descripción e importe. Un importe negativo es una salida. Las líneas ya importadas no se duplican.	Colonnes attendues : date, référence, description et montant. Un montant négatif est une sortie. Les lignes déjà importées ne sont pas dupliquées.	Expected columns: date, reference, description and amount. A negative amount is money out. Lines already imported are not duplicated.
+Líneas detectadas	Lignes détectées	Lines detected
+No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.	Aucune ligne reconnue. Vérifiez le séparateur et le format de la date.	No line recognised. Check the separator and the date format.
+Conciliar el movimiento	Rapprocher le mouvement	Reconcile the movement
+GAMA propone estas correspondencias. Elige la correcta; ninguna se aplica sola.	GAMA propose ces correspondances. Choisissez la bonne ; aucune ne s’applique seule.	GAMA proposes these matches. Pick the right one; none is applied on its own.
+Ignorar este movimiento	Ignorer ce mouvement	Ignore this movement
+No se encontró ninguna correspondencia. Puedes ignorar el movimiento y tratarlo más tarde.	Aucune correspondance trouvée. Vous pouvez ignorer le mouvement et le traiter plus tard.	No match found. You can ignore the movement and deal with it later.
+Asientos y diarios	Écritures et journaux	Entries and journals
+Diario	Journal	Journal
+Facturas de venta todavía sin asiento	Factures de vente encore sans écriture	Sales invoices still without an entry
+Contabilizar ahora	Comptabiliser maintenant	Post now
+Asiento manual	Écriture manuelle	Manual entry
+Debe	Débit	Debit
+Haber	Crédit	Credit
+Descuadrado	Déséquilibrée	Unbalanced
+Contrapasar	Contre-passer	Reverse
+Todo asiento cumple debe = haber. Un asiento contabilizado no se borra: se contrapasa y ambos quedan en el libro.	Toute écriture respecte débit = crédit. Une écriture comptabilisée ne se supprime pas : elle se contre-passe, et les deux restent au livre.	Every entry satisfies debit = credit. A posted entry is never deleted: it is reversed, and both stay in the ledger.
+No hay asientos en este periodo.	Aucune écriture sur cette période.	No entry in this period.
+Detalle del asiento	Détail de l’écriture	Entry detail
+Contrapasar el asiento	Contre-passer l’écriture	Reverse the entry
+Añadir una línea	Ajouter une ligne	Add a line
+Resumen de impuestos	Synthèse des taxes	Tax summary
+Cálculo interno a partir de tus facturas y gastos. No constituye una declaración fiscal: la presentación oficial se hace con el sistema que exija tu país.	Calcul interne à partir de vos factures et dépenses. Cela ne constitue pas une déclaration fiscale : le dépôt officiel se fait avec le système exigé par votre pays.	Internal calculation from your invoices and expenses. It is not a tax return: the official filing is done with the system your country requires.
+Tipos configurados	Taux configurés	Configured rates
+Añadir un tipo	Ajouter un taux	Add a rate
+Uso	Usage	Used for
+Recaudado	Collectée	Collected
+Deducible	Déductible	Deductible
+Ambos	Les deux	Both
+GAMA no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.	GAMA ne fournit aucun taux national préconfiguré : définissez ici ceux qui s’appliquent à votre entreprise et leur date d’entrée en vigueur.	GAMA ships no preconfigured national rate: define here the ones that apply to your company and when they take effect.
+Tipo (%)	Taux (%)	Rate (%)
+País (ISO)	Pays (ISO)	Country (ISO)
+Cuenta de resultados	Compte de résultat	Profit and loss
+Cargas	Charges	Expenses
+Calculado desde los asientos contabilizados del periodo.	Calculé à partir des écritures comptabilisées de la période.	Computed from the entries posted in the period.
+Balance simplificado	Bilan simplifié	Simplified balance sheet
+Existencias valoradas al precio de compra	Stocks valorisés au prix d’achat	Inventory valued at purchase price
+Fondos propios	Capitaux propres	Equity
+Resultado del ejercicio	Résultat de l’exercice	Result for the year
+Balance simplificado de gestión. No sustituye a las cuentas anuales preparadas por tu asesor.	Bilan de gestion simplifié. Il ne remplace pas les comptes annuels préparés par votre conseil.	Simplified management balance sheet. It does not replace the annual accounts prepared by your adviser.
+Tesorería del periodo	Trésorerie de la période	Cash for the period
+Previsión de tesorería	Prévision de trésorerie	Cash forecast
+Previsión, no un hecho.	Une prévision, pas un fait.	A forecast, not a fact.
+Proyecta el saldo actual con las facturas ya emitidas y recibidas. No incluye lo que todavía no está facturado.	Projette le solde actuel avec les factures déjà émises et reçues. N’inclut pas ce qui n’est pas encore facturé.	Projects the current balance with the invoices already issued and received. It does not include anything not yet invoiced.
+Saldo actual	Solde actuel	Current balance
+Periodos contables	Périodes comptables	Accounting periods
+Cerrar el mes de	Clôturer le mois de	Close the month of
+Cerrar el periodo	Clôturer la période	Close the period
+Asientos	Écritures	Entries
+Cerrado el	Clôturé le	Closed on
+Reabrir	Rouvrir	Reopen
+Reabrir el periodo	Rouvrir la période	Reopen the period
+Todavía no hay periodos. Se crean solos al contabilizar el primer documento del mes.	Aucune période pour l’instant. Elles se créent automatiquement à la comptabilisation du premier document du mois.	No period yet. They are created automatically when the first document of the month is posted.
+Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.	Une période clôturée refuse toute écriture nouvelle, modifiée ou supprimée à ces dates. Seul un administrateur disposant du droit de clôture peut la rouvrir, et la réouverture reste dans l’audit.	A closed period refuses any entry added, changed or removed on those dates. Only an administrator with the closing right can reopen it, and the reopening stays in the audit trail.
+Divisa (ISO 4217)	Devise (ISO 4217)	Currency (ISO 4217)
+Primer mes del ejercicio	Premier mois de l’exercice	First month of the financial year
+La divisa se aplica a todo GAMA: pantallas, informes y documentos PDF.	La devise s’applique à tout GAMA : écrans, rapports et documents PDF.	The currency applies to all of GAMA: screens, reports and PDF documents.
+Cuentas de los asientos automáticos	Comptes des écritures automatiques	Accounts used by automatic entries
+Plan contable	Plan comptable	Chart of accounts
+GAMA no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.	GAMA n’impose aucun plan comptable national. Renumérotez, renommez et complétez ce plan selon votre pays et votre conseil.	GAMA imposes no national chart of accounts. Renumber, rename and extend this chart to suit your country and your adviser.
+Cuenta usada por los asientos automáticos: puede renombrarse y renumerarse, pero no cambia de tipo.	Compte utilisé par les écritures automatiques : il peut être renommé et renuméroté, mais ne change pas de type.	Account used by the automatic entries: it can be renamed and renumbered, but its type does not change.
+Permisos de Contabilidad	Droits de Comptabilité	Accounting permissions
+Consultar	Consulter	View
+Crear	Créer	Create
+Modificar	Modifier	Edit
+Sin fila propia, cada perfil usa su valor por defecto: el administrador todo, el comercial consulta y exporta su lado comercial, el resto nada.	Sans ligne propre, chaque profil garde sa valeur par défaut : l’administrateur tout, le commercial consulte et exporte son périmètre commercial, les autres rien.	Without a row of its own, each profile keeps its default: the administrator everything, the commercial profile views and exports its commercial scope, the rest nothing.
+Activa	Active	Active
+Inactiva	Inactive	Inactive
+Inactivo	Inactif	Inactive
+Abierto	Ouvert	Open
+Banco	Banque	Bank
+Caja	Caisse	Cash
+Pasivo	Passif	Liabilities
+País	Pays	Country
+Divisa	Devise	Currency
+Aplicar	Appliquer	Apply
+No pagada	Non payée	Unpaid
+Próxima a vencer	Bientôt échue	Due soon
+Vencidas	En retard	Overdue
+Pagadas	Payées	Paid
+Anulada	Annulée	Cancelled
+Contabilizada	Comptabilisée	Posted
+Contrapasada	Contre-passée	Reversed
+Conciliado	Rapproché	Reconciled
+Conciliados	Rapprochés	Reconciled
+Ignorado	Ignoré	Ignored
+Ignorados	Ignorés	Ignored
+No hay gastos en este periodo.	Aucune dépense sur cette période.	No expense in this period.
+No hay movimientos con este filtro.	Aucun mouvement pour ce filtre.	No movement for this filter.
+Todavía no hay cuentas.	Aucun compte pour l’instant.	No account yet.

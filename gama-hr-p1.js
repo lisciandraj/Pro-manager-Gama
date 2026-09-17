@@ -4,7 +4,7 @@ if(window.GamaHRP1)return;
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const T=s=>window.GamaI18n?.t(s)||s,tx=s=>`<span data-gi-live>${esc(s)}</span>`;
-const money=n=>Number(n||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{style:'currency',currency:'USD'});
+const money=n=>window.GamaCurrency.format(n);
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const date=s=>new Date(s+'T12:00:00Z'),ymd=d=>d.toISOString().slice(0,10);
 const datetime=s=>s?new Date(s).toLocaleString(window.GamaI18n?.locale||'es-EC'):'—';

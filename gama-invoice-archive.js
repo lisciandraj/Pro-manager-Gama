@@ -3,7 +3,7 @@
 'use strict';
 const pad=n=>String(Number(n||0)).padStart(9,'0');
 const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=n=>window.GamaCurrency.format(n);
 let cloudInvoices=[],allCustomers=[],page=0,totalCount=0,searchTimer=null;
 const PAGE_SIZE=20;
 function isSearching(){return (document.getElementById('giaSearch')?.value||'').trim().length>0}

@@ -16,7 +16,7 @@ function build(o){
    if(l.y+10>270){l.next();columns()}
    const chunk=lines.splice(0,Math.max(1,Math.floor((266-l.y)/4)));
    doc.setTextColor(...window.GamaPdfTemplate.ink);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(chunk,16,l.y);
-   if(first){doc.text(String(x.qty),131,l.y,{align:'right'});doc.text('$'+Number(x.cost||0).toFixed(2),166,l.y,{align:'right'});doc.text('$'+(Number(x.qty||0)*Number(x.cost||0)).toFixed(2),194,l.y,{align:'right'});first=false}
+   if(first){doc.text(String(x.qty),131,l.y,{align:'right'});doc.text(GamaCurrency.symbol()+Number(x.cost||0).toFixed(2),166,l.y,{align:'right'});doc.text(GamaCurrency.symbol()+(Number(x.qty||0)*Number(x.cost||0)).toFixed(2),194,l.y,{align:'right'});first=false}
    l.y+=chunk.length*4+5;
   }
   doc.setDrawColor(224,232,236);doc.setLineWidth(.2);doc.line(14,l.y-3,196,l.y-3);

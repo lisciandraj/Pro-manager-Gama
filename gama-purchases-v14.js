@@ -207,8 +207,8 @@
     const ls=lines.filter(x=>x.purchase_order_id===id);
     const dateLabel=date(o.order_date),expectedLabel=o.expected_date?date(o.expected_date):'';
     const items=ls.map(l=>{const p=products.find(x=>x.id===l.product_id);return{name:p?.name||'Producto',reference:p?.reference||p?.barcode||'',qty:Number(l.quantity||0),cost:Number(l.unit_cost||0)}});
-    const itemLines=items.map(x=>`- ${x.name} x${x.qty} — $${x.cost.toFixed(2)} c/u — $${(x.qty*x.cost).toFixed(2)}`).join('\n');
-    const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: $${Number(o.total||0).toFixed(2)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Enterprise Resource Planning`;
+    const itemLines=items.map(x=>`- ${x.name} x${x.qty} — ${GamaCurrency.format(x.cost)} c/u — ${GamaCurrency.format(x.qty*x.cost)}`).join('\n');
+    const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: ${GamaCurrency.format(o.total)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Enterprise Resource Planning`;
     const orderPdf={number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name,supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:supplier.address||'',items,total:Number(o.total||0),notes:o.notes||''};
     if(!supplier.email)detailMsg('Este proveedor no tiene un correo registrado: complétalo manualmente al enviar.');
     await window.GamaPurchaseOrderPdf.send({o:orderPdf,email:supplier.email||'',subject:'Pedido '+o.order_number+' — GAMA Enterprise Resource Planning',body,filename:'Pedido-'+o.order_number+'.pdf'});

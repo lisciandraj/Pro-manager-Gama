@@ -23,7 +23,7 @@ function build(q){
    if(y+10>270){doc.addPage();header();tableHead()}
    const chunk=lines.splice(0,Math.max(1,Math.floor((266-y)/4)));
    doc.setFontSize(9);doc.text(chunk,16,y);
-   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text('$'+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text('$'+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
+   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text(GamaCurrency.symbol()+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text(GamaCurrency.symbol()+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
    y+=Math.max(9,chunk.length*4+4);
   }
   doc.setDrawColor(224,232,236);doc.setLineWidth(0.2);doc.line(14,y-4,196,y-4);

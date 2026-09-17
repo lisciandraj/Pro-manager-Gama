@@ -45,7 +45,7 @@ function fileName(prefix,ref){
  return prefix+(limpio?'-'+limpio:'')+'.pdf';
 }
 
-const money=v=>'$'+Number(v||0).toFixed(2);
+const money=v=>window.GamaCurrency.symbol()+Number(v||0).toFixed(2);
 const fecha=v=>{try{return new Date(v).toLocaleString('es-EC')}catch(e){return String(v||'')}};
 
 /* Informe de pruebas de entrega. Recibe las entregas ya resueltas por quien

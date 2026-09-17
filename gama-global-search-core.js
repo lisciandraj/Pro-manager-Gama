@@ -36,7 +36,7 @@ function parse(value){
  return {raw,text:q,ref:null,entity:null,intent:null};
 }
 const roles={administrador:'admin',comercial:'commercial',almacenero:'magasinier',cliente:'client'};
-const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge'],magasinier:['products','sales-orders','tms','knowledge'],client:['client-catalog','quotes','client-deliveries']};
+const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge','accounting'],magasinier:['products','sales-orders','tms','knowledge'],client:['client-catalog','quotes','client-deliveries']};
 function access(profile,module,allowed=()=>true){const role=roles[profile?.role]||profile?.role;const p=permissions[role];return profile?.active!==false&&!!p&&(p==='*'||p.includes(module))&&allowed(module);}
 const SOURCES=[
  {key:'clients',module:'clients',table:'customers',select:'id,name,identification,email,phone,city,active',fields:['name','identification','email','phone'],title:r=>r.name,subtitle:r=>[r.identification,r.email,r.city]},
@@ -49,6 +49,10 @@ const SOURCES=[
  {key:'deliveries',module:'tms',table:'tms_deliveries',select:'id,customer,address,delivery_date,status',fields:['customer','address'],title:r=>r.dossier_reference||r.customer,subtitle:r=>[r.customer,r.delivery_date,r.status]},
  {key:'invoices',module:'quotes',table:'external_invoices',select:'id,number,external_number,order_id,total,fiscal_status,document_kind,issue_date,order:sales_orders!inner(customer_name)',fields:['number','external_number'],related:'order',title:r=>r.number,subtitle:r=>[r.order?.customer_name,r.external_number,r.issue_date,r.fiscal_status],number:'number'},
  {key:'payments',module:'payments',table:'external_invoice_payments',select:'id,invoice_id,reference,account,paid_at,amount,method,status,invoice:external_invoices!inner(order:sales_orders!inner(customer_name))',fields:['reference','account'],related:'invoice.order',title:r=>r.dossier_reference||r.reference||r.paid_at,subtitle:r=>[r.invoice?.order?.customer_name,r.reference,r.paid_at,r.method]},
+ {key:'expenses',module:'accounting',table:'expenses',select:'id,reference,description,expense_date,amount_total,status,supplier:suppliers(name)',fields:['reference','description'],title:r=>r.reference,subtitle:r=>[r.description,r.supplier?.name,r.expense_date,r.status],number:'reference'},
+ {key:'supplier_invoices',module:'accounting',table:'supplier_invoices',select:'id,number,issue_date,due_date,total,status,supplier:suppliers!inner(name)',fields:['number'],related:'supplier',title:r=>r.number,subtitle:r=>[r.supplier?.name,r.issue_date,r.status],number:'number'},
+ {key:'bank_transactions',module:'accounting',table:'bank_transactions',select:'id,value_date,reference,description,amount,status',fields:['reference','description'],title:r=>r.reference||r.description,subtitle:r=>[r.description,r.value_date,r.status]},
+ {key:'entries',module:'accounting',table:'accounting_entries',select:'id,number,entry_date,reference,memo,status',fields:['number','reference','memo'],title:r=>r.number,subtitle:r=>[r.memo,r.reference,r.entry_date,r.status],number:'number'},
  {key:'knowledge',module:'knowledge',table:'knowledge_articles',select:'id,title,slug,body,updated_at',fields:['title','slug','body'],title:r=>r.title,subtitle:r=>[r.slug]}
 ];
 function sources(profile,allowed){

@@ -21,10 +21,10 @@ begin
   select p.barcode into code from public.sales_order_lines l join public.products p on p.id=l.product_id where l.id=(x->>'line_id')::uuid;
   select wl.code into location_code from public.warehouse_locations wl where id=(x->>'location_id')::uuid;
   perform public.gama_fulfillment_action('pick',jsonb_build_object('order_id',p_data->>'order_id','request_key',gen_random_uuid(),'pick_line_id',pl,'product_code',code,'location_code',location_code,'quantity',x->'quantity'));
-  items:=items||jsonb_build_array(jsonb_build_object('pick_line_id',pl,'product_code',code,'quantity',x->'quantity'));
+  items:=items||jsonb_build_array(jsonb_build_object('pick_line_id',pl,'quantity',x->'quantity'));
  end loop;
 
- perform public.gama_fulfillment_action('package',jsonb_build_object('order_id',p_data->>'order_id','request_key',gen_random_uuid(),'preparation_id',prep,'lines',items,'weight_kg',1,'length_cm',10,'width_cm',10,'height_cm',10));
+ perform public.gama_fulfillment_action('package',jsonb_build_object('order_id',p_data->>'order_id','request_key',gen_random_uuid(),'preparation_id',prep,'lines',items));
  perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',p_data->>'order_id','request_key',gen_random_uuid(),'reason','SQL regression partial shipment'));
  result:=public.gama_sales_action('ship',p_data||jsonb_build_object('preparation_id',prep));
 

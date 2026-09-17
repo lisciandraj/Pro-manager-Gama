@@ -4,6 +4,8 @@ Al validar una expedición en Pedidos de venta, el flujo existente crea su entre
 
 El operario utiliza un lector USB/Bluetooth o la cámara y registra las unidades cargadas. Cada lectura propone una unidad; un lote puede indicar otra cantidad. El servidor compara el código guardado al crear la expedición y distribuye la cantidad entre las líneas del mismo producto y sus ubicaciones. Rechaza códigos ajenos y cantidades excesivas. Reintentar una petición no duplica el escaneo.
 
+El peso y el volumen de la entrega los calcula el servidor al validar la expedición, a partir de `products.weight_g` y `products.volume_cm3` de las líneas expedidas. No proceden de lo que teclee un operario en la preparación; completar la ficha del producto es lo que corrige una carga sin peso o sin volumen.
+
 El acceso sigue los perfiles actuales del TMS: administrador y almacenero. Se registra quién escanea y se selecciona el conductor activo y su vehículo al confirmar la salida. No se crea un nuevo perfil de transportista. Los clientes siguen consultando sus entregas y pruebas desde su portal.
 
 La salida requiere todas las cantidades verificadas y una versión vigente del manifiesto. Escanear no genera movimientos de stock adicionales. Las correcciones requieren un motivo y conservan el historial; después de salir, la carga queda cerrada. La optimización de rutas conserva las expediciones que ya salieron.

@@ -13,15 +13,28 @@ Los almaceneros siguen ejerciendo también como conductores. No se añade un rol
    preparación pendiente. «Iniciar preparación» asigna un operario y toma una
    instantánea de las reservas disponibles por ubicación. También se puede
    iniciar una nueva preparación después de una cancelación.
-2. «Escanear recogida» exige el código de ubicación y el código del producto.
-   Admite lector USB/Bluetooth o cámara. La recogida traslada físicamente la
-   cantidad a una zona PR de ese almacén, conservando su reserva. Los totales de
-   stock no cambian. Los faltantes/daños quedan registrados con motivo; requieren
-   revisión de inventario, no se convierten silenciosamente en ajustes.
-3. «Crear bulto» vuelve a verificar el producto e incorpora cantidades,
-   peso y dimensiones. Un pedido puede tener varios bultos, cada uno con etiqueta
-   Code 39 PK imprimible y contenido exacto. Antes de validar se puede anular un
-   bulto con motivo y volver a embalar sus cantidades.
+2. La preparación se conduce por escaneo y confirma cada línea una sola vez. Al
+   leer el código del producto se abre su línea con la cantidad prevista ya
+   escrita y el foco en el campo. Una única validación —el botón, la tecla Intro
+   o el escaneo del producto siguiente— registra la línea y pasa a la siguiente;
+   no hay segunda pantalla de confirmación. Solo se pide confirmar cuando la
+   cantidad introducida no coincide con la prevista. Admite lector USB/Bluetooth
+   o cámara: el código enviado debe coincidir con la ficha del producto, y los
+   productos sin código de barras se abren desde la lista. La recogida traslada
+   físicamente la cantidad a una zona PR de ese almacén, conservando su reserva.
+   Los totales de stock no cambian. Los faltantes/daños quedan registrados con
+   motivo; requieren revisión de inventario, no se convierten silenciosamente en
+   ajustes.
+3. «Crear bulto» embala las cantidades ya validadas y no vuelve a pedirlas. El
+   operario no introduce peso ni dimensiones: el peso del bulto se calcula con
+   `products.weight_g` y el volumen se muestra desde `products.volume_cm3`. Si la
+   ficha no los indica, nada se bloquea: el dato queda vacío y se señala en el
+   resumen de «Cerrar preparación», que enumera los productos sin peso o volumen.
+   Las dimensiones no existen en la ficha del producto y quedan vacías. Un pedido
+   puede tener varios bultos —cada pulsación de «Crear bulto» cierra uno con lo
+   preparado y todavía no embalado—, cada uno con etiqueta Code 39 PK imprimible
+   y contenido exacto. Antes de validar se puede anular un bulto con motivo y
+   volver a embalar sus cantidades.
 4. «Validar embalaje» exige que todo lo recogido esté embalado. Una salida
    parcial requiere motivo y respeta los acuerdos del cliente. «Preparar /
    expedir» despacha exactamente el contenido validado, sin cantidades libres.
@@ -70,9 +83,14 @@ comprobantes fiscales ni alteran cobros bancarios o asientos contables.
 
 ## Integridad
 
-Migración aditiva `20260912145342_fulfillment_p1.sql`. Ejecutarla antes de publicar
-los loaders nuevos. No cambia cantidades ni reservas de documentos existentes;
-crea preparaciones pendientes para los pedidos confirmados con cantidades abiertas.
+Migraciones aditivas `20260912145342_fulfillment_p1.sql` y
+`20260917103000_preparation_single_confirmation.sql`. Ejecutarlas antes de publicar
+los loaders nuevos. La segunda deja en `fulfillment_packages` el peso y las
+dimensiones como opcionales, deriva el peso de la ficha del producto y retira el
+reescaneo del producto al embalar. Los bultos ya registrados conservan sus valores.
+Ninguna de las dos cambia cantidades ni reservas de documentos existentes; la
+primera crea preparaciones pendientes para los pedidos confirmados con cantidades
+abiertas.
 
 Las operaciones comparten el bloqueo transaccional comercial, verifican perfiles
 en servidor y guardan claves de idempotencia con huella SHA-256 del payload.
@@ -84,7 +102,9 @@ reservas no permite abrir cuarentena ni mercancía ya recogida.
 
 ## Verificación y recuperación
 
-- `tests/fulfillment.spec.js`: escaneos, reintentos, embalaje, salida controlada,
+- `tests/fulfillment.spec.js`: escaneo que abre la línea, validación única,
+  confirmación solo ante diferencia, embalaje sin reintroducir cantidades, peso
+  leído de la ficha y ausente sin bloquear, reintentos, salida controlada,
   propuesta, recepción/inspección, portal y móvil.
 - `tests/sql/fulfillment-p1.sql`: reservas, doble clic, staging, límites, acuerdos,
   sustitución autorizada, cuarentena, inspección, cambio, baja, cancelación y RLS.

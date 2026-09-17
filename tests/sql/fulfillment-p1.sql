@@ -1,7 +1,7 @@
 -- Run with the migration inside BEGIN/ROLLBACK. All identities and goods are fixtures.
 do $$
 declare
- a uuid;c uuid;prod uuid;subprod uuid;emptyprod uuid;loc uuid;wid uuid;oid uuid;lid uuid;prep uuid;pickid uuid;pkg uuid;shipid uuid;dlid uuid;ret uuid;opt uuid;oid2 uuid;lid2 uuid;
+ a uuid;c uuid;prod uuid;subprod uuid;emptyprod uuid;loc uuid;wid uuid;oid uuid;lid uuid;prep uuid;pickid uuid;pkg uuid;shipid uuid;tid uuid;dlid uuid;ret uuid;opt uuid;oid2 uuid;lid2 uuid;
  client_id uuid:=gen_random_uuid();outsider uuid:=gen_random_uuid();keyid uuid;data jsonb;res jsonb;denied boolean;bc text;sid uuid;
 begin
  select id into a from public.profiles where role='administrador' and active limit 1;
@@ -11,7 +11,7 @@ begin
  insert into public.profiles(id,role,active,email) values(client_id,'cliente',true,client_id||'@gama-test.invalid'),(outsider,'cliente',true,outsider||'@gama-test.invalid') on conflict(id) do update set role='cliente',active=true;
  insert into public.customers(name,address,email) values('P1 rollback','Quito',client_id||'@gama-test.invalid') returning id into c;
  bc:=gen_random_uuid()::text;
- insert into public.products(name,reference,barcode,sale_price,stock) values('P1-A-'||bc,bc,bc,10,10) returning id into prod;
+ insert into public.products(name,reference,barcode,sale_price,stock,weight_g,volume_cm3) values('P1-A-'||bc,bc,bc,10,10,250,2000) returning id into prod;
  insert into public.products(name,reference,barcode,sale_price,stock) values('P1-B-'||bc,gen_random_uuid(),gen_random_uuid(),20,4) returning id into subprod;
  insert into public.products(name,reference,barcode,sale_price,stock) values('P1-C-'||bc,gen_random_uuid(),gen_random_uuid(),20,0) returning id into emptyprod;
  insert into public.stock_quants(product_id,location_id,quantity,reserved_quantity) values(prod,loc,10,0),(subprod,loc,4,0),(emptyprod,loc,0,0);
@@ -26,6 +26,9 @@ begin
  perform public.gama_fulfillment_action('start',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));
  select id into pickid from public.fulfillment_pick_lines where preparation_id=prep;
  keyid:=gen_random_uuid();data:=jsonb_build_object('order_id',oid,'request_key',keyid,'pick_line_id',pickid,'product_code',bc,'location_code',(select code from public.warehouse_locations where id=loc),'quantity',4);
+ -- A scanned code must match the product sheet; picking without one is still allowed.
+ denied:=false;begin perform public.gama_fulfillment_action('pick',data||jsonb_build_object('request_key',gen_random_uuid(),'product_code','NO-'||bc));exception when others then if sqlerrm like '%PRODUCT_SCAN_MISMATCH%' then denied:=true;else raise;end if;end;
+ if not denied then raise exception 'FAIL_PICK_SCAN_GUARD';end if;
  data:=data-'location_code'-'product_code';
  perform public.gama_fulfillment_action('pick',data);perform public.gama_fulfillment_action('pick',data);
  if (select picked from public.fulfillment_pick_lines where id=pickid)<>4 then raise exception 'FAIL_PICK_RETRY';end if;
@@ -38,8 +41,11 @@ begin
 
  denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm='PACKING_INCOMPLETE' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_UNCHECKED_CARTONS';end if;
- res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'weight_kg',1,'length_cm',20,'width_cm',20,'height_cm',10,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'product_code',bc,'quantity',4))));pkg:=(res->>'id')::uuid;
- denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;end;
+ res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'quantity',4))));pkg:=(res->>'id')::uuid;
+ -- Weight comes from the product sheet; the operator never types it and dimensions stay empty.
+ if (select weight_kg from public.fulfillment_packages where id=pkg)<>1 then raise exception 'FAIL_PACKAGE_WEIGHT_SHEET';end if;
+ if (select coalesce(length_cm,width_cm,height_cm) from public.fulfillment_packages where id=pkg) is not null then raise exception 'FAIL_PACKAGE_DIMENSIONS';end if;
+ denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;
  if not denied then raise exception 'FAIL_PARTIAL_REASON';end if;
  res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','wait','quantity',12,'promised_date',current_date+5));opt:=(res->>'id')::uuid;
  perform public.gama_fulfillment_action('respond_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'option_id',opt,'decision','accepted','agreement_reference','Email test'));
@@ -51,12 +57,19 @@ begin
  keyid:=gen_random_uuid();data:=jsonb_build_object('order_id',oid,'preparation_id',prep,'request_key',keyid);
  res:=public.gama_sales_action('ship',data);shipid:=(res->>'id')::uuid;perform public.gama_sales_action('ship',data);
  if (select sum(quantity) from public.stock_quants where product_id=prod)<>6 then raise exception 'FAIL_SHIP_STOCK';end if;
+ -- TMS keeps reading the load from the product sheet, not from what an operator typed.
+ select tms_delivery_id into tid from public.sales_deliveries where id=shipid;
+ if round((select weight from public.tms_deliveries where id=tid)::numeric,3)<>1
+ or round((select volume from public.tms_deliveries where id=tid)::numeric,6)<>0.008 then raise exception 'FAIL_TMS_LOAD_FROM_SHEET';end if;
  if (select shipment_id from public.fulfillment_preparations where id=prep)<>shipid then raise exception 'FAIL_PREP_LINK';end if;
  denied:=false;begin perform public.gama_loading_action('scan',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)));exception when others then if sqlerrm='INVALID_ACTION' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_TMS_STILL_SCANS';end if;
+ update public.products set weight_g=null where id=prod;
  perform public.gama_fulfillment_action('void_package',jsonb_build_object('order_id',oid,'preparation_id',prep,'package_id',pkg,'reason','Corregir bulto','request_key',gen_random_uuid()));
  if (public.gama_loading_action('manifest',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)))->>'complete')::boolean then raise exception 'FAIL_VOID_PACKAGE_GATE';end if;
- res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'weight_kg',1,'length_cm',20,'width_cm',20,'height_cm',10,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'product_code',bc,'quantity',4))));pkg:=(res->>'id')::uuid;
+ res:=public.gama_fulfillment_action('package',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'preparation_id',prep,'lines',jsonb_build_array(jsonb_build_object('pick_line_id',pickid,'quantity',4))));pkg:=(res->>'id')::uuid;
+ -- A product sheet without a weight leaves the parcel empty instead of blocking the operator.
+ if (select weight_kg from public.fulfillment_packages where id=pkg) is not null then raise exception 'FAIL_PACKAGE_WEIGHT_EMPTY';end if;
  if not (public.gama_loading_action('manifest',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)))->>'complete')::boolean then raise exception 'FAIL_READY_AFTER_PACKING';end if;
  if (select sum(quantity) from public.stock_quants where product_id=prod)<>6 then raise exception 'FAIL_PACKING_MOVED_STOCK';end if;
  select id into dlid from public.sales_delivery_lines where delivery_id=shipid;

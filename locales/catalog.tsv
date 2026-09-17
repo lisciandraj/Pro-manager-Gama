@@ -1693,3 +1693,21 @@ No se pudo guardar el artículo.	Impossible d’enregistrer l’article.	Could n
 Asistente IA	Assistant IA	AI Assistant
 
 Proyectos	Projets	Projects
+Cantidad preparada	Quantité préparée	Prepared quantity
+Validar línea	Valider la ligne	Validate line
+Abrir línea	Ouvrir la ligne	Open line
+Escanea un producto para abrir su línea con la cantidad prevista.	Scannez un produit pour ouvrir sa ligne avec la quantité prévue.	Scan a product to open its line with the expected quantity.
+Se embalan las cantidades ya validadas en la preparación. El peso y el volumen se leen de la ficha del producto.	Les quantités déjà validées pendant la préparation sont emballées. Le poids et le volume proviennent de la fiche produit.	The quantities already validated during preparation are packed. Weight and volume come from the product sheet.
+Peso del bulto	Poids du colis	Package weight
+Volumen del bulto	Volume du colis	Package volume
+Resumen de la preparación	Récapitulatif de la préparation	Preparation summary
+Sin cantidades registradas.	Aucune quantité enregistrée.	No quantities recorded.
+El peso y el volumen se leen de la ficha del producto; el operario no los introduce.	Le poids et le volume proviennent de la fiche produit ; l’opérateur ne les saisit pas.	Weight and volume come from the product sheet; the operator does not enter them.
+Todas las líneas están preparadas. Crea el bulto y cierra la preparación.	Toutes les lignes sont préparées. Créez le colis et fermez la préparation.	Every line is prepared. Create the package and close the preparation.
+Ese código no corresponde a ninguna línea pendiente de esta preparación.	Ce code ne correspond à aucune ligne en attente de cette préparation.	That code matches no pending line in this preparation.
+Introduce una cantidad válida.	Saisissez une quantité valide.	Enter a valid quantity.
+Sin dato en la ficha del producto	Absent de la fiche produit	Not on the product sheet
+Sin peso o volumen en la ficha de	Sans poids ni volume sur la fiche de	No weight or volume on the sheet for
+La preparación continúa; completa la ficha del producto para el transporte.	La préparation continue ; complétez la fiche produit pour le transport.	Preparation continues; complete the product sheet for transport.
+Peso total	Poids total	Total weight
+Volumen total	Volume total	Total volume

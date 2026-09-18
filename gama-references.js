@@ -1,6 +1,6 @@
 /* Canonical dossier references; original/fiscal numbers remain in storage. */
 (function(){'use strict';
-const types=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','customer_returns']);
+const types=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders']);
 async function attach(table,result,client){
  if(result.error||!result.data||!types.has(table))return result;
  const rows=Array.isArray(result.data)?result.data:[result.data],key=table==='tms_proofs'?'delivery_id':'id',ids=rows.map(r=>r[key]).filter(Boolean);
@@ -13,7 +13,7 @@ async function attach(table,result,client){
  for(const r of rows){const ref=get(table,r[key]);if(!ref)continue;r.dossier_number=ref.dossier_number;r.dossier_reference=ref.document_reference;
   r.dossier_label='EXP-'+String(ref.dossier_number).padStart(8,'0');
   if(table==='invoices'){r.original_number=r.invoice_number;r.invoice_number=ref.document_reference;}
-  else if(['sales_orders','sales_deliveries','fulfillment_preparations','customer_returns','external_invoices'].includes(table)){
+  else if(['sales_orders','sales_deliveries','fulfillment_preparations','return_orders','external_invoices'].includes(table)){
    r.original_number=r.number;
    if(table==='external_invoices'&&r.document_kind==='external')r.external_number=r.number;
    r.number=ref.document_reference;

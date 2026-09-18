@@ -27,7 +27,7 @@ const groups=[
  ['Comptabilité','Contabilidad','Accounting',['accounting_accounts','accounting_journals','accounting_entries','accounting_entry_lines','accounting_periods','accounting_permissions','accounting_taxes','financial_accounts','bank_transactions','reconciliations','expenses','expense_categories','expense_receipts','supplier_invoices','supplier_invoice_payments']],
  ['Flotte','Flota','Fleet',[]]
 ];
-const prefixes={crm_:6,fulfillment_:8,stock_:12,inventory_:12,tms_:14,customer_return:15,hr_:16,sri_:20,fleet_:23};
+const prefixes={crm_:6,fulfillment_:8,stock_:12,inventory_:12,tms_:14,return_:15,hr_:16,sri_:20,fleet_:23};
 function group(t){const i=groups.findIndex(g=>g[3].includes(t));if(i>=0)return i;for(const [p,n]of Object.entries(prefixes))if(t.startsWith(p))return n;throw Error('Unmapped export table: '+t)}
 const lang=()=>window.GamaI18n?.language||document.documentElement.lang||'es';
 const tr=(fr,es,en)=>({fr,es,en}[lang()]||es);

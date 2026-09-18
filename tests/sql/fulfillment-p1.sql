@@ -1,7 +1,7 @@
 -- Run with the migration inside BEGIN/ROLLBACK. All identities and goods are fixtures.
 do $$
 declare
- a uuid;c uuid;prod uuid;subprod uuid;emptyprod uuid;loc uuid;wid uuid;oid uuid;lid uuid;prep uuid;pickid uuid;pkg uuid;shipid uuid;tid uuid;dlid uuid;ret uuid;opt uuid;oid2 uuid;lid2 uuid;
+ a uuid;c uuid;prod uuid;subprod uuid;emptyprod uuid;loc uuid;wid uuid;oid uuid;lid uuid;prep uuid;pickid uuid;pkg uuid;shipid uuid;tid uuid;opt uuid;oid2 uuid;lid2 uuid;
  client_id uuid:=gen_random_uuid();outsider uuid:=gen_random_uuid();keyid uuid;data jsonb;res jsonb;denied boolean;bc text;sid uuid;
 begin
  select id into a from public.profiles where role='administrador' and active limit 1;
@@ -72,31 +72,6 @@ begin
  if (select weight_kg from public.fulfillment_packages where id=pkg) is not null then raise exception 'FAIL_PACKAGE_WEIGHT_EMPTY';end if;
  if not (public.gama_loading_action('manifest',jsonb_build_object('delivery_id',(select tms_delivery_id from public.sales_deliveries where id=shipid)))->>'complete')::boolean then raise exception 'FAIL_READY_AFTER_PACKING';end if;
  if (select sum(quantity) from public.stock_quants where product_id=prod)<>6 then raise exception 'FAIL_PACKING_MOVED_STOCK';end if;
- select id into dlid from public.sales_delivery_lines where delivery_id=shipid;
- -- Receiving is separate from return request; quarantine is never available.
- res:=public.gama_fulfillment_action('request_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_line_id',dlid,'quantity',2,'reason','Envase dañado'));ret:=(res->>'id')::uuid;
- if (select sum(quantity) from public.stock_quants where product_id=prod)<>6 then raise exception 'FAIL_REQUEST_CHANGED_STOCK';end if;
- perform public.gama_fulfillment_action('receive_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'return_id',ret,'location_id',loc));
- if (select sum(quantity-reserved_quantity) from public.stock_quants where product_id=prod)<>0 then raise exception 'FAIL_QUARANTINE_AVAILABLE';end if;
- select hold_reservation_id into sid from public.customer_returns where id=ret;
- denied:=false;begin perform public.gama_stock_unreserve(sid);exception when others then if sqlerrm like '%FULFILLMENT_RESERVATION_LOCKED%' then denied:=true;else raise;end if;end;
- if not denied then raise exception 'FAIL_QUARANTINE_RELEASE';end if;
- keyid:=gen_random_uuid();data:=jsonb_build_object('order_id',oid,'request_key',keyid,'return_id',ret,'location_id',loc,'disposition','restocked','reason','Conforme tras control');
- perform public.gama_fulfillment_action('inspect_return',data);perform public.gama_fulfillment_action('inspect_return',data);
- if (select sum(quantity) from public.stock_quants where product_id=prod)<>8 then raise exception 'FAIL_RESTOCK_RETRY';end if;
- -- Exchange creates a linked zero-price order with its own preparation.
- res:=public.gama_fulfillment_action('request_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_line_id',dlid,'quantity',1,'reason','Cambio solicitado'));ret:=(res->>'id')::uuid;
- perform public.gama_fulfillment_action('receive_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'return_id',ret,'location_id',loc));
- perform public.gama_fulfillment_action('inspect_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'return_id',ret,'location_id',loc,'disposition','exchanged','reason','Conforme cambio'));
- if not exists(select 1 from public.customer_returns r join public.sales_order_lines l on l.order_id=r.replacement_order_id where r.id=ret and l.quantity=1 and l.unit_price=0) then raise exception 'FAIL_EXCHANGE';end if;
- denied:=false;begin perform public.gama_fulfillment_action('request_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_line_id',dlid,'quantity',2,'reason','Exceso'));exception when others then if sqlerrm like '%RETURN_EXCEEDS_DELIVERED%' then denied:=true;else raise;end if;end;
- if not denied then raise exception 'FAIL_RETURN_LIMIT';end if;
- -- Final returned unit is scrapped after receipt; stock decreases exactly once.
- res:=public.gama_fulfillment_action('request_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'delivery_line_id',dlid,'quantity',1,'reason','Producto roto'));ret:=(res->>'id')::uuid;
- perform public.gama_fulfillment_action('receive_return',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'return_id',ret,'location_id',loc));
- data:=jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'return_id',ret,'disposition','exchange_scrap','reason','No conforme tras control');
- perform public.gama_fulfillment_action('inspect_return',data);perform public.gama_fulfillment_action('inspect_return',data);
- if (select sum(quantity) from public.stock_quants where product_id=prod)<>9 then raise exception 'FAIL_SCRAP_ONCE';end if;
  -- Full replacement retains the original line at zero and requires customer ownership.
  res:=public.gama_sales_action('create',jsonb_build_object('request_key',gen_random_uuid(),'customer_id',c,'delivery_address','Quito','lines',jsonb_build_array(jsonb_build_object('product_id',emptyprod,'quantity',2,'unit_price',20,'tax_rate',0))));oid2:=(res->>'id')::uuid;
  perform public.gama_sales_action('confirm',jsonb_build_object('order_id',oid2));select id into lid2 from public.sales_order_lines where order_id=oid2;

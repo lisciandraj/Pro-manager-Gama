@@ -133,6 +133,21 @@ estado en un solo paso.
 Recuperación: corregir hacia delante. Nunca borrar un asiento contabilizado ni
 un pago para «arreglar» un saldo; contrapasar y volver a registrar.
 
+## Exportación
+
+Cada pantalla exporta su propia lista en CSV, respetando el filtro activo y el
+permiso de exportar del usuario.
+
+La **copia de seguridad Excel** de Informes lleva además las quince tablas
+contables completas, en su propia hoja «Contabilidad»: plan de cuentas,
+diarios, asientos y sus líneas, periodos, permisos, impuestos, cuentas
+financieras, movimientos de banco, conciliaciones, gastos y sus categorías,
+facturas de proveedor y sus pagos. Los justificantes adjuntos quedan fuera,
+como el resto de binarios de GAMA: una celda de Excel se corta a 32 767
+caracteres y el libro anuncia ese límite en su resumen. Los parámetros de la
+empresa —divisa, país, inicio del ejercicio y las cuentas por defecto— viajan
+en la hoja «Configuración», que es donde vive `company_settings`.
+
 ## Lo que este módulo no es
 
 No emite documentos fiscales, no presenta declaraciones y no sustituye a un

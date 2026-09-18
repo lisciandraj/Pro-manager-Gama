@@ -150,6 +150,18 @@ catálogo `locales/catalog.tsv`; los números que acompañan a una unidad van
 fuera del texto traducido —«5 días restantes», «5 jours restants», «5 days
 left»— porque el catálogo busca la frase entera.
 
+## Exportación
+
+Dos caminos, y hacen cosas distintas. El botón **Exportar a Excel** del tablero
+saca lo que pide la dirección: la lista de vehículos con su conductor y su
+consumo, y los gastos del mes —carburante y taller— en un CSV que Excel abre de
+doble clic en las tres lenguas.
+
+La **copia de seguridad Excel** de Informes lleva además las siete tablas
+completas, en su propia hoja «Flota». Las fotos de los vehículos y los adjuntos
+de los documentos quedan fuera, como el resto de binarios de GAMA: una celda de
+Excel se corta a 32 767 caracteres y el libro anuncia ese límite en su resumen.
+
 ## Datos de demostración
 
 La migración carga 4 coches, 2 camiones y 3 conductores, con sus documentos,

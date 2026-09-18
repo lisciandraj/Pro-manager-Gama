@@ -8,11 +8,15 @@ function boot({fixtures={},role='administrador',failure,cap=200}={}){
 }
 test('all business tables map to a module; paginated export preserves text and amounts',async()=>{
  const products=Array.from({length:1201},(_,i)=>({id:String(i),barcode:'000'+i,name:i===0?'=SUM(1,2)':'Produit '+i,sale_price:12.5,description:'é & < >'}));
- const x=boot({fixtures:{products,suppliers:[{id:'s',name:'Fournisseur'}],customer_special_prices:[{id:'t',contract_ref:'Contrat 001'}],knowledge_articles:[{id:'k',body:'é'.repeat(70000),properties:[{label:'Auteur',value:'Jimmy'}]}]}});
+ const x=boot({fixtures:{products,suppliers:[{id:'s',name:'Fournisseur'}],customer_special_prices:[{id:'t',contract_ref:'Contrat 001'}],knowledge_articles:[{id:'k',body:'é'.repeat(70000),properties:[{label:'Auteur',value:'Jimmy'}]}],
+  fleet_vehicles:[{id:'v',plate:'TCA-9001',brand:'Mercedes-Benz',odometer:164300}],
+  expenses:[{id:'e',reference:'GA-00000001',amount_total:55}]}});
  for(const s of x.context.GamaExportSchema)assert.ok(x.context.GamaExcelExport.group(s.table)>=0);
- await x.context.GamaExcelExport.run();assert.equal(x.downloads.length,1);const w=x.downloads[0].w;assert.equal(w.SheetNames.length,23);assert.ok(w.Sheets.Projets);const p=w.Sheets.Produits.rows;assert.equal(p.length,1204);assert.equal(p[2][p[1].indexOf('barcode')],'0000');assert.equal(p[2][p[1].indexOf('name')],'=SUM(1,2)');assert.equal(p[2][p[1].indexOf('sale_price')],12.5);assert.equal(p[1202][p[1].indexOf('id')],'1200');
+ await x.context.GamaExcelExport.run();assert.equal(x.downloads.length,1);const w=x.downloads[0].w;assert.equal(w.SheetNames.length,25);assert.ok(w.Sheets.Projets);
+ assert.ok(w.Sheets.Flotte.rows.some(r=>r.includes('TCA-9001')&&r.includes(164300)));
+ assert.ok(w.Sheets['Comptabilité'].rows.some(r=>r.includes('GA-00000001')&&r.includes(55)));const p=w.Sheets.Produits.rows;assert.equal(p.length,1204);assert.equal(p[2][p[1].indexOf('barcode')],'0000');assert.equal(p[2][p[1].indexOf('name')],'=SUM(1,2)');assert.equal(p[2][p[1].indexOf('sale_price')],12.5);assert.equal(p[1202][p[1].indexOf('id')],'1200');
  const k=w.Sheets.Knowledge.rows,body=k[1].flatMap((h,i)=>h.startsWith('body')?[k[2][i]]:[]).join('');assert.equal(body,'é'.repeat(70000));assert.ok(k[2].some(v=>typeof v==='string'&&v.includes('Jimmy')));
- assert.ok(x.calls.every(c=>!c.columns.includes('photo_data')&&!c.columns.includes('content_base64')));assert.equal(x.calls.filter(c=>c.table==='products').length,8);assert.equal(x.button.disabled,false);
+ assert.ok(x.calls.every(c=>!c.columns.split(',').some(col=>['photo_data','content_base64','photo','data_url','encrypted_key','signature'].includes(col))));assert.equal(x.calls.filter(c=>c.table==='products').length,8);assert.equal(x.button.disabled,false);
  assert.equal(x.calls.find(c=>c.table==='external_invoice_deliveries').orders.join(','),'invoice_id,delivery_id');
 });
 test('permission errors are recorded in summary; other modules still export',async()=>{const x=boot({failure:{table:'hr_employee_private',code:'42501',message:'denied'}});await x.context.GamaExcelExport.run();assert.equal(x.downloads.length,1);assert.ok(x.downloads[0].w.Sheets.Sommaire.rows.some(r=>r[1]==='hr_employee_private'&&r[3]==='Accès refusé'));});

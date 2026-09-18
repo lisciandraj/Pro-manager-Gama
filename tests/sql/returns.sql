@@ -256,6 +256,8 @@ begin
   or exists(select 1 from jsonb_array_elements(r->'rows') x where (x->>'id')::uuid=rid4)
   then raise exception 'FAIL_KIND_FILTER';end if;
  if (r#>>'{kpis,open}')::int<1 then raise exception 'FAIL_KPI_OPEN';end if;
+ -- La pantalla necesita las ubicaciones para recibir, reponer y expedir.
+ if jsonb_array_length(r->'locations')<1 then raise exception 'FAIL_LOCATIONS';end if;
 
  perform set_config('request.jwt.claim.sub',fin_id::text,true);
  r:=public.gama_returns_action('overview','{}');
@@ -274,6 +276,10 @@ begin
   or (r#>>'{documents,invoice,id}')::uuid<>inv or (r#>>'{documents,order,id}')::uuid<>oid
   or (r#>>'{documents,delivery,id}')::uuid<>sid
   then raise exception 'FAIL_DETAIL_DOCUMENTS';end if;
+ -- Las cifras del §18 se calculan donde están los datos.
+ r:=public.gama_returns_action('stats','{}');
+ if (r->>'month_count')::int<1 or (r->>'month_value')::numeric<=0
+  or jsonb_array_length(r->'reasons')<1 then raise exception 'FAIL_STATS';end if;
 
  perform set_config('request.jwt.claim.sub',client_id::text,true);
  rejected:=false;

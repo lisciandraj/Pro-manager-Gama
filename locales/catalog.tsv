@@ -2096,3 +2096,154 @@ No hay conductores con vehículo asignado. Se dan de alta en RRHH y se emparejan
 Ningún conductor tiene hoy un vehículo en servicio. Revisa las afectaciones en Gestión de flota.	Aucun conducteur n’a aujourd’hui de véhicule en service. Vérifiez les affectations dans la Gestion de flotte.	No driver has a vehicle in service today. Check the assignments in Fleet management.
 Hoy no reparten:	Ne livrent pas aujourd’hui :	Not delivering today:
 No se pudieron leer los conductores disponibles.	Les conducteurs disponibles n’ont pas pu être lus.	The available drivers could not be read.
++ Nueva devolución	+ Nouveau retour	+ New return
+1 · Qué se devuelve	1 · Ce qui est retourné	1 · What is being returned
+1 · Qué vuelve y qué se hace con ello	1 · Ce qui revient et ce qu’on en fait	1 · What comes back and what happens to it
+1 · Tipo	1 · Type	1 · Type
+11. Devolución (flujo inverso)	11. Retour (flux inverse)	11. Return (reverse flow)
+2 · Documento	2 · Document	2 · Document
+2 · Qué se hace con el dinero	2 · Ce qu’on fait côté argent	2 · What happens to the money
+3 · Productos	3 · Produits	3 · Products
+A devolver	À retourner	To return
+Abono	Avoir	Credit note
+Abono del proveedor pendiente	Avoir fournisseur attendu	Supplier credit note pending
+Abono emitido	Avoir émis	Credit note issued
+Abono recibido	Avoir reçu	Credit note received
+Abrir las devoluciones	Ouvrir les retours	Open the returns
+Acción	Action	Action
+Al expedirla, la cantidad sale del stock disponible del almacén elegido.	À l’expédition, la quantité sort du stock disponible de l’entrepôt choisi.	On dispatch, the quantity leaves available stock in the chosen warehouse.
+Al rebut	Au rebut	Scrapped
+Almacén de destino	Entrepôt de destination	Destination warehouse
+Almacén de salida	Entrepôt de départ	Source warehouse
+Análisis	Analyse	Analysis
+Añadir una foto o un documento	Ajouter une photo ou un document	Add a photo or a document
+Cantidad equivocada	Mauvaise quantité	Wrong quantity
+Cerrada	Clôturé	Closed
+Confirma que la mercancía ha vuelto. Entra retenida en el almacén: el stock disponible no se mueve hasta que decidas qué hacer con ella.	Confirme que la marchandise est revenue. Elle entre bloquée dans l’entrepôt : le stock disponible ne bouge pas tant que tu n’as pas décidé quoi en faire.	Confirm the goods are back. They arrive held in the warehouse: available stock does not move until you decide what to do with them.
+Confirmar la expedición	Confirmer l’expédition	Confirm the dispatch
+Confirmar la recepción	Confirmer la réception	Confirm the receipt
+Crear la devolución	Créer le retour	Create the return
+Crédito para el cliente	Crédit client	Store credit
+Decidir producto por producto: stock, rebut o devolución al proveedor.	Décider produit par produit : stock, rebut ou retour au fournisseur.	Decide product by product: stock, scrap or return to the supplier.
+Decidir qué se hace	Décider quoi en faire	Decide what happens
+Decisión	Décision	Decision
+Devoluciones	Retours	Returns
+Devoluciones a proveedores	Retours fournisseurs	Supplier returns
+Devoluciones de clientes	Retours clients	Customer returns
+Devolución a proveedor por expedir	Retour fournisseur à expédier	Supplier return to dispatch
+Devolución comercial	Retour commercial	Commercial return
+Devolución creada	Retour créé	Return created
+Devolución de cliente por recibir	Retour client à traiter	Customer return to handle
+Devolución recibida sin decidir	Retour reçu mais non traité	Return received but not handled
+Devolver al proveedor	Retourner au fournisseur	Return to the supplier
+Documento (opcional)	Document (facultatif)	Document (optional)
+Documentos ligados	Documents liés	Linked documents
+El archivo no es válido.	Le fichier n’est pas valide.	The file is not valid.
+El importe tiene que ser mayor que cero.	Le montant doit être supérieur à zéro.	The amount must be greater than zero.
+El reembolso superaría el importe de la devolución.	Le remboursement dépasserait le montant du retour.	The refund would exceed the return amount.
+Elegir	Choisir	Choose
+Elegir la acción financiera	Choisir l’action financière	Choose the financial action
+Elegir la acción financiera —ninguna, abono, reembolso o crédito— y cerrar.	Choisir l’action financière — aucune, avoir, remboursement ou crédit — puis clôturer.	Choose the financial action — none, credit note, refund or store credit — and close.
+Elige qué hacer con el producto.	Choisis quoi faire du produit.	Choose what happens to the product.
+Elige una ubicación de destino válida.	Choisis un emplacement de destination valide.	Choose a valid destination location.
+Emitir el abono	Émettre l’avoir	Issue the credit note
+Emitir un abono	Créer un avoir	Create a credit note
+Entregado	Livré	Delivered
+Error de pedido	Erreur de commande	Order error
+Esa devolución ya no existe. Actualiza la lista.	Ce retour n’existe plus. Actualise la liste.	That return no longer exists. Refresh the list.
+Esa línea no pertenece al documento elegido.	Cette ligne n’appartient pas au document choisi.	That line does not belong to the chosen document.
+Esa línea ya se trató: no se trata dos veces.	Cette ligne a déjà été traitée : elle ne se traite pas deux fois.	That line has already been handled: it is not handled twice.
+Ese archivo ya no existe.	Ce fichier n’existe plus.	That file no longer exists.
+Ese documento de origen ya no existe.	Ce document d’origine n’existe plus.	That source document no longer exists.
+Ese documento se consulta en su propio módulo.	Ce document se consulte dans son propre module.	That document is viewed in its own module.
+Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.	Ce retour ne vient pas d’une facture : on ne peut pas émettre d’avoir, seulement rembourser.	This return does not come from an invoice: no credit note can be issued, only a refund.
+Esta devolución ya se había expedido.	Ce retour avait déjà été expédié.	This return had already been dispatched.
+Esta devolución ya se había recibido.	Ce retour avait déjà été reçu.	This return had already been received.
+Este abono lo emite el proveedor: aquí sólo se registra lo que ha mandado.	Cet avoir est émis par le fournisseur : on enregistre seulement ce qu’il a envoyé.	This credit note is issued by the supplier: here you only record what they sent.
+Expedida el	Expédié le	Dispatched on
+Expide la devolución antes de cerrarla.	Expédie le retour avant de le clôturer.	Dispatch the return before closing it.
+Factura del proveedor	Facture fournisseur	Supplier invoice
+Foto o documento (opcional)	Photo ou document (facultatif)	Photo or document (optional)
+Fotos y documentos	Photos et documents	Photos and documents
+GAMA calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.	GAMA calcule le montant avec les prix et taxes de la facture d’origine. Tu peux l’ajuster avant de valider.	GAMA works out the amount from the prices and taxes on the original invoice. You can adjust it before validating.
+Indica al menos una cantidad a devolver.	Indique au moins une quantité à retourner.	Enter at least one quantity to return.
+Indica el medio de pago.	Indique le moyen de paiement.	Enter the payment method.
+La devolución está cerrada o anulada: ya no se modifica.	Le retour est clôturé ou annulé : il ne se modifie plus.	The return is closed or cancelled: it can no longer be changed.
+La mercancía está retenida: no cuenta como disponible hasta que decidas.	La marchandise est bloquée : elle ne compte pas comme disponible tant que tu n’as pas décidé.	The goods are held: they do not count as available until you decide.
+La mercancía ya se ha movido: la devolución no se puede anular ni borrar.	La marchandise a déjà bougé : le retour ne peut être ni annulé ni supprimé.	The goods have already moved: the return can be neither cancelled nor deleted.
+La retención de la mercancía ha cambiado. Actualiza la ficha.	Le blocage de la marchandise a changé. Actualise la fiche.	The hold on the goods has changed. Refresh the record.
+Los abonos superarían el importe de la factura.	Les avoirs dépasseraient le montant de la facture.	The credit notes would exceed the invoice amount.
+Motivos más frecuentes	Motifs les plus fréquents	Most frequent reasons
+Nada obliga a una decisión: un producto al rebut puede acabar reembolsado, y una devolución comercial puede no mover un céntimo.	Rien n’oblige à une décision : un produit au rebut peut finir remboursé, et un retour commercial peut ne rien bouger.	Nothing forces a decision: a scrapped product may still be refunded, and a commercial return may move nothing at all.
+No hay bastante stock disponible en esa ubicación.	Il n’y a pas assez de stock disponible à cet emplacement.	There is not enough available stock at that location.
+No hay ningún documento con mercancía que se pueda devolver.	Aucun document ne comporte de marchandise retournable.	No document has any goods that can be returned.
+No se puede devolver más de lo entregado menos lo ya devuelto.	On ne peut pas retourner plus que la quantité livrée moins celle déjà retournée.	You cannot return more than what was delivered minus what was already returned.
+No se puede devolver más de lo recibido menos lo ya devuelto.	On ne peut pas retourner plus que la quantité reçue moins celle déjà retournée.	You cannot return more than what was received minus what was already returned.
+Nueva devolución	Nouveau retour	New return
+Número de seguimiento	Numéro de suivi	Tracking number
+Número de seguimiento (opcional)	Numéro de suivi (facultatif)	Tracking number (optional)
+Número o nombre	Numéro ou nom	Number or name
+Para emitir un abono, la devolución tiene que venir de una factura.	Pour émettre un avoir, le retour doit venir d’une facture.	To issue a credit note, the return must come from an invoice.
+Pedido de compra	Commande fournisseur	Purchase order
+Pendiente de decidir	En attente de décision	Waiting for a decision
+Por tratar	À traiter	To handle
+Primero registra la recepción de la mercancía.	Enregistre d’abord la réception de la marchandise.	Record the receipt of the goods first.
+Producto dañado	Produit endommagé	Damaged product
+Producto defectuoso	Produit défectueux	Faulty product
+Producto equivocado	Mauvais produit	Wrong product
+Productos más devueltos	Produits les plus retournés	Most returned products
+Proveedores con devoluciones	Fournisseurs avec retours	Suppliers with returns
+Recibida	Reçu	Received
+Recibido	Reçu	Received
+Reembolsado	Remboursé	Refunded
+Reembolsar al cliente	Rembourser le client	Refund the customer
+Reembolso	Remboursement	Refund
+Reembolso de cliente pendiente	Remboursement client en attente	Customer refund pending
+Referencia (opcional)	Référence (facultative)	Reference (optional)
+Registrar el abono del proveedor	Enregistrer l’avoir du fournisseur	Record the supplier credit note
+Registrar el reembolso	Enregistrer le remboursement	Record the refund
+Registrar la expedición	Enregistrer l’expédition	Record the dispatch
+Registrar la recepción	Enregistrer la réception	Record the receipt
+Registrar la recepción física de la mercancía devuelta.	Enregistrer la réception physique de la marchandise retournée.	Record the physical receipt of the returned goods.
+Reponer en stock	Remettre en stock	Put back in stock
+Sin datos todavía.	Pas encore de données.	No data yet.
+Sin reembolso	Aucun remboursement	No refund
+Todavía no hay ninguna devolución con estos filtros.	Aucun retour ne correspond à ces filtres.	No return matches these filters.
+Todavía no hay ningún archivo.	Il n’y a encore aucun fichier.	There are no files yet.
+Total de la factura	Total de la facture	Invoice total
+Transportista	Transporteur	Carrier
+Transportista (opcional)	Transporteur (facultatif)	Carrier (optional)
+Trata todas las líneas antes de cerrar.	Traite toutes les lignes avant de clôturer.	Handle every line before closing.
+Tratada	Traité	Handled
+Tu perfil no puede hacer esta operación.	Ton profil ne peut pas faire cette opération.	Your profile cannot perform this operation.
+Tu perfil no tiene acceso a las devoluciones.	Ton profil n’a pas accès aux retours.	Your profile has no access to returns.
+Ver las cifras del periodo	Voir les chiffres de la période	See the figures for the period
+Ya abonado	Déjà avoiré	Already credited
+Ya devuelto	Déjà retourné	Already returned
+Ya hay seis archivos en esta devolución.	Il y a déjà six fichiers sur ce retour.	There are already six files on this return.
+Ya se ha devuelto todo lo de ese documento.	Tout a déjà été retourné sur ce document.	Everything on that document has already been returned.
+¿Qué se hace con el dinero?	Que fait-on côté argent ?	What happens to the money?
+¿Qué se hace con el producto?	Que fait-on du produit ?	What happens to the product?
+¿Qué vuelve?	Qu’est-ce qui revient ?	What is coming back?
+↩ Crear una devolución	↩ Créer un retour	↩ Create a return
+↩️ Devolución de un cliente	↩️ Retour d’un client	↩️ Return from a customer
+↪️ Devolver al proveedor	↪️ Retourner au fournisseur	↪️ Return to the supplier
+✅ Cerrar la devolución	✅ Clôturer le retour	✅ Close the return
+💸 Reembolsar	💸 Rembourser	💸 Refund
+📥 Registrar la recepción	📥 Enregistrer la réception	📥 Record the receipt
+📦 Devolución a un proveedor	📦 Retour à un fournisseur	📦 Return to a supplier
+📦 Reponer en stock	📦 Remettre en stock	📦 Put back in stock
+🗑️ Al rebut	🗑️ Au rebut	🗑️ Scrap it
+🚚 Registrar la expedición	🚚 Enregistrer l’expédition	🚚 Record the dispatch
+🧾 Emitir un abono	🧾 Créer un avoir	🧾 Create a credit note
+🧾 Registrar el abono del proveedor	🧾 Enregistrer l’avoir du fournisseur	🧾 Record the supplier credit note
+↩️ Devoluciones	↩️ Retours	↩️ Returns
+Lo que vuelve del cliente y lo que se devuelve al proveedor.	Ce qui revient du client et ce qu’on renvoie au fournisseur.	What comes back from customers and what goes back to suppliers.
+¿De qué entrega vuelve?	De quelle livraison cela revient-il ?	Which delivery is it coming back from?
+¿De qué recepción vuelve?	De quelle réception cela revient-il ?	Which receipt is it coming back from?
+Cerrar la devolución	Clôturer le retour	Close the return
+Después de cerrarla ya no se modifica.	Une fois clôturé, il ne se modifie plus.	Once closed it can no longer be changed.
+Anular la devolución	Annuler le retour	Cancel the return
+La devolución quedará anulada y las cantidades vuelven a poder devolverse.	Le retour sera annulé et les quantités redeviennent retournables.	The return will be cancelled and the quantities become returnable again.
+Borrar la devolución	Supprimer le retour	Delete the return
+Se borra del todo. La auditoría conserva quién la borró y cuándo.	Suppression définitive. L’audit conserve qui a supprimé et quand.	Deleted for good. The audit trail keeps who deleted it and when.

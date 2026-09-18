@@ -70,6 +70,9 @@ function err(e){
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return T(v);if(s===T(v))return T(v)}
  return T('No se pudo completar la operación. Inténtalo de nuevo.');
 }
+/* El diálogo compartido traduce los errores que conoce; los de este módulo
+   viajan ya traducidos para que no los envuelva en el mensaje genérico. */
+function reject(code){return Object.assign(Error(code),{gamaMessage:err(code)})}
 
 let tab='customer',state={},detailId=null,generation=0;
 let filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};
@@ -79,8 +82,8 @@ async function rpc(action,data={}){
  await window.GamaCloudReady;
  const c=await GamaCloud.db();
  const r=await c.rpc('gama_returns_action',{p_action:action,p_data:data});
- if(r.error)throw Error(err(r.error));
- if(r.data==null)throw Error('EMPTY');
+ if(r.error)throw Object.assign(Error(String(r.error?.message||r.error)),{gamaMessage:err(r.error)});
+ if(r.data==null)throw reject('EMPTY');
  return r.data;
 }
 async function mutate(action,data){
@@ -208,20 +211,20 @@ function list(d){
  </div>
  <div class="grTools">
   <label data-gi-live>${tab==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}
-   <select id="grPartner"><option value="" data-gi-live>Todos</option>${partners.map(p=>`<option value="${esc(p.id)}" ${filters.partner===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
-  <label data-gi-live>Estado<select id="grStatus"><option value="" data-gi-live>Todos</option>${options(STATUS,filters.status)}</select></label>
-  <label data-gi-live>Desde<input id="grFrom" type="date" value="${esc(filters.from)}"></label>
-  <label data-gi-live>Hasta<input id="grTo" type="date" value="${esc(filters.to)}"></label>
-  <label data-gi-live>Buscar<input id="grSearch" type="search" value="${esc(filters.search)}" placeholder="RET-000014"></label>
+   <select id="grPartner"><option value="" data-gi-live data-gi=bd02b9a7d71d>Todos</option>${partners.map(p=>`<option value="${esc(p.id)}" ${filters.partner===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
+  <label data-gi-live data-gi=98e5acddb6c4>Estado<select id="grStatus"><option value="" data-gi-live data-gi=bd02b9a7d71d>Todos</option>${options(STATUS,filters.status)}</select></label>
+  <label data-gi-live data-gi=8b4e93e928df>Desde<input id="grFrom" type="date" value="${esc(filters.from)}"></label>
+  <label data-gi-live data-gi=3c83e3558107>Hasta<input id="grTo" type="date" value="${esc(filters.to)}"></label>
+  <label data-gi-live data-gi=5f55edf90089>Buscar<input id="grSearch" type="search" value="${esc(filters.search)}" placeholder="RET-000014"></label>
  </div>
  ${rights().create?`<div class="grActions"><button class="primary" id="grNew">${tr('+ Nueva devolución')}</button></div>`:''}
- <div class="grCard"><h3 data-gi-live>Análisis</h3><div id="grStats"><button class="secondary" id="grStatsLoad">${tr('Ver las cifras del periodo')}</button></div></div>
+ <div class="grCard"><h3 data-gi-live data-gi=6c97bc52f46d>Análisis</h3><div id="grStats"><button class="secondary" id="grStatsLoad">${tr('Ver las cifras del periodo')}</button></div></div>
  <div class="grCard grScroll">
   <table class="grTable"><thead><tr>
-   <th data-gi-live>Referencia</th><th data-gi-live>Tipo</th>
+   <th data-gi-live data-gi=10ddff5fcc6f>Referencia</th><th data-gi-live data-gi=3868d2843d59>Tipo</th>
    <th data-gi-live>${tab==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}</th>
-   <th data-gi-live>Fecha</th><th class="grNum" data-gi-live>Importe</th>
-   <th data-gi-live>Estado</th><th data-gi-live>Acción</th></tr></thead>
+   <th data-gi-live data-gi=93b2a9ef782c>Fecha</th><th class="grNum" data-gi-live data-gi=572a3acfd983>Importe</th>
+   <th data-gi-live data-gi=98e5acddb6c4>Estado</th><th data-gi-live data-gi=212e06c386ff>Acción</th></tr></thead>
   <tbody>${d.rows.length?d.rows.map(r=>`<tr>
    <td><b>${esc(r.number)}</b></td>
    <td>${badge({customer:'Cliente',supplier:'Proveedor'},r.kind)}</td>
@@ -289,7 +292,7 @@ async function wizardSource(kind){
   const d=await rpc('sources',{kind});
   el=window.GamaSales.modal(T(kind==='customer'?'¿De qué entrega vuelve?':'¿De qué recepción vuelve?'),
    `<p class="grSteps"><span>${tr('1 · Tipo')}</span><span aria-current="step">${tr('2 · Documento')}</span><span>${tr('3 · Productos')}</span></p>
-    <label class="grField" data-gi-live>Buscar<input id="grSrcSearch" type="search" placeholder="${esc(T('Número o nombre'))}"></label>
+    <label class="grField" data-gi-live data-gi=5f55edf90089>Buscar<input id="grSrcSearch" type="search" placeholder="${esc(T('Número o nombre'))}"></label>
     <div id="grSrcList" class="grScroll"></div>`,T('Volver'),async()=>{});
   el.querySelector('#gsSave').remove();
   const draw=q=>{
@@ -316,12 +319,12 @@ async function wizardLines(kind,sourceId){
    `<p class="grSteps"><span>${tr('1 · Tipo')}</span><span>${tr('2 · Documento')}</span><span aria-current="step">${tr('3 · Productos')}</span></p>
     <dl class="grDl">
      <dt data-gi-live>${kind==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}</dt><dd>${esc(d.partner)}</dd>
-     <dt data-gi-live>Documento</dt><dd>${esc(d.number)}</dd>
-     ${d.order_number?`<dt data-gi-live>Pedido</dt><dd>${esc(d.order_number)}</dd>`:''}
+     <dt data-gi-live data-gi=cf4279e00d07>Documento</dt><dd>${esc(d.number)}</dd>
+     ${d.order_number?`<dt data-gi-live data-gi=9e9ea5774a2d>Pedido</dt><dd>${esc(d.order_number)}</dd>`:''}
     </dl>
     <div class="grScroll"><table class="grTable"><thead><tr>
-     <th data-gi-live>Producto</th><th class="grNum" data-gi-live>${kind==='customer'?esc(T('Entregado')):esc(T('Recibido'))}</th>
-     <th class="grNum" data-gi-live>Ya devuelto</th><th class="grNum" data-gi-live>A devolver</th></tr></thead>
+     <th data-gi-live data-gi=77b9238931ed>Producto</th><th class="grNum" data-gi-live>${kind==='customer'?esc(T('Entregado')):esc(T('Recibido'))}</th>
+     <th class="grNum" data-gi-live data-gi=5bf06abda5a9>Ya devuelto</th><th class="grNum" data-gi-live data-gi=beeb6864c175>A devolver</th></tr></thead>
      <tbody>${rows.map(r=>`<tr>
       <td><b>${esc(r.product)}</b><br><span class="grHint">${esc(r.reference||'')}</span></td>
       <td class="grNum">${esc(num(r.moved,3))}</td>
@@ -329,15 +332,15 @@ async function wizardLines(kind,sourceId){
       <td class="grNum"><input data-gr-qty="${esc(r.line_id)}" type="number" inputmode="decimal" min="0" step="0.001"
         max="${esc(r.max_return)}" value="0" style="width:96px;min-height:42px;font-size:16px;text-align:right"></td>
      </tr>`).join('')}</tbody></table></div>
-    <label class="grField" data-gi-live>Motivo<select id="grReason">${options(REASON,'defective')}</select></label>
-    <label class="grField" id="grNotesBox" hidden data-gi-live>Comentario<textarea id="grNotes" rows="2" maxlength="600"></textarea></label>
-    <label class="grField" data-gi-live>Foto o documento (opcional)<input id="grFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`,
+    <label class="grField" data-gi-live data-gi=c7b288b1c0bb>Motivo<select id="grReason">${options(REASON,'defective')}</select></label>
+    <label class="grField" id="grNotesBox" hidden data-gi-live data-gi=53c367898434>Comentario<textarea id="grNotes" rows="2" maxlength="600"></textarea></label>
+    <label class="grField" data-gi-live data-gi=436b1e704da4>Foto o documento (opcional)<input id="grFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`,
    T('Crear la devolución'),
    async el=>{
     const lines=[...el.querySelectorAll('[data-gr-qty]')]
      .map(i=>({line_id:i.dataset.grQty,quantity:Number(String(i.value).replace(',','.'))}))
      .filter(l=>l.quantity>0);
-    if(!lines.length)throw Error('NO_LINES');
+    if(!lines.length)throw reject('NO_LINES');
     const r=await mutate('create',{kind,source_id:sourceId,invoice_id:d.invoice_id||null,
      reason:val(el,'grReason'),notes:val(el,'grNotes'),lines});
     const file=el.querySelector('#grFile').files[0];
@@ -374,12 +377,12 @@ async function detail(id){
    <h3>${esc(d.number)} · ${badge(STATUS,d.status)}</h3>
    <dl class="grDl">
     <dt data-gi-live>${customer?esc(T('Cliente')):esc(T('Proveedor'))}</dt><dd>${esc(d.partner||'—')}</dd>
-    <dt data-gi-live>Motivo</dt><dd>${tr(REASON[d.reason]||d.reason)}</dd>
-    <dt data-gi-live>Importe</dt><dd>${esc(money(d.amount))}</dd>
-    ${d.notes?`<dt data-gi-live>Comentario</dt><dd>${esc(d.notes)}</dd>`:''}
-    ${d.carrier?`<dt data-gi-live>Transportista</dt><dd>${esc(d.carrier)}</dd>`:''}
-    ${d.tracking?`<dt data-gi-live>Número de seguimiento</dt><dd>${esc(d.tracking)}</dd>`:''}
-    ${d.shipped_on?`<dt data-gi-live>Expedida el</dt><dd>${esc(d.shipped_on)}</dd>`:''}
+    <dt data-gi-live data-gi=c7b288b1c0bb>Motivo</dt><dd>${tr(REASON[d.reason]||d.reason)}</dd>
+    <dt data-gi-live data-gi=572a3acfd983>Importe</dt><dd>${esc(money(d.amount))}</dd>
+    ${d.notes?`<dt data-gi-live data-gi=53c367898434>Comentario</dt><dd>${esc(d.notes)}</dd>`:''}
+    ${d.carrier?`<dt data-gi-live data-gi=42b1efe4956b>Transportista</dt><dd>${esc(d.carrier)}</dd>`:''}
+    ${d.tracking?`<dt data-gi-live data-gi=9d890b826ee8>Número de seguimiento</dt><dd>${esc(d.tracking)}</dd>`:''}
+    ${d.shipped_on?`<dt data-gi-live data-gi=20b759731550>Expedida el</dt><dd>${esc(d.shipped_on)}</dd>`:''}
    </dl>
    ${documents(d)}
   </div>
@@ -400,10 +403,10 @@ async function detail(id){
   </div>
 
   <div class="grCard">
-   <h3 data-gi-live>2 · Qué se hace con el dinero</h3>
+   <h3 data-gi-live data-gi=57897bf4c575>2 · Qué se hace con el dinero</h3>
    <dl class="grDl">
-    <dt data-gi-live>Decisión</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>
-    ${customer?`<dt data-gi-live>Reembolsado</dt><dd>${esc(money(d.refunded))} · ${tr('pendiente')} ${esc(money(outstanding))}</dd>`:''}
+    <dt data-gi-live data-gi=0caa6150f308>Decisión</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>
+    ${customer?`<dt data-gi-live data-gi=9ceadf9e7265>Reembolsado</dt><dd>${esc(money(d.refunded))} · ${tr('pendiente')} ${esc(money(outstanding))}</dd>`:''}
    </dl>
    ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(c.number)}</b> · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
    ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}
@@ -417,10 +420,10 @@ async function detail(id){
   </div>
 
   <div class="grCard">
-   <h3 data-gi-live>Fotos y documentos</h3>
+   <h3 data-gi-live data-gi=0c2c1cf33c6e>Fotos y documentos</h3>
    ${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`
      :`<p class="grHint">${tr('Todavía no hay ningún archivo.')}</p>`}
-   ${open?`<label class="grField" data-gi-live>Añadir una foto o un documento<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}
+   ${open?`<label class="grField" data-gi-live data-gi=590f37027486>Añadir una foto o un documento<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}
   </div>
 
   <div class="grActions">
@@ -447,7 +450,7 @@ function docLinks(d){
 function documents(d){
  const items=docLinks(d);
  if(!items.length)return '';
- return `<p class="grHint" data-gi-live>Documentos ligados</p><div class="grDocs">${items.map((x,i)=>
+ return `<p class="grHint" data-gi-live data-gi=223e7a13aaf9>Documentos ligados</p><div class="grDocs">${items.map((x,i)=>
   `<button class="secondary" data-gr-doc="${i}">${esc(x.label)} · ${esc(x.number)}</button>`).join('')}</div>`;
 }
 
@@ -499,7 +502,7 @@ async function openFile(fileId){
 function receiveForm(id){
  window.GamaSales.modal(T('Registrar la recepción'),
   `<p>${tr('Confirma que la mercancía ha vuelto. Entra retenida en el almacén: el stock disponible no se mueve hasta que decidas qué hacer con ella.')}</p>
-   <label class="grField" data-gi-live>Almacén<select id="grLoc" required>${locationOptions()}</select></label>`,
+   <label class="grField" data-gi-live data-gi=9a91575b8e4b>Almacén<select id="grLoc" required>${locationOptions()}</select></label>`,
   T('Confirmar la recepción'),
   async el=>{await mutate('receive',{id,location_id:val(el,'grLoc')});await go()});
 }
@@ -510,12 +513,12 @@ function processLine(id,lineId){
     <button type="button" class="secondary" data-gr-disp="scrapped">${tr('🗑️ Al rebut')}</button>
     <button type="button" class="secondary" data-gr-disp="to_supplier">${tr('↪️ Devolver al proveedor')}</button>
    </div>
-   <label class="grField" id="grLocBox" data-gi-live>Almacén de destino<select id="grLoc">${locationOptions()}</select></label>
-   <label class="grField" data-gi-live>Comentario<textarea id="grLineNotes" rows="2" maxlength="600"></textarea></label>`,
+   <label class="grField" id="grLocBox" data-gi-live data-gi=bd3b914791dc>Almacén de destino<select id="grLoc">${locationOptions()}</select></label>
+   <label class="grField" data-gi-live data-gi=53c367898434>Comentario<textarea id="grLineNotes" rows="2" maxlength="600"></textarea></label>`,
   T('Confirmar'),
   async el=>{
    const disp=el.dataset.disp;
-   if(!disp)throw Error('INVALID_DISPOSITION');
+   if(!disp)throw reject('INVALID_DISPOSITION');
    await mutate('process_line',{id,line_id:lineId,disposition:disp,
     location_id:disp==='restocked'?val(el,'grLoc'):null,notes:val(el,'grLineNotes')});
    await go();
@@ -530,10 +533,10 @@ function shipForm(id){
  window.GamaSales.modal(T('Registrar la expedición'),
   `<p>${tr('Al expedirla, la cantidad sale del stock disponible del almacén elegido.')}</p>
    <div class="grGrid">
-    <label data-gi-live>Almacén de salida<select id="grLoc" required>${locationOptions()}</select></label>
-    <label data-gi-live>Fecha<input id="grShipDate" type="date" required value="${esc(day())}"></label>
-    <label data-gi-live>Transportista (opcional)<input id="grCarrier" maxlength="80"></label>
-    <label data-gi-live>Número de seguimiento (opcional)<input id="grTracking" maxlength="80"></label>
+    <label data-gi-live data-gi=a20a626a3155>Almacén de salida<select id="grLoc" required>${locationOptions()}</select></label>
+    <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grShipDate" type="date" required value="${esc(day())}"></label>
+    <label data-gi-live data-gi=0b57c4a35ba5>Transportista (opcional)<input id="grCarrier" maxlength="80"></label>
+    <label data-gi-live data-gi=5eb8c0f8aebb>Número de seguimiento (opcional)<input id="grTracking" maxlength="80"></label>
    </div>`,
   T('Confirmar la expedición'),
   async el=>{await mutate('ship',{id,location_id:val(el,'grLoc'),shipped_on:val(el,'grShipDate'),
@@ -543,7 +546,7 @@ function shipForm(id){
 function financialForm(d){
  window.GamaSales.modal(T('¿Qué se hace con el dinero?'),
   `<p>${tr('Nada obliga a una decisión: un producto al rebut puede acabar reembolsado, y una devolución comercial puede no mover un céntimo.')}</p>
-   <label class="grField" data-gi-live>Acción<select id="grFin">${options(FINANCIAL,d.financial_action)}</select></label>`,
+   <label class="grField" data-gi-live data-gi=212e06c386ff>Acción<select id="grFin">${options(FINANCIAL,d.financial_action)}</select></label>`,
   T('Guardar'),
   async el=>{await mutate('financial_action',{id:d.id,financial_action:val(el,'grFin')});await go()});
 }
@@ -553,15 +556,15 @@ async function creditForm(d){
   window.GamaSales.modal(T('Emitir un abono'),
    `<p>${tr('GAMA calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.')}</p>
     <dl class="grDl">
-     <dt data-gi-live>Factura</dt><dd>${esc(d.documents?.invoice?.number||'—')}</dd>
-     <dt data-gi-live>Total de la factura</dt><dd>${esc(money(p.invoice_total))}</dd>
-     <dt data-gi-live>Ya abonado</dt><dd>${esc(money(p.already))}</dd>
+     <dt data-gi-live data-gi=52c5bbc8a4eb>Factura</dt><dd>${esc(d.documents?.invoice?.number||'—')}</dd>
+     <dt data-gi-live data-gi=42adf2f63a2c>Total de la factura</dt><dd>${esc(money(p.invoice_total))}</dd>
+     <dt data-gi-live data-gi=238158b8a2fc>Ya abonado</dt><dd>${esc(money(p.already))}</dd>
     </dl>
     <div class="grGrid">
-     <label data-gi-live>Importe<input id="grCreditAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required value="${esc(p.amount)}"></label>
-     <label data-gi-live>Fecha<input id="grCreditDate" type="date" required value="${esc(day())}"></label>
+     <label data-gi-live data-gi=572a3acfd983>Importe<input id="grCreditAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required value="${esc(p.amount)}"></label>
+     <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grCreditDate" type="date" required value="${esc(day())}"></label>
     </div>
-    <label class="grField" data-gi-live>Comentario<textarea id="grCreditNotes" rows="2" maxlength="600"></textarea></label>`,
+    <label class="grField" data-gi-live data-gi=53c367898434>Comentario<textarea id="grCreditNotes" rows="2" maxlength="600"></textarea></label>`,
    T('Emitir el abono'),
    async el=>{const r=await mutate('credit',{id:d.id,amount:numval(el,'grCreditAmount'),
     issued_on:val(el,'grCreditDate'),notes:val(el,'grCreditNotes')});
@@ -573,10 +576,10 @@ function refundForm(d){
  const key=crypto.randomUUID();
  window.GamaSales.modal(T('Reembolsar al cliente'),
   `<div class="grGrid">
-    <label data-gi-live>Importe<input id="grRefundAmount" type="number" inputmode="decimal" min="0.01" step="0.01" max="${esc(outstanding)}" required value="${esc(outstanding)}"></label>
-    <label data-gi-live>Fecha<input id="grRefundDate" type="date" required value="${esc(day())}"></label>
-    <label data-gi-live>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
-    <label data-gi-live>Referencia (opcional)<input id="grRefundRef" maxlength="80"></label>
+    <label data-gi-live data-gi=572a3acfd983>Importe<input id="grRefundAmount" type="number" inputmode="decimal" min="0.01" step="0.01" max="${esc(outstanding)}" required value="${esc(outstanding)}"></label>
+    <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grRefundDate" type="date" required value="${esc(day())}"></label>
+    <label data-gi-live data-gi=25ec5eda3d03>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
+    <label data-gi-live data-gi=f9403c06f4cb>Referencia (opcional)<input id="grRefundRef" maxlength="80"></label>
    </div>`,
   T('Registrar el reembolso'),
   async el=>{await mutate('refund',{id:d.id,request_key:key,amount:numval(el,'grRefundAmount'),
@@ -586,17 +589,17 @@ function supplierCreditForm(d){
  window.GamaSales.modal(T('Registrar el abono del proveedor'),
   `<p>${tr('Este abono lo emite el proveedor: aquí sólo se registra lo que ha mandado.')}</p>
    <div class="grGrid">
-    <label data-gi-live>Referencia del proveedor<input id="grScRef" maxlength="80"></label>
-    <label data-gi-live>Importe<input id="grScAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required value="${esc(d.amount)}"></label>
-    <label data-gi-live>Fecha<input id="grScDate" type="date" required value="${esc(day())}"></label>
+    <label data-gi-live data-gi=693a35ea5e01>Referencia del proveedor<input id="grScRef" maxlength="80"></label>
+    <label data-gi-live data-gi=572a3acfd983>Importe<input id="grScAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required value="${esc(d.amount)}"></label>
+    <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grScDate" type="date" required value="${esc(day())}"></label>
    </div>
-   <label class="grField" data-gi-live>Documento (opcional)<input id="grScFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`,
+   <label class="grField" data-gi-live data-gi=007788edb9bb>Documento (opcional)<input id="grScFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`,
   T('Validar'),
   async el=>{
    const file=el.querySelector('#grScFile').files[0];
    let payload={id:d.id,supplier_reference:val(el,'grScRef'),amount:numval(el,'grScAmount'),issued_on:val(el,'grScDate')};
    if(file){
-    if(file.size>2500000)throw Error('FILE_TOO_LARGE');
+    if(file.size>2500000)throw reject('FILE_TOO_LARGE');
     payload.filename=file.name;payload.mime_type=file.type;
     payload.data_url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
    }

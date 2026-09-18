@@ -45,7 +45,7 @@ begin
  -- Weight comes from the product sheet; the operator never types it and dimensions stay empty.
  if (select weight_kg from public.fulfillment_packages where id=pkg)<>1 then raise exception 'FAIL_PACKAGE_WEIGHT_SHEET';end if;
  if (select coalesce(length_cm,width_cm,height_cm) from public.fulfillment_packages where id=pkg) is not null then raise exception 'FAIL_PACKAGE_DIMENSIONS';end if;
- denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;
+ denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_PARTIAL_REASON';end if;
  res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','wait','quantity',12,'promised_date',current_date+5));opt:=(res->>'id')::uuid;
  perform public.gama_fulfillment_action('respond_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'option_id',opt,'decision','accepted','agreement_reference','Email test'));

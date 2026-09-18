@@ -45,7 +45,7 @@ async function boot(page, db = {}) {
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
       customer_special_prices: [], customer_requests: [], app_modules: [],
       hr_employees: [], hr_absences: [], hr_employee_private: [], hr_absence_private: [],
-      tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+      fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     }, seed);
   }, db);
   await page.route('**/gama-supabase.js*', route =>

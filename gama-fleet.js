@@ -328,8 +328,9 @@ const TAB_VIEWS={
     <dt>${tr('Energía')}</dt><dd>${tr(ENERGY[v.energy]||v.energy)}</dd>
     <dt>${tr('Primera matriculación')}</dt><dd>${esc(v.first_registration||'—')}</dd>
     <dt>${tr('Kilometraje')}</dt><dd>${esc(num(v.odometer||0,0))} km</dd>
-    ${v.kind==='truck'?`<dt>${tr('PTAC')}</dt><dd>${v.gvwr_kg==null?'—':esc(num(v.gvwr_kg,0))+' kg'}</dd>
-    <dt>${tr('Carga útil')}</dt><dd>${v.payload_kg==null?'—':esc(num(v.payload_kg,0))+' kg'}</dd>`:''}
+    ${v.kind==='truck'?`<dt>${tr('PTAC')}</dt><dd>${v.gvwr_kg==null?'—':esc(num(v.gvwr_kg,0))+' kg'}</dd>`:''}
+    <dt>${tr('Carga útil')}</dt><dd>${v.payload_kg==null?'—':esc(num(v.payload_kg,0))+' kg'}</dd>
+    <dt>${tr('Volumen de carga')}</dt><dd>${v.cargo_volume_m3==null?'—':esc(num(v.cargo_volume_m3,2))+' m³'}</dd>
     <dt>${tr('Consumo medio')}</dt><dd>${c.avg_litres_100km==null?'—':esc(num(c.avg_litres_100km,2))+' L/100 km'}</dd>
     <dt>${tr('Coste por km')}</dt><dd>${c.cost_per_km==null?'—':money(c.cost_per_km)}</dd>
     <dt>${tr('Conductor')}</dt><dd>${v.driver?esc(v.driver.name)+(v.driver.phone?' · '+esc(v.driver.phone):'')+(v.driver.since?' · '+tr('desde')+' '+esc(v.driver.since):''):'—'}</dd>
@@ -552,15 +553,19 @@ function vehicleForm(v){
   </div>
   <div class="gfGrid" id="gfTruckBox" ${truck?'':'hidden'}>
    <label data-gi-live data-gi=10401a12d289>PTAC (kg)<input id="gfGvwr" type="number" inputmode="numeric" min="1" step="1" value="${esc(v?.gvwr_kg??'')}"></label>
+  </div>
+  <div class="gfGrid">
    <label data-gi-live data-gi=6c3dba7e3c12>Carga útil (kg)<input id="gfPayload" type="number" inputmode="numeric" min="1" step="1" value="${esc(v?.payload_kg??'')}"></label>
+   <label data-gi-live data-gi=7a471aa837f5>Volumen de carga (m³)<input id="gfVolume" type="number" inputmode="decimal" min="0.1" step="0.1" value="${esc(v?.cargo_volume_m3??'')}"></label>
   </div>
   <label class="gfField" data-gi-live data-gi=53c367898434>Comentario<textarea id="gfNotes" maxlength="2000">${esc(v?.notes||'')}</textarea></label>
-  <p class="gfHint">${tr('El PTAC y la carga útil sólo se piden para los camiones.')}</p>`,
+  <p class="gfHint">${tr('El PTAC sólo se pide para los camiones. La carga útil y el volumen los usa el TMS para repartir las entregas.')}</p>`,
  GamaI18n?.t?.('Guardar')||'Guardar',async form=>{
   await mutate('vehicle_save',{id:v?.id||null,plate:val(form,'gfPlate'),brand:val(form,'gfBrand'),
    model:val(form,'gfModel'),kind:val(form,'gfVKind'),energy:val(form,'gfEnergy'),
    first_registration:val(form,'gfFirstReg'),odometer:val(form,'gfOdo'),status:val(form,'gfVStatus'),
-   gvwr_kg:val(form,'gfGvwr'),payload_kg:val(form,'gfPayload'),notes:val(form,'gfNotes')});
+   gvwr_kg:val(form,'gfGvwr'),payload_kg:val(form,'gfPayload'),
+   cargo_volume_m3:val(form,'gfVolume'),notes:val(form,'gfNotes')});
   state.overview=null;await go();
  });
  /* El bloque de camión aparece y desaparece al cambiar el tipo: un coche no

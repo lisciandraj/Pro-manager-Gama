@@ -22,7 +22,7 @@ async function openCatalog(page) {
       products: seed, suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
       favorite_orders: [], favorite_order_lines: [], customer_requests: [], customer_request_lines: [],
-      tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+      fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     };
   }, PRODUCTS);
   await page.route('**/gama-supabase.js*', route =>

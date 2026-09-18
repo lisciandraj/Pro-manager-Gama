@@ -20,7 +20,16 @@ async function boot(page, seed = {}) {
     window.__DB = {
       products: [], suppliers: [], customers: seedData.customers || [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      tms_drivers: seedData.drivers || [],
+      fleet_drivers: (seedData.drivers || []).map(d => ({
+        id: d.id, name: d.name, phone: d.phone || null, employee_id: d.employee_id || null,
+        active: d.enabled !== false })),
+      fleet_vehicles: (seedData.drivers || []).filter(d => d.vehicle).map(d => ({
+        id: 'veh-' + d.id, plate: d.vehicle, brand: '—', model: '—', kind: 'truck',
+        status: d.vehicle_status || 'in_service', active: true,
+        payload_kg: d.max_weight, cargo_volume_m3: d.max_volume })),
+      fleet_assignments: (seedData.drivers || []).filter(d => d.vehicle).map(d => ({
+        id: 'asg-' + d.id, vehicle_id: 'veh-' + d.id, driver_id: d.id,
+        started_on: '2026-01-01', ended_on: null })),
       tms_deliveries: seedData.deliveries || [],
       tms_routes: seedData.routes || [],
       tms_proofs: seedData.proofs || [],
@@ -47,59 +56,39 @@ const DRIVERS = [
   { id: 'drv2', name: 'Conductor 2', phone: '', vehicle: 'Furgoneta 2', max_weight: 1200, max_volume: 8, enabled: true, created_at: '2026-01-02T00:00:00Z' },
 ];
 
-test.describe('TMS — fleet management', () => {
-  test('editing a driver updates their name and vehicle in place', async ({ page }) => {
+test.describe('TMS — drivers and vehicles live elsewhere', () => {
+  test('there is no drivers-and-vehicles tab any more', async ({ page }) => {
     await boot(page, { drivers: DRIVERS });
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-    await expect(page.locator('.tms')).toContainText('Conductor 1');
-
-    const firstCard = page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first();
-    await firstCard.locator('button:has-text("✏️ Editar")').click();
-
-    await expect(page.locator('#dName')).toHaveValue('Conductor 1');
-    await page.fill('#dName', 'Ana Torres');
-    await page.fill('#dVehicle', 'Camión 9');
-    await page.click('button:has-text("Guardar cambios")');
-
-    await expect(page.locator('.tms')).toContainText('Ana Torres');
-    await expect(page.locator('.tms')).toContainText('Camión 9');
-    await expect(page.locator('.tms')).not.toContainText('Conductor 1');
-
-    // Persisted to the table, not to a browser key.
-    const row = await page.evaluate(() => window.__DB.tms_drivers.find(d => d.id === 'drv1'));
-    expect(row.name).toBe('Ana Torres');
-    expect(row.vehicle).toBe('Camión 9');
+    await expect(page.locator('button.tmsTab')).toHaveCount(4);
+    await expect(page.locator('button.tmsTab:has-text("Conductores y vehículos")')).toHaveCount(0);
+    // Y nada del módulo escribe ya en un registro propio de conductores.
+    expect(await page.evaluate(() => 'tms_drivers' in window.__DB)).toBe(false);
   });
 
-  test('deleting a driver with no active route removes them immediately', async ({ page }) => {
+  test('planning reads the pairing Fleet holds, with its capacity', async ({ page }) => {
     await boot(page, { drivers: DRIVERS });
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-
-    page.once('dialog', async d => { expect(d.message()).toContain('Eliminar a Conductor 2'); await d.accept(); });
-    const secondCard = page.locator('.tmsRoute').filter({ hasText: 'Conductor 2' }).first();
-    await secondCard.locator('button:has-text("🗑️ Eliminar")').click();
-
-    await expect(page.locator('.tms')).not.toContainText('Conductor 2');
-    await expect(page.locator('.tms')).toContainText('Conductor 1');
-    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
+    const rows = await page.evaluate(() => window.gamaTMS.__drivers().map(d =>
+      [d.name, d.vehicle, d.maxWeight, d.maxVolume, d.enabled]));
+    expect(rows).toEqual([
+      ['Conductor 1', 'Camión 1', 3500, 18, true],
+      ['Conductor 2', 'Furgoneta 2', 1200, 8, true],
+    ]);
   });
 
-  test('deleting a driver with an active route today is blocked', async ({ page }) => {
-    await boot(page, {
-      drivers: [{ id: 'drv1', name: 'Conductor Activo', phone: '', vehicle: 'Camión 1', max_weight: 3500, max_volume: 18, enabled: true, created_at: '2026-01-01T00:00:00Z' }],
-      routes: [{ id: 'rt1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor Activo', vehicle: 'Camión 1', stops: [], distance: 0, weight: 0, volume: 0, status: 'Planificada', created_at: '2026-01-01T00:00:00Z' }],
-    });
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-
-    // Este aviso era un alert() y ahora es el aviso propio de la aplicación
-    // (gama-toast.js). El confirm() de borrar un conductor sigue siendo el
-    // del navegador: devuelve sí o no y detiene la ejecución hasta tenerlo.
-    await page.click('.tmsRoute button:has-text("🗑️ Eliminar")');
-
-    await expect(page.locator('#gamaToasts')).toContainText('ruta activa');
-    await expect(page.locator('.tms')).toContainText('Conductor Activo');
-    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
+  test('a driver whose vehicle is off the road is not offered for delivery', async ({ page }) => {
+    await boot(page, { drivers: [{ ...DRIVERS[0], vehicle_status: 'repair' }, DRIVERS[1]] });
+    const usable = await page.evaluate(() => window.gamaTMS.__drivers().filter(d => d.enabled).map(d => d.name));
+    expect(usable).toEqual(['Conductor 2']);
   });
+
+  test('with nothing paired, the screen says where to go instead of offering a form', async ({ page }) => {
+    await boot(page, { drivers: [] });
+    const main = page.locator('.tms');
+    await expect(main).toContainText('Se dan de alta en RRHH');
+    await expect(main).toContainText('Gestión de flota');
+    await expect(page.locator('#dAdd')).toHaveCount(0);
+  });
+
 });
 
 test.describe('TMS — proof-of-delivery archive', () => {
@@ -380,22 +369,24 @@ test.describe('TMS — one-time import of the old localStorage dataset', () => {
     await expect(page.locator('.tms')).toContainText('Cliente Histórico');
 
     const state = await page.evaluate(() => ({
-      drivers: window.__DB.tms_drivers.map(d => d.name),
       deliveries: window.__DB.tms_deliveries.map(d => d.customer),
+      fleetDrivers: (window.__DB.fleet_drivers || []).map(d => d.name),
       proofs: window.__DB.tms_proofs.map(p => p.photo),
       events: window.__DB.tms_events.length,
       flag: localStorage.getItem('gama_tms_migrated_v1'),
     }));
-    expect(state.drivers).toContain('Luis Pérez');
+    // Los conductores del histórico NO se suben: un registro paralelo de
+    // personas es justo lo que este módulo ha dejado de tener.
+    expect(state.fleetDrivers).not.toContain('Luis Pérez');
     expect(state.deliveries).toContain('Cliente Histórico');
     expect(state.proofs[0]).toContain('OLDPHOTO');
     expect(state.events).toBeGreaterThan(0);
     expect(state.flag).toBe('1');
 
     // Re-opening must not import a second copy.
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
+    await page.click('button.tmsTab:has-text("Historial")');
     await page.click('button.tmsTab:has-text("Planificación")');
-    expect(await page.evaluate(() => window.__DB.tms_drivers.length)).toBe(1);
+    expect(await page.evaluate(() => window.__DB.tms_deliveries.length)).toBe(1);
   });
 
   // The "already migrated elsewhere" check must not key off drivers: a
@@ -418,8 +409,8 @@ test.describe('TMS — one-time import of the old localStorage dataset', () => {
     });
 
     await expect(page.locator('.tms')).toContainText('Cliente Histórico');
-    const names = await page.evaluate(() => window.__DB.tms_drivers.map(d => d.name));
-    expect(names).toContain('Luis Pérez');
+    const kept = await page.evaluate(() => window.__DB.tms_deliveries.map(d => d.customer));
+    expect(kept).toContain('Cliente Histórico');
   });
 
   test('a history already uploaded from another device is not duplicated, and the local copy is kept', async ({ page }) => {
@@ -487,12 +478,11 @@ test.describe('TMS — conductores enlazados a RRHH', () => {
     expect(rutas.length).toBe(1);
     expect(rutas[0].driver_id, 'la entrega se asignó al conductor ausente').toBe('drv2');
 
-    // Y la ficha del conductor dice por qué no está disponible.
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-    const ficha = page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first();
-    await expect(ficha).toContainText('Vacaciones');
-    await expect(ficha).toContainText('no disponible');
-    await expect(page.locator('.tmsRoute').filter({ hasText: 'Conductor 2' }).first()).toContainText('Luis Paredes');
+    // Y la planificación dice quién no reparte hoy y por qué, que es donde se
+    // mira antes de optimizar.
+    await expect(page.locator('.tmsAbsente')).toContainText('Hoy no reparten');
+    await expect(page.locator('.tmsAbsente')).toContainText('Conductor 1');
+    await expect(page.locator('.tmsAbsente')).toContainText('vacaciones');
   });
 
   test('una solicitud de ausencia pendiente no bloquea al conductor', async ({ page }) => {
@@ -504,23 +494,8 @@ test.describe('TMS — conductores enlazados a RRHH', () => {
       absences: [ausencia('abs1', 'emp1', 'pendiente')],
     });
     await expect(page.locator('.tms')).not.toContainText('Hoy no reparten');
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-    await expect(page.locator('.tmsRoute').filter({ hasText: 'Conductor 1' }).first()).toContainText('disponible');
   });
 
-  test('se puede enlazar un conductor con una ficha de empleado', async ({ page }) => {
-    await boot(page, { drivers: [DRIVERS[0]], employees: EMPLEADOS });
-    await page.click('button.tmsTab:has-text("Conductores y vehículos")');
-    await expect(page.locator('.tmsRoute').first()).toContainText('Sin empleado enlazado');
-
-    await page.locator('.tmsRoute').first().locator('button:has-text("✏️ Editar")').click();
-    await page.selectOption('#dEmployee', 'emp1');
-    await page.click('button:has-text("Guardar cambios")');
-
-    await expect(page.locator('.tmsRoute').first()).toContainText('Ana Torres');
-    const fila = await page.evaluate(() => window.__DB.tms_drivers.find(d => d.id === 'drv1'));
-    expect(fila.employee_id).toBe('emp1');
-  });
 });
 
 test('POD blocks an unstarted shipment before capture and opens its exact loading dossier',async({page})=>{

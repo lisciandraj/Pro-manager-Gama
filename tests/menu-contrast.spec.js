@@ -19,7 +19,7 @@ test.describe('Contraste del menú principal', () => {
       window.__DB = {
         products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
         purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-        tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+        fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
       };
     });
     await page.route('**/gama-supabase.js*', route =>

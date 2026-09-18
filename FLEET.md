@@ -54,13 +54,43 @@ Los conductores que no son empleados —externos, temporales— no salen en esa
 lista porque RRHH no los gestiona, pero se cuentan al pie para que nadie lea la
 lista como si fuera toda la flota.
 
+## El TMS ya no guarda conductores ni vehículos
+
+El módulo de transporte tenía su propio registro de conductores, y dentro de
+cada conductor un vehículo escrito a mano con su capacidad: tres nociones —la
+persona, el vehículo y lo que ese vehículo carga— metidas en una fila. Ese
+registro se ha retirado y la pestaña «Conductores y vehículos» ya no existe.
+
+Ahora el reparto lee lo que ya está: la persona viene de **RRHH**, el vehículo
+y su capacidad de **Flota**, y el emparejamiento de los dos de las afectaciones
+de Flota, que ya garantizan un conductor por vehículo a la vez y guardan el
+historial. Para el TMS, un recurso de reparto es exactamente eso: un conductor
+con el vehículo que Flota le tiene asignado hoy.
+
+Eso **no** abre Flota al almacén. El TMS lee por una puerta estrecha,
+`public.gama_tms_resources`, abierta a administración y almacén, que devuelve
+sólo lo que hace falta para repartir: nombre, teléfono, matrícula, capacidad,
+si el vehículo está en servicio y si RRHH tiene una ausencia aprobada para hoy.
+Ni permisos de conducir, ni costes, ni documentos, ni fotos. El módulo de Flota
+sigue siendo únicamente del administrador.
+
+Cuando no hay nada emparejado, la planificación y la salida de bultos lo dicen
+y mandan al sitio correcto —alta en RRHH, emparejamiento en Flota— en vez de
+ofrecer un formulario que ya no existe. Una salida sin vehículo asignado se
+rechaza con `DRIVER_REQUIRED`.
+
+La capacidad, por tanto, es del vehículo: `payload_kg` en kilos y
+`cargo_volume_m3` en metros cúbicos, y se piden para cualquier vehículo, no
+sólo para los camiones —una furgoneta de reparto también carga—. El PTAC sigue
+siendo cosa de camiones.
+
 ## Modelo de datos
 
 Siete tablas, todas nuevas: el módulo no toca ninguna existente.
 
 | Tabla | Contenido |
 |---|---|
-| `fleet_vehicles` | Matrícula, marca, modelo, tipo, energía, matriculación, kilometraje, estado, foto; PTAC y carga útil sólo para camiones |
+| `fleet_vehicles` | Matrícula, marca, modelo, tipo, energía, matriculación, kilometraje, estado, foto, carga útil y volumen de carga; el PTAC sólo para camiones |
 | `fleet_drivers` | Nombre, teléfono, número y categorías de permiso, caducidad |
 | `fleet_assignments` | Qué conductor lleva qué vehículo, con fecha de inicio y de fin |
 | `fleet_documents` | Seguro, inspección técnica y permiso de circulación, con caducidad y adjunto |
@@ -69,8 +99,8 @@ Siete tablas, todas nuevas: el módulo no toca ninguna existente.
 | `fleet_alert_log` | Qué vencimiento se avisó y cuándo, para no repetir el aviso |
 
 Las personas siguen viviendo en **RRHH** y los repartidores en **TMS**:
-`fleet_drivers` enlaza opcionalmente con `hr_employees` y con `tms_drivers` en
-lugar de duplicarlos. Lo único que guarda de su cosecha es el permiso de
+`fleet_drivers` enlaza opcionalmente con `hr_employees` en lugar de duplicarlo,
+y el TMS ha dejado de tener registro propio: lee éste. Lo único que guarda de su cosecha es el permiso de
 conducir, que no tenía sitio en ninguna de las dos.
 
 Tres reglas viven en la base y no en la pantalla, para que se cumplan venga la
@@ -146,10 +176,16 @@ tablas sólo conceden `select` a `authenticated`, y aun ése lo filtra la RLS.
 | `alert_delete` · `alert_clear` | Un aviso enviado, o el registro entero |
 | `export` | Vehículos y gastos del periodo, para Excel |
 
-Y, fuera del módulo, la puerta de RRHH:
-`public.gama_hr_licences(p_action, p_data)` con `list` y `save`, que escribe en
-la misma `fleet_drivers` pero exige `private.hr_admin()` en lugar de
-`private.gama_fleet_may()`.
+Y, fuera del módulo, dos puertas estrechas que leen las mismas tablas con otro
+permiso, porque quien las cruza no es el administrador de flota:
+
+| Puerta | Quién | Para qué |
+|---|---|---|
+| `public.gama_hr_licences(p_action, p_data)` | `private.hr_admin()` | RRHH lee y renueva el permiso de conducir de sus empleados |
+| `public.gama_tms_resources()` | administración y almacén | El TMS lee conductor, matrícula y capacidad para repartir |
+
+Ninguna de las dos devuelve nada más de Flota, y ninguna permite escribir en
+ella salvo el permiso de conducir desde RRHH.
 
 `fuel_save` y `maintenance_save` aceptan un `request_key`: un doble envío del
 formulario devuelve la fila ya creada en vez de duplicarla.
@@ -227,5 +263,7 @@ Los documentos, repostajes y entretenimientos caen con el vehículo.
     gama-hr-p1.js                                        la sección de permisos en RRHH
     supabase/migrations/20260917190000_fleet_management.sql   tablas, vistas, API, cron y demo
     supabase/migrations/20260918010000_fleet_purge_and_hr_licences.sql   purga y permisos en RRHH
+    supabase/migrations/20260918020000_tms_drivers_into_fleet.sql        el TMS deja de guardar conductores
+    gama-tms-module.js · gama-tms-loading.js             leen la puerta de reparto
     tests/fleet.spec.js                                  22 pruebas
     tests/hr-p1.spec.js                                  3 de ellas, las de RRHH

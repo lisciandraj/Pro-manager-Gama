@@ -9,14 +9,21 @@ const C=()=>window.GamaCloud;
 const readLocal=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
+const T=v=>window.GamaI18n?.t?.(v)||v;
 let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[],customers:[]};
 let proofViewVersion=0;
-let editingDriverId=null,proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
+let proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
 
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
-const drvFrom=r=>({id:r.id,name:r.name,phone:r.phone||'',vehicle:r.vehicle||'',maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),enabled:r.enabled!==false,employeeId:r.employee_id||null});
+/* Un recurso de reparto es un conductor de Flota con el vehículo que Flota le
+   tiene asignado hoy. El TMS ya no guarda ni personas ni vehículos: los lee por
+   gama_tms_resources, que devuelve sólo lo necesario para repartir. */
+const drvFrom=r=>({id:r.driver_id,name:r.name,phone:r.phone||'',vehicle:r.plate||'',
+ vehicleId:r.vehicle_id||null,vehicleStatus:r.vehicle_status||null,
+ maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),
+ enabled:r.available===true,absent:r.absent===true,employeeId:r.employee_id||null});
 const delFrom=r=>({id:r.id,reference:r.dossier_reference||'',customer:r.customer,address:r.address,customerId:r.customer_id||null,date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||''});
-const rtFrom=r=>({id:r.id,date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at});
+const rtFrom=r=>({id:r.id,date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',vehicleId:r.vehicle_id||null,stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at});
 const evFrom=r=>({id:r.id,at:r.at,deliveryId:r.delivery_id,type:r.type,note:r.note||'',customer:r.customer||''});
 
 function fail(e,what){const m=e&&(e.message||e.error_description||e.details)||'Error desconocido';console.warn('[GAMA TMS]',what,e);alert(what+' : '+(window.GamaLoading?.error(e)||m));}
@@ -31,6 +38,9 @@ function findDelivery(id){return db.deliveries.find(d=>d.id===id)||db.archive.fi
 const ABS_ETIQUETA={vacaciones:'Vacaciones',enfermedad:'Baja por enfermedad',permiso:'Permiso',formacion:'Formación',otro:'Ausencia'};
 const absLabel=a=>ABS_ETIQUETA[a&&a.kind]||'Ausencia';
 function empName(id){const e=db.employees.find(x=>x.id===id);return e?(e.full_name||''):''}
+/* El servidor ya dice si el conductor está ausente hoy —es quien ve RRHH—;
+   esta función sólo sirve para poner nombre a la ausencia cuando el módulo ha
+   podido cargar las ausencias del equipo. */
 function driverAbsence(d,date){
  if(!d||!d.employeeId)return null;
  const day=date||today();
@@ -50,7 +60,7 @@ async function fetchAll(){
  const api=C();if(!api)return;
  const t=today();
  const [drv,rt,del,ev,st,pf,pending]=await Promise.all([
-  api.list('tms_drivers',{order:'created_at',ascending:true}),
+  (async()=>{const c=await api.db();const r=await c.rpc('gama_tms_resources');return r.error?{data:[],error:r.error}:{data:r.data||[]}})(),
   api.list('tms_routes',{eq:{route_date:t},order:'created_at',ascending:true}),
   api.list('tms_deliveries',{eq:{delivery_date:t},order:'created_at',ascending:true}),
   api.list('tms_events',{order:'at',ascending:false,limit:HISTORY_LIMIT}),
@@ -60,6 +70,7 @@ async function fetchAll(){
   pendingDeliveries(api),
  ]);
  db.drivers=(drv.data||[]).map(drvFrom);
+ db.driversError=drv.error?String(drv.error.message||drv.error):null;
  db.routes=(rt.data||[]).map(rtFrom);
  db.deliveries=[...new Map([...(del.data||[]),...pending].map(d=>[d.id,d])).values()].map(delFrom);
  db.history=(ev.data||[]).map(evFrom);
@@ -112,9 +123,7 @@ async function migrateLocalOnce(){
  const hasData=(old.drivers||[]).length||(old.deliveries||[]).length||(old.routes||[]).length;
  if(!hasData){localStorage.setItem(MIGRATED_KEY,'1');return}
  // No duplicar si otro navegador ya subió los datos. La comprobación mira
- // entregas y eventos, nunca conductores: los dos conductores de ejemplo que
- // crea seedDrivers() en un puesto vacío harían creer que ya hay una
- // migración hecha y este histórico se perdería sin avisar.
+ // entregas y eventos: son lo que sólo puede venir de este histórico.
  const [exDel,exEv]=await Promise.all([api.list('tms_deliveries',{limit:1}),api.list('tms_events',{limit:1})]);
  if((exDel.data||[]).length||(exEv.data||[]).length){
   localStorage.setItem(MIGRATED_KEY,'1');
@@ -122,11 +131,11 @@ async function migrateLocalOnce(){
   alert('El transporte ya tiene datos en la nube, subidos desde otro equipo.\n\nEl histórico guardado en este navegador no se ha importado para no duplicarlo. Sigue disponible aquí; contacta con el administrador si hay que recuperarlo.');
   return;
  }
+ /* Los conductores de aquel navegador no se suben: hoy las personas viven en
+    RRHH y los vehículos en Flota, y un registro paralelo es justo lo que este
+    cambio ha venido a quitar. Las entregas y las rutas sí se conservan, sin
+    conductor asignado; se les vuelve a asignar desde la planificación. */
  const drvMap={},delMap={};
- for(const d of old.drivers||[]){
-  const r=await api.insert('tms_drivers',{name:d.name||'Conductor',phone:d.phone||null,vehicle:d.vehicle||'Vehículo',max_weight:Number(d.maxWeight||1000),max_volume:Number(d.maxVolume||5),enabled:d.enabled!==false});
-  if(r.data)drvMap[d.id]=r.data.id;
- }
  for(const d of old.deliveries||[]){
   const r=await api.insert('tms_deliveries',{customer:d.customer||'—',address:d.address||'—',delivery_date:d.date||today(),time_window:d.timeWindow||null,priority:d.priority||'Normal',weight:Number(d.weight||0),volume:Number(d.volume||0),status:d.status||'Pendiente de preparación',lat:d.lat??null,lng:d.lng??null,driver_id:drvMap[d.driverId]||null,actual_arrival:d.actualArrival||null,delivered_at:d.deliveredAt||null,notes:d.notes||null});
   if(!r.data)continue;
@@ -144,19 +153,12 @@ async function migrateLocalOnce(){
   await api.upsert('tms_settings',{id:true,depot:old.settings.depot||null,return_depot:old.settings.returnDepot!==false,updated_at:now()},{onConflict:'id'});
  localStorage.setItem(MIGRATED_KEY,'1');
 }
-async function seedDrivers(){
- if(db.drivers.length)return;
- const api=C();
- await api.insert('tms_drivers',{name:'Conductor 1',vehicle:'Camión 1',max_weight:3500,max_volume:18,enabled:true});
- await api.insert('tms_drivers',{name:'Conductor 2',vehicle:'Furgoneta 2',max_weight:1200,max_volume:8,enabled:true});
-}
 async function ready(){
  if(loaded)return true;
  if(!C()){alert('El módulo de transporte necesita la conexión con la nube. Recarga la aplicación.');return false}
  try{
   await migrateLocalOnce();
   await fetchAll();
-  if(!db.drivers.length){await seedDrivers();await fetchAll()}
   loaded=true;return true;
  }catch(e){fail(e,'No se pudieron cargar los datos de transporte');return false}
 }
@@ -178,7 +180,6 @@ async function open(tab){
  const x=showSection();
  tab=tab==='tracking'?'history':(tab||'planning');
  currentTab=tab;
- if(tab!=='fleet')editingDriverId=null;
  GamaPage.reset('tmsDeliveries');GamaPage.reset('tmsHistory');
  x.innerHTML='<div class="tms"><div class="tmsEmpty" data-gi=84b789d07900>Cargando datos de transporte…</div></div>';
  window.scrollTo({top:0,behavior:'smooth'});
@@ -203,14 +204,14 @@ async function optimize(){
  const busyDrivers=new Set(db.deliveries.filter(d=>['En tránsito','En ruta'].includes(d.status)).map(d=>d.driverId));
  const pending=db.deliveries.filter(d=>d.date===today()&&!['Entregada','Cancelada','En tránsito','En ruta'].includes(d.status)&&!lockedRoutes.has(d.routeId));
  if(!pending.length){alert('No hay entregas para optimizar hoy.');return}
- const activos=db.drivers.filter(x=>x.enabled!==false);
+ const activos=db.drivers.filter(x=>x.enabled);
  // Los que hoy están de vacaciones o de baja no entran en el reparto.
- const ausentes=activos.filter(x=>driverAbsence(x,today()));
- const drivers=activos.filter(x=>!driverAbsence(x,today())&&!busyDrivers.has(x.id));
+ const ausentes=activos.filter(x=>x.absent);
+ const drivers=activos.filter(x=>!x.absent&&!busyDrivers.has(x.id));
  if(!drivers.length){
   alert(ausentes.length
    ?'Ningún conductor disponible hoy: '+ausentes.map(x=>x.name+' ('+absLabel(driverAbsence(x,today())).toLowerCase()+')').join(', ')+'.'
-   :'Añada al menos un conductor/vehículo.');
+   :T('No hay conductores con vehículo asignado. Se dan de alta en RRHH y se emparejan con un vehículo en Gestión de flota.'));
   return;
  }
  for(const d of pending)await geocode(d);
@@ -223,7 +224,7 @@ async function optimize(){
    const r=routeFor(rem,dr);
    const stops=r.stops.filter(x=>x.id&&!x.isDepot);
    if(!stops.length)continue;
-   const route=await api.insert('tms_routes',{route_date:today(),driver_id:dr.id,driver_name:dr.name,vehicle:dr.vehicle,stops:r.stops.map(x=>x.isDepot?'__depot':x.id),distance:r.distance,weight:r.weight,volume:r.volume,status:'Planificada'});
+   const route=await api.insert('tms_routes',{route_date:today(),driver_id:dr.id,driver_name:dr.name,vehicle:dr.vehicle,vehicle_id:dr.vehicleId,stops:r.stops.map(x=>x.isDepot?'__depot':x.id),distance:r.distance,weight:r.weight,volume:r.volume,status:'Planificada'});
    if(!route.data)continue;
    created++;
    for(const s of stops){const updated=await api.update('tms_deliveries',s.id,{route_id:route.data.id,driver_id:dr.id,status:'Planificada'});if(updated.error)throw updated.error}
@@ -248,39 +249,6 @@ async function addDelivery(){
   await reload('planning');
  }catch(e){fail(e,'No se pudo crear la entrega')}
 }
-async function saveDriver(){
- const f=id=>document.getElementById(id);
- const row={name:f('dName').value.trim()||'Conductor',phone:f('dPhone').value.trim()||null,vehicle:f('dVehicle').value.trim()||'Vehículo',max_weight:+f('dWeight').value||1000,max_volume:+f('dVolume').value||5};
- // El desplegable sólo existe si el usuario puede leer RRHH; si no, no se toca
- // el enlace para no borrarlo sin querer al editar un conductor.
- const emp=f('dEmployee');if(emp)row.employee_id=emp.value||null;
- try{
-  if(editingDriverId){
-   await C().update('tms_drivers',editingDriverId,row);
-   for(const r of db.routes.filter(r=>r.driverId===editingDriverId))await C().update('tms_routes',r.id,{driver_name:row.name,vehicle:row.vehicle});
-   editingDriverId=null;
-  }else await C().insert('tms_drivers',Object.assign({enabled:true},row));
-  await reload('fleet');
- }catch(e){fail(e,'No se pudo guardar el conductor')}
-}
-function editDriver(id){editingDriverId=id;render('fleet')}
-function cancelDriverEdit(){editingDriverId=null;render('fleet')}
-async function deleteDriver(id){
- if(db.routes.some(r=>r.driverId===id&&r.date===today()&&r.status!=='Terminada')){alert('Este conductor tiene una ruta activa hoy. Finaliza o cancela su ruta antes de eliminarlo.');return}
- const d=db.drivers.find(x=>x.id===id);
- if(!d||!confirm('¿Eliminar a '+d.name+' y su vehículo '+d.vehicle+'?'))return;
- try{await C().remove('tms_drivers',id);if(editingDriverId===id)editingDriverId=null;await reload('fleet')}
- catch(e){fail(e,'No se pudo eliminar el conductor')}
-}
-async function toggleDriver(id){
- const d=db.drivers.find(x=>x.id===id);if(!d)return;
- try{await C().update('tms_drivers',id,{enabled:d.enabled===false});await reload('fleet')}
- catch(e){fail(e,'No se pudo cambiar el estado')}
-}
-
-/* Las fotos de móvil pesan varios MB en base64. Se reducen antes de subirlas:
-   una POD legible cabe de sobra en 1280 px, y así la tabla no se llena de
-   payloads gigantes que habría que descargar en cada consulta. */
 function downscale(file){
  return new Promise(resolve=>{
   const fr=new FileReader();
@@ -443,45 +411,33 @@ async function saveDepot(){
  }catch(e){fail(e,'No se pudieron guardar los parámetros')}
 }
 
-/* ---- ficha de conductor (pestaña «Conductores y vehículos») ---- */
 const fechaCorta=s=>{const [y,m,d]=String(s||'').split('-');return d?d+'/'+m+'/'+y:String(s||'')};
-function driverCard(d){
- const aus=driverAbsence(d,today());
- const nombre=d.employeeId?empName(d.employeeId):'';
- const enlace=aus
-  ? `<p class="tmsAbsente">🚫 ${esc(absLabel(aus))} hasta el ${fechaCorta(aus.end_date)} — no disponible para el reparto</p>`
-  : d.employeeId
-   ? `<p class="tmsEnlace">👤 ${esc(nombre||'Empleado de RRHH')} · disponible</p>`
-   : '<p class="tmsEnlace tmsSinEnlace" data-gi=6595db09b7fa>👤 Sin empleado enlazado — sus ausencias no se tienen en cuenta</p>';
- return `<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.name)}</b><small>${esc(d.vehicle)}</small></div>`
-  +`<p style="font-size:11px">${d.maxWeight} kg · ${d.maxVolume} m³ ${d.phone?'· '+esc(d.phone):''}</p>`
-  +enlace
-  +`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="tmsBtn tmsLight" onclick="gamaTMS.toggleDriver('${d.id}')" data-gi-live>${d.enabled===false?'Activar':'Desactivar'}</button><button class="tmsBtn tmsLight" onclick="gamaTMS.editDriver('${d.id}')" data-gi=e3bd2ee1d054>✏️ Editar</button><button class="tmsBtn tmsDanger" onclick="gamaTMS.deleteDriver('${d.id}')" data-gi=79ee14b77a0e>🗑️ Eliminar</button></div></div>`;
-}
 /* Aviso en la planificación: quién no sale hoy y por qué. Se ve antes de pulsar
    «Optimizar», que es cuando importa. */
 function avisoAusencias(){
- const fuera=db.drivers.filter(d=>d.enabled!==false&&driverAbsence(d,today()));
- if(!fuera.length)return '';
- return `<p class="tmsAbsente">🚫 Hoy no reparten: ${fuera.map(d=>esc(d.name)+' ('+esc(absLabel(driverAbsence(d,today())).toLowerCase())+')').join(', ')}.</p>`;
-}
-/* Desplegable de empleados. Un empleado sólo puede estar enlazado a un
-   conductor, así que los ya ocupados no se ofrecen (salvo el del que se está
-   editando). Si no hay fichas visibles no se pinta: sin RRHH no hay enlace. */
-function employeeField(editing){
- if(!db.employees.length)return '';
- const ocupados=new Set(db.drivers.filter(x=>x.employeeId&&(!editing||x.id!==editing.id)).map(x=>x.employeeId));
- const sel=editing?editing.employeeId:null;
- const libres=db.employees.filter(e=>e.active!==false&&(!ocupados.has(e.id)||e.id===sel));
- return `<div class="full"><label data-gi=3fd758b4558c>Empleado enlazado (RRHH)</label><select id="dEmployee"><option value="" data-gi=57aefeca45fe>— Sin enlazar —</option>`
-  +libres.map(e=>`<option value="${e.id}"${e.id===sel?' selected':''}>${esc(e.full_name)}${e.position?' — '+esc(e.position):''}</option>`).join('')
-  +`</select><small style="display:block;color:#71808a;font-size:11px;margin-top:4px" data-gi=0472fbb02b82>Cuando el empleado tenga vacaciones o una baja aprobada en RRHH, el conductor quedará fuera del reparto esos días.</small></div>`;
+ const fuera=db.drivers.filter(d=>d.absent);
+ /* Sin recursos no hay reparto posible, y el sitio donde arreglarlo no es
+    este: la persona se da de alta en RRHH, el vehículo en Flota, y los dos se
+    emparejan en Flota. Decirlo aquí evita buscar un botón que ya no existe. */
+ /* Si la puerta de reparto no respondió, decirlo: una lista vacía por un
+    error de lectura no es lo mismo que una lista vacía de verdad, y mandar a
+    dar de alta a alguien que ya existe hace perder el tiempo. */
+ if(db.driversError)return `<p class="tmsAbsente" data-gi-live>${esc(T('No se pudieron leer los conductores disponibles.'))}</p>`;
+ const sinRecursos=!db.drivers.length
+  ? `<p class="tmsAbsente" data-gi-live>${esc(T('No hay conductores con vehículo asignado. Se dan de alta en RRHH y se emparejan con un vehículo en Gestión de flota.'))}</p>`
+  : !db.drivers.some(d=>d.enabled)
+   ? `<p class="tmsAbsente" data-gi-live>${esc(T('Ningún conductor tiene hoy un vehículo en servicio. Revisa las afectaciones en Gestión de flota.'))}</p>`
+   : '';
+ if(!fuera.length)return sinRecursos;
+ return sinRecursos+`<p class="tmsAbsente">🚫 ${esc(T('Hoy no reparten:'))} ${fuera.map(d=>{
+  const a=driverAbsence(d,today());
+  return esc(d.name)+(a?' ('+esc(absLabel(a).toLowerCase())+')':'')}).join(', ')}.</p>`;
 }
 function render(tab){
  proofViewVersion++;
  currentTab=tab;
  const x=section(),ds=db.deliveries.filter(d=>d.date===today()),pending=ds.filter(d=>!['Entregada','Cancelada'].includes(d.status)).length,del=ds.filter(d=>d.status==='Entregada').length,exceptions=ds.filter(d=>d.status==='Excepción').length,planned=db.routes.filter(r=>r.date===today()&&r.status!=='Terminada').length;
- const tabs=[['planning','Planificación'],['loading','Salida de bultos'],['proof','Prueba de entrega'],['fleet','Conductores y vehículos'],['history','Historial']];
+ const tabs=[['planning','Planificación'],['loading','Salida de bultos'],['proof','Prueba de entrega'],['history','Historial']];
  let body='';
 if(tab==='loading')body='<div id="gamaLoadingHost"></div>';
 if(tab==='planning')body=`<div class="tmsGrid"><div><div class="tmsCard"><div class="tmsTitle"><b data-gi=6e5a7739380f>Nueva entrega</b><small data-gi=bea7f86d738e>Pedidos / preparación</small></div><div class="tmsForm"><div class="full"><label data-gi=ae79a0eaa53e>Cliente registrado</label><select id="tCustomerPick"><option value="" data-gi=2aa0d0a80307>— Escribir a mano —</option>${db.customers.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div><div><label data-gi=f851d9a83ab0>Cliente</label><input id="tCustomer" data-gi-placeholder=9abe245bde43 placeholder="Nombre del cliente"></div><div><label data-gi=93b2a9ef782c>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label data-gi=2af66cb65da8>Dirección</label><input id="tAddress" data-gi-placeholder=481de1cd2e03 placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary data-gi=f98554559230>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label data-gi=d812904bd5cd>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label data-gi=dbae0b2a1a74>Prioridad</label><select id="tPriority"><option data-gi=a7248eeb45eb>Normal</option><option data-gi=42719229fd62>Alta</option><option data-gi=9dc81c64f153>Urgente</option></select></div><div><label data-gi=f7b86f38025c>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label data-gi=215d13883a34>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px" data-gi=2beb81266a5c>Añadir entrega</button></div><div class="tmsCard"><div class="tmsTitle"><b data-gi=20bb0eb7349d>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="tmsTable"><thead><tr><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=756b45a47270>Franja</th><th data-gi=5f52e2cbc055>Carga</th><th data-gi=98e5acddb6c4>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds).map(d=>`<tr><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span><br><button class="tmsBtn tmsLight" onclick="GamaLoading.open('${d.id}')" data-gi-live data-gi=dabf9898be06>Salida de bultos</button></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty" data-gi=e641256e4dac>No hay entregas hoy.</div>'}</div></div><div><div class="tmsCard"><div class="tmsTitle"><b data-gi=906ba2eec66b>Optimizar rutas de hoy</b><span class="tmsLive"><i></i> Sincronizado en la nube</span></div><p style="font-size:12px;color:#71808a" data-gi=d7b3a2fbcc7f>Reparte las entregas de hoy entre tus conductores según capacidad y cercanía, con un clic. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.</p>${avisoAusencias()}<button class="tmsBtn tmsOrange" id="tOptimize" data-gi=2bcc48c075e0>Optimizar todas las rutas</button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(r.driver)} · ${esc(r.vehicle)}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:#81909a">${routeStops(r).filter(s=>!s.isDepot).length} paradas · ${esc(r.status)}</p><button class="tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty" data-gi=80bc4d66c557>No hay rutas planificadas.</div>'}</div></div><details class="tmsCard"><summary data-gi=ea2166dfd22e>⚙️ Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label data-gi=be405f1a9fc7>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" data-gi-placeholder=28d13886c9e2 placeholder="Dirección de salida / regreso"></div><div><label data-gi=e5c7d7cbd42a>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''} data-gi=739215889580>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''} data-gi=1ea442a134b2>No</option></select></div></div><button class="tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px" data-gi=13e51a210f45>Guardar</button></details></div></div>`;
@@ -493,19 +449,12 @@ if(tab==='proof'){
  const pr=sel?proofCache[sel.id]:null;
  body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b data-gi=ed806a52ba08>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.reference||'')} ${esc(d.customer)}</b><small>${esc(d.address)} · ${esc(d.date||'—')} · ${esc(status(d))}</small></div><button class="tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')" data-gi=5be1e4143d9a>Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty" data-gi-live data-gi=ec126a95d652>No hay entregas pendientes de prueba.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b data-gi=c30fbfa7b5e2>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px" data-gi=3437cf41946f>📄 Descargar informe PDF</button>`:''}${delivered.length?`<label data-gi=fb249302b38a>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty" data-gi=8b5d1f44a991>Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty" data-gi=d0fb2d19ed9c>Sin firma</div>'}</div></div><p style="font-size:12px;color:#71808a;margin-top:8px">Entregado: ${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p><button class="tmsBtn tmsPrimary" id="tProofOne" style="width:100%" data-gi=f677f95298dc>📄 Descargar comprobante de esta entrega</button><button class="tmsBtn tmsLight" id="tProofMail" style="width:100%;margin-top:8px" data-gi=125b300d1d7c>✉️ Enviar el comprobante al cliente</button>`:''}`:'<div class="tmsEmpty" data-gi=bc5dccf97b1a>Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
 }
-if(tab==='fleet'){
- const editing=editingDriverId?db.drivers.find(x=>x.id===editingDriverId):null;
- const ausentesHoy=db.drivers.filter(d=>d.enabled!==false&&driverAbsence(d,today())).length;
- body=`<div class="tmsGrid"><div class="tmsCard"><div class="tmsTitle"><b data-gi=8595a800dbb2>Conductores y vehículos</b><small>${db.drivers.length}${ausentesHoy?' · '+ausentesHoy+' ausente(s) hoy':''}</small></div>${db.drivers.map(driverCard).join('')||'<div class="tmsEmpty" data-gi=9839d146b370>Añade tu primer conductor y vehículo.</div>'}</div><div class="tmsCard"><div class="tmsTitle"><b>${editing?'Editar conductor':'Añadir un conductor'}</b></div><div class="tmsForm"><div><label data-gi=562bb15757a8>Nombre</label><input id="dName" value="${esc(editing?.name||'')}"></div><div><label data-gi=f1186abd0b8b>Teléfono</label><input id="dPhone" value="${esc(editing?.phone||'')}"></div><div><label data-gi=e4579a8b1ea4>Vehículo</label><input id="dVehicle" data-gi-placeholder=456bb26bbf87 placeholder="Camión 3" value="${esc(editing?.vehicle||'')}"></div><div><label data-gi=c601d61e1ba4>Capacidad kg</label><input id="dWeight" type="number" value="${editing?editing.maxWeight:1000}"></div><div><label data-gi=177ee69365ac>Capacidad m³</label><input id="dVolume" type="number" step="0.1" value="${editing?editing.maxVolume:5}"></div>${employeeField(editing)}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="tmsBtn tmsPrimary" id="dAdd" data-gi-live>${editing?'Guardar cambios':'Añadir'}</button>${editing?'<button class="tmsBtn tmsLight" id="dCancelEdit" data-gi=bb9dbb406dcb>Cancelar</button>':''}</div></div></div>`;
-}
 if(tab==='history')body=`<div class="tmsCard"><div class="tmsTitle"><b data-gi=55c4aa39dc01>Historial de rutas y entregas</b><small>${db.history.length} eventos</small></div>${db.history.length?`<table class="tmsTable"><thead><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=43f6698cdd81>Evento</th><th data-gi=426234e72a5b>Detalle</th></tr></thead><tbody>${GamaPage.slice('tmsHistory',db.history).map(h=>`<tr><td>${new Date(h.at).toLocaleString('es-ES')}</td><td>${esc(h.customer)}</td><td><span class="tmsBadge">${esc(h.type)}</span></td><td>${esc(h.note)}</td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsHistory',db.history.length)}`:'<div class="tmsEmpty" data-gi=a0aee7bf5f53>No hay historial.</div>'}</div>`;
  x.innerHTML=`<div class="tms">${window.GamaUI.header({title:'🚚 Transporte y entregas',lead:'Planifica las entregas del día y sigue las rutas.'})}<div class="tmsKpis"><div class="tmsKpi"><span data-gi=9f818dbe915c>Entregas</span><strong>${ds.length}</strong></div><div class="tmsKpi"><span data-gi=bb6e430ce0a7>Pendientes</span><strong>${pending}</strong></div><div class="tmsKpi"><span data-gi=97ec218e28be>Entregadas</span><strong>${del}</strong></div><div class="tmsKpi"><span data-gi=b25f73c77641>Excepciones</span><strong>${exceptions}</strong></div><div class="tmsKpi"><span data-gi=2f6b91a34921>Rutas</span><strong>${planned}</strong></div><div class="tmsKpi"><span data-gi=98e5acddb6c4>Estado</span><strong>CLOUD</strong></div></div><div class="tmsTabs">${tabs.map(t=>`<button class="tmsTab ${tab===t[0]?'active':''}" onclick="gamaTMS.open('${t[0]}')" data-gi-live>${t[1]}</button>`).join('')}</div>${body}</div><div class="tmsPrint"><h2 data-gi=1a9c5f19ed7f>GAMA TMS — hoja de ruta</h2>${db.routes.filter(r=>r.date===today()).map(r=>`<h3>${esc(r.driver)} · ${esc(r.vehicle)}</h3>${routeStops(r).filter(s=>!s.isDepot).map((d,i)=>`<p>${i+1}. <b>${esc(d.reference||'')} ${esc(d.customer)}</b> — ${esc(d.address)}</p>`).join('')}`).join('')}</div>`;
  window.GamaUI.bindBack(x);
  if(tab==='loading')window.GamaLoading?.mount(x.querySelector('#gamaLoadingHost'));
  const add=x.querySelector('#tAdd');if(add)add.onclick=addDelivery;
  const opt=x.querySelector('#tOptimize');if(opt)opt.onclick=optimize;
- const da=x.querySelector('#dAdd');if(da)da.onclick=saveDriver;
- const dc=x.querySelector('#dCancelEdit');if(dc)dc.onclick=cancelDriverEdit;
  const ps=x.querySelector('#tProofSelect');if(ps)ps.onchange=()=>viewProofArchive(ps.value);
  const pp=x.querySelector('#tProofPdf');if(pp)pp.onclick=downloadProofReport;
  const po=x.querySelector('#tProofOne');if(po)po.onclick=()=>downloadProofCertificate(defaultProofId());
@@ -547,5 +496,5 @@ window.gamaTMS={openDelivery:async id=>{
  if(!window.gamaAccessAllowed?.('tms'))throw Error('Acceso no permitido.');
  await open('proof');const r=await C().list('tms_deliveries',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Entrega no disponible.');
  db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await ensureProof(id);await renderProofDetail(id);
-},open,openProof,toggleDriver,editDriver,cancelDriverEdit,deleteDriver,viewProofArchive,downloadProofReport,downloadProofCertificate};
+},open,openProof,__drivers:()=>db.drivers,viewProofArchive,downloadProofReport,downloadProofCertificate};
 })();

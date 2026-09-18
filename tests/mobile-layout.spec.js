@@ -31,7 +31,9 @@ const SEED = {
   ],
   hr_absences: [{ id: 'a1', employee_id: 'e1', kind: 'vacaciones', status: 'aprobada', start_date: hoy(), end_date: hoy(), days: 1 }],
   hr_employee_private: [], hr_absence_private: [],
-  tms_drivers: [{ id: 'd1', name: 'Conductor 1', vehicle: 'Camión 1', max_weight: 1000, max_volume: 5, enabled: true, created_at: hoy() }],
+  fleet_drivers: [{ id: 'd1', name: 'Conductor 1', active: true }],
+  fleet_vehicles: [{ id: 'v1', plate: 'Camión 1', status: 'in_service', active: true, payload_kg: 1000, cargo_volume_m3: 5 }],
+  fleet_assignments: [{ id: 'a1', driver_id: 'd1', vehicle_id: 'v1', ended_on: null }],
   tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
 };
 

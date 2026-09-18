@@ -26,7 +26,7 @@ async function boot(page, db = {}) {
       products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
       customer_special_prices: [], customer_requests: [],
-      tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+      fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     }, seed);
   }, db);
   await page.route('**/gama-supabase.js*', route =>
@@ -81,7 +81,9 @@ test('el presupuesto se baja en PDF sin pasar por window.print()', async ({ page
 test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ page }) => {
   const HOY = new Date().toISOString().slice(0, 10);
   await boot(page, {
-    tms_drivers: [{ id: 'd1', name: 'Luis', vehicle: 'Furgón', max_weight: 900, max_volume: 6, enabled: true }],
+    fleet_drivers: [{ id: 'd1', name: 'Luis', active: true }],
+    fleet_vehicles: [{ id: 'v1', plate: 'Furgón', status: 'in_service', active: true, payload_kg: 900, cargo_volume_m3: 6 }],
+    fleet_assignments: [{ id: 'a1', driver_id: 'd1', vehicle_id: 'v1', ended_on: null }],
     tms_deliveries: [{ id: 'e1', customer: 'Andes', address: 'Quito', delivery_date: HOY, status: 'Entregada', delivered_at: new Date().toISOString(), driver_id: 'd1' }],
     tms_proofs: [{ delivery_id: 'e1', signature: 'data:image/png;base64,iVBORw0KGgo=', photo: '', captured_at: new Date().toISOString() }],
   });
@@ -146,7 +148,9 @@ test('ninguna pantalla llama a window.print() ni abre una ventana para imprimir'
 test('el comprobante lleva los datos de la entrega seleccionada', async ({ page }) => {
   const HOY = new Date().toISOString().slice(0, 10);
   await boot(page, {
-    tms_drivers: [{ id: 'd1', name: 'Luis', vehicle: 'Furgón', max_weight: 900, max_volume: 6, enabled: true }],
+    fleet_drivers: [{ id: 'd1', name: 'Luis', active: true }],
+    fleet_vehicles: [{ id: 'v1', plate: 'Furgón', status: 'in_service', active: true, payload_kg: 900, cargo_volume_m3: 6 }],
+    fleet_assignments: [{ id: 'a1', driver_id: 'd1', vehicle_id: 'v1', ended_on: null }],
     tms_deliveries: [{ id: 'e1', customer: 'Supermaxi', address: '54 rue du Nord', delivery_date: HOY, status: 'Entregada', delivered_at: '2026-08-31T23:25:49.000Z', driver_id: 'd1' }],
     tms_proofs: [{ delivery_id: 'e1', signature: 'data:image/png;base64,iVBORw0KGgo=', photo: 'data:image/jpeg;base64,/9j/4AAQ', captured_at: new Date().toISOString() }],
   });

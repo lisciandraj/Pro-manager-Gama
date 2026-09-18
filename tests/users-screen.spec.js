@@ -22,7 +22,7 @@ async function openUsers(page, profiles = PROFILES) {
     window.__DB = {
       profiles: seed, products: [], suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [],
-      tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+      fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     };
     // @ts-ignore
     window.__DB._profile = { id: 'test-admin-uid', full_name: 'Jimmy Lisciandra', email: 'admin@example.com', role: 'administrador', active: true };

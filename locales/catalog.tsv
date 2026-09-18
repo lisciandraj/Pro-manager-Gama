@@ -2089,3 +2089,10 @@ Vaciar el registro	Vider le journal	Clear the log
 Vaciar el registro de avisos	Vider le journal des alertes	Clear the alert log
 Se borran todos los avisos ya enviados. Lo que siga vencido se volverá a señalar en la próxima comprobación.	Toutes les alertes déjà envoyées sont supprimées. Ce qui reste échu sera de nouveau signalé à la prochaine vérification.	Every alert already sent is deleted. Anything still overdue is flagged again at the next check.
 Ese empleado ya tiene una ficha de conductor. Modifícala en vez de crear otra.	Cet employé a déjà une fiche conducteur. Modifiez-la au lieu d’en créer une autre.	That employee already has a driver record. Edit it instead of creating another.
+Volumen de carga (m³)	Volume de chargement (m³)	Cargo volume (m³)
+Volumen de carga	Volume de chargement	Cargo volume
+El PTAC sólo se pide para los camiones. La carga útil y el volumen los usa el TMS para repartir las entregas.	Le PTAC n’est demandé que pour les camions. La charge utile et le volume servent au TMS pour répartir les livraisons.	GVWR is asked for trucks only. Payload and volume are what the TMS uses to allocate deliveries.
+No hay conductores con vehículo asignado. Se dan de alta en RRHH y se emparejan con un vehículo en Gestión de flota.	Aucun conducteur n’a de véhicule affecté. Ils se créent dans les RH et s’associent à un véhicule dans la Gestion de flotte.	No driver has a vehicle assigned. They are created in HR and paired with a vehicle in Fleet management.
+Ningún conductor tiene hoy un vehículo en servicio. Revisa las afectaciones en Gestión de flota.	Aucun conducteur n’a aujourd’hui de véhicule en service. Vérifiez les affectations dans la Gestion de flotte.	No driver has a vehicle in service today. Check the assignments in Fleet management.
+Hoy no reparten:	Ne livrent pas aujourd’hui :	Not delivering today:
+No se pudieron leer los conductores disponibles.	Les conducteurs disponibles n’ont pas pu être lus.	The available drivers could not be read.

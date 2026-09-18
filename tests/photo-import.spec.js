@@ -26,7 +26,7 @@ async function openPhotoTab(page, products = PRODUCTS) {
     window.__DB = {
       products: prods, suppliers: [], customers: [], invoices: [], invoice_lines: [],
       purchase_orders: [], purchase_order_lines: [], stock_movements: [], profiles: [],
-      tms_drivers: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
+      fleet_drivers: [], fleet_vehicles: [], fleet_assignments: [], tms_deliveries: [], tms_routes: [], tms_proofs: [], tms_events: [], tms_settings: [],
     };
   }, products);
   await page.route('**/gama-supabase.js*', route =>

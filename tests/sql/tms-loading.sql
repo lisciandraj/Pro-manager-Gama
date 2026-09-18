@@ -6,6 +6,7 @@ do $$
 declare
  admin_id uuid; operator_id uuid:=gen_random_uuid(); client_user uuid:=gen_random_uuid(); cid uuid; pid uuid; pid2 uuid; loc uuid; loc2 uuid; wh uuid;
  oid uuid; lid uuid; lid2 uuid; sid uuid; tid uuid; driver uuid; route_id uuid;
+ veh uuid;
  code text:='SCAN-'||gen_random_uuid(); code2 text:='SCAN-'||gen_random_uuid();
  r jsonb; key_id uuid:=gen_random_uuid(); payload jsonb; rejected boolean; scan_id uuid; v integer; movement_count integer; qty_before numeric;
 begin
@@ -18,7 +19,12 @@ begin
  insert into public.products(name,barcode,reference,sale_price,stock) values('Loading A '||gen_random_uuid(),code,gen_random_uuid()::text,10,4) returning id into pid;
  insert into public.products(name,barcode,reference,sale_price,stock) values('Loading B '||gen_random_uuid(),code2,gen_random_uuid()::text,10,1) returning id into pid2;
  insert into public.stock_quants(product_id,location_id,quantity,reserved_quantity) values(pid,loc,2,0),(pid,loc2,2,0),(pid2,loc,1,0);
- insert into public.tms_drivers(name,vehicle,enabled) values('Loading test driver','TEST-TRUCK',true) returning id into driver;
+ -- El conductor vive en Flota y su vehículo también; la salida exige que
+ -- estén emparejados por una afectación vigente.
+ insert into public.fleet_drivers(name,active) values('Loading test driver',true) returning id into driver;
+ insert into public.fleet_vehicles(plate,brand,model,kind,energy,status)
+  values('TEST-TRUCK','Test','Test','truck','diesel','in_service') returning id into veh;
+ insert into public.fleet_assignments(vehicle_id,driver_id,started_on) values(veh,driver,current_date);
  perform set_config('request.jwt.claim.sub',admin_id::text,true);execute 'set local role authenticated';
  r:=public.gama_sales_action('create',jsonb_build_object('request_key',gen_random_uuid(),'customer_id',cid,'delivery_address','Quito','lines',jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',4,'unit_price',10,'tax_rate',0),jsonb_build_object('product_id',pid2,'quantity',1,'unit_price',10,'tax_rate',0))));oid:=(r->>'id')::uuid;
  perform public.gama_sales_action('confirm',jsonb_build_object('order_id',oid));

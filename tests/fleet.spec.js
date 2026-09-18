@@ -34,7 +34,7 @@ const VEHICLES={rows:[
 
 const VEHICLE={id:'v1',reference:'VH-000005',plate:'TCA-9001',brand:'Mercedes-Benz',model:'Atego 1218',
  kind:'truck',energy:'diesel',first_registration:'2021-01-05',odometer:164300,status:'in_service',
- gvwr_kg:12000,payload_kg:6200,photo:null,notes:'Ruta Quito — Guayaquil',active:true,
+ gvwr_kg:12000,payload_kg:6200,cargo_volume_m3:34.5,photo:null,notes:'Ruta Quito — Guayaquil',active:true,
  consumption:{vehicle_id:'v1',fills:2,distance:3100,litres:161.5,fuel_cost:214.8,
   avg_litres_100km:5.21,cost_per_km:0.0693,total_cost:411},
  driver:{id:'c2',name:'Luis Paredes',phone:'+593 98 220 4415',since:plus(-500)},
@@ -145,13 +145,14 @@ test('the vehicle list filters, searches and opens the sheet',async({page})=>{
  await expect(page.locator('#gfMain')).toContainText('VH-000005');
 });
 
-test('the sheet has its four tabs and only a truck shows PTAC and payload',async({page})=>{
+test('the sheet has its four tabs and carries the capacity the TMS needs',async({page})=>{
  await boot(page);
  await page.evaluate(()=>GamaFleet.openVehicle('v1'));
  await expect(page.locator('.gfTabs button')).toHaveCount(4);
  const main=page.locator('#gfMain');
  await expect(main).toContainText('12.000 kg');   // PTAC
  await expect(main).toContainText('6.200 kg');    // carga útil
+ await expect(main).toContainText('34,5 m³');     // volumen de carga, que usa el TMS
  await expect(main).toContainText('Luis Paredes');
 
  await page.locator('[data-gf-tab="documents"]').click();
@@ -169,15 +170,30 @@ test('the sheet has its four tabs and only a truck shows PTAC and payload',async
  await expect(main).toContainText('175.000 km');  // próxima revisión por kilometraje
 });
 
-test('a car never asks for PTAC and a truck does',async({page})=>{
+test('only a truck is asked for PTAC, but every vehicle carries a capacity',async({page})=>{
  await boot(page);await open(page);
  await page.locator('[data-gf-section="vehicles"]').click();
  await page.locator('#gfNewVehicle').click();
  await expect(page.locator('#gfTruckBox')).toBeHidden();
+ // La capacidad la usa el TMS para repartir, así que se pide siempre: una
+ // furgoneta de reparto también carga.
+ await expect(page.locator('#gfPayload')).toBeVisible();
+ await expect(page.locator('#gfVolume')).toBeVisible();
  await page.locator('#gfVKind').selectOption('truck');
  await expect(page.locator('#gfTruckBox')).toBeVisible();
  await page.locator('#gfVKind').selectOption('car');
  await expect(page.locator('#gfTruckBox')).toBeHidden();
+ await expect(page.locator('#gfPayload')).toBeVisible();
+
+ await page.locator('#gfPlate').fill('VAN-0001');
+ await page.locator('#gfBrand').fill('Renault');
+ await page.locator('#gfModel').fill('Master');
+ await page.locator('#gfPayload').fill('1400');
+ await page.locator('#gfVolume').fill('13.5');
+ await page.locator('#gsSave').click();
+ const saved=(await calls(page)).filter(c=>c.p_action==='vehicle_save');
+ expect(saved[0].p_data.payload_kg).toBe('1400');
+ expect(saved[0].p_data.cargo_volume_m3).toBe('13.5');
 });
 
 test('a fill-up is saved once even if the form is submitted twice',async({page})=>{

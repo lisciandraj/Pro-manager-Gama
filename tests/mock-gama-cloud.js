@@ -531,6 +531,24 @@
           const p=priv.find(r=>r.employee_id===id);if(p)Object.assign(p,args.p_private);else priv.push({employee_id:id,...args.p_private});
           return {data:id,error:null};
         }
+        if(fn==='gama_tms_resources'){
+          const role=(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)||'';
+          if(!['admin','administrador','magasinier','almacenero'].includes(role))
+            return {error:{message:'ROLE_NOT_ALLOWED'}};
+          const drivers=window.__DB.fleet_drivers||[],vehicles=window.__DB.fleet_vehicles||[],
+                assigns=window.__DB.fleet_assignments||[],today=new Date().toISOString().slice(0,10);
+          return {data:drivers.filter(d=>d.active!==false).map(d=>{
+            const a=assigns.find(x=>x.driver_id===d.id&&!x.ended_on)||{};
+            const v=vehicles.find(x=>x.id===a.vehicle_id&&x.active!==false)||{};
+            return {driver_id:d.id,name:d.name,phone:d.phone||null,employee_id:d.employee_id||null,
+              vehicle_id:v.id||null,plate:v.plate||null,brand:v.brand||null,model:v.model||null,
+              kind:v.kind||null,vehicle_status:v.status||null,
+              max_weight:Number(v.payload_kg||0),max_volume:Number(v.cargo_volume_m3||0),
+              available:!!v.id&&v.status==='in_service',
+              absent:(window.__DB.hr_absences||[]).some(x=>x.employee_id===d.employee_id
+                &&x.status==='aprobada'&&x.start_date<=today&&x.end_date>=today)};
+          })};
+        }
         if(fn==='gama_hr_licences'){
           if(!hrIsAdmin())return {error:{message:'ROLE_NOT_ALLOWED'}};
           const drivers=window.__DB.fleet_drivers=window.__DB.fleet_drivers||[];

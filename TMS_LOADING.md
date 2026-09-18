@@ -6,7 +6,9 @@ El operario utiliza un lector USB/Bluetooth o la cámara y registra las unidades
 
 El peso y el volumen de la entrega los calcula el servidor al validar la expedición, a partir de `products.weight_g` y `products.volume_cm3` de las líneas expedidas. No proceden de lo que teclee un operario en la preparación; completar la ficha del producto es lo que corrige una carga sin peso o sin volumen.
 
-El acceso sigue los perfiles actuales del TMS: administrador y almacenero. Se registra quién escanea y se selecciona el conductor activo y su vehículo al confirmar la salida. No se crea un nuevo perfil de transportista. Los clientes siguen consultando sus entregas y pruebas desde su portal.
+El acceso sigue los perfiles actuales del TMS: administrador y almacenero. Se registra quién escanea y se selecciona el conductor al confirmar la salida. No se crea un nuevo perfil de transportista. Los clientes siguen consultando sus entregas y pruebas desde su portal.
+
+El conductor y su vehículo **ya no se dan de alta aquí**: la persona vive en RRHH, el vehículo en Gestión de flota, y el emparejamiento de los dos en las afectaciones de Flota. El desplegable de salida lee `public.gama_tms_resources`, que devuelve sólo lo necesario para repartir —nombre, matrícula y capacidad— y está abierta a administración y almacén; el módulo de Flota sigue siendo únicamente del administrador. Un conductor sin vehículo asignado no aparece, y confirmar una salida sin él se rechaza con `DRIVER_REQUIRED`: el vehículo se asigna en Flota, no aquí.
 
 La salida requiere todas las cantidades verificadas y una versión vigente del manifiesto. Escanear no genera movimientos de stock adicionales. Las correcciones requieren un motivo y conservan el historial; después de salir, la carga queda cerrada. La optimización de rutas conserva las expediciones que ya salieron.
 

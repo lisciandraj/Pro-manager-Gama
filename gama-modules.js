@@ -26,6 +26,7 @@ if(window.GamaModules)return;
    forma de recuperarse. */
 const CATALOG=[
  {id:'accounting',label:'Contabilidad'},
+ {id:'fleet',label:'Gestión de flota'},
  {id:'projects',label:'Proyectos'},
  {id:'assistant-ia',label:'Asistente IA'},
  {id:'knowledge', label:'Knowledge · Base de conocimientos'},

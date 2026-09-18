@@ -105,6 +105,8 @@ async function activate(r){
   if(r.source==='quotes'){await window.GamaQuotes.open();return await window.GamaQuotes.view(r.id)}
   if(r.source==='invoices'){if(allowed('payments'))return await window.GamaPayments.open({invoiceId:r.id});return await window.GamaSales.openOrder(r.orderId)}
   if(r.source==='payments')return await window.GamaPayments.open({invoiceId:r.invoiceId});
+  if(r.source==='vehicles')return await window.GamaFleet.openVehicle(r.id);
+  if(r.source==='fleet_drivers')return await window.GamaFleet.openDriver();
   if(r.source==='knowledge')return await window.GamaKnowledge.openArticle(r.id);
  }catch(e){if(dialog?.open)$('gspStatus').textContent=t('error');else window.gamaToast?.(t('error'))}finally{busy=false}
 }

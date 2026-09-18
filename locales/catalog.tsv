@@ -1905,3 +1905,168 @@ Ignorados	Ignorés	Ignored
 No hay gastos en este periodo.	Aucune dépense sur cette période.	No expense in this period.
 No hay movimientos con este filtro.	Aucun mouvement pour ce filtre.	No movement for this filter.
 Todavía no hay cuentas.	Aucun compte pour l’instant.	No account yet.
+Gestión de flota	Gestion de flotte	Fleet management
+Tus coches y camiones: papeles, consumos y revisiones.	Vos voitures et camions : papiers, consommations et révisions.	Your cars and trucks: paperwork, fuel use and servicing.
+Tablero	Tableau de bord	Dashboard
+Vehículos	Véhicules	Vehicles
+Conductores	Conducteurs	Drivers
+Vencimientos	Échéances	Deadlines
+Coche	Voiture	Car
+Camión	Camion	Truck
+En servicio	En service	In service
+En reparación	En réparation	Under repair
+Fuera de servicio	Hors service	Out of service
+Diésel	Diesel	Diesel
+Gasolina	Essence	Petrol
+Eléctrico	Électrique	Electric
+Híbrido	Hybride	Hybrid
+Otra	Autre	Other
+Seguro	Assurance	Insurance
+Inspección técnica	Contrôle technique	Technical inspection
+Permiso de circulación	Carte grise	Registration certificate
+Revisión	Révision	Service
+Reparación	Réparation	Repair
+Neumáticos	Pneus	Tyres
+Permiso de conducir	Permis de conduire	Driving licence
+Revisión prevista (fecha)	Révision prévue (date)	Service due (date)
+Revisión prevista (kilometraje)	Révision prévue (kilométrage)	Service due (mileage)
+La flota es un módulo de administración: tu perfil no tiene acceso.	La flotte est un module d’administration : votre profil n’y a pas accès.	Fleet is an administration module: your profile has no access to it.
+Vuelve a iniciar sesión para continuar.	Reconnectez-vous pour continuer.	Sign in again to continue.
+Ese vehículo ya no existe. Actualiza la lista.	Ce véhicule n’existe plus. Actualisez la liste.	That vehicle no longer exists. Refresh the list.
+Ese conductor ya no existe. Actualiza la lista.	Ce conducteur n’existe plus. Actualisez la liste.	That driver no longer exists. Refresh the list.
+Ese documento ya no existe. Actualiza la ficha.	Ce document n’existe plus. Actualisez la fiche.	That document no longer exists. Refresh the sheet.
+El vehículo no tiene ningún conductor asignado.	Aucun conducteur n’est affecté à ce véhicule.	No driver is assigned to this vehicle.
+El archivo pesa demasiado. El máximo son 2,5 MB.	Le fichier est trop lourd. Le maximum est de 2,5 Mo.	The file is too large. The maximum is 2.5 MB.
+La fecha de fin es anterior a la de inicio.	La date de fin est antérieure à la date de début.	The end date is before the start date.
+Esa operación no existe en este módulo.	Cette opération n’existe pas dans ce module.	That operation does not exist in this module.
+El registro ya no existe. Actualiza la pantalla.	Cet enregistrement n’existe plus. Actualisez l’écran.	That record no longer exists. Refresh the screen.
+Esa matrícula ya está registrada en otro vehículo.	Cette immatriculation est déjà enregistrée sur un autre véhicule.	That number plate is already registered to another vehicle.
+Revisa los datos: hay un valor fuera de lo admitido.	Vérifiez les données : une valeur est hors des limites admises.	Check the data: a value is outside the accepted range.
+No se pudo completar la operación. Inténtalo de nuevo.	L’opération n’a pas pu aboutir. Réessayez.	The operation could not be completed. Try again.
+días restantes	jours restants	days left
+días de retraso	jours de retard	days overdue
+km restantes	km restants	km left
+km de más	km de trop	km overdue
+Vence hoy	Échoit aujourd’hui	Due today
+coches	voitures	cars
+camiones	camions	trucks
+fuera de servicio	hors service	out of service
+urgentes	urgentes	urgent
+Ninguno urgente	Aucune urgente	None urgent
+Carburante	Carburant	Fuel
+Taller	Garage	Garage
+Gasto del periodo	Dépenses de la période	Spend for the period
+Vencimientos a 30 días	Échéances à 30 jours	Deadlines within 30 days
+Próximos vencimientos	Prochaines échéances	Upcoming deadlines
+Los 30 próximos días. El aviso llega también al Centro de acción.	Les 30 prochains jours. L’alerte arrive aussi dans le Centre d’action.	The next 30 days. The alert also reaches the Action centre.
+Nada vence en los próximos 30 días.	Rien n’échoit dans les 30 prochains jours.	Nothing falls due in the next 30 days.
+Consumo medio por vehículo	Consommation moyenne par véhicule	Average consumption per vehicle
+Calculado de depósito lleno a depósito lleno, con los repostajes registrados.	Calculée de plein à plein, à partir des pleins enregistrés.	Worked out from full tank to full tank, using the recorded fill-ups.
+Coste por km	Coût au km	Cost per km
+km medidos	km mesurés	km measured
+Km medidos	Km mesurés	Km measured
+Todavía no hay repostajes registrados.	Aucun plein n’est encore enregistré.	No fill-ups recorded yet.
+Comprobar vencimientos ahora	Vérifier les échéances maintenant	Check deadlines now
+Vencimientos comprobados.	Échéances vérifiées.	Deadlines checked.
+⛽ Registrar un repostaje	⛽ Enregistrer un plein	⛽ Record a fill-up
+🔧 Registrar un entretenimiento	🔧 Enregistrer un entretien	🔧 Record a service
+Registrar un repostaje	Enregistrer un plein	Record a fill-up
+Registrar un entretenimiento	Enregistrer un entretien	Record a service
+Sin consumo medido	Consommation non mesurée	Consumption not measured
+Ningún vehículo con ese filtro.	Aucun véhicule avec ce filtre.	No vehicle matches that filter.
+vehículos	véhicules	vehicles
+vencimientos	échéances	deadlines
+Nuevo vehículo	Nouveau véhicule	New vehicle
+Modificar el vehículo	Modifier le véhicule	Edit the vehicle
+Matrícula	Immatriculation	Number plate
+Modelo	Modèle	Model
+Energía	Énergie	Energy
+Primera matriculación	Première mise en circulation	First registration
+Kilometraje	Kilométrage	Mileage
+PTAC	PTAC	GVWR
+Carga útil	Charge utile	Payload
+PTAC (kg)	PTAC (kg)	GVWR (kg)
+Carga útil (kg)	Charge utile (kg)	Payload (kg)
+El PTAC y la carga útil sólo se piden para los camiones.	Le PTAC et la charge utile ne sont demandés que pour les camions.	GVWR and payload are asked for trucks only.
+Consumo medio	Consommation moyenne	Average consumption
+Depósito lleno a depósito lleno	De plein à plein	Full tank to full tank
+Conductor	Conducteur	Driver
+Sin foto del vehículo.	Aucune photo du véhicule.	No vehicle photo.
+Foto del vehículo	Photo du véhicule	Vehicle photo
+Imagen	Image	Image
+Se reduce sola antes de guardarse. Deja el campo vacío para quitar la foto actual.	Elle est réduite automatiquement avant l’enregistrement. Laissez le champ vide pour retirer la photo actuelle.	It is shrunk automatically before saving. Leave the field empty to remove the current photo.
+Historial de conductores	Historique des conducteurs	Driver history
+Ningún conductor ha llevado este vehículo todavía.	Aucun conducteur n’a encore conduit ce véhicule.	No driver has driven this vehicle yet.
+Asignar un conductor	Affecter un conducteur	Assign a driver
+Asignar	Affecter	Assign
+Retirar el conductor	Retirer le conducteur	Remove the driver
+Un vehículo tiene un conductor a la vez: el anterior se cierra solo y queda en el historial.	Un véhicule a un conducteur à la fois : le précédent est clôturé automatiquement et reste dans l’historique.	A vehicle has one driver at a time: the previous one is closed automatically and stays in the history.
+Dar de baja	Retirer du parc	Retire
+Dar de baja el vehículo	Retirer le véhicule du parc	Retire the vehicle
+Si el vehículo tiene historial se archiva y deja de aparecer en la lista; si nunca se usó, se elimina.	Si le véhicule a un historique il est archivé et disparaît de la liste ; s’il n’a jamais servi, il est supprimé.	If the vehicle has history it is archived and leaves the list; if it was never used, it is deleted.
+Documentos y vencimientos	Documents et échéances	Documents and deadlines
+Seguro, inspección técnica y permiso de circulación. El aviso salta 30 días antes.	Assurance, contrôle technique et carte grise. L’alerte se déclenche 30 jours avant.	Insurance, technical inspection and registration certificate. The alert fires 30 days ahead.
+Documento	Document	Document
+Sin caducidad	Sans échéance	No expiry
+Ningún documento registrado.	Aucun document enregistré.	No document recorded.
+Añadir un documento	Ajouter un document	Add a document
+Modificar el documento	Modifier le document	Edit the document
+Eliminar el documento	Supprimer le document	Delete the document
+El documento y su archivo adjunto se borran.	Le document et sa pièce jointe sont supprimés.	The document and its attachment are deleted.
+Expedido el	Délivré le	Issued on
+Vence el	Échoit le	Expires on
+Archivo adjunto	Pièce jointe	Attachment
+Hasta 2,5 MB. Si dejas el archivo vacío se conserva el que ya estaba.	Jusqu’à 2,5 Mo. Si vous laissez le champ vide, le fichier déjà enregistré est conservé.	Up to 2.5 MB. Leave the field empty to keep the file already stored.
+Descargar	Télécharger	Download
+Repostajes	Pleins	Fill-ups
+El kilometraje del vehículo sigue el repostaje más reciente: no hace falta actualizarlo aparte.	Le kilométrage du véhicule suit le plein le plus récent : inutile de le mettre à jour ailleurs.	The vehicle mileage follows the most recent fill-up: there is no need to update it separately.
+Litros	Litres	Litres
+Estación	Station	Station
+Depósito lleno	Plein complet	Full tank
+El consumo medio se calcula de depósito lleno a depósito lleno. El kilometraje del vehículo se actualiza solo.	La consommation moyenne se calcule de plein à plein. Le kilométrage du véhicule se met à jour tout seul.	Average consumption is worked out from full tank to full tank. The vehicle mileage updates by itself.
+repostajes	pleins	fill-ups
+Gasto en carburante	Dépenses de carburant	Fuel spend
+Ningún repostaje registrado.	Aucun plein enregistré.	No fill-up recorded.
+Eliminar el repostaje	Supprimer le plein	Delete the fill-up
+El consumo medio se recalcula sin él.	La consommation moyenne est recalculée sans lui.	Average consumption is recalculated without it.
+Entretenimientos	Entretiens	Servicing
+La próxima revisión se avisa por fecha o por kilometraje, lo que llegue antes.	La prochaine révision est signalée par date ou par kilométrage, au premier atteint.	The next service is flagged by date or by mileage, whichever comes first.
+Garaje	Garage	Garage
+Coste	Coût	Cost
+Próxima revisión	Prochaine révision	Next service
+Próxima revisión (fecha)	Prochaine révision (date)	Next service (date)
+Próxima revisión (km)	Prochaine révision (km)	Next service (km)
+Se avisa por fecha o por kilometraje, lo que llegue antes. Puedes dejar los dos vacíos.	L’alerte part par date ou par kilométrage, au premier atteint. Vous pouvez laisser les deux vides.	The alert fires by date or by mileage, whichever comes first. You can leave both empty.
+Ningún entretenimiento registrado.	Aucun entretien enregistré.	No service recorded.
+Eliminar el entretenimiento	Supprimer l’entretien	Delete the service
+La próxima revisión prevista se recalcula sin él.	La prochaine révision prévue est recalculée sans lui.	The next planned service is recalculated without it.
+Nuevo conductor	Nouveau conducteur	New driver
+Modificar el conductor	Modifier le conducteur	Edit the driver
+Dar de baja el conductor	Retirer le conducteur	Retire the driver
+Si tiene historial se archiva y deja de aparecer en las listas; si nunca condujo, se elimina.	S’il a un historique il est archivé et disparaît des listes ; s’il n’a jamais conduit, il est supprimé.	If they have history the record is archived and leaves the lists; if they never drove, it is deleted.
+Número de permiso	Numéro de permis	Licence number
+Caducidad del permiso	Expiration du permis	Licence expiry
+Categorías del permiso	Catégories du permis	Licence categories
+Vincular al empleado evita teclear dos veces la misma persona; no es obligatorio.	Lier à l’employé évite de saisir deux fois la même personne ; ce n’est pas obligatoire.	Linking to the employee avoids entering the same person twice; it is not compulsory.
+Caduca	Échoit	Expires
+Sin fecha	Sans date	No date
+Ningún conductor registrado.	Aucun conducteur enregistré.	No driver recorded.
+Permisos de conducir, documentos del vehículo y revisiones previstas, a 60 días.	Permis de conduire, documents du véhicule et révisions prévues, à 60 jours.	Driving licences, vehicle documents and planned services, over 60 days.
+Nada vence en los próximos 60 días.	Rien n’échoit dans les 60 prochains jours.	Nothing falls due in the next 60 days.
+Avisos ya enviados	Alertes déjà envoyées	Alerts already sent
+La comprobación corre sola cada día. Cada vencimiento se avisa una sola vez.	La vérification tourne toute seule chaque jour. Chaque échéance n’est signalée qu’une fois.	The check runs by itself every day. Each deadline is flagged only once.
+Avisado el	Signalé le	Flagged on
+Todavía no se ha enviado ningún aviso.	Aucune alerte n’a encore été envoyée.	No alert has been sent yet.
+Vencimientos de flota	Échéances de flotte	Fleet deadlines
+Información	Informations	Details
+← Volver a la lista	← Retour à la liste	← Back to the list
+Exportar a Excel	Exporter vers Excel	Export to Excel
+No hay nada que exportar.	Il n’y a rien à exporter.	There is nothing to export.
+Matrícula, marca, modelo	Immatriculation, marque, modèle	Plate, make, model
+Nombre, teléfono, permiso	Nom, téléphone, permis	Name, phone, licence
+Selecciona un vehículo.	Sélectionnez un véhicule.	Select a vehicle.
+Selecciona un conductor.	Sélectionnez un conducteur.	Select a driver.
+La imagen no se pudo leer.	L’image n’a pas pu être lue.	The image could not be read.
+El archivo no se pudo leer.	Le fichier n’a pas pu être lu.	The file could not be read.
+desde	depuis	since
+Confirmar	Confirmer	Confirm

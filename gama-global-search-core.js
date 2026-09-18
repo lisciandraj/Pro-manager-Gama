@@ -53,6 +53,8 @@ const SOURCES=[
  {key:'supplier_invoices',module:'accounting',table:'supplier_invoices',select:'id,number,issue_date,due_date,total,status,supplier:suppliers!inner(name)',fields:['number'],related:'supplier',title:r=>r.number,subtitle:r=>[r.supplier?.name,r.issue_date,r.status],number:'number'},
  {key:'bank_transactions',module:'accounting',table:'bank_transactions',select:'id,value_date,reference,description,amount,status',fields:['reference','description'],title:r=>r.reference||r.description,subtitle:r=>[r.description,r.value_date,r.status]},
  {key:'entries',module:'accounting',table:'accounting_entries',select:'id,number,entry_date,reference,memo,status',fields:['number','reference','memo'],title:r=>r.number,subtitle:r=>[r.memo,r.reference,r.entry_date,r.status],number:'number'},
+ {key:'vehicles',module:'fleet',table:'fleet_vehicles',select:'id,reference,plate,brand,model,kind,status,odometer,active',fields:['plate','brand','model','reference'],title:r=>r.plate,subtitle:r=>[r.brand,r.model,r.reference,r.status],number:'reference'},
+ {key:'fleet_drivers',module:'fleet',table:'fleet_drivers',select:'id,name,phone,licence_number,licence_expiry,active',fields:['name','phone','licence_number'],title:r=>r.name,subtitle:r=>[r.phone,r.licence_number,r.licence_expiry]},
  {key:'knowledge',module:'knowledge',table:'knowledge_articles',select:'id,title,slug,body,updated_at',fields:['title','slug','body'],title:r=>r.title,subtitle:r=>[r.slug]}
 ];
 function sources(profile,allowed){

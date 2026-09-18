@@ -13,7 +13,8 @@ const entityWords={
  quotes:/\b(devis|presupuestos?|cotizaciones?|quotes?)\b/g,
  products:/\b(produits?|productos?|products?)\b/g,clients:/\b(clients?|clientes?|customers?)\b/g,
  suppliers:/\b(fournisseurs?|proveedores?|suppliers?)\b/g,contacts:/\b(contacts?|contactos?)\b/g,
- payments:/\b(paiements?|pagos?|cobros?|payments?)\b/g,knowledge:/\b(knowledge|articles?|articulos?)\b/g
+ payments:/\b(paiements?|pagos?|cobros?|payments?)\b/g,knowledge:/\b(knowledge|articles?|articulos?)\b/g,
+ returns:/\b(retours?|devoluciones?|devolucion|returns?)\b/g
 };
 const late=/\b(en retard|atrasad[oa]s?|retrasad[oa]s?|vencid[oa]s?|overdue|late|echues?|echu)\b/g;
 const unpaid=/\b(impayees?|non payees?|non reglees?|sans paiement|sin pagar|no pagad[oa]s?|pendientes? de (pago|cobro)|unpaid|outstanding|not paid)\b/g;
@@ -36,7 +37,7 @@ function parse(value){
  return {raw,text:q,ref:null,entity:null,intent:null};
 }
 const roles={administrador:'admin',comercial:'commercial',almacenero:'magasinier',cliente:'client'};
-const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge','accounting'],magasinier:['products','sales-orders','tms','knowledge'],client:['client-catalog','quotes','client-deliveries']};
+const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge','accounting','returns'],magasinier:['products','sales-orders','tms','knowledge','returns'],client:['client-catalog','quotes','client-deliveries']};
 function access(profile,module,allowed=()=>true){const role=roles[profile?.role]||profile?.role;const p=permissions[role];return profile?.active!==false&&!!p&&(p==='*'||p.includes(module))&&allowed(module);}
 const SOURCES=[
  {key:'clients',module:'clients',table:'customers',select:'id,name,identification,email,phone,city,active',fields:['name','identification','email','phone'],title:r=>r.name,subtitle:r=>[r.identification,r.email,r.city]},
@@ -55,6 +56,7 @@ const SOURCES=[
  {key:'entries',module:'accounting',table:'accounting_entries',select:'id,number,entry_date,reference,memo,status',fields:['number','reference','memo'],title:r=>r.number,subtitle:r=>[r.memo,r.reference,r.entry_date,r.status],number:'number'},
  {key:'vehicles',module:'fleet',table:'fleet_vehicles',select:'id,reference,plate,brand,model,kind,status,odometer,active',fields:['plate','brand','model','reference'],title:r=>r.plate,subtitle:r=>[r.brand,r.model,r.reference,r.status],number:'reference'},
  {key:'fleet_drivers',module:'fleet',table:'fleet_drivers',select:'id,name,phone,licence_number,licence_expiry,active',fields:['name','phone','licence_number'],title:r=>r.name,subtitle:r=>[r.phone,r.licence_number,r.licence_expiry]},
+ {key:'returns',module:'returns',table:'return_orders',select:'id,number,kind,status,reason,financial_action,notes,created_at,customers(name),suppliers(name)',fields:['number','notes'],title:r=>r.number,subtitle:r=>[r.customers?.name||r.suppliers?.name,r.kind,r.status],number:'number'},
  {key:'knowledge',module:'knowledge',table:'knowledge_articles',select:'id,title,slug,body,updated_at',fields:['title','slug','body'],title:r=>r.title,subtitle:r=>[r.slug]}
 ];
 function sources(profile,allowed){

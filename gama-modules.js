@@ -27,6 +27,7 @@ if(window.GamaModules)return;
 const CATALOG=[
  {id:'accounting',label:'Contabilidad'},
  {id:'fleet',label:'Gestión de flota'},
+ {id:'returns',label:'Devoluciones'},
  {id:'projects',label:'Proyectos'},
  {id:'assistant-ia',label:'Asistente IA'},
  {id:'knowledge', label:'Knowledge · Base de conocimientos'},

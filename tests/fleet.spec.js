@@ -288,6 +288,54 @@ test('the phone form never shrinks a field below the zoom threshold',async({page
  for(const s of sizes){expect(s.font).toBeGreaterThanOrEqual(16);expect(s.h).toBeGreaterThanOrEqual(40)}
 });
 
+test('an administrator can delete for good, but never by accident',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>GamaFleet.openVehicle('v1'));
+ await page.locator('#gfDeleteVehicle').click();
+ // Sin marcar la casilla la baja es la de siempre: se archiva.
+ await page.locator('#gsSave').click();
+ let saved=(await calls(page)).filter(c=>c.p_action==='vehicle_delete');
+ expect(saved).toHaveLength(1);
+ expect(saved[0].p_data.purge).toBe(false);
+
+ await page.evaluate(()=>GamaFleet.openVehicle('v1'));
+ await page.locator('#gfDeleteVehicle').click();
+ await page.locator('#gfPurge').check();
+ await page.locator('#gsSave').click();
+ saved=(await calls(page)).filter(c=>c.p_action==='vehicle_delete');
+ expect(saved).toHaveLength(2);
+ expect(saved[1].p_data.purge).toBe(true);
+});
+
+test('a driver purge says plainly what happens to the fill-ups',async({page})=>{
+ await boot(page);await open(page);
+ await page.locator('[data-gf-section="drivers"]').click();
+ await page.locator('[data-gf-driver-del="c2"]').click();
+ await expect(page.locator('dialog')).toContainText('Los repostajes se conservan');
+ await page.locator('#gfPurge').check();
+ await page.locator('#gsSave').click();
+ const saved=(await calls(page)).filter(c=>c.p_action==='driver_delete');
+ expect(saved[0].p_data).toEqual({id:'c2',purge:true});
+});
+
+test('every fleet row can be removed: history lines and sent alerts',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>GamaFleet.openVehicle('v1'));
+ await page.locator('[data-gf-assign-del="a1"]').click();
+ await page.locator('#gsSave').click();
+ await expect.poll(async()=>(await calls(page)).filter(c=>c.p_action==='assignment_delete').length).toBe(1);
+
+ await open(page);
+ await page.locator('[data-gf-section="deadlines"]').click();
+ await page.locator('[data-gf-alert-del="l1"]').click();
+ await page.locator('#gsSave').click();
+ await expect.poll(async()=>(await calls(page)).filter(c=>c.p_action==='alert_delete').length).toBe(1);
+
+ await page.locator('#gfAlertClear').click();
+ await page.locator('#gsSave').click();
+ await expect.poll(async()=>(await calls(page)).filter(c=>c.p_action==='alert_clear').length).toBe(1);
+});
+
 test('fleet lives in Administration and is closed to every non-admin profile',async({page})=>{
  await boot(page);
  await page.evaluate(()=>showTab('mainmenu'));

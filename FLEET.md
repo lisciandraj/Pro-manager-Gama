@@ -30,6 +30,30 @@ La ficha del vehículo tiene cuatro pestañas: **Información** (datos,
 foto, conductor actual e historial), **Documentos**, **Carburante** y
 **Entretenimientos**.
 
+## El permiso de conducir se sigue desde RRHH
+
+El permiso es de la persona, no del vehículo, así que quien vigila su caducidad
+es RRHH. **RRHH → Documentos e historial → Permisos de conducir** lista a los
+empleados con su número de permiso, sus categorías, la fecha de caducidad, lo
+que queda y el vehículo que llevan; lo que caduca dentro del mes se marca, y lo
+ya vencido en rojo.
+
+El dato **no se duplica**: se guarda en `fleet_drivers`, que es exactamente lo
+que alimenta las alertas de la flota. Renovar un permiso desde RRHH mueve la
+misma fila que lee `gama_fleet_deadlines`, así que el aviso a 30 días se
+recalcula solo. Si el empleado todavía no tiene ficha de conductor, RRHH la
+crea al registrar el permiso y la flota se la encuentra hecha.
+
+La puerta es la de RRHH, no la de flota: `public.gama_hr_licences` exige
+`private.hr_admin()` —administrador o rol `hr`—, de modo que RRHH sigue los
+permisos sin tener acceso al módulo de flota. Un responsable de equipo sin
+derechos de RRHH no ve nada. RRHH toca el permiso y el teléfono; la asignación
+de vehículo es de la flota y no se cambia desde ahí.
+
+Los conductores que no son empleados —externos, temporales— no salen en esa
+lista porque RRHH no los gestiona, pero se cuentan al pie para que nadie lea la
+lista como si fuera toda la flota.
+
 ## Modelo de datos
 
 Siete tablas, todas nuevas: el módulo no toca ninguna existente.
@@ -117,8 +141,15 @@ tablas sólo conceden `select` a `authenticated`, y aun ése lo filtra la RLS.
 | `document_save` · `document_file` · `document_delete` | Documentos y su adjunto |
 | `fuel_save` · `fuel_delete` | Repostajes |
 | `maintenance_save` · `maintenance_delete` | Entretenimientos |
+| `assignment_delete` | Una línea del historial de conductores |
 | `deadlines` · `check_deadlines` · `alert_log` | Vencimientos y avisos |
+| `alert_delete` · `alert_clear` | Un aviso enviado, o el registro entero |
 | `export` | Vehículos y gastos del periodo, para Excel |
+
+Y, fuera del módulo, la puerta de RRHH:
+`public.gama_hr_licences(p_action, p_data)` con `list` y `save`, que escribe en
+la misma `fleet_drivers` pero exige `private.hr_admin()` en lugar de
+`private.gama_fleet_may()`.
 
 `fuel_save` y `maintenance_save` aceptan un `request_key`: un doble envío del
 formulario devuelve la fila ya creada en vez de duplicarla.
@@ -126,6 +157,23 @@ formulario devuelve la fila ya creada en vez de duplicarla.
 Dar de baja no borra a ciegas. Un vehículo o un conductor **con historial** se
 archiva —deja de aparecer en las listas y conserva sus datos—; sólo se elimina
 lo que nunca llegó a usarse.
+
+El administrador puede además **borrar de verdad**, marcando la casilla de
+borrado definitivo: es un segundo gesto a propósito, nunca el que sale por
+defecto. Todo lo que se teclea en Flota se puede quitar —vehículos, conductores,
+documentos, repostajes, entretenimientos, líneas del historial de conductores y
+el registro de avisos, entero o fila a fila—. Dos reglas al borrar:
+
+- Un vehículo se lleva en cascada sus documentos, repostajes, entretenimientos
+  e historial: era todo suyo.
+- Un conductor **no** se lleva sus repostajes. Un plein es un gasto de la
+  empresa y sigue contando en el consumo del vehículo; lo que se pierde es a
+  quién se atribuía. El formulario lo dice antes de borrar.
+
+Borrar no borra el rastro de haber borrado: los triggers de auditoría dejan en
+`gama_audit` quién lo hizo, cuándo y con qué contenido. Y vaciar el registro de
+avisos no silencia nada: lo que siga vencido se vuelve a señalar en la próxima
+pasada de la tarea programada.
 
 La foto viaja en la ficha pero **no** en la lista: la lista devuelve
 `has_photo` y las columnas que pinta. El adjunto de un documento tampoco viaja
@@ -176,5 +224,8 @@ Los documentos, repostajes y entretenimientos caen con el vehículo.
 ## Ficheros
 
     gama-fleet.js                                        el módulo
+    gama-hr-p1.js                                        la sección de permisos en RRHH
     supabase/migrations/20260917190000_fleet_management.sql   tablas, vistas, API, cron y demo
-    tests/fleet.spec.js                                  19 pruebas
+    supabase/migrations/20260918010000_fleet_purge_and_hr_licences.sql   purga y permisos en RRHH
+    tests/fleet.spec.js                                  22 pruebas
+    tests/hr-p1.spec.js                                  3 de ellas, las de RRHH

@@ -2070,3 +2070,22 @@ La imagen no se pudo leer.	L’image n’a pas pu être lue.	The image could not
 El archivo no se pudo leer.	Le fichier n’a pas pu être lu.	The file could not be read.
 desde	depuis	since
 Confirmar	Confirmer	Confirm
+Permisos de conducir	Permis de conduire	Driving licences
+Guardar permiso	Enregistrer le permis	Save licence
+No se pudieron leer los permisos de conducir.	Les permis de conduire n’ont pas pu être lus.	The driving licences could not be read.
+El permiso se guarda en la ficha de conductor del empleado. Flota avisa sola 30 días antes de la caducidad.	Le permis est enregistré sur la fiche conducteur de l’employé. La Flotte alerte d’elle-même 30 jours avant l’expiration.	The licence is stored on the employee's driver record. Fleet warns by itself 30 days before expiry.
+Sólo aparecen los empleados con permiso registrado.	Seuls les employés dont le permis est enregistré apparaissent.	Only employees with a recorded licence are listed.
+conductores externos, gestionados en Flota	conducteurs externes, gérés dans la Flotte	external drivers, managed in Fleet
+Categorías	Catégories	Categories
+Queda	Reste	Left
+Lo borrado no se recupera. La auditoría conserva quién lo borró y cuándo.	Ce qui est supprimé ne se récupère pas. L’audit conserve qui a supprimé et quand.	What is deleted cannot be recovered. The audit keeps who deleted it and when.
+Borrarlo definitivamente con sus documentos, repostajes y entretenimientos	Le supprimer définitivement avec ses documents, pleins et entretiens	Delete it permanently, with its documents, fill-ups and servicing
+Borrarlo definitivamente. Los repostajes se conservan y pierden a quién se atribuían	Le supprimer définitivement. Les pleins sont conservés et perdent leur attribution	Delete them permanently. Fill-ups are kept and lose who they were attributed to
+Eliminar la línea del historial	Supprimer la ligne d’historique	Delete the history line
+El vehículo deja de mostrar ese periodo con ese conductor.	Le véhicule n’affiche plus cette période avec ce conducteur.	The vehicle stops showing that period with that driver.
+Eliminar el aviso	Supprimer l’alerte	Delete the alert
+Si el vencimiento sigue vigente se volverá a avisar en la próxima comprobación.	Si l’échéance court toujours, l’alerte repartira à la prochaine vérification.	If the deadline still stands, the alert fires again at the next check.
+Vaciar el registro	Vider le journal	Clear the log
+Vaciar el registro de avisos	Vider le journal des alertes	Clear the alert log
+Se borran todos los avisos ya enviados. Lo que siga vencido se volverá a señalar en la próxima comprobación.	Toutes les alertes déjà envoyées sont supprimées. Ce qui reste échu sera de nouveau signalé à la prochaine vérification.	Every alert already sent is deleted. Anything still overdue is flagged again at the next check.
+Ese empleado ya tiene una ficha de conductor. Modifícala en vez de crear otra.	Cet employé a déjà une fiche conducteur. Modifiez-la au lieu d’en créer une autre.	That employee already has a driver record. Edit it instead of creating another.

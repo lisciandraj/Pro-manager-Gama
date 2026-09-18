@@ -43,6 +43,9 @@ const ERRORS={ROLE_NOT_ALLOWED:'La flota es un módulo de administración: tu pe
 function err(e){
  const s=String(e?.message||e);
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return v;if(s===v)return v}
+ /* Dos índices únicos distintos, y decir «matrícula» ante los dos manda a
+    corregir el campo equivocado. */
+ if(/fleet_driver_employee/i.test(s))return 'Ese empleado ya tiene una ficha de conductor. Modifícala en vez de crear otra.';
  if(/duplicate key|unique/i.test(s))return 'Esa matrícula ya está registrada en otro vehículo.';
  if(/check constraint|violates check/i.test(s))return 'Revisa los datos: hay un valor fuera de lo admitido.';
  return 'No se pudo completar la operación. Inténtalo de nuevo.';
@@ -121,6 +124,7 @@ function css(){
 .gfDue{border-left:5px solid #cbd8df;padding-left:11px}
 .gfDue[data-urgency=soon]{border-left-color:#e58b22}
 .gfDue[data-urgency=now]{border-left-color:#a32318}
+.gfDanger{border:1px solid #f0c8c4;background:#fff6f5;border-radius:9px;padding:11px;margin-top:11px}
 .gfQuick{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
 .gfQuick button{flex:1;min-width:150px;min-height:48px;font-weight:800}
 @media(max-width:700px){.gfKpis{grid-template-columns:1fr 1fr}.gfKpis strong{font-size:20px}
@@ -340,9 +344,10 @@ const TAB_VIEWS={
    </div></div>
   <div class="gfCard"><h3>${tr('Historial de conductores')}</h3>
    ${(v.assignments||[]).length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
-    <th>${tr('Conductor')}</th><th>${tr('Desde')}</th><th>${tr('Hasta')}</th></tr></thead><tbody>
+    <th>${tr('Conductor')}</th><th>${tr('Desde')}</th><th>${tr('Hasta')}</th><th></th></tr></thead><tbody>
     ${v.assignments.map(a=>`<tr><td>${esc(a.driver)}</td><td>${esc(a.started_on)}</td>
-     <td>${a.ended_on?esc(a.ended_on):tr('En curso')}</td></tr>`).join('')}
+     <td>${a.ended_on?esc(a.ended_on):tr('En curso')}</td>
+     <td><button class="secondary" data-gf-assign-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
    </tbody></table></div>`:`<p class="gfHint">${tr('Ningún conductor ha llevado este vehículo todavía.')}</p>`}</div>`;
  },
  documents(v){
@@ -404,9 +409,14 @@ const TAB_BINDS={
   const un=$('gfUnassign');if(un)un.onclick=()=>confirmAction('Retirar el conductor',
    `${v.driver?.name||''} dejará de estar asignado a ${v.plate}. El historial se conserva.`,
    ()=>mutate('unassign',{vehicle_id:v.id}));
-  $('gfDeleteVehicle').onclick=()=>confirmAction('Dar de baja el vehículo',
+  document.querySelectorAll('[data-gf-assign-del]').forEach(b=>b.onclick=()=>
+   confirmAction('Eliminar la línea del historial',
+    'El vehículo deja de mostrar ese periodo con ese conductor.',
+    ()=>mutate('assignment_delete',{id:b.dataset.gfAssignDel})));
+  $('gfDeleteVehicle').onclick=()=>confirmDelete('Dar de baja el vehículo',
    'Si el vehículo tiene historial se archiva y deja de aparecer en la lista; si nunca se usó, se elimina.',
-   async()=>{await mutate('vehicle_delete',{id:v.id});vehicleId=null;section='vehicles'});
+   'Borrarlo definitivamente con sus documentos, repostajes y entretenimientos',
+   async purge=>{await mutate('vehicle_delete',{id:v.id,purge});vehicleId=null;section='vehicles'});
  },
  documents({v}){
   $('gfNewDoc').onclick=()=>documentForm(v,null);
@@ -469,9 +479,10 @@ VIEWS.drivers={
   document.querySelectorAll('[data-gf-driver-edit]').forEach(b=>b.onclick=()=>
    driverForm(d.rows.find(x=>x.id===b.dataset.gfDriverEdit),d.employees||[]));
   document.querySelectorAll('[data-gf-driver-del]').forEach(b=>b.onclick=()=>
-   confirmAction('Dar de baja el conductor',
+   confirmDelete('Dar de baja el conductor',
     'Si tiene historial se archiva y deja de aparecer en las listas; si nunca condujo, se elimina.',
-    ()=>mutate('driver_delete',{id:b.dataset.gfDriverDel})));
+    'Borrarlo definitivamente. Los repostajes se conservan y pierden a quién se atribuían',
+    purge=>mutate('driver_delete',{id:b.dataset.gfDriverDel,purge})));
  }
 };
 
@@ -485,10 +496,22 @@ VIEWS.deadlines={
   <div class="gfCard"><h3>${tr('Avisos ya enviados')}</h3>
    <p class="gfHint">${tr('La comprobación corre sola cada día. Cada vencimiento se avisa una sola vez.')}</p>
    ${log.length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
-    <th>${tr('Avisado el')}</th><th>${tr('Tipo')}</th><th>${tr('Detalle')}</th></tr></thead><tbody>
+    <th>${tr('Avisado el')}</th><th>${tr('Tipo')}</th><th>${tr('Detalle')}</th><th></th></tr></thead><tbody>
     ${log.map(a=>`<tr><td>${esc(new Date(a.notified_at).toLocaleString('es-EC'))}</td>
-     <td>${tr(DEADLINE[a.kind]||a.kind)}</td><td>${esc(a.detail||'—')}</td></tr>`).join('')}
-   </tbody></table></div>`:`<p class="gfHint">${tr('Todavía no se ha enviado ningún aviso.')}</p>`}</div>`;
+     <td>${tr(DEADLINE[a.kind]||a.kind)}</td><td>${esc(a.detail||'—')}</td>
+     <td><button class="secondary" data-gf-alert-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
+   </tbody></table></div>
+   <div class="gfActions"><button class="secondary" id="gfAlertClear" data-gi-live data-gi=815f78e0fc98>Vaciar el registro</button></div>`
+   :`<p class="gfHint">${tr('Todavía no se ha enviado ningún aviso.')}</p>`}</div>`;
+ },
+ bind(){
+  document.querySelectorAll('[data-gf-alert-del]').forEach(b=>b.onclick=()=>
+   confirmAction('Eliminar el aviso','Si el vencimiento sigue vigente se volverá a avisar en la próxima comprobación.',
+    ()=>mutate('alert_delete',{id:b.dataset.gfAlertDel})));
+  if($('gfAlertClear'))$('gfAlertClear').onclick=()=>
+   confirmAction('Vaciar el registro de avisos',
+    'Se borran todos los avisos ya enviados. Lo que siga vencido se volverá a señalar en la próxima comprobación.',
+    ()=>mutate('alert_clear',{}));
  }
 };
 
@@ -502,6 +525,17 @@ function options(map,selected){
 function confirmAction(title,text,run){
  window.GamaSales.modal(GamaI18n?.t?.(title)||title,`<p>${tr(text)}</p>`,GamaI18n?.t?.('Confirmar')||'Confirmar',
   async()=>{await run();state.overview=null;await go()});
+}
+/* Archivar y borrar no son lo mismo, así que no comparten botón: la casilla
+   de borrado definitivo hay que marcarla a propósito. Lo que se borra no se
+   recupera, pero sí queda en la auditoría quién lo borró y cuándo. */
+function confirmDelete(title,text,purgeText,run){
+ window.GamaSales.modal(GamaI18n?.t?.(title)||title,
+  `<p>${tr(text)}</p>
+   <label class="gfField gfDanger" style="font-weight:600"><input type="checkbox" id="gfPurge"> ${tr(purgeText)}</label>
+   <p class="gfHint">${tr('Lo borrado no se recupera. La auditoría conserva quién lo borró y cuándo.')}</p>`,
+  GamaI18n?.t?.('Confirmar')||'Confirmar',
+  async el=>{await run(el.querySelector('#gfPurge').checked);state.overview=null;await go()});
 }
 function vehicleForm(v){
  const truck=v?.kind==='truck';

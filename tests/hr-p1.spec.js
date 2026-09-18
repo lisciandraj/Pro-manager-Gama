@@ -48,3 +48,53 @@ test('private document upload records version metadata and a scoped storage path
 test('token refresh preserves HR form, while sign-out clears private state',async({page})=>{
  await boot(page);await tab(page,'nomina');await page.fill('#hpPayrollRef','Unsaved reference');await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'TOKEN_REFRESHED',session:{user:{id:'admin'}}}})));await expect(page.locator('#hpPayrollRef')).toHaveValue('Unsaved reference');await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT',session:null}})));await expect(page.locator('#hpPayrollRef')).toHaveCount(0);expect(await page.evaluate(()=>GamaHRP1.isHR)).toBe(false);
 });
+
+test('HR follows driving licences on the same record Fleet alerts on',async({page})=>{
+ const soon=new Date(Date.now()+12*86400000).toISOString().slice(0,10);
+ await boot(page,'admin',{fleet_drivers:[
+  {id:'d1',employee_id:'e1',active:true,licence_number:'EC-1042335',licence_categories:['B'],
+   licence_expiry:soon,phone:'+593 99 100 2030',vehicles:['PCA-1023']},
+  {id:'d2',employee_id:null,active:true,licence_number:'EC-EXT-1'}]});
+ await tab(page,'documentos');
+ const hr=page.locator('#hr');
+ await expect(hr).toContainText('Permisos de conducir');
+ await expect(hr).toContainText('EC-1042335');
+ await expect(hr).toContainText('PCA-1023');
+ await expect(hr).toContainText('12 días restantes');
+ // Lo que caduca dentro del mes se marca; el conductor externo se cuenta aparte.
+ await expect(hr.locator('.hpSoon')).toHaveCount(1);
+ await expect(hr).toContainText('1 conductores externos');
+
+ // Elegir un empleado trae lo ya registrado, para corregir sin volver a teclear.
+ await expect(page.locator('#hpLicNumber')).toHaveValue('EC-1042335');
+ await expect(page.locator('[data-hp-cat][value="B"]')).toBeChecked();
+
+ // RRHH renueva el permiso: escribe en la misma ficha, no crea una segunda.
+ await page.fill('#hpLicExpiry','2030-01-01');
+ await page.locator('[data-hp-cat][value="C"]').check();
+ await page.locator('#hpLicSave').click();
+ await expect.poll(()=>page.evaluate(()=>window.__DB.fleet_drivers.length)).toBe(2);
+ expect(await page.evaluate(()=>window.__DB.fleet_drivers[0])).toMatchObject(
+  {id:'d1',employee_id:'e1',licence_expiry:'2030-01-01',licence_categories:['B','C']});
+});
+
+test('HR can register a licence for an employee who has no driver record yet',async({page})=>{
+ await boot(page,'admin');
+ await tab(page,'documentos');
+ await page.selectOption('#hpLicEmployee','e2');
+ await expect(page.locator('#hpLicNumber')).toHaveValue('');
+ await page.fill('#hpLicNumber','EC-7654321');
+ await page.fill('#hpLicExpiry','2029-06-30');
+ await page.locator('[data-hp-cat][value="B"]').check();
+ await page.locator('#hpLicSave').click();
+ await expect.poll(()=>page.evaluate(()=>window.__DB.fleet_drivers?.length)).toBe(1);
+ expect(await page.evaluate(()=>window.__DB.fleet_drivers[0])).toMatchObject(
+  {employee_id:'e2',licence_number:'EC-7654321',licence_categories:['B']});
+});
+
+test('a manager without HR rights never sees the licences',async({page})=>{
+ await boot(page,'manager',{fleet_drivers:[{id:'d1',employee_id:'e1',active:true,licence_number:'EC-1042335'}]});
+ await tab(page,'documentos');
+ await expect(page.locator('#hr')).not.toContainText('EC-1042335');
+ await expect(page.locator('#hpLicSave')).toHaveCount(0);
+});

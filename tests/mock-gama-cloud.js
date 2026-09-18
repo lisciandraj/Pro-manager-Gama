@@ -531,6 +531,28 @@
           const p=priv.find(r=>r.employee_id===id);if(p)Object.assign(p,args.p_private);else priv.push({employee_id:id,...args.p_private});
           return {data:id,error:null};
         }
+        if(fn==='gama_hr_licences'){
+          if(!hrIsAdmin())return {error:{message:'ROLE_NOT_ALLOWED'}};
+          const drivers=window.__DB.fleet_drivers=window.__DB.fleet_drivers||[];
+          const today=new Date().toISOString().slice(0,10);
+          if(args.p_action==='save'){
+            const d=args.p_data;let row=drivers.find(x=>x.employee_id===d.employee_id&&x.active!==false);
+            if(!row){row={id:nextId('fleet_drivers'),employee_id:d.employee_id,active:true};drivers.push(row)}
+            Object.assign(row,{licence_number:d.licence_number||null,licence_expiry:d.licence_expiry||null,
+              phone:d.phone||row.phone||null,
+              licence_categories:(d.licence_categories||[]).map(c=>String(c).toUpperCase())});
+            return {data:{driver_id:row.id,employee_id:d.employee_id}};
+          }
+          const days=v=>v?Math.round((Date.parse(v+'T12:00:00Z')-Date.parse(today+'T12:00:00Z'))/86400000):null;
+          return {data:{today,external:drivers.filter(d=>d.active!==false&&!d.employee_id).length,
+            rows:(window.__DB.hr_employees||[]).filter(e=>e.active!==false).map(e=>{
+              const d=drivers.find(x=>x.employee_id===e.id&&x.active!==false)||{};
+              return {employee_id:e.id,full_name:e.full_name,position:e.position||null,
+                department:e.department||null,driver_id:d.id||null,phone:d.phone||null,
+                licence_number:d.licence_number||null,licence_categories:d.licence_categories||[],
+                licence_expiry:d.licence_expiry||null,days_remaining:days(d.licence_expiry),
+                vehicles:d.vehicles||[]}})}};
+        }
         if(fn==='gama_quote_reservations')return {data:[]};
         if(fn==='gama_internal_invoice_action'){
           window.__internalCalls=window.__internalCalls||[];window.__internalCalls.push(args);

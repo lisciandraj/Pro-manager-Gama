@@ -276,6 +276,29 @@ begin
   or (r#>>'{documents,invoice,id}')::uuid<>inv or (r#>>'{documents,order,id}')::uuid<>oid
   or (r#>>'{documents,delivery,id}')::uuid<>sid
   then raise exception 'FAIL_DETAIL_DOCUMENTS';end if;
+ -- El abono y el reembolso llegan a Contabilidad por la misma vía que los
+ -- demás documentos, y repetir la sincronización no duplica el asiento.
+ execute 'reset role';
+ update public.accounting_periods set status='open'
+  where period_start=date_trunc('month',current_date)::date;
+ perform private.gama_accounting_sync(400);
+ if (select count(*) from public.accounting_entries where source_type='return_credit'
+      and source_id=credit_id)<>1 then raise exception 'FAIL_ACCOUNTING_CREDIT';end if;
+ if (select count(*) from public.accounting_entries e
+      join public.return_refunds f on f.id=e.source_id
+      where e.source_type='return_refund' and f.return_id=rid3)<>1
+  then raise exception 'FAIL_ACCOUNTING_REFUND';end if;
+ if exists(select 1 from public.accounting_entries e
+      where e.source_type in ('return_credit','supplier_credit','return_refund')
+        and coalesce((select sum(l.debit) from public.accounting_entry_lines l where l.entry_id=e.id),0)
+         <> coalesce((select sum(l.credit) from public.accounting_entry_lines l where l.entry_id=e.id),0))
+  then raise exception 'FAIL_ACCOUNTING_UNBALANCED';end if;
+ perform private.gama_accounting_sync(400);
+ if (select count(*) from public.accounting_entries where source_type='return_credit'
+      and source_id=credit_id)<>1 then raise exception 'FAIL_ACCOUNTING_DUPLICATED';end if;
+ execute 'set local role authenticated';
+ perform set_config('request.jwt.claim.sub',admin_id::text,true);
+
  -- Las cifras del §18 se calculan donde están los datos.
  r:=public.gama_returns_action('stats','{}');
  if (r->>'month_count')::int<1 or (r->>'month_value')::numeric<=0

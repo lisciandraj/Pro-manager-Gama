@@ -98,6 +98,24 @@ tarifa haya cambiado desde entonces.
 Ninguna de las cuatro acciones es obligatoria: un producto al rebut puede
 acabar reembolsado y una devolución comercial puede no mover un céntimo.
 
+## Y Contabilidad
+
+El abono y el reembolso no se quedan en el módulo: llegan a Contabilidad por
+donde llegan los demás documentos —`gama_accounting_sync` los recoge y
+`gama_accounting_post` los convierte en asiento—, sin motor nuevo ni pantalla
+nueva.
+
+| Documento | Diario | Asiento |
+|---|---|---|
+| Abono al cliente | VTA | debe ventas + impuesto recaudado, haber clientes |
+| Abono del proveedor | CMP | debe proveedores, haber compras + impuesto deducible |
+| Reembolso al cliente | BAN o CAJ | debe clientes, haber banco o caja |
+
+El impuesto no se guarda en el abono: se reparte con la proporción de las
+líneas de la devolución, así que un importe ajustado a mano sigue cuadrando.
+Como el resto, sólo se contabiliza si el periodo está abierto, y volver a
+sincronizar no duplica nada.
+
 ## Documentos ligados
 
 La ficha enseña el pedido, la entrega, la factura, el pedido de compra, la
@@ -195,6 +213,8 @@ lo que es: la devolución por un lado y un pedido nuevo por el otro.
   expediente, la pista de auditoría, la anulación y el borrado.
   Cargar antes `tests/sql/fulfillment-test-helpers.sql` en la misma
   transacción.
+  Comprueba además que el abono y el reembolso llegan a Contabilidad cuadrados
+  y sin duplicarse.
 - `tests/returns.spec.js` — la pantalla: los cuatro indicadores y la tabla del
   pliego, las dos pestañas, la creación en tres pasos sin doble captura, la
   decisión sobre el producto, el tope del reembolso, los botones de cada

@@ -143,7 +143,7 @@ async function saveEmployee(){
  };
  busy=true;
  try{
-  const r=awaitwindow.ArcData.rawRpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
+  const r=await window.ArcData.rawRpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
   if(r.error)throw r.error;
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();

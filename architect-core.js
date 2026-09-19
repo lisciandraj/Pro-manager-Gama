@@ -1245,6 +1245,14 @@
   function allowed(id) {
     return id === "mainmenu" || (!window.gamaAccessAllowed ? false : window.gamaAccessAllowed(id === "gama-tms-section" ? "tms" : id));
   }
+  function refuse(id) {
+    var _a, _b, _c, _d;
+    if (window.gamaAccessAllowed) {
+      const message = ((_a = window.GamaModules) == null ? void 0 : _a.enabled(id)) === false ? "Este módulo está desactivado en Configuración." : "Acceso denegado para este perfil.";
+      (_d = window.gamaToast) == null ? void 0 : _d.call(window, ((_c = (_b = window.GamaI18n) == null ? void 0 : _b.t) == null ? void 0 : _c.call(_b, message)) || message);
+    }
+    return false;
+  }
   function onEnter(id, fn) {
     const key = canonical(id);
     if (!hooks.has(key)) hooks.set(key, /* @__PURE__ */ new Set());
@@ -1257,7 +1265,7 @@
   function show(id, button2) {
     var _a, _b, _c;
     id = canonical(id);
-    if (!allowed(id)) return false;
+    if (!allowed(id)) return refuse(id);
     if (id === "customer-requests") {
       (_a = window.GamaQuotes) == null ? void 0 : _a.openRequests();
       return false;
@@ -1288,7 +1296,7 @@
   }
   function open(id) {
     id = canonical(id);
-    if (!allowed(id)) return false;
+    if (!allowed(id)) return refuse(id);
     const definition = registry.find((m) => m.id === id);
     if (definition == null ? void 0 : definition.open) return definition.open();
     return show(id);
@@ -1410,6 +1418,13 @@
     ]
   };
   function directory(entity, filter = "") {
+    var _a, _b;
+    const moduleId = entity === "customers" ? "clients" : entity;
+    if (!((_a = window.gamaAccessAllowed) == null ? void 0 : _a.call(window, moduleId))) {
+      (_b = views.get(entity)) == null ? void 0 : _b.dispose();
+      views.delete(entity);
+      return;
+    }
     const key = entity === "customers" ? "clients" : entity, host = $(key === "clients" ? "clientsTable" : "productsTable");
     if (!host) return;
     const prior = views.get(entity);
@@ -1437,8 +1452,8 @@
       if (row) entity === "products" ? window.deleteProduct(row.barcode) : window.deleteClient(row.taxId);
     }, "data-restore": (id) => entity === "products" ? window.restoreProduct(id) : window.restoreClient(id), "data-delete": (id) => entity === "products" ? window.purgeProduct(id) : window.purgeClient(id) } });
     const onChange = (e) => {
-      var _a;
-      if (((_a = e.detail) == null ? void 0 : _a.table) === entity) grid.refresh();
+      var _a2;
+      if (((_a2 = e.detail) == null ? void 0 : _a2.table) === entity) grid.refresh();
     };
     window.addEventListener("gama:data-change", onChange);
     const view = { host, refresh(search) {

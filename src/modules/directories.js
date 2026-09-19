@@ -53,6 +53,8 @@ const directoryColumns={
   {label:'Acciones',actions:true,html:c=>c.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(c.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(c.id)+'"'})}]
 };
 export function directory(entity,filter='') {
+  const moduleId=entity==='customers'?'clients':entity;
+  if(!window.gamaAccessAllowed?.(moduleId)){views.get(entity)?.dispose();views.delete(entity);return;}
   const key=entity==='customers'?'clients':entity,host=$(key==='clients'?'clientsTable':'productsTable');if(!host)return;
   const prior=views.get(entity);
   if(prior?.host===host&&host.firstElementChild){prior.refresh(filter);return;}

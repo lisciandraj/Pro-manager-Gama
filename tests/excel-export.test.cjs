@@ -12,7 +12,7 @@ test('all business tables map to a module; paginated export preserves text and a
   fleet_vehicles:[{id:'v',plate:'TCA-9001',brand:'Mercedes-Benz',odometer:164300}],
   expenses:[{id:'e',reference:'GA-00000001',amount_total:55}]}});
  for(const s of x.context.GamaExportSchema)assert.ok(x.context.GamaExcelExport.group(s.table)>=0);
- await x.context.GamaExcelExport.run();assert.equal(x.downloads.length,1);const w=x.downloads[0].w;assert.equal(w.SheetNames.length,25);assert.ok(w.Sheets.Projets);
+ await x.context.GamaExcelExport.run();assert.equal(x.downloads.length,1);const w=x.downloads[0].w;assert.equal(w.SheetNames.length,27);assert.ok(w.Sheets.Projets);assert.ok(w.Sheets.SAV);assert.ok(w.Sheets.Documents);
  assert.ok(w.Sheets.Flotte.rows.some(r=>r.includes('TCA-9001')&&r.includes(164300)));
  assert.ok(w.Sheets['Comptabilité'].rows.some(r=>r.includes('GA-00000001')&&r.includes(55)));const p=w.Sheets.Produits.rows;assert.equal(p.length,1204);assert.equal(p[2][p[1].indexOf('barcode')],'0000');assert.equal(p[2][p[1].indexOf('name')],'=SUM(1,2)');assert.equal(p[2][p[1].indexOf('sale_price')],12.5);assert.equal(p[1202][p[1].indexOf('id')],'1200');
  const k=w.Sheets.Knowledge.rows,body=k[1].flatMap((h,i)=>h.startsWith('body')?[k[2][i]]:[]).join('');assert.equal(body,'é'.repeat(70000));assert.ok(k[2].some(v=>typeof v==='string'&&v.includes('Jimmy')));

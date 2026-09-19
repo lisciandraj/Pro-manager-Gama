@@ -902,6 +902,12 @@
       "name": "custom_access_profiles",
       "file": "20260919211424_custom_access_profiles.sql",
       "sha256": "192ba10d8fa3324bd798d820e0c2286f70485ab621d4ecd68ab513958857085f"
+    },
+    {
+      "version": "20260919221254",
+      "name": "service_and_documents",
+      "file": "20260919221254_service_and_documents.sql",
+      "sha256": "0b108c27d25a3205cacacd0a349efeb6bfe048d9ae1b852e2580d907784c915c"
     }
   ],
   "legacy": [

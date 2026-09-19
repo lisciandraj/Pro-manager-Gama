@@ -1,4 +1,6 @@
 export const icons={
+headset:'<path d="M4 14V11a8 8 0 0 1 16 0v6a4 4 0 0 1-4 4h-4"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/>',
+documents:'<path d="M8 2h8l5 5v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM16 2v6h5M10 12h7M10 16h7M3 5v14"/>',
 car:'<path d="m5 10 2-5h10l2 5M5 10h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2ZM5 17v3M19 17v3M6 13h2M16 13h2"/>',
 sparkles:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4M18 4h4M3 18v4M1 20h4"/>',
 

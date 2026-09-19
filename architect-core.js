@@ -311,6 +311,8 @@
     toolbar
   }, Symbol.toStringTag, { value: "Module" }));
   const icons = {
+    headset: '<path d="M4 14V11a8 8 0 0 1 16 0v6a4 4 0 0 1-4 4h-4"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/>',
+    documents: '<path d="M8 2h8l5 5v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM16 2v6h5M10 12h7M10 16h7M3 5v14"/>',
     car: '<path d="m5 10 2-5h10l2 5M5 10h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2ZM5 17v3M19 17v3M6 13h2M16 13h2"/>',
     sparkles: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4M18 4h4M3 18v4M1 20h4"/>',
     ledger: '<path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V3Z"/><path d="M5 7H3m2 5H3m2 5H3"/><path d="M9 8h6M9 12h6M9 16h3"/>',
@@ -523,6 +525,8 @@
     startDataEvents
   }, Symbol.toStringTag, { value: "Module" }));
   const definitions = [
+    { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "orange", order: 7.1, menu: true, roles: ["admin", "commercial"] },
+    { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial"] },
     {
       "id": "tms",
       "label": "Entregas / TMS",
@@ -1133,49 +1137,55 @@
     } else if (window.GamaExcelImport) window.GamaExcelImport.render();
   }
   function openLegacy(x) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
     if (window.gamaAccessAllowed && !window.gamaAccessAllowed(x[1])) return;
+    if (x[1] === "sav") {
+      return (_a = window.GamaService) == null ? void 0 : _a.open();
+    }
+    if (x[1] === "documents") {
+      return (_b = window.GamaDocuments) == null ? void 0 : _b.open();
+    }
     if (x[1] === "tms") {
-      return (_a = window.gamaTMS) == null ? void 0 : _a.open("planning");
+      return (_c = window.gamaTMS) == null ? void 0 : _c.open("planning");
     }
     if (x[1] === "accounting") {
-      return (_b = window.GamaAccounting) == null ? void 0 : _b.open();
+      return (_d = window.GamaAccounting) == null ? void 0 : _d.open();
     }
     if (x[1] === "fleet") {
-      return (_c = window.GamaFleet) == null ? void 0 : _c.open();
+      return (_e = window.GamaFleet) == null ? void 0 : _e.open();
     }
     if (x[1] === "returns") {
-      return (_d = window.GamaReturns) == null ? void 0 : _d.open();
+      return (_f = window.GamaReturns) == null ? void 0 : _f.open();
     }
     if (x[1] === "projects") {
-      return (_e = window.GamaProjects) == null ? void 0 : _e.open();
+      return (_g = window.GamaProjects) == null ? void 0 : _g.open();
     }
     if (x[1] === "assistant-ia") {
-      return (_f = window.GamaAssistant) == null ? void 0 : _f.open();
+      return (_h = window.GamaAssistant) == null ? void 0 : _h.open();
     }
     if (x[1] === "knowledge") {
-      return (_g = window.GamaKnowledge) == null ? void 0 : _g.open();
+      return (_i = window.GamaKnowledge) == null ? void 0 : _i.open();
     }
     if (x[1] === "payments") {
-      return (_h = window.GamaPayments) == null ? void 0 : _h.open();
+      return (_j = window.GamaPayments) == null ? void 0 : _j.open();
     }
     if (x[1] === "order-preparation") {
-      return (_i = window.GamaPreparation) == null ? void 0 : _i.open();
+      return (_k = window.GamaPreparation) == null ? void 0 : _k.open();
     }
     if (x[1] === "dossier-flow") {
-      return (_j = window.GamaDossierFlow) == null ? void 0 : _j.open();
+      return (_l = window.GamaDossierFlow) == null ? void 0 : _l.open();
     }
     if (["operations", "notifications"].includes(x[1])) {
-      return (_k = window.GamaOperations) == null ? void 0 : _k.open(x[1]);
+      return (_m = window.GamaOperations) == null ? void 0 : _m.open(x[1]);
     }
     if (x[1] === "quotes") {
-      return (_l = window.GamaQuotes) == null ? void 0 : _l.open();
+      return (_n = window.GamaQuotes) == null ? void 0 : _n.open();
     }
     if (x[1] === "client-deliveries") {
-      return (_m = window.GamaQuotes) == null ? void 0 : _m.deliveries();
+      return (_o = window.GamaQuotes) == null ? void 0 : _o.deliveries();
     }
     if (x[1] === "sales-orders") {
-      return (_n = window.GamaSales) == null ? void 0 : _n.open();
+      return (_p = window.GamaSales) == null ? void 0 : _p.open();
     }
     if (window.GamaModules && !window.GamaModules.enabled(x[1])) {
       alert("Este módulo está desactivado en Configuración.");
@@ -1196,39 +1206,39 @@
     }
     if (x[1] === "crm") {
       if (window.showTab) window.showTab("crm", null);
-      (_o = window.GamaOpenCRM) == null ? void 0 : _o.call(window);
+      (_q = window.GamaOpenCRM) == null ? void 0 : _q.call(window);
       return;
     }
     if (x[1] === "price-lists") {
       if (window.showTab) window.showTab("price-lists", null);
-      (_p = window.GamaOpenPriceLists) == null ? void 0 : _p.call(window);
+      (_r = window.GamaOpenPriceLists) == null ? void 0 : _r.call(window);
       return;
     }
     if (x[1] === "client-catalog") {
       if (window.showTab) window.showTab("client-catalog", null);
-      (_q = window.GamaOpenClientCatalog) == null ? void 0 : _q.call(window);
+      (_s = window.GamaOpenClientCatalog) == null ? void 0 : _s.call(window);
       return;
     }
     if (x[1] === "customer-requests") {
       if (window.showTab) window.showTab("customer-requests", null);
-      (_r = window.GamaOpenCustomerRequests) == null ? void 0 : _r.call(window);
+      (_t = window.GamaOpenCustomerRequests) == null ? void 0 : _t.call(window);
       return;
     }
     if (x[1] === "warehouses") {
       if (window.showTab) window.showTab("warehouses", null);
-      (_s = window.GamaOpenWarehouses) == null ? void 0 : _s.call(window);
+      (_u = window.GamaOpenWarehouses) == null ? void 0 : _u.call(window);
       return;
     }
     if (x[1] === "hr") {
-      (_t = window.GamaOpenHR) == null ? void 0 : _t.call(window);
+      (_v = window.GamaOpenHR) == null ? void 0 : _v.call(window);
       return;
     }
     if (x[1] === "access-settings") {
-      (_u = window.GamaOpenAccessSettings) == null ? void 0 : _u.call(window);
+      (_w = window.GamaOpenAccessSettings) == null ? void 0 : _w.call(window);
       return;
     }
     if (x[1] === "settings") {
-      (_v = window.GamaOpenSettings) == null ? void 0 : _v.call(window);
+      (_x = window.GamaOpenSettings) == null ? void 0 : _x.call(window);
       return;
     }
     if (window.showTab) window.showTab(x[1], null);
@@ -1471,6 +1481,8 @@
   }
   const pending = /* @__PURE__ */ new Map();
   const lazyModules = {
+    sav: { global: "GamaService", file: "gama-service-documents.js", methods: ["open", "openTicket"] },
+    documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },
     accounting: { global: "GamaAccounting", file: "gama-accounting.js", methods: ["open", "rpc"] },
     fleet: { global: "GamaFleet", file: "gama-fleet.js", methods: ["open", "openVehicle", "openDriver", "rpc"] },
     returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "rpc"] }

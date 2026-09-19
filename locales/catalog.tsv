@@ -2364,3 +2364,70 @@ Crear el perfil	Créer le profil	Create profile
 Perfil creado. Personaliza sus módulos y asígnalo en Usuarios.	Profil créé. Personnalise ses modules et attribue-le dans Utilisateurs.	Profile created. Customize its modules and assign it in Users.
 Ya existe un perfil con este nombre.	Un profil porte déjà ce nom.	A profile with this name already exists.
 No se pudo crear el perfil. Reintenta.	Impossible de créer le profil. Réessaie.	Could not create the profile. Try again.
+Servicio posventa	SAV et réclamations	After-sales support
+Reclamaciones, garantías y seguimiento	Réclamations, garanties et suivi	Claims, warranties and follow-up
+Archivos, contratos y versiones	Fichiers, contrats et versions	Files, contracts and versions
+Resuelve las reclamaciones de tus clientes, con un seguimiento claro.	Traitez les réclamations clients avec un suivi clair.	Resolve customer claims with clear follow-up.
+Archivos de la empresa, clasificados y vinculados a tus operaciones.	Les fichiers de l’entreprise, classés et reliés à vos opérations.	Company files, organized and linked to your operations.
+Nueva	Nouvelle	New
+En espera	En attente	Waiting
+Resuelta	Résolue	Resolved
+Archivadas	Archivées	Archived
+Activos	Actifs	Active
+Vencen en 30 días	Échéance dans 30 jours	Due within 30 days
+Vencidos	Expirés	Expired
+Archivados	Archivés	Archived
+Buscar por asunto	Rechercher par objet	Search by subject
+Buscar por título	Rechercher par titre	Search by title
+Carpeta	Dossier de classement	Folder
+Todas las carpetas	Tous les dossiers	All folders
+Nueva reclamación	Nouvelle réclamation	New claim
+Volver a la reclamación	Retour à la réclamation	Back to claim
+Todos los documentos	Tous les documents	All documents
+resultados	résultats	results
+Reclamación	Réclamation	Claim
+Fecha límite	Date limite	Due date
+Vinculado a	Rattaché à	Linked to
+Equipo	Équipe	Team
+No hay resultados. Crea un registro o cambia los filtros.	Aucun résultat. Créez un élément ou changez les filtres.	No results. Create an item or change the filters.
+Solución	Solution	Resolution
+Documentos y fotos	Documents et photos	Documents and photos
+documentos vinculados	documents rattachés	linked documents
+Ver documentos	Voir les documents	View documents
+Seguimiento interno	Suivi interne	Internal follow-up
+Las notas son internas; no se envían al cliente.	Les notes sont internes ; elles ne sont pas envoyées au client.	Notes are internal; they are not sent to the customer.
+Añadir una nota	Ajouter une note	Add a note
+Guardar nota	Enregistrer la note	Save note
+Reclamación creada	Réclamation créée	Claim created
+Reclamación actualizada	Réclamation mise à jour	Claim updated
+Ver reclamación	Voir la réclamation	View claim
+Versiones del archivo	Versions du fichier	File versions
+Cada nuevo archivo conserva las versiones anteriores.	Chaque nouveau fichier conserve les versions précédentes.	Each new file preserves previous versions.
+Añadir una versión	Ajouter une version	Add a version
+Escribe una nota.	Saisissez une note.	Enter a note.
+Modificar reclamación	Modifier la réclamation	Edit claim
+Obligatoria para resolver o cerrar la reclamación.	Obligatoire pour résoudre ou clôturer la réclamation.	Required to resolve or close the claim.
+Escribe la solución antes de resolver o cerrar.	Saisissez la solution avant de résoudre ou de clôturer.	Enter the resolution before resolving or closing.
+PDF, imágenes, Word, Excel o texto. Máximo 20 MB.	PDF, images, Word, Excel ou texte. Maximum 20 Mo.	PDF, images, Word, Excel or text. Maximum 20 MB.
+Modificar documento	Modifier le document	Edit document
+Selecciona un archivo de hasta 20 MB.	Sélectionnez un fichier de 20 Mo maximum.	Select a file up to 20 MB.
+Formato de archivo no permitido.	Format de fichier non autorisé.	File format not allowed.
+¿Restaurar este registro?	Restaurer cet élément ?	Restore this item?
+El registro se conservará en los archivos. ¿Continuar?	L’élément restera consultable dans les archives. Continuer ?	The item will remain available in the archives. Continue?
+Este registro ha cambiado. Actualiza antes de guardar.	Cet élément a été modifié. Actualisez avant d’enregistrer.	This item has changed. Refresh before saving.
+El pedido debe pertenecer al cliente seleccionado.	La commande doit appartenir au client sélectionné.	The order must belong to the selected customer.
+El documento debe corresponder al cliente de la reclamación.	Le document doit correspondre au client de la réclamation.	The document must match the claim customer.
+Selecciona un responsable activo.	Sélectionnez un responsable actif.	Select an active assignee.
+El archivo no se ha subido. Vuelve a intentarlo.	Le fichier n’a pas été chargé. Réessayez.	The file was not uploaded. Try again.
+Selecciona un archivo.	Sélectionnez un fichier.	Select a file.
+Documento no disponible.	Document indisponible.	Document unavailable.
+Reclamación no disponible.	Réclamation indisponible.	Claim unavailable.
+Revisa los campos obligatorios y la solución antes de cerrar.	Vérifiez les champs obligatoires et la solution avant de clôturer.	Check the required fields and resolution before closing.
+Tipo de reclamación	Type de réclamation	Claim type
+Garantía	Garantie	Warranty
+Garantía hasta	Garantie jusqu’au	Warranty until
+Acceso al documento	Accès au document	Document access
+Solo dirección	Direction uniquement	Management only
+Contratos	Contrats	Contracts
+Documentación técnica	Documentation technique	Technical documents
+No se puede cambiar este vínculo porque existen documentos asociados.	Ce lien ne peut pas être modifié : des documents y sont rattachés.	This link cannot be changed because documents are attached.

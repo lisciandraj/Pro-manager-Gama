@@ -25,7 +25,9 @@ const groups=[
  ['Facturation SRI','Facturación SRI','SRI invoicing',[]],
  ['Projets','Proyectos','Projects',['pm_projects','pm_items','pm_members','pm_templates','pm_comments','pm_files','pm_links']],
  ['Comptabilité','Contabilidad','Accounting',['accounting_accounts','accounting_journals','accounting_entries','accounting_entry_lines','accounting_periods','accounting_permissions','accounting_taxes','financial_accounts','bank_transactions','reconciliations','expenses','expense_categories','expense_receipts','supplier_invoices','supplier_invoice_payments']],
- ['Flotte','Flota','Fleet',[]]
+ ['Flotte','Flota','Fleet',[]],
+ ['SAV','Servicio posventa','After-sales',['service_tickets','service_messages','service_events']],
+ ['Documents','Documentos','Documents',['business_documents','business_document_files']]
 ];
 const prefixes={crm_:6,fulfillment_:8,stock_:12,inventory_:12,tms_:14,return_:15,hr_:16,sri_:20,fleet_:23};
 function group(t){const i=groups.findIndex(g=>g[3].includes(t));if(i>=0)return i;for(const [p,n]of Object.entries(prefixes))if(t.startsWith(p))return n;throw Error('Unmapped export table: '+t)}

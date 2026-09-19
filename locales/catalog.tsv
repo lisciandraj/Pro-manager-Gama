@@ -1014,7 +1014,7 @@ Alertas accionables y seguimiento de cada etapa.	Alertes avec actions et suivi d
 Ver indicadores	Voir les indicateurs	View KPIs
 Ver notificaciones	Voir les notifications	View notifications
 Pedidos confirmados	Commandes confirmées	Confirmed orders
-Creados en el periodo	Créées sur la période	Created in the period
+Creados en el periodo	Créées dans la période	Created in the period
 Fecha de salida de stock	Date de sortie du stock	Stock dispatch date
 Entregas completadas	Livraisons effectuées	Completed deliveries
 Fecha de entrega real	Date réelle de livraison	Actual delivery date
@@ -2431,3 +2431,107 @@ Solo dirección	Direction uniquement	Management only
 Contratos	Contrats	Contracts
 Documentación técnica	Documentation technique	Technical documents
 No se puede cambiar este vínculo porque existen documentos asociados.	Ce lien ne peut pas être modifié : des documents y sont rattachés.	This link cannot be changed because documents are attached.
+Los números clave, las prioridades y una visión de toda la empresa.	Les chiffres essentiels, les priorités et une vue de toute l’entreprise.	Key figures, priorities and a view of the whole company.
+Ventas y cobros	Ventes et encaissements	Sales and collections
+Facturado sin impuestos	Facturé HT	Invoiced before tax
+Cobros confirmados	Encaissements confirmés	Confirmed collections
+Cobros vencidos	Créances échues	Overdue receivables
+Pedidos de clientes	Commandes clients	Customer orders
+Pedidos por expedir	Commandes à expédier	Orders to dispatch
+Presupuestos por responder	Devis en attente de réponse	Quotes awaiting reply
+Presupuestos aceptados	Devis acceptés	Accepted quotes
+Oportunidades abiertas	Opportunités ouvertes	Open opportunities
+Oportunidades en curso	Opportunités en cours	Ongoing opportunities
+Actividades atrasadas	Activités en retard	Overdue activities
+Referencias sin disponibilidad	Références sans stock disponible	Items with no available stock
+Bajo el mínimo de stock	Sous le stock minimum	Below minimum stock
+Pedidos por recibir	Commandes à recevoir	Orders awaiting receipt
+Pedidos de compra	Commandes d’achat	Purchase orders
+Entregas pendientes	Livraisons en attente	Pending deliveries
+Entregas realizadas	Livraisons effectuées	Completed deliveries
+Vehículos activos	Véhicules actifs	Active vehicles
+Documentos vencidos o próximos	Documents échus ou à échéance proche	Expired or soon expiring documents
+Proyectos atrasados	Projets en retard	Late projects
+Tareas atrasadas	Tâches en retard	Overdue tasks
+Personas ausentes hoy	Personnes absentes aujourd’hui	People absent today
+Ausencias por aprobar	Absences à approuver	Absences to approve
+Reclamaciones abiertas	Réclamations ouvertes	Open claims
+Reclamaciones atrasadas	Réclamations en retard	Overdue claims
+Reclamaciones resueltas	Réclamations résolues	Resolved claims
+Devoluciones por cerrar	Retours à clôturer	Returns to close
+Devoluciones creadas	Retours créés	Returns created
+Documentos activos	Documents actifs	Active documents
+Documentos vencidos	Documents échus	Expired documents
+Artículos disponibles	Articles disponibles	Available articles
+Artículos actualizados	Articles mis à jour	Updated articles
+Nuevos clientes	Nouveaux clients	New customers
+Relanzar los cobros vencidos	Relancer les impayés	Follow up overdue payments
+Resolver las entregas atrasadas	Résoudre les retards de livraison	Resolve late deliveries
+Revisar las referencias sin disponibilidad	Vérifier les références sans stock	Review items with no available stock
+Atender las reclamaciones atrasadas	Traiter les réclamations en retard	Handle overdue claims
+Revisar los pagos a proveedores	Vérifier les paiements fournisseurs	Review supplier payments
+Desbloquear las tareas atrasadas	Débloquer les tâches en retard	Unblock overdue tasks
+Renovar los documentos vencidos	Renouveler les documents échus	Renew expired documents
+Relanzar las recepciones atrasadas	Relancer les réceptions en retard	Follow up late receipts
+Revisar los documentos de los vehículos	Vérifier les documents des véhicules	Review vehicle documents
+Realizar las actividades comerciales	Effectuer les relances commerciales	Complete sales follow-ups
+Preparar los pedidos pendientes	Préparer les commandes en attente	Prepare pending orders
+Dar seguimiento a los presupuestos	Relancer les devis	Follow up quotes
+Asignar un responsable SAV	Attribuer un responsable SAV	Assign a service owner
+Revisar las solicitudes de ausencia	Examiner les demandes d’absence	Review absence requests
+Anticipar los vencimientos documentales	Anticiper les échéances documentaires	Prepare for document expiries
+Tratar las devoluciones abiertas	Traiter les retours ouverts	Handle open returns
+Periodo de análisis	Période d’analyse	Analysis period
+Este mes	Ce mois-ci	This month
+Mes anterior	Mois précédent	Previous month
+Últimos 30 días	30 derniers jours	Last 30 days
+Este año	Cette année	This year
+Elige un periodo válido de hasta dos años, sin fechas futuras.	Choisissez une période valide de deux ans maximum, sans dates futures.	Choose a valid period of up to two years, with no future dates.
+Comparación no disponible	Comparaison indisponible	Comparison unavailable
+Sin variación	Sans variation	No change
+Sin base de comparación	Pas de base de comparaison	No comparison baseline
+periodo anterior	période précédente	previous period
+Antes de abonos · periodo	Avant avoirs · période	Before credit notes · period
+Impuestos incluidos · periodo	TTC · période	Tax included · period
+Saldo de facturas · hoy	Solde des factures · aujourd’hui	Invoice balance · today
+Stock disponible · hoy	Stock disponible · aujourd’hui	Available stock · today
+Situación actual	Situation actuelle	Current position
+Comparación	Comparaison	Comparison
+Datos parciales. Fuentes no disponibles:	Données partielles. Sources indisponibles :	Partial data. Unavailable sources:
+Actualiza para reintentar.	Actualisez pour réessayer.	Refresh to try again.
+Prioridades de hoy	Priorités du jour	Today’s priorities
+Los pendientes actuales no cambian con el periodo de análisis.	Les éléments à traiter restent ceux d’aujourd’hui, quelle que soit la période d’analyse.	Current pending items do not change with the analysis period.
+No hay alertas en los datos disponibles.	Aucune alerte dans les données disponibles.	No alerts in the available data.
+No hay prioridades detectadas en los módulos disponibles.	Aucune priorité détectée dans les modules disponibles.	No priorities detected in the available modules.
+Ver todas las prioridades	Voir toutes les priorités	View all priorities
+La empresa por actividad	L’entreprise par activité	The company by activity
+Situación actual. Los valores marcados «Periodo» siguen las fechas seleccionadas.	Situation actuelle. Les valeurs marquées « Période » suivent les dates sélectionnées.	Current position. Values marked “Period” follow the selected dates.
+fuentes conectadas	sources connectées	connected sources
+Datos no disponibles	Données indisponibles	Data unavailable
+Abrir módulo	Ouvrir le module	Open module
+Cómo leer estos indicadores	Comment lire ces indicateurs	How to read these indicators
+La facturación incluye las facturas internas y externas válidas una sola vez, antes de abonos. Los cobros incluyen solo pagos confirmados. El pendiente de cobro descuenta pagos y abonos.	La facturation compte une seule fois les factures internes et externes valides, avant avoirs. Les encaissements incluent uniquement les paiements confirmés. Le reste à encaisser déduit les paiements et les avoirs.	Invoicing counts valid internal and external invoices once, before credit notes. Collections include confirmed payments only. Receivables deduct payments and credit notes.
+Las fechas siguen la zona horaria de la empresa: Ecuador. La comparación usa el intervalo anterior con el mismo número de días.	Les dates suivent le fuseau horaire de l’entreprise : Équateur. La comparaison utilise l’intervalle précédent de même durée.	Dates follow the company time zone: Ecuador. The comparison uses the previous interval of the same length.
+Los saldos, retrasos y existencias son actuales; no reconstruyen una situación histórica. Solo se muestran los datos permitidos por tu perfil.	Les soldes, retards et stocks reflètent la situation actuelle ; ils ne reconstituent pas une situation passée. Seules les données autorisées pour votre profil sont affichées.	Balances, delays and stock reflect the current position; they do not reconstruct a historical position. Only data allowed for your profile is shown.
+Los módulos de configuración y las herramientas de apoyo no generan indicadores adicionales.	Les modules de configuration et les outils d’appui ne génèrent pas d’indicateurs supplémentaires.	Configuration modules and support tools do not generate additional indicators.
+Evolución de facturas y cobros	Évolution des factures et encaissements	Invoice and collection trends
+Impuestos incluidos. Los importes exactos están en la tabla de datos.	TTC. Les montants exacts figurent dans le tableau de données.	Tax included. Exact amounts are in the data table.
+No hay facturas ni cobros en este periodo.	Aucune facture ni aucun encaissement sur cette période.	No invoices or collections in this period.
+Facturación y cobros	Facturation et encaissements	Invoicing and collections
+Impuestos incluidos · periodo seleccionado	TTC · période sélectionnée	Tax included · selected period
+Ver los datos del gráfico	Voir les données du graphique	View chart data
+Principales clientes	Principaux clients	Top customers
+Facturado sin impuestos · periodo seleccionado	Facturé HT · période sélectionnée	Invoiced before tax · selected period
+Sin facturas en este periodo.	Aucune facture sur cette période.	No invoices in this period.
+Ver facturas y cobros	Voir les factures et encaissements	View invoices and collections
+Tesorería y compromisos	Trésorerie et engagements	Cash and commitments
+Saldos actuales y gastos registrados en el periodo.	Soldes actuels et dépenses enregistrées sur la période.	Current balances and expenses recorded in the period.
+Abrir contabilidad	Ouvrir la comptabilité	Open accounting
+Saldo registrado de las cuentas	Solde enregistré des comptes	Recorded account balance
+Por moneda · no es un saldo bancario conciliado	Par devise · solde bancaire non rapproché	By currency · not a reconciled bank balance
+Pendiente de pago a proveedores	Reste à payer aux fournisseurs	Outstanding supplier payments
+Gastos contabilizados	Dépenses comptabilisées	Posted expenses
+El saldo registrado recoge saldos iniciales, cobros, pagos y gastos asignados a cuentas. Los reembolsos sin cuenta asociada no están incluidos. No equivale al beneficio.	Le solde enregistré reprend les soldes initiaux, encaissements, paiements et dépenses affectés à des comptes. Les remboursements sans compte associé sont exclus. Il ne représente pas le bénéfice.	The recorded balance includes opening balances, collections, payments and expenses assigned to accounts. Refunds without an assigned account are excluded. It does not represent profit.
+No se ha podido abrir el módulo. Vuelve a intentarlo.	Impossible d’ouvrir le module. Réessayez.	Could not open the module. Try again.
+Cargando los datos de la empresa…	Chargement des données de l’entreprise…	Loading company data…
+No se han podido cargar los indicadores. Actualiza para reintentar.	Impossible de charger les indicateurs. Actualisez pour réessayer.	Could not load the indicators. Refresh to try again.

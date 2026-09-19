@@ -908,6 +908,12 @@
       "name": "service_and_documents",
       "file": "20260919221254_service_and_documents.sql",
       "sha256": "0b108c27d25a3205cacacd0a349efeb6bfe048d9ae1b852e2580d907784c915c"
+    },
+    {
+      "version": "20260919225245",
+      "name": "company_dashboard",
+      "file": "20260919225245_company_dashboard.sql",
+      "sha256": "d023f02bbac5fa9e048a2276a4c5ce443e47d75d4d298c859a5e9ecb7e543a6f"
     }
   ],
   "legacy": [

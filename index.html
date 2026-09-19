@@ -14,9 +14,9 @@
 <link rel="apple-touch-icon" href="architect-app-icon.png?v=20260919-brand2">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=8569e8e1fb8b"></script>
+<script src="gama-i18n-catalog.js?v=48e0a588117e"></script>
 <script src="gama-i18n.js?v=9adc7e08b652"></script>
-<script src="architect-assets.js?v=99383e44f512"></script>
+<script src="architect-assets.js?v=da60f7fb2972"></script>
 <script src="architect-core.js?v=cc5efed05c1f"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=23a8e1087e3f"></script>
@@ -39,7 +39,7 @@
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=cc2cf3b75cb1">
-<link rel="stylesheet" href="architect-components.css?v=af480e6b3ad1">
+<link rel="stylesheet" href="architect-components.css?v=acde47ab743e">
 <link rel="stylesheet" href="architect-ui.css?v=d15aaf54b8be">
 <link rel="stylesheet" href="architect-shell.css?v=6d599b3978fb">
 <link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
@@ -76,11 +76,7 @@
 <button data-gama-module="movement" class="arcButton tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
 </div>
 
-<section id="dashboard">
-<div class="dashHead"><div class="dashFilters"><select id="dashYear" onchange="renderDashboard()"></select><select id="dashMonth" onchange="renderDashboard()" data-gama-nofind><option value="all" data-gi=3af316a4b67a>Todo el año</option><option value="0" data-gi=d36ba781bfdd>Enero</option><option value="1" data-gi=25a612adc547>Febrero</option><option value="2" data-gi=8b1d194c2543>Marzo</option><option value="3" data-gi=d615fbe83c7e>Abril</option><option value="4" data-gi=af574f892f5d>Mayo</option><option value="5" data-gi=344f004fc02c>Junio</option><option value="6" data-gi=da53a96cecab>Julio</option><option value="7" data-gi=78da66c31af8>Agosto</option><option value="8" data-gi=719d2ef70894>Septiembre</option><option value="9" data-gi=5eab54231c8b>Octubre</option><option value="10" data-gi=a8d54b1b8a4d>Noviembre</option><option value="11" data-gi=0a212e0b6315>Diciembre</option></select></div></div>
-<div class="dashCards"><div class="dashCard"><span data-gi=0344dd6d25ca>Ventas del período</span><strong id="dashSales">$0.00</strong><em>USD</em></div><div class="dashCard"><span data-gi=edda0a46bacb>Facturas</span><strong id="dashInvoices">0</strong><em data-gi=5e638a5eed35>emitidas</em></div><div class="dashCard"><span data-gi=79149060d3db>Ticket promedio</span><strong id="dashAvg">$0.00</strong><em data-gi=09ef41ceb383>por factura</em></div><div class="dashCard"><span data-gi=9ae983d98529>Stock bajo</span><strong id="dashLow">0</strong><em data-gi=3064889c53e2>productos</em></div><div class="dashCard"><span data-gi=5bafdb163985>Margen estimado</span><strong id="dashMargin">$0.00</strong><em data-gi=541b3c21c97a>del periodo</em></div></div>
-<div class="dashGrid"><div class="dashPanel chartPanel"><div class="panelTitle"><div><b data-gi=77850604b005>Ventas por mes</b><small data-gi=4b06105417f6>Evolución anual</small></div><strong id="dashYearTotal">$0.00</strong></div><div class="chartBox"><svg viewBox="0 0 720 280" preserveAspectRatio="none"><defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F47A2A" stop-opacity=".32"/><stop offset="1" stop-color="#F47A2A" stop-opacity="0"/></linearGradient></defs><g id="chartGrid"></g><path id="chartArea" fill="url(#salesGrad)"/><path id="chartLine" fill="none" stroke="#F47A2A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g id="chartDots"></g><g id="chartLabels"></g></svg></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=904282ccc5bf>Resumen anual</b><small id="dashYearLabel"></small></div></div><div class="summaryList"><div><span data-gi=0a680d086be3>Ventas</span><b id="sumSales">$0.00</b></div><div><span data-gi=edda0a46bacb>Facturas</span><b id="sumInvoices">0</b></div><div><span data-gi=9196090f865d>Promedio mensual</span><b id="sumMonthly">$0.00</b></div><div><span data-gi=f598138f026c>Productos</span><b id="sumProducts">0</b></div><div><span data-gi=07e1ce1859da>Clientes</span><b id="sumClients">0</b></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=7a6c9ad2fb3b>Ventas por categoría</b><small data-gi=efb7a645f609>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="categoryDonut" class="donut"></div><div id="categoryLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=fb8a369c6d2b>Ventas por método de pago</b><small data-gi=efb7a645f609>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="paymentDonut" class="donut"></div><div id="paymentLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=bd653861ef83>🏆 Más vendidos por cantidad</b><small data-gi=2c7e52217145>Unidades del periodo</small></div></div><div id="srByQty"></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=d93e414e44dd>💰 Más vendidos por ingresos</b><small data-gi=df747d3e2dd6>Con el margen estimado</small></div></div><div id="srByRevenue"></div><p class="srNote" data-gi=bd0a9e16987a>El margen se estima con el precio de compra actual de cada producto; no refleja el costo histórico exacto en la fecha de cada venta.</p></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=5d8d2caf10dd>Últimos movimientos</b><small data-gi=e92868180b61>Actividad reciente</small></div></div><div id="dashMoves"></div></div></div>
-</section>
+<section id="dashboard" data-gi-aria-label=67b696468610 aria-label="Dashboard"></section>
 <section id="home">
 <div class="arcPanel card"><h2 data-gi=2760658f4d58>Escanear producto</h2>
 <div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
@@ -476,21 +472,7 @@ function restoreJSON(){
 
 function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='var(--arc-surface-3)';$(legendId).innerHTML='<div class="muted" data-gi=03dc8297d3d6>Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['var(--arc-viz-1)','var(--arc-viz-2)','var(--arc-viz-3)','var(--arc-viz-4)','var(--arc-viz-5)'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
 function focusGlobalSearch(){const el=document.getElementById('arcSearchInput');if(el){el.focus();return}const alt=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',null);setTimeout(()=>alt?.focus(),50)}
-function dashMoney(n){return window.GamaCurrency?window.GamaCurrency.format(n)
- :Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
-function dashMonths(y){let a=Array(12).fill(0);(window.GamaFinancialInvoices||[]).forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
-function renderDashboard(){
- if(!$('dashYear'))return;let years=[new Date().getFullYear(),...(window.GamaFinancialInvoices||[]).map(i=>new Date(i.date).getFullYear())].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>b-a);let cur=Number($('dashYear').value)||new Date().getFullYear();$('dashYear').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');if(!years.includes(cur))cur=years[0];$('dashYear').value=cur;
- let mo=$('dashMonth').value, invoices=(window.GamaFinancialInvoices||[]).filter(i=>{let d=new Date(i.date);return d.getFullYear()===cur&&(mo==='all'||d.getMonth()===Number(mo))});let sales=invoices.reduce((a,i)=>a+Number(i.total||0),0),avg=invoices.length?sales/invoices.length:0;let months=dashMonths(cur),yearTotal=months.reduce((a,b)=>a+b,0);
- $('dashSales').textContent=dashMoney(sales);$('dashInvoices').textContent=invoices.length;$('dashAvg').textContent=dashMoney(avg);$('dashLow').textContent=db.products.filter(p=>Number(p.stock||0)<=Number(p.min||0)).length;$('dashYearTotal').textContent=dashMoney(yearTotal);$('dashYearLabel').textContent=String(cur);$('sumSales').textContent=dashMoney(yearTotal);$('sumInvoices').textContent=(window.GamaFinancialInvoices||[]).filter(i=>new Date(i.date).getFullYear()===cur).length;$('sumMonthly').textContent=dashMoney(yearTotal/12);$('sumProducts').textContent=db.products.length;$('sumClients').textContent=db.clients.length;
- let max=Math.max(...months,1),pts=months.map((v,i)=>[30+i*60,(220-(v/max)*175)]),path=pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');$('chartLine').setAttribute('d',path);$('chartArea').setAttribute('d',path+' L690 225 L30 225 Z');$('chartGrid').innerHTML=[50,100,150,200].map(y=>`<line class="chartGridLine" x1="30" y1="${y}" x2="690" y2="${y}"/>`).join('');$('chartDots').innerHTML=pts.map((p,i)=>`<circle class="chartDot ${mo==i?'selected':''}" cx="${p[0]}" cy="${p[1]}" r="5"><title>${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}: ${dashMoney(months[i])}</title></circle>`).join('');$('chartLabels').innerHTML=pts.map((p,i)=>`<text class="chartLabel" x="${p[0]}" y="248" text-anchor="middle">${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}</text>`).join('');
- /* Los más vendidos y el margen los calcula gama-sales-report.js contra la
-    nube, para ESTE mismo periodo: necesita el precio de compra y las líneas de
-    factura, que el espejo local no guarda. */
- window.GamaSalesReport?.render(cur,mo);
- let cat={},pay={};invoices.forEach(inv=>{(inv.items||[]).forEach(x=>{let p=product(x.barcode);let k=p?.cat||'Otros';cat[k]=(cat[k]||0)+Number(x.qty||0)*Number(x.price||0)});let pk=inv.pay||'Otros';pay[pk]=(pay[pk]||0)+Number(inv.total||0)});renderDonut('categoryDonut','categoryLegend',cat);renderDonut('paymentDonut','paymentLegend',pay);
-$('dashMoves').innerHTML=db.moves.slice(0,6).map(m=>`<div class="dashMove"><span class="moveIcon ${m.type==='IN'?'moveIn':'moveOut'}">${m.type==='IN'?'＋':'↗'}</span><span><b>${m.name}</b><small>${new Date(m.date).toLocaleString('es-EC')} · ${m.reason||m.source||''}</small></span><b>${m.type==='IN'?'+':'−'}${m.qty}</b></div>`).join('')||'<div class="muted" data-gi=861e15944ee4>Sin movimientos.</div>';
-}
+function renderDashboard(){window.ArchitectDashboard?.refresh()}
 GamaArchive.register('products',()=>renderProducts(document.getElementById('productSearch')?.value||''));GamaArchive.register('clients',()=>renderClients(document.getElementById('clientSearch')?.value||''));GamaPage.register('products',()=>renderProducts($('productSearch')?.value||''));
 GamaPage.register('clients',()=>renderClients($('clientSearch')?.value||''));
 GamaPage.register('audit',()=>renderAudit());
@@ -582,7 +564,7 @@ showTab('mainmenu',null);
 <script src="gama-proveedores-matriz.js?v=a235954439f0"></script>
 <script src="gama-client-catalog.js?v=ca093815c5e7"></script>
 <script src="gama-customer-requests.js?v=98f95aa0b9c3"></script>
-<script src="gama-sales-report.js?v=a41a49197824"></script>
+<script src="architect-dashboard.js?v=9423f3afd5e6"></script>
 <script src="gama-pdf.js?v=9b22d86d08b3"></script>
 <script src="gama-photos.js?v=e1ba893e9159"></script>
 <script src="gama-price-lists.js?v=b264b66adfed"></script>
@@ -611,8 +593,8 @@ showTab('mainmenu',null);
 <script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
 <script src="gama-projects.js?v=f9d2e59c50f6"></script>
 <script src="gama-knowledge.js?v=c51c1dcc7c6d"></script>
-<script src="gama-payments.js?v=3786260c6beb"></script>
-<script src="gama-operations.js?v=217c66f51f72"></script>
+<script src="gama-payments.js?v=b2934d80e25c"></script>
+<script src="gama-operations.js?v=4816b8cdfee5"></script>
 <script src="gama-standard-ui.js?v=9235231a5459"></script>
 
 <script src="architect-shell.js?v=ab10380a5614"></script>

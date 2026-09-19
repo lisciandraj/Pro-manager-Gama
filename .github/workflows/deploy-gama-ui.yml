@@ -55,10 +55,17 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
+          # El sello de esta versión de la interfaz. Estaba clavado en v=12 y
+          # v=17 desde hacía meses: al reescribirlo aquí, el despliegue
+          # deshacía cualquier cambio de versión hecho en el repositorio y el
+          # navegador de quien ya usaba la aplicación seguía sirviendo el menú
+          # viejo de su caché. Se sube al cambiar la interfaz, aquí y en
+          # index.html a la vez.
+          TAG='20260918-architect1'
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=12', s)
-          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=17', s)
+          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=' + TAG, s)
+          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=' + TAG, s)
           p.write_text(s,encoding='utf-8')
           PY
       # The old "Remove duplicate TMS menu entries" step lived here. It patched
@@ -72,8 +79,8 @@ jobs:
         run: |
           grep -q 'gama-ui.js' index.html
           grep -q 'gama-modules.js' index.html
-          grep -q 'gama-standard-ui.js?v=12' index.html
-          grep -q 'gama-menu-final2.js?v=17' index.html
+          grep -q 'gama-standard-ui.js?v=20260918-architect1' index.html
+          grep -q 'gama-menu-final2.js?v=20260918-architect1' index.html
           # gama-role-spanish.js is the one live TMS loader: it is the only file
           # that references gama-tms-module.js. Assert against it, not against a
           # loader that has been deleted.

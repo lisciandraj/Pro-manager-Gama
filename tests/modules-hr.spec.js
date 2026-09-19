@@ -298,8 +298,8 @@ const FICHAS_ANCHAS = [
 // Mide la tabla de la plantilla: cuánto ocupa de verdad, cuánto de eso alcanza
 // su caja, y si los botones de alguna fila se salen de lo alcanzable.
 const medirPlantilla = page => page.evaluate(() => {
-  const caja = document.querySelector('#hr .hrTable');
-  const tabla = caja.querySelector('table');
+  const tabla = document.querySelector('#hr .hrTable table');
+  const caja = tabla.closest('.gamaTableViewport') || tabla.closest('.hrTable');
   const borde = caja.getBoundingClientRect().right + caja.scrollWidth - caja.clientWidth;
   return {
     anchoCaja: caja.clientWidth,

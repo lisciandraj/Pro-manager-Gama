@@ -108,12 +108,36 @@ function endurecerCaja(t){
  }
 }
 
+const layouts=new WeakMap();
+const labels={fr:['Affichage','Tuiles','Tableau'],en:['View','Cards','Table'],es:['Vista','Tarjetas','Tabla']};
+function words(){return labels[window.GamaI18n?.language]||labels.es}
+function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
+function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
+function refreshLayout(t,state){
+ const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
+ const mode=['cards','table'].includes(choice)?choice:(matchMedia('(max-width:760px) and (orientation:portrait)').matches?'cards':'table');
+ if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
+ state.bar.setAttribute('aria-label',words()[0]);
+ [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.textContent!==label)b.textContent=label;b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
+}
+function layout(t){
+ let state=layouts.get(t);
+ if(!state){
+  const bar=document.createElement('div');bar.className='gamaTableViews';bar.setAttribute('role','group');bar.setAttribute('translate','no');
+  for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
+  state={bar};layouts.set(t,state);
+ }
+ if(!t.parentElement.classList.contains('gamaTableViewport')){const viewport=document.createElement('div');viewport.className='gamaTableViewport';t.before(viewport);viewport.append(t)}
+ const viewport=t.parentElement;if(state.bar.nextElementSibling!==viewport)viewport.before(state.bar);
+ refreshLayout(t,state);
+}
 function scan(root=document){
  const tables=new Set([...(root.querySelectorAll?.('table')||[]),...(root.closest?.('table')?[root.closest('table')]:[])]);
  tables.forEach(t=>{
-  if(t.closest('[data-gama-nocards],[data-arc-table]'))return;
-  if(!etiquetar(t))return;
+  if(t.closest('[data-gama-nocards]'))return;
+  if(t.closest('[data-arc-table]')?!cabecera(t).length:!etiquetar(t))return;
   t.classList.add('gamaCards');
+  layout(t);
   endurecerCaja(t);
  });
 }
@@ -123,6 +147,11 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function boot(){
  css();scan();
  window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
+ const refresh=()=>document.querySelectorAll('table[data-gama-view]').forEach(t=>{const state=layouts.get(t);if(state)refreshLayout(t,state)});
+ window.addEventListener('resize',refresh);window.addEventListener('gama:language-change',refresh);window.addEventListener('gama:auth-change',refresh);
+ // Cover tables created by legacy dialogs and asynchronous module renderers.
+ const observer=new MutationObserver(records=>{const roots=new Set();for(const r of records)for(const n of r.addedNodes){if(n.nodeType!==1||n.closest('.gamaTableViews'))continue;if(n.matches('table')||n.querySelector('table')||n.closest('table'))roots.add(n)}for(const root of roots)scan(root)});
+ observer.observe(document.body,{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 

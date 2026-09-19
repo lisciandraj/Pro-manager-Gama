@@ -1,12 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-// The quote form falls back to a purely local implementation (index.html's
-// generateInvoice()) whenever Supabase/GamaCloud isn't available. Blocking
-// the network here tests exactly that fallback path deterministically,
-// without depending on the live backend.
-test.describe('Presupuesto (quote) generation - local fallback path', () => {
+// Exercise the historical template renderer with isolated dependencies.
+// Authorization is explicitly supplied by this fixture; production routing
+// must remain closed when the real access-control module is unavailable.
+test.describe('Presupuesto (quote) renderer - isolated dependencies', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(()=>{window.gamaAccessAllowed=()=>true;});
     await page.route('**/gama-*.js*', route => route.abort());
     await page.route('**/@supabase/**', route => route.abort());
     await page.route('**/jspdf**', route => route.abort());

@@ -52,7 +52,7 @@ test('adding a barcode updates the selected imported product without recreating 
   {id:'import-2',name:'Importado segundo',reference:'IMP-2',barcode:'',stock:23,photo_data:'retained-photo',active:true}
  ]);
  await page.evaluate(()=>window.showTab('products'));
- await page.locator('#productsTable tr').filter({hasText:'Importado segundo'}).locator('button[onclick^="editProduct"]').click();
+ await page.locator('#productsTable tr').filter({hasText:'Importado segundo'}).locator('button[data-edit="import-2"]').click();
  await expect(page.locator('#pName')).toHaveValue('Importado segundo');
  await expect(page.locator('#editingProductId')).toHaveValue('import-2');
  await page.locator('#pBarcode').fill('B1');

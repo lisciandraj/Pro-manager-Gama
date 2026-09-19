@@ -2316,3 +2316,28 @@ Módulo	Module	Module
 
 La localización inicial se configura en Configuración → Empresa. Puedes adaptar las cuentas y los impuestos en Contabilidad.	La localisation initiale se définit dans Configuration → Entreprise. Vous pouvez adapter les comptes et les taxes dans Comptabilité.	Set up initial localization in Configuration → Company. Adjust accounts and taxes in Accounting.
 Configura tu empresa, sus documentos y el idioma de la aplicación.	Configurez votre entreprise, ses documents et la langue de l’application.	Set up your company, its documents and the application language.
+Siguiente ›	Suivant ›	Next ›
+‹ Anterior	‹ Précédent	‹ Previous
+← Volver al menú	← Retour au menu	← Back to menu
+de	sur	of
+Editar proveedor	Modifier le fournisseur	Edit supplier
+El nombre del proveedor es obligatorio.	Le nom du fournisseur est obligatoire.	Supplier name is required.
+Email	E-mail	Email
+Stock	Stock	Stock
+Nombre / razón social	Nom / raison sociale	Name / company name
+¿Archivar al proveedor «	Archiver le fournisseur «	Archive supplier “
+¿Borrar definitivamente a «	Supprimer définitivement «	Permanently delete “
+MODULE_LOAD_FAILED	Le module n’a pas pu être chargé. Réessayez.	The module could not be loaded. Please retry.
+♻️ Restaurar	♻️ Restaurer	♻️ Restore
+✏️ Editar	✏️ Modifier	✏️ Edit
+＋ Guardar proveedor	＋ Enregistrer le fournisseur	＋ Save supplier
+🗄️ Archivar	🗄️ Archiver	🗄️ Archive
+🗑️ Borrar	🗑️ Supprimer	🗑️ Delete
+🗑️ Borrar definitivamente	🗑️ Supprimer définitivement	🗑️ Permanently delete
+El contacto y las condiciones de cada proveedor.	Coordonnées et conditions de chaque fournisseur.	Contact details and terms for each supplier.
+Vuelve a iniciar sesión.	Reconnectez-vous.	Sign in again.
+Tu perfil no puede realizar esta operación.	Votre profil ne permet pas cette opération.	Your role cannot perform this operation.
+Ya existe un registro con estos datos.	Une fiche avec ces données existe déjà.	A record with these details already exists.
+Este registro está vinculado a otros documentos.	Cette fiche est liée à d’autres documents.	This record is linked to other documents.
+Los datos cambiaron. Actualiza antes de guardar.	Les données ont changé. Actualisez avant d’enregistrer.	The data changed. Refresh before saving.
+Comprueba la conexión y vuelve a intentarlo.	Vérifiez la connexion et réessayez.	Check your connection and try again.

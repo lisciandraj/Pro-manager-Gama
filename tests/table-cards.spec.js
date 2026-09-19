@@ -51,12 +51,12 @@ const celdas = (page, sel) => page.evaluate(s => {
 // La mitad de las tablas de esta aplicación se escribieron sin <thead>: la
 // fila de <th> cuelga del <tbody> que el navegador inserta solo. Si sólo se
 // mirara thead, ninguna de ellas tendría nombres que copiar.
-test('una tabla escrita sin <thead> también recibe los nombres de sus columnas', async ({ page }) => {
+test('el componente de tabla declara cabeceras y etiquetas de columna explícitas', async ({ page }) => {
   await boot(page);
   await page.evaluate(() => window.showTab('products', null));
   await page.waitForTimeout(700);
 
-  expect(await page.evaluate(() => document.querySelectorAll('#productsTable thead').length)).toBe(0);
+  expect(await page.evaluate(() => document.querySelectorAll('#productsTable thead').length)).toBe(1);
   const c = await celdas(page, '#productsTable table');
   expect(c.map(x => x.col)).toEqual(
     ['', 'Código', 'Producto', 'Marca', 'Stock', 'Precio compra', 'Venta A', 'Venta B', 'IVA', 'Ubicación', 'Proveedor', '']);

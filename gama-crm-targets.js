@@ -120,14 +120,14 @@ function lista(){
  const filas=objetivos.slice().sort((a,b)=>
   String(b.period_start).localeCompare(String(a.period_start))
   ||String(deQuien(a)).localeCompare(String(deQuien(b)),'es'));
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<div class="crmBar">'
    +'<select id="crmTTipo" data-gama-nofind data-gi-aria-label=3111c28c597b aria-label="Tipo de periodo">'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(tipo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select><span></span>'
-   +(CRM.esAdmin()?'<button type="button" class="primary" id="crmTNuevo" data-gi=02a719ad013a>+ Fijar un objetivo</button>':'<span></span>')
+   +(CRM.esAdmin()?'<button type="button" class="arcButton primary" id="crmTNuevo" data-gi=02a719ad013a>+ Fijar un objetivo</button>':'<span></span>')
   +'</div>'
-  +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+  +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
     +'<th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=aa952cf4a386>Quién</th><th class="r" data-gi=e9daca354ed6>Objetivo</th><th class="r" data-gi=8104f50d9d77>Conseguido</th>'
     +'<th class="r" data-gi=a3a09e188e03>Avance</th><th data-gi=c27dd5dd9f3c>Peso</th>'+(CRM.esAdmin()?'<th></th>':'')+'</tr></thead><tbody>'
     +filas.map(fila).join('')+'</tbody></table></div>'
@@ -151,8 +151,8 @@ function fila(o){
    +(falta>0?'<small class="crmSub">faltan '+esc(money(falta))+'</small>':'<small class="crmSub" data-gi=3f17f08a0e37>cumplido</small>')+'</td>'
   +'<td>'+barra(pc)+'</td>'
   +(CRM.esAdmin()?'<td class="crmAcc">'
-    +'<button type="button" data-abrir="'+esc(o.id)+'" data-gi=b32216792412>Cambiar</button>'
-    +'<button type="button" class="danger" data-quitar="'+esc(o.id)+'" data-gi-title=9b5a990ea5f2 title="Quitar el objetivo">×</button>'
+    +'<button class="arcButton" type="button" data-abrir="'+esc(o.id)+'" data-gi=b32216792412>Cambiar</button>'
+    +'<button type="button" class="arcButton danger" data-quitar="'+esc(o.id)+'" data-gi-title=9b5a990ea5f2 title="Quitar el objetivo">×</button>'
    +'</td>':'')
   +'</tr>';
 }
@@ -163,7 +163,7 @@ function ficha(){
  const [a,m]=String(o.period_start||periodoDeHoy(kind)).split('-').map(Number);
  const anios=[];
  for(let y=new Date().getFullYear()-1;y<=new Date().getFullYear()+2;y++)anios.push([String(y),String(y)]);
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>'+(o.id?'Cambiar el objetivo':'Fijar un objetivo')+'</h3>'
   +'<div class="crmForm">'
    +'<div><label for="crmTQuien" data-gi=0aa73d48beee>Para quién</label><select id="crmTQuien">'
@@ -185,8 +185,8 @@ function ficha(){
   +'</div>'
   +'<div class="crmNotas"><label for="crmTNotas" data-gi=8a6172e21a87>Notas</label><textarea id="crmTNotas" rows="3">'+esc(o.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmTGuardar" data-gi=13e51a210f45>Guardar</button>'
-   +'<button type="button" id="crmTCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +'<button type="button" class="arcButton primary" id="crmTGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmTCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 function leerFicha(){
@@ -254,8 +254,8 @@ async function abrir(id){
 /* ---- pintar y conectar ---- */
 function pintar(aviso,clase){
  const s=CRM.section();
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
-  +(abierto?ficha():lista());
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+  +(abierto?ficha():lista()));
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,clase);
@@ -279,30 +279,20 @@ function conectar(){
  const g=$('crmTGuardar');if(g)g.onclick=guardar;
  const c=$('crmTCancelar');if(c)c.onclick=()=>{abierto=null;pintar()};
 }
-function css(){
- if($('crmTgtCss'))return;
- const s=document.createElement('style');s.id='crmTgtCss';
- s.textContent='#crm [hidden]{display:none!important}'
- +'#crm .crmBarra{background:var(--arc-surface-3);border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
- +'#crm .crmBarra i{display:block;height:100%;background:var(--arc-accent-600);border-radius:999px}'
- +'#crm .crmBarra i.ok{background:var(--arc-success)}'
- +'#crm .crmBarra i.ko{background:var(--arc-danger)}'
- +'#crm .crmVerde{color:var(--arc-success)}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(recarga){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=34f2ce489322>Cargando objetivos…</div></div>';
+ if(!recarga)window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=34f2ce489322>Cargando objetivos…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   abierto=null;
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   fallo(e,'No se pudieron cargar los objetivos');
  }finally{cargando=false}

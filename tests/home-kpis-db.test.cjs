@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),{PGlite}=require('@electric-sql/pglite');
 const a='00000000-0000-0000-0000-000000000001',b='00000000-0000-0000-0000-000000000002';
-const migration=fs.readdirSync(__dirname+'/../supabase/migrations').find(x=>x.endsWith('_home_kpi_catalog.sql'));
+const migration=fs.readdirSync(__dirname+'/../supabase/legacy-migrations').find(x=>x.endsWith('_home_kpi_catalog.sql'));
 test('30 real SQL aggregations, owner preferences, roles, module gates, RLS and unavailable values',async()=>{
  const db=new PGlite();
  try{
@@ -39,8 +39,8 @@ test('30 real SQL aggregations, owner preferences, roles, module gates, RLS and 
     return '{"metrics":{"invoiced":120,"collected":100,"receivable":50,"unbilled":30,"orders":7,"order_amount":140,"dispatches":4,"delivered":3,"late_deliveries":2,"blocked":1,"backorders":2,"stock_variances":3},"action_center":{"overdue_invoice":20,"receipt":1}}'::jsonb;end$$;
    grant select on all tables in schema public to authenticated;
   `);
-  await db.exec(fs.readFileSync(__dirname+'/../supabase/migrations/20260919104031_home_module_order.sql','utf8'));
-  await db.exec(fs.readFileSync(__dirname+'/../supabase/migrations/'+migration,'utf8'));
+  await db.exec(fs.readFileSync(__dirname+'/../supabase/legacy-migrations/20260919104031_home_module_order.sql','utf8'));
+  await db.exec(fs.readFileSync(__dirname+'/../supabase/legacy-migrations/'+migration,'utf8'));
   await db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${a}',false);select set_config('test.role','administrador',false)`);
   const get=async()=> (await db.query('select public.gama_home_kpis() p')).rows[0].p;
   const save=async(ids,user=a)=>(await db.query('select public.gama_home_kpis($1,$2) p',[ids,user])).rows[0].p;

@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const KEY='gama_suppliers_v1';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 function readLocal(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
 function normalize(o){const name=String(o?.name||o?.nombre||o?.razon_social||o?.business_name||'').trim();return name?{legacy_id:o.id||null,name,tax_id:o.tax||o.tax_id||o.ruc||o.nif||null,address:o.address||o.direccion||null,city:o.city||o.ciudad||null,province:o.province||o.provincia||null,postal_code:o.postal_code||o.codigo_postal||null,country:o.country||o.pais||null,phone:o.phone||o.telefono||null,email:o.email||null,contact_name:o.contact||o.contact_name||o.contacto||null,notes:o.notes||o.notas||null,active:o.active!==false}:null}
 function localSuppliers(){const out=[];const seen=new Set();readLocal().forEach(o=>{const s=normalize(o);if(s&&!seen.has(s.name.toLowerCase())){seen.add(s.name.toLowerCase());out.push(s)}});return out}

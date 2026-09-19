@@ -16,7 +16,7 @@ create table public.company_settings(id boolean primary key default true,currenc
 insert into company_settings(id) values(true);alter table company_settings enable row level security;
 create policy company_settings_read on company_settings for select to authenticated using(true);
 create table public.gama_audit(id bigint generated always as identity,table_name text,row_id text,action text,actor_id uuid,actor_role text,old_data jsonb,new_data jsonb,changed_fields text[]);
-`);await db.exec(fs.readFileSync(__dirname+'/../supabase/migrations/20260919094748_company_identity_localization.sql','utf8'));
+`);await db.exec(fs.readFileSync(__dirname+'/../supabase/legacy-migrations/20260919094748_company_identity_localization.sql','utf8'));
 await db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${admin}',false)`);
 const call=async(action,data={})=>(await db.query('select public.gama_company_action($1,$2) result',[action,data])).rows[0].result;return {db,call};}
 function data(extra={}){return {legal_name:'Entreprise test',address:'Quito',tax_id:'0999',email:'qa@example.invalid',website:'https://example.invalid',country:'EC',currency:'USD',company_version:0,...extra}}

@@ -1,0 +1,1 @@
+alter table public.customer_requests add column if not exists invoice_id uuid references public.invoices(id) on delete set null; alter table public.customer_requests add column if not exists converted_at timestamptz; create index if not exists idx_customer_requests_invoice_id on public.customer_requests(invoice_id);

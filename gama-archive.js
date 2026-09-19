@@ -22,8 +22,8 @@ function tabs(key,nActive,nArchived){
  const m=mode(key);
  if(!nArchived&&m!=='archived')return '';
  return '<div class="gamaArcTabs">'
-  +'<button type="button" class="'+(m==='active'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'active\')">Activos ('+nActive+')</button>'
-  +'<button type="button" class="'+(m==='archived'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'archived\')">🗄️ Archivados ('+nArchived+')</button>'
+  +'<button type="button" class="arcButton '+(m==='active'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'active\')">Activos ('+nActive+')</button>'
+  +'<button type="button" class="arcButton '+(m==='archived'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'archived\')">🗄️ Archivados ('+nArchived+')</button>'
   +'</div>';
 }
 /* Postgres devuelve "violates foreign key constraint ..." — ilegible para
@@ -40,16 +40,7 @@ function friendlyError(err,kind){
  }
  return m||'Error desconocido';
 }
-function css(){
- if(document.getElementById('gamaArcCss'))return;
- const s=document.createElement('style');s.id='gamaArcCss';
- s.textContent='.gamaArcTabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}'
- +'.gamaArcTabs button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto}'
- +'.gamaArcTabs button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}'
- +'.gamaArcNote{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:12px}'
- +'.gamaArcEmpty{padding:22px;text-align:center;color:var(--arc-text-subtle)}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',css,{once:true});else css();
 window.GamaArchive={mode,register,go,tabs,friendlyError};
 })();

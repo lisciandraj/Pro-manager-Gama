@@ -128,9 +128,9 @@ function barra(valor,maximo,clase){
  return '<div class="crmBarra"><i class="'+(clase||'')+'" style="width:'+pc+'%"></i></div>';
 }
 function tabla(titulo,pie,filas,maximo){
- return '<div class="card"><h3>'+esc(titulo)+'</h3>'
+ return '<div class="arcPanel card"><h3>'+esc(titulo)+'</h3>'
   +'<p class="muted">'+esc(pie)+'</p>'
-  +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+  +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
    +'<th data-gi=fd0137cd1dfe>Concepto</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th data-gi=c27dd5dd9f3c>Peso</th>'
    +'</tr></thead><tbody>'
    +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td>'
@@ -161,7 +161,7 @@ function pintar(){
  });
  const maxEmbudo=Math.max.apply(null,[0].concat(embudoAhora.map(x=>x.importe)));
 
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
   +'<div class="crmBar">'
    +'<select id="crmRPeriodo" data-gama-nofind data-gi-aria-label=cc9980e1f3f4 aria-label="Periodo del informe">'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(periodo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
@@ -175,9 +175,9 @@ function pintar(){
   +'</div>'
   /* El embudo es AHORA y no del periodo, y se dice: un pipeline «de enero» no
      significa nada, porque el pipeline es lo que hay vivo hoy. */
-  +'<div class="card"><h3 data-gi=42cb8612a914>Embudo vivo, hoy</h3>'
+  +'<div class="arcPanel card"><h3 data-gi=42cb8612a914>Embudo vivo, hoy</h3>'
    +'<p class="muted" data-gi=750b0685463f>Una foto del pipeline abierto en este momento. No depende del periodo elegido: lo que está en curso está en curso.</p>'
-   +(embudoAhora.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+   +(embudoAhora.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
      +'<th data-gi=a9d09b2d2c04>Etapa</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th class="r" data-gi=b1bc7c7298d8>Ponderado</th><th data-gi=c27dd5dd9f3c>Peso</th>'
      +'</tr></thead><tbody>'
      +embudoAhora.map(x=>'<tr><td><b>'+esc(x.nombre)+'</b></td><td class="r">'+x.n+'</td>'
@@ -193,10 +193,10 @@ function pintar(){
      porComercial,Math.max.apply(null,[0].concat(porComercial.map(x=>x.importe))))
   +tabla('Por qué se perdió','El motivo de cada oportunidad perdida, con lo que costó. Es la lista de lo que hay que corregir.',
      porMotivo,Math.max.apply(null,[0].concat(porMotivo.map(x=>x.importe))))
-  +'<div class="card"><h3 data-gi=697d9b93e4ee>Prospectos entrados</h3>'
+  +'<div class="arcPanel card"><h3 data-gi=697d9b93e4ee>Prospectos entrados</h3>'
    +'<p class="muted" data-gi=566494faed71>Los que nacieron en el periodo, por origen. Comparado con la tabla de arriba dice qué origen trae volumen y cuál trae dinero.</p>'
    +cuerpoProspectos()
-  +'</div>';
+  +'</div>');
  CRM.bind(s);
  const p=$('crmRPeriodo');
  if(p)p.onchange=()=>{periodo=p.value;abrirPantalla(true)};
@@ -204,7 +204,7 @@ function pintar(){
 function mesAMes(){
  const filas=porMes();
  const max=Math.max.apply(null,[0].concat(filas.map(f=>f.ganadas+f.perdidas)));
- return '<div class="card"><h3 data-gi=4fccf43e5f04>Mes a mes</h3>'
+ return '<div class="arcPanel card"><h3 data-gi=4fccf43e5f04>Mes a mes</h3>'
   +'<p class="muted" data-gi=a9a4a36f12d5>Cerradas por mes, contadas por su fecha de cierre. Verde ganadas, rojo perdidas.</p>'
   +(filas.length?'<div class="crmMeses">'+filas.map(f=>
     '<div class="crmMes"><b>'+esc(etiquetaMes(f.mes))+'</b>'
@@ -221,38 +221,25 @@ function cuerpoProspectos(){
   k=>nombreRef(k,datos.ref.origenes,'Sin origen'));
  if(!filas.length)return '<div class="crmVacio" data-gi=75ff4bb5a70f>Ningún prospecto nuevo en este periodo.</div>';
  const max=Math.max.apply(null,[0].concat(filas.map(f=>f.n)));
- return '<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+ return '<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
   +'<th data-gi=167a940c6278>Origen</th><th class="r" data-gi=06a2af8bb433>Prospectos</th><th data-gi=c27dd5dd9f3c>Peso</th></tr></thead><tbody>'
   +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td><td class="r">'+f.n+'</td>'
     +'<td>'+barra(f.n,max)+'</td></tr>').join('')
   +'</tbody></table></div>';
 }
-function css(){
- if($('crmRepCss'))return;
- const s=document.createElement('style');s.id='crmRepCss';
- s.textContent='#crm .crmBarra{background:var(--arc-surface-3);border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
- +'#crm .crmBarra i{display:block;height:100%;background:var(--arc-accent-600);border-radius:999px}'
- +'#crm .crmBarra i.ok{background:var(--arc-success)}'
- +'#crm .crmBarra i.ko{background:var(--arc-danger)}'
- +'#crm .crmMeses{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px}'
- +'#crm .crmMes{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:10px;padding:10px}'
- +'#crm .crmMes b{display:block;font-size:12px;color:var(--arc-text);text-transform:capitalize}'
- +'#crm .crmMesBarras{display:grid;gap:4px;margin:7px 0}'
- +'#crm .crmMes small{display:block;color:var(--arc-text-muted);font-size:11px}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(recarga){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- if(!recarga)s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=bef25b458155>Calculando…</div></div>';
+ if(!recarga)window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=bef25b458155>Calculando…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   CRM.util.error(e,'No se pudieron calcular los informes','Informes');
  }finally{cargando=false}

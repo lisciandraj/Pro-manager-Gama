@@ -65,7 +65,7 @@ test.describe('Product list — assign a supplier', () => {
     await expect.poll(() => page.evaluate(() => window.__DB.products.find(p => p.id === 'p1')?.purchase_price)).toBe(4.25);
     await expect.poll(() => page.evaluate(() => window.__DB.products.find(p => p.id === 'p1')?.sale_price)).toBe(9.99);
 
-    await expect(page.locator('#productsTable')).toContainText('$4.25');
-    await expect(page.locator('#productsTable')).toContainText('$9.99');
+    await expect(page.locator('#productsTable')).toContainText('$4,25');
+    await expect(page.locator('#productsTable')).toContainText('$9,99');
   });
 });

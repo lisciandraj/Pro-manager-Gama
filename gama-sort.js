@@ -18,7 +18,7 @@ function go(key,col){
  const s=get(key);
  set(key,col,s&&s.col===col&&s.dir==='asc'?'desc':'asc');
 }
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(v){return window.ArcUI.esc(v)}
 /* Cabecera pulsable. col es la clave que recibirá el accesor de apply(). */
 function th(key,col,label,align){
  const s=get(key),on=s&&s.col===col;
@@ -46,16 +46,7 @@ function apply(key,rows,accessors){
   return as.localeCompare(bs,'es',{numeric:true,sensitivity:'base'})*sign;
  });
 }
-function css(){
- if(document.getElementById('gamaSortCss'))return;
- const s=document.createElement('style');s.id='gamaSortCss';
- s.textContent='.gamaSortTh{cursor:pointer;user-select:none;white-space:nowrap}'
- +'.gamaSortTh:hover{color:var(--arc-accent-600)}'
- +'.gamaSortTh.r{text-align:right}'
- +'.gamaSortInd{opacity:.35;font-size:10px}'
- +'.gamaSortTh.on{color:var(--arc-accent-600)}.gamaSortTh.on .gamaSortInd{opacity:1}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',css,{once:true});else css();
 window.GamaSort={get,set,go,register,th,apply};
 })();

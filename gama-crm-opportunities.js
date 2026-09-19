@@ -144,12 +144,12 @@ function embudo(){
  return '<div class="crmBar">'
   +'<input id="crmOBusca" type="search" data-gi-placeholder=b225411b831f placeholder="Buscar por título, referencia, ficha o responsable…" value="'+esc(busca)+'" data-gi-aria-label=de5df58e745e aria-label="Buscar oportunidades">'
   +'<span></span>'
-  +'<button type="button" class="primary" id="crmONueva" data-gi=74c382621239>+ Nueva oportunidad</button>'
+  +'<button type="button" class="arcButton primary" id="crmONueva" data-gi=74c382621239>+ Nueva oportunidad</button>'
   +'</div>'
   +(ref.etapas.length
    ?'<div class="crmTablero">'+ref.etapas.map(e=>columna(e,vivas.filter(o=>String(o.stage_id)===String(e.id)))).join('')+'</div>'
-   :'<div class="card"><div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div></div>')
-  +(vivas.length?'':'<div class="card"><div class="crmVacio">'
+   :'<div class="arcPanel card"><div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div></div>')
+  +(vivas.length?'':'<div class="arcPanel card"><div class="crmVacio">'
    +(opos.length?'Ninguna oportunidad coincide con la búsqueda.':'Ninguna oportunidad todavía. La primera se crea con «+ Nueva oportunidad».')
    +'</div></div>');
 }
@@ -179,12 +179,12 @@ function tarjeta(o){
    mover y no después de que Postgres rechace el movimiento. */
 function panelPerdida(){
  const o=opos.find(x=>String(x.id)===String(perdiendo.id));
- return '<div class="card crmPerdida"><h3>¿Por qué se perdió «'+esc(o?o.title:'')+'»?</h3>'
+ return '<div class="arcPanel card crmPerdida"><h3>¿Por qué se perdió «'+esc(o?o.title:'')+'»?</h3>'
   +'<p class="muted" data-gi=f6887961a882>La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.</p>'
   +'<div class="crmForm"><div><label for="crmOMotivo" data-gi=c7b288b1c0bb>Motivo</label><select id="crmOMotivo">'
    +opciones(ref.motivos.map(m=>[m.id,m.name]),'','— elige un motivo —')+'</select></div></div>'
-  +'<div class="crmAcciones"><button type="button" class="primary" id="crmOPerder" data-gi=570796602b41>Darla por perdida</button>'
-  +'<button type="button" id="crmOPerderNo" data-gi=bb9dbb406dcb>Cancelar</button></div></div>';
+  +'<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmOPerder" data-gi=570796602b41>Darla por perdida</button>'
+  +'<button class="arcButton" type="button" id="crmOPerderNo" data-gi=bb9dbb406dcb>Cancelar</button></div></div>';
 }
 
 /* ---- ficha ---- */
@@ -200,7 +200,7 @@ function ficha(){
  const quien=tipo==='cliente'?o.customer_id:o.lead_id;
  const e=etapaDe(o.stage_id);
  const conLineas=lineas.length>0;
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>'+(esNueva?'Nueva oportunidad':esc(o.reference+' · '+o.title))+'</h3>'
   +(e&&e.is_lost?'<div class="crmAviso crmDup">Perdida'+(o.lost_at?' el '+esc(fecha(o.lost_at)):'')+'. Motivo: '
     +esc((ref.motivos.find(m=>String(m.id)===String(o.lost_reason_id))||{}).name||'sin indicar')+'.</div>':'')
@@ -242,16 +242,16 @@ function ficha(){
   +'</div>'
   +'<div class="crmNotas"><label for="crmODesc" data-gi=ee00b96fff26>Descripción</label><textarea id="crmODesc" rows="3">'+esc(o.description||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmOGuardar" data-gi=13e51a210f45>Guardar</button>'
-   +'<button type="button" id="crmOCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +'<button type="button" class="arcButton primary" id="crmOGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmOCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>'
   +(esNueva
-    ?'<div class="card"><div class="crmVacio" data-gi=d5ef10f934e0>Los productos se añaden en cuanto la oportunidad está guardada: hasta entonces no hay a qué colgarlos.</div></div>'
+    ?'<div class="arcPanel card"><div class="crmVacio" data-gi=d5ef10f934e0>Los productos se añaden en cuanto la oportunidad está guardada: hasta entonces no hay a qué colgarlos.</div></div>'
     :bloqueLineas());
 }
 function bloqueLineas(){
  const libres=productos.filter(p=>!lineas.some(l=>String(l.product_id)===String(p.id)));
- return '<div class="card"><h3 data-gi=f598138f026c>Productos</h3>'
+ return '<div class="arcPanel card"><h3 data-gi=f598138f026c>Productos</h3>'
   +'<p class="muted" data-gi=ed8f026aade0>Lo que se está vendiendo. En cuanto hay una línea, el importe de la oportunidad lo suman ellas.</p>'
   +'<div class="crmForm">'
    +'<div><label for="crmLProd" data-gi=77b9238931ed>Producto</label><select id="crmLProd">'
@@ -259,9 +259,9 @@ function bloqueLineas(){
    +'<div><label for="crmLCant" data-gi=8930e00fcc39>Cantidad</label><input id="crmLCant" type="number" min="0.001" step="0.001" value="1"></div>'
    +'<div><label for="crmLPrecio" data-gi=c363bae32bb0>Precio unitario</label><input id="crmLPrecio" type="number" min="0" step="0.01" value="0"></div>'
    +'<div><label for="crmLDto" data-gi=fa5dd397e503>Descuento (%)</label><input id="crmLDto" type="number" min="0" max="100" step="0.1" value="0"></div>'
-   +'<div><label>&nbsp;</label><button type="button" class="primary" id="crmLAdd" data-gi=7542a5e800f9>Añadir</button></div>'
+   +'<div><label>&nbsp;</label><button type="button" class="arcButton primary" id="crmLAdd" data-gi=7542a5e800f9>Añadir</button></div>'
   +'</div>'
-  +(lineas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+  +(lineas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
    +'<th data-gi=77b9238931ed>Producto</th><th class="r" data-gi=8930e00fcc39>Cantidad</th><th class="r" data-gi=2e4385b6057f>Precio</th><th class="r" data-gi=178503aa09d0>Dto.</th><th class="r" data-gi=c9b3c38247f7>Total</th><th></th>'
    +'</tr></thead><tbody>'
    +lineas.map(l=>{
@@ -271,7 +271,7 @@ function bloqueLineas(){
       +'<td class="r">'+esc(money(l.unit_price))+'</td>'
       +'<td class="r">'+Number(l.discount||0)+' %</td>'
       +'<td class="r"><b>'+esc(money(totalLinea(l)))+'</b></td>'
-      +'<td class="crmAcc"><button type="button" class="danger" data-quitar="'+esc(l.id)+'" data-gi-title=178d5bfceb0a title="Quitar la línea">×</button></td></tr>';
+      +'<td class="crmAcc"><button type="button" class="arcButton danger" data-quitar="'+esc(l.id)+'" data-gi-title=178d5bfceb0a title="Quitar la línea">×</button></td></tr>';
     }).join('')
    +'</tbody><tfoot><tr><td colspan="4"><b data-gi=c9b3c38247f7>Total</b></td><td class="r"><b>'+esc(money(sumaLineas()))+'</b></td><td></td></tr></tfoot>'
    +'</table></div>'
@@ -287,11 +287,11 @@ function bloquePresupuesto(){
   return '<div class="crmAviso">Presupuesto generado'+(n?' <b>'+esc(n)+'</b>':'')
    +(presupuesto?' · '+esc(CRM.money(presupuesto.total)):'')
    +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>'
-   +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'" data-gi=7a96eba94173>Crear / ver pedido de venta</button></div>':'');
+   +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="arcButton primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'" data-gi=7a96eba94173>Crear / ver pedido de venta</button></div>':'');
  }
  if(!o.customer_id)return '<div class="crmAviso" data-gi=fbb5bdeba43d>Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
  if(!lineas.length)return '';
- return '<div class="crmAcciones"><button type="button" class="primary" id="crmOPresu" data-gi=f3db8ba5ef50>Generar presupuesto</button></div>';
+ return '<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmOPresu" data-gi=f3db8ba5ef50>Generar presupuesto</button></div>';
 }
 
 /* ---- guardar ---- */
@@ -506,8 +506,8 @@ async function generarPresupuesto(){
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
  const s=CRM.section();
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
-  +(perdiendo?panelPerdida():vista==='ficha'?ficha():embudo());
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+  +(perdiendo?panelPerdida():vista==='ficha'?ficha():embudo()));
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
@@ -604,48 +604,22 @@ function refrescarContactos(){
  if(!t||!sel)return;
  const tipo=t.value==='prospecto'?'prospecto':'cliente';
  const quien=tipo==='cliente'?val('crmOCliente'):val('crmOProspecto');
- sel.innerHTML=opciones(contactosDe(tipo,quien).map(k=>[k.id,nombreContacto(k)]),'','— sin contacto —');
+ window.ArcUI.render(sel,opciones(contactosDe(tipo,quien).map(k=>[k.id,nombreContacto(k)]),'','— sin contacto —'));
 }
-function css(){
- if($('crmOpoCss'))return;
- const s=document.createElement('style');s.id='crmOpoCss';
- s.textContent='#crm [hidden]{display:none!important}'
- +'#crm .crmTablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(228px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px;align-items:start}'
- +'#crm .crmTablero .crmCol{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:9px;min-width:0}'
- +'#crm .crmColCab{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;padding:2px 3px 9px;border-bottom:1px solid var(--arc-surface-3);margin-bottom:9px}'
- +'#crm .crmColCab b{font-size:12.5px;color:var(--arc-text);flex:1 1 auto;min-width:0}'
- +'#crm .crmColCab i{font-style:normal;font-weight:800;color:var(--arc-accent-600);font-size:15px}'
- +'#crm .crmColCab small{width:100%;color:var(--arc-text-muted);font-size:11px}'
- +'#crm .crmColVacia{text-align:center;color:var(--arc-line-strong);padding:10px 0}'
- +'#crm .crmTarjeta{background:#fff;border:1px solid var(--arc-line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}'
- +'#crm .crmTarjeta:hover{border-color:var(--arc-accent-600)}'
- +'#crm .crmTarjeta[draggable=true]{cursor:grab}#crm .crmTarjeta.crmArrastrando{opacity:.45;cursor:grabbing}#crm .crmTablero .crmCol{min-height:180px}#crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}#crm .crmTarjeta[aria-busy=true]{opacity:.65;cursor:wait}'
- +'#crm .crmTarjeta.tarde{border-left:3px solid var(--arc-danger)}'
- +'#crm .crmTarjTit{display:flex;gap:6px;align-items:flex-start;justify-content:space-between}'
- +'#crm .crmTarjTit b{font-size:12.5px;color:var(--arc-text);min-width:0}'
- +'#crm .crmTarjPie{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}'
- +'#crm .crmTarjPie b{color:var(--arc-accent-600);font-size:14px}'
- +'#crm .crmTarjPie span{color:var(--arc-text-muted);font-size:11px;font-weight:700}'
- +'#crm .crmMover{margin-top:8px;font-size:12px;min-height:38px;padding:6px}'
- +'#crm .crmPerdida .crmForm{max-width:420px}'
- /* En el teléfono el tablero se apila: ocho columnas de arrastre lateral son
-    inservibles con el pulgar. Cada etapa queda una debajo de otra. */
- +'@media(max-width:760px){#crm .crmTablero{grid-auto-flow:row;grid-auto-columns:auto;overflow-x:visible}}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=e33a44a48f2b>Cargando el embudo…</div></div>';
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=e33a44a48f2b>Cargando el embudo…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   vista='embudo';abierto=null;lineas=[];perdiendo=null;presupuesto=null;
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   fallo(e,'No se pudo cargar el embudo');
  }finally{cargando=false}

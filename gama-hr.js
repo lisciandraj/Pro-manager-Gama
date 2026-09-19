@@ -6,7 +6,7 @@ if(window.GamaHR)return;
 
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDateString('es-EC')}catch(e){return String(v)}};
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -143,7 +143,7 @@ async function saveEmployee(){
  };
  busy=true;
  try{
-  const r=await(await C().db()).rpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
+  const r=await window.ArcData.rawRpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
   if(r.error)throw r.error;
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
@@ -231,153 +231,7 @@ function section(){
  if(!s){s=document.createElement('section');s.id='hr';(document.querySelector('.wrap')||document.body).appendChild(s)}
  return s;
 }
-function css(){
- if($('hrCss'))return;
- const s=document.createElement('style');s.id='hrCss';
- s.textContent=`#hr{display:none}
-#hr .hrTabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-#hr .hrTabs button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;width:auto}
-#hr .hrTabs button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-#hr .hrKpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-#hr .hrKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:14px}
-#hr .hrKpi span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
-#hr .hrKpi b{display:block;margin-top:6px;font-size:22px;color:var(--arc-text)}
-/* El reparto se inclina hacia la tabla. El formulario es una pila de campos y
-   se lee igual de bien en 420 px; la tabla, en cambio, tiene seis columnas y
-   cuando se queda corta hay que arrastrarla de lado para llegar a los botones
-   de cada fila. El sitio se lo lleva quien lo necesita. */
-#hr .hrGrid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:12px;align-items:start}
-#hr .hrTable{width:100%;overflow-x:auto}
-/* min-width:min-content y no los 560 px de antes. Con una anchura fija, si las
-   columnas pedían más que la caja —un nombre largo, «Prestación de servicios»—
-   la tabla se quedaba clavada al 100 % y las celdas se salían por su derecha:
-   los botones de Editar y Archivar aparecían cortados y NO había forma de
-   llegar a ellos, porque el contenedor no se enteraba de que sobraba nada que
-   desplazar. Pidiéndole a la tabla su propio mínimo, crece lo que necesite y
-   entonces sí es el contenedor el que se desplaza. */
-#hr .hrTable table{width:100%;border-collapse:collapse;min-width:min-content}
-#hr .hrTable th,#hr .hrTable td{padding:10px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px;vertical-align:top}
-#hr .hrTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
-#hr .hrTable small{display:block;color:var(--arc-text-subtle)}
-#hr .hrBadge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;background:var(--arc-surface-3);color:var(--arc-text-muted);white-space:nowrap}
-#hr .hrBadge.ok{background:var(--arc-success-bg);color:var(--arc-success)}
-#hr .hrBadge.warn{background:var(--arc-warning-bg);color:var(--arc-warning)}
-#hr .hrBadge.red{background:var(--arc-danger-bg);color:var(--arc-danger)}
-#hr .hrBar{height:7px;border-radius:999px;background:var(--arc-surface-3);overflow:hidden;margin-top:5px;max-width:150px}
-#hr .hrBar i{display:block;height:100%;background:var(--arc-accent-600)}
-#hr .hrBar i.full{background:var(--arc-danger)}
-#hr .hrMsg{margin:10px 0;font-size:13px}
-#hr .hrMsg.hrOk{color:var(--arc-success)}#hr .hrMsg.hrErr{color:var(--arc-danger);font-weight:700}
-#hr .hrEmpty{padding:22px;text-align:center;color:var(--arc-text-subtle)}
-#hr .hrActs{display:flex;gap:6px;flex-wrap:wrap}
-#hr .hrActs button{padding:6px 9px;font-size:11px;width:auto}
-#hr .hrOff td{opacity:.55}
-#hr .hrDatos{display:grid;gap:1px;background:var(--arc-surface-3);border:1px solid var(--arc-surface-3);border-radius:10px;overflow:hidden}
-#hr .hrDato{display:flex;justify-content:space-between;gap:12px;padding:11px 13px;background:#fff;font-size:13px}
-#hr .hrDato span{color:var(--arc-text-muted)}
-#hr .hrDato b{color:var(--arc-text);text-align:right}
-#hr .hrSaldo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-#hr .hrSaldo>div{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:12px;text-align:center}
-#hr .hrSaldo span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
-#hr .hrSaldo b{display:block;margin-top:5px;font-size:24px;color:var(--arc-text)}
-#hr .hrSaldoLibre{background:var(--arc-accent-100)!important;border-color:var(--arc-accent-100)!important}
-#hr .hrSaldoLibre b{color:var(--arc-accent-600)}
-
-/* ---- planificación ----
-   La rejilla es una sola cuadrícula por fila: las columnas de fondo ocupan
-   todos los carriles (grid-row 1/-1) y las barras se colocan encima en el
-   suyo. Así el fondo, los fines de semana y el día de hoy se pintan una vez y
-   las barras se superponen sin descuadrar nada. */
-#hr .hrPlanBarraSup{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-#hr .hrPlanNav{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-#hr .hrPlanNav button{width:auto;padding:8px 13px}
-/* capitalize pondría mayúscula en cada palabra: «Septiembre De 2026». En
-   español sólo la lleva la primera, y los meses abreviados van en minúscula. */
-#hr .hrPlanTitulo{font-size:15px;color:var(--arc-text);margin-left:4px}
-#hr .hrPlanTitulo::first-letter{text-transform:uppercase}
-#hr .hrPlanVistas{display:flex;gap:6px}
-#hr .hrPlanVistas button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer;width:auto;font-size:13px}
-#hr .hrPlanVistas button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-/* El calendario sí tiene que arrastrarse de lado —siete días, o treinta y uno,
-   no caben en un teléfono y no hay forma de apilarlos—, así que aquí no se
-   quita el desplazamiento: se arregla. overflow-y:hidden porque poner sólo
-   overflow-x deja el otro eje en «visible», y el navegador lo asciende a
-   «auto»: la caja se queda entonces con el gesto de subir la página y el dedo
-   que cae dentro del calendario no la mueve. Y overscroll-behavior-x:contain
-   porque el arrastre aquí es largo —306 px en la vista de semana, 926 en la
-   de mes— y llegar al borde era de lo más fácil: allí se lo quedaba el
-   navegador y disparaba su gesto de volver atrás. La columna de nombres se
-   queda fija (position:sticky) para no perder de vista de quién es cada fila. */
-#hr .hrPlanScroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid var(--arc-surface-3);border-radius:12px}
-#hr .hrPlan{min-width:640px}
-#hr .hrPlanFila{display:grid;grid-template-columns:170px 1fr;border-bottom:1px solid var(--arc-surface-3)}
-#hr .hrPlanFila:last-child{border-bottom:0}
-#hr .hrPlanNombre{padding:9px 11px;border-right:1px solid var(--arc-surface-3);background:#fff;position:sticky;left:0;z-index:3}
-#hr .hrPlanNombre b{display:block;font-size:12.5px;color:var(--arc-text);line-height:1.25}
-#hr .hrPlanNombre small{display:block;color:var(--arc-text-subtle);font-size:10.5px;margin-top:1px}
-#hr .hrPlanCabecera{background:var(--arc-surface-2);border-bottom:1px solid var(--arc-surface-3)}
-#hr .hrPlanCabecera .hrPlanNombre{background:var(--arc-surface-2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);font-weight:800;display:flex;align-items:flex-end}
-#hr .hrPlanCeldas{display:grid;grid-template-columns:repeat(var(--cols),minmax(38px,1fr));grid-auto-rows:22px;align-content:center;gap:3px 0;padding:6px 0;position:relative}
-#hr .hrPlanDias{grid-auto-rows:auto;padding:7px 0}
-#hr .hrPlanDia{text-align:center;font-size:11px;color:var(--arc-text);border-right:1px solid var(--arc-surface-3)}
-#hr .hrPlanDia:last-child{border-right:0}
-#hr .hrPlanDia small{display:block;color:var(--arc-text-subtle);font-size:9.5px;text-transform:uppercase}
-#hr .hrPlanDia b{display:block;font-size:13px}
-#hr .hrPlanDia.fin{background:var(--arc-surface-2);color:var(--arc-text-subtle)}
-#hr .hrPlanDia.hoy{background:var(--arc-warning-bg);box-shadow:inset 0 -3px 0 var(--arc-warning)}
-#hr .hrPlanCol{grid-row:1/-1;border-right:1px solid var(--arc-surface-2)}
-#hr .hrPlanCol:last-of-type{border-right:0}
-#hr .hrPlanCol.fin{background:var(--arc-surface-2)}
-#hr .hrPlanCol.hoy{background:var(--arc-warning-bg)}
-#hr .hrPlanBarra{position:relative;z-index:2;display:flex;align-items:center;min-width:0;height:22px;margin:0 2px;padding:0 7px;border:0;border-radius:6px;cursor:pointer;background:var(--c);color:#fff;font-weight:700;font-size:10.5px;text-align:left;width:auto;overflow:hidden}
-#hr .hrPlanBarra span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#hr .hrPlanBarra:hover{filter:brightness(1.08)}
-#hr .hrPlanBarra:focus-visible{outline:3px solid var(--arc-text);outline-offset:1px}
-/* Pendiente de aprobar: hueca y con el borde a rayas, para que no se confunda
-   con lo ya concedido de un vistazo. */
-#hr .hrPlanBarra.pend{background:#fff;color:var(--c);border:1.5px dashed var(--c)}
-/* Una ausencia que empieza antes o acaba después del periodo se recorta: la
-   punta plana avisa de que sigue fuera de la vista. */
-#hr .hrPlanBarra.cortaIzq{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
-#hr .hrPlanBarra.cortaDer{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
-#hr .hrPlanPie{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--arc-text-muted)}
-#hr .hrPlanLeyenda{display:inline-flex;align-items:center;gap:6px}
-#hr .hrPlanLeyenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
-#hr .hrPlanLeyenda i.pend{background:#fff;border:1.5px dashed var(--arc-text-muted)}
-#hr .hrPlanDetalle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:10px;background:var(--arc-surface-2)}
-#hr .hrPlanDetalle small{display:block;color:var(--arc-text-muted);font-size:11.5px;margin-top:2px}
-/* minmax(0,1fr) y no 1fr: «1fr» es «minmax(auto,1fr)», y ese mínimo automático
-   es el del contenido. La tabla de empleados lleva min-width:560px a propósito
-   —una tabla necesita sitio y por eso .hrTable tiene su propio scroll—, pero
-   con «1fr» ese mínimo se escapaba a la columna y estiraba la rejilla, las dos
-   tarjetas y el documento entero a 598 px en cualquier teléfono. El navegador
-   respondía alejando el zoom para que cupiera: de ahí que la cabecera y las
-   tarjetas salieran encogidas. Acotando la pista, la tabla vuelve a
-   desplazarse dentro de su caja y la página mide lo que mide la pantalla. */
-/* La rejilla se parte antes que el resto, y por su propia razón: en dos
-   columnas la tabla necesita unos 690 px para enseñar sus seis columnas y los
-   botones de cada fila, y por debajo de este ancho la mitad derecha ya no da
-   para tanto. Puesta en una sola columna, la tabla ocupa la pantalla entera y
-   deja de haber nada que arrastrar. Las tarjetas de arriba aguantan bien más
-   estrechas, así que se parten por su cuenta más abajo. */
-@media(max-width:1150px){#hr .hrGrid{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:900px){#hr .hrKpis{grid-template-columns:1fr 1fr}
- #hr .hrPlanFila{grid-template-columns:120px 1fr}#hr .hrPlanNombre b{font-size:11.5px}}
-/* Las tres pestañas se partían en dos filas, con «Planificación» sola abajo.
-   Repartidas a partes iguales entran en una; el icono sobra ahí, y sin él la
-   palabra cabe entera. Este bloque va DESPUÉS de las reglas de base a
-   propósito: una media query no añade especificidad, así que escrito antes se
-   quedaba sin efecto contra un selector idéntico. */
-@media(max-width:760px){#hr .hrTabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:5px;padding-bottom:6px}
- #hr .hrTabs button{padding:10px 12px;font-size:12px;white-space:nowrap;flex:0 0 auto;min-height:44px}
- #hr .hrTabIco{display:none}}
-/* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
-   aplicación: copia de la cabecera el nombre de cada columna, apila cada fila
-   y endurece el gesto. Aquí sólo queda lo que es de esta tabla y nada más. */
-@media(max-width:760px){#hr .hrTable{--gamaCardsLabel:92px}
- #hr .hrTable .hrBar{max-width:none}}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function kpis(){
  const activos=employees.filter(e=>e.active!==false).length;
@@ -409,13 +263,13 @@ function employeesTab(){
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
    <td>${off?'<span class="hrBadge" data-gi=eac5386d4211>Archivado</span>':'<span class="hrBadge ok" data-gi=723858144bd5>Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px" data-gi=19074913530e>🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px" data-gi=b4c10bd2c2fc>Sin cuenta</span>'}</td>
    <td><div class="hrActs">
-    <button type="button" class="secondary" data-edit="${esc(p.id)}" data-gi=e3bd2ee1d054>✏️ Editar</button>
-    <button type="button" class="${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}" data-gi-live>${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
+    <button type="button" class="arcButton secondary" data-edit="${esc(p.id)}" data-gi=e3bd2ee1d054>✏️ Editar</button>
+    <button type="button" class="arcButton ${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}" data-gi-live>${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
    </div></td></tr>`;
  }).join('');
 
  return `<div class="hrGrid">
-  <div class="card">
+  <div class="arcPanel card">
    <h3>${editing?'Editar empleado':'Nuevo empleado'}</h3>
    <label data-gi=0be48a5a67cc>Nombre y apellidos *</label><input id="hrName" data-gi-placeholder=d6730d8299a4 placeholder="Ej. María Pérez">
    <div class="row">
@@ -449,13 +303,13 @@ function employeesTab(){
    <div class="muted" style="font-size:11.5px;margin-top:-2px" data-gi=3acee7e660f1>Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
    <label data-gi=8ef60b6d94c0>Observaciones</label><textarea id="hrNotes" data-gi-placeholder=1dc4813dafd6 placeholder="Formación, idiomas, licencia de conducir…"></textarea>
    <div class="actions">
-    <button type="button" class="primary" id="hrSave" data-gi-live>${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
-    <button type="button" class="secondary" id="hrClear" data-gi=681b0f02838a>↺ Limpiar</button>
+    <button type="button" class="arcButton primary" id="hrSave" data-gi-live>${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
+    <button type="button" class="arcButton secondary" id="hrClear" data-gi=681b0f02838a>↺ Limpiar</button>
    </div>
   </div>
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=65ebd9bd0f84>Plantilla <small class="muted">(${employees.length})</small></h3>
-   ${employees.length?`<div class="hrTable"><table>
+   ${employees.length?`<div class="hrTable"><table class="arcTable">
      <thead><tr><th data-gi=6f0babb30673>Empleado</th><th data-gi=1951861239ed>Contrato</th><th data-gi=193df56cd57c>Sueldo</th><th data-gi=04c60d643e4c>Vacaciones</th><th data-gi=98e5acddb6c4>Estado</th><th></th></tr></thead>
      <tbody>${rows}</tbody></table></div>`
     :'<div class="hrEmpty" data-gi=bb5a96d44ddc>Todavía no hay empleados. Añade el primero con el formulario de al lado.</div>'}
@@ -474,14 +328,14 @@ function absencesTab(){
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
-    ${a.status!=='aprobada'&&a.status!=='cancelada'?`<button type="button" class="success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
-    ${a.status!=='rechazada'&&a.status!=='cancelada'?`<button type="button" class="secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
-    ${a.status!=='cancelada'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi-live data-gi=030a5cd7677c>Anular</button>`:''}
+    ${a.status!=='aprobada'&&a.status!=='cancelada'?`<button type="button" class="arcButton success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
+    ${a.status!=='rechazada'&&a.status!=='cancelada'?`<button type="button" class="arcButton secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+    ${a.status!=='cancelada'?`<button type="button" class="arcButton danger" data-del="${esc(a.id)}" data-gi-live data-gi=030a5cd7677c>Anular</button>`:''}
    </div></td></tr>`;
  }).join('');
 
  return `<div class="hrGrid">
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=72a86bcb4b1f>Registrar una ausencia</h3>
    <label data-gi=6020a9dd08e5>Empleado *</label>
    <select id="hrAbsEmployee">${vivos.length?vivos.map(e=>`<option value="${esc(e.id)}">${esc(e.full_name)}</option>`).join(''):'<option value="" data-gi=e918e93df678>Añade primero un empleado</option>'}</select>
@@ -494,14 +348,14 @@ function absencesTab(){
    <label data-gi=98e5acddb6c4>Estado</label>
    <select id="hrAbsStatus"><option value="pendiente" data-gi=2ef68536d8e2>Pendiente</option><option value="aprobada" data-gi=80b504a3cd9c>Aprobada</option></select>
    <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=5c0130f03047 placeholder="Certificado médico, asunto propio…"></textarea>
-   <div class="actions"><button type="button" class="primary" id="hrAbsAdd" data-gi=14ee9bb5d9a1>＋ Registrar ausencia</button></div>
+   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=14ee9bb5d9a1>＋ Registrar ausencia</button></div>
   </div>
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=38d61a2d5404>Quién está fuera hoy</h3>
    ${hoy.length?hoy.map(a=>`<div class="hrBadge ok" style="margin:0 6px 6px 0">${esc(employeeName(a.employee_id))} · <span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span> hasta ${day(a.end_date)}</div>`).join('')
     :'<div class="muted" data-gi=bf3e32312381>Hoy no falta nadie.</div>'}
    <h3 data-gi=f43b26519010>Historial de ausencias <small class="muted">(${absences.length})</small></h3>
-   ${absences.length?`<div class="hrTable"><table>
+   ${absences.length?`<div class="hrTable"><table class="arcTable">
      <thead><tr><th data-gi=6f0babb30673>Empleado</th><th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=53c367898434>Comentario</th><th></th></tr></thead>
      <tbody>${rows}</tbody></table></div>`
     :'<div class="hrEmpty" data-gi=30887522852b>Todavía no hay ausencias registradas.</div>'}
@@ -590,7 +444,7 @@ function planTab(){
    const etiqueta=(KINDS[a.kind]||a.kind).replace(/^\S+\s/,'');
    const detalle=employeeName(a.employee_id)+' · '+(KINDS[a.kind]||a.kind)+' · '
      +day(a.start_date)+' → '+day(a.end_date)+' · '+(STATUS[a.status]||a.status);
-   return `<button type="button" class="hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
+   return `<button type="button" class="arcButton hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
      data-plan="${esc(a.id)}" title="${esc(detalle)}"
      style="grid-column:${ini+1}/${fin+2};grid-row:${a._carril};--c:${color}">
      <span>${esc(etiqueta)}${pend?' ·pendiente':''}</span></button>`;
@@ -610,17 +464,17 @@ function planTab(){
 
  const sel=planPick&&absences.find(a=>a.id===planPick);
 
- return `<div class="card">
+ return `<div class="arcPanel card">
   <div class="hrPlanBarraSup">
    <div class="hrPlanNav">
-    <button type="button" class="secondary" id="hrPlanHoy" data-gi=55133d4e6eb6>Hoy</button>
-    <button type="button" class="secondary" id="hrPlanPrev" data-gi-aria-label=266784dff37a aria-label="Periodo anterior">‹</button>
-    <button type="button" class="secondary" id="hrPlanNext" data-gi-aria-label=acdd18b1c536 aria-label="Periodo siguiente">›</button>
+    <button type="button" class="arcButton secondary" id="hrPlanHoy" data-gi=55133d4e6eb6>Hoy</button>
+    <button type="button" class="arcButton secondary" id="hrPlanPrev" data-gi-aria-label=266784dff37a aria-label="Periodo anterior">‹</button>
+    <button type="button" class="arcButton secondary" id="hrPlanNext" data-gi-aria-label=acdd18b1c536 aria-label="Periodo siguiente">›</button>
     <b class="hrPlanTitulo">${esc(titulo)}</b>
    </div>
    <div class="hrPlanVistas">
-    <button type="button" class="${planView==='semana'?'on':''}" data-vista="semana" data-gi=51656a29fb46>Semana</button>
-    <button type="button" class="${planView==='mes'?'on':''}" data-vista="mes" data-gi=024261f9bfba>Mes</button>
+    <button type="button" class="arcButton ${planView==='semana'?'on':''}" data-vista="semana" data-gi=51656a29fb46>Semana</button>
+    <button type="button" class="arcButton ${planView==='mes'?'on':''}" data-vista="mes" data-gi=024261f9bfba>Mes</button>
    </div>
   </div>
 
@@ -640,9 +494,9 @@ function planTab(){
       <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(sel.employee_id,sel.start_date,sel.end_date,sel.start_fraction??1,sel.end_fraction??1):workingDays(sel.start_date,sel.end_date))+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
-      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="success" data-ok="${esc(sel.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
-      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="secondary" data-no="${esc(sel.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
-      <button type="button" class="secondary" id="hrPlanCerrar" data-gi=aeccae342e4b>Cerrar</button>
+      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="arcButton success" data-ok="${esc(sel.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
+      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="arcButton secondary" data-no="${esc(sel.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+      <button type="button" class="arcButton secondary" id="hrPlanCerrar" data-gi=aeccae342e4b>Cerrar</button>
     </div>
    </div>`:''}
  </div>`;
@@ -659,7 +513,7 @@ function planMover(n){
 function myCardTab(){
  const yo=mine;
  if(!yo){
-  return `<div class="card"><div class="hrEmpty" data-gi=3bce45fcf14e>Tu cuenta todavía no está ligada a una ficha de empleado.<br data-gi=b09ad5d3000c>
+  return `<div class="arcPanel card"><div class="hrEmpty" data-gi=3bce45fcf14e>Tu cuenta todavía no está ligada a una ficha de empleado.<br data-gi=b09ad5d3000c>
    Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
  }
  const year=new Date().getFullYear();
@@ -667,7 +521,7 @@ function myCardTab(){
  const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
  const dato=(k,v)=>v?`<div class="hrDato"><span>${esc(k)}</span><b>${esc(v)}</b></div>`:'';
  return `<div class="hrGrid">
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=b1c44421d26c>Mi ficha</h3>
    <div class="hrDatos">
     ${dato('Nombre',yo.full_name)}
@@ -682,7 +536,7 @@ function myCardTab(){
    </div>
    <div class="muted" style="font-size:11.5px;margin-top:12px" data-gi=f4655fc1977c>Si algún dato no es correcto, avisa a un administrador: la ficha la mantiene recursos humanos.</div>
   </div>
-  <div class="card">
+  <div class="arcPanel card">
    <h3>Mis vacaciones ${year}</h3>
    <div class="hrSaldo">
     <div><span data-gi-live data-gi=54021b97e1a0>Derecho adquirido</span><b>${total}</b></div>
@@ -706,12 +560,12 @@ function myRequestsTab(){
    <td><b><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></b><small>${esc(a.reason||'')}</small></td>
    <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
-   <td>${a.status==='pendiente'?`<button type="button" class="danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
+   <td>${a.status==='pendiente'?`<button type="button" class="arcButton danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
   </tr>`;
  }).join('');
 
  return `<div class="hrGrid">
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=1fc7c7b3584e>Pedir días</h3>
    ${yo?'':'<div class="hrEmpty" data-gi=26d051bd4f8d>Tu cuenta no está ligada a una ficha de empleado, así que todavía no puedes pedir días.</div>'}
    ${yo?`<label data-gi=c7b288b1c0bb>Motivo</label>
@@ -721,12 +575,12 @@ function myRequestsTab(){
     <div><label data-gi=66b3c7fb42f9>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
    </div>
    <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=afe18510d3eb placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
-   <div class="actions"><button type="button" class="primary" id="hrAbsAdd" data-gi=e3f27a649cc6>📩 Enviar solicitud</button></div>
+   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=e3f27a649cc6>📩 Enviar solicitud</button></div>
    <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi-live data-gi=66bbbee747ed>La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes retirarla mientras esté pendiente.</div>`:''}
   </div>
-  <div class="card">
+  <div class="arcPanel card">
    <h3 data-gi=12bc372ef7e7>Mis solicitudes <small class="muted">(${mias.length})</small></h3>
-   ${mias.length?`<div class="hrTable"><table>
+   ${mias.length?`<div class="hrTable"><table class="arcTable">
      <thead><tr><th data-gi=c7b288b1c0bb>Motivo</th><th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=98e5acddb6c4>Estado</th><th></th></tr></thead>
      <tbody>${filas}</tbody></table></div>`
     :'<div class="hrEmpty" data-gi=52e9de7ee71f>Todavía no has pedido ningún día.</div>'}
@@ -753,20 +607,20 @@ function render(){
   : [['miFicha','🪪','Mi ficha'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']];
 
  if(window.GamaHRP1)pestanas.push(...window.GamaHRP1.tabs());
- s.innerHTML=window.GamaUI.header({
+ window.ArcUI.render(s,window.GamaUI.header({
    title:'🧑‍💼 Recursos humanos',
    lead:admin
      ? 'Empleados, ausencias y calendario del equipo.'
      : 'Tus datos, tus días y el calendario del equipo.'
  })
  +`<div class="hrTabs">${pestanas.map(([id,ico,txt])=>
-    `<button type="button" class="${tab===id?'on':''}" data-tab="${id}"><span class="hrTabIco">${ico}</span> ${txt}</button>`).join('')}</div>`
+    `<button type="button" class="arcButton ${tab===id?'on':''}" data-tab="${id}"><span class="hrTabIco">${ico}</span> ${txt}</button>`).join('')}</div>`
  +(admin?kpis():'')
  +'<div id="hrMsg" class="hrMsg"></div>'
  +(tab==='empleados'?employeesTab()
   :tab==='ausencias'?(admin?absencesTab():myRequestsTab())
   :tab==='miFicha'?myCardTab()
-  :tab==='planificacion'?planTab():window.GamaHRP1?.render(tab)||'');
+  :tab==='planificacion'?planTab():window.GamaHRP1?.render(tab)||''));
  window.GamaHRP1?.decorate();
  bind();
  window.GamaHRP1?.bind(tab,load);
@@ -798,18 +652,13 @@ function open(requestedTab){
  css();
  const s=section();
  if(!s.innerHTML)render();
- document.querySelectorAll('section').forEach(x=>{
-  const on=x.id==='hr';
-  x.classList.toggle('active',on);
-  x.style.setProperty('display',on?'block':'none','important');
-  if(on)x.removeAttribute('hidden');
- });
+ window.ArcRouter.show('hr');
  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
  window.scrollTo({top:0,behavior:'smooth'});
  load();
 }
 
-window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!myUid||nextUid===myUid))return;loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))$('hr').innerHTML=''});
+window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!myUid||nextUid===myUid))return;loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))window.ArcUI.render($('hr'),'')});
 window.GamaHR={open,load};
 window.GamaOpenHR=open;
 })();

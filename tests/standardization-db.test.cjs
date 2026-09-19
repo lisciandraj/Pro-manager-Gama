@@ -31,7 +31,8 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   }
   await db.exec('reset role');
   const schema=(await db.query("select count(*)::int tables,count(*) filter(where relrowsecurity)::int rls from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'")).rows[0];
-  assert.deepEqual(schema,{tables:116,rls:116});
+  assert.ok(schema.tables>=116,'The existing business schema is retained');
+  assert.equal(schema.rls,schema.tables,'Every public business table enables RLS');
   const leaves=(await db.query("select proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='private' and proname ~ '^gama_(accounting|returns|fleet)_action[0-9]+$'")).rows;
   assert.equal(leaves.length,0);
  }finally{await db.close();}

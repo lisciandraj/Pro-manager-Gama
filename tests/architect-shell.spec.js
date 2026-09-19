@@ -203,7 +203,7 @@ test.describe('el armazón Architect', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
     await expect(page.locator('.arcLogo')).toHaveAttribute('alt','ARCHITECT ERP');
-    await expect(page.locator('.arcLogo')).toHaveAttribute('src','architect-logo.png');
+    await expect(page.locator('.arcLogo')).toHaveAttribute('src','architect-menu-logo.png');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Architect ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Architect ERP/], ['en', /Search Architect ERP/]]) {

@@ -25,7 +25,7 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
 // Use the original supplied file byte-for-byte, including its slogan and ratio.
-const MARK='<img class="arcLogo" src="architect-logo.png" alt="ARCHITECT ERP" width="1254" height="1254">';
+const MARK='<img class="arcLogo" src="architect-menu-logo.png" alt="ARCHITECT ERP" width="1536" height="1024">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',

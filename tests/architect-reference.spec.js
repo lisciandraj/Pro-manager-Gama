@@ -15,7 +15,7 @@ test('original logo, four-column reference, translated labels and truthful metri
  await expect(page.locator('.gamaF2Head h1')).toHaveText('Menu principal');
  await expect(page.locator('.gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
  const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight}));
- expect(layout).toEqual({columns:4,nav:'rgb(18, 46, 70)',fit:'contain',ratio:1});
+ expect(layout).toEqual({columns:4,nav:'rgb(18, 46, 70)',fit:'contain',ratio:1.5});
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
  const logo=await page.request.get('/architect-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42');

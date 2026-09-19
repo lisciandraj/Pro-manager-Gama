@@ -8,8 +8,8 @@ window.ArcAssets={
   "architect-home.css": "architect-home.css?v=01ee07db4ea4",
   "architect-kpi-catalog.js": "architect-kpi-catalog.js?v=c67dcc4151a0",
   "architect-kpis.css": "architect-kpis.css?v=60259f33e28e",
-  "architect-shell.css": "architect-shell.css?v=ece7d82b3fc9",
-  "architect-shell.js": "architect-shell.js?v=d43174314048",
+  "architect-shell.css": "architect-shell.css?v=6d599b3978fb",
+  "architect-shell.js": "architect-shell.js?v=ab10380a5614",
   "architect-tokens.css": "architect-tokens.css?v=cc2cf3b75cb1",
   "architect-ui.css": "architect-ui.css?v=dfcc185a2d9b",
   "gama-access-control.js": "gama-access-control.js?v=696a57b1a697",
@@ -91,5 +91,5 @@ window.ArcAssets={
   "gama-toast.js": "gama-toast.js?v=23a8e1087e3f",
   "gama-ui.js": "gama-ui.js?v=98cc6c17c615",
   "playwright.config.js": "playwright.config.js?v=55735dd45ef8",
-  "sw.js": "sw.js?v=d26835e49ec3"
+  "sw.js": "sw.js?v=a2dc6eb2bc56"
 };

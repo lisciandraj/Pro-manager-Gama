@@ -10,7 +10,7 @@
   "theme_color": "#122E46",
   "icons": [
     {
-      "src": "architect-logo.png",
+      "src": "architect-app-icon.png?v=20260919-brand2",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"

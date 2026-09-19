@@ -18,7 +18,10 @@
 .arcCustomizeButton svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
 #mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 #mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;min-width:0;min-height:142px;padding:13px 17px 16px;margin:0;text-align:left;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
-#mainmenu .gamaF2Card:hover{border-color:var(--arc-line-strong);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+#mainmenu .gamaF2Card,#mainmenu .gamaF2Kpi{border-color:var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow)}
+@media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-tile-shadow-hover);transform:translateY(-2px)}}
+#mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px;box-shadow:var(--arc-tile-shadow-hover)}
+@media(prefers-reduced-motion:reduce){#mainmenu .gamaF2Card:hover{transform:none}}
 #mainmenu .gamaF2Icon,.arcDashboardCard .gamaF2Icon{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;flex:none}
 .gamaF2Icon svg{width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #mainmenu .gamaF2Body{min-width:0;width:100%;padding-right:8px}

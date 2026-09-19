@@ -113,6 +113,11 @@
  --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
  --arc-card-border:#EDF1F5;--arc-card-shadow:0 3px 16px rgba(18,46,70,.025);
+ /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
+ --arc-tile-border:#A8B3BF;--arc-tile-border-bottom:#8796A7;
+ --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(18,46,70,.14),0 5px 12px rgba(18,46,70,.12);
+ --arc-tile-border-hover:#697D91;
+ --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(18,46,70,.16),0 8px 18px rgba(18,46,70,.18);
  --arc-icon-cyan:#1396AA;--arc-icon-cyan-bg:#E3F6F7;
  --arc-icon-blue:#0963DB;--arc-icon-blue-bg:#E4F1FF;
  --arc-icon-green:#10A36E;--arc-icon-green-bg:#E0F9ED;

@@ -12,7 +12,7 @@ test('company dashboard aggregates periods without fan-out, respects RLS and acc
  insert into sales_orders(id,number,customer_id,customer_name,created_by,request_key,status,created_at) values('${order}','DASH-001','${customer}','Dashboard customer','${admin}',gen_random_uuid(),'confirmed','2020-02-01 04:00:00+00');
  -- Historical reporting fixtures only: the production creation workflow is covered by its own tests.
  set session_replication_role=replica;
- insert into invoices(id,invoice_number,customer_id,user_id) values('${id(9930)}','DASH-QUOTE','${customer}','${admin}');
+ insert into invoices(id,invoice_number,customer_id,user_id,issue_date,subtotal,total,quote_state) values('${id(9930)}','DASH-QUOTE','${customer}','${admin}','2020-02-10',100,115,'accepted'),('${id(9931)}','UNCONVERTED','${customer}','${admin}','2020-02-10',999999,999999,'sent');
  insert into external_invoices(id,request_key,order_id,number,issue_date,due_date,subtotal,tax,fiscal_status,issuer_ruc,document_kind,source_quote_id,document_snapshot,created_by) values
  ('${invoice}',gen_random_uuid(),'${order}','DASH-I-1','2020-02-10','2020-02-20',100,15,'unverified','1234567890001','internal','${id(9930)}','{}','${admin}'),
  ('${other}',gen_random_uuid(),'${order}','DASH-I-2','2020-01-20','2020-01-31',80,12,'authorized','1234567890001','external',null,null,'${admin}'),

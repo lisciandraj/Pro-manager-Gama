@@ -578,8 +578,10 @@
 #gamaLanguagePicker svg{display:block;width:28px;height:19px;border-radius:2px;box-shadow:0 0 0 1px rgba(18,37,60,.13)}
 #gamaLanguagePicker button[aria-pressed="true"]{border-color:var(--arc-accent-600);background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:var(--arc-fw-bold)}
 #gamaLanguagePicker button:focus-visible{outline:3px solid var(--arc-warning);outline-offset:1px}
-#gamaCloudLogin #gamaLanguagePicker{justify-content:center}
-#gamaCloudLogin #gamaLanguagePicker button{min-width:0;margin:0}
+#gamaCloudLogin #gamaLanguagePicker{justify-content:center;flex-wrap:nowrap}
+#gamaCloudLogin #gamaLanguagePicker button{justify-content:center;flex:0 0 48px;width:48px;min-width:0;height:48px;padding:8px;margin:0;background:transparent;box-shadow:none}
+#gamaCloudLogin #gamaLanguagePicker button[aria-pressed="true"]{background:var(--arc-accent-100)}
+#gamaCloudLogin #gamaLanguagePicker button span{display:none}
 @media print{#gamaLanguagePicker{display:none!important}}
 
 /* gama-inventory-v2.js */

@@ -140,18 +140,18 @@ function css(){
  .gamaCards.gamaCards{display:block!important;min-width:0!important;overflow:visible!important;white-space:normal!important}
  .gamaCards.gamaCards>thead,.gamaCards.gamaCards [data-gama-head]{display:none!important}
  .gamaCards.gamaCards>tbody{display:block!important}
- .gamaCards.gamaCards tr{display:block!important;background:#fff;border:1px solid #e4ebee;border-radius:12px;padding:11px 13px;margin-bottom:9px}
+ .gamaCards.gamaCards tr{display:block!important;background:#fff;border:1px solid var(--arc-surface-3);border-radius:12px;padding:11px 13px;margin-bottom:9px}
  /* La etiqueta va posicionada y no en una columna de rejilla: una celda trae
     su valor, a veces un <small> debajo y a veces una barra o unos botones, y
     como items de rejilla cada uno se habría ido a una casilla suya. Sacándola
     del flujo, dentro de la celda todo sigue siendo lo que era. */
  .gamaCards.gamaCards td{position:relative;display:block!important;border:0!important;padding:7px 0 7px var(--gamaCardsLabel,118px)!important;font-size:12.5px!important;text-align:left!important;white-space:normal!important;vertical-align:baseline!important}
- .gamaCards.gamaCards td::before{position:absolute;left:0;top:9px;width:calc(var(--gamaCardsLabel,118px) - 10px);content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#71808a;line-height:1.3}
+ .gamaCards.gamaCards td::before{position:absolute;left:0;top:9px;width:calc(var(--gamaCardsLabel,118px) - 10px);content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--arc-text-muted);line-height:1.3}
  /* El titular de la ficha y la celda sin nombre de columna —la de los botones—
     no necesitan el hueco de una etiqueta que no llevan. */
  .gamaCards.gamaCards td[data-gama-title],.gamaCards.gamaCards td[data-col=""]{padding-left:0!important}
  .gamaCards.gamaCards td[data-gama-title]::before,.gamaCards.gamaCards td[data-col=""]::before{content:none}
- .gamaCards.gamaCards td[data-gama-title]{padding:0 0 9px!important;margin-bottom:3px;border-bottom:1px solid #edf1f2!important;font-size:13.5px!important;font-weight:700}
+ .gamaCards.gamaCards td[data-gama-title]{padding:0 0 9px!important;margin-bottom:3px;border-bottom:1px solid var(--arc-surface-3)!important;font-size:13.5px!important;font-weight:700}
  .gamaCards.gamaCards td[data-col=""]{padding-top:8px!important}
  .gamaCards.gamaCards td:empty{display:none!important}
  /* Los botones de una fila caben de sobra en una línea; sin esto la regla

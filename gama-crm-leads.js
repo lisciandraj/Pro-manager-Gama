@@ -63,7 +63,7 @@ async function quienSoy(){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const [l,c,r,g]=await Promise.all([
   api.list('crm_leads',{select:CRM.cols.leads,order:'created_at',ascending:false}),
   /* customers se pide con cuatro columnas: hace falta para enseñar a qué
@@ -434,12 +434,12 @@ function css(){
  /* La lista, la barra y el formulario los viste ya la hoja del núcleo, que la
     comparten todas las pantallas. Aquí sólo van los colores propios de los
     estados de un prospecto y el aviso de ficha repetida. */
- s.textContent='#crm .crmEstado.e-calificado{background:#e4f1fb;color:#1b5f8c}'
- +'#crm .crmEstado.e-convertido{background:#e7f6f0;color:#12795c}'
- +'#crm .crmEstado.e-perdido,#crm .crmEstado.e-no_calificado{background:#fff0ec;color:#b4483c}'
- +'#crm .crmPri.p-alta{background:#fdefe4;color:#9a5314}'
- +'#crm .crmPri.p-baja{background:#f4f6f7;color:#8a97a0}'
- +'#crm .crmAviso.crmDup{background:#fff8f1;border-color:#f0dcc6;border-left-color:#d98324}';
+ s.textContent='#crm .crmEstado.e-calificado{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
+ +'#crm .crmEstado.e-convertido{background:var(--arc-success-bg);color:var(--arc-success)}'
+ +'#crm .crmEstado.e-perdido,#crm .crmEstado.e-no_calificado{background:var(--arc-danger-bg);color:var(--arc-danger)}'
+ +'#crm .crmPri.p-alta{background:var(--arc-warning-bg);color:var(--arc-warning)}'
+ +'#crm .crmPri.p-baja{background:var(--arc-surface-2);color:var(--arc-text-subtle)}'
+ +'#crm .crmAviso.crmDup{background:var(--arc-warning-bg);border-color:var(--arc-warning-line);border-left-color:var(--arc-warning)}';
  document.head.appendChild(s);
 }
 

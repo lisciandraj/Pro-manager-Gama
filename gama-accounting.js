@@ -71,44 +71,44 @@ function css(){
     en el escritorio, sólo cambia cuántas columnas caben. */
  s.textContent=`#accounting{display:none}#accounting.active{display:block}
 .gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.gaNav button{border:1px solid #cbd8df;background:#fff;color:#18324a;border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.gaNav button.on{background:#087c8b;border-color:#087c8b;color:#fff}
-.gaCard{background:#fff;border:1px solid #cbd8df;border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
-.gaCard h3{margin:0 0 10px;font-size:16px;color:#18324a}
+.gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
+.gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.gaCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
+.gaCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
 .gaKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
 .gaKpis .gaCard{margin:0}
-.gaKpis small{display:block;color:#526975;font-size:12px;font-weight:700}
-.gaKpis strong{display:block;font-size:24px;margin-top:7px;color:#18324a}
-.gaKpis em{display:block;font-style:normal;font-size:12px;color:#526975;margin-top:5px}
-.gaUp{color:#12633e}.gaDown{color:#a32318}
+.gaKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
+.gaKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
+.gaKpis em{display:block;font-style:normal;font-size:12px;color:var(--arc-text-muted);margin-top:5px}
+.gaUp{color:var(--arc-success)}.gaDown{color:var(--arc-danger)}
 .gaTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
-.gaTools label{flex:1;min-width:160px;font-size:13px;color:#18324a;font-weight:700}
-.gaTools input,.gaTools select{width:100%;font-size:16px;min-height:42px;border:1px solid #cbd8df;border-radius:9px;padding:9px;background:#fff;color:#18324a}
+.gaTools label{flex:1;min-width:160px;font-size:13px;color:var(--arc-text);font-weight:700}
+.gaTools input,.gaTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
 .gaScroll{overflow:auto}
 .gaTable{width:100%;border-collapse:collapse;min-width:620px}
-.gaTable th,.gaTable td{text-align:left;padding:11px;border-bottom:1px solid #bacbd5;vertical-align:top;font-size:13px}
-.gaTable th{font-size:12px;color:#37505f;font-weight:800}
-.gaTable tbody tr:nth-child(even){background:#eef4f7}
+.gaTable th,.gaTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
+.gaTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
+.gaTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
 .gaTable td.gaNum,.gaTable th.gaNum{text-align:right;white-space:nowrap}
-.gaBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:#edf2f6;color:#304c60;font-weight:700;font-size:12px}
-.gaBadge[data-s=overdue]{background:#ffe5e2;color:#a32318}
-.gaBadge[data-s=paid]{background:#dcf4e7;color:#12633e}
-.gaBadge[data-s=partial],.gaBadge[data-s=due_soon]{background:#fff0da;color:#914900}
-.gaBadge[data-s=posted]{background:#dcf4e7;color:#12633e}
-.gaBadge[data-s=reversed],.gaBadge[data-s=cancelled]{background:#eceff1;color:#5c6b73}
+.gaBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
+.gaBadge[data-s=overdue]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.gaBadge[data-s=paid]{background:var(--arc-success-bg);color:var(--arc-success)}
+.gaBadge[data-s=partial],.gaBadge[data-s=due_soon]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.gaBadge[data-s=posted]{background:var(--arc-success-bg);color:var(--arc-success)}
+.gaBadge[data-s=reversed],.gaBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
 .gaAging{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:10px 0}
-.gaAging div{border:1px solid #cbd8df;border-radius:11px;padding:11px;background:#fff}
-.gaAging b{display:block;font-size:17px;margin-top:5px;color:#18324a}
-.gaBar{height:9px;border-radius:9px;background:#e6edf1;overflow:hidden;margin-top:7px}
-.gaBar i{display:block;height:100%;background:#087c8b}
+.gaAging div{border:1px solid var(--arc-line-strong);border-radius:11px;padding:11px;background:#fff}
+.gaAging b{display:block;font-size:17px;margin-top:5px;color:var(--arc-text)}
+.gaBar{height:9px;border-radius:9px;background:var(--arc-line);overflow:hidden;margin-top:7px}
+.gaBar i{display:block;height:100%;background:var(--arc-accent-600)}
 .gaActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
 .gaActions button{min-height:42px}
-.gaHint{font-size:13px;color:#526975;margin:7px 0}
-.gaError{color:#a32318;font-weight:700}
+.gaHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
+.gaError{color:var(--arc-danger);font-weight:700}
 .gaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
-.gaGrid label{font-size:13px;color:#18324a;font-weight:700;display:block}
-.gaGrid input,.gaGrid select,.gaGrid textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid #cbd8df;border-radius:9px;padding:9px;background:#fff;color:#18324a}
-.gaForecast{border-left:5px solid #e58b22}
+.gaGrid label{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
+.gaGrid input,.gaGrid select,.gaGrid textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
+.gaForecast{border-left:5px solid var(--arc-warning)}
 @media(max-width:700px){.gaKpis{grid-template-columns:1fr 1fr}.gaKpis strong{font-size:20px}
  .gaTable{min-width:520px}.gaTools label{min-width:130px}}
 @media(max-width:430px){.gaKpis{grid-template-columns:1fr}}`;
@@ -242,7 +242,7 @@ VIEWS.overview={
     <p>${tr('Movimientos bancarios sin conciliar')} : <b>${esc(num(d.alerts.unmatched,0))}</b></p>
     <p>${tr('Gastos sin justificante')} : <b>${esc(num(d.alerts.no_receipt,0))}</b></p>
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
-    <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de GAMA.')}</p></div>`:''}`;
+    <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Architect.')}</p></div>`:''}`;
  },
  bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo))}
 };
@@ -580,7 +580,7 @@ VIEWS.cash={
       ?`<button class="primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
       :`<button class="secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
-   <p class="gaHint">${tr('GAMA propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
+   <p class="gaHint">${tr('Architect propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
  bind(){
   $('gaApply')?.addEventListener('click',()=>{state.status=$('gaStatus').value;go()});
@@ -672,7 +672,7 @@ async function matchForm(id){
  let suggestions=[];
  try{suggestions=await rpc('reconcile_suggest',{id})}catch(e){}
  const el=GamaSales.modal('Conciliar el movimiento',
-  suggestions.length?`<p>${tr('GAMA propone estas correspondencias. Elige la correcta; ninguna se aplica sola.')}</p>
+  suggestions.length?`<p>${tr('Architect propone estas correspondencias. Elige la correcta; ninguna se aplica sola.')}</p>
    ${suggestions.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.id)}">
     <b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}</label></p>`).join('')}
    <p><label><input type="radio" name="gaMatch" value="ignore|"> ${tr('Ignorar este movimiento')}</label></p>`
@@ -802,7 +802,7 @@ VIEWS.taxes={
     <td>${t.active?tr('Activo'):tr('Inactivo')}</td>
     <td>${rights?.edit?`<button class="secondary" data-ga-tax="${esc(t.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
-   <p class="gaHint">${tr('GAMA no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.')}</p></div>`;
+   <p class="gaHint">${tr('Architect no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.')}</p></div>`;
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'impuestos');
@@ -916,7 +916,7 @@ VIEWS.config={
    ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit?'':'readonly'}>`)}
    ${field('Primer mes del ejercicio',`<input id="gaFiscal" type="number" min="1" max="12" value="${esc(d.settings.fiscal_year_start_month)}" ${rights?.edit?'':'readonly'}>`)}
    </div>
-   <p class="gaHint">${tr('La divisa se aplica a todo GAMA: pantallas, informes y documentos PDF.')}</p>
+   <p class="gaHint">${tr('La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.')}</p>
    <h3>${tr('Cuentas de los asientos automáticos')}</h3><div class="gaGrid">
    ${pick('gaRecv','Clientes',d.settings.receivable_account_id)}
    ${pick('gaPay','Proveedores',d.settings.payable_account_id)}
@@ -935,7 +935,7 @@ VIEWS.config={
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
     <td>${rights?.edit?`<button class="secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
-   <p class="gaHint">${tr('GAMA no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.')}</p></div>
+   <p class="gaHint">${tr('Architect no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.')}</p></div>
 
    ${d.permissions.length?`<div class="gaCard"><h3>${tr('Permisos de Contabilidad')}</h3>
    <div class="gaScroll"><table class="gaTable"><thead><tr>
@@ -993,7 +993,7 @@ function exportRows(rows,name){
  const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
  const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
- const a=document.createElement('a');a.href=url;a.download=`GAMA-${name}-${day()}.csv`;
+ const a=document.createElement('a');a.href=url;a.download=`Architect-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 

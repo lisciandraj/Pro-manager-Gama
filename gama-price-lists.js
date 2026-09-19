@@ -18,7 +18,7 @@ function msg(t,err){const m=$('plMsg');if(!m)return;m.className='plMsg'+(err?' p
 function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(e.message||e.details)||e),true)}
 
 async function load(){
- const api=C();if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
+ const api=C();if(!api){msg('La conexión con la nube de Architect ERP no está disponible.',true);return}
  try{
   const [c,p]=await Promise.all([
    api.list('customers',{order:'name',ascending:true}),
@@ -85,15 +85,15 @@ function css(){
  if($('plCss'))return;
  const s=document.createElement('style');s.id='plCss';
  s.textContent=`#price-lists .plGrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px;align-items:start}
-#price-lists .card{background:#fff;border:1px solid var(--gama-line,#c9d6df);border-radius:14px;padding:16px;margin-bottom:12px}
-.plList{background:#fff;border:1px solid #e4ebee;border-radius:11px;overflow:hidden;margin-bottom:12px}
-.plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid #edf1f2;cursor:pointer}
+#price-lists .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
+.plList{background:#fff;border:1px solid var(--arc-surface-3);border-radius:11px;overflow:hidden;margin-bottom:12px}
+.plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--arc-surface-3);cursor:pointer}
 .plItem:last-child{border-bottom:0}
-.plItem.on{background:#e8f5f6}
+.plItem.on{background:var(--arc-accent-100)}
 .plItem b{display:block;font-size:13px}
-.plItem small{color:#7b8992;font-size:11px}
+.plItem small{color:var(--arc-text-subtle);font-size:11px}
 .plMsg{margin:10px 0;font-size:13px}
-.plMsg.plOk{color:#138a69}.plMsg.plErr{color:#c94f45;font-weight:700}
+.plMsg.plOk{color:var(--arc-success)}.plMsg.plErr{color:var(--arc-danger);font-weight:700}
 .plRow{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}
 .plTableWrap{width:100%;overflow-x:auto;margin-top:10px}
 /* min-width:min-content en vez de una anchura fija: con 520 px clavados, si
@@ -101,12 +101,12 @@ function css(){
    contenedor contara ese sobrante como algo que desplazar. */
 .plTable{width:100%;min-width:min-content;border-collapse:collapse}
 .plBtnTxt{display:none}
-.plTable th,.plTable td{padding:9px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px}
-.plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
+.plTable th,.plTable td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px}
+.plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
 .plTable input{width:110px;padding:6px;text-align:right}
-.plContrato{display:block;color:#7b8992;font-size:10.5px}
-.plDelta{font-weight:800}.plDelta.up{color:#138a69}.plDelta.down{color:#c94f45}
-.plEmpty{padding:20px;text-align:center;color:#81909a}
+.plContrato{display:block;color:var(--arc-text-subtle);font-size:10.5px}
+.plDelta{font-weight:800}.plDelta.up{color:var(--arc-success)}.plDelta.down{color:var(--arc-danger)}
+.plEmpty{padding:20px;text-align:center;color:var(--arc-text-subtle)}
 @media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
 /* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
    aplicación. Aquí sólo queda lo propio: el ancho que necesita la etiqueta más

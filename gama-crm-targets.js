@@ -75,7 +75,7 @@ function periodoDeHoy(kind){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const [o,g]=await Promise.all([
   api.list('crm_targets',{select:COLS,eq:{period_kind:tipo},order:'period_start',ascending:false}),
   CRM.comerciales(),
@@ -283,11 +283,11 @@ function css(){
  if($('crmTgtCss'))return;
  const s=document.createElement('style');s.id='crmTgtCss';
  s.textContent='#crm [hidden]{display:none!important}'
- +'#crm .crmBarra{background:#eef3f4;border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
- +'#crm .crmBarra i{display:block;height:100%;background:#087c8b;border-radius:999px}'
- +'#crm .crmBarra i.ok{background:#138a69}'
- +'#crm .crmBarra i.ko{background:#c94f45}'
- +'#crm .crmVerde{color:#138a69}';
+ +'#crm .crmBarra{background:var(--arc-surface-3);border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
+ +'#crm .crmBarra i{display:block;height:100%;background:var(--arc-accent-600);border-radius:999px}'
+ +'#crm .crmBarra i.ok{background:var(--arc-success)}'
+ +'#crm .crmBarra i.ko{background:var(--arc-danger)}'
+ +'#crm .crmVerde{color:var(--arc-success)}';
  document.head.appendChild(s);
 }
 

@@ -215,18 +215,18 @@ function css(){
  const s=document.createElement('style');s.id='gamaFindCss';
  s.textContent=`.gamaFind{position:relative;margin:0 0 6px;flex:1 1 220px;min-width:0}
 .gamaFind[hidden]{display:none!important}
-.gamaFindBox{width:100%;padding:11px 12px;border:1px solid #D4E0E4;border-radius:9px;font-size:16px;background:#fff;color:inherit}
-.gamaFindBox:focus{outline:none;border-color:#087C8B;box-shadow:0 0 0 3px #087c8b1f}
-.gamaFindHint{display:block;margin-top:4px;font-size:11px;color:#7B8992}
+.gamaFindBox{width:100%;padding:11px 12px;border:1px solid var(--arc-line);border-radius:9px;font-size:16px;background:#fff;color:inherit}
+.gamaFindBox:focus{outline:none;border-color:var(--arc-accent-600);box-shadow:var(--arc-focus)}
+.gamaFindHint{display:block;margin-top:4px;font-size:11px;color:var(--arc-text-subtle)}
 /* La lista flota sobre lo que venga después. z-index por encima del 20 que
    gama-standard-ui le pone a los <select> y del 40 de la cabecera. */
-.gamaFindMenu{display:none;position:absolute;left:0;right:0;top:calc(100% - 14px);z-index:60;max-height:280px;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid #C9D6DF;border-radius:11px;box-shadow:0 10px 30px #18324a26}
+.gamaFindMenu{display:none;position:absolute;left:0;right:0;top:calc(100% - 14px);z-index:60;max-height:280px;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid var(--arc-line-strong);border-radius:11px;box-shadow:0 10px 30px rgba(18,37,60,.15)}
 .gamaFind.abierto .gamaFindMenu{display:block}
-.gamaFindOpt{padding:11px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid #EDF1F2;line-height:1.35}
+.gamaFindOpt{padding:11px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--arc-surface-3);line-height:1.35}
 .gamaFindOpt:last-child{border-bottom:0}
-.gamaFindOpt.on{background:#E8F5F6}
-.gamaFindOpt b{color:#087C8B;font-weight:800}
-.gamaFindNada{padding:14px 12px;font-size:13px;color:#81909A}
+.gamaFindOpt.on{background:var(--arc-accent-100)}
+.gamaFindOpt b{color:var(--arc-accent-600);font-weight:800}
+.gamaFindNada{padding:14px 12px;font-size:13px;color:var(--arc-text-subtle)}
 /* Escondido pero presente: sin caja visible y sin quitarle el sitio, pero el
    navegador lo sigue teniendo por un control de la página. */
 select.gamaFindOculto{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0;z-index:-1}`;

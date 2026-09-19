@@ -44,10 +44,10 @@ function css(){
  if(document.getElementById('gamaArcCss'))return;
  const s=document.createElement('style');s.id='gamaArcCss';
  s.textContent='.gamaArcTabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}'
- +'.gamaArcTabs button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto}'
- +'.gamaArcTabs button.on{background:#087c8b;border-color:#087c8b;color:#fff}'
- +'.gamaArcNote{background:#f8fbfb;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:9px;padding:11px;font-size:13px;color:#4c5c68;margin-bottom:12px}'
- +'.gamaArcEmpty{padding:22px;text-align:center;color:#81909a}';
+ +'.gamaArcTabs button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto}'
+ +'.gamaArcTabs button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}'
+ +'.gamaArcNote{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:12px}'
+ +'.gamaArcEmpty{padding:22px;text-align:center;color:var(--arc-text-subtle)}';
  document.head.appendChild(s);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',css,{once:true});else css();

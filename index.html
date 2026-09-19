@@ -5,45 +5,46 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://mknsaibrewksgomuslev.supabase.co wss://mknsaibrewksgomuslev.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net https://unpkg.com; form-action 'self' https://mail.google.com https://outlook.live.com; base-uri 'self'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#087C8B"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="GAMA ERP">
-<meta name="description" content="Inventario, compras, ventas y facturación de GAMA en una sola aplicación.">
-<link rel="manifest" href="manifest.json?v=20260915-gama-logo">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=20260915-gama-logo">
-<link rel="apple-touch-icon" href="icon-180.png?v=20260915-gama-logo">
+<meta name="theme-color" content="#0B1B30"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Architect ERP">
+<meta name="description" content="Architect ERP: inventario, compras, ventas y facturación en una sola aplicación.">
+<link rel="manifest" href="manifest.json?v=20260918-architect1">
+<link rel="icon" type="image/svg+xml" href="architect-icon.svg?v=20260918-architect1">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=20260918-architect1">
+<link rel="apple-touch-icon" href="icon-180.png?v=20260918-architect1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=20260917-prepsingle1"></script>
-<script src="gama-i18n.js?v=20260913-accesssettings1"></script>
+<script src="gama-i18n-catalog.js?v=20260918-architect1"></script>
+<script src="gama-i18n.js?v=20260918-architect1"></script>
 <script src="gama-currency.js?v=20260917-accounting1"></script>
-<script src="gama-toast.js?v=20260913-i18n1"></script>
-<title>GAMA Enterprise Resource Planning</title>
+<script src="gama-toast.js?v=20260918-architect1"></script>
+<title>Architect ERP</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
-header{background:#111827;color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
-.wrap{max-width:1150px;margin:auto;padding:12px}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.card{background:#fff;border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px #0001}.kpi{font-size:25px;font-weight:800}.muted{font-size:12px;color:#6b7280}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;z-index:30;display:grid;grid-template-columns:repeat(9,1fr);gap:3px;padding:7px;box-shadow:0 -4px 18px #0002}.tab{border:0;background:#e5e7eb;border-radius:9px;padding:8px 2px;font-size:9px}.tab.active{background:#111827;color:#fff}
-section{display:none}section.active{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-weight:650;margin:7px 0 4px}input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:9px;font-size:16px;background:#fff}textarea{min-height:80px}
-button{border:0;border-radius:9px;padding:12px 14px;font-weight:700;cursor:pointer}.primary{background:#111827;color:#fff}.secondary{background:#e5e7eb}.danger{background:#b91c1c;color:#fff}.success{background:#047857;color:#fff}.warning{background:#b45309;color:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--arc-surface-2);color:var(--arc-text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
+header{background:var(--arc-text);color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
+.wrap{max-width:1150px;margin:auto;padding:12px}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.card{background:#fff;border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(18,37,60,.07)}.kpi{font-size:25px;font-weight:800}.muted{font-size:12px;color:var(--arc-text-muted)}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;z-index:30;display:grid;grid-template-columns:repeat(9,1fr);gap:3px;padding:7px;box-shadow:0 -4px 18px rgba(18,37,60,.13)}.tab{border:0;background:var(--arc-line);border-radius:9px;padding:8px 2px;font-size:9px}.tab.active{background:var(--arc-text);color:#fff}
+section{display:none}section.active{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-weight:650;margin:7px 0 4px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--arc-line);border-radius:9px;font-size:16px;background:#fff}textarea{min-height:80px}
+button{border:0;border-radius:9px;padding:12px 14px;font-weight:700;cursor:pointer}.primary{background:var(--arc-text);color:#fff}.secondary{background:var(--arc-line)}.danger{background:var(--arc-danger);color:#fff}.success{background:var(--arc-success);color:#fff}.warning{background:var(--arc-warning);color:#fff}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.scanner{display:grid;grid-template-columns:1fr auto;gap:7px}
-table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}th,td{padding:9px;border-bottom:1px solid #eee;text-align:left;font-size:12px;vertical-align:middle}
-.low{color:#b91c1c;font-weight:800}.ok{color:#047857;font-weight:800}.in{color:#047857;font-weight:800}.out{color:#b91c1c;font-weight:800}
-.product-img{width:58px;height:58px;object-fit:cover;border-radius:10px;background:#eee}.empty-img{font-size:30px}
+table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}th,td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px;vertical-align:middle}
+.low{color:var(--arc-danger);font-weight:800}.ok{color:var(--arc-success);font-weight:800}.in{color:var(--arc-success);font-weight:800}.out{color:var(--arc-danger);font-weight:800}
+.product-img{width:58px;height:58px;object-fit:cover;border-radius:10px;background:var(--arc-surface-3)}.empty-img{font-size:30px}
 .photo-preview{display:none;width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:8px}
-#camera{display:none;width:100%;max-height:55vh;margin-top:10px;border-radius:12px;background:#111}
-.notice{background:#fff7ed;border-left:4px solid #ea580c;padding:11px;border-radius:8px;font-size:13px}.audit{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
-.invoice-preview{background:#fff;border-radius:10px;padding:18px;margin-top:15px}.totals{max-width:320px;margin-left:auto}.totals div{display:flex;justify-content:space-between;padding:5px}.grand{border-top:2px solid #111827;font-size:18px;font-weight:800;padding-top:8px}
-.barcodebox{text-align:center;border:1px dashed #9ca3af;border-radius:10px;padding:15px;margin-top:12px}.barcodebox svg{width:100%;height:140px}
-.badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e5e7eb;font-size:11px;font-weight:700}
+#camera{display:none;width:100%;max-height:55vh;margin-top:10px;border-radius:12px;background:var(--arc-text)}
+.notice{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);padding:11px;border-radius:8px;font-size:13px}.audit{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.invoice-preview{background:#fff;border-radius:10px;padding:18px;margin-top:15px}.totals{max-width:320px;margin-left:auto}.totals div{display:flex;justify-content:space-between;padding:5px}.grand{border-top:2px solid var(--arc-text);font-size:18px;font-weight:800;padding-top:8px}
+.barcodebox{text-align:center;border:1px dashed var(--arc-text-subtle);border-radius:10px;padding:15px;margin-top:12px}.barcodebox svg{width:100%;height:140px}
+.badge{display:inline-block;padding:4px 7px;border-radius:999px;background:var(--arc-line);font-size:11px;font-weight:700}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
 @media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
 @media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}body:has(#barcode.active) *{visibility:hidden!important}body:has(#barcode.active) .barcodebox,body:has(#barcode.active) .barcodebox *{visibility:visible!important}body:has(#barcode.active) .barcodebox{position:absolute!important;left:0;top:0;width:100%;border:0!important;padding:0!important;margin:0!important}}
-.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:#f8fbfb;border:1px solid #dbe6ea;border-radius:10px;font-size:13px;color:#4c5c68}.stockSummary .low{color:#c75e18}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:#e8f5f6;color:#087c8b;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:#fff0e5;color:#c75e18}.quoteWas{color:#8c99a3;text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:#087c8b;font-weight:700;font-size:12px}</style>
+.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:10px;font-size:13px;color:var(--arc-text-muted)}.stockSummary .low{color:var(--arc-warning)}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:var(--arc-accent-100);color:var(--arc-accent-600);border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:var(--arc-warning-bg);color:var(--arc-warning)}.quoteWas{color:var(--arc-text-subtle);text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:var(--arc-accent-600);font-weight:700;font-size:12px}</style>
 
 <style>
-:root{--gama-teal:#087C8B;--gama-dark:#075C69;--gama-orange:#F47A2A;--gama-orange2:#FF8B45;--gama-bg:#E4EAF0;--gama-line:#C9D6DF;--gama-text:#173246}
-body{background:var(--gama-bg);color:var(--gama-text)}header.gamaHeader{background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 16px;box-shadow:0 2px 12px #17324612}.brandMobile{display:flex;align-items:center;gap:10px}.brandMobile img{width:55px;height:55px;object-fit:cover;border-radius:10px}.brandMobile h1{margin:0;font-size:20px;color:var(--gama-teal)}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:#71808a}.onlineDot{position:absolute;right:16px;top:22px;color:#138A69;font-size:12px;font-weight:700}.card{border:1px solid var(--gama-line);box-shadow:0 1px 2px #17324612,0 5px 16px #17324616}.tabs{background:#fff;border-top:1px solid var(--gama-line)}.tab{background:#EEF3F4;color:var(--gama-text)}.tab.active{background:var(--gama-teal);color:#fff}.primary{background:var(--gama-teal)}.danger{background:#C94F45}.success{background:#128C68}.warning{background:#B66A18}.secondary{background:#EEF3F4;color:var(--gama-text)}input,select,textarea{border-color:#D4E0E4}.notice{border-left-color:var(--gama-orange);background:#FFF6EF}
-.dashHead{display:flex;justify-content:space-between;align-items:end;margin:10px 0 16px}.dashHead h2{margin:0;font-size:24px}.dashHead p{margin:3px 0;color:#71808a}.dashFilters{display:flex;gap:7px}.dashFilters select{width:auto;min-width:125px;padding:9px}.dashCards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.dashCard{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px #17324612,0 5px 16px #17324616}.dashCard span{display:block;color:#71808a;font-size:12px;font-weight:700}.dashCard strong{display:block;font-size:25px;margin-top:8px;color:var(--gama-text)}.dashCard em{font-size:11px;color:#138A69;font-style:normal;font-weight:700}.dashGrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}.dashPanel{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px #17324612,0 5px 16px #17324616;min-height:190px}.chartPanel{grid-row:span 2}.panelTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panelTitle b{display:block;font-size:14px}.panelTitle small{display:block;color:#81909a;font-size:11px;margin-top:3px}.panelTitle>strong{font-size:15px;color:var(--gama-teal)}.chartBox{height:360px}.chartBox svg{width:100%;height:100%;overflow:visible}.chartGridLine{stroke:#E9EFF1;stroke-width:1}.chartLabel{font-size:10px;fill:#87949D}.chartDot{fill:#fff;stroke:var(--gama-orange);stroke-width:3}.chartDot.selected{fill:var(--gama-orange);stroke:#fff;stroke-width:4}.summaryList div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #EDF1F2;font-size:13px}.summaryList div:last-child{border:0}.summaryList span{color:#71808a}.summaryList b{color:var(--gama-text)}.dashTopRow{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #EDF1F2;font-size:12px}.rank{width:22px;height:22px;border-radius:50%;background:#EEF7F8;color:var(--gama-teal);display:grid;place-items:center;font-weight:800}.dashMove{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #EDF1F2;font-size:11px}.moveIcon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800}.moveIn{background:#E7F6F0;color:#138A69}.moveOut{background:#FFF0EC;color:#C94F45}.dashMove small{display:block;color:#84919A}.dashMove b{margin-left:auto}.gamaFooter{color:#82919A}
+:root{--gama-teal:var(--arc-accent-600);--gama-dark:var(--arc-accent-700);--gama-orange:var(--arc-accent-600);--gama-orange2:var(--arc-accent-700);--gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text)}
+body{background:var(--gama-bg);color:var(--gama-text)}header.gamaHeader{background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 16px;box-shadow:0 2px 12px rgba(18,37,60,.07)}.brandMobile{display:flex;align-items:center;gap:10px}.brandMobile img{width:55px;height:55px;object-fit:cover;border-radius:10px}.brandMobile h1{margin:0;font-size:20px;color:var(--gama-teal)}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:var(--arc-text-muted)}.onlineDot{position:absolute;right:16px;top:22px;color:var(--arc-success);font-size:12px;font-weight:700}.card{border:1px solid var(--gama-line);box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09)}.tabs{background:#fff;border-top:1px solid var(--gama-line)}.tab{background:var(--arc-surface-3);color:var(--gama-text)}.tab.active{background:var(--gama-teal);color:#fff}.primary{background:var(--gama-teal)}.danger{background:var(--arc-danger)}.success{background:var(--arc-success)}.warning{background:var(--arc-warning)}.secondary{background:var(--arc-surface-3);color:var(--gama-text)}input,select,textarea{border-color:var(--arc-line)}.notice{border-left-color:var(--gama-orange);background:var(--arc-warning-bg)}
+.dashHead{display:flex;justify-content:space-between;align-items:end;margin:10px 0 16px}.dashHead h2{margin:0;font-size:24px}.dashHead p{margin:3px 0;color:var(--arc-text-muted)}.dashFilters{display:flex;gap:7px}.dashFilters select{width:auto;min-width:125px;padding:9px}.dashCards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.dashCard{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09)}.dashCard span{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}.dashCard strong{display:block;font-size:25px;margin-top:8px;color:var(--gama-text)}.dashCard em{font-size:11px;color:var(--arc-success);font-style:normal;font-weight:700}.dashGrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}.dashPanel{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09);min-height:190px}.chartPanel{grid-row:span 2}.panelTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panelTitle b{display:block;font-size:14px}.panelTitle small{display:block;color:var(--arc-text-subtle);font-size:11px;margin-top:3px}.panelTitle>strong{font-size:15px;color:var(--gama-teal)}.chartBox{height:360px}.chartBox svg{width:100%;height:100%;overflow:visible}.chartGridLine{stroke:var(--arc-surface-3);stroke-width:1}.chartLabel{font-size:10px;fill:var(--arc-text-subtle)}.chartDot{fill:#fff;stroke:var(--gama-orange);stroke-width:3}.chartDot.selected{fill:var(--gama-orange);stroke:#fff;stroke-width:4}.summaryList div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--arc-surface-3);font-size:13px}.summaryList div:last-child{border:0}.summaryList span{color:var(--arc-text-muted)}.summaryList b{color:var(--gama-text)}.dashTopRow{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}.rank{width:22px;height:22px;border-radius:50%;background:var(--arc-surface-3);color:var(--gama-teal);display:grid;place-items:center;font-weight:800}.dashMove{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--arc-surface-3);font-size:11px}.moveIcon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800}.moveIn{background:var(--arc-success-bg);color:var(--arc-success)}.moveOut{background:var(--arc-danger-bg);color:var(--arc-danger)}.dashMove small{display:block;color:var(--arc-text-subtle)}.dashMove b{margin-left:auto}.gamaFooter{color:var(--arc-text-subtle)}
 @media(max-width:700px){body{padding-bottom:78px}.gamaHeader{padding:9px 12px!important}.brandMobile img{width:46px;height:46px}.brandMobile h1{font-size:16px}.brandMobile small{font-size:10px}.onlineDot{display:none}.wrap{padding:10px}.tabs{overflow-x:auto;display:flex;gap:5px;padding:7px}.tab{min-width:74px;font-size:10px;padding:9px 6px;flex:none}.dashHead{align-items:stretch;flex-direction:column;gap:10px}.dashFilters{display:grid;grid-template-columns:1fr 1fr}.dashFilters select{width:100%;min-width:0}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{padding:12px}.dashCard strong{font-size:20px}.dashGrid{grid-template-columns:1fr}.chartPanel{grid-row:auto}.chartBox{height:230px}.dashPanel{min-height:auto}.actions{grid-template-columns:1fr 1fr}.scanner{grid-template-columns:1fr auto}.row{grid-template-columns:1fr}table{font-size:11px}}
 
 /* ---- Aire entre los campos ----
@@ -71,19 +72,19 @@ textarea{min-height:88px}
 </style>
 
 <style>
-:root{--gama-teal:#087C8B;--gama-orange:#F47A2A;--gama-bg:#E4EAF0;--gama-line:#C9D6DF;--gama-text:#18324A}
-body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaHeader{position:sticky!important;top:0;z-index:40;background:#fff!important;color:var(--gama-text)!important;border-bottom:1px solid var(--gama-line);height:76px;padding:9px 14px!important;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px #18324a0c}.headIcon{width:38px;height:38px;padding:0;border:0;background:transparent;color:#607282;font-size:25px;display:grid;place-items:center}.headIcon.plus{background:var(--gama-orange);color:#fff;border-radius:50%;font-size:24px}.brandMobile{flex:1;display:flex;align-items:center;gap:9px;min-width:0}.brandMobile img{width:52px;height:52px;object-fit:contain;border-radius:0}.brandMobile h1{font-size:19px;color:var(--gama-text)!important}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:#7b8992;font-size:10px}.headActions{display:flex;gap:2px}.wrap{max-width:1250px;margin:auto;padding:14px}.tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff!important;border-top:1px solid var(--gama-line);display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:7px 5px;box-shadow:0 -4px 18px #18324a12}.tab{background:#fff!important;color:#63717c!important;border-radius:11px;padding:7px 2px;font-size:18px;display:flex;flex-direction:column;align-items:center;gap:3px}.tab span{font-size:9px;font-weight:700}.tab.active{background:#fff7f1!important;color:var(--gama-orange)!important}.dashHead{margin:4px 2px 15px}.dashHead h2{font-size:25px;letter-spacing:-.4px}.dashHead p{font-size:13px}.dashFilters select{border-radius:9px}.dashCards{grid-template-columns:repeat(5,1fr);gap:10px}.dashCard{padding:14px;border-radius:13px}.dashCard strong{font-size:21px}.dashGrid{grid-template-columns:1.7fr 1fr 1fr}.chartPanel{grid-column:span 2;grid-row:span 2}.dashPanel{border-radius:13px;padding:15px}.donutLayout{display:flex;align-items:center;gap:14px}.donut{width:112px;height:112px;min-width:112px;border-radius:50%;background:conic-gradient(var(--gama-orange) 0 46%,var(--gama-teal) 46% 78%,#5FA6B2 78% 100%);position:relative}.donut:after{content:"";position:absolute;inset:28px;background:#fff;border-radius:50%}.legend{font-size:11px;flex:1}.legend div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid #edf1f2}.legend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.legend b{white-space:nowrap}.dashMove b{color:var(--gama-orange)}
+:root{--gama-teal:var(--arc-accent-600);--gama-orange:var(--arc-accent-600);--gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text)}
+body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaHeader{position:sticky!important;top:0;z-index:40;background:#fff!important;color:var(--gama-text)!important;border-bottom:1px solid var(--gama-line);height:76px;padding:9px 14px!important;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(18,37,60,.05)}.headIcon{width:38px;height:38px;padding:0;border:0;background:transparent;color:var(--arc-text-muted);font-size:25px;display:grid;place-items:center}.headIcon.plus{background:var(--gama-orange);color:#fff;border-radius:50%;font-size:24px}.brandMobile{flex:1;display:flex;align-items:center;gap:9px;min-width:0}.brandMobile img{width:52px;height:52px;object-fit:contain;border-radius:0}.brandMobile h1{font-size:19px;color:var(--gama-text)!important}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:var(--arc-text-subtle);font-size:10px}.headActions{display:flex;gap:2px}.wrap{max-width:1250px;margin:auto;padding:14px}.tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff!important;border-top:1px solid var(--gama-line);display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:7px 5px;box-shadow:0 -4px 18px rgba(18,37,60,.07)}.tab{background:#fff!important;color:var(--arc-text-muted)!important;border-radius:11px;padding:7px 2px;font-size:18px;display:flex;flex-direction:column;align-items:center;gap:3px}.tab span{font-size:9px;font-weight:700}.tab.active{background:var(--arc-warning-bg)!important;color:var(--gama-orange)!important}.dashHead{margin:4px 2px 15px}.dashHead h2{font-size:25px;letter-spacing:-.4px}.dashHead p{font-size:13px}.dashFilters select{border-radius:9px}.dashCards{grid-template-columns:repeat(5,1fr);gap:10px}.dashCard{padding:14px;border-radius:13px}.dashCard strong{font-size:21px}.dashGrid{grid-template-columns:1.7fr 1fr 1fr}.chartPanel{grid-column:span 2;grid-row:span 2}.dashPanel{border-radius:13px;padding:15px}.donutLayout{display:flex;align-items:center;gap:14px}.donut{width:112px;height:112px;min-width:112px;border-radius:50%;background:conic-gradient(var(--gama-orange) 0 46%,var(--gama-teal) 46% 78%,var(--arc-accent-400) 78% 100%);position:relative}.donut:after{content:"";position:absolute;inset:28px;background:#fff;border-radius:50%}.legend{font-size:11px;flex:1}.legend div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--arc-surface-3)}.legend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.legend b{white-space:nowrap}.dashMove b{color:var(--gama-orange)}
 @media(max-width:700px){.wrap{padding:12px}.dashHead{gap:8px}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{min-height:102px}.dashGrid{grid-template-columns:1fr;gap:10px}.chartPanel{grid-column:auto;grid-row:auto}.chartBox{height:225px}.donutLayout{gap:12px}.donut{width:100px;height:100px;min-width:100px}.donut:after{inset:25px}.dashPanel{min-height:0}.headActions .headIcon:last-child{display:none}.brandMobile h1{font-size:16px}.brandMobile img{width:45px;height:45px}.tabs{grid-template-columns:repeat(7,1fr)}}
 @media(min-width:900px){body{padding-bottom:0}.tabs{position:sticky;top:76px;bottom:auto;display:flex;justify-content:flex-start;gap:6px;border:0;box-shadow:none;padding:8px 14px;background:#fff!important;overflow:auto}.tab{flex-direction:row;min-width:auto;padding:9px 12px;font-size:13px}.tab span{font-size:12px}.dashCards{grid-template-columns:repeat(5,1fr)}}
 </style>
 
 <style>
 :root{
- --gama-teal:#087C8B;--gama-teal-dark:#075C69;--gama-orange:#F47A2A;--gama-orange-light:#FF8B45;
- --gama-bg:#E4EAF0;--gama-line:#C9D6DF;--gama-text:#173246;--gama-muted:#71808A;
+ --gama-teal:var(--arc-accent-600);--gama-teal-dark:var(--arc-accent-700);--gama-orange:var(--arc-accent-600);--gama-orange-light:var(--arc-accent-100);
+ --gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text);--gama-muted:var(--arc-text-muted);
 }
 body{padding-bottom:0;background:var(--gama-bg)}
-header.gamaHeader{position:sticky;top:0;background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 14px;box-shadow:0 2px 12px #17324610;display:flex;align-items:center;justify-content:space-between;z-index:50}
+header.gamaHeader{position:sticky;top:0;background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 14px;box-shadow:0 2px 12px rgba(18,37,60,.06);display:flex;align-items:center;justify-content:space-between;z-index:50}
 .headerLeft{display:flex;align-items:center;gap:9px;min-width:0}
 .brandMobile{display:flex;align-items:center;gap:10px;min-width:0}
 .brandMobile img{width:54px;height:54px;object-fit:cover;border-radius:8px}
@@ -94,12 +95,12 @@ header.gamaHeader{position:sticky;top:0;background:#fff;color:var(--gama-text);b
 .headActions{display:flex;align-items:center;gap:7px}
 .headIcon{width:38px;height:38px;padding:0;border:1px solid var(--gama-line);background:#fff;color:var(--gama-text);display:grid;place-items:center;border-radius:10px;font-size:22px}
 .headIcon.plus{background:var(--gama-orange);border-color:var(--gama-orange);color:#fff}
-.backHome{display:none;font-size:30px;background:#F0F5F6;color:var(--gama-teal);border-color:#D9E6E9}
+.backHome{display:none;font-size:30px;background:var(--arc-surface-2);color:var(--gama-teal);border-color:var(--arc-line)}
 .wrap{max-width:1180px;margin:auto;padding:18px}
 section{display:none}section.active{display:block}
 .mainmenu{padding-top:4px}
-.onlineBadge{display:flex;align-items:center;gap:6px;color:#128C68;font-size:12px;font-weight:700}
-.onlineBadge i{width:8px;height:8px;border-radius:50%;background:#128C68;display:inline-block}
+.onlineBadge{display:flex;align-items:center;gap:6px;color:var(--arc-success);font-size:12px;font-weight:700}
+.onlineBadge i{width:8px;height:8px;border-radius:50%;background:var(--arc-success);display:inline-block}
 .tabs{display:none!important}
 .gamaFooter{margin-top:20px}
 
@@ -133,7 +134,7 @@ section{display:none}section.active{display:block}
    defecto del navegador, que varias hojas de módulo tapaban. Con
    :focus-visible el ratón no lo dispara al pulsar, así que no estorba a
    quien no lo necesita. */
-:focus-visible{outline:3px solid var(--gama-teal,#087C8B);outline-offset:2px}
+:focus-visible{outline:3px solid var(--gama-teal,var(--arc-accent-600));outline-offset:2px}
 
 /* Botones: respuesta al pasar por encima, al pulsar, y un deshabilitado que
    se distingue de uno activo —hasta ahora eran idénticos—. */
@@ -141,22 +142,22 @@ button{transition:background-color .12s ease,box-shadow .12s ease,transform .08s
 button:active{transform:translateY(1px)}
 button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
 .primary{box-shadow:0 2px 8px rgba(8,124,139,.25)}
-.primary:hover:not(:disabled){background:#075C69}
-.secondary:hover:not(:disabled){background:#E1E9EB}
-.danger:hover:not(:disabled){background:#B34339}
-.success:hover:not(:disabled){background:#0F7A5B}
-.warning:hover:not(:disabled){background:#9E5B14}
+.primary:hover:not(:disabled){background:var(--arc-accent-700)}
+.secondary:hover:not(:disabled){background:var(--arc-surface-3)}
+.danger:hover:not(:disabled){background:var(--arc-danger)}
+.success:hover:not(:disabled){background:var(--arc-success)}
+.warning:hover:not(:disabled){background:var(--arc-warning)}
 .headIcon{transition:background-color .12s ease,border-color .12s ease,color .12s ease}
-.headIcon:hover{background:#EAF6F7;border-color:#BFE0E4;color:var(--gama-teal,#087C8B)}
+.headIcon:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-100);color:var(--gama-teal,var(--arc-accent-600))}
 
 /* Campos. En un formulario largo, sin marca de foco hay que buscar el cursor
    a ojo; y un campo de sólo lectura parecía uno vacío que no aceptaba nada. */
 input,select,textarea{transition:border-color .12s ease,box-shadow .12s ease}
-input:hover:not(:disabled),select:hover:not(:disabled),textarea:hover:not(:disabled){border-color:#AFC2CC}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,#087C8B);box-shadow:0 0 0 3px rgba(8,124,139,.18)}
-input:disabled,select:disabled,textarea:disabled{background:#F1F4F6;color:#8A98A2;cursor:not-allowed}
-input[readonly]{background:#F8FAFB;color:#5C6B76}
-::placeholder{color:#9AA7B0}
+input:hover:not(:disabled),select:hover:not(:disabled),textarea:hover:not(:disabled){border-color:var(--arc-line-strong)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,var(--arc-accent-600));box-shadow:0 0 0 3px rgba(8,124,139,.18)}
+input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-2);color:var(--arc-text-subtle);cursor:not-allowed}
+input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
+::placeholder{color:var(--arc-text-subtle)}
 
 /* Tablas, sólo en escritorio: por debajo de 760px gama-tables.js apila cada
    fila en una ficha y estas reglas no pintan nada. Cuando siguen siendo
@@ -164,9 +165,9 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
    cursor marcarse, que es lo que evita perder el renglón a la doceava
    columna. */
 @media(min-width:761px){
- th{font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:#5C6B76}
- tbody tr:nth-child(even):not([data-gama-head]){background:#EAF2F4}
- tbody tr:not([data-gama-head]):hover{background:#F1F7F8}
+ th{font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:var(--arc-text-muted)}
+ tbody tr:nth-child(even):not([data-gama-head]){background:var(--arc-accent-100)}
+ tbody tr:not([data-gama-head]):hover{background:var(--arc-surface-2)}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -176,18 +177,23 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 </style>
 
 <script defer src="gama-export-schema.js?v=20260916-projects1"></script>
-<script defer src="gama-excel-export.js?v=20260916-projects1"></script>
+<script defer src="gama-excel-export.js?v=20260918-architect1"></script>
 <link rel="stylesheet" href="gama-global-search.css?v=20260915-search1">
 <link rel="stylesheet" href="gama-assistant-ia.css?v=20260915-ai1">
+<!-- Architect ERP: tokens primero, sistema de diseño después. Van al final
+     del head a propósito, para vestir las hojas históricas de arriba sin
+     tener que borrarlas ni recurrir a !important. -->
+<link rel="stylesheet" href="architect-tokens.css?v=20260918-architect1">
+<link rel="stylesheet" href="architect-ui.css?v=20260918-architect1">
 </head>
 <body data-version="10" data-design="gama-erp-main-menu">
 
 <header class="gamaHeader">
   <div class="headerLeft">
     <div class="brandMobile">
-      <img src="gama-logo.jpg" alt="GAMA">
+      <img src="architect-icon.svg" alt="Architect ERP">
       <div>
-        <h1>GAMA <span>Enterprise Resource Planning</span></h1>
+        <h1>Architect <span>ERP</span></h1>
       </div>
     </div>
   </div>
@@ -331,13 +337,13 @@ input[readonly]{background:#F8FAFB;color:#5C6B76}
 
 </div>
 
-<script src="gama-ui.js?v=20260916-sharedpalette1"></script>
-<script src="gama-modules.js?v=20260916-projects1"></script>
-<script src="gama-pagination.js?v=20260913-i18n1"></script>
-<script src="gama-archive.js?v=20260913-i18n1"></script>
-<script src="gama-sort.js?v=20260913-i18n1"></script>
-<script src="gama-select-search.js?v=20260913-i18n1"></script>
-<script src="gama-tables.js?v=20260913-i18n1"></script>
+<script src="gama-ui.js?v=20260918-architect1"></script>
+<script src="gama-modules.js?v=20260918-architect1"></script>
+<script src="gama-pagination.js?v=20260918-architect1"></script>
+<script src="gama-archive.js?v=20260918-architect1"></script>
+<script src="gama-sort.js?v=20260918-architect1"></script>
+<script src="gama-select-search.js?v=20260918-architect1"></script>
+<script src="gama-tables.js?v=20260918-architect1"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
    aquí: es un precio pactado producto a producto en su tarifa, y quien lo
@@ -613,9 +619,10 @@ function restoreJSON(){
  const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.data||!Array.isArray(x.data.products)||!Array.isArray(x.data.clients))throw Error('Copia no reconocida.');db={products:x.data.products,clients:x.data.clients,moves:x.data.moves||[],invoices:x.data.invoices||[]};save();alert('Copia restaurada correctamente.')}catch(e){alert('Copia inválida: '+e.message)}};r.readAsText(f)
 }
 
-function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='#dfe8eb';$(legendId).innerHTML='<div class="muted" data-gi=03dc8297d3d6>Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['#F47A2A','#087C8B','#5FA6B2','#9BC8D0','#D8E6E9'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
-function focusGlobalSearch(){let el=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',null);setTimeout(()=>el?.focus(),50)}
-function dashMoney(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function renderDonut(id,legendId,data){let entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);if(!entries.length){$(id).style.background='var(--arc-surface-3)';$(legendId).innerHTML='<div class="muted" data-gi=03dc8297d3d6>Sin datos</div>';return}let total=entries.reduce((a,x)=>a+x[1],0),colors=['var(--arc-viz-1)','var(--arc-viz-2)','var(--arc-viz-3)','var(--arc-viz-4)','var(--arc-viz-5)'],cur=0;let stops=entries.map((x,i)=>{let start=cur;cur+=x[1]/total*100;return `${colors[i%colors.length]} ${start}% ${cur}%`}).join(',');$(id).style.background=`conic-gradient(${stops})`;$(legendId).innerHTML=entries.slice(0,5).map((x,i)=>`<div><span>${x[0]}</span><b>${Math.round(x[1]/total*100)}%</b></div>`).join('')}
+function focusGlobalSearch(){const el=document.getElementById('arcSearchInput');if(el){el.focus();return}const alt=document.querySelector('#productSearch')||document.querySelector('#homeBarcode');showTab('products',null);setTimeout(()=>alt?.focus(),50)}
+function dashMoney(n){return window.GamaCurrency?window.GamaCurrency.format(n)
+ :Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
 function dashMonths(y){let a=Array(12).fill(0);(window.GamaFinancialInvoices||[]).forEach(i=>{let d=new Date(i.date);if(d.getFullYear()===y)a[d.getMonth()]+=Number(i.total||0)});return a}
 function renderDashboard(){
  if(!$('dashYear'))return;let years=[new Date().getFullYear(),...(window.GamaFinancialInvoices||[]).map(i=>new Date(i.date).getFullYear())].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>b-a);let cur=Number($('dashYear').value)||new Date().getFullYear();$('dashYear').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');if(!years.includes(cur))cur=years[0];$('dashYear').value=cur;
@@ -695,59 +702,60 @@ showTab('mainmenu',null);
 })();
 </script>
 <script src="gama-global-search-core.js?v=20260915-search1"></script>
-<script src="gama-global-search.js?v=20260915-search1"></script>
-<script src="gama-menu-final2.js?v=17"></script>
-<script src="gama-scanner-phone.js?v=20260913-i18n1"></script>
+<script src="gama-global-search.js?v=20260918-architect1"></script>
+<script src="gama-menu-final2.js?v=20260918-architect1"></script>
+<script src="gama-scanner-phone.js?v=20260918-architect1"></script>
 <script src="gama-references.js?v=20260913-refses1"></script>
-<script src="gama-access-control.js?v=20260916-projects1"></script>
+<script src="gama-access-control.js?v=20260918-architect1"></script>
 <script src="gama-fixed-header.js?v=20260913-i18n1"></script>
-<script src="gama-role-spanish.js?v=20260913-tmshistory1"></script>
+<script src="gama-role-spanish.js?v=20260918-architect1"></script>
 
 <!-- GAMA EMPTY MODULES HARD BLOCK V2 -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="gama-pdf-template.js?v=20260913-i18n1"></script>
-<script src="gama-quote-pdf.js?v=20260913-comment1"></script>
+<script src="gama-pdf-template.js?v=20260918-architect1"></script>
+<script src="gama-quote-pdf.js?v=20260918-architect1"></script>
 <script src="gama-purchase-order-pdf.js?v=20260913-i18n1"></script>
 <script src="gama-supabase.js?v=20260913-refs1"></script>
 <script src="gama-central-sync.js?v=20260914-productedit1"></script>
-<script src="gama-purchases-v14.js?v=20260916-usd1"></script>
-<script src="gama-proveedores-matriz.js?v=20260913-i18n1"></script>
-<script src="gama-client-catalog.js?v=20260914-clientgroup1"></script>
-<script src="gama-customer-requests.js?v=20260914-requestquote1"></script>
-<script src="gama-sales-report.js?v=20260913-i18n1"></script>
+<script src="gama-purchases-v14.js?v=20260918-architect1"></script>
+<script src="gama-proveedores-matriz.js?v=20260918-architect1"></script>
+<script src="gama-client-catalog.js?v=20260918-architect1"></script>
+<script src="gama-customer-requests.js?v=20260918-architect1"></script>
+<script src="gama-sales-report.js?v=20260918-architect1"></script>
 <script src="gama-pdf.js?v=20260913-i18n1"></script>
-<script src="gama-photos.js?v=20260913-i18n1"></script>
-<script src="gama-price-lists.js?v=20260913-i18n1"></script>
-<script src="gama-crm-core.js?v=20260913-i18n1"></script>
-<script src="gama-crm-scoring.js?v=20260913-i18n1"></script>
-<script src="gama-crm-leads.js?v=20260913-i18n1"></script>
-<script src="gama-crm-opportunities.js?v=20260916-projects1"></script>
-<script src="gama-crm-activities.js?v=20260913-i18n1"></script>
-<script src="gama-crm-contacts.js?v=20260913-i18n1"></script>
-<script src="gama-crm-reports.js?v=20260913-i18n1"></script>
-<script src="gama-crm-targets.js?v=20260913-i18n1"></script>
-<script src="gama-hr-p1.js?v=20260913-hrtabs1"></script>
-<script src="gama-hr.js?v=20260913-hrtabs1"></script>
-<script src="gama-settings.js?v=20260913-accesssettings1"></script>
-<script src="gama-inventory-v2.js?v=20260913-i18n1"></script>
-<script src="gama-sales.js?v=20260916-projects1"></script>
-<script src="gama-quotes.js?v=20260916-projects1"></script>
+<script src="gama-photos.js?v=20260918-architect1"></script>
+<script src="gama-price-lists.js?v=20260918-architect1"></script>
+<script src="gama-crm-core.js?v=20260918-architect1"></script>
+<script src="gama-crm-scoring.js?v=20260918-architect1"></script>
+<script src="gama-crm-leads.js?v=20260918-architect1"></script>
+<script src="gama-crm-opportunities.js?v=20260918-architect1"></script>
+<script src="gama-crm-activities.js?v=20260918-architect1"></script>
+<script src="gama-crm-contacts.js?v=20260918-architect1"></script>
+<script src="gama-crm-reports.js?v=20260918-architect1"></script>
+<script src="gama-crm-targets.js?v=20260918-architect1"></script>
+<script src="gama-hr-p1.js?v=20260918-architect1"></script>
+<script src="gama-hr.js?v=20260918-architect1"></script>
+<script src="gama-settings.js?v=20260918-architect1"></script>
+<script src="gama-inventory-v2.js?v=20260918-architect1"></script>
+<script src="gama-sales.js?v=20260918-architect1"></script>
+<script src="gama-quotes.js?v=20260918-architect1"></script>
 <script src="gama-order-preparation.js?v=20260914-preptheme1"></script>
-<script src="gama-fulfillment.js?v=20260917-prepsingle1"></script>
+<script src="gama-fulfillment.js?v=20260918-architect1"></script>
 <script src="gama-tms-loading.js?v=20260913-prepmodule1"></script>
-<script src="gama-internal-invoices.js?v=20260913-autoinvoice1"></script>
-<script src="gama-dossier-flow.js?v=20260913-payments1"></script>
+<script src="gama-internal-invoices.js?v=20260918-architect1"></script>
+<script src="gama-dossier-flow.js?v=20260918-architect1"></script>
 <script src="gama-assistant-ia.js?v=20260915-ai1"></script>
 <link rel="stylesheet" href="gama-projects.css?v=20260916-contrast2">
 <script src="gama-projects-core.js?v=20260916-projects1"></script>
 <script src="gama-projects-i18n.js?v=20260916-delete1"></script>
 <script src="gama-projects.js?v=20260916-delete1"></script>
-<script src="gama-knowledge.js?v=20260915-search1"></script>
-<script src="gama-payments.js?v=20260913-payments1"></script>
-<script src="gama-accounting.js?v=20260917-accounting1"></script>
-<script src="gama-fleet.js?v=20260917-fleet1"></script>
-<script src="gama-returns.js?v=20260918-returns1"></script>
-<script src="gama-operations.js?v=20260916-projects1"></script>
-<script src="gama-standard-ui.js?v=12"></script>
-<script src="gama-sidebar.js?v=20260913-i18n1"></script>
+<script src="gama-knowledge.js?v=20260918-architect1"></script>
+<script src="gama-payments.js?v=20260918-architect1"></script>
+<script src="gama-accounting.js?v=20260918-architect1"></script>
+<script src="gama-fleet.js?v=20260918-architect1"></script>
+<script src="gama-returns.js?v=20260918-architect1"></script>
+<script src="gama-operations.js?v=20260918-architect1"></script>
+<script src="gama-standard-ui.js?v=20260918-architect1"></script>
+<script src="gama-sidebar.js?v=20260918-architect1"></script>
+<script src="architect-shell.js?v=20260918-architect1"></script>
 </body></html>

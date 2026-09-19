@@ -39,7 +39,7 @@ function header(opts){
  const o=opts||{};
  return '<div class="gamaStdHeader" data-gama-standard-header="1">'
   +'<div class="gamaStdText">'
-  +'<div class="gamaStdKicker">GAMA ENTERPRISE RESOURCE PLANNING</div>'
+  +'<div class="gamaStdKicker">ARCHITECT ERP</div>'
   +'<h2>'+esc(o.title||'Módulo')+'</h2>'
   +(o.lead?'<p>'+esc(o.lead)+'</p>':'')
   +'</div>'
@@ -60,79 +60,26 @@ function css(){
  if(document.getElementById('gamaUiCss'))return;
  const s=document.createElement('style');s.id='gamaUiCss';
  s.textContent=`
-.gamaStdHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:0 0 16px;padding:20px 22px;background:#fff;border:1px solid #E2E8EC;border-radius:16px;box-shadow:0 3px 16px #1732460d}
+/* La cabecera común de módulo, vestida con los tokens de Architect. Aquí vivía
+   además una «capa de acabado» que repintaba tarjetas, botones y campos de
+   toda la aplicación con un azul grisáceo; la sustituye architect-ui.css, que
+   hace lo mismo desde un solo sitio y sin !important. */
+.gamaStdHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--arc-s5);margin:0 0 var(--arc-s5);padding:var(--arc-s5) var(--arc-s6);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1)}
 .gamaStdText{min-width:0}
-.gamaStdKicker{font-size:10px;font-weight:850;letter-spacing:2px;color:#087C8B;text-transform:uppercase;margin-bottom:5px}
-.gamaStdHeader h2{margin:0;font-size:26px;line-height:1.15;color:#18324A;font-weight:800}
-.gamaStdHeader p{margin:9px 0 0;color:#61717C;font-size:14px;line-height:1.5;max-width:70ch}
-.gamaStdActions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
-.gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:11px 15px;font-weight:750;font-size:14px;cursor:pointer;min-height:44px;width:auto}
-.gamaStdBack:hover,.gamaStdAction:hover{background:#E3EBED}
-/* Button surfaces provide contrast; reserve outlines for keyboard focus. */
-body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),
-body #aclLogout,
-body button.tmsTab:not(.active),
-body .crmNav button:not(.on),
-body .gamaArcTabs button:not(.on),
-body #mainmenu .gamaF2Card,
-body #mainmenu .gamaF2Card:hover{
- border:1px solid transparent!important;
-}
-body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):focus-visible,
-body #aclLogout:focus-visible{
- outline:3px solid #087C8B!important;outline-offset:3px;
-}
+.gamaStdKicker{font-size:10px;font-weight:var(--arc-fw-black);letter-spacing:.14em;color:var(--arc-accent-600);text-transform:uppercase;margin-bottom:var(--arc-s1)}
+.gamaStdHeader h2{margin:0;font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);color:var(--arc-text);font-weight:var(--arc-fw-black);letter-spacing:-.02em}
+.gamaStdHeader p{margin:var(--arc-s2) 0 0;color:var(--arc-text-muted);font-size:var(--arc-fs-body);line-height:var(--arc-lh-body);max-width:70ch}
+.gamaStdActions{display:flex;gap:var(--arc-s2);align-items:center;flex-shrink:0;flex-wrap:wrap}
+.gamaStdBack,.gamaStdAction{display:inline-flex;align-items:center;justify-content:center;gap:var(--arc-s2);white-space:nowrap;background:var(--arc-surface-3);color:var(--arc-navy-700);border:1px solid var(--arc-line);border-radius:var(--arc-r-md);padding:10px var(--arc-s4);font-weight:var(--arc-fw-med);font-size:var(--arc-fs-body);cursor:pointer;min-height:var(--arc-tap);width:auto}
+.gamaStdBack:hover,.gamaStdAction:hover{background:var(--arc-accent-100);border-color:var(--arc-steel-300)}
+.gamaStdBack:focus-visible,.gamaStdAction:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 
-/* Share the desktop palette across portrait, landscape and desktop screens.
-   Responsive rules below adjust layout; surface colours stay the same. */
-@media screen{
- body{--gama-bg:#BFCFDB;--gama-line:#8FA6B5;background:var(--gama-bg)}
- body :is(.gamaStdHeader,.card,.dashCard,.dashPanel,.gkPanel,.gqCard,.gsCard,.gpCard,.tmsCard,.tmsKpi):not(.gpStatus){
-  background:#fff;border:1px solid #8FA6B5;box-shadow:0 2px 4px #17324618,0 6px 18px #17324614;
- }
- body .gamaStdHeader{border-color:#8FA6B5}
- body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close),body #aclLogout{
-  background:#BDD0DC!important;color:#173246!important;border:2px solid transparent!important;
-  box-shadow:0 2px 3px #17324618;
- }
- body button:is(.secondary,.tmsLight,.gamaStdBack,.gamaStdAction,.close):hover,body #aclLogout:hover{background:#A8C2D2!important}
- body button:is(.primary,.tmsPrimary){border:1px solid transparent;box-shadow:0 3px 7px #075C6938}
- body section :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]){
-  border:2px solid #7D98A8;background:#F7FAFC;color:#173246;
- }
- body section :is(input,select,textarea):focus-visible{outline:3px solid #087C8B;outline-offset:2px}
- /* Preserve selected tabs even when they also use the secondary button class. */
- body .gqTools button[aria-pressed=true]{background:#087C8B!important;color:#fff!important}
- body .gqTools button[aria-pressed=true]:hover{background:#065D69!important}
- body .gqLinked{background:#D5E5EC;border-left:4px solid #087C8B}
- body .gqCard thead th{background:#DCE7EE;color:#173246}
- body .gqBadge{background:#BEDFE3;color:#064D56}
- body .gqLine{border-color:#8FA6B5}
- body .gqConfirm{background:#D5E5EC}
- body #knowledge .gkProps>div{background:#D5E2EA;border:1px solid #9CB2C0}
- body #knowledge .gkTree button[aria-current=true]{background:#CCE8EC;border-left:4px solid #087C8B;color:#075C69}
- body #knowledge .gkTree ul{border-left:2px solid #8FA6B5}
- body #knowledge .gkProperty{background:#F3F7FA;border-color:#8FA6B5}
- body #knowledge .gkResult{background:#E4EEF3;border-color:#8FA6B5}
-}
-
-/* Visible row separators on desktop, including tables rendered by modules. */
-@media screen and (min-width:761px){
- body table th,body table td{border-bottom:1px solid #8BAEB8!important}
- body table thead th{border-bottom:2px solid #087C8B!important}
-}
-
-/* En el teléfono esta cabecera se comía la primera pantalla entera con el texto
-   a tamaño de escritorio. Se aprieta la tipografía. La rejilla de acciones se
-   deja en auto-fit aunque hoy sólo haya un botón: así el de volver ocupa la
-   fila entera —que es lo que se quiere— sin depender de cuántos haya. */
 @media(max-width:760px){
- .gamaStdHeader{flex-direction:column;align-items:stretch;padding:14px;gap:11px}
- .gamaStdHeader h2{font-size:19px}
- .gamaStdHeader p{font-size:12.5px;line-height:1.45;margin-top:6px}
- .gamaStdKicker{font-size:9px;letter-spacing:1.4px;margin-bottom:3px}
- .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
- .gamaStdBack,.gamaStdAction{width:100%;padding:10px 10px;font-size:13px}
+ .gamaStdHeader{flex-direction:column;align-items:stretch;padding:var(--arc-s4);gap:var(--arc-s3)}
+ .gamaStdHeader h2{font-size:20px}
+ .gamaStdHeader p{font-size:var(--arc-fs-sec);margin-top:var(--arc-s1)}
+ .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:var(--arc-s2)}
+ .gamaStdBack,.gamaStdAction{width:100%}
 }`;
  (document.head||document.documentElement).appendChild(s);
 }

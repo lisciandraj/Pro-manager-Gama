@@ -127,31 +127,31 @@ function css(){
  s.textContent=`
 #warehouses{display:none}#warehouses.active{display:block}
 .ivTabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
-.ivTabs button{background:#EEF3F4;color:#18324A;border:1px solid #DCE5E8;border-radius:10px;padding:10px 15px;font-weight:750;font-size:13.5px}
-.ivTabs button.active{background:#087C8B;color:#fff;border-color:#087C8B}
-.ivCard{background:#fff;border:1px solid #E2E8EC;border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px #1732460a}
+.ivTabs button{background:var(--arc-surface-3);color:var(--arc-text);border:1px solid var(--arc-line);border-radius:10px;padding:10px 15px;font-weight:750;font-size:13.5px}
+.ivTabs button.active{background:var(--arc-accent-600);color:#fff;border-color:var(--arc-accent-600)}
+.ivCard{background:#fff;border:1px solid var(--arc-line);border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(18,37,60,.04)}
 .ivKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.ivKpi{background:#fff;border:1px solid #E2E8EC;border-radius:13px;padding:13px 15px}
-.ivKpi span{display:block;font-size:11.5px;font-weight:750;color:#71808A}
-.ivKpi b{display:block;font-size:21px;font-weight:900;color:#173246;margin-top:5px;letter-spacing:-.4px}
+.ivKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:13px 15px}
+.ivKpi span{display:block;font-size:11.5px;font-weight:750;color:var(--arc-text-muted)}
+.ivKpi b{display:block;font-size:21px;font-weight:900;color:var(--arc-text);margin-top:5px;letter-spacing:-.4px}
 .ivFiltros{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .ivFiltros input{flex:1 1 240px;min-width:0;width:auto}
-.ivFiltros select{flex:0 0 auto;width:200px;min-width:0;padding:11px;border-radius:10px;border:1px solid #d4e0e4}
-.ivEstado{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:3px 9px;background:#E7F6F0;color:#0F7A5B;white-space:nowrap}
-.ivEstado.bajo{background:#FFF3E6;color:#9E5B14}
-.ivEstado.agotado{background:#FFF0EC;color:#C94F45}
-.ivEstado.sobre{background:#EEF3F4;color:#5C6B76}
-.ivEstado.reservado{background:#E8F5F6;color:#087C8B}
-.ivSub{color:#71808A;font-size:11.5px}
+.ivFiltros select{flex:0 0 auto;width:200px;min-width:0;padding:11px;border-radius:10px;border:1px solid var(--arc-line)}
+.ivEstado{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:3px 9px;background:var(--arc-success-bg);color:var(--arc-success);white-space:nowrap}
+.ivEstado.bajo{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.ivEstado.agotado{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.ivEstado.sobre{background:var(--arc-surface-3);color:var(--arc-text-muted)}
+.ivEstado.reservado{background:var(--arc-accent-100);color:var(--arc-accent-600)}
+.ivSub{color:var(--arc-text-muted);font-size:11.5px}
 .ivForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .ivForm label{margin-top:0}
-.ivAviso{background:#FFF6EF;border-left:4px solid #F47A2A;padding:12px 13px;border-radius:8px;font-size:13px;line-height:1.5}
-.ivSaldo{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 0;font-size:13px;color:#4E5F6B}
-.ivSaldo b{color:#173246}
+.ivAviso{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);padding:12px 13px;border-radius:8px;font-size:13px;line-height:1.5}
+.ivSaldo{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 0;font-size:13px;color:var(--arc-text-muted)}
+.ivSaldo b{color:var(--arc-text)}
 .ivArbol{list-style:none;margin:0;padding:0;font-size:13.5px}
-.ivArbol ul{list-style:none;margin:0;padding:0 0 0 20px;border-left:1px solid #E2E8EC}
+.ivArbol ul{list-style:none;margin:0;padding:0 0 0 20px;border-left:1px solid var(--arc-line)}
 .ivArbol li{padding:5px 0}
-.ivArbol code{background:#F1F4F6;border-radius:5px;padding:1px 6px;font-size:12px;color:#5C6B76}
+.ivArbol code{background:var(--arc-surface-2);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--arc-text-muted)}
 @media(max-width:560px){.ivFiltros input,.ivFiltros select{flex:0 0 auto;width:100%}}`;
  (document.head||document.documentElement).appendChild(s);
 }

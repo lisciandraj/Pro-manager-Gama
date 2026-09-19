@@ -109,10 +109,10 @@ function boot(){
  document.documentElement.lang=language;
  const s=document.createElement('style');s.id='gamaLanguageCss';s.textContent=`
 #gamaLanguagePicker{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:16px 0}
-#gamaLanguagePicker button{display:flex;align-items:center;gap:10px;min-height:48px;padding:12px 16px;border:2px solid transparent;background:#eef3f4;color:#18324a;border-radius:10px;cursor:pointer;touch-action:manipulation;font-size:15px;width:auto}
-#gamaLanguagePicker svg{display:block;width:28px;height:19px;border-radius:2px;box-shadow:0 0 0 1px #17324622}
-#gamaLanguagePicker button[aria-pressed="true"]{border-color:#087c8b;background:#e8f5f6}
-#gamaLanguagePicker button:focus-visible{outline:3px solid #f47a2a;outline-offset:1px}
+#gamaLanguagePicker button{display:flex;align-items:center;gap:10px;min-height:48px;padding:12px 16px;border:2px solid transparent;background:var(--arc-surface-3);color:var(--arc-text);border-radius:10px;cursor:pointer;touch-action:manipulation;font-size:15px;width:auto}
+#gamaLanguagePicker svg{display:block;width:28px;height:19px;border-radius:2px;box-shadow:0 0 0 1px rgba(18,37,60,.13)}
+#gamaLanguagePicker button[aria-pressed="true"]{border-color:var(--arc-accent-600);background:var(--arc-accent-100)}
+#gamaLanguagePicker button:focus-visible{outline:3px solid var(--arc-warning);outline-offset:1px}
 #gamaCloudLogin #gamaLanguagePicker{justify-content:center}
 #gamaCloudLogin #gamaLanguagePicker button{min-width:0;margin:0}
 @media print{#gamaLanguagePicker{display:none!important}}`;

@@ -19,11 +19,11 @@ let peticion=0;
 function style(){
  if($('srCss'))return;
  const s=document.createElement('style');s.id='srCss';
- s.textContent=`.srRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #edf1f2;font-size:12px}
+ s.textContent=`.srRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}
 .srRow:last-child{border-bottom:0}
-.srRank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#eef7f8;color:#087c8b;font-weight:800;font-size:11px;margin-right:8px}
-.srEmpty{text-align:center;padding:20px;color:#71808a;font-size:12px}
-.srNote{margin-top:10px;font-size:11px;color:#81909a}`;
+.srRank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:var(--arc-surface-3);color:var(--arc-accent-600);font-weight:800;font-size:11px;margin-right:8px}
+.srEmpty{text-align:center;padding:20px;color:var(--arc-text-muted);font-size:12px}
+.srNote{margin-top:10px;font-size:11px;color:var(--arc-text-subtle)}`;
  document.head.appendChild(s);
 }
 
@@ -57,7 +57,7 @@ async function render(year,month){
  if(!$('srByQty'))return;
  style();
  if(!canView()){error('Tu perfil no puede ver el análisis de ventas.');return}
- if(!C()){error('Sin conexión con GAMA Cloud.');return}
+ if(!C()){error('Sin conexión con Architect Cloud.');return}
 
  const mio=++peticion;
  cargando();

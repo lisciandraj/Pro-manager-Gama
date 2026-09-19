@@ -100,52 +100,52 @@ function css(){
     tocarlos, y una devolución se registra a menudo de pie en el almacén. */
  s.textContent=`#returns{display:none}#returns.active{display:block}
 .grNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.grNav button{border:1px solid #cbd8df;background:#fff;color:#18324a;border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.grNav button.on{background:#087c8b;border-color:#087c8b;color:#fff}
-.grCard{background:#fff;border:1px solid #cbd8df;border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
-.grCard h3{margin:0 0 10px;font-size:16px;color:#18324a}
+.grNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
+.grNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.grCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
+.grCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
 .grKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
 .grKpis .grCard{margin:0}
-.grKpis small{display:block;color:#526975;font-size:12px;font-weight:700}
-.grKpis strong{display:block;font-size:24px;margin-top:7px;color:#18324a}
+.grKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
+.grKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
 .grTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
-.grTools label{flex:1;min-width:150px;font-size:13px;color:#18324a;font-weight:700}
-.grTools input,.grTools select{width:100%;font-size:16px;min-height:42px;border:1px solid #cbd8df;border-radius:9px;padding:9px;background:#fff;color:#18324a}
+.grTools label{flex:1;min-width:150px;font-size:13px;color:var(--arc-text);font-weight:700}
+.grTools input,.grTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
 .grScroll{overflow:auto}
 .grTable{width:100%;border-collapse:collapse;min-width:640px}
-.grTable th,.grTable td{text-align:left;padding:11px;border-bottom:1px solid #bacbd5;vertical-align:top;font-size:13px}
-.grTable th{font-size:12px;color:#37505f;font-weight:800}
-.grTable tbody tr:nth-child(even){background:#eef4f7}
+.grTable th,.grTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
+.grTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
+.grTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
 .grTable td.grNum,.grTable th.grNum{text-align:right;white-space:nowrap}
-.grBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:#edf2f6;color:#304c60;font-weight:700;font-size:12px}
-.grBadge[data-s=to_process]{background:#fde8e6;color:#a32318}
-.grBadge[data-s=received]{background:#fff0da;color:#914900}
-.grBadge[data-s=shipped]{background:#fff0da;color:#914900}
-.grBadge[data-s=processed]{background:#e7effa;color:#1d4171}
-.grBadge[data-s=credited]{background:#e7effa;color:#1d4171}
-.grBadge[data-s=closed]{background:#dcf4e7;color:#12633e}
-.grBadge[data-s=cancelled]{background:#eceff1;color:#5c6b73}
-.grBadge[data-s=customer]{background:#e7effa;color:#1d4171}
-.grBadge[data-s=supplier]{background:#efe7fa;color:#4a2a7a}
+.grBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
+.grBadge[data-s=to_process]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.grBadge[data-s=received]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.grBadge[data-s=shipped]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.grBadge[data-s=processed]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=credited]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=closed]{background:var(--arc-success-bg);color:var(--arc-success)}
+.grBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
+.grBadge[data-s=customer]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=supplier]{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}
 .grActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
 .grActions button{min-height:44px}
 .grBig{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
 .grBig button{min-height:86px;font-size:16px;font-weight:800;border-radius:13px;padding:14px}
-.grHint{font-size:13px;color:#526975;margin:7px 0}
-.grError{color:#a32318;font-weight:700}
+.grHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
+.grError{color:var(--arc-danger);font-weight:700}
 .grGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
-.grGrid label,.grField{font-size:13px;color:#18324a;font-weight:700;display:block}
+.grGrid label,.grField{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
 .grField{margin-top:11px}
-.grGrid input,.grGrid select,.grGrid textarea,.grField input,.grField select,.grField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid #cbd8df;border-radius:9px;padding:9px;background:#fff;color:#18324a}
+.grGrid input,.grGrid select,.grGrid textarea,.grField input,.grField select,.grField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
 .grGrid[hidden],.grCard[hidden],.grField[hidden]{display:none}
 .grDocs{display:flex;gap:9px;flex-wrap:wrap}
 .grDocs button{min-height:40px}
-.grSteps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:#526975;font-weight:700}
-.grSteps span[aria-current=step]{color:#087c8b}
+.grSteps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--arc-text-muted);font-weight:700}
+.grSteps span[aria-current=step]{color:var(--arc-accent-600)}
 .grDl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:13px}
-.grDl dt{color:#526975;font-weight:700}
-.grDl dd{margin:0;color:#18324a}
-.grLine{border-top:1px solid #dbe5e8;padding:12px 0}
+.grDl dt{color:var(--arc-text-muted);font-weight:700}
+.grDl dd{margin:0;color:var(--arc-text)}
+.grLine{border-top:1px solid var(--arc-line);padding:12px 0}
 .grLine:first-child{border-top:0}
 @media(max-width:700px){.grKpis{grid-template-columns:1fr 1fr}.grKpis strong{font-size:20px}
  .grTable{min-width:560px}.grTools label{min-width:130px}.grBig{grid-template-columns:1fr}}
@@ -554,7 +554,7 @@ async function creditForm(d){
  try{
   const p=await rpc('credit_preview',{id:d.id});
   window.GamaSales.modal(T('Emitir un abono'),
-   `<p>${tr('GAMA calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.')}</p>
+   `<p>${tr('Architect calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.')}</p>
     <dl class="grDl">
      <dt data-gi-live data-gi=52c5bbc8a4eb>Factura</dt><dd>${esc(d.documents?.invoice?.number||'—')}</dd>
      <dt data-gi-live data-gi=42adf2f63a2c>Total de la factura</dt><dd>${esc(money(p.invoice_total))}</dd>

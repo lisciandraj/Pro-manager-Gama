@@ -1,6 +1,6 @@
 # Spanish source	French	English
 Menú principal	Menu principal	Main menu
-Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.	Accédez rapidement à toutes les fonctions de GAMA Enterprise Resource Planning.	Quickly access all GAMA Enterprise Resource Planning features.
+Accede rápidamente a todas las funciones de Architect ERP.	Accédez rapidement à toutes les fonctions de Architect ERP.	Quickly access all Architect ERP features.
 Buscar un módulo	Rechercher un module	Search modules
 Buscar un módulo…	Rechercher un module…	Search modules…
 Ningún módulo coincide con la búsqueda.	Aucun module ne correspond à la recherche.	No modules match your search.
@@ -152,7 +152,7 @@ Lista de clientes	Liste des clients	Customer list
 Exportar	Exporter	Export
 Excel — Productos + Clientes + Auditoría	Excel — Produits + Clients + Audit	Excel — Products + Customers + Audit
 Copia completa JSON	Sauvegarde complète JSON	Full JSON backup
-Importa el Excel generado por GAMA. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel GAMA. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a GAMA Excel file. Products are merged by barcode and customers by ID.
+Importa el Excel generado por Architect. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel Architect. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a Architect Excel file. Products are merged by barcode and customers by ID.
 Importar / fusionar Excel	Importer / fusionner Excel	Import / merge Excel
 Restaurar JSON	Restaurer un JSON	Restore JSON
 Restaurar copia completa	Restaurer la sauvegarde complète	Restore full backup
@@ -239,7 +239,7 @@ Sin datos	Aucune donnée	No data
 Sin movimientos.	Aucun mouvement.	No movements.
 Valor a precio de compra	Valeur au prix d’achat	Value at purchase price
 Ningún producto coincide con el filtro.	Aucun produit ne correspond au filtre.	No products match the filter.
-Sin conexión con GAMA Cloud	Connexion à GAMA Cloud indisponible	No connection to GAMA Cloud
+Sin conexión con Architect Cloud	Connexion à Architect Cloud indisponible	No connection to Architect Cloud
 Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.	Les comptes sont centralisés dans le cloud. Vérifiez votre connexion Internet et réessayez.	Accounts are managed in the cloud. Check your internet connection and try again.
 Reintentar	Réessayer	Retry
 Cerrar sesión	Se déconnecter	Sign out
@@ -262,7 +262,7 @@ sin IVA	HT	excluding VAT
 Precio por unidad	Prix à l’unité	Price per unit
 No se encontraron productos.	Aucun produit trouvé.	No products found.
 Iniciar sesión	Se connecter	Sign in
-Inicie sesión con su cuenta GAMA centralizada.	Connectez-vous avec votre compte GAMA.	Sign in with your GAMA account.
+Inicie sesión con su cuenta Architect centralizada.	Connectez-vous avec votre compte Architect.	Sign in with your Architect account.
 Contraseña	Mot de passe	Password
 No se encontraron usuarios centralizados.	Aucun utilisateur trouvé.	No users found.
 Cerrar	Fermer	Close
@@ -531,7 +531,7 @@ Fecha de baja	Date de sortie	End date
 Sueldo mensual (USD)	Salaire mensuel (USD)	Monthly salary (USD)
 Vacaciones al año (días laborables)	Congés annuels (jours ouvrés)	Annual leave (working days)
 Cuenta de acceso	Compte d’accès	Access account
-Sin cuenta — no puede entrar en GAMA	Sans compte — pas d’accès à GAMA	No account — cannot access GAMA
+Sin cuenta — no puede entrar en Architect	Sans compte — pas d’accès à Architect	No account — cannot access Architect
 Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.	Lier un compte permet à la personne de consulter sa fiche, demander des congés et voir le calendrier. Sans compte, seuls les gestionnaires gèrent la fiche.	Linking an account lets the person view their details, request leave and check the team calendar. Without an account, only managers handle the record.
 Plantilla	Effectif	Staff
 Empleado	Employé	Employee
@@ -575,7 +575,7 @@ Se copiará el presupuesto aceptado. La factura interna alimenta los KPI, el sal
 Fecha de factura	Date de facture	Invoice date
 Vencimiento	Échéance	Due date
 Documento interno · sin validez fiscal	Document interne · sans valeur fiscale	Internal document · not valid for tax purposes
-Descargar PDF GAMA	Télécharger le PDF GAMA	Download GAMA PDF
+Descargar PDF Architect	Télécharger le PDF Architect	Download Architect PDF
 Copiar datos	Copier les données	Copy data
 Datos para el software de facturación	Données pour le logiciel de facturation	Data for billing software
 Número externo	Numéro externe	External number
@@ -852,7 +852,7 @@ PDF / XML (opcional, hasta 2 archivos de 5 MB)	PDF / XML (facultatif, 2 fichiers
 Expediciones cubiertas	Expéditions couvertes	Covered shipments
 Marca las salidas incluidas en este documento.	Cochez les expéditions incluses dans ce document.	Select the shipments included in this document.
 Todavía no hay expediciones: la factura quedará vinculada al pedido y podrá asociarse a una salida más adelante.	Aucune expédition : la facture sera liée à la commande et pourra être associée à une expédition ultérieurement.	No shipments yet: the invoice will be linked to the order and can be associated with a shipment later.
-Copia los datos del documento emitido en tu otro software. El estado es una declaración manual. GAMA comprobará el receptor y los importes; no emitirá una factura.	Copiez les données du document émis dans votre autre logiciel. Le statut est déclaré manuellement. GAMA vérifie le destinataire et les montants sans émettre de facture.	Copy the document issued in your other software. Status is manually declared. GAMA checks the recipient and amounts without issuing an invoice.
+Copia los datos del documento emitido en tu otro software. El estado es una declaración manual. Architect comprobará el receptor y los importes; no emitirá una factura.	Copiez les données du document émis dans votre autre logiciel. Le statut est déclaré manuellement. Architect vérifie le destinataire et les montants sans émettre de facture.	Copy the document issued in your other software. Status is manually declared. Architect checks the recipient and amounts without issuing an invoice.
 Número de factura	Numéro de facture	Invoice number
 RUC del emisor	RUC de l’émetteur	Issuer RUC
 Identificación del receptor	Identifiant du destinataire	Recipient ID
@@ -970,7 +970,7 @@ Pendientes	En attente	Pending
 Entregadas	Livrées	Delivered
 Excepciones	Exceptions	Exceptions
 Rutas	Tournées	Routes
-GAMA TMS — hoja de ruta	GAMA TMS — feuille de route	GAMA TMS — route sheet
+Architect TMS — hoja de ruta	Architect TMS — feuille de route	Architect TMS — route sheet
 Comprobando expedición y salida…	Vérification de l’expédition et du départ…	Checking shipment and departure…
 No se pudo comprobar la salida. Reintenta antes de capturar la prueba.	Impossible de vérifier le départ. Réessayez avant de saisir la preuve.	Could not verify departure. Retry before capturing proof.
 Ir al control de carga	Accéder au contrôle du chargement	Go to loading check
@@ -1136,7 +1136,7 @@ Apunte la cámara al código de barras	Pointez l’appareil photo vers le code-b
 Cámara autorizada. Toca «Iniciar vídeo» para mostrar la imagen.	Appareil photo autorisé. Touchez « Démarrer la vidéo » pour afficher l’image.	Camera authorised. Tap “Start video” to show the image.
 Iniciar vídeo	Démarrer la vidéo	Start video
 El navegador no permite acceder a la cámara.	Le navigateur bloque l’accès à l’appareil photo.	The browser does not allow camera access.
-En iPhone: abre GAMA en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir GAMA tras cambiar el permiso.	Sur iPhone : ouvrez GAMA dans Safari, puis menu de la page → réglages du site → Appareil photo, et autorisez l’accès. Touchez ensuite Réessayer l’appareil photo. Depuis l’icône d’accueil, fermez et rouvrez GAMA après modification de l’autorisation.	On iPhone: open GAMA in Safari, then page menu → website settings → Camera, and allow access. Tap Retry camera. If opened from the home screen, close and reopen GAMA after changing permission.
+En iPhone: abre Architect en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir Architect tras cambiar el permiso.	Sur iPhone : ouvrez Architect dans Safari, puis menu de la page → réglages du site → Appareil photo, et autorisez l’accès. Touchez ensuite Réessayer l’appareil photo. Depuis l’icône d’accueil, fermez et rouvrez Architect après modification de l’autorisation.	On iPhone: open Architect in Safari, then page menu → website settings → Camera, and allow access. Tap Retry camera. If opened from the home screen, close and reopen Architect after changing permission.
 No se pudo cargar el lector. Comprueba tu conexión y reintenta.	Impossible de charger le lecteur. Vérifiez votre connexion et réessayez.	Could not load the scanner. Check your connection and retry.
 No se encontró una cámara disponible.	Aucun appareil photo disponible.	No available camera found.
 La cámara está ocupada. Cierra otras aplicaciones que la utilicen y reintenta.	L’appareil photo est occupé. Fermez les autres applications qui l’utilisent et réessayez.	The camera is busy. Close other apps using it and retry.
@@ -1169,7 +1169,7 @@ Página {0}	Page {0}	Page {0}
 {0} de {1}	{0} sur {1}	{0} of {1}
 {0} facturas internas / externas	{0} factures internes / externes	{0} internal / external invoices
 En el pedido ({0})	Dans la commande ({0})	In the order ({0})
-Activa o desactiva los módulos de GAMA.	Activez ou désactivez les modules GAMA.	Enable or disable GAMA modules.
+Activa o desactiva los módulos de Architect.	Activez ou désactivez les modules Architect.	Enable or disable Architect modules.
 Albarán, lote, transporte, incidencia…	Bon de livraison, lot, transport, incident…	Delivery note, batch, transport, issue…
 Archivar contacto	Archiver le contact	Archive contact
 Archivar prospecto	Archiver le prospect	Archive lead
@@ -1210,7 +1210,7 @@ Ej. PROD-00001	Ex. PROD-00001	E.g. PROD-00001
 Ej. Proveedor ABC	Ex. Fournisseur ABC	E.g. Supplier ABC
 Ej. Recuento septiembre	Ex. Comptage de septembre	E.g. September count
 Ej.: correo de María, 12/09/2026, asunto…	Ex. : e-mail de María, 12/09/2026, objet…	E.g. María’s email, 12/09/2026, subject…
-Elija sus productos y envíe el pedido a GAMA.	Choisissez vos produits et envoyez la commande à GAMA.	Choose your products and submit the order to GAMA.
+Elija sus productos y envíe el pedido a Architect.	Choisissez vos produits et envoyez la commande à Architect.	Choose your products and submit the order to Architect.
 Filtrar contactos	Filtrer les contacts	Filter contacts
 Filtrar por estado	Filtrer par statut	Filter by status
 Filtrar por tipo	Filtrer par type	Filter by type
@@ -1237,7 +1237,7 @@ Quitar del pedido	Retirer de la commande	Remove from order
 Quitar el objetivo	Supprimer l’objectif	Remove target
 Quitar la línea	Supprimer la ligne	Remove line
 Quitar uno	Retirer une unité	Remove one
-Quién entra en GAMA y con qué permisos.	Qui accède à GAMA et avec quels droits.	Who accesses GAMA and with which permissions.
+Quién entra en Architect y con qué permisos.	Qui accède à Architect et avec quels droits.	Who accesses Architect and with which permissions.
 Restaurar contacto	Restaurer le contact	Restore contact
 Restaurar prospecto	Restaurer le prospect	Restore lead
 Retirar el precio especial	Retirer le prix spécial	Remove special price
@@ -1311,7 +1311,7 @@ Correo electrónico y contraseña son obligatorios.	L’e-mail et le mot de pass
 Iniciando sesión…	Connexion…	Signing in…
 No se puede iniciar sesión. Compruebe sus credenciales.	Connexion impossible. Vérifiez vos identifiants.	Unable to sign in. Check your credentials.
 Cuenta no autorizada o desactivada.	Compte non autorisé ou désactivé.	Account not authorised or disabled.
-No se puede conectar con GAMA Cloud. Compruebe su conexión e inténtelo de nuevo.	Connexion à GAMA Cloud impossible. Vérifiez votre connexion et réessayez.	Unable to connect to GAMA Cloud. Check your connection and try again.
+No se puede conectar con Architect Cloud. Compruebe su conexión e inténtelo de nuevo.	Connexion à Architect Cloud impossible. Vérifiez votre connexion et réessayez.	Unable to connect to Architect Cloud. Check your connection and try again.
 Horarios y fichajes	Horaires et pointages	Schedules and attendance
 Reglas de vacaciones	Règles de congés	Leave rules
 Documentos e historial	Documents et historique	Documents and history
@@ -1751,7 +1751,7 @@ Puntos de atención	Points d’attention	Things to look at
 Movimientos bancarios sin conciliar	Mouvements bancaires non rapprochés	Unreconciled bank movements
 Gastos sin justificante	Dépenses sans justificatif	Expenses without a receipt
 Asientos descuadrados	Écritures déséquilibrées	Unbalanced entries
-Estas alertas también aparecen en el Centro de acción de GAMA.	Ces alertes apparaissent aussi dans le Centre d’actions de GAMA.	These alerts also appear in the GAMA action centre.
+Estas alertas también aparecen en el Centro de acción de Architect.	Ces alertes apparaissent aussi dans le Centre d’actions de Architect.	These alerts also appear in the Architect action centre.
 Balance de antigüedad	Balance âgée	Ageing balance
 ¿Quién nos debe dinero?	Qui nous doit de l’argent ?	Who owes us money?
 ¿A quién debemos dinero?	À qui devons-nous de l’argent ?	Who do we owe money to?
@@ -1808,7 +1808,7 @@ Conciliación bancaria	Rapprochement bancaire	Bank reconciliation
 Importar CSV	Importer un CSV	Import CSV
 Conciliar	Rapprocher	Reconcile
 Deshacer	Annuler le rapprochement	Undo
-GAMA propone correspondencias; nunca concilia solo. Tú validas cada asociación.	GAMA propose des correspondances ; il ne rapproche jamais tout seul. Vous validez chaque association.	GAMA proposes matches; it never reconciles on its own. You approve every match.
+Architect propone correspondencias; nunca concilia solo. Tú validas cada asociación.	Architect propose des correspondances ; il ne rapproche jamais tout seul. Vous validez chaque association.	Architect proposes matches; it never reconciles on its own. You approve every match.
 Cuenta contable	Compte comptable	Ledger account
 Movimientos de la cuenta	Mouvements du compte	Account movements
 Entradas	Entrées	In
@@ -1819,7 +1819,7 @@ Columnas esperadas: fecha, referencia, descripción e importe. Un importe negati
 Líneas detectadas	Lignes détectées	Lines detected
 No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.	Aucune ligne reconnue. Vérifiez le séparateur et le format de la date.	No line recognised. Check the separator and the date format.
 Conciliar el movimiento	Rapprocher le mouvement	Reconcile the movement
-GAMA propone estas correspondencias. Elige la correcta; ninguna se aplica sola.	GAMA propose ces correspondances. Choisissez la bonne ; aucune ne s’applique seule.	GAMA proposes these matches. Pick the right one; none is applied on its own.
+Architect propone estas correspondencias. Elige la correcta; ninguna se aplica sola.	Architect propose ces correspondances. Choisissez la bonne ; aucune ne s’applique seule.	Architect proposes these matches. Pick the right one; none is applied on its own.
 Ignorar este movimiento	Ignorer ce mouvement	Ignore this movement
 No se encontró ninguna correspondencia. Puedes ignorar el movimiento y tratarlo más tarde.	Aucune correspondance trouvée. Vous pouvez ignorer le mouvement et le traiter plus tard.	No match found. You can ignore the movement and deal with it later.
 Asientos y diarios	Écritures et journaux	Entries and journals
@@ -1844,7 +1844,7 @@ Uso	Usage	Used for
 Recaudado	Collectée	Collected
 Deducible	Déductible	Deductible
 Ambos	Les deux	Both
-GAMA no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.	GAMA ne fournit aucun taux national préconfiguré : définissez ici ceux qui s’appliquent à votre entreprise et leur date d’entrée en vigueur.	GAMA ships no preconfigured national rate: define here the ones that apply to your company and when they take effect.
+Architect no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.	Architect ne fournit aucun taux national préconfiguré : définissez ici ceux qui s’appliquent à votre entreprise et leur date d’entrée en vigueur.	Architect ships no preconfigured national rate: define here the ones that apply to your company and when they take effect.
 Tipo (%)	Taux (%)	Rate (%)
 País (ISO)	Pays (ISO)	Country (ISO)
 Cuenta de resultados	Compte de résultat	Profit and loss
@@ -1871,10 +1871,10 @@ Todavía no hay periodos. Se crean solos al contabilizar el primer documento del
 Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.	Une période clôturée refuse toute écriture nouvelle, modifiée ou supprimée à ces dates. Seul un administrateur disposant du droit de clôture peut la rouvrir, et la réouverture reste dans l’audit.	A closed period refuses any entry added, changed or removed on those dates. Only an administrator with the closing right can reopen it, and the reopening stays in the audit trail.
 Divisa (ISO 4217)	Devise (ISO 4217)	Currency (ISO 4217)
 Primer mes del ejercicio	Premier mois de l’exercice	First month of the financial year
-La divisa se aplica a todo GAMA: pantallas, informes y documentos PDF.	La devise s’applique à tout GAMA : écrans, rapports et documents PDF.	The currency applies to all of GAMA: screens, reports and PDF documents.
+La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.	La devise s’applique à tout Architect : écrans, rapports et documents PDF.	The currency applies to all of Architect: screens, reports and PDF documents.
 Cuentas de los asientos automáticos	Comptes des écritures automatiques	Accounts used by automatic entries
 Plan contable	Plan comptable	Chart of accounts
-GAMA no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.	GAMA n’impose aucun plan comptable national. Renumérotez, renommez et complétez ce plan selon votre pays et votre conseil.	GAMA imposes no national chart of accounts. Renumber, rename and extend this chart to suit your country and your adviser.
+Architect no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.	Architect n’impose aucun plan comptable national. Renumérotez, renommez et complétez ce plan selon votre pays et votre conseil.	Architect imposes no national chart of accounts. Renumber, rename and extend this chart to suit your country and your adviser.
 Cuenta usada por los asientos automáticos: puede renombrarse y renumerarse, pero no cambia de tipo.	Compte utilisé par les écritures automatiques : il peut être renommé et renuméroté, mais ne change pas de type.	Account used by the automatic entries: it can be renamed and renumbered, but its type does not change.
 Permisos de Contabilidad	Droits de Comptabilité	Accounting permissions
 Consultar	Consulter	View
@@ -2165,7 +2165,7 @@ Expide la devolución antes de cerrarla.	Expédie le retour avant de le clôture
 Factura del proveedor	Facture fournisseur	Supplier invoice
 Foto o documento (opcional)	Photo ou document (facultatif)	Photo or document (optional)
 Fotos y documentos	Photos et documents	Photos and documents
-GAMA calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.	GAMA calcule le montant avec les prix et taxes de la facture d’origine. Tu peux l’ajuster avant de valider.	GAMA works out the amount from the prices and taxes on the original invoice. You can adjust it before validating.
+Architect calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.	Architect calcule le montant avec les prix et taxes de la facture d’origine. Tu peux l’ajuster avant de valider.	Architect works out the amount from the prices and taxes on the original invoice. You can adjust it before validating.
 Indica al menos una cantidad a devolver.	Indique au moins une quantité à retourner.	Enter at least one quantity to return.
 Indica el medio de pago.	Indique le moyen de paiement.	Enter the payment method.
 La devolución está cerrada o anulada: ya no se modifica.	Le retour est clôturé ou annulé : il ne se modifie plus.	The return is closed or cancelled: it can no longer be changed.
@@ -2247,3 +2247,46 @@ Anular la devolución	Annuler le retour	Cancel the return
 La devolución quedará anulada y las cantidades vuelven a poder devolverse.	Le retour sera annulé et les quantités redeviennent retournables.	The return will be cancelled and the quantities become returnable again.
 Borrar la devolución	Supprimer le retour	Delete the return
 Se borra del todo. La auditoría conserva quién la borró y cuándo.	Suppression définitive. L’audit conserve qui a supprimé et quand.	Deleted for good. The audit trail keeps who deleted it and when.
+Vista de conjunto de tu actividad	Vue d’ensemble de votre activité	An overview of your activity
+Analiza tus datos y obtén respuestas	Analysez vos données et obtenez des réponses	Analyse your data and get answers
+Alertas comerciales y logísticas	Alertes commerciales et logistiques	Sales and logistics alerts
+Avisos y bloqueos pendientes	Avis et blocages en attente	Pending notices and blocks
+Prospectos, oportunidades y clientes	Prospects, opportunités et clients	Leads, opportunities and customers
+Crea y sigue tus presupuestos	Créez et suivez vos devis	Create and track your quotes
+Gestión de los pedidos de clientes	Gestion des commandes clients	Customer order management
+Preparación y pruebas de entrega	Préparation et preuves de livraison	Picking and proof of delivery
+Registro de facturas y cobros	Suivi des factures et des encaissements	Invoice and payment tracking
+Devoluciones, abonos y reembolsos	Retours, avoirs et remboursements	Returns, credit notes and refunds
+Pedidos de compra y recepciones	Commandes d’achat et réceptions	Purchase orders and receipts
+Gestión de los proveedores	Gestion des fournisseurs	Supplier management
+Catálogo y fichas de producto	Catalogue et fiches produit	Catalogue and product records
+Existencias y ubicaciones	Stocks et emplacements	Stock and locations
+Inventario de todos tus productos	Inventaire de tous vos produits	A stocktake of all your products
+Entradas y salidas de mercancía	Entrées et sorties de marchandises	Goods in and goods out
+Precios de compra y de venta	Prix d’achat et de vente	Purchase and sale prices
+Etiquetas y códigos de barras	Étiquettes et codes-barres	Labels and barcodes
+Tarifas y precios especiales	Tarifs et prix spéciaux	Price lists and special prices
+Base de clientes	Base clients	Customer base
+Catálogo para tus clientes	Catalogue pour vos clients	A catalogue for your customers
+Tus entregas y sus pruebas	Vos livraisons et leurs preuves	Your deliveries and their proofs
+Gestión de proyectos	Gestion de projets	Project management
+Equipos, ausencias y nóminas	Équipes, absences et paies	Teams, absences and payroll
+Seguimiento financiero y contabilidad	Suivi financier et comptabilité	Financial tracking and accounting
+Vehículos, papeles y consumos	Véhicules, papiers et consommations	Vehicles, paperwork and fuel
+Base de conocimientos	Base de connaissances	Knowledge base
+Historial de todas las operaciones	Historique de toutes les opérations	A history of every operation
+Cuentas y perfiles	Comptes et profils	Accounts and profiles
+Permisos por perfil	Droits par profil	Permissions by role
+Configuración del ERP	Configuration de l’ERP	ERP settings
+Copias de seguridad de tus datos	Sauvegardes de vos données	Backups of your data
+Importar datos desde Excel	Importer des données depuis Excel	Import data from Excel
+Abrir el menú	Ouvrir le menu	Open the menu
+Buscar en Architect ERP…	Rechercher dans Architect ERP…	Search Architect ERP…
+Idioma	Langue	Language
+Navegación principal	Navigation principale	Main navigation
+La base de tu negocio	La base de votre entreprise	The foundation of your business
+Cartera en curso	Portefeuille en cours	Open pipeline
+Pedidos en curso	Commandes en cours	Open orders
+Avisos que requieren acción	Avis nécessitant une action	Notices needing action
+La conexión con la nube de Architect ERP no está disponible.	La connexion au cloud Architect ERP n’est pas disponible.	The Architect ERP cloud connection is unavailable.
+Rutas del día y pruebas de entrega	Tournées du jour et preuves de livraison	The day’s routes and proofs of delivery

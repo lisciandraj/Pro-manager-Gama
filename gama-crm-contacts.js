@@ -54,7 +54,7 @@ async function quienSoy(){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const [k,c,l]=await Promise.all([
   api.list('crm_contacts',{select:LISTA,order:'last_name',ascending:true}),
   api.list('customers',{select:CLIENTE_COLS,order:'name',ascending:true}),
@@ -338,15 +338,15 @@ function css(){
  /* Casi todo lo visual lo pone ya la hoja de Prospectos, que es la misma
     lista con la misma barra. Aquí sólo va lo propio de esta pantalla. */
  s.textContent='#crm [hidden]{display:none!important}'
- +'#crm .crmPrin{color:#b8860b;font-weight:800}'
- +'#crm .crmEstado.e-cliente{background:#e7f6f0;color:#12795c}'
- +'#crm .crmEstado.e-prospecto{background:#e4f1fb;color:#1b5f8c}'
- +'#crm .crmPri.p-decisor{background:#fdefe4;color:#9a5314}'
- +'#crm .crmPri.p-comprador{background:#eef3f4;color:#4c5c68}'
+ +'#crm .crmPrin{color:var(--arc-warning);font-weight:800}'
+ +'#crm .crmEstado.e-cliente{background:var(--arc-success-bg);color:var(--arc-success)}'
+ +'#crm .crmEstado.e-prospecto{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
+ +'#crm .crmPri.p-decisor{background:var(--arc-warning-bg);color:var(--arc-warning)}'
+ +'#crm .crmPri.p-comprador{background:var(--arc-surface-3);color:var(--arc-text-muted)}'
  +'#crm .crmCheck{margin-top:12px;font-size:13px}'
  +'#crm .crmCheck input{width:auto;margin-right:7px;min-height:0}'
- +'#crm .crmCheck label{display:flex;align-items:center;font-weight:700;color:#18324a}'
- +'#crm .crmCheck small{display:block;color:#7b8992;font-size:11.5px;margin-top:3px}';
+ +'#crm .crmCheck label{display:flex;align-items:center;font-weight:700;color:var(--arc-text)}'
+ +'#crm .crmCheck small{display:block;color:var(--arc-text-subtle);font-size:11.5px;margin-top:3px}';
  document.head.appendChild(s);
 }
 

@@ -74,7 +74,7 @@ async function quienSoy(){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const [a,c,l,o,k,g]=await Promise.all([
   api.list('crm_activities',{select:LISTA,order:'created_at',ascending:false}),
   api.list('customers',{select:'id,name,active',order:'name',ascending:true}),
@@ -413,24 +413,24 @@ function css(){
  const s=document.createElement('style');s.id='crmActCss';
  s.textContent='#crm .crmSubNav{margin:0 0 12px}'
  +'#crm .crmSubNav button{min-height:38px;padding:7px 14px;font-size:12.5px}'
- +'#crm .crmFilaTarde td{background:#fff7f5}'
- +'#crm .crmEstado.e-cliente{background:#e7f6f0;color:#12795c}'
- +'#crm .crmEstado.e-prospecto{background:#e4f1fb;color:#1b5f8c}'
- +'#crm .crmEstado.e-oportunidad{background:#fdefe4;color:#9a5314}'
- +'#crm .crmEstado.e-contacto{background:#f1eefb;color:#5b4a9a}'
- +'#crm .crmEstado.s-pendiente{background:#fdefe4;color:#9a5314}'
- +'#crm .crmEstado.s-en_curso{background:#e4f1fb;color:#1b5f8c}'
- +'#crm .crmEstado.s-hecha{background:#e7f6f0;color:#12795c}'
- +'#crm .crmEstado.s-cancelada{background:#f2f5f6;color:#8a97a0}'
+ +'#crm .crmFilaTarde td{background:var(--arc-danger-bg)}'
+ +'#crm .crmEstado.e-cliente{background:var(--arc-success-bg);color:var(--arc-success)}'
+ +'#crm .crmEstado.e-prospecto{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
+ +'#crm .crmEstado.e-oportunidad{background:var(--arc-warning-bg);color:var(--arc-warning)}'
+ +'#crm .crmEstado.e-contacto{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}'
+ +'#crm .crmEstado.s-pendiente{background:var(--arc-warning-bg);color:var(--arc-warning)}'
+ +'#crm .crmEstado.s-en_curso{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
+ +'#crm .crmEstado.s-hecha{background:var(--arc-success-bg);color:var(--arc-success)}'
+ +'#crm .crmEstado.s-cancelada{background:var(--arc-surface-2);color:var(--arc-text-subtle)}'
  +'#crm .crmDia{margin-bottom:14px}'
- +'#crm .crmDia h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#71808a}'
- +'#crm .crmHito{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #edf1f2;border-radius:10px;margin-bottom:7px;cursor:pointer;background:#fff}'
- +'#crm .crmHito:hover{border-color:#087c8b}'
+ +'#crm .crmDia h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--arc-text-muted)}'
+ +'#crm .crmHito{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--arc-surface-3);border-radius:10px;margin-bottom:7px;cursor:pointer;background:#fff}'
+ +'#crm .crmHito:hover{border-color:var(--arc-accent-600)}'
  +'#crm .crmHito.cancelada{opacity:.6}'
  +'#crm .crmHito.cancelada b{text-decoration:line-through}'
  +'#crm .crmHitoIco{font-size:17px;line-height:1.2;flex:0 0 auto}'
  +'#crm .crmHitoCuerpo{flex:1 1 auto;min-width:0}'
- +'#crm .crmHitoCuerpo b{display:block;font-size:13px;color:#18324a}'
+ +'#crm .crmHitoCuerpo b{display:block;font-size:13px;color:var(--arc-text)}'
  +'@media(max-width:760px){#crm .crmHito{flex-wrap:wrap}}';
  document.head.appendChild(s);
 }

@@ -50,10 +50,10 @@ function css(){
  if(document.getElementById('gamaSortCss'))return;
  const s=document.createElement('style');s.id='gamaSortCss';
  s.textContent='.gamaSortTh{cursor:pointer;user-select:none;white-space:nowrap}'
- +'.gamaSortTh:hover{color:#087c8b}'
+ +'.gamaSortTh:hover{color:var(--arc-accent-600)}'
  +'.gamaSortTh.r{text-align:right}'
  +'.gamaSortInd{opacity:.35;font-size:10px}'
- +'.gamaSortTh.on{color:#087c8b}.gamaSortTh.on .gamaSortInd{opacity:1}';
+ +'.gamaSortTh.on{color:var(--arc-accent-600)}.gamaSortTh.on .gamaSortInd{opacity:1}';
  document.head.appendChild(s);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',css,{once:true});else css();

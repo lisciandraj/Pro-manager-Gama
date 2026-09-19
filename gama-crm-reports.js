@@ -49,7 +49,7 @@ function desde(){
 
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const ref=await CRM.referenciales();
  const gente=await CRM.comerciales();
  const d=desde();
@@ -230,15 +230,15 @@ function cuerpoProspectos(){
 function css(){
  if($('crmRepCss'))return;
  const s=document.createElement('style');s.id='crmRepCss';
- s.textContent='#crm .crmBarra{background:#eef3f4;border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
- +'#crm .crmBarra i{display:block;height:100%;background:#087c8b;border-radius:999px}'
- +'#crm .crmBarra i.ok{background:#138a69}'
- +'#crm .crmBarra i.ko{background:#c94f45}'
+ s.textContent='#crm .crmBarra{background:var(--arc-surface-3);border-radius:999px;height:9px;overflow:hidden;min-width:70px}'
+ +'#crm .crmBarra i{display:block;height:100%;background:var(--arc-accent-600);border-radius:999px}'
+ +'#crm .crmBarra i.ok{background:var(--arc-success)}'
+ +'#crm .crmBarra i.ko{background:var(--arc-danger)}'
  +'#crm .crmMeses{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px}'
- +'#crm .crmMes{background:#f8fafb;border:1px solid #e4ebee;border-radius:10px;padding:10px}'
- +'#crm .crmMes b{display:block;font-size:12px;color:#18324a;text-transform:capitalize}'
+ +'#crm .crmMes{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:10px;padding:10px}'
+ +'#crm .crmMes b{display:block;font-size:12px;color:var(--arc-text);text-transform:capitalize}'
  +'#crm .crmMesBarras{display:grid;gap:4px;margin:7px 0}'
- +'#crm .crmMes small{display:block;color:#71808a;font-size:11px}';
+ +'#crm .crmMes small{display:block;color:var(--arc-text-muted);font-size:11px}';
  document.head.appendChild(s);
 }
 

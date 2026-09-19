@@ -23,26 +23,26 @@ function css(){
  const s=document.createElement('style');s.id='cfgCss';
  s.textContent=`:is(#settings,#access-settings){display:none}
 :is(#settings,#access-settings) .cfgList{display:grid;gap:9px}
-:is(#settings,#access-settings) .cfgRow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid #e4ebee;border-radius:12px;background:#fff}
-:is(#settings,#access-settings) .cfgRow.off{background:#fbfcfc;border-style:dashed}
-:is(#settings,#access-settings) .cfgRow b{display:block;font-size:14px;color:#18324a}
-:is(#settings,#access-settings) .cfgRow small{display:block;color:#81909a;font-size:11px;margin-top:2px}
-:is(#settings,#access-settings) .cfgRow.off b{color:#8c99a3}
+:is(#settings,#access-settings) .cfgRow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid var(--arc-surface-3);border-radius:12px;background:#fff}
+:is(#settings,#access-settings) .cfgRow.off{background:var(--arc-surface-2);border-style:dashed}
+:is(#settings,#access-settings) .cfgRow b{display:block;font-size:14px;color:var(--arc-text)}
+:is(#settings,#access-settings) .cfgRow small{display:block;color:var(--arc-text-subtle);font-size:11px;margin-top:2px}
+:is(#settings,#access-settings) .cfgRow.off b{color:var(--arc-text-subtle)}
 /* Interruptor: una casilla de verdad debajo, para que funcione con teclado y
    con lector de pantalla; lo redondo es sólo la pintura. */
 :is(#settings,#access-settings) .cfgSwitch{position:relative;flex-shrink:0;width:52px;height:30px}
 :is(#settings,#access-settings) .cfgSwitch input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:2}
-:is(#settings,#access-settings) .cfgSwitch i{position:absolute;inset:0;border-radius:999px;background:#cfd9de;transition:background .15s}
-:is(#settings,#access-settings) .cfgSwitch i:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #17324633;transition:transform .15s}
-:is(#settings,#access-settings) .cfgSwitch input:checked + i{background:#087c8b}
+:is(#settings,#access-settings) .cfgSwitch i{position:absolute;inset:0;border-radius:999px;background:var(--arc-line);transition:background .15s}
+:is(#settings,#access-settings) .cfgSwitch i:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,37,60,.20);transition:transform .15s}
+:is(#settings,#access-settings) .cfgSwitch input:checked + i{background:var(--arc-accent-600)}
 :is(#settings,#access-settings) .cfgSwitch input:checked + i:after{transform:translateX(22px)}
 :is(#settings,#access-settings) .cfgSwitch input:disabled{cursor:not-allowed}
 :is(#settings,#access-settings) .cfgSwitch input:disabled + i{opacity:.5}
-:is(#settings,#access-settings) .cfgSwitch input:focus-visible + i{outline:3px solid #087c8b;outline-offset:2px}
+:is(#settings,#access-settings) .cfgSwitch input:focus-visible + i{outline:3px solid var(--arc-accent-600);outline-offset:2px}
 :is(#settings,#access-settings) .cfgMsg{margin:12px 0;font-size:13px;min-height:18px}
-:is(#settings,#access-settings) .cfgMsg.cfgOk{color:#138a69}:is(#settings,#access-settings) .cfgMsg.cfgErr{color:#c94f45;font-weight:700}
-:is(#settings,#access-settings) .cfgDenied{padding:26px;text-align:center;color:#71808a}
-:is(#settings,#access-settings) .cfgCount{color:#71808a;font-size:12px;margin-bottom:12px}`;
+:is(#settings,#access-settings) .cfgMsg.cfgOk{color:var(--arc-success)}:is(#settings,#access-settings) .cfgMsg.cfgErr{color:var(--arc-danger);font-weight:700}
+:is(#settings,#access-settings) .cfgDenied{padding:26px;text-align:center;color:var(--arc-text-muted)}
+:is(#settings,#access-settings) .cfgCount{color:var(--arc-text-muted);font-size:12px;margin-bottom:12px}`;
  document.head.appendChild(s);
 }
 
@@ -53,7 +53,7 @@ function render(id='settings'){
  if(access&&!isAdmin()){s.innerHTML='';return}
  const head=window.GamaUI.header({
   title:access?'🔐 Parámetros de acceso':'⚙️ Configuración',
-  lead:access?'Activa o desactiva los módulos de GAMA.':'Personaliza el idioma de la aplicación.'
+  lead:access?'Activa o desactiva los módulos de Architect.':'Personaliza el idioma de la aplicación.'
  });
 
  const preferences='<div class="card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';

@@ -1,0 +1,255 @@
+/* ARCHITECT ERP — Design system.
+
+   Esta hoja NO inventa nombres de clase: viste los que la aplicación ya usa.
+   Ningún módulo tuvo que renombrar nada, ninguna prueba dejó de encontrar su
+   selector, y a cambio las veinte pantallas comparten por fin el mismo botón,
+   la misma tarjeta y la misma tabla.
+
+   Lee su color de architect-tokens.css y no escribe ni un solo #RRGGBB.
+   Va después de las hojas históricas de index.html, así que gana por orden y
+   no hace falta !important salvo donde aquéllas ya lo usaban. */
+
+/* ============================================================ cimientos */
+html{-webkit-text-size-adjust:100%}
+body{
+ background:var(--arc-canvas);
+ color:var(--arc-text);
+ font-family:var(--arc-font);
+ font-size:var(--arc-fs-body);
+ line-height:var(--arc-lh-body);
+ font-weight:var(--arc-fw-reg);
+ -webkit-font-smoothing:antialiased;
+}
+/* La barra inferior histórica reservaba 86px al pie de cada página. La
+   navegación vive ahora en la lateral y en la barra superior. */
+body{padding-bottom:0}
+
+h1,h2,h3,h4{color:var(--arc-text);font-weight:var(--arc-fw-bold);margin-top:0}
+h1{font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);letter-spacing:-.02em}
+h2{font-size:22px;line-height:1.25;letter-spacing:-.01em}
+h3{font-size:var(--arc-fs-section);line-height:var(--arc-lh-section)}
+p{line-height:var(--arc-lh-body)}
+small,.muted{font-size:var(--arc-fs-cap);color:var(--arc-text-muted);line-height:var(--arc-lh-cap)}
+a{color:var(--arc-accent-600)}
+a:hover{color:var(--arc-accent-700)}
+
+/* Un solo anillo de foco en toda la aplicación, y siempre visible. */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+ outline:2px solid var(--arc-accent-600);
+ outline-offset:2px;
+ border-radius:var(--arc-r-sm);
+}
+
+/* ============================================================ superficies */
+.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,
+.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.chartPanel{
+ background:var(--arc-surface);
+ border:1px solid var(--arc-line);
+ border-radius:var(--arc-r-lg);
+ box-shadow:var(--arc-sh-1);
+ padding:var(--arc-s5);
+ margin-bottom:var(--arc-s4);
+}
+.card h3,.gsCard h3,.gaCard h3,.gfCard h3,.grCard h3,.tmsCard h3,.pmCard h3{
+ font-size:var(--arc-fs-section);margin:0 0 var(--arc-s3);color:var(--arc-text);
+}
+
+/* Los indicadores: cifra grande, etiqueta pequeña, acento discreto. */
+.kpi,.crmKpi,.goKpi,.hrKpi,.ivKpi,.pmKpi,.tmsKpi{
+ font-size:26px;font-weight:var(--arc-fw-black);color:var(--arc-text);line-height:1.15;
+}
+.gaKpis,.gfKpis,.grKpis,.gpKpis,.hrKpis,.hpKpis,.ivKpis,.pmKpis,.tmsKpis,
+.crmKpis,.gp14Kpis,.dashCards,.gamaPMCards,.pmCards,.gfCards{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--arc-s3);
+}
+
+/* ============================================================== botones */
+button,.btn{
+ font-family:inherit;font-size:var(--arc-fs-body);font-weight:var(--arc-fw-med);
+ border-radius:var(--arc-r-md);
+ min-height:var(--arc-tap);
+ padding:10px var(--arc-s4);
+ cursor:pointer;
+ border:1px solid transparent;
+ transition:background var(--arc-motion),border-color var(--arc-motion),box-shadow var(--arc-motion);
+ display:inline-flex;align-items:center;justify-content:center;gap:var(--arc-s2);
+}
+button:disabled,.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+
+button.primary,.btn-primary{
+ background:var(--arc-accent-600);color:var(--arc-text-invert);
+ border-color:var(--arc-accent-600);box-shadow:var(--arc-sh-1);
+}
+button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){
+ background:var(--arc-accent-700);border-color:var(--arc-accent-700);
+}
+button.primary:active:not(:disabled){background:var(--arc-accent-700);box-shadow:none}
+
+button.secondary,.btn-secondary,button.tmsLight,button.close{
+ background:var(--arc-surface-3);color:var(--arc-navy-700);
+ border-color:var(--arc-line);
+}
+button.secondary:hover:not(:disabled),.btn-secondary:hover:not(:disabled),
+button.tmsLight:hover:not(:disabled),button.close:hover:not(:disabled){
+ background:var(--arc-accent-100);border-color:var(--arc-steel-300);
+}
+
+button.danger,.btn-danger{background:var(--arc-danger);color:var(--arc-text-invert);border-color:var(--arc-danger)}
+button.danger:hover:not(:disabled){filter:brightness(.92)}
+button.success,.btn-success{background:var(--arc-success);color:var(--arc-text-invert);border-color:var(--arc-success)}
+button.success:hover:not(:disabled){filter:brightness(.92)}
+
+/* Un botón que espera lo dice, y no sólo con el color. */
+button[aria-busy=true]{position:relative;color:transparent!important}
+button[aria-busy=true]::after{
+ content:"";position:absolute;width:16px;height:16px;border-radius:50%;
+ border:2px solid currentColor;border-top-color:transparent;
+ animation:arcSpin .7s linear infinite;color:var(--arc-text-invert);
+}
+@keyframes arcSpin{to{transform:rotate(360deg)}}
+
+/* =========================================================== formularios */
+label{font-size:var(--arc-fs-sec);font-weight:var(--arc-fw-med);color:var(--arc-text);display:block;margin-bottom:var(--arc-s1)}
+input,select,textarea{
+ font-family:inherit;font-size:var(--arc-fs-body);color:var(--arc-text);
+ background:var(--arc-surface);
+ border:1px solid var(--arc-line-strong);
+ border-radius:var(--arc-r-md);
+ padding:10px var(--arc-s3);
+ min-height:var(--arc-tap);
+ width:100%;
+ transition:border-color var(--arc-motion),box-shadow var(--arc-motion);
+}
+textarea{min-height:88px;line-height:var(--arc-lh-body);padding-top:var(--arc-s2)}
+input[type=checkbox],input[type=radio]{width:18px;height:18px;min-height:0;accent-color:var(--arc-accent-600)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{
+ border-color:var(--arc-accent-600);box-shadow:var(--arc-focus);outline:none;
+}
+input::placeholder,textarea::placeholder{color:var(--arc-text-subtle)}
+input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-3);color:var(--arc-text-subtle);cursor:not-allowed}
+input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:var(--arc-danger)}
+
+/* ============================================================== tablas */
+table{width:100%;border-collapse:collapse;font-size:var(--arc-fs-sec)}
+table thead th{
+ background:var(--arc-surface-2);
+ color:var(--arc-text-muted);
+ font-size:var(--arc-fs-cap);
+ font-weight:var(--arc-fw-bold);
+ text-transform:uppercase;letter-spacing:.04em;
+ text-align:left;
+ padding:var(--arc-s3);
+ border-bottom:1px solid var(--arc-line-strong);
+ position:sticky;top:0;z-index:1;
+}
+table td{
+ padding:var(--arc-s3);
+ border-bottom:1px solid var(--arc-line);
+ color:var(--arc-text);
+ vertical-align:middle;
+}
+table tbody tr:hover td{background:var(--arc-accent-50)}
+table tbody tr:last-child td{border-bottom:0}
+/* Las cifras se leen en columna: alineadas a la derecha y sin partirse. */
+table td.num,table th.num,table td.gfNum,table th.gfNum,table td.grNum,table th.grNum{
+ text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+/* El desbordamiento horizontal se permite sólo donde de verdad hace falta. */
+.arcTableWrap,.gfScroll,.grScroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ============================================================== estados */
+.arcBadge,.gfBadge,.grBadge,.gqBadge{
+ display:inline-flex;align-items:center;gap:var(--arc-s1);
+ border-radius:var(--arc-r-pill);padding:3px 10px;
+ font-size:var(--arc-fs-cap);font-weight:var(--arc-fw-bold);
+ background:var(--arc-surface-3);color:var(--arc-navy-700);
+}
+.arcBadge--success{background:var(--arc-success-bg);color:var(--arc-success)}
+.arcBadge--warning{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.arcBadge--danger{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.arcBadge--info{background:var(--arc-info-bg);color:var(--arc-info)}
+
+.arcAlert{
+ display:flex;gap:var(--arc-s3);align-items:flex-start;
+ padding:var(--arc-s3) var(--arc-s4);border-radius:var(--arc-r-md);
+ border:1px solid var(--arc-info-line);background:var(--arc-info-bg);color:var(--arc-text);
+ font-size:var(--arc-fs-sec);
+}
+.arcAlert--success{background:var(--arc-success-bg);border-color:var(--arc-success-line)}
+.arcAlert--warning{background:var(--arc-warning-bg);border-color:var(--arc-warning-line)}
+.arcAlert--danger{background:var(--arc-danger-bg);border-color:var(--arc-danger-line)}
+
+.arcEmpty{
+ text-align:center;padding:var(--arc-s7) var(--arc-s5);color:var(--arc-text-muted);
+ border:1px dashed var(--arc-line-strong);border-radius:var(--arc-r-lg);background:var(--arc-surface);
+}
+.arcSkeleton{
+ background:linear-gradient(90deg,var(--arc-surface-3) 25%,var(--arc-surface-2) 37%,var(--arc-surface-3) 63%);
+ background-size:400% 100%;animation:arcShimmer 1.4s ease infinite;border-radius:var(--arc-r-sm);
+}
+@keyframes arcShimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+/* ============================================================== modales */
+dialog.gsDialog{
+ border:0;border-radius:var(--arc-r-xl);padding:0;
+ box-shadow:var(--arc-sh-3);background:var(--arc-surface);color:var(--arc-text);
+ max-width:min(640px,calc(100vw - 32px));width:100%;
+}
+dialog.gsDialog::backdrop{background:rgba(11,27,48,.55);backdrop-filter:blur(2px)}
+dialog.gsDialog form{padding:var(--arc-s6)}
+dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
+.gsField,.gsGrid{margin-bottom:var(--arc-s3)}
+.gsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--arc-s3)}
+.gsHint{font-size:var(--arc-fs-sec);color:var(--arc-text-muted)}
+.gsError{color:var(--arc-danger);font-weight:var(--arc-fw-med);font-size:var(--arc-fs-sec);margin:var(--arc-s2) 0 0}
+.gsActions{display:flex;gap:var(--arc-s2);justify-content:flex-end;margin-top:var(--arc-s5);flex-wrap:wrap}
+.gsTools{display:flex;gap:var(--arc-s2);flex-wrap:wrap}
+
+/* En el teléfono una modal a media pantalla es una hoja que sube desde abajo:
+   se alcanza con el pulgar y no tapa el contexto. */
+@media(max-width:560px){
+ dialog.gsDialog{
+  max-width:100vw;width:100vw;margin:auto 0 0;border-radius:var(--arc-r-xl) var(--arc-r-xl) 0 0;
+  max-height:92vh;
+ }
+ dialog.gsDialog form{padding:var(--arc-s5) var(--arc-s4) var(--arc-s6)}
+ .gsActions{flex-direction:column-reverse}
+ .gsActions button{width:100%}
+}
+
+/* ============================================================== toasts */
+.gamaToast{
+ background:var(--arc-navy-800);color:var(--arc-text-invert);
+ border-radius:var(--arc-r-md);box-shadow:var(--arc-sh-3);
+ font-size:var(--arc-fs-sec);
+}
+
+/* ====================================================== barra histórica */
+/* La navegación inferior de pestañas la sustituye la barra lateral. Se deja
+   en el DOM —hay pruebas y atajos que la consultan— pero fuera de la vista. */
+.tabs{display:none!important}
+
+/* ======================================================== indicadores */
+/* El contador de avisos lo pone gama-operations.js —con su propio naranja—
+   sobre la tarjeta de Notificaciones y sobre cualquier enlace que lo pida.
+   Aquí se le da la forma del sistema: una píldora, y en la tarjeta del menú
+   arriba a la derecha, donde no empuja al texto. El color nunca informa
+   solo: el número está dentro y su aria-label lo dice. */
+.goBadge{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:20px;height:20px;padding:0 6px;
+ background:var(--arc-warning);color:var(--arc-text-invert);
+ border-radius:var(--arc-r-pill);
+ font-size:11px;font-weight:var(--arc-fw-black);line-height:1;
+ margin-left:var(--arc-s2);
+}
+.gamaF2Card{position:relative}
+.gamaF2Card .goBadge{position:absolute;top:10px;right:10px;margin:0}
+
+/* ====================================================== gráfico de ventas */
+/* El SVG del panel trae sus colores como atributos, que no entienden var().
+   El CSS sí, y gana al atributo: así la curva vive en los tokens y el
+   atributo queda de reserva por si esta hoja no llegase. */
+#salesGrad stop{stop-color:var(--arc-viz-1)}
+#chartLine{stroke:var(--arc-viz-1)}
+#chartGrid line{stroke:var(--arc-line)}

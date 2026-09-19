@@ -123,7 +123,7 @@ function panel(res){
   +(res.pendientes.length
    ?'<div class="crmAviso" data-gi=c67c8d342b67>Estas reglas están configuradas pero hoy no se pueden contar: <b>'
     +res.pendientes.map(r=>esc(r.label)).join('</b>, <b>')+'</b>. '
-    +'GAMA envía los correos desde el programa de correo del usuario, sin seguimiento, '
+    +'Architect ERP envía los correos desde el programa de correo del usuario, sin seguimiento, '
     +'así que no hay forma honesta de saber si se abrieron. En cuanto el envío lleve seguimiento, contarán solas.</div>'
    :'')
   +'<div class="crmAcciones"><button type="button" class="primary" id="crmPtsAplicar">Guardar '+res.total+' en la ficha</button></div>'

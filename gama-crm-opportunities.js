@@ -60,7 +60,7 @@ async function quienSoy(){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de GAMA no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
  const [o,c,l,k,r,g]=await Promise.all([
   api.list('crm_opportunities',{select:LISTA,order:'created_at',ascending:false}),
   api.list('customers',{select:CLIENTE_COLS,order:'name',ascending:true}),
@@ -611,21 +611,21 @@ function css(){
  const s=document.createElement('style');s.id='crmOpoCss';
  s.textContent='#crm [hidden]{display:none!important}'
  +'#crm .crmTablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(228px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px;align-items:start}'
- +'#crm .crmTablero .crmCol{background:#f8fafb;border:1px solid #e4ebee;border-radius:11px;padding:9px;min-width:0}'
- +'#crm .crmColCab{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;padding:2px 3px 9px;border-bottom:1px solid #e4ebee;margin-bottom:9px}'
- +'#crm .crmColCab b{font-size:12.5px;color:#18324a;flex:1 1 auto;min-width:0}'
- +'#crm .crmColCab i{font-style:normal;font-weight:800;color:#087c8b;font-size:15px}'
- +'#crm .crmColCab small{width:100%;color:#71808a;font-size:11px}'
- +'#crm .crmColVacia{text-align:center;color:#b3c0c7;padding:10px 0}'
- +'#crm .crmTarjeta{background:#fff;border:1px solid #e2e8ec;border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}'
- +'#crm .crmTarjeta:hover{border-color:#087c8b}'
- +'#crm .crmTarjeta[draggable=true]{cursor:grab}#crm .crmTarjeta.crmArrastrando{opacity:.45;cursor:grabbing}#crm .crmTablero .crmCol{min-height:180px}#crm .crmTablero .crmCol.crmDestino{background:#d8eff1;border:2px dashed #087c8b}#crm .crmTarjeta[aria-busy=true]{opacity:.65;cursor:wait}'
- +'#crm .crmTarjeta.tarde{border-left:3px solid #c94f45}'
+ +'#crm .crmTablero .crmCol{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:9px;min-width:0}'
+ +'#crm .crmColCab{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;padding:2px 3px 9px;border-bottom:1px solid var(--arc-surface-3);margin-bottom:9px}'
+ +'#crm .crmColCab b{font-size:12.5px;color:var(--arc-text);flex:1 1 auto;min-width:0}'
+ +'#crm .crmColCab i{font-style:normal;font-weight:800;color:var(--arc-accent-600);font-size:15px}'
+ +'#crm .crmColCab small{width:100%;color:var(--arc-text-muted);font-size:11px}'
+ +'#crm .crmColVacia{text-align:center;color:var(--arc-line-strong);padding:10px 0}'
+ +'#crm .crmTarjeta{background:#fff;border:1px solid var(--arc-line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}'
+ +'#crm .crmTarjeta:hover{border-color:var(--arc-accent-600)}'
+ +'#crm .crmTarjeta[draggable=true]{cursor:grab}#crm .crmTarjeta.crmArrastrando{opacity:.45;cursor:grabbing}#crm .crmTablero .crmCol{min-height:180px}#crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}#crm .crmTarjeta[aria-busy=true]{opacity:.65;cursor:wait}'
+ +'#crm .crmTarjeta.tarde{border-left:3px solid var(--arc-danger)}'
  +'#crm .crmTarjTit{display:flex;gap:6px;align-items:flex-start;justify-content:space-between}'
- +'#crm .crmTarjTit b{font-size:12.5px;color:#18324a;min-width:0}'
+ +'#crm .crmTarjTit b{font-size:12.5px;color:var(--arc-text);min-width:0}'
  +'#crm .crmTarjPie{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}'
- +'#crm .crmTarjPie b{color:#087c8b;font-size:14px}'
- +'#crm .crmTarjPie span{color:#71808a;font-size:11px;font-weight:700}'
+ +'#crm .crmTarjPie b{color:var(--arc-accent-600);font-size:14px}'
+ +'#crm .crmTarjPie span{color:var(--arc-text-muted);font-size:11px;font-weight:700}'
  +'#crm .crmMover{margin-top:8px;font-size:12px;min-height:38px;padding:6px}'
  +'#crm .crmPerdida .crmForm{max-width:420px}'
  /* En el teléfono el tablero se apila: ocho columnas de arrastre lateral son

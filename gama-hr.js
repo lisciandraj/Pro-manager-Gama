@@ -76,7 +76,7 @@ function onLeaveToday(){
 async function load(){
  const version=++loadVersion;
  const api=C();
- if(!api){msg('La conexión con la nube de GAMA no está disponible.',true);return}
+ if(!api){msg('La conexión con la nube de Architect ERP no está disponible.',true);return}
  try{
   const [e,a,ep,ap,ses]=await Promise.all([
    api.list('hr_employees',{order:'full_name',ascending:true}),
@@ -236,12 +236,12 @@ function css(){
  const s=document.createElement('style');s.id='hrCss';
  s.textContent=`#hr{display:none}
 #hr .hrTabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-#hr .hrTabs button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;width:auto}
-#hr .hrTabs button.on{background:#087c8b;border-color:#087c8b;color:#fff}
+#hr .hrTabs button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;width:auto}
+#hr .hrTabs button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
 #hr .hrKpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-#hr .hrKpi{background:#fff;border:1px solid #e2e8ec;border-radius:13px;padding:14px}
-#hr .hrKpi span{display:block;color:#71808a;font-size:11px;font-weight:700}
-#hr .hrKpi b{display:block;margin-top:6px;font-size:22px;color:#18324a}
+#hr .hrKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:14px}
+#hr .hrKpi span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
+#hr .hrKpi b{display:block;margin-top:6px;font-size:22px;color:var(--arc-text)}
 /* El reparto se inclina hacia la tabla. El formulario es una pila de campos y
    se lee igual de bien en 420 px; la tabla, en cambio, tiene seis columnas y
    cuando se queda corta hay que arrastrarla de lado para llegar a los botones
@@ -256,32 +256,32 @@ function css(){
    desplazar. Pidiéndole a la tabla su propio mínimo, crece lo que necesite y
    entonces sí es el contenedor el que se desplaza. */
 #hr .hrTable table{width:100%;border-collapse:collapse;min-width:min-content}
-#hr .hrTable th,#hr .hrTable td{padding:10px;border-bottom:1px solid #edf1f2;text-align:left;font-size:12px;vertical-align:top}
-#hr .hrTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;background:#f8fafb}
-#hr .hrTable small{display:block;color:#81909a}
-#hr .hrBadge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;background:#eef3f4;color:#60717b;white-space:nowrap}
-#hr .hrBadge.ok{background:#e7f6f0;color:#138a69}
-#hr .hrBadge.warn{background:#fff6e8;color:#b66a18}
-#hr .hrBadge.red{background:#fff0ec;color:#c94f45}
-#hr .hrBar{height:7px;border-radius:999px;background:#eef3f4;overflow:hidden;margin-top:5px;max-width:150px}
-#hr .hrBar i{display:block;height:100%;background:#087c8b}
-#hr .hrBar i.full{background:#c94f45}
+#hr .hrTable th,#hr .hrTable td{padding:10px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px;vertical-align:top}
+#hr .hrTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
+#hr .hrTable small{display:block;color:var(--arc-text-subtle)}
+#hr .hrBadge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;background:var(--arc-surface-3);color:var(--arc-text-muted);white-space:nowrap}
+#hr .hrBadge.ok{background:var(--arc-success-bg);color:var(--arc-success)}
+#hr .hrBadge.warn{background:var(--arc-warning-bg);color:var(--arc-warning)}
+#hr .hrBadge.red{background:var(--arc-danger-bg);color:var(--arc-danger)}
+#hr .hrBar{height:7px;border-radius:999px;background:var(--arc-surface-3);overflow:hidden;margin-top:5px;max-width:150px}
+#hr .hrBar i{display:block;height:100%;background:var(--arc-accent-600)}
+#hr .hrBar i.full{background:var(--arc-danger)}
 #hr .hrMsg{margin:10px 0;font-size:13px}
-#hr .hrMsg.hrOk{color:#138a69}#hr .hrMsg.hrErr{color:#c94f45;font-weight:700}
-#hr .hrEmpty{padding:22px;text-align:center;color:#81909a}
+#hr .hrMsg.hrOk{color:var(--arc-success)}#hr .hrMsg.hrErr{color:var(--arc-danger);font-weight:700}
+#hr .hrEmpty{padding:22px;text-align:center;color:var(--arc-text-subtle)}
 #hr .hrActs{display:flex;gap:6px;flex-wrap:wrap}
 #hr .hrActs button{padding:6px 9px;font-size:11px;width:auto}
 #hr .hrOff td{opacity:.55}
-#hr .hrDatos{display:grid;gap:1px;background:#edf1f2;border:1px solid #edf1f2;border-radius:10px;overflow:hidden}
+#hr .hrDatos{display:grid;gap:1px;background:var(--arc-surface-3);border:1px solid var(--arc-surface-3);border-radius:10px;overflow:hidden}
 #hr .hrDato{display:flex;justify-content:space-between;gap:12px;padding:11px 13px;background:#fff;font-size:13px}
-#hr .hrDato span{color:#71808a}
-#hr .hrDato b{color:#18324a;text-align:right}
+#hr .hrDato span{color:var(--arc-text-muted)}
+#hr .hrDato b{color:var(--arc-text);text-align:right}
 #hr .hrSaldo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-#hr .hrSaldo>div{background:#f8fafb;border:1px solid #e4ebee;border-radius:11px;padding:12px;text-align:center}
-#hr .hrSaldo span{display:block;color:#71808a;font-size:11px;font-weight:700}
-#hr .hrSaldo b{display:block;margin-top:5px;font-size:24px;color:#18324a}
-#hr .hrSaldoLibre{background:#e8f5f6!important;border-color:#b9dde1!important}
-#hr .hrSaldoLibre b{color:#087c8b}
+#hr .hrSaldo>div{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:12px;text-align:center}
+#hr .hrSaldo span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
+#hr .hrSaldo b{display:block;margin-top:5px;font-size:24px;color:var(--arc-text)}
+#hr .hrSaldoLibre{background:var(--arc-accent-100)!important;border-color:var(--arc-accent-100)!important}
+#hr .hrSaldoLibre b{color:var(--arc-accent-600)}
 
 /* ---- planificación ----
    La rejilla es una sola cuadrícula por fila: las columnas de fondo ocupan
@@ -293,11 +293,11 @@ function css(){
 #hr .hrPlanNav button{width:auto;padding:8px 13px}
 /* capitalize pondría mayúscula en cada palabra: «Septiembre De 2026». En
    español sólo la lleva la primera, y los meses abreviados van en minúscula. */
-#hr .hrPlanTitulo{font-size:15px;color:#18324a;margin-left:4px}
+#hr .hrPlanTitulo{font-size:15px;color:var(--arc-text);margin-left:4px}
 #hr .hrPlanTitulo::first-letter{text-transform:uppercase}
 #hr .hrPlanVistas{display:flex;gap:6px}
-#hr .hrPlanVistas button{background:#fff;border:1px solid #c9d6df;color:#18324a;border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer;width:auto;font-size:13px}
-#hr .hrPlanVistas button.on{background:#087c8b;border-color:#087c8b;color:#fff}
+#hr .hrPlanVistas button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer;width:auto;font-size:13px}
+#hr .hrPlanVistas button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
 /* El calendario sí tiene que arrastrarse de lado —siete días, o treinta y uno,
    no caben en un teléfono y no hay forma de apilarlos—, así que aquí no se
    quita el desplazamiento: se arregla. overflow-y:hidden porque poner sólo
@@ -308,31 +308,31 @@ function css(){
    de mes— y llegar al borde era de lo más fácil: allí se lo quedaba el
    navegador y disparaba su gesto de volver atrás. La columna de nombres se
    queda fija (position:sticky) para no perder de vista de quién es cada fila. */
-#hr .hrPlanScroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid #e4ebee;border-radius:12px}
+#hr .hrPlanScroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid var(--arc-surface-3);border-radius:12px}
 #hr .hrPlan{min-width:640px}
-#hr .hrPlanFila{display:grid;grid-template-columns:170px 1fr;border-bottom:1px solid #edf1f2}
+#hr .hrPlanFila{display:grid;grid-template-columns:170px 1fr;border-bottom:1px solid var(--arc-surface-3)}
 #hr .hrPlanFila:last-child{border-bottom:0}
-#hr .hrPlanNombre{padding:9px 11px;border-right:1px solid #e4ebee;background:#fff;position:sticky;left:0;z-index:3}
-#hr .hrPlanNombre b{display:block;font-size:12.5px;color:#18324a;line-height:1.25}
-#hr .hrPlanNombre small{display:block;color:#81909a;font-size:10.5px;margin-top:1px}
-#hr .hrPlanCabecera{background:#f8fafb;border-bottom:1px solid #e4ebee}
-#hr .hrPlanCabecera .hrPlanNombre{background:#f8fafb;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#71808a;font-weight:800;display:flex;align-items:flex-end}
+#hr .hrPlanNombre{padding:9px 11px;border-right:1px solid var(--arc-surface-3);background:#fff;position:sticky;left:0;z-index:3}
+#hr .hrPlanNombre b{display:block;font-size:12.5px;color:var(--arc-text);line-height:1.25}
+#hr .hrPlanNombre small{display:block;color:var(--arc-text-subtle);font-size:10.5px;margin-top:1px}
+#hr .hrPlanCabecera{background:var(--arc-surface-2);border-bottom:1px solid var(--arc-surface-3)}
+#hr .hrPlanCabecera .hrPlanNombre{background:var(--arc-surface-2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);font-weight:800;display:flex;align-items:flex-end}
 #hr .hrPlanCeldas{display:grid;grid-template-columns:repeat(var(--cols),minmax(38px,1fr));grid-auto-rows:22px;align-content:center;gap:3px 0;padding:6px 0;position:relative}
 #hr .hrPlanDias{grid-auto-rows:auto;padding:7px 0}
-#hr .hrPlanDia{text-align:center;font-size:11px;color:#18324a;border-right:1px solid #edf1f2}
+#hr .hrPlanDia{text-align:center;font-size:11px;color:var(--arc-text);border-right:1px solid var(--arc-surface-3)}
 #hr .hrPlanDia:last-child{border-right:0}
-#hr .hrPlanDia small{display:block;color:#81909a;font-size:9.5px;text-transform:uppercase}
+#hr .hrPlanDia small{display:block;color:var(--arc-text-subtle);font-size:9.5px;text-transform:uppercase}
 #hr .hrPlanDia b{display:block;font-size:13px}
-#hr .hrPlanDia.fin{background:#f4f7f8;color:#8c99a3}
-#hr .hrPlanDia.hoy{background:#fff6ef;box-shadow:inset 0 -3px 0 #f47a2a}
-#hr .hrPlanCol{grid-row:1/-1;border-right:1px solid #f1f5f6}
+#hr .hrPlanDia.fin{background:var(--arc-surface-2);color:var(--arc-text-subtle)}
+#hr .hrPlanDia.hoy{background:var(--arc-warning-bg);box-shadow:inset 0 -3px 0 var(--arc-warning)}
+#hr .hrPlanCol{grid-row:1/-1;border-right:1px solid var(--arc-surface-2)}
 #hr .hrPlanCol:last-of-type{border-right:0}
-#hr .hrPlanCol.fin{background:#f7fafb}
-#hr .hrPlanCol.hoy{background:#fff6ef}
+#hr .hrPlanCol.fin{background:var(--arc-surface-2)}
+#hr .hrPlanCol.hoy{background:var(--arc-warning-bg)}
 #hr .hrPlanBarra{position:relative;z-index:2;display:flex;align-items:center;min-width:0;height:22px;margin:0 2px;padding:0 7px;border:0;border-radius:6px;cursor:pointer;background:var(--c);color:#fff;font-weight:700;font-size:10.5px;text-align:left;width:auto;overflow:hidden}
 #hr .hrPlanBarra span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hr .hrPlanBarra:hover{filter:brightness(1.08)}
-#hr .hrPlanBarra:focus-visible{outline:3px solid #18324a;outline-offset:1px}
+#hr .hrPlanBarra:focus-visible{outline:3px solid var(--arc-text);outline-offset:1px}
 /* Pendiente de aprobar: hueca y con el borde a rayas, para que no se confunda
    con lo ya concedido de un vistazo. */
 #hr .hrPlanBarra.pend{background:#fff;color:var(--c);border:1.5px dashed var(--c)}
@@ -340,12 +340,12 @@ function css(){
    punta plana avisa de que sigue fuera de la vista. */
 #hr .hrPlanBarra.cortaIzq{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
 #hr .hrPlanBarra.cortaDer{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
-#hr .hrPlanPie{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#61717c}
+#hr .hrPlanPie{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--arc-text-muted)}
 #hr .hrPlanLeyenda{display:inline-flex;align-items:center;gap:6px}
 #hr .hrPlanLeyenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
-#hr .hrPlanLeyenda i.pend{background:#fff;border:1.5px dashed #71808a}
-#hr .hrPlanDetalle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid #dbe6ea;border-left:4px solid #087c8b;border-radius:10px;background:#f8fbfb}
-#hr .hrPlanDetalle small{display:block;color:#61717c;font-size:11.5px;margin-top:2px}
+#hr .hrPlanLeyenda i.pend{background:#fff;border:1.5px dashed var(--arc-text-muted)}
+#hr .hrPlanDetalle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:10px;background:var(--arc-surface-2)}
+#hr .hrPlanDetalle small{display:block;color:var(--arc-text-muted);font-size:11.5px;margin-top:2px}
 /* minmax(0,1fr) y no 1fr: «1fr» es «minmax(auto,1fr)», y ese mínimo automático
    es el del contenido. La tabla de empleados lleva min-width:560px a propósito
    —una tabla necesita sitio y por eso .hrTable tiene su propio scroll—, pero
@@ -443,7 +443,7 @@ function employeesTab(){
    </div>
    <label data-gi=f5500ac97424>Cuenta de acceso</label>
    <select id="hrAccount">
-    <option value="" data-gi=0f017572f959>Sin cuenta — no puede entrar en GAMA</option>
+    <option value="" data-gi=c202487fcbd6>Sin cuenta — no puede entrar en Architect</option>
     ${perfiles.map(u=>`<option value="${esc(u.id)}">${esc(u.full_name||u.email||u.id)}${u.email?' · '+esc(u.email):''}</option>`).join('')}
    </select>
    <div class="muted" style="font-size:11.5px;margin-top:-2px" data-gi=3acee7e660f1>Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
@@ -517,7 +517,7 @@ function absencesTab(){
    Dos ausencias de la misma persona que se pisan van en carriles distintos
    dentro de su fila; si no, la de arriba taparía a la de abajo y parecería que
    sólo hay una. */
-const PLAN_COLORES={vacaciones:'#087c8b',enfermedad:'#c94f45',permiso:'#b66a18',formacion:'#5b62b5',otro:'#71808a'};
+const PLAN_COLORES={vacaciones:'var(--arc-accent-600)',enfermedad:'var(--arc-danger)',permiso:'var(--arc-warning)',formacion:'var(--arc-fam-sales)',otro:'var(--arc-text-muted)'};
 
 function planRango(){
  const base=new Date(planAnchor);

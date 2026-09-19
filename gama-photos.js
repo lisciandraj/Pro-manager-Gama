@@ -163,7 +163,7 @@ function shrink(dataUrl,max,quality){
    megas en memoria y para poder informar del avance. */
 async function optimizeAll(onProgress){
  const api=window.GamaCloud;
- if(!api)throw new Error('Sin conexión con GAMA Cloud.');
+ if(!api)throw new Error('Sin conexión con Architect Cloud.');
  const idx=await api.list('products',{select:'id,name,has_photo',eq:{has_photo:true},order:'name',ascending:true});
  if(idx.error)throw idx.error;
  const items=idx.data||[];
@@ -198,7 +198,7 @@ async function optimizeAll(onProgress){
 (function css(){
  if(document.getElementById('gamaPhotoCss'))return;
  const st=document.createElement('style');st.id='gamaPhotoCss';
- st.textContent='.gamaPhotoSlot{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;font-size:20px;color:#9aa8b2;background:#f1f4f6}.gamaPhotoSlot.product-img{width:58px;height:58px;border-radius:10px}';
+ st.textContent='.gamaPhotoSlot{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;font-size:20px;color:var(--arc-text-subtle);background:var(--arc-surface-2)}.gamaPhotoSlot.product-img{width:58px;height:58px;border-radius:10px}';
  (document.head||document.documentElement).appendChild(st);
 })();
 

@@ -16,7 +16,7 @@ function header(doc,{title='DOCUMENTO',reference='',date='',detail=''}={}){
  doc.setDrawColor(...teal);doc.setLineWidth(.8);doc.line(14,47,196,47);
  doc.setTextColor(...ink);doc.setFontSize(10);return 56;
 }
-function footer(doc,note='Documento generado por GAMA.'){
+function footer(doc,note='Documento generado por Architect ERP.'){
  const count=doc.getNumberOfPages();
  for(let i=1;i<=count;i++){
   doc.setPage(i);doc.setDrawColor(221,230,234);doc.setLineWidth(.3);doc.line(14,278,196,278);

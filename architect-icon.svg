@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Architect ERP">
+  <rect width="64" height="64" rx="12" fill="#0F2440"/>
+  <!-- Tres barras que suben: la estructura que da nombre a la marca. Cada una
+       tiene su cara superior clara y su frente en azul acero. -->
+  <g>
+    <path d="M14 38 24 33 31 36 21 41Z" fill="#FFFFFF"/>
+    <path d="M14 38 21 41 21 50 14 47Z" fill="#4A6C96"/>
+    <path d="M31 36 31 45 21 50 21 41Z" fill="#3C5C84"/>
+    <path d="M24 27 34 22 41 25 31 30Z" fill="#FFFFFF"/>
+    <path d="M24 27 31 30 31 45 24 42Z" fill="#4A6C96"/>
+    <path d="M41 25 41 40 31 45 31 30Z" fill="#3C5C84"/>
+    <path d="M34 16 44 11 51 14 41 19Z" fill="#FFFFFF"/>
+    <path d="M34 16 41 19 41 40 34 37Z" fill="#4A6C96"/>
+    <path d="M51 14 51 35 41 40 41 19Z" fill="#3C5C84"/>
+  </g>
+</svg>

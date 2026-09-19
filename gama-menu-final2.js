@@ -92,7 +92,7 @@ tag:'<path d="M3 12V5.5A2.5 2.5 0 0 1 5.5 3H12l9 9-9 9-9-9Z"/><circle cx="7.5" c
 matrix:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6M6 9v6M18 9v6M9 18h6"/>',
 warehouse:'<path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M7 20v-6h10v6M7 14h10"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
-function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';document.body.appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260913-i18n1';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
+function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';(document.querySelector('.wrap')||document.body).appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260918-architect1';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
 function openItem(x){if(x[1]==='accounting'){window.GamaAccounting?.open();return}if(x[1]==='fleet'){window.GamaFleet?.open();return}if(x[1]==='returns'){window.GamaReturns?.open();return}if(x[1]==='projects'){window.GamaProjects?.open();return}if(x[1]==='assistant-ia'){window.GamaAssistant?.open();return}if(x[1]==='knowledge'){window.GamaKnowledge?.open();return}if(x[1]==='payments'){window.GamaPayments?.open();return}if(x[1]==='order-preparation'){window.GamaPreparation?.open();return}if(x[1]==='dossier-flow'){window.GamaDossierFlow?.open();return}if(['operations','notifications'].includes(x[1])){window.GamaOperations?.open(x[1]);return}if(x[1]==='quotes'){window.GamaQuotes?.open();return}if(x[1]==='client-deliveries'){window.GamaQuotes?.deliveries();return}if(x[1]==='sales-orders'){window.GamaSales?.open();return}if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='warehouses'){if(window.showTab)window.showTab('warehouses',null);window.GamaOpenWarehouses?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='access-settings'){window.GamaOpenAccessSettings?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
 
 /* Un rótulo de grupo se esconde cuando no le queda ninguna tarjeta visible
@@ -110,44 +110,195 @@ function reglasDeGrupo(){
 }
 
 
-function render(){const host=document.getElementById('mainmenu');if(!host)return;document.documentElement.lang=window.GamaI18n?.language||'es';const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));s.id='gama-final2-css';/* auto-fill en vez de cinco columnas fijas: al agrupar, un grupo de seis
-   tarjetas dejaba una sola huérfana en la fila siguiente y un hueco enorme
-   al lado. Dejando que la rejilla ajuste el número de columnas al ancho
-   disponible —que además cambia cuando aparece la barra lateral— los grupos
-   llenan sus filas. */
-s.textContent='#mainmenu .gamaF2Grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(196px,1fr))!important;gap:16px!important;padding:12px 18px 24px!important}#mainmenu .gamaF2Card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:155px!important;padding:18px 10px!important;margin:0!important;background:#fff!important;border:1px solid #C3D2DC!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(23,50,70,.07),0 6px 18px rgba(23,50,70,.10)!important;color:#173246!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}#mainmenu .gamaF2Card:hover{border-color:#087c8b!important;box-shadow:0 2px 4px rgba(23,50,70,.08),0 12px 26px rgba(23,50,70,.16)!important;transform:translateY(-2px)}#mainmenu .gamaF2Card:active{transform:translateY(-1px) scale(.99)}#mainmenu .gamaF2Card:focus-visible{outline:3px solid #087c8b!important;outline-offset:2px}#mainmenu .gamaF2Icon{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:64px!important;min-width:64px!important;border-radius:18px!important;background:#e8f5f6!important;color:#087c8b!important;margin:0 0 12px!important}#mainmenu .gamaF2Icon.gamaF2Naranja{background:#fff0e5!important;color:#f47a2a!important}#mainmenu .gamaF2Icon svg{display:block!important;width:34px!important;height:34px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}#mainmenu .gamaF2Title{display:block!important;font-size:16px!important;font-weight:800!important;line-height:1.2!important;text-align:center!important}'
- +'#mainmenu .gamaF2Section{grid-column:1/-1;margin:10px 2px 0;font-size:11px;font-weight:850;letter-spacing:1.3px;text-transform:uppercase;color:#6d7d88}#mainmenu .gamaF2Section:first-child{margin-top:0}#mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}'
- +'#mainmenu .gamaF2Buscador{margin:0 18px 4px;position:relative;max-width:420px}#mainmenu .gamaF2Buscador input{width:100%;box-sizing:border-box;padding:12px 14px 12px 40px;border:1px solid #C3D2DC;border-radius:12px;background:#fff;font-size:15px;color:#173246}#mainmenu .gamaF2Buscador input:focus{outline:none;border-color:#087c8b;box-shadow:0 0 0 3px rgba(8,124,139,.18)}#mainmenu .gamaF2Buscador svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:#71808a;stroke-width:2;pointer-events:none}#mainmenu .gamaF2Buscador kbd{position:absolute;right:11px;top:50%;transform:translateY(-50%);padding:2px 7px;border:1px solid #C3D2DC;border-bottom-width:2px;border-radius:6px;background:#F4F7F9;color:#6D7D88;font:700 11px/1.5 inherit;pointer-events:none}#mainmenu .gamaF2Buscador input:focus~kbd{opacity:0}'
- +'#mainmenu .gamaF2Vacio{margin:14px 18px 0;padding:22px;text-align:center;color:#6d7d88;font-size:14px;background:#fff;border:1px dashed #C3D2DC;border-radius:14px}'
+/* Una línea por módulo que diga para qué sirve. El menú deja de ser una
+   rejilla de iconos a adivinar: se lee y se entra al que toca. */
+const DESC={
+ dashboard:'Vista de conjunto de tu actividad',
+ 'assistant-ia':'Analiza tus datos y obtén respuestas',
+ operations:'Alertas comerciales y logísticas',
+ notifications:'Avisos y bloqueos pendientes',
+ crm:'Prospectos, oportunidades y clientes',
+ quotes:'Crea y sigue tus presupuestos',
+ 'sales-orders':'Gestión de los pedidos de clientes',
+ 'order-preparation':'Preparación y pruebas de entrega',
+ payments:'Registro de facturas y cobros',
+ returns:'Devoluciones, abonos y reembolsos',
+ gamaPurchasesV14:'Pedidos de compra y recepciones',
+ suppliers:'Gestión de los proveedores',
+ products:'Catálogo y fichas de producto',
+ warehouses:'Existencias y ubicaciones',
+ stock:'Inventario de todos tus productos',
+ movement:'Entradas y salidas de mercancía',
+ matrix:'Precios de compra y de venta',
+ barcode:'Etiquetas y códigos de barras',
+ 'dossier-flow':'Seguimiento de expedientes',
+ 'price-lists':'Tarifas y precios especiales',
+ clients:'Base de clientes',
+ 'client-catalog':'Catálogo para tus clientes',
+ 'client-deliveries':'Tus entregas y sus pruebas',
+ projects:'Gestión de proyectos',
+ hr:'Equipos, ausencias y nóminas',
+ accounting:'Seguimiento financiero y contabilidad',
+ fleet:'Vehículos, papeles y consumos',
+ knowledge:'Base de conocimientos',
+ audit:'Historial de todas las operaciones',
+ users:'Cuentas y perfiles',
+ 'access-settings':'Permisos por perfil',
+ settings:'Configuración del ERP',
+ backup:'Copias de seguridad de tus datos',
+ reports:'Importar datos desde Excel',
+};
+/* Cada familia funcional lleva su acento; el resto de la tarjeta es idéntico,
+   así el conjunto no se convierte en un arcoíris. */
+const FAMILIA={
+ 'Resumen':'analytics','Ventas':'sales','Cliente':'sales','Logística':'logistics',
+ 'Inventario y compras':'purchase','Administración':'system',
+};
+const FAM_MODULO={accounting:'finance',payments:'finance',hr:'people',clients:'people',
+ users:'people',suppliers:'purchase',fleet:'logistics',returns:'logistics',projects:'analytics'};
+
+/* Los indicadores de cabecera. Leen lo que la aplicación ya tiene cargado y no
+   inventan nada: si un dato no está disponible todavía, la tarjeta no se
+   pinta. Nunca se enseñan cifras de ejemplo en producción. */
+async function kpis(){
+ const out=[];
+ if(window.gamaAccessAllowed&&!window.gamaAccessAllowed('operations'))return out;
+ try{
+  await window.GamaCloudReady;
+  const c=await window.GamaCloud.db();
+  const r=await c.rpc('gama_operations_action',{p_action:'snapshot',p_data:{offset:0}});
+  const d=r&&!r.error?r.data:null;
+  if(!d)return out;
+  if(d.total!=null)out.push(['revenue','Cartera en curso',window.GamaCurrency.format(d.total),'finance']);
+  if(d.active_count!=null)out.push(['orders','Pedidos en curso',window.GamaCurrency.number(d.active_count,0),'analytics']);
+  if(Array.isArray(d.alerts))out.push(['alerts','Avisos que requieren acción',
+    window.GamaCurrency.number(d.alerts.length,0),d.alerts.length>0?'warning':'logistics']);
+ }catch(_){/* sin datos todavía: el menú se pinta igual */}
+ return out;
+}
+
+const KPI_ICON={
+ revenue:'<path d="M12 3v18M7 7h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/>',
+ orders:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5"/>',
+ alerts:'<path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v5M12 17.5v.5"/>',
+};
+
+function render(){
+ const host=document.getElementById('mainmenu');if(!host)return;
+ document.documentElement.lang=window.GamaI18n?.language||'es';
+ const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));
+ s.id='gama-final2-css';
+ s.textContent=`
+#mainmenu{padding:0}
+#mainmenu .gamaF2Head{margin:0 0 var(--arc-s5)}
+#mainmenu .gamaF2Head h1{margin:0;font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);letter-spacing:-.02em;color:var(--arc-text);font-weight:var(--arc-fw-black)}
+#mainmenu .gamaF2Head p{margin:var(--arc-s2) 0 0;color:var(--arc-text-muted);font-size:var(--arc-fs-body)}
+#mainmenu .gamaF2Kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--arc-s4);margin:0 0 var(--arc-s6)}
+#mainmenu .gamaF2Kpi{display:flex;align-items:center;gap:var(--arc-s3);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);padding:var(--arc-s4);box-shadow:var(--arc-sh-1)}
+#mainmenu .gamaF2KpiIcon{width:44px;height:44px;flex:none;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center}
+#mainmenu .gamaF2KpiIcon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#mainmenu .gamaF2KpiText{min-width:0}
+#mainmenu .gamaF2KpiLabel{display:block;font-size:var(--arc-fs-cap);color:var(--arc-text-muted);font-weight:var(--arc-fw-med)}
+#mainmenu .gamaF2KpiValue{display:block;font-size:22px;font-weight:var(--arc-fw-black);color:var(--arc-text);line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
+#mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:var(--arc-s4)}
+#mainmenu .gamaF2Section{grid-column:1/-1;margin:var(--arc-s4) 0 calc(-1 * var(--arc-s1));font-size:11px;font-weight:var(--arc-fw-black);letter-spacing:.12em;text-transform:uppercase;color:var(--arc-text-subtle)}
+#mainmenu .gamaF2Section:first-of-type{margin-top:0}
+#mainmenu .gamaF2Card{
+ display:flex;flex-direction:column;align-items:flex-start;gap:var(--arc-s3);
+ min-height:0;padding:var(--arc-s5);margin:0;text-align:left;
+ background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);
+ box-shadow:var(--arc-sh-1);cursor:pointer;position:relative;
+ transition:border-color var(--arc-motion),box-shadow var(--arc-motion),transform var(--arc-motion);
+}
+#mainmenu .gamaF2Card:hover{border-color:var(--arc-accent-400);box-shadow:var(--arc-sh-2);transform:translateY(-2px)}
+#mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+#mainmenu .gamaF2Icon{width:48px;height:48px;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center;flex:none}
+#mainmenu .gamaF2Icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#mainmenu .gamaF2Title{display:block;font-size:var(--arc-fs-card);line-height:var(--arc-lh-card);font-weight:var(--arc-fw-bold);color:var(--arc-text)}
+#mainmenu .gamaF2Desc{display:block;font-size:var(--arc-fs-sec);line-height:var(--arc-lh-sec);color:var(--arc-text-muted);margin-top:var(--arc-s1)}
+#mainmenu .gamaF2Go{position:absolute;right:var(--arc-s4);bottom:var(--arc-s4);width:20px;height:20px;color:var(--arc-steel-400);fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:color var(--arc-motion),transform var(--arc-motion)}
+#mainmenu .gamaF2Card:hover .gamaF2Go{color:var(--arc-accent-600);transform:translateX(3px)}
+#mainmenu .gamaF2Body{padding-right:var(--arc-s6)}
+#mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}
+#mainmenu .gamaF2Vacio{grid-column:1/-1;margin:0;padding:var(--arc-s7);text-align:center;color:var(--arc-text-muted);font-size:var(--arc-fs-body);background:var(--arc-surface);border:1px dashed var(--arc-line-strong);border-radius:var(--arc-r-lg)}
+`+['analytics','sales','logistics','purchase','finance','people','system'].map(f=>
+  `#mainmenu [data-arc-fam="${f}"]{background:var(--arc-fam-${f}-bg);color:var(--arc-fam-${f})}`).join('')
+ +`#mainmenu [data-arc-fam="warning"]{background:var(--arc-warning-bg);color:var(--arc-warning)}`
  +reglasDeGrupo()
- +'@media(max-width:900px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:10px!important}#mainmenu .gamaF2Card{min-height:145px!important;padding:14px 7px!important}#mainmenu .gamaF2Icon{width:58px!important;height:58px!important;min-width:58px!important}#mainmenu .gamaF2Icon svg{width:30px!important;height:30px!important}.gamaF2Title{font-size:15px!important}#mainmenu .gamaF2Buscador{margin:0 10px 2px;max-width:none}#mainmenu .gamaF2Buscador kbd{display:none}#mainmenu .gamaF2Section{margin:8px 2px 0}#mainmenu .gamaF2Vacio{margin:12px 10px 0}}';
+ +`@media(max-width:860px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:var(--arc-s3)}
+ #mainmenu .gamaF2Card{padding:var(--arc-s4)}
+ #mainmenu .gamaF2Icon{width:42px;height:42px}
+ #mainmenu .gamaF2Head h1{font-size:23px}
+ #mainmenu .gamaF2Kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--arc-s3)}
+ #mainmenu .gamaF2KpiValue{font-size:19px}}
+@media(max-width:430px){#mainmenu .gamaF2Grid{grid-template-columns:1fr}
+ #mainmenu .gamaF2Kpis{grid-template-columns:1fr 1fr}
+ #mainmenu .gamaF2Desc{margin-top:2px}}`;
+
  host.replaceChildren();
- const h=document.createElement('h2');h.textContent='Menú principal';h.style.cssText='margin:22px 18px 8px;color:#173246;font-size:28px';
- const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de GAMA Enterprise Resource Planning.';p.style.cssText='margin:0 18px 14px;color:#7b8891;font-size:14px';
- const caja=document.createElement('div');caja.className='gamaF2Buscador';
- caja.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
- const input=document.createElement('input');input.type='search';input.id='gamaF2Buscar';input.placeholder='Buscar en GAMA…';input.setAttribute('aria-label','Buscar en GAMA');
- input.onfocus=()=>window.GamaGlobalSearch?.open(input.value);
- input.oninput=()=>window.GamaGlobalSearch?.open(input.value);
- caja.appendChild(input);
- const tecla=document.createElement('kbd');tecla.textContent='/';tecla.setAttribute('aria-hidden','true');caja.appendChild(tecla);
+ const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
+ const h=document.createElement('h1');h.textContent='Menú principal';
+ const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de Architect ERP.';
+ cabecera.append(h,p);
+
+ const fila=document.createElement('div');fila.className='gamaF2Kpis';fila.id='gamaF2Kpis';fila.hidden=true;
+
  const grid=document.createElement('div');grid.className='gamaF2Grid';
- let n=0;
  GRUPOS.forEach(g=>{
+  const items=ITEMS.filter(x=>x[3]===g);
+  if(!items.length)return;
   const rotulo=document.createElement('div');rotulo.className='gamaF2Section';rotulo.dataset.gamaGrupo=g;rotulo.textContent=g;
   grid.appendChild(rotulo);
-  ITEMS.filter(x=>x[3]===g).forEach(x=>{
-   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
-   const icon=document.createElement('span');icon.className='gamaF2Icon'+(n++%2?' gamaF2Naranja':'');
+  items.forEach(x=>{
+   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';
+   b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
+   const fam=FAM_MODULO[x[1]]||FAMILIA[g]||'system';
+   const icon=document.createElement('span');icon.className='gamaF2Icon';icon.dataset.arcFam=fam;
    icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';
+   const cuerpo=document.createElement('span');cuerpo.className='gamaF2Body';
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
-   b.append(icon,label);if(x[1]==='notifications')b.dataset.goNav='notifications';b.onclick=()=>openItem(x);grid.appendChild(b);
+   cuerpo.appendChild(label);
+   if(DESC[x[1]]){
+    const d=document.createElement('span');d.className='gamaF2Desc';d.textContent=DESC[x[1]];d.dataset.gamaSource=DESC[x[1]];
+    cuerpo.appendChild(d);
+   }
+   const go=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   go.setAttribute('class','gamaF2Go');go.setAttribute('viewBox','0 0 24 24');go.setAttribute('aria-hidden','true');
+   go.innerHTML='<path d="M5 12h14M13 6l6 6-6 6"/>';
+   b.append(icon,cuerpo,go);
+   if(x[1]==='notifications')b.dataset.goNav='notifications';
+   b.onclick=()=>openItem(x);
+   grid.appendChild(b);
   });
  });
- const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;vacio.textContent='Ningún módulo coincide con la búsqueda.';
- host.append(h,p,caja,grid);
- window.GamaGlobalSearch?.mount(input);
+ const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;
+ vacio.textContent='Ningún módulo coincide con la búsqueda.';
+ grid.appendChild(vacio);
+
+ host.append(cabecera,fila,grid);
+ pintarKpis(fila);
 }
+
+/* Los indicadores llegan cuando llegan: el menú no espera por ellos. */
+function pintarKpis(fila){
+ kpis().then(lista=>{
+  if(!lista.length||!fila.isConnected)return;
+  fila.replaceChildren();
+  lista.forEach(([clave,label,valor,fam])=>{
+   const c=document.createElement('div');c.className='gamaF2Kpi';
+   c.innerHTML='<span class="gamaF2KpiIcon" data-arc-fam="'+fam+'">'
+    +'<svg viewBox="0 0 24 24" aria-hidden="true">'+(KPI_ICON[clave]||'')+'</svg></span>'
+    +'<span class="gamaF2KpiText"><span class="gamaF2KpiLabel"></span><span class="gamaF2KpiValue"></span></span>';
+   c.querySelector('.gamaF2KpiLabel').textContent=label;
+   c.querySelector('.gamaF2KpiLabel').dataset.gamaSource=label;
+   c.querySelector('.gamaF2KpiValue').textContent=valor;
+   fila.appendChild(c);
+  });
+  fila.hidden=false;
+  window.GamaI18n?.scan?.(fila);
+ }).catch(()=>{});
+}
+
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la
    página para borrar los botones «‹ Menú principal» que index.html repetía en
@@ -166,9 +317,13 @@ document.addEventListener('keydown',function(e){
  if(!menu||!menu.classList.contains('active'))return;
  const t=e.target;
  if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;
- const input=document.getElementById('gamaF2Buscar');
+ const input=document.getElementById('arcSearchInput');
  if(!input)return;
  e.preventDefault();input.focus();input.select();
 });
+/* La barra lateral y el menú de tarjetas enseñan lo mismo, así que leen la
+   misma lista. Exponerla evita la copia que se desincroniza al añadir un
+   módulo: se añade aquí y aparece en los dos sitios. */
+window.GamaMenu={items:ITEMS,groups:GRUPOS,icons:I,open:openItem,render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();

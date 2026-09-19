@@ -19,7 +19,7 @@ window.ArcAssets={
   "gama-assistant-ia.js": "gama-assistant-ia.js?v=68bd0aec2793",
   "gama-central-sync.js": "gama-central-sync.js?v=c1b7f5abcd39",
   "gama-client-catalog.js": "gama-client-catalog.js?v=ca093815c5e7",
-  "gama-cloud-auth.js": "gama-cloud-auth.js?v=8f2ed41692f5",
+  "gama-cloud-auth.js": "gama-cloud-auth.js?v=5dcb63210c50",
   "gama-cloud-products.js": "gama-cloud-products.js?v=c81d4a5ba9bb",
   "gama-cloud-users.js": "gama-cloud-users.js?v=b98a1e6b9702",
   "gama-company-core.js": "gama-company-core.js?v=9589c6f39373",
@@ -91,5 +91,5 @@ window.ArcAssets={
   "gama-toast.js": "gama-toast.js?v=23a8e1087e3f",
   "gama-ui.js": "gama-ui.js?v=98cc6c17c615",
   "playwright.config.js": "playwright.config.js?v=55735dd45ef8",
-  "sw.js": "sw.js?v=a2dc6eb2bc56"
+  "sw.js": "sw.js?v=6b3188a94f56"
 };

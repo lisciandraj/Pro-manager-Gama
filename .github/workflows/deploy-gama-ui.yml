@@ -46,6 +46,9 @@ jobs:
           node --check gama-modules.js
           node --check gama-hr.js
           node --check gama-settings.js
+          node --check gama-company.js
+          node --check gama-company-core.js
+          node --test tests/company-core.test.cjs
           node --check gama-standard-ui.js
           node --check gama-menu-final2.js
           node --check gama-tms-module.js

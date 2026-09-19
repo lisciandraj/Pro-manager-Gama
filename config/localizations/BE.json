@@ -1,0 +1,2596 @@
+{
+  "country": "BE",
+  "version": "2026-09-19",
+  "title": "Belgique · PCMN",
+  "currency": "EUR",
+  "source_url": "https://github.com/odoo/odoo/tree/19.0/addons/l10n_be",
+  "source_sha256": "7813de46c67d0554193f7566be1c969482ddad09c6b9dc4782445681495a55b9",
+  "accounts": [
+    {
+      "code": "120",
+      "name": "Plus-values de réévaluation sur immobilisations incorporelles",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "121",
+      "name": "Plus-values de réévaluation sur immobilisations corporelles",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "122",
+      "name": "Plus-values de réévaluation sur immobilisations financières",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "124",
+      "name": "Reprises de réductions de valeur sur placements de trésorerie",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "132",
+      "name": "Réserves immunisées",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "140",
+      "name": "Bénéfice reporté",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "141",
+      "name": "Perte reportée (-)",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "149",
+      "name": "Répartition des profits et des pertes",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "160",
+      "name": "Provisions pour pensions et obligations similaires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "161",
+      "name": "Provisions pour charges fiscales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "162",
+      "name": "Provisions pour grosses réparations et gros entretien",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "163",
+      "name": "Provisions pour obligations environnementales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "164",
+      "name": "Provisions pour autres risques et charges",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "172",
+      "name": "Dettes de location-financement et assimilées (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "1730",
+      "name": "Etablissements de crédit - Dettes en compte (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "1731",
+      "name": "Etablissements de crédit - Promesses (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "1732",
+      "name": "Etablissements de crédit - Crédits d'acceptation (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "174",
+      "name": "Autres emprunts (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "1750",
+      "name": "Fournisseurs (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "1751",
+      "name": "Effets à payer (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "176",
+      "name": "Acomptes sur commandes (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "178",
+      "name": "Cautionnements reçus en numéraire (> 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "201",
+      "name": "Frais d'émission d'emprunts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "202",
+      "name": "Autres frais d'établissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "204",
+      "name": "Frais de restructuration",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "210000",
+      "name": "Frais de recherche et de développement - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "210008",
+      "name": "Frais de recherche et de développement - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "210009",
+      "name": "Frais de recherche et de développement - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211000",
+      "name": "Concessions, brevets, licences, savoir-faire, marques et droits similaires - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211008",
+      "name": "Concessions, brevets, licences, savoir-faire, marques et droits similaires - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211009",
+      "name": "Concessions, brevets, licences, savoir-faire, marques et droits similaires - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "212000",
+      "name": "Goodwill - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "212008",
+      "name": "Goodwill - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "212009",
+      "name": "Goodwill - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "213",
+      "name": "Acomptes versés pour immobilisations incorporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215000",
+      "name": "Logiciels - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215008",
+      "name": "Logiciels - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215009",
+      "name": "Logiciels - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "220000",
+      "name": "Terrains - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "220008",
+      "name": "Terrains - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "220009",
+      "name": "Terrains - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "221000",
+      "name": "Constructions - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "221008",
+      "name": "Constructions - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "221009",
+      "name": "Constructions - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "222000",
+      "name": "Terrains bâtis - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "222008",
+      "name": "Terrains bâtis - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "222009",
+      "name": "Terrains bâtis - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "223000",
+      "name": "Autres droits réels sur des immeubles - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "223008",
+      "name": "Autres droits réels sur des immeubles - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "223009",
+      "name": "Autres droits réels sur des immeubles - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "230000",
+      "name": "Installations, machines et outillage - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "230008",
+      "name": "Installations, machines et outillage - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "230009",
+      "name": "Installations, machines et outillage - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "240000",
+      "name": "Mobilier et matériel de bureau",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "240008",
+      "name": "Mobilier et matériel de bureau - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "240009",
+      "name": "Mobilier et matériel de bureau - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241000",
+      "name": "Voitures - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241001",
+      "name": "Voitures - Accessoires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241008",
+      "name": "Voitures - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241009",
+      "name": "Voitures - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241100",
+      "name": "Motos - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241101",
+      "name": "Motos - Accessoires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241108",
+      "name": "Motos - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241109",
+      "name": "Motos - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241200",
+      "name": "Vélos - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241201",
+      "name": "Vélos - Accessoires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241208",
+      "name": "Vélos - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241209",
+      "name": "Vélos - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241300",
+      "name": "Vélos électriques - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241301",
+      "name": "Vélos électriques - Accessoires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241308",
+      "name": "Vélos électriques - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241309",
+      "name": "Vélos électriques - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241400",
+      "name": "Véhicules utilitaires - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241401",
+      "name": "Véhicules utilitaires - Accessoires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241408",
+      "name": "Véhicules utilitaires - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "241409",
+      "name": "Véhicules utilitaires - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "250000",
+      "name": "Terrains et constructions en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "250008",
+      "name": "Terrains et constructions en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "250009",
+      "name": "Terrains et constructions en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "251000",
+      "name": "Installations, machines et outillage en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "251008",
+      "name": "Installations, machines et outillage en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "251009",
+      "name": "Installations, machines et outillage en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252000",
+      "name": "Voitures en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252008",
+      "name": "Voitures en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252009",
+      "name": "Voitures en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252100",
+      "name": "Motos en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252108",
+      "name": "Motos en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252109",
+      "name": "Motos en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252200",
+      "name": "Vélos en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252208",
+      "name": "Vélos en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252209",
+      "name": "Vélos en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252300",
+      "name": "Vélos électriques en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252308",
+      "name": "Vélos électriques en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252309",
+      "name": "Vélos électriques en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252400",
+      "name": "Véhicules utilitaires en leasing financier - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252408",
+      "name": "Véhicules utilitaires en leasing financier - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "252409",
+      "name": "Véhicules utilitaires en leasing financier - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "260000",
+      "name": "Autres immobilisations corporelles - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "260008",
+      "name": "Autres immobilisations corporelles - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "260009",
+      "name": "Autres immobilisations corporelles - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "270000",
+      "name": "Immobilisations corporelles en cours et acomptes versés - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "270008",
+      "name": "Immobilisations corporelles en cours et acomptes versés - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "270009",
+      "name": "Immobilisations corporelles en cours et acomptes versés - Amortissements ou réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2800",
+      "name": "Participations dans des entreprises liées - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2801",
+      "name": "Participations dans des entreprises liées - Montants non appelés (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2808",
+      "name": "Participations dans des entreprises liées - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2809",
+      "name": "Participations dans des entreprises liées - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2810",
+      "name": "Créances sur des entreprises liées - Créances en compte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2811",
+      "name": "Créances sur des entreprises liées - Effets à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2812",
+      "name": "Créances sur des entreprises liées - Titres à revenu fixe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2817",
+      "name": "Créances sur des entreprises liées - Créances douteuses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2819",
+      "name": "Créances sur des entreprises liées - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2820",
+      "name": "Participations dans des entreprises avec lesquelles il existe un lien de participation - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2821",
+      "name": "Participations dans des entreprises avec lesquelles il existe un lien de participation - Montants non appelés (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2828",
+      "name": "Participations dans des entreprises avec lesquelles il existe un lien de participation - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2829",
+      "name": "Participations dans des entreprises avec lesquelles il existe un lien de participation - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2830",
+      "name": "Créances sur des entreprises avec lesquelles il existe un lien de participation - Créances en compte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2831",
+      "name": "Créances sur des entreprises avec lesquelles il existe un lien de participation - Effets à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2832",
+      "name": "Créances sur des entreprises avec lesquelles il existe un lien de participation - Titres à revenu fixe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2837",
+      "name": "Créances sur des entreprises avec lesquelles il existe un lien de participation - Créances douteuses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2839",
+      "name": "Créances sur les entreprises avec lesquelles il existe un lien de participation - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2840",
+      "name": "Autres actions et parts - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2841",
+      "name": "Autres actions et parts - Montants non appelés (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2848",
+      "name": "Autres actions et parts - Plus-values",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2849",
+      "name": "Autres actions et parts - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2850",
+      "name": "Autres créances - Créances en compte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2851",
+      "name": "Autres créances - Effets à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2852",
+      "name": "Autres créances - Titres à revenu fixe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2857",
+      "name": "Autres créances - Créances douteuses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2859",
+      "name": "Autres créances - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "288",
+      "name": "Cautionnements versés en numéraire",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2900",
+      "name": "Clients (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2901",
+      "name": "Créances commerciales - Effets à recevoir (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2906",
+      "name": "Créances commerciales - Acomptes versés (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2907",
+      "name": "Créances commerciales - Créances douteuses (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2909",
+      "name": "Créances commerciales - Réductions de valeur (> 1 an) (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2910",
+      "name": "Créances en compte (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2911",
+      "name": "Autres créances - Effets à recevoir (> 1 an)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2919",
+      "name": "Autres créances - Réductions de valeur (> 1 an) (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "300",
+      "name": "Matières premières - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "309",
+      "name": "Matières premières - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "310",
+      "name": "Approvisionnements et fournitures - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "319",
+      "name": "Approvisionnements et fournitures - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "320",
+      "name": "En-cours de fabrication - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "329",
+      "name": "En-cours de fabrication - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "330",
+      "name": "Produits finis - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "339",
+      "name": "Produits finis - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "340",
+      "name": "Marchandises - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "349",
+      "name": "Marchandises - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "350",
+      "name": "Immeubles destinés à la vente - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "359",
+      "name": "Immeubles destinés à la vente - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "360",
+      "name": "Acomptes versés sur achats pour stocks - Acomptes versés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "369",
+      "name": "Acomptes versés sur achats pour stocks - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "370",
+      "name": "Commandes en cours d'exécution - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "371",
+      "name": "Commandes en cours d'exécution - Bénéfice pris en compte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "379",
+      "name": "Commandes en cours d'exécution - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "400",
+      "name": "Clients",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4001",
+      "name": "Clients (Commandes du point de vente)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "401",
+      "name": "Créances commerciales - Effets à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "404",
+      "name": "Créances commerciales - Produits à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "406",
+      "name": "Créances commerciales - Acomptes versés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "407",
+      "name": "Créances commerciales - Créances douteuses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "409",
+      "name": "Créances commerciales - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "411",
+      "name": "TVA à récupérer",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4112",
+      "name": "TVA à récupérer : Compte courant TVA (C/C)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4118",
+      "name": "Compte de provision TVA",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4121",
+      "name": "Paiement anticipé de l'impôt",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4125",
+      "name": "Autres impôts et taxes belges à récupérer",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "4128",
+      "name": "Impôts et taxes étrangers à récupérer",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "414",
+      "name": "Produits à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "416",
+      "name": "Créances diverses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "417",
+      "name": "Créances diverses - Créances douteuses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "418",
+      "name": "Créances diverses - Cautionnements versés en numéraire",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "419",
+      "name": "Créances diverses - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "422",
+      "name": "Dettes de location-financement et dettes assimilées (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4230",
+      "name": "Etablissements de crédit - Dettes en compte (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4231",
+      "name": "Etablissements de crédit - Promesses (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4232",
+      "name": "Etablissements de crédit - Crédits d'acceptation (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "424",
+      "name": "Autres emprunts (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4250",
+      "name": "Fournisseurs (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4251",
+      "name": "Effets à payer (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "426",
+      "name": "Acomptes sur commandes (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "428",
+      "name": "Cautionnements reçus en numéraire (> 1 an écheant < 1 an)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "430",
+      "name": "Etablissements de crédit - Emprunts en compte à terme fixe",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "431",
+      "name": "Etablissements de crédit - Promesses",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "432",
+      "name": "Etablissements de crédit - Crédits d'acceptation",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "433",
+      "name": "Etablissements de crédit - Dettes en compte courant",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "439",
+      "name": "Autres emprunts",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "440",
+      "name": "Fournisseurs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "441",
+      "name": "Effets à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "444",
+      "name": "Factures à recevoir",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4505",
+      "name": "Dettes fiscales estimées - Autres impôts et taxes belges",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4508",
+      "name": "Dettes fiscales estimées - Impôts et taxes étrangers",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451",
+      "name": "TVA à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451054",
+      "name": "TVA à payer (Grille 54)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451055",
+      "name": "TVA à payer sur opérations intracommunautaires (Grille 55)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451056",
+      "name": "TVA à payer sur opérations co-contractant (Grille 56)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451057",
+      "name": "TVA à payer : Report de paiement sur importations (Grille 57)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451063",
+      "name": "TVA à payer sur notes de crédit (Grille 63)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4512",
+      "name": "TVA à payer : Compte courant TVA (C/C)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451800",
+      "name": "TVA à payer - Taxation insuffisante",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451820",
+      "name": "TVA à payer - Révisions des déductions",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451830",
+      "name": "TVA à payer - Régularisations",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4521",
+      "name": "Paiement anticipé de l'impôt",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4525",
+      "name": "Autres impôts et taxes belges à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "4528",
+      "name": "Impôts et taxes étrangers à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "453",
+      "name": "Précomptes retenus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "454",
+      "name": "Office National de Sécurité Sociale (ONSS)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "455",
+      "name": "Rémunérations",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "456",
+      "name": "Pécules de vacances",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "459",
+      "name": "Autres dettes sociales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "460",
+      "name": "Acomptes sur commandes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "480",
+      "name": "Obligations et coupons échus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "488",
+      "name": "Cautionnements reçus en numéraire",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "490",
+      "name": "Charges à reporter",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "491",
+      "name": "Produits acquis",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "492",
+      "name": "Charges à imputer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "493",
+      "name": "Produits à reporter",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "499",
+      "name": "Comptes d'attente",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "511",
+      "name": "Actions et parts - Montants non appelés (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "520",
+      "name": "Titres à revenu fixe - Valeur d'acquisition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "529",
+      "name": "Titres à revenu fixe - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "530",
+      "name": "Dépôts à terme de plus d'un an",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "531",
+      "name": "Dépôts à terme de plus d'un mois et à un an au plus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "532",
+      "name": "Dépôts à terme d'un mois au plus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "539",
+      "name": "Dépôts à terme - Réductions de valeur (-)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "54",
+      "name": "Valeurs échues à l'encaissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "550",
+      "name": "Etablissements de crédit",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "570",
+      "name": "Caisses - Espèces",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "578",
+      "name": "Caisses - Timbres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "58",
+      "name": "Virements internes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "600",
+      "name": "Matières premières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "601",
+      "name": "Fournitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602",
+      "name": "Services, travaux et études",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "603",
+      "name": "Sous-traitances générales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "604",
+      "name": "Marchandises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "605",
+      "name": "Achats d'immeubles destinés à la vente",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "608",
+      "name": "Remises, ristournes et rabais (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6090",
+      "name": "Variations des stocks de matières premières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6091",
+      "name": "Variations des stocks de fournitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6094",
+      "name": "Variations des stocks de marchandises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6095",
+      "name": "Variations des stocks d'immeubles achetés destinés à la vente",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6100",
+      "name": "Loyers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6101",
+      "name": "Location de machines, d'équipements et de matériel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610200",
+      "name": "Location de voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610201",
+      "name": "Location de motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610202",
+      "name": "Location de vélos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610203",
+      "name": "Location de vélos électriques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610210",
+      "name": "Leasing financier de voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610211",
+      "name": "Leasing financier de motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610212",
+      "name": "Leasing financier de vélos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610213",
+      "name": "Leasing financier de vélos électriques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61022",
+      "name": "Leasing opérationnel de voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610221",
+      "name": "Leasing opérationnel de motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610222",
+      "name": "Leasing opérationnel de vélos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "610223",
+      "name": "Leasing opérationnel de vélos électriques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6103",
+      "name": "Location de véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61031",
+      "name": "Leasing financier de véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61032",
+      "name": "Leasing opérationnel de véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611",
+      "name": "Charges d’entretien et de réparation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611201",
+      "name": "Entretien des voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611202",
+      "name": "Entretien des motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611203",
+      "name": "Entretien des vélos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611204",
+      "name": "Entretien des vélos électriques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6113",
+      "name": "Entretien des véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6120",
+      "name": "Fournitures de bureau et impressions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6122",
+      "name": "Petit matériel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6125",
+      "name": "Eau, électricité et gaz",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612901",
+      "name": "Carburant pour voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612902",
+      "name": "Carburant pour motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612903",
+      "name": "Carburant pour véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61291",
+      "name": "Électricité pour voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612911",
+      "name": "Électricité pour motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612912",
+      "name": "Électricité pour véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61320",
+      "name": "Experts-comptables ou conseillers fiscaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61325",
+      "name": "Frais juridiques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61329",
+      "name": "Autres honoraires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "613310",
+      "name": "Logiciels et services informatiques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "613311",
+      "name": "Logiciels de facturation électronique",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6140",
+      "name": "Assurance incendie",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6142",
+      "name": "Assurance revenu garanti",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61440",
+      "name": "Assurance voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61441",
+      "name": "Assurance motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61442",
+      "name": "Assurance vélos électriques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61443",
+      "name": "Assurance vélos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6145",
+      "name": "Assurance véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6146",
+      "name": "Autres assurances professionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6162",
+      "name": "Internet et téléphone",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6165",
+      "name": "Vols",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616501",
+      "name": "Hôtels",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616502",
+      "name": "Indemnités journalières et rémunération",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616503",
+      "name": "Transports en commun",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616505",
+      "name": "Autres frais de déplacement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616506",
+      "name": "Parking pour voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616507",
+      "name": "Parking pour motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616508",
+      "name": "Parking pour véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616510",
+      "name": "Taxi",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61652",
+      "name": "Publicité et annonces",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61653",
+      "name": "Salons et conférences",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616540",
+      "name": "Cadeaux d'affaires (<= 50 €)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616541",
+      "name": "Cadeaux d'affaires (> 50 €)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "61655",
+      "name": "Cotisations professionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616580",
+      "name": "Restaurants et bars",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "617",
+      "name": "Personnel intérimaire et personnes mises à la disposition de l'entreprise",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "618",
+      "name": "Rémunérations, primes pour assurances extralégales, pensions de retraite et de survie des administrateurs, gérants et associés actifs qui ne sont pas attribuées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6200",
+      "name": "Rémunérations des administrateurs ou gérants",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6201",
+      "name": "Rémunérations du personnel de direction",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6202",
+      "name": "Rémunérations des employés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6203",
+      "name": "Rémunérations des ouvriers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6204",
+      "name": "Rémunérations des autres membres du personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "621",
+      "name": "Cotisations patronales ONSS",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622",
+      "name": "Primes patronales pour assurances extra-légales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623",
+      "name": "Autres frais de personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623401",
+      "name": "Nourriture et boissons pour le personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "62360",
+      "name": "Frais de formation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "62361",
+      "name": "Frais de formation (nourriture et boissons incluses)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6237",
+      "name": "Chèques-repas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6240",
+      "name": "Pensions des administrateurs ou gérants",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6241",
+      "name": "Pensions du personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6300",
+      "name": "Dotations aux amortissements sur frais d'établissement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6301",
+      "name": "Dotations aux amortissements sur immobilisations incorporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6302",
+      "name": "Dotations aux amortissements sur immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6308",
+      "name": "Dotations aux réductions de valeur sur immobilisations incorporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6309",
+      "name": "Dotations aux réductions de valeur sur immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6310",
+      "name": "Réductions de valeur sur stocks - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6311",
+      "name": "Réductions de valeur sur stocks - Reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6320",
+      "name": "Réductions de valeur sur commandes en cours d'exécution - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6321",
+      "name": "Réductions de valeur sur commandes en cours d'exécution - Reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6330",
+      "name": "Réductions de valeur sur créances commerciales (> 1 an) - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6331",
+      "name": "Réductions de valeur sur créances commerciales (> 1 an) - Reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6340",
+      "name": "Réductions de valeur sur créances commerciales - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6341",
+      "name": "Réductions de valeur sur créances commerciales - Reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6350",
+      "name": "Provisions pour pensions et obligations similaires - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6351",
+      "name": "Provisions pour pensions et obligations similaires - Utilisations et reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6360",
+      "name": "Provisions pour grosses réparations et gros entretien - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6361",
+      "name": "Provisions pour grosses réparations et gros entretien - Utilisations et reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6370",
+      "name": "Provisions pour obligations environnementales - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6371",
+      "name": "Provisions pour obligations environnementales - Utilisations et reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "640",
+      "name": "Charges fiscales d'exploitation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "640200",
+      "name": "Taxes sur les voitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "640201",
+      "name": "Taxes sur les motos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "640202",
+      "name": "Taxes sur les véhicules utilitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6404",
+      "name": "Taxes régionales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6405",
+      "name": "Droits d’enregistrement et publications légales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6406",
+      "name": "Taxes provinciales et communales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6408",
+      "name": "Droits de douane et accises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6450",
+      "name": "Amendes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641",
+      "name": "Moins-values sur réalisations courantes d'immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "642",
+      "name": "Moins-values sur réalisations de créances commerciales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "649",
+      "name": "Charges d'exploitation portées à l'actif au titre de frais de restructuration (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6500",
+      "name": "Intérêts, commissions et frais afférents aux dettes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6501",
+      "name": "Amortissement des frais d'émission d'emprunts",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6502",
+      "name": "Intérêts intercalaires portés à l'actif (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6510",
+      "name": "Réductions de valeur sur actifs circulants - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6511",
+      "name": "Réductions de valeur sur actifs circulants - Reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "652",
+      "name": "Moins-values sur réalisation d'actifs circulants ",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "653",
+      "name": "Charges d'escompte de créances",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "654",
+      "name": "Différences de change",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "655",
+      "name": "Écarts de conversion des devises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6560",
+      "name": "Provisions à caractère financier - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6561",
+      "name": "Provisions à caractère financier - Utilisations et reprises (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "657000",
+      "name": "Escomptes financiers accordés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "657100",
+      "name": "Différences de paiement négatives",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "657200",
+      "name": "Frais bancaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "659",
+      "name": "Charges financières portées à l'actif au titre de frais de restructuration (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6600",
+      "name": "Amortissements et réductions de valeur non récurrents (dotations) sur frais d'établissement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6601",
+      "name": "Amortissements et réductions de valeur non récurrents (dotations) sur immobilisations incorporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6602",
+      "name": "Amortissements et réductions de valeur non récurrents (dotations) sur immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661",
+      "name": "Réductions de valeur sur immobilisations financières (dotation)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "66200",
+      "name": "Provisions pour risques et charges d'exploitation non récurrents - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "66201",
+      "name": "Provisions pour risques et charges d'exploitation non récurrents - Utilisations (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "66210",
+      "name": "Provisions pour risques et charges financiers non récurrents - Dotations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "66211",
+      "name": "Provisions pour risques et charges financiers non récurrents - Utilisations (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6630",
+      "name": "Moins-values sur réalisation d'immobilisations incorporelles et corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6631",
+      "name": "Moins-values sur réalisation d'immobilisations financières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "664",
+      "name": "Autres charges d'exploitation non récurrentes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "668",
+      "name": "Autres charges financières non récurrentes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6690",
+      "name": "Charges d'exploitation non récurrentes portées à l'actif au titre de frais de restructuration (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6691",
+      "name": "Charges financières non récurrentes portées à l'actif au titre de frais de restructuration (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6700",
+      "name": "Impôts et précomptes dus ou versés sur le résultat de l'exercice",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6701",
+      "name": "Excédent de versements d'impôts et de précomptes porté à l'actif sur le résultat de l'exercice (-)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6702",
+      "name": "Charges fiscales estimées sur le résultat de l'exercice",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6710",
+      "name": "Suppléments d'impôts dus ou versés sur le résultat d'exercices antérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6711",
+      "name": "Suppléments d'impôts estimés sur le résultat d'exercices antérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "6712",
+      "name": "Provisions fiscales constituées sur le résultat d'exercices antérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "672",
+      "name": "Impôts étrangers sur le résultat de l'exercice",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "673",
+      "name": "Impôts étrangers sur le résultat d'exercices antérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "680",
+      "name": "Transfert aux impôts différés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "689",
+      "name": "Transfert aux réserves immunisées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "690",
+      "name": "Perte reportée de l'exercice précédent",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "7000",
+      "name": "Ventes de marchandises en Belgique",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7001",
+      "name": "Services en Belgique",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7005",
+      "name": "Ventes co-contractant",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7006",
+      "name": "Ventes livraisons intracommunautaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "70061",
+      "name": "Ventes services intracommunautaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7007",
+      "name": "Ventes hors EU",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708",
+      "name": "Remises, ristournes et rabais accordés (-)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709000",
+      "name": "Arrondissement des paiements en Euros",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "712",
+      "name": "Variations des stocks d'en-cours de fabrication",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713",
+      "name": "Variations des stocks de produits finis",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "715",
+      "name": "Variations des stocks des immeubles construits destinés à la vente",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7170",
+      "name": "Variations des commandes en cours d'exécution - Valeur d'acquisition",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7171",
+      "name": "Variations des commandes en cours d'exécution - Bénéfice pris en compte",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "72",
+      "name": "Production immobilisée",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "741",
+      "name": "Plus-values sur réalisations courantes d'immobilisations corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "742",
+      "name": "Plus-values sur réalisation de créances commerciales",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "743",
+      "name": "Produits d'exploitation divers",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "750",
+      "name": "Produits des immobilisations financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "751",
+      "name": "Produits des actifs circulants",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "752",
+      "name": "Plus-values sur réalisation d'actifs circulants",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "754",
+      "name": "Différences de change",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "755",
+      "name": "Écarts de conversion des devises",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "756",
+      "name": "Produits financiers divers",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "757000",
+      "name": "Escomptes financiers obtenus",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "757100",
+      "name": "Différences de paiement positives",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7600",
+      "name": "Reprises d'amortissements et de réductions de valeur sur immobilisations incorporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7601",
+      "name": "Reprises d'amortissements et de réductions de valeur sur immobilisations corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "761",
+      "name": "Reprises de réductions de valeur sur immobilisations financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7620",
+      "name": "Reprises de provisions pour risques et charges d'exploitation non récurrents",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7621",
+      "name": "Reprises de provisions pour risques et charges financiers non récurrents",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7630",
+      "name": "Plus-values sur réalisation d'immobilisations incorporelles et corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "7631",
+      "name": "Plus-values sur réalisation d'immobilisations financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "764",
+      "name": "Autres bénéfices d'exploitation non récurrents",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "769",
+      "name": "Autres produits financiers non récurrents",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "780",
+      "name": "Prélèvement sur les impôts différés",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "789",
+      "name": "Prélèvement sur les réserves immunisées",
+      "type": "income",
+      "active": true
+    }
+  ],
+  "mapping": {
+    "receivable": "400",
+    "payable": "440",
+    "sales": "7000",
+    "purchase": "604",
+    "tax_collected": "451054",
+    "tax_deductible": "411"
+  },
+  "taxes": [
+    {
+      "code": "BE-VAT-21",
+      "name": "TVA 21%",
+      "rate": 21
+    },
+    {
+      "code": "BE-VAT-12",
+      "name": "TVA 12%",
+      "rate": 12
+    },
+    {
+      "code": "BE-VAT-6",
+      "name": "TVA 6%",
+      "rate": 6
+    },
+    {
+      "code": "BE-VAT-0",
+      "name": "TVA 0%",
+      "rate": 0
+    }
+  ]
+}

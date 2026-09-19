@@ -1,0 +1,3981 @@
+{
+  "country": "FR",
+  "version": "2026-09-19",
+  "title": "France · PCG",
+  "currency": "EUR",
+  "source_url": "https://github.com/odoo/odoo/tree/19.0/addons/l10n_fr_account",
+  "source_sha256": "8d9f51fa602c81e9fe6be5bf2857f360e1deee3bcb928fcb70b6359c3d654fc9",
+  "accounts": [
+    {
+      "code": "101100",
+      "name": "Capital souscrit - non appelé",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "101200",
+      "name": "Capital souscrit - appelé non versé",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "101300",
+      "name": "Capital souscrit appelé, versé",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "101310",
+      "name": "Capital non amorti",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "101320",
+      "name": "Capital amorti",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "101800",
+      "name": "Capital souscrit soumis à des réglementations particulières",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "102000",
+      "name": "Fonds fiduciaires",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "104100",
+      "name": "Primes d'émission",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "104200",
+      "name": "Primes de fusion",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "104300",
+      "name": "Primes d'apport",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "104400",
+      "name": "Primes de conversion d'obligations en actions",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "104500",
+      "name": "Bons de souscription d'actions",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "105000",
+      "name": "Ecarts de réévaluation",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "106100",
+      "name": "Réserve légale",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "106200",
+      "name": "Réserves indisponibles",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "106300",
+      "name": "Réserves statutaires ou contractuelles",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "106400",
+      "name": "Réserves réglementées",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "106800",
+      "name": "Autres réserves",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "107000",
+      "name": "Écarts d'équivalence",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "108000",
+      "name": "Compte de l'exploitant",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "109000",
+      "name": "Actionnaires : capital souscrit - non appelé",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "110000",
+      "name": "Report à nouveau (solde créditeur)",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "119000",
+      "name": "Report à nouveau (solde débiteur)",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "120000",
+      "name": "Résultat de l'exercice (bénéfice)",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "120900",
+      "name": "Accomptes sur les dividendes",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "129000",
+      "name": "Résultat de l'exercice (perte)",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "131000",
+      "name": "Subventions d'équipement",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "139000",
+      "name": "Subventions d'investissement inscrites au compte de résultat",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "140000",
+      "name": "Provisions réglementées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "143000",
+      "name": "Provisions réglementées relatives aux stocks - Hausse de prix",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "145000",
+      "name": "Amortissements dérogatoires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "148000",
+      "name": "Autres provisions réglementées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151100",
+      "name": "Provisions pour litiges",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151200",
+      "name": "Provisions pour garanties données aux clients",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151400",
+      "name": "Provisions pour amendes et pénalités",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151500",
+      "name": "Provisions pour pertes de change",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151600",
+      "name": "Provisions pour pertes sur contrats",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "151800",
+      "name": "Autres provisions pour risques",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152100",
+      "name": "Provisions pour pensions et obligations similaires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152200",
+      "name": "Provisions pour restructurations",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152300",
+      "name": "Provisions pour impôts",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152400",
+      "name": "Provisions pour renouvellement des immobilisations - entreprises concessionnaires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152500",
+      "name": "Provisions pour gros entretien ou grandes révisions",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152600",
+      "name": "Provisions pour remises en état",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "152700",
+      "name": "Autres provisions pour charges",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "161000",
+      "name": "Emprunts obligataires convertibles",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "161800",
+      "name": "Intérêts courus sur emprunts obligataires convertibles",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "162000",
+      "name": "Obligations représentatives de passifs nets remis en fiducie",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "163000",
+      "name": "Autres emprunts obligataires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "163800",
+      "name": "Intérêts courus sur autres emprunts obligataires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "164000",
+      "name": "Emprunts auprès des établissements de crédit",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "164800",
+      "name": "Intérêts courus sur emprunts auprès des établissements",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "165100",
+      "name": "Dépôts",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "165500",
+      "name": "Cautionnements",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "165800",
+      "name": "Intérêts courus sur dépôts et cautionnements reçus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "166100",
+      "name": "Participation des salariés aux résultats - Comptes bloqués",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "166200",
+      "name": "Participation des salariés aux résultats - Fonds de participation",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "166800",
+      "name": "Intérêts courus sur participation des salariés aux résultats",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167100",
+      "name": "Emprunts et dettes assortis de conditions particulières - Emissions de titres participatifs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167180",
+      "name": "Intérêts courus sur titres participatifs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167400",
+      "name": "Emprunts et dettes assortis de conditions particulières - Avances conditionnées de l'État",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167480",
+      "name": "Intérêts courus sur avances conditionnées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167500",
+      "name": "Prêts participatifs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "167580",
+      "name": "Intérêts courus sur emprunts participatifs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "168100",
+      "name": "Autres emprunts et dettes assimilées - Autres emprunts",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "168500",
+      "name": "Autres emprunts et dettes assimilées - Rentes viagères capitalisées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "168700",
+      "name": "Autres emprunts et dettes assimilées - Autres dettes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "168800",
+      "name": "Intérêts courus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "169000",
+      "name": "Primes de remboursement des obligations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "171000",
+      "name": "Dettes rattachées à des participations (groupe)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "174000",
+      "name": "Dettes rattachées à des participations (hors groupe)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "178000",
+      "name": "Dettes rattachées à des sociétés en participation",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "181000",
+      "name": "Comptes de liaison des établissements",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "186000",
+      "name": "Biens et prestations de services échangés entre établissements (charges)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "187000",
+      "name": "Biens et prestations de services échangés entre établissements (produits)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "188000",
+      "name": "Comptes de liaison des sociétés en participation",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "201100",
+      "name": "Frais de constitution",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "201200",
+      "name": "Frais de premier établissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "201210",
+      "name": "Frais de prospection",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "201220",
+      "name": "Frais de publicité",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "201300",
+      "name": "Frais d'augmentation de capital et d'opérations diverses (fusions, scissions, transformations)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "203000",
+      "name": "Frais de recherche et de développement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "205000",
+      "name": "Concessions et droits similaires, brevets, licences, marques, procédés, logiciels, droits et valeurs similaires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "206000",
+      "name": "Droit au bail",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "207000",
+      "name": "Fonds commercial",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "208000",
+      "name": "Dépréciations des autres immobilisations incorporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211100",
+      "name": "Terrains nus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211200",
+      "name": "Terrains aménagés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211300",
+      "name": "Sous-sols et sur-sols",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211400",
+      "name": "Terrains de carrières (Tréfonds)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "211500",
+      "name": "Terrains bâtis",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "212000",
+      "name": "Agencements et aménagements de terrains (même ventilation que celle du compte 211)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "213100",
+      "name": "Bâtiments",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "213500",
+      "name": "Installations générales, agencements, aménagements des constructions (même ventilation que celle du compte 2131)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "213800",
+      "name": "Ouvrages d'infrastructure",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "214000",
+      "name": "Constructions sur sol d'autrui (même ventilation que celle du compte 213)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215110",
+      "name": "Installations complexes spécialisées sur sol propre",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215140",
+      "name": "Installations complexes spécialisées sur sol d'autrui",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215310",
+      "name": "Installations à caractère spécifique sur sol propre",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215340",
+      "name": "Installations à caractère spécifique sur sol d'autrui",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215400",
+      "name": "Matériels industriels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215500",
+      "name": "Outillage industriel",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "215700",
+      "name": "Agencements et aménagements des matériels et outillage industriels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218100",
+      "name": "Installations générales agencements aménagements divers",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218200",
+      "name": "Matériel de transport",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218300",
+      "name": "Matériel de bureau et matériel informatique",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218400",
+      "name": "Mobilier",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218500",
+      "name": "Cheptel",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218600",
+      "name": "Emballages récupérables",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "218700",
+      "name": "Mali de fusions sur actifs corporels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "220000",
+      "name": "Immobilisations mises en concession",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "231000",
+      "name": "Immobilisations corporelles en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "232000",
+      "name": "Dépréciations des immobilisations incorporelles en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "237000",
+      "name": "Avances et acomptes versés sur commandes d'immobilisations incorporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "238000",
+      "name": "Avances et acomptes versés sur commandes d'immobilisations corporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "261100",
+      "name": "Titres de participation - Actions",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "261800",
+      "name": "Autres valeurs mobilières de placement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "262000",
+      "name": "Titres évalués par équivalence",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "266000",
+      "name": "Autres formes de participation",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "266100",
+      "name": "Droits représentatifs d’actifs nets remis en fiducie",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267100",
+      "name": "Créances rattachées à des participations - groupe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267400",
+      "name": "Créances rattachées à des participations - hors groupe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267500",
+      "name": "Versements représentatifs d'apports non capitalisés - appel de fonds",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267600",
+      "name": "Avances consolidables",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267700",
+      "name": "Autres créances rattachées à des participations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "267800",
+      "name": "Intérêts courus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "268100",
+      "name": "Créances rattachées à des sociétés en participation - Principal",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "268800",
+      "name": "Créances rattachées à des sociétés en participation - Intérêts courus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "269000",
+      "name": "Versements restant à effectuer sur titres de participation non libérés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "271100",
+      "name": "Actions",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "271800",
+      "name": "Autres titres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "272100",
+      "name": "Obligations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "272200",
+      "name": "Bons",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "273000",
+      "name": "Titres immobilisés de l'activité de portefeuille",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "274100",
+      "name": "Prêts participatifs",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "274200",
+      "name": "Prêts aux associés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "274300",
+      "name": "Prêts au personnel",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "274800",
+      "name": "Autres prêts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "275100",
+      "name": "Dépôts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "275500",
+      "name": "Cautionnements",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "276100",
+      "name": "Créances diverses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "276820",
+      "name": "Intérêts courus sur titres immobilisés (droits de créance)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "276840",
+      "name": "Intérêts courus sur prêts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "276850",
+      "name": "Intérêts courus sur dépôts et cautionnements",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "276880",
+      "name": "Intérêts courus sur créances diverses",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "277100",
+      "name": "Actions propres ou parts propres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "277200",
+      "name": "Actions propres ou parts propres en voie d'annulation",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "278000",
+      "name": "Mali de fusion sur actifs financiers",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "279000",
+      "name": "Versements restant à effectuer sur titres immobilisés non libérés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280100",
+      "name": "Frais d'établissement (même ventilation que celle du compte 201)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280300",
+      "name": "Frais de recherche et de développement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280500",
+      "name": "Concessions et droits similaires, brevets, licences, logiciels, droits et valeurs similaires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280600",
+      "name": "Droit du bail",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280700",
+      "name": "Fonds commercial",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280800",
+      "name": "Dépréciations des autres immobilisations incorporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "280810",
+      "name": "Amortissements du mali de fusion sur actifs incorporels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281200",
+      "name": "Agencements aménagements de terrains (même ventilation que celle du compte 212)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281300",
+      "name": "Constructions (même ventilation que celle du compte 213)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281400",
+      "name": "Constructions sur sol d'autrui (même ventilation que celle du compte 214)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281500",
+      "name": "Installations matériel et outillage industriels (même ventilation que celle du compte 215)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281800",
+      "name": "Amortissements des autres immobilisations corporelles (même ventilation que celle du compte 218)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "281870",
+      "name": "Amortissement du mali de fusion sur actifs corporels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "282000",
+      "name": "Amortissements des immobilisations mises en concession",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290100",
+      "name": "Frais d’établissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290300",
+      "name": "Frais de développement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290500",
+      "name": "Marques, procédés, droits et valeurs similaires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290600",
+      "name": "Droit au bail",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290700",
+      "name": "Fonds commercial",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290800",
+      "name": "Dépréciations des autres immobilisations incorporelles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "290810",
+      "name": "Dépréciation du mali de fusion sur actifs incorporels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "291200",
+      "name": "Agencements et aménagements de terrains",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "291300",
+      "name": "Constructions",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "291400",
+      "name": "Constructions sur sol d'autrui",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "291500",
+      "name": "Installations techniques, matériels et outillages industriels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "291870",
+      "name": "Dépréciation du mali de fusion sur actifs corporels",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "292000",
+      "name": "Dépréciations des immobilisations mises en concession",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "293100",
+      "name": "Immobilisations corporelles en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "293200",
+      "name": "Dépréciations des immobilisations incorporelles en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "296100",
+      "name": "Provisions pour dépréciation des titres de participation",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "296200",
+      "name": "Titres évalués par équivalence",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "296600",
+      "name": "Provisions pour dépréciation des autres formes de participation",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "296700",
+      "name": "Provisions pour dépréciation des créances rattachées à des participations (même ventilation que celle du compte 267)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "296800",
+      "name": "Provisions pour dépréciation des créances rattachées à des sociétés en participation (même ventilation que celle du compte 268)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297100",
+      "name": "Provisions pour dépréciation des titres immobilisés autres que les titres immobilisés de l'activité de portefeuille - droit de propriété (ventilation : 271)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297200",
+      "name": "Provisions pour dépréciation des titres immobilisés - droit de créance (même ventilation que celle du compte 272)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297300",
+      "name": "Provisions pour dépréciation des titres immobilisés de l'activité de portefeuille",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297400",
+      "name": "Provisions pour dépréciation des prêts (même ventilation que celle du compte 274)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297500",
+      "name": "Provisions pour dépréciation des dépôts et cautionnements versés (même ventilation que celle du compte 275)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297600",
+      "name": "Provisions pour dépréciation des autres créances immobilisées (même ventilation que celle du compte 276)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "297870",
+      "name": "Dépréciation du mali de fusion sur actifs financiers",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "310000",
+      "name": "Matières premières et fournitures",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "321000",
+      "name": "Matières consommables",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "322100",
+      "name": "Combustibles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "322200",
+      "name": "Produits d'entretien",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "322300",
+      "name": "Fournitures d'atelier et d'usine",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "322400",
+      "name": "Fournitures de magasin",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "322500",
+      "name": "Fournitures de bureau",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "326100",
+      "name": "Emballages perdus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "326500",
+      "name": "Emballages récupérables non identifiables",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "326700",
+      "name": "Emballages à usage mixte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "331000",
+      "name": "Produits en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "335000",
+      "name": "Travaux en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "341000",
+      "name": "Études en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "34000",
+      "name": "Prestations de services en cours",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "351000",
+      "name": "Produits intermédiaires",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "355000",
+      "name": "Ventes de produits finis",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "358100",
+      "name": "Déchets",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "358500",
+      "name": "Rebuts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "358600",
+      "name": "Matières de récupération",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "360000",
+      "name": "Stocks provenant d'immobilisations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "370000",
+      "name": "Stocks de marchandises",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "380000",
+      "name": "Stocks en voie d'acheminement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "391000",
+      "name": "Dépréciations des matières premières et fournitures",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "392000",
+      "name": "Dépréciations des autres approvisionnements",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "393000",
+      "name": "Dépréciations des en cours de production de biens",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "394000",
+      "name": "Dépréciations des en cours de production de services",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "395000",
+      "name": "Dépréciations des stocks de produits",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "397000",
+      "name": "Dépréciations des stocks de marchandises",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "400000",
+      "name": "Fournisseurs et comptes rattachés",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "401100",
+      "name": "Fournisseurs - Achats de biens et prestations de services",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "401700",
+      "name": "Fournisseurs - Retenues de garantie",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "403000",
+      "name": "Fournisseurs - Effets à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "404100",
+      "name": "Fournisseurs - Achats d'immobilisations",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "404700",
+      "name": "Fournisseurs d'immobilisations - Retenues de garantie",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "405000",
+      "name": "Fournisseurs d'immobilisations - Effets à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "408100",
+      "name": "Factures non parvenues - Fournisseurs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "408400",
+      "name": "Factures non parvenues - Fournisseurs d'immobilisations",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "408800",
+      "name": "Factures non parvenues - Fournisseurs - Intérêts courus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "409100",
+      "name": "Fournisseurs avance et acomptes versés sur commandes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "409600",
+      "name": "Fournisseurs débiteurs - Créances pour emballages et matériel à rendre",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "409710",
+      "name": "Fournisseurs débiteurs - Autres avoirs des fournisseurs d'exploitation",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "409740",
+      "name": "Fournisseurs débiteurs - Autres avoirs des fournisseurs d'immobilisations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "409800",
+      "name": "Fournisseurs débiteurs - Rabais, remises, ristournes à obtenir et autres avoirs non encore reçus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "410000",
+      "name": "Clients et comptes rattachés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "411100",
+      "name": "Clients - Ventes de biens ou de prestations de services",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "411101",
+      "name": "Clients - Ventes de biens ou de prestations de services (PoS)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "411700",
+      "name": "Clients - Retenues de garantie",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "413000",
+      "name": "Clients - Effets à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "416000",
+      "name": "Clients douteux ou litigieux",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "418100",
+      "name": "Clients - Factures à établir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "418800",
+      "name": "Clients - Intérêts courus non encore facturés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "419100",
+      "name": "Clients créditeurs - Avances et acomptes reçus sur commandes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "419600",
+      "name": "Clients créditeurs - Dettes pour emballages et matériels consignés",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "419700",
+      "name": "Clients créditeurs - Autres avoirs",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "419800",
+      "name": "Clients créditeurs - Rabais, remises, ristournes à accorder et autres avoirs à établir",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "421000",
+      "name": "Personnel - Rémunérations dues",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "422000",
+      "name": "Comité social et économique",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "424600",
+      "name": "Participation des salariés aux résultats - Réserve spéciale",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "424800",
+      "name": "Participation des salariés aux résultats - Comptes courants",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "425000",
+      "name": "Personnel - Avances et acomptes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "426000",
+      "name": "Personnel - Dépôts",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "427000",
+      "name": "Personnel - Oppositions",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "428200",
+      "name": "Personnel - Dettes provisionnées pour congés à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "428400",
+      "name": "Personnel - Dettes provisionnées pour participation des salariés aux résultats",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "428600",
+      "name": "Personnel - Autres charges à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "431000",
+      "name": "Sécurité Sociale",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "437000",
+      "name": "Autres organismes sociaux",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "438200",
+      "name": "Charges sociales sur congés à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "438600",
+      "name": "Organismes sociaux - Autres charges à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "439000",
+      "name": "Organismes sociaux - Produits à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "441000",
+      "name": "État - Subventions et aides à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "442100",
+      "name": "Prélèvements à la source (Impôt sur le revenu)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "442200",
+      "name": "Prélèvements forfaitaires non libératoires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "442300",
+      "name": "Retenues et prélèvements sur les distributions",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "444000",
+      "name": "État - Impôts sur les bénéfices",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445200",
+      "name": "TVA due sur acquisitions intracommunautaires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445210",
+      "name": "TVA due sur prestations intracommunautaires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445300",
+      "name": "TVA due sur importations (autoliquidation)",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445310",
+      "name": "TVA due sur prestations hors UE",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445510",
+      "name": "TVA à décaisser",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445580",
+      "name": "Taxes assimilées à la TVA",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445620",
+      "name": "TVA déductible sur immobilisations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445630",
+      "name": "TVA transférée par d'autres entités",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445640",
+      "name": "TVA déductible sur opérations non réglées",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445660",
+      "name": "TVA déductible sur autres biens et services",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445662",
+      "name": "TVA déductible intracommunautaire",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445663",
+      "name": "TVA déductible hors UE (autoliquidation)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445670",
+      "name": "Crédit de TVA à reporter",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445671",
+      "name": "TVA réclamée à l'administration",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445680",
+      "name": "Taxes déductibles assimilées à la TVA",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445710",
+      "name": "TVA collectée",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445740",
+      "name": "TVA collectée sur opérations non réglées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445780",
+      "name": "Taxes collectées assimilées à la TVA",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445800",
+      "name": "Taxes sur le chiffre d'affaires à régulariser ou en attente",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445810",
+      "name": "Acomptes - Régime simplifié d'imposition",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445830",
+      "name": "Remboursement de taxes sur le chiffre d'affaires demandé",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445840",
+      "name": "TVA récupérée d'avance",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "445860",
+      "name": "Taxes sur le chiffre d'affaires sur factures non parvenues",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "445870",
+      "name": "Taxes sur le chiffre d'affaires sur factures à établir",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "446000",
+      "name": "Obligations cautionnées",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "447000",
+      "name": "Autres impôts, taxes et versements assimilés",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "448100",
+      "name": "État - Charges à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "448110",
+      "name": "Charges fiscales sur congés à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "448120",
+      "name": "Charges à payer",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "448200",
+      "name": "État - Produits à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "449000",
+      "name": "Quotas d'émission à restituer à l'État",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "451000",
+      "name": "Groupe",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "455100",
+      "name": "Associés - Comptes courants - Principal",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "455800",
+      "name": "Associés - Comptes courants - Intérêts courus",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "456110",
+      "name": "Associés - Comptes d'apport en société - Apports en nature",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456150",
+      "name": "Associés - Comptes d'apport en société - Apports en numéraire",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456210",
+      "name": "Actionnaires - Capital souscrit et appelé, non versé",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456250",
+      "name": "Associés - Capital appelé, non versé",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456300",
+      "name": "Associés - Versements reçus sur augmentation de capital",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456400",
+      "name": "Associés - Versements anticipés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456600",
+      "name": "Actionnaires défaillants",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "456700",
+      "name": "Associés - Capital à rembourser",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "457000",
+      "name": "Associés - Dividendes à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "458100",
+      "name": "Associés - Opérations faites en commun et en GIE - Opérations courantes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "458800",
+      "name": "Associés - Opérations faites en commun et en GIE - Intérêts courus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "462000",
+      "name": "Créances sur cessions d'immobilisations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "464000",
+      "name": "Dettes sur acquisitions de valeurs mobilières de placement",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "465000",
+      "name": "Créances sur cessions de valeurs mobilières de placement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "467000",
+      "name": "Divers comptes débiteurs et produits à recevoir",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "468000",
+      "name": "Divers comptes créditeurs et charges à payer",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "471000",
+      "name": "Compte d'attente",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "472000",
+      "name": "Compte d'attente",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "473000",
+      "name": "Compte d'attente",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "474100",
+      "name": "Différences d'évaluation sur instruments financiers à terme - Actif",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "474200",
+      "name": "Différences d'évaluation sur jetons détenus - Actif",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "474600",
+      "name": "Différences d’évaluation de jetons sur des passifs - Actif",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "475100",
+      "name": "Différences d'évaluation sur instruments financiers à terme - Passif",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "475200",
+      "name": "Différences d'évaluation sur jetons détenus - Passif",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "475600",
+      "name": "Différences d’évaluation de jetons sur des passifs - Passif",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "476100",
+      "name": "Diminution des créances",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "476200",
+      "name": "Augmentation des dettes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "476800",
+      "name": "Différences compensées par couverture de change",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "477100",
+      "name": "Augmentation des créances",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "477200",
+      "name": "Diminution des dettes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "477800",
+      "name": "Différences compensées par couverture de change",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "478000",
+      "name": "Autres comptes transitoires",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "478100",
+      "name": "Mali de fusion sur actif circulant",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "481000",
+      "name": "Frais d’émission des emprunts",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "486000",
+      "name": "Charges constatées d'avance",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "487000",
+      "name": "Produits constatés d'avance",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "488600",
+      "name": "Comptes de répartition périodique des charges",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "488700",
+      "name": "Comptes de répartition périodique des produits",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "491000",
+      "name": "Provisions pour dépréciation des comptes de clients",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "495100",
+      "name": "Provisions pour dépréciation des comptes du groupe",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "495500",
+      "name": "Provisions pour dépréciation des comptes courants des associés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "495800",
+      "name": "Provisions pour dépréciation des opérations faites en commun et en GIE",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "496200",
+      "name": "Provisions pour dépréciation des créances sur cessions d'immobilisations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "496500",
+      "name": "Provisions pour dépréciation des créances sur cessions de valeurs mobilières de placement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "496700",
+      "name": "Provisions pour dépréciation - Autres comptes débiteurs",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "502000",
+      "name": "Valeurs mobilières de placement - Actions propres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "502100",
+      "name": "Actons destinées à être attribuées aux employés et affectées à des plans déterminés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "502200",
+      "name": "Actons disponibles pour être attribuées aux employés ou pour la régularisation des cours de la bourse",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "503100",
+      "name": "Valeurs mobilières de placement - Titres cotés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "503500",
+      "name": "Valeurs mobilières de placement - Titres non cotés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "504000",
+      "name": "Valeurs mobilières de placement - Autres titres conférant un droit de propriété",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "505000",
+      "name": "Obligations et bons émis par la société et rachetés par elle",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "506100",
+      "name": "Obligations cotés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "506500",
+      "name": "Obligations non cotés",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "507000",
+      "name": "Bons du Trésor et bons de caisse à court terme",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "508100",
+      "name": "Autres valeurs mobilières de placement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "508200",
+      "name": "Bons de souscription",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "508800",
+      "name": "Intérêts courus sur obligations, bons et valeurs assimilées",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "509000",
+      "name": "Versements restant à effectuer sur valeurs mobilières de placement non libérées",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "511100",
+      "name": "Coupons échus à l'encaissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "511200",
+      "name": "Chèques à encaisser",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "511300",
+      "name": "Effets à l'encaissement",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "511400",
+      "name": "Effets à l'escompte",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "512100",
+      "name": "Comptes en euros",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "512400",
+      "name": "Banques - Comptes en devises",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "517000",
+      "name": "Autres organismes financiers",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "518100",
+      "name": "Intérêts courus à payer",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "518800",
+      "name": "Intérêts courus à recevoir",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "519100",
+      "name": "Concours bancaires courants - Crédit de mobilisation de créances commerciales (CMCC)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "519300",
+      "name": "Concours bancaires courants - Mobilisation de créances nées à l'étranger",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "519800",
+      "name": "Concours bancaires courants - Intérêts courus sur concours bancaires courants",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "520000",
+      "name": "Instruments financiers à terme et jetons détenus",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "530000",
+      "name": "Caisse",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "580000",
+      "name": "Virements internes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "590300",
+      "name": "Provisions pour dépréciation des actions",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "590400",
+      "name": "Provisions pour dépréciation des autres titres conférant un droit de propriété",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "590600",
+      "name": "Provisions pour dépréciation des obligations",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "590800",
+      "name": "Provisions pour dépréciation des autres valeurs mobilières de placement et créances assimilées (provisions)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "601000",
+      "name": "Achats stockés - Matières premières et fournitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602100",
+      "name": "Achats stockés - Matières consommables",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602210",
+      "name": "Achats stockés - Combustibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602220",
+      "name": "Achats stockés - Produits d'entretien",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602230",
+      "name": "Achats stockés - Fournitures d'atelier et d'usine",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602240",
+      "name": "Achats stockés - Fournitures de magasin",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602250",
+      "name": "Achats stockés - Fournitures de bureau",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602610",
+      "name": "Achats stockés - Emballages perdus",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602620",
+      "name": "Achats stockés - Malis sur emballages",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602650",
+      "name": "Achats stockés - Emballages récupérables non identifiables",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "602670",
+      "name": "Achats stockés - Emballages à usage mixte",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "603100",
+      "name": "Variation des stocks de matières premières (et fournitures)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "603200",
+      "name": "Variation des stocks des autres approvisionnements",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "603700",
+      "name": "Variation des stocks de marchandises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "604000",
+      "name": "Achats d'études et prestations de services",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "605000",
+      "name": "Achats de matériel équipements et travaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "606100",
+      "name": "Fournitures non stockables (eau, énergie...)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "606300",
+      "name": "Fournitures d'entretien et de petit équipement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "606400",
+      "name": "Fournitures administratives",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "606800",
+      "name": "Achats autres matières et fournitures",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "607000",
+      "name": "Achats de marchandises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "608000",
+      "name": "Frais accessoires incorporés aux achats",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609100",
+      "name": "Achats stockés matières premières (et fournitures)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609200",
+      "name": "Rabais, remises et ristournes obtenus sur achats d'autres approvisionnements stockés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609400",
+      "name": "Rabais, remises et ristournes obtenus sur achats d'études et prestations de services",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609500",
+      "name": "Rabais, remises et ristournes obtenus sur achats de matériel, équipements et travaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609600",
+      "name": "Rabais, remises et ristournes obtenus sur achats d'approvisionnements non stockés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609700",
+      "name": "Rabais, remises et ristournes obtenus sur achats de marchandises",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "609800",
+      "name": "Rabais, remises et ristournes non affectés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "611000",
+      "name": "Sous-traitance générale",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612200",
+      "name": "Redevances de crédit-bail mobilier",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "612500",
+      "name": "Redevances de crédit-bail immobilier",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "613200",
+      "name": "Locations immobilières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "613500",
+      "name": "Locations mobilières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "614000",
+      "name": "Charges locatives et de copropriété",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "615200",
+      "name": "Entretien et réparations sur biens immobiliers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "615500",
+      "name": "Entretien et réparations sur biens mobiliers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "615600",
+      "name": "Maintenance",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616100",
+      "name": "Assurance multirisques",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616200",
+      "name": "Assurance obligatoire dommage construction",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616360",
+      "name": "Assurance transport sur achats",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616370",
+      "name": "Assurance transport sur ventes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616380",
+      "name": "Assurance transport sur autres biens",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616400",
+      "name": "Assurance risques d'exploitation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "616500",
+      "name": "Assurance insolvabilité clients",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "617000",
+      "name": "Études et recherches",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "618100",
+      "name": "Documentation générale",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "618300",
+      "name": "Documentation technique",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "618500",
+      "name": "Frais de colloques, séminaires, conférences",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "619000",
+      "name": "Rabais, remises et ristournes obtenus sur services extérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "621100",
+      "name": "Personnel intérimaire",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "621400",
+      "name": "Personnel détaché ou prêté à l'entreprise",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622100",
+      "name": "Commissions et courtages sur achats",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622200",
+      "name": "Commissions et courtages sur ventes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622400",
+      "name": "Rémunérations des transitaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622500",
+      "name": "Rémunérations d'affacturage",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622600",
+      "name": "Honoraires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622700",
+      "name": "Frais d'actes et de contentieux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "622800",
+      "name": "Rémunérations d'intermédiaires et honoraires - Divers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623100",
+      "name": "Annonces et insertions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623200",
+      "name": "Échantillons",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623300",
+      "name": "Foires et expositions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623400",
+      "name": "Cadeaux à la clientèle",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623500",
+      "name": "Primes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623600",
+      "name": "Catalogues et imprimés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623700",
+      "name": "Publications",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "623800",
+      "name": "Divers (pourboires, dons courants)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624100",
+      "name": "Transports sur achats",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624200",
+      "name": "Transports sur ventes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624300",
+      "name": "Transports entre établissements ou chantiers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624400",
+      "name": "Transports administratifs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624700",
+      "name": "Transports collectifs du personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "624800",
+      "name": "Transports divers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "625100",
+      "name": "Voyages et déplacements",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "625500",
+      "name": "Frais de déménagement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "625600",
+      "name": "Missions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "625700",
+      "name": "Réceptions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "626000",
+      "name": "Frais postaux et frais de télécommunications",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "627100",
+      "name": "Frais sur titres (achat, vente, garde)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "627200",
+      "name": "Commissions et frais sur émission d'emprunts",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "627500",
+      "name": "Frais sur effets",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "627600",
+      "name": "Location de coffres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "627800",
+      "name": "Autres frais et commissions sur prestations de services",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "628100",
+      "name": "Concours divers (cotisations...)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "628400",
+      "name": "Frais de recrutement de personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "629000",
+      "name": "Rabais, remises et ristournes obtenus sur autres services extérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "631100",
+      "name": "Taxe sur les salaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "631400",
+      "name": "Cotisation pour défaut d'investissement obligatoire dans la construction",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "631800",
+      "name": "Autres impôts, taxes et versements assimilés sur rémunérations (administrations des impôts)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633100",
+      "name": "Versement de transport",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633200",
+      "name": "Allocation logement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633300",
+      "name": "Contribution unique des employeurs à la formation professionnelle",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633400",
+      "name": "Participation des employeurs à l'effort de construction",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633500",
+      "name": "Versements libératoires ouvrant droit à l'exonération de la taxe d'apprentissage",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "633800",
+      "name": "Autres impôts, taxes et versements assimilés sur rémunérations (autres organismes)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635110",
+      "name": "Contribution économique territoriale",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635120",
+      "name": "Taxes foncières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635130",
+      "name": "Autres impôts locaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635140",
+      "name": "Taxe sur les véhicules des sociétés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635200",
+      "name": "Taxes sur le chiffre d'affaires non récupérables",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635300",
+      "name": "Impôts indirects",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635410",
+      "name": "Droits de mutation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "635800",
+      "name": "Autres droits",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "637100",
+      "name": "Contribution sociale de solidarité à la charge des sociétés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "637200",
+      "name": "Taxes perçues par les organismes publics internationaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "637400",
+      "name": "Impôts et taxes exigibles à l'étranger",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "637800",
+      "name": "Taxes diverses (autres organismes)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "638000",
+      "name": "Rappel d’impôts (autres qu’impôts sur les bénéfices)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641100",
+      "name": "Salaires et appointements",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641200",
+      "name": "Congés payés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641300",
+      "name": "Primes et gratifications",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641400",
+      "name": "Indemnités et avantages divers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "641500",
+      "name": "Supplément familial",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "644000",
+      "name": "Rémunération du travail de l'exploitant",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "645100",
+      "name": "Cotisations à l'URSSAF",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "645200",
+      "name": "Cotisations aux mutuelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "645300",
+      "name": "Cotisations aux caisses de retraites",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "645400",
+      "name": "Cotisations à Pôle emploi",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "645800",
+      "name": "Cotisations aux autres organismes sociaux",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "646000",
+      "name": "Cotisations sociales personnelles de l'exploitant",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "647100",
+      "name": "Prestations directes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "647200",
+      "name": "Versements au comité social et économique",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "647400",
+      "name": "Versements aux autres oeuvres sociales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "647500",
+      "name": "Médecine du travail, pharmacie",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "648000",
+      "name": "Autres charges de personnel",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "649000",
+      "name": "Remboursements de charges de personnel (si rembourement de personnel)",
+      "type": "expense",
+      "active": false
+    },
+    {
+      "code": "649100",
+      "name": "Salaires et traitements",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "649200",
+      "name": "Charges sociales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "651100",
+      "name": "Redevances pour concessions brevets, licences, marques, procédés, logiciels",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "651600",
+      "name": "Droits d'auteur et de reproduction",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "651800",
+      "name": "Redevances pour autres droits et valeurs similaires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "653000",
+      "name": "Rémunérations de l’activité des administrateurs et des gérants",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "654100",
+      "name": "Créances de l'exercice",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "654400",
+      "name": "Créances des exercices antérieurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "655100",
+      "name": "Quote-part de bénéfice transférée (comptabilité du gérant)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "655500",
+      "name": "Quote-part de perte supportée (comptabilité des associés non gérants)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "657000",
+      "name": "Valeurs comptables des immobilisations incorporelles et corporelles cédées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658100",
+      "name": "Pénalités sur marchés (et dédits payés sur achats et ventes)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658200",
+      "name": "Pénalités, amendes fiscales et pénales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658300",
+      "name": "Malis provenant de clauses d'indexation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658400",
+      "name": "Lots",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658800",
+      "name": "Opérations de constitution ou liquidation des fiducies",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "658000",
+      "name": "Pénalités et autres charges",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661160",
+      "name": "Emprunts et dettes assimilées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661170",
+      "name": "Dettes rattachées à des participations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661200",
+      "name": "Charges de la fiducie, résultat de la période",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661500",
+      "name": "Intérêts des comptes courants et des dépôts créditeurs",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661600",
+      "name": "Intérêts bancaires et sur opérations de financement (escompte, ...)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661700",
+      "name": "Intérêts des obligations cautionnées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661810",
+      "name": "Intérêts des dettes commerciales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "661880",
+      "name": "Intérêts des dettes diverses",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "664000",
+      "name": "Pertes sur créances liées à des participations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "665000",
+      "name": "Escomptes accordés",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "666000",
+      "name": "Pertes de change",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "667100",
+      "name": "Valeurs comptables des immobilisations financières cédées",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "667200",
+      "name": "Charges nettes sur cessions de titres immobilisés de l’activité de portefeuille",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "667300",
+      "name": "Charges nettes sur cessions de valeurs mobilières de placement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "667400",
+      "name": "Charges nettes sur cessions de jetons",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "668000",
+      "name": "Autres charges financières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "668300",
+      "name": "Mali provenant du rachat par l’entité d’actions et obligations émises par elle-même",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "669000",
+      "name": "Transferts de charges financières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "672000",
+      "name": "Charges exceptionnelles sur exercices antérieurs (en cours d'exercice seulement)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "678000",
+      "name": "Autres charges exceptionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681100",
+      "name": "Dotations aux amortissements sur immobilisations incorporelles et corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681110",
+      "name": "Immobilisations incorporelles et frais d’établissement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681120",
+      "name": "Dotations aux amortissements sur immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681500",
+      "name": "Dotations aux provisions pour risques et charges d'exploitation",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681610",
+      "name": "Dotations aux dépréciations des immobilisations incorporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681620",
+      "name": "Dotations aux dépréciations des immobilisations corporelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681730",
+      "name": "Dotations aux dépréciations des stocks et en-cours",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "681740",
+      "name": "Dotations aux dépréciations des créances",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "686100",
+      "name": "Dotations aux amortissements des primes de remboursement des obligations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "686200",
+      "name": "Dotations aux amortissements des frais d'émission des emprunts",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "686500",
+      "name": "Dotations aux provisions pour risques et charges financiers",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "686620",
+      "name": "Dotations aux dépréciations des immobilisations financières",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "686650",
+      "name": "Dotations aux dépréciations des valeurs mobilières de placement",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687100",
+      "name": "Dotations aux amortissements exceptionnels des immobilisations",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687250",
+      "name": "Dotations aux provisions réglementées exceptionnelles (immobilisations) - Amortissements dérogatoires",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687300",
+      "name": "Dotations aux provisions réglementées exceptionnelles (stocks)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687400",
+      "name": "Dotations aux autres provisions réglementées exceptionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687500",
+      "name": "Dotations aux provisions exceptionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "687600",
+      "name": "Dotations aux dépréciations exceptionnelles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "691000",
+      "name": "Participation des salariés aux résultats",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "695100",
+      "name": "Impôts sur les bénéfices dus en France",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "695200",
+      "name": "Contribution additionnelle à l'impôt sur les bénéfices",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "695400",
+      "name": "Impôts sur les bénéfices dus à l'étranger",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "696000",
+      "name": "Supplément d'impôt sur les sociétés lié aux distributions",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "698100",
+      "name": "Intégration fiscale - Charges",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "698900",
+      "name": "Intégration fiscale - Produits",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "699000",
+      "name": "Produits, Reports en arrière des déficits",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "701000",
+      "name": "Ventes de produits finis",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "702000",
+      "name": "Rabais, remises et ristournes sur ventes de produits intermédiaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "703000",
+      "name": "Ventes de produits résiduels",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "704000",
+      "name": "Travaux",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "705000",
+      "name": "Ventes d'études",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "706000",
+      "name": "Ventes de prestations de services",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "707000",
+      "name": "Ventes de marchandises",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708100",
+      "name": "Produits des services exploités dans l'intérêt du personnel",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708200",
+      "name": "Commissions et courtages",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708300",
+      "name": "Locations diverses",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708400",
+      "name": "Mise à disposition de personnel facturée",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708500",
+      "name": "Ports et frais accessoires facturés",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708600",
+      "name": "Bonis sur reprises d'emballages consignés",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708700",
+      "name": "Bonifications obtenues des clients et primes sur ventes",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "708800",
+      "name": "Autres produits d'activités annexes (cessions d'approvisionnements...)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709100",
+      "name": "Ventes de produits finis",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709200",
+      "name": "Rabais, remises et ristournes sur ventes de produits intermédiaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709400",
+      "name": "Rabais, remises et ristournes sur travaux",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709500",
+      "name": "Rabais, remises et ristournes sur études",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709600",
+      "name": "Rabais, remises et ristournes sur prestations de services",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709700",
+      "name": "Rabais, remises et ristournes sur ventes de marchandises",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "709800",
+      "name": "Rabais, remises et ristournes sur produits des activités annexes",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713310",
+      "name": "Variation des en-cours de production de biens - Produits en cours",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713350",
+      "name": "Variation des en-cours de production de biens - Travaux en cours",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713410",
+      "name": "Variation des en-cours de production de services - Études en cours",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713450",
+      "name": "Variation des en-cours de production de services - Prestations de services en cours",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713510",
+      "name": "Variation des stocks de produits intermédiaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713550",
+      "name": "Variation des stocks de produits finis",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "713580",
+      "name": "Variation des stocks de produits résiduels",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "721000",
+      "name": "Production immobilisée - Immobilisations incorporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "722000",
+      "name": "Production immobilisée - Immobilisations corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "741000",
+      "name": "Subventions d’exploitation",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "742000",
+      "name": "Subventions d’équilibre",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "747000",
+      "name": "Quote-part des subventions d’investissement virée au résultat de l’exercice",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "751100",
+      "name": "Redevances pour concessions, brevets, licences, marques, procédés, logiciels",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "751600",
+      "name": "Droits d'auteur et de reproduction",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "751800",
+      "name": "Redevances pour autres droits et valeurs similaires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "752000",
+      "name": "Revenus des immeubles non affectés aux activités professionnelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "753000",
+      "name": "Rémunérations de l’activité des administrateurs et des gérants",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "754000",
+      "name": "Ristournes perçues des coopératives (provenant des excédents)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "755100",
+      "name": "Quote-part de perte transférée (comptabilité du gérant)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "755500",
+      "name": "Quote-part de bénéfice attribuée (comptabilité des associés non-gérants)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "757000",
+      "name": "Produits des cessions d’immobilisations incorporelles et corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758000",
+      "name": "Indemnités et autres produits",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758100",
+      "name": "Dédits et pénalités perçus sur achats et ventes",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758200",
+      "name": "Libéralités reçues",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758300",
+      "name": "Receipts on amortised receivables",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758400",
+      "name": "Dégrèvements d’impôts autres qu’impôts sur les bénéfices",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758500",
+      "name": "Bonis provenant de clauses d’indexation",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758600",
+      "name": "Lots",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758700",
+      "name": "Indemnités d’assurance (si relatif à des indemnités d'assurance)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "758800",
+      "name": "Opérations de constitution ou liquidation des fiducies",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "761100",
+      "name": "Revenus des titres de participation",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "761200",
+      "name": "Produits de la fiducie, résultat de la période",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "761600",
+      "name": "Revenus sur autres formes de participation",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "761700",
+      "name": "Revenus des créances rattachées à des participations",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "762100",
+      "name": "Revenus des titres immobilisés",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "762600",
+      "name": "Revenus des prêts",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "762700",
+      "name": "Revenus des créances immobilisées",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "763100",
+      "name": "Revenus des créances commerciales",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "763800",
+      "name": "Revenus des créances diverses",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "764000",
+      "name": "Revenus des valeurs mobilières de placement",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "765000",
+      "name": "Escomptes obtenus",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "766000",
+      "name": "Gains de change",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "767100",
+      "name": "Produits des cessions d’immobilisations financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "767200",
+      "name": "Produits nets sur cessions de titres immobilisés de l’activité de portefeuille",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "767300",
+      "name": "Produits nets sur cessions de valeurs mobilières de placement",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "767400",
+      "name": "Produits nets sur cessions de jetons",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "768300",
+      "name": "Bonis provenant du rachat par l’entreprise d’actions et d’obligations émises par elle-même",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "772000",
+      "name": "Produits exceptionnels sur exercices antérieurs (en cours d'exercice seulement)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "778000",
+      "name": "Autres produits exceptionnels",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781100",
+      "name": "Reprises sur amortissements des immobilisations incorporelles et corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781110",
+      "name": "Reprises sur amortissements des immobilisations incorporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781120",
+      "name": "Reprises sur amortissements des immobilisations corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781500",
+      "name": "Reprises sur provisions d'exploitation",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781600",
+      "name": "Reprises sur dépréciations des immobilisations incorporelles et corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781610",
+      "name": "Reprises sur dépréciations des immobilisations incorporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781620",
+      "name": "Reprises sur dépréciations des immobilisations corporelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781700",
+      "name": "Reprises sur dépréciations des actifs circulants",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781730",
+      "name": "Reprises sur dépréciations des actifs circulants - Stocks et en-cours",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "781740",
+      "name": "Reprises sur dépréciations des actifs circulants - Créances",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "786500",
+      "name": "Reprises sur provisions financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "786620",
+      "name": "Reprises sur dépréciations des immobilisations financières",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "786650",
+      "name": "Reprises sur dépréciations des valeurs mobilières de placement",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "787250",
+      "name": "Reprises sur provisions réglementées (immobilisations) - Amortissements dérogatoires",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "787300",
+      "name": "Reprises sur provisions réglementées (stocks)",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "787400",
+      "name": "Reprises sur autres provisions réglementées",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "787500",
+      "name": "Reprises sur provisions exceptionnelles",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "787600",
+      "name": "Reprises sur dépréciations exceptionnelles",
+      "type": "income",
+      "active": true
+    }
+  ],
+  "mapping": {
+    "receivable": "411100",
+    "payable": "401100",
+    "sales": "707000",
+    "purchase": "607000",
+    "tax_collected": "445710",
+    "tax_deductible": "445660"
+  },
+  "taxes": [
+    {
+      "code": "FR-VAT-20",
+      "name": "TVA 20%",
+      "rate": 20
+    },
+    {
+      "code": "FR-VAT-10",
+      "name": "TVA 10%",
+      "rate": 10
+    },
+    {
+      "code": "FR-VAT-5_5",
+      "name": "TVA 5,5%",
+      "rate": 5.5
+    },
+    {
+      "code": "FR-VAT-2_1",
+      "name": "TVA 2,1%",
+      "rate": 2.1
+    },
+    {
+      "code": "FR-VAT-0",
+      "name": "TVA 0%",
+      "rate": 0
+    }
+  ]
+}

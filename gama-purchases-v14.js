@@ -196,6 +196,7 @@
     const o=orders.find(x=>x.id===id);if(!o)return;
     if(!window.GamaPurchaseOrderPdf||!window.GamaPdf)return detailMsg('El generador de PDF no está disponible. Recarga la aplicación.');
     try{
+      await window.GamaCompany?.load(true);
       const doc=window.GamaPurchaseOrderPdf.build(orderForPdf(o));
       window.GamaPdf.save(doc,window.GamaPdf.fileName('pedido',o.order_number));
     }catch(e){console.error('[GAMA PDF pedido]',e);detailMsg('No se pudo generar el PDF: '+(e&&e.message||e))}

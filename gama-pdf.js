@@ -22,7 +22,7 @@ function jsPDF(){
    por <a download> se ignora en silencio, así que ahí se abre el PDF en una
    pestaña: el usuario lo ve y lo guarda desde el visor. */
 function save(doc,filename){
- const blob=doc.output('blob'),name=filename||'documento.pdf';
+ const blob=doc instanceof Blob?doc:doc.output('blob'),name=filename||'documento.pdf';
  const ua=navigator.userAgent||'';
  const iOS=/iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1);
  const url=URL.createObjectURL(blob);

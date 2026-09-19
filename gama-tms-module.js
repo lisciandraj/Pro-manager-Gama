@@ -325,6 +325,7 @@ async function downloadProofCertificate(id){
  if(btn){btn.disabled=true;btn.textContent='Preparando…'}
  try{
   const pr=await ensureProof(d.id);
+  await window.GamaCompany?.load(true);
   const doc=window.GamaPdf.proofCertificate({
    cliente:d.customer,direccion:d.address,fecha:d.deliveredAt||d.date,
    conductor:(db.drivers.find(x=>x.id===d.driverId)||{}).name||'',
@@ -362,6 +363,7 @@ async function emailProofCertificate(id){
  try{
   const pr=await ensureProof(d.id);
   const conductor=(db.drivers.find(x=>x.id===d.driverId)||{}).name||'';
+  await window.GamaCompany?.load(true);
   const doc=window.GamaPdf.proofCertificate({
    cliente:d.customer,direccion:d.address,fecha:d.deliveredAt||d.date,
    conductor,referencia:pr?.dossier_reference||d.reference||d.notes||'',
@@ -397,6 +399,7 @@ async function downloadProofReport(){
     conductor:(db.drivers.find(x=>x.id===d.driverId)||{}).name||'',
     firma:pr&&pr.signature||'',foto:pr&&pr.photo||''};
   });
+  await window.GamaCompany?.load(true);
   const doc=window.GamaPdf.proofReport(filas,'Pruebas de entrega — Architect ERP');
   window.GamaPdf.save(doc,window.GamaPdf.fileName('pruebas-entrega',new Date().toISOString().slice(0,10)));
  }catch(e){console.error('[GAMA PDF pruebas]',e);alert('No se pudo generar el informe: '+(e&&e.message||e))}

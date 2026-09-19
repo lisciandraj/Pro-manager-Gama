@@ -522,6 +522,18 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_company_action'){
+          const p=window.__DB.company_settings?.[0]||{},role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
+          const profile={...window.GamaCompanyCore?.defaults,...p};
+          if(args.p_action==='get')return {data:profile};
+          if(!['admin','administrador'].includes(role))return {error:{message:'COMPANY_ADMIN_REQUIRED'}};
+          if(args.p_action==='options')return {data:{ledger_empty:true,templates:[]}};
+          if(args.p_action==='save'){
+            if(args.p_data.company_version!==profile.company_version)return {error:{message:'COMPANY_STALE'}};
+            const saved={...profile,...args.p_data,configured:true,company_version:profile.company_version+1};delete saved.install_localization;
+            window.__DB.company_settings=[saved];return {data:saved};
+          }
+        }
         if(fn==='gama_hr_directory')return {data:hrIsAdmin()?(window.__DB.profiles||[]):[]};
         if(fn==='gama_hr_save_employee'){
           const id=args.p_id||nextId('hr_employees');

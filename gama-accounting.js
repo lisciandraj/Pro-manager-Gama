@@ -913,7 +913,7 @@ VIEWS.config={
   const pick=(id,label,selected)=>field(label,`<select id="${id}">${d.settings.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===selected?'selected':''}>${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`);
   return `<div class="gaCard"><h3>${tr('Empresa')}</h3><div class="gaGrid">
    ${field('Divisa (ISO 4217)',`<input id="gaCurrency" maxlength="3" value="${esc(d.settings.currency)}" ${rights?.edit?'':'readonly'}>`)}
-   ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit?'':'readonly'}>`)}
+   ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit&&!d.settings.localization_country?'':'readonly'}>`)}
    ${field('Primer mes del ejercicio',`<input id="gaFiscal" type="number" min="1" max="12" value="${esc(d.settings.fiscal_year_start_month)}" ${rights?.edit?'':'readonly'}>`)}
    </div>
    <p class="gaHint">${tr('La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.')}</p>
@@ -935,7 +935,7 @@ VIEWS.config={
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
     <td>${rights?.edit?`<button class="secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
-   <p class="gaHint">${tr('Architect no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.')}</p></div>
+   <p class="gaHint">${tr('La localización inicial se configura en Configuración → Empresa. Puedes adaptar las cuentas y los impuestos en Contabilidad.')}</p></div>
 
    ${d.permissions.length?`<div class="gaCard"><h3>${tr('Permisos de Contabilidad')}</h3>
    <div class="gaScroll"><table class="gaTable"><thead><tr>

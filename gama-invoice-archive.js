@@ -20,7 +20,7 @@ function makeInvoice(inv){const m=meta(inv);const lines=inv._lines||[];return `<
    encerrado: nada que pulsar para volver y había que cerrar la aplicación.
    Ahora se baja el PDF, que se abre en el visor del dispositivo con su botón de
    volver, igual que el resto de los documentos de la aplicación. */
-window.printGamaCloudInvoice=function(id){
+window.printGamaCloudInvoice=async function(id){
  const inv=cloudInvoices.find(x=>String(x.id)===String(id));
  if(!inv)return;
  if(!window.GamaQuotePdf||!window.GamaPdf){alert('El generador de PDF no está disponible. Recarga la aplicación.');return}
@@ -40,6 +40,7 @@ window.printGamaCloudInvoice=function(id){
   pay:m.payment||'-'
  };
  try{
+  await window.GamaCompany?.load(true);
   const doc=window.GamaQuotePdf.build(q);
   window.GamaPdf.save(doc,window.GamaPdf.fileName('presupuesto',pad(inv.archive_number)));
  }catch(e){console.error('[GAMA PDF archivo]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}

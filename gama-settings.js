@@ -53,14 +53,15 @@ function render(id='settings'){
  if(access&&!isAdmin()){s.innerHTML='';return}
  const head=window.GamaUI.header({
   title:access?'🔐 Parámetros de acceso':'⚙️ Configuración',
-  lead:access?'Activa o desactiva los módulos de Architect.':'Personaliza el idioma de la aplicación.'
+  lead:access?'Activa o desactiva los módulos de Architect.':isAdmin()?'Configura tu empresa, sus documentos y el idioma de la aplicación.':'Personaliza el idioma de la aplicación.'
  });
 
  const preferences='<div class="card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
  if(!access){
-  s.innerHTML=head+preferences;
+  s.innerHTML=head+preferences+(isAdmin()?'<div id="coCompany" data-gi-ignore></div>':'');
   window.GamaUI.bindBack(s);
   window.GamaI18n?.mount();
+  if(isAdmin())window.GamaCompany?.mount($('coCompany'));
   return;
  }
 

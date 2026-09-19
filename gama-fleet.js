@@ -193,7 +193,19 @@ VIEWS.dashboard={
 
 /* ------------------------------------------------------------- 2. vehículos */
 VIEWS.vehicles={
- async load(){return rpc('vehicles',{status:filters.status||null,kind:filters.kind||null,search:filters.search})},
+ async load(){
+  const d=await rpc('vehicles',{status:filters.status||null,kind:filters.kind||null,search:filters.search});
+  const ids=(d.rows||[]).filter(v=>v.has_photo&&!v.photo).map(v=>v.id);
+  if(ids.length){
+   try{
+    const photos=await window.ArcData.byIds('fleet_vehicles','id',ids,{select:'id,photo',order:'id'});
+    if(photos.error)throw photos.error;
+    const byId=new Map((photos.data||[]).map(v=>[v.id,v.photo]));
+    d.rows=d.rows.map(v=>({...v,photo:v.photo||byId.get(v.id)||null}));
+   }catch(_){console.warn('Fleet vehicle photos could not be loaded');}
+  }
+  return d;
+ },
  render(d){
   const rows=d.rows||[];
   return `<div class="gfTools">
@@ -211,7 +223,7 @@ VIEWS.vehicles={
   <p class="gfHint">${unit(rows.length,'vehículos')}</p>
   <div class="gfCards">${rows.map(v=>`
    <button type="button" class="arcButton gfVeh" data-gf-vehicle="${v.id}">
-    <figure aria-hidden="true">${v.kind==='truck'?'🚛':'🚗'}</figure>
+    <figure aria-hidden="true" data-gf-photo-fallback="${v.kind==='truck'?'🚛':'🚗'}">${v.photo?`<img src="${esc(v.photo)}" alt="" loading="lazy" decoding="async">`:v.kind==='truck'?'🚛':'🚗'}</figure>
     <div class="gfVehBody">
      <b>${esc(v.plate)}</b><span>${esc(v.brand)} ${esc(v.model)}</span>
      <span>${num(v.odometer||0,0)} km${v.driver_name?' · '+esc(v.driver_name):''}</span>
@@ -225,6 +237,11 @@ VIEWS.vehicles={
   $('gfKind').onchange=reload;$('gfStatus').onchange=reload;
   let t=null;$('gfSearch').oninput=()=>{clearTimeout(t);t=setTimeout(reload,350)};
   $('gfNewVehicle').onclick=()=>vehicleForm(null);
+  document.querySelectorAll('[data-gf-photo-fallback] img').forEach(img=>{
+   const fallback=()=>{img.parentElement.textContent=img.parentElement.dataset.gfPhotoFallback};
+   img.onerror=fallback;
+   if(img.complete&&!img.naturalWidth)fallback();
+  });
   document.querySelectorAll('[data-gf-vehicle]').forEach(b=>b.onclick=()=>{vehicleId=b.dataset.gfVehicle;tab='info';go()});
  }
 };

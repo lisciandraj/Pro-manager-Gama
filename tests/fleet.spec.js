@@ -145,6 +145,45 @@ test('the vehicle list filters, searches and opens the sheet',async({page})=>{
  await expect(page.locator('#gfMain')).toContainText('VH-000005');
 });
 
+for(const width of [390,1280])test(`vehicle cards show saved photos at full width on ${width}px screens`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await boot(page);
+ const photo='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="navy"/></svg>');
+ await page.evaluate(photo=>{
+  window.__FLEET.responses.vehicles.rows[0].has_photo=true;
+  window.__DB.fleet_vehicles=[{id:'v1',photo}];
+ },photo);
+ await open(page);await page.locator('[data-gf-section="vehicles"]').click();
+ const card=page.locator('[data-gf-vehicle="v1"]'),img=card.locator('img');
+ await expect(img).toHaveAttribute('src',photo);
+ await expect.poll(()=>img.evaluate(el=>el.naturalWidth)).toBe(320);
+ const widths=await card.evaluate(el=>({card:el.clientWidth,figure:el.querySelector('figure').clientWidth}));
+ expect(widths.figure).toBeGreaterThanOrEqual(widths.card-2);
+ await expect(page.locator('[data-gf-vehicle="v2"] figure')).toHaveText('🚗');
+ const requests=await page.evaluate(()=>window.__DB.__calls.filter(c=>c.table==='fleet_vehicles'));
+ expect(requests.length).toBeGreaterThan(0);
+ expect(requests.every(c=>c.select==='id,photo'&&JSON.stringify(c.options.in.id)==='["v1"]')).toBe(true);
+ await card.click();await expect(page.locator('#gfMain')).toContainText('VH-000005');
+ // Returning to the list must read the current photo, not a stale cached one.
+ await page.evaluate(()=>{window.__DB.fleet_vehicles[0].photo='data:image/png;base64,broken'});
+ await page.locator('#gfBackList').click();
+ await expect(page.locator('[data-gf-vehicle="v1"] figure')).toHaveText('🚛');
+ await expect(page.locator('[data-gf-vehicle="v1"] img')).toHaveCount(0);
+});
+
+test('photo access errors leave the vehicle list usable',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{
+  window.__FLEET.responses.vehicles.rows[0].has_photo=true;
+  const list=GamaCloud.list;
+  GamaCloud.list=(table,options)=>table==='fleet_vehicles'?Promise.resolve({error:{message:'Unavailable'}}):list(table,options);
+ });
+ await open(page);await page.locator('[data-gf-section="vehicles"]').click();
+ await expect(page.locator('[data-gf-vehicle="v1"] figure')).toHaveText('🚛');
+ await page.locator('[data-gf-vehicle="v1"]').click();
+ await expect(page.locator('#gfMain')).toContainText('VH-000005');
+});
+
 test('the sheet has its four tabs and carries the capacity the TMS needs',async({page})=>{
  await boot(page);
  await page.evaluate(()=>GamaFleet.openVehicle('v1'));

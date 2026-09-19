@@ -396,9 +396,10 @@
 .gfGrid input,.gfGrid select,.gfGrid textarea,.gfField input,.gfField select,.gfField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
 .gfCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .gfGrid[hidden],.gfCard[hidden]{display:none}
-.gfVeh{border:1px solid var(--arc-line-strong);border-radius:13px;background:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column}
+.arcButton.gfVeh{border:1px solid var(--arc-line-strong);border-radius:13px;background:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0}
 .gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px rgba(12,103,179,.16)}
-.gfVeh figure{margin:0;height:120px;background:var(--arc-surface-3) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:38px}
+.gfVeh figure{margin:0;width:100%;height:140px;flex-shrink:0;align-self:stretch;background:var(--arc-surface-3);display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden}
+.gfVeh figure img{display:block;width:100%;height:100%;object-fit:contain}
 .gfVeh .gfVehBody{padding:13px}
 .gfVeh b{display:block;font-size:16px;color:var(--arc-text)}
 .gfVeh span{display:block;font-size:13px;color:var(--arc-text-muted);margin-top:3px}

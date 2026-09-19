@@ -1,7 +1,7 @@
 /* Generated runtime asset versions. */
 window.ArcAssets={
   "architect-base.css": "architect-base.css?v=2d6807bbf075",
-  "architect-components.css": "architect-components.css?v=7709b11ce7af",
+  "architect-components.css": "architect-components.css?v=eed05063bd25",
   "architect-core.js": "architect-core.js?v=3622d7074d73",
   "architect-home-kpis.js": "architect-home-kpis.js?v=b1beab0f73b1",
   "architect-home-order.js": "architect-home-order.js?v=35fd320f0934",
@@ -41,7 +41,7 @@ window.ArcAssets={
   "gama-excel-import.css": "gama-excel-import.css?v=fa22418aa4d1",
   "gama-export-schema.js": "gama-export-schema.js?v=1cc7a22875dd",
   "gama-fixed-header.js": "gama-fixed-header.js?v=bbfced364c11",
-  "gama-fleet.js": "gama-fleet.js?v=b945a8f3d9d7",
+  "gama-fleet.js": "gama-fleet.js?v=fcec687019b0",
   "gama-fulfillment.js": "gama-fulfillment.js?v=e23c487a2145",
   "gama-global-search-core.js": "gama-global-search-core.js?v=db20ac2e73e8",
   "gama-global-search.css": "gama-global-search.css?v=9c1011b2cf09",

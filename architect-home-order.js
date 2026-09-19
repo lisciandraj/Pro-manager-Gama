@@ -18,7 +18,7 @@ function finish(cancel=false){if(!drag)return;const d=drag;drag=null;if(d.pointe
 function mount(host){grid=host;const hint=document.createElement('p');hint.id='arcOrderHint';hint.className='arcOrderHint';hint.textContent=t('hint');const live=document.createElement('span');live.id='arcOrderStatus';live.setAttribute('role','status');hint.append(live);host.before(hint);
  for(const card of cards()){
   card.draggable=true;
-  const handle=document.createElement('span');handle.className='arcDragHandle';handle.textContent='⠿';handle.title=t('move');handle.setAttribute('aria-hidden','true');card.append(handle);card.setAttribute('aria-describedby','arcOrderHint');
+  const handle=document.createElement('span');handle.className='arcDragHandle';handle.title=t('move');handle.setAttribute('aria-hidden','true');card.append(handle);card.setAttribute('aria-describedby','arcOrderHint');
   card.addEventListener('click',e=>{if(blockClick||e.target.closest('.arcDragHandle')){e.preventDefault();e.stopImmediatePropagation()}},true);
   card.addEventListener('dragstart',e=>{drag={card,before:cards().map(c=>c.dataset.gamaModule),moved:false};card.classList.add('arcDragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',card.dataset.gamaModule)});
   card.addEventListener('dragend',()=>finish(true));

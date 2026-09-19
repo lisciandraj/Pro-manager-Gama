@@ -42,7 +42,7 @@ test('portrait and landscape support both modes without overflow and preserve su
  await expect(page.locator('#supDataTable .gamaTableViews')).toHaveCount(1);await expect(page.locator('#supDataTable table')).toHaveAttribute('data-gama-view','cards');
  await page.locator('#supDataTable [data-edit]').first().click();await expect(page.locator('#supName')).not.toHaveValue('');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.screenshot({path:'/workspace/scratch/ed26a6ab4f38/table-views-landscape.png',fullPage:true});
+ await page.screenshot({path:'test-results/table-views-landscape.png',fullPage:true});
 });
 
 test('phone table mode scrolls full-width shipment columns and action buttons',async({page})=>{

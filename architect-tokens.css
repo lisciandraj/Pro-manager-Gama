@@ -31,12 +31,12 @@
  --arc-accent-50:#F0F8FC;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#F5F7FA;      /* lienzo claro de la maqueta */
+ --arc-canvas:#EDF1F5;      /* clear separation from white working surfaces */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F8FAFC;   /* superficie hundida: cabeceras de tabla, zonas */
+ --arc-surface-2:#F1F4F8;   /* superficie hundida: cabeceras de tabla, zonas */
  --arc-surface-3:#EEF3F8;
- --arc-line:#DFE6ED;        /* separadores compartidos */
- --arc-line-strong:#BBCAD8; /* borde cuando hace falta más contraste */
+ --arc-line:#BBC6D2;        /* visible shared separators */
+ --arc-line-strong:#8796A7; /* fields and stronger boundaries */
 
  --arc-text:#0B172A;        /* texto principal — 13.9:1 sobre blanco */
  --arc-text-muted:#455F76;  /* texto secundario — 6.5:1 sobre blanco, AA en todas las superficies */
@@ -112,12 +112,14 @@
  --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
  --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
- --arc-card-border:#EDF1F5;--arc-card-shadow:0 3px 16px rgba(18,46,70,.025);
+ --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
  /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
  --arc-tile-border:#A8B3BF;--arc-tile-border-bottom:#8796A7;
  --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(18,46,70,.14),0 5px 12px rgba(18,46,70,.12);
  --arc-tile-border-hover:#697D91;
  --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(18,46,70,.16),0 8px 18px rgba(18,46,70,.18);
+ --arc-control-shadow:0 1px 0 rgba(18,46,70,.15),0 2px 5px rgba(18,46,70,.10);
+ --arc-field-shadow:inset 0 1px 2px rgba(18,46,70,.07),0 1px 2px rgba(18,46,70,.07);
  --arc-icon-cyan:#1396AA;--arc-icon-cyan-bg:#E3F6F7;
  --arc-icon-blue:#0963DB;--arc-icon-blue-bg:#E4F1FF;
  --arc-icon-green:#10A36E;--arc-icon-green-bg:#E0F9ED;

@@ -5,9 +5,8 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// The supplied reference explicitly uses a near-white canvas and subtle card
-// borders. Preserve that treatment while requiring legible title/description
-// text and visible shadows; table/field boundaries use stronger shared tokens.
+// White cards sit above a light grey canvas with visible borders and shadows.
+// Keep text readable while applying the requested application-wide contrast.
 test.describe('Contraste del menú principal', () => {
   test('tiles are visibly separated from the page canvas', async ({ page }) => {
     await page.addInitScript(() => {
@@ -62,12 +61,12 @@ test.describe('Contraste del menú principal', () => {
     expect(m.descriptionContrast).toBeGreaterThanOrEqual(4.5);
   });
 
-  test('the canvas matches the supplied light reference', async ({ page }) => {
+  test('the canvas separates white surfaces across the application', async ({ page }) => {
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const [r, g, b] = bg.match(/\d+/g).slice(0, 3).map(Number);
-    // This is the reference canvas, not the darker previous design.
-    expect([r,g,b]).toEqual([245,247,250]);
+    // The shared light-grey canvas reinforces white panel boundaries.
+    expect([r,g,b]).toEqual([237,241,245]);
   });
 });

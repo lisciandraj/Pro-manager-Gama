@@ -7,7 +7,7 @@ test('full production page starts browser camera without replacing getUserMedia'
  await page.addInitScript(()=>localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'})));
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')}));
  await page.goto('http://127.0.0.1:4173/index.html');
- await page.evaluate(()=>{window.BarcodeDetector=class{static async getSupportedFormats(){return ['ean_13']}async detect(){return []}};const button=document.createElement('button');button.id='cameraRealTest';button.textContent='Camera';button.onclick=()=>startGamaScan('pBarcode');document.body.append(button)});
+ await page.evaluate(()=>{window.BarcodeDetector=class{static async getSupportedFormats(){return ['ean_13']}async detect(){return []}};const button=document.createElement('button');button.id='cameraRealTest';button.textContent='Camera';button.onclick=()=>startGamaScan('pBarcode');(document.querySelector('.arcContent>.wrap')||document.body).append(button)});
  await page.click('#cameraRealTest');await expect(page.locator('#gamaPhoneScanner .status')).toContainText('Apunte');
  const info=await page.locator('#gamaPhoneScanner video').evaluate(v=>({width:v.videoWidth,ready:v.readyState,tracks:v.srcObject.getVideoTracks().map(t=>t.readyState)}));expect(info.width).toBeGreaterThan(0);expect(info.tracks).toEqual(['live']);
  await page.locator('#gamaPhoneScanner .close').click();

@@ -12,6 +12,12 @@ const isAdmin=()=>role()==='admin'||role()==='administrador';
 let busy=false,profile='commercial',draft=null,draftVersion=0,accessError='';
 const tx=s=>window.GamaI18n?.t?.(s)||s;
 const live=s=>`<span data-gi-live>${esc(s)}</span>`;
+function moduleTile(m,{scope,on,disabled,detail=''}){
+ const definition=window.ArcModules.registry.find(x=>x.id===m.id)||m;
+ const label=definition.label||m.label,key=scope+'-'+m.id;
+ const icon=window.ArcUI.icons[definition.icon]||window.ArcUI.icons.invoice;
+ return `<label class="cfgModuleTile" for="${esc(key)}"><span class="cfgTileTop"><span class="cfgTileIcon gamaF2Icon" data-arc-fam="${esc(definition.accent||'cyan')}" aria-hidden="true"><svg viewBox="0 0 24 24">${icon}</svg></span><input id="${esc(key)}" type="checkbox" ${scope==='profile'?'data-role-module':'data-mod'}="${esc(m.id)}" ${on?'checked':''} ${disabled?'disabled':''} aria-labelledby="${esc(key)}-name" aria-describedby="${esc(key)}-desc${detail?' '+esc(key)+'-state':''}"></span><b id="${esc(key)}-name" data-gi-live>${esc(label)}</b><span id="${esc(key)}-desc" class="cfgTileDesc" data-gi-live>${esc(definition.description||'')}</span>${detail?`<small id="${esc(key)}-state" class="cfgTileState">${live(detail)}</small>`:''}</label>`;
+}
 function profilePanel(){
  const api=window.GamaRoleAccess;
  if(!api?.isReady())return `<div class="arcPanel card"><p role="alert">${live('No se pudieron cargar los permisos. Reintenta para configurarlos.')}</p><button class="arcButton" id="cfgAccessRetry">${live('Reintentar')}</button></div>`;
@@ -20,9 +26,9 @@ function profilePanel(){
  const rows=mods.map(m=>{
   const compatible=api.base(profile,m.id),locked=api.locked(profile,m.id),on=compatible&&!draft.has(m.id);
   const detail=locked?'Acceso protegido.':!compatible?'No disponible para este perfil.':window.GamaModules.enabled(m.id)?'':'Módulo desactivado para toda la empresa.';
-  return `<label class="cfgRow cfgProfileRow"><span><b data-gi-live>${esc(m.label)}</b>${detail?`<small>${live(detail)}</small>`:''}</span><input type="checkbox" data-role-module="${esc(m.id)}" ${on?'checked':''} ${locked||!compatible?'disabled':''}></label>`;
+  return moduleTile(m,{scope:'profile',on,disabled:locked||!compatible,detail});
  }).join('');
- return `<div class="arcPanel card"><h3>${live('Accesos por perfil')}</h3><p>${live('Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.')}</p><label class="arcField">${live('Perfil')}<select id="cfgProfile">${api.options().map(r=>`<option value="${esc(r.id)}" ${r.id===profile?'selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select></label><div class="arcToolbar"><button class="arcButton secondary" id="cfgNewProfile">${live('Crear un perfil')}</button></div><div id="cfgCreateProfile" hidden><label class="arcField">${live('Nombre del perfil')}<input id="cfgProfileName" required maxlength="64" autocomplete="off"></label><p>${live('El nuevo perfil copia los permisos del perfil seleccionado. Después puedes personalizar sus módulos.')}</p><div class="arcToolbar"><button class="arcButton primary" id="cfgCreateProfileSave">${live('Crear el perfil')}</button><button class="arcButton secondary" id="cfgCreateProfileCancel">${live('Cancelar')}</button></div></div><div class="cfgList">${rows}</div><div class="arcToolbar"><button class="arcButton primary" id="cfgSaveProfile">${live('Guardar permisos')}</button><button class="arcButton secondary" id="cfgResetProfile">${live('Restaurar permisos predeterminados')}</button></div><p id="cfgAccessStatus" role="status" class="cfgMsg">${esc(accessError)}</p></div>`;
+ return `<div class="arcPanel card"><h3>${live('Accesos por perfil')}</h3><p>${live('Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.')}</p><label class="arcField">${live('Perfil')}<select id="cfgProfile">${api.options().map(r=>`<option value="${esc(r.id)}" ${r.id===profile?'selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select></label><div class="arcToolbar"><button class="arcButton secondary" id="cfgNewProfile">${live('Crear un perfil')}</button></div><div id="cfgCreateProfile" hidden><label class="arcField">${live('Nombre del perfil')}<input id="cfgProfileName" required maxlength="64" autocomplete="off"></label><p>${live('El nuevo perfil copia los permisos del perfil seleccionado. Después puedes personalizar sus módulos.')}</p><div class="arcToolbar"><button class="arcButton primary" id="cfgCreateProfileSave">${live('Crear el perfil')}</button><button class="arcButton secondary" id="cfgCreateProfileCancel">${live('Cancelar')}</button></div></div><div class="cfgTileGrid">${rows}</div><div class="arcToolbar"><button class="arcButton primary" id="cfgSaveProfile">${live('Guardar permisos')}</button><button class="arcButton secondary" id="cfgResetProfile">${live('Restaurar permisos predeterminados')}</button></div><p id="cfgAccessStatus" role="status" class="cfgMsg">${esc(accessError)}</p></div>`;
 }
 
 function msg(t,err){const m=$('cfgMsg');if(!m)return;m.textContent=t||'';m.className='cfgMsg'+(t?(err?' cfgErr':' cfgOk'):'')}
@@ -55,25 +61,13 @@ function render(id='settings'){
 
  const mods=window.GamaModules.list();
  const activos=mods.filter(m=>m.enabled).length;
- const rows=mods.map(m=>`
-  <div class="cfgRow ${m.enabled?'':'off'}">
-   <div>
-    <b data-gi-live>${esc(m.label)}</b>
-    <small data-gi-live>${m.locked?'Disponible permanentemente.'
-                     :(m.enabled?'Visible para todos los usuarios con permiso.':'Oculto para todos los usuarios.')}</small>
-   </div>
-   <label class="cfgSwitch">
-    <input type="checkbox" data-gi-live data-mod="${esc(m.id)}" ${m.enabled?'checked':''} ${m.locked?'disabled':''}
-           aria-label="${m.enabled?'Desactivar':'Activar'} ${esc(m.label)}">
-    <i></i>
-   </label>
-  </div>`).join('');
+ const rows=mods.map(m=>moduleTile(m,{scope:'module',on:m.enabled,disabled:m.locked,detail:m.locked?'Disponible permanentemente.':''})).join('');
 
  window.ArcUI.render(s,head+profilePanel()+`<details open class="arcPanel card"><summary>${live('Activación general de módulos')}</summary>
   <h3 data-gi=ba8656559345>Módulos de la aplicación</h3>
   <div class="cfgCount">${activos} de ${mods.length} activos</div>
   <div id="cfgMsg" class="cfgMsg"></div>
-  <div class="cfgList">${rows}</div>
+  <div class="cfgTileGrid">${rows}</div>
  </details>`);
  window.GamaI18n?.mount();
  bind(id);

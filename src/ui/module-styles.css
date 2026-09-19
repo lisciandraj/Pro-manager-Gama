@@ -876,3 +876,27 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
  .gamaStdBack,.gamaStdAction{width:100%}
 }
 .cfgProfileRow{gap:16px;cursor:pointer}.cfgProfileRow>span{min-width:0;flex:1}.cfgProfileRow input[type=checkbox]{width:24px;height:24px;flex:0 0 24px;accent-color:var(--arc-accent-600);margin:0}.cfgProfileRow:has(input:disabled){cursor:default}#cfgProfile{max-width:380px}#access-settings summary{cursor:pointer;font-weight:700}
+
+/* Access settings reuse the home module identity in compact selectable cards. */
+#access-settings .cfgTileGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:1fr;gap:12px;margin-top:16px}
+#access-settings .cfgModuleTile{display:flex;flex-direction:column;gap:8px;min-width:0;margin:0;padding:14px;border:1px solid var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);border-radius:var(--arc-r-md);background:var(--arc-surface);box-shadow:var(--arc-tile-shadow);cursor:pointer;text-align:left;font-weight:400}
+#access-settings .cfgModuleTile:has(input:checked){border-color:var(--arc-accent-600)}
+#access-settings .cfgModuleTile:has(input:focus-visible){outline:3px solid var(--arc-accent-600);outline-offset:3px}
+#access-settings .cfgModuleTile:has(input:disabled){cursor:default}
+#access-settings .cfgTileTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#access-settings .cfgTileIcon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+#access-settings .cfgTileIcon svg{width:24px;height:24px}
+#access-settings .cfgTileTop input{width:24px;height:24px;min-height:0;padding:0;margin:0;flex:none;accent-color:var(--arc-accent-600);cursor:inherit}
+#access-settings .cfgModuleTile b{font-size:14px;line-height:1.3;color:var(--arc-text);overflow-wrap:anywhere}
+#access-settings .cfgTileDesc{font-size:12px;line-height:1.4;color:var(--arc-text-muted);overflow-wrap:anywhere}
+#access-settings .cfgTileState{font-size:11px;line-height:1.4;color:var(--arc-text-muted);margin-top:auto;padding-top:4px}
+@media(max-width:600px){#access-settings .cfgTileGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#access-settings .cfgModuleTile{padding:11px;gap:7px}}
+@media(max-width:359px){#access-settings .cfgTileGrid{grid-template-columns:minmax(0,1fr)}}
+#access-settings .cfgTileIcon[data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=violet]{color:var(--arc-icon-violet);background:var(--arc-icon-violet-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=red]{color:var(--arc-icon-red);background:var(--arc-icon-red-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=pink]{color:var(--arc-icon-pink);background:var(--arc-icon-pink-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=indigo]{color:var(--arc-icon-indigo);background:var(--arc-icon-indigo-bg)}

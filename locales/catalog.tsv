@@ -2341,3 +2341,18 @@ Ya existe un registro con estos datos.	Une fiche avec ces données existe déjà
 Este registro está vinculado a otros documentos.	Cette fiche est liée à d’autres documents.	This record is linked to other documents.
 Los datos cambiaron. Actualiza antes de guardar.	Les données ont changé. Actualisez avant d’enregistrer.	The data changed. Refresh before saving.
 Comprueba la conexión y vuelve a intentarlo.	Vérifiez la connexion et réessayez.	Check your connection and try again.
+
+No se pudieron cargar los permisos. Reintenta para configurarlos.	Impossible de charger les permissions. Réessaie pour les configurer.	Permissions could not be loaded. Retry to configure them.
+Acceso protegido.	Accès protégé.	Protected access.
+No disponible para este perfil.	Non disponible pour ce profil.	Unavailable for this profile.
+Módulo desactivado para toda la empresa.	Module désactivé pour toute l’entreprise.	Module disabled for the entire company.
+Accesos por perfil	Accès par profil	Access by profile
+Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.	Choisis les modules visibles et accessibles pour chaque profil. Les droits sur les données et les actions sont conservés.	Choose the modules each profile can see and open. Data and action permissions are preserved.
+Guardar permisos	Enregistrer les permissions	Save permissions
+Restaurar permisos predeterminados	Rétablir les permissions par défaut	Restore default permissions
+Configura los módulos de la empresa y los accesos de cada perfil.	Configure les modules de l’entreprise et les accès de chaque profil.	Configure company modules and access for each profile.
+Activación general de módulos	Activation générale des modules	Company-wide module activation
+Guarda para aplicar los permisos predeterminados.	Enregistre pour appliquer les permissions par défaut.	Save to apply the default permissions.
+Permisos guardados para todos los usuarios de este perfil.	Permissions enregistrées pour tous les utilisateurs de ce profil.	Permissions saved for all users with this profile.
+Otro administrador cambió estos permisos. Revisa la versión actual antes de guardar.	Un autre administrateur a modifié ces permissions. Vérifie la version actuelle avant d’enregistrer.	Another administrator changed these permissions. Review the current version before saving.
+No se pudieron guardar los permisos. Tus cambios no se han aplicado.	Impossible d’enregistrer les permissions. Tes changements n’ont pas été appliqués.	Could not save permissions. Your changes have not been applied.

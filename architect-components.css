@@ -875,6 +875,7 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
  .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:var(--arc-s2)}
  .gamaStdBack,.gamaStdAction{width:100%}
 }
+.cfgProfileRow{gap:16px;cursor:pointer}.cfgProfileRow>span{min-width:0;flex:1}.cfgProfileRow input[type=checkbox]{width:24px;height:24px;flex:0 0 24px;accent-color:var(--arc-accent-600);margin:0}.cfgProfileRow:has(input:disabled){cursor:default}#cfgProfile{max-width:380px}#access-settings summary{cursor:pointer;font-weight:700}
 
 /* Shared controls. Feature styles describe layouts and business states only. */
 .arcPanel,.arcKpi{background:var(--arc-surface);border:1px solid var(--arc-line);border-bottom-color:var(--arc-line-strong);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1);padding:var(--arc-s5);min-width:0}

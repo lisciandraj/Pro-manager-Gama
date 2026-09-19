@@ -23,7 +23,7 @@ const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);
 function session(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){return null}}
 function esc(v){return window.ArcUI.esc(v)}
 function moduleOn(id){return !window.GamaModules||window.GamaModules.enabled(id)}
-function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;const r=ROLES[window.ArcModules.roleAliases?.[s.role]||s.role];return !!r&&(r.perms==='*'||r.perms.includes(id))}
+function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.role,id)}
 function injectCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Con la autenticación centralizada ya no hay acceso local de reserva: si la
    nube no responde, hay que decirlo claramente en vez de dejar la pantalla en

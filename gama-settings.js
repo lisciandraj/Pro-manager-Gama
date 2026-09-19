@@ -9,7 +9,21 @@ const esc=window.ArcUI.esc;
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
 const isAdmin=()=>role()==='admin'||role()==='administrador';
 
-let busy=false;
+let busy=false,profile='commercial',draft=null,draftVersion=0,accessError='';
+const tx=s=>window.GamaI18n?.t?.(s)||s;
+const live=s=>`<span data-gi-live>${esc(s)}</span>`;
+function profilePanel(){
+ const api=window.GamaRoleAccess;
+ if(!api?.isReady())return `<div class="arcPanel card"><p role="alert">${live('No se pudieron cargar los permisos. Reintenta para configurarlos.')}</p><button class="arcButton" id="cfgAccessRetry">${live('Reintentar')}</button></div>`;
+ if(draft===null){const saved=api.snapshot(profile);draft=new Set(saved.disabled_modules);draftVersion=saved.version;}
+ const mods=window.ArcModules.registry.filter(m=>m.menu);
+ const rows=mods.map(m=>{
+  const compatible=api.base(profile,m.id),locked=api.locked(profile,m.id),on=compatible&&!draft.has(m.id);
+  const detail=locked?'Acceso protegido.':!compatible?'No disponible para este perfil.':window.GamaModules.enabled(m.id)?'':'Módulo desactivado para toda la empresa.';
+  return `<label class="cfgRow cfgProfileRow"><span><b data-gi-live>${esc(m.label)}</b>${detail?`<small>${live(detail)}</small>`:''}</span><input type="checkbox" data-role-module="${esc(m.id)}" ${on?'checked':''} ${locked||!compatible?'disabled':''}></label>`;
+ }).join('');
+ return `<div class="arcPanel card"><h3>${live('Accesos por perfil')}</h3><p>${live('Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.')}</p><label class="arcField">${live('Perfil')}<select id="cfgProfile">${Object.entries(window.ArcModules.roles).map(([id,r])=>`<option value="${id}" ${id===profile?'selected':''} data-gi-live>${esc(r.label)}</option>`).join('')}</select></label><div class="cfgList">${rows}</div><div class="arcToolbar"><button class="arcButton primary" id="cfgSaveProfile">${live('Guardar permisos')}</button><button class="arcButton secondary" id="cfgResetProfile">${live('Restaurar permisos predeterminados')}</button></div><p id="cfgAccessStatus" role="status" class="cfgMsg">${esc(accessError)}</p></div>`;
+}
 
 function msg(t,err){const m=$('cfgMsg');if(!m)return;m.textContent=t||'';m.className='cfgMsg'+(t?(err?' cfgErr':' cfgOk'):'')}
 
@@ -27,7 +41,7 @@ function render(id='settings'){
  if(access&&!isAdmin()){window.ArcUI.render(s,'');return}
  const head=window.GamaUI.header({
   title:access?'🔐 Parámetros de acceso':'⚙️ Configuración',
-  lead:access?'Activa o desactiva los módulos de Architect.':isAdmin()?'Configura tu empresa, sus documentos y el idioma de la aplicación.':'Personaliza el idioma de la aplicación.'
+  lead:access?'Configura los módulos de la empresa y los accesos de cada perfil.':isAdmin()?'Configura tu empresa, sus documentos y el idioma de la aplicación.':'Personaliza el idioma de la aplicación.'
  });
 
  const preferences='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
@@ -55,12 +69,12 @@ function render(id='settings'){
    </label>
   </div>`).join('');
 
- window.ArcUI.render(s,head+`<div class="arcPanel card">
+ window.ArcUI.render(s,head+profilePanel()+`<details open class="arcPanel card"><summary>${live('Activación general de módulos')}</summary>
   <h3 data-gi=ba8656559345>Módulos de la aplicación</h3>
   <div class="cfgCount">${activos} de ${mods.length} activos</div>
   <div id="cfgMsg" class="cfgMsg"></div>
   <div class="cfgList">${rows}</div>
- </div>`);
+ </details>`);
  window.GamaI18n?.mount();
  bind(id);
 }
@@ -68,6 +82,25 @@ function render(id='settings'){
 function bind(viewId){
  const s=section(viewId);
  window.GamaUI.bindBack(s);
+ const api=window.GamaRoleAccess;
+ if($('cfgAccessRetry'))$('cfgAccessRetry').onclick=async()=>{try{await api.load()}catch(_){}render(viewId)};
+ if($('cfgProfile'))$('cfgProfile').onchange=()=>{profile=$('cfgProfile').value;draft=null;accessError='';render(viewId)};
+ s.querySelectorAll('[data-role-module]').forEach(input=>input.onchange=()=>{if(input.checked)draft.delete(input.dataset.roleModule);else draft.add(input.dataset.roleModule);accessError='';});
+ if($('cfgResetProfile'))$('cfgResetProfile').onclick=()=>{draft=new Set();accessError=tx('Guarda para aplicar los permisos predeterminados.');render(viewId)};
+ if($('cfgSaveProfile'))$('cfgSaveProfile').onclick=async()=>{
+  if(busy||!isAdmin())return;busy=true;
+  s.querySelectorAll('#cfgProfile,[data-role-module],#cfgSaveProfile,#cfgResetProfile,[data-mod]').forEach(el=>el.disabled=true);
+  $('cfgAccessStatus').textContent=tx('Guardando…');
+  try{
+   // Hidden legacy quote/request routes follow the visible quote module.
+   if(draft.has('quotes'))draft.add('billing');else draft.delete('billing');
+   await api.save(profile,[...draft],draftVersion);draft=null;
+   accessError=tx('Permisos guardados para todos los usuarios de este perfil.');
+  }catch(e){
+   if(String(e.message).includes('ACCESS_STALE')){await api.load().catch(()=>{});draft=null;accessError=tx('Otro administrador cambió estos permisos. Revisa la versión actual antes de guardar.');}
+   else accessError=tx('No se pudieron guardar los permisos. Tus cambios no se han aplicado.');
+  }finally{busy=false;render(viewId)}
+ };
  s.querySelectorAll('[data-mod]').forEach(input=>{
   input.onchange=async()=>{
    if(busy||!isAdmin()){input.checked=!input.checked;return}
@@ -91,13 +124,14 @@ function bind(viewId){
 function open(id='settings'){
  id=id==='access-settings'?'access-settings':'settings';
  if(id==='access-settings'&&!isAdmin()){window.gamaToast?.(window.GamaI18n?.t('Acceso denegado para este perfil.')||'Acceso denegado para este perfil.');return false}
+ if(id==='access-settings'){draft=null;accessError='';}
  css();
  render(id);
  window.ArcRouter.show(id);
  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
  window.scrollTo({top:0,behavior:'smooth'});
  // Se relee por si otro administrador cambió algo desde otro dispositivo.
- if(id==='access-settings')window.GamaModules.load().then(()=>render(id)).catch(()=>{});
+ if(id==='access-settings'){Promise.all([window.GamaModules.load(),window.GamaRoleAccess.load()]).then(()=>{if(!busy)render(id)}).catch(()=>{if(!busy)render(id)});}
 }
 
 window.GamaSettings={open,render};

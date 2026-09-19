@@ -890,6 +890,12 @@
       "name": "reconcile_temporary_photo_backup",
       "file": "20260919160517_reconcile_temporary_photo_backup.sql",
       "sha256": "0337e6225b5d123df20cab53f77c86701cb6bcbed65cdd87fbd70ea97ac35cf2"
+    },
+    {
+      "version": "20260919201956",
+      "name": "role_module_access",
+      "file": "20260919201956_role_module_access.sql",
+      "sha256": "a7dc141074f1f1feeec2f6f409b5c4f80893c7b32892b88afcaf5dce235d2a97"
     }
   ],
   "legacy": [

@@ -25,7 +25,7 @@ const LIST_KEYS={
  fulfillment_package_lines:['package_id','pick_line_id'],gama_document_references:['table_name','document_id'],
  hr_absence_private:['absence_id'],hr_employee_private:['employee_id'],hr_holidays:['day'],hr_permissions:['profile_id'],
  sales_reservation_links:['reservation_id'],tms_loading_allocations:['scan_id','delivery_line_id'],
- tms_proofs:['delivery_id'],user_home_preferences:['user_id']
+ tms_proofs:['delivery_id'],user_home_preferences:['user_id'],role_module_access:['role']
 };
 async function list(table,options={}){
  const supported=new Set(['select','count','head','order','ascending','eq','ilike','in','gte','lte','lt','gt','neq','is','range','limit','search']);

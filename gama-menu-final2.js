@@ -137,7 +137,10 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const can=id=>!!window.gamaAccessAllowed?.(id);
 const ORDER=['dashboard','assistant-ia','crm','quotes','sales-orders','tms','payments','returns','gamaPurchasesV14','suppliers','products','warehouses','projects','hr','knowledge','accounting','clients','settings'];
-const ACCENT={dashboard:'cyan','assistant-ia':'pink',crm:'blue',quotes:'cyan','sales-orders':'red',tms:'indigo',payments:'blue',returns:'red',gamaPurchasesV14:'cyan',suppliers:'indigo',products:'green',warehouses:'blue',projects:'blue',hr:'green',knowledge:'violet',accounting:'orange',clients:'cyan'};
+const ACCENT={dashboard:'cyan','assistant-ia':'pink',crm:'blue',quotes:'cyan','sales-orders':'red',tms:'indigo',payments:'blue',returns:'red',gamaPurchasesV14:'cyan',suppliers:'indigo',products:'green',warehouses:'blue',projects:'blue',hr:'green',knowledge:'violet',accounting:'orange',clients:'cyan',settings:'indigo',
+ fleet:'indigo',operations:'cyan',notifications:'orange',movement:'cyan',stock:'green',matrix:'violet',barcode:'blue',
+ 'client-deliveries':'indigo','dossier-flow':'blue','order-preparation':'green','client-catalog':'cyan','price-lists':'orange',
+ reports:'green',audit:'cyan',users:'blue','access-settings':'violet',backup:'blue','customer-requests':'blue'};
 const ordered=()=>[...ITEMS].sort((a,b)=>(ORDER.includes(a[1])?ORDER.indexOf(a[1]):100)-(ORDER.includes(b[1])?ORDER.indexOf(b[1]):100));
 const preferenceKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'architect_home_modules_v1:'+String(u.id||u.email||u.username||u.name||u.role||'')}catch(_){return 'architect_home_modules_v1'}};
 function hiddenModules(){try{return new Set(JSON.parse(localStorage.getItem(preferenceKey())||'[]'))}catch(_){return new Set()}}
@@ -202,7 +205,7 @@ function render(){
    const g=x[3];
    const b=document.createElement('button');b.type='button';b.className='gamaF2Card';
    b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
-   const fam=ACCENT[x[1]]||'system';
+   const fam=ACCENT[x[1]]||'cyan';
    if(x[1]==='tms')b.dataset.gamaTmsCard='1';
    const icon=document.createElement('span');icon.className='gamaF2Icon';icon.dataset.arcFam=fam;
    icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';

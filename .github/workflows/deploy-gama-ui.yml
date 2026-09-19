@@ -61,7 +61,7 @@ jobs:
           # navegador de quien ya usaba la aplicación seguía sirviendo el menú
           # viejo de su caché. Se sube al cambiar la interfaz, aquí y en
           # index.html a la vez.
-          TAG='20260919-reference1'
+          TAG='20260919-accents2'
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=' + TAG, s)
@@ -79,8 +79,8 @@ jobs:
         run: |
           grep -q 'gama-ui.js' index.html
           grep -q 'gama-modules.js' index.html
-          grep -q 'gama-standard-ui.js?v=20260919-reference1' index.html
-          grep -q 'gama-menu-final2.js?v=20260919-reference1' index.html
+          grep -q 'gama-standard-ui.js?v=20260919-accents2' index.html
+          grep -q 'gama-menu-final2.js?v=20260919-accents2' index.html
           # gama-role-spanish.js is the one live TMS loader: it is the only file
           # that references gama-tms-module.js. Assert against it, not against a
           # loader that has been deleted.

@@ -6,7 +6,7 @@ L’application reste le site statique `lisciandraj/Pro-manager-Gama`, avec ses 
 
 La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’environ 192 px, barre supérieure de 70 px, grille principale de quatre colonnes, cartes blanches compactes de 12 px de rayon. Couleurs relevées dans les plages uniformes de l’image : sidebar `#122E46`, sélection `#245073`, fond gris très clair (environ `#F5F7FA`). Les tableaux et champs gardent des séparateurs plus soutenus pour la lisibilité.
 
-`architect-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42`. Le slogan, les couleurs, les marges blanches et le rapport carré sont conservés. Il apparaît dans la sidebar, la connexion, la fiche de devis et les métadonnées d’installation. `object-fit: contain` préserve ses proportions. Les anciens identifiants techniques GAMA et les informations légales de l’entreprise sur les documents restent inchangés.
+`architect-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42`. Le slogan, les couleurs et le rapport carré sont conservés. Dans la sidebar, un masque CSS cache uniquement la marge blanche extérieure du fichier, sans retoucher le logo. Il apparaît dans la sidebar, la connexion, la fiche de devis et les métadonnées d’installation. `object-fit: contain` préserve ses proportions. Les anciens identifiants techniques GAMA et les informations légales de l’entreprise sur les documents restent inchangés.
 
 La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, pour un rendu stable sans requête externe.
 

@@ -16,7 +16,7 @@
 #mainmenu .arcSectionHead h2{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.025em;font-weight:750}
 .arcCustomizeButton{padding:4px 0;min-height:40px;font-size:14px;font-weight:400}
 .arcCustomizeButton svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
-#mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+#mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:14px}
 #mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;min-width:0;min-height:142px;padding:13px 17px 16px;margin:0;text-align:left;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
 #mainmenu .gamaF2Card,#mainmenu .gamaF2Kpi{border-color:var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow)}
 @media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-tile-shadow-hover);transform:translateY(-2px)}}

@@ -45,13 +45,12 @@ function navHtml(){
  const icons=menu.icons||{};
  let html='<button type="button" class="arcNavLink" data-arc-home="1">'
   +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>';
- const primary=['dashboard','crm','sales-orders','gamaPurchasesV14','warehouses','products','tms','projects','accounting','hr','clients','suppliers','knowledge','assistant-ia','settings'];
- if(window.gamaAccessAllowed?.('quotes')&&!window.gamaAccessAllowed?.('sales-orders'))primary.unshift('quotes','client-deliveries','client-catalog');
  const link=x=>'<button type="button" class="arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
    +svg(icons[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>';
- primary.forEach(id=>{const x=menu.items.find(x=>x[1]===id);if(x)html+=link(x)});
- const more=menu.items.filter(x=>!primary.includes(x[1]));
- html+='<details class="arcMore"><summary>'+esc(T('Más módulos'))+'</summary>'+more.map(link).join('')+'</details>';
+ (menu.groups||[]).forEach(group=>{
+  html+='<div class="arcNavGroup">'+esc(T(group))+'</div>';
+  html+=menu.items.filter(x=>x[3]===group).map(link).join('');
+ });
  return html;
 }
 

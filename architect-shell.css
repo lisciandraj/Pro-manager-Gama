@@ -76,3 +76,6 @@ body.arcDrawerOpen .arcScrim{opacity:1;pointer-events:auto}
 @media(max-width:430px){.arcContent{padding:18px 12px 24px}.arcTopbar{padding:8px;gap:4px}.arcSearch input{font-size:12px;padding-left:32px}.arcSearch .arcIco{left:9px;width:16px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:4px}}
 @media print{.arcSidebar,.arcTopbar,.arcScrim{display:none!important}.arcMain{margin-left:0}.arcContent{padding:0}}
 .arcUserSlot #gamaCloudAdminBtn{position:static!important;inset:auto!important;display:block!important;width:100%;max-width:100%;margin:10px 0 0;padding:10px;border-radius:8px;white-space:normal;font-size:12px}
+
+.arcNavGroup{padding:18px 12px 7px;color:#a9c6d9;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid rgba(190,215,235,.12);margin-top:8px}
+@media(min-width:861px) and (max-width:1180px){body:not(.arcDrawerOpen) .arcNavGroup{font-size:0;padding:0;margin:12px 4px 6px;height:1px}}

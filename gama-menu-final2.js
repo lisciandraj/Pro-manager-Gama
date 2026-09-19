@@ -233,7 +233,7 @@ function render(){
  const activity=document.createElement('div');activity.id='arcRecentActivity';
  host.append(cabecera,fila,heading,grid,activity);
  heading.querySelector('button').onclick=personalize;
- applyPreferences();pintarKpis(fila);recentActivity();window.GamaI18n?.scan?.(host);
+ window.ArchitectHomeOrder?.mount(grid);applyPreferences();pintarKpis(fila);recentActivity();window.GamaI18n?.scan?.(host);
 }
 
 /* Los indicadores llegan cuando llegan: el menú no espera por ellos. */

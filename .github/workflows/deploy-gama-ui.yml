@@ -46,6 +46,7 @@ jobs:
           node --check gama-modules.js
           node --check gama-hr.js
           node --check gama-settings.js
+          node --check architect-home-order.js
           node --check gama-company.js
           node --check gama-company-core.js
           node --test tests/company-core.test.cjs
@@ -64,7 +65,7 @@ jobs:
           # navegador de quien ya usaba la aplicación seguía sirviendo el menú
           # viejo de su caché. Se sube al cambiar la interfaz, aquí y en
           # index.html a la vez.
-          TAG='20260919-accents2'
+          TAG='20260919-order1'
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=' + TAG, s)

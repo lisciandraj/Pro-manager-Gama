@@ -22,7 +22,7 @@ function profilePanel(){
   const detail=locked?'Acceso protegido.':!compatible?'No disponible para este perfil.':window.GamaModules.enabled(m.id)?'':'Módulo desactivado para toda la empresa.';
   return `<label class="cfgRow cfgProfileRow"><span><b data-gi-live>${esc(m.label)}</b>${detail?`<small>${live(detail)}</small>`:''}</span><input type="checkbox" data-role-module="${esc(m.id)}" ${on?'checked':''} ${locked||!compatible?'disabled':''}></label>`;
  }).join('');
- return `<div class="arcPanel card"><h3>${live('Accesos por perfil')}</h3><p>${live('Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.')}</p><label class="arcField">${live('Perfil')}<select id="cfgProfile">${Object.entries(window.ArcModules.roles).map(([id,r])=>`<option value="${id}" ${id===profile?'selected':''} data-gi-live>${esc(r.label)}</option>`).join('')}</select></label><div class="cfgList">${rows}</div><div class="arcToolbar"><button class="arcButton primary" id="cfgSaveProfile">${live('Guardar permisos')}</button><button class="arcButton secondary" id="cfgResetProfile">${live('Restaurar permisos predeterminados')}</button></div><p id="cfgAccessStatus" role="status" class="cfgMsg">${esc(accessError)}</p></div>`;
+ return `<div class="arcPanel card"><h3>${live('Accesos por perfil')}</h3><p>${live('Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.')}</p><label class="arcField">${live('Perfil')}<select id="cfgProfile">${api.options().map(r=>`<option value="${esc(r.id)}" ${r.id===profile?'selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select></label><div class="arcToolbar"><button class="arcButton secondary" id="cfgNewProfile">${live('Crear un perfil')}</button></div><div id="cfgCreateProfile" hidden><label class="arcField">${live('Nombre del perfil')}<input id="cfgProfileName" required maxlength="64" autocomplete="off"></label><p>${live('El nuevo perfil copia los permisos del perfil seleccionado. Después puedes personalizar sus módulos.')}</p><div class="arcToolbar"><button class="arcButton primary" id="cfgCreateProfileSave">${live('Crear el perfil')}</button><button class="arcButton secondary" id="cfgCreateProfileCancel">${live('Cancelar')}</button></div></div><div class="cfgList">${rows}</div><div class="arcToolbar"><button class="arcButton primary" id="cfgSaveProfile">${live('Guardar permisos')}</button><button class="arcButton secondary" id="cfgResetProfile">${live('Restaurar permisos predeterminados')}</button></div><p id="cfgAccessStatus" role="status" class="cfgMsg">${esc(accessError)}</p></div>`;
 }
 
 function msg(t,err){const m=$('cfgMsg');if(!m)return;m.textContent=t||'';m.className='cfgMsg'+(t?(err?' cfgErr':' cfgOk'):'')}
@@ -83,6 +83,16 @@ function bind(viewId){
  const s=section(viewId);
  window.GamaUI.bindBack(s);
  const api=window.GamaRoleAccess;
+ if($('cfgNewProfile'))$('cfgNewProfile').onclick=()=>{$('cfgCreateProfile').hidden=false;$('cfgProfileName').focus()};
+ if($('cfgCreateProfileCancel'))$('cfgCreateProfileCancel').onclick=()=>{$('cfgCreateProfile').hidden=true};
+ if($('cfgCreateProfileSave'))$('cfgCreateProfileSave').onclick=async()=>{
+  if(busy||!isAdmin())return;const name=$('cfgProfileName').value.trim();
+  if(!name){$('cfgProfileName').reportValidity();$('cfgProfileName').focus();return;}
+  busy=true;const button=$('cfgCreateProfileSave');button.disabled=true;
+  try{const created=await api.create(name,profile);profile=created.role;draft=null;accessError=tx('Perfil creado. Personaliza sus módulos y asígnalo en Usuarios.');render(viewId);}
+  catch(e){$('cfgAccessStatus').textContent=tx(e.code==='23505'?'Ya existe un perfil con este nombre.':'No se pudo crear el perfil. Reintenta.');}
+  finally{busy=false;button.disabled=false;}
+ };
  if($('cfgAccessRetry'))$('cfgAccessRetry').onclick=async()=>{try{await api.load()}catch(_){}render(viewId)};
  if($('cfgProfile'))$('cfgProfile').onchange=()=>{profile=$('cfgProfile').value;draft=null;accessError='';render(viewId)};
  s.querySelectorAll('[data-role-module]').forEach(input=>input.onchange=()=>{if(input.checked)draft.delete(input.dataset.roleModule);else draft.add(input.dataset.roleModule);accessError='';});

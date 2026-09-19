@@ -2356,3 +2356,11 @@ Guarda para aplicar los permisos predeterminados.	Enregistre pour appliquer les 
 Permisos guardados para todos los usuarios de este perfil.	Permissions enregistrées pour tous les utilisateurs de ce profil.	Permissions saved for all users with this profile.
 Otro administrador cambió estos permisos. Revisa la versión actual antes de guardar.	Un autre administrateur a modifié ces permissions. Vérifie la version actuelle avant d’enregistrer.	Another administrator changed these permissions. Review the current version before saving.
 No se pudieron guardar los permisos. Tus cambios no se han aplicado.	Impossible d’enregistrer les permissions. Tes changements n’ont pas été appliqués.	Could not save permissions. Your changes have not been applied.
+
+Crear un perfil	Créer un profil	Create a profile
+Nombre del perfil	Nom du profil	Profile name
+El nuevo perfil copia los permisos del perfil seleccionado. Después puedes personalizar sus módulos.	Le nouveau profil copie les permissions du profil sélectionné. Tu peux ensuite personnaliser ses modules.	The new profile copies the selected profile’s permissions. You can then customize its modules.
+Crear el perfil	Créer le profil	Create profile
+Perfil creado. Personaliza sus módulos y asígnalo en Usuarios.	Profil créé. Personnalise ses modules et attribue-le dans Utilisateurs.	Profile created. Customize its modules and assign it in Users.
+Ya existe un perfil con este nombre.	Un profil porte déjà ce nom.	A profile with this name already exists.
+No se pudo crear el perfil. Reintenta.	Impossible de créer le profil. Réessaie.	Could not create the profile. Try again.

@@ -11,6 +11,16 @@ async function boot(page){
  await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady()&&window.GamaOpenAccessSettings);
  await page.evaluate(()=>{
   const db=GamaCloud.db;GamaCloud.db=async()=>{const c=await db();return {...c,rpc:async(fn,args)=>{
+   if(fn==='gama_create_access_profile'){
+    if(__DB.role_module_access.some(r=>r.display_name?.toLowerCase()===args.p_name.trim().toLowerCase()))return {error:{code:'23505'}};
+    const source=__DB.role_module_access.find(r=>r.role===args.p_source);
+    const row={role:'custom_'+String(__DB.role_module_access.length).padStart(32,'0'),display_name:args.p_name.trim(),base_role:source.base_role||source.role,is_custom:true,disabled_modules:[...source.disabled_modules],version:0};
+    __DB.role_module_access.push(row);return {data:structuredClone(row)};
+   }
+   if(fn==='gama_assign_access_profile'){
+    const source=__DB.role_module_access.find(r=>r.role===args.p_profile),user=__DB.profiles.find(p=>p.id===args.p_user);
+    Object.assign(user,{role:source.base_role||source.role,access_profile:source.is_custom?source.role:null});return {data:structuredClone(user)};
+   }
    if(fn!=='gama_save_role_module_access')return c.rpc(fn,args);
    if(window.__accessFailure)return {error:{message:window.__accessFailure}};
    const row=__DB.role_module_access.find(r=>r.role===args.p_role);
@@ -59,4 +69,32 @@ test('failed saves preserve edits and stale saves reload the server version',asy
  await page.evaluate(()=>{window.__accessFailure=null;__DB.role_module_access.find(r=>r.role==='comercial').version++});
  await page.locator('#cfgSaveProfile').click();await expect(page.locator('#cfgAccessStatus')).toContainText('Otro administrador');
  await expect(page.locator('[data-role-module="crm"]')).toBeChecked();
+});
+
+test('create, customize and assign a profile, then authenticate with its base and restrictions',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);
+ await page.locator('[data-role-module="crm"]').uncheck();await page.locator('#cfgSaveProfile').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
+ await page.locator('#cfgNewProfile').click();await page.locator('#cfgProfileName').fill('Assistant ventes');await page.locator('#cfgCreateProfileSave').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('Perfil creado');
+ const custom=await page.locator('#cfgProfile').inputValue();expect(custom).toMatch(/^custom_/);
+ await expect(page.locator('[data-role-module="crm"]')).not.toBeChecked();
+ await page.locator('[data-role-module="payments"]').uncheck();await page.locator('#cfgSaveProfile').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
+ await page.locator('#cfgNewProfile').click();await page.locator('#cfgProfileName').fill('Assistant ventes');await page.locator('#cfgCreateProfileSave').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('Ya existe');
+ await page.evaluate(()=>{__DB.profiles=[{id:'staff-user',full_name:'Staff',role:'comercial',active:true}]});
+ await page.addScriptTag({url:'/gama-cloud-users.js'});await page.evaluate(()=>ArcRouter.open('users'));
+ await expect(page.locator('[data-cu-role="staff-user"]')).toBeVisible();
+ await page.locator('[data-cu-role="staff-user"]').selectOption(custom);
+ await expect(page.locator('#cuRows')).toContainText('Assistant ventes');
+ await page.evaluate(()=>{__DB._profile={...__DB.profiles[0]};});
+ await page.addScriptTag({url:'/gama-cloud-auth.js'});
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).accessProfile)).toBe(custom);
+ await page.evaluate(()=>GamaRoleAccess.load());
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).role)).toBe('commercial');
+ expect(await page.evaluate(()=>gamaAccessAllowed('payments'))).toBe(false);
+ expect(await page.evaluate(()=>gamaAccessAllowed('sales-orders'))).toBe(true);
+ expect(await page.evaluate(()=>gamaAccessAllowed('access-settings'))).toBe(false);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

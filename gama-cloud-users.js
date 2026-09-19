@@ -19,12 +19,14 @@ async function init(){
     selfId=pr?.data?.id||session.user?.id||null;
     if(role!=='administrador' && role!=='admin')return;
     patch();
+    await window.GamaRoleAccess?.load();
     await load();
     if(!realtime){
       try{realtime=await window.GamaCloud.subscribe('profiles',()=>load())}
       catch(e){console.warn('[GAMA] profiles realtime unavailable',e)}
     }
     window.addEventListener('gama:auth-change',()=>setTimeout(()=>{patch();load()},150));
+    window.addEventListener('gama:access-profiles-change',()=>load());
   }catch(e){console.warn('[GAMA Cloud Users] init failed',e)}
 }
 function patch(){
@@ -46,13 +48,15 @@ async function load(){
     const r=await window.GamaCloud.list('profiles',{order:'created_at',ascending:false});
     if(r.error)throw r.error;
     const rows=Array.isArray(r.data)?r.data:[];
-    const ROLES=['administrador','comercial','almacenero','cliente'];
+    const ROLES=window.GamaRoleAccess.options();
+    const key=x=>x.access_profile||(window.ArcModules.roleAliases[x.role]||x.role);
+    const label=x=>ROLES.find(r=>r.id===key(x))?.label||ROLE[x.role]||x.role;
     window.ArcUI.render(body,rows.length?rows.map(x=>{
       const self=x.id===selfId;
       const actions=self?'<b data-gi=d30c5ae09ef0>Tu cuenta</b>':
-        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${r}"${r===x.role?' selected':''} data-gi-live>${esc(ROLE[r]||r)}</option>`).join('')}</select> `+
+        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${esc(r.id)}"${r.id===key(x)?' selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select> `+
         `<button class="arcButton ${x.active===false?'primary':'secondary'}" data-cu-toggle="${esc(x.id)}" data-cu-next="${x.active===false?'1':'0'}" data-gi-live>${x.active===false?'✓ Aprobar':'Desactivar'}</button>`;
-      return `<tr><td><b>${esc(x.full_name||'Sin nombre')}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(ROLE[x.role]||x.role||'Usuario')}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Pendiente / desactivado':'● Activo'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('es-EC'):'—'}</td><td>${actions}</td></tr>`;
+      return `<tr><td><b>${esc(x.full_name||'Sin nombre')}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(label(x))}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Pendiente / desactivado':'● Activo'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('es-EC'):'—'}</td><td>${actions}</td></tr>`;
     }).join(''):'<tr><td colspan="6" data-gi=ed24da31a76e>No se encontraron usuarios en Supabase.</td></tr>');
     wireActions();
     const pending=rows.filter(x=>x.active===false).length, banner=document.getElementById('cuPending');
@@ -78,8 +82,8 @@ function wireActions(){
   document.querySelectorAll('[data-cu-role]').forEach(sel=>sel.onchange=async()=>{
     const id=sel.dataset.cuRole, role=sel.value;
     sel.disabled=true;
-    try{const r=await window.GamaCloud.update('profiles',id,{role});if(r&&r.error)throw r.error;await load();}
-    catch(e){alert('No se pudo cambiar el rol: '+(e.message||e));sel.disabled=false;}
+    try{await window.GamaRoleAccess.assign(id,role);await load();}
+    catch(e){await load();alert('No se pudo cambiar el rol: '+(e.message||e));}
   });
 }
 const observer=new MutationObserver(()=>{

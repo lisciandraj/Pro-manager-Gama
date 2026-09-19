@@ -4,10 +4,11 @@
 const aliases=window.ArcModules.roleAliases,roles=window.ArcModules.roles;
 const canonical=r=>aliases[r]||r;
 const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',client:'cliente'};
-const locked=(r,id)=>id==='settings'||(canonical(r)==='admin'&&['access-settings','users'].includes(id));
+const baseRole=r=>canonical(rows[canonical(r)]?.base_role||r);
+const locked=(r,id)=>id==='settings'||(baseRole(r)==='admin'&&['access-settings','users'].includes(id));
 let rows={},ready=false,pending=null,generation=0,subscription=null;
 const session=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')}catch(_){return null}};
-const base=(r,id)=>{const p=roles[canonical(r)]?.perms;return p==='*'||!!p?.includes(id)};
+const base=(r,id)=>{const p=roles[baseRole(r)]?.perms;return p==='*'||!!p?.includes(id)};
 function enabled(r,id){
  r=canonical(r);if(!base(r,id))return false;
  if(locked(r,id))return true;
@@ -16,6 +17,8 @@ function enabled(r,id){
  return !(rows[r]?.disabled_modules||[]).includes(id);
 }
 function changed(){
+ const current=session(),badge=document.querySelector('.aclRole');
+ if(badge&&current){badge.textContent=current.accessProfile?rows[current.accessProfile]?.display_name||'':window.GamaI18n?.t?.(roles[canonical(current.role)]?.label)||roles[canonical(current.role)]?.label||'';badge.toggleAttribute('data-gi-ignore',!!current.accessProfile);}
  window.gamaApplyAccess?.();window.GamaMenu?.render();
  window.dispatchEvent(new CustomEvent('gama:modules-change'));
 }
@@ -24,7 +27,16 @@ async function load(){
  const token=generation;
  pending=(async()=>{
   await window.GamaCloudReady;
-  const result=await window.GamaCloud.list('role_module_access',{select:'role,disabled_modules,version'});
+  const current=session();
+  if(current?.userId){
+   const p=await window.GamaCloud.getProfile();if(p.error)throw p.error;
+   if(token!==generation)return;
+   if(p.data?.id===current.userId){
+    if(p.data.active===false)localStorage.removeItem('gama_session_v1');
+    else localStorage.setItem('gama_session_v1',JSON.stringify({...current,role:canonical(p.data.role),accessProfile:p.data.access_profile||null}));
+   }
+  }
+  const result=await window.GamaCloud.list('role_module_access',{select:'role,disabled_modules,version,display_name,base_role,is_custom'});
   if(result.error)throw result.error;
   if(token!==generation)return;
   rows=Object.fromEntries((result.data||[]).map(row=>[canonical(row.role),row]));
@@ -34,12 +46,15 @@ async function load(){
 }
 async function save(r,disabled,version){
  r=canonical(r);
- const result=await window.ArcData.rawRpc('gama_save_role_module_access',{p_role:dbRoles[r],p_disabled:disabled,p_version:version});
+ const result=await window.ArcData.rawRpc('gama_save_role_module_access',{p_role:dbRoles[r]||r,p_disabled:disabled,p_version:version});
  if(result.error)throw result.error;
  rows[r]=result.data;ready=true;changed();return result.data;
 }
 function snapshot(r){return rows[canonical(r)]||{role:dbRoles[canonical(r)],disabled_modules:[],version:0}}
-window.GamaRoleAccess={load,save,snapshot,enabled,base,locked,isReady:()=>ready};
+function options(){return [...Object.entries(roles).map(([id,r])=>({id,label:r.label,custom:false})),...Object.entries(rows).filter(([,r])=>r.is_custom).map(([id,r])=>({id,label:r.display_name,custom:true}))]}
+async function create(name,source){const r=await window.ArcData.rawRpc('gama_create_access_profile',{p_name:name,p_source:dbRoles[source]||source});if(r.error)throw r.error;rows[r.data.role]=r.data;changed();window.dispatchEvent(new Event('gama:access-profiles-change'));return r.data;}
+async function assign(user,profile){const r=await window.ArcData.rawRpc('gama_assign_access_profile',{p_user:user,p_profile:dbRoles[profile]||profile});if(r.error)throw r.error;return r.data;}
+window.GamaRoleAccess={load,save,snapshot,enabled,base,baseRole,locked,options,create,assign,isReady:()=>ready};
 const refresh=()=>{if(session())load().catch(()=>{});};
 window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED'){refresh();return;}generation++;pending=null;rows={};ready=false;changed();refresh()});
 window.addEventListener('gama:profile-ready',refresh);
@@ -49,5 +64,6 @@ setInterval(()=>{if(!document.hidden)refresh()},60000);
  if(!window.GamaCloudReady){setTimeout(boot,100);return;}
  await window.GamaCloudReady;await load().catch(()=>{});
  try{subscription=await window.GamaCloud.subscribe('role_module_access',refresh)}catch(_){}
+ try{await window.GamaCloud.subscribe('profiles',refresh)}catch(_){}
 })();
 })();

@@ -896,6 +896,12 @@
       "name": "role_module_access",
       "file": "20260919201956_role_module_access.sql",
       "sha256": "a7dc141074f1f1feeec2f6f409b5c4f80893c7b32892b88afcaf5dce235d2a97"
+    },
+    {
+      "version": "20260919211424",
+      "name": "custom_access_profiles",
+      "file": "20260919211424_custom_access_profiles.sql",
+      "sha256": "192ba10d8fa3324bd798d820e0c2286f70485ab621d4ecd68ab513958857085f"
     }
   ],
   "legacy": [

@@ -2,7 +2,7 @@
 (function(){'use strict';
 function boot(){if(!window.GamaCloud)return setTimeout(boot,250);window.GamaCloudReady.then(function(){var C=window.GamaCloud;
 function roleMap(r){return r==='administrador'?'admin':r==='comercial'?'commercial':r==='almacenero'?'magasinier':r==='cliente'?'client':null}
-function setCompat(s,p){if(!s||!s.user||!p)return false;var r=roleMap(p.role);if(!r||p.active===false)return false;localStorage.setItem('gama_session_v1',JSON.stringify({userId:s.user.id,role:r,username:s.user.email||'',name:p.full_name||s.user.email||''}));return true}
+function setCompat(s,p){if(!s||!s.user||!p)return false;var r=roleMap(p.role);if(!r||p.active===false)return false;localStorage.setItem('gama_session_v1',JSON.stringify({userId:s.user.id,role:r,accessProfile:p.access_profile||null,username:s.user.email||'',name:p.full_name||s.user.email||''}));return true}
 /* La pantalla de acceso es lo primero que ve cualquiera, y era la única de
    la aplicación sin identidad: un gris plano y una caja de 720px —la del
    panel de administración, que compartía regla— para dos campos. Ahora

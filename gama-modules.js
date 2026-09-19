@@ -24,44 +24,7 @@ if(window.GamaModules)return;
    `locked` marca lo que no se puede apagar: Configuración es la pantalla desde
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
-const CATALOG=[
- {id:'accounting',label:'Contabilidad'},
- {id:'fleet',label:'Gestión de flota'},
- {id:'returns',label:'Devoluciones'},
- {id:'projects',label:'Proyectos'},
- {id:'assistant-ia',label:'Asistente IA'},
- {id:'knowledge', label:'Knowledge · Base de conocimientos'},
- {id:'operations', label:'Control comercial y logístico'},
- {id:'notifications', label:'Notificaciones y bloqueos'},
- {id:'payments', label:'Pagos de clientes'},
- {id:'dashboard',          label:'Panel de control y análisis'},
- {id:'products',           label:'Productos'},
- {id:'clients',            label:'Clientes'},
- {id:'movement',           label:'Entradas / Salidas'},
- {id:'billing',            label:'Formulario anterior de presupuestos'},
- {id:'quotes',             label:'Presupuestos y facturas'},
- {id:'client-deliveries',  label:'Mis entregas y pruebas'},
- {id:'stock',              label:'Inventario'},
- {id:'warehouses',         label:'Almacenes y existencias'},
- {id:'audit',              label:'Auditoría'},
- {id:'suppliers',          label:'Proveedores'},
- {id:'matrix',             label:'Matriz comercial'},
- {id:'gamaPurchasesV14',   label:'Compras'},
- {id:'price-lists',        label:'Tarifas'},
- {id:'dossier-flow',       label:'Seguimiento de expedientes'},
- {id:'sales-orders',       label:'Pedidos de venta'},
- {id:'crm',               label:'CRM'},
- {id:'reports',            label:'Importar datos'},
- {id:'backup',             label:'Copias de seguridad'},
- {id:'barcode',            label:'Códigos de barras'},
- {id:'client-catalog',     label:'Catálogo de productos'},
- {id:'order-preparation', label:'Preparación de pedidos'},
- {id:'tms',                label:'Transporte y entregas'},
- {id:'hr',                 label:'Recursos humanos'},
- {id:'users',              label:'Usuarios y accesos'},
- {id:'access-settings',label:'Parámetros de acceso',locked:true},
- {id:'settings',           label:'Configuración', locked:true},
-];
+const CATALOG=window.ArcModules.registry.map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));
 const CACHE_KEY='gama_modules_v1';
 

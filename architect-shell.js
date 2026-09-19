@@ -20,7 +20,7 @@
 if(window.ArchitectShell)return;
 
 const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
@@ -43,9 +43,9 @@ function navHtml(){
  const menu=window.GamaMenu;
  if(!menu||!menu.items)return '';
  const icons=menu.icons||{};
- let html='<button type="button" class="arcNavLink" data-arc-home="1">'
+ let html='<button type="button" class="arcButton arcNavLink" data-arc-home="1">'
   +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>';
- const link=x=>'<button type="button" class="arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
+ const link=x=>'<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
    +svg(icons[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>';
  (menu.groups||[]).forEach(group=>{
   html+='<div class="arcNavGroup">'+esc(T(group))+'</div>';
@@ -98,7 +98,7 @@ function build(){
 
  const side=document.createElement('aside');
  side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));
- side.innerHTML='<a class="arcBrand" href="#mainmenu" aria-label="ARCHITECT ERP">'+MARK+'</a>'
+ window.ArcUI.render(side,'<a class="arcBrand" href="#mainmenu" aria-label="ARCHITECT ERP">'+MARK+'</a>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
    +'<div class="arcFootBrand">ARCHITECT ERP</div>'
@@ -107,21 +107,21 @@ function build(){
     +'<span class="gamaVisuallyHidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">'+esc(T('Idioma'))+'</span>'
     +'<select id="arcLangSelect"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option></select>'
    +'</label>'
-  +'</div>';
+  +'</div>');
 
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
- top.innerHTML='<button type="button" class="arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
+ window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Architect ERP…'))+'" aria-label="'+esc(T('Buscar en Architect ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<button type="button" class="arcIconBtn" id="arcNotify" aria-label="'+esc(T('Notificaciones'))+'">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-label="'+esc(T('Notificaciones'))+'">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'
    +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
-  +'</div>';
+  +'</div>');
 
  const content=document.createElement('div');content.className='arcContent';
 
@@ -134,7 +134,7 @@ function build(){
  const scrim=document.createElement('div');scrim.className='arcScrim';scrim.addEventListener('click',closeDrawer);
  document.body.appendChild(scrim);
 
- side.querySelector('.arcNav').innerHTML=navHtml();
+ window.ArcUI.render(side.querySelector('.arcNav'),navHtml());
  bind(side,top);
  applyAccess();markActive();
 }
@@ -209,12 +209,15 @@ function boot(){
  });
  /* Un sondeo corto y barato en vez de un observador más: el guardarraíl de
     rendimiento del proyecto acota cuántos puede haber en el arranque. */
- setInterval(sync,700);
+ sync();['arc:route-change','gama:auth-change','gama:modules-change','gama:profile-ready','gama:operations-change'].forEach(name=>window.addEventListener(name,sync));
+ const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
+ const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
+ window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
  window.addEventListener('resize',syncDrawerAccess);
  document.addEventListener('click',e=>{if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
  window.addEventListener('gama:language-change',()=>{
   const nav=document.querySelector('.arcNav');
-  if(nav){nav.innerHTML=navHtml();bind(document.querySelector('.arcSidebar'),document.querySelector('.arcTopbar'));sync()}
+  if(nav){window.ArcUI.render(nav,navHtml());bind(document.querySelector('.arcSidebar'),document.querySelector('.arcTopbar'));sync()}
  });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

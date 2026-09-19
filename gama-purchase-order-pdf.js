@@ -1,7 +1,7 @@
 /* GAMA — Generador de PDF para pedidos a proveedores (usa jsPDF, cargado por CDN) */
 (function(){
 'use strict';
-function esc(v){return String(v??'')}
+function esc(v){return window.ArcUI.esc(v)}
 function build(o){
  const l=window.GamaPdfTemplate.layout({title:'Pedido a proveedor',reference:o.number,date:'Fecha: '+esc(o.dateLabel||''),detail:o.expectedLabel?'Fecha prevista: '+o.expectedLabel:''}),doc=l.doc;
  l.section('Proveedor');

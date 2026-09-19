@@ -1,106 +1,43 @@
-name: Deploy GAMA UI safely
+name: Validate Architect release
 on:
   push:
     branches: [main]
+  pull_request:
 permissions:
-  contents: write
+  contents: read
 concurrency:
-  group: gama-single-ui-deploy
-  cancel-in-progress: false
+  group: architect-release-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  deploy:
-    if: github.actor != 'github-actions[bot]'
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate sources
-        run: |
-          test -s index.html
-          grep -q '<!doctype html>' index.html
-          test -f gama-ui.js
-          test -f gama-modules.js
-          test -f gama-standard-ui.js
-          test -f gama-menu-final2.js
-          test -f gama-tms-module.js
-          test -f gama-role-spanish.js
-          node --check gama-pdf-template.js
-          node --check gama-pdf.js
-          node --check gama-quote-pdf.js
-          node --check gama-purchase-order-pdf.js
-          node --check gama-payments.js
-          node --check gama-global-search-core.js
-          node --check gama-global-search.js
-          node --test tests/global-search-core.test.cjs
-          node --check gama-assistant-ia.js
-          node --test tests/assistant-server.test.mjs
-          node --check gama-projects.js
-          node --check gama-projects-core.js
-          node --check gama-projects-i18n.js
-          node --test tests/project-management-core.test.cjs
-          node --check gama-operations.js
-          node --check gama-fulfillment.js
-          node --check gama-ui.js
-          node --check gama-modules.js
-          node --check gama-hr.js
-          node --check gama-settings.js
-          node --check architect-home-order.js
-          node --check architect-kpi-catalog.js
-          node --check architect-home-kpis.js
-          node --check gama-company.js
-          node --check gama-company-core.js
-          node --test tests/company-core.test.cjs
-          node --check gama-standard-ui.js
-          node --check gama-menu-final2.js
-          node --check gama-tms-module.js
-          node --check gama-role-spanish.js
-      - name: Bump modular UI loaders
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          # El sello de esta versión de la interfaz. Estaba clavado en v=12 y
-          # v=17 desde hacía meses: al reescribirlo aquí, el despliegue
-          # deshacía cualquier cambio de versión hecho en el repositorio y el
-          # navegador de quien ya usaba la aplicación seguía sirviendo el menú
-          # viejo de su caché. Se sube al cambiar la interfaz, aquí y en
-          # index.html a la vez.
-          TAG='20260919-kpi1'
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-          s=re.sub(r'gama-standard-ui\.js\?v=[^"\']+', 'gama-standard-ui.js?v=' + TAG, s)
-          s=re.sub(r'gama-menu-final2\.js\?v=[^"\']+', 'gama-menu-final2.js?v=' + TAG, s)
-          p.write_text(s,encoding='utf-8')
-          PY
-      # The old "Remove duplicate TMS menu entries" step lived here. It patched
-      # two things that no longer exist: a TMS tile in gama-menu-final2.js
-      # (removed long ago, so its sed was a no-op) and a MODULES_DISABLED split
-      # in gama-standard-ui.js. That second sed actively fought the codebase —
-      # it re-injected on every push to main the dead array the source tree had
-      # deliberately dropped. The source is now the single point of truth for
-      # the menu; CI only validates it.
-      - name: Validate modular integration
-        run: |
-          grep -q 'gama-ui.js' index.html
-          grep -q 'gama-modules.js' index.html
-          grep -q 'gama-standard-ui.js?v=20260919-kpi1' index.html
-          grep -q 'gama-menu-final2.js?v=20260919-kpi1' index.html
-          # gama-role-spanish.js is the one live TMS loader: it is the only file
-          # that references gama-tms-module.js. Assert against it, not against a
-          # loader that has been deleted.
-          grep -q 'gama-tms-module.js' gama-role-spanish.js
-          grep -q 'gamaTMS' gama-tms-module.js
-          # Exactly one loader — guards against a competing loader creeping back.
-          test "$(grep -l 'gama-tms-module\.js' *.js | wc -l)" = 1
-          node --check gama-standard-ui.js
-          node --check gama-menu-final2.js
-      - name: Commit deployment references
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'chore: bump modular UI loader versions'
-          git push origin HEAD:main
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run typecheck
+      - run: npm run verify:migrations
+      - run: npm run test:unit
+      - run: npm run build
+      - name: Verify generated release is current
+        run: git diff --exit-code -- index.html architect-core.js architect-components.css architect-assets.js architect-base.css
+      - uses: actions/upload-artifact@v4
+        with:
+          name: architect-static-release
+          path: dist/
+          include-hidden-files: true
+  shared-interface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/standardization.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js --workers=2

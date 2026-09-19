@@ -1,12 +1,12 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {PGlite}=require('@electric-sql/pglite');
-test('Project SQL contracts: RLS, workflow, rollup, conflicts, change application, closure and audit',async()=>{const db=new PGlite();try{await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916093638_project_management.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916214905_project_item_deletion.sql'),'utf8'));const rows=await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/tests/project-management.sql'),'utf8'));assert.match(rows.at(-1).rows[0].result,/passed/)}finally{await db.close()}});
+test('Project SQL contracts: RLS, workflow, rollup, conflicts, change application, closure and audit',async()=>{const db=new PGlite();try{await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/legacy-migrations/20260916093638_project_management.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/legacy-migrations/20260916214905_project_item_deletion.sql'),'utf8'));const rows=await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/tests/project-management.sql'),'utf8'));assert.match(rows.at(-1).rows[0].result,/passed/)}finally{await db.close()}});
 
 test('Project item deletion: every kind, permissions, references, rollups, retained records and audit',async()=>{
  const db=new PGlite();
  try{
   await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));
-  for(const f of ['20260916093638_project_management.sql','20260916214905_project_item_deletion.sql'])await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations',f),'utf8'));
+  for(const f of ['20260916093638_project_management.sql','20260916214905_project_item_deletion.sql'])await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/legacy-migrations',f),'utf8'));
   const manager='00000000-0000-0000-0000-000000000001',member='00000000-0000-0000-0000-000000000002',outsider='00000000-0000-0000-0000-000000000003';
   await db.exec(`insert into auth.users values('${manager}','manager@example.invalid'),('${member}','member@example.invalid'),('${outsider}','outsider@example.invalid');insert into profiles(id,full_name,role,active) values('${manager}','Manager','comercial',true),('${member}','Member','comercial',true),('${outsider}','Outsider','comercial',true);`);
   const as=async uid=>db.exec(`select set_config('request.jwt.claim.sub','${uid}',false);set role authenticated;`);

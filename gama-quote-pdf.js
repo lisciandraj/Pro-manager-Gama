@@ -1,7 +1,7 @@
 /* GAMA — Generador de PDF para presupuestos (usa jsPDF, cargado por CDN) */
 (function(){
 'use strict';
-function esc(v){return String(v??'')}
+function esc(v){return window.ArcUI.esc(v)}
 /* esc() no escapa: sólo alimenta a jsPDF. Todo lo que entra en innerHTML
    pasa por escHtml, porque un nombre de cliente puede contener < o ". */
 function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -77,12 +77,7 @@ async function copyToClipboard(text){try{await navigator.clipboard.writeText(tex
    generan sus URL de redacción, que sí aceptan destinatario, asunto y cuerpo. */
 const gmailUrl=(e,s,b)=>'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e||'')+'&su='+encodeURIComponent(s||'')+'&body='+encodeURIComponent(b||'');
 const outlookUrl=(e,s,b)=>'https://outlook.live.com/mail/0/deeplink/compose?to='+encodeURIComponent(e||'')+'&subject='+encodeURIComponent(s||'')+'&body='+encodeURIComponent(b||'');
-function dialogCss(){
- if(document.getElementById('gamaMailCss'))return;
- const s=document.createElement('style');s.id='gamaMailCss';
- s.textContent=`#gamaMailBack{position:fixed;inset:0;background:rgba(18,37,60,.53);z-index:100000;display:grid;place-items:center;padding:16px}#gamaMailBox{width:min(620px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(18,37,60,.25)}#gamaMailBox h3{margin:0 0 4px;color:var(--arc-text);font-size:20px}#gamaMailBox .gmSub{margin:0 0 14px;color:var(--arc-text-muted);font-size:13px}#gamaMailBox label{display:block;font-size:11px;font-weight:800;color:var(--arc-text-muted);margin:10px 0 4px}#gamaMailBox input,#gamaMailBox textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--arc-line-strong);border-radius:9px;font-size:13px;font-family:inherit}#gamaMailBox textarea{min-height:190px;resize:vertical}#gamaMailNote{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:6px}#gamaMailBox .gmRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}#gamaMailBox button{border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer}#gamaMailBox .gmPrimary{background:var(--arc-accent-600);color:#fff}#gamaMailBox .gmLight{background:var(--arc-surface-3);color:var(--arc-text)}#gamaMailBox .gmClose{margin-left:auto}@media(max-width:600px){#gamaMailBox .gmRow{display:grid;grid-template-columns:1fr}#gamaMailBox .gmClose{margin-left:0}}`;
- document.head.appendChild(s);
-}
+function dialogCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Se redacta aquí, no en el sistema operativo: así el mensaje es el mismo
    tanto si usas Gmail en el navegador como Outlook instalado, y siempre se
    puede copiar aunque el equipo no tenga ninguna aplicación de correo. */
@@ -90,7 +85,7 @@ function composeDialog({email,subject,body,filename}){
  dialogCss();
  document.getElementById('gamaMailBack')?.remove();
  const back=document.createElement('div');back.id='gamaMailBack';
- back.innerHTML=`<div id="gamaMailBox" role="dialog" aria-modal="true" data-gi-aria-label=4a46598fb8f2 aria-label="Enviar por correo"><h3 data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
+ back.innerHTML=`<div id="gamaMailBox" role="dialog" aria-modal="true" data-gi-aria-label=4a46598fb8f2 aria-label="Enviar por correo"><h3 data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="arcButton gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="arcButton gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="arcButton gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="arcButton gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="arcButton gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
  document.body.appendChild(back);
  const val=id=>document.getElementById(id).value;
  const close=()=>back.remove();

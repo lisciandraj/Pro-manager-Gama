@@ -86,7 +86,7 @@ async function attach(client,table,rows,signal){
 function item(s,row,p){return {key:s.key+':'+row.id,source:s.key,module:s.module,table:s.table,id:row.id,title:s.title(row)||'—',subtitle:s.subtitle(row).filter(Boolean).join(' · '),archived:row.active===false,score:rank(row,s,p),orderId:row.order_id,deliveryId:row.tms_delivery_id,invoiceId:row.invoice_id,total:row.total??row.amount,balance:row.balance};}
 async function textPage(s,p,ctx,offset){
  const {client,signal}=ctx;let ids=[];
- if(s.portal){const rows=await result(client.rpc('gama_client_deliveries',{p_id:null,p_offset:offset}),signal);return {items:rows.slice(0,20).filter(r=>p.ref?sameReference(r.shipment_number,p.raw):matches(r,s,p.text)).filter(r=>p.intent!=='shipments_late'||(r.date&&r.date<today()&&!['Entregada','Cancelada'].includes(r.status))).map(r=>item(s,r,p)),more:rows.length>20,next:offset+20};}
+ if(s.portal){const rows=await result(c.rpc('gama_client_deliveries',{p_id:null,p_offset:offset}),signal);return {items:rows.slice(0,20).filter(r=>p.ref?sameReference(r.shipment_number,p.raw):matches(r,s,p.text)).filter(r=>p.intent!=='shipments_late'||(r.date&&r.date<today()&&!['Entregada','Cancelada'].includes(r.status))).map(r=>item(s,r,p)),more:rows.length>20,next:offset+20};}
  if(p.ref&&p.ref.table===s.table){
   const refs=await result(client.from('gama_document_references').select('document_id,document_reference').eq('table_name',s.table).eq('dossier_number',p.ref.number).order('document_id').range(offset,offset+PAGE-1),signal);
   ids=refs.filter(r=>{const ref=reference(r.document_reference);return ref?.ordinal===p.ref.ordinal}).map(r=>r.document_id);

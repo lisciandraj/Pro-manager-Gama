@@ -117,7 +117,7 @@ function lista(){
  const filas=visibles();
  const pagina=window.GamaPage?window.GamaPage.slice('crmContactos',filas):filas;
  const hayFichas=clientesVivos().length||prospectosVivos().length;
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<div class="crmBar">'
   +'<input id="crmKBusca" type="search" data-gi-placeholder=afa85cc7b90f placeholder="Buscar por nombre, cargo, correo o ficha…" value="'+esc(busca)+'" data-gi-aria-label=823ed074bbfd aria-label="Buscar contactos">'
   +'<select id="crmKFiltro" data-gama-nofind data-gi-aria-label=b3ea0e2f9837 aria-label="Filtrar contactos">'
@@ -126,7 +126,7 @@ function lista(){
    +'<option value="prospecto"'+(filtro==='prospecto'?' selected':'')+' data-gi=59f8c98ad191>Sólo de prospectos</option>'
    +'<option value="principal"'+(filtro==='principal'?' selected':'')+' data-gi=6a53aa508564>Sólo los principales</option>'
   +'</select>'
-  +'<button type="button" class="primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>'
+  +'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmContactos',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch,hayFichas))
@@ -140,7 +140,7 @@ function vacio(total,hayFichas){
 }
 function tabla(rows){
  const th=(col,label)=>window.GamaSort?window.GamaSort.th('crmContactos',col,label):'<th>'+esc(label)+'</th>';
- return '<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+ return '<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
   +th('nombre','Contacto')+th('ficha','Ficha')+th('cargo','Cargo')
   +th('papel','Papel')+th('correo','Contacto directo')+'<th></th></tr></thead><tbody>'
   +rows.map(fila).join('')+'</tbody></table></div>';
@@ -157,13 +157,13 @@ function fila(k){
   +'<td>'+(k.email?esc(k.email):'')+(k.email&&k.phone?'<small class="crmSub">'+esc(k.phone)+'</small>':k.phone?esc(k.phone):'')
    +(!k.email&&!k.phone?'—':'')+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" data-abrir="'+esc(k.id)+'" data-gi=a01a5fce396e>Abrir</button>'
-   +(k.active!==false?'<button type="button" data-principal="'+esc(k.id)+'" title="'
+   +'<button class="arcButton" type="button" data-abrir="'+esc(k.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +(k.active!==false?'<button class="arcButton" type="button" data-principal="'+esc(k.id)+'" title="'
      +(k.is_primary?'Dejar de ser el contacto principal':'Marcar como contacto principal')+'">'
      +(k.is_primary?'★':'☆')+'</button>':'')
    +(k.active!==false
-     ?'<button type="button" data-archivar="'+esc(k.id)+'" data-gi-title=5b51573be49d title="Archivar contacto">🗄️</button>'
-     :'<button type="button" data-restaurar="'+esc(k.id)+'" data-gi-title=828f5b5c5e83 title="Restaurar contacto">↩︎</button>')
+     ?'<button class="arcButton" type="button" data-archivar="'+esc(k.id)+'" data-gi-title=5b51573be49d title="Archivar contacto">🗄️</button>'
+     :'<button class="arcButton" type="button" data-restaurar="'+esc(k.id)+'" data-gi-title=828f5b5c5e83 title="Restaurar contacto">↩︎</button>')
   +'</td></tr>';
 }
 
@@ -174,7 +174,7 @@ function formulario(){
  const esNuevo=!k.id;
  const tipo=k.lead_id?'prospecto':'cliente';
  const q=esNuevo?null:deQuien(k);
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>'+(esNuevo?'Nuevo contacto':esc(nombre(k)))+'</h3>'
   +(q?'<div class="crmAviso">'+esc(q.etiqueta)+': <b>'+esc(q.nombre)+'</b>.</div>':'')
   +'<div class="crmForm">'
@@ -206,8 +206,8 @@ function formulario(){
    +'<small data-gi=6933452541f9>Sólo puede haber uno. Si ya hay otro, deja de serlo automáticamente.</small></div>'
   +'<div class="crmNotas"><label for="crmKNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmKNotes" rows="4">'+esc(k.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmKGuardar" data-gi=13e51a210f45>Guardar</button>'
-   +'<button type="button" id="crmKCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +'<button type="button" class="arcButton primary" id="crmKGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmKCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 function leerFormulario(){
@@ -298,8 +298,8 @@ async function archivar(id,activo){
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
  const s=CRM.section();
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
-  +(vista==='ficha'?formulario():lista());
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+  +(vista==='ficha'?formulario():lista()));
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
@@ -332,36 +332,20 @@ function conectar(){
  const g=$('crmKGuardar');if(g)g.onclick=guardar;
  const c=$('crmKCancelar');if(c)c.onclick=()=>{vista='lista';abierto=null;pintar()};
 }
-function css(){
- if($('crmContactosCss'))return;
- const s=document.createElement('style');s.id='crmContactosCss';
- /* Casi todo lo visual lo pone ya la hoja de Prospectos, que es la misma
-    lista con la misma barra. Aquí sólo va lo propio de esta pantalla. */
- s.textContent='#crm [hidden]{display:none!important}'
- +'#crm .crmPrin{color:var(--arc-warning);font-weight:800}'
- +'#crm .crmEstado.e-cliente{background:var(--arc-success-bg);color:var(--arc-success)}'
- +'#crm .crmEstado.e-prospecto{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
- +'#crm .crmPri.p-decisor{background:var(--arc-warning-bg);color:var(--arc-warning)}'
- +'#crm .crmPri.p-comprador{background:var(--arc-surface-3);color:var(--arc-text-muted)}'
- +'#crm .crmCheck{margin-top:12px;font-size:13px}'
- +'#crm .crmCheck input{width:auto;margin-right:7px;min-height:0}'
- +'#crm .crmCheck label{display:flex;align-items:center;font-weight:700;color:var(--arc-text)}'
- +'#crm .crmCheck small{display:block;color:var(--arc-text-subtle);font-size:11.5px;margin-top:3px}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>';
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   vista='lista';abierto=null;
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   fallo(e,'No se pudieron cargar los contactos');
  }finally{cargando=false}

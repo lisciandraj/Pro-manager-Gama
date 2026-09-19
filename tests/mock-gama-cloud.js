@@ -88,6 +88,7 @@
     // para que una consulta estrecha pueda pedirla sin traerse la foto.
     if (table === 'products') rows = rows.map(r => ({ ...r, has_photo: !!r.photo_data }));
     if (options.eq) Object.keys(options.eq).forEach(k => { rows = rows.filter(r => r[k] === options.eq[k]); });
+    if (options.search) {const {columns,value}=options.search;const term=String(value).toLowerCase();rows=rows.filter(r=>columns.some(k=>String(r[k]??'').toLowerCase().includes(term)));}
     if (options.in) Object.keys(options.in).forEach(k => { rows = rows.filter(r => (options.in[k] || []).includes(r[k])); });
     // gte/lte los usa el analisis de ventas para acotar el periodo. Sin ellos
     // el doble devolvia TODAS las facturas y una prueba de periodo no probaba
@@ -425,7 +426,7 @@
       // Recorded so tests can assert on query shape (e.g. that the POD archive
       // index selects only its key columns and never the base64 payloads).
       window.__DB.__calls = window.__DB.__calls || [];
-      window.__DB.__calls.push({ table, select: (options || {}).select || '*' });
+      window.__DB.__calls.push({ table, select: (options || {}).select || '*', options: JSON.parse(JSON.stringify(options || {})) });
       const o = options || {};
       const rows = rowsFor(table, options);
       // count/head como en PostgREST: el recuento se calcula ANTES del limit,
@@ -522,6 +523,19 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_legacy_quote_save'){
+          const d=args.p_data,role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
+          if(!['admin','commercial'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          const receipts=window.__DB._quoteReceipts||(window.__DB._quoteReceipts={});
+          if(receipts[d.request_key])return {data:receipts[d.request_key]};
+          if(!d.lines?.length||d.lines.some(l=>!window.__DB.products.some(p=>p.id===l.product_id)||l.quantity<=0||l.unit_price<0))return {error:{message:'INVALID_LINES'}};
+          const id=nextId('invoices'),number='COT-'+String((window.__DB.invoices||[]).length+1).padStart(9,'0'),date=new Date().toISOString();
+          const lines=d.lines.map(l=>{const net=Math.round(l.quantity*l.unit_price*100)/100;return {...l,id:nextId('invoice_lines'),invoice_id:id,line_total:net+Math.round(net*l.tax_rate)/100};});
+          const subtotal=lines.reduce((s,l)=>s+Math.round(l.quantity*l.unit_price*100)/100,0),total=lines.reduce((s,l)=>s+l.line_total,0),tax=Math.round((total-subtotal)*100)/100;
+          (window.__DB.invoices||=[]).push({id,invoice_number:number,customer_id:d.customer_id,issue_date:date,subtotal,tax,total,status:'issued',quote_state:'draft',quote_details:d.details,notes:d.notes});
+          (window.__DB.invoice_lines||=[]).push(...lines);
+          return {data:receipts[d.request_key]={id,number,date,subtotal,tax,total}};
+        }
         if(fn==='gama_home_kpis'){
           const session=JSON.parse(localStorage.getItem('gama_session_v1')||'{}'),user=session.id||'test-admin-uid';
           if(window.__kpiError)return {error:{message:'TEST_UNAVAILABLE'}};

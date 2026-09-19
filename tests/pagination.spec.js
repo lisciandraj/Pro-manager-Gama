@@ -42,7 +42,7 @@ test.describe('Paginación — 20 por página', () => {
     await page.waitForTimeout(600);
     await page.click('#mainmenu .gamaF2Card:has-text("Productos")');
 
-    const rows = page.locator('#productsTable table tr:not(:first-child)');
+    const rows = page.locator('#productsTable table tbody tr');
     await expect(rows).toHaveCount(20);
     await expect(page.locator('#productsTable .gamaPagerInfo')).toContainText('1–20 de 25');
     await expect(page.locator('#productsTable .gamaPagerBtn').first()).toBeDisabled();
@@ -77,7 +77,7 @@ test.describe('Paginación — 20 por página', () => {
     await page.click('#mainmenu .gamaF2Card:has-text("Productos")');
 
     await page.fill('#productSearch', 'Producto 01');
-    await expect(page.locator('#productsTable table tr:not(:first-child)')).toHaveCount(1);
+    await expect(page.locator('#productsTable table tbody tr')).toHaveCount(1);
     await expect(page.locator('#productsTable .gamaPager')).toHaveCount(0);
   });
 

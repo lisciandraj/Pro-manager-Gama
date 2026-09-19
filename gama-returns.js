@@ -15,9 +15,9 @@
    ella quien los hace cumplir. */
 (function(){
 'use strict';
-if(window.GamaReturns)return;
+if(window.GamaReturns&&!window.GamaReturns.__arcLazy)return;
 const ID='returns',$=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const money=v=>window.GamaCurrency.format(v);
@@ -81,7 +81,7 @@ async function rpc(action,data={}){
  if(!allowed())throw Error('ROLE_NOT_ALLOWED');
  await window.GamaCloudReady;
  const c=await GamaCloud.db();
- const r=await c.rpc('gama_returns_action',{p_action:action,p_data:data});
+ const r=await window.ArcData.rawRpc('gama_returns_action',{p_action:action,p_data:data});
  if(r.error)throw Object.assign(Error(String(r.error?.message||r.error)),{gamaMessage:err(r.error)});
  if(r.data==null)throw reject('EMPTY');
  return r.data;
@@ -93,88 +93,29 @@ async function mutate(action,data){
  return r;
 }
 
-function css(){
- if($('grStyle'))return;const s=document.createElement('style');s.id='grStyle';
- /* Los mismos radios, grises y verde azulado que el resto de GAMA. Los campos
-    van a 16 px y 42 px de alto: por debajo de eso el móvil hace zoom al
-    tocarlos, y una devolución se registra a menudo de pie en el almacén. */
- s.textContent=`#returns{display:none}#returns.active{display:block}
-.grNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.grNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.grNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-.grCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
-.grCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
-.grKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
-.grKpis .grCard{margin:0}
-.grKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
-.grKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
-.grTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
-.grTools label{flex:1;min-width:150px;font-size:13px;color:var(--arc-text);font-weight:700}
-.grTools input,.grTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.grScroll{overflow:auto}
-.grTable{width:100%;border-collapse:collapse;min-width:640px}
-.grTable th,.grTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
-.grTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
-.grTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
-.grTable td.grNum,.grTable th.grNum{text-align:right;white-space:nowrap}
-.grBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
-.grBadge[data-s=to_process]{background:var(--arc-danger-bg);color:var(--arc-danger)}
-.grBadge[data-s=received]{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.grBadge[data-s=shipped]{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.grBadge[data-s=processed]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
-.grBadge[data-s=credited]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
-.grBadge[data-s=closed]{background:var(--arc-success-bg);color:var(--arc-success)}
-.grBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-.grBadge[data-s=customer]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
-.grBadge[data-s=supplier]{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}
-.grActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
-.grActions button{min-height:44px}
-.grBig{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
-.grBig button{min-height:86px;font-size:16px;font-weight:800;border-radius:13px;padding:14px}
-.grHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
-.grError{color:var(--arc-danger);font-weight:700}
-.grGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
-.grGrid label,.grField{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
-.grField{margin-top:11px}
-.grGrid input,.grGrid select,.grGrid textarea,.grField input,.grField select,.grField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.grGrid[hidden],.grCard[hidden],.grField[hidden]{display:none}
-.grDocs{display:flex;gap:9px;flex-wrap:wrap}
-.grDocs button{min-height:40px}
-.grSteps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--arc-text-muted);font-weight:700}
-.grSteps span[aria-current=step]{color:var(--arc-accent-600)}
-.grDl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:13px}
-.grDl dt{color:var(--arc-text-muted);font-weight:700}
-.grDl dd{margin:0;color:var(--arc-text)}
-.grLine{border-top:1px solid var(--arc-line);padding:12px 0}
-.grLine:first-child{border-top:0}
-@media(max-width:700px){.grKpis{grid-template-columns:1fr 1fr}.grKpis strong{font-size:20px}
- .grTable{min-width:560px}.grTools label{min-width:130px}.grBig{grid-template-columns:1fr}}
-@media(max-width:430px){.grKpis{grid-template-columns:1fr}.grDl{grid-template-columns:1fr}
- .grDl dd{margin-bottom:6px}}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function shell(){
  css();let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- s.innerHTML=GamaUI.header({title:'↩️ Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
-  +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>';
+ window.ArcUI.render(s,GamaUI.header({title:'↩️ Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
+  +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('grNav');if(!host)return;
- host.innerHTML=TABS.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join('');
+ window.ArcUI.render(host,TABS.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="arcButton ${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{detailId=null;tab=b.dataset.grTab;filters.partner='';go()});
 }
-function busy(){$('grMain').innerHTML=`<p class="grCard">${tr('Cargando…')}</p>`}
+function busy(){window.ArcUI.render($('grMain'),`<p class="arcPanel grCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
- $('grMain').innerHTML=`<div class="grCard"><p class="grError" role="alert">${esc(err(e))}</p>
- <button class="secondary" id="grRetry">${tr('Actualizar')}</button></div>`;
+ window.ArcUI.render($('grMain'),`<div class="arcPanel grCard"><p class="grError" role="alert">${esc(err(e))}</p>
+ <button class="arcButton secondary" id="grRetry">${tr('Actualizar')}</button></div>`);
  $('grRetry').onclick=retry;
 }
-function badge(map,v){return `<span class="grBadge" data-s="${esc(v)}">${tr(map[v]||v)}</span>`}
-function kpi(label,value){return `<div class="grCard"><small>${tr(label)}</small><strong>${esc(value)}</strong></div>`}
+function badge(map,v){return `<span class="arcStatusBadge grBadge" data-s="${esc(v)}">${tr(map[v]||v)}</span>`}
+function kpi(label,value){return `<div class="arcPanel grCard"><small>${tr(label)}</small><strong>${esc(value)}</strong></div>`}
 const val=(el,id)=>el.querySelector('#'+id)?.value||'';
 const numval=(el,id)=>Number(String(val(el,id)).replace(',','.'));
 function options(map,selected){
@@ -202,7 +143,7 @@ async function go(){
 }
 function list(d){
  const partners=tab==='customer'?d.customers:d.suppliers;
- $('grMain').innerHTML=`
+ window.ArcUI.render($('grMain'),`
  <div class="grKpis">
   ${kpi('Devoluciones abiertas',num(d.kpis.open))}
   ${kpi('Por tratar',num(d.kpis.to_process))}
@@ -217,10 +158,10 @@ function list(d){
   <label data-gi-live data-gi=3c83e3558107>Hasta<input id="grTo" type="date" value="${esc(filters.to)}"></label>
   <label data-gi-live data-gi=5f55edf90089>Buscar<input id="grSearch" type="search" value="${esc(filters.search)}" placeholder="RET-000014"></label>
  </div>
- ${rights().create?`<div class="grActions"><button class="primary" id="grNew">${tr('+ Nueva devolución')}</button></div>`:''}
- <div class="grCard"><h3 data-gi-live data-gi=6c97bc52f46d>Análisis</h3><div id="grStats"><button class="secondary" id="grStatsLoad">${tr('Ver las cifras del periodo')}</button></div></div>
- <div class="grCard grScroll">
-  <table class="grTable"><thead><tr>
+ ${rights().create?`<div class="grActions"><button class="arcButton primary" id="grNew">${tr('+ Nueva devolución')}</button></div>`:''}
+ <div class="arcPanel grCard"><h3 data-gi-live data-gi=6c97bc52f46d>Análisis</h3><div id="grStats"><button class="arcButton secondary" id="grStatsLoad">${tr('Ver las cifras del periodo')}</button></div></div>
+ <div class="arcPanel grCard grScroll">
+  <table class="arcTable grTable"><thead><tr>
    <th data-gi-live data-gi=10ddff5fcc6f>Referencia</th><th data-gi-live data-gi=3868d2843d59>Tipo</th>
    <th data-gi-live>${tab==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}</th>
    <th data-gi-live data-gi=93b2a9ef782c>Fecha</th><th class="grNum" data-gi-live data-gi=572a3acfd983>Importe</th>
@@ -232,9 +173,9 @@ function list(d){
    <td>${esc(r.created_on)}</td>
    <td class="grNum">${esc(money(r.amount))}</td>
    <td>${badge(STATUS,r.status)}</td>
-   <td><button class="secondary" data-gr-open="${esc(r.id)}">${tr('Abrir')}</button></td>
+   <td><button class="arcButton secondary" data-gr-open="${esc(r.id)}">${tr('Abrir')}</button></td>
   </tr>`).join(''):`<tr><td colspan="7">${tr('Todavía no hay ninguna devolución con estos filtros.')}</td></tr>`}</tbody></table>
- </div>`;
+ </div>`);
  const reload=()=>{filters.partner=val(document,'grPartner');filters.status=val(document,'grStatus');
   filters.from=val(document,'grFrom');filters.to=val(document,'grTo');
   filters.all_dates=!filters.from&&!filters.to;go()};
@@ -250,13 +191,13 @@ function list(d){
    por qué vuelven, qué vuelve más y de qué proveedores. */
 async function stats(){
  const host=$('grStats');if(!host)return;
- host.innerHTML=`<p>${tr('Cargando…')}</p>`;
+ window.ArcUI.render(host,`<p>${tr('Cargando…')}</p>`);
  try{
   const d=await rpc('stats',{from:filters.from||null,to:filters.to||null});
   const listOf=(rows,label,value)=>rows.length
    ?`<ul>${rows.map(r=>`<li>${esc(label(r))} · ${esc(value(r))}</li>`).join('')}</ul>`
    :`<p class="grHint">${tr('Sin datos todavía.')}</p>`;
-  host.innerHTML=`
+  window.ArcUI.render(host,`
    <div class="grKpis">
     ${kpi('Devoluciones este mes',num(d.month_count))}
     ${kpi('Valor devuelto este mes',money(d.month_value))}
@@ -267,8 +208,8 @@ async function stats(){
    <p><b>${tr('Productos más devueltos')}</b></p>
    ${listOf(d.products,r=>r.product,r=>num(r.quantity,3))}
    <p><b>${tr('Proveedores con devoluciones')}</b></p>
-   ${listOf(d.suppliers,r=>r.supplier,r=>num(r.n))}`;
- }catch(e){host.innerHTML=`<p class="grError" role="alert">${esc(err(e))}</p>`}
+   ${listOf(d.suppliers,r=>r.supplier,r=>num(r.n))}`);
+ }catch(e){window.ArcUI.render(host,`<p class="grError" role="alert">${esc(err(e))}</p>`)}
 }
 
 /* ------------------------------------------------- crear en tres pantallas */
@@ -277,8 +218,8 @@ function wizardKind(){
  const el=window.GamaSales.modal(T('Nueva devolución'),
   `<p class="grSteps"><span aria-current="step">${tr('1 · Tipo')}</span><span>${tr('2 · Documento')}</span><span>${tr('3 · Productos')}</span></p>
    <div class="grBig">
-    <button type="button" class="secondary" data-gr-kind="customer">${tr('↩️ Devolución de un cliente')}</button>
-    <button type="button" class="secondary" data-gr-kind="supplier">${tr('📦 Devolución a un proveedor')}</button>
+    <button type="button" class="arcButton secondary" data-gr-kind="customer">${tr('↩️ Devolución de un cliente')}</button>
+    <button type="button" class="arcButton secondary" data-gr-kind="supplier">${tr('📦 Devolución a un proveedor')}</button>
    </div>`,T('Volver'),async()=>{});
  /* No hay nada que guardar en este paso: la elección es el botón. */
  el.querySelector('#gsSave').remove();
@@ -297,11 +238,11 @@ async function wizardSource(kind){
   el.querySelector('#gsSave').remove();
   const draw=q=>{
    const rows=d.rows.filter(r=>!q||`${r.number} ${r.partner}`.toLowerCase().includes(q.toLowerCase()));
-   el.querySelector('#grSrcList').innerHTML=rows.length?`<table class="grTable"><tbody>${rows.slice(0,60).map(r=>`<tr>
+   window.ArcUI.render(el.querySelector('#grSrcList'),rows.length?`<table class="arcTable grTable"><tbody>${rows.slice(0,60).map(r=>`<tr>
      <td><b>${esc(r.number)}</b><br>${esc(r.partner)}</td>
      <td>${esc(String(r.dispatched_at||r.order_date||'').slice(0,10))}</td>
-     <td><button class="secondary" data-gr-src="${esc(r.id)}">${tr('Elegir')}</button></td></tr>`).join('')}</tbody></table>`
-    :`<p class="grHint">${tr('No hay ningún documento con mercancía que se pueda devolver.')}</p>`;
+     <td><button class="arcButton secondary" data-gr-src="${esc(r.id)}">${tr('Elegir')}</button></td></tr>`).join('')}</tbody></table>`
+    :`<p class="grHint">${tr('No hay ningún documento con mercancía que se pueda devolver.')}</p>`);
    el.querySelectorAll('[data-gr-src]').forEach(b=>b.onclick=()=>{el.remove();wizardLines(kind,b.dataset.grSrc)});
   };
   draw('');
@@ -322,7 +263,7 @@ async function wizardLines(kind,sourceId){
      <dt data-gi-live data-gi=cf4279e00d07>Documento</dt><dd>${esc(d.number)}</dd>
      ${d.order_number?`<dt data-gi-live data-gi=9e9ea5774a2d>Pedido</dt><dd>${esc(d.order_number)}</dd>`:''}
     </dl>
-    <div class="grScroll"><table class="grTable"><thead><tr>
+    <div class="grScroll"><table class="arcTable grTable"><thead><tr>
      <th data-gi-live data-gi=77b9238931ed>Producto</th><th class="grNum" data-gi-live>${kind==='customer'?esc(T('Entregado')):esc(T('Recibido'))}</th>
      <th class="grNum" data-gi-live data-gi=5bf06abda5a9>Ya devuelto</th><th class="grNum" data-gi-live data-gi=beeb6864c175>A devolver</th></tr></thead>
      <tbody>${rows.map(r=>`<tr>
@@ -371,9 +312,9 @@ async function detail(id){
   const pending=d.lines.filter(l=>!l.processed_at).length;
   const open=!['closed','cancelled'].includes(d.status);
   const outstanding=Math.max(0,Number(d.amount)-Number(d.refunded||0));
-  $('grMain').innerHTML=`
-  <div class="grActions"><button class="secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
-  <div class="grCard">
+  window.ArcUI.render($('grMain'),`
+  <div class="grActions"><button class="arcButton secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
+  <div class="arcPanel grCard">
    <h3>${esc(d.number)} · ${badge(STATUS,d.status)}</h3>
    <dl class="grDl">
     <dt data-gi-live>${customer?esc(T('Cliente')):esc(T('Proveedor'))}</dt><dd>${esc(d.partner||'—')}</dd>
@@ -387,22 +328,22 @@ async function detail(id){
    ${documents(d)}
   </div>
 
-  <div class="grCard">
+  <div class="arcPanel grCard">
    <h3 data-gi-live>${customer?esc(T('1 · Qué vuelve y qué se hace con ello')):esc(T('1 · Qué se devuelve'))}</h3>
    ${d.lines.map(l=>`<div class="grLine">
      <b>${esc(l.product)}</b> · ${esc(num(l.quantity,3))} × ${esc(money(l.unit_price))} = ${esc(money(l.amount))}
      <p class="grHint">${l.processed_at?tr(DISPOSITION[l.disposition]||l.disposition):tr('Pendiente de decidir')}${l.notes?' · '+esc(l.notes):''}</p>
      ${customer&&open&&r.process&&d.status==='received'&&!l.processed_at
-       ?`<div class="grActions"><button class="primary" data-gr-process="${esc(l.id)}">${tr('Decidir qué se hace')}</button></div>`:''}
+       ?`<div class="grActions"><button class="arcButton primary" data-gr-process="${esc(l.id)}">${tr('Decidir qué se hace')}</button></div>`:''}
     </div>`).join('')}
    <div class="grActions">
-    ${customer&&open&&r.process&&d.status==='to_process'?`<button class="primary" id="grReceive">${tr('📥 Registrar la recepción')}</button>`:''}
-    ${!customer&&open&&r.process&&d.status==='to_process'?`<button class="primary" id="grShip">${tr('🚚 Registrar la expedición')}</button>`:''}
+    ${customer&&open&&r.process&&d.status==='to_process'?`<button class="arcButton primary" id="grReceive">${tr('📥 Registrar la recepción')}</button>`:''}
+    ${!customer&&open&&r.process&&d.status==='to_process'?`<button class="arcButton primary" id="grShip">${tr('🚚 Registrar la expedición')}</button>`:''}
    </div>
    ${customer&&d.status==='received'&&pending?`<p class="grHint">${tr('La mercancía está retenida: no cuenta como disponible hasta que decidas.')}</p>`:''}
   </div>
 
-  <div class="grCard">
+  <div class="arcPanel grCard">
    <h3 data-gi-live data-gi=57897bf4c575>2 · Qué se hace con el dinero</h3>
    <dl class="grDl">
     <dt data-gi-live data-gi=0caa6150f308>Decisión</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>
@@ -411,27 +352,27 @@ async function detail(id){
    ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(c.number)}</b> · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
    ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}
    <div class="grActions">
-    ${open&&r.refund&&customer?`<button class="secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}
-    ${open&&r.refund&&customer&&d.invoice_id?`<button class="secondary" id="grCredit">${tr('🧾 Emitir un abono')}</button>`:''}
-    ${open&&r.refund&&customer&&outstanding>0?`<button class="secondary" id="grRefund">${tr('💸 Reembolsar')}</button>`:''}
-    ${open&&r.refund&&!customer?`<button class="secondary" id="grSupplierCredit">${tr('🧾 Registrar el abono del proveedor')}</button>`:''}
+    ${open&&r.refund&&customer?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}
+    ${open&&r.refund&&customer&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('🧾 Emitir un abono')}</button>`:''}
+    ${open&&r.refund&&customer&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('💸 Reembolsar')}</button>`:''}
+    ${open&&r.refund&&!customer?`<button class="arcButton secondary" id="grSupplierCredit">${tr('🧾 Registrar el abono del proveedor')}</button>`:''}
    </div>
    ${customer&&!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}
   </div>
 
-  <div class="grCard">
+  <div class="arcPanel grCard">
    <h3 data-gi-live data-gi=0c2c1cf33c6e>Fotos y documentos</h3>
-   ${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`
+   ${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="arcButton secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`
      :`<p class="grHint">${tr('Todavía no hay ningún archivo.')}</p>`}
    ${open?`<label class="grField" data-gi-live data-gi=590f37027486>Añadir una foto o un documento<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}
   </div>
 
   <div class="grActions">
    ${open&&(r.process||r.refund)&&(customer?d.status==='processed':['shipped','credited'].includes(d.status))
-     ?`<button class="primary" id="grClose">${tr('✅ Cerrar la devolución')}</button>`:''}
-   ${open&&r.create&&d.status==='to_process'?`<button class="secondary" id="grCancel">${tr('Anular')}</button>`:''}
-   ${open&&r.delete&&d.status==='to_process'?`<button class="secondary" id="grDelete">${tr('Borrar')}</button>`:''}
-  </div>`;
+     ?`<button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button>`:''}
+   ${open&&r.create&&d.status==='to_process'?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
+   ${open&&r.delete&&d.status==='to_process'?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
+  </div>`);
   bindDetail(d);
  }catch(e){if(token===generation)fail(e,()=>detail(id))}
 }
@@ -451,7 +392,7 @@ function documents(d){
  const items=docLinks(d);
  if(!items.length)return '';
  return `<p class="grHint" data-gi-live data-gi=223e7a13aaf9>Documentos ligados</p><div class="grDocs">${items.map((x,i)=>
-  `<button class="secondary" data-gr-doc="${i}">${esc(x.label)} · ${esc(x.number)}</button>`).join('')}</div>`;
+  `<button class="arcButton secondary" data-gr-doc="${i}">${esc(x.label)} · ${esc(x.number)}</button>`).join('')}</div>`;
 }
 
 function bindDetail(d){
@@ -509,9 +450,9 @@ function receiveForm(id){
 function processLine(id,lineId){
  const el=window.GamaSales.modal(T('¿Qué se hace con el producto?'),
   `<div class="grBig">
-    <button type="button" class="secondary" data-gr-disp="restocked">${tr('📦 Reponer en stock')}</button>
-    <button type="button" class="secondary" data-gr-disp="scrapped">${tr('🗑️ Al rebut')}</button>
-    <button type="button" class="secondary" data-gr-disp="to_supplier">${tr('↪️ Devolver al proveedor')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="restocked">${tr('📦 Reponer en stock')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="scrapped">${tr('🗑️ Al rebut')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="to_supplier">${tr('↪️ Devolver al proveedor')}</button>
    </div>
    <label class="grField" id="grLocBox" data-gi-live data-gi=bd3b914791dc>Almacén de destino<select id="grLoc">${locationOptions()}</select></label>
    <label class="grField" data-gi-live data-gi=53c367898434>Comentario<textarea id="grLineNotes" rows="2" maxlength="600"></textarea></label>`,

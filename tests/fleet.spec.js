@@ -299,7 +299,10 @@ test('the phone form never shrinks a field below the zoom threshold',async({page
  // Por debajo de 16 px iOS hace zoom al entrar en el campo y el formulario
  // deja de poder rellenarse de pie junto al surtidor.
  const sizes=await page.evaluate(()=>[...document.querySelectorAll('dialog[open] input,dialog[open] select')]
-  .map(el=>({font:parseFloat(getComputedStyle(el).fontSize),h:el.getBoundingClientRect().height})));
+  // Searchable selects keep a hidden native value owner; measure the visible
+  // combobox replacement, which is the control a phone user actually touches.
+  .filter(el=>el.getClientRects().length && getComputedStyle(el).visibility!=='hidden' && getComputedStyle(el).opacity!=='0')
+  .map(el=>({font:parseFloat(getComputedStyle(el).fontSize),h:(el.type==='checkbox'?el.closest('label'):el).getBoundingClientRect().height})));
  expect(sizes.length).toBeGreaterThan(4);
  for(const s of sizes){expect(s.font).toBeGreaterThanOrEqual(16);expect(s.h).toBeGreaterThanOrEqual(40)}
 });

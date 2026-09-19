@@ -14,181 +14,37 @@
 <link rel="apple-touch-icon" href="architect-logo.png">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=20260919-company1"></script>
-<script src="gama-i18n.js?v=20260919-reference1"></script>
-<script src="gama-currency.js?v=20260917-accounting1"></script>
-<script src="gama-toast.js?v=20260919-reference1"></script>
+<script src="gama-i18n-catalog.js?v=1c7b2cf7c39d"></script>
+<script src="gama-i18n.js?v=9adc7e08b652"></script>
+<script src="architect-assets.js?v=3a55c02e8a04"></script>
+<script src="architect-core.js?v=523c40fbc23a"></script>
+<script src="gama-currency.js?v=b9fe2c05eef7"></script>
+<script src="gama-toast.js?v=23a8e1087e3f"></script>
 <title>Architect ERP</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:var(--arc-surface-2);color:var(--arc-text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding-bottom:86px}
-header{background:var(--arc-text);color:#fff;padding:16px;position:sticky;top:0;z-index:20}header h1{margin:0;font-size:21px}header small{opacity:.75}
-.wrap{max-width:1150px;margin:auto;padding:12px}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.card{background:#fff;border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(18,37,60,.07)}.kpi{font-size:25px;font-weight:800}.muted{font-size:12px;color:var(--arc-text-muted)}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;z-index:30;display:grid;grid-template-columns:repeat(9,1fr);gap:3px;padding:7px;box-shadow:0 -4px 18px rgba(18,37,60,.13)}.tab{border:0;background:var(--arc-line);border-radius:9px;padding:8px 2px;font-size:9px}.tab.active{background:var(--arc-text);color:#fff}
-section{display:none}section.active{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-weight:650;margin:7px 0 4px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--arc-line);border-radius:9px;font-size:16px;background:#fff}textarea{min-height:80px}
-button{border:0;border-radius:9px;padding:12px 14px;font-weight:700;cursor:pointer}.primary{background:var(--arc-text);color:#fff}.secondary{background:var(--arc-line)}.danger{background:var(--arc-danger);color:#fff}.success{background:var(--arc-success);color:#fff}.warning{background:var(--arc-warning);color:#fff}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.scanner{display:grid;grid-template-columns:1fr auto;gap:7px}
-table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}th,td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px;vertical-align:middle}
-.low{color:var(--arc-danger);font-weight:800}.ok{color:var(--arc-success);font-weight:800}.in{color:var(--arc-success);font-weight:800}.out{color:var(--arc-danger);font-weight:800}
-.product-img{width:58px;height:58px;object-fit:cover;border-radius:10px;background:var(--arc-surface-3)}.empty-img{font-size:30px}
-.photo-preview{display:none;width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:8px}
-#camera{display:none;width:100%;max-height:55vh;margin-top:10px;border-radius:12px;background:var(--arc-text)}
-.notice{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);padding:11px;border-radius:8px;font-size:13px}.audit{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
-.invoice-preview{background:#fff;border-radius:10px;padding:18px;margin-top:15px}.totals{max-width:320px;margin-left:auto}.totals div{display:flex;justify-content:space-between;padding:5px}.grand{border-top:2px solid var(--arc-text);font-size:18px;font-weight:800;padding-top:8px}
-.barcodebox{text-align:center;border:1px dashed var(--arc-text-subtle);border-radius:10px;padding:15px;margin-top:12px}.barcodebox svg{width:100%;height:140px}
-.badge{display:inline-block;padding:4px 7px;border-radius:999px;background:var(--arc-line);font-size:11px;font-weight:700}
-@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(9,1fr)}}
-@media(min-width:850px){.tabs{position:static;display:flex;margin:14px 0;background:transparent;box-shadow:none}.tab{font-size:13px;padding:10px 15px}}
-@media print{header,.tabs,.no-print{display:none!important}body{background:#fff;padding:0}.card{box-shadow:none}.invoice-preview{box-shadow:none}body:has(#barcode.active) *{visibility:hidden!important}body:has(#barcode.active) .barcodebox,body:has(#barcode.active) .barcodebox *{visibility:visible!important}body:has(#barcode.active) .barcodebox{position:absolute!important;left:0;top:0;width:100%;border:0!important;padding:0!important;margin:0!important}}
-.stockBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.stockBar input#stockSearch{flex:1 1 260px;width:auto}.stockBar select{width:auto;min-width:190px}.stockBar button{width:auto}.stockLow{display:flex;align-items:center;gap:6px;font-weight:650;margin:0;white-space:nowrap}.stockLow input{width:auto;margin:0}.stockSummary{display:flex;gap:16px;flex-wrap:wrap;padding:11px 13px;margin-bottom:10px;background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:10px;font-size:13px;color:var(--arc-text-muted)}.stockSummary .low{color:var(--arc-warning)}@media(max-width:700px){.stockBar input#stockSearch,.stockBar select,.stockBar button{flex:1 1 100%;width:100%}.stockSummary{gap:8px;flex-direction:column}}.quoteTag{background:var(--arc-accent-100);color:var(--arc-accent-600);border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800}.quoteOffer{background:var(--arc-warning-bg);color:var(--arc-warning)}.quoteWas{color:var(--arc-text-subtle);text-decoration:line-through;font-size:11px}.quotePriceCell{white-space:nowrap}.quotePriceCell input{width:88px;padding:5px 6px;text-align:right;display:inline-block;margin:0}.quotePriceCell .quoteUndo{width:auto;padding:4px 7px;margin-left:4px;display:inline-block}.quotePriceCell div{margin-top:3px}.quoteTariff{display:block;margin-top:5px;color:var(--arc-accent-600);font-weight:700;font-size:12px}</style>
+<link rel="stylesheet" href="architect-base.css?v=2d6807bbf075">
 
-<style>
-:root{--gama-teal:var(--arc-accent-600);--gama-dark:var(--arc-accent-700);--gama-orange:var(--arc-accent-600);--gama-orange2:var(--arc-accent-700);--gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text)}
-body{background:var(--gama-bg);color:var(--gama-text)}header.gamaHeader{background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 16px;box-shadow:0 2px 12px rgba(18,37,60,.07)}.brandMobile{display:flex;align-items:center;gap:10px}.brandMobile img{width:55px;height:55px;object-fit:cover;border-radius:10px}.brandMobile h1{margin:0;font-size:20px;color:var(--gama-teal)}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:var(--arc-text-muted)}.onlineDot{position:absolute;right:16px;top:22px;color:var(--arc-success);font-size:12px;font-weight:700}.card{border:1px solid var(--gama-line);box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09)}.tabs{background:#fff;border-top:1px solid var(--gama-line)}.tab{background:var(--arc-surface-3);color:var(--gama-text)}.tab.active{background:var(--gama-teal);color:#fff}.primary{background:var(--gama-teal)}.danger{background:var(--arc-danger)}.success{background:var(--arc-success)}.warning{background:var(--arc-warning)}.secondary{background:var(--arc-surface-3);color:var(--gama-text)}input,select,textarea{border-color:var(--arc-line)}.notice{border-left-color:var(--gama-orange);background:var(--arc-warning-bg)}
-.dashHead{display:flex;justify-content:space-between;align-items:end;margin:10px 0 16px}.dashHead h2{margin:0;font-size:24px}.dashHead p{margin:3px 0;color:var(--arc-text-muted)}.dashFilters{display:flex;gap:7px}.dashFilters select{width:auto;min-width:125px;padding:9px}.dashCards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.dashCard{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09)}.dashCard span{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}.dashCard strong{display:block;font-size:25px;margin-top:8px;color:var(--gama-text)}.dashCard em{font-size:11px;color:var(--arc-success);font-style:normal;font-weight:700}.dashGrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}.dashPanel{background:#fff;border:1px solid var(--gama-line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(18,37,60,.07),0 5px 16px rgba(18,37,60,.09);min-height:190px}.chartPanel{grid-row:span 2}.panelTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panelTitle b{display:block;font-size:14px}.panelTitle small{display:block;color:var(--arc-text-subtle);font-size:11px;margin-top:3px}.panelTitle>strong{font-size:15px;color:var(--gama-teal)}.chartBox{height:360px}.chartBox svg{width:100%;height:100%;overflow:visible}.chartGridLine{stroke:var(--arc-surface-3);stroke-width:1}.chartLabel{font-size:10px;fill:var(--arc-text-subtle)}.chartDot{fill:#fff;stroke:var(--gama-orange);stroke-width:3}.chartDot.selected{fill:var(--gama-orange);stroke:#fff;stroke-width:4}.summaryList div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--arc-surface-3);font-size:13px}.summaryList div:last-child{border:0}.summaryList span{color:var(--arc-text-muted)}.summaryList b{color:var(--gama-text)}.dashTopRow{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}.rank{width:22px;height:22px;border-radius:50%;background:var(--arc-surface-3);color:var(--gama-teal);display:grid;place-items:center;font-weight:800}.dashMove{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--arc-surface-3);font-size:11px}.moveIcon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800}.moveIn{background:var(--arc-success-bg);color:var(--arc-success)}.moveOut{background:var(--arc-danger-bg);color:var(--arc-danger)}.dashMove small{display:block;color:var(--arc-text-subtle)}.dashMove b{margin-left:auto}.gamaFooter{color:var(--arc-text-subtle)}
-@media(max-width:700px){body{padding-bottom:78px}.gamaHeader{padding:9px 12px!important}.brandMobile img{width:46px;height:46px}.brandMobile h1{font-size:16px}.brandMobile small{font-size:10px}.onlineDot{display:none}.wrap{padding:10px}.tabs{overflow-x:auto;display:flex;gap:5px;padding:7px}.tab{min-width:74px;font-size:10px;padding:9px 6px;flex:none}.dashHead{align-items:stretch;flex-direction:column;gap:10px}.dashFilters{display:grid;grid-template-columns:1fr 1fr}.dashFilters select{width:100%;min-width:0}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{padding:12px}.dashCard strong{font-size:20px}.dashGrid{grid-template-columns:1fr}.chartPanel{grid-row:auto}.chartBox{height:230px}.dashPanel{min-height:auto}.actions{grid-template-columns:1fr 1fr}.scanner{grid-template-columns:1fr auto}.row{grid-template-columns:1fr}table{font-size:11px}}
 
-/* ---- Aire entre los campos ----
-   Los formularios se habían escrito con los márgenes por defecto y todo
-   quedaba pegado: el buscador tocaba las pestañas Activos / Archivados, la
-   etiqueta de un campo tocaba el campo anterior. En el móvil, que es donde
-   más se usa, eso se lee mal y se toca peor. Estas reglas dan el mismo
-   respiro a todas las pantallas en vez de parchear una por una. */
-.card{padding:18px 18px 20px}
-.card>h2:first-child,.card>h3:first-child{margin-top:0}
-.card h2{margin:0 0 14px;font-size:20px;line-height:1.25}
-.card h3{margin:24px 0 10px;font-size:16px}
-label{margin:14px 0 6px}
-.row{gap:14px 14px}
-.row>div{min-width:0}
-.row label:first-child,.row>div>label:first-child{margin-top:0}
-.actions{margin-top:18px;gap:10px}
-textarea{min-height:88px}
-/* Un buscador va suelto, sin etiqueta que lo separe de lo de arriba ni de la
-   tabla de abajo: se le da su propio margen. */
-.card>input:not([type]),.card>input[type=text],.card>input[type=search],.card>input[type=file]{margin:0 0 16px}
-.gamaArcTabs{margin-top:4px}
-.stockBar{margin:0 0 14px}
-@media(max-width:700px){.card{padding:15px 15px 17px}.card h2{font-size:18px}}
-</style>
 
-<style>
-:root{--gama-teal:var(--arc-accent-600);--gama-orange:var(--arc-accent-600);--gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text)}
-body{background:var(--gama-bg);color:var(--gama-text);padding-bottom:78px}.gamaHeader{position:sticky!important;top:0;z-index:40;background:#fff!important;color:var(--gama-text)!important;border-bottom:1px solid var(--gama-line);height:76px;padding:9px 14px!important;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(18,37,60,.05)}.headIcon{width:38px;height:38px;padding:0;border:0;background:transparent;color:var(--arc-text-muted);font-size:25px;display:grid;place-items:center}.headIcon.plus{background:var(--gama-orange);color:#fff;border-radius:50%;font-size:24px}.brandMobile{flex:1;display:flex;align-items:center;gap:9px;min-width:0}.brandMobile img{width:52px;height:52px;object-fit:contain;border-radius:0}.brandMobile h1{font-size:19px;color:var(--gama-text)!important}.brandMobile h1 span{color:var(--gama-orange)}.brandMobile small{color:var(--arc-text-subtle);font-size:10px}.headActions{display:flex;gap:2px}.wrap{max-width:1250px;margin:auto;padding:14px}.tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff!important;border-top:1px solid var(--gama-line);display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:7px 5px;box-shadow:0 -4px 18px rgba(18,37,60,.07)}.tab{background:#fff!important;color:var(--arc-text-muted)!important;border-radius:11px;padding:7px 2px;font-size:18px;display:flex;flex-direction:column;align-items:center;gap:3px}.tab span{font-size:9px;font-weight:700}.tab.active{background:var(--arc-warning-bg)!important;color:var(--gama-orange)!important}.dashHead{margin:4px 2px 15px}.dashHead h2{font-size:25px;letter-spacing:-.4px}.dashHead p{font-size:13px}.dashFilters select{border-radius:9px}.dashCards{grid-template-columns:repeat(5,1fr);gap:10px}.dashCard{padding:14px;border-radius:13px}.dashCard strong{font-size:21px}.dashGrid{grid-template-columns:1.7fr 1fr 1fr}.chartPanel{grid-column:span 2;grid-row:span 2}.dashPanel{border-radius:13px;padding:15px}.donutLayout{display:flex;align-items:center;gap:14px}.donut{width:112px;height:112px;min-width:112px;border-radius:50%;background:conic-gradient(var(--gama-orange) 0 46%,var(--gama-teal) 46% 78%,var(--arc-accent-400) 78% 100%);position:relative}.donut:after{content:"";position:absolute;inset:28px;background:#fff;border-radius:50%}.legend{font-size:11px;flex:1}.legend div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--arc-surface-3)}.legend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.legend b{white-space:nowrap}.dashMove b{color:var(--gama-orange)}
-@media(max-width:700px){.wrap{padding:12px}.dashHead{gap:8px}.dashCards{grid-template-columns:1fr 1fr;gap:8px}.dashCard{min-height:102px}.dashGrid{grid-template-columns:1fr;gap:10px}.chartPanel{grid-column:auto;grid-row:auto}.chartBox{height:225px}.donutLayout{gap:12px}.donut{width:100px;height:100px;min-width:100px}.donut:after{inset:25px}.dashPanel{min-height:0}.headActions .headIcon:last-child{display:none}.brandMobile h1{font-size:16px}.brandMobile img{width:45px;height:45px}.tabs{grid-template-columns:repeat(7,1fr)}}
-@media(min-width:900px){body{padding-bottom:0}.tabs{position:sticky;top:76px;bottom:auto;display:flex;justify-content:flex-start;gap:6px;border:0;box-shadow:none;padding:8px 14px;background:#fff!important;overflow:auto}.tab{flex-direction:row;min-width:auto;padding:9px 12px;font-size:13px}.tab span{font-size:12px}.dashCards{grid-template-columns:repeat(5,1fr)}}
-</style>
 
-<style>
-:root{
- --gama-teal:var(--arc-accent-600);--gama-teal-dark:var(--arc-accent-700);--gama-orange:var(--arc-accent-600);--gama-orange-light:var(--arc-accent-100);
- --gama-bg:var(--arc-surface-3);--gama-line:var(--arc-line-strong);--gama-text:var(--arc-text);--gama-muted:var(--arc-text-muted);
-}
-body{padding-bottom:0;background:var(--gama-bg)}
-header.gamaHeader{position:sticky;top:0;background:#fff;color:var(--gama-text);border-bottom:1px solid var(--gama-line);padding:10px 14px;box-shadow:0 2px 12px rgba(18,37,60,.06);display:flex;align-items:center;justify-content:space-between;z-index:50}
-.headerLeft{display:flex;align-items:center;gap:9px;min-width:0}
-.brandMobile{display:flex;align-items:center;gap:10px;min-width:0}
-.brandMobile img{width:54px;height:54px;object-fit:cover;border-radius:8px}
-.brandMobile h1{margin:0;font-size:19px;color:var(--gama-text);white-space:nowrap}
-.brandMobile h1 span{color:var(--gama-teal)}
 
-.brandMobile small{display:block;color:var(--gama-muted);font-size:11px;margin-top:2px}
-.headActions{display:flex;align-items:center;gap:7px}
-.headIcon{width:38px;height:38px;padding:0;border:1px solid var(--gama-line);background:#fff;color:var(--gama-text);display:grid;place-items:center;border-radius:10px;font-size:22px}
-.headIcon.plus{background:var(--gama-orange);border-color:var(--gama-orange);color:#fff}
-.backHome{display:none;font-size:30px;background:var(--arc-surface-2);color:var(--gama-teal);border-color:var(--arc-line)}
-.wrap{max-width:1180px;margin:auto;padding:18px}
-section{display:none}section.active{display:block}
-.mainmenu{padding-top:4px}
-.onlineBadge{display:flex;align-items:center;gap:6px;color:var(--arc-success);font-size:12px;font-weight:700}
-.onlineBadge i{width:8px;height:8px;border-radius:50%;background:var(--arc-success);display:inline-block}
-.tabs{display:none!important}
-.gamaFooter{margin-top:20px}
 
-@media(max-width:700px){
- body{padding-bottom:0}
- header.gamaHeader{padding:8px 10px}
- .brandMobile img{width:43px;height:43px}
- .brandMobile h1{font-size:15px}
- .brandMobile small{font-size:9px}
 
- .headActions .headIcon:first-child{display:none}
- .headIcon{width:35px;height:35px}
- .backHome{width:34px;height:34px}
- .wrap{padding:11px}
- 
-}
 
-</style>
 
-<style>
-/* GAMA — Capa de acabado.
-   Las cuatro hojas de arriba son el histórico: cada una se escribió encima
-   de la anterior. Ésta no repinta nada de aquéllas —el gris del lienzo y el
-   borde de las tarjetas del menú están medidos por pruebas de contraste y se
-   quedan exactamente como están—: sólo pone lo que a una aplicación de
-   gestión se le supone y aquí no había. Un botón que no responde al ratón ni
-   al teclado, o un formulario de doce campos donde no se ve cuál tiene el
-   cursor, es lo que separa una herramienta interna de un producto. */
-
-/* Foco visible. El único aviso de dónde estaba el teclado era el anillo por
-   defecto del navegador, que varias hojas de módulo tapaban. Con
-   :focus-visible el ratón no lo dispara al pulsar, así que no estorba a
-   quien no lo necesita. */
-:focus-visible{outline:3px solid var(--gama-teal,var(--arc-accent-600));outline-offset:2px}
-
-/* Botones: respuesta al pasar por encima, al pulsar, y un deshabilitado que
-   se distingue de uno activo —hasta ahora eran idénticos—. */
-button{transition:background-color .12s ease,box-shadow .12s ease,transform .08s ease,opacity .12s ease}
-button:active{transform:translateY(1px)}
-button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
-.primary{box-shadow:0 2px 8px rgba(12,103,179,.25)}
-.primary:hover:not(:disabled){background:var(--arc-accent-700)}
-.secondary:hover:not(:disabled){background:var(--arc-surface-3)}
-.danger:hover:not(:disabled){background:var(--arc-danger)}
-.success:hover:not(:disabled){background:var(--arc-success)}
-.warning:hover:not(:disabled){background:var(--arc-warning)}
-.headIcon{transition:background-color .12s ease,border-color .12s ease,color .12s ease}
-.headIcon:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-100);color:var(--gama-teal,var(--arc-accent-600))}
-
-/* Campos. En un formulario largo, sin marca de foco hay que buscar el cursor
-   a ojo; y un campo de sólo lectura parecía uno vacío que no aceptaba nada. */
-input,select,textarea{transition:border-color .12s ease,box-shadow .12s ease}
-input:hover:not(:disabled),select:hover:not(:disabled),textarea:hover:not(:disabled){border-color:var(--arc-line-strong)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,var(--arc-accent-600));box-shadow:var(--arc-focus)}
-input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-2);color:var(--arc-text-subtle);cursor:not-allowed}
-input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
-::placeholder{color:var(--arc-text-subtle)}
-
-/* Tablas, sólo en escritorio: por debajo de 760px gama-tables.js apila cada
-   fila en una ficha y estas reglas no pintan nada. Cuando siguen siendo
-   tablas, la cabecera tiene que distinguirse del dato y la fila bajo el
-   cursor marcarse, que es lo que evita perder el renglón a la doceava
-   columna. */
-@media(min-width:761px){
- th{font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:var(--arc-text-muted)}
- tbody tr:nth-child(even):not([data-gama-head]){background:var(--arc-accent-100)}
- tbody tr:not([data-gama-head]):hover{background:var(--arc-surface-2)}
-}
-
-@media(prefers-reduced-motion:reduce){
- button,input,select,textarea,.headIcon{transition:none}
- button:active{transform:none}
-}
-</style>
-
-<script defer src="gama-export-schema.js?v=20260916-projects1"></script>
-<script defer src="gama-excel-export.js?v=20260919-reference1"></script>
-<link rel="stylesheet" href="gama-global-search.css?v=20260915-search1">
-<link rel="stylesheet" href="gama-assistant-ia.css?v=20260915-ai1">
+<script defer src="gama-export-schema.js?v=1cc7a22875dd"></script>
+<script defer src="gama-excel-export.js?v=ea77b75e2a5b"></script>
+<link rel="stylesheet" href="gama-global-search.css?v=9c1011b2cf09">
+<link rel="stylesheet" href="gama-assistant-ia.css?v=6afea3e5006f">
 <!-- Architect ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
-<link rel="stylesheet" href="architect-tokens.css?v=20260919-contrast2">
-<link rel="stylesheet" href="architect-ui.css?v=20260919-contrast2">
-<link rel="stylesheet" href="architect-shell.css?v=20260919-order1">
-<link rel="stylesheet" href="gama-company.css?v=20260919-company1">
-<link rel="stylesheet" href="architect-kpis.css?v=20260919-kpi1">
-<link rel="stylesheet" href="architect-home.css?v=20260919-relief1">
+<link rel="stylesheet" href="architect-tokens.css?v=cc2cf3b75cb1">
+<link rel="stylesheet" href="architect-components.css?v=fe995a6f8341">
+<link rel="stylesheet" href="architect-ui.css?v=9af0c4c3a406">
+<link rel="stylesheet" href="architect-shell.css?v=ece7d82b3fc9">
+<link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
+<link rel="stylesheet" href="architect-kpis.css?v=60259f33e28e">
+<link rel="stylesheet" href="architect-home.css?v=01ee07db4ea4">
 </head>
 <body data-version="10" data-design="gama-erp-main-menu">
 
@@ -202,9 +58,9 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
     </div>
   </div>
   <div class="headActions">
-    <button class="headIcon" data-gama-staff-header onclick="focusGlobalSearch()" data-gi-aria-label=5f55edf90089 aria-label="Buscar">⌕</button>
-    <button class="headIcon plus" onclick="showTab('billing',null)" data-gi-aria-label=cf0070030a82 aria-label="Nueva factura">＋</button>
-    <button class="headIcon" data-gama-staff-header onclick="showTab('mainmenu',null)" data-gi-aria-label=1e9c027c8f80 aria-label="Menú principal">☰</button>
+    <button class="arcButton headIcon" data-gama-staff-header onclick="focusGlobalSearch()" data-gi-aria-label=5f55edf90089 aria-label="Buscar">⌕</button>
+    <button class="arcButton headIcon plus" onclick="showTab('billing',null)" data-gi-aria-label=cf0070030a82 aria-label="Nueva factura">＋</button>
+    <button class="arcButton headIcon" data-gama-staff-header onclick="showTab('mainmenu',null)" data-gi-aria-label=1e9c027c8f80 aria-label="Menú principal">☰</button>
   </div>
 </header>
 
@@ -214,10 +70,10 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 <div class="wrap">
 
 <div class="tabs">
-<button type="button" class="tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')">🛒<span data-gi=1bc70818a30d>Compras</span></button>
-<button data-gama-module="dashboard" class="tab active" onclick="showTab('dashboard',this)">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="tab" onclick="showTab('home',this)">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
-<button data-gama-module="products" class="tab" onclick="showTab('products',this)">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="tab" onclick="showTab('clients',this)">♙<span data-gi=07e1ce1859da>Clientes</span></button>
-<button data-gama-module="movement" class="tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button data-gama-module="billing" class="tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
+<button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')">🛒<span data-gi=1bc70818a30d>Compras</span></button>
+<button data-gama-module="dashboard" class="arcButton tab active" onclick="showTab('dashboard',this)">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="arcButton tab" onclick="showTab('home',this)">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
+<button data-gama-module="products" class="arcButton tab" onclick="showTab('products',this)">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="arcButton tab" onclick="showTab('clients',this)">♙<span data-gi=07e1ce1859da>Clientes</span></button>
+<button data-gama-module="movement" class="arcButton tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
 </div>
 
 <section id="dashboard">
@@ -226,23 +82,23 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 <div class="dashGrid"><div class="dashPanel chartPanel"><div class="panelTitle"><div><b data-gi=77850604b005>Ventas por mes</b><small data-gi=4b06105417f6>Evolución anual</small></div><strong id="dashYearTotal">$0.00</strong></div><div class="chartBox"><svg viewBox="0 0 720 280" preserveAspectRatio="none"><defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F47A2A" stop-opacity=".32"/><stop offset="1" stop-color="#F47A2A" stop-opacity="0"/></linearGradient></defs><g id="chartGrid"></g><path id="chartArea" fill="url(#salesGrad)"/><path id="chartLine" fill="none" stroke="#F47A2A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g id="chartDots"></g><g id="chartLabels"></g></svg></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=904282ccc5bf>Resumen anual</b><small id="dashYearLabel"></small></div></div><div class="summaryList"><div><span data-gi=0a680d086be3>Ventas</span><b id="sumSales">$0.00</b></div><div><span data-gi=edda0a46bacb>Facturas</span><b id="sumInvoices">0</b></div><div><span data-gi=9196090f865d>Promedio mensual</span><b id="sumMonthly">$0.00</b></div><div><span data-gi=f598138f026c>Productos</span><b id="sumProducts">0</b></div><div><span data-gi=07e1ce1859da>Clientes</span><b id="sumClients">0</b></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=7a6c9ad2fb3b>Ventas por categoría</b><small data-gi=efb7a645f609>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="categoryDonut" class="donut"></div><div id="categoryLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=fb8a369c6d2b>Ventas por método de pago</b><small data-gi=efb7a645f609>Periodo seleccionado</small></div></div><div class="donutLayout"><div id="paymentDonut" class="donut"></div><div id="paymentLegend" class="legend"></div></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=bd653861ef83>🏆 Más vendidos por cantidad</b><small data-gi=2c7e52217145>Unidades del periodo</small></div></div><div id="srByQty"></div></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=d93e414e44dd>💰 Más vendidos por ingresos</b><small data-gi=df747d3e2dd6>Con el margen estimado</small></div></div><div id="srByRevenue"></div><p class="srNote" data-gi=bd0a9e16987a>El margen se estima con el precio de compra actual de cada producto; no refleja el costo histórico exacto en la fecha de cada venta.</p></div><div class="dashPanel"><div class="panelTitle"><div><b data-gi=5d8d2caf10dd>Últimos movimientos</b><small data-gi=e92868180b61>Actividad reciente</small></div></div><div id="dashMoves"></div></div></div>
 </section>
 <section id="home">
-<div class="card"><h2 data-gi=2760658f4d58>Escanear producto</h2>
-<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="secondary" onclick="scan('homeBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
-<button class="primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=115a5b5899c1>🔎 Buscar</button>
+<div class="arcPanel card"><h2 data-gi=2760658f4d58>Escanear producto</h2>
+<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
+<button class="arcButton primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=115a5b5899c1>🔎 Buscar</button>
 <div id="homeResult"></div><video id="camera" playsinline></video>
-<div class="actions"><button class="primary" onclick="openMovement('IN')" data-gi=fe6659a64b87>➕ Entrada IN</button><button class="danger" onclick="openMovement('OUT')" data-gi=5deb5f340d23>➖ Salida OUT</button></div>
+<div class="actions"><button class="arcButton primary" onclick="openMovement('IN')" data-gi=fe6659a64b87>➕ Entrada IN</button><button class="arcButton danger" onclick="openMovement('OUT')" data-gi=5deb5f340d23>➖ Salida OUT</button></div>
 </div>
-<div class="card"><h3 data-gi=7365c19b2b46>💾 Copias de seguridad</h3>
+<div class="arcPanel card"><h3 data-gi=7365c19b2b46>💾 Copias de seguridad</h3>
 <p class="muted" data-gi=92bf1db0b4ef>Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
-<div class="actions"><button class="primary" onclick="exportExcel()" data-gi=c8d41d4dfa39>📊 Exportar Excel</button><button class="secondary" onclick="exportJSONBackup()" data-gi=42c3ceb51e5b>💾 Copia completa</button></div>
+<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=c8d41d4dfa39>📊 Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=42c3ceb51e5b>💾 Copia completa</button></div>
 </div>
 </section>
 
 <section id="products">
-<div class="card">
+<div class="arcPanel card">
 <h2 data-gi=6efe602df221>📦 Ficha completa del producto</h2>
 <div class="row">
-<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="gamaPhoneScanBtn" onclick="event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
+<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" onclick="event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
 <div><label data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
 <div><label data-gi=4fb77e0eba6a>Familia</label><input id="pFamily"></div><div><label data-gi=42f6bf37d32c>Líneas</label><input id="pLines"></div>
 <div><label data-gi=8e2ca9b0cc8a>Marca</label><input id="pBrand"></div><div><label data-gi=6bbcd2f13499>Presentación</label><input id="pPresentation" data-gi-placeholder=4be5d9d9f1c5 placeholder="Ej. Caja x12"></div>
@@ -258,16 +114,16 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 <div><label data-gi=ac6a0e836a6a>📸 Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
 </div>
 <p class="muted" data-gi=a84a2a9267ff>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo 🏷️ Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
-<div class="actions"><button class="primary" onclick="createProduct()" data-gi=a757fc04d14d>➕ Crear producto</button><button class="secondary" onclick="clearProductForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
+<div class="actions"><button class="arcButton primary" onclick="createProduct()" data-gi=a757fc04d14d>➕ Crear producto</button><button class="arcButton secondary" onclick="clearProductForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
 <input type="hidden" id="editingBarcode">
 <input type="hidden" id="editingProductId">
 </div>
-<div class="card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
+<div class="arcPanel card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
 </section>
 
 
 <section id="clients">
-<div class="card">
+<div class="arcPanel card">
 <h2 data-gi=997508004e7f>👥 Ficha del cliente</h2>
 <div class="row">
 <div><label data-gi=b70f3ddbd244>Nombre / Razón social *</label><input id="cName"></div>
@@ -284,9 +140,9 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 </div>
 <p class="muted" data-gi=9bb856df8bf1>La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).</p>
 <input type="hidden" id="editingClientId">
-<div class="actions"><button class="primary" onclick="saveClient()" data-gi=c3e16e4741b1>💾 Guardar cliente</button><button class="secondary" onclick="clearClientForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
+<div class="actions"><button class="arcButton primary" onclick="saveClient()" data-gi=c3e16e4741b1>💾 Guardar cliente</button><button class="arcButton secondary" onclick="clearClientForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
 </div>
-<div class="card">
+<div class="arcPanel card">
 <h2 data-gi=c0910ead1159>Lista de clientes</h2>
 <input id="clientSearch" oninput="GamaPage.reset('clients');renderClients(this.value)" data-gi-placeholder=e9daba65b7a1 placeholder="Buscar por nombre, identificación, ciudad...">
 <div id="clientsTable"></div>
@@ -295,59 +151,59 @@ input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 
 
 <section id="backup">
-<div class="card">
+<div class="arcPanel card">
 <h3 data-gi=bb79f8467eda>📤 Exportar</h3>
 <div class="actions">
-<button class="primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Todos los módulos</button>
-<button class="secondary" onclick="exportJSONBackup()" data-gi=98c0409192c9>💾 Copia completa JSON</button>
+<button class="arcButton primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Todos los módulos</button>
+<button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=98c0409192c9>💾 Copia completa JSON</button>
 </div>
 <h3 data-gi=1130376c0e96>📥 Restaurar JSON</h3>
 <input id="jsonImport" type="file" accept=".json,application/json">
-<button class="warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=ce5c923a8a49>⚠️ Restaurar copia completa</button>
+<button class="arcButton warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=ce5c923a8a49>⚠️ Restaurar copia completa</button>
 <p class="muted" data-gi=4d7b889125b2>La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
 </div>
 </section>
 <section id="movement">
-<div class="card"><div class="scanner"><input id="moveBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="secondary" onclick="scan('moveBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
+<div class="arcPanel card"><div class="scanner"><input id="moveBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('moveBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
 <div class="row"><div><label data-gi=3868d2843d59>Tipo</label><select id="moveType"><option value="IN" data-gi=59b8b5e0764c>IN — Entrada</option><option value="OUT" data-gi=51b523907c51>OUT — Salida</option></select></div>
 <div><label data-gi=8930e00fcc39>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
 <div><label data-gi=c7b288b1c0bb>Motivo</label><select id="moveReason" data-gama-nofind><option data-gi=83a3c0d27323>Recepción</option><option data-gi=ebda66b3f2fc>Venta</option><option data-gi=ce2f505af2a4>Producción</option><option data-gi=26335d9da0d8>Consumo</option><option data-gi=e87df883dd1f>Rotura</option><option data-gi=5aef5465090e>Muestra</option><option data-gi=a26fdd05a46b>Inventario</option><option data-gi=ae9a7950ec36>Corrección de inventario</option><option data-gi=0d5a52a92cb9>Otro</option></select></div>
 <div><label data-gi=69e9436bf261>Usuario / operador</label><input id="moveUser" value="Admin"></div></div>
 <label data-gi=f2e4400bf8aa>Comentario de auditoría</label><textarea id="moveComment" data-gi-placeholder=36d1019b7c7f placeholder="Motivo o comentario adicional"></textarea>
-<button class="primary" style="width:100%;margin-top:10px" onclick="registerMovement()" data-gi=891fe3679c63>💾 Registrar y auditar movimiento</button>
+<button class="arcButton primary" style="width:100%;margin-top:10px" onclick="registerMovement()" data-gi=891fe3679c63>💾 Registrar y auditar movimiento</button>
 </div>
 </section>
 
-<section id="stock"><div class="card"><div class="stockBar"><input id="stockSearch" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="" data-gi=425a839def0b>Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()" data-gi=e8fc2a185be9> Sólo stock bajo</label><button class="secondary" onclick="exportCSV()" data-gi=09c7031345dc>📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
+<section id="stock"><div class="arcPanel card"><div class="stockBar"><input id="stockSearch" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia" oninput="renderStock()"><select id="stockCategory" onchange="renderStock()"><option value="" data-gi=425a839def0b>Todas las categorías</option></select><label class="stockLow"><input type="checkbox" id="stockOnlyLow" onchange="renderStock()" data-gi=e8fc2a185be9> Sólo stock bajo</label><button class="arcButton secondary" onclick="exportCSV()" data-gi=09c7031345dc>📤 Exportar CSV</button></div><div id="stockSummary" class="stockSummary"></div><div id="stockTable"></div></div></section>
 
 <section id="billing">
-<div class="card"><h2 data-gi=0a125e1ae250>🧾 Nuevo presupuesto</h2>
+<div class="arcPanel card"><h2 data-gi=0a125e1ae250>🧾 Nuevo presupuesto</h2>
 <div class="row"><div><label data-gi=364810aefa0b>RUC emisor</label><input id="sellerRuc"></div><div><label data-gi=203af5250577>Razón social</label><input id="sellerName"></div><div><label data-gi=900413cbb4f3>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label data-gi=e6b24b25ac99>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
 <div style="grid-column:1/-1"><label data-gi=c99211840f00>👥 Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="" data-gi=57780de4ab62>Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
 <div><label data-gi=4431e77fbebe>Identificación cliente</label><input id="clientId" readonly></div><div><label data-gi=3543b80b4661>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label data-gi=2af66cb65da8>Dirección</label><input id="clientAddress" readonly></div><div><label data-gi=0b61df381e1b>Correo</label><input id="clientEmail" type="email" readonly></div><div><label data-gi=cfd959125106>Forma de pago</label><select id="payment"><option data-gi=4ed786ebd4f8>Transferencia</option><option data-gi=9e8caac2b76e>Tarjeta de crédito</option><option data-gi=213d3a86f31a>Tarjeta de débito</option><option data-gi=22fac51606a2>Efectivo</option><option data-gi=0108f1aeeef4>Otros</option></select></div></div>
-<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="secondary" onclick="scan('invoiceBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
-<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()" data-gi=203475207f7b>➕ Añadir</button></div></div>
-<div id="invoiceItems"></div><div class="actions"><button class="primary" onclick="generateInvoice()" data-gi=f0d3ec08dad9>🧾 Generar presupuesto</button><button class="secondary" onclick="downloadInvoicePdf()" data-gi=272abf6e4139>📄 Descargar PDF</button><button class="secondary" onclick="emailInvoice()" data-gi=a9d88603fa51>📧 Enviar por correo</button></div><div id="invoicePreview"></div>
+<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="arcButton secondary" onclick="scan('invoiceBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
+<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="arcButton primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()" data-gi=203475207f7b>➕ Añadir</button></div></div>
+<div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" onclick="generateInvoice()" data-gi=f0d3ec08dad9>🧾 Generar presupuesto</button><button class="arcButton secondary" onclick="downloadInvoicePdf()" data-gi=272abf6e4139>📄 Descargar PDF</button><button class="arcButton secondary" onclick="emailInvoice()" data-gi=a9d88603fa51>📧 Enviar por correo</button></div><div id="invoicePreview"></div>
 </div></section>
 
 <section id="audit">
-<div class="card"><div class="row"><div><label data-gi=5f55edf90089>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" data-gi-placeholder=5a8c30078efe placeholder="Producto, código, usuario, comentario..."></div><div><label data-gi=e3bf08ff3742>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="" data-gi=bd02b9a7d71d>Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
-<div class="actions"><button class="secondary" onclick="exportAudit()" data-gi=a6814d3335e5>📤 Exportar Audit Trail CSV</button><button class="warning" onclick="createCorrection()" data-gi=b8ed9cf7de50>↩️ Corrección auditada</button></div>
+<div class="arcPanel card"><div class="row"><div><label data-gi=5f55edf90089>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" data-gi-placeholder=5a8c30078efe placeholder="Producto, código, usuario, comentario..."></div><div><label data-gi=e3bf08ff3742>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="" data-gi=bd02b9a7d71d>Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
+<div class="actions"><button class="arcButton secondary" onclick="exportAudit()" data-gi=a6814d3335e5>📤 Exportar Audit Trail CSV</button><button class="arcButton warning" onclick="createCorrection()" data-gi=b8ed9cf7de50>↩️ Corrección auditada</button></div>
 <div id="auditTable"></div>
 </div>
 </section>
 
-<section id="barcode"><div class="card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=e909922fb595>🏷️ Generar</button><button class="secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=30ef3190646e>📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="arcPanel card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=e909922fb595>🏷️ Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=30ef3190646e>📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 
-<script src="gama-ui.js?v=20260919-reference1"></script>
-<script src="gama-modules.js?v=20260919-reference1"></script>
-<script src="gama-pagination.js?v=20260919-reference1"></script>
-<script src="gama-archive.js?v=20260919-reference1"></script>
-<script src="gama-sort.js?v=20260919-reference1"></script>
-<script src="gama-select-search.js?v=20260919-reference1"></script>
-<script src="gama-tables.js?v=20260919-reference1"></script>
+<script src="gama-ui.js?v=98cc6c17c615"></script>
+<script src="gama-modules.js?v=4d844e749552"></script>
+<script src="gama-pagination.js?v=b82168a0f053"></script>
+<script src="gama-archive.js?v=d3985ac8e752"></script>
+<script src="gama-sort.js?v=6d5101198b8e"></script>
+<script src="gama-select-search.js?v=92df0ddfb455"></script>
+<script src="gama-tables.js?v=7f4e31f6bd44"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
    aquí: es un precio pactado producto a producto en su tarifa, y quien lo
@@ -380,12 +236,8 @@ db.products=db.products||[];db.moves=db.moves||[];db.invoices=db.invoices||[];db
 let invoiceItems=[];let lastQuote=null;
 const $=id=>document.getElementById(id);
 function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
-function showTab(id,btn){
- document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
- const target=$(id); if(target)target.classList.add('active');
- renderAll();
- window.scrollTo({top:0,behavior:'smooth'});
-}
+function showTab(id,btn){return window.ArcRouter.show(id,btn)}
+
 function openMovement(type){showTab('movement',null);$('moveType').value=type;$('moveBarcode').focus()}
 function product(b){return db.products.find(p=>p.barcode===b)}
 function uid(prefix='MOV'){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
@@ -434,7 +286,7 @@ function gamaShowProductPhoto(p){
 }
 function clearProductForm(){$('editingProductId').value='';$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
 function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
-function renderProducts(filter=''){populateSupplierSelect();const arch=GamaArchive.mode('products')==='archived',src=arch?(db.archivedProducts||[]):db.products;let q=filter.toLowerCase(),a=src.filter(p=>(p.name+' '+p.barcode+' '+p.ref+' '+p.cat).toLowerCase().includes(q));if(arch&&!a.length){$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+'<div class="gamaArcEmpty" data-gi=5aee36d9b693>No hay productos archivados.</div>';return}$('productsTable').innerHTML=GamaArchive.tabs('products',db.products.length,(db.archivedProducts||[]).length)+(arch?'<div class="gamaArcNote" data-gi=6da28771166e>Estos productos no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.</div>':'')+'<table><tr><th data-gi=494e0843d958>Foto</th><th data-gi=f58b85570398>Código</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8e2ca9b0cc8a>Marca</th><th>Stock</th><th data-gi=d69ff29572f5>Precio compra</th><th data-gi=ff80a4c5df9b>Venta A</th><th data-gi=9315e60d00dc>Venta B</th><th data-gi=ba6da46c5e1c>IVA</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=e746643f4479>Proveedor</th><th data-gi=fb89a30ba7f6>Acciones</th></tr>'+GamaPage.slice('products',a).map(p=>`<tr><td>${gamaPhotoCell(p)}</td><td>${p.barcode}</td><td>${p.name}</td><td>${p.brand||'-'}</td><td class="${p.stock<=p.min?'low':''}">${p.stock}</td><td>$${Number(p.purchase_price||0).toFixed(2)}</td><td><b>$${Number(p.price||0).toFixed(2)}</b></td><td>$${Number(p.salePriceB||0).toFixed(2)}</td><td>${Number(p.iva||0)}%</td><td>${p.loc||'-'}</td><td>${(db.suppliers||[]).find(s=>s.id===p.supplierId)?.name||'-'}</td><td>${arch?`<button class="secondary" onclick="restoreProduct('${p.id}')" data-gi=010ad8d3a1f4>♻️ Restaurar</button> <button class="danger" onclick="purgeProduct('${p.id}')" data-gi=edb9598321a5>🗑️ Borrar definitivamente</button>`:`<button class="secondary" onclick="editProduct('${p.barcode}','${p.id||''}')" data-gi=e3bd2ee1d054>✏️ Editar</button> <button class="danger" onclick="deleteProduct('${p.barcode}')" data-gi=5d653a516214>🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('products',a.length)}
+function renderProducts(filter=''){populateSupplierSelect();if(window.GamaCloud)window.ArcDirectories.directory('products',filter)}
 
 
 function saveClient(){
@@ -455,11 +307,8 @@ function editClient(id){
 }
 function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','cPaymentTerms','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC';$('cCategory').value='A'}
 function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
-function renderClients(filter=''){const cliArch=GamaArchive.mode('clients')==='archived',cliSrc=cliArch?(db.archivedClients||[]):db.clients;
- const q=(filter||'').toLowerCase(),a=cliSrc.filter(c=>(c.name+' '+c.id+' '+c.city+' '+c.province+' '+c.email).toLowerCase().includes(q));
- $('clientsTable').innerHTML=GamaArchive.tabs('clients',db.clients.length,(db.archivedClients||[]).length)+(cliArch?'<div class="gamaArcNote" data-gi=43a7889479ac>Estos clientes no aparecen en las listas ni en la facturación. Puedes restaurarlos cuando quieras.</div>':'')+'<table><tr><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=cb35264c1a97>Identificación</th><th data-gi=558bb20a82ed>Categoría</th><th data-gi=2af66cb65da8>Dirección</th><th data-gi=efcbd8e9deb9>Ciudad</th><th data-gi=f1186abd0b8b>Teléfono</th><th>Email</th><th data-gi=fb89a30ba7f6>Acciones</th></tr>'+
- GamaPage.slice('clients',a).map(c=>`<tr><td><b>${c.name}</b></td><td>${c.idType||''} ${c.id}</td><td>${c.category||'A'}</td><td>${c.address||'-'}</td><td>${c.city||'-'}</td><td>${c.phone||'-'}</td><td>${c.email||'-'}</td><td>${cliArch?`<button class="secondary" onclick="restoreClient('${c.cloudId||c.id}')" data-gi=010ad8d3a1f4>♻️ Restaurar</button> <button class="danger" onclick="purgeClient('${c.cloudId||c.id}')" data-gi=edb9598321a5>🗑️ Borrar definitivamente</button>`:`<button class="secondary" onclick="editClient('${c.id}')" data-gi=e3bd2ee1d054>✏️ Editar</button> <button class="danger" onclick="deleteClient('${c.id}')" data-gi=5d653a516214>🗄️ Archivar</button>`}</td></tr>`).join('')+'</table>'+GamaPage.controls('clients',a.length)
-}
+function renderClients(filter=''){if(window.GamaCloud)window.ArcDirectories.directory('customers',filter)}
+
 function populateClientSelect(){
  const current=$('clientSelect').value;
  $('clientSelect').innerHTML='<option value="" data-gi=57780de4ab62>Selecciona un cliente...</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name} — ${c.id}</option>`).join('');
@@ -478,10 +327,10 @@ function exportJSONBackup(){
 }
 function auditMovement({p,type,qty,user,reason,comment,source='IN/OUT',reference=''}){let before=p.stock,after=type==='IN'?before+qty:before-qty;let id=uid();db.moves.unshift({id,date:new Date().toISOString(),type,barcode:p.barcode,name:p.name,qty,user:user||'Admin',reason,comment:comment||'',source,reference,stockBefore:before,stockAfter:after});p.stock=after;return id}
 function registerMovement(){let p=product($('moveBarcode').value.trim()),q=Number($('moveQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');if($('moveType').value==='OUT'&&p.stock<q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);auditMovement({p,type:$('moveType').value,qty:q,user:$('moveUser').value,reason:$('moveReason').value,comment:$('moveComment').value,source:'IN/OUT'});$('moveInfo').textContent=`${p.name} — stock actual: ${p.stock}`;save();alert('Movimiento registrado en el Audit Trail.')}
-function searchProduct(){let p=product($('homeBarcode').value.trim());$('homeResult').innerHTML=p?`<p><b>${p.name}</b><br>Stock: ${p.stock}<br>Precio: $${Number(p.price||0).toFixed(2)}<br>${p.photo?`<img class="product-img" src="${p.photo}">`:''}</p>`:'<p class="low" data-gi=beb1469ff83c>Producto no encontrado.</p>'}
+function searchProduct(){let p=product($('homeBarcode').value.trim());$('homeResult').innerHTML=p?`<p><b>${p.name}</b><br><span data-gi=ce4f7ecc850e>Stock: </span>${p.stock}<br>Precio: $${Number(p.price||0).toFixed(2)}<br>${p.photo?`<img class="product-img" src="${p.photo}">`:''}</p>`:'<p class="low" data-gi=beb1469ff83c>Producto no encontrado.</p>'}
 
 function addInvoiceItem(){let p=product($('invoiceBarcode').value.trim()),q=Number($('invoiceQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');let already=invoiceItems.reduce((a,x)=>a+x.q*(x.p.barcode===p.barcode),0);if(p.stock<already+q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);invoiceItems.push({p,q});$('invoiceBarcode').value='';$('invoiceProductInfo').textContent='';renderInvoiceItems()}
-function renderInvoiceItems(){$('invoiceItems').innerHTML='<table><tr><th data-gi=494e0843d958>Foto</th><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th><th></th></tr>'+invoiceItems.map((x,i)=>{
+function renderInvoiceItems(){$('invoiceItems').innerHTML='<table class="arcTable"><tr><th data-gi=494e0843d958>Foto</th><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th><th></th></tr>'+invoiceItems.map((x,i)=>{
  const ref=gamaPriceFor(x.p),precio=quoteLinePrice(x),ajustado=x.price!==undefined&&x.price!==null;
  // El precio de referencia se deja a la vista tachado: quien firma el
  // presupuesto tiene que ver de cuánto era el descuento, no sólo el resultado.
@@ -491,9 +340,9 @@ function renderInvoiceItems(){$('invoiceItems').innerHTML='<table><tr><th data-g
   :(gamaHasContractPrice(x.p)?' <small class="quoteTag" data-gi=82c2d641d0f5>tarifa</small>':'');
  return `<tr><td>${gamaPhotoCell(x.p)}</td><td>${x.p.name}</td><td>${x.q}</td>`
   +`<td class="quotePriceCell"><input type="number" min="0" step="0.01" value="${precio.toFixed(2)}" aria-label="Precio de ${x.p.name}" onchange="setInvoiceItemPrice(${i},this.value)">`
-  +(ajustado?`<button class="secondary quoteUndo" data-gi-title=ac492001216a title="Volver al precio de la tarifa" onclick="clearInvoiceItemPrice(${i})">↺</button>`:'')
+  +(ajustado?`<button class="arcButton secondary quoteUndo" data-gi-title=ac492001216a title="Volver al precio de la tarifa" onclick="clearInvoiceItemPrice(${i})">↺</button>`:'')
   +`<div>${marca}</div></td>`
-  +`<td>$${(x.q*precio).toFixed(2)}</td><td><button class="danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`;
+  +`<td>$${(x.q*precio).toFixed(2)}</td><td><button class="arcButton danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`;
 }).join('')+'</table>'}
 function removeInvoiceItem(i){invoiceItems.splice(i,1);renderInvoiceItems()}
 /* Precio efectivo de una línea del presupuesto.
@@ -531,7 +380,7 @@ function quoteNumber(count){return($('sellerEst').value||'001')+'-'+($('sellerPo
 function quoteItemsSnapshot(){return invoiceItems.map(x=>({name:x.p.name,barcode:x.p.barcode,qty:x.q,price:quoteLinePrice(x),listPrice:gamaPriceFor(x.p)}))}
 function finishQuote(inv){lastQuote=inv;$('invoicePreview').innerHTML=invoiceHTML(inv);invoiceItems=[];renderInvoiceItems()}
 function generateInvoice(){if(!validateQuoteForm())return;const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices.length),ref=uid('COT');let inv={...window.GamaCompany?.defaultsForQuote(),id:ref,number,date:new Date().toISOString(),clientId:$('clientId').value,client:$('clientName').value,clientEmail:$('clientEmail').value,clientAddress:$('clientAddress').value,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};db.invoices.unshift(inv);finishQuote(inv);save();alert('Presupuesto generado. Puedes imprimirlo o enviarlo por correo al cliente.')}
-function invoiceHTML(i){return `<div class="invoice-preview"><h2 data-gi=d684c0be2b1d>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br><span data-gi=38178a20b470>No. </span>${i.number}<br><span data-gi=5964f4d099df>Fecha: </span>${new Date(i.date).toLocaleDateString('es-EC')}<hr><b data-gi=07dc559c3d74>Cliente:</b> ${i.client}<br><span data-gi=60c3a5b64c7c>Identificación: </span>${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span data-gi=8c0f2cb34079>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span><span data-gi=ba6da46c5e1c>IVA </span>${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span data-gi=ab2882c86465>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low" data-gi=40e465f455ef>Documento informativo. No constituye una factura.</p></div>`}
+function invoiceHTML(i){return `<div class="invoice-preview"><h2 data-gi=d684c0be2b1d>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br><span data-gi=38178a20b470>No. </span>${i.number}<br><span data-gi=5964f4d099df>Fecha: </span>${new Date(i.date).toLocaleDateString('es-EC')}<hr><b data-gi=07dc559c3d74>Cliente:</b> ${i.client}<br><span data-gi=60c3a5b64c7c>Identificación: </span>${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span data-gi=8c0f2cb34079>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span><span data-gi=ba6da46c5e1c>IVA </span>${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span data-gi=ab2882c86465>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low" data-gi=40e465f455ef>Documento informativo. No constituye una factura.</p></div>`}
 /* Antes esto llamaba a window.print(), que abre el diálogo del sistema encima
    de la propia página. En la aplicación instalada el usuario se quedaba
    encerrado: sin diálogo visible que cerrar y sin manera de volver atrás, había
@@ -594,7 +443,7 @@ async function downloadBarcodePdf(){
 }
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
-function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table><tr><th>ID</th><th data-gi=fea604ed15e9>Fecha/hora</th><th data-gi=3868d2843d59>Tipo</th><th data-gi=77b9238931ed>Producto</th><th data-gi=f58b85570398>Código</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=8159db18b775>Antes</th><th data-gi=f1d31778f7ec>Después</th><th data-gi=63614ffde2d3>Usuario</th><th data-gi=c7b288b1c0bb>Motivo</th><th data-gi=167a940c6278>Origen</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=53c367898434>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
+function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table class="arcTable"><tr><th>ID</th><th data-gi=fea604ed15e9>Fecha/hora</th><th data-gi=3868d2843d59>Tipo</th><th data-gi=77b9238931ed>Producto</th><th data-gi=f58b85570398>Código</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=8159db18b775>Antes</th><th data-gi=f1d31778f7ec>Después</th><th data-gi=63614ffde2d3>Usuario</th><th data-gi=c7b288b1c0bb>Motivo</th><th data-gi=167a940c6278>Origen</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=53c367898434>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
 function createCorrection(){let b=prompt('Código de barras del producto a corregir:');if(!b)return;let p=product(b);if(!p)return alert('Producto no encontrado.');let target=Number(prompt(`Stock actual: ${p.stock}. ¿Cuál debe ser el stock correcto?`));if(!Number.isFinite(target)||target<0)return alert('Valor inválido.');let delta=target-p.stock;if(delta===0)return alert('No hay diferencia de stock.');let type=delta>0?'IN':'OUT',reason='Corrección de inventario',comment=prompt('Motivo obligatorio de la corrección:')||'';if(!comment)return alert('La corrección requiere un comentario.');if(type==='OUT'&&p.stock<Math.abs(delta))return alert('Stock insuficiente.');auditMovement({p,type,qty:Math.abs(delta),user:'Admin',reason,comment,source:'Corrección auditada'});save();alert('Corrección registrada como nuevo evento. El movimiento anterior no fue modificado.')}
 function exportAudit(){let rows=[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='audit-trail-stock.csv';a.click()}
 
@@ -675,7 +524,7 @@ function renderStock(){
   +`<span class="${low?'low':''}"><b>${low}</b> con stock bajo</span>`
   +`<span data-gi=dcedb0fe73b8>Valor a precio de compra: <b>$${value.toFixed(2)}</b></span>`;
  if(!rows.length){host.innerHTML='<div class="gamaArcEmpty" data-gi=a87124e2156a>Ningún producto coincide con el filtro.</div>';return}
- host.innerHTML='<table><tr><th data-gi=494e0843d958>Foto</th>'
+ host.innerHTML='<table class="arcTable"><tr><th data-gi=494e0843d958>Foto</th>'
   +GamaSort.th('stock','name','Producto')+GamaSort.th('stock','barcode','Código')
   +GamaSort.th('stock','cat','Categoría')+GamaSort.th('stock','stock','Stock','right')
   +GamaSort.th('stock','price','Precio','right')+GamaSort.th('stock','status','Estado')
@@ -707,66 +556,63 @@ showTab('mainmenu',null);
   setTimeout(cleanup,100);setTimeout(cleanup,500);setTimeout(cleanup,1500);
 })();
 </script>
-<script src="gama-global-search-core.js?v=20260915-search1"></script>
-<script src="gama-global-search.js?v=20260919-reference1"></script>
-<script src="architect-kpi-catalog.js?v=20260919-kpi1"></script>
-<script src="architect-home-kpis.js?v=20260919-kpi1"></script>
-<script src="architect-home-order.js?v=20260919-order1"></script>
-<script src="gama-menu-final2.js?v=20260919-kpi1"></script>
-<script src="gama-scanner-phone.js?v=20260919-reference1"></script>
-<script src="gama-references.js?v=20260913-refses1"></script>
-<script src="gama-access-control.js?v=20260919-reference1"></script>
-<script src="gama-fixed-header.js?v=20260919-reference1"></script>
-<script src="gama-role-spanish.js?v=20260919-reference1"></script>
+<script src="gama-global-search-core.js?v=db20ac2e73e8"></script>
+<script src="gama-global-search.js?v=79ad2b094529"></script>
+<script src="architect-kpi-catalog.js?v=c67dcc4151a0"></script>
+<script src="architect-home-kpis.js?v=b1beab0f73b1"></script>
+<script src="architect-home-order.js?v=0d012fd3e0ca"></script>
+<script src="gama-menu-final2.js?v=627753dd1f4b"></script>
+<script src="gama-scanner-phone.js?v=4d447394d340"></script>
+<script src="gama-references.js?v=6bd446d4d469"></script>
+<script src="gama-access-control.js?v=696a57b1a697"></script>
+<script src="gama-fixed-header.js?v=bbfced364c11"></script>
+<script src="gama-role-spanish.js?v=dd1a60f8b6d3"></script>
 
 <!-- GAMA EMPTY MODULES HARD BLOCK V2 -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="gama-company-core.js?v=20260919-company1"></script>
-<script src="gama-company.js?v=20260919-company1"></script>
-<script src="gama-pdf-template.js?v=20260919-company1"></script>
-<script src="gama-quote-pdf.js?v=20260919-company1"></script>
-<script src="gama-purchase-order-pdf.js?v=20260919-company1"></script>
-<script src="gama-supabase.js?v=20260913-refs1"></script>
-<script src="gama-central-sync.js?v=20260914-productedit1"></script>
-<script src="gama-purchases-v14.js?v=20260919-company1"></script>
-<script src="gama-proveedores-matriz.js?v=20260919-reference1"></script>
-<script src="gama-client-catalog.js?v=20260919-reference1"></script>
-<script src="gama-customer-requests.js?v=20260919-reference1"></script>
-<script src="gama-sales-report.js?v=20260919-reference1"></script>
-<script src="gama-pdf.js?v=20260919-company1"></script>
-<script src="gama-photos.js?v=20260919-reference1"></script>
-<script src="gama-price-lists.js?v=20260919-reference1"></script>
-<script src="gama-crm-core.js?v=20260919-reference1"></script>
-<script src="gama-crm-scoring.js?v=20260919-reference1"></script>
-<script src="gama-crm-leads.js?v=20260919-reference1"></script>
-<script src="gama-crm-opportunities.js?v=20260919-reference1"></script>
-<script src="gama-crm-activities.js?v=20260919-reference1"></script>
-<script src="gama-crm-contacts.js?v=20260919-reference1"></script>
-<script src="gama-crm-reports.js?v=20260919-reference1"></script>
-<script src="gama-crm-targets.js?v=20260919-reference1"></script>
-<script src="gama-hr-p1.js?v=20260919-reference1"></script>
-<script src="gama-hr.js?v=20260919-reference1"></script>
-<script src="gama-settings.js?v=20260919-company1"></script>
-<script src="gama-inventory-v2.js?v=20260919-reference1"></script>
-<script src="gama-sales.js?v=20260919-reference1"></script>
-<script src="gama-quotes.js?v=20260919-company1"></script>
-<script src="gama-order-preparation.js?v=20260914-preptheme1"></script>
-<script src="gama-fulfillment.js?v=20260919-company1"></script>
-<script src="gama-tms-loading.js?v=20260913-prepmodule1"></script>
-<script src="gama-internal-invoices.js?v=20260919-company1"></script>
-<script src="gama-dossier-flow.js?v=20260919-reference1"></script>
-<script src="gama-assistant-ia.js?v=20260915-ai1"></script>
-<link rel="stylesheet" href="gama-projects.css?v=20260916-contrast2">
-<script src="gama-projects-core.js?v=20260916-projects1"></script>
-<script src="gama-projects-i18n.js?v=20260916-delete1"></script>
-<script src="gama-projects.js?v=20260919-company1"></script>
-<script src="gama-knowledge.js?v=20260919-reference1"></script>
-<script src="gama-payments.js?v=20260919-reference1"></script>
-<script src="gama-accounting.js?v=20260919-company1"></script>
-<script src="gama-fleet.js?v=20260919-reference1"></script>
-<script src="gama-returns.js?v=20260919-reference1"></script>
-<script src="gama-operations.js?v=20260919-reference1"></script>
-<script src="gama-standard-ui.js?v=20260919-kpi1"></script>
-<script src="gama-sidebar.js?v=20260919-reference1"></script>
-<script src="architect-shell.js?v=20260919-order1"></script>
+<script src="gama-company-core.js?v=9589c6f39373"></script>
+<script src="gama-company.js?v=38aa75583cb7"></script>
+<script src="gama-pdf-template.js?v=ec6a9c9717f8"></script>
+<script src="gama-quote-pdf.js?v=3e2e4f471e1e"></script>
+<script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
+<script src="gama-supabase.js?v=7f1fe7465db3"></script>
+<script src="gama-central-sync.js?v=c1b7f5abcd39"></script>
+<script src="gama-purchases-v14.js?v=bae32bbd21bd"></script>
+<script src="gama-proveedores-matriz.js?v=a235954439f0"></script>
+<script src="gama-client-catalog.js?v=ca093815c5e7"></script>
+<script src="gama-customer-requests.js?v=98f95aa0b9c3"></script>
+<script src="gama-sales-report.js?v=a41a49197824"></script>
+<script src="gama-pdf.js?v=9b22d86d08b3"></script>
+<script src="gama-photos.js?v=e1ba893e9159"></script>
+<script src="gama-price-lists.js?v=b264b66adfed"></script>
+<script src="gama-crm-core.js?v=40e22144e54c"></script>
+<script src="gama-crm-scoring.js?v=48fcaffa712c"></script>
+<script src="gama-crm-leads.js?v=2b7bbb74786c"></script>
+<script src="gama-crm-opportunities.js?v=f33b824dc4a6"></script>
+<script src="gama-crm-activities.js?v=19c9cd8b1885"></script>
+<script src="gama-crm-contacts.js?v=ff7774900a4b"></script>
+<script src="gama-crm-reports.js?v=bb5b531c8e6e"></script>
+<script src="gama-crm-targets.js?v=8c8e12c834ca"></script>
+<script src="gama-hr-p1.js?v=2f43f08def33"></script>
+<script src="gama-hr.js?v=d7cf847f31e5"></script>
+<script src="gama-settings.js?v=0f8600595bb1"></script>
+<script src="gama-inventory-v2.js?v=ce552840708c"></script>
+<script src="gama-sales.js?v=ae3a129ff4a5"></script>
+<script src="gama-quotes.js?v=c50fb10ca70e"></script>
+<script src="gama-order-preparation.js?v=e7558585bc71"></script>
+<script src="gama-fulfillment.js?v=e23c487a2145"></script>
+<script src="gama-tms-loading.js?v=d8301e494779"></script>
+<script src="gama-internal-invoices.js?v=386843a8a3b6"></script>
+<script src="gama-dossier-flow.js?v=92a5d01b73e1"></script>
+<script src="gama-assistant-ia.js?v=68bd0aec2793"></script>
+<link rel="stylesheet" href="gama-projects.css?v=c8ad83b460ac">
+<script src="gama-projects-core.js?v=5875adad968b"></script>
+<script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
+<script src="gama-projects.js?v=f9d2e59c50f6"></script>
+<script src="gama-knowledge.js?v=c51c1dcc7c6d"></script>
+<script src="gama-payments.js?v=3786260c6beb"></script>
+<script src="gama-operations.js?v=217c66f51f72"></script>
+<script src="gama-standard-ui.js?v=9235231a5459"></script>
+
+<script src="architect-shell.js?v=d43174314048"></script>
 </body></html>

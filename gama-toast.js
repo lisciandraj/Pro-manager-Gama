@@ -26,27 +26,7 @@ if(window.gamaToast)return;
 const MAX=4;
 const nativo=window.alert?window.alert.bind(window):null;
 
-function estilo(){
- if(document.getElementById('gamaToastCss'))return;
- const s=document.createElement('style');s.id='gamaToastCss';
- s.textContent=`
-#gamaToasts{position:fixed;right:18px;bottom:18px;z-index:100100;display:flex;flex-direction:column;gap:9px;width:min(390px,calc(100vw - 28px));pointer-events:none}
-.gamaToast{pointer-events:auto;display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border-radius:12px;background:var(--arc-text);color:#fff;font-size:13.5px;line-height:1.45;box-shadow:0 10px 30px rgba(8,32,42,.28);animation:gamaToastEntra .16s ease}
-.gamaToast .gamaToastIcono{flex:0 0 auto;font-size:15px;line-height:1.3}
-.gamaToast .gamaToastTexto{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-line}
-.gamaToast button{flex:0 0 auto;width:24px;height:24px;padding:0;border:0;border-radius:7px;background:transparent;color:inherit;opacity:.65;font-size:15px;line-height:1;cursor:pointer}
-.gamaToast button:hover{opacity:1;background:rgba(255,255,255,.14)}
-.gamaToast.exito{background:var(--arc-success)}
-.gamaToast.error{background:var(--arc-danger)}
-.gamaToast.aviso{background:var(--arc-warning)}
-.gamaToast.sale{animation:gamaToastSale .15s ease forwards}
-@keyframes gamaToastEntra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes gamaToastSale{to{opacity:0;transform:translateY(6px)}}
-@media(max-width:700px){#gamaToasts{right:10px;left:10px;bottom:10px;width:auto}}
-@media(prefers-reduced-motion:reduce){.gamaToast,.gamaToast.sale{animation:none}}
-@media print{#gamaToasts{display:none!important}}`;
- (document.head||document.documentElement).appendChild(s);
-}
+function estilo(){ /* Styles are compiled in architect-components.css. */ }
 
 function anfitrion(){
  let h=document.getElementById('gamaToasts');

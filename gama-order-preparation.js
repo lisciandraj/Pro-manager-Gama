@@ -1,6 +1,6 @@
 /* Dedicated logistics workspace: quantities, barcode-checked cartons, closure and handoff. */
 (function(){'use strict';
-const S=()=>window.GamaSales,esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S=()=>window.GamaSales,esc=window.ArcUI.esc;
 let page=0,generation=0;
 const allowed=()=>window.gamaAccessAllowed?.('order-preparation');
 function shell(){
@@ -9,18 +9,18 @@ function shell(){
  if(!section){section=document.createElement('section');section.id='order-preparation';document.querySelector('.wrap').append(section)}
  // The tab class styles navigation buttons, including their orange active state.
  section.classList.remove('tab');
- section.innerHTML=window.GamaUI.header({title:'Preparación de pedidos',lead:'Prepara, escanea y cierra los pedidos antes de enviarlos al transporte.'})+'<div class="gsTools"><button class="secondary" id="gpList" data-gi-live data-gi=046da3ced22e>Lista de pedidos</button></div><div id="gpBody"></div>';
+ window.ArcUI.render(section,window.GamaUI.header({title:'Preparación de pedidos',lead:'Prepara, escanea y cierra los pedidos antes de enviarlos al transporte.'})+'<div class="gsTools"><button class="arcButton secondary" id="gpList" data-gi-live data-gi=046da3ced22e>Lista de pedidos</button></div><div id="gpBody"></div>');
  window.GamaUI.bindBack(section);
  section.querySelector('#gpList').onclick=()=>open();
  window.showTab('order-preparation');
  return section.querySelector('#gpBody');
 }
-async function open(id=null){if(!allowed())return;const host=shell(),token=++generation;host.textContent='Cargando…';try{await window.GamaCloudReady;if(id){await detail(id,host,token);return}const orders=await S().rows('sales_orders',{eq:{status:'confirmed'},order:'created_at',ascending:false,range:[page*20,page*20+20]}),more=orders.length>20;orders.splice(20);if(token!==generation)return;host.innerHTML='<div class="gsCard">'+orders.map(o=>`<div class="gfItem"><b>${esc(o.number)} · ${esc(o.customer_name)}</b><p>${esc(o.delivery_address)}</p><button class="primary" data-prep-order="${esc(o.id)}" data-gi-live data-gi=e5f4e7cc21f2>Abrir preparación</button></div>`).join('')+`<div class="gsActions"><button class="secondary" id="gpPrev" ${page?'':'disabled'} data-gi-live data-gi=e4ce7c09d51e>Anterior</button><span>${page+1}</span><button class="secondary" id="gpNext" ${more?'':'disabled'} data-gi-live data-gi=49683b71c6ac>Siguiente</button></div></div>`;host.querySelectorAll('[data-prep-order]').forEach(b=>b.onclick=()=>open(b.dataset.prepOrder));host.querySelector('#gpPrev').onclick=()=>{page--;open()};host.querySelector('#gpNext').onclick=()=>{page++;open()}}catch(e){if(token===generation)host.textContent=S().error(e)}}
+async function open(id=null){if(!allowed())return;const host=shell(),token=++generation;host.textContent='Cargando…';try{await window.GamaCloudReady;if(id){await detail(id,host,token);return}const orders=await S().rows('sales_orders',{eq:{status:'confirmed'},order:'created_at',ascending:false,range:[page*20,page*20+20]}),more=orders.length>20;orders.splice(20);if(token!==generation)return;window.ArcUI.render(host,'<div class="arcPanel gsCard">'+orders.map(o=>`<div class="gfItem"><b>${esc(o.number)} · ${esc(o.customer_name)}</b><p>${esc(o.delivery_address)}</p><button class="arcButton primary" data-prep-order="${esc(o.id)}" data-gi-live data-gi=e5f4e7cc21f2>Abrir preparación</button></div>`).join('')+`<div class="gsActions"><button class="arcButton secondary" id="gpPrev" ${page?'':'disabled'} data-gi-live data-gi=e4ce7c09d51e>Anterior</button><span>${page+1}</span><button class="arcButton secondary" id="gpNext" ${more?'':'disabled'} data-gi-live data-gi=49683b71c6ac>Siguiente</button></div></div>`);host.querySelectorAll('[data-prep-order]').forEach(b=>b.onclick=()=>open(b.dataset.prepOrder));host.querySelector('#gpPrev').onclick=()=>{page--;open()};host.querySelector('#gpNext').onclick=()=>{page++;open()}}catch(e){if(token===generation)host.textContent=S().error(e)}}
 async function detail(id,host,token){
  const [orders,lines,shipments,reservations,locations]=await Promise.all([S().rows('sales_orders',{eq:{id}}),S().rows('sales_order_lines',{eq:{order_id:id}}),S().rows('sales_deliveries',{eq:{order_id:id}}),S().rows('stock_reservations',{eq:{reference_type:'sales_order',reference_id:id}}),S().refs('warehouse_locations','id,code,name,warehouse_id,active')]);if(!orders[0])throw Error('ORDER_NOT_FOUND');
  const [links,shipLines]=await Promise.all([lines.length?S().rows('sales_reservation_links',{in:{line_id:lines.map(x=>x.id)}}):[],shipments.length?S().rows('sales_delivery_lines',{in:{delivery_id:shipments.map(x=>x.id)}}):[]]);if(token!==generation)return;
  const d={order:orders[0],lines,shipments,reservations,locations,links,shipLines,invoices:[],invoiceLines:[],payments:[],preparationOnly:true,onDone:()=>open(id)};
- host.innerHTML=`<div class="gsCard"><h3>${esc(d.order.number)} · ${esc(d.order.customer_name)}</h3><p>${esc(d.order.delivery_address)}</p></div><div id="gpPreparation"></div><div id="gpTransferred"></div>`;
+ window.ArcUI.render(host,`<div class="arcPanel gsCard"><h3>${esc(d.order.number)} · ${esc(d.order.customer_name)}</h3><p>${esc(d.order.delivery_address)}</p></div><div id="gpPreparation"></div><div id="gpTransferred"></div>`);
  await window.GamaFulfillment.mount(d,host.querySelector('#gpPreparation'));
  for(const s of shipments){if(token!==generation)return;const box=document.createElement('div');box.className='gsCard';host.querySelector('#gpTransferred').append(box);await window.GamaFulfillment.parcelPanel(s.id,box,()=>open(id),!!s.departed_at)}
 }

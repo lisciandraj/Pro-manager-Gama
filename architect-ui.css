@@ -110,6 +110,7 @@ button[aria-busy=true]::after{
 
 /* =========================================================== formularios */
 label{font-size:var(--arc-fs-sec);font-weight:var(--arc-fw-med);color:var(--arc-text);display:block;margin-bottom:var(--arc-s1)}
+/* Native date/select controls must fit their allocated flex or grid column. */
 input,select,textarea{
  font-family:inherit;font-size:var(--arc-fs-body);color:var(--arc-text);
  background:var(--arc-surface);
@@ -117,7 +118,7 @@ input,select,textarea{
  border-radius:var(--arc-r-md);
  padding:10px var(--arc-s3);
  min-height:var(--arc-tap);
- width:100%;
+ width:100%;min-width:0;max-width:100%;box-sizing:border-box;
  transition:border-color var(--arc-motion),box-shadow var(--arc-motion);
 }
 textarea{min-height:88px;line-height:var(--arc-lh-body);padding-top:var(--arc-s2)}

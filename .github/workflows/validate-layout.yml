@@ -1,0 +1,25 @@
+name: Validate responsive layout
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test --config=playwright.responsive.config.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: responsive-layout-results
+          path: test-results/
+          retention-days: 7

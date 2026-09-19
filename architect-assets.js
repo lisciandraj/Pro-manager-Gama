@@ -1,9 +1,9 @@
 /* Generated runtime asset versions. */
 window.ArcAssets={
   "architect-base.css": "architect-base.css?v=2d6807bbf075",
-  "architect-components.css": "architect-components.css?v=acde47ab743e",
+  "architect-components.css": "architect-components.css?v=2a71801afcfd",
   "architect-core.js": "architect-core.js?v=cc5efed05c1f",
-  "architect-dashboard.js": "architect-dashboard.js?v=9423f3afd5e6",
+  "architect-dashboard.js": "architect-dashboard.js?v=b1675f8c99ca",
   "architect-home-kpis.js": "architect-home-kpis.js?v=b1beab0f73b1",
   "architect-home-order.js": "architect-home-order.js?v=35fd320f0934",
   "architect-home.css": "architect-home.css?v=04dc25d02152",
@@ -12,7 +12,7 @@ window.ArcAssets={
   "architect-shell.css": "architect-shell.css?v=6d599b3978fb",
   "architect-shell.js": "architect-shell.js?v=ab10380a5614",
   "architect-tokens.css": "architect-tokens.css?v=cc2cf3b75cb1",
-  "architect-ui.css": "architect-ui.css?v=d15aaf54b8be",
+  "architect-ui.css": "architect-ui.css?v=5430b6848719",
   "gama-access-control.js": "gama-access-control.js?v=59dcf31e6519",
   "gama-accounting.js": "gama-accounting.js?v=2ed6f8c3a0f3",
   "gama-archive.js": "gama-archive.js?v=d3985ac8e752",
@@ -94,5 +94,6 @@ window.ArcAssets={
   "gama-toast.js": "gama-toast.js?v=23a8e1087e3f",
   "gama-ui.js": "gama-ui.js?v=98cc6c17c615",
   "playwright.config.js": "playwright.config.js?v=55735dd45ef8",
+  "playwright.responsive.config.js": "playwright.responsive.config.js?v=7bffbe012a33",
   "sw.js": "sw.js?v=6b3188a94f56"
 };

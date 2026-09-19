@@ -108,7 +108,7 @@ function css(){
 .gfCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .gfGrid[hidden],.gfCard[hidden]{display:none}
 .gfVeh{border:1px solid var(--arc-line-strong);border-radius:13px;background:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column}
-.gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px rgba(8,124,139,.16)}
+.gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px rgba(12,103,179,.16)}
 .gfVeh figure{margin:0;height:120px;background:var(--arc-surface-3) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:38px}
 .gfVeh .gfVehBody{padding:13px}
 .gfVeh b{display:block;font-size:16px;color:var(--arc-text)}

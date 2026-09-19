@@ -141,7 +141,7 @@ section{display:none}section.active{display:block}
 button{transition:background-color .12s ease,box-shadow .12s ease,transform .08s ease,opacity .12s ease}
 button:active{transform:translateY(1px)}
 button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
-.primary{box-shadow:0 2px 8px rgba(8,124,139,.25)}
+.primary{box-shadow:0 2px 8px rgba(12,103,179,.25)}
 .primary:hover:not(:disabled){background:var(--arc-accent-700)}
 .secondary:hover:not(:disabled){background:var(--arc-surface-3)}
 .danger:hover:not(:disabled){background:var(--arc-danger)}
@@ -154,7 +154,7 @@ button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
    a ojo; y un campo de sólo lectura parecía uno vacío que no aceptaba nada. */
 input,select,textarea{transition:border-color .12s ease,box-shadow .12s ease}
 input:hover:not(:disabled),select:hover:not(:disabled),textarea:hover:not(:disabled){border-color:var(--arc-line-strong)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,var(--arc-accent-600));box-shadow:0 0 0 3px rgba(8,124,139,.18)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gama-teal,var(--arc-accent-600));box-shadow:var(--arc-focus)}
 input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-2);color:var(--arc-text-subtle);cursor:not-allowed}
 input[readonly]{background:var(--arc-surface-2);color:var(--arc-text-muted)}
 ::placeholder{color:var(--arc-text-subtle)}

@@ -1,4 +1,5 @@
 export const icons={
+car:'<path d="m5 10 2-5h10l2 5M5 10h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2ZM5 17v3M19 17v3M6 13h2M16 13h2"/>',
 sparkles:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4M18 4h4M3 18v4M1 20h4"/>',
 
 ledger:'<path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V3Z"/><path d="M5 7H3m2 5H3m2 5H3"/><path d="M9 8h6M9 12h6M9 16h3"/>',

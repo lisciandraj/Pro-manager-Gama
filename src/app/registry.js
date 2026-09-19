@@ -33,7 +33,7 @@ const definitions=[
   {
     "id": "fleet",
     "label": "Gestión de flota",
-    "icon": "truck",
+    "icon": "car",
     "group": "Administración",
     "description": "Vehículos, papeles y consumos",
     "accent": "indigo",

@@ -2,7 +2,7 @@
 window.ArcAssets={
   "architect-base.css": "architect-base.css?v=2d6807bbf075",
   "architect-components.css": "architect-components.css?v=9657b0635f61",
-  "architect-core.js": "architect-core.js?v=3622d7074d73",
+  "architect-core.js": "architect-core.js?v=3b4da5c2528d",
   "architect-home-kpis.js": "architect-home-kpis.js?v=b1beab0f73b1",
   "architect-home-order.js": "architect-home-order.js?v=35fd320f0934",
   "architect-home.css": "architect-home.css?v=04dc25d02152",

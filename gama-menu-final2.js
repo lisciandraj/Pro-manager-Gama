@@ -154,41 +154,6 @@ function personalize(){
  d.addEventListener('close',()=>{if(d.returnValue==='save'){const invisible=[...d.querySelectorAll('input:not(:checked)')].map(n=>n.value);try{localStorage.setItem(preferenceKey(),JSON.stringify(invisible))}catch(_){}applyPreferences()}else if(d.returnValue==='reset'){try{localStorage.removeItem(preferenceKey())}catch(_){}applyPreferences()}d.remove()},{once:true});d.showModal();
 }
 
-/* Existing read-only RPC: total and active_count are ALERT counts, never sales.
-   The monthly invoicing figure includes tax, so it is labelled as invoicing,
-   not accounting revenue. Authorization remains enforced by the existing RPC. */
-async function kpis(){
- const out=[];
- if(!window.GamaCloud)return out;
- await window.GamaCloudReady;
- if(can('operations')){
-  try{
-   const c=await window.GamaCloud.db();
-   const r=await c.rpc('gama_operations_action',{p_action:'snapshot',p_data:{offset:0}});
-   const d=!r.error?r.data:null;
-   if(d?.metrics){
-    const m=d.metrics;
-    if(d.finance&&Number.isFinite(m.invoiced))out.push(['revenue','Facturación del mes',window.GamaCurrency.format(m.invoiced),'green','IVA incluido']);
-    if(Number.isFinite(m.orders))out.push(['orders','Pedidos confirmados (mes)',window.GamaCurrency.number(m.orders,0),'blue','Mes actual']);
-    if(Number.isFinite(m.late_deliveries))out.push(['alerts','Entregas atrasadas',window.GamaCurrency.number(m.late_deliveries,0),'orange','Fecha prevista superada']);
-   }
-  }catch(_){/* Unavailable is not zero. Keep an honest empty state. */}
- }
- if(can('clients')){
-  try{const r=await window.GamaCloud.list('customers',{select:'id',count:'exact',head:true,eq:{active:true}});
-   if(!r.error&&Number.isFinite(r.count))out.push(['clients','Clientes activos',window.GamaCurrency.number(r.count,0),'violet','Clientes no archivados']);
-  }catch(_){}
- }
- return out;
-}
-
-const KPI_ICON={
- clients:I.users,
- revenue:'<path d="M12 3v18M7 7h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/>',
- orders:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5"/>',
- alerts:'<path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v5M12 17.5v.5"/>',
-};
-
 function render(){
  const host=document.getElementById('mainmenu');if(!host)return;
  document.documentElement.lang=window.GamaI18n?.language||'es';
@@ -233,29 +198,7 @@ function render(){
  const activity=document.createElement('div');activity.id='arcRecentActivity';
  host.append(cabecera,fila,heading,grid,activity);
  heading.querySelector('button').onclick=personalize;
- window.ArchitectHomeOrder?.mount(grid);applyPreferences();pintarKpis(fila);recentActivity();window.GamaI18n?.scan?.(host);
-}
-
-/* Los indicadores llegan cuando llegan: el menú no espera por ellos. */
-function pintarKpis(fila){
- kpis().then(lista=>{
-  if(!fila.isConnected)return;
-  if(!lista.length){fila.hidden=true;return}
-  fila.replaceChildren();
-  lista.forEach(([clave,label,valor,fam,hint])=>{
-   const c=document.createElement('div');c.className='gamaF2Kpi';
-   c.innerHTML='<span class="gamaF2KpiIcon" data-arc-fam="'+fam+'">'
-    +'<svg viewBox="0 0 24 24" aria-hidden="true">'+(KPI_ICON[clave]||'')+'</svg></span>'
-    +'<span class="gamaF2KpiText"><span class="gamaF2KpiLabel"></span><span class="gamaF2KpiValue"></span><span class="gamaF2KpiHint"></span></span>';
-   c.querySelector('.gamaF2KpiLabel').textContent=label;
-   c.querySelector('.gamaF2KpiLabel').dataset.gamaSource=label;c.querySelector('.gamaF2KpiLabel').setAttribute('data-gi-live','');
-   c.querySelector('.gamaF2KpiValue').textContent=valor;
-   c.querySelector('.gamaF2KpiHint').textContent=T(hint||'');
-   fila.appendChild(c);
-  });
-  fila.hidden=false;
-  window.GamaI18n?.scan?.(fila);
- }).catch(()=>{});
+ window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.ArchitectHomeKpis?.mount(fila);recentActivity();window.GamaI18n?.scan?.(host);
 }
 
 /* Recent activity comes from the already synchronized stock audit trail.
@@ -271,12 +214,12 @@ function recentActivity(){
  host.querySelector('#arcViewAudit').onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='audit'));
  const dash=host.querySelector('#arcViewDashboard');if(dash)dash.onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='dashboard'));
 }
-let lastRefresh=0,activitySignature='';
+let activitySignature='';
 setInterval(()=>{
  const home=document.getElementById('mainmenu');if(!home?.classList.contains('active'))return;
  const signature=typeof db!=='undefined'?JSON.stringify([db.__cloud,db.moves?.length,db.moves?.[0]?.id,window.GamaI18n?.language,can('audit')]):'';
  if(signature!==activitySignature){activitySignature=signature;recentActivity()}
- if(window.GamaCloud&&Date.now()-lastRefresh>60000){lastRefresh=Date.now();const f=document.getElementById('gamaF2Kpis');if(f)pintarKpis(f)}
+
 },1500);
 window.addEventListener('gama:language-change',()=>{recentActivity();const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
 

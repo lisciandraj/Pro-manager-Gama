@@ -522,6 +522,17 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_home_kpis'){
+          const session=JSON.parse(localStorage.getItem('gama_session_v1')||'{}'),user=session.id||'test-admin-uid';
+          if(window.__kpiError)return {error:{message:'TEST_UNAVAILABLE'}};
+          const catalog=window.ArchitectKpiCatalog||[],role=session.role;
+          const allowed=catalog.filter(x=>!['client','cliente'].includes(role)&&(!['magasinier','almacenero'].includes(role)||['stock','logistics','projects','purchasing'].includes(x.group)&&x.id!=='suppliers_active'||x.id==='orders')).map(x=>x.id);
+          const key='mock:kpi:'+user,defaults=['invoiced','orders','late_deliveries','clients_active'];
+          if(args?.p_selected){if(args.p_user!==user)return {error:{message:'AUTH_CHANGED'}};localStorage.setItem(key,JSON.stringify(args.p_selected))}
+          const selected=[...new Set([...JSON.parse(localStorage.getItem(key)||JSON.stringify(defaults)),...allowed])].filter(x=>allowed.includes(x)).slice(0,4);
+          const source={invoiced:1840,orders:7,late_deliveries:2,clients_active:(window.__DB.customers||[]).filter(x=>x.active!==false).length,...window.__kpiValues};
+          return {data:{user_id:user,allowed,selected,values:Object.fromEntries(selected.map(id=>[id,Object.hasOwn(source,id)?source[id]:0])),unavailable:[],generated_at:new Date().toISOString()}};
+        }
         if(fn==='gama_company_action'){
           const p=window.__DB.company_settings?.[0]||{},role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
           const profile={...window.GamaCompanyCore?.defaults,...p};

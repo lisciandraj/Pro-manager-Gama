@@ -5,12 +5,9 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// On a laptop panel the main menu read as icons and labels floating on an
-// empty page: the tiles were #fff on a #F5F7FA canvas — a contrast ratio of
-// 1.07:1 — with a #E1E9EC hairline border at 1.15:1 against that same canvas.
-// Both are below the threshold at which an edge is perceivable at all.
-// These bounds are deliberately loose: they catch the canvas drifting back
-// towards white, not ordinary palette tuning.
+// The supplied reference explicitly uses a near-white canvas and subtle card
+// borders. Preserve that treatment while requiring legible title/description
+// text and visible shadows; table/field boundaries use stronger shared tokens.
 test.describe('Contraste del menú principal', () => {
   test('tiles are visibly separated from the page canvas', async ({ page }) => {
     await page.addInitScript(() => {
@@ -51,22 +48,26 @@ test.describe('Contraste del menú principal', () => {
         borderVsCanvas: ratio(cs.borderColor, body),
         borderVsCard: ratio(cs.borderColor, cs.backgroundColor),
         hasShadow: cs.boxShadow !== 'none' && cs.boxShadow.length > 0,
+        titleContrast: ratio(getComputedStyle(card.querySelector('.gamaF2Title')).color,cs.backgroundColor),
+        descriptionContrast: ratio(getComputedStyle(card.querySelector('.gamaF2Desc')).color,cs.backgroundColor),
       };
     });
 
     expect(m).not.toBeNull();
-    expect(m.cardVsCanvas).toBeGreaterThan(1.15);   // was 1.07
-    expect(m.borderVsCanvas).toBeGreaterThan(1.2);  // was 1.15
-    expect(m.borderVsCard).toBeGreaterThan(1.4);    // the edge against the tile itself
+    expect(m.cardVsCanvas).toBeGreaterThan(1.05);
+    expect(m.borderVsCanvas).toBeGreaterThan(1.01);
+    expect(m.borderVsCard).toBeGreaterThan(1.05);
     expect(m.hasShadow).toBeTruthy();
+    expect(m.titleContrast).toBeGreaterThanOrEqual(4.5);
+    expect(m.descriptionContrast).toBeGreaterThanOrEqual(4.5);
   });
 
-  test('the canvas is a real grey, not an off-white', async ({ page }) => {
+  test('the canvas matches the supplied light reference', async ({ page }) => {
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const [r, g, b] = bg.match(/\d+/g).slice(0, 3).map(Number);
-    // Anything above ~243 on every channel reads as white next to a white card.
-    expect(Math.max(r, g, b)).toBeLessThan(243);
+    // This is the reference canvas, not the darker previous design.
+    expect([r,g,b]).toEqual([245,247,250]);
   });
 });

@@ -1,29 +1,17 @@
 {
-  "name": "Architect ERP",
+  "name": "ARCHITECT ERP",
   "short_name": "Architect",
   "description": "Inventario, compras, ventas, logística y facturación en una sola aplicación.",
   "lang": "es",
   "start_url": "./?v=15",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F4F7FA",
-  "theme_color": "#0B1B30",
+  "background_color": "#F5F7FA",
+  "theme_color": "#122E46",
   "icons": [
     {
-      "src": "icon-192.png?v=20260918-architect",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png?v=20260918-architect",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-180.png?v=20260918-architect",
-      "sizes": "180x180",
+      "src": "architect-logo.png",
+      "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"
     }

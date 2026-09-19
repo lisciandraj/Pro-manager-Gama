@@ -1,0 +1,44 @@
+const {test,expect}=require('@playwright/test');
+const fs=require('fs');const path=require('path');const crypto=require('crypto');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
+const bridge=`(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();const rpc=c.rpc;c.rpc=async(fn,a)=>fn==='gama_operations_action'?{data:{finance:true,metrics:{invoiced:1840,orders:7,late_deliveries:2},total:93,active_count:67,alerts:[]}}:rpc(fn,a);return c}})();`;
+async function boot(page,role='admin'){
+ await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Test User'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[{id:'c1',active:true,name:'Customer'}],suppliers:[],invoices:[],profiles:[],stock_movements:[]}},role);
+ await page.route('https://**/*',r=>r.abort());
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
+ await page.goto('/index.html');await expect(page.locator('.arcLogo')).toBeVisible();
+}
+test('original logo, four-column reference, translated labels and truthful metrics',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});await boot(page);
+ await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
+ await expect(page.locator('.gamaF2KpiValue')).toHaveText([/1.*840/, '7','2','1']);
+ await expect(page.locator('.gamaF2Head h1')).toHaveText('Menu principal');
+ await expect(page.locator('.gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
+ const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight}));
+ expect(layout).toEqual({columns:4,nav:'rgb(18, 46, 70)',fit:'contain',ratio:1});
+ await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
+ await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
+ const logo=await page.request.get('/architect-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42');
+});
+test('customization persists without removing navigation or access to modules',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});await boot(page);
+ await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize input[value="crm"]').uncheck();await page.locator('#arcCustomize button[value="save"]').click();
+ await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
+ await expect(page.locator('.arcNav [data-gama-module="crm"]')).toBeVisible();
+ await page.reload();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
+ await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize button[value="reset"]').click();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible();
+});
+test('client role has no administrative metrics, notifications or stock activity',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});await boot(page,'client');
+ await expect(page.locator('#arcNotify')).toBeHidden();await expect(page.locator('#arcRecentActivity')).toBeEmpty();
+ await expect(page.locator('#gamaF2Kpis')).toBeHidden();await expect(page.locator('.arcNav [data-gama-module="assistant-ia"]')).toBeHidden();
+ await page.locator('#arcCustomizeOpen').click();await expect(page.locator('#arcCustomize input[value="assistant-ia"]')).toHaveCount(0);
+});
+test('tablet expands the rail and mobile drawer excludes hidden navigation from keyboard',async({page})=>{
+ await page.setViewportSize({width:1024,height:800});await boot(page);await page.locator('.arcBurger').click();await expect(page.locator('.arcNavLabel').first()).toBeVisible();
+ await page.keyboard.press('Escape');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(350);
+ expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(true);
+ await page.locator('.arcBurger').click();expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(false);
+ await page.locator('.arcNav [data-gama-module="products"]').click();await expect(page.locator('#products')).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBe(0);
+});

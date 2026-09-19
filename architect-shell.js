@@ -24,16 +24,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
-/* La marca, en SVG: tres barras que suben. Nítida a cualquier tamaño y sin
-   una petición de red. */
-const MARK='<svg class="arcMark" viewBox="0 0 64 64" aria-hidden="true">'
- +'<rect width="64" height="64" rx="12" fill="var(--arc-navy-800)"/>'
- +'<path d="M14 38 24 33 31 36 21 41Z" fill="#fff"/><path d="M14 38 21 41 21 50 14 47Z" fill="var(--arc-steel-500)"/>'
- +'<path d="M31 36 31 45 21 50 21 41Z" fill="var(--arc-steel-600)"/>'
- +'<path d="M24 27 34 22 41 25 31 30Z" fill="#fff"/><path d="M24 27 31 30 31 45 24 42Z" fill="var(--arc-steel-500)"/>'
- +'<path d="M41 25 41 40 31 45 31 30Z" fill="var(--arc-steel-600)"/>'
- +'<path d="M34 16 44 11 51 14 41 19Z" fill="#fff"/><path d="M34 16 41 19 41 40 34 37Z" fill="var(--arc-steel-500)"/>'
- +'<path d="M51 14 51 35 41 40 41 19Z" fill="var(--arc-steel-600)"/></svg>';
+// Use the original supplied file byte-for-byte, including its slogan and ratio.
+const MARK='<img class="arcLogo" src="architect-logo.png" alt="ARCHITECT ERP" width="1254" height="1254">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
@@ -46,169 +38,6 @@ const ICON={
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
 
-function css(){
- if($('architectShellCss'))return;
- const s=document.createElement('style');s.id='architectShellCss';
- s.textContent=`
-.arcShell{display:flex;min-height:100vh;align-items:stretch}
-.arcSidebar{
- position:fixed;inset:0 auto 0 0;width:var(--arc-sidebar-w);z-index:60;
- background:var(--arc-navy-900);color:var(--arc-text-on-navy);
- display:flex;flex-direction:column;
- transition:transform var(--arc-motion),width var(--arc-motion);
-}
-.arcBrand{display:flex;align-items:center;gap:var(--arc-s3);padding:var(--arc-s5) var(--arc-s4) var(--arc-s4)}
-.arcMark{width:36px;height:36px;flex:none;border-radius:9px}
-.arcBrandText{min-width:0;line-height:1.15}
-.arcBrandName{display:block;font-size:15px;font-weight:var(--arc-fw-black);color:#fff;letter-spacing:.04em}
-.arcBrandTag{display:block;font-size:9px;letter-spacing:.08em;line-height:1.45;text-transform:uppercase;color:var(--arc-steel-400);margin-top:4px}
-.arcNav{flex:1;overflow-y:auto;padding:var(--arc-s2) var(--arc-s3) var(--arc-s4);scrollbar-width:thin}
-.arcNavGroup{
- font-size:10px;font-weight:var(--arc-fw-black);letter-spacing:.12em;text-transform:uppercase;
- color:var(--arc-steel-400);padding:var(--arc-s4) var(--arc-s3) var(--arc-s1);
-}
-.arcNavGroup:first-child{padding-top:var(--arc-s1)}
-.arcNavLink{
- display:flex;align-items:center;gap:var(--arc-s3);width:100%;
- padding:10px var(--arc-s3);margin-bottom:2px;
- background:transparent;border:0;border-radius:var(--arc-r-md);
- color:var(--arc-text-on-navy);font-size:var(--arc-fs-sec);font-weight:var(--arc-fw-med);
- text-align:left;cursor:pointer;min-height:40px;
- transition:background var(--arc-motion),color var(--arc-motion);
-}
-.arcNavLink:hover{background:rgba(255,255,255,.07);color:#fff}
-.arcNavLink[aria-current=page]{background:var(--arc-accent-600);color:#fff}
-.arcNavLink[aria-current=page] .arcIco{color:#fff}
-.arcNavLink:focus-visible{outline:2px solid var(--arc-accent-400);outline-offset:-2px}
-.arcNavLink .arcIco{width:18px;height:18px;flex:none;color:var(--arc-steel-300)}
-.arcNavLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.arcNavLink.aclHidden{display:none}
-
-.arcFoot{border-top:1px solid rgba(255,255,255,.10);padding:var(--arc-s3) var(--arc-s4) var(--arc-s4)}
-.arcFootBrand{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--arc-steel-400)}
-.arcFootVersion{font-size:11px;color:var(--arc-steel-400);margin:2px 0 var(--arc-s3)}
-.arcLang{display:flex;align-items:center;gap:var(--arc-s2);width:100%;
- background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--arc-r-md);
- padding:0 var(--arc-s3);min-height:var(--arc-tap);color:#fff}
-.arcLang .arcIco{width:16px;height:16px;color:var(--arc-steel-300);flex:none}
-.arcLang select{
- /* La zona de pulsado es la del contenedor: un desplegable de 17px de alto
-    no se acierta con el pulgar. */
- flex:1;align-self:stretch;background:transparent;border:0;color:#fff;
- font-size:var(--arc-fs-sec);font-weight:var(--arc-fw-med);
- min-height:var(--arc-tap);padding:0;width:auto;
-}
-.arcLang select:focus-visible{outline:2px solid var(--arc-accent-400);outline-offset:2px}
-.arcLang select option{color:var(--arc-text);background:#fff}
-
-/* --------------------------------------------------------------- superior */
-.arcMain{flex:1;min-width:0;margin-left:var(--arc-sidebar-w);display:flex;flex-direction:column}
-.arcTopbar{
- position:sticky;top:0;z-index:40;
- display:flex;align-items:center;gap:var(--arc-s3);
- min-height:var(--arc-topbar-h);padding:var(--arc-s3) var(--arc-s5);
- background:var(--arc-surface);border-bottom:1px solid var(--arc-line);box-shadow:var(--arc-sh-nav);
-}
-.arcBurger{display:none;background:transparent;border:0;color:var(--arc-text);padding:8px;border-radius:var(--arc-r-md);min-height:var(--arc-tap);min-width:var(--arc-tap)}
-.arcBurger:hover{background:var(--arc-surface-3)}
-.arcSearch{position:relative;flex:1;max-width:560px}
-.arcSearch .arcIco{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--arc-text-subtle);pointer-events:none}
-.arcSearch input{padding-left:40px;padding-right:52px;background:var(--arc-surface-2);border-color:var(--arc-line)}
-.arcSearch kbd{
- position:absolute;right:10px;top:50%;transform:translateY(-50%);
- font:inherit;font-size:11px;font-weight:var(--arc-fw-bold);color:var(--arc-text-subtle);
- background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:6px;padding:2px 6px;
-}
-.arcTopRight{display:flex;align-items:center;gap:var(--arc-s2);margin-left:auto}
-.arcIconBtn{
- position:relative;background:transparent;border:1px solid transparent;color:var(--arc-text-muted);
- border-radius:var(--arc-r-md);min-width:var(--arc-tap);min-height:var(--arc-tap);padding:0;
-}
-.arcIconBtn:hover{background:var(--arc-surface-3);color:var(--arc-text)}
-.arcIconBtn .arcIco{width:20px;height:20px}
-.arcDot[hidden]{display:none}
-.arcDot{
- position:absolute;top:6px;right:6px;min-width:17px;height:17px;padding:0 4px;
- background:var(--arc-danger);color:#fff;border-radius:var(--arc-r-pill);
- font-size:10px;font-weight:var(--arc-fw-black);line-height:17px;text-align:center;
-}
-
-/* El chip de usuario del control de acceso se muda aquí: se mueve el nodo, no
-   se rehace, así conserva su botón de cerrar sesión y sus manejadores. */
-.arcUserSlot{display:flex;align-items:center}
-.arcUserSlot .aclUser{
- position:static!important;background:transparent!important;border:0!important;
- box-shadow:none!important;display:flex;align-items:center;gap:var(--arc-s2);
- padding:0!important;font-size:var(--arc-fs-sec);color:var(--arc-text);white-space:nowrap;
-}
-.arcUserSlot .aclUser b{font-weight:var(--arc-fw-bold);color:var(--arc-text)}
-.arcUserSlot .aclRole{color:var(--arc-text-muted);font-size:var(--arc-fs-cap)}
-.arcUserSlot #aclLogout{
- background:var(--arc-surface-3);color:var(--arc-navy-700);border:1px solid var(--arc-line);
- border-radius:var(--arc-r-md);padding:8px 12px;font-size:var(--arc-fs-cap);font-weight:var(--arc-fw-med);min-height:38px;
-}
-.arcUserSlot #aclLogout:hover{background:var(--arc-accent-100)}
-
-.arcContent{flex:1;min-width:0;padding:var(--arc-s6) var(--arc-s6) var(--arc-s8)}
-.arcContent>.wrap{max-width:var(--arc-content-max);margin:0 auto;padding:0;width:100%}
-
-/* La cabecera, las pestañas y la barra lateral históricas ya no pintan nada.
-   La de gama-sidebar.js hacía el mismo trabajo que ésta pero sólo a partir de
-   1400px, y además empujaba el contenido 248px a la derecha: con las dos a la
-   vez la página se salía por la derecha justo en el ancho de escritorio. Se
-   deja el módulo cargado —hay quien consulta window.GamaSidebar— y se le
-   retiran el hueco y la vista. */
-header.gamaHeader{display:none!important}
-nav.gamaSidebar{display:none!important}
-body.gamaHasSidebar #mainmenu,body.gamaHasSidebar .wrap{margin-left:0!important}
-
-.arcScrim{
- position:fixed;inset:0;z-index:55;background:rgba(11,27,48,.5);
- opacity:0;pointer-events:none;transition:opacity var(--arc-motion);
-}
-body.arcDrawerOpen .arcScrim{opacity:1;pointer-events:auto}
-
-/* ------------------------------------------------------------- tableta */
-@media(max-width:1320px){
- .arcSidebar{width:var(--arc-sidebar-w-collapsed)}
- .arcMain{margin-left:var(--arc-sidebar-w-collapsed)}
- .arcBrand{justify-content:center;padding:var(--arc-s4) 0}
- .arcBrandText,.arcNavLabel,.arcNavGroup,.arcFootBrand,.arcFootVersion{display:none}
- .arcNavLink{justify-content:center;padding:10px 0}
- .arcNavLink .arcIco{width:20px;height:20px}
- .arcFoot{padding:var(--arc-s2)}
- .arcLang{padding:0;justify-content:center}
- .arcLang select{display:none}
- .arcContent{padding:var(--arc-s5)}
-}
-
-/* ------------------------------------------------------------ teléfono */
-@media(max-width:860px){
- .arcSidebar{
-  width:min(84vw,var(--arc-sidebar-w));transform:translateX(-102%);box-shadow:var(--arc-sh-3);
- }
- body.arcDrawerOpen .arcSidebar{transform:none}
- .arcBrand{justify-content:flex-start;padding:var(--arc-s5) var(--arc-s4) var(--arc-s4)}
- .arcBrandText,.arcNavLabel,.arcNavGroup,.arcFootBrand,.arcFootVersion{display:block}
- .arcNavLink{justify-content:flex-start;padding:12px var(--arc-s3);min-height:var(--arc-tap)}
- .arcLang{padding:0 var(--arc-s3);justify-content:flex-start}
- .arcLang select{display:block}
- .arcFoot{padding:var(--arc-s3) var(--arc-s4) var(--arc-s4)}
- .arcMain{margin-left:0}
- .arcBurger{display:inline-flex;align-items:center;justify-content:center}
- .arcTopbar{padding:var(--arc-s2) var(--arc-s3);gap:var(--arc-s2)}
- .arcSearch kbd{display:none}
- .arcSearch input{padding-right:var(--arc-s3)}
- .arcContent{padding:var(--arc-s4) var(--arc-s3) var(--arc-s7)}
- /* El nombre y el rol sobran en 390px: basta el botón de salir. */
- .arcUserSlot .aclUser b,.arcUserSlot .aclRole,.arcUserSlot .aclUser{font-size:var(--arc-fs-cap)}
-}
-@media(max-width:560px){
- .arcUserSlot .aclUser b,.arcUserSlot .aclRole{display:none}
-}`;
- document.head.appendChild(s);
-}
-
 /* ------------------------------------------------------------------ nav */
 function navHtml(){
  const menu=window.GamaMenu;
@@ -216,17 +45,13 @@ function navHtml(){
  const icons=menu.icons||{};
  let html='<button type="button" class="arcNavLink" data-arc-home="1">'
   +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>';
- menu.groups.forEach(g=>{
-  const items=menu.items.filter(x=>x[3]===g);
-  if(!items.length)return;
-  html+='<div class="arcNavGroup" data-arc-group="'+esc(g)+'">'+esc(T(g))+'</div>';
-  items.forEach(x=>{
-   const rotulo=T(x[0]);
-   html+='<button type="button" class="arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'"'
-    +' title="'+esc(rotulo)+'">'
-    +svg(icons[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(rotulo)+'</span></button>';
-  });
- });
+ const primary=['dashboard','crm','sales-orders','gamaPurchasesV14','warehouses','products','tms','projects','accounting','hr','clients','suppliers','knowledge','assistant-ia','settings'];
+ if(window.gamaAccessAllowed?.('quotes')&&!window.gamaAccessAllowed?.('sales-orders'))primary.unshift('quotes','client-deliveries','client-catalog');
+ const link=x=>'<button type="button" class="arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
+   +svg(icons[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>';
+ primary.forEach(id=>{const x=menu.items.find(x=>x[1]===id);if(x)html+=link(x)});
+ const more=menu.items.filter(x=>!primary.includes(x[1]));
+ html+='<details class="arcMore"><summary>'+esc(T('Más módulos'))+'</summary>'+more.map(link).join('')+'</details>';
  return html;
 }
 
@@ -260,8 +85,8 @@ function markActive(){
  });
 }
 
-function closeDrawer(){document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false')}
-function openDrawer(){document.body.classList.add('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true')}
+function closeDrawer(){document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess()}
+function openDrawer(){document.body.classList.add('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();document.querySelector('.arcNavLink')?.focus()}
 
 /* --------------------------------------------------------------- montaje */
 function build(){
@@ -274,9 +99,7 @@ function build(){
 
  const side=document.createElement('aside');
  side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));
- side.innerHTML='<div class="arcBrand">'+MARK
-  +'<span class="arcBrandText"><span class="arcBrandName">ARCHITECT ERP</span>'
-  +'<span class="arcBrandTag">'+esc(T('La base de tu negocio'))+'</span></span></div>'
+ side.innerHTML='<a class="arcBrand" href="#mainmenu" aria-label="ARCHITECT ERP">'+MARK+'</a>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
    +'<div class="arcFootBrand">ARCHITECT ERP</div>'
@@ -292,13 +115,13 @@ function build(){
  top.innerHTML='<button type="button" class="arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Architect ERP…'))+'" aria-label="'+esc(T('Buscar en Architect ERP…'))+'">'
-   +'<kbd>/</kbd></div>'
+   +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
    +'<button type="button" class="arcIconBtn" id="arcNotify" aria-label="'+esc(T('Notificaciones'))+'">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'
-   +'<div class="arcUserSlot" id="arcUserSlot"></div>'
+   +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
   +'</div>';
 
  const content=document.createElement('div');content.className='arcContent';
@@ -318,6 +141,7 @@ function build(){
 }
 
 function bind(side,top){
+ side.querySelector('.arcBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
  side.querySelectorAll('.arcNavLink').forEach(b=>{
   b.onclick=()=>{
    closeDrawer();
@@ -346,8 +170,14 @@ function bind(side,top){
 /* El chip de usuario lo pinta el control de acceso cuando hay sesión, que
    puede ser después de montarse esto. Se le espera y se le muda. */
 function adoptUser(){
- const slot=$('arcUserSlot'),chip=$('gamaACLUser');
+ const slot=$('arcProfileMenu'),chip=$('gamaACLUser');
  if(slot&&chip&&chip.parentNode!==slot)slot.appendChild(chip);
+ if(!chip)return;
+ const name=chip.querySelector('b')?.textContent||'';
+ const role=chip.querySelector('.aclRole')?.textContent||'';
+ const put=(id,value)=>{const n=$(id);if(n&&n.textContent!==value)n.textContent=value};
+ put('arcUserName',name);put('arcUserRole',role);
+ put('arcAvatar',name.trim().split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase());
 }
 
 /* El contador lo escribe el módulo de operaciones; aquí sólo se decide si se
@@ -369,16 +199,20 @@ function adoptSections(){
   if(sec.id!=='mainmenu')wrap.appendChild(sec);
  });
 }
-function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge()}
+function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
+function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications')}
 
 function boot(){
- css();build();
+ build();
  document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&document.body.classList.contains('arcDrawerOpen'))closeDrawer();
+  if(e.key==='Escape'){document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
+  if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')&&matchMedia('(max-width:860px)').matches){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
  });
  /* Un sondeo corto y barato en vez de un observador más: el guardarraíl de
     rendimiento del proyecto acota cuántos puede haber en el arranque. */
  setInterval(sync,700);
+ window.addEventListener('resize',syncDrawerAccess);
+ document.addEventListener('click',e=>{if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
  window.addEventListener('gama:language-change',()=>{
   const nav=document.querySelector('.arcNav');
   if(nav){nav.innerHTML=navHtml();bind(document.querySelector('.arcSidebar'),document.querySelector('.arcTopbar'));sync()}

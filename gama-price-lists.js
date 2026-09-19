@@ -84,7 +84,8 @@ function section(){
 function css(){
  if($('plCss'))return;
  const s=document.createElement('style');s.id='plCss';
- s.textContent=`#price-lists .plGrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px;align-items:start}
+ s.textContent=`#price-lists{container-type:inline-size}
+#price-lists .plGrid{display:grid;grid-template-columns:minmax(220px,28%) minmax(0,1fr);gap:12px;align-items:start}
 #price-lists .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
 .plList{background:#fff;border:1px solid var(--arc-surface-3);border-radius:11px;overflow:hidden;margin-bottom:12px}
 .plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--arc-surface-3);cursor:pointer}
@@ -107,6 +108,7 @@ function css(){
 .plContrato{display:block;color:var(--arc-text-subtle);font-size:10.5px}
 .plDelta{font-weight:800}.plDelta.up{color:var(--arc-success)}.plDelta.down{color:var(--arc-danger)}
 .plEmpty{padding:20px;text-align:center;color:var(--arc-text-subtle)}
+@container(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
 /* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
    aplicación. Aquí sólo queda lo propio: el ancho que necesita la etiqueta más

@@ -253,3 +253,27 @@ dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
 #salesGrad stop{stop-color:var(--arc-viz-1)}
 #chartLine{stroke:var(--arc-viz-1)}
 #chartGrid line{stroke:var(--arc-line)}
+
+/* Shared reference treatment, including lazy-loaded modules. */
+button.primary,.btn-primary{background:var(--color-primary);border-color:transparent;color:white;box-shadow:var(--shadow-sm)}
+button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){background:var(--color-primary-dark);border-color:transparent}
+button.warning,.btn-warning{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:var(--arc-warning-line)}
+button.warning:hover:not(:disabled),.btn-warning:hover:not(:disabled){background:var(--arc-warning);color:white}
+button.ghost,.btn-ghost{background:transparent;color:var(--arc-text-muted);border-color:transparent;box-shadow:none}
+button.ghost:hover:not(:disabled),.btn-ghost:hover:not(:disabled){background:var(--arc-surface-3);color:var(--arc-text)}
+button:active:not(:disabled){transform:translateY(1px);filter:brightness(.96)}
+button[aria-busy=true]::after{color:var(--arc-text-muted)}
+button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
+.arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel){border-radius:var(--radius-lg);border-color:var(--color-border);box-shadow:var(--shadow-sm);background:var(--color-surface);color:var(--color-text)}
+.arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel) :is(input,select,textarea){border-radius:var(--radius-sm)}
+.arcContent table{background:var(--color-surface);font-size:13px}
+.arcContent table th{background:var(--arc-surface-3);color:var(--arc-text-muted);border-bottom:1px solid var(--arc-line-strong);text-align:left;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;padding:12px}
+.arcContent table td{border-bottom:1px solid var(--arc-line);padding:12px;color:var(--arc-text)}
+.arcContent table tr:nth-child(even)>td{background:var(--arc-surface-2)}
+.arcContent table tr:hover>td{background:var(--arc-accent-50)}
+.arcContent :is(.gsDialog,.gaDialog,.grDialog,.gpDialog,dialog){border-radius:var(--radius-lg);box-shadow:var(--arc-sh-3);background:white;color:var(--arc-text)}
+/* Login branding retains the source image intact. */
+#gamaCloudLogin .brand{display:flex;justify-content:center;margin-bottom:22px}
+#gamaCloudLogin .brand img.arcLoginLogo{width:176px;height:auto;aspect-ratio:1;object-fit:contain;border-radius:0}
+#gamaCloudLogin .box{border-radius:var(--arc-r-lg);border:1px solid var(--arc-line);box-shadow:var(--arc-sh-3)}
+#gamaCloudLogin button{background:var(--color-primary)}

@@ -3,6 +3,9 @@
   'use strict';
 
   function ensureHost(){
+    // Architect owns the session controls; never move them back into the hidden header.
+    var architect=document.getElementById('arcProfileMenu');
+    if(architect)return architect;
     var header=document.querySelector('header.gamaHeader');
     if(!header) return null;
     var host=document.getElementById('gamaFixedTopActions');

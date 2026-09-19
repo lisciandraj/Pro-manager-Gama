@@ -16,10 +16,11 @@
    Por eso Inventario va antes que Ventas. Al mover un módulo de grupo, o
    al reordenar los grupos, hay que volver a comprobarlo. */
 const ITEMS=[
+ ['Entregas / TMS','tms','truck','Logística'],
  ['Contabilidad','accounting','ledger','Administración'],
  ['Gestión de flota','fleet','truck','Administración'],
  ['Proyectos','projects','project','Administración'],
- ['Asistente IA','assistant-ia','message','Resumen'],
+ ['Asistente IA','assistant-ia','sparkles','Resumen'],
  ['Panel de control','dashboard','chart','Resumen'],
  ['Control comercial y logístico','operations','gauge','Resumen'],
  ['Notificaciones','notifications','bell','Resumen'],
@@ -37,7 +38,7 @@ const ITEMS=[
  ['Clientes','clients','users','Ventas'],
  ['Seguimiento de expedientes','dossier-flow','folder','Ventas'],
  ['Pedidos de venta','sales-orders','bag','Ventas'],
- ['Pagos de clientes','payments','banknote','Ventas'],
+ ['Facturas y cobros','payments','banknote','Ventas'],
  ['Preparación de pedidos','order-preparation','checklist','Logística'],
  ['Devoluciones','returns','returnArrow','Logística'],
  ['CRM','crm','handshake','Ventas'],
@@ -51,13 +52,11 @@ const ITEMS=[
  ['Configuración','settings','gears','Administración'],
  ['Copias de seguridad','backup','cloud','Administración']
 ];
-/* El orden en que se enseñan los grupos. «Logística» va la última y vacía a
-   propósito: la tarjeta de Entregas/TMS la añade gama-role-spanish.js cuando
-   el módulo termina de cargar, y al añadirla al final de la rejilla cae
-   justo debajo de este rótulo. Si el módulo no carga —o el perfil no lo
-   tiene— el rótulo se esconde solo (ver la regla :has del CSS). */
+/* Categorías conservadas para los consumidores del registro; la portada usa una rejilla plana. */
 const GRUPOS=['Resumen','Inventario y compras','Ventas','Cliente','Administración','Logística'];
 const I={
+sparkles:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4M18 4h4M3 18v4M1 20h4"/>',
+
 ledger:'<path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V3Z"/><path d="M5 7H3m2 5H3m2 5H3"/><path d="M9 8h6M9 12h6M9 16h3"/>',
  truck:'<path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
 returnArrow:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v5"/>',
@@ -93,33 +92,19 @@ matrix:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width=
 warehouse:'<path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M7 20v-6h10v6M7 14h10"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
 function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';(document.querySelector('.wrap')||document.body).appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src='gama-excel-import-v1.js?v=20260918-architect1';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
-function openItem(x){if(x[1]==='accounting'){window.GamaAccounting?.open();return}if(x[1]==='fleet'){window.GamaFleet?.open();return}if(x[1]==='returns'){window.GamaReturns?.open();return}if(x[1]==='projects'){window.GamaProjects?.open();return}if(x[1]==='assistant-ia'){window.GamaAssistant?.open();return}if(x[1]==='knowledge'){window.GamaKnowledge?.open();return}if(x[1]==='payments'){window.GamaPayments?.open();return}if(x[1]==='order-preparation'){window.GamaPreparation?.open();return}if(x[1]==='dossier-flow'){window.GamaDossierFlow?.open();return}if(['operations','notifications'].includes(x[1])){window.GamaOperations?.open(x[1]);return}if(x[1]==='quotes'){window.GamaQuotes?.open();return}if(x[1]==='client-deliveries'){window.GamaQuotes?.deliveries();return}if(x[1]==='sales-orders'){window.GamaSales?.open();return}if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='warehouses'){if(window.showTab)window.showTab('warehouses',null);window.GamaOpenWarehouses?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='access-settings'){window.GamaOpenAccessSettings?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
-
-/* Un rótulo de grupo se esconde cuando no le queda ninguna tarjeta visible
-   detrás: puede pasar porque el perfil no tenga acceso a ninguna —el control
-   de acceso les pone .aclHidden— o porque el buscador las haya descartado.
-   Se resuelve en CSS con :has() y el combinador de hermanos, sin observador:
-   el guardarraíl de rendimiento del proyecto acota cuántos puede haber. */
-function reglasDeGrupo(){
- return GRUPOS.map(g=>{
-  const visible=g==='Logística'
-   ?'.gamaF2Card:is([data-gama-tms-card],[data-gama-grupo="Logística"]):not(.aclHidden):not(.gamaF2NoMatch)'
-   :`.gamaF2Card[data-gama-grupo="${g}"]:not(.aclHidden):not(.gamaF2NoMatch)`;
-  return `#mainmenu .gamaF2Section[data-gama-grupo="${g}"]:not(:has(~ ${visible})){display:none}`;
- }).join('');
-}
-
+function openItem(x){if(window.gamaAccessAllowed&&!window.gamaAccessAllowed(x[1]))return;if(x[1]==='tms'){window.gamaTMS?.open('planning');return}if(x[1]==='accounting'){window.GamaAccounting?.open();return}if(x[1]==='fleet'){window.GamaFleet?.open();return}if(x[1]==='returns'){window.GamaReturns?.open();return}if(x[1]==='projects'){window.GamaProjects?.open();return}if(x[1]==='assistant-ia'){window.GamaAssistant?.open();return}if(x[1]==='knowledge'){window.GamaKnowledge?.open();return}if(x[1]==='payments'){window.GamaPayments?.open();return}if(x[1]==='order-preparation'){window.GamaPreparation?.open();return}if(x[1]==='dossier-flow'){window.GamaDossierFlow?.open();return}if(['operations','notifications'].includes(x[1])){window.GamaOperations?.open(x[1]);return}if(x[1]==='quotes'){window.GamaQuotes?.open();return}if(x[1]==='client-deliveries'){window.GamaQuotes?.deliveries();return}if(x[1]==='sales-orders'){window.GamaSales?.open();return}if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='warehouses'){if(window.showTab)window.showTab('warehouses',null);window.GamaOpenWarehouses?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='access-settings'){window.GamaOpenAccessSettings?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
 
 /* Una línea por módulo que diga para qué sirve. El menú deja de ser una
    rejilla de iconos a adivinar: se lee y se entra al que toca. */
 const DESC={
+ tms:'Transporte y pruebas de entrega',
  dashboard:'Vista de conjunto de tu actividad',
  'assistant-ia':'Analiza tus datos y obtén respuestas',
  operations:'Alertas comerciales y logísticas',
  notifications:'Avisos y bloqueos pendientes',
- crm:'Prospectos, oportunidades y clientes',
+ crm:'Prospectos y oportunidades',
  quotes:'Crea y sigue tus presupuestos',
- 'sales-orders':'Gestión de los pedidos de clientes',
+ 'sales-orders':'Gestión y seguimiento de pedidos',
  'order-preparation':'Preparación y pruebas de entrega',
  payments:'Registro de facturas y cobros',
  returns:'Devoluciones, abonos y reembolsos',
@@ -127,7 +112,7 @@ const DESC={
  suppliers:'Gestión de los proveedores',
  products:'Catálogo y fichas de producto',
  warehouses:'Existencias y ubicaciones',
- stock:'Inventario de todos tus productos',
+ stock:'Niveles de existencias disponibles',
  movement:'Entradas y salidas de mercancía',
  matrix:'Precios de compra y de venta',
  barcode:'Etiquetas y códigos de barras',
@@ -148,36 +133,54 @@ const DESC={
  backup:'Copias de seguridad de tus datos',
  reports:'Importar datos desde Excel',
 };
-/* Cada familia funcional lleva su acento; el resto de la tarjeta es idéntico,
-   así el conjunto no se convierte en un arcoíris. */
-const FAMILIA={
- 'Resumen':'analytics','Ventas':'sales','Cliente':'sales','Logística':'logistics',
- 'Inventario y compras':'purchase','Administración':'system',
-};
-const FAM_MODULO={accounting:'finance',payments:'finance',hr:'people',clients:'people',
- users:'people',suppliers:'purchase',fleet:'logistics',returns:'logistics',projects:'analytics'};
+const T=s=>window.GamaI18n?.t?.(s)||s;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const can=id=>!!window.gamaAccessAllowed?.(id);
+const ORDER=['dashboard','assistant-ia','crm','quotes','sales-orders','tms','payments','returns','gamaPurchasesV14','suppliers','products','warehouses','projects','hr','knowledge','accounting','clients','settings'];
+const ACCENT={dashboard:'cyan','assistant-ia':'pink',crm:'blue',quotes:'cyan','sales-orders':'red',tms:'indigo',payments:'blue',returns:'red',gamaPurchasesV14:'cyan',suppliers:'indigo',products:'green',warehouses:'blue',projects:'blue',hr:'green',knowledge:'violet',accounting:'orange',clients:'cyan'};
+const ordered=()=>[...ITEMS].sort((a,b)=>(ORDER.includes(a[1])?ORDER.indexOf(a[1]):100)-(ORDER.includes(b[1])?ORDER.indexOf(b[1]):100));
+const preferenceKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'architect_home_modules_v1:'+String(u.id||u.email||u.username||u.name||u.role||'')}catch(_){return 'architect_home_modules_v1'}};
+function hiddenModules(){try{return new Set(JSON.parse(localStorage.getItem(preferenceKey())||'[]'))}catch(_){return new Set()}}
+function applyPreferences(){const hidden=hiddenModules();document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>c.classList.toggle('arcPreferenceHidden',hidden.has(c.dataset.gamaModule)))}
+function personalize(){
+ const old=document.getElementById('arcCustomize');if(old)old.remove();
+ const d=document.createElement('dialog');d.id='arcCustomize';d.className='arcCustomize';d.setAttribute('aria-labelledby','arcCustomizeTitle');
+ const hidden=hiddenModules();
+ d.innerHTML='<form method="dialog"><div class="arcSectionHead"><h2 id="arcCustomizeTitle">'+esc(T('Personalizar módulos'))+'</h2><button class="ghost" value="cancel" aria-label="'+esc(T('Cerrar'))+'">×</button></div><p>'+esc(T('Elige los módulos que se muestran en tu inicio.'))+'</p><div class="arcCustomizeList">'+ordered().filter(x=>can(x[1])).map(x=>'<label><input type="checkbox" value="'+esc(x[1])+'" '+(!hidden.has(x[1])?'checked':'')+'><span>'+esc(T(x[0]))+'</span></label>').join('')+'</div><div class="gsActions"><button class="secondary" value="reset">'+esc(T('Mostrar todos'))+'</button><button class="primary" value="save">'+esc(T('Guardar'))+'</button></div></form>';
+ document.body.appendChild(d);
+ d.addEventListener('close',()=>{if(d.returnValue==='save'){const invisible=[...d.querySelectorAll('input:not(:checked)')].map(n=>n.value);try{localStorage.setItem(preferenceKey(),JSON.stringify(invisible))}catch(_){}applyPreferences()}else if(d.returnValue==='reset'){try{localStorage.removeItem(preferenceKey())}catch(_){}applyPreferences()}d.remove()},{once:true});d.showModal();
+}
 
-/* Los indicadores de cabecera. Leen lo que la aplicación ya tiene cargado y no
-   inventan nada: si un dato no está disponible todavía, la tarjeta no se
-   pinta. Nunca se enseñan cifras de ejemplo en producción. */
+/* Existing read-only RPC: total and active_count are ALERT counts, never sales.
+   The monthly invoicing figure includes tax, so it is labelled as invoicing,
+   not accounting revenue. Authorization remains enforced by the existing RPC. */
 async function kpis(){
  const out=[];
- if(window.gamaAccessAllowed&&!window.gamaAccessAllowed('operations'))return out;
- try{
-  await window.GamaCloudReady;
-  const c=await window.GamaCloud.db();
-  const r=await c.rpc('gama_operations_action',{p_action:'snapshot',p_data:{offset:0}});
-  const d=r&&!r.error?r.data:null;
-  if(!d)return out;
-  if(d.total!=null)out.push(['revenue','Cartera en curso',window.GamaCurrency.format(d.total),'finance']);
-  if(d.active_count!=null)out.push(['orders','Pedidos en curso',window.GamaCurrency.number(d.active_count,0),'analytics']);
-  if(Array.isArray(d.alerts))out.push(['alerts','Avisos que requieren acción',
-    window.GamaCurrency.number(d.alerts.length,0),d.alerts.length>0?'warning':'logistics']);
- }catch(_){/* sin datos todavía: el menú se pinta igual */}
+ if(!window.GamaCloud)return out;
+ await window.GamaCloudReady;
+ if(can('operations')){
+  try{
+   const c=await window.GamaCloud.db();
+   const r=await c.rpc('gama_operations_action',{p_action:'snapshot',p_data:{offset:0}});
+   const d=!r.error?r.data:null;
+   if(d?.metrics){
+    const m=d.metrics;
+    if(d.finance&&Number.isFinite(m.invoiced))out.push(['revenue','Facturación del mes',window.GamaCurrency.format(m.invoiced),'green','IVA incluido']);
+    if(Number.isFinite(m.orders))out.push(['orders','Pedidos confirmados (mes)',window.GamaCurrency.number(m.orders,0),'blue','Mes actual']);
+    if(Number.isFinite(m.late_deliveries))out.push(['alerts','Entregas atrasadas',window.GamaCurrency.number(m.late_deliveries,0),'orange','Fecha prevista superada']);
+   }
+  }catch(_){/* Unavailable is not zero. Keep an honest empty state. */}
+ }
+ if(can('clients')){
+  try{const r=await window.GamaCloud.list('customers',{select:'id',count:'exact',head:true,eq:{active:true}});
+   if(!r.error&&Number.isFinite(r.count))out.push(['clients','Clientes activos',window.GamaCurrency.number(r.count,0),'violet','Clientes no archivados']);
+  }catch(_){}
+ }
  return out;
 }
 
 const KPI_ICON={
+ clients:I.users,
  revenue:'<path d="M12 3v18M7 7h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/>',
  orders:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5"/>',
  alerts:'<path d="M12 4 2 20h20L12 4Z"/><path d="M12 10v5M12 17.5v.5"/>',
@@ -186,80 +189,28 @@ const KPI_ICON={
 function render(){
  const host=document.getElementById('mainmenu');if(!host)return;
  document.documentElement.lang=window.GamaI18n?.language||'es';
- const s=document.getElementById('gama-final2-css')||document.head.appendChild(document.createElement('style'));
- s.id='gama-final2-css';
- s.textContent=`
-#mainmenu{padding:0}
-#mainmenu .gamaF2Head{margin:0 0 var(--arc-s5)}
-#mainmenu .gamaF2Head h1{margin:0;font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);letter-spacing:-.02em;color:var(--arc-text);font-weight:var(--arc-fw-black)}
-#mainmenu .gamaF2Head p{margin:var(--arc-s2) 0 0;color:var(--arc-text-muted);font-size:var(--arc-fs-body)}
-#mainmenu .gamaF2Kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--arc-s4);margin:0 0 var(--arc-s6)}
-#mainmenu .gamaF2Kpi{display:flex;align-items:center;gap:var(--arc-s3);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);padding:var(--arc-s4);box-shadow:var(--arc-sh-1)}
-#mainmenu .gamaF2KpiIcon{width:44px;height:44px;flex:none;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center}
-#mainmenu .gamaF2KpiIcon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-#mainmenu .gamaF2KpiText{min-width:0}
-#mainmenu .gamaF2KpiLabel{display:block;font-size:var(--arc-fs-cap);color:var(--arc-text-muted);font-weight:var(--arc-fw-med)}
-#mainmenu .gamaF2KpiValue{display:block;font-size:22px;font-weight:var(--arc-fw-black);color:var(--arc-text);line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
-#mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:var(--arc-s4)}
-#mainmenu .gamaF2Section{grid-column:1/-1;margin:var(--arc-s4) 0 calc(-1 * var(--arc-s1));font-size:11px;font-weight:var(--arc-fw-black);letter-spacing:.12em;text-transform:uppercase;color:var(--arc-text-subtle)}
-#mainmenu .gamaF2Section:first-of-type{margin-top:0}
-#mainmenu .gamaF2Card{
- display:flex;flex-direction:column;align-items:flex-start;gap:var(--arc-s3);
- min-height:0;padding:var(--arc-s5);margin:0;text-align:left;
- background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);
- box-shadow:var(--arc-sh-1);cursor:pointer;position:relative;
- transition:border-color var(--arc-motion),box-shadow var(--arc-motion),transform var(--arc-motion);
-}
-#mainmenu .gamaF2Card:hover{border-color:var(--arc-accent-400);box-shadow:var(--arc-sh-2);transform:translateY(-2px)}
-#mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
-#mainmenu .gamaF2Icon{width:48px;height:48px;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center;flex:none}
-#mainmenu .gamaF2Icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-#mainmenu .gamaF2Title{display:block;font-size:var(--arc-fs-card);line-height:var(--arc-lh-card);font-weight:var(--arc-fw-bold);color:var(--arc-text)}
-#mainmenu .gamaF2Desc{display:block;font-size:var(--arc-fs-sec);line-height:var(--arc-lh-sec);color:var(--arc-text-muted);margin-top:var(--arc-s1)}
-#mainmenu .gamaF2Go{position:absolute;right:var(--arc-s4);bottom:var(--arc-s4);width:20px;height:20px;color:var(--arc-steel-400);fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:color var(--arc-motion),transform var(--arc-motion)}
-#mainmenu .gamaF2Card:hover .gamaF2Go{color:var(--arc-accent-600);transform:translateX(3px)}
-#mainmenu .gamaF2Body{padding-right:var(--arc-s6)}
-#mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}
-#mainmenu .gamaF2Vacio{grid-column:1/-1;margin:0;padding:var(--arc-s7);text-align:center;color:var(--arc-text-muted);font-size:var(--arc-fs-body);background:var(--arc-surface);border:1px dashed var(--arc-line-strong);border-radius:var(--arc-r-lg)}
-`+['analytics','sales','logistics','purchase','finance','people','system'].map(f=>
-  `#mainmenu [data-arc-fam="${f}"]{background:var(--arc-fam-${f}-bg);color:var(--arc-fam-${f})}`).join('')
- +`#mainmenu [data-arc-fam="warning"]{background:var(--arc-warning-bg);color:var(--arc-warning)}`
- +reglasDeGrupo()
- +`@media(max-width:860px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:var(--arc-s3)}
- #mainmenu .gamaF2Card{padding:var(--arc-s4)}
- #mainmenu .gamaF2Icon{width:42px;height:42px}
- #mainmenu .gamaF2Head h1{font-size:23px}
- #mainmenu .gamaF2Kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--arc-s3)}
- #mainmenu .gamaF2KpiValue{font-size:19px}}
-@media(max-width:430px){#mainmenu .gamaF2Grid{grid-template-columns:1fr}
- #mainmenu .gamaF2Kpis{grid-template-columns:1fr 1fr}
- #mainmenu .gamaF2Desc{margin-top:2px}}`;
-
  host.replaceChildren();
  const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
- const h=document.createElement('h1');h.textContent='Menú principal';
- const p=document.createElement('p');p.textContent='Accede rápidamente a todas las funciones de Architect ERP.';
+ const h=document.createElement('h1');h.setAttribute('data-gi-live','');h.textContent='Menú principal';
+ const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Architect ERP.';
  cabecera.append(h,p);
 
  const fila=document.createElement('div');fila.className='gamaF2Kpis';fila.id='gamaF2Kpis';fila.hidden=true;
 
  const grid=document.createElement('div');grid.className='gamaF2Grid';
- GRUPOS.forEach(g=>{
-  const items=ITEMS.filter(x=>x[3]===g);
-  if(!items.length)return;
-  const rotulo=document.createElement('div');rotulo.className='gamaF2Section';rotulo.dataset.gamaGrupo=g;rotulo.textContent=g;
-  grid.appendChild(rotulo);
-  items.forEach(x=>{
+ ordered().forEach(x=>{
+   const g=x[3];
    const b=document.createElement('button');b.type='button';b.className='gamaF2Card';
    b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
-   const fam=FAM_MODULO[x[1]]||FAMILIA[g]||'system';
+   const fam=ACCENT[x[1]]||'system';
+   if(x[1]==='tms')b.dataset.gamaTmsCard='1';
    const icon=document.createElement('span');icon.className='gamaF2Icon';icon.dataset.arcFam=fam;
    icon.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>';
    const cuerpo=document.createElement('span');cuerpo.className='gamaF2Body';
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    cuerpo.appendChild(label);
    if(DESC[x[1]]){
-    const d=document.createElement('span');d.className='gamaF2Desc';d.textContent=DESC[x[1]];d.dataset.gamaSource=DESC[x[1]];
+    const d=document.createElement('span');d.className='gamaF2Desc';d.textContent=DESC[x[1]];d.dataset.gamaSource=DESC[x[1]];d.setAttribute('data-gi-live','');
     cuerpo.appendChild(d);
    }
    const go=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -269,35 +220,62 @@ function render(){
    if(x[1]==='notifications')b.dataset.goNav='notifications';
    b.onclick=()=>openItem(x);
    grid.appendChild(b);
-  });
  });
  const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;
  vacio.textContent='Ningún módulo coincide con la búsqueda.';
  grid.appendChild(vacio);
 
- host.append(cabecera,fila,grid);
- pintarKpis(fila);
+ const heading=document.createElement('div');heading.className='arcSectionHead';
+ heading.innerHTML='<h2>'+esc(T('Tus módulos'))+'</h2><button type="button" class="ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>';
+ const activity=document.createElement('div');activity.id='arcRecentActivity';
+ host.append(cabecera,fila,heading,grid,activity);
+ heading.querySelector('button').onclick=personalize;
+ applyPreferences();pintarKpis(fila);recentActivity();window.GamaI18n?.scan?.(host);
 }
 
 /* Los indicadores llegan cuando llegan: el menú no espera por ellos. */
 function pintarKpis(fila){
  kpis().then(lista=>{
-  if(!lista.length||!fila.isConnected)return;
+  if(!fila.isConnected)return;
+  if(!lista.length){fila.hidden=true;return}
   fila.replaceChildren();
-  lista.forEach(([clave,label,valor,fam])=>{
+  lista.forEach(([clave,label,valor,fam,hint])=>{
    const c=document.createElement('div');c.className='gamaF2Kpi';
    c.innerHTML='<span class="gamaF2KpiIcon" data-arc-fam="'+fam+'">'
     +'<svg viewBox="0 0 24 24" aria-hidden="true">'+(KPI_ICON[clave]||'')+'</svg></span>'
-    +'<span class="gamaF2KpiText"><span class="gamaF2KpiLabel"></span><span class="gamaF2KpiValue"></span></span>';
+    +'<span class="gamaF2KpiText"><span class="gamaF2KpiLabel"></span><span class="gamaF2KpiValue"></span><span class="gamaF2KpiHint"></span></span>';
    c.querySelector('.gamaF2KpiLabel').textContent=label;
-   c.querySelector('.gamaF2KpiLabel').dataset.gamaSource=label;
+   c.querySelector('.gamaF2KpiLabel').dataset.gamaSource=label;c.querySelector('.gamaF2KpiLabel').setAttribute('data-gi-live','');
    c.querySelector('.gamaF2KpiValue').textContent=valor;
+   c.querySelector('.gamaF2KpiHint').textContent=T(hint||'');
    fila.appendChild(c);
   });
   fila.hidden=false;
   window.GamaI18n?.scan?.(fila);
  }).catch(()=>{});
 }
+
+/* Recent activity comes from the already synchronized stock audit trail.
+   Do not synthesize people, dates, events or module activity. */
+function recentActivity(){
+ const host=document.getElementById('arcRecentActivity');if(!host)return;
+ if(!can('audit')){host.replaceChildren();return}
+ const moves=typeof db!=='undefined'&&db.__cloud?db.moves||[]:null;
+ const rows=moves?[...moves].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,4):[];
+ const lang=window.GamaI18n?.language||'es';
+ const date=v=>{const d=new Date(v);return Number.isNaN(+d)?'—':d.toLocaleString(lang,{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})};
+ host.innerHTML='<div class="arcRecentCard"><div class="arcSectionHead"><h2>'+esc(T('Actividad reciente'))+'</h2><button class="ghost" id="arcViewAudit">'+esc(T('Ver todo'))+'</button></div><div class="arcRecentScroll"><table><thead><tr><th>'+esc(T('Fecha'))+'</th><th>'+esc(T('Módulo'))+'</th><th>'+esc(T('Descripción'))+'</th><th>'+esc(T('Usuario'))+'</th></tr></thead><tbody>'+rows.map(m=>'<tr><td>'+esc(date(m.date))+'</td><td><span class="arcActivityModule">'+esc(T('Inventario'))+'</span></td><td>'+esc(m.name||'')+' · '+esc(m.type==='IN'?T('Entrada'):T('Salida'))+' '+esc(m.qty)+' '+esc(m.reference||'')+'</td><td>'+esc(m.user||'—')+'</td></tr>').join('')+'</tbody></table></div>'+(!rows.length?'<p class="arcActivityEmpty">'+esc(T(moves?'No hay actividad reciente de stock.':'Cargando actividad…'))+'</p>':'')+'</div>'+(can('dashboard')?'<aside class="arcDashboardCard"><span class="gamaF2Icon" data-arc-fam="cyan"><svg viewBox="0 0 24 24" aria-hidden="true">'+I.chart+'</svg></span><h3>'+esc(T('Tus datos. Tus decisiones.'))+'</h3><p>'+esc(T('Consulta los indicadores de tu actividad.'))+'</p><button class="primary" id="arcViewDashboard">'+esc(T('Ver el panel de control'))+' →</button></aside>':'');
+ host.querySelector('#arcViewAudit').onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='audit'));
+ const dash=host.querySelector('#arcViewDashboard');if(dash)dash.onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='dashboard'));
+}
+let lastRefresh=0,activitySignature='';
+setInterval(()=>{
+ const home=document.getElementById('mainmenu');if(!home?.classList.contains('active'))return;
+ const signature=typeof db!=='undefined'?JSON.stringify([db.__cloud,db.moves?.length,db.moves?.[0]?.id,window.GamaI18n?.language,can('audit')]):'';
+ if(signature!==activitySignature){activitySignature=signature;recentActivity()}
+ if(window.GamaCloud&&Date.now()-lastRefresh>60000){lastRefresh=Date.now();const f=document.getElementById('gamaF2Kpis');if(f)pintarKpis(f)}
+},1500);
+window.addEventListener('gama:language-change',()=>{recentActivity();const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la

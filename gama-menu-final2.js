@@ -195,33 +195,12 @@ function render(){
 
  const heading=document.createElement('div');heading.className='arcSectionHead';
  heading.innerHTML='<h2>'+esc(T('Tus módulos'))+'</h2><button type="button" class="ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>';
- const activity=document.createElement('div');activity.id='arcRecentActivity';
- host.append(cabecera,fila,heading,grid,activity);
+ host.append(cabecera,fila,heading,grid);
  heading.querySelector('button').onclick=personalize;
- window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.ArchitectHomeKpis?.mount(fila);recentActivity();window.GamaI18n?.scan?.(host);
+ window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.ArchitectHomeKpis?.mount(fila);window.GamaI18n?.scan?.(host);
 }
 
-/* Recent activity comes from the already synchronized stock audit trail.
-   Do not synthesize people, dates, events or module activity. */
-function recentActivity(){
- const host=document.getElementById('arcRecentActivity');if(!host)return;
- if(!can('audit')){host.replaceChildren();return}
- const moves=typeof db!=='undefined'&&db.__cloud?db.moves||[]:null;
- const rows=moves?[...moves].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,4):[];
- const lang=window.GamaI18n?.language||'es';
- const date=v=>{const d=new Date(v);return Number.isNaN(+d)?'—':d.toLocaleString(lang,{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})};
- host.innerHTML='<div class="arcRecentCard"><div class="arcSectionHead"><h2>'+esc(T('Actividad reciente'))+'</h2><button class="ghost" id="arcViewAudit">'+esc(T('Ver todo'))+'</button></div><div class="arcRecentScroll"><table><thead><tr><th>'+esc(T('Fecha'))+'</th><th>'+esc(T('Módulo'))+'</th><th>'+esc(T('Descripción'))+'</th><th>'+esc(T('Usuario'))+'</th></tr></thead><tbody>'+rows.map(m=>'<tr><td>'+esc(date(m.date))+'</td><td><span class="arcActivityModule">'+esc(T('Inventario'))+'</span></td><td>'+esc(m.name||'')+' · '+esc(m.type==='IN'?T('Entrada'):T('Salida'))+' '+esc(m.qty)+' '+esc(m.reference||'')+'</td><td>'+esc(m.user||'—')+'</td></tr>').join('')+'</tbody></table></div>'+(!rows.length?'<p class="arcActivityEmpty">'+esc(T(moves?'No hay actividad reciente de stock.':'Cargando actividad…'))+'</p>':'')+'</div>'+(can('dashboard')?'<aside class="arcDashboardCard"><span class="gamaF2Icon" data-arc-fam="cyan"><svg viewBox="0 0 24 24" aria-hidden="true">'+I.chart+'</svg></span><h3>'+esc(T('Tus datos. Tus decisiones.'))+'</h3><p>'+esc(T('Consulta los indicadores de tu actividad.'))+'</p><button class="primary" id="arcViewDashboard">'+esc(T('Ver el panel de control'))+' →</button></aside>':'');
- host.querySelector('#arcViewAudit').onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='audit'));
- const dash=host.querySelector('#arcViewDashboard');if(dash)dash.onclick=()=>window.GamaMenu.open(ITEMS.find(x=>x[1]==='dashboard'));
-}
-let activitySignature='';
-setInterval(()=>{
- const home=document.getElementById('mainmenu');if(!home?.classList.contains('active'))return;
- const signature=typeof db!=='undefined'?JSON.stringify([db.__cloud,db.moves?.length,db.moves?.[0]?.id,window.GamaI18n?.language,can('audit')]):'';
- if(signature!==activitySignature){activitySignature=signature;recentActivity()}
-
-},1500);
-window.addEventListener('gama:language-change',()=>{recentActivity();const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
+window.addEventListener('gama:language-change',()=>{const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la

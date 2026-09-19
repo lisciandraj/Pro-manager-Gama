@@ -30,7 +30,7 @@ test('customization persists without removing navigation or access to modules',a
 });
 test('client role has no administrative metrics, notifications or stock activity',async({page})=>{
  await page.setViewportSize({width:1440,height:900});await boot(page,'client');
- await expect(page.locator('#arcNotify')).toBeHidden();await expect(page.locator('#arcRecentActivity')).toBeEmpty();
+ await expect(page.locator('#arcNotify')).toBeHidden();await expect(page.locator('#arcRecentActivity')).toHaveCount(0);
  await expect(page.locator('#gamaF2Kpis')).toBeHidden();await expect(page.locator('.arcNav [data-gama-module="assistant-ia"]')).toBeHidden();
  await page.locator('#arcCustomizeOpen').click();await expect(page.locator('#arcCustomize input[value="assistant-ia"]')).toHaveCount(0);
 });

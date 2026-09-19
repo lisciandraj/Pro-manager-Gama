@@ -19,12 +19,23 @@ async function signOut(){const c=await db();let r;try{r=await c.auth.signOut({sc
 async function getProfile(){const c=await db(),r=await c.auth.getSession(),u=r.data?.session?.user;if(!u)return {data:null,error:null};return c.from('profiles').select('*').eq('id',u.id).maybeSingle()}
 /* List options are validated below. Unsupported filters fail explicitly.
    head:true + count:'exact' requests a total without downloading rows.
-   Stable id ordering keeps pagination deterministic when primary keys tie. */
+   Complete primary-key ordering keeps pagination stable when sort values tie. */
+const LIST_KEYS={
+ accounting_permissions:['profile_id'],external_invoice_deliveries:['invoice_id','delivery_id'],
+ fulfillment_package_lines:['package_id','pick_line_id'],gama_document_references:['table_name','document_id'],
+ hr_absence_private:['absence_id'],hr_employee_private:['employee_id'],hr_holidays:['day'],hr_permissions:['profile_id'],
+ sales_reservation_links:['reservation_id'],tms_loading_allocations:['scan_id','delivery_line_id'],
+ tms_proofs:['delivery_id'],user_home_preferences:['user_id']
+};
 async function list(table,options={}){
  const supported=new Set(['select','count','head','order','ascending','eq','ilike','in','gte','lte','lt','gt','neq','is','range','limit','search']);
  for(const key of Object.keys(options))if(!supported.has(key))throw Error('Unsupported list option: '+key);
  const c=await db();let q=c.from(table).select(options.select||'*',options.count?{count:options.count,head:!!options.head}:undefined);
- if(options.order){q=q.order(options.order,{ascending:options.ascending!==false});if(options.order!=='id')q=q.order('id',{ascending:true});}
+ if(options.order){
+  const keys=LIST_KEYS[table]||['id'],first=options.order==='id'?keys[0]:options.order;
+  q=q.order(first,{ascending:options.ascending!==false});
+  for(const key of keys)if(key!==first)q=q.order(key,{ascending:true});
+ }
  for(const method of ['eq','ilike','in','gte','lte','lt','gt','neq','is'])if(options[method])for(const [key,value] of Object.entries(options[method]))q=q[method](key,value);
  if(options.search){
   const {columns,value}=options.search;

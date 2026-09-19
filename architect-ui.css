@@ -399,3 +399,11 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
  body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=cards]){overflow-x:visible!important}
 }
 @media print{.gamaTableViews{display:none!important}.gamaTableViewport{overflow:visible!important}}
+
+/* Keep real column widths on phones; the viewport, rather than text, shrinks. */
+@media screen and (max-width:1024px){
+ body .gamaTableViewport:has(>table[data-gama-view=table]){width:100%;max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ body table.gamaCards[data-gama-view=table]{width:max-content!important;min-width:100%!important;max-width:none!important;table-layout:auto!important}
+ body table.gamaCards[data-gama-view=table] :is(th,td){white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}
+ body table.gamaCards[data-gama-view=table] :is(button,a,.arcButton){width:auto!important;min-width:max-content!important;max-width:none!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;flex-shrink:0}
+}

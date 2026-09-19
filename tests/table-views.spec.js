@@ -44,3 +44,17 @@ test('portrait and landscape support both modes without overflow and preserve su
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:'/workspace/scratch/ed26a6ab4f38/table-views-landscape.png',fullPage:true});
 });
+
+test('phone table mode scrolls full-width shipment columns and action buttons',async({page})=>{
+ await boot(page,390,844);
+ await page.evaluate(()=>{const host=document.createElement('div');host.id='shipmentScrollTest';host.className='gsScroll';host.style.overflowWrap='anywhere';document.querySelector('#mainmenu').append(host);host.innerHTML='<table><thead><tr><th>Expédition</th><th>Client</th><th>Transport</th><th>Date</th><th>Actions</th></tr></thead><tbody><tr><td>ENV-00001318</td><td>Almacenes Costa Azul</td><td>Entregada</td><td>2026-09-19</td><td><button type="button">Voir la commande</button></td></tr></tbody></table>';host.querySelector('button').onclick=()=>window.__shipmentOpened=true});
+ await page.locator('#shipmentScrollTest [data-table-view=table]').click();
+ for(const size of [{width:390,height:844},{width:844,height:390}]){
+  await page.setViewportSize(size);
+  const state=await page.locator('#shipmentScrollTest table').evaluate(t=>{const v=t.parentElement;return {table:t.getBoundingClientRect().width,viewport:v.clientWidth,cellWhiteSpace:getComputedStyle(t.rows[1].cells[3]).whiteSpace,buttonHeight:t.querySelector('button').getBoundingClientRect().height,pageWidth:document.documentElement.scrollWidth}});
+  expect(state.cellWhiteSpace).toBe('nowrap');expect(state.buttonHeight).toBeLessThan(70);expect(state.table).toBeGreaterThanOrEqual(state.viewport);expect(state.pageWidth).toBeLessThanOrEqual(size.width);
+  if(size.width===390){expect(state.table).toBeGreaterThan(state.viewport+100);await page.locator('#shipmentScrollTest .gamaTableViewport').evaluate(v=>v.scrollLeft=v.scrollWidth);expect(await page.locator('#shipmentScrollTest .gamaTableViewport').evaluate(v=>v.scrollLeft)).toBeGreaterThan(100)}
+ }
+ await page.locator('#shipmentScrollTest table button').click();expect(await page.evaluate(()=>window.__shipmentOpened)).toBe(true);
+ await page.setViewportSize({width:390,height:844});await page.locator('#shipmentScrollTest [data-table-view=cards]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

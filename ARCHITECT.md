@@ -21,6 +21,20 @@ La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, po
 
 Les feuilles de la sidebar et de l’accueil remplacent les anciennes chaînes CSS injectées. Les feuilles partagées habillent les classes déjà utilisées par les modules, y compris les composants chargés tardivement. Les nouvelles préférences d’affichage restent locales au navigateur et séparées des données métier.
 
+## En-tête de module
+
+Chaque écran s’ouvre sur l’en-tête standard produit par `ArcUI.header()`. Il porte l’icône de son propre module : le même dessin et le même accent que la tuile qui y mène depuis le menu, pour que l’on reconnaisse d’où l’on vient.
+
+Les deux surfaces lisent la même source, `ArcModules.registry` pour `icon` et `accent`, et `ArcUI.icons` pour le tracé. Un module qui change d’icône change des deux côtés à la fois ; il n’y a rien à tenir à jour écran par écran, et aucun fichier de module n’a été modifié pour cette uniformité.
+
+`header()` laisse une case vide, `<span class="gamaStdIcon" data-arc-icon-slot>`, que `ArcUI.headerIcon(racine, id)` remplit. Le module est identifié dans cet ordre : `data-arc-module`, posé quand l’appelant passe `module` ; l’`id` explicite ; enfin l’`id` de la `<section>` qui contient l’en-tête, que trente-cinq écrans sur trente-sept portent déjà. `gama-tms-section` est la seule exception, traitée par un alias ; le tableau de bord passe son identifiant explicitement parce qu’il peint son en-tête lui-même.
+
+Trois points de peinture couvrent tous les écrans : `ArcRouter.show()` pour les modules du registre, `bindBack()` dans `gama-ui.js` pour les écrans écrits à la main dans `index.html`, et l’appel propre au tableau de bord. Un en-tête relié avant d’être accroché à sa section ne sait pas encore de quel module il est : la peinture est alors relancée une fois au tick suivant.
+
+Les titres qui commençaient par un emoji — 📦, 👥, 🚚 — le perdent dans `header()`, sinon l’écran afficherait deux icônes. Le catalogue de traduction indexe le texte sans ornement : `variant()` retire les caractères non alphanumériques de tête, donc « 📦 Productos » et « Productos » tombent sur la même ligne et aucune traduction n’est perdue.
+
+Les teintes d’accent des tuiles du menu sont limitées à `#mainmenu`. L’en-tête a donc ses propres règles `.gamaStdIcon[data-arc-fam=…]` dans `src/ui/module-styles.css`, appuyées sur les mêmes jetons `--arc-icon-*`, sans toucher aux feuilles du menu ni à celles des réglages.
+
 ## Données de l’accueil
 
 L’accueil ne contient aucune donnée de démonstration.

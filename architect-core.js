@@ -57,9 +57,47 @@
   function toolbar(html, { className = "" } = {}) {
     return `<div class="arcToolbar ${escapeHtml(className)}">${html}</div>`;
   }
-  function header({ title = "Módulo", lead = "" } = {}) {
-    return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${escapeHtml(title)}</h2>${lead ? "<p>" + escapeHtml(lead) + "</p>" : ""}</div><div class="gamaStdActions">${button({ label: translate("← Volver al menú"), className: "gamaStdBack", attrs: 'aria-label="' + escapeHtml(translate("Volver al menú")) + '"' })}</div></div>`;
+  const stripIcon = (text2) => {
+    try {
+      return String(text2).replace(/^[^\p{L}\p{N}]+/u, "") || String(text2);
+    } catch (_) {
+      return String(text2);
+    }
+  };
+  function header({ title = "Módulo", lead = "", module = "" } = {}) {
+    return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module ? ' data-arc-module="' + escapeHtml(module) + '"' : ""} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${escapeHtml(stripIcon(title))}</h2>${lead ? "<p>" + escapeHtml(lead) + "</p>" : ""}</div><div class="gamaStdActions">${button({ label: translate("← Volver al menú"), className: "gamaStdBack", attrs: 'aria-label="' + escapeHtml(translate("Volver al menú")) + '"' })}</div></div>`;
   }
+  function headerIcon(root, id = "") {
+    var _a;
+    const scope = root && root.querySelectorAll ? root : document;
+    const slots = scope.querySelectorAll(".gamaStdIcon[data-arc-icon-slot]");
+    if (!slots.length) return;
+    const modules = globalThis.ArcModules, icons2 = (_a = globalThis.ArcUI) == null ? void 0 : _a.icons;
+    if (!modules || !icons2) return;
+    let pending2 = false;
+    slots.forEach((slot) => {
+      const section = slot.closest("section[id]");
+      const key = slot.dataset.arcModule || id || SECTION_ALIAS[section == null ? void 0 : section.id] || (section == null ? void 0 : section.id) || "";
+      if (!key) {
+        pending2 = true;
+        return;
+      }
+      const definition = modules.get(key);
+      const drawing = definition && icons2[definition.icon];
+      if (!drawing) return;
+      slot.dataset.arcFam = definition.accent || "cyan";
+      slot.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">' + drawing + "</svg>";
+      delete slot.dataset.arcIconSlot;
+    });
+    if (pending2 && !headerIcon.retrying) {
+      headerIcon.retrying = true;
+      setTimeout(() => {
+        headerIcon.retrying = false;
+        headerIcon(document);
+      }, 0);
+    }
+  }
+  const SECTION_ALIAS = { "gama-tms-section": "tms" };
   function badge(status, label = status, { className = "", tone = "neutral" } = {}) {
     return `<span class="arcStatusBadge ${escapeHtml(className)}" data-s="${escapeHtml(status)}" data-tone="${escapeHtml(tone)}">${escapeHtml(translate(label))}</span>`;
   }
@@ -303,6 +341,7 @@
     form,
     guard,
     header,
+    headerIcon,
     kpi,
     mount,
     pager,
@@ -1276,7 +1315,7 @@
     };
   }
   function show(id, button2) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     id = canonical(id);
     if (!allowed(id)) return refuse(id);
     if (id === "customer-requests") {
@@ -1302,6 +1341,7 @@
     current = id;
     (_b = window.renderForRoute) == null ? void 0 : _b.call(window, id);
     (_c = window.ArcStandardHeaders) == null ? void 0 : _c.call(window, target);
+    (_e = (_d = window.ArcUI) == null ? void 0 : _d.headerIcon) == null ? void 0 : _e.call(_d, target, id);
     mount(target);
     emit("arc:route-change", { id });
     window.scrollTo({ top: 0, behavior: "smooth" });

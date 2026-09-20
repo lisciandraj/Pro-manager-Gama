@@ -30,7 +30,7 @@ const LIST_KEYS={
 async function list(table,options={}){
  const supported=new Set(['select','count','head','order','ascending','eq','ilike','in','gte','lte','lt','gt','neq','is','range','limit','search']);
  for(const key of Object.keys(options))if(!supported.has(key))throw Error('Unsupported list option: '+key);
- const c=await db();let q=c.from(table).select(options.select||'*',options.count?{count:options.count,head:!!options.head}:undefined);
+ const c=await db();let q=c.from(table==='tms_proofs'?'tms_proofs_read':table).select(options.select||'*',options.count?{count:options.count,head:!!options.head}:undefined);
  if(options.order){
   const keys=LIST_KEYS[table]||['id'],first=options.order==='id'?keys[0]:options.order;
   q=q.order(first,{ascending:options.ascending!==false});
@@ -49,7 +49,7 @@ async function list(table,options={}){
 }
 async function insert(table,row){const c=await db(),r=await c.from(table).insert(row).select().single();if(!r.error)emit('gama:data-change',{table});return window.GamaReferences?window.GamaReferences.attach(table,r,c):r}
 /* upsert: para tablas cuya clave no es "id" (p. ej. tms_proofs.delivery_id) o de fila única (tms_settings). */
-async function upsert(table,row,options){const c=await db(),r=await c.from(table).upsert(row,options||{}).select().single();if(!r.error)emit('gama:data-change',{table});return window.GamaReferences?window.GamaReferences.attach(table,r,c):r}
+async function upsert(table,row,options){const c=await db(),r=await c.from(table).upsert(row,options||{}).select(table==='tms_proofs'?'delivery_id,signature,captured_at,captured_by':'*').single();if(!r.error)emit('gama:data-change',{table});return window.GamaReferences?window.GamaReferences.attach(table,r,c):r}
 async function update(table,id,row){const r=await (await db()).from(table).update(row).eq('id',id).select().single();if(!r.error)emit('gama:data-change',{table});return r}
 async function remove(table,id){const r=await (await db()).from(table).delete().eq('id',id);if(!r.error)emit('gama:data-change',{table});return r}
 async function subscribe(table,callback){const c=await db();const ch=c.channel('gama-'+table+'-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table},p=>{emit('gama:data-change',{table,payload:p});if(typeof callback==='function')callback(p)}).subscribe();realtime.push(ch);return ch}

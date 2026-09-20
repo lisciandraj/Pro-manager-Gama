@@ -526,7 +526,7 @@
   }, Symbol.toStringTag, { value: "Module" }));
   const definitions = [
     { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "orange", order: 7.1, menu: true, roles: ["admin", "commercial"] },
-    { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial"] },
+    { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
       "id": "tms",
       "label": "Entregas / TMS",

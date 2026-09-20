@@ -2535,3 +2535,15 @@ El saldo registrado recoge saldos iniciales, cobros, pagos y gastos asignados a 
 No se ha podido abrir el módulo. Vuelve a intentarlo.	Impossible d’ouvrir le module. Réessayez.	Could not open the module. Try again.
 Cargando los datos de la empresa…	Chargement des données de l’entreprise…	Loading company data…
 No se han podido cargar los indicadores. Actualiza para reintentar.	Impossible de charger les indicateurs. Actualisez pour réessayer.	Could not load the indicators. Refresh to try again.
+Todos los empleados	Tous les employés	All employees
+RH y administradores	RH et administrateurs	HR and administrators
+Solo administradores	Administrateurs uniquement	Administrators only
+Acceso del módulo de origen	Accès du module d’origine	Source module access
+Módulo de origen	Module d’origine	Source module
+Crear categoría	Créer une catégorie	Create category
+Nombre de la categoría	Nom de la catégorie	Category name
+Escribe un nombre.	Saisissez un nom.	Enter a name.
+Ya existe una categoría con este nombre.	Une catégorie porte déjà ce nom.	A category with this name already exists.
+Archivo sincronizado desde su módulo de origen, sin duplicar el contenido.	Fichier synchronisé depuis son module d’origine, sans dupliquer le contenu.	File synchronized from its source module without duplicating its contents.
+El acceso elegido también se aplica al archivo en su módulo de origen.	L’accès choisi s’applique aussi au fichier dans son module d’origine.	The selected access also applies to the file in its source module.
+Abrir módulo de origen	Ouvrir le module d’origine	Open source module

@@ -9,7 +9,7 @@ async function boot(){
  context.supabase={createClient:()=>({auth:{onAuthStateChange(){}},from(table){
   const call={table,orders:[]};calls.push(call);
   const q={select(){return q},order(key,options){call.orders.push({key,...options});return q},range(a,b){call.range=[a,b];return q},
-   then(resolve){const bad=call.orders.find(o=>!schemas.get(table)?.columns.includes(o.key));return Promise.resolve({data:bad?null:[],error:bad?{code:'42703',message:'column '+bad.key+' does not exist'}:null}).then(resolve)}};
+   then(resolve){const bad=call.orders.find(o=>!schemas.get(table==='tms_proofs_read'?'tms_proofs':table)?.columns.includes(o.key));return Promise.resolve({data:bad?null:[],error:bad?{code:'42703',message:'column '+bad.key+' does not exist'}:null}).then(resolve)}};
   return q;
  }})};
  vm.runInContext(source('gama-supabase.js'),context);await context.GamaCloudReady;
@@ -20,6 +20,7 @@ test('dossier link and proof queries use real columns, including composite-key t
  for(const [table,order] of [['sales_reservation_links','reservation_id'],['tms_proofs','delivery_id'],['fulfillment_package_lines','pick_line_id']]){
   const r=await cloud.list(table,{order,range:[0,299]});assert.equal(r.error,null);
  }
+ assert.equal(calls[1].table,'tms_proofs_read','proof reads use the view that redacts confidential photos');
  assert.deepEqual(calls.map(c=>c.orders.map(o=>o.key)),[['reservation_id'],['delivery_id'],['pick_line_id','package_id']]);
 });
 test('generic paginated reads support every exported table with its complete primary key',async()=>{

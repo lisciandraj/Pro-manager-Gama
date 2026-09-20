@@ -296,7 +296,7 @@ function setupSignature(canvas,d){
   const signature=c.toDataURL('image/png'),stamp=now();
   try{
    const prev=await ensureProof(d.id);
-   const saved=await C().upsert('tms_proofs',{delivery_id:d.id,photo:prev?.photo||null,signature,captured_at:stamp},{onConflict:'delivery_id'});if(saved.error)throw saved.error;
+   const saved=await C().upsert('tms_proofs',{delivery_id:d.id,signature,captured_at:stamp},{onConflict:'delivery_id'});if(saved.error)throw saved.error;
    proofCache[d.id]={...saved.data,delivery_id:d.id,photo:prev?.photo||null,signature};
    const delivered=await C().update('tms_deliveries',d.id,{status:'Entregada',actual_arrival:d.actualArrival||stamp,delivered_at:stamp});if(delivered.error)throw delivered.error;
    window.dispatchEvent(new Event('gama:sales-change'));

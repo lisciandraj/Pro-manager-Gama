@@ -1,13 +1,23 @@
 {
-  "name": "gama-stock-manager-tests",
+  "name": "architect-erp",
   "private": true,
   "version": "1.0.0",
-  "description": "End-to-end tests for GAMA Enterprise Resource Planning (static site, no build step)",
+  "description": "Architect ERP: shared interface, domain contracts and Supabase migrations",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "dev": "vite --host 127.0.0.1 --port 4173",
+    "build": "node scripts/build.cjs",
+    "typecheck": "tsc",
+    "verify:migrations": "node scripts/verify-migrations.cjs",
+    "test:restore": "node scripts/restore-schema.cjs",
+    "test:unit": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "check": "node scripts/check-sources.cjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",
-    "@playwright/test": "^1.47.0"
+    "@playwright/test": "^1.47.0",
+    "acorn": "8.15.0",
+    "typescript": "5.9.3",
+    "vite": "6.4.1"
   }
 }

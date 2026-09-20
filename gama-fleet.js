@@ -9,14 +9,14 @@
    mano: la divisa es un dato de la empresa, no una constante del código. */
 (function(){
 'use strict';
-if(window.GamaFleet)return;
+if(window.GamaFleet&&!window.GamaFleet.__arcLazy)return;
 const ID='fleet',$=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d);
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const monthStart=()=>day().slice(0,8)+'01';
 
 const SECTIONS=[['dashboard','Tablero'],['vehicles','Vehículos'],['drivers','Conductores'],['deadlines','Vencimientos']];
@@ -57,7 +57,7 @@ async function rpc(action,data={}){
  if(!allowed())throw Error('ROLE_NOT_ALLOWED');
  await window.GamaCloudReady;
  const c=await GamaCloud.db();
- const r=await c.rpc('gama_fleet_action',{p_action:action,p_data:data});
+ const r=await window.ArcData.rawRpc('gama_fleet_action',{p_action:action,p_data:data});
  if(r.error)throw Error(err(r.error));
  if(r.data==null)throw Error('EMPTY');
  return r.data;
@@ -65,96 +65,29 @@ async function rpc(action,data={}){
 async function mutate(action,data){const r=await rpc(action,data);
  window.dispatchEvent(new CustomEvent('gama:fleet-change'));return r}
 
-function css(){
- if($('gfStyle'))return;const s=document.createElement('style');s.id='gfStyle';
- /* Mismos radios, mismos grises y el mismo verde azulado que el resto de GAMA.
-    Los campos miden 16 px y 42 px de alto en todas partes: por debajo de eso el
-    móvil hace zoom al tocarlos y el formulario deja de ser usable de pie, que
-    es justo donde se rellena un repostaje. */
- s.textContent=`#fleet{display:none}#fleet.active{display:block}
-.gfNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.gfNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.gfNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-.gfCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
-.gfCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
-.gfKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
-.gfKpis .gfCard{margin:0}
-.gfKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
-.gfKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
-.gfKpis em{display:block;font-style:normal;font-size:12px;color:var(--arc-text-muted);margin-top:5px}
-.gfTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
-.gfTools label{flex:1;min-width:160px;font-size:13px;color:var(--arc-text);font-weight:700}
-.gfTools input,.gfTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.gfScroll{overflow:auto}
-.gfTable{width:100%;border-collapse:collapse;min-width:620px}
-.gfTable th,.gfTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
-.gfTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
-.gfTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
-.gfTable td.gfNum,.gfTable th.gfNum{text-align:right;white-space:nowrap}
-.gfBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
-.gfBadge[data-s=in_service]{background:var(--arc-success-bg);color:var(--arc-success)}
-.gfBadge[data-s=repair]{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.gfBadge[data-s=out_of_service]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-.gfBadge[data-s=car]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
-.gfBadge[data-s=truck]{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}
-.gfActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
-.gfActions button{min-height:42px}
-.gfHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
-.gfError{color:var(--arc-danger);font-weight:700}
-.gfGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
-.gfGrid label,.gfField{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
-.gfField{margin-top:11px}
-.gfGrid input,.gfGrid select,.gfGrid textarea,.gfField input,.gfField select,.gfField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.gfCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.gfGrid[hidden],.gfCard[hidden]{display:none}
-.gfVeh{border:1px solid var(--arc-line-strong);border-radius:13px;background:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column}
-.gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px rgba(12,103,179,.16)}
-.gfVeh figure{margin:0;height:120px;background:var(--arc-surface-3) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:38px}
-.gfVeh .gfVehBody{padding:13px}
-.gfVeh b{display:block;font-size:16px;color:var(--arc-text)}
-.gfVeh span{display:block;font-size:13px;color:var(--arc-text-muted);margin-top:3px}
-.gfVeh .gfVehMeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-.gfTabs{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.gfTabs button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:9px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.gfTabs button.on{background:var(--arc-text);border-color:var(--arc-text);color:#fff}
-.gfPhoto{width:100%;max-width:340px;border-radius:11px;border:1px solid var(--arc-line-strong);display:block}
-.gfDl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:0}
-.gfDl dt{color:var(--arc-text-muted);font-weight:700}
-.gfDl dd{margin:0;color:var(--arc-text)}
-.gfDue{border-left:5px solid var(--arc-line-strong);padding-left:11px}
-.gfDue[data-urgency=soon]{border-left-color:var(--arc-warning)}
-.gfDue[data-urgency=now]{border-left-color:var(--arc-danger)}
-.gfDanger{border:1px solid var(--arc-danger-line);background:var(--arc-danger-bg);border-radius:9px;padding:11px;margin-top:11px}
-.gfQuick{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
-.gfQuick button{flex:1;min-width:150px;min-height:48px;font-weight:800}
-@media(max-width:700px){.gfKpis{grid-template-columns:1fr 1fr}.gfKpis strong{font-size:20px}
- .gfTable{min-width:520px}.gfTools label{min-width:130px}.gfCards{grid-template-columns:1fr}}
-@media(max-width:430px){.gfKpis{grid-template-columns:1fr}.gfDl{grid-template-columns:1fr}
- .gfDl dd{margin-bottom:6px}}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- s.innerHTML=GamaUI.header({title:'🚚 Gestión de flota',lead:'Tus coches y camiones: papeles, consumos y revisiones.'})
-  +'<nav class="gfNav" id="gfNav"></nav><div id="gfMain" aria-live="polite"></div>';
+ window.ArcUI.render(s,GamaUI.header({title:'🚚 Gestión de flota',lead:'Tus coches y camiones: papeles, consumos y revisiones.'})
+  +'<nav class="gfNav" id="gfNav"></nav><div id="gfMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('gfNav');if(!host)return;
- host.innerHTML=SECTIONS.map(([k,label])=>`<button type="button" data-gi-live data-gf-section="${k}" class="${section===k&&!vehicleId?'on':''}" aria-current="${section===k&&!vehicleId?'page':'false'}">${esc(label)}</button>`).join('');
+ window.ArcUI.render(host,SECTIONS.map(([k,label])=>`<button type="button" data-gi-live data-gf-section="${k}" class="arcButton ${section===k&&!vehicleId?'on':''}" aria-current="${section===k&&!vehicleId?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-gf-section]').forEach(b=>b.onclick=()=>{vehicleId=null;go(b.dataset.gfSection)});
 }
-function busy(){$('gfMain').innerHTML=`<p class="gfCard">${tr('Cargando…')}</p>`}
+function busy(){window.ArcUI.render($('gfMain'),`<p class="arcPanel gfCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
- $('gfMain').innerHTML=`<div class="gfCard"><p class="gfError" role="alert">${esc(err(e))}</p>
- <button class="secondary" id="gfRetry">${tr('Actualizar')}</button></div>`;
+ window.ArcUI.render($('gfMain'),`<div class="arcPanel gfCard"><p class="gfError" role="alert">${esc(err(e))}</p>
+ <button class="arcButton secondary" id="gfRetry">${tr('Actualizar')}</button></div>`);
  $('gfRetry').onclick=retry;
 }
-function badge(map,v){return `<span class="gfBadge" data-s="${esc(v)}">${tr(map[v]||v)}</span>`}
+function badge(map,v){return `<span class="arcStatusBadge gfBadge" data-s="${esc(v)}">${tr(map[v]||v)}</span>`}
 function kpi(label,value,hint){
- return `<div class="gfCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em>${hint}</em>`:''}</div>`;
+ return `<div class="arcPanel gfCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em>${hint}</em>`:''}</div>`;
 }
 /* «5 días» no se puede traducir de una pieza: el catálogo busca el texto
    entero y el número cambia en cada fila. Así el número queda fuera y lo que
@@ -185,7 +118,7 @@ async function go(next){
   const view=vehicleId?VIEWS.sheet:VIEWS[section];
   const data=await view.load();
   if(token!==generation||!allowed())return;
-  $('gfMain').innerHTML=view.render(data);
+  window.ArcUI.render($('gfMain'),view.render(data));
   view.bind?.(data);
  }catch(e){if(token===generation)fail(e,()=>go())}
 }
@@ -218,15 +151,15 @@ VIEWS.dashboard={
    ${kpi('Vencimientos a 30 días',num(due.length,0),soon.length?unit(soon.length,'urgentes'):tr('Ninguno urgente'))}
   </div>
   <div class="gfQuick">
-   <button class="primary" id="gfQuickFuel" data-gi-live data-gi=5169e8fdef43>⛽ Registrar un repostaje</button>
-   <button class="secondary" id="gfQuickMaint" data-gi-live data-gi=6b92080c35c7>🔧 Registrar un entretenimiento</button>
+   <button class="arcButton primary" id="gfQuickFuel" data-gi-live data-gi=5169e8fdef43>⛽ Registrar un repostaje</button>
+   <button class="arcButton secondary" id="gfQuickMaint" data-gi-live data-gi=6b92080c35c7>🔧 Registrar un entretenimiento</button>
   </div>
-  <div class="gfCard"><h3>${tr('Próximos vencimientos')}</h3>
+  <div class="arcPanel gfCard"><h3>${tr('Próximos vencimientos')}</h3>
    <p class="gfHint">${tr('Los 30 próximos días. El aviso llega también al Centro de acción.')}</p>
    ${due.length?due.slice(0,12).map(dueRow).join(''):`<p class="gfHint">${tr('Nada vence en los próximos 30 días.')}</p>`}</div>
-  <div class="gfCard"><h3>${tr('Consumo medio por vehículo')}</h3>
+  <div class="arcPanel gfCard"><h3>${tr('Consumo medio por vehículo')}</h3>
    <p class="gfHint">${tr('Calculado de depósito lleno a depósito lleno, con los repostajes registrados.')}</p>
-   <div class="gfScroll"><table class="gfTable"><thead><tr>
+   <div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Vehículo')}</th><th>${tr('Tipo')}</th><th>${tr('Estado')}</th>
     <th class="gfNum">${tr('L/100 km')}</th><th class="gfNum">${tr('Coste por km')}</th>
     <th class="gfNum">${tr('Km medidos')}</th></tr></thead><tbody>
@@ -238,8 +171,8 @@ VIEWS.dashboard={
      ||`<tr><td colspan="6">${tr('Todavía no hay repostajes registrados.')}</td></tr>`}
    </tbody></table></div>
    <div class="gfActions">
-    <button class="secondary" id="gfExport" data-gi-live data-gi=2bee4428f70d>Exportar a Excel</button>
-    <button class="secondary" id="gfCheck" data-gi-live data-gi=0cbb9bfd6ecf>Comprobar vencimientos ahora</button>
+    <button class="arcButton secondary" id="gfExport" data-gi-live data-gi=2bee4428f70d>Exportar a Excel</button>
+    <button class="arcButton secondary" id="gfCheck" data-gi-live data-gi=0cbb9bfd6ecf>Comprobar vencimientos ahora</button>
    </div></div>`;
  },
  bind(){
@@ -260,7 +193,19 @@ VIEWS.dashboard={
 
 /* ------------------------------------------------------------- 2. vehículos */
 VIEWS.vehicles={
- async load(){return rpc('vehicles',{status:filters.status||null,kind:filters.kind||null,search:filters.search})},
+ async load(){
+  const d=await rpc('vehicles',{status:filters.status||null,kind:filters.kind||null,search:filters.search});
+  const ids=(d.rows||[]).filter(v=>v.has_photo&&!v.photo).map(v=>v.id);
+  if(ids.length){
+   try{
+    const photos=await window.ArcData.byIds('fleet_vehicles','id',ids,{select:'id,photo',order:'id'});
+    if(photos.error)throw photos.error;
+    const byId=new Map((photos.data||[]).map(v=>[v.id,v.photo]));
+    d.rows=d.rows.map(v=>({...v,photo:v.photo||byId.get(v.id)||null}));
+   }catch(_){console.warn('Fleet vehicle photos could not be loaded');}
+  }
+  return d;
+ },
  render(d){
   const rows=d.rows||[];
   return `<div class="gfTools">
@@ -273,25 +218,30 @@ VIEWS.vehicles={
     <option value="" data-gi-live data-gi=bd02b9a7d71d>Todos</option>
     ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${filters.status===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}
    </select></label>
-   <label><button class="primary" id="gfNewVehicle" data-gi-live data-gi=f86ee15fd67d>Nuevo vehículo</button></label>
+   <label><button class="arcButton primary" id="gfNewVehicle" data-gi-live data-gi=f86ee15fd67d>Nuevo vehículo</button></label>
   </div>
   <p class="gfHint">${unit(rows.length,'vehículos')}</p>
   <div class="gfCards">${rows.map(v=>`
-   <button type="button" class="gfVeh" data-gf-vehicle="${v.id}">
-    <figure aria-hidden="true">${v.kind==='truck'?'🚛':'🚗'}</figure>
+   <button type="button" class="arcButton gfVeh" data-gf-vehicle="${v.id}">
+    <figure aria-hidden="true" data-gf-photo-fallback="${v.kind==='truck'?'🚛':'🚗'}">${v.photo?`<img src="${esc(v.photo)}" alt="" loading="lazy" decoding="async">`:v.kind==='truck'?'🚛':'🚗'}</figure>
     <div class="gfVehBody">
      <b>${esc(v.plate)}</b><span>${esc(v.brand)} ${esc(v.model)}</span>
      <span>${num(v.odometer||0,0)} km${v.driver_name?' · '+esc(v.driver_name):''}</span>
      <span>${v.avg_litres_100km==null?tr('Sin consumo medido'):esc(num(v.avg_litres_100km,2)+' L/100 km')}</span>
      <div class="gfVehMeta">${badge(KIND,v.kind)}${badge(STATUS,v.status)}
-      ${v.alerts>0?`<span class="gfBadge" data-s="repair">${unit(v.alerts,'vencimientos')}</span>`:''}</div>
-    </div></button>`).join('')||`<p class="gfCard">${tr('Ningún vehículo con ese filtro.')}</p>`}</div>`;
+      ${v.alerts>0?`<span class="arcStatusBadge gfBadge" data-s="repair">${unit(v.alerts,'vencimientos')}</span>`:''}</div>
+    </div></button>`).join('')||`<p class="arcPanel gfCard">${tr('Ningún vehículo con ese filtro.')}</p>`}</div>`;
  },
  bind(d){
   const reload=()=>{filters.search=$('gfSearch').value;filters.kind=$('gfKind').value;filters.status=$('gfStatus').value;go()};
   $('gfKind').onchange=reload;$('gfStatus').onchange=reload;
   let t=null;$('gfSearch').oninput=()=>{clearTimeout(t);t=setTimeout(reload,350)};
   $('gfNewVehicle').onclick=()=>vehicleForm(null);
+  document.querySelectorAll('[data-gf-photo-fallback] img').forEach(img=>{
+   const fallback=()=>{img.parentElement.textContent=img.parentElement.dataset.gfPhotoFallback};
+   img.onerror=fallback;
+   if(img.complete&&!img.naturalWidth)fallback();
+  });
   document.querySelectorAll('[data-gf-vehicle]').forEach(b=>b.onclick=()=>{vehicleId=b.dataset.gfVehicle;tab='info';go()});
  }
 };
@@ -303,13 +253,13 @@ VIEWS.sheet={
   return{v,drivers:drivers.drivers||[]}},
  render({v}){
   const tabs=`<div class="gfTabs">${TABS.map(([k,label])=>
-   `<button type="button" data-gf-tab="${k}" class="${tab===k?'on':''}" aria-current="${tab===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join('')}</div>`;
-  return `<div class="gfCard">
-   <div class="gfActions" style="margin:0 0 11px"><button class="secondary" id="gfBackList" data-gi-live data-gi=2728babbb7ff>← Volver a la lista</button></div>
+   `<button type="button" data-gf-tab="${k}" class="arcButton ${tab===k?'on':''}" aria-current="${tab===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join('')}</div>`;
+  return `<div class="arcPanel gfCard">
+   <div class="gfActions" style="margin:0 0 11px"><button class="arcButton secondary" id="gfBackList" data-gi-live data-gi=2728babbb7ff>← Volver a la lista</button></div>
    <h3>${esc(v.plate)} · ${esc(v.brand)} ${esc(v.model)}</h3>
    <div class="gfVehMeta">${badge(KIND,v.kind)}${badge(STATUS,v.status)}
-    <span class="gfBadge">${esc(v.reference)}</span>
-    <span class="gfBadge">${esc(num(v.odometer||0,0))} km</span></div>
+    <span class="arcStatusBadge gfBadge">${esc(v.reference)}</span>
+    <span class="arcStatusBadge gfBadge">${esc(num(v.odometer||0,0))} km</span></div>
   </div>${tabs}<div id="gfTab">${TAB_VIEWS[tab](v)}</div>`;
  },
  bind(d){
@@ -321,7 +271,7 @@ VIEWS.sheet={
 const TAB_VIEWS={
  info(v){
   const c=v.consumption||{};
-  return `<div class="gfCard">
+  return `<div class="arcPanel gfCard">
    ${v.photo?`<img class="gfPhoto" src="${esc(v.photo)}" alt="${esc(v.plate)}">`:`<p class="gfHint">${tr('Sin foto del vehículo.')}</p>`}
    <dl class="gfDl" style="margin-top:12px">
     <dt>${tr('Matrícula')}</dt><dd>${esc(v.plate)}</dd>
@@ -337,34 +287,34 @@ const TAB_VIEWS={
    </dl>
    ${v.notes?`<p class="gfHint">${esc(v.notes)}</p>`:''}
    <div class="gfActions">
-    <button class="secondary" id="gfEditVehicle" data-gi-live data-gi=25cb6fc10242>Modificar</button>
-    <button class="secondary" id="gfPhoto" data-gi-live data-gi=9149e7dc2fa4>Foto del vehículo</button>
-    <button class="secondary" id="gfAssign" data-gi-live data-gi=940bdfbfa57d>Asignar un conductor</button>
-    ${v.driver?`<button class="secondary" id="gfUnassign" data-gi-live data-gi=2efcde959ffe>Retirar el conductor</button>`:''}
-    <button class="secondary" id="gfDeleteVehicle" data-gi-live data-gi=46af898b84fc>Dar de baja</button>
+    <button class="arcButton secondary" id="gfEditVehicle" data-gi-live data-gi=25cb6fc10242>Modificar</button>
+    <button class="arcButton secondary" id="gfPhoto" data-gi-live data-gi=9149e7dc2fa4>Foto del vehículo</button>
+    <button class="arcButton secondary" id="gfAssign" data-gi-live data-gi=940bdfbfa57d>Asignar un conductor</button>
+    ${v.driver?`<button class="arcButton secondary" id="gfUnassign" data-gi-live data-gi=2efcde959ffe>Retirar el conductor</button>`:''}
+    <button class="arcButton secondary" id="gfDeleteVehicle" data-gi-live data-gi=46af898b84fc>Dar de baja</button>
    </div></div>
-  <div class="gfCard"><h3>${tr('Historial de conductores')}</h3>
-   ${(v.assignments||[]).length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
+  <div class="arcPanel gfCard"><h3>${tr('Historial de conductores')}</h3>
+   ${(v.assignments||[]).length?`<div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Conductor')}</th><th>${tr('Desde')}</th><th>${tr('Hasta')}</th><th></th></tr></thead><tbody>
     ${v.assignments.map(a=>`<tr><td>${esc(a.driver)}</td><td>${esc(a.started_on)}</td>
      <td>${a.ended_on?esc(a.ended_on):tr('En curso')}</td>
-     <td><button class="secondary" data-gf-assign-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
+     <td><button class="arcButton secondary" data-gf-assign-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
    </tbody></table></div>`:`<p class="gfHint">${tr('Ningún conductor ha llevado este vehículo todavía.')}</p>`}</div>`;
  },
  documents(v){
-  return `<div class="gfCard"><h3>${tr('Documentos y vencimientos')}</h3>
+  return `<div class="arcPanel gfCard"><h3>${tr('Documentos y vencimientos')}</h3>
    <p class="gfHint">${tr('Seguro, inspección técnica y permiso de circulación. El aviso salta 30 días antes.')}</p>
-   ${(v.documents||[]).length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
+   ${(v.documents||[]).length?`<div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Documento')}</th><th>${tr('Referencia')}</th><th>${tr('Expedido')}</th>
     <th>${tr('Vence')}</th><th>${tr('Archivo')}</th><th></th></tr></thead><tbody>
     ${v.documents.map(x=>{const r=remaining(x);return `<tr><td>${tr(DOCKIND[x.kind]||x.kind)}</td>
      <td>${esc(x.reference||'—')}</td><td>${esc(x.issued_on||'—')}</td>
      <td>${x.expires_on?esc(x.expires_on)+`<br><small class="gfHint">${r.html}</small>`:tr('Sin caducidad')}</td>
-     <td>${x.has_file?`<button class="secondary" data-gf-file="${x.id}" data-gi-live data-gi=ed3d9c907370>Descargar</button>`:'—'}</td>
-     <td><button class="secondary" data-gf-doc-edit="${x.id}" data-gi-live data-gi=25cb6fc10242>Modificar</button>
-      <button class="secondary" data-gf-doc-del="${x.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`}).join('')}
+     <td>${x.has_file?`<button class="arcButton secondary" data-gf-file="${x.id}" data-gi-live data-gi=ed3d9c907370>Descargar</button>`:'—'}</td>
+     <td><button class="arcButton secondary" data-gf-doc-edit="${x.id}" data-gi-live data-gi=25cb6fc10242>Modificar</button>
+      <button class="arcButton secondary" data-gf-doc-del="${x.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`}).join('')}
    </tbody></table></div>`:`<p class="gfHint">${tr('Ningún documento registrado.')}</p>`}
-   <div class="gfActions"><button class="primary" id="gfNewDoc" data-gi-live data-gi=88fa2503185d>Añadir un documento</button></div></div>`;
+   <div class="gfActions"><button class="arcButton primary" id="gfNewDoc" data-gi-live data-gi=88fa2503185d>Añadir un documento</button></div></div>`;
  },
  fuel(v){
   const c=v.consumption||{};
@@ -373,23 +323,23 @@ const TAB_VIEWS={
    ${kpi('Coste por km',c.cost_per_km==null?'—':money(c.cost_per_km),unit(c.distance||0,'km medidos'))}
    ${kpi('Gasto en carburante',money(c.total_cost||0),unit(c.fills||0,'repostajes'))}
   </div>
-  <div class="gfCard"><h3>${tr('Repostajes')}</h3>
+  <div class="arcPanel gfCard"><h3>${tr('Repostajes')}</h3>
    <p class="gfHint">${tr('El kilometraje del vehículo sigue el repostaje más reciente: no hace falta actualizarlo aparte.')}</p>
-   ${(v.fuel||[]).length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
+   ${(v.fuel||[]).length?`<div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Fecha')}</th><th>${tr('Conductor')}</th><th class="gfNum">${tr('Kilometraje')}</th>
     <th class="gfNum">${tr('Litros')}</th><th class="gfNum">${tr('Importe')}</th>
     <th>${tr('Estación')}</th><th></th></tr></thead><tbody>
     ${v.fuel.map(f=>`<tr><td>${esc(f.logged_on)}</td><td>${esc(f.driver_name||'—')}</td>
      <td class="gfNum">${num(f.odometer||0,0)}</td><td class="gfNum">${num(f.litres,2)}</td>
      <td class="gfNum">${money(f.amount)}</td><td>${esc(f.station||'—')}</td>
-     <td><button class="secondary" data-gf-fuel-del="${f.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
+     <td><button class="arcButton secondary" data-gf-fuel-del="${f.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
    </tbody></table></div>`:`<p class="gfHint">${tr('Ningún repostaje registrado.')}</p>`}
-   <div class="gfActions"><button class="primary" id="gfNewFuel" data-gi-live data-gi=4d231fdc447c>Registrar un repostaje</button></div></div>`;
+   <div class="gfActions"><button class="arcButton primary" id="gfNewFuel" data-gi-live data-gi=4d231fdc447c>Registrar un repostaje</button></div></div>`;
  },
  maintenance(v){
-  return `<div class="gfCard"><h3>${tr('Entretenimientos')}</h3>
+  return `<div class="arcPanel gfCard"><h3>${tr('Entretenimientos')}</h3>
    <p class="gfHint">${tr('La próxima revisión se avisa por fecha o por kilometraje, lo que llegue antes.')}</p>
-   ${(v.maintenance||[]).length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
+   ${(v.maintenance||[]).length?`<div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Fecha')}</th><th>${tr('Tipo')}</th><th class="gfNum">${tr('Kilometraje')}</th>
     <th>${tr('Garaje')}</th><th class="gfNum">${tr('Coste')}</th>
     <th>${tr('Próxima revisión')}</th><th></th></tr></thead><tbody>
@@ -397,9 +347,9 @@ const TAB_VIEWS={
      <td class="gfNum">${m.odometer==null?'—':num(m.odometer,0)}</td><td>${esc(m.garage||'—')}</td>
      <td class="gfNum">${money(m.cost)}</td>
      <td>${[m.next_service_on,m.next_service_odometer==null?'':num(m.next_service_odometer,0)+' km'].filter(Boolean).map(esc).join('<br>')||'—'}</td>
-     <td><button class="secondary" data-gf-maint-del="${m.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
+     <td><button class="arcButton secondary" data-gf-maint-del="${m.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
    </tbody></table></div>`:`<p class="gfHint">${tr('Ningún entretenimiento registrado.')}</p>`}
-   <div class="gfActions"><button class="primary" id="gfNewMaint" data-gi-live data-gi=bf1c913a5662>Registrar un entretenimiento</button></div></div>`;
+   <div class="gfActions"><button class="arcButton primary" id="gfNewMaint" data-gi-live data-gi=bf1c913a5662>Registrar un entretenimiento</button></div></div>`;
  }
 };
 const TAB_BINDS={
@@ -458,9 +408,9 @@ VIEWS.drivers={
   const rows=d.rows||[];
   return `<div class="gfTools">
    <label data-gi-live data-gi=5f55edf90089>Buscar<input id="gfSearch" type="search" value="${esc(filters.search)}" data-gi-placeholder=139d71c70f85 placeholder="Nombre, teléfono, permiso" data-gi-placeholder="live"></label>
-   <label><button class="primary" id="gfNewDriver" data-gi-live data-gi=bbb27df1ab94>Nuevo conductor</button></label>
+   <label><button class="arcButton primary" id="gfNewDriver" data-gi-live data-gi=bbb27df1ab94>Nuevo conductor</button></label>
   </div>
-  <div class="gfCard"><div class="gfScroll"><table class="gfTable"><thead><tr>
+  <div class="arcPanel gfCard"><div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
    <th>${tr('Conductor')}</th><th>${tr('Teléfono')}</th><th>${tr('Permiso')}</th>
    <th>${tr('Caduca')}</th><th>${tr('Vehículo')}</th><th></th></tr></thead><tbody>
    ${rows.map(r=>{const rr=remaining(r);return `<tr>
@@ -469,8 +419,8 @@ VIEWS.drivers={
     <td>${esc(r.licence_number||'—')}${(r.licence_categories||[]).length?'<br><small class="gfHint">'+esc(r.licence_categories.join(', '))+'</small>':''}</td>
     <td>${r.licence_expiry?esc(r.licence_expiry)+`<br><small class="gfHint">${rr.html}</small>`:tr('Sin fecha')}</td>
     <td>${(r.vehicles||[]).map(x=>esc(x.plate)).join('<br>')||'—'}</td>
-    <td><button class="secondary" data-gf-driver-edit="${r.id}" data-gi-live data-gi=25cb6fc10242>Modificar</button>
-     <button class="secondary" data-gf-driver-del="${r.id}" data-gi-live data-gi=46af898b84fc>Dar de baja</button></td></tr>`}).join('')
+    <td><button class="arcButton secondary" data-gf-driver-edit="${r.id}" data-gi-live data-gi=25cb6fc10242>Modificar</button>
+     <button class="arcButton secondary" data-gf-driver-del="${r.id}" data-gi-live data-gi=46af898b84fc>Dar de baja</button></td></tr>`}).join('')
     ||`<tr><td colspan="6">${tr('Ningún conductor registrado.')}</td></tr>`}
   </tbody></table></div></div>`;
  },
@@ -491,18 +441,18 @@ VIEWS.drivers={
 VIEWS.deadlines={
  async load(){const [rows,log]=await Promise.all([rpc('deadlines',{days:60}),rpc('alert_log')]);return{rows,log}},
  render({rows,log}){
-  return `<div class="gfCard"><h3>${tr('Vencimientos')}</h3>
+  return `<div class="arcPanel gfCard"><h3>${tr('Vencimientos')}</h3>
    <p class="gfHint">${tr('Permisos de conducir, documentos del vehículo y revisiones previstas, a 60 días.')}</p>
    ${rows.length?rows.map(dueRow).join(''):`<p class="gfHint">${tr('Nada vence en los próximos 60 días.')}</p>`}</div>
-  <div class="gfCard"><h3>${tr('Avisos ya enviados')}</h3>
+  <div class="arcPanel gfCard"><h3>${tr('Avisos ya enviados')}</h3>
    <p class="gfHint">${tr('La comprobación corre sola cada día. Cada vencimiento se avisa una sola vez.')}</p>
-   ${log.length?`<div class="gfScroll"><table class="gfTable"><thead><tr>
+   ${log.length?`<div class="gfScroll"><table class="arcTable gfTable"><thead><tr>
     <th>${tr('Avisado el')}</th><th>${tr('Tipo')}</th><th>${tr('Detalle')}</th><th></th></tr></thead><tbody>
     ${log.map(a=>`<tr><td>${esc(new Date(a.notified_at).toLocaleString('es-EC'))}</td>
      <td>${tr(DEADLINE[a.kind]||a.kind)}</td><td>${esc(a.detail||'—')}</td>
-     <td><button class="secondary" data-gf-alert-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
+     <td><button class="arcButton secondary" data-gf-alert-del="${a.id}" data-gi-live data-gi=c9894cf002f9>Eliminar</button></td></tr>`).join('')}
    </tbody></table></div>
-   <div class="gfActions"><button class="secondary" id="gfAlertClear" data-gi-live data-gi=815f78e0fc98>Vaciar el registro</button></div>`
+   <div class="gfActions"><button class="arcButton secondary" id="gfAlertClear" data-gi-live data-gi=815f78e0fc98>Vaciar el registro</button></div>`
    :`<p class="gfHint">${tr('Todavía no se ha enviado ningún aviso.')}</p>`}</div>`;
  },
  bind(){

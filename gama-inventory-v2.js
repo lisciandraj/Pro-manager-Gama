@@ -27,12 +27,14 @@
 if(window.GamaInventoryV2)return;
 
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id);
-const esc=v=>window.GamaUI?window.GamaUI.esc(v):String(v??'');
+const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:2});
 
-let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=new Map();
+let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null;
+let serverSnapshot=null,snapshotRequest=0;
+async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
 let pestana='existencias',disponibleV2=null,cargando=false;
 
 /* ---------- datos ---------- */
@@ -48,8 +50,8 @@ async function cargar(){
   const [w,l,q,p]=await Promise.all([
    C().list('warehouses',{order:'code',ascending:true}),
    C().list('warehouse_locations',{order:'code',ascending:true}),
-   C().list('stock_quants',{}),
-   C().list('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})
+   window.ArcData.all('stock_quants',{}),
+   window.ArcData.all('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})
   ]);
   /* Si falta la tabla, PostgREST responde con error en vez de con filas. Es
      la señal de que la migración aún no está aplicada. */
@@ -58,8 +60,8 @@ async function cargar(){
   almacenes=w.data||[];ubicaciones=l.data||[];quants=q.data||[];
   productos=(p.data||[]).filter(x=>x.active!==false);
   const [rr,sp,cc]=await Promise.all([
-   C().list('reorder_rules',{}),
-   C().list('suppliers',{select:'id,name'}),
+   window.ArcData.all('reorder_rules',{}),
+   window.ArcData.all('suppliers',{select:'id,name'}),
    C().list('inventory_counts',{order:'created_at',ascending:false,limit:20})
   ]);
   /* Las tablas de las fases 5 y 6 pueden no estar aplicadas todavía: si
@@ -76,18 +78,18 @@ async function cargar(){
    no puede leer purchase_orders —así lo dice su RLS—, y entonces esta cifra se
    queda en blanco en vez de mentir con un cero. */
 async function cargarEntrante(){
- entrante=new Map();
+ entrante=[];
  try{
   const [po,pol]=await Promise.all([
-   C().list('purchase_orders',{select:'id,status'}),
-   C().list('purchase_order_lines',{select:'product_id,quantity,received_quantity,purchase_order_id'})
+   window.ArcData.all('purchase_orders',{select:'id,status,expected_date,destination_location_id'}),
+   window.ArcData.all('purchase_order_lines',{select:'id,product_id,quantity,received_quantity,purchase_order_id'})
   ]);
   if(po.error||pol.error){entrante=null;return}
   const abiertas=new Set((po.data||[]).filter(o=>o.status==='sent'||o.status==='partial').map(o=>o.id));
   (pol.data||[]).forEach(l=>{
    if(!abiertas.has(l.purchase_order_id))return;
    const falta=Number(l.quantity||0)-Number(l.received_quantity||0);
-   if(falta>0)entrante.set(l.product_id,(entrante.get(l.product_id)||0)+falta);
+   if(falta>0){const order=(po.data||[]).find(o=>o.id===l.purchase_order_id);entrante.push({product_id:l.product_id,quantity:falta,location_id:order.destination_location_id,expected_date:order.expected_date})}
   });
  }catch(_){entrante=null}
 }
@@ -100,8 +102,9 @@ function resumen(p,filtroAlmacen){
  const suyos=quants.filter(q=>q.product_id===p.id&&(!filtroAlmacen||(almacenDe(q.location_id)||{}).id===filtroAlmacen));
  const onHand=suyos.reduce((s,q)=>s+Number(q.quantity||0),0);
  const reservado=suyos.reduce((s,q)=>s+Number(q.reserved_quantity||0),0);
- const entra=entrante?Number(entrante.get(p.id)||0):null;
- const disp=onHand-reservado;
+ const until=$('ivUntil')?.value;const entra=entrante?entrante.filter(x=>x.product_id===p.id&&(!filtroAlmacen||(almacenDe(x.location_id)||{}).id===filtroAlmacen)&&(!until||(x.expected_date&&x.expected_date.slice(0,10)<=until))).reduce((n,x)=>n+x.quantity,0):null;
+ const disp=onHand-reservado;const server=serverSnapshot&&serverSnapshot.warehouse===(filtroAlmacen||null)&&serverSnapshot.until===($('ivUntil')?.value||null)?serverSnapshot.rows.get(p.id):null;
+ if(server)return {producto:p,onHand:Number(server.physical),reservado:Number(server.reserved),disponible:Number(server.available),entrante:server.incoming===null?null:Number(server.incoming),previsto:server.projected===null?null:Number(server.projected),minimo:Number(p.min_stock||0),maximo:Number(p.max_stock||0),costo:Number(p.purchase_price||0),valor:Number(server.current_cost_value),lineas:suyos};
  return {
   producto:p,onHand,reservado,disponible:disp,
   entrante:entra,previsto:entra===null?null:disp+entra,
@@ -121,40 +124,7 @@ function estado(r){
 
 /* ---------- estilos ---------- */
 
-function css(){
- if($('gamaInvV2Css'))return;
- const s=document.createElement('style');s.id='gamaInvV2Css';
- s.textContent=`
-#warehouses{display:none}#warehouses.active{display:block}
-.ivTabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
-.ivTabs button{background:var(--arc-surface-3);color:var(--arc-text);border:1px solid var(--arc-line);border-radius:10px;padding:10px 15px;font-weight:750;font-size:13.5px}
-.ivTabs button.active{background:var(--arc-accent-600);color:#fff;border-color:var(--arc-accent-600)}
-.ivCard{background:#fff;border:1px solid var(--arc-line);border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(18,37,60,.04)}
-.ivKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.ivKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:13px 15px}
-.ivKpi span{display:block;font-size:11.5px;font-weight:750;color:var(--arc-text-muted)}
-.ivKpi b{display:block;font-size:21px;font-weight:900;color:var(--arc-text);margin-top:5px;letter-spacing:-.4px}
-.ivFiltros{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.ivFiltros input{flex:1 1 240px;min-width:0;width:auto}
-.ivFiltros select{flex:0 0 auto;width:200px;min-width:0;padding:11px;border-radius:10px;border:1px solid var(--arc-line)}
-.ivEstado{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:3px 9px;background:var(--arc-success-bg);color:var(--arc-success);white-space:nowrap}
-.ivEstado.bajo{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.ivEstado.agotado{background:var(--arc-danger-bg);color:var(--arc-danger)}
-.ivEstado.sobre{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-.ivEstado.reservado{background:var(--arc-accent-100);color:var(--arc-accent-600)}
-.ivSub{color:var(--arc-text-muted);font-size:11.5px}
-.ivForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.ivForm label{margin-top:0}
-.ivAviso{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);padding:12px 13px;border-radius:8px;font-size:13px;line-height:1.5}
-.ivSaldo{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 0;font-size:13px;color:var(--arc-text-muted)}
-.ivSaldo b{color:var(--arc-text)}
-.ivArbol{list-style:none;margin:0;padding:0;font-size:13.5px}
-.ivArbol ul{list-style:none;margin:0;padding:0 0 0 20px;border-left:1px solid var(--arc-line)}
-.ivArbol li{padding:5px 0}
-.ivArbol code{background:var(--arc-surface-2);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--arc-text-muted)}
-@media(max-width:560px){.ivFiltros input,.ivFiltros select{flex:0 0 auto;width:100%}}`;
- (document.head||document.documentElement).appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 /* ---------- pantalla ---------- */
 
@@ -167,16 +137,16 @@ function seccion(){
 function pintar(){
  css();
  const sec=seccion();
- sec.innerHTML=window.GamaUI.header({
+ window.ArcUI.render(sec,window.GamaUI.header({
   title:'🏬 Almacenes y existencias',
   lead:'Dónde está cada producto y cuánto queda disponible.'
  })+`<div class="ivTabs">
-<button type="button" data-iv-tab="existencias" data-gi=51d1f9fcef5a>Existencias</button>
-<button type="button" data-iv-tab="transferencias" data-gi=7964b01de247>Transferencias</button>
-<button type="button" data-iv-tab="reabastecimiento" data-gi=b8d29c42edf0>Reabastecimiento</button>
-<button type="button" data-iv-tab="conteos" data-gi=50b30c964d90>Inventario físico</button>
-<button type="button" data-iv-tab="ubicaciones" data-gi=f2f6d7256e7e>Ubicaciones</button>
-</div><div id="ivCuerpo"></div>`;
+<button class="arcButton" type="button" data-iv-tab="existencias" data-gi=51d1f9fcef5a>Existencias</button>
+<button class="arcButton" type="button" data-iv-tab="transferencias" data-gi=7964b01de247>Transferencias</button>
+<button class="arcButton" type="button" data-iv-tab="reabastecimiento" data-gi=b8d29c42edf0>Reabastecimiento</button>
+<button class="arcButton" type="button" data-iv-tab="conteos" data-gi=50b30c964d90>Inventario físico</button>
+<button class="arcButton" type="button" data-iv-tab="ubicaciones" data-gi=f2f6d7256e7e>Ubicaciones</button>
+</div><div id="ivCuerpo"></div>`);
  window.GamaUI.bindBack(sec);
  sec.querySelectorAll('[data-iv-tab]').forEach(b=>{
   b.classList.toggle('active',b.dataset.ivTab===pestana);
@@ -184,12 +154,12 @@ function pintar(){
  });
  const cuerpo=$('ivCuerpo');
  if(disponibleV2===false){
-  cuerpo.innerHTML=`<div class="ivCard"><div class="ivAviso"><b data-gi=382d7e0a2ad5>Inventario V2 todavía no está activo.</b><br data-gi=227cc70e0fe2>
+  window.ArcUI.render(cuerpo,`<div class="ivCard"><div class="ivAviso"><b data-gi=382d7e0a2ad5>Inventario V2 todavía no está activo.</b><br data-gi=227cc70e0fe2>
 Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-phase1.sql</code>.
-Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div></div>`;
+Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div></div>`);
   return;
  }
- if(disponibleV2===null){cuerpo.innerHTML='<div class="ivCard muted"><span class="gamaSpin"></span>Cargando existencias…</div>';return}
+ if(disponibleV2===null){window.ArcUI.render(cuerpo,'<div class="ivCard muted"><span class="gamaSpin"></span>Cargando existencias…</div>');return}
  if(pestana==='existencias')pintarExistencias(cuerpo);
  else if(pestana==='transferencias')pintarTransferencias(cuerpo);
  else if(pestana==='reabastecimiento')pintarReabastecimiento(cuerpo);
@@ -202,12 +172,12 @@ Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div>
 function pintarExistencias(host){
  const opcionesAlmacen=almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
  const categorias=[...new Set(productos.map(p=>(p.category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
- host.innerHTML=`<div class="ivKpis" id="ivKpis"></div>
+ window.ArcUI.render(host,`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
 <div class="ivFiltros">
  <input id="ivBuscar" type="search" data-gi-placeholder=63ccace81217 placeholder="Buscar por producto o referencia…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
  <select id="ivAlmacen" data-gi-aria-label=9a91575b8e4b aria-label="Almacén"><option value="" data-gi=c27ceb62ad08>Todos los almacenes</option>${opcionesAlmacen}</select>
- <select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
+ <label data-gi=3c83e3558107>Hasta<input type="date" id="ivUntil"></label><select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
  <select id="ivEstadoFiltro" data-gi-aria-label=98e5acddb6c4 aria-label="Estado">
   <option value="" data-gi=ecda92faab01>Todos los estados</option>
   <option value="bajo" data-gi=9ae983d98529>Stock bajo</option>
@@ -216,14 +186,14 @@ function pintarExistencias(host){
   <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
  </select>
 </div>
-<div id="ivTabla"></div>
-</div>`;
- ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro'].forEach(id=>{
+<p class="muted">Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p><div id="ivTabla"></div>
+</div>`);
+ ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
   const el=$(id);if(!el)return;
-  el[id==='ivBuscar'?'oninput':'onchange']=()=>{window.GamaPage?.reset('invv2');tabla()};
+  el[id==='ivBuscar'?'oninput':'onchange']=async()=>{window.GamaPage?.reset('invv2');if(['ivAlmacen','ivUntil'].includes(id))await refreshSnapshot();tabla()};
  });
  window.GamaPage?.register('invv2',tabla);
- tabla();
+ tabla();refreshSnapshot().then(()=>{if($('ivTabla'))tabla()});
 }
 
 function filas(){
@@ -237,7 +207,7 @@ function filas(){
   .map(p=>resumen(p,alm))
   /* Con un almacén elegido, un producto que no tiene nada ahí no es una fila
      vacía que llenar: simplemente no está en ese almacén. */
-  .filter(r=>!alm||r.lineas.length)
+  .filter(r=>!alm||r.lineas.length||r.entrante>0)
   .filter(r=>!est||estado(r).clase===est);
 }
 
@@ -245,9 +215,9 @@ function tabla(){
  const host=$('ivTabla');if(!host)return;
  const rows=filas();
  pintarKpis(rows);
- if(!rows.length){host.innerHTML='<div class="muted" data-gi=0c22de3a52d5>No hay existencias que coincidan.</div>';return}
+ if(!rows.length){window.ArcUI.render(host,'<div class="muted" data-gi=0c22de3a52d5>No hay existencias que coincidan.</div>');return}
  const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows):rows;
- host.innerHTML='<table><tr>'
+ window.ArcUI.render(host,'<table class="arcTable"><tr>'
   +'<th data-gi=77b9238931ed>Producto</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=558bb20a82ed>Categoría</th><th data-gi=9a91575b8e4b>Almacén</th>'
   +'<th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th>'
   +'<th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=1fecb6bc9f3e>Costo</th><th data-gi=b2f530c46991>Valor</th><th data-gi=98e5acddb6c4>Estado</th></tr>'
@@ -271,7 +241,7 @@ function tabla(){
 <td>${money(r.valor)}</td>
 <td><span class="ivEstado ${e.clase}">${e.texto}</span></td>
 </tr>`}).join('')
-  +'</table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):'');
+  +'</table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):''));
  if(window.GamaTable)window.GamaTable.scan();
 }
 
@@ -281,11 +251,11 @@ function pintarKpis(rows){
  const bajo=rows.filter(r=>estado(r).clase==='bajo').length;
  const sin=rows.filter(r=>r.onHand<=0).length;
  const res=rows.reduce((s,r)=>s+r.reservado,0);
- host.innerHTML=`
+ window.ArcUI.render(host,`
 <div class="ivKpi"><span data-gi=2b6191504cd7>Valor del stock</span><b>${money(valor)}</b></div>
 <div class="ivKpi"><span data-gi=d8fa61c9be01>Productos bajo mínimo</span><b>${bajo}</b></div>
 <div class="ivKpi"><span data-gi=be6038d25214>Sin existencias</span><b>${sin}</b></div>
-<div class="ivKpi"><span data-gi=3cc912339414>Unidades reservadas</span><b>${num(res)}</b></div>`;
+<div class="ivKpi"><span data-gi=3cc912339414>Unidades reservadas</span><b>${num(res)}</b></div>`);
 }
 
 /* ---------- transferencias ---------- */
@@ -298,7 +268,7 @@ function opcionesUbicacion(){
 }
 
 function pintarTransferencias(host){
- host.innerHTML=`<div class="ivCard">
+ window.ArcUI.render(host,`<div class="ivCard">
 <h3 style="margin:0 0 4px" data-gi=d9bf9cf48ea6>Mover existencias de una ubicación a otra</h3>
 <p class="muted" style="margin:0 0 14px" data-gi=812c6c18a9e3>El traslado es de una sola pieza: o se mueve entero o no se mueve nada. Lo reservado no se puede mover.</p>
 <div class="ivForm">
@@ -310,9 +280,9 @@ function pintarTransferencias(host){
  <div style="grid-column:1/-1"><label for="ivtComentario" data-gi=53c367898434>Comentario</label><input id="ivtComentario" data-gi-placeholder=b697e5de1174 placeholder="Motivo del traslado (opcional)"></div>
 </div>
 <div class="ivSaldo" id="ivtSaldo"></div>
-<button type="button" class="primary" id="ivtConfirmar" style="width:100%;margin-top:14px" data-gi=a32cd62ae09f>Confirmar transferencia</button>
+<button type="button" class="arcButton primary" id="ivtConfirmar" style="width:100%;margin-top:14px" data-gi=a32cd62ae09f>Confirmar transferencia</button>
 </div>
-<div class="ivCard"><h3 style="margin:0 0 10px" data-gi=32fca927bb3d>Últimos traslados</h3><div id="ivtHistorial" class="muted">—</div></div>`;
+<div class="ivCard"><h3 style="margin:0 0 10px" data-gi=32fca927bb3d>Últimos traslados</h3><div id="ivtHistorial" class="muted">—</div></div>`);
  ['ivtProducto','ivtOrigen','ivtDestino'].forEach(id=>{const el=$(id);if(el)el.onchange=saldo});
  $('ivtConfirmar').onclick=transferir;
  saldo();
@@ -322,13 +292,13 @@ function pintarTransferencias(host){
 function saldo(){
  const host=$('ivtSaldo');if(!host)return;
  const pid=$('ivtProducto')?.value,org=$('ivtOrigen')?.value,dst=$('ivtDestino')?.value;
- if(!pid||!org){host.innerHTML='';return}
+ if(!pid||!org){window.ArcUI.render(host,'');return}
  const qO=quants.find(q=>q.product_id===pid&&q.location_id===org);
  const qD=dst?quants.find(q=>q.product_id===pid&&q.location_id===dst):null;
  const onO=Number(qO?.quantity||0),resO=Number(qO?.reserved_quantity||0);
- host.innerHTML=`<div data-gi=1e31d11b109e>Origen · <b>${num(onO)}</b> en existencia</div>
+ window.ArcUI.render(host,`<div data-gi=1e31d11b109e>Origen · <b>${num(onO)}</b> en existencia</div>
 <div data-gi=1e31d11b109e>Origen · <b>${num(onO-resO)}</b> disponible${resO?` <span class="ivSub">(${num(resO)} reservado)</span>`:''}</div>
-${dst?`<div data-gi=d3b6805b5841>Destino · <b>${num(Number(qD?.quantity||0))}</b> en existencia</div>`:''}`;
+${dst?`<div data-gi=d3b6805b5841>Destino · <b>${num(Number(qD?.quantity||0))}</b> en existencia</div>`:''}`);
 }
 
 async function transferir(){
@@ -341,7 +311,7 @@ async function transferir(){
  const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Transfiriendo…';
  try{
   const c=await C().db();
-  const {error}=await c.rpc('gama_stock_transfer',{
+  const {error}=await window.ArcData.rawRpc('gama_stock_transfer',{
    p_product_id:pid,p_source_location_id:org,p_destination_location_id:dst,
    p_quantity:cant,p_reason:'Transferencia interna',p_comment:com||null});
   if(error)throw error;
@@ -381,17 +351,17 @@ async function historial(){
  try{
   const r=await C().list('stock_movements',{select:'id,product_id,quantity,created_at,source_location_id,destination_location_id,movement_type,comment',order:'created_at',ascending:false,limit:10});
   const rows=(r.data||[]).filter(m=>m.movement_type==='internal_transfer');
-  if(!rows.length){host.innerHTML='<div class="muted" data-gi=73e92889385c>Todavía no hay traslados registrados.</div>';return}
-  host.innerHTML='<table><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8b4e93e928df>Desde</th><th data-gi=d40aa32cd30a>Hacia</th><th data-gi=8930e00fcc39>Cantidad</th></tr>'
+  if(!rows.length){window.ArcUI.render(host,'<div class="muted" data-gi=73e92889385c>Todavía no hay traslados registrados.</div>');return}
+  window.ArcUI.render(host,'<table class="arcTable"><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8b4e93e928df>Desde</th><th data-gi=d40aa32cd30a>Hacia</th><th data-gi=8930e00fcc39>Cantidad</th></tr>'
    +rows.map(m=>{
     const p=productos.find(x=>x.id===m.product_id);
     return `<tr><td>${esc(new Date(m.created_at).toLocaleString('es-EC'))}</td>
 <td>${esc(p?p.name:'—')}</td>
 <td>${esc((ubicacion(m.source_location_id)||{}).code||'—')}</td>
 <td>${esc((ubicacion(m.destination_location_id)||{}).code||'—')}</td>
-<td>${num(m.quantity)}</td></tr>`}).join('')+'</table>';
+<td>${num(m.quantity)}</td></tr>`}).join('')+'</table>');
   if(window.GamaTable)window.GamaTable.scan();
- }catch(_){host.innerHTML='<div class="muted" data-gi=006f539c9aa6>No se pudo leer el historial.</div>'}
+ }catch(_){window.ArcUI.render(host,'<div class="muted" data-gi=006f539c9aa6>No se pudo leer el historial.</div>')}
 }
 
 
@@ -425,10 +395,10 @@ function sugerencia(r){
 function pintarReabastecimiento(host){
  const filas=productos.map(p=>resumen(p)).map(r=>({r,s:sugerencia(r)})).filter(x=>x.s);
  const nombreProveedor=id=>{const s=proveedores.find(x=>x.id===id);return s?s.name:'—'};
- host.innerHTML=`<div class="ivCard">
+ window.ArcUI.render(host,`<div class="ivCard">
 <h3 style="margin:0 0 4px" data-gi=410609c8f18b>Productos que hay que reponer</h3>
 <p class="muted" style="margin:0 0 12px" data-gi=cf0b3d08ddea>Se repone cuando lo previsto cae por debajo del mínimo. Previsto es lo disponible más lo que ya viene de camino, así que un producto con una compra en marcha no vuelve a pedirse.</p>
-${filas.length?`<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th><th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=53d6521cbfdb>Sugerido</th><th data-gi=e746643f4479>Proveedor</th></tr>`
+${filas.length?`<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th><th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=53d6521cbfdb>Sugerido</th><th data-gi=e746643f4479>Proveedor</th></tr>`
 +filas.map(({r,s})=>`<tr>
 <td><b>${esc(r.producto.name)}</b>${s.limites.regla?'<small class="ivSub" data-gi=96f2fb0afade>regla propia</small>':''}</td>
 <td>${num(r.onHand)}</td>
@@ -443,7 +413,7 @@ ${filas.length?`<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9de
 </tr>`).join('')+'</table>'
 :'<div class="muted" data-gi=6017a18207dd>Ningún producto está por debajo de su mínimo.</div>'}
 <p class="muted" style="margin:12px 0 0" data-gi=74c8f187aa38>La sugerencia no crea ninguna orden de compra: pedir sigue siendo cosa del módulo de Compras.</p>
-</div>`;
+</div>`);
  if(window.GamaTable)window.GamaTable.scan();
 }
 
@@ -451,29 +421,29 @@ ${filas.length?`<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9de
 
 function pintarConteos(host){
  if(conteos===null){
-  host.innerHTML=`<div class="ivCard"><div class="ivAviso"><b data-gi=66c1ec9818d7>El inventario físico todavía no está activo.</b><br data-gi=227cc70e0fe2>
-Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`;
+  window.ArcUI.render(host,`<div class="ivCard"><div class="ivAviso"><b data-gi=66c1ec9818d7>El inventario físico todavía no está activo.</b><br data-gi=227cc70e0fe2>
+Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`);
   return;
  }
  if(conteoAbierto){pintarConteoAbierto(host);return}
- host.innerHTML=`<div class="ivCard">
+ window.ArcUI.render(host,`<div class="ivCard">
 <h3 style="margin:0 0 4px" data-gi=1f8440f32309>Nuevo recuento</h3>
 <p class="muted" style="margin:0 0 12px" data-gi=9f7ced168427>Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
 <div class="ivForm">
  <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
- <div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
+ <div><label>Ubicación (opcional)<select id="ivcLocation"><option value="" data-gi=aff4d19d6ee4>Todas</option>${ubicaciones.map(l=>`<option value="${esc(l.id)}">${esc(l.code)}</option>`).join('')}</select></label></div><div><label>Categoría (opcional)<input id="ivcCategory"></label></div><div><label>Repetir en días (opcional)<input id="ivcCycle" type="number" min="1" max="366"></label></div><div><label><input id="ivcBlind" type="checkbox" checked> Recuento ciego</label></div><div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
 </div>
-<button type="button" class="primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
+<button type="button" class="arcButton primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
 </div>
 <div class="ivCard"><h3 style="margin:0 0 10px" data-gi=49c303591a2b>Recuentos</h3>${
- conteos.length?`<table><tr><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=9a91575b8e4b>Almacén</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th></th></tr>`
+ conteos.length?`<table class="arcTable"><tr><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=9a91575b8e4b>Almacén</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th></th></tr>`
  +conteos.map(c=>{
    const a=almacenes.find(x=>x.id===c.warehouse_id);
    return `<tr><td><b>${esc(c.reference)}</b></td><td>${esc(a?a.name:'—')}</td>
 <td><span class="ivEstado ${c.status==='validated'?'ok':c.status==='cancelled'?'sobre':'bajo'}">${esc(ESTADO_CONTEO[c.status]||c.status)}</span></td>
-<td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}</td>
-<td><button type="button" class="secondary" data-ivc-abrir="${esc(c.id)}" data-gi=a01a5fce396e>Abrir</button></td></tr>`}).join('')+'</table>'
- :'<div class="muted" data-gi=379b33723552>Todavía no hay recuentos.</div>'}</div>`;
+<td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}${c.next_due?'<br>Próximo recuento: '+esc(c.next_due):''}</td>
+<td><button type="button" class="arcButton secondary" data-ivc-abrir="${esc(c.id)}" data-gi=a01a5fce396e>Abrir</button></td></tr>`}).join('')+'</table>'
+ :'<div class="muted" data-gi=379b33723552>Todavía no hay recuentos.</div>'}</div>`);
  $('ivcCrear').onclick=crearConteo;
  host.querySelectorAll('[data-ivc-abrir]').forEach(b=>b.onclick=()=>abrirConteo(b.dataset.ivcAbrir));
  if(window.GamaTable)window.GamaTable.scan();
@@ -487,11 +457,7 @@ async function crearConteo(){
  if(!ref)return window.gamaToast('Ponga una referencia al recuento.');
  const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Creando…';
  try{
-  const r=await C().insert('inventory_counts',{warehouse_id:alm,reference:ref,status:'draft'});
-  if(r.error)throw r.error;
-  const c=await C().db();
-  const {error}=await c.rpc('gama_count_generate_lines',{p_count_id:r.data.id});
-  if(error)throw error;
+  const r={data:await window.ArcData.rpc('gama_count_create',{p_data:{request_key:btn.dataset.requestKey||(btn.dataset.requestKey=crypto.randomUUID()),warehouse_id:alm,reference:ref,location_id:$('ivcLocation').value||null,category:$('ivcCategory').value||null,cycle_days:$('ivcCycle').value||null,blind:$('ivcBlind').checked}})};
   window.gamaToast('Recuento creado con sus líneas.');
   await cargar();await abrirConteo(r.data.id);
  }catch(e){console.warn('[GAMA conteo]',e);window.gamaToast(mensaje(e))}
@@ -500,7 +466,7 @@ async function crearConteo(){
 
 async function abrirConteo(id){
  try{
-  const r=await C().list('inventory_count_lines',{eq:{count_id:id}});
+  const r=await window.ArcData.all('inventory_count_lines',{eq:{count_id:id},order:'id'});
   if(r.error)throw r.error;
   lineas=r.data||[];
   conteoAbierto=(conteos||[]).find(c=>c.id===id)||{id,reference:'',status:'in_progress'};
@@ -511,30 +477,32 @@ async function abrirConteo(id){
 function pintarConteoAbierto(host){
  const c=conteoAbierto;
  const cerrado=c.status==='validated'||c.status==='cancelled';
+ const blind=c.blind&&!cerrado&&lineas.some(l=>l.counted_quantity==null);
  const nombre=id=>{const p=productos.find(x=>x.id===id);return p?p.name:'—'};
- host.innerHTML=`<div class="ivCard">
+ window.ArcUI.render(host,`<div class="ivCard">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
  <div><h3 style="margin:0 0 3px">${esc(c.reference||'Recuento')}</h3>
  <p class="muted" style="margin:0">${esc(ESTADO_CONTEO[c.status]||c.status)} · ${lineas.length} línea${lineas.length===1?'':'s'}</p></div>
- <button type="button" class="secondary" id="ivcVolver" data-gi=168ed65792a2>← Recuentos</button>
+ <button type="button" class="arcButton secondary" id="ivcVolver" data-gi=168ed65792a2>← Recuentos</button>
 </div>
 ${cerrado?'<div class="ivAviso" style="margin-top:12px" data-gi=fa6448081c49>Este recuento ya está cerrado: sus líneas no se pueden cambiar.</div>':''}
 <div style="margin-top:14px" id="ivcLineas"></div>
-${cerrado?'':'<button type="button" class="primary" id="ivcValidar" style="width:100%;margin-top:14px" data-gi=9fe3da1b140d>Validar y ajustar existencias</button>'}
-</div>`;
+${cerrado?'':'<button type="button" class="arcButton primary" id="ivcValidar" style="width:100%;margin-top:14px" data-gi=9fe3da1b140d>Validar y ajustar existencias</button>'}
+</div>`);
  $('ivcVolver').onclick=()=>{conteoAbierto=null;pintar()};
  const host2=$('ivcLineas');
- host2.innerHTML=lineas.length?'<table><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=bd091ce27ef6>Esperado</th><th data-gi=a57f17f4753d>Contado</th><th data-gi=e702db1e219e>Diferencia</th></tr>'
+ window.ArcUI.render(host2,lineas.length?'<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=bd091ce27ef6>Esperado</th><th data-gi=a57f17f4753d>Contado</th><th data-gi=e702db1e219e>Diferencia</th></tr>'
   +lineas.map(l=>{
    const dif=l.counted_quantity===null||l.counted_quantity===undefined?null:Number(l.counted_quantity)-Number(l.expected_quantity);
    return `<tr>
 <td><b>${esc(nombre(l.product_id))}</b></td>
 <td>${esc((ubicacion(l.location_id)||{}).code||'—')}</td>
-<td>${num(l.expected_quantity)}</td>
-<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="1" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
-<td>${dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}</td>
+<td>${blind?'—':num(l.expected_quantity)}</td>
+<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="0.001" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
+<td>${blind||dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}${!cerrado&&!blind&&dif!==null&&dif!==0?`<br><button type="button" class="arcButton secondary" data-recount="${esc(l.id)}">Segundo recuento${l.recount_quantity!=null?' · '+num(l.recount_quantity):''}</button>`:''}</td>
 </tr>`}).join('')+'</table>'
-  :'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>';
+  :'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>');
+ host2.querySelectorAll('[data-recount]').forEach(b=>b.onclick=()=>window.ArcUI.dialog({title:'Segundo recuento · otra persona',body:window.ArcUI.field({key:'quantity',label:'Cantidad observada',type:'number',min:0,step:0.001,required:true}),onSave:async el=>{const n=Number(new FormData(el.querySelector('form')).get('quantity'));const r=await C().update('inventory_count_lines',b.dataset.recount,{recount_quantity:n});if(r.error)throw r.error;await abrirConteo(c.id)}}));
  host2.querySelectorAll('[data-ivc-linea]').forEach(i=>i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value));
  if(!cerrado&&$('ivcValidar'))$('ivcValidar').onclick=validarConteo;
  if(window.GamaTable)window.GamaTable.scan();
@@ -558,7 +526,7 @@ async function validarConteo(){
  const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Validando…';
  try{
   const c=await C().db();
-  const {data,error}=await c.rpc('gama_count_validate',{p_count_id:conteoAbierto.id});
+  const {data,error}=await window.ArcData.rawRpc('gama_count_validate',{p_count_id:conteoAbierto.id});
   if(error)throw error;
   const n=(data&&data.adjustments)||0;
   window.gamaToast(n?`Recuento validado: ${n} ajuste${n===1?'':'s'} de existencias.`:'Recuento validado sin diferencias.');
@@ -571,8 +539,8 @@ async function validarConteo(){
 /* ---------- ubicaciones ---------- */
 
 function pintarUbicaciones(host){
- if(!almacenes.length){host.innerHTML='<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>';return}
- host.innerHTML=almacenes.map(a=>{
+ if(!almacenes.length){window.ArcUI.render(host,'<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>');return}
+ window.ArcUI.render(host,almacenes.map(a=>{
   const suyas=ubicaciones.filter(u=>u.warehouse_id===a.id);
   const hijas=pid=>suyas.filter(u=>(u.parent_id||null)===pid);
   const rama=pid=>{
@@ -586,7 +554,7 @@ function pintarUbicaciones(host){
   return `<div class="ivCard"><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
 <p class="muted" style="margin:0 0 10px">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p>
 <ul class="ivArbol">${rama(null)||'<li class="muted" data-gi=14a1bc526eda>Sin ubicaciones.</li>'}</ul></div>`;
- }).join('');
+ }).join(''));
 }
 
 /* ---------- entrada ---------- */

@@ -9,15 +9,15 @@
    mano: la divisa es un dato de la empresa, no una constante del código. */
 (function(){
 'use strict';
-if(window.GamaAccounting)return;
+if(window.GamaAccounting&&!window.GamaAccounting.__arcLazy)return;
 const ID='accounting',$=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d);
 const pct=v=>v==null?'—':num(v,1)+' %';
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const monthStart=()=>day().slice(0,8)+'01';
 
 const SECTIONS=[
@@ -56,7 +56,7 @@ async function rpc(action,data={}){
  if(!allowed())throw Error('ROLE_NOT_ALLOWED');
  await window.GamaCloudReady;
  const c=await GamaCloud.db();
- const r=await c.rpc('gama_accounting_action',{p_action:action,p_data:data});
+ const r=await window.ArcData.rawRpc('gama_accounting_action',{p_action:action,p_data:data});
  if(r.error)throw Error(err(r.error));
  if(r.data==null)throw Error('EMPTY');
  return r.data;
@@ -64,79 +64,30 @@ async function rpc(action,data={}){
 async function mutate(action,data){const r=await rpc(action,data);
  window.dispatchEvent(new CustomEvent('gama:accounting-change'));return r}
 
-function css(){
- if($('gaStyle'))return;const s=document.createElement('style');s.id='gaStyle';
- /* Mismos radios, mismos grises y el mismo verde azulado que el resto de GAMA.
-    El contraste no cambia con el ancho: lo que se lee en el móvil se lee igual
-    en el escritorio, sólo cambia cuántas columnas caben. */
- s.textContent=`#accounting{display:none}#accounting.active{display:block}
-.gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
-.gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
-.gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-.gaCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
-.gaCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
-.gaKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
-.gaKpis .gaCard{margin:0}
-.gaKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
-.gaKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
-.gaKpis em{display:block;font-style:normal;font-size:12px;color:var(--arc-text-muted);margin-top:5px}
-.gaUp{color:var(--arc-success)}.gaDown{color:var(--arc-danger)}
-.gaTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
-.gaTools label{flex:1;min-width:160px;font-size:13px;color:var(--arc-text);font-weight:700}
-.gaTools input,.gaTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.gaScroll{overflow:auto}
-.gaTable{width:100%;border-collapse:collapse;min-width:620px}
-.gaTable th,.gaTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
-.gaTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
-.gaTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
-.gaTable td.gaNum,.gaTable th.gaNum{text-align:right;white-space:nowrap}
-.gaBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
-.gaBadge[data-s=overdue]{background:var(--arc-danger-bg);color:var(--arc-danger)}
-.gaBadge[data-s=paid]{background:var(--arc-success-bg);color:var(--arc-success)}
-.gaBadge[data-s=partial],.gaBadge[data-s=due_soon]{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.gaBadge[data-s=posted]{background:var(--arc-success-bg);color:var(--arc-success)}
-.gaBadge[data-s=reversed],.gaBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-.gaAging{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:10px 0}
-.gaAging div{border:1px solid var(--arc-line-strong);border-radius:11px;padding:11px;background:#fff}
-.gaAging b{display:block;font-size:17px;margin-top:5px;color:var(--arc-text)}
-.gaBar{height:9px;border-radius:9px;background:var(--arc-line);overflow:hidden;margin-top:7px}
-.gaBar i{display:block;height:100%;background:var(--arc-accent-600)}
-.gaActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
-.gaActions button{min-height:42px}
-.gaHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
-.gaError{color:var(--arc-danger);font-weight:700}
-.gaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
-.gaGrid label{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
-.gaGrid input,.gaGrid select,.gaGrid textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
-.gaForecast{border-left:5px solid var(--arc-warning)}
-@media(max-width:700px){.gaKpis{grid-template-columns:1fr 1fr}.gaKpis strong{font-size:20px}
- .gaTable{min-width:520px}.gaTools label{min-width:130px}}
-@media(max-width:430px){.gaKpis{grid-template-columns:1fr}}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- s.innerHTML=GamaUI.header({title:'Contabilidad',lead:'Lo que vendes, lo que gastas, lo que te deben y tu tesorería.'})
-  +'<nav class="gaNav" id="gaNav"></nav><div id="gaMain" aria-live="polite"></div>';
+ window.ArcUI.render(s,GamaUI.header({title:'Contabilidad',lead:'Lo que vendes, lo que gastas, lo que te deben y tu tesorería.'})
+  +'<nav class="gaNav" id="gaNav"></nav><div id="gaMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('gaNav');if(!host)return;
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
- host.innerHTML=visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="${section===k?'on':''}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join('');
+ window.ArcUI.render(host,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':''}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>go(b.dataset.gaSection));
 }
-function busy(){$('gaMain').innerHTML=`<p class="gaCard">${tr('Cargando…')}</p>`}
+function busy(){window.ArcUI.render($('gaMain'),`<p class="arcPanel gaCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
- $('gaMain').innerHTML=`<div class="gaCard"><p class="gaError" role="alert">${esc(err(e))}</p>
- <button class="secondary" id="gaRetry">${tr('Actualizar')}</button></div>`;
+ window.ArcUI.render($('gaMain'),`<div class="arcPanel gaCard"><p class="gaError" role="alert">${esc(err(e))}</p>
+ <button class="arcButton secondary" id="gaRetry">${tr('Actualizar')}</button></div>`);
  $('gaRetry').onclick=retry;
 }
-function badge(s){return `<span class="gaBadge" data-s="${esc(s)}">${tr(STATUS[s]||s)}</span>`}
+function badge(s){return `<span class="arcStatusBadge gaBadge" data-s="${esc(s)}">${tr(STATUS[s]||s)}</span>`}
 function kpi(label,value,hint,cls){
- return `<div class="gaCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
+ return `<div class="arcPanel gaCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
 }
 function trend(current,previous){
  const a=Number(current||0),b=Number(previous||0);
@@ -153,7 +104,7 @@ async function go(next){
   const view=VIEWS[section];
   const data=await view.load();
   if(token!==generation||!allowed())return;
-  $('gaMain').innerHTML=view.render(data);
+  window.ArcUI.render($('gaMain'),view.render(data));
   view.bind?.(data);
  }catch(e){if(token===generation)fail(e,()=>go())}
 }
@@ -184,7 +135,7 @@ VIEWS.overview={
   const resultYear=Number(d.revenue.year)-Number(d.expense.year);
   const margin=Number(d.revenue.year)>0?resultYear/Number(d.revenue.year)*100:null;
   const c=d.customers,s=d.suppliers,t=d.treasury,x=d.taxes;
-  return `<div class="gaCard"><h3>${tr('Resultado del mes')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
    <div class="gaKpis">
     ${kpi('Ingresos del mes',money(d.revenue.month),rev.text,rev.cls)}
     ${kpi('Gastos del mes',money(d.expense.month),exp.text,exp.cls)}
@@ -193,14 +144,14 @@ VIEWS.overview={
    </div>
    <p class="gaHint">${tr('Ingresos sin impuestos. Gastos: gastos contabilizados y facturas de proveedor, sin impuestos.')}</p></div>
 
-   ${t?`<div class="gaCard"><h3>${tr('Tesorería')}</h3>
+   ${t?`<div class="arcPanel gaCard"><h3>${tr('Tesorería')}</h3>
    <div class="gaKpis">
     ${kpi('Saldo de las cuentas',money(t.balance))}
     ${kpi('Entradas del mes',money(t.inflow))}
     ${kpi('Salidas del mes',money(t.outflow))}
     ${kpi('Variación del mes',money(Number(t.inflow)-Number(t.outflow)),'',Number(t.inflow)-Number(t.outflow)>=0?'gaUp':'gaDown')}
    </div>
-   ${t.accounts.length?`<div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${t.accounts.length?`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     <th>${tr('Cuenta')}</th><th>${tr('Tipo')}</th><th class="gaNum">${tr('Saldo')}</th><th class="gaNum">${tr('Sin conciliar')}</th></tr></thead><tbody>
     ${t.accounts.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.bank_name?'<br>'+esc(a.bank_name):''}</td>
      <td>${tr({bank:'Banco',cash:'Caja',card:'Tarjeta'}[a.kind]||a.kind)}</td>
@@ -208,7 +159,7 @@ VIEWS.overview={
      <td class="gaNum">${Number(a.unmatched)||'—'}</td></tr>`).join('')}</tbody></table></div>`
     :`<p class="gaHint">${tr('Todavía no hay cuentas de banco o caja. Créalas en Banco y caja.')}</p>`}</div>`:''}
 
-   <div class="gaCard"><h3>${tr('Clientes')}</h3>
+   <div class="arcPanel gaCard"><h3>${tr('Clientes')}</h3>
    <div class="gaKpis">
     ${kpi('Facturado',money(c.invoiced))}
     ${kpi('Cobrado',money(c.collected))}
@@ -216,17 +167,17 @@ VIEWS.overview={
     ${kpi('Vencido',money(c.overdue),num(c.overdue_count,0)+' facturas',Number(c.overdue)>0?'gaDown':'')}
    </div>
    <p class="gaHint">${tr('Retraso medio de pago')} : <b>${esc(num(c.avg_delay,1))}</b> ${tr('días')}</p>
-   <div class="gaActions"><button class="secondary" data-ga-go="receivables">${tr('Ver cuentas por cobrar')}</button></div></div>
+   <div class="gaActions"><button class="arcButton secondary" data-ga-go="receivables">${tr('Ver cuentas por cobrar')}</button></div></div>
 
-   ${s?`<div class="gaCard"><h3>${tr('Proveedores')}</h3>
+   ${s?`<div class="arcPanel gaCard"><h3>${tr('Proveedores')}</h3>
    <div class="gaKpis">
     ${kpi('Pendiente de pago',money(s.outstanding))}
     ${kpi('Vence en 30 días',money(s.due_30))}
     ${kpi('Vencido',money(s.overdue),num(s.overdue_count,0)+' facturas',Number(s.overdue)>0?'gaDown':'')}
    </div>
-   <div class="gaActions"><button class="secondary" data-ga-go="payables">${tr('Ver cuentas por pagar')}</button></div></div>`:''}
+   <div class="gaActions"><button class="arcButton secondary" data-ga-go="payables">${tr('Ver cuentas por pagar')}</button></div></div>`:''}
 
-   ${x?`<div class="gaCard"><h3>${tr('Impuestos del periodo')}</h3>
+   ${x?`<div class="arcPanel gaCard"><h3>${tr('Impuestos del periodo')}</h3>
    <div class="gaKpis">
     ${kpi('Impuesto recaudado',money(x.collected))}
     ${kpi('Impuesto deducible',money(x.deductible))}
@@ -234,11 +185,11 @@ VIEWS.overview={
    </div>
    <p class="gaHint">${tr('Estimación interna a partir de tus documentos. No es una declaración fiscal ni sustituye al software legal de tu país.')}</p></div>`:''}
 
-   ${d.expense.categories&&d.expense.categories.length?`<div class="gaCard"><h3>${tr('Principales gastos del año')}</h3>
+   ${d.expense.categories&&d.expense.categories.length?`<div class="arcPanel gaCard"><h3>${tr('Principales gastos del año')}</h3>
    ${d.expense.categories.map(k=>`<p>${esc(k.name)} · <b>${money(k.amount)}</b>
     <span class="gaBar"><i style="width:${Math.max(2,Math.round(Number(k.amount)/Number(d.expense.categories[0].amount||1)*100))}%"></i></span></p>`).join('')}</div>`:''}
 
-   ${d.alerts&&d.alerts.unmatched!=null?`<div class="gaCard"><h3>${tr('Puntos de atención')}</h3>
+   ${d.alerts&&d.alerts.unmatched!=null?`<div class="arcPanel gaCard"><h3>${tr('Puntos de atención')}</h3>
     <p>${tr('Movimientos bancarios sin conciliar')} : <b>${esc(num(d.alerts.unmatched,0))}</b></p>
     <p>${tr('Gastos sin justificante')} : <b>${esc(num(d.alerts.no_receipt,0))}</b></p>
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
@@ -257,8 +208,8 @@ function filters(opts){
   ${opts.status?`<label>${tr('Estado')}<select id="gaStatus">${opts.status.map(([k,v])=>`<option value="${k}" ${state.status===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select></label>`:''}
   ${opts.dates?`<label>${tr('Desde')}<input id="gaFrom" type="date" value="${esc(state.from||monthStart())}"></label>
   <label>${tr('Hasta')}<input id="gaTo" type="date" value="${esc(state.to||day())}"></label>`:''}
-  <button class="primary" id="gaApply">${tr('Aplicar')}</button>
-  ${rights?.export?`<button class="secondary" id="gaExport">${tr('Exportar')}</button>`:''}</div>`;
+  <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
+  ${rights?.export?`<button class="arcButton secondary" id="gaExport">${tr('Exportar')}</button>`:''}</div>`;
 }
 function bindFilters(reload,rows,name){
  const apply=()=>{state.search=$('gaSearch')?.value||'';state.status=$('gaStatus')?.value||state.status;
@@ -272,12 +223,12 @@ VIEWS.receivables={
  load:()=>rpc('receivables',{status:state.status||'open',search:state.search||'',offset:state.offset||0,limit:50}),
  render(d){
   state.rows=d.rows;
-  return `<div class="gaCard"><h3>${tr('¿Quién nos debe dinero?')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('¿Quién nos debe dinero?')}</h3>
    ${filters({status:[['open','Pendientes'],['all','Todas'],['overdue','Vencidas'],['partial','Pago parcial'],['paid','Pagadas']]})}
    <div class="gaKpis">${kpi('Facturado',money(d.metrics.total))}${kpi('Cobrado',money(d.metrics.paid))}
     ${kpi('Pendiente',money(d.metrics.balance))}${kpi('Vencido',money(d.metrics.overdue),'',Number(d.metrics.overdue)>0?'gaDown':'')}</div>
    <h3>${tr('Balance de antigüedad')}</h3>${agingBlock(d.aging)}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Cliente','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Retraso','Estado'].map(h=>`<th class="${['Total','Pagado','Pendiente','Retraso'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
      <td><b>${esc(r.customer_name)}</b></td>
@@ -297,19 +248,19 @@ VIEWS.payables={
  load:()=>rpc('payables',{status:state.status||'open',search:state.search||'',offset:state.offset||0,limit:50}),
  render(d){
   state.rows=d.rows;
-  return `<div class="gaCard"><h3>${tr('¿A quién debemos dinero?')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('¿A quién debemos dinero?')}</h3>
    ${filters({status:[['open','Pendientes'],['all','Todas'],['overdue','Vencidas'],['partial','Pago parcial'],['paid','Pagadas']]})}
    <div class="gaKpis">${kpi('Facturado',money(d.metrics.total))}${kpi('Pagado',money(d.metrics.paid))}
     ${kpi('Pendiente',money(d.metrics.balance))}${kpi('Vencido',money(d.metrics.overdue),'',Number(d.metrics.overdue)>0?'gaDown':'')}</div>
    <h3>${tr('Balance de antigüedad')}</h3>${agingBlock(d.aging)}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
-     <td><b>${esc(r.supplier_name)}</b></td><td>${esc(r.number)}</td>
+     <td><b>${esc(r.supplier_name)}</b></td><td>${r.erp_reference?'<b>'+esc(r.erp_reference)+'</b><br>':''}${esc(r.number)}</td>
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
-     <td>${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}</td>
+     <td>${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}</td>
     </tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor para este filtro.')}</td></tr>`}
    </tbody></table></div></div>`;
  },
@@ -333,11 +284,11 @@ VIEWS.expenses={
  },
  render(d){
   state.rows=d.rows;state.categories=d.categories;state.accounts=d.accounts;
-  return `<div class="gaCard"><h3>${tr('Gastos')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Gastos')}</h3>
    ${filters({dates:true})}
    <div class="gaKpis">${kpi('Gastos contabilizados del periodo',money(d.sum))}${kpi('Registros',num(d.total,0))}</div>
-   ${rights?.create?`<div class="gaActions"><button class="primary" id="gaNewExpense">${tr('Registrar un gasto')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewExpense">${tr('Registrar un gasto')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Referencia','Fecha','Proveedor','Categoría','Descripción','Importe','Justificante','Estado','Acciones'].map(h=>`<th class="${h==='Importe'?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
      <td><b>${esc(r.reference)}</b></td><td>${esc(r.expense_date)}</td>
@@ -346,10 +297,10 @@ VIEWS.expenses={
      <td>${r.has_receipt?'✓':`<span class="gaError">${tr('Falta')}</span>`}</td>
      <td>${badge(r.status)}</td>
      <td><div class="gaActions">
-      <button class="secondary" data-ga-receipt="${esc(r.id)}">${tr('Justificante')}</button>
-      ${rights?.validate&&r.status==='draft'?`<button class="primary" data-ga-post="${esc(r.id)}">${tr('Contabilizar')}</button>`:''}
-      ${rights?.edit&&r.status==='draft'?`<button class="secondary" data-ga-edit="${esc(r.id)}">${tr('Editar')}</button>`:''}
-      ${rights?.validate&&r.status==='posted'?`<button class="secondary" data-ga-cancel="${esc(r.id)}">${tr('Anular')}</button>`:''}
+      <button class="arcButton secondary" data-ga-receipt="${esc(r.id)}">${tr('Justificante')}</button>
+      ${rights?.validate&&r.status==='draft'?`<button class="arcButton primary" data-ga-post="${esc(r.id)}">${tr('Contabilizar')}</button>`:''}
+      ${rights?.edit&&r.status==='draft'?`<button class="arcButton secondary" data-ga-edit="${esc(r.id)}">${tr('Editar')}</button>`:''}
+      ${rights?.validate&&r.status==='posted'?`<button class="arcButton secondary" data-ga-cancel="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay gastos en este periodo.')}</td></tr>`}
    </tbody></table></div>
    <p class="gaHint">${tr('Un gasto en borrador puede editarse o eliminarse. Una vez contabilizado sólo se anula, y la anulación contrapasa su asiento.')}</p></div>`;
@@ -399,7 +350,7 @@ async function receiptForm(id){
  let list=[];
  try{list=await rpc('expense_receipts',{expense_id:id})}catch(e){}
  const el=GamaSales.modal('Justificantes del gasto',
-  `<div id="gaFiles">${list.map(f=>`<p><button type="button" class="secondary" data-ga-file="${esc(f.id)}">${esc(f.filename)}</button></p>`).join('')||`<p>${tr('Todavía no hay justificantes.')}</p>`}</div>
+  `<div id="gaFiles">${list.map(f=>`<p><button type="button" class="arcButton secondary" data-ga-file="${esc(f.id)}">${esc(f.filename)}</button></p>`).join('')||`<p>${tr('Todavía no hay justificantes.')}</p>`}</div>
    ${rights?.create?`<label class="gsField">${tr('Añadir PDF, JPG, PNG o WebP (máximo 2 MB)')}
    <input id="gaFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp"></label>`:''}`,
   rights?.create?'Añadir':'Cerrar',async form=>{
@@ -424,34 +375,38 @@ VIEWS.purchases={
  },
  render(d){
   state.rows=d.rows;state.suppliers=d.suppliers;state.accounts=d.accounts;
-  return `<div class="gaCard"><h3>${tr('Facturas de proveedor')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Facturas de proveedor')}</h3>
    ${filters({})}
-   ${rights?.create?`<div class="gaActions"><button class="primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
-     <td><b>${esc(r.supplier_name)}</b></td><td>${esc(r.number)}</td>
+     <td><b>${esc(r.supplier_name)}</b></td><td>${r.erp_reference?'<b>'+esc(r.erp_reference)+'</b><br>':''}${esc(r.number)}</td>
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
      <td><div class="gaActions">
-      ${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
-      ${rights?.validate&&r.status!=='cancelled'&&Number(r.paid)===0?`<button class="secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
+      ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
+      ${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
+      ${rights?.validate&&r.status!=='cancelled'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
    </tbody></table></div>
    <p class="gaHint">${tr('Los pedidos de compra siguen en el módulo Compras. Aquí se registra la factura recibida y su pago, que es lo que mueve la tesorería.')}</p></div>`;
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
+  document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
   document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)));
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }
 };
-function billForm(){
+async function billForm(){
+ const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
  const key=crypto.randomUUID(),sup=state.suppliers||[];
  GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
+  ${field('Pedido de compra (opcional)',`<select id="gaPurchase"><option value="">—</option>${purchases.data.filter(p=>p.status!=='cancelled').map(p=>`<option value="${esc(p.id)}">${esc(p.order_number)}</option>`).join('')}</select>`)}
   ${field('Número de la factura',`<input id="gaNumber" required maxlength="80">`)}
   ${field('Fecha',`<input id="gaDate" type="date" required value="${day()}">`)}
   ${field('Plazo de pago (días)',`<input id="gaTerms" type="number" min="0" max="3650" value="30">`)}
@@ -464,7 +419,7 @@ function billForm(){
    const v=id=>el.querySelector('#'+id).value;
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
-    issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
+    purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
     tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes')});
    await go();
   });
@@ -496,12 +451,12 @@ VIEWS.sales={
  load:()=>rpc('report_revenue',{from:state.from||day().slice(0,4)+'-01-01',to:state.to||day()}),
  render(d){
   state.rows=d.by_customer;
-  const top=(list,title)=>`<div class="gaCard"><h3>${tr(title)}</h3>${list.length?`<div class="gaScroll">
-   <table class="gaTable"><thead><tr><th>${tr('Concepto')}</th><th class="gaNum">${tr('Importe')}</th></tr></thead>
+  const top=(list,title)=>`<div class="arcPanel gaCard"><h3>${tr(title)}</h3>${list.length?`<div class="gaScroll">
+   <table class="arcTable gaTable"><thead><tr><th>${tr('Concepto')}</th><th class="gaNum">${tr('Importe')}</th></tr></thead>
    <tbody>${list.map(r=>`<tr><td>${esc(r.key||'—')}</td><td class="gaNum"><b>${money(r.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
    :`<p class="gaHint">${tr('No hay datos en este periodo.')}</p>`}</div>`;
   const total=d.by_month.reduce((a,r)=>a+Number(r.amount||0),0);
-  return `<div class="gaCard"><h3>${tr('Cifra de negocio')}</h3>${filters({dates:true})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Cifra de negocio')}</h3>${filters({dates:true})}
    <div class="gaKpis">${kpi('Total del periodo',money(total))}${kpi('Meses con actividad',num(d.by_month.length,0))}</div>
    <p class="gaHint">${tr('Importes sin impuestos, desde las facturas registradas. Las anuladas y rechazadas no cuentan.')}</p></div>
    ${top(d.by_month.map(r=>({key:r.key,amount:r.amount})),'Por mes')}
@@ -521,7 +476,7 @@ VIEWS.payments={
  },
  render(d){
   state.rows=d.rec.rows;
-  return `<div class="gaCard"><h3>${tr('Cobros y pagos')}</h3>${filters({})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Cobros y pagos')}</h3>${filters({})}
    <div class="gaKpis">
     ${kpi('Cobrado de clientes',money(d.rec.metrics.paid))}
     ${kpi('Pendiente de cobro',money(d.rec.metrics.balance))}
@@ -530,8 +485,8 @@ VIEWS.payments={
    </div>
    <p class="gaHint">${tr('Los cobros de clientes se registran en Pagos de clientes y los pagos a proveedores en Compras. Esta pantalla los reúne para ver el saldo neto.')}</p>
    <div class="gaActions">
-    ${window.gamaAccessAllowed?.('payments')?`<button class="secondary" id="gaOpenPayments">${tr('Ir a Pagos de clientes')}</button>`:''}
-    <button class="secondary" data-ga-go="payables">${tr('Ver cuentas por pagar')}</button></div></div>`;
+    ${window.gamaAccessAllowed?.('payments')?`<button class="arcButton secondary" id="gaOpenPayments">${tr('Ir a Pagos de clientes')}</button>`:''}
+    <button class="arcButton secondary" data-ga-go="payables">${tr('Ver cuentas por pagar')}</button></div></div>`;
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'pagos');
@@ -550,35 +505,35 @@ VIEWS.cash={
  render(d){
   state.accounts=d.accounts.rows;state.chart=d.accounts.chart;state.rows=d.bank.rows;state.bankAccounts=d.bank.accounts;
   const total=d.accounts.rows.filter(a=>a.active).reduce((s,a)=>s+Number(a.current_balance||0),0);
-  return `<div class="gaCard"><h3>${tr('Cuentas de banco y caja')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Cuentas de banco y caja')}</h3>
    <div class="gaKpis">${kpi('Saldo total',money(total))}${kpi('Cuentas activas',num(d.accounts.rows.filter(a=>a.active).length,0))}</div>
-   ${rights?.create?`<div class="gaActions"><button class="primary" id="gaNewAccount">${tr('Añadir una cuenta')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewAccount">${tr('Añadir una cuenta')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Nombre','Tipo','Banco','Divisa','Saldo inicial','Saldo actual','Estado','Acciones'].map(h=>`<th class="${h.startsWith('Saldo')?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.accounts.rows.map(a=>`<tr>
     <td><b>${esc(a.name)}</b></td><td>${tr({bank:'Banco',cash:'Caja',card:'Tarjeta'}[a.kind]||a.kind)}</td>
     <td>${esc(a.bank_name||'—')}</td><td>${esc(a.currency)}</td>
     <td class="gaNum">${money(a.opening_balance)}</td><td class="gaNum"><b>${money(a.current_balance)}</b></td>
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
-    <td><div class="gaActions"><button class="secondary" data-ga-moves="${esc(a.id)}">${tr('Movimientos')}</button>
-     ${rights?.edit?`<button class="secondary" data-ga-acc="${esc(a.id)}">${tr('Editar')}</button>`:''}</div></td>
+    <td><div class="gaActions"><button class="arcButton secondary" data-ga-moves="${esc(a.id)}">${tr('Movimientos')}</button>
+     ${rights?.edit?`<button class="arcButton secondary" data-ga-acc="${esc(a.id)}">${tr('Editar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="8">${tr('Todavía no hay cuentas.')}</td></tr>`}</tbody></table></div>
    <p class="gaHint">${tr('El saldo actual es el saldo inicial más los cobros y menos los pagos y gastos asignados a la cuenta.')}</p></div>
 
-   <div class="gaCard"><h3>${tr('Conciliación bancaria')}</h3>
+   <div class="arcPanel gaCard"><h3>${tr('Conciliación bancaria')}</h3>
    <div class="gaTools">
     <label>${tr('Estado')}<select id="gaStatus">${[['unmatched','Sin conciliar'],['matched','Conciliados'],['ignored','Ignorados']].map(([k,v])=>`<option value="${k}" ${(state.status||'unmatched')===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select></label>
-    <button class="primary" id="gaApply">${tr('Aplicar')}</button>
-    ${rights?.create?`<button class="secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}</div>
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+    <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
+    ${rights?.create?`<button class="arcButton secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}</div>
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Fecha','Cuenta','Referencia','Descripción','Importe','Estado','Acciones'].map(h=>`<th class="${h==='Importe'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.bank.rows.map(t=>`<tr>
     <td>${esc(t.value_date)}</td><td>${esc(t.account_name)}</td><td>${esc(t.reference||'—')}</td>
     <td>${esc(t.description)}</td><td class="gaNum"><b class="${Number(t.amount)>=0?'gaUp':'gaDown'}">${money(t.amount)}</b></td>
     <td>${badge(t.status)}</td>
     <td>${rights?.validate?(t.status==='unmatched'
-      ?`<button class="primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
-      :`<button class="secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
+      ?`<button class="arcButton primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
+      :`<button class="arcButton secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
    <p class="gaHint">${tr('Architect propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
@@ -612,7 +567,7 @@ async function movements(id){
  try{
   const rows=await rpc('account_movements',{id,from:state.from||monthStart(),to:state.to||day()});
   let balance=0;
-  GamaSales.modal('Movimientos de la cuenta',`<div class="gaScroll"><table class="gaTable"><thead><tr>
+  GamaSales.modal('Movimientos de la cuenta',`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
    ${['Fecha','Referencia','Descripción','Entrada','Salida','Saldo'].map(h=>`<th class="${['Entrada','Salida','Saldo'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${[...rows].reverse().map(m=>{balance+=Number(m.in||0)-Number(m.out||0);
     return `<tr><td>${esc(m.date)}</td><td>${esc(m.reference||'—')}</td><td>${esc(m.label||'')}</td>
@@ -659,13 +614,13 @@ function importForm(){
   });
  el.querySelector('#gaCsv').onchange=async e=>{
   const file=e.target.files[0];if(!file)return;
-  if(file.size>2000000){el.querySelector('#gaPreview').innerHTML=`<p class="gaError">${tr('El archivo supera el tamaño permitido.')}</p>`;return}
+  if(file.size>2000000){window.ArcUI.render(el.querySelector('#gaPreview'),`<p class="gaError">${tr('El archivo supera el tamaño permitido.')}</p>`);return}
   parsed=parseCsv(await file.text()).slice(0,1000);
-  el.querySelector('#gaPreview').innerHTML=parsed.length
-   ?`<p>${tr('Líneas detectadas')} : <b>${parsed.length}</b></p><div class="gaScroll"><table class="gaTable"><tbody>
+  window.ArcUI.render(el.querySelector('#gaPreview'),parsed.length
+   ?`<p>${tr('Líneas detectadas')} : <b>${parsed.length}</b></p><div class="gaScroll"><table class="arcTable gaTable"><tbody>
      ${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}
      </tbody></table></div>`
-   :`<p class="gaError">${tr('No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.')}</p>`;
+   :`<p class="gaError">${tr('No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.')}</p>`);
  };
 }
 async function matchForm(id){
@@ -693,27 +648,27 @@ VIEWS.ledger={
   journal_id:state.journal||null,limit:60}),
  render(d){
   state.rows=d.rows;state.journals=d.journals;
-  return `<div class="gaCard"><h3>${tr('Asientos y diarios')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Asientos y diarios')}</h3>
    <div class="gaTools">
     <label>${tr('Diario')}<select id="gaJournal"><option value="">${tr('Todos')}</option>
      ${d.journals.map(j=>`<option value="${esc(j.id)}" ${state.journal===j.id?'selected':''}>${esc(j.code)} · ${esc(j.name)}</option>`).join('')}</select></label>
     <label>${tr('Desde')}<input id="gaFrom" type="date" value="${esc(state.from||monthStart())}"></label>
     <label>${tr('Hasta')}<input id="gaTo" type="date" value="${esc(state.to||day())}"></label>
     <label>${tr('Buscar')}<input id="gaSearch" value="${esc(state.search||'')}"></label>
-    <button class="primary" id="gaApply">${tr('Aplicar')}</button>
-    ${rights?.export?`<button class="secondary" id="gaExport">${tr('Exportar')}</button>`:''}
-    ${rights?.create?`<button class="secondary" id="gaNewEntry">${tr('Asiento manual')}</button>`:''}</div>
+    <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
+    ${rights?.export?`<button class="arcButton secondary" id="gaExport">${tr('Exportar')}</button>`:''}
+    ${rights?.create?`<button class="arcButton secondary" id="gaNewEntry">${tr('Asiento manual')}</button>`:''}</div>
    ${Number(d.pending)>0?`<p class="gaHint">${tr('Facturas de venta todavía sin asiento')} : <b>${esc(num(d.pending,0))}</b>.
-    ${rights?.create?`<button class="secondary" id="gaSync">${tr('Contabilizar ahora')}</button>`:''}</p>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+    ${rights?.create?`<button class="arcButton secondary" id="gaSync">${tr('Contabilizar ahora')}</button>`:''}</p>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Fecha','Diario','Referencia','Concepto','Debe','Haber','Estado','Acciones'].map(h=>`<th class="${['Debe','Haber'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(e=>`<tr>
     <td><b>${esc(e.number)}</b></td><td>${esc(e.entry_date)}</td><td>${esc(e.journal_code)}</td>
     <td>${esc(e.reference||'—')}</td><td>${esc(e.memo||'—')}</td>
     <td class="gaNum">${money(e.total_debit)}</td><td class="gaNum">${money(e.total_credit)}</td>
     <td>${badge(e.status)}${Number(e.total_debit)!==Number(e.total_credit)?`<br><span class="gaError">${tr('Descuadrado')}</span>`:''}</td>
-    <td><div class="gaActions"><button class="secondary" data-ga-lines="${esc(e.id)}">${tr('Detalle')}</button>
-     ${rights?.validate&&e.status==='posted'?`<button class="secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
+    <td><div class="gaActions"><button class="arcButton secondary" data-ga-lines="${esc(e.id)}">${tr('Detalle')}</button>
+     ${rights?.validate&&e.status==='posted'?`<button class="arcButton secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="9">${tr('No hay asientos en este periodo.')}</td></tr>`}</tbody></table></div>
    <p class="gaHint">${tr('Todo asiento cumple debe = haber. Un asiento contabilizado no se borra: se contrapasa y ambos quedan en el libro.')}</p></div>`;
  },
@@ -732,7 +687,7 @@ async function entryLines(id){
  try{
   const lines=await rpc('entry_lines',{id});
   const d=lines.reduce((s,l)=>s+Number(l.debit||0),0),c=lines.reduce((s,l)=>s+Number(l.credit||0),0);
-  GamaSales.modal('Detalle del asiento',`<div class="gaScroll"><table class="gaTable"><thead><tr>
+  GamaSales.modal('Detalle del asiento',`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
    ${['Cuenta','Concepto','Debe','Haber'].map(h=>`<th class="${['Debe','Haber'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${lines.map(l=>`<tr><td><b>${esc(l.code)}</b> ${esc(l.account)}</td><td>${esc(l.label||'')}</td>
     <td class="gaNum">${Number(l.debit)?money(l.debit):'—'}</td><td class="gaNum">${Number(l.credit)?money(l.credit):'—'}</td></tr>`).join('')}
@@ -755,7 +710,7 @@ async function entryForm(){
    ${field('Referencia',`<input id="gaReference" maxlength="180">`)}</div>
   <label class="gsField">${tr('Concepto')}<input id="gaMemo" maxlength="300"></label>
   <div id="gaLines">${row(0)}${row(1)}</div>
-  <button type="button" class="secondary" id="gaAddLine">${tr('Añadir una línea')}</button>
+  <button type="button" class="arcButton secondary" id="gaAddLine">${tr('Añadir una línea')}</button>
   <p class="gaHint" id="gaBalance"></p>`,'Contabilizar',async form=>{
    const lines=[...form.querySelectorAll('[data-ga-line]')].map(r=>({
     account_id:r.querySelector('.gaLineAccount').value,label:r.querySelector('.gaLineLabel').value,
@@ -773,8 +728,8 @@ async function entryForm(){
   const d=rows.reduce((s,r)=>s+Number(r.querySelector('.gaLineDebit').value||0),0);
   const c=rows.reduce((s,r)=>s+Number(r.querySelector('.gaLineCredit').value||0),0);
   const box=el.querySelector('#gaBalance');
-  box.innerHTML=`${tr('Debe')} <b>${money(d)}</b> · ${tr('Haber')} <b>${money(c)}</b> · `
-   +(d===c&&d>0?`<b class="gaUp">${GamaI18n?.t?.('Cuadrado')||'Cuadrado'}</b>`:`<b class="gaError">${GamaI18n?.t?.('Descuadrado')||'Descuadrado'}</b>`);
+  window.ArcUI.render(box,`${tr('Debe')} <b>${money(d)}</b> · ${tr('Haber')} <b>${money(c)}</b> · `
+   +(d===c&&d>0?`<b class="gaUp">${GamaI18n?.t?.('Cuadrado')||'Cuadrado'}</b>`:`<b class="gaError">${GamaI18n?.t?.('Descuadrado')||'Descuadrado'}</b>`));
  };
  el.addEventListener('input',refresh);refresh();
  el.querySelector('#gaAddLine').onclick=()=>{el.querySelector('#gaLines').insertAdjacentHTML('beforeend',row(count++));refresh()};
@@ -786,21 +741,21 @@ VIEWS.taxes={
  render(d){
   state.rows=d.rows;
   const balance=Number(d.summary.collected)-Number(d.summary.deductible);
-  return `<div class="gaCard"><h3>${tr('Resumen de impuestos')}</h3>${filters({dates:true})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Resumen de impuestos')}</h3>${filters({dates:true})}
    <div class="gaKpis">${kpi('Impuesto recaudado',money(d.summary.collected))}
     ${kpi('Impuesto deducible',money(d.summary.deductible))}
     ${kpi('Saldo estimado',money(balance),balance>=0?'A pagar':'A favor')}</div>
    <p class="gaHint">${tr('Cálculo interno a partir de tus facturas y gastos. No constituye una declaración fiscal: la presentación oficial se hace con el sistema que exija tu país.')}</p></div>
-   <div class="gaCard"><h3>${tr('Tipos configurados')}</h3>
-   ${rights?.create?`<div class="gaActions"><button class="primary" id="gaNewTax">${tr('Añadir un tipo')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   <div class="arcPanel gaCard"><h3>${tr('Tipos configurados')}</h3>
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewTax">${tr('Añadir un tipo')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Nombre','Código','Tipo','Uso','País','Vigente desde','Estado','Acciones'].map(h=>`<th class="${h==='Tipo'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.code)}</td>
     <td class="gaNum">${esc(num(t.rate,4))} %</td>
     <td>${tr({collected:'Recaudado',deductible:'Deducible',both:'Ambos'}[t.kind]||t.kind)}</td>
     <td>${esc(t.country||'—')}</td><td>${esc(t.valid_from||'—')}</td>
     <td>${t.active?tr('Activo'):tr('Inactivo')}</td>
-    <td>${rights?.edit?`<button class="secondary" data-ga-tax="${esc(t.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
+    <td>${rights?.edit?`<button class="arcButton secondary" data-ga-tax="${esc(t.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
    <p class="gaHint">${tr('Architect no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.')}</p></div>`;
  },
@@ -838,18 +793,18 @@ VIEWS.reports={
  render(d){
   state.rows=d.pl.rows;
   const group=(rows,type)=>rows.filter(r=>r.type===type);
-  const table=(rows,title)=>`<div class="gaScroll"><table class="gaTable"><thead><tr>
+  const table=(rows,title)=>`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
    <th>${tr(title)}</th><th class="gaNum">${tr('Importe')}</th></tr></thead><tbody>
    ${rows.map(r=>`<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')
     ||`<tr><td colspan="2">${tr('Sin movimientos.')}</td></tr>`}</tbody></table></div>`;
-  return `<div class="gaCard"><h3>${tr('Cuenta de resultados')}</h3>${filters({dates:true})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Cuenta de resultados')}</h3>${filters({dates:true})}
    <div class="gaKpis">${kpi('Productos',money(d.pl.income))}${kpi('Cargas',money(d.pl.expense))}
     ${kpi('Resultado',money(d.pl.result),'',Number(d.pl.result)>=0?'gaUp':'gaDown')}
     ${kpi('Margen',d.pl.margin==null?'—':pct(d.pl.margin))}</div>
    ${table(group(d.pl.rows,'income'),'Productos')}${table(group(d.pl.rows,'expense'),'Cargas')}
    <p class="gaHint">${tr('Calculado desde los asientos contabilizados del periodo.')}</p></div>
 
-   ${d.balance?`<div class="gaCard"><h3>${tr('Balance simplificado')} · ${esc(d.balance.as_of)}</h3>
+   ${d.balance?`<div class="arcPanel gaCard"><h3>${tr('Balance simplificado')} · ${esc(d.balance.as_of)}</h3>
    ${table(group(d.balance.rows,'asset'),'Activo')}
    <p>${tr('Existencias valoradas al precio de compra')} : <b>${money(d.balance.stock)}</b></p>
    ${table(group(d.balance.rows,'liability'),'Pasivo')}
@@ -857,15 +812,15 @@ VIEWS.reports={
    <p>${tr('Resultado del ejercicio')} : <b>${money(d.balance.result)}</b></p>
    <p class="gaHint">${tr('Balance simplificado de gestión. No sustituye a las cuentas anuales preparadas por tu asesor.')}</p></div>`:''}
 
-   ${d.cash?`<div class="gaCard"><h3>${tr('Tesorería del periodo')}</h3>
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${d.cash?`<div class="arcPanel gaCard"><h3>${tr('Tesorería del periodo')}</h3>
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Mes','Entradas','Salidas','Neto'].map(h=>`<th class="${h==='Mes'?'':'gaNum'}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.cash.rows.map(r=>`<tr><td>${esc(r.month)}</td>
     <td class="gaNum">${money(r.in)}</td><td class="gaNum">${money(r.out)}</td>
     <td class="gaNum"><b class="${Number(r.net)>=0?'gaUp':'gaDown'}">${money(r.net)}</b></td></tr>`).join('')
     ||`<tr><td colspan="4">${tr('Sin movimientos.')}</td></tr>`}</tbody></table></div></div>`:''}
 
-   ${d.forecast?`<div class="gaCard gaForecast"><h3>${tr('Previsión de tesorería')}</h3>
+   ${d.forecast?`<div class="arcPanel gaCard gaForecast"><h3>${tr('Previsión de tesorería')}</h3>
    <p class="gaHint"><b>${tr('Previsión, no un hecho.')}</b> ${tr('Proyecta el saldo actual con las facturas ya emitidas y recibidas. No incluye lo que todavía no está facturado.')}</p>
    <div class="gaKpis">${kpi('Saldo actual',money(d.forecast.balance))}
     ${d.forecast.horizons.map(h=>kpi(h.days+' días (previsión)',
@@ -880,22 +835,22 @@ VIEWS.periods={
  load:()=>rpc('periods'),
  render(d){
   state.rows=d.rows;
-  return `<div class="gaCard"><h3>${tr('Periodos contables')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('Periodos contables')}</h3>
    ${rights?.close?`<div class="gaTools">
     <label>${tr('Cerrar el mes de')}<input id="gaMonth" type="month" value="${day().slice(0,7)}"></label>
-    <button class="primary" id="gaClose">${tr('Cerrar el periodo')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+    <button class="arcButton primary" id="gaClose">${tr('Cerrar el periodo')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Periodo','Asientos','Estado','Cerrado el','Acciones'].map(h=>`<th class="${h==='Asientos'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(p=>`<tr><td><b>${esc(p.period_start)}</b> → ${esc(p.period_end)}</td>
     <td class="gaNum">${esc(num(p.entries,0))}</td><td>${badge(p.status)}</td>
     <td>${esc((p.closed_at||'').slice(0,10)||'—')}</td>
-    <td>${rights?.close&&p.status==='closed'?`<button class="secondary" data-ga-reopen="${esc(p.period_start)}">${tr('Reabrir')}</button>`:''}</td>
+    <td>${rights?.close&&p.status==='closed'?`<button class="arcButton secondary" data-ga-reopen="${esc(p.period_start)}">${tr('Reabrir')}</button>`:''}</td>
    </tr>`).join('')||`<tr><td colspan="5">${tr('Todavía no hay periodos. Se crean solos al contabilizar el primer documento del mes.')}</td></tr>`}
    </tbody></table></div>
    <p class="gaHint">${tr('Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.')}</p></div>`;
  },
  bind(){
-  $('gaClose')?.addEventListener('click',b=>act(b.target,()=>mutate('period_close',{period_start:$('gaMonth').value+'-01'}).then(()=>go())));
+  $('gaClose')?.addEventListener('click',b=>act(b.target,()=>window.ArchitectAccessControls.closing($('gaMonth').value+'-01',()=>mutate('period_close',{period_start:$('gaMonth').value+'-01'}).then(()=>go()))));
   document.querySelectorAll('[data-ga-reopen]').forEach(b=>b.onclick=()=>reasonForm('Reabrir el periodo',r=>mutate('period_reopen',{period_start:b.dataset.gaReopen,reason:r}).then(()=>go())));
  }
 };
@@ -911,9 +866,9 @@ VIEWS.config={
  render(d){
   state.chart=d.chart.rows;state.rows=d.chart.rows;state.permissions=d.permissions;
   const pick=(id,label,selected)=>field(label,`<select id="${id}">${d.settings.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===selected?'selected':''}>${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`);
-  return `<div class="gaCard"><h3>${tr('Empresa')}</h3><div class="gaGrid">
+  return `<div class="arcPanel gaCard"><h3>${tr('Empresa')}</h3><div class="gaGrid">
    ${field('Divisa (ISO 4217)',`<input id="gaCurrency" maxlength="3" value="${esc(d.settings.currency)}" ${rights?.edit?'':'readonly'}>`)}
-   ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit?'':'readonly'}>`)}
+   ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit&&!d.settings.localization_country?'':'readonly'}>`)}
    ${field('Primer mes del ejercicio',`<input id="gaFiscal" type="number" min="1" max="12" value="${esc(d.settings.fiscal_year_start_month)}" ${rights?.edit?'':'readonly'}>`)}
    </div>
    <p class="gaHint">${tr('La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.')}</p>
@@ -924,21 +879,21 @@ VIEWS.config={
    ${pick('gaPurch','Compras',d.settings.purchase_account_id)}
    ${pick('gaTaxC','Impuesto recaudado',d.settings.tax_collected_account_id)}
    ${pick('gaTaxD','Impuesto deducible',d.settings.tax_deductible_account_id)}</div>
-   ${rights?.edit?`<div class="gaActions"><button class="primary" id="gaSaveSettings">${tr('Guardar')}</button></div>`:''}</div>
+   ${rights?.edit?`<div class="gaActions"><button class="arcButton primary" id="gaSaveSettings">${tr('Guardar')}</button></div>`:''}</div>
 
-   <div class="gaCard"><h3>${tr('Plan contable')}</h3>
-   ${rights?.create?`<div class="gaActions"><button class="primary" id="gaNewAccountLine">${tr('Añadir una cuenta')}</button></div>`:''}
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   <div class="arcPanel gaCard"><h3>${tr('Plan contable')}</h3>
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewAccountLine">${tr('Añadir una cuenta')}</button></div>`:''}
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Nombre','Tipo','Estado','Acciones'].map(h=>`<th>${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.chart.rows.map(a=>`<tr><td><b>${esc(a.code)}</b></td><td>${esc(a.name)}</td>
     <td>${tr({asset:'Activo',liability:'Pasivo',equity:'Fondos propios',income:'Productos',expense:'Cargas'}[a.type]||a.type)}</td>
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
-    <td>${rights?.edit?`<button class="secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
+    <td>${rights?.edit?`<button class="arcButton secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
-   <p class="gaHint">${tr('Architect no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.')}</p></div>
+   <p class="gaHint">${tr('La localización inicial se configura en Configuración → Empresa. Puedes adaptar las cuentas y los impuestos en Contabilidad.')}</p></div>
 
-   ${d.permissions.length?`<div class="gaCard"><h3>${tr('Permisos de Contabilidad')}</h3>
-   <div class="gaScroll"><table class="gaTable"><thead><tr>
+   ${d.permissions.length?`<div class="arcPanel gaCard"><h3>${tr('Permisos de Contabilidad')}</h3>
+   <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Usuario','Perfil','Consultar','Crear','Modificar','Eliminar','Validar','Exportar','Cerrar',''].map(h=>`<th>${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.permissions.map(p=>{const r=p.rights||{};
     const cell=(k,def)=>`<td><input type="checkbox" data-ga-perm="${esc(p.profile_id)}" data-key="${k}" ${(r[k]??def)?'checked':''}></td>`;
@@ -946,7 +901,7 @@ VIEWS.config={
     return `<tr><td><b>${esc(p.name||p.email||'—')}</b></td><td>${esc(p.role)}</td>
     ${cell('can_view',admin||p.role==='comercial')}${cell('can_create',admin)}${cell('can_edit',admin)}
     ${cell('can_delete',admin)}${cell('can_validate',admin)}${cell('can_export',admin||p.role==='comercial')}${cell('can_close',admin)}
-    <td><button class="secondary" data-ga-perm-save="${esc(p.profile_id)}">${tr('Guardar')}</button></td></tr>`}).join('')}
+    <td><button class="arcButton secondary" data-ga-perm-save="${esc(p.profile_id)}">${tr('Guardar')}</button></td></tr>`}).join('')}
    </tbody></table></div>
    <p class="gaHint">${tr('Sin fila propia, cada perfil usa su valor por defecto: el administrador todo, el comercial consulta y exporta su lado comercial, el resto nada.')}</p></div>`:''}`;
  },
@@ -987,7 +942,8 @@ function chartForm(row){
 /* ------------------------------------------------------------- exportación */
 /* Un CSV con separador de punto y coma: Excel lo abre de doble clic en las tres
    lenguas y no hace falta ninguna librería. El export respeta el filtro activo. */
-function exportRows(rows,name){
+async function exportRows(rows,name){
+ try{await window.ArchitectAccessControls.requireAction('accounting','export')}catch(e){window.gamaToast?.(window.ArcErrors.message(e));return}
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
  const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);

@@ -159,15 +159,16 @@ test.describe('Listas largas — se busca escribiendo', () => {
       document.getElementById('payment').classList.contains('gamaFindOculto'))).toBe(false);
   });
 
-  // Los doce meses pasan del umbral y aun así no se convierten: no son datos
-  // que crezcan, son un vocabulario que uno se sabe. Para eso data-gama-nofind.
+  // Los periodos son un vocabulario fijo. Incluso al superar el umbral
+  // de búsqueda, data-gama-nofind conserva el selector nativo.
   test('una lista larga pero fija se queda fuera con data-gama-nofind', async ({ page }) => {
     await boot(page, { customers: CUSTOMERS });
     await page.evaluate(() => window.showTab('dashboard', null));
 
-    expect(await page.locator('#dashMonth option').count()).toBeGreaterThan(8);
-    await expect(page.locator('.gamaFindBox[data-gama-for="dashMonth"]')).toHaveCount(0);
-    await expect(page.locator('#dashMonth')).toBeVisible();
+    await page.evaluate(()=>{const select=document.getElementById('ad-preset');for(let i=0;i<12;i++)select.add(new Option('Fixed '+i,'fixed-'+i));GamaSelectSearch.scan(document.getElementById('dashboard'))});
+    expect(await page.locator('#ad-preset option').count()).toBeGreaterThan(8);
+    await expect(page.locator('.gamaFindBox[data-gama-for="ad-preset"]')).toHaveCount(0);
+    await expect(page.locator('#ad-preset')).toBeVisible();
   });
 
   // El <select> no se va de la página: sigue siendo el que guarda el valor y

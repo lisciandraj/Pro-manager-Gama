@@ -8,7 +8,7 @@
 'use strict';
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)&&n>=0?n:null};
 
@@ -81,52 +81,16 @@ function section(){
  if(!s){s=document.createElement('section');s.id='price-lists';(document.querySelector('.wrap')||document.body).appendChild(s)}
  return s;
 }
-function css(){
- if($('plCss'))return;
- const s=document.createElement('style');s.id='plCss';
- s.textContent=`#price-lists .plGrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px;align-items:start}
-#price-lists .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
-.plList{background:#fff;border:1px solid var(--arc-surface-3);border-radius:11px;overflow:hidden;margin-bottom:12px}
-.plItem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--arc-surface-3);cursor:pointer}
-.plItem:last-child{border-bottom:0}
-.plItem.on{background:var(--arc-accent-100)}
-.plItem b{display:block;font-size:13px}
-.plItem small{color:var(--arc-text-subtle);font-size:11px}
-.plMsg{margin:10px 0;font-size:13px}
-.plMsg.plOk{color:var(--arc-success)}.plMsg.plErr{color:var(--arc-danger);font-weight:700}
-.plRow{display:grid;grid-template-columns:1fr 120px auto;gap:8px;align-items:end}
-.plTableWrap{width:100%;overflow-x:auto;margin-top:10px}
-/* min-width:min-content en vez de una anchura fija: con 520 px clavados, si
-   las columnas pedían más, las celdas se salían por la derecha sin que el
-   contenedor contara ese sobrante como algo que desplazar. */
-.plTable{width:100%;min-width:min-content;border-collapse:collapse}
-.plBtnTxt{display:none}
-.plTable th,.plTable td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12px}
-.plTable th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
-.plTable input{width:110px;padding:6px;text-align:right}
-.plContrato{display:block;color:var(--arc-text-subtle);font-size:10.5px}
-.plDelta{font-weight:800}.plDelta.up{color:var(--arc-success)}.plDelta.down{color:var(--arc-danger)}
-.plEmpty{padding:20px;text-align:center;color:var(--arc-text-subtle)}
-@media(max-width:900px){#price-lists .plGrid{grid-template-columns:minmax(0,1fr)}.plRow{grid-template-columns:1fr}.plRow button{width:100%;margin-top:6px}}
-/* Las fichas del teléfono las pone gama-tables.js para todas las tablas de la
-   aplicación. Aquí sólo queda lo propio: el ancho que necesita la etiqueta más
-   larga —«PRECIO NEGOCIADO», que partida en dos se leía peor que el dato— y la
-   palabra del botón de retirar, que en la tabla sobra porque su columna no
-   tiene título y basta la ×. */
-@media(max-width:760px){.plTable{--gamaCardsLabel:132px}
- .plBtnTxt{display:inline}
-}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 function render(){
  css();
  const s=section(),cur=customers.find(x=>x.id===selected)||null;
  const listed=new Set(items.map(i=>i.product_id));
- s.innerHTML=`${window.GamaUI.header({title:'🏷️ Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
+ window.ArcUI.render(s,`${window.GamaUI.header({title:'🏷️ Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>
-   <div class="card">
+   <div class="arcPanel card">
     <h3 data-gi=9940d9727373>Clientes de categoría C</h3>
     <p class="muted" data-gi=d4df14e92434>Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
    </div>
@@ -134,27 +98,27 @@ function render(){
      <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>
     </div>`).join(''):'<div class="plEmpty" data-gi=7b1e7c6efa4b>Ningún cliente de categoría C todavía.</div>'}</div>
   </div>
-  <div>${cur?renderDetail(cur,listed):'<div class="card"><div class="plEmpty" data-gi=9e990897a970>Elige un cliente a la izquierda.</div></div>'}</div>
- </div>`;
+  <div>${cur?renderDetail(cur,listed):'<div class="arcPanel card"><div class="plEmpty" data-gi=9e990897a970>Elige un cliente a la izquierda.</div></div>'}</div>
+ </div>`);
  bind();
 }
 function renderDetail(cur,listed){
  const free=products.filter(p=>!listed.has(p.id));
- return `<div class="card">
+ return `<div class="arcPanel card">
   <h3>${esc(cur.name)} — precios negociados</h3>
   <div class="plRow" style="margin-top:8px">
    <div><label data-gi=77b9238931ed>Producto</label><select id="plProduct">${free.length?free.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — mayorista ${money(p.sale_price)}</option>`).join(''):'<option value="" data-gi=5f658258e2cf>Todos los productos ya tienen precio pactado</option>'}</select></div>
    <div><label data-gi=141fa2c4db47>Precio negociado</label><input id="plPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
-   <div><button class="primary" id="plAdd" data-gi=7542a5e800f9>Añadir</button></div>
+   <div><button class="arcButton primary" id="plAdd" data-gi=7542a5e800f9>Añadir</button></div>
   </div>
-  ${items.length?`<div class="plTableWrap"><table class="plTable"><thead><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=77f9d8fe382b>Precio mayorista</th><th data-gi=141fa2c4db47>Precio negociado</th><th data-gi=e702db1e219e>Diferencia</th><th></th></tr></thead><tbody>
+  ${items.length?`<div class="plTableWrap"><table class="arcTable plTable"><thead><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=77f9d8fe382b>Precio mayorista</th><th data-gi=141fa2c4db47>Precio negociado</th><th data-gi=e702db1e219e>Diferencia</th><th></th></tr></thead><tbody>
    ${items.slice().sort((a,b)=>productName(a.product_id).localeCompare(productName(b.product_id),'es')).map(i=>{
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
      return `<tr><td>${esc(productName(i.product_id))}${i.contract_ref?`<small class="plContrato"><span data-gi=1951861239ed>Contrato </span>${esc(i.contract_ref)}</small>`:''}</td><td>${money(base)}</td>
       <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
-      <td><button class="danger" data-drop="${esc(i.product_id)}" data-gi-title=8f68e025d672 title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt" data-gi=0eeac7f5e703> Retirar</span></button></td></tr>`}).join('')}
+      <td><button class="arcButton danger" data-drop="${esc(i.product_id)}" data-gi-title=8f68e025d672 title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt" data-gi=0eeac7f5e703> Retirar</span></button></td></tr>`}).join('')}
    </tbody></table></div>`:'<div class="plEmpty" data-gi=e5486130f3fc>Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}
  </div>`;
 }
@@ -169,10 +133,10 @@ function bind(){
 async function open(){
  css();
  const s=section();
- document.querySelectorAll('section').forEach(x=>{const on=x.id==='price-lists';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
+ window.ArcRouter.show('price-lists');
  document.getElementById('mainmenu')?.setAttribute('hidden','');
  if(busy)return;busy=true;
- s.innerHTML='<div class="wrap"><div class="card"><div class="plEmpty" data-gi=276804734ffe>Cargando tarifas especiales…</div></div></div>';
+ window.ArcUI.render(s,'<div class="wrap"><div class="arcPanel card"><div class="plEmpty" data-gi=276804734ffe>Cargando tarifas especiales…</div></div></div>');
  try{await load()}finally{busy=false}
  window.scrollTo({top:0,behavior:'smooth'});
 }

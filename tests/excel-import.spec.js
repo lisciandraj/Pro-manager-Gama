@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const cloud=require('node:fs').readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
 
 // Regression test for re-enabling "Importar datos" in production: it used to
 // be force-hidden by three separate mechanisms (gama-standard-ui.js's
@@ -11,9 +12,8 @@ test.describe('Importar datos', () => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
     });
-    // The module only needs to render for this test; block the real backend
-    // and the XLSX CDN library since no file is actually parsed here.
-    await page.route('**/gama-supabase.js*', route => route.abort());
+    // Use a verified mock session; unavailable authorization keeps the real menu closed.
+    await page.route('**/gama-supabase.js*', route => route.fulfill({contentType:'text/javascript',body:cloud}));
     await page.route('**/@supabase/**', route => route.abort());
     await page.route('**/cdn.jsdelivr.net/npm/xlsx**', route => route.abort());
   });
@@ -215,10 +215,16 @@ test.describe('Importar datos — duplicados', () => {
     await page.setInputFiles('#gamaExcelFile', TINY_FILE);
     await expect(page.locator('#gamaExcelStatus')).toContainText('3 fila(s) detectada(s)');
 
+    await expect(page.locator('#gamaExcelImport')).toBeDisabled();
+    await page.click('#gamaExcelValidate');
+    await expect(page.locator('#gamaExcelStatus')).toContainText('1 listas');
+    expect(await page.evaluate(()=>window.__DB.customers.length)).toBe(1);
     await page.click('#gamaExcelImport');
 
-    await expect(page.locator('#gamaExcelStatus')).toContainText('1 fila(s) importada(s)');
-    await expect(page.locator('#gamaExcelStatus')).toContainText('2 duplicada(s) omitida(s)');
+    await expect(page.locator('#gamaExcelStatus')).toContainText('1 importadas');
+    await expect(page.locator('#gamaExcelStatus')).toContainText('2 errores');
+    await expect(page.locator('#gamaExcelPreview')).toContainText('DUPLICATE_CONTACT');
+    await expect(page.locator('#gamaExcelPreview')).toContainText('DUPLICATE_IN_FILE');
 
     const names = await page.evaluate(() => window.__DB.customers.map(c => c.name));
     expect(names).toEqual(['Distribuidora Andina S.A.', 'Comercial El Dorado']);

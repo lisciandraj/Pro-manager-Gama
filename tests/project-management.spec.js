@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');const fs=require('fs'),path=requ
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const uid='00000000-0000-0000-0000-000000000001',member='00000000-0000-0000-0000-000000000002';
 async function boot(page,role='admin'){
- const db=new PGlite();await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916093638_project_management.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20260916214905_project_item_deletion.sql'),'utf8'));
+ const db=new PGlite();await db.exec(fs.readFileSync(path.join(__dirname,'pm-test-bootstrap.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/legacy-migrations/20260916093638_project_management.sql'),'utf8'));await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/legacy-migrations/20260916214905_project_item_deletion.sql'),'utf8'));
  await db.exec(`insert into auth.users values ('${uid}','qa@example.invalid'),('${member}','member@example.invalid');insert into public.profiles(id,full_name,role,active) values ('${uid}','Jimmy QA','${role==='client'?'cliente':'administrador'}',true),('${member}','Maria QA','comercial',true);select set_config('request.jwt.claim.sub','${uid}',false);set role authenticated;`);
  const rpc=async(a,d={})=>(await db.query('select public.gama_projects_action($1,$2) result',[a,d])).rows[0].result;
  await page.exposeFunction('__pmServer',async(a,d)=>{try{return {data:await rpc(a,d)}}catch(e){return {error:{message:e.message,code:e.code}}}});

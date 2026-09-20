@@ -159,21 +159,21 @@ function barra(){
   +'<select id="crmATipo" data-gama-nofind data-gi-aria-label=68b338e60429 aria-label="Filtrar por tipo"><option value="" data-gi=7edada4fac1c>Todos los tipos</option>'
    +Object.keys(TIPOS).map(k=>'<option value="'+k+'"'+(filtroTipo===k?' selected':'')+'>'+esc(TIPOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="primary" id="crmANueva" data-gi=d05a7589481c>+ Nueva actividad</button>'
+  +'<button type="button" class="arcButton primary" id="crmANueva" data-gi=d05a7589481c>+ Nueva actividad</button>'
   +'</div>'
   +'<div class="crmNav crmSubNav">'
-   +'<button type="button" class="'+(vista==='agenda'?'on':'')+'" data-vista="agenda" data-gi=0fdf485f5bfd>Agenda</button>'
-   +'<button type="button" class="'+(vista==='historia'?'on':'')+'" data-vista="historia" data-gi=47980267f3cd>Historia</button>'
-   +'<button type="button" class="'+(soloMias?'on':'')+'" id="crmAMias" data-gi=93d9143cb744>Sólo las mías</button>'
+   +'<button type="button" class="arcButton '+(vista==='agenda'?'on':'')+'" data-vista="agenda" data-gi=0fdf485f5bfd>Agenda</button>'
+   +'<button type="button" class="arcButton '+(vista==='historia'?'on':'')+'" data-vista="historia" data-gi=47980267f3cd>Historia</button>'
+   +'<button type="button" class="arcButton '+(soloMias?'on':'')+'" id="crmAMias" data-gi=93d9143cb744>Sólo las mías</button>'
   +'</div>';
 }
 function agenda(){
  const filas=actos.filter(a=>abierta(a)&&coincide(a))
   .sort((x,y)=>String(x.due_at||'9999').localeCompare(String(y.due_at||'9999')));
  const tarde=filas.filter(vencida).length;
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +(tarde?'<div class="crmAviso crmDup"><b>'+tarde+'</b> actividad(es) vencida(s). Son las de arriba.</div>':'')
-  +(filas.length?'<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+  +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
     +'<th data-gi=d134a8ecb32a>Actividad</th><th data-gi=94bb534e4e0f>Ficha</th><th data-gi=0fb4618723af>Vence</th><th data-gi=62c1aec4ffc8>Responsable</th><th></th></tr></thead><tbody>'
     +filas.map(filaAgenda).join('')+'</tbody></table></div>'
    :'<div class="crmVacio">'+(actos.length?'Nada pendiente que coincida con el filtro.':'Nada pendiente. Cuando haya una tarea o un seguimiento, aparecerá aquí ordenado por fecha.')+'</div>')
@@ -189,14 +189,14 @@ function filaAgenda(a){
   +'<td>'+esc(cuando(a.due_at))+(vencida(a)?' <span class="crmTarde" data-gi=515d75cfc7e2>vencida</span>':'')+'</td>'
   +'<td>'+esc(CRM.nombreDe(a.owner_id,gente))+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" class="primary" data-hecha="'+esc(a.id)+'" data-gi=760938776de3>Hecha</button>'
-   +'<button type="button" data-abrir="'+esc(a.id)+'" data-gi=a01a5fce396e>Abrir</button>'
-   +'<button type="button" data-cancelar="'+esc(a.id)+'" data-gi-title=0eab0b7d5842 title="Cancelar la actividad">✕</button>'
+   +'<button type="button" class="arcButton primary" data-hecha="'+esc(a.id)+'" data-gi=760938776de3>Hecha</button>'
+   +'<button class="arcButton" type="button" data-abrir="'+esc(a.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +'<button class="arcButton" type="button" data-cancelar="'+esc(a.id)+'" data-gi-title=0eab0b7d5842 title="Cancelar la actividad">✕</button>'
   +'</td></tr>';
 }
 function historia(){
  const filas=actos.filter(coincide);
- if(!filas.length)return '<div class="card"><div class="crmVacio">'
+ if(!filas.length)return '<div class="arcPanel card"><div class="crmVacio">'
   +(actos.length?'Ninguna actividad coincide con el filtro.':'Todavía no hay ninguna actividad apuntada.')+'</div></div>';
  /* Agrupada por día: una lista plana de trescientas líneas no se lee, y lo que
     se busca casi siempre es «qué pasó tal día». */
@@ -206,7 +206,7 @@ function historia(){
   const g=grupos.find(x=>x.dia===d);
   if(g)g.filas.push(a);else grupos.push({dia:d,filas:[a]});
  });
- return '<div class="card">'+grupos.map(g=>
+ return '<div class="arcPanel card">'+grupos.map(g=>
   '<div class="crmDia"><h4>'+esc(g.dia)+'</h4>'
   +g.filas.map(hito).join('')+'</div>').join('')+'</div>';
 }
@@ -248,7 +248,7 @@ function ficha(){
  const a=abierto||{};
  const esNueva=!a.id;
  const tipo=anclaDe(a);
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>'+(esNueva?'Nueva actividad':esc(a.subject||''))+'</h3>'
   +'<div class="crmForm">'
    +'<div><label for="crmAKind" data-gi=3868d2843d59>Tipo</label><select id="crmAKind" data-gama-nofind>'
@@ -274,9 +274,9 @@ function ficha(){
   +'</div>'
   +'<div class="crmNotas"><label for="crmABody" data-gi=426234e72a5b>Detalle</label><textarea id="crmABody" rows="4">'+esc(a.body||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmAGuardar" data-gi=13e51a210f45>Guardar</button>'
-   +'<button type="button" id="crmACancelarF" data-gi=bb9dbb406dcb>Cancelar</button>'
-   +(esNueva||!abierta(a)?'':'<button type="button" id="crmAHecha" data-gi=3d8020c17aa8>Marcar como hecha</button>')
+   +'<button type="button" class="arcButton primary" id="crmAGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmACancelarF" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +(esNueva||!abierta(a)?'':'<button class="arcButton" type="button" id="crmAHecha" data-gi=3d8020c17aa8>Marcar como hecha</button>')
   +'</div></div>';
 }
 function leerFicha(){
@@ -358,8 +358,8 @@ async function cancelar(id){
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
  const s=CRM.section();
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
-  +(abierto?ficha():barra()+(vista==='historia'?historia():agenda()));
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+  +(abierto?ficha():barra()+(vista==='historia'?historia():agenda())));
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
@@ -387,7 +387,7 @@ function conectar(){
  const an=$('crmAAncla');
  if(an)an.onchange=()=>{
   const sel=$('crmAQuien');
-  if(sel)sel.innerHTML=opciones(listaAncla(an.value),'','— elige una ficha —');
+  if(sel)window.ArcUI.render(sel,opciones(listaAncla(an.value),'','— elige una ficha —'));
  };
  /* El tipo sugiere el estado: una tarea nace por hacer, una llamada se apunta
     porque ya ocurrió. Sigue pudiéndose cambiar a mano. */
@@ -408,45 +408,20 @@ function notaFecha(){
  if(!st||!n)return;
  n.textContent=st.value==='pendiente'?'Obligatoria mientras esté pendiente.':'';
 }
-function css(){
- if($('crmActCss'))return;
- const s=document.createElement('style');s.id='crmActCss';
- s.textContent='#crm .crmSubNav{margin:0 0 12px}'
- +'#crm .crmSubNav button{min-height:38px;padding:7px 14px;font-size:12.5px}'
- +'#crm .crmFilaTarde td{background:var(--arc-danger-bg)}'
- +'#crm .crmEstado.e-cliente{background:var(--arc-success-bg);color:var(--arc-success)}'
- +'#crm .crmEstado.e-prospecto{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
- +'#crm .crmEstado.e-oportunidad{background:var(--arc-warning-bg);color:var(--arc-warning)}'
- +'#crm .crmEstado.e-contacto{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}'
- +'#crm .crmEstado.s-pendiente{background:var(--arc-warning-bg);color:var(--arc-warning)}'
- +'#crm .crmEstado.s-en_curso{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
- +'#crm .crmEstado.s-hecha{background:var(--arc-success-bg);color:var(--arc-success)}'
- +'#crm .crmEstado.s-cancelada{background:var(--arc-surface-2);color:var(--arc-text-subtle)}'
- +'#crm .crmDia{margin-bottom:14px}'
- +'#crm .crmDia h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--arc-text-muted)}'
- +'#crm .crmHito{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--arc-surface-3);border-radius:10px;margin-bottom:7px;cursor:pointer;background:#fff}'
- +'#crm .crmHito:hover{border-color:var(--arc-accent-600)}'
- +'#crm .crmHito.cancelada{opacity:.6}'
- +'#crm .crmHito.cancelada b{text-decoration:line-through}'
- +'#crm .crmHitoIco{font-size:17px;line-height:1.2;flex:0 0 auto}'
- +'#crm .crmHitoCuerpo{flex:1 1 auto;min-width:0}'
- +'#crm .crmHitoCuerpo b{display:block;font-size:13px;color:var(--arc-text)}'
- +'@media(max-width:760px){#crm .crmHito{flex-wrap:wrap}}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=719d2ba21491>Cargando la agenda…</div></div>';
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=719d2ba21491>Cargando la agenda…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   abierto=null;
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   fallo(e,'No se pudieron cargar las actividades');
  }finally{cargando=false}

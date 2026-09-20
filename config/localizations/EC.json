@@ -1,0 +1,3041 @@
+{
+  "country": "EC",
+  "version": "2026-09-19",
+  "title": "Ecuador · NIIF",
+  "currency": "USD",
+  "source_url": "https://github.com/odoo/odoo/tree/19.0/addons/l10n_ec",
+  "source_sha256": "b7b7e50a39cf3fa97909e0b50bac9ca8cc7009427cf93a09e89c0a69cdb06b4a",
+  "accounts": [
+    {
+      "code": "11010202",
+      "name": "Recibos pendientes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11010203",
+      "name": "Pagos pendientes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11010301",
+      "name": "Transferencias interbancarias",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11010401",
+      "name": "Valores en custodia",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110201",
+      "name": "Activos financieros a valor razonable con cambios en resultados",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110202",
+      "name": "Activos financieros disponibles para la venta",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110203",
+      "name": "Activos financieros mantenidos hasta el vencimiento",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110204",
+      "name": "Provision por deterioro",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1102050101",
+      "name": "Cuentas por cobrar clientes no relacionados locales",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1102050102",
+      "name": "Cuentas por cobrar clientes no relacionados extranjeros",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1102050103",
+      "name": "Cuentas por cobrar clientes para punto de venta",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1102050201",
+      "name": "Cheques de cliente por depositar",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1102050202",
+      "name": "Cheques protestados",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020601",
+      "name": "Documentos y cuentas por cobrar cliente relacionados locales",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020602",
+      "name": "Documentos y cuentas por cobrar cliente relacionados extranjeros",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020701",
+      "name": "Anticipo sueldos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020702",
+      "name": "Anticipo décimo tercer sueldo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020703",
+      "name": "Anticipo décimo cuarto sueldo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020704",
+      "name": "Anticipo utilidades",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020705",
+      "name": "Prestamos Empleados",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11020706",
+      "name": "Anticipo por sobregiro en Nómina",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110208",
+      "name": "Otras cuentas por cobrar relacionadas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110209",
+      "name": "Otras cuentas por cobrar",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110210",
+      "name": "Provision por cuentas incobrables",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110301",
+      "name": "Inventarios de materia prima",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110302",
+      "name": "Inventarios de productos en proceso",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110303",
+      "name": "Inventarios de suministros o materiales a ser consumidos en el proceso de produccion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110304",
+      "name": "Inventarios de suministros o materiales a ser consumidos en la prestacion de servicios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110305",
+      "name": "Inventarios de prod. term. y mercad. en almacen - producido por la compañia",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110306",
+      "name": "Inventarios de prod. term. y mercad. en almacen - comprado a terceros",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110307",
+      "name": "Mercaderias en transito",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110308",
+      "name": "Provision de inventarios por valor neto de realizacion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110309",
+      "name": "Provision de inventarios por deterioro fisico",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110310",
+      "name": "Variación Inventarios de prod. term. y mercad. en almacen - comprado a terceros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "110401",
+      "name": "Seguros pagados por anticipado",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110402",
+      "name": "Arriendos pagados por anticipado",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110403",
+      "name": "Anticipos a proveedores",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11040401",
+      "name": "Otros anticipos entregados",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050101",
+      "name": "IVA pagado en compras locales",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050102",
+      "name": "IVA pagado en compras locales de activos fijos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050103",
+      "name": "IVA pagado en importacion de servicios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050104",
+      "name": "IVA pagado en importacion de bienes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050105",
+      "name": "IVA pagado en importacion de activos fijos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050106",
+      "name": "IVA pagado en retenciones de la fuente",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050107",
+      "name": "IVA en compras 0%",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050108",
+      "name": "IVA pagado en retenciones de la fuente de tarjetas de crédito",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050201",
+      "name": "Crédito tributario por Impuesto a la Renta",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050202",
+      "name": "Crédito tributario de IVA",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050203",
+      "name": "Crédito tributario por Retenciones IVA",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050204",
+      "name": "Crédito tributario por impuesto ISD",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050205",
+      "name": "Cuenta Transitoria Retenciones Bancarias por Conciliar",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "11050206",
+      "name": "Crédito Tributario por otros conceptos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110503",
+      "name": "Anticipo de impuesto a la renta",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110504",
+      "name": "Retenciones en la fuente pagadas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110505",
+      "name": "Retenciones en la fuente pagadas de tarjetas de crédito",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "110506",
+      "name": "Base Imponible de Retenciones en Ventas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1106",
+      "name": "Activos no corrientes mantenidos para la venta y operaciones discontinuadas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1107",
+      "name": "Construcciones en proceso (nic 11 y secc.23 pymes)",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "1108",
+      "name": "Otros activos corrientes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120101",
+      "name": "Terrenos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120102",
+      "name": "Edificios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120103",
+      "name": "Contrucciones en curso",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120104",
+      "name": "Instalaciones",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120105",
+      "name": "Muebles y enseres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120106",
+      "name": "Maquinaria y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120107",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120108",
+      "name": "Equipo de computacion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120109",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120110",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120111",
+      "name": "Repuestos y herramientas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011201",
+      "name": "Depreciacion acumulada edificios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011202",
+      "name": "Depreciacion acumulada contrucciones en curso",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011203",
+      "name": "Depreciacion acumulada instalaciones",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011204",
+      "name": "Depreciacion acumulada muebles y enseres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011205",
+      "name": "Depreciacion acumulada maquinaria y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011206",
+      "name": "Depreciacion acumulada naves, aeronaves, barcazas y similares",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011207",
+      "name": "Depreciacion acumulada equipo de computacion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011208",
+      "name": "Depreciacion acumulada vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011209",
+      "name": "Depreciacion acumulada otros propiedades, planta y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011210",
+      "name": "Depreciacion acumulada repuestos y herramientas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011301",
+      "name": "Deterioro acumulado edificios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011302",
+      "name": "Deterioro acumulado contrucciones en curso",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011303",
+      "name": "Deterioro acumulado instalaciones",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011304",
+      "name": "Deterioro acumulado muebles y enseres",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011305",
+      "name": "Deterioro acumulado maquinaria y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011306",
+      "name": "Deterioro acumulado naves, aeronaves, barcazas y similares",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011307",
+      "name": "Deterioro acumulado equipo de computacion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011308",
+      "name": "Deterioro acumulado vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011309",
+      "name": "Deterioro acumulado otros propiedades, planta y equipo",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "12011310",
+      "name": "Deterioro acumulado repuestos y herramientas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120201",
+      "name": "Terrenos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120202",
+      "name": "Edificios",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120203",
+      "name": "Depreciacion acumulada de propiedades de inversion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120204",
+      "name": "Deterioro acumulado de propiedades de inversion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120301",
+      "name": "Animales vivos en crecimiento",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120302",
+      "name": "Animales vivos en produccion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120303",
+      "name": "Plantas en crecimiento",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120304",
+      "name": "Plantas en produccion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120305",
+      "name": "(-) depreciacion acumulada de activos biológicos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120306",
+      "name": "(-) deterioro acumulado de activos biologícos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120401",
+      "name": "Plusvalias",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120402",
+      "name": "Marcas, patentes, derechos de llave , cuotas patrimoniales y otros similares",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120403",
+      "name": "Activos de exploracion y explotacion",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120404",
+      "name": "Amortizacion acumulada de activos intangible",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120405",
+      "name": "Deterioro acumulado de activo intangible",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120406",
+      "name": "Otros intangibles",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120501",
+      "name": "Activos por impuestos diferidos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120601",
+      "name": "Activos financieros mantenidos hasta el vencimiento",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120602",
+      "name": "Provision por deterioro de activos financieros mantenidos hasta el vencimiento",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120603",
+      "name": "Documentos y cuentas por cobrar",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120604",
+      "name": "Provision cuentas incobrables de activos financieros no corrientes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120701",
+      "name": "Inversiones subsidiarias",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120702",
+      "name": "Inversiones asociadas",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120703",
+      "name": "Inversiones negocios conjuntos",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120704",
+      "name": "Otras inversiones",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120705",
+      "name": "Provision valuacion de inversiones",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "120706",
+      "name": "Otros activos no corrientes",
+      "type": "asset",
+      "active": true
+    },
+    {
+      "code": "2101",
+      "name": "Pasivos financieros a valor razonable con cambios en resultados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2102",
+      "name": "Pasivos por contratos de arrendamiento financiero",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210301",
+      "name": "Cuentas y documentos por pagar locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210302",
+      "name": "Cuentas y documentos por pagar del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210401",
+      "name": "Obligaciones con instituciones financieras locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210402",
+      "name": "Obligaciones con instituciones financieras del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2105010101",
+      "name": "Provision vacaciones",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2105010102",
+      "name": "Provision decimo tercero",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2105010103",
+      "name": "Provision decimo cuarto sierra",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2105010104",
+      "name": "Provision decimo cuarto costa",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2105010105",
+      "name": "Otras provisiones a favor de los empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21050102",
+      "name": "Otras provisiones locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210502",
+      "name": "Provisiones del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2106",
+      "name": "Porcion corriente de obligaciones emitidas",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070101",
+      "name": "Impuesto a la renta retenido a empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070102",
+      "name": "Impuesto por pagar IVA",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070103",
+      "name": "Retenciones en la fuente por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070104",
+      "name": "Impuesto por pagar ICE",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070105",
+      "name": "Impuesto IRBPNR por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070106",
+      "name": "Otros impuestos por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210702",
+      "name": "Impuesto a la renta por pagar del ejercicio",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070301",
+      "name": "Prestamos quirografarios",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070302",
+      "name": "Prestamos hipotecarios",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070303",
+      "name": "Aportacion patronal al iess",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070304",
+      "name": "Aportacion personal al iess",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070305",
+      "name": "Fondos de reserva retenidos a empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070306",
+      "name": "Otras obligaciones corrientes con el iess",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070307",
+      "name": "Prestaciones solidarias al IESS",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070401",
+      "name": "Sueldos y salarios por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070402",
+      "name": "Otras obligaciones corrientes por beneficios de ley a empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21070403",
+      "name": "Décimos por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210705",
+      "name": "Participacion trabajadores por pagar del ejercicio",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "210706",
+      "name": "Dividendos por pagar",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2108",
+      "name": "Cuentas por pagar diversas/relacionadas",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2109",
+      "name": "Otros pasivos financieros",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2110",
+      "name": "Anticipos de clientes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2111",
+      "name": "Pasivos directamente asociados con los activos no corrientes y operaciones discontinuadas",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "211201",
+      "name": "Otros beneficios a largo plazo para los empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "211301",
+      "name": "Retenciones judiciales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010101",
+      "name": "Iva cobrado en ventas locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010102",
+      "name": "Iva cobrado en ventas de activos fijos",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010103",
+      "name": "Iva cobrado en exportacion de bienes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010104",
+      "name": "Iva cobrado en exportacion de servicios",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010105",
+      "name": "Iva en ventas 0%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010201",
+      "name": "Retenciones de la fuente 1%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010202",
+      "name": "Retenciones de la fuente 1.75%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010203",
+      "name": "Retenciones de la fuente 2%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010204",
+      "name": "Retenciones de la fuente 2.75%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010205",
+      "name": "Retenciones de la fuente 3%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010206",
+      "name": "Retenciones de la fuente 5%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010207",
+      "name": "Retenciones de la fuente 8%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010208",
+      "name": "Retenciones de la fuente 10%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010209",
+      "name": "Retenciones de la fuente 15%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010210",
+      "name": "Retenciones de la fuente 22%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010211",
+      "name": "Otras retenciones",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010301",
+      "name": "Retenciones de iva 10%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010302",
+      "name": "Retenciones de iva 20%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010303",
+      "name": "Retenciones de iva 30%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010304",
+      "name": "Retenciones de iva 50%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010305",
+      "name": "Retenciones de iva 70%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010306",
+      "name": "Retenciones de iva 100%",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010307",
+      "name": "Otras retenciones",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "21140104",
+      "name": "Base Imponible de Retenciones en Compras",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2114010401",
+      "name": "ICE Bolsas Plásticas",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2201",
+      "name": "Pasivos por contratos de arrendamiento financiero",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220201",
+      "name": "Cuentas y documentos por pagar locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220202",
+      "name": "Cuentas y documentos por pagar del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220301",
+      "name": "Obligaciones con instituciones financieras locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220302",
+      "name": "Obligaciones con instituciones financieras del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220401",
+      "name": "Cuentas por pagar diversas/relacionadas locales",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220402",
+      "name": "Cuentas por pagar diversas/relacionadas del exterior",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2205",
+      "name": "Obligaciones emitidas",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2206",
+      "name": "Anticipos de clientes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220701",
+      "name": "Otros beneficios no corrientes para los empleados",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2208",
+      "name": "Otras provisiones",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220901",
+      "name": "Ingresos diferidos",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "220902",
+      "name": "Pasivos por impuestos diferidos",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "2210",
+      "name": "Otros pasivos no corrientes",
+      "type": "liability",
+      "active": true
+    },
+    {
+      "code": "3101",
+      "name": "Capital suscrito o asignado",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3102",
+      "name": "Capital suscrito no pagado, acciones en tesoreria",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "32",
+      "name": "Aportes de socios o accionistas para futura capitalizacion",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "33",
+      "name": "Prima por emision primaria de acciones",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3401",
+      "name": "Reserva legal",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3402",
+      "name": "Reservas facultativa y estatutaria",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3403",
+      "name": "Reserva de capital",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3404",
+      "name": "Otras reservas",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3501",
+      "name": "Superavit de activos financieros disponibles para la venta",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3502",
+      "name": "Superavit por revaluacion de propiedades, planta y equipo",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3503",
+      "name": "Superavit por revaluacion de activos intangibles",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3504",
+      "name": "Otros superavit por revaluacion",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3601",
+      "name": "Ganancias acumuladas",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3602",
+      "name": "Perdidas acumuladas",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3603",
+      "name": "Resultados acumulados provenientes de la adopcion por primera vez de las niif",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "3701",
+      "name": "Resultado neto del periodo",
+      "type": "equity",
+      "active": true
+    },
+    {
+      "code": "410101",
+      "name": "Venta de bienes",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "410201",
+      "name": "Prestacion de servicios",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4103",
+      "name": "Contratos de construccion",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4104",
+      "name": "Subvenciones del gobierno",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4105",
+      "name": "Regalias",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4106",
+      "name": "Intereses",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4107",
+      "name": "Dividendos",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4108",
+      "name": "Ganancia por medición a valor razonable de activos biológicos",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4109",
+      "name": "Otros ingresos de actividades ordinarias",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4110",
+      "name": "(-) Descuento pronto pago en ventas",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4111",
+      "name": "(-) devoluciones en ventas",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "42",
+      "name": "Ganancia bruta",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4301",
+      "name": "Dividendos",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4302",
+      "name": "Intereses financieros",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4303",
+      "name": "Ganancia en inversiones en asociadas / subsidiarias y otras",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "4304",
+      "name": "Valuacion de instrumentos financieros a valor razonable con cambio en resultados",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "430501",
+      "name": "Ingresos por diferecias de cambio",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "430502",
+      "name": "Ingresos por diferencias en efectivo",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "430503",
+      "name": "Other Income",
+      "type": "income",
+      "active": true
+    },
+    {
+      "code": "510101",
+      "name": "Inventario inicial de bienes no producidos por la compañia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510102",
+      "name": "Compras netas locales de bienes no producidos por la compañia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510103",
+      "name": "Importaciones de bienes no producidos por la compañia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510104",
+      "name": "Inventario final de bienes no producidos por la compañia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510105",
+      "name": "Inventario inicial de materia prima",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510106",
+      "name": "Compras netas locales de materia prima",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510107",
+      "name": "Importaciones de materia prima",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510108",
+      "name": "Inventario final de materia prima",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510109",
+      "name": "Inventario inicial de productos en proceso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510110",
+      "name": "Inventario final de productos en proceso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510111",
+      "name": "Inventario inicial productos terminados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510112",
+      "name": "Inventario final de productos terminados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020101",
+      "name": "Sueldos, salarios y demas remuneraciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020102",
+      "name": "Horas extra",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020103",
+      "name": "Bonificaciones por desempeño",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020201",
+      "name": "Seguro medico",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020202",
+      "name": "Capacitacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020203",
+      "name": "Uniformes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020204",
+      "name": "Alimentacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020205",
+      "name": "Transporte (cuando no genera beneficios sociales)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020206",
+      "name": "Impuesto a la renta de empleados asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020207",
+      "name": "Aporte personal IESS asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020208",
+      "name": "Otros beneficios a empleados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020301",
+      "name": "Aporte patronal",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020302",
+      "name": "Fondos de reserva",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020401",
+      "name": "Decimo tercer sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020402",
+      "name": "Decimo cuarto sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020403",
+      "name": "Vacaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020404",
+      "name": "Despido intempestivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020405",
+      "name": "Desahucio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51020406",
+      "name": "Otros beneficios e indemnizaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030101",
+      "name": "Sueldos, salarios y demas remuneraciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030102",
+      "name": "Horas extra",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030103",
+      "name": "Bonificaciones por desempeño",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030201",
+      "name": "Seguro medico",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030202",
+      "name": "Capacitacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030203",
+      "name": "Uniformes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030204",
+      "name": "Alimentacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030205",
+      "name": "Transporte (cuando no genera beneficios sociales)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030206",
+      "name": "Impuesto a la renta de empleados asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030207",
+      "name": "Aporte personal IESS asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030208",
+      "name": "Otros beneficios a empleados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030301",
+      "name": "Aporte patronal",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030302",
+      "name": "Fondos de reserva",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030401",
+      "name": "Decimo tercer sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030402",
+      "name": "Decimo cuarto sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030403",
+      "name": "Vacaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030404",
+      "name": "Despido intempestivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030405",
+      "name": "Desahucio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51030406",
+      "name": "Otros beneficios e indemnizaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040101",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040102",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040103",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040104",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040105",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040106",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040107",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040108",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040109",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040110",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510402",
+      "name": "Deterioro o pérdidas de activos biológicos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040301",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040302",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040303",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040304",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040305",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040306",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040307",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040308",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040309",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040310",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510404",
+      "name": "Efecto valor neto de realizacion de inventarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510405",
+      "name": "Gasto por garantias en venta de productos o servicios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510406",
+      "name": "Mantenimiento y reparaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "510407",
+      "name": "Suministros materiales y repuestos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040801",
+      "name": "Otros costos de produccion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010101",
+      "name": "Sueldos, salarios y demas remuneraciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040802",
+      "name": "Faltantes y sobrantes de ajustes de inventario",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "51040803",
+      "name": "Desperdicios en el proceso productivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010102",
+      "name": "Horas extra",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010103",
+      "name": "Bonificaciones por desempeño",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010201",
+      "name": "Aporte patronal",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010202",
+      "name": "Fondos de reserva",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010301",
+      "name": "Decimo tercer sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010302",
+      "name": "Decimo cuarto sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010303",
+      "name": "Vacaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010304",
+      "name": "Despido intempestivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010305",
+      "name": "Desahucio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010306",
+      "name": "Otros beneficios e indemnizaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010401",
+      "name": "Seguro medico",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010402",
+      "name": "Capacitacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010403",
+      "name": "Uniformes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010404",
+      "name": "Alimentacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010405",
+      "name": "Transporte (cuando no genera beneficios sociales)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010406",
+      "name": "Impuesto a la renta de empleados asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010407",
+      "name": "Aporte personal IESS asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52010408",
+      "name": "Otros beneficios a empleados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520105",
+      "name": "Honorarios, comisiones y dietas a personas naturales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520106",
+      "name": "Remuneraciones a otros trabajadores autonomos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520107",
+      "name": "Honorarios a extranjeros por servicios ocasionales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520108",
+      "name": "Mantenimiento y reparaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520109",
+      "name": "Arrendamiento operativo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520110",
+      "name": "Comisiones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520111",
+      "name": "Promocion y publicidad",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520112",
+      "name": "Combustibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520113",
+      "name": "Lubricantes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520114",
+      "name": "Seguros y reaseguros (primas y cesiones)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520115",
+      "name": "Transporte",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520116",
+      "name": "Gastos de gestion (agasajos a accionistas, trabajadores y clientes)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520117",
+      "name": "Gastos de viaje",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52011801",
+      "name": "Agua potable",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52011802",
+      "name": "Energia electrica",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52011803",
+      "name": "Telefonia fija",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52011804",
+      "name": "Telefonia movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520119",
+      "name": "Notarios y registradores de la propiedad o mercantiles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520120",
+      "name": "Impuestos, contribuciones y otros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210101",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210102",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210103",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210104",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210105",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210106",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210107",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210108",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210109",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201210110",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012102",
+      "name": "Propiedades de inversion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012201",
+      "name": "Intangibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012202",
+      "name": "Otros activos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230101",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230102",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230103",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230104",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230105",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230106",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230107",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230108",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230109",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5201230110",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012302",
+      "name": "Instrumentos financieros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012303",
+      "name": "Intangibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012304",
+      "name": "Cuentas por cobrar",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012305",
+      "name": "Otros activos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520124",
+      "name": "Gastos por cantidades anormales de utilización en el proceso de producción",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520125",
+      "name": "Gasto por reestructuracion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520126",
+      "name": "Valor neto de realizacion de inventarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012701",
+      "name": "Servicio de imprenta",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012702",
+      "name": "Suministros de oficina",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012703",
+      "name": "Suministros y articulos de aseo y limpieza",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012704",
+      "name": "Alícuotas y condominio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012705",
+      "name": "Guias, couriers, correos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012706",
+      "name": "Peajes, parqueaderos y otros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012707",
+      "name": "Capacitación, cursos y seminarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012708",
+      "name": "Alimentación y refrigerios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012709",
+      "name": "Seguridad y vigilancia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012710",
+      "name": "Servicios de limpieza",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012711",
+      "name": "Mantenimiento equipo computo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012712",
+      "name": "Mantenimiento equipo computo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012713",
+      "name": "Gastos legales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012714",
+      "name": "Servicios contratados a terceros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52012715",
+      "name": "Otros gastos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020101",
+      "name": "Sueldos, salarios y demas remuneraciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020102",
+      "name": "Horas extra",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020103",
+      "name": "Bonificaciones por desempeño",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020201",
+      "name": "Aporte patronal",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020202",
+      "name": "Fondos de reserva",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020301",
+      "name": "Decimo tercer sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020302",
+      "name": "Decimo cuarto sueldo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020303",
+      "name": "Vacaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020304",
+      "name": "Despido intempestivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020305",
+      "name": "Desahucio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020306",
+      "name": "Otros beneficios e indemnizaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020401",
+      "name": "Seguro medico",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020402",
+      "name": "Capacitacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020403",
+      "name": "Uniformes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020404",
+      "name": "Alimentacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020405",
+      "name": "Transporte (cuando no genera beneficios sociales)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020406",
+      "name": "Impuesto a la renta de empleados asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020407",
+      "name": "Aporte personal IESS asumido por la empresa",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52020408",
+      "name": "Otros beneficios a empleados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520205",
+      "name": "Honorarios, comisiones y dietas a personas naturales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520206",
+      "name": "Remuneraciones a otros trabajadores autonomos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520207",
+      "name": "Honorarios a extranjeros por servicios ocasionales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520208",
+      "name": "Mantenimiento y reparaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520209",
+      "name": "Arrendamiento operativo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520210",
+      "name": "Comisiones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520211",
+      "name": "Promocion y publicidad",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520212",
+      "name": "Combustibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520213",
+      "name": "Lubricantes",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520214",
+      "name": "Seguros y reaseguros (primas y cesiones)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520215",
+      "name": "Transporte",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520216",
+      "name": "Gastos de gestion (agasajos a accionistas, trabajadores y clientes)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520217",
+      "name": "Gastos de viaje",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52021801",
+      "name": "Agua potable",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52021802",
+      "name": "Energia electrica",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52021803",
+      "name": "Telefonia fija",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52021804",
+      "name": "Telefonia movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52011805",
+      "name": "Comisiones de tarjetas de crédito",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520219",
+      "name": "Notarios y registradores de la propiedad o mercantiles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022001",
+      "name": "Patente municipal",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022002",
+      "name": "1.5x mil activos totales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022003",
+      "name": "Contribuciones super cias",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022004",
+      "name": "Camara de comercio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022005",
+      "name": "Impuesto Salida de Divisas (ISD)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022006",
+      "name": "Otros impuestos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210101",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210102",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210103",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210104",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210105",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210106",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210107",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210108",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210109",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202210110",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022102",
+      "name": "Propiedades de inversion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022201",
+      "name": "Intangibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022202",
+      "name": "Otros activos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230101",
+      "name": "Edificios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230102",
+      "name": "Contrucciones en curso",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230103",
+      "name": "Instalaciones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230104",
+      "name": "Muebles y enseres",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230105",
+      "name": "Maquinaria y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230106",
+      "name": "Naves, aeronaves, barcazas y similares",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230107",
+      "name": "Equipo de computacion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230108",
+      "name": "Vehiculos, equipos de transporte y equipo caminero movil",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230109",
+      "name": "Otros propiedades, planta y equipo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202230110",
+      "name": "Repuestos y herramientas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022302",
+      "name": "Inventarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022303",
+      "name": "Instrumentos financieros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022304",
+      "name": "Intangibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022305",
+      "name": "Cuentas por cobrar",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022306",
+      "name": "Otros activos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520224",
+      "name": "Gastos por cantidades anormales de utilización en el proceso de producción",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520225",
+      "name": "Gasto por reestructuracion",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520226",
+      "name": "Valor neto de realizacion de inventarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520227",
+      "name": "Gasto impuesto a la renta (activos y pasivos diferidos)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022801",
+      "name": "Suministros de oficina",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022802",
+      "name": "Suministros y artículos de aseo y limpieza",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022803",
+      "name": "Alícuotas y condominio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022804",
+      "name": "Guias, couriers, correos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022805",
+      "name": "Peajes, parqueaderos y otros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022806",
+      "name": "Capacitación, cursos y seminarios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022807",
+      "name": "Alimentación y refrigerios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022808",
+      "name": "Seguridad y vigilancia",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022809",
+      "name": "Servicios de limpieza",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022810",
+      "name": "Mantenimiento equipo computo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022811",
+      "name": "Mantenimiento equipo computo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022812",
+      "name": "Material de osteosintesis",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022813",
+      "name": "Gastos de construcción",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022814",
+      "name": "Gastos legales",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022815",
+      "name": "Servicios contratados a terceros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022816",
+      "name": "Otros gastos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52022817",
+      "name": "Recolección residuos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281801",
+      "name": "Gnd suministros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281802",
+      "name": "Gnd gastos de gestion y agasajos a clientes y empleados",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281803",
+      "name": "Gnd retenciones asumidas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281804",
+      "name": "Gnd soporte tecnico",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281805",
+      "name": "Gnd movilización no deducible",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281806",
+      "name": "Gnd impuestos, intereses y multas",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281807",
+      "name": "Gnd Impuesto Salida de Divisas (ISD)",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "5202281808",
+      "name": "Gnd otros gastos no deducibles",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520301",
+      "name": "Intereses",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520302",
+      "name": "Comisiones",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520303",
+      "name": "Gastos de financiamiento de activos",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520304",
+      "name": "Diferencia en cambio",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520305",
+      "name": "Otros gastos financieros",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "520401",
+      "name": "Perdida en inversiones en asociadas / subsidiarias y otras",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52040201",
+      "name": "(-) Descuento pronto pago en compras de servicios",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52040202",
+      "name": "(-) Egresos por diferencias en efectivo",
+      "type": "expense",
+      "active": true
+    },
+    {
+      "code": "52040203",
+      "name": "Otros gastos",
+      "type": "expense",
+      "active": true
+    }
+  ],
+  "mapping": {
+    "receivable": "1102050101",
+    "payable": "210301",
+    "sales": "410101",
+    "purchase": "510102",
+    "tax_collected": "2114010101",
+    "tax_deductible": "11050101"
+  },
+  "taxes": [
+    {
+      "code": "EC-VAT-15",
+      "name": "IVA 15%",
+      "rate": 15
+    },
+    {
+      "code": "EC-VAT-5",
+      "name": "IVA 5% · materiales de construcción",
+      "rate": 5
+    },
+    {
+      "code": "EC-VAT-0",
+      "name": "IVA 0%",
+      "rate": 0
+    }
+  ]
+}

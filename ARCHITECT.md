@@ -1,153 +1,51 @@
-# Architect ERP — sistema de diseño
+# ARCHITECT ERP — interface de référence
 
-Producción: `lisciandraj/Pro-manager-Gama`, proyecto `mknsaibrewksgomuslev`.
+L’application reste le site statique `lisciandraj/Pro-manager-Gama`, avec ses modules JavaScript, son authentification et sa base Supabase existants. Aucun framework, route, identifiant de module, schéma ou workflow n’est remplacé.
 
-Refonte gráfica completa de la aplicación. **No es una reconstrucción
-funcional**: no se ha quitado ninguna pantalla, ninguna ruta, ningún permiso,
-ninguna llamada a la base de datos ni ninguna clave de traducción. Lo que
-cambia es cómo se ve y cómo se navega.
+## Référence visuelle et logo
 
-## La regla que lo ordena todo
+La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’environ 192 px, barre supérieure de 70 px, grille principale de quatre colonnes, cartes blanches compactes de 12 px de rayon. Couleurs relevées dans les plages uniformes de l’image : sidebar `#122E46`, sélection `#245073`, fond gris très clair (environ `#F5F7FA`). Les tableaux et champs gardent des séparateurs plus soutenus pour la lisibilité.
 
-`architect-ui.css` **no inventa nombres de clase: viste los que la aplicación
-ya usa.** `.card`, `.gsCard`, `.gpCard`, `.gaCard`, `.tmsCard`, `.gamaF2Card`,
-`button.primary`, `.gsDialog`… siguen llamándose igual. Por eso trece módulos
-escritos por separado cambian de aspecto a la vez sin tocar su código, y por
-eso las pruebas que buscan `.gamaF2Card` o `#gamaSpotlight` siguen pasando.
+`architect-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42`. Le slogan, les couleurs et le rapport carré sont conservés. Dans la sidebar, un masque CSS cache uniquement la marge blanche extérieure du fichier, sans retoucher le logo. Il apparaît dans la sidebar, la connexion, la fiche de devis et les métadonnées d’installation. `object-fit: contain` préserve ses proportions. Les anciens identifiants techniques GAMA et les informations légales de l’entreprise sur les documents restent inchangés.
 
-La consecuencia práctica: **para cambiar el aspecto de algo no se edita el
-módulo, se edita la hoja**. Y para que una pantalla nueva encaje sola, basta
-con que use los nombres que ya existen.
+La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, pour un rendu stable sans requête externe.
 
-## Los tres archivos
+## Sources partagées
 
-| Archivo | Qué es |
-| --- | --- |
-| `architect-tokens.css` | El color, el espacio, el radio, la sombra y la tipografía. Ningún módulo debería volver a escribir un `#RRGGBB`: si un tono no está aquí, es que falta aquí. |
-| `architect-ui.css` | El sistema: tarjetas, botones, campos, tablas, diálogos, avisos, insignias, estados vacíos. Viste las clases existentes, sin `!important`. |
-| `architect-shell.js` | El armazón: barra lateral de navegación, barra superior con buscador y usuario, y el cajón del teléfono. Es estructural: **mueve** el chip de sesión que pinta el control de acceso, no lo rehace. |
+- `architect-tokens.css` : couleurs, espaces, rayons, ombres et typographie. Les alias publics `--color-*`, `--radius-*`, `--shadow-*` réutilisent ces tokens.
+- `architect-ui.css` : cartes, tableaux, champs, boutons, états, dialogues et notifications communs aux modules existants.
+- `architect-shell.css` : sidebar, barre supérieure, profil, navigation responsive.
+- `architect-home.css` : accueil, KPI, grille, activité et personnalisation.
+- `architect-shell.js` : navigation depuis `GamaMenu`, recherche globale existante, déplacement des contrôles de session existants dans le menu utilisateur, indicateur actif, droits et langues.
+- `gama-menu-final2.js` : registre de tous les modules existants, cartes, KPI et activité. TMS utilise désormais ce même registre ; son chargeur reste unique.
 
-Se cargan al final de `<head>` (las hojas) y antes de `</body>` (el guion),
-después de los cinco bloques `<style>` históricos de `index.html`. Ese orden
-es el que hace que Architect gane sin `!important`.
+Les feuilles de la sidebar et de l’accueil remplacent les anciennes chaînes CSS injectées. Les feuilles partagées habillent les classes déjà utilisées par les modules, y compris les composants chargés tardivement. Les nouvelles préférences d’affichage restent locales au navigateur et séparées des données métier.
 
-## Paleta
+## Données de l’accueil
 
-Azul marino para lo que estructura —navegación, cabeceras—, azul acero para
-lo secundario, blanco para las superficies de trabajo, un gris azulado muy
-claro para el lienzo, y azul para lo que se puede pulsar.
+L’accueil ne contient aucune donnée de démonstration.
 
-```
---arc-navy-900 .. 600     barra lateral, cabeceras
---arc-steel-600 .. 300    secundario
---arc-accent-700 .. 50    acción, enlace, foco
---arc-canvas / surface / surface-2 / surface-3
---arc-line / line-strong
---arc-text / text-muted / text-subtle / text-invert / text-on-navy
---arc-success / warning / danger / info   (+ -bg y -line de cada uno)
---arc-fam-*               una familia por grupo de módulos
---arc-viz-1 .. 6          series de gráfico
-```
+- Facturation du mois : `gama_operations_action(snapshot).metrics.invoiced`, lorsque `finance` est autorisé. Il s’agit de factures TTC, donc le libellé précise « Facturation » et « TVA incluse ».
+- Commandes confirmées du mois : `metrics.orders`.
+- Livraisons en retard : `metrics.late_deliveries`.
+- Clients actifs : décompte exact des clients actifs, sous les droits existants.
 
-Cada grupo del menú lleva su acento —análisis, ventas, logística, compras,
-finanzas, personas, sistema— y el resto de la tarjeta es idéntico, así el
-conjunto no se convierte en un arcoíris.
+`total` et `active_count` de cette RPC sont des compteurs d’alertes et ne doivent jamais être utilisés comme chiffre d’affaires ou commandes. Une donnée indisponible ne devient pas artificiellement zéro. Aucun taux d’évolution n’est inventé en l’absence d’une série de comparaison.
 
-Ninguna descripción de tarjeta puede contener el rótulo de otro módulo: las
-pruebas de punta a punta abren la tarjeta por su texto y se llevarían la
-primera que coincida. Lo comprueba `tests/menu-cards.spec.js`.
+L’activité récente affiche les quatre derniers mouvements réels de l’audit de stock déjà synchronisé. Elle est réservée aux profils autorisés à consulter l’audit. Le lien ouvre l’audit complet. Il ne s’agit pas d’un journal universel de tous les modules.
 
-El naranja histórico de GAMA era el acento de marca, no un aviso: numeraba
-documentos, resaltaba cifras y vestía el botón de escanear. En Architect el
-acento de marca es el azul, y los alias antiguos (`--gama-orange`,
-`--gama-teal`, `--gama-line`…) apuntan a los tokens nuevos para que el código
-que aún los use siga siendo coherente.
+## Navigation et droits
 
-## Navegación
+Desktop à partir de 1100 px : sidebar permanente. Tablette de 861 à 1099 px : rail d’icônes extensible. Jusqu’à 860 px : tiroir mobile, fermé hors de l’ordre de tabulation avec `inert`, ouvert au clavier avec focus maintenu dans la navigation. Échap ferme le tiroir et rend le focus au bouton.
 
-Antes: una rejilla de tarjetas para todo, una barra lateral que sólo aparecía
-por encima de 1400px, una cabecera con tres iconos y una fila de pestañas
-abajo. Ahora hay **un solo sitio donde está todo**:
+La sidebar présente les destinations principales puis « Autres modules ». Tous les modules restent dans le registre et sur l’accueil. « Personnaliser » permet de masquer des cartes uniquement sur l’accueil ; les destinations restent accessibles dans la navigation. Les préférences sont propres au profil local et n’accordent jamais un droit d’accès.
 
-- **≥1321px** — barra lateral completa: marca, «Inicio», los grupos del menú
-  con sus módulos, idioma y versión al pie.
-- **861–1320px** — la misma barra reducida a iconos (72px). Los rótulos se
-  esconden; el destino no cambia. El corte está en 1320 y no más abajo porque
-  en un portátil de 1280px no caben 248px de barra y además una tabla de
-  tarifas.
-- **≤860px** — cajón fuera de pantalla. Lo abre el botón de la barra superior
-  y lo cierran el velo, un enlace o la tecla `Esc`.
+`gama-fixed-header.js` reconnaît le conteneur Architect : il ne déplace plus les contrôles de session vers l’ancienne barre désormais invisible. Déconnexion et gestion des comptes conservent leurs événements et permissions.
 
-La barra la construye `architect-shell.js` leyendo `window.GamaMenu`
-(`{items, groups, icons, open, render}`), que es la misma fuente que pinta el
-menú principal: **no hay dos listas de módulos**. El enlace activo se marca
-con `aria-current="page"` a partir de `section.active`, y los permisos los
-sigue decidiendo `window.gamaAccessAllowed()` — la barra sólo aplica
-`.aclHidden` y esconde el grupo que se queda vacío.
+Les libellés sont traduits avec le catalogue existant FR/EN/ES. Après modification, exécuter `python3 scripts/build-i18n.py`.
 
-La cabecera, las pestañas y la barra lateral históricas siguen en el DOM —hay
-pruebas y atajos que las consultan— pero no pintan nada.
+## Vérification
 
-## Menú principal
+Site statique : pas de compilation, TypeScript ou lint configurés. Vérifier la syntaxe des scripts et des scripts intégrés, les assets locaux, puis les tests Node et Playwright existants. `tests/architect-reference.spec.js` couvre le logo exact, les vrais champs des KPI, les traductions, le profil, la personnalisation, les droits client et le tiroir. `tests/architect-shell.spec.js` contrôle les six largeurs demandées : 1920, 1440, 1024, 768, 430 et 390 px, dont plusieurs écrans de modules.
 
-Cada tarjeta lleva ahora icono con el color de su familia, título, **una línea
-que dice para qué sirve el módulo** y una flecha. Arriba, hasta tres
-indicadores que leen datos reales (`gama_operations_action`, acción
-`snapshot`): cartera en curso, pedidos en curso y avisos que requieren acción.
-Si el dato no está disponible todavía, **la fila no se pinta**: nunca se
-enseñan cifras de ejemplo.
-
-## Responsive
-
-Probado en 1920, 1440, 1024, 768, 430 y 390px, en el menú y dentro de los
-módulos. `tests/architect-shell.spec.js` mide el desbordamiento horizontal en
-los seis anchos y en cinco pantallas de módulo, y nombra al elemento culpable
-cuando falla — así fue como se encontró que la barra lateral histórica
-empujaba `.wrap` 248px a la derecha por encima de 1400px.
-
-## Accesibilidad
-
-- Contraste AA (4.5:1) en **todos** los tonos de texto sobre **todas** las
-  superficies del sistema —blanco, lienzo, superficie-2 y superficie-3—, no
-  sólo sobre blanco: el texto principal llega a 15.5:1, el secundario a 6.5:1
-  y el sutil a 5.4:1 sobre blanco, y ninguno baja de 4.5:1 sobre el lienzo.
-- El lienzo es un gris de verdad (`#E6EBF2`) y no un blanco roto: con el
-  anterior la tarjeta blanca daba 1.07:1 contra el fondo y su borde no se
-  percibía. Lo vigila `tests/menu-contrast.spec.js`.
-- Foco de teclado visible en todo lo que se puede enfocar, con
-  `:focus-visible` y un anillo de 3px.
-- Zona táctil de 44px como mínimo en la barra superior, la navegación y el
-  selector de idioma.
-- Todo botón que sólo enseña un icono trae `aria-label`.
-- **El color nunca informa solo**: cada estado lleva además su texto o su
-  icono, y las series de gráfico van siempre con su etiqueta y su cifra.
-- `prefers-reduced-motion` apaga las transiciones.
-
-## Traducciones
-
-Todo el texto visible que introduce la refonte —las descripciones de los
-módulos, los rótulos del armazón, los indicadores— está en
-`locales/catalog.tsv` en español, francés e inglés, y se compila con
-`python3 scripts/build-i18n.py`. Las cifras van siempre fuera de la cadena
-traducida, y el dinero lo formatea `GamaCurrency`: no hay un solo `€` ni un
-solo `$` escrito a mano.
-
-El nombre visible de la aplicación pasa de GAMA a Architect ERP en pantallas,
-manifiesto y documentos. **No cambian** los identificadores técnicos: nombres
-de archivo `gama-*.js`, `window.Gama*`, las funciones `gama_*` de la base de
-datos, las clases CSS, las claves de almacenamiento ni el marcador
-`GAMA_META` que el CRM escribe en las notas. Tampoco cambia el nombre del
-emisor que sale en presupuestos y facturas: eso es un dato de la empresa, no
-el nombre del programa.
-
-## Qué hacer al añadir una pantalla
-
-1. Pedir la cabecera a `GamaUI.header({title, lead})` y engancharla con
-   `GamaUI.bindBack()`.
-2. Usar los nombres de clase que ya existen (`card`, `primary`, `secondary`,
-   `num`…). No hace falta CSS propio para que se vea como el resto.
-3. Si hace falta un color, **cogerlo de `architect-tokens.css`**. Si no está,
-   añadirlo ahí y no en el módulo.
-4. Meter el texto en `locales/catalog.tsv` y recompilar.
-5. Dar de alta el módulo en `gama-menu-final2.js` (`ITEMS` y `DESC`): la barra
-   lateral lo recoge sola.
+Les anciennes assertions imposant un fond gris foncé ont été alignées sur la nouvelle référence explicitement demandée. Les séparateurs de tableaux et les champs continuent à utiliser `--arc-line` et `--arc-line-strong` ; les bordures des cartes d’accueil utilisent le token distinct `--arc-card-border`.

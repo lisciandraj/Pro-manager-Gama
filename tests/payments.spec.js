@@ -3,6 +3,7 @@ const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const bridge=`
 (()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();const prev=c.rpc;return {...c,rpc:async(fn,args)=>{
+ if(fn==='gama_receipt_action'&&args.p_action==='context')return {data:{accounts:[{id:'bank-1',name:'Bank QA',currency:'USD'}],receipts:[],followups:[]}};
  if(fn!=='gama_payment_action')return prev(fn,args);
  __paymentCalls.push(args);if(window.__payError)return {error:{message:'NETWORK'}};
  const r=__receivable;
@@ -17,7 +18,7 @@ async function boot(page,role='admin'){
 }
 test('payment module shows invoice content, records partial payment and retains cancelled payment',async({page})=>{
  await boot(page);await page.locator('#mainmenu [data-gama-module="payments"]').click();await expect(page.locator('#gpMain')).toContainText('FAC-123');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','due_soon');
- await page.locator('[data-gp-detail]').click();await expect(page.locator('#gpMain')).toContainText('Producto A');await expect(page.locator('#gpMain')).toContainText('2026-08-20');await page.locator('#gpPay').click();await page.locator('#gpAmount').fill('40');await page.locator('#gpReference').fill('BANK-123');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('BANK-123');expect(await page.evaluate(()=>__paymentCalls.find(c=>c.p_action==='payment').p_data.amount)).toBe(40);
+ await page.locator('[data-gp-detail]').click();await expect(page.locator('#gpMain')).toContainText('Producto A');await expect(page.locator('#gpMain')).toContainText('2026-08-20');await page.locator('#gpPay').click();await page.locator('#gpAmount').fill('40');await page.locator('#gpReference').fill('BANK-123');await page.locator('#gpAccount').selectOption('bank-1');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('BANK-123');expect(await page.evaluate(()=>__paymentCalls.find(c=>c.p_action==='payment').p_data.amount)).toBe(40);
  await page.locator('[data-gp-cancel]').click();await page.locator('#gpReason').fill('Transferencia devuelta');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('Transferencia devuelta');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','overdue');
 });
 test('both reminder templates use the current customer, dates and balance and never claim to have sent',async({page})=>{

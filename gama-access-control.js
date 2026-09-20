@@ -6,30 +6,25 @@
 'use strict';
 (function loadGamaCloud(){
   if(window.GamaCloud || window.__gamaCloudLoading){
-    if(window.GamaCloud && !window.__gamaCentralSyncLoading){var cs=document.createElement('script');cs.src='gama-central-sync.js?v=20260914-productedit1';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;}
+    if(window.GamaCloud && !window.__gamaCentralSyncLoading){var cs=document.createElement('script');cs.src=(window.ArcAssets?.['gama-central-sync.js']||'gama-central-sync.js');cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;}
     return;
   }
   window.__gamaCloudLoading=true;
-  var s=document.createElement('script');s.src='gama-supabase.js?v=20260913-refs1';s.async=true;
-  s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));var cs=document.createElement('script');cs.src='gama-central-sync.js?v=20260914-productedit1';cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;};
+  var s=document.createElement('script');s.src=(window.ArcAssets?.['gama-supabase.js']||'gama-supabase.js');s.async=true;
+  s.onload=function(){window.dispatchEvent(new CustomEvent('gama:cloud-script-loaded'));var cs=document.createElement('script');cs.src=(window.ArcAssets?.['gama-central-sync.js']||'gama-central-sync.js');cs.async=true;document.head.appendChild(cs);window.__gamaCentralSyncLoading=true;};
   s.onerror=function(){console.warn('[GAMA] Supabase central layer could not be loaded.');offline();};document.head.appendChild(s);
 })();
 const SKEY='gama_session_v1';
 const $=id=>document.getElementById(id);
-const ROLES={
- admin:{label:'Administrador',perms:'*'},
- commercial:{label:'Comercial',perms:['accounting','projects','knowledge','payments','dossier-flow','settings','operations','notifications','gamaPurchasesV14','dashboard','products','clients','billing','reports','suppliers','matrix','customer-requests','price-lists','hr','crm','warehouses','sales-orders','quotes','returns']},
- magasinier:{label:'Almacenero',perms:['projects','knowledge','dossier-flow','settings','operations','notifications','gamaPurchasesV14','dashboard','products','movement','stock','warehouses','barcode','tms','order-preparation','hr','sales-orders','returns']},
- client:{label:'Cliente',perms:['settings','client-catalog','quotes','client-deliveries']}
-};
+const ROLES=window.ArcModules.roles;
 const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);
 /* La sesión la escribe gama-cloud-auth.js tras validar contra Supabase.
    Aquí sólo se lee: no hay ninguna vía de acceso local. */
 function session(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){return null}}
-function esc(v){return String(v??'').replace(/[&<>\\\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[c]))}
+function esc(v){return window.ArcUI.esc(v)}
 function moduleOn(id){return !window.GamaModules||window.GamaModules.enabled(id)}
-function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;const r=ROLES[s.role];return !!r&&(r.perms==='*'||r.perms.includes(id))}
-function injectCss(){if($('gamaACLStyle'))return;const s=document.createElement('style');s.id='gamaACLStyle';s.textContent=`.aclUser{position:fixed;right:14px;top:0;z-index:1001;background:#fff;border:1px solid var(--arc-surface-3);border-radius:999px;padding:6px 10px;font-size:11px;box-shadow:0 3px 12px rgba(18,37,60,.07);display:flex;align-items:center;gap:5px}.aclUser button{padding:5px 8px;margin-left:5px;background:var(--arc-surface-3);color:var(--arc-text);cursor:pointer;pointer-events:auto}.aclRole{font-weight:800;color:var(--arc-accent-600)}.aclHidden{display:none!important}#mainmenu .gamaF2Card.aclHidden{display:none!important}#gamaAclOffline{position:fixed;inset:0;background:var(--arc-surface-2);z-index:99998;display:grid;place-items:center;padding:20px;text-align:center}#gamaAclOffline .box{width:min(430px,100%);background:#fff;border:1px solid var(--arc-surface-3);border-radius:20px;padding:26px;box-shadow:0 12px 40px rgba(18,37,60,.09)}#gamaAclOffline h1{margin:0 0 6px;font-size:21px;color:var(--arc-text)}#gamaAclOffline p{color:var(--arc-text-muted);font-size:14px;margin:0 0 16px}#gamaAclOffline button{padding:12px 18px;border:0;border-radius:9px;background:var(--arc-accent-600);color:#fff;font-weight:800;cursor:pointer}@media(max-width:700px){.aclUser{position:fixed;top:var(--gama-header-user-top,8px);right:8px;max-width:calc(100vw - 16px)}}`;document.head.appendChild(s)}
+function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.accessProfile||s.role,id)}
+function injectCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Con la autenticación centralizada ya no hay acceso local de reserva: si la
    nube no responde, hay que decirlo claramente en vez de dejar la pantalla en
    blanco esperando un formulario que nunca llegará. */
@@ -37,7 +32,7 @@ function offline(){
  injectCss();
  if($('gamaAclOffline')||session())return;
  const d=document.createElement('div');d.id='gamaAclOffline';
- d.innerHTML='<div class="box"><h1 data-gi=49e9fb7cdec7>Sin conexión con Architect Cloud</h1><p data-gi=9f87e11e38b9>Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button type="button" data-gi=a9254c5f8128>Reintentar</button></div>';
+ window.ArcUI.render(d,'<div class="box"><h1 data-gi=49e9fb7cdec7>Sin conexión con Architect Cloud</h1><p data-gi=9f87e11e38b9>Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button class="arcButton" type="button" data-gi=a9254c5f8128>Reintentar</button></div>');
  d.querySelector('button').onclick=()=>location.reload();
  document.body.appendChild(d);
 }
@@ -49,8 +44,8 @@ async function logout(){
  document.querySelectorAll('[data-gama-session]').forEach(x=>x.remove());
  location.href=location.pathname+'?logout='+Date.now();
 }
-function userBar(){const s=session();if(!s)return;injectCss();let d=$('gamaACLUser');if(!d){d=document.createElement('div');d.id='gamaACLUser';d.className='aclUser';document.body.appendChild(d)}d.innerHTML=`👤 <b>${esc(s.name||s.username)}</b> · <span class="aclRole">${esc(ROLES[s.role]?.label||s.role)}</span><button type="button" id="aclLogout" data-gi=c6e6960395f4>Cerrar sesión</button>`;const b=$('aclLogout');b.onclick=e=>{e.preventDefault();e.stopPropagation();logout()};b.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();logout()},{passive:false})}
-const MENU_MAP={'Contabilidad':'accounting','Gestión de flota':'fleet','Devoluciones':'returns','Proyectos':'projects','Asistente IA':'assistant-ia','Knowledge · Base de conocimientos':'knowledge','Pagos de clientes':'payments','Preparación de pedidos':'order-preparation','Seguimiento de expedientes':'dossier-flow','Control comercial y logístico':'operations','Pedidos de venta':'sales-orders','Panel de control':'dashboard','Productos':'products','Clientes':'clients','Entradas / Salidas':'movement','Presupuestos':'quotes','Presupuestos y facturas':'quotes','Mis entregas':'client-deliveries','Inventario':'stock','Almacenes y existencias':'warehouses','Auditoría':'audit','Proveedores':'suppliers','Compras':'gamaPurchasesV14','Importar datos':'reports','Informes':'reports','Matriz comercial':'matrix','CRM':'crm','Parámetros de acceso':'access-settings','Configuración':'settings','Recursos humanos':'hr','Copias de seguridad':'backup','Usuarios':'users','Notificaciones':'notifications','Códigos de barras':'barcode','Catálogo de productos':'client-catalog','Solicitudes de clientes':'customer-requests','Entregas / TMS':'tms','Tarifas':'price-lists'};
+function userBar(){const s=session();if(!s)return;injectCss();let d=$('gamaACLUser');if(!d){d=document.createElement('div');d.id='gamaACLUser';d.className='aclUser';document.body.appendChild(d)}window.ArcUI.render(d,`👤 <b>${esc(s.name||s.username)}</b> · <span class="aclRole">${esc(ROLES[s.role]?.label||s.role)}</span><button class="arcButton" type="button" id="aclLogout" data-gi=c6e6960395f4>Cerrar sesión</button>`);const b=$('aclLogout');b.onclick=e=>{e.preventDefault();e.stopPropagation();logout()};b.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();logout()},{passive:false})}
+const MENU_MAP=Object.fromEntries(window.ArcModules.registry.map(m=>[m.label,m.id]));
 function filterMenu(){const host=$('mainmenu');if(!host)return;host.querySelectorAll('.gamaF2Card').forEach(b=>{const t=b.querySelector('.gamaF2Title');if(!t)return;b.classList.toggle('aclHidden',!allowed(b.dataset.gamaModule||MENU_MAP[t.textContent.trim()]||''))})}
 function filterHeader(){document.querySelectorAll("[data-gama-staff-header]").forEach(b=>b.classList.toggle("aclHidden",session()?.role==="client"))}
 function filterTabs(){filterHeader();document.querySelectorAll('.tabs .tab').forEach(b=>{const id=b.dataset.gamaModule;if(id)b.classList.toggle('aclHidden',!NAV_IDS.has(id)&&!allowed(id))})}
@@ -64,13 +59,8 @@ function hook(){
   setTimeout(()=>{if(!session()&&!$('gamaCloudLogin'))offline()},8000);
   return;
  }
- userBar();filterMenu();filterTabs();
- const old=window.showTab;
- if(old&&!old.__gamaACL){
-  window.showTab=function(id,el){if(id!=='mainmenu'&&id!=='menu'&&!moduleOn(id)){alert('Este módulo está desactivado en Configuración.');return false}if(NAV_IDS.has(id))return old.apply(this,arguments);if(!allowed(id)){alert('Acceso denegado para este perfil.');return false}if(id==='customer-requests'){window.GamaQuotes?.openRequests();return false}return old.apply(this,arguments)};
-  window.showTab.__gamaACL=true;
- }
- new MutationObserver(()=>{filterMenu();filterTabs()}).observe(document.body,{subtree:true,childList:true});
+ userBar();filterMenu();filterTabs();window.ArchitectShell?.sync();
+ window.gamaApplyAccess=()=>{filterMenu();filterTabs()};
  window.addEventListener('gama:modules-change',()=>{filterMenu();filterTabs()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,80),{once:true});else setTimeout(hook,80);

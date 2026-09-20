@@ -1,4 +1,4 @@
-/* GAMA — Generador de PDF para presupuestos (usa jsPDF, cargado por CDN) */
+/* GAMA — Generador de PDF para presupuestos (usa jsPDF local) */
 (function(){
 'use strict';
 function esc(v){return String(v??'')}
@@ -8,12 +8,14 @@ function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 const logoReady=Promise.resolve();
 function build(q){
  if(!window.jspdf?.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
- const doc=new window.jspdf.jsPDF(),ink=[24,50,74],teal=[8,124,139];let y=0;
- function header(){y=window.GamaPdfTemplate.header(doc,{title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
+ const doc=new window.jspdf.jsPDF();let y=0;
+ const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:q.seller||base.legal_name,tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
+ const colors=window.GamaPdfTemplate.theme(issuer),ink=colors.ink,teal=colors.teal;
+ function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
- function tableHead(){room(15);doc.setFillColor(...teal);doc.rect(14,y-5,182,9,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
- header();paragraph(q.seller||'GAMA',12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9);
+ function tableHead(){room(15);doc.setFillColor(...colors.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...colors.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
+ header();if(!issuer){paragraph(q.seller||'GAMA',12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9)}
  paragraph('PREPARADO PARA',9);paragraph(q.client||'');paragraph([q.clientId,q.clientAddress,q.clientEmail].filter(Boolean).join(' · '),9);
  if(q.delivery_address)paragraph('Entrega: '+q.delivery_address+(q.delivery_terms?' · '+q.delivery_terms:''),9);
  tableHead();
@@ -23,12 +25,12 @@ function build(q){
    if(y+10>270){doc.addPage();header();tableHead()}
    const chunk=lines.splice(0,Math.max(1,Math.floor((266-y)/4)));
    doc.setFontSize(9);doc.text(chunk,16,y);
-   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text(GamaCurrency.symbol()+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text(GamaCurrency.symbol()+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
+   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text(GamaCurrency.symbol(q.currency)+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text(GamaCurrency.symbol(q.currency)+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
    y+=Math.max(9,chunk.length*4+4);
   }
   doc.setDrawColor(224,232,236);doc.setLineWidth(0.2);doc.line(14,y-4,196,y-4);
  });
- room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: $'+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: $'+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  $'+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
+ room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: '+GamaCurrency.symbol(q.currency)+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: '+GamaCurrency.symbol(q.currency)+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  '+GamaCurrency.symbol(q.currency)+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
  if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
  if(q.customer_comment)paragraph('Comentario del cliente: '+q.customer_comment,9);
@@ -76,12 +78,7 @@ async function copyToClipboard(text){try{await navigator.clipboard.writeText(tex
    generan sus URL de redacción, que sí aceptan destinatario, asunto y cuerpo. */
 const gmailUrl=(e,s,b)=>'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e||'')+'&su='+encodeURIComponent(s||'')+'&body='+encodeURIComponent(b||'');
 const outlookUrl=(e,s,b)=>'https://outlook.live.com/mail/0/deeplink/compose?to='+encodeURIComponent(e||'')+'&subject='+encodeURIComponent(s||'')+'&body='+encodeURIComponent(b||'');
-function dialogCss(){
- if(document.getElementById('gamaMailCss'))return;
- const s=document.createElement('style');s.id='gamaMailCss';
- s.textContent=`#gamaMailBack{position:fixed;inset:0;background:rgba(18,37,60,.53);z-index:100000;display:grid;place-items:center;padding:16px}#gamaMailBox{width:min(620px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(18,37,60,.25)}#gamaMailBox h3{margin:0 0 4px;color:var(--arc-text);font-size:20px}#gamaMailBox .gmSub{margin:0 0 14px;color:var(--arc-text-muted);font-size:13px}#gamaMailBox label{display:block;font-size:11px;font-weight:800;color:var(--arc-text-muted);margin:10px 0 4px}#gamaMailBox input,#gamaMailBox textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--arc-line-strong);border-radius:9px;font-size:13px;font-family:inherit}#gamaMailBox textarea{min-height:190px;resize:vertical}#gamaMailNote{background:var(--arc-warning-bg);border-left:4px solid var(--arc-warning);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:6px}#gamaMailBox .gmRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}#gamaMailBox button{border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer}#gamaMailBox .gmPrimary{background:var(--arc-accent-600);color:#fff}#gamaMailBox .gmLight{background:var(--arc-surface-3);color:var(--arc-text)}#gamaMailBox .gmClose{margin-left:auto}@media(max-width:600px){#gamaMailBox .gmRow{display:grid;grid-template-columns:1fr}#gamaMailBox .gmClose{margin-left:0}}`;
- document.head.appendChild(s);
-}
+function dialogCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Se redacta aquí, no en el sistema operativo: así el mensaje es el mismo
    tanto si usas Gmail en el navegador como Outlook instalado, y siempre se
    puede copiar aunque el equipo no tenga ninguna aplicación de correo. */
@@ -89,7 +86,7 @@ function composeDialog({email,subject,body,filename}){
  dialogCss();
  document.getElementById('gamaMailBack')?.remove();
  const back=document.createElement('div');back.id='gamaMailBack';
- back.innerHTML=`<div id="gamaMailBox" role="dialog" aria-modal="true" data-gi-aria-label=4a46598fb8f2 aria-label="Enviar por correo"><h3 data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
+ back.innerHTML=`<div id="gamaMailBox" role="dialog" aria-modal="true" data-gi-aria-label=4a46598fb8f2 aria-label="Enviar por correo"><h3 data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="arcButton gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="arcButton gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="arcButton gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="arcButton gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="arcButton gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
  document.body.appendChild(back);
  const val=id=>document.getElementById(id).value;
  const close=()=>back.remove();
@@ -116,7 +113,7 @@ async function sendDocument({blob,email,subject,body,filename}){
 }
 async function send({q,email,subject,body,filename}){
  let blob=null;
- try{await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
+ try{await window.GamaCompany?.load(true);await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
  return sendDocument({blob,email,subject,body,filename});
 }
 /* openMail, openTab e isMobile se llaman a través de api para poder

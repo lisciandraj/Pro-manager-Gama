@@ -96,7 +96,7 @@ test.describe('el armazón Architect', () => {
   test('la barra lateral se adapta: completa, en iconos y en cajón', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
-    await expect(page.locator('.arcBrandText')).toBeVisible();
+    await expect(page.locator('.arcLogo')).toBeVisible();
     await expect(page.locator('.arcNavLink .arcNavLabel').first()).toBeVisible();
     await expect(page.locator('.arcBurger')).toBeHidden();
 
@@ -104,7 +104,7 @@ test.describe('el armazón Architect', () => {
     await page.setViewportSize({ width: 1024, height: 800 });
     await page.waitForTimeout(250);
     await expect(page.locator('.arcNavLink .arcNavLabel').first()).toBeHidden();
-    await expect(page.locator('.arcBurger')).toBeHidden();
+    await expect(page.locator('.arcBurger')).toBeVisible();
 
     // Teléfono: cajón fuera de pantalla hasta que se pulsa el botón.
     await page.setViewportSize({ width: 390, height: 844 });
@@ -202,7 +202,8 @@ test.describe('el armazón Architect', () => {
   test('la marca y el buscador hablan de Architect ERP, y en los tres idiomas', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
-    await expect(page.locator('.arcBrandName')).toHaveText('ARCHITECT ERP');
+    await expect(page.locator('.arcLogo')).toHaveAttribute('alt','ARCHITECT ERP');
+    await expect(page.locator('.arcLogo')).toHaveAttribute('src','architect-menu-logo.png');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Architect ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Architect ERP/], ['en', /Search Architect ERP/]]) {

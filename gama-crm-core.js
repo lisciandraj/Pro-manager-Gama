@@ -23,7 +23,7 @@ if(window.GamaCRM)return;
 
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 
 /* ---- piezas compartidas ----
@@ -220,7 +220,7 @@ function registrar(id,label,abrir){if(!PANTALLAS.some(p=>p.id===id))PANTALLAS.pu
 function nav(){
  if(PANTALLAS.length<2)return '';
  return `<div class="crmNav">${PANTALLAS.map(p=>
-  `<button type="button" class="${p.id===actual?'on':''}" data-crm-ir="${esc(p.id)}" data-gi-live>${esc(p.label)}</button>`).join('')}</div>`;
+  `<button type="button" class="arcButton ${p.id===actual?'on':''}" data-crm-ir="${esc(p.id)}" data-gi-live>${esc(p.label)}</button>`).join('')}</div>`;
 }
 /* La cabecera común de GAMA más la navegación del módulo. Todas las pantallas
    del CRM empiezan por aquí, para que el título y el botón de volver estén
@@ -242,73 +242,13 @@ function ir(id){
  return Promise.resolve(p.abrir());
 }
 
-function css(){
- if($('crmCss'))return;
- const s=document.createElement('style');s.id='crmCss';
- s.textContent=`#crm .crmKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
-#crm .crmKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:14px}
-#crm .crmKpi span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
-#crm .crmKpi b{display:block;margin-top:6px;font-size:22px;color:var(--arc-text)}
-#crm .crmKpi small{display:block;margin-top:3px;color:var(--arc-text-subtle);font-size:11px}
-#crm .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
-#crm .crmNav{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
-#crm .crmNav button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto;min-height:40px}
-#crm .crmNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-#crm .crmEmbudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-#crm .crmCol{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:11px}
-#crm .crmCol b{display:block;font-size:12.5px;color:var(--arc-text)}
-#crm .crmCol i{display:block;font-style:normal;font-size:19px;font-weight:800;color:var(--arc-accent-600);margin-top:5px}
-#crm .crmCol small{display:block;color:var(--arc-text-muted);font-size:11px;margin-top:2px}
-#crm .crmCol.ganada{background:var(--arc-success-bg);border-color:var(--arc-success-line)}
-#crm .crmCol.perdida{background:var(--arc-danger-bg);border-color:var(--arc-danger-line)}
-#crm .crmMsg{margin:10px 0;font-size:13px}
-#crm .crmMsg.ok{color:var(--arc-success)}
-#crm .crmMsg.err{color:var(--arc-danger);font-weight:700}
-#crm .crmVacio{padding:20px;text-align:center;color:var(--arc-text-subtle)}
-/* De aquí abajo, lo que comparten TODAS las listas y fichas del CRM. Vive en
-   el núcleo y no en la primera pantalla que lo necesitó: si vive en una
-   pantalla, abrir otra primero la deja sin estilo. */
-#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:12px}
-#crm .crmBar input,#crm .crmBar select{min-height:42px}
-#crm .crmTablaWrap{width:100%;overflow-x:auto}
-/* min-width:min-content y no una anchura fija: con un ancho clavado las celdas
-   se salen por la derecha sin que el contenedor cuente ese sobrante como algo
-   que desplazar, y los botones quedan fuera de alcance. */
-#crm .crmTabla{width:100%;min-width:min-content;border-collapse:collapse}
-#crm .crmTabla th,#crm .crmTabla td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12.5px;vertical-align:top}
-#crm .crmTabla th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
-#crm .crmTabla td.r,#crm .crmTabla th.r{text-align:right}
-#crm .crmSub{display:block;color:var(--arc-text-subtle);font-size:11px}
-#crm .crmLink{color:var(--arc-accent-600);font-weight:700}
-#crm .crmTarde{color:var(--arc-danger);font-weight:800;font-size:11px}
-#crm .crmEstado,#crm .crmPri{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
-#crm .crmEstado{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-#crm .crmPri{background:var(--arc-surface-2);color:var(--arc-text-muted)}
-#crm .crmAcc{white-space:nowrap}
-#crm .crmAcc button{width:auto;margin:0 3px 3px 0;padding:7px 11px;font-size:12px;min-height:38px}
-#crm .crmForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
-#crm .crmForm label,#crm .crmNotas label{display:block;font-size:11px;font-weight:800;color:var(--arc-text-muted);margin-bottom:3px}
-#crm .crmNotas{margin-top:10px}
-#crm .crmNotas textarea{width:100%;padding:9px;border:1px solid var(--arc-line-strong);border-radius:9px;font:inherit;font-size:13px}
-#crm .crmAcciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-#crm .crmAcciones button{width:auto;min-height:44px}
-#crm .crmAviso{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:12px}
-#crm .crmAviso .crmAcciones{margin-top:9px}
-@media(max-width:900px){#crm .crmKpis{grid-template-columns:1fr 1fr}}
-/* En el teléfono la barra se apila y las tablas las convierte en fichas
-   gama-tables.js, como en el resto de la aplicación. */
-@media(max-width:760px){#crm .crmBar{grid-template-columns:minmax(0,1fr)}
- #crm .crmBar button{width:100%}
- #crm .crmTabla{--gamaCardsLabel:118px}
- #crm .crmAcc button{margin:0 4px 4px 0}}`;
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 function kpi(etiqueta,valor,pie){
  return `<div class="crmKpi"><span>${esc(etiqueta)}</span><b>${esc(valor)}</b>${pie?`<small>${esc(pie)}</small>`:''}</div>`;
 }
 function pintar(r,cols){
  const s=section();
- s.innerHTML=`${cabecera()}
+ window.ArcUI.render(s,`${cabecera()}
  <div id="crmMsg" class="crmMsg"></div>
  <div class="crmKpis">
   ${kpi('Embudo abierto',money(r.potencial),r.oportunidades+' oportunidad(es)')}
@@ -322,7 +262,7 @@ function pintar(r,cols){
   ${kpi('Tareas abiertas',r.tareas,r.vencidas?r.vencidas+' vencida(s)':'ninguna vencida')}
   ${kpi('Oportunidad media',money(r.medio),'sobre las abiertas')}
  </div>
- <div class="card">
+ <div class="arcPanel card">
   <h3 data-gi=33bcdbcca6bc>Embudo comercial</h3>
   ${cols.length?`<div class="crmEmbudo">${cols.map(c=>`
    <div class="crmCol${c.etapa.is_won?' ganada':c.etapa.is_lost?' perdida':''}">
@@ -333,7 +273,7 @@ function pintar(r,cols){
   :'<div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div>'}
   ${r.oportunidades===0&&r.ganadas===0&&r.perdidas===0
    ? '<div class="crmVacio" data-gi=4b416698f585>Ninguna oportunidad todavía. En cuanto se cree la primera, el embudo se llena solo.</div>':''}
- </div>`;
+ </div>`);
  bind(s);
 }
 function fallo(e){
@@ -341,7 +281,7 @@ function fallo(e){
  const texto='No se pudieron cargar los datos del CRM: '+((e&&(e.message||e.details))||e);
  console.warn('[GAMA CRM]',e);
  if(m){m.className='crmMsg err';m.textContent=texto}
- else section().innerHTML=`${cabecera()}<div class="crmMsg err">${esc(texto)}</div>`;
+ else window.ArcUI.render(section(),`${cabecera()}<div class="crmMsg err">${esc(texto)}</div>`);
  bind(section());
 }
 
@@ -350,7 +290,7 @@ async function panel(){
  css();
  const s=section();
  if(cargando)return;cargando=true;
- s.innerHTML=`${cabecera()}<div class="card"><div class="crmVacio" data-gi=86bffaa6fba4>Cargando el CRM…</div></div>`;
+ window.ArcUI.render(s,`${cabecera()}<div class="arcPanel card"><div class="crmVacio" data-gi=86bffaa6fba4>Cargando el CRM…</div></div>`);
  bind(s);
  try{
   const [r,cols]=await Promise.all([resumen(),embudo()]);
@@ -365,7 +305,7 @@ registrar('panel','Cuadro de mando',panel);
    módulo de GAMA al abrirse; vive aquí para que las pantallas del CRM no lo
    repitan. */
 function mostrar(){
- document.querySelectorAll('section').forEach(x=>{const on=x.id==='crm';x.classList.toggle('active',on);x.hidden=!on;x.style.display=on?'block':'none'});
+ window.ArcRouter.show('crm');
  $('mainmenu')?.setAttribute('hidden','');
 }
 async function open(){
@@ -373,8 +313,8 @@ async function open(){
  const s=section();
  mostrar();
  if(!puedeUsar()){
-  s.innerHTML=`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
-   <div class="card"><div class="crmVacio" data-gi=0db875f7987c>Tu perfil no tiene acceso al CRM.</div></div>`;
+  window.ArcUI.render(s,`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
+   <div class="arcPanel card"><div class="crmVacio" data-gi=0db875f7987c>Tu perfil no tiene acceso al CRM.</div></div>`);
   window.GamaUI.bindBack(s);return;
  }
  await ir(actual);

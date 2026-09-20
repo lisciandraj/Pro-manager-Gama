@@ -19,7 +19,19 @@ test('external reference updates the internal dossier, not another invoice',asyn
  await page.evaluate(()=>GamaInternalInvoices.link('fi1'));await page.fill('#giNumber','');await page.locator('dialog #gsSave').click();expect(await page.evaluate(()=>__internalCalls.filter(x=>x.p_action==='link_external').at(-1).p_data)).toEqual({invoice_id:'fi1',number:''});
 });
 test('clients cannot create internal invoices',async({page})=>{await boot(page,'client');await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('#giIssue')).toHaveCount(0);expect(await page.evaluate(()=>(window.__internalCalls||[]).filter(x=>x.p_action==='create').length)).toBe(0)});
-test('financial dashboard excludes unconverted quotes',async({page})=>{await boot(page);await page.evaluate(async()=>{await GamaInternalInvoices.financialData(true);showTab('dashboard');renderDashboard()});await page.selectOption('#dashYear','2026');await expect(page.locator('#dashInvoices')).toHaveText('1');await expect(page.locator('#dashSales')).toHaveText(await page.evaluate(()=>window.GamaCurrency.format(34.5)))});
+test('financial dashboard uses the server snapshot independently of the quote mirror',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  __DB.invoices.push({id:'unconverted',total:999999,quote_state:'sent'});window.GamaFinancialInvoices=[];
+  const original=GamaCloud.db;GamaCloud.db=async()=>{const c=await original();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_company_dashboard')return c.rpc(fn,args);
+   const uid=(await GamaCloud.getSession()).data.session.user.id;
+   return {data:{user_id:uid,currency:'USD',generated_at:new Date().toISOString(),today:'2026-09-19',period:{from:args.p_from,to:args.p_to,previous_from:'2026-08-01',previous_to:'2026-08-31'},unavailable:[],sections:{payments:{current:{net:30,total:34.5,collected:0,count:1},previous:{net:0,collected:0},receivable:34.5,overdue:0,overdue_count:0,trend:[],customers:[]}}}};
+  }}};showTab('dashboard');renderDashboard();
+ });
+ await expect(page.locator('[data-ad-metric=net] strong')).toHaveText(await page.evaluate(()=>GamaCurrency.format(30)));
+ await expect(page.locator('.adLegend')).toContainText(await page.evaluate(()=>GamaCurrency.format(34.5)));
+ await expect(page.locator('#ad-content')).not.toContainText('999');
+});
 test('internal PDF export uses the frozen invoice and internal document type',async({page})=>{
  await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',total:34.5,customer_comment:invoice.document_snapshot.details.customer_comment});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
 });

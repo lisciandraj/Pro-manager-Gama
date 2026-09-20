@@ -1,0 +1,17 @@
+{
+  "jspdf-2.5.2.umd.min.js": {
+    "source": "jspdf-2.5.2.tgz",
+    "sha256": "85ba2cc3ff858a20fa49fe6e457bec863ea40b55a9f3725e58a940e62f6f61a4",
+    "integrity": "sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/"
+  },
+  "xlsx-0.18.5.full.min.js": {
+    "source": "xlsx-0.18.5.tgz",
+    "sha256": "c9506197caf809a075b6dee1da0d36fb19da7158ffe8a88e7b0c96c5d8623c99",
+    "integrity": "sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
+  },
+  "supabase-2.115.0.js": {
+    "source": "supabase-supabase-js-2.115.0.tgz",
+    "sha256": "f387e5935730a6d9599a281986a176eafce5ebbe7514446222d21aa029e31dd5",
+    "integrity": "sha384-CLZeq1dk8+Uzrs7TVvBUdlFoV5F0DMqgRoeHa8g5wJcuPe5SkVfEvdxB0ZuzlnBQ"
+  }
+}

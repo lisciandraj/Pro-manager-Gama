@@ -32,7 +32,7 @@ test('separates stages, switches screens and links directly to the order',async(
 });
 test('saves handling and notes, then exposes refresh failures',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaOperations.open('notifications'));
- await page.getByRole('button',{name:'Tomar a mi cargo'}).click();await page.locator('#goNote').fill('Consultar proveedor');await page.locator('dialog #gsSave').click();
+ await page.getByRole('button',{name:'Tomar a mi cargo'}).click();await page.locator('dialog [name=note]').fill('Consultar proveedor');await page.locator('dialog [name=next_action]').fill('Confirmar la entrega');await page.locator('dialog [name=due_at]').fill('2026-09-25T12:00');await page.locator('dialog button[type=submit]').click();
  await expect(page.locator('#goAlerts')).toContainText('En tratamiento');await expect(page.locator('#goAlerts')).toContainText('Consultar proveedor');
  const calls=await page.evaluate(()=>window.__opsCalls.filter(c=>c.p_action==='handle'));expect(calls).toHaveLength(1);expect(calls[0].p_data.fingerprint).toBe('finger1');
  await page.evaluate(()=>window.__opsError=true);await page.locator('#goRefresh').click();await expect(page.locator('#goMain [role="alert"]')).toContainText('No se pudo');

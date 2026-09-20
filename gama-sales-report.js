@@ -7,7 +7,7 @@ if(window.GamaSalesReport)return;
 
 const $=id=>document.getElementById(id);
 const C=()=>window.GamaCloud;
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=window.ArcUI.esc;
 const money=n=>window.GamaCurrency.format(n);
 const sessionRole=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role||''}catch(e){return ''}};
 const canView=()=>['admin','commercial'].includes(sessionRole());
@@ -16,16 +16,7 @@ const canView=()=>['admin','commercial'].includes(sessionRole());
    pisen y deje en pantalla el resultado del más lento. */
 let peticion=0;
 
-function style(){
- if($('srCss'))return;
- const s=document.createElement('style');s.id='srCss';
- s.textContent=`.srRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}
-.srRow:last-child{border-bottom:0}
-.srRank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:var(--arc-surface-3);color:var(--arc-accent-600);font-weight:800;font-size:11px;margin-right:8px}
-.srEmpty{text-align:center;padding:20px;color:var(--arc-text-muted);font-size:12px}
-.srNote{margin-top:10px;font-size:11px;color:var(--arc-text-subtle)}`;
- document.head.appendChild(s);
-}
+function style(){ /* Styles are compiled in architect-components.css. */ }
 
 /* El periodo del panel (año + mes) traducido a un intervalo de fechas. */
 function rango(year,month){
@@ -39,15 +30,15 @@ function rango(year,month){
 
 function lista(hostId,filas,sub){
  const host=$(hostId);if(!host)return;
- host.innerHTML=filas.length
+ window.ArcUI.render(host,filas.length
   ? filas.map((r,i)=>`<div class="srRow"><span><span class="srRank">${i+1}</span><b>${esc(r.name)}</b></span><span>${sub(r)}</span></div>`).join('')
-  : '<div class="srEmpty" data-gi=a849b2c8aab1>Sin ventas en este periodo.</div>';
+  : '<div class="srEmpty" data-gi=a849b2c8aab1>Sin ventas en este periodo.</div>');
 }
 function cargando(){
- ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)h.innerHTML='<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>'});
+ ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)window.ArcUI.render(h,'<div class="srEmpty"><span class="gamaSpin"></span>Cargando…</div>')});
 }
 function error(txt){
- ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)h.innerHTML='<div class="srEmpty">'+esc(txt)+'</div>'});
+ ['srByQty','srByRevenue'].forEach(id=>{const h=$(id);if(h)window.ArcUI.render(h,'<div class="srEmpty">'+esc(txt)+'</div>')});
  const m=$('dashMargin');if(m)m.textContent='—';
 }
 

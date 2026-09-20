@@ -110,6 +110,7 @@ button[aria-busy=true]::after{
 
 /* =========================================================== formularios */
 label{font-size:var(--arc-fs-sec);font-weight:var(--arc-fw-med);color:var(--arc-text);display:block;margin-bottom:var(--arc-s1)}
+/* Native date/select controls must fit their allocated flex or grid column. */
 input,select,textarea{
  font-family:inherit;font-size:var(--arc-fs-body);color:var(--arc-text);
  background:var(--arc-surface);
@@ -117,7 +118,7 @@ input,select,textarea{
  border-radius:var(--arc-r-md);
  padding:10px var(--arc-s3);
  min-height:var(--arc-tap);
- width:100%;
+ width:100%;min-width:0;max-width:100%;box-sizing:border-box;
  transition:border-color var(--arc-motion),box-shadow var(--arc-motion);
 }
 textarea{min-height:88px;line-height:var(--arc-lh-body);padding-top:var(--arc-s2)}
@@ -253,3 +254,157 @@ dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
 #salesGrad stop{stop-color:var(--arc-viz-1)}
 #chartLine{stroke:var(--arc-viz-1)}
 #chartGrid line{stroke:var(--arc-line)}
+
+/* Shared reference treatment, including lazy-loaded modules. */
+button.primary,.btn-primary{background:var(--color-primary);border-color:transparent;color:white;box-shadow:var(--shadow-sm)}
+button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){background:var(--color-primary-dark);border-color:transparent}
+button.warning,.btn-warning{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:var(--arc-warning-line)}
+button.warning:hover:not(:disabled),.btn-warning:hover:not(:disabled){background:var(--arc-warning);color:white}
+button.ghost,.btn-ghost{background:transparent;color:var(--arc-text-muted);border-color:transparent;box-shadow:none}
+button.ghost:hover:not(:disabled),.btn-ghost:hover:not(:disabled){background:var(--arc-surface-3);color:var(--arc-text)}
+button:active:not(:disabled){transform:translateY(1px);filter:brightness(.96)}
+button[aria-busy=true]::after{color:var(--arc-text-muted)}
+button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
+.arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel){border-radius:var(--radius-lg);border-color:var(--color-border);box-shadow:var(--shadow-sm);background:var(--color-surface);color:var(--color-text)}
+.arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel) :is(input,select,textarea){border-radius:var(--radius-sm)}
+.arcContent table{background:var(--color-surface);font-size:13px}
+.arcContent table th{background:var(--arc-surface-3);color:var(--arc-text-muted);border-bottom:1px solid var(--arc-line-strong);text-align:left;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;padding:12px}
+.arcContent table td{border-bottom:1px solid var(--arc-line);padding:12px;color:var(--arc-text)}
+.arcContent table tr:nth-child(even)>td{background:var(--arc-surface-2)}
+.arcContent table tr:hover>td{background:var(--arc-accent-50)}
+.arcContent :is(.gsDialog,.gaDialog,.grDialog,.gpDialog,dialog){border-radius:var(--radius-lg);box-shadow:var(--arc-sh-3);background:white;color:var(--arc-text)}
+/* Login branding retains the source image intact. */
+#gamaCloudLogin .brand{display:flex;justify-content:center;margin-bottom:22px}
+#gamaCloudLogin .brand img.arcLoginLogo{width:176px;height:auto;aspect-ratio:1;object-fit:contain;border-radius:0}
+#gamaCloudLogin .box{border-radius:var(--arc-r-lg);border:1px solid var(--arc-line);box-shadow:var(--arc-sh-3)}
+#gamaCloudLogin button{background:var(--color-primary)}
+
+/* Screen-only depth, shared with the home tiles. Explicit component classes
+   cover lazy-loaded modules; the application/dialog roots give these rules
+   precedence over module CSS without overriding inline status accents.
+   Document print layouts retain their existing flat appearance. */
+@media screen{
+ body :is(.arcContent,dialog,#gamaCloudLogin,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(
+  .card,.dashCard,.dashPanel,.chartPanel,.gamaStdHeader,
+  .gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,
+  .pmCard,.pmPanel,.gkPanel,.goBox,.goKpi,.goAlert,.pmKpi,.ivKpi,.tmsKpi,.crmKpi,.hrKpi,
+  .crmTarjeta,.crmHito,.pmTask,.gfVeh,.cc,.ccProduct,.ccCart,.cr,.crDetail,.crLines,
+  .ai-panel,.ai-answer,.gamaPMForm,.gamaPMStat,.gp14Kpis>div,.gp14Draft,
+  .gdfRecord,.gdfStep,.gfPanel,.gfPackingRow,.gfScanBox,.gfNotice,
+  .hrDatos,.hrDato,.hrSaldo>div,.hrPlanDetalle,.cfgRow,.coModel,
+  .plList,.arcKpiChoice,.gkResult,.gkProperty,.gaAging>div,.gamaCards tr
+ ){
+  border-top:1px solid var(--arc-tile-border);
+  border-right:1px solid var(--arc-tile-border);
+  border-bottom:1px solid var(--arc-tile-border-bottom);
+  box-shadow:var(--arc-tile-shadow);
+ }
+ /* Accent rails still communicate completed, blocked and overdue items. */
+ body :is(.arcContent,dialog,#gamaCloudLogin,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(
+  .card,.dashCard,.dashPanel,.chartPanel,.gamaStdHeader,
+  .gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,
+  .pmCard,.pmPanel,.gkPanel,.goBox,.goKpi,.pmKpi,.ivKpi,.tmsKpi,.crmKpi,.hrKpi,
+  .crmTarjeta:not(:where(.tarde)),.crmHito,.pmTask,.gfVeh,.cc,.ccProduct,.ccCart,.cr,.crDetail,.crLines,
+  .ai-panel,.ai-answer,.gamaPMForm,.gamaPMStat,.gp14Kpis>div,.gp14Draft,
+  .gdfRecord,.gfPackingRow,.gfScanBox,.gfNotice,
+  .hrDatos,.hrDato,.hrSaldo>div,.hrPlanDetalle,.cfgRow,.coModel,
+  .plList,.arcKpiChoice,.gkResult,.gkProperty,.gaAging>div,.gamaCards tr
+ ){border-left:1px solid var(--arc-tile-border)}
+
+ /* Keep the full selected outline as well as the semantic left-hand rails. */
+ body :is(.arcContent,dialog,#gamaCloudAdmin) .gdfRecord[aria-pressed=true]{border:2px solid var(--arc-accent-600)}
+ body :is(.arcContent,dialog,#gamaCloudAdmin) .arcKpiChoice:has(input:checked){border-color:var(--arc-accent-600)}
+ body :is(.arcContent,dialog,#gamaCloudAdmin) .gkResult[aria-current=true]{border-color:var(--arc-accent-600)}
+ /* Screen previews have a frame; their branded top edge is preserved. */
+ body .arcContent :is(.coPaper,.invoice-preview,.giaPaper,.giaView,.gqConfirm){
+  border-right:1px solid var(--arc-tile-border);border-left:1px solid var(--arc-tile-border);
+  border-bottom:1px solid var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow);
+ }
+
+ /* Neutral actions get a smaller shadow than cards. Text links, status
+    buttons, icon navigation and selected tabs retain their own treatment. */
+ body :is(.arcContent,dialog,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(
+  button.secondary,.btn-secondary,button.ghost,.btn-ghost,button.tmsLight,button.close,
+  .gamaStdBack,.gamaStdAction,.tmsLight,.tmsTab,.gamaPagerBtn,.ai-muted-button,
+  .crmNav button,.hrTabs button,.hrPlanVistas button,.ivTabs button,
+  .gaNav button,.gfNav button,.grNav button,.gfTabs button,.gamaArcTabs button,
+  .gamaExcelTypes button,.gamaExcelModes button,.ai-prompts button,.ai-history button
+ ):not(.primary,.danger,.success,.warning,.active,.on,.sel,[aria-pressed=true],[aria-selected=true],[aria-current=true],[aria-current=page]){
+  border:1px solid var(--arc-line-strong);
+  box-shadow:var(--arc-control-shadow);
+ }
+ body :is(.arcContent,dialog,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(button.ghost,.btn-ghost){background:var(--arc-surface-2)}
+ body :is(.arcContent,dialog,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(button,.btn):disabled{box-shadow:none}
+
+ /* Form boundaries stay visible inside white panels, with a recessed edge. */
+ body :is(.arcContent,dialog,#gamaCloudLogin,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(
+  input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=button],[type=submit]),select,textarea
+ ){
+  border-color:var(--arc-line-strong);
+  box-shadow:var(--arc-field-shadow);
+ }
+ body :is(.arcContent,dialog,#gamaCloudLogin,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(input,select,textarea):focus-visible{
+  border-color:var(--arc-accent-600);box-shadow:var(--arc-focus);
+ }
+ body :is(.arcContent,dialog,#gamaCloudLogin,#gamaCloudAdmin,.crModalBox,.gamaExcelBody) :is(input,select,textarea)[aria-invalid=true]{border-color:var(--arc-danger)}
+
+ /* Tables use clear row separators, and raised outer containers. */
+ body .arcContent :is(.pmTableWrap,.gsScroll,.gfScroll,.grScroll,.arcTableWrap){
+  border:1px solid var(--arc-tile-border);border-radius:var(--arc-r-md);box-shadow:var(--arc-control-shadow);
+ }
+ body .arcContent table th{border-bottom-color:var(--arc-line-strong)}
+ body .arcContent table td{border-bottom-color:var(--arc-line)}
+ body .arcContent #crm .crmTablero .crmCol:not(.crmDestino){border-color:var(--arc-line-strong)}
+ body :is(dialog,.crModalBox,.gamaFindMenu,.gamaSpotlight,#gamaCloudAdmin .box,#gamaCloudLogin .box){
+  border:1px solid var(--arc-line-strong);box-shadow:var(--arc-sh-3);
+ }
+ /* Leave room for shadows inside scrollable record and kanban lists. */
+ .arcContent .gdfList{padding:3px 7px 8px 3px}
+ .arcContent .gdfRecord{width:100%;box-sizing:border-box}
+ @media(hover:hover){
+  body .arcContent :is(.gdfRecord:not([aria-pressed=true]),.pmCard,.pmTask,.crmTarjeta,.ccProduct,.gkResult):hover{
+   border-top-color:var(--arc-tile-border-hover);border-right-color:var(--arc-tile-border-hover);
+   border-bottom-color:var(--arc-tile-border-hover);box-shadow:var(--arc-tile-shadow-hover);
+  }
+ }
+}
+
+/* Shared table presentation: identical record cards, or a real column grid. */
+.gamaTableViewport{max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain}
+.gamaTableViewport:has(>[data-gama-view=cards]){overflow:visible}
+.gamaTableViews{display:flex;justify-content:flex-end;gap:6px;padding:8px;flex-wrap:wrap}
+.gamaTableViews button{min-height:44px;padding:8px 14px}
+.gamaTableViews button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
+@media screen{
+ body #suppliers .gamaPMGrid:has(table[data-gama-view=cards]){grid-template-columns:minmax(0,1fr)}
+ body table.gamaCards[data-gama-view=cards]{display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;white-space:normal!important;border:0!important}
+ body table.gamaCards[data-gama-view=cards]>thead,body table.gamaCards[data-gama-view=cards] [data-gama-head]{display:none!important}
+ body table.gamaCards[data-gama-view=cards]>tbody{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;padding:4px;align-items:start}
+ body table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){display:block!important;width:auto!important;min-width:0!important;margin:0!important;padding:14px!important;border:1px solid var(--arc-tile-border)!important;border-radius:12px;box-shadow:var(--arc-control-shadow);background:var(--arc-surface)!important}
+ body table.gamaCards[data-gama-view=cards] tr>td{position:relative;display:block!important;width:auto!important;min-width:0!important;min-height:38px;max-width:none!important;padding:7px 0 7px var(--gamaCardsLabel,118px)!important;border:0!important;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere;background:var(--arc-surface)!important}
+ body table.gamaCards[data-gama-view=cards] td::before{position:absolute;left:0;top:9px;width:calc(var(--gamaCardsLabel,118px) - 10px);content:attr(data-col);font-size:11px;font-weight:700;color:var(--arc-text-muted);line-height:1.3}
+ body table.gamaCards[data-gama-view=cards] td:is([data-gama-title],[data-col=""],[colspan]){padding-left:0!important}
+ body table.gamaCards[data-gama-view=cards] td:is([data-gama-title],[data-col=""],[colspan])::before{content:none!important}
+ body table.gamaCards[data-gama-view=cards] td[data-gama-title]{font-weight:700;border-bottom:1px solid var(--arc-line)!important;padding-bottom:10px!important;margin-bottom:5px}
+ body table.gamaCards[data-gama-view=cards] td:empty{display:none!important}
+ body table.gamaCards[data-gama-view=cards] td button{max-width:100%;white-space:normal;margin:3px}
+ body table.gamaCards[data-gama-view=cards] img{max-width:100%}
+ body table.gamaCards[data-gama-view=table]{display:table!important;width:100%!important;overflow:visible!important;border-collapse:collapse!important}
+ body table.gamaCards[data-gama-view=table]>thead{display:table-header-group!important}
+ body table.gamaCards[data-gama-view=table]>tbody{display:table-row-group!important}
+ body table.gamaCards[data-gama-view=table]>tfoot{display:table-footer-group!important}
+ body table.gamaCards[data-gama-view=table] tr,body table.gamaCards[data-gama-view=table] [data-gama-head]{display:table-row!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+ body table.gamaCards[data-gama-view=table] :is(th,td){display:table-cell!important;width:auto!important;padding:10px 12px!important;border-bottom:1px solid var(--arc-line)!important;vertical-align:middle!important;position:static!important}
+ body table.gamaCards[data-gama-view=table] td::before{display:none!important;content:none!important}
+ body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=table]){overflow-x:auto!important;overscroll-behavior-x:contain}
+ body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=cards]){overflow-x:visible!important}
+}
+@media print{.gamaTableViews{display:none!important}.gamaTableViewport{overflow:visible!important}}
+
+/* Keep real column widths on phones; the viewport, rather than text, shrinks. */
+@media screen and (max-width:1024px){
+ body .gamaTableViewport:has(>table[data-gama-view=table]){width:100%;max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ body table.gamaCards[data-gama-view=table]{width:max-content!important;min-width:100%!important;max-width:none!important;table-layout:auto!important}
+ body table.gamaCards[data-gama-view=table] :is(th,td){white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}
+ body table.gamaCards[data-gama-view=table] :is(button,a,.arcButton){width:auto!important;min-width:max-content!important;max-width:none!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;flex-shrink:0}
+}

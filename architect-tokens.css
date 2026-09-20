@@ -1,3 +1,4 @@
+@font-face{font-family:Inter;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
 /* ARCHITECT ERP — Design tokens.
 
    Una sola fuente para el color, el espacio, el radio, la sombra y la
@@ -12,34 +13,34 @@
    color por sí mismo no informa a quien no lo distingue. */
 :root{
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#0B1B30;   /* fondo de la barra lateral */
- --arc-navy-800:#0F2440;   /* marca, cabeceras oscuras */
- --arc-navy-700:#16324F;
- --arc-navy-600:#1E4268;
+ --arc-navy-900:#122E46;   /* fondo muestreado de la barra lateral */
+ --arc-navy-800:#102A40;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#193E59;
+ --arc-navy-600:#245073;
  --arc-steel-600:#3C5C84;  /* azul acero: elementos secundarios */
  --arc-steel-500:#4A6C96;
  --arc-steel-400:#6E8CB0;
  --arc-steel-300:#9CB3CC;
 
  /* ------------------------------------------------------------- acciones */
- --arc-accent-700:#0B5FA5;
- --arc-accent-600:#0C67B3;  /* acción principal — 4.9:1 sobre el lienzo */
- --arc-accent-500:#1183DB;
- --arc-accent-400:#3AA0EE;
- --arc-accent-100:#DCEDFB;
- --arc-accent-50:#EFF7FE;
+ --arc-accent-700:#116783;
+ --arc-accent-600:#147D9C;  /* acción principal — 4.9:1 sobre el lienzo */
+ --arc-accent-500:#1299BF;
+ --arc-accent-400:#56B5D4;
+ --arc-accent-100:#DEF2FA;
+ --arc-accent-50:#F0F8FC;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#E6EBF2;      /* lienzo: gris de verdad, para que la tarjeta blanca tenga borde */
+ --arc-canvas:#EDF1F5;      /* clear separation from white working surfaces */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F8FAFC;   /* superficie hundida: cabeceras de tabla, zonas */
+ --arc-surface-2:#F1F4F8;   /* superficie hundida: cabeceras de tabla, zonas */
  --arc-surface-3:#EEF3F8;
- --arc-line:#C6D3E1;        /* borde estándar — 1.5:1 contra la tarjeta blanca */
- --arc-line-strong:#B9C8D8; /* borde cuando hace falta más contraste */
+ --arc-line:#BBC6D2;        /* visible shared separators */
+ --arc-line-strong:#8796A7; /* fields and stronger boundaries */
 
- --arc-text:#12253C;        /* texto principal — 13.9:1 sobre blanco */
- --arc-text-muted:#4B6076;  /* texto secundario — 6.5:1 sobre blanco, AA en todas las superficies */
- --arc-text-subtle:#586C85; /* pies de foto, ayudas — 5.4:1 sobre blanco, 4.5:1 sobre el lienzo */
+ --arc-text:#0B172A;        /* texto principal — 13.9:1 sobre blanco */
+ --arc-text-muted:#455F76;  /* texto secundario — 6.5:1 sobre blanco, AA en todas las superficies */
+ --arc-text-subtle:#526B81; /* pies de foto, ayudas — 5.4:1 sobre blanco, 4.5:1 sobre el lienzo */
  --arc-text-invert:#FFFFFF;
  --arc-text-on-navy:#C9D8E8;
 
@@ -47,20 +48,20 @@
  --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;
  --arc-warning:#9A5B00;   --arc-warning-bg:#FDF1DF;   --arc-warning-line:#F0CE94;
  --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
- --arc-info:#0B5FA5;      --arc-info-bg:#E4F0FB;      --arc-info-line:#B4D6F3;
+ --arc-info:#116783;      --arc-info-bg:#E4F0FB;      --arc-info-line:#B4D6F3;
 
  /* Familias funcionales de los módulos: el mismo lenguaje, distinto acento. */
- --arc-fam-analytics:#0C67B3;  --arc-fam-analytics-bg:#E4F0FB;
+ --arc-fam-analytics:#147D9C;  --arc-fam-analytics-bg:#E4F0FB;
  --arc-fam-sales:#7A3DB8;      --arc-fam-sales-bg:#F0E8FB;
  --arc-fam-logistics:#0D7446;  --arc-fam-logistics-bg:#E4F5EC;
  --arc-fam-purchase:#9A5B00;   --arc-fam-purchase-bg:#FDF1DF;
  --arc-fam-finance:#0F6E75;    --arc-fam-finance-bg:#E0F2F3;
- --arc-fam-people:#1E4268;     --arc-fam-people-bg:#E7EDF5;
+ --arc-fam-people:#245073;     --arc-fam-people-bg:#E7EDF5;
  --arc-fam-system:#546B84;     --arc-fam-system-bg:#EEF3F8;
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#0C67B3; --arc-viz-2:#0F6E75; --arc-viz-3:#9A5B00;
+ --arc-viz-1:#147D9C; --arc-viz-2:#0F6E75; --arc-viz-3:#9A5B00;
  --arc-viz-4:#7A3DB8; --arc-viz-5:#0D7446; --arc-viz-6:#B3261E;
 
  /* ------------------------------------------------------------- espacio */
@@ -68,7 +69,7 @@
  --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
 
  /* -------------------------------------------------------------- radios */
- --arc-r-sm:8px; --arc-r-md:10px; --arc-r-lg:14px; --arc-r-xl:18px; --arc-r-pill:999px;
+ --arc-r-sm:8px; --arc-r-md:10px; --arc-r-lg:12px; --arc-r-xl:16px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
  --arc-sh-1:0 1px 2px rgba(18,37,60,.06), 0 1px 3px rgba(18,37,60,.05);
@@ -78,21 +79,21 @@
 
  /* ---------------------------------------------------------- tipografía */
  --arc-font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
- --arc-fs-page:28px;   --arc-lh-page:1.2;    /* título de página */
+ --arc-fs-page:clamp(28px,3vw,40px);   --arc-lh-page:1.2;    /* título de página */
  --arc-fs-section:18px;--arc-lh-section:1.3; /* título de sección */
  --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
  --arc-fs-body:14px;   --arc-lh-body:1.55;
  --arc-fs-sec:13px;    --arc-lh-sec:1.5;     /* texto secundario */
  --arc-fs-cap:12px;    --arc-lh-cap:1.45;    /* pie, etiqueta */
- --arc-fw-reg:450; --arc-fw-med:600; --arc-fw-bold:700; --arc-fw-black:800;
+ --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:700; --arc-fw-black:800;
 
  /* ---------------------------------------------------------- estructura */
- --arc-sidebar-w:248px;
+ --arc-sidebar-w:clamp(192px,16.75vw,240px);
  --arc-sidebar-w-collapsed:72px;
- --arc-topbar-h:64px;
+ --arc-topbar-h:70px;
  --arc-tap:44px;            /* zona táctil mínima */
  --arc-focus:0 0 0 3px rgba(12,103,179,.45);
- --arc-content-max:1440px;
+ --arc-content-max:1600px;
 }
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
@@ -102,3 +103,29 @@
  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
 :root{--arc-motion:160ms}
+
+/* Public semantic aliases. Sampled from the supplied 1145 × 1374 reference. */
+:root{
+ --color-primary:var(--arc-navy-700);--color-primary-dark:var(--arc-navy-800);
+ --color-accent:var(--arc-accent-600);--color-background:var(--arc-canvas);
+ --color-surface:var(--arc-surface);--color-border:var(--arc-line);
+ --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
+ --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
+ --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
+ --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
+ /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
+ --arc-tile-border:#A8B3BF;--arc-tile-border-bottom:#8796A7;
+ --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(18,46,70,.14),0 5px 12px rgba(18,46,70,.12);
+ --arc-tile-border-hover:#697D91;
+ --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(18,46,70,.16),0 8px 18px rgba(18,46,70,.18);
+ --arc-control-shadow:0 1px 0 rgba(18,46,70,.15),0 2px 5px rgba(18,46,70,.10);
+ --arc-field-shadow:inset 0 1px 2px rgba(18,46,70,.07),0 1px 2px rgba(18,46,70,.07);
+ --arc-icon-cyan:#1396AA;--arc-icon-cyan-bg:#E3F6F7;
+ --arc-icon-blue:#0963DB;--arc-icon-blue-bg:#E4F1FF;
+ --arc-icon-green:#10A36E;--arc-icon-green-bg:#E0F9ED;
+ --arc-icon-orange:#EF8D19;--arc-icon-orange-bg:#FFF2E5;
+ --arc-icon-violet:#7132BA;--arc-icon-violet-bg:#F3EAFF;
+ --arc-icon-red:#E54C2C;--arc-icon-red-bg:#FEEDE9;
+ --arc-icon-pink:#A31878;--arc-icon-pink-bg:#FCEDF7;
+ --arc-icon-indigo:#3633CC;--arc-icon-indigo-bg:#EFEDFF;
+}

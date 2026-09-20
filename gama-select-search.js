@@ -37,7 +37,7 @@ function norm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/
 /* Cada palabra por separado y en cualquier orden: «a4 papel» encuentra
    «Papel A4 blanco», que es como la gente recuerda lo que busca. */
 function terms(q){return norm(q).split(/\s+/).filter(Boolean)}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(v){return window.ArcUI.esc(v)}
 /* El hueco vacío («Selecciona un cliente…») no cuenta como opción: no es algo
    que nadie busque, aunque sí se pueda volver a él para deshacer la elección. */
 function reales(sel){return [...sel.options].filter(o=>o.value!=='')}
@@ -208,38 +208,15 @@ function refresh(sel){
  if(vale&&st.box.classList.contains('abierto'))pintar(sel);
 }
 
-function scan(){document.querySelectorAll('select').forEach(sel=>{enhance(sel);refresh(sel)})}
+function scan(root=document){const controls=[...(root.querySelectorAll?.('select')||[]),...(root.tagName==='SELECT'?[root]:[])];controls.forEach(sel=>{enhance(sel);refresh(sel)})}
 
-function css(){
- if(document.getElementById('gamaFindCss'))return;
- const s=document.createElement('style');s.id='gamaFindCss';
- s.textContent=`.gamaFind{position:relative;margin:0 0 6px;flex:1 1 220px;min-width:0}
-.gamaFind[hidden]{display:none!important}
-.gamaFindBox{width:100%;padding:11px 12px;border:1px solid var(--arc-line);border-radius:9px;font-size:16px;background:#fff;color:inherit}
-.gamaFindBox:focus{outline:none;border-color:var(--arc-accent-600);box-shadow:var(--arc-focus)}
-.gamaFindHint{display:block;margin-top:4px;font-size:11px;color:var(--arc-text-subtle)}
-/* La lista flota sobre lo que venga después. z-index por encima del 20 que
-   gama-standard-ui le pone a los <select> y del 40 de la cabecera. */
-.gamaFindMenu{display:none;position:absolute;left:0;right:0;top:calc(100% - 14px);z-index:60;max-height:280px;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid var(--arc-line-strong);border-radius:11px;box-shadow:0 10px 30px rgba(18,37,60,.15)}
-.gamaFind.abierto .gamaFindMenu{display:block}
-.gamaFindOpt{padding:11px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--arc-surface-3);line-height:1.35}
-.gamaFindOpt:last-child{border-bottom:0}
-.gamaFindOpt.on{background:var(--arc-accent-100)}
-.gamaFindOpt b{color:var(--arc-accent-600);font-weight:800}
-.gamaFindNada{padding:14px 12px;font-size:13px;color:var(--arc-text-subtle)}
-/* Escondido pero presente: sin caja visible y sin quitarle el sitio, pero el
-   navegador lo sigue teniendo por un control de la página. */
-select.gamaFindOculto{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0;z-index:-1}`;
- (document.head||document.documentElement).appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function boot(){
  css();scan();
  /* Un toque fuera cierra la lista abierta. */
  document.addEventListener('mousedown',e=>{if(abierto&&!abierto.__gamaFind.box.contains(e.target))cerrar(abierto)},true);
- let timer=null;
- const observer=new MutationObserver(()=>{if(timer)return;timer=setTimeout(()=>{timer=null;scan()},150)});
- observer.observe(document.body,{childList:true,subtree:true});
+ window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 

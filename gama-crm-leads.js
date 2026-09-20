@@ -120,13 +120,13 @@ function lista(){
  const nArch=leads.filter(l=>l.active===false).length;
  const filas=visibles();
  const pagina=window.GamaPage?window.GamaPage.slice('crmLeads',filas):filas;
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<div class="crmBar">'
   +'<input id="crmLeadBusca" type="search" data-gi-placeholder=d57d8d9e854c placeholder="Buscar por nombre, correo, teléfono o ciudad…" value="'+esc(busca)+'" data-gi-aria-label=7daa3bc9f28f aria-label="Buscar prospectos">'
   +'<select id="crmLeadFiltro" data-gama-nofind data-gi-aria-label=74580843ea91 aria-label="Filtrar por estado"><option value="" data-gi=ecda92faab01>Todos los estados</option>'
   +Object.keys(ESTADOS).map(k=>'<option value="'+k+'"'+(filtro===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="primary" id="crmLeadNuevo" data-gi=0891a0aeae90>+ Nuevo prospecto</button>'
+  +'<button type="button" class="arcButton primary" id="crmLeadNuevo" data-gi=0891a0aeae90>+ Nuevo prospecto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmLeads',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch))
@@ -140,7 +140,7 @@ function vacio(total){
 }
 function tabla(rows){
  const th=(col,label,align)=>window.GamaSort?window.GamaSort.th('crmLeads',col,label,align):'<th>'+esc(label)+'</th>';
- return '<div class="crmTablaWrap"><table class="crmTabla"><thead><tr>'
+ return '<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
   +th('nombre','Prospecto')+th('estado','Estado')+th('prioridad','Prioridad')
   +th('puntos','Puntos','right')+th('responsable','Responsable')+th('ciudad','Ciudad')
   +th('seguimiento','Próximo paso')+'<th></th></tr></thead><tbody>'
@@ -161,11 +161,11 @@ function fila(l){
   +'<td>'+esc(l.city||'—')+'</td>'
   +'<td>'+(l.next_followup_at?esc(fecha(l.next_followup_at))+(vencido(l.next_followup_at)?' <span class="crmTarde" data-gi=0fac49727df0>vencido</span>':''):'—')+'</td>'
   +'<td class="crmAcc">'
-   +'<button type="button" data-abrir="'+esc(l.id)+'" data-gi=a01a5fce396e>Abrir</button>'
-   +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="primary" data-convertir="'+esc(l.id)+'" data-gi=f6be98ab4faa>Convertir</button>':'')
+   +'<button class="arcButton" type="button" data-abrir="'+esc(l.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="arcButton primary" data-convertir="'+esc(l.id)+'" data-gi=f6be98ab4faa>Convertir</button>':'')
    +(l.active!==false
-     ?'<button type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto">🗄️</button>'
-     :'<button type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto">↩︎</button>')
+     ?'<button class="arcButton" type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto">🗄️</button>'
+     :'<button class="arcButton" type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto">↩︎</button>')
   +'</td></tr>';
 }
 
@@ -174,7 +174,7 @@ function nuevo(){return {kind:'empresa',status:'nuevo',priority:'media',score:0,
 
 function ficha(){
  const l=abierto||{},esNuevo=!l.id,cli=clienteDe(l);
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>'+(esNuevo?'Nuevo prospecto':esc(nombre(l)))+'</h3>'
   +(cli?'<div class="crmAviso" data-gi=21c3f52c58af>Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
     +(l.converted_at?' el '+esc(fecha(l.converted_at)):'')
@@ -212,9 +212,9 @@ function ficha(){
   +'</div>'
   +'<div class="crmNotas"><label for="crmLNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmLNotes" rows="4">'+esc(l.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmLGuardar" data-gi=13e51a210f45>Guardar</button>'
-   +'<button type="button" id="crmLCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
-   +(!esNuevo&&l.status!=='convertido'&&l.active!==false?'<button type="button" id="crmLConvertir" data-gi=80cb06b598bb>Convertir en cliente</button>':'')
+   +'<button type="button" class="arcButton primary" id="crmLGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmLCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +(!esNuevo&&l.status!=='convertido'&&l.active!==false?'<button class="arcButton" type="button" id="crmLConvertir" data-gi=80cb06b598bb>Convertir en cliente</button>':'')
   +'</div></div>';
 }
 function leerFicha(){
@@ -274,14 +274,14 @@ function convertir(){
  /* Una vez que el usuario ha dicho que sí quiere otra ficha, el aviso sobra:
     dejarlo puesto haría dudar de si el botón sirvió de algo. */
  const dup=forzar?null:coincidencia(d.email,d.identification);
- return '<div class="card">'
+ return '<div class="arcPanel card">'
   +'<h3>Convertir «'+esc(nombre(l))+'» en cliente</h3>'
   +'<p class="muted">Se crea una ficha en 👥 Clientes con estos datos y el prospecto queda apuntando a ella. '
   +'A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</p>'
   +(dup?'<div class="crmAviso crmDup" data-gi=7c5a74355dd5>Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
     +(dup.identification?' ('+esc(dup.identification)+')':'')+'. Enlázalo en vez de abrir otra ficha de la misma empresa.'
-    +'<div class="crmAcciones"><button type="button" class="primary" data-enlazar="'+esc(dup.id)+'" data-gi=558052cf6335>Enlazar con este cliente</button>'
-    +'<button type="button" id="crmCForzar" data-gi=ee7e3dc7f20d>Crear otra ficha de todas formas</button></div></div>':'')
+    +'<div class="crmAcciones"><button type="button" class="arcButton primary" data-enlazar="'+esc(dup.id)+'" data-gi=558052cf6335>Enlazar con este cliente</button>'
+    +'<button class="arcButton" type="button" id="crmCForzar" data-gi=ee7e3dc7f20d>Crear otra ficha de todas formas</button></div></div>':'')
   +'<div class="crmForm">'
    +campo('crmCName','Nombre del cliente',d.name)
    +campo('crmCId','Identificación (RUC / cédula)',d.identification)
@@ -295,8 +295,8 @@ function convertir(){
   +'</div>'
   +'<div class="crmNotas"><label for="crmCNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmCNotes" rows="3">'+esc(d.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
-   +'<button type="button" class="primary" id="crmCOk" data-gi=dad1994d204f>Crear el cliente</button>'
-   +'<button type="button" id="crmCCancel" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +'<button type="button" class="arcButton primary" id="crmCOk" data-gi=dad1994d204f>Crear el cliente</button>'
+   +'<button class="arcButton" type="button" id="crmCCancel" data-gi=bb9dbb406dcb>Cancelar</button>'
   +'</div></div>';
 }
 async function convertirYa(existente){
@@ -381,9 +381,9 @@ async function archivar(id,activo){
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
  const s=CRM.section();
- s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
   +(vista==='ficha'?ficha()+(puntos&&CRM.puntuacion?CRM.puntuacion.panel(puntos):'')
-    :vista==='convertir'?convertir():lista());
+    :vista==='convertir'?convertir():lista()));
  CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
@@ -428,33 +428,20 @@ function conectar(){
  };
  const fz=$('crmCForzar');if(fz)fz.onclick=()=>{borrador=leerConversion();forzar=true;pintar('De acuerdo: se creará una ficha nueva con lo que has escrito.','ok')};
 }
-function css(){
- if($('crmLeadsCss'))return;
- const s=document.createElement('style');s.id='crmLeadsCss';
- /* La lista, la barra y el formulario los viste ya la hoja del núcleo, que la
-    comparten todas las pantallas. Aquí sólo van los colores propios de los
-    estados de un prospecto y el aviso de ficha repetida. */
- s.textContent='#crm .crmEstado.e-calificado{background:var(--arc-accent-100);color:var(--arc-accent-700)}'
- +'#crm .crmEstado.e-convertido{background:var(--arc-success-bg);color:var(--arc-success)}'
- +'#crm .crmEstado.e-perdido,#crm .crmEstado.e-no_calificado{background:var(--arc-danger-bg);color:var(--arc-danger)}'
- +'#crm .crmPri.p-alta{background:var(--arc-warning-bg);color:var(--arc-warning)}'
- +'#crm .crmPri.p-baja{background:var(--arc-surface-2);color:var(--arc-text-subtle)}'
- +'#crm .crmAviso.crmDup{background:var(--arc-warning-bg);border-color:var(--arc-warning-line);border-left-color:var(--arc-warning)}';
- document.head.appendChild(s);
-}
+function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
  const s=CRM.section();
  if(cargando)return;cargando=true;
- s.innerHTML=CRM.cabecera(LEAD)+'<div class="card"><div class="crmVacio" data-gi=55799a3fc6c5>Cargando prospectos…</div></div>';
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=55799a3fc6c5>Cargando prospectos…</div></div>');
  CRM.bind(s);
  try{
   await cargar();
   vista='lista';abierto=null;forzar=false;borrador=null;puntos=null;
   pintar();
  }catch(e){
-  s.innerHTML=CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>';
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
   CRM.bind(s);
   fallo(e,'No se pudieron cargar los prospectos');
  }finally{cargando=false}

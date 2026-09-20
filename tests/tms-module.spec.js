@@ -310,6 +310,7 @@ test.describe('TMS — proof-of-delivery photo capture', () => {
 
     // The whole point of the migration: the POD lands in the database, and
     // nothing is left behind in the browser.
+    await expect.poll(()=>page.evaluate(()=>window.__DB.tms_proofs.length)).toBe(1);
     const saved = await page.evaluate(() => window.__DB.tms_proofs.find(p => p.delivery_id === 'del1'));
     expect(saved.photo).toMatch(/^data:image\/(png|jpeg);base64,/);
     expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).toBeNull();

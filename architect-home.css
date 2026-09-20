@@ -1,0 +1,69 @@
+/* Compact, four-column home from the user's reference image. */
+#mainmenu{padding:0}
+#mainmenu .gamaF2Head{margin:0 0 24px}
+#mainmenu .gamaF2Head h1{margin:0;font-size:40px;line-height:1.12;letter-spacing:-.035em;color:var(--arc-text);font-weight:800}
+#mainmenu .gamaF2Head p{margin:4px 0 0;color:var(--arc-text-muted);font-size:16px;line-height:1.5}
+#mainmenu .gamaF2Kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 20px}
+#mainmenu .gamaF2Kpis[hidden]{display:none}
+#mainmenu .gamaF2Kpi{display:flex;align-items:flex-start;gap:12px;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);padding:14px 12px;box-shadow:var(--arc-card-shadow);min-height:108px}
+#mainmenu .gamaF2KpiIcon{width:50px;height:50px;flex:none;border-radius:12px;display:grid;place-items:center}
+#mainmenu .gamaF2KpiIcon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gamaF2KpiText{min-width:0;padding-top:4px}
+.gamaF2KpiLabel{display:block;font-size:12px;color:var(--arc-text-muted);line-height:1.4;font-weight:400}
+.gamaF2KpiValue{display:block;font-size:22px;font-weight:700;line-height:1.25;margin-top:6px;font-variant-numeric:tabular-nums;color:var(--arc-text);overflow-wrap:anywhere}
+.gamaF2KpiHint{display:block;font-size:11px;color:var(--arc-text-subtle);margin-top:5px}
+.arcSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#mainmenu .arcSectionHead h2{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.025em;font-weight:750}
+.arcCustomizeButton{padding:4px 0;min-height:40px;font-size:14px;font-weight:400}
+.arcCustomizeButton svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
+#mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:14px}
+#mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;min-width:0;min-height:142px;padding:13px 17px 16px;margin:0;text-align:left;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
+#mainmenu .gamaF2Card,#mainmenu .gamaF2Kpi{border-color:var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow)}
+@media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-tile-shadow-hover);transform:translateY(-2px)}}
+#mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px;box-shadow:var(--arc-tile-shadow-hover)}
+@media(prefers-reduced-motion:reduce){#mainmenu .gamaF2Card:hover{transform:none}}
+#mainmenu .gamaF2Icon,.arcDashboardCard .gamaF2Icon{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;flex:none}
+.gamaF2Icon svg{width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#mainmenu .gamaF2Body{min-width:0;width:100%;padding-right:8px}
+#mainmenu .gamaF2Title{display:block;font-size:14px;line-height:1.35;font-weight:700;color:var(--arc-text)}
+#mainmenu .gamaF2Desc{display:block;font-size:13px;line-height:1.4;color:var(--arc-text-muted);font-weight:400;margin-top:4px;padding-right:10px}
+#mainmenu .gamaF2Go{position:absolute;right:13px;bottom:15px;width:19px;height:19px;color:var(--arc-accent-600);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#mainmenu .gamaF2Card:is(.gamaF2NoMatch,.arcPreferenceHidden){display:none!important}
+#mainmenu .gamaF2Vacio[hidden]{display:none}
+#mainmenu [data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+#mainmenu [data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
+#mainmenu [data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
+#mainmenu [data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}
+#mainmenu [data-arc-fam=violet]{color:var(--arc-icon-violet);background:var(--arc-icon-violet-bg)}
+#mainmenu [data-arc-fam=red]{color:var(--arc-icon-red);background:var(--arc-icon-red-bg)}
+#mainmenu [data-arc-fam=pink]{color:var(--arc-icon-pink);background:var(--arc-icon-pink-bg)}
+#mainmenu [data-arc-fam=indigo]{color:var(--arc-icon-indigo);background:var(--arc-icon-indigo-bg)}
+#mainmenu [data-arc-fam=system]{color:var(--arc-text-muted);background:var(--arc-surface-3)}
+#arcRecentActivity{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(210px,1fr);gap:14px;margin-top:20px}
+#arcRecentActivity:empty{display:none}
+.arcRecentCard,.arcDashboardCard{min-width:0;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);padding:14px}
+#mainmenu .arcRecentCard .arcSectionHead h2{font-size:18px;letter-spacing:-.02em}
+.arcRecentCard .arcSectionHead{margin-bottom:6px}
+.arcRecentCard .ghost{color:var(--arc-accent-600);font-size:12px;padding:0 4px;min-height:30px}
+.arcRecentScroll{overflow-x:auto}
+.arcRecentCard table{width:100%;min-width:510px;font-size:12px;background:white}
+.arcContent .arcRecentCard table th{padding:9px 0;font-size:12px;font-weight:400;background:white}
+.arcContent .arcRecentCard table td{padding:10px 8px 10px 0;background:white;font-size:12px}
+.arcRecentCard td:first-child{white-space:nowrap}
+.arcActivityModule{color:var(--arc-accent-600)}
+.arcActivityEmpty{color:var(--arc-text-muted);font-size:13px;padding:12px 0}
+.arcDashboardCard{display:flex;flex-direction:column;align-items:flex-start;background:var(--arc-surface-2)}
+.arcDashboardCard .gamaF2Icon{align-self:center;border-radius:50%;margin:0 0 12px;width:66px;height:66px}
+.arcDashboardCard h3{font-size:16px;line-height:1.2;margin:0 0 6px}
+.arcDashboardCard p{font-size:13px;line-height:1.4;color:var(--arc-text-muted);margin:0 0 14px}
+.arcDashboardCard button{width:100%;margin-top:auto;font-size:13px;padding:10px}
+.arcCustomize{width:min(580px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid var(--arc-line);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--arc-sh-3);color:var(--arc-text)}
+.arcCustomize::backdrop{background:rgba(18,46,70,.5)}
+.arcCustomizeList{display:grid;grid-template-columns:1fr 1fr;gap:5px 20px;margin:20px 0}
+.arcCustomizeList label{display:flex;align-items:center;gap:10px;font-weight:400;min-height:44px;margin:0;font-size:13px}
+.arcCustomizeList input{flex:none}
+@media(min-width:1600px){#mainmenu .gamaF2Card{padding:17px 20px;min-height:148px}#mainmenu .gamaF2Title{font-size:15px}}
+@media(max-width:1099px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gamaF2KpiValue{font-size:21px}#mainmenu .gamaF2Kpi{gap:8px}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#arcRecentActivity{grid-template-columns:1fr}.arcDashboardCard{display:none}}
+@media(max-width:860px){#mainmenu .gamaF2Head h1{font-size:30px}#mainmenu .gamaF2Head p{font-size:14px}#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .gamaF2Kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .arcSectionHead h2{font-size:23px}#mainmenu .gamaF2Kpi{padding:12px;min-height:104px}#mainmenu .gamaF2Card{padding:14px;min-height:145px}.arcCustomizeButton{font-size:12px}}
+@media(max-width:430px){#mainmenu .gamaF2Head h1{font-size:28px}#mainmenu .gamaF2Kpi{gap:9px;padding:12px 10px;flex-direction:column}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#mainmenu .gamaF2KpiIcon svg{width:24px;height:24px}.gamaF2KpiText{padding:0}.gamaF2KpiLabel{min-height:34px}.gamaF2KpiValue{font-size:20px}#mainmenu .gamaF2Title{font-size:14px}#mainmenu .gamaF2Desc{font-size:12px}#mainmenu .gamaF2Card{padding:12px;gap:10px;min-height:150px}#mainmenu .gamaF2Icon{width:44px;height:44px}.gamaF2Icon svg{width:26px;height:26px}.arcCustomizeList{grid-template-columns:1fr}.arcCustomize{padding:18px}}
+.arcOrderHint{font-size:12px;color:var(--arc-text-muted);margin:-4px 0 14px;line-height:1.5}.arcOrderHint [role=status]{display:block;color:var(--arc-accent-600);min-height:18px}.arcOrderHint button{margin-left:8px}.arcDragHandle{position:absolute;right:12px;top:10px;font-size:25px;line-height:32px;width:36px;height:36px;color:var(--arc-text-muted);cursor:grab;touch-action:none;user-select:none;border-radius:6px}.arcDragHandle:hover{background:var(--arc-surface-2)}.gamaF2Card.arcDragging{opacity:.55;outline:2px dashed var(--arc-accent-600)}

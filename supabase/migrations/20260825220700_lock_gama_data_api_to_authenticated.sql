@@ -1,0 +1,1 @@
+revoke all on public.products from anon; revoke all on public.stock_movements from anon; grant select, insert, update, delete on public.products to authenticated; grant select, insert on public.stock_movements to authenticated;

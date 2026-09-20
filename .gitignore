@@ -4,3 +4,5 @@ playwright-report/
 playwright/.cache/
 
 supabase/.temp/
+.build/
+dist/

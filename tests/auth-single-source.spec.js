@@ -64,9 +64,6 @@ test.describe('Autenticación centralizada', () => {
     // the empty id and happened to be admin-only by accident. It is now mapped
     // to 'tms', which the warehouse role holds — matching the tms_* RLS
     // policies (administrador + almacenero may write).
-    const acl = fs.readFileSync(path.join(ROOT, 'gama-access-control.js'), 'utf8');
-    expect(acl).toContain("'Entregas / TMS':'tms'");
-    expect(acl).toMatch(/magasinier:\{label:'Almacenero',perms:\[[^\]]*'tms'/);
 
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'commercial', name: 'Comercial' }));
@@ -77,6 +74,7 @@ test.describe('Autenticación centralizada', () => {
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
     await page.waitForTimeout(1200);
+    expect(await page.evaluate(()=>({id:ArcModules.registry.find(m=>m.label==='Entregas / TMS').id,warehouse:ArcModules.roles.magasinier.perms.includes('tms')}))).toEqual({id:'tms',warehouse:true});
 
     // A commercial profile has no logistics rights: the tile stays hidden.
     await expect(page.locator('#mainmenu .gamaF2Card:has-text("Entregas / TMS")')).toBeHidden();

@@ -24,51 +24,14 @@ if(window.GamaModules)return;
    `locked` marca lo que no se puede apagar: Configuración es la pantalla desde
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
-const CATALOG=[
- {id:'accounting',label:'Contabilidad'},
- {id:'fleet',label:'Gestión de flota'},
- {id:'returns',label:'Devoluciones'},
- {id:'projects',label:'Proyectos'},
- {id:'assistant-ia',label:'Asistente IA'},
- {id:'knowledge', label:'Knowledge · Base de conocimientos'},
- {id:'operations', label:'Control comercial y logístico'},
- {id:'notifications', label:'Notificaciones y bloqueos'},
- {id:'payments', label:'Pagos de clientes'},
- {id:'dashboard',          label:'Panel de control y análisis'},
- {id:'products',           label:'Productos'},
- {id:'clients',            label:'Clientes'},
- {id:'movement',           label:'Entradas / Salidas'},
- {id:'billing',            label:'Formulario anterior de presupuestos'},
- {id:'quotes',             label:'Presupuestos y facturas'},
- {id:'client-deliveries',  label:'Mis entregas y pruebas'},
- {id:'stock',              label:'Inventario'},
- {id:'warehouses',         label:'Almacenes y existencias'},
- {id:'audit',              label:'Auditoría'},
- {id:'suppliers',          label:'Proveedores'},
- {id:'matrix',             label:'Matriz comercial'},
- {id:'gamaPurchasesV14',   label:'Compras'},
- {id:'price-lists',        label:'Tarifas'},
- {id:'dossier-flow',       label:'Seguimiento de expedientes'},
- {id:'sales-orders',       label:'Pedidos de venta'},
- {id:'crm',               label:'CRM'},
- {id:'reports',            label:'Importar datos'},
- {id:'backup',             label:'Copias de seguridad'},
- {id:'barcode',            label:'Códigos de barras'},
- {id:'client-catalog',     label:'Catálogo de productos'},
- {id:'order-preparation', label:'Preparación de pedidos'},
- {id:'tms',                label:'Transporte y entregas'},
- {id:'hr',                 label:'Recursos humanos'},
- {id:'users',              label:'Usuarios y accesos'},
- {id:'access-settings',label:'Parámetros de acceso',locked:true},
- {id:'settings',           label:'Configuración', locked:true},
-];
+const CATALOG=window.ArcModules.registry.map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));
 const CACHE_KEY='gama_modules_v1';
 
 /* Sólo se guardan los módulos APAGADOS. Una lista corta, y encaja con la regla
    de que lo que no aparece está encendido. */
 let off=read();
-let loaded=false;
+let loaded=false,pending=null;
 
 function read(){
  try{const v=JSON.parse(localStorage.getItem(CACHE_KEY)||'[]');return new Set(Array.isArray(v)?v:[])}
@@ -95,16 +58,19 @@ function changed(){
 async function load(){
  const api=window.GamaCloud;
  if(!api)return list();
- try{
+ if(pending)return pending;
+ pending=(async()=>{try{
   const r=await api.list('app_modules',{select:'id,enabled'});
   if(r.error)throw r.error;
-  off=new Set((r.data||[]).filter(x=>x.enabled===false).map(x=>x.id));
-  loaded=true;write();changed();
+  const next=new Set((r.data||[]).filter(x=>x.enabled===false).map(x=>x.id));
+  const different=off.size!==next.size||[...off].some(id=>!next.has(id));
+  off=next;loaded=true;write();if(different)changed();
  }catch(e){
   // Sin respuesta se conserva lo último que se supo: apagar de más sería peor.
   console.warn('[GAMA Módulos] no se pudo leer el estado',e);
  }
- return list();
+ return list();})();
+ try{return await pending}finally{pending=null}
 }
 
 async function setEnabled(id,on){

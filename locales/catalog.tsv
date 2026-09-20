@@ -1014,7 +1014,7 @@ Alertas accionables y seguimiento de cada etapa.	Alertes avec actions et suivi d
 Ver indicadores	Voir les indicateurs	View KPIs
 Ver notificaciones	Voir les notifications	View notifications
 Pedidos confirmados	Commandes confirmées	Confirmed orders
-Creados en el periodo	Créées sur la période	Created in the period
+Creados en el periodo	Créées dans la période	Created in the period
 Fecha de salida de stock	Date de sortie du stock	Stock dispatch date
 Entregas completadas	Livraisons effectuées	Completed deliveries
 Fecha de entrega real	Date réelle de livraison	Actual delivery date
@@ -2290,3 +2290,313 @@ Pedidos en curso	Commandes en cours	Open orders
 Avisos que requieren acción	Avis nécessitant une action	Notices needing action
 La conexión con la nube de Architect ERP no está disponible.	La connexion au cloud Architect ERP n’est pas disponible.	The Architect ERP cloud connection is unavailable.
 Rutas del día y pruebas de entrega	Tournées du jour et preuves de livraison	The day’s routes and proofs of delivery
+Más módulos	Autres modules	More modules
+Tus módulos	Vos modules	Your modules
+Personalizar	Personnaliser	Customize
+Personalizar módulos	Personnaliser les modules	Customize modules
+Elige los módulos que se muestran en tu inicio.	Choisissez les modules affichés sur votre accueil.	Choose the modules shown on your home page.
+Mostrar todos	Tout afficher	Show all
+Facturación del mes	Facturation (mois)	Invoicing (month)
+Pedidos confirmados (mes)	Commandes confirmées (mois)	Confirmed orders (month)
+Clientes activos	Clients actifs	Active customers
+IVA incluido	TVA incluse	Tax included
+Mes actual	Mois en cours	Current month
+Clientes no archivados	Clients non archivés	Unarchived customers
+Tus datos. Tus decisiones.	Vos données. Vos décisions.	Your data. Your decisions.
+Consulta los indicadores de tu actividad.	Consultez les indicateurs de votre activité.	Review your business indicators.
+Ver el panel de control	Voir le tableau de bord	View the dashboard
+No hay actividad reciente de stock.	Aucune activité de stock récente.	No recent stock activity.
+Cargando actividad…	Chargement de l’activité…	Loading activity…
+Prospectos y oportunidades	Prospects et opportunités	Leads and opportunities
+Gestión y seguimiento de pedidos	Gestion et suivi des commandes	Order management and tracking
+Niveles de existencias disponibles	Niveaux de stock disponibles	Available stock levels
+Transporte y pruebas de entrega	Transport et preuves de livraison	Transport and proof of delivery
+Ver todo	Voir tout	View all
+Módulo	Module	Module
+
+La localización inicial se configura en Configuración → Empresa. Puedes adaptar las cuentas y los impuestos en Contabilidad.	La localisation initiale se définit dans Configuration → Entreprise. Vous pouvez adapter les comptes et les taxes dans Comptabilité.	Set up initial localization in Configuration → Company. Adjust accounts and taxes in Accounting.
+Configura tu empresa, sus documentos y el idioma de la aplicación.	Configurez votre entreprise, ses documents et la langue de l’application.	Set up your company, its documents and the application language.
+Siguiente ›	Suivant ›	Next ›
+‹ Anterior	‹ Précédent	‹ Previous
+← Volver al menú	← Retour au menu	← Back to menu
+de	sur	of
+Editar proveedor	Modifier le fournisseur	Edit supplier
+El nombre del proveedor es obligatorio.	Le nom du fournisseur est obligatoire.	Supplier name is required.
+Email	E-mail	Email
+Stock	Stock	Stock
+Nombre / razón social	Nom / raison sociale	Name / company name
+¿Archivar al proveedor «	Archiver le fournisseur «	Archive supplier “
+¿Borrar definitivamente a «	Supprimer définitivement «	Permanently delete “
+MODULE_LOAD_FAILED	Le module n’a pas pu être chargé. Réessayez.	The module could not be loaded. Please retry.
+♻️ Restaurar	♻️ Restaurer	♻️ Restore
+✏️ Editar	✏️ Modifier	✏️ Edit
+＋ Guardar proveedor	＋ Enregistrer le fournisseur	＋ Save supplier
+🗄️ Archivar	🗄️ Archiver	🗄️ Archive
+🗑️ Borrar	🗑️ Supprimer	🗑️ Delete
+🗑️ Borrar definitivamente	🗑️ Supprimer définitivement	🗑️ Permanently delete
+El contacto y las condiciones de cada proveedor.	Coordonnées et conditions de chaque fournisseur.	Contact details and terms for each supplier.
+Vuelve a iniciar sesión.	Reconnectez-vous.	Sign in again.
+Tu perfil no puede realizar esta operación.	Votre profil ne permet pas cette opération.	Your role cannot perform this operation.
+Ya existe un registro con estos datos.	Une fiche avec ces données existe déjà.	A record with these details already exists.
+Este registro está vinculado a otros documentos.	Cette fiche est liée à d’autres documents.	This record is linked to other documents.
+Los datos cambiaron. Actualiza antes de guardar.	Les données ont changé. Actualisez avant d’enregistrer.	The data changed. Refresh before saving.
+Comprueba la conexión y vuelve a intentarlo.	Vérifiez la connexion et réessayez.	Check your connection and try again.
+
+No se pudieron cargar los permisos. Reintenta para configurarlos.	Impossible de charger les permissions. Réessaie pour les configurer.	Permissions could not be loaded. Retry to configure them.
+Acceso protegido.	Accès protégé.	Protected access.
+No disponible para este perfil.	Non disponible pour ce profil.	Unavailable for this profile.
+Módulo desactivado para toda la empresa.	Module désactivé pour toute l’entreprise.	Module disabled for the entire company.
+Accesos por perfil	Accès par profil	Access by profile
+Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.	Choisis les modules visibles et accessibles pour chaque profil. Les droits sur les données et les actions sont conservés.	Choose the modules each profile can see and open. Data and action permissions are preserved.
+Guardar permisos	Enregistrer les permissions	Save permissions
+Restaurar permisos predeterminados	Rétablir les permissions par défaut	Restore default permissions
+Configura los módulos de la empresa y los accesos de cada perfil.	Configure les modules de l’entreprise et les accès de chaque profil.	Configure company modules and access for each profile.
+Activación general de módulos	Activation générale des modules	Company-wide module activation
+Guarda para aplicar los permisos predeterminados.	Enregistre pour appliquer les permissions par défaut.	Save to apply the default permissions.
+Permisos guardados para todos los usuarios de este perfil.	Permissions enregistrées pour tous les utilisateurs de ce profil.	Permissions saved for all users with this profile.
+Otro administrador cambió estos permisos. Revisa la versión actual antes de guardar.	Un autre administrateur a modifié ces permissions. Vérifie la version actuelle avant d’enregistrer.	Another administrator changed these permissions. Review the current version before saving.
+No se pudieron guardar los permisos. Tus cambios no se han aplicado.	Impossible d’enregistrer les permissions. Tes changements n’ont pas été appliqués.	Could not save permissions. Your changes have not been applied.
+
+Crear un perfil	Créer un profil	Create a profile
+Nombre del perfil	Nom du profil	Profile name
+El nuevo perfil copia los permisos del perfil seleccionado. Después puedes personalizar sus módulos.	Le nouveau profil copie les permissions du profil sélectionné. Tu peux ensuite personnaliser ses modules.	The new profile copies the selected profile’s permissions. You can then customize its modules.
+Crear el perfil	Créer le profil	Create profile
+Perfil creado. Personaliza sus módulos y asígnalo en Usuarios.	Profil créé. Personnalise ses modules et attribue-le dans Utilisateurs.	Profile created. Customize its modules and assign it in Users.
+Ya existe un perfil con este nombre.	Un profil porte déjà ce nom.	A profile with this name already exists.
+No se pudo crear el perfil. Reintenta.	Impossible de créer le profil. Réessaie.	Could not create the profile. Try again.
+Servicio posventa	SAV et réclamations	After-sales support
+Reclamaciones, garantías y seguimiento	Réclamations, garanties et suivi	Claims, warranties and follow-up
+Archivos, contratos y versiones	Fichiers, contrats et versions	Files, contracts and versions
+Resuelve las reclamaciones de tus clientes, con un seguimiento claro.	Traitez les réclamations clients avec un suivi clair.	Resolve customer claims with clear follow-up.
+Archivos de la empresa, clasificados y vinculados a tus operaciones.	Les fichiers de l’entreprise, classés et reliés à vos opérations.	Company files, organized and linked to your operations.
+Nueva	Nouvelle	New
+En espera	En attente	Waiting
+Resuelta	Résolue	Resolved
+Archivadas	Archivées	Archived
+Activos	Actifs	Active
+Vencen en 30 días	Échéance dans 30 jours	Due within 30 days
+Vencidos	Expirés	Expired
+Archivados	Archivés	Archived
+Buscar por asunto	Rechercher par objet	Search by subject
+Buscar por título	Rechercher par titre	Search by title
+Carpeta	Dossier de classement	Folder
+Todas las carpetas	Tous les dossiers	All folders
+Nueva reclamación	Nouvelle réclamation	New claim
+Volver a la reclamación	Retour à la réclamation	Back to claim
+Todos los documentos	Tous les documents	All documents
+resultados	résultats	results
+Reclamación	Réclamation	Claim
+Fecha límite	Date limite	Due date
+Vinculado a	Rattaché à	Linked to
+Equipo	Équipe	Team
+No hay resultados. Crea un registro o cambia los filtros.	Aucun résultat. Créez un élément ou changez les filtres.	No results. Create an item or change the filters.
+Solución	Solution	Resolution
+Documentos y fotos	Documents et photos	Documents and photos
+documentos vinculados	documents rattachés	linked documents
+Ver documentos	Voir les documents	View documents
+Seguimiento interno	Suivi interne	Internal follow-up
+Las notas son internas; no se envían al cliente.	Les notes sont internes ; elles ne sont pas envoyées au client.	Notes are internal; they are not sent to the customer.
+Añadir una nota	Ajouter une note	Add a note
+Guardar nota	Enregistrer la note	Save note
+Reclamación creada	Réclamation créée	Claim created
+Reclamación actualizada	Réclamation mise à jour	Claim updated
+Ver reclamación	Voir la réclamation	View claim
+Versiones del archivo	Versions du fichier	File versions
+Cada nuevo archivo conserva las versiones anteriores.	Chaque nouveau fichier conserve les versions précédentes.	Each new file preserves previous versions.
+Añadir una versión	Ajouter une version	Add a version
+Escribe una nota.	Saisissez une note.	Enter a note.
+Modificar reclamación	Modifier la réclamation	Edit claim
+Obligatoria para resolver o cerrar la reclamación.	Obligatoire pour résoudre ou clôturer la réclamation.	Required to resolve or close the claim.
+Escribe la solución antes de resolver o cerrar.	Saisissez la solution avant de résoudre ou de clôturer.	Enter the resolution before resolving or closing.
+PDF, imágenes, Word, Excel o texto. Máximo 20 MB.	PDF, images, Word, Excel ou texte. Maximum 20 Mo.	PDF, images, Word, Excel or text. Maximum 20 MB.
+Modificar documento	Modifier le document	Edit document
+Selecciona un archivo de hasta 20 MB.	Sélectionnez un fichier de 20 Mo maximum.	Select a file up to 20 MB.
+Formato de archivo no permitido.	Format de fichier non autorisé.	File format not allowed.
+¿Restaurar este registro?	Restaurer cet élément ?	Restore this item?
+El registro se conservará en los archivos. ¿Continuar?	L’élément restera consultable dans les archives. Continuer ?	The item will remain available in the archives. Continue?
+Este registro ha cambiado. Actualiza antes de guardar.	Cet élément a été modifié. Actualisez avant d’enregistrer.	This item has changed. Refresh before saving.
+El pedido debe pertenecer al cliente seleccionado.	La commande doit appartenir au client sélectionné.	The order must belong to the selected customer.
+El documento debe corresponder al cliente de la reclamación.	Le document doit correspondre au client de la réclamation.	The document must match the claim customer.
+Selecciona un responsable activo.	Sélectionnez un responsable actif.	Select an active assignee.
+El archivo no se ha subido. Vuelve a intentarlo.	Le fichier n’a pas été chargé. Réessayez.	The file was not uploaded. Try again.
+Selecciona un archivo.	Sélectionnez un fichier.	Select a file.
+Documento no disponible.	Document indisponible.	Document unavailable.
+Reclamación no disponible.	Réclamation indisponible.	Claim unavailable.
+Revisa los campos obligatorios y la solución antes de cerrar.	Vérifiez les champs obligatoires et la solution avant de clôturer.	Check the required fields and resolution before closing.
+Tipo de reclamación	Type de réclamation	Claim type
+Garantía	Garantie	Warranty
+Garantía hasta	Garantie jusqu’au	Warranty until
+Acceso al documento	Accès au document	Document access
+Solo dirección	Direction uniquement	Management only
+Contratos	Contrats	Contracts
+Documentación técnica	Documentation technique	Technical documents
+No se puede cambiar este vínculo porque existen documentos asociados.	Ce lien ne peut pas être modifié : des documents y sont rattachés.	This link cannot be changed because documents are attached.
+Los números clave, las prioridades y una visión de toda la empresa.	Les chiffres essentiels, les priorités et une vue de toute l’entreprise.	Key figures, priorities and a view of the whole company.
+Ventas y cobros	Ventes et encaissements	Sales and collections
+Facturado sin impuestos	Facturé HT	Invoiced before tax
+Cobros confirmados	Encaissements confirmés	Confirmed collections
+Cobros vencidos	Créances échues	Overdue receivables
+Pedidos de clientes	Commandes clients	Customer orders
+Pedidos por expedir	Commandes à expédier	Orders to dispatch
+Presupuestos por responder	Devis en attente de réponse	Quotes awaiting reply
+Presupuestos aceptados	Devis acceptés	Accepted quotes
+Oportunidades abiertas	Opportunités ouvertes	Open opportunities
+Oportunidades en curso	Opportunités en cours	Ongoing opportunities
+Actividades atrasadas	Activités en retard	Overdue activities
+Referencias sin disponibilidad	Références sans stock disponible	Items with no available stock
+Bajo el mínimo de stock	Sous le stock minimum	Below minimum stock
+Pedidos por recibir	Commandes à recevoir	Orders awaiting receipt
+Pedidos de compra	Commandes d’achat	Purchase orders
+Entregas pendientes	Livraisons en attente	Pending deliveries
+Entregas realizadas	Livraisons effectuées	Completed deliveries
+Vehículos activos	Véhicules actifs	Active vehicles
+Documentos vencidos o próximos	Documents échus ou à échéance proche	Expired or soon expiring documents
+Proyectos atrasados	Projets en retard	Late projects
+Tareas atrasadas	Tâches en retard	Overdue tasks
+Personas ausentes hoy	Personnes absentes aujourd’hui	People absent today
+Ausencias por aprobar	Absences à approuver	Absences to approve
+Reclamaciones abiertas	Réclamations ouvertes	Open claims
+Reclamaciones atrasadas	Réclamations en retard	Overdue claims
+Reclamaciones resueltas	Réclamations résolues	Resolved claims
+Devoluciones por cerrar	Retours à clôturer	Returns to close
+Devoluciones creadas	Retours créés	Returns created
+Documentos activos	Documents actifs	Active documents
+Documentos vencidos	Documents échus	Expired documents
+Artículos disponibles	Articles disponibles	Available articles
+Artículos actualizados	Articles mis à jour	Updated articles
+Nuevos clientes	Nouveaux clients	New customers
+Relanzar los cobros vencidos	Relancer les impayés	Follow up overdue payments
+Resolver las entregas atrasadas	Résoudre les retards de livraison	Resolve late deliveries
+Revisar las referencias sin disponibilidad	Vérifier les références sans stock	Review items with no available stock
+Atender las reclamaciones atrasadas	Traiter les réclamations en retard	Handle overdue claims
+Revisar los pagos a proveedores	Vérifier les paiements fournisseurs	Review supplier payments
+Desbloquear las tareas atrasadas	Débloquer les tâches en retard	Unblock overdue tasks
+Renovar los documentos vencidos	Renouveler les documents échus	Renew expired documents
+Relanzar las recepciones atrasadas	Relancer les réceptions en retard	Follow up late receipts
+Revisar los documentos de los vehículos	Vérifier les documents des véhicules	Review vehicle documents
+Realizar las actividades comerciales	Effectuer les relances commerciales	Complete sales follow-ups
+Preparar los pedidos pendientes	Préparer les commandes en attente	Prepare pending orders
+Dar seguimiento a los presupuestos	Relancer les devis	Follow up quotes
+Asignar un responsable SAV	Attribuer un responsable SAV	Assign a service owner
+Revisar las solicitudes de ausencia	Examiner les demandes d’absence	Review absence requests
+Anticipar los vencimientos documentales	Anticiper les échéances documentaires	Prepare for document expiries
+Tratar las devoluciones abiertas	Traiter les retours ouverts	Handle open returns
+Periodo de análisis	Période d’analyse	Analysis period
+Este mes	Ce mois-ci	This month
+Mes anterior	Mois précédent	Previous month
+Últimos 30 días	30 derniers jours	Last 30 days
+Este año	Cette année	This year
+Elige un periodo válido de hasta dos años, sin fechas futuras.	Choisissez une période valide de deux ans maximum, sans dates futures.	Choose a valid period of up to two years, with no future dates.
+Comparación no disponible	Comparaison indisponible	Comparison unavailable
+Sin variación	Sans variation	No change
+Sin base de comparación	Pas de base de comparaison	No comparison baseline
+periodo anterior	période précédente	previous period
+Antes de abonos · periodo	Avant avoirs · période	Before credit notes · period
+Impuestos incluidos · periodo	TTC · période	Tax included · period
+Saldo de facturas · hoy	Solde des factures · aujourd’hui	Invoice balance · today
+Stock disponible · hoy	Stock disponible · aujourd’hui	Available stock · today
+Situación actual	Situation actuelle	Current position
+Comparación	Comparaison	Comparison
+Datos parciales. Fuentes no disponibles:	Données partielles. Sources indisponibles :	Partial data. Unavailable sources:
+Actualiza para reintentar.	Actualisez pour réessayer.	Refresh to try again.
+Prioridades de hoy	Priorités du jour	Today’s priorities
+Los pendientes actuales no cambian con el periodo de análisis.	Les éléments à traiter restent ceux d’aujourd’hui, quelle que soit la période d’analyse.	Current pending items do not change with the analysis period.
+No hay alertas en los datos disponibles.	Aucune alerte dans les données disponibles.	No alerts in the available data.
+No hay prioridades detectadas en los módulos disponibles.	Aucune priorité détectée dans les modules disponibles.	No priorities detected in the available modules.
+Ver todas las prioridades	Voir toutes les priorités	View all priorities
+La empresa por actividad	L’entreprise par activité	The company by activity
+Situación actual. Los valores marcados «Periodo» siguen las fechas seleccionadas.	Situation actuelle. Les valeurs marquées « Période » suivent les dates sélectionnées.	Current position. Values marked “Period” follow the selected dates.
+fuentes conectadas	sources connectées	connected sources
+Datos no disponibles	Données indisponibles	Data unavailable
+Abrir módulo	Ouvrir le module	Open module
+Cómo leer estos indicadores	Comment lire ces indicateurs	How to read these indicators
+La facturación incluye las facturas internas y externas válidas una sola vez, antes de abonos. Los cobros incluyen solo pagos confirmados. El pendiente de cobro descuenta pagos y abonos.	La facturation compte une seule fois les factures internes et externes valides, avant avoirs. Les encaissements incluent uniquement les paiements confirmés. Le reste à encaisser déduit les paiements et les avoirs.	Invoicing counts valid internal and external invoices once, before credit notes. Collections include confirmed payments only. Receivables deduct payments and credit notes.
+Las fechas siguen la zona horaria de la empresa: Ecuador. La comparación usa el intervalo anterior con el mismo número de días.	Les dates suivent le fuseau horaire de l’entreprise : Équateur. La comparaison utilise l’intervalle précédent de même durée.	Dates follow the company time zone: Ecuador. The comparison uses the previous interval of the same length.
+Los saldos, retrasos y existencias son actuales; no reconstruyen una situación histórica. Solo se muestran los datos permitidos por tu perfil.	Les soldes, retards et stocks reflètent la situation actuelle ; ils ne reconstituent pas une situation passée. Seules les données autorisées pour votre profil sont affichées.	Balances, delays and stock reflect the current position; they do not reconstruct a historical position. Only data allowed for your profile is shown.
+Los módulos de configuración y las herramientas de apoyo no generan indicadores adicionales.	Les modules de configuration et les outils d’appui ne génèrent pas d’indicateurs supplémentaires.	Configuration modules and support tools do not generate additional indicators.
+Evolución de facturas y cobros	Évolution des factures et encaissements	Invoice and collection trends
+Impuestos incluidos. Los importes exactos están en la tabla de datos.	TTC. Les montants exacts figurent dans le tableau de données.	Tax included. Exact amounts are in the data table.
+No hay facturas ni cobros en este periodo.	Aucune facture ni aucun encaissement sur cette période.	No invoices or collections in this period.
+Facturación y cobros	Facturation et encaissements	Invoicing and collections
+Impuestos incluidos · periodo seleccionado	TTC · période sélectionnée	Tax included · selected period
+Ver los datos del gráfico	Voir les données du graphique	View chart data
+Principales clientes	Principaux clients	Top customers
+Facturado sin impuestos · periodo seleccionado	Facturé HT · période sélectionnée	Invoiced before tax · selected period
+Sin facturas en este periodo.	Aucune facture sur cette période.	No invoices in this period.
+Ver facturas y cobros	Voir les factures et encaissements	View invoices and collections
+Tesorería y compromisos	Trésorerie et engagements	Cash and commitments
+Saldos actuales y gastos registrados en el periodo.	Soldes actuels et dépenses enregistrées sur la période.	Current balances and expenses recorded in the period.
+Abrir contabilidad	Ouvrir la comptabilité	Open accounting
+Saldo registrado de las cuentas	Solde enregistré des comptes	Recorded account balance
+Por moneda · no es un saldo bancario conciliado	Par devise · solde bancaire non rapproché	By currency · not a reconciled bank balance
+Pendiente de pago a proveedores	Reste à payer aux fournisseurs	Outstanding supplier payments
+Gastos contabilizados	Dépenses comptabilisées	Posted expenses
+El saldo registrado recoge saldos iniciales, cobros, pagos y gastos asignados a cuentas. Los reembolsos sin cuenta asociada no están incluidos. No equivale al beneficio.	Le solde enregistré reprend les soldes initiaux, encaissements, paiements et dépenses affectés à des comptes. Les remboursements sans compte associé sont exclus. Il ne représente pas le bénéfice.	The recorded balance includes opening balances, collections, payments and expenses assigned to accounts. Refunds without an assigned account are excluded. It does not represent profit.
+No se ha podido abrir el módulo. Vuelve a intentarlo.	Impossible d’ouvrir le module. Réessayez.	Could not open the module. Try again.
+Cargando los datos de la empresa…	Chargement des données de l’entreprise…	Loading company data…
+No se han podido cargar los indicadores. Actualiza para reintentar.	Impossible de charger les indicateurs. Actualisez pour réessayer.	Could not load the indicators. Refresh to try again.
+Todos los empleados	Tous les employés	All employees
+RH y administradores	RH et administrateurs	HR and administrators
+Solo administradores	Administrateurs uniquement	Administrators only
+Acceso del módulo de origen	Accès du module d’origine	Source module access
+Módulo de origen	Module d’origine	Source module
+Crear categoría	Créer une catégorie	Create category
+Nombre de la categoría	Nom de la catégorie	Category name
+Escribe un nombre.	Saisissez un nom.	Enter a name.
+Ya existe una categoría con este nombre.	Une catégorie porte déjà ce nom.	A category with this name already exists.
+Archivo sincronizado desde su módulo de origen, sin duplicar el contenido.	Fichier synchronisé depuis son module d’origine, sans dupliquer le contenu.	File synchronized from its source module without duplicating its contents.
+El acceso elegido también se aplica al archivo en su módulo de origen.	L’accès choisi s’applique aussi au fichier dans son module d’origine.	The selected access also applies to the file in its source module.
+Abrir módulo de origen	Ouvrir le module d’origine	Open source module
+
+Referencias de documentos	Références des documents	Document references
+Tres letras, un guion y ocho cifras. Los prefijos se basan en los nombres españoles de los documentos.	Trois lettres, un tiret et huit chiffres. Les préfixes correspondent aux noms espagnols des documents.	Three letters, a hyphen and eight digits. Prefixes are based on the Spanish document names.
+Los cambios se aplican a las nuevas referencias. Las ya emitidas conservan su número.	Les changements s’appliquent aux nouvelles références. Les références déjà attribuées conservent leur numéro.	Changes apply to new references. Previously issued references keep their number.
+Prefijo	Préfixe	Prefix
+Ejemplo	Exemple	Example
+Guardar prefijos	Enregistrer les préfixes	Save prefixes
+Prefijos guardados.	Préfixes enregistrés.	Prefixes saved.
+No se pudieron cargar los prefijos.	Impossible de charger les préfixes.	Could not load prefixes.
+Otro administrador cambió los prefijos. Actualiza antes de guardar.	Un autre administrateur a modifié les préfixes. Actualisez avant d’enregistrer.	Another administrator changed the prefixes. Refresh before saving.
+Este prefijo ya pertenece a otro tipo de documento.	Ce préfixe appartient déjà à un autre type de document.	This prefix already belongs to another document type.
+Solo un administrador puede modificar los prefijos.	Seul un administrateur peut modifier les préfixes.	Only an administrator can change prefixes.
+Usa exactamente tres letras de A a Z, sin repetir prefijos.	Utilisez exactement trois lettres de A à Z, sans répéter les préfixes.	Use exactly three letters from A to Z, without repeating prefixes.
+Expediente	Dossier	Case
+Cotización	Devis	Quotation
+Paquete	Colis	Package
+Envío	Expédition	Shipment
+Devolución	Retour	Return
+Orden de compra	Commande fournisseur	Purchase order
+Reserva de existencias	Réservation de stock	Stock reservation
+Movimiento de existencias	Mouvement de stock	Stock movement
+Oportunidad	Opportunité	Opportunity
+Proyecto	Projet	Project
+Documento de recursos humanos	Document RH	HR document
+Nómina	Fiche de paie	Payroll
+Asiento contable	Écriture comptable	Accounting entry
+Gasto	Dépense	Expense
+Factura de proveedor	Facture fournisseur	Supplier invoice
+Pago a proveedor	Paiement fournisseur	Supplier payment
+Nota de crédito	Avoir	Credit note
+Ruta	Tournée	Route
+Artículo de documentación	Article de documentation	Documentation article
+Fase	Phase	Phase
+Hito	Jalon	Milestone
+Paquete de trabajo	Lot de travail	Work package
+Entregable	Livrable	Deliverable
+Riesgo	Risque	Risk
+Cambio	Changement	Change
+Lección aprendida	Retour d’expérience	Lesson learned
+Supuesto	Hypothèse	Assumption
+Dependencia	Dépendance	Dependency
+Interesado	Partie prenante	Stakeholder
+Responsabilidad RACI	Responsabilité RACI	RACI responsibility
+No se pudieron guardar los prefijos. Tus cambios se conservan.	Impossible d’enregistrer les préfixes. Vos modifications sont conservées.	Could not save prefixes. Your changes are preserved.
+
+Pipeline ponderado	Potentiel pondéré	Weighted pipeline
+Facturado de oportunidades	Facturé depuis les opportunités	Invoiced from opportunities
+Detalle del indicador	Détail de l’indicateur	Indicator details
+Cliente / artículo	Client / article	Customer / item
+registros	enregistrements	records
+Vista	Vue	View
+Potencial × probabilidad · oportunidades abiertas	Potentiel × probabilité · opportunités ouvertes	Amount × probability · open opportunities
+Ganadas en el periodo · antes de facturar	Gagnées dans la période · avant facturation	Won in the period · before invoicing

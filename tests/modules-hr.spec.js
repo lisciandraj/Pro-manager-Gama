@@ -178,29 +178,20 @@ test('la planificación coloca cada ausencia en su día y separa las que se sola
 // en silencio — «Compras» e «Importar datos» llevaban tiempo fuera del mapa de
 // perfiles, así que su tarjeta estaba oculta para todo el que no fuera
 // administrador, y el interruptor tampoco habría podido reconocerlas.
-test('cada entrada del menú está en el mapa de perfiles y en el catálogo de módulos', () => {
-  const menu = fs.readFileSync(path.join(ROOT, 'gama-menu-final2.js'), 'utf8');
-  const acl = fs.readFileSync(path.join(ROOT, 'gama-access-control.js'), 'utf8');
-  const mods = fs.readFileSync(path.join(ROOT, 'gama-modules.js'), 'utf8');
-
-  // Se acota a la lista ITEMS y se toleran los campos que una entrada lleve
-  // detrás del icono —hoy el grupo del menú—: lo que este guardián vigila es
-  // que cada módulo esté declarado en los tres sitios, no cuántas columnas
-  // tiene la tabla. Sin acotar, el propio GRUPOS entraría como una entrada más.
-  const itemsSrc = menu.match(/const ITEMS=\[([\s\S]*?)\n\];/)[1];
-  const items = [...itemsSrc.matchAll(/\['([^']+)','([^']+)','[^']+'(?:,'[^']+')*\]/g)].map(m => [m[1], m[2]]);
-  expect(items.length, 'no se pudo leer el menú').toBeGreaterThan(10);
-
-  const mapaSrc = acl.match(/const MENU_MAP=\{([^}]*)\}/)[1];
-  const mapa = Object.fromEntries([...mapaSrc.matchAll(/'([^']+)':'([^']+)'/g)].map(m => [m[1], m[2]]));
-  const catalogo = new Set([...mods.matchAll(/\{id:'([^']+)'/g)].map(m => m[1]));
-
-  const fallos = [];
-  for (const [label, id] of items) {
-    if (mapa[label] !== id) fallos.push(`MENU_MAP le falta ${label} -> ${id} (tiene ${mapa[label]})`);
-    if (!catalogo.has(id)) fallos.push(`GamaModules.CATALOG le falta ${id}`);
-  }
-  expect(fallos, 'un módulo del menú no está declarado en todas partes').toEqual([]);
+test('cada entrada del menú comparte registro, permisos y catálogo', async ({page}) => {
+  await boot(page,'admin');
+  const result=await page.evaluate(()=>{
+    const registry=window.ArcModules.registry,catalog=new Set(window.GamaModules.CATALOG.map(m=>m.id));
+    const errors=[];
+    for(const [label,id] of window.GamaMenu.items){
+      const entry=registry.find(m=>m.id===id);
+      if(!entry||entry.label!==label)errors.push('Missing registry entry: '+id);
+      if(!catalog.has(id))errors.push('Missing catalog entry: '+id);
+      if(!entry?.roles?.length)errors.push('Missing roles: '+id);
+    }
+    return {count:window.GamaMenu.items.length,unique:new Set(registry.map(m=>m.id)).size===registry.length,errors};
+  });
+  expect(result.count).toBeGreaterThan(10);expect(result.unique).toBe(true);expect(result.errors).toEqual([]);
 });
 
 // Un empleado entra en RRHH para pedir sus días y ver quién falta, no para
@@ -307,8 +298,8 @@ const FICHAS_ANCHAS = [
 // Mide la tabla de la plantilla: cuánto ocupa de verdad, cuánto de eso alcanza
 // su caja, y si los botones de alguna fila se salen de lo alcanzable.
 const medirPlantilla = page => page.evaluate(() => {
-  const caja = document.querySelector('#hr .hrTable');
-  const tabla = caja.querySelector('table');
+  const tabla = document.querySelector('#hr .hrTable table');
+  const caja = tabla.closest('.gamaTableViewport') || tabla.closest('.hrTable');
   const borde = caja.getBoundingClientRect().right + caja.scrollWidth - caja.clientWidth;
   return {
     anchoCaja: caja.clientWidth,

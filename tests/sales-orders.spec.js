@@ -10,7 +10,7 @@ async function boot(page,role='admin'){
  await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');
  await page.waitForFunction(()=>window.GamaSales&&window.GamaCloudReady);
- await page.evaluate(async()=>{await window.GamaCloudReady;const original=GamaCloud.db;window.__salesCalls=[];window.__commercialCalls=[];GamaCloud.db=async()=>{const c=await original();return{...c,rpc:async(name,args)=>{if(name==='gama_fulfillment_action'){return {data:{preparations:[{id:'prep-1',order_id:window.__DB.sales_orders[0].id,number:'PR-00000001',status:'packed'}],pick_lines:[],packages:[],package_lines:[],incidents:[],options:[],returns:[],photos:[],credits:[],incoming:[],staff:[]}}}if(name==='gama_sales_action'){window.__salesCalls.push(args);return window.__salesResponse||{data:{id:window.__DB.sales_orders[0].id},error:null}}if(name==='gama_commercial_action'){window.__commercialCalls.push(args);return window.__commercialResponse||{data:{id:'payment-or-link'},error:null}}return c.rpc(name,args)}}}});
+ await page.evaluate(async()=>{await window.GamaCloudReady;const original=GamaCloud.db;window.__salesCalls=[];window.__commercialCalls=[];GamaCloud.db=async()=>{const c=await original();return{...c,rpc:async(name,args)=>{if(name==='gama_receipt_action')return {data:{accounts:[{id:'financial-1',name:'Bank',currency:'USD'}],receipts:[]}};if(name==='gama_fulfillment_action'){return {data:{preparations:[{id:'prep-1',order_id:window.__DB.sales_orders[0].id,number:'PR-00000001',status:'packed'}],pick_lines:[],packages:[],package_lines:[],incidents:[],options:[],returns:[],photos:[],credits:[],incoming:[],staff:[]}}}if(name==='gama_sales_action'){window.__salesCalls.push(args);return window.__salesResponse||{data:{id:window.__DB.sales_orders[0].id},error:null}}if(name==='gama_commercial_action'){window.__commercialCalls.push(args);return window.__commercialResponse||{data:{id:'payment-or-link'},error:null}}return c.rpc(name,args)}}}});
  await page.waitForTimeout(900);
  await page.locator('.gamaF2Card').filter({has:page.getByText('Pedidos de venta',{exact:true})}).click();
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
@@ -52,8 +52,8 @@ test('partial payment sends amount, method and an idempotency key',async({page})
  await boot(page);
  await page.evaluate(({order,line})=>{window.__DB.external_invoices.push({id:'invoice-1',order_id:order,number:'001-001-000000125',issuer_ruc:'1234567890001',software:'Fiscal',issue_date:'2026-09-12',due_date:'2026-10-12',subtotal:600,tax:90,total:690,fiscal_status:'authorized',created_at:'2026-09-12T10:00:00Z'});window.__DB.external_invoice_lines.push({id:'il-1',invoice_id:'invoice-1',order_line_id:line,quantity:60})},ID);
  await page.locator('[data-gs-order]').first().click();await page.locator('[data-gs-payment="invoice-1"]').click();
- await page.locator('#gsPayAmount').fill('300');await page.locator('#gsPayMethod').selectOption('transfer');await page.locator('#gsPayReference').fill('TRX-ABC');await page.locator('#gsSave').click();
+ await page.locator('#gsPayAmount').fill('300');await page.locator('#gsPayMethod').selectOption('transfer');await page.locator('#gsPayReference').fill('TRX-ABC');await page.locator('#gsPayAccount').selectOption('financial-1');await page.locator('#gsSave').click();
  await expect(page.locator('dialog')).toHaveCount(0);
  const call=await page.evaluate(()=>window.__commercialCalls[0]);
- expect(call.p_action).toBe('payment');expect(call.p_data.amount).toBe(300);expect(call.p_data.method).toBe('transfer');expect(call.p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
+ expect(call.p_data.financial_account_id).toBe('financial-1');expect(call.p_action).toBe('payment');expect(call.p_data.amount).toBe(300);expect(call.p_data.method).toBe('transfer');expect(call.p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
 });

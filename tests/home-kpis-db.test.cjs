@@ -1,0 +1,68 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),{PGlite}=require('@electric-sql/pglite');
+const a='00000000-0000-0000-0000-000000000001',b='00000000-0000-0000-0000-000000000002';
+const migration=fs.readdirSync(__dirname+'/../supabase/legacy-migrations').find(x=>x.endsWith('_home_kpi_catalog.sql'));
+test('30 real SQL aggregations, owner preferences, roles, module gates, RLS and unavailable values',async()=>{
+ const db=new PGlite();
+ try{
+  await db.exec(`create schema auth;create schema private;create role anon;create role authenticated;
+   grant usage on schema public,auth,private to authenticated;
+   create table auth.users(id uuid primary key);insert into auth.users values('${a}'),('${b}');
+   create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+   create function private.current_user_role() returns text language sql as $$select nullif(current_setting('test.role',true),'')$$;
+   create function private.hr_admin() returns boolean language sql as $$select private.current_user_role()='administrador' or current_setting('test.hr',true)='true'$$;
+   create table public.app_modules(id text primary key,enabled boolean);
+   create table public.customers(active boolean);insert into customers values(true),(true),(false);
+   create table public.products(active boolean);insert into products values(true),(true),(true),(false);
+   create table public.suppliers(active boolean);insert into suppliers values(true),(false);
+   create table public.invoices(quote_state text,quote_accepted_at timestamptz);
+   insert into invoices values('sent',null),('accepted',now()),('accepted',now()-interval '1 month'),('rejected',now());
+   create table public.replenishment_needs(available numeric,min_stock numeric);insert into replenishment_needs values(0,2),(-1,0),(1,4),(10,2);
+   create table public.purchase_orders(status text);insert into purchase_orders values('draft'),('sent'),('partial'),('received'),('cancelled');
+   create table public.crm_pipeline_stages(id int primary key,is_won boolean,is_lost boolean);
+   insert into crm_pipeline_stages values(1,false,false),(2,true,false),(3,false,true);
+   create table public.crm_opportunities(active boolean,stage_id int,amount numeric);
+   insert into crm_opportunities values(true,1,10),(true,1,20),(false,1,999),(true,2,999),(true,3,999);
+   create table public.crm_activities(due_at timestamptz,status text);
+   insert into crm_activities values(now()-interval '1 day','pendiente'),(now()-interval '1 day','hecha'),(now()-interval '1 day','cancelada'),(now()+interval '1 day','pendiente');
+   create table public.pm_projects(id int primary key,status text,due_date date,owner_id uuid);
+   insert into pm_projects values(1,'active',current_date-2,'${a}'),(2,'completed',current_date-2,'${a}'),(3,'cancelled',current_date-2,'${a}'),(4,'active',current_date-2,'${b}');
+   alter table pm_projects enable row level security;
+   create policy project_owner on pm_projects for select to authenticated using(owner_id=auth.uid());
+   create table public.pm_items(project_id int,kind text,status text,due_date date);
+   insert into pm_items values(1,'task','todo',current_date-2),(1,'task','done',current_date-2),(1,'task','todo',current_date+2),(1,'milestone','todo',current_date-2),(2,'task','todo',current_date-2),(3,'task','todo',current_date-2),(4,'task','todo',current_date-2);
+   alter table pm_items enable row level security;
+   create policy task_owner on pm_items for select to authenticated using(exists(select 1 from pm_projects where id=project_id));
+   create table public.hr_employees(active boolean);insert into hr_employees values(true),(false);
+   create table public.hr_absences(status text);insert into hr_absences values('pendiente'),('aprobada'),('rechazada'),('cancelada');
+   create function public.gama_operations_action(text,jsonb) returns jsonb language plpgsql as $$begin
+    if current_setting('test.ops_error',true)='true' then raise exception 'OFFLINE';end if;
+    return '{"metrics":{"invoiced":120,"collected":100,"receivable":50,"unbilled":30,"orders":7,"order_amount":140,"dispatches":4,"delivered":3,"late_deliveries":2,"blocked":1,"backorders":2,"stock_variances":3},"action_center":{"overdue_invoice":20,"receipt":1}}'::jsonb;end$$;
+   grant select on all tables in schema public to authenticated;
+  `);
+  await db.exec(fs.readFileSync(__dirname+'/../supabase/legacy-migrations/20260919104031_home_module_order.sql','utf8'));
+  await db.exec(fs.readFileSync(__dirname+'/../supabase/legacy-migrations/'+migration,'utf8'));
+  await db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${a}',false);select set_config('test.role','administrador',false)`);
+  const get=async()=> (await db.query('select public.gama_home_kpis() p')).rows[0].p;
+  const save=async(ids,user=a)=>(await db.query('select public.gama_home_kpis($1,$2) p',[ids,user])).rows[0].p;
+  const initial=await get();assert.equal(initial.allowed.length,30);assert.deepEqual(initial.selected,['invoiced','orders','late_deliveries','clients_active']);
+  await db.query('select public.gama_home_order($1,$2)',[['crm','dashboard'],a]);
+  const expected={invoiced:120,collected:100,receivable:50,unbilled:30,overdue_amount:20,orders:7,order_amount:140,quotes_waiting:1,clients_active:2,quotes_accepted:1,dispatches:4,delivered:3,late_deliveries:2,blocked:1,backorders:2,products_active:3,low_stock:3,out_stock:2,stock_variances:3,open_purchases:2,late_receipts:1,suppliers_active:1,open_opportunities:2,pipeline:30,overdue_activities:1,active_projects:1,late_projects:1,late_tasks:1,active_employees:1,pending_absences:1};
+  for(let i=0;i<initial.allowed.length;i+=4){const ids=initial.allowed.slice(i,i+4);for(const id of initial.allowed)if(ids.length<4&&!ids.includes(id))ids.push(id);const p=await save(ids);assert.deepEqual(p.unavailable,[]);for(const id of ids)assert.equal(p.values[id],expected[id],id)}
+  assert.deepEqual((await db.query('select public.gama_home_order() p')).rows[0].p.module_order,['crm','dashboard']);
+  const chosen=['pipeline','open_opportunities','overdue_activities','clients_active'];await save(chosen);
+  for(const bad of [[],['orders'],['orders','orders','orders','orders'],initial.allowed.slice(0,5),['nope','orders','invoiced','receivable'],[null,'orders','invoiced','receivable']])await assert.rejects(save(bad),/INVALID_KPI_SELECTION/);
+  await db.exec(`select set_config('request.jwt.claim.sub','${b}',false)`);assert.deepEqual((await get()).selected,initial.selected);
+  assert.equal((await db.query('select * from user_home_preferences')).rows.length,0);
+  await assert.rejects(save(chosen,a),/AUTH_CHANGED/);
+  await assert.rejects(db.query('update user_home_preferences set kpi_selected=$1 where user_id=$2 returning *',[chosen,a]).then(r=>{assert.equal(r.rows.length,1)}),/0 !== 1/);
+  await save(['products_active','low_stock','out_stock','orders'],b);
+  await db.exec(`select set_config('request.jwt.claim.sub','${a}',false)`);assert.deepEqual((await get()).selected,chosen);
+  await db.exec(`reset role;insert into app_modules values('crm',false);set role authenticated`);const gated=await get();assert.equal(gated.allowed.includes('pipeline'),false);assert.equal(gated.selected.length,4);assert.equal(gated.selected.includes('pipeline'),false);await assert.rejects(save(chosen),/INVALID_KPI_SELECTION/);
+  await db.exec(`reset role;delete from app_modules;set role authenticated;select set_config('test.role','almacenero',false)`);const wh=await get();assert.equal(wh.allowed.includes('invoiced'),false);assert.equal(wh.allowed.includes('active_employees'),false);assert.equal(wh.allowed.includes('low_stock'),true);await assert.rejects(save(initial.selected),/INVALID_KPI_SELECTION/);
+  await db.exec(`select set_config('test.hr','true',false)`);assert.equal((await get()).allowed.includes('pending_absences'),true);
+  await db.exec(`select set_config('test.role','cliente',false)`);assert.deepEqual((await get()).selected,[]);assert.deepEqual((await get()).values,{});
+  await db.exec(`select set_config('test.role','',false)`);await assert.rejects(get(),/AUTH_REQUIRED/);
+  await db.exec(`select set_config('test.role','administrador',false);select set_config('test.ops_error','true',false)`);const unavailable=await save(initial.selected);assert.equal(unavailable.values.invoiced,null);assert.equal(unavailable.values.clients_active,2);assert.deepEqual(unavailable.unavailable,['invoiced','orders','late_deliveries']);
+  await db.exec('reset role;set role anon');await assert.rejects(get(),/permission denied/);
+ }finally{await db.close()}
+});

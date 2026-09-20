@@ -121,6 +121,6 @@ test.describe('Compras: registering a reception', () => {
       reserved: window.__DB.stock_quants[0].reserved_quantity,
     }));
     expect(allocation).toEqual({ old: 7, newer: 3, reserved: 10 });
-    await expect(page.locator('#gp14DetailMsg')).toContainText('asignado automáticamente');
+    await expect(page.locator('#gp14DetailMsg')).toContainText('Recepción registrada');
   });
 });

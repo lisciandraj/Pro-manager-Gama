@@ -23,7 +23,7 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d??0);
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
 const TABS=[['customer','Devoluciones de clientes'],['supplier','Devoluciones a proveedores']];
 const REASON={defective:'Producto defectuoso',damaged:'Producto dañado',wrong_product:'Producto equivocado',
@@ -512,19 +512,21 @@ async function creditForm(d){
     await go();window.gamaToast?.(T('Abono emitido')+' · '+r.number)});
  }catch(e){window.gamaToast?.(err(e))}
 }
-function refundForm(d){
+async function refundForm(d){
+ let accounts;try{accounts=await window.ArcData.rpc('gama_refund_accounts')}catch(e){return window.gamaToast?.(err(e))}
+ if(!accounts.length)return window.gamaToast?.(T('Configura una cuenta bancaria o caja activa en Contabilidad.'));
  const outstanding=Math.max(0,Number(d.amount)-Number(d.refunded||0));
  const key=crypto.randomUUID();
  window.GamaSales.modal(T('Reembolsar al cliente'),
   `<div class="grGrid">
     <label data-gi-live data-gi=572a3acfd983>Importe<input id="grRefundAmount" type="number" inputmode="decimal" min="0.01" step="0.01" max="${esc(outstanding)}" required value="${esc(outstanding)}"></label>
     <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grRefundDate" type="date" required value="${esc(day())}"></label>
-    <label data-gi-live data-gi=25ec5eda3d03>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
+    <label>Cuenta bancaria / caja<select id="grRefundAccount" required><option value="">—</option>${accounts.map(a=>`<option value="${esc(a.id)}">${esc(a.name)} · ${esc(a.currency)}</option>`).join('')}</select></label><label data-gi-live data-gi=25ec5eda3d03>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
     <label data-gi-live data-gi=f9403c06f4cb>Referencia (opcional)<input id="grRefundRef" maxlength="80"></label>
    </div>`,
   T('Registrar el reembolso'),
   async el=>{await mutate('refund',{id:d.id,request_key:key,amount:numval(el,'grRefundAmount'),
-   paid_at:val(el,'grRefundDate'),method:val(el,'grRefundMethod'),reference:val(el,'grRefundRef')});await go()});
+   financial_account_id:val(el,'grRefundAccount'),paid_at:val(el,'grRefundDate'),method:val(el,'grRefundMethod'),reference:val(el,'grRefundRef')});await go()});
 }
 function supplierCreditForm(d){
  window.GamaSales.modal(T('Registrar el abono del proveedor'),

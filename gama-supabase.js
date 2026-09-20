@@ -10,7 +10,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
 const SUPABASE_ANON_KEY=window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY;
 let client=null,initializing=null,realtime=[],profileRequest=null;
 function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail:detail||{}}));}
-function loadClient(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(window.supabase);if(window.__gamaSupabaseLoader)return window.__gamaSupabaseLoader;window.__gamaSupabaseLoader=new Promise(function(resolve,reject){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0';s.integrity='sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx';s.crossOrigin='anonymous';s.async=true;s.onload=()=>window.supabase&&window.supabase.createClient?resolve(window.supabase):reject(Error('Supabase JS unavailable'));s.onerror=()=>reject(Error('Unable to load Supabase JS'));document.head.appendChild(s)});return window.__gamaSupabaseLoader;}
+function loadClient(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(window.supabase);if(window.__gamaSupabaseLoader)return window.__gamaSupabaseLoader;window.__gamaSupabaseLoader=new Promise(function(resolve,reject){const s=document.createElement('script');s.src='assets/vendor/supabase-2.115.0.js';s.integrity='sha384-CLZeq1dk8+Uzrs7TVvBUdlFoV5F0DMqgRoeHa8g5wJcuPe5SkVfEvdxB0ZuzlnBQ';s.crossOrigin='anonymous';s.async=true;s.onload=()=>window.supabase&&window.supabase.createClient?resolve(window.supabase):reject(Error('Supabase JS unavailable'));s.onerror=()=>reject(Error('Unable to load Supabase JS'));document.head.appendChild(s)});return window.__gamaSupabaseLoader;}
 async function init(){
  if(!SUPABASE_ANON_KEY){emit('gama:cloud-status',{ready:false,configured:false});return null}
  if(client)return client;if(initializing)return initializing;
@@ -36,11 +36,13 @@ async function getProfile(){
    head:true + count:'exact' requests a total without downloading rows.
    Complete primary-key ordering keeps pagination stable when sort values tie. */
 const LIST_KEYS={
+ erp_notification_preferences:['user_id'],
+ erp_price_book_customers:['book_id','customer_id'],
  accounting_permissions:['profile_id'],external_invoice_deliveries:['invoice_id','delivery_id'],
  fulfillment_package_lines:['package_id','pick_line_id'],gama_document_references:['table_name','document_id'],
  hr_absence_private:['absence_id'],hr_employee_private:['employee_id'],hr_holidays:['day'],hr_permissions:['profile_id'],
  sales_reservation_links:['reservation_id'],tms_loading_allocations:['scan_id','delivery_line_id'],
- tms_proofs:['delivery_id'],user_home_preferences:['user_id'],role_module_access:['role']
+ tms_proofs:['delivery_id'],user_home_preferences:['user_id'],role_module_access:['role'],erp_action_permissions:['role','module'],service_sla_rules:['priority']
 };
 async function list(table,options={}){
  const supported=new Set(['select','count','head','order','ascending','eq','ilike','in','gte','lte','lt','gt','neq','is','range','limit','search']);

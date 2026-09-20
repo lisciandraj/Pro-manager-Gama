@@ -3,7 +3,7 @@
 'use strict';
 const statuses={project:['draft','planned','active','on_hold','completed','cancelled'],task:['backlog','todo','in_progress','review','done'],phase:['planned','in_progress','review','completed','on_hold'],work_package:['planned','in_progress','review','completed'],deliverable:['in_progress','submitted','approved','changes_requested'],milestone:['planned','achieved','cancelled'],risk:['open','in_progress','closed'],issue:['open','in_progress','closed'],change:['request','assessment','approval','approved','implementation','closed','rejected'],decision:['recorded','superseded'],lesson:['recorded'],assumption:['open','in_progress','closed'],dependency:['open','in_progress','closed'],stakeholder:['active','inactive'],raci:['active']};
 const terminal=new Set(['done','completed','approved','achieved','cancelled','closed','rejected','recorded','superseded','inactive']);
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const days=(a,b)=>Math.round((Date.parse(a+'T12:00:00Z')-Date.parse(b+'T12:00:00Z'))/86400000);
 const addDays=(d,n)=>{const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
 const score=i=>Number(i.data?.probability||0)*Number(i.data?.impact||0);

@@ -37,8 +37,9 @@ async function openUsers(page, profiles = PROFILES) {
   // GamaCloudReady chain. The tests replace that file with the mock, which does
   // not load the chain, so the module is injected here instead.
   await page.addScriptTag({ url: '/gama-cloud-users.js' });
-  await page.waitForSelector('#cuRows tr', { state: 'attached', timeout: 10000 });
+  await expect(page.locator('#cuRows tr')).toHaveCount(0);
   await page.click('#mainmenu .gamaF2Card:has-text("Usuarios")');
+  await page.waitForSelector('#cuRows tr', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(400);
 }
 

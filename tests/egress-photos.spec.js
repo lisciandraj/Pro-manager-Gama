@@ -60,10 +60,10 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     const wide = photoQueries(calls);
     expect(wide, 'una lista volvió a pedir photo_data: ' + JSON.stringify(wide)).toEqual([]);
 
-    // Y la lista sí trae el indicador, que es lo que permite pintar el hueco.
-    const productCalls = calls.filter(c => c.table === 'products');
-    expect(productCalls.length).toBeGreaterThan(0);
-    expect(productCalls.some(c => String(c.select).includes('has_photo'))).toBe(true);
+    // Home does not fetch the product directory. The indicator arrives when opened.
+    expect(calls.filter(c => c.table === 'products')).toEqual([]);
+    await page.click('#mainmenu .gamaF2Card:has-text("Productos")');
+    await expect.poll(() => page.evaluate(() => (window.__DB.__calls || []).some(c => c.table === 'products' && String(c.select).includes('has_photo')))).toBe(true);
 
     // Y en el arranque no se descarga ninguna foto: renderAll() pinta también
     // las pestañas ocultas, pero un hueco invisible no dispara la carga.

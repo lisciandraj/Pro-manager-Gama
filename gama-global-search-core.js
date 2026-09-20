@@ -77,7 +77,7 @@ function applyText(q,fields,text,ids=[]){
 function matches(row,s,text,ref){if(ref){if(sameReference(s.title(row),ref.raw||'')||sameReference(row.original_number,ref.raw||''))return true;return [row.dossier_reference,row.dossier_label,row.legacy_reference,row.number,row.invoice_number,row.reference].some(v=>{const r=reference(v);return r&&r.prefix===ref.prefix&&r.number===ref.number&&r.ordinal===ref.ordinal})}
  const hay=normalize([s.title(row),...(s.subtitle(row)||[]),...s.fields.map(f=>row[f.includes('->>')?f.split('->>')[1]:f])].join(' '));return tokens(text).every(w=>hay.includes(w));}
 function rank(r,s,p){const title=normalize(s.title(r)),q=normalize(p.raw);return (p.ref&&matches(r,s,p.text,p.ref)?100:0)+(title===q||[r.barcode,r.reference,r.original_number].some(v=>normalize(v)===q)?80:0)+(title.startsWith(q)?20:0)+(r.active===false?-5:0);}
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 async function result(query,signal){if(signal)query=query.abortSignal(signal);const r=await query;if(r.error)throw r.error;return r.data||[];}
 async function attach(client,table,rows,signal){
  if(!rows.length||['customers','crm_contacts','suppliers','products','bank_transactions','fleet_drivers'].includes(table))return rows;

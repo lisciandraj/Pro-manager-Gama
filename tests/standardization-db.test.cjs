@@ -28,7 +28,13 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   for(const file of fs.readdirSync(folder).filter(f=>f>=firstChange&&f.endsWith('.sql')).sort())await db.exec(fs.readFileSync(path.join(folder,file),'utf8'));
   for(const uid of [admin,client]){
    await actAs(db,uid);await db.exec('begin');
-   for(const item of outcomes.filter(x=>x.uid===uid))assert.deepEqual(await probe(item.domain,item.action),canonicalize(item.before),uid+': '+item.domain+'.'+item.action);
+   for(const item of outcomes.filter(x=>x.uid===uid)){
+    // P0 refunds now require an idempotency key before validating the amount.
+    const expected=uid===admin&&item.domain==='returns'&&item.action==='refund'?{ok:false,code:'P0001',message:'REQUEST_KEY_REQUIRED'}:canonicalize(item.before);
+    const actual=await probe(item.domain,item.action);
+    if(uid===admin&&item.domain==='accounting'&&['chart','settings'].includes(item.action)&&actual.ok){const field=item.action==='chart'?'rows':'accounts';const advance=actual.result[field].find(a=>a.code==='2090');assert.equal(advance?.type,'liability');actual.result[field]=actual.result[field].filter(a=>a.code!=='2090');}
+    assert.deepEqual(actual,expected,uid+': '+item.domain+'.'+item.action);
+   }
    await db.exec('rollback');
   }
   await db.exec('reset role');

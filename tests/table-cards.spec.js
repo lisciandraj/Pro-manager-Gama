@@ -78,7 +78,7 @@ test('la foto se enseña sin etiqueta y el titular es el primer dato legible', a
   expect(c[2].padL, 'un dato normal guarda hueco para su etiqueta').not.toBe('0px');
   // Y la celda que sólo lleva botones no gasta hueco en una etiqueta.
   expect(c[c.length - 1]).toMatchObject({ col: '', padL: '0px' });
-  expect(c[c.length - 1].texto).toContain('Editar');
+  await expect(page.locator('#productsTable button[data-edit]').first()).toHaveAccessibleName(/Editar/);
 });
 
 test('la flecha de ordenar no se cuela en el nombre de la columna', async ({ page }) => {

@@ -285,6 +285,8 @@
   function render(element, html) {
     element.innerHTML = html;
     mount(element);
+    const section = element.closest("section[id]");
+    if (section) window.dispatchEvent(new CustomEvent("arc:module-rendered", { detail: { id: section.id } }));
     return html;
   }
   const ui = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -1344,7 +1346,7 @@
       $("supMsg").textContent = "";
     };
     $("supClear").onclick = reset;
-    const columns = [{ key: "name", label: "Proveedor", sort: "name" }, { key: "taxId", label: "RUC / identificación", sort: "tax_id" }, { key: "contactName", label: "Persona de contacto" }, { key: "phone", label: "Teléfono" }, { key: "email", label: "Email" }, { key: "city", label: "Ciudad", sort: "city" }, { key: "address", label: "Dirección" }, { key: "notes", label: "Información clave" }, { label: "Acciones", actions: true, html: (s) => s.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(s.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-del="' + escapeHtml(s.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(s.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar"), variant: "danger", attrs: 'data-purge="' + escapeHtml(s.id) + '"' }) }];
+    const columns = [{ key: "name", label: "Proveedor", sort: "name" }, { key: "taxId", label: "RUC / identificación", sort: "tax_id" }, { key: "contactName", label: "Persona de contacto" }, { key: "phone", label: "Teléfono" }, { key: "email", label: "Email" }, { key: "city", label: "Ciudad", sort: "city" }, { key: "address", label: "Dirección" }, { key: "notes", label: "Información clave" }, { label: "Acciones", actions: true, html: (s) => button({ label: translate("Historial"), attrs: 'data-partner="' + escapeHtml(s.id) + '"' }) + " " + (s.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(s.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-del="' + escapeHtml(s.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(s.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar"), variant: "danger", attrs: 'data-purge="' + escapeHtml(s.id) + '"' })) }];
     const refresh = async () => {
       invalidate("suppliers");
       await grid.refresh({ page: 0 });
@@ -1371,7 +1373,7 @@
       if (count.error) throw count.error;
       $("supArchive").innerHTML = window.GamaArchive.tabs("suppliersDir", archived ? count.count : result.total, archived ? result.total : count.count);
       return result;
-    }, actions: { "data-del": (id) => mutate(id, "archive"), "data-restore": (id) => mutate(id, "restore"), "data-purge": (id) => mutate(id, "delete"), "data-edit": (id) => {
+    }, actions: { "data-product-controls": (id) => window.ArchitectProductsControls.open(id), "data-partner": (id) => window.ArchitectPartners.open("supplier", id), "data-del": (id) => mutate(id, "archive"), "data-restore": (id) => mutate(id, "restore"), "data-purge": (id) => mutate(id, "delete"), "data-edit": (id) => {
       editing = rows.get(id);
       if (!editing) return;
       for (const f of supplierFields) $(f.id).value = editing[f.key] || "";
@@ -1415,7 +1417,7 @@
         var _a;
         return ((_a = (window.ArcEntities.suppliersCache || []).find((s) => s.id === p.supplierId)) == null ? void 0 : _a.name) || "—";
       } },
-      { label: "Acciones", actions: true, html: (p) => p.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' }) }
+      { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
     ],
     customers: [
       { key: "name", label: "Cliente", sort: "name" },
@@ -1425,7 +1427,7 @@
       { key: "city", label: "Ciudad" },
       { key: "phone", label: "Teléfono" },
       { key: "email", label: "Email" },
-      { label: "Acciones", actions: true, html: (c) => c.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(c.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(c.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(c.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(c.id) + '"' }) }
+      { label: "Acciones", actions: true, html: (c) => button({ label: translate("Historial"), attrs: 'data-partner="' + escapeHtml(c.id) + '"' }) + " " + (c.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(c.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(c.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(c.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(c.id) + '"' })) }
     ]
   };
   function directory(entity, filter = "") {
@@ -1455,7 +1457,7 @@
       if (other.error) throw other.error;
       host.querySelector("[data-arc-archive]").innerHTML = window.GamaArchive.tabs(key, archived ? other.count : result.total, archived ? result.total : other.count);
       return result;
-    }, actions: { "data-edit": (id) => {
+    }, actions: { "data-product-controls": (id) => window.ArchitectProductsControls.open(id), "data-partner": (id) => window.ArchitectPartners.open("customer", id), "data-edit": (id) => {
       const row = rows.get(id);
       if (row) entity === "products" ? window.editProduct(row.barcode, row.id) : window.editClient(row.taxId);
     }, "data-archive": (id) => {
@@ -1530,6 +1532,24 @@
       }])) };
     }
   }
+  function startPerformance() {
+    const entries = [], start = performance.now();
+    const record = (type, detail) => {
+      entries.push({ type, at: Math.round(performance.now()), ...detail });
+      if (entries.length > 100) entries.shift();
+    };
+    window.addEventListener("arc:route-change", (e) => record("navigation", { route: e.detail.id }));
+    window.addEventListener("architect:route-data-ready", (e) => record("data", { route: e.detail.route, milliseconds: Math.round(e.detail.milliseconds), tables: e.detail.tables.length }));
+    let measured = false;
+    window.addEventListener("gama:modules-change", () => {
+      var _a;
+      if (!measured && ((_a = window.GamaRoleAccess) == null ? void 0 : _a.isReady())) {
+        measured = true;
+        record("access_ready", { milliseconds: Math.round(performance.now() - start) });
+      }
+    });
+    window.ArchitectPerformance = { snapshot: () => ({ entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }) };
+  }
   window.ArcUI = { ...ui, icons, esc: escapeHtml };
   window.ArcFormat = format;
   window.ArcErrors = { normalize: normalizeError, message: errorMessage };
@@ -1542,4 +1562,5 @@
   installLazyModules();
   startDataEvents();
   startRouter();
+  startPerformance();
 })();

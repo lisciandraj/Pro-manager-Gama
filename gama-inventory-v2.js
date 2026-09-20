@@ -31,8 +31,10 @@ const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:2});
 
-let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=new Map();
+let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null;
+let serverSnapshot=null,snapshotRequest=0;
+async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
 let pestana='existencias',disponibleV2=null,cargando=false;
 
 /* ---------- datos ---------- */
@@ -48,8 +50,8 @@ async function cargar(){
   const [w,l,q,p]=await Promise.all([
    C().list('warehouses',{order:'code',ascending:true}),
    C().list('warehouse_locations',{order:'code',ascending:true}),
-   C().list('stock_quants',{}),
-   C().list('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})
+   window.ArcData.all('stock_quants',{}),
+   window.ArcData.all('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})
   ]);
   /* Si falta la tabla, PostgREST responde con error en vez de con filas. Es
      la señal de que la migración aún no está aplicada. */
@@ -58,8 +60,8 @@ async function cargar(){
   almacenes=w.data||[];ubicaciones=l.data||[];quants=q.data||[];
   productos=(p.data||[]).filter(x=>x.active!==false);
   const [rr,sp,cc]=await Promise.all([
-   C().list('reorder_rules',{}),
-   C().list('suppliers',{select:'id,name'}),
+   window.ArcData.all('reorder_rules',{}),
+   window.ArcData.all('suppliers',{select:'id,name'}),
    C().list('inventory_counts',{order:'created_at',ascending:false,limit:20})
   ]);
   /* Las tablas de las fases 5 y 6 pueden no estar aplicadas todavía: si
@@ -76,18 +78,18 @@ async function cargar(){
    no puede leer purchase_orders —así lo dice su RLS—, y entonces esta cifra se
    queda en blanco en vez de mentir con un cero. */
 async function cargarEntrante(){
- entrante=new Map();
+ entrante=[];
  try{
   const [po,pol]=await Promise.all([
-   C().list('purchase_orders',{select:'id,status'}),
-   C().list('purchase_order_lines',{select:'product_id,quantity,received_quantity,purchase_order_id'})
+   window.ArcData.all('purchase_orders',{select:'id,status,expected_date,destination_location_id'}),
+   window.ArcData.all('purchase_order_lines',{select:'id,product_id,quantity,received_quantity,purchase_order_id'})
   ]);
   if(po.error||pol.error){entrante=null;return}
   const abiertas=new Set((po.data||[]).filter(o=>o.status==='sent'||o.status==='partial').map(o=>o.id));
   (pol.data||[]).forEach(l=>{
    if(!abiertas.has(l.purchase_order_id))return;
    const falta=Number(l.quantity||0)-Number(l.received_quantity||0);
-   if(falta>0)entrante.set(l.product_id,(entrante.get(l.product_id)||0)+falta);
+   if(falta>0){const order=(po.data||[]).find(o=>o.id===l.purchase_order_id);entrante.push({product_id:l.product_id,quantity:falta,location_id:order.destination_location_id,expected_date:order.expected_date})}
   });
  }catch(_){entrante=null}
 }
@@ -100,8 +102,9 @@ function resumen(p,filtroAlmacen){
  const suyos=quants.filter(q=>q.product_id===p.id&&(!filtroAlmacen||(almacenDe(q.location_id)||{}).id===filtroAlmacen));
  const onHand=suyos.reduce((s,q)=>s+Number(q.quantity||0),0);
  const reservado=suyos.reduce((s,q)=>s+Number(q.reserved_quantity||0),0);
- const entra=entrante?Number(entrante.get(p.id)||0):null;
- const disp=onHand-reservado;
+ const until=$('ivUntil')?.value;const entra=entrante?entrante.filter(x=>x.product_id===p.id&&(!filtroAlmacen||(almacenDe(x.location_id)||{}).id===filtroAlmacen)&&(!until||(x.expected_date&&x.expected_date.slice(0,10)<=until))).reduce((n,x)=>n+x.quantity,0):null;
+ const disp=onHand-reservado;const server=serverSnapshot&&serverSnapshot.warehouse===(filtroAlmacen||null)&&serverSnapshot.until===($('ivUntil')?.value||null)?serverSnapshot.rows.get(p.id):null;
+ if(server)return {producto:p,onHand:Number(server.physical),reservado:Number(server.reserved),disponible:Number(server.available),entrante:server.incoming===null?null:Number(server.incoming),previsto:server.projected===null?null:Number(server.projected),minimo:Number(p.min_stock||0),maximo:Number(p.max_stock||0),costo:Number(p.purchase_price||0),valor:Number(server.current_cost_value),lineas:suyos};
  return {
   producto:p,onHand,reservado,disponible:disp,
   entrante:entra,previsto:entra===null?null:disp+entra,
@@ -174,7 +177,7 @@ function pintarExistencias(host){
 <div class="ivFiltros">
  <input id="ivBuscar" type="search" data-gi-placeholder=63ccace81217 placeholder="Buscar por producto o referencia…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
  <select id="ivAlmacen" data-gi-aria-label=9a91575b8e4b aria-label="Almacén"><option value="" data-gi=c27ceb62ad08>Todos los almacenes</option>${opcionesAlmacen}</select>
- <select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
+ <label data-gi=3c83e3558107>Hasta<input type="date" id="ivUntil"></label><select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
  <select id="ivEstadoFiltro" data-gi-aria-label=98e5acddb6c4 aria-label="Estado">
   <option value="" data-gi=ecda92faab01>Todos los estados</option>
   <option value="bajo" data-gi=9ae983d98529>Stock bajo</option>
@@ -183,14 +186,14 @@ function pintarExistencias(host){
   <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
  </select>
 </div>
-<div id="ivTabla"></div>
+<p class="muted">Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p><div id="ivTabla"></div>
 </div>`);
- ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro'].forEach(id=>{
+ ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
   const el=$(id);if(!el)return;
-  el[id==='ivBuscar'?'oninput':'onchange']=()=>{window.GamaPage?.reset('invv2');tabla()};
+  el[id==='ivBuscar'?'oninput':'onchange']=async()=>{window.GamaPage?.reset('invv2');if(['ivAlmacen','ivUntil'].includes(id))await refreshSnapshot();tabla()};
  });
  window.GamaPage?.register('invv2',tabla);
- tabla();
+ tabla();refreshSnapshot().then(()=>{if($('ivTabla'))tabla()});
 }
 
 function filas(){
@@ -204,7 +207,7 @@ function filas(){
   .map(p=>resumen(p,alm))
   /* Con un almacén elegido, un producto que no tiene nada ahí no es una fila
      vacía que llenar: simplemente no está en ese almacén. */
-  .filter(r=>!alm||r.lineas.length)
+  .filter(r=>!alm||r.lineas.length||r.entrante>0)
   .filter(r=>!est||estado(r).clase===est);
 }
 
@@ -428,7 +431,7 @@ Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-invento
 <p class="muted" style="margin:0 0 12px" data-gi=9f7ced168427>Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
 <div class="ivForm">
  <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
- <div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
+ <div><label>Ubicación (opcional)<select id="ivcLocation"><option value="" data-gi=aff4d19d6ee4>Todas</option>${ubicaciones.map(l=>`<option value="${esc(l.id)}">${esc(l.code)}</option>`).join('')}</select></label></div><div><label>Categoría (opcional)<input id="ivcCategory"></label></div><div><label>Repetir en días (opcional)<input id="ivcCycle" type="number" min="1" max="366"></label></div><div><label><input id="ivcBlind" type="checkbox" checked> Recuento ciego</label></div><div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
 </div>
 <button type="button" class="arcButton primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
 </div>
@@ -438,7 +441,7 @@ Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-invento
    const a=almacenes.find(x=>x.id===c.warehouse_id);
    return `<tr><td><b>${esc(c.reference)}</b></td><td>${esc(a?a.name:'—')}</td>
 <td><span class="ivEstado ${c.status==='validated'?'ok':c.status==='cancelled'?'sobre':'bajo'}">${esc(ESTADO_CONTEO[c.status]||c.status)}</span></td>
-<td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}</td>
+<td>${esc(new Date(c.created_at).toLocaleDateString('es-EC'))}${c.next_due?'<br>Próximo recuento: '+esc(c.next_due):''}</td>
 <td><button type="button" class="arcButton secondary" data-ivc-abrir="${esc(c.id)}" data-gi=a01a5fce396e>Abrir</button></td></tr>`}).join('')+'</table>'
  :'<div class="muted" data-gi=379b33723552>Todavía no hay recuentos.</div>'}</div>`);
  $('ivcCrear').onclick=crearConteo;
@@ -454,11 +457,7 @@ async function crearConteo(){
  if(!ref)return window.gamaToast('Ponga una referencia al recuento.');
  const rotulo=btn.textContent;btn.disabled=true;btn.textContent='Creando…';
  try{
-  const r=await C().insert('inventory_counts',{warehouse_id:alm,reference:ref,status:'draft'});
-  if(r.error)throw r.error;
-  const c=await C().db();
-  const {error}=await window.ArcData.rawRpc('gama_count_generate_lines',{p_count_id:r.data.id});
-  if(error)throw error;
+  const r={data:await window.ArcData.rpc('gama_count_create',{p_data:{request_key:btn.dataset.requestKey||(btn.dataset.requestKey=crypto.randomUUID()),warehouse_id:alm,reference:ref,location_id:$('ivcLocation').value||null,category:$('ivcCategory').value||null,cycle_days:$('ivcCycle').value||null,blind:$('ivcBlind').checked}})};
   window.gamaToast('Recuento creado con sus líneas.');
   await cargar();await abrirConteo(r.data.id);
  }catch(e){console.warn('[GAMA conteo]',e);window.gamaToast(mensaje(e))}
@@ -467,7 +466,7 @@ async function crearConteo(){
 
 async function abrirConteo(id){
  try{
-  const r=await C().list('inventory_count_lines',{eq:{count_id:id}});
+  const r=await window.ArcData.all('inventory_count_lines',{eq:{count_id:id},order:'id'});
   if(r.error)throw r.error;
   lineas=r.data||[];
   conteoAbierto=(conteos||[]).find(c=>c.id===id)||{id,reference:'',status:'in_progress'};
@@ -478,6 +477,7 @@ async function abrirConteo(id){
 function pintarConteoAbierto(host){
  const c=conteoAbierto;
  const cerrado=c.status==='validated'||c.status==='cancelled';
+ const blind=c.blind&&!cerrado&&lineas.some(l=>l.counted_quantity==null);
  const nombre=id=>{const p=productos.find(x=>x.id===id);return p?p.name:'—'};
  window.ArcUI.render(host,`<div class="ivCard">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
@@ -497,11 +497,12 @@ ${cerrado?'':'<button type="button" class="arcButton primary" id="ivcValidar" st
    return `<tr>
 <td><b>${esc(nombre(l.product_id))}</b></td>
 <td>${esc((ubicacion(l.location_id)||{}).code||'—')}</td>
-<td>${num(l.expected_quantity)}</td>
-<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="1" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
-<td>${dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}</td>
+<td>${blind?'—':num(l.expected_quantity)}</td>
+<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="0.001" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
+<td>${blind||dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}${!cerrado&&!blind&&dif!==null&&dif!==0?`<br><button type="button" class="arcButton secondary" data-recount="${esc(l.id)}">Segundo recuento${l.recount_quantity!=null?' · '+num(l.recount_quantity):''}</button>`:''}</td>
 </tr>`}).join('')+'</table>'
   :'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>');
+ host2.querySelectorAll('[data-recount]').forEach(b=>b.onclick=()=>window.ArcUI.dialog({title:'Segundo recuento · otra persona',body:window.ArcUI.field({key:'quantity',label:'Cantidad observada',type:'number',min:0,step:0.001,required:true}),onSave:async el=>{const n=Number(new FormData(el.querySelector('form')).get('quantity'));const r=await C().update('inventory_count_lines',b.dataset.recount,{recount_quantity:n});if(r.error)throw r.error;await abrirConteo(c.id)}}));
  host2.querySelectorAll('[data-ivc-linea]').forEach(i=>i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value));
  if(!cerrado&&$('ivcValidar'))$('ivcValidar').onclick=validarConteo;
  if(window.GamaTable)window.GamaTable.scan();

@@ -109,6 +109,6 @@ test.describe('Catálogo — cantidad editable en el pedido', () => {
     await expect.poll(() =>
       page.evaluate(() => (window.__DB.customer_request_lines || []).map(l => l.quantity))
     ).toEqual([4]);
-    expect(await page.evaluate(() => window.__DB.customer_requests[0].total)).toBe(40);
+    expect(await page.evaluate(() => window.__DB.customer_requests[0].total)).toBe(46);
   });
 });

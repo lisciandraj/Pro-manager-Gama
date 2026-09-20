@@ -17,7 +17,7 @@ const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d);
 const pct=v=>v==null?'—':num(v,1)+' %';
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const monthStart=()=>day().slice(0,8)+'01';
 
 const SECTIONS=[
@@ -386,6 +386,7 @@ VIEWS.purchases={
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
      <td><div class="gaActions">
+      ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
       ${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
       ${rights?.validate&&r.status!=='cancelled'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
@@ -394,15 +395,18 @@ VIEWS.purchases={
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
+  document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
   document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)));
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }
 };
-function billForm(){
+async function billForm(){
+ const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
  const key=crypto.randomUUID(),sup=state.suppliers||[];
  GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
+  ${field('Pedido de compra (opcional)',`<select id="gaPurchase"><option value="">—</option>${purchases.data.filter(p=>p.status!=='cancelled').map(p=>`<option value="${esc(p.id)}">${esc(p.order_number)}</option>`).join('')}</select>`)}
   ${field('Número de la factura',`<input id="gaNumber" required maxlength="80">`)}
   ${field('Fecha',`<input id="gaDate" type="date" required value="${day()}">`)}
   ${field('Plazo de pago (días)',`<input id="gaTerms" type="number" min="0" max="3650" value="30">`)}
@@ -415,7 +419,7 @@ function billForm(){
    const v=id=>el.querySelector('#'+id).value;
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
-    issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
+    purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
     tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes')});
    await go();
   });
@@ -846,7 +850,7 @@ VIEWS.periods={
    <p class="gaHint">${tr('Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.')}</p></div>`;
  },
  bind(){
-  $('gaClose')?.addEventListener('click',b=>act(b.target,()=>mutate('period_close',{period_start:$('gaMonth').value+'-01'}).then(()=>go())));
+  $('gaClose')?.addEventListener('click',b=>act(b.target,()=>window.ArchitectAccessControls.closing($('gaMonth').value+'-01',()=>mutate('period_close',{period_start:$('gaMonth').value+'-01'}).then(()=>go()))));
   document.querySelectorAll('[data-ga-reopen]').forEach(b=>b.onclick=()=>reasonForm('Reabrir el periodo',r=>mutate('period_reopen',{period_start:b.dataset.gaReopen,reason:r}).then(()=>go())));
  }
 };
@@ -938,7 +942,8 @@ function chartForm(row){
 /* ------------------------------------------------------------- exportación */
 /* Un CSV con separador de punto y coma: Excel lo abre de doble clic en las tres
    lenguas y no hace falta ninguna librería. El export respeta el filtro activo. */
-function exportRows(rows,name){
+async function exportRows(rows,name){
+ try{await window.ArchitectAccessControls.requireAction('accounting','export')}catch(e){window.gamaToast?.(window.ArcErrors.message(e));return}
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
  const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);

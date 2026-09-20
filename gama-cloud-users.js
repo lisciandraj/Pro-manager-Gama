@@ -3,11 +3,12 @@
 'use strict';
 const ROLE={administrador:'Administrador',admin:'Administrador',comercial:'Comercial',commercial:'Comercial',almacenero:'Almacenero',magasinier:'Almacenero',cliente:'Cliente',client:'Cliente'};
 const esc=window.ArcUI.esc;
-let realtime=null, booted=false, selfId=null;
+let realtime=null, booted=false, selfId=null, generation=0;
 function wait(){
   if(!window.GamaCloud||!window.GamaCloudReady)return setTimeout(wait,250);
   window.GamaCloudReady.then(init).catch(e=>console.warn('[GAMA Cloud Users]',e));
 }
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;generation++;document.getElementById('cuRows')?.replaceChildren();booted=false;if(document.getElementById('users')?.classList.contains('active'))init()});
 async function init(){
   if(booted)return;
   booted=true;
@@ -18,15 +19,16 @@ async function init(){
     const role=pr?.data?.role;
     selfId=pr?.data?.id||session.user?.id||null;
     if(role!=='administrador' && role!=='admin')return;
+    // The router needs its target section before the first navigation. Create
+    // the shell now; profiles are still fetched only when the module opens.
     patch();
-    await window.GamaRoleAccess?.load();
-    await load();
+    if(window.ArcRouter.current==='users')await load();
     if(!realtime){
-      try{realtime=await window.GamaCloud.subscribe('profiles',()=>load())}
+      try{realtime=await window.GamaCloud.subscribe('profiles',()=>{if(window.ArcRouter.current==='users')load()})}
       catch(e){console.warn('[GAMA] profiles realtime unavailable',e)}
     }
-    window.addEventListener('gama:auth-change',()=>setTimeout(()=>{patch();load()},150));
-    window.addEventListener('gama:access-profiles-change',()=>load());
+
+    window.addEventListener('gama:access-profiles-change',()=>{if(window.ArcRouter.current==='users')load()});
   }catch(e){console.warn('[GAMA Cloud Users] init failed',e)}
 }
 function patch(){
@@ -38,6 +40,7 @@ function patch(){
   if(!document.getElementById('cuStyle')){const st=document.createElement('style');st.id='cuStyle';document.head.appendChild(st)}
 }
 async function load(){
+  const token=++generation;
   const s=document.getElementById('users');
   if(!s)return;
   if(!s.querySelector('.cloudUsersV17'))patch();
@@ -45,8 +48,8 @@ async function load(){
   if(!status||!body)return;
   try{
     status.textContent='Sincronizando con la nube…';
-    const r=await window.GamaCloud.list('profiles',{order:'created_at',ascending:false});
-    if(r.error)throw r.error;
+    const r=await window.ArcData.all('profiles',{order:'id',ascending:false});
+    if(r.error)throw r.error;if(token!==generation)return;
     const rows=Array.isArray(r.data)?r.data:[];
     const ROLES=window.GamaRoleAccess.options();
     const key=x=>x.access_profile||(window.ArcModules.roleAliases[x.role]||x.role);
@@ -86,12 +89,6 @@ function wireActions(){
     catch(e){await load();alert('No se pudo cambiar el rol: '+(e.message||e));}
   });
 }
-const observer=new MutationObserver(()=>{
-  if(!document.getElementById('users'))return;
-  const s=document.getElementById('users');
-  if(!s.querySelector('.cloudUsersV17')){patch();load();}
-});
-function startObserver(){if(document.body)observer.observe(document.body,{subtree:true,childList:true});}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{startObserver();wait()},{once:true});
-else{startObserver();wait()}
+window.ArcRouter.onEnter('users',async()=>{await window.GamaCloudReady;await init();if(selfId){patch();await load();window.ArchitectIdentity?.mount(document.getElementById('users'))}});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 })();

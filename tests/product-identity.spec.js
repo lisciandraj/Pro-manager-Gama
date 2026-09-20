@@ -36,13 +36,18 @@ test('Excel reports database duplicates and errors without counting successful i
  await setup(page);
  await page.evaluate(()=>{
   window.XLSX={read:()=>({SheetNames:['products'],Sheets:{products:{}}}),utils:{sheet_to_json:()=>[{name:'Duplicado',barcode:'D'},{name:'Error',barcode:'E'},{name:'Valido',barcode:'V'}]}};
-  const insert=window.GamaCloud.insert;
-  window.GamaCloud.insert=async(table,row)=>row.name==='Duplicado'?{error:{code:'23505',message:'Ya existe un producto con este nombre.'}}:row.name==='Error'?{error:{code:'42501',message:'Permiso denegado'}}:insert(table,row);
+  const old=GamaCloud.db;let result;
+  GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_import_batch')return c.rpc(fn,args);
+   if(args.p_action==='prepare')result={batch:{id:'import-test',filename:'test.csv'},rows:args.p_data.rows.map((data,i)=>({row_number:i+2,data,status:i<2?'error':'ready',error:i===0?'DUPLICATE_PRODUCT':i===1?'PERMISSION_DENIED':null}))};
+   if(args.p_action==='apply'){for(const r of result.rows)if(r.status==='ready'){await GamaCloud.insert('products',r.data);r.status='imported'}}
+   return {data:structuredClone(result)};
+  }}};
  });
  await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
  await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\n')});
- await expect(page.locator('#gamaExcelImport')).toBeEnabled();await page.click('#gamaExcelImport');
- await expect(page.locator('#gamaExcelStatus')).toContainText('1 fila(s) importada(s), 1 duplicada(s) omitida(s), 1 error(es)');
+ await expect(page.locator('#gamaExcelImport')).toBeDisabled();await page.click('#gamaExcelValidate');await expect(page.locator('#gamaExcelStatus')).toContainText('2 errores');expect(await page.evaluate(()=>window.__DB.products.length)).toBe(2);await page.click('#gamaExcelImport');
+ await expect(page.locator('#gamaExcelStatus')).toContainText('1 importadas · 2 errores');
  expect(await page.evaluate(()=>window.__DB.products.length)).toBe(3);
 });
 

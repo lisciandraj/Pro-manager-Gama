@@ -12,7 +12,7 @@ export function suppliers(host) {
   const form=$('supForm');
   const reset=()=>{editing=null;form.reset();$('supFormTitle').textContent=t('Nuevo proveedor');$('supMsg').textContent='';};
   $('supClear').onclick=reset;
-  const columns=[{key:'name',label:'Proveedor',sort:'name'}, {key:'taxId',label:'RUC / identificación',sort:'tax_id'}, {key:'contactName',label:'Persona de contacto'}, {key:'phone',label:'Teléfono'}, {key:'email',label:'Email'}, {key:'city',label:'Ciudad',sort:'city'}, {key:'address',label:'Dirección'}, {key:'notes',label:'Información clave'}, {label:'Acciones',actions:true,html:s=>s.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-del="'+esc(s.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar'),variant:'danger',attrs:'data-purge="'+esc(s.id)+'"'})}];
+  const columns=[{key:'name',label:'Proveedor',sort:'name'}, {key:'taxId',label:'RUC / identificación',sort:'tax_id'}, {key:'contactName',label:'Persona de contacto'}, {key:'phone',label:'Teléfono'}, {key:'email',label:'Email'}, {key:'city',label:'Ciudad',sort:'city'}, {key:'address',label:'Dirección'}, {key:'notes',label:'Información clave'}, {label:'Acciones',actions:true,html:s=>ui.button({label:t('Historial'),attrs:'data-partner="'+esc(s.id)+'"'})+' '+(s.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-del="'+esc(s.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar'),variant:'danger',attrs:'data-purge="'+esc(s.id)+'"'}))}];
   const refresh=async()=>{data.invalidate('suppliers');await grid.refresh({page:0});window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}));};
   const mutate=async(id,operation)=>{
     const supplier=rows.get(id);if(!supplier)return;
@@ -27,7 +27,7 @@ export function suppliers(host) {
     const count=await window.GamaCloud.list('suppliers',{select:'id',count:'exact',head:true,eq:{active:archived}});if(count.error)throw count.error;
     $('supArchive').innerHTML=window.GamaArchive.tabs('suppliersDir',archived?count.count:result.total,archived?result.total:count.count);
     return result;
-  },actions:{'data-del':id=>mutate(id,'archive'),'data-restore':id=>mutate(id,'restore'),'data-purge':id=>mutate(id,'delete'),'data-edit':id=>{editing=rows.get(id);if(!editing)return;for(const f of supplierFields)$(f.id).value=editing[f.key]||'';$('supFormTitle').textContent=t('Editar proveedor');$('supName').focus();}}});
+  },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-partner':id=>window.ArchitectPartners.open('supplier',id),'data-del':id=>mutate(id,'archive'),'data-restore':id=>mutate(id,'restore'),'data-purge':id=>mutate(id,'delete'),'data-edit':id=>{editing=rows.get(id);if(!editing)return;for(const f of supplierFields)$(f.id).value=editing[f.key]||'';$('supFormTitle').textContent=t('Editar proveedor');$('supName').focus();}}});
   window.GamaArchive.register('suppliersDir',()=>grid.refresh({page:0}));
   const formApi=ui.bindForm(form,async()=>{
     const value=Object.fromEntries(supplierFields.map(f=>[f.key,$(f.id).value.trim()]));
@@ -47,10 +47,10 @@ const directoryColumns={
   {label:'Venta A',value:p=>format.money(p.salePrice),numeric:true,sort:'sale_price'},{label:'Venta B',value:p=>format.money(p.salePriceB),numeric:true},
   {label:'IVA',value:p=>format.number(p.taxRate)+' %'},{key:'location',label:'Ubicación'},
   {label:'Proveedor',value:p=>(window.ArcEntities.suppliersCache||[]).find(s=>s.id===p.supplierId)?.name||'—'},
-  {label:'Acciones',actions:true,html:p=>p.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(p.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(p.id)+'"'})}
+  {label:'Acciones',actions:true,html:p=>ui.button({label:t('Unidades e historial'),attrs:'data-product-controls="'+esc(p.id)+'"'})+' '+(p.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(p.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(p.id)+'"'}))}
  ],
  customers:[{key:'name',label:'Cliente',sort:'name'},{key:'taxId',label:'Identificación',sort:'identification'},{key:'category',label:'Categoría'},{key:'address',label:'Dirección'},{key:'city',label:'Ciudad'},{key:'phone',label:'Teléfono'},{key:'email',label:'Email'},
-  {label:'Acciones',actions:true,html:c=>c.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(c.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(c.id)+'"'})}]
+  {label:'Acciones',actions:true,html:c=>ui.button({label:t('Historial'),attrs:'data-partner="'+esc(c.id)+'"'})+' '+(c.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(c.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(c.id)+'"'}))}]
 };
 export function directory(entity,filter='') {
   const moduleId=entity==='customers'?'clients':entity;
@@ -66,7 +66,7 @@ export function directory(entity,filter='') {
     const other=await window.GamaCloud.list(entity,{select:'id',count:'exact',head:true,eq:{active:archived}});if(other.error)throw other.error;
     host.querySelector('[data-arc-archive]').innerHTML=window.GamaArchive.tabs(key,archived?other.count:result.total,archived?result.total:other.count);
     return result;
-  },actions:{'data-edit':id=>{const row=rows.get(id);if(row)entity==='products'?window.editProduct(row.barcode,row.id):window.editClient(row.taxId);},'data-archive':id=>{const row=rows.get(id);if(row)entity==='products'?window.deleteProduct(row.barcode):window.deleteClient(row.taxId);},'data-restore':id=>entity==='products'?window.restoreProduct(id):window.restoreClient(id),'data-delete':id=>entity==='products'?window.purgeProduct(id):window.purgeClient(id)}});
+  },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-partner':id=>window.ArchitectPartners.open('customer',id),'data-edit':id=>{const row=rows.get(id);if(row)entity==='products'?window.editProduct(row.barcode,row.id):window.editClient(row.taxId);},'data-archive':id=>{const row=rows.get(id);if(row)entity==='products'?window.deleteProduct(row.barcode):window.deleteClient(row.taxId);},'data-restore':id=>entity==='products'?window.restoreProduct(id):window.restoreClient(id),'data-delete':id=>entity==='products'?window.purgeProduct(id):window.purgeClient(id)}});
   const onChange=e=>{if(e.detail?.table===entity)grid.refresh();};window.addEventListener('gama:data-change',onChange);
   const view={host,refresh(search){const archived=window.GamaArchive.mode(key)==='archived';const changed=search!==lastFilter||archived!==lastArchived;lastFilter=search;grid.refresh(changed?{page:0,search}:{});},dispose(){grid.dispose();window.removeEventListener('gama:data-change',onChange);}};
   window.GamaArchive.register(key,()=>grid.refresh({page:0}));views.set(entity,view);

@@ -44,7 +44,7 @@ async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=D
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Responsable de devoluciones'}));
   localStorage.removeItem('gama_company_currency_v1');
   window.__DB={products:[],customers:[],suppliers:[],profiles:[],app_modules:[],invoices:[],
-   company_settings:[{id:true,currency:'USD',country:'EC'}]};
+   financial_accounts:[{id:'bank1',name:'Banco real',currency:'USD',active:true}],company_settings:[{id:true,currency:'USD',country:'EC'}]};
   window.__RET={responses:RESPONSES,calls:[],error:null};
  },{role,RESPONSES});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:cloud}));
@@ -160,12 +160,12 @@ test('el reembolso propone el importe pendiente y no deja pasarse',async({page})
  await page.locator('#grRefund').click();
  await expect(page.locator('#grRefundAmount')).toHaveValue('100');
  await expect(page.locator('#grRefundAmount')).toHaveAttribute('max','100');
- await page.locator('#grRefundMethod').fill('Transferencia');
+ await page.locator('#grRefundAccount').selectOption('bank1');await page.locator('#grRefundMethod').fill('Transferencia');
  await page.locator('#gsSave').click();
  await expect(page.locator('dialog')).toHaveCount(0);
  const call=await lastCall(page,'refund');
  expect(call.p_data.amount).toBe(100);
- expect(call.p_data.method).toBe('Transferencia');
+ expect(call.p_data.method).toBe('Transferencia');expect(call.p_data.financial_account_id).toBe('bank1');
  expect(call.p_data.request_key).toMatch(/^[0-9a-f-]{36}$/);
 });
 
@@ -174,7 +174,7 @@ test('el servidor manda: su negativa se explica en la pantalla',async({page})=>{
  await page.locator('[data-gr-open=r1]').click();
  await page.evaluate(()=>{window.__RET.error='REFUND_EXCEEDS_RETURN'});
  await page.locator('#grRefund').click();
- await page.locator('#grRefundMethod').fill('Transferencia');
+ await page.locator('#grRefundAccount').selectOption('bank1');await page.locator('#grRefundMethod').fill('Transferencia');
  await page.locator('#gsSave').click();
  await expect(page.locator('#gsFormError')).toContainText('superaría el importe de la devolución');
  await expect(page.locator('dialog')).toHaveCount(1);

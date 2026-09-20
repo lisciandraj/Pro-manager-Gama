@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDateString('es-EC')}catch(e){return String(v)}};
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
 const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permiso:'📄 Permiso',formacion:'🎓 Formación',otro:'• Otro'};
 /* El equipo ve el motivo de cada ausencia —vacaciones, enfermedad, permiso…—

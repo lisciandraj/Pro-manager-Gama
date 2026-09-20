@@ -123,4 +123,4 @@ export function mount(root=document) {
   root.querySelectorAll('label').forEach(label=>{const control=label.querySelector('input,select,textarea')||(!label.htmlFor&&label.nextElementSibling?.matches('input,select,textarea')?label.nextElementSibling:null);if(control){if(!control.id)control.id='arc-control-'+(++sequence);if(!label.htmlFor)label.htmlFor=control.id;}});
   bindTabs(root);window.GamaTable?.scan?.(root);window.GamaSelectSearch?.scan?.(root);window.gamaApplyAccess?.();window.GamaI18n?.scan?.(root);
 }
-export function render(element,html) {element.innerHTML=html;mount(element);return html;}
+export function render(element,html) {element.innerHTML=html;mount(element);const section=element.closest('section[id]');if(section)window.dispatchEvent(new CustomEvent('arc:module-rendered',{detail:{id:section.id}}));return html;}

@@ -1,7 +1,7 @@
 /* Internal management invoices share the financial ledger with external references. */
 (function(){'use strict';
 const esc=window.ArcUI.esc,money=v=>window.ArcFormat.money(v);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const allowed=()=>['admin','administrador','commercial','comercial'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)&&window.gamaAccessAllowed?.('sales-orders');
 async function rpc(action,data={}){if(!allowed())throw Error('ROLE_NOT_ALLOWED');await window.GamaCloudReady;const c=await GamaCloud.db();const r=await window.ArcData.rawRpc('gama_internal_invoice_action',{p_action:action,p_data:data});if(r.error){if(r.error.message?.includes("DELIVERY_VALIDATION_REQUIRED"))throw Error(window.GamaI18n?.t(pending)||pending);throw r.error;}return r.data}
 const pending='La factura interna se genera automáticamente al validar la última entrega con la firma del cliente.';

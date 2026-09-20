@@ -1,0 +1,28 @@
+(function(){
+'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.language]||es);let epoch=0;
+const lookup=code=>window.ArcData.rpc('gama_barcode_lookup',{p_code:code});
+const kind=k=>({item:t('Artículo','Article','Item'),pack:t('Embalaje','Conditionnement','Pack'),parcel:t('Bulto','Colis','Parcel')}[k]||k);
+const description=r=>kind(r.kind)+' · '+r.name+(r.kind==='pack'?' · '+r.label+' = '+r.factor+' '+r.base_unit:'');
+const dlg=o=>{const d=U.dialog(o);d.dataset.barcodeControls='';d.dataset.giIgnore='';return d};
+async function identify(){const d=dlg({title:t('Identificar un código','Identifier un code','Identify a code'),body:F({key:'code',id:'identifyCode',label:t('Código','Code','Code'),required:true})+'<div data-barcode-result role=status></div>',saveLabel:t('Buscar','Chercher','Find'),onSave:async el=>{const r=await lookup(new FormData(el.querySelector('form')).get('code'));dlg({title:kind(r.kind),saveLabel:t('Cerrar','Fermer','Close'),body:'<p><strong>'+E(r.code)+'</strong></p><p>'+E(description(r))+'</p>',onSave:async()=>{}})}});return d}
+function encoded(code){
+ if(/^\d{13}$/.test(code)){const [bits,label]=window.eanBits(code);return {bits,label}}
+ if(code!==code.toUpperCase())throw Error(t('Code 39 requiere mayúsculas. Corrige el código registrado antes de imprimir.','Le Code 39 exige des majuscules. Corrigez le code enregistré avant impression.','Code 39 requires uppercase. Correct the registered code before printing.'));
+ return {bits:window.code39Bits(code),label:code};
+}
+async function batch(){let token=epoch;const d=dlg({title:t('Etiquetas por lote','Étiquettes par lot','Batch labels'),saveLabel:t('Descargar PDF','Télécharger le PDF','Download PDF'),body:`<p>${t('Una línea por código: código; copias. Se identifican artículos, embalajes y bultos. Máximo 200 etiquetas.','Une ligne par code : code ; exemplaires. Les articles, conditionnements et colis sont identifiés. Maximum 200 étiquettes.','One line per code: code; copies. Items, packs and parcels are identified. Maximum 200 labels.')}</p>`+F({key:'codes',label:t('Códigos y copias','Codes et exemplaires','Codes and copies'),type:'textarea',required:true})+F({key:'template',label:t('Formato','Format','Format'),type:'select',value:'small',options:[{id:'small',name:'A4 · 3 × 7 · 63 × 38 mm'},{id:'large',name:'A4 · 2 × 5 · 95 × 54 mm'}],required:true}),onSave:async el=>{
+ await window.ArchitectAccessControls.requireAction('barcode','export');
+ const data=Object.fromEntries(new FormData(el.querySelector('form'))),requests=data.codes.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(s=>{const parts=s.split(';').map(s=>s.trim()),copies=parts.length===1?1:Number(parts[1]);if(parts.length>2||!parts[0]||!Number.isInteger(copies)||copies<1)throw Error(t('Formato inválido: código; copias.','Format invalide : code ; exemplaires.','Invalid format: code; copies.'));return {code:parts[0],copies}});
+ if(!requests.length||requests.reduce((n,r)=>n+r.copies,0)>200)throw Error(t('Máximo 200 etiquetas.','Maximum 200 étiquettes.','Maximum 200 labels.'));
+ const cache=new Map(),labels=[];for(const row of requests){let item=cache.get(row.code);if(!item){item=await lookup(row.code);cache.set(row.code,item)}const entry={...item,...encoded(item.code)};for(let i=0;i<row.copies;i++)labels.push(entry)}
+ if(token!==epoch)throw Error('AUTH_CHANGED');
+ const doc=new window.jspdf.jsPDF(),small=data.template==='small',cols=small?3:2,rows=small?7:5,w=small?63:95,h=small?38:54,gap=small?3:4,perPage=cols*rows;
+ labels.forEach((r,i)=>{if(i&&i%perPage===0)doc.addPage();const k=i%perPage,x=8+(k%cols)*(w+gap),y=10+Math.floor(k/cols)*h;doc.setTextColor(0);doc.setDrawColor(180);doc.rect(x,y,w,h-2);doc.setFontSize(8);doc.text(doc.splitTextToSize(description(r),w-8).slice(0,2),x+4,y+5);const barY=y+(small?14:20),barH=small?13:20,narrow=(w-10)/r.bits.length;if(narrow<.18)throw Error(t('Código demasiado largo para este formato. Elige una etiqueta mayor.','Code trop long pour ce format. Choisissez une étiquette plus grande.','Code is too long for this format. Choose a larger label.'));doc.setFillColor(0);for(let b=0;b<r.bits.length;b++)if(r.bits[b]==='1')doc.rect(x+5+b*narrow,barY,narrow,barH,'F');doc.setFontSize(8);doc.text(r.label,x+w/2,barY+barH+5,{align:'center'})});
+ await window.GamaPdf.save(doc,'architect-labels.pdf');
+ }});return d}
+let movementTimer=null;
+function movementInfo(){const input=document.getElementById('moveBarcode');if(!input||input.dataset.packLookup)return;input.dataset.packLookup='';let request=0;const refresh=()=>{clearTimeout(movementTimer);const n=++request;movementTimer=setTimeout(async()=>{const code=input.value.trim();if(!code)return;try{const r=await lookup(code);if(n!==request||input.value.trim()!==code)return;const info=document.getElementById('moveInfo');info.textContent=description(r)+(r.kind==='pack'?' · '+t('Cantidad = número de embalajes','Quantité = nombre de conditionnements','Quantity = number of packs'):'');if(r.kind==='parcel')info.textContent+=' · '+t('Utiliza el módulo de preparación.','Utilisez le module de préparation.','Use the preparation module.')}catch(e){if(n===request)document.getElementById('moveInfo').textContent=window.ArcErrors.message(e)}},180)};input.addEventListener('input',refresh);input.addEventListener('gama:barcode-scanned',refresh)}
+window.ArchitectBarcode={lookup,identify,batch,description};
+window.addEventListener('arc:route-change',e=>{if(e.detail.id==='movement')movementInfo()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;document.querySelectorAll('[data-barcode-controls]').forEach(d=>d.close())});
+})();

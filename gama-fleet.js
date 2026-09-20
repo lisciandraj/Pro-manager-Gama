@@ -16,7 +16,7 @@ const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d);
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const monthStart=()=>day().slice(0,8)+'01';
 
 const SECTIONS=[['dashboard','Tablero'],['vehicles','Vehículos'],['drivers','Conductores'],['deadlines','Vencimientos']];

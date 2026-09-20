@@ -1,19 +1,20 @@
-/* GAMA — Generador de PDF para presupuestos (usa jsPDF, cargado por CDN) */
+/* GAMA — Generador de PDF para presupuestos (usa jsPDF local) */
 (function(){
 'use strict';
-function esc(v){return window.ArcUI.esc(v)}
+function esc(v){return String(v??'')}
 /* esc() no escapa: sólo alimenta a jsPDF. Todo lo que entra en innerHTML
    pasa por escHtml, porque un nombre de cliente puede contener < o ". */
 function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const logoReady=Promise.resolve();
 function build(q){
  if(!window.jspdf?.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
- const doc=new window.jspdf.jsPDF(),ink=window.GamaPdfTemplate.ink,teal=window.GamaPdfTemplate.teal;let y=0;
- const base=window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:q.seller||base.legal_name,tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
+ const doc=new window.jspdf.jsPDF();let y=0;
+ const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:q.seller||base.legal_name,tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
+ const colors=window.GamaPdfTemplate.theme(issuer),ink=colors.ink,teal=colors.teal;
  function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
- function tableHead(){room(15);doc.setFillColor(...window.GamaPdfTemplate.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...window.GamaPdfTemplate.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
+ function tableHead(){room(15);doc.setFillColor(...colors.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...colors.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
  header();if(!issuer){paragraph(q.seller||'GAMA',12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9)}
  paragraph('PREPARADO PARA',9);paragraph(q.client||'');paragraph([q.clientId,q.clientAddress,q.clientEmail].filter(Boolean).join(' · '),9);
  if(q.delivery_address)paragraph('Entrega: '+q.delivery_address+(q.delivery_terms?' · '+q.delivery_terms:''),9);

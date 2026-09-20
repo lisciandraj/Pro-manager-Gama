@@ -18,3 +18,6 @@ window.ArcDirectories={directory,suppliers};
 window.ArcLoad=loadModule;
 installLazyModules();
 data.startDataEvents();startRouter();
+
+import {startPerformance} from './app/performance.js';
+startPerformance();

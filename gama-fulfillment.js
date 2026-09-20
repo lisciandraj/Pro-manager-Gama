@@ -31,7 +31,7 @@ async function mount(d,target=null){
  catch(e){if(token===generation&&host.isConnected){window.ArcUI.render(host,`<p class="gsError">${esc(err(e))}</p><button id="gfRetry" class="arcButton secondary" data-gi=0dbd0b81923c>Reintentar dossier</button>`);$('gfRetry').onclick=()=>mount(d,target)}}
 }
 // Weight and volume belong to the product sheet; the operator never types them here.
-async function productIndex(){try{const rows=await S().refs('products','id,name,barcode,weight_g,volume_cm3');const by=new Map(),byCode=new Map();for(const r of rows){by.set(r.id,r);const code=String(r.barcode??'').trim();if(code&&!byCode.has(code))byCode.set(code,r)}return{by,byCode}}catch(_){return{by:new Map(),byCode:new Map()}}}
+async function productIndex(){try{const rows=await S().refs('products','id,name,barcode,weight_g,volume_cm3,lot_tracking');const by=new Map(),byCode=new Map();for(const r of rows){by.set(r.id,r);const code=String(r.barcode??'').trim();if(code&&!byCode.has(code))byCode.set(code,r)}const units=await window.ArcData.all('product_units',{eq:{active:true},order:'id'});if(units.error)throw units.error;for(const u of units.data||[]){const product=by.get(u.product_id);if(product&&u.barcode)byCode.set(u.barcode,{...product,packFactor:Number(u.factor),packLabel:u.label})}return{by,byCode}}catch(_){return{by:new Map(),byCode:new Map()}}}
 function measures(d,rows){let weight=0,volume=0,hasWeight=rows.length>0,hasVolume=rows.length>0;const missing=[];
  for(const r of rows){const sheet=d.productIndex?.by.get(r.product_id),w=Number(sheet?.weight_g||0),v=Number(sheet?.volume_cm3||0);
   if(w>0)weight+=w*Number(r.quantity);else hasWeight=false;
@@ -48,6 +48,9 @@ function finish(d,p,f){const rows=f.pick_lines.filter(l=>l.preparation_id===p.id
  form(d,'Cerrar preparación',`<p data-gi-live data-gi=9a42c0f28a8a>Comprueba y cierra todos los bultos antes de enviar la preparación al transporte. Justifica cualquier entrega parcial.</p><div class="gfNotice"><b data-gi=56dca87b8f70>Resumen de la preparación</b>${rows.map(r=>`<p>${esc(r.name)} · ${n(r.quantity)}</p>`).join('')||'<p data-gi=9fd17119de0f>Sin cantidades registradas.</p>'}<p data-gi=e57d99195be5>Peso total: <b data-gi-live>${esc(measureText(m.weight,'kg'))}</b></p><p data-gi=2d8b778ff099>Volumen total: <b data-gi-live>${esc(measureText(m.volume,'m³'))}</b></p>${missingNote(m)}</div><label class="gsField" data-gi=4973246f4c51>Motivo de entrega parcial (si corresponde)<textarea id="gfReason" maxlength="2000"></textarea></label>`,'finish',el=>({preparation_id:p.id,reason:val(el,'gfReason')}),'Validar')}
 function packedQty(f,id){return f.package_lines.filter(x=>x.pick_line_id===id&&f.packages.some(p=>p.id===x.package_id&&p.status==='active')).reduce((s,x)=>s+Number(x.quantity),0)}
 function render(d,f,host){
+ d={...d,lines:d.lines.filter(l=>l.product_kind!=='service')};
+ // Follow the location sequence, then product name, throughout preparation.
+ f.pick_lines.sort((a,b)=>String(d.locations.find(l=>l.id===a.source_location_id)?.code||'').localeCompare(String(d.locations.find(l=>l.id===b.source_location_id)?.code||''),undefined,{numeric:true})||String(d.lines.find(l=>l.id===a.order_line_id)?.product_name||'').localeCompare(String(d.lines.find(l=>l.id===b.order_line_id)?.product_name||'')));
  const o=d.order,p=f.preparations.find(x=>['queued','picking','packed'].includes(x.status));
  const pending=d.lines.reduce((s,l)=>s+Math.max(0,Number(l.quantity)-S().counts(l,d).shipped),0);
  const shortage=d.lines.reduce((s,l)=>{const c=S().counts(l,d);return s+Math.max(0,Number(l.quantity)-c.shipped-c.reserved)},0);
@@ -89,6 +92,8 @@ function picking(d,f,host){
  const rows=f.pick_lines.filter(l=>l.preparation_id===p.id),round=v=>Math.round(Number(v)*1000)/1000,pending=l=>round(Number(l.planned)-Number(l.picked));
  const lineOf=l=>d.lines.find(x=>x.id===l.order_line_id),nameOf=l=>lineOf(l)?.product_name||'';
  const codes=new Map();for(const l of rows){const code=String(d.productIndex?.by.get(lineOf(l)?.product_id)?.barcode??'').trim();if(code&&!codes.has(code))codes.set(code,lineOf(l)?.product_id)}
+ for(const [code,product] of d.productIndex?.byCode||[])if(rows.some(l=>lineOf(l)?.product_id===product.id))codes.set(code,product.id);
+ const factor=code=>d.productIndex?.byCode.get(code)?.packFactor||1;
  const scanBox=host.querySelector('#gfScanCode'),hintBox=host.querySelector('#gfScanHint');
  const hint=t=>{if(hintBox)hintBox.textContent=t};
  const focus=el=>{try{el?.focus();el?.select?.()}catch(_){}};
@@ -100,13 +105,13 @@ function picking(d,f,host){
  // A reader types into whichever field has the focus, so the quantity accepts a code too.
  function embedded(raw){const clean=String(raw||'').trim();if(!clean)return null;if(codes.has(clean))return{code:clean,quantity:null};
   for(const code of codes.keys()){if(code.length<4||clean.length<=code.length||!clean.endsWith(code))continue;const prefix=clean.slice(0,clean.length-code.length).trim();
-   if(/^\d+([.,]\d+)?$/.test(prefix))return{code,quantity:Number(prefix.replace(',','.'))}}
+   if(/^\d+([.,]\d+)?$/.test(prefix))return{code,quantity:Number(prefix.replace(',','.'))*factor(code)}}
   return null}
  function close(){host.querySelectorAll('[data-line-form]').forEach(el=>{el.hidden=true;el.closest('.gfItem')?.classList.remove('gfActive')});current=null;key=null}
  function open(id,code){const l=forLine(id);if(!l||pending(l)<=0)return false;close();
   const box=host.querySelector(`[data-line-form="${id}"]`);if(!box)return false;
   box.hidden=false;box.closest('.gfItem')?.classList.add('gfActive');
-  const field=box.querySelector('.gfLineQty');field.value=String(pending(l));
+  const field=box.querySelector('.gfLineQty');field.value=String(code&&factor(code)!==1?Math.min(factor(code),pending(l)):pending(l));
   current={id,code:code||''};key=crypto.randomUUID();
   hint(`${nameOf(l)} · cantidad prevista ${n(pending(l))}. Valida con Entrada, con el botón o escaneando el siguiente producto.`);
   focus(field);return true}
@@ -121,7 +126,7 @@ function picking(d,f,host){
   const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',quantity:value};
   if(current.code)payload.product_code=current.code;
   pickState.order=d.order.id;pickState.intent=intent;
-  try{await mutate('pick',payload)}catch(e){busy=false;buttons(false);pickState.intent=null;hint(err(e));return false}
+  try{if(d.productIndex?.by.get(lineOf(l)?.product_id)?.lot_tracking){const plan=await window.ArchitectLots.confirmPick(lineOf(l).product_id,l.source_location_id,value);if(plan===null){busy=false;buttons(false);pickState.intent=null;return false}payload.lot_plan=plan}await mutate('pick',payload)}catch(e){busy=false;buttons(false);pickState.intent=null;hint(err(e));return false}
   await mount(d,host);return true}
  // The field holds either the counted quantity or, when a reader fired into it, the next code.
  function reading(id){const l=forLine(id),raw=String(host.querySelector(`[data-line-qty="${id}"]`)?.value||''),hit=embedded(raw);

@@ -505,6 +505,7 @@
     },
     subscribe: () => {},
     db: async () => ({
+      auth:{mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal1',nextLevel:'aal1'}}),listFactors:async()=>({data:{totp:[]}})}},
       from: table => {
         const filters = [],orders=[];
         let readMode=false;
@@ -524,6 +525,17 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_action_allowed')return {data:true};
+        if(fn==='gama_resolve_price'){
+          const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
+          return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};
+        }
+        if(fn==='gama_catalog_command'){
+          const data=args.p_data||{},lines=(data.lines||[]).map(l=>{const p=window.__DB.products.find(p=>p.id===l.product_id);return {...l,unit_price:p.sale_price,tax_rate:p.tax_rate||0}});
+          if(args.p_action==='preview')return {data:lines};if(args.p_action==='history')return {data:[]};
+          if(args.p_action==='submit'){const id=nextId('customer_requests'),total=lines.reduce((n,l)=>n+Math.round(l.quantity*l.unit_price*100)/100+Math.round(l.quantity*l.unit_price*l.tax_rate)/100,0);(window.__DB.customer_requests||=[]).push({id,total,notes:data.notes,requested_delivery_date:data.requested_delivery_date});(window.__DB.customer_request_lines||=[]).push(...lines.map(l=>({...l,request_id:id})));return {data:{id,total}}}
+        }
+
         if(fn==='gama_legacy_quote_save'){
           const d=args.p_data,role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
           if(!['admin','commercial'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
@@ -568,6 +580,16 @@
           const priv=window.__DB.hr_employee_private=window.__DB.hr_employee_private||[];
           const p=priv.find(r=>r.employee_id===id);if(p)Object.assign(p,args.p_private);else priv.push({employee_id:id,...args.p_private});
           return {data:id,error:null};
+        }
+        if(fn==='gama_refund_accounts')return {data:(window.__DB.financial_accounts||[]).filter(a=>a.active)};
+        if(fn==='gama_tms_capture'){
+          if(window.__proofOffline)return {error:{message:'Network unavailable'}};
+          const d=args.p_data,delivery=window.__DB.tms_deliveries.find(x=>x.id===d.delivery_id);
+          let proof=window.__DB.tms_proofs.find(x=>x.delivery_id===d.delivery_id);
+          if(!proof){proof={id:nextId('tms_proofs'),delivery_id:d.delivery_id};window.__DB.tms_proofs.push(proof)}
+          if(d.photo)proof.photo=d.photo;if(d.signature)proof.signature=d.signature;
+          if(d.complete)Object.assign(delivery,{status:'Entregada',actual_arrival:d.captured_at,delivered_at:d.captured_at});
+          return {data:{delivery_id:delivery.id,complete:d.complete}};
         }
         if(fn==='gama_tms_resources'){
           const role=(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)||'';
@@ -619,10 +641,40 @@
           if(args.p_action==='link_external')return {data:(window.__DB.external_invoices||[]).find(i=>i.id===args.p_data.invoice_id)};
         }
 
+        if(fn==='gama_purchase_save'){
+          const d=args.p_data,id=nextId('purchase_orders'),row={...d,id,status:'draft',order_number:'OC-TEST',order_date:new Date().toISOString()};delete row.lines;
+          (window.__DB.purchase_orders ||= []).push(row);
+          for(const line of d.lines)(window.__DB.purchase_order_lines ||= []).push({...line,id:nextId('purchase_order_lines'),purchase_order_id:id,received_quantity:0});
+          return {data:{purchase_id:id}};
+        }
+        if(fn==='gama_receive_purchase_once')return rpcReceivePurchase({p_purchase_order_id:args.p_data.purchase_order_id,p_lines:args.p_data.lines,p_comment:args.p_data.comment});
         if (fn === 'gama_receive_purchase') return rpcReceivePurchase(args || {});
         if (fn === 'gama_stock_transfer') return mueveStock(args || {});
         if (fn === 'gama_stock_reserve') return reservaStock(args || {});
         if (fn === 'gama_stock_unreserve') return liberaReserva(args || {});
+        if(fn==='gama_count_create'){
+          const row={...args.p_data,id:nextId('inventory_counts'),status:'draft',created_at:new Date().toISOString()};
+          (window.__DB.inventory_counts ||= []).push(row);const result=generaLineas({p_count_id:row.id});
+          return result.error?result:{data:row};
+        }
+        if(fn==='gama_import_batch'){
+          const data=args.p_data;
+          if(args.p_action==='prepare'){
+            const batch={id:nextId('erp_import_batches'),kind:data.kind,filename:data.filename,status:'preview'},seen=new Set();
+            const rows=data.rows.map((row,i)=>{
+              const key=[row.name,row.address||''].map(x=>String(x).trim().toLowerCase()).join('|');
+              const exists=(window.__DB.customers||[]).some(x=>[x.name,x.address||''].map(v=>String(v).trim().toLowerCase()).join('|')===key);
+              const error=seen.has(key)?'DUPLICATE_IN_FILE':exists?'DUPLICATE_CONTACT':null;seen.add(key);
+              return {row_number:i+2,data:row,status:error?'error':'ready',error};
+            });window.__importBatch={batch,rows};
+          }else if(args.p_action==='apply'){
+            for(const row of window.__importBatch.rows)if(row.status==='ready'){
+              window.__DB.customers.push({id:nextId('customers'),...row.data});row.status='imported';
+            }
+            window.__importBatch.batch.status='partial';
+          }
+          return {data:structuredClone(window.__importBatch)};
+        }
         if (fn === 'gama_count_generate_lines') return generaLineas(args || {});
         if (fn === 'gama_count_validate') return validaConteo(args || {});
         return { data: null, error: null };

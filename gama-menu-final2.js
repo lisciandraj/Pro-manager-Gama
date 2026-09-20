@@ -221,10 +221,7 @@ function render(){
 #mainmenu .gamaF2Body{padding-right:var(--arc-s6)}
 #mainmenu .gamaF2Card.gamaF2NoMatch{display:none!important}
 #mainmenu .gamaF2Vacio{grid-column:1/-1;margin:0;padding:var(--arc-s7);text-align:center;color:var(--arc-text-muted);font-size:var(--arc-fs-body);background:var(--arc-surface);border:1px dashed var(--arc-line-strong);border-radius:var(--arc-r-lg)}
-`+['analytics','sales','logistics','purchase','finance','people','system'].map(f=>
-  `#mainmenu [data-arc-fam="${f}"]{background:var(--arc-fam-${f}-bg);color:var(--arc-fam-${f})}`).join('')
- +`#mainmenu [data-arc-fam="warning"]{background:var(--arc-warning-bg);color:var(--arc-warning)}`
- +reglasDeGrupo()
+`+reglasDeGrupo()
  +`@media(max-width:860px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:var(--arc-s3)}
  #mainmenu .gamaF2Card{padding:var(--arc-s4)}
  #mainmenu .gamaF2Icon{width:42px;height:42px}
@@ -324,6 +321,9 @@ document.addEventListener('keydown',function(e){
 /* La barra lateral y el menú de tarjetas enseñan lo mismo, así que leen la
    misma lista. Exponerla evita la copia que se desincroniza al añadir un
    módulo: se añade aquí y aparece en los dos sitios. */
-window.GamaMenu={items:ITEMS,groups:GRUPOS,icons:I,open:openItem,render};
+/* El acento de un módulo: su familia propia si la tiene, si no la de su
+   grupo. Lo usan la tarjeta del menú y la cabecera de la pantalla. */
+const familiaDe=id=>FAM_MODULO[id]||FAMILIA[(ITEMS.find(x=>x[1]===id)||[])[3]]||'system';
+window.GamaMenu={items:ITEMS,groups:GRUPOS,icons:I,open:openItem,render,family:familiaDe};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();

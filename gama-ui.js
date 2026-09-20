@@ -35,12 +35,22 @@ function backToMenu(){
    cabecera es idéntica en los trece módulos por construcción y no por que
    nadie se acuerde: título, una línea, y el botón de volver. Lo que un módulo
    necesite hacer va en su propio contenido, donde el usuario lo busca. */
+/* El emoji que abría el título —📦, 👥, 🚚— lo sustituye el icono del módulo,
+   el mismo que lleva su tarjeta en el menú. Se quita aquí y no en cada módulo
+   para que ninguno se quede a medias, y el catálogo de traducción no se entera:
+   sus entradas se guardan por el texto sin adorno, así que «📦 Productos» y
+   «Productos» resuelven a la misma fila. */
+const SIN_EMOJI=/^[^\p{L}\p{N}]+/u;
+
 function header(opts){
  const o=opts||{};
+ let titulo=String(o.title||'Módulo');
+ try{titulo=titulo.replace(SIN_EMOJI,'')||titulo}catch(e){/* navegador sin \p{L} */}
  return '<div class="gamaStdHeader" data-gama-standard-header="1">'
+  +'<span class="gamaStdIcon" data-gama-icon-slot aria-hidden="true"></span>'
   +'<div class="gamaStdText">'
   +'<div class="gamaStdKicker">ARCHITECT ERP</div>'
-  +'<h2>'+esc(o.title||'Módulo')+'</h2>'
+  +'<h2>'+esc(titulo)+'</h2>'
   +(o.lead?'<p>'+esc(o.lead)+'</p>':'')
   +'</div>'
   +'<div class="gamaStdActions">'
@@ -48,10 +58,51 @@ function header(opts){
   +'</div></div>';
 }
 
-/* Conecta los botones «Volver al menú» que haya dentro de root. Se llama tras
-   pintar: la cabecera llega como texto en un innerHTML y no trae su onclick. */
+/* Las tres pantallas que no son un módulo del menú y por tanto no tienen icono
+   propio: el TMS lo añade otro archivo, «billing» es la pantalla de
+   presupuestos escrita a mano en index.html, y «home» es la consulta rápida. */
+const ALIAS={'gama-tms-section':'tms', billing:'quotes', home:'barcode'};
+const ICONO_SUELTO={tms:['truck','logistics'], barcode:['barcode','purchase']};
+
+/* Pinta en la cabecera el icono del módulo. La sección que la contiene lleva
+   el identificador del módulo —las treinta y cuatro coinciden—, así que basta
+   con preguntárselo a GamaMenu, que es quien pinta los mismos iconos en el
+   menú: una sola fuente para los dos sitios. */
+function paintIcon(root){
+ const menu=window.GamaMenu;
+ const cajas=(root||document).querySelectorAll('.gamaStdIcon[data-gama-icon-slot]');
+ if(!cajas.length)return;
+ if(!menu||!menu.icons){setTimeout(()=>paintIcon(root),400);return}
+ let sueltas=false;
+ cajas.forEach(caja=>{
+  const sec=caja.closest('section[id]');
+  if(!sec){sueltas=true;return}
+  const id=ALIAS[sec.id]||sec.id;
+  let nombre,familia;
+  if(ICONO_SUELTO[id]){[nombre,familia]=ICONO_SUELTO[id]}
+  else{
+   const item=(menu.items||[]).find(x=>x[1]===id);
+   if(!item)return;
+   nombre=item[2];familia=menu.family?menu.family(id):'system';
+  }
+  const dibujo=menu.icons[nombre];
+  if(!dibujo)return;
+  caja.dataset.arcFam=familia||'system';
+  caja.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+dibujo+'</svg>';
+  delete caja.dataset.gamaIconSlot;
+ });
+ /* Una cabecera atada antes de colgarla de su sección todavía no sabe de qué
+    módulo es: se reintenta cuando ya esté puesta. */
+ if(sueltas&&!paintIcon.__reintento){paintIcon.__reintento=true;
+  setTimeout(()=>{paintIcon.__reintento=false;paintIcon(document)},0)}
+}
+
+/* Conecta los botones «Volver al menú» que haya dentro de root, y aprovecha
+   para poner el icono: los dos hacen falta justo después de pintar, y todos
+   los módulos llaman ya a esta función. */
 function bindBack(root){
  (root||document).querySelectorAll('.gamaStdBack').forEach(b=>{if(!b.__gamaBound){b.__gamaBound=true;b.onclick=backToMenu}});
+ paintIcon(root);
 }
 
 /* La hoja de estilo va aquí y no en gama-standard-ui.js: la cabecera tiene que
@@ -64,8 +115,13 @@ function css(){
    además una «capa de acabado» que repintaba tarjetas, botones y campos de
    toda la aplicación con un azul grisáceo; la sustituye architect-ui.css, que
    hace lo mismo desde un solo sitio y sin !important. */
-.gamaStdHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--arc-s5);margin:0 0 var(--arc-s5);padding:var(--arc-s5) var(--arc-s6);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1)}
-.gamaStdText{min-width:0}
+.gamaStdHeader{display:flex;align-items:flex-start;gap:var(--arc-s4);margin:0 0 var(--arc-s5);padding:var(--arc-s5) var(--arc-s6);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1)}
+/* El mismo icono, el mismo tamaño y el mismo acento que la tarjeta del módulo
+   en el menú: al entrar en una pantalla se reconoce de dónde se viene. */
+.gamaStdIcon{width:48px;height:48px;flex:none;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center}
+.gamaStdIcon:empty{display:none}
+.gamaStdIcon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.gamaStdText{min-width:0;flex:1}
 .gamaStdKicker{font-size:10px;font-weight:var(--arc-fw-black);letter-spacing:.14em;color:var(--arc-accent-600);text-transform:uppercase;margin-bottom:var(--arc-s1)}
 .gamaStdHeader h2{margin:0;font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);color:var(--arc-text);font-weight:var(--arc-fw-black);letter-spacing:-.02em}
 .gamaStdHeader p{margin:var(--arc-s2) 0 0;color:var(--arc-text-muted);font-size:var(--arc-fs-body);line-height:var(--arc-lh-body);max-width:70ch}
@@ -75,7 +131,11 @@ function css(){
 .gamaStdBack:focus-visible,.gamaStdAction:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 
 @media(max-width:760px){
- .gamaStdHeader{flex-direction:column;align-items:stretch;padding:var(--arc-s4);gap:var(--arc-s3)}
+ .gamaStdHeader{flex-wrap:wrap;align-items:center;padding:var(--arc-s4);gap:var(--arc-s3)}
+ .gamaStdIcon{width:40px;height:40px}
+ .gamaStdIcon svg{width:22px;height:22px}
+ .gamaStdText{flex:1 1 60%}
+ .gamaStdActions{flex:1 1 100%}
  .gamaStdHeader h2{font-size:20px}
  .gamaStdHeader p{font-size:var(--arc-fs-sec);margin-top:var(--arc-s1)}
  .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:var(--arc-s2)}
@@ -85,5 +145,5 @@ function css(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',css,{once:true});else css();
 
-window.GamaUI={header,bindBack,backToMenu,esc};
+window.GamaUI={header,bindBack,backToMenu,esc,paintIcon};
 })();

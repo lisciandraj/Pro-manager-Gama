@@ -63,6 +63,22 @@
 .arcCustomizeList label{display:flex;align-items:center;gap:10px;font-weight:400;min-height:44px;margin:0;font-size:13px}
 .arcCustomizeList input{flex:none}
 @media(min-width:1600px){#mainmenu .gamaF2Card{padding:17px 20px;min-height:148px}#mainmenu .gamaF2Title{font-size:15px}}
+/* Seis por fila en pantalla de ordenador, en vez de cuatro: el menú entero
+   cabe de un vistazo sin bajar. La tarjeta se estrecha —de unos 390px a 255 a
+   1920, y a 182 en un portátil de 1440—, así que el icono y los márgenes se
+   ajustan para que siga cabiendo lo que la tarjeta dice. Por debajo de 1280 no
+   se aprietan seis: el rótulo dejaría de leerse de un vistazo, que es para lo
+   que está. Ahí siguen siendo cuatro, y tres y dos más abajo, como estaban. */
+@media(min-width:1280px){
+ #mainmenu .gamaF2Grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+ #mainmenu .gamaF2Card{min-height:128px;padding:12px 13px 15px;gap:8px}
+ #mainmenu .gamaF2Card .gamaF2Icon{width:42px;height:42px;border-radius:11px}
+ #mainmenu .gamaF2Card .gamaF2Icon svg{width:24px;height:24px}
+ #mainmenu .gamaF2Body{padding-right:4px}
+ #mainmenu .gamaF2Title{font-size:13.5px}
+ #mainmenu .gamaF2Desc{font-size:12.5px;line-height:1.35;margin-top:3px;padding-right:6px}
+ #mainmenu .gamaF2Go{right:11px;bottom:12px;width:17px;height:17px}
+}
 @media(max-width:1099px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gamaF2KpiValue{font-size:21px}#mainmenu .gamaF2Kpi{gap:8px}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#arcRecentActivity{grid-template-columns:1fr}.arcDashboardCard{display:none}}
 @media(max-width:860px){#mainmenu .gamaF2Head h1{font-size:30px}#mainmenu .gamaF2Head p{font-size:14px}#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .gamaF2Kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .arcSectionHead h2{font-size:23px}#mainmenu .gamaF2Kpi{padding:12px;min-height:104px}#mainmenu .gamaF2Card{padding:14px;min-height:145px}.arcCustomizeButton{font-size:12px}}
 @media(max-width:430px){#mainmenu .gamaF2Head h1{font-size:28px}#mainmenu .gamaF2Kpi{gap:9px;padding:12px 10px;flex-direction:column}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#mainmenu .gamaF2KpiIcon svg{width:24px;height:24px}.gamaF2KpiText{padding:0}.gamaF2KpiLabel{min-height:34px}.gamaF2KpiValue{font-size:20px}#mainmenu .gamaF2Title{font-size:14px}#mainmenu .gamaF2Desc{font-size:12px}#mainmenu .gamaF2Card{padding:12px;gap:10px;min-height:150px}#mainmenu .gamaF2Icon{width:44px;height:44px}.gamaF2Icon svg{width:26px;height:26px}.arcCustomizeList{grid-template-columns:1fr}.arcCustomize{padding:18px}}

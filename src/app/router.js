@@ -26,7 +26,7 @@ export function show(id,button){
   current=id;
   // Refresh only the visible legacy screen. Modern modules own their loaders.
   window.renderForRoute?.(id);
-  window.ArcStandardHeaders?.(target);mount(target);
+  window.ArcStandardHeaders?.(target);window.ArcUI?.headerIcon?.(target,id);mount(target);
   emit('arc:route-change',{id});window.scrollTo({top:0,behavior:'smooth'});return true;
 }
 export function open(id){id=canonical(id);if(!allowed(id))return refuse(id);const definition=registry.find(m=>m.id===id);if(definition?.open)return definition.open();return show(id);}

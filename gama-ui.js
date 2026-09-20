@@ -35,6 +35,7 @@ function header(opts){return window.ArcUI.header(opts)}
    pintar: la cabecera llega como texto en un innerHTML y no trae su onclick. */
 function bindBack(root){
  (root||document).querySelectorAll('.gamaStdBack').forEach(b=>{if(!b.__gamaBound){b.__gamaBound=true;b.onclick=backToMenu}});
+ window.ArcUI?.headerIcon?.(root||document);
 }
 
 /* La hoja de estilo va aquí y no en gama-standard-ui.js: la cabecera tiene que

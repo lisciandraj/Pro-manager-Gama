@@ -858,8 +858,22 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
    además una «capa de acabado» que repintaba tarjetas, botones y campos de
    toda la aplicación con un azul grisáceo; la sustituye architect-ui.css, que
    hace lo mismo desde un solo sitio y sin !important. */
-.gamaStdHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--arc-s5);margin:0 0 var(--arc-s5);padding:var(--arc-s5) var(--arc-s6);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1)}
-.gamaStdText{min-width:0}
+.gamaStdHeader{display:flex;align-items:flex-start;gap:var(--arc-s4);margin:0 0 var(--arc-s5);padding:var(--arc-s5) var(--arc-s6);background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1)}
+.gamaStdText{min-width:0;flex:1}
+/* El mismo icono, el mismo tamaño y el mismo acento que la tarjeta del módulo
+   en el menú: al entrar en una pantalla se reconoce de dónde se viene. */
+.gamaStdIcon{width:48px;height:48px;flex:none;border-radius:var(--arc-r-md);display:flex;align-items:center;justify-content:center}
+.gamaStdIcon:empty{display:none}
+.gamaStdIcon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* El acento de la familia, el mismo que en la tarjeta del menú. */
+.gamaStdIcon[data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+.gamaStdIcon[data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
+.gamaStdIcon[data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
+.gamaStdIcon[data-arc-fam=indigo]{color:var(--arc-icon-indigo);background:var(--arc-icon-indigo-bg)}
+.gamaStdIcon[data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}
+.gamaStdIcon[data-arc-fam=pink]{color:var(--arc-icon-pink);background:var(--arc-icon-pink-bg)}
+.gamaStdIcon[data-arc-fam=red]{color:var(--arc-icon-red);background:var(--arc-icon-red-bg)}
+.gamaStdIcon[data-arc-fam=violet]{color:var(--arc-icon-violet);background:var(--arc-icon-violet-bg)}
 .gamaStdKicker{font-size:10px;font-weight:var(--arc-fw-black);letter-spacing:.14em;color:var(--arc-accent-600);text-transform:uppercase;margin-bottom:var(--arc-s1)}
 .gamaStdHeader h2{margin:0;font-size:var(--arc-fs-page);line-height:var(--arc-lh-page);color:var(--arc-text);font-weight:var(--arc-fw-black);letter-spacing:-.02em}
 .gamaStdHeader p{margin:var(--arc-s2) 0 0;color:var(--arc-text-muted);font-size:var(--arc-fs-body);line-height:var(--arc-lh-body);max-width:70ch}
@@ -869,7 +883,11 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .gamaStdBack:focus-visible,.gamaStdAction:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 
 @media(max-width:760px){
- .gamaStdHeader{flex-direction:column;align-items:stretch;padding:var(--arc-s4);gap:var(--arc-s3)}
+ .gamaStdHeader{flex-wrap:wrap;align-items:center;padding:var(--arc-s4);gap:var(--arc-s3)}
+ .gamaStdIcon{width:40px;height:40px}
+ .gamaStdIcon svg{width:22px;height:22px}
+ .gamaStdText{flex:1 1 60%}
+ .gamaStdActions{flex:1 1 100%}
  .gamaStdHeader h2{font-size:20px}
  .gamaStdHeader p{font-size:var(--arc-fs-sec);margin-top:var(--arc-s1)}
  .gamaStdActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:var(--arc-s2)}

@@ -35,6 +35,7 @@ Exécuter `python3 scripts/build-i18n.py` après un changement de libellés, pui
 1. Déclarer ses métadonnées dans le registre unique.
 2. Déclarer explicitement champs et colonnes ; les colonnes SQL sensibles ne sont jamais affichées automatiquement.
 3. Utiliser `ArcUI` pour les composants et `ArcUI.render/mount` après le rendu, afin d'associer labels, droits, traductions et sélecteurs.
+   Ouvrir l'écran avec `ArcUI.header()` : l'icône du module s'y peint seule tant que la `<section>` porte l'identifiant du module, sinon lui passer `module`.
 4. Lire via `ArcData` et envoyer les écritures métier aux commandes serveur existantes. Les validations du navigateur accompagnent celles du serveur.
 5. Retourner la fonction de nettoyage depuis un hook `ArcRouter.onEnter` quand l'écran installe des ressources temporaires.
 6. Réserver les styles de domaine à son contenu propre : calendrier, Kanban, timeline, etc. Les boutons, champs et panneaux suivent les tokens communs.

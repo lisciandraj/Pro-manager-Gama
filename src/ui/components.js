@@ -20,9 +20,49 @@ export function field({id='arc-field-'+(++sequence),key,name=key,label='',type='
 }
 export function panel(html,{className='',id,accent}={}) {return `<div${attributes({id,'data-accent':accent})} class="arcPanel ${esc(className)}">${html}</div>`;}
 export function toolbar(html,{className=''}={}) {return `<div class="arcToolbar ${esc(className)}">${html}</div>`;}
-export function header({title='Módulo',lead=''}={}) {
-  return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${esc(title)}</h2>${lead?'<p>'+esc(lead)+'</p>':''}</div><div class="gamaStdActions">${button({label:t('← Volver al menú'),className:'gamaStdBack',attrs:'aria-label="'+esc(t('Volver al menú'))+'"'})}</div></div>`;
+/** El emoji que abría algunos títulos —📦, 👥, 🚚— lo sustituye el icono del
+ *  módulo, el mismo que lleva su tarjeta en el menú. Se quita aquí y no en cada
+ *  módulo para que ninguno se quede a medias; el catálogo de traducción guarda
+ *  sus entradas por el texto sin adorno, así que «📦 Productos» y «Productos»
+ *  resuelven a la misma fila. */
+const stripIcon=text=>{try{return String(text).replace(/^[^\p{L}\p{N}]+/u,'')||String(text);}catch(_){return String(text);}};
+
+export function header({title='Módulo',lead='',module=''}={}) {
+  return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module?' data-arc-module="'+esc(module)+'"':''} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${esc(stripIcon(title))}</h2>${lead?'<p>'+esc(lead)+'</p>':''}</div><div class="gamaStdActions">${button({label:t('← Volver al menú'),className:'gamaStdBack',attrs:'aria-label="'+esc(t('Volver al menú'))+'"'})}</div></div>`;
 }
+
+/** Pinta en la cabecera el icono del módulo, con su acento: el mismo dibujo y
+ *  el mismo color que la tarjeta del menú, pedidos a la misma fuente. La
+ *  sección que la contiene lleva el identificador del módulo —lo cumplen
+ *  treinta y cinco de los treinta y siete—, así que basta con preguntárselo al
+ *  registro; el `id` explícito gana cuando quien llama ya lo sabe. */
+export function headerIcon(root,id='') {
+  const scope=root && root.querySelectorAll?root:document;
+  const slots=scope.querySelectorAll('.gamaStdIcon[data-arc-icon-slot]');
+  if(!slots.length)return;
+  const modules=globalThis.ArcModules, icons=globalThis.ArcUI?.icons;
+  if(!modules||!icons)return;
+  let pending=false;
+  slots.forEach(slot=>{
+    const section=slot.closest('section[id]');
+    const key=slot.dataset.arcModule || id || SECTION_ALIAS[section?.id] || section?.id || '';
+    if(!key){pending=true;return;}
+    const definition=modules.get(key);
+    const drawing=definition && icons[definition.icon];
+    if(!drawing)return;
+    slot.dataset.arcFam=definition.accent||'cyan';
+    slot.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+drawing+'</svg>';
+    delete slot.dataset.arcIconSlot;
+  });
+  /* Una cabecera atada antes de colgarla de su sección todavía no sabe de qué
+     módulo es: se reintenta cuando ya esté puesta. */
+  if(pending && !headerIcon.retrying){headerIcon.retrying=true;
+    setTimeout(()=>{headerIcon.retrying=false;headerIcon(document);},0);}
+}
+
+/** La única pantalla cuyo `id` no es el de su módulo. */
+const SECTION_ALIAS={'gama-tms-section':'tms'};
+
 export function badge(status,label=status,{className='',tone='neutral'}={}) {return `<span class="arcStatusBadge ${esc(className)}" data-s="${esc(status)}" data-tone="${esc(tone)}">${esc(t(label))}</span>`;}
 export function kpi({label,value,help='',className=''}={}) {return `<div class="arcKpi ${esc(className)}"><span>${esc(label)}</span><strong>${esc(value ?? '—')}</strong>${help?'<small>'+esc(help)+'</small>':''}</div>`;}
 export function form(fields,{id='arc-form-'+(++sequence),values={},submitLabel=t('Guardar')}={}) {

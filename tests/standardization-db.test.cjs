@@ -16,6 +16,8 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
    finally{await db.exec('rollback to probe;release probe');}
   };
   const outcomes=[];
+  // References deliberately migrate to the new canonical format; business results must match.
+  const canonicalize=v=>JSON.parse(JSON.stringify(v).replace(/VH-(\d{6})/g,(_,n)=>'VEH-'+n.padStart(8,'0')));
   for(const uid of [admin,client]){
    await actAs(db,uid);await db.exec('begin');
    for(const [domain,list] of Object.entries(actions))for(const action of [...list,'unknown_action'])outcomes.push({uid,domain,action,before:await probe(domain,action)});
@@ -26,7 +28,7 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   for(const file of fs.readdirSync(folder).filter(f=>f>=firstChange&&f.endsWith('.sql')).sort())await db.exec(fs.readFileSync(path.join(folder,file),'utf8'));
   for(const uid of [admin,client]){
    await actAs(db,uid);await db.exec('begin');
-   for(const item of outcomes.filter(x=>x.uid===uid))assert.deepEqual(await probe(item.domain,item.action),item.before,uid+': '+item.domain+'.'+item.action);
+   for(const item of outcomes.filter(x=>x.uid===uid))assert.deepEqual(await probe(item.domain,item.action),canonicalize(item.before),uid+': '+item.domain+'.'+item.action);
    await db.exec('rollback');
   }
   await db.exec('reset role');

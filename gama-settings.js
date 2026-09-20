@@ -52,10 +52,10 @@ function render(id='settings'){
 
  const preferences='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
  if(!access){
-  window.ArcUI.render(s,head+preferences+(isAdmin()?'<div id="coCompany" data-gi-ignore></div>':''));
+  window.ArcUI.render(s,head+preferences+(isAdmin()?'<div id="coCompany" data-gi-ignore></div><div id="cfgReferences" data-gi-ignore></div>':''));
   window.GamaUI.bindBack(s);
   window.GamaI18n?.mount();
-  if(isAdmin())window.GamaCompany?.mount($('coCompany'));
+  if(isAdmin()){window.GamaCompany?.mount($('coCompany'));window.GamaReferences?.mountConfig($('cfgReferences'));}
   return;
  }
 

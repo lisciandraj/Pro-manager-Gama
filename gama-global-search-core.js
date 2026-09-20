@@ -5,7 +5,8 @@ const PAGE=30;
 const normalize=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/\s+/g,' ').trim();
 const aliases={cmd:'PED',ped:'PED',ord:'PED',fac:'FAC',inv:'FAC',cot:'COT',dev:'COT',quo:'COT',env:'ENV',exp:'ENV',ent:'ENT',liv:'ENT',cob:'COB',pay:'COB'};
 const tables={PED:'sales_orders',FAC:'external_invoices',COT:'invoices',ENV:'sales_deliveries',ENT:'tms_deliveries',COB:'external_invoice_payments'};
-function reference(value){const m=normalize(value).match(/^([a-z]{3})(?:[- ]([a-z]+))?[- ]?0*(\d+)$/);return m&&aliases[m[1]]?{prefix:aliases[m[1]],ordinal:m[2]?.toUpperCase()||'',number:Number(m[3]),table:tables[aliases[m[1]]]}:null;}
+let configured={};
+function reference(value){const m=normalize(value).match(/^([a-z]{3})(?:[- ]([a-z]+))?[- ]?0*(\d+)$/);if(!m)return null;const literal=m[1].toUpperCase(),prefix=Object.hasOwn(configured,literal)?literal:(aliases[m[1]]||literal);return {prefix,ordinal:m[2]?.toUpperCase()||'',number:Number(m[3]),table:Object.hasOwn(configured,prefix)?configured[prefix]:tables[prefix]};}
 function sameReference(a,b){const x=reference(a),y=reference(b);return !!x&&!!y&&x.prefix===y.prefix&&x.number===y.number&&x.ordinal===y.ordinal;}
 const entityWords={
  invoices:/\b(factures?|facturas?|invoices?)\b/g,orders:/\b(commandes?|pedidos?|orders?)\b/g,
@@ -73,23 +74,23 @@ function applyText(q,fields,text,ids=[]){
  if(parts.length){let expression='and('+parts.join(',')+')';if(ids.length)expression+=',id.in.('+ids.join(',')+')';q=q.or(expression)}else if(ids.length)q=q.in('id',ids);
  return q;
 }
-function matches(row,s,text,ref){if(ref){if(sameReference(s.title(row),ref.raw||'')||sameReference(row.original_number,ref.raw||''))return true;return [row.dossier_reference,row.number,row.invoice_number,row.reference].some(v=>{const r=reference(v);return r&&r.prefix===ref.prefix&&r.number===ref.number&&r.ordinal===ref.ordinal})}
+function matches(row,s,text,ref){if(ref){if(sameReference(s.title(row),ref.raw||'')||sameReference(row.original_number,ref.raw||''))return true;return [row.dossier_reference,row.dossier_label,row.legacy_reference,row.number,row.invoice_number,row.reference].some(v=>{const r=reference(v);return r&&r.prefix===ref.prefix&&r.number===ref.number&&r.ordinal===ref.ordinal})}
  const hay=normalize([s.title(row),...(s.subtitle(row)||[]),...s.fields.map(f=>row[f.includes('->>')?f.split('->>')[1]:f])].join(' '));return tokens(text).every(w=>hay.includes(w));}
 function rank(r,s,p){const title=normalize(s.title(r)),q=normalize(p.raw);return (p.ref&&matches(r,s,p.text,p.ref)?100:0)+(title===q||[r.barcode,r.reference,r.original_number].some(v=>normalize(v)===q)?80:0)+(title.startsWith(q)?20:0)+(r.active===false?-5:0);}
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 async function result(query,signal){if(signal)query=query.abortSignal(signal);const r=await query;if(r.error)throw r.error;return r.data||[];}
 async function attach(client,table,rows,signal){
- if(!rows.length||!['invoices','sales_orders','sales_deliveries','tms_deliveries','external_invoices','external_invoice_payments'].includes(table))return rows;
- const refs=await result(client.from('gama_document_references').select('document_id,document_reference').eq('table_name',table).in('document_id',rows.map(r=>r.id)),signal);
- return rows.map(r=>{const ref=refs.find(x=>x.document_id===r.id);if(!ref)return r;const field=table==='invoices'?'invoice_number':'number';return {...r,original_number:r[field],dossier_reference:ref.document_reference,...(['invoices','sales_orders','sales_deliveries','external_invoices'].includes(table)?{[field]:ref.document_reference}:{})}});
+ if(!rows.length||['customers','crm_contacts','suppliers','products','bank_transactions','fleet_drivers'].includes(table))return rows;
+ const refs=await result(client.from('gama_document_references').select('document_id,document_reference,dossier_label,legacy_reference').eq('table_name',table).in('document_id',rows.map(r=>r.id)),signal);
+ return rows.map(r=>{const ref=refs.find(x=>x.document_id===r.id);if(!ref)return r;const field=table==='invoices'?'invoice_number':'number';return {...r,original_number:r[field],dossier_reference:ref.document_reference,dossier_label:ref.dossier_label,legacy_reference:ref.legacy_reference,...(['invoices','sales_orders','sales_deliveries','external_invoices'].includes(table)?{[field]:ref.document_reference}:{})}});
 }
 function item(s,row,p){return {key:s.key+':'+row.id,source:s.key,module:s.module,table:s.table,id:row.id,title:s.title(row)||'—',subtitle:s.subtitle(row).filter(Boolean).join(' · '),archived:row.active===false,score:rank(row,s,p),orderId:row.order_id,deliveryId:row.tms_delivery_id,invoiceId:row.invoice_id,total:row.total??row.amount,balance:row.balance};}
 async function textPage(s,p,ctx,offset){
  const {client,signal}=ctx;let ids=[];
- if(s.portal){const rows=await result(c.rpc('gama_client_deliveries',{p_id:null,p_offset:offset}),signal);return {items:rows.slice(0,20).filter(r=>p.ref?sameReference(r.shipment_number,p.raw):matches(r,s,p.text)).filter(r=>p.intent!=='shipments_late'||(r.date&&r.date<today()&&!['Entregada','Cancelada'].includes(r.status))).map(r=>item(s,r,p)),more:rows.length>20,next:offset+20};}
- if(p.ref&&p.ref.table===s.table){
-  const refs=await result(client.from('gama_document_references').select('document_id,document_reference').eq('table_name',s.table).eq('dossier_number',p.ref.number).order('document_id').range(offset,offset+PAGE-1),signal);
-  ids=refs.filter(r=>{const ref=reference(r.document_reference);return ref?.ordinal===p.ref.ordinal}).map(r=>r.document_id);
+ if(s.portal){const rows=await result(client.rpc('gama_client_deliveries',{p_id:null,p_offset:offset}),signal);return {items:rows.slice(0,20).filter(r=>p.ref?sameReference(r.shipment_number,p.raw):matches(r,s,p.text)).filter(r=>p.intent!=='shipments_late'||(r.date&&r.date<today()&&!['Entregada','Cancelada'].includes(r.status))).map(r=>item(s,r,p)),more:rows.length>20,next:offset+20};}
+ if(p.ref){
+  const refs=await result(client.from('gama_document_references').select('document_id,document_reference,dossier_label,legacy_reference').eq('table_name',s.table).or('document_reference.eq.'+p.ref.prefix+'-'+String(p.ref.number).padStart(8,'0')+',dossier_label.eq.'+p.ref.prefix+'-'+String(p.ref.number).padStart(8,'0')+',legacy_reference.eq.'+p.raw.toUpperCase()).order('document_id').range(offset,offset+PAGE-1),signal);
+  ids=refs.map(r=>r.document_id);
  }
  let q=client.from(s.table).select(s.select);q=applyText(q,s.fields,p.ref?String(p.ref.number):p.text,ids);
  const relatedQuery=()=>{let linked=client.from(s.table).select(s.select);for(const word of tokens(p.text))linked=linked.or('customer_name.ilike.'+pattern(word),{referencedTable:s.related});return linked.order('id').range(offset,offset+PAGE-1)};
@@ -131,7 +132,7 @@ async function semanticPage(s,p,ctx,offset){
 }
 function selectedSources(p,ctx){
  let list=sources(ctx.profile,ctx.allowed);
- if(p.ref)list=list.filter(s=>s.table===p.ref.table||(s.portal&&p.ref.prefix==='ENV'));
+ if(p.ref?.table)list=list.filter(s=>s.table===p.ref.table||(s.portal&&p.ref.table==='sales_deliveries'));
  if(p.intent){
   if(p.intent.startsWith('invoices_'))return access(ctx.profile,'payments',ctx.allowed)?[SOURCES.find(s=>s.key==='invoices')]:[];
   list=list.filter(s=>s.key===({orders_late:'orders',shipments_late:'deliveries',quotes_unanswered:'quotes'}[p.intent]));
@@ -139,6 +140,7 @@ function selectedSources(p,ctx){
  return list;
 }
 async function search(value,ctx){
+ try{const formats=await result(ctx.client.from('erp_reference_formats').select('prefix,source_table'),ctx.signal);configured=Object.fromEntries(formats.map(f=>[f.prefix,f.source_table]));}catch(e){if(ctx.signal?.aborted)throw e;}
  const p=parse(value);if(p.raw.length<2)return {parsed:p,groups:[]};
  const selected=selectedSources(p,ctx).filter(s=>!ctx.only||s.key===ctx.only);
  const groups=await Promise.all(selected.map(async s=>{try{return {source:s.key,...await (p.intent?semanticPage(s,p,ctx,ctx.offset||0):textPage(s,p,ctx,ctx.offset||0))}}catch(error){if(ctx.signal?.aborted)throw error;return {source:s.key,items:[],error:true,more:false}}}));

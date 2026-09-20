@@ -30,7 +30,7 @@ test('sources use the server profile, hide disabled modules, limit client record
 test('unpaid invoices use the canonical ledger, preserve partial balances and date semantics',async()=>{
  const c=client({}, {gama_payment_action:{total:1,rows:[{id:'i1',number:'FAC-00000283',customer_name:'Juan Perez',total:100,paid:25,balance:75,payment_status:'partial'}]}});
  const r=await Core.search('factures impayées de Juan',{client:c,profile:admin,allowed:()=>true});
- assert.equal(c.calls[0].args.p_data.status,'open');assert.equal(r.groups[0].items[0].balance,75);assert.equal(r.groups[0].items[0].module,'payments');
+ assert.equal(c.calls.find(c=>c.table==='gama_payment_action').args.p_data.status,'open');assert.equal(r.groups[0].items[0].balance,75);assert.equal(r.groups[0].items[0].module,'payments');
  await Core.search('factures échues',{client:c,profile:admin,allowed:()=>true});assert.equal(c.calls.at(-1).args.p_data.status,'overdue');
 });
 test('overdue orders exclude fully dispatched promised quantities and deduplicate late deliveries',async()=>{
@@ -51,4 +51,12 @@ test('user input stays within quoted filter values and pagination never pretends
  Core.applyText(chain,['name'],'foo"),id.neq.*');assert(fragments[0].includes('\\"'));assert(!fragments[0].includes('id.neq.*'));
  const c=client({products:Array.from({length:31},(_,i)=>({id:String(i),name:'Coca '+i,barcode:String(i)}))});
  const r=await Core.search('Coca',{client:c,profile:admin,allowed:()=>true,only:'products'});assert.equal(r.groups[0].more,true);assert.equal(r.groups[0].next,30);
+});
+test('configured prefixes search document numbers independently of dossier numbers',async()=>{
+ const c=client({erp_reference_formats:[{prefix:'VEN',source_table:'sales_orders'},{prefix:'EXP',source_table:null},{prefix:'DEV',source_table:'return_orders'}],gama_document_references:[{table_name:'sales_orders',document_id:'order-custom',dossier_number:12,dossier_label:'EXP-00000012',document_reference:'VEN-00000105'}],sales_orders:[{id:'order-custom',number:'VEN-00000105',customer_name:'QA'}]});
+ const ctx={client:c,profile:admin,allowed:()=>true};
+ assert.equal((await Core.search('VEN-00000105',ctx)).groups[0].items[0].title,'VEN-00000105');
+ const refQuery=c.calls.find(c=>c.table==='gama_document_references');assert.match(refQuery.or,/document_reference.eq.VEN-00000105/);assert.ok(!refQuery.filters.some(([k])=>k==='dossier_number'));
+ assert.equal(Core.parse('DEV-00000012').ref.table,'return_orders');assert.equal(Core.parse('EXP-00000012').ref.table,null);
+ const dossier=await Core.search('EXP-00000012',ctx);assert.ok(dossier.groups.some(g=>g.items.some(r=>r.id==='order-custom')));
 });

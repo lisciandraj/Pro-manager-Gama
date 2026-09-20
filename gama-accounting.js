@@ -256,7 +256,7 @@ VIEWS.payables={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
-     <td><b>${esc(r.supplier_name)}</b></td><td>${esc(r.number)}</td>
+     <td><b>${esc(r.supplier_name)}</b></td><td>${r.erp_reference?'<b>'+esc(r.erp_reference)+'</b><br>':''}${esc(r.number)}</td>
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
@@ -381,7 +381,7 @@ VIEWS.purchases={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
-     <td><b>${esc(r.supplier_name)}</b></td><td>${esc(r.number)}</td>
+     <td><b>${esc(r.supplier_name)}</b></td><td>${r.erp_reference?'<b>'+esc(r.erp_reference)+'</b><br>':''}${esc(r.number)}</td>
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>

@@ -2547,3 +2547,47 @@ Ya existe una categoría con este nombre.	Une catégorie porte déjà ce nom.	A 
 Archivo sincronizado desde su módulo de origen, sin duplicar el contenido.	Fichier synchronisé depuis son module d’origine, sans dupliquer le contenu.	File synchronized from its source module without duplicating its contents.
 El acceso elegido también se aplica al archivo en su módulo de origen.	L’accès choisi s’applique aussi au fichier dans son module d’origine.	The selected access also applies to the file in its source module.
 Abrir módulo de origen	Ouvrir le module d’origine	Open source module
+
+Referencias de documentos	Références des documents	Document references
+Tres letras, un guion y ocho cifras. Los prefijos se basan en los nombres españoles de los documentos.	Trois lettres, un tiret et huit chiffres. Les préfixes correspondent aux noms espagnols des documents.	Three letters, a hyphen and eight digits. Prefixes are based on the Spanish document names.
+Los cambios se aplican a las nuevas referencias. Las ya emitidas conservan su número.	Les changements s’appliquent aux nouvelles références. Les références déjà attribuées conservent leur numéro.	Changes apply to new references. Previously issued references keep their number.
+Prefijo	Préfixe	Prefix
+Ejemplo	Exemple	Example
+Guardar prefijos	Enregistrer les préfixes	Save prefixes
+Prefijos guardados.	Préfixes enregistrés.	Prefixes saved.
+No se pudieron cargar los prefijos.	Impossible de charger les préfixes.	Could not load prefixes.
+Otro administrador cambió los prefijos. Actualiza antes de guardar.	Un autre administrateur a modifié les préfixes. Actualisez avant d’enregistrer.	Another administrator changed the prefixes. Refresh before saving.
+Este prefijo ya pertenece a otro tipo de documento.	Ce préfixe appartient déjà à un autre type de document.	This prefix already belongs to another document type.
+Solo un administrador puede modificar los prefijos.	Seul un administrateur peut modifier les préfixes.	Only an administrator can change prefixes.
+Usa exactamente tres letras de A a Z, sin repetir prefijos.	Utilisez exactement trois lettres de A à Z, sans répéter les préfixes.	Use exactly three letters from A to Z, without repeating prefixes.
+Expediente	Dossier	Case
+Cotización	Devis	Quotation
+Paquete	Colis	Package
+Envío	Expédition	Shipment
+Devolución	Retour	Return
+Orden de compra	Commande fournisseur	Purchase order
+Reserva de existencias	Réservation de stock	Stock reservation
+Movimiento de existencias	Mouvement de stock	Stock movement
+Oportunidad	Opportunité	Opportunity
+Proyecto	Projet	Project
+Documento de recursos humanos	Document RH	HR document
+Nómina	Fiche de paie	Payroll
+Asiento contable	Écriture comptable	Accounting entry
+Gasto	Dépense	Expense
+Factura de proveedor	Facture fournisseur	Supplier invoice
+Pago a proveedor	Paiement fournisseur	Supplier payment
+Nota de crédito	Avoir	Credit note
+Ruta	Tournée	Route
+Artículo de documentación	Article de documentation	Documentation article
+Fase	Phase	Phase
+Hito	Jalon	Milestone
+Paquete de trabajo	Lot de travail	Work package
+Entregable	Livrable	Deliverable
+Riesgo	Risque	Risk
+Cambio	Changement	Change
+Lección aprendida	Retour d’expérience	Lesson learned
+Supuesto	Hypothèse	Assumption
+Dependencia	Dépendance	Dependency
+Interesado	Partie prenante	Stakeholder
+Responsabilidad RACI	Responsabilité RACI	RACI responsibility
+No se pudieron guardar los prefijos. Tus cambios se conservan.	Impossible d’enregistrer les préfixes. Vos modifications sont conservées.	Could not save prefixes. Your changes are preserved.

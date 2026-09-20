@@ -253,18 +253,3 @@ dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
 #salesGrad stop{stop-color:var(--arc-viz-1)}
 #chartLine{stroke:var(--arc-viz-1)}
 #chartGrid line{stroke:var(--arc-line)}
-
-/* ================================================= acentos de familia */
-/* Cada familia de módulos tiene su acento. Vivía dentro de la hoja que pinta
-   el menú y sólo bajo #mainmenu; ahora lo usan la tarjeta del menú, el
-   indicador de cabecera y el icono de cada pantalla, así que se declara una
-   sola vez y sin ámbito. El color nunca informa solo: siempre acompaña a un
-   icono y a un rótulo. */
-[data-arc-fam="analytics"]{background:var(--arc-fam-analytics-bg);color:var(--arc-fam-analytics)}
-[data-arc-fam="sales"]    {background:var(--arc-fam-sales-bg);    color:var(--arc-fam-sales)}
-[data-arc-fam="logistics"]{background:var(--arc-fam-logistics-bg);color:var(--arc-fam-logistics)}
-[data-arc-fam="purchase"] {background:var(--arc-fam-purchase-bg); color:var(--arc-fam-purchase)}
-[data-arc-fam="finance"]  {background:var(--arc-fam-finance-bg);  color:var(--arc-fam-finance)}
-[data-arc-fam="people"]   {background:var(--arc-fam-people-bg);   color:var(--arc-fam-people)}
-[data-arc-fam="system"]   {background:var(--arc-fam-system-bg);   color:var(--arc-fam-system)}
-[data-arc-fam="warning"]  {background:var(--arc-warning-bg);      color:var(--arc-warning)}

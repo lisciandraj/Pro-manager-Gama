@@ -88,25 +88,6 @@ sigue decidiendo `window.gamaAccessAllowed()` — la barra sólo aplica
 La cabecera, las pestañas y la barra lateral históricas siguen en el DOM —hay
 pruebas y atajos que las consultan— pero no pintan nada.
 
-## El icono del módulo, en dos sitios y escrito una vez
-
-La tarjeta del menú y la cabecera de la pantalla enseñan **el mismo icono con
-el mismo acento**. Ninguno de los dos lo escribe: los dos se lo piden a
-`window.GamaMenu` —`icons` para el dibujo, `family(id)` para el acento—, y la
-cabecera sabe de qué módulo es porque **las treinta y cuatro secciones llevan
-el identificador de su módulo** (`#products`, `#returns`, `#accounting`…). Sólo
-tres pantallas necesitan un alias, por no ser módulos del menú: el TMS,
-«billing» y «home».
-
-El emoji que abría los títulos —📦, 👥, 🚚— lo sustituye ese icono. Se quita en
-`GamaUI.header()` y no en cada módulo, para que ninguno se quede a medias; el
-catálogo de traducción no se entera, porque guarda sus entradas por el texto
-sin adorno y «📦 Productos» y «Productos» resuelven a la misma fila.
-
-El tinte de familia (`[data-arc-fam]`) vivía dentro de la hoja del menú y sólo
-bajo `#mainmenu`. Ahora está en `architect-ui.css`, sin ámbito, porque lo usan
-la tarjeta, el indicador y la cabecera.
-
 ## Menú principal
 
 Cada tarjeta lleva ahora icono con el color de su familia, título, **una línea
@@ -162,8 +143,7 @@ el nombre del programa.
 ## Qué hacer al añadir una pantalla
 
 1. Pedir la cabecera a `GamaUI.header({title, lead})` y engancharla con
-   `GamaUI.bindBack()` **después de colgarla de su sección**: el icono se
-   deduce del `id` de la sección, que es el del módulo.
+   `GamaUI.bindBack()`.
 2. Usar los nombres de clase que ya existen (`card`, `primary`, `secondary`,
    `num`…). No hace falta CSS propio para que se vea como el resto.
 3. Si hace falta un color, **cogerlo de `architect-tokens.css`**. Si no está,

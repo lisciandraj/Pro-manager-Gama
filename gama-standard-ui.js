@@ -40,8 +40,8 @@ function addStandardHeader(sec){
  const box=document.createElement('div');
  box.innerHTML=window.GamaUI.header({title:title[0],lead:title[1]});
  const header=box.firstElementChild;
+ window.GamaUI.bindBack(header);
  sec.insertBefore(header,sec.firstChild);
- window.GamaUI.bindBack(header);   // después de insertar: el icono necesita saber en qué sección está
 }
 function standardize(){addStyles();document.querySelectorAll('section').forEach(addStandardHeader)}
 function forceView(id){document.querySelectorAll('section').forEach(s=>{const active=s.id===id;s.classList.toggle('active',active);s.style.setProperty('display',active?'block':'none','important');if(active)s.removeAttribute('hidden')});const target=document.getElementById(id);if(target){target.removeAttribute('hidden');target.style.setProperty('display','block','important');target.classList.add('active')}standardize()}

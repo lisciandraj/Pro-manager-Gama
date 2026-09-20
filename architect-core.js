@@ -1298,7 +1298,7 @@
     });
     document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab === button2));
     current = id;
-    if (id !== "mainmenu") (_b = window.renderAll) == null ? void 0 : _b.call(window);
+    (_b = window.renderForRoute) == null ? void 0 : _b.call(window, id);
     (_c = window.ArcStandardHeaders) == null ? void 0 : _c.call(window, target);
     mount(target);
     emit("arc:route-change", { id });

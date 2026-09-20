@@ -27,10 +27,7 @@
     window.GamaCloudProducts=api;
     C.getSession().then(r=>{if(r&&r.data&&r.data.session)api.startRealtime();});
     window.addEventListener('gama:auth-change',e=>{if(e.detail&&e.detail.session)api.startRealtime();});
-    /* Always load the supplier bridge from a script that is already guaranteed to be loaded. */
-    if(!document.getElementById('gamaSupplierBridgeLoader')){
-      const s=document.createElement('script');s.id='gamaSupplierBridgeLoader';s.src=(window.ArcAssets?.['gama-purchases-supplier-bridge.js']||'gama-purchases-supplier-bridge.js');s.async=true;document.head.appendChild(s);
-    }
+    // GamaCloudReady loads the supplier bridge once, alongside this adapter.
   }
   boot();
 })();

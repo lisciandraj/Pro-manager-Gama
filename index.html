@@ -16,8 +16,8 @@
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
 <script src="gama-i18n-catalog.js?v=46906598f5d9"></script>
 <script src="gama-i18n.js?v=9adc7e08b652"></script>
-<script src="architect-assets.js?v=458a14518404"></script>
-<script src="architect-core.js?v=b9b0e332a1a9"></script>
+<script src="architect-assets.js?v=b903a00d25f4"></script>
+<script src="architect-core.js?v=788ed44f4fcb"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=23a8e1087e3f"></script>
 <title>Architect ERP</title>
@@ -512,7 +512,14 @@ function renderStock(){
   +GamaSort.th('stock','price','Precio','right')+GamaSort.th('stock','status','Estado')
   +'</tr>'+GamaPage.slice('stock',rows).map(p=>`<tr><td>${gamaPhotoCell(p)}</td><td>${sEsc(p.name)}</td><td>${sEsc(p.barcode)}</td><td>${sEsc(p.cat||'-')}</td><td style="text-align:right">${p.stock}</td><td style="text-align:right">$${Number(p.price||0).toFixed(2)}</td><td class="${p.stock<=p.min?'low':'ok'}">${p.stock<=p.min?'⚠️ Stock bajo':'✅ OK'}</td></tr>`).join('')+'</table>'+GamaPage.controls('stock',rows.length);
 }
-function renderAll(){renderDashboard();renderProducts($('productSearch')?.value||'');renderClients($('clientSearch')?.value||'');populateClientSelect();renderStock();renderAudit()}
+function renderForRoute(id){
+ if(id==='products')renderProducts($('productSearch')?.value||'');
+ else if(id==='clients')renderClients($('clientSearch')?.value||'');
+ else if(id==='billing')populateClientSelect();
+ else if(id==='stock')renderStock();
+ else if(id==='audit')renderAudit();
+}
+function renderAll(){renderDashboard();renderForRoute(document.querySelector('section.active')?.id)}
 showTab('mainmenu',null);
 </script>
 <script>
@@ -545,8 +552,8 @@ showTab('mainmenu',null);
 <script src="architect-home-order.js?v=35fd320f0934"></script>
 <script src="gama-menu-final2.js?v=627753dd1f4b"></script>
 <script src="gama-scanner-phone.js?v=4d447394d340"></script>
-<script src="gama-references.js?v=e707040b0689"></script>
-<script src="gama-role-access.js?v=55cc9b8dbc1b"></script>
+<script src="gama-references.js?v=5ead7141efb4"></script>
+<script src="gama-role-access.js?v=541eb366811c"></script>
 <script src="gama-access-control.js?v=59dcf31e6519"></script>
 <script src="gama-fixed-header.js?v=bbfced364c11"></script>
 <script src="gama-role-spanish.js?v=dd1a60f8b6d3"></script>
@@ -558,7 +565,7 @@ showTab('mainmenu',null);
 <script src="gama-pdf-template.js?v=ec6a9c9717f8"></script>
 <script src="gama-quote-pdf.js?v=3e2e4f471e1e"></script>
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
-<script src="gama-supabase.js?v=525137286242"></script>
+<script src="gama-supabase.js?v=91288dedea70"></script>
 <script src="gama-central-sync.js?v=c1b7f5abcd39"></script>
 <script src="gama-purchases-v14.js?v=6418042aec57"></script>
 <script src="gama-proveedores-matriz.js?v=a235954439f0"></script>

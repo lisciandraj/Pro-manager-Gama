@@ -8,6 +8,7 @@ const baseRole=r=>canonical(rows[canonical(r)]?.base_role||r);
 const locked=(r,id)=>id==='settings'||(baseRole(r)==='admin'&&['access-settings','users'].includes(id));
 let rows={},ready=false,pending=null,generation=0,subscription=null;
 const session=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')}catch(_){return null}};
+const signature=()=>JSON.stringify([ready,session()?.role,session()?.accessProfile,Object.keys(rows).sort().map(k=>rows[k])]);
 const base=(r,id)=>{const p=roles[baseRole(r)]?.perms;return p==='*'||!!p?.includes(id)};
 function enabled(r,id){
  r=canonical(r);if(!base(r,id))return false;
@@ -24,7 +25,7 @@ function changed(){
 }
 async function load(){
  if(pending)return pending;
- const token=generation;
+ const token=generation,previous=signature();
  pending=(async()=>{
   await window.GamaCloudReady;
   const current=session();
@@ -40,7 +41,7 @@ async function load(){
   if(result.error)throw result.error;
   if(token!==generation)return;
   rows=Object.fromEntries((result.data||[]).map(row=>[canonical(row.role),row]));
-  ready=true;changed();
+  ready=true;if(signature()!==previous)changed();
  })();
  try{await pending;}finally{if(token===generation)pending=null;}
 }

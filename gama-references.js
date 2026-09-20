@@ -1,15 +1,28 @@
 /* Canonical dossier references; original/fiscal numbers remain in storage. */
 (function(){'use strict';
 const types=new Set(["customer_requests", "invoices", "sales_orders", "fulfillment_preparations", "fulfillment_packages", "sales_deliveries", "tms_deliveries", "tms_proofs", "external_invoices", "external_invoice_payments", "return_orders", "purchase_orders", "inventory_counts", "stock_reservations", "stock_movements", "crm_opportunities", "pm_projects", "fleet_vehicles", "hr_documents", "hr_payroll", "service_tickets", "business_documents", "accounting_entries", "expenses", "supplier_invoices", "supplier_invoice_payments", "return_credits", "return_refunds", "tms_routes", "knowledge_articles", "pm_items"]);
+const dossierTypes=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders']);
 async function attach(table,result,client){
  if(result.error||!result.data||!types.has(table))return result;
  const rows=Array.isArray(result.data)?result.data:[result.data],key=table==='tms_proofs'?'delivery_id':'id',ids=rows.map(r=>r[key]).filter(Boolean);
  if(!ids.length)return result;
- const refs=[];
- for(let offset=0;offset<ids.length;offset+=100){const r=await client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference,dossier_label,legacy_reference').eq('table_name',table).in('document_id',ids.slice(offset,offset+100));if(r.error)return {...result,data:null,error:r.error};refs.push(...r.data);}
- const parents=[...new Set(rows.flatMap(r=>[r.order_id,r.source_quote_id,r.source_request_id]).filter(Boolean))];
- for(let offset=0;offset<parents.length;offset+=100){const r=await client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference,dossier_label,legacy_reference').in('document_id',parents.slice(offset,offset+100));if(r.error)return {...result,data:null,error:r.error};refs.push(...r.data);}
- const get=(t,id)=>refs.find(r=>r.table_name===t&&r.document_id===id);
+ const refs=new Map(),groups=new Map(),jobs=[];
+ const refKey=(t,id)=>t+':'+id,get=(t,id)=>refs.get(refKey(t,id));
+ const need=(t,id)=>{if(!id)return;if(!groups.has(t))groups.set(t,new Set());groups.get(t).add(id)};
+ for(const r of rows){
+  // Independent documents already carry their canonical number. Only the
+  // sales chain needs the registry's shared dossier metadata.
+  if(!dossierTypes.has(table)&&r.erp_reference)refs.set(refKey(table,r[key]),{document_reference:r.erp_reference,dossier_number:0,dossier_label:null,legacy_reference:r.legacy_reference});
+  else need(table,r[key]);
+  need('invoices',r.source_quote_id);need('customer_requests',r.source_request_id);
+  if(r.document_snapshot)need('sales_orders',r.order_id);
+ }
+ for(const [t,set] of groups){const keys=[...set];for(let offset=0;offset<keys.length;offset+=100)jobs.push({table:t,ids:keys.slice(offset,offset+100)})}
+ // Independent own/parent reads share a bounded wave, not a serial waterfall.
+ for(let offset=0;offset<jobs.length;offset+=4){
+  const results=await Promise.all(jobs.slice(offset,offset+4).map(job=>client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference,dossier_label,legacy_reference').eq('table_name',job.table).in('document_id',job.ids)));
+  for(const r of results){if(r.error)return {...result,data:null,error:r.error};for(const ref of r.data||[])refs.set(refKey(ref.table_name,ref.document_id),ref)}
+ }
  for(const r of rows){const ref=get(table,r[key]);if(!ref)continue;r.dossier_number=ref.dossier_number;r.dossier_reference=ref.document_reference;
   r.erp_reference=ref.document_reference;r.legacy_reference=ref.legacy_reference;r.dossier_label=ref.dossier_label||(ref.dossier_number>0?'EXP-'+String(ref.dossier_number).padStart(8,'0'):null);
   if(table==='invoices'){r.original_number=r.invoice_number;r.invoice_number=ref.document_reference;}

@@ -24,8 +24,8 @@ export function show(id,button){
   document.querySelectorAll('section').forEach(section=>{if(section.closest('dialog'))return;const active=section===target;section.classList.toggle('active',active);section.style.setProperty('display',active?'block':'none','important');if(active)section.removeAttribute('hidden');});
   document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab===button));
   current=id;
-  // Legacy document editors still share a read model; their renderer is called once.
-  if(id!=='mainmenu')window.renderAll?.();
+  // Refresh only the visible legacy screen. Modern modules own their loaders.
+  window.renderForRoute?.(id);
   window.ArcStandardHeaders?.(target);mount(target);
   emit('arc:route-change',{id});window.scrollTo({top:0,behavior:'smooth'});return true;
 }

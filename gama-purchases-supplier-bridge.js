@@ -1,6 +1,7 @@
 /* GAMA — supplier bridge V3 */
 (function(){
 'use strict';
+if(window.gamaResolveSupplierId)return;
 const KEY='gama_suppliers_v1';
 const esc=window.ArcUI.esc;
 function readLocal(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}

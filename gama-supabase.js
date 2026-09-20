@@ -8,10 +8,15 @@ if(window.GamaCloud&&window.GamaCloudReady)return;
 const SUPABASE_URL='https://mknsaibrewksgomuslev.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
 const SUPABASE_ANON_KEY=window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY;
-let client=null,realtime=[];
+let client=null,initializing=null,realtime=[];
 function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail:detail||{}}));}
 function loadClient(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(window.supabase);if(window.__gamaSupabaseLoader)return window.__gamaSupabaseLoader;window.__gamaSupabaseLoader=new Promise(function(resolve,reject){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0';s.integrity='sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx';s.crossOrigin='anonymous';s.async=true;s.onload=()=>window.supabase&&window.supabase.createClient?resolve(window.supabase):reject(Error('Supabase JS unavailable'));s.onerror=()=>reject(Error('Unable to load Supabase JS'));document.head.appendChild(s)});return window.__gamaSupabaseLoader;}
-async function init(){if(!SUPABASE_ANON_KEY){emit('gama:cloud-status',{ready:false,configured:false});return null}if(client)return client;const sb=await loadClient();client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((event,session)=>emit('gama:auth-change',{event,session}));emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});return client;}
+async function init(){
+ if(!SUPABASE_ANON_KEY){emit('gama:cloud-status',{ready:false,configured:false});return null}
+ if(client)return client;if(initializing)return initializing;
+ initializing=(async()=>{const sb=await loadClient();client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((event,session)=>emit('gama:auth-change',{event,session}));emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});return client})();
+ try{return await initializing}finally{initializing=null}
+}
 async function db(){const c=await init();if(!c)throw Error('Supabase public key not configured');return c}
 async function getSession(){return (await db()).auth.getSession()}
 async function signIn(email,password){return (await db()).auth.signInWithPassword({email,password})}

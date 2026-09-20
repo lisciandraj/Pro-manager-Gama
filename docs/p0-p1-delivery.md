@@ -5,7 +5,7 @@ couvrent les critères P0/P1 recensés. Les fonctions P2 de l’assistant IA et 
 base de connaissances sont hors périmètre. Les fonctions déjà présentes ont été
 conservées ; les contrôles et parcours manquants ont été ajoutés.
 
-État : version validée ; base de production et fonction serveur déployées le 20 septembre 2026. Publication de l’interface en cours.
+État : version P0/P1 publiée en production le 20 septembre 2026. Base de données, fonction serveur et interface déployées.
 Autorisation explicite de publication directe en production reçue dans la conversation.
 
 ## Couverture fonctionnelle
@@ -75,7 +75,7 @@ Autorisation explicite de publication directe en production reçue dans la conve
 - Tests additionnels du tableau de bord : total des détails identique au KPI,
   acomptes reconnus une seule fois dans les encaissements et comptes financiers.
 - Vérifications de sources, TypeScript, historique des migrations et compilation.
-- Campagne web : 576 cas, dont 539 réussis au premier passage, 36 corrigés et revalidés dans les reprises ciblées, et 1 ignoré. Les corrections concernent les fixtures des nouveaux RPC/parcours et deux accès directs affectés par le chargement différé (utilisateurs et édition produit).
+- Campagne web : 576 cas, dont 539 réussis au premier passage, 36 corrigés et revalidés dans les reprises ciblées, et 1 test PDF optionnel ignoré (variable `PM_QA_ASSETS` absente). Les corrections concernent les fixtures des nouveaux RPC/parcours et deux accès directs affectés par le chargement différé (utilisateurs et édition produit).
 - Reprises ciblées finales : 29, 19, 32, 53, 22 et 6 cas réussis selon le lot ; ces chiffres se recoupent et ne s’ajoutent pas aux 576 cas.
 
 ## Déploiement
@@ -84,4 +84,10 @@ Autorisation explicite de publication directe en production reçue dans la conve
 - Fonction `architect-user-admin`, version 1, active, vérification JWT activée.
 - Contrôle de production : 162 tables publiques, aucune sans RLS ; aucune fonction publique SECURITY DEFINER exécutable par `anon`.
 - Le conseiller de sécurité ne signale plus d’erreur. Son avertissement préexistant sur la détection des mots de passe compromis reste un réglage Supabase Auth à activer : [documentation](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). Les tables privées sans politique restent volontairement interdites en accès direct.
-- Interface : publication depuis `main` sur https://lisciandraj.github.io/Pro-manager-Gama/. Vérification du déploiement et des empreintes des fichiers après publication.
+- Commit fonctionnel publié : [`9005db6`](https://github.com/lisciandraj/Pro-manager-Gama/commit/9005db6510f2027e71dc67f86297ee30893b5256).
+- [Déploiement GitHub Pages réussi](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530300794) ; [site de production](https://lisciandraj.github.io/Pro-manager-Gama/).
+- Vérification HTTP en ligne : page d’accueil et 56 fichiers HTML/JS/CSS contrôlés, contenus identiques à la version locale validée, aucun écart.
+- Fonction d’administration : prévol CORS `204` pour l’origine autorisée ; appel sans session refusé avec `401`. Aucun compte de test ni email réel créé.
+- [Validation de release](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530301616), [affichage responsive](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530301617), [produits et imports](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530301625) et [achats](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530301680) réussis sur GitHub.
+- [Cycle de vente, commandes, paiements, préparation et TMS](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/35530301613) : pipeline réussi. Les six workflows du commit fonctionnel sont au vert.
+- Les durées ressenties avec un compte réel en production n’ont pas été mesurées : l’optimisation vérifiée supprime les lectures métier au démarrage et découple le menu des KPI.

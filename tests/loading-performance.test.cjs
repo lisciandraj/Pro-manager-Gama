@@ -32,3 +32,13 @@ test('concurrent startup creates one Supabase client and auth subscription',asyn
  assert.equal(clients,1);assert.equal(subscriptions,1);assert.ok(results.every(c=>c===results[0]));
  assert.equal(scripts.filter(s=>s.src.startsWith('gama-purchases-supplier-bridge.js')).length,1);
 });
+test('profile reads share only an in-flight request for the exact session',async()=>{
+ let calls=0,session={user:{id:'a'},access_token:'a1'};const releases=[];
+ const client={auth:{onAuthStateChange(){},getSession:async()=>({data:{session}})},from(){return {select(){return this},eq(key,id){this.id=id;return this},maybeSingle(){calls++;const id=this.id;return new Promise(resolve=>releases.push(()=>resolve({data:{id}})))}}}};
+ const context={console,document:{createElement:()=>({}),head:{appendChild(){}}},CustomEvent:class{},dispatchEvent(){},supabase:{createClient:()=>client}};context.window=context;
+ vm.createContext(context);vm.runInContext(source('gama-supabase.js'),context);await context.GamaCloudReady;
+ const first=Array.from({length:5},()=>context.GamaCloud.getProfile());await new Promise(setImmediate);assert.equal(calls,1);
+ session={user:{id:'b'},access_token:'b1'};const other=context.GamaCloud.getProfile();await new Promise(setImmediate);assert.equal(calls,2);
+ releases.splice(0).forEach(f=>f());assert.ok((await Promise.all(first)).every(r=>r.data.id==='a'));assert.equal((await other).data.id,'b');
+ const fresh=context.GamaCloud.getProfile();await new Promise(setImmediate);assert.equal(calls,3,'later refreshes must revalidate profile');releases.shift()();await fresh;
+});

@@ -26,3 +26,35 @@ test('unchanged access polling does not rebuild the menu; a real revocation stil
  await page.evaluate(async()=>{window.__DB.role_module_access=[{role:'comercial',disabled_modules:['crm'],version:2}];await GamaRoleAccess.load()});
  expect(await page.evaluate(()=>window.__changes)).toBe(1);expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
 });
+for(const width of [390,1440])test(`cold home starts access reads together and calculates KPIs once at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await page.addInitScript(()=>{
+  localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'}));
+ });
+ const instrumented=mock+`;(()=>{
+  window.__startup={profile:0,access:0,kpis:0};
+  const profile=GamaCloud.getProfile,list=GamaCloud.list,db=GamaCloud.db;
+  GamaCloud.getProfile=async()=>{__startup.profile++;await new Promise(r=>window.__releaseProfile=r);return profile()};
+  GamaCloud.list=async(table,options)=>{if(table==='role_module_access')__startup.access++;return list(table,options)};
+  GamaCloud.db=async()=>{const c=await db();return {...c,rpc:async(name,args)=>{if(name==='gama_home_kpis'){__startup.kpis++;await new Promise(r=>setTimeout(r,250))}return c.rpc(name,args)}}};
+ })();`;
+ await page.route('https://**/*',r=>r.abort());
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:instrumented}));
+ await page.goto('/index.html');
+ await page.waitForFunction(()=>window.__startup?.profile===1);
+ // A blocked profile cannot serialize the independent permissions read, and
+ // unvalidated navigation must stay closed (no cached privilege shortcut).
+ expect(await page.evaluate(()=>__startup.access)).toBe(1);
+ expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
+ await page.evaluate(()=>{window.__originalGrid=document.querySelector('.gamaF2Grid');__releaseProfile()});
+ await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
+ expect(await page.evaluate(()=>__startup.kpis)).toBe(1);
+ expect(await page.evaluate(()=>__originalGrid===document.querySelector('.gamaF2Grid'))).toBe(true);
+ await expect(page.locator('.gamaF2Card[data-gama-module="crm"]')).toBeVisible();
+ await page.evaluate(async()=>{await GamaModules.load();await GamaModules.load()});
+ expect(await page.evaluate(()=>__startup.kpis)).toBe(1);
+ // Concurrent refreshes share work; re-mounts keep already displayed values.
+ await page.evaluate(async()=>{await Promise.all([ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh()]);GamaMenu.render()});
+ expect(await page.evaluate(()=>__startup.kpis)).toBe(2);
+ await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
+});

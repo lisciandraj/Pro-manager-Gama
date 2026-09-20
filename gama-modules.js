@@ -31,7 +31,7 @@ const CACHE_KEY='gama_modules_v1';
 /* Sólo se guardan los módulos APAGADOS. Una lista corta, y encaja con la regla
    de que lo que no aparece está encendido. */
 let off=read();
-let loaded=false;
+let loaded=false,pending=null;
 
 function read(){
  try{const v=JSON.parse(localStorage.getItem(CACHE_KEY)||'[]');return new Set(Array.isArray(v)?v:[])}
@@ -58,16 +58,19 @@ function changed(){
 async function load(){
  const api=window.GamaCloud;
  if(!api)return list();
- try{
+ if(pending)return pending;
+ pending=(async()=>{try{
   const r=await api.list('app_modules',{select:'id,enabled'});
   if(r.error)throw r.error;
-  off=new Set((r.data||[]).filter(x=>x.enabled===false).map(x=>x.id));
-  loaded=true;write();changed();
+  const next=new Set((r.data||[]).filter(x=>x.enabled===false).map(x=>x.id));
+  const different=off.size!==next.size||[...off].some(id=>!next.has(id));
+  off=next;loaded=true;write();if(different)changed();
  }catch(e){
   // Sin respuesta se conserva lo último que se supo: apagar de más sería peor.
   console.warn('[GAMA Módulos] no se pudo leer el estado',e);
  }
- return list();
+ return list();})();
+ try{return await pending}finally{pending=null}
 }
 
 async function setEnabled(id,on){

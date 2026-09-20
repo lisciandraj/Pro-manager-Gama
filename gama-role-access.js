@@ -20,7 +20,9 @@ function enabled(r,id){
 function changed(){
  const current=session(),badge=document.querySelector('.aclRole');
  if(badge&&current){badge.textContent=current.accessProfile?rows[current.accessProfile]?.display_name||'':window.GamaI18n?.t?.(roles[canonical(current.role)]?.label)||roles[canonical(current.role)]?.label||'';badge.toggleAttribute('data-gi-ignore',!!current.accessProfile);}
- window.gamaApplyAccess?.();window.GamaMenu?.render();
+ // All cards already exist. Updating visibility preserves KPI requests, focus
+ // and the user's module order instead of mounting the whole home again.
+ window.gamaApplyAccess?.();
  window.dispatchEvent(new CustomEvent('gama:modules-change'));
 }
 async function load(){
@@ -29,18 +31,20 @@ async function load(){
  pending=(async()=>{
   await window.GamaCloudReady;
   const current=session();
+  const [p,result]=await Promise.all([
+   current?.userId?window.GamaCloud.getProfile():Promise.resolve(null),
+   window.GamaCloud.list('role_module_access',{select:'role,disabled_modules,version,display_name,base_role,is_custom'})
+  ]);
+  if(token!==generation)return;
+  if(p?.error)throw p.error;
+  if(result.error)throw result.error;
   if(current?.userId){
-   const p=await window.GamaCloud.getProfile();if(p.error)throw p.error;
-   if(token!==generation)return;
    if(p.data?.id===current.userId){
     if(p.data.active===false)localStorage.removeItem('gama_session_v1');
     else localStorage.setItem('gama_session_v1',JSON.stringify({...current,role:canonical(p.data.role),accessProfile:p.data.access_profile||null}));
    }
   }
-  const result=await window.GamaCloud.list('role_module_access',{select:'role,disabled_modules,version,display_name,base_role,is_custom'});
-  if(result.error)throw result.error;
-  if(token!==generation)return;
-  rows=Object.fromEntries((result.data||[]).map(row=>[canonical(row.role),row]));
+  rows=Object.fromEntries((result.data||[]).map(row=>[canonical(row.role),{...row,disabled_modules:[...(row.disabled_modules||[])]}]));
   ready=true;if(signature()!==previous)changed();
  })();
  try{await pending;}finally{if(token===generation)pending=null;}
@@ -57,7 +61,7 @@ async function create(name,source){const r=await window.ArcData.rawRpc('gama_cre
 async function assign(user,profile){const r=await window.ArcData.rawRpc('gama_assign_access_profile',{p_user:user,p_profile:dbRoles[profile]||profile});if(r.error)throw r.error;return r.data;}
 window.GamaRoleAccess={load,save,snapshot,enabled,base,baseRole,locked,options,create,assign,isReady:()=>ready};
 const refresh=()=>{if(session())load().catch(()=>{});};
-window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED'){refresh();return;}generation++;pending=null;rows={};ready=false;changed();refresh()});
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED'||event.detail?.event==='INITIAL_SESSION'&&!ready){refresh();return;}generation++;pending=null;rows={};ready=false;changed();refresh()});
 window.addEventListener('gama:profile-ready',refresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 setInterval(()=>{if(!document.hidden)refresh()},60000);

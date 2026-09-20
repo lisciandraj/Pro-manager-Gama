@@ -59,3 +59,33 @@ checks the rendering mechanism, not an authenticated production session.
 
 The migration changes only the read policy/helper: no document contents, issued
 numbers, account permissions or business transactions are rewritten.
+
+## Cold home follow-up — 2026-09-20
+
+Baseline for this follow-up: `338a42964fcb93d53472d23e7dca012818d2c092`.
+The three administrative recovery tiles were visible while the initial access
+snapshot was still loading. Profile and role-module reads were sequential.
+Initial module events plus a complete menu remount also launched four KPI RPCs.
+
+- Fetch profile and role-module access concurrently, committing the snapshot only
+  when both succeed. Keep restricted modules closed until validation completes.
+- Share concurrent profile reads only for the exact user/access token; do not
+  persist profile permissions or reuse them for later refreshes.
+- Preserve the menu DOM when access changes. Existing visibility and router
+  listeners continue to apply actual grants/revocations.
+- Coalesce initial module configuration reads and wait for initial access/config
+  before one KPI calculation. Ignore unchanged configuration notifications and
+  keep existing values on a menu remount. Account changes and actual access
+  changes still invalidate old KPI responses.
+- Preload the pinned, integrity-checked Supabase client and preconnect to the
+  existing API host while the page's other scripts are loading.
+
+Controlled local Chromium mobile comparison (390px, mocked 300 ms profile and
+access reads, 500 ms KPI response): access critical path **607 → 301 ms**;
+initial KPI RPCs **4 → 1**. These measure the corrected startup mechanisms,
+not the user's real iPhone or authenticated production network latency.
+
+Validation: 21 focused browser tests (cold start at 390/1440px, permissions,
+account switching, KPI editing, order persistence) and the profile single-flight
+unit regression pass. Build, source checks and type checks also pass. No database
+schema, business data or stored permissions are changed by this follow-up.

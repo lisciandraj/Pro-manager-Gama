@@ -8,7 +8,7 @@ if(window.GamaCloud&&window.GamaCloudReady)return;
 const SUPABASE_URL='https://mknsaibrewksgomuslev.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
 const SUPABASE_ANON_KEY=window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY;
-let client=null,initializing=null,realtime=[];
+let client=null,initializing=null,realtime=[],profileRequest=null;
 function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail:detail||{}}));}
 function loadClient(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(window.supabase);if(window.__gamaSupabaseLoader)return window.__gamaSupabaseLoader;window.__gamaSupabaseLoader=new Promise(function(resolve,reject){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0';s.integrity='sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx';s.crossOrigin='anonymous';s.async=true;s.onload=()=>window.supabase&&window.supabase.createClient?resolve(window.supabase):reject(Error('Supabase JS unavailable'));s.onerror=()=>reject(Error('Unable to load Supabase JS'));document.head.appendChild(s)});return window.__gamaSupabaseLoader;}
 async function init(){
@@ -21,7 +21,17 @@ async function db(){const c=await init();if(!c)throw Error('Supabase public key 
 async function getSession(){return (await db()).auth.getSession()}
 async function signIn(email,password){return (await db()).auth.signInWithPassword({email,password})}
 async function signOut(){const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
-async function getProfile(){const c=await db(),r=await c.auth.getSession(),u=r.data?.session?.user;if(!u)return {data:null,error:null};return c.from('profiles').select('*').eq('id',u.id).maybeSingle()}
+async function getProfile(){
+ const c=await db(),r=await c.auth.getSession(),s=r.data?.session,u=s?.user;
+ if(!u)return {data:null,error:null};
+ // Share only concurrent reads for the exact authenticated session. Never
+ // cache permissions across refreshes, account changes or later requests.
+ const key=u.id+':'+s.access_token;
+ if(profileRequest?.key===key)return profileRequest.promise;
+ const job={key,promise:Promise.resolve(c.from('profiles').select('*').eq('id',u.id).maybeSingle())};
+ profileRequest=job;
+ try{return await job.promise}finally{if(profileRequest===job)profileRequest=null}
+}
 /* List options are validated below. Unsupported filters fail explicitly.
    head:true + count:'exact' requests a total without downloading rows.
    Complete primary-key ordering keeps pagination stable when sort values tie. */

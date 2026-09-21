@@ -12,11 +12,28 @@ const isAdmin=()=>role()==='admin'||role()==='administrador';
 let busy=false,profile='commercial',draft=null,draftVersion=0,accessError='';
 const tx=s=>window.GamaI18n?.t?.(s)||s;
 const live=s=>`<span data-gi-live>${esc(s)}</span>`;
+/* Dos rejillas comparten esta tarjeta y no piden lo mismo.
+   «Accesos por perfil» marca qué ve cada perfil y se guarda en bloque al
+   final: ahí una casilla es lo correcto, porque recoge una intención hasta
+   que se pulsa Guardar.
+   «Módulos de la aplicación» no tiene botón de guardar: cada cambio se
+   escribe en el momento. Eso es una acción, no un campo de formulario, y se
+   pide con un botón que dice lo que va a pasar —Instalar o Desinstalar— con
+   los colores de siempre: azul para la acción principal, blanco para la que
+   retira algo. */
 function moduleTile(m,{scope,on,disabled,detail=''}){
  const definition=window.ArcModules.registry.find(x=>x.id===m.id)||m;
  const label=definition.label||m.label,key=scope+'-'+m.id;
  const icon=window.ArcUI.icons[definition.icon]||window.ArcUI.icons.invoice;
- return `<label class="cfgModuleTile" for="${esc(key)}"><span class="cfgTileTop"><span class="cfgTileIcon gamaF2Icon" data-arc-fam="${esc(definition.accent||'cyan')}" aria-hidden="true"><svg viewBox="0 0 24 24">${icon}</svg></span><input id="${esc(key)}" type="checkbox" ${scope==='profile'?'data-role-module':'data-mod'}="${esc(m.id)}" ${on?'checked':''} ${disabled?'disabled':''} aria-labelledby="${esc(key)}-name" aria-describedby="${esc(key)}-desc${detail?' '+esc(key)+'-state':''}"></span><b id="${esc(key)}-name" data-gi-live>${esc(label)}</b><span id="${esc(key)}-desc" class="cfgTileDesc" data-gi-live>${esc(definition.description||'')}</span>${detail?`<small id="${esc(key)}-state" class="cfgTileState">${live(detail)}</small>`:''}</label>`;
+ const cabeza=`<span class="cfgTileTop"><span class="cfgTileIcon gamaF2Icon" data-arc-fam="${esc(definition.accent||'cyan')}" aria-hidden="true"><svg viewBox="0 0 24 24">${icon}</svg></span>`;
+ const cuerpo=`<b id="${esc(key)}-name" data-gi-live>${esc(label)}</b><span id="${esc(key)}-desc" class="cfgTileDesc" data-gi-live>${esc(definition.description||'')}</span>${detail?`<small id="${esc(key)}-state" class="cfgTileState">${live(detail)}</small>`:''}`;
+ if(scope==='module'){
+  // El rótulo dice la acción, así que no lleva aria-pressed: un botón que
+  // pone «Desinstalar» y además se anuncia pulsado se entiende al revés.
+  const accion=on?'Desinstalar':'Instalar';
+  return `<div class="cfgModuleTile cfgModuleTile--accion">${cabeza}</span>${cuerpo}<button type="button" class="cfgTileAction arcButton ${on?'secondary':'primary'}" data-mod="${esc(m.id)}" data-on="${on?'1':'0'}" ${disabled?'disabled':''} aria-describedby="${esc(key)}-name ${esc(key)}-desc${detail?' '+esc(key)+'-state':''}">${live(accion)}</button></div>`;
+ }
+ return `<label class="cfgModuleTile" for="${esc(key)}">${cabeza}<input id="${esc(key)}" type="checkbox" data-role-module="${esc(m.id)}" ${on?'checked':''} ${disabled?'disabled':''} aria-labelledby="${esc(key)}-name" aria-describedby="${esc(key)}-desc${detail?' '+esc(key)+'-state':''}"></span>${cuerpo}</label>`;
 }
 function profilePanel(){
  const api=window.GamaRoleAccess;
@@ -105,22 +122,22 @@ function bind(viewId){
    else accessError=tx('No se pudieron guardar los permisos. Tus cambios no se han aplicado.');
   }finally{busy=false;render(viewId)}
  };
- s.querySelectorAll('[data-mod]').forEach(input=>{
-  input.onchange=async()=>{
-   if(busy||!isAdmin()){input.checked=!input.checked;return}
-   const id=input.dataset.mod,on=input.checked;
-   busy=true;input.disabled=true;msg('Guardando…');
+ s.querySelectorAll('button[data-mod]').forEach(button=>{
+  button.onclick=async()=>{
+   if(busy||!isAdmin())return;
+   const id=button.dataset.mod,on=button.dataset.on!=='1';
+   busy=true;button.disabled=true;msg('Guardando…');
    try{
     await window.GamaModules.setEnabled(id,on);
     msg(on?'Módulo activado.':'Módulo desactivado. Ya no aparece para nadie.');
     render(viewId);
    }catch(e){
-    // Se devuelve el interruptor a donde estaba: dejarlo movido haría creer
-    // que el cambio se guardó.
-    input.checked=!on;
+    // El botón sólo cambia de rótulo al repintar, y eso únicamente ocurre si
+    // la escritura salió bien: si falla, sigue diciendo lo que aún se puede
+    // hacer y no hay nada que devolver a su sitio.
     console.warn('[GAMA Configuración]',e);
     msg('No se pudo guardar: '+(e&&(e.message||e.details)||e),true);
-   }finally{busy=false;input.disabled=false}
+   }finally{busy=false;button.disabled=false}
   };
  });
 }

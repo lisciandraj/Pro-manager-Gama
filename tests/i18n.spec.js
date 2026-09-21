@@ -90,7 +90,7 @@ test('settings exposes language to all roles without exposing module switches or
  await expect(page.locator('header #gamaLanguagePicker')).toHaveCount(0);
  await page.locator('#mainmenu [data-gama-module="settings"]').click();
  await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
- await expect(page.locator('#settings input[data-mod]')).toHaveCount(0);
+ await expect(page.locator('#settings [data-mod]')).toHaveCount(0);
  await page.locator('#settings [data-language="fr"]').click();
  await expect(page.locator('#settings h3').first()).toHaveText('Langue de l’application');
  await expect(page.locator('#settings [data-language="fr"]')).toHaveAttribute('aria-pressed','true');
@@ -102,12 +102,12 @@ test('settings exposes language to all roles without exposing module switches or
 });
 test('access settings is separate and restricted, personal configuration has no switches even for admin',async({page})=>{
  await boot(page);await page.locator('#mainmenu [data-gama-module="settings"]').click();
- await expect(page.locator('#settings input[data-mod]')).toHaveCount(0);
+ await expect(page.locator('#settings [data-mod]')).toHaveCount(0);
  await page.evaluate(()=>GamaUI.backToMenu());
  await page.locator('#mainmenu [data-gama-module="access-settings"]').click();
- await expect(page.locator('#access-settings input[data-mod="products"]')).toBeVisible();
- await expect(page.locator('#access-settings input[data-mod="access-settings"]')).toBeDisabled();
- await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings button[data-mod="products"]')).toBeVisible();
+ await expect(page.locator('#access-settings button[data-mod="access-settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings button[data-mod="settings"]')).toBeDisabled();
  await expect(page.locator('#access-settings #gamaLanguagePicker')).toHaveCount(0);
 });
 for(const role of ['commercial','magasinier','client'])test(`access settings denied to ${role}, configuration available`,async({page})=>{

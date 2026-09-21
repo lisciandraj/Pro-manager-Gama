@@ -37,7 +37,9 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
 
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.uncheck('#access-settings input[data-mod="audit"]');
+  // El mando dejó de ser una casilla: ahora es el botón que dice lo que va a
+  // pasar. Desinstalar es pulsarlo cuando está puesto.
+  await page.click('#access-settings button[data-mod="audit"][data-on="1"]');
   await page.waitForTimeout(600);
 
   // Queda guardado en la nube, no sólo en este navegador.
@@ -61,7 +63,7 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   // Volver a encenderlo lo devuelve al menú.
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.check('#access-settings input[data-mod="audit"]');
+  await page.click('#access-settings button[data-mod="audit"][data-on="0"]');
   await page.waitForTimeout(600);
   await page.evaluate(() => window.GamaUI.backToMenu());
   await page.waitForTimeout(400);
@@ -74,7 +76,7 @@ test('Configuración no se apaga a sí misma', async ({ page }) => {
   await boot(page, 'admin');
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
+  await expect(page.locator('#access-settings button[data-mod="settings"]')).toBeDisabled();
 });
 
 // Quien no es administrador no ve los interruptores. La barrera de verdad no
@@ -85,7 +87,7 @@ test('sin ser administrador no hay interruptores ni RRHH', async ({ page }) => {
   await page.evaluate(() => window.GamaOpenSettings());
   await page.waitForTimeout(500);
   await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
-  await expect(page.locator('#settings input[data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
+  await expect(page.locator('#settings [data-mod]'), 'un comercial no debe ver el mando de los módulos').toHaveCount(0);
   await expect(page.locator('#mainmenu .gamaF2Card:has-text("Recursos humanos")')).toBeHidden();
 });
 
@@ -429,4 +431,65 @@ test('el calendario del equipo sigue desplazándose, pero sin robarle el gesto a
     const cs = getComputedStyle(s);
     return { arrastraX: s.scrollWidth > s.clientWidth, ejeY: cs.overflowY, rebote: cs.overscrollBehaviorX };
   })).toEqual({ arrastraX: true, ejeY: 'hidden', rebote: 'contain' });
+});
+
+// El mando de «Módulos de la aplicación» es un botón que dice lo que va a
+// pasar: azul «Instalar» cuando el módulo no está, blanco «Desinstalar»
+// cuando está. No son dos colores elegidos aquí sino los de siempre, así que
+// la prueba no fija ningún valor: compara contra un botón principal y uno
+// secundario de la misma pantalla. Si alguien reescribe la tarjeta y deja el
+// botón con otro tono, o se le olvida invertirlo al instalar, salta aquí.
+test('instalar es el botón azul y desinstalar el blanco, con los colores de la aplicación', async ({ page }) => {
+  await boot(page, 'admin', { app_modules: [{ id: 'crm', enabled: false }] });
+  await page.evaluate(() => window.GamaOpenAccessSettings());
+  await page.waitForTimeout(600);
+
+  const leido = await page.evaluate(() => {
+    const pinta = el => { const s = getComputedStyle(el); return s.backgroundColor + '|' + s.color; };
+    const patron = sel => { const el = document.querySelector(sel); return el ? pinta(el) : ''; };
+    const uno = id => {
+      const b = document.querySelector(`#access-settings button[data-mod="${id}"]`);
+      return b ? { texto: b.textContent.trim(), on: b.dataset.on, clase: b.className, pinta: pinta(b) } : null;
+    };
+    return {
+      apagado: uno('crm'),
+      encendido: uno('products'),
+      principal: patron('#cfgSaveProfile'),        // «Guardar permisos»
+      secundario: patron('#cfgNewProfile'),        // «Crear un perfil»
+      casillas: document.querySelectorAll('#access-settings input[data-mod]').length,
+    };
+  });
+
+  expect(leido.apagado, 'no hay botón para un módulo desinstalado').not.toBeNull();
+  expect(leido.encendido, 'no hay botón para un módulo instalado').not.toBeNull();
+  expect(leido.casillas, 'quedan casillas en «Módulos de la aplicación»').toBe(0);
+
+  // Un módulo que no está: «Instalar», en azul, el mismo azul que el botón
+  // principal de la pantalla.
+  expect(leido.apagado.on).toBe('0');
+  expect(leido.apagado.texto).toBe('Instalar');
+  expect(leido.apagado.clase, 'instalar debería ser el botón principal').toContain('primary');
+  expect(leido.apagado.pinta, 'el azul de instalar no es el de los botones principales').toBe(leido.principal);
+
+  // Uno que sí está: «Desinstalar», en blanco, como los botones secundarios.
+  expect(leido.encendido.on).toBe('1');
+  expect(leido.encendido.texto).toBe('Desinstalar');
+  expect(leido.encendido.clase, 'desinstalar debería ser el botón secundario').toContain('secondary');
+  expect(leido.encendido.pinta, 'el blanco de desinstalar no es el de los botones secundarios').toBe(leido.secundario);
+
+  // Y los dos son distintos entre sí: si el día de mañana ambos acaban del
+  // mismo color, las dos comprobaciones de arriba podrían seguir pasando.
+  expect(leido.apagado.pinta, 'instalar y desinstalar se ven igual').not.toBe(leido.encendido.pinta);
+});
+
+// «Accesos por perfil» no cambió: allí se recoge una intención y se guarda en
+// bloque, así que sigue siendo una casilla. Conviene dejarlo escrito para que
+// nadie propague el botón a una rejilla donde significaría otra cosa.
+test('los accesos por perfil siguen marcándose con casillas', async ({ page }) => {
+  await boot(page, 'admin');
+  await page.evaluate(() => window.GamaOpenAccessSettings());
+  await page.waitForTimeout(600);
+  expect(await page.locator('#access-settings input[data-role-module]').count()).toBeGreaterThan(10);
+  expect(await page.locator('#access-settings button[data-role-module]').count(),
+    'el perfil no se pide con botones: no hay nada que instalar, sólo permisos que guardar').toBe(0);
 });

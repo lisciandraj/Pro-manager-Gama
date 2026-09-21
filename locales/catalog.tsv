@@ -1148,6 +1148,8 @@ Preparando…	Préparation…	Preparing…
 Preparando el informe…	Préparation du rapport…	Preparing report…
 Guardado	Enregistré	Saved
 Guardando…	Enregistrement…	Saving…
+Instalar	Installer	Install
+Desinstalar	Désinstaller	Uninstall
 Copiado	Copié	Copied
 No se pudo copiar	Impossible de copier	Could not copy
 Cerrar aviso	Fermer la notification	Dismiss notification
@@ -2349,8 +2351,6 @@ Módulo desactivado para toda la empresa.	Module désactivé pour toute l’entr
 Accesos por perfil	Accès par profil	Access by profile
 Elige los módulos visibles y accesibles para cada perfil. Los permisos sobre los datos y las acciones se mantienen.	Choisis les modules visibles et accessibles pour chaque profil. Les droits sur les données et les actions sont conservés.	Choose the modules each profile can see and open. Data and action permissions are preserved.
 Guardar permisos	Enregistrer les permissions	Save permissions
-Instalar	Installer	Install
-Desinstalar	Désinstaller	Uninstall
 Restaurar permisos predeterminados	Rétablir les permissions par défaut	Restore default permissions
 Configura los módulos de la empresa y los accesos de cada perfil.	Configure les modules de l’entreprise et les accès de chaque profil.	Configure company modules and access for each profile.
 Activación general de módulos	Activation générale des modules	Company-wide module activation

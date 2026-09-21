@@ -901,20 +901,19 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 #access-settings .cfgModuleTile:has(input:checked){border-color:var(--arc-accent-600)}
 #access-settings .cfgModuleTile:has(input:focus-visible){outline:3px solid var(--arc-accent-600);outline-offset:3px}
 #access-settings .cfgModuleTile:has(input:disabled){cursor:default}
+#access-settings .cfgInstallTile{cursor:default}
+#access-settings .cfgInstalled{border-color:var(--arc-accent-600)}
+#access-settings .cfgModuleAction{width:100%;min-height:44px;margin-top:auto;white-space:normal;overflow-wrap:anywhere;font-size:14px;font-weight:600;color:#fff;border:0}
+#access-settings .cfgInstall{background:var(--arc-icon-blue)}
+#access-settings .cfgInstall:hover:not(:disabled){background:var(--arc-icon-blue);filter:brightness(.9)}
+#access-settings .cfgUninstall{background:var(--arc-icon-violet)}
+#access-settings .cfgUninstall:hover:not(:disabled){background:var(--arc-icon-violet);filter:brightness(.9)}
+#access-settings .cfgModuleAction:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:3px}
+#access-settings .cfgModuleAction:disabled{opacity:.55;cursor:not-allowed}
 #access-settings .cfgTileTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
 #access-settings .cfgTileIcon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
 #access-settings .cfgTileIcon svg{width:24px;height:24px}
 #access-settings .cfgTileTop input{width:24px;height:24px;min-height:0;padding:0;margin:0;flex:none;accent-color:var(--arc-accent-600);cursor:inherit}
-/* «Módulos de la aplicación» se pide con un botón, no con una casilla: azul
-   para instalar, blanco para desinstalar, los mismos `arcButton primary` y
-   `secondary` que el resto de la aplicación. La tarjeta deja de ser pulsable
-   entera —el destino es el botón— y el realce de instalado y el foco pasan a
-   leerse de él. */
-#access-settings .cfgModuleTile--accion{cursor:default}
-#access-settings .cfgModuleTile:has(.cfgTileAction[data-on="1"]){border-color:var(--arc-accent-600)}
-#access-settings .cfgModuleTile:has(.cfgTileAction:focus-visible){outline:3px solid var(--arc-accent-600);outline-offset:3px}
-#access-settings .cfgTileAction{width:100%;margin-top:auto;font-size:13px;min-height:40px;padding:8px 12px}
-#access-settings .cfgTileAction:disabled{opacity:.55;cursor:default}
 #access-settings .cfgModuleTile b{font-size:14px;line-height:1.3;color:var(--arc-text);overflow-wrap:anywhere}
 #access-settings .cfgTileDesc{font-size:12px;line-height:1.4;color:var(--arc-text-muted);overflow-wrap:anywhere}
 #access-settings .cfgTileState{font-size:11px;line-height:1.4;color:var(--arc-text-muted);margin-top:auto;padding-top:4px}

@@ -105,9 +105,20 @@ test('access settings is separate and restricted, personal configuration has no 
  await expect(page.locator('#settings input[data-mod]')).toHaveCount(0);
  await page.evaluate(()=>GamaUI.backToMenu());
  await page.locator('#mainmenu [data-gama-module="access-settings"]').click();
- await expect(page.locator('#access-settings input[data-mod="products"]')).toBeVisible();
- await expect(page.locator('#access-settings input[data-mod="access-settings"]')).toBeDisabled();
- await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings button[data-mod="products"]')).toBeVisible();
+ await expect(page.locator('#access-settings input[data-mod]')).toHaveCount(0);
+ await expect(page.locator('#access-settings button[data-mod="access-settings"]')).toBeDisabled();
+ await expect(page.locator('#access-settings button[data-mod="settings"]')).toBeDisabled();
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await expect(page.locator('#access-settings button[data-mod="products"]')).toHaveText('Désinstaller');
+ await page.locator('#access-settings button[data-mod="products"]').scrollIntoViewIfNeeded();
+ await page.screenshot({path:'test-results/module-actions-desktop.png'});
+ await page.setViewportSize({width:390,height:844});
+ await page.locator('#access-settings button[data-mod="products"]').scrollIntoViewIfNeeded();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.screenshot({path:'test-results/module-actions-mobile.png'});
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));
+ await expect(page.locator('#access-settings button[data-mod="products"]')).toHaveText('Uninstall');
  await expect(page.locator('#access-settings #gamaLanguagePicker')).toHaveCount(0);
 });
 for(const role of ['commercial','magasinier','client'])test(`access settings denied to ${role}, configuration available`,async({page})=>{

@@ -37,7 +37,13 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
 
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.uncheck('#access-settings input[data-mod="audit"]');
+  const action = page.locator('#access-settings button[data-mod="audit"]');
+  await expect(action).toHaveText('Desinstalar');
+  await expect(action).toHaveCSS('background-color', 'rgb(185, 28, 28)');
+  await action.click();
+  await expect(action).toHaveText('Instalar');
+  await page.mouse.move(0, 0);
+  await expect(action).toHaveCSS('background-color', 'rgb(21, 128, 61)');
   await page.waitForTimeout(600);
 
   // Queda guardado en la nube, no sólo en este navegador.
@@ -61,7 +67,8 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   // Volver a encenderlo lo devuelve al menú.
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await page.check('#access-settings input[data-mod="audit"]');
+  await action.click();
+  await expect(action).toHaveText('Desinstalar');
   await page.waitForTimeout(600);
   await page.evaluate(() => window.GamaUI.backToMenu());
   await page.waitForTimeout(400);
@@ -74,7 +81,7 @@ test('Configuración no se apaga a sí misma', async ({ page }) => {
   await boot(page, 'admin');
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  await expect(page.locator('#access-settings input[data-mod="settings"]')).toBeDisabled();
+  await expect(page.locator('#access-settings button[data-mod="settings"]')).toBeDisabled();
 });
 
 // Quien no es administrador no ve los interruptores. La barrera de verdad no
@@ -85,7 +92,7 @@ test('sin ser administrador no hay interruptores ni RRHH', async ({ page }) => {
   await page.evaluate(() => window.GamaOpenSettings());
   await page.waitForTimeout(500);
   await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
-  await expect(page.locator('#settings input[data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
+  await expect(page.locator('#settings [data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
   await expect(page.locator('#mainmenu .gamaF2Card:has-text("Recursos humanos")')).toBeHidden();
 });
 

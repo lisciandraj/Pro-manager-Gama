@@ -904,10 +904,10 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 #access-settings .cfgInstallTile{cursor:default}
 #access-settings .cfgInstalled{border-color:var(--arc-accent-600)}
 #access-settings .cfgModuleAction{width:100%;min-height:44px;margin-top:auto;white-space:normal;overflow-wrap:anywhere;font-size:14px;font-weight:600;color:#fff;border:0}
-#access-settings .cfgInstall{background:#15803d}
-#access-settings .cfgInstall:hover:not(:disabled){background:#166534}
-#access-settings .cfgUninstall{background:#b91c1c}
-#access-settings .cfgUninstall:hover:not(:disabled){background:#991b1b}
+#access-settings .cfgInstall{background:var(--arc-icon-blue)}
+#access-settings .cfgInstall:hover:not(:disabled){background:var(--arc-icon-blue);filter:brightness(.9)}
+#access-settings .cfgUninstall{background:var(--arc-icon-violet)}
+#access-settings .cfgUninstall:hover:not(:disabled){background:var(--arc-icon-violet);filter:brightness(.9)}
 #access-settings .cfgModuleAction:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:3px}
 #access-settings .cfgModuleAction:disabled{opacity:.55;cursor:not-allowed}
 #access-settings .cfgTileTop{display:flex;align-items:center;justify-content:space-between;gap:8px}

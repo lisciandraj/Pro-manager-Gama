@@ -39,11 +39,11 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   await page.waitForTimeout(500);
   const action = page.locator('#access-settings button[data-mod="audit"]');
   await expect(action).toHaveText('Desinstalar');
-  await expect(action).toHaveCSS('background-color', 'rgb(185, 28, 28)');
+  await expect(action).toHaveCSS('background-color', 'rgb(113, 50, 186)');
   await action.click();
   await expect(action).toHaveText('Instalar');
   await page.mouse.move(0, 0);
-  await expect(action).toHaveCSS('background-color', 'rgb(21, 128, 61)');
+  await expect(action).toHaveCSS('background-color', 'rgb(9, 99, 219)');
   await page.waitForTimeout(600);
 
   // Queda guardado en la nube, no sólo en este navegador.

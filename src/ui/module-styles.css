@@ -903,11 +903,17 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 #access-settings .cfgModuleTile:has(input:disabled){cursor:default}
 #access-settings .cfgInstallTile{cursor:default}
 #access-settings .cfgInstalled{border-color:var(--arc-accent-600)}
-#access-settings .cfgModuleAction{width:100%;min-height:44px;margin-top:auto;white-space:normal;overflow-wrap:anywhere;font-size:14px;font-weight:600;color:#fff;border:0}
-#access-settings .cfgInstall{background:var(--arc-icon-blue)}
-#access-settings .cfgInstall:hover:not(:disabled){background:var(--arc-icon-blue);filter:brightness(.9)}
-#access-settings .cfgUninstall{background:var(--arc-icon-violet)}
-#access-settings .cfgUninstall:hover:not(:disabled){background:var(--arc-icon-violet);filter:brightness(.9)}
+/* Los dos botones llevan los colores de botón de la aplicación, no los de los
+   iconos de módulo: azul `arcButton primary` para instalar, que es la acción
+   principal, y blanco `secondary` para desinstalar, que retira algo. Las
+   familias --arc-icon-* visten los iconos de las tarjetas; usarlas aquí daba
+   un violeta que no existe en ningún otro botón de la aplicación, y dejaba
+   las dos acciones igual de llamativas. */
+#access-settings .cfgModuleAction{width:100%;min-height:44px;margin-top:auto;white-space:normal;overflow-wrap:anywhere;font-size:14px;font-weight:600}
+#access-settings .cfgInstall{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+#access-settings .cfgInstall:hover:not(:disabled){filter:brightness(.92)}
+#access-settings .cfgUninstall{background:var(--arc-surface);border-color:var(--arc-line-strong);color:var(--arc-text)}
+#access-settings .cfgUninstall:hover:not(:disabled){background:var(--arc-surface-2)}
 #access-settings .cfgModuleAction:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:3px}
 #access-settings .cfgModuleAction:disabled{opacity:.55;cursor:not-allowed}
 #access-settings .cfgTileTop{display:flex;align-items:center;justify-content:space-between;gap:8px}

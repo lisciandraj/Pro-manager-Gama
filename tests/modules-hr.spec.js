@@ -37,13 +37,31 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
 
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
+  // Los dos botones llevan los colores de botón de la aplicación: azul el
+  // principal —instalar—, blanco el secundario —desinstalar—. No se fija aquí
+  // ningún valor: se comparan contra un botón principal y uno secundario de
+  // esta misma pantalla, así que la prueba sigue valiendo si cambia la paleta
+  // y salta si alguien le pone a estos dos un tono propio.
+  const fondo = sel => page.evaluate(s => getComputedStyle(document.querySelector(s)).backgroundColor, sel);
+  const principal = await fondo('#cfgSaveProfile');   // «Guardar permisos»
+  const secundario = await fondo('#cfgNewProfile');   // «Crear un perfil»
+  expect(principal, 'los dos botones de referencia se ven igual').not.toBe(secundario);
+
   const action = page.locator('#access-settings button[data-mod="audit"]');
   await expect(action).toHaveText('Desinstalar');
-  await expect(action).toHaveCSS('background-color', 'rgb(113, 50, 186)');
+  await expect(action).toHaveCSS('background-color', secundario);
+  // Blanco sobre tarjeta blanca: sin borde no se vería que hay un botón.
+  const borde = await action.evaluate(el => {
+    const s = getComputedStyle(el);
+    return { ancho: parseFloat(s.borderTopWidth), color: s.borderTopColor, fondo: s.backgroundColor };
+  });
+  expect(borde.ancho, 'el botón blanco no tiene borde').toBeGreaterThan(0);
+  expect(borde.color, 'el borde del botón blanco se confunde con su fondo').not.toBe(borde.fondo);
+
   await action.click();
   await expect(action).toHaveText('Instalar');
   await page.mouse.move(0, 0);
-  await expect(action).toHaveCSS('background-color', 'rgb(9, 99, 219)');
+  await expect(action).toHaveCSS('background-color', principal);
   await page.waitForTimeout(600);
 
   // Queda guardado en la nube, no sólo en este navegador.

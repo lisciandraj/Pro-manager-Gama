@@ -6,15 +6,15 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844}])test(`nav
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');await page.waitForFunction(()=>window.ArcRouter&&window.gamaAccessAllowed?.('contacts'));await page.waitForTimeout(1000);
  const measured=await page.evaluate(()=>{
-  const names=['renderProducts','renderClients','renderAudit','populateClientSelect'],counts={};
+  const names=['renderProducts','renderClients','populateClientSelect'],counts={};
   for(const n of names){const original=window[n];counts[n]=0;window[n]=(...args)=>{counts[n]++;return original(...args)}}
   const start=performance.now();ArcRouter.show('barcode');ArcRouter.show('movement');ArcRouter.show('home');
-  const unrelated={...counts};ArcRouter.show('contacts');const contacts={...counts};ArcRouter.show('audit');const audit={...counts};ArcRouter.show('products');const products={...counts};
-  return {unrelated,contacts,audit,products,ms:performance.now()-start};
+  const unrelated={...counts};ArcRouter.show('contacts');const contacts={...counts};ArcRouter.show('products');const products={...counts};
+  return {unrelated,contacts,products,ms:performance.now()-start};
  });
- expect(Object.values(measured.unrelated)).toEqual([0,0,0,0]);
- expect(measured.contacts).toEqual({renderProducts:0,renderClients:1,renderAudit:0,populateClientSelect:0});
- expect(measured.audit.renderAudit).toBe(1);expect(measured.products.renderProducts).toBe(1);expect(measured.products.renderClients).toBe(1);
+ expect(Object.values(measured.unrelated)).toEqual([0,0,0]);
+ expect(measured.contacts).toEqual({renderProducts:0,renderClients:1,populateClientSelect:0});
+ expect(measured.products.renderProducts).toBe(1);expect(measured.products.renderClients).toBe(1);
  await expect(page.locator('#products')).toBeVisible();
 });
 test('unchanged access polling does not rebuild the menu; a real revocation still applies',async({page})=>{

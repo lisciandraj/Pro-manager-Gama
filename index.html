@@ -17,10 +17,10 @@
 <link rel="apple-touch-icon" href="architect-app-icon.png?v=20260919-brand2">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=a6bea7fc0ff8"></script>
+<script src="gama-i18n-catalog.js?v=9378e708fc9f"></script>
 <script src="gama-i18n.js?v=9adc7e08b652"></script>
-<script src="architect-assets.js?v=3b4ec68b9a97"></script>
-<script src="architect-core.js?v=29345585850e"></script>
+<script src="architect-assets.js?v=5297ee97a895"></script>
+<script src="architect-core.js?v=4262336b2559"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=23a8e1087e3f"></script>
 <title>Architect ERP</title>
@@ -42,7 +42,7 @@
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=cc2cf3b75cb1">
-<link rel="stylesheet" href="architect-components.css?v=7273eb46c12d">
+<link rel="stylesheet" href="architect-components.css?v=3623282f7390">
 <link rel="stylesheet" href="architect-ui.css?v=058a0fead005">
 <link rel="stylesheet" href="architect-shell.css?v=6d599b3978fb">
 <link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
@@ -184,12 +184,7 @@
 <div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" onclick="generateInvoice()" data-gi=f0d3ec08dad9>🧾 Generar presupuesto</button><button class="arcButton secondary" onclick="downloadInvoicePdf()" data-gi=272abf6e4139>📄 Descargar PDF</button><button class="arcButton secondary" onclick="emailInvoice()" data-gi=a9d88603fa51>📧 Enviar por correo</button></div><div id="invoicePreview"></div>
 </div></section>
 
-<section id="audit">
-<div class="arcPanel card"><div class="row"><div><label data-gi=5f55edf90089>Buscar</label><input id="auditSearch" oninput="GamaPage.reset('audit');renderAudit()" data-gi-placeholder=5a8c30078efe placeholder="Producto, código, usuario, comentario..."></div><div><label data-gi=e3bf08ff3742>Filtrar tipo</label><select id="auditType" onchange="GamaPage.reset('audit');renderAudit()"><option value="" data-gi=bd02b9a7d71d>Todos</option><option value="IN">IN</option><option value="OUT">OUT</option></select></div></div>
-<div class="actions"><button class="arcButton secondary" onclick="exportAudit()" data-gi=a6814d3335e5>📤 Exportar Audit Trail CSV</button><button class="arcButton warning" onclick="createCorrection()" data-gi=b8ed9cf7de50>↩️ Corrección auditada</button></div>
-<div id="auditTable"></div>
-</div>
-</section>
+<section id="audit"></section>
 
 <section id="barcode"><div class="arcPanel card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=e909922fb595>🏷️ Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=30ef3190646e>📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
@@ -441,9 +436,6 @@ async function downloadBarcodePdf(){
 }
 function emailInvoice(){if(!lastQuote)return alert('Genera primero el presupuesto.');const i=lastQuote;if(!i.clientEmail)return alert('El cliente seleccionado no tiene un correo registrado.');const dateLabel=new Date(i.date).toLocaleDateString('es-EC');const lines=i.items.map(x=>`- ${x.name} x${x.qty} — $${x.price.toFixed(2)} c/u — $${(x.qty*x.price).toFixed(2)}`).join('\n');const body=`Estimado/a ${i.client},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${i.number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: $${i.sub.toFixed(2)}\nIVA ${i.rate}%: $${i.tax.toFixed(2)}\nTOTAL: $${i.total.toFixed(2)}\n\nQuedamos atentos a sus comentarios.\n\n${i.seller}`;window.GamaQuotePdf.send({q:{...i,dateLabel},email:i.clientEmail,subject:'Presupuesto '+i.number+' - '+i.seller,body,filename:'Presupuesto-'+i.number+'.pdf'})}
 
-function renderAudit(){let q=($('auditSearch').value||'').toLowerCase(),t=$('auditType').value;let a=db.moves.filter(m=>(!t||m.type===t)&&(!q||[m.id,m.barcode,m.name,m.user,m.reason,m.comment,m.source,m.reference].join(' ').toLowerCase().includes(q)));$('auditTable').innerHTML='<table class="arcTable"><tr><th>ID</th><th data-gi=fea604ed15e9>Fecha/hora</th><th data-gi=3868d2843d59>Tipo</th><th data-gi=77b9238931ed>Producto</th><th data-gi=f58b85570398>Código</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=8159db18b775>Antes</th><th data-gi=f1d31778f7ec>Después</th><th data-gi=63614ffde2d3>Usuario</th><th data-gi=c7b288b1c0bb>Motivo</th><th data-gi=167a940c6278>Origen</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=53c367898434>Comentario</th></tr>'+GamaPage.slice('audit',a).map(m=>`<tr><td class="audit">${m.id}</td><td>${new Date(m.date).toLocaleString('es-EC')}</td><td class="${m.type==='IN'?'in':'out'}">${m.type}</td><td>${m.name}</td><td>${m.barcode}</td><td>${m.qty}</td><td>${m.stockBefore??'-'}</td><td>${m.stockAfter??'-'}</td><td>${m.user}</td><td>${m.reason}</td><td><span class="badge">${m.source}</span></td><td>${m.reference||'-'}</td><td>${m.comment||'-'}</td></tr>`).join('')+'</table>'+GamaPage.controls('audit',a.length)}
-function createCorrection(){let b=prompt('Código de barras del producto a corregir:');if(!b)return;let p=product(b);if(!p)return alert('Producto no encontrado.');let target=Number(prompt(`Stock actual: ${p.stock}. ¿Cuál debe ser el stock correcto?`));if(!Number.isFinite(target)||target<0)return alert('Valor inválido.');let delta=target-p.stock;if(delta===0)return alert('No hay diferencia de stock.');let type=delta>0?'IN':'OUT',reason='Corrección de inventario',comment=prompt('Motivo obligatorio de la corrección:')||'';if(!comment)return alert('La corrección requiere un comentario.');if(type==='OUT'&&p.stock<Math.abs(delta))return alert('Stock insuficiente.');auditMovement({p,type,qty:Math.abs(delta),user:'Admin',reason,comment,source:'Corrección auditada'});save();alert('Corrección registrada como nuevo evento. El movimiento anterior no fue modificado.')}
-function exportAudit(){let rows=[['ID','Fecha','Tipo','Código','Producto','Cantidad','Stock antes','Stock después','Usuario','Motivo','Origen','Referencia','Comentario'],...db.moves.map(m=>[m.id,m.date,m.type,m.barcode,m.name,m.qty,m.stockBefore,m.stockAfter,m.user,m.reason,m.source,m.reference,m.comment])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='audit-trail-stock.csv';a.click()}
 
 const C39={"*":"100101101101","0":"101001101101","1":"110100101011","2":"101100101011","3":"110110010101","4":"101001101011","5":"110100110101","6":"101100110101","7":"101001011011","8":"110100101101","9":"101100101101","A":"110101001011","B":"101101001011","C":"110110100101","D":"101011001011","E":"110101100101","F":"101101100101","G":"101010011011","H":"110101001101","I":"101101001101","J":"101011001101","K":"110101010011","L":"101101010011","M":"110110101001","N":"101011010011","O":"110101101001","P":"101101101001","Q":"101010110011","R":"110101011001","S":"101101011001","T":"101011011001","U":"110010101011","V":"100110101011","W":"110011010101","X":"100101101011","Y":"110010110101","Z":"100110110101","-":"100101011011",".":"110010101101"," ":"100110101101","$":"100100100101","/":"100100101001","+":"100101001001","%":"101001001001"};
 function code39Bits(s){s=s.toUpperCase();if(!s||s.includes('*')||[...s].some(c=>!C39[c]))throw Error('Carácter no permitido en Code 39.');let b='';for(const c of '*'+s+'*')b+=C39[c]+'0';return b}
@@ -477,13 +469,11 @@ function focusGlobalSearch(){const el=document.getElementById('arcSearchInput');
 function renderDashboard(){window.ArchitectDashboard?.refresh()}
 GamaArchive.register('products',()=>renderProducts(document.getElementById('productSearch')?.value||''));GamaArchive.register('clients',()=>renderClients(document.getElementById('clientSearch')?.value||''));GamaPage.register('products',()=>renderProducts($('productSearch')?.value||''));
 GamaPage.register('clients',()=>renderClients($('clientSearch')?.value||''));
-GamaPage.register('audit',()=>renderAudit());
 
 function renderForRoute(id){
  if(id==='products')renderProducts($('productSearch')?.value||'');
  else if(id==='clients'||(id==='contacts'&&window.GamaContacts?.tab()==='clients'))renderClients($('clientSearch')?.value||'');
  else if(id==='billing')populateClientSelect();
- else if(id==='audit')renderAudit();
 }
 function renderAll(){renderDashboard();renderForRoute(document.querySelector('section.active')?.id)}
 showTab('mainmenu',null);
@@ -533,7 +523,7 @@ showTab('mainmenu',null);
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
 <script src="architect-identity.js?v=288802d6e2cc"></script>
 <script src="gama-supabase.js?v=ac622d27b8be"></script>
-<script src="gama-central-sync.js?v=7d25d470234f"></script>
+<script src="gama-central-sync.js?v=9ece821bea34"></script>
 <script src="gama-purchases-v14.js?v=6fb2f67043f7"></script>
 <script src="gama-proveedores-matriz.js?v=f3ed396ee801"></script>
 <script src="gama-client-catalog.js?v=143667d5e727"></script>
@@ -566,7 +556,7 @@ showTab('mainmenu',null);
 <link rel="stylesheet" href="gama-projects.css?v=c8ad83b460ac">
 <script src="gama-projects-core.js?v=11aeade5f421"></script>
 <script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
-<script src="gama-projects.js?v=fbb0bbf92a78"></script>
+<script src="gama-projects.js?v=0729ea24ff71"></script>
 <script src="gama-knowledge.js?v=268322cac710"></script>
 <script src="gama-payments.js?v=567b0654551c"></script>
 <script src="gama-operations.js?v=6661fdcfa994"></script>
@@ -575,7 +565,7 @@ showTab('mainmenu',null);
 <script src="architect-shell.js?v=ab10380a5614"></script>
 <script src="architect-recovery.js?v=400cb90d1b4d"></script>
 <script src="architect-partners.js?v=8d4acd4d3f2d"></script>
-<script src="architect-audit.js?v=80178dbe7fd4"></script>
+<script src="architect-audit.js?v=c449d779c94a"></script>
 <script src="architect-service-workflows.js?v=79d4e2cc9dd0"></script>
 <script src="architect-sourcing.js?v=aa11f8ecc8eb"></script>
 <script src="architect-stock-controls.js?v=043a228bb605"></script>

@@ -2737,3 +2737,39 @@ A quien le compras: contacto y condiciones.	Ceux à qui vous achetez : contact e
 Una persona de una empresa que aún no es cliente, con su papel en la decisión.	Une personne d’une entreprise qui n’est pas encore cliente, avec son rôle dans la décision.	A person at a company that is not yet a customer, with their role in the decision.
 ¿Qué clase de contacto es?	De quel type de contact s’agit-il ?	What kind of contact is it?
 Buscar por producto, referencia o código…	Rechercher par produit, référence ou code…	Search by product, reference or code…
+Stock, cobros y pagos, facturas, validaciones y accesos.	Stock, encaissements et paiements, factures, validations et accès.	Stock, collections and payments, invoices, approvals and access.
+Las acciones importantes, quién y cuándo	Les actions importantes, qui et quand	Key actions, who and when
+Tipo de acción	Type d’action	Action type
+Todo	Tout	All
+Movimientos de stock	Mouvements de stock	Stock movements
+Validaciones	Validations	Approvals
+Accesos	Accès	Access
+Persona	Personne	Person
+Ninguna acción coincide con el filtro.	Aucune action ne correspond au filtre.	No action matches the filter.
+Importe / cantidad	Montant / quantité	Amount / quantity
+Sistema	Système	System
+Exportación lista.	Export prêt.	Export ready.
+Recepción de compra	Réception d’achat	Purchase receipt
+Salida por entrega	Sortie pour livraison	Delivery outbound
+Transferencia entre ubicaciones	Transfert entre emplacements	Transfer between locations
+Ajuste de inventario	Ajustement d’inventaire	Inventory adjustment
+Devolución recibida	Retour reçu	Return received
+Devolución a proveedor	Retour fournisseur	Return to supplier
+Entrada de stock	Entrée de stock	Stock in
+Salida de stock	Sortie de stock	Stock out
+Cobro de cliente	Encaissement client	Customer collection
+Cobro anulado	Encaissement annulé	Collection cancelled
+Pago a proveedor anulado	Paiement fournisseur annulé	Supplier payment cancelled
+Reembolso a cliente	Remboursement client	Customer refund
+Factura emitida	Facture émise	Invoice issued
+Factura de proveedor registrada	Facture fournisseur enregistrée	Supplier invoice recorded
+Validación aprobada	Validation approuvée	Approval granted
+Validación rechazada	Validation refusée	Approval rejected
+Ajuste de stock aprobado	Ajustement de stock approuvé	Stock adjustment approved
+Ajuste de stock rechazado	Ajustement de stock refusé	Stock adjustment rejected
+Asiento contabilizado	Écriture comptabilisée	Entry posted
+Usuario creado	Utilisateur créé	User created
+Usuario eliminado	Utilisateur supprimé	User deleted
+Usuario modificado	Utilisateur modifié	User updated
+Módulos de un perfil modificados	Modules d’un profil modifiés	Profile modules changed
+Permisos de acción modificados	Droits d’action modifiés	Action permissions changed

@@ -535,6 +535,22 @@
           const groups=['magasinier','almacenero'].includes(role)?[]:(window.__PRIO?.groups||[]),extra=tone=>groups.filter(g=>g.tone===tone).reduce((n,g)=>n+g.count,0);
           return {data:{generated_at:new Date().toISOString(),today:window.__PRIO?.today||new Date().toISOString().slice(0,10),counts:{danger:items.filter(x=>x.tone==='danger').length+extra('danger'),warning:items.filter(x=>x.tone==='warning').length+extra('warning')},groups,items}};
         }
+        // Pista de auditoría: movimientos de stock y cobros del __DB, con los filtros del servidor.
+        if(fn==='gama_audit_trail'){
+          const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
+          if(!['admin','administrador'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          window.__auditCalls=(window.__auditCalls||[]).concat([args.p_filters]);
+          const f=args.p_filters||{},names=Object.fromEntries((window.__DB.profiles||[]).map(p=>[p.id,p.full_name||p.email]));
+          const product=id=>(window.__DB.products||[]).find(p=>p.id===id)?.name;
+          const kinds={receipt:'Recepción de compra',delivery:'Salida por entrega',inventory_adjustment:'Ajuste de inventario'};
+          let rows=[...(window.__DB.stock_movements||[]).map(m=>({kind:'stock',at:m.created_at,actor_id:m.user_id,label:kinds[m.movement_type]||(m.type==='in'?'Entrada de stock':'Salida de stock'),detail:[product(m.product_id),m.reason].filter(Boolean).join(' · '),reference:m.erp_reference||null,amount:null,quantity:m.type==='in'?m.quantity:-m.quantity})),
+            ...(window.__DB.external_invoice_payments||[]).map(x=>({kind:'payment',at:x.created_at,actor_id:x.created_by,label:'Cobro de cliente',detail:x.method||'',reference:x.erp_reference||null,amount:x.amount,quantity:null}))];
+          const to=f.to?new Date(new Date(f.to).getTime()+86400000).toISOString():null;
+          rows=rows.filter(r=>(!f.kind||r.kind===f.kind)&&(!f.actor||r.actor_id===f.actor)&&(!f.from||r.at>=f.from)&&(!to||r.at<to)&&(!f.search||[r.label,r.detail,r.reference].join(' ').toLowerCase().includes(String(f.search).toLowerCase())))
+            .sort((a,b)=>String(b.at).localeCompare(String(a.at))).map(r=>({...r,actor:names[r.actor_id]||null}));
+          const offset=Number(f.offset||0),limit=Number(f.limit||50);
+          return {data:{items:rows.slice(offset,offset+limit),has_more:rows.length>offset+limit,offset,limit}};
+        }
         if(fn==='gama_resolve_price'){
           const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
           return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};

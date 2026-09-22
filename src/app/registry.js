@@ -423,7 +423,7 @@ const definitions=[
     "label": "Auditoría",
     "icon": "audit",
     "group": "Administración",
-    "description": "Historial de todas las operaciones",
+    "description": "Las acciones importantes, quién y cuándo",
     "accent": "cyan",
     "order": 100,
     "menu": true,
@@ -433,7 +433,7 @@ const definitions=[
     ],
     "header": [
       "🔎 Auditoría",
-      "Historial de todas las entradas y salidas."
+      "Stock, cobros y pagos, facturas, validaciones y accesos."
     ]
   },
   {

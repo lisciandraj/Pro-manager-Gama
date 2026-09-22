@@ -1029,3 +1029,15 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .ctBar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:16px 0 4px;border-bottom:1px solid var(--arc-line)}
 .ctBar .gdfTabs{margin:0;border-bottom:0}
 .ctBar #ctNew{margin-bottom:6px}
+/* Auditoría: filtros en una línea que se reparte; la acción, con el color de su tipo. */
+.atFilters{display:grid;grid-template-columns:minmax(200px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:10px 12px;align-items:end;margin:14px 0 6px}
+.atFilters label{display:flex;flex-direction:column;gap:4px;font-weight:650;font-size:13px;margin:0}
+.atFilters #atExport{align-self:end}
+@media(max-width:900px){.atFilters{grid-template-columns:1fr 1fr}.atFilters .atSearch{grid-column:1/-1}}
+@media(max-width:520px){.atFilters{grid-template-columns:1fr}}
+.atKind{display:inline-block;font-weight:650;padding:2px 8px;border-radius:999px;background:var(--arc-surface-2);border:1px solid var(--arc-line);white-space:nowrap}
+.atKind[data-kind=stock]{background:var(--arc-accent-100);color:var(--arc-accent-600);border-color:transparent}
+.atKind[data-kind=payment]{background:var(--arc-success-bg);color:var(--arc-success);border-color:transparent}
+.atKind[data-kind=validation]{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:transparent}
+.atKind[data-kind=access]{background:var(--arc-icon-violet-bg);color:var(--arc-icon-violet);border-color:transparent}
+.atPager{justify-content:flex-end;align-items:center}

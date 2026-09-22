@@ -1041,6 +1041,10 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .atKind[data-kind=validation]{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:transparent}
 .atKind[data-kind=access]{background:var(--arc-icon-violet-bg);color:var(--arc-icon-violet);border-color:transparent}
 .atPager{justify-content:flex-end;align-items:center}
+/* Correo de invitación: la vista previa se lee como el correo, con sus saltos de línea. */
+.idMail summary{cursor:pointer;font-weight:650;margin:10px 0 6px}
+.idPreview{border:1px solid var(--arc-line);border-radius:10px;padding:12px 14px;background:var(--arc-surface-2);margin-top:6px}
+.idPreview p{white-space:pre-line;margin:6px 0 0;color:var(--arc-text)}
 
 /* Shared controls. Feature styles describe layouts and business states only. */
 .arcPanel,.arcKpi{background:var(--arc-surface);border:1px solid var(--arc-line);border-bottom-color:var(--arc-line-strong);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1);padding:var(--arc-s5);min-width:0}

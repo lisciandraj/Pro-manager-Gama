@@ -45,3 +45,14 @@ Les tests `standardization-db.test.cjs` comparent les résultats et refus des ac
 L'absence de politique de lecture sur les trois tables de travail privées (`command_receipts`, `product_dedup_archive`, `product_identity_claims`) est intentionnelle : les rôles du navigateur n'y accèdent pas directement. Voir la [règle RLS sans politique](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
 
 Les avis déjà présents sur les vues `catalog_products` et `crm_team`, les anciennes RPC de stock en `SECURITY DEFINER` et la protection des mots de passe compromis ne sont pas des résultats de cette migration. Leurs frontières existantes sont conservées. Changer une vue en `SECURITY INVOKER` sans adapter les droits sous-jacents casserait les accès client/commercial ; toute évolution doit vérifier ces usages. Références : [vues et droits](https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view), [exécution anonyme des fonctions](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable), [protection des mots de passe](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+
+## Modèle d'e-mail d'invitation (Supabase Auth)
+
+L'e-mail de création d'accès est personnalisable dans **Utilisateurs → E-mail d'invitation** (objet et message avec `{nombre}`, `{empresa}`, `{rol}`, `{correo}`, table `access_invitation_template`) et retouchable à chaque invitation. La fonction `architect-user-admin` transmet le texte final à Supabase Auth dans les métadonnées de l'invité (`invite_subject`, `invite_message`, `company_name`).
+
+Supabase n'affiche ces champs que si son modèle « Invite user » les utilise. Réglage à faire une fois dans le tableau de bord du projet (Authentication → Emails → Invite user) :
+
+- **Subject** : `{{ if .Data.invite_subject }}{{ .Data.invite_subject }}{{ else }}Tu acceso a Architect ERP{{ end }}`
+- **Body** : le contenu de [`templates/invite.html`](templates/invite.html).
+
+Sans ce réglage, les invitations partent toujours, avec le modèle Supabase par défaut.

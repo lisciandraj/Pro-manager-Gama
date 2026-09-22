@@ -551,6 +551,14 @@
           const offset=Number(f.offset||0),limit=Number(f.limit||50);
           return {data:{items:rows.slice(offset,offset+limit),has_more:rows.length>offset+limit,offset,limit}};
         }
+        // Modelo del correo de invitación: una fila con versión, como en el servidor.
+        if(fn==='gama_save_invitation_template'){
+          const row=(window.__DB.access_invitation_template||[])[0];
+          if(!row||row.version!==args.p_version)return {error:{message:'TEMPLATE_STALE'}};
+          if(!String(args.p_subject||'').trim()||!String(args.p_message||'').trim())return {error:{message:'INVALID_TEMPLATE'}};
+          Object.assign(row,{subject:args.p_subject.trim(),message:args.p_message.trim(),version:row.version+1});
+          return {data:{...row}};
+        }
         if(fn==='gama_resolve_price'){
           const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
           return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};

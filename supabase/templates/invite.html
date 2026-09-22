@@ -1,0 +1,20 @@
+<!--
+  Modelo «Invite user» de Supabase Auth (Authentication → Emails → Invite user).
+  Asunto a poner en el panel:
+    {{ if .Data.invite_subject }}{{ .Data.invite_subject }}{{ else }}Tu acceso a Architect ERP{{ end }}
+  El asunto y el mensaje los escribe el administrador en Usuarios → Correo de
+  invitación (y los retoca en cada invitación); llegan aquí como metadatos del
+  usuario invitado. Supabase escapa los valores: no pueden inyectar HTML.
+-->
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1f2937;max-width:560px">
+  {{ if .Data.invite_message }}
+  <div style="white-space:pre-line">{{ .Data.invite_message }}</div>
+  {{ else }}
+  <p>Hola {{ .Data.full_name }}:</p>
+  <p>Te han creado un acceso a Architect ERP. Pulsa el botón para elegir tu contraseña; después, un administrador activará la cuenta.</p>
+  {{ end }}
+  <p style="margin:28px 0">
+    <a href="{{ .ConfirmationURL }}" style="background:#0e7490;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:8px;display:inline-block">Elegir mi contraseña</a>
+  </p>
+  <p style="font-size:12px;color:#6b7280">{{ if .Data.company_name }}{{ .Data.company_name }} · {{ end }}Architect ERP. Si no esperabas este correo, puedes ignorarlo.</p>
+</div>

@@ -131,7 +131,10 @@ test('la ficha enseña las tres decisiones y los documentos ligados',async({page
  await boot(page);
  await page.locator('[data-gr-open=r1]').click();
  await expect(page.locator('#grMain')).toContainText('RET-000015');
- await expect(page.locator('#grMain')).toContainText('Documentos ligados');
+ // La ficha es un proceso: número PRC, seis etapas numeradas, y el origen en la primera.
+ await expect(page.locator('.grSummary h3')).toHaveText('PRC-00000015');
+ await expect(page.locator('.gdfStep')).toHaveCount(6);await expect(page.locator('.gdfStepper li')).toHaveCount(6);
+ await expect(page.locator('.gdfStep').first()).toContainText('Origen de la devolución');
  const docs=page.locator('[data-gr-doc]');
  await expect(docs).toHaveCount(3);
  await expect(docs.nth(0)).toContainText('PED-00000128');
@@ -220,7 +223,7 @@ test('PC, tableta y móvil enseñan la misma pantalla sin desbordarla',async({pa
 test('el módulo habla las tres lenguas sin tocar los números ni las referencias',async({page})=>{
  await boot(page);
  await expect(page.locator('#grNew')).toContainText('+ Nueva devolución');
- for(const [lang,label,tab] of [['fr','+ Nouveau retour','Retours clients'],['en','+ New return','Customer returns']]){
+ for(const [lang,label,tab] of [['fr','+ Nouveau retour','PRC · Retour client'],['en','+ New return','PRC · Customer return']]){
   await page.evaluate(l=>window.GamaI18n.setLanguage(l),lang);
   await expect(page.locator('#grNew')).toContainText(label);
   await expect(page.locator('[data-gr-tab=customer]')).toContainText(tab);

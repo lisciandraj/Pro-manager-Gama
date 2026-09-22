@@ -1019,6 +1019,9 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 @container ad-dashboard (max-width:1150px){.adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.adAlertGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.adAnalysis{grid-template-columns:1fr}.adCustomers ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}}
 @container ad-dashboard (max-width:600px){.adWorkspace .arcPanel{padding:16px}.adPeriod{gap:10px}.adPeriod .arcField:first-child{flex-basis:100%}.adPeriodActions{gap:10px}.adMetrics{gap:12px}.adWorkspace .adMetric{min-height:176px;padding:14px}.adMetricLabel{font-size:13px;align-items:flex-start}.adMetric strong{font-size:23px}.adMetric .adDelta{font-size:11px}.adMetric small{font-size:11px}.adAlertGrid,.adFinanceGrid{grid-template-columns:1fr}.adHeading h2,.adWorkspace h2{font-size:18px}.adCustomers ol{grid-template-columns:1fr}.adModuleGrid{grid-template-columns:1fr}.adMeta{font-size:12px}.adMeta small{font-size:11px}.adFinanceGrid>div+div{border-top:1px solid var(--arc-line);padding-top:16px}.adWorkspace .adMethod{margin-top:16px}}
 @media(prefers-reduced-motion:reduce){.adWorkspace *{scroll-behavior:auto}}
+/* Devoluciones: el número del proceso (PRC/PRP) encima, la referencia DEV debajo. */
+.grRef{display:block;font-size:12px;color:var(--arc-text-muted);font-variant-numeric:tabular-nums}
+.grSummary{margin-bottom:14px}.grLines{margin:8px 0}
 
 /* Shared controls. Feature styles describe layouts and business states only. */
 .arcPanel,.arcKpi{background:var(--arc-surface);border:1px solid var(--arc-line);border-bottom-color:var(--arc-line-strong);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1);padding:var(--arc-s5);min-width:0}

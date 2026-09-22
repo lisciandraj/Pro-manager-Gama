@@ -15,6 +15,25 @@ el cliente o el proveedor, los productos, los precios, los impuestos, la divisa
 y los documentos ligados: en la pantalla no se vuelve a teclear nada que ya
 exista en otro sitio.
 
+## Dos procesos: PRC y PRP
+
+Como la venta (PDV) y la compra (PDC), cada devolución es un proceso con un
+número que llevan todos sus documentos, y se sigue en etapas numeradas:
+
+**PRC · Devolución de cliente** — 1 origen (pedido, entrega, factura y motivo) ·
+2 solicitud · 3 recepción · 4 tratamiento · 5 acción financiera · 6 cierre
+
+**PRP · Devolución a proveedor** — 1 origen (pedido de compra, factura del
+proveedor y motivo) · 2 solicitud · 3 expedición al proveedor · 4 abono del
+proveedor · 5 cierre
+
+Cada devolución abre su propio expediente: `DEV-00001340`, su abono
+`NCR-00001340` y su reembolso `REE-00001340` comparten número, y la ficha lo
+encabeza como `PRC-00001340` o `PRP-00001340`. Hasta septiembre de 2026 la
+devolución de un cliente entraba en el expediente de su venta; ya no, para que
+dos devoluciones de una misma venta no compartan número. El pedido, la entrega
+y la factura siguen enlazados en sus columnas y se abren desde el paso 1.
+
 ## Acceso
 
 **Logística → Devoluciones**. Lo ven el administrador, el comercial y el

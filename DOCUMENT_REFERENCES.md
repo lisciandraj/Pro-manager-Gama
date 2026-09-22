@@ -44,6 +44,10 @@ movimientos—, el primero lleva el número del proceso y el siguiente el próxi
 libre de su tipo: `erp_issued_references` no admite dos veces el mismo número
 para un mismo tipo. El número del proceso encabeza siempre la ficha.
 
+Las devoluciones son sus propios procesos, PRC (cliente) y PRP (proveedor):
+cada una abre su expediente, y su abono (`NCR`) y su reembolso (`REE`) entran
+en él. Ya no se suman al expediente de la venta de la que vienen.
+
 ## Cómo se asigna
 
 `private.gama_register_document` lo hace, desde un disparador

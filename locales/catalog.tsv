@@ -2697,3 +2697,19 @@ Proceso bloqueado	Processus bloqué	Process blocked
 Proceso en curso	Processus en cours	Process in progress
 Proceso cerrado.	Processus clôturé.	Process closed.
 Proceso completo.	Processus terminé.	Process complete.
+PRC · Devolución de cliente	PRC · Retour client	PRC · Customer return
+PRP · Devolución a proveedor	PRP · Retour fournisseur	PRP · Supplier return
+Origen de la devolución	Origine du retour	Source of the return
+Solicitud de devolución	Demande de retour	Return request
+Tratamiento	Traitement	Handling
+Acción financiera	Action financière	Financial action
+Cierre del proceso de devolución	Clôture du processus de retour	Return process closing
+Expedición al proveedor	Expédition au fournisseur	Shipment to supplier
+Abono del proveedor	Avoir du fournisseur	Supplier credit
+Registrar la llegada de la mercancía: entra retenida y no cuenta como disponible.	Enregistrer l’arrivée de la marchandise : elle entre en quarantaine et n’est pas disponible.	Record the goods’ arrival: they enter on hold and are not available.
+Elegir la acción financiera —ninguna, abono, reembolso o crédito— y ejecutarla.	Choisir l’action financière — aucune, avoir, remboursement ou crédit — et l’exécuter.	Choose the financial action — none, credit note, refund or store credit — and carry it out.
+Cerrar la devolución cuando todo esté tratado.	Clôturer le retour une fois tout traité.	Close the return once everything is handled.
+Registrar la salida de la mercancía hacia el proveedor.	Enregistrer le départ de la marchandise vers le fournisseur.	Record the goods leaving for the supplier.
+Registrar el abono que envía el proveedor.	Enregistrer l’avoir envoyé par le fournisseur.	Record the credit note sent by the supplier.
+Cerrar la devolución cuando el proveedor la haya abonado.	Clôturer le retour une fois l’avoir du fournisseur reçu.	Close the return once the supplier has credited it.
+Devolución anulada.	Retour annulé.	Return cancelled.

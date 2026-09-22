@@ -25,7 +25,13 @@ const num=(v,d)=>window.GamaCurrency.number(v,d??0);
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
 const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
-const TABS=[['customer','Devoluciones de clientes'],['supplier','Devoluciones a proveedores']];
+/* Dos procesos, como la venta (PDV) y la compra (PDC): la devolución de un
+   cliente (PRC) y la devolución a un proveedor (PRP). Cada devolución lleva un
+   número que comparten todos sus documentos —DEV, abono NCR, reembolso REE—, y
+   se sigue en etapas numeradas. */
+const TABS=[['customer','PRC · Devolución de cliente'],['supplier','PRP · Devolución a proveedor']];
+const processNumber=(kind,ref)=>{const m=String(ref||'').match(/(\d{1,8})$/);return m?(kind==='supplier'?'PRP':'PRC')+'-'+m[1].padStart(8,'0'):String(ref||'')};
+const STEP_STATES={done:'Completado',active:'En curso',blocked:'Bloqueado',pending:'Pendiente',closed:'Cerrado'};
 const REASON={defective:'Producto defectuoso',damaged:'Producto dañado',wrong_product:'Producto equivocado',
  wrong_quantity:'Cantidad equivocada',order_error:'Error de pedido',commercial:'Devolución comercial',other:'Otro'};
 const STATUS={to_process:'Por tratar',received:'Recibida',processed:'Tratada',shipped:'Expedida',
@@ -167,7 +173,7 @@ function list(d){
    <th data-gi-live data-gi=93b2a9ef782c>Fecha</th><th class="grNum" data-gi-live data-gi=572a3acfd983>Importe</th>
    <th data-gi-live data-gi=98e5acddb6c4>Estado</th><th data-gi-live data-gi=212e06c386ff>Acción</th></tr></thead>
   <tbody>${d.rows.length?d.rows.map(r=>`<tr>
-   <td><b>${esc(r.number)}</b></td>
+   <td><b>${esc(processNumber(r.kind||tab,r.number))}</b><small class="grRef">${esc(r.number)}</small></td>
    <td>${badge({customer:'Cliente',supplier:'Proveedor'},r.kind)}</td>
    <td>${esc(r.partner||'—')}</td>
    <td>${esc(r.created_on)}</td>
@@ -308,73 +314,69 @@ async function detail(id){
   const d=await rpc('detail',{id});
   if(token!==generation)return;
   state.detail=d;
-  const r=rights(),customer=d.kind==='customer';
-  const pending=d.lines.filter(l=>!l.processed_at).length;
-  const open=!['closed','cancelled'].includes(d.status);
-  const outstanding=Math.max(0,Number(d.amount)-Number(d.refunded||0));
-  window.ArcUI.render($('grMain'),`
-  <div class="grActions"><button class="arcButton secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
-  <div class="arcPanel grCard">
-   <h3>${esc(d.number)} · ${badge(STATUS,d.status)}</h3>
-   <dl class="grDl">
-    <dt data-gi-live>${customer?esc(T('Cliente')):esc(T('Proveedor'))}</dt><dd>${esc(d.partner||'—')}</dd>
-    <dt data-gi-live data-gi=c7b288b1c0bb>Motivo</dt><dd>${tr(REASON[d.reason]||d.reason)}</dd>
-    <dt data-gi-live data-gi=572a3acfd983>Importe</dt><dd>${esc(money(d.amount))}</dd>
-    ${d.notes?`<dt data-gi-live data-gi=53c367898434>Comentario</dt><dd>${esc(d.notes)}</dd>`:''}
-    ${d.carrier?`<dt data-gi-live data-gi=42b1efe4956b>Transportista</dt><dd>${esc(d.carrier)}</dd>`:''}
-    ${d.tracking?`<dt data-gi-live data-gi=9d890b826ee8>Número de seguimiento</dt><dd>${esc(d.tracking)}</dd>`:''}
-    ${d.shipped_on?`<dt data-gi-live data-gi=20b759731550>Expedida el</dt><dd>${esc(d.shipped_on)}</dd>`:''}
-   </dl>
-   ${documents(d)}
-  </div>
-
-  <div class="arcPanel grCard">
-   <h3 data-gi-live>${customer?esc(T('1 · Qué vuelve y qué se hace con ello')):esc(T('1 · Qué se devuelve'))}</h3>
-   ${d.lines.map(l=>`<div class="grLine">
-     <b>${esc(l.product)}</b> · ${esc(num(l.quantity,3))} × ${esc(money(l.unit_price))} = ${esc(money(l.amount))}
-     <p class="grHint">${l.processed_at?tr(DISPOSITION[l.disposition]||l.disposition):tr('Pendiente de decidir')}${l.notes?' · '+esc(l.notes):''}</p>
-     ${customer&&open&&r.process&&d.status==='received'&&!l.processed_at
-       ?`<div class="grActions"><button class="arcButton primary" data-gr-process="${esc(l.id)}">${tr('Decidir qué se hace')}</button></div>`:''}
-    </div>`).join('')}
-   <div class="grActions">
-    ${customer&&open&&r.process&&d.status==='to_process'?`<button class="arcButton primary" id="grReceive">${tr('📥 Registrar la recepción')}</button>`:''}
-    ${!customer&&open&&r.process&&d.status==='to_process'?`<button class="arcButton primary" id="grShip">${tr('🚚 Registrar la expedición')}</button>`:''}
-   </div>
-   ${customer&&d.status==='received'&&pending?`<p class="grHint">${tr('La mercancía está retenida: no cuenta como disponible hasta que decidas.')}</p>`:''}
-  </div>
-
-  <div class="arcPanel grCard">
-   <h3 data-gi-live data-gi=57897bf4c575>2 · Qué se hace con el dinero</h3>
-   <dl class="grDl">
-    <dt data-gi-live data-gi=0caa6150f308>Decisión</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>
-    ${customer?`<dt data-gi-live data-gi=9ceadf9e7265>Reembolsado</dt><dd>${esc(money(d.refunded))} · ${tr('pendiente')} ${esc(money(outstanding))}</dd>`:''}
-   </dl>
-   ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(c.number)}</b> · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
-   ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}
-   <div class="grActions">
-    ${open&&r.refund&&customer?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}
-    ${open&&r.refund&&customer&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('🧾 Emitir un abono')}</button>`:''}
-    ${open&&r.refund&&customer&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('💸 Reembolsar')}</button>`:''}
-    ${open&&r.refund&&!customer?`<button class="arcButton secondary" id="grSupplierCredit">${tr('🧾 Registrar el abono del proveedor')}</button>`:''}
-   </div>
-   ${customer&&!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}
-  </div>
-
-  <div class="arcPanel grCard">
-   <h3 data-gi-live data-gi=0c2c1cf33c6e>Fotos y documentos</h3>
-   ${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="arcButton secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`
-     :`<p class="grHint">${tr('Todavía no hay ningún archivo.')}</p>`}
-   ${open?`<label class="grField" data-gi-live data-gi=590f37027486>Añadir una foto o un documento<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}
-  </div>
-
-  <div class="grActions">
-   ${open&&(r.process||r.refund)&&(customer?d.status==='processed':['shipped','credited'].includes(d.status))
-     ?`<button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button>`:''}
-   ${open&&r.create&&d.status==='to_process'?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
-   ${open&&r.delete&&d.status==='to_process'?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
-  </div>`);
+  window.ArcUI.render($('grMain'),processView(d));
   bindDetail(d);
  }catch(e){if(token===generation)fail(e,()=>detail(id))}
+}
+/* La ficha como proceso: un resumen, una franja con las etapas y cada etapa
+   con sus documentos y sus botones. Los botones son los de siempre, con los
+   mismos permisos: sólo cambia dónde aparecen. */
+function processView(d){
+ const r=rights(),customer=d.kind==='customer';
+ const pending=d.lines.filter(l=>!l.processed_at).length;
+ const open=!['closed','cancelled'].includes(d.status),cancelled=d.status==='cancelled';
+ const outstanding=Math.max(0,Number(d.amount)-Number(d.refunded||0));
+ const links=docLinks(d),origin=links.map((x,i)=>[x,i]).filter(([x])=>x.kind!=='credit');
+ const docButton=([x,i])=>`<li><button type="button" class="gdfDoc" data-gr-doc="${i}">${esc(x.number)}</button></li>`;
+ const docs=list=>list.length?`<ul class="gdfDocs">${list.join('')}</ul>`:'';
+ const creditDocs=links.map((x,i)=>[x,i]).filter(([x])=>x.kind==='credit').map(docButton);
+ // Las líneas se leen en la solicitud; se deciden en el tratamiento.
+ const lines=`<div class="grLines">${d.lines.map(l=>`<div class="grLine"><b>${esc(l.product)}</b> · ${esc(num(l.quantity,3))} × ${esc(money(l.unit_price))} = ${esc(money(l.amount))}</div>`).join('')}</div>`;
+ const decisions=`<div class="grLines">${d.lines.map(l=>`<div class="grLine">
+     <b>${esc(l.product)}</b> · ${esc(num(l.quantity,3))}
+     <p class="grHint">${l.processed_at?tr(DISPOSITION[l.disposition]||l.disposition):tr('Pendiente de decidir')}${l.notes?' · '+esc(l.notes):''}</p>
+     ${open&&r.process&&d.status==='received'&&!l.processed_at
+       ?`<div class="grActions"><button class="arcButton primary" data-gr-process="${esc(l.id)}">${tr('Decidir qué se hace')}</button></div>`:''}
+    </div>`).join('')}</div>`;
+ const files=`<p class="grHint"><b>${tr('Fotos y documentos')}</b></p>${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="arcButton secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`:`<p class="grHint">${tr('Todavía no hay ningún archivo.')}</p>`}${open?`<label class="grField">${tr('Añadir una foto o un documento')}<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}`;
+ const money_=`<dl class="grDl"><dt>${tr('Decisión')}</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>${customer?`<dt>${tr('Reembolsado')}</dt><dd>${esc(money(d.refunded))} · ${tr('pendiente')} ${esc(money(outstanding))}</dd>`:''}</dl>
+   ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(c.number)}</b> · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
+   ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${f.erp_reference?'<b>'+esc(f.erp_reference)+'</b> · ':''}${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}`;
+ const financialDone=d.financial_action==='none'?['processed','closed'].includes(d.status):d.financial_action==='refund'?outstanding<=0:d.credits.length>0;
+ const steps=customer?[
+  {title:'Origen de la devolución',state:'done',body:docs(origin.map(docButton))+`<p>${tr('Motivo')} : ${tr(REASON[d.reason]||d.reason)}</p>`},
+  {title:'Solicitud de devolución',state:cancelled?'closed':'done',body:docs([`<li><span class="gdfDoc">${esc(d.number)}</span></li>`])+lines+files},
+  {title:'Recepción',state:d.status==='to_process'?'active':'done',need:'Registrar la llegada de la mercancía: entra retenida y no cuenta como disponible.',
+   body:d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grReceive">${tr('📥 Registrar la recepción')}</button></div>`:''},
+  {title:'Tratamiento',state:d.status==='to_process'?'pending':d.status==='received'?'active':'done',need:'Decidir producto por producto: stock, rebut o devolución al proveedor.',
+   body:(d.status==='to_process'?'':decisions)+(d.status==='received'&&pending?`<p class="grHint">${tr('La mercancía está retenida: no cuenta como disponible hasta que decidas.')}</p>`:'')},
+  {title:'Acción financiera',state:financialDone?'done':['processed','received'].includes(d.status)?'active':'pending',need:'Elegir la acción financiera —ninguna, abono, reembolso o crédito— y ejecutarla.',
+   body:money_+docs(creditDocs)+`<div class="grActions">${open&&r.refund?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}${open&&r.refund&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('🧾 Emitir un abono')}</button>`:''}${open&&r.refund&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('💸 Reembolsar')}</button>`:''}</div>${!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}`},
+  {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':d.status==='processed'?'active':'pending',need:'Cerrar la devolución cuando todo esté tratado.',
+   body:open&&(r.process||r.refund)&&d.status==='processed'?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button></div>`:''}
+ ]:[
+  {title:'Origen de la devolución',state:'done',body:docs(origin.map(docButton))+`<p>${tr('Motivo')} : ${tr(REASON[d.reason]||d.reason)}</p>`},
+  {title:'Solicitud de devolución',state:cancelled?'closed':'done',body:docs([`<li><span class="gdfDoc">${esc(d.number)}</span></li>`])+lines+files},
+  {title:'Expedición al proveedor',state:d.status==='to_process'?'active':'done',need:'Registrar la salida de la mercancía hacia el proveedor.',
+   body:`${d.carrier||d.tracking||d.shipped_on?`<dl class="grDl">${d.carrier?`<dt>${tr('Transportista')}</dt><dd>${esc(d.carrier)}</dd>`:''}${d.tracking?`<dt>${tr('Número de seguimiento')}</dt><dd>${esc(d.tracking)}</dd>`:''}${d.shipped_on?`<dt>${tr('Expedida el')}</dt><dd>${esc(d.shipped_on)}</dd>`:''}</dl>`:''}${d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grShip">${tr('🚚 Registrar la expedición')}</button></div>`:''}`},
+  {title:'Abono del proveedor',state:d.credits.length||d.status==='credited'?'done':d.status==='shipped'?'active':'pending',need:'Registrar el abono que envía el proveedor.',
+   body:money_+docs(creditDocs)+(open&&r.refund?`<div class="grActions"><button class="arcButton secondary" id="grSupplierCredit">${tr('🧾 Registrar el abono del proveedor')}</button></div>`:'')},
+  {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':['shipped','credited'].includes(d.status)?'active':'pending',need:'Cerrar la devolución cuando el proveedor la haya abonado.',
+   body:open&&(r.process||r.refund)&&['shipped','credited'].includes(d.status)?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button></div>`:''}
+ ];
+ const current=steps.findIndex(x=>['active','pending','blocked'].includes(x.state));
+ const next=cancelled?'Devolución anulada.':current<0?'Proceso completo.':steps[current].need||'';
+ const stateOf=x=>cancelled&&x.state!=='done'?'closed':x.state;
+ return `<div class="grActions"><button class="arcButton secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
+  <div class="arcPanel grCard grSummary"><div class="gdfSummaryHead"><h3>${esc(processNumber(d.kind,d.number))}</h3>${badge(STATUS,d.status)}</div>
+   <dl class="grDl"><dt>${customer?tr('Cliente'):tr('Proveedor')}</dt><dd>${esc(d.partner||'—')}</dd><dt>${tr('Importe')}</dt><dd>${esc(money(d.amount))}</dd>${d.notes?`<dt>${tr('Comentario')}</dt><dd>${esc(d.notes)}</dd>`:''}</dl>
+   ${next?`<p class="gdfNext"><b>${tr('Próxima acción')}</b> ${tr(next)}</p>`:''}</div>
+  <ol class="gdfStepper" aria-label="${esc(T('Etapas del proceso'))}">${steps.map((x,i)=>`<li data-state="${stateOf(x)}"${i===current?' aria-current="step"':''}><span class="gdfDot">${i+1}</span><span class="gdfStepName">${tr(x.title)}</span></li>`).join('')}</ol>
+  <ol class="gdfFlow">${steps.map((x,i)=>`<li class="arcPanel gdfStep ${stateOf(x)}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(x.title)}</h3><span class="gdfBadge">${tr(STEP_STATES[stateOf(x)])}</span></div>${x.body||''}${['active','pending'].includes(stateOf(x))&&x.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(x.need)}</p>`:''}</li>`).join('')}</ol>
+  <div class="grActions">
+   ${open&&r.create&&d.status==='to_process'?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
+   ${open&&r.delete&&d.status==='to_process'?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
+  </div>`;
 }
 /* Documentos ligados: se enlazan, nunca se copian. El rótulo y su destino
    salen de la misma lista para que no puedan descolgarse. */
@@ -383,16 +385,10 @@ function docLinks(d){
  if(x.order)out.push({label:T('Pedido'),number:x.order.number,open:()=>window.GamaSales?.openOrder?.(x.order.id)});
  if(x.delivery)out.push({label:T('Entrega'),number:x.delivery.number,open:()=>window.GamaSales?.openOrder?.(d.order_id)});
  if(x.invoice)out.push({label:T('Factura'),number:x.invoice.number,open:()=>window.GamaQuotes?.view?.(x.invoice.id)});
- if(x.purchase_order)out.push({label:T('Pedido de compra'),number:x.purchase_order.number,open:null});
+ if(x.purchase_order)out.push({label:T('Pedido de compra'),number:x.purchase_order.number,open:x.purchase_order.id&&window.gamaOpenPurchaseDossier?()=>window.gamaOpenPurchaseDossier(x.purchase_order.id):null});
  if(x.supplier_invoice)out.push({label:T('Factura del proveedor'),number:x.supplier_invoice.number,open:null});
- for(const c of d.credits)out.push({label:T('Abono'),number:c.number,open:null});
+ for(const c of d.credits)out.push({label:T('Abono'),number:c.number,open:null,kind:'credit'});
  return out;
-}
-function documents(d){
- const items=docLinks(d);
- if(!items.length)return '';
- return `<p class="grHint" data-gi-live data-gi=223e7a13aaf9>Documentos ligados</p><div class="grDocs">${items.map((x,i)=>
-  `<button class="arcButton secondary" data-gr-doc="${i}">${esc(x.label)} · ${esc(x.number)}</button>`).join('')}</div>`;
 }
 
 function bindDetail(d){

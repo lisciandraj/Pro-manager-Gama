@@ -3,7 +3,9 @@ const source=name=>fs.readFileSync(__dirname+'/../'+name,'utf8');
 function references(){const window={};vm.runInNewContext(source('gama-references.js'),{window});return window.GamaReferences}
 test('independent numbered documents need no registry network requests',async()=>{
  const api=references();let requests=0;const client={from(){requests++;throw Error('unnecessary request')}};
- for(const table of ['fleet_vehicles','business_documents','stock_movements','hr_documents','purchase_orders','pm_items']){
+ // purchase_orders ya no es independiente: abre el expediente de su proceso de
+ // compra (PDC) y, como la venta, lee su número en el registro.
+ for(const table of ['fleet_vehicles','business_documents','stock_movements','hr_documents','pm_items']){
   const result=await api.attach(table,{data:[{id:'one',erp_reference:'DOC-00000001'}]},client);
   assert.equal(result.data[0].dossier_reference,'DOC-00000001');assert.equal(result.data[0].dossier_label,null);
  }

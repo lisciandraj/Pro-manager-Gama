@@ -319,14 +319,14 @@ const definitions=[
   },
   {
     "id": "dossier-flow",
-    "label": "Seguimiento de expedientes",
+    "label": "Seguimiento de procesos",
     "icon": "folder",
     "group": "Ventas",
-    "description": "Seguimiento de expedientes",
+    "description": "Venta (PDV) y compra (PDC), paso a paso",
     "accent": "blue",
     "order": 100,
     "menu": true,
-    "configLabel": "Seguimiento de expedientes",
+    "configLabel": "Seguimiento de procesos",
     "roles": [
       "admin",
       "commercial",

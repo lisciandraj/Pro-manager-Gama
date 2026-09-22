@@ -22,6 +22,28 @@ de qué venta habla.
 Cuando un expediente tiene dos documentos del mismo tipo —dos facturas de un
 pedido, por ejemplo— el segundo lleva una letra: `FAC-B-00001246`.
 
+## Procesos: PDV y PDC
+
+El número del expediente es el del proceso. En «Seguimiento de procesos» la
+venta se muestra como `PDV-00001246` y la compra como `PDC-00001330`: el
+acrónimo del proceso y el número que llevan todos sus documentos.
+
+Desde septiembre de 2026 la compra entra en el mismo registro. El pedido de
+compra abre su expediente; la factura del proveedor entra en el de su pedido
+y el pago en el de su factura: `OCO-`, `FPR-` y `PPR-00001330`. Una factura de
+proveedor sin pedido no es un proceso de compra y conserva su contador propio.
+Los diez pedidos anteriores recibieron un expediente (1328–1337) sin cambiar
+su referencia `OCO-0000000x`; el número único vale para los procesos nuevos.
+
+El pedido de compra guarda también su origen, el paso 1 del proceso:
+`manual` (módulo Compras), `low_stock` (alerta de stock bajo el mínimo) o
+`sales_order` (pedido de cliente que supera el stock, con `source_order_id`).
+
+Si un proceso tiene dos documentos del mismo tipo —dos facturas, dos
+movimientos—, el primero lleva el número del proceso y el siguiente el próximo
+libre de su tipo: `erp_issued_references` no admite dos veces el mismo número
+para un mismo tipo. El número del proceso encabeza siempre la ficha.
+
 ## Cómo se asigna
 
 `private.gama_register_document` lo hace, desde un disparador

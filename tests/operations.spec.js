@@ -105,6 +105,9 @@ test('purchase action prepares only targeted products and preserves an existing 
  });await page.evaluate(()=>gamaPrepareActionPurchase({product_id:'p1'}));await page.locator('dialog #gsSave').click();
  await expect(page.locator('#gp14Draft')).toContainText('Target');await expect(page.locator('#gp14Draft')).not.toContainText('Other');await expect(page.locator('#gp14Draft')).toContainText('6');
  const message=await page.evaluate(async()=>{try{await gamaPrepareActionPurchase({product_id:'p2'})}catch(e){return e.message}});expect(message).toContain('Ya tienes');await expect(page.locator('#gp14Draft')).toContainText('Target');
+ // El paso 1 del proceso de compra: el pedido guarda que nació de la alerta de stock bajo.
+ await page.selectOption('#gp14Supplier','s1');await page.locator('#gp14Save').click();await expect.poll(()=>page.evaluate(()=>(__DB.purchase_orders||[]).length)).toBe(1);
+ expect(await page.evaluate(()=>({kind:__DB.purchase_orders[0].source_kind,order:__DB.purchase_orders[0].source_order_id}))).toEqual({kind:'low_stock',order:null});
 });
 test('warehouse action center hides money and purchasing controls on mobile',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.evaluate(()=>GamaOperations.open('notifications'));

@@ -1088,6 +1088,12 @@
       "name": "dashboard_priorities_groups",
       "file": "20260922172746_dashboard_priorities_groups.sql",
       "sha256": "a8bb35749b6eb6e9f62854c4f1d1e648522abb4b5c9e99d74347443c82507646"
+    },
+    {
+      "version": "20260922174307",
+      "name": "purchase_process_number",
+      "file": "20260922174307_purchase_process_number.sql",
+      "sha256": "876ddb0a19e32eab36fdcd69b98da5eb6627dfad7dc01011b32571399ced24f2"
     }
   ]
 }

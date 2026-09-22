@@ -2628,3 +2628,72 @@ SAV fuera de plazo	SAV hors délai	After-sales overdue
 Oportunidad sin próxima acción	Opportunité sans prochaine action	Opportunity with no next action
 Conciliar los movimientos bancarios	Rapprocher les mouvements bancaires	Reconcile bank transactions
 Adjuntar los justificantes de gasto	Joindre les justificatifs de dépense	Attach expense receipts
+Seguimiento de procesos	Suivi de processus	Process tracking
+Cada proceso paso a paso, con un solo número en todos sus documentos.	Chaque processus étape par étape, avec un numéro unique sur tous ses documents.	Each process step by step, with one number across all its documents.
+Venta (PDV) y compra (PDC), paso a paso	Vente (PDV) et achat (PDC), étape par étape	Sales (PDV) and purchasing (PDC), step by step
+Procesos	Processus	Processes
+PDV · Proceso de venta	PDV · Processus de vente	PDV · Sales process
+PDC · Proceso de compra	PDC · Processus d’achat	PDC · Purchasing process
+Buscar un proceso	Rechercher un processus	Search a process
+No hay procesos de compra.	Aucun processus d’achat.	No purchasing processes.
+No hay procesos de venta.	Aucun processus de vente.	No sales processes.
+Los procesos de compra aparecerán al crear un pedido a un proveedor.	Les processus d’achat apparaîtront à la création d’une commande fournisseur.	Purchasing processes appear once a supplier order is created.
+Los procesos de venta aparecerán al registrar una solicitud, un presupuesto o un pedido.	Les processus de vente apparaîtront à l’enregistrement d’une demande, d’un devis ou d’une commande.	Sales processes appear once a request, quote or order is recorded.
+No se pudo cargar el proceso. Actualiza para reintentar; el avance no está confirmado.	Impossible de charger le processus. Actualisez pour réessayer ; l’avancement n’est pas confirmé.	The process could not be loaded. Refresh to try again; progress is not confirmed.
+Enviado al proveedor	Envoyée au fournisseur	Sent to supplier
+Anulado	Annulé	Cancelled
+Sin esta etapa	Sans cette étape	Step not used
+Sin acceso a estos datos	Sans accès à ces données	No access to this data
+Origen de la demanda	Origine de la demande	Source of the demand
+Oportunidad del CRM	Opportunité CRM	CRM opportunity
+Solicitud del cliente	Demande client	Customer request
+Pedido o presupuesto directo, sin solicitud ni oportunidad previa.	Commande ou devis direct, sans demande ni opportunité préalable.	Direct order or quote, without a prior request or opportunity.
+Registrar la oportunidad en el CRM o la solicitud del cliente, con sus productos y cantidades.	Enregistrer l’opportunité dans le CRM ou la demande client, avec ses produits et quantités.	Record the CRM opportunity or the customer request, with its products and quantities.
+Completar cliente, productos, precios y vigencia; enviarlo y registrar la aceptación del cliente.	Compléter client, produits, prix et validité ; l’envoyer et enregistrer l’acceptation du client.	Complete customer, products, prices and validity; send it and record the customer’s acceptance.
+Confirmar el pedido: reserva el stock disponible y abre la preparación.	Confirmer la commande : elle réserve le stock disponible et ouvre la préparation.	Confirm the order: it reserves available stock and opens preparation.
+Reserva de stock y preparación	Réservation de stock et préparation	Stock reservation and preparation
+Sin reservar	Non réservé	Unreserved
+Preparado / previsto	Préparé / prévu	Prepared / planned
+Reservar las cantidades que faltan o reponerlas con una compra.	Réserver les quantités manquantes ou les réapprovisionner par un achat.	Reserve the missing quantities or replenish them with a purchase.
+Preparar y escanear cada producto: el bulto queda listo para expedir.	Préparer et scanner chaque produit : le colis est prêt pour expédition.	Prepare and scan each product: the parcel is ready to ship.
+Expedición y recepción	Expédition et réception	Shipping and receipt
+Entregado con prueba firmada	Livré avec preuve signée	Delivered with signed proof
+Cargar y confirmar la salida; registrar la entrega con la firma del cliente.	Charger et confirmer le départ ; enregistrer la livraison avec la signature du client.	Load and confirm departure; record delivery with the customer’s signature.
+La factura se genera al validar la última entrega firmada; debe cubrir todas las líneas del pedido.	La facture est générée à la validation de la dernière livraison signée ; elle doit couvrir toutes les lignes de la commande.	The invoice is generated when the last signed delivery is validated; it must cover every order line.
+Seguimiento del pago	Suivi du paiement	Payment follow-up
+Relanzar las facturas vencidas y registrar los cobros.	Relancer les factures échues et enregistrer les encaissements.	Chase overdue invoices and record collections.
+Registrar cada cobro con fecha, importe y medio.	Enregistrer chaque encaissement avec date, montant et moyen.	Record each collection with date, amount and method.
+Cierre del proceso de venta	Clôture du processus de vente	Sales process closing
+Proceso anulado.	Processus annulé.	Process cancelled.
+Entregado, facturado y cobrado.	Livré, facturé et encaissé.	Delivered, invoiced and collected.
+Se cierra al quedar entregado, facturado y cobrado.	Se clôture une fois livré, facturé et encaissé.	Closes once delivered, invoiced and collected.
+Completar las etapas anteriores.	Terminer les étapes précédentes.	Complete the previous steps.
+Devoluciones de este proceso	Retours de ce processus	Returns in this process
+Se siguen en Devoluciones, en su propio proceso de retorno.	Elles se suivent dans Retours, dans leur propre processus de retour.	They are tracked in Returns, in their own return process.
+Alerta de stock bajo el mínimo	Alerte de stock sous le minimum	Stock below minimum alert
+Pedido de cliente superior al stock disponible	Commande client supérieure au stock disponible	Customer order above available stock
+Creado en el módulo Compras	Créé dans le module Achats	Created in the Purchasing module
+Recepción prevista	Réception prévue	Expected receipt
+Revisar cantidades y precios y enviar el pedido al proveedor.	Vérifier quantités et prix, puis envoyer la commande au fournisseur.	Check quantities and prices, then send the order to the supplier.
+Recepción y control	Réception et contrôle	Receipt and inspection
+Recibido / pedido	Reçu / commandé	Received / ordered
+Líneas con diferencia	Lignes avec écart	Lines with a difference
+La recepción prevista ya pasó: reclamar al proveedor o reprogramarla.	La réception prévue est dépassée : relancer le fournisseur ou la reprogrammer.	The expected receipt has passed: chase the supplier or reschedule it.
+Recibir la mercancía y contrastar cantidades con el pedido.	Réceptionner la marchandise et contrôler les quantités par rapport à la commande.	Receive the goods and check quantities against the order.
+Puesta en stock	Mise en stock	Put-away
+En stock / recibido	En stock / reçu	In stock / received
+Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.	Ranger la réception dans son entrepôt : chaque entrée devient un mouvement de stock.	Put received goods away in their warehouse: each entry becomes a stock movement.
+Registrar la factura del proveedor contra este pedido.	Enregistrer la facture fournisseur rattachée à cette commande.	Record the supplier invoice against this order.
+Pagar las facturas vencidas del proveedor.	Payer les factures fournisseur échues.	Pay the supplier’s overdue invoices.
+Registrar cada pago al proveedor.	Enregistrer chaque paiement au fournisseur.	Record each payment to the supplier.
+Cierre del proceso de compra	Clôture du processus d’achat	Purchasing process closing
+Recibido, en stock, facturado y pagado.	Reçu, en stock, facturé et payé.	Received, in stock, invoiced and paid.
+Se cierra al quedar recibido, facturado y pagado.	Se clôture une fois reçu, facturé et payé.	Closes once received, invoiced and paid.
+Etapas del proceso	Étapes du processus	Process steps
+Para avanzar	Pour avancer	To move forward
+Proceso cerrado	Processus clôturé	Process closed
+Proceso completo	Processus terminé	Process complete
+Proceso bloqueado	Processus bloqué	Process blocked
+Proceso en curso	Processus en cours	Process in progress
+Proceso cerrado.	Processus clôturé.	Process closed.
+Proceso completo.	Processus terminé.	Process complete.

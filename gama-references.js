@@ -1,7 +1,8 @@
 /* Canonical dossier references; original/fiscal numbers remain in storage. */
 (function(){'use strict';
 const types=new Set(["customer_requests", "invoices", "sales_orders", "fulfillment_preparations", "fulfillment_packages", "sales_deliveries", "tms_deliveries", "tms_proofs", "external_invoices", "external_invoice_payments", "return_orders", "purchase_orders", "inventory_counts", "stock_reservations", "stock_movements", "crm_opportunities", "pm_projects", "fleet_vehicles", "hr_documents", "hr_payroll", "service_tickets", "business_documents", "accounting_entries", "expenses", "supplier_invoices", "supplier_invoice_payments", "return_credits", "return_refunds", "tms_routes", "knowledge_articles", "pm_items"]);
-const dossierTypes=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders']);
+// Cadena de venta (PDV) y, desde el número único del proceso de compra, la de compra (PDC).
+const dossierTypes=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders','purchase_orders','supplier_invoices','supplier_invoice_payments']);
 async function attach(table,result,client){
  if(result.error||!result.data||!types.has(table))return result;
  const rows=Array.isArray(result.data)?result.data:[result.data],key=table==='tms_proofs'?'delivery_id':'id',ids=rows.map(r=>r[key]).filter(Boolean);

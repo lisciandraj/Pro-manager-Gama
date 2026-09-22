@@ -1106,6 +1106,24 @@
       "name": "delivery_module",
       "file": "20260922181448_delivery_module.sql",
       "sha256": "b8bfb5d2e725af35b7eaf2e63b6e376cbe5a4133bca05be25743cf63f634cbb4"
+    },
+    {
+      "version": "20260922185312",
+      "name": "contacts_module",
+      "file": "20260922185312_contacts_module.sql",
+      "sha256": "05fff5235d41297b4bd8803001613e8a46fea34d522ffd3c2f41abd0b7990400"
+    },
+    {
+      "version": "20260922190824",
+      "name": "audit_trail",
+      "file": "20260922190824_audit_trail.sql",
+      "sha256": "6c117cf12f765269daf572656b51ac55ccc47cbab7f6b065b142f8b946b8edcc"
+    },
+    {
+      "version": "20260922191148",
+      "name": "invitation_template",
+      "file": "20260922191148_invitation_template.sql",
+      "sha256": "b22e5fe990b555096ad44b072a1ad1e9e2fb596ce2aedbe0cf738a535b57bd7d"
     }
   ]
 }

@@ -21,3 +21,12 @@ test('Invitation is blocked by module/action restrictions before sending an emai
  const calls=[];const handler=createHandler({env,fetch:async url=>{calls.push(url);return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:false)}});
  const response=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial'}));assert.equal(response.status,403);assert.ok(calls.every(url=>!url.includes('/auth/v1/invite')));
 });
+
+test('Invitation carries the personalised subject and message to the email template',async()=>{
+ const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
+ const r=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial',company:'Ferretería Andina',subject:' Tu acceso a Ferretería Andina ',message:'Hola Staff:\n\nBienvenido.\u0007'}));assert.equal(r.status,200);
+ const body=JSON.parse(calls.find(c=>c.url.includes('/auth/v1/invite?')).options.body);
+ assert.deepEqual(body.data,{full_name:'Staff',invite_subject:'Tu acceso a Ferretería Andina',invite_message:'Hola Staff:\n\nBienvenido.',company_name:'Ferretería Andina'});
+ const empty=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial',subject:'  ',message:'x'}));assert.equal(empty.status,400);
+ assert.equal(calls.filter(c=>c.url.includes('/auth/v1/invite?')).length,1,'an empty subject never sends');
+});

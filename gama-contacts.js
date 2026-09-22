@@ -20,14 +20,15 @@ function clientsHost(){
  if(!clientsPane){clientsPane=document.createElement('div');clientsPane.id='contactsClients';const legacy=$('clients');if(legacy){legacy.querySelectorAll(':scope>.gamaStdHeader').forEach(h=>h.remove());clientsPane.append(...legacy.childNodes);legacy.remove()}}
  return clientsPane;
 }
-function pane(body){
+function pane(body,routed){
  dispose?.();dispose=null;
- if(tab==='clients'){body.append(clientsHost());window.renderClients?.($('clientSearch')?.value||'');return}
+ // Al entrar por el router, renderForRoute ya pinta la lista de clientes: una sola vez.
+ if(tab==='clients'){body.append(clientsHost());if(!routed)window.renderClients?.($('clientSearch')?.value||'');return}
  const host=document.createElement('div');host.id=tab==='suppliers'?'contactsSuppliers':'contactsProspects';body.append(host);
  if(tab==='suppliers'){dispose=window.GamaSuppliers?.mount(host)||null;return}
  window.GamaCRMContacts?.mount(host,{filter:'prospecto'});dispose=()=>window.GamaCRMContacts?.unmount(host);
 }
-function render(){
+function render(routed=false){
  const s=section(),list=tabs();
  if(!list.some(t=>t.id===tab))tab=list[0]?.id||'clients';
  const current=list.find(t=>t.id===tab);
@@ -38,7 +39,7 @@ function render(){
  s.querySelectorAll('[data-contacts-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.contactsTab;render()});
  s.querySelector('#ctNew').onclick=chooseKind;
  // Un panel por pestaña: el enlazado genérico de pestañas oculta el panel de las demás.
- pane(s.querySelector('.ctPanel'));
+ pane(s.querySelector('.ctPanel'),routed);
  window.dispatchEvent(new CustomEvent('arc:module-rendered',{detail:{id:'contacts'}}));
  if(pendingNew){const kind=pendingNew;pendingNew=null;startNew(kind)}
 }
@@ -64,6 +65,6 @@ function open(which,opts={}){
  if(window.ArcRouter.current==='contacts'&&section().classList.contains('active')){render();return true}
  return window.ArcRouter.show('contacts');
 }
-window.ArcRouter.onEnter('contacts',()=>{render();return()=>{dispose?.();dispose=null}});
+window.ArcRouter.onEnter('contacts',()=>{render(true);return()=>{dispose?.();dispose=null}});
 window.GamaContacts={open,tab:()=>tab};
 })();

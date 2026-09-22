@@ -81,12 +81,23 @@ test('la foto se enseña sin etiqueta y el titular es el primer dato legible', a
   await expect(page.locator('#productsTable button[data-edit]').first()).toHaveAccessibleName(/Editar/);
 });
 
+// Tablas escritas a mano con GamaSort y con celdas alineadas por style=, como
+// las que había en el antiguo Inventario: se montan aquí mismo para no atar
+// la prueba a una pantalla concreta.
+const tablaSuelta = page => page.evaluate(() => {
+  const host = document.createElement('div'); host.id = 'fixtureTable';
+  host.innerHTML = '<table class="arcTable"><tr><th>Foto</th>' + GamaSort.th('fixture', 'name', 'Producto') + GamaSort.th('fixture', 'barcode', 'Código')
+    + GamaSort.th('fixture', 'stock', 'Stock', 'right') + '</tr><tr><td></td><td>Cemento</td><td>B1</td><td style="text-align:right">80</td></tr></table>';
+  document.querySelector('section.active').append(host); window.GamaTable?.scan?.();
+});
+
 test('la flecha de ordenar no se cuela en el nombre de la columna', async ({ page }) => {
   await boot(page);
-  await page.evaluate(() => window.showTab('stock', null));
-  await page.waitForTimeout(700);
+  await page.evaluate(() => window.ArcRouter.open('products'));
+  await tablaSuelta(page);
+  await page.waitForTimeout(300);
 
-  const c = await celdas(page, '#stockTable table');
+  const c = await celdas(page, '#fixtureTable table');
   const nombres = c.map(x => x.col).join(' ');
   expect(nombres).toContain('Código');
   expect(nombres, 'se coló el indicador de GamaSort').not.toMatch(/[↕▲▼]/);
@@ -97,13 +108,14 @@ test('la flecha de ordenar no se cuela en el nombre de la columna', async ({ pag
 // borde y su etiqueta flotando en medio de la ficha.
 test('una columna alineada a la derecha se endereza dentro de la ficha', async ({ page }) => {
   await boot(page);
-  await page.evaluate(() => window.showTab('stock', null));
-  await page.waitForTimeout(700);
+  await page.evaluate(() => window.ArcRouter.open('products'));
+  await tablaSuelta(page);
+  await page.waitForTimeout(300);
 
-  const c = await celdas(page, '#stockTable table');
+  const c = await celdas(page, '#fixtureTable table');
   const stock = c.find(x => x.col === 'Stock');
   expect(await page.evaluate(() =>
-    [...document.querySelectorAll('#stockTable td')].some(td => td.style.textAlign === 'right')),
+    [...document.querySelectorAll('#fixtureTable td')].some(td => td.style.textAlign === 'right')),
     'la tabla ya no trae celdas alineadas a la derecha: la prueba no prueba nada').toBe(true);
   expect(stock.align).toBe('left');
 });

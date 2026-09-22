@@ -34,7 +34,7 @@ function scheduleReload(event){if(event?.detail?.table)window.ArcData.invalidate
    pero seguía lanzando seis consultas denegadas en cada arranque. */
 function isStaffSession(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'null');return !!s&&['admin','administrador','commercial','comercial','magasinier','almacenero'].includes(s.role)}catch(e){return false}}
 async function cachedList(table,options){return window.ArcData.all(table,options,true)}
-const routeTables={products:['products','suppliers'],clients:['customers'],contacts:['customers'],stock:['products'],movement:['products'],barcode:['products'],audit:['products','stock_movements','profiles'],billing:['products','customers','invoices'],quotes:['products','customers']};
+const routeTables={products:['products','suppliers'],clients:['customers'],contacts:['customers'],movement:['products'],barcode:['products'],audit:['products','stock_movements','profiles'],billing:['products','customers','invoices'],quotes:['products','customers']};
 let dataEpoch=0,loadJobs=new Map();
 async function loadAll(route=window.ArcRouter?.current){
  const tables=routeTables[route];if(!tables||!window.GamaCloud||!isStaffSession())return false;

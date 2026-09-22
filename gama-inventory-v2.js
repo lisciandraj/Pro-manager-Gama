@@ -41,7 +41,7 @@ let pestana='existencias',disponibleV2=null,cargando=false;
 
 /* Las fotos son base64 y pesan: un inventario de mil productos no tiene por
    qué arrastrarlas. Se piden sólo las columnas que la tabla enseña. */
-const COLUMNAS_PRODUCTO='id,name,reference,category,min_stock,max_stock,purchase_price,stock,active,location';
+const COLUMNAS_PRODUCTO='id,name,reference,barcode,category,min_stock,max_stock,purchase_price,stock,active,location';
 
 async function cargar(){
  if(cargando)return;
@@ -175,7 +175,7 @@ function pintarExistencias(host){
  window.ArcUI.render(host,`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
 <div class="ivFiltros">
- <input id="ivBuscar" type="search" data-gi-placeholder=63ccace81217 placeholder="Buscar por producto o referencia…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
+ <input id="ivBuscar" type="search" data-gi-placeholder=79a86fac0678 placeholder="Buscar por producto, referencia o código…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
  <select id="ivAlmacen" data-gi-aria-label=9a91575b8e4b aria-label="Almacén"><option value="" data-gi=c27ceb62ad08>Todos los almacenes</option>${opcionesAlmacen}</select>
  <label data-gi=3c83e3558107>Hasta<input type="date" id="ivUntil"></label><select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
  <select id="ivEstadoFiltro" data-gi-aria-label=98e5acddb6c4 aria-label="Estado">
@@ -202,7 +202,7 @@ function filas(){
  const cat=$('ivCategoria')?.value||'';
  const est=$('ivEstadoFiltro')?.value||'';
  return productos
-  .filter(p=>!q||[p.name,p.reference].some(v=>String(v||'').toLowerCase().includes(q)))
+  .filter(p=>!q||[p.name,p.reference,p.barcode].some(v=>String(v||'').toLowerCase().includes(q)))
   .filter(p=>!cat||p.category===cat)
   .map(p=>resumen(p,alm))
   /* Con un almacén elegido, un producto que no tiene nada ahí no es una fila

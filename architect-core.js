@@ -750,25 +750,6 @@
       ]
     },
     {
-      "id": "stock",
-      "label": "Inventario",
-      "icon": "stock",
-      "group": "Inventario y compras",
-      "description": "Niveles de existencias disponibles",
-      "accent": "green",
-      "order": 100,
-      "menu": true,
-      "configLabel": "Inventario",
-      "roles": [
-        "admin",
-        "magasinier"
-      ],
-      "header": [
-        "📊 Inventario",
-        "Las existencias de todos tus productos."
-      ]
-    },
-    {
       "id": "gamaPurchasesV14",
       "label": "Compras",
       "icon": "cart",
@@ -1103,7 +1084,7 @@
     }
   ];
   const groups = ["Resumen", "Inventario y compras", "Ventas", "Cliente", "Administración", "Logística"];
-  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms", clients: "contacts", suppliers: "contacts" };
+  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms", clients: "contacts", suppliers: "contacts", stock: "warehouses" };
   const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", cliente: "client" };
   const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["client", "Cliente"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
   function ensureExcelModule() {

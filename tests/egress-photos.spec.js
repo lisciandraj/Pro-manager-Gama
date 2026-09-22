@@ -86,7 +86,7 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     expect(calls.some(c => c.table === 'products' && c.select === LAZY_PHOTO_SELECT)).toBe(true);
   });
 
-  test('una segunda pantalla reutiliza la foto ya descargada', async ({ page }) => {
+  test('volver a la pantalla reutiliza la foto ya descargada', async ({ page }) => {
     await boot(page, { products: PRODUCTS });
     await page.click('#mainmenu .gamaF2Card:has-text("Productos")');
     await expect(page.locator('#productsTable img.product-img')).toHaveCount(1);
@@ -94,9 +94,10 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     const before = await page.evaluate(() =>
       (window.__DB.__calls || []).filter(c => c.select === 'id,photo_data').length);
 
-    // Ya estamos dentro de Productos: el menú principal no está a la vista.
-    await page.evaluate(() => window.showTab('stock', null));
-    await expect(page.locator('#stockTable img.product-img')).toHaveCount(1);
+    // Se sale a otro módulo y se vuelve: la lista se pinta de nuevo, la foto no se pide.
+    await page.evaluate(() => window.ArcRouter.open('warehouses'));
+    await page.evaluate(() => window.ArcRouter.open('products'));
+    await expect(page.locator('#productsTable img.product-img')).toHaveCount(1);
 
     const after = await page.evaluate(() =>
       (window.__DB.__calls || []).filter(c => c.select === 'id,photo_data').length);

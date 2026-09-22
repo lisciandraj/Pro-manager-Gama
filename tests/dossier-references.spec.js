@@ -18,6 +18,6 @@ test('menu opens quotes and invoices and the case/PDF use shared references',asy
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;const originalList=GamaCloud.list;GamaCloud.list=async(t,o)=>GamaReferences.attach(t,await originalList(t,o),await GamaCloud.db());`}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForTimeout(1200);
  await page.locator('#mainmenu [data-gama-module="quotes"]').click();await expect(page.locator('#quotes')).toContainText('Presupuestos y facturas');await expect(page.locator('#quotes')).toContainText('COT-00000012');
  await page.locator('[data-gq-open]').click();const pdf=await page.evaluate(async()=>GamaQuotes.pdfData({...((await GamaCloud.list('invoices')).data[0]),lines:[]}));expect(pdf.number).toBe('COT-00000012');
- await page.evaluate(()=>GamaQuotes.open());await page.locator('#gqInvoices').click();await expect(page.locator('#sales-orders')).toBeVisible();
+ await page.evaluate(()=>GamaQuotes.open());await page.locator('#gqOrdersTab').click();await expect(page.locator('#sales-orders')).toBeVisible();await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
  await page.evaluate(()=>GamaDossierFlow.open());await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail')).toContainText('COT-00000012');
 });

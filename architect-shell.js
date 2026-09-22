@@ -61,7 +61,8 @@ function applyAccess(){
  nav.querySelectorAll('.arcNavLink[data-gama-module]').forEach(b=>{
   const id=b.dataset.gamaModule;
   let ok=true;
-  if(window.gamaAccessAllowed)ok=!!window.gamaAccessAllowed(id);
+  if(window.gamaMenuVisible)ok=!!window.gamaMenuVisible(id);
+  else if(window.gamaAccessAllowed)ok=!!window.gamaAccessAllowed(id);
   else if(window.GamaModules)ok=!!window.GamaModules.enabled(id);
   b.classList.toggle('aclHidden',!ok);
  });

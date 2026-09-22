@@ -238,7 +238,7 @@ const definitions=[
     "label": "Presupuestos y facturas",
     "icon": "invoice",
     "group": "Ventas",
-    "description": "Crea y sigue tus presupuestos",
+    "description": "Solicitudes, presupuestos, pedidos y facturas",
     "accent": "cyan",
     "order": 3,
     "menu": true,
@@ -297,6 +297,7 @@ const definitions=[
   },
   {
     "id": "sales-orders",
+    "menuHiddenWith": "quotes",
     "label": "Pedidos de venta",
     "icon": "bag",
     "group": "Ventas",
@@ -313,6 +314,7 @@ const definitions=[
   },
   {
     "id": "payments",
+    "menuHiddenWith": "quotes",
     "label": "Facturas y cobros",
     "icon": "banknote",
     "group": "Ventas",

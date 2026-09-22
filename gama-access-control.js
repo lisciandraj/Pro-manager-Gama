@@ -24,6 +24,9 @@ function session(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')}cat
 function esc(v){return window.ArcUI.esc(v)}
 function moduleOn(id){return !window.GamaModules||window.GamaModules.enabled(id)}
 function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.accessProfile||s.role,id)}
+/* Un módulo que otro absorbió como pestaña (menuHiddenWith) no tiene tarjeta
+   propia para quien ve el módulo que lo absorbe; quien sólo tiene el suyo, sí. */
+function inMenu(id){if(!allowed(id))return false;const d=window.ArcModules.registry.find(m=>m.id===id);return !(d?.menuHiddenWith&&allowed(d.menuHiddenWith))}
 function injectCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Con la autenticación centralizada ya no hay acceso local de reserva: si la
    nube no responde, hay que decirlo claramente en vez de dejar la pantalla en
@@ -46,7 +49,7 @@ async function logout(){
 }
 function userBar(){const s=session();if(!s)return;injectCss();let d=$('gamaACLUser');if(!d){d=document.createElement('div');d.id='gamaACLUser';d.className='aclUser';document.body.appendChild(d)}window.ArcUI.render(d,`👤 <b>${esc(s.name||s.username)}</b> · <span class="aclRole">${esc(ROLES[s.role]?.label||s.role)}</span><button class="arcButton" type="button" id="aclLogout" data-gi=c6e6960395f4>Cerrar sesión</button>`);const b=$('aclLogout');b.onclick=e=>{e.preventDefault();e.stopPropagation();logout()};b.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();logout()},{passive:false})}
 const MENU_MAP=Object.fromEntries(window.ArcModules.registry.map(m=>[m.label,m.id]));
-function filterMenu(){const host=$('mainmenu');if(!host)return;host.querySelectorAll('.gamaF2Card').forEach(b=>{const t=b.querySelector('.gamaF2Title');if(!t)return;b.classList.toggle('aclHidden',!allowed(b.dataset.gamaModule||MENU_MAP[t.textContent.trim()]||''))})}
+function filterMenu(){const host=$('mainmenu');if(!host)return;host.querySelectorAll('.gamaF2Card').forEach(b=>{const t=b.querySelector('.gamaF2Title');if(!t)return;b.classList.toggle('aclHidden',!inMenu(b.dataset.gamaModule||MENU_MAP[t.textContent.trim()]||''))})}
 function filterHeader(){document.querySelectorAll("[data-gama-staff-header]").forEach(b=>b.classList.toggle("aclHidden",session()?.role==="client"))}
 function filterTabs(){filterHeader();document.querySelectorAll('.tabs .tab').forEach(b=>{const id=b.dataset.gamaModule;if(id)b.classList.toggle('aclHidden',!NAV_IDS.has(id)&&!allowed(id))})}
 function hook(){
@@ -64,5 +67,5 @@ function hook(){
  window.addEventListener('gama:modules-change',()=>{filterMenu();filterTabs()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,80),{once:true});else setTimeout(hook,80);
-window.gamaAccessAllowed=allowed;
+window.gamaAccessAllowed=allowed;window.gamaMenuVisible=inMenu;
 })();

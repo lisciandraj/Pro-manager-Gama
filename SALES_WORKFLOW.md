@@ -3,9 +3,15 @@
 > Flujo actualizado: ver [FULFILLMENT_P1.md](FULFILLMENT_P1.md) para el dossier,
 > picking/packing obligatorio, propuestas de entrega y retornos.
 
-Entrada: **Ventas → Pedidos de venta**. El módulo contiene Pedidos, Expediciones,
-Pendiente de facturar y Facturas externas. También hay un botón «Crear / ver
-pedido» en cada presupuesto archivado y solicitud de cliente.
+Entrada: **Ventas → Presupuestos y facturas → pestaña Pedidos**. El módulo
+reúne la cadena de la venta en cuatro pestañas —Solicitudes de clientes,
+Presupuestos, Pedidos y Facturas— y cada una aparece sólo con su permiso
+(`customer-requests`, `quotes`, `sales-orders`, `payments`). Dentro de Pedidos
+quedan Todos los pedidos, Expediciones y Pendiente de facturar; las facturas y
+sus cobros son la pestaña Facturas. El almacenero, que sólo tiene los pedidos,
+los abre desde su tarjeta **Pedidos de venta**, sin pestañas. También hay un
+botón «Crear / ver pedido» en cada presupuesto archivado y solicitud de
+cliente.
 
 ## Uso
 

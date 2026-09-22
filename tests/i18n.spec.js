@@ -40,10 +40,13 @@ test('three accessible flags switch live, persist, and preserve form and busines
 });
 test('saved French loads lazily rendered sales forms, preserving select values and access rules',async({page})=>{
  await boot(page,'commercial','fr');
- await expect(page.locator('#mainmenu [data-gama-module="sales-orders"]')).toBeVisible();
+ await expect(page.locator('#mainmenu [data-gama-module="quotes"]')).toBeVisible();
+ await expect(page.locator('#mainmenu [data-gama-module="sales-orders"]')).toBeHidden();
  await expect(page.locator('#mainmenu [data-gama-module="users"]')).toBeHidden();
- await page.locator('#mainmenu [data-gama-module="sales-orders"]').click();
- await expect(page.locator('.gsTabs')).toContainText('Factures et encaissements');
+ await page.locator('#mainmenu [data-gama-module="quotes"]').click();
+ await page.locator('#gqOrdersTab').click();
+ await expect(page.locator('#sales-orders .gqModuleTabs')).toContainText('Factures');
+ await expect(page.locator('.gsTabs')).toContainText('Toutes les commandes');
  await page.locator('#gsNew').click();
  await expect(page.locator('dialog')).toContainText('Adresse de livraison');
  const source=page.locator('#gsSource');await expect(source).toHaveValue('manual');

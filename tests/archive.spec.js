@@ -93,13 +93,13 @@ test.describe('Archivar en lugar de borrar', () => {
       invoices: [{ id: 'i1', invoice_number: '001', customer_id: 'c1', total: 10, status: 'issued', issue_date: new Date().toISOString() }],
     });
     await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
-    await expect(page.locator('#clientsTable')).toContainText('Ferretería Sol');
+    await expect(page.locator('#ctTable')).toContainText('Ferretería Sol');
 
     page.once('dialog', async d => { expect(d.message()).toContain('Archivar'); await d.accept(); });
     await page.locator('tr', { hasText: 'Ferretería Sol' }).locator('button:has-text("Archivar")').click();
     await page.waitForTimeout(700);
 
-    await expect(page.locator('#clientsTable')).not.toContainText('Ferretería Sol');
+    await expect(page.locator('#ctTable')).not.toContainText('Ferretería Sol');
     const state = await page.evaluate(() => ({
       customer: window.__DB.customers.find(c => c.id === 'c1'),
       invoices: window.__DB.invoices.length,

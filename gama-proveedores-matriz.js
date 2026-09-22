@@ -19,7 +19,6 @@ function section(id,title,sub){let s=$(id);if(s)return s;s=document.createElemen
 const CLOUD=()=>window.GamaCloud;
 const SUP_FIELDS=['supName','supTax','supContact','supPhone','supEmail','supCity','supAddress','supNotes'];
 const MIGRATED_KEY='gama_suppliers_migrated_v1';
-let cloudSuppliers=[];
 const supKey=v=>String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
 function supFromCloud(r){return window.ArcEntities.legacySupplier(r)}
 async function fetchSuppliers(){if(!CLOUD())return [];const r=await window.ArcData.all('suppliers',{order:'name',ascending:true},true);if(r.error)throw r.error;return (r.data||[]).map(supFromCloud)}
@@ -40,8 +39,9 @@ async function migrateLocalSuppliersOnce(existing){
  try{localStorage.setItem(MIGRATED_KEY,'1')}catch(e){}
  return moved;
 }
-// El directorio vive en la pestaña Proveedores de Contactos, que le da su sitio.
-function mountSuppliers(host){if(!host)return null;const cleanup=window.ArcDirectories.suppliers(host);fetchSuppliers().then(rows=>{cloudSuppliers=rows;return migrateLocalSuppliersOnce(rows)}).then(moved=>{if(moved){window.ArcData.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}))}}).catch(console.error);return cleanup}
+// Los proveedores se listan en Contactos; al entrar se sube una sola vez lo que sólo existiera en este navegador.
+function migrateSuppliers(){try{if(localStorage.getItem(MIGRATED_KEY))return Promise.resolve(0)}catch(e){return Promise.resolve(0)}
+ return fetchSuppliers().then(migrateLocalSuppliersOnce).then(moved=>{if(moved){window.ArcData.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}))}return moved}).catch(e=>{console.error(e);return 0})}
 
 let matrixEpoch=0,matrixRequest=null;
 const mt=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
@@ -101,7 +101,7 @@ window.addEventListener('gama:auth-change',()=>{matrixEpoch++;matrixRequest=null
    desde ninguna parte. Matriz comercial tiene ahora su propia entrada en
    gama-menu-final2.js, que es donde se declaran las demás. */
 function hook(){injectStyles();section('matrix','📊 Matriz comercial',MAT_LEAD);window.ArcRouter.onEnter('matrix',renderMatrix)}
-window.GamaSuppliers={mount:mountSuppliers};
+window.GamaSuppliers={migrate:migrateSuppliers};
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,50),{once:true});else setTimeout(hook,50);
 })();

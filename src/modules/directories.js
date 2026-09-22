@@ -1,43 +1,25 @@
 import * as ui from '../ui/components.js';
 import * as data from '../data/service.js';
 import {supplierFields,supplierToRow,legacyProduct} from '../domain/entities.js';
-import {escapeHtml as esc,translate as t,format,errorMessage} from '../domain/format.js';
+import {escapeHtml as esc,translate as t,format} from '../domain/format.js';
 const views=new Map();
 const $=id=>document.getElementById(id);
 const call=async promise=>{const r=await promise;if(r.error)throw r.error;return r.data;};
-export function suppliers(host) {
-  views.get('suppliers')?.dispose();
-  host.innerHTML=`<div class="gamaPMGrid"><div class="arcPanel gamaPMForm"><h3 id="supFormTitle">${esc(t('Nuevo proveedor'))}</h3><form id="supForm" class="arcForm"><div class="arcFormGrid">${supplierFields.map(field=>ui.field(field)).join('')}</div>${ui.toolbar(ui.button({id:'supSave',type:'submit',variant:'primary',label:t('＋ Guardar proveedor')})+ui.button({id:'supClear',label:t('Limpiar')}))}<p id="supMsg" role="alert" class="arcFormError"></p></form></div><div class="arcPanel gamaPMForm"><h3>${esc(t('Proveedores registrados'))}</h3>${ui.field({id:'supSearch',type:'search',label:'Buscar por nombre, ciudad, contacto...'})}<div id="supList"><div id="supArchive"></div><div id="supDataTable"></div></div></div></div>`;
-  let editing=null,rows=new Map();
-  const form=$('supForm');
-  const reset=()=>{editing=null;form.reset();$('supFormTitle').textContent=t('Nuevo proveedor');$('supMsg').textContent='';};
-  $('supClear').onclick=reset;
-  const columns=[{key:'name',label:'Proveedor',sort:'name'}, {key:'taxId',label:'RUC / identificación',sort:'tax_id'}, {key:'contactName',label:'Persona de contacto'}, {key:'phone',label:'Teléfono'}, {key:'email',label:'Email'}, {key:'city',label:'Ciudad',sort:'city'}, {key:'address',label:'Dirección'}, {key:'notes',label:'Información clave'}, {label:'Acciones',actions:true,html:s=>ui.button({label:t('Historial'),attrs:'data-partner="'+esc(s.id)+'"'})+' '+(s.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-del="'+esc(s.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(s.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar'),variant:'danger',attrs:'data-purge="'+esc(s.id)+'"'}))}];
-  const refresh=async()=>{data.invalidate('suppliers');await grid.refresh({page:0});window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}));};
-  const mutate=async(id,operation)=>{
-    const supplier=rows.get(id);if(!supplier)return;
-    if(operation==='archive'&&!window.confirm(t('¿Archivar al proveedor «')+supplier.name+'»?'))return;
-    if(operation==='delete'&&!window.confirm(t('¿Borrar definitivamente a «')+supplier.name+'»?'))return;
-    try{await call(operation==='delete'?window.GamaCloud.remove('suppliers',id):window.GamaCloud.update('suppliers',id,{active:operation==='restore'}));await refresh();}
-    catch(e){$('supMsg').textContent=window.GamaArchive?.friendlyError(e,'supplier')||errorMessage(e);}
-  };
-  const grid=ui.dataTable($('supDataTable'),{columns,searchInput:$('supSearch'),source:async request=>{
-    const archived=window.GamaArchive.mode('suppliersDir')==='archived';
-    const result=await data.page('suppliers',{...request,archived});rows=new Map(result.items.map(s=>[s.id,s]));
-    const count=await window.GamaCloud.list('suppliers',{select:'id',count:'exact',head:true,eq:{active:archived}});if(count.error)throw count.error;
-    $('supArchive').innerHTML=window.GamaArchive.tabs('suppliersDir',archived?count.count:result.total,archived?result.total:count.count);
-    return result;
-  },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-partner':id=>window.ArchitectPartners.open('supplier',id),'data-del':id=>mutate(id,'archive'),'data-restore':id=>mutate(id,'restore'),'data-purge':id=>mutate(id,'delete'),'data-edit':id=>{editing=rows.get(id);if(!editing)return;for(const f of supplierFields)$(f.id).value=editing[f.key]||'';$('supFormTitle').textContent=t('Editar proveedor');$('supName').focus();}}});
-  window.GamaArchive.register('suppliersDir',()=>grid.refresh({page:0}));
-  const formApi=ui.bindForm(form,async()=>{
+/** Supplier sheet on its own: Contactos lists every contact in one table and opens this form to create or edit one. */
+export function supplierForm(host,{supplier=null,onDone=()=>{}}={}) {
+  views.get('supplierForm')?.dispose();
+  host.innerHTML=`<div class="arcPanel gamaPMForm"><h3 id="supFormTitle">${esc(t(supplier?'Editar proveedor':'Nuevo proveedor'))}</h3><form id="supForm" class="arcForm"><div class="arcFormGrid">${supplierFields.map(field=>ui.field({...field,value:supplier?.[field.key]||''})).join('')}</div>${ui.toolbar(ui.button({id:'supSave',type:'submit',variant:'primary',label:t('＋ Guardar proveedor')})+ui.button({id:'supClear',label:t('Cancelar')}))}<p id="supMsg" role="alert" class="arcFormError"></p></form></div>`;
+  $('supClear').onclick=()=>onDone(false);
+  const formApi=ui.bindForm($('supForm'),async()=>{
     const value=Object.fromEntries(supplierFields.map(f=>[f.key,$(f.id).value.trim()]));
     if(!value.name)throw Error(t('El nombre del proveedor es obligatorio.'));
-    const payload=supplierToRow({...editing,...value,active:editing?.active!==false});
+    const payload=supplierToRow({...supplier,...value,active:supplier?.active!==false});
     // Country fields are not on this form; leave their database defaults intact.
-    if(!editing)for(const key of ['country','province','postal_code'])delete payload[key];
-    await call(editing?window.GamaCloud.update('suppliers',editing.id,payload):window.GamaCloud.insert('suppliers',payload));reset();await refresh();
+    if(!supplier)for(const key of ['country','province','postal_code'])delete payload[key];
+    await call(supplier?window.GamaCloud.update('suppliers',supplier.id,payload):window.GamaCloud.insert('suppliers',payload));
+    data.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}));onDone(true);
   });
-  const view={dispose(){grid.dispose();formApi.dispose();}};views.set('suppliers',view);ui.mount(host);return()=>view.dispose();
+  const view={dispose(){formApi.dispose();}};views.set('supplierForm',view);ui.mount(host);return()=>view.dispose();
 }
 const directoryColumns={
  products:[
@@ -48,14 +30,13 @@ const directoryColumns={
   {label:'IVA',value:p=>format.number(p.taxRate)+' %'},{key:'location',label:'Ubicación'},
   {label:'Proveedor',value:p=>(window.ArcEntities.suppliersCache||[]).find(s=>s.id===p.supplierId)?.name||'—'},
   {label:'Acciones',actions:true,html:p=>ui.button({label:t('Unidades e historial'),attrs:'data-product-controls="'+esc(p.id)+'"'})+' '+(p.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(p.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(p.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(p.id)+'"'}))}
- ],
- customers:[{key:'name',label:'Cliente',sort:'name'},{key:'taxId',label:'Identificación',sort:'identification'},{key:'category',label:'Categoría'},{key:'address',label:'Dirección'},{key:'city',label:'Ciudad'},{key:'phone',label:'Teléfono'},{key:'email',label:'Email'},
-  {label:'Acciones',actions:true,html:c=>ui.button({label:t('Historial'),attrs:'data-partner="'+esc(c.id)+'"'})+' '+(c.active?ui.button({label:t('✏️ Editar'),attrs:'data-edit="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗄️ Archivar'),variant:'danger',attrs:'data-archive="'+esc(c.id)+'"'}):ui.button({label:t('♻️ Restaurar'),attrs:'data-restore="'+esc(c.id)+'"'})+' '+ui.button({label:t('🗑️ Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(c.id)+'"'}))}]
+ ]
 };
+/** Product directory. Customers and suppliers are listed together in Contactos (gama-contacts.js). */
 export function directory(entity,filter='') {
-  const moduleId=entity==='customers'?'clients':entity;
-  if(!window.gamaAccessAllowed?.(moduleId)){views.get(entity)?.dispose();views.delete(entity);return;}
-  const key=entity==='customers'?'clients':entity,host=$(key==='clients'?'clientsTable':'productsTable');if(!host)return;
+  if(entity!=='products')return;
+  if(!window.gamaAccessAllowed?.('products')){views.get(entity)?.dispose();views.delete(entity);return;}
+  const key='products',host=$('productsTable');if(!host)return;
   const prior=views.get(entity);
   if(prior?.host===host&&host.firstElementChild){prior.refresh(filter);return;}
   prior?.dispose();host.innerHTML='<div data-arc-archive></div><div data-arc-directory></div>';
@@ -66,7 +47,7 @@ export function directory(entity,filter='') {
     const other=await window.GamaCloud.list(entity,{select:'id',count:'exact',head:true,eq:{active:archived}});if(other.error)throw other.error;
     host.querySelector('[data-arc-archive]').innerHTML=window.GamaArchive.tabs(key,archived?other.count:result.total,archived?result.total:other.count);
     return result;
-  },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-partner':id=>window.ArchitectPartners.open('customer',id),'data-edit':id=>{const row=rows.get(id);if(row)entity==='products'?window.editProduct(row.barcode,row.id):window.editClient(row.taxId);},'data-archive':id=>{const row=rows.get(id);if(row)entity==='products'?window.deleteProduct(row.barcode):window.deleteClient(row.taxId);},'data-restore':id=>entity==='products'?window.restoreProduct(id):window.restoreClient(id),'data-delete':id=>entity==='products'?window.purgeProduct(id):window.purgeClient(id)}});
+  },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-edit':id=>{const row=rows.get(id);if(row)window.editProduct(row.barcode,row.id);},'data-archive':id=>{const row=rows.get(id);if(row)window.deleteProduct(row.barcode);},'data-restore':id=>window.restoreProduct(id),'data-delete':id=>window.purgeProduct(id)}});
   const onChange=e=>{if(e.detail?.table===entity)grid.refresh();};window.addEventListener('gama:data-change',onChange);
   const view={host,refresh(search){const archived=window.GamaArchive.mode(key)==='archived';const changed=search!==lastFilter||archived!==lastArchived;lastFilter=search;grid.refresh(changed?{page:0,search}:{});},dispose(){grid.dispose();window.removeEventListener('gama:data-change',onChange);}};
   window.GamaArchive.register(key,()=>grid.refresh({page:0}));views.set(entity,view);

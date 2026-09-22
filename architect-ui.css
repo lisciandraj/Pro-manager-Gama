@@ -376,7 +376,6 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .gamaTableViews button{min-height:44px;padding:8px 14px}
 .gamaTableViews button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
 @media screen{
- body #contactsSuppliers .gamaPMGrid:has(table[data-gama-view=cards]){grid-template-columns:minmax(0,1fr)}
  body table.gamaCards[data-gama-view=cards]{display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;white-space:normal!important;border:0!important}
  body table.gamaCards[data-gama-view=cards]>thead,body table.gamaCards[data-gama-view=cards] [data-gama-head]{display:none!important}
  body table.gamaCards[data-gama-view=cards]>tbody{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;padding:4px;align-items:start}

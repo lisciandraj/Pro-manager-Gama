@@ -42,9 +42,10 @@ const PAPELES={decisor:'Decisor',prescriptor:'Prescriptor',usuario:'Usuario',com
 
 let contactos=[],clientes=[],prospectos=[];
 let vista='lista',abierto=null,busca='',filtro='',cargando=false;
-/* La misma pantalla vive también en Contactos → Contactos de prospectos. Ahí
-   se pinta en `destino`, sin la cabecera ni la navegación del CRM. */
-let destino=null,listo=null;
+/* Contactos (el módulo) enseña a los contactos de prospectos en su tabla única
+   y abre aquí sólo la ficha, pintada en `destino`, sin la cabecera ni la
+   navegación del CRM. Al guardar o cancelar se avisa con `terminar`. */
+let destino=null,terminar=null;
 const raiz=()=>destino||CRM.section();
 
 let mi;
@@ -272,6 +273,7 @@ async function guardar(){
   if(abierto&&abierto.id)r=await C().update('crm_contacts',abierto.id,d);
   else{d.created_by=await quienSoy();d.active=true;r=await C().insert('crm_contacts',d)}
   if(r.error)throw r.error;
+  if(terminar){acabar(true);return}
   await cargar();
   vista='lista';abierto=null;
   pintar('Contacto guardado.','ok');
@@ -335,13 +337,13 @@ function conectar(){
  s.querySelectorAll('[data-archivar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.archivar,false)});
  s.querySelectorAll('[data-restaurar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.restaurar,true)});
  const g=$('crmKGuardar');if(g)g.onclick=guardar;
- const c=$('crmKCancelar');if(c)c.onclick=()=>{vista='lista';abierto=null;pintar()};
+ const c=$('crmKCancelar');if(c)c.onclick=()=>{if(terminar){acabar(false);return}vista='lista';abierto=null;pintar()};
 }
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
- if(destino){destino.replaceChildren();destino=null;filtro=''}
+ if(destino){destino.replaceChildren();destino=null;terminar=null}
  const s=CRM.section();
  if(cargando)return;cargando=true;
  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>');
@@ -362,20 +364,26 @@ if(window.GamaPage)window.GamaPage.register('crmContactos',()=>pintar());
 if(window.GamaSort)window.GamaSort.register('crmContactos',()=>pintar());
 if(window.GamaArchive)window.GamaArchive.register('crmContactos',()=>pintar());
 CRM.registrar('contactos','Contactos',abrirPantalla);
-/* Contactos → Contactos de prospectos. Una sola pantalla del CRM a la vez en
-   el documento: los ids (crmMsg, el formulario) son únicos, así que al montar
-   se vacía la del CRM y al salir, la propia. El CRM se repinta al abrirlo. */
-function montar(host,o={}){
+/* La ficha de un contacto de prospecto, abierta desde Contactos. Una sola
+   pantalla del CRM a la vez en el documento: los ids (crmMsg, el formulario)
+   son únicos, así que se vacía la del CRM, que se repinta al abrirlo. */
+async function editar(host,o={}){
  CRM.css();css();
  const crm=document.getElementById('crm');if(crm&&crm.querySelector('#crmMsg'))crm.replaceChildren();
- destino=host;filtro=o.filter||'';vista='lista';abierto=null;busca='';
+ destino=host;terminar=o.onDone||(()=>{});vista='ficha';abierto=null;
  window.ArcUI.render(host,'<div class="arcPanel card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>');
- listo=(async()=>{try{await cargar();if(destino===host)pintar()}
-  catch(e){if(destino!==host)return;window.ArcUI.render(host,'<div id="crmMsg" class="crmMsg"></div>');fallo(e,'No se pudieron cargar los contactos')}})();
- return listo;
+ try{
+  await cargar();if(destino!==host)return;
+  if(o.id){
+   const r=await C().list('crm_contacts',{select:FORM,eq:{id:o.id},limit:1});if(r.error)throw r.error;
+   if(destino!==host)return;
+   abierto=(r.data||[])[0]||null;
+   if(!abierto){acabar(false);return}
+  }else abierto=nuevo('prospecto');
+  pintar();
+ }catch(e){if(destino!==host)return;window.ArcUI.render(host,'<div id="crmMsg" class="crmMsg"></div>');fallo(e,'No se pudo abrir el contacto')}
 }
-function desmontar(host){if(destino===host){destino=null;filtro='';listo=null;host.replaceChildren()}}
-// «Nuevo contacto» elegido desde Contactos: el formulario, ya con el tipo.
-async function crear(tipo){await listo;if(!destino)return;abierto=nuevo(tipo);vista='ficha';pintar()}
-window.GamaCRMContacts={open:abrirPantalla,mount:montar,unmount:desmontar,create:crear};
+function cerrar(host){if(destino===host){destino=null;terminar=null;vista='lista';abierto=null;host.replaceChildren()}}
+function acabar(guardado){const f=terminar,host=destino;if(host)cerrar(host);f?.(guardado)}
+window.GamaCRMContacts={open:abrirPantalla,edit:editar,close:cerrar};
 })();

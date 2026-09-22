@@ -11,27 +11,26 @@ async function boot(page){
  await page.goto('/index.html');
  await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
 }
-test('supplier directory searches the server beyond the first batch and preserves unedited fields',async({page})=>{
+test('the contacts table pages and searches every supplier, and editing preserves unedited fields',async({page})=>{
  await boot(page);await page.evaluate(()=>window.ArcRouter.open('suppliers'));
- await expect(page.locator('#supDataTable tbody tr')).toHaveCount(20);
- await expect(page.locator('#supDataTable .arcPager')).toContainText('235');
- await page.fill('#supSearch','Supplier 234');
- await expect(page.locator('#supDataTable tbody tr')).toHaveCount(1);
- await expect(page.locator('#supDataTable')).toContainText('TAX-234');
- const request=await page.evaluate(()=>window.__DB.__calls.filter(c=>c.table==='suppliers'&&c.options.search).at(-1).options);
- expect(request.range).toEqual([0,19]);expect(request.search.value).toBe('Supplier 234');expect(request.count).toBe('exact');
- await page.locator('#supDataTable [data-edit]').click();await page.fill('#supName','Supplier 234 updated');await page.locator('#supSave').click();
+ await expect(page.locator('#ctTable tbody tr')).toHaveCount(20);
+ await expect(page.locator('#ctTable .arcPager')).toContainText('235');
+ await page.fill('#ctSearch','Supplier 234');
+ await expect(page.locator('#ctTable tbody tr')).toHaveCount(1);
+ await expect(page.locator('#ctTable')).toContainText('TAX-234');
+ await page.locator('#ctTable [data-ct-edit]').click();await page.fill('#supName','Supplier 234 updated');await page.locator('#supSave').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').name)).toBe('Supplier 234 updated');
  expect(await page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').country)).toBe('Ecuador');
  page.on('dialog',dialog=>dialog.accept());
- await page.locator('#supDataTable [data-del]').click();
+ await page.locator('#ctTable [data-ct-archive]').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').active)).toBe(false);
- await page.evaluate(()=>window.GamaArchive.go('suppliersDir','archived'));
- await expect(page.locator('#supDataTable [data-restore]')).toBeVisible();await page.locator('#supDataTable [data-restore]').click();
+ await page.evaluate(()=>window.GamaArchive.go('contacts','archived'));
+ await expect(page.locator('#ctTable [data-ct-restore]')).toBeVisible();await page.locator('#ctTable [data-ct-restore]').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').active)).toBe(true);
 });
 test('shared form blocks duplicate requests, reports failures and allows a retry',async({page})=>{
  await boot(page);await page.evaluate(()=>window.ArcRouter.open('suppliers'));
+ await page.locator('#ctNew').click();await page.locator('dialog [data-contact-kind="suppliers"]').click();
  await page.fill('#supName','New supplier');
  await page.evaluate(()=>{
   const original=window.GamaCloud.insert;window.__submissions=0;

@@ -35,12 +35,12 @@ test('portrait and landscape support both modes without overflow and preserve su
  const rows=page.locator('#viewShared tbody tr');expect((await rows.nth(0).boundingBox()).y).toBe((await rows.nth(1).boundingBox()).y);
  await page.locator('#viewShared').getByRole('button',{name:'Tableau',exact:true}).click();
  expect(await page.locator('#viewShared td').first().evaluate(c=>getComputedStyle(c).display)).toBe('table-cell');
- await page.evaluate(()=>ArcRouter.open('suppliers'));await expect(page.locator('#supDataTable tbody tr')).toHaveCount(20);
- await page.locator('#supDataTable [data-table-view=cards]').click();
- const supplierRows=page.locator('#supDataTable tbody tr');expect((await supplierRows.nth(0).boundingBox()).y).toBe((await supplierRows.nth(1).boundingBox()).y);
- await page.locator('#supDataTable .arcPager button').last().click();await expect(page.locator('#supDataTable tbody tr')).toHaveCount(5);
- await expect(page.locator('#supDataTable .gamaTableViews')).toHaveCount(1);await expect(page.locator('#supDataTable table')).toHaveAttribute('data-gama-view','cards');
- await page.locator('#supDataTable [data-edit]').first().click();await expect(page.locator('#supName')).not.toHaveValue('');
+ await page.evaluate(()=>ArcRouter.open('suppliers'));await expect(page.locator('#ctTable tbody tr')).toHaveCount(20);
+ await page.locator('#ctTable [data-table-view=cards]').click();
+ const supplierRows=page.locator('#ctTable tbody tr');expect((await supplierRows.nth(0).boundingBox()).y).toBe((await supplierRows.nth(1).boundingBox()).y);
+ await page.locator('#ctTable .arcPager button').last().click();await expect(page.locator('#ctTable tbody tr')).toHaveCount(5);
+ await expect(page.locator('#ctTable .gamaTableViews')).toHaveCount(1);await expect(page.locator('#ctTable table')).toHaveAttribute('data-gama-view','cards');
+ await page.locator('#ctTable [data-ct-edit]').first().click();await expect(page.locator('#supName')).not.toHaveValue('');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:'test-results/table-views-landscape.png',fullPage:true});
 });

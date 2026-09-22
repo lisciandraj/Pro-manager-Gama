@@ -1045,3 +1045,15 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .idMail summary{cursor:pointer;font-weight:650;margin:10px 0 6px}
 .idPreview{border:1px solid var(--arc-line);border-radius:10px;padding:12px 14px;background:var(--arc-surface-2);margin-top:6px}
 .idPreview p{white-space:pre-line;margin:6px 0 0;color:var(--arc-text)}
+/* Estanterías simuladas (Almacenes → Ubicaciones): la fila 01 abajo, una celda por espacio AAXX-XX. */
+.ivShelfHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px 12px}
+.ivShelfTitle{margin:16px 0 8px;font-size:14px;color:var(--arc-text-muted);text-transform:uppercase;letter-spacing:.04em}
+.ivShelf{border:1px solid var(--arc-line);border-radius:12px;padding:12px 14px;margin:0 0 10px;background:var(--arc-surface)}
+.ivShelfCode{display:inline-block;min-width:2.4em;padding:2px 8px;border-radius:8px;background:var(--arc-accent-100);color:var(--arc-accent-600);font-variant-numeric:tabular-nums;text-align:center}
+.ivShelfActions{display:flex;flex-wrap:wrap;gap:6px}
+.ivEstanteria{display:grid;grid-template-columns:repeat(var(--iv-cols),minmax(64px,1fr));gap:4px;margin-top:12px;overflow-x:auto;padding:6px;border:3px solid var(--arc-line-strong);border-top-width:6px;border-radius:6px;background:var(--arc-surface-2)}
+.ivCelda{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;padding:4px;border:1px solid var(--arc-line);border-radius:4px;background:var(--arc-surface);font-size:11px;font-variant-numeric:tabular-nums;text-align:center}
+.ivCelda b{font-weight:650}
+.ivCelda.lleno{background:var(--arc-accent-100);border-color:var(--arc-accent-600)}
+.ivCelda small{color:var(--arc-text-muted)}
+.ivLeyenda{font-size:12px;margin:6px 0 0}

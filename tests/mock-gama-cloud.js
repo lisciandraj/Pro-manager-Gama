@@ -559,6 +559,29 @@
           Object.assign(row,{subject:args.p_subject.trim(),message:args.p_message.trim(),version:row.version+1});
           return {data:{...row}};
         }
+        // Estanterías: la misma regla que el servidor, en memoria.
+        if(fn==='gama_shelf_action'){
+          const d=args.p_data||{},db=window.__DB;db.warehouse_shelves=db.warehouse_shelves||[];db.warehouse_locations=db.warehouse_locations||[];
+          const two=n=>String(n).padStart(2,'0'),used=l=>(db.stock_quants||[]).some(q=>q.location_id===l.id&&Number(q.quantity)>0);
+          if(args.p_action==='save'){
+            const cc=Number(d.column_count),rc=Number(d.row_count);if(!(cc>=1&&cc<=99&&rc>=1&&rc<=99))return {error:{message:'SHELF_SIZE_INVALID'}};
+            let sh=d.id?db.warehouse_shelves.find(x=>x.id===d.id):null;
+            if(!sh){const code=String(d.code||'').toUpperCase();if(!/^[A-Z]{2}$/.test(code))return {error:{message:'SHELF_CODE_INVALID'}};if(db.warehouse_shelves.some(x=>x.warehouse_id===d.warehouse_id&&x.code===code))return {error:{message:'SHELF_CODE_TAKEN'}};sh={id:'shelf-'+code,warehouse_id:d.warehouse_id,code,version:1};db.warehouse_shelves.push(sh)}
+            else if(sh.version!==d.version)return {error:{message:'SHELF_STALE'}};else sh.version++;
+            const extra=db.warehouse_locations.filter(l=>l.shelf_id===sh.id&&!(Number(l.code.slice(2,4))<=cc&&Number(l.code.slice(5,7))<=rc));
+            const busy=extra.filter(used).map(l=>l.code);if(busy.length)return {error:{message:'SHELF_SPACE_IN_USE:'+busy.join(', ')}};
+            db.warehouse_locations=db.warehouse_locations.filter(l=>!extra.includes(l));
+            Object.assign(sh,{name:d.name||'',column_count:cc,row_count:rc,parent_id:d.parent_id||null});let created=0;
+            for(let c=1;c<=cc;c++)for(let r=1;r<=rc;r++){const code=sh.code+two(c)+'-'+two(r);if(!db.warehouse_locations.some(l=>l.warehouse_id===sh.warehouse_id&&l.code===code)){db.warehouse_locations.push({id:'loc-'+code,warehouse_id:sh.warehouse_id,parent_id:null,code,name:(sh.name||'Estantería '+sh.code)+' · columna '+two(c)+' · fila '+two(r),type:'bin',active:true,shelf_id:sh.id});created++}}
+            return {data:{...sh,spaces:cc*rc,created,removed:{deleted:extra.length,archived:0}}};
+          }
+          if(args.p_action==='delete'){
+            const sh=db.warehouse_shelves.find(x=>x.id===d.id);if(!sh)return {error:{message:'SHELF_NOT_FOUND'}};
+            const mine=db.warehouse_locations.filter(l=>l.shelf_id===sh.id),busy=mine.filter(used).map(l=>l.code);if(busy.length)return {error:{message:'SHELF_NOT_EMPTY:'+busy.join(', ')}};
+            db.warehouse_locations=db.warehouse_locations.filter(l=>l.shelf_id!==sh.id);db.warehouse_shelves=db.warehouse_shelves.filter(x=>x!==sh);
+            return {data:{id:sh.id,code:sh.code,removed:{deleted:mine.length,archived:0}}};
+          }
+        }
         if(fn==='gama_resolve_price'){
           const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
           return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};

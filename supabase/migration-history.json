@@ -1124,6 +1124,12 @@
       "name": "invitation_template",
       "file": "20260922191148_invitation_template.sql",
       "sha256": "b22e5fe990b555096ad44b072a1ad1e9e2fb596ce2aedbe0cf738a535b57bd7d"
+    },
+    {
+      "version": "20260922204512",
+      "name": "warehouse_shelves",
+      "file": "20260922204512_warehouse_shelves.sql",
+      "sha256": "cc8606299c44ee1f13cf1b18c82a82c7b008b79bef506f331cd8c4bd641859e9"
     }
   ]
 }

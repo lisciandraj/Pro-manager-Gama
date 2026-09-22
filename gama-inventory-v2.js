@@ -32,7 +32,8 @@ const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'U
 const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:2});
 
 let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
-let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null;
+let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null,estanterias=[],estanteriaVista=null;
+const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 let serverSnapshot=null,snapshotRequest=0;
 async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
 let pestana='existencias',disponibleV2=null,cargando=false;
@@ -59,11 +60,13 @@ async function cargar(){
   disponibleV2=true;
   almacenes=w.data||[];ubicaciones=l.data||[];quants=q.data||[];
   productos=(p.data||[]).filter(x=>x.active!==false);
-  const [rr,sp,cc]=await Promise.all([
+  const [rr,sp,cc,sh]=await Promise.all([
    window.ArcData.all('reorder_rules',{}),
    window.ArcData.all('suppliers',{select:'id,name'}),
-   C().list('inventory_counts',{order:'created_at',ascending:false,limit:20})
+   C().list('inventory_counts',{order:'created_at',ascending:false,limit:20}),
+   C().list('warehouse_shelves',{order:'code',ascending:true})
   ]);
+  estanterias=sh.error?[]:(sh.data||[]);
   /* Las tablas de las fases 5 y 6 pueden no estar aplicadas todavía: si
      faltan, esas dos pestañas se quedan vacías y el resto sigue igual. */
   reglas=rr.error?[]:(rr.data||[]);
@@ -538,23 +541,89 @@ async function validarConteo(){
 
 /* ---------- ubicaciones ---------- */
 
+/* Estanterías simuladas. Cada una tiene dos letras, columnas y filas; el
+   servidor (gama_shelf_action) genera una ubicación por celda con la
+   referencia AAXX-XX —estantería, columna, fila— y esas ubicaciones son las
+   que ofrecen después todos los desplegables. Aquí se configuran, se ven como
+   una estantería de verdad (la fila 01 abajo) y se borran si están vacías. */
+const puedeEditar=()=>{try{return ['admin','administrador','magasinier','almacenero'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)}catch(_){return false}};
+const dosCifras=n=>String(n).padStart(2,'0');
+const espacio=(sh,c,r)=>sh.code+dosCifras(c)+'-'+dosCifras(r);
+const espaciosDe=sh=>ubicaciones.filter(u=>u.shelf_id===sh.id&&u.active!==false);
+const unidadesEn=id=>quants.filter(q=>q.location_id===id).reduce((s,q)=>s+Number(q.quantity||0),0);
+const ERRORES_ESTANTERIA={SHELF_CODE_INVALID:'El código de la estantería son dos letras, de la A a la Z.',SHELF_CODE_TAKEN:'Ya hay una estantería con ese código en este almacén.',SHELF_SIZE_INVALID:'Columnas y filas van de 1 a 99.',SHELF_STALE:'Otra persona ha cambiado la estantería. Vuelve a abrirla.',SHELF_SPACE_IN_USE:'Estos espacios tienen existencias, reservas o una compra abierta y no se pueden quitar:',SHELF_NOT_EMPTY:'La estantería no está vacía. Vacía antes estos espacios:',SHELF_SPACE_TAKEN:'Otra ubicación ya usa esta referencia:',SHELF_PARENT_INVALID:'La zona elegida no es de este almacén.',ROLE_NOT_ALLOWED:'Tu perfil no puede configurar estanterías.'};
+function errorEstanteria(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_ESTANTERIA).find(x=>m.includes(x));if(!k)return window.ArcErrors?.message(e)||m;const detalle=m.split(k+':')[1];return T(ERRORES_ESTANTERIA[k])+(detalle?' '+detalle.trim():'')}
+async function accionEstanteria(a,d){const r=await window.ArcData.rawRpc('gama_shelf_action',{p_action:a,p_data:d});if(r.error)throw r.error;return r.data}
+async function recargarEstanterias(){window.ArcData.invalidate?.('warehouse_locations');await cargar();pintar();window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'warehouse_locations'}}))}
+
+function rejilla(sh){
+ const celdas=[];
+ for(let r=sh.row_count;r>=1;r--)for(let c=1;c<=sh.column_count;c++){
+  const code=espacio(sh,c,r),u=ubicaciones.find(x=>x.shelf_id===sh.id&&x.code===code),n=u?unidadesEn(u.id):0;
+  const quien=u?quants.filter(q=>q.location_id===u.id&&Number(q.quantity)>0).map(q=>(productos.find(p=>p.id===q.product_id)||{}).name).filter(Boolean):[];
+  celdas.push(`<div class="ivCelda${n>0?' lleno':''}" data-space="${esc(code)}" title="${esc(code+(quien.length?' · '+quien.join(', '):''))}"><b>${esc(code)}</b>${n>0?`<small>${num(n)} ${esc(T('uds.'))}</small>`:''}</div>`);
+ }
+ return `<div class="ivEstanteria" style="--iv-cols:${sh.column_count}" role="img" aria-label="${esc(T('Estantería')+' '+sh.code)}">${celdas.join('')}</div><p class="muted ivLeyenda">${tr('Fila 01 abajo, columna 01 a la izquierda. En color, los espacios con existencias.')}</p>`;
+}
+function tarjetaEstanteria(sh,a){
+ const sus=espaciosDe(sh),uds=sus.reduce((s,u)=>s+unidadesEn(u.id),0),abierta=estanteriaVista===sh.id;
+ return `<div class="ivShelf" data-shelf="${esc(sh.id)}"><div class="ivShelfHead"><div><b class="ivShelfCode">${esc(sh.code)}</b> ${esc(sh.name||'')}<div class="muted">${esc(espacio(sh,1,1))} → ${esc(espacio(sh,sh.column_count,sh.row_count))} · ${sh.column_count} × ${sh.row_count} = ${sus.length} ${esc(T('espacios'))}${uds?' · '+num(uds)+' '+esc(T('uds.')):''}</div></div>
+<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-shelf-view="${esc(sh.id)}" aria-expanded="${abierta}">${tr(abierta?'Ocultar':'Ver estantería')}</button>${puedeEditar()?`<button type="button" class="arcButton secondary" data-shelf-edit="${esc(sh.id)}">${tr('Configurar')}</button><button type="button" class="arcButton secondary" data-shelf-delete="${esc(sh.id)}">${tr('Eliminar')}</button>`:''}</div></div>${abierta?rejilla(sh):''}</div>`;
+}
 function pintarUbicaciones(host){
  if(!almacenes.length){window.ArcUI.render(host,'<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>');return}
  window.ArcUI.render(host,almacenes.map(a=>{
-  const suyas=ubicaciones.filter(u=>u.warehouse_id===a.id);
+  // Los espacios de las estanterías se ven en su estantería, no en el árbol.
+  const suyas=ubicaciones.filter(u=>u.warehouse_id===a.id&&!u.shelf_id);
   const hijas=pid=>suyas.filter(u=>(u.parent_id||null)===pid);
   const rama=pid=>{
    const l=hijas(pid);
    if(!l.length)return '';
    return '<ul>'+l.map(u=>{
-    const dentro=quants.filter(q=>q.location_id===u.id).reduce((s,q)=>s+Number(q.quantity||0),0);
+    const dentro=unidadesEn(u.id);
     return `<li><code>${esc(u.code)}</code> ${esc(u.name)} <span class="ivSub">· ${esc(u.type)}${dentro?` · ${num(dentro)} unidades`:''}</span>${rama(u.id)}</li>`;
    }).join('')+'</ul>';
   };
-  return `<div class="ivCard"><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
-<p class="muted" style="margin:0 0 10px">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p>
-<ul class="ivArbol">${rama(null)||'<li class="muted" data-gi=14a1bc526eda>Sin ubicaciones.</li>'}</ul></div>`;
+  const sus=estanterias.filter(sh=>sh.warehouse_id===a.id);
+  return `<div class="ivCard" data-warehouse="${esc(a.id)}"><div class="ivShelfHead"><div><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
+<p class="muted" style="margin:0">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p></div>${puedeEditar()?`<button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('＋ Nueva estantería')}</button>`:''}</div>
+<h4 class="ivShelfTitle">${tr('Estanterías')}</h4>${sus.map(sh=>tarjetaEstanteria(sh,a)).join('')||`<p class="muted">${tr('Sin estanterías. Crea una para generar sus espacios AAXX-XX.')}</p>`}
+<h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4><ul class="ivArbol">${rama(null)||'<li class="muted" data-gi=14a1bc526eda>Sin ubicaciones.</li>'}</ul></div>`;
  }).join(''));
+ host.querySelectorAll('[data-shelf-new]').forEach(b=>b.onclick=()=>dialogoEstanteria(b.dataset.shelfNew,null));
+ host.querySelectorAll('[data-shelf-edit]').forEach(b=>b.onclick=()=>{const sh=estanterias.find(x=>x.id===b.dataset.shelfEdit);if(sh)dialogoEstanteria(sh.warehouse_id,sh)});
+ host.querySelectorAll('[data-shelf-view]').forEach(b=>b.onclick=()=>{estanteriaVista=estanteriaVista===b.dataset.shelfView?null:b.dataset.shelfView;pintarUbicaciones(host)});
+ host.querySelectorAll('[data-shelf-delete]').forEach(b=>b.onclick=()=>borrarEstanteria(estanterias.find(x=>x.id===b.dataset.shelfDelete)));
+}
+function dialogoEstanteria(almacenId,sh){
+ const a=almacenes.find(x=>x.id===almacenId);if(!a)return;
+ const zonas=ubicaciones.filter(u=>u.warehouse_id===almacenId&&!u.shelf_id&&u.active!==false&&u.type!=='bin');
+ const F=window.ArcUI.field;
+ const d=window.ArcUI.dialog({title:T(sh?'Configurar la estantería':'Nueva estantería')+(sh?' '+sh.code:''),saveLabel:T('Guardar'),
+  body:`<p class="muted">${esc(a.name)} · ${tr('Cada celda es un espacio de almacenamiento AAXX-XX: estantería, columna, fila.')}</p>`
+   +F({key:'code',label:T('Código de la estantería (2 letras)'),value:sh?.code||'',required:true,maxLength:2,disabled:!!sh,attrs:'autocapitalize="characters" pattern="[A-Za-z]{2}" autocomplete="off"'})
+   +F({key:'name',label:T('Nombre (opcional)'),value:sh?.name||'',maxLength:120})
+   +F({key:'column_count',label:T('Columnas'),type:'number',value:sh?.column_count||4,required:true,min:1,max:99,step:1})
+   +F({key:'row_count',label:T('Filas'),type:'number',value:sh?.row_count||5,required:true,min:1,max:99,step:1})
+   +F({key:'parent_id',label:T('Zona (opcional)'),type:'select',value:sh?.parent_id||'',options:zonas.map(z=>({id:z.id,name:z.code+' · '+z.name}))})
+   +`<p class="gsHint" data-shelf-preview aria-live="polite"></p>`,
+  onSave:async el=>{
+   const f=new FormData(el.querySelector('form')),datos={name:f.get('name')||'',column_count:Number(f.get('column_count')),row_count:Number(f.get('row_count')),parent_id:f.get('parent_id')||''};
+   try{await accionEstanteria('save',sh?{...datos,id:sh.id,version:sh.version}:{...datos,warehouse_id:almacenId,code:String(f.get('code')||'').toUpperCase()})}
+   catch(e){throw Error(errorEstanteria(e))}
+   await recargarEstanterias();
+   window.gamaToast?.(T('Estantería guardada.'));
+  }});
+ const vista=()=>{const f=new FormData(d.querySelector('form')),code=String(sh?.code||f.get('code')||'').toUpperCase().replace(/[^A-Z]/g,'').slice(0,2),c=Math.min(99,Math.max(1,Number(f.get('column_count'))||1)),r=Math.min(99,Math.max(1,Number(f.get('row_count'))||1));
+  d.querySelector('[data-shelf-preview]').textContent=code.length===2?`${T('Espacios')}: ${code}01-01 → ${code}${dosCifras(c)}-${dosCifras(r)} (${c*r})`:T('El código son dos letras, por ejemplo AB.')};
+ const codigo=d.querySelector('[name=code]');codigo?.addEventListener('input',()=>{codigo.value=codigo.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,2)});
+ d.querySelector('form').addEventListener('input',vista);vista();
+}
+async function borrarEstanteria(sh){
+ if(!sh||!confirm(T('¿Eliminar la estantería')+' '+sh.code+'? '+T('Se quitan sus espacios; los que tienen historial se archivan.')))return;
+ try{const r=await accionEstanteria('delete',{id:sh.id});if(estanteriaVista===sh.id)estanteriaVista=null;await recargarEstanterias();
+  window.gamaToast?.(`${T('Estantería eliminada')} ${sh.code} · ${r.removed.deleted+r.removed.archived} ${T('espacios quitados')}`)}
+ catch(e){const m=errorEstanteria(e);if(window.gamaToast)window.gamaToast(m);else alert(m)}
 }
 
 /* ---------- entrada ---------- */
@@ -577,5 +646,5 @@ window.GamaInventoryV2={openCount:async id=>{
  if(!window.gamaAccessAllowed?.('warehouses'))throw Error('Acceso no permitido.');
  await abrir();const r=await C().list('inventory_counts',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Recuento no disponible.');
  conteos=(conteos||[]).filter(c=>c.id!==id).concat(r.data);pestana='conteos';await abrirConteo(id);
-},abrir,cargar,resumen,estado,sugerencia,limites,get datos(){return{almacenes,ubicaciones,quants,productos,entrante}}};
+},abrir,cargar,resumen,estado,sugerencia,limites,get datos(){return{almacenes,ubicaciones,quants,productos,entrante,estanterias}}};
 })();

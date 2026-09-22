@@ -2776,3 +2776,38 @@ Permisos de acción modificados	Droits d’action modifiés	Action permissions c
 Solicitudes, presupuestos, pedidos y facturas	Demandes, devis, commandes et factures	Requests, quotes, orders and invoices
 Solicitudes, presupuestos, pedidos y facturas.	Demandes, devis, commandes et factures.	Requests, quotes, orders and invoices.
 Todos los pedidos	Toutes les commandes	All orders
+Estantería	Étagère	Shelf
+Estanterías	Étagères	Shelves
+＋ Nueva estantería	＋ Nouvelle étagère	＋ New shelf
+Nueva estantería	Nouvelle étagère	New shelf
+Configurar la estantería	Configurer l’étagère	Configure shelf
+Configurar	Configurer	Configure
+Ver estantería	Voir l’étagère	View shelf
+Ocultar	Masquer	Hide
+Otras ubicaciones	Autres emplacements	Other locations
+Sin estanterías. Crea una para generar sus espacios AAXX-XX.	Aucune étagère. Créez-en une pour générer ses espaces AAXX-XX.	No shelves yet. Create one to generate its AAXX-XX spaces.
+Cada celda es un espacio de almacenamiento AAXX-XX: estantería, columna, fila.	Chaque case est un espace de stockage AAXX-XX : étagère, colonne, ligne.	Each cell is an AAXX-XX storage space: shelf, column, row.
+Código de la estantería (2 letras)	Code de l’étagère (2 lettres)	Shelf code (2 letters)
+Nombre (opcional)	Nom (facultatif)	Name (optional)
+Columnas	Colonnes	Columns
+Filas	Lignes	Rows
+Zona (opcional)	Zone (facultative)	Zone (optional)
+Espacios	Espaces	Spaces
+espacios	espaces	spaces
+uds.	u.	units
+El código son dos letras, por ejemplo AB.	Le code comporte deux lettres, par exemple AB.	The code is two letters, for example AB.
+Estantería guardada.	Étagère enregistrée.	Shelf saved.
+Estantería eliminada	Étagère supprimée	Shelf deleted
+espacios quitados	espaces retirés	spaces removed
+¿Eliminar la estantería	Supprimer l’étagère	Delete shelf
+Se quitan sus espacios; los que tienen historial se archivan.	Ses espaces sont retirés ; ceux qui ont un historique sont archivés.	Its spaces are removed; those with history are archived.
+Fila 01 abajo, columna 01 a la izquierda. En color, los espacios con existencias.	Ligne 01 en bas, colonne 01 à gauche. En couleur, les espaces qui contiennent du stock.	Row 01 at the bottom, column 01 on the left. Coloured spaces hold stock.
+El código de la estantería son dos letras, de la A a la Z.	Le code de l’étagère comporte deux lettres, de A à Z.	The shelf code is two letters, A to Z.
+Ya hay una estantería con ese código en este almacén.	Une étagère porte déjà ce code dans cet entrepôt.	This warehouse already has a shelf with that code.
+Columnas y filas van de 1 a 99.	Colonnes et lignes vont de 1 à 99.	Columns and rows go from 1 to 99.
+Otra persona ha cambiado la estantería. Vuelve a abrirla.	Quelqu’un d’autre a modifié l’étagère. Rouvrez-la.	Someone else changed the shelf. Open it again.
+Estos espacios tienen existencias, reservas o una compra abierta y no se pueden quitar:	Ces espaces contiennent du stock, des réservations ou un achat en cours et ne peuvent pas être retirés :	These spaces hold stock, reservations or an open purchase and cannot be removed:
+La estantería no está vacía. Vacía antes estos espacios:	L’étagère n’est pas vide. Videz d’abord ces espaces :	The shelf is not empty. Empty these spaces first:
+Otra ubicación ya usa esta referencia:	Un autre emplacement utilise déjà cette référence :	Another location already uses this reference:
+La zona elegida no es de este almacén.	La zone choisie n’appartient pas à cet entrepôt.	The selected zone is not in this warehouse.
+Tu perfil no puede configurar estanterías.	Votre profil ne peut pas configurer d’étagères.	Your profile cannot configure shelves.

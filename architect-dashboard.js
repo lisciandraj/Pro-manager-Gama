@@ -18,7 +18,7 @@ const definitions=[
  ['crm','CRM',[['pipeline','Oportunidades abiertas','money'],['weighted','Pipeline ponderado','money'],['won','Oportunidades ganadas','money','period'],['invoiced','Facturado de oportunidades','money','period'],['open','Oportunidades en curso'],['late','Actividades atrasadas']]],
  ['warehouses','Existencias',[['out','Referencias sin disponibilidad'],['low','Bajo el mínimo de stock']]],
  ['gamaPurchasesV14','Compras',[['open','Pedidos por recibir'],['late','Recepciones atrasadas'],['current','Pedidos de compra','number','period']]],
- ['tms','Entregas / TMS',[['pending','Entregas pendientes'],['late','Entregas atrasadas'],['delivered','Entregas realizadas','number','period']]],
+ ['tms','Entrega',[['pending','Entregas pendientes'],['late','Entregas atrasadas'],['delivered','Entregas realizadas','number','period']]],
  ['fleet','Gestión de flota',[['active','Vehículos activos'],['documents_due','Documentos vencidos o próximos'],['fuel','Combustible','money','period'],['maintenance','Mantenimiento','money','period']]],
  ['projects','Proyectos',[['active','Proyectos activos'],['late','Proyectos atrasados'],['late_tasks','Tareas atrasadas']]],
  ['hr','Recursos Humanos',[['active','Empleados activos'],['absent','Personas ausentes hoy'],['pending','Ausencias por aprobar']]],

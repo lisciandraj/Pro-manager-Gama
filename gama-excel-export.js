@@ -30,7 +30,7 @@ const groups=[
  ['Documents','Documentos','Documents',['business_documents','business_document_files']]
 ];
 const prefixes={crm_:6,fulfillment_:8,stock_:12,inventory_:12,tms_:14,return_:15,hr_:16,sri_:20,fleet_:23};
-const exportModules=['products','clients','suppliers','price-lists','quotes','client-catalog','crm','sales-orders','order-preparation','sales-orders','payments','gamaPurchasesV14','warehouses','warehouses','tms','returns','hr','knowledge','audit','settings','billing','projects','accounting','fleet','sav','documents'];
+const exportModules=['products','clients','suppliers','price-lists','quotes','client-catalog','crm','sales-orders','tms','sales-orders','payments','gamaPurchasesV14','warehouses','warehouses','tms','returns','hr','knowledge','audit','settings','billing','projects','accounting','fleet','sav','documents'];
 function group(t){const i=groups.findIndex(g=>g[3].includes(t));if(i>=0)return i;for(const [p,n]of Object.entries(prefixes))if(t.startsWith(p))return n;throw Error('Unmapped export table: '+t)}
 const lang=()=>window.GamaI18n?.language||document.documentElement.lang||'es';
 const tr=(fr,es,en)=>({fr,es,en}[lang()]||es);

@@ -2713,3 +2713,16 @@ Registrar la salida de la mercancía hacia el proveedor.	Enregistrer le départ 
 Registrar el abono que envía el proveedor.	Enregistrer l’avoir envoyé par le fournisseur.	Record the credit note sent by the supplier.
 Cerrar la devolución cuando el proveedor la haya abonado.	Clôturer le retour une fois l’avoir du fournisseur reçu.	Close the return once the supplier has credited it.
 Devolución anulada.	Retour annulé.	Return cancelled.
+Preparación, rutas y pruebas de entrega	Préparation, tournées et preuves de livraison	Preparation, routes and proofs of delivery
+Del pedido preparado a la prueba de entrega.	De la commande préparée à la preuve de livraison.	From the prepared order to proof of delivery.
+La salida de stock se registra al validar la expedición. La entrega al cliente se sigue en el módulo Entrega.	La sortie de stock est enregistrée à la validation de l’expédition. La livraison au client se suit dans le module Livraison.	Stock leaves when the shipment is validated. Delivery to the customer is tracked in the Delivery module.
+Preparación incompleta: termina el control de los cartones en la pestaña Preparación.	Préparation incomplète : terminez le contrôle des cartons dans l’onglet Préparation.	Preparation incomplete: finish checking the cartons in the Preparation tab.
+Los productos se verifican en la pestaña Preparación. Aquí se asignan el conductor y el vehículo y se confirma la salida.	Les produits sont contrôlés dans l’onglet Préparation. Ici, affectez le chauffeur et le véhicule et confirmez le départ.	Products are checked in the Preparation tab. Here you assign the driver and vehicle and confirm departure.
+Pedidos por preparar	Commandes à préparer	Orders to prepare
+Abre un pedido y escanea sus productos: las cantidades ya están previstas y, con el último, el bulto queda «Lista para expedir».	Ouvrez une commande et scannez ses produits : les quantités sont déjà prévues et, au dernier, le colis passe « Prête à expédier ».	Open an order and scan its products: quantities are already planned and, with the last one, the parcel becomes “Ready to ship”.
+No hay pedidos confirmados por preparar.	Aucune commande confirmée à préparer.	No confirmed orders to prepare.
+Escanea cada producto: su línea se valida sola con la cantidad prevista. Al escanear el último, el bulto se crea y el pedido queda «Lista para expedir».	Scannez chaque produit : sa ligne se valide seule avec la quantité prévue. Au dernier scan, le colis est créé et la commande passe « Prête à expédier ».	Scan each product: its line validates itself with the planned quantity. On the last scan, the parcel is created and the order becomes “Ready to ship”.
+Empezando la preparación…	Démarrage de la préparation…	Starting preparation…
+Todo escaneado: creando el bulto y cerrando la preparación…	Tout est scanné : création du colis et clôture de la préparation…	Everything scanned: creating the parcel and closing the preparation…
+Expedición parcial: indica el motivo para dejarla lista para expedir.	Expédition partielle : indiquez le motif pour la passer « Prête à expédier ».	Partial shipment: give the reason to make it ready to ship.
+Línea validada. Escanea el siguiente producto.	Ligne validée. Scannez le produit suivant.	Line validated. Scan the next product.

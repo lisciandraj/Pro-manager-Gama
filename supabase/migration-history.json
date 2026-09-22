@@ -1100,6 +1100,12 @@
       "name": "return_process_number",
       "file": "20260922180027_return_process_number.sql",
       "sha256": "a13dfe811d1e2a70896d5a04ac592ec1eb199966877ff79cbe7f32fb6e7c2967"
+    },
+    {
+      "version": "20260922181448",
+      "name": "delivery_module",
+      "file": "20260922181448_delivery_module.sql",
+      "sha256": "b8bfb5d2e725af35b7eaf2e63b6e376cbe5a4133bca05be25743cf63f634cbb4"
     }
   ]
 }

@@ -9,16 +9,30 @@ siguiente acción, responsable, vínculos a solicitud/presupuesto, reservas,
 preparaciones, bultos, expediciones, pruebas, facturas externas y cobros.
 Los almaceneros siguen ejerciendo también como conductores. No se añade un rol.
 
+La preparación se hace en **Logística → Entrega**, cuya primera pestaña es
+**Preparación** (antes un módulo propio, «Preparación de pedidos»). Le siguen
+Planificación, Salida de bultos, Prueba de entrega e Historial: toda la cadena
+del pedido preparado a la entrega en un solo módulo y con un solo permiso,
+`tms`. La lista de la pestaña enseña cada pedido confirmado con su estado
+(«Por preparar», «En preparación», «Lista para expedir»).
+
 1. Aceptar un presupuesto o confirmar un pedido crea automáticamente una
    preparación pendiente. «Iniciar preparación» asigna un operario y toma una
    instantánea de las reservas disponibles por ubicación. También se puede
    iniciar una nueva preparación después de una cancelación.
-2. La preparación se conduce por escaneo y confirma cada línea una sola vez. Al
-   leer el código del producto se abre su línea con la cantidad prevista ya
-   escrita y el foco en el campo. Una única validación —el botón, la tecla Intro
-   o el escaneo del producto siguiente— registra la línea y pasa a la siguiente;
-   no hay segunda pantalla de confirmación. Solo se pide confirmar cuando la
-   cantidad introducida no coincide con la prevista. Admite lector USB/Bluetooth
+2. La preparación se conduce por escaneo y basta con escanear: las cantidades
+   ya están previstas. Al abrir el pedido el foco está en «Escanear producto»;
+   si la preparación aún no empezó, el primer escaneo la inicia a nombre de
+   quien escanea. Cada lectura **valida sola** su línea con la cantidad prevista
+   (o la del código de caja, si es un código de embalaje), sin pantalla de
+   confirmación. Al validar la última línea se crea el bulto con todo lo
+   preparado y se cierra la preparación: el pedido queda **«Lista para
+   expedir»**. Si la salida es parcial, el servidor exige el motivo
+   (`PARTIAL_REASON_REQUIRED`) y se abre directamente el cierre para indicarlo.
+   Para contar otra cantidad se abre la línea a mano («Abrir línea»): el campo
+   trae la cantidad prevista, una única validación —el botón, Intro o el
+   escaneo del producto siguiente— la registra, y solo se pide confirmar cuando
+   no coincide con la prevista. Admite lector USB/Bluetooth
    o cámara: el código enviado debe coincidir con la ficha del producto, y los
    productos sin código de barras se abren desde la lista. La recogida traslada
    físicamente la cantidad a una zona PR de ese almacén, conservando su reserva.
@@ -102,8 +116,10 @@ reservas no permite abrir cuarentena ni mercancía ya recogida.
 
 ## Verificación y recuperación
 
-- `tests/fulfillment.spec.js`: escaneo que abre la línea, validación única,
-  confirmación solo ante diferencia, embalaje sin reintroducir cantidades, peso
+- `tests/fulfillment.spec.js`: el escaneo que valida la línea y deja el pedido
+  «Lista para expedir», el primer escaneo que inicia la preparación, el motivo
+  de la salida parcial, la línea abierta a mano con validación única,
+  confirmación solo ante diferencia, la pestaña Preparación de Entrega, embalaje sin reintroducir cantidades, peso
   leído de la ficha y ausente sin bloquear, reintentos, salida controlada,
   propuesta, recepción/inspección, portal y móvil.
 - `tests/sql/fulfillment-p1.sql`: reservas, doble clic, staging, límites, acuerdos,

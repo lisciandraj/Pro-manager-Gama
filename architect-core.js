@@ -570,14 +570,14 @@
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
       "id": "tms",
-      "label": "Entregas / TMS",
+      "label": "Entrega",
       "icon": "truck",
       "group": "Logística",
-      "description": "Transporte y pruebas de entrega",
+      "description": "Preparación, rutas y pruebas de entrega",
       "accent": "indigo",
       "order": 5,
       "menu": true,
-      "configLabel": "Transporte y entregas",
+      "configLabel": "Entrega",
       "roles": [
         "admin",
         "magasinier"
@@ -931,21 +931,6 @@
       ]
     },
     {
-      "id": "order-preparation",
-      "label": "Preparación de pedidos",
-      "icon": "checklist",
-      "group": "Logística",
-      "description": "Preparación y pruebas de entrega",
-      "accent": "green",
-      "order": 100,
-      "menu": true,
-      "configLabel": "Preparación de pedidos",
-      "roles": [
-        "admin",
-        "magasinier"
-      ]
-    },
-    {
       "id": "returns",
       "label": "Devoluciones",
       "icon": "returnArrow",
@@ -1137,7 +1122,7 @@
     }
   ];
   const groups = ["Resumen", "Inventario y compras", "Ventas", "Cliente", "Administración", "Logística"];
-  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard" };
+  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms" };
   const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", cliente: "client" };
   const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["client", "Cliente"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
   function ensureExcelModule() {
@@ -1162,7 +1147,7 @@
     } else if (window.GamaExcelImport) window.GamaExcelImport.render();
   }
   function openLegacy(x) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     if (window.gamaAccessAllowed && !window.gamaAccessAllowed(x[1])) return;
     if (x[1] === "sav") {
       return (_a = window.GamaService) == null ? void 0 : _a.open();
@@ -1171,7 +1156,7 @@
       return (_b = window.GamaDocuments) == null ? void 0 : _b.open();
     }
     if (x[1] === "tms") {
-      return (_c = window.gamaTMS) == null ? void 0 : _c.open("planning");
+      return (_c = window.gamaTMS) == null ? void 0 : _c.open();
     }
     if (x[1] === "accounting") {
       return (_d = window.GamaAccounting) == null ? void 0 : _d.open();
@@ -1194,23 +1179,20 @@
     if (x[1] === "payments") {
       return (_j = window.GamaPayments) == null ? void 0 : _j.open();
     }
-    if (x[1] === "order-preparation") {
-      return (_k = window.GamaPreparation) == null ? void 0 : _k.open();
-    }
     if (x[1] === "dossier-flow") {
-      return (_l = window.GamaDossierFlow) == null ? void 0 : _l.open();
+      return (_k = window.GamaDossierFlow) == null ? void 0 : _k.open();
     }
     if (["operations", "notifications"].includes(x[1])) {
-      return (_m = window.GamaOperations) == null ? void 0 : _m.open(x[1]);
+      return (_l = window.GamaOperations) == null ? void 0 : _l.open(x[1]);
     }
     if (x[1] === "quotes") {
-      return (_n = window.GamaQuotes) == null ? void 0 : _n.open();
+      return (_m = window.GamaQuotes) == null ? void 0 : _m.open();
     }
     if (x[1] === "client-deliveries") {
-      return (_o = window.GamaQuotes) == null ? void 0 : _o.deliveries();
+      return (_n = window.GamaQuotes) == null ? void 0 : _n.deliveries();
     }
     if (x[1] === "sales-orders") {
-      return (_p = window.GamaSales) == null ? void 0 : _p.open();
+      return (_o = window.GamaSales) == null ? void 0 : _o.open();
     }
     if (window.GamaModules && !window.GamaModules.enabled(x[1])) {
       alert("Este módulo está desactivado en Configuración.");
@@ -1231,39 +1213,39 @@
     }
     if (x[1] === "crm") {
       if (window.showTab) window.showTab("crm", null);
-      (_q = window.GamaOpenCRM) == null ? void 0 : _q.call(window);
+      (_p = window.GamaOpenCRM) == null ? void 0 : _p.call(window);
       return;
     }
     if (x[1] === "price-lists") {
       if (window.showTab) window.showTab("price-lists", null);
-      (_r = window.GamaOpenPriceLists) == null ? void 0 : _r.call(window);
+      (_q = window.GamaOpenPriceLists) == null ? void 0 : _q.call(window);
       return;
     }
     if (x[1] === "client-catalog") {
       if (window.showTab) window.showTab("client-catalog", null);
-      (_s = window.GamaOpenClientCatalog) == null ? void 0 : _s.call(window);
+      (_r = window.GamaOpenClientCatalog) == null ? void 0 : _r.call(window);
       return;
     }
     if (x[1] === "customer-requests") {
       if (window.showTab) window.showTab("customer-requests", null);
-      (_t = window.GamaOpenCustomerRequests) == null ? void 0 : _t.call(window);
+      (_s = window.GamaOpenCustomerRequests) == null ? void 0 : _s.call(window);
       return;
     }
     if (x[1] === "warehouses") {
       if (window.showTab) window.showTab("warehouses", null);
-      (_u = window.GamaOpenWarehouses) == null ? void 0 : _u.call(window);
+      (_t = window.GamaOpenWarehouses) == null ? void 0 : _t.call(window);
       return;
     }
     if (x[1] === "hr") {
-      (_v = window.GamaOpenHR) == null ? void 0 : _v.call(window);
+      (_u = window.GamaOpenHR) == null ? void 0 : _u.call(window);
       return;
     }
     if (x[1] === "access-settings") {
-      (_w = window.GamaOpenAccessSettings) == null ? void 0 : _w.call(window);
+      (_v = window.GamaOpenAccessSettings) == null ? void 0 : _v.call(window);
       return;
     }
     if (x[1] === "settings") {
-      (_x = window.GamaOpenSettings) == null ? void 0 : _x.call(window);
+      (_w = window.GamaOpenSettings) == null ? void 0 : _w.call(window);
       return;
     }
     if (window.showTab) window.showTab(x[1], null);

@@ -22,7 +22,7 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(['movement','warehouses'].includes(id))bar.append(button(t('Ajustes a validar','Ajustements à valider','Adjustment approvals'),()=>window.ArchitectStockControls.open()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Horarios de ruta','Horaires de tournée','Route schedules'),()=>window.ArchitectTransportControls.schedules()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Pruebas pendientes','Preuves en attente','Pending proofs'),()=>window.ArchitectOfflineProofs.open()));
- if(['products','warehouses','movement','gamaPurchasesV14','returns','order-preparation'].includes(id))bar.append(button(t('Trazabilidad por lote','Traçabilité par lot','Lot traceability'),()=>window.ArchitectLots.choose()));
+ if(['products','warehouses','movement','gamaPurchasesV14','returns','gama-tms-section'].includes(id))bar.append(button(t('Trazabilidad por lote','Traçabilité par lot','Lot traceability'),()=>window.ArchitectLots.choose()));
  if(id==='client-deliveries')bar.append(button(t('Mis prestaciones','Mes prestations','My services'),()=>window.ArchitectServiceProducts.portal()));
  if(id==='barcode')bar.append(button(t('Identificar código','Identifier un code','Identify code'),()=>window.ArchitectBarcode.identify()),button(t('Etiquetas por lote','Étiquettes par lot','Batch labels'),()=>window.ArchitectBarcode.batch()));
  if(id==='sav'&&admin())bar.append(button(t('Plazos de respuesta','Délais de réponse','Response deadlines'),sla));

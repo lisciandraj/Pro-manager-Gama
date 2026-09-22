@@ -16,7 +16,10 @@ async function boot(page,state='picking',role='magasinier'){
    if(args.p_action==='options')return {data:window.__options||[]};
    if(args.p_action==='dossier')return {data:structuredClone(window.__f)};
    window.__calls.push(args);if(window.__error)return {error:{message:window.__error}};
+   const once=window.__errorFor?.[args.p_action];if(once){delete window.__errorFor[args.p_action];return {error:{message:once}}}
+   if(args.p_action==='start')window.__f.preparations[0].status='picking';
    if(args.p_action==='pick')window.__f.pick_lines[0].picked+=args.p_data.quantity;
+   if(args.p_action==='package'){window.__f.packages.push({id:'pk',preparation_id:'prep',barcode:'PK-00000001',status:'active'});window.__f.package_lines.push(...args.p_data.lines.map(l=>({package_id:'pk',...l})))}
    if(args.p_action==='finish')window.__f.preparations[0].status='packed';
    return {data:{id:'created'}};
   }
@@ -25,16 +28,46 @@ async function boot(page,state='picking',role='magasinier'){
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
  await expect(page.locator('#gfDossier')).toContainText('Dossier');
 }
-test('one scan opens the line with the expected quantity and a single validation records it',async({page})=>{
+test('one scan validates the line and, with the last one, the parcel is ready to ship',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await expect(page.locator('#gfPack')).toBeVisible();
+ await expect(page.locator('#gama-tms-section button.tmsTab.active')).toHaveText('Preparación');
  await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ await expect(page.locator('#gfShip')).toBeVisible();await expect(page.locator('dialog')).toHaveCount(0);
+ await expect(page.locator('#gfPreparation')).toContainText('Lista para expedir');
+ const calls=await page.evaluate(()=>window.__calls);
+ expect(calls.map(c=>c.p_action)).toEqual(['pick','package','finish']);
+ expect(calls[0].p_data).toMatchObject({pick_line_id:'pl',quantity:6,product_code:'CAFE-01'});
+ expect(calls[1].p_data.lines).toEqual([{pick_line_id:'pl',quantity:10}]);
+ expect(calls[2].p_data).toMatchObject({preparation_id:'prep',reason:''});
+});
+test('the first scan of an order not yet started starts it for whoever scans',async({page})=>{
+ await boot(page,'queued');await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
+ await expect(page.locator('#gfStart')).toBeVisible();
+ await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ await expect(page.locator('#gfShip')).toBeVisible();
+ const calls=await page.evaluate(()=>window.__calls);
+ expect(calls.map(c=>c.p_action)).toEqual(['start','pick','package','finish']);
+ expect(calls[0].p_data).toMatchObject({order_id:ids.order,assigned_to:''});
+});
+test('a partial shipment asks for its reason right away and then closes',async({page})=>{
+ await boot(page);await page.evaluate(()=>{window.__errorFor={finish:'PARTIAL_REASON_REQUIRED'};return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ const box=page.locator('dialog');await expect(box).toContainText('Resumen de la preparación');
+ await page.locator('#gfReason').fill('Falta stock');await page.locator('#gsSave').click();await expect(box).toHaveCount(0);
+ await expect(page.locator('#gfShip')).toBeVisible();
+ const finish=await page.evaluate(()=>__calls.filter(c=>c.p_action==='finish'));
+ expect(finish.map(c=>c.p_data.reason)).toEqual(['','Falta stock']);
+});
+test('an opened line keeps the manual count, with the expected quantity ready',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
+ await page.locator('[data-gf-pick]').click();
  const qty=page.locator('[data-line-qty="pl"]');
  await expect(qty).toBeVisible();await expect(qty).toHaveValue('6');await expect(qty).toBeFocused();await expect(page.locator('dialog')).toHaveCount(0);
  await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await qty.press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');
  await page.evaluate(()=>window.__error=null);await page.locator('[data-gf-confirm="pl"]').click();
- await expect(page.locator('#gfScanHint')).toContainText('Todas las líneas');await expect(page.locator('dialog')).toHaveCount(0);
+ await expect(page.locator('#gfShip')).toBeVisible();await expect(page.locator('dialog')).toHaveCount(0);
  const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);
- expect(calls[1].p_data).toMatchObject({pick_line_id:'pl',quantity:6,product_code:'CAFE-01'});
+ expect(calls[1].p_data).toMatchObject({pick_line_id:'pl',quantity:6});
 });
 test('a quantity below the expected one asks for confirmation and only then records it',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
@@ -49,13 +82,13 @@ test('the parcel packs the validated quantities and reads weight from the produc
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfPack').click();
  const box=page.locator('dialog');await expect(box).toContainText('Café');await expect(box).toContainText('2 kg');await expect(box).toContainText('m³');
  await expect(page.locator('#weight_kg,#length_cm,#gfPackCode0,#gfPackQty0')).toHaveCount(0);
- await page.locator('#gsSave').click();await expect(box).toHaveCount(0);await expect(page.locator('#order-preparation')).toBeVisible();
+ await page.locator('#gsSave').click();await expect(box).toHaveCount(0);await expect(page.locator('#gamaPreparationHost')).toBeVisible();
  const call=await page.evaluate(()=>__calls[0]);expect(call.p_data.lines).toEqual([{pick_line_id:'pl',quantity:4}]);expect(call.p_data.weight_kg).toBeUndefined();
 });
 test('closing preparation recaps the load and hands off to transport from logistics',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfFinish').click();
  await expect(page.locator('dialog')).toContainText('Resumen de la preparación');await expect(page.locator('dialog')).toContainText('2 kg');
- await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await page.locator('#gfShip').click();await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#order-preparation')).toBeVisible();expect((await page.evaluate(()=>__calls.find(c=>c.p_action==='ship'))).p_data.preparation_id).toBe('prep');
+ await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await page.locator('#gfShip').click();await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#gamaPreparationHost')).toBeVisible();expect((await page.evaluate(()=>__calls.find(c=>c.p_action==='ship'))).p_data.preparation_id).toBe('prep');
 });
 test('a product sheet without weight does not block and is reported in the closing recap',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.products[0].weight_g=null;__DB.products[0].volume_cm3=null});
@@ -82,4 +115,4 @@ test('client portal exposes proposed conditions and sends explicit acceptance',a
  page.once('dialog',d=>d.accept());await page.locator('[data-decision="accepted"]').click();await expect.poll(()=>page.evaluate(()=>window.__calls.some(c=>c.p_action==='respond_option'))).toBe(true);const call=await page.evaluate(()=>window.__calls.find(c=>c.p_action==='respond_option'));expect(call.p_data).toMatchObject({option_id:'option',decision:'accepted'});
 });
 
-test('preparation menu is in logistics and unavailable to clients',async({page})=>{await boot(page);await page.evaluate(()=>showTab('mainmenu'));await expect(page.locator('.gamaF2Card[data-gama-module="order-preparation"]')).toBeVisible();await page.locator('.gamaF2Card[data-gama-module="order-preparation"]').click();await expect(page.locator('#order-preparation')).toBeVisible();await page.evaluate(()=>{showTab('mainmenu');localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));GamaPreparation.open()});await expect(page.locator('#order-preparation.active')).toHaveCount(0)});
+test('preparation is the first tab of Entrega and unavailable to clients',async({page})=>{await boot(page);await page.evaluate(()=>{__DB.fulfillment_preparations=structuredClone(__f.preparations);showTab('mainmenu')});await expect(page.locator('.gamaF2Card[data-gama-module="order-preparation"]')).toHaveCount(0);await page.locator('.gamaF2Card[data-gama-module="tms"]').click();await expect(page.locator('#gama-tms-section button.tmsTab.active')).toHaveText('Preparación');const row=page.locator('#gamaPreparationHost [data-prep-state]');await expect(row).toContainText('PV-00000001');await expect(row).toContainText('En preparación');await row.locator('[data-prep-order]').click();await expect(page.locator('#gfScanCode')).toBeFocused();expect(await page.evaluate(()=>ArcModules.get('order-preparation').id)).toBe('tms');await page.evaluate(()=>{showTab('mainmenu');localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));GamaPreparation.open()});await expect(page.locator('#gama-tms-section.active')).toHaveCount(0)});

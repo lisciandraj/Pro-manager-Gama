@@ -48,7 +48,9 @@ async function boot(page, seed = {}) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(500);
-  await page.click('#mainmenu .gamaF2Card:has-text("Entregas / TMS")');
+  await page.click('#mainmenu .gamaF2Card[data-gama-module="tms"]');
+  // Entrega abre en su primera pestaña, Preparación; estas pruebas son de transporte.
+  await page.click('button.tmsTab:has-text("Planificación")');
 }
 
 const DRIVERS = [
@@ -59,7 +61,7 @@ const DRIVERS = [
 test.describe('TMS — drivers and vehicles live elsewhere', () => {
   test('there is no drivers-and-vehicles tab any more', async ({ page }) => {
     await boot(page, { drivers: DRIVERS });
-    await expect(page.locator('button.tmsTab')).toHaveCount(4);
+    await expect(page.locator('button.tmsTab')).toHaveText(['Preparación', 'Planificación', 'Salida de bultos', 'Prueba de entrega', 'Historial']);
     await expect(page.locator('button.tmsTab:has-text("Conductores y vehículos")')).toHaveCount(0);
     // Y nada del módulo escribe ya en un registro propio de conductores.
     expect(await page.evaluate(() => 'tms_drivers' in window.__DB)).toBe(false);

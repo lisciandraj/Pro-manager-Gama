@@ -60,7 +60,7 @@ test.describe('Autenticación centralizada', () => {
   });
 
   test('the TMS tile is gated by an explicit permission, not by falling through the map', async ({ page }) => {
-    // "Entregas / TMS" was absent from the permission map, so it resolved to
+    // The delivery tile ("Entregas / TMS" at the time) was absent from the permission map, so it resolved to
     // the empty id and happened to be admin-only by accident. It is now mapped
     // to 'tms', which the warehouse role holds — matching the tms_* RLS
     // policies (administrador + almacenero may write).
@@ -74,9 +74,9 @@ test.describe('Autenticación centralizada', () => {
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
     await page.waitForTimeout(1200);
-    expect(await page.evaluate(()=>({id:ArcModules.registry.find(m=>m.label==='Entregas / TMS').id,warehouse:ArcModules.roles.magasinier.perms.includes('tms')}))).toEqual({id:'tms',warehouse:true});
+    expect(await page.evaluate(()=>({id:ArcModules.registry.find(m=>m.label==='Entrega').id,warehouse:ArcModules.roles.magasinier.perms.includes('tms')}))).toEqual({id:'tms',warehouse:true});
 
     // A commercial profile has no logistics rights: the tile stays hidden.
-    await expect(page.locator('#mainmenu .gamaF2Card:has-text("Entregas / TMS")')).toBeHidden();
+    await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="tms"]')).toBeHidden();
   });
 });

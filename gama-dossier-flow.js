@@ -155,7 +155,7 @@ function renderSale(d,x){
   {title:'Pedido',state:d.o?(confirmed?'done':d.o.status==='cancelled'?'closed':'active'):'pending',
    docs:[d.o&&doc(d.o.number,'order',d.o.id,'sales-orders')],need:'Confirmar el pedido: reserva el stock disponible y abre la preparación.'},
   {title:'Reserva de stock y preparación',state:!confirmed?'pending':p.missing>0?'blocked':(p.complete||(p.ordered>0&&p.packed>=p.ordered))?'done':(x.reservations.length||x.preps.length)?'active':'pending',
-   docs:[...x.reservations.map(r=>doc(r.erp_reference||r.dossier_reference,'order',d.o?.id,'sales-orders')),...x.preps.map(r=>doc(r.number,'preparation',d.o?.id,'order-preparation')),...x.packages.map(r=>doc(r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'order-preparation'))],
+   docs:[...x.reservations.map(r=>doc(r.erp_reference||r.dossier_reference,'order',d.o?.id,'sales-orders')),...x.preps.map(r=>doc(r.number,'preparation',d.o?.id,'tms')),...x.packages.map(r=>doc(r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'tms'))],
    info:d.o?`${tr('Sin reservar')} : ${p.missing} · ${tr('Preparado / previsto')} : ${p.picked} / ${p.planned}`:'',
    need:p.missing>0?'Reservar las cantidades que faltan o reponerlas con una compra.':'Preparar y escanear cada producto: el bulto queda listo para expedir.'},
   {title:'Expedición y recepción',state:p.done?'done':x.transport.some(t=>t.status==='Excepción'||late(t))?'blocked':x.ships.length?'active':'pending',
@@ -225,7 +225,7 @@ async function act(action,id){
   case'request':if(can('customer-requests'))await window.GamaOpenCustomerRequest(id);break;
   case'quote':if(can('quotes')){await GamaQuotes.open();await GamaQuotes.view(id)}break;
   case'order':if(can('sales-orders'))await GamaSales.openOrder(id);break;
-  case'preparation':if(can('order-preparation'))await GamaPreparation.open(id);break;
+  case'preparation':if(can('tms'))await GamaPreparation.open(id);break;
   case'delivery':if(can('tms'))await gamaTMS.openDelivery(id);break;
   case'proof':if(can('sales-orders'))await GamaFulfillment.proof(id);break;
   case'payment':if(can('payments'))await GamaPayments.open({invoiceId:id});break;

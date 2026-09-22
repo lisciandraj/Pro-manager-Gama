@@ -3,6 +3,7 @@
 'use strict';
 const S=()=>window.GamaSales,$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
+const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const n=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:3});
 const text=s=>({queued:'Por preparar',picking:'En preparación',packed:'Lista para expedir',shipped:'Expedida',cancelled:'Cancelada',requested:'Retorno solicitado',received:'En cuarentena',restocked:'Reintegrado',scrapped:'Baja',exchanged:'Cambio creado',proposed:'Pendiente de aceptación',accepted:'Aceptada',rejected:'Rechazada',withdrawn:'Retirada',wait:'Esperar entrega completa',partial:'Entrega parcial',substitute:'Sustituir producto',missing:'Faltante',damaged:'Dañado',other:'Otro'}[s]||s);
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role}catch(_){return''}};
@@ -58,7 +59,7 @@ function render(d,f,host){
  window.ArcUI.render(host,`<div class="arcPanel gsCard gfPanel"><h3 data-gi=f22a28436d95>Dossier del pedido</h3><p class="gfNotice"><b data-gi=bb210a5e67af>Próxima acción</b><br>${esc(next)}</p><nav class="gfSteps"><a href="#gfPreparation" data-gi-live data-gi=12beb07b0d96>Preparación</a><a href="#gfShortages" data-gi=b51b7cbe29ac>Disponibilidad y acuerdos</a><a href="#gsLinkedShipments" data-gi=139bcf4dde61>Expediciones</a>${sell()?'<a href="#gsLinkedInvoices" data-gi=36842cc2f911>Facturas y cobros</a>':''}</nav><div class="gsTools">${o.source_quote_id?'<button class="arcButton secondary" id="gfQuote" data-gi=7c729110b7ab>Ver presupuesto aceptado</button>':''}${o.source_request_id?'<button class="arcButton secondary" id="gfRequest" data-gi=93677beeb1e9>Ver solicitud inicial</button>':''}</div><div class="gfMetrics"><div><strong>${n(pending)}</strong>Unidades pendientes de expedir</div><div><strong>${n(shortage)}</strong>Unidades sin reservar</div></div></div>
  <div class="arcPanel gsCard" id="gfPreparation"><h3 data-gi-live data-gi=12beb07b0d96>Preparación</h3>${p?`<div class="gfRow"><b>${esc(p.number)} · <span data-gi-live>${text(p.status)}</span></b><span>${esc(f.staff.find(u=>u.id===p.assigned_to)?.name||'Sin asignar')}</span></div>`:'<p data-gi=a0447b2f072c>No hay preparación activa.</p>'}
  ${wh()&&o.status==='confirmed'&&pending>0?`<div class="gsTools">${!p||p.status==='queued'?'<button class="arcButton primary" id="gfStart" data-gi=d17701883053>Iniciar preparación</button>':''}${p?.status==='picking'?'<button class="arcButton primary" id="gfPack" data-gi-live data-gi=b2072d50f7bb>Crear bulto</button><button class="arcButton primary" id="gfFinish" data-gi-live data-gi=a956aeb49a4d>Cerrar preparación</button>':''}${p?.status==='packed'?'<button class="arcButton primary" id="gfShip" data-gi-live data-gi=96c04b3343bd>Enviar al TMS</button>':''}${p&&p.status!=='queued'?'<button class="arcButton secondary" id="gfCancelPrep" data-gi=286fbaf27913>Cancelar preparación</button>':''}</div>`:''}
- ${p&&wh()&&p.status==='picking'?`<div class="gfScanBox"><label class="gsField" data-gi=2760658f4d58>Escanear producto<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode" data-gi=841b8ccb44fa>Cámara</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite" data-gi-live data-gi=61cfb8f81a40>Escanea un producto para abrir su línea con la cantidad prevista.</p></div>`:''}
+ ${wh()&&o.status==='confirmed'&&pending>0&&(!p||['queued','picking'].includes(p.status))?`<div class="gfScanBox"><label class="gsField">${tr('Escanear producto')}<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode">${tr('Cámara')}</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite">${tr('Escanea cada producto: su línea se valida sola con la cantidad prevista. Al escanear el último, el bulto se crea y el pedido queda «Lista para expedir».')}</p></div>`:''}
  ${p?f.pick_lines.filter(l=>l.preparation_id===p.id).map(l=>`<div class="gfItem" data-line="${l.id}"><b>${esc(d.lines.find(x=>x.id===l.order_line_id)?.product_name)}</b><p>${esc(d.locations.find(x=>x.id===l.source_location_id)?.code||'Ubicación')} · Previsto ${n(l.planned)} · Preparado ${n(l.picked)}</p>${wh()&&p.status==='picking'&&Number(l.picked)<Number(l.planned)?`<div class="gfLineForm" data-line-form="${l.id}" hidden><label class="gsField" data-gi=b0c06cea4a8c>Cantidad preparada<input class="gfLineQty" data-line-qty="${l.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label><button class="arcButton primary" data-gf-confirm="${l.id}" data-gi=945f3f557cf2>Validar línea</button><button class="arcButton secondary" data-gf-close="${l.id}" data-gi=aeccae342e4b>Cerrar</button></div>`:''}${wh()&&p.status==='picking'?`<button class="arcButton secondary" data-gi-live data-gf-pick="${l.id}" ${Number(l.picked)>=Number(l.planned)?'disabled':''}>Abrir línea</button> <button class="arcButton secondary" data-gf-incident="${l.id}" data-gi=79ee499076d0>Incidencia</button>`:''}</div>`).join(''):''}
 
  ${f.incidents.map(i=>`<p class="gsError"><span data-gi-live>${text(i.kind)}</span> · ${n(i.quantity)} · ${esc(i.reason)}. Revisar inventario antes de liberar la reserva.</p>`).join('')}
@@ -88,15 +89,28 @@ const pickState={order:null,intent:null};
 function picking(d,f,host){
  const p=f.preparations.find(x=>['queued','picking','packed'].includes(x.status));
  const intent=pickState.order===d.order.id?pickState.intent:null;pickState.order=d.order.id;pickState.intent=null;
- if(!p||p.status!=='picking'||!wh())return;
+ if(!wh())return;
+ const scanBox=host.querySelector('#gfScanCode'),hintBox=host.querySelector('#gfScanHint');
+ const hint=t=>{if(hintBox)hintBox.textContent=t};
+ const focus=el=>{try{el?.focus();el?.select?.()}catch(_){}};
+ const listen=handler=>{if(!scanBox)return;const go=()=>{const code=scanBox.value.trim();if(!code)return;scanBox.value='';setTimeout(()=>handler(code),0)};
+  scanBox.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
+  scanBox.addEventListener('change',go);scanBox.addEventListener('gama:barcode-scanned',go)};
+ /* Sin preparación empezada, el primer escaneo la empieza —a nombre de quien
+    escanea— y ese mismo código se procesa en cuanto existen las líneas. */
+ if(!p||p.status==='queued'){
+  if(!scanBox)return;cameras(host);
+  listen(async code=>{hint(T('Empezando la preparación…'));
+   try{await mutate('start',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p?.id,assigned_to:''});pickState.order=d.order.id;pickState.intent={scan:code};await mount(d,host)}
+   catch(e){hint(err(e));focus(scanBox)}});
+  focus(scanBox);return;
+ }
+ if(p.status!=='picking')return;
  const rows=f.pick_lines.filter(l=>l.preparation_id===p.id),round=v=>Math.round(Number(v)*1000)/1000,pending=l=>round(Number(l.planned)-Number(l.picked));
  const lineOf=l=>d.lines.find(x=>x.id===l.order_line_id),nameOf=l=>lineOf(l)?.product_name||'';
  const codes=new Map();for(const l of rows){const code=String(d.productIndex?.by.get(lineOf(l)?.product_id)?.barcode??'').trim();if(code&&!codes.has(code))codes.set(code,lineOf(l)?.product_id)}
  for(const [code,product] of d.productIndex?.byCode||[])if(rows.some(l=>lineOf(l)?.product_id===product.id))codes.set(code,product.id);
  const factor=code=>d.productIndex?.byCode.get(code)?.packFactor||1;
- const scanBox=host.querySelector('#gfScanCode'),hintBox=host.querySelector('#gfScanHint');
- const hint=t=>{if(hintBox)hintBox.textContent=t};
- const focus=el=>{try{el?.focus();el?.select?.()}catch(_){}};
  let current=null,key=null,busy=false;
  const buttons=disabled=>host.querySelectorAll('[data-gf-confirm],[data-gf-pick]').forEach(b=>{if(disabled)b.dataset.gfWas=b.disabled?'1':'';b.disabled=disabled?true:b.dataset.gfWas==='1'});
  const forLine=id=>rows.find(x=>x.id===id);
@@ -120,7 +134,7 @@ function picking(d,f,host){
   const expected=pending(l),value=round(quantity);
   if(!Number.isFinite(value)||value<=0){hint('Introduce una cantidad válida.');return false}
   if(value>expected){hint(messages.EXCEEDS_PLANNED);return false}
-  if(value!==expected&&!confirm(`${nameOf(l)}: has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`))return false;
+  if(value!==expected&&!intent?.auto&&!confirm(`${nameOf(l)}: has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`))return false;
   busy=true;buttons(true);
   const location=d.locations.find(x=>x.id===l.source_location_id);
   const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',quantity:value};
@@ -137,20 +151,39 @@ function picking(d,f,host){
   const known=byCode(clean),target=known||byReference(clean);
   if(!target){hint('Ese código no corresponde a ninguna línea pendiente de esta preparación.');focus(scanBox);return}
   if(current&&current.id!==target.id){await commit(reading(current.id).quantity,{scan:clean});return}
-  open(target.id,known?clean:'')}
+  if(current){open(target.id,known?clean:'');return}
+  // Sin una línea abierta a mano, el escaneo es la validación: cantidad prevista,
+  // o la del código de caja si lo es. Abrir la línea queda para contar distinto.
+  current={id:target.id,code:known?clean:''};key=crypto.randomUUID();
+  await commit(known&&factor(clean)!==1?Math.min(factor(clean),pending(target)):pending(target),{auto:true})}
+ /* Todo escaneado: se crea el bulto con lo preparado y se cierra la
+    preparación, que queda «Lista para expedir». Si la expedición es parcial el
+    servidor pide el motivo y se abre directamente el cierre para indicarlo. */
+ async function ready(){
+  hint(T('Todo escaneado: creando el bulto y cerrando la preparación…'));buttons(true);
+  try{const lines=unpacked(d,f,p);
+   if(lines.length)await mutate('package',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p.id,lines:lines.map(r=>({pick_line_id:r.pick_line_id,quantity:r.quantity}))});
+   await mutate('finish',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p.id,reason:''});
+   await (d.onDone?d.onDone():mount(d,host));
+  }catch(e){buttons(false);const m=err(e);
+   // Expedición parcial: el bulto ya está creado, sólo falta el motivo.
+   if(m===messages.PARTIAL_REASON_REQUIRED){hint(T('Expedición parcial: indica el motivo para dejarla lista para expedir.'));finish(d,p,f);return}
+   hint(m);focus(scanBox)}
+ }
  cameras(host);
  host.querySelectorAll('[data-gf-pick]').forEach(b=>b.onclick=()=>open(b.dataset.gfPick,''));
  host.querySelectorAll('[data-gf-confirm]').forEach(b=>b.onclick=()=>submit());
  host.querySelectorAll('[data-gf-close]').forEach(b=>b.onclick=()=>{close();focus(scanBox)});
  host.querySelectorAll('[data-line-qty]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}}));
  // The camera helper refocuses its target after firing, so resolve the code on the next tick.
- if(scanBox){const go=()=>{const code=scanBox.value.trim();if(!code)return;scanBox.value='';setTimeout(()=>scanned(code),0)};
-  scanBox.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
-  scanBox.addEventListener('change',go);scanBox.addEventListener('gama:barcode-scanned',go)}
+ listen(scanned);
+ if(intent&&rows.length&&rows.every(l=>pending(l)<=0)){ready();return}
  if(intent?.scan)scanned(intent.scan);
+ else if(intent?.auto){hint(T('Línea validada. Escanea el siguiente producto.'));focus(scanBox)}
  else if(intent?.next){const next=rows.find(l=>pending(l)>0);
   if(next)open(next.id,'');else{hint('Todas las líneas están preparadas. Crea el bulto y cierra la preparación.');focus(scanBox)}}
  else if(intent?.line)open(intent.line,'');
+ else focus(scanBox);
 }
 function unpacked(d,f,p){return f.pick_lines.filter(l=>l.preparation_id===p.id&&Number(l.picked)>packedQty(f,l.id))
  .map(l=>{const ol=d.lines.find(x=>x.id===l.order_line_id);return{pick_line_id:l.id,product_id:ol?.product_id,name:ol?.product_name,quantity:Number(l.picked)-packedQty(f,l.id)}})}

@@ -1,6 +1,6 @@
 # Control de carga de expediciones
 
-Al validar una expedición en Pedidos de venta, el flujo existente crea su entrega TMS y descuenta el stock una sola vez. El enlace «Ver carga en TMS» abre las líneas de esa expedición. También están disponibles en TMS → Control de carga, incluidas las expediciones de fechas futuras.
+Al validar una expedición en Pedidos de venta, el flujo existente crea su entrega TMS y descuenta el stock una sola vez. El enlace «Ver carga en TMS» abre las líneas de esa expedición. También están disponibles en Entrega → Salida de bultos, incluidas las expediciones de fechas futuras.
 
 El operario utiliza un lector USB/Bluetooth o la cámara y registra las unidades cargadas. Cada lectura propone una unidad; un lote puede indicar otra cantidad. El servidor compara el código guardado al crear la expedición y distribuye la cantidad entre las líneas del mismo producto y sus ubicaciones. Rechaza códigos ajenos y cantidades excesivas. Reintentar una petición no duplica el escaneo.
 

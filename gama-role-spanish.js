@@ -20,12 +20,12 @@ function addTMSCard(){
  b.className='gamaF2Card';
  b.setAttribute('data-gama-tms-card','1');b.dataset.gamaModule='tms';
  window.ArcUI.render(b,'<span class="gamaF2Icon" data-arc-fam="logistics"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></span>'
-  +'<span class="gamaF2Body"><span class="gamaF2Title" data-gi=5f4486d79444>Entregas / TMS</span>'
-  +'<span class="gamaF2Desc" data-gi=8215e5ed55e6>Rutas del día y pruebas de entrega</span></span>'
+  +'<span class="gamaF2Body"><span class="gamaF2Title" data-gi=24d49b8597db>Entrega</span>'
+  +'<span class="gamaF2Desc" data-gi=f31c7f076f63>Preparación, rutas y pruebas de entrega</span></span>'
   +'<svg class="gamaF2Go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>');
- b.querySelector('.gamaF2Title').dataset.gamaSource='Entregas / TMS';
- b.querySelector('.gamaF2Desc').dataset.gamaSource='Rutas del día y pruebas de entrega';
- b.onclick=()=>{if(window.GamaModules&&!window.GamaModules.enabled('tms')){alert('Este módulo está desactivado en Configuración.');return}window.gamaTMS.open('planning')};
+ b.querySelector('.gamaF2Title').dataset.gamaSource='Entrega';
+ b.querySelector('.gamaF2Desc').dataset.gamaSource='Preparación, rutas y pruebas de entrega';
+ b.onclick=()=>{if(window.GamaModules&&!window.GamaModules.enabled('tms')){alert('Este módulo está desactivado en Configuración.');return}window.gamaTMS.open()};
  grid.appendChild(b);
  return true;
 }

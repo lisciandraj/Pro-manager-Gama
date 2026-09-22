@@ -35,28 +35,26 @@ test('financial dashboard uses the server snapshot independently of the quote mi
 test('internal PDF export uses the frozen invoice and internal document type',async({page})=>{
  await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',total:34.5,customer_comment:invoice.document_snapshot.details.customer_comment});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
 });
-test('quote list groups its invoice and external reference without unrelated invoices',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>{__DB.external_invoices[0].external_number='001-002-0000456';__DB.external_invoices[0].software='Facturador';__DB.external_invoices.push({...__DB.external_invoices[0],id:'other',source_quote_id:'q-other',number:'UNRELATED',order_id:'o-other'});GamaQuotes.open()});
- await expect(page.locator('.gqLinked')).toContainText('COT-001');await expect(page.locator('.gqLinked')).toContainText('FI-2026-00000001');await expect(page.locator('.gqLinked')).toContainText('001-002-0000456');await expect(page.locator('.gqLinked')).not.toContainText('UNRELATED');await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await page.locator('[data-gq-invoice]').click();await expect(page.locator('#giText')).toBeVisible();await page.locator('#giLink').click();await expect(page.locator('#giNumber')).toHaveValue('001-002-0000456');await expect(page.locator('#quotes')).toBeVisible();
+// Presupuestos y facturas: la lista de presupuestos ya no arrastra facturas;
+// están en la pestaña Facturas y en la ficha de su pedido.
+test('the quote list no longer carries invoices; they live in the Facturas tab',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>{__DB.external_invoices[0].external_number='001-002-0000456';__DB.external_invoices[0].software='Facturador';__DB.__calls=[];GamaQuotes.open()});
+ await expect(page.locator('#quotes')).toContainText('COT-001');
+ await expect(page.locator('.gqLinked, .gqInvoiceRow, [data-gq-invoice], [data-gq-create-invoice]')).toHaveCount(0);
+ await expect(page.locator('#quotes')).not.toContainText('FI-2026-00000001');
+ expect(await page.evaluate(()=>__DB.__calls.some(c=>c.table==='external_invoices')),'the list no longer reads invoices').toBe(false);
+ await page.locator('#gqInvoicesTab').click();await expect(page.locator('#payments.active')).toBeVisible();
+ // The internal invoice and its external reference stay one call away.
+ await page.evaluate(()=>GamaInternalInvoices.view('fi1'));await expect(page.locator('#giText')).toBeVisible();await page.locator('#giLink').click();await expect(page.locator('#giNumber')).toHaveValue('001-002-0000456');
 });
-test('quote list displays automatically generated invoices after refresh',async({page})=>{
- await boot(page);await page.evaluate(()=>{__DB.external_invoices=[];GamaQuotes.open()});
- await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await expect(page.locator('.gqLinked')).toContainText('automáticamente');
- await page.evaluate(i=>{__DB.external_invoices=[i];GamaQuotes.open()},invoice);
- await expect(page.locator('.gqLinked')).toContainText('FI-2026-00000001');
- await page.locator('[data-gq-invoice]').click();await expect(page.locator('#giText')).toBeVisible();
-});
-test('unaccepted quote and client profile never expose internal invoice creation in the list',async({page})=>{
- await boot(page);await page.evaluate(()=>{__DB.invoices[0].quote_state='sent';__DB.external_invoices=[];GamaQuotes.open()});await expect(page.locator('.gqLinked')).toBeVisible();await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));__DB.__calls=[];GamaQuotes.open()});await expect(page.locator('.gqLinked')).toHaveCount(0);expect(await page.evaluate(()=>__DB.__calls.some(c=>c.table==='external_invoices'))).toBe(false);
+test('neither staff nor client see invoice rows under quotes',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.invoices[0].quote_state='sent';__DB.external_invoices=[];GamaQuotes.open()});await expect(page.locator('#quotes')).toContainText('COT-001');await expect(page.locator('.gqLinked, [data-gq-create-invoice]')).toHaveCount(0);
+ await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));__DB.__calls=[];GamaQuotes.open()});await expect(page.locator('#quotes')).toContainText('COT-001');await expect(page.locator('.gqLinked')).toHaveCount(0);expect(await page.evaluate(()=>__DB.__calls.some(c=>c.table==='external_invoices'))).toBe(false);
 });
 
 test('invoice creation waits for validated delivery and keeps existing invoices accessible',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.external_invoices=[];window.__deliveryValidated=false;GamaQuotes.open()});
  await expect(page.locator('[data-gq-create-invoice]')).toHaveCount(0);
- await expect(page.locator('.gqLinked')).toContainText('firma del cliente');
  await page.evaluate(()=>GamaInternalInvoices.create('q1'));await expect(page.locator('dialog')).toContainText('firma del cliente');await expect(page.locator('#giIssue')).toHaveCount(0);
  expect(await page.evaluate(()=>(__internalCalls||[]).filter(x=>x.p_action==='create').length)).toBe(0);
  await page.locator('dialog #gsClose').click();

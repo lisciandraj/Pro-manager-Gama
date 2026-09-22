@@ -17,7 +17,8 @@ async function boot(page,role='admin'){
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForTimeout(1500);
 }
 test('payment module shows invoice content, records partial payment and retains cancelled payment',async({page})=>{
- await boot(page);await page.locator('#mainmenu [data-gama-module="payments"]').click();await expect(page.locator('#gpMain')).toContainText('FAC-123');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','due_soon');
+ // Las facturas son la pestaña Facturas de Presupuestos y facturas.
+ await boot(page);await page.locator('#mainmenu [data-gama-module="quotes"]').click();await page.locator('#gqInvoicesTab').click();await expect(page.locator('#gpMain')).toContainText('FAC-123');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','due_soon');
  await page.locator('[data-gp-detail]').click();await expect(page.locator('#gpMain')).toContainText('Producto A');await expect(page.locator('#gpMain')).toContainText('2026-08-20');await page.locator('#gpPay').click();await page.locator('#gpAmount').fill('40');await page.locator('#gpReference').fill('BANK-123');await page.locator('#gpAccount').selectOption('bank-1');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('BANK-123');expect(await page.evaluate(()=>__paymentCalls.find(c=>c.p_action==='payment').p_data.amount)).toBe(40);
  await page.locator('[data-gp-cancel]').click();await page.locator('#gpReason').fill('Transferencia devuelta');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('Transferencia devuelta');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','overdue');
 });
@@ -34,7 +35,7 @@ test('notifications open the exact payment and expose an orange or red reminder'
  await expect(page.locator('#goAlerts article')).toHaveAttribute('data-priority','2');await page.locator('[data-go-action]').click();await expect(page.locator('#gamaMailSubject')).toHaveValue(/próximo vencimiento/);await page.locator('#gamaMailClose').click();await page.locator('[data-go-open]').click();await expect(page.locator('#payments.active')).toBeVisible();await expect(page.locator('#gpMain h2')).toHaveText('FAC-123');
 });
 test('mobile layout, French labels, missing email and failed reads are explicit',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>GamaPayments.open({invoiceId:'i1'}));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.evaluate(()=>GamaI18n.setLanguage('fr'));await expect(page.locator('#payments')).toContainText('Paiements clients');await page.screenshot({path:'test-results/payments-mobile.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>GamaPayments.open({invoiceId:'i1'}));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.evaluate(()=>GamaI18n.setLanguage('fr'));await expect(page.locator('#payments')).toContainText('Devis et facture');await expect(page.locator('#payments #gqInvoicesTab')).toHaveAttribute('aria-selected','true');await page.screenshot({path:'test-results/payments-mobile.png',fullPage:true});
  await page.evaluate(()=>__receivable.email='');await page.locator('[data-gp-remind]').click();await expect(page.locator('#gamaMailTo')).toHaveCount(0);
  await page.evaluate(()=>__payError=true);await page.locator('#gpDetailRefresh').click();await expect(page.locator('#gpMain [role=alert]')).toBeVisible();
 });

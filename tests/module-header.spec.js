@@ -165,7 +165,7 @@ test('todos los módulos del menú traen exactamente la misma cabecera', async (
   });
 
   const nombres = await page.evaluate(() =>
-    [...document.querySelectorAll('#mainmenu .gamaF2Card')]
+    [...document.querySelectorAll('#mainmenu .gamaF2Card:not(.aclHidden)')]
       .map(c => ((c.querySelector('.gamaF2Title,h3,b,strong') || c).textContent || '').trim().split('\n')[0].slice(0, 34))
       .filter(Boolean)
   );
@@ -202,7 +202,7 @@ test('cada cabecera lleva el icono de la tarjeta que abre el módulo', async ({ 
   });
 
   const modulos = await page.evaluate(() =>
-    [...document.querySelectorAll('#mainmenu .gamaF2Card')].map(c => c.dataset.gamaModule).filter(Boolean));
+    [...document.querySelectorAll('#mainmenu .gamaF2Card:not(.aclHidden)')].map(c => c.dataset.gamaModule).filter(Boolean));
   expect(modulos.length, 'el menú no se pintó').toBeGreaterThan(10);
 
   for (const id of modulos) {

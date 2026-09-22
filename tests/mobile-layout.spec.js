@@ -154,7 +154,7 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
     test.slow();
     await bootTelefono(page, 390);
     const nombres = await page.evaluate(() =>
-      [...document.querySelectorAll('#mainmenu .gamaF2Card')]
+      [...document.querySelectorAll('#mainmenu .gamaF2Card:not(.aclHidden)')]
         .map(c => ((c.querySelector('.gamaF2Title,h3,b,strong') || c).textContent || '').trim().split('\n')[0].slice(0, 34))
         .filter(Boolean)
     );

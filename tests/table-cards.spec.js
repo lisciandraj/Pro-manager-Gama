@@ -142,7 +142,7 @@ test('ninguna pantalla esconde arrastre lateral dentro de una tabla', async ({ p
   test.slow();
   await boot(page);
   const nombres = await page.evaluate(() =>
-    [...document.querySelectorAll('#mainmenu .gamaF2Card')]
+    [...document.querySelectorAll('#mainmenu .gamaF2Card:not(.aclHidden)')]
       .map(c => ((c.querySelector('.gamaF2Title,h3,b,strong') || c).textContent || '').trim().split('\n')[0].slice(0, 34))
       .filter(Boolean));
   expect(nombres.length, 'el menú no se pintó').toBeGreaterThan(10);

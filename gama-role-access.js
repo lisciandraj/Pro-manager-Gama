@@ -11,7 +11,8 @@ const session=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')
 const signature=()=>JSON.stringify([ready,session()?.role,session()?.accessProfile,Object.keys(rows).sort().map(k=>rows[k])]);
 const base=(r,id)=>{const p=roles[baseRole(r)]?.perms;return p==='*'||!!p?.includes(id)};
 function enabled(r,id){
- r=canonical(r);if(!base(r,id))return false;
+ // Un módulo fusionado responde por el que lo absorbió (clients → contacts…).
+ r=canonical(r);id=window.ArcModules.aliases[id]||id;if(!base(r,id))return false;
  if(locked(r,id))return true;
  if(!ready)return false;
  if(id==='customer-requests')id='quotes';

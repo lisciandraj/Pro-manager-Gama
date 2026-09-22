@@ -43,6 +43,7 @@ function write(){
 
 function enabled(id){
  if(id==='customer-requests')id='quotes';
+ id=window.ArcModules?.aliases?.[id]||id;
  if(!id||LOCKED.has(id))return true;
  return !off.has(id);
 }

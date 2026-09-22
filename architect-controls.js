@@ -18,7 +18,7 @@ async function merge(kind){const table={customer:'customers',supplier:'suppliers
 }
 function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('[data-controls-bar]');if(bar)return;bar=document.createElement('div');bar.className='arcToolbar';bar.dataset.controlsBar='';bar.dataset.giIgnore='';
  if(['operations','notifications','gamaPurchasesV14','quotes','sales-orders'].includes(id)&&!['client','cliente'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role))bar.append(button(t('Validaciones','Validations','Approvals'),approvals));
- if(['suppliers','gamaPurchasesV14'].includes(id))bar.append(button(t('Comparar ofertas','Comparer les offres','Compare offers'),()=>window.ArchitectSourcing.open()));
+ if(['suppliers','gamaPurchasesV14'].includes(id)||(id==='contacts'&&window.GamaContacts?.tab()==='suppliers'))bar.append(button(t('Comparar ofertas','Comparer les offres','Compare offers'),()=>window.ArchitectSourcing.open()));
  if(['movement','warehouses'].includes(id))bar.append(button(t('Ajustes a validar','Ajustements à valider','Adjustment approvals'),()=>window.ArchitectStockControls.open()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Horarios de ruta','Horaires de tournée','Route schedules'),()=>window.ArchitectTransportControls.schedules()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Pruebas pendientes','Preuves en attente','Pending proofs'),()=>window.ArchitectOfflineProofs.open()));
@@ -35,7 +35,8 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(id==='access-settings'&&admin())bar.append(button(t('Derechos por acción','Droits par action','Action permissions'),()=>window.ArchitectAccessControls.permissions()),button(t('Revisar accesos','Revoir les accès','Review access'),()=>window.ArchitectAccessControls.reviews()));
  if(id==='settings')bar.append(button(t('Seguridad de mi cuenta','Sécurité de mon compte','My account security'),()=>window.ArchitectIdentity.security()));
  if(id==='settings'&&admin())bar.append(button(t('Reglas operativas','Règles opérationnelles','Operating rules'),policies));
- if(admin()&&['clients','suppliers','crm'].includes(id))bar.append(button(t('Fusionar duplicados','Fusionner les doublons','Merge duplicates'),()=>merge({clients:'customer',suppliers:'supplier',crm:'lead'}[id])));
+ const dupes=id==='contacts'?{clients:'customer',suppliers:'supplier'}[window.GamaContacts?.tab()]:{clients:'customer',suppliers:'supplier',crm:'lead'}[id];
+ if(admin()&&dupes)bar.append(button(t('Fusionar duplicados','Fusionner les doublons','Merge duplicates'),()=>merge(dupes)));
  if(bar.children.length)(host.querySelector('.gamaStdHeader')||host.firstElementChild)?.after(bar);
 }
 window.addEventListener('arc:module-rendered',e=>queueMicrotask(()=>mount(e.detail.id)));

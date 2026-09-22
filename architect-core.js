@@ -785,21 +785,6 @@
       ]
     },
     {
-      "id": "suppliers",
-      "label": "Proveedores",
-      "icon": "factory",
-      "group": "Inventario y compras",
-      "description": "Gestión de los proveedores",
-      "accent": "indigo",
-      "order": 9,
-      "menu": true,
-      "configLabel": "Proveedores",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
-    },
-    {
       "id": "matrix",
       "label": "Matriz comercial",
       "icon": "matrix",
@@ -865,22 +850,18 @@
       ]
     },
     {
-      "id": "clients",
-      "label": "Clientes",
+      "id": "contacts",
+      "label": "Contactos",
       "icon": "users",
       "group": "Ventas",
-      "description": "Base de clientes",
+      "description": "Clientes, proveedores y prospectos",
       "accent": "cyan",
       "order": 16,
       "menu": true,
-      "configLabel": "Clientes",
+      "configLabel": "Contactos",
       "roles": [
         "admin",
         "commercial"
-      ],
-      "header": [
-        "👥 Clientes",
-        "La ficha de cada cliente, en un solo sitio."
       ]
     },
     {
@@ -1122,7 +1103,7 @@
     }
   ];
   const groups = ["Resumen", "Inventario y compras", "Ventas", "Cliente", "Administración", "Logística"];
-  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms" };
+  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms", clients: "contacts", suppliers: "contacts" };
   const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", cliente: "client" };
   const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["client", "Cliente"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
   function ensureExcelModule() {
@@ -1146,53 +1127,56 @@
       document.head.appendChild(s);
     } else if (window.GamaExcelImport) window.GamaExcelImport.render();
   }
-  function openLegacy(x) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+  function openLegacy(x, from) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
     if (window.gamaAccessAllowed && !window.gamaAccessAllowed(x[1])) return;
+    if (x[1] === "contacts") {
+      return (_a = window.GamaContacts) == null ? void 0 : _a.open(from);
+    }
     if (x[1] === "sav") {
-      return (_a = window.GamaService) == null ? void 0 : _a.open();
+      return (_b = window.GamaService) == null ? void 0 : _b.open();
     }
     if (x[1] === "documents") {
-      return (_b = window.GamaDocuments) == null ? void 0 : _b.open();
+      return (_c = window.GamaDocuments) == null ? void 0 : _c.open();
     }
     if (x[1] === "tms") {
-      return (_c = window.gamaTMS) == null ? void 0 : _c.open();
+      return (_d = window.gamaTMS) == null ? void 0 : _d.open();
     }
     if (x[1] === "accounting") {
-      return (_d = window.GamaAccounting) == null ? void 0 : _d.open();
+      return (_e = window.GamaAccounting) == null ? void 0 : _e.open();
     }
     if (x[1] === "fleet") {
-      return (_e = window.GamaFleet) == null ? void 0 : _e.open();
+      return (_f = window.GamaFleet) == null ? void 0 : _f.open();
     }
     if (x[1] === "returns") {
-      return (_f = window.GamaReturns) == null ? void 0 : _f.open();
+      return (_g = window.GamaReturns) == null ? void 0 : _g.open();
     }
     if (x[1] === "projects") {
-      return (_g = window.GamaProjects) == null ? void 0 : _g.open();
+      return (_h = window.GamaProjects) == null ? void 0 : _h.open();
     }
     if (x[1] === "assistant-ia") {
-      return (_h = window.GamaAssistant) == null ? void 0 : _h.open();
+      return (_i = window.GamaAssistant) == null ? void 0 : _i.open();
     }
     if (x[1] === "knowledge") {
-      return (_i = window.GamaKnowledge) == null ? void 0 : _i.open();
+      return (_j = window.GamaKnowledge) == null ? void 0 : _j.open();
     }
     if (x[1] === "payments") {
-      return (_j = window.GamaPayments) == null ? void 0 : _j.open();
+      return (_k = window.GamaPayments) == null ? void 0 : _k.open();
     }
     if (x[1] === "dossier-flow") {
-      return (_k = window.GamaDossierFlow) == null ? void 0 : _k.open();
+      return (_l = window.GamaDossierFlow) == null ? void 0 : _l.open();
     }
     if (["operations", "notifications"].includes(x[1])) {
-      return (_l = window.GamaOperations) == null ? void 0 : _l.open(x[1]);
+      return (_m = window.GamaOperations) == null ? void 0 : _m.open(x[1]);
     }
     if (x[1] === "quotes") {
-      return (_m = window.GamaQuotes) == null ? void 0 : _m.open();
+      return (_n = window.GamaQuotes) == null ? void 0 : _n.open();
     }
     if (x[1] === "client-deliveries") {
-      return (_n = window.GamaQuotes) == null ? void 0 : _n.deliveries();
+      return (_o = window.GamaQuotes) == null ? void 0 : _o.deliveries();
     }
     if (x[1] === "sales-orders") {
-      return (_o = window.GamaSales) == null ? void 0 : _o.open();
+      return (_p = window.GamaSales) == null ? void 0 : _p.open();
     }
     if (window.GamaModules && !window.GamaModules.enabled(x[1])) {
       alert("Este módulo está desactivado en Configuración.");
@@ -1213,44 +1197,44 @@
     }
     if (x[1] === "crm") {
       if (window.showTab) window.showTab("crm", null);
-      (_p = window.GamaOpenCRM) == null ? void 0 : _p.call(window);
+      (_q = window.GamaOpenCRM) == null ? void 0 : _q.call(window);
       return;
     }
     if (x[1] === "price-lists") {
       if (window.showTab) window.showTab("price-lists", null);
-      (_q = window.GamaOpenPriceLists) == null ? void 0 : _q.call(window);
+      (_r = window.GamaOpenPriceLists) == null ? void 0 : _r.call(window);
       return;
     }
     if (x[1] === "client-catalog") {
       if (window.showTab) window.showTab("client-catalog", null);
-      (_r = window.GamaOpenClientCatalog) == null ? void 0 : _r.call(window);
+      (_s = window.GamaOpenClientCatalog) == null ? void 0 : _s.call(window);
       return;
     }
     if (x[1] === "customer-requests") {
       if (window.showTab) window.showTab("customer-requests", null);
-      (_s = window.GamaOpenCustomerRequests) == null ? void 0 : _s.call(window);
+      (_t = window.GamaOpenCustomerRequests) == null ? void 0 : _t.call(window);
       return;
     }
     if (x[1] === "warehouses") {
       if (window.showTab) window.showTab("warehouses", null);
-      (_t = window.GamaOpenWarehouses) == null ? void 0 : _t.call(window);
+      (_u = window.GamaOpenWarehouses) == null ? void 0 : _u.call(window);
       return;
     }
     if (x[1] === "hr") {
-      (_u = window.GamaOpenHR) == null ? void 0 : _u.call(window);
+      (_v = window.GamaOpenHR) == null ? void 0 : _v.call(window);
       return;
     }
     if (x[1] === "access-settings") {
-      (_v = window.GamaOpenAccessSettings) == null ? void 0 : _v.call(window);
+      (_w = window.GamaOpenAccessSettings) == null ? void 0 : _w.call(window);
       return;
     }
     if (x[1] === "settings") {
-      (_w = window.GamaOpenSettings) == null ? void 0 : _w.call(window);
+      (_x = window.GamaOpenSettings) == null ? void 0 : _x.call(window);
       return;
     }
     if (window.showTab) window.showTab(x[1], null);
   }
-  const registry = definitions.map((m) => Object.freeze({ ...m, open: () => openLegacy([m.label, m.id, m.icon, m.group]) }));
+  const registry = definitions.map((m) => Object.freeze({ ...m, open: (from) => openLegacy([m.label, m.id, m.icon, m.group], from) }));
   const hooks = /* @__PURE__ */ new Map();
   let current = "mainmenu", cleanups = [];
   function unmount() {
@@ -1314,10 +1298,11 @@
     return true;
   }
   function open(id) {
+    const requested = id;
     id = canonical(id);
     if (!allowed(id)) return refuse(id);
     const definition = registry.find((m) => m.id === id);
-    if (definition == null ? void 0 : definition.open) return definition.open();
+    if (definition == null ? void 0 : definition.open) return definition.open(requested);
     return show(id);
   }
   function startRouter() {

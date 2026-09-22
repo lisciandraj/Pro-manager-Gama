@@ -133,7 +133,7 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
     customers: [{ id: 'c1', name: 'Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true }],
   });
 
-  for (const id of ['products', 'clients', 'billing', 'audit', 'stock', 'barcode', 'backup']) {
+  for (const id of ['products', 'billing', 'audit', 'stock', 'barcode', 'backup']) {
     const tarjeta = await leerTarjeta(page, id);
     await page.evaluate(x => window.showTab(x, null), id);
     await page.waitForTimeout(250);

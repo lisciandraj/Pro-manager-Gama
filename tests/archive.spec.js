@@ -92,7 +92,7 @@ test.describe('Archivar en lugar de borrar', () => {
       customers: [{ id: 'c1', name: 'Ferretería Sol', identification: '099', email: 'sol@example.com', active: true }],
       invoices: [{ id: 'i1', invoice_number: '001', customer_id: 'c1', total: 10, status: 'issued', issue_date: new Date().toISOString() }],
     });
-    await page.click('#mainmenu .gamaF2Card:has-text("Clientes")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
     await expect(page.locator('#clientsTable')).toContainText('Ferretería Sol');
 
     page.once('dialog', async d => { expect(d.message()).toContain('Archivar'); await d.accept(); });

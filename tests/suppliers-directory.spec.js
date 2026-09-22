@@ -34,7 +34,7 @@ test.describe('Proveedores — central directory', () => {
   test('lists suppliers coming from the central table, not localStorage', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Proveedores")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-contacts-tab="suppliers"]');
 
     await expect(page.locator('#supList')).toContainText('Proveedora Nacional S.A.');
     await expect(page.locator('#supList')).toContainText('TecnoSuministros Ecuador');
@@ -45,7 +45,7 @@ test.describe('Proveedores — central directory', () => {
   test('saving a new supplier writes it to the central table', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Proveedores")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-contacts-tab="suppliers"]');
     await expect(page.locator('#supList')).toContainText('Proveedora Nacional S.A.');
 
     await page.fill('#supName', 'Papelera del Sur');
@@ -68,7 +68,7 @@ test.describe('Proveedores — central directory', () => {
 
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Proveedores")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-contacts-tab="suppliers"]');
     await expect(page.locator('#supList')).toContainText('TecnoSuministros Ecuador');
 
     await page.click('#supList [data-del="sup2"]');
@@ -84,7 +84,7 @@ test.describe('Proveedores — central directory', () => {
 
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Proveedores")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-contacts-tab="suppliers"]');
     await page.click('#supList [data-del="sup2"]');
     await expect(page.locator('#supList')).not.toContainText('TecnoSuministros Ecuador');
 

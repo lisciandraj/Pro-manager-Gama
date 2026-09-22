@@ -5,7 +5,6 @@ const SUP_KEY='gama_suppliers_v1', MAT_KEY='gama_matrix_v1';
 /* La descripción de cada pantalla, en un solo sitio: section() sólo escribe la
    cabecera la primera vez, así que si el texto estuviera repetido ganaría el
    de quien llame antes — que es justo lo que pasaba con la matriz. */
-const SUP_LEAD='El contacto y las condiciones de cada proveedor.';
 const MAT_LEAD='Calcula el precio de venta según tu margen.';
 const $=id=>document.getElementById(id);
 function load(k,fallback=[]){try{const v=JSON.parse(localStorage.getItem(k)||'null');return Array.isArray(v)?v:fallback}catch(e){return fallback}}
@@ -41,7 +40,8 @@ async function migrateLocalSuppliersOnce(existing){
  try{localStorage.setItem(MIGRATED_KEY,'1')}catch(e){}
  return moved;
 }
-function renderSuppliers(){section('suppliers','🏭 Proveedores',SUP_LEAD);const host=$('suppliersContent');if(!host)return;const cleanup=window.ArcDirectories.suppliers(host);fetchSuppliers().then(rows=>{cloudSuppliers=rows;return migrateLocalSuppliersOnce(rows)}).then(moved=>{if(moved){window.ArcData.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}))}}).catch(console.error);return cleanup}
+// El directorio vive en la pestaña Proveedores de Contactos, que le da su sitio.
+function mountSuppliers(host){if(!host)return null;const cleanup=window.ArcDirectories.suppliers(host);fetchSuppliers().then(rows=>{cloudSuppliers=rows;return migrateLocalSuppliersOnce(rows)}).then(moved=>{if(moved){window.ArcData.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}))}}).catch(console.error);return cleanup}
 
 let matrixEpoch=0,matrixRequest=null;
 const mt=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
@@ -100,7 +100,8 @@ window.addEventListener('gama:auth-change',()=>{matrixEpoch++;matrixRequest=null
    repintaba. El efecto secundario era que Configuración no se podía abrir
    desde ninguna parte. Matriz comercial tiene ahora su propia entrada en
    gama-menu-final2.js, que es donde se declaran las demás. */
-function hook(){injectStyles();section('matrix','📊 Matriz comercial',MAT_LEAD);window.ArcRouter.onEnter('suppliers',renderSuppliers);window.ArcRouter.onEnter('matrix',renderMatrix)}
+function hook(){injectStyles();section('matrix','📊 Matriz comercial',MAT_LEAD);window.ArcRouter.onEnter('matrix',renderMatrix)}
+window.GamaSuppliers={mount:mountSuppliers};
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,50),{once:true});else setTimeout(hook,50);
 })();

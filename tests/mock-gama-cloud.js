@@ -526,6 +526,15 @@
       },
       rpc: async (fn, args) => {
         if(fn==='gama_action_allowed')return {data:true};
+        // Prioridades de hoy: las prepara la prueba en window.__PRIO; por defecto, nada pendiente.
+        if(fn==='gama_dashboard_priorities'){
+          const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
+          if(['client','cliente'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          if(window.__PRIO_FAIL)return {error:{message:'NETWORK_TEST'}};
+          const items=(window.__PRIO?.items||[]).filter(x=>!x.finance_only||!['magasinier','almacenero'].includes(role));
+          const groups=['magasinier','almacenero'].includes(role)?[]:(window.__PRIO?.groups||[]),extra=tone=>groups.filter(g=>g.tone===tone).reduce((n,g)=>n+g.count,0);
+          return {data:{generated_at:new Date().toISOString(),today:window.__PRIO?.today||new Date().toISOString().slice(0,10),counts:{danger:items.filter(x=>x.tone==='danger').length+extra('danger'),warning:items.filter(x=>x.tone==='warning').length+extra('warning')},groups,items}};
+        }
         if(fn==='gama_resolve_price'){
           const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
           return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};

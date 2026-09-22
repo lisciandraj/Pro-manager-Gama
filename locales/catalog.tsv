@@ -2602,3 +2602,29 @@ registros	enregistrements	records
 Vista	Vue	View
 Potencial × probabilidad · oportunidades abiertas	Potentiel × probabilité · opportunités ouvertes	Amount × probability · open opportunities
 Ganadas en el periodo · antes de facturar	Gagnées dans la période · avant facturation	Won in the period · before invoicing
+Realizar las actividades comerciales atrasadas	Réaliser les activités commerciales en retard	Complete overdue sales activities
+Vencido o límite superado	Échu ou limite dépassée	Overdue or limit exceeded
+La fecha o el límite ya se pasó.	La date ou la limite est dépassée.	The date or limit has passed.
+Esta semana o límite cercano	Cette semaine ou limite proche	This week or limit close
+Vence en los próximos siete días, el límite está cerca o espera una acción.	Échéance dans les sept jours, limite proche ou action en attente.	Due within seven days, limit close or awaiting action.
+Vencido el	Échu le	Overdue since
+A cargo de	Pris en charge par	Handled by
+Nada vencido. Buen trabajo.	Rien d’échu. Beau travail.	Nothing overdue. Well done.
+Nada que venza esta semana.	Rien n’arrive à échéance cette semaine.	Nothing due this week.
+Las acciones de seguimiento comercial y logístico. No cambian con el periodo de análisis.	Les actions de suivi commercial et logistique. Elles ne dépendent pas de la période d’analyse.	Sales and logistics follow-up actions. They do not depend on the analysis period.
+No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.	Impossible de charger les actions de suivi. Actualisez pour réessayer.	Follow-up actions could not be loaded. Refresh to try again.
+No se ha podido abrir el dossier. Vuelve a intentarlo.	Impossible d’ouvrir le dossier. Réessayez.	The file could not be opened. Try again.
+Facturas de proveedor vencidas	Factures fournisseurs échues	Overdue supplier invoices
+Pagos a proveedor próximos a vencer	Paiements fournisseurs bientôt échus	Supplier payments due soon
+Pago a proveedor próximo a vencer	Paiement fournisseur bientôt échu	Supplier payment due soon
+Factura de proveedor vencida	Facture fournisseur échue	Overdue supplier invoice
+Factura vencida	Facture échue	Overdue invoice
+Entrega atrasada	Livraison en retard	Late delivery
+Entrega fallida	Livraison échouée	Failed delivery
+Recepción atrasada	Réception en retard	Late receipt
+Presupuesto sin respuesta	Devis sans réponse	Unanswered quote
+Producto bajo stock mínimo	Produit sous le stock minimum	Product below minimum stock
+SAV fuera de plazo	SAV hors délai	After-sales overdue
+Oportunidad sin próxima acción	Opportunité sans prochaine action	Opportunity with no next action
+Conciliar los movimientos bancarios	Rapprocher les mouvements bancaires	Reconcile bank transactions
+Adjuntar los justificantes de gasto	Joindre les justificatifs de dépense	Attach expense receipts

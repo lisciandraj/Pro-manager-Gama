@@ -10,7 +10,7 @@ const num=v=>v==null?'—':Number(v).toLocaleString(locale(),{maximumFractionDig
 const money=(v,currency=snapshot?.currency)=>v==null?'—':window.GamaCurrency.format(v,currency||undefined);
 const active=()=>$('dashboard')?.classList.contains('active')&&allowed('dashboard');
 let snapshot=null,generation=0,updated=0,inflight=null,abort=null,range={preset:'month',from:day().slice(0,8)+'01',to:day()};
-let showAll=false;const roleView=()=>{try{const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;return ['almacenero','magasinier'].includes(role)?'logistics':['comercial','commercial'].includes(role)?'sales':'management'}catch{return 'management'}};let view=roleView();
+let showAll=false,priorities=null,prioritiesFailed=false;const roleView=()=>{try{const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;return ['almacenero','magasinier'].includes(role)?'logistics':['comercial','commercial'].includes(role)?'sales':'management'}catch{return 'management'}};let view=roleView();
 const definitions=[
  ['payments','Ventas y cobros',[['current.net','Facturado sin impuestos','money','period'],['current.collected','Cobros confirmados','money','period'],['receivable','Pendiente de cobro','money'],['overdue','Cobros vencidos','money']]],
  ['sales-orders','Pedidos de clientes',[['current','Pedidos confirmados','number','period'],['to_ship','Pedidos por expedir'],['drafts','Borradores']]],
@@ -30,24 +30,23 @@ const definitions=[
  ['suppliers','Proveedores',[['active','Proveedores activos']]],
  ['products','Productos',[['active','Productos activos']]]
 ];
-const alertDefs=[
- ['payments','overdue_count','Relanzar los cobros vencidos','danger'],
- ['tms','late','Resolver las entregas atrasadas','danger'],
- ['warehouses','out','Revisar las referencias sin disponibilidad','danger'],
- ['sav','late','Atender las reclamaciones atrasadas','danger'],
- ['accounting','overdue_count','Revisar los pagos a proveedores','danger'],
+/* «Prioridades de hoy» recoge lo que hacía el módulo Control comercial y
+   logístico: cada acción de seguimiento, una por una, en rojo si su fecha o su
+   límite ya se superó y en naranja si vence esta semana o el límite está
+   cerca. El tono lo decide la base con las fechas reales
+   (gama_dashboard_priorities); aquí sólo se agrupa y se pinta.
+   Estos resúmenes por módulo completan lo que esas alertas no cubren. */
+const prioritySummaries=[
  ['projects','late_tasks','Desbloquear las tareas atrasadas','danger'],
  ['documents','expired','Renovar los documentos vencidos','danger'],
- ['gamaPurchasesV14','late','Relanzar las recepciones atrasadas','warning'],
- ['fleet','documents_due','Revisar los documentos de los vehículos','warning'],
- ['crm','late','Realizar las actividades comerciales','warning'],
+ ['crm','late','Realizar las actividades comerciales atrasadas','danger'],
  ['sales-orders','to_ship','Preparar los pedidos pendientes','warning'],
- ['quotes','waiting','Dar seguimiento a los presupuestos','warning'],
  ['sav','unassigned','Asignar un responsable SAV','warning'],
- ['hr','pending','Revisar las solicitudes de ausencia','warning'],
- ['documents','expiring','Anticipar los vencimientos documentales','warning'],
- ['returns','open','Tratar las devoluciones abiertas','warning']
+ ['hr','pending','Revisar las solicitudes de ausencia','warning']
 ];
+/* Tareas de oficina que la base devuelve agrupadas: una línea con su número. */
+const PRIORITY_GROUPS={bank_unmatched:'Conciliar los movimientos bancarios',expense_no_receipt:'Adjuntar los justificantes de gasto'};
+const TONES=[['danger','Vencido o límite superado','La fecha o el límite ya se pasó.'],['warning','Esta semana o límite cercano','Vence en los próximos siete días, el límite está cerca o espera una acción.']];
 const valueAt=(object,path)=>path.split('.').reduce((v,k)=>v?.[k],object);
 const icon=id=>{const name=moduleDef(id)?.icon||'chart';return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">${window.ArcUI.icons?.[name]||''}</svg>`};
 const go=(id,label,extra='')=>`<button type="button" class="arcButton secondary" data-ad-open="${E(id)}" ${extra}>${E(t(label))} <span aria-hidden="true">→</span></button>`;
@@ -70,6 +69,34 @@ function syncForm(){if(!$('ad-period'))return;$('ad-preset').value=range.preset;
 function preset(p){let to=day(),from=to.slice(0,8)+'01';if(p==='custom')return;if(p==='previous-month'){to=shift(from,-1);from=to.slice(0,8)+'01'}if(p==='30')from=shift(to,-29);if(p==='year')from=to.slice(0,4)+'-01-01';range={preset:p,from,to};syncForm();refresh(true)}
 function comparison(now,previous){if(now==null||previous==null)return t('Comparación no disponible');if(previous===0)return now===0?t('Sin variación'):t('Sin base de comparación');const pct=(now-previous)/Math.abs(previous)*100;return `${pct>0?'+':''}${num(pct)} % · ${t('periodo anterior')}`}
 function metric(id,label,amount,detail,previous,format='money',field=''){return `<button type="button" class="arcPanel adMetric" data-ad-open="${E(id)}" data-ad-metric="${E(field)}"><span class="adMetricLabel">${icon(id)}${E(t(label))}</span><strong>${E(format==='money'?money(amount):num(amount))}</strong><small>${E(t(detail))}</small>${previous!==undefined?`<span class="adDelta">${E(comparison(amount,previous))}</span>`:''}<span class="adMetricArrow" aria-hidden="true">↗</span></button>`}
+/* Una línea por acción: qué es, de qué dossier, para quién, y cuándo vence. */
+function when(item){
+ if(!item.due_on)return '';
+ const days=Math.round((new Date(item.due_on+'T12:00:00Z')-new Date((priorities?.today||day())+'T12:00:00Z'))/86400000);
+ return days===0?t('Vence hoy'):`${t(days<0?'Vencido el':'Vence el')} ${date(item.due_on)}`;
+}
+function priorityItem(item,index){
+ const label=when(item);
+ return `<li><button type="button" class="adPrio" data-tone="${E(item.tone)}" data-ad-prio="${index}"><span class="adPrioText"><strong>${E(t(item.title))}${item.reference?` <span class="adPrioRef">${E(item.reference)}</span>`:''}</strong><small>${E([item.customer,item.detail].filter(Boolean).join(' · '))}</small>${item.assigned_name?`<small class="adPrioOwner">${E(t('A cargo de'))} ${E(item.assigned_name)}</small>`:''}</span>${label?`<span class="adPrioWhen">${E(label)}</span>`:''}<span aria-hidden="true">→</span></button></li>`;
+}
+function summaryItem([id,key,label,tone],s){
+ return `<li><button type="button" class="adPrio adPrioSummary" data-tone="${tone}" data-ad-open="${E(id)}" data-ad-focus="${E(key)}"><span class="adAlertCount">${E(num(s[id][key]))}</span><span class="adPrioText"><strong>${E(t(label))}</strong><small>${E(t(moduleDef(id)?.label||id))}</small></span><span aria-hidden="true">→</span></button></li>`;
+}
+function groupItem(group){
+ return `<li><button type="button" class="adPrio adPrioSummary" data-tone="${E(group.tone)}" data-ad-group="${E(group.kind)}"><span class="adAlertCount">${E(num(group.count))}</span><span class="adPrioText"><strong>${E(t(PRIORITY_GROUPS[group.kind]||group.kind))}</strong><small>${E(t(moduleDef('accounting')?.label||'Contabilidad'))}</small></span><span aria-hidden="true">→</span></button></li>`;
+}
+function priorityPanel(s,has){
+ const groups=(priorities?.groups||[]).filter(g=>PRIORITY_GROUPS[g.kind]);
+ const items=priorities?.items||[],summaries=prioritySummaries.filter(([id,key])=>has(id)&&Number(s[id]?.[key])>0);
+ const columns=TONES.map(([tone,title,help])=>{
+  const own=items.map((x,i)=>[x,i]).filter(([x])=>x.tone===tone),extra=summaries.filter(x=>x[3]===tone),bundles=groups.filter(g=>g.tone===tone);
+  const total=(priorities?.counts?.[tone]??own.length)+extra.reduce((n,[id,key])=>n+Number(s[id][key]),0);
+  const shown=showAll?own:own.slice(0,6);
+  return `<div class="adPrioColumn" role="region" data-tone="${tone}" aria-labelledby="ad-prio-${tone}"><div class="adPrioHead"><span class="adAlertCount">${E(num(total))}</span><div><h3 id="ad-prio-${tone}">${E(t(title))}</h3><p>${E(t(help))}</p></div></div>${own.length||extra.length||bundles.length?`<ul class="adPrioList">${shown.map(([x,i])=>priorityItem(x,i)).join('')}${bundles.map(groupItem).join('')}${extra.map(x=>summaryItem(x,s)).join('')}</ul>`:`<p class="adEmpty">${E(t(tone==='danger'?'Nada vencido. Buen trabajo.':'Nada que venza esta semana.'))}</p>`}</div>`;
+ }).join('');
+ const hidden=items.length-TONES.reduce((n,[tone])=>n+Math.min(6,items.filter(x=>x.tone===tone).length),0);
+ return `<article class="arcPanel adPriorities"><div class="adHeading"><div><h2>${E(t('Prioridades de hoy'))}</h2><p>${E(t('Las acciones de seguimiento comercial y logístico. No cambian con el periodo de análisis.'))}</p></div><span class="adDate">${E(date(snapshot.today))}</span></div>${prioritiesFailed?`<p class="adNotice" role="alert">${E(t('No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.'))}</p>`:''}<div class="adPrioBoard">${columns}</div>${hidden>0||showAll?`<div class="arcToolbar"><button type="button" class="arcButton ghost" id="ad-all-alerts">${E(t(showAll?'Ver menos':'Ver todas las prioridades'))} (${num(items.length)})</button></div>`:''}</article>`;
+}
 function render(){
  if(!snapshot||!active())return;shell();const s=snapshot.sections,p=snapshot.period,has=id=>Object.hasOwn(s,id)&&allowed(id);
  const unavailable=(snapshot.unavailable||[]).filter(id=>allowed(id)),modules=Object.keys(s).filter(allowed),cards=[];
@@ -81,14 +108,13 @@ function render(){
  if(has('tms'))cards.push(metric('tms','Entregas realizadas',s.tms?.delivered,'Periodo seleccionado',undefined,'number','delivered'));
  if(has('sales-orders'))cards.push(metric('sales-orders','Pedidos por expedir',s['sales-orders']?.to_ship,'Situación actual',undefined,'number','to_ship'))}
  if(view==='sales'&&has('crm')){cards.push(metric('crm','Pipeline ponderado',s.crm?.weighted,'Potencial × probabilidad · oportunidades abiertas',undefined,'money','weighted'));cards.push(metric('crm','Oportunidades ganadas',s.crm?.won,'Ganadas en el periodo · antes de facturar',undefined,'money','won'))}
- const alerts=alertDefs.filter(([id,key])=>has(id)&&Number(s[id]?.[key])>0),visible=showAll?alerts:alerts.slice(0,6);
  $('ad-content').innerHTML=`<div class="adMeta"><span>${E(date(p.from))} — ${E(date(p.to))} <small>· ${E(t('Comparación'))} ${E(date(p.previous_from))} — ${E(date(p.previous_to))}</small></span><span>${E(t('Actualizado'))} ${E(new Date(snapshot.generated_at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}))}</span></div>
  ${unavailable.length?`<p class="adNotice" role="alert">${E(t('Datos parciales. Fuentes no disponibles:'))} ${unavailable.map(id=>E(t(moduleDef(id)?.label||id))).join(', ')}. ${E(t('Actualiza para reintentar.'))}</p>`:''}
  <div class="adMetrics">${cards.join('')}</div>
- <article class="arcPanel adPriorities"><div class="adHeading"><div><h2>${E(t('Prioridades de hoy'))}</h2><p>${E(t('Los pendientes actuales no cambian con el periodo de análisis.'))}</p></div><span class="adDate">${E(date(snapshot.today))}</span></div><div class="adAlertGrid">${visible.map(([id,key,label,tone])=>`<button type="button" class="adAlert" data-ad-open="${E(id)}" data-ad-focus="${E(key)}" data-tone="${tone}"><span class="adAlertCount">${E(num(s[id][key]))}</span><span><strong>${E(t(label))}</strong><small>${E(t(moduleDef(id)?.label||id))}</small></span><span aria-hidden="true">→</span></button>`).join('')||`<p class="adEmpty">${E(t(unavailable.length?'No hay alertas en los datos disponibles.':'No hay prioridades detectadas en los módulos disponibles.'))}</p>`}</div><div class="arcToolbar">${alerts.length>6?`<button type="button" class="arcButton ghost" id="ad-all-alerts">${E(t(showAll?'Ver menos':'Ver todas las prioridades'))} (${num(alerts.length)})</button>`:''}${allowed('operations')?go('operations','Control comercial y logístico'):''}</div></article>
+ ${priorityPanel(s,has)}
  ${has('payments')?financial(s.payments):''}${has('accounting')?accounting(s.accounting):''}
  <div class="adHeading"><div><h2>${E(t('La empresa por actividad'))}</h2><p>${E(t('Situación actual. Los valores marcados «Periodo» siguen las fechas seleccionadas.'))}</p></div><span class="adDate">${num(modules.length-unavailable.length)} ${E(t('fuentes conectadas'))}</span></div>
- <div class="adModuleGrid">${definitions.filter(([id])=>has(id)).sort((a,b)=>{const priority=view==='logistics'?['warehouses','sales-orders','tms','gamaPurchasesV14','returns']:view==='sales'?['crm','quotes','sales-orders','clients','payments']:[];return (priority.includes(a[0])?priority.indexOf(a[0]):100)-(priority.includes(b[0])?priority.indexOf(b[0]):100)}).map(([id,label,metrics])=>`<article class="arcPanel adModule" data-ad-source="${E(id)}"><div class="adModuleHead"><span class="adModuleIcon">${icon(id)}</span><h3>${E(t(label))}</h3></div>${s[id]==null?`<p class="adEmpty">${E(t('Datos no disponibles'))}</p>`:`<dl>${metrics.map(([key,label,type,scope])=>`<div><dt>${E(t(label))}${scope?` <small>${E(t('Periodo'))}</small>`:''}</dt><dd>${E(type==='money'?money(valueAt(s[id],key)):num(valueAt(s[id],key)))}</dd></div>`).join('')}</dl>`}${go(id,'Abrir módulo')}</article>`).join('')}</div>
+ <div class="adModuleGrid">${definitions.filter(([id])=>has(id)).sort((a,b)=>{const priority=view==='logistics'?['warehouses','sales-orders','tms','gamaPurchasesV14','returns']:view==='sales'?['crm','quotes','sales-orders','clients','payments']:[];return (priority.includes(a[0])?priority.indexOf(a[0]):100)-(priority.includes(b[0])?priority.indexOf(b[0]):100)}).map(([id,label,metrics])=>`<article class="arcPanel adModule" data-ad-source="${E(id)}"><div class="adModuleHead"><span class="adModuleIcon">${icon(id)}</span><h3>${E(t(label))}</h3></div>${s[id]==null?`<p class="adEmpty">${E(t('Datos no disponibles'))}</p>`:`<dl>${metrics.map(([key,label,type,scope])=>`<div><dt>${E(t(label))}${scope?` <small>${E(t('Periodo'))}</small>`:''}</dt><dd>${E(type==='money'?money(valueAt(s[id],key)):num(valueAt(s[id],key)))}</dd></div>`).join('')}</dl>`}${go(id,'Abrir módulo')}</article>`).join('')}</div><div id="ad-hr-cost"></div>
  <details class="arcPanel adMethod"><summary>${E(t('Cómo leer estos indicadores'))}</summary><p>${E(t('La facturación incluye las facturas internas y externas válidas una sola vez, antes de abonos. Los cobros incluyen solo pagos confirmados. El pendiente de cobro descuenta pagos y abonos.'))}</p><p>${E(t('Las fechas siguen la zona horaria de la empresa: Ecuador. La comparación usa el intervalo anterior con el mismo número de días.'))}</p><p>${E(t('Los saldos, retrasos y existencias son actuales; no reconstruyen una situación histórica. Solo se muestran los datos permitidos por tu perfil.'))}</p><p>${E(t('Los módulos de configuración y las herramientas de apoyo no generan indicadores adicionales.'))}</p></details>`;
  $('ad-all-alerts')?.addEventListener('click',()=>{showAll=!showAll;render();$('ad-all-alerts')?.focus()});window.ArcUI.mount($('ad-content'));
 }
@@ -107,7 +133,15 @@ async function details(module,field,offset=0,period={...range}){
  const monetary=['payments','crm'].includes(module),d=window.ArcUI.dialog({title:t('Detalle del indicador'),saveLabel:t('Cerrar'),body:`<p>${E(date(period.from))} — ${E(date(period.to))} · ${E(t(field==='receivable'||field==='out'||field==='to_ship'||field==='weighted'?'Situación actual':'Periodo seleccionado'))}</p><p><b>${E(monetary?money(r.total):num(r.total))}</b> · ${E(num(r.count))} ${E(t('registros'))}</p>${window.ArcUI.table({columns:[{key:'label',label:t('Referencia')},{key:'customer',label:t('Cliente / artículo')},{key:'date',label:t('Fecha'),value:x=>date(x.date)},{key:'amount',label:t(monetary?'Importe':'Cantidad'),value:x=>monetary?money(x.amount):num(x.amount)},{label:'',actions:true,html:x=>x.order_id&&allowed('sales-orders')?`<button type=button data-dashboard-order="${E(x.order_id)}">${E(t('Ver pedido'))}</button>`:''}],items:r.rows})}<div class="arcToolbar"><button type=button data-detail-prev ${offset===0?'disabled':''}>${E(t('Anterior'))}</button><button type=button data-detail-next ${offset+100>=r.count?'disabled':''}>${E(t('Siguiente'))}</button></div>`,onSave:async()=>{}});d.dataset.dashboardDetail='';
  d.querySelector('[data-detail-prev]').onclick=()=>{d.close();details(module,field,Math.max(0,offset-100),period).catch(e=>window.gamaToast?.(window.ArcErrors.message(e)))};d.querySelector('[data-detail-next]').onclick=()=>{d.close();details(module,field,offset+100,period).catch(e=>window.gamaToast?.(window.ArcErrors.message(e)))};d.querySelectorAll('[data-dashboard-order]').forEach(b=>b.onclick=()=>{d.close();window.GamaSales.openOrder(b.dataset.dashboardOrder)});
 }
-async function click(e){const b=e.target.closest('[data-ad-open]');if(!b||!allowed(b.dataset.adOpen))return;const id=b.dataset.adOpen,focus=b.dataset.adFocus;b.disabled=true;try{
+async function click(e){
+ const bundle=e.target.closest('[data-ad-group]');
+ if(bundle){const group=priorities?.groups?.find(g=>g.kind===bundle.dataset.adGroup);if(!group||!window.GamaOperations)return;bundle.disabled=true;
+  try{await window.GamaOperations.dossier({target:group.target})}catch(error){window.gamaToast?.(t(error?.message||'No se ha podido abrir el dossier. Vuelve a intentarlo.'))}finally{bundle.disabled=false}return}
+ const prio=e.target.closest('[data-ad-prio]');
+ if(prio){const item=priorities?.items?.[Number(prio.dataset.adPrio)];if(!item||!window.GamaOperations)return;prio.disabled=true;
+  // El mismo destino que tenía el botón «Abrir dossier» del módulo de seguimiento.
+  try{await window.GamaOperations.dossier(item)}catch(error){window.gamaToast?.(t(error?.message||'No se ha podido abrir el dossier. Vuelve a intentarlo.'))}finally{prio.disabled=false}return}
+ const b=e.target.closest('[data-ad-open]');if(!b||!allowed(b.dataset.adOpen))return;const id=b.dataset.adOpen,focus=b.dataset.adFocus;b.disabled=true;try{
  if(b.dataset.adMetric){await details(id,b.dataset.adMetric);return}
  if(id==='payments'&&window.GamaPayments)await window.GamaPayments.open({status:focus==='overdue_count'?'overdue':b.dataset.adMetric==='receivable'?'open':'all'});
  else if(id==='accounting'&&window.GamaAccounting)await window.GamaAccounting.open({section:focus==='overdue_count'?'payables':'overview'});
@@ -123,14 +157,19 @@ async function refresh(force=false){
   try{await window.GamaCloudReady;const c=await window.GamaCloud.db();if(token!==generation)return;
    const session=(await window.GamaCloud.getSession()).data?.session;if(!session)throw Error('AUTH_REQUIRED');
    let query=c.rpc('gama_company_dashboard',{p_from:range.from,p_to:range.to});if(query.abortSignal)query=query.abortSignal(signal);
+   let follow=c.rpc('gama_dashboard_priorities');if(follow.abortSignal)follow=follow.abortSignal(signal);
+   const followed=Promise.resolve(follow).then(x=>x,error=>({error}));
    const r=await Promise.race([query,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TIMEOUT'))},20000)})]);
    if(r.error)throw r.error;if(!r.data||!r.data.sections||!r.data.period||r.data.user_id!==session.user.id)throw Error('INVALID_DASHBOARD');
-   if(token!==generation||!active())return;snapshot=r.data;updated=Date.now();render();
+   const p=await followed;if(token!==generation||!active())return;
+   priorities=p.error||!Array.isArray(p.data?.items)?null:p.data;prioritiesFailed=!priorities;if(prioritiesFailed)console.warn('[dashboard] prioridades',p.error?.code||p.error?.message||'INVALID');
+   snapshot=r.data;updated=Date.now();render();
+   const hr=$('ad-hr-cost');if(hr&&window.GamaHRP1)window.GamaHRP1.mountFinance(hr,range.from,range.to);
   }catch(error){if(token!==generation||!active())return;console.warn('[dashboard]',error.code||error.message);snapshot=null;$('ad-content').innerHTML=`<div class="arcPanel adNotice" role="alert"><p>${E(t('No se han podido cargar los indicadores. Actualiza para reintentar.'))}</p><button type="button" class="arcButton secondary" id="ad-retry">${E(t('Reintentar'))}</button></div>`;$('ad-retry').onclick=()=>refresh(true);
   }finally{clearTimeout(timer);if(token===generation){inflight=null;$('ad-content')?.removeAttribute('aria-busy')}}
  })();inflight=run;await run;
 }
-function invalidate(){generation++;abort?.abort();inflight=null;snapshot=null;updated=0;showAll=false;view=roleView();document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
+function invalidate(){generation++;abort?.abort();inflight=null;snapshot=null;priorities=null;prioritiesFailed=false;updated=0;showAll=false;view=roleView();document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
 window.ArchitectDashboard={refresh};
 window.addEventListener('arc:route-change',e=>{if(e.detail?.id==='dashboard')refresh()});
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id==='dashboard'){generation++;abort?.abort();inflight=null;updated=0}});

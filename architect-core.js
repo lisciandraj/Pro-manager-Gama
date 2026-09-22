@@ -663,22 +663,6 @@
       ]
     },
     {
-      "id": "operations",
-      "label": "Control comercial y logístico",
-      "icon": "gauge",
-      "group": "Resumen",
-      "description": "Alertas comerciales y logísticas",
-      "accent": "cyan",
-      "order": 100,
-      "menu": true,
-      "configLabel": "Control comercial y logístico",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
-    },
-    {
       "id": "notifications",
       "label": "Notificaciones",
       "icon": "bell",
@@ -1153,7 +1137,7 @@
     }
   ];
   const groups = ["Resumen", "Inventario y compras", "Ventas", "Cliente", "Administración", "Logística"];
-  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement" };
+  const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard" };
   const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", cliente: "client" };
   const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["client", "Cliente"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
   function ensureExcelModule() {

@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
-const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-dashboard.js'),'utf8');
 const bridge=`
 (()=>{
 window.__opsCalls=[];
@@ -20,15 +20,24 @@ async function boot(page,role='admin'){
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
  await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForTimeout(1400);
 }
-test('separates stages, switches screens and links directly to the order',async({page})=>{
- await boot(page);await page.locator('#mainmenu .gamaF2Card').filter({hasText:'Control comercial y logístico'}).click();
- await expect(page.locator('#goMain')).toContainText('Expedido sin factura');await expect(page.locator('#goAlerts img')).toHaveCount(0);
+// Control comercial y logístico se fusionó en el panel de control: sus acciones
+// de seguimiento son ahora «Prioridades de hoy». El módulo no queda en el menú,
+// los enlaces antiguos aterrizan en el panel y cada acción abre su dossier.
+test('the follow-up module now lives in the dashboard priorities',async({page})=>{
+ await boot(page);
+ await expect(page.locator('#mainmenu .gamaF2Card').filter({hasText:'Control comercial y logístico'})).toHaveCount(0);
+ await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="operations"]')).toHaveCount(0);
+ await page.evaluate(()=>{window.__PRIO={today:'2026-09-19',items:[{alert_key:'shortage:o1',kind:'shortage',target:'order',target_id:'o1',reference:'PV-001',customer:'Andes <img src=x onerror=alert(1)>',title:'Pedido bloqueado por stock',detail:'4 unidades sin reservar',tone:'danger',due_on:null}]}});
+ await page.evaluate(()=>ArcRouter.open('operations'));
+ await expect(page.locator('#dashboard')).toBeVisible();
+ const red=page.locator('.adPrioColumn[data-tone=danger]');
+ await expect(red.locator('[data-ad-prio]')).toHaveCount(1);await expect(page.locator('.adPriorities img')).toHaveCount(0);
  await page.evaluate(()=>{GamaSales.openOrder=async id=>{window.__opened=id}});
- await page.getByRole('button',{name:'Abrir dossier',exact:true}).click();expect(await page.evaluate(()=>window.__opened)).toBe('o1');
- await page.locator('#goSwitch').click();await expect(page.locator('#goMain')).toHaveCount(1);await expect(page.locator('#notifications')).toBeVisible();
- await page.locator('#goSwitch').click();await expect(page.locator('#goMain')).toHaveCount(1);await expect(page.locator('#operations')).toBeVisible();
- await page.locator('#goFrom').fill('2026-08-01');await page.locator('#goTo').fill('2026-08-31');await page.locator('#goPeriod').click();
- expect(await page.evaluate(()=>window.__opsCalls.some(x=>x.p_data.from==='2026-08-01'&&x.p_data.to==='2026-08-31'))).toBe(true);
+ await red.locator('[data-ad-prio]').first().click();expect(await page.evaluate(()=>window.__opened)).toBe('o1');
+ // Las notificaciones siguen donde estaban y llevan al panel.
+ await page.evaluate(()=>GamaOperations.open('notifications'));await expect(page.locator('#notifications')).toBeVisible();
+ await page.locator('#goSwitch').click();await expect(page.locator('#dashboard')).toBeVisible();
+ await page.evaluate(()=>GamaOperations.open('operations'));await expect(page.locator('#dashboard')).toBeVisible();await expect(page.locator('#operations')).toHaveCount(0);
 });
 test('saves handling and notes, then exposes refresh failures',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaOperations.open('notifications'));
@@ -37,11 +46,17 @@ test('saves handling and notes, then exposes refresh failures',async({page})=>{
  const calls=await page.evaluate(()=>window.__opsCalls.filter(c=>c.p_action==='handle'));expect(calls).toHaveLength(1);expect(calls[0].p_data.fingerprint).toBe('finger1');
  await page.evaluate(()=>window.__opsError=true);await page.locator('#goRefresh').click();await expect(page.locator('#goMain [role="alert"]')).toContainText('No se pudo');
 });
-test('warehouse dashboard omits financial cards and remains usable on mobile',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.evaluate(()=>GamaOperations.open());
- await expect(page.locator('#goMain')).not.toContainText('Facturación registrada');await expect(page.locator('#goMain')).toContainText('Inventarios con diferencias');
+test('warehouse priorities omit finance and remain usable on mobile',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');
+ await page.evaluate(()=>ArcRouter.open('dashboard'));await expect(page.locator('.adPriorities')).toBeVisible();
+ await expect(page.locator('.adPriorities')).not.toContainText('Factura vencida');await expect(page.locator('.adPriorities')).toContainText('Entrega atrasada');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
- await page.screenshot({path:'test-results/operations-mobile.png',fullPage:true});
+ await page.screenshot({path:'test-results/priorities-mobile.png',fullPage:true});
+});
+test('a failed priorities read keeps the dashboard and says so',async({page})=>{
+ await boot(page);await page.evaluate(()=>{window.__PRIO_FAIL=true});await page.evaluate(()=>ArcRouter.open('dashboard'));
+ await expect(page.locator('.adPriorities [role=alert]')).toContainText('No se han podido cargar las acciones de seguimiento');
+ await expect(page.locator('[data-ad-metric=net]')).toBeVisible();
 });
 test('client cannot open alerts or fetch operations',async({page})=>{
  await boot(page,'client');await page.evaluate(()=>GamaOperations.open());await page.waitForTimeout(1500);

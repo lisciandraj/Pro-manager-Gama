@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-09-20",
+  "capturedAt": "2026-09-22",
   "source": "supabase_migrations.schema_migrations",
   "applied": [
     {
@@ -1076,6 +1076,18 @@
       "name": "p1_dashboard_drilldowns_and_stage_metrics",
       "file": "20260920184641_p1_dashboard_drilldowns_and_stage_metrics.sql",
       "sha256": "4e55b7a03b2edabad7792b8fc1b6f5978599ee4b07d6023c4370b12b80afdcba"
+    },
+    {
+      "version": "20260922171925",
+      "name": "dashboard_priorities",
+      "file": "20260922171925_dashboard_priorities.sql",
+      "sha256": "4f76b0a236bb1f0114346950e702c3c2c06fe3d49724238f0f97d3e343e60a1f"
+    },
+    {
+      "version": "20260922172746",
+      "name": "dashboard_priorities_groups",
+      "file": "20260922172746_dashboard_priorities_groups.sql",
+      "sha256": "a8bb35749b6eb6e9f62854c4f1d1e648522abb4b5c9e99d74347443c82507646"
     }
   ]
 }

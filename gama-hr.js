@@ -30,7 +30,9 @@ let mine=null,perfiles=[],myUid=null;
 
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
 const isSystemAdmin=()=>role()==='admin'||role()==='administrador';
-const isAdmin=()=>isSystemAdmin()||!!window.GamaHRP1?.isHR;
+/* Gestiona RRHH el administrador y el perfil de base «Responsable RH». */
+const isHRRole=()=>['rh','rrhh'].includes(role());
+const isAdmin=()=>isSystemAdmin()||isHRRole();
 /* Planificación: el día sobre el que se centra la vista y su amplitud. */
 let planAnchor=new Date(),planView='semana',planPick=null;
 
@@ -96,7 +98,7 @@ async function load(){
   employees=(e.data||[]).map(x=>Object.assign({},x,priv.get(x.id)||{}));
   absences=(a.data||[]).map(x=>Object.assign({},x,privA.get(x.id)||{}));
   mine=employees.find(x=>x.profile_id&&x.profile_id===myUid)||null;
-  if(window.GamaHRP1&&await window.GamaHRP1.load({employees,absences,myUid,admin:isSystemAdmin()})===false)return;
+  if(window.GamaHRP1&&await window.GamaHRP1.load({employees,absences,myUid,hr:isAdmin()})===false)return;
   if(version!==loadVersion)return;
   if(isAdmin())await loadProfiles();
   if(version!==loadVersion)return;
@@ -114,7 +116,7 @@ async function loadProfiles(){
 }
 
 /* ---- empleados ---- */
-const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes','hrAccount'];
+const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrManager','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes','hrAccount'];
 function clearEmployee(){editing=null;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='＋ Guardar empleado';msg('')}
 
 async function saveEmployee(){
@@ -129,6 +131,8 @@ async function saveEmployee(){
   department:($('hrDept').value||'').trim()||null,
   profile_id:$('hrAccount')?.value||null,
  };
+ // El N+1: sólo si el campo está en pantalla, para no borrarlo sin querer.
+ if($('hrManager'))row.manager_id=$('hrManager').value||null;
  // …y lo que sólo ven el interesado y recursos humanos.
  const priv={
   identification:($('hrId').value||'').trim()||null,
@@ -147,7 +151,7 @@ async function saveEmployee(){
   if(r.error)throw r.error;
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
- }catch(e){fail(e,'No se pudo guardar el empleado')}
+ }catch(e){fail(window.GamaHRP1?.managerError(e)||e,'No se pudo guardar el empleado')}
  finally{busy=false}
 }
 /* Primero se repinta —el formulario cambia de título y de botón al pasar a modo
@@ -163,7 +167,7 @@ function editEmployee(id){
  set('hrContract',p.contract_type||'');
  set('hrHire',p.hire_date||'');set('hrEnd',p.end_date||'');
  set('hrSalary',p.salary??'');set('hrLeaveDays',p.annual_leave_days??15);
- set('hrNotes',p.notes||'');set('hrAccount',p.profile_id||'');
+ set('hrNotes',p.notes||'');set('hrAccount',p.profile_id||'');set('hrManager',p.manager_id||'');
  msg('Editando la ficha de '+p.full_name+'.');
  $('hrName')?.scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -281,6 +285,7 @@ function employeesTab(){
     <div><label data-gi=888f25ceee71>Puesto</label><input id="hrPosition" data-gi-placeholder=47f913f15782 placeholder="Ej. Almacenero"></div>
     <div><label data-gi=4695dca246f0>Departamento</label><input id="hrDept" data-gi-placeholder=749ad86d9ec3 placeholder="Ej. Bodega"></div>
    </div>
+   ${window.GamaHRP1?.managerOptions?`<label data-gi-live data-gi=d49bc822266a>N+1 (responsable directo)</label><select id="hrManager">${window.GamaHRP1.managerOptions(editing)}</select>`:''}
    <label data-gi=d27403823536>Tipo de contrato</label>
    <select id="hrContract">
     <option value="" data-gi=e545b02d8dee>Sin especificar</option>

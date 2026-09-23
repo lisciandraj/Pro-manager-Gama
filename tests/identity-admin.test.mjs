@@ -10,6 +10,13 @@ test('Invitation verifies the caller and keeps the invited profile inactive',asy
  const invite=calls.find(c=>c.url.includes('/auth/v1/invite?'));assert.equal(invite.options.headers.Authorization,'Bearer service-test');assert.equal(JSON.parse(invite.options.body).email,'staff@example.invalid');
  const patch=calls.find(c=>c.options.method==='PATCH');assert.deepEqual(JSON.parse(patch.options.body),{role:'comercial',full_name:'Staff',active:false});
 });
+// «Responsable RH» es un perfil de base: se invita como los demás; un rol inventado no.
+test('Invitation accepts the HR base role and refuses unknown roles',async()=>{
+ const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
+ assert.equal((await handler(request({action:'invite',email:'rh@example.invalid',name:'RH',role:'rrhh'}))).status,200);
+ assert.deepEqual(JSON.parse(calls.find(c=>c.options.method==='PATCH').options.body),{role:'rrhh',full_name:'RH',active:false});
+ assert.equal((await handler(request({action:'invite',email:'x@example.invalid',name:'X',role:'hr'}))).status,400);
+});
 test('Invitation never calls the admin endpoint for a forbidden origin, missing session or non-admin',async()=>{
  let calls=0;const handler=createHandler({env,fetch:async url=>{calls++;assert.ok(!url.includes('/auth/v1/invite'));return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:[{id:actor,role:'comercial',active:true}])}});
  assert.equal((await handler(request({action:'invite'},{origin:'https://attacker.invalid'}))).status,403);assert.equal(calls,0);

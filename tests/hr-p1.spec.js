@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const MOCK=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 async function boot(page,role='admin',extra={}){
- await page.addInitScript(({role,extra})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'HR Test'}));window.__DB={products:[],suppliers:[],customers:[],invoices:[],invoice_lines:[],profiles:[{id:'u1',full_name:'Marie',role:'almacenero',active:true},{id:'manager',full_name:'Responsable',role:'almacenero',active:true}],_session:{profile_id:role==='admin'?'admin':role==='manager'?'manager':'u1'},hr_employees:[{id:'e1',full_name:'Marie',profile_id:'u1',manager_profile_id:'manager',active:true},{id:'e2',full_name:'Confidentiel',profile_id:'u2',active:true}],hr_employee_private:[{employee_id:'e1',annual_leave_days:15,salary:1500},{employee_id:'e2',annual_leave_days:20,salary:9876}],hr_absences:[],hr_absence_private:[],hr_permissions:role==='manager'?[{profile_id:'manager',role:'manager'}]:[],...extra};if(role==='manager')localStorage.setItem('gama_session_v1',JSON.stringify({role:'magasinier',name:'Manager'}))},{role,extra});
+ await page.addInitScript(({role,extra})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'HR Test'}));window.__DB={products:[],suppliers:[],customers:[],invoices:[],invoice_lines:[],profiles:[{id:'u1',full_name:'Marie',role:'almacenero',active:true},{id:'manager',full_name:'Responsable',role:'almacenero',active:true}],_session:{profile_id:role==='admin'?'admin':role==='manager'?'manager':'u1'},hr_employees:[{id:'e1',full_name:'Marie',profile_id:'u1',manager_id:'e3',active:true},{id:'e2',full_name:'Confidentiel',profile_id:'u2',active:true},{id:'e3',full_name:'Responsable',position:'Jefa de almacén',profile_id:'manager',active:true}],hr_employee_private:[{employee_id:'e1',annual_leave_days:15,salary:1500},{employee_id:'e2',annual_leave_days:20,salary:9876}],hr_absences:[],hr_absence_private:[],...extra};if(role==='manager')localStorage.setItem('gama_session_v1',JSON.stringify({role:'magasinier',name:'Manager'}))},{role,extra});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:MOCK}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForFunction(()=>window.GamaHRP1&&window.GamaHR);await page.evaluate(()=>window.GamaHR.open());await expect(page.locator('#hr .hrTabs')).toBeVisible();await page.waitForFunction(()=>window.GamaHRP1.directory.length>0||!['admin','administrador'].includes(JSON.parse(localStorage.getItem('gama_session_v1')).role));
 }
 async function tab(page,id){await page.locator(`#hr [data-tab="${id}"]`).click()}
@@ -23,7 +23,7 @@ test('half-day request captures fractions and cancellation retains row',async({p
  page.on('dialog',d=>d.accept('Cancelled by employee'));await page.locator('#hr [data-del]').click();await expect.poll(()=>page.evaluate(()=>window.__DB.hr_absences[0].status)).toBe('cancelada');expect(await page.evaluate(()=>window.__DB.hr_absences.length)).toBe(1);
 });
 test('manager can approve team requests without salary or admin controls',async({page})=>{
- await boot(page,'manager',{hr_absences:[{id:'a',employee_id:'e1',start_date:'2026-10-05',end_date:'2026-10-05',kind:'vacaciones',status:'pendiente'}]});await expect(page.locator('#hr [data-tab="permisos"]')).toHaveCount(0);await expect(page.locator('#hr')).not.toContainText('9.876');await tab(page,'validaciones');await page.locator('[data-absence-status="aprobada"]').click();await expect.poll(()=>page.evaluate(()=>window.__DB.hr_absences[0].status)).toBe('aprobada');
+ await boot(page,'manager',{hr_absences:[{id:'a',employee_id:'e1',start_date:'2026-10-05',end_date:'2026-10-05',kind:'vacaciones',status:'pendiente'}]});await expect(page.locator('#hr [data-tab="permisos"]')).toHaveCount(0);await expect(page.locator('#hr [data-tab="organigrama"]')).toBeVisible();await expect(page.locator('#hr')).not.toContainText('9.876');await tab(page,'validaciones');await page.locator('[data-absence-status="aprobada"]').click();await expect.poll(()=>page.evaluate(()=>window.__DB.hr_absences[0].status)).toBe('aprobada');
 });
 test('multiple daily clock sessions share the scheduled hours once',async({page})=>{
  const records=[{id:'a',employee_id:'e1',started_at:'2026-09-10T13:00:00Z',ended_at:'2026-09-10T17:00:00Z',break_seconds:0,status:'approved'},{id:'b',employee_id:'e1',started_at:'2026-09-10T18:00:00Z',ended_at:'2026-09-11T00:00:00Z',break_seconds:3600,status:'pending'}];await boot(page,'admin',{hr_attendance:records});
@@ -97,4 +97,54 @@ test('a manager without HR rights never sees the licences',async({page})=>{
  await tab(page,'documentos');
  await expect(page.locator('#hr')).not.toContainText('EC-1042335');
  await expect(page.locator('#hpLicSave')).toHaveCount(0);
+});
+
+// «Responsable RH» es un perfil de base: gestiona RRHH como el administrador,
+// sin la antigua pestaña de derechos.
+test('the HR base role runs HR without the old rights tab',async({page})=>{
+ await boot(page,'rh');
+ for(const id of ['empleados','ausencias','planificacion','reglas','documentos','nomina','organigrama'])await expect(page.locator(`#hr [data-tab="${id}"]`)).toHaveCount(1);
+ await expect(page.locator('#hr [data-tab="permisos"]')).toHaveCount(0);
+ await expect(page.locator('#hr')).toContainText('9.876');
+ await tab(page,'organigrama');await expect(page.locator('#hpOrgSave')).toBeVisible();
+});
+// El organigrama sale del N+1 de cada empleado; RRHH lo cambia sin círculos.
+test('the org chart draws each team under its N+1, and HR changes it without cycles',async({page})=>{
+ await boot(page);await tab(page,'organigrama');
+ const chart=page.locator('#hr .hoChart');
+ await expect(chart.locator('.hoTree > li > .hoNode b')).toHaveText(['Responsable']);
+ await expect(chart.locator('.hoTree > li > .hoNode')).toContainText('Jefa de almacén');
+ await expect(chart.locator('.hoTree > li > .hoNode .hoCount')).toHaveText('1 a cargo');
+ await expect(chart.locator('.hoTree > li > ul > li .hoNode b')).toHaveText(['Marie']);
+ await expect(page.locator('#hr .hoAlone .hoNode b')).toHaveText(['Confidentiel']);
+ // Elegir a Confidentiel en el dibujo: el formulario la trae y se le da su N+1.
+ await page.locator('#hr .hoAlone [data-org-pick="e2"]').click();
+ await expect(page.locator('#hpOrgEmployee')).toHaveValue('e2');await expect(page.locator('#hpOrgManager')).toBeFocused();
+ await page.selectOption('#hpOrgManager','e3');await page.click('#hpOrgSave');
+ await expect.poll(()=>page.evaluate(()=>__DB.hr_employees.find(e=>e.id==='e2').manager_id)).toBe('e3');
+ await expect(chart.locator('.hoTree > li > ul > li .hoNode b')).toHaveText(['Confidentiel','Marie']);
+ await expect(chart.locator('.hoTree > li > .hoNode .hoCount')).toHaveText('2 a cargo');
+ await expect(page.locator('#hr .hoAlone')).toHaveCount(0);
+ // Responsable no puede depender de su propio equipo: no se ofrece…
+ await page.selectOption('#hpOrgEmployee','e3');
+ await expect(page.locator('#hpOrgManager option')).toHaveText(['Sin N+1']);
+ // …y si llega igual, la base lo rechaza con un mensaje claro.
+ await page.evaluate(()=>{const o=document.createElement('option');o.value='e1';o.textContent='Marie';document.getElementById('hpOrgManager').append(o)});
+ await page.selectOption('#hpOrgManager','e1');await page.click('#hpOrgSave');
+ await expect(page.locator('#hpError')).toHaveText('Ese N+1 depende de este empleado: el organigrama formaría un círculo.');
+ expect(await page.evaluate(()=>__DB.hr_employees.find(e=>e.id==='e3').manager_id)).toBeFalsy();
+});
+test('the employee file sets or clears the N+1',async({page})=>{
+ await boot(page);
+ await page.locator('#hr [data-edit="e1"]').click();
+ await expect(page.locator('#hrManager')).toHaveValue('e3');
+ await expect(page.locator('#hrManager option[value="e1"]')).toHaveCount(0);
+ await page.selectOption('#hrManager','');await page.click('#hrSave');
+ await expect.poll(()=>page.evaluate(()=>__DB.hr_employees.find(e=>e.id==='e1').manager_id)).toBe(null);
+});
+test('every employee reads the org chart, without editing it',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await tab(page,'organigrama');
+ await expect(page.locator('#hr .hoNode')).toHaveCount(3);await expect(page.locator('#hr [data-org-pick], #hpOrgSave')).toHaveCount(0);
+ await expect(page.locator('#hr .hoMine')).toContainText('Marie');await expect(page.locator('#hr .hoMine')).toContainText('Tú');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

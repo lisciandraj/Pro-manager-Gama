@@ -48,6 +48,26 @@ test('administrator saves profile modules; current routes and menus follow the s
  await page.evaluate(async()=>{__DB.role_module_access.find(r=>r.role==='comercial').disabled_modules.push('products');await GamaRoleAccess.load()});
  await expect(page.locator('#products')).toBeHidden();await expect(page.locator('#mainmenu')).toBeVisible();
 });
+// «Responsable RH» es un perfil de base como los demás: se asigna en Usuarios y
+// abre RRHH y Configuración, nada de ventas ni de almacén.
+test('the HR base profile is assignable in Users and opens only HR and settings',async({page})=>{
+ await boot(page);
+ await page.locator('#cfgProfile').selectOption('rh');
+ await expect(page.locator('#cfgProfile option:checked')).toHaveText('Responsable RH');
+ await expect(page.locator('[data-role-module="hr"]')).toBeEnabled();
+ await expect(page.locator('[data-role-module="crm"]')).toBeDisabled();
+ await expect(page.locator('[data-role-module="products"]')).toBeDisabled();
+ await page.evaluate(()=>{__DB.role_module_access.push({role:'rrhh',base_role:'rrhh',disabled_modules:[],version:0});__DB.profiles=[{id:'staff-user',full_name:'Staff',role:'comercial',active:true}]});
+ await page.addScriptTag({url:'/gama-cloud-users.js'});await page.evaluate(()=>ArcRouter.open('users'));
+ await page.locator('[data-cu-role="staff-user"]').selectOption('rh');
+ await expect.poll(()=>page.evaluate(()=>__DB.profiles[0].role)).toBe('rrhh');
+ await expect(page.locator('[data-cu-role="staff-user"] option:checked')).toHaveText('Responsable RH');
+ await page.evaluate(()=>{__DB._profile={...__DB.profiles[0]};});
+ await page.addScriptTag({url:'/gama-cloud-auth.js'});
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).role)).toBe('rh');
+ await page.evaluate(()=>GamaRoleAccess.load());
+ expect(await page.evaluate(()=>['hr','settings','products','dashboard','crm','notifications'].map(id=>gamaAccessAllowed(id)))).toEqual([true,true,false,false,false,false]);
+});
 test('client boundaries, administrator recovery and mobile language remain clear',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
  await page.locator('#cfgProfile').selectOption('client');

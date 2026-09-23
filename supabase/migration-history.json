@@ -1166,6 +1166,12 @@
       "name": "tms_proofs_read_reference",
       "file": "20260923185148_tms_proofs_read_reference.sql",
       "sha256": "240537bc565fa717bf9fec2cdffc79b2ace9108c49f29d49925d9beeeed14a62"
+    },
+    {
+      "version": "20260923211728",
+      "name": "hr_base_role_org_chart",
+      "file": "20260923211728_hr_base_role_org_chart.sql",
+      "sha256": "8a393fd6d81aa10bd3428a5712c36e00ebbc3554d967e9b5e63ca8cc94d54b32"
     }
   ]
 }

@@ -418,7 +418,8 @@ const definitions=[
     "roles": [
       "admin",
       "commercial",
-      "magasinier"
+      "magasinier",
+      "rh"
     ]
   },
   {
@@ -483,7 +484,8 @@ const definitions=[
       "admin",
       "commercial",
       "magasinier",
-      "client"
+      "client",
+      "rh"
     ]
   },
   {
@@ -522,8 +524,8 @@ const definitions=[
 ];
 export const groups=["Resumen","Inventario y compras","Ventas","Cliente","Administración","Logística"];
 export const aliases={menu:"mainmenu",inicio:"mainmenu",movements:"movement",operations:"dashboard","order-preparation":"tms",clients:"contacts",suppliers:"contacts",stock:"warehouses"};
-export const roleAliases={administrador:"admin",comercial:"commercial",almacenero:"magasinier",cliente:"client"};
-export const roles=Object.fromEntries([["admin","Administrador"],["commercial","Comercial"],["magasinier","Almacenero"],["client","Cliente"]].map(([id,label])=>[id,{label,perms:id==="admin"?"*":definitions.filter(m=>m.roles.includes(id)).map(m=>m.id).concat(id==="commercial"?["customer-requests"]:[])}]));
+export const roleAliases={administrador:"admin",comercial:"commercial",almacenero:"magasinier",rrhh:"rh",cliente:"client"};
+export const roles=Object.fromEntries([["admin","Administrador"],["commercial","Comercial"],["magasinier","Almacenero"],["rh","Responsable RH"],["client","Cliente"]].map(([id,label])=>[id,{label,perms:id==="admin"?"*":definitions.filter(m=>m.roles.includes(id)).map(m=>m.id).concat(id==="commercial"?["customer-requests"]:[])}]));
 function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';(document.querySelector('.wrap')||document.body).appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src=window.ArcAssets?.['gama-excel-import-v1.js']||'gama-excel-import-v1.js';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
 /* Un módulo que es pestaña de otro (tabOf: los pedidos en Presupuestos y facturas) no tiene tarjeta ni
    línea en las listas de módulos; el módulo que lo contiene se abre para quien tiene al menos una de sus pestañas. */

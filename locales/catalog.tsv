@@ -2897,3 +2897,18 @@ Su perfil no puede cambiar los almacenes.	Votre profil ne peut pas modifier les 
 Entregado. La facturación y el cobro no se pueden comprobar con este perfil.	Livré. La facturation et l’encaissement ne peuvent pas être vérifiés avec ce profil.	Delivered. Invoicing and payment cannot be checked with this profile.
 Avance no disponible	Progression indisponible	Progress unavailable
 Las etapas siguientes no se pueden comprobar con este perfil.	Les étapes suivantes ne peuvent pas être vérifiées avec ce profil.	The next stages cannot be checked with this profile.
+Organigrama	Organigramme	Org chart
+Cambiar el N+1	Changer le N+1	Change the line manager
+N+1	N+1	Line manager
+Sin N+1	Sans N+1	No line manager
+Guardar el N+1	Enregistrer le N+1	Save the line manager
+N+1 (responsable directo)	N+1 (responsable direct)	Line manager (direct)
+Sin N+1 ni equipo a cargo	Sans N+1 ni équipe	No line manager and no team
+a cargo	rattaché(s)	direct report(s)
+Tú	Vous	You
+Sin puesto	Sans poste	No position
+Todavía no hay empleados.	Aucun salarié pour l’instant.	No employees yet.
+El N+1 con cuenta valida las ausencias, los turnos y las horas de su equipo directo. Los salarios y los documentos privados quedan reservados a RH y al empleado.	Le N+1 qui a un compte valide les absences, les plannings et les heures de son équipe directe. Les salaires et les documents privés restent réservés aux RH et au salarié.	A line manager with an account approves the leave, shifts and hours of their direct team. Salaries and private documents stay with HR and the employee.
+Ese N+1 depende de este empleado: el organigrama formaría un círculo.	Ce N+1 dépend de ce salarié : l’organigramme formerait une boucle.	That manager reports to this employee: the org chart would loop.
+Un empleado no puede ser su propio N+1.	Un salarié ne peut pas être son propre N+1.	An employee cannot be their own line manager.
+El N+1 elegido está archivado.	Le N+1 choisi est archivé.	The chosen line manager is archived.

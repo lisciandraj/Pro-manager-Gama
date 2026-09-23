@@ -15,7 +15,7 @@ export function createHandler({env,fetch:fetcher}){
  const text=await req.text();if(text.length>12000)return reply({error:'PAYLOAD_TOO_LARGE'},413);const data=JSON.parse(text);
  if(data.action!=='invite')return reply({error:'INVALID_ACTION'},400);
  const email=String(data.email||'').trim().toLowerCase(),name=String(data.name||'').trim(),role=data.role;
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>200||!['administrador','comercial','almacenero','cliente'].includes(role))return reply({error:'INVALID_INVITATION'},400);
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>200||!['administrador','comercial','almacenero','rrhh','cliente'].includes(role))return reply({error:'INVALID_INVITATION'},400);
  // The personalised subject and message travel as metadata; the Supabase invite template prints them ({{ .Data.invite_subject }}, {{ .Data.invite_message }}).
  const clean=(v,max)=>String(v??'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g,'').trim().slice(0,max);
  const subject=clean(data.subject,150),message=clean(data.message,4000),company=clean(data.company,200);

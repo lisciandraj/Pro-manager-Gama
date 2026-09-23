@@ -51,16 +51,25 @@
     try { return JSON.parse(localStorage.getItem('gama_session_v1') || '{}').role || ''; }
     catch (e) { return ''; }
   }
-  function hrIsAdmin() { const r = hrRole(); return r === 'admin' || r === 'administrador' || (window.__DB.hr_permissions||[]).some(p=>p.profile_id===hrMyProfile()&&p.role==='hr'); }
+  // RRHH: el administrador y el perfil de base «Responsable RH» (private.hr_admin).
+  function hrIsAdmin() { return ['admin', 'administrador', 'rh', 'rrhh'].includes(hrRole()); }
   function hrIsStaff() { return ['admin', 'administrador', 'commercial', 'comercial', 'magasinier', 'almacenero'].includes(hrRole()); }
   function hrMyProfile() { return (window.__DB._session || {}).profile_id || null; }
+  // Espejo de private.hr_manager_guard: ni uno mismo, ni un círculo, ni un N+1 archivado.
+  function hrManagerError(id, managerId) {
+    const rows = window.__DB.hr_employees || [];
+    if (managerId === id) return { message: 'HR_MANAGER_SELF' };
+    if (!rows.some(e => e.id === managerId && e.active !== false)) return { message: 'HR_MANAGER_INACTIVE' };
+    for (let at = managerId, n = 0; at && n < 1000; n++) { if (at === id) return { message: 'HR_MANAGER_CYCLE' }; at = (rows.find(e => e.id === at) || {}).manager_id; }
+    return null;
+  }
   function hrMyEmployeeIds() {
     const me = hrMyProfile();
     return (window.__DB.hr_employees || []).filter(e => !!me && e.profile_id === me).map(e => e.id);
   }
   function hrRows(table) {
     if (table === 'hr_employees' || table === 'hr_absences') {
-      return hrIsStaff() ? (window.__DB[table] || []).slice() : [];
+      return hrIsStaff() || hrIsAdmin() ? (window.__DB[table] || []).slice() : [];
     }
     if (hrIsAdmin()) return (window.__DB[table] || []).slice();
     const mias = hrMyEmployeeIds();
@@ -483,6 +492,10 @@
       return { data: withId, error: null };
     },
     update: async (table, id, row) => {
+      if (table === 'hr_employees' && row.manager_id) {
+        const e = hrManagerError(id, row.manager_id);
+        if (e) return { data: null, error: e };
+      }
       if (table === 'crm_contacts') {
         const e = chocaPrincipal(row, id);
         if (e) return { data: null, error: e };
@@ -679,6 +692,7 @@
         if(fn==='gama_hr_directory')return {data:hrIsAdmin()?(window.__DB.profiles||[]):[]};
         if(fn==='gama_hr_save_employee'){
           const id=args.p_id||nextId('hr_employees');
+          if(args.p_employee?.manager_id){const e=hrManagerError(id,args.p_employee.manager_id);if(e)return {data:null,error:e}}
           const rows=window.__DB.hr_employees=window.__DB.hr_employees||[];
           const old=rows.find(r=>r.id===id);if(old)Object.assign(old,args.p_employee);else rows.push({id,active:true,...args.p_employee});
           const priv=window.__DB.hr_employee_private=window.__DB.hr_employee_private||[];

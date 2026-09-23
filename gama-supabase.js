@@ -40,7 +40,7 @@ const LIST_KEYS={
  erp_price_book_customers:['book_id','customer_id'],
  accounting_permissions:['profile_id'],external_invoice_deliveries:['invoice_id','delivery_id'],
  fulfillment_package_lines:['package_id','pick_line_id'],gama_document_references:['table_name','document_id'],
- hr_absence_private:['absence_id'],hr_employee_private:['employee_id'],hr_holidays:['day'],hr_permissions:['profile_id'],
+ hr_absence_private:['absence_id'],hr_employee_private:['employee_id'],hr_holidays:['day'],
  sales_reservation_links:['reservation_id'],tms_loading_allocations:['scan_id','delivery_line_id'],
  tms_proofs:['delivery_id'],user_home_preferences:['user_id'],role_module_access:['role'],erp_action_permissions:['role','module'],service_sla_rules:['priority']
 };

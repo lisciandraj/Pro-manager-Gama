@@ -3,7 +3,7 @@
 (function(){'use strict';
 const aliases=window.ArcModules.roleAliases,roles=window.ArcModules.roles;
 const canonical=r=>aliases[r]||r;
-const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',client:'cliente'};
+const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',rh:'rrhh',client:'cliente'};
 const baseRole=r=>canonical(rows[canonical(r)]?.base_role||r);
 const locked=(r,id)=>id==='settings'||(baseRole(r)==='admin'&&['access-settings','users'].includes(id));
 let rows={},ready=false,pending=null,generation=0,subscription=null;

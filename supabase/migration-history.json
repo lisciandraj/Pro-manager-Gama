@@ -1160,6 +1160,12 @@
       "name": "warehouse_admin",
       "file": "20260923181223_warehouse_admin.sql",
       "sha256": "510c7c35d0f0cc8e579ed83dea15638649833c67dd895ca2ad9fd2a995bdd3ff"
+    },
+    {
+      "version": "20260923185148",
+      "name": "tms_proofs_read_reference",
+      "file": "20260923185148_tms_proofs_read_reference.sql",
+      "sha256": "240537bc565fa717bf9fec2cdffc79b2ace9108c49f29d49925d9beeeed14a62"
     }
   ]
 }

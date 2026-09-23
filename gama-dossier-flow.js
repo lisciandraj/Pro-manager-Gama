@@ -39,7 +39,7 @@ function progress(d,x){
  const EPS=0.000001;let ordered=0,shipped=0,missing=0,delivered=0,proved=0;
  for(const l of x.lines){const qty=n(l.quantity),sl=x.shipLines.filter(s=>s.order_line_id===l.id),sent=sum(sl),reserved=sum(x.reservations.filter(r=>r.status==='active'&&x.links.some(k=>k.line_id===l.id&&k.reservation_id===r.id)));
  ordered+=qty;shipped+=Math.min(qty,sent);missing+=Math.max(0,qty-sent-reserved);
- const matches=(s,proof)=>{const ship=x.ships.find(a=>a.id===s.delivery_id),t=x.transport.find(a=>a.id===ship?.tms_delivery_id);return t?.status==='Entregada'&&(!proof||x.proofs.some(p=>p.delivery_id===t.id&&p.signature))};
+ const matches=(s,proof)=>{const ship=x.ships.find(a=>a.id===s.delivery_id),t=x.transport.find(a=>a.id===ship?.tms_delivery_id);return t?.status==='Entregada'&&(!proof||x.proofsUnavailable||x.proofs.some(p=>p.delivery_id===t.id&&p.signature))};
  delivered+=Math.min(qty,sum(sl.filter(s=>matches(s,false))));proved+=Math.min(qty,sum(sl.filter(s=>matches(s,true))));
  }
  const complete=ordered>0&&shipped>=ordered-EPS,done=ordered>0&&proved>=ordered-EPS;
@@ -119,7 +119,9 @@ async function detail(key){
   if(d.o){const id=d.o.id;[data.lines,data.ships,data.reservations,data.preps]=await Promise.all([all('sales_order_lines',{eq:{order_id:id}}),all('sales_deliveries',{eq:{order_id:id}}),all('stock_reservations',{eq:{reference_type:'sales_order',reference_id:id}}),all('fulfillment_preparations',{eq:{order_id:id}})]);
    /* El flujo inverso sólo existe si de verdad ha vuelto algo. */
    data.returns=await all('return_orders',{eq:{order_id:id}}).catch(()=>[]);
-   [data.links,data.shipLines,data.picks,data.packages,data.transport,data.proofs]=await Promise.all([by('sales_reservation_links','line_id',ids(data.lines)),by('sales_delivery_lines','delivery_id',ids(data.ships)),by('fulfillment_pick_lines','preparation_id',ids(data.preps)),by('fulfillment_packages','preparation_id',ids(data.preps)),by('tms_deliveries','id',ids(data.ships,'tms_delivery_id')),by('tms_proofs','delivery_id',ids(data.ships,'tms_delivery_id'),'delivery_id,captured_at,signature,erp_reference')]);
+   [data.links,data.shipLines,data.picks,data.packages,data.transport,data.proofs]=await Promise.all([by('sales_reservation_links','line_id',ids(data.lines)),by('sales_delivery_lines','delivery_id',ids(data.ships)),by('fulfillment_pick_lines','preparation_id',ids(data.preps)),by('fulfillment_packages','preparation_id',ids(data.preps)),by('tms_deliveries','id',ids(data.ships,'tms_delivery_id')),by('tms_proofs','delivery_id',ids(data.ships,'tms_delivery_id'),'delivery_id,captured_at,signature,erp_reference').catch(()=>null)]);
+   /* Sin las pruebas el proceso se sigue viendo: una entrega «Entregada» ya exigió la firma en el TMS. */
+   if(data.proofs===null){data.proofs=[];data.proofsUnavailable=true}
    if(financeAllowed()){data.invoices=await all('external_invoices',{select:'id,order_id,number,total,due_date,fiscal_status,document_kind,external_number,external_status',eq:{order_id:id}});[data.invoiceLines,data.payments]=await Promise.all([by('external_invoice_lines','invoice_id',ids(data.invoices)),by('external_invoice_payments','invoice_id',ids(data.invoices))]);}
    data.packageLines=(await Promise.all(data.packages.map(p=>all('fulfillment_package_lines',{eq:{package_id:p.id}})))).flat();
   }

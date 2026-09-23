@@ -148,3 +148,14 @@ test('every employee reads the org chart, without editing it',async({page})=>{
  await expect(page.locator('#hr .hoMine')).toContainText('Marie');await expect(page.locator('#hr .hoMine')).toContainText('Tú');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
+// Con ocho personas o más las listas llevan buscador: elegir en el dibujo pone
+// al día lo que se ve y deja el foco en el buscador del N+1.
+test('picking someone in a large org chart updates the searchable lists',async({page})=>{
+ const people=Array.from({length:10},(_,i)=>({id:'p'+i,full_name:'Persona '+i,manager_id:i?'p0':null,active:true}));
+ await boot(page,'admin',{hr_employees:people});await tab(page,'organigrama');
+ await page.locator('#hr [data-org-pick="p5"]').click();
+ await expect(page.locator('[data-gama-for="hpOrgEmployee"]')).toHaveValue('Persona 5');
+ await expect(page.locator('[data-gama-for="hpOrgManager"]')).toBeFocused();
+ await page.locator('#hpOrgManager').selectOption('p3',{force:true});await page.click('#hpOrgSave');
+ await expect.poll(()=>page.evaluate(()=>__DB.hr_employees.find(e=>e.id==='p5').manager_id)).toBe('p3');
+});

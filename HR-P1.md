@@ -4,7 +4,7 @@ This release adds HR workflows without warehouse/delivery staff assignments.
 
 ## Access
 
-**Responsable RH** is a base role, like Comercial or Almacenero (`profiles.role = 'rrhh'`, `rh` in the app): it is chosen in Users or in the invitation, not granted as an extra right. It opens Human resources and Settings only; it is not sales or warehouse staff (`private.is_staff()` is unchanged), so it reads no products, stock or customers. Administrators and Responsable RH maintain employees, private files and payroll (`private.hr_admin()`).
+**Responsable RH** is a base role, like Comercial or Almacenero (`profiles.role = 'rrhh'`, `rh` in the app): it is chosen in Users or in the invitation, not granted as an extra right. It opens Human resources and Settings only; it is not sales or warehouse staff (`private.is_staff()` is unchanged), so it reads no products, stock or customers. Administrators and Responsable RH maintain employees, private files and payroll (`private.hr_admin()`). Invitations (`supabase/functions/architect-user-admin`) and the older account panel (`supabase/functions/gama-admin-users`, now versioned here) accept the `rrhh` role.
 
 Each employee has an **N+1**: another employee (`hr_employees.manager_id`), with or without an account. Being someone's N+1 is what makes a team manager: an N+1 with an active staff account manages shifts, approves absences and reviews attendance for their direct reports, never their own (`private.hr_manage()`). A trigger refuses an N+1 that is the employee, an archived employee or someone of the employee's own team (a loop). Employees see their own records, documents, payroll and clock controls. Salaries and documents are protected by database/storage policies, not only hidden buttons.
 

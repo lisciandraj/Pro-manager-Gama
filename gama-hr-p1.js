@@ -151,7 +151,9 @@ function bind(tab,reload){refresh=reload;const s=$('hr');
  /* Organigrama: elegir a alguien (en la lista o en el dibujo) trae su N+1 y
     sólo ofrece los que no harían un círculo. */
  if($('hpOrgEmployee'))$('hpOrgEmployee').onchange=()=>{orgPick=v('hpOrgEmployee');window.ArcUI.render($('hpOrgManager'),managerOptions(orgPick))};
- s.querySelectorAll('[data-org-pick]').forEach(b=>b.onclick=()=>{if(!$('hpOrgEmployee'))return;$('hpOrgEmployee').value=b.dataset.orgPick;$('hpOrgEmployee').onchange();$('hpOrgManager').focus()});
+ // Un change de verdad: con muchas personas la lista lleva buscador, y se pone al día con él.
+ s.querySelectorAll('[data-org-pick]').forEach(b=>b.onclick=()=>{const list=$('hpOrgEmployee');if(!list)return;list.value=b.dataset.orgPick;list.dispatchEvent(new Event('change',{bubbles:true}));
+  const find=s.querySelector('[data-gama-for="hpOrgManager"]');(find&&!find.closest('.gamaFind')?.hidden?find:$('hpOrgManager')).focus()});
  click('hpOrgSave',async()=>{required(['hpOrgEmployee']);orgPick=v('hpOrgEmployee');await check(C().update('hr_employees',orgPick,{manager_id:v('hpOrgManager')||null})).catch(e=>{throw managerError(e)})});
  s.querySelectorAll('[data-absence-id]').forEach(b=>b.onclick=()=>run(async()=>{const reason=b.dataset.absenceStatus==='rechazada'?prompt(T('Motivo')):null;if(b.dataset.absenceStatus==='rechazada'&&!reason?.trim())return;await check(C().update('hr_absences',b.dataset.absenceId,{status:b.dataset.absenceStatus,decision_reason:reason}))}));
  if($('hpCsvTemplate'))$('hpCsvTemplate').onclick=()=>download('gama-payroll.csv','employee_id,period,source_ref,gross,net,employer_cost,cost_center\r\n'+staff().filter(e=>e.active!==false).map(e=>[e.id,period+'-01','','','','',''].join(',')).join('\r\n'));

@@ -10,6 +10,27 @@ estanterías y Coco ERP genera un espacio de almacenamiento por celda.
 fila 01 está abajo y la columna 01 a la izquierda; los espacios con
 existencias se ven en color, con sus unidades.
 
+## Ver lo que guarda un espacio
+
+Cada celda es un botón: al pulsarla (o con Intro desde el teclado) se abre una
+ventana con lo que hay en ese espacio, producto por producto y por orden
+alfabético: cantidad, reservado y disponible, con el total debajo. Un espacio
+vacío lo dice. Las otras ubicaciones con existencias tienen el mismo botón,
+**Ver contenido**. Es sólo lectura: lo ve cualquiera que abra la pantalla.
+
+## Encontrar un producto
+
+Encima de los almacenes, **Encontrar un producto** busca por nombre,
+referencia o código de barras, sin distinguir tildes ni mayúsculas. Por cada
+producto encontrado dice cuántas unidades hay y en cuántas ubicaciones, con un
+botón por sitio (`AB02-01 · 40 uds.`); primero los que tienen existencias, y
+los que no, con «Sin existencias en ninguna ubicación». Las estanterías y las
+zonas donde está quedan rodeadas en naranja sin abrirse; pulsar un sitio abre
+su estantería y señala el espacio. La búsqueda se conserva al cambiar de
+pestaña.
+
+Pruebas: `tests/warehouse-locate.spec.js`.
+
 ## Configurar
 
 «＋ Nueva estantería» pide el código (dos letras), el nombre (opcional), las

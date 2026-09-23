@@ -33,6 +33,7 @@ const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:2});
 
 let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null,estanterias=[],estanteriaVista=null;
+let busquedaUbicacion='',espacioResaltado=null;
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 let serverSnapshot=null,snapshotRequest=0;
 async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
@@ -569,21 +570,39 @@ async function accionEstanteria(a,d){const r=await window.ArcData.rawRpc('gama_s
 async function recargarEstanterias(){window.ArcData.invalidate?.('warehouse_locations');await cargar();pintar();window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'warehouse_locations'}}))}
 
 function rejilla(sh){
- const celdas=[];
+ const celdas=[],marcadas=coincidencias().ubicaciones;
  for(let r=sh.row_count;r>=1;r--)for(let c=1;c<=sh.column_count;c++){
   const code=espacio(sh,c,r),u=ubicaciones.find(x=>x.shelf_id===sh.id&&x.code===code),n=u?unidadesEn(u.id):0;
-  const quien=u?quants.filter(q=>q.location_id===u.id&&Number(q.quantity)>0).map(q=>(productos.find(p=>p.id===q.product_id)||{}).name).filter(Boolean):[];
-  celdas.push(`<div class="ivCelda${n>0?' lleno':''}" data-space="${esc(code)}" title="${esc(code+(quien.length?' · '+quien.join(', '):''))}"><b>${esc(code)}</b>${n>0?`<small>${num(n)} ${esc(T('uds.'))}</small>`:''}</div>`);
+  if(!u){celdas.push(`<div class="ivCelda" data-space="${esc(code)}"><b>${esc(code)}</b></div>`);continue}
+  const quien=contenidoDe(u.id).filter(f=>f.cantidad>0).map(f=>f.producto.name);
+  const clase='ivCelda'+(n>0?' lleno':'')+(marcadas.has(u.id)?' coincide':'')+(u.id===espacioResaltado?' buscada':'');
+  celdas.push(`<button type="button" class="${clase}" data-space="${esc(code)}" data-location="${esc(u.id)}" title="${esc(code+(quien.length?' · '+quien.join(', '):''))}" aria-label="${esc(code+' · '+(quien.length?quien.join(', '):T('Vacía')))}"><b>${esc(code)}</b>${n>0?`<small>${num(n)} ${esc(T('uds.'))}</small>`:''}</button>`);
  }
- return `<div class="ivEstanteria" style="--iv-cols:${sh.column_count}" role="img" aria-label="${esc(T('Estantería')+' '+sh.code)}">${celdas.join('')}</div><p class="muted ivLeyenda">${tr('Fila 01 abajo, columna 01 a la izquierda. En color, los espacios con existencias.')}</p>`;
+ return `<div class="ivEstanteria" style="--iv-cols:${sh.column_count}" role="group" aria-label="${esc(T('Estantería')+' '+sh.code)}">${celdas.join('')}</div><p class="muted ivLeyenda">${tr('Fila 01 abajo, columna 01 a la izquierda. En color, los espacios con existencias.')} ${tr('Pulsa un espacio para ver lo que contiene.')}</p>`;
 }
 function tarjetaEstanteria(sh,a){
  const sus=espaciosDe(sh),uds=sus.reduce((s,u)=>s+unidadesEn(u.id),0),abierta=estanteriaVista===sh.id;
  return `<div class="ivShelf" data-shelf="${esc(sh.id)}"><div class="ivShelfHead"><div><b class="ivShelfCode">${esc(sh.code)}</b> ${esc(sh.name||'')}<div class="muted">${esc(espacio(sh,1,1))} → ${esc(espacio(sh,sh.column_count,sh.row_count))} · ${sh.column_count} × ${sh.row_count} = ${sus.length} ${esc(T('espacios'))}${uds?' · '+num(uds)+' '+esc(T('uds.')):''}</div></div>
 <div class="ivShelfActions"><button type="button" class="arcButton secondary" data-shelf-view="${esc(sh.id)}" aria-expanded="${abierta}">${tr(abierta?'Ocultar':'Ver estantería')}</button>${puedeEditar()?`<button type="button" class="arcButton secondary" data-shelf-edit="${esc(sh.id)}">${tr('Configurar')}</button><button type="button" class="arcButton secondary" data-shelf-delete="${esc(sh.id)}">${tr('Eliminar')}</button>`:''}</div></div>${abierta?rejilla(sh):''}</div>`;
 }
+/* Arriba, un buscador: se escribe un producto y salen los sitios donde está,
+   con lo que hay en cada uno; pulsar uno abre su estantería y lo señala.
+   Debajo, los almacenes. El buscador no se vuelve a pintar al escribir: sólo
+   la lista de resultados y las marcas, para no perder el foco ni el scroll. */
 function pintarUbicaciones(host){
  if(!almacenes.length){window.ArcUI.render(host,'<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>');return}
+ if(!host.querySelector('#ivUbiBuscar')){
+  window.ArcUI.render(host,`<div class="ivCard ivBuscaUbi"><label for="ivUbiBuscar">${tr('Encontrar un producto')}</label>
+<input id="ivUbiBuscar" type="search" autocomplete="off" placeholder="${esc(T('Nombre, referencia o código de barras…'))}">
+<div id="ivUbiResultados" aria-live="polite"></div></div><div id="ivUbiLista"></div>`);
+  const campo=$('ivUbiBuscar');campo.value=busquedaUbicacion;
+  campo.oninput=()=>{busquedaUbicacion=campo.value;espacioResaltado=null;pintarResultadosUbicacion();marcarCoincidencias()};
+ }
+ pintarListaUbicaciones();
+ pintarResultadosUbicacion();
+}
+function pintarListaUbicaciones(){
+ const host=$('ivUbiLista');if(!host)return;
  window.ArcUI.render(host,almacenes.map(a=>{
   // Otras ubicaciones: todo lo que no es la raíz del almacén ni un espacio de estantería.
   const otras=otrasUbicaciones(a.id);
@@ -596,11 +615,85 @@ function pintarUbicaciones(host){
  }).join(''));
  host.querySelectorAll('[data-shelf-new]').forEach(b=>b.onclick=()=>dialogoEstanteria(b.dataset.shelfNew,null));
  host.querySelectorAll('[data-shelf-edit]').forEach(b=>b.onclick=()=>{const sh=estanterias.find(x=>x.id===b.dataset.shelfEdit);if(sh)dialogoEstanteria(sh.warehouse_id,sh)});
- host.querySelectorAll('[data-shelf-view]').forEach(b=>b.onclick=()=>{estanteriaVista=estanteriaVista===b.dataset.shelfView?null:b.dataset.shelfView;pintarUbicaciones(host)});
+ host.querySelectorAll('[data-shelf-view]').forEach(b=>b.onclick=()=>{estanteriaVista=estanteriaVista===b.dataset.shelfView?null:b.dataset.shelfView;pintarListaUbicaciones()});
  host.querySelectorAll('[data-shelf-delete]').forEach(b=>b.onclick=()=>borrarEstanteria(estanterias.find(x=>x.id===b.dataset.shelfDelete)));
+ host.querySelectorAll('.ivCelda[data-location]').forEach(b=>b.onclick=()=>dialogoContenido(ubicacion(b.dataset.location)));
+ host.querySelectorAll('[data-loc-view]').forEach(b=>b.onclick=()=>dialogoContenido(ubicacion(b.dataset.locView)));
  host.querySelectorAll('[data-loc-new]').forEach(b=>b.onclick=()=>dialogoUbicacion(b.dataset.locNew,null));
  host.querySelectorAll('[data-loc-edit]').forEach(b=>b.onclick=()=>{const u=ubicaciones.find(x=>x.id===b.dataset.locEdit);if(u)dialogoUbicacion(u.warehouse_id,u)});
  host.querySelectorAll('[data-loc-delete]').forEach(b=>b.onclick=()=>borrarUbicacion(ubicaciones.find(x=>x.id===b.dataset.locDelete)));
+ marcarCoincidencias();
+}
+
+/* Lo que hay en una ubicación, producto por producto. */
+const contenidoDe=id=>quants.filter(q=>q.location_id===id&&(Number(q.quantity)>0||Number(q.reserved_quantity)>0))
+ .map(q=>({producto:productos.find(p=>p.id===q.product_id)||{id:q.product_id,name:T('Producto archivado')},cantidad:Number(q.quantity||0),reservado:Number(q.reserved_quantity||0)}))
+ .sort((x,y)=>String(x.producto.name).localeCompare(String(y.producto.name),'es'));
+function dialogoContenido(u){
+ if(!u)return;
+ const a=almacenes.find(x=>x.id===u.warehouse_id),sh=estanterias.find(x=>x.id===u.shelf_id);
+ const filas=contenidoDe(u.id),total=filas.reduce((n,f)=>n+f.cantidad,0);
+ const donde=[a?.name,sh?T('Estantería')+' '+sh.code+(sh.name?' · '+sh.name:''):null].filter(Boolean).join(' · ');
+ const d=window.ArcUI.dialog({title:sh?T('Espacio')+' '+u.code:u.code+' · '+nombreUbicacion(u),className:'ivContenido',
+  body:`<p class="muted">${esc(donde)}</p>`+window.ArcUI.table({columns:[
+    {key:'name',label:'Producto',html:f=>`<b>${esc(f.producto.name)}</b>${f.producto.reference||f.producto.barcode?`<div class="muted">${esc([f.producto.reference,f.producto.barcode].filter(Boolean).join(' · '))}</div>`:''}`},
+    {key:'cantidad',label:'Cantidad',numeric:true,value:f=>num(f.cantidad)},
+    {key:'reservado',label:'Reservado',numeric:true,value:f=>num(f.reservado)},
+    {key:'disponible',label:'Disponible',numeric:true,value:f=>num(f.cantidad-f.reservado)}],
+   items:filas,empty:T(sh?'Este espacio está vacío.':'Esta ubicación está vacía.')})
+   +(filas.length?`<p class="muted" data-contenido-total>${esc(filas.length+' '+T(filas.length===1?'Producto':'productos').toLowerCase()+' · '+num(total)+' '+T('uds.'))}</p>`:''),
+  onSave:async()=>{}});
+ // Sólo se mira: sin botón de guardar, se cierra con «Volver».
+ d.querySelector('[type=submit]').remove();
+}
+
+/* Búsqueda por producto: nombre, referencia o código, sin tildes ni mayúsculas. */
+const plano=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+function coincidencias(){
+ const q=plano(busquedaUbicacion);
+ if(!q)return {q,productos:[],ubicaciones:new Set()};
+ const ids=new Set(productos.filter(p=>[p.name,p.reference,p.barcode].some(v=>plano(v).includes(q))).map(p=>p.id));
+ const conStock=new Set(quants.filter(x=>ids.has(x.product_id)&&Number(x.quantity)>0).map(x=>x.product_id));
+ // Primero lo que se puede ir a buscar; después, lo que no está en ninguna parte.
+ const encontrados=productos.filter(p=>ids.has(p.id)).sort((x,y)=>conStock.has(y.id)-conStock.has(x.id));
+ return {q,productos:encontrados,ubicaciones:new Set(quants.filter(x=>ids.has(x.product_id)&&Number(x.quantity)>0).map(x=>x.location_id))};
+}
+const MAX_RESULTADOS=12;
+function pintarResultadosUbicacion(){
+ const host=$('ivUbiResultados');if(!host)return;
+ const {q,productos:encontrados}=coincidencias();
+ if(!q){window.ArcUI.render(host,'');return}
+ if(!encontrados.length){window.ArcUI.render(host,`<p class="muted">${tr('Ningún producto coincide con la búsqueda.')}</p>`);return}
+ const variosAlmacenes=almacenes.length>1;
+ const items=encontrados.slice(0,MAX_RESULTADOS).map(p=>{
+  const sitios=quants.filter(x=>x.product_id===p.id&&Number(x.quantity)>0).map(x=>({u:ubicacion(x.location_id),n:Number(x.quantity)}))
+   .filter(x=>x.u).sort((x,y)=>String((almacenDe(x.u.id)||{}).code).localeCompare(String((almacenDe(y.u.id)||{}).code))||String(x.u.code).localeCompare(String(y.u.code)));
+  const total=sitios.reduce((n,x)=>n+x.n,0);
+  const chips=sitios.map(x=>`<button type="button" class="arcButton secondary ivUbiChip" data-go-location="${esc(x.u.id)}">${variosAlmacenes?`<span class="muted">${esc((almacenDe(x.u.id)||{}).code||'')}</span> `:''}<code>${esc(x.u.code)}</code>${x.u.shelf_id?'':` ${esc(nombreUbicacion(x.u))}`} · ${num(x.n)} ${esc(T('uds.'))}</button>`).join('');
+  return `<li data-found-product="${esc(p.id)}"><div><b>${esc(p.name)}</b>${p.reference||p.barcode?` <span class="muted">${esc([p.reference,p.barcode].filter(Boolean).join(' · '))}</span>`:''}
+<div class="muted">${sitios.length?esc(num(total)+' '+T('uds.')+' · '+sitios.length+' '+T(sitios.length===1?'Ubicación':'Ubicaciones').toLowerCase()):tr('Sin existencias en ninguna ubicación.')}</div></div>${chips?`<div class="ivUbiChips">${chips}</div>`:''}</li>`;
+ }).join('');
+ const resto=encontrados.length-MAX_RESULTADOS;
+ window.ArcUI.render(host,`<ul class="ivHallazgos">${items}</ul>${resto>0?`<p class="muted">${esc('+'+resto+' ')}${tr('productos más: afina la búsqueda.')}</p>`:''}`);
+ host.querySelectorAll('[data-go-location]').forEach(b=>b.onclick=()=>irAUbicacion(b.dataset.goLocation));
+}
+// Marca, sin repintar, las estanterías y los sitios donde está lo buscado.
+function marcarCoincidencias(){
+ const host=$('ivUbiLista');if(!host)return;
+ const marcadas=coincidencias().ubicaciones;
+ host.querySelectorAll('[data-location]').forEach(el=>{el.classList.toggle('coincide',marcadas.has(el.dataset.location));el.classList.toggle('buscada',el.dataset.location===espacioResaltado)});
+ host.querySelectorAll('[data-shelf]').forEach(el=>el.classList.toggle('coincide',espaciosDe({id:el.dataset.shelf}).some(u=>marcadas.has(u.id))));
+}
+// Abre la estantería del sitio elegido y lo señala.
+function irAUbicacion(id){
+ const u=ubicacion(id);if(!u)return;
+ espacioResaltado=id;
+ if(u.shelf_id)estanteriaVista=u.shelf_id;
+ pintarListaUbicaciones();
+ const host=$('ivUbiLista');
+ const el=[...host.querySelectorAll('[data-location]')].find(x=>x.dataset.location===id)||host.querySelector(`[data-warehouse="${CSS.escape(u.warehouse_id)}"]`);
+ el?.scrollIntoView({block:'center',behavior:'smooth'});
+ if(el?.matches('button'))el.focus({preventScroll:true});
 }
 /* Otras ubicaciones, a medida. Cada almacén trae tres zonas con papel —la de
    llegada, donde entran las recepciones; la de salida, donde espera lo
@@ -616,9 +709,9 @@ function otrasUbicaciones(almacenId){
   .sort((x,y)=>(ORDEN_PAPEL[x.role]??9)-(ORDEN_PAPEL[y.role]??9)||String(x.code).localeCompare(String(y.code)));
 }
 function filaUbicacion(u){
- const n=unidadesEn(u.id);
+ const n=unidadesEn(u.id),ver=n>0?`<button type="button" class="arcButton secondary" data-loc-view="${esc(u.id)}">${tr('Ver contenido')}</button>`:'';
  return `<li data-location="${esc(u.id)}"><div><code>${esc(u.code)}</code> <b>${esc(nombreUbicacion(u))}</b>${u.role?` <span class="ivPapel" data-role="${esc(u.role)}">${tr('Por defecto')}</span>`:''}<div class="muted">${n?`${num(n)} ${esc(T('uds.'))}`:esc(T('Vacía'))}</div></div>`
-  +(puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-loc-edit="${esc(u.id)}">${tr('Renombrar')}</button>${u.role?'':`<button type="button" class="arcButton secondary" data-loc-delete="${esc(u.id)}">${tr('Eliminar')}</button>`}</div>`:'')+'</li>';
+  +(ver||puedeEditar()?`<div class="ivShelfActions">${ver}${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-edit="${esc(u.id)}">${tr('Renombrar')}</button>${u.role?'':`<button type="button" class="arcButton secondary" data-loc-delete="${esc(u.id)}">${tr('Eliminar')}</button>`}`:''}</div>`:'')+'</li>';
 }
 const ERRORES_UBICACION={LOCATION_NAME_REQUIRED:'El nombre es obligatorio.',LOCATION_CODE_INVALID:'El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).',LOCATION_CODE_RESERVED:'Los códigos AAXX-XX son de los espacios de estantería.',LOCATION_CODE_TAKEN:'Ya hay una ubicación con ese código en este almacén.',LOCATION_CODE_IMMUTABLE:'El código de una ubicación no cambia.',LOCATION_ROLE_REQUIRED:'Las zonas por defecto se renombran pero no se eliminan.',LOCATION_NOT_EMPTY:'La ubicación no está vacía: tiene existencias, reservas o una compra abierta.',LOCATION_HAS_CHILDREN:'Hay ubicaciones o estanterías dentro de esta ubicación.',LOCATION_IN_USE:'Una preparación en curso usa esta ubicación.',LOCATION_NOT_FOUND:'La ubicación ya no existe.',ROLE_NOT_ALLOWED:'Su perfil no puede cambiar las ubicaciones.'};
 function errorUbicacion(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_UBICACION).find(x=>m.includes(x));return k?T(ERRORES_UBICACION[k]):(window.ArcErrors?.message(e)||m)}

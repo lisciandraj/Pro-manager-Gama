@@ -46,9 +46,10 @@ La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, po
 - `architect-tokens.css` : couleurs, espaces, rayons, ombres et typographie. Les alias publics `--color-*`, `--radius-*`, `--shadow-*` réutilisent ces tokens.
 - `architect-ui.css` : cartes, tableaux, champs, boutons, états, dialogues et notifications communs aux modules existants.
 - `architect-shell.css` : sidebar, barre supérieure, profil, navigation responsive.
-- `architect-home.css` : accueil, KPI, grille, activité et personnalisation.
+- `architect-home.css` : accueil, grille, activité et personnalisation.
+- `architect-home-kpis.js` et `architect-kpis.css` : les quatre indicateurs personnels, en tête du tableau de bord.
 - `architect-shell.js` : navigation depuis `GamaMenu`, recherche globale existante, déplacement des contrôles de session existants dans le menu utilisateur, indicateur actif, droits et langues.
-- `gama-menu-final2.js` : registre de tous les modules existants, cartes, KPI et activité. TMS utilise désormais ce même registre ; son chargeur reste unique.
+- `gama-menu-final2.js` : registre de tous les modules existants, cartes et activité. TMS utilise désormais ce même registre ; son chargeur reste unique.
 
 Les feuilles de la sidebar et de l’accueil remplacent les anciennes chaînes CSS injectées. Les feuilles partagées habillent les classes déjà utilisées par les modules, y compris les composants chargés tardivement. Les nouvelles préférences d’affichage restent locales au navigateur et séparées des données métier.
 

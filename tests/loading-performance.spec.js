@@ -26,12 +26,13 @@ test('unchanged access polling does not rebuild the menu; a real revocation stil
  await page.evaluate(async()=>{window.__DB.role_module_access=[{role:'comercial',disabled_modules:['crm'],version:2}];await GamaRoleAccess.load()});
  expect(await page.evaluate(()=>window.__changes)).toBe(1);expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
 });
-for(const width of [390,1440])test(`cold home starts access reads together and calculates KPIs once at ${width}px`,async({page})=>{
+for(const width of [390,1440])test(`cold home starts access reads together and leaves the KPIs to the dashboard at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});
  await page.addInitScript(()=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'}));
  });
  const instrumented=mock+`;(()=>{
+  if(window.__startup)return; // the file is delivered twice; instrument it once
   window.__startup={profile:0,access:0,kpis:0};
   const profile=GamaCloud.getProfile,list=GamaCloud.list,db=GamaCloud.db;
   GamaCloud.getProfile=async()=>{__startup.profile++;await new Promise(r=>window.__releaseProfile=r);return profile()};
@@ -47,14 +48,18 @@ for(const width of [390,1440])test(`cold home starts access reads together and c
  expect(await page.evaluate(()=>__startup.access)).toBe(1);
  expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
  await page.evaluate(()=>{window.__originalGrid=document.querySelector('.gamaF2Grid');__releaseProfile()});
- await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
- expect(await page.evaluate(()=>__startup.kpis)).toBe(1);
- expect(await page.evaluate(()=>__originalGrid===document.querySelector('.gamaF2Grid'))).toBe(true);
  await expect(page.locator('.gamaF2Card[data-gama-module="crm"]')).toBeVisible();
+ expect(await page.evaluate(()=>__originalGrid===document.querySelector('.gamaF2Grid'))).toBe(true);
  await page.evaluate(async()=>{await GamaModules.load();await GamaModules.load()});
+ // The home calculates no indicator: the four personal KPIs live at the top of the dashboard.
+ await expect(page.locator('#mainmenu .gamaF2Kpi')).toHaveCount(0);
+ expect(await page.evaluate(()=>__startup.kpis)).toBe(0);
+ // Opening the dashboard calculates them once.
+ await page.evaluate(()=>showTab('dashboard'));
+ await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);
  expect(await page.evaluate(()=>__startup.kpis)).toBe(1);
  // Concurrent refreshes share work; re-mounts keep already displayed values.
- await page.evaluate(async()=>{await Promise.all([ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh()]);GamaMenu.render()});
+ await page.evaluate(async()=>{await Promise.all([ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh()]);ArchitectHomeKpis.mount(document.getElementById('ad-kpis'))});
  expect(await page.evaluate(()=>__startup.kpis)).toBe(2);
- await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
+ await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);
 });

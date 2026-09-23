@@ -3,6 +3,10 @@
    Loaded via page.route() fulfilling the request for gama-supabase.js. */
 (function () {
   'use strict';
+  // Como gama-supabase.js: el archivo llega dos veces (la etiqueta de index.html
+  // y la copia que inyecta gama-access-control.js). La segunda no debe crear
+  // otra capa de datos a mitad del arranque.
+  if (window.GamaCloud && window.GamaCloudReady) return;
   window.__DB = window.__DB || {
     products: [], suppliers: [], customers: [],
     invoices: [], invoice_lines: [],

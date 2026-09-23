@@ -1,6 +1,6 @@
 # Tableau de bord de pilotage
 
-Le tableau de bord rassemble les données autorisées de 18 sources métier dans une seule lecture. Il conserve les composants, les couleurs, les droits et les langues de l’ERP. Les quatre indicateurs personnalisables du menu principal restent indépendants.
+Le tableau de bord rassemble les données autorisées de 18 sources métier dans une seule lecture. Il conserve les composants, les couleurs, les droits et les langues de l’ERP. Il s’ouvre sur **Mes indicateurs** : les quatre indicateurs personnalisables que chaque compte choisit (« Choisir mes KPI », 4 parmi 30, selon ses droits), déplacés ici depuis le menu principal. Ils restent calculés à part par le serveur (`gama_home_kpis`), se mettent à jour toutes les minutes tant que le tableau de bord est affiché et ne suivent pas la période choisie plus bas.
 
 ## Lecture
 

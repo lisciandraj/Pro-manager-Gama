@@ -1,11 +1,13 @@
 const {test,expect}=require('@playwright/test'),fs=require('fs');
-const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
+// Los cuatro indicadores personales viven arriba del panel de control.
+const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8')+fs.readFileSync(__dirname+'/mock-dashboard.js','utf8');
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({id:'user-a',role,name:'QA'}));localStorage.setItem('gama_language_v1','fr')},role);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
- await page.goto('/index.html');await expect(page.locator('#arcKpiCustomize')).toBeEnabled();
+ await page.goto('/index.html');await openDashboard(page);
 }
+async function openDashboard(page){await page.waitForFunction(()=>document.querySelector('#mainmenu .gamaF2Card'));await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#arcKpiCustomize')).toBeEnabled()}
 const box=(page,id)=>page.locator('#arcKpiChoices input[value="'+id+'"]');
 const selected=page=>page.locator('.gamaF2Kpi').evaluateAll(els=>els.map(x=>x.dataset.kpi));
 test('30 definitions, exactly four selections, filters, presets, persistence and account isolation',async({page})=>{
@@ -16,7 +18,7 @@ test('30 definitions, exactly four selections, filters, presets, persistence and
  await page.locator('#arcKpiGroup').selectOption('all');await page.locator('#arcKpiSearch').fill('pipeline');await expect(page.locator('.arcKpiChoice')).toHaveCount(1);
  await page.locator('#arcKpiSearch').clear();await page.locator('[data-preset=crm]').click();await page.locator('#arcKpiSave').click();await expect(page.locator('#arcKpiDialog')).toHaveCount(0);
  const crm=['open_opportunities','pipeline','overdue_activities','clients_active'];expect(await selected(page)).toEqual(crm);
- await page.reload();await expect(page.locator('.gamaF2Kpi').first()).toHaveAttribute('data-kpi',crm[0]);expect(await selected(page)).toEqual(crm);
+ await page.reload();await openDashboard(page);await expect(page.locator('.gamaF2Kpi').first()).toHaveAttribute('data-kpi',crm[0]);expect(await selected(page)).toEqual(crm);
  const login=async id=>page.evaluate(id=>{localStorage.setItem('gama_session_v1',JSON.stringify({id,role:'admin'}));dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN',session:{user:{id}}}}))},id);
  await login('user-b');await expect(page.locator('.gamaF2Kpi').first()).toHaveAttribute('data-kpi','invoiced');
  await login('user-a');await expect(page.locator('.gamaF2Kpi').first()).toHaveAttribute('data-kpi',crm[0]);

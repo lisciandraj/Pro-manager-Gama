@@ -11,10 +11,10 @@ async function boot(page,role='admin'){
 }
 test('original logo, six-column reference, translated labels and truthful metrics',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);
- await expect(page.locator('.gamaF2Kpi')).toHaveCount(4);
- await expect(page.locator('.gamaF2KpiValue')).toHaveText([/1.*840/, '7','2','1']);
  await expect(page.locator('.gamaF2Head h1')).toHaveText('Menu principal');
- await expect(page.locator('.gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
+ // Los cuatro indicadores personales ya no están en el inicio: abren el panel de control (abajo).
+ await expect(page.locator('#mainmenu .gamaF2Card').first()).toBeVisible();
+ await expect(page.locator('#mainmenu .gamaF2Kpi, #mainmenu #arcKpiCustomize')).toHaveCount(0);
  const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight*10)/10}));
  // Seis por fila en pantalla de ordenador: la referencia eran cuatro, y con
  // ellas el menú no cabía de un vistazo. Por debajo de 1280 vuelven a ser
@@ -28,6 +28,13 @@ test('original logo, six-column reference, translated labels and truthful metric
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
  // Coco ERP: el archivo oficial se conserva sin retocar; las variantes se recortan de él.
  const logo=await page.request.get('/coco-erp-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('c3e75d1cbbf288bd180c62593ea5bad31c2678986804e6b053c8f3bc6d675f15');
+ // Arriba del panel de control, los cuatro indicadores con sus cifras reales.
+ await page.evaluate(()=>showTab('dashboard'));
+ await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);
+ await expect(page.locator('#dashboard .gamaF2KpiValue')).toHaveText([/1.*840/, '7','2','1']);
+ await expect(page.locator('#dashboard .gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
+ await expect(page.locator('#arcKpiHeading')).toHaveText('Mes indicateurs');
+ expect(await page.evaluate(()=>document.querySelector('#ad-workspace').firstElementChild.contains(document.querySelector('#ad-kpis'))),'en cabeza del panel').toBe(true);
 });
 test('customization persists without removing navigation or access to modules',async({page})=>{
  await page.setViewportSize({width:1440,height:900});await boot(page);

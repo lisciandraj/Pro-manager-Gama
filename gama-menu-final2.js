@@ -51,7 +51,7 @@ function render(){
  const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Coco ERP.';
  cabecera.append(h,p);
 
- const fila=document.createElement('div');fila.className='gamaF2Kpis';fila.id='gamaF2Kpis';fila.hidden=true;
+ // Los cuatro indicadores personales viven arriba del panel de control, no aquí.
 
  const grid=document.createElement('div');grid.className='gamaF2Grid';
  ordered().forEach(x=>{
@@ -83,9 +83,9 @@ function render(){
 
  const heading=document.createElement('div');heading.className='arcSectionHead';
  window.ArcUI.render(heading,'<h2>'+esc(T('Tus módulos'))+'</h2><button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>');
- host.append(cabecera,fila,heading,grid);
+ host.append(cabecera,heading,grid);
  heading.querySelector('button').onclick=personalize;
- window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.ArchitectHomeKpis?.mount(fila);window.GamaI18n?.scan?.(host);
+ window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.GamaI18n?.scan?.(host);
 }
 
 window.addEventListener('gama:language-change',()=>{const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});

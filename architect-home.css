@@ -3,22 +3,13 @@
 #mainmenu .gamaF2Head{margin:0 0 24px}
 #mainmenu .gamaF2Head h1{margin:0;font-size:40px;line-height:1.12;letter-spacing:-.035em;color:var(--arc-text);font-weight:800}
 #mainmenu .gamaF2Head p{margin:4px 0 0;color:var(--arc-text-muted);font-size:16px;line-height:1.5}
-#mainmenu .gamaF2Kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 20px}
-#mainmenu .gamaF2Kpis[hidden]{display:none}
-#mainmenu .gamaF2Kpi{display:flex;align-items:flex-start;gap:12px;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);padding:14px 12px;box-shadow:var(--arc-card-shadow);min-height:108px}
-#mainmenu .gamaF2KpiIcon{width:50px;height:50px;flex:none;border-radius:12px;display:grid;place-items:center}
-#mainmenu .gamaF2KpiIcon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.gamaF2KpiText{min-width:0;padding-top:4px}
-.gamaF2KpiLabel{display:block;font-size:12px;color:var(--arc-text-muted);line-height:1.4;font-weight:400}
-.gamaF2KpiValue{display:block;font-size:22px;font-weight:700;line-height:1.25;margin-top:6px;font-variant-numeric:tabular-nums;color:var(--arc-text);overflow-wrap:anywhere}
-.gamaF2KpiHint{display:block;font-size:11px;color:var(--arc-text-subtle);margin-top:5px}
 .arcSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 #mainmenu .arcSectionHead h2{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.025em;font-weight:750}
 .arcCustomizeButton{padding:4px 12px;min-height:40px;font-size:14px;font-weight:400}
 .arcCustomizeButton svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
 #mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:14px}
 #mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;min-width:0;min-height:142px;padding:13px 17px 16px;margin:0;text-align:left;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
-#mainmenu .gamaF2Card,#mainmenu .gamaF2Kpi{border-color:var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow)}
+#mainmenu .gamaF2Card{border-color:var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);box-shadow:var(--arc-tile-shadow)}
 @media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-tile-shadow-hover);transform:translateY(-2px)}}
 #mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px;box-shadow:var(--arc-tile-shadow-hover)}
 @media(prefers-reduced-motion:reduce){#mainmenu .gamaF2Card:hover{transform:none}}
@@ -79,7 +70,7 @@
  #mainmenu .gamaF2Desc{font-size:12.5px;line-height:1.35;margin-top:3px;padding-right:6px}
  #mainmenu .gamaF2Go{right:11px;bottom:12px;width:17px;height:17px}
 }
-@media(max-width:1099px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gamaF2KpiValue{font-size:21px}#mainmenu .gamaF2Kpi{gap:8px}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#arcRecentActivity{grid-template-columns:1fr}.arcDashboardCard{display:none}}
-@media(max-width:860px){#mainmenu .gamaF2Head h1{font-size:30px}#mainmenu .gamaF2Head p{font-size:14px}#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .gamaF2Kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .arcSectionHead h2{font-size:23px}#mainmenu .gamaF2Kpi{padding:12px;min-height:104px}#mainmenu .gamaF2Card{padding:14px;min-height:145px}.arcCustomizeButton{font-size:12px}}
-@media(max-width:430px){#mainmenu .gamaF2Head h1{font-size:28px}#mainmenu .gamaF2Kpi{gap:9px;padding:12px 10px;flex-direction:column}#mainmenu .gamaF2KpiIcon{width:38px;height:38px}#mainmenu .gamaF2KpiIcon svg{width:24px;height:24px}.gamaF2KpiText{padding:0}.gamaF2KpiLabel{min-height:34px}.gamaF2KpiValue{font-size:20px}#mainmenu .gamaF2Title{font-size:14px}#mainmenu .gamaF2Desc{font-size:12px}#mainmenu .gamaF2Card{padding:12px;gap:10px;min-height:150px}#mainmenu .gamaF2Icon{width:44px;height:44px}.gamaF2Icon svg{width:26px;height:26px}.arcCustomizeList{grid-template-columns:1fr}.arcCustomize{padding:18px}}
+@media(max-width:1099px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}#arcRecentActivity{grid-template-columns:1fr}.arcDashboardCard{display:none}}
+@media(max-width:860px){#mainmenu .gamaF2Head h1{font-size:30px}#mainmenu .gamaF2Head p{font-size:14px}#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .arcSectionHead h2{font-size:23px}#mainmenu .gamaF2Card{padding:14px;min-height:145px}.arcCustomizeButton{font-size:12px}}
+@media(max-width:430px){#mainmenu .gamaF2Head h1{font-size:28px}#mainmenu .gamaF2Title{font-size:14px}#mainmenu .gamaF2Desc{font-size:12px}#mainmenu .gamaF2Card{padding:12px;gap:10px;min-height:150px}#mainmenu .gamaF2Icon{width:44px;height:44px}.gamaF2Icon svg{width:26px;height:26px}.arcCustomizeList{grid-template-columns:1fr}.arcCustomize{padding:18px}}
 .arcOrderHint{font-size:12px;color:var(--arc-text-muted);margin:-4px 0 14px;line-height:1.5}.arcOrderHint [role=status]{display:block;color:var(--arc-accent-600);min-height:18px}.arcOrderHint button{margin-left:8px}.arcDragHandle{position:absolute;right:12px;top:10px;font-size:25px;line-height:32px;width:36px;height:36px;color:var(--arc-text-muted);cursor:grab;touch-action:none;user-select:none;border-radius:6px}.arcDragHandle:hover{background:var(--arc-surface-2)}.gamaF2Card.arcDragging{opacity:.55;outline:2px dashed var(--arc-accent-600)}

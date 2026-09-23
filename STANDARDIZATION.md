@@ -46,7 +46,7 @@ Exécuter `python3 scripts/build-i18n.py` après un changement de libellés, pui
 - **Clients et produits** : mêmes tableaux déclaratifs et pagination serveur, contrats canoniques et adaptateurs limités aux anciens éditeurs. Les tarifs, photos, imports et identifiants métier gardent leurs comportements.
 - **Vente et logistique** : montage partagé, composants et formats harmonisés ; le formulaire historique de devis utilise une seule commande transactionnelle, sûre à relancer. Les circuits commandes, réservations, préparation, livraison et paiement gardent leurs RPC métier.
 - **RH, CRM, projets, comptabilité, flotte et retours** : navigation et rendu communs, styles extraits, contrôles partagés. Comptabilité, flotte et retours se chargent à la première ouverture. Le dialogue Projets conserve ses protections spécifiques contre la perte des modifications et les conflits de version.
-- **Menu et surfaces** : relief et contraste conservés ; bloc d'activité récente et promotion du tableau de bord retirés du bas du menu. L'ordre personnalisable des modules et les KPI restent disponibles.
+- **Menu et surfaces** : relief et contraste conservés ; bloc d'activité récente et promotion du tableau de bord retirés du bas du menu. L'ordre personnalisable des modules reste disponible ; les quatre KPI personnels sont passés en tête du tableau de bord.
 
 ## Compatibilité et limites explicites
 

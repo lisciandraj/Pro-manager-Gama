@@ -314,14 +314,14 @@ const definitions=[
   },
   {
     "id": "payments",
-    "menuHiddenWith": "quotes",
+    "tabOf": "quotes",
     "label": "Facturas y cobros",
     "icon": "banknote",
     "group": "Ventas",
     "description": "Registro de facturas y cobros",
     "accent": "blue",
     "order": 6,
-    "menu": true,
+    "menu": false,
     "configLabel": "Pagos de clientes",
     "roles": [
       "admin",

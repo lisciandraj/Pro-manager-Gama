@@ -1142,6 +1142,12 @@
       "name": "sales_orders_tab_of_quotes",
       "file": "20260923071616_sales_orders_tab_of_quotes.sql",
       "sha256": "bac8a96e2440979087538bd32714674c20dd9713a8c55d972b4d15a945375da1"
+    },
+    {
+      "version": "20260923090300",
+      "name": "payments_tab_of_quotes",
+      "file": "20260923090300_payments_tab_of_quotes.sql",
+      "sha256": "ca66d23df65ef44755de3af68719d7333c1b43510cf2fbb138d0e5ca2c3a1039"
     }
   ]
 }

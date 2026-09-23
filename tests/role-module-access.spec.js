@@ -79,7 +79,7 @@ test('create, customize and assign a profile, then authenticate with its base an
  await expect(page.locator('#cfgAccessStatus')).toContainText('Perfil creado');
  const custom=await page.locator('#cfgProfile').inputValue();expect(custom).toMatch(/^custom_/);
  await expect(page.locator('[data-role-module="crm"]')).not.toBeChecked();
- await page.locator('[data-role-module="payments"]').uncheck();await page.locator('#cfgSaveProfile').click();
+ await page.locator('[data-role-module="returns"]').uncheck();await page.locator('#cfgSaveProfile').click();
  await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
  await page.locator('#cfgNewProfile').click();await page.locator('#cfgProfileName').fill('Assistant ventes');await page.locator('#cfgCreateProfileSave').click();
  await expect(page.locator('#cfgAccessStatus')).toContainText('Ya existe');
@@ -93,15 +93,16 @@ test('create, customize and assign a profile, then authenticate with its base an
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).accessProfile)).toBe(custom);
  await page.evaluate(()=>GamaRoleAccess.load());
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).role)).toBe('commercial');
- expect(await page.evaluate(()=>gamaAccessAllowed('payments'))).toBe(false);
+ expect(await page.evaluate(()=>gamaAccessAllowed('returns'))).toBe(false);
+ expect(await page.evaluate(()=>gamaAccessAllowed('payments'))).toBe(true);
  expect(await page.evaluate(()=>gamaAccessAllowed('sales-orders'))).toBe(true);
  expect(await page.evaluate(()=>gamaAccessAllowed('access-settings'))).toBe(false);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
-test('orders are a tab of Presupuestos y facturas: no switch of their own, they follow the module',async({page})=>{
+test('orders and invoices are tabs of Presupuestos y facturas: no switch of their own, they follow the module',async({page})=>{
  await boot(page);
- await expect(page.locator('[data-role-module="sales-orders"], [data-mod="sales-orders"]')).toHaveCount(0);
+ await expect(page.locator('[data-role-module="sales-orders"], [data-mod="sales-orders"], [data-role-module="payments"], [data-mod="payments"]')).toHaveCount(0);
  await expect(page.locator('[data-mod="quotes"]')).toHaveCount(1);
  // El almacenero sólo tiene los pedidos: para él, Presupuestos y facturas es su módulo y se puede cerrar.
  await page.locator('#cfgProfile').selectOption('magasinier');
@@ -109,10 +110,10 @@ test('orders are a tab of Presupuestos y facturas: no switch of their own, they 
  await expect(page.locator('[data-role-module="quotes"]')).toBeChecked();
  await page.locator('[data-role-module="quotes"]').uncheck();await page.locator('#cfgSaveProfile').click();
  await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
- expect(await page.evaluate(()=>__DB.role_module_access.find(r=>r.role==='almacenero').disabled_modules.slice().sort())).toEqual(['billing','quotes','sales-orders']);
+ expect(await page.evaluate(()=>__DB.role_module_access.find(r=>r.role==='almacenero').disabled_modules.slice().sort())).toEqual(['billing','payments','quotes','sales-orders']);
  await page.locator('[data-role-module="quotes"]').check();await page.locator('#cfgSaveProfile').click();
  await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
  expect(await page.evaluate(()=>__DB.role_module_access.find(r=>r.role==='almacenero').disabled_modules)).toEqual([]);
- // Apagar el módulo para toda la empresa apaga también los pedidos.
- expect(await page.evaluate(async()=>{await GamaModules.setEnabled('quotes',false);return [GamaModules.enabled('quotes'),GamaModules.enabled('sales-orders'),GamaModules.enabled('payments')]})).toEqual([false,false,true]);
+ // Apagar el módulo para toda la empresa apaga también los pedidos y las facturas.
+ expect(await page.evaluate(async()=>{await GamaModules.setEnabled('quotes',false);return [GamaModules.enabled('quotes'),GamaModules.enabled('sales-orders'),GamaModules.enabled('payments'),GamaModules.enabled('crm')]})).toEqual([false,false,false,true]);
 });

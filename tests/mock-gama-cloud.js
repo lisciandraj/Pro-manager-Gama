@@ -583,6 +583,28 @@
             return {data:{id:sh.id,code:sh.code,removed:{deleted:mine.length,archived:0}}};
           }
         }
+        // Almacenes: crear (con su raíz y sus tres zonas) y modificar, con las reglas del servidor.
+        if(fn==='gama_warehouse_action'){
+          const d=args.p_data||{},db=window.__DB;db.warehouses=db.warehouses||[];db.warehouse_locations=db.warehouse_locations||[];
+          const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
+          if(!['admin','administrador','magasinier','almacenero'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          if(args.p_action!=='save')return {error:{message:'INVALID_ACTION'}};
+          const name=String(d.name||'').trim(),address=String(d.address||'').trim()||null,city=String(d.city||'').trim()||null;
+          if(!name)return {error:{message:'WAREHOUSE_NAME_REQUIRED'}};
+          if(d.id){
+            const w=db.warehouses.find(x=>x.id===d.id);if(!w)return {error:{message:'WAREHOUSE_NOT_FOUND'}};
+            if(String(d.code||'').trim()&&String(d.code).trim().toUpperCase()!==w.code)return {error:{message:'WAREHOUSE_CODE_IMMUTABLE'}};
+            Object.assign(w,{name,address,city});return {data:{id:w.id,code:w.code,name,address,city}};
+          }
+          const code=String(d.code||'').trim().toUpperCase();
+          if(!/^[A-Z0-9][A-Z0-9._-]{0,23}$/.test(code))return {error:{message:'WAREHOUSE_CODE_INVALID'}};
+          if(db.warehouses.some(x=>x.code===code))return {error:{message:'WAREHOUSE_CODE_TAKEN'}};
+          const id='wh-'+code,root={id:'loc-'+code+'-STOCK',warehouse_id:id,parent_id:null,code:'STOCK',name:'Existencias',type:'warehouse',active:true,role:null};
+          db.warehouses.push({id,code,name,address,city,active:true});db.warehouse_locations.push(root);
+          for(const [r,c,n] of [['arrival','LLEGADA','Zona de llegada'],['departure','SALIDA','Zona de salida'],['quarantine','CUARENTENA','Cuarentena']])
+            db.warehouse_locations.push({id:'loc-'+code+'-'+c,warehouse_id:id,parent_id:root.id,code:c,name:n,type:'zone',role:r,active:true});
+          return {data:{id,code,name,address,city,created:true}};
+        }
         // Otras ubicaciones: crear, renombrar y quitar, con las reglas del servidor.
         if(fn==='gama_location_action'){
           const d=args.p_data||{},db=window.__DB;db.warehouse_locations=db.warehouse_locations||[];

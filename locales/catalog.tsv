@@ -2881,3 +2881,16 @@ Ningún producto coincide con la búsqueda.	Aucun produit ne correspond à la re
 Sin existencias en ninguna ubicación.	Aucun stock dans les emplacements.	No stock in any location.
 productos más: afina la búsqueda.	produits de plus : affinez la recherche.	more products: refine the search.
 Ver contenido	Voir le contenu	View contents
+Almacenes	Entrepôts	Warehouses
+＋ Nuevo almacén	＋ Nouvel entrepôt	＋ New warehouse
+Nuevo almacén	Nouvel entrepôt	New warehouse
+Modificar el almacén	Modifier l’entrepôt	Edit warehouse
+Se crea con su zona de llegada, su zona de salida y su cuarentena.	Il est créé avec sa zone d’arrivée, sa zone de départ et sa quarantaine.	It is created with its arrival zone, departure zone and quarantine.
+Almacén guardado.	Entrepôt enregistré.	Warehouse saved.
+Almacén creado.	Entrepôt créé.	Warehouse created.
+El nombre del almacén es obligatorio.	Le nom de l’entrepôt est obligatoire.	The warehouse name is required.
+Ya hay un almacén con ese código.	Un entrepôt porte déjà ce code.	A warehouse already uses that code.
+El código de un almacén no cambia.	Le code d’un entrepôt ne change pas.	A warehouse code cannot change.
+La dirección o la ciudad son demasiado largas.	L’adresse ou la ville est trop longue.	The address or city is too long.
+El almacén ya no existe.	L’entrepôt n’existe plus.	The warehouse no longer exists.
+Su perfil no puede cambiar los almacenes.	Votre profil ne peut pas modifier les entrepôts.	Your profile cannot change warehouses.

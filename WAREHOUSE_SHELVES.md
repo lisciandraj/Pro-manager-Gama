@@ -3,6 +3,26 @@
 **Almacenes y existencias → Ubicaciones.** Cada almacén describe sus
 estanterías y Coco ERP genera un espacio de almacenamiento por celda.
 
+## Almacenes
+
+Los almacenes se crean y se modifican en la misma pestaña: **＋ Nuevo
+almacén** encima de la lista y **Modificar** en cada uno. Se piden el código,
+el nombre, la dirección y la ciudad (estas dos, opcionales). El código —letras,
+cifras, punto, guion o guion bajo, hasta 24— se elige al crear y ya no cambia
+(`WAREHOUSE_CODE_IMMUTABLE`), porque lo llevan etiquetas e informes; el resto
+se cambia cuando haga falta. Un almacén nuevo nace listo para trabajar: su
+raíz `STOCK` y sus tres zonas por defecto (llegada, salida y cuarentena), así
+que enseguida se le añaden estanterías y ubicaciones y aparece en los filtros
+y en las transferencias. Si todavía no hay ninguno, el primero se crea desde
+el aviso «No hay almacenes dados de alta».
+
+Lo hacen el administrador y el almacenero, con
+`public.gama_warehouse_action('save', datos)` (`WAREHOUSE_CODE_TAKEN`,
+`WAREHOUSE_CODE_INVALID`, `WAREHOUSE_NAME_REQUIRED`…). Las recepciones sin
+destino siguen entrando por la zona de llegada del almacén `PRINCIPAL`.
+Migración `warehouse_admin`; pruebas `tests/warehouse-admin-db.test.cjs` y
+`tests/warehouse-admin.spec.js`.
+
 ## La referencia AAXX-XX
 
 `AB03-02` es la estantería **AB** (dos letras), la **columna 03** y la

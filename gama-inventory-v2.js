@@ -590,7 +590,11 @@ function tarjetaEstanteria(sh,a){
    Debajo, los almacenes. El buscador no se vuelve a pintar al escribir: sólo
    la lista de resultados y las marcas, para no perder el foco ni el scroll. */
 function pintarUbicaciones(host){
- if(!almacenes.length){window.ArcUI.render(host,'<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>');return}
+ if(!almacenes.length){
+  window.ArcUI.render(host,`<div class="ivCard"><p class="muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</p>${puedeEditar()?`<button type="button" class="arcButton primary" data-wh-new>${tr('＋ Nuevo almacén')}</button>`:''}</div>`);
+  host.querySelector('[data-wh-new]')?.addEventListener('click',()=>dialogoAlmacen(null));
+  return;
+ }
  if(!host.querySelector('#ivUbiBuscar')){
   window.ArcUI.render(host,`<div class="ivCard ivBuscaUbi"><label for="ivUbiBuscar">${tr('Encontrar un producto')}</label>
 <input id="ivUbiBuscar" type="search" autocomplete="off" placeholder="${esc(T('Nombre, referencia o código de barras…'))}">
@@ -603,16 +607,18 @@ function pintarUbicaciones(host){
 }
 function pintarListaUbicaciones(){
  const host=$('ivUbiLista');if(!host)return;
- window.ArcUI.render(host,almacenes.map(a=>{
+ window.ArcUI.render(host,`<div class="ivShelfHead ivAlmacenesHead"><h4 class="ivShelfTitle">${tr('Almacenes')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-wh-new>${tr('＋ Nuevo almacén')}</button>`:''}</div>`+almacenes.map(a=>{
   // Otras ubicaciones: todo lo que no es la raíz del almacén ni un espacio de estantería.
   const otras=otrasUbicaciones(a.id);
   const sus=estanterias.filter(sh=>sh.warehouse_id===a.id);
   return `<div class="ivCard" data-warehouse="${esc(a.id)}"><div class="ivShelfHead"><div><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
-<p class="muted" style="margin:0">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p></div>${puedeEditar()?`<button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('＋ Nueva estantería')}</button>`:''}</div>
+<p class="muted" style="margin:0" data-wh-details>${esc([a.code,a.address,a.city].filter(Boolean).join(' · '))}</p></div>${puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-wh-edit="${esc(a.id)}">${tr('Modificar')}</button><button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('＋ Nueva estantería')}</button></div>`:''}</div>
 <h4 class="ivShelfTitle">${tr('Estanterías')}</h4>${sus.map(sh=>tarjetaEstanteria(sh,a)).join('')||`<p class="muted">${tr('Sin estanterías. Crea una para generar sus espacios AAXX-XX.')}</p>`}
 <div class="ivShelfHead ivOtrasHead"><h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-new="${esc(a.id)}">${tr('＋ Nueva ubicación')}</button>`:''}</div>
 <ul class="ivOtras">${otras.map(u=>filaUbicacion(u)).join('')||`<li class="muted">${tr('Sin ubicaciones.')}</li>`}</ul></div>`;
  }).join(''));
+ host.querySelectorAll('[data-wh-new]').forEach(b=>b.onclick=()=>dialogoAlmacen(null));
+ host.querySelectorAll('[data-wh-edit]').forEach(b=>b.onclick=()=>dialogoAlmacen(almacenes.find(x=>x.id===b.dataset.whEdit)));
  host.querySelectorAll('[data-shelf-new]').forEach(b=>b.onclick=()=>dialogoEstanteria(b.dataset.shelfNew,null));
  host.querySelectorAll('[data-shelf-edit]').forEach(b=>b.onclick=()=>{const sh=estanterias.find(x=>x.id===b.dataset.shelfEdit);if(sh)dialogoEstanteria(sh.warehouse_id,sh)});
  host.querySelectorAll('[data-shelf-view]').forEach(b=>b.onclick=()=>{estanteriaVista=estanteriaVista===b.dataset.shelfView?null:b.dataset.shelfView;pintarListaUbicaciones()});
@@ -695,6 +701,32 @@ function irAUbicacion(id){
  el?.scrollIntoView({block:'center',behavior:'smooth'});
  if(el?.matches('button'))el.focus({preventScroll:true});
 }
+/* Almacenes: se crean y se modifican aquí (gama_warehouse_action). El código
+   se elige al crear y ya no cambia; el servidor crea la raíz y las tres zonas
+   por defecto de un almacén nuevo. */
+const ERRORES_ALMACEN={WAREHOUSE_NAME_REQUIRED:'El nombre del almacén es obligatorio.',WAREHOUSE_CODE_INVALID:'El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).',WAREHOUSE_CODE_TAKEN:'Ya hay un almacén con ese código.',WAREHOUSE_CODE_IMMUTABLE:'El código de un almacén no cambia.',WAREHOUSE_TEXT_TOO_LONG:'La dirección o la ciudad son demasiado largas.',WAREHOUSE_NOT_FOUND:'El almacén ya no existe.',ROLE_NOT_ALLOWED:'Su perfil no puede cambiar los almacenes.'};
+function errorAlmacen(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_ALMACEN).find(x=>m.includes(x));return k?T(ERRORES_ALMACEN[k]):(window.ArcErrors?.message(e)||m)}
+async function accionAlmacen(a,d){const r=await window.ArcData.rawRpc('gama_warehouse_action',{p_action:a,p_data:d});if(r.error)throw r.error;return r.data}
+async function recargarAlmacenes(){window.ArcData.invalidate?.('warehouses');await recargarEstanterias();window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'warehouses'}}))}
+function dialogoAlmacen(a){
+ const F=window.ArcUI.field;
+ const d=window.ArcUI.dialog({title:a?T('Modificar el almacén')+' '+a.code:T('Nuevo almacén'),saveLabel:T('Guardar'),
+  body:(a?'':`<p class="muted">${tr('Se crea con su zona de llegada, su zona de salida y su cuarentena.')}</p>`)
+   +F({key:'code',label:T('Código'),value:a?.code||'',required:true,maxLength:24,disabled:!!a,attrs:'autocapitalize="characters" autocomplete="off"'})
+   +F({key:'name',label:T('Nombre'),value:a?.name||'',required:true,maxLength:120})
+   +F({key:'address',label:T('Dirección'),value:a?.address||'',maxLength:240})
+   +F({key:'city',label:T('Ciudad'),value:a?.city||'',maxLength:120}),
+  onSave:async el=>{
+   const f=new FormData(el.querySelector('form')),datos={name:f.get('name'),address:f.get('address')||'',city:f.get('city')||''};
+   let r;
+   try{r=await accionAlmacen('save',a?{...datos,id:a.id}:{...datos,code:String(f.get('code')||'').toUpperCase()})}
+   catch(e){throw Error(errorAlmacen(e))}
+   await recargarAlmacenes();
+   window.gamaToast?.(T(a?'Almacén guardado.':'Almacén creado.')+' '+r.code);
+  }});
+ const codigo=d.querySelector('[name=code]');codigo?.addEventListener('input',()=>{codigo.value=codigo.value.toUpperCase().replace(/\s+/g,'')});
+}
+
 /* Otras ubicaciones, a medida. Cada almacén trae tres zonas con papel —la de
    llegada, donde entran las recepciones; la de salida, donde espera lo
    preparado; y la cuarentena de las devoluciones—, que se renombran pero no se

@@ -1154,6 +1154,12 @@
       "name": "coco_erp_brand",
       "file": "20260923102828_coco_erp_brand.sql",
       "sha256": "c3e01bda8c31daea3f63a9bcaa6daae81049902036f48edd4e9139c4c5f8b664"
+    },
+    {
+      "version": "20260923181223",
+      "name": "warehouse_admin",
+      "file": "20260923181223_warehouse_admin.sql",
+      "sha256": "510c7c35d0f0cc8e579ed83dea15638649833c67dd895ca2ad9fd2a995bdd3ff"
     }
   ]
 }

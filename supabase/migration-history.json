@@ -1172,6 +1172,12 @@
       "name": "hr_base_role_org_chart",
       "file": "20260923211728_hr_base_role_org_chart.sql",
       "sha256": "8a393fd6d81aa10bd3428a5712c36e00ebbc3554d967e9b5e63ca8cc94d54b32"
+    },
+    {
+      "version": "20260923220018",
+      "name": "hr_retire_legacy_rights",
+      "file": "20260923220018_hr_retire_legacy_rights.sql",
+      "sha256": "9c970ef2a3b603564cb8a6520ab0c9c86023d928d558635dea2b6546210c000e"
     }
   ]
 }

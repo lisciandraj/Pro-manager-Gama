@@ -14,7 +14,10 @@ const esc=window.ArcUI.esc;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const can=id=>!!window.gamaAccessAllowed?.(id);
-const financeAllowed=()=>can('sales-orders')&&can('billing');
+/* Facturas y cobros se leen si se puede abrir «Facturas y cobros» (la pestaña de
+   Presupuestos y facturas), como en el servidor. «billing» es el antiguo formulario
+   de presupuestos: nada que ver, y puede estar apagado. */
+const financeAllowed=()=>can('payments');
 const money=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{style:'currency',currency:'USD'});
 const cents=v=>Math.round(Number(v||0)*100);
 const n=v=>Number(v||0), sum=(a,key='quantity')=>a.reduce((s,x)=>s+n(x[key]),0);
@@ -171,8 +174,9 @@ function renderSale(d,x){
    docs:fin?x.payments.filter(p=>p.status==='confirmed').map(p=>doc(p.erp_reference||p.dossier_reference,'payment',p.invoice_id,'payments')):[],
    info:fin?`${tr('Cobrado')} : ${money(f.paid/100)} · ${tr('Saldo pendiente')} : ${money(f.balance/100)}${f.overdue?' · '+tr('Importe vencido')+' : '+money(f.overdue/100):''}`:'',
    need:f?.overdue?'Relanzar las facturas vencidas y registrar los cobros.':'Registrar cada cobro con fecha, importe y medio.'},
-  {title:'Cierre del proceso de venta',state:cancelled?'closed':p.done&&(!fin||f.settled)?'done':'pending',
-   info:tr(cancelled?'Proceso anulado.':p.done&&(!fin||f.settled)?'Entregado, facturado y cobrado.':'Se cierra al quedar entregado, facturado y cobrado.'),need:'Completar las etapas anteriores.'}
+  /* Sólo se cierra lo que se ha podido comprobar: sin ver la facturación, entregado no es cerrado. */
+  {title:'Cierre del proceso de venta',state:cancelled?'closed':p.done&&fin&&f.settled?'done':p.done&&!fin?'restricted':'pending',
+   info:tr(cancelled?'Proceso anulado.':p.done&&fin&&f.settled?'Entregado, facturado y cobrado.':p.done&&!fin?'Entregado. La facturación y el cobro no se pueden comprobar con este perfil.':'Se cierra al quedar entregado, facturado y cobrado.'),need:'Completar las etapas anteriores.'}
  ];
  const returns=(x.returns||[]).length?`<div class="arcPanel card gdfAside"><h3>${tr('Devoluciones de este proceso')}</h3><p>${tr('Se siguen en Devoluciones, en su propio proceso de retorno.')}</p><ul class="gdfDocs">${x.returns.map(r=>docButton(doc(r.number,'returns',r.id,'returns'))).join('')}</ul></div>`:'';
  renderProcess({number:saleNumber(d),party:customer(d),address:d.o?.delivery_address||'',steps,closed:cancelled,after:returns});

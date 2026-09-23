@@ -29,6 +29,25 @@ test('mobile warehouse view hides finance and commercial links, and a client is 
  await expect(page.locator('[data-action="quote"]')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));window.dispatchEvent(new Event('gama:auth-change'));GamaDossierFlow.open()});await expect(page.locator('.gdfStep')).toHaveCount(0);expect(await page.evaluate(()=>gamaAccessAllowed('dossier-flow'))).toBe(false);
 });
+// En producción el antiguo formulario de presupuestos («billing») está apagado:
+// eso no debe esconder la facturación ni dar por cerrado lo que no se ha cobrado.
+test('with the old quote form off, an admin still sees invoicing and a delivered process is not closed',async({page})=>{
+ await boot(page);
+ await page.evaluate(async()=>{window.__DB.sales_delivery_lines[0].quantity=10;window.__DB.app_modules=[{id:'billing',enabled:false}];await GamaModules.load()});
+ expect(await page.evaluate(()=>gamaAccessAllowed('billing'))).toBe(false);
+ await page.locator('#gdfRefresh').click();
+ await expect(page.locator('.gdfStep').nth(4)).toHaveClass(/done/);
+ await expect(page.locator('.gdfStep').nth(5)).not.toHaveClass(/restricted/);await expect(page.locator('.gdfStep').nth(6)).not.toHaveClass(/restricted/);
+ await expect(page.locator('.gdfStep').nth(7)).toHaveClass(/pending/);
+ await expect(page.locator('.gdfStep').nth(7)).not.toContainText('Entregado, facturado y cobrado');
+});
+test('without access to invoices, a delivered process is not shown as closed',async({page})=>{
+ await boot(page,'magasinier');await page.evaluate(()=>{window.__DB.sales_delivery_lines[0].quantity=10});await page.locator('#gdfRefresh').click();
+ await expect(page.locator('.gdfStep').nth(4)).toHaveClass(/done/);
+ await expect(page.locator('.gdfStep').nth(7)).toHaveClass(/restricted/);
+ await expect(page.locator('.gdfStep').nth(7)).toContainText('La facturación y el cobro no se pueden comprobar con este perfil.');
+ await expect(page.locator('.gdfStep').nth(7)).not.toContainText('Entregado, facturado y cobrado');
+});
 test('searches standalone cases, escapes customer text and handles read errors without false progress',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__DB.customer_requests.push({id:'r2',requester_name:'<img src=x onerror=alert(1)>'});window.__DB.invoices.push({id:'q2',invoice_number:'DEV-2',quote_state:'draft',quote_details:{client:'Other'}})});await page.locator('#gdfRefresh').click();await expect(page.locator('.gdfRecord')).toHaveCount(3);await expect(page.locator('#gdfList img')).toHaveCount(0);await page.locator('#gdfSearch').fill('DEV-2');await expect(page.locator('.gdfRecord')).toHaveCount(1);await page.locator('.gdfRecord').click();await expect(page.locator('.gdfStep').nth(1)).toHaveClass(/active/);
  await page.evaluate(()=>GamaCloud.list=async()=>({error:{message:'offline'}}));await page.locator('#gdfRefresh').click();await expect(page.locator('#gdfDetail [role=alert]')).toBeVisible();await expect(page.locator('.gdfStep')).toHaveCount(0);

@@ -863,14 +863,14 @@
     },
     {
       "id": "sales-orders",
-      "menuHiddenWith": "quotes",
+      "tabOf": "quotes",
       "label": "Pedidos de venta",
       "icon": "bag",
       "group": "Ventas",
       "description": "Gestión y seguimiento de pedidos",
       "accent": "red",
       "order": 4,
-      "menu": true,
+      "menu": false,
       "configLabel": "Pedidos de venta",
       "roles": [
         "admin",
@@ -1110,9 +1110,17 @@
       document.head.appendChild(s);
     } else if (window.GamaExcelImport) window.GamaExcelImport.render();
   }
+  const tabsOf = (id) => definitions.filter((m) => m.tabOf === id).map((m) => m.id);
+  const canOpen = (id) => {
+    var _a;
+    return !!((_a = window.gamaAccessAllowed) == null ? void 0 : _a.call(window, id)) || tabsOf(id).some((t) => {
+      var _a2;
+      return (_a2 = window.gamaAccessAllowed) == null ? void 0 : _a2.call(window, t);
+    });
+  };
   function openLegacy(x, from) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
-    if (window.gamaAccessAllowed && !window.gamaAccessAllowed(x[1])) return;
+    if (window.gamaAccessAllowed && !canOpen(x[1])) return;
     if (x[1] === "contacts") {
       return (_a = window.GamaContacts) == null ? void 0 : _a.open(from);
     }
@@ -1153,7 +1161,7 @@
       return (_m = window.GamaOperations) == null ? void 0 : _m.open(x[1]);
     }
     if (x[1] === "quotes") {
-      return (_n = window.GamaQuotes) == null ? void 0 : _n.open();
+      return (_n = window.GamaQuotes) == null ? void 0 : _n.enter();
     }
     if (x[1] === "client-deliveries") {
       return (_o = window.GamaQuotes) == null ? void 0 : _o.deliveries();
@@ -1228,7 +1236,7 @@
   const canonical = (id) => aliases[id] || id;
   const emit = (type, detail) => window.dispatchEvent(new CustomEvent(type, { detail }));
   function allowed(id) {
-    return id === "mainmenu" || (!window.gamaAccessAllowed ? false : window.gamaAccessAllowed(id === "gama-tms-section" ? "tms" : id));
+    return id === "mainmenu" || (!window.gamaAccessAllowed ? false : canOpen(id === "gama-tms-section" ? "tms" : id));
   }
   function refuse(id) {
     var _a, _b, _c, _d;
@@ -1449,7 +1457,7 @@
   window.ArcErrors = { normalize: normalizeError, message: errorMessage };
   window.ArcData = data;
   window.ArcEntities = { ...entities$1 };
-  window.ArcModules = { registry, groups, roles, aliases, roleAliases, get: (id) => registry.find((m) => m.id === (aliases[id] || id)) };
+  window.ArcModules = { registry, groups, roles, aliases, roleAliases, tabsOf, get: (id) => registry.find((m) => m.id === (aliases[id] || id)) };
   window.ArcRouter = router;
   window.ArcDirectories = { directory };
   window.ArcLoad = loadModule;

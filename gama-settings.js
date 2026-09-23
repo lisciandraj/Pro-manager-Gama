@@ -25,7 +25,8 @@ function profilePanel(){
  if(draft===null){const saved=api.snapshot(profile);draft=new Set(saved.disabled_modules);draftVersion=saved.version;}
  const mods=window.ArcModules.registry.filter(m=>m.menu);
  const rows=mods.map(m=>{
-  const compatible=api.base(profile,m.id),locked=api.locked(profile,m.id),on=compatible&&!draft.has(m.id);
+  // Presupuestos y facturas también es el módulo de quien sólo tiene sus pedidos (el almacenero).
+  const compatible=api.base(profile,m.id)||window.ArcModules.tabsOf(m.id).some(t=>api.base(profile,t)),locked=api.locked(profile,m.id),on=compatible&&!draft.has(m.id);
   const detail=locked?'Acceso protegido.':!compatible?'No disponible para este perfil.':window.GamaModules.enabled(m.id)?'':'Módulo desactivado para toda la empresa.';
   return moduleTile(m,{scope:'profile',on,disabled:locked||!compatible,detail});
  }).join('');
@@ -99,6 +100,8 @@ function bind(viewId){
   try{
    // Hidden legacy quote/request routes follow the visible quote module.
    if(draft.has('quotes'))draft.add('billing');else draft.delete('billing');
+   // Las pestañas declaradas (los pedidos) siguen a su módulo: el servidor comprueba cada clave.
+   for(const m of window.ArcModules.registry.filter(x=>x.tabOf)){if(draft.has(m.tabOf))draft.add(m.id);else draft.delete(m.id);}
    await api.save(profile,[...draft],draftVersion);draft=null;
    accessError=tx('Permisos guardados para todos los usuarios de este perfil.');
   }catch(e){

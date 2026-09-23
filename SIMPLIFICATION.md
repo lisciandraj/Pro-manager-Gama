@@ -11,7 +11,7 @@ l'interrupteur du nouveau module aux contrôles qui nomment encore l'ancien.
 |---|---|---|
 | Suivi commercial et logistique | **Tableau de bord → Priorités du jour** | `operations` → `dashboard` |
 | Suivi de dossier | **Suivi de processus** (PDV / PDC) | — |
-| Devis et facture + Commandes clients (+ Factures et encaissements) | **Devis et facture** en 4 onglets | tuiles masquées, identifiants conservés |
+| Devis et facture + Commandes clients (+ Factures et encaissements) | **Devis et facture** en 4 onglets | Commandes clients n'est plus un module (onglet), identifiants conservés |
 | Retours | **Retours** en deux processus, PRC et PRP | — |
 | Préparation de commandes + Livraisons / TMS | **Livraison** (Entrega), onglet Préparation en tête | `order-preparation` → `tms` |
 | Clients + Fournisseurs | **Contacts** (+ contacts de prospects) | `clients`, `suppliers` → `contacts` |
@@ -43,12 +43,21 @@ Un seul module, quatre onglets qui suivent le processus de vente :
 qui existait déjà (demandes, devis, commandes clients, factures et
 encaissements) et n'apparaît qu'avec son droit. La liste des devis ne montre
 plus les factures sous chaque devis : elles sont dans l'onglet Factures, et
-chaque commande garde ses factures dans sa fiche. Les tuiles « Commandes
-clients » et « Factures et encaissements » disparaissent du menu pour qui voit
-Devis et facture ; le magasinier, qui n'a que les commandes, garde sa tuile
-Commandes clients, sans onglets. Les identifiants `sales-orders` et
-`payments` restent des droits à part entière (un profil peut toujours ne pas
-voir les factures) et leurs anciens liens ouvrent leur onglet.
+chaque commande garde ses factures dans sa fiche.
+
+**Commandes clients n'est plus un module** : ni tuile, ni lien de navigation,
+ni ligne dans « Personnaliser les modules », dans les accès par profil ou dans
+les modules de l'application. On y entre par l'onglet Commandes de Devis et
+facture. Le magasinier, qui n'a que les commandes, voit la tuile Devis et
+facture et arrive directement sur son seul onglet, Commandes. L'identifiant
+`sales-orders` reste le droit de l'onglet et ses anciens liens ouvrent
+l'onglet ; son interrupteur est celui de Devis et facture — pour toute
+l'entreprise comme pour un profil, côté écran comme côté serveur
+(`erp_module_parent('sales-orders') = 'quotes'`).
+
+La tuile « Factures et encaissements » disparaît pour qui voit Devis et
+facture ; `payments` reste un droit à part entière (un profil peut toujours ne
+pas voir les factures).
 
 ## 5. Livraison
 
@@ -106,4 +115,4 @@ voir [supabase/README.md](supabase/README.md).
 Migrations appliquées en production, dans l'ordre : `dashboard_priorities`,
 `dashboard_priorities_groups`, `purchase_process_number`,
 `return_process_number`, `delivery_module`, `contacts_module`, `audit_trail`,
-`invitation_template`. Tests PGlite : `tests/*-db.test.cjs`.
+`invitation_template`, `sales_orders_tab_of_quotes`. Tests PGlite : `tests/*-db.test.cjs`.

@@ -24,7 +24,9 @@ if(window.GamaModules)return;
    `locked` marca lo que no se puede apagar: Configuración es la pantalla desde
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
-const CATALOG=window.ArcModules.registry.map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
+// Una pestaña de otro módulo (los pedidos en Presupuestos y facturas) no se lista: se enciende y se apaga con él.
+const CATALOG=window.ArcModules.registry.filter(m=>!m.tabOf).map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
+const TAB_OF=Object.fromEntries(window.ArcModules.registry.filter(m=>m.tabOf).map(m=>[m.id,m.tabOf]));
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));
 const CACHE_KEY='gama_modules_v1';
 
@@ -45,6 +47,7 @@ function enabled(id){
  if(id==='customer-requests')id='quotes';
  id=window.ArcModules?.aliases?.[id]||id;
  if(!id||LOCKED.has(id))return true;
+ if(TAB_OF[id]&&!enabled(TAB_OF[id]))return false;
  return !off.has(id);
 }
 function list(){

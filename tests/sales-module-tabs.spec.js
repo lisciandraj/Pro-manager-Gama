@@ -5,7 +5,8 @@ const cloud=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 // «Presupuestos y facturas» reúne la cadena de la venta en cuatro pestañas:
 // Solicitudes de clientes · Presupuestos · Pedidos · Facturas. Cada pestaña
 // es la pantalla que ya existía y sólo aparece con su permiso; los pedidos y
-// las facturas dejan de tener tarjeta propia para quien ve el módulo.
+// las facturas dejan de tener tarjeta propia para quien ve el módulo, y los
+// pedidos no la tienen para nadie: se entra por Presupuestos y facturas.
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));
@@ -60,14 +61,27 @@ test('old addresses land on their tab',async({page})=>{
  await expect(page.locator('#payments #gqInvoicesTab')).toHaveAttribute('aria-selected','true');
 });
 
-test('the warehouse keeps its orders tile, without quote or invoice tabs',async({page})=>{
+test('the warehouse reaches its orders through Presupuestos y facturas: no orders tile of its own',async({page})=>{
  await boot(page,'magasinier');
- await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="sales-orders"]')).toBeVisible();
- await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeHidden();
- await page.locator('#mainmenu .gamaF2Card[data-gama-module="sales-orders"]').click();
+ await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="sales-orders"], .arcNav [data-gama-module="sales-orders"]')).toHaveCount(0);
+ await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeVisible();
+ await expect(page.locator('.arcNav [data-gama-module="quotes"]')).not.toHaveClass(/aclHidden/);
+ expect(await page.evaluate(()=>[gamaAccessAllowed('quotes'),gamaAccessAllowed('sales-orders')])).toEqual([false,true]);
+ await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
+ await expect(page.locator('#sales-orders.active')).toBeVisible();
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
- await expect(page.locator('[data-gq-module-tab]')).toHaveCount(0);
- await expect(page.locator('#sales-orders h2')).toContainText('Pedidos de venta');
+ await expect(page.locator('#sales-orders h2')).toContainText('Presupuestos y facturas');
+ await expect(page.locator('#sales-orders [data-gq-module-tab]')).toHaveText(['Pedidos']);
+ await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
+});
+
+test('orders are not in any list of modules: the home personalization lists only what the home shows',async({page})=>{
+ await boot(page);
+ await page.locator('#arcCustomizeOpen').click();
+ const values=await page.locator('#arcCustomize input[type=checkbox]').evaluateAll(l=>l.map(i=>i.value));
+ expect(values).toContain('quotes');
+ expect(values).not.toContain('sales-orders');
+ expect(values).not.toContain('payments');
 });
 
 test('the customer portal keeps its quotes, without tabs',async({page})=>{

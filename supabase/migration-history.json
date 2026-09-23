@@ -1136,6 +1136,12 @@
       "name": "warehouse_default_zones",
       "file": "20260923061244_warehouse_default_zones.sql",
       "sha256": "aee1fde586d4473f5a7b0a06e561644cb5490ca870330369503d61b4c6f72175"
+    },
+    {
+      "version": "20260923071616",
+      "name": "sales_orders_tab_of_quotes",
+      "file": "20260923071616_sales_orders_tab_of_quotes.sql",
+      "sha256": "bac8a96e2440979087538bd32714674c20dd9713a8c55d972b4d15a945375da1"
     }
   ]
 }

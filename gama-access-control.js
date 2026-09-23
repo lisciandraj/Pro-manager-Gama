@@ -25,8 +25,10 @@ function esc(v){return window.ArcUI.esc(v)}
 function moduleOn(id){return !window.GamaModules||window.GamaModules.enabled(id)}
 function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.accessProfile||s.role,id)}
 /* Un módulo que otro absorbió como pestaña (menuHiddenWith) no tiene tarjeta
-   propia para quien ve el módulo que lo absorbe; quien sólo tiene el suyo, sí. */
-function inMenu(id){const can=window.gamaAccessAllowed||allowed;if(!can(id))return false;const d=window.ArcModules.registry.find(m=>m.id===id);return !(d?.menuHiddenWith&&can(d.menuHiddenWith))}
+   propia para quien ve el módulo que lo absorbe; quien sólo tiene el suyo, sí.
+   Una pestaña declarada (tabOf) nunca tiene tarjeta: se entra por su módulo,
+   que aparece para quien tiene al menos una de sus pestañas. */
+function inMenu(id){const can=window.gamaAccessAllowed||allowed;const d=window.ArcModules.registry.find(m=>m.id===id);if(d?.tabOf)return false;if(!can(id)&&!(window.ArcModules.tabsOf?.(id)||[]).some(can))return false;return !(d?.menuHiddenWith&&can(d.menuHiddenWith))}
 function injectCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Con la autenticación centralizada ya no hay acceso local de reserva: si la
    nube no responde, hay que decirlo claramente en vez de dejar la pantalla en

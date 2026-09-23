@@ -12,9 +12,9 @@ async function boot(page,role='admin'){
  await page.waitForFunction(()=>window.GamaSales&&window.GamaCloudReady);
  await page.evaluate(async()=>{await window.GamaCloudReady;const original=GamaCloud.db;window.__salesCalls=[];window.__commercialCalls=[];GamaCloud.db=async()=>{const c=await original();return{...c,rpc:async(name,args)=>{if(name==='gama_receipt_action')return {data:{accounts:[{id:'financial-1',name:'Bank',currency:'USD'}],receipts:[]}};if(name==='gama_fulfillment_action'){return {data:{preparations:[{id:'prep-1',order_id:window.__DB.sales_orders[0].id,number:'PR-00000001',status:'packed'}],pick_lines:[],packages:[],package_lines:[],incidents:[],options:[],returns:[],photos:[],credits:[],incoming:[],staff:[]}}}if(name==='gama_sales_action'){window.__salesCalls.push(args);return window.__salesResponse||{data:{id:window.__DB.sales_orders[0].id},error:null}}if(name==='gama_commercial_action'){window.__commercialCalls.push(args);return window.__commercialResponse||{data:{id:'payment-or-link'},error:null}}return c.rpc(name,args)}}}});
  await page.waitForTimeout(900);
- // Los pedidos son la pestaña «Pedidos» de Presupuestos y facturas; el almacenero, sin presupuestos, conserva su tarjeta.
- if(['magasinier','almacenero'].includes(role))await page.locator('.gamaF2Card[data-gama-module="sales-orders"]').click();
- else{await page.locator('.gamaF2Card[data-gama-module="quotes"]').click();await page.locator('#gqOrdersTab').click()}
+ // Los pedidos son la pestaña «Pedidos» de Presupuestos y facturas; el almacenero, sin presupuestos, entra directamente en ella.
+ await page.locator('.gamaF2Card[data-gama-module="quotes"]').click();
+ if(!['magasinier','almacenero'].includes(role))await page.locator('#gqOrdersTab').click();
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
 }
 test('menu, quantities and shipment references the checked preparation in one call',async({page})=>{

@@ -16,7 +16,9 @@ function enabled(r,id){
  if(locked(r,id))return true;
  if(!ready)return false;
  if(id==='customer-requests')id='quotes';
- return !(rows[r]?.disabled_modules||[]).includes(id);
+ // Una pestaña de otro módulo (los pedidos en Presupuestos y facturas) se apaga con él.
+ const off=rows[r]?.disabled_modules||[],parent=window.ArcModules.registry.find(m=>m.id===id)?.tabOf;
+ return !off.includes(id)&&!(parent&&off.includes(parent));
 }
 function changed(){
  const current=session(),badge=document.querySelector('.aclRole');

@@ -98,3 +98,21 @@ test('create, customize and assign a profile, then authenticate with its base an
  expect(await page.evaluate(()=>gamaAccessAllowed('access-settings'))).toBe(false);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
+
+test('orders are a tab of Presupuestos y facturas: no switch of their own, they follow the module',async({page})=>{
+ await boot(page);
+ await expect(page.locator('[data-role-module="sales-orders"], [data-mod="sales-orders"]')).toHaveCount(0);
+ await expect(page.locator('[data-mod="quotes"]')).toHaveCount(1);
+ // El almacenero sólo tiene los pedidos: para él, Presupuestos y facturas es su módulo y se puede cerrar.
+ await page.locator('#cfgProfile').selectOption('magasinier');
+ await expect(page.locator('[data-role-module="quotes"]')).toBeEnabled();
+ await expect(page.locator('[data-role-module="quotes"]')).toBeChecked();
+ await page.locator('[data-role-module="quotes"]').uncheck();await page.locator('#cfgSaveProfile').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
+ expect(await page.evaluate(()=>__DB.role_module_access.find(r=>r.role==='almacenero').disabled_modules.slice().sort())).toEqual(['billing','quotes','sales-orders']);
+ await page.locator('[data-role-module="quotes"]').check();await page.locator('#cfgSaveProfile').click();
+ await expect(page.locator('#cfgAccessStatus')).toContainText('guardados');
+ expect(await page.evaluate(()=>__DB.role_module_access.find(r=>r.role==='almacenero').disabled_modules)).toEqual([]);
+ // Apagar el módulo para toda la empresa apaga también los pedidos.
+ expect(await page.evaluate(async()=>{await GamaModules.setEnabled('quotes',false);return [GamaModules.enabled('quotes'),GamaModules.enabled('sales-orders'),GamaModules.enabled('payments')]})).toEqual([false,false,true]);
+});

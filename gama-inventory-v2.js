@@ -263,11 +263,19 @@ function pintarKpis(rows){
 
 /* ---------- transferencias ---------- */
 
-function opcionesUbicacion(){
- return ubicaciones.filter(u=>u.active!==false).map(u=>{
-  const a=almacenes.find(x=>x.id===u.warehouse_id);
-  return `<option value="${esc(u.id)}">${esc((a?a.name+' · ':'')+u.code+' — '+u.name)}</option>`;
- }).join('');
+const rotuloUbicacion=u=>{const a=almacenes.find(x=>x.id===u.warehouse_id);return (a?a.name+' · ':'')+u.code+' — '+nombreUbicacion(u)};
+function opcionesUbicacion(excepto){
+ return ubicaciones.filter(u=>u.active!==false&&u.type!=='warehouse'&&u.id!==excepto).map(u=>`<option value="${esc(u.id)}">${esc(rotuloUbicacion(u))}</option>`).join('');
+}
+/* Desde dónde se puede mover un producto: sólo de las ubicaciones donde hay
+   existencias suyas, con lo que hay y lo que está libre. */
+function opcionesOrigen(pid){
+ if(!pid)return `<option value="">${esc(T('Elija primero un producto…'))}</option>`;
+ const con=quants.filter(q=>q.product_id===pid&&Number(q.quantity)>0).map(q=>({q,u:ubicaciones.find(x=>x.id===q.location_id)})).filter(x=>x.u)
+  .sort((a,b)=>rotuloUbicacion(a.u).localeCompare(rotuloUbicacion(b.u)));
+ if(!con.length)return `<option value="">${esc(T('Este producto no tiene existencias en ninguna ubicación.'))}</option>`;
+ return `<option value="">${esc(T('Ubicación de origen…'))}</option>`+con.map(({q,u})=>{const libre=Number(q.quantity)-Number(q.reserved_quantity||0);
+  return `<option value="${esc(u.id)}">${esc(rotuloUbicacion(u)+' · '+num(libre)+' '+T('disponibles'))}</option>`}).join('');
 }
 
 function pintarTransferencias(host){
@@ -277,7 +285,7 @@ function pintarTransferencias(host){
 <div class="ivForm">
  <div><label for="ivtProducto" data-gi=77b9238931ed>Producto</label>
   <select id="ivtProducto"><option value="" data-gi=a48e47394441>Elija un producto…</option>${productos.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}${p.reference?' ('+esc(p.reference)+')':''}</option>`).join('')}</select></div>
- <div><label for="ivtOrigen" data-gi=8b4e93e928df>Desde</label><select id="ivtOrigen"><option value="" data-gi=217a19b653e2>Ubicación de origen…</option>${opcionesUbicacion()}</select></div>
+ <div><label for="ivtOrigen" data-gi=8b4e93e928df>Desde</label><select id="ivtOrigen" disabled>${opcionesOrigen('')}</select></div>
  <div><label for="ivtDestino" data-gi=d40aa32cd30a>Hacia</label><select id="ivtDestino"><option value="" data-gi=3a32f837bea9>Ubicación de destino…</option>${opcionesUbicacion()}</select></div>
  <div><label for="ivtCantidad" data-gi=8930e00fcc39>Cantidad</label><input id="ivtCantidad" type="number" min="1" step="1" value="1"></div>
  <div style="grid-column:1/-1"><label for="ivtComentario" data-gi=53c367898434>Comentario</label><input id="ivtComentario" data-gi-placeholder=b697e5de1174 placeholder="Motivo del traslado (opcional)"></div>
@@ -286,7 +294,11 @@ function pintarTransferencias(host){
 <button type="button" class="arcButton primary" id="ivtConfirmar" style="width:100%;margin-top:14px" data-gi=a32cd62ae09f>Confirmar transferencia</button>
 </div>
 <div class="ivCard"><h3 style="margin:0 0 10px" data-gi=32fca927bb3d>Últimos traslados</h3><div id="ivtHistorial" class="muted">—</div></div>`);
- ['ivtProducto','ivtOrigen','ivtDestino'].forEach(id=>{const el=$(id);if(el)el.onchange=saldo});
+ // Al elegir el producto, el origen sólo ofrece donde lo hay; el destino, todo lo demás.
+ $('ivtProducto').onchange=()=>{const o=$('ivtOrigen'),pid=$('ivtProducto').value;o.innerHTML=opcionesOrigen(pid);o.disabled=!pid||!o.querySelector('option[value]:not([value=""])');
+  if(o.options.length===2){o.selectedIndex=1}o.onchange();};
+ $('ivtOrigen').onchange=()=>{const d=$('ivtDestino'),keep=d.value,org=$('ivtOrigen').value;d.innerHTML=`<option value="">${esc(T('Ubicación de destino…'))}</option>`+opcionesUbicacion(org);if(keep&&keep!==org)d.value=keep;saldo()};
+ $('ivtDestino').onchange=saldo;
  $('ivtConfirmar').onclick=transferir;
  saldo();
  historial();
@@ -573,27 +585,64 @@ function tarjetaEstanteria(sh,a){
 function pintarUbicaciones(host){
  if(!almacenes.length){window.ArcUI.render(host,'<div class="ivCard muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</div>');return}
  window.ArcUI.render(host,almacenes.map(a=>{
-  // Los espacios de las estanterías se ven en su estantería, no en el árbol.
-  const suyas=ubicaciones.filter(u=>u.warehouse_id===a.id&&!u.shelf_id);
-  const hijas=pid=>suyas.filter(u=>(u.parent_id||null)===pid);
-  const rama=pid=>{
-   const l=hijas(pid);
-   if(!l.length)return '';
-   return '<ul>'+l.map(u=>{
-    const dentro=unidadesEn(u.id);
-    return `<li><code>${esc(u.code)}</code> ${esc(u.name)} <span class="ivSub">· ${esc(u.type)}${dentro?` · ${num(dentro)} unidades`:''}</span>${rama(u.id)}</li>`;
-   }).join('')+'</ul>';
-  };
+  // Otras ubicaciones: todo lo que no es la raíz del almacén ni un espacio de estantería.
+  const otras=otrasUbicaciones(a.id);
   const sus=estanterias.filter(sh=>sh.warehouse_id===a.id);
   return `<div class="ivCard" data-warehouse="${esc(a.id)}"><div class="ivShelfHead"><div><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
 <p class="muted" style="margin:0">${esc(a.code)}${a.city?' · '+esc(a.city):''}</p></div>${puedeEditar()?`<button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('＋ Nueva estantería')}</button>`:''}</div>
 <h4 class="ivShelfTitle">${tr('Estanterías')}</h4>${sus.map(sh=>tarjetaEstanteria(sh,a)).join('')||`<p class="muted">${tr('Sin estanterías. Crea una para generar sus espacios AAXX-XX.')}</p>`}
-<h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4><ul class="ivArbol">${rama(null)||'<li class="muted" data-gi=14a1bc526eda>Sin ubicaciones.</li>'}</ul></div>`;
+<div class="ivShelfHead ivOtrasHead"><h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-new="${esc(a.id)}">${tr('＋ Nueva ubicación')}</button>`:''}</div>
+<ul class="ivOtras">${otras.map(u=>filaUbicacion(u)).join('')||`<li class="muted">${tr('Sin ubicaciones.')}</li>`}</ul></div>`;
  }).join(''));
  host.querySelectorAll('[data-shelf-new]').forEach(b=>b.onclick=()=>dialogoEstanteria(b.dataset.shelfNew,null));
  host.querySelectorAll('[data-shelf-edit]').forEach(b=>b.onclick=()=>{const sh=estanterias.find(x=>x.id===b.dataset.shelfEdit);if(sh)dialogoEstanteria(sh.warehouse_id,sh)});
  host.querySelectorAll('[data-shelf-view]').forEach(b=>b.onclick=()=>{estanteriaVista=estanteriaVista===b.dataset.shelfView?null:b.dataset.shelfView;pintarUbicaciones(host)});
  host.querySelectorAll('[data-shelf-delete]').forEach(b=>b.onclick=()=>borrarEstanteria(estanterias.find(x=>x.id===b.dataset.shelfDelete)));
+ host.querySelectorAll('[data-loc-new]').forEach(b=>b.onclick=()=>dialogoUbicacion(b.dataset.locNew,null));
+ host.querySelectorAll('[data-loc-edit]').forEach(b=>b.onclick=()=>{const u=ubicaciones.find(x=>x.id===b.dataset.locEdit);if(u)dialogoUbicacion(u.warehouse_id,u)});
+ host.querySelectorAll('[data-loc-delete]').forEach(b=>b.onclick=()=>borrarUbicacion(ubicaciones.find(x=>x.id===b.dataset.locDelete)));
+}
+/* Otras ubicaciones, a medida. Cada almacén trae tres zonas con papel —la de
+   llegada, donde entran las recepciones; la de salida, donde espera lo
+   preparado; y la cuarentena de las devoluciones—, que se renombran pero no se
+   quitan. Las demás las crea, renombra o quita quien gestiona el almacén
+   (gama_location_action); sólo se quita lo vacío. */
+const PAPEL={arrival:'Zona de llegada',departure:'Zona de salida',quarantine:'Cuarentena'};
+const ORDEN_PAPEL={arrival:0,departure:1,quarantine:2};
+// El nombre por defecto de una zona con papel se traduce; el que haya puesto alguien, no.
+const nombreUbicacion=u=>u.role&&u.name===PAPEL[u.role]?T(u.name):u.name;
+function otrasUbicaciones(almacenId){
+ return ubicaciones.filter(u=>u.warehouse_id===almacenId&&!u.shelf_id&&u.active!==false&&u.type!=='warehouse')
+  .sort((x,y)=>(ORDEN_PAPEL[x.role]??9)-(ORDEN_PAPEL[y.role]??9)||String(x.code).localeCompare(String(y.code)));
+}
+function filaUbicacion(u){
+ const n=unidadesEn(u.id);
+ return `<li data-location="${esc(u.id)}"><div><code>${esc(u.code)}</code> <b>${esc(nombreUbicacion(u))}</b>${u.role?` <span class="ivPapel" data-role="${esc(u.role)}">${tr('Por defecto')}</span>`:''}<div class="muted">${n?`${num(n)} ${esc(T('uds.'))}`:esc(T('Vacía'))}</div></div>`
+  +(puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-loc-edit="${esc(u.id)}">${tr('Renombrar')}</button>${u.role?'':`<button type="button" class="arcButton secondary" data-loc-delete="${esc(u.id)}">${tr('Eliminar')}</button>`}</div>`:'')+'</li>';
+}
+const ERRORES_UBICACION={LOCATION_NAME_REQUIRED:'El nombre es obligatorio.',LOCATION_CODE_INVALID:'El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).',LOCATION_CODE_RESERVED:'Los códigos AAXX-XX son de los espacios de estantería.',LOCATION_CODE_TAKEN:'Ya hay una ubicación con ese código en este almacén.',LOCATION_CODE_IMMUTABLE:'El código de una ubicación no cambia.',LOCATION_ROLE_REQUIRED:'Las zonas por defecto se renombran pero no se eliminan.',LOCATION_NOT_EMPTY:'La ubicación no está vacía: tiene existencias, reservas o una compra abierta.',LOCATION_HAS_CHILDREN:'Hay ubicaciones o estanterías dentro de esta ubicación.',LOCATION_IN_USE:'Una preparación en curso usa esta ubicación.',LOCATION_NOT_FOUND:'La ubicación ya no existe.',ROLE_NOT_ALLOWED:'Su perfil no puede cambiar las ubicaciones.'};
+function errorUbicacion(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_UBICACION).find(x=>m.includes(x));return k?T(ERRORES_UBICACION[k]):(window.ArcErrors?.message(e)||m)}
+async function accionUbicacion(a,d){const r=await window.ArcData.rawRpc('gama_location_action',{p_action:a,p_data:d});if(r.error)throw r.error;return r.data}
+function dialogoUbicacion(almacenId,u){
+ const a=almacenes.find(x=>x.id===almacenId);if(!a)return;
+ const F=window.ArcUI.field;
+ const d=window.ArcUI.dialog({title:T(u?'Renombrar la ubicación':'Nueva ubicación')+(u?' '+u.code:''),saveLabel:T('Guardar'),
+  body:`<p class="muted">${esc(a.name)}${u?.role?' · '+tr('Zona por defecto: se renombra, no se elimina.'):''}</p>`
+   +F({key:'code',label:T('Código'),value:u?.code||'',required:true,maxLength:24,disabled:!!u,attrs:'autocapitalize="characters" autocomplete="off"'})
+   +F({key:'name',label:T('Nombre'),value:u?nombreUbicacion(u):'',required:true,maxLength:120}),
+  onSave:async el=>{
+   const f=new FormData(el.querySelector('form'));
+   try{await accionUbicacion('save',u?{id:u.id,name:f.get('name')}:{warehouse_id:almacenId,code:String(f.get('code')||'').toUpperCase(),name:f.get('name')})}
+   catch(e){throw Error(errorUbicacion(e))}
+   await recargarEstanterias();
+   window.gamaToast?.(T('Ubicación guardada.'));
+  }});
+ const codigo=d.querySelector('[name=code]');codigo?.addEventListener('input',()=>{codigo.value=codigo.value.toUpperCase().replace(/\s+/g,'')});
+}
+async function borrarUbicacion(u){
+ if(!u||!confirm(T('¿Eliminar la ubicación')+' '+u.code+'?'))return;
+ try{await accionUbicacion('delete',{id:u.id});await recargarEstanterias();window.gamaToast?.(T('Ubicación eliminada.')+' '+u.code)}
+ catch(e){const m=errorUbicacion(e);if(window.gamaToast)window.gamaToast(m);else alert(m)}
 }
 function dialogoEstanteria(almacenId,sh){
  const a=almacenes.find(x=>x.id===almacenId);if(!a)return;

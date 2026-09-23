@@ -1130,6 +1130,12 @@
       "name": "warehouse_shelves",
       "file": "20260922204512_warehouse_shelves.sql",
       "sha256": "cc8606299c44ee1f13cf1b18c82a82c7b008b79bef506f331cd8c4bd641859e9"
+    },
+    {
+      "version": "20260923061244",
+      "name": "warehouse_default_zones",
+      "file": "20260923061244_warehouse_default_zones.sql",
+      "sha256": "aee1fde586d4473f5a7b0a06e561644cb5490ca870330369503d61b4c6f72175"
     }
   ]
 }

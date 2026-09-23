@@ -42,3 +42,37 @@ escritura, con control de versión (`SHELF_STALE`). Tabla
 `warehouse_shelves`, sólo lectura para el personal. Migración
 `warehouse_shelves`; pruebas `tests/warehouse-shelves-db.test.cjs` y
 `tests/warehouse-shelves.spec.js`.
+
+## Otras ubicaciones
+
+Debajo de las estanterías, la lista de **otras ubicaciones** es a medida. Cada
+almacén trae tres zonas por defecto, marcadas y en cabeza:
+
+| Zona | Código | Para qué |
+|---|---|---|
+| Zona de llegada | `LLEGADA` | Entran las recepciones de compra y las entradas manuales (`gama_default_location`). |
+| Zona de salida | `SALIDA` | La preparación de pedidos deja aquí lo preparado (antes, una zona `PR-…` por preparación). |
+| Cuarentena | `CUARENTENA` | Esperan las devoluciones de clientes hasta revisarlas (antes `RET-QUARANTINE`). |
+
+Los procesos las buscan por su papel (`warehouse_locations.role`), no por el
+código: se renombran pero no se eliminan (`LOCATION_ROLE_REQUIRED`). Las demás
+se crean, renombran y eliminan desde **＋ Nueva ubicación** con
+`public.gama_location_action('save'|'delete', datos)`: código de letras,
+cifras, punto o guion (nunca con la forma AAXX-XX de un espacio de estantería),
+fijo una vez creado; sólo se elimina lo vacío y lo que ninguna preparación en
+curso usa. Un código archivado que se vuelve a crear recupera su historial.
+
+La migración `warehouse_default_zones` vació lo que había: las existencias de
+las antiguas ubicaciones y de la raíz `STOCK` pasaron a la zona de llegada con
+un movimiento de transferencia interna («Reorganización de ubicaciones»), sin
+cambiar el total de ningún producto; las ubicaciones se borraron o, si el
+historial las nombraba, se archivaron. Las estanterías no se tocaron.
+
+## Transferencias
+
+Al elegir el producto, **Desde** sólo ofrece las ubicaciones donde hay
+existencias suyas, con lo disponible; si sólo hay una, queda elegida. **Hacia**
+ofrece todas las demás, nunca la misma ni la raíz del almacén.
+
+Pruebas: `tests/warehouse-zones-db.test.cjs`, `tests/warehouse-zones.spec.js`,
+`tests/inventory-transfer.spec.js`.

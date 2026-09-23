@@ -140,17 +140,40 @@ test.describe('Inventario V2 — transferencias', () => {
     expect(await page.evaluate(() => window.__DB.stock_quants[0].quantity)).toBe(40);
   });
 
-  test('el mismo origen y destino no es un traslado', async ({ page }) => {
+  test('el origen no se ofrece como destino', async ({ page }) => {
     await abrir(page);
     await page.click('[data-iv-tab="transferencias"]');
     await page.waitForTimeout(300);
     await page.selectOption('#ivtProducto', 'p1');
-    await page.selectOption('#ivtOrigen', 'l1');
-    await page.selectOption('#ivtDestino', 'l1');
-    await page.fill('#ivtCantidad', '5');
-    await page.click('#ivtConfirmar');
-    await page.waitForTimeout(400);
-    await expect(page.locator('#gamaToasts')).toContainText('misma ubicación');
+    await expect(page.locator('#ivtOrigen')).toHaveValue('l1');
+    await expect(page.locator('#ivtDestino option[value="l1"]')).toHaveCount(0);
+    await expect(page.locator('#ivtDestino option[value="l2"]')).toHaveCount(1);
+  });
+
+  test('el origen sólo ofrece las ubicaciones donde está el producto elegido', async ({ page }) => {
+    const db = semilla({
+      products: [{ ...PRODUCTO }, { ...PRODUCTO, id: 'p2', name: 'Arena fina', reference: 'AR-1', barcode: 'B2', stock: 0 }, { ...PRODUCTO, id: 'p3', name: 'Grava', reference: 'GR-1', barcode: 'B3', stock: 12 }],
+      warehouse_locations: [...UBI.map(u => ({ ...u })), { id: 'l3', warehouse_id: 'w1', parent_id: 'l1', code: 'B02', name: 'Pasillo B02', type: 'bin', active: true }],
+      stock_quants: [
+        { id: 'q1', product_id: 'p1', location_id: 'l1', quantity: 40, reserved_quantity: 0 },
+        { id: 'q2', product_id: 'p3', location_id: 'l2', quantity: 5, reserved_quantity: 2 },
+        { id: 'q3', product_id: 'p3', location_id: 'l3', quantity: 7, reserved_quantity: 0 },
+        { id: 'q4', product_id: 'p3', location_id: 'l1', quantity: 0, reserved_quantity: 0 },
+      ],
+    });
+    await abrir(page, db);
+    await page.click('[data-iv-tab="transferencias"]');
+    await page.waitForTimeout(300);
+    await expect(page.locator('#ivtOrigen')).toBeDisabled();
+    await page.selectOption('#ivtProducto', 'p2');
+    await expect(page.locator('#ivtOrigen')).toBeDisabled();
+    await expect(page.locator('#ivtOrigen')).toContainText('no tiene existencias');
+    await page.selectOption('#ivtProducto', 'p3');
+    await expect(page.locator('#ivtOrigen')).toBeEnabled();
+    await expect(page.locator('#ivtOrigen option[value]:not([value=""])')).toHaveText([/A01.*3 disponibles/, /B02.*7 disponibles/]);
+    await page.selectOption('#ivtOrigen', 'l3');
+    await expect(page.locator('#ivtDestino option[value="l3"]')).toHaveCount(0);
+    await expect(page.locator('#ivtSaldo')).toContainText('7');
   });
 
   test('un comercial no puede mover existencias', async ({ page }) => {

@@ -2843,3 +2843,30 @@ Apellidos	Nom	Last name
 Cargo	Poste	Job title
 Plazo de pago desde la entrega (días)	Délai de paiement après livraison (jours)	Payment term from delivery (days)
 LinkedIn	LinkedIn	LinkedIn
+＋ Nueva ubicación	＋ Nouvel emplacement	＋ New location
+Por defecto	Par défaut	Default
+Vacía	Vide	Empty
+Renombrar	Renommer	Rename
+Zona de llegada	Zone d’arrivée	Arrival zone
+Zona de salida	Zone de départ	Departure zone
+Cuarentena	Quarantaine	Quarantine
+Renombrar la ubicación	Renommer l’emplacement	Rename location
+Nueva ubicación	Nouvel emplacement	New location
+Zona por defecto: se renombra, no se elimina.	Zone par défaut : elle se renomme mais ne se supprime pas.	Default zone: it can be renamed, not deleted.
+Ubicación guardada.	Emplacement enregistré.	Location saved.
+¿Eliminar la ubicación	Supprimer l’emplacement	Delete location
+Ubicación eliminada.	Emplacement supprimé.	Location deleted.
+Elija primero un producto…	Choisissez d’abord un produit…	Choose a product first…
+Este producto no tiene existencias en ninguna ubicación.	Ce produit n’a de stock dans aucun emplacement.	This product has no stock in any location.
+disponibles	disponibles	available
+El nombre es obligatorio.	Le nom est obligatoire.	Name is required.
+El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).	Le code contient des lettres, chiffres, point, tiret ou tiret bas (24 max.).	The code uses letters, digits, dot, dash or underscore (up to 24).
+Los códigos AAXX-XX son de los espacios de estantería.	Les codes AAXX-XX sont réservés aux espaces d’étagère.	AAXX-XX codes belong to shelf spaces.
+Ya hay una ubicación con ese código en este almacén.	Un emplacement avec ce code existe déjà dans cet entrepôt.	This warehouse already has a location with that code.
+El código de una ubicación no cambia.	Le code d’un emplacement ne change pas.	A location code cannot change.
+Las zonas por defecto se renombran pero no se eliminan.	Les zones par défaut se renomment mais ne se suppriment pas.	Default zones can be renamed but not deleted.
+La ubicación no está vacía: tiene existencias, reservas o una compra abierta.	L’emplacement n’est pas vide : il contient du stock, des réservations ou un achat ouvert.	The location is not empty: it holds stock, reservations or an open purchase.
+Hay ubicaciones o estanterías dentro de esta ubicación.	Des emplacements ou étagères dépendent de cet emplacement.	Other locations or shelves sit inside this location.
+Una preparación en curso usa esta ubicación.	Une préparation en cours utilise cet emplacement.	A preparation in progress uses this location.
+La ubicación ya no existe.	L’emplacement n’existe plus.	The location no longer exists.
+Su perfil no puede cambiar las ubicaciones.	Votre profil ne peut pas modifier les emplacements.	Your profile cannot change locations.

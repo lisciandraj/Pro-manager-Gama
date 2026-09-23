@@ -148,7 +148,8 @@
   function ubicacionPorDefecto() {
     const w = (window.__DB.warehouses || []).find(x => x.code === 'PRINCIPAL');
     if (!w) return null;
-    const l = (window.__DB.warehouse_locations || []).find(x => x.warehouse_id === w.id && x.code === 'STOCK');
+    const all = (window.__DB.warehouse_locations || []).filter(x => x.warehouse_id === w.id);
+    const l = all.find(x => x.role === 'arrival') || all.find(x => x.code === 'STOCK');
     return l ? l.id : null;
   }
   function mueveStock(args) {
@@ -580,6 +581,27 @@
             const mine=db.warehouse_locations.filter(l=>l.shelf_id===sh.id),busy=mine.filter(used).map(l=>l.code);if(busy.length)return {error:{message:'SHELF_NOT_EMPTY:'+busy.join(', ')}};
             db.warehouse_locations=db.warehouse_locations.filter(l=>l.shelf_id!==sh.id);db.warehouse_shelves=db.warehouse_shelves.filter(x=>x!==sh);
             return {data:{id:sh.id,code:sh.code,removed:{deleted:mine.length,archived:0}}};
+          }
+        }
+        // Otras ubicaciones: crear, renombrar y quitar, con las reglas del servidor.
+        if(fn==='gama_location_action'){
+          const d=args.p_data||{},db=window.__DB;db.warehouse_locations=db.warehouse_locations||[];
+          if(args.p_action==='save'){
+            const name=String(d.name||'').trim();if(!name)return {error:{message:'LOCATION_NAME_REQUIRED'}};
+            if(d.id){const l=db.warehouse_locations.find(x=>x.id===d.id);if(!l)return {error:{message:'LOCATION_NOT_FOUND'}};l.name=name;return {data:{id:l.id,code:l.code,name,role:l.role||null}}}
+            const code=String(d.code||'').trim().toUpperCase();
+            if(!/^[A-Z0-9][A-Z0-9._-]{0,23}$/.test(code))return {error:{message:'LOCATION_CODE_INVALID'}};
+            if(/^[A-Z]{2}\d{2}-\d{2}$/.test(code))return {error:{message:'LOCATION_CODE_RESERVED'}};
+            if(db.warehouse_locations.some(x=>x.warehouse_id===d.warehouse_id&&x.code===code))return {error:{message:'LOCATION_CODE_TAKEN'}};
+            const root=db.warehouse_locations.find(x=>x.warehouse_id===d.warehouse_id&&x.type==='warehouse');
+            const row={id:'loc-'+code,warehouse_id:d.warehouse_id,parent_id:root?.id||null,code,name,type:'zone',active:true,role:null};db.warehouse_locations.push(row);
+            return {data:{id:row.id,code,name,role:null}};
+          }
+          if(args.p_action==='delete'){
+            const l=db.warehouse_locations.find(x=>x.id===d.id);if(!l)return {error:{message:'LOCATION_NOT_FOUND'}};
+            if(l.role)return {error:{message:'LOCATION_ROLE_REQUIRED'}};
+            if((db.stock_quants||[]).some(q=>q.location_id===l.id&&Number(q.quantity)>0))return {error:{message:'LOCATION_NOT_EMPTY'}};
+            db.warehouse_locations=db.warehouse_locations.filter(x=>x!==l);return {data:{deleted:1,archived:0,id:l.id,code:l.code}};
           }
         }
         if(fn==='gama_resolve_price'){

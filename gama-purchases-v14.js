@@ -139,7 +139,7 @@
     try{
       const [w,l]=await Promise.all([
         C().list('warehouses',{select:'id,code,name,active'}),
-        C().list('warehouse_locations',{select:'id,warehouse_id,code,name,type,active'})]);
+        C().list('warehouse_locations',{select:'id,warehouse_id,code,name,type,active,role'})]);
       if(w.error||l.error){almacenes=[];ubicaciones=[];return}
       almacenes=(w.data||[]).filter(x=>x.active!==false);
       ubicaciones=(l.data||[]).filter(x=>x.active!==false);
@@ -148,7 +148,8 @@
   async function load(){if(loading||!C()||!(canOrder()||canReceive()))return;loading=true;try{const [a,b,c,d,n]=await Promise.all([window.ArcData.all('purchase_orders'),window.ArcData.all('purchase_order_lines'),window.ArcData.all('products',{select:PRODUCT_COLS}),window.ArcData.all('suppliers',{select:'id,name,tax_id,email,active'}),canOrder()?window.ArcData.all('replenishment_needs',{order:'product_id',ascending:true}):Promise.resolve({data:[]})]);if(a.error)throw a.error;orders=a.data||[];lines=b.data||[];products=c.data||[];suppliers=d.data||[];needs=n.error?[]:(n.data||[]).filter(x=>Number(x.suggested_purchase)>0);await loadUbicaciones();populate();renderOrders();renderKpis();renderLowStock()}catch(e){console.warn('[GAMA Compras]',e);const m=$('gp14Msg');if(m)m.textContent='No se han podido cargar los datos: '+(e.message||e)}finally{loading=false}}
   function ubicacionPorDefecto(){
     const w=almacenes.find(x=>x.code==='PRINCIPAL');
-    const u=w&&ubicaciones.find(x=>x.warehouse_id===w.id&&x.code==='STOCK');
+    // Lo recibido entra por la zona de llegada del almacén principal (antes, la raíz STOCK).
+    const u=w&&(ubicaciones.find(x=>x.warehouse_id===w.id&&x.role==='arrival')||ubicaciones.find(x=>x.warehouse_id===w.id&&x.code==='STOCK'));
     return u?u.id:((ubicaciones[0]||{}).id||'');
   }
   /* El desplegable de destino, agrupado por almacén. Se ofrece sólo si hay

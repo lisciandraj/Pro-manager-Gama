@@ -1026,6 +1026,12 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .ctKinds{display:grid;gap:8px;margin-top:8px}
 .ctKinds .arcButton{display:flex;flex-direction:column;align-items:flex-start;gap:2px;height:auto;min-height:44px;padding:12px 14px;text-align:left;white-space:normal}
 .ctKinds small{font-weight:400;color:var(--arc-text-muted)}
+/* Otras ubicaciones: lista plana; las tres zonas por defecto, marcadas y primero. */
+.ivOtrasHead{margin-top:14px}
+.ivOtras{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.ivOtras>li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 12px;border:1px solid var(--arc-line);border-radius:10px;background:var(--arc-surface-2)}
+.ivOtras>li.muted{background:none;border-style:dashed}
+.ivPapel{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;background:var(--arc-accent-100);color:var(--arc-accent-700)}
 /* Contactos: una sola tabla; encima, la búsqueda y el formulario único. */
 .ctBar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:16px 0 8px}
 .ctBar #ctSearch{flex:1 1 280px;min-width:0}

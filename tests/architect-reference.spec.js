@@ -6,7 +6,8 @@ async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Test User'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[{id:'c1',active:true,name:'Customer'}],suppliers:[],invoices:[],profiles:[],stock_movements:[]}},role);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
- await page.goto('/index.html');await expect(page.locator('.arcLogo')).toBeVisible();
+ // Logo completo en la barra desplegada; en el carril plegado de la tableta, el robot solo.
+ await page.goto('/index.html');await expect(page.locator('.arcBrand img:visible')).toHaveCount(1);
 }
 test('original logo, six-column reference, translated labels and truthful metrics',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);
@@ -43,7 +44,10 @@ test('client role has no administrative metrics, notifications or stock activity
  await page.locator('#arcCustomizeOpen').click();await expect(page.locator('#arcCustomize input[value="assistant-ia"]')).toHaveCount(0);
 });
 test('tablet expands the rail and mobile drawer excludes hidden navigation from keyboard',async({page})=>{
- await page.setViewportSize({width:1024,height:800});await boot(page);await page.locator('.arcBurger').click();await expect(page.locator('.arcNavLabel').first()).toBeVisible();
+ await page.setViewportSize({width:1024,height:800});await boot(page);
+ await expect(page.locator('.arcLogoMark')).toBeVisible();await expect(page.locator('.arcLogo')).toBeHidden();
+ await page.locator('.arcBurger').click();await expect(page.locator('.arcNavLabel').first()).toBeVisible();
+ await expect(page.locator('.arcLogo')).toBeVisible();await expect(page.locator('.arcLogoMark')).toBeHidden();
  await page.keyboard.press('Escape');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(350);
  expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(true);
  await page.locator('.arcBurger').click();expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(false);

@@ -6,7 +6,7 @@ L’application reste le site statique `lisciandraj/Pro-manager-Gama`, avec ses 
 
 ## Référence visuelle et logo
 
-La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’environ 192 px, barre supérieure de 70 px, grille principale de cartes blanches compactes de 12 px de rayon. La maquette en montrait quatre par ligne ; l’accueil en place six à partir de 1280 px, pour que tous les modules tiennent sans défiler, et retombe à quatre en dessous, puis trois et deux, là où un libellé de tuile cesserait de se lire d’un coup d’œil. Couleurs relevées dans les plages uniformes de l’image : sidebar `#122E46`, sélection `#245073`, fond gris très clair (environ `#F5F7FA`). Les tableaux et champs gardent des séparateurs plus soutenus pour la lisibilité.
+La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’environ 192 px, barre supérieure de 70 px, grille principale de cartes blanches compactes de 12 px de rayon. La maquette en montrait quatre par ligne ; l’accueil en place six à partir de 1280 px, pour que tous les modules tiennent sans défiler, et retombe à quatre en dessous, puis trois et deux, là où un libellé de tuile cesserait de se lire d’un coup d’œil. Les couleurs, elles, viennent du logo (voir « Palette »). Les tableaux et champs gardent des séparateurs plus soutenus pour la lisibilité.
 
 `coco-erp-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `c3e75d1cbbf288bd180c62593ea5bad31c2678986804e6b053c8f3bc6d675f15`. Le logo est dessiné pour un fond blanc ; les variantes sont de simples recadrages de ce fichier, sans retouche des couleurs :
 
@@ -16,7 +16,26 @@ La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’envi
 | `coco-erp-wordmark.png` | Barre latérale, sur une carte blanche : « COCO ERP » sans le slogan, illisible à cette taille. |
 | `coco-erp-icon-512/192/180.png` | Icône d’application (manifeste, favicon, écran d’accueil iOS) et barre latérale repliée : le robot seul, sur fond blanc. |
 
-La barre latérale garde son bleu marine ; le logo y est posé sur une carte blanche plutôt que détouré, car le détourage assombrissait les couleurs et le visage du robot se perdait sur le marine.
+La barre latérale prend le bleu nuit de la visière du robot ; le logo y est posé sur une carte blanche plutôt que détouré, car le détourage assombrissait les couleurs et le visage du robot se perdait sur le marine.
+
+## Palette
+
+Toutes les couleurs de l’interface sont tirées du logo et vivent dans `architect-tokens.css`. Relevés dans `coco-erp-logo.png` : bleu du robot `#3B6CF9` (dégradé `#3BA3FE` → indigo `#3E3AD9`), visière `#293051`, violet `#925396`, turquoise `#3FB3A4`, orange `#FCAA27`.
+
+| Rôle | Token | Couleur | Origine |
+|---|---|---|---|
+| Barre latérale, en-têtes sombres | `--arc-navy-900` | `#262C4E` | visière du robot |
+| Élément actif de la navigation | `--arc-navy-600` | `#3B4586` | 8,8:1 avec le texte blanc |
+| Action principale : boutons, liens, sélection | `--arc-accent-600` | `#2D59DB` | bleu du robot assombri : 5,9:1 sur blanc |
+| Décor et anneau de focus | `--arc-accent-500` | `#3B6CF9` | bleu du robot |
+| Famille Ventes | `--arc-fam-sales` | `#8A4A8F` | violet du premier O |
+| Famille Logistique | `--arc-fam-logistics` | `#17756A` | turquoise du second C |
+| Famille Achats | `--arc-fam-purchase` | `#9A5B00` | orange du dernier O |
+| Famille Finance | `--arc-fam-finance` | `#3F36C9` | indigo du robot |
+
+Les couleurs vives du logo ne se lisent pas telles quelles en texte : le turquoise fait 2,6:1 sur blanc, l’orange 1,9:1. L’interface en garde la teinte et les assombrit jusqu’à 4,5:1 au moins ; les icônes des tuiles gardent 3:1 sur leur fond teinté. Les gris — bordures, textes secondaires — tirent vers la teinte du bleu à luminance égale, si bien qu’aucun contraste n’a baissé. Succès, alerte et erreur gardent leurs couleurs fonctionnelles, toujours accompagnées d’un texte ou d’une icône.
+
+Les documents imprimés (devis, factures, bons) n’en dépendent pas : ils suivent les couleurs choisies par l’entreprise dans sa configuration.
 
 La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, pour un rendu stable sans requête externe.
 

@@ -193,7 +193,7 @@ VIEWS.overview={
     <p>${tr('Movimientos bancarios sin conciliar')} : <b>${esc(num(d.alerts.unmatched,0))}</b></p>
     <p>${tr('Gastos sin justificante')} : <b>${esc(num(d.alerts.no_receipt,0))}</b></p>
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
-    <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Architect.')}</p></div>`:''}`;
+    <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Coco ERP.')}</p></div>`:''}`;
  },
  bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo))}
 };

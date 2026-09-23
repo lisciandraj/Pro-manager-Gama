@@ -152,7 +152,7 @@ Lista de clientes	Liste des clients	Customer list
 Exportar	Exporter	Export
 Excel — Productos + Clientes + Auditoría	Excel — Produits + Clients + Audit	Excel — Products + Customers + Audit
 Copia completa JSON	Sauvegarde complète JSON	Full JSON backup
-Importa el Excel generado por Architect. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel Architect. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a Coco ERP Excel file. Products are merged by barcode and customers by ID.
+Importa el Excel generado por Coco ERP. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel généré par Coco ERP. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a Coco ERP Excel file. Products are merged by barcode and customers by ID.
 Importar / fusionar Excel	Importer / fusionner Excel	Import / merge Excel
 Restaurar JSON	Restaurer un JSON	Restore JSON
 Restaurar copia completa	Restaurer la sauvegarde complète	Restore full backup
@@ -262,7 +262,7 @@ sin IVA	HT	excluding VAT
 Precio por unidad	Prix à l’unité	Price per unit
 No se encontraron productos.	Aucun produit trouvé.	No products found.
 Iniciar sesión	Se connecter	Sign in
-Inicie sesión con su cuenta Coco ERP centralizada.	Connectez-vous avec votre compte Architect.	Sign in with your Coco ERP account.
+Inicie sesión con su cuenta Coco ERP centralizada.	Connectez-vous avec votre compte Coco ERP centralisé.	Sign in with your central Coco ERP account.
 Contraseña	Mot de passe	Password
 No se encontraron usuarios centralizados.	Aucun utilisateur trouvé.	No users found.
 Cerrar	Fermer	Close
@@ -1171,7 +1171,7 @@ Página {0}	Page {0}	Page {0}
 {0} de {1}	{0} sur {1}	{0} of {1}
 {0} facturas internas / externas	{0} factures internes / externes	{0} internal / external invoices
 En el pedido ({0})	Dans la commande ({0})	In the order ({0})
-Activa o desactiva los módulos de Architect.	Activez ou désactivez les modules Architect.	Enable or disable Coco ERP modules.
+Activa o desactiva los módulos de Coco ERP.	Activez ou désactivez les modules de Coco ERP.	Enable or disable Coco ERP modules.
 Albarán, lote, transporte, incidencia…	Bon de livraison, lot, transport, incident…	Delivery note, batch, transport, issue…
 Archivar contacto	Archiver le contact	Archive contact
 Archivar prospecto	Archiver le prospect	Archive lead
@@ -1212,7 +1212,7 @@ Ej. PROD-00001	Ex. PROD-00001	E.g. PROD-00001
 Ej. Proveedor ABC	Ex. Fournisseur ABC	E.g. Supplier ABC
 Ej. Recuento septiembre	Ex. Comptage de septembre	E.g. September count
 Ej.: correo de María, 12/09/2026, asunto…	Ex. : e-mail de María, 12/09/2026, objet…	E.g. María’s email, 12/09/2026, subject…
-Elija sus productos y envíe el pedido a Architect.	Choisissez vos produits et envoyez la commande à Architect.	Choose your products and submit the order to Architect.
+Elija sus productos y envíe el pedido a Coco ERP.	Choisissez vos produits et envoyez la commande à Coco ERP.	Choose your products and submit the order to Coco ERP.
 Filtrar contactos	Filtrer les contacts	Filter contacts
 Filtrar por estado	Filtrer par statut	Filter by status
 Filtrar por tipo	Filtrer par type	Filter by type
@@ -1753,7 +1753,7 @@ Puntos de atención	Points d’attention	Things to look at
 Movimientos bancarios sin conciliar	Mouvements bancaires non rapprochés	Unreconciled bank movements
 Gastos sin justificante	Dépenses sans justificatif	Expenses without a receipt
 Asientos descuadrados	Écritures déséquilibrées	Unbalanced entries
-Estas alertas también aparecen en el Centro de acción de Architect.	Ces alertes apparaissent aussi dans le Centre d’actions de Architect.	These alerts also appear in the Coco ERP action centre.
+Estas alertas también aparecen en el Centro de acción de Coco ERP.	Ces alertes apparaissent aussi dans le Centre d’actions de Coco ERP.	These alerts also appear in the Coco ERP action centre.
 Balance de antigüedad	Balance âgée	Ageing balance
 ¿Quién nos debe dinero?	Qui nous doit de l’argent ?	Who owes us money?
 ¿A quién debemos dinero?	À qui devons-nous de l’argent ?	Who do we owe money to?

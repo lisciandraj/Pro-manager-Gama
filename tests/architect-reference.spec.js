@@ -19,7 +19,7 @@ test('original logo, six-column reference, translated labels and truthful metric
  // Seis por fila en pantalla de ordenador: la referencia eran cuatro, y con
  // ellas el menú no cabía de un vistazo. Por debajo de 1280 vuelven a ser
  // cuatro, porque a seis el rótulo deja de leerse; eso se comprueba abajo.
- expect(layout).toEqual({columns:6,nav:'rgb(18, 46, 70)',fit:'contain',ratio:2.1});
+ expect(layout).toEqual({columns:6,nav:'rgb(38, 44, 78)',fit:'contain',ratio:2.1});
  await page.setViewportSize({width:1279,height:1000});await page.waitForTimeout(250);
  const estrecho=await page.evaluate(()=>getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length);
  expect(estrecho,'por debajo de 1280 las tarjetas se quedan sin sitio para su rótulo').toBe(4);

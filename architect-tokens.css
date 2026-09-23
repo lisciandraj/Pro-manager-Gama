@@ -5,64 +5,67 @@
    tipografía de toda la aplicación. Ningún módulo debería volver a escribir
    un #RRGGBB: si un tono no está aquí, es que falta aquí.
 
-   La paleta viene de la identidad: azul noche para lo que estructura
-   —navegación, cabeceras—, azul acero para lo secundario, blanco para las
-   superficies de trabajo, un gris azulado muy claro para el lienzo, y cian
-   para lo que se puede pulsar. Los colores funcionales se usan con cuentagotas
+   La paleta viene del logo de Coco ERP: el azul noche de la visera del
+   robot para lo que estructura —navegación, cabeceras—, un índigo grisáceo
+   para lo secundario, blanco para las superficies de trabajo, un gris
+   azulado muy claro para el lienzo —los grises tiran al mismo tono que el
+   azul—, y el azul del robot, oscurecido hasta leerse bien, para lo que se
+   puede pulsar. El violeta, el turquesa y el naranja de las letras visten
+   las familias de módulos. Los colores funcionales se usan con cuentagotas
    y nunca solos: siempre acompañados de un texto o de un icono, porque el
    color por sí mismo no informa a quien no lo distingue. */
 :root{
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#122E46;   /* fondo muestreado de la barra lateral */
- --arc-navy-800:#102A40;   /* marca, cabeceras oscuras */
- --arc-navy-700:#193E59;
- --arc-navy-600:#245073;
- --arc-steel-600:#3C5C84;  /* azul acero: elementos secundarios */
- --arc-steel-500:#4A6C96;
- --arc-steel-400:#6E8CB0;
- --arc-steel-300:#9CB3CC;
+ --arc-navy-900:#262C4E;   /* barra lateral: la visera del robot (#293051) */
+ --arc-navy-800:#1F2442;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#323A6B;
+ --arc-navy-600:#3B4586;   /* elemento activo de la navegación — 8.8:1 con texto blanco */
+ --arc-steel-600:#4B5487;  /* índigo grisáceo: elementos secundarios */
+ --arc-steel-500:#5D6798;
+ --arc-steel-400:#8189B4;
+ --arc-steel-300:#ADB3D3;
 
  /* ------------------------------------------------------------- acciones */
- --arc-accent-700:#116783;
- --arc-accent-600:#147D9C;  /* acción principal — 4.9:1 sobre el lienzo */
- --arc-accent-500:#1299BF;
- --arc-accent-400:#56B5D4;
- --arc-accent-100:#DEF2FA;
- --arc-accent-50:#F0F8FC;
+ --arc-accent-700:#2446B8;
+ --arc-accent-600:#2D59DB;  /* acción principal: el azul del robot — 5.9:1 sobre blanco, 5.2:1 sobre el lienzo */
+ --arc-accent-500:#3B6CF9;  /* el azul del logo, para lo decorativo */
+ --arc-accent-400:#6F95FB;
+ --arc-accent-100:#E4EBFE;
+ --arc-accent-50:#F3F6FF;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#EDF1F5;      /* clear separation from white working surfaces */
+ --arc-canvas:#EEF1F7;      /* clear separation from white working surfaces */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F1F4F8;   /* superficie hundida: cabeceras de tabla, zonas */
- --arc-surface-3:#EEF3F8;
- --arc-line:#BBC6D2;        /* visible shared separators */
- --arc-line-strong:#8796A7; /* fields and stronger boundaries */
+ --arc-surface-2:#F2F4FA;   /* superficie hundida: cabeceras de tabla, zonas */
+ --arc-surface-3:#EEF1F8;
+ --arc-line:#BEC5D3;        /* visible shared separators */
+ --arc-line-strong:#8A95A8; /* fields and stronger boundaries */
 
  --arc-text:#0B172A;        /* texto principal — 13.9:1 sobre blanco */
- --arc-text-muted:#455F76;  /* texto secundario — 6.5:1 sobre blanco, AA en todas las superficies */
- --arc-text-subtle:#526B81; /* pies de foto, ayudas — 5.4:1 sobre blanco, 4.5:1 sobre el lienzo */
+ --arc-text-muted:#4F5C78;  /* texto secundario — 6.7:1 sobre blanco, AA en todas las superficies */
+ --arc-text-subtle:#5B6883; /* pies de foto, ayudas — 5.6:1 sobre blanco, 4.9:1 sobre el lienzo */
  --arc-text-invert:#FFFFFF;
- --arc-text-on-navy:#C9D8E8;
+ --arc-text-on-navy:#D6DAF0;
 
  /* --------------------------------------------------------- funcionales */
  --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;
  --arc-warning:#9A5B00;   --arc-warning-bg:#FDF1DF;   --arc-warning-line:#F0CE94;
  --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
- --arc-info:#116783;      --arc-info-bg:#E4F0FB;      --arc-info-line:#B4D6F3;
+ --arc-info:#2446B8;      --arc-info-bg:#E6EDFE;      --arc-info-line:#BCCCF9;
 
  /* Familias funcionales de los módulos: el mismo lenguaje, distinto acento. */
- --arc-fam-analytics:#147D9C;  --arc-fam-analytics-bg:#E4F0FB;
- --arc-fam-sales:#7A3DB8;      --arc-fam-sales-bg:#F0E8FB;
- --arc-fam-logistics:#0D7446;  --arc-fam-logistics-bg:#E4F5EC;
- --arc-fam-purchase:#9A5B00;   --arc-fam-purchase-bg:#FDF1DF;
- --arc-fam-finance:#0F6E75;    --arc-fam-finance-bg:#E0F2F3;
- --arc-fam-people:#245073;     --arc-fam-people-bg:#E7EDF5;
- --arc-fam-system:#546B84;     --arc-fam-system-bg:#EEF3F8;
+ --arc-fam-analytics:#2D59DB;  --arc-fam-analytics-bg:#E6EDFE;   /* azul del robot */
+ --arc-fam-sales:#8A4A8F;      --arc-fam-sales-bg:#F5EAF6;       /* violeta de la primera O */
+ --arc-fam-logistics:#17756A;  --arc-fam-logistics-bg:#E2F4F1;   /* turquesa de la segunda C */
+ --arc-fam-purchase:#9A5B00;   --arc-fam-purchase-bg:#FDF1DF;    /* naranja de la última O, legible */
+ --arc-fam-finance:#3F36C9;    --arc-fam-finance-bg:#ECEBFD;     /* índigo del robot */
+ --arc-fam-people:#3B4586;     --arc-fam-people-bg:#E8EAF6;
+ --arc-fam-system:#566079;     --arc-fam-system-bg:#EEF0F6;
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#147D9C; --arc-viz-2:#0F6E75; --arc-viz-3:#9A5B00;
- --arc-viz-4:#7A3DB8; --arc-viz-5:#0D7446; --arc-viz-6:#B3261E;
+ --arc-viz-1:#2D59DB; --arc-viz-2:#17756A; --arc-viz-3:#B86E00;
+ --arc-viz-4:#8A4A8F; --arc-viz-5:#3F36C9; --arc-viz-6:#B3261E;
 
  /* ------------------------------------------------------------- espacio */
  --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
@@ -72,10 +75,10 @@
  --arc-r-sm:8px; --arc-r-md:10px; --arc-r-lg:12px; --arc-r-xl:16px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
- --arc-sh-1:0 1px 2px rgba(18,37,60,.06), 0 1px 3px rgba(18,37,60,.05);
- --arc-sh-2:0 2px 4px rgba(18,37,60,.06), 0 4px 12px rgba(18,37,60,.06);
- --arc-sh-3:0 8px 24px rgba(18,37,60,.10), 0 2px 6px rgba(18,37,60,.06);
- --arc-sh-nav:0 1px 3px rgba(18,37,60,.08);
+ --arc-sh-1:0 1px 2px rgba(31,36,66,.06), 0 1px 3px rgba(31,36,66,.05);
+ --arc-sh-2:0 2px 4px rgba(31,36,66,.06), 0 4px 12px rgba(31,36,66,.06);
+ --arc-sh-3:0 8px 24px rgba(31,36,66,.10), 0 2px 6px rgba(31,36,66,.06);
+ --arc-sh-nav:0 1px 3px rgba(31,36,66,.08);
 
  /* ---------------------------------------------------------- tipografía */
  --arc-font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
@@ -92,7 +95,7 @@
  --arc-sidebar-w-collapsed:72px;
  --arc-topbar-h:70px;
  --arc-tap:44px;            /* zona táctil mínima */
- --arc-focus:0 0 0 3px rgba(12,103,179,.45);
+ --arc-focus:0 0 0 3px rgba(59,108,249,.45);
  --arc-content-max:1600px;
 }
 
@@ -106,7 +109,7 @@
 
 /* Public semantic aliases. Sampled from the supplied 1145 × 1374 reference. */
 :root{
- --color-primary:var(--arc-navy-700);--color-primary-dark:var(--arc-navy-800);
+ --color-primary:var(--arc-accent-600);--color-primary-dark:var(--arc-accent-700);
  --color-accent:var(--arc-accent-600);--color-background:var(--arc-canvas);
  --color-surface:var(--arc-surface);--color-border:var(--arc-line);
  --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
@@ -114,18 +117,19 @@
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
  --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
  /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
- --arc-tile-border:#A8B3BF;--arc-tile-border-bottom:#8796A7;
- --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(18,46,70,.14),0 5px 12px rgba(18,46,70,.12);
- --arc-tile-border-hover:#697D91;
- --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(18,46,70,.16),0 8px 18px rgba(18,46,70,.18);
- --arc-control-shadow:0 1px 0 rgba(18,46,70,.15),0 2px 5px rgba(18,46,70,.10);
- --arc-field-shadow:inset 0 1px 2px rgba(18,46,70,.07),0 1px 2px rgba(18,46,70,.07);
- --arc-icon-cyan:#1396AA;--arc-icon-cyan-bg:#E3F6F7;
- --arc-icon-blue:#0963DB;--arc-icon-blue-bg:#E4F1FF;
- --arc-icon-green:#10A36E;--arc-icon-green-bg:#E0F9ED;
- --arc-icon-orange:#EF8D19;--arc-icon-orange-bg:#FFF2E5;
- --arc-icon-violet:#7132BA;--arc-icon-violet-bg:#F3EAFF;
+ --arc-tile-border:#ABB2C0;--arc-tile-border-bottom:#8A95A8;
+ --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(31,36,66,.14),0 5px 12px rgba(31,36,66,.12);
+ --arc-tile-border-hover:#6F7B93;
+ --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(31,36,66,.16),0 8px 18px rgba(31,36,66,.18);
+ --arc-control-shadow:0 1px 0 rgba(31,36,66,.15),0 2px 5px rgba(31,36,66,.10);
+ --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
+ /* Icons of the module tiles, in the logo's colours; each keeps ≥3:1 on its tint. */
+ --arc-icon-cyan:#13877A;--arc-icon-cyan-bg:#E1F5F2;
+ --arc-icon-blue:#2F5FE8;--arc-icon-blue-bg:#E6EDFF;
+ --arc-icon-green:#0F8A70;--arc-icon-green-bg:#DFF7F0;
+ --arc-icon-orange:#C77700;--arc-icon-orange-bg:#FFF4E0;
+ --arc-icon-violet:#925396;--arc-icon-violet-bg:#F6EBF7;
  --arc-icon-red:#E54C2C;--arc-icon-red-bg:#FEEDE9;
  --arc-icon-pink:#A31878;--arc-icon-pink-bg:#FCEDF7;
- --arc-icon-indigo:#3633CC;--arc-icon-indigo-bg:#EFEDFF;
+ --arc-icon-indigo:#3E3AD9;--arc-icon-indigo-bg:#EEEDFF;
 }

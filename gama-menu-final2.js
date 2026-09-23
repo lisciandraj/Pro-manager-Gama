@@ -47,9 +47,14 @@ function render(){
  document.documentElement.lang=window.GamaI18n?.language||'es';
  host.replaceChildren();
  const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
+ const textos=document.createElement('div');
  const h=document.createElement('h1');h.setAttribute('data-gi-live','');h.textContent='Menú principal';
  const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Coco ERP.';
- cabecera.append(h,p);
+ textos.append(h,p);
+ // «Personalizar» va a la derecha del título: sin rótulo «Tus módulos» encima de las tarjetas.
+ const acciones=document.createElement('div');acciones.className='gamaF2HeadActions';
+ window.ArcUI.render(acciones,'<button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>');
+ cabecera.append(textos,acciones);
 
  // Los cuatro indicadores personales viven arriba del panel de control, no aquí.
 
@@ -81,14 +86,12 @@ function render(){
  vacio.textContent='Ningún módulo coincide con la búsqueda.';
  grid.appendChild(vacio);
 
- const heading=document.createElement('div');heading.className='arcSectionHead';
- window.ArcUI.render(heading,'<h2>'+esc(T('Tus módulos'))+'</h2><button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>');
- host.append(cabecera,heading,grid);
- heading.querySelector('button').onclick=personalize;
+ host.append(cabecera,grid);
+ acciones.querySelector('button').onclick=personalize;
  window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.GamaI18n?.scan?.(host);
 }
 
-window.addEventListener('gama:language-change',()=>{const h=document.querySelector('.arcSectionHead h2');if(h)h.textContent=T('Tus módulos');const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
+window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la

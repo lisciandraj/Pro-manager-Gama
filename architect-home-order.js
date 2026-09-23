@@ -15,7 +15,10 @@ async function load(){if(loading)return loading;const e=epoch,r=revision;loading
 function save(){order=cards().map(c=>c.dataset.gamaModule);revision++;cache();status('saving');const snapshot=[...order],e=epoch,r=revision;queue=queue.catch(()=>{}).then(async()=>{if(e!==epoch)return;if(!user)await load();if(e!==epoch)return;try{if(!user)throw Error('AUTH_REQUIRED');await rpc({p_order:snapshot,p_user:user});if(e===epoch&&r===revision){cache();status('saved')}}catch(_){if(e===epoch&&r===revision)status('error')}})}
 function target(x,y,source){const el=document.elementFromPoint(x,y)?.closest('.gamaF2Card');if(!el||el===source||el.parentNode!==grid)return;const b=el.getBoundingClientRect();const after=y>b.top+b.height*.7||(y>b.top+b.height*.3&&x>b.left+b.width/2);grid.insertBefore(source,after?el.nextSibling:el)}
 function finish(cancel=false){if(!drag)return;const d=drag;drag=null;if(d.pointer!=null&&document.body.hasPointerCapture(d.pointer))document.body.releasePointerCapture(d.pointer);d.card.classList.remove('arcDragging');if(cancel){order=d.before;apply()}else if(d.moved)save();blockClick=d.moved;setTimeout(()=>blockClick=false,0)}
-function mount(host){grid=host;const hint=document.createElement('p');hint.id='arcOrderHint';hint.className='arcOrderHint';hint.textContent=t('hint');const live=document.createElement('span');live.id='arcOrderStatus';live.setAttribute('role','status');hint.append(live);host.before(hint);
+function mount(host){grid=host;const hint=document.createElement('p');hint.id='arcOrderHint';hint.className='arcOrderHint';
+ // La consigna no se enseña: la leen los lectores de pantalla en cada tarjeta (aria-describedby).
+ const text=document.createElement('span');text.className='arcSrOnly';text.textContent=t('hint');
+ const live=document.createElement('span');live.id='arcOrderStatus';live.setAttribute('role','status');hint.append(text,live);host.before(hint);
  for(const card of cards()){
   card.draggable=true;
   const handle=document.createElement('span');handle.className='arcDragHandle';handle.title=t('move');handle.setAttribute('aria-hidden','true');card.append(handle);card.setAttribute('aria-describedby','arcOrderHint');

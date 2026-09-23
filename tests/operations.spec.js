@@ -75,13 +75,17 @@ test('direct links load an old delivery and an exact purchase dossier',async({pa
  await expect(page.locator('#gama-tms-section')).toContainText('Entrega antigua');await expect(page.locator('#tSigSave')).toBeVisible();
 });
 
-test('notifications card survives UI updates and opens a visible screen',async({page})=>{
+test('notifications open only from the top bar bell and show a visible screen',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await boot(page);
+ // Ni tarjeta en el inicio ni enlace en la barra lateral: sólo la campana de arriba.
+ await expect(page.locator('#mainmenu .gamaF2Card').first()).toBeVisible();
+ await expect(page.locator('#mainmenu [data-gama-module="notifications"], #mainmenu [data-go-nav="notifications"]')).toHaveCount(0);
+ await expect(page.locator('.arcNavLink[data-gama-module="notifications"]')).toHaveCount(0);
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
- const card=page.locator('#mainmenu [data-go-nav="notifications"]');
- await expect(card).toBeVisible();
- await card.click();
+ const bell=page.locator('#arcNotify');
+ await expect(bell).toBeVisible();
+ await bell.click();
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
  await expect(page.locator('#notifications')).toBeVisible();
  await expect(page.locator('#notifications #goAlerts')).toBeVisible();

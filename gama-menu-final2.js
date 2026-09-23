@@ -15,7 +15,8 @@
      «Clientes»  antes que «Solicitudes de clientes»
    Por eso Inventario va antes que Ventas. Al mover un módulo de grupo, o
    al reordenar los grupos, hay que volver a comprobarlo. */
-const ITEMS=window.ArcModules.registry.filter(m=>m.menu).map(m=>[m.label,m.id,m.icon,m.group]);
+// Lo que vive en la barra superior (Notificaciones, la campana) no es tarjeta ni enlace lateral.
+const ITEMS=window.ArcModules.registry.filter(m=>m.menu&&!m.topbar).map(m=>[m.label,m.id,m.icon,m.group]);
 const GRUPOS=window.ArcModules.groups;
 const I=window.ArcUI.icons;
 function openItem(x){return window.ArcRouter.open(x[1]);}
@@ -78,7 +79,6 @@ function render(){
    go.setAttribute('class','gamaF2Go');go.setAttribute('viewBox','0 0 24 24');go.setAttribute('aria-hidden','true');
    window.ArcUI.render(go,'<path d="M5 12h14M13 6l6 6-6 6"/>');
    b.append(icon,cuerpo,go);
-   if(x[1]==='notifications')b.dataset.goNav='notifications';
    b.onclick=()=>openItem(x);
    grid.appendChild(b);
  });

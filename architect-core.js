@@ -671,6 +671,7 @@
       "accent": "orange",
       "order": 100,
       "menu": true,
+      "topbar": true,
       "configLabel": "Notificaciones y bloqueos",
       "roles": [
         "admin",

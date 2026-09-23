@@ -7,7 +7,7 @@
   "scope": "./",
   "display": "standalone",
   "background_color": "#F5F7FA",
-  "theme_color": "#262C4E",
+  "theme_color": "#FFFFFF",
   "icons": [
     {
       "src": "coco-erp-icon-512.png?v=20260923-coco1",

@@ -16,7 +16,7 @@ La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’envi
 | `coco-erp-wordmark.png` | Barre latérale, sur une carte blanche : « COCO ERP » sans le slogan, illisible à cette taille. |
 | `coco-erp-icon-512/192/180.png` | Icône d’application (manifeste, favicon, écran d’accueil iOS) et barre latérale repliée : le robot seul, sur fond blanc. |
 
-La barre latérale prend le bleu nuit de la visière du robot ; le logo y est posé sur une carte blanche plutôt que détouré, car le détourage assombrissait les couleurs et le visage du robot se perdait sur le marine.
+La barre latérale est blanche, comme la barre supérieure, et séparée du fond gris par un filet : le logo, dessiné pour un fond blanc, s’y pose tel quel, sans carte ni détourage. Les liens sont en bleu nuit, l’élément actif sur un fond bleu très clair avec un filet bleu à gauche.
 
 ## Palette
 
@@ -24,8 +24,10 @@ Toutes les couleurs de l’interface sont tirées du logo et vivent dans `archit
 
 | Rôle | Token | Couleur | Origine |
 |---|---|---|---|
-| Barre latérale, en-têtes sombres | `--arc-navy-900` | `#262C4E` | visière du robot |
-| Élément actif de la navigation | `--arc-navy-600` | `#3B4586` | 8,8:1 avec le texte blanc |
+| Barre latérale et barre supérieure | `--arc-surface` | `#FFFFFF` | le fond pour lequel le logo est dessiné |
+| Liens de la navigation | `--arc-navy-700` | `#323A6B` | visière du robot : 10,8:1 sur blanc |
+| Élément actif de la navigation | `--arc-accent-100` / `--arc-accent-700` | `#E4EBFE` / `#2446B8` | bleu du robot : 6,7:1 |
+| Fond de connexion, bulles de l’assistant | `--arc-navy-800` / `--arc-navy-900` | `#1F2442` / `#262C4E` | visière du robot |
 | Action principale : boutons, liens, sélection | `--arc-accent-600` | `#2D59DB` | bleu du robot assombri : 5,9:1 sur blanc |
 | Décor et anneau de focus | `--arc-accent-500` | `#3B6CF9` | bleu du robot |
 | Famille Ventes | `--arc-fam-sales` | `#8A4A8F` | violet du premier O |

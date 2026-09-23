@@ -5,21 +5,23 @@
    tipografía de toda la aplicación. Ningún módulo debería volver a escribir
    un #RRGGBB: si un tono no está aquí, es que falta aquí.
 
-   La paleta viene del logo de Coco ERP: el azul noche de la visera del
-   robot para lo que estructura —navegación, cabeceras—, un índigo grisáceo
-   para lo secundario, blanco para las superficies de trabajo, un gris
-   azulado muy claro para el lienzo —los grises tiran al mismo tono que el
-   azul—, y el azul del robot, oscurecido hasta leerse bien, para lo que se
-   puede pulsar. El violeta, el turquesa y el naranja de las letras visten
-   las familias de módulos. Los colores funcionales se usan con cuentagotas
-   y nunca solos: siempre acompañados de un texto o de un icono, porque el
-   color por sí mismo no informa a quien no lo distingue. */
+   La paleta viene del logo de Coco ERP. La navegación va sobre blanco, el
+   fondo para el que está dibujado el logo, con los enlaces en el azul
+   noche de la visera del robot, que también viste las cabeceras oscuras y
+   el fondo de la conexión; un índigo grisáceo para lo secundario, blanco
+   para las superficies de trabajo, un gris azulado muy claro para el
+   lienzo —los grises tiran al mismo tono que el azul—, y el azul del
+   robot, oscurecido hasta leerse bien, para lo que se puede pulsar. El
+   violeta, el turquesa y el naranja de las letras visten las familias de
+   módulos. Los colores funcionales se usan con cuentagotas y nunca solos:
+   siempre acompañados de un texto o de un icono, porque el color por sí
+   mismo no informa a quien no lo distingue. */
 :root{
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#262C4E;   /* barra lateral: la visera del robot (#293051) */
+ --arc-navy-900:#262C4E;   /* azul noche: la visera del robot (#293051) */
  --arc-navy-800:#1F2442;   /* marca, cabeceras oscuras */
- --arc-navy-700:#323A6B;
- --arc-navy-600:#3B4586;   /* elemento activo de la navegación — 8.8:1 con texto blanco */
+ --arc-navy-700:#323A6B;   /* enlaces de la navegación — 10.8:1 sobre blanco */
+ --arc-navy-600:#3B4586;   /* 8.8:1 con texto blanco */
  --arc-steel-600:#4B5487;  /* índigo grisáceo: elementos secundarios */
  --arc-steel-500:#5D6798;
  --arc-steel-400:#8189B4;
@@ -45,7 +47,7 @@
  --arc-text-muted:#4F5C78;  /* texto secundario — 6.7:1 sobre blanco, AA en todas las superficies */
  --arc-text-subtle:#5B6883; /* pies de foto, ayudas — 5.6:1 sobre blanco, 4.9:1 sobre el lienzo */
  --arc-text-invert:#FFFFFF;
- --arc-text-on-navy:#D6DAF0;
+ --arc-text-on-navy:#D6DAF0; /* texto sobre el azul noche — 9.8:1 */
 
  /* --------------------------------------------------------- funcionales */
  --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;

@@ -23,7 +23,7 @@ test.describe('Contraste del menú principal', () => {
     );
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
-    await page.waitForTimeout(1200);
+    await page.locator('#mainmenu .gamaF2Card .gamaF2Desc').first().waitFor();
 
     const m = await page.evaluate(() => {
       const card = document.querySelector('#mainmenu .gamaF2Card');
@@ -66,7 +66,7 @@ test.describe('Contraste del menú principal', () => {
     await page.goto('/index.html');
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const [r, g, b] = bg.match(/\d+/g).slice(0, 3).map(Number);
-    // The shared light-grey canvas reinforces white panel boundaries.
-    expect([r,g,b]).toEqual([237,241,245]);
+    // The shared light-grey canvas (#EEF1F7, leaning to the logo's blue) reinforces white panel boundaries.
+    expect([r,g,b]).toEqual([238,241,247]);
   });
 });

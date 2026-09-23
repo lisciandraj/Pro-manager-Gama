@@ -40,7 +40,7 @@ test('portrait and landscape support both modes without overflow and preserve su
  const supplierRows=page.locator('#ctTable tbody tr');expect((await supplierRows.nth(0).boundingBox()).y).toBe((await supplierRows.nth(1).boundingBox()).y);
  await page.locator('#ctTable .arcPager button').last().click();await expect(page.locator('#ctTable tbody tr')).toHaveCount(5);
  await expect(page.locator('#ctTable .gamaTableViews')).toHaveCount(1);await expect(page.locator('#ctTable table')).toHaveAttribute('data-gama-view','cards');
- await page.locator('#ctTable [data-ct-edit]').first().click();await expect(page.locator('#supName')).not.toHaveValue('');
+ await page.locator('#ctTable [data-ct-edit]').first().click();await expect(page.locator('#ctf-name')).not.toHaveValue('');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:'test-results/table-views-landscape.png',fullPage:true});
 });

@@ -2824,3 +2824,22 @@ Contacto restaurado.	Contact restauré.	Contact restored.
 Contacto archivado.	Contact archivé.	Contact archived.
 ★ Principal	★ Principal	★ Primary
 (sin nombre)	(sans nom)	(no name)
+Quien te compra: identificación, condiciones de pago y categoría de precios.	Celui qui vous achète : identifiant, conditions de paiement et catégorie de prix.	Who buys from you: ID, payment terms and price category.
+A quien le compras: persona de contacto y condiciones.	Celui à qui vous achetez : personne de contact et conditions.	Who you buy from: contact person and terms.
+Identificación (RUC, cédula o pasaporte)	Identifiant (RUC, carte d’identité ou passeport)	ID (RUC, ID card or passport)
+Es el contacto principal del prospecto	C’est le contact principal du prospect	Primary contact for the prospect
+Editar contacto	Modifier le contact	Edit contact
+Todavía no hay prospectos: créalos primero en el CRM → Prospectos.	Aucun prospect pour l’instant : créez-les d’abord dans CRM → Prospects.	No prospects yet: create them first in CRM → Prospects.
+💾 Guardar contacto	💾 Enregistrer le contact	💾 Save contact
+Buscar por nombre, tipo, identificación, empresa, ciudad o correo…	Chercher par nom, type, identifiant, société, ville ou e-mail…	Search by name, type, ID, company, city or email…
+¿Archivar a «	Archiver «	Archive “
+Contacto borrado.	Contact supprimé.	Contact deleted.
+Ya existe un cliente con esta identificación.	Un client avec cet identifiant existe déjà.	A customer with this ID already exists.
+El nombre y la identificación son obligatorios.	Le nom et l’identifiant sont obligatoires.	Name and ID are required.
+Elige el prospecto al que pertenece el contacto.	Choisissez le prospect auquel appartient le contact.	Choose the prospect this contact belongs to.
+Un contacto necesita al menos un nombre, unos apellidos o un correo.	Un contact doit avoir au moins un prénom, un nom ou un e-mail.	A contact needs at least a first name, a last name or an email.
+0 = pago a la entrega.	0 = paiement à la livraison.	0 = payment on delivery.
+Apellidos	Nom	Last name
+Cargo	Poste	Job title
+Plazo de pago desde la entrega (días)	Délai de paiement après livraison (jours)	Payment term from delivery (days)
+LinkedIn	LinkedIn	LinkedIn

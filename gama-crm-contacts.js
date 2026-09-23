@@ -42,11 +42,6 @@ const PAPELES={decisor:'Decisor',prescriptor:'Prescriptor',usuario:'Usuario',com
 
 let contactos=[],clientes=[],prospectos=[];
 let vista='lista',abierto=null,busca='',filtro='',cargando=false;
-/* Contactos (el módulo) enseña a los contactos de prospectos en su tabla única
-   y abre aquí sólo la ficha, pintada en `destino`, sin la cabecera ni la
-   navegación del CRM. Al guardar o cancelar se avisa con `terminar`. */
-let destino=null,terminar=null;
-const raiz=()=>destino||CRM.section();
 
 let mi;
 async function quienSoy(){
@@ -131,8 +126,7 @@ function lista(){
    +'<option value="prospecto"'+(filtro==='prospecto'?' selected':'')+' data-gi=59f8c98ad191>Sólo de prospectos</option>'
    +'<option value="principal"'+(filtro==='principal'?' selected':'')+' data-gi=6a53aa508564>Sólo los principales</option>'
   +'</select>'
-  // En Contactos, «Nuevo contacto» es el de la cabecera, que pregunta antes qué clase de contacto es.
-  +(destino?'':'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>')
+  +'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmContactos',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch,hayFichas))
@@ -174,11 +168,11 @@ function fila(k){
 }
 
 /* ---- formulario ---- */
-function nuevo(tipo){return {decision_role:'',is_primary:false,active:true,tipo}}
+function nuevo(){return {decision_role:'',is_primary:false,active:true}}
 function formulario(){
  const k=abierto||{};
  const esNuevo=!k.id;
- const tipo=(k.lead_id||k.tipo==='prospecto')?'prospecto':'cliente';
+ const tipo=k.lead_id?'prospecto':'cliente';
  const q=esNuevo?null:deQuien(k);
  return '<div class="arcPanel card">'
   +'<h3>'+(esNuevo?'Nuevo contacto':esc(nombre(k)))+'</h3>'
@@ -273,7 +267,6 @@ async function guardar(){
   if(abierto&&abierto.id)r=await C().update('crm_contacts',abierto.id,d);
   else{d.created_by=await quienSoy();d.active=true;r=await C().insert('crm_contacts',d)}
   if(r.error)throw r.error;
-  if(terminar){acabar(true);return}
   await cargar();
   vista='lista';abierto=null;
   pintar('Contacto guardado.','ok');
@@ -304,15 +297,15 @@ async function archivar(id,activo){
 
 /* ---- pintar y conectar ---- */
 function pintar(aviso,tipo){
- const s=raiz();
- window.ArcUI.render(s,(destino?'':CRM.cabecera(LEAD))+'<div id="crmMsg" class="crmMsg"></div>'
+ const s=CRM.section();
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
   +(vista==='ficha'?formulario():lista()));
- if(!destino)CRM.bind(s);
+ CRM.bind(s);
  conectar();
  if(aviso)msg(aviso,tipo);
 }
 function conectar(){
- const s=raiz();
+ const s=CRM.section();
  const b=$('crmKBusca');
  if(b)b.oninput=()=>{
   busca=b.value;
@@ -324,7 +317,7 @@ function conectar(){
  const f=$('crmKFiltro');
  if(f)f.onchange=()=>{filtro=f.value;if(window.GamaPage)window.GamaPage.reset('crmContactos');pintar()};
  const nv=$('crmKNuevo');
- if(nv)nv.onclick=()=>{abierto=nuevo(filtro==='prospecto'?'prospecto':'');vista='ficha';pintar()};
+ if(nv)nv.onclick=()=>{abierto=nuevo();vista='ficha';pintar()};
  const t=$('crmKTipo');
  if(t)t.onchange=()=>{
   const cli=t.value==='cliente';
@@ -337,13 +330,12 @@ function conectar(){
  s.querySelectorAll('[data-archivar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.archivar,false)});
  s.querySelectorAll('[data-restaurar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.restaurar,true)});
  const g=$('crmKGuardar');if(g)g.onclick=guardar;
- const c=$('crmKCancelar');if(c)c.onclick=()=>{if(terminar){acabar(false);return}vista='lista';abierto=null;pintar()};
+ const c=$('crmKCancelar');if(c)c.onclick=()=>{vista='lista';abierto=null;pintar()};
 }
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
 async function abrirPantalla(){
  CRM.css();css();
- if(destino){destino.replaceChildren();destino=null;terminar=null}
  const s=CRM.section();
  if(cargando)return;cargando=true;
  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>');
@@ -364,26 +356,5 @@ if(window.GamaPage)window.GamaPage.register('crmContactos',()=>pintar());
 if(window.GamaSort)window.GamaSort.register('crmContactos',()=>pintar());
 if(window.GamaArchive)window.GamaArchive.register('crmContactos',()=>pintar());
 CRM.registrar('contactos','Contactos',abrirPantalla);
-/* La ficha de un contacto de prospecto, abierta desde Contactos. Una sola
-   pantalla del CRM a la vez en el documento: los ids (crmMsg, el formulario)
-   son únicos, así que se vacía la del CRM, que se repinta al abrirlo. */
-async function editar(host,o={}){
- CRM.css();css();
- const crm=document.getElementById('crm');if(crm&&crm.querySelector('#crmMsg'))crm.replaceChildren();
- destino=host;terminar=o.onDone||(()=>{});vista='ficha';abierto=null;
- window.ArcUI.render(host,'<div class="arcPanel card"><div class="crmVacio" data-gi=7005a4995b29>Cargando contactos…</div></div>');
- try{
-  await cargar();if(destino!==host)return;
-  if(o.id){
-   const r=await C().list('crm_contacts',{select:FORM,eq:{id:o.id},limit:1});if(r.error)throw r.error;
-   if(destino!==host)return;
-   abierto=(r.data||[])[0]||null;
-   if(!abierto){acabar(false);return}
-  }else abierto=nuevo('prospecto');
-  pintar();
- }catch(e){if(destino!==host)return;window.ArcUI.render(host,'<div id="crmMsg" class="crmMsg"></div>');fallo(e,'No se pudo abrir el contacto')}
-}
-function cerrar(host){if(destino===host){destino=null;terminar=null;vista='lista';abierto=null;host.replaceChildren()}}
-function acabar(guardado){const f=terminar,host=destino;if(host)cerrar(host);f?.(guardado)}
-window.GamaCRMContacts={open:abrirPantalla,edit:editar,close:cerrar};
+window.GamaCRMContacts={open:abrirPantalla};
 })();

@@ -62,18 +62,21 @@ directement la clôture pour en donner le motif. Détails :
 
 ## 6. Contacts
 
-Un seul grand tableau : clients, fournisseurs et contacts de prospects
-ensemble, avec leur catégorie en pastille. Au-dessus, le choix de la
-catégorie — **Tous · Clients · Fournisseurs · Contacts de prospects**, avec le
-nombre de fiches — et une recherche qui regarde partout (nom, identifiant,
-société, ville, téléphone, e-mail). Chaque ligne ouvre, au-dessus du tableau,
-la fiche qui existait déjà (fiche client, fiche fournisseur, fiche contact du
-CRM) ; archiver, restaurer et l'historique se font depuis la ligne. Un seul
-**« ＋ Nouveau contact »** demande d'abord de quel type de contact il s'agit.
-Les tables ne changent pas ; le CRM garde sa propre liste de contacts. Un
-profil qui n'avait pas accès aux clients ou aux fournisseurs n'a pas accès à
-Contacts, et les contacts de prospects ne s'affichent qu'avec le droit CRM : la
-fusion n'ouvre aucun droit.
+Un seul grand tableau, sans onglets : clients, fournisseurs et contacts de
+prospects ensemble, chacun avec son type en pastille, et une recherche qui
+regarde partout (nom, type, identifiant, société, ville, téléphone, e-mail).
+Un seul formulaire, au-dessus du tableau : son premier champ est le **type de
+contact** (menu déroulant Client · Fournisseur · Contact de prospect) et les
+champs à remplir changent avec lui — identifiant, délai de paiement et
+catégorie de prix pour un client ; personne de contact pour un fournisseur ;
+prospect, poste et rôle dans la décision pour un contact de prospect. Ce qui
+est commun (nom, téléphone, e-mail, ville…) est conservé si l'on change de
+type avant d'enregistrer. Modifier une ligne rouvre le même formulaire, type
+figé. Archiver, restaurer et l'historique se font depuis la ligne. Les tables
+ne changent pas ; le CRM garde sa propre liste de contacts. Un profil qui
+n'avait pas accès aux clients ou aux fournisseurs n'a pas accès à Contacts, et
+les contacts de prospects ne s'affichent qu'avec le droit CRM : la fusion
+n'ouvre aucun droit.
 
 ## 7. Inventaire retiré
 

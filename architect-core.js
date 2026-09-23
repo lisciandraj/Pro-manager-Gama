@@ -1302,34 +1302,6 @@
   } };
   const views = /* @__PURE__ */ new Map();
   const $ = (id) => document.getElementById(id);
-  const call = async (promise) => {
-    const r = await promise;
-    if (r.error) throw r.error;
-    return r.data;
-  };
-  function supplierForm(host, { supplier = null, onDone = () => {
-  } } = {}) {
-    var _a;
-    (_a = views.get("supplierForm")) == null ? void 0 : _a.dispose();
-    host.innerHTML = `<div class="arcPanel gamaPMForm"><h3 id="supFormTitle">${escapeHtml(translate(supplier ? "Editar proveedor" : "Nuevo proveedor"))}</h3><form id="supForm" class="arcForm"><div class="arcFormGrid">${supplierFields.map((field$1) => field({ ...field$1, value: (supplier == null ? void 0 : supplier[field$1.key]) || "" })).join("")}</div>${toolbar(button({ id: "supSave", type: "submit", variant: "primary", label: translate("＋ Guardar proveedor") }) + button({ id: "supClear", label: translate("Cancelar") }))}<p id="supMsg" role="alert" class="arcFormError"></p></form></div>`;
-    $("supClear").onclick = () => onDone(false);
-    const formApi = bindForm($("supForm"), async () => {
-      const value = Object.fromEntries(supplierFields.map((f) => [f.key, $(f.id).value.trim()]));
-      if (!value.name) throw Error(translate("El nombre del proveedor es obligatorio."));
-      const payload = supplierToRow({ ...supplier, ...value, active: (supplier == null ? void 0 : supplier.active) !== false });
-      if (!supplier) for (const key of ["country", "province", "postal_code"]) delete payload[key];
-      await call(supplier ? window.GamaCloud.update("suppliers", supplier.id, payload) : window.GamaCloud.insert("suppliers", payload));
-      invalidate("suppliers");
-      window.dispatchEvent(new CustomEvent("gama:data-change", { detail: { table: "suppliers" } }));
-      onDone(true);
-    });
-    const view = { dispose() {
-      formApi.dispose();
-    } };
-    views.set("supplierForm", view);
-    mount(host);
-    return () => view.dispose();
-  }
   const directoryColumns = {
     products: [
       { label: "Foto", decorative: true, html: (p) => {
@@ -1479,7 +1451,7 @@
   window.ArcEntities = { ...entities$1 };
   window.ArcModules = { registry, groups, roles, aliases, roleAliases, get: (id) => registry.find((m) => m.id === (aliases[id] || id)) };
   window.ArcRouter = router;
-  window.ArcDirectories = { directory, supplierForm };
+  window.ArcDirectories = { directory };
   window.ArcLoad = loadModule;
   installLazyModules();
   startDataEvents();

@@ -34,7 +34,7 @@ test.describe('Proveedores — central directory', () => {
   test('lists suppliers coming from the central table, not localStorage', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-ct-kind="suppliers"]');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
 
     await expect(page.locator('#ctTable')).toContainText('Proveedora Nacional S.A.');
     await expect(page.locator('#ctTable')).toContainText('TecnoSuministros Ecuador');
@@ -45,14 +45,14 @@ test.describe('Proveedores — central directory', () => {
   test('saving a new supplier writes it to the central table', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-ct-kind="suppliers"]');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
     await expect(page.locator('#ctTable')).toContainText('Proveedora Nacional S.A.');
 
-    await page.click('#ctNew');await page.click('dialog [data-contact-kind="suppliers"]');
-    await page.fill('#supName', 'Papelera del Sur');
-    await page.fill('#supTax', '0912345678001');
-    await page.fill('#supCity', 'Cuenca, Ecuador');
-    await page.click('#supSave');
+    await page.click('#ctNew');await page.selectOption('#ctType', 'suppliers');
+    await page.fill('#ctf-name', 'Papelera del Sur');
+    await page.fill('#ctf-ident', '0912345678001');
+    await page.fill('#ctf-city', 'Cuenca, Ecuador');
+    await page.click('#ctSave');
 
     await expect.poll(() =>
       page.evaluate(() => window.__DB.suppliers.map(s => s.name))
@@ -69,7 +69,7 @@ test.describe('Proveedores — central directory', () => {
 
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-ct-kind="suppliers"]');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
     await expect(page.locator('#ctTable')).toContainText('TecnoSuministros Ecuador');
 
     await page.click('#ctTable [data-ct-archive="suppliers:sup2"]');
@@ -85,7 +85,7 @@ test.describe('Proveedores — central directory', () => {
 
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');await page.click('[data-ct-kind="suppliers"]');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="contacts"]');
     await page.click('#ctTable [data-ct-archive="suppliers:sup2"]');
     await expect(page.locator('#ctTable')).not.toContainText('TecnoSuministros Ecuador');
 

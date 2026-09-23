@@ -17,10 +17,10 @@
 <link rel="apple-touch-icon" href="architect-app-icon.png?v=20260919-brand2">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=692d491847c7"></script>
+<script src="gama-i18n-catalog.js?v=979f319bf5c0"></script>
 <script src="gama-i18n.js?v=9adc7e08b652"></script>
-<script src="architect-assets.js?v=2284a73e697d"></script>
-<script src="architect-core.js?v=e44f10d43a48"></script>
+<script src="architect-assets.js?v=518fb5b7465d"></script>
+<script src="architect-core.js?v=a5e630db212d"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=23a8e1087e3f"></script>
 <title>Architect ERP</title>
@@ -42,7 +42,7 @@
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=cc2cf3b75cb1">
-<link rel="stylesheet" href="architect-components.css?v=d4aca60be017">
+<link rel="stylesheet" href="architect-components.css?v=1ec9f184e577">
 <link rel="stylesheet" href="architect-ui.css?v=0e576e063381">
 <link rel="stylesheet" href="architect-shell.css?v=6d599b3978fb">
 <link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
@@ -118,29 +118,6 @@
 <input type="hidden" id="editingProductId">
 </div>
 <div class="arcPanel card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
-</section>
-
-
-<section id="clients">
-<div class="arcPanel card">
-<h2 data-gi=997508004e7f>👥 Ficha del cliente</h2>
-<div class="row">
-<div><label data-gi=b70f3ddbd244>Nombre / Razón social *</label><input id="cName"></div>
-<div><label data-gi=926db6e85984>Identificación *</label><input id="cId" placeholder="RUC / Cédula / Pasaporte"></div>
-<div><label data-gi=05a0443a2e63>Tipo de identificación</label><select id="cIdType"><option>RUC</option><option data-gi=9e853ed1b113>Cédula</option><option data-gi=35d355d3f033>Pasaporte</option></select></div>
-<div><label data-gi=2af66cb65da8>Dirección</label><input id="cAddress"></div>
-<div><label data-gi=f1186abd0b8b>Teléfono</label><input id="cPhone" type="tel"></div>
-<div><label data-gi=ec64dc30a483>Correo electrónico</label><input id="cEmail" type="email"></div>
-<div><label data-gi=efcbd8e9deb9>Ciudad</label><input id="cCity"></div>
-<div><label data-gi=685531279037>Provincia</label><input id="cProvince"></div>
-<div><label data-gi=304243e85f24>Categoría de precios</label><select id="cCategory"><option value="A" data-gi=837ad5f0c4eb>A · Mayorista (por defecto)</option><option value="B" data-gi=a717b8976df3>B · Venta al detalle</option><option value="C" data-gi=d05567974d8c>C · Contrato especial (tarifa)</option></select></div>
-<div><label data-gi-live data-gi=157758d72518>Plazo de pago desde la entrega (días) *</label><input id="cPaymentTerms" type="number" min="0" max="3650" step="1" required inputmode="numeric"><small data-gi-live data-gi=8ca8d69b6e80>0 = pago a la entrega. Se aplica a las facturas pendientes; los pagos completos conservan su plazo.</small></div>
-<div><label data-gi=8ef60b6d94c0>Observaciones</label><input id="cNotes"></div>
-</div>
-<p class="muted" data-gi=9bb856df8bf1>La categoría decide el precio de venta: A aplica el precio mayorista de la ficha, B el precio al detalle, y C el precio pactado en su tarifa — si un producto no está en la tarifa, se factura al precio mayorista (Categoría A).</p>
-<input type="hidden" id="editingClientId">
-<div class="actions"><button class="arcButton primary" onclick="saveClient()" data-gi=c3e16e4741b1>💾 Guardar cliente</button><button class="arcButton secondary" onclick="clearClientForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
-</div>
 </section>
 
 
@@ -277,24 +254,8 @@ function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return al
 function renderProducts(filter=''){populateSupplierSelect();if(window.GamaCloud)window.ArcDirectories.directory('products',filter)}
 
 
-function saveClient(){
- const name=$('cName').value.trim(),id=$('cId').value.trim();
- if(!name||!id)return alert('El nombre y la identificación son obligatorios.');
- const editing=$('editingClientId').value;
- if(!editing && db.clients.some(c=>c.id===id))return alert('Ya existe un cliente con esta identificación.');
- let c=editing?db.clients.find(x=>x.id===editing):null;
- if(c){Object.assign(c,{name,id,idType:$('cIdType').value,address:$('cAddress').value.trim(),phone:$('cPhone').value.trim(),email:$('cEmail').value.trim(),city:$('cCity').value.trim(),province:$('cProvince').value.trim(),category:$('cCategory').value||'A',notes:$('cNotes').value.trim()});alert('Cliente actualizado.')}
- else{db.clients.push({id,name,idType:$('cIdType').value,address:$('cAddress').value.trim(),phone:$('cPhone').value.trim(),email:$('cEmail').value.trim(),city:$('cCity').value.trim(),province:$('cProvince').value.trim(),category:$('cCategory').value||'A',notes:$('cNotes').value.trim()});alert('Cliente guardado.')}
- clearClientForm();save()
-}
-function editClient(id){
- const c=db.clients.find(x=>x.id===id);if(!c)return;
- let pmHost=document.getElementById('pmCustomerProjects');if(!pmHost){pmHost=document.createElement('div');pmHost.id='pmCustomerProjects';(document.getElementById('contactsClients')||document.getElementById('clients')).appendChild(pmHost)}pmHost.innerHTML='';window.GamaProjects?.customerProjects(c.cloudId||c.id,pmHost);
- $('editingClientId').value=c.id;$('cName').value=c.name;$('cId').value=c.id;$('cIdType').value=c.idType||'RUC';$('cAddress').value=c.address||'';$('cPhone').value=c.phone||'';$('cEmail').value=c.email||'';$('cCity').value=c.city||'';$('cProvince').value=c.province||'';$('cCategory').value=c.category||'A';$('cNotes').value=c.notes||'';$('cPaymentTerms').value=c.paymentTermsDays??'';
- if(window.GamaContacts)window.GamaContacts.edit('clients');else showTab('clients',null)
-}
-function clearClientForm(){['cName','cId','cAddress','cPhone','cEmail','cCity','cProvince','cNotes','cPaymentTerms','editingClientId'].forEach(id=>$(id).value='');$('cIdType').value='RUC';$('cCategory').value='A'}
-function deleteClient(id){if(!confirm('¿Eliminar este cliente?'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
+// La ficha de cliente vive en Contactos, en su formulario único.
+function editClient(id){const c=(db.clients||[]).find(x=>x.id===id||x.cloudId===id);window.GamaContacts?.edit('clients',c?.cloudId||id)}
 
 function populateClientSelect(){
  const current=$('clientSelect').value;
@@ -515,7 +476,7 @@ showTab('mainmenu',null);
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
 <script src="architect-identity.js?v=b7f3be4936e3"></script>
 <script src="gama-supabase.js?v=ac622d27b8be"></script>
-<script src="gama-central-sync.js?v=9ece821bea34"></script>
+<script src="gama-central-sync.js?v=600ce34d87f1"></script>
 <script src="gama-purchases-v14.js?v=6fb2f67043f7"></script>
 <script src="gama-proveedores-matriz.js?v=60d0eb7a1b04"></script>
 <script src="gama-client-catalog.js?v=143667d5e727"></script>
@@ -529,8 +490,8 @@ showTab('mainmenu',null);
 <script src="gama-crm-leads.js?v=2b7bbb74786c"></script>
 <script src="gama-crm-opportunities.js?v=f33b824dc4a6"></script>
 <script src="gama-crm-activities.js?v=19c9cd8b1885"></script>
-<script src="gama-crm-contacts.js?v=3f31a7af87e3"></script>
-<script src="gama-contacts.js?v=64acb5b89bd6"></script>
+<script src="gama-crm-contacts.js?v=ff7774900a4b"></script>
+<script src="gama-contacts.js?v=2c062a0c1536"></script>
 <script src="gama-crm-reports.js?v=bb5b531c8e6e"></script>
 <script src="gama-crm-targets.js?v=8c8e12c834ca"></script>
 <script src="gama-hr-p1.js?v=08c7df8bb629"></script>
@@ -550,7 +511,7 @@ showTab('mainmenu',null);
 <script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
 <script src="gama-projects.js?v=0729ea24ff71"></script>
 <script src="gama-knowledge.js?v=268322cac710"></script>
-<script src="gama-payments.js?v=768ed8689194"></script>
+<script src="gama-payments.js?v=ba67224475c9"></script>
 <script src="gama-operations.js?v=6661fdcfa994"></script>
 <script src="gama-standard-ui.js?v=9235231a5459"></script>
 
@@ -571,6 +532,6 @@ showTab('mainmenu',null);
 <script src="architect-people.js?v=18a093654b19"></script>
 <script src="architect-access-controls.js?v=a49cc659aedf"></script>
 <script src="architect-barcode-controls.js?v=3d2705707ff5"></script>
-<script src="architect-controls.js?v=81175a027772"></script>
+<script src="architect-controls.js?v=64b5134d8121"></script>
 <script src="architect-pricing.js?v=882bb8b53e7b"></script>
 </body></html>

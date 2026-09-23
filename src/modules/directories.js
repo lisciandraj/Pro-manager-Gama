@@ -1,26 +1,9 @@
 import * as ui from '../ui/components.js';
 import * as data from '../data/service.js';
-import {supplierFields,supplierToRow,legacyProduct} from '../domain/entities.js';
+import {legacyProduct} from '../domain/entities.js';
 import {escapeHtml as esc,translate as t,format} from '../domain/format.js';
 const views=new Map();
 const $=id=>document.getElementById(id);
-const call=async promise=>{const r=await promise;if(r.error)throw r.error;return r.data;};
-/** Supplier sheet on its own: Contactos lists every contact in one table and opens this form to create or edit one. */
-export function supplierForm(host,{supplier=null,onDone=()=>{}}={}) {
-  views.get('supplierForm')?.dispose();
-  host.innerHTML=`<div class="arcPanel gamaPMForm"><h3 id="supFormTitle">${esc(t(supplier?'Editar proveedor':'Nuevo proveedor'))}</h3><form id="supForm" class="arcForm"><div class="arcFormGrid">${supplierFields.map(field=>ui.field({...field,value:supplier?.[field.key]||''})).join('')}</div>${ui.toolbar(ui.button({id:'supSave',type:'submit',variant:'primary',label:t('＋ Guardar proveedor')})+ui.button({id:'supClear',label:t('Cancelar')}))}<p id="supMsg" role="alert" class="arcFormError"></p></form></div>`;
-  $('supClear').onclick=()=>onDone(false);
-  const formApi=ui.bindForm($('supForm'),async()=>{
-    const value=Object.fromEntries(supplierFields.map(f=>[f.key,$(f.id).value.trim()]));
-    if(!value.name)throw Error(t('El nombre del proveedor es obligatorio.'));
-    const payload=supplierToRow({...supplier,...value,active:supplier?.active!==false});
-    // Country fields are not on this form; leave their database defaults intact.
-    if(!supplier)for(const key of ['country','province','postal_code'])delete payload[key];
-    await call(supplier?window.GamaCloud.update('suppliers',supplier.id,payload):window.GamaCloud.insert('suppliers',payload));
-    data.invalidate('suppliers');window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'suppliers'}}));onDone(true);
-  });
-  const view={dispose(){formApi.dispose();}};views.set('supplierForm',view);ui.mount(host);return()=>view.dispose();
-}
 const directoryColumns={
  products:[
   {label:'Foto',decorative:true,html:p=>window.gamaPhotoCell?.(legacyProduct({id:p.id,name:p.name,has_photo:p.hasPhoto}))||''},

@@ -18,7 +18,7 @@ test('the contacts table pages and searches every supplier, and editing preserve
  await page.fill('#ctSearch','Supplier 234');
  await expect(page.locator('#ctTable tbody tr')).toHaveCount(1);
  await expect(page.locator('#ctTable')).toContainText('TAX-234');
- await page.locator('#ctTable [data-ct-edit]').click();await page.fill('#supName','Supplier 234 updated');await page.locator('#supSave').click();
+ await page.locator('#ctTable [data-ct-edit]').click();await page.fill('#ctf-name','Supplier 234 updated');await page.locator('#ctSave').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').name)).toBe('Supplier 234 updated');
  expect(await page.evaluate(()=>window.__DB.suppliers.find(s=>s.id==='supplier-234').country)).toBe('Ecuador');
  page.on('dialog',dialog=>dialog.accept());
@@ -30,16 +30,16 @@ test('the contacts table pages and searches every supplier, and editing preserve
 });
 test('shared form blocks duplicate requests, reports failures and allows a retry',async({page})=>{
  await boot(page);await page.evaluate(()=>window.ArcRouter.open('suppliers'));
- await page.locator('#ctNew').click();await page.locator('dialog [data-contact-kind="suppliers"]').click();
- await page.fill('#supName','New supplier');
+ await page.locator('#ctNew').click();await page.locator('#ctType').selectOption('suppliers');
+ await page.fill('#ctf-name','New supplier');
  await page.evaluate(()=>{
   const original=window.GamaCloud.insert;window.__submissions=0;
   window.GamaCloud.insert=async(...args)=>{window.__submissions++;await new Promise(r=>setTimeout(r,150));if(window.__submissions===1)return {error:{message:'NETWORK_ERROR'}};return original(...args);};
-  const form=document.getElementById('supForm');form.requestSubmit();form.requestSubmit();
+  const form=document.getElementById('ctForm');form.requestSubmit();form.requestSubmit();
  });
- await expect(page.locator('#supSave')).toBeDisabled();await expect(page.locator('#supMsg')).not.toBeEmpty();
- expect(await page.evaluate(()=>window.__submissions)).toBe(1);await expect(page.locator('#supName')).toHaveValue('New supplier');
- await page.locator('#supSave').click();
+ await expect(page.locator('#ctSave')).toBeDisabled();await expect(page.locator('#ctMsg')).not.toBeEmpty();
+ expect(await page.evaluate(()=>window.__submissions)).toBe(1);await expect(page.locator('#ctf-name')).toHaveValue('New supplier');
+ await page.locator('#ctSave').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.filter(s=>s.name==='New supplier').length)).toBe(1);
 });
 test('optional module loader shares concurrent loads and the router refuses unauthorized entry',async({page})=>{

@@ -1,6 +1,6 @@
 {
-  "name": "ARCHITECT ERP",
-  "short_name": "Architect",
+  "name": "COCO ERP",
+  "short_name": "Coco ERP",
   "description": "Inventario, compras, ventas, logística y facturación en una sola aplicación.",
   "lang": "es",
   "start_url": "./?v=15",
@@ -10,8 +10,14 @@
   "theme_color": "#122E46",
   "icons": [
     {
-      "src": "architect-app-icon.png?v=20260919-brand2",
-      "sizes": "1254x1254",
+      "src": "coco-erp-icon-512.png?v=20260923-coco1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "coco-erp-icon-192.png?v=20260923-coco1",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     }

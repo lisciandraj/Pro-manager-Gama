@@ -1148,6 +1148,12 @@
       "name": "payments_tab_of_quotes",
       "file": "20260923090300_payments_tab_of_quotes.sql",
       "sha256": "ca66d23df65ef44755de3af68719d7333c1b43510cf2fbb138d0e5ca2c3a1039"
+    },
+    {
+      "version": "20260923102828",
+      "name": "coco_erp_brand",
+      "file": "20260923102828_coco_erp_brand.sql",
+      "sha256": "c3e01bda8c31daea3f63a9bcaa6daae81049902036f48edd4e9139c4c5f8b664"
     }
   ]
 }

@@ -491,7 +491,7 @@ async function creditForm(d){
  try{
   const p=await rpc('credit_preview',{id:d.id});
   window.GamaSales.modal(T('Emitir un abono'),
-   `<p>${tr('Architect calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.')}</p>
+   `<p>${tr('Coco ERP calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.')}</p>
     <dl class="grDl">
      <dt data-gi-live data-gi=52c5bbc8a4eb>Factura</dt><dd>${esc(d.documents?.invoice?.number||'—')}</dd>
      <dt data-gi-live data-gi=42adf2f63a2c>Total de la factura</dt><dd>${esc(money(p.invoice_total))}</dd>

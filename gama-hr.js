@@ -76,7 +76,7 @@ function onLeaveToday(){
 async function load(){
  const version=++loadVersion;
  const api=C();
- if(!api){msg('La conexión con la nube de Architect ERP no está disponible.',true);return}
+ if(!api){msg('La conexión con la nube de Coco ERP no está disponible.',true);return}
  try{
   const [e,a,ep,ap,ses]=await Promise.all([
    api.list('hr_employees',{order:'full_name',ascending:true}),
@@ -297,7 +297,7 @@ function employeesTab(){
    </div>
    <label data-gi=f5500ac97424>Cuenta de acceso</label>
    <select id="hrAccount">
-    <option value="" data-gi=c202487fcbd6>Sin cuenta — no puede entrar en Architect</option>
+    <option value="" data-gi=1ca85c1d328a>Sin cuenta — no puede entrar en Coco ERP</option>
     ${perfiles.map(u=>`<option value="${esc(u.id)}">${esc(u.full_name||u.email||u.id)}${u.email?' · '+esc(u.email):''}</option>`).join('')}
    </select>
    <div class="muted" style="font-size:11.5px;margin-top:-2px" data-gi=3acee7e660f1>Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>

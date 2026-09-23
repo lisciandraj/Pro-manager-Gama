@@ -49,7 +49,7 @@ function desde(){
 
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Coco ERP no está disponible.');
  const ref=await CRM.referenciales();
  const gente=await CRM.comerciales();
  const d=desde();

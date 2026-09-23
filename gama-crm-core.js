@@ -103,7 +103,7 @@ function puedeUsar(){return esAdmin()||COMERCIAL.includes(rol())}
 let ref=null;
 async function referenciales(recargar){
  if(ref&&!recargar)return ref;
- const api=C();if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
+ const api=C();if(!api)throw new Error('La conexión con la nube de Coco ERP no está disponible.');
  const [e,o,m]=await Promise.all([
   api.list('crm_pipeline_stages',{select:COLS.stages,order:'sort_order',ascending:true}),
   api.list('crm_sources',{select:COLS.sources,order:'sort_order',ascending:true}),

@@ -233,7 +233,7 @@
     const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: ${GamaCurrency.format(o.total)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Enterprise Resource Planning`;
     const orderPdf={number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name,supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:supplier.address||'',items,total:Number(o.total||0),notes:o.notes||''};
     if(!supplier.email)detailMsg('Este proveedor no tiene un correo registrado: complétalo manualmente al enviar.');
-    await window.GamaPurchaseOrderPdf.send({o:orderPdf,email:supplier.email||'',subject:'Pedido '+o.order_number+' — Architect ERP',body,filename:'Pedido-'+o.order_number+'.pdf'});
+    await window.GamaPurchaseOrderPdf.send({o:orderPdf,email:supplier.email||'',subject:'Pedido '+o.order_number+' — Coco ERP',body,filename:'Pedido-'+o.order_number+'.pdf'});
     const r=await C().update('purchase_orders',id,{status:'sent',updated_at:new Date().toISOString()});
     if(r.error)return detailMsg('El correo se preparó, pero no se pudo actualizar el estado del pedido: '+r.error.message);
     await load();

@@ -1,6 +1,6 @@
 # Spanish source	French	English
 Menú principal	Menu principal	Main menu
-Accede rápidamente a todas las funciones de Architect ERP.	Accédez rapidement à toutes les fonctions de Architect ERP.	Quickly access all Architect ERP features.
+Accede rápidamente a todas las funciones de Coco ERP.	Accédez rapidement à toutes les fonctions de Coco ERP.	Quickly access all Coco ERP features.
 Buscar un módulo	Rechercher un module	Search modules
 Buscar un módulo…	Rechercher un module…	Search modules…
 Ningún módulo coincide con la búsqueda.	Aucun module ne correspond à la recherche.	No modules match your search.
@@ -152,7 +152,7 @@ Lista de clientes	Liste des clients	Customer list
 Exportar	Exporter	Export
 Excel — Productos + Clientes + Auditoría	Excel — Produits + Clients + Audit	Excel — Products + Customers + Audit
 Copia completa JSON	Sauvegarde complète JSON	Full JSON backup
-Importa el Excel generado por Architect. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel Architect. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a Architect Excel file. Products are merged by barcode and customers by ID.
+Importa el Excel generado por Architect. Productos se fusionan por código de barras y Clientes por identificación.	Importez le fichier Excel Architect. Les produits sont fusionnés par code-barres et les clients par identifiant.	Import a Coco ERP Excel file. Products are merged by barcode and customers by ID.
 Importar / fusionar Excel	Importer / fusionner Excel	Import / merge Excel
 Restaurar JSON	Restaurer un JSON	Restore JSON
 Restaurar copia completa	Restaurer la sauvegarde complète	Restore full backup
@@ -239,7 +239,7 @@ Sin datos	Aucune donnée	No data
 Sin movimientos.	Aucun mouvement.	No movements.
 Valor a precio de compra	Valeur au prix d’achat	Value at purchase price
 Ningún producto coincide con el filtro.	Aucun produit ne correspond au filtre.	No products match the filter.
-Sin conexión con Architect Cloud	Connexion à Architect Cloud indisponible	No connection to Architect Cloud
+Sin conexión con Coco ERP	Connexion à Coco ERP indisponible	No connection to Coco ERP
 Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.	Les comptes sont centralisés dans le cloud. Vérifiez votre connexion Internet et réessayez.	Accounts are managed in the cloud. Check your internet connection and try again.
 Reintentar	Réessayer	Retry
 Cerrar sesión	Se déconnecter	Sign out
@@ -262,7 +262,7 @@ sin IVA	HT	excluding VAT
 Precio por unidad	Prix à l’unité	Price per unit
 No se encontraron productos.	Aucun produit trouvé.	No products found.
 Iniciar sesión	Se connecter	Sign in
-Inicie sesión con su cuenta Architect centralizada.	Connectez-vous avec votre compte Architect.	Sign in with your Architect account.
+Inicie sesión con su cuenta Coco ERP centralizada.	Connectez-vous avec votre compte Architect.	Sign in with your Coco ERP account.
 Contraseña	Mot de passe	Password
 No se encontraron usuarios centralizados.	Aucun utilisateur trouvé.	No users found.
 Cerrar	Fermer	Close
@@ -531,7 +531,7 @@ Fecha de baja	Date de sortie	End date
 Sueldo mensual (USD)	Salaire mensuel (USD)	Monthly salary (USD)
 Vacaciones al año (días laborables)	Congés annuels (jours ouvrés)	Annual leave (working days)
 Cuenta de acceso	Compte d’accès	Access account
-Sin cuenta — no puede entrar en Architect	Sans compte — pas d’accès à Architect	No account — cannot access Architect
+Sin cuenta — no puede entrar en Coco ERP	Sans compte — pas d’accès à Coco ERP	No account — cannot access Coco ERP
 Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.	Lier un compte permet à la personne de consulter sa fiche, demander des congés et voir le calendrier. Sans compte, seuls les gestionnaires gèrent la fiche.	Linking an account lets the person view their details, request leave and check the team calendar. Without an account, only managers handle the record.
 Plantilla	Effectif	Staff
 Empleado	Employé	Employee
@@ -575,7 +575,7 @@ Se copiará el presupuesto aceptado. La factura interna alimenta los KPI, el sal
 Fecha de factura	Date de facture	Invoice date
 Vencimiento	Échéance	Due date
 Documento interno · sin validez fiscal	Document interne · sans valeur fiscale	Internal document · not valid for tax purposes
-Descargar PDF Architect	Télécharger le PDF Architect	Download Architect PDF
+Descargar PDF Coco ERP	Télécharger le PDF Coco ERP	Download Coco ERP PDF
 Copiar datos	Copier les données	Copy data
 Datos para el software de facturación	Données pour le logiciel de facturation	Data for billing software
 Número externo	Numéro externe	External number
@@ -852,7 +852,7 @@ PDF / XML (opcional, hasta 2 archivos de 5 MB)	PDF / XML (facultatif, 2 fichiers
 Expediciones cubiertas	Expéditions couvertes	Covered shipments
 Marca las salidas incluidas en este documento.	Cochez les expéditions incluses dans ce document.	Select the shipments included in this document.
 Todavía no hay expediciones: la factura quedará vinculada al pedido y podrá asociarse a una salida más adelante.	Aucune expédition : la facture sera liée à la commande et pourra être associée à une expédition ultérieurement.	No shipments yet: the invoice will be linked to the order and can be associated with a shipment later.
-Copia los datos del documento emitido en tu otro software. El estado es una declaración manual. Architect comprobará el receptor y los importes; no emitirá una factura.	Copiez les données du document émis dans votre autre logiciel. Le statut est déclaré manuellement. Architect vérifie le destinataire et les montants sans émettre de facture.	Copy the document issued in your other software. Status is manually declared. Architect checks the recipient and amounts without issuing an invoice.
+Copia los datos del documento emitido en tu otro software. El estado es una declaración manual. Coco ERP comprobará el receptor y los importes; no emitirá una factura.	Copiez les données du document émis dans votre autre logiciel. Le statut est déclaré manuellement. Coco ERP vérifie le destinataire et les montants sans émettre de facture.	Copy the document issued in your other software. Status is manually declared. Coco ERP checks the recipient and amounts without issuing an invoice.
 Número de factura	Numéro de facture	Invoice number
 RUC del emisor	RUC de l’émetteur	Issuer RUC
 Identificación del receptor	Identifiant du destinataire	Recipient ID
@@ -970,7 +970,7 @@ Pendientes	En attente	Pending
 Entregadas	Livrées	Delivered
 Excepciones	Exceptions	Exceptions
 Rutas	Tournées	Routes
-Architect TMS — hoja de ruta	Architect TMS — feuille de route	Architect TMS — route sheet
+Coco ERP — hoja de ruta	Coco ERP — feuille de route	Coco ERP — route sheet
 Comprobando expedición y salida…	Vérification de l’expédition et du départ…	Checking shipment and departure…
 No se pudo comprobar la salida. Reintenta antes de capturar la prueba.	Impossible de vérifier le départ. Réessayez avant de saisir la preuve.	Could not verify departure. Retry before capturing proof.
 Ir al control de carga	Accéder au contrôle du chargement	Go to loading check
@@ -1136,7 +1136,7 @@ Apunte la cámara al código de barras	Pointez l’appareil photo vers le code-b
 Cámara autorizada. Toca «Iniciar vídeo» para mostrar la imagen.	Appareil photo autorisé. Touchez « Démarrer la vidéo » pour afficher l’image.	Camera authorised. Tap “Start video” to show the image.
 Iniciar vídeo	Démarrer la vidéo	Start video
 El navegador no permite acceder a la cámara.	Le navigateur bloque l’accès à l’appareil photo.	The browser does not allow camera access.
-En iPhone: abre Architect en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir Architect tras cambiar el permiso.	Sur iPhone : ouvrez Architect dans Safari, puis menu de la page → réglages du site → Appareil photo, et autorisez l’accès. Touchez ensuite Réessayer l’appareil photo. Depuis l’icône d’accueil, fermez et rouvrez Architect après modification de l’autorisation.	On iPhone: open Architect in Safari, then page menu → website settings → Camera, and allow access. Tap Retry camera. If opened from the home screen, close and reopen Architect after changing permission.
+En iPhone: abre Coco ERP en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir Coco ERP tras cambiar el permiso.	Sur iPhone : ouvrez Coco ERP dans Safari, puis menu de la page → réglages du site → Appareil photo, et autorisez l’accès. Touchez ensuite Réessayer l’appareil photo. Depuis l’icône d’accueil, fermez et rouvrez Coco ERP après modification de l’autorisation.	On iPhone: open Coco ERP in Safari, then page menu → website settings → Camera, and allow access. Tap Retry camera. If opened from the home screen, close and reopen Coco ERP after changing permission.
 No se pudo cargar el lector. Comprueba tu conexión y reintenta.	Impossible de charger le lecteur. Vérifiez votre connexion et réessayez.	Could not load the scanner. Check your connection and retry.
 No se encontró una cámara disponible.	Aucun appareil photo disponible.	No available camera found.
 La cámara está ocupada. Cierra otras aplicaciones que la utilicen y reintenta.	L’appareil photo est occupé. Fermez les autres applications qui l’utilisent et réessayez.	The camera is busy. Close other apps using it and retry.
@@ -1171,7 +1171,7 @@ Página {0}	Page {0}	Page {0}
 {0} de {1}	{0} sur {1}	{0} of {1}
 {0} facturas internas / externas	{0} factures internes / externes	{0} internal / external invoices
 En el pedido ({0})	Dans la commande ({0})	In the order ({0})
-Activa o desactiva los módulos de Architect.	Activez ou désactivez les modules Architect.	Enable or disable Architect modules.
+Activa o desactiva los módulos de Architect.	Activez ou désactivez les modules Architect.	Enable or disable Coco ERP modules.
 Albarán, lote, transporte, incidencia…	Bon de livraison, lot, transport, incident…	Delivery note, batch, transport, issue…
 Archivar contacto	Archiver le contact	Archive contact
 Archivar prospecto	Archiver le prospect	Archive lead
@@ -1239,7 +1239,7 @@ Quitar del pedido	Retirer de la commande	Remove from order
 Quitar el objetivo	Supprimer l’objectif	Remove target
 Quitar la línea	Supprimer la ligne	Remove line
 Quitar uno	Retirer une unité	Remove one
-Quién entra en Architect y con qué permisos.	Qui accède à Architect et avec quels droits.	Who accesses Architect and with which permissions.
+Quién entra en Coco ERP y con qué permisos.	Qui accède à Coco ERP et avec quels droits.	Who accesses Coco ERP and with which permissions.
 Restaurar contacto	Restaurer le contact	Restore contact
 Restaurar prospecto	Restaurer le prospect	Restore lead
 Retirar el precio especial	Retirer le prix spécial	Remove special price
@@ -1313,7 +1313,7 @@ Correo electrónico y contraseña son obligatorios.	L’e-mail et le mot de pass
 Iniciando sesión…	Connexion…	Signing in…
 No se puede iniciar sesión. Compruebe sus credenciales.	Connexion impossible. Vérifiez vos identifiants.	Unable to sign in. Check your credentials.
 Cuenta no autorizada o desactivada.	Compte non autorisé ou désactivé.	Account not authorised or disabled.
-No se puede conectar con Architect Cloud. Compruebe su conexión e inténtelo de nuevo.	Connexion à Architect Cloud impossible. Vérifiez votre connexion et réessayez.	Unable to connect to Architect Cloud. Check your connection and try again.
+No se puede conectar con Coco ERP. Compruebe su conexión e inténtelo de nuevo.	Connexion à Coco ERP impossible. Vérifiez votre connexion et réessayez.	Unable to connect to Coco ERP. Check your connection and try again.
 Horarios y fichajes	Horaires et pointages	Schedules and attendance
 Reglas de vacaciones	Règles de congés	Leave rules
 Documentos e historial	Documents et historique	Documents and history
@@ -1753,7 +1753,7 @@ Puntos de atención	Points d’attention	Things to look at
 Movimientos bancarios sin conciliar	Mouvements bancaires non rapprochés	Unreconciled bank movements
 Gastos sin justificante	Dépenses sans justificatif	Expenses without a receipt
 Asientos descuadrados	Écritures déséquilibrées	Unbalanced entries
-Estas alertas también aparecen en el Centro de acción de Architect.	Ces alertes apparaissent aussi dans le Centre d’actions de Architect.	These alerts also appear in the Architect action centre.
+Estas alertas también aparecen en el Centro de acción de Architect.	Ces alertes apparaissent aussi dans le Centre d’actions de Architect.	These alerts also appear in the Coco ERP action centre.
 Balance de antigüedad	Balance âgée	Ageing balance
 ¿Quién nos debe dinero?	Qui nous doit de l’argent ?	Who owes us money?
 ¿A quién debemos dinero?	À qui devons-nous de l’argent ?	Who do we owe money to?
@@ -1810,7 +1810,7 @@ Conciliación bancaria	Rapprochement bancaire	Bank reconciliation
 Importar CSV	Importer un CSV	Import CSV
 Conciliar	Rapprocher	Reconcile
 Deshacer	Annuler le rapprochement	Undo
-Architect propone correspondencias; nunca concilia solo. Tú validas cada asociación.	Architect propose des correspondances ; il ne rapproche jamais tout seul. Vous validez chaque association.	Architect proposes matches; it never reconciles on its own. You approve every match.
+Coco ERP propone correspondencias; nunca concilia solo. Tú validas cada asociación.	Coco ERP propose des correspondances ; il ne rapproche jamais tout seul. Vous validez chaque association.	Coco ERP proposes matches; it never reconciles on its own. You approve every match.
 Cuenta contable	Compte comptable	Ledger account
 Movimientos de la cuenta	Mouvements du compte	Account movements
 Entradas	Entrées	In
@@ -1821,7 +1821,7 @@ Columnas esperadas: fecha, referencia, descripción e importe. Un importe negati
 Líneas detectadas	Lignes détectées	Lines detected
 No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.	Aucune ligne reconnue. Vérifiez le séparateur et le format de la date.	No line recognised. Check the separator and the date format.
 Conciliar el movimiento	Rapprocher le mouvement	Reconcile the movement
-Architect propone estas correspondencias. Elige la correcta; ninguna se aplica sola.	Architect propose ces correspondances. Choisissez la bonne ; aucune ne s’applique seule.	Architect proposes these matches. Pick the right one; none is applied on its own.
+Coco ERP propone estas correspondencias. Elige la correcta; ninguna se aplica sola.	Coco ERP propose ces correspondances. Choisissez la bonne ; aucune ne s’applique seule.	Coco ERP proposes these matches. Pick the right one; none is applied on its own.
 Ignorar este movimiento	Ignorer ce mouvement	Ignore this movement
 No se encontró ninguna correspondencia. Puedes ignorar el movimiento y tratarlo más tarde.	Aucune correspondance trouvée. Vous pouvez ignorer le mouvement et le traiter plus tard.	No match found. You can ignore the movement and deal with it later.
 Asientos y diarios	Écritures et journaux	Entries and journals
@@ -1846,7 +1846,7 @@ Uso	Usage	Used for
 Recaudado	Collectée	Collected
 Deducible	Déductible	Deductible
 Ambos	Les deux	Both
-Architect no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.	Architect ne fournit aucun taux national préconfiguré : définissez ici ceux qui s’appliquent à votre entreprise et leur date d’entrée en vigueur.	Architect ships no preconfigured national rate: define here the ones that apply to your company and when they take effect.
+Coco ERP no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.	Coco ERP ne fournit aucun taux national préconfiguré : définissez ici ceux qui s’appliquent à votre entreprise et leur date d’entrée en vigueur.	Coco ERP ships no preconfigured national rate: define here the ones that apply to your company and when they take effect.
 Tipo (%)	Taux (%)	Rate (%)
 País (ISO)	Pays (ISO)	Country (ISO)
 Cuenta de resultados	Compte de résultat	Profit and loss
@@ -1873,10 +1873,10 @@ Todavía no hay periodos. Se crean solos al contabilizar el primer documento del
 Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.	Une période clôturée refuse toute écriture nouvelle, modifiée ou supprimée à ces dates. Seul un administrateur disposant du droit de clôture peut la rouvrir, et la réouverture reste dans l’audit.	A closed period refuses any entry added, changed or removed on those dates. Only an administrator with the closing right can reopen it, and the reopening stays in the audit trail.
 Divisa (ISO 4217)	Devise (ISO 4217)	Currency (ISO 4217)
 Primer mes del ejercicio	Premier mois de l’exercice	First month of the financial year
-La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.	La devise s’applique à tout Architect : écrans, rapports et documents PDF.	The currency applies to all of Architect: screens, reports and PDF documents.
+La divisa se aplica a todo Coco ERP: pantallas, informes y documentos PDF.	La devise s’applique à tout Coco ERP : écrans, rapports et documents PDF.	The currency applies to all of Coco ERP: screens, reports and PDF documents.
 Cuentas de los asientos automáticos	Comptes des écritures automatiques	Accounts used by automatic entries
 Plan contable	Plan comptable	Chart of accounts
-Architect no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.	Architect n’impose aucun plan comptable national. Renumérotez, renommez et complétez ce plan selon votre pays et votre conseil.	Architect imposes no national chart of accounts. Renumber, rename and extend this chart to suit your country and your adviser.
+Coco ERP no impone ningún plan contable nacional. Renumera, renombra y amplía este plan según tu país y tu asesor.	Coco ERP n’impose aucun plan comptable national. Renumérotez, renommez et complétez ce plan selon votre pays et votre conseil.	Coco ERP imposes no national chart of accounts. Renumber, rename and extend this chart to suit your country and your adviser.
 Cuenta usada por los asientos automáticos: puede renombrarse y renumerarse, pero no cambia de tipo.	Compte utilisé par les écritures automatiques : il peut être renommé et renuméroté, mais ne change pas de type.	Account used by the automatic entries: it can be renamed and renumbered, but its type does not change.
 Permisos de Contabilidad	Droits de Comptabilité	Accounting permissions
 Consultar	Consulter	View
@@ -2167,7 +2167,7 @@ Expide la devolución antes de cerrarla.	Expédie le retour avant de le clôture
 Factura del proveedor	Facture fournisseur	Supplier invoice
 Foto o documento (opcional)	Photo ou document (facultatif)	Photo or document (optional)
 Fotos y documentos	Photos et documents	Photos and documents
-Architect calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.	Architect calcule le montant avec les prix et taxes de la facture d’origine. Tu peux l’ajuster avant de valider.	Architect works out the amount from the prices and taxes on the original invoice. You can adjust it before validating.
+Coco ERP calcula el importe con los precios e impuestos de la factura de origen. Puedes ajustarlo antes de validar.	Coco ERP calcule le montant avec les prix et taxes de la facture d’origine. Tu peux l’ajuster avant de valider.	Coco ERP works out the amount from the prices and taxes on the original invoice. You can adjust it before validating.
 Indica al menos una cantidad a devolver.	Indique au moins une quantité à retourner.	Enter at least one quantity to return.
 Indica el medio de pago.	Indique le moyen de paiement.	Enter the payment method.
 La devolución está cerrada o anulada: ya no se modifica.	Le retour est clôturé ou annulé : il ne se modifie plus.	The return is closed or cancelled: it can no longer be changed.
@@ -2283,14 +2283,14 @@ Configuración del ERP	Configuration de l’ERP	ERP settings
 Copias de seguridad de tus datos	Sauvegardes de vos données	Backups of your data
 Importar datos desde Excel	Importer des données depuis Excel	Import data from Excel
 Abrir el menú	Ouvrir le menu	Open the menu
-Buscar en Architect ERP…	Rechercher dans Architect ERP…	Search Architect ERP…
+Buscar en Coco ERP…	Rechercher dans Coco ERP…	Search Coco ERP…
 Idioma	Langue	Language
 Navegación principal	Navigation principale	Main navigation
 La base de tu negocio	La base de votre entreprise	The foundation of your business
 Cartera en curso	Portefeuille en cours	Open pipeline
 Pedidos en curso	Commandes en cours	Open orders
 Avisos que requieren acción	Avis nécessitant une action	Notices needing action
-La conexión con la nube de Architect ERP no está disponible.	La connexion au cloud Architect ERP n’est pas disponible.	The Architect ERP cloud connection is unavailable.
+La conexión con la nube de Coco ERP no está disponible.	La connexion au cloud Coco ERP n’est pas disponible.	The Coco ERP cloud connection is unavailable.
 Rutas del día y pruebas de entrega	Tournées du jour et preuves de livraison	The day’s routes and proofs of delivery
 Más módulos	Autres modules	More modules
 Tus módulos	Vos modules	Your modules

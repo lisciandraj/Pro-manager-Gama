@@ -36,7 +36,7 @@ function offline(){
  injectCss();
  if($('gamaAclOffline')||session())return;
  const d=document.createElement('div');d.id='gamaAclOffline';
- window.ArcUI.render(d,'<div class="box"><h1 data-gi=49e9fb7cdec7>Sin conexión con Architect Cloud</h1><p data-gi=9f87e11e38b9>Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button class="arcButton" type="button" data-gi=a9254c5f8128>Reintentar</button></div>');
+ window.ArcUI.render(d,'<div class="box"><h1 data-gi=a0c503fa8722>Sin conexión con Coco ERP</h1><p data-gi=9f87e11e38b9>Las cuentas están centralizadas en la nube. Comprueba tu conexión a Internet y vuelve a intentarlo.</p><button class="arcButton" type="button" data-gi=a9254c5f8128>Reintentar</button></div>');
  d.querySelector('button').onclick=()=>location.reload();
  document.body.appendChild(d);
 }

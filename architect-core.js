@@ -65,7 +65,7 @@
     }
   };
   function header({ title = "Módulo", lead = "", module = "" } = {}) {
-    return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module ? ' data-arc-module="' + escapeHtml(module) + '"' : ""} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${escapeHtml(stripIcon(title))}</h2>${lead ? "<p>" + escapeHtml(lead) + "</p>" : ""}</div><div class="gamaStdActions">${button({ label: translate("← Volver al menú"), className: "gamaStdBack", attrs: 'aria-label="' + escapeHtml(translate("Volver al menú")) + '"' })}</div></div>`;
+    return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module ? ' data-arc-module="' + escapeHtml(module) + '"' : ""} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">COCO ERP</div><h2>${escapeHtml(stripIcon(title))}</h2>${lead ? "<p>" + escapeHtml(lead) + "</p>" : ""}</div><div class="gamaStdActions">${button({ label: translate("← Volver al menú"), className: "gamaStdBack", attrs: 'aria-label="' + escapeHtml(translate("Volver al menú")) + '"' })}</div></div>`;
   }
   function headerIcon(root, id = "") {
     var _a;

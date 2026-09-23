@@ -1,4 +1,4 @@
-/* ARCHITECT ERP — El armazón de la aplicación.
+/* COCO ERP — El armazón de la aplicación.
 
    Barra lateral fija a la izquierda, barra superior arriba, contenido en el
    resto. Sustituye a la cabecera azul oscura y a la fila de pestañas del pie
@@ -25,7 +25,8 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
 // Use the original supplied file byte-for-byte, including its slogan and ratio.
-const MARK='<img class="arcLogo" src="architect-menu-logo.png" alt="ARCHITECT ERP" width="1536" height="1024">';
+// Coco ERP: el logo tal cual, sobre su tarjeta blanca; el robot solo cuando la barra está plegada.
+const MARK='<img class="arcLogo" src="coco-erp-wordmark.png" alt="COCO ERP" width="600" height="286"><img class="arcLogoMark" src="coco-erp-icon-180.png" alt="" width="180" height="180">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
@@ -99,10 +100,10 @@ function build(){
 
  const side=document.createElement('aside');
  side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));
- window.ArcUI.render(side,'<a class="arcBrand" href="#mainmenu" aria-label="ARCHITECT ERP">'+MARK+'</a>'
+ window.ArcUI.render(side,'<a class="arcBrand" href="#mainmenu" aria-label="COCO ERP">'+MARK+'</a>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
-   +'<div class="arcFootBrand">ARCHITECT ERP</div>'
+   +'<div class="arcFootBrand">COCO ERP</div>'
    +'<div class="arcFootVersion">'+VERSION+'</div>'
    +'<label class="arcLang">'+svg(ICON.globe)
     +'<span class="gamaVisuallyHidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">'+esc(T('Idioma'))+'</span>'
@@ -114,7 +115,7 @@ function build(){
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
   +'<div class="arcSearch">'+svg(ICON.search)
-   +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Architect ERP…'))+'" aria-label="'+esc(T('Buscar en Architect ERP…'))+'">'
+   +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
    +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-label="'+esc(T('Notificaciones'))+'">'+svg(ICON.bell)

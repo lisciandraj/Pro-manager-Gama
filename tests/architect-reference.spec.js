@@ -14,18 +14,19 @@ test('original logo, six-column reference, translated labels and truthful metric
  await expect(page.locator('.gamaF2KpiValue')).toHaveText([/1.*840/, '7','2','1']);
  await expect(page.locator('.gamaF2Head h1')).toHaveText('Menu principal');
  await expect(page.locator('.gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
- const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight}));
+ const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight*10)/10}));
  // Seis por fila en pantalla de ordenador: la referencia eran cuatro, y con
  // ellas el menú no cabía de un vistazo. Por debajo de 1280 vuelven a ser
  // cuatro, porque a seis el rótulo deja de leerse; eso se comprueba abajo.
- expect(layout).toEqual({columns:6,nav:'rgb(18, 46, 70)',fit:'contain',ratio:1.5});
+ expect(layout).toEqual({columns:6,nav:'rgb(18, 46, 70)',fit:'contain',ratio:2.1});
  await page.setViewportSize({width:1279,height:1000});await page.waitForTimeout(250);
  const estrecho=await page.evaluate(()=>getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length);
  expect(estrecho,'por debajo de 1280 las tarjetas se quedan sin sitio para su rótulo').toBe(4);
  await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(250);
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
- const logo=await page.request.get('/architect-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42');
+ // Coco ERP: el archivo oficial se conserva sin retocar; las variantes se recortan de él.
+ const logo=await page.request.get('/coco-erp-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('c3e75d1cbbf288bd180c62593ea5bad31c2678986804e6b053c8f3bc6d675f15');
 });
 test('customization persists without removing navigation or access to modules',async({page})=>{
  await page.setViewportSize({width:1440,height:900});await boot(page);

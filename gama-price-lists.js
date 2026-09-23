@@ -18,7 +18,7 @@ function msg(t,err){const m=$('plMsg');if(!m)return;m.className='plMsg'+(err?' p
 function fail(e,what){console.warn('[GAMA Tarifas]',what,e);msg(what+' : '+(e&&(e.message||e.details)||e),true)}
 
 async function load(){
- const api=C();if(!api){msg('La conexión con la nube de Architect ERP no está disponible.',true);return}
+ const api=C();if(!api){msg('La conexión con la nube de Coco ERP no está disponible.',true);return}
  try{
   const [c,p]=await Promise.all([
    api.list('customers',{order:'name',ascending:true}),

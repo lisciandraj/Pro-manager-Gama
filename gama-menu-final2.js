@@ -48,7 +48,7 @@ function render(){
  host.replaceChildren();
  const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
  const h=document.createElement('h1');h.setAttribute('data-gi-live','');h.textContent='Menú principal';
- const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Architect ERP.';
+ const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Coco ERP.';
  cabecera.append(h,p);
 
  const fila=document.createElement('div');fila.className='gamaF2Kpis';fila.id='gamaF2Kpis';fila.hidden=true;

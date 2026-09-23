@@ -1,7 +1,7 @@
 # Estanterías simuladas
 
 **Almacenes y existencias → Ubicaciones.** Cada almacén describe sus
-estanterías y Architect genera un espacio de almacenamiento por celda.
+estanterías y Coco ERP genera un espacio de almacenamiento por celda.
 
 ## La referencia AAXX-XX
 

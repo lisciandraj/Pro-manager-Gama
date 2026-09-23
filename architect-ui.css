@@ -1,4 +1,4 @@
-/* ARCHITECT ERP — Design system.
+/* COCO ERP — Design system.
 
    Esta hoja NO inventa nombres de clase: viste los que la aplicación ya usa.
    Ningún módulo tuvo que renombrar nada, ninguna prueba dejó de encontrar su
@@ -275,7 +275,7 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .arcContent :is(.gsDialog,.gaDialog,.grDialog,.gpDialog,dialog){border-radius:var(--radius-lg);box-shadow:var(--arc-sh-3);background:white;color:var(--arc-text)}
 /* Login branding retains the source image intact. */
 #gamaCloudLogin .brand{display:flex;justify-content:center;margin-bottom:22px}
-#gamaCloudLogin .brand img.arcLoginLogo{width:176px;height:auto;aspect-ratio:1;object-fit:contain;border-radius:0}
+#gamaCloudLogin .brand img.arcLoginLogo{width:min(300px,100%);height:auto;object-fit:contain;border-radius:0}
 #gamaCloudLogin .box{border-radius:var(--arc-r-lg);border:1px solid var(--arc-line);box-shadow:var(--arc-sh-3)}
 #gamaCloudLogin button{background:var(--color-primary)}
 

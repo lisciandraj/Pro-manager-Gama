@@ -17,11 +17,11 @@ function header(doc,meta={}){
  doc.setFont('helvetica','bold');doc.setTextColor(...t.ink);doc.setFontSize(16);
  const titles=doc.splitTextToSize(String(title).toUpperCase(),88);doc.text(titles,196,17,{align:'right'});
  doc.setFont('helvetica','normal');let rightY=Math.max(30,17+titles.length*6);
- for(const [value,size] of [[reference,9],[date,9],[detail||'Architect ERP',8]]){doc.setFontSize(size);doc.setTextColor(...muted);const rows=doc.splitTextToSize(String(value||''),88);if(value||size===8)doc.text(rows,196,rightY,{align:'right'});rightY+=rows.length*4+2}
+ for(const [value,size] of [[reference,9],[date,9],[detail||'Coco ERP',8]]){doc.setFontSize(size);doc.setTextColor(...muted);const rows=doc.splitTextToSize(String(value||''),88);if(value||size===8)doc.text(rows,196,rightY,{align:'right'});rightY+=rows.length*4+2}
  const bottom=Math.max(47,leftY+3,rightY);doc.setDrawColor(...t.secondary);doc.setLineWidth(.8);doc.line(14,bottom,196,bottom);doc.setTextColor(...t.ink);doc.setFontSize(10);return bottom+9;
 }
-function footer(doc,note='Documento generado por Architect ERP.'){
- const t=theme(doc.__gamaCompany),name=t.profile.configured?t.profile.legal_name:'Architect ERP',count=doc.getNumberOfPages();
+function footer(doc,note='Documento generado por Coco ERP.'){
+ const t=theme(doc.__gamaCompany),name=t.profile.configured?t.profile.legal_name:'Coco ERP',count=doc.getNumberOfPages();
  for(let i=1;i<=count;i++){doc.setPage(i);doc.setDrawColor(221,230,234);doc.setLineWidth(.3);doc.line(14,278,196,278);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...t.teal);doc.text(doc.splitTextToSize(String(name),166)[0]||'',14,283);doc.setFont('helvetica','normal');doc.setTextColor(...muted);doc.setFontSize(7);doc.text(doc.splitTextToSize(String(note),166).slice(0,2),14,288);doc.text(i+' / '+count,196,283,{align:'right'})}return doc;
 }
 function layout(meta={}){
@@ -33,6 +33,6 @@ function layout(meta={}){
  image(data,title,maxH){api.room(maxH+16);api.text(title,9,true);if(!data){api.text('No se capturó.',9);return}try{const p=doc.getImageProperties(data),k=Math.min(182/p.width,maxH/p.height),w=p.width*k,h=p.height*k;doc.addImage(data,14+(182-w)/2,y,w,h);y+=h+7}catch(_){api.text('No se pudo incluir la imagen registrada.',9)}},
  finish(note){return footer(doc,note)}};return api;
 }
-function label(doc){const t=theme();addLogo(doc,t.logo,4,2,10,8);doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...t.ink);doc.text(doc.splitTextToSize(t.profile.configured?t.profile.legal_name:'Architect ERP',59).slice(0,2),t.logo?16:4,6);doc.setDrawColor(...t.secondary);doc.setLineWidth(.3);doc.line(4,11,76,11)}
+function label(doc){const t=theme();addLogo(doc,t.logo,4,2,10,8);doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(...t.ink);doc.text(doc.splitTextToSize(t.profile.configured?t.profile.legal_name:'Coco ERP',59).slice(0,2),t.logo?16:4,6);doc.setDrawColor(...t.secondary);doc.setLineWidth(.3);doc.line(4,11,76,11)}
 window.GamaPdfTemplate={header,footer,layout,label,theme,get logo(){return theme().logo},get ink(){return theme().ink},get teal(){return theme().teal},get secondary(){return theme().secondary},get onSecondary(){return theme().onSecondary}};
 })();

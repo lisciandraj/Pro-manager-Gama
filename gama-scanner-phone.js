@@ -37,7 +37,7 @@ async function start(id){
   }
   release();retry.textContent='Reintentar cámara';retry.onclick=acquire;
   if(stage==='camera'&&['NotAllowedError','SecurityError'].includes(e?.name)){
-   status.textContent='El navegador no permite acceder a la cámara.';help.hidden=false;help.textContent='En iPhone: abre Architect en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir Architect tras cambiar el permiso.';
+   status.textContent='El navegador no permite acceder a la cámara.';help.hidden=false;help.textContent='En iPhone: abre Coco ERP en Safari, entra en el menú de la página → ajustes del sitio → Cámara y permite el acceso. Después toca Reintentar cámara. Si lo abres desde el icono de inicio, cierra y vuelve a abrir Coco ERP tras cambiar el permiso.';
   }else status.textContent=stage==='decoder'?'No se pudo cargar el lector. Comprueba tu conexión y reintenta.':e?.name==='NotFoundError'?'No se encontró una cámara disponible.':e?.name==='NotReadableError'?'La cámara está ocupada. Cierra otras aplicaciones que la utilicen y reintenta.':'No se pudo iniciar la cámara. Reintenta o introduce el código.';
  }
  async function play(token){if(token!==generation)return;retry.disabled=true;let timer;try{await Promise.race([video.play(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('VIDEO_TIMEOUT')),12000)})])}catch(e){failed(e,'play',token);return}finally{clearTimeout(timer)}if(token!==generation)return;retry.disabled=false;retry.textContent='Reintentar cámara';retry.onclick=acquire;try{await decode(token)}catch(e){failed(e,'decoder',token)}}

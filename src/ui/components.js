@@ -28,7 +28,7 @@ export function toolbar(html,{className=''}={}) {return `<div class="arcToolbar 
 const stripIcon=text=>{try{return String(text).replace(/^[^\p{L}\p{N}]+/u,'')||String(text);}catch(_){return String(text);}};
 
 export function header({title='Módulo',lead='',module=''}={}) {
-  return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module?' data-arc-module="'+esc(module)+'"':''} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">ARCHITECT ERP</div><h2>${esc(stripIcon(title))}</h2>${lead?'<p>'+esc(lead)+'</p>':''}</div><div class="gamaStdActions">${button({label:t('← Volver al menú'),className:'gamaStdBack',attrs:'aria-label="'+esc(t('Volver al menú'))+'"'})}</div></div>`;
+  return `<div class="gamaStdHeader arcPageHeader" data-gama-standard-header="1"><span class="gamaStdIcon" data-arc-icon-slot${module?' data-arc-module="'+esc(module)+'"':''} aria-hidden="true"></span><div class="gamaStdText"><div class="gamaStdKicker">COCO ERP</div><h2>${esc(stripIcon(title))}</h2>${lead?'<p>'+esc(lead)+'</p>':''}</div><div class="gamaStdActions">${button({label:t('← Volver al menú'),className:'gamaStdBack',attrs:'aria-label="'+esc(t('Volver al menú'))+'"'})}</div></div>`;
 }
 
 /** Pinta en la cabecera el icono del módulo, con su acento: el mismo dibujo y

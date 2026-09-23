@@ -1,4 +1,6 @@
-# ARCHITECT ERP — interface de référence
+# COCO ERP — interface de référence
+
+L’ERP s’appelle **Coco ERP** (anciennement Architect ERP). Les identifiants techniques — fichiers `architect-*`, objets `Architect*`, classes `arc*`, identifiants GAMA — ne changent pas : seuls le nom affiché et le logo changent.
 
 L’application reste le site statique `lisciandraj/Pro-manager-Gama`, avec ses modules JavaScript, son authentification et sa base Supabase existants. Aucun framework, route, identifiant de module, schéma ou workflow n’est remplacé.
 
@@ -6,7 +8,15 @@ L’application reste le site statique `lisciandraj/Pro-manager-Gama`, avec ses 
 
 La maquette fournie de 1145 × 1374 pixels est la référence : sidebar d’environ 192 px, barre supérieure de 70 px, grille principale de cartes blanches compactes de 12 px de rayon. La maquette en montrait quatre par ligne ; l’accueil en place six à partir de 1280 px, pour que tous les modules tiennent sans défiler, et retombe à quatre en dessous, puis trois et deux, là où un libellé de tuile cesserait de se lire d’un coup d’œil. Couleurs relevées dans les plages uniformes de l’image : sidebar `#122E46`, sélection `#245073`, fond gris très clair (environ `#F5F7FA`). Les tableaux et champs gardent des séparateurs plus soutenus pour la lisibilité.
 
-`architect-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `a6193809eb6efcc4cfa59119d0aba3b6176d53c3fa99047691d13218dd0ceb42`. Le slogan, les couleurs et le rapport carré sont conservés. Dans la sidebar, un masque CSS cache uniquement la marge blanche extérieure du fichier, sans retoucher le logo. Il apparaît dans la sidebar, la connexion, la fiche de devis et les métadonnées d’installation. `object-fit: contain` préserve ses proportions. Les anciens identifiants techniques GAMA et les informations légales de l’entreprise sur les documents restent inchangés.
+`coco-erp-logo.png` est le fichier officiel fourni, copié sans transformation. SHA-256 : `c3e75d1cbbf288bd180c62593ea5bad31c2678986804e6b053c8f3bc6d675f15`. Le logo est dessiné pour un fond blanc ; les variantes sont de simples recadrages de ce fichier, sans retouche des couleurs :
+
+| Fichier | Usage |
+|---|---|
+| `coco-erp-logo-full.png` | Écran de connexion : logo complet avec le slogan. |
+| `coco-erp-wordmark.png` | Barre latérale, sur une carte blanche : « COCO ERP » sans le slogan, illisible à cette taille. |
+| `coco-erp-icon-512/192/180.png` | Icône d’application (manifeste, favicon, écran d’accueil iOS) et barre latérale repliée : le robot seul, sur fond blanc. |
+
+La barre latérale garde son bleu marine ; le logo y est posé sur une carte blanche plutôt que détouré, car le détourage assombrissait les couleurs et le visage du robot se perdait sur le marine.
 
 La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, pour un rendu stable sans requête externe.
 

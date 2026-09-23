@@ -2,7 +2,7 @@
   "name": "architect-erp",
   "private": true,
   "version": "1.0.0",
-  "description": "Architect ERP: shared interface, domain contracts and Supabase migrations",
+  "description": "Coco ERP: shared interface, domain contracts and Supabase migrations",
   "scripts": {
     "test": "playwright test",
     "dev": "vite --host 127.0.0.1 --port 4173",

@@ -54,7 +54,7 @@ async function quienSoy(){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Coco ERP no está disponible.');
  const [k,c,l]=await Promise.all([
   api.list('crm_contacts',{select:LISTA,order:'last_name',ascending:true}),
   api.list('customers',{select:CLIENTE_COLS,order:'name',ascending:true}),

@@ -63,7 +63,7 @@ async function boot(page, db = {}) {
   await page.waitForTimeout(600);
 }
 
-const KICKER = 'ARCHITECT ERP';
+const KICKER = 'COCO ERP';
 // Una sola frase. El tope no es estético: la cabecera es lo primero de la
 // pantalla y en un teléfono un párrafo empujaba el módulo fuera de la vista.
 const LEAD_MAX = 80;

@@ -52,7 +52,7 @@ L'e-mail de création d'accès est personnalisable dans **Utilisateurs → E-mai
 
 Supabase n'affiche ces champs que si son modèle « Invite user » les utilise. Réglage à faire une fois dans le tableau de bord du projet (Authentication → Emails → Invite user) :
 
-- **Subject** : `{{ if .Data.invite_subject }}{{ .Data.invite_subject }}{{ else }}Tu acceso a Architect ERP{{ end }}`
+- **Subject** : `{{ if .Data.invite_subject }}{{ .Data.invite_subject }}{{ else }}Tu acceso a Coco ERP{{ end }}`
 - **Body** : le contenu de [`templates/invite.html`](templates/invite.html).
 
 Sans ce réglage, les invitations partent toujours, avec le modèle Supabase par défaut.

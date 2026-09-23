@@ -75,7 +75,7 @@ function periodoDeHoy(kind){
 /* ---- datos ---- */
 async function cargar(){
  const api=C();
- if(!api)throw new Error('La conexión con la nube de Architect ERP no está disponible.');
+ if(!api)throw new Error('La conexión con la nube de Coco ERP no está disponible.');
  const [o,g]=await Promise.all([
   api.list('crm_targets',{select:COLS,eq:{period_kind:tipo},order:'period_start',ascending:false}),
   CRM.comerciales(),

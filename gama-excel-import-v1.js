@@ -127,7 +127,7 @@ async function loadPhotos(fileList){
  photoState={matches:[]};btn.disabled=true;
  if(!files.length){st.textContent='Ningún archivo de imagen seleccionado.';photoPreview();return}
  const api=window.GamaCloud;
- if(!api){st.textContent='La conexión con la nube de Architect ERP no está disponible.';return}
+ if(!api){st.textContent='La conexión con la nube de Coco ERP no está disponible.';return}
  st.textContent='Comprobando '+files.length+' foto(s) con tu catálogo…';
  let products=[];
  try{for(let offset=0;;offset+=500){const r=await api.list('products',{select:'id,name,reference,has_photo',order:'id',range:[offset,offset+499]});if(r.error)throw r.error;const rows=r.data||[];products.push(...rows);if(rows.length<500)break}}
@@ -168,7 +168,7 @@ function photoPreview(){
 async function importPhotos(){
  const btn=document.getElementById('gamaPhotoImport'),st=document.getElementById('gamaPhotoStatus');
  const api=window.GamaCloud;
- if(!api){alert('La conexión con la nube de Architect ERP no está disponible.');return}
+ if(!api){alert('La conexión con la nube de Coco ERP no está disponible.');return}
  const keep=document.getElementById('gamaPhotoKeep').checked;
  const todo=photoState.matches.filter(m=>m.product&&!(keep&&m.product.has_photo));
  const skippedKept=photoState.matches.filter(m=>m.product&&keep&&m.product.has_photo).length;

@@ -81,7 +81,7 @@ async function setEnabled(id,on){
  if(id==='customer-requests')id='quotes';
  if(LOCKED.has(id))throw new Error('Este módulo no se puede desactivar.');
  const api=window.GamaCloud;
- if(!api)throw new Error('Sin conexión con Architect Cloud.');
+ if(!api)throw new Error('Sin conexión con Coco ERP.');
  const session=(await api.getSession()).data?.session;
  const r=await api.upsert('app_modules',
    {id,enabled:!!on,updated_at:new Date().toISOString(),updated_by:session?.user?.id||null},

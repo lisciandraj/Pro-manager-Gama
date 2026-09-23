@@ -535,7 +535,7 @@ VIEWS.cash={
       ?`<button class="arcButton primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
       :`<button class="arcButton secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
-   <p class="gaHint">${tr('Architect propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
+   <p class="gaHint">${tr('Coco ERP propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
  bind(){
   $('gaApply')?.addEventListener('click',()=>{state.status=$('gaStatus').value;go()});
@@ -627,7 +627,7 @@ async function matchForm(id){
  let suggestions=[];
  try{suggestions=await rpc('reconcile_suggest',{id})}catch(e){}
  const el=GamaSales.modal('Conciliar el movimiento',
-  suggestions.length?`<p>${tr('Architect propone estas correspondencias. Elige la correcta; ninguna se aplica sola.')}</p>
+  suggestions.length?`<p>${tr('Coco ERP propone estas correspondencias. Elige la correcta; ninguna se aplica sola.')}</p>
    ${suggestions.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.id)}">
     <b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}</label></p>`).join('')}
    <p><label><input type="radio" name="gaMatch" value="ignore|"> ${tr('Ignorar este movimiento')}</label></p>`
@@ -757,7 +757,7 @@ VIEWS.taxes={
     <td>${t.active?tr('Activo'):tr('Inactivo')}</td>
     <td>${rights?.edit?`<button class="arcButton secondary" data-ga-tax="${esc(t.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
-   <p class="gaHint">${tr('Architect no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.')}</p></div>`;
+   <p class="gaHint">${tr('Coco ERP no trae ningún tipo nacional preconfigurado: define aquí los que se aplican a tu empresa y su fecha de entrada en vigor.')}</p></div>`;
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'impuestos');
@@ -871,7 +871,7 @@ VIEWS.config={
    ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit&&!d.settings.localization_country?'':'readonly'}>`)}
    ${field('Primer mes del ejercicio',`<input id="gaFiscal" type="number" min="1" max="12" value="${esc(d.settings.fiscal_year_start_month)}" ${rights?.edit?'':'readonly'}>`)}
    </div>
-   <p class="gaHint">${tr('La divisa se aplica a todo Architect: pantallas, informes y documentos PDF.')}</p>
+   <p class="gaHint">${tr('La divisa se aplica a todo Coco ERP: pantallas, informes y documentos PDF.')}</p>
    <h3>${tr('Cuentas de los asientos automáticos')}</h3><div class="gaGrid">
    ${pick('gaRecv','Clientes',d.settings.receivable_account_id)}
    ${pick('gaPay','Proveedores',d.settings.payable_account_id)}

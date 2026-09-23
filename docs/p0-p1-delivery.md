@@ -1,4 +1,4 @@
-# Architect ERP — livraison P0/P1
+# Coco ERP — livraison P0/P1
 
 Périmètre demandé le 20 septembre 2026, base `d455cd0`. Les lignes ci-dessous
 couvrent les critères P0/P1 recensés. Les fonctions P2 de l’assistant IA et de la

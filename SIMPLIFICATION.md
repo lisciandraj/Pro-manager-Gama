@@ -1,4 +1,4 @@
-# Architect ERP — chantier de simplification (septembre 2026)
+# Coco ERP — chantier de simplification (septembre 2026)
 
 Moins de modules, moins de clics, les mêmes données. Rien n'a été copié ni
 renuméroté : les tables restent celles d'avant ; ce sont les écrans qui se

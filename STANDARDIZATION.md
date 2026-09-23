@@ -1,4 +1,4 @@
-# Socle Architect ERP
+# Socle Coco ERP
 
 L'interface partage désormais ses primitives visuelles, son registre de modules, sa navigation et ses contrats de données. Les écrans métier existants utilisent ce socle tout en conservant leurs règles, références et permissions.
 
@@ -7,7 +7,7 @@ L'interface partage désormais ses primitives visuelles, son registre de modules
 | Navigation et droits de visibilité | `src/app/registry.js` | Menu, catalogue des modules, titres et rôles |
 | Navigation et cycle de rendu | `src/app/router.js` | `ArcRouter.open/show/onEnter`, événements de changement et sortie |
 | Composants | `src/ui/components.js` | Bouton, champ, formulaire, panneau, dialogue, tableau, pagination, badge, onglets et KPI |
-| Couleurs et relief | `architect-ui.css` | Tokens Architect et états visuels communs |
+| Couleurs et relief | `architect-ui.css` | Tokens Coco ERP et états visuels communs |
 | Styles compilés | `src/ui/base.css`, `module-styles.css`, `components.css` | Remplacent les blocs CSS intégrés dans HTML et les injecteurs JS |
 | Objets et formats | `src/domain/` | UUID distinct des identifiants métier, adaptations SQL, erreurs, montants et dates |
 | Lecture et commandes | `src/data/service.js` | Pagination serveur, collecte paginée, cache invalidable et RPC |

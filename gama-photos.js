@@ -163,7 +163,7 @@ function shrink(dataUrl,max,quality){
    megas en memoria y para poder informar del avance. */
 async function optimizeAll(onProgress){
  const api=window.GamaCloud;
- if(!api)throw new Error('Sin conexión con Architect Cloud.');
+ if(!api)throw new Error('Sin conexión con Coco ERP.');
  const idx=await api.list('products',{select:'id,name,has_photo',eq:{has_photo:true},order:'name',ascending:true});
  if(idx.error)throw idx.error;
  const items=idx.data||[];

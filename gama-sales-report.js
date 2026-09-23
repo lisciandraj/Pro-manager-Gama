@@ -48,7 +48,7 @@ async function render(year,month){
  if(!$('srByQty'))return;
  style();
  if(!canView()){error('Tu perfil no puede ver el análisis de ventas.');return}
- if(!C()){error('Sin conexión con Architect Cloud.');return}
+ if(!C()){error('Sin conexión con Coco ERP.');return}
 
  const mio=++peticion;
  cargando();

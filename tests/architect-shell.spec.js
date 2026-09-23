@@ -56,7 +56,7 @@ const desbordamiento = page => page.evaluate(() => {
   return { exceso, culpable };
 });
 
-test.describe('el armazón Architect', () => {
+test.describe('el armazón Coco ERP', () => {
   for (const v of ANCHOS) {
     test(`${v.nombre} (${v.w}px): se monta, cabe a lo ancho y esconde la cabecera vieja`, async ({ page }) => {
       await page.setViewportSize({ width: v.w, height: v.h });
@@ -199,14 +199,14 @@ test.describe('el armazón Architect', () => {
     expect(visible, 'el enlace enfocado no se distingue').toBeTruthy();
   });
 
-  test('la marca y el buscador hablan de Architect ERP, y en los tres idiomas', async ({ page }) => {
+  test('la marca y el buscador hablan de Coco ERP, y en los tres idiomas', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
-    await expect(page.locator('.arcLogo')).toHaveAttribute('alt','ARCHITECT ERP');
-    await expect(page.locator('.arcLogo')).toHaveAttribute('src','architect-menu-logo.png');
-    await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Architect ERP/);
+    await expect(page.locator('.arcLogo')).toHaveAttribute('alt','COCO ERP');
+    await expect(page.locator('.arcLogo')).toHaveAttribute('src','coco-erp-wordmark.png');
+    await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Coco ERP/);
 
-    for (const [idioma, esperado] of [['fr', /Rechercher dans Architect ERP/], ['en', /Search Architect ERP/]]) {
+    for (const [idioma, esperado] of [['fr', /Rechercher dans Coco ERP/], ['en', /Search Coco ERP/]]) {
       await page.evaluate(l => window.GamaI18n.setLanguage(l), idioma);
       await page.waitForTimeout(500);
       await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', esperado);

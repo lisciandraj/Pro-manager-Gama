@@ -16,6 +16,41 @@ test('groups the linked chain once, numbers the sale process and blocks on missi
  await expect(page.locator('.gdfStep').nth(2).locator('.gdfDoc')).toHaveText('PED-00001246');
  await page.evaluate(()=>GamaSales.openOrder=id=>window.__opened=id);await page.locator('.gdfStep').nth(2).locator('[data-action="order"]').click();expect(await page.evaluate(()=>window.__opened)).toBe('o1');
 });
+// Cada tarjeta lleva la barra de avance de su proceso en lugar del estado de su
+// documento: verde mientras avanza, rojo si algo lo bloquea, y lo mismo que dice
+// el detalle.
+const fillColors=bar=>bar.locator('i').evaluate(i=>{const probe=document.createElement('b');document.body.append(probe);const color=v=>{probe.style.color=`var(${v})`;return getComputedStyle(probe).color};const r={fill:getComputedStyle(i).backgroundColor,success:color('--arc-success'),danger:color('--arc-danger')};probe.remove();return r});
+test('each card shows the progress of its process: red when something blocks it, green while it moves',async({page})=>{
+ await boot(page);
+ const card=page.locator('.gdfRecord').first(),bar=card.locator('.gdfProgress');
+ // Falta stock: tres etapas de ocho hechas y la reserva bloquea.
+ await expect(bar).toHaveAttribute('data-state','blocked');
+ await expect(card.locator('.arcSrOnly')).toHaveText('Avance 3/8 · Proceso bloqueado · Reserva de stock y preparación');
+ await expect(bar).toHaveAttribute('title','Avance 3/8 · Proceso bloqueado · Reserva de stock y preparación');
+ expect(await bar.locator('i').evaluate(i=>i.style.width)).toBe('38%');
+ let c=await fillColors(bar);expect(c.fill).toBe(c.danger);
+ // El estado del documento ya no se repite en la tarjeta.
+ await expect(card).not.toContainText('Pedido de venta');await expect(card.locator('small')).toHaveCount(1);
+ await expect(page.locator('.gdfSummary .gdfBadge')).toHaveText('Proceso bloqueado');
+ // Todo expedido y firmado: avanza, en verde, hacia la facturación.
+ await page.evaluate(()=>{window.__DB.sales_delivery_lines[0].quantity=10});await page.locator('#gdfRefresh').click();
+ await expect(bar).toHaveAttribute('data-state','active');
+ await expect(card.locator('.arcSrOnly')).toHaveText('Avance 5/8 · Proceso en curso · Facturación');
+ c=await fillColors(bar);expect(c.fill).toBe(c.success);
+ await expect(page.locator('.gdfSummary .gdfBadge')).toHaveText('Proceso en curso');
+ // Una solicitud sola: primera etapa hecha, el presupuesto por hacer; se calcula sin leer pedidos.
+ await page.evaluate(()=>window.__DB.customer_requests.push({id:'r9',requester_name:'Solo'}));await page.locator('#gdfRefresh').click();
+ await expect(page.locator('.gdfRecord',{hasText:'Solo'}).locator('.arcSrOnly')).toHaveText('Avance 1/8 · Proceso en curso · Presupuesto');
+});
+test('painting the bars keeps the keyboard on the card',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{const list=GamaCloud.list;window.__gate=new Promise(r=>window.__release=r);GamaCloud.list=async(t,o)=>{if(t==='sales_order_lines')await window.__gate;return list(t,o)}});
+ await page.locator('#gdfRefresh').click();await expect(page.locator('#gdfDetail')).toContainText('Cargando…');
+ const card=page.locator('.gdfRecord').first();await card.focus();
+ await page.evaluate(()=>window.__release());
+ await expect(page.locator('.gdfStep')).toHaveCount(8);await expect(card.locator('.gdfProgress')).toHaveAttribute('data-state','blocked');
+ await expect(card).toBeFocused();
+});
 test('requires signed proof and full line quantities, then moves on to invoicing',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__DB.sales_delivery_lines[0].quantity=10;window.__DB.tms_proofs[0].signature=null});await page.locator('#gdfRefresh').click();
  await expect(page.locator('.gdfStep').nth(4)).toContainText('10 / 10');await expect(page.locator('.gdfStep').nth(4)).toContainText('0 / 10');await expect(page.locator('.gdfStep').nth(4)).not.toHaveClass(/done/);
@@ -47,6 +82,11 @@ test('without access to invoices, a delivered process is not shown as closed',as
  await expect(page.locator('.gdfStep').nth(7)).toHaveClass(/restricted/);
  await expect(page.locator('.gdfStep').nth(7)).toContainText('La facturación y el cobro no se pueden comprobar con este perfil.');
  await expect(page.locator('.gdfStep').nth(7)).not.toContainText('Entregado, facturado y cobrado');
+ // Lo que no se puede comprobar no se da por hecho: ni en la tarjeta ni en el detalle.
+ await expect(page.locator('.gdfRecord .gdfProgress')).toHaveAttribute('data-state','active');
+ await expect(page.locator('.gdfRecord .arcSrOnly')).toHaveText('Avance 5/8 · Proceso en curso');
+ await expect(page.locator('.gdfSummary .gdfBadge')).toHaveText('Proceso en curso');
+ await expect(page.locator('.gdfNext')).toContainText('Las etapas siguientes no se pueden comprobar con este perfil.');
 });
 test('searches standalone cases, escapes customer text and handles read errors without false progress',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__DB.customer_requests.push({id:'r2',requester_name:'<img src=x onerror=alert(1)>'});window.__DB.invoices.push({id:'q2',invoice_number:'DEV-2',quote_state:'draft',quote_details:{client:'Other'}})});await page.locator('#gdfRefresh').click();await expect(page.locator('.gdfRecord')).toHaveCount(3);await expect(page.locator('#gdfList img')).toHaveCount(0);await page.locator('#gdfSearch').fill('DEV-2');await expect(page.locator('.gdfRecord')).toHaveCount(1);await page.locator('.gdfRecord').click();await expect(page.locator('.gdfStep').nth(1)).toHaveClass(/active/);
@@ -88,6 +128,11 @@ test('purchase process: its own tab, origin, receipt, put-away, supplier invoice
  });
  await page.locator('#gdfTabPDC').click();await expect(page.locator('#gdfTabPDC')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.gdfRecord')).toContainText('PDC-00001330');await expect(page.locator('.gdfStep')).toHaveCount(7);
+ // La tarjeta: la recepción atrasada bloquea; «Recepción parcial» ya no se repite en ella.
+ const card=page.locator('.gdfRecord');
+ await expect(card.locator('.gdfProgress')).toHaveAttribute('data-state','blocked');
+ await expect(card.locator('.arcSrOnly')).toHaveText('Avance 4/7 · Proceso bloqueado · Recepción y control');
+ await expect(card).not.toContainText('Recepción parcial');
  await expect(page.locator('.gdfSummary h2')).toHaveText('PDC-00001330');
  await expect(page.locator('.gdfStep').nth(0)).toContainText('Alerta de stock bajo el mínimo');
  await expect(page.locator('.gdfStep').nth(1).locator('.gdfDoc')).toHaveText('OCO-00001330');
@@ -101,6 +146,8 @@ test('purchase process: its own tab, origin, receipt, put-away, supplier invoice
  // Todo recibido y pagado: el proceso se cierra.
  await page.evaluate(()=>{__DB.purchase_order_lines[0].received_quantity=10;__DB.purchase_orders[0].status='received';__DB.stock_movements[0].quantity=10;__DB.supplier_invoice_payments[0].amount=115});await page.locator('#gdfRefresh').click();
  await expect(page.locator('.gdfStep').nth(6)).toHaveClass(/done/);await expect(page.locator('.gdfSummary')).toContainText('Proceso completo');
+ await expect(card.locator('.gdfProgress')).toHaveAttribute('data-state','done');expect(await card.locator('.gdfProgress i').evaluate(i=>i.style.width)).toBe('100%');
+ await expect(card.locator('.arcSrOnly')).toHaveText('Avance 7/7 · Proceso completo');
 });
 test('financial coverage is per line and canceled invoices and payments do not settle the case',async({page})=>{
  await boot(page);const f=await page.evaluate(()=>GamaDossierFlow.financialProgress({lines:[{id:'a',quantity:2,unit_price:10},{id:'b',quantity:2,unit_price:10}],invoices:[{id:'i',total:40,fiscal_status:'authorized'},{id:'void',total:40,fiscal_status:'cancelled'}],invoiceLines:[{invoice_id:'i',order_line_id:'a',quantity:4},{invoice_id:'void',order_line_id:'b',quantity:2}],payments:[{invoice_id:'i',amount:40,status:'confirmed'},{invoice_id:'void',amount:40,status:'confirmed'}]},'2026-09-13'));

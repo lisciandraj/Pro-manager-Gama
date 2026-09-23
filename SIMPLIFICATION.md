@@ -36,6 +36,17 @@ fournisseur) suivi des 8 chiffres du dossier. Les étapes se suivent dans
 PRP). Détails : [DOCUMENT_REFERENCES.md](DOCUMENT_REFERENCES.md),
 [RETURNS.md](RETURNS.md).
 
+Dans **Suivi de processus**, chaque tuile porte en bas la barre d'avancement de
+son processus à la place du statut de son document (« Commande client »,
+« Reçu »…) : les étapes faites sur le total, **verte** tant que le processus
+avance, **rouge et hachurée** dès qu'une étape le bloque (stock manquant,
+livraison ou réception en retard, facture échue…). Elle vient des mêmes étapes
+que le détail, calculées pour toute la liste en une série de lectures groupées
+(`saleData` / `purchaseDataFor` dans `gama-dossier-flow.js`) : la tuile et le
+détail ne peuvent pas se contredire. Le survol et les lecteurs d'écran disent
+l'étape en cours ; ce qu'un profil ne peut pas vérifier (facturation pour le
+magasinier) ne compte pas comme fait.
+
 ## 4. Devis et facture
 
 Un seul module, quatre onglets qui suivent le processus de vente :

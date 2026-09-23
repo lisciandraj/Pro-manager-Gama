@@ -207,6 +207,8 @@
 .gdfStepper li[data-state=active] .gdfDot{background:var(--arc-warning-bg);border-color:var(--arc-warning);color:var(--arc-warning)}
 .gdfStepper li[data-state=blocked] .gdfDot{background:var(--arc-danger-bg);border-color:var(--arc-danger);color:var(--arc-danger)}
 .gdfStepper li[aria-current=step] .gdfStepName{color:var(--arc-text);font-weight:700}
+/* La barra de avance de cada tarjeta de proceso: verde mientras avanza, rojo y rayada si algo lo bloquea. */
+.gdfProgress{display:block;align-self:stretch;height:8px;margin-top:10px;border-radius:999px;background:var(--arc-surface-3);box-shadow:inset 0 0 0 1px var(--arc-line);overflow:hidden}.gdfProgress i{display:block;height:100%;width:0;border-radius:inherit;background:var(--arc-success);transition:width .3s ease}.gdfProgress[data-state=blocked] i{background:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 4px,transparent 4px 8px),var(--arc-danger)}.gdfProgress[data-state=closed] i{background:var(--arc-text-subtle)}.gdfProgress:is([data-state=loading],[data-state=unknown]){background:repeating-linear-gradient(90deg,var(--arc-surface-3) 0 8px,var(--arc-line) 8px 16px)}@media(prefers-reduced-motion:reduce){.gdfProgress i{transition:none}}
 .gdfStepHead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.gdfStepHead h3{margin:0;flex:1;min-width:0}
 .gdfNum{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:750;font-size:13px;background:var(--arc-surface-3);color:var(--arc-text)}
 .gdfStep.done .gdfNum{background:var(--arc-success);color:#fff}.gdfStep.blocked .gdfNum{background:var(--arc-danger);color:#fff}.gdfStep.active .gdfNum{background:var(--arc-warning);color:#fff}

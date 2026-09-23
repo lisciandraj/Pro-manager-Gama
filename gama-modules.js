@@ -25,7 +25,8 @@ if(window.GamaModules)return;
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
 // Una pestaña de otro módulo (los pedidos en Presupuestos y facturas) no se lista: se enciende y se apaga con él.
-const CATALOG=window.ArcModules.registry.filter(m=>!m.tabOf).map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
+// Un módulo retirado (el antiguo formulario de presupuestos) tampoco: se queda como esté en la base —apagado— y ya no se ofrece.
+const CATALOG=window.ArcModules.registry.filter(m=>!m.tabOf&&!m.retired).map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
 const TAB_OF=Object.fromEntries(window.ArcModules.registry.filter(m=>m.tabOf).map(m=>[m.id,m.tabOf]));
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));
 const CACHE_KEY='gama_modules_v1';

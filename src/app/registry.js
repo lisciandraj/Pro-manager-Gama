@@ -511,6 +511,7 @@ const definitions=[
     "label": "Formulario anterior de presupuestos",
     "description": "Presupuestos para tus clientes, en PDF.",
     "menu": false,
+    "retired": true,
     "configLabel": "Formulario anterior de presupuestos",
     "roles": [
       "admin",

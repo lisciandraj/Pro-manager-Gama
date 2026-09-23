@@ -68,6 +68,17 @@ test('the HR base profile is assignable in Users and opens only HR and settings'
  await page.evaluate(()=>GamaRoleAccess.load());
  expect(await page.evaluate(()=>['hr','settings','products','dashboard','crm','notifications'].map(id=>gamaAccessAllowed(id)))).toEqual([true,true,false,false,false,false]);
 });
+// El antiguo formulario de presupuestos ya no se ofrece: ni en la lista de
+// módulos de la aplicación ni, mientras está apagado, como botón en Presupuestos.
+test('the retired legacy quote form is not listed among the application modules',async({page})=>{
+ await boot(page);
+ await expect(page.locator('[data-mod="quotes"]')).toHaveCount(1);
+ await expect(page.locator('[data-mod="billing"]')).toHaveCount(0);
+ expect(await page.evaluate(()=>GamaModules.list().some(m=>m.id==='billing'))).toBe(false);
+ await page.evaluate(async()=>{__DB.app_modules=[{id:'billing',enabled:false}];await GamaModules.load();await GamaQuotes.open()});
+ await expect(page.locator('#gqRefresh')).toBeVisible();
+ await expect(page.locator('#gqLegacy')).toHaveCount(0);
+});
 test('client boundaries, administrator recovery and mobile language remain clear',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
  await page.locator('#cfgProfile').selectOption('client');

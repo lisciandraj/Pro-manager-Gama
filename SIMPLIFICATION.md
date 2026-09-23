@@ -68,6 +68,12 @@ l'onglet ; leur interrupteur est celui de Devis et facture — pour toute
 l'entreprise comme pour un profil, côté écran comme côté serveur
 (`erp_module_parent` renvoie `quotes` pour les deux).
 
+**L'ancien formulaire de devis (`billing`) n'est plus dans la liste des
+applications** des paramètres d'accès : il est marqué `retired` dans le
+registre, reste dans l'état où la base le laisse (désactivé en production) et
+ne se propose plus à l'installation. Le bouton « Formulario y archivo
+anteriores » de Devis et facture n'apparaît que si ce module est ouvert.
+
 ## 5. Livraison
 
 Un seul module, cinq onglets : **Préparation**, Planification, Sortie des

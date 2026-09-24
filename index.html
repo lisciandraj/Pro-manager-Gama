@@ -17,10 +17,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20260923-coco1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=e4b2702ebc90"></script>
-<script src="gama-i18n.js?v=9adc7e08b652"></script>
-<script src="architect-assets.js?v=68bbc37bf3c2"></script>
-<script src="architect-core.js?v=10ef96966550"></script>
+<script src="gama-i18n-catalog.js?v=4d0231bc5897"></script>
+<script src="gama-i18n.js?v=8a766df13219"></script>
+<script src="architect-assets.js?v=15566a434f62"></script>
+<script src="architect-core.js?v=ffbc0f253ba7"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=23a8e1087e3f"></script>
 <title>Coco ERP</title>
@@ -36,13 +36,13 @@
 
 <script defer src="gama-export-schema.js?v=00554c68e5ec"></script>
 <script defer src="gama-excel-export.js?v=3673e0154876"></script>
-<link rel="stylesheet" href="gama-global-search.css?v=d34f23fade6d">
+<link rel="stylesheet" href="gama-global-search.css?v=a4464b191d30">
 <link rel="stylesheet" href="gama-assistant-ia.css?v=98afb0c317de">
 <!-- Coco ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=63c7ae846e10">
-<link rel="stylesheet" href="architect-components.css?v=7f85cce87c3f">
+<link rel="stylesheet" href="architect-components.css?v=fe73ee7d2b1c">
 <link rel="stylesheet" href="architect-ui.css?v=5c81d6a5b33d">
 <link rel="stylesheet" href="architect-shell.css?v=de885565b418">
 <link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
@@ -73,7 +73,7 @@
 <div class="wrap">
 
 <div class="tabs">
-<button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')">🛒<span data-gi=1bc70818a30d>Compras</span></button>
+<button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')"><span data-gi=1bc70818a30d>Compras</span></button>
 <button data-gama-module="dashboard" class="arcButton tab active" onclick="showTab('dashboard',this)">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="arcButton tab" onclick="showTab('home',this)">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
 <button data-gama-module="products" class="arcButton tab" onclick="showTab('products',this)">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="arcButton tab" onclick="showTab('clients',this)">♙<span data-gi=07e1ce1859da>Clientes</span></button>
 <button data-gama-module="movement" class="arcButton tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
@@ -82,22 +82,22 @@
 <section id="dashboard" data-gi-aria-label=67b696468610 aria-label="Dashboard"></section>
 <section id="home">
 <div class="arcPanel card"><h2 data-gi=2760658f4d58>Escanear producto</h2>
-<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
-<button class="arcButton primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=115a5b5899c1>🔎 Buscar</button>
+<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=12cf969040ce>Escanear</button></div>
+<button class="arcButton primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=5f55edf90089>Buscar</button>
 <div id="homeResult"></div><video id="camera" playsinline></video>
-<div class="actions"><button class="arcButton primary" onclick="openMovement('IN')" data-gi=fe6659a64b87>➕ Entrada IN</button><button class="arcButton danger" onclick="openMovement('OUT')" data-gi=5deb5f340d23>➖ Salida OUT</button></div>
+<div class="actions"><button class="arcButton primary" onclick="openMovement('IN')" data-gi=6f7643534ea3>Entrada IN</button><button class="arcButton danger" onclick="openMovement('OUT')" data-gi=7f90526bc505>Salida OUT</button></div>
 </div>
-<div class="arcPanel card"><h3 data-gi=7365c19b2b46>💾 Copias de seguridad</h3>
+<div class="arcPanel card"><h3 data-gi=be9ed2baa20c>Copias de seguridad</h3>
 <p class="muted" data-gi=92bf1db0b4ef>Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
-<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=c8d41d4dfa39>📊 Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()" >💾 Exportar datos y archivos</button></div>
+<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=8be94f4e51a9>Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()" >Exportar datos y archivos</button></div>
 </div>
 </section>
 
 <section id="products">
 <div class="arcPanel card">
-<h2 data-gi=6efe602df221>📦 Ficha completa del producto</h2>
+<h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2>
 <div class="row">
-<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" onclick="event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
+<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" onclick="event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')" data-gi=12cf969040ce>Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
 <div><label data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
 <div><label data-gi=4fb77e0eba6a>Familia</label><input id="pFamily"></div><div><label data-gi=42f6bf37d32c>Líneas</label><input id="pLines"></div>
 <div><label data-gi=8e2ca9b0cc8a>Marca</label><input id="pBrand"></div><div><label data-gi=6bbcd2f13499>Presentación</label><input id="pPresentation" data-gi-placeholder=4be5d9d9f1c5 placeholder="Ej. Caja x12"></div>
@@ -106,14 +106,14 @@
 <div><label data-gi=7cfff97ea7e9>Peso (g)</label><input id="pWeight" type="number" min="0" step="0.01" value="0"></div><div><label data-gi=15d11bfd7e7a>Volumen (cm³)</label><input id="pVolume" type="number" min="0" step="0.01" value="0"></div>
 <div><label data-gi=e746643f4479>Proveedor</label><select id="pSupplier"><option value="" data-gi=480def1d15a8>Sin proveedor</option></select></div>
 <div style="grid-column:1/-1"><label data-gi=ee00b96fff26>Descripción</label><textarea id="pDescription" data-gi-placeholder=58ac34f2d35d placeholder="Descripción detallada del producto"></textarea></div>
-<div><label data-gi=6fc9699a9507>💵 Precio de compra (USD)</label><input id="pCost" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=0e66a9cdc09f>💰 Precio de venta mayorista (USD) — Categoría A *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=db34b4101e95>💰 Precio de venta al detalle (USD) — Categoría B</label><input id="pSalePriceB" type="number" min="0" step="0.01" value="0"></div>
+<div><label data-gi=1244a9cab6ce>Precio de compra (USD)</label><input id="pCost" type="number" min="0" step="0.01" value="0"></div>
+<div><label data-gi=db3c6eea612b>Precio de venta mayorista (USD) — Categoría A *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
+<div><label data-gi=06513ed557d4>Precio de venta al detalle (USD) — Categoría B</label><input id="pSalePriceB" type="number" min="0" step="0.01" value="0"></div>
 <div><label data-gi=1016effd727f>IVA del producto</label><select id="pIva"><option value="15">15%</option><option value="13">13%</option><option value="5">5%</option><option value="0">0%</option></select></div>
-<div><label data-gi=ac6a0e836a6a>📸 Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
+<div><label data-gi=466b08e42a7b>Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
 </div>
-<p class="muted" data-gi=a84a2a9267ff>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo 🏷️ Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
-<div class="actions"><button class="arcButton primary" onclick="createProduct()" data-gi=a757fc04d14d>➕ Crear producto</button><button class="arcButton secondary" onclick="clearProductForm()" data-gi=681b0f02838a>↺ Limpiar</button></div>
+<p class="muted" data-gi=4f8c44fcb454>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
+<div class="actions"><button class="arcButton primary" onclick="createProduct()" data-gi=bf33db6763e2>Crear producto</button><button class="arcButton secondary" onclick="clearProductForm()" data-gi=08df229fa5ad>Limpiar</button></div>
 <input type="hidden" id="editingBarcode">
 <input type="hidden" id="editingProductId">
 </div>
@@ -123,42 +123,42 @@
 
 <section id="backup">
 <div class="arcPanel card">
-<h3 data-gi=bb79f8467eda>📤 Exportar</h3>
+<h3 data-gi=292f20ee64bc>Exportar</h3>
 <div class="actions">
-<button class="arcButton primary" onclick="exportExcel()" data-gi=9f9cd2de2d1a>📊 Excel — Todos los módulos</button>
-<button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=98c0409192c9>💾 Copia completa JSON</button>
+<button class="arcButton primary" onclick="exportExcel()">Excel — Todos los módulos</button>
+<button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=678575c08965>Copia completa JSON</button>
 </div>
-<h3 data-gi=1130376c0e96>📥 Restaurar JSON</h3>
+<h3 data-gi=b299bd553de1>Restaurar JSON</h3>
 <input id="jsonImport" type="file" accept=".json,application/json">
-<button class="arcButton warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=ce5c923a8a49>⚠️ Restaurar copia completa</button>
+<button class="arcButton warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=299aa6e210d0>Restaurar copia completa</button>
 <p class="muted" data-gi=4d7b889125b2>La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
 </div>
 </section>
 <section id="movement">
-<div class="arcPanel card"><div class="scanner"><input id="moveBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('moveBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div><div id="moveInfo" class="muted"></div>
+<div class="arcPanel card"><div class="scanner"><input id="moveBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('moveBarcode')" data-gi=12cf969040ce>Escanear</button></div><div id="moveInfo" class="muted"></div>
 <div class="row"><div><label data-gi=3868d2843d59>Tipo</label><select id="moveType"><option value="IN" data-gi=59b8b5e0764c>IN — Entrada</option><option value="OUT" data-gi=51b523907c51>OUT — Salida</option></select></div>
 <div><label data-gi=8930e00fcc39>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
 <div><label data-gi=c7b288b1c0bb>Motivo</label><select id="moveReason" data-gama-nofind><option data-gi=83a3c0d27323>Recepción</option><option data-gi=ebda66b3f2fc>Venta</option><option data-gi=ce2f505af2a4>Producción</option><option data-gi=26335d9da0d8>Consumo</option><option data-gi=e87df883dd1f>Rotura</option><option data-gi=5aef5465090e>Muestra</option><option data-gi=a26fdd05a46b>Inventario</option><option data-gi=ae9a7950ec36>Corrección de inventario</option><option data-gi=0d5a52a92cb9>Otro</option></select></div>
 <div><label data-gi=69e9436bf261>Usuario / operador</label><input id="moveUser" value="Admin"></div></div>
 <label data-gi=f2e4400bf8aa>Comentario de auditoría</label><textarea id="moveComment" data-gi-placeholder=36d1019b7c7f placeholder="Motivo o comentario adicional"></textarea>
-<button class="arcButton primary" style="width:100%;margin-top:10px" onclick="registerMovement()" data-gi=891fe3679c63>💾 Registrar y auditar movimiento</button>
+<button class="arcButton primary" style="width:100%;margin-top:10px" onclick="registerMovement()" data-gi=9e780d45afaa>Registrar y auditar movimiento</button>
 </div>
 </section>
 
 
 <section id="billing">
-<div class="arcPanel card"><h2 data-gi=0a125e1ae250>🧾 Nuevo presupuesto</h2>
+<div class="arcPanel card"><h2 data-gi=080a5b7caa91>Nuevo presupuesto</h2>
 <div class="row"><div><label data-gi=364810aefa0b>RUC emisor</label><input id="sellerRuc"></div><div><label data-gi=203af5250577>Razón social</label><input id="sellerName"></div><div><label data-gi=900413cbb4f3>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label data-gi=e6b24b25ac99>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
-<div style="grid-column:1/-1"><label data-gi=c99211840f00>👥 Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="" data-gi=57780de4ab62>Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
+<div style="grid-column:1/-1"><label data-gi=f851d9a83ab0>Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="" data-gi=57780de4ab62>Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
 <div><label data-gi=4431e77fbebe>Identificación cliente</label><input id="clientId" readonly></div><div><label data-gi=3543b80b4661>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label data-gi=2af66cb65da8>Dirección</label><input id="clientAddress" readonly></div><div><label data-gi=0b61df381e1b>Correo</label><input id="clientEmail" type="email" readonly></div><div><label data-gi=cfd959125106>Forma de pago</label><select id="payment"><option data-gi=4ed786ebd4f8>Transferencia</option><option data-gi=9e8caac2b76e>Tarjeta de crédito</option><option data-gi=213d3a86f31a>Tarjeta de débito</option><option data-gi=22fac51606a2>Efectivo</option><option data-gi=0108f1aeeef4>Otros</option></select></div></div>
-<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="arcButton secondary" onclick="scan('invoiceBarcode')" data-gi=3ace1b3362ce>📷 Escanear</button></div>
-<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="arcButton primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()" data-gi=203475207f7b>➕ Añadir</button></div></div>
-<div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" onclick="generateInvoice()" data-gi=f0d3ec08dad9>🧾 Generar presupuesto</button><button class="arcButton secondary" onclick="downloadInvoicePdf()" data-gi=272abf6e4139>📄 Descargar PDF</button><button class="arcButton secondary" onclick="emailInvoice()" data-gi=a9d88603fa51>📧 Enviar por correo</button></div><div id="invoicePreview"></div>
+<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="arcButton secondary" onclick="scan('invoiceBarcode')" data-gi=12cf969040ce>Escanear</button></div>
+<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="arcButton primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()" data-gi=7542a5e800f9>Añadir</button></div></div>
+<div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" onclick="generateInvoice()" data-gi=f3db8ba5ef50>Generar presupuesto</button><button class="arcButton secondary" onclick="downloadInvoicePdf()" data-gi=59e0b6ca6f89>Descargar PDF</button><button class="arcButton secondary" onclick="emailInvoice()" data-gi=4a46598fb8f2>Enviar por correo</button></div><div id="invoicePreview"></div>
 </div></section>
 
 <section id="audit"></section>
 
-<section id="barcode"><div class="arcPanel card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=e909922fb595>🏷️ Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=30ef3190646e>📄 Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="arcPanel card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 
@@ -166,9 +166,9 @@
 <script src="gama-modules.js?v=363212794c8f"></script>
 <script src="gama-pagination.js?v=b82168a0f053"></script>
 <script src="gama-archive.js?v=ce173dd5ba6d"></script>
-<script src="gama-sort.js?v=6d5101198b8e"></script>
-<script src="gama-select-search.js?v=92df0ddfb455"></script>
-<script src="gama-tables.js?v=932d238f610f"></script>
+<script src="gama-sort.js?v=aba82a3edc84"></script>
+<script src="gama-select-search.js?v=d0a05b3d7140"></script>
+<script src="gama-tables.js?v=5d0c97ee0d69"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
    aquí: es un precio pactado producto a producto en su tarifa, y quien lo
@@ -181,10 +181,10 @@ window.gamaPriceFor=window.gamaPriceFor||function(p){return p?window.gamaCategor
    rellena en un solo viaje con las fotos de las filas visibles. En modo local,
    sin nube, el producto sí lleva su foto encima y se pinta directamente. */
 window.gamaPhotoCell=function(p){
- if(!p)return '📦';
+ if(!p)return window.GamaPhotos?window.GamaPhotos.placeholder():'';
  if(p.photo)return '<img class="product-img" loading="lazy" src="'+p.photo+'" alt="">';
  if(p.hasPhoto&&window.GamaPhotos&&p.id){gamaHydratePhotos();return window.GamaPhotos.slot(p.id)}
- return '📦';
+ return window.GamaPhotos?window.GamaPhotos.placeholder():'';
 };
 /* Las listas se repintan enteras con innerHTML; se agrupa la hidratación para
    no lanzar una consulta por celda. */
@@ -455,7 +455,7 @@ showTab('mainmenu',null);
 })();
 </script>
 <script src="gama-global-search-core.js?v=d5542c58a705"></script>
-<script src="gama-global-search.js?v=8b5d24094e36"></script>
+<script src="gama-global-search.js?v=e26cccce5179"></script>
 <script src="architect-kpi-catalog.js?v=c67dcc4151a0"></script>
 <script src="architect-home-kpis.js?v=b235ab9811b3"></script>
 <script src="architect-home-order.js?v=2b893ab8c77b"></script>
@@ -463,7 +463,7 @@ showTab('mainmenu',null);
 <script src="gama-scanner-phone.js?v=431404af172e"></script>
 <script src="gama-references.js?v=00daad8300f4"></script>
 <script src="gama-role-access.js?v=3f2e58c088fc"></script>
-<script src="gama-access-control.js?v=f5d3bc558400"></script>
+<script src="gama-access-control.js?v=62bd6cd7dd02"></script>
 <script src="gama-fixed-header.js?v=38d6eef78175"></script>
 <script src="gama-role-spanish.js?v=a788b382c9f3"></script>
 
@@ -472,33 +472,33 @@ showTab('mainmenu',null);
 <script src="gama-company-core.js?v=9589c6f39373"></script>
 <script src="gama-company.js?v=cc24cf691128"></script>
 <script src="gama-pdf-template.js?v=0c7d1742147a"></script>
-<script src="gama-quote-pdf.js?v=05a123628aab"></script>
+<script src="gama-quote-pdf.js?v=f788d72eb7c8"></script>
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
 <script src="architect-identity.js?v=02272beed762"></script>
 <script src="gama-supabase.js?v=202d23da8f57"></script>
 <script src="gama-central-sync.js?v=600ce34d87f1"></script>
-<script src="gama-purchases-v14.js?v=9a2c4ce9c44a"></script>
-<script src="gama-proveedores-matriz.js?v=60d0eb7a1b04"></script>
-<script src="gama-client-catalog.js?v=7b0e6512e972"></script>
-<script src="gama-customer-requests.js?v=98f95aa0b9c3"></script>
-<script src="architect-dashboard.js?v=96a1d3d37677"></script>
+<script src="gama-purchases-v14.js?v=5c791f2a3ce5"></script>
+<script src="gama-proveedores-matriz.js?v=dc17d03453fb"></script>
+<script src="gama-client-catalog.js?v=6b84c96d8e29"></script>
+<script src="gama-customer-requests.js?v=f87b3d11f215"></script>
+<script src="architect-dashboard.js?v=c9e9d5371f51"></script>
 <script src="gama-pdf.js?v=9b22d86d08b3"></script>
-<script src="gama-photos.js?v=dca404188cf4"></script>
-<script src="gama-price-lists.js?v=33ac0cfcb120"></script>
-<script src="gama-crm-core.js?v=897938c7916d"></script>
+<script src="gama-photos.js?v=13bf350b807d"></script>
+<script src="gama-price-lists.js?v=41f47bfbe752"></script>
+<script src="gama-crm-core.js?v=cb3c54f246b0"></script>
 <script src="gama-crm-scoring.js?v=7cc417d159b3"></script>
-<script src="gama-crm-leads.js?v=44b701e64ccd"></script>
-<script src="gama-crm-opportunities.js?v=b38752b6679a"></script>
-<script src="gama-crm-activities.js?v=b812b20f40f0"></script>
-<script src="gama-crm-contacts.js?v=ed1f76088f57"></script>
-<script src="gama-contacts.js?v=2c062a0c1536"></script>
+<script src="gama-crm-leads.js?v=4a290f19c95d"></script>
+<script src="gama-crm-opportunities.js?v=250ea32ab7d3"></script>
+<script src="gama-crm-activities.js?v=3c415e30f2b8"></script>
+<script src="gama-crm-contacts.js?v=bdf9b6429167"></script>
+<script src="gama-contacts.js?v=9c2e0cfe0aa6"></script>
 <script src="gama-crm-reports.js?v=256eb9d1fd87"></script>
 <script src="gama-crm-targets.js?v=a484e6237385"></script>
 <script src="gama-hr-p1.js?v=c2d205c44b7c"></script>
-<script src="gama-hr.js?v=3cff2e26747f"></script>
-<script src="gama-settings.js?v=0b9db46eebd0"></script>
-<script src="gama-inventory-v2.js?v=75b130b0dde6"></script>
-<script src="gama-sales.js?v=bc3bdc533d69"></script>
+<script src="gama-hr.js?v=7c677f7b2790"></script>
+<script src="gama-settings.js?v=14180667a016"></script>
+<script src="gama-inventory-v2.js?v=fab6d52fab8d"></script>
+<script src="gama-sales.js?v=773f7d080c21"></script>
 <script src="gama-quotes.js?v=1447e9f7a212"></script>
 <script src="gama-order-preparation.js?v=f66d93042511"></script>
 <script src="gama-fulfillment.js?v=bebe444222d3"></script>
@@ -509,10 +509,10 @@ showTab('mainmenu',null);
 <link rel="stylesheet" href="gama-projects.css?v=55f43baf8acd">
 <script src="gama-projects-core.js?v=11aeade5f421"></script>
 <script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
-<script src="gama-projects.js?v=29b591808aa7"></script>
+<script src="gama-projects.js?v=f90efdf4f2d9"></script>
 <script src="gama-knowledge.js?v=268322cac710"></script>
 <script src="gama-payments.js?v=20af67b7a239"></script>
-<script src="gama-operations.js?v=6a7830a0cf1d"></script>
+<script src="gama-operations.js?v=329aa732d92b"></script>
 <script src="gama-standard-ui.js?v=9235231a5459"></script>
 
 <script src="architect-shell.js?v=ca5f7b3800d5"></script>

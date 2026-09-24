@@ -41,9 +41,9 @@ function cabecera(t){
  return primera&&primera.cells.length&&![...primera.cells].some(c=>c.tagName==='TD')?[...primera.cells]:[];
 }
 
-/* El texto de una cabecera, sin sus adornos: la flecha «↕» que GamaSort pone
+/* El texto de una cabecera, sin sus adornos: la flecha «⇅» que GamaSort pone
    para ordenar no es parte del nombre de la columna y en la ficha se leería
-   como «CÓDIGO ↕». */
+   como «CÓDIGO ⇅». */
 function nombreDeColumna(th){
  const copia=th.cloneNode(true);
  copia.querySelectorAll('.gamaSortInd,[aria-hidden="true"]').forEach(x=>x.remove());
@@ -66,7 +66,7 @@ function etiquetar(t){
    if(c.tagName!=='TD'){i+=c.colSpan||1;continue}
    const texto=(c.textContent||'').trim();
    /* El titular de la ficha es la primera celda que dice algo legible. Las que
-      van antes son la foto o un icono —«📦», un <img>—: ésas no llevan
+      van antes son la foto o un icono —un <svg>, un <img>—: ésas no llevan
       etiqueta ni hueco para ella, se enseñan tal cual encima de la ficha. Una
       ficha encabezada sólo por una foto no se distingue de la de al lado. */
    const dice=/[\p{L}\p{N}]/u.test(texto);

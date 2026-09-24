@@ -104,7 +104,7 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'↩️ Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
+ window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
@@ -224,8 +224,8 @@ function wizardKind(){
  const el=window.GamaSales.modal(T('Nueva devolución'),
   `<p class="grSteps"><span aria-current="step">${tr('1 · Tipo')}</span><span>${tr('2 · Documento')}</span><span>${tr('3 · Productos')}</span></p>
    <div class="grBig">
-    <button type="button" class="arcButton secondary" data-gr-kind="customer">${tr('↩️ Devolución de un cliente')}</button>
-    <button type="button" class="arcButton secondary" data-gr-kind="supplier">${tr('📦 Devolución a un proveedor')}</button>
+    <button type="button" class="arcButton secondary" data-gr-kind="customer">${tr('Devolución de un cliente')}</button>
+    <button type="button" class="arcButton secondary" data-gr-kind="supplier">${tr('Devolución a un proveedor')}</button>
    </div>`,T('Volver'),async()=>{});
  /* No hay nada que guardar en este paso: la elección es el botón. */
  el.querySelector('#gsSave').remove();
@@ -347,22 +347,22 @@ function processView(d){
   {title:'Origen de la devolución',state:'done',body:docs(origin.map(docButton))+`<p>${tr('Motivo')} : ${tr(REASON[d.reason]||d.reason)}</p>`},
   {title:'Solicitud de devolución',state:cancelled?'closed':'done',body:docs([`<li><span class="gdfDoc">${esc(d.number)}</span></li>`])+lines+files},
   {title:'Recepción',state:d.status==='to_process'?'active':'done',need:'Registrar la llegada de la mercancía: entra retenida y no cuenta como disponible.',
-   body:d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grReceive">${tr('📥 Registrar la recepción')}</button></div>`:''},
+   body:d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grReceive">${tr('Registrar la recepción')}</button></div>`:''},
   {title:'Tratamiento',state:d.status==='to_process'?'pending':d.status==='received'?'active':'done',need:'Decidir producto por producto: stock, rebut o devolución al proveedor.',
    body:(d.status==='to_process'?'':decisions)+(d.status==='received'&&pending?`<p class="grHint">${tr('La mercancía está retenida: no cuenta como disponible hasta que decidas.')}</p>`:'')},
   {title:'Acción financiera',state:financialDone?'done':['processed','received'].includes(d.status)?'active':'pending',need:'Elegir la acción financiera —ninguna, abono, reembolso o crédito— y ejecutarla.',
-   body:money_+docs(creditDocs)+`<div class="grActions">${open&&r.refund?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}${open&&r.refund&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('🧾 Emitir un abono')}</button>`:''}${open&&r.refund&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('💸 Reembolsar')}</button>`:''}</div>${!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}`},
+   body:money_+docs(creditDocs)+`<div class="grActions">${open&&r.refund?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}${open&&r.refund&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('Emitir un abono')}</button>`:''}${open&&r.refund&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('Reembolsar')}</button>`:''}</div>${!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}`},
   {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':d.status==='processed'?'active':'pending',need:'Cerrar la devolución cuando todo esté tratado.',
-   body:open&&(r.process||r.refund)&&d.status==='processed'?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button></div>`:''}
+   body:open&&(r.process||r.refund)&&d.status==='processed'?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('Cerrar la devolución')}</button></div>`:''}
  ]:[
   {title:'Origen de la devolución',state:'done',body:docs(origin.map(docButton))+`<p>${tr('Motivo')} : ${tr(REASON[d.reason]||d.reason)}</p>`},
   {title:'Solicitud de devolución',state:cancelled?'closed':'done',body:docs([`<li><span class="gdfDoc">${esc(d.number)}</span></li>`])+lines+files},
   {title:'Expedición al proveedor',state:d.status==='to_process'?'active':'done',need:'Registrar la salida de la mercancía hacia el proveedor.',
-   body:`${d.carrier||d.tracking||d.shipped_on?`<dl class="grDl">${d.carrier?`<dt>${tr('Transportista')}</dt><dd>${esc(d.carrier)}</dd>`:''}${d.tracking?`<dt>${tr('Número de seguimiento')}</dt><dd>${esc(d.tracking)}</dd>`:''}${d.shipped_on?`<dt>${tr('Expedida el')}</dt><dd>${esc(d.shipped_on)}</dd>`:''}</dl>`:''}${d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grShip">${tr('🚚 Registrar la expedición')}</button></div>`:''}`},
+   body:`${d.carrier||d.tracking||d.shipped_on?`<dl class="grDl">${d.carrier?`<dt>${tr('Transportista')}</dt><dd>${esc(d.carrier)}</dd>`:''}${d.tracking?`<dt>${tr('Número de seguimiento')}</dt><dd>${esc(d.tracking)}</dd>`:''}${d.shipped_on?`<dt>${tr('Expedida el')}</dt><dd>${esc(d.shipped_on)}</dd>`:''}</dl>`:''}${d.status==='to_process'&&open&&r.process?`<div class="grActions"><button class="arcButton primary" id="grShip">${tr('Registrar la expedición')}</button></div>`:''}`},
   {title:'Abono del proveedor',state:d.credits.length||d.status==='credited'?'done':d.status==='shipped'?'active':'pending',need:'Registrar el abono que envía el proveedor.',
-   body:money_+docs(creditDocs)+(open&&r.refund?`<div class="grActions"><button class="arcButton secondary" id="grSupplierCredit">${tr('🧾 Registrar el abono del proveedor')}</button></div>`:'')},
+   body:money_+docs(creditDocs)+(open&&r.refund?`<div class="grActions"><button class="arcButton secondary" id="grSupplierCredit">${tr('Registrar el abono del proveedor')}</button></div>`:'')},
   {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':['shipped','credited'].includes(d.status)?'active':'pending',need:'Cerrar la devolución cuando el proveedor la haya abonado.',
-   body:open&&(r.process||r.refund)&&['shipped','credited'].includes(d.status)?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('✅ Cerrar la devolución')}</button></div>`:''}
+   body:open&&(r.process||r.refund)&&['shipped','credited'].includes(d.status)?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('Cerrar la devolución')}</button></div>`:''}
  ];
  const current=steps.findIndex(x=>['active','pending','blocked'].includes(x.state));
  const next=cancelled?'Devolución anulada.':current<0?'Proceso completo.':steps[current].need||'';
@@ -446,9 +446,9 @@ function receiveForm(id){
 function processLine(id,lineId){
  const el=window.GamaSales.modal(T('¿Qué se hace con el producto?'),
   `<div class="grBig">
-    <button type="button" class="arcButton secondary" data-gr-disp="restocked">${tr('📦 Reponer en stock')}</button>
-    <button type="button" class="arcButton secondary" data-gr-disp="scrapped">${tr('🗑️ Al rebut')}</button>
-    <button type="button" class="arcButton secondary" data-gr-disp="to_supplier">${tr('↪️ Devolver al proveedor')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="restocked">${tr('Reponer en stock')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="scrapped">${tr('Al rebut')}</button>
+    <button type="button" class="arcButton secondary" data-gr-disp="to_supplier">${tr('Devolver al proveedor')}</button>
    </div>
    <label class="grField" id="grLocBox" data-gi-live data-gi=bd3b914791dc>Almacén de destino<select id="grLoc">${locationOptions()}</select></label>
    <label class="grField" data-gi-live data-gi=53c367898434>Comentario<textarea id="grLineNotes" rows="2" maxlength="600"></textarea></label>`,

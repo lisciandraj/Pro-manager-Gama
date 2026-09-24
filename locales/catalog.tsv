@@ -126,7 +126,7 @@ Precio de venta al detalle (USD) — Categoría B	Prix de détail (USD) — Cat�
 IVA del producto	TVA du produit	Product VAT
 Foto del producto	Photo du produit	Product photo
 Foto tomada con la cámara o seleccionada desde Fotos.	Photo prise avec l’appareil photo ou choisie dans la galerie.	Take a photo or select one from your gallery.
-Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo 🏷️ Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).	Les prix dépendent de la catégorie client. La catégorie C (prix négocié par contrat) se gère dans Tarifs. Sans prix négocié, le prix de gros (catégorie A) s’applique.	Prices depend on the customer category. Category C contract prices are managed in Price lists. Products without an agreed price use the category A wholesale price.
+Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).	Les prix dépendent de la catégorie client. La catégorie C (prix négocié par contrat) se gère dans Tarifs. Sans prix négocié, le prix de gros (catégorie A) s’applique.	Prices depend on the customer category. Category C contract prices are managed in Price lists. Products without an agreed price use the category A wholesale price.
 Crear producto	Créer un produit	Create product
 Limpiar	Effacer	Clear
 Productos disponibles	Produits disponibles	Available products
@@ -354,7 +354,7 @@ Dto.	Rem.	Disc.
 Total	Total	Total
 Ninguna línea todavía: el importe es el que se haya escrito arriba.	Aucune ligne : le montant est celui saisi ci-dessus.	No lines yet: the amount is the value entered above.
 Crear / ver pedido de venta	Créer / voir la commande client	Create / view sales order
-Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.	Un devis nécessite un client. Convertissez d’abord le prospect depuis Prospects.	A quote requires a customer. Convert the lead from Leads first.
+Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde Prospectos.	Un devis nécessite un client. Convertissez d’abord le prospect depuis Prospects.	A quote requires a customer. Convert the lead from Leads first.
 Cargando el embudo…	Chargement du pipeline…	Loading pipeline…
 Concepto	Indicateur	Item
 Cuántas	Nombre	Count
@@ -674,7 +674,7 @@ No hay alertas para este filtro.	Aucune alerte pour ce filtre.	No alerts for thi
 Cargando datos…	Chargement des données…	Loading data…
 Nota de seguimiento	Note de suivi	Follow-up note
 Clientes de categoría C	Clients de catégorie C	Category C customers
-Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.	Les prix négociés concernent les clients de catégorie C, définie dans leur fiche. Importez-les en masse via Importer des données ou modifiez-les ici par produit.	Negotiated prices apply to category C customers, set in their customer record. Bulk import them via Import data or edit them here per product.
+Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en Clientes. Se pueden cargar de golpe desde Importar datos y corregir aquí producto a producto cuando el contrato cambia.	Les prix négociés concernent les clients de catégorie C, définie dans leur fiche. Importez-les en masse via Importer des données ou modifiez-les ici par produit.	Negotiated prices apply to category C customers, set in their customer record. Bulk import them via Import data or edit them here per product.
 Ningún cliente de categoría C todavía.	Aucun client de catégorie C.	No category C customers yet.
 Elige un cliente a la izquierda.	Choisissez un client à gauche.	Choose a customer on the left.
 Todos los productos ya tienen precio pactado	Tous les produits ont déjà un prix négocié	All products already have agreed prices
@@ -1970,8 +1970,6 @@ Km medidos	Km mesurés	Km measured
 Todavía no hay repostajes registrados.	Aucun plein n’est encore enregistré.	No fill-ups recorded yet.
 Comprobar vencimientos ahora	Vérifier les échéances maintenant	Check deadlines now
 Vencimientos comprobados.	Échéances vérifiées.	Deadlines checked.
-⛽ Registrar un repostaje	⛽ Enregistrer un plein	⛽ Record a fill-up
-🔧 Registrar un entretenimiento	🔧 Enregistrer un entretien	🔧 Record a service
 Registrar un repostaje	Enregistrer un plein	Record a fill-up
 Registrar un entretenimiento	Enregistrer un entretien	Record a service
 Sin consumo medido	Consommation non mesurée	Consumption not measured
@@ -2227,19 +2225,10 @@ Ya se ha devuelto todo lo de ese documento.	Tout a déjà été retourné sur ce
 ¿Qué se hace con el dinero?	Que fait-on côté argent ?	What happens to the money?
 ¿Qué se hace con el producto?	Que fait-on du produit ?	What happens to the product?
 ¿Qué vuelve?	Qu’est-ce qui revient ?	What is coming back?
-↩ Crear una devolución	↩ Créer un retour	↩ Create a return
-↩️ Devolución de un cliente	↩️ Retour d’un client	↩️ Return from a customer
-↪️ Devolver al proveedor	↪️ Retourner au fournisseur	↪️ Return to the supplier
-✅ Cerrar la devolución	✅ Clôturer le retour	✅ Close the return
-💸 Reembolsar	💸 Rembourser	💸 Refund
-📥 Registrar la recepción	📥 Enregistrer la réception	📥 Record the receipt
-📦 Devolución a un proveedor	📦 Retour à un fournisseur	📦 Return to a supplier
-📦 Reponer en stock	📦 Remettre en stock	📦 Put back in stock
-🗑️ Al rebut	🗑️ Au rebut	🗑️ Scrap it
-🚚 Registrar la expedición	🚚 Enregistrer l’expédition	🚚 Record the dispatch
-🧾 Emitir un abono	🧾 Créer un avoir	🧾 Create a credit note
-🧾 Registrar el abono del proveedor	🧾 Enregistrer l’avoir du fournisseur	🧾 Record the supplier credit note
-↩️ Devoluciones	↩️ Retours	↩️ Returns
+Crear una devolución	Créer un retour	Create a return
+Devolución de un cliente	Retour d’un client	Return from a customer
+Reembolsar	Rembourser	Refund
+Devolución a un proveedor	Retour à un fournisseur	Return to a supplier
 Lo que vuelve del cliente y lo que se devuelve al proveedor.	Ce qui revient du client et ce qu’on renvoie au fournisseur.	What comes back from customers and what goes back to suppliers.
 ¿De qué entrega vuelve?	De quelle livraison cela revient-il ?	Which delivery is it coming back from?
 ¿De qué recepción vuelve?	De quelle réception cela revient-il ?	Which receipt is it coming back from?
@@ -2330,12 +2319,7 @@ Nombre / razón social	Nom / raison sociale	Name / company name
 ¿Archivar al proveedor «	Archiver le fournisseur «	Archive supplier “
 ¿Borrar definitivamente a «	Supprimer définitivement «	Permanently delete “
 MODULE_LOAD_FAILED	Le module n’a pas pu être chargé. Réessayez.	The module could not be loaded. Please retry.
-♻️ Restaurar	♻️ Restaurer	♻️ Restore
-✏️ Editar	✏️ Modifier	✏️ Edit
 ＋ Guardar proveedor	＋ Enregistrer le fournisseur	＋ Save supplier
-🗄️ Archivar	🗄️ Archiver	🗄️ Archive
-🗑️ Borrar	🗑️ Supprimer	🗑️ Delete
-🗑️ Borrar definitivamente	🗑️ Supprimer définitivement	🗑️ Permanently delete
 El contacto y las condiciones de cada proveedor.	Coordonnées et conditions de chaque fournisseur.	Contact details and terms for each supplier.
 Vuelve a iniciar sesión.	Reconnectez-vous.	Sign in again.
 Tu perfil no puede realizar esta operación.	Votre profil ne permet pas cette opération.	Your role cannot perform this operation.
@@ -2830,7 +2814,7 @@ Identificación (RUC, cédula o pasaporte)	Identifiant (RUC, carte d’identité
 Es el contacto principal del prospecto	C’est le contact principal du prospect	Primary contact for the prospect
 Editar contacto	Modifier le contact	Edit contact
 Todavía no hay prospectos: créalos primero en el CRM → Prospectos.	Aucun prospect pour l’instant : créez-les d’abord dans CRM → Prospects.	No prospects yet: create them first in CRM → Prospects.
-💾 Guardar contacto	💾 Enregistrer le contact	💾 Save contact
+Guardar contacto	Enregistrer le contact	Save contact
 Buscar por nombre, tipo, identificación, empresa, ciudad o correo…	Chercher par nom, type, identifiant, société, ville ou e-mail…	Search by name, type, ID, company, city or email…
 ¿Archivar a «	Archiver «	Archive “
 Contacto borrado.	Contact supprimé.	Contact deleted.

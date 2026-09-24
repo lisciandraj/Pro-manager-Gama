@@ -91,7 +91,7 @@ function mount(){
  const host=document.querySelector('#gamaCloudLogin .box')||document.getElementById('gamaSettingsLanguage');if(!host)return;
  let bar=document.getElementById('gamaLanguagePicker');if(!bar){
   bar=document.createElement('div');bar.id='gamaLanguagePicker';bar.setAttribute('role','group');bar.setAttribute('aria-label','Language / Langue / Idioma');bar.setAttribute('translate','no');
-  for(const [code,flag,label] of [['fr','🇫🇷','Français'],['en','🇬🇧','English'],['es','🇪🇸','Español']]){
+  for(const [code,label] of [['fr','Français'],['en','English'],['es','Español']]){
    const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">'+flags[code]+'</svg><span>'+label+'</span>';b.onclick=()=>setLanguage(code);bar.appendChild(b);
   }host.appendChild(bar);
  }

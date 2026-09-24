@@ -1,8 +1,9 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
-// Las pestañas llevan sólo su nombre (y, en Notificaciones, su recuento): los
-// iconos quedan para las tarjetas del inicio y la navegación, que son los módulos.
+// Las pestañas de los módulos llevan sólo su nombre; los dibujos de la aplicación
+// quedan para las tarjetas del inicio, la navegación y las ventanas de
+// Configuración y Notificaciones. Ningún emoji en ninguna parte.
 async function boot(page,role='admin',db={}){
  await page.addInitScript(({role,db})=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Tabs QA'}));localStorage.setItem('gama_language_v1','fr');
@@ -30,15 +31,18 @@ test('les onglets RH n’ont plus d’icône, côté salarié',async({page})=>{
  expect(await decorated(tabs)).toEqual([]);
 });
 
-test('les rubriques des fenêtres Configuration et Notifications sont en texte seul',async({page})=>{
+// Configuración y Notificaciones sí llevan en cada apartado un dibujo de la
+// aplicación (no un emoji): se ven como las tarjetas del inicio.
+const logos=locator=>locator.evaluateAll((tabs,src)=>{const re=new RegExp(src,'u');return tabs.map(t=>({text:t.textContent.trim(),logo:!!t.querySelector('.arcSideIcon svg path, .arcSideIcon svg circle'),emoji:re.test(t.textContent)}))},/\p{Extended_Pictographic}/u.source);
+test('les rubriques des fenêtres Configuration et Notifications ont leur logo, sans emoji',async({page})=>{
  await boot(page);
  await page.locator('#arcSettings').click();
  const settings=page.locator('#arcSettingsDialog [role=tab]');await expect(settings.first()).toHaveText('Langue');
- expect(await decorated(settings)).toEqual([]);
+ const s=await logos(settings);expect(s.length).toBeGreaterThan(3);expect(s.filter(t=>!t.logo||t.emoji)).toEqual([]);
  await page.keyboard.press('Escape');
  await page.evaluate(()=>GamaOperations.open('notifications'));
  const notify=page.locator('#arcNotifyDialog [role=tab]');await expect(notify.first()).toContainText('Toutes les alertes');
- expect(await decorated(notify)).toEqual([]);
+ const n=await logos(notify);expect(n.length).toBeGreaterThan(5);expect(n.filter(t=>!t.logo||t.emoji)).toEqual([]);
 });
 
 test('Importer des données : les modes et les types de données sont en texte seul',async({page})=>{

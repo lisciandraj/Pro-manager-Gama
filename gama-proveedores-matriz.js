@@ -46,7 +46,7 @@ function migrateSuppliers(){try{if(localStorage.getItem(MIGRATED_KEY))return Pro
 let matrixEpoch=0,matrixRequest=null;
 const mt=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 async function renderMatrix(){
- section('matrix','📊 Matriz comercial',MAT_LEAD);const c=$('matrixContent');if(!c)return;
+ section('matrix','Matriz comercial',MAT_LEAD);const c=$('matrixContent');if(!c)return;
  const epoch=++matrixEpoch;c.textContent=mt('Cargando…','Chargement…','Loading…');
  try{
   const [rows,pr,sr]=await Promise.all([
@@ -100,7 +100,7 @@ window.addEventListener('gama:auth-change',()=>{matrixEpoch++;matrixRequest=null
    repintaba. El efecto secundario era que Configuración no se podía abrir
    desde ninguna parte. Matriz comercial tiene ahora su propia entrada en
    gama-menu-final2.js, que es donde se declaran las demás. */
-function hook(){injectStyles();section('matrix','📊 Matriz comercial',MAT_LEAD);window.ArcRouter.onEnter('matrix',renderMatrix)}
+function hook(){injectStyles();section('matrix','Matriz comercial',MAT_LEAD);window.ArcRouter.onEnter('matrix',renderMatrix)}
 window.GamaSuppliers={migrate:migrateSuppliers};
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,50),{once:true});else setTimeout(hook,50);

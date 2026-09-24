@@ -100,7 +100,7 @@ test('la flecha de ordenar no se cuela en el nombre de la columna', async ({ pag
   const c = await celdas(page, '#fixtureTable table');
   const nombres = c.map(x => x.col).join(' ');
   expect(nombres).toContain('Código');
-  expect(nombres, 'se coló el indicador de GamaSort').not.toMatch(/[↕▲▼]/);
+  expect(nombres, 'se coló el indicador de GamaSort').not.toMatch(/[↕⇅▲▼]/);
 });
 
 // Varias tablas alinean sus columnas numéricas con un style= en la celda, que

@@ -92,7 +92,7 @@ const definitions=[
       "magasinier"
     ],
     "header": [
-      "📈 Panel de control",
+      "Panel de control",
       "Toda la analítica del negocio en una pantalla."
     ]
   },
@@ -145,7 +145,7 @@ const definitions=[
       "magasinier"
     ],
     "header": [
-      "📦 Productos",
+      "Productos",
       "Crea tus productos y consulta el catálogo."
     ]
   },
@@ -180,7 +180,7 @@ const definitions=[
       "magasinier"
     ],
     "header": [
-      "🔄 Movimientos",
+      "Movimientos",
       "Registra entradas y salidas de mercancía."
     ]
   },
@@ -230,7 +230,7 @@ const definitions=[
       "magasinier"
     ],
     "header": [
-      "🏷️ Códigos de barras",
+      "Códigos de barras",
       "Genera códigos de barras para imprimir."
     ]
   },
@@ -436,7 +436,7 @@ const definitions=[
       "admin"
     ],
     "header": [
-      "🔎 Auditoría",
+      "Auditoría",
       "Stock, cobros y pagos, facturas, validaciones y accesos."
     ]
   },
@@ -503,7 +503,7 @@ const definitions=[
       "admin"
     ],
     "header": [
-      "💾 Copias de seguridad",
+      "Copias de seguridad",
       "Exporta tus datos y guarda copias de la base."
     ]
   },
@@ -519,7 +519,7 @@ const definitions=[
       "commercial"
     ],
     "header": [
-      "🧾 Presupuestos",
+      "Presupuestos",
       "Presupuestos para tus clientes, en PDF."
     ]
   }

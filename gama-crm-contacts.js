@@ -136,7 +136,7 @@ function lista(){
 function vacio(total,hayFichas){
  return '<div class="crmVacio">'+(total?'Ningún contacto coincide con la búsqueda.'
   :hayFichas?'Todavía no hay contactos. Crea el primero con «+ Nuevo contacto».'
-  :'Todavía no hay ni clientes ni prospectos a los que colgar un contacto. Empieza por 🤝 Prospectos o por 👥 Clientes.')+'</div>';
+  :'Todavía no hay ni clientes ni prospectos a los que colgar un contacto. Empieza por Prospectos o por Clientes.')+'</div>';
 }
 function tabla(rows){
  const th=(col,label)=>window.GamaSort?window.GamaSort.th('crmContactos',col,label):'<th>'+esc(label)+'</th>';
@@ -162,8 +162,8 @@ function fila(k){
      +(k.is_primary?'Dejar de ser el contacto principal':'Marcar como contacto principal')+'">'
      +(k.is_primary?'★':'☆')+'</button>':'')
    +(k.active!==false
-     ?'<button class="arcButton" type="button" data-archivar="'+esc(k.id)+'" data-gi-title=5b51573be49d title="Archivar contacto">🗄️</button>'
-     :'<button class="arcButton" type="button" data-restaurar="'+esc(k.id)+'" data-gi-title=828f5b5c5e83 title="Restaurar contacto">↩︎</button>')
+     ?'<button class="arcButton" type="button" data-archivar="'+esc(k.id)+'" data-gi-title=5b51573be49d title="Archivar contacto" data-gi=f35f9141f442>Archivar</button>'
+     :'<button class="arcButton" type="button" data-restaurar="'+esc(k.id)+'" data-gi-title=828f5b5c5e83 title="Restaurar contacto" data-gi=eda02893d340>Restaurar</button>')
   +'</td></tr>';
 }
 

@@ -226,7 +226,7 @@ function nav(){
    del CRM empiezan por aquí, para que el título y el botón de volver estén
    siempre en el mismo sitio. */
 function cabecera(lead){
- return window.GamaUI.header({title:'🤝 CRM',lead:lead||'Prospectos, oportunidades y actividad comercial.'})+nav();
+ return window.GamaUI.header({title:'CRM',lead:lead||'Prospectos, oportunidades y actividad comercial.'})+nav();
 }
 /* Conecta lo que la cabecera trae: el botón de volver y la navegación. Se
    llama después de cada innerHTML, que no arrastra los onclick. */
@@ -313,7 +313,7 @@ async function open(){
  const s=section();
  mostrar();
  if(!puedeUsar()){
-  window.ArcUI.render(s,`${window.GamaUI.header({title:'🤝 CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
+  window.ArcUI.render(s,`${window.GamaUI.header({title:'CRM',lead:'Prospectos, oportunidades y actividad comercial.'})}
    <div class="arcPanel card"><div class="crmVacio" data-gi=0db875f7987c>Tu perfil no tiene acceso al CRM.</div></div>`);
   window.GamaUI.bindBack(s);return;
  }

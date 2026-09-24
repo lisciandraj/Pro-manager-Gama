@@ -62,7 +62,7 @@ test.describe('Archivar en lugar de borrar', () => {
     await expect(page.locator('#productsTable')).toContainText('Tornillo facturado');
     await expect(page.locator('#productsTable')).not.toContainText('Tuerca libre');
 
-    await page.click('button:has-text("♻️ Restaurar")');
+    await page.click('#productsTable button:has-text("Restaurar")');
     await page.waitForTimeout(700);
     expect(await page.evaluate(() => window.__DB.products.find(p => p.id === 'p1').active)).toBe(true);
   });

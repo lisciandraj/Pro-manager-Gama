@@ -96,8 +96,8 @@ function actions(r){
  const b=(label,attr,variant)=>U.button({label:T(label),variant,attrs:attr+'="'+esc(r.key)+'"'});
  const out=[];
  if(r.kind!=='prospects')out.push(b('Historial','data-ct-history'));
- if(r.active)out.push(b('✏️ Editar','data-ct-edit'),b('🗄️ Archivar','data-ct-archive','danger'));
- else{out.push(b('♻️ Restaurar','data-ct-restore'));if(r.kind!=='prospects')out.push(b('🗑️ Borrar definitivamente','data-ct-purge','danger'))}
+ if(r.active)out.push(b('Editar','data-ct-edit'),b('Archivar','data-ct-archive','danger'));
+ else{out.push(b('Restaurar','data-ct-restore'));if(r.kind!=='prospects')out.push(b('Borrar definitivamente','data-ct-purge','danger'))}
  return out.join(' ');
 }
 const columns=()=>[
@@ -161,11 +161,11 @@ function openForm(kind,record=null){
  const box=$('ctEditor');if(!box)return;
  editing=record?{kind,id:record.id,record}:null;draft=record?fromRecord(kind,record):{category:'A'};
  box.hidden=false;box.dataset.kind=kind;
- U.render(box,`<form id="ctForm" class="arcPanel arcForm ctForm"><div class="ctFormHead"><h3>${tr(record?'Editar contacto':'Nuevo contacto')}</h3><button type="button" class="arcButton secondary" id="ctClose">${tr('✕ Cerrar')}</button></div>`
+ U.render(box,`<form id="ctForm" class="arcPanel arcForm ctForm"><div class="ctFormHead"><h3>${tr(record?'Editar contacto':'Nuevo contacto')}</h3><button type="button" class="arcButton secondary" id="ctClose">${tr('Cerrar')}</button></div>`
   +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Tipo de contacto',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
   +`<p class="gsHint" id="ctKindHint"></p><p class="gsHint" id="ctNoLeads" hidden>${tr('Todavía no hay prospectos: créalos primero en el CRM → Prospectos.')}</p>`
   +`<div class="arcFormGrid ctFields" id="ctFields"></div>`
-  +`<p id="ctMsg" role="alert" class="arcFormError"></p><div class="arcToolbar">${U.button({id:'ctSave',type:'submit',variant:'primary',label:T('💾 Guardar contacto')})}${U.button({id:'ctCancel',label:T('Cancelar')})}</div></form>`
+  +`<p id="ctMsg" role="alert" class="arcFormError"></p><div class="arcToolbar">${U.button({id:'ctSave',type:'submit',variant:'primary',label:T('Guardar contacto')})}${U.button({id:'ctCancel',label:T('Cancelar')})}</div></form>`
   +(record&&kind==='clients'?'<div id="pmCustomerProjects"></div>':''));
  // El tipo es la primera pregunta; al cambiarlo se conserva lo ya escrito que sirva.
  const type=$('ctType');type.querySelector('option[value=""]')?.remove();type.value=kind;
@@ -220,7 +220,7 @@ function render(){
  const s=section();
  grid?.dispose();grid=null;
  U.render(s,window.GamaUI.header({title:'Contactos',lead:'Clientes, proveedores y contactos de prospectos en una sola lista.',module:'contacts'})
-  +`<div class="ctBar"><input id="ctSearch" type="search" autocomplete="off" aria-label="${esc(T('Buscar contactos'))}" placeholder="${esc(T('Buscar por nombre, tipo, identificación, empresa, ciudad o correo…'))}"><div id="ctArchive"></div><button type="button" class="arcButton primary" id="ctNew">${tr('＋ Nuevo contacto')}</button></div>`
+  +`<div class="ctBar"><input id="ctSearch" type="search" autocomplete="off" aria-label="${esc(T('Buscar contactos'))}" placeholder="${esc(T('Buscar por nombre, tipo, identificación, empresa, ciudad o correo…'))}"><div id="ctArchive"></div><button type="button" class="arcButton primary" id="ctNew">${tr('Nuevo contacto')}</button></div>`
   +`<p class="gsHint ctStatus" id="ctStatus" role="status"></p><div id="ctEditor" class="ctEditor" hidden></div><div id="ctTable" class="ctTable"></div>`);
  window.GamaUI.bindBack(s);
  $('ctNew').onclick=()=>openForm(kinds()[0]?.id);

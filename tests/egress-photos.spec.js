@@ -77,8 +77,10 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     // La foto acaba en pantalla…
     const row = page.locator('#productsTable tr', { hasText: 'Con foto' });
     await expect(row.locator('img.product-img')).toHaveAttribute('src', PHOTO);
-    // …y el producto sin foto se queda con el marcador.
-    await expect(page.locator('#productsTable tr', { hasText: 'Sin foto' })).toContainText('📦');
+    // …y el producto sin foto se queda con el dibujo de Productos, sin emoji.
+    const sinFoto = page.locator('#productsTable tr', { hasText: 'Sin foto' });
+    await expect(sinFoto.locator('svg.gamaNoPhoto[data-icon="cube"] path').first()).toBeAttached();
+    expect(await sinFoto.textContent()).not.toMatch(/\p{Extended_Pictographic}/u);
 
     const calls = await page.evaluate(() => window.__DB.__calls || []);
     expect(photoQueries(calls)).toEqual([]);

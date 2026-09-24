@@ -11,7 +11,7 @@ const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'U
 const day=v=>{if(!v)return '—';try{return new Date(v+'T12:00:00').toLocaleDateString('es-EC')}catch(e){return String(v)}};
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
-const KINDS={vacaciones:'🏖️ Vacaciones',enfermedad:'🤒 Enfermedad',permiso:'📄 Permiso',formacion:'🎓 Formación',otro:'• Otro'};
+const KINDS={vacaciones:'Vacaciones',enfermedad:'Enfermedad',permiso:'Permiso',formacion:'Formación',otro:'Otro'};
 /* El equipo ve el motivo de cada ausencia —vacaciones, enfermedad, permiso…—
    porque para organizarse hace falta saberlo. Lo que no sale de su tabla es el
    comentario escrito a mano, que puede llevar un detalle médico o personal. */
@@ -117,7 +117,7 @@ async function loadProfiles(){
 
 /* ---- empleados ---- */
 const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrManager','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes','hrAccount'];
-function clearEmployee(){editing=null;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='＋ Guardar empleado';msg('')}
+function clearEmployee(){editing=null;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='Guardar empleado';msg('')}
 
 async function saveEmployee(){
  if(busy)return;
@@ -265,10 +265,10 @@ function employeesTab(){
    <td>${p.salary==null?'—':money(p.salary)}</td>
    <td>${used} / ${total}<small>días laborables ${year}</small>
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
-   <td>${off?'<span class="hrBadge" data-gi=eac5386d4211>Archivado</span>':'<span class="hrBadge ok" data-gi=723858144bd5>Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px" data-gi=19074913530e>🔑 Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px" data-gi=b4c10bd2c2fc>Sin cuenta</span>'}</td>
+   <td>${off?'<span class="hrBadge" data-gi=eac5386d4211>Archivado</span>':'<span class="hrBadge ok" data-gi=723858144bd5>Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px" data-gi=dd4b9a1f56aa>Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px" data-gi=b4c10bd2c2fc>Sin cuenta</span>'}</td>
    <td><div class="hrActs">
-    <button type="button" class="arcButton secondary" data-edit="${esc(p.id)}" data-gi=e3bd2ee1d054>✏️ Editar</button>
-    <button type="button" class="arcButton ${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}" data-gi-live>${off?'♻️ Restaurar':'🗄️ Archivar'}</button>
+    <button type="button" class="arcButton secondary" data-edit="${esc(p.id)}" data-gi=2eba946b2e1e>Editar</button>
+    <button type="button" class="arcButton ${off?'secondary':'danger'}" data-arch="${esc(p.id)}" data-on="${off?'1':'0'}" data-gi-live>${off?'Restaurar':'Archivar'}</button>
    </div></td></tr>`;
  }).join('');
 
@@ -308,8 +308,8 @@ function employeesTab(){
    <div class="muted" style="font-size:11.5px;margin-top:-2px" data-gi=3acee7e660f1>Al ligar la ficha a una cuenta, esa persona ve sus propios datos, pide sus días y consulta el calendario del equipo. Sin cuenta, sólo la gestionas tú.</div>
    <label data-gi=8ef60b6d94c0>Observaciones</label><textarea id="hrNotes" data-gi-placeholder=1dc4813dafd6 placeholder="Formación, idiomas, licencia de conducir…"></textarea>
    <div class="actions">
-    <button type="button" class="arcButton primary" id="hrSave" data-gi-live>${editing?'💾 Guardar cambios':'＋ Guardar empleado'}</button>
-    <button type="button" class="arcButton secondary" id="hrClear" data-gi=681b0f02838a>↺ Limpiar</button>
+    <button type="button" class="arcButton primary" id="hrSave" data-gi-live>${editing?'Guardar cambios':'Guardar empleado'}</button>
+    <button type="button" class="arcButton secondary" id="hrClear" data-gi=08df229fa5ad>Limpiar</button>
    </div>
   </div>
   <div class="arcPanel card">
@@ -333,8 +333,8 @@ function absencesTab(){
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
-    ${a.status!=='aprobada'&&a.status!=='cancelada'?`<button type="button" class="arcButton success" data-ok="${esc(a.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
-    ${a.status!=='rechazada'&&a.status!=='cancelada'?`<button type="button" class="arcButton secondary" data-no="${esc(a.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+    ${a.status!=='aprobada'&&a.status!=='cancelada'?`<button type="button" class="arcButton success" data-ok="${esc(a.id)}" data-gi=10a00fdf1a44>Aprobar</button>`:''}
+    ${a.status!=='rechazada'&&a.status!=='cancelada'?`<button type="button" class="arcButton secondary" data-no="${esc(a.id)}" data-gi=2a0515602d31>Rechazar</button>`:''}
     ${a.status!=='cancelada'?`<button type="button" class="arcButton danger" data-del="${esc(a.id)}" data-gi-live data-gi=030a5cd7677c>Anular</button>`:''}
    </div></td></tr>`;
  }).join('');
@@ -353,7 +353,7 @@ function absencesTab(){
    <label data-gi=98e5acddb6c4>Estado</label>
    <select id="hrAbsStatus"><option value="pendiente" data-gi=2ef68536d8e2>Pendiente</option><option value="aprobada" data-gi=80b504a3cd9c>Aprobada</option></select>
    <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=5c0130f03047 placeholder="Certificado médico, asunto propio…"></textarea>
-   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=14ee9bb5d9a1>＋ Registrar ausencia</button></div>
+   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=18f8ecb30787>Registrar ausencia</button></div>
   </div>
   <div class="arcPanel card">
    <h3 data-gi=38d61a2d5404>Quién está fuera hoy</h3>
@@ -446,7 +446,7 @@ function planTab(){
    const cortaIzq=a.start_date<desdeY,cortaDer=a.end_date>hastaY;
    const color=PLAN_COLORES[a.kind]||PLAN_COLORES.otro;
    const pend=a.status==='pendiente';
-   const etiqueta=(KINDS[a.kind]||a.kind).replace(/^\S+\s/,'');
+   const etiqueta=KINDS[a.kind]||a.kind;
    const detalle=employeeName(a.employee_id)+' · '+(KINDS[a.kind]||a.kind)+' · '
      +day(a.start_date)+' → '+day(a.end_date)+' · '+(STATUS[a.status]||a.status);
    return `<button type="button" class="arcButton hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
@@ -464,7 +464,7 @@ function planTab(){
  }).join('');
 
  const leyenda=Object.keys(PLAN_COLORES).map(k=>
-   `<span class="hrPlanLeyenda" data-gi-live><i style="background:${PLAN_COLORES[k]}"></i>${esc((KINDS[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
+   `<span class="hrPlanLeyenda" data-gi-live><i style="background:${PLAN_COLORES[k]}"></i>${esc(KINDS[k]||k)}</span>`).join('')
   +'<span class="hrPlanLeyenda" data-gi-live><i class="pend"></i>Pendiente de aprobar</span>';
 
  const sel=planPick&&absences.find(a=>a.id===planPick);
@@ -499,8 +499,8 @@ function planTab(){
       <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(sel.employee_id,sel.start_date,sel.end_date,sel.start_fraction??1,sel.end_fraction??1):workingDays(sel.start_date,sel.end_date))+' laborables':''}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
-      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="arcButton success" data-ok="${esc(sel.id)}" data-gi=28a14dff8662>✓ Aprobar</button>`:''}
-      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="arcButton secondary" data-no="${esc(sel.id)}" data-gi=c0f66b48fa6c>✕ Rechazar</button>`:''}
+      ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="arcButton success" data-ok="${esc(sel.id)}" data-gi=10a00fdf1a44>Aprobar</button>`:''}
+      ${isAdmin()&&sel.status!=='rechazada'?`<button type="button" class="arcButton secondary" data-no="${esc(sel.id)}" data-gi=2a0515602d31>Rechazar</button>`:''}
       <button type="button" class="arcButton secondary" id="hrPlanCerrar" data-gi=aeccae342e4b>Cerrar</button>
     </div>
    </div>`:''}
@@ -580,7 +580,7 @@ function myRequestsTab(){
     <div><label data-gi=66b3c7fb42f9>Hasta *</label><input id="hrAbsTo" type="date" value="${today()}"></div>
    </div>
    <label data-gi=53c367898434>Comentario</label><textarea id="hrAbsReason" data-gi-placeholder=afe18510d3eb placeholder="Motivo o detalle para quien lo apruebe…"></textarea>
-   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=e3f27a649cc6>📩 Enviar solicitud</button></div>
+   <div class="actions"><button type="button" class="arcButton primary" id="hrAbsAdd" data-gi=c9bb5c644aeb>Enviar solicitud</button></div>
    <div class="muted" style="font-size:11.5px;margin-top:8px" data-gi-live data-gi=66bbbee747ed>La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes retirarla mientras esté pendiente.</div>`:''}
   </div>
   <div class="arcPanel card">
@@ -611,7 +611,7 @@ function render(){
 
  if(window.GamaHRP1)pestanas.push(...window.GamaHRP1.tabs());
  window.ArcUI.render(s,window.GamaUI.header({
-   title:'🧑‍💼 Recursos humanos',
+   title:'Recursos humanos',
    lead:admin
      ? 'Empleados, ausencias y calendario del equipo.'
      : 'Tus datos, tus días y el calendario del equipo.'

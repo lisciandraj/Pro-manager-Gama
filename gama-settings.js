@@ -48,7 +48,7 @@ function render(id='settings'){
  css();
  const s=section(id);
  if(!isAdmin()){window.ArcUI.render(s,'');return}
- const head=window.GamaUI.header({title:'🔐 Parámetros de acceso',lead:'Configura los módulos de la empresa y los accesos de cada perfil.'});
+ const head=window.GamaUI.header({title:'Parámetros de acceso',lead:'Configura los módulos de la empresa y los accesos de cada perfil.'});
 
  const mods=window.GamaModules.list();
  const activos=mods.filter(m=>m.enabled).length;
@@ -122,14 +122,15 @@ function bind(viewId){
    empresa y sólo para el administrador. La ficha de la empresa sigue siendo
    un único formulario con un solo «Guardar»: cada apartado enseña su parte. */
 const PREFERENCES='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
+const GLOBE='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>';
 const SECTIONS=[
- {id:'language',label:'Idioma',pane:'language'},
- {id:'company',label:'Información de la empresa',pane:'company',admin:true},
- {id:'identity',label:'Identidad de los documentos',pane:'company',admin:true},
- {id:'fiscal',label:'Ajustes fiscales',pane:'company',admin:true},
- {id:'references',label:'Referencias de documentos',pane:'references',admin:true},
- {id:'policies',label:'Reglas operativas',pane:'policies',admin:true},
- {id:'security',label:'Seguridad de mi cuenta',pane:'security'},
+ {id:'language',label:'Idioma',icon:GLOBE,pane:'language'},
+ {id:'company',label:'Información de la empresa',icon:'factory',pane:'company',admin:true},
+ {id:'identity',label:'Identidad de los documentos',icon:'documents',pane:'company',admin:true},
+ {id:'fiscal',label:'Ajustes fiscales',icon:'ledger',pane:'company',admin:true},
+ {id:'references',label:'Referencias de documentos',icon:'tag',pane:'references',admin:true},
+ {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
+ {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
 ];
 // Cada apartado se carga la primera vez que se enseña: abrir la ventana para el idioma no pide nada al servidor.
 const PANES={
@@ -152,8 +153,9 @@ function openDialog(section='language'){
  if(dialog?.el.open){dialog.select(section);return dialog.el}
  // Una ventana que se está cerrando (su «close» llega después) no se reutiliza.
  dialog?.el.remove();dialog=null;
+ const icon=s=>window.ArcUI.icons[s.icon]||s.icon;
  dialog=window.ArcUI.sideDialog({id:'arcSettingsDialog',prefix:'cfg',title:'Configuración',navLabel:'Apartados de la configuración',opener:document.getElementById('arcSettings'),
-  tabs:items.map(s=>({id:s.id,label:s.label,pane:s.pane})),
+  tabs:items.map(s=>({id:s.id,label:s.label,icon:icon(s),pane:s.pane})),
   panes:[{id:'language',html:PREFERENCES},...[...new Set(items.map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host data-gi-ignore></div>`}))],
   onSelect:show,onClose:api=>{if(dialog===api)dialog=null}});
  const el=dialog.el;

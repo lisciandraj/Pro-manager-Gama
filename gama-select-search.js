@@ -194,7 +194,7 @@ function refresh(sel){
  const total=reales(sel).length,vale=total>=MIN;
  if(total!==st.total){
   st.total=total;
-  st.input.placeholder='🔎 Escribe para buscar entre '+total+' opciones…';
+  st.input.placeholder='Escribe para buscar entre '+total+' opciones…';
   st.box.hidden=!vale;
   /* Por debajo del umbral manda el desplegable de siempre; por encima se
      esconde, pero SIGUE en la página y sigue siendo el que guarda el valor.

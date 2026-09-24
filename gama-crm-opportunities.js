@@ -286,10 +286,10 @@ function bloquePresupuesto(){
   const n=presupuesto?(presupuesto.invoice_number||('archivo '+presupuesto.archive_number)):'';
   return '<div class="crmAviso">Presupuesto generado'+(n?' <b>'+esc(n)+'</b>':'')
    +(presupuesto?' · '+esc(CRM.money(presupuesto.total)):'')
-   +'. Se abre, se imprime y se envía desde 🧾 Presupuestos.</div>'
+   +'. Se abre, se imprime y se envía desde Presupuestos.</div>'
    +(window.gamaAccessAllowed?.('sales-orders')?'<div class="crmAcciones"><button type="button" class="arcButton primary" data-gs-source="quote" data-gs-source-id="'+esc(o.quote_invoice_id)+'" data-gi=7a96eba94173>Crear / ver pedido de venta</button></div>':'');
  }
- if(!o.customer_id)return '<div class="crmAviso" data-gi=fbb5bdeba43d>Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.</div>';
+ if(!o.customer_id)return '<div class="crmAviso" data-gi=9adc18fa4693>Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde Prospectos.</div>';
  if(!lineas.length)return '';
  return '<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmOPresu" data-gi=f3db8ba5ef50>Generar presupuesto</button></div>';
 }
@@ -463,11 +463,11 @@ const precioPactado=l=>Math.round(Number(l.unit_price||0)*(1-Number(l.discount||
 async function generarPresupuesto(){
  const o=abierto;
  if(!o||!o.id)return;
- if(o.quote_invoice_id){msg('Esta oportunidad ya tiene un presupuesto. Se abre desde 🧾 Presupuestos.','err');return}
+ if(o.quote_invoice_id){msg('Esta oportunidad ya tiene un presupuesto. Se abre desde Presupuestos.','err');return}
  /* Un presupuesto se le hace a un CLIENTE. Un prospecto todavía no tiene ficha
     de cliente, así que el camino es convertirlo primero —que es justo lo que
     hace el botón de Prospectos— y no inventar aquí un cliente a medias. */
- if(!o.customer_id){msg('Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde 🤝 Prospectos.','err');return}
+ if(!o.customer_id){msg('Un presupuesto se le hace a un cliente. Convierte antes el prospecto en cliente, desde Prospectos.','err');return}
  if(!lineas.length){msg('Añade al menos un producto antes de generar el presupuesto.','err');return}
  try{
   const uid=await quienSoy();
@@ -492,7 +492,7 @@ async function generarPresupuesto(){
    const li=await C().insert('invoice_lines',Object.assign({invoice_id:invId},f));
    /* Si una línea falla, el presupuesto ya existe: decirlo con esas palabras
       en vez de dejar creer que no se hizo nada y que se repita la operación. */
-   if(li.error)throw new Error('El presupuesto se creó pero una línea falló ('+(li.error.message||li.error)+'). Revísalo en 🧾 Presupuestos antes de repetir.');
+   if(li.error)throw new Error('El presupuesto se creó pero una línea falló ('+(li.error.message||li.error)+'). Revísalo en Presupuestos antes de repetir.');
   }
   const up=await C().update('crm_opportunities',o.id,{quote_invoice_id:invId});
   if(up.error)throw new Error('El presupuesto se creó pero no quedó enlazado con la oportunidad ('+(up.error.message||up.error)+').');

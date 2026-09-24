@@ -159,7 +159,7 @@ for(const width of [390,1280])test(`vehicle cards show saved photos at full widt
  await expect.poll(()=>img.evaluate(el=>el.naturalWidth)).toBe(320);
  const widths=await card.evaluate(el=>({card:el.clientWidth,figure:el.querySelector('figure').clientWidth}));
  expect(widths.figure).toBeGreaterThanOrEqual(widths.card-2);
- await expect(page.locator('[data-gf-vehicle="v2"] figure')).toHaveText('🚗');
+ await expect(page.locator('[data-gf-vehicle="v2"] figure svg[data-icon="car"] path').first()).toBeAttached();
  const requests=await page.evaluate(()=>window.__DB.__calls.filter(c=>c.table==='fleet_vehicles'));
  expect(requests.length).toBeGreaterThan(0);
  expect(requests.every(c=>c.select==='id,photo'&&JSON.stringify(c.options.in.id)==='["v1"]')).toBe(true);
@@ -167,7 +167,7 @@ for(const width of [390,1280])test(`vehicle cards show saved photos at full widt
  // Returning to the list must read the current photo, not a stale cached one.
  await page.evaluate(()=>{window.__DB.fleet_vehicles[0].photo='data:image/png;base64,broken'});
  await page.locator('#gfBackList').click();
- await expect(page.locator('[data-gf-vehicle="v1"] figure')).toHaveText('🚛');
+ await expect(page.locator('[data-gf-vehicle="v1"] figure svg[data-icon="truck"] path').first()).toBeAttached();
  await expect(page.locator('[data-gf-vehicle="v1"] img')).toHaveCount(0);
 });
 
@@ -179,7 +179,7 @@ test('photo access errors leave the vehicle list usable',async({page})=>{
   GamaCloud.list=(table,options)=>table==='fleet_vehicles'?Promise.resolve({error:{message:'Unavailable'}}):list(table,options);
  });
  await open(page);await page.locator('[data-gf-section="vehicles"]').click();
- await expect(page.locator('[data-gf-vehicle="v1"] figure')).toHaveText('🚛');
+ await expect(page.locator('[data-gf-vehicle="v1"] figure svg[data-icon="truck"] path').first()).toBeAttached();
  await page.locator('[data-gf-vehicle="v1"]').click();
  await expect(page.locator('#gfMain')).toContainText('VH-000005');
 });

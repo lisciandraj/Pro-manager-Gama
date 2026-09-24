@@ -22,7 +22,7 @@ function esc(v){return window.ArcUI.esc(v)}
 /* Cabecera pulsable. col es la clave que recibirá el accesor de apply(). */
 function th(key,col,label,align){
  const s=get(key),on=s&&s.col===col;
- const ind=on?(s.dir==='asc'?'▲':'▼'):'↕';
+ const ind=on?(s.dir==='asc'?'▲':'▼'):'⇅';
  const aria=on?(s.dir==='asc'?'ascending':'descending'):'none';
  return '<th class="gamaSortTh'+(on?' on':'')+(align==='right'?' r':'')+'" aria-sort="'+aria+'"'
   +' onclick="GamaSort.go(\''+esc(key)+'\',\''+esc(col)+'\')" title="Ordenar por '+esc(label)+'">'

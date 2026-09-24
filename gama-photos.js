@@ -54,16 +54,21 @@ async function load(ids,table){
 /* Marcador que se pinta en la lista mientras la foto no está.
    El id va en un atributo, nunca dentro de una URL, así que no hace falta
    escaparlo como HTML: se compara tal cual al rellenarlo. */
+/* Sin foto, el dibujo del módulo Productos: el mismo cubo que su tarjeta. */
+function placeholder(){
+ const d=window.ArcUI&&window.ArcUI.icons&&window.ArcUI.icons.cube||'';
+ return '<svg class="gamaNoPhoto" data-icon="cube" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+d+'</svg>';
+}
 function slot(id,cls){
  const c=cls===undefined?'product-img':cls;
  const hit=cache.get(id);
  if(hit)return '<img class="'+c+'" loading="lazy" src="'+hit+'" alt="">';
  // La clase destino viaja en el hueco para que hydrate() la reponga en el <img>.
- return '<span class="gamaPhotoSlot '+c+'" data-gama-photo="'+String(id||'').replace(/"/g,'')+'">📦</span>';
+ return '<span class="gamaPhotoSlot '+c+'" data-gama-photo="'+String(id||'').replace(/"/g,'')+'">'+placeholder()+'</span>';
 }
 
 function fill(el,data){
- if(!data||!el.isConnected)return;        // sin foto: se queda el 📦
+ if(!data||!el.isConnected)return;        // sin foto: se queda el dibujo
  const img=document.createElement('img');
  img.className=el.className.replace('gamaPhotoSlot','').trim();
  img.loading='lazy';img.alt='';img.src=data;
@@ -202,5 +207,5 @@ async function optimizeAll(onProgress){
  (document.head||document.documentElement).appendChild(st);
 })();
 
-window.GamaPhotos={get,put,seed,forget,load,slot,hydrate,cache,shrink,optimizeAll,TARGET_MAX,TARGET_QUALITY};
+window.GamaPhotos={get,put,seed,forget,load,slot,placeholder,hydrate,cache,shrink,optimizeAll,TARGET_MAX,TARGET_QUALITY};
 })();

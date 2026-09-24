@@ -20,11 +20,11 @@ export function field({id='arc-field-'+(++sequence),key,name=key,label='',type='
 }
 export function panel(html,{className='',id,accent}={}) {return `<div${attributes({id,'data-accent':accent})} class="arcPanel ${esc(className)}">${html}</div>`;}
 export function toolbar(html,{className=''}={}) {return `<div class="arcToolbar ${esc(className)}">${html}</div>`;}
-/** El emoji que abría algunos títulos —📦, 👥, 🚚— lo sustituye el icono del
- *  módulo, el mismo que lleva su tarjeta en el menú. Se quita aquí y no en cada
- *  módulo para que ninguno se quede a medias; el catálogo de traducción guarda
- *  sus entradas por el texto sin adorno, así que «📦 Productos» y «Productos»
- *  resuelven a la misma fila. */
+/** El emoji que abría algunos títulos antiguos lo sustituye el icono del
+ *  módulo, el mismo que lleva su tarjeta en el menú. Los textos ya no llevan
+ *  emoji; esto queda por si alguno llegara de fuera: el catálogo de traducción
+ *  guarda sus entradas por el texto sin adorno, así que ambos resuelven a la
+ *  misma fila. */
 const stripIcon=text=>{try{return String(text).replace(/^[^\p{L}\p{N}]+/u,'')||String(text);}catch(_){return String(text);}};
 
 export function header({title='Módulo',lead='',module=''}={}) {
@@ -140,7 +140,7 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
   list.__arcTabs=true;
   let items=[],selected=null;
   const badge=s=>s.badge?`<span class="arcSideBadge"${s.tone?` data-tone="${esc(s.tone)}"`:''}>${esc(s.badge)}</span>`:'';
-  const tab=s=>`<button type="button" role="tab" id="${esc(prefix)}Tab-${esc(s.id)}" data-side-tab="${esc(s.id)}" aria-controls="${esc(prefix)}Pane-${esc(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideLabel" data-gi-live>${esc(s.label)}</span>${badge(s)}</button>`;
+  const tab=s=>`<button type="button" role="tab" id="${esc(prefix)}Tab-${esc(s.id)}" data-side-tab="${esc(s.id)}" aria-controls="${esc(prefix)}Pane-${esc(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${s.icon||''}</svg></span><span class="arcSideLabel" data-gi-live>${esc(s.label)}</span>${badge(s)}</button>`;
   const button=id=>[...list.querySelectorAll('[data-side-tab]')].find(b=>b.dataset.sideTab===id);
   const mark=()=>list.querySelectorAll('[data-side-tab]').forEach(b=>{const on=b.dataset.sideTab===selected;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
   // Los recuentos cambian a menudo: si los apartados son los mismos, sólo se tocan sus cifras.
@@ -173,7 +173,7 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
 export function table({columns,items,empty=t('No hay resultados.'),className='',rowAttributes=()=>''}) {
   const titleIndex=columns.findIndex(c=>!c.decorative);
   const html=items.length?items.map(item=>`<tr ${rowAttributes(item)}>${columns.map((col,i)=>`<td data-col="${esc(col.decorative||col.actions?'':t(col.label))}"${i===titleIndex?' data-gama-title':''}${col.numeric?' class="arcNumeric"':''}>${col.html?col.html(item):esc(col.value?col.value(item):item[col.key] ?? '')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${columns.length}" class="arcEmpty">${esc(empty)}</td></tr>`;
-  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map(col=>`<th scope="col"${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}">${esc(t(col.label))} <span aria-hidden="true">↕</span></button>`:esc(t(col.label))}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
+  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map(col=>`<th scope="col"${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}">${esc(t(col.label))} <span aria-hidden="true">⇅</span></button>`:esc(t(col.label))}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
 }
 export function pager({page=0,pageSize=20,total=0}={}) {
   if(total<=pageSize)return '';

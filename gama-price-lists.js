@@ -86,13 +86,13 @@ function render(){
  css();
  const s=section(),cur=customers.find(x=>x.id===selected)||null;
  const listed=new Set(items.map(i=>i.product_id));
- window.ArcUI.render(s,`${window.GamaUI.header({title:'🏷️ Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
+ window.ArcUI.render(s,`${window.GamaUI.header({title:'Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>
    <div class="arcPanel card">
     <h3 data-gi=9940d9727373>Clientes de categoría C</h3>
-    <p class="muted" data-gi=d4df14e92434>Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en 👥 Clientes. Se pueden cargar de golpe desde 📥 Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
+    <p class="muted" data-gi=3325bc0f9b1d>Sólo un cliente de categoría C tiene precios negociados; la categoría se asigna en su ficha, en Clientes. Se pueden cargar de golpe desde Importar datos y corregir aquí producto a producto cuando el contrato cambia.</p>
    </div>
    <div class="plList">${customers.length?customers.map(c=>`<div class="plItem${c.id===selected?' on':''}" data-pick="${esc(c.id)}">
      <div><b>${esc(c.name)}</b><small>${esc(c.identification||'sin identificación')}</small></div>

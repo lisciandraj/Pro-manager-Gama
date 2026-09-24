@@ -142,7 +142,7 @@ function pintar(){
  css();
  const sec=seccion();
  window.ArcUI.render(sec,window.GamaUI.header({
-  title:'🏬 Almacenes y existencias',
+  title:'Almacenes y existencias',
   lead:'Dónde está cada producto y cuánto queda disponible.'
  })+`<div class="ivTabs">
 <button class="arcButton" type="button" data-iv-tab="existencias" data-gi=51d1f9fcef5a>Existencias</button>
@@ -591,7 +591,7 @@ function tarjetaEstanteria(sh,a){
    la lista de resultados y las marcas, para no perder el foco ni el scroll. */
 function pintarUbicaciones(host){
  if(!almacenes.length){
-  window.ArcUI.render(host,`<div class="ivCard"><p class="muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</p>${puedeEditar()?`<button type="button" class="arcButton primary" data-wh-new>${tr('＋ Nuevo almacén')}</button>`:''}</div>`);
+  window.ArcUI.render(host,`<div class="ivCard"><p class="muted" data-gi=1c74217c5f89>No hay almacenes dados de alta.</p>${puedeEditar()?`<button type="button" class="arcButton primary" data-wh-new>${tr('Nuevo almacén')}</button>`:''}</div>`);
   host.querySelector('[data-wh-new]')?.addEventListener('click',()=>dialogoAlmacen(null));
   return;
  }
@@ -607,14 +607,14 @@ function pintarUbicaciones(host){
 }
 function pintarListaUbicaciones(){
  const host=$('ivUbiLista');if(!host)return;
- window.ArcUI.render(host,`<div class="ivShelfHead ivAlmacenesHead"><h4 class="ivShelfTitle">${tr('Almacenes')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-wh-new>${tr('＋ Nuevo almacén')}</button>`:''}</div>`+almacenes.map(a=>{
+ window.ArcUI.render(host,`<div class="ivShelfHead ivAlmacenesHead"><h4 class="ivShelfTitle">${tr('Almacenes')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-wh-new>${tr('Nuevo almacén')}</button>`:''}</div>`+almacenes.map(a=>{
   // Otras ubicaciones: todo lo que no es la raíz del almacén ni un espacio de estantería.
   const otras=otrasUbicaciones(a.id);
   const sus=estanterias.filter(sh=>sh.warehouse_id===a.id);
   return `<div class="ivCard" data-warehouse="${esc(a.id)}"><div class="ivShelfHead"><div><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
-<p class="muted" style="margin:0" data-wh-details>${esc([a.code,a.address,a.city].filter(Boolean).join(' · '))}</p></div>${puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-wh-edit="${esc(a.id)}">${tr('Modificar')}</button><button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('＋ Nueva estantería')}</button></div>`:''}</div>
+<p class="muted" style="margin:0" data-wh-details>${esc([a.code,a.address,a.city].filter(Boolean).join(' · '))}</p></div>${puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-wh-edit="${esc(a.id)}">${tr('Modificar')}</button><button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('Nueva estantería')}</button></div>`:''}</div>
 <h4 class="ivShelfTitle">${tr('Estanterías')}</h4>${sus.map(sh=>tarjetaEstanteria(sh,a)).join('')||`<p class="muted">${tr('Sin estanterías. Crea una para generar sus espacios AAXX-XX.')}</p>`}
-<div class="ivShelfHead ivOtrasHead"><h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-new="${esc(a.id)}">${tr('＋ Nueva ubicación')}</button>`:''}</div>
+<div class="ivShelfHead ivOtrasHead"><h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-new="${esc(a.id)}">${tr('Nueva ubicación')}</button>`:''}</div>
 <ul class="ivOtras">${otras.map(u=>filaUbicacion(u)).join('')||`<li class="muted">${tr('Sin ubicaciones.')}</li>`}</ul></div>`;
  }).join(''));
  host.querySelectorAll('[data-wh-new]').forEach(b=>b.onclick=()=>dialogoAlmacen(null));

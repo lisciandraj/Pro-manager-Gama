@@ -44,8 +44,10 @@ const FORM=LISTA+',body,remind_at,customer_request_id';
 
 const TIPOS={llamada:'Llamada',correo:'Correo',reunion:'Reunión',visita:'Visita',
  demostracion:'Demostración',tarea:'Tarea',seguimiento:'Seguimiento',nota:'Nota'};
-const ICONO={llamada:'📞',correo:'✉️',reunion:'👥',visita:'🚗',demostracion:'🖥️',
- tarea:'✅',seguimiento:'🔁',nota:'📝'};
+/* El dibujo de cada tipo sale del juego de iconos de la aplicación. */
+const ICONO={llamada:'headset',correo:'message',reunion:'users',visita:'car',demostracion:'chart',
+ tarea:'checklist',seguimiento:'returnArrow',nota:'documents'};
+const icono=kind=>{const n=ICONO[kind]||'message';return '<svg viewBox="0 0 24 24" data-icon="'+n+'" focusable="false">'+(window.ArcUI&&window.ArcUI.icons&&window.ArcUI.icons[n]||'')+'</svg>'};
 const ESTADOS={pendiente:'Pendiente',en_curso:'En curso',hecha:'Hecha',cancelada:'Cancelada'};
 const ABIERTAS=['pendiente','en_curso'];
 const PRIORIDADES={baja:'Baja',media:'Media',alta:'Alta'};
@@ -182,7 +184,7 @@ function agenda(){
 function filaAgenda(a){
  const q=ancla(a);
  return '<tr class="'+(vencida(a)?'crmFilaTarde':'')+'">'
-  +'<td><b>'+esc((ICONO[a.kind]||'•')+' '+a.subject)+'</b>'
+  +'<td><b>'+esc(a.subject)+'</b>'
    +'<small class="crmSub">'+esc(TIPOS[a.kind]||a.kind)+' · '+esc(ESTADOS[a.status]||a.status)+'</small></td>'
   +'<td><span class="crmEstado e-'+esc(q.tipo)+'">'+esc(q.etiqueta)+'</span>'
    +'<small class="crmSub">'+esc(q.nombre)+'</small></td>'
@@ -213,7 +215,7 @@ function historia(){
 function hito(a){
  const q=ancla(a);
  return '<div class="crmHito'+(a.status==='cancelada'?' cancelada':'')+'" data-abrir="'+esc(a.id)+'">'
-  +'<div class="crmHitoIco" aria-hidden="true">'+(ICONO[a.kind]||'•')+'</div>'
+  +'<div class="crmHitoIco" aria-hidden="true">'+icono(a.kind)+'</div>'
   +'<div class="crmHitoCuerpo">'
    +'<b>'+esc(a.subject)+'</b>'
    +'<small class="crmSub">'+esc(TIPOS[a.kind]||a.kind)+' · '+esc(q.etiqueta)+' '+esc(q.nombre)+'</small>'

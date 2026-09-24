@@ -239,7 +239,7 @@
     list.__arcTabs = true;
     let items = [], selected = null;
     const badge2 = (s) => s.badge ? `<span class="arcSideBadge"${s.tone ? ` data-tone="${escapeHtml(s.tone)}"` : ""}>${escapeHtml(s.badge)}</span>` : "";
-    const tab = (s) => `<button type="button" role="tab" id="${escapeHtml(prefix)}Tab-${escapeHtml(s.id)}" data-side-tab="${escapeHtml(s.id)}" aria-controls="${escapeHtml(prefix)}Pane-${escapeHtml(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideLabel" data-gi-live>${escapeHtml(s.label)}</span>${badge2(s)}</button>`;
+    const tab = (s) => `<button type="button" role="tab" id="${escapeHtml(prefix)}Tab-${escapeHtml(s.id)}" data-side-tab="${escapeHtml(s.id)}" aria-controls="${escapeHtml(prefix)}Pane-${escapeHtml(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${s.icon || ""}</svg></span><span class="arcSideLabel" data-gi-live>${escapeHtml(s.label)}</span>${badge2(s)}</button>`;
     const button2 = (id2) => [...list.querySelectorAll("[data-side-tab]")].find((b) => b.dataset.sideTab === id2);
     const mark = () => list.querySelectorAll("[data-side-tab]").forEach((b) => {
       const on = b.dataset.sideTab === selected;
@@ -316,7 +316,7 @@
   function table({ columns, items, empty = translate("No hay resultados."), className = "", rowAttributes = () => "" }) {
     const titleIndex = columns.findIndex((c) => !c.decorative);
     const html = items.length ? items.map((item) => `<tr ${rowAttributes(item)}>${columns.map((col, i) => `<td data-col="${escapeHtml(col.decorative || col.actions ? "" : translate(col.label))}"${i === titleIndex ? " data-gama-title" : ""}${col.numeric ? ' class="arcNumeric"' : ""}>${col.html ? col.html(item) : escapeHtml(col.value ? col.value(item) : item[col.key] ?? "")}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${columns.length}" class="arcEmpty">${escapeHtml(empty)}</td></tr>`;
-    return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${escapeHtml(className)}"><thead><tr data-gama-head>${columns.map((col) => `<th scope="col"${col.numeric ? ' class="arcNumeric"' : ""}>${col.sort ? `<button type="button" class="arcSort" data-arc-sort="${escapeHtml(col.sort)}">${escapeHtml(translate(col.label))} <span aria-hidden="true">↕</span></button>` : escapeHtml(translate(col.label))}</th>`).join("")}</tr></thead><tbody>${html}</tbody></table></div>`;
+    return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${escapeHtml(className)}"><thead><tr data-gama-head>${columns.map((col) => `<th scope="col"${col.numeric ? ' class="arcNumeric"' : ""}>${col.sort ? `<button type="button" class="arcSort" data-arc-sort="${escapeHtml(col.sort)}">${escapeHtml(translate(col.label))} <span aria-hidden="true">⇅</span></button>` : escapeHtml(translate(col.label))}</th>`).join("")}</tr></thead><tbody>${html}</tbody></table></div>`;
   }
   function pager({ page: page2 = 0, pageSize = 20, total = 0 } = {}) {
     if (total <= pageSize) return "";
@@ -745,7 +745,7 @@
         "magasinier"
       ],
       "header": [
-        "📈 Panel de control",
+        "Panel de control",
         "Toda la analítica del negocio en una pantalla."
       ]
     },
@@ -798,7 +798,7 @@
         "magasinier"
       ],
       "header": [
-        "📦 Productos",
+        "Productos",
         "Crea tus productos y consulta el catálogo."
       ]
     },
@@ -833,7 +833,7 @@
         "magasinier"
       ],
       "header": [
-        "🔄 Movimientos",
+        "Movimientos",
         "Registra entradas y salidas de mercancía."
       ]
     },
@@ -883,7 +883,7 @@
         "magasinier"
       ],
       "header": [
-        "🏷️ Códigos de barras",
+        "Códigos de barras",
         "Genera códigos de barras para imprimir."
       ]
     },
@@ -1089,7 +1089,7 @@
         "admin"
       ],
       "header": [
-        "🔎 Auditoría",
+        "Auditoría",
         "Stock, cobros y pagos, facturas, validaciones y accesos."
       ]
     },
@@ -1156,7 +1156,7 @@
         "admin"
       ],
       "header": [
-        "💾 Copias de seguridad",
+        "Copias de seguridad",
         "Exporta tus datos y guarda copias de la base."
       ]
     },
@@ -1172,7 +1172,7 @@
         "commercial"
       ],
       "header": [
-        "🧾 Presupuestos",
+        "Presupuestos",
         "Presupuestos para tus clientes, en PDF."
       ]
     }
@@ -1421,7 +1421,7 @@
         var _a;
         return ((_a = (window.ArcEntities.suppliersCache || []).find((s) => s.id === p.supplierId)) == null ? void 0 : _a.name) || "—";
       } },
-      { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("✏️ Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗄️ Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("♻️ Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("🗑️ Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
+      { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
     ]
   };
   function directory(entity, filter = "") {

@@ -164,8 +164,8 @@ function fila(l){
    +'<button class="arcButton" type="button" data-abrir="'+esc(l.id)+'" data-gi=a01a5fce396e>Abrir</button>'
    +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="arcButton primary" data-convertir="'+esc(l.id)+'" data-gi=f6be98ab4faa>Convertir</button>':'')
    +(l.active!==false
-     ?'<button class="arcButton" type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto">🗄️</button>'
-     :'<button class="arcButton" type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto">↩︎</button>')
+     ?'<button class="arcButton" type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto" data-gi=f35f9141f442>Archivar</button>'
+     :'<button class="arcButton" type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto" data-gi=eda02893d340>Restaurar</button>')
   +'</td></tr>';
 }
 
@@ -276,7 +276,7 @@ function convertir(){
  const dup=forzar?null:coincidencia(d.email,d.identification);
  return '<div class="arcPanel card">'
   +'<h3>Convertir «'+esc(nombre(l))+'» en cliente</h3>'
-  +'<p class="muted">Se crea una ficha en 👥 Clientes con estos datos y el prospecto queda apuntando a ella. '
+  +'<p class="muted">Se crea una ficha en Clientes con estos datos y el prospecto queda apuntando a ella. '
   +'A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</p>'
   +(dup?'<div class="crmAviso crmDup" data-gi=7c5a74355dd5>Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
     +(dup.identification?' ('+esc(dup.identification)+')':'')+'. Enlázalo en vez de abrir otra ficha de la misma empresa.'

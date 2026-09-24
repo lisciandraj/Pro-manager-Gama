@@ -20,7 +20,8 @@
 #gspList [role=option][aria-selected=true]{background:var(--arc-accent-50);border-color:var(--arc-accent-400)}
 .gspIcon{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:10px;background:var(--arc-accent-100);color:var(--arc-accent-700);font-size:11px;font-weight:800}
 .gspText{flex:1;min-width:0}.gspText strong{display:block;font-size:15px;overflow-wrap:anywhere}.gspText small{display:block;font-size:12px;line-height:1.4;color:var(--arc-text-muted);overflow-wrap:anywhere;margin-top:3px}
-.gspArrow{font-size:20px;color:var(--arc-text-subtle)}.gspAmount{text-align:right;font-size:11px;color:var(--arc-text-muted)}.gspAmount b{display:block;white-space:nowrap;color:var(--arc-text);font-size:13px}
+.gspArrow{font-size:20px;color:var(--arc-text-subtle)}
+.gspArrow svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.gspAmount{text-align:right;font-size:11px;color:var(--arc-text-muted)}.gspAmount b{display:block;white-space:nowrap;color:var(--arc-text);font-size:13px}
 .gspSuggestions,.gspMore{display:flex;gap:8px;flex-wrap:wrap;margin:12px 6px}.gspError{color:#a52c27;font-size:13px;padding:8px}
 .gamaSpotlight footer{padding:10px 20px;border-top:1px solid var(--arc-line);background:var(--arc-surface-2);color:var(--arc-text-muted);font-size:12px}
 .gspRecord{padding:22px;box-sizing:border-box;overflow:auto}.gspRecordHead{display:flex;align-items:start;justify-content:space-between;gap:15px}.gspRecordHead h2{margin:0;font-size:22px;overflow-wrap:anywhere}.gspRecord dl{display:grid;grid-template-columns:1fr 1fr;gap:16px}.gspRecord dt{font-size:12px;color:var(--arc-text-muted)}.gspRecord dd{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.gspRecordActions{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--arc-line);padding-top:16px}

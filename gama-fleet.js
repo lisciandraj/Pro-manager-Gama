@@ -12,6 +12,8 @@
 if(window.GamaFleet&&!window.GamaFleet.__arcLazy)return;
 const ID='fleet',$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
+/* Vehículo sin foto: el coche o el camión del juego de iconos de la aplicación. */
+const vehicleIcon=kind=>{const n=kind==='truck'?'truck':'car';return '<svg class="gfVehIcon" data-icon="'+n+'" viewBox="0 0 24 24" focusable="false">'+(window.ArcUI.icons?.[n]||'')+'</svg>'};
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d);
@@ -69,7 +71,7 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'🚚 Gestión de flota',lead:'Tus coches y camiones: papeles, consumos y revisiones.'})
+ window.ArcUI.render(s,GamaUI.header({title:'Gestión de flota',lead:'Tus coches y camiones: papeles, consumos y revisiones.'})
   +'<nav class="gfNav" id="gfNav"></nav><div id="gfMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
@@ -151,8 +153,8 @@ VIEWS.dashboard={
    ${kpi('Vencimientos a 30 días',num(due.length,0),soon.length?unit(soon.length,'urgentes'):tr('Ninguno urgente'))}
   </div>
   <div class="gfQuick">
-   <button class="arcButton primary" id="gfQuickFuel" data-gi-live data-gi=5169e8fdef43>⛽ Registrar un repostaje</button>
-   <button class="arcButton secondary" id="gfQuickMaint" data-gi-live data-gi=6b92080c35c7>🔧 Registrar un entretenimiento</button>
+   <button class="arcButton primary" id="gfQuickFuel" data-gi-live data-gi=4d231fdc447c>Registrar un repostaje</button>
+   <button class="arcButton secondary" id="gfQuickMaint" data-gi-live data-gi=bf1c913a5662>Registrar un entretenimiento</button>
   </div>
   <div class="arcPanel gfCard"><h3>${tr('Próximos vencimientos')}</h3>
    <p class="gfHint">${tr('Los 30 próximos días. El aviso llega también al Centro de acción.')}</p>
@@ -223,7 +225,7 @@ VIEWS.vehicles={
   <p class="gfHint">${unit(rows.length,'vehículos')}</p>
   <div class="gfCards">${rows.map(v=>`
    <button type="button" class="arcButton gfVeh" data-gf-vehicle="${v.id}">
-    <figure aria-hidden="true" data-gf-photo-fallback="${v.kind==='truck'?'🚛':'🚗'}">${v.photo?`<img src="${esc(v.photo)}" alt="" loading="lazy" decoding="async">`:v.kind==='truck'?'🚛':'🚗'}</figure>
+    <figure aria-hidden="true" data-gf-photo-fallback="${v.kind==='truck'?'truck':'car'}">${v.photo?`<img src="${esc(v.photo)}" alt="" loading="lazy" decoding="async">`:vehicleIcon(v.kind)}</figure>
     <div class="gfVehBody">
      <b>${esc(v.plate)}</b><span>${esc(v.brand)} ${esc(v.model)}</span>
      <span>${num(v.odometer||0,0)} km${v.driver_name?' · '+esc(v.driver_name):''}</span>
@@ -238,7 +240,7 @@ VIEWS.vehicles={
   let t=null;$('gfSearch').oninput=()=>{clearTimeout(t);t=setTimeout(reload,350)};
   $('gfNewVehicle').onclick=()=>vehicleForm(null);
   document.querySelectorAll('[data-gf-photo-fallback] img').forEach(img=>{
-   const fallback=()=>{img.parentElement.textContent=img.parentElement.dataset.gfPhotoFallback};
+   const fallback=()=>{img.parentElement.innerHTML=vehicleIcon(img.parentElement.dataset.gfPhotoFallback)};
    img.onerror=fallback;
    if(img.complete&&!img.naturalWidth)fallback();
   });

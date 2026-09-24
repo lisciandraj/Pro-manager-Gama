@@ -44,7 +44,7 @@ function problems(page){
 }
 const VIEWS={
  'matrice commerciale':page=>page.evaluate(()=>ArcRouter.open('matrix')),
- 'livraison › planification':async page=>{await page.evaluate(()=>ArcRouter.open('tms'));await page.locator('#gama-tms-section [role=tab]',{hasText:'Planification'}).click()},
+ 'livraison › planification':async page=>{await page.evaluate(()=>ArcRouter.open('tms'));await page.locator('#gama-tms-section .tmsTab',{hasText:'Planification'}).click()},
  'fiche entreprise':page=>page.evaluate(()=>GamaSettings.open('company')),
  'RH › règles':async page=>{await page.evaluate(()=>ArcRouter.open('hr'));await page.locator('#hr .hrTabs button',{hasText:'Règles'}).click()},
 };
@@ -61,6 +61,8 @@ for(const [view,open] of Object.entries(VIEWS))test(`${view}: ningún campo se s
 // contenido se apartan de ella; en los demás equipos el margen es cero.
 test('en paysage, la navigation, la barre et le contenu évitent l’encoche',async({page})=>{
  await page.setViewportSize({width:932,height:430});await boot(page);
+ // Sin animaciones: se mide la posición final.
+ await page.addStyleTag({content:'*,*::before,*::after{transition:none!important}'});
  const before=await page.evaluate(()=>({side:document.querySelector('.arcSidebar').getBoundingClientRect().width,main:document.querySelector('.arcMain').getBoundingClientRect().left,bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight}));
  await page.addStyleTag({content:':root{--arc-safe-l:47px;--arc-safe-r:34px}'});
  const after=await page.evaluate(()=>({side:document.querySelector('.arcSidebar').getBoundingClientRect().width,main:document.querySelector('.arcMain').getBoundingClientRect().left,bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight,icon:document.querySelector('.arcNavLink .arcIco').getBoundingClientRect().left,avatar:document.querySelector('#arcProfileButton').getBoundingClientRect().right}));

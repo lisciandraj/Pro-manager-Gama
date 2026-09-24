@@ -11,12 +11,22 @@
    el fondo de la conexión; un índigo grisáceo para lo secundario, blanco
    para las superficies de trabajo, un gris azulado muy claro para el
    lienzo —los grises tiran al mismo tono que el azul—, y el azul del
-   robot, oscurecido hasta leerse bien, para lo que se puede pulsar. El
-   violeta, el turquesa y el naranja de las letras visten las familias de
-   módulos. Los colores funcionales se usan con cuentagotas y nunca solos:
+   robot, oscurecido hasta leerse bien, para lo que se puede pulsar. Las
+   cuatro letras de COCO —azul, violeta, turquesa y naranja— son las únicas
+   familias de color: una por dominio (pilotaje, ventas, stock y logística,
+   administración). Los colores funcionales se usan con cuentagotas y nunca solos:
    siempre acompañados de un texto o de un icono, porque el color por sí
    mismo no informa a quien no lo distingue. */
 :root{
+ /* ------------------------------------------- las cuatro letras de COCO */
+ --arc-coco-blue:#3B6CF9;    /* C — el robot */
+ --arc-coco-violet:#905494;  /* O */
+ --arc-coco-teal:#3CB4A4;    /* C */
+ --arc-coco-orange:#FCA824;  /* O */
+ /* Las mismas oscurecidas lo justo para leerse como texto (≥4.5:1 sobre blanco). */
+ --arc-coco-blue-text:#2D59DB;   --arc-coco-violet-text:#905494;
+ --arc-coco-teal-text:#2B8276;   --arc-coco-orange-text:#A86802;
+
  /* ---------------------------------------------------------------- marca */
  --arc-navy-900:#262C4E;   /* azul noche: la visera del robot (#293051) */
  --arc-navy-800:#1F2442;   /* marca, cabeceras oscuras */
@@ -55,19 +65,19 @@
  --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
  --arc-info:#2446B8;      --arc-info-bg:#E6EDFE;      --arc-info-line:#BCCCF9;
 
- /* Familias funcionales de los módulos: el mismo lenguaje, distinto acento. */
- --arc-fam-analytics:#2D59DB;  --arc-fam-analytics-bg:#E6EDFE;   /* azul del robot */
- --arc-fam-sales:#8A4A8F;      --arc-fam-sales-bg:#F5EAF6;       /* violeta de la primera O */
- --arc-fam-logistics:#17756A;  --arc-fam-logistics-bg:#E2F4F1;   /* turquesa de la segunda C */
- --arc-fam-purchase:#9A5B00;   --arc-fam-purchase-bg:#FDF1DF;    /* naranja de la última O, legible */
- --arc-fam-finance:#3F36C9;    --arc-fam-finance-bg:#ECEBFD;     /* índigo del robot */
- --arc-fam-people:#3B4586;     --arc-fam-people-bg:#E8EAF6;
- --arc-fam-system:#566079;     --arc-fam-system-bg:#EEF0F6;
+ /* Familias de los módulos: una letra de COCO por dominio, en su tono legible. */
+ --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E0E7FE;   /* C azul: pilotaje */
+ --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#EDE4EE;       /* O violeta: ventas y clientes */
+ --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E0F3F0;   /* C turquesa: stock, compras y logística */
+ --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E0F3F0;
+ --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF1DC;     /* O naranja: administración */
+ --arc-fam-people:var(--arc-coco-orange-text);    --arc-fam-people-bg:#FFF1DC;
+ --arc-fam-system:var(--arc-coco-orange-text);    --arc-fam-system-bg:#FFF1DC;
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#2D59DB; --arc-viz-2:#17756A; --arc-viz-3:#B86E00;
- --arc-viz-4:#8A4A8F; --arc-viz-5:#3F36C9; --arc-viz-6:#B3261E;
+ --arc-viz-1:#3B6CF9; --arc-viz-2:#905494; --arc-viz-3:#319386;
+ --arc-viz-4:#BF7603; --arc-viz-5:#262C4E; --arc-viz-6:#B3261E;
 
  /* ------------------------------------------------------------- espacio */
  --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
@@ -125,13 +135,16 @@
  --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(31,36,66,.16),0 8px 18px rgba(31,36,66,.18);
  --arc-control-shadow:0 1px 0 rgba(31,36,66,.15),0 2px 5px rgba(31,36,66,.10);
  --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
- /* Icons of the module tiles, in the logo's colours; each keeps ≥3:1 on its tint. */
- --arc-icon-cyan:#13877A;--arc-icon-cyan-bg:#E1F5F2;
- --arc-icon-blue:#2F5FE8;--arc-icon-blue-bg:#E6EDFF;
- --arc-icon-green:#0F8A70;--arc-icon-green-bg:#DFF7F0;
- --arc-icon-orange:#C77700;--arc-icon-orange-bg:#FFF4E0;
- --arc-icon-violet:#925396;--arc-icon-violet-bg:#F6EBF7;
- --arc-icon-red:#E54C2C;--arc-icon-red-bg:#FEEDE9;
- --arc-icon-pink:#A31878;--arc-icon-pink-bg:#FCEDF7;
- --arc-icon-indigo:#3E3AD9;--arc-icon-indigo-bg:#EEEDFF;
+ /* Iconos de los módulos: las cuatro letras de COCO. Azul y violeta van tal
+    cual; turquesa y naranja, oscurecidos lo justo para ≥3:1 sobre su fondo. */
+ --arc-icon-blue:#3B6CF9;--arc-icon-blue-bg:#E0E7FE;
+ --arc-icon-violet:#905494;--arc-icon-violet-bg:#EDE4EE;
+ --arc-icon-teal:#319386;--arc-icon-teal-bg:#E0F3F0;
+ --arc-icon-orange:#BF7603;--arc-icon-orange-bg:#FFF1DC;
+ /* Nombres anteriores: cada uno cae en una de las cuatro. */
+ --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);
+ --arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
+ --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);
+ --arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);
+ --arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
 }

@@ -904,7 +904,7 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .gamaStdIcon:empty{display:none}
 .gamaStdIcon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 /* El acento de la familia, el mismo que en la tarjeta del menú. */
-.gamaStdIcon[data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+.gamaStdIcon[data-arc-fam=cyan],.gamaStdIcon[data-arc-fam=teal]{color:var(--arc-icon-teal);background:var(--arc-icon-teal-bg)}
 .gamaStdIcon[data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
 .gamaStdIcon[data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
 .gamaStdIcon[data-arc-fam=indigo]{color:var(--arc-icon-indigo);background:var(--arc-icon-indigo-bg)}
@@ -963,7 +963,7 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 #access-settings .cfgTileState{font-size:11px;line-height:1.4;color:var(--arc-text-muted);margin-top:auto;padding-top:4px}
 @media(max-width:600px){#access-settings .cfgTileGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#access-settings .cfgModuleTile{padding:11px;gap:7px}}
 @media(max-width:359px){#access-settings .cfgTileGrid{grid-template-columns:minmax(0,1fr)}}
-#access-settings .cfgTileIcon[data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+#access-settings .cfgTileIcon[data-arc-fam=cyan],#access-settings .cfgTileIcon[data-arc-fam=teal]{color:var(--arc-icon-teal);background:var(--arc-icon-teal-bg)}
 #access-settings .cfgTileIcon[data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
 #access-settings .cfgTileIcon[data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
 #access-settings .cfgTileIcon[data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}

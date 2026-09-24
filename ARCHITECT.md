@@ -30,12 +30,21 @@ Toutes les couleurs de l’interface sont tirées du logo et vivent dans `archit
 | Fond de connexion, bulles de l’assistant | `--arc-navy-800` / `--arc-navy-900` | `#1F2442` / `#262C4E` | visière du robot |
 | Action principale : boutons, liens, sélection | `--arc-accent-600` | `#2D59DB` | bleu du robot assombri : 5,9:1 sur blanc |
 | Décor et anneau de focus | `--arc-accent-500` | `#3B6CF9` | bleu du robot |
-| Famille Ventes | `--arc-fam-sales` | `#8A4A8F` | violet du premier O |
-| Famille Logistique | `--arc-fam-logistics` | `#17756A` | turquoise du second C |
-| Famille Achats | `--arc-fam-purchase` | `#9A5B00` | orange du dernier O |
-| Famille Finance | `--arc-fam-finance` | `#3F36C9` | indigo du robot |
 
-Les couleurs vives du logo ne se lisent pas telles quelles en texte : le turquoise fait 2,6:1 sur blanc, l’orange 1,9:1. L’interface en garde la teinte et les assombrit jusqu’à 4,5:1 au moins ; les icônes des tuiles gardent 3:1 sur leur fond teinté. Les gris — bordures, textes secondaires — tirent vers la teinte du bleu à luminance égale, si bien qu’aucun contraste n’a baissé. Succès, alerte et erreur gardent leurs couleurs fonctionnelles, toujours accompagnées d’un texte ou d’une icône.
+### Les quatre lettres de COCO
+
+Les seules familles de couleur de l'application sont les quatre lettres du logo, relevées dans `coco-erp-wordmark.png` (`--arc-coco-*`). Chaque module, indicateur ou série de graphique en porte une, selon son domaine :
+
+| Lettre | Couleur du logo | Domaine | Icône (sur fond teinté) | Texte (≥4,5:1) |
+|---|---|---|---|---|
+| C | bleu `#3B6CF9` | Pilotage : tableau de bord, assistant IA, suivi de processus, projets, documents, base de connaissances, import | `#3B6CF9` sur `#E0E7FE` | `#2D59DB` |
+| O | violet `#905494` | Ventes et clients : devis et factures, CRM, contacts, tarifs, SAV, catalogue, livraisons client | `#905494` sur `#EDE4EE` | `#905494` |
+| C | turquoise `#3CB4A4` | Stock, achats et logistique : produits, entrepôts, entrées/sorties, achats, matrice, codes-barres, livraison, retours, flotte | `#319386` sur `#E0F3F0` | `#2B8276` |
+| O | orange `#FCA824` | Administration : comptabilité, RH, utilisateurs, paramètres d'accès, configuration, audit, sauvegardes | `#BF7603` sur `#FFF1DC` | `#A86802` |
+
+La famille se déclare par module dans `src/app/registry.js` (`accent`: `blue`, `violet`, `teal`, `orange`). Les anciens noms (`cyan`, `green`, `indigo`, `pink`, `red`) restent des alias qui tombent sur l'une des quatre. Les séries de graphique `--arc-viz-1` à `4` suivent le même ordre que les lettres.
+
+Les couleurs vives du logo ne se lisent pas toutes telles quelles : le turquoise fait 2,5:1 sur blanc, l’orange 1,9:1 ; le bleu et le violet, eux, servent tels quels pour les icônes. L’interface en garde la teinte et les assombrit jusqu’à 4,5:1 au moins ; les icônes des tuiles gardent 3:1 sur leur fond teinté. Les gris — bordures, textes secondaires — tirent vers la teinte du bleu à luminance égale, si bien qu’aucun contraste n’a baissé. Succès, alerte et erreur gardent leurs couleurs fonctionnelles, toujours accompagnées d’un texte ou d’une icône.
 
 Les documents imprimés (devis, factures, bons) n’en dépendent pas : ils suivent les couleurs choisies par l’entreprise dans sa configuration.
 

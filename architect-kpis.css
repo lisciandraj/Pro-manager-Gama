@@ -5,7 +5,7 @@
 .gamaF2Kpi{display:flex;align-items:flex-start;gap:12px;background:var(--arc-surface);border:1px solid var(--arc-tile-border);border-bottom-color:var(--arc-tile-border-bottom);border-radius:var(--radius-lg);padding:14px 12px;box-shadow:var(--arc-tile-shadow);min-height:108px}
 .gamaF2KpiIcon{width:50px;height:50px;flex:none;border-radius:12px;display:grid;place-items:center}
 .gamaF2KpiIcon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.gamaF2KpiIcon[data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+.gamaF2KpiIcon[data-arc-fam=cyan],.gamaF2KpiIcon[data-arc-fam=teal]{color:var(--arc-icon-teal);background:var(--arc-icon-teal-bg)}
 .gamaF2KpiIcon[data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
 .gamaF2KpiIcon[data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
 .gamaF2KpiIcon[data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}

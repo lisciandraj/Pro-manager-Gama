@@ -22,7 +22,7 @@
 #mainmenu .gamaF2Go{position:absolute;right:13px;bottom:15px;width:19px;height:19px;color:var(--arc-accent-600);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #mainmenu .gamaF2Card:is(.gamaF2NoMatch,.arcPreferenceHidden){display:none!important}
 #mainmenu .gamaF2Vacio[hidden]{display:none}
-#mainmenu [data-arc-fam=cyan]{color:var(--arc-icon-cyan);background:var(--arc-icon-cyan-bg)}
+#mainmenu [data-arc-fam=cyan],#mainmenu [data-arc-fam=teal]{color:var(--arc-icon-teal);background:var(--arc-icon-teal-bg)}
 #mainmenu [data-arc-fam=blue]{color:var(--arc-icon-blue);background:var(--arc-icon-blue-bg)}
 #mainmenu [data-arc-fam=green]{color:var(--arc-icon-green);background:var(--arc-icon-green-bg)}
 #mainmenu [data-arc-fam=orange]{color:var(--arc-icon-orange);background:var(--arc-icon-orange-bg)}

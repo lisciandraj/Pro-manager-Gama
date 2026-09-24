@@ -111,6 +111,13 @@ function endurecerCaja(t){
 const layouts=new WeakMap();
 const labels={fr:['Affichage','Tuiles','Tableau'],en:['View','Cards','Table'],es:['Vista','Tarjetas','Tabla']};
 function words(){return labels[window.GamaI18n?.language]||labels.es}
+/* Los dos botones son dibujos: cuatro cuadrados para las tarjetas y líneas
+   horizontales para la tabla. El nombre sigue en aria-label y en la ayuda. */
+const svg=body=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+body+'</svg>';
+const icons={
+ cards:svg('<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'),
+ table:svg('<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>')
+};
 function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){
@@ -118,13 +125,13 @@ function refreshLayout(t,state){
  const mode=['cards','table'].includes(choice)?choice:(matchMedia('(max-width:760px) and (orientation:portrait)').matches?'cards':'table');
  if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
  state.bar.setAttribute('aria-label',words()[0]);
- [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.textContent!==label)b.textContent=label;b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
+ [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
 }
 function layout(t){
  let state=layouts.get(t);
  if(!state){
   const bar=document.createElement('div');bar.className='gamaTableViews';bar.setAttribute('role','group');bar.setAttribute('translate','no');
-  for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
+  for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.innerHTML=icons[mode];b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
   state={bar};layouts.set(t,state);
  }
  if(!t.parentElement.classList.contains('gamaTableViewport')){const viewport=document.createElement('div');viewport.className='gamaTableViewport';t.before(viewport);viewport.append(t)}

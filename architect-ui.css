@@ -391,7 +391,8 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .gamaTableViewport{max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain}
 .gamaTableViewport:has(>[data-gama-view=cards]){overflow:visible}
 .gamaTableViews{display:flex;justify-content:flex-end;gap:6px;padding:8px;flex-wrap:wrap}
-.gamaTableViews button{min-height:44px;padding:8px 14px}
+.gamaTableViews button{width:44px;min-height:44px;padding:0}
+.gamaTableViews button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .gamaTableViews button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
 @media screen{
  body table.gamaCards[data-gama-view=cards]{display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;white-space:normal!important;border:0!important}

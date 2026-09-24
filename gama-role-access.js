@@ -59,7 +59,7 @@ async function save(r,disabled,version){
  rows[r]=result.data;ready=true;changed();return result.data;
 }
 function snapshot(r){return rows[canonical(r)]||{role:dbRoles[canonical(r)],disabled_modules:[],version:0}}
-function options(){return [...Object.entries(roles).map(([id,r])=>({id,label:r.label,custom:false})),...Object.entries(rows).filter(([,r])=>r.is_custom).map(([id,r])=>({id,label:r.display_name,custom:true}))]}
+function options(){return [...Object.entries(roles).map(([id,r])=>({id,label:r.label,custom:false})),...Object.entries(rows).filter(([,r])=>r?.is_custom).map(([id,r])=>({id,label:r.display_name,custom:true}))]}
 async function create(name,source){const r=await window.ArcData.rawRpc('gama_create_access_profile',{p_name:name,p_source:dbRoles[source]||source});if(r.error)throw r.error;rows[r.data.role]=r.data;changed();window.dispatchEvent(new Event('gama:access-profiles-change'));return r.data;}
 async function assign(user,profile){const r=await window.ArcData.rawRpc('gama_assign_access_profile',{p_user:user,p_profile:dbRoles[profile]||profile});if(r.error)throw r.error;return r.data;}
 window.GamaRoleAccess={load,save,snapshot,enabled,base,baseRole,locked,options,create,assign,isReady:()=>ready};

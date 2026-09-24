@@ -93,6 +93,10 @@ L’activité récente affiche les quatre derniers mouvements réels de l’audi
 
 Desktop à partir de 1100 px : sidebar permanente. Tablette de 861 à 1099 px : rail d’icônes extensible. Jusqu’à 860 px : tiroir mobile, fermé hors de l’ordre de tabulation avec `inert`, ouvert au clavier avec focus maintenu dans la navigation. Échap ferme le tiroir et rend le focus au bouton.
 
+Téléphone couché : la page va jusqu’aux bords de l’écran (`viewport-fit=cover`). Les marges de sécurité `--arc-safe-l`, `--arc-safe-r` et `--arc-safe-b` (`env(safe-area-inset-*)`, nulles hors encoche) décalent la navigation, la barre, le contenu et les fenêtres plein écran. Les fenêtres à menu latéral (Configuration, Notifications) passent en plein écran, rubriques en rangée, dès que la largeur ou la hauteur est faible (≤ 760 px de large ou ≤ 520 px de haut).
+
+Formulaires : une case qui contient un champ peut toujours rétrécir (`min-width:0`). Safari (iPhone, iPad, Mac) compte la largeur naturelle d’un champ — une date, une liste aux options longues — et élargissait sinon la colonne, jusqu’à déborder de la carte ou de la page. Sur iPhone et iPad, dates et heures perdent leur apparence native, qui leur imposait une largeur minimale ; le sélecteur du système s’ouvre toujours. `tests/responsive-forms.spec.js` imite la mesure de Safari et vérifie la Matrice commerciale, la planification des Livraisons, la fiche entreprise et les règles RH à 390×844, 844×390, 932×430 et 1024×768.
+
 La sidebar présente les destinations principales puis « Autres modules ». Tous les modules restent dans le registre et sur l’accueil. « Personnaliser » permet de masquer des cartes uniquement sur l’accueil ; les destinations restent accessibles dans la navigation. Les préférences sont propres au profil local et n’accordent jamais un droit d’accès.
 
 La barre supérieure porte deux boutons d’icône identiques : la cloche des notifications et, juste à sa droite, la roue de la configuration. Ni l’une ni l’autre n’est une tuile de l’accueil ou un lien de la sidebar (`topbar: true` dans le registre), mais `ArcRouter.open('settings')` et la recherche l’ouvrent toujours.

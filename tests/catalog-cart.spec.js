@@ -99,6 +99,27 @@ test.describe('Catálogo — cantidad editable en el pedido', () => {
     await expect(cartRow(page, 'Aceite 5W30')).toContainText('$10,00 c/u');
   });
 
+  // Prices are refreshed a moment after every change and the order is redrawn.
+  // If that happens while the customer is typing a quantity, what was typed
+  // must be applied, not lost behind a technical error.
+  test('a redraw while a quantity is being typed keeps what was typed', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await openCatalog(page);
+    await page.locator('.ccProduct', { hasText: 'Aceite 5W30' }).locator('[data-plus]').click();
+    // Let the refresh scheduled by that click (200 ms) run first.
+    await page.waitForTimeout(800);
+    await cartRow(page, 'Aceite 5W30').locator('[data-cinput]').fill('0');
+    // The same redraw as a price refresh, with the field still focused.
+    await page.locator('#ccSearch').evaluate(s => s.dispatchEvent(new Event('input')));
+
+    await expect(page.locator('.ccCartRow')).toHaveCount(0);
+    await expect(page.locator('#ccCartRows')).toContainText('Su pedido está vacío');
+    await expect(page.locator('#ccTotal')).toContainText('$0,00');
+    await expect(page.locator('#ccMsg')).toHaveText('');
+    expect(errors).toEqual([]);
+  });
+
   test('the quantity chosen in the order is what gets sent', async ({ page }) => {
     await openCatalog(page);
     await page.locator('.ccProduct', { hasText: 'Aceite 5W30' }).locator('[data-plus]').click();

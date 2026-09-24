@@ -5,7 +5,9 @@ const esc=window.ArcUI.esc;
 const money=v=>window.GamaCurrency.format(v);
 let cart=[],products=[],favorites=[],sending=false,sendRequest=null,priceVersion=0,priceTimer=null,loadVersion=0;
 const command=(action,data={})=>window.ArcData.rpc('gama_catalog_command',{p_action:action,p_data:data});
-async function reprice(){const token=++priceVersion,signature=JSON.stringify(cart.map(({product_id,quantity})=>({product_id,quantity})));if(!cart.length)return;const priced=await command('preview',{lines:JSON.parse(signature)});if(token!==priceVersion||signature!==JSON.stringify(cart.map(({product_id,quantity})=>({product_id,quantity}))))return;cart=cart.map(x=>({...x,...priced.find(p=>p.product_id===x.product_id)}));renderCart()}
+// Mientras el cliente escribe una cantidad del pedido, los precios esperan: repintar el pedido le quitaría el campo.
+const typing=()=>!!document.activeElement?.matches?.('#ccCartRows [data-cinput]');
+async function reprice(){if(typing()){schedulePrices();return}const token=++priceVersion,signature=JSON.stringify(cart.map(({product_id,quantity})=>({product_id,quantity})));if(!cart.length)return;const priced=await command('preview',{lines:JSON.parse(signature)});if(token!==priceVersion||signature!==JSON.stringify(cart.map(({product_id,quantity})=>({product_id,quantity}))))return;if(typing()){schedulePrices();return}cart=cart.map(x=>({...x,...priced.find(p=>p.product_id===x.product_id)}));renderCart()}
 function schedulePrices(){clearTimeout(priceTimer);priceTimer=setTimeout(()=>reprice().catch(e=>{$('ccMsg').textContent=e.message}),200)}
 async function history(){try{const orders=await command('history');const d=window.ArcUI.dialog({title:'Volver a pedir',saveLabel:'Cerrar',body:orders.map(o=>`<p><button type=button class="arcButton secondary" data-reorder="${esc(o.id)}">${esc(o.number)} · ${esc(o.created_at.slice(0,10))}</button></p>`).join('')||'Sin pedidos anteriores.',onSave:async()=>{}});d.querySelectorAll('[data-reorder]').forEach(b=>b.onclick=async()=>{const lines=orders.find(o=>o.id===b.dataset.reorder).lines||[];if(cart.length&&!confirm('¿Reemplazar el pedido actual?'))return;cart=[];let missing=0;for(const l of lines){if(products.some(p=>p.id===l.product_id))qty(l.product_id,Number(l.quantity));else missing++}await reprice();d.close();if(missing)$('ccMsg').textContent=missing+' productos ya no disponibles.'})}catch(e){$('ccMsg').textContent=e.message}}
 function quick(){window.ArcUI.dialog({title:'Añadir por referencia',body:window.ArcUI.field({key:'rows',label:'Una línea: referencia; cantidad',type:'textarea',required:true}),onSave:async d=>{const text=new FormData(d.querySelector('form')).get('rows'),lines=String(text).split(/\r?\n/).filter(x=>x.trim()).map((l,i)=>{const [ref,n,...extra]=l.split(';').map(x=>x.trim()),matches=products.filter(p=>[p.reference,p.barcode].includes(ref));if(extra.length||matches.length!==1||!Number.isFinite(Number(n))||Number(n)<=0)throw Error('Línea '+(i+1)+': referencia o cantidad incorrecta.');return {id:matches[0].id,n:Number(n)}});for(const l of lines)qty(l.id,(cart.find(x=>x.product_id===l.id)?.quantity||0)+l.n);await reprice()}})}
@@ -69,6 +71,11 @@ function render(){const q=($('ccSearch')?.value||'').toLowerCase().trim(),cat=$(
  if(window.GamaPhotos)GamaPhotos.hydrate($('ccProducts'),'catalog_products');renderCart()}
 function qty(id,n){const p=products.find(x=>x.id===id);if(!p)return;n=Math.max(0,Number(n)||0);if(n&&((p.order_minimum&&n<Number(p.order_minimum))||(p.order_multiple&&Math.abs(n/Number(p.order_multiple)-Math.round(n/Number(p.order_multiple)))>0.00001))){$('ccMsg').textContent='Cantidad mínima: '+p.order_minimum+' · múltiplo: '+p.order_multiple;return}const i=cart.findIndex(x=>x.product_id===id);if(n===0){if(i>=0)cart.splice(i,1)}else{const x={product_id:p.id,name:p.name,quantity:n,unit_price:Number(p.sale_price||0),tax_rate:Number(p.tax_rate||0),line_total:n*Number(p.sale_price||0)};i>=0?cart[i]=x:cart.push(x)}render();schedulePrices()}
 function renderCart(){
+ /* Un repintado (los precios se recalculan solos) puede llegar mientras el
+    cliente escribe una cantidad del pedido: lo escrito se aplica antes. Si no,
+    el campo con el foco dispara su «change» al quitarlo, en pleno repintado. */
+ const host=$('ccCartRows');
+ if(host?.contains(document.activeElement))document.activeElement.blur();
  /* El pedido se cierra con las dos cifras que se comparan en una compra entre
     empresas: lo que suma la mercancía y lo que se va a pagar con impuestos.
     Cada línea lleva su propio IVA, que no tiene por qué ser el mismo. */
@@ -78,7 +85,6 @@ function renderCart(){
  if($('ccNeto'))$('ccNeto').textContent=money(total);
  if($('ccIva'))$('ccIva').textContent=money(iva);
  if($('ccBruto'))$('ccBruto').textContent=money(total+iva);
- const host=$('ccCartRows');
  window.ArcUI.render(host,cart.length?cart.map(x=>`<div class="ccCartRow"><div><b>${esc(x.name)}</b><small>${money(x.unit_price)} c/u</small></div><div class="ccQty ccCartQty"><button class="arcButton secondary" data-cminus="${esc(x.product_id)}" data-gi-aria-label=ffa160172bac aria-label="Quitar uno">−</button><input type="number" min="0" step="1" value="${x.quantity}" data-cinput="${esc(x.product_id)}" aria-label="Cantidad de ${esc(x.name)}"><button class="arcButton primary" data-cplus="${esc(x.product_id)}" data-gi-aria-label=05193a4d8db8 aria-label="Añadir uno">+</button></div><span>${money(x.quantity*x.unit_price)}</span><button class="arcButton ccDel" data-del="${esc(x.product_id)}" data-gi-aria-label=aa7484780ab1 aria-label="Quitar del pedido">×</button></div>`).join(''):'<span class="muted" data-gi=a63b1e7d1713>Su pedido está vacío.</span>');
  /* Consultas acotadas al pedido: la parrilla usa data-minus/plus/input y no
     debe reaccionar a los controles de aquí. */

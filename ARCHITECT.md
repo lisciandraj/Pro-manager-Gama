@@ -109,7 +109,7 @@ La cloche ouvre de la même façon la fenêtre Notifications : « Toutes les ale
 
 `gama-fixed-header.js` reconnaît le conteneur Architect : il ne déplace plus les contrôles de session vers l’ancienne barre désormais invisible. Déconnexion et gestion des comptes conservent leurs événements et permissions.
 
-Les libellés sont traduits avec le catalogue existant FR/EN/ES. Après modification, exécuter `python3 scripts/build-i18n.py`.
+Les libellés sont traduits avec le catalogue existant FR/EN/ES. Après modification, exécuter `python3 scripts/build-i18n.py`. Le texte source est toujours l’espagnol : un libellé « neutre » écrit en français ou en anglais (`Date`, `Type`, `Module`…) resterait tel quel dans l’interface espagnole ; dans les modules `architect-*`, passer par `t('Fecha','Date','Date')`. Statuts, étapes et listes de configuration par défaut s’affichent avec `data-gi-live` ; `tests/i18n-coverage.spec.js` parcourt chaque module et chaque onglet en français et en anglais et échoue sur tout texte resté en espagnol.
 
 ## Vérification
 

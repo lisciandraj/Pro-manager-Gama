@@ -227,6 +227,92 @@
       });
     });
   }
+  function sideDialog({ id, prefix, title, navLabel, tabs: tabs2 = [], panes = [], opener, onSelect = () => {
+  }, onClose = () => {
+  } }) {
+    const el = document.createElement("dialog");
+    el.className = "arcSideDialog";
+    el.id = id;
+    el.setAttribute("aria-labelledby", prefix + "Title");
+    el.innerHTML = `<div class="arcSideDialogHead"><h2 id="${escapeHtml(prefix)}Title"><span data-gi-live>${escapeHtml(title)}</span></h2><button type="button" class="arcButton arcIconBtn" data-side-close aria-label="Cerrar" data-gi-aria-label="live"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="arcSideDialogBody"><nav class="arcSideNav" aria-label="${escapeHtml(navLabel)}" data-gi-aria-label="live"><div class="arcSideList" role="tablist" aria-orientation="vertical"></div></nav><div class="arcSidePanes">${panes.map((p) => `<div role="tabpanel" id="${escapeHtml(prefix)}Pane-${escapeHtml(p.id)}" data-side-pane="${escapeHtml(p.id)}" tabindex="0" hidden>${p.html || ""}</div>`).join("")}</div></div>`;
+    const list = el.querySelector("[role=tablist]");
+    list.__arcTabs = true;
+    let items = [], selected = null;
+    const badge2 = (s) => s.badge ? `<span class="arcSideBadge"${s.tone ? ` data-tone="${escapeHtml(s.tone)}"` : ""}>${escapeHtml(s.badge)}</span>` : "";
+    const tab = (s) => `<button type="button" role="tab" id="${escapeHtml(prefix)}Tab-${escapeHtml(s.id)}" data-side-tab="${escapeHtml(s.id)}" aria-controls="${escapeHtml(prefix)}Pane-${escapeHtml(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${s.icon || ""}</svg></span><span class="arcSideLabel" data-gi-live>${escapeHtml(s.label)}</span>${badge2(s)}</button>`;
+    const button2 = (id2) => [...list.querySelectorAll("[data-side-tab]")].find((b) => b.dataset.sideTab === id2);
+    const mark = () => list.querySelectorAll("[data-side-tab]").forEach((b) => {
+      const on = b.dataset.sideTab === selected;
+      b.setAttribute("aria-selected", String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+    function setTabs(next) {
+      var _a, _b, _c, _d, _e;
+      const same = next.length === items.length && next.every((s, i) => s.id === items[i].id);
+      items = next;
+      if (same) {
+        for (const s of next) {
+          const b = button2(s.id);
+          (_a = b.querySelector(".arcSideBadge")) == null ? void 0 : _a.remove();
+          if (s.badge) b.insertAdjacentHTML("beforeend", badge2(s));
+        }
+        return;
+      }
+      const focused = list.contains(document.activeElement) ? document.activeElement.dataset.sideTab : null;
+      list.innerHTML = next.map(tab).join("");
+      (_c = (_b = window.GamaI18n) == null ? void 0 : _b.scan) == null ? void 0 : _c.call(_b, list);
+      if (selected && !next.some((s) => s.id === selected)) select((_d = next[0]) == null ? void 0 : _d.id);
+      else mark();
+      if (focused) (_e = button2(focused)) == null ? void 0 : _e.focus();
+    }
+    function select(id2, { focus = false } = {}) {
+      var _a;
+      const s = items.find((x) => x.id === id2) || items[0];
+      if (!s) return;
+      selected = s.id;
+      mark();
+      el.querySelectorAll("[data-side-pane]").forEach((p) => {
+        const on = p.dataset.sidePane === s.pane;
+        p.hidden = !on;
+        if (on) p.setAttribute("aria-labelledby", prefix + "Tab-" + s.id);
+      });
+      el.querySelector(".arcSidePanes").scrollTop = 0;
+      if (focus) (_a = button2(s.id)) == null ? void 0 : _a.focus();
+      onSelect(s);
+    }
+    list.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-side-tab]");
+      if (b) select(b.dataset.sideTab);
+    });
+    list.addEventListener("keydown", (e) => {
+      const all2 = [...list.querySelectorAll("[data-side-tab]")], i = all2.indexOf(document.activeElement);
+      if (i < 0) return;
+      const n = all2.length, next = { ArrowDown: (i + 1) % n, ArrowRight: (i + 1) % n, ArrowUp: (i + n - 1) % n, ArrowLeft: (i + n - 1) % n, Home: 0, End: n - 1 }[e.key];
+      if (next == null) return;
+      e.preventDefault();
+      select(all2[next].dataset.sideTab, { focus: true });
+    });
+    const close = () => {
+      if (el.open) el.close();
+    };
+    el.querySelector("[data-side-close]").onclick = close;
+    window.addEventListener("arc:route-change", close);
+    const api = { el, select, setTabs, close, get selected() {
+      return selected;
+    } };
+    el.addEventListener("close", () => {
+      var _a;
+      window.removeEventListener("arc:route-change", close);
+      el.remove();
+      onClose(api);
+      if (!document.querySelector("dialog[open]")) (_a = opener == null ? void 0 : opener.focus) == null ? void 0 : _a.call(opener);
+    }, { once: true });
+    document.body.appendChild(el);
+    setTabs(tabs2);
+    mount(el);
+    el.showModal();
+    return api;
+  }
   function table({ columns, items, empty = translate("No hay resultados."), className = "", rowAttributes = () => "" }) {
     const titleIndex = columns.findIndex((c) => !c.decorative);
     const html = items.length ? items.map((item) => `<tr ${rowAttributes(item)}>${columns.map((col, i) => `<td data-col="${escapeHtml(col.decorative || col.actions ? "" : translate(col.label))}"${i === titleIndex ? " data-gama-title" : ""}${col.numeric ? ' class="arcNumeric"' : ""}>${col.html ? col.html(item) : escapeHtml(col.value ? col.value(item) : item[col.key] ?? "")}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${columns.length}" class="arcEmpty">${escapeHtml(empty)}</td></tr>`;
@@ -347,6 +433,7 @@
     pager,
     panel,
     render,
+    sideDialog,
     table,
     tabs,
     toolbar

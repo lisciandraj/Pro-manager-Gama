@@ -69,7 +69,7 @@ test('teclado: flechas, Inicio y Fin recorren el menú; Escape cierra y devuelve
  await expect(page.locator('#cfgPane-language')).toHaveAttribute('aria-labelledby','cfgTab-language');
  await page.keyboard.press('Escape');await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#arcSettings')).toBeFocused();
  // El aspa también cierra.
- await page.locator('#arcSettings').click();await dialog(page).locator('[data-cfg-close]').click();await expect(dialog(page)).toHaveCount(0);
+ await page.locator('#arcSettings').click();await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);
 });
 
 test('abrir en un apartado, y un dato obligatorio de otro apartado se enseña al guardar',async({page})=>{
@@ -84,6 +84,15 @@ test('abrir en un apartado, y un dato obligatorio de otro apartado se enseña al
  // El navegador no puede señalar un campo escondido: la ventana va antes a su apartado.
  await expect(page.locator('#cfgTab-company')).toHaveAttribute('aria-selected','true');await expect(page.locator('#co_legal_name')).toBeVisible();
  await expect(page.locator('#co_legal_name')).toBeFocused();
+});
+
+// Un botón que lleva a otra pantalla (aquí «Ouvrir Comptabilité») cierra la ventana: si no, la
+// pantalla se abriría detrás, tapada.
+test('ir a otra pantalla desde la ventana la cierra, para que se vea lo abierto',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaSettings.open('fiscal'));await expect(page.locator('#coAccounting')).toBeVisible();
+ await page.evaluate(()=>{window.GamaAccounting=Object.assign(window.GamaAccounting||{},{open:()=>ArcRouter.show('products')})});
+ await page.locator('#coAccounting').click();
+ await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#products')).toBeVisible();
 });
 
 test('reglas operativas: se editan en su apartado y se guardan con su versión',async({page})=>{
@@ -125,7 +134,7 @@ test('la ventana del administrador se cierra si la cuenta deja de serlo',async({
 test('teléfono: la ventana ocupa la pantalla y el menú se pone en fila, sin desbordar',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.locator('#arcSettings').click();
  const box=await dialog(page).boundingBox();expect(box).toMatchObject({x:0,y:0,width:390,height:844});
- const side=page.locator('.cfgSide');
+ const side=page.locator('.arcSideNav');
  // Los apartados en una fila que se desliza; la página no se desborda.
  const first=await page.locator('#cfgTab-language').boundingBox(),second=await page.locator('#cfgTab-company').boundingBox();
  expect(Math.abs(first.y-second.y)).toBeLessThan(1);
@@ -134,7 +143,7 @@ test('teléfono: la ventana ocupa la pantalla y el menú se pone en fila, sin de
  await page.keyboard.press('End');await expect(page.locator('#cfgTab-security')).toBeInViewport();
  await page.keyboard.press('ArrowLeft');await expect(page.locator('#cfgTab-policies')).toBeFocused();
  await expect(page.locator('#cfgPolicies [name=timezone]')).toBeVisible();
- expect(await page.locator('.cfgPanes').evaluate(e=>e.scrollWidth<=e.clientWidth)).toBe(true);
- for(const tab of ['company','identity','fiscal','references']){await page.locator('#cfgTab-'+tab).click();await page.waitForTimeout(50);expect(await page.locator('.cfgPanes').evaluate(e=>e.scrollWidth<=e.clientWidth),tab).toBe(true)}
+ expect(await page.locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth)).toBe(true);
+ for(const tab of ['company','identity','fiscal','references']){await page.locator('#cfgTab-'+tab).click();await page.waitForTimeout(50);expect(await page.locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth),tab).toBe(true)}
  await page.screenshot({path:test.info().outputPath('settings-window-mobile.png')});
 });

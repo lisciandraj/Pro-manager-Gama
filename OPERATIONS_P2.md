@@ -2,8 +2,9 @@
 
 ## Acceso
 
-Menú Resumen → **Notificaciones** o **Control comercial y logístico**.
-El Panel de control existente también enlaza al nuevo panel. Administrador y
+La campana de la barra superior abre la ventana **Notificaciones** (ver
+ACTION_CENTER.md); el control comercial y logístico vive en el Panel de control,
+en «Prioridades de hoy». Administrador y
 comercial ven las cifras comerciales; el almacenero ve los indicadores logísticos.
 Los clientes no tienen acceso al RPC ni a estas pantallas. Los permisos existentes
 siguen protegiendo las acciones de cada dossier. Compras se habilita en el menú

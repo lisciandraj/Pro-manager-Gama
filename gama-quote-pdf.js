@@ -81,15 +81,18 @@ const outlookUrl=(e,s,b)=>'https://outlook.live.com/mail/0/deeplink/compose?to='
 function dialogCss(){ /* Styles are compiled in architect-components.css. */ }
 /* Se redacta aquí, no en el sistema operativo: así el mensaje es el mismo
    tanto si usas Gmail en el navegador como Outlook instalado, y siempre se
-   puede copiar aunque el equipo no tenga ninguna aplicación de correo. */
+   puede copiar aunque el equipo no tenga ninguna aplicación de correo.
+   Es una ventana de verdad (<dialog>): se abre por encima de cualquier otra,
+   también de las Notificaciones, y Escape la cierra sólo a ella. */
 function composeDialog({email,subject,body,filename}){
  dialogCss();
  document.getElementById('gamaMailBack')?.remove();
- const back=document.createElement('div');back.id='gamaMailBack';
- back.innerHTML=`<div id="gamaMailBox" role="dialog" aria-modal="true" data-gi-aria-label=4a46598fb8f2 aria-label="Enviar por correo"><h3 data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="arcButton gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="arcButton gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="arcButton gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="arcButton gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="arcButton gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
- document.body.appendChild(back);
+ const back=document.createElement('dialog');back.id='gamaMailBack';back.setAttribute('aria-labelledby','gamaMailTitle');
+ back.innerHTML=`<div id="gamaMailBox"><h3 id="gamaMailTitle" data-gi=4a46598fb8f2>Enviar por correo</h3><p class="gmSub" data-gi=a7a4fc7deab7>Revisa el mensaje y elige tu correo. Puedes modificarlo antes de enviarlo.</p>${filename?`<div id="gamaMailNote">📎 <b>${escHtml(filename)}</b> se ha descargado. Ningún correo permite adjuntar un archivo automáticamente: adjúntalo desde tu mensaje.</div>`:''}<label for="gamaMailTo" data-gi=237b14cbb480>Para</label><input id="gamaMailTo" type="email" value="${escHtml(email||'')}"><label for="gamaMailSubject" data-gi=49cffbf85a68>Asunto</label><input id="gamaMailSubject" value="${escHtml(subject||'')}"><label for="gamaMailBody" data-gi=d2af31712ead>Mensaje</label><textarea id="gamaMailBody">${escHtml(body||'')}</textarea><div class="gmRow"><button type="button" class="arcButton gmPrimary" id="gamaMailGmail" data-gi=0d4274e806d3>Abrir Gmail</button><button type="button" class="arcButton gmLight" id="gamaMailOutlook" data-gi=3e47336ffaa7>Abrir Outlook</button><button type="button" class="arcButton gmLight" id="gamaMailApp" data-gi=6a9ef15f0433>Mi aplicación de correo</button></div><div class="gmRow"><button type="button" class="arcButton gmLight" id="gamaMailCopy" data-gi=0092534a7ee3>📋 Copiar mensaje</button><button type="button" class="arcButton gmLight gmClose" id="gamaMailClose" data-gi=aeccae342e4b>Cerrar</button></div></div>`;
+ document.body.appendChild(back);back.showModal();
  const val=id=>document.getElementById(id).value;
- const close=()=>back.remove();
+ const close=()=>{if(back.open)back.close();back.remove()};
+ back.addEventListener('close',()=>back.remove());
  back.onclick=e=>{if(e.target===back)close()};
  document.getElementById('gamaMailClose').onclick=close;
  document.getElementById('gamaMailGmail').onclick=()=>{api.openTab(gmailUrl(val('gamaMailTo'),val('gamaMailSubject'),val('gamaMailBody')));close()};

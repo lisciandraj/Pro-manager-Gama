@@ -119,7 +119,7 @@ function build(){
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="dialog" aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'

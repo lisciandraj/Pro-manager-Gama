@@ -140,50 +140,30 @@ const PANES={
  security:host=>window.ArchitectIdentity?.security(host),
 };
 const HOSTS={company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity'};
-let dialogEl=null;
-function selectSection(id,focus=false){
- const el=dialogEl;if(!el)return;
- const tabs=[...el.querySelectorAll('[data-cfg-tab]')],tab=tabs.find(t=>t.dataset.cfgTab===id)||tabs[0];if(!tab)return;
- const pane=SECTIONS.find(s=>s.id===tab.dataset.cfgTab).pane;
- tabs.forEach(t=>{const on=t===tab;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1});
- el.querySelectorAll('[data-cfg-pane]').forEach(p=>{const on=p.dataset.cfgPane===pane;p.hidden=!on;if(on)p.setAttribute('aria-labelledby',tab.id)});
- const host=el.querySelector(`[data-cfg-pane="${pane}"] [data-cfg-host]`);
- if(host&&!host.dataset.cfgMounted){host.dataset.cfgMounted='1';PANES[pane]?.(host)}
+let dialog=null;
+function show(section){
+ const el=dialog?.el;if(!el)return;
+ const host=el.querySelector(`[data-side-pane="${section.pane}"] [data-cfg-host]`);
+ if(host&&!host.dataset.cfgMounted){host.dataset.cfgMounted='1';PANES[section.pane]?.(host)}
  // La ficha de la empresa es una: cada apartado enseña sólo sus tarjetas.
- el.querySelector('[data-cfg-pane="company"]')?.setAttribute('data-co-view',tab.dataset.cfgTab);
- el.querySelector('.cfgPanes').scrollTop=0;
- if(focus)tab.focus();
+ el.querySelector('[data-side-pane="company"]')?.setAttribute('data-co-view',section.id);
 }
 function openDialog(section='language'){
  const admin=isAdmin(),items=SECTIONS.filter(s=>!s.admin||admin);
- if(dialogEl?.open){selectSection(section);return dialogEl}
+ if(dialog?.el.open){dialog.select(section);return dialog.el}
  // Una ventana que se está cerrando (su «close» llega después) no se reutiliza.
- dialogEl?.remove();dialogEl=null;
+ dialog?.el.remove();dialog=null;
  const icon=s=>window.ArcUI.icons[s.icon]||s.icon;
- const el=document.createElement('dialog');el.className='cfgDialog';el.id='arcSettingsDialog';el.setAttribute('aria-labelledby','cfgDialogTitle');
+ dialog=window.ArcUI.sideDialog({id:'arcSettingsDialog',prefix:'cfg',title:'Configuración',navLabel:'Apartados de la configuración',opener:document.getElementById('arcSettings'),
+  tabs:items.map(s=>({id:s.id,label:s.label,icon:icon(s),pane:s.pane})),
+  panes:[{id:'language',html:PREFERENCES},...[...new Set(items.map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host data-gi-ignore></div>`}))],
+  onSelect:show,onClose:api=>{if(dialog===api)dialog=null}});
+ const el=dialog.el;
  // Con la ventana abierta, si la cuenta deja de ser administradora se cierra (ver gama:auth-change).
  if(admin)el.dataset.admin='';
- document.body.appendChild(el);dialogEl=el;
- el.innerHTML=`<div class="cfgDialogHead"><h2 id="cfgDialogTitle">${live('Configuración')}</h2><button type="button" class="arcButton arcIconBtn" data-cfg-close data-gi-aria-label=aeccae342e4b aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>`
-  +`<div class="cfgDialogBody"><nav class="cfgSide" data-gi-aria-label=f0cdf1e7ad9d aria-label="Apartados de la configuración"><div class="cfgSideList" role="tablist" aria-orientation="vertical">`
-  +items.map(s=>`<button type="button" role="tab" id="cfgTab-${s.id}" data-cfg-tab="${s.id}" aria-controls="cfgPane-${s.pane}" aria-selected="false" tabindex="-1"><span class="cfgSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${icon(s)}</svg></span>${live(s.label)}</button>`).join('')
-  +`</div></nav><div class="cfgPanes"><div role="tabpanel" id="cfgPane-language" data-cfg-pane="language" tabindex="0" hidden>${PREFERENCES}</div>`
-  +[...new Set(items.map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>`<div role="tabpanel" id="cfgPane-${p}" data-cfg-pane="${p}" tabindex="0" hidden><div id="${HOSTS[p]}" data-cfg-host data-gi-ignore></div></div>`).join('')
-  +'</div></div>';
- const list=el.querySelector('[role=tablist]');
- // Este menú tiene su propio teclado (vertical en el ordenador, en fila en el teléfono) y
- // tres apartados comparten el panel de la empresa: el comportamiento genérico no se aplica.
- list.__arcTabs=true;window.ArcUI.mount(el);
- list.addEventListener('click',e=>{const t=e.target.closest('[data-cfg-tab]');if(t)selectSection(t.dataset.cfgTab)});
- // Flechas arriba y abajo en el menú lateral; izquierda y derecha cuando, en el teléfono, se pone en fila.
- list.addEventListener('keydown',e=>{const tabs=[...list.querySelectorAll('[data-cfg-tab]')],i=tabs.indexOf(document.activeElement);if(i<0)return;const n=tabs.length,next={ArrowDown:(i+1)%n,ArrowRight:(i+1)%n,ArrowUp:(i+n-1)%n,ArrowLeft:(i+n-1)%n,Home:0,End:n-1}[e.key];if(next==null)return;e.preventDefault();selectSection(tabs[next].dataset.cfgTab,true)});
- el.querySelector('[data-cfg-close]').onclick=()=>el.close();
  // La ficha de la empresa se guarda entera: si falta algo de otro apartado, se va a él.
- el.addEventListener('invalid',e=>{const part=e.target.closest?.('[data-co-section]')?.dataset.coSection,pane=el.querySelector('[data-cfg-pane="company"]');if(part&&pane&&pane.dataset.coView!==part)selectSection(part)},true);
- const back=document.activeElement;
- el.addEventListener('close',()=>{el.remove();if(dialogEl!==el)return;dialogEl=null;(document.getElementById('arcSettings')||back)?.focus?.()},{once:true});
- el.showModal();
- selectSection(items.some(s=>s.id===section)?section:'language',true);
+ el.addEventListener('invalid',e=>{const part=e.target.closest?.('[data-co-section]')?.dataset.coSection,pane=el.querySelector('[data-side-pane="company"]');if(part&&pane&&pane.dataset.coView!==part)dialog.select(part)},true);
+ dialog.select(items.some(s=>s.id===section)?section:'language',{focus:true});
  window.GamaI18n?.mount();
  return el;
 }
@@ -204,5 +184,5 @@ function open(id='settings'){
 window.GamaSettings={open,render,openDialog};
 window.GamaOpenSettings=()=>openDialog();
 window.GamaOpenAccessSettings=()=>open('access-settings');
-window.addEventListener('gama:auth-change',e=>{if(!isAdmin())$('access-settings')?.replaceChildren();if(dialogEl?.open&&(e.detail?.event==='SIGNED_OUT'||!role()||(dialogEl.dataset.admin!=null&&!isAdmin())))dialogEl.close()});
+window.addEventListener('gama:auth-change',e=>{if(!isAdmin())$('access-settings')?.replaceChildren();if(dialog?.el.open&&(e.detail?.event==='SIGNED_OUT'||!role()||(dialog.el.dataset.admin!=null&&!isAdmin())))dialog.close()});
 })();

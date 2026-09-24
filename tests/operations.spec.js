@@ -34,9 +34,9 @@ test('the follow-up module now lives in the dashboard priorities',async({page})=
  await expect(red.locator('[data-ad-prio]')).toHaveCount(1);await expect(page.locator('.adPriorities img')).toHaveCount(0);
  await page.evaluate(()=>{GamaSales.openOrder=async id=>{window.__opened=id}});
  await red.locator('[data-ad-prio]').first().click();expect(await page.evaluate(()=>window.__opened)).toBe('o1');
- // Las notificaciones siguen donde estaban y llevan al panel.
- await page.evaluate(()=>GamaOperations.open('notifications'));await expect(page.locator('#notifications')).toBeVisible();
- await page.locator('#goSwitch').click();await expect(page.locator('#dashboard')).toBeVisible();
+ // Las notificaciones siguen donde estaban y llevan al panel; ir al panel cierra su ventana.
+ await page.evaluate(()=>GamaOperations.open('notifications'));await expect(page.locator('#arcNotifyDialog')).toBeVisible();
+ await page.locator('#goSwitch').click();await expect(page.locator('#dashboard')).toBeVisible();await expect(page.locator('#arcNotifyDialog')).toHaveCount(0);
  await page.evaluate(()=>GamaOperations.open('operations'));await expect(page.locator('#dashboard')).toBeVisible();await expect(page.locator('#operations')).toHaveCount(0);
 });
 test('saves handling and notes, then exposes refresh failures',async({page})=>{
@@ -60,7 +60,7 @@ test('a failed priorities read keeps the dashboard and says so',async({page})=>{
 });
 test('client cannot open alerts or fetch operations',async({page})=>{
  await boot(page,'client');await page.evaluate(()=>GamaOperations.open());await page.waitForTimeout(1500);
- expect(await page.evaluate(()=>window.__opsCalls.length)).toBe(0);await expect(page.locator('#operations')).toHaveCount(0);
+ expect(await page.evaluate(()=>window.__opsCalls.length)).toBe(0);await expect(page.locator('#operations')).toHaveCount(0);await expect(page.locator('#arcNotifyDialog')).toHaveCount(0);
 });
 test('direct links load an old delivery and an exact purchase dossier',async({page})=>{
  await boot(page);
@@ -75,7 +75,7 @@ test('direct links load an old delivery and an exact purchase dossier',async({pa
  await expect(page.locator('#gama-tms-section')).toContainText('Entrega antigua');await expect(page.locator('#tSigSave')).toBeVisible();
 });
 
-test('notifications open only from the top bar bell and show a visible screen',async({page})=>{
+test('notifications open only from the top bar bell, in their window',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await boot(page);
  // Ni tarjeta en el inicio ni enlace en la barra lateral: sólo la campana de arriba.
@@ -84,22 +84,25 @@ test('notifications open only from the top bar bell and show a visible screen',a
  await expect(page.locator('.arcNavLink[data-gama-module="notifications"]')).toHaveCount(0);
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
  const bell=page.locator('#arcNotify');
- await expect(bell).toBeVisible();
+ await expect(bell).toBeVisible();await expect(bell).toHaveAttribute('aria-haspopup','dialog');
  await bell.click();
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
- await expect(page.locator('#notifications')).toBeVisible();
- await expect(page.locator('#notifications #goAlerts')).toBeVisible();
- await expect(page.locator('#notifications')).not.toHaveClass(/gamaDisabledModule/);
+ await expect(page.locator('#arcNotifyDialog')).toBeVisible();
+ await expect(page.locator('#arcNotifyDialog #goAlerts')).toBeVisible();
+ // Ya no hay página de notificaciones detrás de la ventana.
+ await expect(page.locator('section#notifications')).toHaveCount(0);
  expect(errors).toEqual([]);
 });
 
-test('action center uses complete totals and category buttons reset pagination',async({page})=>{
+test('the action centre categories are the window sections, with full totals, and reset pagination',async({page})=>{
  await boot(page);await page.evaluate(()=>{__ops.action_center={shortage:3,late_delivery:2,quote:5,low_stock:4,receipt:2,overdue_invoice:4850}});
  await page.evaluate(()=>GamaOperations.open('notifications'));
- await expect(page.locator('#goActionCenter')).toContainText('3 pedidos bloqueados');await expect(page.locator('#goActionCenter')).toContainText('5 presupuestos');
- await expect(page.locator('#goActionCenter [data-go-filter]')).toHaveCount(7);
- await page.locator('#goActionCenter [data-go-filter="overdue_invoice"]').click();
+ await expect(page.locator('#notifyTab-shortage .arcSideBadge')).toHaveText('3');await expect(page.locator('#notifyTab-quote .arcSideBadge')).toHaveText('5');
+ await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(7);
+ await page.locator('#notifyTab-overdue_invoice').click();
  expect(await page.evaluate(()=>__opsCalls.at(-1).p_data)).toMatchObject({kind:'overdue_invoice',state:'all',offset:0});
+ // Las vencidas se dicen en dinero, como en el centro de acción.
+ await expect(page.locator('#goMain .goLead')).toContainText(/4.?850/);
  await page.evaluate(()=>{gamaPrepareActionPurchase=async x=>{window.__purchase=x}});await page.locator('[data-go-action]').click();expect(await page.evaluate(()=>__purchase)).toEqual({order_id:'o1'});
 });
 test('purchase action prepares only targeted products and preserves an existing draft',async({page})=>{
@@ -115,7 +118,7 @@ test('purchase action prepares only targeted products and preserves an existing 
 });
 test('warehouse action center hides money and purchasing controls on mobile',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.evaluate(()=>GamaOperations.open('notifications'));
- await expect(page.locator('#goActionCenter [data-go-filter]')).toHaveCount(4);await expect(page.locator('[data-go-action]')).toHaveCount(0);await expect(page.locator('#goActionCenter')).not.toContainText('facturas');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(4);await expect(page.locator('#goAlerts article')).toHaveCount(1);await expect(page.locator('[data-go-action]')).toHaveCount(0);await expect(page.locator('#arcNotifyDialog [role=tablist]')).not.toContainText(/[Ff]acturas/);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
 test('quote reminder prepares the exact document and rejects a resolved quote',async({page})=>{

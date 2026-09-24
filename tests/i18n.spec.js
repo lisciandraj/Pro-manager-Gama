@@ -101,7 +101,7 @@ test('settings exposes language to all roles without exposing module switches or
  await expect(settings.locator('[data-language="fr"]')).toHaveAttribute('aria-pressed','true');
  // La ventana sigue al idioma elegido dentro de ella, también en lo que sólo se oye.
  await expect(settings.locator('h2')).toHaveText('Configuration');
- await expect(settings.locator('[data-cfg-close]')).toHaveAttribute('aria-label','Fermer');
+ await expect(settings.locator('[data-side-close]')).toHaveAttribute('aria-label','Fermer');
  await expect(page.locator('#arcSettings')).toHaveAttribute('aria-label','Configuration');
  expect(await page.evaluate(()=>document.querySelector('header.gamaHeader').getBoundingClientRect().height)).toBeLessThan(168);
  await page.keyboard.press('Escape');

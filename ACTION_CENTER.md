@@ -1,6 +1,6 @@
 # Centro de acción
 
-Notifications shows six live categories, independent of pagination and reporting dates; includes snoozed dossiers. Counts are derived, never seeded.
+The top-bar bell opens the Notifications window (`#arcNotifyDialog`, `ArcUI.sideDialog`). Its side menu lists All alerts (active ones), then each action-centre category below with its complete count, independent of pagination and reporting dates and including snoozed dossiers, then Projects, Approvals and Preferences, which are worked inside the window. Selecting a category lists all its alerts (follow-up state `all`, offset 0); the overdue-invoice section states the outstanding amount. Counts are derived, never seeded. Opening a dossier or any other screen closes the window so the destination is visible; the e-mail composer used by reminders is a modal `<dialog>` that opens above it.
 
 - Confirmed orders with quantities neither shipped nor reserved: view order / prepare supplier purchase.
 - Deliveries past their Ecuador planned date, excluding delivered/cancelled: TMS for warehouse staff, linked sales order for commercial staff.

@@ -1044,6 +1044,7 @@
       "accent": "orange",
       "order": 17,
       "menu": true,
+      "topbar": true,
       "configLabel": "Configuración",
       "locked": true,
       "roles": [

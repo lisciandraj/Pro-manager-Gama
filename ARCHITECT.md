@@ -95,6 +95,10 @@ Desktop à partir de 1100 px : sidebar permanente. Tablette de 861 à 1099 px : 
 
 La sidebar présente les destinations principales puis « Autres modules ». Tous les modules restent dans le registre et sur l’accueil. « Personnaliser » permet de masquer des cartes uniquement sur l’accueil ; les destinations restent accessibles dans la navigation. Les préférences sont propres au profil local et n’accordent jamais un droit d’accès.
 
+La barre supérieure porte deux boutons d’icône identiques : la cloche des notifications et, juste à sa droite, la roue de la configuration. Ni l’une ni l’autre n’est une tuile de l’accueil ou un lien de la sidebar (`topbar: true` dans le registre), mais `ArcRouter.open('settings')` et la recherche l’ouvrent toujours.
+
+La roue ouvre une fenêtre modale (`#arcSettingsDialog`, `gama-settings.js`) avec un menu latéral de rubriques : Langue, Informations sur l’entreprise, Identité des documents, Réglages fiscaux, Références des documents, Règles opérationnelles et Sécurité de mon compte. Seules la langue et la sécurité du compte sont proposées à qui n’est pas administrateur. Le menu est un `tablist` vertical (flèches, Début, Fin) ; sur téléphone la fenêtre occupe l’écran et les rubriques se mettent en rangée défilante en haut. Chaque rubrique se charge la première fois qu’on l’ouvre. Les trois rubriques de l’entreprise restent une seule fiche avec un seul « Enregistrer » : chacune n’affiche que ses cartes (`data-co-section`), et un champ obligatoire d’une autre rubrique y ramène avant que le navigateur ne le signale. `GamaSettings.open('fiscal')` ouvre directement une rubrique. Les couleurs des documents PDF restent celles choisies dans « Identité des documents ». Les « Paramètres d’accès » (modules et profils) restent un module à part.
+
 `gama-fixed-header.js` reconnaît le conteneur Architect : il ne déplace plus les contrôles de session vers l’ancienne barre désormais invisible. Déconnexion et gestion des comptes conservent leurs événements et permissions.
 
 Les libellés sont traduits avec le catalogue existant FR/EN/ES. Après modification, exécuter `python3 scripts/build-i18n.py`.

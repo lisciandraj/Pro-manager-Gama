@@ -105,13 +105,19 @@ test('Configuración no se apaga a sí misma', async ({ page }) => {
 // Quien no es administrador no ve los interruptores. La barrera de verdad no
 // está aquí sino en la política RLS de app_modules, que sólo deja escribir al
 // administrador; esto es no enseñar un botón que la base va a rechazar.
-test('sin ser administrador no hay interruptores ni RRHH', async ({ page }) => {
+// (RRHH sí le llega, en autoservicio: lo suyo y el calendario; lo comprueba
+// «un empleado ve lo suyo y el calendario».)
+test('sin ser administrador no hay interruptores', async ({ page }) => {
   await boot(page, 'commercial');
   await page.evaluate(() => window.GamaOpenSettings());
   await page.waitForTimeout(500);
-  await expect(page.locator('#settings #gamaLanguagePicker')).toBeVisible();
-  await expect(page.locator('#settings [data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
-  await expect(page.locator('#mainmenu .gamaF2Card:has-text("Recursos humanos")')).toBeHidden();
+  await expect(page.locator('#arcSettingsDialog #gamaLanguagePicker')).toBeVisible();
+  await expect(page.locator('#arcSettingsDialog [data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
+  await page.keyboard.press('Escape');
+  // Los interruptores viven en «Parámetros de acceso», que no se le ofrece.
+  await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
+  await page.evaluate(() => window.GamaOpenAccessSettings());
+  await expect(page.locator('#access-settings [data-mod]')).toHaveCount(0);
 });
 
 // El saldo de vacaciones se cuenta en días LABORABLES; la base guarda días

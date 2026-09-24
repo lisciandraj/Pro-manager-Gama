@@ -6,7 +6,7 @@ async function boot(page,role='admin'){
  await page.addInitScript(({formats,role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'References QA'}));localStorage.setItem('gama_language_v1','fr');window.__DB={erp_reference_formats:formats,products:[],customers:[],suppliers:[],profiles:[],invoices:[]};},{formats,role});
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old(),rpc=c.rpc;c.rpc=async(fn,a)=>{if(fn!=='gama_save_reference_formats')return rpc(fn,a);window.__savedRefs=a.p_changes;if(window.__refConflict)return {error:{message:'REFERENCE_FORMAT_STALE'}};for(const x of a.p_changes){const r=window.__DB.erp_reference_formats.find(r=>r.kind===x.kind);Object.assign(r,x,{version:r.version+1})}return {data:structuredClone(window.__DB.erp_reference_formats)}};return c}})();`}));
- await page.goto('/index.html');await page.evaluate(()=>GamaSettings.open());
+ await page.goto('/index.html');await page.evaluate(()=>GamaSettings.open('references'));
 }
 test('admin configures three-letter prefixes with preview, retains failed edits and fits desktop/mobile',async({page})=>{
  await boot(page);const form=page.locator('#cfgReferenceForm');await expect(form).toBeVisible();await expect(form.locator('[data-ref-kind]')).toHaveCount(formats.length);

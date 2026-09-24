@@ -809,6 +809,48 @@ dialog:has(#goNote){border:0;border-radius:16px;width:min(560px,calc(100vw - 40p
 select.gamaFindOculto{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0;z-index:-1}
 
 /* gama-settings.js */
+/* La ventana de configuración: se abre desde la rueda de la barra superior,
+   con sus apartados en un menú lateral que se desplaza solo. En el teléfono
+   ocupa la pantalla y el menú se pone en fila, arriba. */
+dialog.cfgDialog{border-radius:var(--arc-r-xl);padding:0;background:var(--arc-surface);color:var(--arc-text);width:min(1120px,calc(100vw - 32px));max-width:none;height:min(860px,calc(100vh - 48px));max-height:none;display:flex;flex-direction:column;overflow:hidden}
+dialog.cfgDialog:not([open]){display:none}
+dialog.cfgDialog::backdrop{background:rgba(11,27,48,.55);backdrop-filter:blur(2px)}
+.cfgDialogHead{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 24px;border-bottom:1px solid var(--arc-line)}
+.cfgDialogHead h2{margin:0;font-size:20px;color:var(--arc-text)}
+.cfgDialogHead .arcIconBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cfgDialogBody{flex:1;min-height:0;display:grid;grid-template-columns:264px minmax(0,1fr)}
+.cfgSide{min-height:0;border-right:1px solid var(--arc-line);background:var(--arc-surface-2);overflow-y:auto;overscroll-behavior:contain;padding:12px}
+.cfgSideList{display:flex;flex-direction:column;gap:4px}
+.cfgSideList [role=tab]{display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:48px;padding:8px 12px;border:0;border-radius:var(--arc-r-md);background:transparent;color:var(--arc-navy-700);font:inherit;font-weight:var(--arc-fw-med);line-height:1.3;text-align:left;box-shadow:none}
+.cfgSideList [role=tab]:hover{background:var(--arc-surface-3);color:var(--arc-navy-900)}
+.cfgSideList [role=tab][aria-selected=true]{background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:700;box-shadow:inset 3px 0 0 var(--arc-accent-600)}
+.cfgSideList [role=tab]:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:-3px}
+.cfgSideIcon{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:var(--arc-surface);color:inherit}
+.cfgSideIcon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cfgPanes{min-height:0;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 24px 28px}
+.cfgPanes>[role=tabpanel]:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:4px;border-radius:var(--arc-r-md)}
+.cfgPanes #coCompany{margin-top:0}
+.cfgPanes .arcPanel.card:last-child{margin-bottom:0}
+/* La ficha de la empresa es un único formulario: cada apartado enseña sus tarjetas. */
+#cfgPane-company[data-co-view] [data-co-section]{display:none}
+#cfgPane-company[data-co-view=company] [data-co-section=company],
+#cfgPane-company[data-co-view=identity] [data-co-section=identity],
+#cfgPane-company[data-co-view=fiscal] [data-co-section=fiscal]{display:block}
+#cfgPane-company[data-co-view=fiscal] .coGrid{display:none}
+/* Seguridad de mi cuenta: botones a su tamaño, la tabla a todo el ancho. */
+#cfgSecurity .arcPanel{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+#cfgSecurity .arcPanel>:is(h3,p){margin:0}
+#cfgSecurity .arcPanel>:not(button){align-self:stretch}
+@media(max-width:760px){
+ dialog.cfgDialog{width:100vw;height:100dvh;max-height:100dvh;border-radius:0;margin:0}
+ .cfgDialogHead{padding:6px 8px 6px 16px}
+ .cfgDialogBody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+ .cfgSide{border-right:0;border-bottom:1px solid var(--arc-line);overflow-x:auto;overflow-y:hidden;padding:8px}
+ .cfgSideList{flex-direction:row;gap:6px;width:max-content}
+ .cfgSideList [role=tab]{width:auto;white-space:nowrap;min-height:44px}
+ .cfgSideList [role=tab][aria-selected=true]{box-shadow:inset 0 -3px 0 var(--arc-accent-600)}
+ .cfgPanes{padding:16px}
+}
 :is(#settings,#access-settings){display:none}
 :is(#settings,#access-settings) .cfgList{display:grid;gap:9px}
 :is(#settings,#access-settings) .cfgRow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border:1px solid var(--arc-surface-3);border-radius:12px;background:#fff}

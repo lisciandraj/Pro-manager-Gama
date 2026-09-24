@@ -43,23 +43,12 @@ function section(id='settings'){
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function render(id='settings'){
- const access=id==='access-settings';
+ // La configuración ya no es una página: se abre en su ventana, desde la barra superior.
+ if(id!=='access-settings'){openDialog();return}
  css();
  const s=section(id);
- if(access&&!isAdmin()){window.ArcUI.render(s,'');return}
- const head=window.GamaUI.header({
-  title:access?'🔐 Parámetros de acceso':'⚙️ Configuración',
-  lead:access?'Configura los módulos de la empresa y los accesos de cada perfil.':isAdmin()?'Configura tu empresa, sus documentos y el idioma de la aplicación.':'Personaliza el idioma de la aplicación.'
- });
-
- const preferences='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
- if(!access){
-  window.ArcUI.render(s,head+preferences+(isAdmin()?'<div id="coCompany" data-gi-ignore></div><div id="cfgReferences" data-gi-ignore></div>':''));
-  window.GamaUI.bindBack(s);
-  window.GamaI18n?.mount();
-  if(isAdmin()){window.GamaCompany?.mount($('coCompany'));window.GamaReferences?.mountConfig($('cfgReferences'));}
-  return;
- }
+ if(!isAdmin()){window.ArcUI.render(s,'');return}
+ const head=window.GamaUI.header({title:'🔐 Parámetros de acceso',lead:'Configura los módulos de la empresa y los accesos de cada perfil.'});
 
  const mods=window.GamaModules.list();
  const activos=mods.filter(m=>m.enabled).length;
@@ -128,21 +117,92 @@ function bind(viewId){
  });
 }
 
+/* Configuración: una ventana desde la rueda de la barra superior, con sus
+   apartados en un menú lateral. El idioma es de cada uno; lo demás, de la
+   empresa y sólo para el administrador. La ficha de la empresa sigue siendo
+   un único formulario con un solo «Guardar»: cada apartado enseña su parte. */
+const PREFERENCES='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
+const GLOBE='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>';
+const SECTIONS=[
+ {id:'language',label:'Idioma',icon:GLOBE,pane:'language'},
+ {id:'company',label:'Información de la empresa',icon:'factory',pane:'company',admin:true},
+ {id:'identity',label:'Identidad de los documentos',icon:'documents',pane:'company',admin:true},
+ {id:'fiscal',label:'Ajustes fiscales',icon:'ledger',pane:'company',admin:true},
+ {id:'references',label:'Referencias de documentos',icon:'tag',pane:'references',admin:true},
+ {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
+ {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
+];
+// Cada apartado se carga la primera vez que se enseña: abrir la ventana para el idioma no pide nada al servidor.
+const PANES={
+ company:host=>window.GamaCompany?.mount(host),
+ references:host=>window.GamaReferences?.mountConfig(host),
+ policies:host=>window.ArchitectControls?.mountPolicies(host),
+ security:host=>window.ArchitectIdentity?.security(host),
+};
+const HOSTS={company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity'};
+let dialogEl=null;
+function selectSection(id,focus=false){
+ const el=dialogEl;if(!el)return;
+ const tabs=[...el.querySelectorAll('[data-cfg-tab]')],tab=tabs.find(t=>t.dataset.cfgTab===id)||tabs[0];if(!tab)return;
+ const pane=SECTIONS.find(s=>s.id===tab.dataset.cfgTab).pane;
+ tabs.forEach(t=>{const on=t===tab;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1});
+ el.querySelectorAll('[data-cfg-pane]').forEach(p=>{const on=p.dataset.cfgPane===pane;p.hidden=!on;if(on)p.setAttribute('aria-labelledby',tab.id)});
+ const host=el.querySelector(`[data-cfg-pane="${pane}"] [data-cfg-host]`);
+ if(host&&!host.dataset.cfgMounted){host.dataset.cfgMounted='1';PANES[pane]?.(host)}
+ // La ficha de la empresa es una: cada apartado enseña sólo sus tarjetas.
+ el.querySelector('[data-cfg-pane="company"]')?.setAttribute('data-co-view',tab.dataset.cfgTab);
+ el.querySelector('.cfgPanes').scrollTop=0;
+ if(focus)tab.focus();
+}
+function openDialog(section='language'){
+ const admin=isAdmin(),items=SECTIONS.filter(s=>!s.admin||admin);
+ if(dialogEl?.open){selectSection(section);return dialogEl}
+ // Una ventana que se está cerrando (su «close» llega después) no se reutiliza.
+ dialogEl?.remove();dialogEl=null;
+ const icon=s=>window.ArcUI.icons[s.icon]||s.icon;
+ const el=document.createElement('dialog');el.className='cfgDialog';el.id='arcSettingsDialog';el.setAttribute('aria-labelledby','cfgDialogTitle');
+ // Con la ventana abierta, si la cuenta deja de ser administradora se cierra (ver gama:auth-change).
+ if(admin)el.dataset.admin='';
+ document.body.appendChild(el);dialogEl=el;
+ el.innerHTML=`<div class="cfgDialogHead"><h2 id="cfgDialogTitle">${live('Configuración')}</h2><button type="button" class="arcButton arcIconBtn" data-cfg-close data-gi-aria-label=aeccae342e4b aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>`
+  +`<div class="cfgDialogBody"><nav class="cfgSide" data-gi-aria-label=f0cdf1e7ad9d aria-label="Apartados de la configuración"><div class="cfgSideList" role="tablist" aria-orientation="vertical">`
+  +items.map(s=>`<button type="button" role="tab" id="cfgTab-${s.id}" data-cfg-tab="${s.id}" aria-controls="cfgPane-${s.pane}" aria-selected="false" tabindex="-1"><span class="cfgSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${icon(s)}</svg></span>${live(s.label)}</button>`).join('')
+  +`</div></nav><div class="cfgPanes"><div role="tabpanel" id="cfgPane-language" data-cfg-pane="language" tabindex="0" hidden>${PREFERENCES}</div>`
+  +[...new Set(items.map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>`<div role="tabpanel" id="cfgPane-${p}" data-cfg-pane="${p}" tabindex="0" hidden><div id="${HOSTS[p]}" data-cfg-host data-gi-ignore></div></div>`).join('')
+  +'</div></div>';
+ const list=el.querySelector('[role=tablist]');
+ // Este menú tiene su propio teclado (vertical en el ordenador, en fila en el teléfono) y
+ // tres apartados comparten el panel de la empresa: el comportamiento genérico no se aplica.
+ list.__arcTabs=true;window.ArcUI.mount(el);
+ list.addEventListener('click',e=>{const t=e.target.closest('[data-cfg-tab]');if(t)selectSection(t.dataset.cfgTab)});
+ // Flechas arriba y abajo en el menú lateral; izquierda y derecha cuando, en el teléfono, se pone en fila.
+ list.addEventListener('keydown',e=>{const tabs=[...list.querySelectorAll('[data-cfg-tab]')],i=tabs.indexOf(document.activeElement);if(i<0)return;const n=tabs.length,next={ArrowDown:(i+1)%n,ArrowRight:(i+1)%n,ArrowUp:(i+n-1)%n,ArrowLeft:(i+n-1)%n,Home:0,End:n-1}[e.key];if(next==null)return;e.preventDefault();selectSection(tabs[next].dataset.cfgTab,true)});
+ el.querySelector('[data-cfg-close]').onclick=()=>el.close();
+ // La ficha de la empresa se guarda entera: si falta algo de otro apartado, se va a él.
+ el.addEventListener('invalid',e=>{const part=e.target.closest?.('[data-co-section]')?.dataset.coSection,pane=el.querySelector('[data-cfg-pane="company"]');if(part&&pane&&pane.dataset.coView!==part)selectSection(part)},true);
+ const back=document.activeElement;
+ el.addEventListener('close',()=>{el.remove();if(dialogEl!==el)return;dialogEl=null;(document.getElementById('arcSettings')||back)?.focus?.()},{once:true});
+ el.showModal();
+ selectSection(items.some(s=>s.id===section)?section:'language',true);
+ window.GamaI18n?.mount();
+ return el;
+}
+// open('fiscal'), open('references')…: la ventana en ese apartado. Los accesos siguen siendo una página.
 function open(id='settings'){
- id=id==='access-settings'?'access-settings':'settings';
- if(id==='access-settings'&&!isAdmin()){window.gamaToast?.(window.GamaI18n?.t('Acceso denegado para este perfil.')||'Acceso denegado para este perfil.');return false}
- if(id==='access-settings'){draft=null;accessError='';}
+ if(id!=='access-settings')return openDialog(SECTIONS.some(s=>s.id===id)?id:'language');
+ if(!isAdmin()){window.gamaToast?.(window.GamaI18n?.t('Acceso denegado para este perfil.')||'Acceso denegado para este perfil.');return false}
+ draft=null;accessError='';
  css();
  render(id);
  window.ArcRouter.show(id);
  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
  window.scrollTo({top:0,behavior:'smooth'});
  // Se relee por si otro administrador cambió algo desde otro dispositivo.
- if(id==='access-settings'){Promise.all([window.GamaModules.load(),window.GamaRoleAccess.load()]).then(()=>{if(!busy)render(id)}).catch(()=>{if(!busy)render(id)});}
+ Promise.all([window.GamaModules.load(),window.GamaRoleAccess.load()]).then(()=>{if(!busy)render(id)}).catch(()=>{if(!busy)render(id)});
 }
 
-window.GamaSettings={open,render};
-window.GamaOpenSettings=()=>open('settings');
+window.GamaSettings={open,render,openDialog};
+window.GamaOpenSettings=()=>openDialog();
 window.GamaOpenAccessSettings=()=>open('access-settings');
-window.addEventListener('gama:auth-change',()=>{if(!isAdmin())$('access-settings')?.replaceChildren()});
+window.addEventListener('gama:auth-change',e=>{if(!isAdmin())$('access-settings')?.replaceChildren();if(dialogEl?.open&&(e.detail?.event==='SIGNED_OUT'||!role()||(dialogEl.dataset.admin!=null&&!isAdmin())))dialogEl.close()});
 })();

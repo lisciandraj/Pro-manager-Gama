@@ -33,6 +33,7 @@ const ICON={
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
  close:'<path d="m6 6 12 12M18 6 6 18"/>',
+ gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>',
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
 };
@@ -118,10 +119,12 @@ function build(){
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-label="'+esc(T('Notificaciones'))+'">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'
+   /* La configuración vive aquí, junto a la campana: abre su ventana. */
+   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="dialog" aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
    +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
   +'</div>');
 
@@ -162,6 +165,7 @@ function bind(side,top){
  window.GamaGlobalSearch?.mount?.(input);
 
  top.querySelector('#arcNotify').onclick=()=>{closeDrawer();window.GamaOperations?.open?.('notifications')};
+ top.querySelector('#arcSettings').onclick=()=>{closeDrawer();window.GamaSettings?.openDialog?.()};
 
  const lang=side.querySelector('#arcLangSelect');
  lang.value=window.GamaI18n?.language||'es';
@@ -201,7 +205,7 @@ function adoptSections(){
  });
 }
 function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
-function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications')}
+function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings')}
 
 function boot(){
  build();

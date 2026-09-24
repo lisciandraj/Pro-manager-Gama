@@ -2912,3 +2912,10 @@ El N+1 con cuenta valida las ausencias, los turnos y las horas de su equipo dire
 Ese N+1 depende de este empleado: el organigrama formaría un círculo.	Ce N+1 dépend de ce salarié : l’organigramme formerait une boucle.	That manager reports to this employee: the org chart would loop.
 Un empleado no puede ser su propio N+1.	Un salarié ne peut pas être son propre N+1.	An employee cannot be their own line manager.
 El N+1 elegido está archivado.	Le N+1 choisi est archivé.	The chosen line manager is archived.
+Información de la empresa	Informations sur l'entreprise	Company information
+Identidad de los documentos	Identité des documents	Document branding
+Ajustes fiscales	Réglages fiscaux	Tax settings
+Apartados de la configuración	Rubriques de la configuration	Settings sections
+Reglas operativas	Règles opérationnelles	Operating rules
+Seguridad de mi cuenta	Sécurité de mon compte	My account security
+Tipo de documento	Type de document	Document type

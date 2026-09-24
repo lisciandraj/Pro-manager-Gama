@@ -58,3 +58,23 @@ test('phone table mode scrolls full-width shipment columns and action buttons',a
  await page.locator('#shipmentScrollTest table button').click();expect(await page.evaluate(()=>window.__shipmentOpened)).toBe(true);
  await page.setViewportSize({width:390,height:844});await page.locator('#shipmentScrollTest [data-table-view=cards]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
+
+// En el teléfono, con la vista «Tableau» elegida, cada valor sigue bajo su
+// columna: una celda vacía (sin marca, sin ubicación…) ya no se esconde ni
+// corre las siguientes, y la primera celda y la de los botones llevan el
+// mismo margen que las demás. En «Tuiles», la celda vacía sigue sin ocupar sitio.
+test('phone table mode keeps every value under its column header, empty cells included',async({page})=>{
+ await boot(page,390,844);
+ await page.evaluate(()=>{const host=document.createElement('div');host.id='alignTest';document.querySelector('#mainmenu').append(host);
+  ArcUI.render(host,ArcUI.table({columns:[{key:'code',label:'Código'},{key:'name',label:'Producto'},{key:'brand',label:'Marca'},{key:'stock',label:'Stock',numeric:true},{key:'place',label:'Ubicación'},{label:'Acciones',actions:true,html:()=>'<button type="button" class="arcButton">Editar</button>'}],
+   items:[{code:'A1',name:'Cemento',brand:'Holcim',stock:4,place:'A01-01'},{code:'',name:'Varilla',brand:'',stock:9,place:''},{code:'C3',name:'Clavos',brand:'',stock:0,place:'B02'}]}));});
+ await page.locator('#alignTest [data-table-view=table]').click();
+ for(const size of [{width:390,height:844},{width:667,height:375}]){
+  await page.setViewportSize(size);
+  const cells=await page.locator('#alignTest table').evaluate(t=>{const head=[...t.tHead.rows[0].cells].map(c=>({x:Math.round(c.getBoundingClientRect().left),pad:getComputedStyle(c).paddingLeft}));
+   return [...t.tBodies[0].rows].map(r=>[...r.cells].map((c,i)=>getComputedStyle(c).display==='table-cell'&&Math.round(c.getBoundingClientRect().left)===head[i].x&&getComputedStyle(c).paddingLeft===head[i].pad))});
+  expect(cells,`${size.width}x${size.height}`).toEqual([Array(6).fill(true),Array(6).fill(true),Array(6).fill(true)]);
+ }
+ await page.setViewportSize({width:390,height:844});await page.locator('#alignTest [data-table-view=cards]').click();
+ expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
+});

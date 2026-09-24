@@ -34,10 +34,15 @@ test('shared form blocks duplicate requests, reports failures and allows a retry
  await page.fill('#ctf-name','New supplier');
  await page.evaluate(()=>{
   const original=window.GamaCloud.insert;window.__submissions=0;
-  window.GamaCloud.insert=async(...args)=>{window.__submissions++;await new Promise(r=>setTimeout(r,150));if(window.__submissions===1)return {error:{message:'NETWORK_ERROR'}};return original(...args);};
+  // El primer envío se queda en vuelo hasta que la prueba lo suelta: sin un
+  // plazo fijo, el botón deshabilitado se comprueba siempre a tiempo.
+  window.__release=null;const held=new Promise(r=>window.__release=r);
+  window.GamaCloud.insert=async(...args)=>{window.__submissions++;if(window.__submissions===1){await held;return {error:{message:'NETWORK_ERROR'}}}return original(...args);};
   const form=document.getElementById('ctForm');form.requestSubmit();form.requestSubmit();
  });
- await expect(page.locator('#ctSave')).toBeDisabled();await expect(page.locator('#ctMsg')).not.toBeEmpty();
+ await expect(page.locator('#ctSave')).toBeDisabled();expect(await page.evaluate(()=>window.__submissions)).toBe(1);
+ await page.evaluate(()=>window.__release());
+ await expect(page.locator('#ctMsg')).not.toBeEmpty();await expect(page.locator('#ctSave')).toBeEnabled();
  expect(await page.evaluate(()=>window.__submissions)).toBe(1);await expect(page.locator('#ctf-name')).toHaveValue('New supplier');
  await page.locator('#ctSave').click();
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.filter(s=>s.name==='New supplier').length)).toBe(1);

@@ -893,29 +893,32 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .gamaScrollX.gamaScrollX{overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 .gamaCards.gamaCards{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 @media(max-width:760px){
+ /* Sólo las fichas. Con la vista «Tabla» elegida en el teléfono, estas reglas
+    —más específicas que las de la tabla— escondían las celdas vacías y las
+    siguientes se corrían una columna a la izquierda. */
  .gamaScrollX.gamaScrollX{overflow:visible}
- .gamaCards.gamaCards{display:block!important;min-width:0!important;overflow:visible!important;white-space:normal!important}
- .gamaCards.gamaCards>thead,.gamaCards.gamaCards [data-gama-head]{display:none!important}
- .gamaCards.gamaCards>tbody{display:block!important}
- .gamaCards.gamaCards tr{display:block!important;background:#fff;border:1px solid var(--arc-surface-3);border-radius:12px;padding:11px 13px;margin-bottom:9px}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])){display:block!important;min-width:0!important;overflow:visible!important;white-space:normal!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table]))>thead,.gamaCards.gamaCards:where(:not([data-gama-view=table])) [data-gama-head]{display:none!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table]))>tbody{display:block!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) tr{display:block!important;background:#fff;border:1px solid var(--arc-surface-3);border-radius:12px;padding:11px 13px;margin-bottom:9px}
  /* La etiqueta va posicionada y no en una columna de rejilla: una celda trae
     su valor, a veces un <small> debajo y a veces una barra o unos botones, y
     como items de rejilla cada uno se habría ido a una casilla suya. Sacándola
     del flujo, dentro de la celda todo sigue siendo lo que era. */
- .gamaCards.gamaCards td{position:relative;display:block!important;border:0!important;padding:7px 0 7px var(--gamaCardsLabel,118px)!important;font-size:12.5px!important;text-align:left!important;white-space:normal!important;vertical-align:baseline!important}
- .gamaCards.gamaCards td::before{position:absolute;left:0;top:9px;width:calc(var(--gamaCardsLabel,118px) - 10px);content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--arc-text-muted);line-height:1.3}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td{position:relative;display:block!important;border:0!important;padding:7px 0 7px var(--gamaCardsLabel,118px)!important;font-size:12.5px!important;text-align:left!important;white-space:normal!important;vertical-align:baseline!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td::before{position:absolute;left:0;top:9px;width:calc(var(--gamaCardsLabel,118px) - 10px);content:attr(data-col);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--arc-text-muted);line-height:1.3}
  /* El titular de la ficha y la celda sin nombre de columna —la de los botones—
     no necesitan el hueco de una etiqueta que no llevan. */
- .gamaCards.gamaCards td[data-gama-title],.gamaCards.gamaCards td[data-col=""]{padding-left:0!important}
- .gamaCards.gamaCards td[data-gama-title]::before,.gamaCards.gamaCards td[data-col=""]::before{content:none}
- .gamaCards.gamaCards td[data-gama-title]{padding:0 0 9px!important;margin-bottom:3px;border-bottom:1px solid var(--arc-surface-3)!important;font-size:13.5px!important;font-weight:700}
- .gamaCards.gamaCards td[data-col=""]{padding-top:8px!important}
- .gamaCards.gamaCards td:empty{display:none!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-gama-title],.gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-col=""]{padding-left:0!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-gama-title]::before,.gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-col=""]::before{content:none}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-gama-title]{padding:0 0 9px!important;margin-bottom:3px;border-bottom:1px solid var(--arc-surface-3)!important;font-size:13.5px!important;font-weight:700}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td[data-col=""]{padding-top:8px!important}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td:empty{display:none!important}
  /* Los botones de una fila caben de sobra en una línea; sin esto la regla
     global «button{width:100%}» los apila uno debajo de otro y una ficha de
     doce datos acababa con un pie de tres pisos. */
- .gamaCards.gamaCards td button{width:auto;margin:0 6px 6px 0}
- .gamaCards.gamaCards img{max-width:100%}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) td button{width:auto;margin:0 6px 6px 0}
+ .gamaCards.gamaCards:where(:not([data-gama-view=table])) img{max-width:100%}
 }
 
 /* gama-tms-module.js */
@@ -1164,7 +1167,7 @@ button.ivCelda:hover{border-color:var(--arc-accent-600);box-shadow:0 0 0 1px var
 .arcField input[type=checkbox]{width:20px;min-height:20px}.arcField textarea{min-height:100px;resize:vertical}.arcField [readonly]{background:var(--arc-surface-2)}.arcField [aria-invalid=true]{border-color:var(--arc-danger)}.arcFieldError,.arcFormError{color:var(--arc-danger)}.arcFieldError[hidden]{display:none}.arcFormError:empty{display:none}.arcFormGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--arc-s4)}
 .arcDialog{max-width:min(900px,calc(100vw - 32px));max-height:calc(100dvh - 40px);width:100%;padding:var(--arc-s6);border:1px solid var(--arc-line-strong);border-radius:var(--arc-r-lg);background:var(--arc-surface);color:var(--arc-text);box-shadow:0 16px 50px rgb(10 27 46 / .25);overflow:auto}.arcDialog::backdrop{background:rgb(10 27 46 / .48)}.arcDialog h2{margin:0 0 var(--arc-s5)}
 .arcDialog label:has(>input[type=checkbox]),.arcDialog label:has(>input[type=radio]){display:flex;align-items:center;gap:10px;min-height:var(--arc-tap);cursor:pointer}
-.arcTableWrap{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--arc-line);border-radius:var(--arc-r-md);background:var(--arc-surface)}.arcTable{width:100%;border-collapse:collapse}.arcTable th,.arcTable td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--arc-line);vertical-align:middle}.arcTable th{background:var(--arc-surface-2);font-weight:700;color:var(--arc-text)}.arcTable tbody tr:last-child td{border-bottom:0}.arcTable tbody tr:hover{background:var(--arc-surface-2)}.arcTable td.arcNumeric{text-align:right;font-variant-numeric:tabular-nums}.arcSort{font:inherit;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;box-shadow:none}.arcEmpty{padding:24px;text-align:center;color:var(--arc-text-muted)}
+.arcTableWrap{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--arc-line);border-radius:var(--arc-r-md);background:var(--arc-surface)}.arcTable{width:100%;border-collapse:collapse}.arcTable th,.arcTable td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--arc-line);vertical-align:middle}.arcTable th{background:var(--arc-surface-2);font-weight:700;color:var(--arc-text)}.arcTable tbody tr:last-child td{border-bottom:0}.arcTable tbody tr:hover{background:var(--arc-surface-2)}.arcTable :is(td,th).arcNumeric{text-align:right;font-variant-numeric:tabular-nums}.arcSort{font:inherit;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;box-shadow:none}.arcEmpty{padding:24px;text-align:center;color:var(--arc-text-muted)}
 .arcStatusBadge{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1px solid var(--arc-line);border-radius:999px;background:var(--arc-surface-2);font-size:12px;font-weight:600}.arcStatusBadge[data-tone=success]{color:var(--arc-success);background:var(--arc-success-bg)}.arcStatusBadge[data-tone=danger]{color:var(--arc-danger);background:var(--arc-danger-bg)}.arcStatusBadge[data-tone=warning]{color:var(--arc-warning);background:var(--arc-warning-bg)}
 .arcTabs{display:flex;gap:8px;overflow-x:auto;padding:4px}.arcTabs [role=tab]{flex-shrink:0}.arcTabs [aria-selected=true]{background:var(--arc-accent-600);color:#fff}.arcKpi{display:flex;flex-direction:column;gap:8px}.arcKpi strong{font-size:28px}.arcKpi small{color:var(--arc-text-muted)}
 @media(max-width:760px){.arcFormGrid{grid-template-columns:1fr}.arcDialog{padding:var(--arc-s4)}.arcTable thead{display:none}.arcTable,.arcTable tbody,.arcTable tr,.arcTable td{display:block;width:auto}.arcTable tr{padding:12px;border-bottom:2px solid var(--arc-line)}.arcTable td{display:grid;grid-template-columns:40% minmax(0,1fr);gap:8px;border:0;padding:6px 0;overflow-wrap:anywhere}.arcTable td::before{content:attr(data-col);font-weight:600;color:var(--arc-text-muted)}.arcTable td[data-gama-title]{display:block;font-weight:700}.arcTable td[data-gama-title]::before{display:none}.arcTable td[colspan]{display:block}.arcTableWrap{overflow:visible;border-radius:var(--arc-r-md)}.arcPager{justify-content:center}.arcPager>span{order:-1;width:100%;text-align:center}}

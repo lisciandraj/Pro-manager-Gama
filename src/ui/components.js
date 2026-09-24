@@ -97,7 +97,7 @@ export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorM
   const el=document.createElement('dialog'),lastFocus=document.activeElement;
   const titleId='arc-dialog-title-'+(++sequence);
   el.className='arcDialog '+className;el.setAttribute('aria-labelledby',titleId);
-  el.innerHTML=`<form class="arcForm"><h2 id="${titleId}">${esc(title)}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-arc-dialog-close'})}${button({id:ids.save,type:'submit',variant:'primary',label:saveLabel})}</div></form>`;
+  el.innerHTML=`<form class="arcForm"><h2 id="${titleId}">${esc(t(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-arc-dialog-close'})}${button({id:ids.save,type:'submit',variant:'primary',label:t(saveLabel)})}</div></form>`;
   document.body.appendChild(el);
   let formApi;
   const close=()=>{if(formApi?.pending)return;el.close();};

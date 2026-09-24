@@ -143,7 +143,7 @@ function dia(iso){
  const mismo=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
  if(mismo(d,hoy))return 'Hoy';
  if(mismo(d,ayer))return 'Ayer';
- return d.toLocaleDateString('es-EC',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+ return d.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 
 /* ---- listas ---- */
@@ -161,7 +161,7 @@ function barra(){
   +'<select id="crmATipo" data-gama-nofind data-gi-aria-label=68b338e60429 aria-label="Filtrar por tipo"><option value="" data-gi=7edada4fac1c>Todos los tipos</option>'
    +Object.keys(TIPOS).map(k=>'<option value="'+k+'"'+(filtroTipo===k?' selected':'')+'>'+esc(TIPOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="arcButton primary" id="crmANueva" data-gi=d05a7589481c>+ Nueva actividad</button>'
+  +'<button type="button" class="arcButton primary" id="crmANueva" data-gi=e2f325c3704b>Nueva actividad</button>'
   +'</div>'
   +'<div class="crmNav crmSubNav">'
    +'<button type="button" class="arcButton '+(vista==='agenda'?'on':'')+'" data-vista="agenda" data-gi=0fdf485f5bfd>Agenda</button>'

@@ -9,7 +9,8 @@ const bySource=new Map(Object.entries(catalog).map(([key,row])=>[row[0],{key,row
 let language='es';try{const saved=localStorage.getItem(KEY);if(languages.includes(saved))language=saved}catch(_){}
 const normalize=s=>String(s??'').replace(/\s+/g,' ').trim();
 const escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-const patterns=[...bySource.values()].filter(x=>/\{\d+\}/.test(x.row[0])).map(x=>({...x,re:new RegExp('^'+x.row[0].split(/(\{\d+\})/).map(s=>/^\{\d+\}$/.test(s)?'([\\d.,\\s]+)':escapeRE(s)).join('')+'$')}));
+// {0} holds a number, a date or a time («Creada el 2026-09-10», «Faltan -120 km»).
+const patterns=[...bySource.values()].filter(x=>/\{\d+\}/.test(x.row[0])).map(x=>({...x,re:new RegExp('^'+x.row[0].split(/(\{\d+\})/).map(s=>/^\{\d+\}$/.test(s)?'([\\d.,\\s:+\\-/—]+)':escapeRE(s)).join('')+'$')}));
 const prefixes=[...bySource.values()].filter(x=>x.row[0].length>5&&!x.row[0].includes('{')).sort((a,b)=>b.row[0].length-a.row[0].length);
 function translated(row){return row[languages.indexOf(language)]}
 function t(value){
@@ -20,7 +21,10 @@ function t(value){
  const counted=clean.match(/^(.*?) (\([\d.,]+\))$/);if(counted&&bySource.has(counted[1]))return t(counted[1])+' '+counted[2];
  if(parts&&parts[1]){const body=parts[2]+parts[3],next=t(body);if(next!==body)return parts[1]+next}
  for(const p of patterns){const m=p.re.exec(clean);if(m)return translated(p.row).replace(/\{(\d+)\}/g,(_,i)=>m[Number(i)+1])}
- for(const p of prefixes){for(const delimiter of [': ',' : ',' · ']){const start=p.row[0]+delimiter;if(clean.startsWith(start)){const rest=clean.slice(start.length);return translated(p.row)+delimiter+(/^No se pudo/.test(p.row[0])?t(rest):rest)}}}
+ // Server-composed details («Disponible: 3 · mínimo: 10»): each piece and each label, never the values.
+ if(clean.includes(' · ')){const pieces=clean.split(' · '),next=pieces.map(x=>t(x));if(next.some((x,i)=>x!==pieces[i]))return next.join(' · ')}
+ const labelled=clean.match(/^([^:]{2,40}): (.+)$/);if(labelled){const label=t(labelled[1]+':'),value=bySource.get(labelled[2]);if(label!==labelled[1]+':')return label+' '+(value?translated(value.row):labelled[2])}
+ for(const p of prefixes){for(const delimiter of [': ',' : ',' · ','. ']){const start=p.row[0]+delimiter;if(clean.startsWith(start)){const rest=clean.slice(start.length);return translated(p.row)+delimiter+(/^No se pudo/.test(p.row[0])?t(rest):rest)}}}
  return text;
 }
 const textState=new WeakMap(),attributeState=new WeakMap();
@@ -28,10 +32,11 @@ function replaceText(node,source){
  const next=t(source);textState.set(node,{source,last:next});if(node.nodeValue!==next)node.nodeValue=next;
 }
 function localize(el){
- if(!el||el.nodeType!==1||el.closest('[translate="no"], [data-gi-ignore],script,style,textarea,[contenteditable="true"]'))return;
+ if(!el||el.nodeType!==1||el.closest('[translate="no"], [data-gi-ignore],script,style,[contenteditable="true"]'))return;
  const ids=(el.getAttribute('data-gi')||'').split(' '),live=el.hasAttribute('data-gi-live');
  const known=ids.map(id=>catalog[id]).filter(Boolean);
- if(live||known.length){
+ // What is typed in a text area is the user's: only its placeholder is presentation.
+ if((live||known.length)&&el.tagName!=='TEXTAREA'){
   // An option without an explicit value otherwise changes submitted data with its label.
   if(el.tagName==='OPTION'&&!el.hasAttribute('value'))el.setAttribute('value',el.value);
   for(const node of el.childNodes){if(node.nodeType!==3)continue;
@@ -62,7 +67,8 @@ const liveSelectors=[
  '#ccCount','#cuCount','#giaCount','#crCount','.hrTabs button','.hrCard > h3','#giCopyStatus', '#gqMessage','#gsMessage','#gsFormError','#glMessage',
  '#crmMsg','#hrMsg','#cfgMsg','#gp14Msg','#gp14DetailMsg','#supMsg',
  '#gamaPhoneScanner .status','#gamaPhoneScanner .help','#gamaPhoneScanner .retry',
- '.gsDialog h2','.gsError','[role="alert"]','#cuStatus','#ccStatus','.gamaFindHint'
+ '.gsDialog h2','.gsError','[role="alert"]','#cuStatus','#ccStatus','.gamaFindHint',
+ '.crmVacio','.crmKpi > span','.crmKpi > small','.ivEstado','.ccStock','.ccCartRow small','.cfgCount','#gamaLoadingHost','.gsPager > span'
 ].join(',');
 function prepare(root){
  if(root.nodeType!==1)return;

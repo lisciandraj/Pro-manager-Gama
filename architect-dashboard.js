@@ -79,7 +79,7 @@ function when(item){
 }
 function priorityItem(item,index){
  const label=when(item);
- return `<li><button type="button" class="adPrio" data-tone="${E(item.tone)}" data-ad-prio="${index}"><span class="adPrioText"><strong>${E(t(item.title))}${item.reference?` <span class="adPrioRef">${E(item.reference)}</span>`:''}</strong><small>${E([item.customer,item.detail].filter(Boolean).join(' · '))}</small>${item.assigned_name?`<small class="adPrioOwner">${E(t('A cargo de'))} ${E(item.assigned_name)}</small>`:''}</span>${label?`<span class="adPrioWhen">${E(label)}</span>`:''}<span aria-hidden="true">→</span></button></li>`;
+ return `<li><button type="button" class="adPrio" data-tone="${E(item.tone)}" data-ad-prio="${index}"><span class="adPrioText"><strong>${E(t(item.title))}${item.reference?` <span class="adPrioRef">${E(item.reference)}</span>`:''}</strong><small>${E([['Cliente','Proveedor','Almacén'].includes(item.customer)?t(item.customer):item.customer,item.detail&&t(item.detail)].filter(Boolean).join(' · '))}</small>${item.assigned_name?`<small class="adPrioOwner">${E(t('A cargo de'))} ${E(item.assigned_name)}</small>`:''}</span>${label?`<span class="adPrioWhen">${E(label)}</span>`:''}<span aria-hidden="true">→</span></button></li>`;
 }
 function summaryItem([id,key,label,tone],s){
  return `<li><button type="button" class="adPrio adPrioSummary" data-tone="${tone}" data-ad-open="${E(id)}" data-ad-focus="${E(key)}"><span class="adAlertCount">${E(num(s[id][key]))}</span><span class="adPrioText"><strong>${E(t(label))}</strong><small>${E(t(moduleDef(id)?.label||id))}</small></span><span aria-hidden="true">→</span></button></li>`;

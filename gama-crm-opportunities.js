@@ -144,13 +144,13 @@ function embudo(){
  return '<div class="crmBar">'
   +'<input id="crmOBusca" type="search" data-gi-placeholder=b225411b831f placeholder="Buscar por título, referencia, ficha o responsable…" value="'+esc(busca)+'" data-gi-aria-label=de5df58e745e aria-label="Buscar oportunidades">'
   +'<span></span>'
-  +'<button type="button" class="arcButton primary" id="crmONueva" data-gi=74c382621239>+ Nueva oportunidad</button>'
+  +'<button type="button" class="arcButton primary" id="crmONueva" data-gi=d922e29076dd>Nueva oportunidad</button>'
   +'</div>'
   +(ref.etapas.length
    ?'<div class="crmTablero">'+ref.etapas.map(e=>columna(e,vivas.filter(o=>String(o.stage_id)===String(e.id)))).join('')+'</div>'
    :'<div class="arcPanel card"><div class="crmVacio" data-gi=724149b9b88b>Todavía no hay etapas configuradas.</div></div>')
   +(vivas.length?'':'<div class="arcPanel card"><div class="crmVacio">'
-   +(opos.length?'Ninguna oportunidad coincide con la búsqueda.':'Ninguna oportunidad todavía. La primera se crea con «+ Nueva oportunidad».')
+   +(opos.length?'Ninguna oportunidad coincide con la búsqueda.':'Ninguna oportunidad todavía. La primera se crea con «Nueva oportunidad».')
    +'</div></div>');
 }
 function columna(e,suyas){

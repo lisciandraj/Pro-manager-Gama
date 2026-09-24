@@ -126,7 +126,7 @@ function lista(){
   +'<select id="crmLeadFiltro" data-gama-nofind data-gi-aria-label=74580843ea91 aria-label="Filtrar por estado"><option value="" data-gi=ecda92faab01>Todos los estados</option>'
   +Object.keys(ESTADOS).map(k=>'<option value="'+k+'"'+(filtro===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
   +'</select>'
-  +'<button type="button" class="arcButton primary" id="crmLeadNuevo" data-gi=0891a0aeae90>+ Nuevo prospecto</button>'
+  +'<button type="button" class="arcButton primary" id="crmLeadNuevo" data-gi=27a9a1faa814>Nuevo prospecto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmLeads',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch))
@@ -136,7 +136,7 @@ function lista(){
 function vacio(total){
  return '<div class="crmVacio">'+(total
   ?'Ningún prospecto coincide con la búsqueda.'
-  :'Todavía no hay prospectos. Crea el primero con «+ Nuevo prospecto».')+'</div>';
+  :'Todavía no hay prospectos. Crea el primero con «Nuevo prospecto».')+'</div>';
 }
 function tabla(rows){
  const th=(col,label,align)=>window.GamaSort?window.GamaSort.th('crmLeads',col,label,align):'<th>'+esc(label)+'</th>';

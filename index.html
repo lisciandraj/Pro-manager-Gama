@@ -17,12 +17,12 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20260923-coco1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=4d0231bc5897"></script>
-<script src="gama-i18n.js?v=8a766df13219"></script>
-<script src="architect-assets.js?v=15566a434f62"></script>
-<script src="architect-core.js?v=ffbc0f253ba7"></script>
+<script src="gama-i18n-catalog.js?v=6ed46ebcc9e9"></script>
+<script src="gama-i18n.js?v=2b6005026be4"></script>
+<script src="architect-assets.js?v=2f05e166bf1e"></script>
+<script src="architect-core.js?v=7b8ce9b4c0ff"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
-<script src="gama-toast.js?v=23a8e1087e3f"></script>
+<script src="gama-toast.js?v=592849048a5e"></script>
 <title>Coco ERP</title>
 <link rel="stylesheet" href="architect-base.css?v=696bbdf4f357">
 
@@ -89,7 +89,7 @@
 </div>
 <div class="arcPanel card"><h3 data-gi=be9ed2baa20c>Copias de seguridad</h3>
 <p class="muted" data-gi=92bf1db0b4ef>Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
-<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=8be94f4e51a9>Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()" >Exportar datos y archivos</button></div>
+<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=8be94f4e51a9>Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()"  data-gi=3730391d8c37>Exportar datos y archivos</button></div>
 </div>
 </section>
 
@@ -125,7 +125,7 @@
 <div class="arcPanel card">
 <h3 data-gi=292f20ee64bc>Exportar</h3>
 <div class="actions">
-<button class="arcButton primary" onclick="exportExcel()">Excel — Todos los módulos</button>
+<button class="arcButton primary" onclick="exportExcel()" data-gi=033706b7012a>Excel — Todos los módulos</button>
 <button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=678575c08965>Copia completa JSON</button>
 </div>
 <h3 data-gi=b299bd553de1>Restaurar JSON</h3>
@@ -328,7 +328,7 @@ function quoteNumber(count){return($('sellerEst').value||'001')+'-'+($('sellerPo
 function quoteItemsSnapshot(){return invoiceItems.map(x=>({name:x.p.name,barcode:x.p.barcode,qty:x.q,price:quoteLinePrice(x),listPrice:gamaPriceFor(x.p)}))}
 function finishQuote(inv){lastQuote=inv;$('invoicePreview').innerHTML=invoiceHTML(inv);invoiceItems=[];renderInvoiceItems()}
 function generateInvoice(){if(!validateQuoteForm())return;const{sub,rate,tax,total}=quoteTotals(),number=quoteNumber(db.invoices.length),ref=uid('COT');let inv={...window.GamaCompany?.defaultsForQuote(),id:ref,number,date:new Date().toISOString(),clientId:$('clientId').value,client:$('clientName').value,clientEmail:$('clientEmail').value,clientAddress:$('clientAddress').value,seller:$('sellerName').value,sellerRuc:$('sellerRuc').value,items:quoteItemsSnapshot(),sub,tax,total,rate,pay:$('payment').value};db.invoices.unshift(inv);finishQuote(inv);save();alert('Presupuesto generado. Puedes imprimirlo o enviarlo por correo al cliente.')}
-function invoiceHTML(i){return `<div class="invoice-preview"><h2 data-gi=d684c0be2b1d>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br><span data-gi=38178a20b470>No. </span>${i.number}<br><span data-gi=5964f4d099df>Fecha: </span>${new Date(i.date).toLocaleDateString('es-EC')}<hr><b data-gi=07dc559c3d74>Cliente:</b> ${i.client}<br><span data-gi=60c3a5b64c7c>Identificación: </span>${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span data-gi=8c0f2cb34079>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span><span data-gi=ba6da46c5e1c>IVA </span>${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span data-gi=ab2882c86465>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p>Forma de pago propuesta: ${i.pay}</p><p class="low" data-gi=40e465f455ef>Documento informativo. No constituye una factura.</p></div>`}
+function invoiceHTML(i){return `<div class="invoice-preview"><h2 data-gi=d684c0be2b1d>PRESUPUESTO</h2><b>${i.seller}</b><br>RUC: ${i.sellerRuc}<br><span data-gi=38178a20b470>No. </span>${i.number}<br><span data-gi=5964f4d099df>Fecha: </span>${new Date(i.date).toLocaleDateString('es-EC')}<hr><b data-gi=07dc559c3d74>Cliente:</b> ${i.client}<br><span data-gi=60c3a5b64c7c>Identificación: </span>${i.clientId}<br>${i.clientAddress||''}<br>${i.clientEmail||''}<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th></tr>${i.items.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${x.listPrice!==undefined&&Math.abs(x.listPrice-x.price)>=0.005?`<s>$${x.listPrice.toFixed(2)}</s> `:''}$${x.price.toFixed(2)}</td><td>$${(x.qty*x.price).toFixed(2)}</td></tr>`).join('')}</table><div class="totals"><div><span data-gi=8c0f2cb34079>Subtotal</span><span>$${i.sub.toFixed(2)}</span></div><div><span><span data-gi=ba6da46c5e1c>IVA </span>${i.rate}%</span><span>$${i.tax.toFixed(2)}</span></div><div class="grand"><span data-gi=ab2882c86465>TOTAL</span><span>$${i.total.toFixed(2)}</span></div></div><p><span data-gi=89d1f3dfeace>Forma de pago propuesta: </span>${i.pay}</p><p class="low" data-gi=40e465f455ef>Documento informativo. No constituye una factura.</p></div>`}
 /* Antes esto llamaba a window.print(), que abre el diálogo del sistema encima
    de la propia página. En la aplicación instalada el usuario se quedaba
    encerrado: sin diálogo visible que cerrar y sin manera de volver atrás, había
@@ -477,31 +477,31 @@ showTab('mainmenu',null);
 <script src="architect-identity.js?v=02272beed762"></script>
 <script src="gama-supabase.js?v=202d23da8f57"></script>
 <script src="gama-central-sync.js?v=600ce34d87f1"></script>
-<script src="gama-purchases-v14.js?v=5c791f2a3ce5"></script>
+<script src="gama-purchases-v14.js?v=a83037a70b35"></script>
 <script src="gama-proveedores-matriz.js?v=dc17d03453fb"></script>
-<script src="gama-client-catalog.js?v=6b84c96d8e29"></script>
+<script src="gama-client-catalog.js?v=560e1cf0da36"></script>
 <script src="gama-customer-requests.js?v=f87b3d11f215"></script>
-<script src="architect-dashboard.js?v=c9e9d5371f51"></script>
+<script src="architect-dashboard.js?v=7a5eef8e808a"></script>
 <script src="gama-pdf.js?v=9b22d86d08b3"></script>
 <script src="gama-photos.js?v=13bf350b807d"></script>
 <script src="gama-price-lists.js?v=41f47bfbe752"></script>
 <script src="gama-crm-core.js?v=cb3c54f246b0"></script>
 <script src="gama-crm-scoring.js?v=7cc417d159b3"></script>
-<script src="gama-crm-leads.js?v=4a290f19c95d"></script>
-<script src="gama-crm-opportunities.js?v=250ea32ab7d3"></script>
-<script src="gama-crm-activities.js?v=3c415e30f2b8"></script>
-<script src="gama-crm-contacts.js?v=bdf9b6429167"></script>
+<script src="gama-crm-leads.js?v=c847eaa2bea9"></script>
+<script src="gama-crm-opportunities.js?v=ea7fa2189d48"></script>
+<script src="gama-crm-activities.js?v=eb250602ddc5"></script>
+<script src="gama-crm-contacts.js?v=a9ae94a8fb7e"></script>
 <script src="gama-contacts.js?v=9c2e0cfe0aa6"></script>
-<script src="gama-crm-reports.js?v=256eb9d1fd87"></script>
-<script src="gama-crm-targets.js?v=a484e6237385"></script>
+<script src="gama-crm-reports.js?v=e03c6c02c387"></script>
+<script src="gama-crm-targets.js?v=5bf7fc23270f"></script>
 <script src="gama-hr-p1.js?v=c2d205c44b7c"></script>
-<script src="gama-hr.js?v=7c677f7b2790"></script>
+<script src="gama-hr.js?v=78e88f47c80f"></script>
 <script src="gama-settings.js?v=14180667a016"></script>
-<script src="gama-inventory-v2.js?v=fab6d52fab8d"></script>
-<script src="gama-sales.js?v=773f7d080c21"></script>
-<script src="gama-quotes.js?v=1447e9f7a212"></script>
+<script src="gama-inventory-v2.js?v=36409bd584db"></script>
+<script src="gama-sales.js?v=fd0ce6160d92"></script>
+<script src="gama-quotes.js?v=520498e238fb"></script>
 <script src="gama-order-preparation.js?v=f66d93042511"></script>
-<script src="gama-fulfillment.js?v=bebe444222d3"></script>
+<script src="gama-fulfillment.js?v=64cd2f112b01"></script>
 <script src="gama-tms-loading.js?v=a53314b4e2f4"></script>
 <script src="gama-internal-invoices.js?v=475cc93b4490"></script>
 <script src="gama-dossier-flow.js?v=29baa8f596ef"></script>
@@ -510,9 +510,9 @@ showTab('mainmenu',null);
 <script src="gama-projects-core.js?v=11aeade5f421"></script>
 <script src="gama-projects-i18n.js?v=043ffd6d84e5"></script>
 <script src="gama-projects.js?v=f90efdf4f2d9"></script>
-<script src="gama-knowledge.js?v=268322cac710"></script>
+<script src="gama-knowledge.js?v=885a10476c11"></script>
 <script src="gama-payments.js?v=20af67b7a239"></script>
-<script src="gama-operations.js?v=329aa732d92b"></script>
+<script src="gama-operations.js?v=6eed123c1c60"></script>
 <script src="gama-standard-ui.js?v=9235231a5459"></script>
 
 <script src="architect-shell.js?v=ca5f7b3800d5"></script>

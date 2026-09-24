@@ -119,7 +119,7 @@ function porMes(){
 function etiquetaMes(k){
  const [a,m]=k.split('-');
  const d=new Date(Number(a),Number(m)-1,1);
- return d.toLocaleDateString('es-EC',{month:'short',year:'2-digit'});
+ return d.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{month:'short',year:'2-digit'});
 }
 
 /* ---- pintar ---- */

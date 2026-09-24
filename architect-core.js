@@ -159,7 +159,7 @@
     const titleId = "arc-dialog-title-" + ++sequence;
     el.className = "arcDialog " + className;
     el.setAttribute("aria-labelledby", titleId);
-    el.innerHTML = `<form class="arcForm"><h2 id="${titleId}">${escapeHtml(title)}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions">${button({ id: ids.close, label: translate("Volver"), attrs: "data-arc-dialog-close" })}${button({ id: ids.save, type: "submit", variant: "primary", label: saveLabel })}</div></form>`;
+    el.innerHTML = `<form class="arcForm"><h2 id="${titleId}">${escapeHtml(translate(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions">${button({ id: ids.close, label: translate("Volver"), attrs: "data-arc-dialog-close" })}${button({ id: ids.save, type: "submit", variant: "primary", label: translate(saveLabel) })}</div></form>`;
     document.body.appendChild(el);
     let formApi;
     const close = () => {

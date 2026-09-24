@@ -237,6 +237,14 @@ function section(){
 }
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
+/* «3 días naturales · 3 días laborables», traducible en pantalla. Si la
+   ausencia no trae su duración, se cuenta con las fechas. */
+function duracion(a){
+ const n=Number.isFinite(Number(a.days))&&a.days!==null&&a.days!==''?Number(a.days):Math.round((new Date(a.end_date)-new Date(a.start_date))/864e5)+1;
+ let txt=n===1?'1 día natural':n+' días naturales';
+ if(a.kind==='vacaciones'){const l=Number(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date));txt+=' · '+(l===1?'1 día laborable':l+' días laborables')}
+ return '<span data-gi-live>'+esc(txt)+'</span>';
+}
 function kpis(){
  const activos=employees.filter(e=>e.active!==false).length;
  const fuera=onLeaveToday().length;
@@ -259,11 +267,11 @@ function employeesTab(){
   const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
   const off=p.active===false;
   return `<tr class="${off?'hrOff':''}">
-   <td><b>${esc(p.full_name)}</b><small>${esc(p.position||'Sin puesto')}${p.department?' · '+esc(p.department):''}</small>
+   <td><b>${esc(p.full_name)}</b><small>${p.position?esc(p.position):'<span data-gi-live data-gi=cb1226ba9d86>Sin puesto</span>'}${p.department?' · '+esc(p.department):''}</small>
        <small>${esc(p.identification||'')}</small></td>
    <td>${esc(p.contract_type||'—')}<small><span data-gi=cdd3851b36eb>Alta: </span>${day(p.hire_date)}</small>${p.end_date?`<small><span data-gi=82a0a91a8205>Baja: </span>${day(p.end_date)}</small>`:''}</td>
    <td>${p.salary==null?'—':money(p.salary)}</td>
-   <td>${used} / ${total}<small>días laborables ${year}</small>
+   <td>${used} / ${total}<small><span data-gi=14a00985becf>días laborables </span>${year}</small>
        <div class="hrBar"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div></td>
    <td>${off?'<span class="hrBadge" data-gi=eac5386d4211>Archivado</span>':'<span class="hrBadge ok" data-gi=723858144bd5>Activo</span>'}${p.profile_id?'<br><span class="hrBadge ok" style="margin-top:4px" data-gi=dd4b9a1f56aa>Con cuenta</span>':'<br><span class="hrBadge" style="margin-top:4px" data-gi=b4c10bd2c2fc>Sin cuenta</span>'}</td>
    <td><div class="hrActs">
@@ -280,7 +288,7 @@ function employeesTab(){
     <div><label data-gi=48fdf0f9d94c>Cédula / RUC</label><input id="hrId" placeholder="0912345678"></div>
     <div><label data-gi=f1186abd0b8b>Teléfono</label><input id="hrPhone" type="tel" placeholder="+593…"></div>
    </div>
-   <label data-gi=ec64dc30a483>Correo electrónico</label><input id="hrEmail" type="email" placeholder="correo@ejemplo.com">
+   <label data-gi=ec64dc30a483>Correo electrónico</label><input id="hrEmail" type="email" data-gi-placeholder=19be3df30e22 placeholder="correo@ejemplo.com">
    <div class="row">
     <div><label data-gi=888f25ceee71>Puesto</label><input id="hrPosition" data-gi-placeholder=47f913f15782 placeholder="Ej. Almacenero"></div>
     <div><label data-gi=4695dca246f0>Departamento</label><input id="hrDept" data-gi-placeholder=749ad86d9ec3 placeholder="Ej. Bodega"></div>
@@ -329,7 +337,7 @@ function absencesTab(){
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
    <td><b>${esc(employeeName(a.employee_id))}</b><small><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></small></td>
-   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${duracion(a)}</small></td>
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${esc(a.reason||'—')}</td>
    <td><div class="hrActs">
@@ -414,8 +422,8 @@ function planTab(){
  const desdeY=ymd(desde),hastaY=ymd(hasta);
 
  const titulo=planView==='mes'
-  ? desde.toLocaleDateString('es-EC',{month:'long',year:'numeric'})
-  : desde.toLocaleDateString('es-EC',{day:'numeric',month:'short'})+' – '+hasta.toLocaleDateString('es-EC',{day:'numeric',month:'short',year:'numeric'});
+  ? desde.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{month:'long',year:'numeric'})
+  : desde.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{day:'numeric',month:'short'})+' – '+hasta.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{day:'numeric',month:'short',year:'numeric'});
 
  // Sólo la plantilla activa: un archivado no tiene por qué ocupar una fila.
  const gente=employees.filter(e=>e.active!==false);
@@ -423,7 +431,7 @@ function planTab(){
  const cabecera=dias.map(d=>{
   const w=d.getDay(),esHoy=ymd(d)===hoy;
   return `<div class="hrPlanDia${w===0||w===6?' fin':''}${esHoy?' hoy':''}">
-    <small>${d.toLocaleDateString('es-EC',{weekday:'short'})}</small><b>${d.getDate()}</b></div>`;
+    <small>${d.toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{weekday:'short'})}</small><b>${d.getDate()}</b></div>`;
  }).join('');
 
  const fondo=dias.map((d,i)=>{
@@ -496,7 +504,7 @@ function planTab(){
 
   ${sel?`<div class="hrPlanDetalle">
     <div><b>${esc(employeeName(sel.employee_id))}</b> · <span data-gi-live>${esc(KINDS[sel.kind]||sel.kind)}</span>
-      <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${sel.days} día${sel.days>1?'s':''} naturales${sel.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(sel.employee_id,sel.start_date,sel.end_date,sel.start_fraction??1,sel.end_fraction??1):workingDays(sel.start_date,sel.end_date))+' laborables':''}</small>
+      <small>${day(sel.start_date)} → ${day(sel.end_date)} · ${duracion(sel)}</small>
       ${sel.reason?`<small>${esc(sel.reason)}</small>`:''}</div>
     <div class="hrActs">
       ${isAdmin()&&sel.status!=='aprobada'?`<button type="button" class="arcButton success" data-ok="${esc(sel.id)}" data-gi=10a00fdf1a44>Aprobar</button>`:''}
@@ -563,7 +571,7 @@ function myRequestsTab(){
   const cls=a.status==='aprobada'?'ok':a.status==='rechazada'?'red':'warn';
   return `<tr>
    <td><b><span data-gi-live>${esc(KINDS[a.kind]||a.kind)}</span></b><small>${esc(a.reason||'')}</small></td>
-   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${a.days} día${a.days>1?'s':''} naturales${a.kind==='vacaciones'?' · '+(window.GamaHRP1?window.GamaHRP1.days(a.employee_id,a.start_date,a.end_date,a.start_fraction??1,a.end_fraction??1):workingDays(a.start_date,a.end_date))+' laborables':''}</small></td>
+   <td>${day(a.start_date)} → ${day(a.end_date)}<small>${duracion(a)}</small></td>
    <td><span class="hrBadge ${cls}"><span data-gi-live>${esc(STATUS[a.status]||a.status)}</span></span>${a.decision_reason?'<small>'+esc(a.decision_reason)+'</small>':''}</td>
    <td>${a.status==='pendiente'?`<button type="button" class="arcButton danger" data-del="${esc(a.id)}" data-gi=0eeac7f5e703>Retirar</button>`:''}</td>
   </tr>`;

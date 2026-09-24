@@ -63,7 +63,7 @@ function gamaToast(mensaje,opciones){
    el.appendChild(i);
   }
   const txt=document.createElement('div');txt.className='gamaToastTexto';txt.textContent=String(mensaje??'');
-  const cerrar=document.createElement('button');cerrar.type='button';cerrar.textContent='✕';cerrar.setAttribute('aria-label','Cerrar aviso');
+  const cerrar=document.createElement('button');cerrar.type='button';cerrar.textContent='✕';cerrar.setAttribute('aria-label',window.GamaI18n?window.GamaI18n.t('Cerrar aviso'):'Cerrar aviso');cerrar.setAttribute('data-gi-aria-label','live');
   el.append(txt,cerrar);
   h.appendChild(el);
 

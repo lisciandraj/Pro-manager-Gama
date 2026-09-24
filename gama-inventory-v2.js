@@ -190,7 +190,7 @@ function pintarExistencias(host){
   <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
  </select>
 </div>
-<p class="muted">Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p><div id="ivTabla"></div>
+<p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p><div id="ivTabla"></div>
 </div>`);
  ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
   const el=$(id);if(!el)return;
@@ -447,7 +447,7 @@ Falta aplicar en Supabase la migración </span><code>supabase-migration-2026-09-
 <p class="muted" style="margin:0 0 12px" data-gi=9f7ced168427>Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
 <div class="ivForm">
  <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
- <div><label>Ubicación (opcional)<select id="ivcLocation"><option value="" data-gi=aff4d19d6ee4>Todas</option>${ubicaciones.map(l=>`<option value="${esc(l.id)}">${esc(l.code)}</option>`).join('')}</select></label></div><div><label>Categoría (opcional)<input id="ivcCategory"></label></div><div><label>Repetir en días (opcional)<input id="ivcCycle" type="number" min="1" max="366"></label></div><div><label><input id="ivcBlind" type="checkbox" checked> Recuento ciego</label></div><div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
+ <div><label data-gi=64e932fcd35e>Ubicación (opcional)<select id="ivcLocation"><option value="" data-gi=aff4d19d6ee4>Todas</option>${ubicaciones.map(l=>`<option value="${esc(l.id)}">${esc(l.code)}</option>`).join('')}</select></label></div><div><label data-gi=4863ec5ba13d>Categoría (opcional)<input id="ivcCategory"></label></div><div><label data-gi=cf5874c58e50>Repetir en días (opcional)<input id="ivcCycle" type="number" min="1" max="366"></label></div><div><label><input id="ivcBlind" type="checkbox" checked> Recuento ciego</label></div><div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
 </div>
 <button type="button" class="arcButton primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
 </div>

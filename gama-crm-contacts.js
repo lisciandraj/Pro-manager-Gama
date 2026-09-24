@@ -126,7 +126,7 @@ function lista(){
    +'<option value="prospecto"'+(filtro==='prospecto'?' selected':'')+' data-gi=59f8c98ad191>Sólo de prospectos</option>'
    +'<option value="principal"'+(filtro==='principal'?' selected':'')+' data-gi=6a53aa508564>Sólo los principales</option>'
   +'</select>'
-  +'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=20b1fd360d75>+ Nuevo contacto</button>'
+  +'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=1afc3c896b7e>Nuevo contacto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmContactos',nActivos,nArch):'')
   +(filas.length?tabla(pagina):vacio(nActivos+nArch,hayFichas))
@@ -135,7 +135,7 @@ function lista(){
 }
 function vacio(total,hayFichas){
  return '<div class="crmVacio">'+(total?'Ningún contacto coincide con la búsqueda.'
-  :hayFichas?'Todavía no hay contactos. Crea el primero con «+ Nuevo contacto».'
+  :hayFichas?'Todavía no hay contactos. Crea el primero con «Nuevo contacto».'
   :'Todavía no hay ni clientes ni prospectos a los que colgar un contacto. Empieza por Prospectos o por Clientes.')+'</div>';
 }
 function tabla(rows){
@@ -201,8 +201,8 @@ function formulario(){
    +'<div><label for="crmKRol" data-gi=4245df1a52f1>Papel en la decisión</label><select id="crmKRol" data-gama-nofind>'
     +opciones(Object.keys(PAPELES).map(x=>[x,PAPELES[x]]),k.decision_role,'— sin definir —')+'</select></div>'
   +'</div>'
-  +'<div class="crmCheck"><label><input type="checkbox" id="crmKPrincipal"'+(k.is_primary?' checked':'')+'> '
-   +'Es el contacto principal de esta ficha</label>'
+  +'<div class="crmCheck"><label><input type="checkbox" id="crmKPrincipal"'+(k.is_primary?' checked':'')+'><span data-gi=8fcec973d67c> '
+   +'Es el contacto principal de esta ficha</span></label>'
    +'<small data-gi=6933452541f9>Sólo puede haber uno. Si ya hay otro, deja de serlo automáticamente.</small></div>'
   +'<div class="crmNotas"><label for="crmKNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmKNotes" rows="4">'+esc(k.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'

@@ -61,7 +61,7 @@ function etiqueta(inicio,kind){
  const [a,m]=String(inicio).split('-').map(Number);
  if(kind==='anio')return String(a);
  if(kind==='trimestre')return (TRIMESTRES[String(m)]||('mes '+m))+' · '+a;
- return new Date(Date.UTC(a,m-1,1)).toLocaleDateString('es-EC',{month:'long',year:'numeric',timeZone:'UTC'});
+ return new Date(Date.UTC(a,m-1,1)).toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{month:'long',year:'numeric',timeZone:'UTC'});
 }
 /* El periodo que corre ahora mismo, para proponerlo al crear uno nuevo. */
 function periodoDeHoy(kind){
@@ -125,7 +125,7 @@ function lista(){
    +'<select id="crmTTipo" data-gama-nofind data-gi-aria-label=3111c28c597b aria-label="Tipo de periodo">'
     +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(tipo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select><span></span>'
-   +(CRM.esAdmin()?'<button type="button" class="arcButton primary" id="crmTNuevo" data-gi=02a719ad013a>+ Fijar un objetivo</button>':'<span></span>')
+   +(CRM.esAdmin()?'<button type="button" class="arcButton primary" id="crmTNuevo" data-gi=646482afb7ee>Fijar un objetivo</button>':'<span></span>')
   +'</div>'
   +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
     +'<th data-gi=fb5065f3c8c1>Periodo</th><th data-gi=aa952cf4a386>Quién</th><th class="r" data-gi=e9daca354ed6>Objetivo</th><th class="r" data-gi=8104f50d9d77>Conseguido</th>'
@@ -133,7 +133,7 @@ function lista(){
     +filas.map(fila).join('')+'</tbody></table></div>'
    :'<div class="crmVacio">'
     +(CRM.esAdmin()
-      ?'Ningún objetivo '+PERIODOS[tipo].toLowerCase()+' todavía. Se fija con «+ Fijar un objetivo».'
+      ?'Ningún objetivo '+PERIODOS[tipo].toLowerCase()+' todavía. Se fija con «Fijar un objetivo».'
       :'Ningún objetivo '+PERIODOS[tipo].toLowerCase()+' fijado todavía.')
     +'</div>')
   +'</div>';
@@ -176,7 +176,7 @@ function ficha(){
    +'</select></div>'
    +'<div id="crmTCajaMes"'+(kind==='mes'?'':' hidden')+'><label for="crmTMes" data-gi=024261f9bfba>Mes</label><select id="crmTMes" data-gama-nofind>'
     +Array.from({length:12},(_,i)=>i+1).map(x=>'<option value="'+x+'"'+(kind==='mes'&&m===x?' selected':'')+'>'
-      +esc(new Date(Date.UTC(2000,x-1,1)).toLocaleDateString('es-EC',{month:'long',timeZone:'UTC'}))+'</option>').join('')
+      +esc(new Date(Date.UTC(2000,x-1,1)).toLocaleDateString((window.GamaI18n?.locale||'es-EC'),{month:'long',timeZone:'UTC'}))+'</option>').join('')
    +'</select></div>'
    +'<div id="crmTCajaTri"'+(kind==='trimestre'?'':' hidden')+'><label for="crmTTri" data-gi=211e806f6cd1>Trimestre</label><select id="crmTTri" data-gama-nofind>'
     +Object.keys(TRIMESTRES).map(k=>'<option value="'+k+'"'+(kind==='trimestre'&&String(m)===k?' selected':'')+'>'+esc(TRIMESTRES[k])+'</option>').join('')

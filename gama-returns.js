@@ -517,7 +517,7 @@ async function refundForm(d){
   `<div class="grGrid">
     <label data-gi-live data-gi=572a3acfd983>Importe<input id="grRefundAmount" type="number" inputmode="decimal" min="0.01" step="0.01" max="${esc(outstanding)}" required value="${esc(outstanding)}"></label>
     <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grRefundDate" type="date" required value="${esc(day())}"></label>
-    <label>Cuenta bancaria / caja<select id="grRefundAccount" required><option value="">—</option>${accounts.map(a=>`<option value="${esc(a.id)}">${esc(a.name)} · ${esc(a.currency)}</option>`).join('')}</select></label><label data-gi-live data-gi=25ec5eda3d03>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
+    <label data-gi=df64d429e5f5>Cuenta bancaria / caja<select id="grRefundAccount" required><option value="">—</option>${accounts.map(a=>`<option value="${esc(a.id)}">${esc(a.name)} · ${esc(a.currency)}</option>`).join('')}</select></label><label data-gi-live data-gi=25ec5eda3d03>Medio de pago<input id="grRefundMethod" required maxlength="60" placeholder="${esc(T('Transferencia'))}"></label>
     <label data-gi-live data-gi=f9403c06f4cb>Referencia (opcional)<input id="grRefundRef" maxlength="80"></label>
    </div>`,
   T('Registrar el reembolso'),

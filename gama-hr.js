@@ -455,12 +455,13 @@ function planTab(){
    const color=PLAN_COLORES[a.kind]||PLAN_COLORES.otro;
    const pend=a.status==='pendiente';
    const etiqueta=KINDS[a.kind]||a.kind;
-   const detalle=employeeName(a.employee_id)+' · '+(KINDS[a.kind]||a.kind)+' · '
-     +day(a.start_date)+' → '+day(a.end_date)+' · '+(STATUS[a.status]||a.status);
+   const tr=s=>window.GamaI18n?.t?.(s)||s;
+   const detalle=employeeName(a.employee_id)+' · '+tr(KINDS[a.kind]||a.kind)+' · '
+     +day(a.start_date)+' → '+day(a.end_date)+' · '+tr(STATUS[a.status]||a.status);
    return `<button type="button" class="arcButton hrPlanBarra${pend?' pend':''}${cortaIzq?' cortaIzq':''}${cortaDer?' cortaDer':''}"
      data-plan="${esc(a.id)}" title="${esc(detalle)}"
      style="grid-column:${ini+1}/${fin+2};grid-row:${a._carril};--c:${color}">
-     <span>${esc(etiqueta)}${pend?' ·pendiente':''}</span></button>`;
+     <span><span data-gi-live>${esc(etiqueta)}</span>${pend?' ·<span data-gi-live data-gi=b66292585132>pendiente</span>':''}</span></button>`;
   }).join('');
 
   return `<div class="hrPlanFila">

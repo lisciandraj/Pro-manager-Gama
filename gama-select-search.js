@@ -81,7 +81,7 @@ function pintar(sel){
  if(st.activo<0&&lista.length)st.activo=0;
  st.menu.innerHTML=lista.length
   ? lista.map((o,i)=>`<div class="gamaFindOpt${i===st.activo?' on':''}" role="option" id="${st.id}-o${i}" aria-selected="${i===st.activo}" data-i="${i}">${resaltar(etiqueta(o),ts)}</div>`).join('')
-  : '<div class="gamaFindNada" data-gi=f49a88162a94>Ninguna opción coincide.</div>';
+  : '<div class="gamaFindNada" data-gi-live>'+esc(tx(sel,'Ninguna opción coincide.'))+'</div>';
  st.menu.querySelectorAll('[data-i]').forEach(el=>{
   /* mousedown y no click: el click llega después del blur del campo, y para
      entonces la lista ya se habría cerrado bajo el dedo. */
@@ -89,8 +89,8 @@ function pintar(sel){
   el.addEventListener('mouseenter',()=>{st.activo=+el.dataset.i;marcar(sel)});
  });
  st.input.setAttribute('aria-activedescendant',lista.length?st.id+'-o'+st.activo:'');
- st.hint.textContent=ts.length?(lista.length?lista.length+' de '+reales(sel).length:'')
-  :(st.total?st.total+' opciones':'');
+ st.hint.textContent=tx(sel,ts.length?(lista.length?lista.length+' de '+reales(sel).length:'')
+  :(st.total?st.total+' opciones':''));
 }
 function marcar(sel){
  const st=sel.__gamaFind;
@@ -128,6 +128,11 @@ function elegir(sel,o){
  st.input.focus();
 }
 
+/* Dentro de una ventana que se traduce sola (data-gi-ignore, como la de los
+   indicadores del inicio) el traductor no entra: los textos del buscador se
+   traducen aquí. Fuera de ella se dejan en su texto de origen. */
+function tx(sel,s){return sel.closest('[data-gi-ignore]')&&window.GamaI18n?window.GamaI18n.t(s):s}
+
 /* ---- montaje ---- */
 function enhance(sel){
  if(sel.__gamaFind||sel.multiple||sel.hasAttribute('data-gama-nofind'))return;
@@ -139,7 +144,7 @@ function enhance(sel){
  input.setAttribute('aria-autocomplete','list');
  input.setAttribute('aria-expanded','false');
  input.setAttribute('aria-controls',id+'-menu');
- input.setAttribute('aria-label','Buscar y elegir en la lista');
+ input.setAttribute('aria-label',tx(sel,'Buscar y elegir en la lista'));
  /* El asidero estable para encontrar este campo desde fuera —una prueba, otro
     módulo—: el aria-controls apunta al menú, que lleva un número de serie. */
  if(sel.id)input.setAttribute('data-gama-for',sel.id);
@@ -194,7 +199,7 @@ function refresh(sel){
  const total=reales(sel).length,vale=total>=MIN;
  if(total!==st.total){
   st.total=total;
-  st.input.placeholder='Escribe para buscar entre '+total+' opciones…';
+  st.input.placeholder=tx(sel,'Escribe para buscar entre '+total+' opciones…');
   st.box.hidden=!vale;
   /* Por debajo del umbral manda el desplegable de siempre; por encima se
      esconde, pero SIGUE en la página y sigue siendo el que guarda el valor.

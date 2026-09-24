@@ -116,7 +116,7 @@ function renderDetail(cur,listed){
      const base=basePrice(i.product_id),d=Number(i.unit_price)-base;
      const pct=base>0?(d/base*100):0;
      return `<tr><td>${esc(productName(i.product_id))}${i.contract_ref?`<small class="plContrato"><span data-gi=1951861239ed>Contrato </span>${esc(i.contract_ref)}</small>`:''}</td><td>${money(base)}</td>
-      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="Precio negociado de ${esc(productName(i.product_id))}"></td>
+      <td><input type="number" min="0" step="0.01" value="${Number(i.unit_price)}" data-price="${esc(i.product_id)}" aria-label="${esc((window.GamaI18n?.t?.('Precio negociado de')||'Precio negociado de')+' '+productName(i.product_id))}"></td>
       <td class="plDelta ${d>0?'up':d<0?'down':''}">${d===0?'—':(d>0?'+':'')+money(d)+(base>0?` (${pct>0?'+':''}${pct.toFixed(1)}%)`:'')}</td>
       <td><button class="arcButton danger" data-drop="${esc(i.product_id)}" data-gi-title=8f68e025d672 title="Retirar el precio especial"><span aria-hidden="true">×</span><span class="plBtnTxt" data-gi=0eeac7f5e703> Retirar</span></button></td></tr>`}).join('')}
    </tbody></table></div>`:'<div class="plEmpty" data-gi=e5486130f3fc>Ningún precio negociado todavía: todo se le factura al precio mayorista de la ficha.</div>'}

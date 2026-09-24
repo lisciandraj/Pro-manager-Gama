@@ -59,12 +59,14 @@ function campo(id,label,val,tipo){
 }
 function campoSelect(id,label,mapa,sel){
  return '<div><label data-gi-live for="'+id+'">'+esc(label)+'</label><select id="'+id+'" data-gama-nofind>'
-  +Object.keys(mapa).map(k=>'<option value="'+k+'"'+(sel===k?' selected':'')+'>'+esc(mapa[k])+'</option>').join('')
+  +Object.keys(mapa).map(k=>'<option data-gi-live value="'+k+'"'+(sel===k?' selected':'')+'>'+esc(mapa[k])+'</option>').join('')
   +'</select></div>';
 }
-function opciones(pares,sel,vacio){
+/* vivo: listas de configuración (etapas, orígenes, motivos) cuyos nombres de
+   fábrica están en el catálogo; nunca personas ni clientes. */
+function opciones(pares,sel,vacio,vivo){
  return '<option data-gi-live value="">'+esc(vacio||'— sin asignar —')+'</option>'
-  +pares.map(p=>'<option value="'+esc(p[0])+'"'+(String(sel||'')===String(p[0])?' selected':'')+'>'+esc(p[1])+'</option>').join('');
+  +pares.map(p=>'<option'+(vivo?' data-gi-live':'')+' value="'+esc(p[0])+'"'+(String(sel||'')===String(p[0])?' selected':'')+'>'+esc(p[1])+'</option>').join('');
 }
 
 /* Todas las pantallas del CRM escriben en el mismo sitio, #crmMsg, que cada
@@ -266,7 +268,7 @@ function pintar(r,cols){
   <h3 data-gi=33bcdbcca6bc>Embudo comercial</h3>
   ${cols.length?`<div class="crmEmbudo">${cols.map(c=>`
    <div class="crmCol${c.etapa.is_won?' ganada':c.etapa.is_lost?' perdida':''}">
-    <b>${esc(c.etapa.name)}</b><i>${c.n}</i>
+    <b data-gi-live>${esc(c.etapa.name)}</b><i>${c.n}</i>
     <small>${money(c.total)}</small>
     ${c.etapa.is_won||c.etapa.is_lost?'':`<small>ponderado ${money(c.ponderado)}</small>`}
    </div>`).join('')}</div>`

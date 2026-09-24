@@ -127,13 +127,13 @@ function barra(valor,maximo,clase){
  const pc=maximo>0?Math.round(valor/maximo*100):0;
  return '<div class="crmBarra"><i class="'+(clase||'')+'" style="width:'+pc+'%"></i></div>';
 }
-function tabla(titulo,pie,filas,maximo){
- return '<div class="arcPanel card"><h3>'+esc(titulo)+'</h3>'
-  +'<p class="muted">'+esc(pie)+'</p>'
+function tabla(titulo,pie,filas,maximo,vivo){
+ return '<div class="arcPanel card"><h3 data-gi-live>'+esc(titulo)+'</h3>'
+  +'<p class="muted" data-gi-live>'+esc(pie)+'</p>'
   +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
    +'<th data-gi=fd0137cd1dfe>Concepto</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th data-gi=c27dd5dd9f3c>Peso</th>'
    +'</tr></thead><tbody>'
-   +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td>'
+   +filas.map(f=>'<tr><td><b'+(vivo?' data-gi-live':'')+'>'+esc(f.nombre)+'</b></td>'
      +'<td class="r">'+f.n+'</td>'
      +'<td class="r">'+esc(money(f.importe))+'</td>'
      +'<td>'+barra(f.importe,maximo)+'</td></tr>').join('')
@@ -164,7 +164,7 @@ function pintar(){
  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
   +'<div class="crmBar">'
    +'<select id="crmRPeriodo" data-gama-nofind data-gi-aria-label=cc9980e1f3f4 aria-label="Periodo del informe">'
-    +Object.keys(PERIODOS).map(k=>'<option value="'+k+'"'+(periodo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
+    +Object.keys(PERIODOS).map(k=>'<option data-gi-live value="'+k+'"'+(periodo===k?' selected':'')+'>'+esc(PERIODOS[k])+'</option>').join('')
    +'</select><span></span><span></span>'
   +'</div>'
   +'<div class="crmKpis">'
@@ -180,7 +180,7 @@ function pintar(){
    +(embudoAhora.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
      +'<th data-gi=a9d09b2d2c04>Etapa</th><th class="r" data-gi=30a7a387985d>Cuántas</th><th class="r" data-gi=572a3acfd983>Importe</th><th class="r" data-gi=b1bc7c7298d8>Ponderado</th><th data-gi=c27dd5dd9f3c>Peso</th>'
      +'</tr></thead><tbody>'
-     +embudoAhora.map(x=>'<tr><td><b>'+esc(x.nombre)+'</b></td><td class="r">'+x.n+'</td>'
+     +embudoAhora.map(x=>'<tr><td><b data-gi-live>'+esc(x.nombre)+'</b></td><td class="r">'+x.n+'</td>'
        +'<td class="r">'+esc(money(x.importe))+'</td><td class="r">'+esc(money(x.ponderado))+'</td>'
        +'<td>'+barra(x.importe,maxEmbudo)+'</td></tr>').join('')
      +'</tbody></table></div>'
@@ -188,11 +188,11 @@ function pintar(){
   +'</div>'
   +mesAMes()
   +tabla('De dónde vino lo ganado','Por origen del prospecto. Dice en qué vale la pena gastar el esfuerzo comercial.',
-     porOrigen,Math.max.apply(null,[0].concat(porOrigen.map(x=>x.importe))))
+     porOrigen,Math.max.apply(null,[0].concat(porOrigen.map(x=>x.importe))),true)
   +tabla('Quién lo cerró','Por comercial responsable, sobre lo ganado en el periodo.',
      porComercial,Math.max.apply(null,[0].concat(porComercial.map(x=>x.importe))))
   +tabla('Por qué se perdió','El motivo de cada oportunidad perdida, con lo que costó. Es la lista de lo que hay que corregir.',
-     porMotivo,Math.max.apply(null,[0].concat(porMotivo.map(x=>x.importe))))
+     porMotivo,Math.max.apply(null,[0].concat(porMotivo.map(x=>x.importe))),true)
   +'<div class="arcPanel card"><h3 data-gi=697d9b93e4ee>Prospectos entrados</h3>'
    +'<p class="muted" data-gi=566494faed71>Los que nacieron en el periodo, por origen. Comparado con la tabla de arriba dice qué origen trae volumen y cuál trae dinero.</p>'
    +cuerpoProspectos()
@@ -211,7 +211,7 @@ function mesAMes(){
     +'<div class="crmMesBarras">'
      +barra(f.ganadas,max,'ok')+barra(f.perdidas,max,'ko')
     +'</div>'
-    +'<small>'+f.ganadas+' ganada(s) · '+f.perdidas+' perdida(s)</small>'
+    +'<small data-gi-live>'+f.ganadas+' ganada(s) · '+f.perdidas+' perdida(s)</small>'
     +'<small>'+esc(money(f.importe))+'</small></div>').join('')+'</div>'
    :'<div class="crmVacio" data-gi=2381564c4afb>Nada cerrado en este periodo.</div>')
   +'</div>';
@@ -223,7 +223,7 @@ function cuerpoProspectos(){
  const max=Math.max.apply(null,[0].concat(filas.map(f=>f.n)));
  return '<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
   +'<th data-gi=167a940c6278>Origen</th><th class="r" data-gi=06a2af8bb433>Prospectos</th><th data-gi=c27dd5dd9f3c>Peso</th></tr></thead><tbody>'
-  +filas.map(f=>'<tr><td><b>'+esc(f.nombre)+'</b></td><td class="r">'+f.n+'</td>'
+  +filas.map(f=>'<tr><td><b data-gi-live>'+esc(f.nombre)+'</b></td><td class="r">'+f.n+'</td>'
     +'<td>'+barra(f.n,max)+'</td></tr>').join('')
   +'</tbody></table></div>';
 }

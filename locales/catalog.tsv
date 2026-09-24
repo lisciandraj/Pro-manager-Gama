@@ -1428,12 +1428,6 @@ Pagos del periodo	Paiements de la période	Payments in period
 Consultar nómina	Consulter la paie	View payroll
 Nóminas por mes de devengo. Pagos por fecha de pago. No se suman ambos como gastos.	Paies selon le mois de rattachement. Paiements selon leur date. Ces montants ne sont pas additionnés comme dépenses.	Payroll by accrual month. Payments by payment date. These amounts are not added together as expenses.
 No se pudieron cargar los costes salariales.	Impossible de charger les coûts salariaux.	Unable to load payroll costs.
-Overlapping shift	Ce créneau chevauche un autre horaire.	Overlapping shift
-Overlapping approved absence	Une absence approuvée couvre déjà cette période.	Overlapping approved absence
-Payment exceeds remaining net salary	Le paiement dépasse le salaire net restant à payer.	Payment exceeds remaining net salary
-Validate payroll first	Validez d’abord la paie.	Validate payroll first
-Correction reason required	Un motif de correction est obligatoire.	Correction reason required
-A reason is required	Un motif est obligatoire.	A reason is required
 Anular	Annuler	Cancel
 Caducidad	Expiration	Expiry
 Cuenta	Compte	Account
@@ -1442,12 +1436,7 @@ Fin	Fin	End
 Pagado	Payé	Paid
 Título	Titre	Title
 Validar	Valider	Validate
-Overlapping attendance	Ce pointage chevauche un autre pointage.	Overlapping attendance
 Insufficient leave balance for {1}	Solde de congés insuffisant pour {1}	Insufficient leave balance for {1}
-Cancel payments first	Annulez d’abord les paiements.	Cancel payments first
-Validated payroll is immutable	Une paie validée ne peut plus être modifiée.	Validated payroll cannot be edited.
-An attendance is already open	Un pointage est déjà ouvert.	An attendance is already open.
-No open attendance	Aucun pointage ouvert.	No open attendance.
 La solicitud queda pendiente hasta que RH o tu responsable la apruebe. Puedes retirarla mientras esté pendiente.	La demande reste en attente de validation par les RH ou votre responsable. Vous pouvez la retirer tant qu’elle est en attente.	The request remains pending until HR or your manager approves it. You can withdraw it while pending.
 Idioma de la aplicación	Langue de l’application	Application language
 El idioma se guarda en este dispositivo.	La langue est mémorisée sur cet appareil.	The language is saved on this device.
@@ -4076,3 +4065,78 @@ Registrada:	Enregistrée :	Recorded:
 Descargar fotografía	Télécharger la photo	Download photo
 Descargar firma de recepción	Télécharger la signature de réception	Download receipt signature
 En carga	En chargement	Loading
+{0} opciones	{0} options	{0} options
+Ganado	Gagné	Won
+Ciclo medio	Cycle moyen	Average cycle
+{0} días	{0} jours	{0} days
+{0} ganada(s)	{0} gagnée(s)	{0} won
+{0} perdida(s)	{0} perdue(s)	{0} lost
+Sitio web	Site web	Website
+Feria	Salon professionnel	Trade fair
+Publicidad	Publicité	Advertising
+Recomendación	Recommandation	Referral
+Redes sociales	Réseaux sociaux	Social media
+Socio	Partenaire	Partner
+Prospección	Prospection	Prospecting
+Competencia	Concurrence	Competition
+Sin presupuesto	Pas de budget	No budget
+Fuera de plazo	Hors délai	Out of time
+Sin respuesta	Sans réponse	No response
+No era el momento	Ce n’était pas le moment	Bad timing
+Calificación	Qualification	Qualification
+Primer contacto	Premier contact	First contact
+Análisis de la necesidad	Analyse du besoin	Needs analysis
+Propuesta	Proposition	Proposal
+Negociación	Négociation	Negotiation
+Motivo:	Motif :	Reason:
+{0} vencida(s)	{0} en retard	{0} overdue
+actividad(es) vencida(s). Son las de arriba.	activité(s) en retard. Ce sont celles du haut.	overdue activity(ies). They are at the top.
+has contado {0} y estaban previstas {1}. ¿Confirmas la diferencia?	vous avez compté {0} alors que {1} étaient prévues. Confirmez-vous l’écart ?	you counted {0} but {1} were expected. Confirm the difference?
+El producto descartado todavía tiene stock.	Le produit écarté a encore du stock.	The discarded product still has stock.
+Hay que indicar un motivo.	Un motif est obligatoire.	A reason is required.
+El producto conservado ha cambiado.	Le produit conservé a été modifié.	The retained product has changed.
+No tienes permiso para aprobar esta ausencia.	Vous n’êtes pas autorisé à approuver cette absence.	You are not allowed to approve this absence.
+Hace falta una ficha de empleado activa.	Une fiche employé active est nécessaire.	An active employee record is required.
+Los importes no pueden ser negativos.	Les montants ne peuvent pas être négatifs.	Amounts cannot be negative.
+Ya hay un fichaje abierto.	Un pointage est déjà ouvert.	An attendance is already open.
+No se puede cambiar el empleado de un fichaje.	Le salarié d’un pointage ne peut pas être modifié.	The employee of an attendance cannot be changed.
+Anula primero los pagos.	Annulez d’abord les paiements.	Cancel the payments first.
+Anula la ausencia validada antes de sustituirla.	Annulez l’absence validée avant de la remplacer.	Cancel the validated absence before replacing it.
+Hay que indicar el motivo de la anulación.	Le motif d’annulation est obligatoire.	A cancellation reason is required.
+Una ausencia anulada no se puede reabrir.	Une absence annulée ne peut pas être rouverte.	A cancelled absence cannot be reopened.
+Hay que indicar el motivo de la corrección.	Un motif de correction est obligatoire.	A correction reason is required.
+El recuento o el stock cambiaron mientras tanto. Actualiza y vuelve a intentarlo.	Le comptage ou le stock a changé entre-temps. Actualisez et réessayez.	The count or the stock changed in the meantime. Refresh and try again.
+No se puede cambiar el empleado.	Le salarié ne peut pas être modifié.	The employee cannot be changed.
+Hay que indicar el nombre del empleado.	Le nom de l’employé est obligatoire.	The employee name is required.
+Empleado no encontrado.	Employé introuvable.	Employee not found.
+Hace falta el permiso de Recursos humanos.	L’autorisation Ressources humaines est nécessaire.	Human resources permission is required.
+El periodo de ausencia no es válido.	La période d’absence n’est pas valide.	The absence period is not valid.
+Acción de fichaje no válida.	Action de pointage non valide.	Invalid clock-in action.
+Las fechas del contrato no son válidas.	Les dates du contrat ne sont pas valides.	The contract dates are not valid.
+Ese cambio de estado de la nómina no es posible.	Ce changement d’état de la paie n’est pas possible.	This payroll status change is not possible.
+Hace falta ser responsable de este empleado.	Il faut être responsable de cet employé.	You must be this employee’s manager.
+No hay ningún fichaje abierto.	Aucun pointage ouvert.	No open attendance.
+Ya hay una ausencia aprobada en ese periodo.	Une absence approuvée couvre déjà cette période.	An approved absence already covers this period.
+Este fichaje se solapa con otro.	Ce pointage chevauche un autre pointage.	This attendance overlaps another one.
+Este turno se solapa con otro.	Ce créneau chevauche un autre horaire.	This shift overlaps another one.
+El pago supera el salario neto pendiente.	Le paiement dépasse le salaire net restant à payer.	The payment exceeds the remaining net salary.
+Un pago registrado no se puede modificar.	Un paiement enregistré ne peut pas être modifié.	A recorded payment cannot be changed.
+No se puede cambiar el empleado ni el periodo de una nómina.	Le salarié et la période d’une paie ne peuvent pas être modifiés.	The employee and period of a payroll cannot be changed.
+El documento anterior debe ser del mismo empleado.	Le document précédent doit appartenir au même employé.	The previous document must belong to the same employee.
+Sube primero el documento.	Téléversez d’abord le document.	Upload the document first.
+Valida primero la nómina.	Validez d’abord la paie.	Validate the payroll first.
+Una nómina validada no se puede modificar.	Une paie validée ne peut pas être modifiée.	A validated payroll cannot be changed.
+Artículo principal no encontrado.	Article principal introuvable.	Main article not found.
+Fecha inválida.	Date non valide.	Invalid date.
+La estructura del artículo no se puede modificar.	La structure de l’article ne peut pas être modifiée.	The article structure cannot be changed.
+No se puede cambiar el identificador del producto	L’identifiant du produit ne peut pas être modifié	The product identifier cannot be changed
+Opciones inválidas.	Options non valides.	Invalid options.
+Propiedades inválidas.	Propriétés non valides.	Invalid properties.
+Se requiere una sesión activa	Une session active est nécessaire	An active session is required
+Selecciona una opción válida.	Sélectionnez une option valide.	Select a valid option.
+Valor booleano inválido.	Valeur oui/non non valide.	Invalid yes/no value.
+Valor de propiedad inválido.	Valeur de propriété non valide.	Invalid property value.
+Valor de texto inválido.	Valeur de texte non valide.	Invalid text value.
+Valor numérico inválido.	Valeur numérique non valide.	Invalid numeric value.
+Cámara v3	Caméra v3	Camera v3
+múltiplo:	multiple :	multiple:

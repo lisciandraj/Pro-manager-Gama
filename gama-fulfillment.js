@@ -134,7 +134,7 @@ function picking(d,f,host){
   const expected=pending(l),value=round(quantity);
   if(!Number.isFinite(value)||value<=0){hint('Introduce una cantidad válida.');return false}
   if(value>expected){hint(messages.EXCEEDS_PLANNED);return false}
-  if(value!==expected&&!intent?.auto&&!confirm(`${nameOf(l)}: has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`))return false;
+  if(value!==expected&&!intent?.auto&&!confirm(`${nameOf(l)}: ${(s=>window.GamaI18n?.t?.(s)||s)(`has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`)}`))return false;
   busy=true;buttons(true);
   const location=d.locations.find(x=>x.id===l.source_location_id);
   const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',quantity:value};

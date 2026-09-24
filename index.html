@@ -17,9 +17,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20260923-coco1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=6ed46ebcc9e9"></script>
-<script src="gama-i18n.js?v=2b6005026be4"></script>
-<script src="architect-assets.js?v=2f05e166bf1e"></script>
+<script src="gama-i18n-catalog.js?v=80b2f485f8a7"></script>
+<script src="gama-i18n.js?v=0faee1e7e634"></script>
+<script src="architect-assets.js?v=d1441a570684"></script>
 <script src="architect-core.js?v=7b8ce9b4c0ff"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=592849048a5e"></script>
@@ -166,8 +166,8 @@
 <script src="gama-modules.js?v=363212794c8f"></script>
 <script src="gama-pagination.js?v=b82168a0f053"></script>
 <script src="gama-archive.js?v=ce173dd5ba6d"></script>
-<script src="gama-sort.js?v=aba82a3edc84"></script>
-<script src="gama-select-search.js?v=d0a05b3d7140"></script>
+<script src="gama-sort.js?v=3387a45e19ca"></script>
+<script src="gama-select-search.js?v=fea11d652174"></script>
 <script src="gama-tables.js?v=5d0c97ee0d69"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
@@ -287,7 +287,7 @@ function renderInvoiceItems(){$('invoiceItems').innerHTML='<table class="arcTabl
   ?`<small class="quoteWas">antes $${ref.toFixed(2)}</small> <small class="quoteTag quoteOffer">oferta ${pct>0?'+':''}${pct}%</small>`
   :(gamaHasContractPrice(x.p)?' <small class="quoteTag" data-gi=82c2d641d0f5>tarifa</small>':'');
  return `<tr><td>${gamaPhotoCell(x.p)}</td><td>${x.p.name}</td><td>${x.q}</td>`
-  +`<td class="quotePriceCell"><input type="number" min="0" step="0.01" value="${precio.toFixed(2)}" aria-label="Precio de ${x.p.name}" onchange="setInvoiceItemPrice(${i},this.value)">`
+  +`<td class="quotePriceCell"><input type="number" min="0" step="0.01" value="${precio.toFixed(2)}" aria-label="${(window.GamaI18n?.t?.('Precio de')||'Precio de')} ${x.p.name}" onchange="setInvoiceItemPrice(${i},this.value)">`
   +(ajustado?`<button class="arcButton secondary quoteUndo" data-gi-title=ac492001216a title="Volver al precio de la tarifa" onclick="clearInvoiceItemPrice(${i})">↺</button>`:'')
   +`<div>${marca}</div></td>`
   +`<td>$${(x.q*precio).toFixed(2)}</td><td><button class="arcButton danger" onclick="removeInvoiceItem(${i})">×</button></td></tr>`;
@@ -460,7 +460,7 @@ showTab('mainmenu',null);
 <script src="architect-home-kpis.js?v=b235ab9811b3"></script>
 <script src="architect-home-order.js?v=2b893ab8c77b"></script>
 <script src="gama-menu-final2.js?v=f42edb44023a"></script>
-<script src="gama-scanner-phone.js?v=431404af172e"></script>
+<script src="gama-scanner-phone.js?v=3a852a8e43d6"></script>
 <script src="gama-references.js?v=00daad8300f4"></script>
 <script src="gama-role-access.js?v=3f2e58c088fc"></script>
 <script src="gama-access-control.js?v=62bd6cd7dd02"></script>
@@ -477,31 +477,31 @@ showTab('mainmenu',null);
 <script src="architect-identity.js?v=02272beed762"></script>
 <script src="gama-supabase.js?v=202d23da8f57"></script>
 <script src="gama-central-sync.js?v=600ce34d87f1"></script>
-<script src="gama-purchases-v14.js?v=a83037a70b35"></script>
+<script src="gama-purchases-v14.js?v=dd8e361f884c"></script>
 <script src="gama-proveedores-matriz.js?v=dc17d03453fb"></script>
-<script src="gama-client-catalog.js?v=560e1cf0da36"></script>
-<script src="gama-customer-requests.js?v=f87b3d11f215"></script>
+<script src="gama-client-catalog.js?v=925cd4ddcece"></script>
+<script src="gama-customer-requests.js?v=606496f268fa"></script>
 <script src="architect-dashboard.js?v=7a5eef8e808a"></script>
 <script src="gama-pdf.js?v=9b22d86d08b3"></script>
 <script src="gama-photos.js?v=13bf350b807d"></script>
-<script src="gama-price-lists.js?v=41f47bfbe752"></script>
-<script src="gama-crm-core.js?v=cb3c54f246b0"></script>
+<script src="gama-price-lists.js?v=88b25ebe183e"></script>
+<script src="gama-crm-core.js?v=d71e15e6a525"></script>
 <script src="gama-crm-scoring.js?v=7cc417d159b3"></script>
-<script src="gama-crm-leads.js?v=c847eaa2bea9"></script>
-<script src="gama-crm-opportunities.js?v=ea7fa2189d48"></script>
-<script src="gama-crm-activities.js?v=eb250602ddc5"></script>
+<script src="gama-crm-leads.js?v=0d1b9459bed0"></script>
+<script src="gama-crm-opportunities.js?v=ca6d0e5dcf22"></script>
+<script src="gama-crm-activities.js?v=b68e481ad85e"></script>
 <script src="gama-crm-contacts.js?v=a9ae94a8fb7e"></script>
 <script src="gama-contacts.js?v=9c2e0cfe0aa6"></script>
-<script src="gama-crm-reports.js?v=e03c6c02c387"></script>
+<script src="gama-crm-reports.js?v=5139675b49d3"></script>
 <script src="gama-crm-targets.js?v=5bf7fc23270f"></script>
 <script src="gama-hr-p1.js?v=c2d205c44b7c"></script>
-<script src="gama-hr.js?v=78e88f47c80f"></script>
+<script src="gama-hr.js?v=b81b6a9a3e75"></script>
 <script src="gama-settings.js?v=14180667a016"></script>
 <script src="gama-inventory-v2.js?v=36409bd584db"></script>
-<script src="gama-sales.js?v=fd0ce6160d92"></script>
+<script src="gama-sales.js?v=daea87ea10d7"></script>
 <script src="gama-quotes.js?v=520498e238fb"></script>
 <script src="gama-order-preparation.js?v=f66d93042511"></script>
-<script src="gama-fulfillment.js?v=64cd2f112b01"></script>
+<script src="gama-fulfillment.js?v=a5934add103a"></script>
 <script src="gama-tms-loading.js?v=a53314b4e2f4"></script>
 <script src="gama-internal-invoices.js?v=475cc93b4490"></script>
 <script src="gama-dossier-flow.js?v=29baa8f596ef"></script>
@@ -517,21 +517,21 @@ showTab('mainmenu',null);
 
 <script src="architect-shell.js?v=ca5f7b3800d5"></script>
 <script src="architect-recovery.js?v=400cb90d1b4d"></script>
-<script src="architect-partners.js?v=8d4acd4d3f2d"></script>
+<script src="architect-partners.js?v=5ba1d1fcf6da"></script>
 <script src="architect-audit.js?v=c449d779c94a"></script>
 <script src="architect-service-workflows.js?v=79d4e2cc9dd0"></script>
-<script src="architect-sourcing.js?v=aa11f8ecc8eb"></script>
+<script src="architect-sourcing.js?v=98b6ba6f9e5d"></script>
 <script src="architect-stock-controls.js?v=043a228bb605"></script>
-<script src="architect-transport-controls.js?v=06a76008b149"></script>
-<script src="architect-offline-proofs.js?v=46ddbf49e6d2"></script>
-<script src="architect-project-controls.js?v=ca05a2c5cb59"></script>
-<script src="architect-products-controls.js?v=71f002aa0893"></script>
-<script src="architect-service-products.js?v=072b8189c6c7"></script>
-<script src="architect-lots.js?v=db28e52c954a"></script>
-<script src="architect-finance-controls.js?v=3625b86b917d"></script>
-<script src="architect-people.js?v=18a093654b19"></script>
+<script src="architect-transport-controls.js?v=51f0bb819ba1"></script>
+<script src="architect-offline-proofs.js?v=26e935ccaa1b"></script>
+<script src="architect-project-controls.js?v=c290a31af424"></script>
+<script src="architect-products-controls.js?v=a11558d334ff"></script>
+<script src="architect-service-products.js?v=c4e8d19bb239"></script>
+<script src="architect-lots.js?v=e5e10e005ab3"></script>
+<script src="architect-finance-controls.js?v=5856621d6d86"></script>
+<script src="architect-people.js?v=a2b6ee16f766"></script>
 <script src="architect-access-controls.js?v=a49cc659aedf"></script>
 <script src="architect-barcode-controls.js?v=3d2705707ff5"></script>
-<script src="architect-controls.js?v=68795f227a53"></script>
-<script src="architect-pricing.js?v=882bb8b53e7b"></script>
+<script src="architect-controls.js?v=b9c681f8c076"></script>
+<script src="architect-pricing.js?v=aa368108778e"></script>
 </body></html>

@@ -4,7 +4,7 @@
 (function(){
 'use strict';
 if(window.GamaI18n)return;
-const KEY='gama_language_v1',languages=['es','fr','en'],catalog=window.GamaI18nCatalog||{};
+const KEY='gama_language_v1',languages=['es','fr','en'],catalog=window.GamaI18nCatalog||{},server=window.GamaI18nServer||{};
 const bySource=new Map(Object.entries(catalog).map(([key,row])=>[row[0],{key,row}]));
 let language='es';try{const saved=localStorage.getItem(KEY);if(languages.includes(saved))language=saved}catch(_){}
 const normalize=s=>String(s??'').replace(/\s+/g,' ').trim();
@@ -13,8 +13,13 @@ const escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const patterns=[...bySource.values()].filter(x=>/\{\d+\}/.test(x.row[0])).map(x=>({...x,re:new RegExp('^'+x.row[0].split(/(\{\d+\})/).map(s=>/^\{\d+\}$/.test(s)?'([\\d.,\\s:+\\-/—]+)':escapeRE(s)).join('')+'$')}));
 const prefixes=[...bySource.values()].filter(x=>x.row[0].length>5&&!x.row[0].includes('{')).sort((a,b)=>b.row[0].length-a.row[0].length);
 function translated(row){return row[languages.indexOf(language)]}
+// A few server functions answer in English (locales/server-messages.tsv): the
+// message, alone or after «Label: », first becomes its Spanish source text.
+function fromServer(clean){if(server[clean])return server[clean];const m=clean.match(/^(.+?: )(.+)$/);return m&&server[m[2]]?m[1]+server[m[2]]:null}
 function t(value){
- const text=String(value??''),clean=normalize(text);if(language==='es')return text;
+ const text=String(value??''),clean=normalize(text);
+ const spanish=fromServer(clean);if(spanish!==null)return language==='es'?spanish:t(spanish);
+ if(language==='es')return text;
  let result=bySource.get(clean);if(result)return (text.match(/^\s*/)?.[0]||'')+translated(result.row)+(text.match(/\s*$/)?.[0]||'');
  const parts=clean.match(/^([^\p{L}\p{N}]*)(.*?)([\s:·*….!?—]*)$/u);
  if(parts){result=bySource.get(parts[2]+parts[3]);if(result)return parts[1]+translated(result.row);result=bySource.get(parts[2]);if(result)return parts[1]+translated(result.row)+parts[3]}
@@ -60,15 +65,15 @@ const liveSelectors=[
  '.gamaF2Title','.gamaF2Section','#mainmenu > h2','#mainmenu > p','#gamaF2Vacio',
  '.gamaSideGroup','.gamaSideLink > span','.aclRole',
  '.gamaStdText h2','.gamaStdText h1','.gamaStdText p','.gamaStdKicker',
- '.gsBadge','.gqBadge','.crmEstado','.tmsBadge','.gamaPagerInfo',
+ '.gsBadge','.gqBadge','.crmEstado','.crmPri','.tmsBadge','.gamaPagerInfo',
  '.goKpi > span','.goKpi > small','.gamaToastTexto',
  '#gamaF2Buscar','#aclLogout','#gamaCloudAdminBtn','#gamaCloudLoginBtn',
  '.tmsTabs button','.gsTabs button','.crmTabs button','.hrTabs button','.gamaArcTabs button',
  '#ccCount','#cuCount','#giaCount','#crCount','.hrTabs button','.hrCard > h3','#giCopyStatus', '#gqMessage','#gsMessage','#gsFormError','#glMessage',
- '#crmMsg','#hrMsg','#cfgMsg','#gp14Msg','#gp14DetailMsg','#supMsg',
+ '#crmMsg','#hrMsg','#cfgMsg','#ccMsg','#gp14Msg','#gp14DetailMsg','#supMsg',
  '#gamaPhoneScanner .status','#gamaPhoneScanner .help','#gamaPhoneScanner .retry',
  '.gsDialog h2','.gsError','[role="alert"]','#cuStatus','#ccStatus','.gamaFindHint',
- '.crmVacio','.crmKpi > span','.crmKpi > small','.ivEstado','.ccStock','.ccCartRow small','.cfgCount','#gamaLoadingHost','.gsPager > span'
+ '.crmVacio','.crmKpi > span','.crmKpi > b','.crmKpi > small','.ivEstado','.ccStock','.ccCartRow small','.cfgCount','#gamaLoadingHost','.gsPager > span'
 ].join(',');
 function prepare(root){
  if(root.nodeType!==1)return;

@@ -6,7 +6,8 @@ const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.
 // botones, mensajes, alertas compuestas por el servidor. Los datos del negocio
 // (nombres de productos, clientes, referencias) se muestran tal cual.
 const catalogRows=()=>fs.readFileSync(path.join(ROOT,'locales/catalog.tsv'),'utf8').split('\n').filter(l=>l.includes('\t')&&!l.startsWith('#')).map(l=>l.split('\t'));
-const builtCatalog=()=>{const s=fs.readFileSync(path.join(ROOT,'gama-i18n-catalog.js'),'utf8');return JSON.parse(s.slice(s.indexOf('=')+1).replace(/;\s*$/,''))};
+const generated=name=>{const line=fs.readFileSync(path.join(ROOT,'gama-i18n-catalog.js'),'utf8').split('\n').find(l=>l.startsWith('window.'+name+'='));return JSON.parse(line.slice(line.indexOf('=')+1).replace(/;\s*$/,''))};
+const builtCatalog=()=>generated('GamaI18nCatalog');
 const sources=()=>['index.html',...fs.readdirSync(ROOT).filter(f=>/^gama-.*\.js$/.test(f)&&!f.startsWith('gama-i18n'))];
 
 test('le catalogue est complet et cohérent dans les trois langues',()=>{
@@ -48,8 +49,22 @@ async function boot(page,role,lang){
    invoices:[],invoice_lines:[],purchase_orders:[],purchase_order_lines:[],stock_movements:[],
    profiles:[{id:'u1',full_name:'Test Langues',role:'administrador',active:true,email:'test@example.invalid'}],
    hr_employees:[{id:'e1',full_name:'Camille Martin',job_title:'Logistique',active:true,profile_id:'u1',hire_date:'2024-03-01'}],hr_absences:[],hr_employee_private:[],hr_absence_private:[],
-   warehouses:[{id:'w1',code:'GYE',name:'Entrepôt central',active:true}],fleet_vehicles:[{id:'v1',plate:'GBA-1234',brand:'Hino',model:'300',active:true}],fleet_drivers:[],
-   tms_deliveries:[],crm_leads:[],crm_activities:[],crm_opportunities:[],crm_contacts:[],customer_requests:[],customer_request_lines:[],erp_approvals:[]};
+   warehouses:[{id:'w1',code:'GYE',name:'Entrepôt central',active:true}],fleet_drivers:[],
+   fleet_vehicles:[['v1','in_service'],['v2','repair'],['v3','out_of_service']].map(([id,status])=>({id,plate:'GB-'+id,brand:'Hino',model:'300',kind:'truck',status,active:true})),
+   crm_contacts:[],customer_requests:[],customer_request_lines:[],erp_approvals:[]};
+  // Cada estado, etapa y tipo al menos una vez: son los textos que más se escapan.
+  const D=window.__DB,day=n=>new Date(Date.now()+n*86400000).toISOString().slice(0,10),ts=n=>new Date(Date.now()+n*86400000).toISOString();
+  Object.assign(D,{
+   crm_pipeline_stages:['Nuevo','Calificación','Primer contacto','Análisis de la necesidad','Propuesta','Negociación','Ganado','Perdido'].map((name,i)=>({id:'st'+i,name,sort_order:i+1,default_probability:10*i,is_won:name==='Ganado',is_lost:name==='Perdido',active:true})),
+   crm_sources:['Sitio web','Teléfono','Correo','Feria','Publicidad','Recomendación','Redes sociales','Socio','Prospección','Otro'].map((name,i)=>({id:'so'+i,name,sort_order:i+1,active:true})),
+   crm_lost_reasons:['Precio','Competencia','Sin presupuesto','Fuera de plazo','Sin respuesta','No era el momento','Otro'].map((name,i)=>({id:'lr'+i,name,sort_order:i+1,active:true})),
+   crm_leads:['nuevo','contactado','calificado','no_calificado','convertido','perdido'].map((status,i)=>({id:'l'+i,first_name:'Lead',last_name:'N'+i,company:'Compagnie '+i,status,priority:['baja','media','alta'][i%3],email:'lead'+i+'@example.invalid',active:true,source_id:'so'+i,owner_id:'u1',next_followup_at:ts(i-2),created_at:ts(-i)})),
+   crm_opportunities:[0,1,2,3,4,5,6,7].map(i=>({id:'o'+i,reference:'OPP-00'+i,title:'Affaire '+i,stage_id:'st'+i,customer_id:'c1',amount:1000*(i+1),probability:10*i,owner_id:'u1',expected_close_date:day(10+i),active:true,priority:['baja','media','alta'][i%3],source_id:'so'+i,won_at:i===6?ts(-3):null,lost_at:i===7?ts(-2):null,lost_reason_id:i===7?'lr1':null,created_at:ts(-20),updated_at:ts(-1)})),
+   crm_activities:['pendiente','en_curso','hecha','cancelada'].flatMap((status,i)=>['llamada','correo','reunion','visita'].map((kind,j)=>({id:'a'+i+j,subject:'Suivi '+i+j,kind,status,due_at:ts(i-1),owner_id:'u1',lead_id:'l'+j,priority:['baja','media','alta'][j%3],created_at:ts(-5)}))),
+   hr_absences:['pendiente','aprobada','rechazada','cancelada'].map((status,i)=>({id:'ab'+i,employee_id:'e1',kind:['vacaciones','enfermedad','permiso','formacion'][i],status,start_date:day(i*2),end_date:day(i*2+2),days:3,created_at:ts(-3)})),
+   tms_deliveries:['Pendiente de preparación','Planificada','En carga','Lista para envío','En tránsito','En ruta','Entregada','Excepción','Cancelada'].map((status,i)=>({id:'d'+i,customer:'Client '+i,address:'Adresse '+i,delivery_date:day(i-4),status,priority:['Normal','Alta','Urgente'][i%3],time_window:'08:00-12:00',weight:10,volume:1,dossier_reference:'PDV-0000'+i})),
+   purchase_orders:['draft','sent','partial','received','cancelled'].map((status,i)=>({id:'po'+i,order_number:'PC-000'+i,supplier_id:'s1',status,expected_date:ts(i-2),total:100*(i+1),created_at:ts(-6)})),
+  });
  },[role,lang]);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
@@ -60,9 +75,16 @@ async function boot(page,role,lang){
 const spanishOnScreen=page=>page.evaluate(()=>{
  const LETTERS=/[áíóúñ¿¡ÁÍÓÚÑ]/;
  const WORDS=new Set(('el los las del con para por una unos unas sin esta este estos estas hay más también cuando donde aquí ahora nuevo nueva nuevos nuevas guardar cancelar buscar borrar editar añadir crear cerrar abrir volver enviar descargar imprimir seleccionar elegir fecha fechas estado estados pendiente pendientes aprobado aprobada rechazado rechazada borrador cerrado cerrada abierto abierta entregado entregada enviado enviada pagado pagada vencido vencida cancelado cancelada activo activa activos activas pedido pedidos factura facturas proveedor proveedores cliente clientes almacén ubicación cantidad precio venta ventas compra compras cobro pago pagos entrega entregas presupuesto presupuestos empleado empleados hoy ayer semana hora horas ninguno ninguna todos todas otro otra apellidos correo usuario cargando producto productos referencia notas nota tipo motivo importe saldo cuenta caja cobrar pagar desde hasta sus ver hacer puede tiene inicio resumen detalle lista filtro').split(' '));
- const data=new Set();(function walk(v){if(typeof v==='string'){if(v.length>=3)data.add(v)}else if(v&&typeof v==='object')for(const k in v)walk(v[k])})([window.__DB,window.__PRIO]);
+ // Estados, tipos, títulos y listas de configuración no cuentan como datos: son lo que se busca.
+ const CONFIG=new Set(['crm_pipeline_stages','crm_sources','crm_lost_reasons']),ENUM=new Set(['status','kind','priority','stage','state','title','detail','tone']);
+ const data=new Set();(function walk(v,key){if(typeof v==='string'){if(v.length>=3&&!ENUM.has(key))data.add(v)}else if(v&&typeof v==='object')for(const k in v){if(!CONFIG.has(k))walk(v[k],Array.isArray(v)?key:k)}})([window.__DB,window.__PRIO]);
  const isData=t=>{for(const s of data)if(t.includes(s))return true;return false};
- const spanish=t=>LETTERS.test(t)||(t.toLowerCase().match(/\p{L}+/gu)||[]).some(w=>WORDS.has(w));
+ // Además de la lista de palabras: cualquier texto del catálogo que siga en su español de origen.
+ // («Nombre» es también la traducción francesa de «Cuántas»: un texto válido en el idioma elegido no cuenta.)
+ const col={fr:1,en:2}[GamaI18n.language],rowsCat=Object.values(window.GamaI18nCatalog),valid=new Set(rowsCat.map(r=>r[col]));
+ const known=new Set(rowsCat.filter(r=>r[col]!==r[0]&&!valid.has(r[0])).map(r=>r[0]));
+ const core=t=>{const m=t.match(/^([^\p{L}\p{N}]*)(.*?)([\s:·*….!?—]*)$/u);return m?m[2]:t};
+ const spanish=t=>known.has(t)||known.has(core(t))||LETTERS.test(t)||(t.toLowerCase().match(/\p{L}+/gu)||[]).some(w=>WORDS.has(w));
  const shown=el=>el.checkVisibility({visibilityProperty:true,opacityProperty:true});
  const out=new Set(),push=v=>{const t=String(v||'').replace(/\s+/g,' ').trim();if(t&&spanish(t)&&!isData(t))out.add(t.slice(0,90))};
  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
@@ -107,4 +129,18 @@ test('alertes composées par le serveur : libellés traduits, valeurs intactes',
  await page.evaluate(()=>GamaI18n.setLanguage('en'));
  const en=await page.evaluate(()=>['Vencimiento: 2026-09-01 · saldo: 120.00 USD','Faltan 500 km','Recibida el 2026-09-11','3 días naturales · 2 días laborables'].map(s=>GamaI18n.t(s)));
  expect(en).toEqual(['Due date: 2026-09-01 · balance: 120.00 USD','500 km left','Received on 2026-09-11','3 calendar days · 2 working days']);
+});
+
+// Algunas funciones del servidor responden en inglés: el mensaje se enseña en el idioma elegido, español incluido.
+test('messages du serveur en anglais : affichés dans la langue choisie, espagnol compris',async({page})=>{
+ await boot(page,'admin','es');
+ const server=generated('GamaI18nServer'),rows=new Set(catalogRows().map(r=>r[0]));
+ expect(Object.keys(server).length).toBeGreaterThan(20);
+ expect(Object.values(server).filter(v=>!rows.has(v))).toEqual([]);
+ const say=()=>page.evaluate(()=>['Overlapping approved absence','No se pudo guardar: Overlapping shift','Authentication required'].map(s=>GamaI18n.t(s)));
+ expect(await say()).toEqual(['Ya hay una ausencia aprobada en ese periodo.','No se pudo guardar: Este turno se solapa con otro.','Vuelve a iniciar sesión para continuar.']);
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ expect((await say())[0]).toBe('Une absence approuvée couvre déjà cette période.');
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));
+ expect((await say())[0]).toBe('An approved absence already covers this period.');
 });

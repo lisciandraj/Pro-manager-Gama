@@ -174,7 +174,7 @@ function agenda(){
   .sort((x,y)=>String(x.due_at||'9999').localeCompare(String(y.due_at||'9999')));
  const tarde=filas.filter(vencida).length;
  return '<div class="arcPanel card">'
-  +(tarde?'<div class="crmAviso crmDup"><b>'+tarde+'</b> actividad(es) vencida(s). Son las de arriba.</div>':'')
+  +(tarde?'<div class="crmAviso crmDup"><b>'+tarde+'</b> <span data-gi-live data-gi=73095e8212e0>actividad(es) vencida(s). Son las de arriba.</span></div>':'')
   +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
     +'<th data-gi=d134a8ecb32a>Actividad</th><th data-gi=94bb534e4e0f>Ficha</th><th data-gi=0fb4618723af>Vence</th><th data-gi=62c1aec4ffc8>Responsable</th><th></th></tr></thead><tbody>'
     +filas.map(filaAgenda).join('')+'</tbody></table></div>'
@@ -185,7 +185,7 @@ function filaAgenda(a){
  const q=ancla(a);
  return '<tr class="'+(vencida(a)?'crmFilaTarde':'')+'">'
   +'<td><b>'+esc(a.subject)+'</b>'
-   +'<small class="crmSub">'+esc(TIPOS[a.kind]||a.kind)+' · '+esc(ESTADOS[a.status]||a.status)+'</small></td>'
+   +'<small class="crmSub" data-gi-live>'+esc(TIPOS[a.kind]||a.kind)+' · '+esc(ESTADOS[a.status]||a.status)+'</small></td>'
   +'<td><span class="crmEstado e-'+esc(q.tipo)+'">'+esc(q.etiqueta)+'</span>'
    +'<small class="crmSub">'+esc(q.nombre)+'</small></td>'
   +'<td>'+esc(cuando(a.due_at))+(vencida(a)?' <span class="crmTarde" data-gi=515d75cfc7e2>vencida</span>':'')+'</td>'

@@ -194,7 +194,7 @@ function ficha(){
    +campo('crmLWeb','Sitio web',l.website)
    +campo('crmLIndustry','Sector',l.industry)
    +campo('crmLSize','Tamaño',l.company_size)
-   +'<div><label for="crmLSource" data-gi=167a940c6278>Origen</label><select id="crmLSource">'+opciones(origenes.map(o=>[o.id,o.name]),l.source_id)+'</select></div>'
+   +'<div><label for="crmLSource" data-gi=167a940c6278>Origen</label><select id="crmLSource">'+opciones(origenes.map(o=>[o.id,o.name]),l.source_id,'',true)+'</select></div>'
    +'<div><label for="crmLOwner" data-gi=62c1aec4ffc8>Responsable</label><select id="crmLOwner">'+opciones(gente.map(p=>[p.id,p.full_name||p.email]),l.owner_id)+'</select></div>'
    /* Un prospecto ya convertido no enseña desplegable de estado: la base sólo
       acepta «convertido» acompañado del cliente creado, y ofrecerlo aquí sería

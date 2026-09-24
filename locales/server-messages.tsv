@@ -1,0 +1,36 @@
+# Mensaje que devuelve el servidor (en inglés)	Texto de origen en español (traducido por catalog.tsv)
+A discarded product has stock	El producto descartado todavía tiene stock.
+A reason is required	Hay que indicar un motivo.
+A retained product changed	El producto conservado ha cambiado.
+Absence approval not permitted	No tienes permiso para aprobar esta ausencia.
+Active employee account required	Hace falta una ficha de empleado activa.
+Amounts cannot be negative	Los importes no pueden ser negativos.
+An attendance is already open	Ya hay un fichaje abierto.
+Attendance identity cannot change	No se puede cambiar el empleado de un fichaje.
+Authentication required	Vuelve a iniciar sesión para continuar.
+Cancel payments first	Anula primero los pagos.
+Cancel the validated absence before replacing it	Anula la ausencia validada antes de sustituirla.
+Cancellation reason required	Hay que indicar el motivo de la anulación.
+Cancelled absence cannot be reopened	Una ausencia anulada no se puede reabrir.
+Correction reason required	Hay que indicar el motivo de la corrección.
+Count or stock changed unexpectedly	El recuento o el stock cambiaron mientras tanto. Actualiza y vuelve a intentarlo.
+Employee cannot be changed	No se puede cambiar el empleado.
+Employee name required	Hay que indicar el nombre del empleado.
+Employee not found	Empleado no encontrado.
+HR permission required	Hace falta el permiso de Recursos humanos.
+Invalid absence period	El periodo de ausencia no es válido.
+Invalid clock action	Acción de fichaje no válida.
+Invalid contract dates	Las fechas del contrato no son válidas.
+Invalid payroll transition	Ese cambio de estado de la nómina no es posible.
+Manager permission required	Hace falta ser responsable de este empleado.
+No open attendance	No hay ningún fichaje abierto.
+Overlapping approved absence	Ya hay una ausencia aprobada en ese periodo.
+Overlapping attendance	Este fichaje se solapa con otro.
+Overlapping shift	Este turno se solapa con otro.
+Payment exceeds remaining net salary	El pago supera el salario neto pendiente.
+Payment is immutable	Un pago registrado no se puede modificar.
+Payroll identity cannot change	No se puede cambiar el empleado ni el periodo de una nómina.
+The previous document must belong to the same employee	El documento anterior debe ser del mismo empleado.
+Upload the document first	Sube primero el documento.
+Validate payroll first	Valida primero la nómina.
+Validated payroll is immutable	Una nómina validada no se puede modificar.

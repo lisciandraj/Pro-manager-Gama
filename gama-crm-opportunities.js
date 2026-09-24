@@ -156,7 +156,7 @@ function embudo(){
 function columna(e,suyas){
  const total=suyas.reduce((t,o)=>t+Number(o.amount||0),0);
  return '<div class="crmCol'+(e.is_won?' ganada':e.is_lost?' perdida':'')+'" data-etapa="'+esc(e.id)+'">'
-  +'<div class="crmColCab"><b>'+esc(e.name)+'</b><i>'+suyas.length+'</i>'
+  +'<div class="crmColCab"><b data-gi-live>'+esc(e.name)+'</b><i>'+suyas.length+'</i>'
    +'<small>'+esc(money(total))+'</small></div>'
   +(suyas.length?suyas.map(tarjeta).join(''):'<div class="crmColVacia">—</div>')
   +'</div>';
@@ -171,7 +171,7 @@ function tarjeta(o){
   +'<small class="crmSub">'+esc(o.reference)+' · '+esc(CRM.nombreDe(o.owner_id,gente))+'</small>'
   +(o.expected_close_date?'<small class="crmSub'+(tarde(o)?' crmTarde':'')+'">Cierre previsto '+esc(fecha(o.expected_close_date))+'</small>':'')
   +'<select class="crmMover" data-mover="'+esc(o.id)+'" aria-label="Mover ' +esc(o.title)+' de etapa" data-gama-nofind>'
-   +ref.etapas.map(e=>'<option value="'+esc(e.id)+'"'+(String(e.id)===String(o.stage_id)?' selected':'')+'>'+esc(e.name)+'</option>').join('')
+   +ref.etapas.map(e=>'<option data-gi-live value="'+esc(e.id)+'"'+(String(e.id)===String(o.stage_id)?' selected':'')+'>'+esc(e.name)+'</option>').join('')
   +'</select>'
   +'</div>';
 }
@@ -182,7 +182,7 @@ function panelPerdida(){
  return '<div class="arcPanel card crmPerdida"><h3>¿Por qué se perdió «'+esc(o?o.title:'')+'»?</h3>'
   +'<p class="muted" data-gi=f6887961a882>La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.</p>'
   +'<div class="crmForm"><div><label for="crmOMotivo" data-gi=c7b288b1c0bb>Motivo</label><select id="crmOMotivo">'
-   +opciones(ref.motivos.map(m=>[m.id,m.name]),'','— elige un motivo —')+'</select></div></div>'
+   +opciones(ref.motivos.map(m=>[m.id,m.name]),'','— elige un motivo —',true)+'</select></div></div>'
   +'<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmOPerder" data-gi=570796602b41>Darla por perdida</button>'
   +'<button class="arcButton" type="button" id="crmOPerderNo" data-gi=bb9dbb406dcb>Cancelar</button></div></div>';
 }
@@ -202,8 +202,8 @@ function ficha(){
  const conLineas=lineas.length>0;
  return '<div class="arcPanel card">'
   +'<h3>'+(esNueva?'Nueva oportunidad':esc(o.reference+' · '+o.title))+'</h3>'
-  +(e&&e.is_lost?'<div class="crmAviso crmDup">Perdida'+(o.lost_at?' el '+esc(fecha(o.lost_at)):'')+'. Motivo: '
-    +esc((ref.motivos.find(m=>String(m.id)===String(o.lost_reason_id))||{}).name||'sin indicar')+'.</div>':'')
+  +(e&&e.is_lost?'<div class="crmAviso crmDup"><span data-gi-live data-gi=0cce170d6134>Perdida</span>'+(o.lost_at?' · '+esc(fecha(o.lost_at)):'')+' · <span data-gi-live data-gi=1f6a33a797a4>Motivo:</span> <span data-gi-live>'
+    +esc((ref.motivos.find(m=>String(m.id)===String(o.lost_reason_id))||{}).name||'sin indicar')+'</span></div>':'')
   +(e&&e.is_won?'<div class="crmAviso">Ganada'+(o.won_at?' el '+esc(fecha(o.won_at)):'')+'.</div>':'')
   +'<div class="crmForm">'
    +campo('crmOTitulo','Título',o.title)
@@ -219,7 +219,7 @@ function ficha(){
    +'<div><label for="crmOContacto" data-gi=771b96b0812d>Contacto</label><select id="crmOContacto">'
     +opciones(contactosDe(tipo,quien).map(k=>[k.id,nombreContacto(k)]),o.contact_id,'— sin contacto —')+'</select></div>'
    +'<div><label for="crmOEtapa" data-gi=a9d09b2d2c04>Etapa</label><select id="crmOEtapa" data-gama-nofind>'
-    +ref.etapas.map(x=>'<option value="'+esc(x.id)+'"'+(String(x.id)===String(o.stage_id)?' selected':'')+'>'+esc(x.name)+'</option>').join('')
+    +ref.etapas.map(x=>'<option data-gi-live value="'+esc(x.id)+'"'+(String(x.id)===String(o.stage_id)?' selected':'')+'>'+esc(x.name)+'</option>').join('')
    +'</select></div>'
    +'<div><label for="crmOProb" data-gi=c52ce14aa5cd>Probabilidad (%)</label><input id="crmOProb" type="number" min="0" max="100" step="1" value="'+Number(o.probability||0)+'"></div>'
    /* Con líneas, el importe lo mandan los productos: dejarlo escribir a mano
@@ -235,9 +235,9 @@ function ficha(){
    +'<div><label for="crmOResp" data-gi=62c1aec4ffc8>Responsable</label><select id="crmOResp">'
     +opciones(gente.map(p=>[p.id,p.full_name||p.email]),o.owner_id)+'</select></div>'
    +'<div><label for="crmOOrigen" data-gi=167a940c6278>Origen</label><select id="crmOOrigen">'
-    +opciones(ref.origenes.map(x=>[x.id,x.name]),o.source_id)+'</select></div>'
+    +opciones(ref.origenes.map(x=>[x.id,x.name]),o.source_id,'',true)+'</select></div>'
    +'<div><label for="crmOMotivoF" data-gi=c6aa9550ae0f>Motivo de pérdida</label><select id="crmOMotivoF">'
-    +opciones(ref.motivos.map(m=>[m.id,m.name]),o.lost_reason_id,'— sólo si se pierde —')+'</select></div>'
+    +opciones(ref.motivos.map(m=>[m.id,m.name]),o.lost_reason_id,'— sólo si se pierde —',true)+'</select></div>'
    +campo('crmOCompe','Competencia',o.competitors)
   +'</div>'
   +'<div class="crmNotas"><label for="crmODesc" data-gi=ee00b96fff26>Descripción</label><textarea id="crmODesc" rows="3">'+esc(o.description||'')+'</textarea></div>'

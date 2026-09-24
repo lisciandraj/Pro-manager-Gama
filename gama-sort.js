@@ -19,14 +19,15 @@ function go(key,col){
  set(key,col,s&&s.col===col&&s.dir==='asc'?'desc':'asc');
 }
 function esc(v){return window.ArcUI.esc(v)}
+function tr(v){return window.GamaI18n?window.GamaI18n.t(v):v}
 /* Cabecera pulsable. col es la clave que recibirá el accesor de apply(). */
 function th(key,col,label,align){
  const s=get(key),on=s&&s.col===col;
  const ind=on?(s.dir==='asc'?'▲':'▼'):'⇅';
  const aria=on?(s.dir==='asc'?'ascending':'descending'):'none';
  return '<th class="gamaSortTh'+(on?' on':'')+(align==='right'?' r':'')+'" aria-sort="'+aria+'"'
-  +' onclick="GamaSort.go(\''+esc(key)+'\',\''+esc(col)+'\')" title="Ordenar por '+esc(label)+'">'
-  +esc(label)+' <span class="gamaSortInd">'+ind+'</span></th>';
+  +' onclick="GamaSort.go(\''+esc(key)+'\',\''+esc(col)+'\')" title="'+esc(tr('Ordenar por')+' '+tr(label))+'">'
+  +'<span data-gi-live>'+esc(label)+'</span> <span class="gamaSortInd">'+ind+'</span></th>';
 }
 /* accessors: {columna: fila => valor}. Los números se comparan como números y
    los textos con la intercalación española, para que "Ñ" y los acentos caigan

@@ -15,26 +15,25 @@ function badge(n){document.querySelectorAll('[data-go-badge]').forEach(x=>{x.tex
    recuento completo (también lo pospuesto); al final, los proyectos, las
    validaciones y las preferencias. Abrir un dossier cierra la ventana. */
 const CATEGORIES=[
- {id:'shortage',label:'Pedidos bloqueados',phrase:'pedidos bloqueados por falta de stock',red:true,icon:'cart'},
- {id:'late_delivery',label:'Entregas atrasadas',phrase:'entregas atrasadas',red:true,icon:'truck'},
- {id:'quote',label:'Presupuestos sin respuesta',phrase:'presupuestos sin respuesta desde hace más de 7 días',finance:true,icon:'invoice'},
- {id:'low_stock',label:'Productos bajo mínimo',phrase:'productos bajo stock mínimo',icon:'stock'},
- {id:'receipt',label:'Recepciones atrasadas',phrase:'recepciones de proveedores atrasadas',icon:'warehouse'},
- {id:'due_soon_invoice',label:'Pagos próximos a vencer',phrase:'pagos próximos a vencer',finance:true,icon:'banknote'},
- {id:'overdue_invoice',label:'Facturas vencidas',phrase:'en facturas vencidas',finance:true,red:true,icon:'ledger'},
+ {id:'shortage',label:'Pedidos bloqueados',phrase:'pedidos bloqueados por falta de stock',red:true},
+ {id:'late_delivery',label:'Entregas atrasadas',phrase:'entregas atrasadas',red:true},
+ {id:'quote',label:'Presupuestos sin respuesta',phrase:'presupuestos sin respuesta desde hace más de 7 días',finance:true},
+ {id:'low_stock',label:'Productos bajo mínimo',phrase:'productos bajo stock mínimo'},
+ {id:'receipt',label:'Recepciones atrasadas',phrase:'recepciones de proveedores atrasadas'},
+ {id:'due_soon_invoice',label:'Pagos próximos a vencer',phrase:'pagos próximos a vencer',finance:true},
+ {id:'overdue_invoice',label:'Facturas vencidas',phrase:'en facturas vencidas',finance:true,red:true},
 ];
-const SLIDERS='<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>';
 // Antes del primer recuento, las categorías de finanzas se suponen por el perfil; el servidor lo confirma.
 const financeRole=()=>{try{return ['admin','administrador','commercial','comercial'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)}catch(_){return false}};
 // Las facturas se cuentan por alerta: el centro de acción da el importe de las vencidas.
 const count=(d,k)=>Number((['due_soon_invoice','overdue_invoice'].includes(k)?d?.counts?.[k]:d?.action_center?.[k])||0);
 function tabsFor(d){
- const icon=n=>window.ArcUI.icons[n]||'',fin=d?d.finance:financeRole();
- return [{id:'all',label:'Todas las alertas',icon:icon('bell'),pane:'alerts',badge:d?.active_count?num(d.active_count):''},
-  ...CATEGORIES.filter(c=>fin||!c.finance).map(c=>{const n=count(d,c.id);return {id:c.id,label:c.label,icon:icon(c.icon),pane:'alerts',badge:n?num(n):'',tone:n?(c.red?'danger':'warning'):''}}),
-  ...(window.gamaAccessAllowed?.('projects')?[{id:'projects',label:'Proyectos',icon:icon('project'),pane:'projects',badge:projectCount?num(projectCount):'',tone:projectCount?'warning':''}]:[]),
-  {id:'approvals',label:'Validaciones',icon:icon('checklist'),pane:'approvals'},
-  {id:'preferences',label:'Preferencias',icon:SLIDERS,pane:'preferences'}];
+ const fin=d?d.finance:financeRole();
+ return [{id:'all',label:'Todas las alertas',pane:'alerts',badge:d?.active_count?num(d.active_count):''},
+  ...CATEGORIES.filter(c=>fin||!c.finance).map(c=>{const n=count(d,c.id);return {id:c.id,label:c.label,pane:'alerts',badge:n?num(n):'',tone:n?(c.red?'danger':'warning'):''}}),
+  ...(window.gamaAccessAllowed?.('projects')?[{id:'projects',label:'Proyectos',pane:'projects',badge:projectCount?num(projectCount):'',tone:projectCount?'warning':''}]:[]),
+  {id:'approvals',label:'Validaciones',pane:'approvals'},
+  {id:'preferences',label:'Preferencias',pane:'preferences'}];
 }
 const otherDialog=()=>[...document.querySelectorAll('dialog[open]')].some(d=>d!==win?.el);
 const paneError=(host,e)=>{if(host?.isConnected)window.ArcUI.render(host,'<p class="goBox goError" role="alert">'+esc(error(e))+'</p>')};

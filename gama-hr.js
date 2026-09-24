@@ -604,12 +604,10 @@ function render(){
  if(!admin&&tab==='empleados')tab='miFicha';
 
 
- // El icono va en su propio span: en el teléfono las tres pestañas se reparten
- // el ancho y «Planificación» no cabe con el emoji delante, así que allí se
- // esconde el icono en vez de cortar la palabra.
+ // Las pestañas llevan sólo su nombre: los iconos quedan para las tarjetas del inicio.
  const pestanas=admin
-  ? [['empleados','👥','Empleados'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']]
-  : [['miFicha','🪪','Mi ficha'],['ausencias','📅','Ausencias'],['planificacion','🗓️','Planificación']];
+  ? [['empleados','Empleados'],['ausencias','Ausencias'],['planificacion','Planificación']]
+  : [['miFicha','Mi ficha'],['ausencias','Ausencias'],['planificacion','Planificación']];
 
  if(window.GamaHRP1)pestanas.push(...window.GamaHRP1.tabs());
  window.ArcUI.render(s,window.GamaUI.header({
@@ -618,8 +616,8 @@ function render(){
      ? 'Empleados, ausencias y calendario del equipo.'
      : 'Tus datos, tus días y el calendario del equipo.'
  })
- +`<div class="hrTabs">${pestanas.map(([id,ico,txt])=>
-    `<button type="button" class="arcButton ${tab===id?'on':''}" data-tab="${id}"><span class="hrTabIco">${ico}</span> ${txt}</button>`).join('')}</div>`
+ +`<div class="hrTabs">${pestanas.map(([id,txt])=>
+    `<button type="button" class="arcButton ${tab===id?'on':''}" data-tab="${id}">${txt}</button>`).join('')}</div>`
  +(admin?kpis():'')
  +'<div id="hrMsg" class="hrMsg"></div>'
  +(tab==='empleados'?employeesTab()

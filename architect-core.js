@@ -239,7 +239,7 @@
     list.__arcTabs = true;
     let items = [], selected = null;
     const badge2 = (s) => s.badge ? `<span class="arcSideBadge"${s.tone ? ` data-tone="${escapeHtml(s.tone)}"` : ""}>${escapeHtml(s.badge)}</span>` : "";
-    const tab = (s) => `<button type="button" role="tab" id="${escapeHtml(prefix)}Tab-${escapeHtml(s.id)}" data-side-tab="${escapeHtml(s.id)}" aria-controls="${escapeHtml(prefix)}Pane-${escapeHtml(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${s.icon || ""}</svg></span><span class="arcSideLabel" data-gi-live>${escapeHtml(s.label)}</span>${badge2(s)}</button>`;
+    const tab = (s) => `<button type="button" role="tab" id="${escapeHtml(prefix)}Tab-${escapeHtml(s.id)}" data-side-tab="${escapeHtml(s.id)}" aria-controls="${escapeHtml(prefix)}Pane-${escapeHtml(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideLabel" data-gi-live>${escapeHtml(s.label)}</span>${badge2(s)}</button>`;
     const button2 = (id2) => [...list.querySelectorAll("[data-side-tab]")].find((b) => b.dataset.sideTab === id2);
     const mark = () => list.querySelectorAll("[data-side-tab]").forEach((b) => {
       const on = b.dataset.sideTab === selected;

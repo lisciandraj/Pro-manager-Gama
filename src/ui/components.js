@@ -140,7 +140,7 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
   list.__arcTabs=true;
   let items=[],selected=null;
   const badge=s=>s.badge?`<span class="arcSideBadge"${s.tone?` data-tone="${esc(s.tone)}"`:''}>${esc(s.badge)}</span>`:'';
-  const tab=s=>`<button type="button" role="tab" id="${esc(prefix)}Tab-${esc(s.id)}" data-side-tab="${esc(s.id)}" aria-controls="${esc(prefix)}Pane-${esc(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideIcon" aria-hidden="true"><svg viewBox="0 0 24 24">${s.icon||''}</svg></span><span class="arcSideLabel" data-gi-live>${esc(s.label)}</span>${badge(s)}</button>`;
+  const tab=s=>`<button type="button" role="tab" id="${esc(prefix)}Tab-${esc(s.id)}" data-side-tab="${esc(s.id)}" aria-controls="${esc(prefix)}Pane-${esc(s.pane)}" aria-selected="false" tabindex="-1"><span class="arcSideLabel" data-gi-live>${esc(s.label)}</span>${badge(s)}</button>`;
   const button=id=>[...list.querySelectorAll('[data-side-tab]')].find(b=>b.dataset.sideTab===id);
   const mark=()=>list.querySelectorAll('[data-side-tab]').forEach(b=>{const on=b.dataset.sideTab===selected;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});
   // Los recuentos cambian a menudo: si los apartados son los mismos, sólo se tocan sus cifras.

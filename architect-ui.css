@@ -136,7 +136,9 @@ input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-3)
    sigue contando el ancho natural de un campo, de una fecha o de un
    desplegable con opciones largas: sin esto, la casilla que lo lleva se sale
    de su columna, pisa la de al lado o ensancha la página. */
-:where(label,.arcField,div,fieldset):has(> :is(input:not([type=checkbox],[type=radio],[type=hidden]),select,textarea,.gamaFind)){min-width:0}
+/* Especificidad cero (todo dentro de :where): un min-width propio de un módulo,
+   como el de los filtros de Documentos, sigue mandando. */
+:where(:is(label,.arcField,div,fieldset):has(> :is(input:not([type=checkbox],[type=radio],[type=hidden]),select,textarea,.gamaFind))){min-width:0}
 /* iPhone e iPad: con su aspecto nativo, fecha y hora imponen un ancho mínimo
    propio y centran el texto. Como un campo más respetan su columna; tocarlas
    sigue abriendo el selector del sistema. */

@@ -839,15 +839,15 @@ dialog.arcSideDialog::backdrop{background:rgba(11,27,48,.55);backdrop-filter:blu
 .arcSideIcon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .arcSidePanes{min-height:0;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 24px 28px}
 .arcSidePanes>[role=tabpanel]:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:4px;border-radius:var(--arc-r-md)}
-@media(max-width:760px){
+@media(max-width:760px),(max-height:520px){
  dialog.arcSideDialog{width:100vw;height:100dvh;max-height:100dvh;border-radius:0;margin:0}
- .arcSideDialogHead{padding:6px 8px 6px 16px}
+ .arcSideDialogHead{padding:6px calc(8px + var(--arc-safe-r,0px)) 6px calc(16px + var(--arc-safe-l,0px))}
  .arcSideDialogBody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
- .arcSideNav{border-right:0;border-bottom:1px solid var(--arc-line);overflow-x:auto;overflow-y:hidden;padding:8px}
+ .arcSideNav{border-right:0;border-bottom:1px solid var(--arc-line);overflow-x:auto;overflow-y:hidden;padding:8px calc(8px + var(--arc-safe-r,0px)) 8px calc(8px + var(--arc-safe-l,0px))}
  .arcSideList{flex-direction:row;gap:6px;width:max-content}
  .arcSideList [role=tab]{width:auto;white-space:nowrap;min-height:44px}
  .arcSideList [role=tab][aria-selected=true]{box-shadow:inset 0 -3px 0 var(--arc-accent-600)}
- .arcSidePanes{padding:16px}
+ .arcSidePanes{padding:16px calc(16px + var(--arc-safe-r,0px)) calc(16px + var(--arc-safe-b,0px)) calc(16px + var(--arc-safe-l,0px))}
 }
 /* gama-settings.js */
 .arcSidePanes #coCompany{margin-top:0}

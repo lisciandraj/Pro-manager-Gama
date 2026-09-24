@@ -132,6 +132,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 }
 input::placeholder,textarea::placeholder{color:var(--arc-text-subtle)}
 input:disabled,select:disabled,textarea:disabled{background:var(--arc-surface-3);color:var(--arc-text-subtle);cursor:not-allowed}
+/* La casilla de un campo nunca se ensancha por él. Safari (iPhone, iPad, Mac)
+   sigue contando el ancho natural de un campo, de una fecha o de un
+   desplegable con opciones largas: sin esto, la casilla que lo lleva se sale
+   de su columna, pisa la de al lado o ensancha la página. */
+:where(label,.arcField,div,fieldset):has(> :is(input:not([type=checkbox],[type=radio],[type=hidden]),select,textarea,.gamaFind)){min-width:0}
+/* iPhone e iPad: con su aspecto nativo, fecha y hora imponen un ancho mínimo
+   propio y centran el texto. Como un campo más respetan su columna; tocarlas
+   sigue abriendo el selector del sistema. */
+@supports (-webkit-touch-callout:none){
+ input:is([type=date],[type=time],[type=datetime-local],[type=month],[type=week]){-webkit-appearance:none;appearance:none;display:block;min-width:0;text-align:left}
+ input::-webkit-date-and-time-value{min-width:0;margin:0;text-align:left}
+}
 input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:var(--arc-danger)}
 
 /* ============================================================== tablas */

@@ -247,7 +247,7 @@ function kpis(){
   <div class="hrKpi"><span data-gi=e0a032ea89a6>Empleados activos</span><b>${activos}</b></div>
   <div class="hrKpi"><span data-gi=24635c11f693>Ausentes hoy</span><b>${fuera}</b></div>
   <div class="hrKpi"><span data-gi=8159fcc540c4>Pendientes de aprobar</span><b>${pend}</b></div>
-  <div class="hrKpi"><span>Bajas por enfermedad ${year}</span><b>${enfermos}</b></div>
+  <div class="hrKpi"><span><span data-gi=d2e61c2d0c29>Bajas por enfermedad </span>${year}</span><b>${enfermos}</b></div>
  </div>`;
 }
 
@@ -274,7 +274,7 @@ function employeesTab(){
 
  return `<div class="hrGrid">
   <div class="arcPanel card">
-   <h3>${editing?'Editar empleado':'Nuevo empleado'}</h3>
+   <h3 data-gi-live>${editing?'Editar empleado':'Nuevo empleado'}</h3>
    <label data-gi=0be48a5a67cc>Nombre y apellidos *</label><input id="hrName" data-gi-placeholder=d6730d8299a4 placeholder="Ej. María Pérez">
    <div class="row">
     <div><label data-gi=48fdf0f9d94c>Cédula / RUC</label><input id="hrId" placeholder="0912345678"></div>
@@ -464,8 +464,8 @@ function planTab(){
  }).join('');
 
  const leyenda=Object.keys(PLAN_COLORES).map(k=>
-   `<span class="hrPlanLeyenda"><i style="background:${PLAN_COLORES[k]}"></i>${esc((KINDS[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
-  +'<span class="hrPlanLeyenda"><i class="pend"></i>Pendiente de aprobar</span>';
+   `<span class="hrPlanLeyenda" data-gi-live><i style="background:${PLAN_COLORES[k]}"></i>${esc((KINDS[k]||k).replace(/^\S+\s/,''))}</span>`).join('')
+  +'<span class="hrPlanLeyenda" data-gi-live><i class="pend"></i>Pendiente de aprobar</span>';
 
  const sel=planPick&&absences.find(a=>a.id===planPick);
 
@@ -518,8 +518,8 @@ function planMover(n){
 function myCardTab(){
  const yo=mine;
  if(!yo){
-  return `<div class="arcPanel card"><div class="hrEmpty" data-gi=3bce45fcf14e>Tu cuenta todavía no está ligada a una ficha de empleado.<br data-gi=b09ad5d3000c>
-   Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</div></div>`;
+  return `<div class="arcPanel card"><div class="hrEmpty" data-gi=3bce45fcf14e>Tu cuenta todavía no está ligada a una ficha de empleado.<br><span data-gi=b09ad5d3000c>
+   Pídele a un administrador que la enlace desde Recursos humanos → Empleados.</span></div></div>`;
  }
  const year=new Date().getFullYear();
  const total=window.GamaHRP1?window.GamaHRP1.entitlement(yo.id,year):Number(yo.annual_leave_days||0),used=usedLeave(yo.id,year),quedan=Math.max(0,total-used);

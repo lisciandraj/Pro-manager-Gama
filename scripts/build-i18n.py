@@ -30,6 +30,7 @@ def key(row):
     return ident
 catalog = {}
 for row in rows.values(): key(row)
+VOID = {'area','base','br','col','embed','hr','img','input','link','meta','source','track','wbr'}
 count = 0
 for path in [ROOT/'index.html', *sorted(ROOT.glob('gama-*.js'))]:
     if path.name.startswith('gama-i18n'): continue
@@ -37,6 +38,13 @@ for path in [ROOT/'index.html', *sorted(ROOT.glob('gama-*.js'))]:
     def mark(m):
         global count
         opening, tag, text = m.groups()
+        if tag in VOID:
+            # Text after <br> or <input> belongs to the parent: mark it in its own span
+            # (and drop the id an earlier pass put on the empty tag).
+            row = variant(text)
+            if not row: return m[0]
+            count += 1
+            return re.sub(r' data-gi=[a-f0-9]+>$', '>', opening)+'<span data-gi='+key(row)+'>'+text+'</span>'
         if tag in ('script','style','svg','path','textarea','title') or 'data-gi=' in opening: return m[0]
         row = variant(text)
         if not row: return m[0]

@@ -74,6 +74,8 @@ Trois points de peinture couvrent tous les écrans : `ArcRouter.show()` pour les
 
 Les titres qui commençaient par un emoji — 📦, 👥, 🚚 — le perdent dans `header()`, sinon l’écran afficherait deux icônes. Le catalogue de traduction indexe le texte sans ornement : `variant()` retire les caractères non alphanumériques de tête, donc « 📦 Productos » et « Productos » tombent sur la même ligne et aucune traduction n’est perdue.
 
+Les onglets, eux, n’ont jamais d’icône : un onglet porte son nom et, dans Notifications, son compteur. Les pictogrammes sont réservés aux tuiles du menu, à la navigation latérale et à l’en-tête du module, qui désignent un module ; à l’intérieur, onglets, modes (Importer des données) et bascules Actifs / Archivés sont en texte seul. `tests/tab-labels.spec.js` le vérifie pour RH, Configuration, Notifications, Importer des données et Archivés.
+
 Les teintes d’accent des tuiles du menu sont limitées à `#mainmenu`. L’en-tête a donc ses propres règles `.gamaStdIcon[data-arc-fam=…]` dans `src/ui/module-styles.css`, appuyées sur les mêmes jetons `--arc-icon-*`, sans toucher aux feuilles du menu ni à celles des réglages.
 
 ## Données de l’accueil

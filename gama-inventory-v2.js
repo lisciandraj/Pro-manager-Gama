@@ -158,8 +158,8 @@ function pintar(){
  });
  const cuerpo=$('ivCuerpo');
  if(disponibleV2===false){
-  window.ArcUI.render(cuerpo,`<div class="ivCard"><div class="ivAviso"><b data-gi=382d7e0a2ad5>Inventario V2 todavía no está activo.</b><br data-gi=227cc70e0fe2>
-Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-phase1.sql</code>.
+  window.ArcUI.render(cuerpo,`<div class="ivCard"><div class="ivAviso"><b data-gi=382d7e0a2ad5>Inventario V2 todavía no está activo.</b><br><span data-gi=227cc70e0fe2>
+Falta aplicar en Supabase la migración </span><code>supabase-migration-2026-09-inventory-v2-phase1.sql</code>.
 Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div></div>`);
   return;
  }
@@ -437,8 +437,8 @@ ${filas.length?`<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</t
 
 function pintarConteos(host){
  if(conteos===null){
-  window.ArcUI.render(host,`<div class="ivCard"><div class="ivAviso"><b data-gi=66c1ec9818d7>El inventario físico todavía no está activo.</b><br data-gi=227cc70e0fe2>
-Falta aplicar en Supabase la migración <code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`);
+  window.ArcUI.render(host,`<div class="ivCard"><div class="ivAviso"><b data-gi=66c1ec9818d7>El inventario físico todavía no está activo.</b><br><span data-gi=227cc70e0fe2>
+Falta aplicar en Supabase la migración </span><code>supabase-migration-2026-09-inventory-v2-counts.sql</code>.</div></div>`);
   return;
  }
  if(conteoAbierto){pintarConteoAbierto(host);return}

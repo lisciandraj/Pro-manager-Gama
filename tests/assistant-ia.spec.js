@@ -18,7 +18,7 @@ async function boot(page,{role='admin',configured=true}={}){
 }
 async function open(page){await page.locator('#mainmenu [data-gama-module="assistant-ia"]').click();await expect(page.locator('#aiConfigure')).toBeVisible();}
 test('admin chat, structured plans, source evidence, follow-up, history and logout clearing',async({page})=>{
- await boot(page);await open(page);await expect(page.locator('#assistant-ia h2')).toHaveText('Assistant IA');
+ await boot(page);await open(page);await expect(page.locator('#assistant-ia h2')).toHaveText('Coco Intelligence');
  await page.locator('#aiQuestion').fill('Analyse mon entreprise');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer h3')).toHaveText('Analyse des priorités');await expect(page.locator('.ai-action')).toContainText('Sous 2 jours');await expect(page.locator('.ai-answer img')).toHaveCount(0);
  await page.locator('.ai-ref').first().click();await expect(page.locator('.ai-scroll table').first()).toContainText('Produit A');await expect(page.locator('#ai-0-S1')).toContainText('Extrait limité');
  await page.locator('[data-followup]').click();await expect(page.locator('#aiQuestion')).toHaveValue('Quels achats sont en retard ?');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toHaveCount(2);expect(await page.evaluate(()=>__aiRequests.filter(x=>x.action==='ask')[1].history_ids)).toEqual([id]);
@@ -38,5 +38,5 @@ test('service error preserves question; disabled module clears existing analysis
  await page.evaluate(()=>{GamaModules.enabled=id=>id!=='assistant-ia';window.dispatchEvent(new CustomEvent('gama:modules-change'));});await expect(page.locator('#assistant-ia')).toBeEmpty();
 });
 test('desktop surface and English labels',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});await boot(page);await open(page);await page.locator('#aiQuestion').fill('Analyse');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toBeVisible();await page.screenshot({path:'test-results/assistant-desktop.png',fullPage:true});await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(page.locator('#assistant-ia h2')).toHaveText('AI Assistant');await expect(page.locator('#aiSend')).toHaveText('Analyze with AI');
+ await page.setViewportSize({width:1440,height:1000});await boot(page);await open(page);await page.locator('#aiQuestion').fill('Analyse');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toBeVisible();await page.screenshot({path:'test-results/assistant-desktop.png',fullPage:true});await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(page.locator('#assistant-ia h2')).toHaveText('Coco Intelligence');await expect(page.locator('#aiSend')).toHaveText('Analyze with AI');
 });

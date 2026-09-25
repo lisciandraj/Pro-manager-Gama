@@ -44,7 +44,8 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(id==='accounting')bar.append(button(t('Conciliación agrupada','Rapprochement groupé','Grouped reconciliation'),()=>window.ArchitectFinanceControls.reconcile()));
  if(id==='hr'&&(admin()||window.GamaHRP1?.isHR))bar.append(button(t('Planificación del personal','Planification du personnel','Staff planning'),()=>window.ArchitectPeople.hr()));
  if(id==='users'&&admin())bar.append(button(t('Transmitir responsabilidades','Transmettre les responsabilités','Transfer responsibilities'),()=>window.ArchitectPeople.handover()));
- if(id==='access-settings'&&admin())bar.append(button(t('Derechos por acción','Droits par action','Action permissions'),()=>window.ArchitectAccessControls.permissions()),button(t('Revisar accesos','Revoir les accès','Review access'),()=>window.ArchitectAccessControls.reviews()));
+ // Los derechos vienen por defecto con cada tipo de usuario: aquí queda la revisión periódica.
+ if(id==='access-settings'&&admin())bar.append(button(t('Revisar accesos','Revoir les accès','Review access'),()=>window.ArchitectAccessControls.reviews()));
  const dupes={clients:'customer',suppliers:'supplier',crm:'lead',contacts:'choose'}[id];
  if(admin()&&dupes)bar.append(button(t('Fusionar duplicados','Fusionner les doublons','Merge duplicates'),()=>dupes==='choose'?mergeKind():merge(dupes)));
  if(bar.children.length)(host.querySelector('.gamaStdHeader')||host.firstElementChild)?.after(bar);

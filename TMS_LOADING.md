@@ -14,6 +14,12 @@ La salida requiere todas las cantidades verificadas y una versión vigente del m
 
 Los controles SQL también bloquean el cambio directo de estado, el inicio de una ruta y el registro de una prueba de entrega antes de confirmar la salida. Las entregas que ya estaban en tránsito o entregadas al instalar la migración conservan su historial sin exigir escaneos retroactivos. Las nuevas expediciones requieren un código de barras de producto.
 
+## Planificación: los pedidos que salen hoy
+
+En Entrega → Planificación, la tarjeta «Pedidos preparados que salen hoy» lista las entregas que siguen en el almacén (pendientes, listas, planificadas o en excepción, fuera de una ruta ya en camino), sea cual sea su fecha prevista. Van marcadas por defecto las previstas para hoy; «Todos» y «Ninguno» cambian la selección de golpe.
+
+«Optimizar la ruta con la selección» trabaja sólo con lo marcado: pone la fecha de hoy a lo que estaba previsto otro día (queda en el historial como PROGRAMADA), rehace las rutas del día que aún no han salido y reparte lo marcado entre los conductores disponibles según capacidad, prioridad y cercanía. Lo que estaba en esas rutas y se ha desmarcado vuelve a esperar en el almacén (sin ruta ni conductor), con su fecha. Cada ruta enseña sus paradas en el orden optimizado.
+
 ## Verificación
 
 - `tests/sql/tms-loading.sql`: fixtures transaccionales con ROLLBACK, enlace automático al TMS, cantidades por línea, reintentos, correcciones, permisos, salida, bloqueo de rutas y pruebas, conservación de stock.

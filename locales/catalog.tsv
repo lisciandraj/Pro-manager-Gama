@@ -4147,3 +4147,24 @@ Pendiente / desactivado	En attente / désactivé	Pending / deactivated
 No se pudieron leer los usuarios	Impossible de lire les utilisateurs	Could not read the users
 1 usuario	1 utilisateur	1 user
 {0} cuenta(s) pendiente(s) de aprobación. Mientras no las apruebes no pueden leer ningún dato.	{0} compte(s) en attente d’approbation. Tant que vous ne les approuvez pas, ils ne peuvent lire aucune donnée.	{0} account(s) awaiting approval. Until you approve them they cannot read any data.
+Pedidos preparados que salen hoy	Commandes préparées qui partent aujourd’hui	Prepared orders leaving today
+Marca los pedidos que se envían hoy: la ruta se optimiza sólo con ellos, según la capacidad de cada vehículo y la cercanía. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.	Cochez les commandes à envoyer aujourd’hui : la tournée est optimisée uniquement avec elles, selon la capacité de chaque véhicule et la proximité. Les chauffeurs en congés ou en arrêt dans les RH sont exclus de la répartition.	Tick the orders to send today: the route is optimised with them only, by vehicle capacity and proximity. Drivers on leave or sick leave in HR are left out.
+No hay pedidos preparados pendientes de salir.	Aucune commande préparée en attente de départ.	No prepared orders waiting to leave.
+1 pedido seleccionado	1 commande sélectionnée	1 order selected
+{0} pedidos seleccionados	{0} commandes sélectionnées	{0} orders selected
+Ninguno	Aucune	None
+Prevista hoy	Prévue aujourd’hui	Due today
+Prevista el	Prévue le	Due on
+Optimizar la ruta con la selección	Optimiser la tournée avec la sélection	Optimise the route with the selection
+Marca al menos un pedido para enviar hoy.	Cochez au moins une commande à envoyer aujourd’hui.	Tick at least one order to send today.
+PROGRAMADA	PROGRAMMÉE	SCHEDULED
+Programada para hoy en la planificación	Programmée pour aujourd’hui dans la planification	Scheduled for today in planning
+{0} paradas	{0} arrêts	{0} stops
+1 parada	1 arrêt	1 stop
+CAPACIDAD	CAPACITÉ	CAPACITY
+{0} ruta(s) creada(s).	{0} tournée(s) créée(s).	{0} route(s) created.
+{0} entrega(s) en excepción.	{0} livraison(s) en exception.	{0} delivery(ies) in exception.
+{0} conductor(es) ausente(s) hoy, fuera del reparto.	{0} chauffeur(s) absent(s) aujourd’hui, hors répartition.	{0} driver(s) absent today, left out.
+Sincronizado en la nube	Synchronisé dans le cloud	Synced to the cloud
+Módulos disponibles para toda la empresa.	Modules disponibles pour toute l’entreprise.	Modules available to the whole company.
+Los accesos de cada tipo de usuario vienen definidos por defecto.	Les accès de chaque type d’utilisateur sont définis par défaut.	Each user type’s access is set by default.

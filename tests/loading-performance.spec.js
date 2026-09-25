@@ -23,10 +23,11 @@ test('unchanged access polling does not rebuild the menu; a real revocation stil
  await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());await page.waitForTimeout(1000);
  const unchanged=await page.evaluate(async()=>{window.__changes=0;addEventListener('gama:modules-change',()=>window.__changes++);const menu=document.querySelector('#mainmenu .gamaF2Grid');await GamaRoleAccess.load();await GamaRoleAccess.load();return {changes:window.__changes,same:menu===document.querySelector('#mainmenu .gamaF2Grid')}});
  expect(unchanged).toEqual({changes:0,same:true});
- await page.evaluate(async()=>{window.__DB.role_module_access=[{role:'comercial',disabled_modules:['crm'],version:2}];await GamaRoleAccess.load()});
+ // Los accesos de cada tipo de usuario son fijos: lo que se revoca es un módulo para toda la empresa.
+ await page.evaluate(async()=>{window.__DB.app_modules=[{id:'crm',enabled:false}];await GamaModules.load();await GamaRoleAccess.load()});
  expect(await page.evaluate(()=>window.__changes)).toBe(1);expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
 });
-for(const width of [390,1440])test(`cold home starts access reads together and leaves the KPIs to the dashboard at ${width}px`,async({page})=>{
+for(const width of [390,1440])test(`cold home waits for the profile, reads no per-profile access and leaves the KPIs to the dashboard at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});
  await page.addInitScript(()=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'}));
@@ -43,9 +44,9 @@ for(const width of [390,1440])test(`cold home starts access reads together and l
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:instrumented}));
  await page.goto('/index.html');
  await page.waitForFunction(()=>window.__startup?.profile===1);
- // A blocked profile cannot serialize the independent permissions read, and
- // unvalidated navigation must stay closed (no cached privilege shortcut).
- expect(await page.evaluate(()=>__startup.access)).toBe(1);
+ // Access comes with the user type: nothing is read per profile, and
+ // unvalidated navigation stays closed (no cached privilege shortcut).
+ expect(await page.evaluate(()=>__startup.access)).toBe(0);
  expect(await page.evaluate(()=>gamaAccessAllowed('crm'))).toBe(false);
  await page.evaluate(()=>{window.__originalGrid=document.querySelector('.gamaF2Grid');__releaseProfile()});
  await expect(page.locator('.gamaF2Card[data-gama-module="crm"]')).toBeVisible();

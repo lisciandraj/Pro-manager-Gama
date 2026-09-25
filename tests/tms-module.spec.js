@@ -532,3 +532,86 @@ test('delivery cannot be validated with an empty customer signature',async({page
  expect(await page.evaluate(()=>__DB.tms_proofs.length)).toBe(0);
  expect(await page.evaluate(()=>__DB.tms_deliveries[0].status)).toBe('En tránsito');
 });
+
+// Planificación: de los pedidos ya preparados se marcan los que salen hoy, y la
+// ruta se optimiza sólo con ellos. Por defecto van marcados los previstos para hoy.
+test.describe('TMS — pedidos preparados que salen hoy', () => {
+  const dayOffset = n => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+  const pedido = (id, customer, date, extra = {}) => ({
+    id, customer, address: 'Av. ' + customer + ', Quito', delivery_date: date, status: 'Pendiente de preparación',
+    dossier_reference: 'PDV-' + id.toUpperCase(), weight: 10, volume: 0.2, created_at: new Date().toISOString(), ...extra,
+  });
+  const estado = page => page.evaluate(() => ({
+    routes: window.__DB.tms_routes.map(r => ({ driver: r.driver_id, stops: r.stops.filter(s => s !== '__depot').sort() })),
+    del: Object.fromEntries(window.__DB.tms_deliveries.map(d => [d.id, { date: d.delivery_date, route: d.route_id || null, status: d.status }])),
+  }));
+
+  test('the orders ticked for today are dated today and the route is optimised with them only', async ({ page }) => {
+    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [
+        pedido('hoy1', 'Cliente Hoy', today()),
+        pedido('hoy2', 'Cliente Hoy Dos', today()),
+        pedido('manana', 'Cliente Manana', dayOffset(1)),
+        pedido('ruta', 'Ya en ruta', today(), { status: 'En ruta' }),
+        pedido('fin', 'Ya entregada', today(), { status: 'Entregada' }),
+      ],
+    });
+    const list = page.locator('.tmsPickList');
+    // Sólo lo que sigue en el almacén: ni lo que ya ha salido ni lo entregado.
+    await expect(list.locator('.tmsPick')).toHaveCount(3);
+    await expect(list.locator('[data-tms-pick="hoy1"]')).toBeChecked();
+    await expect(list.locator('[data-tms-pick="hoy2"]')).toBeChecked();
+    await expect(list.locator('[data-tms-pick="manana"]')).not.toBeChecked();
+    await expect(list.locator('.tmsPick', { hasText: 'Cliente Manana' })).toContainText('Prevista el');
+    await expect(page.locator('#tPickCount')).toHaveText('2 pedidos seleccionados');
+
+    await list.locator('[data-tms-pick="hoy2"]').uncheck();
+    await list.locator('[data-tms-pick="manana"]').check();
+    await expect(page.locator('#tOptimizeCount')).toHaveText('(2)');
+    await page.click('#tOptimize');
+    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
+
+    const s = await estado(page);
+    expect(s.routes).toEqual([{ driver: 'drv1', stops: ['hoy1', 'manana'] }]);
+    expect(s.del.manana).toMatchObject({ date: today(), status: 'Planificada' });
+    expect(s.del.hoy2).toEqual({ date: today(), route: null, status: 'Pendiente de preparación' });
+    // La ruta enseña sus paradas en orden, y el cambio de fecha queda en el historial.
+    await expect(page.locator('.tmsStops li')).toHaveCount(2);
+    expect(await page.evaluate(() => window.__DB.tms_events.filter(e => e.type === 'PROGRAMADA').map(e => e.delivery_id))).toEqual(['manana']);
+  });
+
+  test('an order unticked after planning leaves today’s route and waits again', async ({ page }) => {
+    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
+    await boot(page, {
+      drivers: DRIVERS.slice(0, 1),
+      deliveries: [
+        pedido('a', 'Cliente A', today(), { status: 'Planificada', route_id: 'r1', driver_id: 'drv1' }),
+        pedido('b', 'Cliente B', today(), { status: 'Planificada', route_id: 'r1', driver_id: 'drv1' }),
+      ],
+      routes: [{ id: 'r1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor 1', vehicle: 'Camión 1', stops: ['a', 'b'], distance: 0, weight: 20, volume: 0.4, status: 'Planificada', created_at: new Date().toISOString() }],
+    });
+    await expect(page.locator('.tmsPickList [data-tms-pick="a"]')).toBeChecked();
+    await page.locator('.tmsPickList [data-tms-pick="a"]').uncheck();
+    await page.click('#tOptimize');
+    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
+    const s = await estado(page);
+    expect(s.routes).toEqual([{ driver: 'drv1', stops: ['b'] }]);
+    expect(s.del.a).toEqual({ date: today(), route: null, status: 'Pendiente de preparación' });
+    expect(s.del.b.status).toBe('Planificada');
+  });
+
+  test('with nothing ticked, nothing changes and the planner is told why', async ({ page }) => {
+    await boot(page, { drivers: DRIVERS.slice(0, 1), deliveries: [pedido('x', 'Cliente X', dayOffset(2))] });
+    await page.locator('#tPickNone').click();
+    await expect(page.locator('#tOptimizeCount')).toHaveText('(0)');
+    await page.click('#tOptimize');
+    await expect(page.locator('#gamaToasts')).toContainText('Marca al menos un pedido');
+    expect(await page.evaluate(() => [window.__DB.tms_routes.length, window.__DB.tms_deliveries[0].delivery_date])).toEqual([0, dayOffset(2)]);
+    // «Todos» marca también lo previsto para otro día.
+    await page.locator('#tPickAll').click();
+    await expect(page.locator('.tmsPickList [data-tms-pick="x"]')).toBeChecked();
+    await expect(page.locator('#tPickCount')).toHaveText('1 pedido seleccionado');
+  });
+});

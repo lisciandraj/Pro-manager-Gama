@@ -42,9 +42,13 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
   // ningún valor: se comparan contra un botón principal y uno secundario de
   // esta misma pantalla, así que la prueba sigue valiendo si cambia la paleta
   // y salta si alguien le pone a estos dos un tono propio.
+  // Referencias: un botón principal y uno secundario de la aplicación, dentro de
+  // esta misma pantalla (ya no tiene otros: sólo instala y desinstala módulos).
+  await page.evaluate(() => document.getElementById('access-settings').insertAdjacentHTML('beforeend',
+    '<button class="arcButton primary" id="refPrincipal">A</button><button class="arcButton secondary" id="refSecundario">B</button>'));
   const fondo = sel => page.evaluate(s => getComputedStyle(document.querySelector(s)).backgroundColor, sel);
-  const principal = await fondo('#cfgSaveProfile');   // «Guardar permisos»
-  const secundario = await fondo('#cfgNewProfile');   // «Crear un perfil»
+  const principal = await fondo('#refPrincipal');
+  const secundario = await fondo('#refSecundario');
   expect(principal, 'los dos botones de referencia se ven igual').not.toBe(secundario);
 
   const action = page.locator('#access-settings button[data-mod="audit"]');

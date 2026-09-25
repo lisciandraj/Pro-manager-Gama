@@ -54,16 +54,16 @@ async function load(){
     if(r.error)throw r.error;if(token!==generation)return;
     const rows=Array.isArray(r.data)?r.data:[];
     const ROLES=window.GamaRoleAccess.options();
-    const key=x=>x.access_profile||(window.ArcModules.roleAliases[x.role]||x.role);
+    // Cada cuenta tiene los accesos por defecto de su tipo de usuario.
+    const key=x=>window.ArcModules.roleAliases[x.role]||x.role;
     const label=x=>ROLES.find(r=>r.id===key(x))?.label||ROLE[x.role]||x.role;
-    /* Cada perfil de base tiene su color; un perfil creado por la empresa va en
-       neutro y su nombre, escrito por ella, no se traduce. */
+    // Cada tipo de usuario tiene su color; un rol desconocido va en neutro.
     const builtIn=x=>['admin','commercial','magasinier','rh','client'].includes(key(x));
     const locale=window.GamaI18n?.locale||'es-EC';
     window.ArcUI.render(body,rows.length?rows.map(x=>{
       const self=x.id===selfId;
       const actions=self?'<b data-gi=d30c5ae09ef0>Tu cuenta</b>':
-        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${esc(r.id)}"${r.id===key(x)?' selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select> `+
+        `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${esc(r.id)}"${r.id===key(x)?' selected':''} data-gi-live>${esc(r.label)}</option>`).join('')}</select> `+
         `<button class="arcButton ${x.active===false?'primary':'secondary'}" data-cu-toggle="${esc(x.id)}" data-cu-next="${x.active===false?'1':'0'}" data-gi-live>${x.active===false?'Aprobar':'Desactivar'}</button>`;
       return `<tr><td><b>${x.full_name?esc(x.full_name):'<span data-gi-live data-gi=c4dc040a07c5>Sin nombre</span>'}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge" data-role="${builtIn(x)?esc(key(x)):'custom'}"${builtIn(x)?' data-gi-live':''}>${esc(label(x))}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}"><span class="cuState" data-gi-live>${x.active===false?'Pendiente / desactivado':'Activo'}</span></td><td>${x.created_at?esc(new Date(x.created_at).toLocaleString(locale)):'—'}</td><td>${actions}</td></tr>`;
     }).join(''):'<tr><td colspan="6" data-gi=ed24da31a76e>No se encontraron usuarios en Supabase.</td></tr>');

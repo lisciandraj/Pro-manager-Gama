@@ -38,9 +38,10 @@ function anfitrion(){
    a decir de qué tipo es su aviso. */
 function tono(m){
  const t=String(m||'').toLowerCase();
- if(/error|no se puede|no se pudo|falta|faltan|obligatori|selecciona|completa|inválid|invalid|denegado|desactivad/.test(t))return'error';
- if(/atención|cuidado|advertencia|ya existe|pendiente/.test(t))return'aviso';
- if(/correctamente|creada|creado|guardad|generad|actualizad|importad|exportad|enviad|archivad|recibid/.test(t))return'exito';
+ // El aviso llega ya traducido: las palabras se buscan en los tres idiomas.
+ if(/error|erreur|no se puede|no se pudo|impossible|could not|cannot|falta|faltan|manque|missing|obligatori|required|selecciona|sélectionne|completa|inválid|invalid|non valide|denegado|refusé|denied|desactivad|désactivé|deactivated/.test(t))return'error';
+ if(/atención|attention|cuidado|advertencia|avertissement|warning|ya existe|existe déjà|already exists|pendiente|en attente|pending/.test(t))return'aviso';
+ if(/correctamente|correctement|successfully|creada|creado|créé|created|guardad|enregistré|saved|generad|généré|generated|actualizad|mis à jour|updated|importad|importé|imported|exportad|exporté|exported|enviad|envoyé|sent|archivad|archivé|archived|recibid|reçu|received/.test(t))return'exito';
  return'';
 }
 const ICONO={exito:'✓',error:'✕',aviso:'!'};

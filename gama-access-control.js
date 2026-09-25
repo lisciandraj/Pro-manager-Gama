@@ -23,7 +23,8 @@ const NAV_IDS=new Set(['mainmenu','menu','home','inicio','dashboard']);
 function session(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){return null}}
 function esc(v){return window.ArcUI.esc(v)}
 function moduleOn(id){return !window.GamaModules||window.GamaModules.enabled(id)}
-function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.accessProfile||s.role,id)}
+// Los accesos son los de su tipo de usuario, dentro de los módulos activos para toda la empresa.
+function allowed(id){const s=session();if(!s)return false;if(!moduleOn(id))return false;return !!window.GamaRoleAccess?.enabled(s.role,id)}
 /* Una pestaña de otro módulo (tabOf: los pedidos y las facturas en
    Presupuestos y facturas) nunca tiene tarjeta: se entra por su módulo, que
    aparece para quien tiene al menos una de sus pestañas. */

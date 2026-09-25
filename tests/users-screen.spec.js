@@ -75,3 +75,47 @@ test.describe('Usuarios — correo asociado', () => {
     await expect(row(page, 'Sin correo')).toContainText('—');
   });
 });
+
+// Cada perfil de base con su color, «Activo» en verde y la pantalla entera en el
+// idioma elegido (antes: «Cloud conectado», roles y estados en español, hora «p. m.»).
+test.describe('Usuarios — colores y traducción', () => {
+  const MIXED = [
+    ...PROFILES,
+    { id: 'u4', full_name: 'Carlos Andrade', email: 'carlos@example.com', role: 'almacenero', active: true, created_at: '2026-09-05T13:43:50Z' },
+    { id: 'u5', full_name: 'Ana Torres', email: 'ana@example.com', role: 'rrhh', active: true, created_at: '2026-09-07T08:00:00Z' },
+  ];
+  const style = (page, name, sel) => row(page, name).locator(sel).evaluate(el => {
+    const cs = getComputedStyle(el); return { color: cs.color, background: cs.backgroundColor };
+  });
+
+  test('each base role has its own colour and an active account shows in green', async ({ page }) => {
+    await openUsers(page, MIXED);
+    const names = ['Jimmy Lisciandra', 'Paula Martinez', 'Teddy Boy', 'Carlos Andrade', 'Ana Torres'];
+    const badges = [];
+    for (const name of names) badges.push(await style(page, name, '.cuBadge'));
+    expect(new Set(badges.map(b => b.color + b.background)).size).toBe(names.length);
+    expect(await row(page, 'Jimmy Lisciandra').locator('.cuBadge').getAttribute('data-role')).toBe('admin');
+    expect((await style(page, 'Paula Martinez', 'td.cuActive')).color).toBe('rgb(13, 116, 70)');
+    expect((await style(page, 'Teddy Boy', 'td.cuInactive')).color).toBe('rgb(179, 38, 30)');
+  });
+
+  test('the whole screen follows the chosen language', async ({ page }) => {
+    await openUsers(page, MIXED);
+    await page.evaluate(() => window.GamaI18n.setLanguage('fr'));
+    await expect(page.locator('#users .cuOnline')).toHaveText('Cloud connecté');
+    await expect(row(page, 'Carlos Andrade').locator('.cuBadge')).toHaveText('Magasinier');
+    await expect(row(page, 'Jimmy Lisciandra').locator('.cuBadge')).toHaveText('Administrateur');
+    await expect(row(page, 'Paula Martinez').locator('.cuState')).toHaveText('Actif');
+    await expect(row(page, 'Teddy Boy').locator('.cuState')).toHaveText('En attente / désactivé');
+    await expect(page.locator('#cuCount')).toHaveText('5 utilisateurs');
+    await expect(page.locator('#cuPending')).toContainText('1 compte(s) en attente d’approbation');
+    await expect(page.locator('#cuStatus')).not.toContainText('m.');
+    await expect(row(page, 'Carlos Andrade')).not.toContainText('p. m.');
+    await page.evaluate(() => window.GamaI18n.setLanguage('en'));
+    await expect(row(page, 'Carlos Andrade').locator('.cuBadge')).toHaveText('Warehouse operator');
+    await expect(page.locator('#cuCount')).toHaveText('5 users');
+    await page.evaluate(() => window.GamaI18n.setLanguage('es'));
+    await expect(row(page, 'Carlos Andrade').locator('.cuBadge')).toHaveText('Almacenero');
+    await expect(page.locator('#cuCount')).toHaveText('5 usuarios');
+  });
+});

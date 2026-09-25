@@ -60,6 +60,7 @@ La police Inter est hébergée localement dans `fonts/`, avec sa licence OFL, po
 - `architect-shell.js` : navigation depuis `GamaMenu`, recherche globale existante, déplacement des contrôles de session existants dans le menu utilisateur, indicateur actif, droits et langues.
 - `gama-menu-final2.js` : registre de tous les modules existants, cartes et activité. TMS utilise désormais ce même registre ; son chargeur reste unique.
 - `gama-tables.js` : chaque tableau propose deux affichages, choisis par deux boutons-logos au-dessus du tableau : quatre carrés pour les tuiles, des lignes horizontales pour le tableau. Pas de texte visible ; le nom traduit (« Tuiles », « Tableau ») est dans `aria-label` et en info-bulle. Le choix est mémorisé par utilisateur et par tableau.
+- `gama-cloud-users.js` (Utilisateurs cloud) : chaque profil de base a sa couleur, tirée de la palette COCO et assombrie pour rester lisible — Administrateur violet, Commercial bleu, Magasinier orange, Responsable RH vert d’eau, Client gris-bleu ; un profil créé par l’entreprise reste neutre et son nom n’est pas traduit. « Actif » est en vert, « En attente / désactivé » en rouge.
 
 Les feuilles de la sidebar et de l’accueil remplacent les anciennes chaînes CSS injectées. Les feuilles partagées habillent les classes déjà utilisées par les modules, y compris les composants chargés tardivement. Les nouvelles préférences d’affichage restent locales au navigateur et séparées des données métier.
 

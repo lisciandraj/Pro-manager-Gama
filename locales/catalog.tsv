@@ -4143,3 +4143,7 @@ múltiplo:	multiple :	multiple:
 {0} listas	{0} prêtes	{0} ready
 {0} importadas	{0} importées	{0} imported
 {0} errores	{0} erreurs	{0} errors
+Pendiente / desactivado	En attente / désactivé	Pending / deactivated
+No se pudieron leer los usuarios	Impossible de lire les utilisateurs	Could not read the users
+1 usuario	1 utilisateur	1 user
+{0} cuenta(s) pendiente(s) de aprobación. Mientras no las apruebes no pueden leer ningún dato.	{0} compte(s) en attente d’approbation. Tant que vous ne les approuvez pas, ils ne peuvent lire aucune donnée.	{0} account(s) awaiting approval. Until you approve them they cannot read any data.

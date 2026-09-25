@@ -29,13 +29,15 @@ async function init(){
     }
 
     window.addEventListener('gama:access-profiles-change',()=>{if(window.ArcRouter.current==='users')load()});
+    // Fechas y horas en el formato del idioma elegido.
+    window.addEventListener('gama:language-change',()=>{if(window.ArcRouter.current==='users')load()});
   }catch(e){console.warn('[GAMA Cloud Users] init failed',e)}
 }
 function patch(){
   let s=document.getElementById('users');
   if(!s){s=document.createElement('section');s.id='users';(document.querySelector('.wrap')||document.body).appendChild(s)}
   if(s.querySelector('.cloudUsersV17'))return;
-  window.ArcUI.render(s,`${window.GamaUI.header({title:'Usuarios y accesos',lead:'Quién entra en Coco ERP y con qué permisos.'})}<div class="arcPanel card cloudUsersV17"><div class="cuBar"><h3 data-gi=a1a13eae50f0>Usuarios cloud</h3><span class="cuOnline"><i></i> Cloud conectado</span></div><div id="cuPending" class="cuPending" hidden></div><div id="cuStatus" class="cuStatus" data-gi=633d7ba5f776>Cargando usuarios…</div><div class="cuTable"><table class="arcTable"><thead><tr><th data-gi=562bb15757a8>Nombre</th><th data-gi=969ccbd3cf63>Email</th><th data-gi=fb9f51fe9250>Rol</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th data-gi=fb89a30ba7f6>Acciones</th></tr></thead><tbody id="cuRows"></tbody></table></div><div class="cuFoot"><span id="cuCount">0 usuarios</span><span data-gi=49469fa2cf35>● Actualización automática activa</span></div></div>`);
+  window.ArcUI.render(s,`${window.GamaUI.header({title:'Usuarios y accesos',lead:'Quién entra en Coco ERP y con qué permisos.'})}<div class="arcPanel card cloudUsersV17"><div class="cuBar"><h3 data-gi=a1a13eae50f0>Usuarios cloud</h3><span class="cuOnline"><i></i> <span data-gi=f0c9e4e7c1ee>Cloud conectado</span></span></div><div id="cuPending" class="cuPending" data-gi-live hidden></div><div id="cuStatus" class="cuStatus" data-gi=633d7ba5f776>Cargando usuarios…</div><div class="cuTable"><table class="arcTable"><thead><tr><th data-gi=562bb15757a8>Nombre</th><th data-gi=969ccbd3cf63>Email</th><th data-gi=fb9f51fe9250>Rol</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th data-gi=fb89a30ba7f6>Acciones</th></tr></thead><tbody id="cuRows"></tbody></table></div><div class="cuFoot"><span id="cuCount">0 usuarios</span><span data-gi=49469fa2cf35>● Actualización automática activa</span></div></div>`);
   window.GamaUI.bindBack(s);
   if(!document.getElementById('cuStyle')){const st=document.createElement('style');st.id='cuStyle';document.head.appendChild(st)}
 }
@@ -54,18 +56,22 @@ async function load(){
     const ROLES=window.GamaRoleAccess.options();
     const key=x=>x.access_profile||(window.ArcModules.roleAliases[x.role]||x.role);
     const label=x=>ROLES.find(r=>r.id===key(x))?.label||ROLE[x.role]||x.role;
+    /* Cada perfil de base tiene su color; un perfil creado por la empresa va en
+       neutro y su nombre, escrito por ella, no se traduce. */
+    const builtIn=x=>['admin','commercial','magasinier','rh','client'].includes(key(x));
+    const locale=window.GamaI18n?.locale||'es-EC';
     window.ArcUI.render(body,rows.length?rows.map(x=>{
       const self=x.id===selfId;
       const actions=self?'<b data-gi=d30c5ae09ef0>Tu cuenta</b>':
         `<select data-cu-role="${esc(x.id)}">${ROLES.map(r=>`<option value="${esc(r.id)}"${r.id===key(x)?' selected':''} ${r.custom?'data-gi-ignore':'data-gi-live'}>${esc(r.label)}</option>`).join('')}</select> `+
         `<button class="arcButton ${x.active===false?'primary':'secondary'}" data-cu-toggle="${esc(x.id)}" data-cu-next="${x.active===false?'1':'0'}" data-gi-live>${x.active===false?'Aprobar':'Desactivar'}</button>`;
-      return `<tr><td><b>${esc(x.full_name||'Sin nombre')}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge">${esc(label(x))}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}">${x.active===false?'● Pendiente / desactivado':'● Activo'}</td><td>${x.created_at?new Date(x.created_at).toLocaleString('es-EC'):'—'}</td><td>${actions}</td></tr>`;
+      return `<tr><td><b>${x.full_name?esc(x.full_name):'<span data-gi-live data-gi=c4dc040a07c5>Sin nombre</span>'}</b><br><span class="cuId">${esc(x.id)}</span></td><td>${esc(x.email||'—')}</td><td><span class="cuBadge" data-role="${builtIn(x)?esc(key(x)):'custom'}"${builtIn(x)?' data-gi-live':''}>${esc(label(x))}</span></td><td class="${x.active===false?'cuInactive':'cuActive'}"><span class="cuState" data-gi-live>${x.active===false?'Pendiente / desactivado':'Activo'}</span></td><td>${x.created_at?esc(new Date(x.created_at).toLocaleString(locale)):'—'}</td><td>${actions}</td></tr>`;
     }).join(''):'<tr><td colspan="6" data-gi=ed24da31a76e>No se encontraron usuarios en Supabase.</td></tr>');
     wireActions();
     const pending=rows.filter(x=>x.active===false).length, banner=document.getElementById('cuPending');
     if(banner){banner.hidden=!pending;banner.textContent=pending?`${pending} cuenta(s) pendiente(s) de aprobación. Mientras no las apruebes no pueden leer ningún dato.`:'';}
-    document.getElementById('cuCount').textContent=`${rows.length} utilisateur${rows.length>1?'s':''}`;
-    status.textContent=`Última sincronización: ${new Date().toLocaleTimeString('es-EC')}`;
+    document.getElementById('cuCount').textContent=rows.length===1?'1 usuario':`${rows.length} usuarios`;
+    status.textContent=`Última sincronización: ${new Date().toLocaleTimeString(locale)}`;
   }catch(e){
     console.error('[GAMA Cloud Users]',e);
     status.textContent='No se pudieron leer los usuarios: '+(e.message||e);

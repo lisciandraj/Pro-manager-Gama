@@ -47,3 +47,5 @@
 #assistant-ia .ai-empty{padding:20px 0;color:var(--arc-text-muted)}
 @media(max-width:850px){#assistant-ia .ai-layout{grid-template-columns:1fr}#assistant-ia .ai-sidebar{order:2}#assistant-ia .ai-history{max-height:240px}#assistant-ia .ai-panel,#assistant-ia .ai-answer{padding:16px}#assistant-ia .ai-status{align-items:start;flex-wrap:wrap}#assistant-ia .ai-question{margin-left:4%}}
 @media(max-width:450px){#assistant-ia .ai-tools button{flex:1}#assistant-ia .ai-period label{min-width:120px}#assistant-ia .ai-answer h3{font-size:20px}}
+
+.ai-insight-kpis{margin:10px 0 14px;font-size:14px}.ai-insight-kpis strong{font-size:18px}.ai-layout #cocoInventoryInsights{margin-bottom:14px}

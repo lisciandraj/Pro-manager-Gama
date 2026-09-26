@@ -329,11 +329,14 @@
     const saved = (_a = window.GamaTable) == null ? void 0 : _a.sourceSort(host);
     const state = { page: 0, pageSize: 20, search: "", ...initial, ...saved && columns.some((c) => c.sort === saved.col) ? { sort: saved.col, ascending: saved.dir !== "desc" } : {} };
     const sortBy = async (col, dir) => {
-      var _a2, _b;
-      const active = document.activeElement, control = (active == null ? void 0 : active.hasAttribute("data-table-sort")) ? "[data-table-sort]" : (active == null ? void 0 : active.hasAttribute("data-table-direction")) ? "[data-table-direction]" : null;
+      var _a2, _b, _c;
+      const active = document.activeElement, header2 = active == null ? void 0 : active.closest("th"), column = header2 == null ? void 0 : header2.cellIndex;
       (_a2 = window.GamaTable) == null ? void 0 : _a2.sourceSort(host, col ? { col, dir } : null);
       await refresh({ page: 0, sort: col || initial.sort, ascending: col ? dir !== "desc" : initial.ascending !== false });
-      if (control && document.activeElement === document.body) (_b = host.querySelector(control)) == null ? void 0 : _b.focus({ preventScroll: true });
+      if (column != null && document.activeElement === document.body) {
+        const next = (_b = host.querySelector("thead tr")) == null ? void 0 : _b.cells[column];
+        (_c = (next == null ? void 0 : next.querySelector("button")) || next) == null ? void 0 : _c.focus({ preventScroll: true });
+      }
     };
     async function refresh(patch = {}) {
       var _a2;
@@ -515,6 +518,14 @@
     salePriceB: number(p.sale_price_b),
     purchasePrice: number(p.purchase_price),
     taxRate: Number(p.tax_rate ?? 15),
+    productKind: p.product_kind || "goods",
+    baseUnit: text(p.base_unit),
+    orderMinimum: number(p.order_minimum),
+    orderMultiple: number(p.order_multiple),
+    lotTracking: !!p.lot_tracking,
+    lotTrackingSince: text(p.lot_tracking_since),
+    createdAt: text(p.created_at),
+    updatedAt: text(p.updated_at),
     active: p.active !== false,
     hasPhoto: !!(p.has_photo || p.photo_data),
     photo: text(p.photo_data)
@@ -537,7 +548,7 @@
   const entities = {
     suppliers: { table: "suppliers", select: "id,name,tax_id,contact_name,phone,email,city,address,province,postal_code,country,notes,active,created_at,updated_at", order: "name", search: ["name", "tax_id", "contact_name", "email", "phone", "city"], fromRow: supplierFromRow, toRow: supplierToRow },
     customers: { table: "customers", select: "id,name,identification,category,address,phone,email,city,province,notes,payment_terms_days,active,created_at,updated_at", order: "name", search: ["name", "identification", "email", "phone", "city"], fromRow: customerFromRow },
-    products: { table: "products", select: "id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,created_at,updated_at", order: "name", search: ["name", "barcode", "reference", "category"], fromRow: productFromRow }
+    products: { table: "products", select: "id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,product_kind,base_unit,order_minimum,order_multiple,lot_tracking,lot_tracking_since,created_at,updated_at", order: "name", search: ["name", "barcode", "reference", "category"], fromRow: productFromRow }
   };
   const supplierFields = [
     { id: "supName", key: "name", label: "Nombre / razón social", required: true, maxLength: 300 },
@@ -1420,17 +1431,30 @@
       } },
       { key: "barcode", label: "Código", sort: "barcode" },
       { key: "name", label: "Producto", sort: "name" },
+      { key: "reference", label: "Referencia", sort: "reference" },
+      { key: "family", label: "Familia", sort: "family" },
+      { key: "category", label: "Categoría", sort: "category" },
+      { key: "lines", label: "Líneas", sort: "lines" },
       { key: "brand", label: "Marca", sort: "brand" },
-      { key: "stock", label: "Stock", numeric: true, sort: "stock" },
-      { label: "Precio compra", sort: "purchase_price", value: (p) => format.money(p.purchasePrice), numeric: true },
-      { label: "Venta A", value: (p) => format.money(p.salePrice), numeric: true, sort: "sale_price" },
-      { label: "Venta B", sort: "sale_price_b", value: (p) => format.money(p.salePriceB), numeric: true },
-      { label: "IVA", sort: "tax_rate", value: (p) => format.number(p.taxRate) + " %" },
+      { key: "presentation", label: "Presentación", sort: "presentation" },
+      { key: "description", label: "Descripción", sort: "description" },
+      { key: "productKind", label: "Tipo de producto", sort: "product_kind", value: (p) => translate(p.productKind === "service" ? "Servicio" : "Artículo almacenado") },
+      { key: "baseUnit", label: "Unidad base", sort: "base_unit" },
       { key: "location", label: "Ubicación", sort: "location" },
       { label: "Proveedor", sort: "supplier_name", value: (p) => {
         var _a;
         return ((_a = (window.ArcEntities.suppliersCache || []).find((s) => s.id === p.supplierId)) == null ? void 0 : _a.name) || "—";
       } },
+      ...[["stock", "Stock", "stock"], ["minStock", "Stock mínimo", "min_stock"], ["maxStock", "Stock máximo", "max_stock"], ["orderMinimum", "Pedido mínimo", "order_minimum"], ["orderMultiple", "Múltiplo de pedido", "order_multiple"], ["qtyPerCarton", "Cantidad por cartón", "qty_per_carton"], ["weightG", "Peso (g)", "weight_g"], ["volumeCm3", "Volumen (cm³)", "volume_cm3"]].map(([key, label, sort]) => ({ key, label, sort, numeric: true, value: (p) => format.number(p[key]) })),
+      { label: "Precio compra", sort: "purchase_price", value: (p) => format.money(p.purchasePrice), numeric: true },
+      { label: "Venta A", value: (p) => format.money(p.salePrice), numeric: true, sort: "sale_price" },
+      { label: "Venta B", sort: "sale_price_b", value: (p) => format.money(p.salePriceB), numeric: true },
+      { label: "IVA", sort: "tax_rate", value: (p) => format.number(p.taxRate) + " %" },
+      { key: "lotTracking", label: "Seguimiento por lotes", sort: "lot_tracking", value: (p) => translate(p.lotTracking ? "Sí" : "No") },
+      { key: "lotTrackingSince", label: "Seguimiento activado el", sort: "lot_tracking_since", value: (p) => format.date(p.lotTrackingSince) },
+      { key: "active", label: "Estado", sort: "active", value: (p) => translate(p.active ? "Activo" : "Archivado") },
+      { key: "createdAt", label: "Fecha de creación", sort: "created_at", value: (p) => format.date(p.createdAt) },
+      { key: "updatedAt", label: "Última modificación", sort: "updated_at", value: (p) => format.date(p.updatedAt) },
       { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
     ]
   };

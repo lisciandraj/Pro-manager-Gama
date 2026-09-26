@@ -86,7 +86,7 @@ async function source(req){
  const box=$('ctArchive');if(box)box.innerHTML=window.GamaArchive.tabs(ARCHIVE,all.filter(r=>r.active).length,all.filter(r=>!r.active).length);
  const terms=norm(req.search).split(/\s+/).filter(Boolean);
  let items=all.filter(r=>r.active!==archived&&matches(r,terms));
- const by={name:r=>r.name,kind:r=>T(kindOf(r.kind).one),city:r=>r.city||'',ref:r=>r.ref||'',phone:r=>r.phone||'',email:r=>r.email||''}[req.sort];
+ const by=Object.fromEntries([...Object.entries({name:r=>r.name,kind:r=>T(kindOf(r.kind).one),city:r=>r.city||'',ref:r=>r.ref||'',phone:r=>r.phone||'',email:r=>r.email||''}),...extraColumns.map(([key,,value])=>[key,value])])[req.sort];
  if(by)items=[...items].sort((a,b)=>window.GamaTable.compare(by(a),by(b),req.ascending===false?'desc':'asc'));
  return {items:items.slice(req.page*req.pageSize,(req.page+1)*req.pageSize),total:items.length,page:req.page,pageSize:req.pageSize};
 }
@@ -100,6 +100,18 @@ function actions(r){
  else{out.push(b('Restaurar','data-ct-restore'));if(r.kind!=='prospects')out.push(b('Borrar definitivamente','data-ct-purge','danger'))}
  return out.join(' ');
 }
+const extraColumns=[
+ ['address','Dirección',r=>r.record.address],['province','Provincia',r=>r.record.province],
+ ['postalCode','Código postal',r=>r.record.postalCode],['country','País',r=>r.record.country],
+ ['contactName','Persona de contacto',r=>r.record.contactName],
+ ['category','Categoría de precios',r=>r.kind==='clients'?r.record.category:null],
+ ['terms','Plazo de pago (días)',r=>r.kind==='clients'?r.record.paymentTermsDays:null],
+ ['firstName','Nombre de pila',r=>r.record.first_name],['lastName','Apellidos',r=>r.record.last_name],
+ ['jobTitle','Cargo',r=>r.record.job_title],
+ ['role','Papel en la decisión',r=>r.record.decision_role?T(PAPELES.find(p=>p[0]===r.record.decision_role)?.[1]||r.record.decision_role):null],
+ ['linkedin','LinkedIn',r=>r.record.linkedin],['primary','Contacto principal',r=>r.kind==='prospects'?T(r.record.is_primary?'Sí':'No'):null],
+ ['notes','Observaciones',r=>r.record.notes],['active','Estado',r=>T(r.active?'Activo':'Archivado')]
+];
 const columns=()=>[
  {label:'Nombre',sort:'name',html:r=>`<b>${esc(r.name)}</b>${r.detail?`<small class="ctSub">${esc(r.detail)}</small>`:''}`},
  {label:'Tipo',sort:'kind',html:r=>`<span class="ctBadge" data-kind="${r.kind}">${esc(T(kindOf(r.kind).one))}</span>`},
@@ -107,6 +119,7 @@ const columns=()=>[
  {label:'Teléfono',sort:'phone',value:r=>r.phone||'—'},
  {label:'Correo',sort:'email',value:r=>r.email||'—'},
  {label:'Ciudad',sort:'city',value:r=>r.city||'—'},
+ ...extraColumns.map(([sort,label,value])=>({sort,label,value:r=>value(r)??'—'})),
  {label:'Acciones',actions:true,html:actions}
 ];
 const find=key=>(rows||[]).find(r=>r.key===key);

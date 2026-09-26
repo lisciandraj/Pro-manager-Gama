@@ -220,14 +220,6 @@ function controls(t,state){
  if(state.signature!==signature){
   state.signature=signature;state.controls?.remove();
   const box=document.createElement('div');box.className='gamaTableControls';box.setAttribute('translate','no');box.dataset.giIgnore='';
-  const makeSelect=(name,values)=>{const label=document.createElement('label'),span=document.createElement('span'),select=document.createElement('select');span.textContent=name;select.dataset.gamaNofind='';select.setAttribute('aria-label',name);for(const [value,text] of values)select.add(new Option(text,value));label.append(span,select);box.append(label);return select};
-  const available=cols.filter(c=>c.h.dataset.columnKind!=='actions'&&c.h.dataset.columnKind!=='decorative'&&(!source||source.column(c.h,c.i)!=null));
-  state.sort=makeSelect(w.sort,[['',w.initial],...available.map(c=>[String(c.i),c.label])]);state.sort.dataset.tableSort='';
-  state.direction=makeSelect(w.direction,[['asc',w.asc],['desc',w.desc]]);state.direction.dataset.tableDirection='';
-  const change=()=>{const c=cols[Number(state.sort.value)],col=state.sort.value===''?null:c,dir=state.direction.value;
-   if(source)source.set(col?source.column(col.h,col.i):null,dir);
-   else{const data=read(key)||{};data.sort=col?{col:col.key,dir}:null;save(key,data);sortRows(t,state,col?.i,dir);controls(t,state)};
-  };state.sort.onchange=change;state.direction.onchange=change;
   const details=document.createElement('details');details.className='gamaColumnPicker';const summary=document.createElement('summary');summary.textContent=w.columns;details.append(summary);
   const list=document.createElement('div');list.className='gamaColumnOptions';
   cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
@@ -237,12 +229,38 @@ function controls(t,state){
   state.controls=box;state.toolbar.prepend(box);
  }
  const selected=cols.find(c=>String(source?source.column(c.h,c.i):c.key)===String(current?.col));
- state.sort.value=selected?String(selected.i):'';state.direction.value=current?.dir==='desc'?'desc':'asc';state.direction.disabled=!selected;
+ state.current=current;
+ state.available=cols.filter(c=>c.h.dataset.columnKind!=='actions'&&c.h.dataset.columnKind!=='decorative'&&nombreDeColumna(c.h)&&(!source||source.column(c.h,c.i)!=null));
+ headers(t,state,selected);
  state.controls.querySelectorAll('[data-table-column]').forEach(input=>{input.checked=!hidden.includes(input.dataset.tableColumn);input.disabled=input.checked&&cols.length-hidden.length===1;input.title=input.disabled?w.visible:''});
  state.controls.querySelector('summary').textContent=w.columns+' ('+(cols.length-hidden.length)+'/'+cols.length+')';
  applyColumns(t,cols,hidden);
  if(!source)sortRows(t,state,selected?.i,current?.dir);
  cols.forEach(c=>c.h.setAttribute('aria-sort',c===selected?(current.dir==='desc'?'descending':'ascending'):'none'));
+}
+function headers(t,state,selected){
+ const w=cw();
+ for(const c of state.available){
+  const h=c.h;h.classList.add('gamaClickableHeader');
+  if(!h.querySelector('button'))h.tabIndex=0;
+  const next=c===selected&&state.current?.dir==='asc'?'desc':'asc';
+  h.title=w.sort+' '+c.label+' · '+w[next]+(!state.source?' · '+w.scope:'');
+  let indicator=h.querySelector('.gamaSortInd,.arcSort [aria-hidden="true"]');
+  if(!indicator){indicator=document.createElement('span');indicator.className='gamaSortInd';indicator.setAttribute('aria-hidden','true');h.append(indicator)}
+  const text=c===selected?(state.current.dir==='desc'?' ▼':' ▲'):' ⇅';if(indicator.textContent!==text)indicator.textContent=text;
+ }
+ if(state.headerBound)return;state.headerBound=true;
+ const activate=e=>{
+  const h=e.target.closest('th');if(!h||h.closest('table')!==t||e.target.closest('input,select,textarea,a'))return;
+  const c=state.available.find(c=>c.h===h);if(!c)return;
+  if(e.type==='keydown'&&!['Enter',' '].includes(e.key))return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const col=state.source?state.source.column(h,c.i):c.key;
+  const dir=state.current?.col===col&&state.current.dir==='asc'?'desc':'asc';
+  if(state.source)state.source.set(col,dir);
+  else{const data=read(state.key)||{};data.sort={col,dir};save(state.key,data);controls(t,state)}
+ };
+ t.addEventListener('click',activate,true);t.addEventListener('keydown',activate,true);
 }
 function scan(root=document){
  const tables=new Set([...(root.querySelectorAll?.('table')||[]),...(root.closest?.('table')?[root.closest('table')]:[])]);

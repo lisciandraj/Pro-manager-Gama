@@ -7,11 +7,24 @@ const $=id=>document.getElementById(id);
 const directoryColumns={
  products:[
   {label:'Foto',decorative:true,html:p=>window.gamaPhotoCell?.(legacyProduct({id:p.id,name:p.name,has_photo:p.hasPhoto}))||''},
-  {key:'barcode',label:'Código',sort:'barcode'},{key:'name',label:'Producto',sort:'name'},{key:'brand',label:'Marca',sort:'brand'},
-  {key:'stock',label:'Stock',numeric:true,sort:'stock'},{label:'Precio compra',sort:'purchase_price',value:p=>format.money(p.purchasePrice),numeric:true},
-  {label:'Venta A',value:p=>format.money(p.salePrice),numeric:true,sort:'sale_price'},{label:'Venta B',sort:'sale_price_b',value:p=>format.money(p.salePriceB),numeric:true},
-  {label:'IVA',sort:'tax_rate',value:p=>format.number(p.taxRate)+' %'},{key:'location',label:'Ubicación',sort:'location'},
+  {key:'barcode',label:'Código',sort:'barcode'},{key:'name',label:'Producto',sort:'name'},
+  {key:'reference',label:'Referencia',sort:'reference'},
+  {key:'family',label:'Familia',sort:'family'},{key:'category',label:'Categoría',sort:'category'},
+  {key:'lines',label:'Líneas',sort:'lines'},{key:'brand',label:'Marca',sort:'brand'},
+  {key:'presentation',label:'Presentación',sort:'presentation'},{key:'description',label:'Descripción',sort:'description'},
+  {key:'productKind',label:'Tipo de producto',sort:'product_kind',value:p=>t(p.productKind==='service'?'Servicio':'Artículo almacenado')},
+  {key:'baseUnit',label:'Unidad base',sort:'base_unit'},
+  {key:'location',label:'Ubicación',sort:'location'},
   {label:'Proveedor',sort:'supplier_name',value:p=>(window.ArcEntities.suppliersCache||[]).find(s=>s.id===p.supplierId)?.name||'—'},
+  ...[['stock','Stock','stock'],['minStock','Stock mínimo','min_stock'],['maxStock','Stock máximo','max_stock'],['orderMinimum','Pedido mínimo','order_minimum'],['orderMultiple','Múltiplo de pedido','order_multiple'],['qtyPerCarton','Cantidad por cartón','qty_per_carton'],['weightG','Peso (g)','weight_g'],['volumeCm3','Volumen (cm³)','volume_cm3']].map(([key,label,sort])=>({key,label,sort,numeric:true,value:p=>format.number(p[key])})),
+  {label:'Precio compra',sort:'purchase_price',value:p=>format.money(p.purchasePrice),numeric:true},
+  {label:'Venta A',value:p=>format.money(p.salePrice),numeric:true,sort:'sale_price'},{label:'Venta B',sort:'sale_price_b',value:p=>format.money(p.salePriceB),numeric:true},
+  {label:'IVA',sort:'tax_rate',value:p=>format.number(p.taxRate)+' %'},
+  {key:'lotTracking',label:'Seguimiento por lotes',sort:'lot_tracking',value:p=>t(p.lotTracking?'Sí':'No')},
+  {key:'lotTrackingSince',label:'Seguimiento activado el',sort:'lot_tracking_since',value:p=>format.date(p.lotTrackingSince)},
+  {key:'active',label:'Estado',sort:'active',value:p=>t(p.active?'Activo':'Archivado')},
+  {key:'createdAt',label:'Fecha de creación',sort:'created_at',value:p=>format.date(p.createdAt)},
+  {key:'updatedAt',label:'Última modificación',sort:'updated_at',value:p=>format.date(p.updatedAt)},
   {label:'Acciones',actions:true,html:p=>ui.button({label:t('Unidades e historial'),attrs:'data-product-controls="'+esc(p.id)+'"'})+' '+(p.active?ui.button({label:t('Editar'),attrs:'data-edit="'+esc(p.id)+'"'})+' '+ui.button({label:t('Archivar'),variant:'danger',attrs:'data-archive="'+esc(p.id)+'"'}):ui.button({label:t('Restaurar'),attrs:'data-restore="'+esc(p.id)+'"'})+' '+ui.button({label:t('Borrar definitivamente'),variant:'danger',attrs:'data-delete="'+esc(p.id)+'"'}))}
  ]
 };

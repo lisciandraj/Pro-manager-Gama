@@ -59,7 +59,7 @@ test('el componente de tabla declara cabeceras y etiquetas de columna explícita
   expect(await page.evaluate(() => document.querySelectorAll('#productsTable thead').length)).toBe(1);
   const c = await celdas(page, '#productsTable table');
   expect(c.map(x => x.col)).toEqual(
-    ['', 'Código', 'Producto', 'Marca', 'Stock', 'Precio compra', 'Venta A', 'Venta B', 'IVA', 'Ubicación', 'Proveedor', '']);
+    ['', 'Código', 'Producto', 'Referencia', 'Familia', 'Categoría', 'Líneas', 'Marca', 'Presentación', 'Descripción', 'Tipo de producto', 'Unidad base', 'Ubicación', 'Proveedor', 'Stock', 'Stock mínimo', 'Stock máximo', 'Pedido mínimo', 'Múltiplo de pedido', 'Cantidad por cartón', 'Peso (g)', 'Volumen (cm³)', 'Precio compra', 'Venta A', 'Venta B', 'IVA', 'Seguimiento por lotes', 'Seguimiento activado el', 'Estado', 'Fecha de creación', 'Última modificación', '']);
   // La fila de cabecera se esconde: en fichas sería una ficha de titulares.
   expect(await page.evaluate(() =>
     getComputedStyle(document.querySelector('#productsTable [data-gama-head]')).display)).toBe('none');

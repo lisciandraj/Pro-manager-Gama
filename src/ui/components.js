@@ -185,9 +185,9 @@ export function dataTable(host,{columns,source,searchInput,actions={},empty,clas
   const saved=window.GamaTable?.sourceSort(host);
   const state={page:0,pageSize:20,search:'',...initial,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
   const sortBy=async(col,dir)=>{
-    const active=document.activeElement,control=active?.hasAttribute('data-table-sort')?'[data-table-sort]':active?.hasAttribute('data-table-direction')?'[data-table-direction]':null;
+    const active=document.activeElement,header=active?.closest('th'),column=header?.cellIndex;
     window.GamaTable?.sourceSort(host,col?{col,dir}:null);await refresh({page:0,sort:col||initial.sort,ascending:col?dir!=='desc':initial.ascending!==false});
-    if(control&&document.activeElement===document.body)host.querySelector(control)?.focus({preventScroll:true});
+    if(column!=null&&document.activeElement===document.body){const next=host.querySelector('thead tr')?.cells[column];(next?.querySelector('button')||next)?.focus({preventScroll:true});}
   };
   async function refresh(patch={}) {
     Object.assign(state,patch);const token=++generation;host.setAttribute('aria-busy','true');

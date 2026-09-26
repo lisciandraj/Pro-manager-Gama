@@ -6,10 +6,12 @@
 'use strict';
 const state={}, renderers={};
 
-function get(key){return state[key]||null}
+function storageKey(key){let s={};try{s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}')}catch(_){}return 'architect_sort_v1:'+(s.userId||s.id||s.email||s.name||s.role||'guest')+':'+key}
+function get(key){try{return JSON.parse(localStorage.getItem(storageKey(key))||'null')}catch(_){return state[storageKey(key)]||null}}
 function register(key,fn){renderers[key]=fn}
 function set(key,col,dir){
- state[key]={col,dir:dir==='desc'?'desc':'asc'};
+ const value=col==null?null:{col,dir:dir==='desc'?'desc':'asc'};state[storageKey(key)]=value;
+ try{localStorage.setItem(storageKey(key),JSON.stringify(value))}catch(_){}
  if(window.GamaPage&&GamaPage.reset)GamaPage.reset(key);
  const fn=renderers[key];if(typeof fn==='function')fn();
 }
@@ -25,7 +27,7 @@ function th(key,col,label,align){
  const s=get(key),on=s&&s.col===col;
  const ind=on?(s.dir==='asc'?'▲':'▼'):'⇅';
  const aria=on?(s.dir==='asc'?'ascending':'descending'):'none';
- return '<th class="gamaSortTh'+(on?' on':'')+(align==='right'?' r':'')+'" aria-sort="'+aria+'"'
+ return '<th data-gama-sort-key="'+esc(key)+'" data-gama-sort-col="'+esc(col)+'" class="gamaSortTh'+(on?' on':'')+(align==='right'?' r':'')+'" aria-sort="'+aria+'"'
   +' onclick="GamaSort.go(\''+esc(key)+'\',\''+esc(col)+'\')" title="'+esc(tr('Ordenar por')+' '+tr(label))+'">'
   +'<span data-gi-live>'+esc(label)+'</span> <span class="gamaSortInd">'+ind+'</span></th>';
 }
@@ -38,6 +40,7 @@ function apply(key,rows,accessors){
  const pick=accessors[s.col],sign=s.dir==='desc'?-1:1;
  return rows.slice().sort((a,b)=>{
   const av=pick(a),bv=pick(b);
+  if(window.GamaTable)return window.GamaTable.compare(av,bv,s.dir);
   const an=typeof av==='number',bn=typeof bv==='number';
   if(an&&bn)return (av-bv)*sign;
   // Los vacíos siempre al final, ordenes ascendente o descendente.

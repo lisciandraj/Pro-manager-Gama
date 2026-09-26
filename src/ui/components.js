@@ -172,8 +172,8 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
 }
 export function table({columns,items,empty=t('No hay resultados.'),className='',rowAttributes=()=>''}) {
   const titleIndex=columns.findIndex(c=>!c.decorative);
-  const html=items.length?items.map(item=>`<tr ${rowAttributes(item)}>${columns.map((col,i)=>`<td data-col="${esc(col.decorative||col.actions?'':t(col.label))}"${i===titleIndex?' data-gama-title':''}${col.numeric?' class="arcNumeric"':''}>${col.html?col.html(item):esc(col.value?col.value(item):item[col.key] ?? '')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${columns.length}" class="arcEmpty">${esc(empty)}</td></tr>`;
-  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map(col=>`<th scope="col"${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}">${esc(t(col.label))} <span aria-hidden="true">⇅</span></button>`:esc(t(col.label))}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
+  const html=items.length?items.map(item=>`<tr ${rowAttributes(item)}>${columns.map((col,i)=>`<td data-col="${esc(col.decorative||col.actions?'':t(col.label))}"${i===titleIndex?' data-gama-title':''}${col.sortValue?` data-sort-value="${esc(col.sortValue(item)??'')}"${typeof col.sortValue(item)==='number'?' data-sort-type="number"':''}`:col.key&&typeof item[col.key]==='number'?` data-sort-value="${item[col.key]}" data-sort-type="number"`:''}${col.numeric?' class="arcNumeric"':''}>${col.html?col.html(item):esc(col.value?col.value(item):item[col.key] ?? '')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${columns.length}" class="arcEmpty">${esc(empty)}</td></tr>`;
+  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map((col,i)=>`<th scope="col" data-column-key="${esc(col.sort||col.key||String(i))}"${col.actions?' data-column-kind="actions"':col.decorative?' data-column-kind="decorative"':''}${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}">${esc(t(col.label))} <span aria-hidden="true">⇅</span></button>`:esc(t(col.label))}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
 }
 export function pager({page=0,pageSize=20,total=0}={}) {
   if(total<=pageSize)return '';
@@ -182,18 +182,25 @@ export function pager({page=0,pageSize=20,total=0}={}) {
 }
 export function dataTable(host,{columns,source,searchInput,actions={},empty,className='',initial={}}) {
   let disposed=false,generation=0,timer;
-  const state={page:0,pageSize:20,search:'',...initial};
+  const saved=window.GamaTable?.sourceSort(host);
+  const state={page:0,pageSize:20,search:'',...initial,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
+  const sortBy=async(col,dir)=>{
+    const active=document.activeElement,control=active?.hasAttribute('data-table-sort')?'[data-table-sort]':active?.hasAttribute('data-table-direction')?'[data-table-direction]':null;
+    window.GamaTable?.sourceSort(host,col?{col,dir}:null);await refresh({page:0,sort:col||initial.sort,ascending:col?dir!=='desc':initial.ascending!==false});
+    if(control&&document.activeElement===document.body)host.querySelector(control)?.focus({preventScroll:true});
+  };
   async function refresh(patch={}) {
     Object.assign(state,patch);const token=++generation;host.setAttribute('aria-busy','true');
     if(!host.firstElementChild)host.innerHTML='<p role="status">'+esc(t('Cargando…'))+'</p>';
     try{
       const result=await source({...state});if(disposed||token!==generation||!host.isConnected)return;
       if(result.total>0&&state.page*state.pageSize>=result.total){return refresh({page:Math.max(0,Math.ceil(result.total/state.pageSize)-1)});}
-      host.innerHTML=table({columns,items:result.items,empty,className})+pager(result);mount(host);
+      host.innerHTML=table({columns,items:result.items,empty,className})+pager(result);
+      window.GamaTable?.bind(host.querySelector('table'),{get:()=>state.sort?{col:state.sort,dir:state.ascending===false?'desc':'asc'}:null,set:sortBy,column:(_,i)=>columns[i].sort??null});mount(host);
     }catch(e){if(!disposed&&token===generation){host.innerHTML='<p role="alert">'+esc(errorMessage(e))+'</p>'+button({label:t('Reintentar'),attrs:'data-arc-retry'});}}
     finally{if(token===generation)host.removeAttribute('aria-busy');}
   }
-  function click(e){const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-arc-page'))refresh({page:Math.max(0,state.page+Number(b.dataset.arcPage))});else if(b.hasAttribute('data-arc-sort'))refresh({page:0,sort:b.dataset.arcSort,ascending:state.sort===b.dataset.arcSort?!state.ascending:true});else if(b.hasAttribute('data-arc-retry'))refresh();else for(const [attribute,callback] of Object.entries(actions)){if(b.hasAttribute(attribute)){callback(b.getAttribute(attribute),b);break;}}}
+  function click(e){const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-arc-page'))refresh({page:Math.max(0,state.page+Number(b.dataset.arcPage))});else if(b.hasAttribute('data-arc-sort'))sortBy(b.dataset.arcSort,state.sort===b.dataset.arcSort&&state.ascending!==false?'desc':'asc');else if(b.hasAttribute('data-arc-retry'))refresh();else for(const [attribute,callback] of Object.entries(actions)){if(b.hasAttribute(attribute)){callback(b.getAttribute(attribute),b);break;}}}
   const search=()=>{clearTimeout(timer);timer=setTimeout(()=>refresh({page:0,search:searchInput.value}),200);};
   host.addEventListener('click',click);searchInput?.addEventListener('input',search);refresh();
   return {refresh,state,dispose(){disposed=true;++generation;clearTimeout(timer);host.removeEventListener('click',click);searchInput?.removeEventListener('input',search);}};

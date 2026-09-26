@@ -118,7 +118,7 @@ const icons={
  cards:svg('<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'),
  table:svg('<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>')
 };
-function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
+function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.userId||s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){
  const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
@@ -132,11 +132,117 @@ function layout(t){
  if(!state){
   const bar=document.createElement('div');bar.className='gamaTableViews';bar.setAttribute('role','group');bar.setAttribute('translate','no');
   for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.innerHTML=icons[mode];b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
-  state={bar};layouts.set(t,state);
+  const toolbar=document.createElement('div');toolbar.className='gamaTableToolbar';toolbar.append(bar);
+  state={bar,toolbar};layouts.set(t,state);
  }
  if(!t.parentElement.classList.contains('gamaTableViewport')){const viewport=document.createElement('div');viewport.className='gamaTableViewport';t.before(viewport);viewport.append(t)}
- const viewport=t.parentElement;if(state.bar.nextElementSibling!==viewport)viewport.before(state.bar);
+ const viewport=t.parentElement;if(state.toolbar.nextElementSibling!==viewport)viewport.before(state.toolbar);
  refreshLayout(t,state);
+ controls(t,state);
+}
+
+/* One column chooser for both modern and legacy tables. Data sources may bind
+   their own sorter; otherwise only the rendered rows are rearranged, in place,
+   preserving form values, handlers, subtotal rows and pagination controls. */
+const sources=new WeakMap();
+const controlLabels={
+ fr:{sort:'Trier par',initial:'Ordre initial',direction:'Ordre',asc:'Croissant',desc:'Décroissant',columns:'Colonnes',all:'Tout afficher',column:'Colonne',actions:'Actions',scope:'Tri des lignes affichées',visible:'Au moins une colonne doit rester visible.'},
+ en:{sort:'Sort by',initial:'Original order',direction:'Order',asc:'Ascending',desc:'Descending',columns:'Columns',all:'Show all',column:'Column',actions:'Actions',scope:'Sort displayed rows',visible:'At least one column must remain visible.'},
+ es:{sort:'Ordenar por',initial:'Orden inicial',direction:'Orden',asc:'Ascendente',desc:'Descendente',columns:'Columnas',all:'Mostrar todas',column:'Columna',actions:'Acciones',scope:'Orden de las filas mostradas',visible:'Debe quedar al menos una columna visible.'}
+};
+const cw=()=>controlLabels[window.GamaI18n?.language]||controlLabels.es;
+function read(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}}
+function save(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){}}
+function sourceKey(host){return 'architect_table_sort_v1:'+account()+':'+(host.id||host.closest('[id]')?.id||'body')}
+function sourceSort(host,value){const key=sourceKey(host);if(arguments.length>1)save(key,value);return read(key)}
+function bind(t,source){if(!t)return;sources.set(t,source);const state=layouts.get(t);if(state)state.signature=null;scan(t)}
+function sorter(t){
+ if(sources.has(t))return sources.get(t);
+ const head=cabecera(t),key=t.dataset.gamaSortKey||head.find(h=>h.dataset.gamaSortKey)?.dataset.gamaSortKey;
+ if(key&&window.GamaSort)return {get:()=>GamaSort.get(key),set:(col,dir)=>GamaSort.set(key,col,dir),column:(h,i)=>h.dataset.gamaSortCol||(t.dataset.gamaSortKey?String(i):null)};
+ return null;
+}
+function columnInfo(t){const seen=new Set();return cabecera(t).map((h,i)=>{let key=h.dataset.columnKey||h.dataset.gamaSortCol||h.getAttribute('data-gi')||String(i);if(seen.has(key))key+=':'+i;seen.add(key);return {h,i,key,label:nombreDeColumna(h)||cw().actions}});}
+function settingsKey(t,cols){return preferenceKey(t).replace('table_view_v1','table_columns_v1')+':'+cols.map(c=>c.key).join('|')}
+function cellValue(cell){
+ if(!cell)return null;
+ if(cell.hasAttribute('data-sort-value'))return cell.dataset.sortType==='number'?Number(cell.dataset.sortValue):cell.dataset.sortValue;
+ const input=cell.querySelector('input,select,textarea');
+ if(input){if(input.type==='checkbox')return Number(input.checked);if(input.type==='number')return input.value===''?null:Number(input.value);if(input.tagName==='SELECT')return input.selectedOptions[0]?.textContent||'';return input.value}
+ const time=cell.querySelector('time[datetime]');if(time)return time.dateTime;
+ const clone=cell.cloneNode(true);clone.querySelectorAll('button,[aria-hidden=true]').forEach(n=>n.remove());
+ const text=clone.textContent.trim();if(!text||/^[—–-]$/.test(text))return null;
+ // Dates are parsed before amounts. Locale-formatted numbers use the active
+ // decimal separator; product references with leading zeroes stay text.
+ const date=text.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{2}|\d{4})(?:[, ]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+ if(date){const y=+date[3]<100?2000+(+date[3]):+date[3];return Date.UTC(y,+date[2]-1,+date[1],+(date[4]||0),+(date[5]||0),+(date[6]||0))}
+ if(/^\d{4}-\d\d-\d\d(?:T|$)/.test(text)){const n=Date.parse(text);if(Number.isFinite(n))return n}
+ let n=text.replace(/[\s\u00a0\u202f$€£%]/g,'').replace(/^(USD|EUR)|(?:USD|EUR)$/gi,'');
+ if(/^[+-]?[\d.,]+$/.test(n)&&!/^0\d/.test(n)){
+  const decimal=new Intl.NumberFormat(window.GamaI18n?.language==='en'?'en-GB':'fr-FR').formatToParts(1.1).find(p=>p.type==='decimal').value;
+  if(n.includes(',')&&n.includes('.')){const d=n.lastIndexOf(',')>n.lastIndexOf('.')?',':'.';n=n.split(d==='.'?',':'.').join('').replace(d,'.')}
+  else {const sep=n.includes(',')?',':'.',parts=n.split(sep);if(parts.length===2&&(sep===decimal||parts[1].length!==3||/^[+-]?0$/.test(parts[0])))n=n.replace(sep,'.');else n=parts.join('')}
+  if(Number.isFinite(Number(n)))return Number(n);
+ }
+ return text;
+}
+function compare(a,b,dir){
+ const empty=x=>x==null||x==='';if(empty(a)||empty(b))return empty(a)?(empty(b)?0:1):-1;
+ const n=typeof a==='number'&&typeof b==='number'?a-b:String(a).localeCompare(String(b),window.GamaI18n?.language||'es',{numeric:true,sensitivity:'base'});
+ return n*(dir==='desc'?-1:1);
+}
+function sortRows(t,state,col,dir){
+ if(!state.original)state.original=new WeakMap();let next=state.nextRow||0;
+ for(const row of t.rows)if(!state.original.has(row))state.original.set(row,next++);state.nextRow=next;
+ for(const body of t.tBodies){
+  let run=[];
+  const flush=()=>{if(run.length<2){run=[];return}const marker=run[run.length-1].nextSibling;
+   const sorted=run.slice().sort((a,b)=>(col==null?0:compare(cellValue(a.cells[col]),cellValue(b.cells[col]),dir))||state.original.get(a)-state.original.get(b));
+   if(sorted.some((r,i)=>r!==run[i])){const f=document.createDocumentFragment();sorted.forEach(r=>f.append(r));body.insertBefore(f,marker)}run=[];};
+  for(const row of [...body.rows]){if([...row.cells].some(c=>c.tagName==='TH'||Number(c.dataset.gamaOriginalSpan||c.colSpan)>1||c.rowSpan>1)){flush();continue}run.push(row)}flush();
+ }
+}
+function applyColumns(t,cols,hidden){
+ for(const row of t.rows){let i=0;for(const cell of row.cells){const span=cell.dataset.gamaOriginalSpan?Number(cell.dataset.gamaOriginalSpan):cell.colSpan;
+   if(span>1)cell.dataset.gamaOriginalSpan=String(span);
+   const count=cols.slice(i,i+span).filter(c=>!hidden.includes(c.key)).length;
+   cell.toggleAttribute('data-gama-column-hidden',count===0);if(span>1&&count)cell.colSpan=count;i+=span;
+  }
+  if(row.querySelector('td')){[...row.cells].forEach(c=>c.removeAttribute('data-gama-title'));const title=[...row.cells].find(c=>!c.hasAttribute('data-gama-column-hidden')&&!soloBotones(c)&&/[\p{L}\p{N}]/u.test(c.textContent));title?.setAttribute('data-gama-title','')}
+ }
+}
+function controls(t,state){
+ const cols=columnInfo(t);if(!cols.length)return;
+ const w=cw(),key=settingsKey(t,cols),stored=read(key)||{},hidden=Array.isArray(stored.hidden)?stored.hidden.filter(k=>cols.some(c=>c.key===k)):[];
+ if(hidden.length===cols.length)hidden.pop();
+ const source=sorter(t),current=source?.get?.()||(!source?stored.sort:null),signature=JSON.stringify([account(),window.GamaI18n?.language,cols.map(c=>[c.key,c.label]),!!source]);
+ state.cols=cols;state.key=key;state.hidden=hidden;state.source=source;
+ if(state.signature!==signature){
+  state.signature=signature;state.controls?.remove();
+  const box=document.createElement('div');box.className='gamaTableControls';box.setAttribute('translate','no');box.dataset.giIgnore='';
+  const makeSelect=(name,values)=>{const label=document.createElement('label'),span=document.createElement('span'),select=document.createElement('select');span.textContent=name;select.dataset.gamaNofind='';select.setAttribute('aria-label',name);for(const [value,text] of values)select.add(new Option(text,value));label.append(span,select);box.append(label);return select};
+  const available=cols.filter(c=>c.h.dataset.columnKind!=='actions'&&c.h.dataset.columnKind!=='decorative'&&(!source||source.column(c.h,c.i)!=null));
+  state.sort=makeSelect(w.sort,[['',w.initial],...available.map(c=>[String(c.i),c.label])]);state.sort.dataset.tableSort='';
+  state.direction=makeSelect(w.direction,[['asc',w.asc],['desc',w.desc]]);state.direction.dataset.tableDirection='';
+  const change=()=>{const c=cols[Number(state.sort.value)],col=state.sort.value===''?null:c,dir=state.direction.value;
+   if(source)source.set(col?source.column(col.h,col.i):null,dir);
+   else{const data=read(key)||{};data.sort=col?{col:col.key,dir}:null;save(key,data);sortRows(t,state,col?.i,dir);controls(t,state)};
+  };state.sort.onchange=change;state.direction.onchange=change;
+  const details=document.createElement('details');details.className='gamaColumnPicker';const summary=document.createElement('summary');summary.textContent=w.columns;details.append(summary);
+  const list=document.createElement('div');list.className='gamaColumnOptions';
+  cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
+   input.onchange=()=>{const data=read(key)||{},set=new Set(state.hidden);input.checked?set.delete(c.key):set.add(c.key);data.hidden=[...set];save(key,data);controls(t,state)};});
+  const reset=document.createElement('button');reset.type='button';reset.textContent=w.all;reset.onclick=()=>{const data=read(key)||{};data.hidden=[];save(key,data);controls(t,state)};list.append(reset);details.append(list);box.append(details);
+  const scope=document.createElement('small');scope.className='gamaSortScope';scope.textContent=w.scope;scope.hidden=!!source;box.append(scope);
+  state.controls=box;state.toolbar.prepend(box);
+ }
+ const selected=cols.find(c=>String(source?source.column(c.h,c.i):c.key)===String(current?.col));
+ state.sort.value=selected?String(selected.i):'';state.direction.value=current?.dir==='desc'?'desc':'asc';state.direction.disabled=!selected;
+ state.controls.querySelectorAll('[data-table-column]').forEach(input=>{input.checked=!hidden.includes(input.dataset.tableColumn);input.disabled=input.checked&&cols.length-hidden.length===1;input.title=input.disabled?w.visible:''});
+ state.controls.querySelector('summary').textContent=w.columns+' ('+(cols.length-hidden.length)+'/'+cols.length+')';
+ applyColumns(t,cols,hidden);
+ if(!source)sortRows(t,state,selected?.i,current?.dir);
+ cols.forEach(c=>c.h.setAttribute('aria-sort',c===selected?(current.dir==='desc'?'descending':'ascending'):'none'));
 }
 function scan(root=document){
  const tables=new Set([...(root.querySelectorAll?.('table')||[]),...(root.closest?.('table')?[root.closest('table')]:[])]);
@@ -154,13 +260,13 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function boot(){
  css();scan();
  window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
- const refresh=()=>document.querySelectorAll('table[data-gama-view]').forEach(t=>{const state=layouts.get(t);if(state)refreshLayout(t,state)});
+ const refresh=()=>document.querySelectorAll('table[data-gama-view]').forEach(t=>{const state=layouts.get(t);if(state){refreshLayout(t,state);controls(t,state)}});
  window.addEventListener('resize',refresh);window.addEventListener('gama:language-change',refresh);window.addEventListener('gama:auth-change',refresh);
  // Cover tables created by legacy dialogs and asynchronous module renderers.
- const observer=new MutationObserver(records=>{const roots=new Set();for(const r of records)for(const n of r.addedNodes){if(n.nodeType!==1||n.closest('.gamaTableViews'))continue;if(n.matches('table')||n.querySelector('table')||n.closest('table'))roots.add(n)}for(const root of roots)scan(root)});
+ const observer=new MutationObserver(records=>{const roots=new Set();for(const r of records)for(const n of r.addedNodes){if(n.nodeType!==1||n.closest('.gamaTableToolbar'))continue;if(n.matches('table')||n.querySelector('table')||n.closest('table'))roots.add(n.closest('table')||n)}for(const root of roots)scan(root)});
  observer.observe(document.body,{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 
-window.GamaTable={scan,corte:CORTE};
+window.GamaTable={scan,corte:CORTE,bind,sourceSort,compare};
 })();

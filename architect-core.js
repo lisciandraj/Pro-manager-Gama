@@ -315,8 +315,8 @@
   }
   function table({ columns, items, empty = translate("No hay resultados."), className = "", rowAttributes = () => "" }) {
     const titleIndex = columns.findIndex((c) => !c.decorative);
-    const html = items.length ? items.map((item) => `<tr ${rowAttributes(item)}>${columns.map((col, i) => `<td data-col="${escapeHtml(col.decorative || col.actions ? "" : translate(col.label))}"${i === titleIndex ? " data-gama-title" : ""}${col.numeric ? ' class="arcNumeric"' : ""}>${col.html ? col.html(item) : escapeHtml(col.value ? col.value(item) : item[col.key] ?? "")}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${columns.length}" class="arcEmpty">${escapeHtml(empty)}</td></tr>`;
-    return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${escapeHtml(className)}"><thead><tr data-gama-head>${columns.map((col) => `<th scope="col"${col.numeric ? ' class="arcNumeric"' : ""}>${col.sort ? `<button type="button" class="arcSort" data-arc-sort="${escapeHtml(col.sort)}">${escapeHtml(translate(col.label))} <span aria-hidden="true">⇅</span></button>` : escapeHtml(translate(col.label))}</th>`).join("")}</tr></thead><tbody>${html}</tbody></table></div>`;
+    const html = items.length ? items.map((item) => `<tr ${rowAttributes(item)}>${columns.map((col, i) => `<td data-col="${escapeHtml(col.decorative || col.actions ? "" : translate(col.label))}"${i === titleIndex ? " data-gama-title" : ""}${col.sortValue ? ` data-sort-value="${escapeHtml(col.sortValue(item) ?? "")}"${typeof col.sortValue(item) === "number" ? ' data-sort-type="number"' : ""}` : col.key && typeof item[col.key] === "number" ? ` data-sort-value="${item[col.key]}" data-sort-type="number"` : ""}${col.numeric ? ' class="arcNumeric"' : ""}>${col.html ? col.html(item) : escapeHtml(col.value ? col.value(item) : item[col.key] ?? "")}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${columns.length}" class="arcEmpty">${escapeHtml(empty)}</td></tr>`;
+    return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${escapeHtml(className)}"><thead><tr data-gama-head>${columns.map((col, i) => `<th scope="col" data-column-key="${escapeHtml(col.sort || col.key || String(i))}"${col.actions ? ' data-column-kind="actions"' : col.decorative ? ' data-column-kind="decorative"' : ""}${col.numeric ? ' class="arcNumeric"' : ""}>${col.sort ? `<button type="button" class="arcSort" data-arc-sort="${escapeHtml(col.sort)}">${escapeHtml(translate(col.label))} <span aria-hidden="true">⇅</span></button>` : escapeHtml(translate(col.label))}</th>`).join("")}</tr></thead><tbody>${html}</tbody></table></div>`;
   }
   function pager({ page: page2 = 0, pageSize = 20, total = 0 } = {}) {
     if (total <= pageSize) return "";
@@ -324,9 +324,19 @@
     return `<div class="arcPager gamaPager">${button({ label: translate("‹ Anterior"), className: "gamaPagerBtn", disabled: page2 <= 0, attrs: 'data-arc-page="-1" data-page-prev' })}<span class="gamaPagerInfo" aria-live="polite">${total ? page2 * pageSize + 1 : 0}–${Math.min(total, (page2 + 1) * pageSize)} ${escapeHtml(translate("de"))} ${total} · ${page2 + 1} / ${pages}</span>${button({ label: translate("Siguiente ›"), className: "gamaPagerBtn", disabled: page2 >= pages - 1, attrs: 'data-arc-page="1" data-page-next' })}</div>`;
   }
   function dataTable(host, { columns, source, searchInput, actions = {}, empty, className = "", initial = {} }) {
+    var _a;
     let disposed = false, generation = 0, timer;
-    const state = { page: 0, pageSize: 20, search: "", ...initial };
+    const saved = (_a = window.GamaTable) == null ? void 0 : _a.sourceSort(host);
+    const state = { page: 0, pageSize: 20, search: "", ...initial, ...saved && columns.some((c) => c.sort === saved.col) ? { sort: saved.col, ascending: saved.dir !== "desc" } : {} };
+    const sortBy = async (col, dir) => {
+      var _a2, _b;
+      const active = document.activeElement, control = (active == null ? void 0 : active.hasAttribute("data-table-sort")) ? "[data-table-sort]" : (active == null ? void 0 : active.hasAttribute("data-table-direction")) ? "[data-table-direction]" : null;
+      (_a2 = window.GamaTable) == null ? void 0 : _a2.sourceSort(host, col ? { col, dir } : null);
+      await refresh({ page: 0, sort: col || initial.sort, ascending: col ? dir !== "desc" : initial.ascending !== false });
+      if (control && document.activeElement === document.body) (_b = host.querySelector(control)) == null ? void 0 : _b.focus({ preventScroll: true });
+    };
     async function refresh(patch = {}) {
+      var _a2;
       Object.assign(state, patch);
       const token = ++generation;
       host.setAttribute("aria-busy", "true");
@@ -338,6 +348,7 @@
           return refresh({ page: Math.max(0, Math.ceil(result.total / state.pageSize) - 1) });
         }
         host.innerHTML = table({ columns, items: result.items, empty, className }) + pager(result);
+        (_a2 = window.GamaTable) == null ? void 0 : _a2.bind(host.querySelector("table"), { get: () => state.sort ? { col: state.sort, dir: state.ascending === false ? "desc" : "asc" } : null, set: sortBy, column: (_, i) => columns[i].sort ?? null });
         mount(host);
       } catch (e) {
         if (!disposed && token === generation) {
@@ -351,7 +362,7 @@
       const b = e.target.closest("button");
       if (!b) return;
       if (b.hasAttribute("data-arc-page")) refresh({ page: Math.max(0, state.page + Number(b.dataset.arcPage)) });
-      else if (b.hasAttribute("data-arc-sort")) refresh({ page: 0, sort: b.dataset.arcSort, ascending: state.sort === b.dataset.arcSort ? !state.ascending : true });
+      else if (b.hasAttribute("data-arc-sort")) sortBy(b.dataset.arcSort, state.sort === b.dataset.arcSort && state.ascending !== false ? "desc" : "asc");
       else if (b.hasAttribute("data-arc-retry")) refresh();
       else for (const [attribute, callback] of Object.entries(actions)) {
         if (b.hasAttribute(attribute)) {
@@ -1409,14 +1420,14 @@
       } },
       { key: "barcode", label: "Código", sort: "barcode" },
       { key: "name", label: "Producto", sort: "name" },
-      { key: "brand", label: "Marca" },
+      { key: "brand", label: "Marca", sort: "brand" },
       { key: "stock", label: "Stock", numeric: true, sort: "stock" },
-      { label: "Precio compra", value: (p) => format.money(p.purchasePrice), numeric: true },
+      { label: "Precio compra", sort: "purchase_price", value: (p) => format.money(p.purchasePrice), numeric: true },
       { label: "Venta A", value: (p) => format.money(p.salePrice), numeric: true, sort: "sale_price" },
-      { label: "Venta B", value: (p) => format.money(p.salePriceB), numeric: true },
-      { label: "IVA", value: (p) => format.number(p.taxRate) + " %" },
-      { key: "location", label: "Ubicación" },
-      { label: "Proveedor", value: (p) => {
+      { label: "Venta B", sort: "sale_price_b", value: (p) => format.money(p.salePriceB), numeric: true },
+      { label: "IVA", sort: "tax_rate", value: (p) => format.number(p.taxRate) + " %" },
+      { key: "location", label: "Ubicación", sort: "location" },
+      { label: "Proveedor", sort: "supplier_name", value: (p) => {
         var _a;
         return ((_a = (window.ArcEntities.suppliersCache || []).find((s) => s.id === p.supplierId)) == null ? void 0 : _a.name) || "—";
       } },
@@ -1444,7 +1455,16 @@
     const grid = dataTable(host.querySelector("[data-arc-directory]"), { columns: directoryColumns[entity], initial: { search: filter }, source: async (request) => {
       const archived = window.GamaArchive.mode(key) === "archived";
       lastArchived = archived;
-      const result = await page(entity, { ...request, archived });
+      let result;
+      if (request.sort === "supplier_name") {
+        const schema = window.ArcEntities.entities.products;
+        const term = String(request.search || "").trim();
+        const loaded = await all(entity, { select: schema.select, eq: { active: !archived }, ...term ? { search: { columns: schema.search, value: term } } : {} }, true);
+        if (loaded.error) throw loaded.error;
+        const names = new Map((window.ArcEntities.suppliersCache || []).map((s) => [s.id, s.name]));
+        const items = loaded.data.map(schema.fromRow).sort((a, b) => window.GamaTable.compare(names.get(a.supplierId), names.get(b.supplierId), request.ascending === false ? "desc" : "asc"));
+        result = { items: items.slice(request.page * request.pageSize, (request.page + 1) * request.pageSize), total: items.length, page: request.page, pageSize: request.pageSize };
+      } else result = await page(entity, { ...request, archived });
       rows = new Map(result.items.map((x) => [x.id, x]));
       const other = await window.GamaCloud.list(entity, { select: "id", count: "exact", head: true, eq: { active: archived } });
       if (other.error) throw other.error;

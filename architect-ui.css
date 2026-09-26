@@ -394,6 +394,25 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .gamaTableViews button{width:44px;min-height:44px;padding:0}
 .gamaTableViews button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .gamaTableViews button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
+.gamaTableToolbar{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
+.gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:20px;padding:0;align-self:flex-start;flex-shrink:0}
+.gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}
+.gamaTableControls>label{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:100%;flex:0 1 190px;font-size:12px;font-weight:600;margin:0}
+.gamaTableControls>label select{width:100%;max-width:100%;min-height:44px;margin:0;box-sizing:border-box}
+.gamaTableControls>label:nth-child(2){flex-basis:145px}
+.gamaColumnPicker{min-width:140px;max-width:100%;margin-top:20px;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
+.gamaColumnPicker>summary{cursor:pointer;padding:11px 12px;min-height:44px;box-sizing:border-box;font-size:13px;font-weight:600}
+.gamaColumnPicker>summary:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+.gamaColumnOptions{display:flex;flex-direction:column;gap:2px;padding:4px 10px 10px;max-height:320px;overflow-y:auto}
+.gamaColumnOptions>label{display:flex!important;align-items:center;gap:8px;min-height:36px;margin:0;font-size:13px;cursor:pointer;overflow-wrap:anywhere}
+.gamaColumnOptions input[type=checkbox]{width:18px!important;height:18px!important;min-height:18px;flex:0 0 18px;margin:0;accent-color:var(--arc-accent-600)}
+.gamaColumnOptions input:disabled+span{opacity:.6}
+.gamaColumnOptions>button{min-height:40px;margin-top:6px}
+.gamaSortScope{flex-basis:100%;color:var(--arc-text-subtle);font-size:11px}
+.gamaSortScope[hidden]{display:none}
+table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:none!important}
+@media(max-width:600px){.gamaTableControls>label{flex:1 1 150px}.gamaTableControls>label:nth-child(2){flex:1 1 120px}.gamaColumnPicker{margin-top:0}.gamaTableToolbar>.gamaTableViews{margin-top:0}.gamaTableControls{flex-basis:100%}}
+@media print{.gamaTableToolbar{display:none!important}}
 @media screen{
  body table.gamaCards[data-gama-view=cards]{display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;white-space:normal!important;border:0!important}
  body table.gamaCards[data-gama-view=cards]>thead,body table.gamaCards[data-gama-view=cards] [data-gama-head]{display:none!important}

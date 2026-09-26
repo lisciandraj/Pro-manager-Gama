@@ -86,8 +86,8 @@ async function source(req){
  const box=$('ctArchive');if(box)box.innerHTML=window.GamaArchive.tabs(ARCHIVE,all.filter(r=>r.active).length,all.filter(r=>!r.active).length);
  const terms=norm(req.search).split(/\s+/).filter(Boolean);
  let items=all.filter(r=>r.active!==archived&&matches(r,terms));
- const by={name:r=>r.name,kind:r=>T(kindOf(r.kind).one),city:r=>r.city||'',ref:r=>r.ref||''}[req.sort];
- if(by){const dir=req.ascending===false?-1:1;items=[...items].sort((a,b)=>dir*String(by(a)).localeCompare(String(by(b)),undefined,{sensitivity:'base'}))}
+ const by={name:r=>r.name,kind:r=>T(kindOf(r.kind).one),city:r=>r.city||'',ref:r=>r.ref||'',phone:r=>r.phone||'',email:r=>r.email||''}[req.sort];
+ if(by)items=[...items].sort((a,b)=>window.GamaTable.compare(by(a),by(b),req.ascending===false?'desc':'asc'));
  return {items:items.slice(req.page*req.pageSize,(req.page+1)*req.pageSize),total:items.length,page:req.page,pageSize:req.pageSize};
 }
 
@@ -104,8 +104,8 @@ const columns=()=>[
  {label:'Nombre',sort:'name',html:r=>`<b>${esc(r.name)}</b>${r.detail?`<small class="ctSub">${esc(r.detail)}</small>`:''}`},
  {label:'Tipo',sort:'kind',html:r=>`<span class="ctBadge" data-kind="${r.kind}">${esc(T(kindOf(r.kind).one))}</span>`},
  {label:'Identificación / empresa',sort:'ref',value:r=>r.ref||'—'},
- {label:'Teléfono',value:r=>r.phone||'—'},
- {label:'Correo',value:r=>r.email||'—'},
+ {label:'Teléfono',sort:'phone',value:r=>r.phone||'—'},
+ {label:'Correo',sort:'email',value:r=>r.email||'—'},
  {label:'Ciudad',sort:'city',value:r=>r.city||'—'},
  {label:'Acciones',actions:true,html:actions}
 ];

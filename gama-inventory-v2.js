@@ -222,8 +222,8 @@ function tabla(){
  const rows=filas();
  pintarKpis(rows);
  if(!rows.length){window.ArcUI.render(host,'<div class="muted" data-gi=0c22de3a52d5>No hay existencias que coincidan.</div>');return}
- const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows):rows;
- window.ArcUI.render(host,'<table class="arcTable"><tr>'
+ const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows,{0:r=>r.producto.name,1:r=>r.producto.reference,2:r=>r.producto.category,3:r=>[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', '),4:r=>r.onHand,5:r=>r.reservado,6:r=>r.disponible,7:r=>r.entrante,8:r=>r.previsto,9:r=>r.minimo,10:r=>r.maximo,11:r=>r.costo,12:r=>r.valor,13:r=>estado(r).texto}):rows;
+ window.ArcUI.render(host,'<table class="arcTable" data-gama-sort-key="invv2"><tr>'
   +'<th data-gi=77b9238931ed>Producto</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=558bb20a82ed>Categoría</th><th data-gi=9a91575b8e4b>Almacén</th>'
   +'<th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th>'
   +'<th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=1fecb6bc9f3e>Costo</th><th data-gi=b2f530c46991>Valor</th><th data-gi=98e5acddb6c4>Estado</th></tr>'

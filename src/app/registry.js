@@ -115,14 +115,14 @@ const definitions=[
   },
   {
     "id": "knowledge",
-    "label": "Knowledge · Base de conocimientos",
+    "label": "Base de conocimientos",
     "icon": "knowledge",
     "group": "Administración",
     "description": "Base de conocimientos",
     "accent": "blue",
     "order": 14,
     "menu": true,
-    "configLabel": "Knowledge · Base de conocimientos",
+    "configLabel": "Base de conocimientos",
     "roles": [
       "admin",
       "commercial",

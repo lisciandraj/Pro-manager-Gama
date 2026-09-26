@@ -580,7 +580,7 @@ function rejilla(sh){
   const clase='ivCelda'+(n>0?' lleno':'')+(marcadas.has(u.id)?' coincide':'')+(u.id===espacioResaltado?' buscada':'');
   celdas.push(`<button type="button" class="${clase}" data-space="${esc(code)}" data-location="${esc(u.id)}" title="${esc(code+(quien.length?' · '+quien.join(', '):''))}" aria-label="${esc(code+' · '+(quien.length?quien.join(', '):T('Vacía')))}"><b>${esc(code)}</b>${n>0?`<small>${num(n)} ${esc(T('uds.'))}</small>`:''}</button>`);
  }
- return `<div class="ivEstanteria" style="--iv-cols:${sh.column_count}" role="group" aria-label="${esc(T('Estantería')+' '+sh.code)}">${celdas.join('')}</div><p class="muted ivLeyenda">${tr('Fila 01 abajo, columna 01 a la izquierda. En color, los espacios con existencias.')} ${tr('Pulsa un espacio para ver lo que contiene.')}</p>`;
+ return `<div class="ivEstanteria" style="--iv-cols:${sh.column_count}" role="group" aria-label="${esc(T('Estantería')+' '+sh.code)}">${celdas.join('')}</div>`;
 }
 function tarjetaEstanteria(sh){
  const sus=espaciosDe(sh),uds=sus.reduce((s,u)=>s+unidadesEn(u.id),0);

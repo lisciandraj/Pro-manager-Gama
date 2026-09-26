@@ -220,7 +220,7 @@ function controls(t,state){
  if(state.signature!==signature){
   state.signature=signature;state.controls?.remove();
   const box=document.createElement('div');box.className='gamaTableControls';box.setAttribute('translate','no');box.dataset.giIgnore='';
-  const details=document.createElement('details');details.className='gamaColumnPicker';const summary=document.createElement('summary');summary.textContent=w.columns;details.append(summary);
+  const details=document.createElement('div');details.className='gamaColumnPicker';details.setAttribute('role','group');details.setAttribute('aria-label',w.columns);const summary=document.createElement('div');summary.className='gamaColumnHeading';summary.textContent=w.columns;details.append(summary);
   const list=document.createElement('div');list.className='gamaColumnOptions';
   cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
    input.onchange=()=>{const data=read(key)||{},set=new Set(state.hidden);input.checked?set.delete(c.key):set.add(c.key);data.hidden=[...set];save(key,data);controls(t,state)};});
@@ -233,7 +233,7 @@ function controls(t,state){
  state.available=cols.filter(c=>c.h.dataset.columnKind!=='actions'&&c.h.dataset.columnKind!=='decorative'&&nombreDeColumna(c.h)&&(!source||source.column(c.h,c.i)!=null));
  headers(t,state,selected);
  state.controls.querySelectorAll('[data-table-column]').forEach(input=>{input.checked=!hidden.includes(input.dataset.tableColumn);input.disabled=input.checked&&cols.length-hidden.length===1;input.title=input.disabled?w.visible:''});
- state.controls.querySelector('summary').textContent=w.columns+' ('+(cols.length-hidden.length)+'/'+cols.length+')';
+ state.controls.querySelector('.gamaColumnHeading').textContent=w.columns+' ('+(cols.length-hidden.length)+'/'+cols.length+')';
  applyColumns(t,cols,hidden);
  if(!source)sortRows(t,state,selected?.i,current?.dir);
  cols.forEach(c=>c.h.setAttribute('aria-sort',c===selected?(current.dir==='desc'?'descending':'ascending'):'none'));

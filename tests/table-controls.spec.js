@@ -26,14 +26,14 @@ test('sorts amounts, dates and inputs without losing actions; supports keyboard 
 });
 test('column visibility persists across render and language, is isolated by user, and works on mobile cards',async({page})=>{
  await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
- await host.locator('summary').click();await host.getByRole('checkbox',{name:'Nom',exact:true}).uncheck();await host.getByRole('checkbox',{name:'Montant',exact:true}).uncheck();
+ await host.getByRole('checkbox',{name:'Nom',exact:true}).uncheck();await host.getByRole('checkbox',{name:'Montant',exact:true}).uncheck();
  await expect(host.locator('tbody tr').first().locator('td').nth(0)).toBeHidden();await expect(host.locator('tbody tr').first().locator('td').nth(2)).toHaveAttribute('data-gama-title','');
  await host.locator('[data-table-view=table]').click();await expect(host.locator('thead th').nth(0)).toBeHidden();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.evaluate(()=>document.getElementById('sortFixture').remove());await fixture(page);
  await expect(host.locator('tbody tr').first().locator('td').nth(0)).toBeHidden();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','3');
- await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(host.locator('summary')).toContainText('Columns');
- await host.locator('summary').click();await host.getByRole('button',{name:'Show all'}).click();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','5');
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(host.locator('.gamaColumnHeading')).toContainText('Columns');
+ await host.getByRole('button',{name:'Show all'}).click();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','5');
  for(const name of ['Nom','Montant','Date','Quantité'])await host.getByRole('checkbox',{name,exact:true}).uncheck();
  await expect(host.getByRole('checkbox',{name:'Actions',exact:true})).toBeDisabled();
  await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({userId:'another-user',role:'admin'}));window.dispatchEvent(new Event('gama:auth-change'))});
@@ -44,7 +44,7 @@ test('sorts all contacts before pagination, keeps hidden columns after page chan
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);
  await host.locator('thead th').nth(3).click();await expect(host.locator('thead th').nth(3)).toHaveAttribute('aria-sort','ascending');await host.locator('thead th').nth(3).click();
  await expect(host.locator('tbody tr').first()).toContainText('1024');await expect(host.locator('tbody tr').first()).toContainText('Adresse 24');await expect(host.locator('tbody tr').first()).toContainText('Note fournisseur 24');
- await host.locator('summary').click();await host.getByRole('checkbox',{name:'Téléphone',exact:true}).uncheck();
+ await host.getByRole('checkbox',{name:'Téléphone',exact:true}).uncheck();
  await host.locator('[data-arc-page="1"]').click();await expect(host.locator('tbody tr')).toHaveCount(5);await expect(host.locator('tbody tr').first()).toContainText('1004');
  await expect(host.locator('tbody tr').first().locator('td').nth(3)).toBeHidden();
  await host.locator('[data-ct-edit]').first().click();await expect(page.locator('#ctf-name')).toHaveValue('Fournisseur 4');
@@ -61,7 +61,7 @@ await expect(host.locator('.gamaTableToolbar select')).toHaveCount(0);
  await host.locator('th[data-column-key=purchase_price]').click();await expect(host.locator('th[data-column-key=purchase_price]')).toHaveAttribute('aria-sort','ascending');await host.locator('th[data-column-key=purchase_price]').click();await expect(host.locator('tbody tr').first()).toContainText('Produit 24');
  await host.locator('[data-arc-page="1"]').click();await expect(host.locator('tbody tr')).toHaveCount(5);await expect(host.locator('tbody tr').first()).toContainText('Produit 4');
  await host.locator('th[data-column-key=brand]').click();await expect(host.locator('tbody tr')).toHaveCount(20);await expect(host.locator('tbody tr').first()).toContainText('Marque 00');
- await host.locator('summary').click();await host.getByRole('checkbox',{name:'Stock',exact:true}).uncheck();await expect(host.locator('tbody tr').first().locator('td[data-col=Stock]')).toBeHidden();
+ await host.getByRole('checkbox',{name:'Stock',exact:true}).uncheck();await expect(host.locator('tbody tr').first().locator('td[data-col=Stock]')).toBeHidden();
  await host.locator('th[data-column-key=supplier_name]').click();await expect(host.locator('tbody tr').first()).toContainText('Produit 0');
 });
 test('legacy paginated sort applies to the complete dataset and preserves independent table settings',async({page})=>{

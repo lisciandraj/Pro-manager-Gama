@@ -397,14 +397,14 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .gamaTableToolbar{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
 .gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-start;flex-shrink:0}
 .gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}
-.gamaColumnPicker{min-width:140px;max-width:100%;margin-top:0;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
-.gamaColumnPicker>summary{cursor:pointer;padding:11px 12px;min-height:44px;box-sizing:border-box;font-size:13px;font-weight:600}
-.gamaColumnPicker>summary:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
-.gamaColumnOptions{display:flex;flex-direction:column;gap:2px;padding:4px 10px 10px;max-height:320px;overflow-y:auto}
-.gamaColumnOptions>label{display:flex!important;align-items:center;gap:8px;min-height:36px;margin:0;font-size:13px;cursor:pointer;overflow-wrap:anywhere}
+.gamaColumnPicker{width:100%;min-width:0;max-width:100%;margin:0;padding:8px 10px;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
+.gamaColumnHeading{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--arc-text-muted)}
+.gamaColumnOptions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:4px 10px;padding:0}
+.gamaColumnOptions>label{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;min-height:30px;margin:0;padding:2px 0;font-size:12px;line-height:1.3;cursor:pointer;overflow-wrap:anywhere;min-width:0}
 .gamaColumnOptions input[type=checkbox]{width:18px!important;height:18px!important;min-height:18px;flex:0 0 18px;margin:0;accent-color:var(--arc-accent-600)}
 .gamaColumnOptions input:disabled+span{opacity:.6}
-.gamaColumnOptions>button{min-height:40px;margin-top:6px}
+.gamaColumnOptions>button{min-height:30px;margin:0;padding:4px 8px;font-size:12px;align-self:center}
+@media(pointer:coarse){.gamaColumnOptions>label,.gamaColumnOptions>button{min-height:40px}}
 .gamaSortScope{flex-basis:100%;color:var(--arc-text-subtle);font-size:11px}
 .gamaSortScope[hidden]{display:none}
 table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:none!important}

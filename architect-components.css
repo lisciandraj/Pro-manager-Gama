@@ -1114,6 +1114,19 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
 .ctForm{border-top:3px solid var(--arc-accent-600)}
 .ctFormHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
 .ctFormHead h3{margin:0}
+/* Shared label/control tracks keep paired inputs aligned even when labels wrap. */
+.ctForm .arcField{margin:0}
+.ctForm .arcField>span{line-height:1.4}
+.ctForm .arcField>input:not([type=checkbox]),.ctForm .arcField>select{height:44px;min-height:44px;margin:0}
+@media(min-width:761px){
+ .ctForm .ctFields{row-gap:4px}
+ .ctFields>.arcField:not(.ctCheck){display:grid;grid-template-rows:subgrid;grid-row:span 4;align-items:start;row-gap:4px;margin-bottom:8px}
+ .ctFields>.arcField>span{grid-row:1}
+ .ctFields>.arcField>:is(input,select,textarea){grid-row:2}
+ .ctFields>.arcField>small:not(.arcFieldError){grid-row:3}
+ .ctFields>.arcField>.arcFieldError{grid-row:4}
+}
+.ctFields .ctCheck{grid-column:1/-1}
 .ctFields .ctWide{grid-column:1/-1}
 .ctFields .ctCheck{flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:10px;align-self:end;min-height:44px}
 .ctFields .ctCheck input{width:20px;height:20px}

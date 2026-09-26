@@ -25,8 +25,9 @@ if(window.GamaModules)return;
    la que se vuelve a encender lo demás — apagarla dejaría la aplicación sin
    forma de recuperarse. */
 // Una pestaña de otro módulo (los pedidos en Presupuestos y facturas) no se lista: se enciende y se apaga con él.
-// Un módulo retirado (el antiguo formulario de presupuestos) tampoco: se queda como esté en la base —apagado— y ya no se ofrece.
+// Los módulos retirados no se ofrecen ni pueden reactivarse, aunque una configuración antigua los marque como activos.
 const CATALOG=window.ArcModules.registry.filter(m=>!m.tabOf&&!m.retired).map(m=>({id:m.id,label:m.configLabel||m.label,locked:!!m.locked}));
+const RETIRED=new Set(window.ArcModules.registry.filter(m=>m.retired).map(m=>m.id));
 const TAB_OF=Object.fromEntries(window.ArcModules.registry.filter(m=>m.tabOf).map(m=>[m.id,m.tabOf]));
 const LOCKED=new Set(CATALOG.filter(m=>m.locked).map(m=>m.id));
 const CACHE_KEY='gama_modules_v1';
@@ -47,6 +48,7 @@ function write(){
 function enabled(id){
  if(id==='customer-requests')id='quotes';
  id=window.ArcModules?.aliases?.[id]||id;
+ if(RETIRED.has(id))return false;
  if(!id||LOCKED.has(id))return true;
  if(TAB_OF[id]&&!enabled(TAB_OF[id]))return false;
  return !off.has(id);
@@ -80,6 +82,8 @@ async function load(){
 
 async function setEnabled(id,on){
  if(id==='customer-requests')id='quotes';
+ id=window.ArcModules?.aliases?.[id]||id;
+ if(RETIRED.has(id))throw new Error('Este módulo está desactivado en Configuración.');
  if(LOCKED.has(id))throw new Error('Este módulo no se puede desactivar.');
  const api=window.GamaCloud;
  if(!api)throw new Error('Sin conexión con Coco ERP.');

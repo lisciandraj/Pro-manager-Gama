@@ -143,6 +143,10 @@ test('purchase process: its own tab, origin, receipt, put-away, supplier invoice
  await expect(page.locator('.gdfStep').nth(5).locator('.gdfDoc')).toHaveText('PPR-00001330');await expect(page.locator('.gdfStep').nth(5)).toHaveClass(/blocked/);
  await expect(page.locator('.gdfStep').nth(6)).toHaveClass(/pending/);
  await page.evaluate(()=>{window.gamaOpenPurchaseDossier=id=>{window.__purchase=id}});await page.locator('.gdfStep').nth(1).locator('.gdfDoc').click();expect(await page.evaluate(()=>window.__purchase)).toBe('po1');
+ // A receipt's stock reference opens its source purchase, never manual IN/OUT.
+ await page.evaluate(()=>{window.__purchase=null});
+ await page.locator('.gdfStep').nth(3).locator('.gdfDoc').click();
+ expect(await page.evaluate(()=>window.__purchase)).toBe('po1');
  // Todo recibido y pagado: el proceso se cierra.
  await page.evaluate(()=>{__DB.purchase_order_lines[0].received_quantity=10;__DB.purchase_orders[0].status='received';__DB.stock_movements[0].quantity=10;__DB.supplier_invoice_payments[0].amount=115});await page.locator('#gdfRefresh').click();
  await expect(page.locator('.gdfStep').nth(6)).toHaveClass(/done/);await expect(page.locator('.gdfSummary')).toContainText('Proceso completo');

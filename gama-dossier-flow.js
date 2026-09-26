@@ -272,7 +272,7 @@ function purchaseSteps(o,x){
    docs:[],info:`${tr('Recibido / pedido')} : ${received} / ${ordered}${gaps.length?' · '+tr('Líneas con diferencia')+' : '+gaps.length:''}`,
    need:lateReceipt?'La recepción prevista ya pasó: reclamar al proveedor o reprogramarla.':'Recibir la mercancía y contrastar cantidades con el pedido.'},
   {title:'Puesta en stock',state:!x.moves.ok?'restricted':received>0&&stocked>=received?'done':stocked>0?'active':'pending',
-   docs:x.moves.rows.slice(0,6).map(m=>doc(m.erp_reference,'movement',m.id,'movement')),info:`${tr('En stock / recibido')} : ${stocked} / ${received}`,need:'Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.'},
+   docs:x.moves.rows.slice(0,6).map(m=>doc(m.erp_reference,'purchase',o.id,'gamaPurchasesV14')),info:`${tr('En stock / recibido')} : ${stocked} / ${received}`,need:'Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.'},
   {title:'Factura del proveedor',state:!x.invoices.ok?'restricted':fullyInvoiced?'done':invoices.length?'active':'pending',
    docs:invoices.map(i=>doc(i.erp_reference||i.number,'supplier_invoice',i.id,'accounting')),info:x.invoices.ok?`${tr('Facturado')} : ${money(invoiced/100)} / ${money(o.total)}`:'',need:'Registrar la factura del proveedor contra este pedido.'},
   {title:'Seguimiento del pago',state:!x.payments.ok?'restricted':overdue?'blocked':settled?'done':paid>0||invoices.length?'active':'pending',
@@ -313,7 +313,6 @@ async function act(action,id){
   case'payment':if(can('payments'))await GamaPayments.open({invoiceId:id});break;
   case'returns':if(can('returns'))await window.GamaReturns?.openReturn(id);break;
   case'purchase':if(can('gamaPurchasesV14'))await window.gamaOpenPurchaseDossier(id);break;
-  case'movement':if(can('movement'))await window.ArcRouter.open('movement');break;
   case'supplier_invoice':case'supplier_payment':if(can('accounting'))await window.GamaAccounting.open({section:'payables'});break;
  }}catch(e){window.gamaToast?.(T('No se pudo abrir el documento.'))}
 }

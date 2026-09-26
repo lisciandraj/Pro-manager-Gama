@@ -173,12 +173,10 @@ const definitions=[
     "description": "Entradas y salidas de mercancía",
     "accent": "teal",
     "order": 100,
-    "menu": true,
+    "menu": false,
+    "retired": true,
     "configLabel": "Entradas / Salidas",
-    "roles": [
-      "admin",
-      "magasinier"
-    ],
+    "roles": [],
     "header": [
       "Movimientos",
       "Registra entradas y salidas de mercancía."

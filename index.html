@@ -19,8 +19,8 @@
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
 <script src="gama-i18n-catalog.js?v=666fa267058b"></script>
 <script src="gama-i18n.js?v=0faee1e7e634"></script>
-<script src="architect-assets.js?v=c9dd70183fcf"></script>
-<script src="architect-core.js?v=368b1aadbd04"></script>
+<script src="architect-assets.js?v=2970293e3273"></script>
+<script src="architect-core.js?v=9127080a2f27"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=7c8bf98552ab"></script>
 <title>Coco ERP</title>
@@ -76,7 +76,7 @@
 <button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')"><span data-gi=1bc70818a30d>Compras</span></button>
 <button data-gama-module="dashboard" class="arcButton tab active" onclick="showTab('dashboard',this)">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="arcButton tab" onclick="showTab('home',this)">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
 <button data-gama-module="products" class="arcButton tab" onclick="showTab('products',this)">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="arcButton tab" onclick="showTab('clients',this)">♙<span data-gi=07e1ce1859da>Clientes</span></button>
-<button data-gama-module="movement" class="arcButton tab" onclick="showTab('movement',this)">⇄<span>IN / OUT</span></button><button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
+<button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
 </div>
 
 <section id="dashboard" data-gi-aria-label=67b696468610 aria-label="Dashboard"></section>
@@ -85,7 +85,6 @@
 <div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=12cf969040ce>Escanear</button></div>
 <button class="arcButton primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=5f55edf90089>Buscar</button>
 <div id="homeResult"></div><video id="camera" playsinline></video>
-<div class="actions"><button class="arcButton primary" onclick="openMovement('IN')" data-gi=6f7643534ea3>Entrada IN</button><button class="arcButton danger" onclick="openMovement('OUT')" data-gi=7f90526bc505>Salida OUT</button></div>
 </div>
 <div class="arcPanel card"><h3 data-gi=be9ed2baa20c>Copias de seguridad</h3>
 <p class="muted" data-gi=92bf1db0b4ef>Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
@@ -134,16 +133,6 @@
 <p class="muted" data-gi=4d7b889125b2>La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
 </div>
 </section>
-<section id="movement">
-<div class="arcPanel card"><div class="scanner"><input id="moveBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('moveBarcode')" data-gi=12cf969040ce>Escanear</button></div><div id="moveInfo" class="muted"></div>
-<div class="row"><div><label data-gi=3868d2843d59>Tipo</label><select id="moveType"><option value="IN" data-gi=59b8b5e0764c>IN — Entrada</option><option value="OUT" data-gi=51b523907c51>OUT — Salida</option></select></div>
-<div><label data-gi=8930e00fcc39>Cantidad</label><input id="moveQty" type="number" min="1" value="1"></div>
-<div><label data-gi=c7b288b1c0bb>Motivo</label><select id="moveReason" data-gama-nofind><option data-gi=83a3c0d27323>Recepción</option><option data-gi=ebda66b3f2fc>Venta</option><option data-gi=ce2f505af2a4>Producción</option><option data-gi=26335d9da0d8>Consumo</option><option data-gi=e87df883dd1f>Rotura</option><option data-gi=5aef5465090e>Muestra</option><option data-gi=a26fdd05a46b>Inventario</option><option data-gi=ae9a7950ec36>Corrección de inventario</option><option data-gi=0d5a52a92cb9>Otro</option></select></div>
-<div><label data-gi=69e9436bf261>Usuario / operador</label><input id="moveUser" value="Admin"></div></div>
-<label data-gi=f2e4400bf8aa>Comentario de auditoría</label><textarea id="moveComment" data-gi-placeholder=36d1019b7c7f placeholder="Motivo o comentario adicional"></textarea>
-<button class="arcButton primary" style="width:100%;margin-top:10px" onclick="registerMovement()" data-gi=9e780d45afaa>Registrar y auditar movimiento</button>
-</div>
-</section>
 
 
 <section id="billing">
@@ -163,7 +152,7 @@
 </div>
 
 <script src="gama-ui.js?v=c6d9fc791f54"></script>
-<script src="gama-modules.js?v=363212794c8f"></script>
+<script src="gama-modules.js?v=f0c8563964ae"></script>
 <script src="gama-pagination.js?v=b82168a0f053"></script>
 <script src="gama-archive.js?v=ce173dd5ba6d"></script>
 <script src="gama-sort.js?v=3387a45e19ca"></script>
@@ -203,7 +192,6 @@ const $=id=>document.getElementById(id);
 function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
 function showTab(id,btn){return window.ArcRouter.show(id,btn)}
 
-function openMovement(type){showTab('movement',null);$('moveType').value=type;$('moveBarcode').focus()}
 function product(b){return db.products.find(p=>p.barcode===b)}
 function uid(prefix='MOV'){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
 function compressPhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let i=new Image();i.onload=()=>{let max=320,s=Math.min(1,max/i.width,max/i.height),c=document.createElement('canvas');c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.6))};i.onerror=reject;i.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
@@ -273,8 +261,6 @@ function exportExcel(){return window.GamaExcelExport.run()}
 function exportJSONBackup(){
  const blob=new Blob([JSON.stringify({version:'V6.1',exportedAt:new Date().toISOString(),data:db},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock_manager_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click()
 }
-function auditMovement({p,type,qty,user,reason,comment,source='IN/OUT',reference=''}){let before=p.stock,after=type==='IN'?before+qty:before-qty;let id=uid();db.moves.unshift({id,date:new Date().toISOString(),type,barcode:p.barcode,name:p.name,qty,user:user||'Admin',reason,comment:comment||'',source,reference,stockBefore:before,stockAfter:after});p.stock=after;return id}
-function registerMovement(){let p=product($('moveBarcode').value.trim()),q=Number($('moveQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');if($('moveType').value==='OUT'&&p.stock<q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);auditMovement({p,type:$('moveType').value,qty:q,user:$('moveUser').value,reason:$('moveReason').value,comment:$('moveComment').value,source:'IN/OUT'});$('moveInfo').textContent=`${p.name} — stock actual: ${p.stock}`;save();alert('Movimiento registrado en el Audit Trail.')}
 function searchProduct(){let p=product($('homeBarcode').value.trim());$('homeResult').innerHTML=p?`<p><b>${p.name}</b><br><span data-gi=ce4f7ecc850e>Stock: </span>${p.stock}<br>Precio: $${Number(p.price||0).toFixed(2)}<br>${p.photo?`<img class="product-img" src="${p.photo}">`:''}</p>`:'<p class="low" data-gi=beb1469ff83c>Producto no encontrado.</p>'}
 
 function addInvoiceItem(){let p=product($('invoiceBarcode').value.trim()),q=Number($('invoiceQty').value);if(!p)return alert('Producto no encontrado.');if(q<1)return alert('Cantidad inválida.');let already=invoiceItems.reduce((a,x)=>a+x.q*(x.p.barcode===p.barcode),0);if(p.stock<already+q)return alert(`Stock insuficiente. Disponible: ${p.stock}`);invoiceItems.push({p,q});$('invoiceBarcode').value='';$('invoiceProductInfo').textContent='';renderInvoiceItems()}
@@ -398,7 +384,7 @@ const EL=["0001101","0011001","0010011","0111101","0100011","0110001","0101111",
 function eanBits(v){v=String(v).trim();if(!/^\d{12,13}$/.test(v))throw Error('EAN-13 requiere 12 o 13 dígitos.');const raw=v;v=v.slice(0,12);let s=0;for(let i=0;i<12;i++)s+=+v[i]*(i%2?3:1);let code=v+((10-s%10)%10);if(raw.length===13&&raw!==code)throw Error('Dígito de control EAN-13 incorrecto.');let p=EP[+code[0]],b='101';for(let i=1;i<=6;i++)b+=p[i-1]==='L'?EL[+code[i]]:EG[+code[i]];b+='01010';for(let i=7;i<13;i++)b+=ER[+code[i]];return [b+'101',code]}
 function generateBarcode(){let err=$('barcodeError');err.textContent='';try{let raw=$('barcodeValue').value.trim(),bits,label;if($('barcodeType').value==='EAN13'){[bits,label]=eanBits(raw)}else{bits=code39Bits(raw);label=raw.toUpperCase()}let ns='http://www.w3.org/2000/svg',svg=$('barcodeSvg'),w=bits.length*3+40;svg.setAttribute('viewBox',`0 0 ${w} 150`);svg.innerHTML='';let x=20;for(const b of bits){if(b==='1'){let r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',10);r.setAttribute('width',3);r.setAttribute('height',100);r.setAttribute('fill','#000');svg.appendChild(r)}x+=3}let t=document.createElementNS(ns,'text');t.setAttribute('x',w/2);t.setAttribute('y',135);t.setAttribute('text-anchor','middle');t.setAttribute('font-family','monospace');t.setAttribute('font-size','16');t.textContent=label;svg.appendChild(t);$('barcodeText').textContent=label}catch(e){err.textContent=e.message}}
 
-async function scan(target){await window.loadZXing();let v=$('camera');v.style.display='block';try{if(!window.ZXingBrowser)throw Error();let ds=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();if(!ds.length)throw Error();let d=ds.find(x=>/back|rear|environment|trasera|arrière/i.test(x.label))||ds[ds.length-1],r=new ZXingBrowser.BrowserMultiFormatReader(),controls;controls=await r.decodeFromVideoDevice(d.deviceId,v,res=>{if(res){$(target).value=res.getText();controls.stop();v.srcObject=null;v.style.display='none';if(target==='invoiceBarcode'){let p=product(res.getText());$('invoiceProductInfo').textContent=p?`${p.name} — Precio: $${Number(p.price||0).toFixed(2)} — Stock: ${p.stock}`:'Producto no encontrado'}else if(target==='moveBarcode'){let p=product(res.getText());$('moveInfo').textContent=p?`${p.name} — stock actual: ${p.stock}`:'Producto no encontrado'}else searchProduct()}})}catch(e){v.style.display='none';alert('No se pudo usar la cámara. Abre la aplicación con HTTPS y permite la cámara en Safari.')}}
+async function scan(target){await window.loadZXing();let v=$('camera');v.style.display='block';try{if(!window.ZXingBrowser)throw Error();let ds=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();if(!ds.length)throw Error();let d=ds.find(x=>/back|rear|environment|trasera|arrière/i.test(x.label))||ds[ds.length-1],r=new ZXingBrowser.BrowserMultiFormatReader(),controls;controls=await r.decodeFromVideoDevice(d.deviceId,v,res=>{if(res){$(target).value=res.getText();controls.stop();v.srcObject=null;v.style.display='none';if(target==='invoiceBarcode'){let p=product(res.getText());$('invoiceProductInfo').textContent=p?`${p.name} — Precio: $${Number(p.price||0).toFixed(2)} — Stock: ${p.stock}`:'Producto no encontrado'}else searchProduct()}})}catch(e){v.style.display='none';alert('No se pudo usar la cámara. Abre la aplicación con HTTPS y permite la cámara en Safari.')}}
 function exportCSV(){let rows=[['Código','Nombre','Descripción','Familia','Líneas','Marca','Presentación','Referencia','Categoría','Ubicación','Stock','Mínimo','Máximo','Cantidad por cartón','Peso (g)','Volumen (cm3)','Precio compra','Precio venta A','Precio venta B','IVA'],...db.products.map(p=>[p.barcode,p.name,p.description,p.family,p.lines,p.brand,p.presentation,p.ref,p.cat,p.loc,p.stock,p.min,p.maxStock,p.qtyCarton,p.weightG,p.volumeCm3,p.purchase_price,p.price,p.salePriceB,p.iva])];let s=rows.map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+s],{type:'text/csv'}));a.download='inventario.csv';a.click()}
 
 function norm(s){return String(s??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
@@ -476,7 +462,7 @@ showTab('mainmenu',null);
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
 <script src="architect-identity.js?v=02272beed762"></script>
 <script src="gama-supabase.js?v=202d23da8f57"></script>
-<script src="gama-central-sync.js?v=600ce34d87f1"></script>
+<script src="gama-central-sync.js?v=875504f017b2"></script>
 <script src="gama-purchases-v14.js?v=cee868aeacc3"></script>
 <script src="gama-proveedores-matriz.js?v=dc17d03453fb"></script>
 <script src="gama-client-catalog.js?v=925cd4ddcece"></script>
@@ -504,7 +490,7 @@ showTab('mainmenu',null);
 <script src="gama-fulfillment.js?v=a5934add103a"></script>
 <script src="gama-tms-loading.js?v=a53314b4e2f4"></script>
 <script src="gama-internal-invoices.js?v=475cc93b4490"></script>
-<script src="gama-dossier-flow.js?v=29baa8f596ef"></script>
+<script src="gama-dossier-flow.js?v=62fcb6030dd0"></script>
 <script src="gama-assistant-ia.js?v=9b09fed4c8aa"></script>
 <link rel="stylesheet" href="gama-projects.css?v=55f43baf8acd">
 <script src="gama-projects-core.js?v=11aeade5f421"></script>
@@ -531,7 +517,7 @@ showTab('mainmenu',null);
 <script src="architect-finance-controls.js?v=5856621d6d86"></script>
 <script src="architect-people.js?v=a2b6ee16f766"></script>
 <script src="architect-access-controls.js?v=1ead272b27c7"></script>
-<script src="architect-barcode-controls.js?v=3d2705707ff5"></script>
-<script src="architect-controls.js?v=8cf91408ff16"></script>
+<script src="architect-barcode-controls.js?v=830f7f032688"></script>
+<script src="architect-controls.js?v=df38a09a0b5e"></script>
 <script src="architect-pricing.js?v=aa368108778e"></script>
 </body></html>

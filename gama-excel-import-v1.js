@@ -19,7 +19,7 @@ const toNumber=v=>{const text=String(v).trim().replace(/^[€$£]\s*|\s*[%€$£
 function mapRow(row,type){const out={};const keys=Object.keys(row);const numeric=NUMERIC_FIELDS[type];for(const field of Object.keys(ALIASES[type])){const aliases=ALIASES[type][field].map(norm);const k=keys.find(x=>aliases.includes(norm(x)));if(!k)continue;const raw=row[k];if(String(raw).trim()==='')continue;if(numeric&&numeric.has(field)){const n=toNumber(raw);if(n!==null)out[field]=n;else out._errors=(out._errors?out._errors+'; ':'')+field+': '+String(raw);}else{out[field]=typeof raw==='string'?raw.trim():raw;}}return out;}
 function host(){return document.getElementById('excel-import-module')||document.getElementById('excelImportModule')||document.querySelector('[data-module="excel"]');}
 function css(){ /* Styles are compiled in architect-components.css. */ }
-function render(){const h=host();if(!h)return;h.classList.add('gamaExcelModule');window.ArcUI.render(h,`${window.GamaUI.header({title:'Importar datos',lead:'Importa datos desde Excel y fotos de tus productos.'})}<div class="gamaExcelModes"><button type="button" data-mode="data" class="arcButton active" data-gi=478bc01902a2>Datos desde Excel</button><button class="arcButton" type="button" data-mode="photos" data-gi=ea8bdb9f487d>Fotos de productos</button><button class="arcButton" type="button" data-mode="optimize" data-gi=32a316506aa1>Optimizar fotos</button></div><div class="gamaExcelBody" id="gamaExcelPanelData"><div class="gamaExcelDrop" id="gamaExcelDrop"><div class="gamaExcelIcon">${excelIcon('spreadsheet')}</div><b data-gi=37b772c6e8fa>Selecciona o arrastra un archivo Excel</b><span data-gi=18ed7e649564>Formatos compatibles: .xlsx, .xls y .csv</span><input id="gamaExcelFile" type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"></div><div id="gamaExcelStatus" class="gamaExcelInfo" data-gi-live data-gi=5b5c815f3c1f>Ningún archivo seleccionado.</div><div class="gamaExcelTypes"><button type="button" data-type="products" class="arcButton active" data-gi=f598138f026c>Productos</button><button class="arcButton" type="button" data-type="clients" data-gi=07e1ce1859da>Clientes</button><button class="arcButton" type="button" data-type="suppliers" data-gi=bb1bb5cc7a83>Proveedores</button><button class="arcButton" type="button" data-type="customerPrices" data-gi=d8be464ab5cf>Tarifas de cliente</button></div><div id="gamaExcelPreview" class="gamaExcelPreview" data-gi=8810c4c2df6b>Selecciona un archivo para mostrar una vista previa.</div><div class="gamaExcelActions"><button type="button" id="gamaExcelTemplate" class="arcButton secondary" data-gi=d02205871bd5>Descargar plantilla</button><button type="button" id="gamaExcelValidate" class="arcButton secondary" data-gi=5a293f298d65>Simular todas las filas</button><button type="button" id="gamaExcelBatches" class="arcButton secondary">Historial de importaciones</button><button type="button" id="gamaExcelImport" class="arcButton primary" disabled data-gi=63e31998d5d9>Importar datos</button></div></div><div class="gamaExcelBody" id="gamaExcelPanelPhotos" hidden><div class="gamaExcelDrop" id="gamaPhotoDrop"><div class="gamaExcelIcon">${excelIcon('cube')}</div><b data-gi=c3f8ff5acbf2>Selecciona o arrastra las fotos de tus productos</b><span data-gi=e9250d978d8e>Formatos compatibles: .jpg, .png y .webp — puedes seleccionar varias a la vez</span><input id="gamaPhotoFiles" type="file" accept="image/*" multiple></div><div class="gamaPhotoHint" data-gi=0107e8f8d234>El nombre del archivo puede contener la <b data-gi=ba93fb125822>referencia, el nombre del producto o ambos</b>: <code>SKU-001.jpg</code>, <code>Tornillo hexagonal.png</code> o <code>SKU-001 Tornillo hexagonal frente.jpg</code>. Mayúsculas, acentos, espacios, guiones y guiones bajos se reconocen. Si hay varios candidatos, añade la referencia y el nombre; las coincidencias ambiguas no se importan.</div><div id="gamaPhotoStatus" class="gamaExcelInfo" data-gi=d674f2920b4c>Ninguna foto seleccionada.</div><label class="gamaPhotoOpt"><input type="checkbox" id="gamaPhotoKeep"><span data-gi=32d46931ce14> Conservar las fotos que ya existen (no reemplazarlas)</span></label><div id="gamaPhotoPreview" class="gamaExcelPreview" data-gi=06f5ea0fcb93>Selecciona fotos para comprobar la correspondencia con tus productos.</div><div class="gamaExcelActions"><button type="button" id="gamaPhotoImport" class="arcButton primary" disabled data-gi=dd9cf954111a>Importar fotos</button></div></div><div class="gamaExcelBody" id="gamaExcelPanelOptimize" hidden><div class="gamaPhotoHint" data-gi=77d1ab5a2a1a>Vuelve a guardar las fotos ya subidas a un tamaño ajustado a la pantalla (<b>320 px</b>). La aplicación nunca las enseña más grandes, así que no se nota la diferencia, pero pesan mucho menos y la base de datos gasta menos tráfico. Las fotos que ya sean pequeñas se dejan como están.</div><div id="gamaOptStatus" class="gamaExcelInfo" data-gi=43ec50213d03>Pulsa el botón para revisar las fotos guardadas.</div><div id="gamaOptResult" class="gamaExcelPreview" data-gi=0976200111c1>Todavía no se ha optimizado nada.</div><div class="gamaExcelActions"><button type="button" id="gamaOptRun" class="arcButton primary" data-gi=d3f1025271c5>Optimizar las fotos guardadas</button></div></div>`);bind();}
+function render(){const h=host();if(!h)return;h.classList.add('gamaExcelModule');window.ArcUI.render(h,`${window.GamaUI.header({title:'Importar datos',lead:'Importa datos desde Excel y fotos de tus productos.'})}<div class="gamaExcelModes"><button type="button" data-mode="data" class="arcButton active" data-gi=478bc01902a2>Datos desde Excel</button><button class="arcButton" type="button" data-mode="photos" data-gi=ea8bdb9f487d>Fotos de productos</button></div><div class="gamaExcelBody" id="gamaExcelPanelData"><div class="gamaExcelDrop" id="gamaExcelDrop"><div class="gamaExcelIcon">${excelIcon('spreadsheet')}</div><b data-gi=37b772c6e8fa>Selecciona o arrastra un archivo Excel</b><span data-gi=18ed7e649564>Formatos compatibles: .xlsx, .xls y .csv</span><input id="gamaExcelFile" type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"></div><div id="gamaExcelStatus" class="gamaExcelInfo" data-gi-live data-gi=5b5c815f3c1f>Ningún archivo seleccionado.</div><div class="gamaExcelTypes"><button type="button" data-type="products" class="arcButton active" data-gi=f598138f026c>Productos</button><button class="arcButton" type="button" data-type="clients" data-gi=07e1ce1859da>Clientes</button><button class="arcButton" type="button" data-type="suppliers" data-gi=bb1bb5cc7a83>Proveedores</button><button class="arcButton" type="button" data-type="customerPrices" data-gi=d8be464ab5cf>Tarifas de cliente</button></div><div id="gamaExcelPreview" class="gamaExcelPreview" data-gi=8810c4c2df6b>Selecciona un archivo para mostrar una vista previa.</div><div class="gamaExcelActions"><button type="button" id="gamaExcelTemplate" class="arcButton secondary" data-gi=d02205871bd5>Descargar plantilla</button><button type="button" id="gamaExcelValidate" class="arcButton secondary" data-gi=5a293f298d65>Simular todas las filas</button><button type="button" id="gamaExcelBatches" class="arcButton secondary">Historial de importaciones</button><button type="button" id="gamaExcelImport" class="arcButton primary" disabled data-gi=63e31998d5d9>Importar datos</button></div></div><div class="gamaExcelBody" id="gamaExcelPanelPhotos" hidden><div class="gamaExcelDrop" id="gamaPhotoDrop"><div class="gamaExcelIcon">${excelIcon('cube')}</div><b data-gi=c3f8ff5acbf2>Selecciona o arrastra las fotos de tus productos</b><span data-gi=e9250d978d8e>Formatos compatibles: .jpg, .png y .webp — puedes seleccionar varias a la vez</span><input id="gamaPhotoFiles" type="file" accept="image/*" multiple></div><div class="gamaPhotoHint" data-gi=0107e8f8d234>El nombre del archivo puede contener la <b data-gi=ba93fb125822>referencia, el nombre del producto o ambos</b>: <code>SKU-001.jpg</code>, <code>Tornillo hexagonal.png</code> o <code>SKU-001 Tornillo hexagonal frente.jpg</code>. Mayúsculas, acentos, espacios, guiones y guiones bajos se reconocen. Si hay varios candidatos, añade la referencia y el nombre; las coincidencias ambiguas no se importan.</div><div id="gamaPhotoStatus" class="gamaExcelInfo" data-gi=d674f2920b4c>Ninguna foto seleccionada.</div><label class="gamaPhotoOpt"><input type="checkbox" id="gamaPhotoKeep"><span data-gi=32d46931ce14> Conservar las fotos que ya existen (no reemplazarlas)</span></label><div id="gamaPhotoPreview" class="gamaExcelPreview" data-gi=06f5ea0fcb93>Selecciona fotos para comprobar la correspondencia con tus productos.</div><div class="gamaExcelActions"><button type="button" id="gamaPhotoImport" class="arcButton primary" disabled data-gi=dd9cf954111a>Importar fotos</button></div></div>`);bind();}
 function loadXLSX(){if(window.XLSX)return Promise.resolve();return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/vendor/xlsx-0.18.5.full.min.js';s.integrity='sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw';s.crossOrigin='anonymous';s.onload=resolve;s.onerror=()=>reject(new Error('No se pudo cargar el lector Excel'));document.head.appendChild(s);});}
 async function parse(file){await loadXLSX();return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const ws=wb.Sheets[state.type]||wb.Sheets[wb.SheetNames[0]];resolve(XLSX.utils.sheet_to_json(ws,{defval:''}));}catch(err){reject(err);}};r.onerror=reject;r.readAsArrayBuffer(file);});}
 function bind(){window.GamaUI.bindBack(host());const file=document.getElementById('gamaExcelFile'),drop=document.getElementById('gamaExcelDrop');drop.onclick=()=>file.click();file.onchange=()=>{state.file=file.files[0];if(state.file)load(state.file);};drop.ondragover=e=>e.preventDefault();drop.ondrop=e=>{e.preventDefault();state.file=e.dataTransfer.files[0];if(state.file)load(state.file);};document.querySelectorAll('.gamaExcelTypes button').forEach(b=>b.onclick=()=>{state.type=b.dataset.type;document.querySelectorAll('.gamaExcelTypes button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(state.file)load(state.file);});document.getElementById('gamaExcelValidate').onclick=prepareImport;document.getElementById('gamaExcelBatches').onclick=importHistory;document.getElementById('gamaExcelImport').onclick=importRows;document.getElementById('gamaExcelTemplate').onclick=downloadTemplate;bindPhotos();}
@@ -30,7 +30,6 @@ function bindPhotos(){
   const mode=b.dataset.mode;
   document.getElementById('gamaExcelPanelData').hidden=mode!=='data';
   document.getElementById('gamaExcelPanelPhotos').hidden=mode!=='photos';
-  document.getElementById('gamaExcelPanelOptimize').hidden=mode!=='optimize';
  });
  const input=document.getElementById('gamaPhotoFiles'),drop=document.getElementById('gamaPhotoDrop');
  drop.onclick=()=>input.click();
@@ -38,36 +37,8 @@ function bindPhotos(){
  drop.ondragover=e=>e.preventDefault();
  drop.ondrop=e=>{e.preventDefault();loadPhotos(e.dataTransfer.files)};
  document.getElementById('gamaPhotoImport').onclick=importPhotos;
- document.getElementById('gamaOptRun').onclick=optimizePhotos;
 }
 
-/* Reduce las fotos ya guardadas. El trabajo lo hace GamaPhotos en este mismo
-   navegador: el canvas sólo existe aquí, y así la escritura pasa por la sesión
-   y los permisos del usuario que lo pide. */
-function kb(chars){return Math.round(chars/1024)+' kB'}
-async function optimizePhotos(){
- const st=document.getElementById('gamaOptStatus'),res=document.getElementById('gamaOptResult');
- const btn=document.getElementById('gamaOptRun');
- if(!window.GamaPhotos||!window.GamaPhotos.optimizeAll){st.textContent='El módulo de fotos no está disponible. Recarga la aplicación.';return}
- if(!confirm('Se van a volver a guardar las fotos de los productos a 320 px.\n\nLa aplicación nunca las enseña más grandes, así que no se notará en pantalla, pero el cambio no se puede deshacer.\n\n¿Continuar?'))return;
- btn.disabled=true;res.textContent='';
- try{
-  const r=await window.GamaPhotos.optimizeAll((hechas,total,nombre)=>{
-   st.textContent=hechas>=total?'Terminando…':`Optimizando ${hechas+1} de ${total}: ${nombre}`;
-  });
-  const ahorro=r.antes>0?Math.round(100-100*r.despues/r.antes):0;
-  st.textContent='Optimización terminada.';
-  window.ArcUI.render(res,'<b>'+r.reducidas+' foto(s) reducida(s)</b>'
-   +(r.sinCambio?' · '+r.sinCambio+' ya estaba(n) bien':'')
-   +(r.fallidas?' · <span style="color:var(--arc-danger)">'+r.fallidas+' con error</span>':'')
-   +'<br>'+kb(r.antes)+' → <b>'+kb(r.despues)+'</b>'+(ahorro>0?' (−'+ahorro+'%)':''));
-  // Las listas ya pintadas siguen enseñando la foto vieja de la caché.
-  if(window.renderAll)try{window.renderAll()}catch(e){}
- }catch(e){
-  console.error('[GAMA Optimizar fotos]',e);
-  st.textContent='No se pudo optimizar: '+(e&&e.message||e);
- }finally{btn.disabled=false}
-}
 /* El nombre del archivo es la referencia: "SKU-001.jpg" → referencia "SKU-001".
    Sólo se quita la última extensión, para no romper referencias con puntos. */
 const baseName=n=>String(n||'').replace(/\.[^.\\/]+$/,'').trim();
@@ -100,28 +71,8 @@ function matchProduct(idx,title){
  if(hits.length>1)return{error:'Varios productos con esa referencia o nombre; añade ambos al archivo'};
  return{error:'Ningún producto con esa referencia o nombre'};
 }
-/* Mismos parámetros que la foto tomada desde la ficha de producto (700 px,
-   JPEG 0.78): una foto de catálogo legible sin llenar la tabla de megabytes. */
-function compressPhoto(file){
- return new Promise((resolve,reject)=>{
-  const r=new FileReader();
-  r.onerror=()=>reject(new Error('No se pudo leer el archivo'));
-  r.onload=()=>{
-   const img=new Image();
-   img.onerror=()=>reject(new Error('Archivo de imagen no válido'));
-   img.onload=()=>{
-    try{
-     const max=320,s=Math.min(1,max/img.width,max/img.height),c=document.createElement('canvas');
-     c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));
-     c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-     resolve(c.toDataURL('image/jpeg',.6));
-    }catch(e){reject(e)}
-   };
-   img.src=r.result;
-  };
-  r.readAsDataURL(file);
- });
-}
+/* The product form and bulk import always use the same upload compression. */
+const compressPhoto=file=>window.compressPhoto(file);
 async function loadPhotos(fileList){
  const files=[...(fileList||[])].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name));
  const st=document.getElementById('gamaPhotoStatus'),btn=document.getElementById('gamaPhotoImport');

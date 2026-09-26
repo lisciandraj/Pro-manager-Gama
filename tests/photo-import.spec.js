@@ -43,6 +43,7 @@ test.describe('Importar fotos de productos', () => {
   test('the photo panel is a second mode of the Excel import screen', async ({ page }) => {
     await openPhotoTab(page);
     await expect(page.locator('#gamaExcelPanelPhotos')).toBeVisible();
+    await expect(page.locator('[data-mode=optimize],#gamaExcelPanelOptimize')).toHaveCount(0);
     await expect(page.locator('#gamaExcelPanelData')).toBeHidden();
     await expect(page.locator('#gamaExcelPanelPhotos')).toContainText('referencia, el nombre del producto o ambos');
 
@@ -224,4 +225,13 @@ test('photo matching reads beyond the first catalogue page', async ({page}) => {
  await page.click('#gamaPhotoImport');
  await expect(page.locator('#gamaPhotoStatus')).toContainText('1 foto(s) asignada(s)');
  expect(await page.evaluate(()=>window.__DB.products.find(p=>p.reference==='REF-1004').photo_data)).toBeTruthy();
+});
+
+test('uploads automatically reduce large photos before saving',async({page})=>{
+ await openPhotoTab(page);
+ const source=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=1600;c.height=1000;const ctx=c.getContext('2d');for(let x=0;x<1600;x+=4){ctx.fillStyle=`rgb(${x%255},100,180)`;ctx.fillRect(x,0,4,1000)}return c.toDataURL('image/png')});
+ await page.setInputFiles('#gamaPhotoFiles',{name:'SKU-001.png',mimeType:'image/png',buffer:Buffer.from(source.split(',')[1],'base64')});
+ await page.click('#gamaPhotoImport');await expect(page.locator('#gamaPhotoStatus')).toContainText('1 foto(s) asignada(s)');
+ const saved=await page.evaluate(async()=>{const data=__DB.products.find(p=>p.id==='p1').photo_data;const i=new Image();i.src=data;await i.decode();return {data,width:i.width,height:i.height}});
+ expect(saved.width).toBe(320);expect(saved.height).toBe(200);expect(saved.data.length).toBeLessThan(source.length);expect(saved.data).toMatch(/^data:image\/jpeg/);
 });

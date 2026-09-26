@@ -220,8 +220,10 @@ function controls(t,state){
  if(state.signature!==signature){
   state.signature=signature;state.controls?.remove();
   const box=document.createElement('div');box.className='gamaTableControls';box.setAttribute('translate','no');box.dataset.giIgnore='';
-  const details=document.createElement('div');details.className='gamaColumnPicker';details.setAttribute('role','group');details.setAttribute('aria-label',w.columns);const summary=document.createElement('div');summary.className='gamaColumnHeading';summary.textContent=w.columns;details.append(summary);
+  const details=document.createElement('div');details.className='gamaColumnPicker';details.setAttribute('role','group');details.setAttribute('aria-label',w.columns);const summary=document.createElement('button');summary.type='button';summary.className='gamaColumnHeading';summary.textContent=w.columns;details.append(summary);
   const list=document.createElement('div');list.className='gamaColumnOptions';
+  list.hidden=!!stored.collapsed;summary.setAttribute('aria-expanded',String(!list.hidden));
+  summary.onclick=()=>{list.hidden=!list.hidden;summary.setAttribute('aria-expanded',String(!list.hidden));const data=read(key)||{};data.collapsed=list.hidden;save(key,data)};
   cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
    input.onchange=()=>{const data=read(key)||{},set=new Set(state.hidden);input.checked?set.delete(c.key):set.add(c.key);data.hidden=[...set];save(key,data);controls(t,state)};});
   const reset=document.createElement('button');reset.type='button';reset.textContent=w.all;reset.onclick=()=>{const data=read(key)||{};data.hidden=[];save(key,data);controls(t,state)};list.append(reset);details.append(list);box.append(details);

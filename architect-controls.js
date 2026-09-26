@@ -32,7 +32,6 @@ function mergeKind(){const d=U.dialog({title:t('Fusionar duplicados','Fusionner 
 function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('[data-controls-bar]');if(bar)return;bar=document.createElement('div');bar.className='arcToolbar';bar.dataset.controlsBar='';bar.dataset.giIgnore='';
  if(['gamaPurchasesV14','quotes','sales-orders'].includes(id)&&!['client','cliente'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role))bar.append(button(t('Validaciones','Validations','Approvals'),approvals));
  if(['suppliers','gamaPurchasesV14','contacts'].includes(id))bar.append(button(t('Comparar ofertas','Comparer les offres','Compare offers'),()=>window.ArchitectSourcing.open()));
- if(id==='warehouses')bar.append(button(t('Ajustes a validar','Ajustements à valider','Adjustment approvals'),()=>window.ArchitectStockControls.open()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Horarios de ruta','Horaires de tournée','Route schedules'),()=>window.ArchitectTransportControls.schedules()));
  if(id==='gama-tms-section'||id==='tms')bar.append(button(t('Pruebas pendientes','Preuves en attente','Pending proofs'),()=>window.ArchitectOfflineProofs.open()));
  if(['products','warehouses','gamaPurchasesV14','returns','gama-tms-section'].includes(id))bar.append(button(t('Trazabilidad por lote','Traçabilité par lot','Lot traceability'),()=>window.ArchitectLots.choose()));

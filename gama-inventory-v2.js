@@ -149,6 +149,7 @@ function pintar(){
 <button class="arcButton" type="button" data-iv-tab="transferencias" data-gi=7964b01de247>Transferencias</button>
 <button class="arcButton" type="button" data-iv-tab="reabastecimiento" data-gi=b8d29c42edf0>Reabastecimiento</button>
 <button class="arcButton" type="button" data-iv-tab="conteos" data-gi=50b30c964d90>Inventario físico</button>
+${window.ArchitectStockControls?.allowed()?`<button class="arcButton" type="button" data-iv-tab="ajustes" data-gi-ignore>${esc(window.ArchitectStockControls.label())}</button>`:''}
 <button class="arcButton" type="button" data-iv-tab="ubicaciones" data-gi=f2f6d7256e7e>Ubicaciones</button>
 </div><div id="ivCuerpo"></div>`);
  window.GamaUI.bindBack(sec);
@@ -168,6 +169,7 @@ Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div>
  else if(pestana==='transferencias')pintarTransferencias(cuerpo);
  else if(pestana==='reabastecimiento')pintarReabastecimiento(cuerpo);
  else if(pestana==='conteos')pintarConteos(cuerpo);
+ else if(pestana==='ajustes')window.ArchitectStockControls?.mount(cuerpo);
  else pintarUbicaciones(cuerpo);
 }
 
@@ -816,7 +818,7 @@ async function abrir(){
 }
 
 window.GamaOpenWarehouses=abrir;
-window.GamaInventoryV2={openCount:async id=>{
+window.GamaInventoryV2={openAdjustments:async()=>{if(!window.ArchitectStockControls?.allowed())return;pestana='ajustes';await abrir()},openCount:async id=>{
  if(!window.gamaAccessAllowed?.('warehouses'))throw Error('Acceso no permitido.');
  await abrir();const r=await C().list('inventory_counts',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Recuento no disponible.');
  conteos=(conteos||[]).filter(c=>c.id!==id).concat(r.data);pestana='conteos';await abrirConteo(id);

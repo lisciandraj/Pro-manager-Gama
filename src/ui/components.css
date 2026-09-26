@@ -13,3 +13,9 @@
 .arcTabs{display:flex;gap:8px;overflow-x:auto;padding:4px}.arcTabs [role=tab]{flex-shrink:0}.arcTabs [aria-selected=true]{background:var(--arc-accent-600);color:#fff}.arcKpi{display:flex;flex-direction:column;gap:8px}.arcKpi strong{font-size:28px}.arcKpi small{color:var(--arc-text-muted)}
 @media(max-width:760px){.arcFormGrid{grid-template-columns:1fr}.arcDialog{padding:var(--arc-s4)}.arcTable thead{display:none}.arcTable,.arcTable tbody,.arcTable tr,.arcTable td{display:block;width:auto}.arcTable tr{padding:12px;border-bottom:2px solid var(--arc-line)}.arcTable td{display:grid;grid-template-columns:40% minmax(0,1fr);gap:8px;border:0;padding:6px 0;overflow-wrap:anywhere}.arcTable td::before{content:attr(data-col);font-weight:600;color:var(--arc-text-muted)}.arcTable td[data-gama-title]{display:block;font-weight:700}.arcTable td[data-gama-title]::before{display:none}.arcTable td[colspan]{display:block}.arcTableWrap{overflow:visible;border-radius:var(--arc-r-md)}.arcPager{justify-content:center}.arcPager>span{order:-1;width:100%;text-align:center}}
 @media print{.arcPanel,.arcKpi,.arcButton,.arcDialog{box-shadow:none}.arcToolbar,.arcPager{display:none}.arcTableWrap{overflow:visible}.arcTable thead{display:table-header-group}.arcTable{display:table}.arcTable tbody{display:table-row-group}.arcTable tr{display:table-row}.arcTable td,.arcTable th{display:table-cell}.arcTable td::before{display:none}}
+
+/* Stock adjustment history remains readable in the shared table/card views. */
+.stockAdjustments .arcTable td{white-space:normal;overflow-wrap:anywhere}
+.stockAdjustments .arcTable small{display:block;margin-top:4px;line-height:1.4}
+.stockAdjustments .arcTable strong{display:block}
+.stockAdjustmentDialog [data-adjust-preview]{padding:14px;margin:12px 0;line-height:1.5}

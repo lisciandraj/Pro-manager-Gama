@@ -8,7 +8,7 @@ const types={'pdf':'application/pdf','jpg':'image/jpeg','jpeg':'image/jpeg','png
 const state={sav:{generation:0,page:0,filter:'open',search:'',rows:[]},documents:{generation:0,page:0,filter:'active',search:'',rows:[],context:{}}};
 let refs={customers:[],suppliers:[],orders:[],staff:[],categories:[],employees:[],access:{}},identity=0;
 const accessLabels={team:'Todos los empleados',hr:'RH y administradores',management:'Solo administradores',source:'Acceso del módulo de origen'};
-const sourceLabels={hr:'Recursos humanos',fleet:'Fleet',projects:'Proyectos',payments:'Facturas',accounting:'Contabilidad',returns:'Devoluciones',tms:'Entrega'};
+const sourceLabels={warehouses:'Almacenes y existencias',hr:'Recursos humanos',fleet:'Fleet',projects:'Proyectos',payments:'Facturas',accounting:'Contabilidad',returns:'Devoluciones',tms:'Entrega'};
 const canEdit=r=>!!(refs.access.admin||refs.access.hr||(r.visibility==='team'&&(r.source_created_by||r.created_by)===refs.access.user_id));
 const allowed=id=>!!window.gamaAccessAllowed?.(id);
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());

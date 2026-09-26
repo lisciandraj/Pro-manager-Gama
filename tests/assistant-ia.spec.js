@@ -7,9 +7,9 @@ async function boot(page,{role='admin',configured=true}={}){
  await page.addInitScript(({role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Assistant QA'}));localStorage.setItem('gama_language_v1','fr');window.__aiRequests=[];},{role});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;GamaCloud.getSession=async()=>({data:{session:{access_token:'qa-token',user:{id:'qa'}}}});
  window.__cocoCalls=[];window.__cocoCount=27;window.__cocoError=false;
- const originalCocoRpc=GamaCloud.rpc;
- GamaCloud.rpc=async(name,args={})=>{
-  if(!name.startsWith('gama_coco'))return originalCocoRpc(name,args);
+ const originalCocoDb=GamaCloud.db;
+ const cocoRpc=async(name,args={})=>{
+  if(!name.startsWith('gama_coco'))return (await originalCocoDb()).rpc(name,args);
   __cocoCalls.push({name,args});
   if(window.__cocoDelay)await new Promise(resolve=>window.__cocoResolve=resolve);
   if(window.__cocoError)return {error:{code:'503',message:'Network unavailable'}};
@@ -17,6 +17,7 @@ async function boot(page,{role='admin',configured=true}={}){
   return {data:{calculated_at:new Date().toISOString(),products_analyzed:30,without_history:25,reorder_count:__cocoCount,critical_count:2,recommendation_count:__cocoCount,has_more:(args.p_offset||0)+25<__cocoCount,
    recommendations:Array.from({length:Math.min(25,Math.max(0,__cocoCount-(args.p_offset||0)))},(_,i)=>({id:String(i+(args.p_offset||0)),product_name:'Produit '+(i+(args.p_offset||0)+1),priority:i===0?'critical':'high',recommendation_type:'reorder',confidence:20,current_value:{available_stock:5,incoming_stock:2,draft_purchase_stock:1,min:10,max:30},recommended_value:{min:10,max:30,order_qty:22},reasoning:{basis:'configured_thresholds',demand_30d:0,demand_60d:0,demand_90d:0,lead_time_days:7}}))}};
  };
+ GamaCloud.db=async()=>({...await originalCocoDb(),rpc:cocoRpc});
 `}));
  await page.route('**/functions/v1/gama-assistant-ia',async r=>{const b=r.request().postDataJSON();await page.evaluate(b=>__aiRequests.push(b),b);let data;
   if(b.action==='status')data={configured,model:configured?'gpt-4.1-mini':null};
@@ -76,4 +77,38 @@ test('Coco errors are retryable and late responses cannot restore data after log
  await page.waitForFunction(()=>!!window.__cocoResolve);
  await page.evaluate(()=>{localStorage.removeItem('gama_session_v1');window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));window.__cocoResolve();});
  await expect(page.locator('#assistant-ia')).toBeEmpty();
+});
+
+test('Coco uses the real cloud connector and Supabase SDK for stock RPCs',async({page})=>{
+ const requests=[];let refreshed=false;
+ const addRuntime=name=>page.addScriptTag(process.env.COCO_RUNTIME_BASE_URL?{url:new URL(name,process.env.COCO_RUNTIME_BASE_URL).href}:{path:path.join(__dirname,'..',name)});
+ await page.route('**/coco-connector-test',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><html><head></head><body><div class="wrap"></div></body></html>'}));
+ // Only auxiliary modules are omitted; both connection layers below are production files.
+ for(const name of ['gama-cloud-products.js','gama-cloud-auth.js','gama-cloud-users.js','gama-purchases-supplier-bridge.js','gama-invoice-archive.js'])
+  await page.route('**/'+name+'*',r=>r.fulfill({contentType:'text/javascript',body:''}));
+ await page.route('**/rest/v1/rpc/**',r=>{
+  const name=r.request().url().split('/').at(-1),args=r.request().postDataJSON();requests.push({name,args,method:r.request().method()});
+  let data;if(name==='gama_coco_inventory_analyze'){refreshed=true;data={products_analyzed:167};}
+  else data={calculated_at:refreshed?new Date().toISOString():'2000-01-01T00:00:00Z',products_analyzed:167,reorder_count:62,recommendation_count:1,critical_count:48,without_history:165,has_more:false,recommendations:[{id:'test-product',product_name:'Produit connecteur réel',priority:'critical',recommendation_type:'reorder',confidence:20,current_value:{available_stock:0,min:10,max:30},recommended_value:{min:10,max:30,order_qty:30},reasoning:{basis:'configured_thresholds'}}]};
+  return r.fulfill({contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(data)});
+ });
+ await page.goto('/coco-connector-test');
+ await page.evaluate(()=>{
+  localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin'}));
+  window.ArcUI={esc:value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),render:(host,html)=>{host.innerHTML=html;}};
+  window.GamaUI={header:({title})=>'<h2>'+title+'</h2>',bindBack:()=>{}};
+  window.GamaI18n={language:'fr'};window.showTab=id=>document.getElementById(id).classList.add('active');
+ });
+ await addRuntime('assets/vendor/supabase-2.115.0.js');
+ await addRuntime('gama-supabase.js');
+ await page.evaluate(()=>window.GamaCloudReady);
+ expect(await page.evaluate(()=>typeof GamaCloud.rpc)).toBe('undefined');
+ await addRuntime('gama-assistant-ia.js');
+ await page.evaluate(()=>GamaAssistant.open());
+ await expect(page.locator('#cocoInventoryInsights .coco-card')).toContainText('Produit connecteur réel');
+ await expect(page.locator('#cocoInventoryInsights [role="alert"]')).toHaveCount(0);
+ expect(requests.map(r=>r.name)).toEqual(['gama_coco_inventory_overview','gama_coco_inventory_analyze','gama_coco_inventory_overview']);
+ expect(requests[0].args).toEqual({p_limit:25,p_offset:0});expect(requests.every(r=>r.method==='POST')).toBe(true);
+ await page.locator('#cocoRefresh').click();await expect(page.locator('.coco-card')).toHaveCount(1);
+ expect(requests.filter(r=>r.name==='gama_coco_inventory_analyze')).toHaveLength(2);
 });

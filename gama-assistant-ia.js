@@ -47,7 +47,8 @@ async function loadCocoInsights({refresh=false,offset=0}={}){
  window.ArcUI.render(box,`<h3>${heading}</h3><p class="ai-meta" role="status">${tr('Lecture des recommandations stock…','Cargando recomendaciones de inventario…','Loading inventory recommendations…')}</p>`);
  try{
   await window.GamaCloudReady;if(!current())return;
-  const rpc=async(name,args={})=>{const r=await GamaCloud.rpc(name,args);if(r.error)throw r.error;return r.data||{};};
+  const client=await GamaCloud.db();if(!current())return;
+  const rpc=async(name,args={})=>{const r=await client.rpc(name,args);if(r.error)throw r.error;return r.data||{};};
   let d=await rpc('gama_coco_inventory_overview',{p_limit:25,p_offset:offset});if(!current())return;
   if(refresh||(!offset&&(!d.calculated_at||Date.now()-Date.parse(d.calculated_at)>300000))){await rpc('gama_coco_inventory_analyze');if(!current())return;d=await rpc('gama_coco_inventory_overview',{p_limit:25,p_offset:offset});}
   if(!current())return;

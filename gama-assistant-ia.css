@@ -49,3 +49,23 @@
 @media(max-width:450px){#assistant-ia .ai-tools button{flex:1}#assistant-ia .ai-period label{min-width:120px}#assistant-ia .ai-answer h3{font-size:20px}}
 
 .ai-insight-kpis{margin:10px 0 14px;font-size:14px}.ai-insight-kpis strong{font-size:18px}.ai-layout #cocoInventoryInsights{margin-bottom:14px}
+
+#assistant-ia .coco-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#assistant-ia .coco-heading h3{margin:0}
+#assistant-ia .coco-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+#assistant-ia .coco-kpis>div{padding:14px;background:var(--arc-bg-soft,#f1f5f9);border-radius:12px}
+#assistant-ia .coco-kpis strong{display:block;font-size:24px;color:var(--arc-text)}
+#assistant-ia .coco-kpis span{font-size:12px;color:var(--arc-text-muted)}
+#assistant-ia .coco-note{padding:12px;border-left:3px solid var(--arc-primary,#2563eb);background:var(--arc-bg-soft,#f1f5f9);font-size:13px;line-height:1.6}
+#assistant-ia .coco-list{display:grid;gap:14px;margin:16px 0;max-height:560px;overflow:auto;padding-right:6px;overscroll-behavior:contain}
+#assistant-ia .coco-card{border:1px solid var(--arc-border,#d5dde8);border-radius:12px;padding:16px;min-width:0;overflow-wrap:anywhere}
+#assistant-ia .coco-card[data-priority="critical"]{border-left:4px solid #b91c1c}
+#assistant-ia .coco-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+#assistant-ia .coco-values dt{font-size:12px;color:var(--arc-text-muted)}
+#assistant-ia .coco-values dd{margin:4px 0 0;font-weight:600;font-variant-numeric:tabular-nums}
+#assistant-ia .coco-card details{margin:14px 0;font-size:13px;line-height:1.6}
+#assistant-ia .coco-paging{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0;flex-wrap:wrap}
+#assistant-ia #cocoInventoryInsights{margin-bottom:16px}
+@media(max-width:600px){#assistant-ia .coco-values{grid-template-columns:repeat(2,minmax(0,1fr))}#assistant-ia .coco-kpis{gap:6px}#assistant-ia .coco-kpis>div{padding:10px}#assistant-ia .coco-card{padding:12px}}
+
+@media(max-width:600px){#assistant-ia .coco-list{max-height:420px}}

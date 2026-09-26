@@ -40,4 +40,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/standardization.spec.js tests/loading-performance.spec.js tests/reference-formats.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/dashboard-analysis.spec.js --workers=2
+      - run: npx playwright test tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/reference-formats.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/dashboard-analysis.spec.js --workers=2

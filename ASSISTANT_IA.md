@@ -81,3 +81,36 @@ Checks:
 The live overview and unauthenticated Edge Function rejection were checked during
 deployment. A paid model response must also be checked after supplying the real
 provider key; mocked provider tests do not establish real account access.
+
+## Coco Intelligence inventory (V1.1)
+
+The user-facing module is now **Coco Intelligence**; `assistant-ia` remains its
+stable permission/history ID. Its stock panel works without OpenAI credit.
+
+- Demand uses observed outbound delivery, production and manual consumption over
+  30/60/90 days. Transfers, adjustments, supplier returns and future movements do
+  not count. The weighted daily mean is 50%/30%/20% across those fixed windows.
+- Suggested minimum is 1.5 × lead-time demand; maximum is demand over lead time
+  plus 14 days, plus a 50% lead-time safety buffer. Missing lead time defaults to
+  7 days. Confidence is an indicative heuristic based on history and settings.
+- Without demand, retain configured min/max and label the result as configuration
+  based with limited confidence. Service and inactive products are excluded.
+- Available stock excludes reservations. Sent/partial purchases count as incoming;
+  draft purchases are shown separately and deducted to prevent duplicate proposals.
+  Order quantity is positive only below the proposed minimum. Stock above minimum
+  can still receive a threshold-review proposal, with zero purchase quantity.
+- The panel shows all pending recommendations through pages ordered by priority,
+  calculation inputs, a timestamp, refresh/retry controls and a link to Purchases.
+  It never changes product thresholds, physical stock or purchase orders.
+- Each AI question refreshes deterministic recommendations, receives a first page
+  as cited evidence, and can read further pages with `read_inventory`. The model
+  explains supplied quantities; it cannot calculate or apply inventory policy.
+- Both read RPCs and cache refresh require an active administrator and enabled
+  module. Public RPCs use invoker rights; the guarded cache writer resides in the
+  non-exposed private schema with an empty search path. Tables are read-only to
+  browser roles and RLS denies non-admin reads. Refreshes serialize with a
+  transaction advisory lock; refreshed proposals retain IDs and stale ones expire.
+
+Verify with `node --test tests/coco-intelligence-db.test.cjs
+ tests/assistant-server.test.mjs` and `npx playwright test tests/assistant-ia.spec.js`.
+Deploy the reliability migration before the updated Edge Function and frontend.

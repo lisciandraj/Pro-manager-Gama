@@ -42,7 +42,6 @@ test('a shelf is configured with two letters, columns and rows and generates AAX
   await expect(shelf).toContainText('AB01-01 → AB03-02');
   await expect(shelf).toContainText('6');
   // La simulación: una celda por espacio, la fila 01 abajo.
-  await shelf.locator('[data-shelf-view]').click();
   await expect(shelf.locator('.ivCelda')).toHaveCount(6);
   await expect(shelf.locator('.ivCelda').first()).toHaveAttribute('data-space', 'AB01-02');
   await expect(shelf.locator('.ivCelda').last()).toHaveAttribute('data-space', 'AB03-01');
@@ -61,7 +60,6 @@ test('a shelf can be resized and deleted, but never while a space holds stock', 
   });
   await page.locator('[data-iv-tab="existencias"]').click();await page.locator('[data-iv-tab="ubicaciones"]').click();
   const shelf = page.locator('[data-shelf="shelf-CD"]');
-  await shelf.locator('[data-shelf-view]').click();
   await expect(shelf.locator('.ivCelda.lleno')).toHaveCount(1);
   await expect(shelf.locator('.ivCelda.lleno')).toHaveAttribute('data-space', 'CD02-02');
   // Reducir a una columna dejaría fuera CD02-02, que tiene existencias.
@@ -96,7 +94,23 @@ test('a wide shelf scrolls inside its frame on a phone', async ({ page }) => {
   await boot(page, 'admin', [{ id: 'shelf-GH', warehouse_id: 'w1', code: 'GH', name: '', column_count: 12, row_count: 2, version: 1 }]);
   await page.evaluate(() => { const two = n => String(n).padStart(2, '0'); for (let c = 1; c <= 12; c++) for (let r = 1; r <= 2; r++) __DB.warehouse_locations.push({ id: `loc-GH${two(c)}-${two(r)}`, warehouse_id: 'w1', code: `GH${two(c)}-${two(r)}`, name: 'x', type: 'bin', active: true, shelf_id: 'shelf-GH' }); return GamaInventoryV2.cargar(); });
   await page.locator('[data-iv-tab="existencias"]').click();await page.locator('[data-iv-tab="ubicaciones"]').click();
-  await page.locator('[data-shelf="shelf-GH"] [data-shelf-view]').click();
   await expect(page.locator('.ivCelda')).toHaveCount(24);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+});
+
+
+test('all shelves stay expanded and sort by their two-letter code within each warehouse', async ({page}) => {
+ const shelves=['ZZ','BA','AB','AA'].map(code=>({id:'shelf-'+code,warehouse_id:'w1',code,name:'Shelf '+code,column_count:2,row_count:1,version:1}));
+ shelves.push(...['CD','AC'].map(code=>({id:'second-'+code,warehouse_id:'w2',code,name:'Second '+code,column_count:1,row_count:1,version:1})));
+ await boot(page,'admin',shelves);
+ await page.evaluate(async()=>{__DB.warehouses.push({id:'w2',code:'SECOND',name:'Second warehouse',active:true});await GamaInventoryV2.cargar()});
+ await page.locator('[data-iv-tab="existencias"]').click();await page.locator('[data-iv-tab="ubicaciones"]').click();
+ await expect(page.locator('[data-warehouse="w1"] .ivShelfCode')).toHaveText(['AA','AB','BA','ZZ']);
+ await expect(page.locator('[data-warehouse="w2"] .ivShelfCode')).toHaveText(['AC','CD']);
+ await expect(page.locator('[data-shelf-view]')).toHaveCount(0);
+ await expect(page.locator('.ivEstanteria')).toHaveCount(6);
+ for(const shelf of await page.locator('.ivEstanteria').all())await expect(shelf).toBeVisible();
+ await page.locator('[data-iv-tab="existencias"]').click();await page.locator('[data-iv-tab="ubicaciones"]').click();
+ await expect(page.locator('[data-warehouse="w1"] .ivShelfCode')).toHaveText(['AA','AB','BA','ZZ']);
+ await expect(page.locator('.ivEstanteria')).toHaveCount(6);
 });

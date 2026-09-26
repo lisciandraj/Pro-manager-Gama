@@ -43,7 +43,6 @@ async function boot(page, role = 'admin') {
 test('a space opens a window with the products it holds, and an empty one says so', async ({ page }) => {
   await boot(page);
   const shelf = page.locator('[data-shelf="shelf-AB"]');
-  await shelf.locator('[data-shelf-view]').click();
   await shelf.locator('[data-space="AB02-01"]').click();
   const d = page.locator('dialog.ivContenido');
   await expect(d.locator('h2')).toHaveText('Espacio AB02-01');
@@ -85,16 +84,17 @@ test('the search tells where each product is and leads to its space', async ({ p
   await expect(found.first()).toContainText('68 uds. · 3 ubicaciones');
   await expect(found.first().locator('[data-go-location]')).toHaveText([/AB02-01 · 40 uds\./, /CD02-02 · 8 uds\./, /LLEGADA Zona de llegada · 20 uds\./]);
   await expect(found.last()).toContainText('Sin existencias en ninguna ubicación.');
-  // Las estanterías y las zonas donde está quedan señaladas, sin abrirse.
+  // Las estanterías y las zonas quedan señaladas y todas las celdas siguen visibles.
   await expect(page.locator('[data-shelf="shelf-AB"]')).toHaveClass(/coincide/);
   await expect(page.locator('[data-shelf="shelf-CD"]')).toHaveClass(/coincide/);
   await expect(page.locator('.ivOtras [data-location="arr"]')).toHaveClass(/coincide/);
-  await expect(page.locator('.ivCelda')).toHaveCount(0);
-  // Pulsar un sitio abre su estantería y lo señala.
+  await expect(page.locator('.ivCelda')).toHaveCount(10);
+  // Pulsar un sitio lo señala sin ocultar las otras estanterías.
   await found.first().locator('[data-go-location="loc-CD02-02"]').click();
   const space = page.locator('[data-space="CD02-02"]');
   await expect(space).toHaveClass(/buscada/);
   await expect(space).toBeFocused();
+  await expect(page.locator('.ivCelda')).toHaveCount(10);
   await expect(page.locator('[data-shelf="shelf-CD"] .ivCelda.coincide')).toHaveCount(1);
   // Por referencia y por código de barras; el buscador se conserva al cambiar de pestaña.
   await search.fill('are');

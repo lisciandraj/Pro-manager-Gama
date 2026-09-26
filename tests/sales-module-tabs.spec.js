@@ -2,11 +2,11 @@ const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const cloud=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 
-// «Presupuestos y facturas» reúne la cadena de la venta en cuatro pestañas:
+// «Ventas» reúne la cadena de la venta en cuatro pestañas:
 // Solicitudes de clientes · Presupuestos · Pedidos · Facturas. Cada pestaña
 // es la pantalla que ya existía y sólo aparece con su permiso; los pedidos y
 // las facturas dejan de tener tarjeta propia para quien ve el módulo, y los
-// pedidos no la tienen para nadie: se entra por Presupuestos y facturas.
+// pedidos no la tienen para nadie: se entra por Ventas.
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));
@@ -21,13 +21,13 @@ async function boot(page,role='admin'){
 }
 const tabs=page=>page.locator('section.active [data-gq-module-tab]');
 
-test('one tile, four tabs: requests, quotes, orders and invoices',async({page})=>{
+test('one Sales tile, five tabs including price lists',async({page})=>{
  await boot(page);
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeVisible();
- for(const id of ['sales-orders','payments'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
+ for(const id of ['sales-orders','payments','price-lists'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
  await expect(page.locator(`.arcNav [data-gama-module="sales-orders"]`)).toBeHidden();
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
- await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos','Facturas']);
+ await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos','Facturas','Tarifas']);
  await expect(page.locator('#gqDocumentsTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#quotes')).toContainText('COT-1');
  // El presupuesto ya no arrastra sus facturas: están en su pestaña.
@@ -40,13 +40,17 @@ test('one tile, four tabs: requests, quotes, orders and invoices',async({page})=
  await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
  await expect(page.locator('[data-gs-tab="invoices"]')).toHaveCount(0);
- await expect(page.locator('#sales-orders h2')).toContainText('Presupuestos y facturas');
+ await expect(page.locator('#sales-orders h2')).toContainText('Ventas');
 
  await page.locator('#sales-orders #gqInvoicesTab').click();
  await expect(page.locator('#payments.active')).toBeVisible();
  await expect(page.locator('#payments #gqInvoicesTab')).toHaveAttribute('aria-selected','true');
 
- await page.locator('#payments #gqRequestsTab').click();
+ await page.locator('#payments #gqPricesTab').click();
+ await expect(page.locator('#price-lists.active')).toBeVisible();
+ await expect(page.locator('#price-lists h2')).toContainText('Ventas');
+ await expect(page.locator('#price-lists #gqPricesTab')).toHaveAttribute('aria-selected','true');
+ await page.locator('#price-lists #gqRequestsTab').click();
  await expect(page.locator('#quotes.active')).toBeVisible();
  await expect(page.locator('#quotes #gqRequestsTab')).toHaveAttribute('aria-selected','true');
 });
@@ -59,9 +63,11 @@ test('old addresses land on their tab',async({page})=>{
  await expect(page.locator('#payments.active')).toBeVisible();
  await page.evaluate(()=>ArcRouter.open('payments'));
  await expect(page.locator('#payments #gqInvoicesTab')).toHaveAttribute('aria-selected','true');
+ await page.evaluate(()=>ArcRouter.open('price-lists'));
+ await expect(page.locator('#price-lists #gqPricesTab')).toHaveAttribute('aria-selected','true');
 });
 
-test('the warehouse reaches its orders through Presupuestos y facturas: no orders tile of its own',async({page})=>{
+test('the warehouse reaches its orders through Ventas: no orders tile of its own',async({page})=>{
  await boot(page,'magasinier');
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="sales-orders"], .arcNav [data-gama-module="sales-orders"]')).toHaveCount(0);
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeVisible();
@@ -70,7 +76,7 @@ test('the warehouse reaches its orders through Presupuestos y facturas: no order
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
  await expect(page.locator('#sales-orders.active')).toBeVisible();
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
- await expect(page.locator('#sales-orders h2')).toContainText('Presupuestos y facturas');
+ await expect(page.locator('#sales-orders h2')).toContainText('Ventas');
  await expect(page.locator('#sales-orders [data-gq-module-tab]')).toHaveText(['Pedidos']);
  await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
 });
@@ -82,6 +88,7 @@ test('orders are not in any list of modules: the home personalization lists only
  expect(values).toContain('quotes');
  expect(values).not.toContain('sales-orders');
  expect(values).not.toContain('payments');
+ expect(values).not.toContain('price-lists');
 });
 
 test('the customer portal keeps its quotes, without tabs',async({page})=>{
@@ -89,10 +96,30 @@ test('the customer portal keeps its quotes, without tabs',async({page})=>{
  await page.evaluate(()=>GamaQuotes.open());
  await expect(page.locator('#quotes')).toContainText('COT-1');
  await expect(page.locator('[data-gq-module-tab]')).toHaveCount(0);
+ await page.evaluate(()=>GamaOpenPriceLists());await expect(page.locator('#price-lists.active')).toHaveCount(0);
 });
 
 test('the tabs fit a phone',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(4);
+ await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(5);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+
+test('Sales opens price lists for a profile permitted only that tab',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{const allowed=window.gamaAccessAllowed;window.gamaAccessAllowed=id=>['quotes','sales-orders','payments','customer-requests'].includes(id)?false:allowed(id)});
+ await page.evaluate(()=>ArcRouter.open('quotes'));
+ await expect(page.locator('#price-lists.active')).toBeVisible();
+ await expect(tabs(page)).toHaveText(['Tarifas']);
+ await expect(page.locator('#price-lists #gqPricesTab')).toHaveAttribute('aria-selected','true');
+});
+
+test('Sales and its price tab use the French labels',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toContainText('Ventes');
+ await page.evaluate(()=>ArcRouter.open('quotes'));
+ await page.locator('#quotes #gqPricesTab').click();
+ await expect(page.locator('#price-lists h2')).toContainText('Ventes');
+ await expect(page.locator('#price-lists #gqPricesTab')).toHaveText('Tarifs');
 });

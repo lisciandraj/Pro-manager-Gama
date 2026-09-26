@@ -910,14 +910,14 @@
     },
     {
       "id": "quotes",
-      "label": "Presupuestos y facturas",
+      "label": "Ventas",
       "icon": "invoice",
       "group": "Ventas",
-      "description": "Solicitudes, presupuestos, pedidos y facturas",
+      "description": "Solicitudes, presupuestos, pedidos, facturas y tarifas",
       "accent": "violet",
       "order": 3,
       "menu": true,
-      "configLabel": "Presupuestos y facturas",
+      "configLabel": "Ventas",
       "roles": [
         "admin",
         "commercial",
@@ -1051,6 +1051,7 @@
     },
     {
       "id": "price-lists",
+      "tabOf": "quotes",
       "label": "Tarifas",
       "icon": "tag",
       "group": "Ventas",

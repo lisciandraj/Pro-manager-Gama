@@ -86,7 +86,7 @@ function render(){
  css();
  const s=section(),cur=customers.find(x=>x.id===selected)||null;
  const listed=new Set(items.map(i=>i.product_id));
- window.ArcUI.render(s,`${window.GamaUI.header({title:'Tarifas especiales',lead:'Precios negociados por cliente y producto.'})}
+ window.ArcUI.render(s,`${window.GamaQuotes?.moduleHeader?window.GamaQuotes.moduleHeader('price',true):window.GamaUI.header({title:'Ventas',lead:'Precios negociados por cliente y producto.'})}
  <div id="plMsg" class="plMsg"></div>
  <div class="plGrid">
   <div>
@@ -124,13 +124,14 @@ function renderDetail(cur,listed){
 }
 function bind(){
  const s=section();
- window.GamaUI.bindBack(s);
+ window.GamaUI.bindBack(s);window.GamaQuotes?.bindTabBar(s);
  s.querySelectorAll('[data-pick]').forEach(el=>el.onclick=e=>{if(e.target.closest('button'))return;selectCustomer(el.dataset.pick)});
  const a=$('plAdd');if(a)a.onclick=addItem;
  s.querySelectorAll('[data-price]').forEach(i=>i.onchange=()=>setItemPrice(i.dataset.price,i.value));
  s.querySelectorAll('[data-drop]').forEach(b=>b.onclick=()=>removeItem(b.dataset.drop));
 }
 async function open(){
+ if(!window.gamaAccessAllowed?.('price-lists'))return;
  css();
  const s=section();
  window.ArcRouter.show('price-lists');

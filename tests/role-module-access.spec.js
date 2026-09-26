@@ -57,7 +57,7 @@ test('a module switched off for the company disappears for every user type',asyn
   expect(await allowed(page,['crm']),role).toEqual([false]);
  }
  await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
- // Apagar Presupuestos y facturas apaga también sus pestañas (pedidos y facturas).
+ // Apagar Ventas apaga también sus pestañas (pedidos y facturas).
  expect(await page.evaluate(async()=>{await GamaModules.setEnabled('quotes',false);return [GamaModules.enabled('quotes'),GamaModules.enabled('sales-orders'),GamaModules.enabled('payments')]})).toEqual([false,false,false]);
 });
 

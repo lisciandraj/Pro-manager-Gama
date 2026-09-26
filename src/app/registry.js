@@ -234,14 +234,14 @@ const definitions=[
   },
   {
     "id": "quotes",
-    "label": "Presupuestos y facturas",
+    "label": "Ventas",
     "icon": "invoice",
     "group": "Ventas",
-    "description": "Solicitudes, presupuestos, pedidos y facturas",
+    "description": "Solicitudes, presupuestos, pedidos, facturas y tarifas",
     "accent": "violet",
     "order": 3,
     "menu": true,
-    "configLabel": "Presupuestos y facturas",
+    "configLabel": "Ventas",
     "roles": [
       "admin",
       "commercial",
@@ -375,6 +375,7 @@ const definitions=[
   },
   {
     "id": "price-lists",
+    "tabOf": "quotes",
     "label": "Tarifas",
     "icon": "tag",
     "group": "Ventas",
@@ -527,7 +528,7 @@ export const aliases={menu:"mainmenu",inicio:"mainmenu",movements:"movement",ope
 export const roleAliases={administrador:"admin",comercial:"commercial",almacenero:"magasinier",rrhh:"rh",cliente:"client"};
 export const roles=Object.fromEntries([["admin","Administrador"],["commercial","Comercial"],["magasinier","Almacenero"],["rh","Responsable RH"],["client","Cliente"]].map(([id,label])=>[id,{label,perms:id==="admin"?"*":definitions.filter(m=>m.roles.includes(id)).map(m=>m.id).concat(id==="commercial"?["customer-requests"]:[])}]));
 function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';(document.querySelector('.wrap')||document.body).appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src=window.ArcAssets?.['gama-excel-import-v1.js']||'gama-excel-import-v1.js';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
-/* Un módulo que es pestaña de otro (tabOf: los pedidos en Presupuestos y facturas) no tiene tarjeta ni
+/* Un módulo que es pestaña de otro (tabOf: los pedidos en Ventas) no tiene tarjeta ni
    línea en las listas de módulos; el módulo que lo contiene se abre para quien tiene al menos una de sus pestañas. */
 export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));

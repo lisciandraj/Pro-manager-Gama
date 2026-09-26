@@ -48,7 +48,8 @@ const SPECIAL_C1 = { customer_id: 'c1', product_id: 'p1', unit_price: 8 };
 test.describe('Tarifas especiales — pantalla de gestión', () => {
   test('only categoría C customers are offered, and pricing a product shows the gap', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
+    await page.locator('#quotes #gqPricesTab').click();
 
     // c2 (A) y c3 (B) no negocian precios: no aparecen en la lista.
     await expect(page.locator('.plList')).toContainText('Constructora Andes');
@@ -80,7 +81,8 @@ test.describe('Tarifas especiales — pantalla de gestión', () => {
   // aplicado dependería del orden de lectura.
   test('re-pricing a product corrects the row instead of duplicating it', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [{ ...SPECIAL_C1 }] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
+    await page.locator('#quotes #gqPricesTab').click();
     await page.click('[data-pick="c1"]');
     await page.waitForTimeout(400);
 
@@ -97,7 +99,8 @@ test.describe('Tarifas especiales — pantalla de gestión', () => {
 
   test('removing a negotiated price returns the product to the mayorista price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [{ ...SPECIAL_C1 }] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
+    await page.locator('#quotes #gqPricesTab').click();
     await page.click('[data-pick="c1"]');
     await page.waitForTimeout(400);
     await expect(page.locator('.plTable')).toContainText('Cemento 50kg');
@@ -113,7 +116,7 @@ test.describe('Tarifas especiales — pantalla de gestión', () => {
 test.describe('Tarifas especiales — presupuestos', () => {
   test('a customer with negotiated prices is quoted at them, for those products only', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
   await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0991');
@@ -145,7 +148,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   // another's contract.
   test('switching to a customer without negotiated prices re-values the pending basket', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
   await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0991');
@@ -166,7 +169,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   test('the generated quote stores and prints the negotiated price everywhere', async ({ page }) => {
     page.on('dialog', d => d.accept());
     await boot(page, { products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
   await page.locator('#gqLegacy').click();
 
     await page.fill('#sellerRuc', '1790012345001');
@@ -197,7 +200,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   // product sheet, not the mayorista price everyone else gets.
   test('a categoria B customer is quoted at the retail price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
   await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0993');
@@ -217,7 +220,7 @@ test.describe('Tarifas especiales — presupuestos', () => {
   // the retail one and never zero.
   test('a categoria C customer with nothing negotiated falls back to the mayorista price', async ({ page }) => {
     await boot(page, { products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_C_SIN_TARIFA] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
   await page.locator('#gqLegacy').click();
 
     await page.selectOption('#clientSelect', '0994');
@@ -323,7 +326,8 @@ test.describe('Tarifas especiales — la tabla de precios en el teléfono', () =
       products: PRODUCTOS_LARGOS, customers: CUSTOMERS,
       customer_special_prices: [SPECIAL_C1, { customer_id: 'c1', product_id: 'p2', unit_price: 22 }],
     });
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.locator('#mainmenu [data-gama-module=quotes]').click();
+    await page.locator('#quotes #gqPricesTab').click();
     await page.waitForTimeout(700);
     await page.click('[data-pick="c1"]');
     await page.waitForTimeout(500);

@@ -35,7 +35,7 @@ test('financial dashboard uses the server snapshot independently of the quote mi
 test('internal PDF export uses the frozen invoice and internal document type',async({page})=>{
  await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',total:34.5,customer_comment:invoice.document_snapshot.details.customer_comment});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
 });
-// Presupuestos y facturas: la lista de presupuestos ya no arrastra facturas;
+// Ventas: la lista de presupuestos ya no arrastra facturas;
 // están en la pestaña Facturas y en la ficha de su pedido.
 test('the quote list no longer carries invoices; they live in the Facturas tab',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>{__DB.external_invoices[0].external_number='001-002-0000456';__DB.external_invoices[0].software='Facturador';__DB.__calls=[];GamaQuotes.open()});

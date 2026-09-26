@@ -126,7 +126,7 @@ Precio de venta al detalle (USD) — Categoría B	Prix de détail (USD) — Cat�
 IVA del producto	TVA du produit	Product VAT
 Foto del producto	Photo du produit	Product photo
 Foto tomada con la cámara o seleccionada desde Fotos.	Photo prise avec l’appareil photo ou choisie dans la galerie.	Take a photo or select one from your gallery.
-Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en el módulo Tarifas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).	Les prix dépendent de la catégorie client. La catégorie C (prix négocié par contrat) se gère dans Tarifs. Sans prix négocié, le prix de gros (catégorie A) s’applique.	Prices depend on the customer category. Category C contract prices are managed in Price lists. Products without an agreed price use the category A wholesale price.
+Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en la pestaña Tarifas de Ventas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).	Les prix dépendent de la catégorie client. La catégorie C (prix négocié par contrat) se gère dans l’onglet Tarifs de Ventes. Sans prix négocié, le prix de gros (catégorie A) s’applique.	Prices depend on the customer category. Category C contract prices are managed in the Price lists tab of Sales. Products without an agreed price use the category A wholesale price.
 Crear producto	Créer un produit	Create product
 Limpiar	Effacer	Clear
 Productos disponibles	Produits disponibles	Available products
@@ -4184,3 +4184,7 @@ Fecha de creación	Date de création	Created on
 Código postal	Code postal	Postal code
 Nombre de pila	Prénom	First name
 Contacto principal	Contact principal	Primary contact
+
+Solicitudes, presupuestos, pedidos, facturas y tarifas	Demandes, devis, commandes, factures et tarifs	Requests, quotes, orders, invoices and price lists
+
+Solicitudes, presupuestos, pedidos, facturas y tarifas.	Demandes, devis, commandes, factures et tarifs.	Requests, quotes, orders, invoices and price lists.

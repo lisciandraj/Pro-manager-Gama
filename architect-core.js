@@ -453,6 +453,7 @@
     toolbar
   }, Symbol.toStringTag, { value: "Module" }));
   const icons = {
+    brain: '<path d="M12 5a3 3 0 0 0-5.8-1A4 4 0 0 0 3 10a4 4 0 0 0 1 7.8A4 4 0 0 0 12 18V5Zm0 0a3 3 0 0 1 5.8-1A4 4 0 0 1 21 10a4 4 0 0 1-1 7.8A4 4 0 0 1 12 18"/><path d="M6.2 4A3 3 0 0 0 7 7M3 10a3 3 0 0 1 4 1M4 17.8A3 3 0 0 0 7 15M17.8 4A3 3 0 0 1 17 7M21 10a3 3 0 0 0-4 1M20 17.8A3 3 0 0 1 17 15M9 10a3 3 0 0 1 3 3M15 10a3 3 0 0 0-3 3"/>',
     robot: '<rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V4M4 12H2v4h2M20 12h2v4h-2M9 16q3 2 6 0"/><circle cx="12" cy="2.5" r="1.5"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/>',
     headset: '<path d="M4 14V11a8 8 0 0 1 16 0v6a4 4 0 0 1-4 4h-4"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/>',
     documents: '<path d="M8 2h8l5 5v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM16 2v6h5M10 12h7M10 16h7M3 5v14"/>',
@@ -741,7 +742,7 @@
     {
       "id": "assistant-ia",
       "label": "Coco Intelligence",
-      "icon": "robot",
+      "icon": "brain",
       "group": "Resumen",
       "description": "Recomendaciones inteligentes, análisis y asistente para tu empresa",
       "accent": "blue",

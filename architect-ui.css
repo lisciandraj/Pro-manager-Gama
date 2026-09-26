@@ -512,3 +512,27 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body .arcContent section:not(#mainmenu) table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){border-radius:4px;box-shadow:none;border-color:var(--arc-line-strong)}
  body .arcContent #crm .crmTablero{grid-auto-columns:minmax(245px,85%)}
 }
+
+/* Compact module entry: one accessible home arrow; titles remain available
+   to assistive technology without consuming space above the workspace. */
+@media screen{
+ body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{
+  display:flex;align-items:center;min-height:44px;height:44px;padding:0;margin:0 0 10px;gap:0;
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+ }
+ body .arcContent .gamaCompactHeader .gamaStdIcon{display:none}
+ body .arcContent .gamaCompactHeader .gamaStdText{
+  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+ }
+ body .arcContent .gamaCompactHeader .gamaStdKicker{display:none}
+ body .arcContent .gamaCompactHeader .gamaStdActions{display:flex;flex:0 0 auto;width:auto;margin:0;padding:0}
+ body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{
+  display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;
+  padding:0;margin:0;font-size:0;border:1px solid var(--arc-line);border-radius:10px;
+  background:var(--arc-icon-blue-bg);color:var(--arc-icon-blue);box-shadow:none;
+ }
+ body .arcContent .gamaCompactHeader .gamaStdBack::before{content:'←';font-size:25px;font-weight:600;line-height:1}
+ body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-600)}
+ body .arcContent .gamaCompactHeader .gamaStdBack:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+}

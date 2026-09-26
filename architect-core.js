@@ -680,14 +680,14 @@
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
       "id": "tms",
-      "label": "Entrega",
+      "label": "TMS",
       "icon": "truck",
       "group": "Logística",
       "description": "Preparación, rutas y pruebas de entrega",
       "accent": "teal",
       "order": 5,
       "menu": true,
-      "configLabel": "Entrega",
+      "configLabel": "TMS",
       "roles": [
         "admin",
         "magasinier"

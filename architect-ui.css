@@ -449,3 +449,66 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
 .gamaClickableHeader{cursor:pointer;user-select:none}
 .gamaClickableHeader:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:-2px}
 .gamaClickableHeader .gamaSortInd{font-size:11px;margin-left:4px;white-space:nowrap}
+
+/* Module workspaces: flat document sheets, compact lists and pipeline cards.
+   Deliberately scoped away from the home, sidebar, top bar and printed papers. */
+@media screen{
+ body .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.ai-panel,.plList){
+  border-radius:5px;box-shadow:none;border-color:var(--arc-line);background:var(--arc-surface);
+ }
+ body .arcContent section:not(#mainmenu) .gamaStdHeader{
+  border:0;border-bottom:1px solid var(--arc-line-strong);border-radius:0;box-shadow:none;
+  background:var(--arc-surface);padding:18px 20px;margin-bottom:16px;align-items:center;
+ }
+ body .arcContent section:not(#mainmenu) .gamaStdHeader h2{font-size:26px;line-height:1.2;font-weight:750;letter-spacing:-.02em}
+ body .arcContent section:not(#mainmenu) .gamaStdHeader p{font-size:13px;margin-top:5px}
+ body .arcContent section:not(#mainmenu) :is(.arcToolbar,.gqTools,.gsTools,.gpTools,.ctBar,.gdfTools){gap:8px;margin-top:10px;margin-bottom:12px;align-items:center}
+ body .arcContent section:not(#mainmenu) :is(.arcButton,.gamaStdBack,.gamaStdAction){border-radius:4px;box-shadow:none}
+ body .arcContent section:not(#mainmenu) :is(input:not([type=checkbox],[type=radio],[type=range]),select,textarea){border-radius:4px;box-shadow:none}
+ body .arcContent section:not(#mainmenu) :is(input,select,textarea):focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:1px}
+ body .arcContent section:not(#mainmenu) :is(.arcTableWrap,.gsScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox){border-radius:3px;box-shadow:none;border-color:var(--arc-line)}
+ body .arcContent section:not(#mainmenu) table.gamaCards :is(thead th,[data-gama-head] th){
+  text-transform:none;letter-spacing:0;font-size:13px;font-weight:700;color:var(--arc-text);
+  background:var(--arc-surface-2);border-bottom:1px solid var(--arc-line-strong);padding:10px 12px;
+ }
+ body .arcContent section:not(#mainmenu) table.gamaCards td{font-size:13px;line-height:1.4;font-variant-numeric:tabular-nums}
+ body .arcContent section:not(#mainmenu) table.gamaCards:not([data-gama-view=cards]) tbody tr:nth-child(even) td{background:var(--arc-surface-2)}
+ body .arcContent section:not(#mainmenu) table.gamaCards tbody tr:hover td{background:var(--arc-accent-50)}
+ body .arcContent section:not(#mainmenu) :is(.gamaTableToolbar,.gamaTableControls){gap:6px 10px}
+ body .arcContent section:not(#mainmenu) .gamaColumnPicker{border-radius:3px;background:var(--arc-surface);padding:6px 10px}
+ body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs){
+  display:flex;flex-wrap:wrap;gap:0;background:transparent;border-bottom:1px solid var(--arc-line-strong);padding:0;margin:12px 0 16px;
+ }
+ body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs)>button{
+  border:1px solid transparent;border-radius:4px 4px 0 0;background:transparent;color:var(--arc-text-muted);
+  box-shadow:none;padding:10px 14px;min-height:44px;margin:0 0 -1px;font-weight:600;
+ }
+ body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs)>button:is(.active,.on,.sel,[aria-selected=true],[aria-pressed=true]){
+  background:var(--arc-surface);color:var(--arc-accent-600);border-color:var(--arc-line-strong);border-top:2px solid var(--arc-accent-600);border-bottom-color:var(--arc-surface);box-shadow:none;
+ }
+ body .arcContent #crm .crmTablero{gap:0;grid-auto-columns:minmax(250px,1fr);padding:0 0 12px;align-items:stretch}
+ body .arcContent #crm .crmTablero .crmCol{border:0;border-right:1px solid var(--arc-line-strong);border-radius:0;padding:12px;background:var(--arc-surface-2);box-shadow:none}
+ body .arcContent #crm .crmTablero .crmCol.ganada{background:var(--arc-success-bg)}
+ body .arcContent #crm .crmTablero .crmCol.perdida{background:var(--arc-danger-bg)}
+ body .arcContent #crm .crmColCab{padding:0 0 10px;margin-bottom:12px;border-bottom:3px solid var(--arc-accent-600);gap:6px 10px}
+ body .arcContent #crm .crmCol.ganada .crmColCab{border-bottom-color:var(--arc-success)}
+ body .arcContent #crm .crmCol.perdida .crmColCab{border-bottom-color:var(--arc-danger)}
+ body .arcContent #crm .crmColCab>b{font-size:14px;font-weight:700}
+ body .arcContent #crm .crmColCab>i{font-size:12px;margin:0;background:var(--arc-surface);border-radius:12px;padding:2px 7px}
+ body .arcContent #crm .crmColCab>small{flex-basis:100%;font-size:13px;font-weight:650;text-align:right;color:var(--arc-text)}
+ body .arcContent #crm .crmTarjeta{border:1px solid var(--arc-line);border-left:3px solid var(--arc-accent-600);border-radius:3px;padding:12px;margin:0 0 8px;background:var(--arc-surface);box-shadow:none}
+ body .arcContent #crm .crmTarjeta.tarde{border-left-color:var(--arc-danger)}
+ body .arcContent #crm .crmTarjeta:hover{box-shadow:none;transform:none;border-color:var(--arc-accent-600)}
+ body .arcContent #crm .crmTarjTit>b{font-size:14px;font-weight:650;line-height:1.4}
+ body .arcContent #crm .crmTarjPie{border-top:1px solid var(--arc-line);padding-top:8px;margin-top:8px}
+ body .arcContent #crm .crmTablero .crmCol.crmDestino{outline:2px dashed var(--arc-accent-600);outline-offset:-3px;background:var(--arc-accent-50)}
+}
+@media screen and (min-width:761px){
+ body .arcContent section:not(#mainmenu) table.gamaCards td{padding:9px 12px;border-left:0;border-right:0;border-bottom:1px solid var(--arc-line)}
+}
+@media screen and (max-width:760px){
+ body .arcContent section:not(#mainmenu) .gamaStdHeader{padding:14px 12px;gap:10px}
+ body .arcContent section:not(#mainmenu) .gamaStdHeader h2{font-size:21px}
+ body .arcContent section:not(#mainmenu) table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){border-radius:4px;box-shadow:none;border-color:var(--arc-line-strong)}
+ body .arcContent #crm .crmTablero{grid-auto-columns:minmax(245px,85%)}
+}

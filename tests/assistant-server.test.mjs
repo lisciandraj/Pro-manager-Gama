@@ -16,12 +16,14 @@ function fixture(options={}){
   if(url.includes('/rpc/gama_ai_claim'))return options.rate?reply({message:'RATE_LIMIT'},400):reply(true);
   if(url.includes('/rpc/gama_ai_catalog'))return reply([{table:'products',columns:['id','stock','name'],pk:['id'],module:'products'}]);
   if(url.includes('/rpc/gama_ai_overview'))return reply(overview);
+  if(url.includes('/rpc/gama_coco_inventory_analyze'))return options.stockError?reply({message:'unavailable'},500):reply({products_analyzed:1});
+  if(url.includes('/rpc/gama_coco_inventory_overview'))return reply({calculated_at:'2026-09-26T10:00:00Z',recommendation_count:1,reorder_count:1,has_more:false,recommendations:[{product_name:'Coco test',recommended_value:{min:11,max:25,order_qty:18},reasoning:{basis:'observed_demand'}}]});
   if(url.includes('/rpc/gama_ai_query'))return reply({table:'products',matched_rows:250,rows:[{stock:35,name:'<img src=x onerror=alert(1)>'}],truncated:true});
   if(url.includes('/gama_ai_history?')){if(init.method==='PATCH'){saved.push(body);return reply([]);}return reply([]);}
   if(url.includes('api.openai.com/v1/models/'))return reply({id:'gpt-4.1-mini'});
   if(url.includes('api.openai.com/v1/responses')){
    openaiCount++;if(options.providerError)return reply({secret:'must not leak'},options.providerError);
-   if(options.tool&&openaiCount===1)return reply({status:'completed',output:[{type:'function_call',name:options.tool,call_id:'call1',arguments:JSON.stringify({query:{table:'products',operation:'rows',limit:1}})}]});
+   if(options.tool&&openaiCount===1)return reply({status:'completed',output:[{type:'function_call',name:options.tool,call_id:'call1',arguments:JSON.stringify(options.tool==='read_inventory'?{offset:25}:{query:{table:'products',operation:'rows',limit:1}})}]});
    const report=diagnostic(overview,'fr').report;if(options.badCitation)report.findings[0].evidence_ids=['FAKE'];
    return reply({status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify(report)}]}]});
   }
@@ -46,7 +48,7 @@ test('diagnostic uses current server data, confirmed totals, proposed plans and 
  assert.equal(f.saved.at(-1).status,'complete');assert.ok(f.calls.filter(c=>/rpc\/gama_ai_(query|overview|catalog)/.test(c.url)).every(c=>c.init.headers.Authorization==='Bearer user-token'));
 });
 test('provider output is structured, citations checked, store disabled, query limits disclosed',async()=>{
- const f=fixture({key:true,tool:'query_data'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();assert.equal(a.engine,'openai');assert.equal(a.evidence.length,2);assert.equal(a.evidence[1].data.truncated,true);
+ const f=fixture({key:true,tool:'query_data'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();assert.equal(a.engine,'openai');assert.equal(a.evidence.length,3);assert.equal(a.evidence[2].data.truncated,true);
  const modelCalls=f.calls.filter(c=>c.url.includes('/responses'));assert.equal(modelCalls.length,2);assert.ok(modelCalls.every(c=>JSON.parse(c.init.body).store===false));assert.ok(!JSON.stringify(a).includes('sk-test'));
  const bad=fixture({key:true,badCitation:true});assert.equal((await (await bad.request()).json()).error,'AI_INVALID_RESPONSE');
 });
@@ -61,4 +63,16 @@ test('key is encrypted at rest, never returned, and can be reused for questions'
 test('rate limits, provider failures, invalid dates and invalid actions fail without secret output',async()=>{
  for(const [opts,code] of [[{key:true,rate:true},'RATE_LIMIT'],[{key:true,providerError:429},'AI_QUOTA']]){const f=fixture(opts),r=await f.request();assert.equal((await r.json()).error,code);}
  const f=fixture({key:true});assert.equal((await f.request({from:'2026-12-01',to:'2026-01-01'})).status,400);assert.equal((await f.request({action:'delete'})).status,400);
+});
+
+test('Coco recommendations are current database evidence and paged tools use caller rights',async()=>{
+ const f=fixture({key:true,tool:'read_inventory'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();
+ assert.equal(a.evidence[1].label,'Coco Intelligence');assert.equal(a.evidence[1].data.rows[0].recommended_value.order_qty,18);
+ assert.ok(f.calls.filter(c=>c.url.includes('/rpc/gama_coco')).every(c=>c.init.headers.Authorization==='Bearer user-token'));
+ assert.ok(f.calls.some(c=>c.url.includes('/rpc/gama_coco_inventory_overview')&&JSON.parse(c.init.body).p_offset===25));
+ const payload=JSON.parse(f.calls.find(c=>c.url.includes('/responses')).init.body);
+ assert.match(JSON.stringify(payload.input),/Never invent or recalculate suggested min/);
+ assert.match(JSON.stringify(payload.input),/Coco test/);
+ const unavailable=fixture({key:true,stockError:true});assert.equal((await unavailable.request()).status,502);
+ assert.ok(!unavailable.calls.some(c=>c.url.includes('/responses')));
 });

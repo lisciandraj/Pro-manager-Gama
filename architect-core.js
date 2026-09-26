@@ -717,14 +717,14 @@
     },
     {
       "id": "assistant-ia",
-      "label": "Asistente IA",
+      "label": "Coco Intelligence",
       "icon": "sparkles",
       "group": "Resumen",
-      "description": "Analiza tus datos y obtén respuestas",
+      "description": "Recomendaciones inteligentes, análisis y asistente para tu empresa",
       "accent": "blue",
       "order": 1,
       "menu": true,
-      "configLabel": "Asistente IA",
+      "configLabel": "Coco Intelligence",
       "roles": [
         "admin"
       ]

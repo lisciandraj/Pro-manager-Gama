@@ -21,13 +21,13 @@ async function boot(page,role='admin'){
 }
 const tabs=page=>page.locator('section.active [data-gq-module-tab]');
 
-test('one Sales tile, five tabs including price lists',async({page})=>{
+test('one Sales tile, six tabs including price lists and commercial matrix',async({page})=>{
  await boot(page);
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeVisible();
- for(const id of ['sales-orders','payments','price-lists'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
+ for(const id of ['sales-orders','payments','price-lists','matrix'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
  await expect(page.locator(`.arcNav [data-gama-module="sales-orders"]`)).toBeHidden();
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
- await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos','Facturas','Tarifas']);
+ await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos','Facturas','Tarifas','Matriz comercial']);
  await expect(page.locator('#gqDocumentsTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#quotes')).toContainText('COT-1');
  // El presupuesto ya no arrastra sus facturas: están en su pestaña.
@@ -50,7 +50,11 @@ test('one Sales tile, five tabs including price lists',async({page})=>{
  await expect(page.locator('#price-lists.active')).toBeVisible();
  await expect(page.locator('#price-lists h2')).toContainText('Ventas');
  await expect(page.locator('#price-lists #gqPricesTab')).toHaveAttribute('aria-selected','true');
- await page.locator('#price-lists #gqRequestsTab').click();
+ await page.locator('#price-lists #gqMatrixTab').click();
+ await expect(page.locator('#matrix.active')).toBeVisible();
+ await expect(page.locator('#matrix #gqMatrixTab')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('#matrixForm')).toBeVisible();
+ await page.locator('#matrix #gqRequestsTab').click();
  await expect(page.locator('#quotes.active')).toBeVisible();
  await expect(page.locator('#quotes #gqRequestsTab')).toHaveAttribute('aria-selected','true');
 });
@@ -89,6 +93,7 @@ test('orders are not in any list of modules: the home personalization lists only
  expect(values).not.toContain('sales-orders');
  expect(values).not.toContain('payments');
  expect(values).not.toContain('price-lists');
+ expect(values).not.toContain('matrix');
 });
 
 test('the customer portal keeps its quotes, without tabs',async({page})=>{
@@ -101,14 +106,14 @@ test('the customer portal keeps its quotes, without tabs',async({page})=>{
 
 test('the tabs fit a phone',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(5);
+ await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(6);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
 
 test('Sales opens price lists for a profile permitted only that tab',async({page})=>{
  await boot(page);
- await page.evaluate(()=>{const allowed=window.gamaAccessAllowed;window.gamaAccessAllowed=id=>['quotes','sales-orders','payments','customer-requests'].includes(id)?false:allowed(id)});
+ await page.evaluate(()=>{const allowed=window.gamaAccessAllowed;window.gamaAccessAllowed=id=>['quotes','sales-orders','payments','customer-requests','matrix'].includes(id)?false:allowed(id)});
  await page.evaluate(()=>ArcRouter.open('quotes'));
  await expect(page.locator('#price-lists.active')).toBeVisible();
  await expect(tabs(page)).toHaveText(['Tarifas']);
@@ -123,3 +128,13 @@ test('Sales and its price tab use the French labels',async({page})=>{
  await expect(page.locator('#price-lists h2')).toContainText('Ventes');
  await expect(page.locator('#price-lists #gqPricesTab')).toHaveText('Tarifs');
 });
+
+ test('commercial matrix is available in French and on mobile',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,'commercial');
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await page.evaluate(()=>ArcRouter.open('matrix'));
+ await expect(page.locator('#matrix #gqMatrixTab')).toHaveText('Matrice commerciale');
+ await expect(page.locator('#matrix h2')).toContainText('Ventes');
+ await expect(page.locator('#matrixForm')).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ });

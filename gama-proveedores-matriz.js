@@ -15,7 +15,7 @@ function products(){return Array.isArray(window.db?.products)?window.db.products
 function injectStyles(){ /* Styles are compiled in architect-components.css. */ }
 /* La cabecera es la misma que la del resto de la aplicación; sólo cambian el
    título y las frases que explican la pantalla. */
-function section(id,title,sub){let s=$(id);if(s)return s;s=document.createElement('section');s.id=id;window.ArcUI.render(s,window.GamaUI.header({title,lead:sub})+`<div id="${id}Content"></div>`);const wrap=document.querySelector('.wrap');(wrap||document.body).appendChild(s);window.GamaUI.bindBack(s);return s}
+function section(id,title,sub){let s=$(id);if(s)return s;s=document.createElement('section');s.id=id;window.ArcUI.render(s,(id==='matrix'?'<div id="matrixSalesHeader"></div>':window.GamaUI.header({title,lead:sub}))+`<div id="${id}Content"></div>`);const wrap=document.querySelector('.wrap');(wrap||document.body).appendChild(s);window.GamaUI.bindBack(s);return s}
 const CLOUD=()=>window.GamaCloud;
 const SUP_FIELDS=['supName','supTax','supContact','supPhone','supEmail','supCity','supAddress','supNotes'];
 const MIGRATED_KEY='gama_suppliers_migrated_v1';
@@ -46,7 +46,9 @@ function migrateSuppliers(){try{if(localStorage.getItem(MIGRATED_KEY))return Pro
 let matrixEpoch=0,matrixRequest=null;
 const mt=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 async function renderMatrix(){
+ if(!window.gamaAccessAllowed?.('matrix'))return;
  section('matrix','Matriz comercial',MAT_LEAD);const c=$('matrixContent');if(!c)return;
+ const header=$('matrixSalesHeader');window.ArcUI.render(header,window.GamaQuotes.moduleHeader('matrix',true));window.GamaUI.bindBack(header);window.GamaQuotes.bindTabBar(header);
  const epoch=++matrixEpoch;c.textContent=mt('Cargando…','Chargement…','Loading…');
  try{
   const [rows,pr,sr]=await Promise.all([

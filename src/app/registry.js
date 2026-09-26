@@ -200,9 +200,10 @@ const definitions=[
   },
   {
     "id": "matrix",
+    "tabOf": "quotes",
     "label": "Matriz comercial",
     "icon": "matrix",
-    "group": "Inventario y compras",
+    "group": "Ventas",
     "description": "Precios de compra y de venta",
     "accent": "teal",
     "order": 100,

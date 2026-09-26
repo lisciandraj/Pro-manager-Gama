@@ -16,20 +16,20 @@ async function rows(t,o={}){const r=await C().list(t,o);if(r.error)throw r.error
 async function rpc(name,data){const r=await window.ArcData.rawRpc(name,data);if(r.error)throw r.error;return r.data}
 const action=(a,d)=>rpc('gama_quote_action',{p_action:a,p_data:d});
 function css(){ /* Styles are compiled in architect-components.css. */ }
-/* Ventas: un módulo, cinco pestañas —la cadena de la venta—.
+/* Ventas: un módulo, seis pestañas —la cadena de la venta—.
    Cada pestaña es la pantalla que ya existía (solicitudes, presupuestos,
    pedidos, facturas y cobros) y sólo se enseña con su permiso. */
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
-const MODULE_TABS=[['request','Solicitudes de clientes','gqRequestsTab','customer-requests'],['quote','Presupuestos','gqDocumentsTab','quotes'],['order','Pedidos','gqOrdersTab','sales-orders'],['invoice','Facturas','gqInvoicesTab','payments'],['price','Tarifas','gqPricesTab','price-lists']];
+const MODULE_TABS=[['request','Solicitudes de clientes','gqRequestsTab','customer-requests'],['quote','Presupuestos','gqDocumentsTab','quotes'],['order','Pedidos','gqOrdersTab','sales-orders'],['invoice','Facturas','gqInvoicesTab','payments'],['price','Tarifas','gqPricesTab','price-lists'],['matrix','Matriz comercial','gqMatrixTab','matrix']];
 function moduleTabs(){return client()?[]:MODULE_TABS.filter(t=>window.gamaAccessAllowed?.(t[3]))}
 function tabBar(active,always=false){const list=moduleTabs();if(list.length<(always?1:2))return '';return `<div class="gdfTabs gqModuleTabs" role="tablist" aria-label="${esc(T('Ventas'))}">${list.map(([k,l,id])=>`<button type="button" role="tab" class="gdfTab" id="${id}" data-gq-module-tab="${k}" aria-selected="${k===active}">${tr(l)}</button>`).join('')}</div>`}
-function bindTabBar(root){root.querySelectorAll('[data-gq-module-tab]').forEach(b=>b.onclick=()=>({request:()=>openRequests(),quote:()=>open(),order:()=>window.GamaSales?.open(),invoice:()=>window.GamaPayments?.open(),price:()=>window.GamaOpenPriceLists?.()})[b.dataset.gqModuleTab]())}
+function bindTabBar(root){root.querySelectorAll('[data-gq-module-tab]').forEach(b=>b.onclick=()=>({request:()=>openRequests(),quote:()=>open(),order:()=>window.GamaSales?.open(),invoice:()=>window.GamaPayments?.open(),price:()=>window.GamaOpenPriceLists?.(),matrix:()=>window.ArcRouter.open('matrix')})[b.dataset.gqModuleTab]())}
 // Pedidos y Facturas se pintan con la cabecera y las pestañas del módulo cuando el perfil tiene más de una.
 const merged=()=>moduleTabs().length>1;
 const moduleHeader=(active,always=false)=>window.GamaUI.header({title:'Ventas',lead:'Solicitudes, presupuestos, pedidos, facturas y tarifas.',module:'quotes'})+tabBar(active,always);
 /* La tarjeta del módulo abre su primera pestaña permitida: quien no ve los
    presupuestos pero sí los pedidos (el almacenero) entra directamente en ellos. */
-function enter(){if(client()||window.gamaAccessAllowed?.('quotes'))return open();const first=moduleTabs()[0]?.[0];return first?({request:()=>openRequests(),order:()=>window.GamaSales?.open(),invoice:()=>window.GamaPayments?.open(),price:()=>window.GamaOpenPriceLists?.()})[first]?.():undefined}
+function enter(){if(client()||window.gamaAccessAllowed?.('quotes'))return open();const first=moduleTabs()[0]?.[0];return first?({request:()=>openRequests(),order:()=>window.GamaSales?.open(),invoice:()=>window.GamaPayments?.open(),price:()=>window.GamaOpenPriceLists?.(),matrix:()=>window.ArcRouter.open('matrix')})[first]?.():undefined}
 let activeTab='quote';
 function shell(id,title,lead){css();let s=$(id);if(!s){s=document.createElement('section');s.id=id;(document.querySelector('.wrap')||document.body).appendChild(s)}const tabs=id==='quotes'&&!client();window.ArcUI.render(s,(tabs&&merged()?moduleHeader(activeTab):window.GamaUI.header({title,lead})+(tabs?tabBar(activeTab):''))+`<div id="${id}-main" aria-live="polite"></div>`);window.GamaUI.bindBack(s);bindTabBar(s);window.showTab?.(id);return $(id+'-main')}
 function fail(host,e){window.ArcUI.render(host,`<div class="arcPanel gqCard gqError">${esc(message(e))}<div class="gqTools"><button class="arcButton secondary" id="gqRetry" data-gi=ff28c7b64a28>Volver a intentar</button></div></div>`);$('gqRetry').onclick=()=>host.id.startsWith('client-deliveries')?deliveries():open()}

@@ -65,7 +65,7 @@ const definitions=[
   {
     "id": "assistant-ia",
     "label": "Coco Intelligence",
-    "icon": "sparkles",
+    "icon": "robot",
     "group": "Resumen",
     "description": "Recomendaciones inteligentes, análisis y asistente para tu empresa",
     "accent": "blue",

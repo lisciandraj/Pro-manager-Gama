@@ -1,4 +1,5 @@
 export const icons={
+robot:'<rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V4M4 12H2v4h2M20 12h2v4h-2M9 16q3 2 6 0"/><circle cx="12" cy="2.5" r="1.5"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/>',
 headset:'<path d="M4 14V11a8 8 0 0 1 16 0v6a4 4 0 0 1-4 4h-4"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/>',
 documents:'<path d="M8 2h8l5 5v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM16 2v6h5M10 12h7M10 16h7M3 5v14"/>',
 car:'<path d="m5 10 2-5h10l2 5M5 10h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2ZM5 17v3M19 17v3M6 13h2M16 13h2"/>',

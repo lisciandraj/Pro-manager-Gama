@@ -2,7 +2,7 @@
 window.ArcAssets={
   "architect-access-controls.js": "architect-access-controls.js?v=1ead272b27c7",
   "architect-audit.js": "architect-audit.js?v=c449d779c94a",
-  "architect-barcode-controls.js": "architect-barcode-controls.js?v=830f7f032688",
+  "architect-barcode-controls.js": "architect-barcode-controls.js?v=03bc41d73556",
   "architect-base.css": "architect-base.css?v=696bbdf4f357",
   "architect-components.css": "architect-components.css?v=c295c4300c3f",
   "architect-controls.js": "architect-controls.js?v=5591f7470a9e",
@@ -28,7 +28,7 @@ window.ArcAssets={
   "architect-shell.css": "architect-shell.css?v=de885565b418",
   "architect-shell.js": "architect-shell.js?v=ca5f7b3800d5",
   "architect-sourcing.js": "architect-sourcing.js?v=98b6ba6f9e5d",
-  "architect-stock-controls.js": "architect-stock-controls.js?v=bba100bfcdef",
+  "architect-stock-controls.js": "architect-stock-controls.js?v=85945ae753d5",
   "architect-tokens.css": "architect-tokens.css?v=63c7ae846e10",
   "architect-transport-controls.js": "architect-transport-controls.js?v=51f0bb819ba1",
   "architect-ui.css": "architect-ui.css?v=0b913f4f0439",

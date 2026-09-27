@@ -44,3 +44,52 @@ test('mobile opening stock fits, preview respects reservations, and other tabs r
   await page.locator('[data-iv-tab="conteos"]').click();await expect(page.locator('#ivCuerpo')).toContainText('Nuevo recuento');
  }finally{await x.db.close()}
 });
+
+async function scanStock(page,code='CAFE-ADJ'){
+ await page.evaluate(()=>ArcRouter.open('barcode'));
+ await page.locator('#barcodeStockCode').fill(code);
+ await page.locator('[data-stock-scan] [type=submit]').click();
+ await expect(page.locator('[data-stock-command]')).toBeVisible();
+ return page.locator('[data-stock-command]');
+}
+test('barcode transfers a scanned pack to a shelf, preserves total stock, and excludes inactive destinations',async({page})=>{
+ const x=await boot(page,'admin');try{
+  await x.db.exec('reset role');
+  const warehouse=(await x.db.query('select warehouse_id from warehouse_locations where id=$1',[x.location])).rows[0].warehouse_id;
+  const destination=uuid(),inactive=uuid();
+  await x.db.query("insert into warehouse_locations(id,warehouse_id,code,name,type,active) values($1,$2,'QA-SHELF','Étagère QA','bin',true),($3,$2,'QA-OFF','Inactive','zone',false)",[destination,warehouse,inactive]);
+  await x.db.query("insert into product_units(product_id,label,factor,barcode) values($1,'Pack 2',2,'PACK-2')",[x.product]);await x.as(x.admin);
+  const f=await scanStock(page,'PACK-2');await f.locator('[name=source]').selectOption(x.location);
+  expect(await f.locator('[name=destination] option').evaluateAll(opts=>opts.map(o=>o.value))).not.toContain(inactive);
+  expect(await f.locator('[name=destination] option').evaluateAll(opts=>opts.map(o=>o.value))).not.toContain(x.location);
+  await f.locator('[name=quantity]').fill('2');await expect(f.locator('[data-stock-quantity]')).toContainText('4 unit');await f.locator('[name=destination]').selectOption(destination);
+  await f.locator('[type=submit]').click();await page.locator('dialog [type=submit]').dblclick();await expect(page.locator('dialog')).toHaveCount(0);
+  const q=(await x.db.query('select location_id,quantity from stock_quants where product_id=$1',[x.product])).rows;
+  expect(Number(q.find(q=>q.location_id===x.location).quantity)).toBe(6);expect(Number(q.find(q=>q.location_id===destination).quantity)).toBe(4);
+  expect(Number((await x.db.query('select stock from products where id=$1',[x.product])).rows[0].stock)).toBe(10);
+  expect((await x.db.query("select count(*)::int n from stock_movements where product_id=$1 and movement_type='internal_transfer'",[x.product])).rows[0].n).toBe(1);
+  await expect(page.locator('#barcodeValue')).toBeVisible();
+ }finally{await x.db.close()}
+});
+test('barcode consumption supports every reason, prefills fields, and keeps approvals',async({page})=>{
+ const x=await boot(page);try{
+  const f=await scanStock(page);
+  expect(await f.locator('[name=operation] option').evaluateAll(opts=>opts.map(o=>o.value))).toEqual(['','transfer','breakage','loss','expiry','sample','donation','internal_use']);
+  await f.locator('[name=source]').selectOption(x.location);await f.locator('[name=quantity]').fill('5');await f.locator('[name=operation]').selectOption('internal_use');await expect(f.locator('[name=destination]')).not.toBeVisible();await f.locator('[type=submit]').click();
+  const d=page.locator('dialog').last();await expect(d.locator('[name=product_id]')).toHaveValue(x.product);await expect(d.locator('[name=location_id]')).toHaveValue(x.location);await expect(d.locator('[name=quantity]')).toHaveValue('5');await expect(d.locator('[data-adjust-preview]')).toContainText('Validation nécessaire');
+  await d.locator('[type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);
+  const a=(await x.db.query('select kind,status from stock_adjustment_requests')).rows;expect(a).toEqual([{kind:'internal_use',status:'pending'}]);expect(Number((await x.db.query('select stock from products where id=$1',[x.product])).rows[0].stock)).toBe(10);
+  const g=await scanStock(page);await g.locator('[name=source]').selectOption(x.location);await g.locator('[name=quantity]').fill('2');await g.locator('[name=operation]').selectOption('breakage');await g.locator('[type=submit]').click();await expect(page.locator('dialog [data-adjust-preview]')).toContainText('Stock actuel');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);
+  expect(Number((await x.db.query('select stock from products where id=$1',[x.product])).rows[0].stock)).toBe(8);
+ }finally{await x.db.close()}
+});
+test('barcode mobile camera result, reservations, unknown code and session reset are safe',async({page})=>{
+ await page.setViewportSize({width:390,height:844});const x=await boot(page,'admin');try{
+  await x.db.exec('reset role');await x.db.query('update stock_quants set reserved_quantity=9 where product_id=$1',[x.product]);await x.as(x.admin);
+  await page.evaluate(()=>{ArcRouter.open('barcode');window.startGamaScan=id=>{const el=document.getElementById(id);el.value='CAFE-ADJ';el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new CustomEvent('gama:barcode-scanned',{bubbles:true}))}});
+  await page.locator('[data-stock-camera]').click();const f=page.locator('[data-stock-command]');await expect(f).toBeVisible();await f.locator('[name=source]').selectOption(x.location);await f.locator('[name=quantity]').fill('2');await f.locator('[name=operation]').selectOption('expiry');await f.locator('[type=submit]').click();await expect(f.locator('[role=alert]')).toContainText('insuffisant');await expect(page.locator('dialog')).toHaveCount(0);
+  await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'/tmp/coco-barcode-mobile.png',fullPage:true});expect(await page.locator('#barcodeStock').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
+  await page.locator('#barcodeStockCode').fill('DOES-NOT-EXIST');await expect(f).toHaveCount(0);await page.locator('[data-stock-scan] [type=submit]').click();await expect(page.locator('[data-stock-message]')).not.toContainText('Recherche…');await expect(f).toHaveCount(0);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('#barcodeStock')).toHaveCount(0);
+ }finally{await x.db.close()}
+});

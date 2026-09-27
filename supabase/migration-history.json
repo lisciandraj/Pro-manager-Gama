@@ -1250,6 +1250,12 @@
       "name": "audit_monitoring",
       "file": "20260927152533_audit_monitoring.sql",
       "sha256": "63498a9cbd1b3cb07bd2448ff3e8c0c7d400ac10e140af4a7d5a50db69e82368"
+    },
+    {
+      "version": "20260927181757",
+      "name": "fix_package_reference_timeout",
+      "file": "20260927181455_fix_package_reference_timeout.sql",
+      "sha256": "15711cc345a95d6af887148b491e22f062738407881972d321be52127756aa8b"
     }
   ]
 }

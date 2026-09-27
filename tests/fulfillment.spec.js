@@ -86,6 +86,15 @@ test('closing preparation recaps the load and hands off to transport from logist
  await expect(page.locator('dialog')).toContainText('Resumen de la preparación');await expect(page.locator('dialog')).toContainText('2 kg');
  await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await page.locator('#gfShip').click();await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#gamaPreparationHost')).toBeVisible();expect((await page.evaluate(()=>__calls.find(c=>c.p_action==='ship'))).p_data.preparation_id).toBe('prep');
 });
+test('a failed parcel stays retryable with the same key and only one error prefix',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__errorFor={package:'canceling statement due to statement timeout'};return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await page.locator('#gfPack').click();await page.locator('#gsSave').click();
+ await expect(page.locator('dialog .gsError')).toHaveText('No se pudo completar la operación. canceling statement due to statement timeout');
+ await expect(page.locator('#gsSave')).toBeEnabled();expect(await page.evaluate(()=>__f.packages.length)).toBe(0);
+ await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
+ const calls=await page.evaluate(()=>__calls.filter(c=>c.p_action==='package'));expect(calls).toHaveLength(2);expect(calls[1].p_data).toEqual(calls[0].p_data);
+ expect(await page.evaluate(()=>__f.packages.length)).toBe(1);
+});
 test('a product sheet without weight does not block and is reported in the closing recap',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.products[0].weight_g=null;__DB.products[0].volume_cm3=null});
  await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfFinish').click();

@@ -76,6 +76,29 @@ test.describe('Usuarios — correo asociado', () => {
   });
 });
 
+test('permanent deletion confirms the email, frees the row and hides historical actors in French',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await openUsers(page,[...PROFILES,{id:'archived',full_name:'Historical author',email:null,role:'comercial',active:false,deleted_at:'2026-09-27T10:00:00Z'}]);
+ await expect(row(page,'Historical author')).toHaveCount(0);await expect(row(page,'Jimmy Lisciandra').locator('[data-cu-delete]')).toHaveCount(0);
+ await page.evaluate(()=>{window.GamaI18n.setLanguage('fr');window.__deletes=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(name,args)=>{if(name!=='gama_delete_user')return c.rpc(name,args);window.__deletes.push(args);const p=window.__DB.profiles.find(p=>p.id===args.p_user_id);p.deleted_at=new Date().toISOString();p.active=false;p.email=null;return {data:{deleted:true,user_id:p.id}}}}}});
+ await row(page,'Teddy Boy').getByRole('button',{name:'Supprimer définitivement'}).click();
+ const d=page.locator('dialog[data-identity]');await expect(d).toContainText('même adresse e-mail');await expect(d).toContainText('historique');
+ await d.locator('[name=confirmation_email]').fill('wrong@example.com');await d.getByRole('button',{name:'Supprimer définitivement',exact:true}).click();
+ await expect(d.locator('[role=alert]')).toContainText('ne correspond pas');expect(await page.evaluate(()=>window.__deletes.length)).toBe(0);
+ await d.locator('[name=confirmation_email]').fill('teddy@example.com');await d.getByRole('button',{name:'Supprimer définitivement',exact:true}).click();
+ await expect(d).toHaveCount(0);await expect(row(page,'Teddy Boy')).toHaveCount(0);await expect(page.locator('#cuCount')).toHaveText('2 utilisateurs');
+ expect(await page.evaluate(()=>window.__deletes)).toEqual([{p_user_id:'u3',p_email:'teddy@example.com'}]);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+test('cancelled or rejected permanent deletion keeps the account and leaves the form retryable',async({page})=>{
+ await openUsers(page);await page.evaluate(()=>{window.__deletes=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(name,args)=>{if(name!=='gama_delete_user')return c.rpc(name,args);window.__deletes.push(args);return {error:{message:'USER_DELETE_NOT_ALLOWED'}}}}}});
+ await row(page,'Paula Martinez').locator('[data-cu-delete]').click();await page.locator('dialog [data-arc-dialog-close]').click();
+ expect(await page.evaluate(()=>window.__deletes.length)).toBe(0);await expect(row(page,'Paula Martinez')).toBeVisible();
+ await row(page,'Paula Martinez').locator('[data-cu-delete]').click();const d=page.locator('dialog');await d.locator('[name=confirmation_email]').fill('paula@example.com');await d.locator('[type=submit]').click();
+ await expect(d.locator('[role=alert]')).toContainText('Tu perfil no permite eliminar usuarios.');await expect(d.locator('[type=submit]')).toBeEnabled();await expect(row(page,'Paula Martinez')).toHaveCount(1);
+});
+
 // Cada perfil de base con su color, «Activo» en verde y la pantalla entera en el
 // idioma elegido (antes: «Cloud conectado», roles y estados en español, hora «p. m.»).
 test.describe('Usuarios — colores y traducción', () => {

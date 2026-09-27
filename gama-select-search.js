@@ -83,9 +83,10 @@ function pintar(sel){
   ? lista.map((o,i)=>`<div class="gamaFindOpt${i===st.activo?' on':''}" role="option" id="${st.id}-o${i}" aria-selected="${i===st.activo}" data-i="${i}">${resaltar(etiqueta(o),ts)}</div>`).join('')
   : '<div class="gamaFindNada" data-gi-live>'+esc(tx(sel,'Ninguna opción coincide.'))+'</div>';
  st.menu.querySelectorAll('[data-i]').forEach(el=>{
-  /* mousedown y no click: el click llega después del blur del campo, y para
-     entonces la lista ya se habría cerrado bajo el dedo. */
-  el.addEventListener('mousedown',e=>{e.preventDefault();elegir(sel,lista[+el.dataset.i])});
+  /* Keep focus until click, then suppress the enclosing label's native
+     activation before change can redraw the quote line. */
+  el.addEventListener('mousedown',e=>e.preventDefault());
+  el.addEventListener('click',e=>{e.preventDefault();elegir(sel,lista[+el.dataset.i])});
   el.addEventListener('mouseenter',()=>{st.activo=+el.dataset.i;marcar(sel)});
  });
  st.input.setAttribute('aria-activedescendant',lista.length?st.id+'-o'+st.activo:'');
@@ -121,11 +122,11 @@ function cerrar(sel){
 function elegir(sel,o){
  const st=sel.__gamaFind;
  sel.value=o?o.value:'';
- sel.dispatchEvent(new Event('change',{bubbles:true}));
  st.input.value=o?etiqueta(o):'';
  st.elegido=st.input.value;
+ st.input.focus({preventScroll:true});
  cerrar(sel);
- st.input.focus();
+ sel.dispatchEvent(new Event('change',{bubbles:true}));
 }
 
 /* Dentro de una ventana que se traduce sola (data-gi-ignore, como la de los
@@ -137,9 +138,12 @@ function tx(sel,s){return sel.closest('[data-gi-ignore]')&&window.GamaI18n?windo
 function enhance(sel){
  if(sel.__gamaFind||sel.multiple||sel.hasAttribute('data-gama-nofind'))return;
  const id='gamaFind'+(++uid);
+ if(!sel.id)sel.id=id+'-select';
+ const labels=[...sel.labels];
  const box=document.createElement('div');box.className='gamaFind';
  const input=document.createElement('input');
  input.type='text';input.className='gamaFindBox';input.autocomplete='off';
+ input.id=id+'-input';
  input.setAttribute('role','combobox');
  input.setAttribute('aria-autocomplete','list');
  input.setAttribute('aria-expanded','false');
@@ -152,7 +156,7 @@ function enhance(sel){
  menu.className='gamaFindMenu';menu.id=id+'-menu';menu.setAttribute('role','listbox');
  const hint=document.createElement('small');hint.className='gamaFindHint';
  box.appendChild(input);box.appendChild(hint);box.appendChild(menu);
- const st={box,input,menu,hint,id,total:-1,activo:0,lista:[],elegido:''};
+ const st={box,input,menu,hint,id,labels,tabindex:sel.getAttribute('tabindex'),ariaHidden:sel.getAttribute('aria-hidden'),total:-1,activo:0,lista:[],elegido:''};
  sel.__gamaFind=st;
 
  input.addEventListener('input',()=>{st.activo=0;abrir(sel)});
@@ -197,8 +201,9 @@ function refresh(sel){
  if(!st||!padre)return;
  if(st.box.parentNode!==padre)padre.insertBefore(st.box,sel);
  const total=reales(sel).length,vale=total>=MIN||sel.hasAttribute('data-gama-find-always');
- if(total!==st.total){
+ if(total!==st.total||vale!==st.searchable){
   st.total=total;
+  st.searchable=vale;
   st.input.placeholder=tx(sel,'Escribe para buscar entre '+total+' opciones…');
   st.box.hidden=!vale;
   /* Por debajo del umbral manda el desplegable de siempre; por encima se
@@ -207,6 +212,12 @@ function refresh(sel){
      existiendo para el navegador, para un formulario y para quien lo maneje
      desde fuera. */
   sel.classList.toggle('gamaFindOculto',vale);
+  // The visible field owns label activation and keyboard focus. The native
+  // select still owns the value, validation and change handlers.
+  st.labels.forEach(label=>label.htmlFor=vale?st.input.id:sel.id);
+  for(const [name,original,value] of [['tabindex',st.tabindex,'-1'],['aria-hidden',st.ariaHidden,'true']]){
+   if(vale)sel.setAttribute(name,value);else if(original===null)sel.removeAttribute(name);else sel.setAttribute(name,original);
+  }
   if(!vale)cerrar(sel);
  }
  sincronizar(sel);

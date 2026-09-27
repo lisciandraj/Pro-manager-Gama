@@ -803,6 +803,7 @@ dialog:has(#goNote){border:0;border-radius:16px;width:min(560px,calc(100vw - 40p
 
 /* gama-select-search.js */
 .gamaFind{position:relative;margin:0 0 6px;flex:1 1 220px;min-width:0}
+.gqField>.gamaFind,.gqGrid label>.gamaFind{flex:none}
 .gamaFind[hidden]{display:none!important}
 .gamaFindBox{width:100%;padding:11px 12px;border:1px solid var(--arc-line);border-radius:9px;font-size:16px;background:#fff;color:inherit}
 .gamaFindBox:focus{outline:none;border-color:var(--arc-accent-600);box-shadow:var(--arc-focus)}
@@ -818,7 +819,7 @@ dialog:has(#goNote){border:0;border-radius:16px;width:min(560px,calc(100vw - 40p
 .gamaFindNada{padding:14px 12px;font-size:13px;color:var(--arc-text-subtle)}
 /* Escondido pero presente: sin caja visible y sin quitarle el sitio, pero el
    navegador lo sigue teniendo por un control de la página. */
-select.gamaFindOculto{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0;z-index:-1}
+select.gamaFindOculto{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0;clip-path:inset(50%);pointer-events:none!important;z-index:-1!important}
 
 /* Ventanas con menú lateral (ArcUI.sideDialog): Configuración y Notificaciones,
    abiertas desde la barra superior. En el teléfono ocupan la pantalla y el menú

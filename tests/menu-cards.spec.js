@@ -51,18 +51,19 @@ test('ningún rótulo de módulo aparece en una tarjeta anterior', async ({ page
   ).toEqual([]);
 });
 
-test('cada tarjeta trae rótulo, descripción y su identificador de módulo', async ({ page }) => {
+test('cada tarjeta conserva su logo, rótulo e identificador sin descripción ni flecha', async ({ page }) => {
   await boot(page);
   const flojas = await page.evaluate(() =>
     [...document.querySelectorAll('#mainmenu .gamaF2Card')]
       .map(c => ({
         id: c.dataset.gamaModule || '',
         titulo: (c.querySelector('.gamaF2Title')?.textContent || '').trim(),
-        desc: (c.querySelector('.gamaF2Desc')?.textContent || '').trim(),
+        icon: !!c.querySelector('.gamaF2Icon svg'),
+        extra: !!c.querySelector('.gamaF2Desc,.gamaF2Go'),
       }))
-      .filter(x => !x.id || !x.titulo || !x.desc || x.desc.length > 46)
-      .map(x => `${x.id || '(sin id)'}: «${x.titulo}» / «${x.desc}»`));
-  expect(flojas, 'tarjetas sin identificador, sin rótulo o con una descripción que no es de una línea').toEqual([]);
+      .filter(x => !x.id || !x.titulo || !x.icon || x.extra)
+      .map(x => `${x.id || '(sin id)'}: «${x.titulo}»`));
+  expect(flojas, 'tarjetas sin identificador, título o logo, o con descripción/flecha').toEqual([]);
 });
 
 test('ninguna pantalla de módulo cuelga de <body>, donde la taparía la barra lateral', async ({ page }) => {

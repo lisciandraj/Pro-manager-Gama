@@ -24,7 +24,6 @@ function openItem(x){return window.ArcRouter.open(x[1]);}
 
 /* Una línea por módulo que diga para qué sirve. El menú deja de ser una
    rejilla de iconos a adivinar: se lee y se entra al que toca. */
-const DESC=Object.fromEntries(window.ArcModules.registry.map(m=>[m.id,m.description]));
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const esc=window.ArcUI.esc;
 const can=id=>!!window.gamaAccessAllowed?.(id);
@@ -71,14 +70,7 @@ function render(){
    const cuerpo=document.createElement('span');cuerpo.className='gamaF2Body';
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    cuerpo.appendChild(label);
-   if(DESC[x[1]]){
-    const d=document.createElement('span');d.className='gamaF2Desc';d.textContent=DESC[x[1]];d.dataset.gamaSource=DESC[x[1]];d.setAttribute('data-gi-live','');
-    cuerpo.appendChild(d);
-   }
-   const go=document.createElementNS('http://www.w3.org/2000/svg','svg');
-   go.setAttribute('class','gamaF2Go');go.setAttribute('viewBox','0 0 24 24');go.setAttribute('aria-hidden','true');
-   window.ArcUI.render(go,'<path d="M5 12h14M13 6l6 6-6 6"/>');
-   b.append(icon,cuerpo,go);
+   b.append(icon,cuerpo);
    b.onclick=()=>openItem(x);
    grid.appendChild(b);
  });

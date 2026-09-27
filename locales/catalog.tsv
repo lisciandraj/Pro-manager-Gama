@@ -4193,3 +4193,5 @@ El almacén tiene un inventario en curso.	Un inventaire est en cours dans cet en
 Se eliminan sus zonas y estanterías vacías. El historial se conserva.	Ses zones et étagères vides seront supprimées. L’historique est conservé.	Its empty zones and shelves will be removed. History is preserved.
 Almacén eliminado.	Entrepôt supprimé.	Warehouse deleted.
 La estantería tiene existencias u operaciones pendientes en estos espacios:	L’étagère contient du stock ou des opérations en attente dans ces emplacements :	The shelf has stock or pending operations in these spaces:
+
+Generar un nuevo código de barras	Générer un nouveau code-barres	Generate a new barcode

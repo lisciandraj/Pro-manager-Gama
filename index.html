@@ -17,9 +17,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20260923-coco1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=24a93c24b39e"></script>
+<script src="gama-i18n-catalog.js?v=ffc200feae70"></script>
 <script src="gama-i18n.js?v=0faee1e7e634"></script>
-<script src="architect-assets.js?v=3639665654ee"></script>
+<script src="architect-assets.js?v=12088f5b54e2"></script>
 <script src="architect-core.js?v=66682d38e8c0"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=7c8bf98552ab"></script>
@@ -147,7 +147,7 @@
 
 <section id="audit"></section>
 
-<section id="barcode"><div class="arcPanel card"><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="arcPanel card"><h3 data-gi=28dcf5503d11>Generar un nuevo código de barras</h3><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 

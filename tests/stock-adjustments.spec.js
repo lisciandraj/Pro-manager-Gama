@@ -54,6 +54,7 @@ async function scanStock(page,code='CAFE-ADJ'){
 }
 test('barcode transfers a scanned pack to a shelf, preserves total stock, and excludes inactive destinations',async({page})=>{
  const x=await boot(page,'admin');try{
+  await expect(page.locator('#barcode > .arcPanel h3')).toHaveText('Générer un nouveau code-barres');
   await x.db.exec('reset role');
   const warehouse=(await x.db.query('select warehouse_id from warehouse_locations where id=$1',[x.location])).rows[0].warehouse_id;
   const destination=uuid(),inactive=uuid();

@@ -175,10 +175,10 @@ function agenda(){
  const tarde=filas.filter(vencida).length;
  return '<div class="arcPanel card">'
   +(tarde?'<div class="crmAviso crmDup"><b>'+tarde+'</b> <span data-gi-live data-gi=73095e8212e0>actividad(es) vencida(s). Son las de arriba.</span></div>':'')
-  +(filas.length?'<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
+  +('<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
     +'<th data-gi=d134a8ecb32a>Actividad</th><th data-gi=94bb534e4e0f>Ficha</th><th data-gi=0fb4618723af>Vence</th><th data-gi=62c1aec4ffc8>Responsable</th><th></th></tr></thead><tbody>'
-    +filas.map(filaAgenda).join('')+'</tbody></table></div>'
-   :'<div class="crmVacio">'+(actos.length?'Nada pendiente que coincida con el filtro.':'Nada pendiente. Cuando haya una tarea o un seguimiento, aparecerá aquí ordenado por fecha.')+'</div>')
+    +filas.map(filaAgenda).join('')+'</tbody></table></div>')
+  +(filas.length?'':'<div class="crmVacio">'+(actos.length?'Nada pendiente que coincida con el filtro.':'Nada pendiente. Cuando haya una tarea o un seguimiento, aparecerá aquí ordenado por fecha.')+'</div>')
   +'</div>';
 }
 function filaAgenda(a){

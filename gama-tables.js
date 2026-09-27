@@ -143,8 +143,8 @@ function layout(t){
  search(t,state);
 }
 
-/* A module-owned search keeps its data-source handlers. Otherwise tables get
-   a single search above their viewport, with independent state per table.
+/* Every table uses the same search presentation. Existing inputs are moved
+   into it so module data-source handlers and full-dataset searches survive.
    Server tables and shared pagination search before paging; plain tables
    filter their loaded rows without removing inputs or event handlers. */
 const searchTerms=new Map();let searchUid=0,searchFocus=null;
@@ -155,7 +155,7 @@ function existingSearch(t){
  const boundary=t.closest('dialog,[role=tabpanel],section')||t.parentElement;
  for(let scope=t.parentElement;scope;scope=scope.parentElement){
   const inputs=[...scope.querySelectorAll('input')].filter(input=>{
-   if(input.closest('table,.gamaTableToolbar,.gamaTableSearch')||input.getAttribute('role')==='combobox'||input.hidden||input.type==='hidden'||input.closest('[hidden]')!==t.closest('[hidden]'))return false;
+   if(input.closest('table')||(input.closest('.gamaTableToolbar,.gamaTableSearch')&&!input.hasAttribute('data-gama-native-search'))||input.getAttribute('role')==='combobox'||input.hidden||input.type==='hidden'||input.closest('[hidden]')!==t.closest('[hidden]'))return false;
    if(input.closest('dialog,[role=tabpanel],section')!==t.closest('dialog,[role=tabpanel],section'))return false;
    if(!['text','search'].includes(input.type)||!(/search|busca|filtr/i.test(input.id)||input.type==='search'||input.hasAttribute('data-table-search-for')))return false;
    return !!(input.compareDocumentPosition(t)&Node.DOCUMENT_POSITION_FOLLOWING);
@@ -171,6 +171,37 @@ function existingSearch(t){
  return null;
 }
 function paginationKey(t){const key=t.dataset.gamaSortKey||cabecera(t).find(h=>h.dataset.gamaSortKey)?.dataset.gamaSortKey;return key&&window.GamaPage?.has(key)?key:null}
+function restoreSearchFocus(input,key){
+ if(searchFocus?.key!==key)return;
+ if(document.activeElement===document.body){input.focus({preventScroll:true});try{input.setSelectionRange(input.value.length,input.value.length)}catch(_){}}
+ searchFocus=null;
+}
+function standardizeSearch(input,t){
+ const key=preferenceKey(t);let box=input.closest('.gamaTableSearch');
+ if(!box){
+  // Keep the input outside the replaceable result host, including empty results.
+  let owner=input.parentElement;while(owner&&!owner.contains(t))owner=owner.parentElement;
+  if(!owner)return;
+  let anchor=t;while(anchor.parentElement!==owner)anchor=anchor.parentElement;
+  const oldLabel=input.closest('label'),focused=document.activeElement===input;
+  box=document.createElement('label');box.className='gamaTableSearch gamaTableSearchStandalone';box.dataset.giIgnore='';box.setAttribute('translate','no');
+  box.append(document.createElement('span'));owner.insertBefore(box,anchor);box.append(input);
+  if(oldLabel&&!oldLabel.querySelector('input,select,textarea,button'))oldLabel.remove();
+  if(input.id)for(const label of [...owner.querySelectorAll('label')])if(label!==box&&label.htmlFor===input.id&&!label.querySelector('input,select,textarea,button'))label.remove();
+  input.type='search';input.autocomplete='off';input.dataset.tableSearch='';input.dataset.gamaNativeSearch='';
+  input.removeAttribute('data-gi-placeholder');input.removeAttribute('data-gi-aria-label');
+  // A few older modules submit on a button. Give them the same live search.
+  const submitId={gsSearch:'gsFind',gpSearch:'gpApply',gaSearch:'gaApply'}[input.id];
+  const submit=submitId&&owner.querySelector('#'+submitId);
+  if(submit&&input.id!=='gaSearch')submit.classList.add('gamaTableSearchSubmit');
+  let timer;
+  input.addEventListener('input',()=>{searchFocus={key};if(submit){clearTimeout(timer);timer=setTimeout(()=>{if(input.isConnected)submit.click()},200)}},true);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')clearTimeout(timer)});
+  if(focused)input.focus({preventScroll:true});
+ }
+ box.firstElementChild.textContent=sw().label;input.placeholder=sw().placeholder;input.setAttribute('aria-label',sw().label);
+ restoreSearchFocus(input,key);
+}
 function searchableRow(row){return [...row.cells].map(cell=>{const copy=cell.cloneNode(true);copy.querySelectorAll('button,script,style,[aria-hidden=true]').forEach(n=>n.remove());const values=[...cell.querySelectorAll('input,select,textarea')].map(input=>input.tagName==='SELECT'?input.selectedOptions[0]?.textContent||'':input.type==='checkbox'?'':input.value);copy.querySelectorAll('input,select,textarea').forEach(n=>n.remove());return copy.textContent+' '+values.join(' ')}).join(' ')}
 function filterRows(t,state){
  if(!state.searchInput)return;const query=state.searchInput.value,terms=normalizeSearch(query).split(/\s+/).filter(Boolean),source=sources.get(t)?.search,key=paginationKey(t);
@@ -187,6 +218,7 @@ function search(t,state){
   if(!t.id)t.id='gama-search-table-'+(++searchUid);
   const ids=new Set((external.getAttribute('aria-controls')||'').split(/\s+/).filter(id=>document.getElementById(id)));ids.add(t.id);external.setAttribute('aria-controls',[...ids].join(' '));
   state.searchBox?.remove();state.searchBox=null;state.searchInput=null;
+  standardizeSearch(external,t);
   t.querySelectorAll('[data-gama-search-hidden]').forEach(row=>row.removeAttribute('data-gama-search-hidden'));return;
  }
  const key=preferenceKey(t),source=sources.get(t)?.search,paged=paginationKey(t),value=source?source.get():paged?window.GamaPage.query(paged):searchTerms.get(key)||'';
@@ -203,7 +235,7 @@ function search(t,state){
  }
  if(state.toolbar.firstElementChild!==state.searchBox)state.toolbar.prepend(state.searchBox);state.searchBox.firstElementChild.textContent=sw().label;state.searchInput.placeholder=sw().placeholder;state.searchInput.setAttribute('aria-label',sw().label);
  if(document.activeElement!==state.searchInput)state.searchInput.value=value||'';
- if(searchFocus?.key===key){if(document.activeElement===document.body){state.searchInput.focus({preventScroll:true});try{state.searchInput.setSelectionRange(state.searchInput.value.length,state.searchInput.value.length)}catch(_){}}searchFocus=null}
+ restoreSearchFocus(state.searchInput,key);
  filterRows(t,state);
 }
 

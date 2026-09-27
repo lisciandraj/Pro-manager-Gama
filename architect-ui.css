@@ -399,6 +399,9 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 .gamaTableSearch>span{font-size:12px;font-weight:600;color:var(--arc-text-subtle)}
 .gamaTableSearch>input{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 .gamaTableSearch>small:empty{display:none}
+.gamaTableSearchStandalone{width:100%;max-width:100%;padding:8px}
+body .gamaTableSearchSubmit{display:none!important}
+@media print{.gamaTableSearchStandalone{display:none!important}}
 body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body table tr[data-gama-search-hidden]{display:none!important}
 .gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-start;flex-shrink:0}
 .gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}

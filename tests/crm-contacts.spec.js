@@ -92,6 +92,10 @@ test.describe('CRM — Contactos', () => {
   test('la búsqueda ignora tildes y el filtro separa clientes de prospectos', async ({ page }) => {
     await boot(page);
     await contactos(page);
+    await expect(page.locator('#crm .gamaTableSearch #crmKBusca')).toHaveCount(1);
+    await page.fill('#crmKBusca', 'introuvable');
+    await expect(filas(page)).toHaveCount(0);
+    await expect(page.locator('#crm .gamaTableSearch #crmKBusca')).toBeFocused();
     await page.fill('#crmKBusca', 'nunez');
     await page.waitForTimeout(400);
     await expect(filas(page)).toHaveCount(1);

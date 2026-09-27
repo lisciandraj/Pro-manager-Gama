@@ -138,3 +138,12 @@ test('Sales and its price tab use the French labels',async({page})=>{
  await expect(page.locator('#matrixForm')).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  });
+
+test('orders use the standard live search and retain it after an empty result',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const list=GamaCloud.list;GamaCloud.list=async(table,options)=>{const result=await list(table,options);if(table==='sales_orders'&&options?.ilike?.customer_name){const query=options.ilike.customer_name.replaceAll('%','').toLowerCase();result.data=result.data.filter(row=>row.customer_name.toLowerCase().includes(query))}return result};ArcRouter.open('sales-orders')});
+ const search=page.locator('#gsMain .gamaTableSearch input');
+ await expect(search).toHaveCount(1);await expect(page.locator('#gsFind')).toBeHidden();await expect(page.locator('#gsMain .gsTools input')).toHaveCount(0);
+ await search.fill('Introuvable');await expect(page.locator('#gsMain tbody tr')).toHaveCount(0);await expect(search).toHaveValue('Introuvable');await expect(search).toBeFocused();
+ await search.fill('Andes');await expect(page.locator('#gsMain tbody tr')).toHaveCount(1);await expect(search).toBeFocused();
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));await expect(search).toHaveAttribute('placeholder','Rechercher…');
+});

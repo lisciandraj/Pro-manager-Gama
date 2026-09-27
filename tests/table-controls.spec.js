@@ -87,11 +87,12 @@ test('every plain table gets one independent search, preserves actions and searc
  await expect(page.locator('#otherSearchTable [data-table-search]')).toHaveCount(1);await expect(page.locator('#otherSearchTable tbody tr:visible')).toHaveCount(2);
  await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
 });
-test('module searches are reused without duplicates and still search beyond the first server page',async({page})=>{
+test('module searches use the standard field without duplicates and search beyond the first server page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
- await expect(host.locator('[data-table-search]')).toHaveCount(0);await expect(page.locator('#products #productSearch')).toHaveCount(1);
- await page.locator('#productSearch').fill('Produit 24');await expect(host.locator('tbody tr')).toHaveCount(1);await expect(host.locator('tbody tr')).toContainText('Produit 24');
- await page.evaluate(()=>ArcRouter.open('contacts'));await expect(page.locator('#ctTable tbody tr')).toHaveCount(20);await expect(page.locator('#contacts [data-table-search]')).toHaveCount(0);await page.locator('#ctSearch').fill('Fournisseur 24');await expect(page.locator('#ctTable tbody tr')).toHaveCount(1);
+ await expect(host.locator('[data-table-search]')).toHaveCount(0);await expect(page.locator('#products .gamaTableSearch #productSearch')).toHaveCount(1);await expect(page.locator('#productSearch')).toHaveAttribute('placeholder','Rechercher…');await expect(page.locator('#products [data-table-search]')).toHaveCount(1);
+ await page.locator('#productSearch').fill('Produit 24');await expect(host.locator('tbody tr')).toHaveCount(1);await expect(host.locator('tbody tr')).toContainText('Produit 24');await expect(page.locator('#productSearch')).toBeFocused();
+ await page.locator('#productSearch').fill('introuvable');await expect(host.locator('tbody')).toContainText('Aucun');await expect(page.locator('#productSearch')).toBeVisible();await page.locator('#productSearch').fill('');await expect(host.locator('tbody tr')).toHaveCount(20);
+ await page.evaluate(()=>ArcRouter.open('contacts'));await expect(page.locator('#ctTable tbody tr')).toHaveCount(20);await expect(page.locator('#contacts [data-table-search]')).toHaveCount(1);await expect(page.locator('#contacts .ctBar input[type=search]')).toHaveCount(0);await page.locator('#ctSearch').fill('Fournisseur 24');await expect(page.locator('#ctTable tbody tr')).toHaveCount(1);
 });
 test('default search filters the full legacy dataset before paging and stays usable for zero results',async({page})=>{
  await boot(page,390);await page.evaluate(()=>{
@@ -118,6 +119,6 @@ test('reuses a nearby legacy search only for its own table and searches preview 
   const host=document.createElement('div');host.id='legacySearchOwner';document.querySelector('#mainmenu').append(host);
   host.innerHTML='<input id="legacyModuleSearch" type="search" placeholder="Rechercher les clients"><div id="legacyClientTable"><table><thead><tr><th>Client</th></tr></thead><tbody><tr><td>Client Alpha</td></tr></tbody></table></div><div id="legacyDetailsTable"><table data-gama-nocards><thead><tr><th>Détail</th></tr></thead><tbody><tr><td>Adresse</td></tr><tr><td>Téléphone</td></tr></tbody></table></div>';GamaTable.scan(host);
  });
- await expect(page.locator('#legacyClientTable [data-table-search]')).toHaveCount(0);await expect(page.locator('#legacyModuleSearch')).toBeVisible();await expect(page.locator('#legacyDetailsTable [data-table-search]')).toHaveCount(1);
+ await expect(page.locator('#legacyClientTable [data-table-search]')).toHaveCount(0);await expect(page.locator('#legacySearchOwner > .gamaTableSearch #legacyModuleSearch')).toBeVisible();await expect(page.locator('#legacyModuleSearch')).toHaveAttribute('placeholder','Rechercher…');await expect(page.locator('#legacyDetailsTable [data-table-search]')).toHaveCount(1);
  await page.locator('#legacyDetailsTable [data-table-search]').fill('telephone');await expect(page.locator('#legacyDetailsTable tbody tr:visible')).toHaveCount(1);await expect(page.locator('#legacyClientTable tbody tr')).toBeVisible();
 });

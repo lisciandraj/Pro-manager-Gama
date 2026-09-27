@@ -44,3 +44,11 @@ test('clients and warehouse users cannot open or fetch payments; disabled module
  await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'magasinier'}));GamaPayments.open()});expect(await page.evaluate(()=>__paymentCalls.length)).toBe(0);
  await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin'}));GamaModules.enabled=id=>id!=='payments';GamaPayments.open()});expect(await page.evaluate(()=>__paymentCalls.length)).toBe(0);
 });
+
+test('invoice search uses the standard live field and keeps other filters',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>GamaPayments.open());
+ const search=page.locator('#gpMain .gamaTableSearch #gpSearch');await expect(search).toBeVisible();await expect(page.locator('#gpApply')).toBeHidden();await expect(page.locator('#gpMain .gpTools #gpSearch')).toHaveCount(0);await expect(page.locator('#gpFilter')).toBeVisible();
+ await search.fill('Andes');await expect.poll(()=>page.evaluate(()=>__paymentCalls.filter(c=>c.p_action==='list').at(-1)?.p_data.search)).toBe('Andes');await expect(search).toBeFocused();await expect(search).toHaveValue('Andes');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.screenshot({path:'test-results/standard-search-mobile.png',fullPage:true});
+});

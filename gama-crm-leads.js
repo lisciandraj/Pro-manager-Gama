@@ -129,7 +129,7 @@ function lista(){
   +'<button type="button" class="arcButton primary" id="crmLeadNuevo" data-gi=27a9a1faa814>Nuevo prospecto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmLeads',nActivos,nArch):'')
-  +(filas.length?tabla(pagina):vacio(nActivos+nArch))
+  +tabla(pagina)+(filas.length?'':vacio(nActivos+nArch))
   +(window.GamaPage?window.GamaPage.controls('crmLeads',filas.length):'')
   +'</div>';
 }

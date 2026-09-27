@@ -129,7 +129,7 @@ function lista(){
   +'<button type="button" class="arcButton primary" id="crmKNuevo"'+(hayFichas?'':' disabled data-gi-title=ffb5563c8e75 title="Primero hace falta un cliente o un prospecto"')+' data-gi=1afc3c896b7e>Nuevo contacto</button>'
   +'</div>'
   +(window.GamaArchive?window.GamaArchive.tabs('crmContactos',nActivos,nArch):'')
-  +(filas.length?tabla(pagina):vacio(nActivos+nArch,hayFichas))
+  +tabla(pagina)+(filas.length?'':vacio(nActivos+nArch,hayFichas))
   +(window.GamaPage?window.GamaPage.controls('crmContactos',filas.length):'')
   +'</div>';
 }

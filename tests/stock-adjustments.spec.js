@@ -62,7 +62,11 @@ test('barcode transfers a scanned pack to a shelf, preserves total stock, and ex
   const f=await scanStock(page,'PACK-2');await f.locator('[name=source]').selectOption(x.location);
   expect(await f.locator('[name=destination] option').evaluateAll(opts=>opts.map(o=>o.value))).not.toContain(inactive);
   expect(await f.locator('[name=destination] option').evaluateAll(opts=>opts.map(o=>o.value))).not.toContain(x.location);
-  await f.locator('[name=quantity]').fill('2');await expect(f.locator('[data-stock-quantity]')).toContainText('4 unit');await f.locator('[name=destination]').selectOption(destination);
+  await f.locator('[name=quantity]').fill('2');await expect(f.locator('[data-stock-quantity]')).toContainText('4 unit');const search=f.locator('[data-gama-for=barcodeStockDestination]');
+  await expect(search).toBeVisible();await search.click();await expect(f.locator('.gamaFindOpt')).toHaveCount(await f.locator('[name=destination] option[value]:not([value=""])').count());
+  await search.fill('emplacement inconnu');await expect(f.locator('.gamaFindOpt')).toHaveCount(0);await expect(f.locator('[name=destination]')).toHaveValue('');
+  await search.fill('etagere qa');await expect(f.locator('.gamaFindOpt')).toHaveCount(1);await search.press('Enter');await expect(f.locator('[name=destination]')).toHaveValue(destination);
+  await search.fill('QA-SHELF');await expect(f.locator('.gamaFindOpt')).toHaveCount(1);await f.locator('.gamaFindOpt').click();await expect(f.locator('[name=destination]')).toHaveValue(destination);
   await f.locator('[type=submit]').click();await page.locator('dialog [type=submit]').dblclick();await expect(page.locator('dialog')).toHaveCount(0);
   const q=(await x.db.query('select location_id,quantity from stock_quants where product_id=$1',[x.product])).rows;
   expect(Number(q.find(q=>q.location_id===x.location).quantity)).toBe(6);expect(Number(q.find(q=>q.location_id===destination).quantity)).toBe(4);

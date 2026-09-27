@@ -75,3 +75,49 @@ test('legacy paginated sort applies to the complete dataset and preserves indepe
  await host.locator('thead th').nth(1).click();await expect(host.locator('tbody tr')).toHaveCount(20);await expect(host.locator('tbody tr').first()).toHaveText('Row 00');
  await fixture(page);await expect(page.locator('#sortFixture thead th').first()).toHaveAttribute('aria-sort','none');
 });
+
+test('every plain table gets one independent search, preserves actions and searches hidden columns and accents',async({page})=>{
+ await boot(page);await fixture(page);const host=page.locator('#sortFixture');
+ await expect(host.locator('[data-table-search]')).toHaveCount(1);
+ await host.locator('[data-table-search]').fill('beta');await expect(host.locator('tbody tr:visible')).toHaveCount(1);await expect(host.locator('tbody tr:visible')).toHaveAttribute('data-id','b');
+ await host.locator('[data-table-search]').fill('nothing');await expect(host.locator('tbody tr:visible')).toHaveCount(0);await expect(host.locator('.gamaTableSearch [role=status]')).toHaveText('Aucun résultat');
+ await host.locator('[data-table-search]').fill('');await expect(host.locator('tbody tr:visible')).toHaveCount(4);
+ await host.getByRole('checkbox',{name:'Nom',exact:true}).uncheck();await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
+ await page.evaluate(()=>{const other=document.createElement('div');other.id='otherSearchTable';document.querySelector('#mainmenu').append(other);ArcUI.render(other,ArcUI.table({columns:[{key:'name',label:'Nom'}],items:[{name:'One'},{name:'Two'}]}));GamaTable.scan(document);GamaTable.scan(document)});
+ await expect(page.locator('#otherSearchTable [data-table-search]')).toHaveCount(1);await expect(page.locator('#otherSearchTable tbody tr:visible')).toHaveCount(2);
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
+});
+test('module searches are reused without duplicates and still search beyond the first server page',async({page})=>{
+ await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
+ await expect(host.locator('[data-table-search]')).toHaveCount(0);await expect(page.locator('#products #productSearch')).toHaveCount(1);
+ await page.locator('#productSearch').fill('Produit 24');await expect(host.locator('tbody tr')).toHaveCount(1);await expect(host.locator('tbody tr')).toContainText('Produit 24');
+ await page.evaluate(()=>ArcRouter.open('contacts'));await expect(page.locator('#ctTable tbody tr')).toHaveCount(20);await expect(page.locator('#contacts [data-table-search]')).toHaveCount(0);await page.locator('#ctSearch').fill('Fournisseur 24');await expect(page.locator('#ctTable tbody tr')).toHaveCount(1);
+});
+test('default search filters the full legacy dataset before paging and stays usable for zero results',async({page})=>{
+ await boot(page,390);await page.evaluate(()=>{
+  const host=document.createElement('div');host.id='searchPaged';document.querySelector('#mainmenu').append(host);const rows=Array.from({length:45},(_,i)=>({name:'Article '+i,category:i%2?'Étagère':'Zone'}));
+  const render=()=>{host.innerHTML='<table data-gama-sort-key="searchPaged"><thead><tr><th>Nom</th><th>Catégorie</th></tr></thead><tbody>'+GamaPage.slice('searchPaged',rows,{0:r=>r.name,1:r=>r.category}).map(r=>'<tr><td>'+r.name+'</td><td>'+r.category+'</td></tr>').join('')+'</tbody></table>'+GamaPage.controls('searchPaged',rows.length);GamaTable.scan(host)};GamaPage.register('searchPaged',render);render();
+ });
+ const host=page.locator('#searchPaged');await expect(host.locator('tbody tr')).toHaveCount(20);
+ await host.locator('[data-table-search]').fill('Article 44');await expect(host.locator('tbody tr')).toHaveCount(1);await expect(host.locator('tbody tr')).toContainText('Article 44');await expect(host.locator('[data-table-search]')).toBeFocused();
+ await host.locator('[data-table-search]').fill('etagere');await expect(host.locator('tbody tr')).toHaveCount(20);await expect(host.locator('.gamaPagerInfo')).toContainText('22');await host.locator('[data-page-next]').click();await expect(host.locator('tbody tr')).toHaveCount(2);await expect(host.locator('[data-table-search]')).toHaveValue('etagere');
+ await host.locator('[data-table-search]').fill('impossible');await expect(host.locator('tbody tr')).toHaveCount(0);await expect(host.locator('.gamaTableSearch')).toContainText('Aucun résultat');
+ await host.locator('[data-table-search]').fill('');await expect(host.locator('tbody tr')).toHaveCount(20);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('server table without a module search receives a bound search and resets pagination',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  const host=document.createElement('div');host.id='remoteSearchTable';document.querySelector('#mainmenu').append(host);const rows=Array.from({length:45},(_,i)=>({name:'Remote '+i}));window.__searchCalls=[];
+  ArcUI.dataTable(host,{columns:[{key:'name',label:'Nom'}],source:async s=>{window.__searchCalls.push({...s});const filtered=rows.filter(r=>r.name.includes(s.search));return {items:filtered.slice(s.page*s.pageSize,(s.page+1)*s.pageSize),total:filtered.length,page:s.page,pageSize:s.pageSize}}});
+ });
+ const host=page.locator('#remoteSearchTable');await expect(host.locator('tbody tr')).toHaveCount(20);await host.locator('[data-arc-page="1"]').click();await expect(host.locator('tbody tr').first()).toContainText('Remote 20');
+ await host.locator('[data-table-search]').fill('Remote 44');await expect(host.locator('tbody tr')).toHaveCount(1);await expect(host.locator('tbody tr')).toContainText('Remote 44');await expect(host.locator('[data-table-search]')).toBeFocused();expect(await page.evaluate(()=>window.__searchCalls.at(-1).page)).toBe(0);
+});
+
+test('reuses a nearby legacy search only for its own table and searches preview tables too',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  const host=document.createElement('div');host.id='legacySearchOwner';document.querySelector('#mainmenu').append(host);
+  host.innerHTML='<input id="legacyModuleSearch" type="search" placeholder="Rechercher les clients"><div id="legacyClientTable"><table><thead><tr><th>Client</th></tr></thead><tbody><tr><td>Client Alpha</td></tr></tbody></table></div><div id="legacyDetailsTable"><table data-gama-nocards><thead><tr><th>Détail</th></tr></thead><tbody><tr><td>Adresse</td></tr><tr><td>Téléphone</td></tr></tbody></table></div>';GamaTable.scan(host);
+ });
+ await expect(page.locator('#legacyClientTable [data-table-search]')).toHaveCount(0);await expect(page.locator('#legacyModuleSearch')).toBeVisible();await expect(page.locator('#legacyDetailsTable [data-table-search]')).toHaveCount(1);
+ await page.locator('#legacyDetailsTable [data-table-search]').fill('telephone');await expect(page.locator('#legacyDetailsTable tbody tr:visible')).toHaveCount(1);await expect(page.locator('#legacyClientTable tbody tr')).toBeVisible();
+});

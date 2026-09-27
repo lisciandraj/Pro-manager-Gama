@@ -323,7 +323,7 @@
     const pages = Math.max(1, Math.ceil(total / pageSize));
     return `<div class="arcPager gamaPager">${button({ label: translate("‹ Anterior"), className: "gamaPagerBtn", disabled: page2 <= 0, attrs: 'data-arc-page="-1" data-page-prev' })}<span class="gamaPagerInfo" aria-live="polite">${total ? page2 * pageSize + 1 : 0}–${Math.min(total, (page2 + 1) * pageSize)} ${escapeHtml(translate("de"))} ${total} · ${page2 + 1} / ${pages}</span>${button({ label: translate("Siguiente ›"), className: "gamaPagerBtn", disabled: page2 >= pages - 1, attrs: 'data-arc-page="1" data-page-next' })}</div>`;
   }
-  function dataTable(host, { columns, source, searchInput, actions = {}, empty, className = "", initial = {} }) {
+  function dataTable(host, { columns, source, searchInput, searchControl = searchInput, actions = {}, empty, className = "", initial = {} }) {
     var _a;
     let disposed = false, generation = 0, timer;
     const saved = (_a = window.GamaTable) == null ? void 0 : _a.sourceSort(host);
@@ -351,7 +351,7 @@
           return refresh({ page: Math.max(0, Math.ceil(result.total / state.pageSize) - 1) });
         }
         host.innerHTML = table({ columns, items: result.items, empty, className }) + pager(result);
-        (_a2 = window.GamaTable) == null ? void 0 : _a2.bind(host.querySelector("table"), { get: () => state.sort ? { col: state.sort, dir: state.ascending === false ? "desc" : "asc" } : null, set: sortBy, column: (_, i) => columns[i].sort ?? null });
+        (_a2 = window.GamaTable) == null ? void 0 : _a2.bind(host.querySelector("table"), { get: () => state.sort ? { col: state.sort, dir: state.ascending === false ? "desc" : "asc" } : null, set: sortBy, column: (_, i) => columns[i].sort ?? null, search: { input: searchControl, get: () => state.search, set: scheduleSearch } });
         mount(host);
       } catch (e) {
         if (!disposed && token === generation) {
@@ -374,10 +374,13 @@
         }
       }
     }
-    const search = () => {
+    function scheduleSearch(value) {
       clearTimeout(timer);
-      timer = setTimeout(() => refresh({ page: 0, search: searchInput.value }), 200);
-    };
+      ++generation;
+      state.search = value;
+      timer = setTimeout(() => refresh({ page: 0, search: value }), 200);
+    }
+    const search = () => scheduleSearch(searchInput.value);
     host.addEventListener("click", click);
     searchInput == null ? void 0 : searchInput.addEventListener("input", search);
     refresh();
@@ -1480,7 +1483,7 @@
     prior == null ? void 0 : prior.dispose();
     host.innerHTML = "<div data-arc-archive></div><div data-arc-directory></div>";
     let rows = /* @__PURE__ */ new Map(), lastFilter = filter, lastArchived;
-    const grid = dataTable(host.querySelector("[data-arc-directory]"), { columns: directoryColumns[entity], initial: { search: filter }, source: async (request) => {
+    const grid = dataTable(host.querySelector("[data-arc-directory]"), { columns: directoryColumns[entity], searchControl: $("productSearch"), initial: { search: filter }, source: async (request) => {
       const archived = window.GamaArchive.mode(key) === "archived";
       lastArchived = archived;
       let result;

@@ -129,6 +129,7 @@ function refreshLayout(t,state){
 }
 function layout(t){
  let state=layouts.get(t);
+ if(state&&!state.bar){state.toolbar.remove();state=null}
  if(!state){
   const bar=document.createElement('div');bar.className='gamaTableViews';bar.setAttribute('role','group');bar.setAttribute('translate','no');
   for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.innerHTML=icons[mode];b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
@@ -139,6 +140,71 @@ function layout(t){
  const viewport=t.parentElement;if(state.toolbar.nextElementSibling!==viewport)viewport.before(state.toolbar);
  refreshLayout(t,state);
  controls(t,state);
+ search(t,state);
+}
+
+/* A module-owned search keeps its data-source handlers. Otherwise tables get
+   a single search above their viewport, with independent state per table.
+   Server tables and shared pagination search before paging; plain tables
+   filter their loaded rows without removing inputs or event handlers. */
+const searchTerms=new Map();let searchUid=0,searchFocus=null;
+const sw=()=>({fr:{label:'Rechercher dans le tableau',placeholder:'Rechercher…',empty:'Aucun résultat',loaded:'lignes chargées'},en:{label:'Search this table',placeholder:'Search…',empty:'No results',loaded:'loaded rows'},es:{label:'Buscar en la tabla',placeholder:'Buscar…',empty:'Sin resultados',loaded:'filas cargadas'}}[window.GamaI18n?.language]||{label:'Buscar en la tabla',placeholder:'Buscar…',empty:'Sin resultados',loaded:'filas cargadas'});
+const normalizeSearch=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function existingSearch(t){
+ const explicit=sources.get(t)?.search?.input;if(explicit?.isConnected)return explicit;
+ const boundary=t.closest('dialog,[role=tabpanel],section')||t.parentElement;
+ for(let scope=t.parentElement;scope;scope=scope.parentElement){
+  const inputs=[...scope.querySelectorAll('input')].filter(input=>{
+   if(input.closest('table,.gamaTableToolbar,.gamaTableSearch')||input.getAttribute('role')==='combobox'||input.hidden||input.type==='hidden'||input.closest('[hidden]')!==t.closest('[hidden]'))return false;
+   if(input.closest('dialog,[role=tabpanel],section')!==t.closest('dialog,[role=tabpanel],section'))return false;
+   if(!['text','search'].includes(input.type)||!(/search|busca|filtr/i.test(input.id)||input.type==='search'||input.hasAttribute('data-table-search-for')))return false;
+   return !!(input.compareDocumentPosition(t)&Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+  for(const input of inputs.reverse()){
+   if(input.dataset.tableSearchFor){if(input.dataset.tableSearchFor.split(/\s+/).includes(t.id))return input;continue}
+   // A search next to another table must not suppress this table's field.
+   const first=[...scope.querySelectorAll('table')].find(table=>!table.closest('[hidden]')&&(input.compareDocumentPosition(table)&Node.DOCUMENT_POSITION_FOLLOWING));
+   if(first===t)return input;
+  }
+  if(scope===boundary)break;
+ }
+ return null;
+}
+function paginationKey(t){const key=t.dataset.gamaSortKey||cabecera(t).find(h=>h.dataset.gamaSortKey)?.dataset.gamaSortKey;return key&&window.GamaPage?.has(key)?key:null}
+function searchableRow(row){return [...row.cells].map(cell=>{const copy=cell.cloneNode(true);copy.querySelectorAll('button,script,style,[aria-hidden=true]').forEach(n=>n.remove());const values=[...cell.querySelectorAll('input,select,textarea')].map(input=>input.tagName==='SELECT'?input.selectedOptions[0]?.textContent||'':input.type==='checkbox'?'':input.value);copy.querySelectorAll('input,select,textarea').forEach(n=>n.remove());return copy.textContent+' '+values.join(' ')}).join(' ')}
+function filterRows(t,state){
+ if(!state.searchInput)return;const query=state.searchInput.value,terms=normalizeSearch(query).split(/\s+/).filter(Boolean),source=sources.get(t)?.search,key=paginationKey(t);
+ const rows=[...t.tBodies].flatMap(b=>[...b.rows]).filter(r=>!r.querySelector('th')&&!r.querySelector('.arcEmpty'));
+ let matched=0;
+ for(const row of rows){const text=source||key||!terms.length?'':normalizeSearch(searchableRow(row));const visible=!!source||!!key||terms.every(term=>text.includes(term));if(visible)matched++;row.toggleAttribute('data-gama-search-hidden',!visible)}
+ const stats=key?window.GamaPage.totals(key):null;
+ const text=!query?'':source?'':stats?(stats.matched?stats.matched+' / '+stats.total:sw().empty):(matched?matched+' / '+rows.length+' '+sw().loaded:sw().empty);
+ if(state.searchStatus.textContent!==text)state.searchStatus.textContent=text;
+}
+function search(t,state){
+ const external=existingSearch(t);
+ if(external){
+  if(!t.id)t.id='gama-search-table-'+(++searchUid);
+  const ids=new Set((external.getAttribute('aria-controls')||'').split(/\s+/).filter(id=>document.getElementById(id)));ids.add(t.id);external.setAttribute('aria-controls',[...ids].join(' '));
+  state.searchBox?.remove();state.searchBox=null;state.searchInput=null;
+  t.querySelectorAll('[data-gama-search-hidden]').forEach(row=>row.removeAttribute('data-gama-search-hidden'));return;
+ }
+ const key=preferenceKey(t),source=sources.get(t)?.search,paged=paginationKey(t),value=source?source.get():paged?window.GamaPage.query(paged):searchTerms.get(key)||'';
+ if(!state.searchBox){
+  const box=document.createElement('label');box.className='gamaTableSearch';box.dataset.giIgnore='';box.setAttribute('translate','no');
+  const label=document.createElement('span'),input=document.createElement('input'),status=document.createElement('small');input.type='search';input.autocomplete='off';input.dataset.tableSearch='';status.setAttribute('role','status');
+  if(!t.id)t.id='gama-search-table-'+(++searchUid);input.setAttribute('aria-controls',t.id);box.append(label,input,status);state.searchBox=box;state.searchInput=input;state.searchStatus=status;
+  input.addEventListener('input',()=>{
+   searchTerms.set(key,input.value);const currentSource=sources.get(t)?.search,currentPage=paginationKey(t);clearTimeout(state.searchTimer);
+   if(currentSource){searchFocus={key};currentSource.set(input.value);return}
+   if(!currentPage){filterRows(t,state);return}
+   state.searchTimer=setTimeout(()=>{if(!input.isConnected)return;searchFocus={key};window.GamaPage.search(currentPage,input.value)},180);
+  });
+ }
+ if(state.toolbar.firstElementChild!==state.searchBox)state.toolbar.prepend(state.searchBox);state.searchBox.firstElementChild.textContent=sw().label;state.searchInput.placeholder=sw().placeholder;state.searchInput.setAttribute('aria-label',sw().label);
+ if(document.activeElement!==state.searchInput)state.searchInput.value=value||'';
+ if(searchFocus?.key===key){if(document.activeElement===document.body){state.searchInput.focus({preventScroll:true});try{state.searchInput.setSelectionRange(state.searchInput.value.length,state.searchInput.value.length)}catch(_){}}searchFocus=null}
+ filterRows(t,state);
 }
 
 /* One column chooser for both modern and legacy tables. Data sources may bind
@@ -267,8 +333,10 @@ function headers(t,state,selected){
 function scan(root=document){
  const tables=new Set([...(root.querySelectorAll?.('table')||[]),...(root.closest?.('table')?[root.closest('table')]:[])]);
  tables.forEach(t=>{
-  if(t.closest('[data-gama-nocards]'))return;
-  if(t.closest('[data-arc-table]')?!cabecera(t).length:!etiquetar(t))return;
+  if(t.closest('[data-gama-nocards]')||(t.closest('[data-arc-table]')?!cabecera(t).length:!etiquetar(t))){
+   let state=layouts.get(t);if(!state){const toolbar=document.createElement('div');toolbar.className='gamaTableToolbar';state={toolbar};layouts.set(t,state)}
+   if(state.toolbar.nextElementSibling!==t)t.before(state.toolbar);search(t,state);return;
+  }
   t.classList.add('gamaCards');
   layout(t);
   endurecerCaja(t);
@@ -280,8 +348,9 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function boot(){
  css();scan();
  window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
- const refresh=()=>document.querySelectorAll('table[data-gama-view]').forEach(t=>{const state=layouts.get(t);if(state){refreshLayout(t,state);controls(t,state)}});
+ const refresh=()=>document.querySelectorAll('table').forEach(t=>{const state=layouts.get(t);if(state){if(state.bar){refreshLayout(t,state);controls(t,state)}search(t,state)}});
  window.addEventListener('resize',refresh);window.addEventListener('gama:language-change',refresh);window.addEventListener('gama:auth-change',refresh);
+ window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;searchTerms.clear();searchFocus=null;document.querySelectorAll('[data-table-search]').forEach(input=>{input.value=''});refresh()});
  // Cover tables created by legacy dialogs and asynchronous module renderers.
  const observer=new MutationObserver(records=>{const roots=new Set();for(const r of records)for(const n of r.addedNodes){if(n.nodeType!==1||n.closest('.gamaTableToolbar'))continue;if(n.matches('table')||n.querySelector('table')||n.closest('table'))roots.add(n.closest('table')||n)}for(const root of roots)scan(root)});
  observer.observe(document.body,{childList:true,subtree:true});

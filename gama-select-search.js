@@ -196,7 +196,7 @@ function refresh(sel){
  const st=sel.__gamaFind,padre=sel.parentNode;
  if(!st||!padre)return;
  if(st.box.parentNode!==padre)padre.insertBefore(st.box,sel);
- const total=reales(sel).length,vale=total>=MIN;
+ const total=reales(sel).length,vale=total>=MIN||sel.hasAttribute('data-gama-find-always');
  if(total!==st.total){
   st.total=total;
   st.input.placeholder=tx(sel,'Escribe para buscar entre '+total+' opciones…');

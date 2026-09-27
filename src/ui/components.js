@@ -180,7 +180,7 @@ export function pager({page=0,pageSize=20,total=0}={}) {
   const pages=Math.max(1,Math.ceil(total/pageSize));
   return `<div class="arcPager gamaPager">${button({label:t('‹ Anterior'),className:'gamaPagerBtn',disabled:page<=0,attrs:'data-arc-page="-1" data-page-prev'})}<span class="gamaPagerInfo" aria-live="polite">${total?page*pageSize+1:0}–${Math.min(total,(page+1)*pageSize)} ${esc(t('de'))} ${total} · ${page+1} / ${pages}</span>${button({label:t('Siguiente ›'),className:'gamaPagerBtn',disabled:page>=pages-1,attrs:'data-arc-page="1" data-page-next'})}</div>`;
 }
-export function dataTable(host,{columns,source,searchInput,actions={},empty,className='',initial={}}) {
+export function dataTable(host,{columns,source,searchInput,searchControl=searchInput,actions={},empty,className='',initial={}}) {
   let disposed=false,generation=0,timer;
   const saved=window.GamaTable?.sourceSort(host);
   const state={page:0,pageSize:20,search:'',...initial,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
@@ -196,12 +196,13 @@ export function dataTable(host,{columns,source,searchInput,actions={},empty,clas
       const result=await source({...state});if(disposed||token!==generation||!host.isConnected)return;
       if(result.total>0&&state.page*state.pageSize>=result.total){return refresh({page:Math.max(0,Math.ceil(result.total/state.pageSize)-1)});}
       host.innerHTML=table({columns,items:result.items,empty,className})+pager(result);
-      window.GamaTable?.bind(host.querySelector('table'),{get:()=>state.sort?{col:state.sort,dir:state.ascending===false?'desc':'asc'}:null,set:sortBy,column:(_,i)=>columns[i].sort??null});mount(host);
+      window.GamaTable?.bind(host.querySelector('table'),{get:()=>state.sort?{col:state.sort,dir:state.ascending===false?'desc':'asc'}:null,set:sortBy,column:(_,i)=>columns[i].sort??null,search:{input:searchControl,get:()=>state.search,set:scheduleSearch}});mount(host);
     }catch(e){if(!disposed&&token===generation){host.innerHTML='<p role="alert">'+esc(errorMessage(e))+'</p>'+button({label:t('Reintentar'),attrs:'data-arc-retry'});}}
     finally{if(token===generation)host.removeAttribute('aria-busy');}
   }
   function click(e){const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-arc-page'))refresh({page:Math.max(0,state.page+Number(b.dataset.arcPage))});else if(b.hasAttribute('data-arc-sort'))sortBy(b.dataset.arcSort,state.sort===b.dataset.arcSort&&state.ascending!==false?'desc':'asc');else if(b.hasAttribute('data-arc-retry'))refresh();else for(const [attribute,callback] of Object.entries(actions)){if(b.hasAttribute(attribute)){callback(b.getAttribute(attribute),b);break;}}}
-  const search=()=>{clearTimeout(timer);timer=setTimeout(()=>refresh({page:0,search:searchInput.value}),200);};
+  function scheduleSearch(value){clearTimeout(timer);++generation;state.search=value;timer=setTimeout(()=>refresh({page:0,search:value}),200);}
+  const search=()=>scheduleSearch(searchInput.value);
   host.addEventListener('click',click);searchInput?.addEventListener('input',search);refresh();
   return {refresh,state,dispose(){disposed=true;++generation;clearTimeout(timer);host.removeEventListener('click',click);searchInput?.removeEventListener('input',search);}};
 }

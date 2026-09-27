@@ -87,7 +87,7 @@ test('desktop sidebar visibility uses stable module identifiers across languages
  await expect(page.locator('#mainmenu [data-gama-module="quotes"]')).toBeVisible();
  await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeHidden();
  await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toBeVisible();
- await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toContainText('Quotes');
+ await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toContainText('Sales');
 });
 test('settings exposes language to all roles without exposing module switches or header flags',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'client');

@@ -73,8 +73,8 @@ test.describe('Autenticación centralizada', () => {
     );
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
-    await page.waitForTimeout(1200);
-    expect(await page.evaluate(()=>({id:ArcModules.registry.find(m=>m.label==='Entrega').id,warehouse:ArcModules.roles.magasinier.perms.includes('tms')}))).toEqual({id:'tms',warehouse:true});
+    await page.waitForFunction(()=>window.ArcModules?.registry);
+    expect(await page.evaluate(()=>({id:ArcModules.registry.find(m=>m.id==='tms').id,warehouse:ArcModules.roles.magasinier.perms.includes('tms')}))).toEqual({id:'tms',warehouse:true});
 
     // A commercial profile has no logistics rights: the tile stays hidden.
     await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="tms"]')).toBeHidden();

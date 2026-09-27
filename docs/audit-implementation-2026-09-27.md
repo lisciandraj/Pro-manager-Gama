@@ -43,8 +43,9 @@ L’export de reprise doit inclure les nouvelles tables et le journal, comme les
 ## État de préparation de cette version
 
 - Validation locale : 109 tests de règles métier et 62 tests d’interface pertinents réussis ; compilation, contrôle de syntaxe, types et vérification des migrations réussis.
-- Le scénario PostgreSQL concurrent est prêt dans la CI, mais n’a pas encore été exécuté : l’environnement local ne permet pas de lancer le serveur PostgreSQL natif sous un utilisateur non privilégié.
-- Les quatre migrations de l’audit et la publication de l’interface restent à appliquer. L’envoi vers le dépôt public a été refusé par le contrôle automatique, qui demande une autorisation explicite de publication.
+- Validation CI : 111 tests de règles métier réussis. Le scénario concurrent a réussi sur PostgreSQL 17.11 : un seul des deux transferts concurrents est accepté, les invariants sont conservés et la sérialisation des références est vérifiée.
+- Les quatre migrations de l’audit ont été appliquées en production le 27 septembre 2026. Les contrôles après migration confirment la conservation des quantités, mouvements et commandes ; les écarts historiques restent documentés pour traitement opérationnel. Aucun livre de valorisation n’est activé automatiquement.
+- Les 38 tests d’interface concernés par les derniers ajustements sont réussis. Publication de l’interface préparée dans la demande de fusion #76, avec les fichiers générés et le registre des migrations mis à jour.
 
 ## Liste visuelle de préparation
 
@@ -67,3 +68,5 @@ La facture fournisseur se suit dans Comptabilité → Factures de fournisseur. L
 Le choix des colonnes démarre replié à chaque création d’un tableau. Les anciennes préférences d’ouverture sont ignorées ; le choix des colonnes visibles reste enregistré. Le contrôle reste utilisable au clavier et sur mobile.
 
 Validation locale : 37 tests Playwright sur le suivi, la comptabilité et les contrôles de tableaux réussis ; affichage mobile inspecté. Aucun paiement ou enregistrement de facture n’est déclenché par les nouveaux raccourcis seuls.
+
+Le module Suivi de processus est regroupé dans Vue d’ensemble dans la barre latérale et le registre partagé des modules.

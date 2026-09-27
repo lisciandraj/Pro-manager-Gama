@@ -283,7 +283,7 @@ const definitions=[
     "id": "dossier-flow",
     "label": "Seguimiento de procesos",
     "icon": "folder",
-    "group": "Ventas",
+    "group": "Resumen",
     "description": "Venta (PDV) y compra (PDC), paso a paso",
     "accent": "blue",
     "order": 100,

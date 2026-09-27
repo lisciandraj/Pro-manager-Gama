@@ -32,6 +32,13 @@ test('editing identity into another product is blocked but own identity is allow
  await page.locator('#pRef').fill('REF-1');await page.locator('#pPrice').fill('12');await page.evaluate(()=>window.createProduct());
  expect(await page.evaluate(()=>window.__DB.products[0].sale_price)).toBe(12);
 });
+test('inactive catalogue drafts can be completed without implicit activation',async({page})=>{
+ page.on('dialog',async d=>d.accept());await setup(page);await page.evaluate(()=>window.editProduct('B2','p2'));
+ await expect(page.locator('#pActive')).toHaveValue('false');await page.locator('#pPrice').fill('12');await page.evaluate(()=>window.createProduct());
+ expect(await page.evaluate(()=>__DB.products.find(p=>p.id==='p2'))).toMatchObject({active:false,sale_price:12});
+ await page.evaluate(()=>window.editProduct('B2','p2'));await page.locator('#pActive').selectOption('true');await page.evaluate(()=>window.createProduct());
+ expect(await page.evaluate(()=>__DB.products.find(p=>p.id==='p2').active)).toBe(true);
+});
 test('Excel reports database duplicates and errors without counting successful imports',async({page})=>{
  await setup(page);
  await page.evaluate(()=>{

@@ -243,6 +243,7 @@ function search(t,state){
    their own sorter; otherwise only the rendered rows are rearranged, in place,
    preserving form values, handlers, subtotal rows and pagination controls. */
 const sources=new WeakMap();
+let columnPickerId=0;
 const controlLabels={
  fr:{sort:'Trier par',initial:'Ordre initial',direction:'Ordre',asc:'Croissant',desc:'Décroissant',columns:'Colonnes',all:'Tout afficher',column:'Colonne',actions:'Actions',scope:'Tri des lignes affichées',visible:'Au moins une colonne doit rester visible.'},
  en:{sort:'Sort by',initial:'Original order',direction:'Order',asc:'Ascending',desc:'Descending',columns:'Columns',all:'Show all',column:'Column',actions:'Actions',scope:'Sort displayed rows',visible:'At least one column must remain visible.'},
@@ -320,8 +321,11 @@ function controls(t,state){
   const box=document.createElement('div');box.className='gamaTableControls';box.setAttribute('translate','no');box.dataset.giIgnore='';
   const details=document.createElement('div');details.className='gamaColumnPicker';details.setAttribute('role','group');details.setAttribute('aria-label',w.columns);const summary=document.createElement('button');summary.type='button';summary.className='gamaColumnHeading';summary.textContent=w.columns;details.append(summary);
   const list=document.createElement('div');list.className='gamaColumnOptions';
-  list.hidden=!!stored.collapsed;summary.setAttribute('aria-expanded',String(!list.hidden));
-  summary.onclick=()=>{list.hidden=!list.hidden;summary.setAttribute('aria-expanded',String(!list.hidden));const data=read(key)||{};data.collapsed=list.hidden;save(key,data)};
+  // A new table always starts compact; only the chosen columns are persistent.
+  // Ignore the former saved expanded state, including existing user preferences.
+  list.id='gamaColumnOptions-'+(++columnPickerId);list.hidden=true;
+  summary.setAttribute('aria-controls',list.id);summary.setAttribute('aria-expanded','false');
+  summary.onclick=()=>{list.hidden=!list.hidden;summary.setAttribute('aria-expanded',String(!list.hidden))};
   cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
    input.onchange=()=>{const data=read(key)||{},set=new Set(state.hidden);input.checked?set.delete(c.key):set.add(c.key);data.hidden=[...set];save(key,data);controls(t,state)};});
   const reset=document.createElement('button');reset.type='button';reset.textContent=w.all;reset.onclick=()=>{const data=read(key)||{};data.hidden=[];save(key,data);controls(t,state)};list.append(reset);details.append(list);box.append(details);

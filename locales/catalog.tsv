@@ -4195,3 +4195,67 @@ Almacén eliminado.	Entrepôt supprimé.	Warehouse deleted.
 La estantería tiene existencias u operaciones pendientes en estos espacios:	L’étagère contient du stock ou des opérations en attente dans ces emplacements :	The shelf has stock or pending operations in these spaces:
 
 Generar un nuevo código de barras	Générer un nouveau code-barres	Generate a new barcode
+Modo de escaneo	Mode de scan	Scan mode
+Confirmar cantidad de la línea	Confirmer la quantité de la ligne	Confirm line quantity
+Una unidad por escaneo	Une unité par scan	One unit per scan
+Un envase por escaneo	Un conditionnement par scan	One pack per scan
+Escanear ubicación de origen	Scanner l’emplacement d’origine	Scan source location
+Elige el modo de escaneo.	Choisissez le mode de scan.	Choose the scan mode.
+Confirma la cantidad contada.	Confirmez la quantité comptée.	Confirm the counted quantity.
+Escanea la ubicación de origen indicada.	Scannez l’emplacement d’origine indiqué.	Scan the indicated source location.
+Este modo registra una unidad por escaneo.	Ce mode enregistre une unité par scan.	This mode records one unit per scan.
+Escanea el código del envase configurado.	Scannez le code du conditionnement configuré.	Scan the configured pack code.
+Elige qué valida cada escaneo. La confirmación de línea exige indicar y validar la cantidad contada.	Choisissez ce que valide chaque scan. La confirmation de ligne exige de saisir et valider la quantité comptée.	Choose what each scan validates. Line confirmation requires entering and confirming the counted quantity.
+Confirma o cierra la línea abierta antes de escanear otro producto.	Confirmez ou fermez la ligne ouverte avant de scanner un autre produit.	Confirm or close the open line before scanning another product.
+Escanea el código correspondiente a la unidad o al envase configurado.	Scannez le code de l’unité ou du conditionnement configuré.	Scan the code for the unit or configured pack.
+El envase supera la cantidad pendiente. Cuenta y confirma la cantidad de la línea.	Le conditionnement dépasse la quantité restante. Comptez et confirmez la quantité de la ligne.	The pack exceeds the remaining quantity. Count and confirm the line quantity.
+Escanea primero la ubicación de origen.	Scannez d’abord l’emplacement d’origine.	Scan the source location first.
+Todas las cantidades están preparadas. Revisa los bultos y cierra la preparación.	Toutes les quantités sont préparées. Vérifiez les colis et clôturez la préparation.	All quantities are picked. Check the packages and close picking.
+Introduce la cantidad contada y confirma con Entrada o con el botón.	Saisissez la quantité comptée et confirmez avec Entrée ou le bouton.	Enter the counted quantity and confirm with Enter or the button.
+Estado del catálogo	État dans le catalogue	Catalogue status
+Borrador / archivado	Brouillon / archivé	Draft / archived
+Nuevos productos	Nouveaux produits	New products
+Activar con las reglas actuales	Activer selon les règles actuelles	Activate under current rules
+Borrador inactivo (sin stock)	Brouillon inactif (sans stock)	Inactive draft (no stock)
+Ubicación del stock inicial	Emplacement du stock initial	Opening stock location
+Sin apertura de stock	Sans ouverture de stock	No opening stock
+Justificación del conteo inicial (10 caracteres mínimo)	Justification du comptage initial (10 caractères minimum)	Opening count reason (at least 10 characters)
+El catálogo no modifica existencias. Una columna «stock» positiva requiere ubicación y justificación: crea una apertura trazada, pendiente de validación si lo exigen las reglas. Para importar sólo el catálogo, elimina esa columna del archivo. Los productos por lote requieren las columnas lot_code y expires_on.	Le catalogue ne modifie pas le stock. Une colonne « stock » positive exige un emplacement et une justification : elle crée une ouverture tracée, soumise à validation selon les règles. Pour importer uniquement le catalogue, retirez cette colonne. Les articles suivis par lot exigent les colonnes lot_code et expires_on.	The catalogue does not change stock. A positive stock column requires a location and reason: it creates a traced opening, subject to approval under the rules. Remove that column for catalogue-only imports. Lot-tracked products require lot_code and expires_on columns.
+Recepciones sin factura conciliada	Réceptions sans facture rapprochée	Receipts without matched invoices
+Procesos fuera de plazo	Processus en retard	Overdue processes
+Diferencias históricas de stock	Écarts historiques de stock	Historical stock discrepancies
+Procesos bloqueados sin responsable	Processus bloqués sans responsable	Blocked processes without an owner
+Recepción sin factura conciliada	Réception sans facture rapprochée	Receipt without matched invoice
+Proceso fuera del plazo de seguimiento	Échéance de suivi du processus dépassée	Process follow-up overdue
+Proceso bloqueado sin responsable de seguimiento	Processus bloqué sans responsable de suivi	Blocked process without a follow-up owner
+Asigna responsable, próxima acción y plazo.	Définissez un responsable, une prochaine action et une échéance.	Assign an owner, next action and due date.
+Diferencia histórica de stock por justificar	Écart historique de stock à justifier	Historical stock discrepancy to document
+Productos a preparar	Produits à préparer	Products to pick
+Líneas completas	Lignes complètes	Complete lines
+Cantidad completa	Quantité complète	Quantity complete
+Ubicación por confirmar	Emplacement à confirmer	Location to be confirmed
+Cantidad pendiente	Quantité restante	Remaining quantity
+Preparado	Préparé	Picked
+Cantidades pendientes del pedido. Las cantidades y ubicaciones de esta preparación se confirman al iniciarla.	Quantités restantes de la commande. Les quantités et emplacements de cette préparation sont confirmés au démarrage.	Remaining order quantities. Quantities and locations for this preparation are confirmed when it starts.
+Abre un pedido y sigue la lista de productos. Comprueba las cantidades escaneadas, revisa los bultos y cierra la preparación.	Ouvrez une commande et suivez la liste des produits. Vérifiez les quantités scannées, contrôlez les colis et clôturez la préparation.	Open an order and follow the product list. Check scanned quantities, review packages and close picking.
+Abrir el pedido	Ouvrir la commande	Open order
+Revisar el presupuesto	Consulter le devis	Review quote
+Abrir la solicitud	Ouvrir la demande	Open request
+Abrir la preparación	Accéder à la préparation	Open preparation
+Registrar la realización del servicio	Enregistrer la réalisation du service	Record service completion
+Cargar / entregar	Charger / livrer	Load / deliver
+Consultar el origen	Consulter l’origine	View source
+Revisar la reserva de stock	Vérifier la réservation de stock	Review stock reservation
+Preparar la reposición	Préparer le réapprovisionnement	Prepare replenishment
+Abrir la factura	Ouvrir la facture	Open invoice
+Abrir los cobros del pedido	Accéder aux encaissements de la commande	Open order payments
+Resolver la devolución	Traiter le retour	Resolve return
+Revisar responsable y cierre	Contrôler le responsable et la clôture	Review owner and closure
+Abrir el pedido de compra	Ouvrir la commande d’achat	Open purchase order
+Revisar la factura del proveedor	Consulter la facture fournisseur	Review supplier invoice
+Consultar el pedido de origen	Consulter la commande à l’origine	View source order
+Abrir la recepción	Accéder à la réception	Open receipt
+Revisar el destino de recepción	Vérifier la destination de réception	Review receiving location
+Registrar la factura del proveedor	Enregistrer la facture fournisseur	Record supplier invoice
+Revisar / registrar el pago	Consulter / enregistrer le paiement	Review / record payment
+Registrar la factura recibida: el pedido de compra no genera una factura automáticamente.	Enregistrer la facture reçue : la commande d’achat ne génère pas automatiquement une facture.	Record the invoice received: a purchase order does not automatically create an invoice.

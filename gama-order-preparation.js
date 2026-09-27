@@ -12,7 +12,7 @@ async function list(token){
  const preps=orders.length?await S().rows('fulfillment_preparations',{in:{order_id:orders.map(o=>o.id)}}):[];
  if(!alive(token))return;
  const state=o=>preps.find(p=>p.order_id===o.id&&STATES[p.status])?.status||'queued';
- window.ArcUI.render(host,`<div class="arcPanel gsCard"><h3>${tr('Pedidos por preparar')}</h3><p class="gsHint">${tr('Abre un pedido y escanea sus productos: las cantidades ya están previstas y, con el último, el bulto queda «Lista para expedir».')}</p>`
+ window.ArcUI.render(host,`<div class="arcPanel gsCard"><h3>${tr('Pedidos por preparar')}</h3><p class="gsHint">${tr('Abre un pedido y sigue la lista de productos. Comprueba las cantidades escaneadas, revisa los bultos y cierra la preparación.')}</p>`
   +(orders.map(o=>`<div class="gfItem" data-prep-state="${esc(state(o))}"><div class="gfRow"><b>${esc(o.number)} · ${esc(o.customer_name)}</b><span class="tmsBadge">${tr(STATES[state(o)])}</span></div><p>${esc(o.delivery_address)}</p><button class="arcButton primary" data-prep-order="${esc(o.id)}" data-gi-live data-gi=e5f4e7cc21f2>Abrir preparación</button></div>`).join('')||`<p class="gsHint">${tr('No hay pedidos confirmados por preparar.')}</p>`)
   +`<div class="gsActions"><button class="arcButton secondary" id="gpPrev" ${page?'':'disabled'} data-gi-live data-gi=e4ce7c09d51e>Anterior</button><span>${page+1}</span><button class="arcButton secondary" id="gpNext" ${more?'':'disabled'} data-gi-live data-gi=49683b71c6ac>Siguiente</button></div></div>`);
  host.querySelectorAll('[data-prep-order]').forEach(b=>b.onclick=()=>show(b.dataset.prepOrder));

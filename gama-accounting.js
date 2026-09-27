@@ -47,7 +47,7 @@ const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contab
  TOO_MANY_FILES:'Máximo cuatro justificantes por gasto.',
  INVOICE_CANCELLED:'La factura está anulada.',INVALID_PERIOD:'El periodo seleccionado no es válido.'};
 
-let generation=0,section='overview',rights=null,scope='none',state={};
+let generation=0,opening=0,section='overview',rights=null,scope='none',state={};
 
 function err(e){const s=String(e?.message||e);
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return v;if(s===v)return v}
@@ -77,7 +77,7 @@ function nav(){
  const host=$('gaNav');if(!host)return;
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
  window.ArcUI.render(host,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':''}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
- host.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>go(b.dataset.gaSection));
+ host.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaSection)});
 }
 function busy(){window.ArcUI.render($('gaMain'),`<p class="arcPanel gaCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
@@ -106,21 +106,30 @@ async function go(next){
   if(token!==generation||!allowed())return;
   window.ArcUI.render($('gaMain'),view.render(data));
   view.bind?.(data);
+  return true;
  }catch(e){if(token===generation)fail(e,()=>go())}
 }
 async function open(options={}){
  if(!allowed())return;
+ const token=++opening;
  state={};section=options.section||'overview';
  shell();
  try{
-  const d=await rpc('overview');rights=d.rights;scope=d.scope;
+  const d=await rpc('overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;
   window.GamaCurrency.set(d.currency);
   /* El libro se pone al día al entrar: las facturas y cobros que los módulos
      comerciales han creado desde la última visita se contabilizan solos. */
   if(rights?.create)rpc('sync').catch(()=>{});
   state.overview=d;
- }catch(e){nav();fail(e,()=>open(options));return}
- return go(section);
+  if(options.invoiceId&&scope==='all'){
+   const r=await window.GamaCloud.list('supplier_invoices',{select:'id,number',eq:{id:options.invoiceId},limit:1});
+   if(token!==opening||!allowed())return;
+   if(r.error||!r.data?.[0])throw r.error||Error('DOCUMENT_NOT_FOUND');
+   section='purchases';state.invoiceId=r.data[0].id;state.search=r.data[0].number;
+  }
+ }catch(e){if(token===opening&&allowed()){nav();fail(e,()=>open(options))}return}
+ const loaded=await go(section);
+ if(loaded&&token===opening&&allowed()&&scope==='all'&&rights?.create&&options.newBill&&options.purchaseOrderId)await billForm({purchaseOrderId:options.purchaseOrderId});
 }
 
 /* ------------------------------------------------------------------ vistas */
@@ -212,7 +221,7 @@ function filters(opts){
   ${rights?.export?`<button class="arcButton secondary" id="gaExport">${tr('Exportar')}</button>`:''}</div>`;
 }
 function bindFilters(reload,rows,name){
- const apply=()=>{state.search=$('gaSearch')?.value||'';state.status=$('gaStatus')?.value||state.status;
+ const apply=()=>{delete state.invoiceId;state.search=$('gaSearch')?.value||'';state.status=$('gaStatus')?.value||state.status;
   state.from=$('gaFrom')?.value||state.from;state.to=$('gaTo')?.value||state.to;state.offset=0;reload()};
  $('gaApply')?.addEventListener('click',apply);
  $('gaSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();apply()}});
@@ -370,7 +379,14 @@ async function receiptForm(id){
 /* ------------------------------------------------------ compras y proveedores */
 VIEWS.purchases={
  async load(){
+  const invoiceId=state.invoiceId,search=state.search||'';
   const [d,accounts]=await Promise.all([rpc('supplier_invoices',{search:state.search||'',offset:0,limit:50}),rpc('accounts')]);
+  if(invoiceId){
+   let rows=d.rows,offset=0,found=rows.find(r=>r.id===invoiceId);
+   while(!found&&rows.length===50){offset+=50;rows=(await rpc('supplier_invoices',{search,offset,limit:50})).rows;found=rows.find(r=>r.id===invoiceId)}
+   if(!found)throw Error('DOCUMENT_NOT_FOUND');
+   d.rows=[found];
+  }
   return {...d,accounts:accounts.rows};
  },
  render(d){
@@ -401,8 +417,13 @@ VIEWS.purchases={
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }
 };
-async function billForm(){
+async function billForm(context={}){
+ if(!allowed()||scope!=='all'||!rights?.create)return;
+ const token=opening;
  const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
+ if(token!==opening||!allowed()||!rights?.create)return;
+ const purchase=context.purchaseOrderId&&purchases.data.find(p=>p.id===context.purchaseOrderId&&p.status!=='cancelled');
+ if(context.purchaseOrderId&&!purchase)throw Error('DOCUMENT_NOT_FOUND');
  const key=crypto.randomUUID(),sup=state.suppliers||[];
  GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
@@ -426,6 +447,7 @@ async function billForm(){
  const recalc=()=>{const s=Number($('gaSubtotal').value||0),t=Number($('gaTaxAmount').value||0);
   if(s>0)$('gaTotal').value=(s+t).toFixed(2)};
  $('gaSubtotal').oninput=recalc;$('gaTaxAmount').oninput=recalc;
+ if(purchase){$('gaPurchase').value=purchase.id;$('gaSupplier').value=purchase.supplier_id}
 }
 function supplierPaymentForm(row){
  if(!row)return;
@@ -954,5 +976,6 @@ async function exportRows(rows,name){
 }
 
 window.addEventListener('gama:currency-change',()=>{if($(ID)?.classList.contains('active'))go()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren()});
 window.GamaAccounting={open,rpc,SECTIONS};
 })();

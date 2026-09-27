@@ -25,7 +25,9 @@ const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.Ga
 /* PDV-00001246: el acrónimo del proceso y el número de su expediente. */
 const processNumber=(kind,number)=>Number(number)>0?kind+'-'+String(number).padStart(8,'0'):'';
 const PROCESSES={PDV:{module:'dossier-flow',label:'PDV · Proceso de venta'},PDC:{module:'gamaPurchasesV14',label:'PDC · Proceso de compra'}};
-let tab='PDV',records=[],purchases=[],suppliers=new Map(),generation=0,selected=null,summaries=new Map(),summaryToken=0;
+let tab='PDV',records=[],purchases=[],suppliers=new Map(),generation=0,selected=null,summaries=new Map(),summaryToken=0,pageOffset=0,pageTotal=0,searchTimer=null;
+const processRPC=(action,data)=>window.ArcData.rpc('gama_processes',{p_action:action,p_data:data});
+const serverStates=new Map();
 async function all(table,options={}){
  const result=[];
  for(let offset=0;;offset+=300){const r=await GamaCloud.list(table,{...options,order:({sales_reservation_links:'reservation_id',tms_proofs:'delivery_id',fulfillment_package_lines:'pick_line_id'}[table]||'id'),ascending:true,range:[offset,offset+299]});if(r.error)throw r.error;const a=r.data||[];result.push(...a);if(a.length<300)return result}
@@ -40,7 +42,7 @@ function group(orders,quotes,requests){
 }
 function progress(d,x){
  const EPS=0.000001;let ordered=0,shipped=0,missing=0,delivered=0,proved=0;
- for(const l of x.lines){const qty=n(l.quantity),sl=x.shipLines.filter(s=>s.order_line_id===l.id),sent=sum(sl),reserved=sum(x.reservations.filter(r=>r.status==='active'&&x.links.some(k=>k.line_id===l.id&&k.reservation_id===r.id)));
+ for(const l of x.lines){if(l.product_kind==='service'){const qty=n(l.quantity),done=Math.min(qty,sum((x.services||[]).filter(c=>c.order_line_id===l.id&&!c.cancelled_at)));ordered+=qty;shipped+=done;delivered+=done;proved+=done;continue}const qty=n(l.quantity),sl=x.shipLines.filter(s=>s.order_line_id===l.id),sent=sum(sl),reserved=sum(x.reservations.filter(r=>r.status==='active'&&x.links.some(k=>k.line_id===l.id&&k.reservation_id===r.id)));
  ordered+=qty;shipped+=Math.min(qty,sent);missing+=Math.max(0,qty-sent-reserved);
  const matches=(s,proof)=>{const ship=x.ships.find(a=>a.id===s.delivery_id),t=x.transport.find(a=>a.id===ship?.tms_delivery_id);return t?.status==='Entregada'&&(!proof||x.proofsUnavailable||x.proofs.some(p=>p.delivery_id===t.id&&p.signature))};
  delivered+=Math.min(qty,sum(sl.filter(s=>matches(s,false))));proved+=Math.min(qty,sum(sl.filter(s=>matches(s,true))));
@@ -56,7 +58,7 @@ function financialProgress(x,today){
  const valid=active.filter(i=>i.document_kind==='internal'||i.fiscal_status==='authorized');
  let unbilled=0,remaining=0;
  for(const l of x.lines){const qty=Math.max(0,n(l.quantity)-sum(x.invoiceLines.filter(il=>il.order_line_id===l.id&&valid.some(i=>i.id===il.invoice_id))));remaining+=qty;unbilled+=cents(qty*n(l.unit_price)*(1+n(l.tax_rate)/100));}
- const rows=active.map(i=>{const paid=x.payments.filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((v,p)=>v+cents(p.amount),0),balance=Math.max(0,cents(i.total)-paid);return {...i,paid,balance,overdue:balance>0&&!!i.due_date&&i.due_date<today};});
+ const rows=active.map(i=>{const paid=x.payments.filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((v,p)=>v+cents(p.amount),0),credit=(x.credits||[]).filter(c=>c.invoice_id===i.id).reduce((v,c)=>v+cents(c.amount),0),balance=Math.max(0,cents(i.total)-paid-credit);return {...i,paid,balance,overdue:balance>0&&!!i.due_date&&i.due_date<today};});
  const billed=valid.reduce((v,i)=>v+cents(i.total),0),paid=rows.reduce((v,i)=>v+i.paid,0),balance=rows.reduce((v,i)=>v+i.balance,0),overdue=rows.filter(i=>i.overdue).reduce((v,i)=>v+i.balance,0);
  const covered=x.lines.length>0&&remaining<0.000001&&valid.length>0;
  const externalPending=active.some(i=>i.document_kind==='internal'?(!i.external_number||i.external_status!=='authorized'):i.fiscal_status!=='authorized');
@@ -76,7 +78,7 @@ function shell(){
   +`<div class="gdfTabs" role="tablist" aria-label="${esc(T('Procesos'))}">${tabs.map(([k,p])=>`<button type="button" role="tab" class="gdfTab" id="gdfTab${k}" data-gdf-tab="${k}" aria-selected="${tab===k}" aria-controls="gdfPanel">${tr(p.label)}</button>`).join('')}</div>`
   +`<div id="gdfPanel" role="tabpanel" aria-labelledby="gdfTab${tab}"><div class="gdfTools"><input id="gdfSearch" aria-label="${esc(T('Buscar un proceso'))}" placeholder="${esc(T('Buscar un proceso'))}"><button class="arcButton secondary" id="gdfRefresh">${tr('Actualizar')}</button></div><div class="gdfLayout"><div id="gdfList" class="gdfList"></div><div id="gdfDetail" aria-live="polite"></div></div></div>`);
  GamaUI.bindBack(s);window.showTab?.(ID);
- $('gdfSearch').oninput=renderList;$('gdfRefresh').onclick=()=>open(selected,{tab});
+ $('gdfSearch').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{pageOffset=0;loadPage().catch(failure)},250)};$('gdfRefresh').onclick=()=>open(selected,{tab});
  s.querySelectorAll('[data-gdf-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.gdfTab!==tab)open(null,{tab:b.dataset.gdfTab})});
 }
 /* La barra de cada tarjeta: las etapas hechas sobre el total, en verde mientras
@@ -107,44 +109,24 @@ function renderList(){
  // Las barras se repintan al llegar: la tarjeta en la que está el teclado conserva el foco.
  const focused=document.activeElement?.closest?.('#gdfList [data-record]')?.dataset.record;
  window.ArcUI.render(list,rows.map(r=>`<button class="arcButton gdfRecord" data-record="${esc(r.key)}" aria-pressed="${selected===r.key}"><b>${esc(r.number)}</b><small>${esc(r.party)}</small>${bar(r.key)}</button>`).join('')||tr(tab==='PDC'?'No hay procesos de compra.':'No hay procesos de venta.'));
+ list.insertAdjacentHTML('beforeend',`<div class=arcToolbar><button type=button class="arcButton secondary" data-page-prev ${pageOffset===0?'disabled':''}>${tr('Anterior')}</button><span>${pageOffset+1}–${Math.min(pageOffset+25,pageTotal)} / ${pageTotal}</span><button type=button class="arcButton secondary" data-page-next ${pageOffset+25>=pageTotal?'disabled':''}>${tr('Siguiente')}</button></div>`);
+ list.querySelector('[data-page-prev]').onclick=()=>{pageOffset=Math.max(0,pageOffset-25);loadPage().catch(failure)};list.querySelector('[data-page-next]').onclick=()=>{pageOffset+=25;loadPage().catch(failure)};
  list.querySelectorAll('[data-record]').forEach(b=>{b.onclick=()=>detail(b.dataset.record);if(b.dataset.record===focused)b.focus()});
 }
 /* Las barras de toda la lista, de una vez: los mismos datos que el detalle,
    pedidos por lotes y no proceso a proceso. */
-async function loadSummaries(){
- const token=++summaryToken,kind=tab,list=kind==='PDC'?purchases.slice():records.slice();
- let next;
- try{
-  if(kind==='PDC'){const data=await purchaseDataFor(list);next=list.map(o=>['p:'+o.id,purchaseSteps(o,data.get(o.id))])}
-  else{const data=await saleData(list.filter(d=>d.o).map(d=>d.o));next=list.map(d=>[d.key,saleSteps(d,d.o?data.get(d.o.id):emptySale())])}
-  next=next.map(([key,{steps,closed}])=>[key,summarize(steps,closed)]);
- }catch(e){next=list.map(x=>[kind==='PDC'?'p:'+x.id:x.key,{state:'unknown'}])}
- if(token!==summaryToken)return;
- next.forEach(([key,value])=>summaries.set(key,value));renderList();
-}
-/* El detalle recién leído pone al día la barra de su tarjeta. */
 function remember(key,steps,closed){summaries.set(key,summarize(steps,closed));renderList()}
+async function loadPage(key=null){const token=++generation;
+ const result=await processRPC('list',{kind:tab,key,offset:pageOffset,search:$('gdfSearch')?.value||''});
+ if(token!==generation||!can(ID))return;pageTotal=result.total;
+ records=[];purchases=[];
+ for(const row of result.items){serverStates.set(row.key,row.state);summaries.set(row.key,summarize(row.state.steps,row.state.closed||row.state.cancelled));if(tab==='PDC'){purchases.push(row.o);suppliers.set(row.o.supplier_id,row.party)}else records.push(row)}
+ renderList();const first=result.items.find(x=>x.key===key)||result.items[0];if(first)await detail(first.key);else window.ArcUI.render($('gdfDetail'),tr('No hay procesos.'));
+}
 async function open(key=null,options={}){
- if(!can(ID))return;
- if(options.tab&&PROCESSES[options.tab])tab=options.tab;
- if(typeof key==='string'&&key.startsWith('p:'))tab='PDC';
- selected=key;shell();const token=++generation;window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
- try{await window.GamaCloudReady;
-  if(tab==='PDC'){
-   const [orders,list]=await Promise.all([all('purchase_orders',{select:'id,order_number,supplier_id,status,source_kind,source_order_id,expected_date,total,created_at'}),all('suppliers',{select:'id,name'})]);
-   if(token!==generation||!can(ID))return;
-   suppliers=new Map(list.map(s=>[s.id,s.name]));
-   purchases=orders.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
-   renderList();loadSummaries();
-   if(purchases.length)await detail(purchases.find(o=>'p:'+o.id===key)?'p:'+purchases.find(o=>'p:'+o.id===key).id:'p:'+purchases[0].id);
-   else window.ArcUI.render($('gdfDetail'),tr('Los procesos de compra aparecerán al crear un pedido a un proveedor.'));
-   return;
-  }
-  const [orders,quotes,requests]=await Promise.all([all('sales_orders',{select:'id,number,customer_name,delivery_address,status,source_quote_id,source_request_id,source_opportunity_id,created_at'}),can('quotes')?all('invoices',{select:'id,invoice_number,quote_state,quote_details,quote_valid_until,created_at'}):[],can('customer-requests')?all('customer_requests',{select:'id,requester_name,status,invoice_id,created_at'}):[]]);
-  if(token!==generation||!can(ID))return;records=group(orders,quotes,requests);renderList();loadSummaries();
-  if(records.length)await detail(records.find(d=>d.key===key)?.key||records[0].key);
-  else window.ArcUI.render($('gdfDetail'),tr('Los procesos de venta aparecerán al registrar una solicitud, un presupuesto o un pedido.'));
- }catch(e){if(token===generation)failure()}
+ if(!can(ID))return;if(options.tab&&PROCESSES[options.tab])tab=options.tab;if(typeof key==='string'&&key.startsWith('p:'))tab='PDC';
+ selected=key;pageOffset=0;shell();window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
+ try{await window.GamaCloudReady;await loadPage(key)}catch(e){failure()}
 }
 function failure(){window.ArcUI.render($('gdfDetail'),`<p role="alert" class="gdfError">${tr('No se pudo cargar el proceso. Actualiza para reintentar; el avance no está confirmado.')}</p>`)}
 const by=async(table,field,a,select='*',extra={})=>{const result=[];for(let i=0;i<a.length;i+=100)result.push(...await all(table,{...extra,select,in:{[field]:a.slice(i,i+100)}}));return result};
@@ -152,6 +134,7 @@ const ids=(a,k='id')=>a.map(x=>x[k]).filter(Boolean);
 async function detail(key){
  if(!can(ID))return;selected=key;renderList();const token=++generation;window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
  try{
+  const shared=await processRPC('state',{key});if(token!==generation)return;serverStates.set(key,shared);
   if(key.startsWith('p:')){const o=purchases.find(x=>'p:'+x.id===key);if(!o)return;const x=(await purchaseDataFor([o])).get(o.id);if(token!==generation||!can(ID))return;renderPurchase(o,x);return}
   const d=records.find(x=>x.key===key);if(!d)return;
   let data=emptySale();
@@ -208,6 +191,50 @@ async function purchaseDataFor(list){
 /* Un documento del proceso: su referencia —con el número del proceso— y cómo abrirlo. */
 const doc=(ref,action,id,module)=>ref?{ref,action,id,module}:null;
 const STATES={done:'Completado',active:'En curso',blocked:'Bloqueado',pending:'Pendiente',skip:'Sin esta etapa',closed:'Cerrado',restricted:'Sin acceso a estos datos'};
+const nextAction=(label,action,id,module)=>({label,action,id,module});
+const fromDoc=(d,label)=>d&&nextAction(label,d.action,d.id,d.module);
+function saleActions(d,x,steps){
+ const order=d.o&&nextAction('Abrir el pedido','order',d.o.id,'sales-orders');
+ const quote=d.q&&nextAction('Revisar el presupuesto','quote',d.q.id,'quotes');
+ const request=d.r&&nextAction('Abrir la solicitud','request',d.r.id,'customer-requests');
+ const source=quote||request||order;
+ const preparation=d.o&&nextAction('Abrir la preparación','preparation',d.o.id,'tms');
+ const goods=x.lines.some(l=>l.product_kind!=='service');
+ const service=x.lines.some(l=>l.product_kind==='service')&&d.o&&nextAction('Registrar la realización del servicio','order',d.o.id,'sales-orders');
+ const deliveries=x.transport.filter(t=>!['Entregada','Cancelada'].includes(t.status)).map(t=>({...nextAction('Cargar / entregar','delivery',t.id,'tms'),ref:t.erp_reference||t.dossier_reference}));
+ const invoices=x.invoices.filter(i=>!['cancelled','rejected'].includes(i.fiscal_status));
+ const shared=serverStates.get(d.key),missing=n(shared?.metrics?.missing??progress(d,x).missing);
+ const closed=shared?.closed||shared?.cancelled;
+ const actions=[
+  [fromDoc(steps[0].docs?.find(Boolean),'Consultar el origen')||source],
+  [quote||request||order],
+  [order||source],
+  d.o?.status!=='confirmed'?[order||source]:[
+   missing>0&&nextAction('Revisar la reserva de stock','order',d.o.id,'sales-orders'),
+   missing>0&&!closed&&nextAction('Preparar la reposición','replenish',d.o.id,'gamaPurchasesV14'),
+   goods&&preparation,service],
+  [...deliveries,goods&&!progress(d,x).complete&&preparation,service,...(!deliveries.length&&(!goods||progress(d,x).complete)?[order||source]:[])],
+  invoices.length?invoices.map(i=>({...nextAction('Abrir la factura','payment',i.id,'payments'),ref:i.number})):[order||source],
+  [d.o?nextAction('Abrir los cobros del pedido','order_payments',d.o.id,'payments'):source],
+  [(x.returns||[]).filter(r=>!['closed','cancelled'].includes(r.status)).map(r=>({...nextAction('Resolver la devolución','returns',r.id,'returns'),ref:r.number})),nextAction('Revisar responsable y cierre','closure',d.key,ID)].flat()
+ ];
+ return steps.map((s,i)=>({...s,actions:actions[i].filter(Boolean)}));
+}
+function purchaseActions(o,x,steps){
+ const purchase=nextAction('Abrir el pedido de compra','purchase',o.id,'gamaPurchasesV14');
+ const bills=x.invoices.rows.filter(i=>i.status!=='cancelled');
+ const invoices=bills.map(i=>({...nextAction('Revisar la factura del proveedor','supplier_invoice',i.id,'accounting'),ref:i.erp_reference||i.number}));
+ const actions=[
+  [x.source?nextAction('Consultar el pedido de origen','order',x.source.id,'sales-orders'):purchase],
+  [purchase],
+  [nextAction('Abrir la recepción','purchase',o.id,'gamaPurchasesV14')],
+  [nextAction('Revisar el destino de recepción','purchase',o.id,'gamaPurchasesV14')],
+  [...invoices,...(o.status!=='cancelled'&&(!bills.length||n(serverStates.get('p:'+o.id)?.metrics?.unbilled)>0)?[nextAction('Registrar la factura del proveedor','new_supplier_invoice',o.id,'accounting')]:[])],
+  bills.length?bills.map(i=>({...nextAction('Revisar / registrar el pago','supplier_invoice',i.id,'accounting'),ref:i.erp_reference||i.number})):[o.status==='cancelled'?purchase:nextAction('Registrar la factura del proveedor','new_supplier_invoice',o.id,'accounting')],
+  [nextAction('Revisar responsable y cierre','closure','p:'+o.id,ID)]
+ ];
+ return steps.map((s,i)=>({...s,actions:actions[i].filter(Boolean)}));
+}
 
 function saleSteps(d,x){
  const day=today(),late=t=>t.delivery_date&&t.delivery_date<day&&!['Entregada','Cancelada'].includes(t.status);
@@ -241,16 +268,16 @@ function saleSteps(d,x){
    info:fin?`${tr('Cobrado')} : ${money(f.paid/100)} · ${tr('Saldo pendiente')} : ${money(f.balance/100)}${f.overdue?' · '+tr('Importe vencido')+' : '+money(f.overdue/100):''}`:'',
    need:f?.overdue?'Relanzar las facturas vencidas y registrar los cobros.':'Registrar cada cobro con fecha, importe y medio.'},
   /* Sólo se cierra lo que se ha podido comprobar: sin ver la facturación, entregado no es cerrado. */
-  {title:'Cierre del proceso de venta',state:cancelled?'closed':p.done&&fin&&f.settled?'done':p.done&&!fin?'restricted':'pending',
+  {title:'Cierre del proceso de venta',state:cancelled?'closed':p.done&&fin&&f.settled&&!x.returns?.some(r=>!['closed','cancelled'].includes(r.status))?'done':p.done&&!fin?'restricted':'pending',
    info:tr(cancelled?'Proceso anulado.':p.done&&fin&&f.settled?'Entregado, facturado y cobrado.':p.done&&!fin?'Entregado. La facturación y el cobro no se pueden comprobar con este perfil.':'Se cierra al quedar entregado, facturado y cobrado.'),need:'Completar las etapas anteriores.'}
  ];
- return {steps,closed:cancelled};
+ const shared=serverStates.get(d.key);return shared?{steps:shared.steps.map((step,i)=>({...steps[i],...step,info:sharedInfo(shared,i,step.info)})),closed:shared.closed||shared.cancelled}:{steps,closed:cancelled};
 }
 function renderSale(d,x){
- const {steps,closed}=saleSteps(d,x);
+ const {steps:base,closed}=saleSteps(d,x),steps=saleActions(d,x,base);
  const returns=(x.returns||[]).length?`<div class="arcPanel card gdfAside"><h3>${tr('Devoluciones de este proceso')}</h3><p>${tr('Se siguen en Devoluciones, en su propio proceso de retorno.')}</p><ul class="gdfDocs">${x.returns.map(r=>docButton(doc(r.number,'returns',r.id,'returns'))).join('')}</ul></div>`:'';
  remember(d.key,steps,closed);
- renderProcess({number:saleNumber(d),party:customer(d),address:d.o?.delivery_address||'',steps,closed,after:returns});
+ renderProcess({number:saleNumber(d),party:customer(d),address:d.o?.delivery_address||'',steps,closed,after:returns+externalStatus(serverStates.get(d.key))});
  window.ArchitectProjectControls?.mountDossier(d.key,$('gdfDetail'));
 }
 
@@ -274,36 +301,46 @@ function purchaseSteps(o,x){
   {title:'Puesta en stock',state:!x.moves.ok?'restricted':received>0&&stocked>=received?'done':stocked>0?'active':'pending',
    docs:x.moves.rows.slice(0,6).map(m=>doc(m.erp_reference,'purchase',o.id,'gamaPurchasesV14')),info:`${tr('En stock / recibido')} : ${stocked} / ${received}`,need:'Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.'},
   {title:'Factura del proveedor',state:!x.invoices.ok?'restricted':fullyInvoiced?'done':invoices.length?'active':'pending',
-   docs:invoices.map(i=>doc(i.erp_reference||i.number,'supplier_invoice',i.id,'accounting')),info:x.invoices.ok?`${tr('Facturado')} : ${money(invoiced/100)} / ${money(o.total)}`:'',need:'Registrar la factura del proveedor contra este pedido.'},
+   docs:invoices.map(i=>doc(i.erp_reference||i.number,'supplier_invoice',i.id,'accounting')),info:x.invoices.ok?`${tr('Facturado')} : ${money(invoiced/100)} / ${money(o.total)}`:'',need:invoices.length?'Registrar la factura del proveedor contra este pedido.':'Registrar la factura recibida: el pedido de compra no genera una factura automáticamente.'},
   {title:'Seguimiento del pago',state:!x.payments.ok?'restricted':overdue?'blocked':settled?'done':paid>0||invoices.length?'active':'pending',
    docs:x.payments.rows.filter(p=>p.status==='confirmed').map(p=>doc(p.erp_reference,'supplier_payment',p.id,'accounting')),
    info:x.payments.ok?`${tr('Pagado')} : ${money(paid/100)} · ${tr('Saldo pendiente')} : ${money(balance/100)}`:'',need:overdue?'Pagar las facturas vencidas del proveedor.':'Registrar cada pago al proveedor.'},
   {title:'Cierre del proceso de compra',state:cancelled?'closed':ordered>0&&received>=ordered&&settled?'done':'pending',
    info:tr(cancelled?'Proceso anulado.':ordered>0&&received>=ordered&&settled?'Recibido, en stock, facturado y pagado.':'Se cierra al quedar recibido, facturado y pagado.'),need:'Completar las etapas anteriores.'}
  ];
- return {steps,closed:cancelled};
+ const shared=serverStates.get('p:'+o.id);return shared?{steps:shared.steps.map((step,i)=>({...steps[i],...step,info:sharedInfo(shared,i,step.info)})),closed:shared.closed||shared.cancelled}:{steps,closed:cancelled};
 }
 function renderPurchase(o,x){
- const {steps,closed}=purchaseSteps(o,x);
+ const {steps:base,closed}=purchaseSteps(o,x),steps=purchaseActions(o,x,base);
  remember('p:'+o.id,steps,closed);
  renderProcess({number:purchaseNumber(o),party:supplierName(o),address:'',steps,closed,after:''});
+ window.ArchitectProjectControls?.mountDossier('p:'+o.id,$('gdfDetail'));
 }
 
+function sharedInfo(s,i,fallback){const m=s.metrics;if(!m)return esc(fallback);const fr=window.GamaI18n?.language==='fr',en=window.GamaI18n?.language==='en',tr=(es,f,e)=>fr?f:en?e:es;
+ if(s.steps[i]?.state==='restricted')return tr('La facturación y el cobro no se pueden comprobar con este perfil.','La facturation et les paiements ne sont pas accessibles avec ce profil.','This profile cannot verify billing and payments.');
+ let value='';if(s.key.startsWith('p:')){value=({2:tr('Recibido / aceptado','Reçu / accepté','Received / accepted')+`: ${m.received} / ${m.ordered}`,3:tr('Mercancía ubicada','Marchandises localisées','Located goods')+`: ${m.stocked} / ${m.goods}`,4:tr('Recepción sin factura conciliada','Réception sans facture rapprochée','Unmatched received quantity')+`: ${m.unbilled}`,5:tr('Saldo neto de abonos','Solde net des avoirs','Balance after credits')+`: ${money(m.balance)}`,6:tr('Devoluciones abiertas','Retours ouverts','Open returns')+`: ${m.open_returns}`})[i]||''}
+ else value=({3:T('Sin reservar')+`: ${m.missing}`,4:T('Expedido / pedido')+`: ${m.shipped} / ${m.ordered} · `+tr('Entregas firmadas / servicios ejecutados','Livraisons signées / services exécutés','Signed deliveries / completed services')+`: ${m.performed} / ${m.ordered}`,5:tr('Cantidad sin facturar','Quantité non facturée','Unbilled quantity')+`: ${m.unbilled}`,6:T('Cobrado')+`: ${money(m.paid)} · `+tr('Abonos','Avoirs','Credits')+`: ${money(m.credits)} · `+T('Saldo pendiente')+`: ${money(m.balance)}`,7:tr('Devoluciones abiertas','Retours ouverts','Open returns')+`: ${m.open_returns}`})[i]||'';return esc(value)}
+function externalStatus(s){if(!s||s.external_complete===null)return '';return `<div class="arcPanel card"><h3>${tr('Formalidades externas')}</h3><p>${tr(s.external_complete?'Documentos externos completos.':'Documentos externos por completar.')} ${s.external_pending||0}</p><p>${tr('Este estado se muestra por separado del cierre operativo.')}</p></div>`}
 function docButton(x){return `<li><button type="button" class="gdfDoc" data-action="${esc(x.action)}" data-id="${esc(x.id||'')}" ${x.module&&!can(x.module)?'disabled':''}>${esc(x.ref)}</button></li>`}
 function renderProcess({number,party,address,steps,closed,after}){
+ const links=[];
+ const actions=s=>s?.state==='restricted'?[]:(s?.actions||[]).filter(a=>a.id&&can(a.module));
+ const actionLinks=s=>actions(s).map(a=>{const key=links.push(a)-1;return `<button type="button" class="arcButton secondary gdfAction" data-gdf-next="${key}">${tr(a.label)}${a.ref?` <span>${esc(a.ref)}</span>`:''}</button>`}).join('');
  const current=steps.findIndex(s=>['active','blocked','pending'].includes(s.state)),summary=summarize(steps,closed);
  /* Lo que este perfil no puede comprobar no se da por hecho: el proceso no está completo para él. */
  const next=closed?'Proceso cerrado.':summary.state==='done'?'Proceso completo.':current<0?'Las etapas siguientes no se pueden comprobar con este perfil.':steps[current].need||'Completar las etapas anteriores.';
  const stepper=`<ol class="gdfStepper" aria-label="${esc(T('Etapas del proceso'))}">${steps.map((s,i)=>`<li data-state="${closed&&s.state!=='done'?'closed':s.state}"${i===current?' aria-current="step"':''}><span class="gdfDot">${i+1}</span><span class="gdfStepName">${tr(s.title)}</span></li>`).join('')}</ol>`;
  const cards=steps.map((s,i)=>{const docs=(s.docs||[]).filter(Boolean),state=closed&&s.state!=='done'?'closed':s.state;
-  return `<li class="arcPanel gdfStep ${state}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(s.title)}</h3><span class="gdfBadge">${tr(STATES[state])}</span></div>${docs.length?`<ul class="gdfDocs" aria-label="${esc(T('Documentos'))}">${docs.map(docButton).join('')}</ul>`:''}${s.info?`<p>${s.info}</p>`:''}${['active','blocked','pending'].includes(state)&&s.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(s.need)}</p>`:''}</li>`}).join('');
- window.ArcUI.render($('gdfDetail'),`<div class="arcPanel card gdfSummary"><div class="gdfSummaryHead"><h2>${esc(number)}</h2><span class="gdfBadge" data-status="${summary.state}">${tr(PROCESS_STATUS[summary.state])}</span></div><p>${esc(party)}</p>${address?`<p>${esc(address)}</p>`:''}<p class="gdfNext"><b>${tr('Próxima acción')}</b> ${tr(next)}</p></div>${stepper}<ol class="gdfFlow">${cards}</ol>${after||''}`);
+  return `<li class="arcPanel gdfStep ${state}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(s.title)}</h3><span class="gdfBadge">${tr(STATES[state])}</span></div>${docs.length?`<ul class="gdfDocs" aria-label="${esc(T('Documentos'))}">${docs.map(docButton).join('')}</ul>`:''}${s.info?`<p>${s.info}</p>`:''}${['active','blocked','pending'].includes(state)&&s.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(s.need)}</p>`:''}<div class="gdfActions">${actionLinks(s)}</div></li>`}).join('');
+ window.ArcUI.render($('gdfDetail'),`<div class="arcPanel card gdfSummary"><div class="gdfSummaryHead"><h2>${esc(number)}</h2><span class="gdfBadge" data-status="${summary.state}">${tr(PROCESS_STATUS[summary.state])}</span></div><p>${esc(party)}</p>${address?`<p>${esc(address)}</p>`:''}<p class="gdfNext"><b>${tr('Próxima acción')}</b> ${tr(next)}</p>${!closed&&current>=0?`<div class="gdfActions">${actionLinks(steps[current])}</div>`:''}</div>${stepper}<ol class="gdfFlow">${cards}</ol>${after||''}`);
  $('gdfDetail').querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action,b.dataset.id));
+ $('gdfDetail').querySelectorAll('[data-gdf-next]').forEach(b=>b.onclick=async()=>{const a=links[Number(b.dataset.gdfNext)];if(!a||!can(ID)||!can(a.module))return;b.disabled=true;try{await act(a.action,a.id)}finally{b.disabled=false}});
 }
 async function act(action,id){
  if(!can(ID))return;
  try{switch(action){
-  case'opportunity':if(can('crm')){window.GamaOpenCRM?.();window.ArcRouter?.show('crm')}break;
+  case'opportunity':if(can('crm'))await window.GamaCRMOpportunities.openRecord(id);break;
   case'request':if(can('customer-requests'))await window.GamaOpenCustomerRequest(id);break;
   case'quote':if(can('quotes')){await GamaQuotes.open();await GamaQuotes.view(id)}break;
   case'order':if(can('sales-orders'))await GamaSales.openOrder(id);break;
@@ -311,12 +348,18 @@ async function act(action,id){
   case'delivery':if(can('tms'))await gamaTMS.openDelivery(id);break;
   case'proof':if(can('sales-orders'))await GamaFulfillment.proof(id);break;
   case'payment':if(can('payments'))await GamaPayments.open({invoiceId:id});break;
+  case'order_payments':if(can('payments'))await GamaPayments.open({orderId:id,status:'all'});break;
+  case'replenish':if(can('gamaPurchasesV14'))await window.gamaPrepareActionPurchase({order_id:id});break;
+  case'closure':await window.ArchitectProjectControls.dossier(id);break;
   case'returns':if(can('returns'))await window.GamaReturns?.openReturn(id);break;
   case'purchase':if(can('gamaPurchasesV14'))await window.gamaOpenPurchaseDossier(id);break;
-  case'supplier_invoice':case'supplier_payment':if(can('accounting'))await window.GamaAccounting.open({section:'payables'});break;
+  case'supplier_invoice':if(can('accounting'))await window.GamaAccounting.open({section:'purchases',invoiceId:id});break;
+  case'supplier_payment':if(can('accounting')){const r=await GamaCloud.list('supplier_invoice_payments',{select:'supplier_invoice_id',eq:{id},limit:1});if(r.error||!r.data?.[0])throw r.error||Error('DOCUMENT_NOT_FOUND');if(can('accounting')&&can(ID))await window.GamaAccounting.open({section:'purchases',invoiceId:r.data[0].supplier_invoice_id})}break;
+  case'new_supplier_invoice':if(can('accounting'))await window.GamaAccounting.open({section:'purchases',purchaseOrderId:id,newBill:true});break;
  }}catch(e){window.gamaToast?.(T('No se pudo abrir el documento.'))}
 }
 window.GamaDossierFlow={open,group,progress,financialProgress,summarize};
+window.addEventListener('gama:process-change',()=>{if(can(ID)&&$(ID)?.classList.contains('active'))open(selected,{tab})});
 window.addEventListener('gama:sales-change',()=>{if(can(ID)&&$(ID)?.classList.contains('active'))open(selected,{tab})});
-window.addEventListener('gama:auth-change',()=>{generation++;summaryToken++;records=[];purchases=[];summaries=new Map();selected=null;tab='PDV';$(ID)?.replaceChildren()});
+window.addEventListener('gama:auth-change',()=>{generation++;summaryToken++;records=[];purchases=[];summaries=new Map();serverStates.clear();selected=null;tab='PDV';$(ID)?.replaceChildren()});
 })();

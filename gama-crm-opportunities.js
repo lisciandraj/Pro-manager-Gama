@@ -627,5 +627,5 @@ async function abrirPantalla(){
 }
 
 CRM.registrar('oportunidades','Oportunidades',abrirPantalla);
-window.GamaCRMOpportunities={open:abrirPantalla};
+window.GamaCRMOpportunities={open:abrirPantalla,openRecord:async id=>{if(!window.gamaAccessAllowed?.('crm')||!CRM.puedeUsar())return;CRM.mostrar();await abrirPantalla();if(window.gamaAccessAllowed?.('crm')&&CRM.puedeUsar())await abrir(id)}};
 })();

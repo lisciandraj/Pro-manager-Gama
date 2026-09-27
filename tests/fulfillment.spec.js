@@ -28,46 +28,42 @@ async function boot(page,state='picking',role='magasinier'){
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
  await expect(page.locator('#gfDossier')).toContainText('Dossier');
 }
-test('one scan validates the line and, with the last one, the parcel is ready to ship',async({page})=>{
- await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await expect(page.locator('#gfPack')).toBeVisible();
- await expect(page.locator('#gama-tms-section button.tmsTab.active')).toHaveText('Preparación');
- await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
- await expect(page.locator('#gfShip')).toBeVisible();await expect(page.locator('dialog')).toHaveCount(0);
- await expect(page.locator('#gfPreparation')).toContainText('Lista para expedir');
- const calls=await page.evaluate(()=>window.__calls);
- expect(calls.map(c=>c.p_action)).toEqual(['pick','package','finish']);
- expect(calls[0].p_data).toMatchObject({pick_line_id:'pl',quantity:6,product_code:'CAFE-01'});
- expect(calls[1].p_data.lines).toEqual([{pick_line_id:'pl',quantity:10}]);
- expect(calls[2].p_data).toMatchObject({preparation_id:'prep',reason:''});
-});
-test('the first scan of an order not yet started starts it for whoever scans',async({page})=>{
- await boot(page,'queued');await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
- await expect(page.locator('#gfStart')).toBeVisible();
- await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
- await expect(page.locator('#gfShip')).toBeVisible();
- const calls=await page.evaluate(()=>window.__calls);
- expect(calls.map(c=>c.p_action)).toEqual(['start','pick','package','finish']);
- expect(calls[0].p_data).toMatchObject({order_id:ids.order,assigned_to:''});
-});
-test('a partial shipment asks for its reason right away and then closes',async({page})=>{
- await boot(page);await page.evaluate(()=>{window.__errorFor={finish:'PARTIAL_REASON_REQUIRED'};return GamaPreparation.open(__DB.sales_orders[0].id)});
- await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
- const box=page.locator('dialog');await expect(box).toContainText('Resumen de la preparación');
- await page.locator('#gfReason').fill('Falta stock');await page.locator('#gsSave').click();await expect(box).toHaveCount(0);
- await expect(page.locator('#gfShip')).toBeVisible();
- const finish=await page.evaluate(()=>__calls.filter(c=>c.p_action==='finish'));
- expect(finish.map(c=>c.p_data.reason)).toEqual(['','Falta stock']);
-});
-test('an opened line keeps the manual count, with the expected quantity ready',async({page})=>{
+test('identity scan requires an explicit counted quantity and does not pack automatically',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
- await page.locator('[data-gf-pick]').click();
- const qty=page.locator('[data-line-qty="pl"]');
- await expect(qty).toBeVisible();await expect(qty).toHaveValue('6');await expect(qty).toBeFocused();await expect(page.locator('dialog')).toHaveCount(0);
- await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await qty.press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');
- await page.evaluate(()=>window.__error=null);await page.locator('[data-gf-confirm="pl"]').click();
- await expect(page.locator('#gfShip')).toBeVisible();await expect(page.locator('dialog')).toHaveCount(0);
- const calls=await page.evaluate(()=>window.__calls);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);
- expect(calls[1].p_data).toMatchObject({pick_line_id:'pl',quantity:6});
+ await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ await expect(page.locator('[data-line-qty="pl"]')).toBeVisible();expect(await page.evaluate(()=>__calls)).toHaveLength(0);
+ await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);
+ expect((await page.evaluate(()=>__calls[0])).p_data).toMatchObject({quantity:6,scan_mode:'confirm',quantity_confirmed:true});await expect(page.locator('#gfShip')).toHaveCount(0);await expect(page.locator('#gfPack')).toBeVisible();
+});
+test('unit mode records one unit per scan; pack mode records the configured factor',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.product_units=[{id:'box',product_id:__DB.products[0].id,barcode:'CAFE-BOX',factor:3,label:'Caja',active:true}];return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await page.locator('[name="gfScanMode"]').selectOption('unit');await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);expect((await page.evaluate(()=>__calls[0])).p_data).toMatchObject({quantity:1,scan_mode:'unit'});
+ await expect(page.locator('#gfScanCode')).toBeFocused();await page.locator('[name="gfScanMode"]').selectOption('pack');await page.locator('#gfScanCode').fill('CAFE-BOX');await page.locator('#gfScanCode').press('Enter');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(2);expect((await page.evaluate(()=>__calls[1])).p_data).toMatchObject({quantity:3,scan_mode:'pack'});
+});
+test('visual checklist shows photos and descriptions, and checks only persisted complete quantities',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{__DB.products[0].description='Café tostado · bolsa de 500 g';__DB.products[0].has_photo=true;GamaPhotos.seed(__DB.products[0].id,'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');__f.pick_lines[0].picked=8;await GamaPreparation.open(__DB.sales_orders[0].id)});
+ const row=page.locator('.gfPickItem[data-line="pl"]');await expect(row.locator('.gfPickPhoto img')).toBeVisible();await expect(row.locator('.gfPickDescription')).toHaveText('Café tostado · bolsa de 500 g');await expect(row.locator('.gfPickQuantities')).toContainText('8 / 10');await expect(row).toHaveAttribute('data-pick-complete','false');await expect(row.locator('.gfPickLocation')).toContainText('A01');await expect(row.locator('[data-line-form]')).toBeHidden();
+ await page.locator('[name="gfScanMode"]').selectOption('unit');await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await expect(row.locator('.gfPickQuantities')).toContainText('9 / 10');await expect(row).toHaveAttribute('data-pick-complete','false');
+ await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');await expect(row).toHaveAttribute('data-pick-complete','false');await expect(row.locator('.gfPickQuantities')).toContainText('9 / 10');
+ await page.evaluate(()=>window.__error=null);await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await expect(row).toHaveAttribute('data-pick-complete','true');await expect(row.locator('.gfPickCheck svg')).toBeVisible();await expect(row.locator('.gfPickCheck')).toHaveAttribute('aria-label','Cantidad completa');await expect(row.locator('.gfPickQuantities')).toContainText('10 / 10');await expect(page.locator('.gfPickSummary')).toContainText('1 / 1');
+ await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await expect(row).toHaveAttribute('data-pick-complete','true');
+});
+test('responsive checklist escapes descriptions and keeps separate location quantities with no-photo fallback',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(async()=>{__DB.products[0].description='<img src=x onerror=alert(1)> Café biologique en grains, torréfaction douce, sachet de 500 grammes.';__f.pick_lines.push({...__f.pick_lines[0],id:'pl2',source_location_id:'loc2',planned:2,picked:2});__DB.warehouse_locations.push({id:'loc2',code:'B02',active:true});await GamaI18n.setLanguage('fr');await GamaPreparation.open(__DB.sales_orders[0].id)});
+ await expect(page.locator('.gfPickItem')).toHaveCount(2);await expect(page.locator('.gfPickDescription').first()).toContainText('<img src=x');await expect(page.locator('.gfPickDescription img')).toHaveCount(0);await expect(page.locator('.gfPickPhoto svg').first()).toBeVisible();await expect(page.locator('[data-line="pl"]')).toHaveAttribute('data-pick-complete','false');await expect(page.locator('[data-line="pl2"]')).toHaveAttribute('data-pick-complete','true');await expect(page.locator('.gfPickSummary')).toContainText('Lignes complètes');
+ expect(await page.locator('.gfPickList').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);await page.locator('.gfPickChecklist').screenshot({path:'test-results/preparation-checklist-mobile.png'});await page.setViewportSize({width:1280,height:900});expect(await page.locator('.gfPickList').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);await page.locator('.gfPickChecklist').screenshot({path:'test-results/preparation-checklist-desktop.png'});
+});
+test('order contents are visible before the preparation plan exists',async({page})=>{
+ await boot(page,'queued');await page.evaluate(async()=>{__f.preparations=[];__f.pick_lines=[];await GamaPreparation.open(__DB.sales_orders[0].id)});await expect(page.locator('.gfPickItem')).toContainText('Café');await expect(page.locator('.gfPickItem')).toHaveAttribute('data-pick-preview','true');await expect(page.locator('.gfPickQuantities')).toContainText('12');await expect(page.locator('.gfPickItem')).toHaveAttribute('data-pick-complete','false');await expect(page.locator('.gfPickActions')).toHaveCount(0);
+});
+test('the first scan starts a queued preparation and opens quantity confirmation',async({page})=>{
+ await boot(page,'queued');await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ await expect(page.locator('[data-line-qty="pl"]')).toBeVisible();expect((await page.evaluate(()=>__calls)).map(c=>c.p_action)).toEqual(['start']);
+});
+test('a failed manual confirmation retains its idempotency key for retry',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('[data-gf-pick]').click();const qty=page.locator('[data-line-qty="pl"]');await expect(qty).toHaveValue('6');
+ await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await qty.press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');await page.evaluate(()=>window.__error=null);await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(2);
+ expect(await page.evaluate(()=>__calls[0].p_data.request_key===__calls[1].p_data.request_key)).toBe(true);await expect(page.locator('#gfShip')).toHaveCount(0);
 });
 test('a quantity below the expected one asks for confirmation and only then records it',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));

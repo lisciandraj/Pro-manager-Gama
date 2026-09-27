@@ -9,7 +9,7 @@ const text=s=>({queued:'Por preparar',picking:'En preparación',packed:'Lista pa
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role}catch(_){return''}};
 const wh=()=>['admin','administrador','almacenero','magasinier'].includes(role());
 const sell=()=>['admin','administrador','comercial','commercial'].includes(role());
-const messages={BATCH_LIMIT:'El contenido supera la cantidad acordada para la próxima entrega. Corrige la preparación o acuerda una nueva propuesta.',PACKAGE_CONTROL_IN_TMS:'El control de bultos se realiza en TMS después de enviar la preparación.',LOADING_CLOSED:'La expedición ya salió o está cerrada.',PACKING_REQUIRED:'Primero registra las cantidades, controla los cartones y cierra la preparación.',PREPARATION_STARTED:'La preparación ya ha comenzado. Actualiza el pedido.',PREPARATION_CHANGED:'La preparación ha cambiado. Actualiza antes de continuar.',ASSIGNED_TO_OTHER:'Esta preparación está asignada a otro operario.',LOCATION_SCAN_MISMATCH:'El código no corresponde a la ubicación indicada.',PRODUCT_SCAN_MISMATCH:'El código no corresponde al producto indicado.',EXCEEDS_PLANNED:'La cantidad supera lo previsto para esta ubicación.',EXCEEDS_PICKED:'La cantidad supera lo preparado y aún no embalado.',PACKING_INCOMPLETE:'Hay cantidades preparadas que todavía no están en un bulto.',PACKAGES_REQUIRED:'Crea al menos un bulto controlado.',PARTIAL_REASON_REQUIRED:'Indica por qué la expedición será parcial.',WAIT_FOR_COMPLETE:'El cliente ha solicitado entrega completa. Completa la preparación o acuerda otra opción.',PREPARATION_CLOSED:'Esta preparación está cerrada.',AGREEMENT_REQUIRED:'Introduce la referencia del acuerdo del cliente.',OPTION_CLOSED:'La propuesta ya no está pendiente.',OPTION_STALE:'Las cantidades han cambiado. Retira la propuesta y crea otra.',CANCEL_PREPARATION_FIRST:'Cancela primero la preparación en curso para devolver los productos a sus ubicaciones.',SUBSTITUTE_ONLY_SHORTAGE:'Solo puede sustituirse la cantidad que sigue sin reservar. El stock disponible ha cambiado.',INVOICED_LINE_IMMUTABLE:'La línea ya está facturada. Gestiona el retorno y el documento externo correspondiente.',REPLACEMENT_PRICE_CONFLICT:'Ese producto ya existe en el pedido con otro precio o IVA.',FULFILLMENT_RESERVATION_LOCKED:'Esta reserva pertenece a una preparación o a una devolución en control. Gestiónala desde su módulo.'};
+const messages={SCAN_MODE_REQUIRED:'Elige el modo de escaneo.',QUANTITY_CONFIRMATION_REQUIRED:'Confirma la cantidad contada.',LOCATION_SCAN_REQUIRED:'Escanea la ubicación de origen indicada.',UNIT_SCAN_QUANTITY_REQUIRED:'Este modo registra una unidad por escaneo.',PACK_SCAN_QUANTITY_REQUIRED:'Escanea el código del envase configurado.',BATCH_LIMIT:'El contenido supera la cantidad acordada para la próxima entrega. Corrige la preparación o acuerda una nueva propuesta.',PACKAGE_CONTROL_IN_TMS:'El control de bultos se realiza en TMS después de enviar la preparación.',LOADING_CLOSED:'La expedición ya salió o está cerrada.',PACKING_REQUIRED:'Primero registra las cantidades, controla los cartones y cierra la preparación.',PREPARATION_STARTED:'La preparación ya ha comenzado. Actualiza el pedido.',PREPARATION_CHANGED:'La preparación ha cambiado. Actualiza antes de continuar.',ASSIGNED_TO_OTHER:'Esta preparación está asignada a otro operario.',LOCATION_SCAN_MISMATCH:'El código no corresponde a la ubicación indicada.',PRODUCT_SCAN_MISMATCH:'El código no corresponde al producto indicado.',EXCEEDS_PLANNED:'La cantidad supera lo previsto para esta ubicación.',EXCEEDS_PICKED:'La cantidad supera lo preparado y aún no embalado.',PACKING_INCOMPLETE:'Hay cantidades preparadas que todavía no están en un bulto.',PACKAGES_REQUIRED:'Crea al menos un bulto controlado.',PARTIAL_REASON_REQUIRED:'Indica por qué la expedición será parcial.',WAIT_FOR_COMPLETE:'El cliente ha solicitado entrega completa. Completa la preparación o acuerda otra opción.',PREPARATION_CLOSED:'Esta preparación está cerrada.',AGREEMENT_REQUIRED:'Introduce la referencia del acuerdo del cliente.',OPTION_CLOSED:'La propuesta ya no está pendiente.',OPTION_STALE:'Las cantidades han cambiado. Retira la propuesta y crea otra.',CANCEL_PREPARATION_FIRST:'Cancela primero la preparación en curso para devolver los productos a sus ubicaciones.',SUBSTITUTE_ONLY_SHORTAGE:'Solo puede sustituirse la cantidad que sigue sin reservar. El stock disponible ha cambiado.',INVOICED_LINE_IMMUTABLE:'La línea ya está facturada. Gestiona el retorno y el documento externo correspondiente.',REPLACEMENT_PRICE_CONFLICT:'Ese producto ya existe en el pedido con otro precio o IVA.',FULFILLMENT_RESERVATION_LOCKED:'Esta reserva pertenece a una preparación o a una devolución en control. Gestiónala desde su módulo.'};
 function err(e){const s=String(e?.message||e);for(const[k,v]of Object.entries(messages)){if(s.includes(k))return v;if(s===v)return v}return S().error(e)}
 async function rpc(action,data={}){const c=await window.GamaCloud.db();const r=await window.ArcData.rawRpc('gama_fulfillment_action',{p_action:action,p_data:data});if(r.error)throw Error(err(r.error));if(action==='dossier'&&window.GamaReferences){for(const [key,table] of [['preparations','fulfillment_preparations']]){const out=await GamaReferences.attach(table,{data:r.data[key]||[]},c);if(out.error)throw out.error;r.data[key]=out.data;}}return r.data}
 async function mutate(action,data){const r=await rpc(action,data);window.dispatchEvent(new CustomEvent('gama:stock-cloud-change'));window.dispatchEvent(new CustomEvent('gama:sales-change'));return r}
@@ -28,11 +28,11 @@ let generation=0;
 async function mount(d,target=null){
  styles();const token=++generation,host=target||$('gfDossier');if(!host)return;
  window.ArcUI.render(host,'<p data-gi=1b1007a71a79>Cargando preparación y retornos…</p>');
- try{const [f,index]=await Promise.all([rpc('dossier',{order_id:d.order.id}),productIndex()]);if(token!==generation||!host.isConnected)return;d.productIndex=index;render(d,f,host);if(d.preparationOnly){host.querySelectorAll('.gfPanel,#gfShortages').forEach(e=>e.remove());picking(d,f,host)}else{host.querySelector('#gfPreparation')?.remove();host.querySelector('a[href="#gfPreparation"]')?.remove()}}
+ try{const [f,index]=await Promise.all([rpc('dossier',{order_id:d.order.id}),productIndex()]);if(token!==generation||!host.isConnected)return;d.productIndex=index;render(d,f,host);if(d.preparationOnly){host.querySelectorAll('.gfPanel,#gfShortages').forEach(e=>e.remove());picking(d,f,host);window.GamaPhotos?.hydrate(host)}else{host.querySelector('#gfPreparation')?.remove();host.querySelector('a[href="#gfPreparation"]')?.remove()}}
  catch(e){if(token===generation&&host.isConnected){window.ArcUI.render(host,`<p class="gsError">${esc(err(e))}</p><button id="gfRetry" class="arcButton secondary" data-gi=0dbd0b81923c>Reintentar dossier</button>`);$('gfRetry').onclick=()=>mount(d,target)}}
 }
 // Weight and volume belong to the product sheet; the operator never types them here.
-async function productIndex(){try{const rows=await S().refs('products','id,name,barcode,weight_g,volume_cm3,lot_tracking');const by=new Map(),byCode=new Map();for(const r of rows){by.set(r.id,r);const code=String(r.barcode??'').trim();if(code&&!byCode.has(code))byCode.set(code,r)}const units=await window.ArcData.all('product_units',{eq:{active:true},order:'id'});if(units.error)throw units.error;for(const u of units.data||[]){const product=by.get(u.product_id);if(product&&u.barcode)byCode.set(u.barcode,{...product,packFactor:Number(u.factor),packLabel:u.label})}return{by,byCode}}catch(_){return{by:new Map(),byCode:new Map()}}}
+async function productIndex(){try{const rows=await S().refs('products','id,name,description,reference,barcode,has_photo,weight_g,volume_cm3,lot_tracking');const by=new Map(),byCode=new Map();for(const r of rows){by.set(r.id,r);const code=String(r.barcode??'').trim();if(code&&!byCode.has(code))byCode.set(code,r);if(r.reference&&!byCode.has(r.reference))byCode.set(r.reference,r)}const units=await window.ArcData.all('product_units',{eq:{active:true},order:'id'});if(units.error)throw units.error;for(const u of units.data||[]){const product=by.get(u.product_id);if(product&&u.barcode)byCode.set(u.barcode,{...product,packFactor:Number(u.factor),packLabel:u.label})}return{by,byCode}}catch(_){return{by:new Map(),byCode:new Map()}}}
 function measures(d,rows){let weight=0,volume=0,hasWeight=rows.length>0,hasVolume=rows.length>0;const missing=[];
  for(const r of rows){const sheet=d.productIndex?.by.get(r.product_id),w=Number(sheet?.weight_g||0),v=Number(sheet?.volume_cm3||0);
   if(w>0)weight+=w*Number(r.quantity);else hasWeight=false;
@@ -48,6 +48,18 @@ function finish(d,p,f){const rows=f.pick_lines.filter(l=>l.preparation_id===p.id
  const m=measures(d,rows);
  form(d,'Cerrar preparación',`<p data-gi-live data-gi=9a42c0f28a8a>Comprueba y cierra todos los bultos antes de enviar la preparación al transporte. Justifica cualquier entrega parcial.</p><div class="gfNotice"><b data-gi=56dca87b8f70>Resumen de la preparación</b>${rows.map(r=>`<p>${esc(r.name)} · ${n(r.quantity)}</p>`).join('')||'<p data-gi=9fd17119de0f>Sin cantidades registradas.</p>'}<p data-gi=e57d99195be5>Peso total: <b data-gi-live>${esc(measureText(m.weight,'kg'))}</b></p><p data-gi=2d8b778ff099>Volumen total: <b data-gi-live>${esc(measureText(m.volume,'m³'))}</b></p>${missingNote(m)}</div><label class="gsField" data-gi=4973246f4c51>Motivo de entrega parcial (si corresponde)<textarea id="gfReason" maxlength="2000"></textarea></label>`,'finish',el=>({preparation_id:p.id,reason:val(el,'gfReason')}),'Validar')}
 function packedQty(f,id){return f.package_lines.filter(x=>x.pick_line_id===id&&f.packages.some(p=>p.id===x.package_id&&p.status==='active')).reduce((s,x)=>s+Number(x.quantity),0)}
+function preparationChecklist(d,f,p){
+ const assigned=p?f.pick_lines.filter(l=>l.preparation_id===p.id):[],preview=!assigned.length;
+ const rows=preview?d.lines.filter(l=>Number(l.quantity)>S().counts(l,d).shipped).map(l=>({id:l.id,order_line_id:l.id,planned:Number(l.quantity)-S().counts(l,d).shipped,picked:0})):assigned;
+ if(!rows.length)return '';
+ const complete=l=>!preview&&Number(l.planned)>0&&Number(l.picked)>=Number(l.planned),done=rows.filter(complete).length;
+ return `<div class="gfPickChecklist"><div class="gfPickSummary"><h4>${tr('Productos a preparar')}</h4><span role="status" aria-live="polite">${tr('Líneas completas')} <b>${done} / ${rows.length}</b></span></div>${preview?`<p class="gsHint">${tr('Cantidades pendientes del pedido. Las cantidades y ubicaciones de esta preparación se confirman al iniciarla.')}</p>`:''}<ul class="gfPickList">${rows.map(l=>{
+  const line=d.lines.find(x=>x.id===l.order_line_id),sheet=d.productIndex?.by.get(line?.product_id),name=line?.product_name||sheet?.name||'',description=sheet?.description||line?.description||'',ready=complete(l),remaining=Math.max(0,Math.round((Number(l.planned)-Number(l.picked))*1000)/1000);
+  const photo=sheet?.has_photo||window.GamaPhotos?.get(line?.product_id)?window.GamaPhotos?.slot(line?.product_id,'gfPickImage'):null;
+  const status=ready?'Cantidad completa':Number(l.picked)>0?'En preparación':'Por preparar';
+  return `<li class="gfItem gfPickItem" data-line="${esc(l.id)}" data-pick-complete="${ready}" data-pick-preview="${preview}"><span class="gfPickCheck" role="img" aria-label="${esc(T(status))}">${ready?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="5" fill="#21824f"/><path d="m6 12 4 4 8-9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'○'}</span><div class="gfPickPhoto" role="img" aria-label="${esc(T(photo?'Foto del producto':'Sin foto')+' · '+name)}">${photo||window.GamaPhotos?.placeholder?.()||'<span aria-hidden="true">◇</span>'}</div><div class="gfPickBody"><b class="gfPickName" data-gi-ignore>${esc(name)}</b>${description?`<p class="gfPickDescription" data-gi-ignore>${esc(description)}</p>`:''}<p class="gfPickLocation">${sheet?.reference||line?.reference?`<span data-gi-ignore>${esc(sheet?.reference||line.reference)}</span> · `:''}${preview?tr('Ubicación por confirmar'):esc(d.locations.find(x=>x.id===l.source_location_id)?.code||T('Ubicación'))}</p><div class="gfPickQuantities"><strong>${tr(preview?'Cantidad pendiente':'Preparado')} <span>${preview?n(l.planned):n(l.picked)+' / '+n(l.planned)}</span></strong><span class="gfPickStatus">${tr(ready?'Cantidad completa':'Pendiente')}${ready?'':' · '+n(remaining)}</span></div>${!preview?`<progress class="gfPickProgress" max="${Number(l.planned)>0?Number(l.planned):1}" value="${Math.min(Number(l.picked),Number(l.planned))}" aria-label="${esc(T('Preparado')+' · '+name)}"></progress>`:''}${wh()&&p?.status==='picking'&&!preview&&!ready?`<div class="gfLineForm" data-line-form="${esc(l.id)}" hidden><label class="gsField">${tr('Cantidad preparada')}<input class="gfLineQty" data-line-qty="${esc(l.id)}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label><button class="arcButton primary" data-gf-confirm="${esc(l.id)}">${tr('Validar línea')}</button><button class="arcButton secondary" data-gf-close="${esc(l.id)}">${tr('Cerrar')}</button></div>`:''}${wh()&&p?.status==='picking'&&!preview?`<div class="gfPickActions"><button class="arcButton secondary" data-gf-pick="${esc(l.id)}" ${ready?'disabled':''}>${tr('Abrir línea')}</button><button class="arcButton secondary" data-gf-incident="${esc(l.id)}">${tr('Incidencia')}</button></div>`:''}</div></li>`;
+ }).join('')}</ul></div>`;
+}
 function render(d,f,host){
  d={...d,lines:d.lines.filter(l=>l.product_kind!=='service')};
  // Follow the location sequence, then product name, throughout preparation.
@@ -59,8 +71,8 @@ function render(d,f,host){
  window.ArcUI.render(host,`<div class="arcPanel gsCard gfPanel"><h3 data-gi=f22a28436d95>Dossier del pedido</h3><p class="gfNotice"><b data-gi=bb210a5e67af>Próxima acción</b><br>${esc(next)}</p><nav class="gfSteps"><a href="#gfPreparation" data-gi-live data-gi=12beb07b0d96>Preparación</a><a href="#gfShortages" data-gi=b51b7cbe29ac>Disponibilidad y acuerdos</a><a href="#gsLinkedShipments" data-gi=139bcf4dde61>Expediciones</a>${sell()?'<a href="#gsLinkedInvoices" data-gi=36842cc2f911>Facturas y cobros</a>':''}</nav><div class="gsTools">${o.source_quote_id?'<button class="arcButton secondary" id="gfQuote" data-gi=7c729110b7ab>Ver presupuesto aceptado</button>':''}${o.source_request_id?'<button class="arcButton secondary" id="gfRequest" data-gi=93677beeb1e9>Ver solicitud inicial</button>':''}</div><div class="gfMetrics"><div><strong>${n(pending)}</strong>Unidades pendientes de expedir</div><div><strong>${n(shortage)}</strong>Unidades sin reservar</div></div></div>
  <div class="arcPanel gsCard" id="gfPreparation"><h3 data-gi-live data-gi=12beb07b0d96>Preparación</h3>${p?`<div class="gfRow"><b>${esc(p.number)} · <span data-gi-live>${text(p.status)}</span></b><span>${esc(f.staff.find(u=>u.id===p.assigned_to)?.name||'Sin asignar')}</span></div>`:'<p data-gi=a0447b2f072c>No hay preparación activa.</p>'}
  ${wh()&&o.status==='confirmed'&&pending>0?`<div class="gsTools">${!p||p.status==='queued'?'<button class="arcButton primary" id="gfStart" data-gi=d17701883053>Iniciar preparación</button>':''}${p?.status==='picking'?'<button class="arcButton primary" id="gfPack" data-gi-live data-gi=b2072d50f7bb>Crear bulto</button><button class="arcButton primary" id="gfFinish" data-gi-live data-gi=a956aeb49a4d>Cerrar preparación</button>':''}${p?.status==='packed'?'<button class="arcButton primary" id="gfShip" data-gi-live data-gi=96c04b3343bd>Enviar al TMS</button>':''}${p&&p.status!=='queued'?'<button class="arcButton secondary" id="gfCancelPrep" data-gi=286fbaf27913>Cancelar preparación</button>':''}</div>`:''}
- ${wh()&&o.status==='confirmed'&&pending>0&&(!p||['queued','picking'].includes(p.status))?`<div class="gfScanBox"><label class="gsField">${tr('Escanear producto')}<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode">${tr('Cámara')}</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite">${tr('Escanea cada producto: su línea se valida sola con la cantidad prevista. Al escanear el último, el bulto se crea y el pedido queda «Lista para expedir».')}</p></div>`:''}
- ${p?f.pick_lines.filter(l=>l.preparation_id===p.id).map(l=>`<div class="gfItem" data-line="${l.id}"><b>${esc(d.lines.find(x=>x.id===l.order_line_id)?.product_name)}</b><p>${esc(d.locations.find(x=>x.id===l.source_location_id)?.code||'Ubicación')} · Previsto ${n(l.planned)} · Preparado ${n(l.picked)}</p>${wh()&&p.status==='picking'&&Number(l.picked)<Number(l.planned)?`<div class="gfLineForm" data-line-form="${l.id}" hidden><label class="gsField" data-gi=b0c06cea4a8c>Cantidad preparada<input class="gfLineQty" data-line-qty="${l.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label><button class="arcButton primary" data-gf-confirm="${l.id}" data-gi=945f3f557cf2>Validar línea</button><button class="arcButton secondary" data-gf-close="${l.id}" data-gi=aeccae342e4b>Cerrar</button></div>`:''}${wh()&&p.status==='picking'?`<button class="arcButton secondary" data-gi-live data-gf-pick="${l.id}" ${Number(l.picked)>=Number(l.planned)?'disabled':''}>Abrir línea</button> <button class="arcButton secondary" data-gf-incident="${l.id}" data-gi=79ee499076d0>Incidencia</button>`:''}</div>`).join(''):''}
+ ${wh()&&o.status==='confirmed'&&pending>0&&(!p||['queued','picking'].includes(p.status))?`<div class="gfScanBox"><label class="gsField">${tr('Escanear producto')}<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode">${tr('Cámara')}</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite">${tr('Elige el modo de escaneo y comprueba las cantidades antes de cerrar la preparación.')}</p></div>`:''}
+ ${preparationChecklist(d,f,p)}
 
  ${f.incidents.map(i=>`<p class="gsError"><span data-gi-live>${text(i.kind)}</span> · ${n(i.quantity)} · ${esc(i.reason)}. Revisar inventario antes de liberar la reserva.</p>`).join('')}
  ${f.preparations.filter(x=>['shipped','cancelled'].includes(x.status)).map(x=>`<p class="gsHint">${esc(x.number)} · <span data-gi-live>${text(x.status)}</span>${x.partial_reason?' · '+esc(x.partial_reason):''}${x.shipment_id?' · '+esc(d.shipments.find(s=>s.id===x.shipment_id)?.number||''):''}</p>`).join('')}</div>
@@ -85,13 +97,22 @@ function render(d,f,host){
  on('[data-gf-withdraw]',b=>form(d,'Retirar propuesta',reasonField,'withdraw_option',el=>({option_id:b.dataset.gfWithdraw,reason:val(el,'gfReason')})));
 }
 // One confirmation per line: the scan opens it with the expected quantity ready to validate.
-const pickState={order:null,intent:null};
+const pickState={order:null,intent:null,pendingScans:[]};
 function picking(d,f,host){
  const p=f.preparations.find(x=>['queued','picking','packed'].includes(x.status));
- const intent=pickState.order===d.order.id?pickState.intent:null;pickState.order=d.order.id;pickState.intent=null;
+ const intent=pickState.order===d.order.id?pickState.intent:null;if(pickState.order!==d.order.id)pickState.pendingScans=[];pickState.order=d.order.id;pickState.intent=null;
  if(!wh())return;
  const scanBox=host.querySelector('#gfScanCode'),hintBox=host.querySelector('#gfScanHint');
- const hint=t=>{if(hintBox)hintBox.textContent=t};
+ const policy=f.scan_policy||{mode:'confirm',location_required:false};
+ const control=document.createElement('div');control.className='arcFormGrid';
+ window.ArcUI.render(control,window.ArcUI.field({key:'gfScanMode',label:'Modo de escaneo',type:'select',value:sessionStorage.getItem('coco:scan-mode')||policy.mode,options:[{id:'confirm',name:'Confirmar cantidad de la línea'},{id:'unit',name:'Una unidad por escaneo'},{id:'pack',name:'Un envase por escaneo'}]})+(policy.location_required?window.ArcUI.field({key:'gfScannedLocation',label:'Escanear ubicación de origen',value:pickState.preparation===p?.id?pickState.location||'':''}):''));
+ host.querySelector('.gfScanBox')?.prepend(control);
+ const mode=()=>control.querySelector('[name="gfScanMode"]')?.value||'confirm';
+ control.querySelector('[name="gfScanMode"]')?.addEventListener('change',()=>{sessionStorage.setItem('coco:scan-mode',mode());mount(d,host)});
+ const scannedLocation=()=>control.querySelector('[name="gfScannedLocation"]')?.value.trim()||'';
+ control.querySelector('[name="gfScannedLocation"]')?.addEventListener('input',()=>{pickState.preparation=p?.id;pickState.location=scannedLocation()});
+ const hint=value=>{if(hintBox)hintBox.textContent=T(value)};
+ hint('Elige qué valida cada escaneo. La confirmación de línea exige indicar y validar la cantidad contada.');
  const focus=el=>{try{el?.focus();el?.select?.()}catch(_){}};
  const listen=handler=>{if(!scanBox)return;const go=()=>{const code=scanBox.value.trim();if(!code)return;scanBox.value='';setTimeout(()=>handler(code),0)};
   scanBox.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
@@ -127,7 +148,7 @@ function picking(d,f,host){
   box.hidden=false;box.closest('.gfItem')?.classList.add('gfActive');
   const field=box.querySelector('.gfLineQty');field.value=String(code&&factor(code)!==1?Math.min(factor(code),pending(l)):pending(l));
   current={id,code:code||''};key=crypto.randomUUID();
-  hint(`${nameOf(l)} · cantidad prevista ${n(pending(l))}. Valida con Entrada, con el botón o escaneando el siguiente producto.`);
+  hint(`${nameOf(l)} · ${T('Cantidad prevista')} ${n(pending(l))}. ${T('Introduce la cantidad contada y confirma con Entrada o con el botón.')}`);
   focus(field);return true}
  async function commit(quantity,intent){
   const l=current&&forLine(current.id);if(busy||!l)return false;
@@ -137,7 +158,7 @@ function picking(d,f,host){
   if(value!==expected&&!intent?.auto&&!confirm(`${nameOf(l)}: ${(s=>window.GamaI18n?.t?.(s)||s)(`has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`)}`))return false;
   busy=true;buttons(true);
   const location=d.locations.find(x=>x.id===l.source_location_id);
-  const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',quantity:value};
+  const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',scanned_location:scannedLocation(),scan_mode:mode(),quantity_confirmed:mode()==='confirm'&&!intent?.auto,quantity:value};
   if(current.code)payload.product_code=current.code;
   pickState.order=d.order.id;pickState.intent=intent;
   try{if(d.productIndex?.by.get(lineOf(l)?.product_id)?.lot_tracking){const plan=await window.ArchitectLots.confirmPick(lineOf(l).product_id,l.source_location_id,value);if(plan===null){busy=false;buttons(false);pickState.intent=null;return false}payload.lot_plan=plan}await mutate('pick',payload)}catch(e){busy=false;buttons(false);pickState.intent=null;hint(err(e));return false}
@@ -147,29 +168,18 @@ function picking(d,f,host){
   return hit?{quantity:hit.quantity??pending(l),scan:hit.code}:{quantity:Number(raw.trim().replace(',','.')),scan:null}}
  function submit(){if(!current||!forLine(current.id))return;const r=reading(current.id);
   return commit(r.quantity,r.scan?{scan:r.scan}:{next:true})}
- async function scanned(code){const clean=String(code||'').trim();if(!clean)return;
+ async function scanned(code){const clean=String(code||'').trim();if(!clean)return;if(busy){pickState.pendingScans.push(clean);return}
   const known=byCode(clean),target=known||byReference(clean);
   if(!target){hint('Ese código no corresponde a ninguna línea pendiente de esta preparación.');focus(scanBox);return}
-  if(current&&current.id!==target.id){await commit(reading(current.id).quantity,{scan:clean});return}
-  if(current){open(target.id,known?clean:'');return}
-  // Sin una línea abierta a mano, el escaneo es la validación: cantidad prevista,
-  // o la del código de caja si lo es. Abrir la línea queda para contar distinto.
-  current={id:target.id,code:known?clean:''};key=crypto.randomUUID();
-  await commit(known&&factor(clean)!==1?Math.min(factor(clean),pending(target)):pending(target),{auto:true})}
- /* Todo escaneado: se crea el bulto con lo preparado y se cierra la
-    preparación, que queda «Lista para expedir». Si la expedición es parcial el
-    servidor pide el motivo y se abre directamente el cierre para indicarlo. */
- async function ready(){
-  hint(T('Todo escaneado: creando el bulto y cerrando la preparación…'));buttons(true);
-  try{const lines=unpacked(d,f,p);
-   if(lines.length)await mutate('package',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p.id,lines:lines.map(r=>({pick_line_id:r.pick_line_id,quantity:r.quantity}))});
-   await mutate('finish',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p.id,reason:''});
-   await (d.onDone?d.onDone():mount(d,host));
-  }catch(e){buttons(false);const m=err(e);
-   // Expedición parcial: el bulto ya está creado, sólo falta el motivo.
-   if(m===messages.PARTIAL_REASON_REQUIRED){hint(T('Expedición parcial: indica el motivo para dejarla lista para expedir.'));finish(d,p,f);return}
-   hint(m);focus(scanBox)}
- }
+  if(current&&current.id!==target.id){hint('Confirma o cierra la línea abierta antes de escanear otro producto.');return}
+  if(mode()==='confirm'){open(target.id,known?clean:'');return}
+  const qty=mode()==='unit'?1:factor(clean);
+  if(!known||(mode()==='pack'&&!d.productIndex?.byCode.get(clean)?.packFactor)){hint('Escanea el código correspondiente a la unidad o al envase configurado.');return}
+  if(qty>pending(target)){hint('El envase supera la cantidad pendiente. Cuenta y confirma la cantidad de la línea.');return}
+  if(policy.location_required&&!scannedLocation()){hint('Escanea primero la ubicación de origen.');return}
+  current={id:target.id,code:clean};key=crypto.randomUUID();
+  await commit(qty,{auto:true})}
+
  cameras(host);
  host.querySelectorAll('[data-gf-pick]').forEach(b=>b.onclick=()=>open(b.dataset.gfPick,''));
  host.querySelectorAll('[data-gf-confirm]').forEach(b=>b.onclick=()=>submit());
@@ -177,13 +187,14 @@ function picking(d,f,host){
  host.querySelectorAll('[data-line-qty]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}}));
  // The camera helper refocuses its target after firing, so resolve the code on the next tick.
  listen(scanned);
- if(intent&&rows.length&&rows.every(l=>pending(l)<=0)){ready();return}
+ if(intent&&rows.length&&rows.every(l=>pending(l)<=0)){pickState.pendingScans=[];hint('Todas las cantidades están preparadas. Revisa los bultos y cierra la preparación.');return}
  if(intent?.scan)scanned(intent.scan);
  else if(intent?.auto){hint(T('Línea validada. Escanea el siguiente producto.'));focus(scanBox)}
  else if(intent?.next){const next=rows.find(l=>pending(l)>0);
   if(next)open(next.id,'');else{hint('Todas las líneas están preparadas. Crea el bulto y cierra la preparación.');focus(scanBox)}}
  else if(intent?.line)open(intent.line,'');
  else focus(scanBox);
+ if(pickState.pendingScans.length&&!busy)scanned(pickState.pendingScans.shift());
 }
 function unpacked(d,f,p){return f.pick_lines.filter(l=>l.preparation_id===p.id&&Number(l.picked)>packedQty(f,l.id))
  .map(l=>{const ol=d.lines.find(x=>x.id===l.order_line_id);return{pick_line_id:l.id,product_id:ol?.product_id,name:ol?.product_name,quantity:Number(l.picked)-packedQty(f,l.id)}})}

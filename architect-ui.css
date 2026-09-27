@@ -540,3 +540,10 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-600)}
  body .arcContent .gamaCompactHeader .gamaStdBack:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 }
+
+/* Neutral zebra rows: keep data lists readable without changing stock maps. */
+@media screen{
+ body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(odd)>td{background:#fff}
+ body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(even)>td{background:#f3f4f6}
+ body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:hover>td{background:var(--arc-accent-50)}
+}

@@ -176,7 +176,7 @@ Hasta entonces, el Inventario de siempre sigue funcionando con normalidad.</div>
 /* ---------- existencias ---------- */
 
 function pintarExistencias(host){
- const opcionesAlmacen=almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+ const opcionesAlmacen=almacenes.filter(a=>a.active!==false).map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
  const categorias=[...new Set(productos.map(p=>(p.category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
  window.ArcUI.render(host,`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
@@ -448,7 +448,7 @@ Falta aplicar en Supabase la migración </span><code>supabase-migration-2026-09-
 <h3 style="margin:0 0 4px" data-gi=1f8440f32309>Nuevo recuento</h3>
 <p class="muted" style="margin:0 0 12px" data-gi=9f7ced168427>Se prepara con lo que la base cree que hay, se cuenta, y sólo al validarlo se mueven existencias. Cada diferencia deja su ajuste en el Audit Trail.</p>
 <div class="ivForm">
- <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
+ <div><label for="ivcAlmacen" data-gi=9a91575b8e4b>Almacén</label><select id="ivcAlmacen">${almacenes.filter(a=>a.active!==false).map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></div>
  <div><label data-gi=64e932fcd35e>Ubicación (opcional)<select id="ivcLocation"><option value="" data-gi=aff4d19d6ee4>Todas</option>${ubicaciones.map(l=>`<option value="${esc(l.id)}">${esc(l.code)}</option>`).join('')}</select></label></div><div><label data-gi=4863ec5ba13d>Categoría (opcional)<input id="ivcCategory"></label></div><div><label data-gi=cf5874c58e50>Repetir en días (opcional)<input id="ivcCycle" type="number" min="1" max="366"></label></div><div><label><input id="ivcBlind" type="checkbox" checked> Recuento ciego</label></div><div><label for="ivcReferencia" data-gi=10ddff5fcc6f>Referencia</label><input id="ivcReferencia" data-gi-placeholder=e9ac06f6fdc8 placeholder="Ej. Recuento septiembre"></div>
 </div>
 <button type="button" class="arcButton primary" id="ivcCrear" style="width:100%;margin-top:13px" data-gi=4fd8cf53fad5>Crear y generar líneas</button>
@@ -566,7 +566,7 @@ const dosCifras=n=>String(n).padStart(2,'0');
 const espacio=(sh,c,r)=>sh.code+dosCifras(c)+'-'+dosCifras(r);
 const espaciosDe=sh=>ubicaciones.filter(u=>u.shelf_id===sh.id&&u.active!==false);
 const unidadesEn=id=>quants.filter(q=>q.location_id===id).reduce((s,q)=>s+Number(q.quantity||0),0);
-const ERRORES_ESTANTERIA={SHELF_CODE_INVALID:'El código de la estantería son dos letras, de la A a la Z.',SHELF_CODE_TAKEN:'Ya hay una estantería con ese código en este almacén.',SHELF_SIZE_INVALID:'Columnas y filas van de 1 a 99.',SHELF_STALE:'Otra persona ha cambiado la estantería. Vuelve a abrirla.',SHELF_SPACE_IN_USE:'Estos espacios tienen existencias, reservas o una compra abierta y no se pueden quitar:',SHELF_NOT_EMPTY:'La estantería no está vacía. Vacía antes estos espacios:',SHELF_SPACE_TAKEN:'Otra ubicación ya usa esta referencia:',SHELF_PARENT_INVALID:'La zona elegida no es de este almacén.',ROLE_NOT_ALLOWED:'Tu perfil no puede configurar estanterías.'};
+const ERRORES_ESTANTERIA={SHELF_CODE_INVALID:'El código de la estantería son dos letras, de la A a la Z.',SHELF_CODE_TAKEN:'Ya hay una estantería con ese código en este almacén.',SHELF_SIZE_INVALID:'Columnas y filas van de 1 a 99.',SHELF_STALE:'Otra persona ha cambiado la estantería. Vuelve a abrirla.',SHELF_SPACE_IN_USE:'Estos espacios tienen existencias, reservas o una compra abierta y no se pueden quitar:',SHELF_NOT_EMPTY:'La estantería tiene existencias u operaciones pendientes en estos espacios:',SHELF_SPACE_TAKEN:'Otra ubicación ya usa esta referencia:',SHELF_PARENT_INVALID:'La zona elegida no es de este almacén.',ROLE_NOT_ALLOWED:'Tu perfil no puede configurar estanterías.'};
 function errorEstanteria(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_ESTANTERIA).find(x=>m.includes(x));if(!k)return window.ArcErrors?.message(e)||m;const detalle=m.split(k+':')[1];return T(ERRORES_ESTANTERIA[k])+(detalle?' '+detalle.trim():'')}
 async function accionEstanteria(a,d){const r=await window.ArcData.rawRpc('gama_shelf_action',{p_action:a,p_data:d});if(r.error)throw r.error;return r.data}
 async function recargarEstanterias(){window.ArcData.invalidate?.('warehouse_locations');await cargar();pintar();window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'warehouse_locations'}}))}
@@ -609,19 +609,20 @@ function pintarUbicaciones(host){
 }
 function pintarListaUbicaciones(){
  const host=$('ivUbiLista');if(!host)return;
- window.ArcUI.render(host,`<div class="ivShelfHead ivAlmacenesHead"><h4 class="ivShelfTitle">${tr('Almacenes')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-wh-new>${tr('Nuevo almacén')}</button>`:''}</div>`+almacenes.map(a=>{
+ window.ArcUI.render(host,`<div class="ivShelfHead ivAlmacenesHead"><h4 class="ivShelfTitle">${tr('Almacenes')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-wh-new>${tr('Nuevo almacén')}</button>`:''}</div>`+almacenes.filter(a=>a.active!==false).map(a=>{
   // Otras ubicaciones: todo lo que no es la raíz del almacén ni un espacio de estantería.
   const otras=otrasUbicaciones(a.id);
   const code=sh=>String(sh.code||'').trim().slice(0,2).toUpperCase();
   const sus=estanterias.filter(sh=>sh.warehouse_id===a.id).sort((a,b)=>code(a).localeCompare(code(b),'en'));
   return `<div class="ivCard" data-warehouse="${esc(a.id)}"><div class="ivShelfHead"><div><h3 style="margin:0 0 4px">${esc(a.name)}</h3>
-<p class="muted" style="margin:0" data-wh-details>${esc([a.code,a.address,a.city].filter(Boolean).join(' · '))}</p></div>${puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-wh-edit="${esc(a.id)}">${tr('Modificar')}</button><button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('Nueva estantería')}</button></div>`:''}</div>
+<p class="muted" style="margin:0" data-wh-details>${esc([a.code,a.address,a.city].filter(Boolean).join(' · '))}</p></div>${puedeEditar()?`<div class="ivShelfActions"><button type="button" class="arcButton secondary" data-wh-edit="${esc(a.id)}">${tr('Modificar')}</button><button type="button" class="arcButton secondary" data-wh-delete="${esc(a.id)}">${tr('Eliminar')}</button><button type="button" class="arcButton primary" data-shelf-new="${esc(a.id)}">${tr('Nueva estantería')}</button></div>`:''}</div>
 <h4 class="ivShelfTitle">${tr('Estanterías')}</h4>${sus.map(sh=>tarjetaEstanteria(sh)).join('')||`<p class="muted">${tr('Sin estanterías. Crea una para generar sus espacios AAXX-XX.')}</p>`}
 <div class="ivShelfHead ivOtrasHead"><h4 class="ivShelfTitle">${tr('Otras ubicaciones')}</h4>${puedeEditar()?`<button type="button" class="arcButton secondary" data-loc-new="${esc(a.id)}">${tr('Nueva ubicación')}</button>`:''}</div>
 <ul class="ivOtras">${otras.map(u=>filaUbicacion(u)).join('')||`<li class="muted">${tr('Sin ubicaciones.')}</li>`}</ul></div>`;
  }).join(''));
  host.querySelectorAll('[data-wh-new]').forEach(b=>b.onclick=()=>dialogoAlmacen(null));
  host.querySelectorAll('[data-wh-edit]').forEach(b=>b.onclick=()=>dialogoAlmacen(almacenes.find(x=>x.id===b.dataset.whEdit)));
+ host.querySelectorAll('[data-wh-delete]').forEach(b=>b.onclick=()=>borrarAlmacen(almacenes.find(x=>x.id===b.dataset.whDelete),b));
  host.querySelectorAll('[data-shelf-new]').forEach(b=>b.onclick=()=>dialogoEstanteria(b.dataset.shelfNew,null));
  host.querySelectorAll('[data-shelf-edit]').forEach(b=>b.onclick=()=>{const sh=estanterias.find(x=>x.id===b.dataset.shelfEdit);if(sh)dialogoEstanteria(sh.warehouse_id,sh)});
  host.querySelectorAll('[data-shelf-delete]').forEach(b=>b.onclick=()=>borrarEstanteria(estanterias.find(x=>x.id===b.dataset.shelfDelete)));
@@ -705,10 +706,17 @@ function irAUbicacion(id){
 /* Almacenes: se crean y se modifican aquí (gama_warehouse_action). El código
    se elige al crear y ya no cambia; el servidor crea la raíz y las tres zonas
    por defecto de un almacén nuevo. */
-const ERRORES_ALMACEN={WAREHOUSE_NAME_REQUIRED:'El nombre del almacén es obligatorio.',WAREHOUSE_CODE_INVALID:'El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).',WAREHOUSE_CODE_TAKEN:'Ya hay un almacén con ese código.',WAREHOUSE_CODE_IMMUTABLE:'El código de un almacén no cambia.',WAREHOUSE_TEXT_TOO_LONG:'La dirección o la ciudad son demasiado largas.',WAREHOUSE_NOT_FOUND:'El almacén ya no existe.',ROLE_NOT_ALLOWED:'Su perfil no puede cambiar los almacenes.'};
-function errorAlmacen(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_ALMACEN).find(x=>m.includes(x));return k?T(ERRORES_ALMACEN[k]):(window.ArcErrors?.message(e)||m)}
+const ERRORES_ALMACEN={WAREHOUSE_NOT_EMPTY:'El almacén no está vacío o tiene operaciones pendientes.',WAREHOUSE_IN_USE:'El almacén tiene un inventario en curso.',WAREHOUSE_NAME_REQUIRED:'El nombre del almacén es obligatorio.',WAREHOUSE_CODE_INVALID:'El código lleva letras, cifras, punto, guion o guion bajo (hasta 24).',WAREHOUSE_CODE_TAKEN:'Ya hay un almacén con ese código.',WAREHOUSE_CODE_IMMUTABLE:'El código de un almacén no cambia.',WAREHOUSE_TEXT_TOO_LONG:'La dirección o la ciudad son demasiado largas.',WAREHOUSE_NOT_FOUND:'El almacén ya no existe.',ROLE_NOT_ALLOWED:'Su perfil no puede cambiar los almacenes.'};
+function errorAlmacen(e){const m=String(e?.message||e);const k=Object.keys(ERRORES_ALMACEN).find(x=>m.includes(x));return k?T(ERRORES_ALMACEN[k])+(k==='WAREHOUSE_NOT_EMPTY'&&m.includes(':')?' '+m.split(':').slice(1).join(':'):''):(window.ArcErrors?.message(e)||m)}
 async function accionAlmacen(a,d){const r=await window.ArcData.rawRpc('gama_warehouse_action',{p_action:a,p_data:d});if(r.error)throw r.error;return r.data}
 async function recargarAlmacenes(){window.ArcData.invalidate?.('warehouses');await recargarEstanterias();window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'warehouses'}}))}
+async function borrarAlmacen(a,button){
+ if(!a||!confirm(T('¿Eliminar el almacén')+' '+a.name+'? '+T('Se eliminan sus zonas y estanterías vacías. El historial se conserva.')))return;
+ if(button)button.disabled=true;
+ try{await accionAlmacen('delete',{id:a.id});if($('ivAlmacen')?.value===a.id)$('ivAlmacen').value='';await recargarAlmacenes();window.gamaToast?.(T('Almacén eliminado.')+' '+a.code)}
+ catch(e){window.gamaToast?.(errorAlmacen(e))}
+ finally{if(button?.isConnected)button.disabled=false}
+}
 function dialogoAlmacen(a){
  const F=window.ArcUI.field;
  const d=window.ArcUI.dialog({title:a?T('Modificar el almacén')+' '+a.code:T('Nuevo almacén'),saveLabel:T('Guardar'),

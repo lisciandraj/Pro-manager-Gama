@@ -605,6 +605,13 @@
           const d=args.p_data||{},db=window.__DB;db.warehouses=db.warehouses||[];db.warehouse_locations=db.warehouse_locations||[];
           const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;
           if(!['admin','administrador','magasinier','almacenero'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          if(args.p_action==='delete'){
+            const w=db.warehouses.find(x=>x.id===d.id&&x.active!==false);if(!w)return {error:{message:'WAREHOUSE_NOT_FOUND'}};
+            const ids=db.warehouse_locations.filter(l=>l.warehouse_id===w.id).map(l=>l.id);
+            if((db.stock_quants||[]).some(q=>ids.includes(q.location_id)&&(Number(q.quantity)!==0||Number(q.reserved_quantity)!==0)))return {error:{message:'WAREHOUSE_NOT_EMPTY'}};
+            db.warehouses=db.warehouses.filter(x=>x!==w);db.warehouse_locations=db.warehouse_locations.filter(l=>!ids.includes(l.id));db.warehouse_shelves=(db.warehouse_shelves||[]).filter(sh=>sh.warehouse_id!==w.id);
+            return {data:{id:w.id,code:w.code,archived:false}};
+          }
           if(args.p_action!=='save')return {error:{message:'INVALID_ACTION'}};
           const name=String(d.name||'').trim(),address=String(d.address||'').trim()||null,city=String(d.city||'').trim()||null;
           if(!name)return {error:{message:'WAREHOUSE_NAME_REQUIRED'}};

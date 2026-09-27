@@ -1,0 +1,53 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {randomUUID}=require('node:crypto');const {restore}=require('../scripts/restore-schema.cjs');
+test('empty warehouse deletion is atomic, authorized, keeps history and rejects pending work',async()=>{
+ const db=await restore(),admin=randomUUID(),seller=randomUUID(),product=randomUUID();
+ const as=id=>db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);
+ const call=async(fn,action,data)=>(await db.query(`select public.${fn}($1,$2) r`,[action,data])).rows[0].r;
+ const wh=(action,data)=>call('gama_warehouse_action',action,data);
+ const shelf=(action,data)=>call('gama_shelf_action',action,data);
+ const one=async(sql,args=[])=>(await db.query(sql,args)).rows[0];
+ try{
+  await db.exec(`insert into auth.users(id,email) values('${admin}','delete-admin@example.invalid'),('${seller}','delete-sales@example.invalid');update profiles set active=true,role='administrador' where id='${admin}';update profiles set active=true,role='comercial' where id='${seller}';insert into products(id,name,barcode,stock) values('${product}','Delete test','DELETE-TEST',0);`);
+  await as(admin);
+  const empty=await wh('save',{code:'EMPTY',name:'Empty'});
+  await shelf('save',{warehouse_id:empty.id,code:'AA',column_count:2,row_count:2});
+  await as(seller);await assert.rejects(wh('delete',{id:empty.id}),/ROLE_NOT_ALLOWED/);await as(admin);
+  assert.equal((await wh('delete',{id:empty.id})).archived,false);
+  assert.equal((await one('select count(*)::int n from warehouse_locations where warehouse_id=$1',[empty.id])).n,0);
+  assert.equal((await one('select count(*)::int n from warehouse_shelves where warehouse_id=$1',[empty.id])).n,0);
+  await assert.rejects(wh('delete',{id:empty.id}),/WAREHOUSE_NOT_FOUND/);
+  const w=await wh('save',{code:'HISTORY',name:'History'});
+  const sh=await shelf('save',{warehouse_id:w.id,code:'AB',column_count:1,row_count:1});
+  const loc=(await one('select id from warehouse_locations where shelf_id=$1',[sh.id])).id;
+  await db.query('insert into stock_quants(product_id,location_id,quantity) values($1,$2,4)',[product,loc]);
+  await assert.rejects(wh('delete',{id:w.id}),/WAREHOUSE_NOT_EMPTY:AB01-01/);
+  await assert.rejects(shelf('delete',{id:sh.id}),/SHELF_NOT_EMPTY/);
+  await db.query('update stock_quants set quantity=0 where location_id=$1',[loc]);
+  await db.query('insert into stock_reservations(product_id,location_id,quantity) values($1,$2,1)',[product,loc]);
+  await assert.rejects(wh('delete',{id:w.id}),/WAREHOUSE_NOT_EMPTY/);
+  await db.query("update stock_reservations set status='released' where location_id=$1",[loc]);
+  const count=randomUUID();
+  await db.query("insert into inventory_counts(id,warehouse_id,reference,status,created_by) values($1,$2,'DELETE-COUNT','in_progress',$3)",[count,w.id,admin]);
+  await assert.rejects(wh('delete',{id:w.id}),/WAREHOUSE_NOT_EMPTY|WAREHOUSE_IN_USE/);
+  await assert.rejects(shelf('delete',{id:sh.id}),/SHELF_NOT_EMPTY/);
+  await db.query("update inventory_counts set status='cancelled' where id=$1",[count]);
+  await db.query('insert into stock_adjustment_requests(request_key,product_id,location_id,expected_quantity,target_quantity,reason) values($1,$2,$3,0,1,\'Test pending\')',[randomUUID(),product,loc]);
+  await assert.rejects(wh('delete',{id:w.id}),/WAREHOUSE_NOT_EMPTY/);
+  await assert.rejects(shelf('delete',{id:sh.id}),/SHELF_NOT_EMPTY/);
+  await db.query("update stock_adjustment_requests set status='rejected' where location_id=$1",[loc]);
+  await db.query("insert into stock_movements(product_id,type,quantity,user_id,destination_location_id) values($1,'in',4,$2,$3)",[product,admin,loc]);
+  assert.equal((await wh('delete',{id:w.id})).archived,true);
+  assert.equal((await one('select active from warehouses where id=$1',[w.id])).active,false);
+  assert.equal((await one('select count(*)::int n from warehouse_locations where warehouse_id=$1 and active',[w.id])).n,0);
+  assert.equal((await one('select count(*)::int n from stock_movements where destination_location_id=$1',[loc])).n,1);
+  await assert.rejects(db.query('update stock_quants set quantity=1 where location_id=$1',[loc]),/LOCATION_NOT_FOUND/);
+  await assert.rejects(shelf('save',{warehouse_id:w.id,code:'CD',column_count:1,row_count:1}),/WAREHOUSE_NOT_FOUND/);
+  // Removing PRINCIPAL selects another active warehouse as the receipt default.
+  const replacement=await wh('save',{code:'NEXT',name:'Next'});
+  const main=await one("select id from warehouses where code='PRINCIPAL'");
+  await wh('delete',{id:main.id});
+  assert.equal((await one('select warehouse_id from warehouse_locations where id=private.gama_default_location()')).warehouse_id,replacement.id);
+  assert.equal((await one("select has_function_privilege('anon','public.gama_warehouse_action(text,jsonb)','EXECUTE') allowed")).allowed,false);
+ }finally{await db.close()}
+});

@@ -42,7 +42,7 @@ test('un almacén se crea listo para trabajar y se modifica sin cambiar su códi
   await assert.rejects(act('save',{code:'NORTE',name:'  '}),/WAREHOUSE_NAME_REQUIRED/);
   await assert.rejects(act('save',{code:'NORTE',name:'x',city:'c'.repeat(121)}),/WAREHOUSE_TEXT_TOO_LONG/);
   await assert.rejects(act('save',{code:'NORTE',name:'Norte'},seller),/ROLE_NOT_ALLOWED/);
-  await assert.rejects(act('delete',{id:w.id}),/INVALID_ACTION/);
+  await assert.rejects(act('unknown',{id:w.id}),/INVALID_ACTION/);
   await db.exec('reset role');
   assert.equal(Number((await one(`select count(*) n from warehouses where code='NORTE'`)).n),0,'nada a medias');
 

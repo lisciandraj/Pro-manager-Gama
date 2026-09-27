@@ -105,3 +105,11 @@ test('with no warehouse yet, the first one is created from the same tab', async 
   await expect(page.locator('#ivUbiBuscar')).toBeVisible();
   await expect(page.locator('[data-warehouse="wh-CENTRAL"] .ivOtras code')).toHaveText(['LLEGADA', 'SALIDA', 'CUARENTENA']);
 });
+
+test('warehouse deletion confirms, blocks stock and removes an empty warehouse on mobile',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ page.once('dialog',d=>d.dismiss());await page.locator('[data-wh-delete="w1"]').click();await expect(page.locator('[data-warehouse="w1"]')).toBeVisible();
+ page.once('dialog',d=>d.accept());await page.locator('[data-wh-delete="w1"]').click();await expect(page.locator('#gamaToasts')).toContainText('L’entrepôt n’est pas vide');await expect(page.locator('[data-warehouse="w1"]')).toBeVisible();
+ await page.evaluate(()=>{window.__DB.stock_quants[0].quantity=0});page.once('dialog',d=>d.accept());await page.locator('[data-wh-delete="w1"]').click();await expect(page.locator('[data-warehouse="w1"]')).toHaveCount(0);await expect(page.locator('#gamaToasts')).toContainText('Entrepôt supprimé.');await expect(page.locator('[data-wh-new]')).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});

@@ -1256,6 +1256,12 @@
       "name": "fix_package_reference_timeout",
       "file": "20260927181455_fix_package_reference_timeout.sql",
       "sha256": "15711cc345a95d6af887148b491e22f062738407881972d321be52127756aa8b"
+    },
+    {
+      "version": "20260927205219",
+      "name": "permanent_user_deletion",
+      "file": "20260927204151_permanent_user_deletion.sql",
+      "sha256": "24888e5da265b131667eb0b312d0a13db39eb45d2fa5b1e5596f86068a90d002"
     }
   ]
 }

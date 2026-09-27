@@ -11,6 +11,12 @@ an HTTPS reverse proxy. The Supabase function sends an HMAC-authenticated JSON
 request. A different company requires its own isolated signer deployment and
 issuer RUC; this version is intentionally single-company.
 
+In Supabase Edge secrets, configure `SRI_WORKER_URL` and the matching
+`SRI_WORKER_SECRET`. Set `SRI_EMISSION_ENABLED=true` to enable supervised
+test issuance after the signer is configured. The interface stays disabled
+until this explicit gate is enabled; production has the separate signer gate
+described above.
+
 Only standard domestic invoices with ordinary VAT and identification are
 supported. Specialized tax regimes and credit/debit notes need dedicated XML
 models and tests. SRI outages may leave documents in `processing`; consult

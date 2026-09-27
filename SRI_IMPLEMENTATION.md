@@ -10,7 +10,7 @@ The signer deliberately supports only ordinary Ecuadorian domestic invoices with
 
 1. Apply `20260927213000_sri_invoice_workflow.sql` to a development database first. Verify its RLS policies and check the existing invoice and accounting flows.
 2. Host `services/sri` privately behind HTTPS. Install the pinned `requirements.txt` into its own environment. Provision `SRI_P12_BASE64`, `SRI_P12_PASSWORD`, `SRI_ISSUER_RUC`, `SRI_WORKER_SECRET` and SMTP environment variables on the server. Restrict inbound traffic to the Edge Function if infrastructure permits.
-3. Set the matching `SRI_WORKER_URL` and `SRI_WORKER_SECRET` in Supabase Edge secrets, then deploy `gama-sri` with JWT verification on. The service-role key exists only in Edge secrets.
+3. Set the matching `SRI_WORKER_URL` and `SRI_WORKER_SECRET` in Supabase Edge secrets, then deploy `gama-sri` with JWT verification on. The service-role key exists only in Edge secrets. The authenticated `status` action reports readiness to the interface; issuance controls remain disabled by default. Set `SRI_EMISSION_ENABLED=true` only when the private signer is configured and ready for supervised SRI tests in `pruebas`.
 4. Configure the company's Ecuadorian legal identity in Coco; enter the establishment, emission point and registered software provider's RUC in the SRI tab. Run SRI certification tests in `pruebas` with representative real tax cases and the official invoice XSD. Confirm the signed XAdES-BES document, RIDE and email with the SRI responses.
 5. Only after successful certification and provider registration, explicitly enable `SRI_PRODUCTION_ENABLED=true` on the isolated signer instance and select `produccion` in Coco. An actual production SRI document has tax consequences.
 

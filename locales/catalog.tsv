@@ -4263,3 +4263,25 @@ Cambiar producto	Changer de produit	Change product
 Actualizar producto	Mettre à jour le produit	Update product
 Añadir al presupuesto	Ajouter au devis	Add to quote
 Tarifa:	Tarif :	Price list:
+Facturación electrónica SRI	Facturation électronique SRI	SRI electronic invoicing
+Servicio SRI listo para las pruebas autorizadas.	Service SRI configuré et activé.	SRI service configured and enabled.
+Emisión SRI desactivada. Falta configurar el servicio de firma, el certificado y validar las pruebas SRI. Puedes guardar la configuración.	Émission SRI désactivée. Le service de signature, le certificat et les essais SRI restent à configurer et valider. Vous pouvez enregistrer les paramètres.	SRI issuance is disabled. Configure the signing service and certificate and validate SRI tests. You can save the settings.
+Emite facturas ecuatorianas a partir de facturas internas confirmadas. Las claves y los archivos autorizados se conservan en un archivo privado.	Émettez des factures équatoriennes à partir des factures internes confirmées. Les clés et fichiers autorisés sont conservés dans une archive privée.	Issue Ecuadorian invoices from confirmed internal invoices. Keys and authorized files are kept in a private archive.
+Solo administradores. Configura el RUC, el establecimiento y el punto de emisión antes de preparar una factura.	Accès administrateur. Configurez le RUC, l’établissement et le point d’émission avant de préparer une facture.	Administrator access. Configure the RUC, establishment and emission point before preparing an invoice.
+Ambiente	Environnement	Environment
+Pruebas	Tests	Testing
+RUC del proveedor del sistema	RUC du fournisseur du logiciel	Software provider RUC
+Guardar configuración	Enregistrer les paramètres	Save settings
+La razón social, RUC y dirección provienen de Configuración de empresa. El certificado .p12 se instala únicamente en el servidor.	La raison sociale, le RUC et l’adresse proviennent des paramètres de l’entreprise. Le certificat .p12 est installé uniquement sur le serveur.	Legal name, RUC and address come from Company settings. The .p12 certificate is installed only on the server.
+Facturas y estado SRI	Factures et statut SRI	Invoices and SRI status
+Forma de pago de la factura	Mode de paiement de la facture	Invoice payment method
+Estado SRI	Statut SRI	SRI status
+Ya vinculada o anulada	Déjà liée ou annulée	Already linked or cancelled
+Firmar y enviar	Signer et envoyer	Sign and send
+Reintentar preparación	Réessayer la préparation	Retry preparation
+Consultar SRI	Consulter le SRI	Check SRI
+RIDE PDF	RIDE PDF	RIDE PDF
+Enviar al cliente	Envoyer au client	Send to customer
+No hay facturas internas.	Aucune facture interne.	No internal invoices.
+Otros con sistema financiero	Autres moyens bancaires	Other financial system means
+Selecciona la forma de pago.	Sélectionnez le mode de paiement.	Select the payment method.

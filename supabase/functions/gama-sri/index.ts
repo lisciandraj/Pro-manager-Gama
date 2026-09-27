@@ -5,14 +5,15 @@ const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body)
 const bytes = (data: string) => Uint8Array.from(atob(data), c => c.charCodeAt(0));
 
 Deno.serve(async request => {
-  if (request.method === 'OPTIONS') return new Response(null, { headers: { ...headers, 'access-control-allow-headers': 'authorization,apikey,content-type', 'access-control-allow-methods': 'POST' } });
+  if (request.method === 'OPTIONS') return new Response(null, { headers: { ...headers, 'access-control-allow-headers': 'authorization,apikey,content-type,x-client-info', 'access-control-allow-methods': 'POST' } });
   if (request.method !== 'POST') return reply({ error: 'METHOD_NOT_ALLOWED' }, 405);
   const url = Deno.env.get('SUPABASE_URL')!;
   const publishable = Deno.env.get('SUPABASE_ANON_KEY')!;
   const secret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const workerUrl = Deno.env.get('SRI_WORKER_URL');
   const workerSecret = Deno.env.get('SRI_WORKER_SECRET');
-  if (!workerUrl || !workerSecret || !workerUrl.startsWith('https://')) return reply({ error: 'SRI_WORKER_NOT_CONFIGURED' }, 503);
+  const configured = Boolean(workerUrl?.startsWith('https://') && workerSecret);
+  const enabled = configured && Deno.env.get('SRI_EMISSION_ENABLED') === 'true';
   const bearer = request.headers.get('Authorization') || '';
   if (!bearer.startsWith('Bearer ')) return reply({ error: 'AUTH_REQUIRED' }, 401);
   const client = createClient(url, publishable, { global: { headers: { Authorization: bearer } } });
@@ -20,9 +21,14 @@ Deno.serve(async request => {
   if (authError || !auth.user) return reply({ error: 'AUTH_REQUIRED' }, 401);
   const { data: profile } = await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
   if (profile?.role !== 'administrador' || !profile.active) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
+  const access = await client.rpc('gama_sri_access');
+  if (access.error || !access.data) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
   const admin = createClient(url, secret);
   let input: { action: string; id: string; kind?: string };
   try { input = await request.json(); } catch { return reply({ error: 'INVALID_JSON' }, 400); }
+  if (input.action === 'status') return reply({ configured, ready: enabled && access.data.validate === true });
+  if (!enabled && !['download'].includes(input.action)) return reply({ error: configured ? 'SRI_CERTIFICATION_PENDING' : 'SRI_WORKER_NOT_CONFIGURED' }, 503);
+  if (input.action === 'download' ? !access.data.export : !access.data.validate) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
   if (!['submit','refresh','notify','download','retry'].includes(input.action) || !/^[a-f0-9-]{36}$/i.test(input.id)) return reply({ error: 'INVALID_REQUEST' }, 400);
   // Check the authenticated caller's RLS view as well as the admin profile.
   const { data: visible, error: viewError } = await client.from('sri_invoice_issues').select('id').eq('id', input.id).maybeSingle();
@@ -39,7 +45,7 @@ Deno.serve(async request => {
   };
   const call = async (action: string, issue: unknown, extra: Record<string, unknown> = {}) => {
     const body = JSON.stringify({ action, issue, ...extra });
-    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(workerSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(workerSecret!), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const signature = Array.from(new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body)))).map(x => x.toString(16).padStart(2,'0')).join('');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);

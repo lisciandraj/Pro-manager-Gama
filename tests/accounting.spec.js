@@ -123,7 +123,8 @@ test('the dashboard reads the whole business and formats in the company currency
  await expect(main).toContainText('+20 %');             // 12000 vs 10000
  await expect(main).toContainText('6,5');               // retraso medio
  await expect(main).toContainText('$900,00');           // saldo de impuestos 1800-900
- await expect(page.locator('#gaNav button')).toHaveCount(13);
+ await expect(page.locator('#gaNav button')).toHaveCount(14);
+ await expect(page.locator('#gaNav [data-ga-section="sri"]')).toBeVisible();
 });
 
 test('a euro company shows euros everywhere without touching the amounts',async({page})=>{
@@ -298,4 +299,23 @@ test('accounting is in Administration and closed to clients',async({page})=>{
  await page.evaluate(()=>{showTab('mainmenu');localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));
   GamaAccounting.open()});
  await expect(page.locator('#accounting.active')).toHaveCount(0);
+});
+
+test('SRI remains visible in French while unconfigured issuance is disabled and settings failures are retryable',async({page})=>{
+ await boot(page);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.evaluate(()=>{
+  GamaI18n.setLanguage('fr');
+  window.__DB.external_invoices=[{id:'invoice-sri',number:'FAC-001',issue_date:'2026-09-27',total:115,document_kind:'internal',fiscal_status:'unverified',external_number:null}];
+  window.__DB.sri_invoice_issues=[];window.__DB.sri_settings=[];
+  const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,functions:{invoke:async()=>({data:{ready:false,configured:false}})},rpc:async(fn,args)=>fn==='gama_sri_configure'?{error:{message:'SRI_CONFIGURATION_INVALID'}}:c.rpc(fn,args)}};
+ });
+ await page.evaluate(()=>GamaAccounting.open({section:'sri'}));
+ await expect(page.locator('#gaMain')).toContainText('Émission SRI désactivée');
+ await expect(page.locator('[data-ga-sri=prepare]')).toBeDisabled();
+ await page.locator('#gaSriSave').click();
+ await expect(page.locator('#gaSriSave')).toBeEnabled();
+ expect(errors).toEqual([]);
+ await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

@@ -880,30 +880,33 @@ VIEWS.periods={
 /* ------------------------------------------------------------- parámetros */
 VIEWS.sri={
  async load(){
-  const [invoices,issues,settings]=await Promise.all([
+  const client=await GamaCloud.db();
+  const [invoices,issues,settings,runtime]=await Promise.all([
    GamaCloud.list('external_invoices',{select:'id,number,issue_date,total,document_kind,fiscal_status,external_number',eq:{document_kind:'internal'},order:'created_at',ascending:false,limit:100}),
    GamaCloud.list('sri_invoice_issues',{select:'id,source_invoice_id,status,environment,access_key,sequential,last_error,delivered_at',order:'created_at',ascending:false,limit:100}),
-   GamaCloud.list('sri_settings',{select:'environment,estab,pto_emi,provider_ruc',limit:1})]);
+   GamaCloud.list('sri_settings',{select:'environment,estab,pto_emi,provider_ruc',limit:1}),
+   client.functions.invoke('gama-sri',{body:{action:'status'}})]);
   for(const response of [invoices,issues,settings])if(response.error)throw response.error;
-  return {invoices:invoices.data||[],issues:issues.data||[],settings:settings.data?.[0]};
+  return {invoices:invoices.data||[],issues:issues.data||[],settings:settings.data?.[0],ready:!runtime.error&&runtime.data?.ready===true};
  },
  render(d){
   const byInvoice=new Map(d.issues.map(row=>[row.source_invoice_id,row]));
   return `<div class="arcPanel gaCard"><h2>${tr('Facturación electrónica SRI')}</h2>
+   <p role="status" class="gaHint">${tr(d.ready?'Servicio SRI listo para las pruebas autorizadas.':'Emisión SRI desactivada. Falta configurar el servicio de firma, el certificado y validar las pruebas SRI. Puedes guardar la configuración.')}</p>
    <p class="gaHint">${tr('Emite facturas ecuatorianas a partir de facturas internas confirmadas. Las claves y los archivos autorizados se conservan en un archivo privado.')}</p>
    <p class="gaHint">${tr('Solo administradores. Configura el RUC, el establecimiento y el punto de emisión antes de preparar una factura.')}</p>
    <div class="gaGrid">
-    <label>${tr('Ambiente')}<select id="gaSriEnvironment"><option value="pruebas" ${d.settings?.environment==='pruebas'?'selected':''}>Pruebas</option><option value="produccion" ${d.settings?.environment==='produccion'?'selected':''}>Producción</option></select></label>
+    <label>${tr('Ambiente')}<select id="gaSriEnvironment"><option value="pruebas" ${d.settings?.environment==='pruebas'?'selected':''} data-gi=b41cb43ed2d5>Pruebas</option><option value="produccion" ${d.settings?.environment==='produccion'?'selected':''} data-gi=ce2f505af2a4>Producción</option></select></label>
     <label>${tr('Establecimiento')}<input id="gaSriEstab" maxlength="3" inputmode="numeric" value="${esc(d.settings?.estab||'001')}"></label>
     <label>${tr('Punto de emisión')}<input id="gaSriPoint" maxlength="3" inputmode="numeric" value="${esc(d.settings?.pto_emi||'001')}"></label>
     <label>${tr('RUC del proveedor del sistema')}<input id="gaSriProvider" maxlength="13" inputmode="numeric" value="${esc(d.settings?.provider_ruc||'')}"></label>
    </div><button type="button" class="arcButton secondary" id="gaSriSave">${tr('Guardar configuración')}</button>
    <p class="gaHint">${tr('La razón social, RUC y dirección provienen de Configuración de empresa. El certificado .p12 se instala únicamente en el servidor.')}</p>
    </div><div class="arcPanel gaCard"><h3>${tr('Facturas y estado SRI')}</h3>
-   <label>${tr('Forma de pago de la factura')}<select id="gaSriPayment"><option value="">${tr('Seleccionar')}</option><option value="01">Efectivo</option><option value="16">Tarjeta de débito</option><option value="19">Tarjeta de crédito</option><option value="20">Otros con sistema financiero</option></select></label>
+   <label>${tr('Forma de pago de la factura')}<select id="gaSriPayment"><option value="">${tr('Seleccionar')}</option><option value="01" data-gi=22fac51606a2>Efectivo</option><option value="16" data-gi=213d3a86f31a>Tarjeta de débito</option><option value="19" data-gi=9e8caac2b76e>Tarjeta de crédito</option><option value="20" data-gi=b112073642df>Otros con sistema financiero</option></select></label>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr><th>${tr('Factura interna')}</th><th>${tr('Fecha')}</th><th>${tr('Total')}</th><th>${tr('Estado SRI')}</th><th>${tr('Acciones')}</th></tr></thead><tbody>${d.invoices.map(inv=>{
     const issue=byInvoice.get(inv.id),status=issue?.status||'—';
-    const button=(action,label,kind)=>`<button type="button" class="arcButton secondary" data-ga-sri="${action}" data-id="${esc(issue?.id||inv.id)}" ${kind?`data-kind="${kind}"`:''}>${tr(label)}</button>`;
+    const button=(action,label,kind)=>`<button type="button" class="arcButton secondary" data-ga-sri="${action}" data-id="${esc(issue?.id||inv.id)}" ${kind?`data-kind="${kind}"`:''} ${!d.ready&&action!=='download'?'disabled':''}>${tr(label)}</button>`;
     const actions=!issue?(inv.fiscal_status==='unverified'&&!inv.external_number?button('prepare','Preparar'):tr('Ya vinculada o anulada')):
      (issue.status==='draft'?button('submit','Firmar y enviar'):'')+
      (['error','processing'].includes(issue.status)&&!issue.access_key?button('retry','Reintentar preparación'):'')+
@@ -914,12 +917,12 @@ VIEWS.sri={
  },
  bind(){
   const host=$('gaMain'),alertError=e=>window.gamaToast?.(String(e?.message||e));
-  host.querySelector('#gaSriSave').onclick=async event=>{event.currentTarget.disabled=true;try{
+  host.querySelector('#gaSriSave').onclick=async event=>{const saveButton=event.currentTarget;saveButton.disabled=true;try{
    const args={p_environment:$('gaSriEnvironment').value,p_establishment:$('gaSriEstab').value,
     p_emission_point:$('gaSriPoint').value,p_provider_ruc:$('gaSriProvider').value};
    const result=await window.ArcData.rawRpc('gama_sri_configure',args);if(result.error)throw result.error;
    await go('sri');
-  }catch(e){alertError(e)}finally{if(event.currentTarget.isConnected)event.currentTarget.disabled=false}};
+  }catch(e){alertError(e)}finally{if(saveButton.isConnected)saveButton.disabled=false}};
   host.querySelectorAll('[data-ga-sri]').forEach(button=>button.onclick=async()=>{button.disabled=true;try{
    const action=button.dataset.gaSri,id=button.dataset.id;
    if(action==='prepare'){

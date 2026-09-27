@@ -1,6 +1,6 @@
 -- Fiscal documents are distinct from internal management invoices. Never expose
 -- signing material or allow the browser to set an SRI authorization status.
-create sequence private.sri_invoice_sequence;
+create sequence private.sri_invoice_sequence maxvalue 999999999 no cycle;
 revoke all on sequence private.sri_invoice_sequence from public, anon, authenticated;
 alter table public.sri_settings add column provider_ruc text check(provider_ruc ~ '^[0-9]{13}$');
 
@@ -26,7 +26,7 @@ create table public.sri_invoice_issues (
  authorized_at timestamptz,
  delivered_at timestamptz,
  last_error text,
- created_by uuid not null references auth.users(id),
+ created_by uuid not null references public.profiles(id),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
  unique (source_invoice_id),
@@ -37,7 +37,7 @@ alter table public.sri_invoice_issues enable row level security;
 revoke all on public.sri_invoice_issues from anon, authenticated;
 grant select on public.sri_invoice_issues to authenticated;
 create policy sri_invoice_issues_read on public.sri_invoice_issues for select to authenticated
- using (private.erp_module_allowed('accounting',array['administrador','comercial']));
+ using (private.erp_module_allowed('accounting',array['administrador']));
 
 -- The existing SRI scaffold allowed each user to replace signed XML and to
 -- impersonate an invoice. Close its browser writes before enabling fiscal work.
@@ -49,17 +49,20 @@ drop policy if exists sri_settings_delete_own on public.sri_settings;
 revoke insert,update,delete on public.sri_electronic_documents from authenticated;
 revoke insert,update,delete on public.sri_settings from authenticated;
 
-create function public.gama_sri_configure(p_environment text,p_establishment text,p_emission_point text,
+create function private.gama_sri_configure(p_environment text,p_establishment text,p_emission_point text,
  p_provider_ruc text default null) returns jsonb language plpgsql security definer set search_path='' as $$
 declare cfg public.company_settings; result public.sri_settings;
 begin
- if auth.uid() is null or private.current_user_role()<>'administrador' or
-    not private.erp_module_allowed('accounting',array['administrador']) then raise exception 'ROLE_NOT_ALLOWED'; end if;
+ if auth.uid() is null or private.current_user_role() is distinct from 'administrador' or
+    not private.erp_module_allowed('accounting',array['administrador'])
+    or not private.erp_action_allowed('accounting','edit') then raise exception 'ROLE_NOT_ALLOWED'; end if;
  select * into cfg from public.company_settings where id=true;
  if cfg.country<>'EC' or cfg.tax_id !~ '^[0-9]{13}$' or length(btrim(cfg.legal_name))=0
     or length(btrim(cfg.address))=0 then raise exception 'COMPANY_IDENTITY_INCOMPLETE'; end if;
- if p_environment not in ('pruebas','produccion') or p_establishment !~ '^[0-9]{3}$'
-    or p_emission_point !~ '^[0-9]{3}$' or p_provider_ruc is null or p_provider_ruc !~ '^[0-9]{13}$'
+ if p_environment is null or p_environment not in ('pruebas','produccion')
+    or p_establishment is null or p_establishment !~ '^[0-9]{3}$'
+    or p_emission_point is null or p_emission_point !~ '^[0-9]{3}$'
+    or p_provider_ruc is null or p_provider_ruc !~ '^[0-9]{13}$'
  then raise exception 'SRI_CONFIGURATION_INVALID'; end if;
  insert into public.sri_settings(user_id,environment,ruc,razon_social,estab,pto_emi,dir_matriz,email,provider_ruc)
  values(auth.uid(),p_environment,cfg.tax_id,cfg.legal_name,p_establishment,p_emission_point,cfg.address,cfg.email,p_provider_ruc)
@@ -69,6 +72,11 @@ begin
  returning * into result;
  return jsonb_build_object('environment',result.environment,'establishment',result.estab,'emission_point',result.pto_emi);
 end $$;
+revoke all on function private.gama_sri_configure(text,text,text,text) from public,anon;
+grant execute on function private.gama_sri_configure(text,text,text,text) to authenticated;
+create function public.gama_sri_configure(p_environment text,p_establishment text,p_emission_point text,p_provider_ruc text default null)
+ returns jsonb language sql security invoker set search_path='' as $$
+ select private.gama_sri_configure(p_environment,p_establishment,p_emission_point,p_provider_ruc) $$;
 revoke all on function public.gama_sri_configure(text,text,text,text) from public,anon;
 grant execute on function public.gama_sri_configure(text,text,text,text) to authenticated;
 
@@ -76,14 +84,15 @@ insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
  values('sri-documents','sri-documents',false,1048576,array['application/xml','application/pdf'])
  on conflict(id) do nothing;
 
-create function public.gama_sri_prepare(p_invoice_id uuid,p_payment_code text) returns jsonb
+create function private.gama_sri_prepare(p_invoice_id uuid,p_payment_code text) returns jsonb
  language plpgsql security definer set search_path='' as $$
 declare v public.external_invoices; o public.sales_orders; c public.customers;
  cfg public.company_settings; old_issue public.sri_invoice_issues; s public.sri_settings;
  lines jsonb; seq text; result public.sri_invoice_issues;
 begin
  if auth.uid() is null or not private.erp_module_allowed('accounting',array['administrador'])
-   or private.current_user_role() <> 'administrador' then raise exception 'ROLE_NOT_ALLOWED'; end if;
+   or private.current_user_role() is distinct from 'administrador'
+   or not private.erp_action_allowed('accounting','create') then raise exception 'ROLE_NOT_ALLOWED'; end if;
  if p_payment_code is null or p_payment_code not in ('01','16','19','20') then raise exception 'SRI_PAYMENT_CODE_REQUIRED'; end if;
  select * into v from public.external_invoices where id=p_invoice_id for update;
  if not found or v.document_kind<>'internal' or v.fiscal_status<>'unverified'
@@ -99,7 +108,7 @@ begin
     or length(btrim(coalesce(s.razon_social,'')))=0 or length(btrim(coalesce(s.dir_matriz,'')))=0
     or s.provider_ruc is null
  then raise exception 'SRI_CONFIGURATION_INCOMPLETE'; end if;
- if c.identification is null or c.identification !~ '^[0-9]{10,13}$'
+ if c.identification is null or c.identification !~ '^([0-9]{10}|[0-9]{13})$'
    or length(btrim(c.name))=0 or length(btrim(coalesce(c.address,'')))=0
  then raise exception 'SRI_CUSTOMER_INCOMPLETE'; end if;
  select jsonb_agg(jsonb_build_object('code',ol.reference,'description',ol.product_name,
@@ -122,6 +131,10 @@ begin
     'tax',v.tax,'total',v.total,'lines',lines)) returning * into result;
  return jsonb_build_object('id',result.id,'status',result.status);
 end $$;
+revoke all on function private.gama_sri_prepare(uuid,text) from public,anon;
+grant execute on function private.gama_sri_prepare(uuid,text) to authenticated;
+create function public.gama_sri_prepare(p_invoice_id uuid,p_payment_code text) returns jsonb
+ language sql security invoker set search_path='' as $$ select private.gama_sri_prepare(p_invoice_id,p_payment_code) $$;
 revoke all on function public.gama_sri_prepare(uuid,text) from public,anon;
 grant execute on function public.gama_sri_prepare(uuid,text) to authenticated;
 
@@ -140,3 +153,17 @@ end $$;
 revoke all on function private.gama_sri_protect_internal_invoice() from public,anon,authenticated;
 create trigger sri_protect_internal_invoice before update on public.external_invoices
  for each row execute function private.gama_sri_protect_internal_invoice();
+
+create function private.gama_sri_access() returns jsonb language plpgsql security definer set search_path='' as $$
+begin
+ if auth.uid() is null or private.current_user_role() is distinct from 'administrador'
+   or not private.erp_module_allowed('accounting',array['administrador']) then raise exception 'ROLE_NOT_ALLOWED'; end if;
+ return jsonb_build_object('validate',private.erp_action_allowed('accounting','validate'),
+   'export',private.erp_action_allowed('accounting','export'));
+end $$;
+revoke all on function private.gama_sri_access() from public,anon;
+grant execute on function private.gama_sri_access() to authenticated;
+create function public.gama_sri_access() returns jsonb language sql security invoker set search_path='' as $$
+ select private.gama_sri_access() $$;
+revoke all on function public.gama_sri_access() from public,anon;
+grant execute on function public.gama_sri_access() to authenticated;

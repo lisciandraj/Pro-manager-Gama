@@ -19,5 +19,13 @@ test('menu opens quotes and invoices and the case/PDF use shared references',asy
  await page.locator('#mainmenu [data-gama-module="quotes"]').click();await expect(page.locator('#quotes')).toContainText('Ventas');await expect(page.locator('#quotes')).toContainText('COT-00000012');
  await page.locator('[data-gq-open]').click();const pdf=await page.evaluate(async()=>GamaQuotes.pdfData({...((await GamaCloud.list('invoices')).data[0]),lines:[]}));expect(pdf.number).toBe('COT-00000012');
  await page.evaluate(()=>GamaQuotes.open());await page.locator('#gqOrdersTab').click();await expect(page.locator('#sales-orders')).toBeVisible();await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
- await page.evaluate(()=>GamaDossierFlow.open());await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail')).toContainText('COT-00000012');
+ await page.evaluate(async()=>{
+  const db=GamaCloud.db;GamaCloud.db=async()=>{const client=await db();return {...client,rpc:async(fn,args)=>{
+   if(fn!=='gama_processes')return client.rpc(fn,args);
+   const o=(await GamaCloud.list('sales_orders')).data[0],q=(await GamaCloud.list('invoices')).data[0];
+   const state={key:'o:o',steps:['Origen de la demanda','Presupuesto','Pedido','Reserva de stock y preparación','Expedición y recepción','Facturación','Seguimiento del pago','Cierre del proceso de venta'].map((title,i)=>({title,state:i===2?'active':'pending',info:''})),metrics:{},checks:{},closed:false,cancelled:false};
+   return {data:args.p_action==='state'?state:{total:1,items:[{key:'o:o',o,q,party:'Client',number:'PDV-00000012',state}]}};
+  }}};
+  await GamaDossierFlow.open();
+ });await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail')).toContainText('COT-00000012');
 });

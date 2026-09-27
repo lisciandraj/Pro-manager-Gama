@@ -164,7 +164,7 @@ test.describe('Inventario V2 — existencias, reservas y previsión', () => {
     }));
 
     const cabeceras = await page.evaluate(() =>
-      [...document.querySelectorAll('#ivTabla th')].map(t => t.textContent.trim()));
+      [...document.querySelectorAll('#ivTabla th')].map(t => t.textContent.replace(/[⇅↑↓]/g,'').trim()));
     for (const c of ['On hand', 'Reservado', 'Disponible', 'Entrante', 'Previsto', 'Estado'])
       expect(cabeceras, 'falta la columna ' + c).toContain(c);
 

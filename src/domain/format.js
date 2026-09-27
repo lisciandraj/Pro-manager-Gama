@@ -17,5 +17,16 @@ export function normalizeError(error) {
 export function errorMessage(error) {
   const e = normalizeError(error);
   const messages = {AUTH_REQUIRED:'Vuelve a iniciar sesión.', ROLE_NOT_ALLOWED:'Tu perfil no puede realizar esta operación.', PM_FORBIDDEN:'Tu perfil no puede realizar esta operación.', '23505':'Ya existe un registro con estos datos.', '23503':'Este registro está vinculado a otros documentos.', PM_CONFLICT:'Los datos cambiaron. Actualiza antes de guardar.', NETWORK_ERROR:'Comprueba la conexión y vuelve a intentarlo.'};
+  const specific=e.message.match(/\b[A-Z][A-Z_]{3,}\b/)?.[0];
+  const audit={
+   STOCK_REQUIRES_MOVEMENT:['El stock requiere un movimiento con ubicación.','Le stock nécessite un mouvement avec emplacement.','Stock requires a located movement.'],
+   INDEPENDENT_APPROVER_REQUIRED:['Se requiere otro validador o una excepción autorizada y justificada.','Un autre validateur est requis, ou une exception autorisée et justifiée.','A different approver or an authorized justified exception is required.'],
+   ADJUSTMENT_APPROVAL_REQUIRED:['Registra una solicitud de ajuste para su validación.','Enregistrez une demande d’ajustement à valider.','Submit an adjustment request for approval.'],
+   OPENING_LOCATION_AND_REASON_REQUIRED:['Indica la ubicación y una justificación de al menos 10 caracteres para el stock inicial.','Indiquez l’emplacement et une justification d’au moins 10 caractères pour le stock initial.','Provide an opening location and a reason of at least 10 characters.'],
+   METHOD_CHANGE_REQUIRES_EMPTY_STOCK:['Vacía el stock antes de cambiar el método de valoración.','Le stock doit être vide pour changer de méthode de valorisation.','Stock must be empty before changing the valuation method.'],
+   PRODUCT_NOT_READY:['Completa los campos señalados antes de activar el producto.','Complétez les champs signalés avant d’activer le produit.','Complete the flagged fields before activating the product.'],
+   LOCATION_SCAN_REQUIRED:['Escanea la ubicación de origen.','Scannez l’emplacement d’origine.','Scan the source location.']
+  };
+  if(audit[specific])return audit[specific][{es:0,fr:1,en:2}[window.GamaI18n?.language]??0]+(specific==='PRODUCT_NOT_READY'?' '+e.message.split(':').slice(1).join(':'):'');
   return translate(messages[e.code] || e.message);
 }

@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-09-22",
+  "capturedAt": "2026-09-27",
   "source": "supabase_migrations.schema_migrations",
   "applied": [
     {
@@ -1178,6 +1178,78 @@
       "name": "hr_retire_legacy_rights",
       "file": "20260923220018_hr_retire_legacy_rights.sql",
       "sha256": "9c970ef2a3b603564cb8a6520ab0c9c86023d928d558635dea2b6546210c000e"
+    },
+    {
+      "version": "20260925184530",
+      "name": "product_import_enrichment",
+      "file": "20260925221500_product_import_enrichment.sql",
+      "sha256": "6ca6ab6df96cfad5b9531ecd32aa02c661be6028708a3c3d6b46033838d21e73"
+    },
+    {
+      "version": "20260925184957",
+      "name": "product_import_restore_archived",
+      "file": "20260925223000_product_import_restore_archived.sql",
+      "sha256": "997320cd82045a42a47ac8d8636030c5a8b20c82ef5b6f81d5b28c50c5d616ca"
+    },
+    {
+      "version": "20260925223302",
+      "name": "coco_intelligence",
+      "file": "20260926003000_coco_intelligence.sql",
+      "sha256": "24365d6f1f0ee889df3ea29618a9257f3d41fa33ce783d81231b932ce6b89dcf"
+    },
+    {
+      "version": "20260925223303",
+      "name": "coco_intelligence_ai_catalog",
+      "file": "20260926003100_coco_intelligence_ai_catalog.sql",
+      "sha256": "6606c35f23f9a6cbcb0d86302288ab001233bd29671b3049d7bdb73eaa0827c7"
+    },
+    {
+      "version": "20260926083435",
+      "name": "coco_intelligence_reliability",
+      "file": "20260926082444_coco_intelligence_reliability.sql",
+      "sha256": "7f3b3374a259dfaf4b6aad1713c67615a0b9982f31ddc6283adc10380e3aad6a"
+    },
+    {
+      "version": "20260926111248",
+      "name": "stock_exception_adjustments",
+      "file": "20260926111248_stock_exception_adjustments.sql",
+      "sha256": "a2d6fd6df8cd8a0ffbcf2ba4c52e5176b43be5be52f663e56b3fd510d69e2be0"
+    },
+    {
+      "version": "20260927111220",
+      "name": "empty_warehouse_deletion",
+      "file": "20260927111220_empty_warehouse_deletion.sql",
+      "sha256": "a74ec4f2f4e3c3b3f0e6992baa500aa3dda150d3ce0a36e444e9a50e154121f3"
+    },
+    {
+      "version": "20260927164750",
+      "name": "delivery_shared_process_reference",
+      "file": "20260927164351_delivery_shared_process_reference.sql",
+      "sha256": "da636f6e9b014490e35c5364e4ac42cdb0b40e295c13dc299b25bfaeafedb08d"
+    },
+    {
+      "version": "20260927172009",
+      "name": "audit_stock_integrity",
+      "file": "20260927150402_audit_stock_integrity.sql",
+      "sha256": "23bd2dfe8c69a77b064532f75385d156ea5dfaa51dbc22761dc78f1611a0e76d"
+    },
+    {
+      "version": "20260927172015",
+      "name": "audit_process_state",
+      "file": "20260927150859_audit_process_state.sql",
+      "sha256": "7b9758311a76dbcb7242fe3de4faffb96e18144c77e05ba7ac3038a3b2b2e858"
+    },
+    {
+      "version": "20260927172021",
+      "name": "audit_stock_valuation",
+      "file": "20260927151658_audit_stock_valuation.sql",
+      "sha256": "ec3a403d0c9384d242f35a1694d6e07b5666c29050346b5c4a8c240bcf89cb32"
+    },
+    {
+      "version": "20260927172029",
+      "name": "audit_monitoring",
+      "file": "20260927152533_audit_monitoring.sql",
+      "sha256": "63498a9cbd1b3cb07bd2448ff3e8c0c7d400ac10e140af4a7d5a50db69e82368"
     }
   ]
 }

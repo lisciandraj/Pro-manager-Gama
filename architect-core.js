@@ -29,8 +29,20 @@
     return { code, message, fields: (error == null ? void 0 : error.fields) || {}, retryable: ["NETWORK_ERROR", "57014", "53300"].includes(code), cause: error };
   }
   function errorMessage(error) {
+    var _a, _b;
     const e = normalizeError(error);
     const messages = { AUTH_REQUIRED: "Vuelve a iniciar sesión.", ROLE_NOT_ALLOWED: "Tu perfil no puede realizar esta operación.", PM_FORBIDDEN: "Tu perfil no puede realizar esta operación.", "23505": "Ya existe un registro con estos datos.", "23503": "Este registro está vinculado a otros documentos.", PM_CONFLICT: "Los datos cambiaron. Actualiza antes de guardar.", NETWORK_ERROR: "Comprueba la conexión y vuelve a intentarlo." };
+    const specific = (_a = e.message.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0];
+    const audit = {
+      STOCK_REQUIRES_MOVEMENT: ["El stock requiere un movimiento con ubicación.", "Le stock nécessite un mouvement avec emplacement.", "Stock requires a located movement."],
+      INDEPENDENT_APPROVER_REQUIRED: ["Se requiere otro validador o una excepción autorizada y justificada.", "Un autre validateur est requis, ou une exception autorisée et justifiée.", "A different approver or an authorized justified exception is required."],
+      ADJUSTMENT_APPROVAL_REQUIRED: ["Registra una solicitud de ajuste para su validación.", "Enregistrez une demande d’ajustement à valider.", "Submit an adjustment request for approval."],
+      OPENING_LOCATION_AND_REASON_REQUIRED: ["Indica la ubicación y una justificación de al menos 10 caracteres para el stock inicial.", "Indiquez l’emplacement et une justification d’au moins 10 caractères pour le stock initial.", "Provide an opening location and a reason of at least 10 characters."],
+      METHOD_CHANGE_REQUIRES_EMPTY_STOCK: ["Vacía el stock antes de cambiar el método de valoración.", "Le stock doit être vide pour changer de méthode de valorisation.", "Stock must be empty before changing the valuation method."],
+      PRODUCT_NOT_READY: ["Completa los campos señalados antes de activar el producto.", "Complétez les champs signalés avant d’activer le produit.", "Complete the flagged fields before activating the product."],
+      LOCATION_SCAN_REQUIRED: ["Escanea la ubicación de origen.", "Scannez l’emplacement d’origine.", "Scan the source location."]
+    };
+    if (audit[specific]) return audit[specific][{ es: 0, fr: 1, en: 2 }[(_b = window.GamaI18n) == null ? void 0 : _b.language] ?? 0] + (specific === "PRODUCT_NOT_READY" ? " " + e.message.split(":").slice(1).join(":") : "");
     return translate(messages[e.code] || e.message);
   }
   let sequence = 0;
@@ -964,7 +976,7 @@
       "id": "dossier-flow",
       "label": "Seguimiento de procesos",
       "icon": "folder",
-      "group": "Ventas",
+      "group": "Resumen",
       "description": "Venta (PDV) y compra (PDC), paso a paso",
       "accent": "blue",
       "order": 100,
@@ -1462,7 +1474,7 @@
       { key: "active", label: "Estado", sort: "active", value: (p) => translate(p.active ? "Activo" : "Archivado") },
       { key: "createdAt", label: "Fecha de creación", sort: "created_at", value: (p) => format.date(p.createdAt) },
       { key: "updatedAt", label: "Última modificación", sort: "updated_at", value: (p) => format.date(p.updatedAt) },
-      { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
+      { label: "Acciones", actions: true, html: (p) => button({ label: translate("Unidades e historial"), attrs: 'data-product-controls="' + escapeHtml(p.id) + '"' }) + " " + (p.active ? button({ label: translate("Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Archivar"), variant: "danger", attrs: 'data-archive="' + escapeHtml(p.id) + '"' }) : button({ label: translate("Editar"), attrs: 'data-edit="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Restaurar"), attrs: 'data-restore="' + escapeHtml(p.id) + '"' }) + " " + button({ label: translate("Borrar definitivamente"), variant: "danger", attrs: 'data-delete="' + escapeHtml(p.id) + '"' })) }
     ]
   };
   function directory(entity, filter = "") {
@@ -1527,6 +1539,7 @@
   }
   const pending = /* @__PURE__ */ new Map();
   const lazyModules = {
+    "audit-controls": { global: "ArchitectStockAudit", file: "architect-audit-controls.js", methods: ["products", "valuation", "performance"] },
     sav: { global: "GamaService", file: "gama-service-documents.js", methods: ["open", "openTicket"] },
     documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },
     accounting: { global: "GamaAccounting", file: "gama-accounting.js", methods: ["open", "rpc"] },

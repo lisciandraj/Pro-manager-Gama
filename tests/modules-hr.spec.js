@@ -221,7 +221,7 @@ test('cada entrada del menú comparte registro, permisos y catálogo', async ({p
     for(const [label,id] of window.GamaMenu.items){
       const entry=registry.find(m=>m.id===id);
       if(!entry||entry.label!==label)errors.push('Missing registry entry: '+id);
-      if(!catalog.has(id))errors.push('Missing catalog entry: '+id);
+      if(!catalog.has(entry?.tabOf||id))errors.push('Missing catalog entry: '+id);
       if(!entry?.roles?.length)errors.push('Missing roles: '+id);
     }
     return {count:window.GamaMenu.items.length,unique:new Set(registry.map(m=>m.id)).size===registry.length,errors};

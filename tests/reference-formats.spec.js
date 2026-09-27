@@ -11,8 +11,8 @@ async function boot(page,role='admin'){
 test('admin configures three-letter prefixes with preview, retains failed edits and fits desktop/mobile',async({page})=>{
  await boot(page);const form=page.locator('#cfgReferenceForm');await expect(form).toBeVisible();await expect(form.locator('[data-ref-kind]')).toHaveCount(formats.length);
  const input=form.locator('[data-ref-kind="order"]');await input.fill('ven');await expect(input).toHaveValue('VEN');await expect(form.locator('[data-ref-preview="order"]')).toHaveText('VEN-00000001');
- await page.evaluate(()=>window.__refConflict=true);await form.locator('[type=submit]').click();await expect(form.locator('[role=status]')).toContainText('Un autre administrateur');await expect(input).toHaveValue('VEN');
- await page.evaluate(()=>window.__refConflict=false);await form.locator('[type=submit]').click();await expect(form.locator('[role=status]')).toHaveText('Préfixes enregistrés.');expect(await page.evaluate(()=>window.__savedRefs)).toEqual([{kind:'order',prefix:'VEN',version:1}]);
+ await page.evaluate(()=>window.__refConflict=true);await form.locator('[type=submit]').click();await expect(form.locator('#cfgReferenceStatus')).toContainText('Un autre administrateur');await expect(input).toHaveValue('VEN');
+ await page.evaluate(()=>window.__refConflict=false);await form.locator('[type=submit]').click();await expect(form.locator('#cfgReferenceStatus')).toHaveText('Préfixes enregistrés.');expect(await page.evaluate(()=>window.__savedRefs)).toEqual([{kind:'order',prefix:'VEN',version:1}]);
  for(const width of [1440,844,390]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)}
  await input.fill('AB');expect(await input.evaluate(e=>e.checkValidity())).toBe(false);
  await page.screenshot({path:test.info().outputPath('reference-settings-mobile.png'),fullPage:true});

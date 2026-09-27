@@ -17,10 +17,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20260923-coco1">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script src="gama-i18n-catalog.js?v=ffc200feae70"></script>
+<script src="gama-i18n-catalog.js?v=e7fb1400a45c"></script>
 <script src="gama-i18n.js?v=0faee1e7e634"></script>
-<script src="architect-assets.js?v=99a904d466f9"></script>
-<script src="architect-core.js?v=66682d38e8c0"></script>
+<script src="architect-assets.js?v=0024df689b4e"></script>
+<script src="architect-core.js?v=34f82d688116"></script>
 <script src="gama-currency.js?v=b9fe2c05eef7"></script>
 <script src="gama-toast.js?v=7c8bf98552ab"></script>
 <title>Coco ERP</title>
@@ -42,7 +42,7 @@
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=63c7ae846e10">
-<link rel="stylesheet" href="architect-components.css?v=c295c4300c3f">
+<link rel="stylesheet" href="architect-components.css?v=2bc4c7b86b07">
 <link rel="stylesheet" href="architect-ui.css?v=7c22a65f3471">
 <link rel="stylesheet" href="architect-shell.css?v=de885565b418">
 <link rel="stylesheet" href="gama-company.css?v=997eddb87b04">
@@ -104,6 +104,7 @@
 <div><label data-gi=79ac564e567d>Stock máximo</label><input id="pMaxStock" type="number" min="0" value="0"></div><div><label data-gi=78bbfdac42c8>Cantidad por cartón</label><input id="pQtyCarton" type="number" min="0" step="1" value="0"></div>
 <div><label data-gi=7cfff97ea7e9>Peso (g)</label><input id="pWeight" type="number" min="0" step="0.01" value="0"></div><div><label data-gi=15d11bfd7e7a>Volumen (cm³)</label><input id="pVolume" type="number" min="0" step="0.01" value="0"></div>
 <div><label data-gi=e746643f4479>Proveedor</label><select id="pSupplier"><option value="" data-gi=480def1d15a8>Sin proveedor</option></select></div>
+<div><label for="pActive" data-gi=0d1bb95f6d35>Estado del catálogo</label><select id="pActive"><option value="true" data-gi=723858144bd5>Activo</option><option value="false" data-gi=813506a69bcf>Borrador / archivado</option></select></div>
 <div style="grid-column:1/-1"><label data-gi=ee00b96fff26>Descripción</label><textarea id="pDescription" data-gi-placeholder=58ac34f2d35d placeholder="Descripción detallada del producto"></textarea></div>
 <div><label data-gi=1244a9cab6ce>Precio de compra (USD)</label><input id="pCost" type="number" min="0" step="0.01" value="0"></div>
 <div><label data-gi=db3c6eea612b>Precio de venta mayorista (USD) — Categoría A *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
@@ -157,7 +158,7 @@
 <script src="gama-archive.js?v=ce173dd5ba6d"></script>
 <script src="gama-sort.js?v=3f647548f503"></script>
 <script src="gama-select-search.js?v=8703fdacc4ca"></script>
-<script src="gama-tables.js?v=4597055f6e88"></script>
+<script src="gama-tables.js?v=f0f439e4e527"></script>
 <script>/* Precio de venta según la categoría del cliente: A (mayorista) es el precio
    base de la ficha y B el precio al detalle. La categoría C no se resuelve
    aquí: es un precio pactado producto a producto en su tarifa, y quien lo
@@ -224,7 +225,7 @@ async function createProduct(){
  clearProductForm();save();
 }
 function populateSupplierSelect(){const s=$('pSupplier');if(!s)return;const cur=s.value;s.innerHTML='<option value="" data-gi=480def1d15a8>Sin proveedor</option>'+(db.suppliers||[]).map(x=>`<option value="${x.id}">${(x.name||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</option>`).join('');if(cur&&(db.suppliers||[]).some(x=>x.id===cur))s.value=cur}
-async function editProduct(b,id){await window.ArchitectLegacyData?.load('products');let p=id?db.products.find(p=>p.id===id):product(b);if(!p)return;$('editingProductId').value=p.id||'';$('editingBarcode').value=p.barcode||'';$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
+async function editProduct(b,id){await window.ArchitectLegacyData?.load('products');let p=id?[...db.products,...(db.archivedProducts||[])].find(p=>p.id===id):product(b);if(!p)return;$('pActive').value=String(p.active!==false);$('editingProductId').value=p.id||'';$('editingBarcode').value=p.barcode||'';$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
 /* La ficha muestra la foto en grande: es la unica pantalla que necesita el
    original, asi que se pide justo aqui y para un solo producto. */
 function gamaShowProductPhoto(p){
@@ -237,7 +238,7 @@ function gamaShowProductPhoto(p){
   if(data&&$('editingProductId').value===p.id){el.src=data;el.style.display='block'}
  }).catch(()=>{});
 }
-function clearProductForm(){$('editingProductId').value='';$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
+function clearProductForm(){$('pActive').value='true';$('editingProductId').value='';$('editingBarcode').value='';['pBarcode','pName','pRef','pCat','pLoc','pDescription','pFamily','pLines','pBrand','pPresentation'].forEach(id=>$(id).value='');$('pMin').value=0;$('pMaxStock').value=0;$('pQtyCarton').value=0;$('pWeight').value=0;$('pVolume').value=0;$('pCost').value=0;$('pPrice').value=0;$('pSalePriceB').value=0;$('pIva').value=15;$('pSupplier').value='';$('pPhoto').value='';$('pPreview').src='';$('pPreview').style.display='none'}
 function deleteProduct(b){let p=product(b);if(!p)return;if(p.stock!==0)return alert('No se puede eliminar un producto con stock. Primero deja el stock en 0.');if(!confirm(`¿Eliminar "${p.name}" de la lista de productos?`))return;db.products=db.products.filter(x=>x.barcode!==b);save();alert('Producto eliminado.')}
 function renderProducts(filter=''){populateSupplierSelect();if(window.GamaCloud)window.ArcDirectories.directory('products',filter)}
 
@@ -462,7 +463,7 @@ showTab('mainmenu',null);
 <script src="gama-purchase-order-pdf.js?v=146141ec87e7"></script>
 <script src="architect-identity.js?v=02272beed762"></script>
 <script src="gama-supabase.js?v=202d23da8f57"></script>
-<script src="gama-central-sync.js?v=875504f017b2"></script>
+<script src="gama-central-sync.js?v=7e5c19936687"></script>
 <script src="gama-purchases-v14.js?v=cee868aeacc3"></script>
 <script src="gama-proveedores-matriz.js?v=f252700ebf71"></script>
 <script src="gama-client-catalog.js?v=925cd4ddcece"></script>
@@ -474,7 +475,7 @@ showTab('mainmenu',null);
 <script src="gama-crm-core.js?v=d71e15e6a525"></script>
 <script src="gama-crm-scoring.js?v=7cc417d159b3"></script>
 <script src="gama-crm-leads.js?v=853e6bc6ee3f"></script>
-<script src="gama-crm-opportunities.js?v=ca6d0e5dcf22"></script>
+<script src="gama-crm-opportunities.js?v=da18e88d1acd"></script>
 <script src="gama-crm-activities.js?v=25e82d8739a6"></script>
 <script src="gama-crm-contacts.js?v=cff967ebfe38"></script>
 <script src="gama-contacts.js?v=11e2ec33f51d"></script>
@@ -486,11 +487,11 @@ showTab('mainmenu',null);
 <script src="gama-inventory-v2.js?v=2a09c91eb5ca"></script>
 <script src="gama-sales.js?v=daea87ea10d7"></script>
 <script src="gama-quotes.js?v=6faf6a63e1db"></script>
-<script src="gama-order-preparation.js?v=f66d93042511"></script>
-<script src="gama-fulfillment.js?v=a5934add103a"></script>
+<script src="gama-order-preparation.js?v=e9fbf26420c3"></script>
+<script src="gama-fulfillment.js?v=5176444dc3ec"></script>
 <script src="gama-tms-loading.js?v=a53314b4e2f4"></script>
 <script src="gama-internal-invoices.js?v=475cc93b4490"></script>
-<script src="gama-dossier-flow.js?v=62fcb6030dd0"></script>
+<script src="gama-dossier-flow.js?v=ad2a89d106ed"></script>
 <script src="gama-assistant-ia.js?v=9b09fed4c8aa"></script>
 <link rel="stylesheet" href="gama-projects.css?v=55f43baf8acd">
 <script src="gama-projects-core.js?v=11aeade5f421"></script>
@@ -498,7 +499,7 @@ showTab('mainmenu',null);
 <script src="gama-projects.js?v=f90efdf4f2d9"></script>
 <script src="gama-knowledge.js?v=77cc745299f1"></script>
 <script src="gama-payments.js?v=20af67b7a239"></script>
-<script src="gama-operations.js?v=6eed123c1c60"></script>
+<script src="gama-operations.js?v=1d54b92af240"></script>
 <script src="gama-standard-ui.js?v=9235231a5459"></script>
 
 <script src="architect-shell.js?v=ca5f7b3800d5"></script>
@@ -507,10 +508,10 @@ showTab('mainmenu',null);
 <script src="architect-audit.js?v=c449d779c94a"></script>
 <script src="architect-service-workflows.js?v=79d4e2cc9dd0"></script>
 <script src="architect-sourcing.js?v=98b6ba6f9e5d"></script>
-<script src="architect-stock-controls.js?v=85945ae753d5"></script>
+<script src="architect-stock-controls.js?v=7ea3e06288f3"></script>
 <script src="architect-transport-controls.js?v=51f0bb819ba1"></script>
 <script src="architect-offline-proofs.js?v=26e935ccaa1b"></script>
-<script src="architect-project-controls.js?v=c290a31af424"></script>
+<script src="architect-project-controls.js?v=08faadd83d88"></script>
 <script src="architect-products-controls.js?v=a11558d334ff"></script>
 <script src="architect-service-products.js?v=c4e8d19bb239"></script>
 <script src="architect-lots.js?v=e5e10e005ab3"></script>
@@ -518,6 +519,6 @@ showTab('mainmenu',null);
 <script src="architect-people.js?v=a2b6ee16f766"></script>
 <script src="architect-access-controls.js?v=1ead272b27c7"></script>
 <script src="architect-barcode-controls.js?v=b398ced070f2"></script>
-<script src="architect-controls.js?v=5591f7470a9e"></script>
+<script src="architect-controls.js?v=b1523e844d3a"></script>
 <script src="architect-pricing.js?v=aa368108778e"></script>
 </body></html>

@@ -88,6 +88,30 @@ async function boot(page,scope='all',role='admin'){
 }
 const open=page=>page.evaluate(()=>GamaAccounting.open());
 
+test('a purchase link prefills the supplier bill without registering it before confirmation',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{
+  __DB.purchase_orders=[{id:'po1',order_number:'OCO-00000042',supplier_id:'s1',status:'received'}];
+  await GamaAccounting.open({section:'purchases',purchaseOrderId:'po1',newBill:true});
+ });
+ await expect(page.locator('#gaPurchase')).toHaveValue('po1');await expect(page.locator('#gaSupplier')).toHaveValue('s1');
+ await expect(page.locator('#gaNumber')).toHaveValue('');await expect(page.locator('#gaTotal')).toHaveValue('');
+ expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='supplier_invoice_save'||c.p_action==='supplier_payment'))).toBe(false);
+});
+
+test('a supplier invoice link selects the exact bill and allows returning to the full list',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{
+  __DB.supplier_invoices=[{id:'sb1',number:'PRV-77'}];
+  const row=__ACC.responses.supplier_invoices.rows[0];__ACC.responses.supplier_invoices.rows.push({...row,id:'other',supplier_name:'Different supplier'});
+  await GamaAccounting.open({section:'purchases',invoiceId:'sb1'});
+ });
+ await expect(page.locator('#gaMain [data-ga-pay]')).toHaveCount(1);await expect(page.locator('#gaMain [data-ga-pay]')).toHaveAttribute('data-ga-pay','sb1');
+ await expect(page.locator('#gaMain')).not.toContainText('Different supplier');
+ await page.locator('#gaMain [data-ga-pay]').click();await expect(page.locator('#gaAmount')).toHaveValue('8000.00');
+ expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='supplier_payment'))).toBe(false);
+ await page.locator('#gsClose').click();
+ await page.locator('#gaSearch').fill('');await page.locator('#gaApply').click();await expect(page.locator('#gaMain [data-ga-pay]')).toHaveCount(2);
+});
+
 test('the dashboard reads the whole business and formats in the company currency',async({page})=>{
  await boot(page);await open(page);
  await expect(page.locator('#accounting')).toBeVisible();

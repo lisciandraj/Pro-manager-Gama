@@ -223,35 +223,24 @@ test('cada cabecera lleva el icono de la tarjeta que abre el módulo', async ({ 
   }
 });
 
-test('el acento de la cabecera se pinta de verdad', async ({ page }) => {
-  // Las tintas de las tarjetas están acotadas a `#mainmenu`, así que la
-  // cabecera necesita sus propias reglas sobre los mismos tokens. Sin ellas el
-  // icono sale del color heredado y sobre nada: declara su familia y aun así no
-  // se distingue. Por eso se mira el estilo calculado y no el atributo.
+test('la cabecera compacta conserva una flecha centrada y accesible para volver', async ({ page }) => {
   await boot(page, {
     products: [{ id: 'p1', barcode: 'B1', name: 'Cemento', stock: 40, min_stock: 1, sale_price: 10, tax_rate: 15, active: true }],
   });
   await page.evaluate(() => window.showTab('products', null));
-  await page.waitForTimeout(400);
-
-  const pintado = await page.evaluate(() => {
-    const i = document.querySelector('#products .gamaStdIcon');
-    if (!i) return null;
-    const s = getComputedStyle(i);
-    const t = document.querySelector('#mainmenu .gamaF2Card[data-gama-module="products"] .gamaF2Icon');
-    const ts = t ? getComputedStyle(t) : null;
-    return {
-      fam: i.dataset.arcFam || '', color: s.color, fondo: s.backgroundColor,
-      tarjetaColor: ts ? ts.color : '', tarjetaFondo: ts ? ts.backgroundColor : '',
-      ancho: i.getBoundingClientRect().width,
-    };
+  const header = page.locator('#products .gamaCompactHeader');
+  await expect(header).toBeVisible();
+  await expect(header.locator('.gamaStdIcon')).toBeHidden();
+  const back = header.locator('.gamaStdBack');
+  await expect(back).toBeVisible();
+  await expect(back).toHaveAccessibleName(/Volver/);
+  const style = await back.evaluate(el => {
+    const rect = el.getBoundingClientRect(), arrow = getComputedStyle(el, '::before');
+    return { width: rect.width, height: rect.height, arrowWidth: arrow.width, arrowHeight: arrow.height,
+      color: arrow.backgroundColor, centerX: parseFloat(arrow.left), centerY: parseFloat(arrow.top), transform: arrow.transform };
   });
-  expect(pintado, 'no hay icono en la cabecera de Productos').not.toBeNull();
-  expect(pintado.fam, 'el icono no declara su familia de color').not.toBe('');
-  const transparente = c => !c || c === 'transparent' || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c);
-  expect(transparente(pintado.fondo), `el icono de la cabecera no tiene fondo: «${pintado.fondo}»`).toBeFalsy();
-  expect(pintado.ancho, 'el icono de la cabecera no ocupa espacio').toBeGreaterThan(20);
-  // Y es el mismo color que en el menú, no otro parecido.
-  expect(pintado.color, 'el trazo no coincide con el de la tarjeta').toBe(pintado.tarjetaColor);
-  expect(pintado.fondo, 'el fondo no coincide con el de la tarjeta').toBe(pintado.tarjetaFondo);
+  expect(style).toEqual({ width: 44, height: 44, arrowWidth: '24px', arrowHeight: '24px',
+    color: 'rgb(0, 0, 0)', centerX: 21, centerY: 21, transform: 'matrix(1, 0, 0, 1, -12, -12)' });
+  await back.click();
+  await expect(page.locator('#mainmenu')).toBeVisible();
 });

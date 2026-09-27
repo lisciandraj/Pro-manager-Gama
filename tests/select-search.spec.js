@@ -48,13 +48,14 @@ const CUSTOMERS = [
 
 // Cada campo declara con data-gama-for la lista a la que sirve: ése es el
 // asidero honesto para encontrarlo desde aquí.
-const campo = page => page.locator('.gamaFindBox[data-gama-for="clientSelect"]');
-const combo = page => page.locator('.gamaFind:has(.gamaFindBox[data-gama-for="clientSelect"])');
+const campo = page => page.locator('.gamaFindBox[data-gama-for="gqCustomer"]');
+const combo = page => page.locator('.gamaFind:has(.gamaFindBox[data-gama-for="gqCustomer"])');
 const opciones = page => combo(page).locator('.gamaFindOpt');
 
 async function abrirPresupuestos(page) {
   await boot(page, { customers: CUSTOMERS });
-  await page.evaluate(() => window.showTab('billing', null));
+  await page.evaluate(() => GamaQuotes.open());
+  await page.locator('#gqNew').click();
   await expect(campo(page)).toBeVisible();
 }
 
@@ -90,8 +91,8 @@ test.describe('Listas largas — se busca escribiendo', () => {
     await expect(opciones(page)).toHaveCount(1);
     await expect(opciones(page).first()).toContainText('Obras del Sur');
 
-    // También por la identificación, que es lo que trae la factura en la mano.
-    await campo(page).fill('1003');
+    // También puede resolverse una opción por su identificador estable.
+    await campo(page).fill('c12');
     await expect(opciones(page)).toHaveCount(1);
     await expect(opciones(page).first()).toContainText('Servicios Oriente');
 
@@ -109,9 +110,9 @@ test.describe('Listas largas — se busca escribiendo', () => {
     await campo(page).fill('talleres');
     await opciones(page).first().click();
 
-    await expect(page.locator('#clientSelect')).toHaveValue('0997');
-    await expect(page.locator('#clientName')).toHaveValue('Talleres Vega');
-    await expect(page.locator('#clientEmail')).toHaveValue('vega@example.com');
+    await expect(page.locator('#gqCustomer')).toHaveValue('c7');
+    await expect(page.locator('#gqd_client')).toHaveValue('Talleres Vega');
+    await expect(page.locator('#gqd_clientEmail')).toHaveValue('vega@example.com');
     // Y el campo enseña lo elegido, no lo tecleado.
     await expect(campo(page)).toHaveValue(/Talleres Vega/);
   });
@@ -129,7 +130,7 @@ test.describe('Listas largas — se busca escribiendo', () => {
     // La lista se cierra; sus opciones siguen en el DOM, sólo dejan de verse.
     await expect(combo(page).locator('.gamaFindMenu')).toBeHidden();
     await expect(campo(page)).toHaveValue(segunda.trim());
-    expect(await page.evaluate(() => document.getElementById('clientSelect').value)).not.toBe('');
+    expect(await page.evaluate(() => document.getElementById('gqCustomer').value)).not.toBe('');
   });
 
   // Un texto a medio escribir que no corresponde a nada haría creer que hay
@@ -142,21 +143,20 @@ test.describe('Listas largas — se busca escribiendo', () => {
     await expect(campo(page)).toHaveValue(/Talleres Vega/);
 
     await campo(page).fill('xyz sin sentido');
-    await page.locator('#sellerRuc').click();
+    await page.locator('#gqd_sellerRuc').click();
     await page.waitForTimeout(300);
     await expect(campo(page)).toHaveValue(/Talleres Vega/);
-    await expect(page.locator('#clientSelect')).toHaveValue('0997');
+    await expect(page.locator('#gqCustomer')).toHaveValue('c7');
   });
 
   test('una lista corta se queda con su desplegable de siempre', async ({ page }) => {
-    await abrirPresupuestos(page);
-
-    // «Forma de pago» tiene cinco opciones: se leen de un vistazo y el
-    // desplegable nativo —en el teléfono, la rueda del sistema— es mejor.
-    await expect(page.locator('.gamaFind:has(.gamaFindBox[data-gama-for="payment"])')).toBeHidden();
-    await expect(page.locator('#payment')).toBeVisible();
-    expect(await page.evaluate(() =>
-      document.getElementById('payment').classList.contains('gamaFindOculto'))).toBe(false);
+    await boot(page, { customers: CUSTOMERS.slice(0,2) });
+    await page.evaluate(() => GamaQuotes.open());
+    await page.locator('#gqNew').click();
+    await expect(combo(page)).toBeHidden();
+    await expect(page.locator('#gqCustomer')).toBeVisible();
+    await expect(page.locator('#gqCustomer')).not.toHaveAttribute('tabindex','-1');
+    expect(await page.locator('#gqCustomer').evaluate(e=>e.labels[0].control===e)).toBe(true);
   });
 
   // Los periodos son un vocabulario fijo. Incluso al superar el umbral
@@ -177,8 +177,8 @@ test.describe('Listas largas — se busca escribiendo', () => {
   test('el select sigue en la página y se le puede seguir escribiendo desde fuera', async ({ page }) => {
     await abrirPresupuestos(page);
 
-    await page.selectOption('#clientSelect', '0993');
-    await expect(page.locator('#clientName')).toHaveValue('Papelería Cañón');
+    await page.selectOption('#gqCustomer', 'c3');
+    await expect(page.locator('#gqd_client')).toHaveValue('Papelería Cañón');
     // Y el campo se entera de lo que le han escrito por detrás.
     await expect(campo(page)).toHaveValue(/Papelería Cañón/);
   });
@@ -189,14 +189,14 @@ test.describe('Listas largas — se busca escribiendo', () => {
     await expect(opciones(page)).toHaveCount(1);
 
     await page.evaluate(() => {
-      document.getElementById('clientSelect').innerHTML =
-        '<option value="">Selecciona un cliente...</option><option value="0991">Constructora Andes</option>';
+      document.getElementById('gqCustomer').innerHTML =
+        '<option value="">Selecciona un cliente...</option><option value="c1">Constructora Andes</option>';
       window.GamaSelectSearch.scan();
     });
 
     await expect(combo(page)).toBeHidden();
-    await expect(page.locator('#clientSelect')).toBeVisible();
+    await expect(page.locator('#gqCustomer')).toBeVisible();
     expect(await page.evaluate(() =>
-      document.getElementById('clientSelect').classList.contains('gamaFindOculto'))).toBe(false);
+      document.getElementById('gqCustomer').classList.contains('gamaFindOculto'))).toBe(false);
   });
 });

@@ -83,7 +83,7 @@ function err(e){
    viajan ya traducidos para que no los envuelva en el mensaje genérico. */
 function reject(code){return Object.assign(Error(code),{gamaMessage:err(code)})}
 
-let tab='customer',state={},detailId=null,generation=0,embedded=null,searchTimer=null;
+let tab='customer',state={},detailId=null,generation=0,embedded=null,searchTimer=null,pageOffset=0;
 let filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};
 
 async function rpc(action,data={}){
@@ -107,15 +107,16 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();if(embedded?.isConnected){window.ArcUI.render(embedded,'<div id="grMain" aria-live="polite"></div>');return embedded}let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
+ window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Devoluciones, abonos y reembolsos'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('grNav');if(!host)return;
- window.ArcUI.render(host,TABS.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="arcButton ${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join(''));
- host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{detailId=null;tab=b.dataset.grTab;filters.partner='';go()});
+ const summaryTabs=[['all','Todos'],['customer','Clientes'],['supplier','Proveedores']];
+ window.ArcUI.render(host,summaryTabs.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="arcButton ${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join(''));
+ host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{detailId=null;tab=b.dataset.grTab;filters.partner='';pageOffset=0;go()});
 }
 function busy(){window.ArcUI.render($('grMain'),`<p class="arcPanel grCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
@@ -142,17 +143,20 @@ async function go(){
  if(!embedded?.isConnected&&(!$(ID)?.isConnected||!$('grMain')))shell();
  nav();busy();
  try{
-  const d=await rpc('overview',{kind:tab,all_dates:filters.all_dates,
+  const d=await rpc('overview',{kind:tab==='all'?null:tab,offset:pageOffset,limit:25,all_dates:filters.all_dates,
    status:filters.status||null,from:filters.from||null,to:filters.to||null,search:filters.search,
-   ...(tab==='customer'?{customer_id:filters.partner||null}:{supplier_id:filters.partner||null})});
+   ...partnerFilter()});
   if(token!==generation)return;
   state.overview=d;
   if(detailId){await detail(detailId);return}
   list(d);
  }catch(e){if(token===generation)fail(e,go)}
 }
+function partnerFilter(){if(!filters.partner)return {};if(tab==='all'){const [kind,id]=filters.partner.split(':');return {[kind==='customer'?'customer_id':'supplier_id']:id}}return {[tab==='customer'?'customer_id':'supplier_id']:filters.partner}}
 function list(d){
- const partners=tab==='customer'?d.customers:d.suppliers;
+ const summary=!embedded,total=d.total??d.rows.length;
+ const partners=tab==='all'?[...d.customers.map(p=>({...p,id:'customer:'+p.id,name:T('Cliente')+' · '+p.name})),...d.suppliers.map(p=>({...p,id:'supplier:'+p.id,name:T('Proveedor')+' · '+p.name}))]:tab==='customer'?d.customers:d.suppliers;
+ const party=tab==='all'?T('Cliente')+' / '+T('Proveedor'):T(tab==='customer'?'Cliente':'Proveedor');
  window.ArcUI.render($('grMain'),`
  <div class="grKpis">
   ${kpi('Devoluciones abiertas',num(d.kpis.open))}
@@ -161,21 +165,21 @@ function list(d){
   ${kpi('Cerradas este mes',num(d.kpis.closed_month))}
  </div>
  <div class="grTools">
-  <label data-gi-live>${tab==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}
+  <label data-gi-live>${esc(party)}
    <select id="grPartner"><option value="" data-gi-live data-gi=bd02b9a7d71d>Todos</option>${partners.map(p=>`<option value="${esc(p.id)}" ${filters.partner===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
   <label data-gi-live data-gi=98e5acddb6c4>Estado<select id="grStatus"><option value="" data-gi-live data-gi=bd02b9a7d71d>Todos</option>${options(STATUS,filters.status)}</select></label>
   <label data-gi-live data-gi=8b4e93e928df>Desde<input id="grFrom" type="date" value="${esc(filters.from)}"></label>
   <label data-gi-live data-gi=3c83e3558107>Hasta<input id="grTo" type="date" value="${esc(filters.to)}"></label>
   <label data-gi-live data-gi=5f55edf90089>Buscar<input id="grSearch" type="search" value="${esc(filters.search)}" placeholder="RET-000014"></label>
  </div>
- ${rights().create?`<div class="grActions"><button class="arcButton primary" id="grNew">${tr('+ Nueva devolución')}</button></div>`:''}
+ ${summary?`<div class="grActions">${window.gamaAccessAllowed?.('dossier-flow')?TABS.map(([kind,label])=>`<button class="arcButton secondary" data-gr-process-kind="${kind}">${tr(label)}</button>`).join(''):''}</div>`:rights().create?`<div class="grActions"><button class="arcButton primary" id="grNew">${tr('+ Nueva devolución')}</button></div>`:''}
  <div class="arcPanel grCard"><h3 data-gi-live data-gi=6c97bc52f46d>Análisis</h3><div id="grStats"><button class="arcButton secondary" id="grStatsLoad">${tr('Ver las cifras del periodo')}</button></div></div>
  <div class="arcPanel grCard grScroll">
   <table class="arcTable grTable"><thead><tr>
    <th data-gi-live data-gi=10ddff5fcc6f>Referencia</th><th data-gi-live data-gi=3868d2843d59>Tipo</th>
-   <th data-gi-live>${tab==='customer'?esc(T('Cliente')):esc(T('Proveedor'))}</th>
+   <th data-gi-live>${esc(party)}</th>
    <th data-gi-live data-gi=93b2a9ef782c>Fecha</th><th class="grNum" data-gi-live data-gi=572a3acfd983>Importe</th>
-   <th data-gi-live data-gi=98e5acddb6c4>Estado</th><th data-gi-live data-gi=212e06c386ff>Acción</th></tr></thead>
+   <th data-gi-live data-gi=98e5acddb6c4>Estado</th>${summary?`<th>${tr('Motivo')}</th><th>${tr('Líneas')}</th><th>${tr('Acción financiera')}</th><th>${tr('Abono')}</th><th>${tr('Reembolsado')}</th>`:''}<th data-gi-live data-gi=212e06c386ff>Acción</th></tr></thead>
   <tbody>${d.rows.length?d.rows.map(r=>`<tr>
    <td><b>${esc(processNumber(r.kind||tab,r.number))}</b><small class="grRef">${esc(r.number)}</small></td>
    <td>${badge({customer:'Cliente',supplier:'Proveedor'},r.kind)}</td>
@@ -183,18 +187,21 @@ function list(d){
    <td>${esc(r.created_on)}</td>
    <td class="grNum">${esc(money(r.amount))}</td>
    <td>${badge(STATUS,r.status)}</td>
-   <td><button class="arcButton secondary" data-gr-open="${esc(r.id)}">${tr('Abrir')}</button></td>
-  </tr>`).join(''):`<tr><td colspan="7">${tr('Todavía no hay ninguna devolución con estos filtros.')}</td></tr>`}</tbody></table>
- </div>`);
- const reload=()=>{filters.partner=val(document,'grPartner');filters.status=val(document,'grStatus');
+   ${summary?`<td>${tr(REASON[r.reason]||r.reason)}</td><td>${esc(num(r.lines))}</td><td>${tr(FINANCIAL[r.financial_action]||r.financial_action)}</td><td class="grNum">${esc(money(r.credited_amount))}</td><td class="grNum">${esc(money(r.refunded))}</td>`:''}
+   <td><button class="arcButton secondary" data-gr-open="${esc(r.id)}" ${summary&&!window.gamaAccessAllowed?.('dossier-flow')?'disabled':''}>${tr(summary?'Seguimiento de procesos':'Abrir')}</button></td>
+  </tr>`).join(''):`<tr><td colspan="${summary?12:7}">${tr('Todavía no hay ninguna devolución con estos filtros.')}</td></tr>`}</tbody></table>
+ </div><div class="arcToolbar"><button class="arcButton secondary" id="grPrev" ${pageOffset===0?'disabled':''}>${tr('Anterior')}</button><span>${total?pageOffset+1:0}–${Math.min(pageOffset+25,total)} / ${total}</span><button class="arcButton secondary" id="grNext" ${pageOffset+25>=total?'disabled':''}>${tr('Siguiente')}</button></div>`);
+ $('grPrev').onclick=()=>{pageOffset=Math.max(0,pageOffset-25);go()};$('grNext').onclick=()=>{pageOffset+=25;go()};
+ $('grMain').querySelectorAll('[data-gr-process-kind]').forEach(b=>b.onclick=()=>window.GamaDossierFlow.open(null,{tab:b.dataset.grProcessKind==='supplier'?'PRP':'PRC'}));
+ const reload=()=>{pageOffset=0;filters.partner=val(document,'grPartner');filters.status=val(document,'grStatus');
   filters.from=val(document,'grFrom');filters.to=val(document,'grTo');
   filters.all_dates=!filters.from&&!filters.to;go()};
  ['grPartner','grStatus','grFrom','grTo'].forEach(id=>{const el=$(id);if(el)el.onchange=reload});
  const search=$('grSearch');
- if(search)search.oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{filters.search=search.value;go()},350)};
+ if(search)search.oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{pageOffset=0;filters.search=search.value;go()},350)};
  $('grStatsLoad')?.addEventListener('click',()=>stats());
  $('grNew')?.addEventListener('click',()=>embedded?wizardSource(tab):wizardKind());
- $('grMain').querySelectorAll('[data-gr-open]').forEach(b=>b.onclick=()=>{detailId=b.dataset.grOpen;go()});
+ $('grMain').querySelectorAll('[data-gr-open]').forEach(b=>b.onclick=()=>{if(!embedded){openReturn(b.dataset.grOpen);return}detailId=b.dataset.grOpen;go()});
 }
 
 /* Las cifras del pliego: cuántas, cuánto valen, qué proporción de lo expedido,
@@ -564,32 +571,29 @@ function supplierCreditForm(d){
 
 /* ----------------------------------------------------------------- entradas */
 function unmount(){generation++;clearTimeout(searchTimer);embedded?.replaceChildren();embedded=null}
-async function mount(host,kind){
+async function mount(host,kind,returnId=null){
  if(!host?.isConnected||!host.closest('#dossier-flow.active')||!allowed()||!window.gamaAccessAllowed?.('dossier-flow'))return;
- unmount();$(ID)?.replaceChildren();embedded=host;tab=kind==='supplier'?'supplier':'customer';detailId=null;filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};shell();await go();
+ unmount();$(ID)?.replaceChildren();embedded=host;tab=kind==='supplier'?'supplier':'customer';detailId=returnId;pageOffset=0;filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};shell();await go();
 }
 function open(which){
  unmount();
  if(!allowed()){window.gamaToast?.(T('Tu perfil no tiene acceso a las devoluciones.'));return}
- if(which==='customer'||which==='supplier')tab=which;
+ tab=which==='customer'||which==='supplier'?which:'all';pageOffset=0;filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};
  detailId=null;shell();go();
 }
 /* Desde una entrega o una recepción: el botón «Crear una devolución» llega
    aquí con el documento ya elegido y el usuario sólo teclea cantidades. */
-function createFrom(kind,sourceId){
- unmount();
- if(!allowed()){window.gamaToast?.(T('Tu perfil no tiene acceso a las devoluciones.'));return}
- tab=kind;detailId=null;shell();
- rpc('overview',{kind,all_dates:true}).then(d=>{state.overview=d;nav();list(d);wizardLines(kind,sourceId)})
-  .catch(e=>fail(e,()=>go()));
+async function createFrom(kind,sourceId){
+ if(!allowed()||!window.gamaAccessAllowed?.('dossier-flow'))return;
+ await window.GamaDossierFlow.open(null,{tab:kind==='supplier'?'PRP':'PRC'});
+ if(embedded?.isConnected)await wizardLines(kind,sourceId);
 }
-function openReturn(id){
- unmount();
- if(!allowed())return;
- detailId=id;shell();go();
+async function openReturn(id){
+ if(!allowed()||!window.gamaAccessAllowed?.('dossier-flow'))return;
+ try{const d=await rpc('detail',{id});await window.GamaDossierFlow.open(null,{tab:d.kind==='supplier'?'PRP':'PRC',returnId:id})}catch(e){window.gamaToast?.(err(e))}
 }
 async function serviceRpc(action,ticketId,data={}){
- if(!allowed()||!window.gamaAccessAllowed?.('sav'))throw reject('ROLE_NOT_ALLOWED');
+ if(!allowed()||!window.gamaAccessAllowed?.('sav')||!window.gamaAccessAllowed?.('dossier-flow'))throw reject('ROLE_NOT_ALLOWED');
  const r=await window.ArcData.rawRpc('gama_service_return',{p_action:action,p_ticket_id:ticketId,p_data:data});
  if(r.error)throw reject(r.error.message||r.error);
  return r.data;
@@ -600,7 +604,7 @@ async function createFromService(ticketId){
   const service=await serviceRpc('context',ticketId);
   if(service.existing){openReturn(service.id);return}
   if(!service.rows.length){window.gamaToast?.(serviceText('No hay mercancía pendiente de devolución para esta reclamación.','Aucune marchandise ne peut encore être retournée pour ce dossier SAV.','No goods remain eligible for return for this service ticket.'));return}
-  const choose=async sourceId=>{tab='customer';detailId=null;shell();state.overview=await rpc('overview',{kind:'customer',all_dates:true});nav();list(state.overview);await wizardLines('customer',sourceId,service)};
+  const choose=async sourceId=>{await window.GamaDossierFlow.open(null,{tab:'PRC'});if(embedded?.isConnected)await wizardLines('customer',sourceId,service)};
   if(service.rows.length===1){await choose(service.rows[0].id);return}
   const U=window.ArcUI,el=U.dialog({title:serviceText('Elegir la entrega','Choisir la livraison','Choose the delivery'),body:U.field({key:'source',label:serviceText('Entrega','Livraison','Delivery'),type:'select',required:true,options:service.rows.map(r=>({id:r.id,name:r.number+' · '+r.order_number+' · '+r.partner}))}),onSave:async host=>{const id=new FormData(host.querySelector('form')).get('source');if(!id)throw Error('SOURCE_NOT_FOUND');await choose(id)},error:err});
   el.dataset.serviceWorkflow='';

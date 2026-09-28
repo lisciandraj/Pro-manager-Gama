@@ -127,7 +127,7 @@ async function loadPage(key=null){const token=++generation;
 async function open(key=null,options={}){
  if(!can(ID))return;if(options.tab&&PROCESSES[options.tab])tab=options.tab;if(typeof key==='string'&&key.startsWith('p:'))tab='PDC';
  generation++;clearTimeout(searchTimer);releaseReturns();selected=key;pageOffset=0;shell();
- if(PROCESSES[tab].kind){window.ArcUI.render($('gdfPanel'),'<div id="gdfReturns"></div>');await window.GamaReturns.mount($('gdfReturns'),PROCESSES[tab].kind);return}
+ if(PROCESSES[tab].kind){window.ArcUI.render($('gdfPanel'),'<div id="gdfReturns"></div>');await window.GamaReturns.mount($('gdfReturns'),PROCESSES[tab].kind,options.returnId);return}
  window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
  try{await window.GamaCloudReady;await loadPage(key)}catch(e){failure()}
 }

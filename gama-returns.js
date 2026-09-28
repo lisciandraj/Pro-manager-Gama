@@ -23,7 +23,7 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const serviceText=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d??0);
-const allowed=()=>!!window.gamaAccessAllowed?.(ID);
+const allowed=()=>!!window.gamaAccessAllowed?.(ID)&&(!embedded||!!window.gamaAccessAllowed?.('dossier-flow'));
 const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
 /* Dos procesos, como la venta (PDV) y la compra (PDC): la devolución de un
@@ -83,7 +83,7 @@ function err(e){
    viajan ya traducidos para que no los envuelva en el mensaje genérico. */
 function reject(code){return Object.assign(Error(code),{gamaMessage:err(code)})}
 
-let tab='customer',state={},detailId=null,generation=0;
+let tab='customer',state={},detailId=null,generation=0,embedded=null,searchTimer=null;
 let filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};
 
 async function rpc(action,data={}){
@@ -105,7 +105,7 @@ async function mutate(action,data){
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function shell(){
- css();let s=$(ID);
+ css();if(embedded?.isConnected){window.ArcUI.render(embedded,'<div id="grMain" aria-live="polite"></div>');return embedded}let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
  window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Lo que vuelve del cliente y lo que se devuelve al proveedor.'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
@@ -138,7 +138,8 @@ function rights(){return state.overview?.rights||{}}
 /* ------------------------------------------------------------------ lista */
 async function go(){
  const token=++generation;
- if(!$(ID)?.isConnected||!$('grMain'))shell();
+ if(!allowed())return;
+ if(!embedded?.isConnected&&(!$(ID)?.isConnected||!$('grMain')))shell();
  nav();busy();
  try{
   const d=await rpc('overview',{kind:tab,all_dates:filters.all_dates,
@@ -189,10 +190,10 @@ function list(d){
   filters.from=val(document,'grFrom');filters.to=val(document,'grTo');
   filters.all_dates=!filters.from&&!filters.to;go()};
  ['grPartner','grStatus','grFrom','grTo'].forEach(id=>{const el=$(id);if(el)el.onchange=reload});
- let timer;const search=$('grSearch');
- if(search)search.oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>{filters.search=search.value;go()},350)};
+ const search=$('grSearch');
+ if(search)search.oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{filters.search=search.value;go()},350)};
  $('grStatsLoad')?.addEventListener('click',()=>stats());
- $('grNew')?.addEventListener('click',()=>wizardKind());
+ $('grNew')?.addEventListener('click',()=>embedded?wizardSource(tab):wizardKind());
  $('grMain').querySelectorAll('[data-gr-open]').forEach(b=>b.onclick=()=>{detailId=b.dataset.grOpen;go()});
 }
 
@@ -562,7 +563,13 @@ function supplierCreditForm(d){
 }
 
 /* ----------------------------------------------------------------- entradas */
+function unmount(){generation++;clearTimeout(searchTimer);embedded?.replaceChildren();embedded=null}
+async function mount(host,kind){
+ if(!host?.isConnected||!host.closest('#dossier-flow.active')||!allowed()||!window.gamaAccessAllowed?.('dossier-flow'))return;
+ unmount();$(ID)?.replaceChildren();embedded=host;tab=kind==='supplier'?'supplier':'customer';detailId=null;filters={status:'',partner:'',from:'',to:'',search:'',all_dates:true};shell();await go();
+}
 function open(which){
+ unmount();
  if(!allowed()){window.gamaToast?.(T('Tu perfil no tiene acceso a las devoluciones.'));return}
  if(which==='customer'||which==='supplier')tab=which;
  detailId=null;shell();go();
@@ -570,12 +577,14 @@ function open(which){
 /* Desde una entrega o una recepción: el botón «Crear una devolución» llega
    aquí con el documento ya elegido y el usuario sólo teclea cantidades. */
 function createFrom(kind,sourceId){
+ unmount();
  if(!allowed()){window.gamaToast?.(T('Tu perfil no tiene acceso a las devoluciones.'));return}
  tab=kind;detailId=null;shell();
  rpc('overview',{kind,all_dates:true}).then(d=>{state.overview=d;nav();list(d);wizardLines(kind,sourceId)})
   .catch(e=>fail(e,()=>go()));
 }
 function openReturn(id){
+ unmount();
  if(!allowed())return;
  detailId=id;shell();go();
 }
@@ -586,6 +595,7 @@ async function serviceRpc(action,ticketId,data={}){
  return r.data;
 }
 async function createFromService(ticketId){
+ unmount();
  try{
   const service=await serviceRpc('context',ticketId);
   if(service.existing){openReturn(service.id);return}
@@ -596,6 +606,7 @@ async function createFromService(ticketId){
   el.dataset.serviceWorkflow='';
  }catch(e){window.gamaToast?.(err(e))}
 }
-window.addEventListener('gama:currency-change',()=>{if($(ID)?.classList.contains('active'))go()});
-window.GamaReturns={open,openReturn,createFrom,createFromService,rpc,REASON,STATUS,DISPOSITION,FINANCIAL};
+window.addEventListener('gama:currency-change',()=>{if($(ID)?.classList.contains('active')||embedded?.isConnected)go()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;unmount();state={};$(ID)?.replaceChildren()});
+window.GamaReturns={mount,unmount,open,openReturn,createFrom,createFromService,rpc,REASON,STATUS,DISPOSITION,FINANCIAL};
 })();

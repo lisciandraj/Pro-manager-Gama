@@ -24,7 +24,7 @@ const n=v=>Number(v||0), sum=(a,key='quantity')=>a.reduce((s,x)=>s+n(x[key]),0);
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:(globalThis.window?.GamaCompany?.get()?.timezone||'America/Guayaquil'),year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 /* PDV-00001246: el acrónimo del proceso y el número de su expediente. */
 const processNumber=(kind,number)=>Number(number)>0?kind+'-'+String(number).padStart(8,'0'):'';
-const PROCESSES={PDV:{module:'dossier-flow',label:'PDV · Proceso de venta'},PDC:{module:'gamaPurchasesV14',label:'PDC · Proceso de compra'}};
+const PROCESSES={PDV:{module:'dossier-flow',label:'PDV · Proceso de venta'},PDC:{module:'gamaPurchasesV14',label:'PDC · Proceso de compra'},PRC:{module:'returns',label:'PRC · Devolución de cliente',kind:'customer'},PRP:{module:'returns',label:'PRP · Devolución a proveedor',kind:'supplier'}};
 let tab='PDV',records=[],purchases=[],suppliers=new Map(),generation=0,selected=null,summaries=new Map(),summaryToken=0,pageOffset=0,pageTotal=0,searchTimer=null;
 const processRPC=(action,data)=>window.ArcData.rpc('gama_processes',{p_action:action,p_data:data});
 const serverStates=new Map();
@@ -70,6 +70,7 @@ const customer=d=>d.o?.customer_name||d.q?.quote_details?.client||d.r?.requester
 const purchaseNumber=o=>processNumber('PDC',o.dossier_number)||o.order_number;
 const supplierName=o=>suppliers.get(o.supplier_id)||'—';
 
+function releaseReturns(){if(window.GamaReturns&&!window.GamaReturns.__arcLazy)window.GamaReturns.unmount?.()}
 function shell(){
  let s=$(ID);if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
  const tabs=Object.entries(PROCESSES).filter(([,p])=>can(p.module));
@@ -125,7 +126,9 @@ async function loadPage(key=null){const token=++generation;
 }
 async function open(key=null,options={}){
  if(!can(ID))return;if(options.tab&&PROCESSES[options.tab])tab=options.tab;if(typeof key==='string'&&key.startsWith('p:'))tab='PDC';
- selected=key;pageOffset=0;shell();window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
+ generation++;clearTimeout(searchTimer);releaseReturns();selected=key;pageOffset=0;shell();
+ if(PROCESSES[tab].kind){window.ArcUI.render($('gdfPanel'),'<div id="gdfReturns"></div>');await window.GamaReturns.mount($('gdfReturns'),PROCESSES[tab].kind);return}
+ window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
  try{await window.GamaCloudReady;await loadPage(key)}catch(e){failure()}
 }
 function failure(){window.ArcUI.render($('gdfDetail'),`<p role="alert" class="gdfError">${tr('No se pudo cargar el proceso. Actualiza para reintentar; el avance no está confirmado.')}</p>`)}
@@ -367,7 +370,9 @@ async function act(action,id){
  }}catch(e){window.gamaToast?.(T('No se pudo abrir el documento.'))}
 }
 window.GamaDossierFlow={open,group,progress,financialProgress,summarize};
+window.addEventListener('arc:route-leave',e=>{if(e.detail?.id===ID){generation++;clearTimeout(searchTimer);releaseReturns()}});
+window.addEventListener('gama:modules-change',()=>{if($(ID)?.classList.contains('active')){if(can(ID))open(null,{tab});else releaseReturns()}});
 window.addEventListener('gama:process-change',()=>{if(can(ID)&&$(ID)?.classList.contains('active'))open(selected,{tab})});
 window.addEventListener('gama:sales-change',()=>{if(can(ID)&&$(ID)?.classList.contains('active'))open(selected,{tab})});
-window.addEventListener('gama:auth-change',()=>{generation++;summaryToken++;records=[];purchases=[];summaries=new Map();serverStates.clear();selected=null;tab='PDV';$(ID)?.replaceChildren()});
+window.addEventListener('gama:auth-change',()=>{generation++;clearTimeout(searchTimer);releaseReturns();summaryToken++;records=[];purchases=[];summaries=new Map();serverStates.clear();selected=null;tab='PDV';$(ID)?.replaceChildren()});
 })();

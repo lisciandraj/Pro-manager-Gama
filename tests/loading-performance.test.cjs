@@ -3,13 +3,24 @@ const source=name=>fs.readFileSync(__dirname+'/../'+name,'utf8');
 function references(){const window={};vm.runInNewContext(source('gama-references.js'),{window});return window.GamaReferences}
 test('independent numbered documents need no registry network requests',async()=>{
  const api=references();let requests=0;const client={from(){requests++;throw Error('unnecessary request')}};
- // purchase_orders ya no es independiente: abre el expediente de su proceso de
- // compra (PDC) y, como la venta, lee su número en el registro.
- for(const table of ['fleet_vehicles','business_documents','stock_movements','hr_documents','pm_items']){
+ // Purchase orders and stock movements read shared process metadata from the
+ // registry; independent documents can still use their own issued reference.
+ for(const table of ['fleet_vehicles','business_documents','hr_documents','pm_items']){
   const result=await api.attach(table,{data:[{id:'one',erp_reference:'DOC-00000001'}]},client);
   assert.equal(result.data[0].dossier_reference,'DOC-00000001');assert.equal(result.data[0].dossier_label,null);
  }
  assert.equal(requests,0);
+});
+test('stock and return steps read their shared process identity even with an issued reference',async()=>{
+ const api=references(),calls=[];
+ const client={from(){const job={};return {select(){return this},eq(k,v){job.table=v;return this},in(k,ids){job.ids=ids;return this},then(resolve){calls.push(job);resolve({data:job.ids.map(id=>({table_name:job.table,document_id:id,document_reference:'DOC-00000007',dossier_number:42,process_reference:'DOC-00000042'}))})}}}};
+ for(const table of ['stock_movements','stock_reservations','return_credits','return_refunds']){
+  const result=await api.attach(table,{data:[{id:'one',erp_reference:'DOC-00000007'}]},client);
+  assert.equal(result.data[0].erp_reference,'DOC-00000007');
+  assert.equal(result.data[0].dossier_number,42);
+  assert.equal(result.data[0].process_reference,'DOC-00000042');
+ }
+ assert.equal(calls.length,4);
 });
 test('reference reads batch, deduplicate, scope parents and run with bounded concurrency',async()=>{
  const api=references(),calls=[],pending=[];let active=0,peak=0;

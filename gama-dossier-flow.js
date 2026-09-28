@@ -190,6 +190,11 @@ async function purchaseDataFor(list){
 }
 /* Un documento del proceso: su referencia —con el número del proceso— y cómo abrirlo. */
 const doc=(ref,action,id,module)=>ref?{ref,action,id,module}:null;
+function processDoc(row,ref,number,action,id,module){
+ const common=window.GamaReferences?.processReference({...row,erp_reference:ref},number)||ref;
+ return ref?{...doc(common,action,id,module),issuedReference:common!==ref?ref:null}:null;
+}
+
 const STATES={done:'Completado',active:'En curso',blocked:'Bloqueado',pending:'Pendiente',skip:'Sin esta etapa',closed:'Cerrado',restricted:'Sin acceso a estos datos'};
 const nextAction=(label,action,id,module)=>({label,action,id,module});
 const fromDoc=(d,label)=>d&&nextAction(label,d.action,d.id,d.module);
@@ -238,33 +243,35 @@ function purchaseActions(o,x,steps){
 
 function saleSteps(d,x){
  const day=today(),late=t=>t.delivery_date&&t.delivery_date<day&&!['Entregada','Cancelada'].includes(t.status);
+ const processId=d.o?.dossier_number||d.q?.dossier_number||d.r?.dossier_number;
+ const stage=(row,ref,action,id,module)=>processDoc(row,ref,processId,action,id,module);
  const p=progress(d,x),fin=financeAllowed(),f=fin?financialProgress(x,day):null;
  const cancelled=d.o?.status==='cancelled'||(!d.o&&['cancelled','rejected'].includes(d.q?.quote_state||d.r?.status));
  const confirmed=d.o?.status==='confirmed';
  const quoteExpired=d.q?.quote_state==='sent'&&d.q.quote_valid_until&&d.q.quote_valid_until<day;
  const steps=[
   {title:'Origen de la demanda',state:x.opportunity||d.r?'done':d.q||d.o?'skip':'pending',
-   docs:[x.opportunity&&doc(x.opportunity.erp_reference||x.opportunity.reference,'opportunity',x.opportunity.id,'crm'),d.r&&doc(d.r.erp_reference||d.r.dossier_reference||String(d.r.id).slice(0,8).toUpperCase(),'request',d.r.id,'customer-requests')],
+   docs:[x.opportunity&&doc(x.opportunity.erp_reference||x.opportunity.reference,'opportunity',x.opportunity.id,'crm'),d.r&&stage(d.r,d.r.erp_reference||d.r.dossier_reference||String(d.r.id).slice(0,8).toUpperCase(),'request',d.r.id,'customer-requests')],
    info:x.opportunity?T('Oportunidad del CRM')+' · '+esc(x.opportunity.title||''):d.r?tr('Solicitud del cliente'):tr('Pedido o presupuesto directo, sin solicitud ni oportunidad previa.'),
    need:'Registrar la oportunidad en el CRM o la solicitud del cliente, con sus productos y cantidades.'},
   {title:'Presupuesto',state:d.q?(confirmed||['accepted','converted'].includes(d.q.quote_state)?'done':['rejected','cancelled'].includes(d.q.quote_state)?'closed':quoteExpired?'blocked':'active'):d.o?'skip':'pending',
-   docs:[d.q&&doc(d.q.invoice_number,'quote',d.q.id,'quotes')],info:quoteExpired?tr('Presupuesto vencido: revisar la vigencia antes de aceptar.'):'',
+   docs:[d.q&&stage(d.q,d.q.invoice_number,'quote',d.q.id,'quotes')],info:quoteExpired?tr('Presupuesto vencido: revisar la vigencia antes de aceptar.'):'',
    need:'Completar cliente, productos, precios y vigencia; enviarlo y registrar la aceptación del cliente.'},
   {title:'Pedido',state:d.o?(confirmed?'done':d.o.status==='cancelled'?'closed':'active'):'pending',
-   docs:[d.o&&doc(d.o.number,'order',d.o.id,'sales-orders')],need:'Confirmar el pedido: reserva el stock disponible y abre la preparación.'},
+   docs:[d.o&&stage(d.o,d.o.number,'order',d.o.id,'sales-orders')],need:'Confirmar el pedido: reserva el stock disponible y abre la preparación.'},
   {title:'Reserva de stock y preparación',state:!confirmed?'pending':p.missing>0?'blocked':(p.complete||(p.ordered>0&&p.packed>=p.ordered))?'done':(x.reservations.length||x.preps.length)?'active':'pending',
-   docs:[...x.reservations.map(r=>doc(r.erp_reference||r.dossier_reference,'order',d.o?.id,'sales-orders')),...x.preps.map(r=>doc(r.number,'preparation',d.o?.id,'tms')),...x.packages.map(r=>doc(r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'tms'))],
+   docs:[...x.reservations.map(r=>stage(r,r.erp_reference||r.dossier_reference,'order',d.o?.id,'sales-orders')),...x.preps.map(r=>stage(r,r.number,'preparation',d.o?.id,'tms')),...x.packages.map(r=>stage(r,r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'tms'))],
    info:d.o?`${tr('Sin reservar')} : ${p.missing} · ${tr('Preparado / previsto')} : ${p.picked} / ${p.planned}`:'',
    need:p.missing>0?'Reservar las cantidades que faltan o reponerlas con una compra.':'Preparar y escanear cada producto: el bulto queda listo para expedir.'},
   {title:'Expedición y recepción',state:p.done?'done':x.transport.some(t=>t.status==='Excepción'||late(t))?'blocked':x.ships.length?'active':'pending',
-   docs:[...x.ships.map(s=>doc(s.number,'delivery',s.tms_delivery_id,'tms')),...x.transport.map(t=>doc(t.erp_reference||t.dossier_reference,'delivery',t.id,'tms')),...x.proofs.map(r=>doc(r.erp_reference||r.dossier_reference,'proof',r.delivery_id,'sales-orders'))],
+   docs:[...x.ships.map(s=>stage(s,s.number,'delivery',s.tms_delivery_id,'tms')),...x.transport.map(t=>stage(t,t.erp_reference||t.dossier_reference,'delivery',t.id,'tms')),...x.proofs.map(r=>stage(r,r.erp_reference||r.dossier_reference,'proof',r.delivery_id,'sales-orders'))],
    info:d.o?`${tr('Expedido / pedido')} : ${p.shipped} / ${p.ordered} · ${tr('Entregado con prueba firmada')} : ${p.proved} / ${p.ordered}`:'',
    need:'Cargar y confirmar la salida; registrar la entrega con la firma del cliente.'},
   {title:'Facturación',state:!fin?'restricted':f.covered?'done':f.rows.length?'active':'pending',
-   docs:fin?f.rows.map(i=>doc(i.number,'payment',i.id,'payments')):[],info:fin?`${tr('Facturado')} : ${money(f.billed/100)} · ${tr('Pendiente de facturar')} : ${money(f.unbilled/100)}`:'',
+   docs:fin?f.rows.map(i=>stage(i,i.number,'payment',i.id,'payments')):[],info:fin?`${tr('Facturado')} : ${money(f.billed/100)} · ${tr('Pendiente de facturar')} : ${money(f.unbilled/100)}`:'',
    need:'La factura se genera al validar la última entrega firmada; debe cubrir todas las líneas del pedido.'},
   {title:'Seguimiento del pago',state:!fin?'restricted':f.overdue?'blocked':f.settled?'done':f.rows.length?'active':'pending',
-   docs:fin?x.payments.filter(p=>p.status==='confirmed').map(p=>doc(p.erp_reference||p.dossier_reference,'payment',p.invoice_id,'payments')):[],
+   docs:fin?x.payments.filter(p=>p.status==='confirmed').map(p=>stage(p,p.erp_reference||p.dossier_reference,'payment',p.invoice_id,'payments')):[],
    info:fin?`${tr('Cobrado')} : ${money(f.paid/100)} · ${tr('Saldo pendiente')} : ${money(f.balance/100)}${f.overdue?' · '+tr('Importe vencido')+' : '+money(f.overdue/100):''}`:'',
    need:f?.overdue?'Relanzar las facturas vencidas y registrar los cobros.':'Registrar cada cobro con fecha, importe y medio.'},
   /* Sólo se cierra lo que se ha podido comprobar: sin ver la facturación, entregado no es cerrado. */
@@ -282,6 +289,7 @@ function renderSale(d,x){
 }
 
 function purchaseSteps(o,x){
+ const stage=(row,ref,action,id,module)=>processDoc(row,ref,o.dossier_number,action,id,module);
  const day=today(),cancelled=o.status==='cancelled';
  const ordered=sum(x.lines),received=sum(x.lines,'received_quantity'),stocked=x.moves.ok?sum(x.moves.rows.filter(m=>n(m.quantity)>0)):0;
  const lateReceipt=['sent','partial'].includes(o.status)&&o.expected_date&&String(o.expected_date).slice(0,10)<day&&received<ordered;
@@ -293,17 +301,17 @@ function purchaseSteps(o,x){
  const origin={low_stock:'Alerta de stock bajo el mínimo',sales_order:'Pedido de cliente superior al stock disponible',manual:'Creado en el módulo Compras'}[o.source_kind||'manual'];
  const steps=[
   {title:'Origen de la demanda',state:'done',docs:[x.source&&doc(x.source.number,'order',x.source.id,'sales-orders')],info:tr(origin),need:''},
-  {title:'Pedido de compra',state:cancelled?'closed':o.status==='draft'?'active':'done',docs:[doc(o.order_number,'purchase',o.id,'gamaPurchasesV14')],
+  {title:'Pedido de compra',state:cancelled?'closed':o.status==='draft'?'active':'done',docs:[stage(o,o.order_number,'purchase',o.id,'gamaPurchasesV14')],
    info:`${tr('Total')} : ${money(o.total)}${o.expected_date?' · '+tr('Recepción prevista')+' : '+esc(String(o.expected_date).slice(0,10)):''}`,need:'Revisar cantidades y precios y enviar el pedido al proveedor.'},
   {title:'Recepción y control',state:cancelled?'closed':ordered>0&&received>=ordered?'done':lateReceipt?'blocked':received>0?'active':'pending',
    docs:[],info:`${tr('Recibido / pedido')} : ${received} / ${ordered}${gaps.length?' · '+tr('Líneas con diferencia')+' : '+gaps.length:''}`,
    need:lateReceipt?'La recepción prevista ya pasó: reclamar al proveedor o reprogramarla.':'Recibir la mercancía y contrastar cantidades con el pedido.'},
   {title:'Puesta en stock',state:!x.moves.ok?'restricted':received>0&&stocked>=received?'done':stocked>0?'active':'pending',
-   docs:x.moves.rows.slice(0,6).map(m=>doc(m.erp_reference,'purchase',o.id,'gamaPurchasesV14')),info:`${tr('En stock / recibido')} : ${stocked} / ${received}`,need:'Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.'},
+   docs:x.moves.rows.slice(0,6).map(m=>stage(m,m.erp_reference,'purchase',o.id,'gamaPurchasesV14')),info:`${tr('En stock / recibido')} : ${stocked} / ${received}`,need:'Ubicar lo recibido en su almacén: cada entrada queda como movimiento de stock.'},
   {title:'Factura del proveedor',state:!x.invoices.ok?'restricted':fullyInvoiced?'done':invoices.length?'active':'pending',
-   docs:invoices.map(i=>doc(i.erp_reference||i.number,'supplier_invoice',i.id,'accounting')),info:x.invoices.ok?`${tr('Facturado')} : ${money(invoiced/100)} / ${money(o.total)}`:'',need:invoices.length?'Registrar la factura del proveedor contra este pedido.':'Registrar la factura recibida: el pedido de compra no genera una factura automáticamente.'},
+   docs:invoices.map(i=>stage(i,i.erp_reference||i.number,'supplier_invoice',i.id,'accounting')),info:x.invoices.ok?`${tr('Facturado')} : ${money(invoiced/100)} / ${money(o.total)}`:'',need:invoices.length?'Registrar la factura del proveedor contra este pedido.':'Registrar la factura recibida: el pedido de compra no genera una factura automáticamente.'},
   {title:'Seguimiento del pago',state:!x.payments.ok?'restricted':overdue?'blocked':settled?'done':paid>0||invoices.length?'active':'pending',
-   docs:x.payments.rows.filter(p=>p.status==='confirmed').map(p=>doc(p.erp_reference,'supplier_payment',p.id,'accounting')),
+   docs:x.payments.rows.filter(p=>p.status==='confirmed').map(p=>stage(p,p.erp_reference,'supplier_payment',p.id,'accounting')),
    info:x.payments.ok?`${tr('Pagado')} : ${money(paid/100)} · ${tr('Saldo pendiente')} : ${money(balance/100)}`:'',need:overdue?'Pagar las facturas vencidas del proveedor.':'Registrar cada pago al proveedor.'},
   {title:'Cierre del proceso de compra',state:cancelled?'closed':ordered>0&&received>=ordered&&settled?'done':'pending',
    info:tr(cancelled?'Proceso anulado.':ordered>0&&received>=ordered&&settled?'Recibido, en stock, facturado y pagado.':'Se cierra al quedar recibido, facturado y pagado.'),need:'Completar las etapas anteriores.'}
@@ -322,7 +330,7 @@ function sharedInfo(s,i,fallback){const m=s.metrics;if(!m)return esc(fallback);c
  let value='';if(s.key.startsWith('p:')){value=({2:tr('Recibido / aceptado','Reçu / accepté','Received / accepted')+`: ${m.received} / ${m.ordered}`,3:tr('Mercancía ubicada','Marchandises localisées','Located goods')+`: ${m.stocked} / ${m.goods}`,4:tr('Recepción sin factura conciliada','Réception sans facture rapprochée','Unmatched received quantity')+`: ${m.unbilled}`,5:tr('Saldo neto de abonos','Solde net des avoirs','Balance after credits')+`: ${money(m.balance)}`,6:tr('Devoluciones abiertas','Retours ouverts','Open returns')+`: ${m.open_returns}`})[i]||''}
  else value=({3:T('Sin reservar')+`: ${m.missing}`,4:T('Expedido / pedido')+`: ${m.shipped} / ${m.ordered} · `+tr('Entregas firmadas / servicios ejecutados','Livraisons signées / services exécutés','Signed deliveries / completed services')+`: ${m.performed} / ${m.ordered}`,5:tr('Cantidad sin facturar','Quantité non facturée','Unbilled quantity')+`: ${m.unbilled}`,6:T('Cobrado')+`: ${money(m.paid)} · `+tr('Abonos','Avoirs','Credits')+`: ${money(m.credits)} · `+T('Saldo pendiente')+`: ${money(m.balance)}`,7:tr('Devoluciones abiertas','Retours ouverts','Open returns')+`: ${m.open_returns}`})[i]||'';return esc(value)}
 function externalStatus(s){if(!s||s.external_complete===null)return '';return `<div class="arcPanel card"><h3>${tr('Formalidades externas')}</h3><p>${tr(s.external_complete?'Documentos externos completos.':'Documentos externos por completar.')} ${s.external_pending||0}</p><p>${tr('Este estado se muestra por separado del cierre operativo.')}</p></div>`}
-function docButton(x){return `<li><button type="button" class="gdfDoc" data-action="${esc(x.action)}" data-id="${esc(x.id||'')}" ${x.module&&!can(x.module)?'disabled':''}>${esc(x.ref)}</button></li>`}
+function docButton(x){return `<li><button type="button" class="gdfDoc" data-action="${esc(x.action)}" data-id="${esc(x.id||'')}" ${x.module&&!can(x.module)?'disabled':''}>${esc(x.ref)}</button>${x.issuedReference?`<small class="sdMuted">${esc(T('Documento'))} : ${esc(x.issuedReference)}</small>`:''}</li>`}
 function renderProcess({number,party,address,steps,closed,after}){
  const links=[];
  const actions=s=>s?.state==='restricted'?[]:(s?.actions||[]).filter(a=>a.id&&can(a.module));

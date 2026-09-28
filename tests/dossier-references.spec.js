@@ -12,12 +12,13 @@ test('handles proof primary key, does not change barcode and propagates read err
  const {api,client}=setup([{table_name:'tms_proofs',document_id:'d',dossier_number:12,document_reference:'PDE-00000012'},{table_name:'fulfillment_packages',document_id:'p',dossier_number:12,document_reference:'PAQ-00000012'}]);const proof=await api.attach('tms_proofs',{data:[{delivery_id:'d',signature:'signed'}]},client);expect(proof.data[0].dossier_reference).toBe('PDE-00000012');const pack=await api.attach('fulfillment_packages',{data:[{id:'p',barcode:'PK-1'}]},client);expect(pack.data[0].barcode).toBe('PK-1');
  const broken={from:()=>({select(){return this},eq(){return this},in:async()=>({error:{message:'offline'}})})};const r=await api.attach('sales_orders',{data:[{id:'o',number:'PV-1'}]},broken);expect(r.error.message).toBe('offline');expect(r.data).toBeNull();
 });
-test('menu opens quotes and invoices and the case/PDF use shared references',async({page})=>{
+for(const historical of [false,true])test('shared process labels and preserved issued numbers, historical='+historical,async({page})=>{
  const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
  await page.addInitScript(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'}));window.__DB={products:[],customers:[],suppliers:[],invoices:[{id:'q',invoice_number:'OLD-5',quote_state:'draft',quote_details:{client:'Client'},issue_date:'2026-09-13',quote_revision:1}],invoice_lines:[],sales_orders:[{id:'o',number:'PV-7',source_quote_id:'q',customer_name:'Client',status:'draft'}],sales_order_lines:[],gama_document_references:[{table_name:'invoices',document_id:'q',dossier_number:12,document_reference:'COT-00000012'},{table_name:'sales_orders',document_id:'o',dossier_number:12,document_reference:'PED-00000012'}]};});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;const originalList=GamaCloud.list;GamaCloud.list=async(t,o)=>GamaReferences.attach(t,await originalList(t,o),await GamaCloud.db());`}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForTimeout(1200);
- await page.locator('#mainmenu [data-gama-module="quotes"]').click();await expect(page.locator('#quotes')).toContainText('Ventas');await expect(page.locator('#quotes')).toContainText('COT-00000012');
- await page.locator('[data-gq-open]').click();const pdf=await page.evaluate(async()=>GamaQuotes.pdfData({...((await GamaCloud.list('invoices')).data[0]),lines:[]}));expect(pdf.number).toBe('COT-00000012');
+ if(historical)await page.evaluate(()=>{__DB.gama_document_references.find(r=>r.table_name==='invoices').document_reference='COT-00000013'});
+ await page.locator('#mainmenu [data-gama-module="quotes"]').click();await expect(page.locator('#quotes')).toContainText('Ventas');await expect(page.locator('#quotes')).toContainText(historical?'COT-00000013':'COT-00000012');
+ await page.locator('[data-gq-open]').click();const pdf=await page.evaluate(async()=>GamaQuotes.pdfData({...((await GamaCloud.list('invoices')).data[0]),lines:[]}));expect(pdf.number).toBe(historical?'COT-00000013':'COT-00000012');
  await page.evaluate(()=>GamaQuotes.open());await page.locator('#gqOrdersTab').click();await expect(page.locator('#sales-orders')).toBeVisible();await expect(page.locator('#sales-orders #gqOrdersTab')).toHaveAttribute('aria-selected','true');
  await page.evaluate(async()=>{
   const db=GamaCloud.db;GamaCloud.db=async()=>{const client=await db();return {...client,rpc:async(fn,args)=>{
@@ -27,5 +28,5 @@ test('menu opens quotes and invoices and the case/PDF use shared references',asy
    return {data:args.p_action==='state'?state:{total:1,items:[{key:'o:o',o,q,party:'Client',number:'PDV-00000012',state}]}};
   }}};
   await GamaDossierFlow.open();
- });await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail')).toContainText('COT-00000012');
+ });await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail [data-step="2"] .gdfDoc')).toHaveText('COT-00000012');if(historical)await expect(page.locator('#gdfDetail [data-step="2"]')).toContainText('COT-00000013');
 });

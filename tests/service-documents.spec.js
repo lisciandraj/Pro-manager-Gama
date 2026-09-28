@@ -44,3 +44,12 @@ test('categories, employee links, three access levels and synchronized files',as
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 test('employee can open Documents and cannot see SAV',async({page})=>{await boot(page,'magasinier');await expect(page.locator('#mainmenu [data-gama-module=sav]')).toBeHidden();await open(page,'documents');await page.locator('#documents [data-sd-action=new]').click();await expect(page.locator('#sd-visibility option[value=management]')).toHaveCount(0);await expect(page.locator('#sd-visibility option[value=hr]')).toHaveCount(0)});
+
+test('SAV offers direct return creation and only view action once linked',async({page})=>{
+ await boot(page);await createTicket(page);
+ const create=page.locator('[data-service-create-return]');await expect(create).toHaveText('Créer un retour');
+ await page.evaluate(()=>{GamaReturns.createFromService=async id=>{window.__returnTicket=id}});await create.click();
+ expect(await page.evaluate(()=>__returnTicket)).toBe(await page.evaluate(()=>__DB.service_tickets[0].id));
+ await page.evaluate(async()=>{const r=__DB.service_tickets[0];r.return_id='return1';await GamaService.openTicket(r.id)});
+ await expect(create).toHaveCount(0);await expect(page.locator('[data-service-return]')).toBeVisible();
+});

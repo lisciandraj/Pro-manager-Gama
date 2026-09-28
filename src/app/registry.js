@@ -268,7 +268,7 @@ const definitions=[
     "id": "contacts",
     "label": "Contactos",
     "icon": "users",
-    "group": "Ventas",
+    "group": "Administración",
     "description": "Clientes, proveedores y prospectos",
     "accent": "violet",
     "order": 16,

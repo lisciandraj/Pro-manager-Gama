@@ -1551,7 +1551,7 @@
     documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },
     accounting: { global: "GamaAccounting", file: "gama-accounting.js", methods: ["open", "rpc"] },
     fleet: { global: "GamaFleet", file: "gama-fleet.js", methods: ["open", "openVehicle", "openDriver", "rpc"] },
-    returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "createFromService", "rpc"] }
+    returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "createFromService", "rpc", "mount"] }
   };
   function loadModule(id) {
     const entry = lazyModules[id];

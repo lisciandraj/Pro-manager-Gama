@@ -263,3 +263,32 @@ test('SAV existing return opens directly and unavailable source leaves no creati
  await page.evaluate(()=>GamaReturns.createFromService('empty'));await expect(page.locator('dialog')).toHaveCount(0);
  await page.evaluate(()=>GamaReturns.createFromService('existing'));await expect(page.locator('#grMain')).toContainText('RET-000015');await expect(page.locator('dialog')).toHaveCount(0);
 });
+
+for(const width of [390,1280])test('return processes stay inside tracker tabs at '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);
+ await page.evaluate(()=>GamaDossierFlow.open(null,{tab:'PRC'}));
+ await expect(page.locator('#dossier-flow')).toHaveClass(/active/);
+ await expect(page.locator('#dossier-flow [role=tab]')).toHaveCount(4);
+ await expect(page.locator('#gdfTabPRC')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('#gdfReturns .grTable tbody tr')).toHaveCount(2);
+ await expect(page.locator('#dossier-flow .gamaStdHeader')).toHaveCount(1);
+ await expect(page.locator('#grNav')).toHaveCount(0);
+ await page.locator('[data-gr-open=r2]').click();await expect(page.locator('#gdfReturns')).toContainText('PRC-00000015');
+ await expect(page.locator('#gdfReturns .gdfStep')).not.toHaveCount(0);
+ await page.locator('#grBack').click();await expect(page.locator('#gdfReturns .grTable')).toBeVisible();
+ await page.evaluate(rows=>{__RET.responses.overview.rows=rows},SUPPLIER_ROWS);
+ await page.locator('#gdfTabPRP').click();await expect(page.locator('#gdfTabPRP')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('#gdfReturns .grTable')).toContainText('PRP-00000020');
+ expect((await lastCall(page,'overview')).p_data.kind).toBe('supplier');
+ await page.locator('#grNew').click();await expect(page.locator('#grSrcList')).toBeVisible();expect((await lastCall(page,'sources')).p_data.kind).toBe('supplier');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.locator('#gsClose').click();
+ await page.evaluate(()=>GamaReturns.open());await expect(page.locator('#returns .grTable')).toBeVisible();
+ await expect(page.locator('#grMain')).toHaveCount(1);
+});
+test('tracker hides return tabs when returns access is denied',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const prior=gamaAccessAllowed;window.gamaAccessAllowed=id=>id!=='returns'&&prior(id)});
+ await page.evaluate(()=>GamaDossierFlow.open(null,{tab:'PRC'}));
+ await expect(page.locator('#gdfTabPRC')).toHaveCount(0);await expect(page.locator('#gdfTabPRP')).toHaveCount(0);
+ await expect(page.locator('#gdfReturns')).toHaveCount(0);
+});

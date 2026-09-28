@@ -468,6 +468,7 @@
     toolbar
   }, Symbol.toStringTag, { value: "Module" }));
   const icons = {
+    globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
     cocoBot: '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M4 11V7M20 11V7"/><rect x="4" y="6" width="16" height="15" rx="7"/><rect x="6.5" y="10" width="11" height="8" rx="4"/><path d="M8.5 14q1-2 2 0M13.5 14q1-2 2 0M4 11H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1M20 11h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1"/>',
     brain: '<path d="M12 5a3 3 0 0 0-5.8-1A4 4 0 0 0 3 10a4 4 0 0 0 1 7.8A4 4 0 0 0 12 18V5Zm0 0a3 3 0 0 1 5.8-1A4 4 0 0 1 21 10a4 4 0 0 1-1 7.8A4 4 0 0 1 12 18"/><path d="M6.2 4A3 3 0 0 0 7 7M3 10a3 3 0 0 1 4 1M4 17.8A3 3 0 0 0 7 15M17.8 4A3 3 0 0 1 17 7M21 10a3 3 0 0 0-4 1M20 17.8A3 3 0 0 1 17 15M9 10a3 3 0 0 1 3 3M15 10a3 3 0 0 0-3 3"/>',
     robot: '<rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V4M4 12H2v4h2M20 12h2v4h-2M9 16q3 2 6 0"/><circle cx="12" cy="2.5" r="1.5"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/>',
@@ -693,6 +694,7 @@
     startDataEvents
   }, Symbol.toStringTag, { value: "Module" }));
   const definitions = [
+    { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
     { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: true, roles: ["admin", "commercial"] },
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
@@ -1251,55 +1253,59 @@
     });
   };
   function openLegacy(x, from) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
+    if (x[1] === "website") {
+      if (canOpen("website")) return (_a = window.GamaWebsite) == null ? void 0 : _a.open();
+      return;
+    }
     if (window.gamaAccessAllowed && !canOpen(x[1])) return;
     if (x[1] === "contacts") {
-      return (_a = window.GamaContacts) == null ? void 0 : _a.open(from);
+      return (_b = window.GamaContacts) == null ? void 0 : _b.open(from);
     }
     if (x[1] === "sav") {
-      return (_b = window.GamaService) == null ? void 0 : _b.open();
+      return (_c = window.GamaService) == null ? void 0 : _c.open();
     }
     if (x[1] === "documents") {
-      return (_c = window.GamaDocuments) == null ? void 0 : _c.open();
+      return (_d = window.GamaDocuments) == null ? void 0 : _d.open();
     }
     if (x[1] === "tms") {
-      return (_d = window.gamaTMS) == null ? void 0 : _d.open();
+      return (_e = window.gamaTMS) == null ? void 0 : _e.open();
     }
     if (x[1] === "accounting") {
-      return (_e = window.GamaAccounting) == null ? void 0 : _e.open();
+      return (_f = window.GamaAccounting) == null ? void 0 : _f.open();
     }
     if (x[1] === "fleet") {
-      return (_f = window.GamaFleet) == null ? void 0 : _f.open();
+      return (_g = window.GamaFleet) == null ? void 0 : _g.open();
     }
     if (x[1] === "returns") {
-      return (_g = window.GamaReturns) == null ? void 0 : _g.open();
+      return (_h = window.GamaReturns) == null ? void 0 : _h.open();
     }
     if (x[1] === "projects") {
-      return (_h = window.GamaProjects) == null ? void 0 : _h.open();
+      return (_i = window.GamaProjects) == null ? void 0 : _i.open();
     }
     if (x[1] === "assistant-ia") {
-      return (_i = window.GamaAssistant) == null ? void 0 : _i.open();
+      return (_j = window.GamaAssistant) == null ? void 0 : _j.open();
     }
     if (x[1] === "knowledge") {
-      return (_j = window.GamaKnowledge) == null ? void 0 : _j.open();
+      return (_k = window.GamaKnowledge) == null ? void 0 : _k.open();
     }
     if (x[1] === "payments") {
-      return (_k = window.GamaPayments) == null ? void 0 : _k.open();
+      return (_l = window.GamaPayments) == null ? void 0 : _l.open();
     }
     if (x[1] === "dossier-flow") {
-      return (_l = window.GamaDossierFlow) == null ? void 0 : _l.open();
+      return (_m = window.GamaDossierFlow) == null ? void 0 : _m.open();
     }
     if (["operations", "notifications"].includes(x[1])) {
-      return (_m = window.GamaOperations) == null ? void 0 : _m.open(x[1]);
+      return (_n = window.GamaOperations) == null ? void 0 : _n.open(x[1]);
     }
     if (x[1] === "quotes") {
-      return (_n = window.GamaQuotes) == null ? void 0 : _n.enter();
+      return (_o = window.GamaQuotes) == null ? void 0 : _o.enter();
     }
     if (x[1] === "client-deliveries") {
-      return (_o = window.GamaQuotes) == null ? void 0 : _o.deliveries();
+      return (_p = window.GamaQuotes) == null ? void 0 : _p.deliveries();
     }
     if (x[1] === "sales-orders") {
-      return (_p = window.GamaSales) == null ? void 0 : _p.open();
+      return (_q = window.GamaSales) == null ? void 0 : _q.open();
     }
     if (window.GamaModules && !window.GamaModules.enabled(x[1])) {
       alert("Este módulo está desactivado en Configuración.");
@@ -1320,39 +1326,39 @@
     }
     if (x[1] === "crm") {
       if (window.showTab) window.showTab("crm", null);
-      (_q = window.GamaOpenCRM) == null ? void 0 : _q.call(window);
+      (_r = window.GamaOpenCRM) == null ? void 0 : _r.call(window);
       return;
     }
     if (x[1] === "price-lists") {
       if (window.showTab) window.showTab("price-lists", null);
-      (_r = window.GamaOpenPriceLists) == null ? void 0 : _r.call(window);
+      (_s = window.GamaOpenPriceLists) == null ? void 0 : _s.call(window);
       return;
     }
     if (x[1] === "client-catalog") {
       if (window.showTab) window.showTab("client-catalog", null);
-      (_s = window.GamaOpenClientCatalog) == null ? void 0 : _s.call(window);
+      (_t = window.GamaOpenClientCatalog) == null ? void 0 : _t.call(window);
       return;
     }
     if (x[1] === "customer-requests") {
       if (window.showTab) window.showTab("customer-requests", null);
-      (_t = window.GamaOpenCustomerRequests) == null ? void 0 : _t.call(window);
+      (_u = window.GamaOpenCustomerRequests) == null ? void 0 : _u.call(window);
       return;
     }
     if (x[1] === "warehouses") {
       if (window.showTab) window.showTab("warehouses", null);
-      (_u = window.GamaOpenWarehouses) == null ? void 0 : _u.call(window);
+      (_v = window.GamaOpenWarehouses) == null ? void 0 : _v.call(window);
       return;
     }
     if (x[1] === "hr") {
-      (_v = window.GamaOpenHR) == null ? void 0 : _v.call(window);
+      (_w = window.GamaOpenHR) == null ? void 0 : _w.call(window);
       return;
     }
     if (x[1] === "access-settings") {
-      (_w = window.GamaOpenAccessSettings) == null ? void 0 : _w.call(window);
+      (_x = window.GamaOpenAccessSettings) == null ? void 0 : _x.call(window);
       return;
     }
     if (x[1] === "settings") {
-      (_x = window.GamaOpenSettings) == null ? void 0 : _x.call(window);
+      (_y = window.GamaOpenSettings) == null ? void 0 : _y.call(window);
       return;
     }
     if (window.showTab) window.showTab(x[1], null);
@@ -1539,6 +1545,7 @@
   }
   const pending = /* @__PURE__ */ new Map();
   const lazyModules = {
+    website: { global: "GamaWebsite", file: "gama-website.js", methods: ["open"] },
     "audit-controls": { global: "ArchitectStockAudit", file: "architect-audit-controls.js", methods: ["products", "valuation", "performance"] },
     sav: { global: "GamaService", file: "gama-service-documents.js", methods: ["open", "openTicket"] },
     documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },

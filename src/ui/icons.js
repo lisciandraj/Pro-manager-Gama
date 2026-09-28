@@ -1,4 +1,5 @@
 export const icons={
+ globe:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
 cocoBot:'<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M4 11V7M20 11V7"/><rect x="4" y="6" width="16" height="15" rx="7"/><rect x="6.5" y="10" width="11" height="8" rx="4"/><path d="M8.5 14q1-2 2 0M13.5 14q1-2 2 0M4 11H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1M20 11h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1"/>',
 brain:'<path d="M12 5a3 3 0 0 0-5.8-1A4 4 0 0 0 3 10a4 4 0 0 0 1 7.8A4 4 0 0 0 12 18V5Zm0 0a3 3 0 0 1 5.8-1A4 4 0 0 1 21 10a4 4 0 0 1-1 7.8A4 4 0 0 1 12 18"/><path d="M6.2 4A3 3 0 0 0 7 7M3 10a3 3 0 0 1 4 1M4 17.8A3 3 0 0 0 7 15M17.8 4A3 3 0 0 1 17 7M21 10a3 3 0 0 0-4 1M20 17.8A3 3 0 0 1 17 15M9 10a3 3 0 0 1 3 3M15 10a3 3 0 0 0-3 3"/>',
 robot:'<rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V4M4 12H2v4h2M20 12h2v4h-2M9 16q3 2 6 0"/><circle cx="12" cy="2.5" r="1.5"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/>',

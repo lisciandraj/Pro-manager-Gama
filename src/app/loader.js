@@ -1,6 +1,7 @@
 /** Optional workspaces load on first use; direct cross-module links share the same loader. */
 const pending=new Map();
 export const lazyModules={
+ website:{global:'GamaWebsite',file:'gama-website.js',methods:['open']},
  'audit-controls':{global:'ArchitectStockAudit',file:'architect-audit-controls.js',methods:['products','valuation','performance']},
  sav:{global:'GamaService',file:'gama-service-documents.js',methods:['open','openTicket']},
  documents:{global:'GamaDocuments',file:'gama-service-documents.js',methods:['open']},

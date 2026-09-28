@@ -49,7 +49,7 @@ jobs:
       - run: npm run test:unit
       - run: npm run build
       - name: Verify generated release is current
-        run: git diff --exit-code -- index.html architect-core.js architect-components.css architect-assets.js architect-base.css
+        run: git diff --exit-code -- index.html architect-core.js architect-components.css architect-assets.js architect-base.css gama-site.html
       - uses: actions/upload-artifact@v4
         with:
           name: architect-static-release
@@ -65,4 +65,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/dossier-flow.spec.js tests/accounting.spec.js tests/fulfillment.spec.js tests/quote-adjust.spec.js tests/select-search.spec.js tests/product-identity.spec.js tests/inventory-quants.spec.js tests/audit-controls.spec.js tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/reference-formats.spec.js tests/table-controls.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/returns.spec.js tests/dashboard-analysis.spec.js --workers=2
+      - run: npx playwright test tests/dossier-flow.spec.js tests/accounting.spec.js tests/fulfillment.spec.js tests/quote-adjust.spec.js tests/select-search.spec.js tests/product-identity.spec.js tests/inventory-quants.spec.js tests/audit-controls.spec.js tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/reference-formats.spec.js tests/table-controls.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/returns.spec.js tests/website-preview.spec.js tests/dashboard-analysis.spec.js --workers=2

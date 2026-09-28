@@ -1,0 +1,44 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto');
+const {restore}=require('../scripts/restore-schema.cjs');
+test('website preview is administrator scoped, uses explicit products and stores idempotent test inquiries without commercial side effects',async()=>{
+ const db=await restore(),admin=uuid(),other=uuid(),client=uuid(),product=uuid(),hidden=uuid();
+ const q=async(s,a=[])=>(await db.query(s,a)).rows;
+ const call=async(action,data={})=>(await q('select gama_website($1,$2) r',[action,data]))[0].r;
+ const login=async id=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated')};
+ try{
+  await q('insert into auth.users(id,email) values($1,$2),($3,$4),($5,$6)',[admin,'web-admin@example.invalid',client,'web-client@example.invalid',other,'web-other@example.invalid']);
+  await q("update profiles set active=true,role=case when id=$1 then 'cliente' else 'administrador' end",[client]);
+  await q("insert into products(id,name,reference,purchase_price,sale_price,tax_rate,photo_data) values($1,'Café de prueba','WEB-COFFEE',2,10,15,'data:image/png;base64,abc'),($2,'Producto privado','WEB-HIDDEN',7,50,0,'private photo')",[product,hidden]);
+  await login(admin);
+  const c=await call('overview');assert.equal(c.settings.preview_enabled,true);
+  await call('save_product',{id:product,version:0,visible:true,featured:true,description:'Café para oficina'});
+  await assert.rejects(call('save_product',{id:product,version:0,visible:false}),/WEBSITE_CHANGED/);
+  let catalog=await call('catalog');assert.equal(catalog.items.length,1);assert.equal(catalog.items[0].unit_price,10);assert.equal(catalog.items[0].description,'Café para oficina');assert.equal(catalog.items[0].purchase_price,undefined);assert.equal(catalog.items[0].photo_data,undefined);
+  assert.equal((await call('catalog',{search:'not found'})).total,0);
+  const pics=await call('photo',{ids:[product,hidden]});assert.equal(pics.length,1);assert.equal(pics[0].id,product);
+  const settings={...c.settings,headline:'GAMA prueba',show_prices:false};await call('save_settings',settings);
+  await assert.rejects(call('save_settings',settings),/WEBSITE_CHANGED/);
+  assert.equal((await call('catalog')).items[0].unit_price,null);
+  const payload={request_key:uuid(),contact_name:'Cliente de prueba',email:'qa@example.invalid',company:'QA',notes:'Test only',lines:[{product_id:product,quantity:2,unit_price:0,tax_rate:0}]};
+  const a=await call('submit',payload),b=await call('submit',payload);assert.equal(a.id,b.id);assert.equal(a.is_test,true);assert.match(a.reference,/^WEB-TEST-\d{8}$/);
+  await assert.rejects(call('submit',{...payload,notes:'changed'}),/WEBSITE_REQUEST_KEY_REUSED/);
+  let list=await call('inquiries');assert.equal(list.total,1);assert.equal(list.items[0].total,23);assert.equal(list.items[0].lines[0].unit_price,10);assert.equal(list.items[0].payload,undefined);
+  await call('review',{id:a.id});assert.equal((await call('inquiry',{id:a.id})).items[0].status,'reviewed');
+  await assert.rejects(call('submit',{...payload,request_key:uuid(),lines:[{product_id:hidden,quantity:1}]}),/WEBSITE_PRODUCT_NOT_FOUND/);
+  await assert.rejects(call('submit',{...payload,request_key:uuid(),lines:[{product_id:product,quantity:0}]}),/WEBSITE_INVALID_QUANTITY/);
+  await assert.rejects(call('submit',{...payload,request_key:uuid(),lines:[{product_id:product,quantity:1},{product_id:product,quantity:1}]}),/WEBSITE_DUPLICATE_PRODUCT/);
+  await assert.rejects(call('submit',{...payload,request_key:uuid(),email:'bad'}),/WEBSITE_CONTACT_REQUIRED/);
+  await assert.rejects(q('select * from private.website_inquiries'),/permission denied/);
+  const current=(await call('overview')).settings;await call('save_settings',{...current,preview_enabled:false});
+  await assert.rejects(call('catalog'),/WEBSITE_PREVIEW_PAUSED/);await assert.rejects(call('submit',{...payload,request_key:uuid()}),/WEBSITE_PREVIEW_PAUSED/);
+  await call('save_settings',{...current,version:current.version+1,preview_enabled:true});
+  await login(other);await assert.rejects(call('submit',payload),/WEBSITE_REQUEST_KEY_REUSED/);
+  await login(client);await assert.rejects(call('overview'),/WEBSITE_ACCESS_DENIED/);await assert.rejects(call('catalog'),/WEBSITE_ACCESS_DENIED/);await assert.rejects(call('submit',payload),/WEBSITE_ACCESS_DENIED/);
+  await db.exec('reset role;set role anon');await assert.rejects(call('catalog'),/permission denied/);
+  await login(admin);await db.exec('reset role');
+  assert.equal((await q('select count(*) n from customer_requests'))[0].n,0);assert.equal((await q('select count(*) n from sales_orders'))[0].n,0);assert.equal((await q('select count(*) n from stock_movements'))[0].n,0);
+  await q("insert into app_modules(id,enabled) values('website',false)");await db.exec('set role authenticated');await assert.rejects(call('catalog'),/WEBSITE_ACCESS_DENIED/);
+  await db.exec("reset role;update app_modules set enabled=true where id='website';insert into erp_action_permissions(role,module,allow_create,allow_edit) values('administrador','website',false,false)");await db.exec('set role authenticated');
+  await assert.rejects(call('save_settings',{...current}),/WEBSITE_ACCESS_DENIED/);await assert.rejects(call('submit',{...payload,request_key:uuid()}),/WEBSITE_ACCESS_DENIED/);
+ }finally{await db.close()}
+});

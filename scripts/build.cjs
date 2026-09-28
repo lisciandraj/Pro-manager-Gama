@@ -13,8 +13,17 @@ if(!html.includes('src="architect-assets.js'))html=html.replace('<script src="ar
 if(!html.includes('href="architect-components.css'))html=html.replace(/<link rel="stylesheet" href="architect-ui.css/, '<link rel="stylesheet" href="architect-components.css">\n<link rel="stylesheet" href="architect-ui.css');
 html=html.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,file)=>{if(/^https?:/.test(file)||!fs.existsSync(path.join(root,file)))return full;const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex').slice(0,12);return `${key}="${file}?v=${hash}"`;});
 fs.writeFileSync(path.join(root,'index.html'),html);
+// Standalone test storefront shares the release hashes without loading ERP UI.
+for(const file of fs.readdirSync(root).filter(f=>f.endsWith('.html')&&f!=='index.html')){
+ const input=fs.readFileSync(path.join(root,file),'utf8');
+ const output=input.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,asset)=>{
+  if(/^https?:/.test(asset)||!fs.existsSync(path.join(root,asset)))return full;
+  const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,asset))).digest('hex').slice(0,12);
+  return `${key}="${asset}?v=${hash}"`;
+ });fs.writeFileSync(path.join(root,file),output);
+}
 const out=path.join(root,'dist');fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out);
-for(const file of fs.readdirSync(root)){if(/\.(js|css|html|png|svg|ico|webmanifest)$/.test(file)||file==='manifest.json')fs.copyFileSync(path.join(root,file),path.join(out,file));}
+for(const file of fs.readdirSync(root)){if(/\.(js|css|html|png|jpg|jpeg|webp|svg|ico|webmanifest)$/.test(file)||file==='manifest.json')fs.copyFileSync(path.join(root,file),path.join(out,file));}
 for(const folder of ['assets','config','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});
 fs.writeFileSync(path.join(out,'.nojekyll'),'');
 console.log('Static release generated in dist/; source loaders use content hashes.');

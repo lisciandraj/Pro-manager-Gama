@@ -47,14 +47,10 @@ function render(){
  document.documentElement.lang=window.GamaI18n?.language||'es';
  host.replaceChildren();
  const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
- const textos=document.createElement('div');
- const h=document.createElement('h1');h.setAttribute('data-gi-live','');h.textContent='Menú principal';
- const p=document.createElement('p');p.setAttribute('data-gi-live','');p.textContent='Accede rápidamente a todas las funciones de Coco ERP.';
- textos.append(h,p);
- // «Personalizar» va a la derecha del título: sin rótulo «Tus módulos» encima de las tarjetas.
+ // Keep customization accessible above the tiles.
  const acciones=document.createElement('div');acciones.className='gamaF2HeadActions';
  window.ArcUI.render(acciones,'<button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>');
- cabecera.append(textos,acciones);
+ cabecera.append(acciones);
 
  // Los cuatro indicadores personales viven arriba del panel de control, no aquí.
 

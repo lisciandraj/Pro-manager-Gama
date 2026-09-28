@@ -34,7 +34,9 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
     const actual=await probe(item.domain,item.action);
     if(uid===admin&&item.domain==='accounting'&&['chart','settings'].includes(item.action)&&actual.ok){const field=item.action==='chart'?'rows':'accounts';const advance=actual.result[field].find(a=>a.code==='2090');assert.equal(advance?.type,'liability');actual.result[field]=actual.result[field].filter(a=>a.code!=='2090');}
     // Returned goods go back to the arrival zone or a chosen location, never to the warehouse root.
-    if(item.domain==='returns'&&item.action==='overview'&&actual.ok&&expected.ok){assert.ok(actual.result.locations.every(l=>l.code!=='STOCK'));assert.ok(actual.result.locations.some(l=>l.code==='LLEGADA'));delete actual.result.locations;delete expected.result.locations;}
+    if(item.domain==='returns'&&item.action==='overview'&&actual.ok&&expected.ok){assert.ok(actual.result.locations.every(l=>l.code!=='STOCK'));assert.ok(actual.result.locations.some(l=>l.code==='LLEGADA'));delete actual.result.locations;delete expected.result.locations;
+     // The empty overview now reports its exact pagination count.
+     assert.equal(expected.result.rows.length,0);expected.result.total=0;}
     assert.deepEqual(actual,expected,uid+': '+item.domain+'.'+item.action);
    }
    await db.exec('rollback');

@@ -36,7 +36,7 @@ const DETAIL={id:'r2',number:'RET-000015',kind:'customer',status:'received',reas
  documents:{order:{id:'o1',number:'PED-00000128'},delivery:{id:'d1',number:'ENV-00000087'},
   invoice:{id:'i1',number:'FAC-00000095'},purchase_order:null,supplier_invoice:null}};
 
-async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=DETAIL}={}){
+async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=DETAIL,summary=false}={}){
  const RESPONSES={overview:overview(rows,rights),sources:SOURCES,source_lines:SOURCE_LINES,detail,
   stats:{month_count:4,month_value:320,return_rate:1.25,
    reasons:[{reason:'defective',n:3}],products:[{product:'Producto A',quantity:6}],suppliers:[]}};
@@ -57,12 +57,13 @@ async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=D
    if(fn!=='gama_returns_action')return c.rpc(fn,args);
    window.__RET.calls.push(args);
    if(window.__RET.error)return {error:{message:window.__RET.error}};
-   const r=window.__RET.responses[args.p_action];
+   let r=window.__RET.responses[args.p_action];
+   if(args.p_action==='overview'&&r){const rows=r.rows.filter(x=>!args.p_data.kind||x.kind===args.p_data.kind);r={...r,total:rows.length,rows:rows.slice(args.p_data.offset||0,(args.p_data.offset||0)+(args.p_data.limit||200))};}
    return {data:r===undefined?{ok:true,id:'new',number:'RET-000099'}:structuredClone(r)};
   }}};
  });
- await page.evaluate(()=>window.GamaReturns.open());
- await expect(page.locator('#returns')).toHaveClass(/active/);
+ await page.evaluate(summary=>summary?window.GamaReturns.open():window.GamaDossierFlow.open(null,{tab:'PRC'}),summary);
+ await expect(page.locator(summary?'#returns':'#dossier-flow')).toHaveClass(/active/);
 }
 const calls=page=>page.evaluate(()=>window.__RET.calls);
 const lastCall=async(page,action)=>(await calls(page)).filter(c=>c.p_action===action).pop();
@@ -86,7 +87,7 @@ test('las dos pestañas piden cada una su tipo al servidor',async({page})=>{
  await page.evaluate(()=>{window.__RET.responses.overview.rows=[
   {id:'r9',number:'RET-000020',kind:'supplier',status:'to_process',reason:'defective',financial_action:'none',
    created_on:'2026-09-18',created_at:'2026-09-18T07:00:00Z',partner:'Distribuidora Andina',amount:25,lines:1,refunded:0,credited:false}]});
- await page.locator('[data-gr-tab=supplier]').click();
+ await page.locator('#gdfTabPRP').click();
  await expect(page.locator('.grTable tbody tr')).toHaveCount(1);
  expect((await lastCall(page,'overview')).p_data.kind).toBe('supplier');
  await expect(page.locator('.grTable tbody tr').first()).toContainText('RET-000020');
@@ -96,7 +97,6 @@ test('crear un retorno son tres pantallas y GAMA pone todo lo que ya sabe',async
  await boot(page);
  await page.locator('#grNew').click();
  await expect(page.locator('dialog')).toContainText('1 · Tipo');
- await page.locator('[data-gr-kind=customer]').click();
  // Paso 2: el documento de origen, con su número y su cliente.
  await expect(page.locator('dialog')).toContainText('ENV-00000087');
  await expect(page.locator('dialog')).toContainText('ABC SA');
@@ -117,7 +117,6 @@ test('crear un retorno son tres pantallas y GAMA pone todo lo que ya sabe',async
 test('el motivo «Otro» abre el comentario y ninguna cantidad no crea nada',async({page})=>{
  await boot(page);
  await page.locator('#grNew').click();
- await page.locator('[data-gr-kind=customer]').click();
  await page.locator('[data-gr-src=d1]').click();
  await expect(page.locator('#grNotesBox')).toBeHidden();
  await page.locator('#grReason').selectOption('other');
@@ -213,7 +212,7 @@ test('PC, tableta y móvil enseñan la misma pantalla sin desbordarla',async({pa
  await boot(page);
  for(const size of [{width:1280,height:900},{width:1024,height:768},{width:768,height:1024},{width:390,height:844}]){
   await page.setViewportSize(size);
-  await expect(page.locator('#returns')).toBeVisible();
+  await expect(page.locator('#dossier-flow')).toBeVisible();
   await expect(page.locator('.grKpis .grCard')).toHaveCount(4);
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
@@ -226,7 +225,7 @@ test('el módulo habla las tres lenguas sin tocar los números ni las referencia
  for(const [lang,label,tab] of [['fr','+ Nouveau retour','PRC · Retour client'],['en','+ New return','PRC · Customer return']]){
   await page.evaluate(l=>window.GamaI18n.setLanguage(l),lang);
   await expect(page.locator('#grNew')).toContainText(label);
-  await expect(page.locator('[data-gr-tab=customer]')).toContainText(tab);
+  await expect(page.locator('#gdfTabPRC')).toContainText(tab);
   await expect(page.locator('.grTable tbody tr').first()).toContainText('RET-000014');
   await expect(page.locator('.grKpis .grCard').first()).toContainText('2');
  }
@@ -291,4 +290,24 @@ test('tracker hides return tabs when returns access is denied',async({page})=>{
  await page.evaluate(()=>GamaDossierFlow.open(null,{tab:'PRC'}));
  await expect(page.locator('#gdfTabPRC')).toHaveCount(0);await expect(page.locator('#gdfTabPRP')).toHaveCount(0);
  await expect(page.locator('#gdfReturns')).toHaveCount(0);
+});
+
+for(const width of [390,1280])test('returns summary combines both types and opens the matching process at '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await boot(page,{summary:true,rows:[{...CUSTOMER_ROWS[0],credited_amount:20,refunded:5},...SUPPLIER_ROWS],detail:{...DETAIL,id:'r9',kind:'supplier',number:'RET-000020'}});
+ await expect(page.locator('#returns .grTable tbody tr')).toHaveCount(2);
+ await expect(page.locator('#returns .grTable thead th')).toHaveCount(12);
+ await expect(page.locator('#returns .grTable')).toContainText('PRC-00000014');await expect(page.locator('#returns .grTable')).toContainText('PRP-00000020');
+ expect((await lastCall(page,'overview')).p_data.kind).toBeNull();
+ await expect(page.locator('#returns .gdfStepper')).toHaveCount(0);await expect(page.locator('#grNew')).toHaveCount(0);
+ await page.locator('[data-gr-tab=supplier]').click();await expect(page.locator('#returns .grTable tbody tr')).toHaveCount(1);
+ await page.locator('[data-gr-open=r9]').click();await expect(page.locator('#dossier-flow')).toHaveClass(/active/);await expect(page.locator('#gdfTabPRP')).toHaveAttribute('aria-selected','true');await expect(page.locator('.grSummary')).toContainText('PRP-00000020');
+ await page.evaluate(()=>GamaReturns.open());await expect(page.locator('#returns .grTable tbody tr')).toHaveCount(2);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+test('return summary pagination sends the offset and resets it on type change',async({page})=>{
+ const rows=Array.from({length:30},(_,i)=>({...CUSTOMER_ROWS[0],id:'page-'+i,number:'RET-'+String(i+1).padStart(6,'0')}));
+ await boot(page,{summary:true,rows});await expect(page.locator('.grTable tbody tr')).toHaveCount(25);
+ await page.locator('#grNext').click();await expect(page.locator('.grTable tbody tr')).toHaveCount(5);expect((await lastCall(page,'overview')).p_data.offset).toBe(25);
+ await page.locator('[data-gr-tab=customer]').click();await expect(page.locator('.grTable tbody tr')).toHaveCount(25);expect((await lastCall(page,'overview')).p_data.offset).toBe(0);
 });

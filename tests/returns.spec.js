@@ -231,3 +231,35 @@ test('el módulo habla las tres lenguas sin tocar los números ni las referencia
   await expect(page.locator('.grKpis .grCard').first()).toContainText('2');
  }
 });
+
+for(const width of [390,1280])test('SAV creates a linked return with preselected delivery at width '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);
+ await page.evaluate(()=>{
+  window.__SERVICE_CALLS=[];
+  const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_service_return')return c.rpc(fn,args);
+   __SERVICE_CALLS.push(args);
+   if(args.p_action==='context')return {data:{ticket_id:'sav1',version:4,number:'SPV-00000012',subject:'Damaged parcel',category:'delivery',rows:[{id:'d1',number:'ENV-00000087',order_number:'PED-00000128',partner:'ABC SA'}]}};
+   if(args.p_action==='source_lines')return {data:__RET.responses.source_lines};
+   if(args.p_action==='create'){__RET.responses.detail={...__RET.responses.detail,id:'r3',service_ticket_id:'sav1',status:'to_process',number:'DEV-00000016'};return {data:{id:'r3',number:'DEV-00000016'}}}
+   return {error:{message:'INVALID_ACTION'}};
+  }}};
+ });
+ await page.evaluate(()=>GamaReturns.createFromService('sav1'));
+ await expect(page.locator('dialog')).toContainText('ABC SA');
+ await expect(page.locator('#grReason')).toHaveValue('damaged');
+ await expect(page.locator('#grNotes')).toHaveValue('SPV-00000012 · Damaged parcel');
+ await page.locator('[data-gr-qty=dl1]').fill('1');await page.locator('#gsSave').click();
+ await expect(page.locator('#grMain')).toContainText('DEV-00000016');
+ const calls=await page.evaluate(()=>__SERVICE_CALLS);expect(calls.map(c=>c.p_action)).toEqual(['context','source_lines','create']);
+ expect(calls[2].p_data).toMatchObject({source_id:'d1',version:4,lines:[{line_id:'dl1',quantity:1}]});
+ expect((await lastCall(page,'create'))).toBeUndefined();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+test('SAV existing return opens directly and unavailable source leaves no creation form',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_service_return'?{data:args.p_ticket_id==='existing'?{id:'r2',existing:true}:{ticket_id:'empty',version:1,rows:[]}}:c.rpc(fn,args)}}});
+ await page.evaluate(()=>GamaReturns.createFromService('empty'));await expect(page.locator('dialog')).toHaveCount(0);
+ await page.evaluate(()=>GamaReturns.createFromService('existing'));await expect(page.locator('#grMain')).toContainText('RET-000015');await expect(page.locator('dialog')).toHaveCount(0);
+});

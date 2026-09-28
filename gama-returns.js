@@ -20,6 +20,7 @@ const ID='returns',$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const T=s=>window.GamaI18n?.t?.(s)||s;
+const serviceText=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 const money=v=>window.GamaCurrency.format(v);
 const num=(v,d)=>window.GamaCurrency.number(v,d??0);
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);
@@ -73,6 +74,8 @@ const ERRORS={
  INVALID_ACTION:'Esa operación no existe en este módulo.'};
 function err(e){
  const s=String(e?.message||e);
+ const serviceErrors={SERVICE_NOT_FOUND:['La reclamación ya no existe.','Le dossier SAV n’existe plus.','The service ticket no longer exists.'],SERVICE_CLOSED:['La reclamación está cerrada o archivada.','Le dossier SAV est fermé ou archivé.','The service ticket is closed or archived.'],SERVICE_CUSTOMER_REQUIRED:['Vincula primero un cliente a la reclamación.','Associez d’abord un client au dossier SAV.','Link a customer to the service ticket first.'],SERVICE_SOURCE_MISMATCH:['La entrega no corresponde a esta reclamación.','Cette livraison ne correspond pas au dossier SAV.','This delivery does not belong to the service ticket.'],SERVICE_CONFLICT:['La reclamación cambió. Ábrela de nuevo antes de crear la devolución.','Le dossier SAV a changé. Rouvrez-le avant de créer le retour.','The service ticket changed. Reopen it before creating the return.']};
+ for(const [code,words] of Object.entries(serviceErrors))if(s.includes(code))return serviceText(...words);
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return T(v);if(s===T(v))return T(v)}
  return T('No se pudo completar la operación. Inténtalo de nuevo.');
 }
@@ -257,9 +260,10 @@ async function wizardSource(kind){
 }
 /* Paso 3: cuánto vuelve y por qué. El usuario sólo teclea cantidades: el
    producto, el precio, el impuesto y la factura ya vienen del documento. */
-async function wizardLines(kind,sourceId){
+async function wizardLines(kind,sourceId,service=null){
  try{
-  const d=await rpc('source_lines',{kind,source_id:sourceId});
+  const d=service?await serviceRpc('source_lines',service.ticket_id,{source_id:sourceId}):await rpc('source_lines',{kind,source_id:sourceId});
+  if(d.existing){openReturn(d.id);return}
   const rows=d.rows.filter(r=>Number(r.max_return)>0);
   if(!rows.length){window.gamaToast?.(T('Ya se ha devuelto todo lo de ese documento.'));return}
   const el=window.GamaSales.modal(T('¿Qué vuelve?'),
@@ -288,13 +292,20 @@ async function wizardLines(kind,sourceId){
      .map(i=>({line_id:i.dataset.grQty,quantity:Number(String(i.value).replace(',','.'))}))
      .filter(l=>l.quantity>0);
     if(!lines.length)throw reject('NO_LINES');
-    const r=await mutate('create',{kind,source_id:sourceId,invoice_id:d.invoice_id||null,
-     reason:val(el,'grReason'),notes:val(el,'grNotes'),lines});
+    const payload={kind,source_id:sourceId,invoice_id:d.invoice_id||null,reason:val(el,'grReason'),notes:val(el,'grNotes'),lines};
+    const r=service?await serviceRpc('create',service.ticket_id,{...payload,version:service.version}):await mutate('create',payload);
+    if(service){window.dispatchEvent(new CustomEvent('gama:returns-change'));window.dispatchEvent(new CustomEvent('gama:service-change'))}
     const file=el.querySelector('#grFile').files[0];
     if(file)await attach(r.id,file);
     detailId=r.id;await go();
     window.gamaToast?.(T('Devolución creada')+' · '+r.number);
    });
+  if(service){
+   const reasonMap={product:'defective',delivery:'damaged',other:'other'};
+   el.querySelector('#grReason').value=reasonMap[service.category]||'other';
+   el.querySelector('#grNotes').value=[service.number,service.subject].filter(Boolean).join(' · ').slice(0,600);
+   el.querySelector('#grNotesBox').hidden=false;
+  }
   const reason=el.querySelector('#grReason');
   reason.onchange=()=>{el.querySelector('#grNotesBox').hidden=reason.value!=='other'};
  }catch(e){window.gamaToast?.(err(e))}
@@ -326,8 +337,11 @@ function processView(d){
  const pending=d.lines.filter(l=>!l.processed_at).length;
  const open=!['closed','cancelled'].includes(d.status),cancelled=d.status==='cancelled';
  const outstanding=Math.max(0,Number(d.amount)-Number(d.refunded||0));
+ const processId=d.dossier_number||Number(String(d.number).match(/(\d{8})$/)?.[1]);
+ const stageRef=ref=>window.GamaReferences?.processReference({erp_reference:ref},processId)||ref;
+ const issued=ref=>stageRef(ref)!==ref?`<small class="sdMuted">${tr('Documento')} : ${esc(ref)}</small>`:'';
  const links=docLinks(d),origin=links.map((x,i)=>[x,i]).filter(([x])=>x.kind!=='credit');
- const docButton=([x,i])=>`<li><button type="button" class="gdfDoc" data-gr-doc="${i}">${esc(x.number)}</button></li>`;
+ const docButton=([x,i])=>`<li><button type="button" class="gdfDoc" data-gr-doc="${i}">${esc(x.kind==='credit'?stageRef(x.number):x.number)}</button>${x.kind==='credit'?issued(x.number):''}</li>`;
  const docs=list=>list.length?`<ul class="gdfDocs">${list.join('')}</ul>`:'';
  const creditDocs=links.map((x,i)=>[x,i]).filter(([x])=>x.kind==='credit').map(docButton);
  // Las líneas se leen en la solicitud; se deciden en el tratamiento.
@@ -340,8 +354,8 @@ function processView(d){
     </div>`).join('')}</div>`;
  const files=`<p class="grHint"><b>${tr('Fotos y documentos')}</b></p>${d.files.length?`<div class="grDocs">${d.files.map(f=>`<button class="arcButton secondary" data-gr-file="${esc(f.id)}">${esc(f.filename)}</button>`).join('')}</div>`:`<p class="grHint">${tr('Todavía no hay ningún archivo.')}</p>`}${open?`<label class="grField">${tr('Añadir una foto o un documento')}<input id="grAddFile" type="file" accept="image/png,image/jpeg,image/webp,application/pdf"></label>`:''}`;
  const money_=`<dl class="grDl"><dt>${tr('Decisión')}</dt><dd>${tr(FINANCIAL[d.financial_action]||d.financial_action)}</dd>${customer?`<dt>${tr('Reembolsado')}</dt><dd>${esc(money(d.refunded))} · ${tr('pendiente')} ${esc(money(outstanding))}</dd>`:''}</dl>
-   ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(c.number)}</b> · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
-   ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${f.erp_reference?'<b>'+esc(f.erp_reference)+'</b> · ':''}${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}`;
+   ${d.credits.map(c=>`<p>${tr('Abono')} <b>${esc(stageRef(c.number))}</b>${issued(c.number)} · ${esc(money(c.amount))} · ${esc(c.issued_on)}${c.supplier_reference?' · '+esc(c.supplier_reference):''}</p>`).join('')}
+   ${d.refunds.map(f=>`<p>${tr('Reembolso')} ${f.erp_reference?'<b>'+esc(stageRef(f.erp_reference))+'</b>'+issued(f.erp_reference)+' · ':''}${esc(money(f.amount))} · ${esc(f.paid_at)} · ${esc(f.method)}${f.reference?' · '+esc(f.reference):''}</p>`).join('')}`;
  const financialDone=d.financial_action==='none'?['processed','closed'].includes(d.status):d.financial_action==='refund'?outstanding<=0:d.credits.length>0;
  const steps=customer?[
   {title:'Origen de la devolución',state:'done',body:docs(origin.map(docButton))+`<p>${tr('Motivo')} : ${tr(REASON[d.reason]||d.reason)}</p>`},
@@ -382,6 +396,7 @@ function processView(d){
    salen de la misma lista para que no puedan descolgarse. */
 function docLinks(d){
  const x=d.documents||{},out=[];
+ if(d.service_ticket_id&&window.gamaAccessAllowed?.('sav'))out.push({label:'SAV',number:serviceText('Ver reclamación SAV','Voir le dossier SAV','View service ticket'),open:()=>window.GamaService?.openTicket(d.service_ticket_id)});
  if(x.order)out.push({label:T('Pedido'),number:x.order.number,open:()=>window.GamaSales?.openOrder?.(x.order.id)});
  if(x.delivery)out.push({label:T('Entrega'),number:x.delivery.number,open:()=>window.GamaSales?.openOrder?.(d.order_id)});
  if(x.invoice)out.push({label:T('Factura'),number:x.invoice.number,open:()=>window.GamaQuotes?.view?.(x.invoice.id)});
@@ -564,6 +579,23 @@ function openReturn(id){
  if(!allowed())return;
  detailId=id;shell();go();
 }
+async function serviceRpc(action,ticketId,data={}){
+ if(!allowed()||!window.gamaAccessAllowed?.('sav'))throw reject('ROLE_NOT_ALLOWED');
+ const r=await window.ArcData.rawRpc('gama_service_return',{p_action:action,p_ticket_id:ticketId,p_data:data});
+ if(r.error)throw reject(r.error.message||r.error);
+ return r.data;
+}
+async function createFromService(ticketId){
+ try{
+  const service=await serviceRpc('context',ticketId);
+  if(service.existing){openReturn(service.id);return}
+  if(!service.rows.length){window.gamaToast?.(serviceText('No hay mercancía pendiente de devolución para esta reclamación.','Aucune marchandise ne peut encore être retournée pour ce dossier SAV.','No goods remain eligible for return for this service ticket.'));return}
+  const choose=async sourceId=>{tab='customer';detailId=null;shell();state.overview=await rpc('overview',{kind:'customer',all_dates:true});nav();list(state.overview);await wizardLines('customer',sourceId,service)};
+  if(service.rows.length===1){await choose(service.rows[0].id);return}
+  const U=window.ArcUI,el=U.dialog({title:serviceText('Elegir la entrega','Choisir la livraison','Choose the delivery'),body:U.field({key:'source',label:serviceText('Entrega','Livraison','Delivery'),type:'select',required:true,options:service.rows.map(r=>({id:r.id,name:r.number+' · '+r.order_number+' · '+r.partner}))}),onSave:async host=>{const id=new FormData(host.querySelector('form')).get('source');if(!id)throw Error('SOURCE_NOT_FOUND');await choose(id)},error:err});
+  el.dataset.serviceWorkflow='';
+ }catch(e){window.gamaToast?.(err(e))}
+}
 window.addEventListener('gama:currency-change',()=>{if($(ID)?.classList.contains('active'))go()});
-window.GamaReturns={open,openReturn,createFrom,rpc,REASON,STATUS,DISPOSITION,FINANCIAL};
+window.GamaReturns={open,openReturn,createFrom,createFromService,rpc,REASON,STATUS,DISPOSITION,FINANCIAL};
 })();

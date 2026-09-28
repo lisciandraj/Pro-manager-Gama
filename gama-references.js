@@ -2,7 +2,7 @@
 (function(){'use strict';
 const types=new Set(["customer_requests", "invoices", "sales_orders", "fulfillment_preparations", "fulfillment_packages", "sales_deliveries", "tms_deliveries", "tms_proofs", "external_invoices", "external_invoice_payments", "return_orders", "purchase_orders", "inventory_counts", "stock_reservations", "stock_movements", "crm_opportunities", "pm_projects", "fleet_vehicles", "hr_documents", "hr_payroll", "service_tickets", "business_documents", "accounting_entries", "expenses", "supplier_invoices", "supplier_invoice_payments", "return_credits", "return_refunds", "tms_routes", "knowledge_articles", "pm_items"]);
 // Cadena de venta (PDV) y, desde el número único del proceso de compra, la de compra (PDC).
-const dossierTypes=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders','purchase_orders','supplier_invoices','supplier_invoice_payments']);
+const dossierTypes=new Set(['customer_requests','invoices','sales_orders','fulfillment_preparations','fulfillment_packages','sales_deliveries','tms_deliveries','tms_proofs','external_invoices','external_invoice_payments','return_orders','purchase_orders','supplier_invoices','supplier_invoice_payments','stock_reservations','stock_movements','return_credits','return_refunds']);
 async function attach(table,result,client){
  if(result.error||!result.data||!types.has(table))return result;
  const rows=Array.isArray(result.data)?result.data:[result.data],key=table==='tms_proofs'?'delivery_id':'id',ids=rows.map(r=>r[key]).filter(Boolean);
@@ -21,10 +21,10 @@ async function attach(table,result,client){
  for(const [t,set] of groups){const keys=[...set];for(let offset=0;offset<keys.length;offset+=100)jobs.push({table:t,ids:keys.slice(offset,offset+100)})}
  // Independent own/parent reads share a bounded wave, not a serial waterfall.
  for(let offset=0;offset<jobs.length;offset+=4){
-  const results=await Promise.all(jobs.slice(offset,offset+4).map(job=>client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference,dossier_label,legacy_reference').eq('table_name',job.table).in('document_id',job.ids)));
+  const results=await Promise.all(jobs.slice(offset,offset+4).map(job=>client.from('gama_document_references').select('table_name,document_id,dossier_number,document_reference,dossier_label,legacy_reference,process_reference').eq('table_name',job.table).in('document_id',job.ids)));
   for(const r of results){if(r.error)return {...result,data:null,error:r.error};for(const ref of r.data||[])refs.set(refKey(ref.table_name,ref.document_id),ref)}
  }
- for(const r of rows){const ref=get(table,r[key]);if(!ref)continue;r.dossier_number=ref.dossier_number;r.dossier_reference=ref.document_reference;
+ for(const r of rows){const ref=get(table,r[key]);if(!ref)continue;r.dossier_number=ref.dossier_number;r.process_reference=ref.process_reference;r.dossier_reference=ref.document_reference;
   r.erp_reference=ref.document_reference;r.legacy_reference=ref.legacy_reference;r.dossier_label=ref.dossier_label||(ref.dossier_number>0?'EXP-'+String(ref.dossier_number).padStart(8,'0'):null);
   if(table==='invoices'){r.original_number=r.invoice_number;r.invoice_number=ref.document_reference;}
   else if(['sales_orders','sales_deliveries','fulfillment_preparations','return_orders','external_invoices'].includes(table)){
@@ -49,5 +49,11 @@ async function mountConfig(host){if(!host)return;const U=window.ArcUI,E=U.esc;le
  async function load(){try{await window.GamaCloudReady;const c=await window.GamaCloud.db(),res=await c.from('erp_reference_formats').select('*').order('module_id').order('label_es');if(res.error)throw res.error;formats=res.data||[];render()}catch(e){if(host.isConnected){host.textContent=tx('No se pudieron cargar los prefijos.');const b=document.createElement('button');b.className='arcButton';b.textContent=tx('Reintentar');b.onclick=load;host.appendChild(b)}}}
  await load();
 }
-window.GamaReferences={attach,types,mountConfig};
+// A stage keeps its process number; an issued document keeps its own identity.
+function processReference(row,number){
+ const ref=row?.erp_reference||row?.dossier_reference||row?.invoice_number||row?.number||row?.order_number||'';
+ const n=Number(number||row?.dossier_number);
+ return n>0&&/^[A-Z]{3}-\d{8}$/.test(ref)?ref.slice(0,4)+String(n).padStart(8,'0'):ref;
+}
+window.GamaReferences={attach,types,mountConfig,processReference};
 })();

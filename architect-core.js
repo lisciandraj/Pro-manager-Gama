@@ -961,7 +961,7 @@
       "id": "contacts",
       "label": "Contactos",
       "icon": "users",
-      "group": "Ventas",
+      "group": "Administración",
       "description": "Clientes, proveedores y prospectos",
       "accent": "violet",
       "order": 16,
@@ -1544,7 +1544,7 @@
     documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },
     accounting: { global: "GamaAccounting", file: "gama-accounting.js", methods: ["open", "rpc"] },
     fleet: { global: "GamaFleet", file: "gama-fleet.js", methods: ["open", "openVehicle", "openDriver", "rpc"] },
-    returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "rpc"] }
+    returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "createFromService", "rpc"] }
   };
   function loadModule(id) {
     const entry = lazyModules[id];

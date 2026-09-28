@@ -28,5 +28,5 @@ for(const historical of [false,true])test('shared process labels and preserved i
    return {data:args.p_action==='state'?state:{total:1,items:[{key:'o:o',o,q,party:'Client',number:'PDV-00000012',state}]}};
   }}};
   await GamaDossierFlow.open();
- });await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail [data-step=2] .gdfDoc')).toHaveText('COT-00000012');if(historical)await expect(page.locator('#gdfDetail [data-step=2]')).toContainText('COT-00000013');
+ });await expect(page.locator('#gdfDetail')).toContainText('PDV-00000012');await expect(page.locator('#gdfDetail')).toContainText('PED-00000012');await expect(page.locator('#gdfDetail [data-step="2"] .gdfDoc')).toHaveText('COT-00000012');if(historical)await expect(page.locator('#gdfDetail [data-step="2"]')).toContainText('COT-00000013');
 });

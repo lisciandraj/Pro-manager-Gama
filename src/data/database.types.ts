@@ -4968,6 +4968,7 @@ export type Database = {
           full_name: string
           id: string
           manager_id: string | null
+          photo_data: string | null
           position: string | null
           profile_id: string | null
         }
@@ -4978,6 +4979,7 @@ export type Database = {
           full_name: string
           id?: string
           manager_id?: string | null
+          photo_data?: string | null
           position?: string | null
           profile_id?: string | null
         }
@@ -4988,6 +4990,7 @@ export type Database = {
           full_name?: string
           id?: string
           manager_id?: string | null
+          photo_data?: string | null
           position?: string | null
           profile_id?: string | null
         }

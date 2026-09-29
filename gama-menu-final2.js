@@ -62,7 +62,7 @@ function render(){
    const fam=ACCENT[x[1]]||'cyan';b.dataset.arcFam=fam;
    if(x[1]==='tms')b.dataset.gamaTmsCard='1';
    const icon=document.createElement('span');icon.className='gamaF2Icon';icon.dataset.arcFam=fam;
-   window.ArcUI.render(icon,'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+I[x[2]]+'</svg>');
+   window.ArcUI.render(icon,window.ArcUI.moduleIcon(x[2]));
    const cuerpo=document.createElement('span');cuerpo.className='gamaF2Body';
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    cuerpo.appendChild(label);

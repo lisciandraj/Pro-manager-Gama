@@ -182,7 +182,8 @@ function adoptUser(){
  const role=chip.querySelector('.aclRole')?.textContent||'';
  const put=(id,value)=>{const n=$(id);if(n&&n.textContent!==value)n.textContent=value};
  put('arcUserName',name);put('arcUserRole',role);
- put('arcAvatar',name.trim().split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase());
+ if(window.GamaEmployeePhotos)window.GamaEmployeePhotos.render();
+ else put('arcAvatar',name.trim().split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase());
 }
 
 /* El contador lo escribe el módulo de operaciones; aquí sólo se decide si se

@@ -1,0 +1,66 @@
+/* GAMA reference design. Tokens are scoped so the existing top bar is unchanged. */
+.arcContent,.arcSidebar,body>dialog{
+ --gama-blue:#0C7185;--gama-blue-dark:#075567;--gama-orange:#F47721;
+ --arc-accent-700:#075567;--arc-accent-600:#0C7185;--arc-accent-500:#16899D;
+ --arc-accent-100:#E4F1F4;--arc-accent-50:#F0F7F8;
+ --arc-navy-700:#24374A;--arc-navy-900:#192B3C;
+ --arc-canvas:#F7F8FB;--arc-surface-2:#F7F8FA;--arc-surface-3:#F2F5F7;
+ --arc-line:#E1E6EC;--arc-line-strong:#B8C3CE;--arc-text:#1C2C3E;--arc-text-muted:#617080;--arc-text-subtle:#617080;
+ --arc-card-border:#E1E6EC;--arc-tile-border:#E1E6EC;--arc-card-shadow:0 2px 8px rgba(23,49,65,.035);
+ --arc-tile-shadow:0 2px 8px rgba(23,49,65,.035);--arc-control-shadow:none;--arc-field-shadow:none;
+ --arc-icon-blue:#0C7185;--arc-icon-blue-bg:#E5F2F5;--arc-icon-teal:#0C7185;--arc-icon-teal-bg:#E5F2F5;
+ --arc-icon-violet:#0C7185;--arc-icon-violet-bg:#E5F2F5;--arc-icon-orange:#D45C0B;--arc-icon-orange-bg:#FFF0E6;
+ --arc-fam-analytics:#0C7185;--arc-fam-analytics-bg:#E5F2F5;--arc-fam-sales:#0C7185;--arc-fam-sales-bg:#E5F2F5;
+ --arc-fam-logistics:#0C7185;--arc-fam-logistics-bg:#E5F2F5;--arc-fam-purchase:#0C7185;--arc-fam-purchase-bg:#E5F2F5;
+ --arc-fam-finance:#D45C0B;--arc-fam-finance-bg:#FFF0E6;--arc-fam-people:#D45C0B;--arc-fam-people-bg:#FFF0E6;--arc-fam-system:#0C7185;--arc-fam-system-bg:#E5F2F5;
+ --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);--arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
+ --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);--arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);--arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
+ --arc-tile-border-bottom:#E1E6EC;
+ --arc-viz-1:#F47721;--arc-viz-2:#0C7185;--arc-viz-3:#16899D;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
+}
+.arcContent{background:var(--arc-canvas)}
+.arcSidebar{background:#FFF;border-right-color:#E1E6EC}
+.arcSidebar .arcNavLink{font-weight:500;gap:12px}
+.arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 var(--gama-orange)}
+.arcSidebar .arcNavGroup{color:var(--arc-text-muted)}
+#mainmenu .gamaF2Grid{grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:20px}
+#mainmenu .gamaF2Card[data-arc-fam]{background:#FFF;color:var(--gama-blue);border:1px solid #E1E6EC;border-radius:16px;min-height:190px;padding:26px 16px;gap:18px;box-shadow:0 2px 8px rgba(23,49,65,.035)}
+#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue);width:72px;height:72px;border-radius:0}
+#mainmenu .gamaF2Icon svg{width:62px;height:62px;stroke-width:1.65}
+#mainmenu .gamaF2Icon svg:not(.arcHomeIllustration)>:last-child{stroke:var(--gama-orange)}
+#mainmenu .gamaF2Icon svg>[fill=currentColor]{fill:var(--gama-blue)}
+#mainmenu .gamaF2Title{font-size:16px;font-weight:600;line-height:1.4;color:var(--arc-text)}
+@media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:#9BBBC4;box-shadow:0 6px 18px rgba(23,49,65,.08);transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){#mainmenu .gamaF2Card:hover{transform:none}}
+@media(min-width:1400px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .gamaF2Card[data-arc-fam]{min-height:154px;padding:20px 10px;gap:12px;border-radius:13px}#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{width:54px;height:54px}#mainmenu .gamaF2Icon svg{width:48px;height:48px}#mainmenu .gamaF2Title{font-size:14px}}
+@media screen{
+ body .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.ai-panel,.plList,.chartPanel){border:1px solid var(--arc-line);border-radius:12px;background:#FFF;box-shadow:0 2px 8px rgba(23,49,65,.025)}
+ body .arcContent section:not(#mainmenu) :is(.arcButton,.gamaStdAction){border-radius:8px;box-shadow:none}
+ body .arcContent section:not(#mainmenu) :is(input:not([type=checkbox],[type=radio],[type=range]),select,textarea){border-radius:8px;box-shadow:none}
+ body .arcContent section:not(#mainmenu) :is(.arcTableWrap,.gsScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox,.gamaColumnPicker){border-radius:8px;border-color:var(--arc-line)}
+ body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs)>button:is(.active,.on,.sel,[aria-selected=true],[aria-pressed=true]){color:#AD4508;border:1px solid transparent;border-bottom:2px solid var(--gama-orange);background:transparent;box-shadow:none}
+ body .arcContent section:not(#mainmenu) table.gamaCards :is(thead th,[data-gama-head] th){font-weight:600;background:#F7F8FA;border-bottom-color:var(--arc-line)}
+ body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(even)>td{background:#F7F8FA}
+ body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:hover>td{background:var(--arc-accent-50)}
+ body .arcContent #crm .crmTablero{gap:14px}
+ body .arcContent #crm .crmTablero .crmCol{border:1px solid var(--arc-line);border-radius:12px}
+ body .arcContent #crm .crmTarjeta{border-radius:9px;box-shadow:0 2px 6px rgba(23,49,65,.03)}
+ body .arcContent section:not(#mainmenu) table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){border-radius:10px}
+}
+/* Only the portrait inside the existing top-bar circle changes. */
+.arcAvatar:has(img){overflow:hidden}
+.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.hrPhotoEditor{display:flex;gap:16px;align-items:center;margin:12px 0 18px;padding:14px;border:1px solid var(--arc-line);border-radius:10px;background:var(--arc-surface-2)}
+.hrPhotoEditor>div{min-width:0;flex:1}.hrPhotoEditor input{max-width:100%;font-size:12px}.hrPhotoEditor label{margin:0 0 6px}
+.hrEmployeeAvatar{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:600;flex:none;overflow:hidden;vertical-align:middle}
+.hrEmployeeAvatar img{width:100%;height:100%;object-fit:cover;display:block}
+.hrPhotoEditor .hrEmployeeAvatar{width:80px;height:80px;font-size:25px}
+.hrPerson{display:flex;align-items:center;gap:10px}.hrPerson>div{min-width:0}
+.hrPhotoEditor .hrPhotoRemove{font-size:12px;min-height:32px;padding:4px 8px;margin-top:6px}
+@media(max-width:420px){.hrPhotoEditor{padding:10px;gap:10px}.hrPhotoEditor .hrEmployeeAvatar{width:60px;height:60px}}
+
+/* The dashboard uses the same two reporting colours as the GAMA reference. */
+.arcContent .adBarInvoice{fill:var(--gama-orange);background:var(--gama-orange)}
+.arcContent .adBarCash{fill:var(--gama-blue);background:var(--gama-blue)}
+.arcContent .gamaF2KpiIcon{border-radius:50%}

@@ -1,3 +1,4 @@
+import {moduleIcon} from './icons.js';
 import {escapeHtml as esc, translate as t, errorMessage, format} from '../domain/format.js';
 let sequence=0;
 const attr=(key,value)=>value==null || value===false?'':value===true?' '+key:' '+key+'="'+esc(value)+'"';
@@ -51,7 +52,7 @@ export function headerIcon(root,id='') {
     const drawing=definition && icons[definition.icon];
     if(!drawing)return;
     slot.dataset.arcFam=definition.accent||'cyan';
-    slot.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+drawing+'</svg>';
+    slot.innerHTML=moduleIcon(definition.icon);
     delete slot.dataset.arcIconSlot;
   });
   /* Una cabecera atada antes de colgarla de su sección todavía no sabe de qué

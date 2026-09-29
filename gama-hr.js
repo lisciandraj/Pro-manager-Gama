@@ -27,6 +27,7 @@ let employees=[],absences=[],tab='empleados',editing=null,busy=false,loadVersion
    le devuelve la mitad privada vacía, y la ficha le llega sin sueldo sin que
    este archivo tenga que decidir nada. */
 let mine=null,perfiles=[],myUid=null;
+let employeePhoto='',photoChanged=false,photoBusy=false,photoVersion=0;
 
 const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role||''}catch(e){return ''}};
 const isSystemAdmin=()=>role()==='admin'||role()==='administrador';
@@ -117,10 +118,10 @@ async function loadProfiles(){
 
 /* ---- empleados ---- */
 const FIELDS=['hrName','hrId','hrEmail','hrPhone','hrPosition','hrDept','hrManager','hrContract','hrHire','hrEnd','hrSalary','hrLeaveDays','hrNotes','hrAccount'];
-function clearEmployee(){editing=null;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='Guardar empleado';msg('')}
+function clearEmployee(){editing=null;employeePhoto='';photoChanged=false;photoBusy=false;photoVersion++;FIELDS.forEach(id=>{const el=$(id);if(el)el.value=id==='hrLeaveDays'?'15':''});const b=$('hrSave');if(b)b.textContent='Guardar empleado';msg('')}
 
 async function saveEmployee(){
- if(busy)return;
+ if(busy||photoBusy)return;
  const name=($('hrName').value||'').trim();
  if(!name)return msg('El nombre del empleado es obligatorio.',true);
  const num=v=>{const n=parseFloat(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
@@ -131,6 +132,7 @@ async function saveEmployee(){
   department:($('hrDept').value||'').trim()||null,
   profile_id:$('hrAccount')?.value||null,
  };
+ if(photoChanged)row.photo_data=employeePhoto||null;
  // El N+1: sólo si el campo está en pantalla, para no borrarlo sin querer.
  if($('hrManager'))row.manager_id=$('hrManager').value||null;
  // …y lo que sólo ven el interesado y recursos humanos.
@@ -149,6 +151,7 @@ async function saveEmployee(){
  try{
   const r=await window.ArcData.rawRpc('gama_hr_save_employee',{p_id:editing,p_employee:row,p_private:priv});
   if(r.error)throw r.error;
+  window.dispatchEvent(new CustomEvent('gama:employee-photo-change'));
   clearEmployee();msg(editing?'Ficha actualizada.':'Empleado añadido.');
   await load();
  }catch(e){fail(window.GamaHRP1?.managerError(e)||e,'No se pudo guardar el empleado')}
@@ -159,6 +162,7 @@ async function saveEmployee(){
    dejaría otra vez en blanco. */
 function editEmployee(id){
  const p=employees.find(x=>x.id===id);if(!p)return;
+ photoVersion++;photoBusy=false;employeePhoto=window.GamaEmployeePhotos?.valid(p.photo_data)||'';photoChanged=false;
  editing=id;tab='empleados';render();
  const set=(el,v)=>{const n=$(el);if(n)n.value=v};
  set('hrName',p.full_name||'');set('hrId',p.identification||'');
@@ -169,6 +173,7 @@ function editEmployee(id){
  set('hrSalary',p.salary??'');set('hrLeaveDays',p.annual_leave_days??15);
  set('hrNotes',p.notes||'');set('hrAccount',p.profile_id||'');set('hrManager',p.manager_id||'');
  msg('Editando la ficha de '+p.full_name+'.');
+ paintEmployeePhoto();
  $('hrName')?.scrollIntoView({behavior:'smooth',block:'center'});
 }
 /* Se archiva, no se borra: las ausencias registradas son historial laboral y
@@ -177,6 +182,7 @@ async function archiveEmployee(id,on){
  try{
   const r=await C().update('hr_employees',id,{active:!!on});
   if(r.error)throw r.error;
+  window.dispatchEvent(new CustomEvent('gama:employee-photo-change'));
   await load();
  }catch(e){fail(e,'No se pudo cambiar el estado del empleado')}
 }
@@ -267,8 +273,8 @@ function employeesTab(){
   const pct=total>0?Math.min(100,Math.round(used/total*100)):0;
   const off=p.active===false;
   return `<tr class="${off?'hrOff':''}">
-   <td><b>${esc(p.full_name)}</b><small>${p.position?esc(p.position):'<span data-gi-live data-gi=cb1226ba9d86>Sin puesto</span>'}${p.department?' · '+esc(p.department):''}</small>
-       <small>${esc(p.identification||'')}</small></td>
+   <td><div class="hrPerson"><span class="hrEmployeeAvatar" data-employee-avatar="${esc(p.id)}"></span><div><b>${esc(p.full_name)}</b><small>${p.position?esc(p.position):'<span data-gi-live data-gi=cb1226ba9d86>Sin puesto</span>'}${p.department?' · '+esc(p.department):''}</small>
+       <small>${esc(p.identification||'')}</small></div></div></td>
    <td>${esc(p.contract_type||'—')}<small><span data-gi=cdd3851b36eb>Alta: </span>${day(p.hire_date)}</small>${p.end_date?`<small><span data-gi=82a0a91a8205>Baja: </span>${day(p.end_date)}</small>`:''}</td>
    <td>${p.salary==null?'—':money(p.salary)}</td>
    <td>${used} / ${total}<small><span data-gi=14a00985becf>días laborables </span>${year}</small>
@@ -283,6 +289,12 @@ function employeesTab(){
  return `<div class="hrGrid">
   <div class="arcPanel card">
    <h3 data-gi-live>${editing?'Editar empleado':'Nuevo empleado'}</h3>
+   <div class="hrPhotoEditor"><span id="hrPhotoPreview" class="hrEmployeeAvatar" aria-hidden="true"></span><div>
+    <label for="hrPhoto">${esc(window.GamaEmployeePhotos?.t('label')||'Foto del empleado')}</label>
+    <input id="hrPhoto" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="hrPhotoHelp">
+    <small id="hrPhotoHelp">${esc(window.GamaEmployeePhotos?.t('help')||'JPG, PNG o WebP.')}</small>
+    <button type="button" id="hrPhotoRemove" class="arcButton secondary hrPhotoRemove">${esc(window.GamaEmployeePhotos?.t('remove')||'Quitar foto')}</button>
+   </div></div>
    <label data-gi=0be48a5a67cc>Nombre y apellidos *</label><input id="hrName" data-gi-placeholder=d6730d8299a4 placeholder="Ej. María Pérez">
    <div class="row">
     <div><label data-gi=48fdf0f9d94c>Cédula / RUC</label><input id="hrId" placeholder="0912345678"></div>
@@ -638,11 +650,28 @@ function render(){
  window.GamaHRP1?.bind(tab,load);
 }
 
+function paintEmployeePhoto(){
+ const photos=window.GamaEmployeePhotos;if(!photos)return;
+ photos.paint($('hrPhotoPreview'),$('hrName')?.value||'',employeePhoto);
+ const remove=$('hrPhotoRemove');if(remove)remove.disabled=!employeePhoto||photoBusy;
+ const save=$('hrSave');if(save)save.disabled=photoBusy;
+ document.querySelectorAll('[data-employee-avatar]').forEach(el=>{const person=employees.find(p=>p.id===el.dataset.employeeAvatar);if(person)photos.paint(el,person.full_name,person.photo_data)});
+}
+async function selectEmployeePhoto(){
+ const file=$('hrPhoto')?.files?.[0];if(!file)return;
+ const version=++photoVersion;photoBusy=true;paintEmployeePhoto();
+ try{const value=await window.GamaEmployeePhotos.compress(file);if(version!==photoVersion)return;employeePhoto=value;photoChanged=true;msg('')}
+ catch(e){if(version===photoVersion)msg(e.message,true)}
+ finally{if(version===photoVersion){photoBusy=false;paintEmployeePhoto()}}
+}
 function bind(){
  const s=section();
  window.GamaUI.bindBack(s);
  s.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;planPick=null;render()});
  const save=$('hrSave');if(save)save.onclick=saveEmployee;
+ const photoInput=$('hrPhoto');if(photoInput)photoInput.onchange=selectEmployeePhoto;
+ const photoRemove=$('hrPhotoRemove');if(photoRemove)photoRemove.onclick=()=>{photoVersion++;photoBusy=false;employeePhoto='';photoChanged=true;if(photoInput)photoInput.value='';paintEmployeePhoto()};
+ $('hrName')?.addEventListener('input',paintEmployeePhoto);paintEmployeePhoto();
  const clr=$('hrClear');if(clr)clr.onclick=()=>{clearEmployee();render()};
  const add=$('hrAbsAdd');if(add)add.onclick=addAbsence;
  s.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editEmployee(b.dataset.edit));
@@ -670,7 +699,7 @@ function open(requestedTab){
  load();
 }
 
-window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!myUid||nextUid===myUid))return;loadVersion++;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))window.ArcUI.render($('hr'),'')});
+window.addEventListener('gama:auth-change',ev=>{const nextUid=ev.detail?.session?.user?.id||null;if(ev.detail?.event!=='SIGNED_OUT'&&(!myUid||nextUid===myUid))return;loadVersion++;photoVersion++;employeePhoto='';photoChanged=false;photoBusy=false;employees=[];absences=[];mine=null;perfiles=[];myUid=null;editing=null;tab='empleados';if($('hr'))window.ArcUI.render($('hr'),'')});
 window.GamaHR={open,load};
 window.GamaOpenHR=open;
 })();

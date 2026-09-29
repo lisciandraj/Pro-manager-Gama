@@ -19,37 +19,37 @@
    mismo no informa a quien no lo distingue. */
 :root{
  /* ------------------------------------------- las cuatro letras de COCO */
- --arc-coco-blue:#3B6CF9;    /* C — el robot */
- --arc-coco-violet:#905494;  /* O */
- --arc-coco-teal:#3CB4A4;    /* C */
- --arc-coco-orange:#FCA824;  /* O */
+ --arc-coco-blue:#157F98;    /* C — el robot */
+ --arc-coco-violet:#D45C0B;  /* O */
+ --arc-coco-teal:#238FA4;    /* C */
+ --arc-coco-orange:#F87826;  /* O */
  /* Las mismas oscurecidas lo justo para leerse como texto (≥4.5:1 sobre blanco). */
- --arc-coco-blue-text:#2D59DB;   --arc-coco-violet-text:#905494;
- --arc-coco-teal-text:#2B8276;   --arc-coco-orange-text:#A86802;
+ --arc-coco-blue-text:#10677D;   --arc-coco-violet-text:#D45C0B;
+ --arc-coco-teal-text:#10677D;   --arc-coco-orange-text:#AD4508;
 
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#262C4E;   /* azul noche: la visera del robot (#293051) */
- --arc-navy-800:#1F2442;   /* marca, cabeceras oscuras */
- --arc-navy-700:#323A6B;   /* enlaces de la navegación — 10.8:1 sobre blanco */
- --arc-navy-600:#3B4586;   /* 8.8:1 con texto blanco */
- --arc-steel-600:#4B5487;  /* índigo grisáceo: elementos secundarios */
- --arc-steel-500:#5D6798;
- --arc-steel-400:#8189B4;
- --arc-steel-300:#ADB3D3;
+ --arc-navy-900:#103B52;   /* azul noche: la visera del robot (#293051) */
+ --arc-navy-800:#0B3045;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#24495A;   /* enlaces de la navegación — 10.8:1 sobre blanco */
+ --arc-navy-600:#10677D;   /* 8.8:1 con texto blanco */
+ --arc-steel-600:#496575;  /* índigo grisáceo: elementos secundarios */
+ --arc-steel-500:#617C8A;
+ --arc-steel-400:#89A2AD;
+ --arc-steel-300:#C4D5DD;
 
  /* ------------------------------------------------------------- acciones */
- --arc-accent-700:#2446B8;
- --arc-accent-600:#2D59DB;  /* acción principal: el azul del robot — 5.9:1 sobre blanco, 5.2:1 sobre el lienzo */
- --arc-accent-500:#3B6CF9;  /* el azul del logo, para lo decorativo */
- --arc-accent-400:#6F95FB;
- --arc-accent-100:#E4EBFE;
- --arc-accent-50:#F3F6FF;
+ --arc-accent-700:#0C556B;
+ --arc-accent-600:#10677D;  /* acción principal: el azul del robot — 5.9:1 sobre blanco, 5.2:1 sobre el lienzo */
+ --arc-accent-500:#157F98;  /* el azul del logo, para lo decorativo */
+ --arc-accent-400:#70B7C6;
+ --arc-accent-100:#E7F3F6;
+ --arc-accent-50:#F3F9FA;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#EEF1F7;      /* clear separation from white working surfaces */
+ --arc-canvas:#F3F7F9;      /* clear separation from white working surfaces */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F2F4FA;   /* superficie hundida: cabeceras de tabla, zonas */
- --arc-surface-3:#EEF1F8;
+ --arc-surface-2:#F5F8FA;   /* superficie hundida: cabeceras de tabla, zonas */
+ --arc-surface-3:#EDF3F6;
  --arc-line:#BEC5D3;        /* visible shared separators */
  --arc-line-strong:#8A95A8; /* fields and stronger boundaries */
 
@@ -57,27 +57,27 @@
  --arc-text-muted:#4F5C78;  /* texto secundario — 6.7:1 sobre blanco, AA en todas las superficies */
  --arc-text-subtle:#5B6883; /* pies de foto, ayudas — 5.6:1 sobre blanco, 4.9:1 sobre el lienzo */
  --arc-text-invert:#FFFFFF;
- --arc-text-on-navy:#D6DAF0; /* texto sobre el azul noche — 9.8:1 */
+ --arc-text-on-navy:#DDEEF2; /* texto sobre el azul noche — 9.8:1 */
 
  /* --------------------------------------------------------- funcionales */
  --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;
  --arc-warning:#9A5B00;   --arc-warning-bg:#FDF1DF;   --arc-warning-line:#F0CE94;
  --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
- --arc-info:#2446B8;      --arc-info-bg:#E6EDFE;      --arc-info-line:#BCCCF9;
+ --arc-info:#0C556B;      --arc-info-bg:#E7F3F6;      --arc-info-line:#B6DCE5;
 
  /* Familias de los módulos: una letra de COCO por dominio, en su tono legible. */
- --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E0E7FE;   /* C azul: pilotaje */
- --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#EDE4EE;       /* O violeta: ventas y clientes */
- --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E0F3F0;   /* C turquesa: stock, compras y logística */
- --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E0F3F0;
- --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF1DC;     /* O naranja: administración */
- --arc-fam-people:var(--arc-coco-orange-text);    --arc-fam-people-bg:#FFF1DC;
- --arc-fam-system:var(--arc-coco-orange-text);    --arc-fam-system-bg:#FFF1DC;
+ --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E7F3F6;   /* C azul: pilotaje */
+ --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#FFF0E6;       /* O violeta: ventas y clientes */
+ --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E7F3F6;   /* C turquesa: stock, compras y logística */
+ --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E7F3F6;
+ --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF0E6;     /* O naranja: administración */
+ --arc-fam-people:var(--arc-coco-orange-text);    --arc-fam-people-bg:#FFF0E6;
+ --arc-fam-system:var(--arc-coco-orange-text);    --arc-fam-system-bg:#FFF0E6;
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#3B6CF9; --arc-viz-2:#905494; --arc-viz-3:#319386;
- --arc-viz-4:#BF7603; --arc-viz-5:#262C4E; --arc-viz-6:#B3261E;
+ --arc-viz-1:#157F98; --arc-viz-2:#D45C0B; --arc-viz-3:#238FA4;
+ --arc-viz-4:#AD4508; --arc-viz-5:#103B52; --arc-viz-6:#B3261E;
 
  /* ------------------------------------------------------------- espacio */
  --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
@@ -107,7 +107,7 @@
  --arc-sidebar-w-collapsed:72px;
  --arc-topbar-h:70px;
  --arc-tap:44px;            /* zona táctil mínima */
- --arc-focus:0 0 0 3px rgba(59,108,249,.45);
+ --arc-focus:0 0 0 3px rgba(21,127,152,.35);
  --arc-content-max:1600px;
 }
 
@@ -137,10 +137,10 @@
  --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
  /* Iconos de los módulos: las cuatro letras de COCO. Azul y violeta van tal
     cual; turquesa y naranja, oscurecidos lo justo para ≥3:1 sobre su fondo. */
- --arc-icon-blue:#3B6CF9;--arc-icon-blue-bg:#E0E7FE;
- --arc-icon-violet:#905494;--arc-icon-violet-bg:#EDE4EE;
- --arc-icon-teal:#319386;--arc-icon-teal-bg:#E0F3F0;
- --arc-icon-orange:#BF7603;--arc-icon-orange-bg:#FFF1DC;
+ --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;
+ --arc-icon-violet:#D45C0B;--arc-icon-violet-bg:#FFF0E6;
+ --arc-icon-teal:#238FA4;--arc-icon-teal-bg:#E7F3F6;
+ --arc-icon-orange:#AD4508;--arc-icon-orange-bg:#FFF0E6;
  /* Nombres anteriores: cada uno cae en una de las cuatro. */
  --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);
  --arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);

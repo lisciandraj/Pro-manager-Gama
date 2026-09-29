@@ -1,22 +1,22 @@
 /* GAMA reference design. Tokens are scoped so the existing top bar is unchanged. */
 .arcContent,.arcSidebar,body>dialog{
- --gama-blue:#0C7185;--gama-blue-dark:#075567;--gama-orange:#F47721;
- --arc-accent-700:#075567;--arc-accent-600:#0C7185;--arc-accent-500:#16899D;
- --arc-accent-100:#E4F1F4;--arc-accent-50:#F0F7F8;
+ --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:#F87826;
+ --arc-accent-700:#10677D;--arc-accent-600:#157F98;--arc-accent-500:#238FA4;
+ --arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
  --arc-navy-700:#24374A;--arc-navy-900:#192B3C;
  --arc-canvas:#F7F8FB;--arc-surface-2:#F7F8FA;--arc-surface-3:#F2F5F7;
  --arc-line:#E1E6EC;--arc-line-strong:#B8C3CE;--arc-text:#1C2C3E;--arc-text-muted:#617080;--arc-text-subtle:#617080;
  --arc-card-border:#E1E6EC;--arc-tile-border:#E1E6EC;--arc-card-shadow:0 2px 8px rgba(23,49,65,.035);
  --arc-tile-shadow:0 2px 8px rgba(23,49,65,.035);--arc-control-shadow:none;--arc-field-shadow:none;
- --arc-icon-blue:#0C7185;--arc-icon-blue-bg:#E5F2F5;--arc-icon-teal:#0C7185;--arc-icon-teal-bg:#E5F2F5;
- --arc-icon-violet:#0C7185;--arc-icon-violet-bg:#E5F2F5;--arc-icon-orange:#D45C0B;--arc-icon-orange-bg:#FFF0E6;
- --arc-fam-analytics:#0C7185;--arc-fam-analytics-bg:#E5F2F5;--arc-fam-sales:#0C7185;--arc-fam-sales-bg:#E5F2F5;
- --arc-fam-logistics:#0C7185;--arc-fam-logistics-bg:#E5F2F5;--arc-fam-purchase:#0C7185;--arc-fam-purchase-bg:#E5F2F5;
- --arc-fam-finance:#D45C0B;--arc-fam-finance-bg:#FFF0E6;--arc-fam-people:#D45C0B;--arc-fam-people-bg:#FFF0E6;--arc-fam-system:#0C7185;--arc-fam-system-bg:#E5F2F5;
+ --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;--arc-icon-teal:#157F98;--arc-icon-teal-bg:#E7F3F6;
+ --arc-icon-violet:#157F98;--arc-icon-violet-bg:#E7F3F6;--arc-icon-orange:#D45C0B;--arc-icon-orange-bg:#FFF0E6;
+ --arc-fam-analytics:#157F98;--arc-fam-analytics-bg:#E7F3F6;--arc-fam-sales:#157F98;--arc-fam-sales-bg:#E7F3F6;
+ --arc-fam-logistics:#157F98;--arc-fam-logistics-bg:#E7F3F6;--arc-fam-purchase:#157F98;--arc-fam-purchase-bg:#E7F3F6;
+ --arc-fam-finance:#D45C0B;--arc-fam-finance-bg:#FFF0E6;--arc-fam-people:#D45C0B;--arc-fam-people-bg:#FFF0E6;--arc-fam-system:#157F98;--arc-fam-system-bg:#E7F3F6;
  --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);--arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
  --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);--arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);--arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
  --arc-tile-border-bottom:#E1E6EC;
- --arc-viz-1:#F47721;--arc-viz-2:#0C7185;--arc-viz-3:#16899D;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
+ --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#238FA4;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
 }
 .arcContent{background:var(--arc-canvas)}
 /* Supplied Coco logo, displayed from the unchanged source photograph. */
@@ -26,6 +26,14 @@
 .arcBrand .arcLogoMark img{position:absolute;width:146px;max-width:none;height:auto;left:-18px;top:-18px;clip-path:polygon(0 0,100% 0,100% 34%,38% 34%,38% 100%,0 100%)}
 #gamaCloudLogin .brand{overflow:hidden}
 #gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
+#gamaCloudLogin{background:radial-gradient(ellipse at 85% 12%,rgba(248,120,38,.20),transparent 42%),linear-gradient(135deg,#0B3045,#10677D 60%,#157F98);padding:24px}
+#gamaCloudLogin .box{background:#fff;border:1px solid #C6DFE5;box-shadow:0 22px 70px rgba(11,48,69,.28);width:min(460px,100%)}
+#gamaCloudLogin .brand{margin-bottom:10px}
+#gamaCloudLogin #gamaCloudLoginBtn{background:#10677D;border-color:#10677D;color:#fff}
+#gamaCloudLogin #gamaCloudLoginBtn:hover{background:#0C556B}
+#gamaCloudLogin .secondary{background:#FFF0E6;color:#AD4508;border:1px solid #F7D5BD}
+#gamaCloudLogin input:focus{border-color:#157F98;box-shadow:0 0 0 3px #E7F3F6;outline:none}
+@media(max-width:600px){#gamaCloudLogin{padding:16px}#gamaCloudLogin .box{padding:24px 20px}#gamaCloudLogin .brand img.arcLoginLogo{width:100%}}
 /* Home palette follows the new teal/orange artwork without recoloring the top bar. */
 #mainmenu{--gama-blue:#157F98;--gama-blue-dark:#103B52;--gama-orange:#F87826;--arc-accent-600:#157F98;--arc-accent-700:#10677D;--arc-accent-100:#E9F4F7;--arc-accent-50:#F4F9FA;--arc-text:#293545}
 #mainmenu .arcCustomizeButton{color:#10677D;border-color:#C6DFE5;background:#F4F9FA}
@@ -76,3 +84,5 @@
 .arcContent .adBarInvoice{fill:var(--gama-orange);background:var(--gama-orange)}
 .arcContent .adBarCash{fill:var(--gama-blue);background:var(--gama-blue)}
 .arcContent .gamaF2KpiIcon{border-radius:50%}
+
+#gamaCloudLogin button{box-shadow:0 4px 14px rgba(16,103,125,.16)}

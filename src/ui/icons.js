@@ -42,3 +42,19 @@ tag:'<path d="M3 12V5.5A2.5 2.5 0 0 1 5.5 3H12l9 9-9 9-9-9Z"/><circle cx="7.5" c
 matrix:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6M6 9v6M18 9v6M9 18h6"/>',
 warehouse:'<path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M7 20v-6h10v6M7 14h10"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
+
+// Solid two-colour illustrations for the reference-style home. Sidebar icons stay compact.
+const moduleIllustrations={
+ chart:'<g fill="currentColor" stroke="none"><rect x="3" y="15" width="3" height="7" rx=".6"/><rect x="8" y="11" width="3" height="11" rx=".6"/><rect x="13" y="13" width="3" height="9" rx=".6"/><rect x="18" y="8" width="3" height="14" rx=".6"/></g><path d="m4 11 5-6 5 2 6-5" fill="none" stroke="var(--gama-orange)" stroke-width="1.3"/><g fill="var(--gama-orange)" stroke="none"><circle cx="4" cy="11" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="14" cy="7" r="1.5"/><circle cx="20" cy="2" r="1.5"/></g>',
+ cube:'<path d="m12 2 10 5.5L12 13 2 7.5Z" fill="currentColor" stroke="none"/><path d="M2 9l9 5v9l-9-5Z" fill="var(--gama-blue-dark)" stroke="none"/><path d="m13 14 9-5v9l-9 5Z" fill="currentColor" stroke="none"/>',
+ users:'<g fill="var(--gama-orange)" stroke="none"><circle cx="18" cy="7" r="3.1"/><path d="M15 12c5-1 8 2 8 8h-8Z"/></g><g fill="currentColor" stroke="none"><circle cx="8" cy="6" r="4"/><path d="M1 20v-2c0-7 14-7 14 0v2Z"/></g>',
+ truck:'<path d="M2 4h12v13H2Z" fill="currentColor" stroke="none"/><path d="M15 8h4l4 5v4h-8Z" fill="var(--gama-blue-dark)" stroke="none"/><path d="M17 10h2l2 3h-4Z" fill="white" stroke="none"/><g fill="var(--gama-blue-dark)" stroke="white" stroke-width=".7"><circle cx="6" cy="18" r="3"/><circle cx="19" cy="18" r="3"/></g>',
+ invoice:'<path d="M5 2h10l5 5v15H5Z M15 2v6h5" fill="none" stroke="var(--gama-blue-dark)" stroke-width="1.5"/><path d="M8 8h3M8 12h8M8 16h4" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M17 16c-3-2-4 2-1 2s2 4-1 2m1-5v7" fill="none" stroke="var(--gama-orange)" stroke-width="1.3"/>',
+ cart:'<path d="M2 3h3l3 13h12l3-10H6" fill="var(--gama-orange)" fill-opacity=".15" stroke="var(--gama-orange)" stroke-width="1.5"/><g fill="currentColor" stroke="none"><circle cx="9" cy="21" r="2"/><circle cx="19" cy="21" r="2"/></g>',
+};
+
+/** Shared large module artwork; compact navigation keeps the line icons above. */
+export function moduleIcon(name) {
+ const drawing=moduleIllustrations[name]||icons[name];
+ return drawing?'<svg'+(moduleIllustrations[name]?' class="arcHomeIllustration"':'')+' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'+drawing+'</svg>':'';
+}

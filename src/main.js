@@ -1,5 +1,5 @@
 import * as ui from './ui/components.js';
-import {icons} from './ui/icons.js';
+import {icons,moduleIcon} from './ui/icons.js';
 import {escapeHtml,format,normalizeError,errorMessage} from './domain/format.js';
 import * as data from './data/service.js';
 import * as entities from './domain/entities.js';
@@ -7,7 +7,7 @@ import {registry,groups,roles,aliases,roleAliases,tabsOf} from './app/registry.j
 import {router,startRouter} from './app/router.js';
 import {directory} from './modules/directories.js';
 import {installLazyModules,loadModule} from './app/loader.js';
-window.ArcUI={...ui,icons,esc:escapeHtml};
+window.ArcUI={...ui,icons,moduleIcon,esc:escapeHtml};
 window.ArcFormat=format;
 window.ArcErrors={normalize:normalizeError,message:errorMessage};
 window.ArcData=data;

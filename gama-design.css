@@ -19,6 +19,18 @@
  --arc-viz-1:#F47721;--arc-viz-2:#0C7185;--arc-viz-3:#16899D;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
 }
 .arcContent{background:var(--arc-canvas)}
+/* Supplied Coco logo, displayed from the unchanged source photograph. */
+.arcBrand .arcLogo{position:relative;aspect-ratio:1160/635;overflow:hidden}
+.arcBrand .arcLogo img{position:absolute;width:132.414%;max-width:none;height:auto;left:-16.38%;top:-29.92%}
+.arcBrand .arcLogoMark{position:relative;overflow:hidden}
+.arcBrand .arcLogoMark img{position:absolute;width:146px;max-width:none;height:auto;left:-18px;top:-18px;clip-path:polygon(0 0,100% 0,100% 34%,38% 34%,38% 100%,0 100%)}
+#gamaCloudLogin .brand{overflow:hidden}
+#gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
+/* Home palette follows the new teal/orange artwork without recoloring the top bar. */
+#mainmenu{--gama-blue:#157F98;--gama-blue-dark:#103B52;--gama-orange:#F87826;--arc-accent-600:#157F98;--arc-accent-700:#10677D;--arc-accent-100:#E9F4F7;--arc-accent-50:#F4F9FA;--arc-text:#293545}
+#mainmenu .arcCustomizeButton{color:#10677D;border-color:#C6DFE5;background:#F4F9FA}
+#mainmenu .arcCustomizeButton:hover{background:#E9F4F7;border-color:#157F98}
+#mainmenu .gamaF2Card:focus-visible{outline:3px solid #F87826;outline-offset:3px}
 .arcSidebar{background:#FFF;border-right-color:#E1E6EC}
 .arcSidebar .arcNavLink{font-weight:500;gap:12px}
 .arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 var(--gama-orange)}

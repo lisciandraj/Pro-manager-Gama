@@ -202,8 +202,8 @@ test.describe('el armazón Coco ERP', () => {
   test('la marca y el buscador hablan de Coco ERP, y en los tres idiomas', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
-    await expect(page.locator('.arcLogo')).toHaveAttribute('alt','COCO ERP');
-    await expect(page.locator('.arcLogo')).toHaveAttribute('src','coco-erp-wordmark.png');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('alt','COCO ERP — Structure Your Business. Simply.');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-gama-logo.jpg');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Coco ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Coco ERP/], ['en', /Search Coco ERP/]]) {

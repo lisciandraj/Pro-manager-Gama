@@ -26,7 +26,7 @@ const VERSION='v1.0.0';
 
 // Use the original supplied file byte-for-byte, including its slogan and ratio.
 // Coco ERP: el logo tal cual, sobre su tarjeta blanca; el robot solo cuando la barra está plegada.
-const MARK='<img class="arcLogo" src="coco-erp-wordmark.png" alt="COCO ERP" width="600" height="286"><img class="arcLogoMark" src="coco-erp-icon-180.png" alt="" width="180" height="180">';
+const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg" alt="COCO ERP — Structure Your Business. Simply." width="1536" height="1024"></span><span class="arcLogoMark" aria-hidden="true"><img src="coco-gama-logo.jpg" alt="" width="1536" height="1024"></span>';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',

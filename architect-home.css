@@ -9,7 +9,7 @@
 .arcCustomizeButton{padding:4px 12px;min-height:40px;font-size:14px;font-weight:400}
 .arcCustomizeButton svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
 #mainmenu .gamaF2Grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));grid-auto-rows:1fr;align-items:stretch;gap:16px}
-#mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-width:0;min-height:166px;padding:22px 12px;margin:0;text-align:center;background:white;border:0;border-radius:22px;box-shadow:0 4px 16px rgba(31,36,66,.05);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
+#mainmenu .gamaF2Card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-width:0;min-height:166px;padding:22px 12px;margin:0;text-align:center;background:white;border:1px solid color-mix(in srgb,currentColor 30%,white);border-radius:22px;box-shadow:0 4px 16px rgba(31,36,66,.05);position:relative;transition:box-shadow var(--arc-motion),transform var(--arc-motion),border-color var(--arc-motion)}
 
 @media(hover:hover){#mainmenu .gamaF2Card:hover{box-shadow:0 8px 22px rgba(31,36,66,.12);transform:translateY(-2px)}}
 #mainmenu .gamaF2Card:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px;box-shadow:var(--arc-tile-shadow-hover)}

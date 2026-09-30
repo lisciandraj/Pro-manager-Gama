@@ -139,7 +139,7 @@ async function downloadInvoicePdf(){
  if(!lastQuote)return alert('Genera primero el presupuesto.');
  if(!window.GamaQuotePdf||!window.GamaPdf)return alert('El generador de PDF no está disponible. Recarga la aplicación.');
  try{
-  await window.GamaCompany?.load(true);
+  await window.GamaPdf.ready();await window.GamaCompany?.load(true);
   const doc=window.GamaQuotePdf.build(lastQuote);
   window.GamaPdf.save(doc,window.GamaPdf.fileName('presupuesto',lastQuote.number));
  }catch(e){console.error('[GAMA PDF]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}
@@ -157,7 +157,7 @@ async function downloadBarcodePdf(){
      tomaran de la pantalla, la proporción cambiaría con el ancho del móvil y
      las barras saldrían estiradas. Un código de barras deformado puede dejar
      de leerse, que es justo para lo que sirve la etiqueta. */
-  await window.GamaCompany?.load(true);
+  await window.GamaPdf.ready();await window.GamaCompany?.load(true);
   const vb=(svg.getAttribute('viewBox')||'0 0 300 150').split(/\s+/).map(Number);
   const w=vb[2]||300,h=vb[3]||150;
   // El SVG sólo tiene viewBox; sin width/height explícitos el navegador no
@@ -167,7 +167,7 @@ async function downloadBarcodePdf(){
   copia.setAttribute('xmlns','http://www.w3.org/2000/svg');
   const xml=new XMLSerializer().serializeToString(copia);
   const img=new Image();
-  img.onload=()=>{
+  img.onload=async()=>{
    try{
     const esc=3;                                   // x3: una etiqueta borrosa no se escanea
     const c=document.createElement('canvas');
@@ -180,6 +180,7 @@ async function downloadBarcodePdf(){
     const LW=80,LH=50,MG=6;
     const escala=Math.min((LW-2*MG)/w,(LH-18)/h);
     const iw=w*escala,ih=h*escala;
+    await window.GamaPdf.ready();
     const doc=new (window.GamaPdf.jsPDF())({orientation:'landscape',unit:'mm',format:[LW,LH]});
     window.GamaPdfTemplate.label(doc);
     doc.addImage(c.toDataURL('image/png'),'PNG',(LW-iw)/2,13+(LH-13-ih)/2,iw,ih);

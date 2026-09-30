@@ -1,5 +1,5 @@
 /* Generated from src/features/purchasing/purchase-order-pdf.js. Edit the source and run npm run build. */
-/* GAMA — Generador de PDF para pedidos a proveedores (usa jsPDF, cargado por CDN) */
+/* GAMA — Generador de PDF para pedidos a proveedores (usa jsPDF local, cargado al exportar) */
 (function(){
 'use strict';
 function esc(v){return window.ArcUI.esc(v)}
@@ -30,7 +30,7 @@ function build(o){
 
 async function send({o,email,subject,body,filename}){
  let blob=null;
- try{await window.GamaCompany?.load(true);blob=build(o)}catch(e){console.warn('[GAMA Purchase PDF]',e)}
+ try{await window.GamaPdf.ready();await window.GamaCompany?.load(true);blob=build(o)}catch(e){console.warn('[GAMA Purchase PDF]',e)}
  return window.GamaQuotePdf.sendDocument({blob,email,subject,body,filename});
 }
 window.GamaPurchaseOrderPdf={build,send};

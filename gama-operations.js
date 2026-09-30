@@ -108,11 +108,10 @@ async function preferences(host){if(!host)return;const U=window.ArcUI,t=(es,fr,e
  U.bindForm(form,async()=>{const data=new FormData(form),visible=data.getAll('kind'),res=await window.GamaCloud.upsert('erp_notification_preferences',{user_id:uid,hidden_kinds:Object.keys(kinds).filter(k=>k!=='all'&&!visible.includes(k)),only_mine:data.has('mine'),updated_at:new Date().toISOString()});if(res.error)throw res.error;notificationClass=data.get('class');offset=0;load();refreshBadge()},{onSuccess:()=>{status.textContent=t('Preferencias guardadas.','Préférences enregistrées.','Preferences saved.')}});
 }catch(e){paneError(host,e)}}
 async function refreshBadge(){if(!allowed()||document.hidden)return;try{const token=version;const [d,projects]=await Promise.all([rpc('snapshot',{offset:0,respect_preferences:true}),window.GamaProjects?.countAlerts().catch(()=>0)||0]);if(token===version&&allowed())badge(Number(d.active_count)+projects)}catch(_){document.querySelectorAll('[data-go-badge]').forEach(x=>{x.textContent='?';x.setAttribute('aria-label','Alertas sin actualizar')})}}
-function install(){css();document.querySelectorAll('[data-go-nav="notifications"]').forEach(b=>{if(!b.querySelector('[data-go-badge]')){const x=document.createElement('span');x.className='goBadge';x.dataset.goBadge='';x.textContent='…';b.appendChild(x)}});}
-let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;setTimeout(()=>{queued=false;install()},250)}).observe(document.body,{childList:true,subtree:true});
+// The shell creates its own badge. No document-wide observer is needed.
 for(const event of ['gama:sales-change','gama:projects-change'])window.addEventListener(event,()=>{clearTimeout(timer);timer=setTimeout(()=>{refreshBadge();if(win?.el.open&&!otherDialog())load()},500)});
 // Renovar el token no cambia nada; cerrar la sesión o perder el permiso cierra la ventana.
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;version++;snapshot=null;projectCount=0;document.querySelectorAll('[data-go-badge]').forEach(x=>x.textContent='…');if(win?.el.open){if(e.detail?.event==='SIGNED_OUT'||!allowed())win.close();else load()}});
 setInterval(()=>{if(document.hidden||!allowed())return;if(win?.el.open&&!otherDialog())load();else refreshBadge()},60000);
-window.addEventListener('focus',refreshBadge);window.GamaOperations={open,dossier,refreshBadge,preferences:()=>open('notifications',{tab:'preferences'})};install();setTimeout(refreshBadge,2500);
+window.addEventListener('focus',refreshBadge);window.GamaOperations={open,dossier,refreshBadge,preferences:()=>open('notifications',{tab:'preferences'})};setTimeout(refreshBadge,2500);
 })();

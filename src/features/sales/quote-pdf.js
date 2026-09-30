@@ -116,7 +116,7 @@ async function sendDocument({blob,email,subject,body,filename}){
 }
 async function send({q,email,subject,body,filename}){
  let blob=null;
- try{await window.GamaCompany?.load(true);await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
+ try{await window.GamaCompany?.load(true);await window.GamaPdf.ready();await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
  return sendDocument({blob,email,subject,body,filename});
 }
 /* openMail, openTab e isMobile se llaman a través de api para poder

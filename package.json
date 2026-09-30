@@ -15,7 +15,8 @@
     "test:concurrency": "node scripts/check-stock-concurrency.cjs",
     "build:i18n": "python3 scripts/build-i18n.py && npm run build",
     "check:generated": "node scripts/check-generated.cjs",
-    "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs",
+    "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs tests/project-integration.test.cjs tests/pdf-loader.test.cjs",
+    "check:startup": "node scripts/check-startup.cjs",
     "check:docs": "node scripts/check-docs.cjs"
   },
   "devDependencies": {
@@ -24,6 +25,6 @@
     "acorn": "8.15.0",
     "pg": "^8.20.0",
     "typescript": "5.9.3",
-    "vite": "6.4.1"
+    "vite": "6.4.3"
   }
 }

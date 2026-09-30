@@ -16,7 +16,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   generate:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/refactor/coco-maintenance' && !startsWith(github.event.head_commit.message, 'build: refresh Coco generated assets')
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/refactor/coco-maintenance' && !startsWith(github.event.head_commit.message, 'build: refresh Coco generated assets')
     runs-on: ubuntu-latest
     permissions:
       contents: write

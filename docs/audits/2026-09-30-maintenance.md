@@ -17,7 +17,7 @@ L’inventaire initial couvre 934 fichiers : 122 sources JavaScript, 61 feuilles
 | Versions | `vendors` du manifeste produit une URL à hash pour jsPDF différé |
 | Contrats | Sources canoniques sous `src/` ; API, routes, noms RPC et clés de stockage compatibles |
 
-La révision de départ charge 95 scripts et 2 308 276 octets de JS. L’extraction PDF/Projets déjà intégrée réduit ce total à 93 scripts et 1 877 403 octets, soit 18,7 % de moins. Cette livraison ajoute un léger coût de validation et de scans regroupés ; le relevé final se reproduit avec `node scripts/check-startup.cjs --json`. Les 12 feuilles CSS représentent 285 783 octets. Les budgets restent 1 900 000 octets JS, 300 000 octets CSS et 93 scripts.
+La révision de départ charge 95 scripts et 2 308 276 octets de JS. L’extraction PDF/Projets déjà intégrée réduit ce total à 93 scripts et 1 877 403 octets, soit 18,7 % de moins. Après cette livraison, le total est **1 877 820 octets et 93 scripts** (−430 456 octets, soit −18,6 % face à la révision de départ). Le relevé final se reproduit avec `node scripts/check-startup.cjs --json`. Les 12 feuilles CSS représentent 285 783 octets. Les budgets restent 1 900 000 octets JS, 300 000 octets CSS et 93 scripts.
 
 Ces tailles excluent les requêtes dynamiques, images et données ; gzip est estimé fichier par fichier. Elles ne représentent pas une baisse équivalente du temps d’ouverture. Le premier export télécharge encore le moteur PDF ; les suivants réutilisent le moteur installé.
 

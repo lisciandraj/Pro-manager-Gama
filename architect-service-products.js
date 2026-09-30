@@ -1,3 +1,4 @@
+/* Generated from src/features/service/service-products.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)||window.GamaI18n?.language]||es),rpc=(p_action,p_data)=>window.ArcData.rpc('gama_service_execution',{p_action,p_data});let epoch=0;
 const dialog=o=>{const d=U.dialog(o);d.dataset.serviceProducts='';d.dataset.giIgnore='';return d};
 async function open(orderId){try{const token=epoch,r=await rpc('context',{order_id:orderId});if(token!==epoch)return;const canWrite=['admin','administrador','commercial','comercial'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)&&r.order.status==='confirmed';

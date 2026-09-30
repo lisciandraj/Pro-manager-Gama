@@ -1,3 +1,4 @@
+/* Generated from src/features/recovery/recovery.js. Edit the source and run npm run build. */
 (function(){'use strict';
 const t=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 const $=id=>document.getElementById(id);let busy=false,epoch=0;

@@ -1,3 +1,4 @@
+/* Generated from src/styles/shell.css. Edit the source and run npm run build. */
 /* Shared application frame. Reference image: 1145 × 1374, sidebar 192, bar 70. */
 .arcShell{display:flex;min-height:100dvh;align-items:stretch}
 .arcSidebar{position:fixed;inset:0 auto 0 0;width:var(--arc-sidebar-w);z-index:60;background:var(--arc-surface);color:var(--arc-text);border-right:1px solid var(--arc-card-border);display:flex;flex-direction:column;transition:transform var(--arc-motion),width var(--arc-motion)}

@@ -1,3 +1,4 @@
+/* Generated from src/ui/modules.js. Edit the source and run npm run build. */
 /* GAMA — Interruptor de módulos.
 
    Configuración permite apagar un módulo que no se usa. Un módulo apagado

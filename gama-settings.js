@@ -1,3 +1,4 @@
+/* Generated from src/ui/settings.js. Edit the source and run npm run build. */
 /* GAMA — personal language configuration and administrator access settings.
    Module writes remain protected by the existing app_modules RLS policy. */
 (function(){

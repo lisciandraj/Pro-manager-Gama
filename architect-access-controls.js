@@ -1,3 +1,4 @@
+/* Generated from src/features/access/access-controls.js. Edit the source and run npm run build. */
 (function(){
 'use strict';
 const U=window.ArcUI,E=U.esc,F=U.field;

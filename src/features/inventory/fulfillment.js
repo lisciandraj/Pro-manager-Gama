@@ -1,0 +1,244 @@
+/* Fulfillment extends the existing sales dossier. All business writes are RPCs. */
+(function(){
+'use strict';
+const S=()=>window.GamaSales,$=id=>document.getElementById(id);
+const esc=window.ArcUI.esc;
+const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
+const n=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:3});
+const text=s=>({queued:'Por preparar',picking:'En preparación',packed:'Lista para expedir',shipped:'Expedida',cancelled:'Cancelada',requested:'Retorno solicitado',received:'En cuarentena',restocked:'Reintegrado',scrapped:'Baja',exchanged:'Cambio creado',proposed:'Pendiente de aceptación',accepted:'Aceptada',rejected:'Rechazada',withdrawn:'Retirada',wait:'Esperar entrega completa',partial:'Entrega parcial',substitute:'Sustituir producto',missing:'Faltante',damaged:'Dañado',other:'Otro'}[s]||s);
+const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role}catch(_){return''}};
+const wh=()=>['admin','administrador','almacenero','magasinier'].includes(role());
+const sell=()=>['admin','administrador','comercial','commercial'].includes(role());
+const messages={SCAN_MODE_REQUIRED:'Elige el modo de escaneo.',QUANTITY_CONFIRMATION_REQUIRED:'Confirma la cantidad contada.',LOCATION_SCAN_REQUIRED:'Escanea la ubicación de origen indicada.',UNIT_SCAN_QUANTITY_REQUIRED:'Este modo registra una unidad por escaneo.',PACK_SCAN_QUANTITY_REQUIRED:'Escanea el código del envase configurado.',BATCH_LIMIT:'El contenido supera la cantidad acordada para la próxima entrega. Corrige la preparación o acuerda una nueva propuesta.',PACKAGE_CONTROL_IN_TMS:'El control de bultos se realiza en TMS después de enviar la preparación.',LOADING_CLOSED:'La expedición ya salió o está cerrada.',PACKING_REQUIRED:'Primero registra las cantidades, controla los cartones y cierra la preparación.',PREPARATION_STARTED:'La preparación ya ha comenzado. Actualiza el pedido.',PREPARATION_CHANGED:'La preparación ha cambiado. Actualiza antes de continuar.',ASSIGNED_TO_OTHER:'Esta preparación está asignada a otro operario.',LOCATION_SCAN_MISMATCH:'El código no corresponde a la ubicación indicada.',PRODUCT_SCAN_MISMATCH:'El código no corresponde al producto indicado.',EXCEEDS_PLANNED:'La cantidad supera lo previsto para esta ubicación.',EXCEEDS_PICKED:'La cantidad supera lo preparado y aún no embalado.',PACKING_INCOMPLETE:'Hay cantidades preparadas que todavía no están en un bulto.',PACKAGES_REQUIRED:'Crea al menos un bulto controlado.',PARTIAL_REASON_REQUIRED:'Indica por qué la expedición será parcial.',WAIT_FOR_COMPLETE:'El cliente ha solicitado entrega completa. Completa la preparación o acuerda otra opción.',PREPARATION_CLOSED:'Esta preparación está cerrada.',AGREEMENT_REQUIRED:'Introduce la referencia del acuerdo del cliente.',OPTION_CLOSED:'La propuesta ya no está pendiente.',OPTION_STALE:'Las cantidades han cambiado. Retira la propuesta y crea otra.',CANCEL_PREPARATION_FIRST:'Cancela primero la preparación en curso para devolver los productos a sus ubicaciones.',SUBSTITUTE_ONLY_SHORTAGE:'Solo puede sustituirse la cantidad que sigue sin reservar. El stock disponible ha cambiado.',INVOICED_LINE_IMMUTABLE:'La línea ya está facturada. Gestiona el retorno y el documento externo correspondiente.',REPLACEMENT_PRICE_CONFLICT:'Ese producto ya existe en el pedido con otro precio o IVA.',FULFILLMENT_RESERVATION_LOCKED:'Esta reserva pertenece a una preparación o a una devolución en control. Gestiónala desde su módulo.'};
+function err(e){const s=String(e?.message||e);for(const[k,v]of Object.entries(messages)){if(s.includes(k))return v;if(s===v)return v}return S().error(e)}
+async function rpc(action,data={}){const c=await window.GamaCloud.db();const r=await window.ArcData.rawRpc('gama_fulfillment_action',{p_action:action,p_data:data});if(r.error){const message=err(r.error);throw Object.assign(Error(message),{gamaMessage:message,code:r.error.code})}if(action==='dossier'&&window.GamaReferences){for(const [key,table] of [['preparations','fulfillment_preparations']]){const out=await GamaReferences.attach(table,{data:r.data[key]||[]},c);if(out.error)throw out.error;r.data[key]=out.data;}}return r.data}
+async function mutate(action,data){const r=await rpc(action,data);window.dispatchEvent(new CustomEvent('gama:stock-cloud-change'));window.dispatchEvent(new CustomEvent('gama:sales-change'));return r}
+const val=(f,id)=>f.querySelector('#'+id).value;
+const number=(f,id)=>Number(val(f,id));
+function input(id,label,type='text',extra=''){return `<label class="gsField" data-gi-live>${label}<input id="${id}" type="${type}" ${extra}></label>`}
+const reasonField='<label class="gsField" data-gi=f5d646058fd3>Motivo / resultado del control<textarea id="gfReason" required minlength="3" maxlength="2000"></textarea></label>';
+function cameras(el){el.querySelectorAll('[data-gf-camera]').forEach(b=>b.onclick=()=>window.startGamaScan?.(b.dataset.gfCamera))}
+function form(d,title,body,action,read,label='Guardar'){
+ const key=crypto.randomUUID();
+ const el=S().modal(title,body,label,async f=>{await mutate(action,{order_id:d.order.id,request_key:key,...await read(f)});await (d.onDone?d.onDone():S().openOrder(d.order.id))});
+ cameras(el);return el;
+}
+function styles(){ /* Styles are compiled in architect-components.css. */ }
+let generation=0;
+async function mount(d,target=null){
+ styles();const token=++generation,host=target||$('gfDossier');if(!host)return;
+ window.ArcUI.render(host,'<p data-gi=1b1007a71a79>Cargando preparación y retornos…</p>');
+ try{const [f,index]=await Promise.all([rpc('dossier',{order_id:d.order.id}),productIndex()]);if(token!==generation||!host.isConnected)return;d.productIndex=index;render(d,f,host);if(d.preparationOnly){host.querySelectorAll('.gfPanel,#gfShortages').forEach(e=>e.remove());picking(d,f,host);window.GamaPhotos?.hydrate(host)}else{host.querySelector('#gfPreparation')?.remove();host.querySelector('a[href="#gfPreparation"]')?.remove()}}
+ catch(e){if(token===generation&&host.isConnected){window.ArcUI.render(host,`<p class="gsError">${esc(err(e))}</p><button id="gfRetry" class="arcButton secondary" data-gi=0dbd0b81923c>Reintentar dossier</button>`);$('gfRetry').onclick=()=>mount(d,target)}}
+}
+// Weight and volume belong to the product sheet; the operator never types them here.
+async function productIndex(){try{const rows=await S().refs('products','id,name,description,reference,barcode,has_photo,weight_g,volume_cm3,lot_tracking');const by=new Map(),byCode=new Map();for(const r of rows){by.set(r.id,r);const code=String(r.barcode??'').trim();if(code&&!byCode.has(code))byCode.set(code,r);if(r.reference&&!byCode.has(r.reference))byCode.set(r.reference,r)}const units=await window.ArcData.all('product_units',{eq:{active:true},order:'id'});if(units.error)throw units.error;for(const u of units.data||[]){const product=by.get(u.product_id);if(product&&u.barcode)byCode.set(u.barcode,{...product,packFactor:Number(u.factor),packLabel:u.label})}return{by,byCode}}catch(_){return{by:new Map(),byCode:new Map()}}}
+function measures(d,rows){let weight=0,volume=0,hasWeight=rows.length>0,hasVolume=rows.length>0;const missing=[];
+ for(const r of rows){const sheet=d.productIndex?.by.get(r.product_id),w=Number(sheet?.weight_g||0),v=Number(sheet?.volume_cm3||0);
+  if(w>0)weight+=w*Number(r.quantity);else hasWeight=false;
+  if(v>0)volume+=v*Number(r.quantity);else hasVolume=false;
+  if((w>0&&v>0)||!r.name||missing.includes(r.name))continue;missing.push(r.name)}
+ return{weight:hasWeight&&weight>0?weight/1000:null,volume:hasVolume&&volume>0?volume/1000000:null,missing}}
+const measureText=(value,unit)=>value==null?'Sin dato en la ficha del producto':n(value)+' '+unit;
+function packRows(d,f,pk){return f.package_lines.filter(x=>x.package_id===pk.id).map(x=>{const pl=f.pick_lines.find(l=>l.id===x.pick_line_id),ol=d.lines.find(l=>l.id===pl?.order_line_id);return{product_id:ol?.product_id,name:ol?.product_name,quantity:Number(x.quantity)}})}
+function packLabel(d,f,pk){const m=measures(d,packRows(d,f,pk)),dims=[pk.length_cm,pk.width_cm,pk.height_cm].every(v=>v!=null&&Number(v)>0)?n(pk.length_cm)+' × '+n(pk.width_cm)+' × '+n(pk.height_cm)+' cm':null;
+ return[pk.weight_kg!=null&&Number(pk.weight_kg)>0?n(pk.weight_kg)+' kg':null,m.volume!=null?n(m.volume)+' m³':null,dims].filter(Boolean).join(' · ')||'Peso y dimensiones no indicados en la ficha del producto'}
+function finish(d,p,f){const rows=f.pick_lines.filter(l=>l.preparation_id===p.id&&Number(l.picked)>0)
+  .map(l=>{const ol=d.lines.find(x=>x.id===l.order_line_id);return{product_id:ol?.product_id,name:ol?.product_name,quantity:Number(l.picked)}});
+ const m=measures(d,rows);
+ form(d,'Cerrar preparación',`<p data-gi-live data-gi=9a42c0f28a8a>Comprueba y cierra todos los bultos antes de enviar la preparación al transporte. Justifica cualquier entrega parcial.</p><div class="gfNotice"><b data-gi=56dca87b8f70>Resumen de la preparación</b>${rows.map(r=>`<p>${esc(r.name)} · ${n(r.quantity)}</p>`).join('')||'<p data-gi=9fd17119de0f>Sin cantidades registradas.</p>'}<p data-gi=e57d99195be5>Peso total: <b data-gi-live>${esc(measureText(m.weight,'kg'))}</b></p><p data-gi=2d8b778ff099>Volumen total: <b data-gi-live>${esc(measureText(m.volume,'m³'))}</b></p>${missingNote(m)}</div><label class="gsField" data-gi=4973246f4c51>Motivo de entrega parcial (si corresponde)<textarea id="gfReason" maxlength="2000"></textarea></label>`,'finish',el=>({preparation_id:p.id,reason:val(el,'gfReason')}),'Validar')}
+function packedQty(f,id){return f.package_lines.filter(x=>x.pick_line_id===id&&f.packages.some(p=>p.id===x.package_id&&p.status==='active')).reduce((s,x)=>s+Number(x.quantity),0)}
+function preparationChecklist(d,f,p){
+ const assigned=p?f.pick_lines.filter(l=>l.preparation_id===p.id):[],preview=!assigned.length;
+ const rows=preview?d.lines.filter(l=>Number(l.quantity)>S().counts(l,d).shipped).map(l=>({id:l.id,order_line_id:l.id,planned:Number(l.quantity)-S().counts(l,d).shipped,picked:0})):assigned;
+ if(!rows.length)return '';
+ const complete=l=>!preview&&Number(l.planned)>0&&Number(l.picked)>=Number(l.planned),done=rows.filter(complete).length;
+ return `<div class="gfPickChecklist"><div class="gfPickSummary"><h4>${tr('Productos a preparar')}</h4><span role="status" aria-live="polite">${tr('Líneas completas')} <b>${done} / ${rows.length}</b></span></div>${preview?`<p class="gsHint">${tr('Cantidades pendientes del pedido. Las cantidades y ubicaciones de esta preparación se confirman al iniciarla.')}</p>`:''}<ul class="gfPickList">${rows.map(l=>{
+  const line=d.lines.find(x=>x.id===l.order_line_id),sheet=d.productIndex?.by.get(line?.product_id),name=line?.product_name||sheet?.name||'',description=sheet?.description||line?.description||'',ready=complete(l),remaining=Math.max(0,Math.round((Number(l.planned)-Number(l.picked))*1000)/1000);
+  const photo=sheet?.has_photo||window.GamaPhotos?.get(line?.product_id)?window.GamaPhotos?.slot(line?.product_id,'gfPickImage'):null;
+  const status=ready?'Cantidad completa':Number(l.picked)>0?'En preparación':'Por preparar';
+  return `<li class="gfItem gfPickItem" data-line="${esc(l.id)}" data-pick-complete="${ready}" data-pick-preview="${preview}"><span class="gfPickCheck" role="img" aria-label="${esc(T(status))}">${ready?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="5" fill="#21824f"/><path d="m6 12 4 4 8-9" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'○'}</span><div class="gfPickPhoto" role="img" aria-label="${esc(T(photo?'Foto del producto':'Sin foto')+' · '+name)}">${photo||window.GamaPhotos?.placeholder?.()||'<span aria-hidden="true">◇</span>'}</div><div class="gfPickBody"><b class="gfPickName" data-gi-ignore>${esc(name)}</b>${description?`<p class="gfPickDescription" data-gi-ignore>${esc(description)}</p>`:''}<p class="gfPickLocation">${sheet?.reference||line?.reference?`<span data-gi-ignore>${esc(sheet?.reference||line.reference)}</span> · `:''}${preview?tr('Ubicación por confirmar'):esc(d.locations.find(x=>x.id===l.source_location_id)?.code||T('Ubicación'))}</p><div class="gfPickQuantities"><strong>${tr(preview?'Cantidad pendiente':'Preparado')} <span>${preview?n(l.planned):n(l.picked)+' / '+n(l.planned)}</span></strong><span class="gfPickStatus">${tr(ready?'Cantidad completa':'Pendiente')}${ready?'':' · '+n(remaining)}</span></div>${!preview?`<progress class="gfPickProgress" max="${Number(l.planned)>0?Number(l.planned):1}" value="${Math.min(Number(l.picked),Number(l.planned))}" aria-label="${esc(T('Preparado')+' · '+name)}"></progress>`:''}${wh()&&p?.status==='picking'&&!preview&&!ready?`<div class="gfLineForm" data-line-form="${esc(l.id)}" hidden><label class="gsField">${tr('Cantidad preparada')}<input class="gfLineQty" data-line-qty="${esc(l.id)}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label><button class="arcButton primary" data-gf-confirm="${esc(l.id)}">${tr('Validar línea')}</button><button class="arcButton secondary" data-gf-close="${esc(l.id)}">${tr('Cerrar')}</button></div>`:''}${wh()&&p?.status==='picking'&&!preview?`<div class="gfPickActions"><button class="arcButton secondary" data-gf-pick="${esc(l.id)}" ${ready?'disabled':''}>${tr('Abrir línea')}</button><button class="arcButton secondary" data-gf-incident="${esc(l.id)}">${tr('Incidencia')}</button></div>`:''}</div></li>`;
+ }).join('')}</ul></div>`;
+}
+function render(d,f,host){
+ d={...d,lines:d.lines.filter(l=>l.product_kind!=='service')};
+ // Follow the location sequence, then product name, throughout preparation.
+ f.pick_lines.sort((a,b)=>String(d.locations.find(l=>l.id===a.source_location_id)?.code||'').localeCompare(String(d.locations.find(l=>l.id===b.source_location_id)?.code||''),undefined,{numeric:true})||String(d.lines.find(l=>l.id===a.order_line_id)?.product_name||'').localeCompare(String(d.lines.find(l=>l.id===b.order_line_id)?.product_name||'')));
+ const o=d.order,p=f.preparations.find(x=>['queued','picking','packed'].includes(x.status));
+ const pending=d.lines.reduce((s,l)=>s+Math.max(0,Number(l.quantity)-S().counts(l,d).shipped),0);
+ const shortage=d.lines.reduce((s,l)=>{const c=S().counts(l,d);return s+Math.max(0,Number(l.quantity)-c.shipped-c.reserved)},0);
+ const next=o.status==='draft'?'Comercial: revisar y confirmar el pedido.':o.status==='cancelled'?'Pedido cancelado.':p?.status==='packed'?'Preparación cerrada: enviar los bultos al transporte.':p?.status==='picking'?'Registrar las cantidades y escanear los productos colocados en cada cartón.':pending>0?(shortage===pending?'Comercial: resolver faltantes y confirmar fechas.':'Almacenero: iniciar la preparación de las reservas disponibles.'):'Almacenero: seguir entregas y pruebas. Comercial: conciliar facturas y cobros.';
+ window.ArcUI.render(host,`<div class="arcPanel gsCard gfPanel"><h3 data-gi=f22a28436d95>Dossier del pedido</h3><p class="gfNotice"><b data-gi=bb210a5e67af>Próxima acción</b><br>${esc(next)}</p><nav class="gfSteps"><a href="#gfPreparation" data-gi-live data-gi=12beb07b0d96>Preparación</a><a href="#gfShortages" data-gi=b51b7cbe29ac>Disponibilidad y acuerdos</a><a href="#gsLinkedShipments" data-gi=139bcf4dde61>Expediciones</a>${sell()?'<a href="#gsLinkedInvoices" data-gi=36842cc2f911>Facturas y cobros</a>':''}</nav><div class="gsTools">${o.source_quote_id?'<button class="arcButton secondary" id="gfQuote" data-gi=7c729110b7ab>Ver presupuesto aceptado</button>':''}${o.source_request_id?'<button class="arcButton secondary" id="gfRequest" data-gi=93677beeb1e9>Ver solicitud inicial</button>':''}</div><div class="gfMetrics"><div><strong>${n(pending)}</strong>Unidades pendientes de expedir</div><div><strong>${n(shortage)}</strong>Unidades sin reservar</div></div></div>
+ <div class="arcPanel gsCard" id="gfPreparation"><h3 data-gi-live data-gi=12beb07b0d96>Preparación</h3>${p?`<div class="gfRow"><b>${esc(p.number)} · <span data-gi-live>${text(p.status)}</span></b><span>${esc(f.staff.find(u=>u.id===p.assigned_to)?.name||'Sin asignar')}</span></div>`:'<p data-gi=a0447b2f072c>No hay preparación activa.</p>'}
+ ${wh()&&o.status==='confirmed'&&pending>0?`<div class="gsTools">${!p||p.status==='queued'?'<button class="arcButton primary" id="gfStart" data-gi=d17701883053>Iniciar preparación</button>':''}${p?.status==='picking'?'<button class="arcButton primary" id="gfPack" data-gi-live data-gi=b2072d50f7bb>Crear bulto</button><button class="arcButton primary" id="gfFinish" data-gi-live data-gi=a956aeb49a4d>Cerrar preparación</button>':''}${p?.status==='packed'?'<button class="arcButton primary" id="gfShip" data-gi-live data-gi=96c04b3343bd>Enviar al TMS</button>':''}${p&&p.status!=='queued'?'<button class="arcButton secondary" id="gfCancelPrep" data-gi=286fbaf27913>Cancelar preparación</button>':''}</div>`:''}
+ ${wh()&&o.status==='confirmed'&&pending>0&&(!p||['queued','picking'].includes(p.status))?`<div class="gfScanBox"><label class="gsField">${tr('Escanear producto')}<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode">${tr('Cámara')}</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite">${tr('Elige el modo de escaneo y comprueba las cantidades antes de cerrar la preparación.')}</p></div>`:''}
+ ${preparationChecklist(d,f,p)}
+
+ ${f.incidents.map(i=>`<p class="gsError"><span data-gi-live>${text(i.kind)}</span> · ${n(i.quantity)} · ${esc(i.reason)}. Revisar inventario antes de liberar la reserva.</p>`).join('')}
+ ${f.preparations.filter(x=>['shipped','cancelled'].includes(x.status)).map(x=>`<p class="gsHint">${esc(x.number)} · <span data-gi-live>${text(x.status)}</span>${x.partial_reason?' · '+esc(x.partial_reason):''}${x.shipment_id?' · '+esc(d.shipments.find(s=>s.id===x.shipment_id)?.number||''):''}</p>`).join('')}</div>
+ <div class="arcPanel gsCard" id="gfShortages"><h3 data-gi=1f08185c026d>Disponibilidad, fechas y acuerdos</h3><p class="gsHint" data-gi=8b06742c35a0>Las compras previstas son compartidas por todos los pedidos. Su fecha no es una promesa al cliente.</p>${d.lines.map(l=>{const c=S().counts(l,d),short=Math.max(0,Number(l.quantity)-c.shipped-c.reserved);return `<div class="gfItem"><b>${esc(l.product_name)}</b><p><span data-gi=9e9ea5774a2d>Pedido </span>${n(l.quantity)} · Reservado ${n(c.reserved)} · Faltante ${n(short)}<br><span data-gi=8d5a75316f14>Fecha acordada: </span>${esc(l.promised_date||'Sin confirmar')} · <span data-gi-live>${text(l.delivery_policy||'partial')}</span>${l.next_dispatch_quantity?' · Próximo envío: hasta '+n(l.next_dispatch_quantity):''}</p>${f.incoming.filter(x=>x.product_id===l.product_id).map(x=>`<p class="gsHint"><span data-gi=46ca644978eb>Compra </span>${esc(x.number)} · ${n(x.quantity)} pendientes · ${esc(x.expected_date||'Fecha sin confirmar')}</p>`).join('')}${sell()&&o.status==='confirmed'&&Number(l.quantity)>c.shipped?`<button class="arcButton secondary" data-gf-option="${l.id}" data-gi=549e0a20f5ea>Proponer entrega / sustitución</button>`:''}</div>`}).join('')}
+ ${f.options.map(x=>`<div class="gfItem"><b><span data-gi-live>${text(x.kind)}</span> · <span data-gi-live>${text(x.status)}</span></b><p>${esc(d.lines.find(l=>l.id===x.line_id)?.product_name)} · ${n(x.quantity)} unidades${x.unit_price!=null?' · $'+Number(x.unit_price).toFixed(2)+' / unidad sin IVA':''} · ${esc(x.promised_date||'Fecha por confirmar')}<br>${esc(x.notes)}</p>${sell()&&x.status==='proposed'?`<button class="arcButton secondary" data-gf-agree="${x.id}" data-gi=5bab4392dbbf>Registrar acuerdo externo</button> <button class="arcButton secondary" data-gf-withdraw="${x.id}" data-gi=576292cf27d1>Retirar propuesta</button>`:''}</div>`).join('')}</div>`);
+ $('gfQuote')?.addEventListener('click',()=>window.GamaQuotes.view(o.source_quote_id));
+ $('gfRequest')?.addEventListener('click',()=>sourceRequest(d));
+ const on=(selector,fn)=>host.querySelectorAll(selector).forEach(b=>b.onclick=()=>fn(b));
+ $('gfStart')?.addEventListener('click',()=>form(d,'Iniciar preparación',`<label class="gsField" data-gi=62c1aec4ffc8>Responsable<select id="gfAssignee"><option value="" data-gi=4eeac15ae345>Yo</option>${f.staff.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('')}</select></label><p data-gi=94663bcfb1bc>Se tomarán las reservas disponibles por ubicación. Las cantidades sin stock quedan pendientes.</p>`,'start',el=>({preparation_id:p?.id,assigned_to:val(el,'gfAssignee')}),'Iniciar'));
+ on('[data-gf-incident]',b=>form(d,'Incidencia de recogida',`<label data-gi=3868d2843d59>Tipo<select id="gfKind"><option value="missing" data-gi=d5c6c01a0c2e>Faltante</option><option value="damaged" data-gi=0ea6ede1879f>Dañado</option><option value="other" data-gi=0d5a52a92cb9>Otro</option></select></label>${input('gfQty','Cantidad','number','min="0.001" step="0.001" required')}${reasonField}<p data-gi=98e874b124e4>El aviso conserva la reserva; la corrección física se realiza mediante inventario.</p>`,'incident',el=>({preparation_id:p.id,pick_line_id:b.dataset.gfIncident,kind:val(el,'gfKind'),quantity:number(el,'gfQty'),reason:val(el,'gfReason')})));
+
+ $('gfPack')?.addEventListener('click',()=>pack(d,p,f));
+ $('gfFinish')?.addEventListener('click',()=>finish(d,p,f));
+ $('gfCancelPrep')?.addEventListener('click',()=>form(d,'Cancelar preparación',reasonField+'<p data-gi=e1ec5264fbed>Los productos recogidos vuelven a sus ubicaciones de origen y conservan la reserva del pedido. Los bultos quedan anulados.</p>','cancel_preparation',el=>({preparation_id:p.id,reason:val(el,'gfReason')})));
+ $('gfShip')?.addEventListener('click',()=>ship(d));
+ if(d.preparationOnly&&p){const box=document.createElement('div');box.className='gsCard';window.ArcUI.render(box,`<h3 data-gi-live data-gi=efbc43019e40>Cartones preparados</h3>${f.packages.filter(pk=>pk.preparation_id===p.id&&pk.status==='active').map(pk=>`<div class="gfItem"><b>${esc(pk.barcode)}</b> · ${esc(packLabel(d,f,pk))}<ul>${f.package_lines.filter(l=>l.package_id===pk.id).map(l=>`<li>${esc(d.lines.find(ol=>ol.id===f.pick_lines.find(pl=>pl.id===l.pick_line_id)?.order_line_id)?.product_name)} × ${n(l.quantity)}</li>`).join('')}</ul><button class="arcButton secondary" data-prep-label="${pk.id}" data-gi-live data-gi=d038da71bdb2>Etiqueta / imprimir</button><button class="arcButton secondary" data-prep-void="${pk.id}" data-gi-live data-gi=10d8006f2abe>Anular bulto</button></div>`).join('')}`);host.querySelector('#gfPreparation').append(box);box.querySelectorAll('[data-prep-label]').forEach(b=>b.onclick=()=>label(d,f,f.packages.find(pk=>pk.id===b.dataset.prepLabel)));box.querySelectorAll('[data-prep-void]').forEach(b=>b.onclick=()=>form(d,'Anular bulto',reasonField,'void_package',el=>({preparation_id:p.id,package_id:b.dataset.prepVoid,reason:val(el,'gfReason')})));if(p.status==='packed'){const add=document.createElement('button');add.className='secondary';add.textContent='Crear bulto';add.onclick=()=>pack(d,p,f);box.append(add)}}
+
+ on('[data-gf-void]',b=>form(d,'Anular bulto',reasonField,'void_package',el=>({preparation_id:p.id,package_id:b.dataset.gfVoid,reason:val(el,'gfReason')})));
+ on('[data-gf-label]',b=>label(d,f,f.packages.find(pk=>pk.id===b.dataset.gfLabel)));
+ on('[data-gf-option]',b=>proposal(d,d.lines.find(l=>l.id===b.dataset.gfOption)));
+ on('[data-gf-agree]',b=>form(d,'Registrar respuesta del cliente',`<label data-gi=eda96518d54f>Respuesta<select id="gfDecision"><option value="accepted" data-gi=ee16afe953db>Aceptada</option><option value="rejected" data-gi=ed91db3266d0>Rechazada</option></select></label>${input('gfAgreement','Referencia del acuerdo (email, llamada…)','text','required minlength="3" maxlength="500"')}`,'respond_option',el=>({option_id:b.dataset.gfAgree,decision:val(el,'gfDecision'),agreement_reference:val(el,'gfAgreement')})));
+ on('[data-gf-withdraw]',b=>form(d,'Retirar propuesta',reasonField,'withdraw_option',el=>({option_id:b.dataset.gfWithdraw,reason:val(el,'gfReason')})));
+}
+// One confirmation per line: the scan opens it with the expected quantity ready to validate.
+const pickState={order:null,intent:null,pendingScans:[]};
+function picking(d,f,host){
+ const p=f.preparations.find(x=>['queued','picking','packed'].includes(x.status));
+ const intent=pickState.order===d.order.id?pickState.intent:null;if(pickState.order!==d.order.id)pickState.pendingScans=[];pickState.order=d.order.id;pickState.intent=null;
+ if(!wh())return;
+ const scanBox=host.querySelector('#gfScanCode'),hintBox=host.querySelector('#gfScanHint');
+ const policy=f.scan_policy||{mode:'confirm',location_required:false};
+ const control=document.createElement('div');control.className='arcFormGrid';
+ window.ArcUI.render(control,window.ArcUI.field({key:'gfScanMode',label:'Modo de escaneo',type:'select',value:sessionStorage.getItem('coco:scan-mode')||policy.mode,options:[{id:'confirm',name:'Confirmar cantidad de la línea'},{id:'unit',name:'Una unidad por escaneo'},{id:'pack',name:'Un envase por escaneo'}]})+(policy.location_required?window.ArcUI.field({key:'gfScannedLocation',label:'Escanear ubicación de origen',value:pickState.preparation===p?.id?pickState.location||'':''}):''));
+ host.querySelector('.gfScanBox')?.prepend(control);
+ const mode=()=>control.querySelector('[name="gfScanMode"]')?.value||'confirm';
+ control.querySelector('[name="gfScanMode"]')?.addEventListener('change',()=>{sessionStorage.setItem('coco:scan-mode',mode());mount(d,host)});
+ const scannedLocation=()=>control.querySelector('[name="gfScannedLocation"]')?.value.trim()||'';
+ control.querySelector('[name="gfScannedLocation"]')?.addEventListener('input',()=>{pickState.preparation=p?.id;pickState.location=scannedLocation()});
+ const hint=value=>{if(hintBox)hintBox.textContent=T(value)};
+ hint('Elige qué valida cada escaneo. La confirmación de línea exige indicar y validar la cantidad contada.');
+ const focus=el=>{try{el?.focus();el?.select?.()}catch(_){}};
+ const listen=handler=>{if(!scanBox)return;const go=()=>{const code=scanBox.value.trim();if(!code)return;scanBox.value='';setTimeout(()=>handler(code),0)};
+  scanBox.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
+  scanBox.addEventListener('change',go);scanBox.addEventListener('gama:barcode-scanned',go)};
+ /* Sin preparación empezada, el primer escaneo la empieza —a nombre de quien
+    escanea— y ese mismo código se procesa en cuanto existen las líneas. */
+ if(!p||p.status==='queued'){
+  if(!scanBox)return;cameras(host);
+  listen(async code=>{hint(T('Empezando la preparación…'));
+   try{await mutate('start',{order_id:d.order.id,request_key:crypto.randomUUID(),preparation_id:p?.id,assigned_to:''});pickState.order=d.order.id;pickState.intent={scan:code};await mount(d,host)}
+   catch(e){hint(err(e));focus(scanBox)}});
+  focus(scanBox);return;
+ }
+ if(p.status!=='picking')return;
+ const rows=f.pick_lines.filter(l=>l.preparation_id===p.id),round=v=>Math.round(Number(v)*1000)/1000,pending=l=>round(Number(l.planned)-Number(l.picked));
+ const lineOf=l=>d.lines.find(x=>x.id===l.order_line_id),nameOf=l=>lineOf(l)?.product_name||'';
+ const codes=new Map();for(const l of rows){const code=String(d.productIndex?.by.get(lineOf(l)?.product_id)?.barcode??'').trim();if(code&&!codes.has(code))codes.set(code,lineOf(l)?.product_id)}
+ for(const [code,product] of d.productIndex?.byCode||[])if(rows.some(l=>lineOf(l)?.product_id===product.id))codes.set(code,product.id);
+ const factor=code=>d.productIndex?.byCode.get(code)?.packFactor||1;
+ let current=null,key=null,busy=false;
+ const buttons=disabled=>host.querySelectorAll('[data-gf-confirm],[data-gf-pick]').forEach(b=>{if(disabled)b.dataset.gfWas=b.disabled?'1':'';b.disabled=disabled?true:b.dataset.gfWas==='1'});
+ const forLine=id=>rows.find(x=>x.id===id);
+ const byCode=code=>{const id=codes.get(code);return id?rows.find(l=>pending(l)>0&&lineOf(l)?.product_id===id)||null:null};
+ const byReference=code=>rows.find(l=>pending(l)>0&&String(lineOf(l)?.reference||'').trim().toLowerCase()===code.toLowerCase())||null;
+ // A reader types into whichever field has the focus, so the quantity accepts a code too.
+ function embedded(raw){const clean=String(raw||'').trim();if(!clean)return null;if(codes.has(clean))return{code:clean,quantity:null};
+  for(const code of codes.keys()){if(code.length<4||clean.length<=code.length||!clean.endsWith(code))continue;const prefix=clean.slice(0,clean.length-code.length).trim();
+   if(/^\d+([.,]\d+)?$/.test(prefix))return{code,quantity:Number(prefix.replace(',','.'))*factor(code)}}
+  return null}
+ function close(){host.querySelectorAll('[data-line-form]').forEach(el=>{el.hidden=true;el.closest('.gfItem')?.classList.remove('gfActive')});current=null;key=null}
+ function open(id,code){const l=forLine(id);if(!l||pending(l)<=0)return false;close();
+  const box=host.querySelector(`[data-line-form="${id}"]`);if(!box)return false;
+  box.hidden=false;box.closest('.gfItem')?.classList.add('gfActive');
+  const field=box.querySelector('.gfLineQty');field.value=String(code&&factor(code)!==1?Math.min(factor(code),pending(l)):pending(l));
+  current={id,code:code||''};key=crypto.randomUUID();
+  hint(`${nameOf(l)} · ${T('Cantidad prevista')} ${n(pending(l))}. ${T('Introduce la cantidad contada y confirma con Entrada o con el botón.')}`);
+  focus(field);return true}
+ async function commit(quantity,intent){
+  const l=current&&forLine(current.id);if(busy||!l)return false;
+  const expected=pending(l),value=round(quantity);
+  if(!Number.isFinite(value)||value<=0){hint('Introduce una cantidad válida.');return false}
+  if(value>expected){hint(messages.EXCEEDS_PLANNED);return false}
+  if(value!==expected&&!intent?.auto&&!confirm(`${nameOf(l)}: ${(s=>window.GamaI18n?.t?.(s)||s)(`has contado ${n(value)} y estaban previstas ${n(expected)}. ¿Confirmas la diferencia?`)}`))return false;
+  busy=true;buttons(true);
+  const location=d.locations.find(x=>x.id===l.source_location_id);
+  const payload={order_id:d.order.id,request_key:key,preparation_id:p.id,pick_line_id:l.id,location_code:location?.code||'',scanned_location:scannedLocation(),scan_mode:mode(),quantity_confirmed:mode()==='confirm'&&!intent?.auto,quantity:value};
+  if(current.code)payload.product_code=current.code;
+  pickState.order=d.order.id;pickState.intent=intent;
+  try{if(d.productIndex?.by.get(lineOf(l)?.product_id)?.lot_tracking){const plan=await window.ArchitectLots.confirmPick(lineOf(l).product_id,l.source_location_id,value);if(plan===null){busy=false;buttons(false);pickState.intent=null;return false}payload.lot_plan=plan}await mutate('pick',payload)}catch(e){busy=false;buttons(false);pickState.intent=null;hint(err(e));return false}
+  await mount(d,host);return true}
+ // The field holds either the counted quantity or, when a reader fired into it, the next code.
+ function reading(id){const l=forLine(id),raw=String(host.querySelector(`[data-line-qty="${id}"]`)?.value||''),hit=embedded(raw);
+  return hit?{quantity:hit.quantity??pending(l),scan:hit.code}:{quantity:Number(raw.trim().replace(',','.')),scan:null}}
+ function submit(){if(!current||!forLine(current.id))return;const r=reading(current.id);
+  return commit(r.quantity,r.scan?{scan:r.scan}:{next:true})}
+ async function scanned(code){const clean=String(code||'').trim();if(!clean)return;if(busy){pickState.pendingScans.push(clean);return}
+  const known=byCode(clean),target=known||byReference(clean);
+  if(!target){hint('Ese código no corresponde a ninguna línea pendiente de esta preparación.');focus(scanBox);return}
+  if(current&&current.id!==target.id){hint('Confirma o cierra la línea abierta antes de escanear otro producto.');return}
+  if(mode()==='confirm'){open(target.id,known?clean:'');return}
+  const qty=mode()==='unit'?1:factor(clean);
+  if(!known||(mode()==='pack'&&!d.productIndex?.byCode.get(clean)?.packFactor)){hint('Escanea el código correspondiente a la unidad o al envase configurado.');return}
+  if(qty>pending(target)){hint('El envase supera la cantidad pendiente. Cuenta y confirma la cantidad de la línea.');return}
+  if(policy.location_required&&!scannedLocation()){hint('Escanea primero la ubicación de origen.');return}
+  current={id:target.id,code:clean};key=crypto.randomUUID();
+  await commit(qty,{auto:true})}
+
+ cameras(host);
+ host.querySelectorAll('[data-gf-pick]').forEach(b=>b.onclick=()=>open(b.dataset.gfPick,''));
+ host.querySelectorAll('[data-gf-confirm]').forEach(b=>b.onclick=()=>submit());
+ host.querySelectorAll('[data-gf-close]').forEach(b=>b.onclick=()=>{close();focus(scanBox)});
+ host.querySelectorAll('[data-line-qty]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}}));
+ // The camera helper refocuses its target after firing, so resolve the code on the next tick.
+ listen(scanned);
+ if(intent&&rows.length&&rows.every(l=>pending(l)<=0)){pickState.pendingScans=[];hint('Todas las cantidades están preparadas. Revisa los bultos y cierra la preparación.');return}
+ if(intent?.scan)scanned(intent.scan);
+ else if(intent?.auto){hint(T('Línea validada. Escanea el siguiente producto.'));focus(scanBox)}
+ else if(intent?.next){const next=rows.find(l=>pending(l)>0);
+  if(next)open(next.id,'');else{hint('Todas las líneas están preparadas. Crea el bulto y cierra la preparación.');focus(scanBox)}}
+ else if(intent?.line)open(intent.line,'');
+ else focus(scanBox);
+ if(pickState.pendingScans.length&&!busy)scanned(pickState.pendingScans.shift());
+}
+function unpacked(d,f,p){return f.pick_lines.filter(l=>l.preparation_id===p.id&&Number(l.picked)>packedQty(f,l.id))
+ .map(l=>{const ol=d.lines.find(x=>x.id===l.order_line_id);return{pick_line_id:l.id,product_id:ol?.product_id,name:ol?.product_name,quantity:Number(l.picked)-packedQty(f,l.id)}})}
+function missingNote(m){return m.missing.length?`<p class="gsHint"><span data-gi=5d3862c6e212>Sin peso o volumen en la ficha de: </span>${esc(m.missing.join(', '))}. La preparación continúa; completa la ficha del producto para el transporte.</p>`:''}
+function pack(d,p,f){const rows=unpacked(d,f,p);if(!rows.length){window.gamaToast?.('No hay productos preparados pendientes de embalar.');return}
+ const m=measures(d,rows);
+ form(d,'Crear bulto',`<p data-gi=05c574d9b68f>Se embalan las cantidades ya validadas en la preparación. El peso y el volumen se leen de la ficha del producto.</p>${rows.map(r=>`<div class="gfPackingRow"><b>${esc(r.name)}</b> · ${n(r.quantity)}</div>`).join('')}<p class="gfRow"><span data-gi=1bbafc2de04d>Peso del bulto</span><b data-gi-live>${esc(measureText(m.weight,'kg'))}</b></p><p class="gfRow"><span data-gi=9b44cd7a7223>Volumen del bulto</span><b data-gi-live>${esc(measureText(m.volume,'m³'))}</b></p>${missingNote(m)}`,'package',()=>({preparation_id:p.id,lines:rows.map(r=>({pick_line_id:r.pick_line_id,quantity:r.quantity}))}),'Crear bulto');
+}
+async function ship(d){
+ try{const f=await rpc('dossier',{order_id:d.order.id}),p=f.preparations.find(x=>x.status==='packed');
+ if(!p){$('gfPreparation')?.scrollIntoView({behavior:'smooth'});if($('gsMessage'))$('gsMessage').textContent='Primero registra las cantidades, controla los cartones y cierra la preparación.';return}
+ const key=crypto.randomUUID(),day=new Date().toLocaleDateString('en-CA');
+ S().modal('Enviar al TMS',`<p>${esc(p.number)} · Los bultos preparados y cerrados se enviarán al TMS para su transporte al cliente.</p>${input('gfDate','Fecha prevista de entrega','date',`value="${day}" required`)}<label class="gsField" data-gi=53c367898434>Comentario<textarea id="gfShipNote"></textarea></label>`,'Validar expedición',async el=>{try{await S().rpc('ship',{order_id:d.order.id,preparation_id:p.id,request_key:key,delivery_date:val(el,'gfDate'),notes:val(el,'gfShipNote')})}catch(e){throw Error(err(e))}await (d.onDone?d.onDone():S().openOrder(d.order.id))});
+ }catch(e){if($('gsMessage'))$('gsMessage').textContent=err(e)}
+}
+async function proposal(d,l){try{const products=await S().refs('products','id,name,reference,sale_price,tax_rate,active');const c=S().counts(l,d);
+ const el=form(d,'Proponer una opción al cliente',`<p>${esc(l.product_name)} · ${n(Number(l.quantity)-c.shipped)} pendientes. Una sustitución se limita a cantidades aún sin reservar. Revisa el precio y el IVA del reemplazo antes de enviar.</p><label data-gi=b1c3a5860c71>Opción<select id="gfKind"><option value="partial" data-gi=c87ad43ec1bc>Entrega parcial</option><option value="wait" data-gi=648416ec67a5>Esperar entrega completa</option><option value="substitute" data-gi=0684ca3742e4>Sustituir producto</option></select></label>${input('gfQty','Cantidad afectada','number',`required min="0.001" max="${Number(l.quantity)-c.shipped}" step="0.001" value="${Math.max(0,Number(l.quantity)-c.shipped-c.reserved)||Number(l.quantity)-c.shipped}"`)}<div id="gfReplacementFields" hidden><label data-gi=d838ea12b8e3>Producto de reemplazo<select id="gfReplacement"><option value="" data-gi=3c41f9546e61>Seleccionar…</option>${products.filter(p=>p.active&&p.id!==l.product_id).map(p=>`<option value="${p.id}">${esc(p.name)} · ${esc(p.reference)}</option>`).join('')}</select></label>${input('gfPrice','Precio acordado del reemplazo sin IVA','number',`min="0" step="0.0001" value="${Number(l.unit_price)}"`)}${input('gfReplacementTax','IVA del reemplazo (%)','number',`min="0" max="100" step="0.0001" value="${Number(l.tax_rate)}"`)}</div>${input('gfPromise','Fecha propuesta de entrega','date')}<label data-gi=2e7609564e8e>Condiciones / explicación<textarea id="gfNotes" maxlength="2000"></textarea></label><p data-gi=5bfc1f0b9d45>El cliente podrá responder desde Presupuestos → Opciones de entrega. También puedes registrar su acuerdo externo.</p>`,'propose_option',f=>({line_id:l.id,kind:val(f,'gfKind'),quantity:number(f,'gfQty'),replacement_product_id:val(f,'gfKind')==='substitute'?val(f,'gfReplacement'):null,unit_price:val(f,'gfKind')==='substitute'?number(f,'gfPrice'):null,tax_rate:val(f,'gfKind')==='substitute'?number(f,'gfReplacementTax'):null,promised_date:val(f,'gfPromise'),notes:val(f,'gfNotes')}),'Enviar propuesta');
+ el.querySelector('#gfReplacement').onchange=()=>{const product=products.find(p=>p.id===val(el,'gfReplacement'));if(product)el.querySelector('#gfReplacementTax').value=Number(product.tax_rate||0)};
+ el.querySelector('#gfKind').onchange=()=>{const show=val(el,'gfKind')==='substitute';el.querySelector('#gfReplacementFields').hidden=!show;el.querySelector('#gfReplacement').required=show};
+ }catch(e){window.gamaToast?.(err(e))}}
+async function sourceRequest(d){try{const [r,lines]=await Promise.all([S().rows('customer_requests',{eq:{id:d.order.source_request_id}}),S().rows('customer_request_lines',{eq:{request_id:d.order.source_request_id}})]);if(!r[0])throw Error('Solicitud no disponible.');S().modal('Solicitud inicial',`<p>${esc(r[0].requester_name||d.order.customer_name)} · ${esc(r[0].status)}</p><p>${esc(r[0].notes||'')}</p>${lines.map(l=>`<p>${esc(l.product_name||d.lines.find(x=>x.product_id===l.product_id)?.product_name)} × ${n(l.quantity)}</p>`).join('')}`,'Cerrar',async()=>{})}catch(e){window.gamaToast?.(err(e))}}
+// Code 39 labels require only the PK prefix, digits and a hyphen. No CDN dependency.
+function barcode(value){const patterns={"P": "nnwnwnnwn", "K": "wnnnnnnww", "*": "nwnnwnwnn", "0": "nnnwwnwnn", "1": "wnnwnnnnw", "2": "nnwwnnnnw", "3": "wnwwnnnnn", "4": "nnnwwnnnw", "5": "wnnwwnnnn", "6": "nnwwwnnnn", "7": "nnnwnnwnw", "8": "wnnwnnwnn", "9": "nnwwnnwnn", "-": "nwnnnnwnw"};
+ let x=12,rects='';for(const c of '*'+value+'*'){const pattern=patterns[c];if(!pattern)throw Error('Código de bulto no válido.');[...pattern].forEach((v,i)=>{const w=v==='w'?3:1;if(i%2===0)rects+=`<rect x="${x}" y="0" width="${w}" height="45"/>`;x+=w});x+=1}return `<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(value)}" viewBox="0 0 ${x+12} 60" class="gfBarcode"><rect width="100%" height="100%" fill="white"/><g fill="black">${rects}</g><text x="${(x+12)/2}" y="58" text-anchor="middle" font-family="monospace" font-size="9">${esc(value)}</text></svg>`}
+async function label(d,f,p){try{await window.GamaCompany?.load(true)}catch(e){window.gamaToast?.(err(e));return}const theme=window.GamaPdfTemplate.theme(),html=`<div style="display:flex;align-items:center;gap:16px;border-bottom:2px solid ${theme.profile.document_secondary||"#087C8B"};padding-bottom:8px">${theme.logo?`<img alt="${esc(theme.profile.legal_name||"Coco ERP")}" src="${esc(theme.logo)}" style="width:90px;height:60px;object-fit:contain">`:""}<div><h2 style="color:var(--arc-text);margin:0" data-gi=8e9578c91c93>ETIQUETA DE BULTO</h2><p>${esc(theme.profile.legal_name||"Coco ERP")} · ${esc(d.order.number)}</p></div></div><p>${esc(d.order.customer_name)}<br>${esc(d.order.delivery_address)}</p>${barcode(p.barcode)}<p>${esc(packLabel(d,f,p))}</p><ul>${f.package_lines.filter(x=>x.package_id===p.id).map(x=>{const pl=f.pick_lines.find(l=>l.id===x.pick_line_id);return `<li>${esc(d.lines.find(l=>l.id===pl?.order_line_id)?.product_name)} × ${n(x.quantity)}</li>`}).join('')}</ul>`;
+ S().modal('Etiqueta de bulto',html,'Imprimir',async()=>{const frame=document.createElement('iframe');frame.style.cssText='position:fixed;width:0;height:0;border:0';document.body.appendChild(frame);const doc=frame.contentDocument;doc.open();doc.write(`<!doctype html><html lang="es"><head><title>${esc(p.barcode)}</title><style>body{font:16px sans-serif;padding:20px}svg{width:90mm;height:30mm}@page{margin:10mm}</style></head><body>${html}</body></html>`);doc.close();await new Promise(r=>setTimeout(r,100));frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),60000)})}
+async function clientOptions(offset=0){
+ try{styles();const options=await rpc('options',{offset});const host=document.querySelector('#quotes .gqBody')||document.querySelector('#quotes');if(!host)return;
+ const body=document.createElement('div');body.className='gsCard';body.id='gfClientOptionsPanel';$('gfClientOptionsPanel')?.remove();window.ArcUI.render(body,`<h3 data-gi=53321f69380b>Opciones de entrega</h3><p data-gi=8c447f17913e>Revisa las condiciones antes de aceptar. La aceptación queda registrada en el pedido.</p>${options.map(o=>`<div class="gfItem"><b>${esc(o.order_number)} · <span data-gi-live>${text(o.kind)}</span></b><p>${esc(o.product_name)}${o.replacement?' → '+esc(o.replacement):''} · ${n(o.quantity)} unidades${o.unit_price!=null?' · $'+Number(o.unit_price).toFixed(2)+' por unidad sin IVA · IVA '+n(o.tax_rate)+'%':''}<br>${esc(o.promised_date||'Fecha por confirmar')} · <span data-gi-live>${text(o.status)}</span><br>${esc(o.notes)}</p>${o.status==='proposed'?`<button class="arcButton primary" data-option="${o.id}" data-decision="accepted" data-gi=a109f44fee72>Aceptar condiciones</button> <button class="arcButton secondary" data-option="${o.id}" data-decision="rejected" data-gi=2a0515602d31>Rechazar</button>`:''}</div>`).join('')||'<p data-gi=4bd98b1db4c5>No hay propuestas.</p>'}<p class="gsError" id="gfClientError" role="alert"></p><button class="arcButton secondary" id="gfOptionsPrev" ${offset?'':'disabled'} data-gi=e4ce7c09d51e>Anterior</button> <button class="arcButton secondary" id="gfOptionsNext" ${options.length===50?'':'disabled'} data-gi=49683b71c6ac>Siguiente</button>`);host.appendChild(body);body.scrollIntoView({behavior:'smooth'});
+ body.querySelectorAll('[data-option]').forEach(b=>{const key=crypto.randomUUID();b.onclick=async()=>{if(!confirm(b.dataset.decision==='accepted'?'¿Aceptar estas condiciones de entrega?':'¿Rechazar esta propuesta?'))return;const buttons=[...body.querySelectorAll('button')];buttons.forEach(x=>x.disabled=true);try{await mutate('respond_option',{option_id:b.dataset.option,decision:b.dataset.decision,request_key:key});await clientOptions(offset)}catch(e){$('gfClientError').textContent=err(e);buttons.forEach(x=>x.disabled=false)}}});$('gfOptionsPrev').onclick=()=>clientOptions(Math.max(0,offset-50));$('gfOptionsNext').onclick=()=>clientOptions(offset+50);
+ }catch(e){window.gamaToast?.(err(e))}
+}
+async function proof(id){try{const a=await S().rows('tms_proofs',{eq:{delivery_id:id}}),p=a[0];const safe=v=>/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=\s]+$/.test(v||'');S().modal('Prueba de entrega',p?`<p>${esc(new Date(p.captured_at).toLocaleString('es-EC'))}</p>${[['photo','Fotografía'],['signature','Firma de recepción']].map(([k,t])=>safe(p[k])?`<p>${t}</p><img class="gfPhoto" alt="${t}" src="${esc(p[k])}">`:'').join('')}`:'<p data-gi=bd6dd5b1130a>Todavía no hay una prueba registrada.</p>','Cerrar',async()=>{})}catch(e){window.gamaToast?.(err(e))}}
+async function parcelPanel(shipmentId,host,onDone,closed=false){
+ if(!wh()||!host)return;styles();host.textContent='Cargando bultos…';
+ try{const [shipment]=await S().rows('sales_deliveries',{eq:{id:shipmentId}});if(!shipment){host.textContent='';return}
+ const [orders,lines,f,index]=await Promise.all([S().rows('sales_orders',{eq:{id:shipment.order_id}}),S().rows('sales_order_lines',{eq:{order_id:shipment.order_id}}),rpc('dossier',{order_id:shipment.order_id}),productIndex()]);
+ if(!host.isConnected)return;const p=f.preparations.find(p=>p.shipment_id===shipmentId);if(!p){host.textContent='';return}
+ const d={order:orders[0],lines,onDone,productIndex:index},packages=f.packages.filter(pk=>pk.preparation_id===p.id&&pk.status==='active');
+ window.ArcUI.render(host,`<h3 data-gi-live data-gi=efbc43019e40>Cartones preparados</h3>${closed?'':'<p data-gi=3a6bccb06bac>El peso y el volumen se leen de la ficha del producto; el operario no los introduce.</p>'}${f.pick_lines.filter(l=>l.preparation_id===p.id).map(l=>`<p>${esc(lines.find(x=>x.id===l.order_line_id)?.product_name)} · ${n(packedQty(f,l.id))} / ${n(l.picked)}</p>`).join('')}${!closed?'<button class="arcButton tmsBtn tmsPrimary" id="glPack" data-gi-live data-gi=b2072d50f7bb>Crear bulto</button>':''}${packages.map(pk=>`<div class="glList"><b>${esc(pk.barcode)}</b> · ${esc(packLabel(d,f,pk))}<ul>${f.package_lines.filter(l=>l.package_id===pk.id).map(l=>`<li>${esc(lines.find(x=>x.id===f.pick_lines.find(pl=>pl.id===l.pick_line_id)?.order_line_id)?.product_name)} × ${n(l.quantity)}</li>`).join('')}</ul><button class="arcButton tmsBtn tmsLight" data-gl-label="${pk.id}" data-gi-live data-gi=d038da71bdb2>Etiqueta / imprimir</button>${!closed?`<button class="arcButton tmsBtn tmsLight" data-gl-void-package="${pk.id}" data-gi-live data-gi=10d8006f2abe>Anular bulto</button>`:''}</div>`).join('')}`);
+ host.querySelector('#glPack')?.addEventListener('click',()=>pack(d,p,f));
+ host.querySelectorAll('[data-gl-label]').forEach(b=>b.onclick=()=>label(d,f,packages.find(pk=>pk.id===b.dataset.glLabel)));
+ host.querySelectorAll('[data-gl-void-package]').forEach(b=>b.onclick=()=>form(d,'Anular bulto',reasonField,'void_package',()=>({preparation_id:p.id,package_id:b.dataset.glVoidPackage,reason:document.querySelector('dialog #gfReason').value})));
+ }catch(e){host.textContent=err(e)}
+}
+window.GamaFulfillment={parcelPanel,mount,ship,clientOptions,barcode,proof,error:err};
+})();

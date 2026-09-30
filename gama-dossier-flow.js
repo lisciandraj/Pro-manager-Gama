@@ -1,3 +1,4 @@
+/* Generated from src/features/processes/dossier-flow.js. Edit the source and run npm run build. */
 /* Seguimiento de procesos: el proceso de venta (PDV) y el de compra (PDC),
    paso a paso, con el número único que comparten todos sus documentos. Es
    una lectura: cada acción se ejecuta en su módulo, con sus controles y su

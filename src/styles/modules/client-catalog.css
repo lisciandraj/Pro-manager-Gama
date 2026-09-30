@@ -1,0 +1,57 @@
+/* gama-client-catalog.js */
+#client-catalog{display:none}#client-catalog.active{display:block}.cc{container-type:inline-size;background:#fff;border:1px solid var(--arc-line);border-radius:16px;padding:16px;box-shadow:0 3px 16px rgba(31,36,66,.05)}.ccTools{display:flex;gap:9px;align-items:center;margin:16px 0;flex-wrap:wrap}.ccTools input{flex:1 1 260px;min-width:0;width:auto}.ccTools select{flex:0 0 auto;width:240px;min-width:0;padding:11px;border-radius:10px;border:1px solid var(--arc-line)}.ccTools .badge{flex:0 0 auto;white-space:nowrap}
+/* La ficha del catálogo es la única pantalla que ve un cliente, así que se
+   parece a lo que un cliente conoce: foto, de qué es, qué lleva, y el precio
+   con y sin IVA —que en una compra entre empresas es la cifra que se compara—.
+   Lo que se enseña sale de la vista catalog_products y de nada más: esa vista
+   esconde a propósito el precio de compra, el proveedor y la ubicación. */
+.ccGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ccGrid>.gamaPager{grid-column:1/-1}
+.ccProduct{display:grid;min-width:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto auto;grid-template-areas:'media' 'info' 'precio' 'acciones';gap:10px;border:1px solid var(--arc-line);border-radius:14px;padding:14px;background:#fff;box-shadow:0 1px 2px rgba(31,36,66,.04);transition:box-shadow .12s ease,border-color .12s ease}
+.ccProduct:hover{border-color:var(--arc-line-strong);box-shadow:0 2px 4px rgba(31,36,66,.06),0 10px 24px rgba(31,36,66,.07)}
+.ccMedia{grid-area:media;position:relative;display:grid;place-items:center}
+.ccProduct img,.ccNoImg{width:100%;height:140px;object-fit:contain;border-radius:10px;background:var(--arc-surface-2)}
+.ccNoImg{display:grid;place-items:center;font-size:42px}
+/* Producto sin foto: el cubo del módulo Productos (gama-photos.js). */
+.gamaNoPhoto{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--arc-text-subtle);vertical-align:middle}
+.ccNoImg .gamaNoPhoto{width:48px;height:48px;stroke-width:1.4}
+.ccFlag{position:absolute;top:6px;left:6px;background:var(--arc-accent-100);color:var(--arc-accent-600);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:850}
+.ccInfo{grid-area:info;min-width:0}
+.ccProduct h3{overflow-wrap:anywhere;font-size:15px;margin:0 0 3px;line-height:1.25;color:var(--arc-text)}
+.ccBarcode{font-size:12px;color:var(--arc-text-muted);overflow-wrap:anywhere;margin-top:5px}.ccMeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--arc-text-muted);margin-top:6px;overflow-wrap:anywhere}
+.ccStock{display:inline-block;margin-top:10px;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;background:var(--arc-success-bg);color:var(--arc-success)}
+.ccStock.bajo{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.ccStock.agotado{background:var(--arc-surface-2);color:var(--arc-text-muted)}
+.ccPrecio{grid-area:precio;text-align:left;align-self:end}
+.ccPrecio b{display:block;font-size:23px;font-weight:900;color:var(--arc-text);letter-spacing:-.4px;line-height:1.15}
+.ccPrecio b span{font-size:12.5px;font-weight:750;color:var(--arc-text-muted);letter-spacing:0}
+.ccPrecioIva{font-size:13px;color:var(--arc-text-muted);margin-top:2px}
+.ccPrecio small{display:block;font-size:11px;color:var(--arc-text-subtle);margin-top:5px}
+.ccAcciones{grid-area:acciones;display:flex;gap:10px;align-items:center;margin-top:0;padding-top:10px;border-top:1px solid var(--arc-surface-3)}
+.ccAdd{flex:1;background:var(--arc-warning);color:#fff;font-weight:800;font-size:12px;min-height:44px;min-width:0;border-radius:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.ccAdd:hover:not(:disabled){background:var(--arc-warning)}
+.ccAdd.dentro{background:var(--arc-success)}
+.ccAdd.dentro:hover:not(:disabled){background:var(--arc-success)}
+.ccQty{display:grid;grid-template-columns:32px 42px 32px;gap:0;flex:0 0 auto;border:1px solid var(--arc-line);border-radius:10px;overflow:hidden}
+.ccQty button{background:#fff;color:var(--arc-text);border-radius:0;font-size:17px;padding:11px 0}
+.ccQty button:hover{background:var(--arc-surface-3)}
+.ccQty input{min-width:0;width:100%;text-align:center;border:0;border-left:1px solid var(--arc-line);border-right:1px solid var(--arc-line);border-radius:0;font-size:15px;font-weight:700;padding:11px 0}
+.ccQty input:focus{box-shadow:none;outline:2px solid var(--arc-accent-600);outline-offset:-2px}.ccCartQty{grid-template-columns:32px 1fr 32px;gap:4px}.ccCartQty button{padding:6px 0;font-size:14px}.ccCartQty input{padding:6px 2px;font-size:13px}.ccCartRow small{display:block;color:var(--arc-text-subtle);font-size:11px;margin-top:2px}.ccCart{margin-top:18px;border:1px solid var(--arc-line);border-radius:14px;background:var(--arc-surface-2);padding:14px}.ccCartHead{display:flex;justify-content:space-between;align-items:center}.ccCartHead h3{margin:0}.ccCartRow{display:grid;grid-template-columns:1fr 122px 85px 32px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--arc-line);font-size:12px}.ccCartRow:last-child{border-bottom:0}
+.ccResumen{margin:12px 0 4px;padding-top:11px;border-top:1px solid var(--arc-line);font-size:13px}
+.ccResumen div{display:flex;justify-content:space-between;padding:4px 0;color:var(--arc-text-muted)}
+.ccResumen b{color:var(--arc-text)}
+.ccResumenTotal{margin-top:4px;padding-top:8px!important;border-top:1px solid var(--arc-line);font-size:15px;font-weight:800;color:var(--arc-text)}
+.ccResumenTotal b{font-size:17px;color:var(--arc-accent-600)}.ccDel{background:var(--arc-danger-bg);color:var(--arc-danger);padding:6px}.ccMsg{margin-top:8px;font-size:12px;font-weight:700}.ccOk{color:var(--arc-success)}.ccErr{color:var(--arc-danger)}.ccFav{margin-top:14px;border:1px solid var(--arc-line);border-radius:14px;background:#fff;padding:14px}.ccFavHead{display:flex;justify-content:space-between;align-items:center}.ccFavHead h3{margin:0;font-size:15px}.ccFavRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}.ccFavRow:last-child{border-bottom:0}.ccFavActions{display:flex;gap:6px}@container(max-width:900px){.ccGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container(max-width:580px){.ccGrid{grid-template-columns:minmax(0,1fr)}.ccProduct img,.ccNoImg{height:150px}}
+@media(max-width:560px){
+ /* En el teléfono, las cuatro columnas del pedido dejaban el nombre en una
+    tira de 100px: «Cemento Portland tipo I saco de 50 kg» salía en cuatro
+    líneas. Se parte en dos filas — nombre arriba, contador y total debajo. */
+ .ccCartRow{grid-template-columns:1fr auto auto;grid-template-areas:'nombre nombre borrar' 'contador total total';gap:7px 9px;padding:11px 0}
+ .ccCartRow>:nth-child(1){grid-area:nombre}
+ .ccCartRow>:nth-child(2){grid-area:contador;justify-self:start}
+ .ccCartRow .ccCartQty{grid-template-columns:34px 56px 34px}
+ .ccCartRow>:nth-child(3){grid-area:total;align-self:center;text-align:right;font-weight:800;font-size:14px}
+ .ccCartRow>:nth-child(4){grid-area:borrar}
+ .ccTools{flex-direction:column;align-items:stretch}/* En columna, el flex-basis es la ALTURA: sin esto el buscador se estiraba a 260px de alto. */
+ .ccTools input,.ccTools select{flex:0 0 auto;width:100%}.ccQty{grid-template-columns:38px 52px 38px}}
+

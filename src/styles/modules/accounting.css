@@ -1,0 +1,45 @@
+/* gama-accounting.js */
+#accounting{display:none}#accounting.active{display:block}
+.gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
+.gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
+.gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.gaCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
+.gaCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
+.gaKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
+.gaKpis .gaCard{margin:0}
+.gaKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
+.gaKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
+.gaKpis em{display:block;font-style:normal;font-size:12px;color:var(--arc-text-muted);margin-top:5px}
+.gaUp{color:var(--arc-success)}.gaDown{color:var(--arc-danger)}
+.gaTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.gaTools label{flex:1;min-width:160px;font-size:13px;color:var(--arc-text);font-weight:700}
+.gaTools input,.gaTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
+.gaScroll{overflow:auto}
+.gaTable{width:100%;border-collapse:collapse;min-width:620px}
+.gaTable th,.gaTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
+.gaTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
+.gaTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
+.gaTable td.gaNum,.gaTable th.gaNum{text-align:right;white-space:nowrap}
+.gaBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
+.gaBadge[data-s=overdue]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.gaBadge[data-s=paid]{background:var(--arc-success-bg);color:var(--arc-success)}
+.gaBadge[data-s=partial],.gaBadge[data-s=due_soon]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.gaBadge[data-s=posted]{background:var(--arc-success-bg);color:var(--arc-success)}
+.gaBadge[data-s=reversed],.gaBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
+.gaAging{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:10px 0}
+.gaAging div{border:1px solid var(--arc-line-strong);border-radius:11px;padding:11px;background:#fff}
+.gaAging b{display:block;font-size:17px;margin-top:5px;color:var(--arc-text)}
+.gaBar{height:9px;border-radius:9px;background:var(--arc-line);overflow:hidden;margin-top:7px}
+.gaBar i{display:block;height:100%;background:var(--arc-accent-600)}
+.gaActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
+.gaActions button{min-height:42px}
+.gaHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
+.gaError{color:var(--arc-danger);font-weight:700}
+.gaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+.gaGrid label{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
+.gaGrid input,.gaGrid select,.gaGrid textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
+.gaForecast{border-left:5px solid var(--arc-warning)}
+@media(max-width:700px){.gaKpis{grid-template-columns:1fr 1fr}.gaKpis strong{font-size:20px}
+ .gaTable{min-width:520px}.gaTools label{min-width:130px}}
+@media(max-width:430px){.gaKpis{grid-template-columns:1fr}}
+

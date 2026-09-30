@@ -1,4 +1,5 @@
-/* GAMA — supplier bridge V3 */
+/* Generated from src/features/purchasing/purchases-supplier-bridge.js. Edit the source and run npm run build. */
+/* Legacy supplier identifiers resolved to cloud supplier records. */
 (function(){
 'use strict';
 if(window.gamaResolveSupplierId)return;

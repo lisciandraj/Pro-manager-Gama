@@ -1,21 +1,45 @@
-const CACHE = 'coco-erp-20260929-cicon1';
-const APP_SHELL = ['./coco-gama-icon-180.png', './coco-gama-icon-192.png', './coco-gama-icon-512.png', './coco-gama-icon-maskable-192.png', './coco-gama-icon-maskable-512.png', './favicon.ico', './coco-gama-logo.jpg', './coco-erp-wordmark.png', './coco-erp-logo-full.png', './coco-erp-icon-180.png?v=20260923-coco1', './coco-erp-icon-192.png?v=20260923-coco1', './architect-shell.css?v=20260919-order1', './architect-home.css?v=20260919-relief1', './', './index.html', './manifest.json?v=20260919-brand2', './architect-tokens.css?v=20260919-contrast2', './architect-ui.css?v=20260919-contrast2', './gama-i18n-catalog.js?v=20260919-company1', './gama-i18n.js?v=20260919-reference1', './gama-currency.js?v=20260917-accounting1'];
-self.addEventListener('install', event => { self.skipWaiting(); event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL).catch(() => {}))); });
-self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  if (request.method !== 'GET') return;
-  const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
-  // Keep the isolated hardware diagnostic outside the ERP navigation cache.
-  if (url.pathname.endsWith('/camera-check.html')) return;
-  if (request.mode === 'navigate' || request.destination === 'document') {
-    event.respondWith(fetch(request, {cache:'no-store'}).then(response => { const copy=response.clone(); caches.open(CACHE).then(cache=>cache.put('./index.html',copy)).catch(()=>{}); return response; }).catch(()=>caches.match('./index.html').then(response=>response||caches.match('./'))));
-    return;
-  }
-  if (request.destination === 'script' || request.destination === 'style') {
-    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(request,copy)).catch(()=>{});}return response;}).catch(()=>caches.match(request).then(response=>response||Response.error())));
-    return;
-  }
-  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(request,copy)).catch(()=>{});}return response;})));
+/* Coco ERP static assets only. Business/API responses never enter this cache. */
+const CACHE_PREFIX='coco-erp:'+new URL('./',self.location.href).pathname+':';
+const CACHE=CACHE_PREFIX+'9ac88446cb00-d6385a465609';
+const APP_SHELL=["./","./index.html","./manifest.json","./coco-gama-icon-180.png","./coco-gama-icon-192.png","./coco-gama-icon-512.png"];
+const immutable=url=>/^[a-f0-9]{12}$/.test(url.searchParams.get('v')||'');
+async function save(request,response){
+ if(response.ok){const cache=await caches.open(CACHE);await cache.put(request,response.clone());}
+ return response;
+}
+self.addEventListener('install',event=>{
+ self.skipWaiting();
+ event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)).catch(()=>{}));
+});
+self.addEventListener('activate',event=>{
+ event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',event=>{
+ const request=event.request,url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.endsWith('/camera-check.html'))return;
+ if(request.mode==='navigate'||request.destination==='document'){
+  // Each entry page keeps its own offline copy: the storefront must not replace the ERP.
+  const base=new URL('./',self.location.href).pathname;
+  const filename=url.pathname===base?'index.html':url.pathname.slice(base.length);
+  if(!['index.html','gama-site.html'].includes(filename))return;
+  const key=new URL(filename,self.location.href).href;
+  event.respondWith(fetch(request,{cache:'no-store'}).then(response=>save(key,response)).catch(async()=>{
+   const cache=await caches.open(CACHE);return await cache.match(key)||Response.error();
+  }));
+  return;
+ }
+ if(['script','style'].includes(request.destination)){
+  event.respondWith((async()=>{
+   const cache=await caches.open(CACHE);
+   if(immutable(url)){const cached=await cache.match(request);if(cached)return cached;}
+   try{return await save(request,await fetch(request,{cache:immutable(url)?'default':'no-cache'}));}
+   catch{return await cache.match(request)||Response.error();}
+  })());
+  return;
+ }
+ if(!['image','font','manifest'].includes(request.destination))return;
+ event.respondWith((async()=>{
+  const cache=await caches.open(CACHE),cached=await cache.match(request);
+  return cached||save(request,await fetch(request));
+ })());
 });

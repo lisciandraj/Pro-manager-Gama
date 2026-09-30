@@ -1,3 +1,4 @@
+/* Generated from src/ui/toast.js. Edit the source and run npm run build. */
 /* GAMA — Avisos.
 
    La aplicación daba sus 106 avisos con alert(): un cuadro del navegador que

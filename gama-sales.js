@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/sales.js. Edit the source and run npm run build. */
 /* GAMA · Pedidos de venta, expediciones y facturas emitidas en otro software.
    Every mutation is one checked database transaction. No fiscal emission here. */
 (function(){

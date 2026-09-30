@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-targets.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Objetivos.
 
    Cuánto tiene que vender cada comercial en un mes, un trimestre o un año, y

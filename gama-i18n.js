@@ -1,3 +1,4 @@
+/* Generated from src/ui/i18n.js. Edit the source and run npm run build. */
 /* GAMA — local, opt-in UI localisation. Business values and form values are never translated.
    Static labels are marked at source; dynamic presentation nodes opt in with data-gi-live.
    No network translator, prototype patches, HTML replacement or screen re-rendering. */

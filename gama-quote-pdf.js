@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/quote-pdf.js. Edit the source and run npm run build. */
 /* GAMA — Generador de PDF para presupuestos (usa jsPDF local) */
 (function(){
 'use strict';

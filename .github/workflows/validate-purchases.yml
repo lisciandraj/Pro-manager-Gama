@@ -1,4 +1,4 @@
-name: Validate GAMA purchases
+name: Validate Coco purchases
 on:
   push:
     branches: [main]

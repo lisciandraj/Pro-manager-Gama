@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-activities.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Actividades.
 
    Llamadas, correos, reuniones, tareas, notas, visitas, demostraciones y

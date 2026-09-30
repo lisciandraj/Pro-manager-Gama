@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-contacts.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Contactos.
 
    Las personas. Una empresa no compra: compra alguien de dentro, y casi nunca

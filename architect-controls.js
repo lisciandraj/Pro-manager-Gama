@@ -1,3 +1,4 @@
+/* Generated from src/ui/controls.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,$=id=>document.getElementById(id),t=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);let epoch=0;
 const admin=()=>['admin','administrador'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role);
 const msg=e=>window.gamaToast?.(window.ArcErrors.message(e));

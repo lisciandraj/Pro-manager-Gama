@@ -1,3 +1,4 @@
+/* Generated from src/styles/home.css. Edit the source and run npm run build. */
 /* Pastel home tiles: module-tinted surface and centered icon/title. */
 #mainmenu{padding:0}
 #mainmenu .gamaF2Head{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 12px}

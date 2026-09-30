@@ -1,3 +1,4 @@
+/* Generated from src/features/import-export/excel-export.js. Edit the source and run npm run build. */
 /* One workbook per export, one sheet per business module. Reads use the signed-in
    user's Supabase client: no service key, privileged RPC or local cache fallback. */
 (function(){'use strict';

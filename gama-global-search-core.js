@@ -1,3 +1,4 @@
+/* Generated from src/ui/global-search-core.js. Edit the source and run npm run build. */
 /* Spotlight queries: read-only, caller-scoped Supabase reads; no AI provider. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.GamaSearchCore=api;})(typeof window==='undefined'?globalThis:window,function(){
 'use strict';

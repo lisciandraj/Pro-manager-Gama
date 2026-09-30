@@ -1,4 +1,5 @@
-/* GAMA phone barcode scanner — optimized V10 */
+/* Generated from src/ui/scanner-phone.js. Edit the source and run npm run build. */
+/* Coco ERP phone scanner: camera lifecycle, decoding and input events. */
 (function(){
 'use strict';
 const ZXING_URL='https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js';

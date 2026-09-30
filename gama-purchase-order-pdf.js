@@ -1,3 +1,4 @@
+/* Generated from src/features/purchasing/purchase-order-pdf.js. Edit the source and run npm run build. */
 /* GAMA — Generador de PDF para pedidos a proveedores (usa jsPDF, cargado por CDN) */
 (function(){
 'use strict';

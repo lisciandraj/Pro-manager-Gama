@@ -1,3 +1,4 @@
+/* Generated from src/features/documents/pdf-template.js. Edit the source and run npm run build. */
 /* Plantilla corporativa común. Logo incluido para exportaciones inmediatas y sin red. */
 (function(){
 'use strict';

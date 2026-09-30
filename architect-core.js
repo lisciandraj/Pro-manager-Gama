@@ -142,12 +142,12 @@
     if (!slots.length) return;
     const modules = globalThis.ArcModules, icons2 = (_a = globalThis.ArcUI) == null ? void 0 : _a.icons;
     if (!modules || !icons2) return;
-    let pending2 = false;
+    let pending = false;
     slots.forEach((slot) => {
       const section = slot.closest("section[id]");
       const key = slot.dataset.arcModule || id || SECTION_ALIAS[section == null ? void 0 : section.id] || (section == null ? void 0 : section.id) || "";
       if (!key) {
-        pending2 = true;
+        pending = true;
         return;
       }
       const definition = modules.get(key);
@@ -157,7 +157,7 @@
       slot.innerHTML = moduleIcon(definition.icon);
       delete slot.dataset.arcIconSlot;
     });
-    if (pending2 && !headerIcon.retrying) {
+    if (pending && !headerIcon.retrying) {
       headerIcon.retrying = true;
       setTimeout(() => {
         headerIcon.retrying = false;
@@ -177,11 +177,11 @@
   }
   function bindForm(el, onSubmit, { error = errorMessage, onSuccess } = {}) {
     if (el.__arcForm) return el.__arcForm;
-    let pending2 = false;
+    let pending = false;
     const submit = async (event) => {
       event.preventDefault();
-      if (pending2 || !el.reportValidity()) return;
-      pending2 = true;
+      if (pending || !el.reportValidity()) return;
+      pending = true;
       el.setAttribute("aria-busy", "true");
       const controls = [...el.querySelectorAll("button,input[type=submit]")], previous = controls.map((c) => c.disabled);
       controls.forEach((c) => c.disabled = true);
@@ -197,14 +197,14 @@
           message.focus();
         } else throw e;
       } finally {
-        pending2 = false;
+        pending = false;
         el.removeAttribute("aria-busy");
         controls.forEach((c, i) => c.disabled = previous[i]);
       }
     };
     el.addEventListener("submit", submit);
     const api = { get pending() {
-      return pending2;
+      return pending;
     }, dispose() {
       el.removeEventListener("submit", submit);
       delete el.__arcForm;
@@ -213,13 +213,13 @@
     return api;
   }
   function guard(action2) {
-    let pending2;
+    let pending;
     return function(...args) {
-      if (pending2) return pending2;
-      pending2 = Promise.resolve().then(() => action2.apply(this, args)).finally(() => {
-        pending2 = void 0;
+      if (pending) return pending;
+      pending = Promise.resolve().then(() => action2.apply(this, args)).finally(() => {
+        pending = void 0;
       });
-      return pending2;
+      return pending;
     };
   }
   function dialog({ title, body = "", saveLabel = translate("Guardar"), onSave, error = errorMessage, className = "", ids = {} }) {
@@ -613,7 +613,7 @@
   async function all(table2, options = {}, cached = false) {
     const key = table2 + ":" + JSON.stringify(options);
     if (cached && cache.has(key)) return cache.get(key);
-    const pending2 = (async () => {
+    const pending = (async () => {
       const data2 = [], seen = /* @__PURE__ */ new Set();
       let offset = 0;
       for (let page2 = 0; page2 < 1e4; page2++) {
@@ -630,13 +630,13 @@
       }
       throw Error("PAGINATION_LIMIT");
     })();
-    if (cached) cache.set(key, pending2);
+    if (cached) cache.set(key, pending);
     try {
-      const r = await pending2;
-      if (r.error) cache.delete(key);
+      const r = await pending;
+      if (r.error && cache.get(key) === pending) cache.delete(key);
       return r;
     } catch (e) {
-      cache.delete(key);
+      if (cache.get(key) === pending) cache.delete(key);
       throw e;
     }
   }
@@ -686,7 +686,9 @@
     window.addEventListener("gama:products-cloud-change", () => invalidate("products"));
     window.addEventListener("gama:stock-cloud-change", () => {
       invalidate("products");
+      invalidate("stock_quants");
       invalidate("stock_movements");
+      invalidate("stock_reservations");
     });
     window.addEventListener("gama:sales-change", () => {
       invalidate("invoices");
@@ -991,7 +993,7 @@
       "label": "Seguimiento de procesos",
       "icon": "folder",
       "group": "Resumen",
-      "description": "Venta (PDV) y compra (PDC), paso a paso",
+      "description": "Ventas, compras y devoluciones de clientes y proveedores",
       "accent": "blue",
       "order": 100,
       "menu": true,
@@ -1264,118 +1266,132 @@
       return (_a2 = window.gamaAccessAllowed) == null ? void 0 : _a2.call(window, t);
     });
   };
-  function openLegacy(x, from) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
-    if (x[1] === "website") {
-      if (canOpen("website")) return (_a = window.GamaWebsite) == null ? void 0 : _a.open();
-      return;
-    }
-    if (window.gamaAccessAllowed && !canOpen(x[1])) return;
-    if (x[1] === "contacts") {
-      return (_b = window.GamaContacts) == null ? void 0 : _b.open(from);
-    }
-    if (x[1] === "sav") {
-      return (_c = window.GamaService) == null ? void 0 : _c.open();
-    }
-    if (x[1] === "documents") {
-      return (_d = window.GamaDocuments) == null ? void 0 : _d.open();
-    }
-    if (x[1] === "tms") {
-      return (_e = window.gamaTMS) == null ? void 0 : _e.open();
-    }
-    if (x[1] === "accounting") {
-      return (_f = window.GamaAccounting) == null ? void 0 : _f.open();
-    }
-    if (x[1] === "fleet") {
-      return (_g = window.GamaFleet) == null ? void 0 : _g.open();
-    }
-    if (x[1] === "returns") {
-      return (_h = window.GamaReturns) == null ? void 0 : _h.open();
-    }
-    if (x[1] === "projects") {
-      return (_i = window.GamaProjects) == null ? void 0 : _i.open();
-    }
-    if (x[1] === "assistant-ia") {
-      return (_j = window.GamaAssistant) == null ? void 0 : _j.open();
-    }
-    if (x[1] === "knowledge") {
-      return (_k = window.GamaKnowledge) == null ? void 0 : _k.open();
-    }
-    if (x[1] === "payments") {
-      return (_l = window.GamaPayments) == null ? void 0 : _l.open();
-    }
-    if (x[1] === "dossier-flow") {
-      return (_m = window.GamaDossierFlow) == null ? void 0 : _m.open();
-    }
-    if (["operations", "notifications"].includes(x[1])) {
-      return (_n = window.GamaOperations) == null ? void 0 : _n.open(x[1]);
-    }
-    if (x[1] === "quotes") {
-      return (_o = window.GamaQuotes) == null ? void 0 : _o.enter();
-    }
-    if (x[1] === "client-deliveries") {
-      return (_p = window.GamaQuotes) == null ? void 0 : _p.deliveries();
-    }
-    if (x[1] === "sales-orders") {
-      return (_q = window.GamaSales) == null ? void 0 : _q.open();
-    }
-    if (window.GamaModules && !window.GamaModules.enabled(x[1])) {
-      alert("Este módulo está desactivado en Configuración.");
-      return;
-    }
-    if (x[1] === "reports") {
+  const openers = {
+    website: () => {
+      var _a;
+      return (_a = window.GamaWebsite) == null ? void 0 : _a.open();
+    },
+    contacts: (from) => {
+      var _a;
+      return (_a = window.GamaContacts) == null ? void 0 : _a.open(from);
+    },
+    sav: () => {
+      var _a;
+      return (_a = window.GamaService) == null ? void 0 : _a.open();
+    },
+    documents: () => {
+      var _a;
+      return (_a = window.GamaDocuments) == null ? void 0 : _a.open();
+    },
+    tms: () => {
+      var _a;
+      return (_a = window.gamaTMS) == null ? void 0 : _a.open();
+    },
+    accounting: () => {
+      var _a;
+      return (_a = window.GamaAccounting) == null ? void 0 : _a.open();
+    },
+    fleet: () => {
+      var _a;
+      return (_a = window.GamaFleet) == null ? void 0 : _a.open();
+    },
+    returns: () => {
+      var _a;
+      return (_a = window.GamaReturns) == null ? void 0 : _a.open();
+    },
+    projects: () => {
+      var _a;
+      return (_a = window.GamaProjects) == null ? void 0 : _a.open();
+    },
+    "assistant-ia": () => {
+      var _a;
+      return (_a = window.GamaAssistant) == null ? void 0 : _a.open();
+    },
+    knowledge: () => {
+      var _a;
+      return (_a = window.GamaKnowledge) == null ? void 0 : _a.open();
+    },
+    payments: () => {
+      var _a;
+      return (_a = window.GamaPayments) == null ? void 0 : _a.open();
+    },
+    "dossier-flow": () => {
+      var _a;
+      return (_a = window.GamaDossierFlow) == null ? void 0 : _a.open();
+    },
+    notifications: () => {
+      var _a;
+      return (_a = window.GamaOperations) == null ? void 0 : _a.open("notifications");
+    },
+    quotes: () => {
+      var _a;
+      return (_a = window.GamaQuotes) == null ? void 0 : _a.enter();
+    },
+    "client-deliveries": () => {
+      var _a;
+      return (_a = window.GamaQuotes) == null ? void 0 : _a.deliveries();
+    },
+    "sales-orders": () => {
+      var _a;
+      return (_a = window.GamaSales) == null ? void 0 : _a.open();
+    },
+    reports: () => {
+      var _a;
       ensureExcelModule();
-      window.showTab && window.showTab("reports", null);
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "reports", null);
+    },
+    gamaPurchasesV14: () => {
+      var _a;
+      if (window.gamaShowPurchases) return window.gamaShowPurchases();
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "gamaPurchasesV14", null);
+      setTimeout(() => {
+        var _a2;
+        return (_a2 = window.gamaShowPurchases) == null ? void 0 : _a2.call(window);
+      }, 100);
+    },
+    crm: () => {
+      var _a, _b;
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "crm", null);
+      return (_b = window.GamaOpenCRM) == null ? void 0 : _b.call(window);
+    },
+    "price-lists": () => {
+      var _a, _b;
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "price-lists", null);
+      return (_b = window.GamaOpenPriceLists) == null ? void 0 : _b.call(window);
+    },
+    "client-catalog": () => {
+      var _a, _b;
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "client-catalog", null);
+      return (_b = window.GamaOpenClientCatalog) == null ? void 0 : _b.call(window);
+    },
+    warehouses: () => {
+      var _a, _b;
+      (_a = window.showTab) == null ? void 0 : _a.call(window, "warehouses", null);
+      return (_b = window.GamaOpenWarehouses) == null ? void 0 : _b.call(window);
+    },
+    hr: () => {
+      var _a;
+      return (_a = window.GamaOpenHR) == null ? void 0 : _a.call(window);
+    },
+    "access-settings": () => {
+      var _a;
+      return (_a = window.GamaOpenAccessSettings) == null ? void 0 : _a.call(window);
+    },
+    settings: () => {
+      var _a;
+      return (_a = window.GamaOpenSettings) == null ? void 0 : _a.call(window);
+    }
+  };
+  function openModule(id, from) {
+    var _a, _b, _c;
+    if (window.gamaAccessAllowed && !canOpen(id)) return;
+    if (window.GamaModules && !window.GamaModules.enabled(id)) {
+      (_b = window.gamaToast) == null ? void 0 : _b.call(window, ((_a = window.GamaI18n) == null ? void 0 : _a.t("Este módulo está desactivado en Configuración.")) || "Este módulo está desactivado en Configuración.");
       return;
     }
-    if (x[1] === "gamaPurchasesV14") {
-      if (window.gamaShowPurchases) window.gamaShowPurchases();
-      else {
-        window.showTab && window.showTab("gamaPurchasesV14", null);
-        setTimeout(() => window.gamaShowPurchases && window.gamaShowPurchases(), 100);
-      }
-      return;
-    }
-    if (x[1] === "crm") {
-      if (window.showTab) window.showTab("crm", null);
-      (_r = window.GamaOpenCRM) == null ? void 0 : _r.call(window);
-      return;
-    }
-    if (x[1] === "price-lists") {
-      if (window.showTab) window.showTab("price-lists", null);
-      (_s = window.GamaOpenPriceLists) == null ? void 0 : _s.call(window);
-      return;
-    }
-    if (x[1] === "client-catalog") {
-      if (window.showTab) window.showTab("client-catalog", null);
-      (_t = window.GamaOpenClientCatalog) == null ? void 0 : _t.call(window);
-      return;
-    }
-    if (x[1] === "customer-requests") {
-      if (window.showTab) window.showTab("customer-requests", null);
-      (_u = window.GamaOpenCustomerRequests) == null ? void 0 : _u.call(window);
-      return;
-    }
-    if (x[1] === "warehouses") {
-      if (window.showTab) window.showTab("warehouses", null);
-      (_v = window.GamaOpenWarehouses) == null ? void 0 : _v.call(window);
-      return;
-    }
-    if (x[1] === "hr") {
-      (_w = window.GamaOpenHR) == null ? void 0 : _w.call(window);
-      return;
-    }
-    if (x[1] === "access-settings") {
-      (_x = window.GamaOpenAccessSettings) == null ? void 0 : _x.call(window);
-      return;
-    }
-    if (x[1] === "settings") {
-      (_y = window.GamaOpenSettings) == null ? void 0 : _y.call(window);
-      return;
-    }
-    if (window.showTab) window.showTab(x[1], null);
+    return openers[id] ? openers[id](from) : (_c = window.showTab) == null ? void 0 : _c.call(window, id, null);
   }
-  const registry = definitions.map((m) => Object.freeze({ ...m, open: (from) => openLegacy([m.label, m.id, m.icon, m.group], from) }));
+  const registry = definitions.map((m) => Object.freeze({ ...m, open: (from) => openModule(m.id, from) }));
   const hooks = /* @__PURE__ */ new Map();
   let current = "mainmenu", cleanups = [];
   function unmount() {
@@ -1555,44 +1571,124 @@
     window.GamaArchive.register(key, () => grid.refresh({ page: 0 }));
     views.set(entity, view);
   }
-  const pending = /* @__PURE__ */ new Map();
   const lazyModules = {
-    website: { global: "GamaWebsite", file: "gama-website.js", methods: ["open"] },
-    "audit-controls": { global: "ArchitectStockAudit", file: "architect-audit-controls.js", methods: ["products", "valuation", "performance"] },
-    sav: { global: "GamaService", file: "gama-service-documents.js", methods: ["open", "openTicket"] },
-    documents: { global: "GamaDocuments", file: "gama-service-documents.js", methods: ["open"] },
-    accounting: { global: "GamaAccounting", file: "gama-accounting.js", methods: ["open", "rpc"] },
-    fleet: { global: "GamaFleet", file: "gama-fleet.js", methods: ["open", "openVehicle", "openDriver", "rpc"] },
-    returns: { global: "GamaReturns", file: "gama-returns.js", methods: ["open", "openReturn", "createFrom", "createFromService", "rpc", "mount"] }
+    "website": {
+      "global": "GamaWebsite",
+      "file": "gama-website.js",
+      "methods": [
+        "open"
+      ]
+    },
+    "audit-controls": {
+      "global": "ArchitectStockAudit",
+      "file": "architect-audit-controls.js",
+      "methods": [
+        "products",
+        "valuation",
+        "performance"
+      ]
+    },
+    "sav": {
+      "global": "GamaService",
+      "file": "gama-service-documents.js",
+      "methods": [
+        "open",
+        "openTicket"
+      ]
+    },
+    "documents": {
+      "global": "GamaDocuments",
+      "file": "gama-service-documents.js",
+      "methods": [
+        "open"
+      ]
+    },
+    "accounting": {
+      "global": "GamaAccounting",
+      "file": "gama-accounting.js",
+      "methods": [
+        "open",
+        "rpc"
+      ]
+    },
+    "fleet": {
+      "global": "GamaFleet",
+      "file": "gama-fleet.js",
+      "methods": [
+        "open",
+        "openVehicle",
+        "openDriver",
+        "rpc"
+      ]
+    },
+    "returns": {
+      "global": "GamaReturns",
+      "file": "gama-returns.js",
+      "methods": [
+        "open",
+        "openReturn",
+        "createFrom",
+        "createFromService",
+        "rpc",
+        "mount"
+      ]
+    },
+    "knowledge": {
+      "global": "GamaKnowledge",
+      "file": "gama-knowledge.js",
+      "methods": [
+        "open",
+        "openArticle"
+      ]
+    },
+    "assistant-ia": {
+      "global": "GamaAssistant",
+      "file": "gama-assistant-ia.js",
+      "methods": [
+        "open"
+      ]
+    },
+    "tms": {
+      "global": "gamaTMS",
+      "file": "gama-tms-module.js",
+      "methods": [
+        "open",
+        "openDelivery",
+        "openProof",
+        "viewProofArchive",
+        "downloadProofReport",
+        "downloadProofCertificate"
+      ]
+    }
   };
-  function loadModule(id) {
-    const entry = lazyModules[id];
-    if (!entry) return Promise.resolve();
-    if (window[entry.global] && !window[entry.global].__arcLazy) return Promise.resolve(window[entry.global]);
-    if (pending.has(id)) return pending.get(id);
-    const promise = new Promise((resolve, reject) => {
+  const scripts = /* @__PURE__ */ new Map();
+  function loadScript(file) {
+    if (scripts.has(file)) return scripts.get(file);
+    const pending = new Promise((resolve, reject) => {
       var _a;
       const script = document.createElement("script");
-      script.src = ((_a = window.ArcAssets) == null ? void 0 : _a[entry.file]) || entry.file;
-      script.dataset.arcModule = id;
-      script.onload = () => {
-        const api = window[entry.global];
-        if (api && !api.__arcLazy) resolve(api);
-        else {
-          script.remove();
-          pending.delete(id);
-          reject(Error("MODULE_LOAD_FAILED"));
-        }
-      };
+      script.src = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
+      script.dataset.arcAsset = file;
+      script.onload = () => resolve();
       script.onerror = () => {
         script.remove();
-        pending.delete(id);
+        scripts.delete(file);
         reject(Error("MODULE_LOAD_FAILED"));
       };
       document.head.appendChild(script);
     });
-    pending.set(id, promise);
-    return promise;
+    scripts.set(file, pending);
+    return pending;
+  }
+  async function loadModule(id) {
+    const entry = lazyModules[id];
+    if (!entry) return;
+    const installed = window[entry.global];
+    if (installed && !installed.__arcLazy) return installed;
+    await loadScript(entry.file);
+    const api = window[entry.global];
+    if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
+    return api;
   }
   function installLazyModules() {
     for (const [id, entry] of Object.entries(lazyModules)) {
@@ -1600,7 +1696,7 @@
       window[entry.global] = { __arcLazy: true, ...Object.fromEntries(entry.methods.map((method) => [method, async (...args) => {
         var _a, _b;
         try {
-          return (await loadModule(id))[method](...args);
+          return await (await loadModule(id))[method](...args);
         } catch (e) {
           (_b = window.gamaToast) == null ? void 0 : _b.call(window, ((_a = window.ArcErrors) == null ? void 0 : _a.message(e)) || e.message);
           throw e;

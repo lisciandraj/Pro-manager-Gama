@@ -1,3 +1,4 @@
+/* Generated from src/ui/shell.js. Edit the source and run npm run build. */
 /* COCO ERP — El armazón de la aplicación.
 
    Barra lateral fija a la izquierda, barra superior arriba, contenido en el
@@ -214,8 +215,8 @@ function boot(){
   if(e.key==='Escape'){document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
   if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')&&matchMedia('(max-width:860px)').matches){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
  });
- /* Un sondeo corto y barato en vez de un observador más: el guardarraíl de
-    rendimiento del proyecto acota cuántos puede haber en el arranque. */
+ /* Synchronize on application events; observe only the existing user chip
+    and notification badge, never the complete document tree. */
  sync();['arc:route-change','gama:auth-change','gama:modules-change','gama:profile-ready','gama:operations-change'].forEach(name=>window.addEventListener(name,sync));
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});

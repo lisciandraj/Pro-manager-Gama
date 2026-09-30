@@ -1,3 +1,4 @@
+/* Generated from src/data/references.js. Edit the source and run npm run build. */
 /* Canonical dossier references; original/fiscal numbers remain in storage. */
 (function(){'use strict';
 const types=new Set(["customer_requests", "invoices", "sales_orders", "fulfillment_preparations", "fulfillment_packages", "sales_deliveries", "tms_deliveries", "tms_proofs", "external_invoices", "external_invoice_payments", "return_orders", "purchase_orders", "inventory_counts", "stock_reservations", "stock_movements", "crm_opportunities", "pm_projects", "fleet_vehicles", "hr_documents", "hr_payroll", "service_tickets", "business_documents", "accounting_entries", "expenses", "supplier_invoices", "supplier_invoice_payments", "return_credits", "return_refunds", "tms_routes", "knowledge_articles", "pm_items"]);

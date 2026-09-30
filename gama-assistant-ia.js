@@ -1,3 +1,4 @@
+/* Generated from src/features/intelligence/assistant-ia.js. Edit the source and run npm run build. */
 /* Administrator-only assistant. Company data and model credentials never come
    from the local ERP cache. Authorization and all calculations run on server. */
 (function(){'use strict';

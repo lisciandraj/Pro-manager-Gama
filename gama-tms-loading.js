@@ -1,3 +1,4 @@
+/* Generated from src/features/transport/tms-loading.js. Edit the source and run npm run build. */
 /* TMS transports sealed parcels. Product checks belong to order preparation. */
 (function(){'use strict';
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id),esc=window.ArcUI.esc;

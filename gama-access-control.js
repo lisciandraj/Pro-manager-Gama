@@ -1,3 +1,4 @@
+/* Generated from src/features/access/access-control.js. Edit the source and run npm run build. */
 /* GAMA V12 — Control de acceso por perfil.
    La autenticación es única y vive en la nube (gama-cloud-auth.js + Supabase).
    Este módulo ya no guarda usuarios ni contraseñas: sólo lee la sesión

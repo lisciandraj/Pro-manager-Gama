@@ -1,3 +1,4 @@
+/* Generated from src/styles/global-search.css. Edit the source and run npm run build. */
 #mainmenu .gamaF2Buscador{max-width:680px!important}
 #mainmenu .gamaF2Buscador input{padding-right:80px!important;min-height:50px}
 .gamaSpotlight{padding:0;border:1px solid var(--arc-line-strong);border-radius:19px;background:#fff;color:var(--arc-text);width:min(760px,calc(100vw - 32px));max-height:min(780px,85dvh);margin:7dvh auto auto;box-shadow:0 24px 80px rgba(31,36,66,.4);overflow:hidden;font-family:inherit}

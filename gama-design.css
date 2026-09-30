@@ -1,3 +1,4 @@
+/* Generated from src/styles/design.css. Edit the source and run npm run build. */
 /* GAMA reference design. Tokens are scoped so the existing top bar is unchanged. */
 .arcContent,.arcSidebar,body>dialog{
  --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:#F87826;

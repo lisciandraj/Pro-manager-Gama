@@ -1,3 +1,4 @@
+/* Generated from src/ui/ui.js. Edit the source and run npm run build. */
 /* GAMA — Cabecera única de módulo.
 
    Cada módulo se había escrito con su propia cabecera: gp14Head, srHead,

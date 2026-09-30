@@ -22,7 +22,7 @@ export async function all(table, options = {}, cached = false) {
     throw Error('PAGINATION_LIMIT');
   })();
   if(cached)cache.set(key,pending);
-  try {const r=await pending;if(r.error)cache.delete(key);return r;} catch(e){cache.delete(key);throw e;}
+  try {const r=await pending;if(r.error&&cache.get(key)===pending)cache.delete(key);return r;} catch(e){if(cache.get(key)===pending)cache.delete(key);throw e;}
 }
 /** Bound IN filters as well as result ranges, so large document sets fit URL limits. */
 export async function byIds(table,column,ids,options={},cached=false) {
@@ -59,6 +59,6 @@ export function startDataEvents() {
   window.addEventListener('gama:data-change',event=>invalidate(event.detail?.table));
   window.addEventListener('gama:auth-change',()=>invalidate());
   window.addEventListener('gama:products-cloud-change',()=>invalidate('products'));
-  window.addEventListener('gama:stock-cloud-change',()=>{invalidate('products');invalidate('stock_movements');});
+  window.addEventListener('gama:stock-cloud-change',()=>{invalidate('products');invalidate('stock_quants');invalidate('stock_movements');invalidate('stock_reservations');});
   window.addEventListener('gama:sales-change',()=>{invalidate('invoices');invalidate('invoice_lines');invalidate('customers');});
 }

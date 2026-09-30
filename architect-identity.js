@@ -1,3 +1,4 @@
+/* Generated from src/features/access/identity.js. Edit the source and run npm run build. */
 /* Auth helpers never store a password, TOTP secret or bearer link. */
 (function(){'use strict';const U=window.ArcUI,F=U.field,E=U.esc,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es);let challenge=null;
 const auth=async()=>(await window.GamaCloud.db()).auth;

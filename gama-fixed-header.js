@@ -1,3 +1,4 @@
+/* Generated from src/ui/session-controls.js. Edit the source and run npm run build. */
 /* GAMA - Fixed top actions, responsive, touch-safe */
 (function(){
   'use strict';

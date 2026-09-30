@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/invoice-archive.js. Edit the source and run npm run build. */
 /* GAMA V16 — Archivo de facturas cloud, robuste et temps réel */
 (function(){
 'use strict';

@@ -1,4 +1,5 @@
-/* GAMA — Almacenes y existencias (Inventario V2).
+/* Generated from src/features/inventory/workspace.js. Edit the source and run npm run build. */
+/* GAMA — Almacenes y existencias.
 
    El Inventario de siempre responde «cuánto hay». Esta pantalla responde las
    otras cuatro preguntas que hacen falta para trabajar: dónde está, cuánto de

@@ -1,3 +1,4 @@
+/* Generated from src/features/company/settings.js. Edit the source and run npm run build. */
 /* Shared company identity. Product branding remains in architect-shell.*. */
 (function(){'use strict';if(window.GamaCompany)return;
 const C=window.GamaCompanyCore,$=id=>document.getElementById(id),esc=window.ArcUI.esc;

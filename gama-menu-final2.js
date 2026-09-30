@@ -1,20 +1,7 @@
-/* GAMA V10 - menú definitivo en español + Entregas/TMS */
+/* Generated from src/ui/home-menu.js. Edit the source and run npm run build. */
+/* Coco ERP home: one tile per visible module, shared registry and per-user order. */
 (function(){
 'use strict';
-/* [rótulo, pantalla, icono, grupo]. El grupo es sólo para el menú: veinte
-   módulos en una única rejilla se leen como un muro de iconos y encontrar
-   «Matriz comercial» exigía recorrerlos todos. Agrupados —y con el buscador
-   de aquí arriba— se llega a cualquiera de un vistazo o escribiendo tres
-   letras.
-
-   El orden importa, y no sólo por estética: un rótulo que es subcadena de
-   otro se lleva por delante al que va después cuando algo elige la tarjeta
-   por su texto —así es como la abren las pruebas de punta a punta—. Aquí
-   hay dos casos, y los dos tienen que quedar en este orden:
-     «Productos» antes que «Catálogo de productos»
-     «Clientes»  antes que «Solicitudes de clientes»
-   Por eso Inventario va antes que Ventas. Al mover un módulo de grupo, o
-   al reordenar los grupos, hay que volver a comprobarlo. */
 // Lo que vive en la barra superior (Notificaciones, la campana) no es tarjeta ni enlace lateral.
 const ITEMS=window.ArcModules.registry.filter(m=>m.menu&&!m.topbar).map(m=>[m.label,m.id,m.icon,m.group]);
 const GRUPOS=window.ArcModules.groups;
@@ -22,8 +9,7 @@ const I=window.ArcUI.icons;
 function openItem(x){return window.ArcRouter.open(x[1]);}
 
 
-/* Una línea por módulo que diga para qué sirve. El menú deja de ser una
-   rejilla de iconos a adivinar: se lee y se entra al que toca. */
+/* Descriptions remain available to settings; home tiles show icon and title. */
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const esc=window.ArcUI.esc;
 const can=id=>!!window.gamaAccessAllowed?.(id);

@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-leads.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Prospectos.
 
    Un prospecto es lo que TODAVÍA no es un cliente: alguien que llamó, una

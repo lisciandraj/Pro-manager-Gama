@@ -1,3 +1,4 @@
+/* Generated from src/features/finance/accounting.js. Edit the source and run npm run build. */
 /* GAMA — Contabilidad para equipos pequeños.
 
    La regla del módulo: nada se vuelve a teclear. Las facturas, los cobros, los
@@ -1031,7 +1032,7 @@ async function exportRows(rows,name){
  const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
  const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
- const a=document.createElement('a');a.href=url;a.download=`Architect-${name}-${day()}.csv`;
+ const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 

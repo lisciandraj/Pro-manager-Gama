@@ -1,3 +1,4 @@
+/* Generated from src/data/central-sync.js. Edit the source and run npm run build. */
 /* GAMA V12 — centralized Supabase source of truth + Realtime mirror */
 (function(){'use strict';
 /* Este archivo se carga dos veces: con <script> desde index.html y de forma

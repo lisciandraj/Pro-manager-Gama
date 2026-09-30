@@ -1,3 +1,4 @@
+/* Generated from src/features/hr/workspace.js. Edit the source and run npm run build. */
 /* GAMA HR — employee records, leave requests and team absence calendar.
    HR P1 adds work calendars, audited workflows, documents and external payroll. */
 (function(){

@@ -1,3 +1,4 @@
+/* Generated from src/features/finance/pricing.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,t=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es),F=U.field;
 const rpc=(action,data)=>window.ArcData.rpc('gama_price_book_action',{p_action:action,p_data:data});
 async function open(){try{const r=await window.ArcData.all('erp_price_books',{order:'created_at',ascending:false});if(r.error)throw r.error;const admin=['admin','administrador'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role);

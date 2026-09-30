@@ -1,3 +1,4 @@
+/* Generated from src/features/finance/finance-controls.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es),money=n=>window.GamaCurrency.format(n);let epoch=0;
 const all=async(table,options={})=>{const r=await window.ArcData.all(table,{order:'id',...options});if(r.error)throw r.error;return r.data};
 const rpc=(action,data={})=>window.ArcData.rpc('gama_receipt_action',{p_action:action,p_data:data});

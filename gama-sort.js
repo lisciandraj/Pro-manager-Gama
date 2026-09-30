@@ -1,3 +1,4 @@
+/* Generated from src/ui/sort.js. Edit the source and run npm run build. */
 /* GAMA — Ordenación de tablas reutilizable.
    Cabeceras que se pulsan para ordenar ascendente/descendente, con indicador
    visible y aria-sort para los lectores de pantalla. El estado vive por tabla,

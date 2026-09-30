@@ -1,3 +1,4 @@
+/* Generated from src/ui/tables.js. Edit the source and run npm run build. */
 /* GAMA — Las tablas se leen en el teléfono.
 
    Una tabla de doce columnas no cabe en 336 px y nunca va a caber. Hasta

@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-core.js. Edit the source and run npm run build. */
 /* GAMA — CRM · núcleo del módulo.
 
    Aquí vive lo que comparten todas las pantallas del CRM: la capa de datos,

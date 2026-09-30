@@ -1,3 +1,4 @@
+/* Generated from src/features/hr/employee-photos.js. Edit the source and run npm run build. */
 /* Small private-session portrait cache. Photos remain protected by the existing HR RLS. */
 (function(){
 'use strict';

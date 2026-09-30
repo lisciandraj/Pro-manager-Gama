@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/price-lists.js. Edit the source and run npm run build. */
 /* GAMA — Tarifas especiales.
    Un precio negociado vale para UN cliente y UN producto: no hay rejillas
    compartidas ni años de contrato. Sólo se listan aquí los productos cuyo

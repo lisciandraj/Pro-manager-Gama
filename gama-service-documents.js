@@ -1,3 +1,4 @@
+/* Generated from src/features/service/service-documents.js. Edit the source and run npm run build. */
 /* SME service desk and private document library. All mutations are authorized by RLS. */
 (function(){'use strict';
 if(window.__arcServiceDocuments)return;window.__arcServiceDocuments=true;

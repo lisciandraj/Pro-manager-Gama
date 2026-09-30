@@ -1,3 +1,4 @@
+/* Generated from src/features/projects/projects.js. Edit the source and run npm run build. */
 /* GAMA Projects. Existing identities, shared header, central RPC and audit trail. */
 (function(){
 'use strict';if(window.GamaProjects)return;

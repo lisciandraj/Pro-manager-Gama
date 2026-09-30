@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/payments.js. Edit the source and run npm run build. */
 /* Customer receivables. Amounts, deadlines and permissions come from the server. */
 (function(){
 'use strict';

@@ -1,3 +1,4 @@
+/* Generated from src/features/transport/workspace.js. Edit the source and run npm run build. */
 /* GAMA TMS V4 — gestión de transporte: planificación, conductores, POD, historial.
    Los datos viven en Supabase (tms_*), no en el navegador: una prueba de entrega
    es un documento probatorio y debe sobrevivir a un borrado de caché. */

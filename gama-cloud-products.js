@@ -1,3 +1,4 @@
+/* Generated from src/data/cloud-products.js. Edit the source and run npm run build. */
 /* GAMA V12 — central products + stock adapter */
 (function(){'use strict';
   function boot(){

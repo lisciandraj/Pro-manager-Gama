@@ -1,3 +1,4 @@
+/* Generated from src/styles/assistant-ia.css. Edit the source and run npm run build. */
 #assistant-ia{display:none;color:var(--gama-text,var(--arc-text))}#assistant-ia.active{display:block}
 #assistant-ia *{box-sizing:border-box}#assistant-ia [hidden]{display:none!important}
 #assistant-ia .ai-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}

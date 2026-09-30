@@ -1,0 +1,3 @@
+/* gama-crm-leads.js */
+#crm .crmEstado.e-calificado{background:var(--arc-accent-100);color:var(--arc-accent-700)}#crm .crmEstado.e-convertido{background:var(--arc-success-bg);color:var(--arc-success)}#crm .crmEstado.e-perdido,#crm .crmEstado.e-no_calificado{background:var(--arc-danger-bg);color:var(--arc-danger)}#crm .crmPri.p-alta{background:var(--arc-warning-bg);color:var(--arc-warning)}#crm .crmPri.p-baja{background:var(--arc-surface-2);color:var(--arc-text-subtle)}#crm .crmAviso.crmDup{background:var(--arc-warning-bg);border-color:var(--arc-warning-line);border-left-color:var(--arc-warning)}
+

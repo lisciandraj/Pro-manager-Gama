@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/sales-report.js. Edit the source and run npm run build. */
 /* GAMA — Análisis de ventas del registro financiero único.
    Facturas internas y externas vigentes, sin presupuestos ni duplicados.
    El margen es estimado con el coste de compra actual del producto. */

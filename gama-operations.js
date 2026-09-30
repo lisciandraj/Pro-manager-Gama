@@ -1,3 +1,4 @@
+/* Generated from src/features/notifications/workspace.js. Edit the source and run npm run build. */
 /* GAMA — alertas operativas y análisis independiente de cada etapa. */
 (function(){
 'use strict';

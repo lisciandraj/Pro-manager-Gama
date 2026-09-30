@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/fulfillment.js. Edit the source and run npm run build. */
 /* Fulfillment extends the existing sales dossier. All business writes are RPCs. */
 (function(){
 'use strict';

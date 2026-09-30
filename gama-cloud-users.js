@@ -1,3 +1,4 @@
+/* Generated from src/features/access/cloud-users.js. Edit the source and run npm run build. */
 /* GAMA V17 — Usuarios y accesos: lista central Supabase + realtime */
 (function(){
 'use strict';

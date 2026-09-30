@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/client-catalog.js. Edit the source and run npm run build. */
 /* GAMA — Catálogo de productos */
 (function(){'use strict';
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id);

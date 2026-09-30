@@ -1,3 +1,4 @@
+/* Generated from src/ui/global-search.js. Edit the source and run npm run build. */
 (function(){
 'use strict';
 if(window.GamaGlobalSearch)return;

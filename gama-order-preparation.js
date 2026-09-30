@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/order-preparation.js. Edit the source and run npm run build. */
 /* Preparación: pestaña del módulo Entrega. Cantidades previstas, escaneo y bulto «Lista para expedir». */
 (function(){'use strict';
 const S=()=>window.GamaSales,esc=window.ArcUI.esc;

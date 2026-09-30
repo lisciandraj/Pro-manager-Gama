@@ -1,3 +1,4 @@
+/* Generated from src/features/website/site.js. Edit the source and run npm run build. */
 /* Test storefront: same-origin ERP session; no anonymous data exposure. */
 (function(){'use strict';
 const $=id=>document.getElementById(id),E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

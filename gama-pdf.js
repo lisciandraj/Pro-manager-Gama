@@ -1,3 +1,4 @@
+/* Generated from src/features/documents/pdf.js. Edit the source and run npm run build. */
 /* GAMA — Descarga en PDF de los documentos que genera la aplicación.
 
    Antes el presupuesto sólo se podía «imprimir» con window.print(), que abre el

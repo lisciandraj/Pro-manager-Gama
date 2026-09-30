@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/stock-controls.js. Edit the source and run npm run build. */
 /* Exceptional stock operations. Quantities are always validated by the server. */
 (function(){'use strict';
 const U=window.ArcUI,E=U.esc,F=U.field;

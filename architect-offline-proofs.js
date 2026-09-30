@@ -1,3 +1,4 @@
+/* Generated from src/features/transport/offline-proofs.js. Edit the source and run npm run build. */
 /* Device-local outbox, scoped to the authenticated account. The server is authoritative. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es);let pending=null,captures=Promise.resolve();
 const open=()=>new Promise((resolve,reject)=>{const r=indexedDB.open('architect-proof-outbox',1);r.onupgradeneeded=()=>r.result.createObjectStore('proofs',{keyPath:'request_key'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});

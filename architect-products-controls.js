@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/products-controls.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es),money=n=>window.GamaCurrency.format(n);let epoch=0;
 const all=async(table,options={})=>{const r=await window.ArcData.all(table,{order:'id',...options});if(r.error)throw r.error;return r.data};const dlg=o=>{const d=U.dialog(o);d.dataset.productControls='';d.dataset.giIgnore='';return d};
 async function open(id){try{const token=epoch,[products,units,history]=await Promise.all([all('products',{eq:{id}}),all('product_units',{eq:{product_id:id}}),all('product_price_history',{eq:{product_id:id},order:'changed_at',ascending:false})]);if(token!==epoch)return;const p=products[0];if(!p)throw Error('PRODUCT_NOT_FOUND');

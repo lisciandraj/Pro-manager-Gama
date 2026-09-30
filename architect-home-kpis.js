@@ -1,3 +1,4 @@
+/* Generated from src/features/dashboard/home-kpis.js. Edit the source and run npm run build. */
 /* Four account-owned indicators, at the top of the dashboard; values and
    authorization are calculated by the server. */
 (function(){

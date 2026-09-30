@@ -1,3 +1,4 @@
+/* Generated from src/features/audit/audit.js. Edit the source and run npm run build. */
 /* Pista de auditoría: sólo las acciones importantes, dichas con palabras de
    negocio —movimientos de stock, cobros y pagos, facturas, validaciones y
    accesos—, con quién y cuándo. Qué cuenta y quién lo ve lo decide el

@@ -1,3 +1,4 @@
+/* Generated from src/ui/standard-ui.js. Edit the source and run npm run build. */
 /* GAMA — Cabeceras comunes y navegación compatible con el control de acceso. */
 (function(){
 'use strict';

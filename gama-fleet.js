@@ -1,3 +1,4 @@
+/* Generated from src/features/transport/fleet.js. Edit the source and run npm run build. */
 /* GAMA — Gestión de flota: coches de empresa y camiones de transporte.
 
    La regla del módulo: el kilometraje se teclea una sola vez. Se captura al
@@ -683,7 +684,7 @@ function download(rows,name){
  const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
  const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
- const a=document.createElement('a');a.href=url;a.download=`GAMA-${name}-${day()}.csv`;
+ const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 async function exportAll(){

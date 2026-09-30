@@ -1,3 +1,4 @@
+/* Generated from src/features/website/website.js. Edit the source and run npm run build. */
 /* GAMA website administration. Preview access and every write are checked in SQL. */
 (function(){'use strict';
 const E=s=>window.ArcUI.esc(String(s??'')),$=id=>document.getElementById(id),ID='website';

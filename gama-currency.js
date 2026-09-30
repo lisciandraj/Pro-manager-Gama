@@ -1,3 +1,4 @@
+/* Generated from src/ui/currency.js. Edit the source and run npm run build. */
 /* GAMA — one money formatter for the whole application.
 
    Every module used to carry its own `money()` with the currency written into

@@ -1,7 +1,8 @@
+/* Generated from src/features/knowledge/knowledge.js. Edit the source and run npm run build. */
 /* Internal knowledge base. Article content is rendered as escaped text, never HTML. */
 (function(){
 'use strict';
-if(window.GamaKnowledge)return;
+if(window.GamaKnowledge&&!window.GamaKnowledge.__arcLazy)return;
 const ID='knowledge',$=id=>document.getElementById(id),esc=window.ArcUI.esc;
 const t=s=>window.GamaI18n?.t(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const allowed=()=>!!window.gamaAccessAllowed?.(ID);

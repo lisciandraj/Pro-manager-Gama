@@ -1,3 +1,4 @@
+/* Generated from src/ui/pagination.js. Edit the source and run npm run build. */
 /* GAMA — paginación compartida para todas las listas (20 elementos por página).
    Cada lista se identifica con una clave y registra su función de repintado:
      GamaPage.register('products',()=>renderProducts(...))

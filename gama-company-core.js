@@ -1,3 +1,4 @@
+/* Generated from src/features/company/company-core.js. Edit the source and run npm run build. */
 /* Company document helpers. Kept independent of the DOM for validation and tests. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.GamaCompanyCore=api})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';

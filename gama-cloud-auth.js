@@ -1,3 +1,4 @@
+/* Generated from src/features/access/cloud-auth.js. Edit the source and run npm run build. */
 /* GAMA V12 - Supabase Auth + centralized Usuarios y accesos */
 (function(){'use strict';
 function boot(){if(!window.GamaCloud)return setTimeout(boot,250);window.GamaCloudReady.then(function(){var C=window.GamaCloud;

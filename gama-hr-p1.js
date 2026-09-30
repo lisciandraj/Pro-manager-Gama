@@ -1,3 +1,4 @@
+/* Generated from src/features/hr/operations.js. Edit the source and run npm run build. */
 /* GAMA HR P1 — scoped HR workflows. Stored employee data is never translated. */
 (function(){'use strict';
 if(window.GamaHRP1)return;

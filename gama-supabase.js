@@ -1,4 +1,5 @@
-/* GAMA V18 — central Supabase data layer */
+/* Generated from src/data/supabase.js. Edit the source and run npm run build. */
+/* Coco ERP authenticated data transport. Historical GamaCloud API is retained. */
 (function(){'use strict';
 /* Este archivo lo cargan dos sitios: index.html y gama-access-control.js (que
    lo inyecta cuando aún no está). Sin esta guarda el IIFE se ejecutaba dos

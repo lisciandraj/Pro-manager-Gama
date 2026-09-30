@@ -1,3 +1,4 @@
+/* Generated from src/features/purchasing/workspace.js. Edit the source and run npm run build. */
 /* GAMA V14 — Compras + pedidos a proveedores + recepción + inventario automático */
 (function(){
   'use strict';

@@ -1,3 +1,4 @@
+/* Generated from src/features/projects/projects-core.js. Edit the source and run npm run build. */
 /* Pure project calculations shared by the UI and regression tests. Server is authoritative. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.GamaProjectsCore=api})(typeof window==='undefined'?globalThis:window,function(){
 'use strict';

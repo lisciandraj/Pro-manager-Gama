@@ -1,3 +1,4 @@
+/* Generated from src/features/import-export/import.js. Edit the source and run npm run build. */
 /* GAMA Excel Import V1 — products, clients, suppliers, customer tariffs */
 (function(){'use strict';
 const excelIcon=n=>'<svg viewBox="0 0 24 24" data-icon="'+n+'" aria-hidden="true" focusable="false">'+(window.ArcUI&&window.ArcUI.icons&&window.ArcUI.icons[n]||'')+'</svg>';

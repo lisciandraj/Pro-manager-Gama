@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/internal-invoices.js. Edit the source and run npm run build. */
 /* Internal management invoices share the financial ledger with external references. */
 (function(){'use strict';
 const esc=window.ArcUI.esc,money=v=>window.ArcFormat.money(v);

@@ -1,3 +1,4 @@
+/* Generated from src/features/dashboard/dashboard.js. Edit the source and run npm run build. */
 /* Company cockpit: one authorized server snapshot, one shared period. */
 (function(){'use strict';
 const $=id=>document.getElementById(id),t=s=>window.GamaI18n?.t(s)||s,E=s=>window.ArcUI.esc(s),allowed=id=>!!window.gamaAccessAllowed?.(id);

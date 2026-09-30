@@ -1,3 +1,4 @@
+/* Generated from src/ui/select-search.js. Edit the source and run npm run build. */
 /* GAMA — Buscar escribiendo en las listas desplegables.
 
    Una lista de doscientos clientes o de mil productos no se recorre con la

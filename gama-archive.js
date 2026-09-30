@@ -1,3 +1,4 @@
+/* Generated from src/ui/archive.js. Edit the source and run npm run build. */
 /* GAMA — Archivado compartido.
    Borrar de verdad una ficha referenciada por una factura o un movimiento de
    stock es imposible (y no debería serlo: rompería la trazabilidad). En su

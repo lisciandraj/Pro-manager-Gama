@@ -1,3 +1,4 @@
+/* Generated from src/features/service/returns.js. Edit the source and run npm run build. */
 /* GAMA — Devoluciones: lo que vuelve del cliente y lo que se devuelve al
    proveedor, en una sola pantalla.
 

@@ -1,3 +1,4 @@
+/* Generated from src/features/contacts/partners.js. Edit the source and run npm run build. */
 (function(){'use strict';
 const U=window.ArcUI,E=U.esc,t=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
 const field=(key,label,value,type='text',options=[])=>U.field({key,label,value,type,options});

@@ -1,3 +1,4 @@
+/* Generated from src/features/audit/audit-controls.js. Edit the source and run npm run build. */
 /* Stock/process audit controls. Mutations remain explicit, permission-checked RPCs. */
 (function(){'use strict';
 let epoch=0;

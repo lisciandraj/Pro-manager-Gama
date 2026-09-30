@@ -1,3 +1,4 @@
+/* Generated from src/features/hr/people.js. Edit the source and run npm run build. */
 /* Personnel planning and explicit transfer of operational responsibility. */
 (function(){'use strict';
 const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es);let epoch=0;

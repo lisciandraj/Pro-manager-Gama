@@ -1,3 +1,4 @@
+/* Generated from src/features/documents/photos.js. Edit the source and run npm run build. */
 /* GAMA — Carga diferida de las fotos de producto.
 
    Las fotos viven como base64 en products.photo_data. Nueve fotos pesan 1,4 MB

@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/quotes.js. Edit the source and run npm run build. */
 /* Versioned quotes and a customer-scoped delivery portal. */
 (function(){
 'use strict';

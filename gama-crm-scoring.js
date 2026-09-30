@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-scoring.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Puntuación de prospectos, y el enchufe para una IA futura.
 
    DOS COSAS DISTINTAS EN UN ARCHIVO, y conviene no confundirlas.

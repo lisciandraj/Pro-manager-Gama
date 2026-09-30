@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-opportunities.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Oportunidades y embudo.
 
    Una oportunidad es una venta concreta en curso: de quién, por cuánto, en qué

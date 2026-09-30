@@ -1,3 +1,4 @@
+/* Generated from src/ui/shell.js. Edit the source and run npm run build. */
 /* COCO ERP — El armazón de la aplicación.
 
    Barra lateral fija a la izquierda, barra superior arriba, contenido en el

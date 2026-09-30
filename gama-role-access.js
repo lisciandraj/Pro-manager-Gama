@@ -1,3 +1,4 @@
+/* Generated from src/features/access/role-access.js. Edit the source and run npm run build. */
 /* Accesos por tipo de usuario. Cada perfil de base (Administrador, Comercial,
    Almacenero, Responsable RH, Cliente) ve los módulos que tiene por defecto
    (ArcModules.roles): ya no se recortan perfil a perfil desde la aplicación.

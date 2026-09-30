@@ -1,3 +1,4 @@
+/* Generated from src/features/purchasing/sourcing.js. Edit the source and run npm run build. */
 (function(){'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es),money=v=>window.GamaCurrency.format(v);
 const error=e=>window.gamaToast?.(window.ArcErrors.message(e));
 async function open(supplierId=null){try{const [or,pr,sr]=await Promise.all([window.ArcData.all('supplier_product_offers',{order:'created_at',ascending:false}),window.ArcData.all('products',{select:'id,name,reference',eq:{active:true},order:'name'}),window.ArcData.all('suppliers',{select:'id,name',eq:{active:true},order:'name'})]);if(or.error||pr.error||sr.error)throw or.error||pr.error||sr.error;const offers=or.data,products=pr.data,suppliers=sr.data;let performance=null;if(supplierId)performance=await window.ArcData.rpc('gama_supplier_performance',{p_id:supplierId});

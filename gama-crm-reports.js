@@ -1,3 +1,4 @@
+/* Generated from src/features/crm/crm-reports.js. Edit the source and run npm run build. */
 /* GAMA — CRM · Informes.
 
    Las cifras que un gerente mira una vez a la semana. No es el cuadro de

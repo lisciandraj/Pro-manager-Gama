@@ -1,3 +1,4 @@
+/* Generated from src/ui/home-order.js. Edit the source and run npm run build. */
 /* Personal module order: account-owned cloud storage, pointer and keyboard sorting. */
 (function(){
 'use strict';

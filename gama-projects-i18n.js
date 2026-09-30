@@ -1,3 +1,4 @@
+/* Generated from src/features/projects/projects-i18n.js. Edit the source and run npm run build. */
 /* Project module translations: ES / FR / EN. User data is never translated. */
 window.GamaProjectsText={
 "delete_item": ["Eliminar elemento", "Supprimer l’élément", "Delete item"],

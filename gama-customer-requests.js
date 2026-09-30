@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/customer-requests.js. Edit the source and run npm run build. */
 /* GAMA — Solicitudes de clientes */
 (function(){'use strict';
 const C=()=>window.GamaCloud,esc=window.ArcUI.esc;

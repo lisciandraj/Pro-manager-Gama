@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/barcode-controls.js. Edit the source and run npm run build. */
 (function(){
 'use strict';const U=window.ArcUI,E=U.esc,F=U.field,t=(es,fr,en)=>({fr,en}[window.GamaI18n?.language]||es);let epoch=0;
 const lookup=code=>window.ArcData.rpc('gama_barcode_lookup',{p_code:code});

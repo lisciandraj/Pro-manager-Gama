@@ -1,3 +1,4 @@
+/* Generated from src/features/sales/commercial-matrix.js. Edit the source and run npm run build. */
 /* GAMA V10 - Módulos Proveedores + Matriz comercial */
 (function(){
 'use strict';

@@ -1,26 +1,78 @@
-const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-function loader(){
- const scripts=[],window={ArcAssets:{'assets/vendor/jspdf-2.5.2.umd.min.js':'assets/vendor/jspdf-2.5.2.umd.min.js?v=123456789abc'}};
- const context={window,document:{createElement:()=>({remove(){this.removed=true}}),head:{appendChild:s=>scripts.push(s)}}};
- vm.createContext(context);vm.runInContext(fs.readFileSync('src/features/documents/pdf.js','utf8'),context);
- return {scripts,window,ready:window.GamaPdf.ready};
+const { test } = require("node:test"),
+  assert = require("node:assert/strict"),
+  fs = require("node:fs"),
+  vm = require("node:vm");
+function pdf() {
+  const scripts = [],
+    handlers = {};
+  const window = {
+    addEventListener: (name, fn) => {
+      handlers[name] = fn;
+    },
+  };
+  const context = {
+    window,
+    document: {
+      createElement: () => ({ dataset: {}, remove() {} }),
+      head: { appendChild: (s) => scripts.push(s) },
+    },
+  };
+  vm.createContext(context);
+  const loader = fs
+    .readFileSync("src/app/loader.js", "utf8")
+    .replace(/^import .*;$/gm, "")
+    .replace(/^export \{.*;$/gm, "")
+    .replace(/export /g, "");
+  vm.runInContext(
+    loader +
+      "\nwindow.ArcLoadScript=loadScript;\n" +
+      fs.readFileSync("src/features/documents/pdf.js", "utf8"),
+    context,
+  );
+  return {
+    window,
+    scripts,
+    auth: (event) => handlers["gama:auth-change"]({ detail: { event } }),
+  };
 }
-test('concurrent PDF actions share a versioned engine request with integrity',async()=>{
- const x=loader(),a=x.ready(),b=x.ready();assert.equal(a,b);assert.equal(x.scripts.length,1);
- assert.match(x.scripts[0].src,/v=123456789abc/);assert.match(x.scripts[0].integrity,/^sha384-/);
- assert.equal(x.scripts[0].crossOrigin,'anonymous');
- const Constructor=function PDF(){};x.window.jspdf={jsPDF:Constructor};x.scripts[0].onload();
- assert.equal(await a,Constructor);assert.equal(await x.ready(),Constructor);assert.equal(x.scripts.length,1);
- assert.equal(x.window.GamaPdf.jsPDF(),Constructor);
+test("PDF engine stays unloaded until needed, concurrent exports share it and failed loads retry", async () => {
+  const x = pdf();
+  assert.equal(x.scripts.length, 0);
+  const failed = x.window.GamaPdf.ready();
+  x.scripts[0].onerror();
+  await assert.rejects(failed, /MODULE_LOAD_FAILED/);
+  const a = x.window.GamaPdf.ready(),
+    b = x.window.GamaPdf.ready();
+  assert.equal(x.scripts.length, 2);
+  class PDF {}
+  x.window.jspdf = { jsPDF: PDF };
+  x.scripts[1].onload();
+  assert.equal(await a, PDF);
+  assert.equal(await b, PDF);
+  assert.equal(await x.window.GamaPdf.ready(), PDF);
+  assert.equal(x.scripts.length, 2);
 });
-for(const outcome of ['network failure','missing SDK'])test('PDF engine retries after '+outcome,async()=>{
- const x=loader(),first=x.ready();
- x.scripts[0][outcome==='network failure'?'onerror':'onload']();
- await assert.rejects(first,/MODULE_LOAD_FAILED/);assert.equal(x.scripts[0].removed,true);
- const next=x.ready();assert.equal(x.scripts.length,2);const Constructor=function PDF(){};
- x.window.jspdf={jsPDF:Constructor};x.scripts[1].onload();assert.equal(await next,Constructor);
+test("an export waiting for the engine is cancelled when the account changes", async () => {
+  const x = pdf(),
+    a = x.window.GamaPdf.ready();
+  x.auth("SIGNED_OUT");
+  x.window.jspdf = { jsPDF: class {} };
+  x.scripts[0].onload();
+  await assert.rejects(a, /AUTH_CHANGED/);
+  assert.equal(await x.window.GamaPdf.ready(), x.window.jspdf.jsPDF);
 });
-test('an already installed PDF engine creates no script',async()=>{
- const x=loader(),Constructor=function PDF(){};x.window.jspdf={jsPDF:Constructor};
- assert.equal(await x.ready(),Constructor);assert.equal(x.scripts.length,0);
+test("token renewal does not cancel an export", async () => {
+  const x = pdf(),
+    a = x.window.GamaPdf.ready();
+  x.auth("TOKEN_REFRESHED");
+  x.window.jspdf = { jsPDF: class {} };
+  x.scripts[0].onload();
+  assert.equal(await a, x.window.jspdf.jsPDF);
+});
+
+test("a downloaded script without a PDF engine does not prevent another attempt",async()=>{
+ const x=pdf(),first=x.window.GamaPdf.ready();x.scripts[0].onload();
+ await assert.rejects(first,/MODULE_LOAD_FAILED/);
+ const next=x.window.GamaPdf.ready();assert.equal(x.scripts.length,2);
+ class PDF {}x.window.jspdf={jsPDF:PDF};x.scripts[1].onload();assert.equal(await next,PDF);
 });

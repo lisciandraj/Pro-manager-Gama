@@ -80,6 +80,7 @@ Les adresses publiques historiques sont produites par `npm run build`. La liste 
 | `src/features/sales/price-lists.js` | `gama-price-lists.js` |
 | `src/features/projects/projects-core.js` | `gama-projects-core.js` |
 | `src/features/projects/projects-i18n.js` | `gama-projects-i18n.js` |
+| `src/features/projects/integration.js` | `coco-project-integration.js` |
 | `src/features/projects/projects.js` | `gama-projects.js` |
 | `src/features/sales/commercial-matrix.js` | `gama-proveedores-matriz.js` |
 | `src/features/purchasing/purchase-order-pdf.js` | `gama-purchase-order-pdf.js` |

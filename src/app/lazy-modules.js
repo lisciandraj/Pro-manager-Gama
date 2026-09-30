@@ -87,5 +87,6 @@ export const lazyModules={
       "downloadProofReport",
       "downloadProofCertificate"
     ]
-  }
+  },
+  "projects": {"global":"GamaProjects","file":"gama-projects.js","dependencies":["gama-projects-core.js"],"methods":["open","fromSource"]}
 };

@@ -7,8 +7,9 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Navigation et modules actuels](docs/modules/navigation.md)
 - [Guide de développement](docs/development/README.md)
 - [Charte graphique actuelle](docs/design-system.md)
-- [Revue complémentaire : maintenance et chargement PDF](docs/audits/2026-09-30-maintenance.md)
-- [Audit technique du 30 septembre 2026](docs/audits/2026-09-30.md)
+- [Audit technique et organisation](docs/audits/2026-09-30.md)
+- [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)
+- [Revue de maintenance et contrôles communs](docs/audits/2026-09-30-maintenance.md)
 - [Index de la documentation](docs/README.md)
 
 ## Démarrer
@@ -26,19 +27,19 @@ Les scripts et styles à la racine ainsi que `index.html` sont des **copies gén
 
 ## Vérifier
 
-`npm run update` construit et lance les contrôles communs. `npm run validate` les relance sans mise à jour des sources. Pour les contrôles individuels et les parcours navigateur :
+`npm run update` reconstruit et lance les contrôles communs. `npm run validate` les relance ; les tests navigateur du parcours modifié restent nécessaires.
 
 ```sh
 npm run check
 npm run typecheck
 npm run check:docs
 npm run verify:migrations
+npm run check:startup
 npm run test:architecture
 npm run test:unit
 npx playwright install chromium
 npm test
 npm run check:generated
-npm run check:performance
 ```
 
 Les tests base utilisent des bases isolées ; ils ne sont pas des scripts à exécuter sur les données de production. Les parcours fiscaux SRI nécessitent en plus le signataire privé et leurs essais dédiés : voir [SRI](docs/modules/sri.md).

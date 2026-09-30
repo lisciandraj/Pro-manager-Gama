@@ -10,15 +10,15 @@
 
 | Commande | Vérification |
 | --- | --- |
-| `npm run update` | Reconstruit toutes les sorties puis lance la validation commune |
-| `npm run validate` | Syntaxe, types, documentation, migrations, tests Node, génération et budgets |
-| `npm run check:performance` | Plafonds de taille JS/CSS et nombre de scripts initiaux |
+| `npm run update` | Reconstruit toutes les sorties et lance la validation commune |
+| `npm run validate` | Syntaxe, types, liens, migrations, tests Node, génération et budgets |
 | `npm run build` | Compile le catalogue et génère les actifs racine et dist |
 | `npm run check` | Syntaxe des sources et sorties, manifeste, liens des trois entrées HTML |
 | `npm run check:docs` | Vérifie les liens locaux après déplacement des documents |
 | `npm run typecheck` | Contrats TypeScript existants ; ne couvre pas tout le JavaScript |
 | `npm run verify:migrations` | Historique du dépôt ; pas une migration automatique de production |
-| `npm run test:architecture` | Propriété des sources, chargement partagé, reprise après erreur, cache statique |
+| `npm run test:architecture` | Propriété des sources, chargement partagé et ordonné, reprise après erreur, isolation de session, cache statique |
+| `npm run check:startup` | Budget versionné dans `config/performance-budget.json` : 93 scripts, 1 900 000 octets JS et 300 000 octets CSS |
 | `npm run test:unit` | Tests Node et fixtures SQL isolées |
 | `npm test` | Parcours Playwright ; Chromium requis |
 | `npm run check:generated` | Reconstruction reproductible et absence de dérive |
@@ -28,15 +28,8 @@
 
 Déclarer identité et accès dans `src/app/registry.js`, écrire son source sous `src/features/`, ajouter le couple source/output au manifeste.
 S’il peut attendre son ouverture, déclarer ses méthodes publiques dans `src/app/lazy-modules.js`. Le module remplace la façade `__arcLazy` ; sa garde d’installation ne doit pas bloquer cette façade.
+Déclarer les scripts prérequis dans `dependencies` : ils sont chargés dans l’ordre et partagés entre les appels simultanés. Les intégrations utilisées par plusieurs écrans doivent rester légères, comme `src/features/projects/integration.js`.
 Garder les vérifications serveur, la gestion des changements de session et les appels croisés existants.
-
-## Exports PDF et dépendances locales
-
-Avant un appel synchrone à `GamaPdfTemplate.layout()`, `GamaQuotePdf.build()`, `GamaPurchaseOrderPdf.build()` ou `new jspdf.jsPDF()`, attendre `await window.GamaPdf.ready()` dans l’action utilisateur. Les téléchargements concurrents partagent une promesse ; une erreur autorise une nouvelle tentative. Ne pas appeler `ready()` au montage d’un écran qui ne génère pas de PDF.
-
-Les bibliothèques locales différées à versionner sont dans `vendors` du manifeste. En changeant jsPDF, mettre à jour ensemble le fichier, ce chemin et l’intégrité SHA-384 du chargeur dans `src/features/documents/pdf.js`, puis tester les exports et l’échec réseau.
-
-Les budgets sont dans `config/performance-budget.json`. `node scripts/check-performance.cjs --json` donne les tailles fichier et gzip estimées. Expliquer un dépassement et ses mesures avant d’augmenter un plafond ; ce contrôle ne mesure ni les requêtes dynamiques ni le temps de chargement réel.
 
 ## Styles
 
@@ -49,3 +42,11 @@ Privilégier les comportements observables : mêmes droits, mêmes documents, ca
 La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
 
 Ne jamais exécuter une fixture de test contre la base de production. Les tests SRI simulés ne remplacent pas l’autorisation réelle du SRI ni un essai de signature avec le service privé.
+
+## Dépendances et exports
+
+Vite est verrouillé en 6.4.3 dans `package.json` et `package-lock.json`. Après une mise à jour, lancer `npm audit`, reconstruire et vérifier les sorties ; l’audit npm ne couvre pas automatiquement les bibliothèques copiées dans `assets/vendor/`.
+
+Les bibliothèques locales différées figurent dans `vendors` du manifeste pour recevoir une URL à hash de contenu. Après changement de jsPDF, actualiser aussi son chemin et son intégrité dans le chargeur. `node scripts/check-startup.cjs --json` détaille les tailles et leur gzip estimé ; expliquer une augmentation des plafonds avant de modifier le budget.
+
+Pour ajouter un export, suivre le [contrat PDF](pdf-exports.md). Ne pas réintroduire le moteur PDF dans les scripts initiaux. Les notifications utilisent le badge créé par `src/ui/shell.js` ; ne pas observer tout le document pour recréer ce badge.

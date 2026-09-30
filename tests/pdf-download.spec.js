@@ -15,9 +15,9 @@ const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js
 //    memoria. Se cargan bajo demanda; si el informe no las pide, sale un PDF
 //    con entregas vacías y nadie se entera hasta que lo abre un cliente.
 //
-// jsPDF llega por CDN y aquí no hay red, así que el dibujo del PDF se sustituye
-// por un doble. No es una pérdida: lo que se comprueba es el cableado —quién
-// llama a qué y con qué datos—, que es justo donde entran las regresiones.
+// The bundled jsPDF engine loads locally on the first export. These tests
+// replace document drawing to isolate the data passed to each download;
+// company-settings and lazy-pdf exercise the real PDF engine.
 async function boot(page, db = {}) {
   await page.addInitScript(seed => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
@@ -37,45 +37,32 @@ async function boot(page, db = {}) {
   await page.waitForTimeout(1400);
 }
 
-test('el presupuesto se baja en PDF sin pasar por window.print()', async ({ page }) => {
-  page.on('dialog', d => d.accept());
+test('el presupuesto actual se descarga en PDF sin window.print()', async ({ page }, testInfo) => {
   await boot(page, {
-    products: [{ id: 'p1', barcode: 'B1', name: 'Cemento', stock: 40, min_stock: 1, sale_price: 10, tax_rate: 15, active: true }],
-    customers: [{ id: 'c1', name: 'Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true }],
+    customers: [{ id: 'c1', name: 'Andes', identification: '0991', active: true }],
+    invoices: [{ id: 'q1', invoice_number: 'COT-QA-1', customer_id: 'c1', issue_date: '2026-09-30', quote_state: 'draft', quote_details: { seller: 'Coco QA', client: 'Andes' }, subtotal: 20, tax: 3, total: 23 }],
+    invoice_lines: [{ id: 'l1', invoice_id: 'q1', quote_description: 'Cemento', quantity: 2, unit_price: 10, tax_rate: 15 }],
   });
-
-  // Se vigila window.print y se intercepta la descarga sin llegar a guardarla.
   await page.evaluate(() => {
-    // @ts-ignore
     window.__printed = 0; window.print = () => { window.__printed++; };
-    // @ts-ignore
-    window.__saved = []; window.__built = 0;
-    // @ts-ignore
-    window.GamaQuotePdf.build = q => { window.__built++; window.__quote = q; return { fake: true }; };
-    // @ts-ignore
-    window.GamaPdf.save = (doc, name) => { window.__saved.push(name); };
+    window.__built = 0;
+    const build = window.GamaQuotePdf.build;
+    window.GamaQuotePdf.build = q => { window.__built++; window.__quote = q; return build(q); };
   });
-
-  await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
-  await page.locator('#gqLegacy').click();
-  await page.fill('#sellerRuc', '1790012345001');
-  await page.fill('#sellerName', 'GAMA Test S.A.');
-  await page.selectOption('#clientSelect', '0991');
-  await page.fill('#invoiceBarcode', 'B1');
-  await page.fill('#invoiceQty', '2');
-  await page.click('#billing button:has-text("Añadir")');
-  await page.click('#billing button:has-text("Generar presupuesto")');
-  await page.waitForTimeout(700);
-
-  await page.click('#billing button:has-text("Descargar PDF")');
-  await page.waitForTimeout(700);
-
-  const r = await page.evaluate(() => ({ printed: window.__printed, saved: window.__saved, built: window.__built, quote: window.__quote }));
-  expect(r.printed, 'volvió a llamarse window.print(): eso es lo que dejaba encerrado al usuario').toBe(0);
-  expect(r.built, 'no se llegó a armar el PDF').toBe(1);
-  expect(r.quote.items[0].qty).toBe(2);   // el PDF recibe el presupuesto recién generado
-  expect(r.saved.length).toBe(1);
-  expect(r.saved[0]).toMatch(/^presupuesto.*\.pdf$/);
+  await page.locator('#mainmenu [data-gama-module="quotes"]').click();
+  await page.locator('[data-gq-open="q1"]').click();
+  const downloading = page.waitForEvent('download');
+  await page.locator('#gqPdf').click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toBe('Presupuesto-COT-QA-1.pdf');
+  const filename = testInfo.outputPath('current-quote.pdf');
+  await download.saveAs(filename);
+  expect(fs.readFileSync(filename).subarray(0, 4).toString()).toBe('%PDF');
+  const result = await page.evaluate(() => ({ printed: window.__printed, built: window.__built, quote: window.__quote }));
+  expect(result.printed).toBe(0);
+  expect(result.built).toBe(1);
+  expect(result.quote.items[0].qty).toBe(2);
+  expect(result.quote.client).toBe('Andes');
 });
 
 test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ page }) => {

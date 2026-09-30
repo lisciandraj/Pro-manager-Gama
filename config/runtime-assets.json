@@ -435,6 +435,10 @@
     {
       "source": "src/legacy/product-scanner.js",
       "output": "coco-product-scanner.js"
+    },
+    {
+      "source": "src/features/projects/integration.js",
+      "output": "coco-project-integration.js"
     }
   ],
   "styles": [

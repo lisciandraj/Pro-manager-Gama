@@ -19,7 +19,7 @@ async function batch(){let token=epoch;const d=dlg({title:t('Etiquetas por lote'
  if(token!==epoch)throw Error('AUTH_CHANGED');
  const doc=new window.jspdf.jsPDF(),small=data.template==='small',cols=small?3:2,rows=small?7:5,w=small?63:95,h=small?38:54,gap=small?3:4,perPage=cols*rows;
  labels.forEach((r,i)=>{if(i&&i%perPage===0)doc.addPage();const k=i%perPage,x=8+(k%cols)*(w+gap),y=10+Math.floor(k/cols)*h;doc.setTextColor(0);doc.setDrawColor(180);doc.rect(x,y,w,h-2);doc.setFontSize(8);doc.text(doc.splitTextToSize(description(r),w-8).slice(0,2),x+4,y+5);const barY=y+(small?14:20),barH=small?13:20,narrow=(w-10)/r.bits.length;if(narrow<.18)throw Error(t('Código demasiado largo para este formato. Elige una etiqueta mayor.','Code trop long pour ce format. Choisissez une étiquette plus grande.','Code is too long for this format. Choose a larger label.'));doc.setFillColor(0);for(let b=0;b<r.bits.length;b++)if(r.bits[b]==='1')doc.rect(x+5+b*narrow,barY,narrow,barH,'F');doc.setFontSize(8);doc.text(r.label,x+w/2,barY+barH+5,{align:'center'})});
- await window.GamaPdf.save(doc,'architect-labels.pdf');
+ await window.GamaPdf.save(doc,'Coco-ERP-labels.pdf');
  }});return d}
 // Stock commands share the inventory APIs: no browser-side stock mutation.
 const B=(label,attrs='',variant='secondary')=>U.button({label,attrs,variant});

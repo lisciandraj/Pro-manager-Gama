@@ -6,7 +6,9 @@ test('home defers optional workspaces and direct navigation still opens them',as
  await page.route('https://**/*',r=>r.abort());
  await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());
  const downloaded=()=>page.evaluate(()=>performance.getEntriesByType('resource').map(r=>new URL(r.name).pathname));
- expect((await downloaded()).some(x=>/gama-(knowledge|assistant-ia|tms-module)\.js$/.test(x))).toBe(false);
+ expect((await downloaded()).some(x=>/gama-(knowledge|assistant-ia|tms-module|projects|projects-core)\.js$/.test(x))).toBe(false);
+ await page.evaluate(()=>GamaProjects.countAlerts());
+ expect((await downloaded()).some(x=>/gama-projects(?:-core)?\.js$/.test(x))).toBe(false);
  await page.evaluate(()=>GamaKnowledge.open());await expect(page.locator('#knowledge')).toBeVisible();
  await page.evaluate(()=>ArcRouter.open('tms'));await expect(page.locator('#gama-tms-section')).toBeVisible();
  expect((await downloaded()).filter(x=>x.endsWith('gama-knowledge.js'))).toHaveLength(1);

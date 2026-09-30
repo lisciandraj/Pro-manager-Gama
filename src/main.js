@@ -6,7 +6,7 @@ import * as entities from './domain/entities.js';
 import {registry,groups,roles,aliases,roleAliases,tabsOf} from './app/registry.js';
 import {router,startRouter} from './app/router.js';
 import {directory} from './modules/directories.js';
-import {installLazyModules,loadModule} from './app/loader.js';
+import {installLazyModules,loadModule,loadScript} from './app/loader.js';
 window.ArcUI={...ui,icons,moduleIcon,esc:escapeHtml};
 window.ArcFormat=format;
 window.ArcErrors={normalize:normalizeError,message:errorMessage};
@@ -16,6 +16,7 @@ window.ArcModules={registry,groups,roles,aliases,roleAliases,tabsOf,get:id=>regi
 window.ArcRouter=router;
 window.ArcDirectories={directory};
 window.ArcLoad=loadModule;
+window.ArcLoadScript=loadScript;
 installLazyModules();
 data.startDataEvents();startRouter();
 

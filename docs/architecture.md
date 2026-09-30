@@ -31,11 +31,13 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
-Les interfaces de génération PDF, CRM, projets et certaines extensions sont encore chargés au démarrage : leurs dépendances synchrones et appels croisés sont identifiés dans l’audit. Cette version ne les présente pas comme entièrement modulaires.
+Le moteur jsPDF local est chargé par `GamaPdf.ready()` au premier export. Les constructeurs de documents restent synchrones après cette attente ; voir [exports PDF](development/pdf-exports.md). Le chargeur partage les téléchargements, conserve l’intégrité SRI et permet une nouvelle tentative après une erreur réseau.
 
-Le moteur jsPDF local se charge au premier export via `GamaPdf.ready()`. Les actions PDF attendent cette promesse partagée ; les constructeurs synchrones restent compatibles. Un téléchargement échoué peut être réessayé. Le manifeste déclare ce fournisseur dans `vendors` pour générer son URL à hash, sans l’ajouter au démarrage.
+Projets sépare l’intégration légère (`src/features/projects/integration.js`) du moteur de calcul et des écrans. Les alertes, liens de création et résumés clients restent disponibles à l’accueil ; `projects-core.js`, puis `projects.js`, sont chargés à l’ouverture. Les lectures simultanées d’alertes partagent une promesse sans conserver les résultats. Les réponses d’une ancienne session sont rejetées ; un renouvellement de jeton ne ferme pas l’éditeur.
+
+CRM, les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite les scripts déclarés à 93 et 1 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
 
 ## Données et accès
 
@@ -50,11 +52,13 @@ Les URL JS/CSS comportant un hash de contenu peuvent être servies depuis le cac
 
 Le dépôt ne contient pas actuellement d’enregistrement automatique du service worker dans l’entrée ERP. Le correctif concerne les installations qui l’utilisent déjà ; il ne prouve pas un gain de chargement sur tous les appareils.
 
-## Contrôles de mise à jour et performance
+## Mise à jour et contrôles communs
 
-`npm run update` reconstruit puis lance `npm run validate`. La validation de release utilise cette même séquence de contrôles. `config/performance-budget.json` fixe les plafonds des scripts et styles déclarés dans l’entrée ; `npm run check:performance` les vérifie et `node scripts/check-performance.cjs --json` détaille leurs tailles. Les requêtes dynamiques et les temps réseau réels ne sont pas mesurés par ce contrôle.
+`npm run update` reconstruit puis lance `npm run validate`. La CI de release utilise les mêmes contrôles. `config/performance-budget.json` centralise les plafonds du démarrage ; `npm run check:startup` contrôle aussi les CSS et les scripts dupliqués, et `node scripts/check-startup.cjs --json` détaille les tailles. Les requêtes dynamiques ne sont pas incluses.
 
-Les lots de traduction ne rescannent plus un descendant lorsqu’un de ses parents figure dans le même lot. Les annotations opt-in et les valeurs métier restent gérées par les contrats existants.
+Le manifeste `vendors` versionne par contenu les bibliothèques locales différées sans les ajouter au démarrage. Le chargeur valide la présence de jsPDF après téléchargement et permet une reprise si le SDK est absent.
+
+Les lots de traduction scannent une seule fois chaque racine : un descendant est couvert par son parent lorsqu’ils figurent dans le même lot.
 
 ## Limites de cette simplification
 

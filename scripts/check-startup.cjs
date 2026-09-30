@@ -14,4 +14,4 @@ const totals={initialJavaScriptBytes:sum(javascript,'bytes'),initialStylesheetBy
 const exceeded=Object.entries(budget).filter(([key,max])=>totals[key]>max);
 if(exceeded.length)throw Error(exceeded.map(([key,max])=>key+': '+totals[key]+' > '+max).join('\n'));
 const report={totals,budget,javascript,stylesheets,note:'Static file sizes; gzip is an estimate, not a measured transfer or loading time. Dynamic requests are excluded.'};
-console.log(process.argv.includes('--json')?JSON.stringify(report,null,2):'Coco startup: '+totals.initialJavaScriptBytes+' bytes JS, '+totals.initialStylesheetBytes+' bytes CSS, '+scripts.length+' scripts; budgets passed.');
+console.log(JSON.stringify(process.argv.includes('--json')?report:{scripts:scripts.length,bytes:totals.initialJavaScriptBytes,gzipBytes:sum(javascript,'gzipBytes'),budgetBytes:budget.initialJavaScriptBytes,budgetScripts:budget.initialScriptRequests,stylesheetBytes:totals.initialStylesheetBytes,budgetStylesheetBytes:budget.initialStylesheetBytes},null,2));

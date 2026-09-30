@@ -16,3 +16,7 @@ Financial categories and purchase preparation are limited to commercial/admin pr
 Purchases require supplier selection and review before saving; existing local drafts are preserved. Multi-supplier needs are prepared one supplier at a time. Reminder buttons prepare a message for user review; they do not automatically send it or change quote state.
 
 Validation: operations UI, purchase, quote and sales regression suites; transactional SQL fixture operations-p2.sql (BEGIN / ROLLBACK) exercises threshold, overdue balance, date boundary, role restrictions, pagination and alert lifecycle.
+
+## Maintenance
+
+Le badge de la cloche est créé par `src/ui/shell.js` et actualisé par `refreshBadge`. Le module ne surveille plus les mutations de l’ensemble de la page pour rechercher d’anciens boutons. Les alertes Projets utilisent l’intégration légère partagée ; consulter un compteur n’entraîne pas le chargement de l’éditeur Projets.

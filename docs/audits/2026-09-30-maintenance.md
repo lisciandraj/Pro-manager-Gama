@@ -1,61 +1,54 @@
-# Revue complémentaire Coco ERP — 30 septembre 2026
+# Revue de maintenance Coco ERP — 30 septembre 2026
 
-Révision analysée : `bbcc400100a74d2bf0533778b44f3682352788eb`, après la réorganisation décrite dans [l’audit initial](2026-09-30.md).
-Le dépôt contient 934 fichiers suivis : 122 sources JavaScript, 61 feuilles de style canoniques, 218 migrations SQL actives, quatre entrées Edge Functions, un service SRI Python, 100 suites navigateur et 63 suites Node.
-L’inventaire couvre le dépôt ; l’examen statique porte sur les sources frontend, la construction, les contrats et migrations SQL, les fonctions serveur et la documentation courante. Les tests ciblés sont exécutés par GitHub Actions sur la branche de cette livraison. Cette revue ne constitue pas une vérification exhaustive de chaque règle métier ni une mesure de la production.
+Révisions examinées : `bbcc400100a74d2bf0533778b44f3682352788eb`, puis `9d8889fb9ff9ed77bb71f0e5b1f88611c0779239` intégrée pendant cette revue. Cette livraison conserve les extractions PDF/Projets, le correctif Vite 6.4.3 et les protections de session de cette dernière révision.
+Voir [l’audit des domaines](2026-09-30.md) et [l’audit du chargement](2026-09-30-runtime.md).
 
-## Changements livrés
+L’inventaire initial couvre 934 fichiers : 122 sources JavaScript, 61 feuilles de style canoniques, 218 migrations SQL, quatre entrées Edge Functions et le service SRI Python. L’examen statique couvre les sources frontend, les migrations, les fonctions serveur, les outils et la documentation ; les 100 suites navigateur ont été parcourues pour identifier les contrats PDF. Cette revue n’atteste pas chaque règle métier ou la vitesse en production.
 
-| Sujet | État vérifié au départ | Évolution |
-| --- | --- | --- |
-| PDF | jsPDF local, 365 730 octets, téléchargé à chaque démarrage | Chargement au premier export, requête partagée, intégrité SHA-384 conservée, reprise après erreur |
-| Exports | Constructeurs synchrones utilisés par plusieurs domaines | API existantes conservées ; devis, achats, factures internes, archives, entreprise, projets, preuves de livraison et étiquettes attendent `GamaPdf.ready()` |
-| Traductions | Un lot de mutations peut rescanner un parent et ses descendants | Un seul scan par racine ; les descendants déjà couverts sont éliminés |
-| Mises à jour | Plusieurs commandes à reproduire et séquence CI dupliquée | `npm run update` reconstruit et valide ; `npm run validate` partage les contrôles locaux et de release |
-| Performance | Aucun plafond de taille au démarrage | Budget versionné et vérifié en CI, tailles exactes et estimation gzip reproductibles |
+## État actuel et simplifications ajoutées
 
-Le point de départ comporte **95 scripts déclarés et 2 308 276 octets de JavaScript**, ainsi que 12 feuilles CSS et 285 783 octets. Ces chiffres sont calculés à partir des URL de `src/app/index.html` et des fichiers de la révision analysée ; ils diffèrent du relevé initial, qui porte sur une autre révision.
-Après reconstruction, l’entrée comporte **94 scripts et 1 944 137 octets de JavaScript** : une baisse nette de **364 139 octets (15,8 %)**. Le report du moteur PDF retire 365 730 octets, compensés en partie par le petit coût du chargeur et des attentes ajoutées. Il ne réduit pas la taille du PDF produit. Au premier export, ce téléchargement reste nécessaire ; les suivants partagent le moteur installé.
-Le budget final exige au maximum 2 000 000 octets de JS, 300 000 octets de CSS et 94 scripts déclarés. Les requêtes dynamiques Supabase et ses extensions ne sont pas incluses dans ces totaux.
+| Sujet | État actuel |
+| --- | --- |
+| Chargement | PDF et écrans Projets à la demande ; intégration Projets légère pour les alertes et liens |
+| Bibliothèques | Téléchargements partagés dans `ArcLoadScript`, intégrité SRI et vérification de présence du SDK ; reprise après erreur réseau ou SDK absent |
+| Traductions | Scans DOM regroupés ; un descendant est couvert par son parent dans le même lot |
+| Mise à jour | `npm run update` reconstruit et lance `npm run validate` ; la release partage ces contrôles |
+| Budgets | Plafonds JS, CSS et nombre de scripts dans `config/performance-budget.json`, contrôlés par `check:startup` ; scripts dupliqués rejetés |
+| Versions | `vendors` du manifeste produit une URL à hash pour jsPDF différé |
+| Contrats | Sources canoniques sous `src/` ; API, routes, noms RPC et clés de stockage compatibles |
 
-## Architecture et maintenance
+La révision de départ charge 95 scripts et 2 308 276 octets de JS. L’extraction PDF/Projets déjà intégrée réduit ce total à 93 scripts et 1 877 403 octets, soit 18,7 % de moins. Cette livraison ajoute un léger coût de validation et de scans regroupés ; le relevé final se reproduit avec `node scripts/check-startup.cjs --json`. Les 12 feuilles CSS représentent 285 783 octets. Les budgets restent 1 900 000 octets JS, 300 000 octets CSS et 93 scripts.
 
-- Les sources sont sous `src/`, et `config/runtime-assets.json` possède les adresses publiques et l’ordre CSS.
-- Le build compile les traductions, génère les copies compatibles, le noyau Vite, les versions de contenu, les trois entrées et le service worker, puis prépare `dist/`.
-- `vendors` déclare les bibliothèques locales chargées à la demande dont l’URL doit recevoir une version par contenu ; ce tableau ne les ajoute pas aux scripts de démarrage.
-- La navigation garde ses identifiants publics, les objets Gama/Architect et les clés stockées. Les permissions et mutations métier restent contrôlées par le serveur.
-- Le site GitHub Pages, les migrations, les Edge Functions et le signataire SRI conservent des déploiements distincts.
+Ces tailles excluent les requêtes dynamiques, images et données ; gzip est estimé fichier par fichier. Elles ne représentent pas une baisse équivalente du temps d’ouverture. Le premier export télécharge encore le moteur PDF ; les suivants réutilisent le moteur installé.
 
-## Revue par domaine et travaux restants
+## Points restant à traiter par domaine
 
-| Domaine | Contrat actuel | Limite ou suite concrète |
-| --- | --- | --- |
-| Accès / sessions | Profil serveur, transport Supabase, RLS et commandes autorisées | Le rejet du chargeur SDK Supabase reste mémorisé après un échec ; étudier une reprise de toute la chaîne de démarrage, pas seulement du script |
-| Produits / stocks | Stock localisé, réservations, lots, ajustements ; invalidation des caches | Mesurer les listes réelles et conserver les tests de concurrence PostgreSQL |
-| Ventes / devis / achats | Documents liés aux processus et références serveur | Les générateurs `build()` restent synchrones ; les nouveaux appels doivent attendre le moteur |
-| CRM | Colonnes explicites, comptages head/exact, référentiels communs | `suma()` et `embudo()` font des lectures sans pagination : au-delà de la limite REST, les sommes peuvent être incomplètes ; privilégier un agrégat serveur testé |
-| Projets / notifications | Alertes Projets appelées par le badge et la fenêtre de notifications | Extraire les alertes avant de différer le workspace de 70 Ko ; conserver la vérification des changements de session |
-| Retours / SAV / documents | Entrées différées et commandes serveur | Revalider les plafonds d’avoirs/remboursements sur les parcours existants |
-| Comptabilité / SRI | Gestion comptable distincte de la signature et de l’autorisation fiscale | Les tests simulés ne prouvent pas la disponibilité du signataire privé ni une autorisation réelle |
-| TMS / flotte | Chargement différé, preuves, photos et signature | Les exports attendent maintenant le moteur ; les essais physiques caméra/iOS restent nécessaires |
-| RH / contacts | Modules communs et restrictions serveur existantes | Continuer les tests de confidentialité et de changement de rôle |
-| Recherche / UI / traductions | Catalogue local, annotations opt-in, scans DOM | Le catalogue de 519 Ko reste initial ; mesurer avant de séparer les langues et préserver le changement instantané de langue |
-| Construction / CI | Sources et sorties contrôlées ; budgets partagés | Les scripts classiques restent nombreux et des modules IIFE volumineux subsistent ; une conversion doit suivre les dépendances réelles |
-| Base | 218 fichiers SQL, 113 noms de fonctions définis au fil des migrations | Ne pas réécrire les migrations historiques ; les alertes de production de l’audit initial n’ont pas été réévaluées ici |
+| Domaine | Constat et suite |
+| --- | --- |
+| Accès | La base et les fonctions serveur restent l’autorité. Le rejet du chargeur SDK Supabase demeure mémorisé après échec : étudier la reprise de toute la chaîne de démarrage |
+| Produits / stocks | Stock localisé, réservations, lots et invalidations présents ; mesurer les volumes et conserver les tests de concurrence PostgreSQL |
+| Ventes / achats / documents | Constructeurs PDF synchrones ; attendre `GamaPdf.ready()` dans tout nouvel appel et conserver les contrôles du parcours |
+| CRM | `suma()` et `embudo()` lisent sans pagination : au-delà de la limite REST, les sommes peuvent être incomplètes. Préparer des agrégats serveur avec tests sur gros volumes |
+| Projets / notifications | Alertes partagées, chargement différé et invalidation de session présents ; revalider les réponses hors ordre et les liens croisés à chaque extraction |
+| Retours / SAV | Chargement différé et commandes serveur ; maintenir les tests de plafonds d’avoirs/remboursements |
+| Comptabilité / SRI | Gestion comptable distincte du signataire privé ; les tests simulés ne prouvent pas une signature ou autorisation réelle |
+| TMS / flotte | Exports, preuves, photos et signature présents ; tester caméra, scan et téléchargements sur iPhone physique |
+| RH / contacts | Contrats serveur et confidentialité à préserver pendant les changements de rôle |
+| Recherche / UI | Catalogue de traduction de 519 Ko encore initial ; mesurer avant de séparer les langues |
+| CI / architecture | Modules IIFE volumineux et nombreux scripts classiques ; poursuivre les extractions à partir des dépendances observées |
+| Base | 218 fichiers SQL, 113 noms de fonctions définis au fil des migrations ; conserver l’historique et la procédure de restauration |
 
-## Validation
+Les alertes Supabase décrites dans l’audit du chargement n’ont pas été réévaluées pendant cette revue. Aucun changement SQL, fonction serveur, stock ou document fiscal n’est effectué.
 
-La livraison ajoute des tests de partage du téléchargement PDF, d’intégrité, de compatibilité des constructeurs et de reprise après panne réseau ou SDK absent. Les parcours navigateur vérifient l’absence de jsPDF à l’accueil, la production de vrais PDF de devis/achat/preuve et le téléchargement d’une étiquette par le bouton existant.
-Les workflows couvrent aussi les exports existants, projets, TMS, ventes, achats, stocks, accès, traduction et responsive.
-
-Pour reproduire :
+## Validation reproductible
 
 ```sh
 npm ci
 npm run update
 npx playwright install chromium
 npm test
-node scripts/check-performance.cjs --json
+node scripts/check-startup.cjs --json
 ```
 
-Les fixtures SQL utilisent des bases isolées. Aucun changement SQL ou déploiement serveur n’est effectué par cette revue. Les temps sur un téléphone réel, la couverture complète des règles métier et les performances de production restent à mesurer séparément.
+Les tests ajoutés vérifient la reprise lorsque le SDK PDF manque et l’étiquette par son bouton existant. Les tests de PDF réels et de marque entreprise utilisent la copie locale ; les suites existantes vérifient chargement, accès, session, Projets, TMS, stocks, ventes, achats, traductions et responsive. Les fixtures SQL utilisent des bases isolées.
+Les résultats de la CI sur la dernière révision de la PR constituent la preuve d’exécution ; un résultat d’une ancienne révision ne garantit pas la version finale.

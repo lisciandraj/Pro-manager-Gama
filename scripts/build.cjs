@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const {root,manifest,hash,runtimeFiles,header,validateManifest}=require('./lib/assets.cjs');
 validateManifest();
+execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of [...manifest.scripts,...manifest.styles]){
  fs.writeFileSync(path.join(root,output),header(source)+fs.readFileSync(path.join(root,source),'utf8'));
 }

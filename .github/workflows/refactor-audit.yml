@@ -8,6 +8,10 @@ on:
       - 'scripts/**'
       - 'config/runtime-assets.json'
       - 'tests/**'
+      - 'locales/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
       - '.github/workflows/refactor-audit.yml'
 permissions:
   contents: read
@@ -37,7 +41,7 @@ jobs:
           node <<'NODE'
           const {execFileSync}=require('node:child_process');
           const {generated}=require('./scripts/lib/assets.cjs');
-          const files=[...generated,'index.html','gama-site.html','camera-check.html','architect-core.js','architect-components.css','architect-base.css','architect-assets.js','sw.js'];
+          const files=[...generated,'gama-i18n-catalog.js','index.html','gama-site.html','camera-check.html','architect-core.js','architect-components.css','architect-base.css','architect-assets.js','sw.js'];
           execFileSync('git',['add','--',...files]);
           if(!execFileSync('git',['diff','--cached','--name-only']).toString().trim())process.exit(0);
           execFileSync('git',['-c','user.name=Coco build','-c','user.email=41898282+github-actions[bot]@users.noreply.github.com','commit','-m','build: refresh Coco generated assets']);
@@ -58,6 +62,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run typecheck
+      - run: npm run check:docs
       - run: npm run check:generated
       - run: npm run test:architecture
       - run: npx playwright install --with-deps chromium

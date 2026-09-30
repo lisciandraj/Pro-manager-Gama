@@ -1,37 +1,24 @@
 @font-face{font-family:Inter;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
-/* COCO ERP — Design tokens.
-
-   Una sola fuente para el color, el espacio, el radio, la sombra y la
-   tipografía de toda la aplicación. Ningún módulo debería volver a escribir
-   un #RRGGBB: si un tono no está aquí, es que falta aquí.
-
-   La paleta viene del logo de Coco ERP. La navegación va sobre blanco, el
-   fondo para el que está dibujado el logo, con los enlaces en el azul
-   noche de la visera del robot, que también viste las cabeceras oscuras y
-   el fondo de la conexión; un índigo grisáceo para lo secundario, blanco
-   para las superficies de trabajo, un gris azulado muy claro para el
-   lienzo —los grises tiran al mismo tono que el azul—, y el azul del
-   robot, oscurecido hasta leerse bien, para lo que se puede pulsar. Las
-   cuatro letras de COCO —azul, violeta, turquesa y naranja— son las únicas
-   familias de color: una por dominio (pilotaje, ventas, stock y logística,
-   administración). Los colores funcionales se usan con cuentagotas y nunca solos:
-   siempre acompañados de un texto o de un icono, porque el color por sí
-   mismo no informa a quien no lo distingue. */
+/* Coco ERP — shared design tokens.
+   The current theme uses petrol blue, orange and neutral working surfaces.
+   Historical variable names remain public aliases for existing modules.
+   src/styles/design.css supplies the scoped application/theme overrides.
+   Keep semantic states labelled: color alone must not carry information. */
 :root{
- /* ------------------------------------------- las cuatro letras de COCO */
- --arc-coco-blue:#157F98;    /* C — el robot */
- --arc-coco-violet:#D45C0B;  /* O */
- --arc-coco-teal:#238FA4;    /* C */
- --arc-coco-orange:#F87826;  /* O */
- /* Las mismas oscurecidas lo justo para leerse como texto (≥4.5:1 sobre blanco). */
+ /* ------------------------------------------- colores de marca */
+ --arc-coco-blue:#157F98;    /* azul petróleo */
+ --arc-coco-violet:#D45C0B;  /* naranja */
+ --arc-coco-teal:#238FA4;    /* turquesa */
+ --arc-coco-orange:#F87826;  /* naranja */
+ 
  --arc-coco-blue-text:#10677D;   --arc-coco-violet-text:#D45C0B;
  --arc-coco-teal-text:#10677D;   --arc-coco-orange-text:#AD4508;
 
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#103B52;   /* azul noche: la visera del robot (#293051) */
+ --arc-navy-900:#103B52;   
  --arc-navy-800:#0B3045;   /* marca, cabeceras oscuras */
- --arc-navy-700:#24495A;   /* enlaces de la navegación — 10.8:1 sobre blanco */
- --arc-navy-600:#10677D;   /* 8.8:1 con texto blanco */
+ --arc-navy-700:#24495A;   
+ --arc-navy-600:#10677D;   
  --arc-steel-600:#496575;  /* índigo grisáceo: elementos secundarios */
  --arc-steel-500:#617C8A;
  --arc-steel-400:#89A2AD;
@@ -39,7 +26,7 @@
 
  /* ------------------------------------------------------------- acciones */
  --arc-accent-700:#0C556B;
- --arc-accent-600:#10677D;  /* acción principal: el azul del robot — 5.9:1 sobre blanco, 5.2:1 sobre el lienzo */
+ --arc-accent-600:#10677D;  
  --arc-accent-500:#157F98;  /* el azul del logo, para lo decorativo */
  --arc-accent-400:#70B7C6;
  --arc-accent-100:#E7F3F6;
@@ -53,11 +40,11 @@
  --arc-line:#BEC5D3;        /* visible shared separators */
  --arc-line-strong:#8A95A8; /* fields and stronger boundaries */
 
- --arc-text:#0B172A;        /* texto principal — 13.9:1 sobre blanco */
- --arc-text-muted:#4F5C78;  /* texto secundario — 6.7:1 sobre blanco, AA en todas las superficies */
- --arc-text-subtle:#5B6883; /* pies de foto, ayudas — 5.6:1 sobre blanco, 4.9:1 sobre el lienzo */
+ --arc-text:#0B172A;        
+ --arc-text-muted:#4F5C78;  
+ --arc-text-subtle:#5B6883; 
  --arc-text-invert:#FFFFFF;
- --arc-text-on-navy:#DDEEF2; /* texto sobre el azul noche — 9.8:1 */
+ --arc-text-on-navy:#DDEEF2; 
 
  /* --------------------------------------------------------- funcionales */
  --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;
@@ -65,9 +52,9 @@
  --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
  --arc-info:#0C556B;      --arc-info-bg:#E7F3F6;      --arc-info-line:#B6DCE5;
 
- /* Familias de los módulos: una letra de COCO por dominio, en su tono legible. */
+ /* Familias de módulos. Los nombres históricos se conservan por compatibilidad. */
  --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E7F3F6;   /* C azul: pilotaje */
- --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#FFF0E6;       /* O violeta: ventas y clientes */
+ --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#FFF0E6;       /* naranja: ventas y clientes */
  --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E7F3F6;   /* C turquesa: stock, compras y logística */
  --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E7F3F6;
  --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF0E6;     /* O naranja: administración */
@@ -119,7 +106,7 @@
 }
 :root{--arc-motion:160ms}
 
-/* Public semantic aliases. Sampled from the supplied 1145 × 1374 reference. */
+/* Public semantic aliases shared by controls and home tiles. */
 :root{
  --color-primary:var(--arc-accent-600);--color-primary-dark:var(--arc-accent-700);
  --color-accent:var(--arc-accent-600);--color-background:var(--arc-canvas);
@@ -135,13 +122,12 @@
  --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(31,36,66,.16),0 8px 18px rgba(31,36,66,.18);
  --arc-control-shadow:0 1px 0 rgba(31,36,66,.15),0 2px 5px rgba(31,36,66,.10);
  --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
- /* Iconos de los módulos: las cuatro letras de COCO. Azul y violeta van tal
-    cual; turquesa y naranja, oscurecidos lo justo para ≥3:1 sobre su fondo. */
+ 
  --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;
  --arc-icon-violet:#D45C0B;--arc-icon-violet-bg:#FFF0E6;
  --arc-icon-teal:#238FA4;--arc-icon-teal-bg:#E7F3F6;
  --arc-icon-orange:#AD4508;--arc-icon-orange-bg:#FFF0E6;
- /* Nombres anteriores: cada uno cae en una de las cuatro. */
+ /* Alias históricos para los iconos de módulos. */
  --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);
  --arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
  --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);

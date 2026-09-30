@@ -4,9 +4,9 @@ Small-business workflows inspired by Odoo Helpdesk and Documents:
 - https://www.odoo.com/documentation/19.0/applications/services/helpdesk.html
 - https://www.odoo.com/documentation/19.0/applications/productivity/documents.html
 
-`gama-service-documents.js` lazily exposes `GamaService.open/openTicket` and `GamaDocuments.open({ticket_id})`. Registry entries, shared icons, controls, dialogs and table/card modes are reused. Spanish source strings are translated through the existing French/English catalog.
+The canonical source is `src/features/service/service-documents.js`; its generated compatible asset `gama-service-documents.js` lazily exposes `GamaService.open/openTicket` and `GamaDocuments.open({ticket_id})`. Registry entries, shared icons, controls, dialogs and table/card modes are reused. Spanish source strings are translated through the existing French/English catalog.
 
-SAV: customer and optional sales order, category, warranty date, assignee, priority, deadline, five statuses, required resolution before closing, internal notes, append-only status history, attachments and archive/restore. Notes do not send email or messages to customers. Resolving a claim does not initiate refunds, stock movements or accounting entries.
+SAV: customer and optional sales order, category, warranty date, assignee, priority, deadline, five statuses, required resolution before closing, internal notes, append-only status history, attachments and archive/restore. Notes do not send email or messages to customers. A linked return can be created from a SAV claim using its source document and opened in process tracking. Resolving a claim alone does not initiate refunds, stock movements or accounting entries.
 
 Documents: file upload (PDF/JPEG/PNG/WebP/DOCX/XLSX/TXT/CSV, 20 MiB), title, flat folder name, notes, expiry date and optional customer/supplier/order/SAV links. Files are immutable versions; metadata uses optimistic concurrency. Downloads use authenticated Storage requests, not public URLs. Metadata and history are included in Excel exports; binary files remain in Storage and can be downloaded from the module.
 

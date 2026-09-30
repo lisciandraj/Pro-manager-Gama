@@ -13,7 +13,7 @@ npm run test:restore
 npm run test:unit
 ```
 
-La reconstruction PGlite fournit les primitives de plateforme Auth, Storage et Cron décrites dans `tests/platform-bootstrap.sql`, puis rejoue l'historique applicatif. Elle vérifie notamment les 116 tables publiques et leur activation RLS. Elle ne remplace pas un test d'intégration sur Supabase pour les services de plateforme, le réseau ou Realtime.
+La reconstruction PGlite fournit les primitives de plateforme Auth, Storage et Cron décrites dans `tests/platform-bootstrap.sql`, puis rejoue l'historique applicatif. Elle vérifie les tables publiques et leur activation RLS selon les assertions de la suite `npm run test:restore`. Les nombres de tables évoluent avec les migrations. Elle ne remplace pas un test d'intégration sur Supabase pour les services de plateforme, le réseau ou Realtime.
 
 Une réparation de données historique, `20260912081917_deduplicate_products_keep_most_complete.sql`, exige exactement 312 doublons dans 165 groupes de production. Elle ne peut pas être rejouée telle quelle sur une base vide. Le SQL canonique demeure inchangé. `scripts/fresh-migration.cjs` conserve sa création de table d'archive, exige un catalogue vide et exclut seulement la réparation de ces anciennes données lors d'une reconstruction neuve.
 
@@ -42,9 +42,7 @@ Les tests `standardization-db.test.cjs` comparent les résultats et refus des ac
 
 ## Lecture des avis Supabase
 
-L'absence de politique de lecture sur les trois tables de travail privées (`command_receipts`, `product_dedup_archive`, `product_identity_claims`) est intentionnelle : les rôles du navigateur n'y accèdent pas directement. Voir la [règle RLS sans politique](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
-
-Les avis déjà présents sur les vues `catalog_products` et `crm_team`, les anciennes RPC de stock en `SECURITY DEFINER` et la protection des mots de passe compromis ne sont pas des résultats de cette migration. Leurs frontières existantes sont conservées. Changer une vue en `SECURITY INVOKER` sans adapter les droits sous-jacents casserait les accès client/commercial ; toute évolution doit vérifier ces usages. Références : [vues et droits](https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view), [exécution anonyme des fonctions](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable), [protection des mots de passe](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+Le relevé du 30 septembre 2026 signale 16 tables privées avec RLS sans politique (refus par défaut), la protection des mots de passe compromis désactivée et des pistes de performance. Ces constats, leurs volumes et les vérifications nécessaires sont détaillés dans [l’audit courant](../docs/audits/2026-09-30.md). Une alerte historique sur une vue ou une fonction ne doit pas être présentée comme toujours active sans un nouveau relevé. Ne pas supprimer une politique ou changer SECURITY DEFINER/INVOKER sans tests des accès correspondants.
 
 ## Modèle d'e-mail d'invitation (Supabase Auth)
 

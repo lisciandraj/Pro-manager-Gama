@@ -1,1 +1,0 @@
-GAMA Excel Import V1: products, clients and suppliers. Integrated through the Excel import module.

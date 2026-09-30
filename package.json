@@ -15,7 +15,8 @@
     "test:concurrency": "node scripts/check-stock-concurrency.cjs",
     "build:i18n": "python3 scripts/build-i18n.py && npm run build",
     "check:generated": "node scripts/check-generated.cjs",
-    "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs"
+    "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs",
+    "check:docs": "node scripts/check-docs.cjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",

@@ -1,1 +1,0 @@
-Force GitHub Pages V10.3 deployment: install gama-v10-pro.js and gama-v10-language.js directly into index.html.

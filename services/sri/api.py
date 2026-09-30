@@ -10,6 +10,7 @@ import os
 import smtplib
 from email.message import EmailMessage
 from fastapi import FastAPI, HTTPException, Request
+from .openapi import OpenApiSriClient
 from .engine import access_key, invoice_xml, sign_xml, send_sri, authorize_sri, ride_pdf
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
@@ -48,9 +49,24 @@ async def execute(request: Request):
         raise HTTPException(401, 'UNAUTHORIZED')
     try:
         data = await request.json()
+        action = data['action']
+        if action == 'status':
+            provider = os.getenv('SRI_PROVIDER', 'private_worker')
+            if provider == 'openapi':
+                OpenApiSriClient()  # Validate configuration; not a certification claim.
+                ready = os.getenv('SRI_OPENAPI_ACCOUNTING') in ('SI', 'NO')
+            else:
+                ready = provider == 'private_worker' and bool(os.getenv('SRI_P12_BASE64') and os.getenv('SRI_P12_PASSWORD'))
+            return {'configured': ready, 'provider': provider,
+                    'environment': os.getenv('SRI_OPENAPI_ENVIRONMENT') if provider == 'openapi' else None}
         issue = data['issue']
         validate(issue)
-        action = data['action']
+        if action in ('openapi_preflight', 'openapi_submit', 'openapi_refresh'):
+            # Historical Open API documents remain readable after a default-provider switch.
+            if action != 'openapi_refresh' and os.getenv('SRI_PROVIDER') != 'openapi':
+                raise ValueError('SRI_PROVIDER_MISMATCH')
+            client = OpenApiSriClient()
+            return getattr(client, action.removeprefix('openapi_'))(issue)
         if action == 'sign':
             xml, key = invoice_xml(issue)
             if issue.get('access_key') and issue['access_key'] != key:
@@ -79,4 +95,8 @@ async def execute(request: Request):
             return {'delivered': True}
         raise ValueError('UNKNOWN_ACTION')
     except (ValueError, KeyError) as exc:
-        raise HTTPException(422, str(exc)) from exc
+        # Only controlled codes cross the private gateway boundary.
+        code = str(exc)
+        if not code.startswith(('SRI_', 'INVALID_', 'UNKNOWN_')) or len(code) > 100:
+            code = 'SRI_WORKER_VALIDATION_FAILED'
+        raise HTTPException(422, code) from exc

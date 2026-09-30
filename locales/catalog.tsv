@@ -4290,3 +4290,21 @@ Catálogo web, presentación y solicitudes de prueba	Catalogue web, présentatio
 Recomendaciones inteligentes, análisis y asistente para tu empresa	Recommandations intelligentes, analyses et assistant pour votre entreprise	Smart recommendations, analysis and an assistant for your business
 Ventas, compras y devoluciones de clientes y proveedores	Ventes, achats et retours clients et fournisseurs	Sales, purchases and customer and supplier returns
 Productos bajo el stock mínimo: cantidad propuesta para alcanzar el stock máximo, teniendo en cuenta las reservas, la demanda y las compras en camino.	Produits sous le stock minimum : quantité proposée pour revenir au stock maximum, en tenant compte des réservations, de la demande et des achats déjà en route.	Products below minimum stock: suggested quantity to reach maximum stock, taking reservations, demand and incoming purchases into account.
+
+Facturas electrónicas, autorización SRI y archivo XML / RIDE	Factures électroniques, autorisation SRI et archives XML / RIDE	Electronic invoices, SRI authorization and XML / RIDE archives
+Factura interna → SRI → XML y RIDE autorizados	Facture interne → SRI → XML et RIDE autorisés	Internal invoice → SRI → authorized XML and RIDE
+Preparada	Préparée	Prepared
+Firmada	Signée	Signed
+Pendiente de confirmación	En attente de confirmation	Awaiting confirmation
+Servicio preparado para pruebas supervisadas; no implica certificación fiscal.	Service prêt pour des essais supervisés ; cela ne vaut pas validation fiscale.	Service ready for supervised tests; this does not imply fiscal certification.
+Emisión desactivada. Configura el servicio privado y valida las pruebas antes de enviar.	Émission désactivée. Configurez le service privé et validez les essais avant l’envoi.	Issuance disabled. Configure the private service and validate tests before sending.
+Motor fiscal	Moteur fiscal	Fiscal engine
+Solo facturas nacionales ordinarias. Notas de crédito, retenciones y guías requieren una integración fiscal adicional.	Factures nationales ordinaires uniquement. Les avoirs, retenues et bons de transport nécessitent une intégration fiscale supplémentaire.	Ordinary domestic invoices only. Credit notes, withholdings and delivery notes require additional fiscal integration.
+Configuración SRI	Configuration SRI	SRI configuration
+La identidad legal procede de Configuración de empresa. Certificados y credenciales solo en el servidor.	L’identité légale provient de Configuration entreprise. Les certificats et identifiants restent sur le serveur.	Legal identity comes from Company settings. Certificates and credentials remain on the server.
+Ver todas las facturas	Voir toutes les factures	View all invoices
+Sin preparar	Non préparée	Not prepared
+No reenviar: consultar el mismo documento para evitar duplicados.	Ne pas renvoyer : consultez le même document pour éviter les doublons.	Do not resend: query the same document to avoid duplicates.
+No hay facturas internas para este filtro.	Aucune facture interne ne correspond à ce filtre.	No internal invoices match this filter.
+Confirmar envío al SRI en el ambiente indicado. Esta acción no debe repetirse.	Confirmer l’envoi au SRI dans l’environnement indiqué. Cette action ne doit pas être répétée.	Confirm sending to SRI in the indicated environment. This action must not be repeated.
+Consulta pendiente. No vuelvas a emitir la factura.	Consultation en attente. Ne réémettez pas la facture.	Lookup pending. Do not issue the invoice again.

@@ -1,0 +1,98 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
+const {webcrypto,createHmac}=require('node:crypto');
+const source=fs.readFileSync('supabase/functions/gama-sri/index.ts','utf8').replace(/^import.*\n/,'');
+const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const ID='00000000-0000-4000-8000-000000000001';
+const KEY='2709202601179001234500110010010000000011234567813';
+function harness(options={}){
+ let handler;
+ const issue={id:ID,source_invoice_id:ID,status:'draft',environment:'pruebas',issuer_ruc:'1790012345001',establishment:'001',emission_point:'001',sequential:'000000001',numeric_code:'12345678',snapshot:{issue_date:'2026-09-27'},...options.issue};
+ const calls=[],updates=[],files=new Map();
+ const env={SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',SRI_WORKER_URL:'https://worker.invalid',SRI_WORKER_SECRET:'fixture-secret',SRI_PROVIDER:'openapi',SRI_EMISSION_ENABLED:'true',...options.env};
+ const access={validate:true,export:true,...options.access};
+ function db(isAdmin){
+  return {auth:{getUser:async()=>options.noAuth?{error:{message:'invalid'}}:{data:{user:{id:ID}}}},
+   rpc:async()=>({data:options.noAccess?null:access}),
+   from(table){let change=null,filters=[];const q={
+    select(){return q},eq(k,v){filters.push([k,v]);return q},is(k,v){filters.push([k,v]);return q},update(patch){change=patch;return q},
+    async resolve(){
+     if(table==='profiles')return {data:{role:options.role||'administrador',active:options.active!==false}};
+     if(table==='external_invoices'){if(change)updates.push(change);return {data:{id:ID}}}
+     if(!isAdmin&&options.invisible)return{data:null};
+     if(!filters.every(([k,v])=>(issue[k]??null)===v))return{data:null};
+     if(change)Object.assign(issue,change);
+     return{data:structuredClone(issue)};
+    },single(){return q.resolve()},maybeSingle(){return q.resolve()},then(ok,fail){return q.resolve().then(ok,fail)}
+   };return q},
+   storage:{from:bucket=>({
+    upload:async(path,bytes)=>{if(files.has(path))return{error:{message:'already exists'}};files.set(path,new Blob([bytes]));return{}},
+    download:async path=>files.has(path)?{data:files.get(path)}:{error:{message:'missing'}},
+    createSignedUrl:async(path,seconds)=>({data:{signedUrl:'https://private.invalid/'+path+'?ttl='+seconds}})
+   })}
+  }
+ }
+ vm.runInNewContext(code,{
+  Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn}},
+  createClient:(url,key)=>db(key==='service'),
+  fetch:async(url,init)=>{const body=JSON.parse(init.body);calls.push(body.action);
+   assert.equal(init.redirect,'error');
+   assert.equal(init.headers['x-sri-signature'],createHmac('sha256',env.SRI_WORKER_SECRET).update(init.body).digest('hex'));
+   if(body.action==='status')return Response.json({configured:true,provider:'openapi',environment:'pruebas'});
+   if(body.action==='openapi_preflight')return Response.json({ready:true});
+   if(options.worker)return options.worker(body);
+   return Response.json({status:'processing',access_key:KEY,provider_status:'RECIBIDA'});
+  },Response,Request,Blob,URL,TextEncoder,Uint8Array,AbortController,crypto:webcrypto,atob,btoa,setTimeout,clearTimeout,console
+ });
+ return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:'Bearer user','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
+}
+test('Open API emit claims once, persists provider, never authorizes from POST',async()=>{
+ const h=harness();const result=await h.request({action:'submit',id:ID});
+ assert.equal(result.status, 'processing');assert.equal(h.issue.receipt.provider,'openapi');
+ assert.equal(h.issue.access_key,KEY);assert.equal(h.updates.length,0);
+ await h.request({action:'submit',id:ID});assert.equal(h.calls.filter(x=>x==='openapi_submit').length,1);
+});
+test('uncertain POST remains locked even with no key; retry refused, refresh allowed',async()=>{
+ const h=harness({worker:async({action})=>{if(action==='openapi_submit')throw Error('network timeout');return Response.json({status:'processing',review_required:true})}});
+ const result=await h.request({action:'submit',id:ID});assert.equal(result.review_required,true);
+ assert.equal(h.issue.status,'processing');assert.equal(h.issue.receipt.provider,'openapi');
+ const retry=await h.request({action:'retry',id:ID});assert.equal(retry.error,'SRI_RETRY_REQUIRES_REVIEW');
+ await h.request({action:'refresh',id:ID});assert.ok(h.calls.includes('openapi_refresh'));
+ assert.equal(h.calls.filter(x=>x==='openapi_submit').length,1);
+});
+test('concurrent emission requests have exactly one claim',async()=>{
+ const h=harness();await Promise.all([h.request({action:'submit',id:ID}),h.request({action:'submit',id:ID})]);
+ assert.equal(h.calls.filter(x=>x==='openapi_submit').length,1);
+});
+test('kill switch blocks new emission but preserves read-only reconciliation',async()=>{
+ const h=harness({env:{SRI_EMISSION_ENABLED:'false'},issue:{status:'processing',receipt:{provider:'openapi'}}});
+ assert.equal((await h.request({action:'submit',id:ID})).error,'SRI_CERTIFICATION_PENDING');
+ await h.request({action:'refresh',id:ID});assert.deepEqual(h.calls,['openapi_refresh']);
+});
+test('admin, active profile, action permission and RLS are all required',async()=>{
+ for(const options of [{noAuth:true},{role:'comercial'},{active:false},{noAccess:true},{access:{validate:false}},{invisible:true}]){
+  const h=harness(options),r=await h.request({action:'submit',id:ID});assert.ok(r.error);assert.equal(h.calls.length,0);
+ }
+});
+test('wrong key is never persisted or used to link a commercial invoice',async()=>{
+ const h=harness({worker:async()=>Response.json({status:'processing',access_key:'9'.repeat(49)})});
+ const result=await h.request({action:'submit',id:ID});assert.equal(result.review_required,true);
+ assert.equal(h.issue.access_key,undefined);assert.equal(h.updates.length,0);
+});
+test('authorization archives privately and links only the existing internal invoice',async()=>{
+ const h=harness({issue:{status:'processing',receipt:{provider:'openapi'},access_key:KEY},worker:async()=>Response.json({status:'authorized',access_key:KEY,authorization:KEY,authorized_at:'2026-09-27T15:00:00-05:00',signed_xml:btoa('<factura/>'),authorized_xml:btoa('<autorizacion/>'),ride_pdf:btoa('%PDF-fixture'),provider_status:'AUTORIZADO'})});
+ await h.request({action:'refresh',id:ID});assert.equal(h.issue.status,'authorized');assert.equal(h.files.size,3);
+ assert.equal(h.updates.length,1);assert.equal(h.updates[0].external_number,'001-001-000000001');
+ assert.equal(h.updates[0].access_key,KEY);assert.equal(h.updates[0].total,undefined);
+ const result=await h.request({action:'download',id:ID,kind:'xml'});assert.match(result.url,/ttl=60$/);
+});
+test('unverified documents cannot be downloaded or emailed; export permission is enforced',async()=>{
+ let h=harness({issue:{status:'processing'}});assert.equal((await h.request({action:'download',id:ID,kind:'xml'})).error,'SRI_NOT_AUTHORIZED');
+ assert.equal((await h.request({action:'notify',id:ID})).error,'SRI_NOT_AUTHORIZED');
+ h=harness({access:{export:false},issue:{status:'authorized'}});assert.equal((await h.request({action:'download',id:ID,kind:'xml'})).error,'ROLE_NOT_ALLOWED');
+});
+test('status reveals capabilities without credentials; invalid JSON values are rejected',async()=>{
+ const h=harness();const r=await h.request({action:'status'});assert.equal(r.provider,'openapi');assert.equal(r.ready,true);
+ assert.equal(JSON.stringify(r).includes('fixture-secret'),false);assert.equal((await h.request(null)).error,'INVALID_REQUEST');
+});

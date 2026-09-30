@@ -21,3 +21,10 @@ Only standard domestic invoices with ordinary VAT and identification are
 supported. Specialized tax regimes and credit/debit notes need dedicated XML
 models and tests. SRI outages may leave documents in `processing`; consult
 authorization by the same access key before any further transmission.
+
+## Open API provider
+
+Set `SRI_PROVIDER=openapi` to use the external NestJS fiscal engine through the
+private gateway instead of the original Python signer. Read [OPENAPI.md](OPENAPI.md)
+for the pinned contract, deployment prerequisites, scoped credentials, supported
+invoice types, PDF renderer license caveat and no-reissue recovery policy.

@@ -1,3 +1,31 @@
+# Facturación SRI — module Coco et connecteur Open API
+
+Le menu Administration contient désormais **Facturación SRI** (`sri`). Il utilise
+les factures internes existantes, avec accès depuis leur fiche et le suivi des
+paiements. L'onglet Comptabilité → SRI reste disponible. Les factures sont paginées,
+recherchables par numéro et liées au même dossier commercial et aux mêmes paiements.
+Le rendu fiscal ne crée aucun mouvement supplémentaire de stock ou de trésorerie.
+
+Le nouveau fournisseur `openapi` utilise le service privé Python comme passerelle
+vers **Open API Facturación SRI**. Les droits et l'archivage existants sont conservés.
+Le code de connexion n'héberge pas à lui seul le moteur NestJS, son stockage de
+certificats ni son générateur PDF. L'émission réelle reste conditionnée à leur
+configuration et aux essais fiscaux, et n'est pas activée par une publication web.
+
+**Périmètre livré : factures nationales ordinaires (01).** Les avoirs, retenues et
+guías de remisión du projet amont ne sont pas encore raccordés aux modules Coco.
+Ils ne sont pas présentés comme fonctionnels.
+
+Voir [installation, contrat API et limites de reprise](../../services/sri/OPENAPI.md)
+et [configuration privée d'exemple](../../services/sri/openapi.env.example).
+Aucune nouvelle table n'est nécessaire : le fournisseur est mémorisé dans le reçu
+JSON serveur de chaque émission. Les documents déjà envoyés par le signataire
+historique continuent à utiliser leur traitement historique.
+
+---
+
+## Contrat historique conservé
+
 > État relu le 30 septembre 2026. Les contrats techniques ci-dessous restent rattachés aux modules actuels ; les commandes de validation et la cartographie des sources sont centralisées dans la documentation de développement.
 
 # Facturación SRI — integration status

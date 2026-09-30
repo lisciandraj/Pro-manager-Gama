@@ -708,6 +708,7 @@
     startDataEvents
   }, Symbol.toStringTag, { value: "Module" }));
   const definitions = [
+    { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: ["admin"] },
     { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
     { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: true, roles: ["admin", "commercial"] },
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
@@ -1291,6 +1292,10 @@
       var _a;
       return (_a = window.GamaAccounting) == null ? void 0 : _a.open();
     },
+    sri: () => {
+      var _a;
+      return (_a = window.GamaAccounting) == null ? void 0 : _a.openSri();
+    },
     fleet: () => {
       var _a;
       return (_a = window.GamaFleet) == null ? void 0 : _a.open();
@@ -1607,6 +1612,7 @@
       "global": "GamaAccounting",
       "file": "gama-accounting.js",
       "methods": [
+        "openSri",
         "open",
         "rpc"
       ]

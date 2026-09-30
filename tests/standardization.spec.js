@@ -48,10 +48,14 @@ test('shared form blocks duplicate requests, reports failures and allows a retry
  await expect.poll(()=>page.evaluate(()=>window.__DB.suppliers.filter(s=>s.name==='New supplier').length)).toBe(1);
 });
 test('optional module loader shares concurrent loads and the router refuses unauthorized entry',async({page})=>{
+ let downloads=0;
+ page.on('request',request=>{if(new URL(request.url()).pathname.endsWith('/gama-fleet.js'))downloads++;});
  await boot(page);
  expect(await page.evaluate(()=>window.GamaFleet.__arcLazy)).toBe(true);
  await page.evaluate(()=>Promise.all([window.ArcLoad('fleet'),window.ArcLoad('fleet')]));
- expect(await page.locator('script[data-arc-module="fleet"]').count()).toBe(1);
+ expect(downloads).toBe(1);
+ await page.evaluate(()=>window.ArcLoad('fleet'));
+ expect(downloads).toBe(1);
  expect(await page.evaluate(()=>!!window.GamaFleet.__arcLazy)).toBe(false);
  expect(await page.evaluate(()=>{const original=window.gamaAccessAllowed;window.gamaAccessAllowed=()=>false;const accepted=window.ArcRouter.open('suppliers');window.gamaAccessAllowed=original;return accepted;})).toBe(false);
 });

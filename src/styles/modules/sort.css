@@ -1,0 +1,3 @@
+/* gama-sort.js */
+.gamaSortTh{cursor:pointer;user-select:none;white-space:nowrap}.gamaSortTh:hover{color:var(--arc-accent-600)}.gamaSortTh.r{text-align:right}.gamaSortInd{opacity:.35;font-size:10px}.gamaSortTh.on{color:var(--arc-accent-600)}.gamaSortTh.on .gamaSortInd{opacity:1}
+

@@ -32,8 +32,8 @@ catalog = {}
 for row in rows.values(): key(row)
 VOID = {'area','base','br','col','embed','hr','img','input','link','meta','source','track','wbr'}
 count = 0
-for path in [ROOT/'index.html', *sorted(ROOT.glob('gama-*.js'))]:
-    if path.name.startswith('gama-i18n'): continue
+for path in [ROOT/'src/app/index.html', *sorted((ROOT/'src').rglob('*.js'))]:
+    if path.name in ('i18n.js', 'projects-i18n.js', 'service-worker.js'): continue
     source = path.read_text()
     def mark(m):
         global count

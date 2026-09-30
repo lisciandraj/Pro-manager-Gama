@@ -1,5 +1,5 @@
 {
-  "name": "architect-erp",
+  "name": "coco-erp",
   "private": true,
   "version": "1.0.0",
   "description": "Coco ERP: shared interface, domain contracts and Supabase migrations",
@@ -12,7 +12,10 @@
     "test:restore": "node scripts/restore-schema.cjs",
     "test:unit": "node --test --test-concurrency=2 tests/*.test.cjs tests/*.test.mjs",
     "check": "node scripts/check-sources.cjs",
-    "test:concurrency": "node scripts/check-stock-concurrency.cjs"
+    "test:concurrency": "node scripts/check-stock-concurrency.cjs",
+    "build:i18n": "python3 scripts/build-i18n.py && npm run build",
+    "check:generated": "node scripts/check-generated.cjs",
+    "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",

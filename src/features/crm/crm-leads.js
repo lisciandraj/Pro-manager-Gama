@@ -1,0 +1,456 @@
+/* GAMA — CRM · Prospectos.
+
+   Un prospecto es lo que TODAVÍA no es un cliente: alguien que llamó, una
+   empresa que pidió precio, una tarjeta de una feria. Vive en crm_leads y no
+   en customers a propósito — mezclarlos llenaría la ficha de Clientes de
+   gente a la que nunca se le facturó nada, y las tarifas, los presupuestos y
+   el catálogo trabajan sobre esa tabla.
+
+   El puente entre las dos es la conversión: se crea el cliente de verdad y el
+   prospecto guarda a cuál apunta. Así no se pierde de dónde salió ni cuánto
+   costó ganarlo, y no hay dos fichas de la misma empresa.
+
+   Tres cosas que esta pantalla hace cumplir porque la base las exige:
+
+   · «Convertido» no se elige a mano. El CHECK crm_leads_convertido_coherente
+     obliga a que venga con el cliente creado, así que el estado sale del
+     desplegable y sólo se llega ahí por el botón de convertir.
+
+   · Un prospecto necesita al menos empresa, nombre o apellidos
+     (crm_leads_con_nombre). Se comprueba antes de enviar para que el usuario
+     lea una frase y no un error de Postgres.
+
+   · La puntuación va de 0 a 100 (crm_leads_score_check). */
+(function(){
+'use strict';
+if(!window.GamaCRM){console.warn('[GAMA CRM] Prospectos necesita gama-crm-core.js');return}
+const CRM=window.GamaCRM;
+const C=()=>window.GamaCloud;
+const $=id=>document.getElementById(id);
+const esc=CRM.esc;
+/* Formularios, fechas, textos y avisos los pone el núcleo: son los mismos en
+   todas las pantallas del CRM. */
+const U=CRM.util;
+const val=U.valor,nulo=U.nulo,norm=U.norm,terms=U.terms,clave=U.clave;
+const fecha=U.fecha,paraInput=U.paraInput,desdeInput=U.desdeInput;
+const campo=U.campo,campoSelect=U.campoSelect,opciones=U.opciones,msg=U.msg;
+const fallo=(e,que)=>U.error(e,que,'Prospectos');
+
+const LEAD='Prospectos: quien todavía no es cliente. Al convertirlo se crea su ficha en Clientes.';
+/* La lista pide el juego estrecho del núcleo; la ficha, al abrir UNA fila,
+   pide además lo que sólo hace falta en el formulario. Notas y direcciones no
+   tienen por qué viajar por cada prospecto de una lista de mil. */
+const FICHA=CRM.cols.leads+',phone2,address,country,website,company_size,notes,converted_at';
+const CLIENTE_COLS='id,name,identification,email,active';
+
+const ESTADOS={nuevo:'Nuevo',contactado:'Contactado',calificado:'Calificado',no_calificado:'No calificado',convertido:'Convertido',perdido:'Perdido'};
+const ESTADOS_EDITABLES=['nuevo','contactado','calificado','no_calificado','perdido'];
+const PRIORIDADES={baja:'Baja',media:'Media',alta:'Alta'};
+const TIPOS={empresa:'Empresa',particular:'Particular'};
+const CATEGORIAS=[['A','A — mayorista'],['B','B — minorista'],['C','C — precios negociados']];
+
+let leads=[],clientes=[],gente=[],origenes=[];
+let vista='lista',abierto=null,busca='',filtro='',cargando=false,forzar=false,borrador=null,puntos=null;
+
+let mi;
+async function quienSoy(){
+ if(mi!==undefined)return mi;
+ try{const s=await C().getSession();mi=(s&&s.data&&s.data.session&&s.data.session.user&&s.data.session.user.id)||null}
+ catch(e){mi=null}
+ return mi;
+}
+
+/* ---- datos ---- */
+async function cargar(){
+ const api=C();
+ if(!api)throw new Error('La conexión con la nube de Coco ERP no está disponible.');
+ const [l,c,r,g]=await Promise.all([
+  api.list('crm_leads',{select:CRM.cols.leads,order:'created_at',ascending:false}),
+  /* customers se pide con cuatro columnas: hace falta para enseñar a qué
+     cliente apunta un prospecto convertido y para no crear un duplicado, no
+     para nada más. */
+  api.list('customers',{select:CLIENTE_COLS,order:'name',ascending:true}),
+  CRM.referenciales(),
+  CRM.comerciales(),
+ ]);
+ if(l.error)throw l.error;
+ leads=l.data||[];
+ clientes=c.error?[]:(c.data||[]);
+ origenes=(r&&r.origenes)||[];
+ gente=g||[];
+ await quienSoy();
+}
+
+/* ---- presentación ---- */
+function nombre(l){
+ const p=[l.first_name,l.last_name].filter(Boolean).join(' ').trim();
+ return String(l.company||'').trim()||p||'(sin nombre)';
+}
+function subtitulo(l){
+ const p=[l.first_name,l.last_name].filter(Boolean).join(' ').trim();
+ if(l.company&&p)return p+(l.job_title?' · '+l.job_title:'');
+ return l.job_title||'';
+}
+function vencido(iso){const d=new Date(iso);return !isNaN(d.getTime())&&d.getTime()<Date.now()}
+function clienteDe(l){return l.converted_customer_id?clientes.find(c=>String(c.id)===String(l.converted_customer_id))||null:null}
+
+
+/* ---- lista ---- */
+function visibles(){
+ const arch=!!(window.GamaArchive&&window.GamaArchive.mode('crmLeads')==='archived');
+ let r=leads.filter(l=>(l.active===false)===arch);
+ if(filtro)r=r.filter(l=>String(l.status)===filtro);
+ const t=terms(busca);
+ if(t.length)r=r.filter(l=>{
+  const h=norm([nombre(l),l.first_name,l.last_name,l.email,l.phone,l.city,l.industry].join(' '));
+  return t.every(x=>h.includes(x));
+ });
+ return window.GamaSort?window.GamaSort.apply('crmLeads',r,{
+  nombre:l=>nombre(l),
+  estado:l=>ESTADOS[l.status]||l.status||'',
+  prioridad:l=>({alta:3,media:2,baja:1})[l.priority]||0,
+  puntos:l=>Number(l.score||0),
+  responsable:l=>CRM.nombreDe(l.owner_id,gente),
+  ciudad:l=>l.city||'',
+  seguimiento:l=>l.next_followup_at||'',
+ }):r;
+}
+function lista(){
+ const nActivos=leads.filter(l=>l.active!==false).length;
+ const nArch=leads.filter(l=>l.active===false).length;
+ const filas=visibles();
+ const pagina=window.GamaPage?window.GamaPage.slice('crmLeads',filas):filas;
+ return '<div class="arcPanel card">'
+  +'<div class="crmBar">'
+  +'<input id="crmLeadBusca" type="search" data-gi-placeholder=d57d8d9e854c placeholder="Buscar por nombre, correo, teléfono o ciudad…" value="'+esc(busca)+'" data-gi-aria-label=7daa3bc9f28f aria-label="Buscar prospectos">'
+  +'<select id="crmLeadFiltro" data-gama-nofind data-gi-aria-label=74580843ea91 aria-label="Filtrar por estado"><option value="" data-gi=ecda92faab01>Todos los estados</option>'
+  +Object.keys(ESTADOS).map(k=>'<option value="'+k+'"'+(filtro===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
+  +'</select>'
+  +'<button type="button" class="arcButton primary" id="crmLeadNuevo" data-gi=27a9a1faa814>Nuevo prospecto</button>'
+  +'</div>'
+  +(window.GamaArchive?window.GamaArchive.tabs('crmLeads',nActivos,nArch):'')
+  +tabla(pagina)+(filas.length?'':vacio(nActivos+nArch))
+  +(window.GamaPage?window.GamaPage.controls('crmLeads',filas.length):'')
+  +'</div>';
+}
+function vacio(total){
+ return '<div class="crmVacio">'+(total
+  ?'Ningún prospecto coincide con la búsqueda.'
+  :'Todavía no hay prospectos. Crea el primero con «Nuevo prospecto».')+'</div>';
+}
+function tabla(rows){
+ const th=(col,label,align)=>window.GamaSort?window.GamaSort.th('crmLeads',col,label,align):'<th>'+esc(label)+'</th>';
+ return '<div class="crmTablaWrap"><table class="arcTable crmTabla"><thead><tr>'
+  +th('nombre','Prospecto')+th('estado','Estado')+th('prioridad','Prioridad')
+  +th('puntos','Puntos','right')+th('responsable','Responsable')+th('ciudad','Ciudad')
+  +th('seguimiento','Próximo paso')+'<th></th></tr></thead><tbody>'
+  +rows.map(fila).join('')+'</tbody></table></div>';
+}
+function fila(l){
+ const sub=subtitulo(l),cli=clienteDe(l);
+ return '<tr>'
+  +'<td><b>'+esc(nombre(l))+'</b>'
+   +(sub?'<small class="crmSub">'+esc(sub)+'</small>':'')
+   +(l.email?'<small class="crmSub">'+esc(l.email)+'</small>':'')
+   +(cli?'<small class="crmSub crmLink">→ cliente '+esc(cli.name)+'</small>':'')
+  +'</td>'
+  +'<td><span class="crmEstado e-'+esc(l.status)+'">'+esc(ESTADOS[l.status]||l.status)+'</span></td>'
+  +'<td><span class="crmPri p-'+esc(l.priority)+'">'+esc(PRIORIDADES[l.priority]||l.priority)+'</span></td>'
+  +'<td class="r">'+Number(l.score||0)+'</td>'
+  +'<td>'+esc(CRM.nombreDe(l.owner_id,gente))+'</td>'
+  +'<td>'+esc(l.city||'—')+'</td>'
+  +'<td>'+(l.next_followup_at?esc(fecha(l.next_followup_at))+(vencido(l.next_followup_at)?' <span class="crmTarde" data-gi=0fac49727df0>vencido</span>':''):'—')+'</td>'
+  +'<td class="crmAcc">'
+   +'<button class="arcButton" type="button" data-abrir="'+esc(l.id)+'" data-gi=a01a5fce396e>Abrir</button>'
+   +(l.active!==false&&l.status!=='convertido'?'<button type="button" class="arcButton primary" data-convertir="'+esc(l.id)+'" data-gi=f6be98ab4faa>Convertir</button>':'')
+   +(l.active!==false
+     ?'<button class="arcButton" type="button" data-archivar="'+esc(l.id)+'" data-gi-title=20eb91351a6a title="Archivar prospecto" data-gi=f35f9141f442>Archivar</button>'
+     :'<button class="arcButton" type="button" data-restaurar="'+esc(l.id)+'" data-gi-title=d622e6ad49e9 title="Restaurar prospecto" data-gi=eda02893d340>Restaurar</button>')
+  +'</td></tr>';
+}
+
+/* ---- ficha ---- */
+function nuevo(){return {kind:'empresa',status:'nuevo',priority:'media',score:0,active:true,owner_id:mi||null}}
+
+function ficha(){
+ const l=abierto||{},esNuevo=!l.id,cli=clienteDe(l);
+ return '<div class="arcPanel card">'
+  +'<h3>'+(esNuevo?'Nuevo prospecto':esc(nombre(l)))+'</h3>'
+  +(cli?'<div class="crmAviso" data-gi=21c3f52c58af>Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
+    +(l.converted_at?' el '+esc(fecha(l.converted_at)):'')
+    +'. Lo comercial se lleva desde su ficha de cliente; aquí queda el rastro de dónde salió.</div>':'')
+  +'<div class="crmForm">'
+   +campoSelect('crmLKind','Tipo',TIPOS,l.kind||'empresa')
+   +campo('crmLCompany','Empresa',l.company)
+   +campo('crmLFirst','Nombre',l.first_name)
+   +campo('crmLLast','Apellidos',l.last_name)
+   +campo('crmLJob','Cargo',l.job_title)
+   +campo('crmLEmail','Correo',l.email,'email')
+   +campo('crmLPhone','Teléfono',l.phone,'tel')
+   +campo('crmLPhone2','Otro teléfono',l.phone2,'tel')
+   +campo('crmLAddress','Dirección',l.address)
+   +campo('crmLCity','Ciudad',l.city)
+   +campo('crmLCountry','País',l.country)
+   +campo('crmLWeb','Sitio web',l.website)
+   +campo('crmLIndustry','Sector',l.industry)
+   +campo('crmLSize','Tamaño',l.company_size)
+   +'<div><label for="crmLSource" data-gi=167a940c6278>Origen</label><select id="crmLSource">'+opciones(origenes.map(o=>[o.id,o.name]),l.source_id,'',true)+'</select></div>'
+   +'<div><label for="crmLOwner" data-gi=62c1aec4ffc8>Responsable</label><select id="crmLOwner">'+opciones(gente.map(p=>[p.id,p.full_name||p.email]),l.owner_id)+'</select></div>'
+   /* Un prospecto ya convertido no enseña desplegable de estado: la base sólo
+      acepta «convertido» acompañado del cliente creado, y ofrecerlo aquí sería
+      ofrecer un guardado que va a fallar. */
+   +(l.status==='convertido'
+     ?'<div><label for="crmLStatusRO" data-gi=98e5acddb6c4>Estado</label><input id="crmLStatusRO" value="Convertido" readonly aria-readonly="true"></div>'
+     :'<div><label for="crmLStatus" data-gi=98e5acddb6c4>Estado</label><select id="crmLStatus" data-gama-nofind>'
+      +ESTADOS_EDITABLES.map(k=>'<option value="'+k+'"'+((l.status||'nuevo')===k?' selected':'')+'>'+esc(ESTADOS[k])+'</option>').join('')
+      +'</select></div>')
+   +'<div><label for="crmLPriority" data-gi=dbae0b2a1a74>Prioridad</label><select id="crmLPriority" data-gama-nofind>'
+    +Object.keys(PRIORIDADES).map(k=>'<option value="'+k+'"'+((l.priority||'media')===k?' selected':'')+'>'+esc(PRIORIDADES[k])+'</option>').join('')
+    +'</select></div>'
+   +'<div><label for="crmLScore" data-gi=41b4c45c9de6>Puntuación (0–100)</label><input id="crmLScore" type="number" min="0" max="100" step="1" value="'+Number(l.score||0)+'"></div>'
+   +'<div><label for="crmLNext" data-gi=a6e615d30d6f>Próximo seguimiento</label><input id="crmLNext" type="datetime-local" value="'+esc(paraInput(l.next_followup_at))+'"></div>'
+  +'</div>'
+  +'<div class="crmNotas"><label for="crmLNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmLNotes" rows="4">'+esc(l.notes||'')+'</textarea></div>'
+  +'<div class="crmAcciones">'
+   +'<button type="button" class="arcButton primary" id="crmLGuardar" data-gi=13e51a210f45>Guardar</button>'
+   +'<button class="arcButton" type="button" id="crmLCancelar" data-gi=bb9dbb406dcb>Cancelar</button>'
+   +(!esNuevo&&l.status!=='convertido'&&l.active!==false?'<button class="arcButton" type="button" id="crmLConvertir" data-gi=80cb06b598bb>Convertir en cliente</button>':'')
+  +'</div></div>';
+}
+function leerFicha(){
+ const d={
+  kind:val('crmLKind')||'empresa',
+  company:nulo(val('crmLCompany')),
+  first_name:nulo(val('crmLFirst')),
+  last_name:nulo(val('crmLLast')),
+  job_title:nulo(val('crmLJob')),
+  email:nulo(val('crmLEmail')),
+  phone:nulo(val('crmLPhone')),
+  phone2:nulo(val('crmLPhone2')),
+  address:nulo(val('crmLAddress')),
+  city:nulo(val('crmLCity')),
+  country:nulo(val('crmLCountry')),
+  website:nulo(val('crmLWeb')),
+  industry:nulo(val('crmLIndustry')),
+  company_size:nulo(val('crmLSize')),
+  source_id:nulo(val('crmLSource')),
+  owner_id:nulo(val('crmLOwner')),
+  priority:val('crmLPriority')||'media',
+  next_followup_at:desdeInput(val('crmLNext')),
+  notes:nulo(val('crmLNotes')),
+ };
+ /* El estado sólo se envía cuando se pudo elegir. Mandarlo a ciegas en una
+    ficha convertida reescribiría el estado que la conversión dejó puesto. */
+ if($('crmLStatus'))d.status=$('crmLStatus').value;
+ const p=parseInt(val('crmLScore'),10);
+ d.score=Number.isFinite(p)?Math.min(100,Math.max(0,p)):0;
+ if(!(d.company||d.last_name||d.first_name)){msg('Un prospecto necesita al menos una empresa, un nombre o unos apellidos.','err');return null}
+ return d;
+}
+
+/* ---- conversión ---- */
+/* Antes de crear una segunda ficha de la misma empresa se mira si ya está.
+   Se compara por correo y por identificación, que son lo único que de verdad
+   identifica: dos «Comercial Andina S.A.» pueden ser dos empresas distintas. */
+function coincidencia(email,ident){
+ const em=norm(email),id=clave(ident);
+ return clientes.find(c=>c.active!==false&&(
+  (!!em&&norm(c.email)===em)||(!!id&&clave(c.identification)===id)))||null;
+}
+/* Lo que el usuario ha tecleado en el formulario de conversión. Existe porque
+   avisar de un duplicado obliga a repintar, y repintar desde el prospecto le
+   borraría el RUC que acababa de escribir. */
+function leerConversion(){
+ return {name:val('crmCName'),identification:val('crmCId'),category:val('crmCCat')||'A',
+  email:val('crmCEmail'),phone:val('crmCPhone'),address:val('crmCAddress'),
+  city:val('crmCCity'),province:val('crmCProv'),notes:val('crmCNotes')};
+}
+function desdeProspecto(l){
+ return {name:nombre(l),identification:'',category:'A',email:l.email||'',phone:l.phone||'',
+  address:l.address||'',city:l.city||'',province:'',notes:l.notes||''};
+}
+function convertir(){
+ const l=abierto||{},d=borrador||desdeProspecto(l);
+ /* Una vez que el usuario ha dicho que sí quiere otra ficha, el aviso sobra:
+    dejarlo puesto haría dudar de si el botón sirvió de algo. */
+ const dup=forzar?null:coincidencia(d.email,d.identification);
+ return '<div class="arcPanel card">'
+  +'<h3>Convertir «'+esc(nombre(l))+'» en cliente</h3>'
+  +'<p class="muted">Se crea una ficha en Clientes con estos datos y el prospecto queda apuntando a ella. '
+  +'A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</p>'
+  +(dup?'<div class="crmAviso crmDup" data-gi=7c5a74355dd5>Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
+    +(dup.identification?' ('+esc(dup.identification)+')':'')+'. Enlázalo en vez de abrir otra ficha de la misma empresa.'
+    +'<div class="crmAcciones"><button type="button" class="arcButton primary" data-enlazar="'+esc(dup.id)+'" data-gi=558052cf6335>Enlazar con este cliente</button>'
+    +'<button class="arcButton" type="button" id="crmCForzar" data-gi=ee7e3dc7f20d>Crear otra ficha de todas formas</button></div></div>':'')
+  +'<div class="crmForm">'
+   +campo('crmCName','Nombre del cliente',d.name)
+   +campo('crmCId','Identificación (RUC / cédula)',d.identification)
+   +'<div><label for="crmCCat" data-gi=558bb20a82ed>Categoría</label><select id="crmCCat" data-gama-nofind>'
+    +CATEGORIAS.map(c=>'<option value="'+c[0]+'"'+(d.category===c[0]?' selected':'')+'>'+esc(c[1])+'</option>').join('')+'</select></div>'
+   +campo('crmCEmail','Correo',d.email,'email')
+   +campo('crmCPhone','Teléfono',d.phone,'tel')
+   +campo('crmCAddress','Dirección',d.address)
+   +campo('crmCCity','Ciudad',d.city)
+   +campo('crmCProv','Provincia',d.province)
+  +'</div>'
+  +'<div class="crmNotas"><label for="crmCNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmCNotes" rows="3">'+esc(d.notes||'')+'</textarea></div>'
+  +'<div class="crmAcciones">'
+   +'<button type="button" class="arcButton primary" id="crmCOk" data-gi=dad1994d204f>Crear el cliente</button>'
+   +'<button class="arcButton" type="button" id="crmCCancel" data-gi=bb9dbb406dcb>Cancelar</button>'
+  +'</div></div>';
+}
+async function convertirYa(existente){
+ const l=abierto;
+ if(!l||!l.id)return;
+ try{
+  let clienteId=existente||null;
+  if(!clienteId){
+   const nom=val('crmCName');
+   if(!nom){msg('El cliente necesita un nombre.','err');return}
+   const ident=nulo(val('crmCId')),correo=nulo(val('crmCEmail'));
+   if(coincidencia(correo,ident)&&!forzar){
+    borrador=leerConversion();
+    pintar('Ya hay un cliente con esos datos. Enlázalo, o confirma que quieres otra ficha.','err');
+    return;
+   }
+   /* owner_id, source_id y crm_score son las tres columnas que el CRM añadió a
+      customers: el cliente nace sabiendo quién lo trajo y de dónde salió. */
+   const r=await C().insert('customers',{
+    name:nom,identification:ident,email:correo,
+    phone:nulo(val('crmCPhone')),address:nulo(val('crmCAddress')),
+    city:nulo(val('crmCCity')),province:nulo(val('crmCProv')),
+    notes:nulo(val('crmCNotes')),category:val('crmCCat')||'A',active:true,
+    owner_id:l.owner_id||null,source_id:l.source_id||null,crm_score:Number(l.score||0),
+   });
+   if(r.error)throw r.error;
+   clienteId=r.data&&r.data.id;
+   if(!clienteId)throw new Error('La nube no devolvió el cliente creado.');
+  }
+  const u=await C().update('crm_leads',l.id,{status:'convertido',converted_customer_id:clienteId,converted_at:new Date().toISOString()});
+  /* Si el cliente se creó y el prospecto no se pudo marcar, hay que decirlo
+     con esas palabras: repetir la conversión a ciegas abriría una segunda
+     ficha del mismo cliente, que es justo lo que se quería evitar. */
+  if(u.error)throw new Error('El cliente se creó, pero el prospecto no se pudo marcar como convertido ('+(u.error.message||u.error)+'). Enlázalo desde aquí en vez de convertirlo otra vez.');
+  await cargar();
+  vista='lista';abierto=null;forzar=false;borrador=null;
+  pintar(existente?'Prospecto enlazado con el cliente.':'Cliente creado y prospecto convertido.','ok');
+ }catch(e){fallo(e,'No se pudo convertir el prospecto')}
+}
+
+/* ---- acciones ---- */
+async function abrir(id,comoConversion){
+ try{
+  const r=await C().list('crm_leads',{select:FICHA,eq:{id:id},limit:1});
+  if(r.error)throw r.error;
+  const l=(r.data||[])[0];
+  if(!l){msg('Ese prospecto ya no existe.','err');return}
+  abierto=l;forzar=false;borrador=null;puntos=null;
+  vista=comoConversion?'convertir':'ficha';
+  /* El desglose se calcula al abrir UNA ficha y no en la lista: son varias
+     consultas por prospecto, y en una lista de mil serían miles. */
+  if(!comoConversion&&CRM.puntuacion){
+   try{puntos=await CRM.puntuacion.calcular(l)}catch(e){console.warn('[GAMA CRM Prospectos] puntuación',e)}
+  }
+  pintar();
+ }catch(e){fallo(e,'No se pudo abrir el prospecto')}
+}
+async function guardar(){
+ const d=leerFicha();
+ if(!d)return;
+ try{
+  let r;
+  if(abierto&&abierto.id)r=await C().update('crm_leads',abierto.id,d);
+  else{d.created_by=await quienSoy();d.active=true;r=await C().insert('crm_leads',d)}
+  if(r.error)throw r.error;
+  await cargar();
+  vista='lista';abierto=null;
+  pintar('Prospecto guardado.','ok');
+ }catch(e){fallo(e,'No se pudo guardar el prospecto')}
+}
+/* Archivar y no borrar: un prospecto convertido cuelga de un cliente y borrarlo
+   perdería de dónde salió. Es la misma regla que en el resto de GAMA. */
+async function archivar(id,activo){
+ try{
+  const r=await C().update('crm_leads',id,{active:activo});
+  if(r.error)throw r.error;
+  await cargar();
+  pintar(activo?'Prospecto restaurado.':'Prospecto archivado.','ok');
+ }catch(e){fallo(e,'No se pudo archivar el prospecto')}
+}
+
+/* ---- pintar y conectar ---- */
+function pintar(aviso,tipo){
+ const s=CRM.section();
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>'
+  +(vista==='ficha'?ficha()+(puntos&&CRM.puntuacion?CRM.puntuacion.panel(puntos):'')
+    :vista==='convertir'?convertir():lista()));
+ CRM.bind(s);
+ conectar();
+ if(aviso)msg(aviso,tipo);
+}
+function conectar(){
+ const s=CRM.section();
+ const b=$('crmLeadBusca');
+ if(b)b.oninput=()=>{
+  busca=b.value;
+  if(window.GamaPage)window.GamaPage.reset('crmLeads');
+  pintar();
+  /* Repintar la lista se lleva por delante el campo donde se estaba
+     escribiendo, así que se devuelve el foco y el cursor al final. */
+  const n=$('crmLeadBusca');
+  if(n){n.focus();try{n.setSelectionRange(n.value.length,n.value.length)}catch(e){}}
+ };
+ const f=$('crmLeadFiltro');
+ if(f)f.onchange=()=>{filtro=f.value;if(window.GamaPage)window.GamaPage.reset('crmLeads');pintar()};
+ const nv=$('crmLeadNuevo');
+ if(nv)nv.onclick=()=>{abierto=nuevo();vista='ficha';pintar()};
+ s.querySelectorAll('[data-abrir]').forEach(x=>{x.onclick=()=>abrir(x.dataset.abrir,false)});
+ s.querySelectorAll('[data-convertir]').forEach(x=>{x.onclick=()=>abrir(x.dataset.convertir,true)});
+ s.querySelectorAll('[data-archivar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.archivar,false)});
+ s.querySelectorAll('[data-restaurar]').forEach(x=>{x.onclick=()=>archivar(x.dataset.restaurar,true)});
+ s.querySelectorAll('[data-enlazar]').forEach(x=>{x.onclick=()=>convertirYa(x.dataset.enlazar)});
+ const g=$('crmLGuardar');if(g)g.onclick=guardar;
+ const ca=$('crmLCancelar');if(ca)ca.onclick=()=>{vista='lista';abierto=null;pintar()};
+ const cv=$('crmLConvertir');if(cv)cv.onclick=()=>{forzar=false;borrador=null;vista='convertir';pintar()};
+ const ok=$('crmCOk');if(ok)ok.onclick=()=>convertirYa(null);
+ const cc=$('crmCCancel');if(cc)cc.onclick=()=>{vista='lista';abierto=null;forzar=false;borrador=null;pintar()};
+ const ap=$('crmPtsAplicar');
+ if(ap)ap.onclick=async()=>{
+  try{
+   await CRM.puntuacion.guardar(abierto,puntos.total);
+   /* La puntuación vive en la ficha, así que el campo de la pantalla tiene que
+      enseñar lo mismo que se acaba de guardar. */
+   const c=$('crmLScore');if(c)c.value=puntos.total;
+   if(abierto)abierto.score=puntos.total;
+   await cargar();
+   msg('Puntuación guardada: '+puntos.total+' de 100.','ok');
+  }catch(e){fallo(e,'No se pudo guardar la puntuación')}
+ };
+ const fz=$('crmCForzar');if(fz)fz.onclick=()=>{borrador=leerConversion();forzar=true;pintar('De acuerdo: se creará una ficha nueva con lo que has escrito.','ok')};
+}
+function css(){ /* Styles are compiled in architect-components.css. */ }
+
+async function abrirPantalla(){
+ CRM.css();css();
+ const s=CRM.section();
+ if(cargando)return;cargando=true;
+ window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div class="arcPanel card"><div class="crmVacio" data-gi=55799a3fc6c5>Cargando prospectos…</div></div>');
+ CRM.bind(s);
+ try{
+  await cargar();
+  vista='lista';abierto=null;forzar=false;borrador=null;puntos=null;
+  pintar();
+ }catch(e){
+  window.ArcUI.render(s,CRM.cabecera(LEAD)+'<div id="crmMsg" class="crmMsg"></div>');
+  CRM.bind(s);
+  fallo(e,'No se pudieron cargar los prospectos');
+ }finally{cargando=false}
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+if(window.GamaPage)window.GamaPage.register('crmLeads',()=>pintar());
+if(window.GamaSort)window.GamaSort.register('crmLeads',()=>pintar());
+if(window.GamaArchive)window.GamaArchive.register('crmLeads',()=>pintar());
+CRM.registrar('prospectos','Prospectos',abrirPantalla);
+window.GamaCRMLeads={open:abrirPantalla};
+})();

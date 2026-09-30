@@ -1,0 +1,3 @@
+/* gama-standard-ui.js */
+select,input,textarea,button{pointer-events:auto!important}select{position:relative!important;z-index:20!important;touch-action:manipulation!important}.gamaSpin{display:inline-block;width:13px;height:13px;border:2px solid var(--arc-line);border-top-color:var(--arc-accent-600);border-radius:50%;animation:gamaSpinRotate .7s linear infinite;vertical-align:-2px;margin-right:7px}@keyframes gamaSpinRotate{to{transform:rotate(360deg)}}
+

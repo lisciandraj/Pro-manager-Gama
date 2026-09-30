@@ -1,0 +1,150 @@
+@font-face{font-family:Inter;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
+/* COCO ERP — Design tokens.
+
+   Una sola fuente para el color, el espacio, el radio, la sombra y la
+   tipografía de toda la aplicación. Ningún módulo debería volver a escribir
+   un #RRGGBB: si un tono no está aquí, es que falta aquí.
+
+   La paleta viene del logo de Coco ERP. La navegación va sobre blanco, el
+   fondo para el que está dibujado el logo, con los enlaces en el azul
+   noche de la visera del robot, que también viste las cabeceras oscuras y
+   el fondo de la conexión; un índigo grisáceo para lo secundario, blanco
+   para las superficies de trabajo, un gris azulado muy claro para el
+   lienzo —los grises tiran al mismo tono que el azul—, y el azul del
+   robot, oscurecido hasta leerse bien, para lo que se puede pulsar. Las
+   cuatro letras de COCO —azul, violeta, turquesa y naranja— son las únicas
+   familias de color: una por dominio (pilotaje, ventas, stock y logística,
+   administración). Los colores funcionales se usan con cuentagotas y nunca solos:
+   siempre acompañados de un texto o de un icono, porque el color por sí
+   mismo no informa a quien no lo distingue. */
+:root{
+ /* ------------------------------------------- las cuatro letras de COCO */
+ --arc-coco-blue:#157F98;    /* C — el robot */
+ --arc-coco-violet:#D45C0B;  /* O */
+ --arc-coco-teal:#238FA4;    /* C */
+ --arc-coco-orange:#F87826;  /* O */
+ /* Las mismas oscurecidas lo justo para leerse como texto (≥4.5:1 sobre blanco). */
+ --arc-coco-blue-text:#10677D;   --arc-coco-violet-text:#D45C0B;
+ --arc-coco-teal-text:#10677D;   --arc-coco-orange-text:#AD4508;
+
+ /* ---------------------------------------------------------------- marca */
+ --arc-navy-900:#103B52;   /* azul noche: la visera del robot (#293051) */
+ --arc-navy-800:#0B3045;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#24495A;   /* enlaces de la navegación — 10.8:1 sobre blanco */
+ --arc-navy-600:#10677D;   /* 8.8:1 con texto blanco */
+ --arc-steel-600:#496575;  /* índigo grisáceo: elementos secundarios */
+ --arc-steel-500:#617C8A;
+ --arc-steel-400:#89A2AD;
+ --arc-steel-300:#C4D5DD;
+
+ /* ------------------------------------------------------------- acciones */
+ --arc-accent-700:#0C556B;
+ --arc-accent-600:#10677D;  /* acción principal: el azul del robot — 5.9:1 sobre blanco, 5.2:1 sobre el lienzo */
+ --arc-accent-500:#157F98;  /* el azul del logo, para lo decorativo */
+ --arc-accent-400:#70B7C6;
+ --arc-accent-100:#E7F3F6;
+ --arc-accent-50:#F3F9FA;
+
+ /* ------------------------------------------------------ neutros y fondo */
+ --arc-canvas:#F3F7F9;      /* clear separation from white working surfaces */
+ --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
+ --arc-surface-2:#F5F8FA;   /* superficie hundida: cabeceras de tabla, zonas */
+ --arc-surface-3:#EDF3F6;
+ --arc-line:#BEC5D3;        /* visible shared separators */
+ --arc-line-strong:#8A95A8; /* fields and stronger boundaries */
+
+ --arc-text:#0B172A;        /* texto principal — 13.9:1 sobre blanco */
+ --arc-text-muted:#4F5C78;  /* texto secundario — 6.7:1 sobre blanco, AA en todas las superficies */
+ --arc-text-subtle:#5B6883; /* pies de foto, ayudas — 5.6:1 sobre blanco, 4.9:1 sobre el lienzo */
+ --arc-text-invert:#FFFFFF;
+ --arc-text-on-navy:#DDEEF2; /* texto sobre el azul noche — 9.8:1 */
+
+ /* --------------------------------------------------------- funcionales */
+ --arc-success:#0D7446;   --arc-success-bg:#E4F5EC;   --arc-success-line:#A9DCC3;
+ --arc-warning:#9A5B00;   --arc-warning-bg:#FDF1DF;   --arc-warning-line:#F0CE94;
+ --arc-danger:#B3261E;    --arc-danger-bg:#FCE9E7;    --arc-danger-line:#F3BDB8;
+ --arc-info:#0C556B;      --arc-info-bg:#E7F3F6;      --arc-info-line:#B6DCE5;
+
+ /* Familias de los módulos: una letra de COCO por dominio, en su tono legible. */
+ --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E7F3F6;   /* C azul: pilotaje */
+ --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#FFF0E6;       /* O violeta: ventas y clientes */
+ --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E7F3F6;   /* C turquesa: stock, compras y logística */
+ --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E7F3F6;
+ --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF0E6;     /* O naranja: administración */
+ --arc-fam-people:var(--arc-coco-orange-text);    --arc-fam-people-bg:#FFF0E6;
+ --arc-fam-system:var(--arc-coco-orange-text);    --arc-fam-system-bg:#FFF0E6;
+
+ /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
+    solas: toda serie lleva su etiqueta y su cifra al lado. */
+ --arc-viz-1:#157F98; --arc-viz-2:#D45C0B; --arc-viz-3:#238FA4;
+ --arc-viz-4:#AD4508; --arc-viz-5:#103B52; --arc-viz-6:#B3261E;
+
+ /* ------------------------------------------------------------- espacio */
+ --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
+ --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
+
+ /* -------------------------------------------------------------- radios */
+ --arc-r-sm:8px; --arc-r-md:10px; --arc-r-lg:12px; --arc-r-xl:16px; --arc-r-pill:999px;
+
+ /* ------------------------------------------------------------- sombras */
+ --arc-sh-1:0 1px 2px rgba(31,36,66,.06), 0 1px 3px rgba(31,36,66,.05);
+ --arc-sh-2:0 2px 4px rgba(31,36,66,.06), 0 4px 12px rgba(31,36,66,.06);
+ --arc-sh-3:0 8px 24px rgba(31,36,66,.10), 0 2px 6px rgba(31,36,66,.06);
+ --arc-sh-nav:0 1px 3px rgba(31,36,66,.08);
+
+ /* ---------------------------------------------------------- tipografía */
+ --arc-font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+ --arc-fs-page:clamp(28px,3vw,40px);   --arc-lh-page:1.2;    /* título de página */
+ --arc-fs-section:18px;--arc-lh-section:1.3; /* título de sección */
+ --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
+ --arc-fs-body:14px;   --arc-lh-body:1.55;
+ --arc-fs-sec:13px;    --arc-lh-sec:1.5;     /* texto secundario */
+ --arc-fs-cap:12px;    --arc-lh-cap:1.45;    /* pie, etiqueta */
+ --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:700; --arc-fw-black:800;
+
+ /* ---------------------------------------------------------- estructura */
+ --arc-sidebar-w:clamp(192px,16.75vw,240px);
+ --arc-sidebar-w-collapsed:72px;
+ --arc-topbar-h:70px;
+ --arc-tap:44px;            /* zona táctil mínima */
+ --arc-focus:0 0 0 3px rgba(21,127,152,.35);
+ --arc-content-max:1600px;
+}
+
+/* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
+   recibe. */
+@media (prefers-reduced-motion:reduce){
+ :root{--arc-motion:0ms}
+ *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+:root{--arc-motion:160ms}
+
+/* Public semantic aliases. Sampled from the supplied 1145 × 1374 reference. */
+:root{
+ --color-primary:var(--arc-accent-600);--color-primary-dark:var(--arc-accent-700);
+ --color-accent:var(--arc-accent-600);--color-background:var(--arc-canvas);
+ --color-surface:var(--arc-surface);--color-border:var(--arc-line);
+ --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
+ --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
+ --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
+ --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
+ /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
+ --arc-tile-border:#ABB2C0;--arc-tile-border-bottom:#8A95A8;
+ --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(31,36,66,.14),0 5px 12px rgba(31,36,66,.12);
+ --arc-tile-border-hover:#6F7B93;
+ --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(31,36,66,.16),0 8px 18px rgba(31,36,66,.18);
+ --arc-control-shadow:0 1px 0 rgba(31,36,66,.15),0 2px 5px rgba(31,36,66,.10);
+ --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
+ /* Iconos de los módulos: las cuatro letras de COCO. Azul y violeta van tal
+    cual; turquesa y naranja, oscurecidos lo justo para ≥3:1 sobre su fondo. */
+ --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;
+ --arc-icon-violet:#D45C0B;--arc-icon-violet-bg:#FFF0E6;
+ --arc-icon-teal:#238FA4;--arc-icon-teal-bg:#E7F3F6;
+ --arc-icon-orange:#AD4508;--arc-icon-orange-bg:#FFF0E6;
+ /* Nombres anteriores: cada uno cae en una de las cuatro. */
+ --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);
+ --arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
+ --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);
+ --arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);
+ --arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
+}

@@ -42,9 +42,11 @@ test.describe('Guardarraíl de rendimiento', () => {
     expect(cb).toBeLessThan(300);   // was 551
   });
 
-  test('index.html keeps a single scanner-cleanup block', async () => {
-    const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  test('scanner cleanup has one canonical source and no whole-page observer', async () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', 'src/legacy/product-scanner.js'), 'utf8');
     const copies = html.split('function cleanup(){').length - 1;
     expect(copies).toBe(1);
+    expect(html).not.toContain('new MutationObserver');
+    expect(html).toContain('arc:module-rendered');
   });
 });

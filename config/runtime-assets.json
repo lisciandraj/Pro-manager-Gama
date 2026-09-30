@@ -1,0 +1,542 @@
+{
+  "scripts": [
+    {
+      "source": "src/features/access/access-controls.js",
+      "output": "architect-access-controls.js"
+    },
+    {
+      "source": "src/features/audit/audit-controls.js",
+      "output": "architect-audit-controls.js"
+    },
+    {
+      "source": "src/features/audit/audit.js",
+      "output": "architect-audit.js"
+    },
+    {
+      "source": "src/features/inventory/barcode-controls.js",
+      "output": "architect-barcode-controls.js"
+    },
+    {
+      "source": "src/ui/controls.js",
+      "output": "architect-controls.js"
+    },
+    {
+      "source": "src/features/dashboard/dashboard.js",
+      "output": "architect-dashboard.js"
+    },
+    {
+      "source": "src/features/finance/finance-controls.js",
+      "output": "architect-finance-controls.js"
+    },
+    {
+      "source": "src/features/dashboard/home-kpis.js",
+      "output": "architect-home-kpis.js"
+    },
+    {
+      "source": "src/ui/home-order.js",
+      "output": "architect-home-order.js"
+    },
+    {
+      "source": "src/features/access/identity.js",
+      "output": "architect-identity.js"
+    },
+    {
+      "source": "src/features/dashboard/kpi-catalog.js",
+      "output": "architect-kpi-catalog.js"
+    },
+    {
+      "source": "src/features/inventory/lots.js",
+      "output": "architect-lots.js"
+    },
+    {
+      "source": "src/features/transport/offline-proofs.js",
+      "output": "architect-offline-proofs.js"
+    },
+    {
+      "source": "src/features/contacts/partners.js",
+      "output": "architect-partners.js"
+    },
+    {
+      "source": "src/features/hr/people.js",
+      "output": "architect-people.js"
+    },
+    {
+      "source": "src/features/finance/pricing.js",
+      "output": "architect-pricing.js"
+    },
+    {
+      "source": "src/features/inventory/products-controls.js",
+      "output": "architect-products-controls.js"
+    },
+    {
+      "source": "src/features/projects/project-controls.js",
+      "output": "architect-project-controls.js"
+    },
+    {
+      "source": "src/features/recovery/recovery.js",
+      "output": "architect-recovery.js"
+    },
+    {
+      "source": "src/features/service/service-products.js",
+      "output": "architect-service-products.js"
+    },
+    {
+      "source": "src/features/service/service-workflows.js",
+      "output": "architect-service-workflows.js"
+    },
+    {
+      "source": "src/ui/shell.js",
+      "output": "architect-shell.js"
+    },
+    {
+      "source": "src/features/purchasing/sourcing.js",
+      "output": "architect-sourcing.js"
+    },
+    {
+      "source": "src/features/inventory/stock-controls.js",
+      "output": "architect-stock-controls.js"
+    },
+    {
+      "source": "src/features/transport/transport-controls.js",
+      "output": "architect-transport-controls.js"
+    },
+    {
+      "source": "src/features/access/access-control.js",
+      "output": "gama-access-control.js"
+    },
+    {
+      "source": "src/features/finance/accounting.js",
+      "output": "gama-accounting.js"
+    },
+    {
+      "source": "src/ui/archive.js",
+      "output": "gama-archive.js"
+    },
+    {
+      "source": "src/features/intelligence/assistant-ia.js",
+      "output": "gama-assistant-ia.js"
+    },
+    {
+      "source": "src/data/central-sync.js",
+      "output": "gama-central-sync.js"
+    },
+    {
+      "source": "src/features/sales/client-catalog.js",
+      "output": "gama-client-catalog.js"
+    },
+    {
+      "source": "src/features/access/cloud-auth.js",
+      "output": "gama-cloud-auth.js"
+    },
+    {
+      "source": "src/data/cloud-products.js",
+      "output": "gama-cloud-products.js"
+    },
+    {
+      "source": "src/features/access/cloud-users.js",
+      "output": "gama-cloud-users.js"
+    },
+    {
+      "source": "src/features/company/company-core.js",
+      "output": "gama-company-core.js"
+    },
+    {
+      "source": "src/features/company/settings.js",
+      "output": "gama-company.js"
+    },
+    {
+      "source": "src/features/contacts/contacts.js",
+      "output": "gama-contacts.js"
+    },
+    {
+      "source": "src/features/crm/crm-activities.js",
+      "output": "gama-crm-activities.js"
+    },
+    {
+      "source": "src/features/crm/crm-contacts.js",
+      "output": "gama-crm-contacts.js"
+    },
+    {
+      "source": "src/features/crm/crm-core.js",
+      "output": "gama-crm-core.js"
+    },
+    {
+      "source": "src/features/crm/crm-leads.js",
+      "output": "gama-crm-leads.js"
+    },
+    {
+      "source": "src/features/crm/crm-opportunities.js",
+      "output": "gama-crm-opportunities.js"
+    },
+    {
+      "source": "src/features/crm/crm-reports.js",
+      "output": "gama-crm-reports.js"
+    },
+    {
+      "source": "src/features/crm/crm-scoring.js",
+      "output": "gama-crm-scoring.js"
+    },
+    {
+      "source": "src/features/crm/crm-targets.js",
+      "output": "gama-crm-targets.js"
+    },
+    {
+      "source": "src/ui/currency.js",
+      "output": "gama-currency.js"
+    },
+    {
+      "source": "src/features/sales/customer-requests.js",
+      "output": "gama-customer-requests.js"
+    },
+    {
+      "source": "src/features/processes/dossier-flow.js",
+      "output": "gama-dossier-flow.js"
+    },
+    {
+      "source": "src/features/hr/employee-photos.js",
+      "output": "gama-employee-photos.js"
+    },
+    {
+      "source": "src/features/import-export/excel-export.js",
+      "output": "gama-excel-export.js"
+    },
+    {
+      "source": "src/features/import-export/import.js",
+      "output": "gama-excel-import-v1.js"
+    },
+    {
+      "source": "src/features/import-export/export-schema.js",
+      "output": "gama-export-schema.js"
+    },
+    {
+      "source": "src/ui/session-controls.js",
+      "output": "gama-fixed-header.js"
+    },
+    {
+      "source": "src/features/transport/fleet.js",
+      "output": "gama-fleet.js"
+    },
+    {
+      "source": "src/features/inventory/fulfillment.js",
+      "output": "gama-fulfillment.js"
+    },
+    {
+      "source": "src/ui/global-search-core.js",
+      "output": "gama-global-search-core.js"
+    },
+    {
+      "source": "src/ui/global-search.js",
+      "output": "gama-global-search.js"
+    },
+    {
+      "source": "src/features/hr/operations.js",
+      "output": "gama-hr-p1.js"
+    },
+    {
+      "source": "src/features/hr/workspace.js",
+      "output": "gama-hr.js"
+    },
+    {
+      "source": "src/ui/i18n.js",
+      "output": "gama-i18n.js"
+    },
+    {
+      "source": "src/features/sales/internal-invoices.js",
+      "output": "gama-internal-invoices.js"
+    },
+    {
+      "source": "src/features/inventory/workspace.js",
+      "output": "gama-inventory-v2.js"
+    },
+    {
+      "source": "src/features/sales/invoice-archive.js",
+      "output": "gama-invoice-archive.js"
+    },
+    {
+      "source": "src/features/knowledge/knowledge.js",
+      "output": "gama-knowledge.js"
+    },
+    {
+      "source": "src/ui/home-menu.js",
+      "output": "gama-menu-final2.js"
+    },
+    {
+      "source": "src/ui/modules.js",
+      "output": "gama-modules.js"
+    },
+    {
+      "source": "src/features/notifications/workspace.js",
+      "output": "gama-operations.js"
+    },
+    {
+      "source": "src/features/inventory/order-preparation.js",
+      "output": "gama-order-preparation.js"
+    },
+    {
+      "source": "src/ui/pagination.js",
+      "output": "gama-pagination.js"
+    },
+    {
+      "source": "src/features/sales/payments.js",
+      "output": "gama-payments.js"
+    },
+    {
+      "source": "src/features/documents/pdf-template.js",
+      "output": "gama-pdf-template.js"
+    },
+    {
+      "source": "src/features/documents/pdf.js",
+      "output": "gama-pdf.js"
+    },
+    {
+      "source": "src/features/documents/photos.js",
+      "output": "gama-photos.js"
+    },
+    {
+      "source": "src/features/sales/price-lists.js",
+      "output": "gama-price-lists.js"
+    },
+    {
+      "source": "src/features/projects/projects-core.js",
+      "output": "gama-projects-core.js"
+    },
+    {
+      "source": "src/features/projects/projects-i18n.js",
+      "output": "gama-projects-i18n.js"
+    },
+    {
+      "source": "src/features/projects/projects.js",
+      "output": "gama-projects.js"
+    },
+    {
+      "source": "src/features/sales/commercial-matrix.js",
+      "output": "gama-proveedores-matriz.js"
+    },
+    {
+      "source": "src/features/purchasing/purchase-order-pdf.js",
+      "output": "gama-purchase-order-pdf.js"
+    },
+    {
+      "source": "src/features/purchasing/purchases-supplier-bridge.js",
+      "output": "gama-purchases-supplier-bridge.js"
+    },
+    {
+      "source": "src/features/purchasing/workspace.js",
+      "output": "gama-purchases-v14.js"
+    },
+    {
+      "source": "src/features/sales/quote-pdf.js",
+      "output": "gama-quote-pdf.js"
+    },
+    {
+      "source": "src/features/sales/quotes.js",
+      "output": "gama-quotes.js"
+    },
+    {
+      "source": "src/data/references.js",
+      "output": "gama-references.js"
+    },
+    {
+      "source": "src/features/service/returns.js",
+      "output": "gama-returns.js"
+    },
+    {
+      "source": "src/features/access/role-access.js",
+      "output": "gama-role-access.js"
+    },
+    {
+      "source": "src/features/transport/bootstrap.js",
+      "output": "gama-role-spanish.js"
+    },
+    {
+      "source": "src/features/sales/sales-report.js",
+      "output": "gama-sales-report.js"
+    },
+    {
+      "source": "src/features/sales/sales.js",
+      "output": "gama-sales.js"
+    },
+    {
+      "source": "src/ui/scanner-phone.js",
+      "output": "gama-scanner-phone.js"
+    },
+    {
+      "source": "src/ui/select-search.js",
+      "output": "gama-select-search.js"
+    },
+    {
+      "source": "src/features/service/service-documents.js",
+      "output": "gama-service-documents.js"
+    },
+    {
+      "source": "src/ui/settings.js",
+      "output": "gama-settings.js"
+    },
+    {
+      "source": "src/features/website/site.js",
+      "output": "gama-site.js"
+    },
+    {
+      "source": "src/ui/sort.js",
+      "output": "gama-sort.js"
+    },
+    {
+      "source": "src/ui/standard-ui.js",
+      "output": "gama-standard-ui.js"
+    },
+    {
+      "source": "src/data/supabase.js",
+      "output": "gama-supabase.js"
+    },
+    {
+      "source": "src/ui/tables.js",
+      "output": "gama-tables.js"
+    },
+    {
+      "source": "src/features/transport/tms-loading.js",
+      "output": "gama-tms-loading.js"
+    },
+    {
+      "source": "src/features/transport/workspace.js",
+      "output": "gama-tms-module.js"
+    },
+    {
+      "source": "src/ui/toast.js",
+      "output": "gama-toast.js"
+    },
+    {
+      "source": "src/ui/ui.js",
+      "output": "gama-ui.js"
+    },
+    {
+      "source": "src/features/website/website.js",
+      "output": "gama-website.js"
+    },
+    {
+      "source": "src/legacy/pricing-and-photos.js",
+      "output": "coco-pricing-and-photos.js"
+    },
+    {
+      "source": "src/legacy/sort-fallback.js",
+      "output": "coco-sort-fallback.js"
+    },
+    {
+      "source": "src/legacy/archive-fallback.js",
+      "output": "coco-archive-fallback.js"
+    },
+    {
+      "source": "src/legacy/pagination-fallback.js",
+      "output": "coco-pagination-fallback.js"
+    },
+    {
+      "source": "src/legacy/workspace.js",
+      "output": "coco-workspace.js"
+    },
+    {
+      "source": "src/legacy/product-scanner.js",
+      "output": "coco-product-scanner.js"
+    }
+  ],
+  "styles": [
+    {
+      "source": "src/styles/home.css",
+      "output": "architect-home.css"
+    },
+    {
+      "source": "src/styles/kpis.css",
+      "output": "architect-kpis.css"
+    },
+    {
+      "source": "src/styles/shell.css",
+      "output": "architect-shell.css"
+    },
+    {
+      "source": "src/styles/tokens.css",
+      "output": "architect-tokens.css"
+    },
+    {
+      "source": "src/styles/ui.css",
+      "output": "architect-ui.css"
+    },
+    {
+      "source": "src/styles/assistant-ia.css",
+      "output": "gama-assistant-ia.css"
+    },
+    {
+      "source": "src/styles/company.css",
+      "output": "gama-company.css"
+    },
+    {
+      "source": "src/styles/design.css",
+      "output": "gama-design.css"
+    },
+    {
+      "source": "src/styles/excel-import.css",
+      "output": "gama-excel-import.css"
+    },
+    {
+      "source": "src/styles/global-search.css",
+      "output": "gama-global-search.css"
+    },
+    {
+      "source": "src/styles/projects.css",
+      "output": "gama-projects.css"
+    },
+    {
+      "source": "src/styles/site.css",
+      "output": "gama-site.css"
+    },
+    {
+      "source": "src/styles/website.css",
+      "output": "gama-website.css"
+    }
+  ],
+  "moduleStyles": [
+    "src/styles/modules/access-control.css",
+    "src/styles/modules/accounting.css",
+    "src/styles/modules/archive.css",
+    "src/styles/modules/client-catalog.css",
+    "src/styles/modules/cloud-auth.css",
+    "src/styles/modules/cloud-users.css",
+    "src/styles/modules/crm-activities.css",
+    "src/styles/modules/crm-contacts.css",
+    "src/styles/modules/crm-core.css",
+    "src/styles/modules/crm-leads.css",
+    "src/styles/modules/crm-opportunities.css",
+    "src/styles/modules/crm-reports.css",
+    "src/styles/modules/crm-targets.css",
+    "src/styles/modules/customer-requests.css",
+    "src/styles/modules/dossier-flow.css",
+    "src/styles/modules/excel-import.css",
+    "src/styles/modules/fixed-header.css",
+    "src/styles/modules/fleet.css",
+    "src/styles/modules/fulfillment.css",
+    "src/styles/modules/hr-operations.css",
+    "src/styles/modules/hr.css",
+    "src/styles/modules/i18n.css",
+    "src/styles/modules/inventory.css",
+    "src/styles/modules/invoice-archive.css",
+    "src/styles/modules/knowledge.css",
+    "src/styles/modules/operations.css",
+    "src/styles/modules/pagination.css",
+    "src/styles/modules/payments.css",
+    "src/styles/modules/price-lists.css",
+    "src/styles/modules/commercial-matrix.css",
+    "src/styles/modules/purchases.css",
+    "src/styles/modules/quote-pdf.css",
+    "src/styles/modules/quotes.css",
+    "src/styles/modules/returns.css",
+    "src/styles/modules/sales-report.css",
+    "src/styles/modules/sales.css",
+    "src/styles/modules/sales-2.css",
+    "src/styles/modules/scanner-phone.css",
+    "src/styles/modules/select-search.css",
+    "src/styles/modules/settings.css",
+    "src/styles/modules/sort.css",
+    "src/styles/modules/standard-ui.css",
+    "src/styles/modules/tables.css",
+    "src/styles/modules/tms-module.css",
+    "src/styles/modules/toast.css",
+    "src/styles/modules/ui.css"
+  ]
+}

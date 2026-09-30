@@ -1,0 +1,79 @@
+/* GAMA V16 — Archivo de facturas cloud, robuste et temps réel */
+(function(){
+'use strict';
+const pad=n=>String(Number(n||0)).padStart(9,'0');
+const esc=window.ArcUI.esc;
+const money=n=>window.GamaCurrency.format(n);
+let cloudInvoices=[],allCustomers=[],page=0,totalCount=0,searchTimer=null;
+const PAGE_SIZE=20;
+function isSearching(){return (document.getElementById('giaSearch')?.value||'').trim().length>0}
+function meta(inv){const n=String(inv?.notes||'');if(n.startsWith('GAMA_META:')){try{return JSON.parse(n.slice(10))}catch(e){}}return {payment:n||'-'};}
+function css(){ /* Styles are compiled in architect-components.css. */ }
+function ensureSection(){const billing=document.getElementById('billing');if(!billing)return null;let card=document.getElementById('gamaInvoiceArchive');if(card)return card;card=document.createElement('div');card.id='gamaInvoiceArchive';card.className='card';window.ArcUI.render(card,`<div class="giaHead"><div><h2 data-gi=6f968ddd7bcf>Archivo de presupuestos</h2><p class="muted" data-gi=7d8ecbef0369>Archivo cloud central • numeración incremental desde 000000001.</p></div><button class="arcButton secondary" type="button" id="giaRefresh" data-gi=c9618c5bc290>↻ Actualizar</button></div><div class="giaTools"><input id="giaSearch" data-gi-placeholder=bfc0b41b552c placeholder="Buscar por número, cliente o RUC/Cédula..."><span id="giaCount" class="badge">0 presupuestos</span></div><div id="giaRows"><div class="giaEmpty"><span class="gamaSpin"></span>Cargando presupuestos…</div></div><div id="giaPager" class="giaPager"></div><div id="giaView"></div>`);
+/* Archive is intentionally appended last: it must appear at the very bottom of the Facturación page. */
+billing.appendChild(card);
+card.querySelector('#giaRefresh').onclick=()=>{page=0;load()};card.querySelector('#giaSearch').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{page=0;load()},300)};return card}
+function makeInvoice(inv){const m=meta(inv);const lines=inv._lines||[];return `<div class="giaView"><div class="giaViewHead"><div><div class="giaViewNum">${esc(inv.invoice_number||inv.erp_reference||pad(inv.archive_number))}</div><small data-gi=0794fecf9518>Número de archivo</small></div><button class="arcButton secondary" type="button" onclick="document.getElementById('giaView').innerHTML=''" data-gi=aeccae342e4b>Cerrar</button></div><div class="giaPaper"><div class="giaTop"><div><h2 data-gi=d684c0be2b1d>PRESUPUESTO</h2><b>${esc(m.sellerName||'GAMA Enterprise Resource Planning')}</b><div>RUC: ${esc(m.sellerRuc||'-')}</div><div><span data-gi=757adc0ade85>Establecimiento: </span>${esc(m.sellerEst||'001')} · Punto: ${esc(m.sellerPoint||'001')}</div></div><div class="giaRef"><b>N° ${esc(inv.invoice_number||'-')}</b><div><span data-gi=9ff1ec2c6439>Archivo: </span>${esc(inv.invoice_number||inv.erp_reference||pad(inv.archive_number))}</div><div><span data-gi=5964f4d099df>Fecha: </span>${esc(inv.issue_date?new Date(inv.issue_date).toLocaleString('es-EC'):'-')}</div></div></div><hr><div><b data-gi=f851d9a83ab0>Cliente</b><div>${esc(inv._customer?.name||'-')}</div><div>${esc(inv._customer?.identification||'-')}</div><div>${esc(inv._customer?.address||'')}</div><div>${esc(inv._customer?.email||'')}</div></div><table class="arcTable"><thead><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=4805b9ed5d23>Cant.</th><th data-gi=2e4385b6057f>Precio</th><th data-gi=8c0f2cb34079>Subtotal</th></tr></thead><tbody>${lines.map(x=>`<tr><td>${esc(x._product?.name||'-')}</td><td>${esc(x.quantity)}</td><td>${money(x.unit_price)}</td><td>${money(Number(x.quantity||0)*Number(x.unit_price||0))}</td></tr>`).join('')}</tbody></table><div class="giaTotals"><div><span data-gi=8c0f2cb34079>Subtotal</span><b>${money(inv.subtotal)}</b></div><div><span data-gi=ba6da46c5e1c>IVA</span><b>${money(inv.tax)}</b></div><div class="giaGrand"><span data-gi=ab2882c86465>TOTAL</span><b>${money(inv.total)}</b></div></div><p><b data-gi=99af820fb5cc>Forma de pago:</b> ${esc(m.payment||'-')}</p>${(inv.quote_details?.customer_comment??m.customerComment)?`<p style="white-space:pre-wrap"><b data-gi-live data-gi=03169a11ba99>Comentario del cliente</b><br>${esc(inv.quote_details?.customer_comment??m.customerComment)}</p>`:''}<p class="low" data-gi=40e465f455ef>Documento informativo. No constituye una factura.</p></div><div class="giaActions">${window.gamaAccessAllowed?.("sales-orders")?`<button class="arcButton primary" type="button" data-gs-source="quote" data-gs-source-id="${esc(inv.id)}" data-gi=3273eb1daef1>Crear / ver pedido</button>`:""}<button class="arcButton secondary" type="button" onclick="window.emailGamaCloudInvoice('${esc(inv.id)}')" data-gi=4a46598fb8f2>Enviar por correo</button> <button class="arcButton primary" type="button" onclick="window.printGamaCloudInvoice('${esc(inv.id)}')" data-gi=59e0b6ca6f89>Descargar PDF</button></div></div></div>`}
+/* Antes esto abría una ventana con window.open() y llamaba a w.print(). En la
+   aplicación instalada esa ventana no trae ni barra del navegador ni cabecera
+   propia —sólo el papel del presupuesto—, así que el usuario se quedaba
+   encerrado: nada que pulsar para volver y había que cerrar la aplicación.
+   Ahora se baja el PDF, que se abre en el visor del dispositivo con su botón de
+   volver, igual que el resto de los documentos de la aplicación. */
+window.printGamaCloudInvoice=async function(id){
+ const inv=cloudInvoices.find(x=>String(x.id)===String(id));
+ if(!inv)return;
+ if(!window.GamaQuotePdf||!window.GamaPdf){alert('El generador de PDF no está disponible. Recarga la aplicación.');return}
+ const m=meta(inv),lines=inv._lines||[];
+ const rate=Number(lines[0]?.tax_rate??15);
+ /* Se traduce la factura archivada a la forma que espera el generador, para
+    que el PDF de un presupuesto archivado salga idéntico al de uno recién
+    hecho en vez de tener su propio maquetado que se desvíe con el tiempo. */
+ const q={customer_comment:inv.quote_details?.customer_comment??m.customerComment??'',
+  number:inv.invoice_number||pad(inv.archive_number),
+  dateLabel:inv.issue_date?new Date(inv.issue_date).toLocaleString('es-EC'):'',
+  seller:m.sellerName||'GAMA Enterprise Resource Planning',sellerRuc:m.sellerRuc||'-',
+  client:inv._customer?.name||'-',clientId:inv._customer?.identification||'-',
+  clientAddress:inv._customer?.address||'',clientEmail:inv._customer?.email||'',
+  items:lines.map(l=>({name:l._product?.name||'Producto',qty:Number(l.quantity||0),price:Number(l.unit_price||0)})),
+  sub:Number(inv.subtotal||0),rate,tax:Number(inv.tax||0),total:Number(inv.total||0),
+  pay:m.payment||'-'
+ };
+ try{
+  await window.GamaCompany?.load(true);
+  const doc=window.GamaQuotePdf.build(q);
+  window.GamaPdf.save(doc,window.GamaPdf.fileName('presupuesto',inv.invoice_number||inv.erp_reference||pad(inv.archive_number)));
+ }catch(e){console.error('[GAMA PDF archivo]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}
+};
+window.emailGamaCloudInvoice=function(id){const inv=cloudInvoices.find(x=>String(x.id)===String(id));if(!inv)return;const email=inv._customer?.email;if(!email)return alert('Este cliente no tiene un correo registrado.');const m=meta(inv);const dateLabel=inv.issue_date?new Date(inv.issue_date).toLocaleDateString('es-EC'):'-';const rate=Number(inv._lines?.[0]?.tax_rate??15);const lines=(inv._lines||[]).map(x=>`- ${x._product?.name||'Producto'} x${x.quantity} — ${money(x.unit_price)} c/u — ${money(Number(x.quantity||0)*Number(x.unit_price||0))}`).join('\n');const number=inv.invoice_number||pad(inv.archive_number);const body=`Estimado/a ${inv._customer?.name||''},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: ${money(inv.subtotal)}\nIVA: ${money(inv.tax)}\nTOTAL: ${money(inv.total)}\n\nQuedamos atentos a sus comentarios.\n\n${m.sellerName||'GAMA Enterprise Resource Planning'}`;const q={customer_comment:inv.quote_details?.customer_comment??m.customerComment??'',seller:m.sellerName||'GAMA Enterprise Resource Planning',sellerRuc:m.sellerRuc||'-',number,dateLabel,client:inv._customer?.name||'',clientId:inv._customer?.identification||'',clientAddress:inv._customer?.address||'',clientEmail:email,items:(inv._lines||[]).map(x=>({name:x._product?.name||'Producto',qty:x.quantity,price:Number(x.unit_price||0)})),sub:Number(inv.subtotal||0),tax:Number(inv.tax||0),total:Number(inv.total||0),rate};window.GamaQuotePdf.send({q,email,subject:'Presupuesto '+number,body,filename:'Presupuesto-'+number+'.pdf'})};
+async function load(){const billing=ensureSection();if(!billing||!window.GamaCloud)return;const rows=document.getElementById('giaRows');if(rows)window.ArcUI.render(rows,'<div class="giaEmpty"><span class="gamaSpin"></span>Sincronizando con la nube…</div>');const q=(document.getElementById('giaSearch')?.value||'').trim();try{
+  const cr=await window.GamaCloud.list('customers',{order:'name',ascending:true});if(cr.error)throw cr.error;allCustomers=cr.data||[];
+  const customersMap=new Map(allCustomers.map(x=>[String(x.id),x]));
+  const pr=await window.GamaCloud.list('products',{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active',order:'name',ascending:true});if(pr.error)throw pr.error;
+  const products=new Map((pr.data||[]).map(x=>[String(x.id),x]));
+  let invoiceRows=[];
+  if(q){
+    const ql=q.toLowerCase();
+    const matchIds=allCustomers.filter(c=>[c.name,c.identification,c.email].some(v=>String(v||'').toLowerCase().includes(ql))).map(x=>x.id);
+    const queries=[window.GamaCloud.list('invoices',{ilike:{invoice_number:'%'+q+'%'},order:'archive_number',ascending:false,limit:200})];
+    if(matchIds.length)queries.push(window.GamaCloud.list('invoices',{in:{customer_id:matchIds},order:'archive_number',ascending:false,limit:200}));
+    const results=await Promise.all(queries);
+    for(const r of results)if(r.error)throw r.error;
+    const byId=new Map();results.forEach(r=>(r.data||[]).forEach(i=>byId.set(String(i.id),i)));
+    invoiceRows=[...byId.values()].sort((a,b)=>Number(b.archive_number)-Number(a.archive_number));
+    totalCount=invoiceRows.length;
+  }else{
+    const ir=await window.GamaCloud.list('invoices',{order:'archive_number',ascending:false,range:[page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE-1],count:'exact'});if(ir.error)throw ir.error;
+    invoiceRows=ir.data||[];totalCount=ir.count||0;
+  }
+  const ids=invoiceRows.map(i=>i.id);let linesByInvoice=new Map();
+  if(ids.length){const lr=await window.GamaCloud.list('invoice_lines',{in:{invoice_id:ids},order:'id',ascending:true});if(lr.error)throw lr.error;(lr.data||[]).forEach(l=>{if(!linesByInvoice.has(String(l.invoice_id)))linesByInvoice.set(String(l.invoice_id),[]);l._product=products.get(String(l.product_id));linesByInvoice.get(String(l.invoice_id)).push(l)})}
+  cloudInvoices=invoiceRows.map(i=>{i._customer=customersMap.get(String(i.customer_id));i._lines=linesByInvoice.get(String(i.id))||[];return i});
+  render();
+}catch(e){console.error('[GAMA invoice archive]',e);if(rows)window.ArcUI.render(rows,'<div class="giaEmpty" data-gi=f1a102e13d48>No se pudieron cargar los presupuestos en la nube. Verifica los permisos RLS de Supabase.</div>')}}
+function renderPager(){const host=document.getElementById('giaPager');if(!host)return;if(isSearching()||!totalCount){window.ArcUI.render(host,'');return}const from=page*PAGE_SIZE+1,to=Math.min(totalCount,(page+1)*PAGE_SIZE);window.ArcUI.render(host,`<span>${from}–${to} de ${totalCount}</span><span><button class="arcButton secondary" type="button" id="giaPrev" ${page<=0?'disabled':''}>‹ Anterior</button> <button class="arcButton secondary" type="button" id="giaNext" ${to>=totalCount?'disabled':''}>Siguiente ›</button></span>`);document.getElementById('giaPrev').onclick=()=>{if(page>0){page--;load()}};document.getElementById('giaNext').onclick=()=>{if(to<totalCount){page++;load()}}}
+function render(){ensureSection();const rows=document.getElementById('giaRows');if(!rows)return;const arr=cloudInvoices;const c=document.getElementById('giaCount');if(c)c.textContent=totalCount+' presupuesto'+(totalCount===1?'':'s');window.ArcUI.render(rows,arr.length?`<div class="giaTable"><table class="arcTable"><thead><tr><th data-gi=e1851374e913>N° archivo</th><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=f7c9c2d9d560>Presupuesto</th><th data-gi=c9b3c38247f7>Total</th><th></th></tr></thead><tbody>${arr.map(i=>`<tr><td><span class="giaNum">${esc(pad(i.archive_number))}</span></td><td>${esc(i.issue_date?new Date(i.issue_date).toLocaleDateString('es-EC'):'-')}</td><td>${esc(i._customer?.name||'-')}<small>${esc(i._customer?.identification||'')}</small></td><td>${esc(i.invoice_number||'-')}</td><td><b>${money(i.total)}</b></td><td><button class="arcButton secondary" type="button" data-gia-open="${esc(i.id)}" data-gi=66fe2768d8fe>Ver presupuesto</button></td></tr>`).join('')}</tbody></table></div>`:`<div class="giaEmpty">${isSearching()?'Sin resultados para tu búsqueda.':'No hay presupuestos archivados.'}</div>`);rows.querySelectorAll('[data-gia-open]').forEach(b=>b.onclick=()=>{const i=cloudInvoices.find(x=>String(x.id)===String(b.dataset.giaOpen));if(i){window.ArcUI.render(document.getElementById('giaView'),makeInvoice(i));document.getElementById('giaView').scrollIntoView({behavior:'smooth',block:'start'})}});renderPager()}
+function boot(){css();ensureSection();window.addEventListener('gama:data-change',e=>{if(['invoices','invoice_lines','customers','products'].includes(e.detail?.table))setTimeout(load,100)});window.addEventListener('gama:auth-change',()=>setTimeout(load,300));window.ArcRouter.onEnter('billing',()=>{ensureSection();setTimeout(load,200)});load();}
+function wait(){if(window.GamaCloud&&window.GamaCloudReady){window.GamaCloudReady.then(boot).catch(()=>setTimeout(wait,500))}else setTimeout(wait,250)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
+})();

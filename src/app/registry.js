@@ -285,7 +285,7 @@ const definitions=[
     "label": "Seguimiento de procesos",
     "icon": "folder",
     "group": "Resumen",
-    "description": "Venta (PDV) y compra (PDC), paso a paso",
+    "description": "Ventas, compras y devoluciones de clientes y proveedores",
     "accent": "blue",
     "order": 100,
     "menu": true,
@@ -534,5 +534,39 @@ function ensureExcelModule(){let section=document.getElementById('reports');if(!
    línea en las listas de módulos; el módulo que lo contiene se abre para quien tiene al menos una de sus pestañas. */
 export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
-function openLegacy(x,from){if(x[1]==='website'){if(canOpen('website'))return window.GamaWebsite?.open();return;}if(window.gamaAccessAllowed&&!canOpen(x[1]))return;if(x[1]==='contacts'){return window.GamaContacts?.open(from)}if(x[1]==='sav'){return window.GamaService?.open()}if(x[1]==='documents'){return window.GamaDocuments?.open()}if(x[1]==='tms'){return window.gamaTMS?.open()}if(x[1]==='accounting'){return window.GamaAccounting?.open()}if(x[1]==='fleet'){return window.GamaFleet?.open()}if(x[1]==='returns'){return window.GamaReturns?.open()}if(x[1]==='projects'){return window.GamaProjects?.open()}if(x[1]==='assistant-ia'){return window.GamaAssistant?.open()}if(x[1]==='knowledge'){return window.GamaKnowledge?.open()}if(x[1]==='payments'){return window.GamaPayments?.open()}if(x[1]==='dossier-flow'){return window.GamaDossierFlow?.open()}if(['operations','notifications'].includes(x[1])){return window.GamaOperations?.open(x[1])}if(x[1]==='quotes'){return window.GamaQuotes?.enter()}if(x[1]==='client-deliveries'){return window.GamaQuotes?.deliveries()}if(x[1]==='sales-orders'){return window.GamaSales?.open()}if(window.GamaModules&&!window.GamaModules.enabled(x[1])){alert('Este módulo está desactivado en Configuración.');return}if(x[1]==='reports'){ensureExcelModule();window.showTab&&window.showTab('reports',null);return}if(x[1]==='gamaPurchasesV14'){if(window.gamaShowPurchases)window.gamaShowPurchases();else{window.showTab&&window.showTab('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases&&window.gamaShowPurchases(),100)}return}if(x[1]==='crm'){if(window.showTab)window.showTab('crm',null);window.GamaOpenCRM?.();return}if(x[1]==='price-lists'){if(window.showTab)window.showTab('price-lists',null);window.GamaOpenPriceLists?.();return}if(x[1]==='client-catalog'){if(window.showTab)window.showTab('client-catalog',null);window.GamaOpenClientCatalog?.();return}if(x[1]==='customer-requests'){if(window.showTab)window.showTab('customer-requests',null);window.GamaOpenCustomerRequests?.();return}if(x[1]==='warehouses'){if(window.showTab)window.showTab('warehouses',null);window.GamaOpenWarehouses?.();return}if(x[1]==='hr'){window.GamaOpenHR?.();return}if(x[1]==='access-settings'){window.GamaOpenAccessSettings?.();return}if(x[1]==='settings'){window.GamaOpenSettings?.();return}if(window.showTab)window.showTab(x[1],null)}
-export const registry=definitions.map(m=>Object.freeze({...m,open:from=>openLegacy([m.label,m.id,m.icon,m.group],from)}));
+/** Route adapters preserve public module IDs and existing cross-module links. */
+const openers={
+ website:()=>window.GamaWebsite?.open(),
+ contacts:from=>window.GamaContacts?.open(from),
+ sav:()=>window.GamaService?.open(),
+ documents:()=>window.GamaDocuments?.open(),
+ tms:()=>window.gamaTMS?.open(),
+ accounting:()=>window.GamaAccounting?.open(),
+ fleet:()=>window.GamaFleet?.open(),
+ returns:()=>window.GamaReturns?.open(),
+ projects:()=>window.GamaProjects?.open(),
+ 'assistant-ia':()=>window.GamaAssistant?.open(),
+ knowledge:()=>window.GamaKnowledge?.open(),
+ payments:()=>window.GamaPayments?.open(),
+ 'dossier-flow':()=>window.GamaDossierFlow?.open(),
+ notifications:()=>window.GamaOperations?.open('notifications'),
+ quotes:()=>window.GamaQuotes?.enter(),
+ 'client-deliveries':()=>window.GamaQuotes?.deliveries(),
+ 'sales-orders':()=>window.GamaSales?.open(),
+ reports:()=>{ensureExcelModule();window.showTab?.('reports',null)},
+ gamaPurchasesV14:()=>{if(window.gamaShowPurchases)return window.gamaShowPurchases();window.showTab?.('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases?.(),100)},
+ crm:()=>{window.showTab?.('crm',null);return window.GamaOpenCRM?.()},
+ 'price-lists':()=>{window.showTab?.('price-lists',null);return window.GamaOpenPriceLists?.()},
+ 'client-catalog':()=>{window.showTab?.('client-catalog',null);return window.GamaOpenClientCatalog?.()},
+ warehouses:()=>{window.showTab?.('warehouses',null);return window.GamaOpenWarehouses?.()},
+ hr:()=>window.GamaOpenHR?.(),
+ 'access-settings':()=>window.GamaOpenAccessSettings?.(),
+ settings:()=>window.GamaOpenSettings?.()
+};
+function openModule(id,from){
+ if(window.gamaAccessAllowed&&!canOpen(id))return;
+ if(window.GamaModules&&!window.GamaModules.enabled(id)){window.gamaToast?.(window.GamaI18n?.t('Este módulo está desactivado en Configuración.')||'Este módulo está desactivado en Configuración.');return}
+ return openers[id]?openers[id](from):window.showTab?.(id,null);
+}
+
+export const registry=definitions.map(m=>Object.freeze({...m,open:from=>openModule(m.id,from)}));

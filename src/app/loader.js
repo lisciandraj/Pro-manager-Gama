@@ -11,7 +11,7 @@ export function loadScript(file, options = {}) {
     script.dataset.arcAsset = file;
     for (const key of ["integrity", "crossOrigin", "referrerPolicy"])
       if (options[key]) script[key] = options[key];
-    script.onload = () => resolve();
+    script.onload = () => options.validate && !options.validate() ? script.onerror() : resolve();
     script.onerror = () => {
       script.remove();
       scripts.delete(file);

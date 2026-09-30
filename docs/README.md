@@ -7,6 +7,7 @@ Documents courants :
 - [Charte graphique](design-system.md)
 - [Audit du 30 septembre : organisation](audits/2026-09-30.md)
 - [Audit complémentaire : chargement et maintenance](audits/2026-09-30-runtime.md)
+- [Revue de maintenance et contrôles communs](audits/2026-09-30-maintenance.md)
 - [Exports PDF](development/pdf-exports.md)
 - [Sources et adresses publiques](source-map.md)
 - [Performance : historique des mesures](history/loading-performance-2026-09.md)

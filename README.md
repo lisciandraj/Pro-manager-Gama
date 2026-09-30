@@ -9,6 +9,7 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Charte graphique actuelle](docs/design-system.md)
 - [Audit technique et organisation](docs/audits/2026-09-30.md)
 - [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)
+- [Revue de maintenance et contrôles communs](docs/audits/2026-09-30-maintenance.md)
 - [Index de la documentation](docs/README.md)
 
 ## Démarrer
@@ -17,7 +18,7 @@ Prérequis : Node.js 22, npm et Python 3 (compilation des traductions et serveur
 
 ```sh
 npm ci
-npm run build
+npm run update
 npm run dev
 ```
 
@@ -25,6 +26,8 @@ Les sources sont dans `src/`. Après une modification, exécuter `npm run build`
 Les scripts et styles à la racine ainsi que `index.html` sont des **copies générées** nécessaires à l’hébergement GitHub Pages actuel. Ne pas les modifier directement.
 
 ## Vérifier
+
+`npm run update` reconstruit et lance les contrôles communs. `npm run validate` les relance ; les tests navigateur du parcours modifié restent nécessaires.
 
 ```sh
 npm run check

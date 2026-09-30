@@ -17,7 +17,9 @@
     "check:generated": "node scripts/check-generated.cjs",
     "test:architecture": "node --test tests/architecture.test.cjs tests/lazy-loader.test.cjs tests/service-worker.test.cjs tests/project-integration.test.cjs tests/pdf-loader.test.cjs",
     "check:startup": "node scripts/check-startup.cjs",
-    "check:docs": "node scripts/check-docs.cjs"
+    "check:docs": "node scripts/check-docs.cjs",
+    "validate": "npm run check && npm run typecheck && npm run check:docs && npm run verify:migrations && npm run test:unit && npm run check:generated && npm run check:startup",
+    "update": "npm run build && npm run validate"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",

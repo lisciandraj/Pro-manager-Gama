@@ -52,6 +52,14 @@ Les URL JS/CSS comportant un hash de contenu peuvent être servies depuis le cac
 
 Le dépôt ne contient pas actuellement d’enregistrement automatique du service worker dans l’entrée ERP. Le correctif concerne les installations qui l’utilisent déjà ; il ne prouve pas un gain de chargement sur tous les appareils.
 
+## Mise à jour et contrôles communs
+
+`npm run update` reconstruit puis lance `npm run validate`. La CI de release utilise les mêmes contrôles. `config/performance-budget.json` centralise les plafonds du démarrage ; `npm run check:startup` contrôle aussi les CSS et les scripts dupliqués, et `node scripts/check-startup.cjs --json` détaille les tailles. Les requêtes dynamiques ne sont pas incluses.
+
+Le manifeste `vendors` versionne par contenu les bibliothèques locales différées sans les ajouter au démarrage. Le chargeur valide la présence de jsPDF après téléchargement et permet une reprise si le SDK est absent.
+
+Les lots de traduction scannent une seule fois chaque racine : un descendant est couvert par son parent lorsqu’ils figurent dans le même lot.
+
 ## Limites de cette simplification
 
 Il reste des modules IIFE volumineux et des contrats globaux historiques. Les fichiers sont regroupés par domaine et contrôlés à la construction ; ils ne sont pas tous convertis en composants ES modules. Les avertissements SQL, les tests physiques iPhone/scanner et la validation fiscale restent des travaux distincts explicités dans l’audit.

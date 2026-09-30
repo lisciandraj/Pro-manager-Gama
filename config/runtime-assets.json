@@ -542,5 +542,8 @@
     "src/styles/modules/tms-module.css",
     "src/styles/modules/toast.css",
     "src/styles/modules/ui.css"
+  ],
+  "vendors": [
+    "assets/vendor/jspdf-2.5.2.umd.min.js"
   ]
 }

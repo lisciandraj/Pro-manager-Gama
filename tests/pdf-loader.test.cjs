@@ -69,3 +69,10 @@ test("token renewal does not cancel an export", async () => {
   x.scripts[0].onload();
   assert.equal(await a, x.window.jspdf.jsPDF);
 });
+
+test("a downloaded script without a PDF engine does not prevent another attempt",async()=>{
+ const x=pdf(),first=x.window.GamaPdf.ready();x.scripts[0].onload();
+ await assert.rejects(first,/MODULE_LOAD_FAILED/);
+ const next=x.window.GamaPdf.ready();assert.equal(x.scripts.length,2);
+ class PDF {}x.window.jspdf={jsPDF:PDF};x.scripts[1].onload();assert.equal(await next,PDF);
+});

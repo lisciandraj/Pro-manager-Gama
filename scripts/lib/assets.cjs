@@ -12,6 +12,9 @@ function validateManifest(){
   if(!fs.existsSync(path.join(root,item.source)))throw Error('Missing source: '+item.source);
   outputs.add(item.output);sources.add(item.source);
  }
+ for(const file of manifest.vendors){
+  if(!/^assets\/vendor\/[a-zA-Z0-9._-]+\.js$/.test(file)||!fs.existsSync(path.join(root,file)))throw Error('Invalid vendor asset: '+file);
+ }
  for(const file of manifest.moduleStyles)if(!fs.existsSync(path.join(root,file)))throw Error('Missing stylesheet: '+file);
 }
 module.exports={root,manifest,hash,generated,runtimeFiles,header,validateManifest};

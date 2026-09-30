@@ -1,31 +1,17 @@
-// Static payload budget, not a latency benchmark. Run after npm run build.
-const fs = require("node:fs");
-const path = require("node:path");
-const { gzipSync } = require("node:zlib");
-const root = path.resolve(__dirname, "..");
-const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const sources = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)].map(
-  (m) => m[1],
-);
-let bytes = 0,
-  gzipBytes = 0;
-for (const source of sources) {
-  if (/^(?:https?:)?\/\//.test(source))
-    throw Error("Unbudgeted external startup script: " + source);
-  const data = fs.readFileSync(path.join(root, source.split("?")[0]));
-  bytes += data.length;
-  gzipBytes += gzipSync(data).length;
-}
-const result = {
-  scripts: sources.length,
-  bytes,
-  gzipBytes,
-  budgetBytes: 1900000,
-  budgetScripts: 93,
-};
-console.log(JSON.stringify(result, null, 2));
-if (bytes > result.budgetBytes || sources.length > result.budgetScripts) {
-  throw Error(
-    "Startup JavaScript budget exceeded. Review eager dependencies before increasing the budget.",
-  );
-}
+const fs=require('node:fs'),path=require('node:path'),{gzipSync}=require('node:zlib');
+const {root}=require('./lib/assets.cjs');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const budget=JSON.parse(fs.readFileSync(path.join(root,'config/performance-budget.json'),'utf8'));
+const asset=file=>{const content=fs.readFileSync(path.join(root,file));return {file,bytes:content.length,gzipBytes:gzipSync(content).length}};
+const scripts=[...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
+const styles=[...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
+if(scripts.some(file=>/^https?:/.test(file)))throw Error('Initial scripts must use local, reviewed assets');
+if(new Set(scripts).size!==scripts.length)throw Error('Duplicate initial script');
+if(scripts.some(file=>file.includes('jspdf')))throw Error('PDF engine must load on export');
+const javascript=scripts.map(asset),stylesheets=styles.map(asset);
+const sum=(rows,key)=>rows.reduce((total,row)=>total+row[key],0);
+const totals={initialJavaScriptBytes:sum(javascript,'bytes'),initialStylesheetBytes:sum(stylesheets,'bytes'),initialScriptRequests:scripts.length};
+const exceeded=Object.entries(budget).filter(([key,max])=>totals[key]>max);
+if(exceeded.length)throw Error(exceeded.map(([key,max])=>key+': '+totals[key]+' > '+max).join('\n'));
+const report={totals,budget,javascript,stylesheets,note:'Static file sizes; gzip is an estimate, not a measured transfer or loading time. Dynamic requests are excluded.'};
+console.log(JSON.stringify(process.argv.includes('--json')?report:{scripts:scripts.length,bytes:totals.initialJavaScriptBytes,gzipBytes:sum(javascript,'gzipBytes'),budgetBytes:budget.initialJavaScriptBytes,budgetScripts:budget.initialScriptRequests,stylesheetBytes:totals.initialStylesheetBytes,budgetStylesheetBytes:budget.initialStylesheetBytes},null,2));

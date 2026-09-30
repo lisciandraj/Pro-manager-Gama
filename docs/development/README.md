@@ -35,6 +35,6 @@ Les sections CSS métier sont dans `src/styles/modules/` et assemblées dans l�
 ## Tests et publication
 
 Privilégier les comportements observables : mêmes droits, mêmes documents, cache sans fuite de session, reprise après échec, mobile utilisable.
-La CI de refonte génère les sorties sur sa seule branche de maintenance. La CI normale valide ensuite la révision proposée. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
+La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
 
 Ne jamais exécuter une fixture de test contre la base de production. Les tests SRI simulés ne remplacent pas l’autorisation réelle du SRI ni un essai de signature avec le service privé.

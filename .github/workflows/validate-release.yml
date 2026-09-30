@@ -1,4 +1,4 @@
-name: Validate Architect release
+name: Validate Coco release
 on:
   push:
     branches: [main]
@@ -45,14 +45,13 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run typecheck
+      - run: npm run check:docs
       - run: npm run verify:migrations
       - run: npm run test:unit
-      - run: npm run build
-      - name: Verify generated release is current
-        run: git diff --exit-code -- index.html architect-core.js architect-components.css architect-assets.js architect-base.css gama-site.html
+      - run: npm run check:generated
       - uses: actions/upload-artifact@v4
         with:
-          name: architect-static-release
+          name: coco-static-release
           path: dist/
           include-hidden-files: true
   shared-interface:

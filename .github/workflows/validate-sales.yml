@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: python3 scripts/build-i18n.py
+      - run: python3 scripts/build-i18n.py --catalog-only
       - run: git diff --exit-code
       - run: node --test tests/global-search-core.test.cjs
       - run: node --test tests/project-management-core.test.cjs tests/project-management-db.test.cjs

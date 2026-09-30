@@ -1,0 +1,20 @@
+name: SRI workspace review
+on:
+  push:
+    branches: [feat/openapi-sri-integration]
+    paths: [.github/workflows/sri-workspace-review.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: tar --exclude=.git -czf /tmp/sri-current-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sri-current-source
+          path: /tmp/sri-current-source.tar.gz
+          retention-days: 1

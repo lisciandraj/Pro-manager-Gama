@@ -15,9 +15,9 @@ const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js
 //    memoria. Se cargan bajo demanda; si el informe no las pide, sale un PDF
 //    con entregas vacías y nadie se entera hasta que lo abre un cliente.
 //
-// jsPDF llega por CDN y aquí no hay red, así que el dibujo del PDF se sustituye
-// por un doble. No es una pérdida: lo que se comprueba es el cableado —quién
-// llama a qué y con qué datos—, que es justo donde entran las regresiones.
+// The bundled jsPDF engine loads locally on the first export. These tests
+// replace document drawing to isolate the data passed to each download;
+// company-settings and lazy-pdf exercise the real PDF engine.
 async function boot(page, db = {}) {
   await page.addInitScript(seed => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));

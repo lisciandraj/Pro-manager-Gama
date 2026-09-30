@@ -41,7 +41,7 @@ window.printGamaCloudInvoice=async function(id){
   pay:m.payment||'-'
  };
  try{
-  await window.GamaCompany?.load(true);
+  await window.GamaCompany?.load(true);await window.GamaPdf.ready();
   const doc=window.GamaQuotePdf.build(q);
   window.GamaPdf.save(doc,window.GamaPdf.fileName('presupuesto',inv.invoice_number||inv.erp_reference||pad(inv.archive_number)));
  }catch(e){console.error('[GAMA PDF archivo]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}

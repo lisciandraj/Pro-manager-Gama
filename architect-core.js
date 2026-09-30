@@ -1659,16 +1659,19 @@
         "downloadProofReport",
         "downloadProofCertificate"
       ]
-    }
+    },
+    "projects": { "global": "GamaProjects", "file": "gama-projects.js", "dependencies": ["gama-projects-core.js"], "methods": ["open", "fromSource"] }
   };
   const scripts = /* @__PURE__ */ new Map();
-  function loadScript(file) {
+  function loadScript(file, options = {}) {
     if (scripts.has(file)) return scripts.get(file);
     const pending = new Promise((resolve, reject) => {
       var _a;
       const script = document.createElement("script");
       script.src = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
       script.dataset.arcAsset = file;
+      for (const key of ["integrity", "crossOrigin", "referrerPolicy"])
+        if (options[key]) script[key] = options[key];
       script.onload = () => resolve();
       script.onerror = () => {
         script.remove();
@@ -1685,6 +1688,7 @@
     if (!entry) return;
     const installed = window[entry.global];
     if (installed && !installed.__arcLazy) return installed;
+    for (const file of entry.dependencies || []) await loadScript(file);
     await loadScript(entry.file);
     const api = window[entry.global];
     if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
@@ -1693,15 +1697,23 @@
   function installLazyModules() {
     for (const [id, entry] of Object.entries(lazyModules)) {
       if (window[entry.global]) continue;
-      window[entry.global] = { __arcLazy: true, ...Object.fromEntries(entry.methods.map((method) => [method, async (...args) => {
-        var _a, _b;
-        try {
-          return await (await loadModule(id))[method](...args);
-        } catch (e) {
-          (_b = window.gamaToast) == null ? void 0 : _b.call(window, ((_a = window.ArcErrors) == null ? void 0 : _a.message(e)) || e.message);
-          throw e;
-        }
-      }])) };
+      window[entry.global] = {
+        __arcLazy: true,
+        ...Object.fromEntries(
+          entry.methods.map((method) => [
+            method,
+            async (...args) => {
+              var _a, _b;
+              try {
+                return await (await loadModule(id))[method](...args);
+              } catch (e) {
+                (_b = window.gamaToast) == null ? void 0 : _b.call(window, ((_a = window.ArcErrors) == null ? void 0 : _a.message(e)) || e.message);
+                throw e;
+              }
+            }
+          ])
+        )
+      };
     }
   }
   function startPerformance() {
@@ -1731,6 +1743,7 @@
   window.ArcRouter = router;
   window.ArcDirectories = { directory };
   window.ArcLoad = loadModule;
+  window.ArcLoadScript = loadScript;
   installLazyModules();
   startDataEvents();
   startRouter();

@@ -49,7 +49,7 @@ Les rapports lisent les données à jour et utilisent les exports PDF et Excel e
 
 ## Validation et déploiement
 
-Migration : `supabase/migrations/20260916093638_project_management.sql`. Son identifiant correspond à la migration appliquée en production.
+Le SQL initial est conservé dans `supabase/legacy-migrations/20260916093638_project_management.sql` et repris par la baseline courante. Utiliser la [procédure de restauration](../../supabase/README.md) pour une installation ; ne pas rejouer une migration historique en production.
 
 ```sh
 npm ci
@@ -59,4 +59,13 @@ npx playwright test tests/project-management.spec.js --workers=1
 
 Le test SQL exécute les workflows et les contrôles d'accès dans PostgreSQL/PGlite. `supabase/tests/project-management.sql` peut aussi être exécuté dans une transaction sur Supabase : il crée des identités et objets de test isolés, puis annule les données. Les tests d'interface relient l'interface réelle au même SQL et couvrent le Kanban, les recalculs, les langues, le mobile, les modèles, les rapports et les liens depuis les notifications. Les vérifications des modules existants restent dans les suites Achats, Réceptions, Commandes, Devis, CRM et Opérations.
 
-En environnement réseau restreint, `PM_QA_ASSETS` peut désigner un répertoire `node_modules` contenant les versions déjà utilisées par GAMA de `jspdf@2.5.2` et `xlsx@0.18.5`. Les tests servent alors ces mêmes fichiers CDN depuis le disque, sans modifier le code de production.
+Le moteur jsPDF 2.5.2 est fourni localement et chargé au premier export PDF. Les tests PDF utilisent cette copie, sans variable `PM_QA_ASSETS`. Les tests navigateur utilisent une base PGlite isolée, jamais les données de production.
+
+## Organisation du code
+
+- `src/features/projects/integration.js` : droits client, appels RPC, alertes, résumés clients et liens entre modules, disponibles dès l’accueil.
+- `src/features/projects/projects-core.js` : calculs purs, chargé avant les écrans.
+- `src/features/projects/projects.js` : portfolio, formulaires, vues et rapports, chargé à l’ouverture.
+- `src/features/projects/projects-i18n.js` : libellés partagés.
+
+La façade `GamaProjects` conserve les points d’entrée existants. Les clés d’idempotence des formulaires restent stables lors d’une nouvelle tentative. Les événements de changement de compte ou de retrait d’accès invalident les réponses en attente ; le simple renouvellement d’un jeton conserve les formulaires ouverts. Les requêtes d’alertes simultanées partagent un seul appel, puis une actualisation interroge à nouveau le serveur.

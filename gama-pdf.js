@@ -14,6 +14,17 @@
 'use strict';
 if(window.GamaPdf)return;
 
+let authEpoch=0;
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')authEpoch++});
+async function ready(){
+ const epoch=authEpoch;
+ if(!window.jspdf?.jsPDF)await window.ArcLoadScript('assets/vendor/jspdf-2.5.2.umd.min.js',{
+  integrity:'sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/',
+  crossOrigin:'anonymous',referrerPolicy:'no-referrer'
+ });
+ if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
+ return jsPDF();
+}
 function jsPDF(){
  if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('No se pudo cargar el generador de PDF. Comprueba tu conexión y recarga.');
  return window.jspdf.jsPDF;
@@ -75,5 +86,5 @@ function proofCertificate(e){
  return l.finish('Firma y fotografía registradas junto a los datos de la entrega.');
 }
 
-window.GamaPdf={save,fileName,proofReport,proofCertificate,money,jsPDF};
+window.GamaPdf={ready,save,fileName,proofReport,proofCertificate,money,jsPDF};
 })();

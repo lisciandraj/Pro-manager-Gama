@@ -31,9 +31,13 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
-Les PDF, CRM, projets et certaines extensions sont encore chargés au démarrage : leurs dépendances synchrones et appels croisés sont identifiés dans l’audit. Cette version ne les présente pas comme entièrement modulaires.
+Le moteur jsPDF local est chargé par `GamaPdf.ready()` au premier export. Les constructeurs de documents restent synchrones après cette attente ; voir [exports PDF](development/pdf-exports.md). Le chargeur partage les téléchargements, conserve l’intégrité SRI et permet une nouvelle tentative après une erreur réseau.
+
+Projets sépare l’intégration légère (`src/features/projects/integration.js`) du moteur de calcul et des écrans. Les alertes, liens de création et résumés clients restent disponibles à l’accueil ; `projects-core.js`, puis `projects.js`, sont chargés à l’ouverture. Les lectures simultanées d’alertes partagent une promesse sans conserver les résultats. Les réponses d’une ancienne session sont rejetées ; un renouvellement de jeton ne ferme pas l’éditeur.
+
+CRM, les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite les scripts déclarés à 93 et 1 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
 
 ## Données et accès
 

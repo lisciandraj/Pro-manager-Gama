@@ -7,7 +7,8 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Navigation et modules actuels](docs/modules/navigation.md)
 - [Guide de développement](docs/development/README.md)
 - [Charte graphique actuelle](docs/design-system.md)
-- [Audit technique du 30 septembre 2026](docs/audits/2026-09-30.md)
+- [Audit technique et organisation](docs/audits/2026-09-30.md)
+- [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)
 - [Index de la documentation](docs/README.md)
 
 ## Démarrer
@@ -30,6 +31,7 @@ npm run check
 npm run typecheck
 npm run check:docs
 npm run verify:migrations
+npm run check:startup
 npm run test:architecture
 npm run test:unit
 npx playwright install chromium

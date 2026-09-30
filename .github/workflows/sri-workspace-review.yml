@@ -1,20 +1,55 @@
-name: SRI workspace review
+name: SRI interface final verification
 on:
   push:
     branches: [feat/openapi-sri-integration]
     paths: [.github/workflows/sri-workspace-review.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  snapshot:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
-      - run: tar --exclude=.git -czf /tmp/sri-current-source.tar.gz .
-      - uses: actions/upload-artifact@v4
+          ref: feat/openapi-sri-integration
+      - uses: actions/setup-node@v4
         with:
-          name: sri-current-source
-          path: /tmp/sri-current-source.tar.gz
-          retention-days: 1
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply targeted reviewed fixes
+        run: python .github/sri-interface-fix.py
+      - run: npm ci --ignore-scripts
+      - run: pip install requests==2.32.5
+      - run: npm run build
+      - name: Static, generated and unit regression checks
+        run: |
+          set -o pipefail
+          npm run validate 2>&1 | tee /tmp/sri-final-validate.log
+      - name: Fiscal connector tests
+        run: |
+          set -o pipefail
+          (python -m unittest discover -s tests -p 'test_sri*.py' -v && node --test tests/sri-openapi-edge.test.cjs) 2>&1 | tee /tmp/sri-final-contracts.log
+      - run: npx playwright install --with-deps chromium
+      - name: End-to-end mocked finance paths
+        run: |
+          set -o pipefail
+          npx playwright test tests/sri-integration.spec.js tests/accounting.spec.js tests/internal-invoices.spec.js tests/payments.spec.js --workers=2 2>&1 | tee /tmp/sri-final-browser.log
+      - name: Commit verified canonical and generated files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/features/finance/accounting.js tests/mock-gama-cloud.js tests/accounting.spec.js tests/sri-integration.spec.js architect-assets.js gama-accounting.js index.html sw.js
+          git commit -m 'fix(sri): preserve disabled unconfigured state and verify payment navigation'
+          git push origin HEAD:feat/openapi-sri-integration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sri-final-verification
+          path: |
+            /tmp/sri-final-*.log
+            test-results/
+          retention-days: 3

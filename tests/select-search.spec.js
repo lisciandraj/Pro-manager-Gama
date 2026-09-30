@@ -200,3 +200,14 @@ test.describe('Listas largas — se busca escribiendo', () => {
       document.getElementById('gqCustomer').classList.contains('gamaFindOculto'))).toBe(false);
   });
 });
+
+test('search list stays next to its input inside a column form field on mobile',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);
+ await page.evaluate(()=>ArcUI.dialog({title:'Stock test',body:ArcUI.field({key:'product',label:'Produit',type:'select',options:Array.from({length:12},(_,i)=>({id:String(i+1),name:'Produit '+(i+1)}))}),onSave:async()=>{}}));
+ const box=page.locator('dialog .gamaFindBox');await box.click();
+ const menu=page.locator('dialog .gamaFindMenu');await expect(menu).toBeVisible();
+ const inputRect=await box.boundingBox(),menuRect=await menu.boundingBox();
+ expect(menuRect.y-inputRect.y-inputRect.height).toBeLessThan(40);
+ expect(menuRect.height).toBeLessThanOrEqual(241);
+ await box.fill('Produit 12');await menu.locator('.gamaFindOpt').click();await expect(page.locator('dialog select')).toHaveValue('12');
+});

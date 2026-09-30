@@ -98,3 +98,22 @@ test('barcode mobile camera result, reservations, unknown code and session reset
   await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('#barcodeStock')).toHaveCount(0);
  }finally{await x.db.close()}
 });
+
+test('adjustment locations follow product stock and opening stock keeps empty destinations',async({page})=>{
+ await page.setViewportSize({width:390,height:844});const x=await boot(page,'admin');try{
+  await page.locator('[data-adjust-new]').click();const d=page.locator('dialog').last(),location=d.locator('[name=location_id]');
+  await expect(location).toBeDisabled();
+  await expect(d.locator('[name=kind]')).toBeVisible();
+  await expect(d.locator('[name=kind]')).not.toHaveClass(/gamaFindOculto/);
+  await d.locator('[name=product_id]').selectOption(x.product);
+  await expect(location).toBeEnabled();
+  expect(await location.locator('option').evaluateAll(a=>a.map(o=>o.value))).toEqual(['',x.location]);
+  await location.selectOption(x.location);
+  await d.locator('[name=product_id]').selectOption(x.empty);
+  await expect(location).toHaveValue('');await expect(location).toBeDisabled();
+  await expect(d.locator('[data-adjust-preview]')).toContainText('Aucun emplacement');
+  await d.locator('[name=kind]').selectOption('opening');await expect(location).toBeEnabled();
+  await location.selectOption(x.location);await expect(d.locator('[data-adjust-preview]')).toContainText('Stock actuel');
+  await d.locator('[name=kind]').selectOption('breakage');await expect(location).toHaveValue('');await expect(location).toBeDisabled();
+ }finally{await x.db.close()}
+});

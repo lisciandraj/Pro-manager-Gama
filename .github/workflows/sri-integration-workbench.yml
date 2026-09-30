@@ -1,0 +1,35 @@
+name: SRI integration workbench
+on:
+  push:
+    branches: [feature/coco-openapi-sri]
+permissions:
+  contents: read
+jobs:
+  source-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive --format=zip --output=coco-source.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coco-sri-source
+          path: coco-source.zip
+          retention-days: 1
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run validate
+      - run: git diff --binary > generated.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coco-sri-generated
+          path: generated.patch
+          retention-days: 1

@@ -15,7 +15,7 @@ L’inventaire couvre le dépôt ; l’examen statique porte sur les sources fro
 | Performance | Aucun plafond de taille au démarrage | Budget versionné et vérifié en CI, tailles exactes et estimation gzip reproductibles |
 
 Le point de départ comporte **95 scripts déclarés et 2 308 276 octets de JavaScript**, ainsi que 12 feuilles CSS et 285 783 octets. Ces chiffres sont calculés à partir des URL de `src/app/index.html` et des fichiers de la révision analysée ; ils diffèrent du relevé initial, qui porte sur une autre révision.
-Le report du moteur PDF retire 365 730 octets du chargement initial, avant le petit coût du chargeur ajouté. Il ne réduit pas la taille du PDF produit. Au premier export, ce téléchargement reste nécessaire ; les suivants partagent le moteur installé.
+Après reconstruction, l’entrée comporte **94 scripts et 1 944 137 octets de JavaScript** : une baisse nette de **364 139 octets (15,8 %)**. Le report du moteur PDF retire 365 730 octets, compensés en partie par le petit coût du chargeur et des attentes ajoutées. Il ne réduit pas la taille du PDF produit. Au premier export, ce téléchargement reste nécessaire ; les suivants partagent le moteur installé.
 Le budget final exige au maximum 2 000 000 octets de JS, 300 000 octets de CSS et 94 scripts déclarés. Les requêtes dynamiques Supabase et ses extensions ne sont pas incluses dans ces totaux.
 
 ## Architecture et maintenance

@@ -803,7 +803,8 @@ dialog:has(#goNote){border:0;border-radius:16px;width:min(560px,calc(100vw - 40p
 
 /* gama-select-search.js */
 .gamaFind{position:relative;margin:0 0 6px;flex:1 1 220px;min-width:0}
-.gqField>.gamaFind,.gqGrid label>.gamaFind{flex:none}
+.gqField>.gamaFind,.gqGrid label>.gamaFind,.arcField>.gamaFind{flex:none}
+.arcField>.gamaFind .gamaFindMenu{top:100%;max-height:min(240px,35dvh)}
 .gqProductHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .gqProductIdentity{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
 .gqProductIdentity small{color:var(--arc-text-muted)}

@@ -20,7 +20,7 @@ async function ready(){
  const epoch=authEpoch;
  if(!window.jspdf?.jsPDF)await window.ArcLoadScript('assets/vendor/jspdf-2.5.2.umd.min.js',{
   integrity:'sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/',
-  crossOrigin:'anonymous',referrerPolicy:'no-referrer'
+  crossOrigin:'anonymous',referrerPolicy:'no-referrer',validate:()=>!!window.jspdf?.jsPDF
  });
  if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
  return jsPDF();

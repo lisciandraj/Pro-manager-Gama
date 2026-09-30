@@ -1,0 +1,29 @@
+name: SRI integration workspace
+on:
+  push:
+    branches: [feat/openapi-sri-integration]
+    paths: [.github/workflows/sri-integration-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Prepare isolated sources and test dependencies
+        run: |
+          git clone --depth 1 https://github.com/AngeloBarzolaVillamar/open-api-facturacion-sri.git /tmp/open-api-sri
+          git -C /tmp/open-api-sri rev-parse HEAD > /tmp/upstream-revision.txt
+          tar --exclude=.git -czf /tmp/coco-sri-workspace.tar.gz . -C /tmp open-api-sri upstream-revision.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coco-sri-workspace
+          path: /tmp/coco-sri-workspace.tar.gz
+          retention-days: 1

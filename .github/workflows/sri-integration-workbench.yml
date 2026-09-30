@@ -5,22 +5,48 @@ on:
 permissions:
   contents: read
 jobs:
-  source-snapshot:
+  upstream-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git archive --format=zip --output=coco-source.zip HEAD
-      - run: |
-          git init upstream
-          git -C upstream remote add origin https://github.com/AngeloBarzolaVillamar/open-api-facturacion-sri.git
-          git -C upstream fetch --depth=1 origin b41a7c79ba3fb2f0977efd3065bc126e1d9651ac
-          git -C upstream archive --format=zip --output=../upstream-source.zip FETCH_HEAD
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch exact upstream without its incomplete frontend submodule
+        run: |
+          git init /tmp/openapi
+          git -C /tmp/openapi remote add origin https://github.com/AngeloBarzolaVillamar/open-api-facturacion-sri.git
+          git -C /tmp/openapi fetch --depth=1 origin b41a7c79ba3fb2f0977efd3065bc126e1d9651ac
+          git -C /tmp/openapi archive FETCH_HEAD | tar -x -C /tmp/openapi
+          echo '{"commit":"b41a7c79ba3fb2f0977efd3065bc126e1d9651ac"}' > /tmp/openapi/coco-upstream.json
+      - name: Compile and test upstream fiscal services without contacting SRI
+        working-directory: /tmp/openapi
+        run: |
+          npm ci
+          npm run build
+          npm test -- --runInBand --testPathPatterns='clave-acceso.service.spec|xml-signer.service.spec|sri-soap-client.spec'
+      - name: Package private runtime test dependencies
+        working-directory: /tmp/openapi
+        run: |
+          npm prune --omit=dev
+          tar -czf /tmp/upstream-runtime.tar.gz dist node_modules coco-upstream.json
       - uses: actions/upload-artifact@v4
         with:
-          name: coco-sri-source
-          path: |
-            coco-source.zip
-            upstream-source.zip
+          name: upstream-runtime
+          path: /tmp/upstream-runtime.tar.gz
+          retention-days: 1
+  migration-scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx --yes supabase migration new coco_sri_workspace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sri-migration-scaffold
+          path: supabase/migrations/*_coco_sri_workspace.sql
           retention-days: 1
   validate:
     runs-on: ubuntu-latest
@@ -33,10 +59,3 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run validate
-      - run: git diff --binary > generated.patch
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coco-sri-generated
-          path: generated.patch
-          retention-days: 1

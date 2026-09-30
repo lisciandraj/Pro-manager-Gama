@@ -107,3 +107,22 @@ test('mobile SRI uses the existing horizontal table container without overflowin
  await expect(page.locator('#sri')).toBeVisible();await expect(page.locator('#gaMain .gaScroll')).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2)).toBe(true);
 });
+
+
+test('payment details open the exact fiscal invoice without posting a payment',async({page})=>{
+ await boot(page);await page.evaluate(async()=>{
+  const old=GamaCloud.db;
+  GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn==='gama_payment_action'){
+    __SRI.calls.push({fn,...args});
+    if(args.p_action!=='detail')throw Error('Unexpected payment mutation');
+    return {data:{...__DB.external_invoices[0],customer_name:'Cliente',identification:'1712345678',customer_id:'c1',email:'',payment_status:'pending',paid:0,balance:115,lines:[],payments:[]}};
+   }
+   return c.rpc(fn,args);
+  }}};
+  await GamaPayments.open({invoiceId:__DB.external_invoices[0].id});
+ });
+ await expect(page.locator('#gpSri')).toBeVisible();await page.locator('#gpSri').click();
+ await expect(page.locator('#sri')).toBeVisible();await expect(page.locator('#gaMain')).toContainText('FAC-00000001');
+ expect(await page.evaluate(()=>__SRI.calls.some(c=>c.fn==='gama_payment_action'&&c.p_action!=='detail'))).toBe(false);
+});

@@ -141,6 +141,7 @@ async function open(options={}){
 }
 
 async function openSri(sourceInvoiceId){
+ if(sourceInvoiceId&&typeof sourceInvoiceId==='object')sourceInvoiceId=sourceInvoiceId.invoiceId||null;
  if(!allowed()||!window.gamaAccessAllowed?.('sri'))return;
  return open({section:'sri',sriWorkspace:true,sourceInvoiceId});
 }
@@ -914,7 +915,7 @@ VIEWS.sri={
  render(d){
   const byInvoice=new Map(d.issues.map(row=>[row.source_invoice_id,row]));
   return `<div class="arcPanel gaCard"><h2>${tr('Facturación electrónica SRI')}</h2>
-   <p role="status" class="gaHint">${tr(d.ready?'Servicio preparado para pruebas supervisadas; no implica certificación fiscal.':'Emisión desactivada. Configura el servicio privado y valida las pruebas antes de enviar.')}</p>
+   <p role="status" class="gaHint">${tr(d.ready?'Servicio preparado para pruebas supervisadas; no implica certificación fiscal.':'Emisión SRI desactivada. Falta configurar el servicio de firma, el certificado y validar las pruebas SRI. Puedes guardar la configuración.')}</p>
    <p>${tr('Motor fiscal')}: <b>${esc(d.runtime.provider==='openapi'?'Open API Facturación SRI':'Coco SRI')}</b></p>
    <p class="gaHint">${tr('Solo facturas nacionales ordinarias. Notas de crédito, retenciones y guías requieren una integración fiscal adicional.')}</p>
    <details><summary>${tr('Configuración SRI')}</summary><div class="gaGrid">
@@ -929,7 +930,7 @@ VIEWS.sri={
    <label>${tr('Forma de pago de la factura')}<select id="gaSriPayment"><option value="">${tr('Seleccionar')}</option><option value="01">${tr('Efectivo')}</option><option value="16">${tr('Tarjeta de débito')}</option><option value="19">${tr('Tarjeta de crédito')}</option><option value="20">${tr('Otros con sistema financiero')}</option></select></label></div>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr><th>${tr('Factura interna')}</th><th>${tr('Fecha')}</th><th>${tr('Total')}</th><th>${tr('Estado SRI')}</th><th>${tr('Acciones')}</th></tr></thead><tbody>${d.invoices.map(inv=>{
     const issue=byInvoice.get(inv.id),status=issue?.status||'',openapi=issue?.receipt?.provider==='openapi';
-    const permitted=action=>action==='prepare'?rights?.create:action==='download'?d.runtime.can_export:action==='refresh'?d.runtime.can_refresh:d.ready;
+    const permitted=action=>action==='prepare'?(rights?.create&&!!d.settings?.provider_ruc):action==='download'?d.runtime.can_export:action==='refresh'?d.runtime.can_refresh:d.ready;
     const button=(action,label,kind)=>`<button type="button" class="arcButton secondary" data-ga-sri="${action}" data-id="${esc(issue?.id||inv.id)}" ${kind?`data-kind="${kind}"`:''} ${permitted(action)?'':'disabled'}>${tr(label)}</button>`;
     const actions=!issue?(inv.fiscal_status==='unverified'&&!inv.external_number?button('prepare','Preparar'):tr('Ya vinculada o anulada')):
      (issue.status==='draft'?button('submit','Firmar y enviar'):'')+

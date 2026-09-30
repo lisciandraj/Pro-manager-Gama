@@ -7,6 +7,7 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Navigation et modules actuels](docs/modules/navigation.md)
 - [Guide de développement](docs/development/README.md)
 - [Charte graphique actuelle](docs/design-system.md)
+- [Revue complémentaire : maintenance et chargement PDF](docs/audits/2026-09-30-maintenance.md)
 - [Audit technique du 30 septembre 2026](docs/audits/2026-09-30.md)
 - [Index de la documentation](docs/README.md)
 
@@ -16,7 +17,7 @@ Prérequis : Node.js 22, npm et Python 3 (compilation des traductions et serveur
 
 ```sh
 npm ci
-npm run build
+npm run update
 npm run dev
 ```
 
@@ -24,6 +25,8 @@ Les sources sont dans `src/`. Après une modification, exécuter `npm run build`
 Les scripts et styles à la racine ainsi que `index.html` sont des **copies générées** nécessaires à l’hébergement GitHub Pages actuel. Ne pas les modifier directement.
 
 ## Vérifier
+
+`npm run update` construit et lance les contrôles communs. `npm run validate` les relance sans mise à jour des sources. Pour les contrôles individuels et les parcours navigateur :
 
 ```sh
 npm run check
@@ -35,6 +38,7 @@ npm run test:unit
 npx playwright install chromium
 npm test
 npm run check:generated
+npm run check:performance
 ```
 
 Les tests base utilisent des bases isolées ; ils ne sont pas des scripts à exécuter sur les données de production. Les parcours fiscaux SRI nécessitent en plus le signataire privé et leurs essais dédiés : voir [SRI](docs/modules/sri.md).

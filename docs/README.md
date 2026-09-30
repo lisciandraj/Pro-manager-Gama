@@ -5,6 +5,7 @@ Documents courants :
 - [Développement](development/README.md)
 - [Navigation](modules/navigation.md)
 - [Charte graphique](design-system.md)
+- [Revue complémentaire : maintenance et chargement PDF](audits/2026-09-30-maintenance.md)
 - [Audit du 30 septembre](audits/2026-09-30.md)
 - [Sources et adresses publiques](source-map.md)
 - [Performance : historique des mesures](history/loading-performance-2026-09.md)

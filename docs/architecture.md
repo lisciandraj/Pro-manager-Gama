@@ -33,7 +33,9 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
-Les PDF, CRM, projets et certaines extensions sont encore chargés au démarrage : leurs dépendances synchrones et appels croisés sont identifiés dans l’audit. Cette version ne les présente pas comme entièrement modulaires.
+Les interfaces de génération PDF, CRM, projets et certaines extensions sont encore chargés au démarrage : leurs dépendances synchrones et appels croisés sont identifiés dans l’audit. Cette version ne les présente pas comme entièrement modulaires.
+
+Le moteur jsPDF local se charge au premier export via `GamaPdf.ready()`. Les actions PDF attendent cette promesse partagée ; les constructeurs synchrones restent compatibles. Un téléchargement échoué peut être réessayé. Le manifeste déclare ce fournisseur dans `vendors` pour générer son URL à hash, sans l’ajouter au démarrage.
 
 ## Données et accès
 
@@ -47,6 +49,12 @@ La production et le dossier actif ont des historiques de migrations à rapproche
 Les URL JS/CSS comportant un hash de contenu peuvent être servies depuis le cache du service worker lorsqu’il est installé. Une nouvelle version possède une autre clé. Les pages HTML restent relues sur le réseau ; ERP et site de test ont chacun leur repli hors ligne. Les réponses métier, les écritures et les diagnostics caméra ne sont pas mis dans ce cache.
 
 Le dépôt ne contient pas actuellement d’enregistrement automatique du service worker dans l’entrée ERP. Le correctif concerne les installations qui l’utilisent déjà ; il ne prouve pas un gain de chargement sur tous les appareils.
+
+## Contrôles de mise à jour et performance
+
+`npm run update` reconstruit puis lance `npm run validate`. La validation de release utilise cette même séquence de contrôles. `config/performance-budget.json` fixe les plafonds des scripts et styles déclarés dans l’entrée ; `npm run check:performance` les vérifie et `node scripts/check-performance.cjs --json` détaille leurs tailles. Les requêtes dynamiques et les temps réseau réels ne sont pas mesurés par ce contrôle.
+
+Les lots de traduction ne rescannent plus un descendant lorsqu’un de ses parents figure dans le même lot. Les annotations opt-in et les valeurs métier restent gérées par les contrats existants.
 
 ## Limites de cette simplification
 

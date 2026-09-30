@@ -2,7 +2,7 @@
 
 1. Chercher le module dans `config/runtime-assets.json` ; ouvrir son `source`.
 2. Modifier le source nommé par domaine. Les anciennes URL dans les tests sont les sorties publiques compatibles.
-3. Lancer `npm run build`, puis les contrôles et tests du parcours modifié.
+3. Lancer `npm run update` pour construire et valider, puis les tests navigateur du parcours modifié.
 4. Vérifier `npm run check:generated` avant publication : aucune copie racine ne doit diverger.
 5. Mettre à jour le document courant du module.
 
@@ -10,6 +10,9 @@
 
 | Commande | Vérification |
 | --- | --- |
+| `npm run update` | Reconstruit toutes les sorties puis lance la validation commune |
+| `npm run validate` | Syntaxe, types, documentation, migrations, tests Node, génération et budgets |
+| `npm run check:performance` | Plafonds de taille JS/CSS et nombre de scripts initiaux |
 | `npm run build` | Compile le catalogue et génère les actifs racine et dist |
 | `npm run check` | Syntaxe des sources et sorties, manifeste, liens des trois entrées HTML |
 | `npm run check:docs` | Vérifie les liens locaux après déplacement des documents |
@@ -26,6 +29,14 @@
 Déclarer identité et accès dans `src/app/registry.js`, écrire son source sous `src/features/`, ajouter le couple source/output au manifeste.
 S’il peut attendre son ouverture, déclarer ses méthodes publiques dans `src/app/lazy-modules.js`. Le module remplace la façade `__arcLazy` ; sa garde d’installation ne doit pas bloquer cette façade.
 Garder les vérifications serveur, la gestion des changements de session et les appels croisés existants.
+
+## Exports PDF et dépendances locales
+
+Avant un appel synchrone à `GamaPdfTemplate.layout()`, `GamaQuotePdf.build()`, `GamaPurchaseOrderPdf.build()` ou `new jspdf.jsPDF()`, attendre `await window.GamaPdf.ready()` dans l’action utilisateur. Les téléchargements concurrents partagent une promesse ; une erreur autorise une nouvelle tentative. Ne pas appeler `ready()` au montage d’un écran qui ne génère pas de PDF.
+
+Les bibliothèques locales différées à versionner sont dans `vendors` du manifeste. En changeant jsPDF, mettre à jour ensemble le fichier, ce chemin et l’intégrité SHA-384 du chargeur dans `src/features/documents/pdf.js`, puis tester les exports et l’échec réseau.
+
+Les budgets sont dans `config/performance-budget.json`. `node scripts/check-performance.cjs --json` donne les tailles fichier et gzip estimées. Expliquer un dépassement et ses mesures avant d’augmenter un plafond ; ce contrôle ne mesure ni les requêtes dynamiques ni le temps de chargement réel.
 
 ## Styles
 

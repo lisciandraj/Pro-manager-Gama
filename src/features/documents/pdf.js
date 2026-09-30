@@ -13,6 +13,26 @@
 'use strict';
 if(window.GamaPdf)return;
 
+// The synchronous builders remain compatible; user actions await ready() first.
+let engineRequest=null;
+function ready(){
+ if(window.jspdf?.jsPDF)return Promise.resolve(window.jspdf.jsPDF);
+ if(engineRequest)return engineRequest;
+ const file='assets/vendor/jspdf-2.5.2.umd.min.js';
+ const script=document.createElement('script');
+ script.src=window.ArcAssets?.[file]||file;
+ script.integrity='sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/';
+ script.crossOrigin='anonymous';script.referrerPolicy='no-referrer';
+ const request=new Promise((resolve,reject)=>{
+  script.onload=()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(Error('MODULE_LOAD_FAILED'));
+  script.onerror=()=>reject(Error('MODULE_LOAD_FAILED'));
+ });
+ engineRequest=request;
+ request.catch(()=>{script.remove();if(engineRequest===request)engineRequest=null;});
+ document.head.appendChild(script);
+ return request;
+}
+
 function jsPDF(){
  if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('No se pudo cargar el generador de PDF. Comprueba tu conexión y recarga.');
  return window.jspdf.jsPDF;
@@ -74,5 +94,5 @@ function proofCertificate(e){
  return l.finish('Firma y fotografía registradas junto a los datos de la entrega.');
 }
 
-window.GamaPdf={save,fileName,proofReport,proofCertificate,money,jsPDF};
+window.GamaPdf={ready,save,fileName,proofReport,proofCertificate,money,jsPDF};
 })();

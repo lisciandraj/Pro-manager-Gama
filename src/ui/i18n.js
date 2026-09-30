@@ -91,7 +91,16 @@ function scan(root){
  if(!root||root.nodeType!==1)return;prepare(root);localize(root);root.querySelectorAll(selector).forEach(localize);
 }
 let observer,scheduled=false;const pending=new Set();
-function flush(){scheduled=false;const roots=[...pending];pending.clear();for(const root of roots)if(root.isConnected)scan(root);mount()}
+function flush(){
+ scheduled=false;const roots=[...pending].filter(root=>root.isConnected);pending.clear();
+ const queued=new Set(roots);
+ // Scanning an ancestor covers every queued descendant once.
+ for(const root of roots){
+  let parent=root.parentElement;while(parent&&!queued.has(parent))parent=parent.parentElement;
+  if(!parent)scan(root);
+ }
+ mount();
+}
 function queue(root){if(root?.nodeType!==1)return;pending.add(root);if(!scheduled){scheduled=true;queueMicrotask(flush)}}
 const flags={
  fr:'<path fill="#fff" d="M0 0h30v20H0z"/><path fill="#002654" d="M0 0h10v20H0z"/><path fill="#ed2939" d="M20 0h10v20H20z"/>',

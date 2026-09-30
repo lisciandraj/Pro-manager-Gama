@@ -10,13 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: git archive --format=zip --output=coco-source.zip HEAD
-      - uses: actions/checkout@v4
-        with:
-          repository: AngeloBarzolaVillamar/open-api-facturacion-sri
-          ref: b41a7c79ba3fb2f0977efd3065bc126e1d9651ac
-          path: upstream
-          persist-credentials: false
-      - run: git -C upstream archive --format=zip --output=../upstream-source.zip HEAD
+      - run: |
+          git init upstream
+          git -C upstream remote add origin https://github.com/AngeloBarzolaVillamar/open-api-facturacion-sri.git
+          git -C upstream fetch --depth=1 origin b41a7c79ba3fb2f0977efd3065bc126e1d9651ac
+          git -C upstream archive --format=zip --output=../upstream-source.zip FETCH_HEAD
       - uses: actions/upload-artifact@v4
         with:
           name: coco-sri-source
@@ -33,12 +31,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: tar -czf /tmp/coco-node-modules.tar.gz node_modules
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coco-sri-test-dependencies
-          path: /tmp/coco-node-modules.tar.gz
-          retention-days: 1
       - run: npm run build
       - run: npm run validate
       - run: git diff --binary > generated.patch

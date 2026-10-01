@@ -1,0 +1,93 @@
+# Run from repository root with --env-file <server-only deployment.env>.
+# Prepare pinned upstream + sanitized database using prepare.py first.
+services:
+  postgres:
+    image: postgres:17.6
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: coco_sri
+      POSTGRES_USER: sri_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+    volumes:
+      - database:/var/lib/postgresql/data
+      - ../.runtime/init.sql:/docker-entrypoint-initdb.d/10-sri.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U sri_app -d coco_sri']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:7.4.5-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+    command: [sh, -c, 'exec redis-server --requirepass "$${REDIS_PASSWORD}" --appendonly yes --maxmemory-policy noeviction']
+    volumes: [redis:/data]
+  carbone:
+    image: ${CARBONE_IMAGE:?Set a verified Carbone 5 full image by immutable digest}
+    restart: unless-stopped
+    environment:
+      CARBONE_STUDIO: 'false'
+      CARBONE_EE_STUDIO: 'false'
+    volumes: [carbone:/app/template]
+  openapi:
+    build:
+      context: ../.runtime/openapi
+    restart: unless-stopped
+    env_file: [${SRI_UPSTREAM_ENV_FILE:?Set absolute server-only upstream.env path}]
+    environment:
+      NODE_ENV: production
+      PORT: '3001'
+      PUBLIC_URL: ${SRI_OPENAPI_URL:?Set HTTPS Open API URL}
+      CARBONE_API: http://carbone:4000
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_NAME: coco_sri
+      DB_USER: sri_app
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      DB_SSL: 'false'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      SRI_ENVIRONMENT: development
+      SRI_RECEPTION_WSDL: https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl
+      SRI_AUTHORIZATION_WSDL: https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl
+      SRI_EMISION_ASYNC: 'false'
+      QUEUE_SRI_ATTEMPTS: '1'
+      SRI_RECEPCION_RETRIES: '1'
+      SRI_MAX_RETRIES: '1'
+      TEMPLATES_DIR: /data/templates
+      PDFS_DIR: /data/pdfs
+      CERTS_DIR: /data/certs
+      XMLS_DIR: /data/xmls
+    ports: ['127.0.0.1:3001:3001']
+    volumes:
+      - ../.runtime/openapi/templates:/data/templates:ro
+      - pdfs:/data/pdfs
+      - certificates:/data/certs
+      - xmls:/data/xmls
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_started}
+      carbone: {condition: service_started}
+  gateway:
+    build:
+      context: ../../..
+      dockerfile: services/sri/deploy/Dockerfile.gateway
+    restart: unless-stopped
+    env_file: [${SRI_GATEWAY_ENV_FILE:?Set absolute server-only gateway.env path}]
+    environment:
+      SRI_PROVIDER: openapi
+      SRI_OPENAPI_ENVIRONMENT: pruebas
+      SRI_PRODUCTION_ENABLED: 'false'
+    ports: ['127.0.0.1:8000:8000']
+    read_only: true
+    tmpfs: [/tmp]
+    depends_on: [openapi]
+volumes:
+  database:
+  redis:
+  carbone:
+  pdfs:
+  certificates:
+  xmls:

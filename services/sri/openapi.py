@@ -41,6 +41,7 @@ def validate_key(key, issue):
 
 
 def factura_payload(issue, accounting):
+    accounting = issue['snapshot'].get('accounting_obligation') or accounting
     if accounting not in ('SI', 'NO'):
         raise ValueError('SRI_ACCOUNTING_OBLIGATION_REQUIRED')
     s = issue['snapshot']
@@ -83,7 +84,8 @@ def factura_payload(issue, accounting):
         'fechaEmision': date.fromisoformat(s['issue_date']).strftime('%d/%m/%Y'),
         'secuencial': issue['sequential'],
         'emisor': {'ruc': issue['issuer_ruc'], 'razonSocial': s['issuer'],
-                   'dirMatriz': s['address'], 'dirEstablecimiento': s['address'],
+                   'dirMatriz': s['address'], 'dirEstablecimiento': s.get('establishment_address') or s['address'],
+                   **({'nombreComercial': s['trade_name']} if s.get('trade_name') else {}),
                    'establecimiento': issue['establishment'], 'puntoEmision': issue['emission_point'],
                    'obligadoContabilidad': accounting},
         'comprador': buyer, 'detalles': details,

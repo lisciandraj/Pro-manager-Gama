@@ -47,3 +47,31 @@ The signer deliberately supports only ordinary Ecuadorian domestic invoices with
 The SRI technical sheet v2.34 (July 2026), including its annex 26 provider field, is the primary specification: https://www.sri.gob.ec/web/intersri/facturacion-electronica . Somatech's LGPL-3.0 Odoo repository was used only to study workflow and the key layout; its code is not bundled or loaded into Coco. This component still needs live certification against SRI's test service. No certificate, provider identity, or live SRI credentials are committed.
 
 When reception times out after transmission, do not issue a new key or send blindly again. Use **Consultar SRI**; retain the same signed XML and sequence for recovery. Email transport can time out after a successful delivery; verify with the mail provider before clicking **Enviar al cliente** again.
+
+
+## Sélection des factures et configuration (1er octobre 2026)
+
+La tuile Administration → Facturation SRI ouvre par défaut les factures internes
+non envoyées : absence de référence fiscale externe et absence de dossier SRI,
+ou dossier encore en brouillon. La vue `sri_invoice_selection` filtre avant
+pagination et conserve les RLS existantes (`security_invoker=true`). Le filtre
+Toutes les factures donne accès au suivi historique. Sélection de page, préparation
+et envoi groupé sont disponibles selon les droits. Un envoi groupé concerne uniquement
+`pruebas`, demande une confirmation du nombre sélectionné et s’arrête après un rejet,
+une réponse incertaine ou une erreur. Une facture en traitement n’est pas réémise.
+Les séries SRI réservées restent indépendantes du numéro FAC interne.
+
+Configuration → Facturation SRI partage l’identité légale de la fiche entreprise
+(RUC, raison sociale, adresse et e-mail), accessible sans quitter la configuration.
+Le profil enregistre établissement, point d’émission, RUC du fournisseur logiciel,
+nom commercial, adresse d’établissement et obligation comptable. Ces champs sont
+figés dans l’instantané à la préparation. Aucun certificat ou secret serveur n’est
+exposé au navigateur. Production reste indisponible dans ce nouvel écran de test.
+Les RPC de configuration vérifient administrateur actif, droits et MFA existants.
+
+Le déploiement coordonné est décrit dans
+[services/sri/deploy/README.md](../../services/sri/deploy/README.md).
+La recette comprend les composants persistants mais requiert un serveur privé,
+HTTPS, les identifiants et un certificat réel. Elle n’indique pas que le service
+est hébergé. Le RIDE Carbone HTML utilise des fonctions annoncées Community ;
+le rendu PDF réel et les essais SRI doivent encore être validés sur l’image choisie.

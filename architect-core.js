@@ -1613,6 +1613,7 @@
       "file": "gama-accounting.js",
       "methods": [
         "openSri",
+        "mountSriConfig",
         "open",
         "rpc"
       ]

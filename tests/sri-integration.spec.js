@@ -20,12 +20,12 @@ async function boot(page,options={}){
   await GamaCloudReady;const old=GamaCloud.db;
   GamaCloud.db=async()=>{const base=await old();return{...base,
    from(table){
-    if(!['external_invoices','sri_invoice_issues'].includes(table))return base.from(table);
+    if(!['external_invoices','sri_invoice_issues','sri_invoice_selection'].includes(table))return base.from(table);
     let filters=[],range=[0,9999],orders=[];
     const q={select(){return q},eq(k,v){filters.push(r=>r[k]===v);return q},in(k,vs){filters.push(r=>vs.includes(r[k]));return q},
      ilike(k,value){filters.push(r=>String(r[k]||'').toLowerCase().includes(value.slice(1,-1).toLowerCase()));return q},
      order(k,opts){orders.push([k,opts]);return q},range(a,b){range=[a,b];return q},
-     then(ok,fail){let rows=__DB[table].filter(r=>filters.every(fn=>fn(r)));for(const[k,o]of orders)rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o.ascending?1:-1));return Promise.resolve({count:rows.length,data:structuredClone(rows.slice(range[0],range[1]+1))}).then(ok,fail)}};
+     then(ok,fail){let rows=(table==='sri_invoice_selection'?__DB.external_invoices.map(r=>({...r,sri_selectable:r.document_kind==='internal'&&r.fiscal_status==='unverified'&&!r.external_number&&(!__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id)||__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id).status==='draft')})):__DB[table]).filter(r=>filters.every(fn=>fn(r)));for(const[k,o]of orders)rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o.ascending?1:-1));return Promise.resolve({count:rows.length,data:structuredClone(rows.slice(range[0],range[1]+1))}).then(ok,fail)}};
     return q;
    },
    rpc:async(fn,args)=>{
@@ -56,7 +56,7 @@ test('standalone SRI workspace loads lazily and does not trigger accounting sync
 
 test('uncertain Open API document offers lookup, never a reissue or reset',async({page})=>{
  await boot(page,{issue:{receipt:{provider:'openapi'},last_error:'SRI_OPENAPI_RECONCILIATION_REQUIRED'}});
- await page.evaluate(()=>GamaAccounting.openSri());
+ await page.evaluate(()=>GamaAccounting.openSri());await page.locator('#gaSriFilter').selectOption('all');
  await expect(page.locator('[data-ga-sri="refresh"]')).toBeEnabled();
  await expect(page.locator('[data-ga-sri="retry"]')).toHaveCount(0);
  await expect(page.locator('[data-ga-sri="submit"]')).toHaveCount(0);
@@ -81,6 +81,7 @@ test('pagination loads the matching fiscal issue and escapes untrusted errors',a
   __DB.sri_invoice_issues=[{id:'fiscal',source_invoice_id:'0',status:'error',last_error:'<img src=x onerror="window.__XSS=1">'}];
   return GamaAccounting.openSri();
  });
+ await page.locator('#gaSriFilter').selectOption('all');
  await expect(page.locator('#gaMain tbody tr')).toHaveCount(30);await page.locator('#gaSriNext').click();
  await expect(page.locator('#gaMain tbody tr')).toHaveCount(5);await expect(page.locator('#gaMain')).toContainText('<img');
  expect(await page.evaluate(()=>window.__XSS)).toBeUndefined();
@@ -126,3 +127,24 @@ test('payment details open the exact fiscal invoice without posting a payment',a
  await expect(page.locator('#sri')).toBeVisible();await expect(page.locator('#gaMain')).toContainText('FAC-00000001');
  expect(await page.evaluate(()=>__SRI.calls.some(c=>c.fn==='gama_payment_action'&&c.p_action!=='detail'))).toBe(false);
 });
+
+ test('pending selection excludes submitted and external fiscal documents',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const base=__DB.external_invoices[0];__DB.external_invoices.push({...base,id:'pending',number:'PENDING'},{...base,id:'uncertain',number:'UNCERTAIN'},{...base,id:'linked',number:'LINKED',external_number:'001-001-000000002'});__DB.sri_invoice_issues.push({id:'u',source_invoice_id:'uncertain',status:'processing',receipt:{provider:'openapi'}});return GamaAccounting.openSri()});
+ await expect(page.locator('#gaMain tbody tr')).toHaveCount(2);await expect(page.locator('#gaMain')).not.toContainText('UNCERTAIN');
+ await page.locator('#gaSriPayment').selectOption('01');await page.locator('#gaSriSelectPage').check();await page.locator('#gaSriPrepareSelected').click();
+ await expect.poll(()=>page.evaluate(()=>__SRI.calls.filter(c=>c.fn==='gama_sri_prepare').length)).toBe(2);
+ expect(await page.evaluate(()=>__SRI.calls.some(c=>c.action==='submit'))).toBe(false);
+ });
+ test('test batch stops after an uncertain response without sending the next invoice',async({page})=>{
+ await boot(page,{runtime:{ready:true}});await page.evaluate(()=>{__DB.external_invoices.push({...__DB.external_invoices[0],id:'next',number:'NEXT'});return GamaAccounting.openSri()});
+ await page.locator('#gaSriPayment').selectOption('01');await page.locator('#gaSriSelectPage').check();page.once('dialog',d=>d.accept());await page.locator('#gaSriSubmitSelected').click();
+ await expect.poll(()=>page.evaluate(()=>__SRI.calls.filter(c=>c.action==='submit').length)).toBe(1);
+ await expect(page.locator('#gaSriSubmitSelected')).toBeEnabled();expect(await page.evaluate(()=>__SRI.calls.filter(c=>c.fn==='gama_sri_prepare').length)).toBe(1);
+ });
+
+ test('configuration SRI tab loads the company fiscal profile without finance synchronization',async({page})=>{
+ await boot(page);await page.evaluate(()=>{GamaCompany.load=async()=>({legal_name:'Fixture Company',tax_id:'1790012345001',address:'Quito',email:'test@example.invalid'});GamaSettings.openDialog('sri')});
+ await expect(page.locator('#cfgSriForm')).toContainText('Fixture Company');await expect(page.locator('#cfgSriEnvironment')).toHaveValue('pruebas');
+ await expect(page.locator('#cfgSriAccounting')).toBeVisible();await expect(page.locator('#cfgSriForm input[type="password"]')).toHaveCount(0);
+ expect(await page.evaluate(()=>__SRI.calls.some(c=>c.p_action==='sync'))).toBe(false);
+ });

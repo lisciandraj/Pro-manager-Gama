@@ -85,18 +85,20 @@ const SECTIONS=[
  {id:'company',label:'Información de la empresa',icon:'factory',pane:'company',admin:true},
  {id:'identity',label:'Identidad de los documentos',icon:'documents',pane:'company',admin:true},
  {id:'fiscal',label:'Ajustes fiscales',icon:'ledger',pane:'company',admin:true},
+ {id:'sri',label:'Facturación SRI',icon:'invoice',pane:'sri',admin:true},
  {id:'references',label:'Referencias de documentos',icon:'tag',pane:'references',admin:true},
  {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
  {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
 ];
 // Cada apartado se carga la primera vez que se enseña: abrir la ventana para el idioma no pide nada al servidor.
 const PANES={
+ sri:host=>window.GamaAccounting?.mountSriConfig(host),
  company:host=>window.GamaCompany?.mount(host),
  references:host=>window.GamaReferences?.mountConfig(host),
  policies:host=>window.ArchitectControls?.mountPolicies(host),
  security:host=>window.ArchitectIdentity?.security(host),
 };
-const HOSTS={company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity'};
+const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity'};
 let dialog=null;
 function show(section){
  const el=dialog?.el;if(!el)return;

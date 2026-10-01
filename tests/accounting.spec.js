@@ -307,15 +307,21 @@ test('SRI remains visible in French while unconfigured issuance is disabled and 
  await page.evaluate(()=>{
   GamaI18n.setLanguage('fr');
   window.__DB.external_invoices=[{id:'invoice-sri',number:'FAC-001',issue_date:'2026-09-27',total:115,document_kind:'internal',fiscal_status:'unverified',external_number:null}];
+  window.__DB.sri_invoice_selection=window.__DB.external_invoices.map(r=>({...r,sri_selectable:true}));
   window.__DB.sri_invoice_issues=[];window.__DB.sri_settings=[];
-  const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,functions:{invoke:async()=>({data:{ready:false,configured:false}})},rpc:async(fn,args)=>fn==='gama_sri_configure'?{error:{message:'SRI_CONFIGURATION_INVALID'}}:c.rpc(fn,args)}};
+  GamaCompany.load=async()=>({legal_name:'Fixture Company',tax_id:'1790012345001',address:'Quito'});
+  const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,functions:{invoke:async()=>({data:{ready:false,configured:false}})},rpc:async(fn,args)=>fn==='gama_sri_configure_profile'?{error:{message:'SRI_CONFIGURATION_INVALID'}}:c.rpc(fn,args)}};
  });
  await page.evaluate(()=>GamaAccounting.open({section:'sri'}));
  await expect(page.locator('#gaMain')).toContainText('Émission SRI désactivée');
  await expect(page.locator('[data-ga-sri=prepare]')).toBeDisabled();
- await page.locator('#gaMain details summary').click();
- await page.locator('#gaSriSave').click();
- await expect(page.locator('#gaSriSave')).toBeEnabled();
+ await page.locator('#gaSriConfigure').click();
+ await expect(page.locator('#cfgSriForm')).toBeVisible();
+ await page.locator('#cfgSriProvider').fill('1790012345001');
+ await page.locator('#cfgSriAccounting').selectOption('NO');
+ await page.locator('#cfgSriSave').click();
+ await expect(page.locator('#cfgSriMessage')).toContainText('SRI_CONFIGURATION_INVALID');
+ await expect(page.locator('#cfgSriSave')).toBeEnabled();
  expect(errors).toEqual([]);
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);

@@ -34,7 +34,7 @@ services:
     build:
       context: ../.runtime/openapi
     restart: unless-stopped
-    env_file: [${SRI_UPSTREAM_ENV_FILE:?Set absolute server-only upstream.env path}]
+    env_file: ['${SRI_UPSTREAM_ENV_FILE:?Set absolute server-only upstream.env path}']
     environment:
       NODE_ENV: production
       PORT: '3001'
@@ -75,7 +75,7 @@ services:
       context: ../../..
       dockerfile: services/sri/deploy/Dockerfile.gateway
     restart: unless-stopped
-    env_file: [${SRI_GATEWAY_ENV_FILE:?Set absolute server-only gateway.env path}]
+    env_file: ['${SRI_GATEWAY_ENV_FILE:?Set absolute server-only gateway.env path}']
     environment:
       SRI_PROVIDER: openapi
       SRI_OPENAPI_ENVIRONMENT: pruebas

@@ -203,7 +203,7 @@ test.describe('el armazón Coco ERP', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
     await expect(page.locator('.arcLogo img')).toHaveAttribute('alt','COCO ERP — Structure Your Business. Simply.');
-    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-gama-logo.jpg?v=20261001-white-eyes');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-gama-logo.jpg?v=20261001-c-logo');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Coco ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Coco ERP/], ['en', /Search Coco ERP/]]) {

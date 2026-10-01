@@ -15,6 +15,7 @@
 | SAV | Dossiers de service, garanties et création de retour lié |
 | TMS | Préparation, planification, contrôle de chargement, livraisons et preuves |
 | Flotte | Véhicules, conducteurs, documents, échéances et dépenses |
+| Facturation SRI | Factures internes, moteur fiscal Open API, consultation SRI, XML/RIDE privés ; administrateurs et droits comptabilité |
 | Comptabilité | Factures fournisseurs/clients, règlements, rapprochement et onglet SRI |
 | CRM | Prospects, opportunités, activités, objectifs et rapports |
 | Projets | Portefeuille et phases adaptées PME ; catégorie Administration |

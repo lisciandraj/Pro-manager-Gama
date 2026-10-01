@@ -33,7 +33,7 @@ test('la rueda está en la barra superior, junto a la campana, y la configuraci�
 test('el administrador ve todos los apartados en el menú lateral, cada uno con su contenido',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
  await expect(dialog(page)).toBeVisible();await expect(dialog(page).locator('h2')).toHaveText('Configuration');
- await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Références des documents','Règles opérationnelles','Sécurité de mon compte']);
+ await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Facturation SRI','Références des documents','Règles opérationnelles','Sécurité de mon compte']);
  await expect(dialog(page).locator('[role=tablist]')).toHaveAttribute('aria-orientation','vertical');
  // Se abre en el idioma, con el foco en su pestaña.
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-language')).toBeFocused();
@@ -64,7 +64,7 @@ test('teclado: flechas, Inicio y Fin recorren el menú; Escape cierra y devuelve
  await page.keyboard.press('ArrowUp');await expect(page.locator('#cfgTab-security')).toBeFocused();
  await page.keyboard.press('Home');await expect(page.locator('#cfgTab-language')).toBeFocused();
  // Sólo la pestaña elegida entra en el orden de tabulación.
- expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1]);
+ expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1,-1]);
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-controls','cfgPane-language');
  await expect(page.locator('#cfgPane-language')).toHaveAttribute('aria-labelledby','cfgTab-language');
  await page.keyboard.press('Escape');await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#arcSettings')).toBeFocused();

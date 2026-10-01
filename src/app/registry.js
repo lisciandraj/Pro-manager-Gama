@@ -1,5 +1,6 @@
 /** Single registry consumed by home, sidebar, settings, access and router. */
 const definitions=[
+  {id:'sri',label:'Facturación SRI',icon:'invoice',group:'Administración',description:'Facturas electrónicas, autorización SRI y archivo XML / RIDE',accent:'orange',order:15.1,menu:true,roles:['admin']},
   {id:'website',label:'Sitio web',icon:'globe',group:'Administración',description:'Catálogo web, presentación y solicitudes de prueba',accent:'teal',order:16.5,menu:true,roles:['admin']},
   {id:'sav',label:'Servicio posventa',icon:'headset',group:'Ventas',description:'Reclamaciones, garantías y seguimiento',accent:'violet',order:7.1,menu:true,roles:['admin','commercial']},
   {id:'documents',label:'Documentos',icon:'documents',group:'Administración',description:'Archivos, contratos y versiones',accent:'blue',order:14.1,menu:true,roles:['admin','commercial','magasinier']},
@@ -542,6 +543,7 @@ const openers={
  documents:()=>window.GamaDocuments?.open(),
  tms:()=>window.gamaTMS?.open(),
  accounting:()=>window.GamaAccounting?.open(),
+ sri:()=>window.GamaAccounting?.openSri(),
  fleet:()=>window.GamaFleet?.open(),
  returns:()=>window.GamaReturns?.open(),
  projects:()=>window.GamaProjects?.open(),

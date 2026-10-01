@@ -6,3 +6,14 @@ playwright/.cache/
 supabase/.temp/
 .build/
 dist/
+
+# Private fiscal material must never be committed.
+services/sri/*.env
+services/sri/.env*
+*.p12
+*.pfx
+__pycache__/
+
+# Private SRI deployment state and secrets
+services/sri/.runtime/
+services/sri/deploy/*.env

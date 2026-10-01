@@ -1,3 +1,31 @@
+# Facturación SRI — module Coco et connecteur Open API
+
+Le menu Administration contient désormais **Facturación SRI** (`sri`). Il utilise
+les factures internes existantes, avec accès depuis leur fiche et le suivi des
+paiements. L'onglet Comptabilité → SRI reste disponible. Les factures sont paginées,
+recherchables par numéro et liées au même dossier commercial et aux mêmes paiements.
+Le rendu fiscal ne crée aucun mouvement supplémentaire de stock ou de trésorerie.
+
+Le nouveau fournisseur `openapi` utilise le service privé Python comme passerelle
+vers **Open API Facturación SRI**. Les droits et l'archivage existants sont conservés.
+Le code de connexion n'héberge pas à lui seul le moteur NestJS, son stockage de
+certificats ni son générateur PDF. L'émission réelle reste conditionnée à leur
+configuration et aux essais fiscaux, et n'est pas activée par une publication web.
+
+**Périmètre livré : factures nationales ordinaires (01).** Les avoirs, retenues et
+guías de remisión du projet amont ne sont pas encore raccordés aux modules Coco.
+Ils ne sont pas présentés comme fonctionnels.
+
+Voir [installation, contrat API et limites de reprise](../../services/sri/OPENAPI.md)
+et [configuration privée d'exemple](../../services/sri/openapi.env.example).
+Aucune nouvelle table n'est nécessaire : le fournisseur est mémorisé dans le reçu
+JSON serveur de chaque émission. Les documents déjà envoyés par le signataire
+historique continuent à utiliser leur traitement historique.
+
+---
+
+## Contrat historique conservé
+
 > État relu le 30 septembre 2026. Les contrats techniques ci-dessous restent rattachés aux modules actuels ; les commandes de validation et la cartographie des sources sont centralisées dans la documentation de développement.
 
 # Facturación SRI — integration status
@@ -19,3 +47,31 @@ The signer deliberately supports only ordinary Ecuadorian domestic invoices with
 The SRI technical sheet v2.34 (July 2026), including its annex 26 provider field, is the primary specification: https://www.sri.gob.ec/web/intersri/facturacion-electronica . Somatech's LGPL-3.0 Odoo repository was used only to study workflow and the key layout; its code is not bundled or loaded into Coco. This component still needs live certification against SRI's test service. No certificate, provider identity, or live SRI credentials are committed.
 
 When reception times out after transmission, do not issue a new key or send blindly again. Use **Consultar SRI**; retain the same signed XML and sequence for recovery. Email transport can time out after a successful delivery; verify with the mail provider before clicking **Enviar al cliente** again.
+
+
+## Sélection des factures et configuration (1er octobre 2026)
+
+La tuile Administration → Facturation SRI ouvre par défaut les factures internes
+non envoyées : absence de référence fiscale externe et absence de dossier SRI,
+ou dossier encore en brouillon. La vue `sri_invoice_selection` filtre avant
+pagination et conserve les RLS existantes (`security_invoker=true`). Le filtre
+Toutes les factures donne accès au suivi historique. Sélection de page, préparation
+et envoi groupé sont disponibles selon les droits. Un envoi groupé concerne uniquement
+`pruebas`, demande une confirmation du nombre sélectionné et s’arrête après un rejet,
+une réponse incertaine ou une erreur. Une facture en traitement n’est pas réémise.
+Les séries SRI réservées restent indépendantes du numéro FAC interne.
+
+Configuration → Facturation SRI partage l’identité légale de la fiche entreprise
+(RUC, raison sociale, adresse et e-mail), accessible sans quitter la configuration.
+Le profil enregistre établissement, point d’émission, RUC du fournisseur logiciel,
+nom commercial, adresse d’établissement et obligation comptable. Ces champs sont
+figés dans l’instantané à la préparation. Aucun certificat ou secret serveur n’est
+exposé au navigateur. Production reste indisponible dans ce nouvel écran de test.
+Les RPC de configuration vérifient administrateur actif, droits et MFA existants.
+
+Le déploiement coordonné est décrit dans
+[services/sri/deploy/README.md](../../services/sri/deploy/README.md).
+La recette comprend les composants persistants mais requiert un serveur privé,
+HTTPS, les identifiants et un certificat réel. Elle n’indique pas que le service
+est hébergé. Le RIDE Carbone HTML utilise des fonctions annoncées Community ;
+le rendu PDF réel et les essais SRI doivent encore être validés sur l’image choisie.

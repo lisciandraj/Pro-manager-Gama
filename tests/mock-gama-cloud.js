@@ -526,15 +526,20 @@
       auth:{mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal1',nextLevel:'aal1'}}),listFactors:async()=>({data:{totp:[]}})}},
       from: table => {
         const filters = [],orders=[];
-        let readMode=false;
+        let readMode=false,readRange=null,readCount=false;
         const chain = {
-          select: () => {readMode=true;return chain},
+          select: (_columns,options={}) => {readMode=true;readCount=!!options.count;return chain},
+          range: (from,to) => {readRange=[from,to];return chain},
           order:(col,opts={})=>{orders.push([col,opts.ascending!==false]);return chain},
           in: (col, vals) => {filters.push([col,vals,true]);return chain},
           delete: () => chain,
           eq: (col, val) => { filters.push([col, val]); return chain; },
           then: (resolve) => {
-            if(readMode)return Promise.resolve({data:JSON.parse(JSON.stringify((window.__DB[table]||[]).filter(r=>filters.every(([c,v,many])=>many?v.includes(r[c]):r[c]===v)).sort((a,b)=>{for(const [col,asc] of orders){const n=String(a[col]??'').localeCompare(String(b[col]??''));if(n)return asc?n:-n}return 0}))),error:null}).then(resolve);
+            if(readMode){
+              const rows=(window.__DB[table]||[]).filter(r=>filters.every(([c,v,many])=>many?v.includes(r[c]):r[c]===v)).sort((a,b)=>{for(const [col,asc] of orders){const n=String(a[col]??'').localeCompare(String(b[col]??''));if(n)return asc?n:-n}return 0});
+              const data=readRange?rows.slice(readRange[0],readRange[1]+1):rows;
+              return Promise.resolve({data:JSON.parse(JSON.stringify(data)),...(readCount?{count:rows.length}:{}),error:null}).then(resolve);
+            }
             const before = (window.__DB[table] || []).length;
             window.__DB[table] = (window.__DB[table] || []).filter(r => !filters.every(([c, v]) => r[c] === v));
             return Promise.resolve({ data: null, error: null, count: before - window.__DB[table].length }).then(resolve);

@@ -1,0 +1,8 @@
+FROM python:3.12.11-slim
+WORKDIR /app
+COPY services/sri/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && useradd --uid 10001 --create-home sri
+COPY services/sri /app/services/sri
+USER sri
+EXPOSE 8000
+CMD ["uvicorn", "services.sri.api:app", "--host", "0.0.0.0", "--port", "8000"]

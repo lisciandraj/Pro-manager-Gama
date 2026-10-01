@@ -1,6 +1,6 @@
 # Architecture actuelle de Coco ERP
 
-État : 30 septembre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. Le signataire fiscal Python reste un service privé distinct.
+État : 30 septembre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. La passerelle fiscale Python reste un service privé distinct ; elle peut utiliser le signataire historique ou le moteur externe Open API Facturación SRI.
 
 ## Emplacements à modifier
 
@@ -63,3 +63,7 @@ Les lots de traduction scannent une seule fois chaque racine : un descendant est
 ## Limites de cette simplification
 
 Il reste des modules IIFE volumineux et des contrats globaux historiques. Les fichiers sont regroupés par domaine et contrôlés à la construction ; ils ne sont pas tous convertis en composants ES modules. Les avertissements SQL, les tests physiques iPhone/scanner et la validation fiscale restent des travaux distincts explicités dans l’audit.
+
+## Fournisseur fiscal Open API
+
+Le module `sri` partage le chargement différé de Comptabilité via `GamaAccounting.openSri`. La source canonique reste `src/features/finance/accounting.js`. `services/sri/openapi.py` adapte le contrat HTTP amont ; `gama-sri` conserve les droits, les revendications atomiques et les archives privées. Aucun secret amont ne passe par le navigateur. Voir [installation Open API](../services/sri/OPENAPI.md).

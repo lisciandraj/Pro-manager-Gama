@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/AngeloBarzolaVillamar/open-api-facturacion-sri",
+  "revision": "b41a7c79ba3fb2f0977efd3065bc126e1d9651ac",
+  "license": "MIT",
+  "integration": "server-side HTTP adapter; upstream source is not bundled",
+  "documentTypes": ["01"],
+  "requiresSynchronousEmission": true,
+  "liveSriCertification": false
+}

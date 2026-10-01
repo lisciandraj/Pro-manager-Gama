@@ -35,6 +35,8 @@ export const lazyModules={
     "global": "GamaAccounting",
     "file": "gama-accounting.js",
     "methods": [
+      "openSri",
+      "mountSriConfig",
       "open",
       "rpc"
     ]

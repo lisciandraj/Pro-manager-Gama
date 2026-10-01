@@ -111,7 +111,7 @@ test('settings exposes language to all roles without exposing module switches or
 });
 test('access settings is separate and restricted, personal configuration has no switches even for admin',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
- await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(7);
+ await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(8);
  await expect(page.locator('#arcSettingsDialog input[data-mod],#arcSettingsDialog button[data-mod]')).toHaveCount(0);
  await page.keyboard.press('Escape');
  await page.locator('#mainmenu [data-gama-module="access-settings"]').click();

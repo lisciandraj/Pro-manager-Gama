@@ -109,7 +109,7 @@ def invoice_xml(issue):
                            ('valor', f'{cents(amount * rate / 100):.2f}')]:
             element(tax_node, tag, value)
     extra = ET.SubElement(root, 'infoAdicional')
-    provider = ET.SubElement(extra, 'campoAdicional', {'nombre': 'RUC PROVEEDOR SISTEMA DE FACTURACION'})
+    provider = ET.SubElement(extra, 'campoAdicional', {'nombre': 'RUC Proveedor'})
     provider.text = snapshot['provider_ruc']
     if snapshot.get('customer_email'):
         ET.SubElement(extra, 'campoAdicional', {'nombre': 'Email'}).text = snapshot['customer_email']

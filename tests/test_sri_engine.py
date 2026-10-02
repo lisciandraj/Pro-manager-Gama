@@ -31,7 +31,7 @@ class SriEngineTest(unittest.TestCase):
         self.assertEqual(root.findtext('infoFactura/importeTotal'), '115.00')
         self.assertEqual(root.findtext('infoTributaria/claveAcceso'), key)
         self.assertEqual(root.find('infoAdicional/campoAdicional').attrib['nombre'],
-                         'RUC PROVEEDOR SISTEMA DE FACTURACION')
+                         'RUC Proveedor')
 
     def test_bad_tax_and_amount_cannot_be_submitted(self):
         changed = copy.deepcopy(ISSUE)

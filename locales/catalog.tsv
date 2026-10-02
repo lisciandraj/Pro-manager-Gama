@@ -4317,6 +4317,8 @@ Enviar selección al SRI	Envoyer la sélection au SRI	Send selection to SRI
 Selecciona al menos una factura.	Sélectionnez au moins une facture.	Select at least one invoice.
 Enviar las facturas seleccionadas al SRI en pruebas, una sola vez.	Envoyer les factures sélectionnées au SRI en mode test, une seule fois.	Send selected invoices to SRI test environment once.
 Servicio configurado	Service configuré	Service configured
+Parámetros de conexión configurados	Paramètres de connexion configurés	Connection parameters configured
+El diagnóstico técnico no valida XML, firma, RIDE ni autorización SRI.	Le diagnostic technique ne valide ni le XML, ni la signature, ni le RIDE, ni l’autorisation SRI.	Technical diagnostics do not validate XML, signatures, RIDE or SRI authorization.
 Servicio pendiente de configuración	Service à configurer	Service configuration pending
 Certificado .p12, contraseña y credenciales: configuración privada del servidor.	Certificat .p12, mot de passe et identifiants : configuration privée du serveur.	Certificate .p12, password and credentials: private server configuration.
 Ambiente del servicio	Environnement du service	Service environment

@@ -61,6 +61,20 @@ et envoi groupé sont disponibles selon les droits. Un envoi groupé concerne un
 une réponse incertaine ou une erreur. Une facture en traitement n’est pas réémise.
 Les séries SRI réservées restent indépendantes du numéro FAC interne.
 
+Depuis la reprise du 2 octobre, une réponse `processing`, `signed` ou `received`
+sans demande de revue est suivie d'une seule consultation du même dossier. Le lot
+continue uniquement après autorisation vérifiée ; une attente, un rejet ou une
+réponse incertaine l'arrête. Aucun nouvel envoi ne sert de consultation. Un rejet
+reste consultable sans retour en brouillon ; une consultation encore en attente
+n'efface pas le rejet existant.
+
+Le nom XML du champ fournisseur est exactement **RUC Proveedor**, conformément
+à l'annexe 26 de la fiche SRI 2.34 (page 135), dans le moteur privé et le DTO Open
+API. Les fichiers déjà signés restent immuables. Le diagnostic distingue paramètres
+de connexion, moteur inaccessible, configuration incomplète, fournisseur différent,
+émission désactivée et droit de validation absent. Il ne valide pas le XML, la
+signature, le RIDE ni l'autorisation fiscale.
+
 Configuration → Facturation SRI partage l’identité légale de la fiche entreprise
 (RUC, raison sociale, adresse et e-mail), accessible sans quitter la configuration.
 Le profil enregistre établissement, point d’émission, RUC du fournisseur logiciel,
@@ -75,3 +89,5 @@ La recette comprend les composants persistants mais requiert un serveur privé,
 HTTPS, les identifiants et un certificat réel. Elle n’indique pas que le service
 est hébergé. Le RIDE Carbone HTML utilise des fonctions annoncées Community ;
 le rendu PDF réel et les essais SRI doivent encore être validés sur l’image choisie.
+
+Voir [état vérifié et étapes restantes au 2 octobre](../audits/2026-10-02-sri-recovery.md).

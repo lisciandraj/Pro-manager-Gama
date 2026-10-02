@@ -91,7 +91,7 @@ def factura_payload(issue, accounting):
         'comprador': buyer, 'detalles': details,
         'pagos': [{'formaPago': s['payment_code'], 'total': float(cents(s['total']))}],
         'infoAdicional': [
-            {'nombre': 'RUC PROVEEDOR SISTEMA DE FACTURACION', 'valor': s['provider_ruc']},
+            {'nombre': 'RUC Proveedor', 'valor': s['provider_ruc']},
             {'nombre': 'COCO_ID', 'valor': issue['id']},
             {'nombre': 'COCO_FACTURA', 'valor': s['source_number']},
         ],

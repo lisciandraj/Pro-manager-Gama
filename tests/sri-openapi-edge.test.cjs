@@ -39,7 +39,10 @@ function harness(options={}){
   fetch:async(url,init)=>{const body=JSON.parse(init.body);calls.push(body.action);
    assert.equal(init.redirect,'error');
    assert.equal(init.headers['x-sri-signature'],createHmac('sha256',env.SRI_WORKER_SECRET).update(init.body).digest('hex'));
-   if(body.action==='status')return Response.json({configured:true,provider:'openapi',environment:'pruebas'});
+   if(body.action==='status'){
+    if(options.statusFailure)throw Error('unreachable');
+    return Response.json(options.statusResponse===undefined?{configured:true,provider:'openapi',environment:'pruebas'}:options.statusResponse);
+   }
    if(body.action==='openapi_preflight')return Response.json({ready:true});
    if(options.worker)return options.worker(body);
    return Response.json({status:'processing',access_key:KEY,provider_status:'RECIBIDA'});
@@ -95,4 +98,35 @@ test('unverified documents cannot be downloaded or emailed; export permission is
 test('status reveals capabilities without credentials; invalid JSON values are rejected',async()=>{
  const h=harness();const r=await h.request({action:'status'});assert.equal(r.provider,'openapi');assert.equal(r.ready,true);
  assert.equal(JSON.stringify(r).includes('fixture-secret'),false);assert.equal((await h.request(null)).error,'INVALID_REQUEST');
+});
+test('technical status distinguishes incomplete, mismatched and unreachable workers',async()=>{
+ for(const [options,diagnostic] of [
+  [{env:{SRI_WORKER_URL:''}},'SRI_WORKER_NOT_CONFIGURED'],
+  [{statusFailure:true},'SRI_WORKER_UNREACHABLE'],
+  [{statusResponse:null},'SRI_WORKER_UNREACHABLE'],
+  [{statusResponse:{provider:'openapi',configured:false}},'SRI_WORKER_CONFIGURATION_INCOMPLETE'],
+  [{statusResponse:{provider:'private_worker',configured:true}},'SRI_WORKER_PROVIDER_MISMATCH'],
+  [{env:{SRI_EMISSION_ENABLED:'false'}},'SRI_EMISSION_DISABLED'],
+  [{access:{validate:false}},'SRI_VALIDATION_NOT_ALLOWED']
+ ]){
+  const h=harness(options),r=await h.request({action:'status'});
+  assert.equal(r.ready,false);assert.equal(r.diagnostic,diagnostic);
+  assert.equal(JSON.stringify(r).includes('fixture-secret'),false);
+ }
+ const r=await harness().request({action:'status'});
+ assert.equal(r.worker_ready,true);assert.equal(r.diagnostic,'SRI_READY_FOR_SUPERVISED_TESTS');
+});
+test('a rejected Open API document can be consulted but never submitted or reset',async()=>{
+ for(const withKey of [false,true]){
+  const h=harness({issue:{status:'rejected',receipt:{provider:'openapi'},...(withKey?{access_key:KEY}:{})}});
+  assert.equal((await h.request({action:'submit',id:ID})).error,'SRI_ALREADY_SUBMITTED');
+  assert.equal((await h.request({action:'retry',id:ID})).error,'SRI_RETRY_REQUIRES_REVIEW');
+  const r=await h.request({action:'refresh',id:ID});assert.equal(r.status,'rejected');
+  assert.deepEqual(h.calls,['openapi_refresh']);assert.equal(h.updates.length,0);
+ }
+});
+test('historical rejection lookup preserves rejection when authorization is still pending',async()=>{
+ const h=harness({env:{SRI_PROVIDER:'private_worker'},issue:{status:'rejected',access_key:KEY},worker:async()=>Response.json({status:'processing'})});
+ const r=await h.request({action:'refresh',id:ID});assert.equal(r.status,'rejected');
+ assert.deepEqual(h.calls,['authorize']);assert.equal(h.updates.length,0);
 });

@@ -932,7 +932,7 @@ VIEWS.sri={
     const actions=!issue?(inv.fiscal_status==='unverified'&&!inv.external_number?button('prepare','Preparar'):tr('Ya vinculada o anulada')):
      (issue.status==='draft'?button('submit','Firmar y enviar'):'')+
      (!openapi&&['error','processing'].includes(issue.status)&&!issue.access_key?button('retry','Reintentar preparación'):'')+
-     (['signed','received','processing'].includes(issue.status)&&(issue.access_key||openapi)?button('refresh','Consultar SRI'):'')+
+     (['signed','received','processing','rejected'].includes(issue.status)&&(issue.access_key||openapi)?button('refresh','Consultar SRI'):'')+
      (issue.status==='authorized'?button('download','XML','xml')+button('download','RIDE PDF','ride')+(!issue.delivered_at?button('notify','Enviar al cliente'):tr('Enviado')):'');
     const selectable=inv.fiscal_status==='unverified'&&!inv.external_number&&(!issue||issue.status==='draft');
     return `<tr><td><input type="checkbox" data-ga-sri-select="${esc(inv.id)}" data-issue="${esc(issue?.id||'')}" data-environment="${esc(issue?.environment||d.settings?.environment||'pruebas')}" aria-label="${esc(inv.number)}" ${selectable?'':'disabled'}></td><td><b>${esc(inv.number)}</b>${inv.external_number?`<br>${esc(inv.external_number)}`:''}<div class="gaActions">${window.gamaAccessAllowed?.('sales-orders')?`<button type="button" class="arcButton secondary" data-ga-sri-source="${esc(inv.id)}">${tr('Ver factura interna')}</button>`:''}${window.gamaAccessAllowed?.('payments')?`<button type="button" class="arcButton secondary" data-ga-sri-pay="${esc(inv.id)}">${tr('Pagos')}</button>`:''}${inv.order_id&&window.gamaAccessAllowed?.('dossier-flow')?`<button type="button" class="arcButton secondary" data-ga-sri-flow="${esc(inv.order_id)}">${tr('Ver expediente')}</button>`:''}</div></td><td>${esc(inv.issue_date)}</td><td>${esc(money(inv.total))}</td><td><span class="gaBadge" data-s="${esc(status)}">${tr(SRI_STATUS[status]||'Sin preparar')}</span>${issue?`<br>${tr(issue.environment==='pruebas'?'Pruebas':'Producción')}`:''}${issue?.access_key?`<code class="gaSriKey">${esc(issue.access_key)}</code>`:''}${issue?.last_error?`<p class="gaError">${esc(issue.last_error)}</p>`:''}${openapi&&status==='processing'?`<p class="gaHint">${tr('No reenviar: consultar el mismo documento para evitar duplicados.')}</p>`:''}</td><td><div class="gaActions">${actions}</div></td></tr>`;
@@ -972,7 +972,18 @@ VIEWS.sri={
      if(current!==generation||!host.isConnected)break;
      let id=c.dataset.issue;
      if(!id){const r=await window.ArcData.rawRpc('gama_sri_prepare',{p_invoice_id:c.dataset.gaSriSelect,p_payment_code:payment});if(r.error)throw r.error;id=r.data.id;if(r.data.status&&r.data.status!=='draft')throw Error('SRI_ALREADY_SUBMITTED')}
-     if(send){const r=await client.functions.invoke('gama-sri',{body:{action:'submit',id}});if(r.error||r.data?.error)throw r.error||Error(r.data.error);if(r.data?.review_required||r.data?.status!=='authorized')throw Error('SRI_BATCH_STOPPED_REVIEW_REQUIRED')}
+     if(send){
+      let r=await client.functions.invoke('gama-sri',{body:{action:'submit',id}});
+      if(r.error||r.data?.error)throw r.error||Error(r.data.error);
+      // Open API POST returns processing even when authorization is available.
+      // Consult once; only a verified authorization lets the batch continue.
+      if(!r.data?.review_required&&['processing','signed','received'].includes(r.data?.status)){
+       if(current!==generation||!host.isConnected)break;
+       r=await client.functions.invoke('gama-sri',{body:{action:'refresh',id}});
+       if(r.error||r.data?.error)throw r.error||Error(r.data.error);
+      }
+      if(r.data?.review_required||r.data?.status!=='authorized')throw Error('SRI_BATCH_STOPPED_REVIEW_REQUIRED');
+     }
      completed++;$('gaSriBatchStatus').textContent=completed+' / '+selected.length;
     }
    }catch(e){alertError(e)}finally{
@@ -1011,7 +1022,7 @@ async function mountSriConfig(host){
   if(settings.error)throw settings.error;
   if(!host.isConnected||current!==opening||!allowed())return;
   const cfg=settings.data?.[0]||{},service=runtime.error?{}:runtime.data||{};
-  window.ArcUI.render(host,`<form id="cfgSriForm" class="arcPanel gaCard"><h3>${tr('Facturación SRI')}</h3><p role="status">${tr(service.configured?'Servicio configurado':'Servicio pendiente de configuración')}</p>
+  window.ArcUI.render(host,`<form id="cfgSriForm" class="arcPanel gaCard"><h3>${tr('Facturación SRI')}</h3><p role="status">${tr(service.configured?'Parámetros de conexión configurados':'Servicio pendiente de configuración')}</p>
    <p>${tr('Razón social')}: <b>${esc(company.legal_name||'—')}</b><br>RUC: ${esc(company.tax_id||'—')}<br>${tr('Dirección')}: ${esc(company.address||'—')}<br>${tr('Correo electrónico')}: ${esc(company.email||'—')}</p>
    <button type="button" id="cfgSriCompany" class="arcButton secondary">${tr('Información de la empresa')}</button>
    <div class="gaGrid"><label>${tr('Ambiente')}<select id="cfgSriEnvironment"><option value="pruebas" ${cfg.environment!=='produccion'?'selected':''}>${tr('Pruebas')}</option><option value="produccion" ${cfg.environment==='produccion'?'selected':''} disabled>${tr('Producción')}</option></select></label>
@@ -1022,6 +1033,7 @@ async function mountSriConfig(host){
    <p class="gaHint">${tr('Certificado .p12, contraseña y credenciales: configuración privada del servidor.')}</p>
    <p>${tr('Motor fiscal')}: ${esc(service.provider||'—')} · ${tr('Ambiente del servicio')}: ${esc(service.environment||'—')}</p>
    <p>${tr('Diagnóstico')}: ${esc(service.diagnostic||'SRI_WORKER_NOT_CONFIGURED')}</p>
+   <p class="gaHint">${tr('El diagnóstico técnico no valida XML, firma, RIDE ni autorización SRI.')}</p>
    <button type="submit" class="arcButton primary" id="cfgSriSave">${tr('Guardar configuración')}</button><button type="button" class="arcButton secondary" id="cfgSriCheck">${tr('Actualizar')}</button><p id="cfgSriMessage" role="status" aria-live="polite"></p></form>`);
   host.querySelector('#cfgSriCompany').onclick=()=>window.GamaSettings.openDialog('company');
   host.querySelector('#cfgSriCheck').onclick=()=>mountSriConfig(host);

@@ -78,6 +78,8 @@ class SriOpenApiTest(unittest.TestCase):
         self.assertEqual(data['pagos'][0]['total'], 115)
         self.assertNotIn('password', json.dumps(data).lower())
         self.assertNotIn('p12', json.dumps(data).lower())
+        self.assertEqual(data['infoAdicional'][0],
+                         {'nombre': 'RUC Proveedor', 'valor': ISSUE['snapshot']['provider_ruc']})
         self.assertEqual(data['infoAdicional'][1]['valor'], ISSUE['id'])
 
     def test_rejects_invalid_amounts_taxes_and_obligation(self):

@@ -55,12 +55,23 @@ Deno.serve(async request => {
   };
   if (input.action === 'status') {
     let worker: { configured?: boolean; provider?: string; environment?: string } = {};
+    let reachable = false;
     let diagnostic = configured ? 'SRI_EMISSION_DISABLED' : 'SRI_WORKER_NOT_CONFIGURED';
-    if (configured) { try { worker = await call('status', null); }
+    if (configured) { try {
+      const result = await call('status', null);
+      if (!result || typeof result !== 'object' || Array.isArray(result)) throw Error('SRI_WORKER_INVALID_STATUS');
+      worker = result; reachable = true;
+    }
       catch { diagnostic = 'SRI_WORKER_UNREACHABLE'; } }
     const workerReady = worker.configured === true && worker.provider === provider;
     const ready = enabled && workerReady && access.data.validate === true;
-    return reply({ configured, provider, ready, can_refresh: configured && access.data.validate === true,
+    if (reachable) {
+      if (worker.provider !== provider) diagnostic = 'SRI_WORKER_PROVIDER_MISMATCH';
+      else if (!workerReady) diagnostic = 'SRI_WORKER_CONFIGURATION_INCOMPLETE';
+      else if (!enabled) diagnostic = 'SRI_EMISSION_DISABLED';
+      else if (access.data.validate !== true) diagnostic = 'SRI_VALIDATION_NOT_ALLOWED';
+    }
+    return reply({ configured, provider, ready, worker_ready: reachable && workerReady, can_refresh: configured && access.data.validate === true,
       can_export: access.data.export === true, environment: worker.environment || null,
       diagnostic: ready ? 'SRI_READY_FOR_SUPERVISED_TESTS' : diagnostic,
       document_types: ['01'] });
@@ -136,11 +147,12 @@ Deno.serve(async request => {
           return reply({ id: issue.id, status: 'processing', review_required: true, message: 'SRI_OPENAPI_RECONCILIATION_REQUIRED' }, 202);
         }
       }
-      if (!['processing','signed','received'].includes(issue.status)) return reply({ error: 'SRI_NOT_PENDING' }, 409);
+      if (!['processing','signed','received','rejected'].includes(issue.status)) return reply({ error: 'SRI_NOT_PENDING' }, 409);
       const result = await call('openapi_refresh', issue);
       if (result.access_key) {
         if (!matchesIssue(result.access_key, issue) || (issue.access_key && result.access_key !== issue.access_key)) throw Error('SRI_ACCESS_KEY_MISMATCH');
-        issue = await save('processing', { access_key: result.access_key, numeric_code: result.access_key.slice(39,47),
+        // A pending lookup must not erase a previously recorded rejection.
+        issue = await save(issue.status === 'rejected' ? 'rejected' : 'processing', { access_key: result.access_key, numeric_code: result.access_key.slice(39,47),
           receipt: { provider: 'openapi', status: result.provider_status, review_required: result.review_required === true }, last_error: null }, issue.status);
       }
       if (result.status === 'authorized') {
@@ -185,7 +197,7 @@ Deno.serve(async request => {
       return reply({ id: issue.id, status: issue.status, access_key: issue.access_key });
     }
     if (input.action === 'refresh') {
-      if (!['signed','received','processing'].includes(issue.status) || !issue.access_key) return reply({ error: 'SRI_NOT_PENDING' }, 409);
+      if (!['signed','received','processing','rejected'].includes(issue.status) || !issue.access_key) return reply({ error: 'SRI_NOT_PENDING' }, 409);
       const prior = issue.status;
       const result = await call('authorize', issue);
       if (result.status === 'authorized') {

@@ -18,6 +18,14 @@ Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consulta
 
 ## Première publication sur Cloudflare Pages
 
+### Activer ou désactiver la publication depuis Coco
+
+Dans **Site web → Site public**, le bandeau supérieur affiche l’état réellement enregistré : **Site publié** ou **Publication désactivée**. Cliquer sur **Activer la publication** ou **Désactiver la publication** applique immédiatement le changement, sans re-déployer Cloudflare. Le bouton conserve les autres modifications de formulaire en brouillon ; elles restent à enregistrer avec **Enregistrer tous les réglages**. En cas d’échec, l’état affiché reste celui de la dernière sauvegarde réussie.
+
+Lorsque la publication est désactivée, les visiteurs voient une page de maintenance avec les coordonnées publiques. Le catalogue, les photos de produits et l’envoi de demandes sont bloqués côté serveur. Les produits et les demandes existantes restent disponibles dans l’administration Coco. Le réglage **Publier le site** de **Publication et catalogue** contrôle le même état après enregistrement.
+
+### Configurer l’hébergement
+
 Précondition : la migration `public_storefront` doit être appliquée à Supabase, et l’administration de Coco doit être déployée. Les accès à Cloudflare restent nécessaires pour créer le projet et son secret.
 
 1. Se connecter à Cloudflare et ouvrir **Workers & Pages → Create application → Pages → Connect to Git** (les libellés peuvent évoluer).

@@ -1,0 +1,12 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),{spawnSync}=require('node:child_process');
+const load=async()=>require('../src/domain/accounting-ecuador.js');
+const fixture=()=>({from:'2026-10-01',to:'2026-10-31',blockers:[],profile:{regime:'general',ats_required:true,confirmed_on:'2026-10-01',establishments:1},company:{tax_id:'0912345678001',legal_name:'TEST PARTNERS FIXTURE'},documents:['sales_invoice','supplier_invoice'].map((source_type,i)=>({source_type,source_id:String(i),number:'TEST-'+i,issue_date:'2026-10-01',subtotal:100,tax:15,total:115,fiscal_id:String(i),fiscal:{document_type:'01',document_number:'001-001-00000000'+(i+1),identification_type:'04',identification:'0912345678001',authorization_number:'1234567890123456789012345678901234567890123456789',support_code:'01',payment_codes:['20'],base_zero:0,base_taxed:100,base_exempt:0,base_non_taxable:0,vat:15,ice:0}}))});
+
+test('ATS draft is escaped, grouped and valid against the downloaded SRI schema',async()=>{
+ const {buildAts}=await load(),f=fixture();f.documents.push({...f.documents[0],number:'TEST-2',source_id:'2'});const r=buildAts(f);assert.deepEqual(r.errors,[]);assert.match(r.xml,/TEST PARTNERS FIXTURE/);assert.match(r.xml,/<numeroComprobantes>2</);assert.match(r.xml,/<totalVentas>200.00</);assert.equal(r.status,'draft_not_submitted');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'coco-ats-')),xml=path.join(directory,'ats.xml');fs.writeFileSync(xml,r.xml);
+ try{const validation=spawnSync('python3',['-c',"from lxml import etree;import sys;s=etree.XMLSchema(etree.parse(sys.argv[1]));d=etree.parse(sys.argv[2]);s.assertValid(d)",path.join(__dirname,'fixtures/accounting/ats.xsd'),xml],{encoding:'utf8'});assert.equal(validation.status,0,validation.stderr);}finally{fs.rmSync(directory,{recursive:true,force:true});}
+});
+test('ATS never silently omits missing, cancelled, returned, foreign, RIMPE or withheld documents',async()=>{
+ const {buildAts}=await load();for(const mutate of [f=>f.company.legal_name='TEST & PARTNERS <script>',f=>f.company.tax_id='',f=>f.to='2026-10-20',f=>f.profile.regime='rimpe_popular',f=>f.documents[0].fiscal=null,f=>f.documents[0].fiscal.base_taxed=99,f=>f.withholdings=[{}],f=>f.return_credits=[{}],f=>f.cancelled_documents=1,f=>f.documents[0].fiscal.identification_type='06']){const f=fixture();mutate(f);const r=buildAts(f);assert.ok(r.errors.length);assert.equal(r.xml,null);}
+});

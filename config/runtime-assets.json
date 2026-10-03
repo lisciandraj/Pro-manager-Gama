@@ -439,6 +439,10 @@
     {
       "source": "src/features/projects/integration.js",
       "output": "coco-project-integration.js"
+    },
+    {
+      "source": "src/domain/accounting-ecuador.js",
+      "output": "gama-accounting-ec.js"
     }
   ],
   "styles": [

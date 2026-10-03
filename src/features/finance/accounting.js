@@ -113,6 +113,11 @@ async function go(next){
   if(token!==generation||!allowed())return;
   window.ArcUI.render($('gaMain'),view.render(data));
   view.bind?.(data);
+  if(scope==='all'&&workspace===ID&&['ledger','reports','taxes','config','periods','receivables','payables','cash'].includes(section)){
+   const tools=document.createElement('div');tools.className='gaTools arcPanel gaCard';
+   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button>`;
+   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');
+  }
   return true;
  }catch(e){if(token===generation)fail(e,()=>go())}
 }
@@ -704,7 +709,7 @@ VIEWS.ledger={
     <td class="gaNum">${money(e.total_debit)}</td><td class="gaNum">${money(e.total_credit)}</td>
     <td>${badge(e.status)}${Number(e.total_debit)!==Number(e.total_credit)?`<br><span class="gaError">${tr('Descuadrado')}</span>`:''}</td>
     <td><div class="gaActions"><button class="arcButton secondary" data-ga-lines="${esc(e.id)}">${tr('Detalle')}</button>
-     ${rights?.validate&&e.status==='posted'?`<button class="arcButton secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
+     ${rights?.validate&&e.status==='posted'&&(!e.source_type||e.source_type==='manual')?`<button class="arcButton secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="9">${tr('No hay asientos en este periodo.')}</td></tr>`}</tbody></table></div>
    <p class="gaHint">${tr('Todo asiento cumple debe = haber. Un asiento contabilizado no se borra: se contrapasa y ambos quedan en el libro.')}</p></div>`;
  },
@@ -732,14 +737,16 @@ async function entryLines(id){
  }catch(e){window.gamaToast?.(err(e))}
 }
 async function entryForm(){
- let chart=[];
- try{chart=(await rpc('chart')).rows.filter(a=>a.active)}catch(e){}
+ let chart=[],projects=[],partners=[];
+ try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[]}catch(e){}
  const key=crypto.randomUUID(),journals=state.journals||[];
  const row=i=>`<div class="gaGrid" data-ga-line="${i}">
   ${field('Cuenta',`<select class="gaLineAccount"><option value="">—</option>${chart.map(a=>`<option value="${esc(a.id)}">${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`)}
   ${field('Concepto',`<input class="gaLineLabel" maxlength="180">`)}
   ${field('Debe',`<input class="gaLineDebit" type="number" min="0" step="0.01" value="0">`)}
-  ${field('Haber',`<input class="gaLineCredit" type="number" min="0" step="0.01" value="0">`)}</div>`;
+  ${field('Haber',`<input class="gaLineCredit" type="number" min="0" step="0.01" value="0">`)}
+  ${field('Proyecto',`<select class="gaLineProject">${ecOpts(projects)}</select>`)}
+  ${field('Contacto',`<select class="gaLinePartner"><option value="">—</option>${partners.map(p=>`<option value="${p.side}:${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select>`)}</div>`;
  const el=GamaSales.modal('Asiento manual',`<div class="gaGrid">
    ${field('Diario',`<select id="gaJournalPick">${journals.filter(j=>j.kind==='misc').concat(journals.filter(j=>j.kind!=='misc')).map(j=>`<option value="${esc(j.code)}">${esc(j.code)} · ${esc(j.name)}</option>`).join('')}</select>`)}
    ${field('Fecha',`<input id="gaDate" type="date" required value="${day()}">`)}
@@ -749,7 +756,7 @@ async function entryForm(){
   <button type="button" class="arcButton secondary" id="gaAddLine">${tr('Añadir una línea')}</button>
   <p class="gaHint" id="gaBalance"></p>`,'Contabilizar',async form=>{
    const lines=[...form.querySelectorAll('[data-ga-line]')].map(r=>({
-    account_id:r.querySelector('.gaLineAccount').value,label:r.querySelector('.gaLineLabel').value,
+    account_id:r.querySelector('.gaLineAccount').value,label:r.querySelector('.gaLineLabel').value,project_id:r.querySelector('.gaLineProject')?.value||null,partner_type:r.querySelector('.gaLinePartner')?.value.split(':')[0]||null,partner_id:r.querySelector('.gaLinePartner')?.value.split(':')[1]||null,
     debit:Number(r.querySelector('.gaLineDebit').value||0),credit:Number(r.querySelector('.gaLineCredit').value||0)}))
     .filter(l=>l.account_id&&(l.debit>0||l.credit>0));
    if(lines.length<2)throw Error('ENTRY_EMPTY');
@@ -1125,6 +1132,132 @@ function chartForm(row){
     type:v('gaType')||row?.type,active:v('gaActive')!=='false'});
    await go();
   });
+}
+
+/* Ecuador accounting workbench: all writes use the audited, idempotent RPC. */
+const EC_TABS=[['trial_balance','Balance de comprobación'],['general_ledger','Libro mayor'],['partner_ledger','Libro de contactos'],['analytic','Analítica por proyecto'],['maturities','Vencimientos'],['adjustments','Abonos y retenciones'],['fiscal_review','Revisión fiscal'],['setup','Configuración Ecuador'],['assets','Activos y amortización'],['integrations','Enlaces con nómina y stock']];
+const EC_ERRORS={YEAR_NOT_FINISHED:'El ejercicio todavía no ha terminado.',SOURCE_CANCELLATION_REQUIRED:'Anula el documento desde su módulo de origen.',ASSET_MONTHLY_AMOUNT_TOO_SMALL:'El importe mensual debe ser de al menos un centavo.',TAX_DATE_INVALID:'El impuesto no está vigente en la fecha del asiento.',REQUEST_KEY_CONFLICT:'La solicitud ya existe con otros datos.',ACCOUNTED_SOURCE_IMMUTABLE:'El documento ya tiene asiento. Corrígelo mediante un abono o una contrapartida.',TERMS_MUST_TOTAL_100:'Los porcentajes deben sumar 100.',INVALID_TERMS:'Revisa los porcentajes y los días.',DELIVERY_DATE_REQUIRED:'Registra la entrega antes de calcular los vencimientos de venta.',FISCAL_TOTAL_MISMATCH:'Las bases y los impuestos no coinciden con el documento.',FISCAL_EVIDENCE_REQUIRED:'Confirma el régimen con un documento del SRI y su fecha.',PAYROLL_ACCOUNTS_REQUIRED:'Configura las tres cuentas de nómina.',FINANCIAL_ACCOUNT_REQUIRED:'Selecciona una cuenta financiera activa con cuenta contable y divisa de la empresa.',ACCOUNT_TYPE_REQUIRED:'La cuenta seleccionada no tiene el tipo requerido.',DEPRECIATION_PREVIOUS_PERIOD_REQUIRED:'Contabiliza primero los meses anteriores.',DEPRECIATION_ALREADY_POSTED:'Este mes ya está amortizado.',INVALID_DEPRECIATION_PERIOD:'Usa el último día de un mes incluido en el plan.',OPENING_ALREADY_POSTED:'El saldo inicial ya está contabilizado.',YEAR_ALREADY_CLOSED:'Este ejercicio ya tiene un asiento de cierre.',ASSET_ACQUISITION_REQUIRED:'Selecciona un asiento de adquisición contabilizado en la cuenta del activo.',ASSET_COST_EXCEEDED:'El coste supera la adquisición disponible.',WITHHOLDING_BASE_EXCEEDED:'La base de retención supera la base o el IVA de la factura.',INVALID_WITHHOLDING:'Revisa la base, la tasa, el código y la cuenta de retención.',INVALID_FISCAL_YEAR:'Selecciona un ejercicio completo según el mes de inicio configurado.',VALUATION_ALREADY_POSTED:'La valoración ya está contabilizada.',RUC_REQUIRED:'Falta un RUC válido de 13 dígitos.',DOCUMENT_DATE_BEFORE_INVOICE:'La fecha no puede ser anterior a la factura.'};
+Object.assign(ERRORS,EC_ERRORS);
+async function ecRpc(action,data={}){
+ if(!allowed()||scope!=='all')throw Error('ROLE_NOT_ALLOWED');
+ await window.GamaCloudReady;
+ const r=await window.ArcData.rawRpc('gama_accounting_ec',{p_action:action,p_data:data});
+ if(r.error)throw Error(err(r.error));if(r.data==null)throw Error('EMPTY');return r.data;
+}
+async function ecWrite(action,data){const r=await ecRpc(action,{...data,request_key:data.request_key||crypto.randomUUID()});window.dispatchEvent(new CustomEvent('gama:accounting-change'));return r}
+const ecOpts=(rows,selected,blank=true)=>`${blank?'<option value="">—</option>':''}${rows.map(r=>`<option value="${esc(r.id??r.value)}" ${String(r.id??r.value)===String(selected)?'selected':''} data-gi-live>${esc(r.label||[r.code,r.name].filter(Boolean).join(' · '))}</option>`).join('')}`;
+const ecAccounts=(ctx,type)=>ctx.accounts.filter(a=>!type||a.type===type);
+function ecField(key,label,type='text',value='',options){
+ return field(label,options?`<select id="ec-${key}">${ecOpts(options,value)}</select>`:type==='textarea'?`<textarea id="ec-${key}" rows="3" maxlength="1000">${esc(value??'')}</textarea>`:`<input id="ec-${key}" type="${type}" value="${esc(value??'')}" ${type==='number'?'step="0.01"':''}>`);
+}
+function ecValues(el,keys){return Object.fromEntries(keys.map(k=>[k,el.querySelector('#ec-'+k)?.value||null]))}
+function ecForm(title,html,action,keys,extra={}){
+ const request_key=crypto.randomUUID();
+ GamaSales.modal(title,html,'Guardar',async el=>{await ecWrite(action,{...extra,...ecValues(el,keys),request_key});await go('workbench')});
+}
+function ecTable(rows,columns){
+ return `<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>${columns.map(c=>`<th>${tr(c[1])}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${columns.map(([key,,format])=>`<td>${format?format(r[key],r):esc(r[key]??'—')}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${columns.length}">${tr('Sin movimientos.')}</td></tr>`}</tbody></table></div>`;
+}
+function ecButton(id,label,enabled=true){return `<button class="arcButton secondary" id="${id}" ${enabled?'':'disabled'}>${tr(label)}</button>`}
+VIEWS.workbench={
+ async load(){const ctx=await ecRpc('context'),tab=state.ecTab||'trial_balance';const data=['setup','assets','integrations'].includes(tab)?{}:await ecRpc(tab,{from:state.ecFrom||monthStart(),to:state.ecTo||day(),account_id:state.ecAccount||null,partner_type:state.ecPartnerType||'customer',partner_id:state.ecPartner||null,offset:state.ecOffset||0,limit:200});return {ctx,tab,data}},
+ render({ctx,tab,data}){
+ state.ecContext=ctx;state.ecData=data;
+ let body='';
+ if(tab==='trial_balance')body=ecTable(data.rows,[['code','Número'],['name','Cuenta'],['opening','Saldo inicial',money],['debit','Debe',money],['credit','Haber',money],['closing','Saldo final',money]])+`<p>${tr('Debe')} : ${money(data.debit)} · ${tr('Haber')} : ${money(data.credit)}</p>`;
+ if(['general_ledger','partner_ledger'].includes(tab))body=ecTable(data.rows,[['entry_date','Fecha'],['number','Asiento'],['code','Cuenta'],['reference','Referencia'],['label','Concepto'],['debit','Debe',money],['credit','Haber',money],['running_balance','Saldo',money]])+`<p>${esc((state.ecOffset||0)+1)}–${esc((state.ecOffset||0)+data.rows.length)} / ${esc(data.total)}</p><div class="gaTools">${ecButton('ecPrev','Anterior',(state.ecOffset||0)>0)}${ecButton('ecNext','Siguiente',(state.ecOffset||0)+data.rows.length<data.total)}</div>`;
+ if(tab==='analytic')body=ecButton('ecAllocation','Distribuir línea por proyecto',rights?.edit)+ecTable(data.rows,[['name','Proyecto'],['revenue','Productos',money],['expense','Cargas',money],['id','Resultado',(_,r)=>money(Number(r.revenue)-Number(r.expense))]]);
+ if(tab==='maturities')body=`<div class="gaTools">${ecButton('ecSchedule','Aplicar condiciones de pago',rights?.edit)}</div>`+ecTable(data.rows,[['number','Factura'],['partner_name','Contacto'],['due_date','Vencimiento'],['amount','Importe',money],['balance','Saldo pendiente',money]]);
+ if(tab==='adjustments')body=`<p class="gaHint">${tr('Estos registros afectan al saldo y al libro. No emiten documentos al SRI. Registra una retención solo con su comprobante autorizado.')}</p><div class="gaTools">${ecButton('ecCredit','Registrar abono o débito',rights?.validate)}${ecButton('ecWithhold','Registrar retención documentada',rights?.validate)}</div>`+ecTable([...data.adjustments.map(r=>({...r,category:r.kind,cancelAction:'adjustment_cancel'})),...data.withholdings.map(r=>({...r,reference:r.number,total:r.amount,category:'retención',cancelAction:'withholding_cancel'}))],[['issued_on','Fecha'],['reference','Referencia'],['side','Tipo'],['category','Documento'],['total','Importe',money],['status','Estado'],['id','Acciones',(v,r)=>r.status==='posted'&&rights?.validate?`<button class="arcButton secondary" data-ec-cancel="${r.cancelAction}" data-id="${esc(v)}">${tr('Anular')}</button>`:'—']]);
+ if(tab==='fiscal_review')body=`<p class="gaHint">${tr('Revisa los comprobantes recibidos y las bases de IVA. La revisión no sustituye la autorización del SRI ni presenta el ATS.')}</p><p>${tr('Controles pendientes')}: ${esc(data.blockers.join(', ')||'—')}</p>`+ecTable(data.documents,[['issue_date','Fecha'],['number','Factura'],['source_type','Tipo'],['partner_name','Contacto'],['subtotal','Base imponible',money],['tax','IVA',money],['total','Total',money],['source_id','Acciones',(v,r)=>`<button class="arcButton secondary" data-ec-fiscal="${esc(v)}" data-type="${esc(r.source_type)}" ${rights?.edit?'':'disabled'}>${tr(r.fiscal_id?'Revisar':'Completar datos fiscales')}</button>`]])+ecButton('ecFiscalExport','Exportar revisión fiscal',rights?.export)+ecButton('ecAts','Generar borrador ATS',rights?.export);
+ if(tab==='setup')body=`<p>${tr('Tipo de contribuyente')}: <b>${tr(ctx.profile.taxpayer_kind==='natural'?'Persona natural':'Sociedad')}</b> · ${tr('Régimen')}: <b>${tr(({unconfigured:'Sin configurar',general:'Régimen general',rimpe_business:'RIMPE emprendedor',rimpe_popular:'RIMPE negocio popular',other:'Otro régimen'})[ctx.profile.regime]||ctx.profile.regime)}</b></p><p>${tr('Controles pendientes')}: ${esc(ctx.blockers.join(', ')||'—')}</p><div class="gaTools">${ecButton('ecProfile','Configurar obligaciones y cuentas',rights?.edit)}${ecButton('ecJournal','Nuevo diario',rights?.edit)}${ecButton('ecTerm','Nuevas condiciones de pago',rights?.edit)}${ecButton('ecOpening','Contabilizar saldo inicial',rights?.validate)}${ecButton('ecClose','Cerrar ejercicio',rights?.close)}${ecButton('ecChart','Importar plan de cuentas Odoo EC',rights?.edit)}${ecButton('ecTaxDates','Vigencia de impuestos',rights?.edit)}</div><h3>${tr('Diarios')}</h3>`+ecTable(ctx.journals,[['code','Código'],['name','Nombre'],['kind','Tipo'],['id','Acciones',(v)=>`<button class="arcButton secondary" data-ec-journal="${esc(v)}" ${rights?.edit?'':'disabled'}>${tr('Editar')}</button>`]])+`<h3>${tr('Condiciones de pago')}</h3>`+ecTable(ctx.terms,[['name','Nombre'],['lines','Vencimientos',v=>esc(v.map(l=>`${l.percent}% / ${l.days}d`).join(' · '))]]);
+ if(tab==='assets')body=`<p class="gaHint">${tr('El activo se vincula a una adquisición ya contabilizada. Su vida útil y valor residual deben validarse antes de amortizar.')}</p>${ecButton('ecAsset','Registrar activo',rights?.validate)}`+ecTable(ctx.assets,[['name','Nombre'],['acquired_on','Fecha'],['cost','Coste',money],['residual','Valor residual',money],['months','Meses'],['status','Estado'],['id','Acciones',(v,r)=>r.status==='active'?`<button class="arcButton secondary" data-ec-depreciate="${esc(v)}" ${rights?.validate?'':'disabled'}>${tr('Amortizar un mes')}</button>`:'—']]);
+ if(tab==='integrations')body=`<p>${tr('Nóminas validadas sin asiento')}: <b>${esc(ctx.unlinked_payroll)}</b></p>${ecButton('ecPayroll','Contabilizar nóminas configuradas',rights?.validate)}<h3>${tr('Pagos de nómina sin cuenta financiera')}</h3>`+ecTable(ctx.payroll_payments,[['reference','Referencia'],['paid_on','Fecha'],['amount','Importe',money],['id','Acciones',v=>`<button class="arcButton secondary" data-ec-payroll="${esc(v)}" ${rights?.validate?'':'disabled'}>${tr('Vincular cuenta')}</button>`]])+`<h3>${tr('Valoraciones de stock sin asiento')}</h3><p class="gaHint">${tr('Antes de contabilizar una entrada o coste adicional, comprueba su factura y la contrapartida para evitar duplicar el gasto. Los traspasos internos no generan asiento.')}</p>`+ecTable(ctx.valuations,[['sequence','Referencia'],['name','Producto'],['kind','Tipo'],['value_delta','Valor de stock',money],['expense_delta','Coste consumido',money],['sequence','Acciones',v=>`<button class="arcButton secondary" data-ec-valuation="${esc(v)}" ${rights?.validate?'':'disabled'}>${tr('Contabilizar')}</button>`]]);
+ return `<div class="arcPanel gaCard"><h2>${tr('Libros y herramientas de Ecuador')}</h2><div class="gaTools"><select id="ecTab">${EC_TABS.map(([k,v])=>`<option value="${k}" ${k===tab?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select>${ecField('from','Desde','date',state.ecFrom||monthStart())}${ecField('to','Hasta','date',state.ecTo||day())}${tab==='general_ledger'?ecField('account','Cuenta','',state.ecAccount,ctx.accounts):tab==='partner_ledger'?ecField('partnerType','Tipo','',state.ecPartnerType||'customer',[{value:'customer',label:'Cliente'},{value:'supplier',label:'Proveedor'}])+ecField('partner','Contacto','',state.ecPartner,(ctx.partners||[]).filter(p=>p.side===(state.ecPartnerType||'customer'))):''}${ecButton('ecApply','Aplicar')}${['trial_balance','general_ledger','partner_ledger','analytic','maturities'].includes(tab)?ecButton('ecExport','Exportar todo',rights?.export):''}</div>${body}</div>`;
+ },
+ bind({ctx,tab,data}){
+ $('ecTab').onchange=()=>{state.ecTab=$('ecTab').value;state.ecOffset=0;go()};
+ $('ecApply').onclick=()=>{state.ecFrom=$('ec-from').value;state.ecTo=$('ec-to').value;state.ecAccount=$('ec-account')?.value;state.ecPartner=$('ec-partner')?.value;state.ecPartnerType=$('ec-partnerType')?.value;state.ecOffset=0;go()};
+ $('ec-partnerType')?.addEventListener('change',()=>{state.ecPartnerType=$('ec-partnerType').value;state.ecPartner=null;go()});
+ $('ecPrev')?.addEventListener('click',()=>{state.ecOffset=Math.max(0,(state.ecOffset||0)-200);go()});
+ $('ecNext')?.addEventListener('click',()=>{state.ecOffset=(state.ecOffset||0)+200;go()});
+ $('ecExport')?.addEventListener('click',e=>act(e.target,async()=>{
+  const rows=[];let offset=0;let result;let snapshot_at;
+  do{result=await ecRpc(tab,{from:state.ecFrom||monthStart(),to:state.ecTo||day(),account_id:state.ecAccount||null,partner_type:state.ecPartnerType||'customer',partner_id:state.ecPartner||null,offset,snapshot_at,limit:2000,export:true});snapshot_at=result.snapshot_at||snapshot_at;rows.push(...result.rows);offset+=result.rows.length;}while(['general_ledger','partner_ledger'].includes(tab)&&offset<result.total&&result.rows.length);
+  await exportRows(rows,tab);
+ }));
+ $('ecFiscalExport')?.addEventListener('click',e=>act(e.target,async()=>{const r=await ecRpc('fiscal_review',{from:state.ecFrom||monthStart(),to:state.ecTo||day(),export:true});await exportRows(r.documents.map(d=>({...d,...d.fiscal,review_status:d.fiscal_id?'reviewed':'missing',filing_status:'not_submitted'})),'revision-fiscal');}));
+ $('ecAllocation')?.addEventListener('click',e=>act(e.target,()=>ecAllocationForm(ctx)));
+ $('ecProfile')?.addEventListener('click',()=>ecProfileForm(ctx));$('ecJournal')?.addEventListener('click',()=>ecJournalForm(ctx));$('ecTerm')?.addEventListener('click',()=>ecTermForm());
+ $('ecOpening')?.addEventListener('click',()=>ecForm('Contabilizar saldo inicial',`<p>${tr('Usa el saldo inicial ya registrado en Banco y caja. Esta operación no añade un cobro.')}</p><div class="gaGrid">${ecField('financial_account_id','Cuenta financiera','',null,ctx.financial_accounts)}${ecField('counter_account_id','Fondos propios','',null,ecAccounts(ctx,'equity'))}${ecField('entry_date','Fecha','date',day())}</div>`,'opening_post',['financial_account_id','counter_account_id','entry_date']));
+ $('ecClose')?.addEventListener('click',()=>ecForm('Cerrar ejercicio',`<p>${tr('Transfiere el resultado a fondos propios y bloquea todos los meses del ejercicio. Revisa antes el libro y las obligaciones fiscales.')}</p><div class="gaGrid">${ecField('from','Desde','date',day().slice(0,4)+'-01-01')}${ecField('to','Hasta','date',day().slice(0,4)+'-12-31')}</div>`,'year_close',['from','to']));
+ $('ecCredit')?.addEventListener('click',()=>ecInvoiceForm(ctx,'adjustment_post'));$('ecWithhold')?.addEventListener('click',()=>ecInvoiceForm(ctx,'withholding_post'));$('ecSchedule')?.addEventListener('click',()=>ecInvoiceForm(ctx,'schedule_save'));
+ document.querySelectorAll('[data-ec-cancel]').forEach(b=>b.onclick=()=>reasonForm('Anular',reason=>ecWrite(b.dataset.ecCancel,{id:b.dataset.id,reason}).then(()=>go())));
+ document.querySelectorAll('[data-ec-journal]').forEach(b=>b.onclick=()=>ecJournalForm(ctx,ctx.journals.find(j=>j.id===b.dataset.ecJournal)));
+ document.querySelectorAll('[data-ec-fiscal]').forEach(b=>b.onclick=()=>ecFiscalForm(data.documents.find(d=>d.source_id===b.dataset.ecFiscal&&d.source_type===b.dataset.type)));
+ $('ecChart')?.addEventListener('click',e=>act(e.target,async()=>{
+  const response=await fetch('config/localizations/EC.json');if(!response.ok)throw Error('CHART_NOT_AVAILABLE');const reference=await response.json();
+  GamaSales.modal('Plan de cuentas Ecuador',`<p>${tr('Añade las cuentas que faltan. Conserva las cuentas existentes y sus asientos. Después revisa las correspondencias de cuentas automáticas con tu asesor.')}</p><p>${esc(reference.accounts.length)} · LGPL-3 · Odoo / TRESCLOUD</p>`,'Importar',async()=>{await ecWrite('chart_import',{accounts:reference.accounts.map(({code,name,type})=>({code,name,type}))});await go()});
+ }));
+ $('ecTaxDates')?.addEventListener('click',()=>ecForm('Vigencia de impuestos',`${ecField('id','Impuesto','',null,ctx.taxes)}${ecField('valid_from','Desde','date')}${ecField('valid_to','Hasta','date')}`,'tax_dates_save',['id','valid_from','valid_to']));
+ $('ecAts')?.addEventListener('click',e=>act(e.target,async()=>{
+  const review=await ecRpc('fiscal_review',{from:state.ecFrom||monthStart(),to:state.ecTo||day(),export:true});await window.ArcLoadScript('gama-accounting-ec.js');const result=window.ArcEcuador.buildAts(review);
+  if(result.errors.length){GamaSales.modal('Controles ATS',`<p>${tr('No se puede generar el borrador. Completa los datos o consulta los casos pendientes con tu asesor.')}</p><ul>${result.errors.map(code=>`<li>${esc(code)}</li>`).join('')}</ul>`,'Cerrar',async()=>{});return;}
+  GamaSales.modal('Borrador ATS',`<p>${tr('Borrador mensual para operaciones nacionales compatibles. No está presentado al SRI. Valídalo en el programa ATS vigente y con tu asesor antes de presentar.')}</p>`,'Descargar',async()=>{const url=URL.createObjectURL(new Blob([result.xml],{type:'application/xml;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=result.filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),4000);});
+ }));
+ $('ecAsset')?.addEventListener('click',e=>act(e.target,()=>ecAssetForm(ctx)));
+ document.querySelectorAll('[data-ec-depreciate]').forEach(b=>b.onclick=()=>ecForm('Amortizar un mes',ecField('period','Último día del mes','date',''),'depreciation_post',['period'],{id:b.dataset.ecDepreciate}));
+ $('ecPayroll')?.addEventListener('click',e=>act(e.target,async()=>{await ecWrite('payroll_sync',{});await go()}));
+ document.querySelectorAll('[data-ec-payroll]').forEach(b=>b.onclick=()=>ecForm('Vincular cuenta',ecField('financial_account_id','Cuenta financiera','',null,ctx.financial_accounts),'payroll_payment_link',['financial_account_id'],{id:b.dataset.ecPayroll}));
+ document.querySelectorAll('[data-ec-valuation]').forEach(b=>b.onclick=()=>ecForm('Contabilizar valoración',`<p>${tr('Comprueba que la contrapartida corresponde a la adquisición o al gasto ya registrado. La apertura usa fondos propios; la salida usa coste de ventas.')}</p>${ecField('counter_account_id','Contrapartida','',null,ctx.accounts)}${ecField('reason','Motivo y comprobante','textarea')}`,'valuation_post',['counter_account_id','reason'],{sequence:b.dataset.ecValuation}));
+ }
+};
+async function ecAllocationForm(ctx){
+ const book=await ecRpc('general_ledger',{from:state.ecFrom||monthStart(),to:state.ecTo||day(),limit:200});
+ const row=()=>`<div class="gaGrid ecAllocationRow"><label>${tr('Proyecto')}<select data-project>${ecOpts(ctx.projects)}</select></label><label>${tr('Porcentaje')}<input data-percent type="number" min="0.0001" max="100" step="0.0001" value="50"></label><button type="button" data-remove class="arcButton secondary">${tr('Eliminar')}</button></div>`;
+ const request_key=crypto.randomUUID();const html=`${ecField('line_id','Línea contable','',null,book.rows.map(l=>({id:l.id,label:[l.number,l.code,l.label,money(Number(l.debit)-Number(l.credit))].join(' · ')})))}<div id="ecAllocationRows">${row()}${row()}</div>${ecButton('ecAllocationAdd','Añadir línea')}`;
+ GamaSales.modal('Distribución por proyecto',html,'Guardar',async el=>{await ecWrite('allocation_save',{request_key,line_id:el.querySelector('#ec-line_id').value,lines:[...el.querySelectorAll('.ecAllocationRow')].map(r=>({project_id:r.querySelector('[data-project]').value,percent:r.querySelector('[data-percent]').value}))});await go()});
+ const host=$('ecAllocationRows');$('ecAllocationAdd').onclick=()=>host.insertAdjacentHTML('beforeend',row());host.onclick=e=>{if(e.target.closest('[data-remove]'))e.target.closest('.ecAllocationRow').remove()};
+}
+function ecProfileForm(ctx){
+ const p=ctx.profile;const yesno=[{value:'true',label:'Sí'},{value:'false',label:'No'}];
+ const keys=['taxpayer_kind','regime','accounting_required','withholding_agent','ats_required','establishments','confirmed_on','evidence','payroll_expense_account_id','payroll_payable_account_id','payroll_deductions_account_id','retained_earnings_account_id'];
+ ecForm('Configuración Ecuador',`<p>${tr('No necesitas constituir una sociedad para usar Coco. Confirma las obligaciones de tu actividad en el SRI; deja sin configurar lo que aún no esté confirmado.')}</p><div class="gaGrid">${ecField('taxpayer_kind','Tipo de contribuyente','',p.taxpayer_kind,[{value:'natural',label:'Persona natural'},{value:'company',label:'Sociedad'}])}${ecField('regime','Régimen','',p.regime,[['unconfigured','Sin configurar'],['general','Régimen general'],['rimpe_business','RIMPE emprendedor'],['rimpe_popular','RIMPE negocio popular'],['other','Otro régimen']].map(([value,label])=>({value,label})))}${['accounting_required','withholding_agent','ats_required'].map((k,i)=>ecField(k,['Obligado a llevar contabilidad','Agente de retención','Obligado a ATS'][i],'',p[k]===null?null:String(p[k]),yesno)).join('')}${ecField('establishments','Establecimientos','number',p.establishments)}${ecField('confirmed_on','Fecha de confirmación','date',p.confirmed_on)}${ecField('evidence','Referencia del SRI','textarea',p.evidence)}${ecField('payroll_expense_account_id','Gasto de nómina','',p.payroll_expense_account_id,ecAccounts(ctx,'expense'))}${ecField('payroll_payable_account_id','Nómina por pagar','',p.payroll_payable_account_id,ecAccounts(ctx,'liability'))}${ecField('payroll_deductions_account_id','Obligaciones de nómina','',p.payroll_deductions_account_id,ecAccounts(ctx,'liability'))}${ecField('retained_earnings_account_id','Resultado acumulado','',p.retained_earnings_account_id,ecAccounts(ctx,'equity'))}</div>`,'profile_save',keys);
+}
+function ecJournalForm(ctx,row={}){ecForm('Diario contable',`<div class="gaGrid">${ecField('code','Código','text',row.code)}${ecField('name','Nombre','text',row.name)}${ecField('kind','Tipo','',row.kind||'misc',['sales','purchases','bank','cash','misc'].map(value=>({value,label:value})))}${ecField('active','Estado','',String(row.active!==false),[{value:'true',label:'Activo'},{value:'false',label:'Inactivo'}])}${ecField('financial_account_id','Cuenta financiera','',row.financial_account_id,ctx.financial_accounts)}</div>`,'journal_save',['code','name','kind','active','financial_account_id'],{id:row.id||null})}
+function ecTermForm(){
+ const row=()=>`<div class="gaGrid ecTermRow"><label>${tr('Porcentaje')}<input data-percent type="number" min="0.01" max="100" step="0.01" value="50"></label><label>${tr('Días')}<input data-days type="number" min="0" max="3650" step="1" value="30"></label><button type="button" class="arcButton secondary" data-remove>${tr('Eliminar')}</button></div>`;
+ const request_key=crypto.randomUUID();GamaSales.modal('Condiciones de pago',`${ecField('name','Nombre')}<div id="ecTermRows">${row()}${row()}</div>${ecButton('ecAddTerm','Añadir vencimiento')}`,'Guardar',async el=>{const lines=[...el.querySelectorAll('.ecTermRow')].map(r=>({percent:Number(r.querySelector('[data-percent]').value),days:Number(r.querySelector('[data-days]').value)}));await ecWrite('term_save',{request_key,name:el.querySelector('#ec-name').value,lines});await go()});
+ const host=$('ecTermRows');$('ecAddTerm').onclick=()=>{host.insertAdjacentHTML('beforeend',row())};host.onclick=e=>{if(e.target.closest('[data-remove]'))e.target.closest('.ecTermRow').remove()};
+}
+async function ecInvoiceForm(ctx,action){
+ const [customers,suppliers]=await Promise.all([rpc('receivables',{from:'2000-01-01',to:'2099-12-31',limit:200}),rpc('payables',{from:'2000-01-01',to:'2099-12-31',limit:200})]);
+ const items={customer:customers.rows,supplier:suppliers.rows};const opts=side=>items[side].map(i=>({id:i.id,label:`${i.number} · ${i.customer_name||i.supplier_name} · ${money(i.balance)}`}));
+ let html=`<div class="gaGrid">${ecField('side','Contacto','', 'customer',[{value:'customer',label:'Cliente'},{value:'supplier',label:'Proveedor'}])}${ecField('invoice_id','Factura','',null,opts('customer'))}`;
+ if(action==='schedule_save')html+=ecField('term_id','Condiciones de pago','',null,ctx.terms.filter(t=>t.active));
+ else html+=ecField('issued_on','Fecha','date',day());
+ if(action==='adjustment_post')html+=ecField('kind','Tipo','', 'credit',[{value:'credit',label:'Abono'},{value:'debit',label:'Débito'}])+ecField('reference','Referencia')+ecField('net','Base imponible','number',0)+ecField('tax','IVA','number',0)+ecField('reason','Motivo','textarea')+ecField('fiscal_authorization','Autorización fiscal existente');
+ if(action==='withholding_post')html+=ecField('number','Número de retención')+ecField('authorization_number','Autorización fiscal existente')+ecField('evidence','Motivo y comprobante','textarea');
+ html+='</div>';
+ const row=()=>`<div class="gaGrid ecWithholdRow">${ecField('unused','Impuesto','', 'income',[{value:'income',label:'Renta'},{value:'vat',label:'IVA'}]).replace('id="ec-unused"','data-tax-kind') }<label>${tr('Código SRI')}<input data-code maxlength="5"></label><label>${tr('Base imponible')}<input data-base type="number" min="0" step="0.01"></label><label>${tr('Tasa')}<input data-rate type="number" min="0" max="100" step="0.0001"></label><label>${tr('Cuenta')}<select data-account>${ecOpts(ctx.accounts)}</select></label><button type="button" data-remove class="arcButton secondary">${tr('Eliminar')}</button></div>`;
+ if(action==='withholding_post')html+=`<div id="ecWithholdRows">${row()}</div>${ecButton('ecAddWithhold','Añadir línea')}`;
+ const request_key=crypto.randomUUID();GamaSales.modal(action==='schedule_save'?'Vencimientos':action==='withholding_post'?'Retención documentada':'Abono o débito',html,'Guardar',async el=>{
+  const data={...ecValues(el,['side','invoice_id','term_id','issued_on','kind','reference','net','tax','reason','fiscal_authorization','number','authorization_number','evidence']),request_key};
+  if(action==='withholding_post')data.lines=[...el.querySelectorAll('.ecWithholdRow')].map(r=>({tax_kind:r.querySelector('[data-tax-kind]').value,code:r.querySelector('[data-code]').value,base:r.querySelector('[data-base]').value,rate:r.querySelector('[data-rate]').value,account_id:r.querySelector('[data-account]').value}));
+  await ecWrite(action,data);await go();
+ });
+ $('ec-side').onchange=()=>{$('ec-invoice_id').innerHTML=ecOpts(opts($('ec-side').value))};
+ if(action==='withholding_post'){const host=$('ecWithholdRows');$('ecAddWithhold').onclick=()=>host.insertAdjacentHTML('beforeend',row());host.onclick=e=>{if(e.target.closest('[data-remove]'))e.target.closest('.ecWithholdRow').remove()};}
+}
+function ecFiscalForm(doc){
+ const f=doc.fiscal||{};const keys=['document_type','document_number','identification_type','identification','authorization_number','support_code','base_zero','base_taxed','base_exempt','base_non_taxable','ice','vat','evidence'];
+ const html=`<p>${esc(doc.number)} · ${money(doc.total)}</p><div class="gaGrid">${ecField('document_type','Código del comprobante','text',f.document_type||'01')}${ecField('document_number','Número fiscal','text',f.document_number)}${ecField('identification_type','Tipo de identificación','',f.identification_type||'04',['04','05','06','07','08'].map(value=>({value,label:value})))}${ecField('identification','Identificación','text',f.identification||doc.partner_identification)}${ecField('authorization_number','Autorización fiscal existente','text',f.authorization_number)}${ecField('support_code','Código de sustento','text',f.support_code)}${['base_zero','base_taxed','base_exempt','base_non_taxable','ice','vat'].map((k,i)=>ecField(k,['Base IVA cero','Base gravada IVA','Base exenta','Base no objeto IVA','ICE','IVA'][i],'number',f[k]??(k==='vat'?doc.tax:k==='base_taxed'&&Number(doc.tax)>0?doc.subtotal:k==='base_zero'&&Number(doc.tax)===0?doc.subtotal:0))).join('')}${ecField('payment','Forma de pago SRI','',(f.payment_codes||[])[0],['01','15','16','17','18','19','20','21'].map(value=>({value,label:value})))}${ecField('evidence','Motivo y comprobante','textarea',f.evidence)}</div>`;
+ const request_key=crypto.randomUUID();GamaSales.modal('Revisión fiscal',html,'Guardar',async el=>{await ecWrite('fiscal_save',{...ecValues(el,keys),payment_codes:[el.querySelector('#ec-payment').value],related_party:f.related_party||false,source_type:doc.source_type,source_id:doc.source_id,request_key});await go()});
+}
+async function ecAssetForm(ctx){
+ const entries=await rpc('entries',{from:'2000-01-01',to:day(),status:'posted',limit:200});
+ const keys=['name','acquired_on','cost','residual','months','first_depreciation','asset_account_id','depreciation_account_id','expense_account_id','acquisition_entry_id','project_id'];
+ ecForm('Registrar activo',`<div class="gaGrid">${ecField('name','Nombre')}${ecField('acquired_on','Fecha de adquisición','date',day())}${ecField('cost','Coste','number',0)}${ecField('residual','Valor residual','number',0)}${ecField('months','Meses','number',12)}${ecField('first_depreciation','Primer mes de amortización','date',monthStart())}${ecField('asset_account_id','Cuenta del activo','',null,ecAccounts(ctx,'asset'))}${ecField('depreciation_account_id','Amortización acumulada','',null,ecAccounts(ctx,'asset'))}${ecField('expense_account_id','Gasto de amortización','',null,ecAccounts(ctx,'expense'))}${ecField('acquisition_entry_id','Asiento de adquisición','',null,entries.rows.map(e=>({id:e.id,label:`${e.number} · ${e.reference||''} · ${money(e.total_debit)}`})))}${ecField('project_id','Proyecto','',null,ctx.projects)}</div>`,'asset_save',keys);
 }
 
 /* ------------------------------------------------------------- exportación */

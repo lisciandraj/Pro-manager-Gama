@@ -1,0 +1,20 @@
+-- Index references added by the Ecuador accounting extensions.
+-- Separate migration: the applied ledger migration is immutable.
+create index ec_fk_adjustments_created_by on public.accounting_adjustments(created_by);
+create index ec_fk_adjustments_entry_id on public.accounting_adjustments(entry_id);
+create index ec_fk_analytic_allocations_created_by on public.accounting_analytic_allocations(created_by);
+create index ec_fk_assets_acquisition_entry_id on public.accounting_assets(acquisition_entry_id);
+create index ec_fk_assets_asset_account_id on public.accounting_assets(asset_account_id);
+create index ec_fk_assets_created_by on public.accounting_assets(created_by);
+create index ec_fk_assets_depreciation_account_id on public.accounting_assets(depreciation_account_id);
+create index ec_fk_assets_expense_account_id on public.accounting_assets(expense_account_id);
+create index ec_fk_assets_project_id on public.accounting_assets(project_id);
+create index ec_fk_ec_profile_payroll_deductions_account_id on public.accounting_ec_profile(payroll_deductions_account_id);
+create index ec_fk_ec_profile_payroll_expense_account_id on public.accounting_ec_profile(payroll_expense_account_id);
+create index ec_fk_ec_profile_payroll_payable_account_id on public.accounting_ec_profile(payroll_payable_account_id);
+create index ec_fk_ec_profile_retained_earnings_account_id on public.accounting_ec_profile(retained_earnings_account_id);
+create index ec_fk_ec_profile_updated_by on public.accounting_ec_profile(updated_by);
+create index ec_fk_fiscal_documents_reviewed_by on public.accounting_fiscal_documents(reviewed_by);
+create index ec_fk_maturities_term_id on public.accounting_maturities(term_id);
+create index ec_fk_withholdings_created_by on public.accounting_withholdings(created_by);
+create index ec_fk_withholdings_entry_id on public.accounting_withholdings(entry_id);

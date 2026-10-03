@@ -83,7 +83,8 @@ test('dashboard date fields and actions stay separate at narrow widths and enlar
 test('module controls fit on phone, landscape, tablet and desktop',async({page})=>{
  test.setTimeout(120000);await boot(page);
  const ids=await page.locator('#mainmenu [data-gama-module]:visible').evaluateAll(es=>es.map(e=>e.dataset.gamaModule));
- expect(ids.length).toBeGreaterThan(25);
+ expect(ids.length).toBeGreaterThan(20);
+ for(const id of ['reports','backup','access-settings'])expect(ids).not.toContain(id);
  const failures=[];
  for(const id of ids){
   await page.evaluate(id=>ArcRouter.open(id),id);

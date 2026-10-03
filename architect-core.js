@@ -708,6 +708,7 @@
     startDataEvents
   }, Symbol.toStringTag, { value: "Module" }));
   const definitions = [
+    { id: "surveys", label: "Encuestas", icon: "checklist", group: "Ventas", description: "Cuestionarios, respuestas y satisfacción", accent: "teal", order: 7.2, menu: true, roles: ["admin", "commercial"] },
     { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: ["admin"] },
     { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
     { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: true, roles: ["admin", "commercial"] },
@@ -1268,6 +1269,10 @@
     });
   };
   const openers = {
+    surveys: () => {
+      var _a;
+      return (_a = window.GamaSurveys) == null ? void 0 : _a.open();
+    },
     website: () => {
       var _a;
       return (_a = window.GamaWebsite) == null ? void 0 : _a.open();
@@ -1577,6 +1582,7 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "surveys": { "global": "GamaSurveys", "file": "gama-surveys.js", "dependencies": ["gama-survey-form.js"], "methods": ["open"] },
     "website": {
       "global": "GamaWebsite",
       "file": "gama-website.js",

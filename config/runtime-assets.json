@@ -145,7 +145,7 @@
       "output": "gama-company.js"
     },
     {
-      "source": "src/features/contacts/contacts.js",
+      "source": "src/features/contacts/contacts-loader.js",
       "output": "gama-contacts.js"
     },
     {
@@ -447,6 +447,18 @@
     {
       "source": "src/features/website/store-admin.js",
       "output": "gama-store-admin.js"
+    },
+    {
+      "source": "src/features/surveys/survey-form.js",
+      "output": "gama-survey-form.js"
+    },
+    {
+      "source": "src/features/surveys/surveys.js",
+      "output": "gama-surveys.js"
+    },
+    {
+      "source": "src/features/contacts/contacts.js",
+      "output": "gama-contacts-workspace.js"
     }
   ],
   "styles": [
@@ -505,6 +517,10 @@
     {
       "source": "src/styles/store-admin.css",
       "output": "gama-store-admin.css"
+    },
+    {
+      "source": "src/styles/surveys.css",
+      "output": "gama-surveys.css"
     }
   ],
   "moduleStyles": [

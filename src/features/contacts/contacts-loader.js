@@ -1,4 +1,3 @@
-/* Generated from src/features/contacts/contacts-loader.js. Edit the source and run npm run build. */
 /* Preserve legacy contact routes while loading the workspace on demand. */
 (function(){'use strict';
 const load=()=>window.ArcLoadScript('gama-contacts-workspace.js');

@@ -230,3 +230,5 @@ button.ivCelda:hover{border-color:var(--arc-accent-600);box-shadow:0 0 0 1px var
 @media(max-width:540px){.gfItem.gfPickItem{grid-template-columns:24px 60px minmax(0,1fr);gap:9px;padding:14px 5px}.gfPickPhoto{width:60px;height:60px}.gfPickCheck{font-size:21px}.gfPickName{font-size:15px}.gfPickDescription{font-size:14px}.gfPickActions .arcButton{padding:8px 10px}.gfPickItem .gfLineForm .gsField{min-width:0;flex-basis:100%}.gfPickItem .gfLineQty{width:100%;min-width:0}}
 
 .gfPickCheck svg{width:24px;height:24px}.gfPickItem .gfLineForm[hidden]{display:none}
+
+.ctFilters{flex-wrap:wrap;margin:12px 0}.ctFilters label{display:grid;gap:5px;font-size:13px;min-width:180px}.ctFilters select{padding:8px 12px;border:1px solid var(--arc-border,#dce6e9);border-radius:8px;background:var(--arc-surface,#fff);color:inherit}.ctList a{color:var(--arc-accent-700);overflow-wrap:anywhere}

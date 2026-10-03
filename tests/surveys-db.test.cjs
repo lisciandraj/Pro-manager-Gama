@@ -1,0 +1,40 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto');
+const {restore}=require('../scripts/restore-schema.cjs');
+test('surveys enforce publication, answer contracts, scores, invitation identity, concurrency and permissions',async()=>{
+ const db=await restore(),admin=uuid(),client=uuid(),customer=uuid();
+ const q=async(s,a=[])=>(await db.query(s,a)).rows,call=async(a,d={})=>(await q('select gama_surveys($1,$2) r',[a,d]))[0].r,pub=async(a,d={})=>(await q('select gama_survey($1,$2) r',[a,d]))[0].r;
+ const login=async(id,role='authenticated')=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id||'']);await db.exec('set role '+role)};
+ try{
+ await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'survey-admin@example.invalid',client,'survey-client@example.invalid']);await q("update profiles set active=true,role=case when id=$1 then 'cliente' else 'administrador' end",[client]);await q("insert into customers(id,name,identification) values($1,'Survey customer','SURVEY-TEST')",[customer]);
+ await login(admin);
+ const questions=[{id:'section',type:'section',title:'Section',required:false},{id:'q1',type:'single',title:'Choose',required:true,choices:['A','B'],correct:['A']},{id:'q2',type:'multiple',title:'Multiple',required:true,choices:['X','Y','Z'],correct:['X','Y']},{id:'q3',type:'number',title:'Number',required:true,min:1,max:10},{id:'q4',type:'rating',title:'Rating',required:false},{id:'q5',type:'date',title:'Date',required:false},{id:'q6',type:'datetime',title:'Time',required:false},{id:'q7',type:'text',title:'Text',required:false},{id:'q8',type:'textarea',title:'Long',required:false}];
+ let s=await call('save',{title:'Customer feedback',language:'fr',questions,quiz:true});assert.equal(s.state,'draft');assert.equal((await call('list')).total,1);
+ await assert.rejects(call('save',{...s,questions:[questions[1],questions[1]]}),/INVALID_QUESTIONS/);
+ await login(null,'anon');await assert.rejects(pub('get',{token:s.token}),/SURVEY_UNAVAILABLE/);await assert.rejects(call('list'),/permission denied/);await assert.rejects(q('select * from private.surveys'),/permission denied/);
+ await login(admin);s=await call('state',{id:s.id,version:s.version,state:'open'});await assert.rejects(call('save',s),/SURVEY_LOCKED/);await assert.rejects(call('state',{id:s.id,version:1,state:'closed'}),/SURVEY_CHANGED/);
+ const inv=await call('invite',{id:s.id,kind:'customer',contact_id:customer});assert.equal((await call('invite',{id:s.id,kind:'customer',contact_id:customer})).id,inv.id);
+ await db.exec('reset role');const secret=(await q('select token from private.website_public_connection'))[0].token;
+ await login(null,'anon');const publicSurvey=await pub('get',{token:s.token});assert.equal(publicSurvey.questions[1].correct,undefined);assert.equal(publicSurvey.token,undefined);assert.equal(publicSurvey.personal,false);assert.equal((await pub('get',{token:inv.token})).personal,true);
+ let d={token:s.token,request_key:uuid(),consent:true,visitor:'198.51.100.10',answers:{q1:'A',q2:['Y','X'],q3:5,q4:4,q5:'2026-10-03',q6:'2026-10-03T14:00',q7:'Excellent'}};
+ await assert.rejects(pub('submit',d),/SERVER_KEY_REQUIRED/);await q("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':secret})]);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q1:null}}),/REQUIRED_ANSWER/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q1:'UNKNOWN'}}),/INVALID_ANSWER/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q2:['X','X']}}),/INVALID_ANSWER/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q3:11}}),/INVALID_ANSWER/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q4:1.5}}),/INVALID_ANSWER/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q5:'2026-02-31'}}),/INVALID_DATA/);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q9:'injected'}}),/INVALID_ANSWER/);
+ const r=await pub('submit',d);assert.equal(r.score,2);assert.equal(r.maximum,2);assert.equal(r.passed,true);assert.equal((await pub('submit',d)).id,r.id);
+ await assert.rejects(pub('submit',{...d,answers:{...d.answers,q1:'B'}}),/REQUEST_KEY_REUSED/);
+ d={...d,token:inv.token,request_key:uuid(),answers:{q1:'B',q2:['X'],q3:1}};assert.equal((await pub('submit',d)).score,0);assert.equal((await pub('get',{token:inv.token})).answered,true);
+ await assert.rejects(pub('submit',{...d,request_key:uuid()}),/ALREADY_ANSWERED/);
+ await login(admin);let results=await call('results',{id:s.id});assert.equal(results.total,2);assert.equal(results.items[1].contact_label,'Survey customer');assert.equal(results.items[0].visitor_hash,undefined);
+ await call('revoke',{id:s.id,invitation_id:inv.id});await login(null,'anon');await assert.rejects(pub('get',{token:inv.token}),/SURVEY_UNAVAILABLE/);
+ await login(admin);const copy=await call('duplicate',{id:s.id});assert.equal(copy.state,'draft');assert.notEqual(copy.token,s.token);assert.equal((await call('results',{id:copy.id})).total,0);
+ s=await call('state',{id:s.id,version:s.version,state:'closed'});await login(null,'anon');await assert.rejects(pub('get',{token:s.token}),/SURVEY_UNAVAILABLE/);
+ await login(admin);s=await call('state',{id:s.id,version:s.version,state:'archived'});await assert.rejects(call('state',{id:s.id,version:s.version,state:'open'}),/INVALID_STATE/);
+ let only=await call('save',{title:'Private links',questions:[questions[1]],invitation_only:true});only=await call('state',{id:only.id,version:only.version,state:'open'});await login(null,'anon');await assert.rejects(pub('get',{token:only.token}),/SURVEY_UNAVAILABLE/);
+ await login(client);await assert.rejects(call('list'),/ACCESS_DENIED/);await assert.rejects(call('results',{id:s.id}),/ACCESS_DENIED/);
+ await login(admin);await db.exec('reset role');await q("insert into app_modules(id,enabled) values('surveys',false)");await db.exec('set role authenticated');await assert.rejects(call('list'),/ACCESS_DENIED/);
+ }finally{await db.close()}
+});

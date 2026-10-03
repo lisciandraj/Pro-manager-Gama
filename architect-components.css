@@ -1202,6 +1202,8 @@ button.ivCelda:hover{border-color:var(--arc-accent-600);box-shadow:0 0 0 1px var
 
 .gfPickCheck svg{width:24px;height:24px}.gfPickItem .gfLineForm[hidden]{display:none}
 
+.ctFilters{flex-wrap:wrap;margin:12px 0}.ctFilters label{display:grid;gap:5px;font-size:13px;min-width:180px}.ctFilters select{padding:8px 12px;border:1px solid var(--arc-border,#dce6e9);border-radius:8px;background:var(--arc-surface,#fff);color:inherit}.ctList a{color:var(--arc-accent-700);overflow-wrap:anywhere}
+
 /* Shared controls. Feature styles describe layouts and business states only. */
 .arcPanel,.arcKpi{background:var(--arc-surface);border:1px solid var(--arc-line);border-bottom-color:var(--arc-line-strong);border-radius:var(--arc-r-lg);box-shadow:var(--arc-sh-1);padding:var(--arc-s5);min-width:0}
 .arcToolbar,.arcPager{display:flex;align-items:center;gap:var(--arc-s3);flex-wrap:wrap}.arcToolbar{margin-block:var(--arc-s3)}.arcPager{justify-content:space-between;margin-top:var(--arc-s4)}

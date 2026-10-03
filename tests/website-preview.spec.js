@@ -18,13 +18,6 @@ async function boot(page,{site=false,role='admin',denied=false,width=1280}={}){
  await page.goto(site?'/gama-site.html':'/index.html');
  if(!site){await page.waitForFunction(()=>window.gamaAccessAllowed?.('website')||window.gamaAccessAllowed?.('client-catalog'));}
 }
-for(const width of [390,1280])test('website admin configures content and products at '+width,async({page})=>{
- await boot(page,{width});await page.locator('#mainmenu [data-gama-module="website"]').click();await page.locator('[data-gw-tab=settings]').click();await expect(page.locator('#gwSettings')).toBeVisible();await expect(page.locator('#gwPreview')).toHaveAttribute('href','gama-site.html');
- await page.locator('[name=headline]').fill('Votre prochain approvisionnement');await page.locator('#gwSettings [type=submit]').click();await expect(page.locator('#gwStatus')).toContainText('enregistrées');
- await page.locator('[data-gw-tab=catalog]').click();await expect(page.locator('.gwProduct')).toHaveCount(2);await page.locator('[data-gw-edit=web1]').click();await page.locator('dialog [name=visible]').uncheck();await page.locator('dialog [name=description]').fill('Description test');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);
- expect(await page.evaluate(()=>__WEB.products[0].visible)).toBe(false);await expect(page.locator('#gwStats')).toContainText('1');
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:'test-results/website-admin-'+width+'.png',fullPage:true});
-});
 for(const width of [390,1280])test('GAMA test storefront searches, keeps retry identity and receives quote at '+width,async({page})=>{
  await boot(page,{site:true,width});await expect(page.locator('.product')).toHaveCount(2);await page.locator('#siteSearch').fill('CAFÉ');await expect(page.locator('.product')).toHaveCount(1);await page.locator('[data-add=web1]').click();await expect(page.locator('#cartCount')).toHaveText('1');await page.locator('#cartOpen').click();await page.locator('[data-qty=web1]').fill('2');await page.locator('[name=contact_name]').fill('Jimmy Test');await page.locator('[name=email]').fill('test@example.invalid');await page.locator('[name=notes]').fill('Demande de test');
  await page.evaluate(()=>{__WEB.failure='submit'});await page.locator('#quoteSend').click();await expect(page.locator('#quoteStatus')).toContainText('conserva');await expect(page.locator('[name=contact_name]')).toHaveValue('Jimmy Test');await page.locator('#quoteSend').click();await expect(page.locator('#quoteStatus')).toContainText('WEB-TEST-00000001');
@@ -32,8 +25,5 @@ for(const width of [390,1280])test('GAMA test storefront searches, keeps retry i
 });
 test('website preview handles denied access and paused preview without showing products',async({page})=>{
  await boot(page,{site:true,denied:true});await expect(page.locator('.empty-state')).toContainText('administrador');await expect(page.locator('.product')).toHaveCount(0);await page.evaluate(()=>{__WEB.denied=false;__WEB.settings.preview_enabled=false});await page.locator('#siteReload').click();await expect(page.locator('.empty-state')).toContainText('pausada');await expect(page.locator('.product')).toHaveCount(0);
-});
-test('test inquiries can be reviewed inside ERP and client cannot open website administration',async({page})=>{
- await boot(page);await page.evaluate(()=>__WEB.inquiries.push({id:'i1',reference:'WEB-TEST-00000001',contact_name:'Test',email:'qa@example.invalid',company:'Test Company',phone:'',notes:'Test only',lines:[{name:'CAFÉ',quantity:2,total:23}],total:23,currency:'USD',created_at:new Date().toISOString(),status:'new'}));await page.locator('#mainmenu [data-gama-module=website]').click();await page.locator('[data-gw-tab=inquiries]').click();await page.locator('.gwInquiries summary').click();await expect(page.locator('.gwInquiry')).toContainText('qa@example.invalid');await page.locator('[data-gw-review=i1]').click();await expect(page.locator('.gwInquiries summary')).toContainText('Traitée');
 });
 test('client has no website administration tile',async({page})=>{await boot(page,{role:'client'});await expect(page.locator('#mainmenu [data-gama-module=website]')).toBeHidden();await page.evaluate(()=>GamaWebsite.open());await expect(page.locator('#website')).toHaveCount(0)});

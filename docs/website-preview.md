@@ -1,3 +1,5 @@
+> Ancienne prévisualisation : ses onglets et son lien ont été retirés du module Site web. Le module utilise désormais uniquement Site public ; voir [le site public](public-website.md). Les routes et données historiques décrites ci-dessous restent conservées pour compatibilité.
+
 # Site web GAMA — version de test
 
 Adresse : `gama-site.html` sur le même hébergement que Coco ERP. Ouvrir Administration → Site web → Ouvrir le site de test, avec une session administrateur active. La page autonome utilise le client Supabase existant, sans charger les écrans de l’ERP. Elle porte `noindex,nofollow,noarchive`.

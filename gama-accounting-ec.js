@@ -1,0 +1,58 @@
+/* Generated from src/domain/accounting-ecuador.js. Edit the source and run npm run build. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.ArcEcuador=api})(typeof window==='object'?window:null,function(){
+'use strict';
+// Reviewed monthly domestic ATS subset. Unsupported transactions block export.
+// SRI: https://descargas.sri.gob.ec/download/anexos/ats/ats.xsd
+const escapeXml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const tag=(k,v)=>`<${k}>${escapeXml(v)}</${k}>`;
+const cents=v=>Math.round(Number(v)*100);const cash=v=>(Number(v)/100).toFixed(2);
+const date=v=>v.slice(8,10)+'/'+v.slice(5,7)+'/'+v.slice(0,4);
+function buildAts(review){
+ const errors=[...(review.blockers||[])],p=review.profile||{},company=review.company||{};
+ const from=review.from||'',to=review.to||'';const start=from.slice(0,7)+'-01';const end=/^\d{4}-\d{2}-\d{2}$/.test(from)?new Date(Date.UTC(Number(from.slice(0,4)),Number(from.slice(5,7)),0)).toISOString().slice(0,10):'';
+ if(from!==start||to!==end)errors.push('ATS_FULL_MONTH_REQUIRED');
+ if(p.regime!=='general')errors.push('ATS_REGIME_REQUIRES_SEPARATE_REVIEW');
+ if(p.ats_required!==true||!p.confirmed_on)errors.push('ATS_OBLIGATION_UNCONFIRMED');
+ if(!/^\d{10}001$/.test(company.tax_id||''))errors.push('RUC_REQUIRED');
+ if(String(company.legal_name||'').trim().length<5)errors.push('LEGAL_NAME_REQUIRED');
+ if(!/^[a-zA-Z0-9][a-zA-Z0-9\s]+[a-zA-Z0-9\s]$/.test(company.legal_name||''))errors.push('ATS_LEGAL_NAME_SCHEMA_FORMAT');
+ if(!Number.isInteger(p.establishments)||p.establishments<1||p.establishments>999)errors.push('ESTABLISHMENTS_REQUIRED');
+ if((review.adjustments||[]).length||(review.withholdings||[]).length)errors.push('ATS_ADJUSTMENTS_WITHHOLDINGS_REQUIRE_REVIEW');
+ if((review.return_credits||[]).length||review.cancelled_documents>0)errors.push('ATS_RETURNS_CANCELLATIONS_REQUIRE_REVIEW');
+ let purchases='',sales='';const groups=new Map(),establishments=new Map();let totalSales=0;
+ for(const d of review.documents||[]){
+  const f=d.fiscal;
+  const fail=code=>errors.push(`${code}:${d.number}`);
+  if(!f||!d.fiscal_id){fail('FISCAL_DETAILS_REQUIRED');continue;}
+  if(!['01'].includes(f.document_type)||!['04','05','07'].includes(f.identification_type)){fail('ATS_DOCUMENT_UNSUPPORTED');continue;}
+  if(f.related_party){fail('ATS_RELATED_PARTY_REQUIRES_REVIEW');continue;}
+  if(!/^\d{3}-\d{3}-\d{9}$/.test(f.document_number)||!/^\d{10,49}$/.test(f.authorization_number)){fail('ATS_DOCUMENT_ID_INVALID');continue;}
+  const nums=['base_zero','base_taxed','base_exempt','base_non_taxable','ice','vat'];
+  if(nums.some(k=>!Number.isFinite(Number(f[k]))||Number(f[k])<0)){fail('ATS_AMOUNT_INVALID');continue;}
+  const base=cents(f.base_zero)+cents(f.base_taxed)+cents(f.base_exempt)+cents(f.base_non_taxable);
+  if(base!==cents(d.subtotal)||cents(f.vat)!==cents(d.tax)||base+cents(f.vat)+cents(f.ice)!==cents(d.total)){fail('FISCAL_TOTAL_MISMATCH');continue;}
+  if(!Array.isArray(f.payment_codes)||!f.payment_codes.length||f.payment_codes.some(c=>!['01','15','16','18','19','20','21'].includes(c))){fail('PAYMENT_CODE_REQUIRED');continue;}
+  if(f.identification_type==='04'&&!/^\d{13}$/.test(f.identification)||f.identification_type==='05'&&!/^\d{10}$/.test(f.identification)||f.identification_type==='07'&&f.identification!=='9999999999999'){fail('ATS_PARTNER_ID_INVALID');continue;}
+  const codes={customer:{'04':'04','05':'05','07':'07'},supplier:{'04':'01','05':'02'}};
+  const payments=`<formasDePago>${[...new Set(f.payment_codes)].sort().map(c=>tag('formaPago',c)).join('')}</formasDePago>`;
+  const [est,point,seq]=f.document_number.split('-');
+  if(d.source_type==='sales_invoice'){
+   if(cents(f.base_exempt)>0){fail('ATS_EXEMPT_SALE_REQUIRES_REVIEW');continue;}
+   const key=[f.identification_type,f.identification,f.document_type,est,f.authorization_number.length===49?'E':'F',...[...f.payment_codes].sort()].join('|');
+   const g=groups.get(key)||{f,est,count:0,zero:0,taxed:0,non:0,vat:0,ice:0,payments};g.count++;g.zero+=cents(f.base_zero);g.taxed+=cents(f.base_taxed);g.non+=cents(f.base_non_taxable);g.vat+=cents(f.vat);g.ice+=cents(f.ice);groups.set(key,g);
+   establishments.set(est,(establishments.get(est)||0)+base);totalSales+=base;
+  }else{
+   if(!codes.supplier[f.identification_type]||!/^\d{2}$/.test(f.support_code||'')){fail('ATS_PURCHASE_SUPPORT_REQUIRED');continue;}
+   purchases+='<detalleCompras>'+tag('codSustento',f.support_code)+tag('tpIdProv',codes.supplier[f.identification_type])+tag('idProv',f.identification)+tag('tipoComprobante',f.document_type)+tag('parteRel','NO')+tag('fechaRegistro',date(d.issue_date))+tag('establecimiento',est)+tag('puntoEmision',point)+tag('secuencial',seq)+tag('fechaEmision',date(d.issue_date))+tag('autorizacion',f.authorization_number)+tag('baseNoGraIva',cash(cents(f.base_non_taxable)))+tag('baseImponible',cash(cents(f.base_zero)))+tag('baseImpGrav',cash(cents(f.base_taxed)))+tag('baseImpExe',cash(cents(f.base_exempt)))+tag('montoIce',cash(cents(f.ice)))+tag('montoIva',cash(cents(f.vat)))+tag('valorRetBienes','0.00')+tag('valorRetServicios','0.00')+tag('valRetServ100','0.00')+'<pagoExterior>'+tag('pagoLocExt','01')+tag('paisEfecPago','NA')+tag('aplicConvDobTrib','NA')+tag('pagExtSujRetNorLeg','NA')+'</pagoExterior>'+payments+'</detalleCompras>';
+  }
+ }
+ // ATS table 4 uses code 18 for ordinary sales; SRI invoice XML uses 01.
+ for(const g of groups.values())sales+='<detalleVentas>'+tag('tpIdCliente',codesSales(g.f.identification_type))+tag('idCliente',g.f.identification)+tag('parteRelVtas','NO')+tag('tipoComprobante','18')+tag('tipoEmision',g.f.authorization_number.length===49?'E':'F')+tag('numeroComprobantes',g.count)+tag('baseNoGraIva',cash(g.non))+tag('baseImponible',cash(g.zero))+tag('baseImpGrav',cash(g.taxed))+tag('montoIva',cash(g.vat))+tag('montoIce',cash(g.ice))+tag('valorRetIva','0.00')+tag('valorRetRenta','0.00')+g.payments+'</detalleVentas>';
+ if(errors.length)return {errors:[...new Set(errors)],xml:null};
+ const xml='<?xml version="1.0" encoding="UTF-8"?>\n<iva>'+tag('TipoIDInformante','R')+tag('IdInformante',company.tax_id)+tag('razonSocial',company.legal_name)+tag('Anio',from.slice(0,4))+tag('Mes',from.slice(5,7))+tag('numEstabRuc',String(p.establishments).padStart(3,'0'))+tag('totalVentas',cash(totalSales))+tag('codigoOperativo','IVA')+(purchases?'<compras>'+purchases+'</compras>':'')+(sales?'<ventas>'+sales+'</ventas>':'')+(establishments.size?'<ventasEstablecimiento>'+[...establishments].sort().map(([est,value])=>'<ventaEst>'+tag('codEstab',est)+tag('ventasEstab',cash(value))+'</ventaEst>').join('')+'</ventasEstablecimiento>':'')+'</iva>';
+ return {errors:[],xml,filename:`AT${from.slice(5,7)}${from.slice(0,4)}-revision.xml`,status:'draft_not_submitted'};
+}
+function codesSales(code){return code;}
+
+return {buildAts};
+});

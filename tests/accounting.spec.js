@@ -326,3 +326,38 @@ test('SRI remains visible in French while unconfigured issuance is disabled and 
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
+
+async function bootEcuador(page){
+ await boot(page);await open(page);
+ await page.evaluate(async()=>{
+  const ctx={profile:{taxpayer_kind:'natural',regime:'unconfigured',accounting_required:null,withholding_agent:null,ats_required:null},blockers:['RUC_REQUIRED'],currency:'USD',accounts:[{id:'a1',code:'1000',name:'Bank',type:'asset'},{id:'a2',code:'3000',name:'Equity',type:'equity'}],journals:[],terms:[],assets:[],financial_accounts:[],projects:[],taxes:[],unlinked_payroll:0,payroll_payments:[],valuations:[]};
+  window.__EC={ctx,calls:[]};const old=GamaCloud.db;
+  GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_accounting_ec')return c.rpc(fn,args);__EC.calls.push(args);
+   if(args.p_action==='context')return {data:structuredClone(ctx)};
+   if(args.p_action==='trial_balance')return {data:{debit:115,credit:115,rows:[{code:'1100',name:'Customer',opening:0,debit:115,credit:0,closing:115},{code:'4000',name:'Sales',opening:0,debit:0,credit:115,closing:-115}]}};
+   if(args.p_action==='fiscal_review')return {data:{from:'2026-10-01',to:'2026-10-31',profile:ctx.profile,company:{},blockers:['RUC_REQUIRED'],documents:[],adjustments:[],withholdings:[]}};
+   if(args.p_action==='term_save'){ctx.terms.push({id:'new-term',...args.p_data,active:true});return {data:{id:'new-term'}};}
+   return {data:{rows:[],total:0}};
+  }}};
+ });
+ await page.locator('[data-ga-section="ledger"]').click();await page.locator('#gaWorkbench').click();
+}
+test('Ecuador books use the protected RPC and show both sides of the balance',async({page})=>{
+ await bootEcuador(page);await expect(page.locator('#gaMain')).toContainText('115');
+ expect(await page.evaluate(()=>__EC.calls.some(c=>c.p_action==='trial_balance'))).toBe(true);
+ await page.locator('#ecTab').selectOption('setup');await page.locator('#ecProfile').click();
+ await expect(page.locator('#ec-taxpayer_kind')).toHaveValue('natural');await expect(page.locator('#ec-accounting_required')).toHaveValue('');
+ expect(await page.evaluate(()=>__EC.calls.some(c=>c.p_action==='profile_save'))).toBe(false);
+});
+test('payment terms use simple fields and a stable request key, with no JSON input',async({page})=>{
+ await bootEcuador(page);await page.locator('#ecTab').selectOption('setup');await page.locator('#ecTerm').click();
+ await page.locator('#ec-name').fill('Half now half later');await page.locator('[data-days]').first().fill('0');await page.locator('#gsSave').click();
+ await expect(page.locator('#gaMain')).toContainText('Half now half later');
+ const data=await page.evaluate(()=>__EC.calls.find(c=>c.p_action==='term_save').p_data);
+ expect(data.lines).toEqual([{percent:50,days:0},{percent:50,days:30}]);expect(data.request_key).toMatch(/^[a-f0-9-]{36}$/);
+});
+test('missing fiscal identity blocks the ATS draft and does not download a filing',async({page})=>{
+ await bootEcuador(page);await page.locator('#ecTab').selectOption('fiscal_review');let downloaded=false;page.on('download',()=>downloaded=true);
+ await page.locator('#ecAts').click();await expect(page.locator('.gsDialog')).toContainText('RUC_REQUIRED');expect(downloaded).toBe(false);
+});

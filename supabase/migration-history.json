@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-09-27",
+  "capturedAt": "2026-10-03",
   "source": "supabase_migrations.schema_migrations",
   "applied": [
     {
@@ -1268,6 +1268,18 @@
       "name": "sri_invoice_workflow",
       "file": "20260927213000_sri_invoice_workflow.sql",
       "sha256": "1ac2c6a6770a9abc8a240667aa96b5c97679659932c1c5f455bcb4351e2e4060"
+    },
+    {
+      "version": "20261003074945",
+      "name": "accounting_ec_ledger",
+      "file": "20261003074945_accounting_ec_ledger.sql",
+      "sha256": "678522153c7f66c1714cfc6ff8946b9b10c34b2c5f0ae46862c78a7d062407dc"
+    },
+    {
+      "version": "20261003075343",
+      "name": "accounting_ec_fk_indexes",
+      "file": "20261003075343_accounting_ec_fk_indexes.sql",
+      "sha256": "99d9b578a36d157459c396bb612e8f405140c3218bb72eae7bec7d24ea0d3059"
     }
   ]
 }

@@ -153,3 +153,13 @@ en la hoja «Configuración», que es donde vive `company_settings`.
 ## Alcance fiscal
 
 La contabilidad de gestión no sustituye la validación fiscal. El apartado SRI implementa un flujo separado de emisión; su uso depende de la configuración del signatario privado y de los controles descritos en [SRI](sri.md). Un documento interno no se convierte en una factura fiscal autorizada por existir en el ERP.
+
+## Mise à niveau Équateur du 2 octobre 2026
+
+**Comptabilité → Comptabilité / Rapports / Impôts / Paramètres → Livres et outils pour l’Équateur** ouvre la balance, le grand livre, les tiers, l’analytique par projet, les échéances, les ajustements, les retenues documentées, la revue fiscale, les immobilisations et les liens avec paie et stock. L’onglet Facturation SRI reste distinct ; il y a actuellement quatorze sections.
+
+Les nouvelles factures, règlements, dépenses et retours sont comptabilisés dans la transaction métier. La synchronisation à l’ouverture sert à la reprise des anciens documents et respecte les mois fermés. Le registre fiscal reçoit les données de justificatifs existants ; son enregistrement ne modifie pas l’état d’autorisation SRI.
+
+La clôture annuelle transfère le résultat à la réserve configurée et ferme les douze mois. Les écritures provenant d’un document s’annulent depuis leur module d’origine, afin de conserver la cohérence du solde commercial et du livre. Les écritures manuelles peuvent être contrepassées.
+
+Le [rapport de comparaison](../audits/2026-10-02-accounting-ecuador.md) décrit les fonctions existantes conservées, les ajouts, les contrôles et les limites restantes. Le [mode d’emploi](accounting-ecuador-guide.md) explique l’ordre des réglages. Ne pas confondre un brouillon ATS valide selon le XSD avec une déclaration déposée ou une validation fiscale complète.

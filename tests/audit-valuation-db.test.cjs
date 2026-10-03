@@ -34,6 +34,15 @@ test('FIFO / moving average conserve value through receipts, exits, transfer and
    await rpc('gama_stock_adjust',product,loc,0,null,'Consumed remaining six');await rpc('gama_stock_adjust',product,dest,0,null,'Consumed final two');
    const final=(await rpc('gama_valuation','report',{})).items.find(p=>p.id===product);assert.equal(final.value,0);assert.equal(final.book_quantity,0);
    const totals=(await db.query('select sum(value_delta)::numeric v,sum(expense_delta)::numeric e from stock_valuation_entries where product_id=$1',[product])).rows[0];assert.equal(Number(totals.v),0);assert.equal(Number(totals.e),330);
+   const accounts=(await db.query("select code,id from accounting_accounts where code in ('1200','5000','6010')")).rows;const account=code=>accounts.find(a=>a.code===code).id;
+   await rpc('gama_valuation','accounts',{request_key:uuid(),product_id:product,stock_account_id:account('1200'),expense_account_id:account('5000')});
+   const movements=(await db.query("select sequence,kind,value_delta,expense_delta from stock_valuation_entries where product_id=$1 and kind not in ('method','transfer') order by sequence",[product])).rows;
+   for(const v of movements.filter(v=>Number(v.value_delta)!==0||Number(v.expense_delta)!==0)){
+    const posted=await rpc('gama_accounting_ec','valuation_post',{request_key:uuid(),sequence:v.sequence,counter_account_id:account('6010'),reason:'Reclassify recorded supplier cost into stock and consumed cost'});assert.ok(posted.entry_id);
+    await assert.rejects(rpc('gama_accounting_ec','valuation_post',{request_key:uuid(),sequence:v.sequence,counter_account_id:account('6010'),reason:'Second posting rejected'}),/VALUATION_ALREADY_POSTED/);
+   }
+   const ledger=(await db.query("select a.code,sum(l.debit-l.credit)::numeric balance from accounting_entry_lines l join accounting_entries e on e.id=l.entry_id join accounting_accounts a on a.id=l.account_id where e.source_type='stock_valuation' group by a.code")).rows;
+   assert.equal(Number(ledger.find(a=>a.code==='1200').balance),0);assert.equal(Number(ledger.find(a=>a.code==='5000').balance),method==='fifo'?330:660);
   });
   const recovery=await rpc('gama_recovery_export');assert.equal(recovery.tables['public.stock_cost_books'].length,2);assert.ok(recovery.tables['public.stock_valuation_entries'].length>0);assert.ok(recovery.tables['private.stock_valuation_commands'].length>0);
   await db.exec('reset role;set role anon');await assert.rejects(rpc('gama_valuation','report',{}),/permission denied/);

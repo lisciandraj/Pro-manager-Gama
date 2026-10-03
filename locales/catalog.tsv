@@ -4327,3 +4327,121 @@ Configuración SRI guardada.	Configuration SRI enregistrée.	SRI configuration s
 Nombre comercial	Nom commercial	Trade name
 Dirección del establecimiento	Adresse de l’établissement	Establishment address
 Obligado a llevar contabilidad	Obligation de tenir une comptabilité	Required to keep accounts
+Libros y herramientas de Ecuador	Livres et outils pour l’Équateur	Ecuador accounting books and tools
+Balance de comprobación	Balance comptable	Trial balance
+Libro mayor	Grand livre	General ledger
+Analítica por proyecto	Analyse par projet	Project analysis
+Abonos y retenciones	Avoirs et retenues	Credit notes and withholdings
+Revisión fiscal	Contrôle fiscal	Tax review
+Configuración Ecuador	Configuration Équateur	Ecuador settings
+Activos y amortización	Immobilisations et amortissements	Assets and depreciation
+Enlaces con nómina y stock	Liens avec la paie et le stock	Payroll and inventory links
+Saldo final	Solde final	Closing balance
+Sin configurar	Non configuré	Not configured
+Régimen general	Régime général	General regime
+RIMPE emprendedor	RIMPE entrepreneur	RIMPE business
+RIMPE negocio popular	RIMPE petite activité	RIMPE popular business
+Otro régimen	Autre régime	Other regime
+Persona natural	Personne physique	Individual
+Sociedad	Société	Company
+Amortización acumulada	Amortissement cumulé	Accumulated depreciation
+Amortizar un mes	Amortir un mois	Depreciate one month
+Antes de contabilizar una entrada o coste adicional, comprueba su factura y la contrapartida para evitar duplicar el gasto. Los traspasos internos no generan asiento.	Avant de comptabiliser une entrée ou un coût supplémentaire, vérifiez la facture et la contrepartie pour éviter de compter la charge deux fois. Les transferts internes ne créent pas d’écriture.	Before posting a receipt or additional cost, check its invoice and counterpart to avoid counting the expense twice. Internal transfers do not create entries.
+Aplicar condiciones de pago	Appliquer les conditions de paiement	Apply payment terms
+Asiento de adquisición	Écriture d’acquisition	Acquisition entry
+Autorización fiscal existente	Autorisation fiscale existante	Existing tax authorization
+Añade las cuentas que faltan. Conserva las cuentas existentes y sus asientos. Después revisa las correspondencias de cuentas automáticas con tu asesor.	Ajoute les comptes manquants et conserve les comptes existants et leurs écritures. Vérifiez ensuite les comptes utilisés automatiquement avec votre comptable.	Add missing accounts while keeping existing accounts and entries. Then review automatic account mappings with your accountant.
+Añadir línea	Ajouter une ligne	Add line
+Añadir vencimiento	Ajouter une échéance	Add maturity
+Borrador mensual para operaciones nacionales compatibles. No está presentado al SRI. Valídalo en el programa ATS vigente y con tu asesor antes de presentar.	Brouillon mensuel pour les opérations nationales prises en charge. Il n’est pas présenté au SRI. Validez-le dans le logiciel ATS actuel et avec votre comptable avant de le présenter.	Monthly draft for supported domestic transactions. It has not been submitted to SRI. Validate it in the current ATS program and with your accountant before filing.
+Cerrar ejercicio	Clôturer l’exercice	Close fiscal year
+Comprueba que la contrapartida corresponde a la adquisición o al gasto ya registrado. La apertura usa fondos propios; la salida usa coste de ventas.	Vérifiez que la contrepartie correspond à l’acquisition ou à la charge déjà enregistrée. L’ouverture utilise les capitaux propres ; la sortie utilise le coût des ventes.	Check that the counterpart matches the recorded acquisition or expense. Opening uses equity; an issue uses cost of sales.
+Condiciones de pago	Conditions de paiement	Payment terms
+Configurar obligaciones y cuentas	Configurer les obligations et les comptes	Configure obligations and accounts
+Contabilizar nóminas configuradas	Comptabiliser les paies configurées	Post configured payrolls
+Contabilizar saldo inicial	Comptabiliser le solde initial	Post opening balance
+Contrapartida	Contrepartie	Counterpart
+Controles pendientes	Contrôles en attente	Pending checks
+Cuenta del activo	Compte de l’immobilisation	Asset account
+Cuenta financiera	Compte financier	Financial account
+Código SRI	Code SRI	SRI code
+Código de sustento	Code du justificatif	Tax support code
+Código del comprobante	Code du document	Document code
+Diarios	Journaux	Journals
+Días	Jours	Days
+El activo se vincula a una adquisición ya contabilizada. Su vida útil y valor residual deben validarse antes de amortizar.	L’immobilisation est liée à une acquisition déjà comptabilisée. Sa durée d’utilisation et sa valeur résiduelle doivent être validées avant amortissement.	The asset is linked to an acquisition already posted. Validate its useful life and residual value before depreciation.
+Establecimientos	Établissements	Establishments
+Estos registros afectan al saldo y al libro. No emiten documentos al SRI. Registra una retención solo con su comprobante autorizado.	Ces enregistrements modifient le solde et le livre comptable. Ils n’émettent pas de documents au SRI. Enregistrez une retenue uniquement avec son justificatif autorisé.	These records affect the balance and ledger. They do not issue SRI documents. Record a withholding only with its authorized supporting document.
+Exportar revisión fiscal	Exporter le contrôle fiscal	Export tax review
+Exportar todo	Tout exporter	Export all
+Fecha de adquisición	Date d’acquisition	Acquisition date
+Fecha de confirmación	Date de confirmation	Confirmation date
+Forma de pago SRI	Mode de paiement SRI	SRI payment method
+Gasto de amortización	Charge d’amortissement	Depreciation expense
+Gasto de nómina	Charge de paie	Payroll expense
+Generar borrador ATS	Générer le brouillon ATS	Generate ATS draft
+Importar plan de cuentas Odoo EC	Importer le plan comptable Odoo EC	Import Odoo EC chart of accounts
+Meses	Mois	Months
+Motivo y comprobante	Motif et justificatif	Reason and supporting document
+No necesitas constituir una sociedad para usar Coco. Confirma las obligaciones de tu actividad en el SRI; deja sin configurar lo que aún no esté confirmado.	Vous pouvez utiliser Coco en personne physique. Confirmez les obligations de votre activité auprès du SRI et laissez non configuré ce qui n’est pas encore confirmé.	You can use Coco as an individual. Confirm your business obligations with SRI and leave unconfirmed settings blank.
+No se puede generar el borrador. Completa los datos o consulta los casos pendientes con tu asesor.	Le brouillon ne peut pas être généré. Complétez les données ou vérifiez les cas en attente avec votre comptable.	The draft cannot be generated. Complete the data or review pending cases with your accountant.
+Nuevas condiciones de pago	Nouvelles conditions de paiement	New payment terms
+Nuevo diario	Nouveau journal	New journal
+Nómina por pagar	Paie à payer	Payroll payable
+Nóminas validadas sin asiento	Paies validées sans écriture	Validated payrolls without entries
+Número de retención	Numéro de retenue	Withholding number
+Número fiscal	Numéro fiscal	Tax document number
+Obligaciones de nómina	Dettes liées à la paie	Payroll obligations
+Pagos de nómina sin cuenta financiera	Paiements de paie sans compte financier	Payroll payments without financial account
+Porcentaje	Pourcentage	Percentage
+Primer mes de amortización	Premier mois d’amortissement	First depreciation month
+Referencia del SRI	Référence du SRI	SRI reference
+Registrar abono o débito	Enregistrer un avoir ou un débit	Record a credit or debit note
+Registrar activo	Enregistrer une immobilisation	Register asset
+Registrar retención documentada	Enregistrer une retenue justifiée	Record documented withholding
+Resultado acumulado	Résultat reporté	Retained earnings
+Revisa los comprobantes recibidos y las bases de IVA. La revisión no sustituye la autorización del SRI ni presenta el ATS.	Contrôlez les justificatifs reçus et les bases de TVA. Ce contrôle ne remplace pas l’autorisation du SRI et ne présente pas l’ATS.	Review received documents and VAT bases. This review does not replace SRI authorization or submit the ATS.
+Régimen	Régime	Regime
+Tasa	Taux	Rate
+Tipo de contribuyente	Type de contribuable	Taxpayer type
+Transfiere el resultado a fondos propios y bloquea todos los meses del ejercicio. Revisa antes el libro y las obligaciones fiscales.	Transfère le résultat aux capitaux propres et bloque tous les mois de l’exercice. Vérifiez d’abord le grand livre et les obligations fiscales.	Transfer the result to equity and lock every month of the fiscal year. Review the ledger and tax obligations first.
+Usa el saldo inicial ya registrado en Banco y caja. Esta operación no añade un cobro.	Utilise le solde initial déjà enregistré dans Banque et caisse. Cette opération n’ajoute pas d’encaissement.	Use the opening balance already recorded in Bank and cash. This operation does not add a receipt.
+Valor residual	Valeur résiduelle	Residual value
+Valoraciones de stock sin asiento	Valorisations du stock sans écriture	Stock valuations without entries
+Vigencia de impuestos	Dates d’application des taxes	Tax effective dates
+Vincular cuenta	Lier un compte	Link account
+Último día del mes	Dernier jour du mois	Last day of month
+Agente de retención	Agent de retenue	Withholding agent
+Obligado a ATS	Obligation ATS	ATS required
+Base IVA cero	Base TVA à taux zéro	Zero VAT base
+Base gravada IVA	Base soumise à la TVA	Taxable VAT base
+Base exenta	Base exonérée	Exempt base
+Base no objeto IVA	Base hors champ de TVA	Non taxable VAT base
+Coste consumido	Coût consommé	Consumed cost
+Valor de stock	Valeur du stock	Stock value
+Retención documentada	Retenue justifiée	Documented withholding
+Abono o débito	Avoir ou débit	Credit or debit note
+Plan de cuentas Ecuador	Plan comptable Équateur	Ecuador chart of accounts
+Borrador ATS	Brouillon ATS	ATS draft
+Controles ATS	Contrôles ATS	ATS checks
+Diario contable	Journal comptable	Accounting journal
+Fecha fiscal	Date fiscale	Tax date
+El documento ya tiene asiento. Corrígelo mediante un abono o una contrapartida.	Le document est déjà comptabilisé. Corrigez-le par un avoir ou une contre-écriture.	The document is already posted. Correct it using a credit note or a reversal.
+Los porcentajes deben sumar 100.	Les pourcentages doivent totaliser 100.	Percentages must total 100.
+Configura las tres cuentas de nómina.	Configurez les trois comptes de paie.	Configure all three payroll accounts.
+Contabiliza primero los meses anteriores.	Comptabilisez d’abord les mois précédents.	Post previous months first.
+Este mes ya está amortizado.	Ce mois est déjà amorti.	This month is already depreciated.
+El saldo inicial ya está contabilizado.	Le solde initial est déjà comptabilisé.	The opening balance is already posted.
+Este ejercicio ya tiene un asiento de cierre.	Cet exercice possède déjà une écriture de clôture.	This fiscal year already has a closing entry.
+La base de retención supera la base o el IVA de la factura.	La base de retenue dépasse la base ou la TVA de la facture.	The withholding base exceeds the invoice base or VAT.
+La valoración ya está contabilizada.	La valorisation est déjà comptabilisée.	The valuation is already posted.
+Falta un RUC válido de 13 dígitos.	Un RUC valide de 13 chiffres est nécessaire.	A valid 13 digit RUC is required.
+La fecha no puede ser anterior a la factura.	La date ne peut pas être antérieure à la facture.	The date cannot be before the invoice.
+El ejercicio todavía no ha terminado.	L’exercice n’est pas encore terminé.	The fiscal year has not ended yet.
+Anula el documento desde su módulo de origen.	Annulez le document dans son module d’origine.	Cancel the document from its originating module.
+El importe mensual debe ser de al menos un centavo.	Le montant mensuel doit être d’au moins un centime.	The monthly amount must be at least one cent.
+Libro de contactos	Grand livre des tiers	Partner ledger
+Distribuir línea por proyecto	Répartir une ligne par projet	Distribute a line by project
+Línea contable	Ligne comptable	Accounting line
+Distribución por proyecto	Répartition par projet	Project allocation
+El impuesto no está vigente en la fecha del asiento.	La taxe ne s’applique pas à la date de l’écriture.	The tax does not apply on the entry date.

@@ -67,3 +67,9 @@ Il reste des modules IIFE volumineux et des contrats globaux historiques. Les fi
 ## Fournisseur fiscal Open API
 
 Le module `sri` partage le chargement différé de Comptabilité via `GamaAccounting.openSri`. La source canonique reste `src/features/finance/accounting.js`. `services/sri/openapi.py` adapte le contrat HTTP amont ; `gama-sri` conserve les droits, les revendications atomiques et les archives privées. Aucun secret amont ne passe par le navigateur. Voir [installation Open API](../services/sri/OPENAPI.md).
+
+## Livres et contrôles équatoriens
+
+`gama_accounting_ec` est la façade invocateur des extensions de livres, échéances, retenues, immobilisations et intégrations. Ses traitements privés vérifient le module, le périmètre et les droits, puis lient la clé idempotente à l’acteur et à la requête. La migration `20261003074945_accounting_ec_ledger.sql` ajoute des tables protégées par RLS, sans réécrire les migrations historiques ni rejouer les pièces existantes.
+
+Le sous-ensemble de génération ATS, source `src/domain/accounting-ecuador.js`, devient `gama-accounting-ec.js` au build et se charge sur demande. Il ne s’ajoute pas au démarrage. Les contrôles, le périmètre et les écarts sont décrits dans [l’audit comptable équatorien](audits/2026-10-02-accounting-ecuador.md).

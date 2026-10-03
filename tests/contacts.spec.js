@@ -157,3 +157,19 @@ test('contact filters, customer people and supplier addresses are editable',asyn
 test('secondary customer addresses can be edited, archived and restored',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});await page.evaluate(()=>ArchitectPartners.open('customer','c1'));await page.locator('[data-address-edit=a1]').click();await expect(page.locator('dialog').last().locator('[name=address]')).toHaveValue('Calle 1');await page.locator('dialog').last().locator('[name=address]').fill('Calle 2');await page.locator('dialog').last().locator('[type=submit]').click();await expect(page.locator('[data-partner-context]')).toContainText('Calle 2');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Archivar');expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
 });
+
+for(const width of [390,1280])test(`shared address persists, is inherited by people and formats documents at ${width}`,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));
+ await row(page,'Ferretería Andina').locator('[data-ct-edit]').click();
+ await page.fill('#ctf-address','Av. Amazonas 10');await page.fill('#ctf-province','Pichincha');await page.fill('#ctf-postalCode','170101');await page.fill('#ctf-country','Ecuador');await page.fill('#ctf-terms','30');await page.click('#ctSave');
+ await expect(page.locator('#ctEditor')).toBeHidden();
+ expect(await page.evaluate(()=>__DB.customers[0])).toMatchObject({address:'Av. Amazonas 10',province:'Pichincha',postal_code:'170101',country:'Ecuador'});
+ await row(page,'Ferretería Andina').locator('[data-ct-edit]').click();await expect(page.locator('#ctf-postalCode')).toHaveValue('170101');
+ const labels=await page.locator('#ctFields legend').allTextContents();expect(labels).toEqual(['Identidad','Datos de contacto','Dirección','Información comercial','Observaciones']);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await row(page,'Luis Mora').locator('[data-ct-edit]').click();
+ await expect(page.locator('#ctParentAddress')).toContainText('Av. Amazonas 10, Quito, Pichincha, 170101, Ecuador');
+ await expect(page.locator('#ctf-address')).toHaveCount(0);await expect(page.locator('#ctf-linkedin')).toBeHidden();
+ await page.locator('#ctFields summary').click();await expect(page.locator('#ctf-linkedin')).toBeVisible();
+ expect(await page.evaluate(()=>ArcEntities.formatAddress({address:'Quito',city:'Quito',country:'Ecuador'}))).toBe('Quito, Ecuador');
+});

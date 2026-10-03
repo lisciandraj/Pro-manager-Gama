@@ -146,7 +146,7 @@
       ubicaciones=(l.data||[]).filter(x=>x.active!==false);
     }catch(e){almacenes=[];ubicaciones=[]}
   }
-  async function load(){if(loading||!C()||!(canOrder()||canReceive()))return;loading=true;try{const [a,b,c,d,n]=await Promise.all([window.ArcData.all('purchase_orders'),window.ArcData.all('purchase_order_lines'),window.ArcData.all('products',{select:PRODUCT_COLS}),window.ArcData.all('suppliers',{select:'id,name,tax_id,email,active'}),canOrder()?window.ArcData.all('replenishment_needs',{order:'product_id',ascending:true}):Promise.resolve({data:[]})]);if(a.error)throw a.error;orders=a.data||[];lines=b.data||[];products=c.data||[];suppliers=d.data||[];needs=n.error?[]:(n.data||[]).filter(x=>Number(x.suggested_purchase)>0);await loadUbicaciones();populate();renderOrders();renderKpis();renderLowStock()}catch(e){console.warn('[GAMA Compras]',e);const m=$('gp14Msg');if(m)m.textContent='No se han podido cargar los datos: '+(e.message||e)}finally{loading=false}}
+  async function load(){if(loading||!C()||!(canOrder()||canReceive()))return;loading=true;try{const [a,b,c,d,n]=await Promise.all([window.ArcData.all('purchase_orders'),window.ArcData.all('purchase_order_lines'),window.ArcData.all('products',{select:PRODUCT_COLS}),window.ArcData.all('suppliers',{select:'id,name,tax_id,email,phone,address,city,province,postal_code,country,active'}),canOrder()?window.ArcData.all('replenishment_needs',{order:'product_id',ascending:true}):Promise.resolve({data:[]})]);if(a.error)throw a.error;orders=a.data||[];lines=b.data||[];products=c.data||[];suppliers=d.data||[];needs=n.error?[]:(n.data||[]).filter(x=>Number(x.suggested_purchase)>0);await loadUbicaciones();populate();renderOrders();renderKpis();renderLowStock()}catch(e){console.warn('[GAMA Compras]',e);const m=$('gp14Msg');if(m)m.textContent='No se han podido cargar los datos: '+(e.message||e)}finally{loading=false}}
   function ubicacionPorDefecto(){
     const w=almacenes.find(x=>x.code==='PRINCIPAL');
     // Lo recibido entra por la zona de llegada del almacén principal (antes, la raíz STOCK).
@@ -249,7 +249,7 @@
     const dateLabel=o.order_date?new Date(o.order_date).toLocaleDateString('es-EC'):'';
     const expectedLabel=o.expected_date?new Date(o.expected_date).toLocaleDateString('es-EC'):'';
     return {number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name||'',
-      supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:supplier.address||'',
+      supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:window.ArcEntities.formatAddress(supplier),
       items:ls.map(l=>{const p=products.find(x=>x.id===l.product_id)||{};
         return {name:p.name||'',qty:Number(l.quantity||0),cost:Number(l.unit_cost||0)}}),
       total:Number(o.total||0),notes:o.notes||''};
@@ -272,7 +272,7 @@
     const items=ls.map(l=>{const p=products.find(x=>x.id===l.product_id);return{name:p?.name||'Producto',reference:p?.reference||p?.barcode||'',qty:Number(l.quantity||0),cost:Number(l.unit_cost||0)}});
     const itemLines=items.map(x=>`- ${x.name} x${x.qty} — ${GamaCurrency.format(x.cost)} c/u — ${GamaCurrency.format(x.qty*x.cost)}`).join('\n');
     const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: ${GamaCurrency.format(o.total)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Enterprise Resource Planning`;
-    const orderPdf={number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name,supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:supplier.address||'',items,total:Number(o.total||0),notes:o.notes||''};
+    const orderPdf={number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name,supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:window.ArcEntities.formatAddress(supplier),items,total:Number(o.total||0),notes:o.notes||''};
     if(!supplier.email)detailMsg('Este proveedor no tiene un correo registrado: complétalo manualmente al enviar.');
     await window.GamaPurchaseOrderPdf.send({o:orderPdf,email:supplier.email||'',subject:'Pedido '+o.order_number+' — Coco ERP',body,filename:'Pedido-'+o.order_number+'.pdf'});
     const r=await C().update('purchase_orders',id,{status:'sent',updated_at:new Date().toISOString()});

@@ -17,7 +17,7 @@ const ETAPAS = [
 
 const LEADS = [
   { id: 'l1', kind: 'empresa', company: 'Ferretería Andina', email: 'ventas@andina.ec', phone: '0991112233',
-    city: 'Quito', status: 'nuevo', priority: 'alta', score: 40, owner_id: 'u1', source_id: 's1', active: true,
+    city: 'Quito', province:'Pichincha',postal_code:'170101',country:'Ecuador', status: 'nuevo', priority: 'alta', score: 40, owner_id: 'u1', source_id: 's1', active: true,
     created_at: '2026-09-01T10:00:00.000Z' },
   { id: 'l2', kind: 'particular', first_name: 'María', last_name: 'Zúñiga', email: 'maria@correo.ec',
     city: 'Cuenca', status: 'contactado', priority: 'media', score: 10, active: true,
@@ -181,6 +181,7 @@ test.describe('CRM — Prospectos', () => {
     expect(estado.nClientes).toBe(2);            // el de siempre + el nuevo
     expect(estado.c.identification).toBe('1790099999001');
     expect(estado.c.category).toBe('C');
+    expect(estado.c).toMatchObject({province:'Pichincha',postal_code:'170101',country:'Ecuador'});
     expect(estado.c.email).toBe('ventas@andina.ec');
     // Las tres columnas que el CRM añadió a customers: el cliente nace
     // sabiendo quién lo trajo y de dónde salió.

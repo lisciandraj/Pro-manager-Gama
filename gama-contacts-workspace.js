@@ -21,7 +21,7 @@ const CATEGORIAS=[['A','A · Mayorista (por defecto)'],['B','B · Venta al detal
    teléfono, correo, ciudad…) se conserva al cambiar de tipo antes de guardar. */
 const FIELDS={
  name:{label:'Nombre / razón social',required:true,maxLength:300},
- ident:{label:'RUC / identificación',maxLength:100},
+ ident:{label:'Identificación (RUC, cédula o pasaporte)',maxLength:100},
  contactName:{label:'Persona de contacto',maxLength:200},
  customer:{label:'Cliente',type:'select',required:true},
  country:{label:'País',maxLength:120},
@@ -43,7 +43,7 @@ const FIELDS={
  notes:{label:'Observaciones',type:'textarea',maxLength:4000}
 };
 const LAYOUT={
- clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'phone','email','address','city','province','category','terms','notes'],
+ clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'phone','email','address','city','province','postalCode','country','category','terms','notes'],
  suppliers:['name','ident','contactName','phone','email','address','city','province','postalCode','country','notes'],
  people:['customer','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes'],
  prospects:['lead','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes']
@@ -72,7 +72,7 @@ async function load(){
   out.push({key:'suppliers:'+s.id,kind:'suppliers',id:s.id,name:s.name,detail:s.contactName?T('Contacto')+': '+s.contactName:'',ref:s.taxId,phone:s.phone,email:s.email,city:s.city,active:s.active,record:s})}}));
  if(can('prospects'))jobs.push(Promise.all([
   D.all('crm_contacts',{select:'id,first_name,last_name,job_title,email,phone,linkedin,decision_role,notes,lead_id,customer_id,is_primary,active',order:'id'},true),
-  D.all('crm_leads',{select:'id,company,first_name,last_name,city,active',order:'id'},true)]).then(([k,l])=>{
+  D.all('crm_leads',{select:'id,company,first_name,last_name,address,city,province,postal_code,country,active',order:'id'},true)]).then(([k,l])=>{
   found=take(l);const byId=new Map(found.map(x=>[x.id,x]));
   for(const x of take(k)){if(!x.lead_id&&!x.customer_id)continue;const lead=byId.get(x.lead_id)||{},kind=x.customer_id?'people':'prospects';
    const name=[x.first_name,x.last_name].filter(Boolean).join(' ').trim()||x.email||T('(sin nombre)');
@@ -152,19 +152,28 @@ async function purge(key){
 
 /* ---- el formulario ---- */
 function fromRecord(kind,x){
- if(kind==='clients')return {name:x.name,ident:x.taxId,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,category:x.category||'A',terms:x.paymentTermsDays??'',notes:x.notes};
+ if(kind==='clients')return {name:x.name,ident:x.taxId,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,category:x.category||'A',terms:x.paymentTermsDays??'',notes:x.notes};
  if(kind==='suppliers')return {name:x.name,ident:x.taxId,contactName:x.contactName,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,notes:x.notes};
  return {customer:x.customer_id,lead:x.lead_id,firstName:x.first_name,lastName:x.last_name,jobTitle:x.job_title,role:x.decision_role,phone:x.phone,email:x.email,linkedin:x.linkedin,primary:!!x.is_primary,notes:x.notes};
 }
 const leadOptions=current=>leads.filter(l=>l.active!==false||l.id===current).map(l=>({value:l.id,label:leadName(l)})).sort((a,b)=>a.label.localeCompare(b.label));
 function fieldsHtml(kind){
- return LAYOUT[kind].map(entry=>{
+ const rendered=LAYOUT[kind].map(entry=>{
   const [key,over]=Array.isArray(entry)?entry:[entry,{}];
   const f={...FIELDS[key],...over};
   const options=key==='customer'?(rows||[]).filter(r=>r.kind==='clients'&&(r.active||r.id===draft.customer)).map(r=>({value:r.id,label:r.name})):key==='lead'?leadOptions(draft.lead):(f.options||[]).map(([value,label])=>({value,label:T(label)}));
   return U.field({id:'ctf-'+key,key,label:f.label,type:f.type||'text',value:draft[key]??(f.type==='checkbox'?false:''),required:!!f.required,
    maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
- }).join('');
+ });
+ const keys=LAYOUT[kind].map(e=>Array.isArray(e)?e[0]:e);
+ const groups=[['Identidad',['name','ident','customer','lead','firstName','lastName']],['Datos de contacto',['contactName','phone','email']],['Dirección',['address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary']],['Observaciones',['notes']]];
+ const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
+ const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
+ return blocks+(more?`<details class="ctGroup"><summary>${tr('Información adicional')}</summary><div class="arcFormGrid ctFields">${more}</div></details>`:'')+(['people','prospects'].includes(kind)?'<p id="ctParentAddress" class="gsHint"></p>':'');
+}
+function parentAddress(){
+ const kind=$('ctType').value, parent=kind==='people'?(rows||[]).find(r=>r.kind==='clients'&&r.id===$('ctf-customer')?.value)?.record:leads.find(l=>l.id===$('ctf-lead')?.value);
+ const box=$('ctParentAddress');if(box)box.textContent=parent?T('Dirección de la empresa')+': '+(window.ArcEntities.formatAddress(parent)||'—'):'';
 }
 function readDraft(){
  $('ctFields')?.querySelectorAll('[name]').forEach(el=>{draft[el.name]=el.type==='checkbox'?el.checked:el.value});
@@ -172,6 +181,7 @@ function readDraft(){
 function paintFields(){
  const kind=$('ctType').value,box=$('ctFields');
  box.innerHTML=fieldsHtml(kind);U.mount(box);
+ for(const id of ['ctf-customer','ctf-lead'])if($(id))$(id).addEventListener('change',parentAddress);parentAddress();
  $('ctKindHint').innerHTML=tr(kindOf(kind).hint);
  $('ctNoLeads').hidden=!(kind==='prospects'&&!leadOptions(draft.lead).length);
 }
@@ -184,7 +194,7 @@ function openForm(kind,record=null){
  U.render(box,`<form id="ctForm" class="arcPanel arcForm ctForm"><div class="ctFormHead"><h3>${tr(record?'Editar contacto':'Nuevo contacto')}</h3><button type="button" class="arcButton secondary" id="ctClose">${tr('Cerrar')}</button></div>`
   +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Tipo de contacto',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
   +`<p class="gsHint" id="ctKindHint"></p><p class="gsHint" id="ctNoLeads" hidden>${tr('Todavía no hay prospectos: créalos primero en el CRM → Prospectos.')}</p>`
-  +`<div class="arcFormGrid ctFields" id="ctFields"></div>`
+  +`<div id="ctFields"></div>`
   +`<p id="ctMsg" role="alert" class="arcFormError"></p><div class="arcToolbar">${U.button({id:'ctSave',type:'submit',variant:'primary',label:T('Guardar contacto')})}${U.button({id:'ctCancel',label:T('Cancelar')})}</div></form>`
   +(record&&kind==='clients'?'<div id="pmCustomerProjects"></div>':''));
  // El tipo es la primera pregunta; al cambiarlo se conserva lo ya escrito que sirva.
@@ -208,7 +218,7 @@ async function save(){
   if(!name||!ident)throw Error(T('El nombre y la identificación son obligatorios.'));
   if(!/^\d+$/.test(terms)||Number(terms)>3650)throw Error(T('Indica un plazo de pago entre 0 y 3650 días.'));
   if((rows||[]).some(r=>r.kind==='clients'&&r.id!==editing?.id&&norm(r.ref)===norm(ident)))throw Error(T('Ya existe un cliente con esta identificación.'));
-  const row={name,identification:ident,phone:clean(d.phone),email:clean(d.email),address:clean(d.address),city:clean(d.city),province:clean(d.province),category:d.category||'A',payment_terms_days:Number(terms),notes:clean(d.notes)};
+  const row={name,identification:ident,phone:clean(d.phone),email:clean(d.email),address:clean(d.address),city:clean(d.city),province:clean(d.province),postal_code:clean(d.postalCode),country:clean(d.country),category:d.category||'A',payment_terms_days:Number(terms),notes:clean(d.notes)};
   await call(editing?C.update('customers',editing.id,row):C.insert('customers',{...row,active:true}));
   changed('customers');
  }else if(kind==='suppliers'){

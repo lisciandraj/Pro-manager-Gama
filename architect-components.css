@@ -1143,6 +1143,7 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
  .ctFields>.arcField>.arcFieldError{grid-row:4}
 }
 .ctFields .ctCheck{grid-column:1/-1}
+.ctGroup{min-width:0;margin:16px 0;padding:14px;border:1px solid #dce3eb;border-radius:10px}.ctGroup legend,.ctGroup summary{font-weight:600;padding:0 6px}.ctGroup summary{cursor:pointer}.ctGroup[open] summary{margin-bottom:14px}
 .ctFields .ctWide{grid-column:1/-1}
 .ctFields .ctCheck{flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:10px;align-self:end;min-height:44px}
 .ctFields .ctCheck input{width:20px;height:20px}

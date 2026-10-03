@@ -206,26 +206,18 @@ test.describe('Fotos — optimizar las ya guardadas', () => {
     expect(row).toBe('data:image/jpeg;base64,bm90LWFuLWltYWdl');
   });
 
-  // El cableado de la pantalla: la pestaña, el aviso y el resumen. Es donde más
-  // fácil es equivocarse de identificador y no enterarse.
-  test('la pestaña «Optimizar fotos» hace el trabajo y enseña el resumen', async ({ page }) => {
+  // El importador actual tiene datos y fotos; la optimización masiva ya no
+  // tiene pestaña. La API de optimización se comprueba en los casos anteriores.
+  test('los modos actuales del importador funcionan dentro de Configuración', async ({ page }) => {
     await boot(page, { products: [{ ...PRODUCTS[0] }] });
-    const big = await bigPhoto(page);
-    await page.evaluate(b => { window.__DB.products[0].photo_data = b; }, big);
-
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
-    await page.click('.gamaExcelModes button:has-text("Optimizar fotos")');
-    await expect(page.locator('#gamaExcelPanelOptimize')).toBeVisible();
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
+    await expect(page.locator('.gamaExcelModes button')).toHaveText(['Datos desde Excel','Fotos de productos']);
+    await page.click('.gamaExcelModes button[data-mode="photos"]');
+    await expect(page.locator('#gamaExcelPanelPhotos')).toBeVisible();
+    await expect(page.locator('#gamaExcelPanelData')).toBeHidden();
+    await page.click('.gamaExcelModes button[data-mode="data"]');
+    await expect(page.locator('#gamaExcelPanelData')).toBeVisible();
     await expect(page.locator('#gamaExcelPanelPhotos')).toBeHidden();
-
-    // El aviso deja claro que el cambio no se deshace.
-    const dialog = new Promise(res => page.once('dialog', async d => { res(d.message()); await d.accept(); }));
-    await page.click('#gamaOptRun');
-    expect(await dialog).toContain('no se puede deshacer');
-
-    await expect(page.locator('#gamaOptStatus')).toHaveText('Optimización terminada.', { timeout: 15000 });
-    await expect(page.locator('#gamaOptResult')).toContainText('1 foto(s) reducida(s)');
-    await expect(page.locator('#gamaOptResult')).toContainText('−');
-    expect(await page.evaluate(() => window.__DB.products[0].photo_data.length)).toBeLessThan(big.length / 3);
   });
 });

@@ -134,6 +134,6 @@ window.ArcAssets={
   "gama-toast.js": "gama-toast.js?v=97197c810405",
   "gama-ui.js": "gama-ui.js?v=319ec34058fc",
   "gama-website.css": "gama-website.css?v=13ccd5c8333a",
-  "gama-website.js": "gama-website.js?v=c051313db32a",
+  "gama-website.js": "gama-website.js?v=7a00e659a1f8",
   "assets/vendor/jspdf-2.5.2.umd.min.js": "assets/vendor/jspdf-2.5.2.umd.min.js?v=85ba2cc3ff85"
 };

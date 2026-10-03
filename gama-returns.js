@@ -336,6 +336,7 @@ async function detail(id){
   state.detail=d;
   window.ArcUI.render($('grMain'),processView(d));
   bindDetail(d);
+  window.GamaDossierFlow?.attachHistory($('grMain'),'return:'+id,()=>token===generation&&state.detail?.id===id&&rights().view);
  }catch(e){if(token===generation)fail(e,()=>detail(id))}
 }
 /* La ficha como proceso: un resumen, una franja con las etapas y cada etapa

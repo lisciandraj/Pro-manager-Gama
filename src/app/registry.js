@@ -1,5 +1,6 @@
 /** Single registry consumed by home, sidebar, settings, access and router. */
 const definitions=[
+  {id:'surveys',label:'Encuestas',icon:'checklist',group:'Ventas',description:'Cuestionarios, respuestas y satisfacción',accent:'teal',order:7.2,menu:true,roles:['admin','commercial']},
   {id:'sri',label:'Facturación SRI',icon:'invoice',group:'Administración',description:'Facturas electrónicas, autorización SRI y archivo XML / RIDE',accent:'orange',order:15.1,menu:true,roles:['admin']},
   {id:'website',label:'Sitio web',icon:'globe',group:'Administración',description:'Catálogo web, presentación y solicitudes de prueba',accent:'teal',order:16.5,menu:true,roles:['admin']},
   {id:'sav',label:'Servicio posventa',icon:'headset',group:'Ventas',description:'Reclamaciones, garantías y seguimiento',accent:'violet',order:7.1,menu:true,roles:['admin','commercial']},
@@ -537,6 +538,7 @@ export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
 /** Route adapters preserve public module IDs and existing cross-module links. */
 const openers={
+ surveys:()=>window.GamaSurveys?.open(),
  website:()=>window.GamaWebsite?.open(),
  contacts:from=>window.GamaContacts?.open(from),
  sav:()=>window.GamaService?.open(),

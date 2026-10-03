@@ -548,6 +548,8 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_contact_person_save'){const row={...args.p_data};if(row.is_primary)for(const c of window.__DB.crm_contacts)if((row.lead_id&&c.lead_id===row.lead_id)||(row.customer_id&&c.customer_id===row.customer_id))c.is_primary=false;let result=window.__DB.crm_contacts.find(c=>c.id===args.p_id);if(result)Object.assign(result,row);else{result={...row,id:nextId('crm_contacts'),active:true};window.__DB.crm_contacts.push(result)}return {data:result,error:null};}
+
         if(fn==='gama_action_allowed')return {data:true};
         // Prioridades de hoy: las prepara la prueba en window.__PRIO; por defecto, nada pendiente.
         if(fn==='gama_dashboard_priorities'){

@@ -1,3 +1,4 @@
+/* Generated from src/features/contacts/contacts.js. Edit the source and run npm run build. */
 /* Contactos: una sola tabla y un solo formulario. Clientes, proveedores y
    contactos de prospectos se listan juntos, cada uno con su tipo; al crear, el
    primer campo del formulario es el tipo de contacto y los demás cambian con

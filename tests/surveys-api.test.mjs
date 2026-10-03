@@ -1,0 +1,10 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {onRequest} from '../src/storefront/server/surveys-api.mjs';
+const env={COCO_SITE_TOKEN:'a'.repeat(64)},url='https://example.test/api/surveys';
+const request=(body,headers={})=>new Request(url,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://example.test','CF-Connecting-IP':'198.51.100.1',...headers},body:JSON.stringify(body)});
+test('survey relay enforces origin, action, bounded payload and server-controlled visitor',async()=>{let called;const fetcher=async(u,o)=>{called={u,o};return new Response(JSON.stringify({id:'ok'}))};
+ let r=await onRequest({request:request({p_action:'submit',p_data:{visitor:'fake',token:'public'}}),env,fetcher});assert.equal(r.status,200);assert.match(called.u,/gama_survey$/);assert.equal(called.o.headers['x-coco-site-token'],env.COCO_SITE_TOKEN);assert.equal(JSON.parse(called.o.body).p_data.visitor,'198.51.100.1');
+ r=await onRequest({request:request({p_action:'submit',p_data:{}},{Origin:'https://other.test'}),env,fetcher});assert.equal(r.status,403);
+ r=await onRequest({request:request({p_action:'save',p_data:{}}),env,fetcher});assert.equal(r.status,400);
+ r=await onRequest({request:request({p_action:'get',p_data:{blob:'a'.repeat(71000)}}),env,fetcher});assert.equal(r.status,413);
+ r=await onRequest({request:request({p_action:'submit',p_data:{}}),env:{},fetcher});assert.equal(r.status,503);
+});

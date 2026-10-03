@@ -16,7 +16,7 @@ async function boot(page,role='admin'){
  await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
 }
 const table=page=>page.locator('#ctTable');
-const row=(page,text)=>page.locator('#ctTable tbody tr',{hasText:text});
+const row=(page,text)=>page.locator('#ctTable tbody tr').filter({has:page.locator('td:first-child b').filter({hasText:text})});
 
 test('one Contacts tile, one table, no tabs: clients, suppliers and prospect contacts together',async({page})=>{
  await boot(page);
@@ -25,13 +25,12 @@ test('one Contacts tile, one table, no tabs: clients, suppliers and prospect con
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="contacts"]').click();
  await expect(page.locator('#contacts.active')).toBeVisible();
  await expect(page.locator('#contacts [role=tab], #contacts [data-ct-kind], #contacts [data-contacts-tab]')).toHaveCount(0);
- await expect(table(page).locator('tbody tr')).toHaveCount(3);
+ await expect(table(page).locator('tbody tr')).toHaveCount(4);
  await expect(row(page,'Ferretería Andina').locator('.ctBadge')).toHaveText('Cliente');
  await expect(row(page,'Aceros del Pacífico').locator('.ctBadge')).toHaveText('Proveedor');
  await expect(row(page,'Ana Pérez').locator('.ctBadge')).toHaveText('Contacto de prospecto');
  await expect(row(page,'Ana Pérez')).toContainText('Constructora Sur');
- // Luis Mora es contacto de un cliente, no de un prospecto: sigue en el CRM, no aquí.
- await expect(table(page)).not.toContainText('Luis Mora');
+ await expect(row(page,'Luis Mora').locator('.ctBadge')).toHaveText('Contacto de cliente');
  await expect(page.locator('section#clients')).toHaveCount(0);
 });
 
@@ -40,16 +39,16 @@ test('the search looks everywhere, the type included',async({page})=>{
  await page.fill('#ctSearch','proveedor');
  await expect(table(page).locator('tbody tr')).toHaveCount(1);await expect(table(page)).toContainText('Aceros del Pacífico');
  await page.fill('#ctSearch','quito');
- await expect(table(page).locator('tbody tr')).toHaveCount(1);await expect(table(page)).toContainText('Ferretería Andina');
+ await expect(table(page).locator('tbody tr')).toHaveCount(2);await expect(table(page)).toContainText('Ferretería Andina');
  await page.fill('#ctSearch','constructora');
  await expect(table(page).locator('tbody tr')).toHaveCount(1);await expect(table(page)).toContainText('Ana Pérez');
- await page.fill('#ctSearch','');await expect(table(page).locator('tbody tr')).toHaveCount(3);
+ await page.fill('#ctSearch','');await expect(table(page).locator('tbody tr')).toHaveCount(4);
 });
 
 test('the old addresses open Contacts: clients and suppliers are aliases',async({page})=>{
  await boot(page);
  await page.evaluate(()=>ArcRouter.open('suppliers'));
- await expect(page.locator('#contacts.active')).toBeVisible();await expect(table(page).locator('tbody tr')).toHaveCount(3);
+ await expect(page.locator('#contacts.active')).toBeVisible();await expect(table(page).locator('tbody tr')).toHaveCount(4);
  expect(await page.evaluate(()=>[ArcModules.get('clients').id,ArcModules.get('suppliers').id,gamaAccessAllowed('clients'),gamaAccessAllowed('suppliers')])).toEqual(['contacts','contacts',true,true]);
 });
 
@@ -58,7 +57,7 @@ test('one form: the contact type, chosen in a drop-down, decides the fields',asy
  await page.locator('#ctNew').click();
  await expect(page.locator('dialog')).toHaveCount(0);
  await expect(page.locator('#ctType')).toBeFocused();
- await expect(page.locator('#ctType option')).toHaveText(['Cliente','Proveedor','Contacto de prospecto']);
+ await expect(page.locator('#ctType option')).toHaveText(['Cliente','Proveedor','Contacto de cliente','Contacto de prospecto']);
  await expect(page.locator('#ctType')).toHaveValue('clients');
  await expect(page.locator('#ctf-ident')).toHaveAttribute('required','');await expect(page.locator('#ctf-terms')).toBeVisible();
  await expect(page.locator('#ctf-contactName, #ctf-lead')).toHaveCount(0);
@@ -143,9 +142,18 @@ test('a profile without Contacts sees neither the tile nor the old addresses',as
 
 test('Contacts and its form fit a phone screen',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));
- await expect(table(page).locator('tbody tr')).toHaveCount(3);
+ await expect(table(page).locator('tbody tr')).toHaveCount(4);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.locator('#ctNew').click();
- for(const k of ['clients','suppliers','prospects']){await page.locator('#ctType').selectOption(k);
+ for(const k of ['clients','suppliers','people','prospects']){await page.locator('#ctType').selectOption(k);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),k).toBe(true)}
+});
+
+test('contact filters, customer people and supplier addresses are editable',async({page})=>{
+ await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));
+ await page.locator('#ctKindFilter').selectOption('people');await expect(table(page).locator('tbody tr')).toHaveCount(1);await expect(table(page)).toContainText('Luis Mora');await row(page,'Luis Mora').locator('[data-ct-edit]').click();await expect(page.locator('#ctf-customer')).toHaveValue('c1');await page.locator('#ctf-email').fill('luis@example.invalid');await page.locator('#ctSave').click();await expect(table(page).locator('a[href^="mailto:"]')).toContainText('luis@example.invalid');await page.locator('#ctQualityFilter').selectOption('email');await expect(table(page)).not.toContainText('Luis Mora');await page.locator('#ctQualityFilter').selectOption('');await page.locator('#ctKindFilter').selectOption('suppliers');await row(page,'Aceros del Pacífico').locator('[data-ct-edit]').click();await page.locator('#ctf-province').fill('Guayas');await page.locator('#ctf-postalCode').fill('090101');await page.locator('#ctSave').click();expect(await page.evaluate(()=>__DB.suppliers[0])).toMatchObject({province:'Guayas',postal_code:'090101',country:'Ecuador'});
+});
+
+test('secondary customer addresses can be edited, archived and restored',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});await page.evaluate(()=>ArchitectPartners.open('customer','c1'));await page.locator('[data-address-edit=a1]').click();await expect(page.locator('dialog').last().locator('[name=address]')).toHaveValue('Calle 1');await page.locator('dialog').last().locator('[name=address]').fill('Calle 2');await page.locator('dialog').last().locator('[type=submit]').click();await expect(page.locator('[data-partner-context]')).toContainText('Calle 2');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Archivar');expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
 });

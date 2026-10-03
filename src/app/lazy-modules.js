@@ -1,5 +1,6 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "surveys":{"global":"GamaSurveys","file":"gama-surveys.js","dependencies":["gama-survey-form.js"],"methods":["open"]},
   "website": {
     "global": "GamaWebsite",
     "file": "gama-website.js",

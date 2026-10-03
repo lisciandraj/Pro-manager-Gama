@@ -77,3 +77,9 @@ Le sous-ensemble de génération ATS, source `src/domain/accounting-ecuador.js`,
 ## Site public sur Cloudflare Pages
 
 Le site GAMA est compilé séparément par `npm run build:storefront` dans `dist-storefront`. Ses sources sont dans `src/storefront/` et ses Pages Functions dans `src/storefront/server/`, avec des points d’entrée sous `functions/`. Il ne charge pas l’ERP. Le module Site web charge l’administration publique `gama-store-admin.js` à la demande. Les réglages sont définis par `config/storefront-schema.json` et validés dans SQL ; les lectures publiques utilisent la façade `gama_storefront` et une projection limitée. Les modifications administratives et les demandes sont distinctes de l’ancienne prévisualisation. Voir le [guide du site public](public-website.md).
+
+### Sondages et contacts
+
+Le module `surveys` utilise le chargeur différé et son rendu partagé `gama-survey-form.js`. Son formulaire public Cloudflare est indépendant de l’état du catalogue ; chaque questionnaire nécessite une publication explicite. Les RPC et données privées sont décrites dans [surveys.md](surveys.md).
+
+`gama-contacts.js` conserve un adaptateur léger pour les routes historiques ; `gama-contacts-workspace.js` se charge à l’ouverture. Les personnes clientes utilisent `crm_contacts`, et leur enregistrement atomique respecte les droits CRM. Voir [contacts.md](contacts.md).

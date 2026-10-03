@@ -11,3 +11,9 @@ Le module rassemble les entreprises clientes, fournisseurs, personnes rattachée
 Le chargement différé préserve les routes `contacts`, `clients`, `suppliers` et l’API `GamaContacts`. La RPC `gama_contact_person_save` enregistre le changement de contact principal dans une transaction, avec les politiques RLS et contrôles d’actions CRM existants. Un échec ne retire pas le contact principal précédent.
 
 Tests : `contacts.spec.js`, `contacts-people-db.test.cjs`, `contacts-module-db.test.cjs`.
+
+## Unified contact fields
+
+Customer and supplier forms share identity, phone/email and structured address blocks (street, city, province, postal code, country). Customer pricing category/payment terms and supplier contact person remain because sales and purchases use them. Person forms share identity, phone/email and commercial-role blocks; optional LinkedIn is in Additional information. Company addresses appear by reference on linked persons, avoiding a second editable copy. No existing business data is deleted.
+
+CRM prospects have province and postal code; conversion carries the complete address into the customer. New quote/customer selections, manual sales orders and purchase documents use the structured address. Existing accepted document snapshots stay unchanged. Business export includes the added columns.

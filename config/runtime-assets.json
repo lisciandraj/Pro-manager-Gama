@@ -459,6 +459,10 @@
     {
       "source": "src/features/contacts/contacts.js",
       "output": "gama-contacts-workspace.js"
+    },
+    {
+      "source": "src/features/surveys/survey-recipients.js",
+      "output": "gama-survey-recipients.js"
     }
   ],
   "styles": [

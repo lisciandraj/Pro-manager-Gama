@@ -40,7 +40,7 @@ const LEAD='Prospectos: quien todavía no es cliente. Al convertirlo se crea su 
 /* La lista pide el juego estrecho del núcleo; la ficha, al abrir UNA fila,
    pide además lo que sólo hace falta en el formulario. Notas y direcciones no
    tienen por qué viajar por cada prospecto de una lista de mil. */
-const FICHA=CRM.cols.leads+',phone2,address,country,website,company_size,notes,converted_at';
+const FICHA=CRM.cols.leads+',phone2,address,province,postal_code,country,website,company_size,notes,converted_at';
 const CLIENTE_COLS='id,name,identification,email,active';
 
 const ESTADOS={nuevo:'Nuevo',contactado:'Contactado',calificado:'Calificado',no_calificado:'No calificado',convertido:'Convertido',perdido:'Perdido'};
@@ -179,18 +179,23 @@ function ficha(){
   +(cli?'<div class="crmAviso" data-gi=21c3f52c58af>Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
     +(l.converted_at?' el '+esc(fecha(l.converted_at)):'')
     +'. Lo comercial se lleva desde su ficha de cliente; aquí queda el rastro de dónde salió.</div>':'')
-  +'<div class="crmForm">'
+  +'<fieldset class="ctGroup"><legend data-gi-live>Identidad</legend><div class="crmForm">'
    +campoSelect('crmLKind','Tipo',TIPOS,l.kind||'empresa')
    +campo('crmLCompany','Empresa',l.company)
    +campo('crmLFirst','Nombre',l.first_name)
    +campo('crmLLast','Apellidos',l.last_name)
    +campo('crmLJob','Cargo',l.job_title)
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Datos de contacto</legend><div class="crmForm">'
    +campo('crmLEmail','Correo',l.email,'email')
    +campo('crmLPhone','Teléfono',l.phone,'tel')
    +campo('crmLPhone2','Otro teléfono',l.phone2,'tel')
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Dirección</legend><div class="crmForm">'
    +campo('crmLAddress','Dirección',l.address)
    +campo('crmLCity','Ciudad',l.city)
+   +campo('crmLProvince','Provincia',l.province)
+   +campo('crmLPostal','Código postal',l.postal_code)
    +campo('crmLCountry','País',l.country)
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Información comercial</legend><div class="crmForm">'
    +campo('crmLWeb','Sitio web',l.website)
    +campo('crmLIndustry','Sector',l.industry)
    +campo('crmLSize','Tamaño',l.company_size)
@@ -229,6 +234,8 @@ function leerFicha(){
   phone2:nulo(val('crmLPhone2')),
   address:nulo(val('crmLAddress')),
   city:nulo(val('crmLCity')),
+  province:nulo(val('crmLProvince')),
+  postal_code:nulo(val('crmLPostal')),
   country:nulo(val('crmLCountry')),
   website:nulo(val('crmLWeb')),
   industry:nulo(val('crmLIndustry')),
@@ -263,11 +270,11 @@ function coincidencia(email,ident){
 function leerConversion(){
  return {name:val('crmCName'),identification:val('crmCId'),category:val('crmCCat')||'A',
   email:val('crmCEmail'),phone:val('crmCPhone'),address:val('crmCAddress'),
-  city:val('crmCCity'),province:val('crmCProv'),notes:val('crmCNotes')};
+  city:val('crmCCity'),province:val('crmCProv'),postal_code:val('crmCPostal'),country:val('crmCCountry'),notes:val('crmCNotes')};
 }
 function desdeProspecto(l){
  return {name:nombre(l),identification:'',category:'A',email:l.email||'',phone:l.phone||'',
-  address:l.address||'',city:l.city||'',province:'',notes:l.notes||''};
+  address:l.address||'',city:l.city||'',province:l.province||'',postal_code:l.postal_code||'',country:l.country||'',notes:l.notes||''};
 }
 function convertir(){
  const l=abierto||{},d=borrador||desdeProspecto(l);
@@ -292,6 +299,8 @@ function convertir(){
    +campo('crmCAddress','Dirección',d.address)
    +campo('crmCCity','Ciudad',d.city)
    +campo('crmCProv','Provincia',d.province)
+   +campo('crmCPostal','Código postal',d.postal_code)
+   +campo('crmCCountry','País',d.country)
   +'</div>'
   +'<div class="crmNotas"><label for="crmCNotes" data-gi=8a6172e21a87>Notas</label><textarea id="crmCNotes" rows="3">'+esc(d.notes||'')+'</textarea></div>'
   +'<div class="crmAcciones">'
@@ -318,7 +327,7 @@ async function convertirYa(existente){
    const r=await C().insert('customers',{
     name:nom,identification:ident,email:correo,
     phone:nulo(val('crmCPhone')),address:nulo(val('crmCAddress')),
-    city:nulo(val('crmCCity')),province:nulo(val('crmCProv')),
+    city:nulo(val('crmCCity')),province:nulo(val('crmCProv')),postal_code:nulo(val('crmCPostal')),country:nulo(val('crmCCountry')),
     notes:nulo(val('crmCNotes')),category:val('crmCCat')||'A',active:true,
     owner_id:l.owner_id||null,source_id:l.source_id||null,crm_score:Number(l.score||0),
    });

@@ -33,7 +33,7 @@ test.describe('Compras: sending a draft order to its supplier', () => {
 
     await page.evaluate(() => {
       // @ts-ignore
-      window.__DB.suppliers = [{ id: 'sup1', name: 'Papelera Central', email: 'compras@papelera.test', phone: '099', address: 'Av. Central', active: true }];
+      window.__DB.suppliers = [{ id: 'sup1', name: 'Papelera Central', email: 'compras@papelera.test', phone: '099', address: 'Av. Central',city:'Quito',province:'Pichincha',postal_code:'170101',country:'Ecuador', active: true }];
       // @ts-ignore
       window.__DB.products = [{ id: 'p1', name: 'Papel A4', reference: 'PAP-01', stock: 5, min_stock: 20, purchase_price: 3.5, sale_price: 6, active: true, supplier_id: 'sup1' }];
       // @ts-ignore
@@ -58,6 +58,7 @@ test.describe('Compras: sending a draft order to its supplier', () => {
     expect(call.email).toBe('compras@papelera.test');
     expect(call.subject).toContain('OC-000001');
     expect(call.o.supplier).toBe('Papelera Central');
+    expect(call.o.supplierAddress).toBe('Av. Central, Quito, Pichincha, 170101, Ecuador');
     expect(call.o.items).toEqual([{ name: 'Papel A4', reference: 'PAP-01', qty: 10, cost: 3.5 }]);
     expect(call.body).toContain('Papel A4 x10');
     expect(call.body).toContain('Papelera Central');

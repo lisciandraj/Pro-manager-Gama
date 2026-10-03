@@ -19,7 +19,7 @@ async function boot(page,{site=false,role='admin',denied=false,width=1280}={}){
  if(!site){await page.waitForFunction(()=>window.gamaAccessAllowed?.('website')||window.gamaAccessAllowed?.('client-catalog'));}
 }
 for(const width of [390,1280])test('website admin configures content and products at '+width,async({page})=>{
- await boot(page,{width});await page.locator('#mainmenu [data-gama-module="website"]').click();await expect(page.locator('#gwSettings')).toBeVisible();await expect(page.locator('#gwPreview')).toHaveAttribute('href','gama-site.html');
+ await boot(page,{width});await page.locator('#mainmenu [data-gama-module="website"]').click();await page.locator('[data-gw-tab=settings]').click();await expect(page.locator('#gwSettings')).toBeVisible();await expect(page.locator('#gwPreview')).toHaveAttribute('href','gama-site.html');
  await page.locator('[name=headline]').fill('Votre prochain approvisionnement');await page.locator('#gwSettings [type=submit]').click();await expect(page.locator('#gwStatus')).toContainText('enregistrées');
  await page.locator('[data-gw-tab=catalog]').click();await expect(page.locator('.gwProduct')).toHaveCount(2);await page.locator('[data-gw-edit=web1]').click();await page.locator('dialog [name=visible]').uncheck();await page.locator('dialog [name=description]').fill('Description test');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);
  expect(await page.evaluate(()=>__WEB.products[0].visible)).toBe(false);await expect(page.locator('#gwStats')).toContainText('1');

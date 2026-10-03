@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 test-results/
 playwright-report/
 playwright/.cache/
@@ -6,6 +6,9 @@ playwright/.cache/
 supabase/.temp/
 .build/
 dist/
+dist-storefront/
+.wrangler/
+.dev.vars*
 
 # Private fiscal material must never be committed.
 services/sri/*.env

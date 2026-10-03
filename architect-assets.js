@@ -120,6 +120,8 @@ window.ArcAssets={
   "gama-site.js": "gama-site.js?v=21924a5a5d30",
   "gama-sort.js": "gama-sort.js?v=74bd77580e21",
   "gama-standard-ui.js": "gama-standard-ui.js?v=7114f032e5b7",
+  "gama-store-admin.css": "gama-store-admin.css?v=ad2fd9cc7a94",
+  "gama-store-admin.js": "gama-store-admin.js?v=24710a2dc0f3",
   "gama-supabase.js": "gama-supabase.js?v=3f2b0c1c8dd9",
   "gama-tables.js": "gama-tables.js?v=8b2811f3cc09",
   "gama-tms-loading.js": "gama-tms-loading.js?v=d286621f2ebc",
@@ -127,6 +129,6 @@ window.ArcAssets={
   "gama-toast.js": "gama-toast.js?v=97197c810405",
   "gama-ui.js": "gama-ui.js?v=319ec34058fc",
   "gama-website.css": "gama-website.css?v=13ccd5c8333a",
-  "gama-website.js": "gama-website.js?v=79a6f82810ad",
+  "gama-website.js": "gama-website.js?v=c051313db32a",
   "assets/vendor/jspdf-2.5.2.umd.min.js": "assets/vendor/jspdf-2.5.2.umd.min.js?v=85ba2cc3ff85"
 };

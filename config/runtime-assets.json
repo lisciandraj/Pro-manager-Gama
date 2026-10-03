@@ -443,6 +443,10 @@
     {
       "source": "src/domain/accounting-ecuador.js",
       "output": "gama-accounting-ec.js"
+    },
+    {
+      "source": "src/features/website/store-admin.js",
+      "output": "gama-store-admin.js"
     }
   ],
   "styles": [
@@ -497,6 +501,10 @@
     {
       "source": "src/styles/website.css",
       "output": "gama-website.css"
+    },
+    {
+      "source": "src/styles/store-admin.css",
+      "output": "gama-store-admin.css"
     }
   ],
   "moduleStyles": [

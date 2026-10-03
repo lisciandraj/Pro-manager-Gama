@@ -1280,6 +1280,12 @@
       "name": "accounting_ec_fk_indexes",
       "file": "20261003075343_accounting_ec_fk_indexes.sql",
       "sha256": "99d9b578a36d157459c396bb612e8f405140c3218bb72eae7bec7d24ea0d3059"
+    },
+    {
+      "version": "20261003091337",
+      "name": "public_storefront",
+      "file": "20261003091337_public_storefront.sql",
+      "sha256": "c85094987f4f30cb3b8b5a2aa4045ee96d3ea86b23f8931c2427c06c4d5b8fd0"
     }
   ]
 }

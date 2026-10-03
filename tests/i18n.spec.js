@@ -80,17 +80,17 @@ test('numerical messages translate without changing numbers and invalid preferen
  await expect(page.locator('.gamaToastTexto').last()).toHaveText('Accès refusé pour ce profil.');
 });
 test('desktop sidebar visibility uses stable module identifiers across languages',async({page})=>{
- await page.setViewportSize({width:1500,height:950});await boot(page,'client','fr');
+ await page.setViewportSize({width:1500,height:950});await boot(page,'commercial','fr');
  await expect(page.locator('#mainmenu [data-gama-module="quotes"]')).toBeVisible();
- await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeHidden();
+ await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeVisible();
  await page.evaluate(()=>GamaI18n.setLanguage('en'));
  await expect(page.locator('#mainmenu [data-gama-module="quotes"]')).toBeVisible();
- await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeHidden();
+ await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeVisible();
  await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toBeVisible();
  await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toContainText('Sales');
 });
 test('settings exposes language to all roles without exposing module switches or header flags',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page,'client');
+ await page.setViewportSize({width:390,height:844});await boot(page,'commercial');
  await expect(page.locator('header #gamaLanguagePicker')).toHaveCount(0);
  await page.locator('#arcSettings').click();
  const settings=page.locator('#arcSettingsDialog');
@@ -131,7 +131,7 @@ test('access settings is separate and restricted, personal configuration has no 
  await expect(page.locator('#access-settings button[data-mod="products"]')).toHaveText('Uninstall');
  await expect(page.locator('#access-settings #gamaLanguagePicker')).toHaveCount(0);
 });
-for(const role of ['commercial','magasinier','client'])test(`access settings denied to ${role}, configuration available`,async({page})=>{
+for(const role of ['commercial','magasinier'])test(`access settings denied to ${role}, configuration available`,async({page})=>{
  await boot(page,role);await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
  await expect(page.locator('#arcSettings')).toBeVisible();
  await page.evaluate(()=>GamaOpenAccessSettings());await expect(page.locator('#access-settings input')).toHaveCount(0);

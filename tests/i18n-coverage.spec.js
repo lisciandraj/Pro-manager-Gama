@@ -98,6 +98,7 @@ for(const [role,lang] of [['admin','fr'],['admin','en'],['client','fr'],['rh','e
  test.setTimeout(240000);
  await boot(page,role,lang);
  const modules=await page.evaluate(()=>window.ArcModules.registry.filter(m=>!m.retired&&!m.tabOf&&window.gamaAccessAllowed?.(m.id)).map(m=>m.id));
+ if(role==='client'){expect(modules).toEqual([]);return;}
  expect(modules.length).toBeGreaterThan(1);
  const found={};
  const open=async(id,tab)=>{

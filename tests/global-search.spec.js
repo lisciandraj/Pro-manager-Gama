@@ -24,7 +24,7 @@ test('cross-module person search, canonical order reference and unpaid invoice d
  await boot(page);await search(page,'Juan Perez');await expect(page.locator('#gspList')).toContainText('Contacts');await expect(page.locator('#gspList')).toContainText('Fournisseurs');await page.locator('#gspInput').fill('CMD-293');await expect(page.locator('#gspList')).toContainText('PED-00000293');await page.locator('#gspList [role=option]').click();expect(await page.evaluate(()=>__opened)).toContainEqual(['order','o1']);
  await search(page,'factures impayées');await expect(page.locator('#gspHint')).toContainText('paiements partiels');await expect(page.locator('#gspList')).toContainText('75');await page.locator('#gspList [role=option]').click();expect(await page.evaluate(()=>__opened)).toContainEqual(['invoice','i1']);
 });
-for(const role of ['client','magasinier'])test('search queries only permitted sources for '+role,async({page})=>{
+for(const role of ['magasinier'])test('search queries only permitted sources for '+role,async({page})=>{
  await boot(page,role);await search(page,'Coca');const tables=await page.evaluate(()=>__searchCalls.map(c=>c.table));expect(tables).not.toContain('external_invoices');expect(tables).not.toContain('external_invoice_payments');expect(tables).not.toContain('customers');expect(tables).not.toContain('crm_contacts');if(role==='client')expect(tables).not.toContain('knowledge_articles');
 });
 test('late responses cannot survive logout, query changes or disabled modules; errors are visible',async({page})=>{

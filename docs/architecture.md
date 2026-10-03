@@ -73,3 +73,7 @@ Le module `sri` partage le chargement différé de Comptabilité via `GamaAccoun
 `gama_accounting_ec` est la façade invocateur des extensions de livres, échéances, retenues, immobilisations et intégrations. Ses traitements privés vérifient le module, le périmètre et les droits, puis lient la clé idempotente à l’acteur et à la requête. La migration `20261003074945_accounting_ec_ledger.sql` ajoute des tables protégées par RLS, sans réécrire les migrations historiques ni rejouer les pièces existantes.
 
 Le sous-ensemble de génération ATS, source `src/domain/accounting-ecuador.js`, devient `gama-accounting-ec.js` au build et se charge sur demande. Il ne s’ajoute pas au démarrage. Les contrôles, le périmètre et les écarts sont décrits dans [l’audit comptable équatorien](audits/2026-10-02-accounting-ecuador.md).
+
+## Site public sur Cloudflare Pages
+
+Le site GAMA est compilé séparément par `npm run build:storefront` dans `dist-storefront`. Ses sources sont dans `src/storefront/` et ses Pages Functions dans `src/storefront/server/`, avec des points d’entrée sous `functions/`. Il ne charge pas l’ERP. Le module Site web charge l’administration publique `gama-store-admin.js` à la demande. Les réglages sont définis par `config/storefront-schema.json` et validés dans SQL ; les lectures publiques utilisent la façade `gama_storefront` et une projection limitée. Les modifications administratives et les demandes sont distinctes de l’ancienne prévisualisation. Voir le [guide du site public](public-website.md).

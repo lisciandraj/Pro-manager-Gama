@@ -3,6 +3,7 @@
 ERP de gestion pour PME, en français, espagnol et anglais. L’application conserve les données et identifiants historiques GAMA/Architect ; son nom affiché et sa documentation courante sont **Coco ERP**.
 
 - [Application](https://lisciandraj.github.io/Pro-manager-Gama/)
+- [Site public GAMA : réglages Coco et publication Cloudflare](docs/public-website.md)
 - [Architecture et organisation des sources](docs/architecture.md)
 - [Navigation et modules actuels](docs/modules/navigation.md)
 - [Guide de développement](docs/development/README.md)

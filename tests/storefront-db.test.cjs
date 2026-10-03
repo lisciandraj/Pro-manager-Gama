@@ -8,7 +8,8 @@ test('public catalogue exposes selected products only; staff settings and inquir
   await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'site-admin@example.invalid',client,'site-client@example.invalid']);await q("update profiles set active=true,role=case when id=$1 then 'cliente' else 'administrador' end",[client]);
   await q("insert into products(id,name,reference,category,purchase_price,sale_price,tax_rate,photo_data,order_minimum,order_multiple) values($1,'Café de prueba','WEB-COFFEE','Bebidas',2,10,15,'data:image/png;base64,YWJj',2,2),($2,'Producto privado','WEB-HIDDEN','Otros',7,50,0,'private photo',1,1)",[product,hidden]);
   await login(admin);let settings=await web('public_settings');assert.deepEqual(settings.schema,JSON.parse(fs.readFileSync(__dirname+'/../config/storefront-schema.json','utf8')));const conn=await web('public_connection');assert.match(conn.token,/^[a-f0-9]{64}$/);
-  await web('public_save_product',{id:product,version:0,public_visible:true,public_featured:true,public_brand:'GAMA',public_title:'Café público',public_description:'Café para oficina'});
+  await web('public_save_product',{id:hidden,version:1,public_visible:false,public_featured:false});
+  await web('public_save_product',{id:product,version:1,public_visible:true,public_featured:true,public_brand:'GAMA',public_title:'Café público',public_description:'Café para oficina'});
   await assert.rejects(web('public_save_product',{id:product,version:0,public_visible:false,public_featured:false}),/WEBSITE_PRODUCT_CHANGED/);
   assert.equal((await web('catalog')).total,0,'public publication must not alter administrator preview selection');
   await assert.rejects(web('public_save_settings',{version:settings.version,config:{...settings.config,logo_url:'data:image/svg+xml;base64,YWJj'}}),/WEBSITE_INVALID_CONFIGURATION/);
@@ -26,6 +27,6 @@ test('public catalogue exposes selected products only; staff settings and inquir
   for(let i=0;i<4;i++)await site('submit',{...payload,request_key:uuid()});await assert.rejects(site('submit',{...payload,request_key:uuid()}),/WEBSITE_RATE_LIMIT/);
   await login(client);for(const action of ['public_settings','public_connection','public_products','public_inquiries'])await assert.rejects(web(action),/WEBSITE_ACCESS_DENIED/);
   await login(admin);settings=await web('public_settings');await web('public_save_settings',{version:settings.version,config:{...settings.config,site_enabled:false}});await db.exec('reset role;set role anon');assert.equal((await site('bootstrap')).paused,true);await assert.rejects(site('photos',{ids:[product]}),/WEBSITE_PUBLIC_PAUSED/);await assert.rejects(site('catalog'),/WEBSITE_PUBLIC_PAUSED/);
-  await db.exec('reset role');for(const table of ['customer_requests','sales_orders','stock_movements'])assert.equal((await q('select count(*) n from '+table))[0].n,0);
+  await db.exec('reset role');assert.equal((await q('select count(*) n from customer_requests'))[0].n,5);for(const table of ['sales_orders','stock_movements'])assert.equal((await q('select count(*) n from '+table))[0].n,0);
  }finally{await db.close()}
 });

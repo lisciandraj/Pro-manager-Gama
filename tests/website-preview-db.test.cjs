@@ -11,7 +11,7 @@ test('website preview is administrator scoped, uses explicit products and stores
   await q("insert into products(id,name,reference,purchase_price,sale_price,tax_rate,photo_data) values($1,'Café de prueba','WEB-COFFEE',2,10,15,'data:image/png;base64,abc'),($2,'Producto privado','WEB-HIDDEN',7,50,0,'private photo')",[product,hidden]);
   await login(admin);
   const c=await call('overview');assert.equal(c.settings.preview_enabled,true);
-  await call('save_product',{id:product,version:0,visible:true,featured:true,description:'Café para oficina'});
+  await call('save_product',{id:product,version:1,visible:true,featured:true,description:'Café para oficina'});
   await assert.rejects(call('save_product',{id:product,version:0,visible:false}),/WEBSITE_CHANGED/);
   let catalog=await call('catalog');assert.equal(catalog.items.length,1);assert.equal(catalog.items[0].unit_price,10);assert.equal(catalog.items[0].description,'Café para oficina');assert.equal(catalog.items[0].purchase_price,undefined);assert.equal(catalog.items[0].photo_data,undefined);
   assert.equal((await call('catalog',{search:'not found'})).total,0);

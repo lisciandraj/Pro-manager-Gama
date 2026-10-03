@@ -1,6 +1,6 @@
 # Site public GAMA — Coco ERP / Cloudflare Pages
 
-Le site public est construit séparément de l’ERP. Il présente uniquement les produits actifs sélectionnés dans **Site web → Site public → Produits publiés**. Le site de test historique reste réservé aux administrateurs et conserve ses propres réglages et demandes.
+Le site public est construit séparément de l’ERP. Tous les produits actifs sont sélectionnés par défaut. Il présente uniquement les produits actifs sélectionnés dans **Site web → Site public → Produits publiés**. Le site de test historique reste réservé aux administrateurs et conserve ses propres réglages et demandes.
 
 ## Paramétrage dans Coco
 
@@ -12,7 +12,7 @@ Le site public est construit séparément de l’ERP. Il présente uniquement le
 6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, choisir l’affichage des taxes, activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
 7. Cliquer **Enregistrer tous les réglages**. Le brouillon est conservé en naviguant entre les rubriques. En cas de conflit avec un autre administrateur, copier les changements nécessaires avant **Actualiser** ; ce bouton recharge les valeurs enregistrées.
 8. Dans **Produits publiés**, choisir les produits visibles et les produits mis en avant. Le nom, la référence, la photo, le prix de vente, les taxes et les quantités de commande viennent des Produits de Coco. Le titre, la description, la marque, l’étiquette et le nom public de la catégorie peuvent être adaptés ici. Les produits inactifs sont exclus immédiatement.
-9. Dans **Demandes du public**, consulter les coordonnées, produits et quantités, ajouter une note interne et marquer la demande comme traitée ou archivée.
+9. Dans **Ventes → Demandes clients**, consulter les demandes du site, associer ou créer le contact si nécessaire, puis préparer le devis.
 
 Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Après vérification, préparer le devis dans le module Ventes avec les coordonnées et quantités reçues. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
 
@@ -71,4 +71,16 @@ Les tests SQL restaurent toutes les migrations dans une base PGlite isolée. Les
 
 Sources canoniques : [schéma des réglages](../config/storefront-schema.json), [site public](../src/storefront/), [administration](../src/features/website/store-admin.js), [compilation](../scripts/build-storefront.cjs). L’URL et la clé **publique** Supabase se trouvent dans [storefront-runtime.json](../config/storefront-runtime.json). La clé d’intégration serveur est exclusivement dans la base privée et le secret Cloudflare.
 
-Le module **Site web** ouvre uniquement **Site public**. Les anciens onglets Présentation, Catalogue et Demandes de test et le lien vers le site de test ont été retirés du module. Les réglages, produits et demandes du site public restent disponibles dans Site public, ainsi que le bouton de publication. Aucun réglage de publication ni aucune donnée historique ne sont modifiés par ce nettoyage.
+Le module **Site web** ouvre uniquement **Site public**. Les anciens onglets Présentation, Catalogue et Demandes de test et le lien vers le site de test ont été retirés du module. Les réglages et produits du site public restent disponibles dans Site public, ainsi que le bouton de publication. Les demandes se traitent dans Ventes → Demandes clients. Aucun réglage de publication ni aucune donnée historique ne sont modifiés par ce nettoyage.
+
+## Demandes clients
+
+Les envois publics alimentent directement Ventes → Demandes clients avec les lignes et montants hors taxes calculés côté serveur, la référence WEB et les coordonnées d’origine. Un e-mail ou un nom exact (casse et espaces normalisés) correspondant à un seul client actif permet le rattachement automatique. Plusieurs correspondances restent à identifier par un collaborateur. Aucun renseignement du fichier clients n’est renvoyé au visiteur.
+
+Une demande sans client propose **Associer ou créer un contact** : sélectionner un client, ou créer sa fiche avec son identification et son délai de paiement. La création et le rattachement sont atomiques et contrôlent les doublons à nouveau. Le nom, l’e-mail et le téléphone viennent de la demande. Cela ne crée aucun compte de connexion ni n’envoie d’e-mail. Les demandes ne créent ni commande ni mouvement de stock. Les envois répétés avec la même clé ne créent qu’une demande. Les demandes publiques historiques sont reprises une seule fois ; les anciennes demandes de test restent exclues.
+
+Le suivi des demandes publiques est retiré de Site public : leur traitement se fait dans Demandes clients.
+
+## Visibilité des produits
+
+Tous les produits actifs existants sont sélectionnés pour le site à l’installation de cette mise à jour. Les nouveaux produits actifs sont sélectionnés automatiquement. Dans **Site web → Site public → Produits publiés**, cocher ou décocher une ligne enregistre immédiatement sa visibilité sans modifier le titre, la description ou les autres réglages. En cas d’échec, la case revient à sa valeur enregistrée et une erreur s’affiche. Une modification concurrente nécessite une actualisation. Un produit décoché reste masqué après archivage et réactivation. Le bouton général de publication du site reste indépendant.

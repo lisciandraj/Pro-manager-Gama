@@ -31,3 +31,24 @@ test('legacy links use unified module and disabling quotes blocks requests',asyn
 test('client cannot open staff requests within quotes',async({page})=>{
  await boot(page,'client');await page.evaluate(()=>GamaQuotes.open());await expect(page.locator('#gqRequestsTab')).toHaveCount(0);await page.evaluate(()=>GamaOpenCustomerRequest('r1'));await expect(page.locator('#gqRequests')).toHaveCount(0);
 });
+
+for(const width of [390,1280])test(`website request offers contact creation, keeps failed inputs and links the result at ${width}`,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);
+ await page.evaluate(()=>{
+  Object.assign(__DB.customer_requests[0],{customer_id:null,source_website_id:'web1',website_reference:'WEB-00000001',requester_name:'New Person',requester_email:'new@example.invalid',requester_phone:'099123',requester_company:'New Company'});
+  window.__contactCalls=[];window.__contactFail=true;const old=GamaCloud.db;
+  GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{if(fn!=='gama_request_contact')return c.rpc(fn,args);__contactCalls.push(args);if(args.p_action==='candidates')return {data:{status:'candidates',items:[]}};if(__contactFail){__contactFail=false;return {error:{message:'offline'}}}__DB.customers.push({id:'new1',name:'New Company',email:'new@example.invalid',active:true});__DB.customer_requests[0].customer_id='new1';return {data:{status:'linked',customer_id:'new1'}}}}};
+ });
+ await page.evaluate(()=>GamaQuotes.openRequests());await page.locator('[data-cr-open]').click();await expect(page.locator('#crDetail')).toContainText('WEB-00000001');await expect(page.locator('#crDetail')).toContainText('099123');await page.locator('#crResolveContact').click();
+ await expect(page.locator('#crContactChoice')).toHaveValue('new');await page.fill('#crContactIdentity','1790000000001');await page.fill('#crContactTerms','30');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toBeVisible();await expect(page.locator('#crContactIdentity')).toHaveValue('1790000000001');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#crResolveContact')).toHaveCount(0);await expect(page.locator('#crDetail')).toContainText('New Company');expect(await page.evaluate(()=>__contactCalls.filter(x=>x.p_action==='create').map(x=>x.p_data))).toEqual([{identification:'1790000000001',payment_terms_days:30},{identification:'1790000000001',payment_terms_days:30}]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+test('ambiguous website matches require staff selection and do not offer duplicate creation',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  Object.assign(__DB.customer_requests[0],{customer_id:null,source_website_id:'web2',requester_email:'qa@example.invalid'});window.__linked=null;const old=GamaCloud.db;
+  GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{if(fn!=='gama_request_contact')return c.rpc(fn,args);if(args.p_action==='candidates')return {data:{status:'candidates',items:[{id:'c1',name:'Customer One'},{id:'c2',name:'Customer Two'}]}};__linked=args;__DB.customer_requests[0].customer_id='c1';return {data:{status:'linked',customer_id:'c1'}}}}};
+ });await page.evaluate(()=>GamaQuotes.openRequests());await page.locator('[data-cr-open]').click();await page.click('#crResolveContact');await expect(page.locator('#crContactChoice')).toHaveValue('');await expect(page.locator('#crContactChoice option[value=new]')).toHaveCount(0);await expect(page.locator('#crContactNew')).toBeHidden();await page.selectOption('#crContactChoice','c1');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);expect(await page.evaluate(()=>__linked)).toMatchObject({p_action:'link',p_data:{customer_id:'c1'}});
+});
+
+test('request reference opens details in the viewport after a long list and allows quote creation',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>{for(let i=2;i<=20;i++)__DB.customer_requests.push({...__DB.customer_requests[0],id:'r'+i})});await page.evaluate(()=>GamaQuotes.openRequests());await page.locator('[data-cr-reference="r1"]').click();await expect(page.locator('#crDetail')).toBeFocused();await expect(page.locator('#crDetail')).toBeInViewport();await expect(page.locator('#crInvoice')).toBeVisible();await page.click('#crInvoice');await expect(page.locator('#gqForm')).toBeVisible();
+});

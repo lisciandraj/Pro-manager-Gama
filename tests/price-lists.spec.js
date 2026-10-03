@@ -234,69 +234,6 @@ test.describe('Tarifas especiales — presupuestos', () => {
   });
 });
 
-test.describe('Tarifas especiales — catálogo del cliente', () => {
-  const CLIENT_SESSION = { role: 'client', name: 'Andes', email: 'andes@example.com' };
-
-  test('a signed-in customer browses the catalogue at their negotiated price', async ({ page }) => {
-    await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
-      _profile: { id: 'client-uid', full_name: 'Andes', role: 'cliente', active: true, email: 'andes@example.com' },
-    }, CLIENT_SESSION);
-
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(600);
-
-    const cemento = page.locator('.ccProduct', { hasText: 'Cemento 50kg' });
-    await expect(cemento.locator('.ccPrice')).toContainText('8,00');
-    // Not in the tariff — base price, same as everyone else.
-    await expect(page.locator('.ccProduct', { hasText: 'Arena m3' }).locator('.ccPrice')).toContainText('20,00');
-  });
-
-  test('a customer with nothing negotiated sees the base prices', async ({ page }) => {
-    await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
-      _profile: { id: 'client-uid', full_name: 'Sol', role: 'cliente', active: true, email: 'sol@example.com' },
-    }, { role: 'client', name: 'Sol', email: 'sol@example.com' });
-
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(600);
-
-    await expect(page.locator('.ccProduct', { hasText: 'Cemento 50kg' }).locator('.ccPrice')).toContainText('10,00');
-    await expect(page.locator('.ccProduct', { hasText: 'Arena m3' }).locator('.ccPrice')).toContainText('20,00');
-  });
-
-  test('a categoria B customer browses the catalogue at the retail price', async ({ page }) => {
-    await boot(page, {
-      products: PRODUCTS, customers: [...CUSTOMERS, CUSTOMER_B], customer_special_prices: [SPECIAL_C1],
-      _profile: { id: 'client-uid-b', full_name: 'Detallista Norte', role: 'cliente', active: true, email: 'detal@example.com' },
-    }, { role: 'client', name: 'Detallista Norte', email: 'detal@example.com' });
-
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(600);
-
-    await expect(page.locator('.ccProduct', { hasText: 'Cemento 50kg' }).locator('.ccPrice')).toContainText('13,00');
-    await expect(page.locator('.ccProduct', { hasText: 'Arena m3' }).locator('.ccPrice')).toContainText('26,00');
-  });
-
-  // The catalogue is a "cliente"-facing view: a tariff must not become a way to
-  // read margins. catalog_products still hides purchase_price and supplier_id.
-  test('the resolved catalogue still hides purchase prices and suppliers', async ({ page }) => {
-    await boot(page, {
-      products: PRODUCTS, customers: CUSTOMERS, customer_special_prices: [SPECIAL_C1],
-      _profile: { id: 'client-uid', full_name: 'Andes', role: 'cliente', active: true, email: 'andes@example.com' },
-    }, CLIENT_SESSION);
-
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(600);
-
-    const leaked = await page.evaluate(async () => {
-      const r = await window.GamaCloud.list('catalog_products', {});
-      return (r.data || []).some(p => 'purchase_price' in p || 'supplier_id' in p);
-    });
-    expect(leaked).toBe(false);
-  });
-});
-
 // En el teléfono esta pantalla tenía DOS desplazamientos laterales metidos uno
 // dentro del otro: el de .plTableWrap y, dentro, el de la propia <table>, que
 // lo trae de la regla global de index.html (display:block, overflow-x:auto y

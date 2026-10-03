@@ -16,7 +16,7 @@ async function boot(page,{site=false,role='admin',denied=false,width=1280}={}){
  await page.addInitScript(({role,settings,products,denied})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[],suppliers:[],invoices:[],app_modules:[]};window.__WEB={settings,products,inquiries:[],calls:[],denied};},{role,settings:SETTINGS,products:PRODUCTS,denied});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:api}));await page.route('**/@supabase/**',r=>r.abort());
  await page.goto(site?'/gama-site.html':'/index.html');
- if(!site){await page.waitForFunction(()=>window.gamaAccessAllowed?.('website')||window.gamaAccessAllowed?.('client-catalog'));}
+ if(!site){await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());}
 }
 for(const width of [390,1280])test('GAMA test storefront searches, keeps retry identity and receives quote at '+width,async({page})=>{
  await boot(page,{site:true,width});await expect(page.locator('.product')).toHaveCount(2);await page.locator('#siteSearch').fill('CAFÉ');await expect(page.locator('.product')).toHaveCount(1);await page.locator('[data-add=web1]').click();await expect(page.locator('#cartCount')).toHaveText('1');await page.locator('#cartOpen').click();await page.locator('[data-qty=web1]').fill('2');await page.locator('[name=contact_name]').fill('Jimmy Test');await page.locator('[name=email]').fill('test@example.invalid');await page.locator('[name=notes]').fill('Demande de test');

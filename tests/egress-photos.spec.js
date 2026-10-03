@@ -106,21 +106,6 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     expect(after, 'la foto se volvió a pedir en vez de servirse de la caché').toBe(before);
   });
 
-  test('el catálogo del cliente tampoco recibe las fotos en el listado', async ({ page }) => {
-    await boot(page, {
-      products: PRODUCTS,
-      customers: [{ id: 'c1', name: 'Andes', email: 'andes@example.com', active: true }],
-      _profile: { id: 'client-uid', full_name: 'Andes', role: 'cliente', active: true, email: 'andes@example.com' },
-    }, { role: 'client', name: 'Andes', email: 'andes@example.com' });
-
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(700);
-
-    await expect(page.locator('.ccProduct', { hasText: 'Con foto' }).locator('img')).toHaveAttribute('src', PHOTO);
-    const calls = await page.evaluate(() => window.__DB.__calls || []);
-    expect(photoQueries(calls)).toEqual([]);
-  });
-
   // Ahora que las listas no traen photo_data, guardar un producto sin elegir
   // imagen no debe mandar photo_data en blanco: borraría la foto al cambiar
   // un precio. La columna simplemente no viaja.

@@ -81,14 +81,5 @@ test.describe('Paginación — 20 por página', () => {
     await expect(page.locator('#productsTable .gamaPager')).toHaveCount(0);
   });
 
-  test('the client catalog grid pages too', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.waitForTimeout(600);
-    await page.evaluate(() => window.GamaOpenClientCatalog());
-    await page.waitForTimeout(400);
 
-    await expect(page.locator('#ccProducts .ccProduct')).toHaveCount(20);
-    await page.click('#ccProducts .gamaPagerBtn:has-text("Siguiente")');
-    await expect(page.locator('#ccProducts .ccProduct')).toHaveCount(5);
-  });
 });

@@ -109,12 +109,11 @@ test('settings exposes language to all roles without exposing module switches or
  await expect(page.locator('#mainmenu [data-gama-module="settings"]')).toHaveCount(0);
  await page.reload();await expect(page.locator('html')).toHaveAttribute('lang','fr');
 });
-test('access settings is separate and restricted, personal configuration has no switches even for admin',async({page})=>{
+test('access settings is a restricted Configuration tab, personal preferences have no switches',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
- await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(8);
+ await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(11);
  await expect(page.locator('#arcSettingsDialog input[data-mod],#arcSettingsDialog button[data-mod]')).toHaveCount(0);
- await page.keyboard.press('Escape');
- await page.locator('#mainmenu [data-gama-module="access-settings"]').click();
+ await page.locator('#cfgTab-access-settings').click();
  await expect(page.locator('#access-settings button[data-mod="products"]')).toBeVisible();
  await expect(page.locator('#access-settings input[data-mod]')).toHaveCount(0);
  await expect(page.locator('#access-settings button[data-mod="access-settings"]')).toBeDisabled();
@@ -132,11 +131,11 @@ test('access settings is separate and restricted, personal configuration has no 
  await expect(page.locator('#access-settings #gamaLanguagePicker')).toHaveCount(0);
 });
 for(const role of ['commercial','magasinier'])test(`access settings denied to ${role}, configuration available`,async({page})=>{
- await boot(page,role);await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
+ await boot(page,role);await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toHaveCount(0);
  await expect(page.locator('#arcSettings')).toBeVisible();
  await page.evaluate(()=>GamaOpenAccessSettings());await expect(page.locator('#access-settings input')).toHaveCount(0);
  await page.evaluate(()=>GamaOpenSettings());await expect(page.locator('#arcSettingsDialog #gamaLanguagePicker')).toBeVisible();
- await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveText([/Idioma/,/Seguridad de mi cuenta/]);
+ await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveText(role==='commercial'?[/Idioma/,/Importar datos/,/Seguridad de mi cuenta/]:[/Idioma/,/Seguridad de mi cuenta/]);
  await page.evaluate(()=>window.showTab('access-settings'));await expect(page.locator('#arcSettingsDialog')).toBeVisible();
  await expect(page.locator('#access-settings')).toBeHidden();
 });

@@ -35,7 +35,8 @@ async function openPhotoTab(page, products = PRODUCTS) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(600);
-  await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+  await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
   await page.click('.gamaExcelModes button:has-text("Fotos de productos")');
 }
 

@@ -29,8 +29,9 @@ function section(id='settings'){
 function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function render(id='settings'){
- // La configuración ya no es una página: se abre en su ventana, desde la barra superior.
+ // Configuration opens from the top bar. Embedded sections retain their public IDs.
  if(id!=='access-settings'){openDialog();return}
+ if(!$('access-settings')?.closest('#arcSettingsDialog'))return openDialog('access-settings');
  css();
  const s=section(id);
  if(!isAdmin()){window.ArcUI.render(s,'');return}
@@ -89,6 +90,9 @@ const SECTIONS=[
  {id:'sri',label:'Facturación SRI',icon:'invoice',pane:'sri',admin:true},
  {id:'references',label:'Referencias de documentos',icon:'tag',pane:'references',admin:true},
  {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
+ {id:'reports',label:'Importar datos',icon:'spreadsheet',pane:'reports',module:'reports'},
+ {id:'backup',label:'Copias de seguridad',icon:'cloud',pane:'backup',admin:true,module:'backup'},
+ {id:'access-settings',label:'Parámetros de acceso',icon:'lock',pane:'access-settings',admin:true,module:'access-settings'},
  {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
 ];
 // Cada apartado se carga la primera vez que se enseña: abrir la ventana para el idioma no pide nada al servidor.
@@ -98,26 +102,43 @@ const PANES={
  references:host=>window.GamaReferences?.mountConfig(host),
  policies:host=>window.ArchitectControls?.mountPolicies(host),
  security:host=>window.ArchitectIdentity?.security(host),
+ reports:mountImport,
+ backup:host=>{portal('backup',host);window.GamaRecovery?.mount()},
+ 'access-settings':host=>{portal('access-settings',host);render('access-settings');window.GamaModules.load().then(()=>{if(dialog?.el.open&&$('access-settings')?.closest('#arcSettingsDialog')&&!busy)render('access-settings')}).catch(()=>{})},
 };
-const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity'};
+const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup','access-settings':'cfgAccess'};
 let dialog=null;
+const available=s=>(!s.admin||isAdmin())&&(!s.module||!!window.gamaAccessAllowed?.(s.module));
+/* Move each existing screen into its pane, then park it back on close. File
+   selections and in-flight import/export status survive changing tabs. */
+function portal(id,host){const screen=section(id);if(screen.parentElement!==host){dialog.portals.set(screen,screen.parentElement);host.appendChild(screen)}screen.style.setProperty('display','block','important');screen.hidden=false;return screen}
+function restorePortals(api){for(const [screen,parent] of api.portals||[]){screen.classList.remove('active');screen.style.setProperty('display','none','important');screen.hidden=true;(parent?.isConnected?parent:document.querySelector('.wrap')||document.body).appendChild(screen)}api.portals?.clear()}
+async function mountImport(host){const screen=portal('reports',host);if(screen.querySelector('#gamaExcelFile'))return;
+ if(!screen.querySelector('#excel-import-module'))screen.innerHTML='<div id="excel-import-module" data-module="excel"></div>';
+ const body=screen.querySelector('#excel-import-module');
+ try{await window.ArcLoadScript('gama-excel-import-v1.js');if(!window.GamaExcelImport)throw Error('IMPORT_UNAVAILABLE');if(window.gamaAccessAllowed?.('reports')&&!screen.querySelector('#gamaExcelFile'))window.GamaExcelImport.render()}
+ catch(_){window.ArcUI.render(body,`<p role="alert">${esc(tx('No se pudo cargar el módulo Excel. Recarga la aplicación.'))}</p><button type="button" class="arcButton secondary">${esc(tx('Reintentar'))}</button>`);body.querySelector('button').onclick=()=>mountImport(host)}
+}
+function refreshTabs(){if(!dialog?.el.open)return;dialog.setTabs(SECTIONS.filter(available).map(s=>({id:s.id,label:s.label,icon:window.ArcUI.icons[s.icon]||s.icon,pane:s.pane})));}
+
 function show(section){
- const el=dialog?.el;if(!el)return;
+ const el=dialog?.el;if(!el||!available(section))return;
  const host=el.querySelector(`[data-side-pane="${section.pane}"] [data-cfg-host]`);
  if(host&&!host.dataset.cfgMounted){host.dataset.cfgMounted='1';PANES[section.pane]?.(host)}
  // La ficha de la empresa es una: cada apartado enseña sólo sus tarjetas.
  el.querySelector('[data-side-pane="company"]')?.setAttribute('data-co-view',section.id);
 }
 function openDialog(section='language'){
- const admin=isAdmin(),items=SECTIONS.filter(s=>!s.admin||admin);
- if(dialog?.el.open){dialog.select(section);return dialog.el}
+ const admin=isAdmin(),items=SECTIONS.filter(available);
+ if(dialog?.el.open){refreshTabs();dialog.select(items.some(s=>s.id===section)?section:'language');return dialog.el}
  // Una ventana que se está cerrando (su «close» llega después) no se reutiliza.
- dialog?.el.remove();dialog=null;
+ if(dialog){restorePortals(dialog);dialog.el.remove()}dialog=null;
  const icon=s=>window.ArcUI.icons[s.icon]||s.icon;
  dialog=window.ArcUI.sideDialog({id:'arcSettingsDialog',prefix:'cfg',title:'Configuración',navLabel:'Apartados de la configuración',opener:document.getElementById('arcSettings'),
   tabs:items.map(s=>({id:s.id,label:s.label,icon:icon(s),pane:s.pane})),
-  panes:[{id:'language',html:PREFERENCES},...[...new Set(items.map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host data-gi-ignore></div>`}))],
-  onSelect:show,onClose:api=>{if(dialog===api)dialog=null}});
+  panes:[{id:'language',html:PREFERENCES},...[...new Set(SECTIONS.filter(s=>!s.admin||admin).map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host ${['reports','access-settings'].includes(p)?'':'data-gi-ignore'}></div>`}))],
+  onSelect:show,onClose:api=>{restorePortals(api);if(dialog===api)dialog=null}});
+ dialog.portals=new Map();
  const el=dialog.el;
  // Con la ventana abierta, si la cuenta deja de ser administradora se cierra (ver gama:auth-change).
  if(admin)el.dataset.admin='';
@@ -127,21 +148,16 @@ function openDialog(section='language'){
  window.GamaI18n?.mount();
  return el;
 }
-// open('fiscal'), open('references')…: la ventana en ese apartado. Los accesos siguen siendo una página.
+// Historical module entry points now select the corresponding Configuration tab.
 function open(id='settings'){
- if(id!=='access-settings')return openDialog(SECTIONS.some(s=>s.id===id)?id:'language');
- if(!isAdmin()){window.gamaToast?.(window.GamaI18n?.t('Acceso denegado para este perfil.')||'Acceso denegado para este perfil.');return false}
- css();
- render(id);
- window.ArcRouter.show(id);
- document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
- window.scrollTo({top:0,behavior:'smooth'});
- // Se relee por si otro administrador cambió algo desde otro dispositivo.
- window.GamaModules.load().then(()=>{if(!busy)render(id)}).catch(()=>{if(!busy)render(id)});
+ const s=SECTIONS.find(s=>s.id===id);
+ if(s?.module&&!available(s)){window.gamaToast?.(tx('Acceso denegado para este perfil.'));return false}
+ return openDialog(s?id:'language');
 }
 
 window.GamaSettings={open,render,openDialog};
 window.GamaOpenSettings=()=>openDialog();
 window.GamaOpenAccessSettings=()=>open('access-settings');
+window.addEventListener('gama:modules-change',refreshTabs);
 window.addEventListener('gama:auth-change',e=>{if(!isAdmin())$('access-settings')?.replaceChildren();if(dialog?.el.open&&(e.detail?.event==='SIGNED_OUT'||!role()||(dialog.el.dataset.admin!=null&&!isAdmin())))dialog.close()});
 })();

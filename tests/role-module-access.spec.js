@@ -111,5 +111,5 @@ test('the access page fits a phone and follows the language',async({page})=>{
 for(const role of ['commercial','magasinier','rh','client'])test(`the access page stays closed to ${role}`,async({page})=>{
  await boot(page,{role});
  expect(await allowed(page,['access-settings'])).toEqual([false]);
- await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
+ await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toHaveCount(0);
 });

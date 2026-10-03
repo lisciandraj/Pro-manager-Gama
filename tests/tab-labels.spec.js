@@ -47,8 +47,9 @@ test('les rubriques des fenêtres Configuration et Notifications ont leur logo, 
 
 test('Importer des données : les modes et les types de données sont en texte seul',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('reports'));
+ await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');
  const modes=page.locator('.gamaExcelModes button');
- await expect(modes).toHaveText(['Données Excel','Photos des produits','Optimiser les photos']);
+ await expect(modes).toHaveText(['Données Excel','Photos des produits']);
  expect(await decorated(modes)).toEqual([]);
  const types=page.locator('.gamaExcelTypes button');
  await expect(types).toHaveText(['Produits','Clients','Fournisseurs','Tarifs clients']);

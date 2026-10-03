@@ -51,7 +51,8 @@ test('Excel reports database duplicates and errors without counting successful i
    return {data:structuredClone(result)};
   }}};
  });
- await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+ await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
  await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\n')});
  await expect(page.locator('#gamaExcelImport')).toBeDisabled();await page.click('#gamaExcelValidate');await expect(page.locator('#gamaExcelStatus')).toContainText('2 errores');expect(await page.evaluate(()=>window.__DB.products.length)).toBe(2);await page.click('#gamaExcelImport');
  await expect(page.locator('#gamaExcelStatus')).toContainText('1 importadas · 2 errores');

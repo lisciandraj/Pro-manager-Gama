@@ -910,6 +910,12 @@ dialog.arcSideDialog::backdrop{background:rgba(11,27,48,.55);backdrop-filter:blu
 :is(#settings,#access-settings) .cfgDenied{padding:26px;text-align:center;color:var(--arc-text-muted)}
 :is(#settings,#access-settings) .cfgCount{color:var(--arc-text-muted);font-size:12px;margin-bottom:12px}.cfgNote{margin:0 0 8px;font-size:13px;color:var(--arc-text-muted)}
 
+
+/* Existing import, recovery and access screens are embedded in Configuration. */
+#arcSettingsDialog :is(#reports,#backup,#access-settings){margin:0;min-width:0;padding:0}
+#arcSettingsDialog :is(#reports,#backup,#access-settings) .gamaStdBack{display:none}
+#arcSettingsDialog #reports>.wrap{max-width:none;margin:0;padding:0}
+#arcSettingsDialog .cfgTileGrid{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
 /* gama-sort.js */
 .gamaSortTh{cursor:pointer;user-select:none;white-space:nowrap}.gamaSortTh:hover{color:var(--arc-accent-600)}.gamaSortTh.r{text-align:right}.gamaSortInd{opacity:.35;font-size:10px}.gamaSortTh.on{color:var(--arc-accent-600)}.gamaSortTh.on .gamaSortInd{opacity:1}
 

@@ -33,7 +33,7 @@ test('la rueda está en la barra superior, junto a la campana, y la configuraci�
 test('el administrador ve todos los apartados en el menú lateral, cada uno con su contenido',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
  await expect(dialog(page)).toBeVisible();await expect(dialog(page).locator('h2')).toHaveText('Configuration');
- await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Facturation SRI','Références des documents','Règles opérationnelles','Sécurité de mon compte']);
+ await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Facturation SRI','Références des documents','Règles opérationnelles','Importer des données','Sauvegardes','Paramètres d’accès','Sécurité de mon compte']);
  await expect(dialog(page).locator('[role=tablist]')).toHaveAttribute('aria-orientation','vertical');
  // Se abre en el idioma, con el foco en su pestaña.
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-language')).toBeFocused();
@@ -64,7 +64,7 @@ test('teclado: flechas, Inicio y Fin recorren el menú; Escape cierra y devuelve
  await page.keyboard.press('ArrowUp');await expect(page.locator('#cfgTab-security')).toBeFocused();
  await page.keyboard.press('Home');await expect(page.locator('#cfgTab-language')).toBeFocused();
  // Sólo la pestaña elegida entra en el orden de tabulación.
- expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1,-1]);
+ expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]);
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-controls','cfgPane-language');
  await expect(page.locator('#cfgPane-language')).toHaveAttribute('aria-labelledby','cfgTab-language');
  await page.keyboard.press('Escape');await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#arcSettings')).toBeFocused();
@@ -115,7 +115,7 @@ test('reglas operativas: se editan en su apartado y se guardan con su versión',
 
 test('sin ser administrador: idioma y seguridad de la cuenta, nada de la empresa',async({page})=>{
  await boot(page,'commercial');await page.locator('#arcSettings').click();
- await expect(tabs(page)).toHaveText(['Langue','Sécurité de mon compte']);
+ await expect(tabs(page)).toHaveText(['Langue','Importer des données','Sécurité de mon compte']);
  for(const id of ['company','identity','fiscal','references','policies'])await expect(page.locator('#cfgTab-'+id)).toHaveCount(0);
  await expect(page.locator('#coCompany,#cfgReferences,#cfgPolicies')).toHaveCount(0);
  // Pedir un apartado de administración abre el idioma.
@@ -141,9 +141,38 @@ test('teléfono: la ventana ocupa la pantalla y el menú se pone en fila, sin de
  expect(await side.evaluate(e=>e.scrollWidth>e.clientWidth&&getComputedStyle(e).overflowX)).toBe('auto');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.keyboard.press('End');await expect(page.locator('#cfgTab-security')).toBeInViewport();
- await page.keyboard.press('ArrowLeft');await expect(page.locator('#cfgTab-policies')).toBeFocused();
+ await page.keyboard.press('ArrowLeft');await expect(page.locator('#cfgTab-access-settings')).toBeFocused();
+ await page.locator('#cfgTab-policies').click();
  await expect(page.locator('#cfgPolicies [name=timezone]')).toBeVisible();
  expect(await page.locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth)).toBe(true);
  for(const tab of ['company','identity','fiscal','references']){await page.locator('#cfgTab-'+tab).click();await page.waitForTimeout(50);expect(await page.locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth),tab).toBe(true)}
  await page.screenshot({path:test.info().outputPath('settings-window-mobile.png')});
+});
+
+for(const width of [390,1280])test('import, backup and access move into Configuration with compatible links at '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);
+ for(const id of ['reports','backup','access-settings'])await expect(page.locator('#mainmenu [data-gama-module="'+id+'"],.arcSidebar [data-gama-module="'+id+'"]')).toHaveCount(0);
+ await page.evaluate(()=>ArcRouter.open('reports'));await expect(dialog(page)).toBeVisible();await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#gamaExcelFile')).toBeAttached();await expect(page.locator('#reports .gamaStdBack')).toBeHidden();
+ await page.locator('#gamaExcelFile').setInputFiles({name:'keep.csv',mimeType:'text/csv',buffer:Buffer.from('Nombre,Referencia\nProducto,TEST-1')});
+ await page.locator('#cfgTab-backup').click();await expect(page.locator('#recoveryExport')).toBeVisible();await expect(page.locator('#recoveryFile')).toBeVisible();
+ await page.evaluate(()=>ArcRouter.show('access-settings'));await expect(page.locator('#cfgTab-access-settings')).toHaveAttribute('aria-selected','true');await expect(page.locator('#access-settings [data-mod=products]')).toBeVisible();
+ await page.locator('#cfgTab-reports').click();expect(await page.locator('#gamaExcelFile').evaluate(e=>e.files[0]?.name)).toBe('keep.csv');
+ await expect(dialog(page)).toHaveCount(1);expect(await dialog(page).locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
+ await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);for(const id of ['reports','backup','access-settings'])await expect(page.locator('#'+id)).toBeHidden();
+ await page.evaluate(()=>ArcRouter.open('backup'));await expect(page.locator('#cfgTab-backup')).toHaveAttribute('aria-selected','true');await expect(page.locator('#recoveryExport')).toBeVisible();await page.locator('#cfgTab-reports').click();expect(await page.locator('#gamaExcelFile').evaluate(e=>e.files[0]?.name)).toBe('keep.csv');
+ await page.screenshot({path:test.info().outputPath('configuration-admin-tabs-'+width+'.png')});
+});
+
+test('backup exports and verifies files from its Configuration tab',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_recovery_export'?{data:{format:'architect-application-export',version:1,created_at:'2026-10-03T10:00:00Z',tables:{products:[]},counts:{products:0},storage_objects:[]}}:c.rpc(fn,args)}}});
+ await page.evaluate(()=>ArcRouter.open('backup'));const downloaded=page.waitForEvent('download');await page.locator('#recoveryExport').click();const d=await downloaded;const bytes=fs.readFileSync(await d.path());await expect(page.locator('#recoveryStatus')).toContainText('Export vérifié');
+ await page.locator('#recoveryFile').setInputFiles({name:'test.json',mimeType:'application/json',buffer:bytes});await page.locator('#recoveryVerify').click();await expect(page.locator('#recoveryStatus')).toContainText('Intégrité vérifiée');
+});
+
+test('Configuration honours tab permissions and module deactivation',async({page})=>{
+ await boot(page,'commercial');await page.evaluate(()=>ArcRouter.open('reports'));await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-backup,#cfgTab-access-settings')).toHaveCount(0);await page.evaluate(()=>{GamaSettings.open('backup');GamaSettings.open('access-settings')});await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');
+ await page.evaluate(()=>{__DB.app_modules=[{id:'reports',enabled:false}];return GamaModules.load()});await expect(page.locator('#cfgTab-reports')).toHaveCount(0);await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');
+ await page.evaluate(()=>ArcRouter.open('reports'));await expect(page.locator('#cfgTab-reports')).toHaveCount(0);
+ await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);await page.locator('#arcSettings').click();await expect(page.locator('#cfgTab-reports')).toHaveCount(0);
+ await page.evaluate(()=>{__DB.app_modules=[{id:'reports',enabled:true}];return GamaModules.load()});await page.locator('#cfgTab-reports').click();await expect(page.locator('#gamaExcelFile')).toBeAttached();await expect(page.locator('#reports')).toBeVisible();
 });

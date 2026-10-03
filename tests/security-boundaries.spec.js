@@ -13,7 +13,7 @@ const ROOT = path.join(__dirname, '..');
 // are verified against Supabase directly; these tests pin the client-side half
 // of the same decisions, which is what a future refactor is likely to undo.
 test.describe('Límites de seguridad', () => {
-  test('the client catalogue reads the restricted view, never the products table', async ({ page }) => {
+  test('the retired client catalogue reads no product data', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'client', name: 'Cliente' }));
       // @ts-ignore
@@ -36,15 +36,9 @@ test.describe('Límites de seguridad', () => {
     await page.waitForTimeout(900);
 
     const calls = await page.evaluate(() => (window.__DB.__calls || []).map(c => c.table));
-    expect(calls).toContain('catalog_products');
+    expect(calls).not.toContain('catalog_products');
     expect(calls).not.toContain('products');
 
-    // And the view itself hands back nothing commercially sensitive.
-    const row = await page.evaluate(async () => (await window.GamaCloud.list('catalog_products', {})).data[0]);
-    expect(row.name).toBe('Tornillo');
-    expect(row).not.toHaveProperty('purchase_price');
-    expect(row).not.toHaveProperty('supplier_id');
-    expect(row).not.toHaveProperty('location');
   });
 
   test('every external script is pinned to an exact version and carries an integrity hash', () => {

@@ -113,11 +113,9 @@ test('Code 39 label encodes the package alphabet with standard patterns',async({
  await boot(page);const svg=await page.evaluate(()=>GamaFulfillment.barcode('PK-00000001'));expect(svg).toContain('PK-00000001');expect((svg.match(/<rect /g)||[]).length).toBe(66);
 });
 
-test('client portal exposes proposed conditions and sends explicit acceptance',async({page})=>{
- await boot(page,'queued','admin');
- await page.evaluate(async()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client',name:'Cliente'}));window.__options=[{id:'option',order_number:'PV-01',kind:'substitute',quantity:2,product_name:'Café',replacement:'Té',unit_price:9,tax_rate:15,promised_date:'2026-09-20',status:'proposed',notes:'Oferta acordada'}];await GamaQuotes.open()});
- await page.locator('#gfClientOptions').click();await expect(page.locator('#gfClientOptionsPanel')).toContainText('Té');await expect(page.locator('#gfClientOptionsPanel')).toContainText('IVA 15%');
- page.once('dialog',d=>d.accept());await page.locator('[data-decision="accepted"]').click();await expect.poll(()=>page.evaluate(()=>window.__calls.some(c=>c.p_action==='respond_option'))).toBe(true);const call=await page.evaluate(()=>window.__calls.find(c=>c.p_action==='respond_option'));expect(call.p_data).toMatchObject({option_id:'option',decision:'accepted'});
+test('retired portal cannot expose or accept delivery proposals',async({page})=>{
+ await boot(page,'queued','admin');await page.evaluate(async()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));await GamaQuotes.open();await GamaFulfillment.clientOptions()});
+ await expect(page.locator('#gfClientOptions,#gfClientOptionsPanel')).toHaveCount(0);expect(await page.evaluate(()=>window.__calls.some(c=>c.p_action==='respond_option'))).toBe(false);
 });
 
 test('preparation is the first tab of Entrega and unavailable to clients',async({page})=>{await boot(page);await page.evaluate(()=>{__DB.fulfillment_preparations=structuredClone(__f.preparations);showTab('mainmenu')});await expect(page.locator('.gamaF2Card[data-gama-module="order-preparation"]')).toHaveCount(0);await page.locator('.gamaF2Card[data-gama-module="tms"]').click();await expect(page.locator('#gama-tms-section button.tmsTab.active')).toHaveText('Preparación');const row=page.locator('#gamaPreparationHost [data-prep-state]');await expect(row).toContainText('PV-00000001');await expect(row).toContainText('En preparación');await row.locator('[data-prep-order]').click();await expect(page.locator('#gfScanCode')).toBeFocused();expect(await page.evaluate(()=>ArcModules.get('order-preparation').id)).toBe('tms');await page.evaluate(()=>{showTab('mainmenu');localStorage.setItem('gama_session_v1',JSON.stringify({role:'client'}));GamaPreparation.open()});await expect(page.locator('#gama-tms-section.active')).toHaveCount(0)});

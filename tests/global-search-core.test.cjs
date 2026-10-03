@@ -22,7 +22,7 @@ test('French, Spanish and English business queries preserve customer terms and n
  assert.equal(Core.sameReference('FAC-283','FAC-A-00000283'),false);
 });
 test('sources use the server profile, hide disabled modules, limit client records',()=>{
- assert.deepEqual(Core.sources({role:'cliente',active:true},()=>true).map(s=>s.key),['products','quotes','deliveries']);
+ assert.deepEqual(Core.sources({role:'cliente',active:true},()=>true).map(s=>s.key),[]);
  assert(!Core.sources({role:'almacenero',active:true},()=>true).some(s=>['invoices','payments','clients','contacts','suppliers'].includes(s.key)));
  assert.equal(Core.sources({...admin,active:false},()=>true).length,0);
  assert(!Core.sources(admin,m=>m!=='knowledge').some(s=>s.key==='knowledge'));

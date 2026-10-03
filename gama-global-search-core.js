@@ -38,8 +38,8 @@ function parse(value){
  }
  return {raw,text:q,ref:null,entity:null,intent:null};
 }
-const roles={administrador:'admin',comercial:'commercial',almacenero:'magasinier',cliente:'client'};
-const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge','accounting','returns'],magasinier:['products','sales-orders','tms','knowledge','returns'],client:['client-catalog','quotes','client-deliveries']};
+const roles={administrador:'admin',comercial:'commercial',almacenero:'magasinier'};
+const permissions={admin:'*',commercial:['clients','crm','products','suppliers','quotes','sales-orders','payments','knowledge','accounting','returns'],magasinier:['products','sales-orders','tms','knowledge','returns']};
 function access(profile,module,allowed=()=>true){const role=roles[profile?.role]||profile?.role;const p=permissions[role];return profile?.active!==false&&!!p&&(p==='*'||p.includes(module))&&allowed(module);}
 const SOURCES=[
  {key:'clients',module:'clients',table:'customers',select:'id,name,identification,email,phone,city,active',fields:['name','identification','email','phone'],title:r=>r.name,subtitle:r=>[r.identification,r.email,r.city]},

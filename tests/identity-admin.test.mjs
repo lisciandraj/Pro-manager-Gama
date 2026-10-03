@@ -16,6 +16,7 @@ test('Invitation accepts the HR base role and refuses unknown roles',async()=>{
  assert.equal((await handler(request({action:'invite',email:'rh@example.invalid',name:'RH',role:'rrhh'}))).status,200);
  assert.deepEqual(JSON.parse(calls.find(c=>c.options.method==='PATCH').options.body),{role:'rrhh',full_name:'RH',active:false});
  assert.equal((await handler(request({action:'invite',email:'x@example.invalid',name:'X',role:'hr'}))).status,400);
+ assert.equal((await handler(request({action:'invite',email:'customer@example.invalid',name:'Customer',role:'cliente'}))).status,400);
 });
 test('Invitation never calls the admin endpoint for a forbidden origin, missing session or non-admin',async()=>{
  let calls=0;const handler=createHandler({env,fetch:async url=>{calls++;assert.ok(!url.includes('/auth/v1/invite'));return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:[{id:actor,role:'comercial',active:true}])}});

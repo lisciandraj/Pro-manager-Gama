@@ -1,12 +1,12 @@
 /* Accesos por tipo de usuario. Cada perfil de base (Administrador, Comercial,
-   Almacenero, Responsable RH, Cliente) ve los módulos que tiene por defecto
+   Almacenero, Responsable RH) ve los módulos que tiene por defecto
    (ArcModules.roles): ya no se recortan perfil a perfil desde la aplicación.
    Los módulos que existen para toda la empresa se eligen en «Parámetros de
    acceso» (GamaModules). Los permisos sobre los datos siguen en el servidor. */
 (function(){'use strict';
 const aliases=window.ArcModules.roleAliases,roles=window.ArcModules.roles;
 const canonical=r=>aliases[r]||r;
-const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',rh:'rrhh',client:'cliente'};
+const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',rh:'rrhh'};
 const locked=(r,id)=>id==='settings'||(canonical(r)==='admin'&&['access-settings','users'].includes(id));
 let ready=false,pending=null,generation=0;
 const session=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')}catch(_){return null}};
@@ -14,6 +14,7 @@ const signature=()=>JSON.stringify([ready,session()?.role]);
 const base=(r,id)=>{const p=roles[canonical(r)]?.perms;return p==='*'||!!p?.includes(id)};
 function enabled(r,id){
  // Un módulo fusionado responde por el que lo absorbió (clients → contacts…).
+ if(['client-catalog','client-deliveries'].includes(id)||['client','cliente'].includes(r))return false;
  r=canonical(r);id=window.ArcModules.aliases[id]||id;if(!base(r,id))return false;
  if(locked(r,id))return true;
  // Hasta confirmar el perfil con el servidor no se abre nada más.

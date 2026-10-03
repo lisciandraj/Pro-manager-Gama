@@ -1,6 +1,7 @@
 (function() {
   "use strict";
   const icons = {
+    sales: '<path d="M3 20h18M5 17v-4M10 17V9M15 17V5M4 10l6-5 5 1 5-4M16 2h4v4"/>',
     globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
     cocoBot: '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M4 11V7M20 11V7"/><rect x="4" y="6" width="16" height="15" rx="7"/><rect x="6.5" y="10" width="11" height="8" rx="4"/><path d="M8.5 14q1-2 2 0M13.5 14q1-2 2 0M4 11H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1M20 11h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1"/>',
     brain: '<path d="M12 5a3 3 0 0 0-5.8-1A4 4 0 0 0 3 10a4 4 0 0 0 1 7.8A4 4 0 0 0 12 18V5Zm0 0a3 3 0 0 1 5.8-1A4 4 0 0 1 21 10a4 4 0 0 1-1 7.8A4 4 0 0 1 12 18"/><path d="M6.2 4A3 3 0 0 0 7 7M3 10a3 3 0 0 1 4 1M4 17.8A3 3 0 0 0 7 15M17.8 4A3 3 0 0 1 17 7M21 10a3 3 0 0 0-4 1M20 17.8A3 3 0 0 1 17 15M9 10a3 3 0 0 1 3 3M15 10a3 3 0 0 0-3 3"/>',
@@ -949,7 +950,7 @@
     {
       "id": "quotes",
       "label": "Ventas",
-      "icon": "invoice",
+      "icon": "sales",
       "group": "Ventas",
       "description": "Solicitudes, presupuestos, pedidos, facturas y tarifas",
       "accent": "violet",
@@ -958,23 +959,7 @@
       "configLabel": "Ventas",
       "roles": [
         "admin",
-        "commercial",
-        "client"
-      ]
-    },
-    {
-      "id": "client-deliveries",
-      "label": "Mis entregas",
-      "icon": "pin",
-      "group": "Cliente",
-      "description": "Tus entregas y sus pruebas",
-      "accent": "violet",
-      "order": 100,
-      "menu": true,
-      "configLabel": "Mis entregas y pruebas",
-      "roles": [
-        "admin",
-        "client"
+        "commercial"
       ]
     },
     {
@@ -1070,21 +1055,6 @@
       "roles": [
         "admin",
         "commercial"
-      ]
-    },
-    {
-      "id": "client-catalog",
-      "label": "Catálogo de productos",
-      "icon": "catalog",
-      "group": "Cliente",
-      "description": "Catálogo para tus clientes",
-      "accent": "violet",
-      "order": 100,
-      "menu": true,
-      "configLabel": "Catálogo de productos",
-      "roles": [
-        "admin",
-        "client"
       ]
     },
     {
@@ -1198,7 +1168,6 @@
         "admin",
         "commercial",
         "magasinier",
-        "client",
         "rh"
       ]
     },
@@ -1237,10 +1206,10 @@
       ]
     }
   ];
-  const groups = ["Resumen", "Inventario y compras", "Ventas", "Cliente", "Administración", "Logística"];
+  const groups = ["Resumen", "Inventario y compras", "Ventas", "Administración", "Logística"];
   const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms", clients: "contacts", suppliers: "contacts", stock: "warehouses" };
-  const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", rrhh: "rh", cliente: "client" };
-  const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["rh", "Responsable RH"], ["client", "Cliente"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
+  const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", rrhh: "rh" };
+  const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["rh", "Responsable RH"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
   function ensureExcelModule() {
     var _a;
     let section = document.getElementById("reports");
@@ -1339,10 +1308,6 @@
       var _a;
       return (_a = window.GamaQuotes) == null ? void 0 : _a.enter();
     },
-    "client-deliveries": () => {
-      var _a;
-      return (_a = window.GamaQuotes) == null ? void 0 : _a.deliveries();
-    },
     "sales-orders": () => {
       var _a;
       return (_a = window.GamaSales) == null ? void 0 : _a.open();
@@ -1370,11 +1335,6 @@
       var _a, _b;
       (_a = window.showTab) == null ? void 0 : _a.call(window, "price-lists", null);
       return (_b = window.GamaOpenPriceLists) == null ? void 0 : _b.call(window);
-    },
-    "client-catalog": () => {
-      var _a, _b;
-      (_a = window.showTab) == null ? void 0 : _a.call(window, "client-catalog", null);
-      return (_b = window.GamaOpenClientCatalog) == null ? void 0 : _b.call(window);
     },
     warehouses: () => {
       var _a, _b;

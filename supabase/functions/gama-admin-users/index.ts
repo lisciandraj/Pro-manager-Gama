@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
   const full_name = String(body.full_name || "").trim();
   const role = String(body.role || "");
   // «Responsable RH» (rrhh) es un perfil de base como los demás.
-  if (!email || password.length < 8 || !full_name || !["administrador", "comercial", "almacenero", "rrhh", "cliente"].includes(role)) {
+  if (!email || password.length < 8 || !full_name || !["administrador", "comercial", "almacenero", "rrhh"].includes(role)) {
     return json({ error: "invalid_input", message: "Nombre, email, contraseña (mínimo 8 caracteres) y rol válido son obligatorios." }, 400);
   }
 

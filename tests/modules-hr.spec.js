@@ -119,7 +119,7 @@ test('sin ser administrador no hay interruptores', async ({ page }) => {
   await expect(page.locator('#arcSettingsDialog [data-mod]'), 'un comercial no debe ver interruptores').toHaveCount(0);
   await page.keyboard.press('Escape');
   // Los interruptores viven en «Parámetros de acceso», que no se le ofrece.
-  await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toBeHidden();
+  await expect(page.locator('#mainmenu [data-gama-module="access-settings"]')).toHaveCount(0);
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await expect(page.locator('#access-settings [data-mod]')).toHaveCount(0);
 });

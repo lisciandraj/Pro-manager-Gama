@@ -364,13 +364,14 @@ const definitions=[
   },
   {
     "id": "reports",
+    "settingsTab": "reports",
     "label": "Importar datos",
     "icon": "spreadsheet",
     "group": "Administración",
     "description": "Importar datos desde Excel",
     "accent": "blue",
     "order": 100,
-    "menu": true,
+    "menu": false,
     "configLabel": "Importar datos",
     "roles": [
       "admin",
@@ -428,13 +429,14 @@ const definitions=[
   },
   {
     "id": "access-settings",
+    "settingsTab": "access-settings",
     "label": "Parámetros de acceso",
     "icon": "lock",
     "group": "Administración",
     "description": "Permisos por perfil",
     "accent": "orange",
     "order": 100,
-    "menu": true,
+    "menu": false,
     "configLabel": "Parámetros de acceso",
     "locked": true,
     "roles": [
@@ -462,13 +464,14 @@ const definitions=[
   },
   {
     "id": "backup",
+    "settingsTab": "backup",
     "label": "Copias de seguridad",
     "icon": "cloud",
     "group": "Administración",
     "description": "Copias de seguridad de tus datos",
     "accent": "orange",
     "order": 100,
-    "menu": true,
+    "menu": false,
     "configLabel": "Copias de seguridad",
     "roles": [
       "admin"
@@ -499,7 +502,6 @@ export const groups=["Resumen","Inventario y compras","Ventas","Administración"
 export const aliases={menu:"mainmenu",inicio:"mainmenu",movements:"movement",operations:"dashboard","order-preparation":"tms",clients:"contacts",suppliers:"contacts",stock:"warehouses"};
 export const roleAliases={administrador:"admin",comercial:"commercial",almacenero:"magasinier",rrhh:"rh"};
 export const roles=Object.fromEntries([["admin","Administrador"],["commercial","Comercial"],["magasinier","Almacenero"],["rh","Responsable RH"]].map(([id,label])=>[id,{label,perms:id==="admin"?"*":definitions.filter(m=>m.roles.includes(id)).map(m=>m.id).concat(id==="commercial"?["customer-requests"]:[])}]));
-function ensureExcelModule(){let section=document.getElementById('reports');if(!section){section=document.createElement('section');section.id='reports';(document.querySelector('.wrap')||document.body).appendChild(section)}section.innerHTML='<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';if(!document.getElementById('gamaExcelLoader')){const s=document.createElement('script');s.id='gamaExcelLoader';s.src=window.ArcAssets?.['gama-excel-import-v1.js']||'gama-excel-import-v1.js';s.onload=()=>window.GamaExcelImport&&window.GamaExcelImport.render();s.onerror=()=>{const h=document.getElementById('excel-import-module');if(h)h.innerHTML='<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>'};document.head.appendChild(s)}else if(window.GamaExcelImport)window.GamaExcelImport.render()}
 /* Un módulo que es pestaña de otro (tabOf: los pedidos en Ventas) no tiene tarjeta ni
    línea en las listas de módulos; el módulo que lo contiene se abre para quien tiene al menos una de sus pestañas. */
 export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
@@ -524,7 +526,8 @@ const openers={
  notifications:()=>window.GamaOperations?.open('notifications'),
  quotes:()=>window.GamaQuotes?.enter(),
  'sales-orders':()=>window.GamaSales?.open(),
- reports:()=>{ensureExcelModule();window.showTab?.('reports',null)},
+ reports:()=>window.GamaSettings?.open('reports'),
+ backup:()=>window.GamaSettings?.open('backup'),
  gamaPurchasesV14:()=>{if(window.gamaShowPurchases)return window.gamaShowPurchases();window.showTab?.('gamaPurchasesV14',null);setTimeout(()=>window.gamaShowPurchases?.(),100)},
  crm:()=>{window.showTab?.('crm',null);return window.GamaOpenCRM?.()},
  'price-lists':()=>{window.showTab?.('price-lists',null);return window.GamaOpenPriceLists?.()},

@@ -18,14 +18,14 @@ test.describe('Importar datos', () => {
     await page.route('**/cdn.jsdelivr.net/npm/xlsx**', route => route.abort());
   });
 
-  test('the menu tile is visible and opens the real import module', async ({ page }) => {
+  test('the Configuration tab replaces the tile and opens the real import module', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
 
     const tile = page.locator('#mainmenu .gamaF2Card:has-text("Importar datos")');
-    await expect(tile).toBeVisible();
-
-    await tile.click();
+    await expect(tile).toHaveCount(0);
+    await page.click('#arcSettings');await page.click('#cfgTab-reports');
+    await expect(page.locator('#arcSettingsDialog')).toBeVisible();
 
     await expect(page.locator('#excel-import-module')).toContainText('Importar datos');
     // No leftover "Módulo" fallback header stuck above the module's own header.
@@ -40,11 +40,12 @@ test.describe('Importar datos', () => {
   test('vuelve al menú con el botón de la cabecera común', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
-    await expect(page.locator('#reports .gamaStdBack')).toHaveCount(1);
-    await page.click('#reports .gamaStdBack');
+    await expect(page.locator('#reports .gamaStdBack')).toBeHidden();
+    await page.locator('#arcSettingsDialog [data-side-close]').click();
 
     await expect(page.locator('#mainmenu')).toBeVisible();
     await expect(page.locator('#reports')).toBeHidden();
@@ -67,7 +68,8 @@ test.describe('Importar datos', () => {
   test('auto-detects French column headers with no fixed order', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
     const mapped = await page.evaluate(() => {
@@ -107,7 +109,8 @@ test.describe('Importar datos', () => {
   test('auto-detects compound Spanish headers for clients and suppliers', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
     const mapped = await page.evaluate(() => {
@@ -199,7 +202,8 @@ test.describe('Importar datos — duplicados', () => {
   test('skips clients whose name and address already exist', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -253,7 +257,8 @@ test.describe('Importar datos — tarifas de cliente', () => {
     await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK }));
     await page.goto('/index.html');
     await page.waitForTimeout(700);
-    await page.click('#mainmenu .gamaF2Card:has-text("Importar datos")');
+    await page.click('#arcSettings');
+    await page.click('#cfgTab-reports');
     await page.waitForTimeout(400);
   }
 

@@ -111,8 +111,8 @@ const leerTarjeta = (page, id) => page.evaluate(x => {
 }, id);
 
 /** El icono de la cabecera, contra la tarjeta que lleva hasta ella: el mismo
- *  trazo y el mismo acento. Facturación, códigos de barras o la copia de
- *  seguridad están en el registro pero no en el menú —no tienen icono ni
+ *  trazo y el mismo acento. Facturación o códigos de barras
+ *  están en el registro pero no en el menú —no tienen icono ni
  *  acento—, así que no hay de dónde copiarlo: ahí el hueco se queda vacío y la
  *  hoja no lo dibuja. Lo que no se tolera es inventárselo. */
 function exigirIcono(c, quien, tarjeta) {
@@ -133,7 +133,7 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
     customers: [{ id: 'c1', name: 'Andes', identification: '0991', email: 'a@e.com', address: 'Quito', active: true }],
   });
 
-  for (const id of ['products', 'billing', 'audit', 'barcode', 'backup']) {
+  for (const id of ['products', 'billing', 'audit', 'barcode']) {
     const tarjeta = await leerTarjeta(page, id);
     await page.evaluate(x => window.showTab(x, null), id);
     await page.waitForTimeout(250);
@@ -141,6 +141,15 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
     exigirMolde(c, id);
     exigirIcono(c, id, tarjeta);
   }
+
+  // La copia de seguridad conserva su cabecera dentro de Configuración;
+  // el diálogo proporciona la salida en lugar de otro botón de volver.
+  await page.evaluate(() => window.showTab('backup', null));
+  await expect(page.locator('#cfgTab-backup')).toHaveAttribute('aria-selected', 'true');
+  exigirMolde(await leerCabecera(page, '#backup'), 'backup');
+  await expect(page.locator('#backup .gamaStdBack')).toBeHidden();
+  await page.locator('#arcSettingsDialog [data-side-close]').click();
+  await expect(page.locator('#arcSettingsDialog')).toHaveCount(0);
 
   // Y el botón vuelve de verdad: era justo lo que fallaba en las pantallas que
   // dejaban al usuario encerrado.

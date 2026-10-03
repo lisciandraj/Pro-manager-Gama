@@ -16,6 +16,8 @@ export function onEnter(id,fn){const key=canonical(id);if(!hooks.has(key))hooks.
 export function show(id,button){
   id=canonical(id);
   if(!allowed(id))return refuse(id);
+  const settingsTab=registry.find(m=>m.id===id)?.settingsTab;
+  if(settingsTab)return window.GamaSettings?.open(settingsTab);
   if(id==='customer-requests'){window.GamaQuotes?.openRequests();return false;}
   unmount();
   if(current!==id)emit('arc:route-leave',{id:current});

@@ -26,6 +26,7 @@ async function verifyFile(){if(busy||!admin())return;const file=$('recoveryFile'
  const paths=new Set();for(const file of data.files){const path=file.bucket+'/'+file.path;if(paths.has(path)||!data.storage_objects.some(o=>o.bucket===file.bucket&&o.path===file.path))throw Error('FILE_MANIFEST_MISMATCH');paths.add(path);const bytes=Uint8Array.from(atob(file.base64),c=>c.charCodeAt(0));if(bytes.length!==file.bytes||await hash(bytes)!==file.sha256)throw Error('FILE_HASH_MISMATCH')}
  status(t('Integridad verificada. Fecha: ','Intégrité vérifiée. Date : ','Integrity verified. Date: ')+new Date(data.created_at).toLocaleString());
  }catch(e){status(window.ArcErrors.message(e))}finally{busy=false}}
+window.GamaRecovery={mount};
 window.exportJSONBackup=exportAll;window.restoreJSON=()=>{window.ArcRouter.open('backup');status(t('Selecciona un export para verificarlo.','Sélectionnez un export à vérifier.','Select an export to verify.'))};
 window.ArcRouter.onEnter('backup',mount);window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;$('recoveryStatus')?.replaceChildren()});
 })();

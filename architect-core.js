@@ -1075,13 +1075,14 @@
     },
     {
       "id": "reports",
+      "settingsTab": "reports",
       "label": "Importar datos",
       "icon": "spreadsheet",
       "group": "Administración",
       "description": "Importar datos desde Excel",
       "accent": "blue",
       "order": 100,
-      "menu": true,
+      "menu": false,
       "configLabel": "Importar datos",
       "roles": [
         "admin",
@@ -1139,13 +1140,14 @@
     },
     {
       "id": "access-settings",
+      "settingsTab": "access-settings",
       "label": "Parámetros de acceso",
       "icon": "lock",
       "group": "Administración",
       "description": "Permisos por perfil",
       "accent": "orange",
       "order": 100,
-      "menu": true,
+      "menu": false,
       "configLabel": "Parámetros de acceso",
       "locked": true,
       "roles": [
@@ -1173,13 +1175,14 @@
     },
     {
       "id": "backup",
+      "settingsTab": "backup",
       "label": "Copias de seguridad",
       "icon": "cloud",
       "group": "Administración",
       "description": "Copias de seguridad de tus datos",
       "accent": "orange",
       "order": 100,
-      "menu": true,
+      "menu": false,
       "configLabel": "Copias de seguridad",
       "roles": [
         "admin"
@@ -1210,27 +1213,6 @@
   const aliases = { menu: "mainmenu", inicio: "mainmenu", movements: "movement", operations: "dashboard", "order-preparation": "tms", clients: "contacts", suppliers: "contacts", stock: "warehouses" };
   const roleAliases = { administrador: "admin", comercial: "commercial", almacenero: "magasinier", rrhh: "rh" };
   const roles = Object.fromEntries([["admin", "Administrador"], ["commercial", "Comercial"], ["magasinier", "Almacenero"], ["rh", "Responsable RH"]].map(([id, label]) => [id, { label, perms: id === "admin" ? "*" : definitions.filter((m) => m.roles.includes(id)).map((m) => m.id).concat(id === "commercial" ? ["customer-requests"] : []) }]));
-  function ensureExcelModule() {
-    var _a;
-    let section = document.getElementById("reports");
-    if (!section) {
-      section = document.createElement("section");
-      section.id = "reports";
-      (document.querySelector(".wrap") || document.body).appendChild(section);
-    }
-    section.innerHTML = '<div class="wrap"><div id="excel-import-module" data-module="excel"></div></div>';
-    if (!document.getElementById("gamaExcelLoader")) {
-      const s = document.createElement("script");
-      s.id = "gamaExcelLoader";
-      s.src = ((_a = window.ArcAssets) == null ? void 0 : _a["gama-excel-import-v1.js"]) || "gama-excel-import-v1.js";
-      s.onload = () => window.GamaExcelImport && window.GamaExcelImport.render();
-      s.onerror = () => {
-        const h = document.getElementById("excel-import-module");
-        if (h) h.innerHTML = '<div class="card"><h2 data-gi=63e31998d5d9>Importar datos</h2><p class="low" data-gi=2f9af44c4156>No se pudo cargar el módulo Excel. Recarga la aplicación.</p></div>';
-      };
-      document.head.appendChild(s);
-    } else if (window.GamaExcelImport) window.GamaExcelImport.render();
-  }
   const tabsOf = (id) => definitions.filter((m) => m.tabOf === id).map((m) => m.id);
   const canOpen = (id) => {
     var _a;
@@ -1314,8 +1296,11 @@
     },
     reports: () => {
       var _a;
-      ensureExcelModule();
-      (_a = window.showTab) == null ? void 0 : _a.call(window, "reports", null);
+      return (_a = window.GamaSettings) == null ? void 0 : _a.open("reports");
+    },
+    backup: () => {
+      var _a;
+      return (_a = window.GamaSettings) == null ? void 0 : _a.open("backup");
     },
     gamaPurchasesV14: () => {
       var _a;
@@ -1394,11 +1379,13 @@
     };
   }
   function show(id, button2) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g;
     id = canonical(id);
     if (!allowed(id)) return refuse(id);
+    const settingsTab = (_a = registry.find((m) => m.id === id)) == null ? void 0 : _a.settingsTab;
+    if (settingsTab) return (_b = window.GamaSettings) == null ? void 0 : _b.open(settingsTab);
     if (id === "customer-requests") {
-      (_a = window.GamaQuotes) == null ? void 0 : _a.openRequests();
+      (_c = window.GamaQuotes) == null ? void 0 : _c.openRequests();
       return false;
     }
     unmount();
@@ -1418,9 +1405,9 @@
     });
     document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab === button2));
     current = id;
-    (_b = window.renderForRoute) == null ? void 0 : _b.call(window, id);
-    (_c = window.ArcStandardHeaders) == null ? void 0 : _c.call(window, target);
-    (_e = (_d = window.ArcUI) == null ? void 0 : _d.headerIcon) == null ? void 0 : _e.call(_d, target, id);
+    (_d = window.renderForRoute) == null ? void 0 : _d.call(window, id);
+    (_e = window.ArcStandardHeaders) == null ? void 0 : _e.call(window, target);
+    (_g = (_f = window.ArcUI) == null ? void 0 : _f.headerIcon) == null ? void 0 : _g.call(_f, target, id);
     mount(target);
     emit("arc:route-change", { id });
     window.scrollTo({ top: 0, behavior: "smooth" });

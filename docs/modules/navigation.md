@@ -22,9 +22,8 @@
 | Ressources humaines | Employés, organigramme, absences, documents et paie |
 | Knowledge | Articles, sous-articles et recherche |
 | Documents | Catégories, employés, sources liées, versions et accès |
-| Site web | Configuration de la vitrine de test et échanges autorisés avec l’ERP |
+| Site web | Site public : publication, catalogue et présentation ; demandes reçues dans Ventes |
 | Administration | Configuration entreprise, utilisateurs, accès, audit, import et sauvegardes |
-| Portail client | Catalogue, demandes et livraisons autorisées au client connecté |
 
 ## Compatibilité
 
@@ -40,3 +39,9 @@ Le motif utilise une liste native compacte. Choisir un produit limite les emplac
 ## Références
 
 Les processus et leurs étapes conservent une identité commune, avec préfixes paramétrables et huit chiffres. Les numéros fiscaux et références propres des documents restent séparés. Voir [références](document-references.md) et [retours](returns.md).
+
+## Accès clients retirés
+
+L’icône Ventes utilise une progression avec une flèche, distincte du document fiscal de Facturation SRI.
+
+Le type d’accès Client et les modules Catalogue client et Mes livraisons sont retirés de Coco ERP. Les commandes publiques passent par le site internet, puis Ventes → Demandes clients. Les fiches commerciales, commandes, livraisons et documents existants restent gérés par les équipes internes. Les comptes de connexion de type client sont désactivés et ne peuvent plus être approuvés ni invités. Leurs identifiants historiques sont conservés pour les liens d’audit. Les anciens endpoints du portail sont fermés.

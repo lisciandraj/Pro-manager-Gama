@@ -15,24 +15,21 @@ async function boot(page,role='admin'){
  }}}});await page.waitForTimeout(900);
 }
 async function openQuote(page){await page.locator('.gamaF2Card').filter({has:page.getByText('Ventas',{exact:true})}).click();await page.locator('[data-gq-open]').click()}
-test('client can review and accept only after checking the agreement, with current revision',async({page})=>{
- await boot(page,'client');await openQuote(page);await expect(page.locator('#gqEdit')).toHaveCount(0);await page.locator('#gqAccept').click();await expect(page.locator('#gqMessage')).toContainText('Confirma');expect(await page.evaluate(()=>__quoteCalls)).toHaveLength(0);
- await page.locator('#gqAgree').check();await page.locator('#gqAccept').click();await expect(page.locator('#gqReservations')).toContainText('Pendiente de reposición');expect(await page.evaluate(()=>__quoteCalls[0].p_data)).toEqual({id:'q1',revision:3});await page.screenshot({path:'test-results/client-accepted.png',fullPage:true});
+test('retired customer access cannot open quotes or deliveries',async({page})=>{
+ await boot(page,'client');await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1');await GamaQuotes.deliveries()});
+ await expect(page.locator('#gqAccept')).toHaveCount(0);expect(await page.evaluate(()=>__quoteCalls)).toHaveLength(0);expect(await page.evaluate(()=>__deliveryCalls)).toHaveLength(0);
 });
 test('commercial acceptance records external channel and reference',async({page})=>{
  await boot(page,'commercial');await openQuote(page);await page.locator('#gqReference').fill('Correo de María del 12/09/2026');await page.locator('#gqAccept').click();const calls=await page.evaluate(()=>__quoteCalls);expect(calls[0].p_data.channel).toBe('email');expect(calls[0].p_data.reference).toContain('María');
 });
 test('stale acceptance keeps quote visible and displays refresh explanation',async({page})=>{
- await boot(page,'client');await openQuote(page);await page.evaluate(()=>window.__quoteError='QUOTE_CHANGED');await page.locator('#gqAgree').check();await page.locator('#gqAccept').click();await expect(page.locator('#gqMessage')).toContainText('Actualiza');await expect(page.locator('#gqAccept')).toBeEnabled();
+ await boot(page,'commercial');await openQuote(page);await page.locator('#gqReference').fill('Written agreement');await page.evaluate(()=>window.__quoteError='QUOTE_CHANGED');await page.locator('#gqAccept').click();await expect(page.locator('#gqMessage')).toContainText('Actualiza');await expect(page.locator('#gqAccept')).toBeEnabled();
 });
 test('draft editor replaces product and applies promotion while keeping all fields editable',async({page})=>{
  await boot(page);await page.evaluate(()=>window.__DB.invoices[0].quote_state='draft');await openQuote(page);await page.locator('#gqEdit').click();await page.locator('[data-replace]').click();await page.locator('#gqPickProduct').selectOption('p2');await page.locator('#gqPickAdd').click();await expect(page.locator('.gqProductPicker')).toHaveCount(0);await page.locator('[data-k="description"]').fill('Oferta guayusa');await page.locator('[data-k="quantity"]').fill('4');await page.locator('[data-k="discount"]').fill('25');await page.locator('#gqd_terms').fill('Oferta septiembre');await page.locator('#gqd_delivery_address').fill('Quito norte');await expect(page.locator('#gqTotals')).toContainText('69');await page.locator('#gqSave').click();const calls=await page.evaluate(()=>__quoteCalls);expect(calls[0].p_data.lines[0]).toEqual({product_id:'p2',description:'Oferta guayusa',quantity:4,list_price:20,discount:25,tax_rate:15});expect(calls[0].p_data.details.terms).toBe('Oferta septiembre');expect(calls[0].p_data.details.delivery_address).toBe('Quito norte');
 });
 test('failed save preserves editor and idempotency key for retry',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaQuotes.open());await page.locator('#gqNew').click();await page.locator('#gqCustomer').selectOption('c1');await page.locator('#gqAdd').click();await page.locator('#gqPickProduct').selectOption('p1');await page.locator('#gqPickAdd').click();await expect(page.locator('.gqProductPicker')).toHaveCount(0);await page.evaluate(()=>window.__quoteError='network unavailable');await page.locator('#gqSave').click();await expect(page.locator('#gqMessage')).toContainText('network unavailable');await page.locator('#gqSave').click();const calls=await page.evaluate(()=>__quoteCalls);expect(calls).toHaveLength(2);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);await expect(page.locator('[data-k="description"]')).toHaveValue('Café');
-});
-test('delivery list requests metadata, detail fetches proof on demand',async({page})=>{
- await boot(page,'client');await page.locator('.gamaF2Card').filter({has:page.getByText('Mis entregas',{exact:true})}).click();await expect(page.locator('#client-deliveries-main')).toContainText('EXP-0001');expect(await page.evaluate(()=>__deliveryCalls[0])).toEqual({p_id:null,p_offset:0});await page.locator('[data-delivery]').click();await expect(page.locator('.gqProof img')).toHaveCount(1);await expect(page.getByRole('link',{name:'Descargar fotografía'})).toBeVisible();expect(await page.evaluate(()=>__deliveryCalls[1])).toEqual({p_id:'d1',p_offset:0});
 });
 test('mobile quote editor and client document fit viewport',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>window.__DB.invoices[0].quote_state='draft');await openQuote(page);await page.locator('#gqEdit').click();await expect(page.locator('#gqSave')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);await page.screenshot({path:'test-results/quote-editor-mobile.png',fullPage:true});

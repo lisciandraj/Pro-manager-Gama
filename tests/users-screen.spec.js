@@ -54,7 +54,7 @@ test.describe('Usuarios — correo asociado', () => {
     await expect(row(page, 'Teddy Boy')).toContainText('teddy@example.com');
 
     // No row falls back to the placeholder any more.
-    await expect(page.locator('#cuRows')).not.toContainText('—');
+    expect((await page.locator('#cuRows tr td:nth-child(2)').allTextContents()).every(text=>text!=='—')).toBe(true);
   });
 
   test('the email sits alongside the active / pending state', async ({ page }) => {
@@ -64,7 +64,8 @@ test.describe('Usuarios — correo asociado', () => {
     await expect(row(page, 'Teddy Boy')).toContainText('Pendiente');
     // A deactivated account is still identifiable by its address.
     await expect(row(page, 'Teddy Boy')).toContainText('teddy@example.com');
-    await expect(page.locator('#cuPending')).toContainText('1 cuenta');
+    await expect(page.locator('#cuPending')).toBeHidden();
+    await expect(row(page,'Teddy Boy').locator('[data-cu-toggle]')).toHaveCount(0);
   });
 
   test('an account with no address yet degrades to a placeholder, not to blank', async ({ page }) => {
@@ -131,7 +132,7 @@ test.describe('Usuarios — colores y traducción', () => {
     await expect(row(page, 'Paula Martinez').locator('.cuState')).toHaveText('Actif');
     await expect(row(page, 'Teddy Boy').locator('.cuState')).toHaveText('En attente / désactivé');
     await expect(page.locator('#cuCount')).toHaveText('5 utilisateurs');
-    await expect(page.locator('#cuPending')).toContainText('1 compte(s) en attente d’approbation');
+    await expect(page.locator('#cuPending')).toBeHidden();
     await expect(page.locator('#cuStatus')).not.toContainText('m.');
     await expect(row(page, 'Carlos Andrade')).not.toContainText('p. m.');
     await page.evaluate(() => window.GamaI18n.setLanguage('en'));

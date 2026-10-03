@@ -37,7 +37,7 @@ test('each user type has its default access, whatever was saved per profile befo
  const defaults={
   magasinier:{yes:['warehouses','tms','barcode'],no:['crm','quotes','users']},
   rh:{yes:['hr','settings'],no:['products','crm','dashboard']},
-  client:{yes:['client-catalog'],no:['crm','products','hr']},
+  client:{yes:[],no:['client-catalog','client-deliveries','quotes','crm','products','hr']},
   admin:{yes:['crm','hr','users','access-settings'],no:[]},
  };
  for(const [role,{yes,no}] of Object.entries(defaults)){
@@ -62,7 +62,7 @@ test('a module switched off for the company disappears for every user type',asyn
 });
 
 // En Usuarios se elige el tipo de usuario: los cinco de base y nada más.
-test('users are given one of the five user types, the HR type opening only HR and settings',async({page})=>{
+test('users are given one of the four user types, the HR type opening only HR and settings',async({page})=>{
  await boot(page,{access:[
   ...['administrador','comercial','almacenero','rrhh','cliente'].map(role=>({role,base_role:role,disabled_modules:[],version:0})),
   {role:'custom_0001',display_name:'Perfil antiguo',base_role:'comercial',is_custom:true,disabled_modules:['crm'],version:1}]});
@@ -73,7 +73,7 @@ test('users are given one of the five user types, the HR type opening only HR an
  }}}});
  await page.addScriptTag({url:'/gama-cloud-users.js'});await page.evaluate(()=>ArcRouter.open('users'));
  const select=page.locator('[data-cu-role="staff-user"]');
- await expect(select.locator('option')).toHaveText(['Administrador','Comercial','Almacenero','Responsable RH','Cliente']);
+ await expect(select.locator('option')).toHaveText(['Administrador','Comercial','Almacenero','Responsable RH']);
  await select.selectOption('rh');
  await expect.poll(()=>page.evaluate(()=>__DB.profiles[0].role)).toBe('rrhh');
  await expect(page.locator('[data-cu-role="staff-user"] option:checked')).toHaveText('Responsable RH');

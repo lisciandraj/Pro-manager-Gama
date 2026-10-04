@@ -47,7 +47,8 @@ function indexData(){
  quantsByProduct=new Map();for(const q of quants){if(!quantsByProduct.has(q.product_id))quantsByProduct.set(q.product_id,[]);quantsByProduct.get(q.product_id).push(q)}
  incomingByProduct=new Map();for(const x of entrante||[]){if(!incomingByProduct.has(x.product_id))incomingByProduct.set(x.product_id,[]);incomingByProduct.get(x.product_id).push(x)}
 }
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate();pestana='existencias';if($('warehouses'))pintar()});
+window.addEventListener('gama:profile-ready',()=>{if(disponibleV2===null&&$('warehouses')?.classList.contains('active')&&window.gamaAccessAllowed?.('warehouses'))abrir()});
 
 /* ---------- datos ---------- */
 

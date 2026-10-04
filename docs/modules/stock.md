@@ -2,7 +2,7 @@
 
 Le module public reste `warehouses`, avec les points d’entrée compatibles `GamaOpenWarehouses` et `GamaInventoryV2`. `gama-inventory-v2.js` est une intégration légère ; `gama-stock-workspace.js` est téléchargé à la première ouverture. Les nouvelles vues chargent ensuite `gama-stock-operations.js`.
 
-Les existences lisent uniquement les produits sans photos, les entrepôts, les emplacements et les quantités avant leur premier affichage. Le snapshot serveur enrichit ensuite les quantités disponibles et entrantes. Les règles de réapprovisionnement, fournisseurs, inventaires et étagères sont chargés lorsque leur onglet est ouvert. Les lectures simultanées sont partagées ; un échec peut être réessayé. Les résultats d’une ancienne session ne sont pas réutilisés. Les quantités affichent jusqu’à trois décimales.
+Les existences lisent uniquement les produits sans photos, les entrepôts, les emplacements et les quantités avant leur premier affichage. Le snapshot serveur enrichit ensuite les quantités disponibles et entrantes. Les règles de réapprovisionnement, fournisseurs, inventaires et étagères sont chargés lorsque leur onglet est ouvert. Les lectures simultanées sont partagées ; un échec peut être réessayé. Le contenu de l’ancienne session est effacé immédiatement ; ses réponses tardives ne sont pas réutilisées. Les quantités affichent jusqu’à trois décimales.
 
 ## Por tratar
 

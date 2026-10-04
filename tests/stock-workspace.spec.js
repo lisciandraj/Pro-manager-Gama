@@ -50,3 +50,10 @@ test('failed insight loads can be retried and late responses cannot replace the 
  await page.evaluate(()=>{const db=GamaCloud.db;GamaCloud.db=async()=>{const client=await db(),rpc=client.rpc;client.rpc=(name,data)=>name==='gama_stock_insights'&&data.p_view==='rotacion'?new Promise(resolve=>window.__releaseStockTab=async()=>resolve(await rpc(name,data))):rpc(name,data);return client}});
  await page.click('[data-iv-tab=rotacion]');await page.waitForFunction(()=>window.__releaseStockTab);await page.click('[data-iv-tab=existencias]');await expect(page.locator('#ivTabla')).toBeVisible();await page.evaluate(()=>window.__releaseStockTab());await expect(page.locator('#ivTabla')).toBeVisible();await expect(page.locator('#ivsDormantDays')).toHaveCount(0);
 });
+
+test('changing accounts clears protected Stock content before the next read',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaOpenWarehouses());await page.click('[data-iv-tab=reabastecimiento]');await expect(page.locator('#ivCuerpo')).toContainText('Proveedor A');
+ await page.evaluate(()=>{window.__DB._profile={...window.__DB._profile,id:'warehouse-test-user',role:'almacenero'};localStorage.setItem('gama_session_v1',JSON.stringify({userId:'warehouse-test-user',role:'magasinier',name:'Warehouse'}));window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN',session:{user:{id:'warehouse-test-user'}}}}))});
+ await expect(page.locator('#warehouses')).not.toContainText('Proveedor A');await expect(page.locator('#ivsCreate')).toHaveCount(0);await page.waitForFunction(()=>GamaRoleAccess.isReady());
+ await page.evaluate(()=>GamaOpenWarehouses());await page.click('[data-iv-tab=reabastecimiento]');await expect(page.locator('#ivCuerpo')).toContainText('Tu perfil no tiene acceso a los datos de Compras');await expect(page.locator('#ivCuerpo')).not.toContainText('Proveedor A');
+});

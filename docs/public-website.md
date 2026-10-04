@@ -2,6 +2,16 @@
 
 Le site public est construit séparément de l’ERP. Tous les produits actifs sont sélectionnés par défaut. Il présente uniquement les produits actifs sélectionnés dans **Site web → Site public → Produits publiés**. Le site de test historique reste réservé aux administrateurs et conserve ses propres réglages et demandes.
 
+## Présentation du catalogue
+
+Depuis le 4 octobre 2026, l’accueil commence par les catégories : une tuile blanche avec photo au-dessus du titre, bordure fine et nombre de produits. Les trois colonnes sur téléphone et six sur grand écran reprennent le modèle de navigation fourni, avec le logo GAMA, le bleu pétrole et les actions orange. Les catégories, photos et libellés viennent des produits publiés ; aucune gamme fictive n’est ajoutée.
+
+La recherche est permanente dans l’en-tête. La saisie et la touche Entrée filtrent le catalogue et amènent aux résultats. Le menu **Categorías** ouvre un panneau accessible avec les catégories réelles et les liens configurés. La sélection d’une catégorie ferme le panneau et met à jour les filtres ; Échap ferme le menu et rend le défilement à la page.
+
+Le catalogue affiche par défaut une liste structurée : photo, nom, référence/marque, description, lien vers les spécifications, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer en grille sans perdre les filtres. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum deux autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
+
+Les contrôles de navigation, de quantité et de disposition se trouvent dans `tests/storefront.spec.js`, sur 320, 390 et 1440 pixels. Les fixtures n’écrivent pas dans la production.
+
 ## Paramétrage dans Coco
 
 1. Ouvrir **Site web**, puis **Site public** avec un compte administrateur autorisé.

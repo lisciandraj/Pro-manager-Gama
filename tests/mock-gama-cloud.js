@@ -723,6 +723,31 @@
           if(d.complete)Object.assign(delivery,{status:'Entregada',actual_arrival:d.captured_at,delivered_at:d.captured_at});
           return {data:{delivery_id:delivery.id,complete:d.complete}};
         }
+        if(fn==='gama_tms_plan_day'){
+          if(window.__DB.__planError)return {error:{message:window.__DB.__planError}};
+          window.__DB.__planCalls=(window.__DB.__planCalls||0)+1;
+          const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+          const ds=window.__DB.tms_deliveries||[],rs=window.__DB.tms_routes||[],shipments=window.__DB.sales_deliveries||[];
+          const ids=ds.filter(d=>d.delivery_date===day&&shipments.some(s=>s.tms_delivery_id===d.id)).map(d=>d.id);
+          const locked=rs.filter(r=>['En ruta','En tránsito','Terminada','Cancelada'].includes(r.status)||ds.some(d=>d.route_id===r.id&&(['En carga','En tránsito','En ruta','Entregada'].includes(d.status)||shipments.some(s=>s.tms_delivery_id===d.id&&s.departed_at))));
+          const eligible=ds.filter(d=>ids.includes(d.id)&&['Pendiente de preparación','Planificada','Lista para envío','Excepción'].includes(d.status)&&!locked.some(r=>r.id===d.route_id));
+          const settings=(window.__DB.tms_settings||[])[0]||{};
+          const point=d=>d.lat!=null&&d.lng!=null&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
+          const fleet=window.__DB.fleet_drivers||[],vehicles=window.__DB.fleet_vehicles||[],assignments=window.__DB.fleet_assignments||[];
+          const drivers=fleet.filter(d=>d.active!==false&&!locked.some(r=>r.driver_id===d.id)&&!(window.__DB.hr_absences||[]).some(a=>a.employee_id===d.employee_id&&a.status==='aprobada'&&a.start_date<=day&&a.end_date>=day)).map(d=>({d,v:vehicles.find(v=>v.id===assignments.find(a=>a.driver_id===d.id&&!a.ended_on)?.vehicle_id)})).filter(x=>x.v?.status==='in_service');
+          const fingerprint=JSON.stringify([eligible.map(d=>[d.id,d.lat,d.lng,d.weight,d.volume,d.priority]),drivers,settings]);
+          if(window.__DB.__planHash===fingerprint)return {data:{...window.__DB.__planSummary,changed:false,order_delivery_ids:ids}};
+          window.__DB.tms_routes=rs.filter(r=>locked.includes(r)||r.route_date!==day);
+          eligible.forEach(d=>{d.route_id=null;d.driver_id=null});let remaining=eligible.filter(point),planned=0;
+          for(const {d,v} of drivers){let weight=0,volume=0;const chosen=[];if(!v.payload_kg)continue;
+           remaining.forEach(s=>{if(weight+Number(s.weight||0)<=v.payload_kg&&(!v.cargo_volume_m3||volume+Number(s.volume||0)<=v.cargo_volume_m3)){chosen.push(s);weight+=Number(s.weight||0);volume+=Number(s.volume||0)}});
+           if(!chosen.length)continue;const route={id:nextId('tms_routes'),route_date:day,driver_id:d.id,driver_name:d.name,vehicle_id:v.id,vehicle:v.plate,stops:chosen.map(s=>s.id),weight,volume,distance:5,status:'Planificada'};
+           if(settings.depot_lat!=null){route.stops.unshift('__depot');if(settings.return_depot!==false)route.stops.push('__depot')}
+           window.__DB.tms_routes.push(route);chosen.forEach(s=>{s.route_id=route.id;s.driver_id=d.id;if(s.status!=='Lista para envío')s.status='Planificada'});planned+=chosen.length;remaining=remaining.filter(s=>!chosen.includes(s));
+          }
+          const missing=eligible.filter(d=>!point(d)).map(d=>d.id),summary={today:day,total:eligible.length,planned,changed:true,without_coordinates:missing.length,without_capacity:remaining.length,order_delivery_ids:ids,geocode_delivery_ids:missing,depot_missing:settings.depot_lat==null};
+          window.__DB.__planHash=fingerprint;window.__DB.__planSummary=summary;return {data:summary};
+        }
         if(fn==='gama_tms_resources'){
           const role=(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)||'';
           if(!['admin','administrador','magasinier','almacenero'].includes(role))

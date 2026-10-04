@@ -42,3 +42,38 @@ test('warehouse profile sees operational data and no finance or HR aggregates',a
 test('access revocation clears a displayed snapshot and rejects a late response',async({page})=>{
  await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.evaluate(()=>{__DASH.delay=400;ArchitectDashboard.refresh(true)});await page.evaluate(()=>{const original=gamaAccessAllowed;window.gamaAccessAllowed=id=>id!=='dashboard'&&original(id);dispatchEvent(new CustomEvent('gama:modules-change'))});await page.waitForTimeout(500);await expect(page.locator('#ad-content')).toBeEmpty();
 });
+
+test('activity filter scopes indicators, priorities, and CSV to authorized data',async({page})=>{
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.selectOption('#ad-activity','tms');await expect(page.locator('.adModule')).toHaveCount(1);await expect(page.locator('.adAnalysis')).toHaveCount(0);await expect(page.locator('[data-ad-prio]')).toHaveCount(6);
+ const download=page.waitForEvent('download');await page.click('#ad-export');const file=await download,body=fs.readFileSync(await file.path(),'utf8');expect(body).toContain('Livraisons');expect(body).not.toContain('Facturé');expect(body).not.toContain('USD');
+ await page.click('#ad-reset');await expect(page.locator('.adModule')).toHaveCount(17);
+});
+test('favorites save custom dates and layout across reload and can be deleted',async({page})=>{
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await period(page,'2020-01-01','2020-01-31');await expect(page.locator('.adMeta')).toContainText('01/01/2020');
+ await page.selectOption('#ad-activity','payments');await page.click('#ad-customize');await page.locator('[data-ad-panel=priorities]').uncheck();await page.locator('dialog button[type=submit]').click();await expect(page.locator('.adPriorities')).toBeHidden();
+ await page.click('#ad-favorite-save');await page.fill('#ad-favorite-name','Ventes janvier');await page.locator('dialog button[type=submit]').click();await expect(page.locator('#ad-favorite option')).toHaveCount(2);
+ await page.click('#ad-reset');await expect(page.locator('.adPriorities')).toBeVisible();await page.selectOption('#ad-favorite',{label:'Ventes janvier'});await page.click('#ad-favorite-apply');await expect(page.locator('#ad-from')).toHaveValue('2020-01-01');await expect(page.locator('.adPriorities')).toBeHidden();
+ await page.reload();await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#ad-favorite option')).toHaveCount(2);await expect(page.locator('#ad-activity')).toHaveValue('payments');
+ await page.selectOption('#ad-favorite',{label:'Ventes janvier'});await page.click('#ad-favorite-delete');await expect(page.locator('#ad-favorite option')).toHaveCount(1);
+});
+test('chart switches to curves, exports exact values, expands, and selects a period by keyboard',async({page})=>{
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.selectOption('#ad-chart-type','line');await expect(page.locator('.adChart polyline')).toHaveCount(2);
+ const download=page.waitForEvent('download');await page.click('#ad-chart-export');const file=await download,body=fs.readFileSync(await file.path(),'utf8');expect(body).toContain('27600');expect(body).toContain('20400');expect(body).toContain('USD');
+ await page.click('#ad-chart-expand');await expect(page.locator('.adChartDialog .adChart')).toBeVisible();expect(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length-new Set(ids).size})).toBe(0);await page.locator('.adChartDialog [data-arc-dialog-close]').click();
+ await page.locator('[data-ad-bucket]').first().press('Enter');await expect(page.locator('#ad-preset')).toHaveValue('custom');
+});
+test('relative date presets calculate company today, week and quarter',async({page})=>{
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();const day=await page.evaluate(()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
+ await page.selectOption('#ad-preset','today');await expect(page.locator('#ad-from')).toHaveValue(day);await expect(page.locator('#ad-to')).toHaveValue(day);
+ await page.selectOption('#ad-preset','quarter');await expect(page.locator('#ad-from')).toHaveValue(day.slice(0,4)+'-'+String(Math.floor((Number(day.slice(5,7))-1)/3)*3+1).padStart(2,'0')+'-01');
+ await page.selectOption('#ad-preset','90');const expected=new Date(new Date(day+'T12:00:00Z').getTime()-89*86400000).toISOString().slice(0,10);await expect(page.locator('#ad-from')).toHaveValue(expected);
+});
+test('warehouse export and customization never reveal finance or HR',async({page})=>{
+ await boot(page,'magasinier');await expect(page.locator('.adModule')).not.toHaveCount(0);await page.click('#ad-customize');await expect(page.locator('[data-ad-preference-source=payments],[data-ad-preference-source=hr]')).toHaveCount(0);await page.locator('[data-arc-dialog-close]').click();
+ const download=page.waitForEvent('download');await page.click('#ad-export');const file=await download,body=fs.readFileSync(await file.path(),'utf8');expect(body).not.toContain('Facturé');expect(body).not.toContain('RH');
+});
+test('favorite metadata is scoped to a verified account and contains no business values',async({page})=>{
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.click('#ad-favorite-save');await page.fill('#ad-favorite-name','Personnel');await page.locator('dialog button[type=submit]').click();
+ const saved=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('coco_dashboard_views_v1:')).map(k=>[k,localStorage.getItem(k)]));expect(saved).toHaveLength(1);expect(saved[0][1]).not.toContain('24000');expect(saved[0][1]).not.toContain('Almacenes');
+ await page.evaluate(()=>{__DB._profile.id='another-account';dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN'}}))});await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('.adAnalysis')).toBeVisible();await expect(page.locator('#ad-favorite option')).toHaveCount(1);
+});

@@ -9,14 +9,11 @@ const HISTORY_LIMIT=200, ARCHIVE_LIMIT=200, PHOTO_MAX_PX=1280, PHOTO_QUALITY=0.7
 const C=()=>window.GamaCloud;
 const readLocal=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}};
 const esc=window.ArcUI.esc;
-const today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:window.GamaCompany?.get?.()?.timezone||'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),now=()=>new Date().toISOString();
 const T=v=>window.GamaI18n?.t?.(v)||v;
 let db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[],customers:[]};
 let proofViewVersion=0;
 let proofArchiveId=null,proofCache={},loaded=false,currentTab='planning';
-// Pedidos que salen hoy: lo marcado o desmarcado a mano; el resto sigue su fecha prevista.
-const pick={on:new Set(),off:new Set()};
-
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
 /* Un recurso de reparto es un conductor de Flota con el vehículo que Flota le
    tiene asignado hoy. El TMS ya no guarda ni personas ni vehículos: los lee por
@@ -60,6 +57,7 @@ async function pendingDeliveries(api){
  }
 }
 async function fetchAll(){
+ const sessionVersion=authEpoch;
  const api=C();if(!api)return;
  const t=today();
  const [drv,rt,del,ev,st,pf,pending]=await Promise.all([
@@ -72,6 +70,8 @@ async function fetchAll(){
   api.list('tms_proofs',{select:'delivery_id,captured_at',order:'captured_at',ascending:false,limit:ARCHIVE_LIMIT}),
   pendingDeliveries(api),
  ]);
+ if(sessionVersion!==authEpoch)throw Error('Session changed');
+ for(const result of [rt,del,st])if(result.error)throw result.error;
  db.drivers=(drv.data||[]).map(drvFrom);
  db.driversError=drv.error?String(drv.error.message||drv.error):null;
  db.routes=(rt.data||[]).map(rtFrom);
@@ -118,44 +118,7 @@ async function ensureProof(id){
 }
 
 /* ---- migración única desde localStorage ---- */
-async function migrateLocalOnce(){
- if(localStorage.getItem(MIGRATED_KEY))return;
- const old=readLocal(LOCAL_KEY,null);
- const api=C();
- if(!old||!api){localStorage.setItem(MIGRATED_KEY,'1');return}
- const hasData=(old.drivers||[]).length||(old.deliveries||[]).length||(old.routes||[]).length;
- if(!hasData){localStorage.setItem(MIGRATED_KEY,'1');return}
- // No duplicar si otro navegador ya subió los datos. La comprobación mira
- // entregas y eventos: son lo que sólo puede venir de este histórico.
- const [exDel,exEv]=await Promise.all([api.list('tms_deliveries',{limit:1}),api.list('tms_events',{limit:1})]);
- if((exDel.data||[]).length||(exEv.data||[]).length){
-  localStorage.setItem(MIGRATED_KEY,'1');
-  // Nunca se borra gama-tms-v1: los datos siguen en este navegador.
-  alert('El transporte ya tiene datos en la nube, subidos desde otro equipo.\n\nEl histórico guardado en este navegador no se ha importado para no duplicarlo. Sigue disponible aquí; contacta con el administrador si hay que recuperarlo.');
-  return;
- }
- /* Los conductores de aquel navegador no se suben: hoy las personas viven en
-    RRHH y los vehículos en Flota, y un registro paralelo es justo lo que este
-    cambio ha venido a quitar. Las entregas y las rutas sí se conservan, sin
-    conductor asignado; se les vuelve a asignar desde la planificación. */
- const drvMap={},delMap={};
- for(const d of old.deliveries||[]){
-  const r=await api.insert('tms_deliveries',{customer:d.customer||'—',address:d.address||'—',delivery_date:d.date||today(),time_window:d.timeWindow||null,priority:d.priority||'Normal',weight:Number(d.weight||0),volume:Number(d.volume||0),status:d.status||'Pendiente de preparación',lat:d.lat??null,lng:d.lng??null,driver_id:drvMap[d.driverId]||null,actual_arrival:d.actualArrival||null,delivered_at:d.deliveredAt||null,notes:d.notes||null});
-  if(!r.data)continue;
-  delMap[d.id]=r.data.id;
-  if(d.proof&&(d.proof.photo||d.proof.signature))
-   await api.upsert('tms_proofs',{delivery_id:r.data.id,photo:d.proof.photo||null,signature:d.proof.signature||null,captured_at:d.deliveredAt||now()},{onConflict:'delivery_id'});
- }
- for(const r of old.routes||[]){
-  const created=await api.insert('tms_routes',{route_date:r.date||today(),driver_id:drvMap[r.driverId]||null,driver_name:r.driver||'',vehicle:r.vehicle||'',stops:(r.stops||[]).map(s=>s==='__depot'?'__depot':(delMap[s]||null)).filter(Boolean),distance:Number(r.distance||0),weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada'});
-  if(created.data)for(const sid of (r.stops||[]))if(delMap[sid])await api.update('tms_deliveries',delMap[sid],{route_id:created.data.id});
- }
- for(const h of (old.history||[]).slice().reverse())
-  await api.insert('tms_events',{delivery_id:delMap[h.deliveryId]||null,at:h.at||now(),type:h.type||'Evento',note:h.note||null,customer:h.customer||null});
- if(old.settings&&(old.settings.depot||old.settings.returnDepot!=null))
-  await api.upsert('tms_settings',{id:true,depot:old.settings.depot||null,return_depot:old.settings.returnDepot!==false,updated_at:now()},{onConflict:'id'});
- localStorage.setItem(MIGRATED_KEY,'1');
-}
+async function migrateLocalOnce(){if(localStorage.getItem(MIGRATED_KEY))return;const old=readLocal(LOCAL_KEY,null);localStorage.setItem(MIGRATED_KEY,'1');if(old?.deliveries?.length)alert(tr('preserved'))}
 async function ready(){
  if(loaded)return true;
  if(!C()){alert('El módulo de transporte necesita la conexión con la nube. Recarga la aplicación.');return false}
@@ -176,6 +139,7 @@ function section(){let x=document.getElementById('gama-tms-section');if(x)return
 function showSection(){const x=section();window.ArcRouter.show('gama-tms-section');return x}
 
 async function open(tab){
+ planningEpoch++;
  proofViewVersion++;
  styles();
  const x=showSection();
@@ -184,113 +148,120 @@ async function open(tab){
  GamaPage.reset('tmsDeliveries');GamaPage.reset('tmsHistory');
  window.ArcUI.render(x,'<div class="tms"><div class="tmsEmpty" data-gi=84b789d07900>Cargando datos de transporte…</div></div>');
  window.scrollTo({top:0,behavior:'smooth'});
- if(!await ready())return;
+ const openEpoch=planningEpoch;
+ if(!await ready()||openEpoch!==planningEpoch)return;
  if(tab==='proof'){const sel=defaultProofId();if(sel)await ensureProof(sel)}
  render(tab);
+ if(tab==='planning')await autoPlanning(true);
 }
 function defaultProofId(){
  const delivered=archiveList();
  return proofArchiveId&&delivered.some(d=>d.id===proofArchiveId)?proofArchiveId:(delivered[0]?.id||'');
 }
 function archiveList(){return db.archive.filter(d=>d.status==='Entregada').sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0))}
-function routeStops(r){return(r.stops||[]).map(id=>id==='__depot'?{id:'__depot',customer:'Depósito',address:db.settings?.depot||'Depósito',isDepot:true}:db.deliveries.find(d=>d.id===id)).filter(Boolean)}
+function routeStops(r){return(r.stops||[]).map(id=>id==='__depot'?{id:'__depot',customer:'Depósito',address:db.settings?.depot||'Depósito',isDepot:true,...(db.settings.depotPoint||{})}:db.deliveries.find(d=>d.id===id)).filter(Boolean)}
 function status(d){return d.status||'Pendiente de preparación'}
-function geoDist(a,b){if(a.lat==null||b.lat==null)return 999999;const R=6371,la=(b.lat-a.lat)*Math.PI/180,lo=(b.lng-a.lng)*Math.PI/180,x=Math.sin(la/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(lo/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
-async function geocode(d){if(d.lat!=null&&d.lng!=null)return true;const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),5000);try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(d.address),{headers:{Accept:'application/json'},signal:controller.signal}),a=await r.json();if(a&&a[0]){d.lat=+a[0].lat;d.lng=+a[0].lon;await C().update('tms_deliveries',d.id,{lat:d.lat,lng:d.lng});return true}}catch(e){}finally{clearTimeout(timeout)}return false}
-function routeFor(stops,driver){const depot=db.settings?.depotPoint||null;let cur=depot||stops[0],left=stops.slice(),out=[];let w=0,v=0;if(depot)out.push(depot);while(left.length){let best=-1,bd=Infinity;left.forEach((p,i)=>{if(w+Number(p.weight||0)>Number(driver.maxWeight||999999)||v+Number(p.volume||0)>Number(driver.maxVolume||999999))return;const dist=geoDist(cur,p),prio=p.priority==='Urgente'?3:p.priority==='Alta'?2:1,score=dist*10-prio*3;if(score<bd){bd=score;best=i}});if(best<0)break;const p=left.splice(best,1)[0];out.push(p);w+=Number(p.weight||0);v+=Number(p.volume||0);cur=p}if(db.settings?.returnDepot&&depot)out.push(depot);return{stops:out,remaining:left,weight:w,volume:v,distance:out.reduce((a,p,i)=>i&&out[i-1].lat!=null&&p.lat!=null?a+geoDist(out[i-1],p):a,0)}}
+/* Daily planning is one atomic, idempotent server operation. */
+const WORDS={
+ auto:['Planification automatique','Planificación automática','Automatic planning'],orders:['Les livraisons proviennent exclusivement des commandes.','Las entregas proceden exclusivamente de pedidos.','Deliveries come exclusively from orders.'],
+ map:['Carte des livraisons du jour','Mapa de entregas del día','Today’s delivery map'],all:['Toutes les tournées','Todas las rutas','All routes'],refresh:['Actualiser','Actualizar','Refresh'],working:['Planification en cours…','Planificando…','Planning…'],
+ missing:['Coordonnées manquantes','Coordenadas pendientes','Missing coordinates'],capacity:['Capacité ou conducteurs insuffisants','Capacidad o conductores insuficientes','Insufficient capacity or drivers'],fix:['Corriger les coordonnées','Corregir coordenadas','Correct coordinates'],
+ legacy:['Historique sans commande liée','Histórico sin pedido enlazado','History without a linked order'],depot:['Coordonnées du dépôt manquantes : départ depuis la première livraison.','Sin coordenadas del depósito: salida desde la primera entrega.','Depot coordinates missing: start at first delivery.'],
+ approx:['Ordre optimisé par proximité, priorité et capacité. Traits et distances à vol d’oiseau ; horaires à vérifier.','Orden por cercanía, prioridad y capacidad. Trazos y distancias en línea recta; verificar horarios.','Ordered by proximity, priority and capacity. Straight-line paths and distances; check time windows.'],
+ none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],tiles:['Fond de carte indisponible. Les positions restent visibles.','Mapa de fondo no disponible. Las posiciones siguen visibles.','Map background unavailable. Positions remain visible.'],
+ failed:['La planification a échoué. Réessayez.','La planificación falló. Reintenta.','Planning failed. Retry.'],invalid:['Coordonnées invalides.','Coordenadas inválidas.','Invalid coordinates.'],preserved:['L’historique local est conservé sur cet appareil et n’est pas importé sans commande liée.','El histórico local se conserva en este dispositivo y no se ha importado sin pedido enlazado.','Local history is retained on this device and is not imported without a linked order.'],
+ planned:['Livraisons planifiées','Entregas planificadas','Planned deliveries'],save:['Enregistrer','Guardar','Save'],cancel:['Annuler','Cancelar','Cancel'],latitude:['Latitude','Latitud','Latitude'],longitude:['Longitude','Longitud','Longitude']};
+const tr=k=>WORDS[k]?.[{fr:0,es:1,en:2}[window.GamaI18n?.language]??1]||k;
+const validPoint=d=>d?.lat!=null&&d?.lng!=null&&Number.isFinite(+d.lat)&&Number.isFinite(+d.lng)&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
+let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapZoom=0,mapObserver=null,authEpoch=0;
+const geoAttempts=new Set();let lastGeo=0;
+const planningActive=()=>currentTab==='planning'&&section().classList.contains('active')&&!!window.gamaAccessAllowed?.('tms');
+async function coordinates(address){
+ if(!address||geoAttempts.has(address))return null;
+ geoAttempts.add(address);
+ await new Promise(resolve=>setTimeout(resolve,Math.max(0,1100-(Date.now()-lastGeo))));lastGeo=Date.now();
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4000);
+ try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ec&q='+encodeURIComponent(address),{headers:{Accept:'application/json'},signal:controller.signal});if(!r.ok)return null;const results=await r.json(),p=results?.[0]?{lat:+results[0].lat,lng:+results[0].lon}:null;return validPoint(p)?p:null}catch(e){return null}finally{clearTimeout(timer)}
+}
+function markOrigins(){const ids=new Set(plan?.order_delivery_ids||[]);db.deliveries.forEach(d=>d.fromOrder=ids.has(d.id))}
+async function autoPlanning(force=false){
+ if(!planningActive()||planningJob||(!force&&Date.now()-lastPlanning<10000))return;
+ const epoch=planningEpoch;lastPlanning=Date.now();planError='';
+ const run=async()=>{
+  try{
+   await fetchAll();if(epoch!==planningEpoch||!planningActive())return;
+   const r=await window.ArcData.rawRpc('gama_tms_plan_day');if(r.error)throw r.error;plan=r.data;markOrigins();
+   if(epoch!==planningEpoch||!planningActive())return;
+   render('planning');let changed=false;
+   if(!validPoint(db.settings.depotPoint)&&db.settings.depot){const p=await coordinates(db.settings.depot);if(p&&epoch===planningEpoch&&planningActive()){const u=await C().upsert('tms_settings',{id:true,depot_lat:p.lat,depot_lng:p.lng},{onConflict:'id'});if(u.error)throw u.error;changed=true}}
+   for(const id of (plan.geocode_delivery_ids||[]).filter(id=>!geoAttempts.has(findDelivery(id)?.address)).slice(0,4)){
+    if(epoch!==planningEpoch||!planningActive())return;
+    const d=findDelivery(id),p=await coordinates(d?.address);
+    if(p&&epoch===planningEpoch&&planningActive()){const u=await C().update('tms_deliveries',id,p);if(u.error)throw u.error;changed=true}
+   }
+   if(epoch!==planningEpoch||!planningActive())return;
+   if(changed){const r=await window.ArcData.rawRpc('gama_tms_plan_day');if(r.error)throw r.error;plan=r.data}
+   await fetchAll();markOrigins();
+  }catch(e){console.warn('[TMS] automatic planning',e);if(epoch===planningEpoch)planError=tr('failed')+' '+(window.GamaLoading?.error(e)||e.message||'')}
+  finally{if(epoch===planningEpoch&&planningActive())render('planning')}
+ };
+ planningJob=run();render('planning');try{await planningJob}finally{planningJob=null;if(planningActive()){if(epoch===planningEpoch)render('planning');else autoPlanning(true)}}
+}
+function planningBody(ds){
+ const routes=db.routes.filter(r=>r.date===today());
+ const missing=ds.filter(d=>d.fromOrder&&!['Entregada','Cancelada'].includes(d.status)&&!validPoint(d));
+ return `<div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||today())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button></div><p>${esc(tr('orders'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_capacity?`<p class="tmsAbsente">${esc(tr('capacity'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
+ <div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('map'))}</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −">−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +">+</button><button type="button" class="arcButton tmsBtn" id="tMapFit">↔</button></div></div><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"></div><p id="tMapError" class="tmsHint" hidden>${esc(tr('tiles'))}</p><small>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small><p class="tmsHint">${esc(tr('approx'))}</p>${missing.length?`<p class="tmsAbsente">${esc(tr('missing'))}: ${missing.length}</p>`:''}</div>
+ <div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(T('Entregas de hoy'))}</b><small>${ds.length}</small></div><div class="tmsTableScroll"><table class="arcTable tmsTable"><thead><tr><th>${esc(T('Cliente'))}</th><th>${esc(T('Carga'))}</th><th>${esc(T('Estado'))}</th></tr></thead><tbody>${ds.map(d=>`<tr id="tms-delivery-${esc(d.id)}" tabindex="-1"><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)} · ${esc(d.timeWindow||'—')}</small></td><td>${d.weight} kg / ${d.volume} m³</td><td>${esc(T(status(d)))}${d.fromOrder?`<br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-coordinates="${esc(d.id)}"${planningJob?' disabled':''}>${esc(tr('fix'))}</button><br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-loading="${esc(d.id)}">${esc(T('Salida de bultos'))}</button>`:`<br><small>${esc(tr('legacy'))}</small>`}</td></tr>`).join('')}</tbody></table></div></div>
+ <div><div class="arcPanel tmsCard">${routes.map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${[r.reference,r.driver,r.vehicle].filter(Boolean).map(esc).join(' · ')}</b><small>${r.distance.toFixed(1)} km · ${r.weight} kg · ${r.volume} m³</small></div><small>${esc(T(r.status))}</small><ol class="tmsStops">${routeStops(r).filter(d=>!d.isDepot).map(d=>`<li><b>${esc(d.customer)}</b> <small>${esc(d.address)}</small></li>`).join('')}</ol><a class="arcButton tmsBtn tmsLight" href="${esc(mapsUrl(r))}" target="_blank" rel="noopener noreferrer">Google Maps</a></div>`).join('')||`<div class="tmsEmpty">${esc(T('No hay rutas planificadas.'))}</div>`}</div>
+ <details class="arcPanel tmsCard"><summary>${esc(T('Configuración avanzada del depósito'))}</summary><div class="tmsForm"><div class="full"><label>${esc(T('Dirección del depósito'))}</label><input id="tDepot" value="${esc(db.settings.depot||'')}"></div><div><label for="tDepotLat">${esc(tr('latitude'))}</label><input id="tDepotLat" type="number" step="any" min="-85" max="85" value="${esc(db.settings.depotPoint?.lat??'')}"></div><div><label for="tDepotLng">${esc(tr('longitude'))}</label><input id="tDepotLng" type="number" step="any" min="-180" max="180" value="${esc(db.settings.depotPoint?.lng??'')}"></div><div><label>${esc(T('Regreso al depósito'))}</label><select id="tReturn"><option value="1"${db.settings.returnDepot?' selected':''}>${esc(T('Sí'))}</option><option value="0"${!db.settings.returnDepot?' selected':''}>${esc(T('No'))}</option></select></div></div><button type="button" class="arcButton tmsBtn" id="tSaveDepot"${planningJob?' disabled':''}>${esc(tr('save'))}</button></details></div></div>`;
+}
+function drawDayMap(){
+ const host=document.getElementById('tDayMap');if(!host)return;
+ const routes=db.routes.filter(r=>r.date===today()&&(mapRoute==='all'||mapRoute===r.id));
+ const selected=new Set(routes.flatMap(r=>r.stops));
+ const points=db.deliveries.filter(d=>d.date===today()&&d.fromOrder&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
+ const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,isDepot:true,customer:db.settings.depot});
+ if(!points.length){host.innerHTML=`<p class="tmsEmpty">${esc(tr('none'))}</p>`;return}
+ const width=Math.max(240,host.clientWidth),height=380;
+ const project=(d,z)=>{const n=256*2**z,s=Math.sin(+d.lat*Math.PI/180);return{x:(+d.lng+180)/360*n,y:(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n}};
+ let base=14;
+ for(;base>2;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
+ const z=Math.max(2,Math.min(18,base+mapZoom)),p=points.map(d=>project(d,z));
+ const left=(Math.min(...p.map(v=>v.x))+Math.max(...p.map(v=>v.x)))/2-width/2,top=(Math.min(...p.map(v=>v.y))+Math.max(...p.map(v=>v.y)))/2-height/2;
+ const pos=d=>{const v=project(d,z);return{x:v.x-left,y:v.y-top}};let tiles='';
+ for(let x=Math.floor(left/256);x<=Math.floor((left+width)/256);x++)for(let y=Math.floor(top/256);y<=Math.floor((top+height)/256);y++)if(x>=0&&y>=0&&x<2**z&&y<2**z)tiles+=`<image x="${x*256-left}" y="${y*256-top}" width="256" height="256" href="https://tile.openstreetmap.org/${z}/${x}/${y}.png"/>`;
+ const colors=['#0f766e','#2563eb','#c2410c','#7c3aed'];
+ const lines=routes.map((r,i)=>{const s=routeStops(r).filter(validPoint);return `<polyline points="${s.map(d=>{const v=pos(d);return v.x+','+v.y}).join(' ')}" fill="none" stroke="${colors[i%colors.length]}" stroke-width="4" opacity=".8"/>`}).join('');
+ const markers=points.map(d=>{const v=pos(d),r=routes.find(r=>r.stops.includes(d.id)),index=r?r.stops.filter(id=>id!=='__depot').indexOf(d.id)+1:'•';return `<g transform="translate(${v.x},${v.y})"${d.isDepot?'':` role="button" tabindex="0" data-map-delivery="${esc(d.id)}" aria-label="${esc(d.customer)}"`}><title>${esc(d.customer||'Depósito')} · ${esc(d.address||'')}</title><circle r="13" fill="${d.isDepot?'#334155':r?colors[routes.indexOf(r)%colors.length]:'#b45309'}" stroke="white" stroke-width="2"/><text text-anchor="middle" y="4" fill="white" font-size="12" font-weight="700">${d.isDepot?'D':index}</text></g>`}).join('');
+ host.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(tr('map'))}">${tiles}${lines}${markers}</svg>`;
+ host.querySelectorAll('image').forEach(img=>img.addEventListener('error',()=>{img.remove();const e=document.getElementById('tMapError');if(e)e.hidden=false}));
+ host.querySelectorAll('[data-map-delivery]').forEach(marker=>{const jump=()=>document.getElementById('tms-delivery-'+marker.dataset.mapDelivery)?.focus();marker.addEventListener('click',jump);marker.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();jump()}})});
+}
+function editCoordinates(id){
+ const d=findDelivery(id);if(!d?.fromOrder)return;
+ const dlg=document.createElement('dialog');dlg.className='tmsCoordinateDialog';
+ dlg.innerHTML=`<form><h3>${esc(tr('fix'))}</h3><p>${esc(d.customer)} · ${esc(d.address)}</p><label>${esc(tr('latitude'))}<input name="lat" type="number" step="any" min="-85" max="85" required value="${esc(d.lat??'')}"></label><label>${esc(tr('longitude'))}<input name="lng" type="number" step="any" min="-180" max="180" required value="${esc(d.lng??'')}"></label><p role="alert"></p><button type="submit" class="arcButton">${esc(tr('save'))}</button><button type="button" class="arcButton" data-close>${esc(tr('cancel'))}</button></form>`;
+ document.body.appendChild(dlg);dlg.showModal();dlg.addEventListener('close',()=>dlg.remove());dlg.querySelector('[data-close]').onclick=()=>dlg.close();
+ dlg.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,p={lat:Number(f.elements.lat.value),lng:Number(f.elements.lng.value)};if(!validPoint(p)){f.querySelector('[role=alert]').textContent=tr('invalid');return}const b=f.querySelector('[type=submit]');b.disabled=true;try{const r=await C().update('tms_deliveries',id,p);if(r.error)throw r.error;await log(d,'COORDENADAS','Coordenadas corregidas');dlg.close();await autoPlanning(true)}catch(error){f.querySelector('[role=alert]').textContent=error.message;b.disabled=false}};
+}
+function bindPlanning(x){
+ x.querySelector('#tRefresh').onclick=()=>{geoAttempts.clear();autoPlanning(true)};
+ x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapZoom=0;drawDayMap()};
+ x.querySelector('#tMapIn').onclick=()=>{mapZoom=Math.min(4,mapZoom+1);drawDayMap()};x.querySelector('#tMapOut').onclick=()=>{mapZoom=Math.max(-4,mapZoom-1);drawDayMap()};x.querySelector('#tMapFit').onclick=()=>{mapZoom=0;drawDayMap()};
+ x.querySelectorAll('[data-tms-coordinates]').forEach(b=>b.onclick=()=>editCoordinates(b.dataset.tmsCoordinates));
+ x.querySelectorAll('[data-tms-loading]').forEach(b=>b.onclick=()=>window.GamaLoading.open(b.dataset.tmsLoading));
+ drawDayMap();mapObserver?.disconnect();let width=x.querySelector('#tDayMap').clientWidth;
+ if(window.ResizeObserver){mapObserver=new ResizeObserver(entries=>{if(entries[0].contentRect.width!==width){width=entries[0].contentRect.width;drawDayMap()}});mapObserver.observe(x.querySelector('#tDayMap'))}
+}
+setInterval(()=>{if(document.visibilityState==='visible')autoPlanning()},45000);
+window.addEventListener('focus',()=>autoPlanning());
+window.addEventListener('gama:language-change',()=>{if(planningActive())render('planning')});
+window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
+window.addEventListener('gama:sales-change',()=>autoPlanning());
+window.addEventListener('arc:route-leave',()=>{planningEpoch++;mapObserver?.disconnect()});
+window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};proofArchiveId=null;plan=null;mapObserver?.disconnect();geoAttempts.clear();db={deliveries:[],drivers:[],routes:[],history:[],archive:[],settings:{},employees:[],absences:[],customers:[]}});
 
-/* ---- pedidos que salen hoy ---- */
-// Preparados y todavía en el almacén (sin cargar ni salir): los que pueden salir hoy.
-const WAITING=['Pendiente de preparación','Lista para envío','Planificada','Excepción'];
-function lockedRouteIds(){return new Set(db.routes.filter(r=>routeStops(r).some(d=>['En tránsito','En ruta','Entregada'].includes(d.status))).map(r=>r.id))}
-function readyToShip(){
- const locked=lockedRouteIds(),t=today();
- return db.deliveries.filter(d=>WAITING.includes(status(d))&&!locked.has(d.routeId))
-  .sort((a,b)=>(b.date===t)-(a.date===t)||String(a.date||'9999').localeCompare(String(b.date||'9999'))||String(a.customer||'').localeCompare(String(b.customer||'')));
-}
-// Por defecto salen los previstos para hoy; una marca a mano manda sobre la fecha.
-function picked(d){return pick.on.has(d.id)||(d.date===today()&&!pick.off.has(d.id))}
-function setPicked(d,on){pick.on.delete(d.id);pick.off.delete(d.id);if(on&&d.date!==today())pick.on.add(d.id);if(!on&&d.date===today())pick.off.add(d.id)}
-const pickCount=n=>n===1?'1 pedido seleccionado':n+' pedidos seleccionados';
-function pickList(){
- const list=readyToShip();
- if(!list.length)return '<div class="tmsEmpty" data-gi-live data-gi=b652ccabc4d0>No hay pedidos preparados pendientes de salir.</div>';
- const n=list.filter(picked).length;
- return `<div class="tmsPickBar"><span class="tmsPickCount"><span data-gi-live id="tPickCount">${pickCount(n)}</span> / ${list.length}</span><button type="button" class="arcButton tmsBtn tmsLight" id="tPickAll" data-gi-live data-gi=bd02b9a7d71d>Todos</button><button type="button" class="arcButton tmsBtn tmsLight" id="tPickNone" data-gi-live data-gi=9e3fc69d0d9c>Ninguno</button></div>`
-  +`<div class="tmsPickList">${list.map(d=>`<label class="tmsPick"><input type="checkbox" data-tms-pick="${esc(d.id)}"${picked(d)?' checked':''}><span class="tmsPickText"><b>${esc(d.reference||'')} ${esc(d.customer)}</b><small>${esc(d.address)}</small><small>${d.date===today()?'<span data-gi-live data-gi=1dcf5a0e85e1>Prevista hoy</span>':d.date?'<span data-gi-live data-gi=0556135e70eb>Prevista el</span> '+esc(fechaCorta(d.date)):'<span data-gi-live data-gi=a93e43d69f9f>Sin fecha</span>'} · ${Number(d.weight||0)} kg · <span data-gi-live>${esc(d.priority||'Normal')}</span>${status(d)==='Excepción'?' · <span class="tmsBadge red" data-gi=888c32792cdd>Excepción</span>':''}</small></span></label>`).join('')}</div>`;
-}
-function bindPick(x){
- const list=readyToShip(),count=()=>{const n=list.filter(picked).length,c=x.querySelector('#tPickCount'),b=x.querySelector('#tOptimizeCount');if(c)c.textContent=pickCount(n);if(b)b.textContent='('+n+')'};
- x.querySelectorAll('[data-tms-pick]').forEach(c=>c.onchange=()=>{const d=list.find(v=>v.id===c.dataset.tmsPick);if(d)setPicked(d,c.checked);count()});
- const all=on=>()=>{list.forEach(d=>setPicked(d,on));x.querySelectorAll('[data-tms-pick]').forEach(c=>{c.checked=on});count()};
- const a=x.querySelector('#tPickAll'),n=x.querySelector('#tPickNone');if(a)a.onclick=all(true);if(n)n.onclick=all(false);
-}
-
-async function optimize(){
- const api=C();
- const lockedRoutes=lockedRouteIds();
- const busyDrivers=new Set(db.deliveries.filter(d=>['En tránsito','En ruta'].includes(d.status)).map(d=>d.driverId));
- // Sólo lo marcado para salir hoy.
- const pending=readyToShip().filter(picked);
- if(!pending.length){alert('Marca al menos un pedido para enviar hoy.');return}
- const activos=db.drivers.filter(x=>x.enabled);
- // Los que hoy están de vacaciones o de baja no entran en el reparto.
- const ausentes=activos.filter(x=>x.absent);
- const drivers=activos.filter(x=>!x.absent&&!busyDrivers.has(x.id));
- if(!drivers.length){
-  alert(ausentes.length
-   ?'Ningún conductor disponible hoy: '+ausentes.map(x=>x.name+' ('+absLabel(driverAbsence(x,today())).toLowerCase()+')').join(', ')+'.'
-   :T('No hay conductores con vehículo asignado. Se dan de alta en RRHH y se emparejan con un vehículo en Gestión de flota.'));
-  return;
- }
- try{
-  // Lo marcado sale hoy aunque estuviera previsto otro día.
-  for(const d of pending.filter(d=>d.date!==today())){
-   const u=await api.update('tms_deliveries',d.id,{delivery_date:today()});if(u.error)throw u.error;
-   await log(d,'PROGRAMADA','Programada para hoy en la planificación');d.date=today();
-  }
-  for(const d of pending)await geocode(d);
-  // Se rehacen las rutas del día que aún no han salido.
-  const redo=db.routes.filter(r=>r.date===today()&&r.status!=='Terminada'&&!lockedRoutes.has(r.id));
-  for(const r of redo){const removed=await api.remove('tms_routes',r.id);if(removed.error)throw removed.error}
-  // Lo que estaba en esas rutas y ya no se ha marcado vuelve a esperar en el almacén.
-  const redone=new Set(redo.map(r=>r.id)),chosen=new Set(pending.map(d=>d.id));
-  for(const d of db.deliveries.filter(d=>redone.has(d.routeId)&&!chosen.has(d.id))){
-   const u=await api.update('tms_deliveries',d.id,{route_id:null,driver_id:null,status:'Pendiente de preparación'});if(u.error)throw u.error;
-  }
-  pick.on.clear();
-  let rem=pending.slice(),created=0;
-  for(const dr of drivers){
-   if(!rem.length)break;
-   const r=routeFor(rem,dr);
-   const stops=r.stops.filter(x=>x.id&&!x.isDepot);
-   if(!stops.length)continue;
-   const route=await api.insert('tms_routes',{route_date:today(),driver_id:dr.id,driver_name:dr.name,vehicle:dr.vehicle,vehicle_id:dr.vehicleId,stops:r.stops.map(x=>x.isDepot?'__depot':x.id),distance:r.distance,weight:r.weight,volume:r.volume,status:'Planificada'});
-   if(!route.data)continue;
-   created++;
-   for(const s of stops){const updated=await api.update('tms_deliveries',s.id,{route_id:route.data.id,driver_id:dr.id,status:'Planificada'});if(updated.error)throw updated.error}
-   const used=new Set(stops.map(x=>x.id));
-   rem=rem.filter(x=>!used.has(x.id));
-  }
-  for(const d of rem){await api.update('tms_deliveries',d.id,{status:'Excepción'});await log(d,'CAPACIDAD','No hay capacidad disponible para esta entrega')}
-  await reload('planning');
-  // Cada frase se traduce por separado: juntas no están en el catálogo.
-  alert([T(created+' ruta(s) creada(s).'),
-   rem.length?T(rem.length+' entrega(s) en excepción.'):'',
-   ausentes.length?T(ausentes.length+' conductor(es) ausente(s) hoy, fuera del reparto.'):''].filter(Boolean).join(' '));
- }catch(e){fail(e,'No se pudieron crear las rutas')}
-}
-async function addDelivery(){
- const f=id=>document.getElementById(id);
- const customer=f('tCustomer').value.trim(),address=f('tAddress').value.trim();
- const customerId=f('tCustomerPick')?.value||null;
- if(!customer||!address){alert('El cliente y la dirección son obligatorios.');return}
- try{
-  const r=await C().insert('tms_deliveries',{customer,address,customer_id:customerId,delivery_date:f('tDate').value||today(),time_window:f('tWindow')?.value.trim()||null,priority:f('tPriority')?.value||'Normal',weight:+(f('tWeight')?.value)||0,volume:+(f('tVolume')?.value)||0,status:'Pendiente de preparación'});
-  if(r.data)await log(delFrom(r.data),'Creada');
-  await reload('planning');
- }catch(e){fail(e,'No se pudo crear la entrega')}
-}
 function downscale(file){
  return new Promise(resolve=>{
   const fr=new FileReader();
@@ -382,13 +353,7 @@ async function downloadProofCertificate(id){
    dos campos quedan editables a propósito: una entrega puntual a otra
    dirección es corriente, y el enlace con la ficha se conserva igual, que es
    lo que luego permite mandarle el comprobante a su correo. */
-function fillFromCustomer(x,id){
- const c=db.customers.find(y=>String(y.id)===String(id));
- if(!c)return;
- const nombre=x.querySelector('#tCustomer'),direccion=x.querySelector('#tAddress');
- if(nombre)nombre.value=c.name||'';
- if(direccion)direccion.value=c.address||'';
-}
+
 /* El mismo comprobante que se descarga, pero con el correo del cliente y el
    mensaje ya escritos. En el móvil se comparte el PDF directamente; en el
    escritorio se descarga y se abre el compositor. Si la entrega se escribió a
@@ -447,12 +412,9 @@ async function downloadProofReport(){
  finally{if(btn){btn.disabled=false;btn.textContent=texto}}
 }
 async function saveDepot(){
- const x=section();
- try{
-  await C().upsert('tms_settings',{id:true,depot:x.querySelector('#tDepot').value.trim()||null,return_depot:x.querySelector('#tReturn').value==='1',updated_at:now()},{onConflict:'id'});
-  await fetchAll();
-  alert('Parámetros guardados.');
- }catch(e){fail(e,'No se pudieron guardar los parámetros')}
+ const x=section(),address=x.querySelector('#tDepot').value.trim(),lat=x.querySelector('#tDepotLat').value,lng=x.querySelector('#tDepotLng').value;
+ if((lat!==''||lng!=='')&&(!lat||!lng||!validPoint({lat,lng})))return alert(tr('invalid'));
+ try{const r=await C().upsert('tms_settings',{id:true,depot:address||null,depot_lat:lat===''?null:Number(lat),depot_lng:lng===''?null:Number(lng),return_depot:x.querySelector('#tReturn').value==='1',updated_at:now()},{onConflict:'id'});if(r.error)throw r.error;geoAttempts.delete(address);await autoPlanning(true)}catch(e){fail(e,'No se pudieron guardar los parámetros')}
 }
 
 const fechaCorta=s=>{const [y,m,d]=String(s||'').split('-');return d?d+'/'+m+'/'+y:String(s||'')};
@@ -485,28 +447,26 @@ function render(tab){
  let body='';
 if(tab==='preparation')body='<div id="gamaPreparationHost"></div>';
 if(tab==='loading')body='<div id="gamaLoadingHost"></div>';
-if(tab==='planning')body=`<div class="tmsGrid"><div><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=6e5a7739380f>Nueva entrega</b><small data-gi=bea7f86d738e>Pedidos / preparación</small></div><div class="tmsForm"><div class="full"><label data-gi=ae79a0eaa53e>Cliente registrado</label><select id="tCustomerPick"><option value="" data-gi=2aa0d0a80307>— Escribir a mano —</option>${db.customers.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div><div><label data-gi=f851d9a83ab0>Cliente</label><input id="tCustomer" data-gi-placeholder=9abe245bde43 placeholder="Nombre del cliente"></div><div><label data-gi=93b2a9ef782c>Fecha</label><input id="tDate" type="date" value="${today()}"></div><div class="full"><label data-gi=2af66cb65da8>Dirección</label><input id="tAddress" data-gi-placeholder=481de1cd2e03 placeholder="Calle, número, CP, ciudad, país"></div></div><details style="margin-top:8px"><summary data-gi=f98554559230>Detalles opcionales (franja horaria, prioridad, carga)</summary><div class="tmsForm" style="margin-top:8px"><div><label data-gi=d812904bd5cd>Franja horaria</label><input id="tWindow" placeholder="08:00–10:00"></div><div><label data-gi=dbae0b2a1a74>Prioridad</label><select id="tPriority"><option data-gi=a7248eeb45eb>Normal</option><option data-gi=42719229fd62>Alta</option><option data-gi=9dc81c64f153>Urgente</option></select></div><div><label data-gi=f7b86f38025c>Peso (kg)</label><input id="tWeight" type="number" min="0"></div><div><label data-gi=215d13883a34>Volumen (m³)</label><input id="tVolume" type="number" min="0" step="0.01"></div></div></details><button class="arcButton tmsBtn tmsPrimary" id="tAdd" style="margin-top:10px" data-gi=2beb81266a5c>Añadir entrega</button></div><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=20bb0eb7349d>Entregas de hoy</b><small>${ds.length} en total</small></div>${ds.length?`<table class="arcTable tmsTable" data-gama-sort-key="tmsDeliveries"><thead><tr><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=756b45a47270>Franja</th><th data-gi=5f52e2cbc055>Carga</th><th data-gi=98e5acddb6c4>Estado</th></tr></thead><tbody>${GamaPage.slice('tmsDeliveries',ds,{0:d=>[d.reference,d.customer].filter(Boolean).join(' '),1:d=>d.timeWindow,2:d=>Number(d.weight||0),3:d=>status(d)}).map(d=>`<tr><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)}</small></td><td>${esc(d.timeWindow||'—')}</td><td>${d.weight||0} kg / ${d.volume||0} m³</td><td><span class="tmsBadge ${d.status==='Entregada'?'ok':d.status==='Excepción'?'red':'warn'}">${esc(status(d))}</span><br><button class="arcButton tmsBtn tmsLight" onclick="GamaLoading.open('${d.id}')" data-gi-live data-gi=dabf9898be06>Salida de bultos</button></td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsDeliveries',ds.length)}`:'<div class="tmsEmpty" data-gi=e641256e4dac>No hay entregas hoy.</div>'}</div></div><div><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi-live data-gi=069d310601c5>Pedidos preparados que salen hoy</b><span class="tmsLive"><i></i> <span data-gi=d594bb1de017>Sincronizado en la nube</span></span></div><p class="tmsHint" data-gi-live data-gi=b451cd7034e3>Marca los pedidos que se envían hoy: la ruta se optimiza sólo con ellos, según la capacidad de cada vehículo y la cercanía. Los conductores de vacaciones o de baja en RRHH quedan fuera del reparto.</p>${avisoAusencias()}${pickList()}<button class="arcButton tmsBtn tmsOrange" id="tOptimize"><span data-gi-live data-gi=89f7542fc815>Optimizar la ruta con la selección</span> <span id="tOptimizeCount">(${readyToShip().filter(picked).length})</span></button><div style="margin-top:10px">${db.routes.filter(r=>r.date===today()).map(r=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${[r.reference,r.driver,r.vehicle].filter(Boolean).map(esc).join(' · ')}</b><small>${r.distance.toFixed(1)} km · ${r.weight||0} kg</small></div><p style="font-size:10px;color:var(--arc-text-subtle)"><span data-gi-live>${(n=>n===1?'1 parada':n+' paradas')(routeStops(r).filter(s=>!s.isDepot).length)}</span> · <span data-gi-live>${esc(r.status)}</span></p><ol class="tmsStops">${routeStops(r).filter(s=>!s.isDepot).map(d=>`<li><b>${esc(d.reference||'')} ${esc(d.customer)}</b> <small>${esc(d.address)}</small></li>`).join('')}</ol><button class="arcButton tmsBtn tmsLight" onclick="window.open('${mapsUrl(r)}','_blank')">Google Maps</button></div>`).join('')||'<div class="tmsEmpty" data-gi=80bc4d66c557>No hay rutas planificadas.</div>'}</div></div><details class="arcPanel tmsCard"><summary data-gi=1765e8d0f10a>Configuración avanzada del depósito</summary><div class="tmsForm" style="margin-top:10px"><div class="full"><label data-gi=be405f1a9fc7>Dirección del depósito</label><input id="tDepot" value="${esc(db.settings?.depot||'')}" data-gi-placeholder=28d13886c9e2 placeholder="Dirección de salida / regreso"></div><div><label data-gi=e5c7d7cbd42a>Regreso al depósito</label><select id="tReturn"><option value="1"${db.settings?.returnDepot!==false?' selected':''} data-gi=739215889580>Sí</option><option value="0"${db.settings?.returnDepot===false?' selected':''} data-gi=1ea442a134b2>No</option></select></div></div><button class="arcButton tmsBtn tmsLight" id="tSaveDepot" style="margin-top:8px" data-gi=13e51a210f45>Guardar</button></details></div></div>`;
+if(tab==='planning')body=planningBody(ds);
 if(tab==='proof'){
  const toCapture=db.deliveries.filter(d=>!['Entregada','Cancelada'].includes(d.status)).sort((a,b)=>String(a.date).localeCompare(String(b.date))||a.id.localeCompare(b.id));
  const delivered=archiveList();
  const selId=defaultProofId();
  const sel=delivered.find(d=>d.id===selId);
  const pr=sel?proofCache[sel.id]:null;
- body=`<div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=ed806a52ba08>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.reference||'')} ${esc(d.customer)}</b><small>${esc(d.address)} · ${esc(d.date||'—')} · ${esc(status(d))}</small></div><button class="arcButton tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')" data-gi=5be1e4143d9a>Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty" data-gi-live data-gi=ec126a95d652>No hay entregas pendientes de prueba.</div>'}</div><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=c30fbfa7b5e2>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="arcButton tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px" data-gi=630b7b1978bd>Descargar informe PDF</button>`:''}${delivered.length?`<label data-gi=fb249302b38a>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty" data-gi=8b5d1f44a991>Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty" data-gi=d0fb2d19ed9c>Sin firma</div>'}</div></div><p style="font-size:12px;color:var(--arc-text-muted);margin-top:8px"><span data-gi=f93545ab473d>Entregado: </span>${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p><button class="arcButton tmsBtn tmsPrimary" id="tProofOne" style="width:100%" data-gi=1648a7947af6>Descargar comprobante de esta entrega</button><button class="arcButton tmsBtn tmsLight" id="tProofMail" style="width:100%;margin-top:8px" data-gi=6aded56dd465>Enviar el comprobante al cliente</button>`:''}`:'<div class="tmsEmpty" data-gi=bc5dccf97b1a>Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
+ body=`<div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=ed806a52ba08>Entregas pendientes de prueba</b><small>${toCapture.length}</small></div>${toCapture.map(d=>`<div class="tmsRoute"><div class="tmsRouteHead"><b>${esc(d.reference||'')} ${esc(d.customer)}</b><small>${esc(d.address)} · ${esc(d.date||'—')} · ${esc(T(status(d)))}</small></div><button class="arcButton tmsBtn tmsPrimary" onclick="gamaTMS.openProof('${d.id}')" data-gi=5be1e4143d9a>Abrir prueba de entrega</button></div>`).join('')||'<div class="tmsEmpty" data-gi-live data-gi=ec126a95d652>No hay entregas pendientes de prueba.</div>'}</div><div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=c30fbfa7b5e2>Archivo de pruebas de entrega</b><small>${delivered.length}</small></div>${delivered.length?`<button class="arcButton tmsBtn tmsLight" id="tProofPdf" style="margin-bottom:8px" data-gi=630b7b1978bd>Descargar informe PDF</button>`:''}${delivered.length?`<label data-gi=fb249302b38a>Selecciona una entrega</label><select id="tProofSelect">${delivered.map(d=>`<option value="${d.id}" ${d.id===selId?'selected':''}>${new Date(d.deliveredAt||d.date).toLocaleDateString('es-ES')} — ${esc(d.customer)}</option>`).join('')}</select>${sel?`<div class="tmsProof" style="margin-top:12px"><div>${pr?.photo?`<img src="${pr.photo}">`:'<div class="tmsEmpty" data-gi=8b5d1f44a991>Sin foto</div>'}</div><div>${pr?.signature?`<img src="${pr.signature}">`:'<div class="tmsEmpty" data-gi=d0fb2d19ed9c>Sin firma</div>'}</div></div><p style="font-size:12px;color:var(--arc-text-muted);margin-top:8px"><span data-gi=f93545ab473d>Entregado: </span>${sel.deliveredAt?new Date(sel.deliveredAt).toLocaleString('es-ES'):'-'} · ${esc(sel.address)}${sel.notes?' · '+esc(sel.notes):''}</p><button class="arcButton tmsBtn tmsPrimary" id="tProofOne" style="width:100%" data-gi=1648a7947af6>Descargar comprobante de esta entrega</button><button class="arcButton tmsBtn tmsLight" id="tProofMail" style="width:100%;margin-top:8px" data-gi=6aded56dd465>Enviar el comprobante al cliente</button>`:''}`:'<div class="tmsEmpty" data-gi=bc5dccf97b1a>Aún no hay pruebas de entrega archivadas.</div>'}</div></div>`;
 }
 if(tab==='history')body=`<div class="arcPanel tmsCard"><div class="tmsTitle"><b data-gi=55c4aa39dc01>Historial de rutas y entregas</b><small>${db.history.length} eventos</small></div>${db.history.length?`<table class="arcTable tmsTable" data-gama-sort-key="tmsHistory"><thead><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=43f6698cdd81>Evento</th><th data-gi=426234e72a5b>Detalle</th></tr></thead><tbody>${GamaPage.slice('tmsHistory',db.history,{0:h=>h.at,1:h=>h.customer,2:h=>h.type,3:h=>h.note}).map(h=>`<tr><td>${new Date(h.at).toLocaleString('es-ES')}</td><td>${esc(h.customer)}</td><td><span class="tmsBadge">${esc(h.type)}</span></td><td data-gi-live>${esc(h.note)}</td></tr>`).join('')}</tbody></table>${GamaPage.controls('tmsHistory',db.history.length)}`:'<div class="tmsEmpty" data-gi=a0aee7bf5f53>No hay historial.</div>'}</div>`;
  window.ArcUI.render(x,`<div class="tms">${window.GamaUI.header({title:'TMS',lead:'Del pedido preparado a la prueba de entrega.'})}<div class="tmsKpis"><div class="tmsKpi"><span data-gi=9f818dbe915c>Entregas</span><strong>${ds.length}</strong></div><div class="tmsKpi"><span data-gi=bb6e430ce0a7>Pendientes</span><strong>${pending}</strong></div><div class="tmsKpi"><span data-gi=97ec218e28be>Entregadas</span><strong>${del}</strong></div><div class="tmsKpi"><span data-gi=b25f73c77641>Excepciones</span><strong>${exceptions}</strong></div><div class="tmsKpi"><span data-gi=2f6b91a34921>Rutas</span><strong>${planned}</strong></div><div class="tmsKpi"><span data-gi=98e5acddb6c4>Estado</span><strong>CLOUD</strong></div></div><div class="tmsTabs">${tabs.map(t=>`<button class="arcButton tmsTab ${tab===t[0]?'active':''}" onclick="gamaTMS.open('${t[0]}')" data-gi-live>${t[1]}</button>`).join('')}</div>${body}</div><div class="tmsPrint"><h2 data-gi=3daa927edb88>Coco ERP — hoja de ruta</h2>${db.routes.filter(r=>r.date===today()).map(r=>`<h3>${esc(r.reference||'')} · ${esc(r.driver)} · ${esc(r.vehicle)}</h3>${routeStops(r).filter(s=>!s.isDepot).map((d,i)=>`<p>${i+1}. <b>${esc(d.reference||'')} ${esc(d.customer)}</b> — ${esc(d.address)}</p>`).join('')}`).join('')}</div>`);
  window.GamaUI.bindBack(x);
  if(tab==='preparation')window.GamaPreparation?.mount(x.querySelector('#gamaPreparationHost'));
  if(tab==='loading')window.GamaLoading?.mount(x.querySelector('#gamaLoadingHost'));
- const add=x.querySelector('#tAdd');if(add)add.onclick=addDelivery;
- const opt=x.querySelector('#tOptimize');if(opt)opt.onclick=optimize;
- if(tab==='planning')bindPick(x);
+ if(tab==='planning')bindPlanning(x);
  const ps=x.querySelector('#tProofSelect');if(ps)ps.onchange=()=>viewProofArchive(ps.value);
  const pp=x.querySelector('#tProofPdf');if(pp)pp.onclick=downloadProofReport;
  const po=x.querySelector('#tProofOne');if(po)po.onclick=()=>downloadProofCertificate(defaultProofId());
  const pm=x.querySelector('#tProofMail');if(pm)pm.onclick=()=>emailProofCertificate(defaultProofId());
- const cp=x.querySelector('#tCustomerPick');if(cp)cp.onchange=()=>fillFromCustomer(x,cp.value);
+
  const sd=x.querySelector('#tSaveDepot');if(sd)sd.onclick=saveDepot;
 }
 function mapsUrl(r){const s=routeStops(r),valid=s.filter(x=>!x.isDepot||x.address);if(valid.length<2)return '#';const o=encodeURIComponent(valid[0].address),dest=encodeURIComponent(valid[valid.length-1].address),wp=valid.slice(1,-1).map(x=>encodeURIComponent(x.address)).join('|');return'https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+dest+(wp?'&waypoints='+wp:'')+'&travelmode=driving'}
@@ -517,6 +477,7 @@ async function openProof(id){
  await renderProofDetail(id);
 }
 async function renderProofDetail(id){
+ planningEpoch++;currentTab="proof";
  const d=findDelivery(id);if(!d)return;
  const pr=proofCache[id]||null;
  const x=section(),token=++proofViewVersion;

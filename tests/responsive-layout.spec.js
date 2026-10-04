@@ -107,8 +107,8 @@ test('date controls in TMS and document dialogs remain usable on phone and deskt
   expect(await page.locator('section.active').evaluate(layoutProblems),'Preparación '+width).toEqual([]);
  }
  await page.locator('button.tmsTab').nth(1).click();
- await expect(page.locator('#tDate')).toBeVisible();
- await page.locator('details:has(#tWindow) summary').click();
+ await expect(page.locator('#tDayMap')).toBeVisible();
+ await page.locator('details:has(#tDepot) summary').click();
  for(const width of [320,390,844,1440]){
   await page.setViewportSize({width,height:width===844?390:900});
   expect(await page.locator('section.active').evaluate(layoutProblems),'TMS '+width).toEqual([]);

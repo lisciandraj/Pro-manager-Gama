@@ -87,3 +87,11 @@ Le module `surveys` utilise le chargeur différé et son rendu partagé `gama-su
 Le détail de Suivi de processus et des retours affiche l’historique de chaque étape via `gama_process_history`. La façade invoker appelle un helper privé protégé par authentification, MFA et droits du dossier/étape. Le serveur renvoie uniquement action, date, nom d’auteur, état et référence ; les données complètes des journaux ne sont pas exposées. Les étapes financières restreintes restent masquées. Les actions proviennent des journaux métier et de l’audit, sans attribuer une validation au propriétaire du dossier. Les actions historiques sans auteur sont signalées. L’historique se charge au détail seulement, par pages de 50 actions pour chaque étape. Les réceptions, traitements et clôtures futurs des retours sont audités.
 
 Les onglets Importer des données, Sauvegarde et Paramètres d’accès vivent dans la fenêtre Configuration (`src/ui/settings.js`). Le registre conserve leurs identifiants et droits via `settingsTab`, tout en retirant les entrées du menu. Le routeur redirige les anciennes ouvertures vers l’onglet. Les écrans existants sont déplacés dans leurs panneaux puis replacés et masqués à la fermeture ; aucun formulaire ni gestionnaire de fichier n’est dupliqué.
+
+## Planification TMS quotidienne
+
+La carte et le cycle automatique sont dans `src/features/transport/workspace.js`. `gama_tms_plan_day` expose une façade invocateur et un traitement privé contrôlant les accès, verrouillant la journée et conservant les tournées parties. Les nouvelles livraisons nécessitent un lien de commande à la validation transactionnelle. Voir [TMS](modules/tms.md).
+
+## Vues personnelles du Dashboard
+
+`src/features/dashboard/dashboard.js` utilise les agrégations autorisées existantes. Ses filtres, favorites, panneaux et outils de graphique sont décrits dans [Dashboard](modules/dashboard.md). Les préférences locales sont attachées au `user_id` vérifié du résultat serveur ; les CSV vérifient aussi les droits d’export.

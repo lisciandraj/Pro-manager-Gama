@@ -1532,6 +1532,7 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "warehouses": { "global": "GamaInventoryV2", "file": "gama-stock-workspace.js", "methods": ["abrir", "openCount", "openAdjustments", "cargar"] },
     "surveys": { "global": "GamaSurveys", "file": "gama-surveys.js", "dependencies": ["gama-survey-form.js"], "methods": ["open"] },
     "website": {
       "global": "GamaWebsite",

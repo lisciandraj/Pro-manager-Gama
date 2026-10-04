@@ -1,4 +1,3 @@
-/* Generated from src/features/inventory/integration.js. Edit the source and run npm run build. */
 /* Keep the established Stock entry point; fetch its workspace on first use. */
 (function(){
  'use strict';

@@ -1,3 +1,4 @@
+/* Generated from src/features/inventory/workspace.js. Edit the source and run npm run build. */
 /* GAMA — Almacenes y existencias.
 
    El Inventario de siempre responde «cuánto hay». Esta pantalla responde las

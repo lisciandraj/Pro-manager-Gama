@@ -124,6 +124,6 @@ function detail(a,done){
  d.querySelector('[data-adjust-review]')?.addEventListener('click',()=>review(false));d.querySelector('[data-adjust-cancel]')?.addEventListener('click',()=>review(true));
 }
 async function open(){if(!allowed())return;await window.GamaInventoryV2?.openAdjustments()}
-window.ArchitectStockControls={open,mount,allowed,consume,consumptionKinds,label:()=>t('Ajustes','Ajustements','Adjustments')};
+window.ArchitectStockControls={open,openRequest:async(id,pageOffset=0)=>{filter='pending';offset=pageOffset;await open();const button=[...document.querySelectorAll('[data-adjust-open]')].find(b=>b.dataset.adjustOpen===id);if(button)button.click();else window.gamaToast?.(t('La solicitud ya se ha tratado. Actualiza la lista.','La demande a déjà été traitée. Actualise la liste.','The request was already processed. Refresh the list.'))},mount,allowed,consume,consumptionKinds,label:()=>t('Ajustes','Ajustements','Adjustments')};
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;generation++;offset=0;filter='';document.querySelectorAll('[data-stock-controls]').forEach(d=>d.close())});
 })();

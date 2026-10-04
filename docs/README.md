@@ -37,6 +37,7 @@ Documents courants :
 - [sales-workflow](modules/sales-workflow.md)
 - [sri](modules/sri.md)
 - [transport-loading](modules/transport-loading.md)
+- [stock](modules/stock.md)
 - [warehouse-shelves](modules/warehouse-shelves.md)
 
 ## Historique

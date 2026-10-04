@@ -1286,6 +1286,12 @@
       "name": "public_storefront",
       "file": "20261003091337_public_storefront.sql",
       "sha256": "c85094987f4f30cb3b8b5a2aa4045ee96d3ea86b23f8931c2427c06c4d5b8fd0"
+    },
+    {
+      "version": "20261004191646",
+      "name": "stock_workspace_improvements",
+      "file": "20261004191646_stock_workspace_improvements.sql",
+      "sha256": "275b855803218f26b402336be67f745f0e779afa9491441d2424adbbcfa1e1fd"
     }
   ]
 }

@@ -4460,3 +4460,70 @@ Información adicional	Informations complémentaires	Additional information
 Dirección de la empresa	Adresse de l’entreprise	Company address
 
 Finalizar presupuesto	Finaliser le devis	Finalize quote
+Stock sin rotación	Stock dormant	Dormant stock
+Cargando esta pestaña…	Chargement de cet onglet…	Loading this tab…
+No se pudo cargar esta pestaña.	Impossible de charger cet onglet.	Could not load this tab.
+No se pudieron cargar las existencias	Impossible de charger les stocks	Could not load stock quantities
+Prioridades del almacén. Los datos se actualizan al pulsar Actualizar.	Priorités de l’entrepôt. Actualiser recharge les données.	Warehouse priorities. Refresh reloads the data.
+Disponibilidad insuficiente	Disponibilité insuffisante	Insufficient availability
+Ajustes pendientes	Ajustements en attente	Pending adjustments
+Recuentos pendientes	Inventaires en attente	Pending counts
+Ver reposición	Voir le réapprovisionnement	View replenishment
+Ver existencias	Voir les stocks	View stock
+No hay incidencias de disponibilidad.	Aucun problème de disponibilité.	No availability issues.
+Tu perfil no tiene acceso a Compras.	Votre profil ne permet pas l’accès aux Achats.	Your profile cannot access Purchases.
+{0} días de retraso	{0} jours de retard	{0} days overdue
+Abrir compra	Ouvrir l’achat	Open purchase
+No hay compras atrasadas.	Aucun achat en retard.	No overdue purchases.
+Ajustes por validar	Ajustements à valider	Adjustments awaiting approval
+Reservado al equipo de almacén.	Réservé à l’équipe de l’entrepôt.	For the warehouse team.
+Revisar ajuste	Examiner l’ajustement	Review adjustment
+No hay ajustes pendientes.	Aucun ajustement en attente.	No pending adjustments.
+Inventarios a realizar	Inventaires à effectuer	Counts to perform
+Preparar siguiente	Préparer le suivant	Prepare next count
+Abrir recuento	Ouvrir l’inventaire	Open count
+No hay recuentos vencidos.	Aucun inventaire en retard.	No overdue counts.
+Sin salidas recientes: mínimo → máximo configurado.	Sans sortie récente : minimum → maximum configuré.	No recent demand: configured minimum → maximum.
+Sin salidas recientes: hasta el mínimo configurado.	Sans sortie récente : jusqu’au minimum configuré.	No recent demand: up to the configured minimum.
+Salidas 30/60/90 días: {0} / {1} / {2}. Media ponderada: {3}/día. Plazo: {4} días	Sorties sur 30/60/90 jours : {0} / {1} / {2}. Moyenne pondérée : {3}/jour. Délai : {4} jours	Demand over 30/60/90 days: {0} / {1} / {2}. Weighted daily average: {3}. Lead time: {4} days
+(configurado)	(configuré)	(configured)
+(estimación por defecto)	(estimation par défaut)	(default estimate)
+Seguridad: 50 % del consumo durante el plazo; cobertura adicional: 14 días.	Sécurité : 50 % de la consommation pendant le délai ; couverture supplémentaire : 14 jours.	Safety: 50% of demand during lead time; 14 extra days of coverage.
+Propuestas según salidas recientes y plazo de suministro, respetando los mínimos configurados. Se tienen en cuenta las reservas, compras en camino y borradores existentes.	Propositions selon les sorties récentes et le délai fournisseur, en respectant les minimums configurés. Les réservations, achats en cours et brouillons existants sont pris en compte.	Proposals use recent demand and supplier lead time, respecting configured minimums. Reservations, incoming purchases and existing drafts are included.
+Tu perfil no tiene acceso a los datos de Compras. Pide al equipo comercial que prepare la reposición.	Votre profil ne permet pas l’accès aux données d’Achats. Demandez à l’équipe commerciale de préparer le réapprovisionnement.	Your profile cannot access purchase data. Ask the sales team to prepare replenishment.
+Seleccionar propuestas con proveedor	Sélectionner les propositions avec fournisseur	Select proposals with a supplier
+Crear borradores por proveedor	Créer les brouillons par fournisseur	Create drafts by supplier
+Mínimo / objetivo	Minimum / objectif	Minimum / target
+Proveedor / plazo	Fournisseur / délai	Supplier / lead time
+Asigna un proveedor activo en Productos	Attribuez un fournisseur actif dans Produits	Assign an active supplier in Products
+por defecto	par défaut	default
+Ningún producto está por debajo de su mínimo o necesita reposición adicional.	Aucun produit n’est sous son minimum ou ne nécessite de réapprovisionnement supplémentaire.	No product is below its minimum or needs additional replenishment.
+Los borradores se revisan en Compras antes de enviarlos. Crear un borrador conserva las existencias. Los productos excluidos de reposición no se proponen.	Les brouillons sont vérifiés dans Achats avant envoi. Leur création conserve les stocks. Les produits exclus du réapprovisionnement ne sont pas proposés.	Review drafts in Purchases before sending. Creating a draft preserves stock. Products excluded from replenishment are not proposed.
+{0} proveedores	{0} fournisseurs	{0} suppliers
+{0} borrador(es) creado(s), {1} producto(s). Revisa y envía cada pedido en Compras.	{0} brouillon(s) créé(s), {1} produit(s). Vérifiez et envoyez chaque commande dans Achats.	{0} draft(s) created, {1} product(s). Review and send each order in Purchases.
+Productos con existencias sin salidas comerciales o de consumo. Los traslados internos y ajustes no reinician el plazo. El valor usa el coste de compra actual.	Produits en stock sans sortie commerciale ou consommation. Les transferts internes et ajustements ne réinitialisent pas le délai. La valeur utilise le coût d’achat actuel.	Stocked products without commercial or consumption issues. Internal transfers and adjustments do not reset the period. Value uses the current purchase cost.
+Sin salidas durante	Sans sortie depuis	No issues for
+Buscar stock sin rotación	Rechercher le stock dormant	Search dormant stock
+Producto o referencia	Produit ou référence	Product or reference
+Unidades inmovilizadas	Unités immobilisées	Tied-up units
+Valor inmovilizado	Valeur immobilisée	Tied-up value
+Última salida	Dernière sortie	Last issue
+Días sin salida	Jours sans sortie	Days without issues
+Sin salidas registradas	Aucune sortie enregistrée	No recorded issues
+No hay stock sin rotación en este plazo.	Aucun stock dormant sur cette période.	No dormant stock for this period.
+Producto (opcional)	Produit (facultatif)	Product (optional)
+Todos los productos del ámbito	Tous les produits du périmètre	All products in scope
+Inventarios cíclicos	Inventaires tournants	Cycle counts
+Prioridad A: productos que concentran el 80 % del valor almacenado. Los errores repetidos se cuentan en recuentos validados de los últimos 180 días.	Priorité A : produits concentrant 80 % de la valeur en stock. Les écarts récurrents proviennent des inventaires validés des 180 derniers jours.	Priority A: products accounting for 80% of stock value. Recurring discrepancies use validated counts over the last 180 days.
+Recordatorios	Rappels	Reminders
+No hay recuentos vencidos. Define una fecha límite y un ciclo para tener recordatorios.	Aucun inventaire en retard. Définissez une échéance et un cycle pour obtenir des rappels.	No overdue counts. Set a deadline and a cycle to get reminders.
+Productos prioritarios	Produits prioritaires	Priority products
+Importancia	Importance	Importance
+Recuentos con diferencia	Inventaires avec écart	Counts with discrepancies
+Preparar recuento	Préparer l’inventaire	Prepare count
+No hay productos prioritarios con existencias.	Aucun produit prioritaire en stock.	No priority products in stock.
+Recuento prioritario	Inventaire prioritaire	Priority count
+Límite	Échéance	Deadline
+La necesidad o el proveedor cambió. Actualiza las propuestas antes de crear los borradores.	Le besoin ou le fournisseur a changé. Actualisez les propositions avant de créer les brouillons.	The need or supplier changed. Refresh proposals before creating drafts.
+Selecciona como máximo 500 productos por proveedor.	Sélectionnez au maximum 500 produits par fournisseur.	Select at most 500 products per supplier.
+Físico	Physique	Physical

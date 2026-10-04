@@ -65,7 +65,9 @@ Les adresses publiques historiques sont produites par `npm run build`. La liste 
 | `src/features/hr/workspace.js` | `gama-hr.js` |
 | `src/ui/i18n.js` | `gama-i18n.js` |
 | `src/features/sales/internal-invoices.js` | `gama-internal-invoices.js` |
-| `src/features/inventory/workspace.js` | `gama-inventory-v2.js` |
+| `src/features/inventory/integration.js` | `gama-inventory-v2.js` |
+| `src/features/inventory/workspace.js` | `gama-stock-workspace.js` |
+| `src/features/inventory/operations.js` | `gama-stock-operations.js` |
 | `src/features/sales/invoice-archive.js` | `gama-invoice-archive.js` |
 | `src/features/knowledge/knowledge.js` | `gama-knowledge.js` |
 | `src/ui/home-menu.js` | `gama-menu-final2.js` |

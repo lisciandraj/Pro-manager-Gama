@@ -5,12 +5,14 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 
 /** Boots the app with the in-memory cloud mock and a seeded TMS dataset.
  *  TMS used to keep everything in localStorage under "gama-tms-v1"; it now
  *  reads and writes the tms_* tables, so the tests seed window.__DB instead. */
 async function boot(page, seed = {}) {
+  await page.route('**/nominatim.openstreetmap.org/**',route=>route.abort());
+  await page.route('**/tile.openstreetmap.org/**',route=>route.fulfill({status:200,contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64')}));
   await page.addInitScript(([seedData, day]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
     // Skip the one-time localStorage import unless a test is exercising it.
@@ -31,6 +33,7 @@ async function boot(page, seed = {}) {
         id: 'asg-' + d.id, vehicle_id: 'veh-' + d.id, driver_id: d.id,
         started_on: '2026-01-01', ended_on: null })),
       tms_deliveries: seedData.deliveries || [],
+      sales_deliveries: seedData.shipments || (seedData.deliveries||[]).filter(d=>!d.legacy).map(d=>({id:'s-'+d.id,tms_delivery_id:d.id,loading_required:false,departed_at:null})),
       tms_routes: seedData.routes || [],
       tms_proofs: seedData.proofs || [],
       tms_events: seedData.events || [],
@@ -137,46 +140,7 @@ test.describe('TMS — proof-of-delivery archive', () => {
 // La empresa y la dirección se tecleaban a mano en cada entrega, aunque el
 // cliente ya estuviera en su ficha: se copiaban mal y no había forma de saber
 // a qué correo mandarle luego el comprobante.
-test.describe('TMS — la entrega se rellena desde la ficha del cliente', () => {
-  const CLIENTES = [
-    { id: 'cli1', name: 'Ferretería Sol', address: 'Av. Principal 100, Quito', email: 'sol@example.com', active: true },
-    { id: 'cli2', name: 'Constructora Andes', address: 'Calle 5 y 6, Cuenca', email: '', active: true },
-  ];
 
-  test('elegir un cliente rellena la empresa y la dirección, y la entrega guarda el enlace', async ({ page }) => {
-    await boot(page, { drivers: DRIVERS.slice(0, 1), customers: CLIENTES });
-
-    await page.selectOption('#tCustomerPick', 'cli1');
-    await expect(page.locator('#tCustomer')).toHaveValue('Ferretería Sol');
-    await expect(page.locator('#tAddress')).toHaveValue('Av. Principal 100, Quito');
-
-    await page.click('#tAdd');
-    await page.waitForTimeout(600);
-
-    const guardada = await page.evaluate(() => window.__DB.tms_deliveries[0]);
-    expect(guardada).toMatchObject({
-      customer: 'Ferretería Sol',
-      address: 'Av. Principal 100, Quito',
-      customer_id: 'cli1',
-    });
-  });
-
-  // Una entrega puntual a otra dirección es corriente: los campos siguen
-  // siendo editables y el enlace con la ficha se conserva, que es lo que
-  // permite mandarle el comprobante a su correo.
-  test('la dirección se puede cambiar sin perder el enlace con el cliente', async ({ page }) => {
-    await boot(page, { drivers: DRIVERS.slice(0, 1), customers: CLIENTES });
-
-    await page.selectOption('#tCustomerPick', 'cli1');
-    await page.fill('#tAddress', 'Bodega temporal, Machala');
-    await page.click('#tAdd');
-    await page.waitForTimeout(600);
-
-    const guardada = await page.evaluate(() => window.__DB.tms_deliveries[0]);
-    expect(guardada.address).toBe('Bodega temporal, Machala');
-    expect(guardada.customer_id).toBe('cli1');
-  });
-});
 
 // El comprobante sólo se podía descargar: había que buscar el correo del
 // cliente a mano y escribir el mensaje cada vez.
@@ -263,25 +227,7 @@ test.describe('TMS — enviar el comprobante al cliente', () => {
   });
 });
 
-test.describe('TMS — route optimization', () => {
-  test('optimizing still creates a route even when geocoding is unavailable', async ({ page }) => {
-    // Geocoding used to have no timeout, so a slow/unreachable Nominatim could
-    // stall optimize() indefinitely. Aborting it proves optimize() completes
-    // and still creates a route when geocoding fails.
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-    await boot(page, { drivers: DRIVERS });
 
-    await page.fill('#tCustomer', 'Cliente Prueba');
-    await page.fill('#tAddress', 'Calle Falsa 123, Quito, Ecuador');
-    await page.click('button:has-text("Añadir entrega")');
-    await expect(page.locator('.tms')).toContainText('Cliente Prueba');
-
-    await page.click('#tOptimize');
-    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
-    await expect(page.locator('.tms')).toContainText('Google Maps');
-    expect(await page.evaluate(() => window.__DB.tms_routes.length)).toBeGreaterThan(0);
-  });
-});
 
 // A 1x1 transparent PNG, used to simulate picking/taking a delivery photo
 // without depending on a real camera or a fixture file on disk.
@@ -356,150 +302,13 @@ test.describe('TMS — proof capture has no manual status override', () => {
   });
 });
 
-test.describe('TMS — one-time import of the old localStorage dataset', () => {
-  test('legacy drivers, deliveries and proofs are copied into the database once', async ({ page }) => {
-    const iso = new Date().toISOString();
-    await boot(page, {
-      __migrate: true,
-      __legacy: {
-        drivers: [{ id: 'old-d1', name: 'Luis Pérez', phone: '099', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
-        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso, notes: 'Entregado ayer', proof: { photo: 'data:image/png;base64,OLDPHOTO', signature: 'data:image/png;base64,OLDSIG' } }],
-        routes: [],
-        history: [{ id: 'h1', at: iso, deliveryId: 'old-x1', type: 'Entregada', note: 'Prueba registrada', customer: 'Cliente Histórico' }],
-      },
-    });
 
-    await expect(page.locator('.tms')).toContainText('Cliente Histórico');
-
-    const state = await page.evaluate(() => ({
-      deliveries: window.__DB.tms_deliveries.map(d => d.customer),
-      fleetDrivers: (window.__DB.fleet_drivers || []).map(d => d.name),
-      proofs: window.__DB.tms_proofs.map(p => p.photo),
-      events: window.__DB.tms_events.length,
-      flag: localStorage.getItem('gama_tms_migrated_v1'),
-    }));
-    // Los conductores del histórico NO se suben: un registro paralelo de
-    // personas es justo lo que este módulo ha dejado de tener.
-    expect(state.fleetDrivers).not.toContain('Luis Pérez');
-    expect(state.deliveries).toContain('Cliente Histórico');
-    expect(state.proofs[0]).toContain('OLDPHOTO');
-    expect(state.events).toBeGreaterThan(0);
-    expect(state.flag).toBe('1');
-
-    // Re-opening must not import a second copy.
-    await page.click('button.tmsTab:has-text("Historial")');
-    await page.click('button.tmsTab:has-text("Planificación")');
-    expect(await page.evaluate(() => window.__DB.tms_deliveries.length)).toBe(1);
-  });
-
-  // The "already migrated elsewhere" check must not key off drivers: a
-  // colleague opening TMS on an empty workstation seeds two demo drivers, and
-  // keying off those would make this browser believe the import was already
-  // done and silently strand a real delivery history.
-  test('demo drivers created on another workstation do not block the import', async ({ page }) => {
-    const iso = new Date().toISOString();
-    await boot(page, {
-      __migrate: true,
-      drivers: [
-        { id: 'seed1', name: 'Conductor 1', vehicle: 'Camión 1', max_weight: 3500, max_volume: 18, enabled: true, created_at: iso },
-        { id: 'seed2', name: 'Conductor 2', vehicle: 'Furgoneta 2', max_weight: 1200, max_volume: 8, enabled: true, created_at: iso },
-      ],
-      __legacy: {
-        drivers: [{ id: 'old-d1', name: 'Luis Pérez', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
-        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso, proof: { photo: 'data:image/png;base64,OLDPHOTO', signature: null } }],
-        routes: [], history: [],
-      },
-    });
-
-    await expect(page.locator('.tms')).toContainText('Cliente Histórico');
-    const kept = await page.evaluate(() => window.__DB.tms_deliveries.map(d => d.customer));
-    expect(kept).toContain('Cliente Histórico');
-  });
-
-  test('a history already uploaded from another device is not duplicated, and the local copy is kept', async ({ page }) => {
-    const iso = new Date().toISOString();
-    await boot(page, {
-      __migrate: true,
-      deliveries: [{ id: 'cloud1', customer: 'Ya En La Nube', address: 'Calle Cloud 1', delivery_date: today(), status: 'Entregada', delivered_at: iso, created_at: iso }],
-      __legacy: {
-        drivers: [{ id: 'old-d1', name: 'Luis Pérez', vehicle: 'Camión 7', maxWeight: 2000, maxVolume: 10, enabled: true }],
-        deliveries: [{ id: 'old-x1', customer: 'Cliente Histórico', address: 'Av. Vieja 1', date: today(), status: 'Entregada', deliveredAt: iso }],
-        routes: [], history: [],
-      },
-    });
-
-    await expect(page.locator('.tms')).toContainText('Ya En La Nube');
-    // No second copy of the same history.
-    const customers = await page.evaluate(() => window.__DB.tms_deliveries.map(d => d.customer));
-    expect(customers).not.toContain('Cliente Histórico');
-    await expect(page.locator('#gamaToasts')).toContainText('no se ha importado');
-    // Nothing is destroyed: the browser copy is still there to recover from.
-    expect(await page.evaluate(() => localStorage.getItem('gama-tms-v1'))).not.toBeNull();
-  });
-});
 
 // Un conductor enlazado a una ficha de RRHH no sale de ruta mientras esté de
 // vacaciones o de baja. Lo delicado aquí no es esconderlo en la pantalla —eso
 // es cosmético— sino que el REPARTO no cuente con él: si optimize() le sigue
 // asignando entregas, el aviso de la ficha no sirve de nada.
-test.describe('TMS — conductores enlazados a RRHH', () => {
-  const EMPLEADOS = [
-    { id: 'emp1', full_name: 'Ana Torres', position: 'Conductora', active: true },
-    { id: 'emp2', full_name: 'Luis Paredes', position: 'Conductor', active: true },
-  ];
-  // drv1 es el primero de la lista: si el reparto lo ignora es porque está
-  // ausente, no porque le haya tocado el segundo turno.
-  const ENLAZADOS = [
-    { ...DRIVERS[0], employee_id: 'emp1' },
-    { ...DRIVERS[1], employee_id: 'emp2' },
-  ];
-  const ausencia = (id, employee_id, status, kind = 'vacaciones') => ({
-    id, employee_id, kind, status, start_date: today(), end_date: today(),
-  });
 
-  test('un conductor de vacaciones queda fuera del reparto', async ({ page }) => {
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-    await boot(page, {
-      drivers: ENLAZADOS,
-      employees: EMPLEADOS,
-      absences: [ausencia('abs1', 'emp1', 'aprobada')],
-    });
-
-    // El aviso se ve antes de pulsar «Optimizar», que es cuando importa.
-    await expect(page.locator('.tms')).toContainText('Hoy no reparten: Conductor 1 (vacaciones)');
-
-    await page.fill('#tCustomer', 'Cliente Prueba');
-    await page.fill('#tAddress', 'Calle Falsa 123, Quito, Ecuador');
-    await page.click('button:has-text("Añadir entrega")');
-    await expect(page.locator('.tms')).toContainText('Cliente Prueba');
-
-    // El aviso de que la ruta ya está hecha marca el final de optimize().
-    await page.click('#tOptimize');
-    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
-
-    const rutas = await page.evaluate(() => window.__DB.tms_routes);
-    expect(rutas.length).toBe(1);
-    expect(rutas[0].driver_id, 'la entrega se asignó al conductor ausente').toBe('drv2');
-
-    // Y la planificación dice quién no reparte hoy y por qué, que es donde se
-    // mira antes de optimizar.
-    await expect(page.locator('.tmsAbsente')).toContainText('Hoy no reparten');
-    await expect(page.locator('.tmsAbsente')).toContainText('Conductor 1');
-    await expect(page.locator('.tmsAbsente')).toContainText('vacaciones');
-  });
-
-  test('una solicitud de ausencia pendiente no bloquea al conductor', async ({ page }) => {
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-    await boot(page, {
-      drivers: ENLAZADOS,
-      employees: EMPLEADOS,
-      // Pedida, todavía no concedida: no puede dejar sin conductor al reparto.
-      absences: [ausencia('abs1', 'emp1', 'pendiente')],
-    });
-    await expect(page.locator('.tms')).not.toContainText('Hoy no reparten');
-  });
-
-});
 
 test('POD blocks an unstarted shipment before capture and opens its exact loading dossier',async({page})=>{
  await boot(page,{deliveries:[{id:'blocked',customer:'Same customer',address:'Quito',delivery_date:today(),status:'Planificada'}]});
@@ -535,83 +344,59 @@ test('delivery cannot be validated with an empty customer signature',async({page
 
 // Planificación: de los pedidos ya preparados se marcan los que salen hoy, y la
 // ruta se optimiza sólo con ellos. Por defecto van marcados los previstos para hoy.
-test.describe('TMS — pedidos preparados que salen hoy', () => {
-  const dayOffset = n => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
-  const pedido = (id, customer, date, extra = {}) => ({
-    id, customer, address: 'Av. ' + customer + ', Quito', delivery_date: date, status: 'Pendiente de preparación',
-    dossier_reference: 'PDV-' + id.toUpperCase(), weight: 10, volume: 0.2, created_at: new Date().toISOString(), ...extra,
-  });
-  const estado = page => page.evaluate(() => ({
-    routes: window.__DB.tms_routes.map(r => ({ driver: r.driver_id, stops: r.stops.filter(s => s !== '__depot').sort() })),
-    del: Object.fromEntries(window.__DB.tms_deliveries.map(d => [d.id, { date: d.delivery_date, route: d.route_id || null, status: d.status }])),
-  }));
 
-  test('the orders ticked for today are dated today and the route is optimised with them only', async ({ page }) => {
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-    await boot(page, {
-      drivers: DRIVERS.slice(0, 1),
-      deliveries: [
-        pedido('hoy1', 'Cliente Hoy', today()),
-        pedido('hoy2', 'Cliente Hoy Dos', today()),
-        pedido('manana', 'Cliente Manana', dayOffset(1)),
-        pedido('ruta', 'Ya en ruta', today(), { status: 'En ruta' }),
-        pedido('fin', 'Ya entregada', today(), { status: 'Entregada' }),
-      ],
-    });
-    const list = page.locator('.tmsPickList');
-    // Sólo lo que sigue en el almacén: ni lo que ya ha salido ni lo entregado.
-    await expect(list.locator('.tmsPick')).toHaveCount(3);
-    await expect(list.locator('[data-tms-pick="hoy1"]')).toBeChecked();
-    await expect(list.locator('[data-tms-pick="hoy2"]')).toBeChecked();
-    await expect(list.locator('[data-tms-pick="manana"]')).not.toBeChecked();
-    await expect(list.locator('.tmsPick', { hasText: 'Cliente Manana' })).toContainText('Prevista el');
-    await expect(page.locator('#tPickCount')).toHaveText('2 pedidos seleccionados');
 
-    await list.locator('[data-tms-pick="hoy2"]').uncheck();
-    await list.locator('[data-tms-pick="manana"]').check();
-    await expect(page.locator('#tOptimizeCount')).toHaveText('(2)');
-    await page.click('#tOptimize');
-    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
+test.describe('TMS — automatic daily order planning',()=>{
+ const delivery=(id,date=today(),extra={})=>({id,customer:'Customer '+id,address:'Quito '+id,delivery_date:date,weight:40,volume:1,lat:-0.2,lng:-78.5,status:'Pendiente de preparación',...extra});
+ test('no manual creation or date selection; today’s orders are automatically planned and mapped',async({page})=>{
+  await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('today'),delivery('future','2099-01-01'),delivery('legacy',today(),{legacy:true})]});
+  await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');
+  await expect(page.locator('#tAdd,#tCustomer,#tDate,#tOptimize,[data-tms-pick]')).toHaveCount(0);
+  await expect(page.locator('#tDayMap svg')).toBeVisible();await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
+  const state=await page.evaluate(()=>({ds:__DB.tms_deliveries,rs:__DB.tms_routes}));expect(state.rs[0].stops).toEqual(['today']);expect(state.ds.find(d=>d.id==='future').delivery_date).toBe('2099-01-01');expect(state.ds.find(d=>d.id==='legacy').route_id).toBeFalsy();
+  await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();expect(await page.evaluate(()=>__DB.tms_routes[0].id)).toBe(state.rs[0].id);
+ });
+ test('missing coordinates remain visible and can be corrected without inventing a position',async({page})=>{
+  await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('missing',today(),{lat:null,lng:null})]});
+  await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('[data-map-delivery]')).toHaveCount(0);await expect(page.locator('.tms')).toContainText('Coordenadas pendientes: 1');
+  await page.click('[data-tms-coordinates]');await page.fill('dialog input[name=lat]','-0.2');await page.fill('dialog input[name=lng]','-78.5');await page.click('dialog button[type=submit]');
+  await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');await expect(page.locator('[data-map-delivery]')).toHaveCount(1);await expect(page.locator('dialog')).toHaveCount(0);
+ });
+ test('capacity and approved absences prevent an impossible assignment',async({page})=>{
+  await boot(page,{drivers:[{...DRIVERS[0],max_weight:50,employee_id:'emp1'}, {...DRIVERS[1],max_weight:50}],absences:[{id:'abs',employee_id:'emp1',kind:'vacaciones',status:'aprobada',start_date:today(),end_date:today()}],deliveries:[delivery('a'),delivery('b')]});
+  await expect(page.locator('#tPlanStatus')).toContainText('1 / 2');await expect(page.locator('.tms')).toContainText('Capacidad o conductores insuficientes: 1');expect(await page.evaluate(()=>__DB.tms_routes.map(r=>r.driver_id))).toEqual(['drv2']);
+ });
+ test('departed route is preserved and its driver is excluded',async({page})=>{
+  await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('moving',today(),{status:'En tránsito',route_id:'started',driver_id:'drv1'}),delivery('waiting')],routes:[{id:'started',route_date:today(),driver_id:'drv1',driver_name:'Started',vehicle:'Truck',stops:['moving'],status:'Planificada'}]});
+  await expect(page.locator('#tPlanStatus')).toContainText('0 / 1');expect(await page.evaluate(()=>__DB.tms_routes.map(r=>r.id))).toEqual(['started']);
+ });
+ test('planner failure is explicit and a later refresh recovers',async({page})=>{
+  await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[]});await page.evaluate(()=>__DB.__planError='TMS_ACCESS_DENIED');await page.click('#tRefresh');await expect(page.locator('[role=alert]')).toContainText('TMS_ACCESS_DENIED');
+  await page.evaluate(()=>delete __DB.__planError);await page.click('#tRefresh');await expect(page.locator('[role=alert]')).toHaveCount(0);
+ });
+ test('legacy browser history is retained without inserting a manual delivery',async({page})=>{
+  await boot(page,{__migrate:true,__legacy:{deliveries:[{id:'old',customer:'Old',address:'Quito'}]}});
+  expect(await page.evaluate(()=>__DB.tms_deliveries.length)).toBe(0);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0].id)).toBe('old');
+ });
+ test('the map and depot form fit a phone viewport',async({page})=>{
+  await page.setViewportSize({width:320,height:900});await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('phone')]});await expect(page.locator('#tDayMap svg')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+ });
+});
 
-    const s = await estado(page);
-    expect(s.routes).toEqual([{ driver: 'drv1', stops: ['hoy1', 'manana'] }]);
-    expect(s.del.manana).toMatchObject({ date: today(), status: 'Planificada' });
-    expect(s.del.hoy2).toEqual({ date: today(), route: null, status: 'Pendiente de preparación' });
-    // La ruta enseña sus paradas en orden, y el cambio de fecha queda en el historial.
-    await expect(page.locator('.tmsStops li')).toHaveCount(2);
-    expect(await page.evaluate(() => window.__DB.tms_events.filter(e => e.type === 'PROGRAMADA').map(e => e.delivery_id))).toEqual(['manana']);
-  });
+test('automatic geocoding persists positions, replans once, and renders real ordered points',async({page})=>{
+ await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'geo',customer:'Geo client',address:'Unique Quito street',delivery_date:today(),status:'Pendiente de preparación',weight:10,volume:1,lat:null,lng:null}]});
+ await expect(page.locator('#tRefresh')).toBeEnabled();
+ await page.unroute('**/nominatim.openstreetmap.org/**');let requests=0;await page.route('**/nominatim.openstreetmap.org/**',route=>{requests++;return route.fulfill({contentType:'application/json',body:JSON.stringify([{lat:'-0.2',lon:'-78.5'}])})});
+ await page.click('#tRefresh');await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');await expect(page.locator('#tRefresh')).toBeEnabled();
+ expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBe(-0.2);expect(requests).toBe(1);
+ await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();expect(requests).toBe(1);
+ await page.locator('[data-map-delivery]').press('Enter');await expect(page.locator('#tms-delivery-geo')).toBeFocused();
+ await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-planning-desktop.png'});
+});
 
-  test('an order unticked after planning leaves today’s route and waits again', async ({ page }) => {
-    await page.route('**/nominatim.openstreetmap.org/**', route => route.abort());
-    await boot(page, {
-      drivers: DRIVERS.slice(0, 1),
-      deliveries: [
-        pedido('a', 'Cliente A', today(), { status: 'Planificada', route_id: 'r1', driver_id: 'drv1' }),
-        pedido('b', 'Cliente B', today(), { status: 'Planificada', route_id: 'r1', driver_id: 'drv1' }),
-      ],
-      routes: [{ id: 'r1', route_date: today(), driver_id: 'drv1', driver_name: 'Conductor 1', vehicle: 'Camión 1', stops: ['a', 'b'], distance: 0, weight: 20, volume: 0.4, status: 'Planificada', created_at: new Date().toISOString() }],
-    });
-    await expect(page.locator('.tmsPickList [data-tms-pick="a"]')).toBeChecked();
-    await page.locator('.tmsPickList [data-tms-pick="a"]').uncheck();
-    await page.click('#tOptimize');
-    await expect(page.locator('#gamaToasts')).toContainText('ruta(s) creada(s)', { timeout: 10000 });
-    const s = await estado(page);
-    expect(s.routes).toEqual([{ driver: 'drv1', stops: ['b'] }]);
-    expect(s.del.a).toEqual({ date: today(), route: null, status: 'Pendiente de preparación' });
-    expect(s.del.b.status).toBe('Planificada');
-  });
-
-  test('with nothing ticked, nothing changes and the planner is told why', async ({ page }) => {
-    await boot(page, { drivers: DRIVERS.slice(0, 1), deliveries: [pedido('x', 'Cliente X', dayOffset(2))] });
-    await page.locator('#tPickNone').click();
-    await expect(page.locator('#tOptimizeCount')).toHaveText('(0)');
-    await page.click('#tOptimize');
-    await expect(page.locator('#gamaToasts')).toContainText('Marca al menos un pedido');
-    expect(await page.evaluate(() => [window.__DB.tms_routes.length, window.__DB.tms_deliveries[0].delivery_date])).toEqual([0, dayOffset(2)]);
-    // «Todos» marca también lo previsto para otro día.
-    await page.locator('#tPickAll').click();
-    await expect(page.locator('.tmsPickList [data-tms-pick="x"]')).toBeChecked();
-    await expect(page.locator('#tPickCount')).toHaveText('1 pedido seleccionado');
-  });
+test('a late geocoding response cannot reopen planning after navigation',async({page})=>{
+ await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'lategeo',customer:'Late geo',address:'Slow address',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:null,lng:null}]});await expect(page.locator('#tRefresh')).toBeEnabled();
+ await page.unroute('**/nominatim.openstreetmap.org/**');let release,started;const pending=new Promise(r=>release=r),called=new Promise(r=>started=r);await page.route('**/nominatim.openstreetmap.org/**',async route=>{started();await pending;await route.fulfill({contentType:'application/json',body:'[{"lat":"-0.2","lon":"-78.5"}]'})});
+ await page.click('#tRefresh');await called;await page.click('button.tmsTab:has-text("Prueba de entrega")');release();await page.waitForTimeout(300);
+ await expect(page.locator('#tDayMap')).toHaveCount(0);await expect(page.locator('button.tmsTab.active')).toHaveText('Prueba de entrega');expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
 });

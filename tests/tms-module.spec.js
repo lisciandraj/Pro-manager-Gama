@@ -400,3 +400,8 @@ test('a late geocoding response cannot reopen planning after navigation',async({
  await page.click('#tRefresh');await called;await page.click('button.tmsTab:has-text("Prueba de entrega")');release();await page.waitForTimeout(300);
  await expect(page.locator('#tDayMap')).toHaveCount(0);await expect(page.locator('button.tmsTab.active')).toHaveText('Prueba de entrega');expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
 });
+
+test('planning translates delivery and route states in French and English',async({page})=>{
+ await boot(page,{deliveries:[{id:'translated',customer:'Translated client',address:'Quito',delivery_date:today(),status:'En tránsito',route_id:'translated-route'}],routes:[{id:'translated-route',route_date:today(),stops:['translated'],status:'En tránsito'}]});
+ for(const lang of ['fr','en']){await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);await page.evaluate(()=>gamaTMS.open('planning'));await expect(page.locator('.tms')).not.toContainText('En tránsito');await expect(page.locator('#tDayMap')).toBeVisible()}
+});

@@ -91,3 +91,7 @@ Les onglets Importer des données, Sauvegarde et Paramètres d’accès vivent d
 ## Planification TMS quotidienne
 
 La carte et le cycle automatique sont dans `src/features/transport/workspace.js`. `gama_tms_plan_day` expose une façade invocateur et un traitement privé contrôlant les accès, verrouillant la journée et conservant les tournées parties. Les nouvelles livraisons nécessitent un lien de commande à la validation transactionnelle. Voir [TMS](modules/tms.md).
+
+## Vues personnelles du Dashboard
+
+`src/features/dashboard/dashboard.js` utilise les agrégations autorisées existantes. Ses filtres, favorites, panneaux et outils de graphique sont décrits dans [Dashboard](modules/dashboard.md). Les préférences locales sont attachées au `user_id` vérifié du résultat serveur ; les CSV vérifient aussi les droits d’export.

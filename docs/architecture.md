@@ -31,13 +31,15 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
 Les scripts déclarés dans l’entrée ERP utilisent `defer` : leurs téléchargements se chevauchent, avec un ordre d’exécution conservé après l’analyse du HTML. Identité et Supabase précèdent la validation du profil ; le menu peut fonctionner avant la fin du chargement des extensions finales. Les tuiles sont créées masquées puis affichées avec les droits vérifiés. Quand Auth restaure une session sans ancien enregistrement de compatibilité, `gama:profile-ready` réveille aussi le menu ; les changements de rôle sont comparés à l’état réellement appliqué, et les rafraîchissements identiques conservent le DOM.
 
 Le moteur jsPDF local est chargé par `GamaPdf.ready()` au premier export. Les constructeurs de documents restent synchrones après cette attente ; voir [exports PDF](development/pdf-exports.md). Le chargeur partage les téléchargements, conserve l’intégrité SRI et permet une nouvelle tentative après une erreur réseau.
 
 Projets sépare l’intégration légère (`src/features/projects/integration.js`) du moteur de calcul et des écrans. Les alertes, liens de création et résumés clients restent disponibles à l’accueil ; `projects-core.js`, puis `projects.js`, sont chargés à l’ouverture. Les lectures simultanées d’alertes partagent une promesse sans conserver les résultats. Les réponses d’une ancienne session sont rejetées ; un renouvellement de jeton ne ferme pas l’éditeur.
+
+Stock garde son point d’entrée historique avec une intégration légère. Les existences se chargent en premier ; règles de reposición, fournisseurs, inventaires et étagères attendent leur onglet. Les vues opérationnelles agrègent les sorties côté serveur et créent uniquement des brouillons d’achat avec reçu idempotent ; voir [Stock](modules/stock.md).
 
 CRM, les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite les scripts déclarés à 93 et 1 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
 

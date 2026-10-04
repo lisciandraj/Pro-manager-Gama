@@ -245,7 +245,7 @@
     const ubis = (window.__DB.warehouse_locations || []).filter(l => l.warehouse_id === c.warehouse_id).map(l => l.id);
     window.__DB.inventory_count_lines = window.__DB.inventory_count_lines || [];
     let n = 0;
-    (window.__DB.stock_quants || []).filter(q => ubis.includes(q.location_id)).forEach(q => {
+    (window.__DB.stock_quants || []).filter(q => ubis.includes(q.location_id)&&(!c.product_id||q.product_id===c.product_id)&&(!c.location_id||q.location_id===c.location_id)).forEach(q => {
       const ya = window.__DB.inventory_count_lines.find(l => l.count_id === c.id && l.product_id === q.product_id && l.location_id === q.location_id);
       if (ya) { if (ya.counted_quantity === null || ya.counted_quantity === undefined) ya.expected_quantity = q.quantity; return; }
       window.__DB.inventory_count_lines.push({
@@ -798,6 +798,44 @@
           if(args.p_action==='link_external')return {data:(window.__DB.external_invoices||[]).find(i=>i.id===args.p_data.invoice_id)};
         }
 
+        if(fn==='gama_inventory_snapshot'){
+          const canBuy=['administrador','comercial'].includes(window.__DB._profile.role),ware=args.p_warehouse,until=args.p_until;
+          const locations=(window.__DB.warehouse_locations||[]).filter(l=>!ware||l.warehouse_id===ware).map(l=>l.id);
+          return {data:{rows:(window.__DB.products||[]).filter(p=>p.active!==false&&p.product_kind!=='service').map(p=>{
+            const qs=(window.__DB.stock_quants||[]).filter(q=>q.product_id===p.id&&locations.includes(q.location_id));
+            const physical=qs.reduce((s,q)=>s+Number(q.quantity||0),0),reserved=qs.reduce((s,q)=>s+Number(q.reserved_quantity||0),0);
+            const incoming=canBuy?(window.__DB.purchase_order_lines||[]).filter(l=>l.product_id===p.id).reduce((s,l)=>{const o=(window.__DB.purchase_orders||[]).find(o=>o.id===l.purchase_order_id);return s+(o&&['sent','partial'].includes(o.status)&&(!ware||locations.includes(o.destination_location_id))&&(!until||(o.expected_date&&o.expected_date.slice(0,10)<=until))?Math.max(0,Number(l.quantity)-Number(l.received_quantity||0)):0)},0):null;
+            return {id:p.id,physical,reserved,available:physical-reserved,incoming,projected:incoming===null?null:physical-reserved+incoming,current_cost_value:physical*Number(p.purchase_price||0)};
+          })}};
+        }
+        if(fn==='gama_stock_insights'){
+          const role=window.__DB._profile.role,canBuy=['administrador','comercial'].includes(role),canCount=['administrador','almacenero'].includes(role);
+          if(!['administrador','comercial','almacenero'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};
+          if(window.__stockInsightsError)return {error:{message:window.__stockInsightsError}};
+          const today=new Date().toISOString().slice(0,10);
+          const supplied=window.__stockInsights?.[args.p_view];
+          const rows=supplied?.rows||(window.__DB.products||[]).filter(p=>p.active!==false&&p.product_kind!=='service').map(p=>{
+            const qs=(window.__DB.stock_quants||[]).filter(q=>q.product_id===p.id),physical=qs.reduce((s,q)=>s+Number(q.quantity||0),0),reserved=qs.reduce((s,q)=>s+Number(q.reserved_quantity||0),0);
+            const rule=(window.__DB.reorder_rules||[]).find(r=>r.product_id===p.id&&r.active!==false),min=Number(rule?.min_quantity??p.min_stock??0),max=Number(rule?.max_quantity??p.max_stock??0);
+            let incoming=0,drafts=0;for(const l of (window.__DB.purchase_order_lines||[]).filter(l=>l.product_id===p.id)){const o=(window.__DB.purchase_orders||[]).find(o=>o.id===l.purchase_order_id);if(['sent','partial'].includes(o?.status))incoming+=Math.max(0,Number(l.quantity)-Number(l.received_quantity||0));if(o?.status==='draft')drafts+=Number(l.quantity)}
+            const supplier=(window.__DB.suppliers||[]).find(s=>s.id===(rule?.supplier_id||p.supplier_id)&&s.active!==false),net=physical-reserved+incoming+drafts;
+            return {id:p.id,name:p.name,reference:p.reference,on_hand:physical,reserved,available:physical-reserved,incoming:canBuy?incoming:null,draft_quantity:canBuy?drafts:null,projected:canBuy?net:null,min_quantity:min,max_quantity:max,target_min:min,target_max:Math.max(min,max),suggested_quantity:canBuy&&!p.replenishment_excluded&&net<min?Math.max(min,max)-net:0,supplier_id:canBuy?supplier?.id:null,supplier_name:canBuy?supplier?.name:null,lead_time_days:rule?.lead_time_days||7,lead_configured:!!rule?.lead_time_days,basis:'thresholds',value:physical*Number(p.purchase_price||0),importance:'C',days_without_out:100,last_out:null,repeated_discrepancies:0};
+          });
+          return {data:{today,as_of:new Date().toISOString(),can_buy:canBuy,can_count:canCount,rows,late_orders:[],adjustments:[],counts:canCount?window.__DB.inventory_counts||[]:[],people:canCount?(window.__DB.profiles||[]).map(p=>({id:p.id,name:p.full_name})):[],...supplied}};
+        }
+        if(fn==='gama_stock_replenish'){
+          const d=args.p_data;window.__stockReplenishmentCalls=(window.__stockReplenishmentCalls||[]).concat(structuredClone(d));
+          const receipts=window.__stockReplenishmentReceipts ||= {};if(receipts[d.request_key])return {data:receipts[d.request_key]};
+          if(window.__stockReplenishError)return {error:{message:window.__stockReplenishError}};
+          const orders=[];for(const sid of new Set(d.items.map(i=>i.supplier_id))){const items=d.items.filter(i=>i.supplier_id===sid),id=nextId('purchase_orders'),number='OC-STOCK-'+id;
+            (window.__DB.purchase_orders ||= []).push({id,supplier_id:sid,status:'draft',order_number:number,source_kind:'low_stock',created_at:new Date().toISOString()});
+            for(const i of items)(window.__DB.purchase_order_lines ||= []).push({id:nextId('purchase_order_lines'),purchase_order_id:id,product_id:i.product_id,quantity:i.quantity,received_quantity:0});
+            orders.push({id,number,supplier_id:sid,lines:items.length});
+          }
+          const result={orders,products:d.items.length};receipts[d.request_key]=result;
+          for(const view of Object.values(window.__stockInsights||{}))for(const r of view.rows||[])if(d.items.some(i=>i.product_id===r.id)){r.draft_quantity=Number(r.draft_quantity||0)+Number(r.suggested_quantity||0);r.suggested_quantity=0}
+          return {data:result};
+        }
         if(fn==='gama_purchase_save'){
           const d=args.p_data,id=nextId('purchase_orders'),row={...d,id,status:'draft',order_number:'OC-TEST',order_date:new Date().toISOString()};delete row.lines;
           (window.__DB.purchase_orders ||= []).push(row);

@@ -245,8 +245,16 @@
       "output": "gama-internal-invoices.js"
     },
     {
-      "source": "src/features/inventory/workspace.js",
+      "source": "src/features/inventory/integration.js",
       "output": "gama-inventory-v2.js"
+    },
+    {
+      "source": "src/features/inventory/workspace.js",
+      "output": "gama-stock-workspace.js"
+    },
+    {
+      "source": "src/features/inventory/operations.js",
+      "output": "gama-stock-operations.js"
     },
     {
       "source": "src/features/sales/invoice-archive.js",

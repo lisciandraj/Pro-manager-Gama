@@ -54,7 +54,7 @@ async function boot(page, seed = {}) {
   await page.goto('/index.html');
   await page.waitForTimeout(500);
   await page.click('#mainmenu .gamaF2Card[data-gama-module="tms"]');
-  if(!seed.__driver)await page.locator('[data-tms-stage=planning]').click();
+  if(!seed.__driver)await expect(page.locator('#tDayMap')).toBeVisible();
   else await expect(page.locator('.tmsDriver')).toBeVisible();
 }
 

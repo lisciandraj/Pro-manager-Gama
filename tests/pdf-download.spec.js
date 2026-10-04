@@ -87,7 +87,7 @@ test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ p
 
   await page.evaluate(() => window.gamaTMS.open());
   await page.waitForTimeout(900);
-  await page.click('.tmsTab:has-text("Prueba de entrega"), button:has-text("Prueba de entrega")');
+  await page.click('[data-tms-stage=proof]');
   await page.waitForTimeout(600);
   await page.click('#tProofPdf');
   await page.waitForTimeout(1200);
@@ -153,9 +153,9 @@ test('el comprobante lleva los datos de la entrega seleccionada', async ({ page 
 
   await page.evaluate(() => window.gamaTMS.open());
   await page.waitForTimeout(900);
-  await page.click('.tmsTab:has-text("Prueba de entrega"), button:has-text("Prueba de entrega")');
+  await page.click('[data-tms-stage=proof]');
   await page.waitForTimeout(600);
-  await page.click('#tProofOne');
+  await page.click('[data-proof-download=e1]');
   await page.waitForTimeout(900);
 
   const r = await page.evaluate(() => ({ cert: window.__cert, saved: window.__saved }));

@@ -273,7 +273,7 @@ window.addEventListener('focus',()=>autoPlanning());
 window.addEventListener('gama:language-change',()=>{if(currentTab==='driver')renderDriver();else if(currentTab==='today')render('today')});
 window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
 window.addEventListener('gama:sales-change',()=>autoPlanning());
-window.addEventListener('arc:route-leave',()=>{planningEpoch++;mapObserver?.disconnect()});
+window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
 window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapObserver?.disconnect();geoAttempts.clear();db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){

@@ -288,7 +288,7 @@
   function mapRpcError(e){const m=String(e||'');if(m.includes('RECEIPT_EXCEEDS_ORDERED'))return 'La cantidad recibida supera la cantidad pedida.';if(m.includes('PURCHASE_ORDER_CANCELLED'))return 'Este pedido está cancelado.';if(m.includes('FORBIDDEN'))return 'Tu perfil no tiene permiso para registrar recepciones.';if(m.includes('PURCHASE_ORDER_NOT_FOUND'))return 'Pedido no encontrado.';return 'No se ha podido registrar la recepción: '+m}
   window.addEventListener('gama:auth-change',()=>{receiptCommands.clear();projectContext=null;projectSaveKey=null;draft=[];draftSource=null;$('gp14ProjectContext')?.remove()});
   function subscribe(){['purchase_orders','purchase_order_lines','stock_movements','products'].forEach(t=>{try{C().subscribe(t,()=>{if(!loading&&$('gamaPurchasesV14')?.classList.contains('active'))load()})}catch(e){}})}
-  window.GamaPurchases={open:show,openOrder,openDossier:window.gamaOpenPurchaseDossier,fromProject:window.gamaCreateProjectPurchase};
+  window.GamaPurchases={open:show,openOrder,openDossier:window.gamaOpenPurchaseDossier,fromProject:window.gamaCreateProjectPurchase,prepareAction:window.gamaPrepareActionPurchase,prepareSupplierOffer:window.gamaPrepareSupplierOffer};
   async function boot(){if(window[MOD])return;window[MOD]=true;try{inject();installTab();subscribe()}catch(e){console.warn('[GAMA Compras V14]',e)}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 })();

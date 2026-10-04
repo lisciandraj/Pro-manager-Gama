@@ -68,7 +68,7 @@ test.describe('TMS — drivers and vehicles live elsewhere', () => {
     await boot(page, { drivers: DRIVERS });
     await expect(page.locator('button.tmsTab')).toHaveCount(0);
     await expect(page.locator('[data-tms-stage]')).toHaveCount(4);
-    await expect(page.locator('.tmsFlow')).toContainText(['Preparar','Planificar','Cargar','Entregar']);
+    await expect(page.locator('[data-tms-stage]')).toContainText(['Preparar','Planificar','Cargar','Entregar']);
     await expect(page.locator('[data-tms-stage] strong')).toHaveCount(4);
     await expect(page.locator('button.tmsTab:has-text("Conductores y vehículos")')).toHaveCount(0);
     // Y nada del módulo escribe ya en un registro propio de conductores.
@@ -421,8 +421,8 @@ test('proof table sorts suppliers and downloads an ERP-named certificate without
  await page.evaluate(()=>{__DB.suppliers=[{id:'sup-a',name:'Alfa proveedor'}]});await page.click('[data-tms-stage=proof]');
  await expect(page.locator('[data-proof-row=b]')).toContainText('Alfa proveedor');await expect(page.locator('[data-proof-row=b]')).toContainText('DOC-00000017');await expect(page.locator('.tmsProof img')).toHaveCount(0);
  await page.locator('#tProofTable th[data-gama-sort-col=partner]').click();await expect(page.locator('#tProofTable tbody tr').first()).toHaveAttribute('data-proof-row','b');
- await page.evaluate(()=>{GamaPdf.proofCertificate=()=>({});GamaPdf.save=(pdf,filename)=>window.__proofDownload=filename});await page.click('[data-proof-download=b]');
- await expect.poll(()=>page.evaluate(()=>__proofDownload)).toMatch(/^DOC-00000017/);
+ await page.evaluate(()=>{window.__proofDownload='';GamaPdf.proofCertificate=()=>({});GamaPdf.save=(pdf,filename)=>window.__proofDownload=filename});await page.click('[data-proof-download=b]');
+ await expect.poll(()=>page.evaluate(()=>window.__proofDownload)).toMatch(/^DOC-00000017/);
  await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-proofs-table.png'});
 });
 

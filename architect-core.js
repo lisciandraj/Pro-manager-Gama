@@ -1549,7 +1549,7 @@
     "hr-operations": { "global": "GamaHRP1", "file": "gama-hr-p1.js", "methods": ["mountFinance", "load"] },
     "hr": { "global": "GamaHR", "file": "gama-hr.js", "dependencies": ["gama-hr-p1.js"], "methods": ["open", "load"], "aliases": { "GamaOpenHR": "open" } },
     "dossier-flow": { "global": "GamaDossierFlow", "file": "gama-dossier-flow.js", "methods": ["open", "attachHistory"] },
-    "gamaPurchasesV14": { "global": "GamaPurchases", "file": "gama-purchases-v14.js", "methods": ["open", "openOrder", "openDossier", "fromProject"], "aliases": { "gamaShowPurchases": "open", "gamaOpenPurchaseV14": "openOrder", "gamaOpenPurchaseDossier": "openDossier", "gamaCreateProjectPurchase": "fromProject" } },
+    "gamaPurchasesV14": { "global": "GamaPurchases", "file": "gama-purchases-v14.js", "methods": ["open", "openOrder", "openDossier", "fromProject", "prepareAction", "prepareSupplierOffer"], "aliases": { "gamaShowPurchases": "open", "gamaOpenPurchaseV14": "openOrder", "gamaOpenPurchaseDossier": "openDossier", "gamaCreateProjectPurchase": "fromProject", "gamaPrepareActionPurchase": "prepareAction", "gamaPrepareSupplierOffer": "prepareSupplierOffer" } },
     "warehouses": { "global": "GamaInventoryV2", "file": "gama-stock-workspace.js", "methods": ["abrir", "openCount", "openAdjustments", "cargar"] },
     "surveys": { "global": "GamaSurveys", "file": "gama-surveys.js", "dependencies": ["gama-survey-form.js"], "methods": ["open"] },
     "website": {

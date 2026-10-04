@@ -152,10 +152,10 @@ test('teléfono: la ventana ocupa la pantalla y el menú se pone en fila, sin de
 for(const width of [390,1280])test('import, backup and access move into Configuration with compatible links at '+width,async({page})=>{
  await page.setViewportSize({width,height:900});await boot(page);
  for(const id of ['reports','backup','access-settings'])await expect(page.locator('#mainmenu [data-gama-module="'+id+'"],.arcSidebar [data-gama-module="'+id+'"]')).toHaveCount(0);
- await page.evaluate(()=>ArcRouter.open('reports'));await expect(dialog(page)).toBeVisible();await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#gamaExcelFile')).toBeAttached();await expect(page.locator('#reports .gamaStdBack')).toBeHidden();
+ await page.evaluate(()=>ArcRouter.open('reports'));await expect(dialog(page)).toBeVisible();await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#gamaExcelFile')).toBeAttached();await expect(page.locator('#reports [data-gama-standard-header]')).toHaveCount(0);
  await page.locator('#gamaExcelFile').setInputFiles({name:'keep.csv',mimeType:'text/csv',buffer:Buffer.from('Nombre,Referencia\nProducto,TEST-1')});
- await page.locator('#cfgTab-backup').click();await expect(page.locator('#recoveryExport')).toBeVisible();await expect(page.locator('#recoveryFile')).toBeVisible();
- await page.evaluate(()=>ArcRouter.show('access-settings'));await expect(page.locator('#cfgTab-access-settings')).toHaveAttribute('aria-selected','true');await expect(page.locator('#access-settings [data-mod=products]')).toBeVisible();
+ await page.locator('#cfgTab-backup').click();await expect(page.locator('#recoveryExport')).toBeVisible();await expect(page.locator('#recoveryFile')).toBeVisible();await expect(page.locator('#backup [data-gama-standard-header]')).toHaveCount(0);
+ await page.evaluate(()=>ArcRouter.show('access-settings'));await expect(page.locator('#cfgTab-access-settings')).toHaveAttribute('aria-selected','true');await expect(page.locator('#access-settings [data-mod=products]')).toBeVisible();await expect(page.locator('#access-settings [data-gama-standard-header]')).toHaveCount(0);
  await page.locator('#cfgTab-reports').click();expect(await page.locator('#gamaExcelFile').evaluate(e=>e.files[0]?.name)).toBe('keep.csv');
  await expect(dialog(page)).toHaveCount(1);expect(await dialog(page).locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
  await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);for(const id of ['reports','backup','access-settings'])await expect(page.locator('#'+id)).toBeHidden();
@@ -175,7 +175,7 @@ for(const width of [390,1280])test('users work inside Configuration, refresh liv
  await expect(page.locator('#mainmenu [data-gama-module=users],.arcSidebar [data-gama-module=users]')).toHaveCount(0);
  await page.locator('#arcSettings').click();await page.locator('#cfgTab-users').click();
  await expect(page.locator('#cfgPane-users #users')).toBeVisible();await expect(page.locator('#cuRows tr')).toHaveCount(2);
- await expect(page.locator('#users [data-invite-user]')).toBeVisible();await expect(page.locator('#users .gamaStdBack')).toBeHidden();
+ await expect(page.locator('#users [data-invite-user]')).toBeVisible();await expect(page.locator('#users [data-gama-standard-header]')).toHaveCount(0);
  await page.locator('[data-cu-toggle=staff]').click();await expect(page.locator('#cuRows tr').filter({hasText:'Staff QA'})).toContainText('Actif');
  await page.evaluate(()=>{__DB.profiles.find(p=>p.id==='staff').full_name='Staff actualizado';window.__profileChanged()});
  await expect(page.locator('#cuRows')).toContainText('Staff actualizado');

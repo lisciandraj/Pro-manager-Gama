@@ -6,7 +6,7 @@ const cloud=require('node:fs').readFileSync(__dirname+'/mock-gama-cloud.js','utf
 // be force-hidden by three separate mechanisms (gama-standard-ui.js's
 // EMPTY_IDS/EMPTY_LABELS, and a duplicate "hard block" list inline in
 // index.html), and a timing race used to leave a stale generic "Módulo"
-// header stuck above the module's own branded header.
+// header stuck above the embedded Configuration content.
 test.describe('Importar datos', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
@@ -28,9 +28,9 @@ test.describe('Importar datos', () => {
     await expect(page.locator('#arcSettingsDialog')).toBeVisible();
 
     await expect(page.locator('#excel-import-module')).toContainText('Importar datos');
-    // No leftover "Módulo" fallback header stuck above the module's own header.
+    // Configuration provides the title; the embedded module has no introduction.
     await expect(page.locator('#reports')).not.toContainText('Módulo');
-    await expect(page.locator('#reports > .gamaStdHeader')).toHaveCount(0);
+    await expect(page.locator('#reports [data-gama-standard-header]')).toHaveCount(0);
   });
 
   // Antes cada módulo se dibujaba su propio botón de volver (aquí

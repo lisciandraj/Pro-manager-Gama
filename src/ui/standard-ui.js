@@ -2,7 +2,8 @@
 (function(){
 'use strict';
 const STYLE='gamaStandardUIStyleV8';
-const SKIP=new Set(['mainmenu','login','loginSection','auth','gamaPurchasesV14','gama-tms-section','reports']);
+// Configuration supplies the context for its embedded import/recovery/access panes.
+const SKIP=new Set(['mainmenu','login','loginSection','auth','gamaPurchasesV14','gama-tms-section','reports','backup','users','access-settings']);
 
 /* Título y descripción de cada pantalla. La descripción son dos o tres frases
    en lenguaje llano: es la ayuda del módulo. Todo lo que antes se explicaba en

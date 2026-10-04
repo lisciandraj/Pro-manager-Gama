@@ -4620,3 +4620,38 @@ Elige una caja o cuenta bancaria activa.	Choisissez une caisse ou un compte banc
 No hay una factura abierta para este cobro.	Aucune facture ouverte pour cet encaissement.	There is no open invoice for this payment.
 Confirma la salida antes de registrar esta operación.	Confirmez le départ avant d’enregistrer cette opération.	Confirm departure before recording this operation.
 Registra primero el motivo del fallo.	Enregistrez d’abord le motif de l’échec.	Record the failure reason first.
+Facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra vinculadas a sus documentos de origen.	Factures, avoirs, retenues, guides de transport et liquidations d’achat liés à leurs documents d’origine.	Invoices, credit notes, withholdings, delivery guides and purchase settlements linked to their source documents.
+Notas de crédito, retenciones y guías	Avoirs, retenues et guides de transport	Credit notes, withholdings and delivery guides
+Reponer y preparar nota de crédito SRI	Remettre en stock et préparer l’avoir SRI	Restock and prepare SRI credit note
+Guía de remisión	Guide de transport	Delivery guide
+Guía de remisión PDF	Guide de transport PDF	Delivery guide PDF
+Liquidación de compra	Liquidation d’achat	Purchase settlement
+Comprobante de retención	Certificat de retenue	Withholding certificate
+Documentos electrónicos SRI	Documents électroniques SRI	SRI electronic documents
+Preparar documento SRI	Préparer le document SRI	Prepare SRI document
+Dirección de salida	Adresse de départ	Departure address
+Identificación del transportista	Identifiant du transporteur	Carrier identification
+Fin del transporte	Fin du transport	Transport end
+Las líneas y el IVA deben coincidir con la factura proveedor.	Les lignes et la TVA doivent correspondre à la facture fournisseur.	The lines and VAT must match the supplier invoice.
+Retenciones del proveedor	Retenues du fournisseur	Supplier withholdings
+Cuenta de retenciones por pagar	Compte des retenues à payer	Withholding liability account
+Vigente hasta	En vigueur jusqu’au	Valid until
+Fuente y revisión fiscal	Source et validation fiscale	Source and tax review
+Revisa los códigos y porcentajes vigentes según la condición fiscal del proveedor.	Vérifiez les codes et taux en vigueur selon le statut fiscal du fournisseur.	Review the current codes and rates for the supplier’s tax status.
+Compras pendientes de revisión	Achats en attente de validation	Purchases awaiting review
+Preparar compras verificadas	Préparer les achats vérifiés	Prepare reviewed purchases
+Referencia ERP	Référence ERP	ERP reference
+Descartar para ajustar la ruta	Écarter pour modifier la tournée	Discard to adjust the route
+No hay documentos de este tipo.	Aucun document de ce type.	No documents of this type.
+Los documentos pendientes se consultan por la misma clave de acceso. No se vuelven a emitir.	Les documents en attente sont consultés avec la même clé d’accès. Ils ne sont pas réémis.	Pending documents are checked using the same access key. They are never issued again.
+Confirma el ambiente y los datos fiscales. El documento se enviará una sola vez.	Confirmez l’environnement et les données fiscales. Le document sera envoyé une seule fois.	Confirm the environment and tax details. The document will be submitted once.
+Reponer y preparar nota de crédito	Remettre en stock et préparer l’avoir	Restock and prepare credit note
+Validar devolución	Valider le retour	Validate return
+Ubicación de reposición	Emplacement de remise en stock	Restocking location
+Productos inspeccionados	Produits inspectés	Products inspected
+Motivo de la nota de crédito	Motif de l’avoir	Credit note reason
+La mercancía debe estar recibida e inspeccionada. La reposición y la preparación fiscal se guardan juntas.	La marchandise doit être reçue et inspectée. La remise en stock et la préparation fiscale sont enregistrées ensemble.	Goods must be received and inspected. Restocking and tax preparation are saved together.
+La guía todavía está pendiente de autorización.	Le guide attend encore son autorisation.	The guide is still awaiting authorization.
+La ruta todavía no tiene guía de remisión.	La tournée n’a pas encore de guide de transport.	The route has no delivery guide yet.
+Ruta seleccionada	Tournée sélectionnée	Selected route
+Guía preparada. Revisa y envía desde Facturación SRI.	Guide préparé. Vérifiez et envoyez depuis Facturation SRI.	Guide prepared. Review and submit it from SRI invoicing.

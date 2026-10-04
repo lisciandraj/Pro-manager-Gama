@@ -479,6 +479,10 @@
     {
       "source": "src/features/transport/tracking.js",
       "output": "gama-tms-tracking.js"
+    },
+    {
+      "source": "src/features/finance/sri-documents.js",
+      "output": "gama-sri-documents.js"
     }
   ],
   "styles": [

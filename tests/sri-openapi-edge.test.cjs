@@ -15,15 +15,15 @@ function harness(options={}){
  function db(isAdmin){
   return {auth:{getUser:async()=>options.noAuth?{error:{message:'invalid'}}:{data:{user:{id:ID}}}},
    rpc:async()=>({data:options.noAccess?null:access}),
-   from(table){let change=null,filters=[];const q={
-    select(){return q},eq(k,v){filters.push([k,v]);return q},is(k,v){filters.push([k,v]);return q},update(patch){change=patch;return q},
+   from(table){let change=null,filters=[],many=false;const q={
+    select(){return q},in(k,v){filters.push([k,v]);return q},order(){return q},limit(){many=true;return q},eq(k,v){filters.push([k,v]);return q},is(k,v){filters.push([k,v]);return q},update(patch){change=patch;return q},
     async resolve(){
      if(table==='profiles')return {data:{role:options.role||'administrador',active:options.active!==false}};
      if(table==='external_invoices'){if(change)updates.push(change);return {data:{id:ID}}}
      if(!isAdmin&&options.invisible)return{data:null};
-     if(!filters.every(([k,v])=>(issue[k]??null)===v))return{data:null};
+     if(!filters.every(([k,v])=>(Array.isArray(v)?v.includes(issue[k]):(issue[k]??null)===v)))return{data:null};
      if(change)Object.assign(issue,change);
-     return{data:structuredClone(issue)};
+     return{data:many?[structuredClone(issue)]:structuredClone(issue)};
     },single(){return q.resolve()},maybeSingle(){return q.resolve()},then(ok,fail){return q.resolve().then(ok,fail)}
    };return q},
    storage:{from:bucket=>({
@@ -48,7 +48,7 @@ function harness(options={}){
    return Response.json({status:'processing',access_key:KEY,provider_status:'RECIBIDA'});
   },Response,Request,Blob,URL,TextEncoder,Uint8Array,AbortController,crypto:webcrypto,atob,btoa,setTimeout,clearTimeout,console
  });
- return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:'Bearer user','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
+ return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:options.serviceAuth?'Bearer service':'Bearer user','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
 }
 test('Open API emit claims once, persists provider, never authorizes from POST',async()=>{
  const h=harness();const result=await h.request({action:'submit',id:ID});
@@ -129,4 +129,26 @@ test('historical rejection lookup preserves rejection when authorization is stil
  const h=harness({env:{SRI_PROVIDER:'private_worker'},issue:{status:'rejected',access_key:KEY},worker:async()=>Response.json({status:'processing'})});
  const r=await h.request({action:'refresh',id:ID});assert.equal(r.status,'rejected');
  assert.deepEqual(h.calls,['authorize']);assert.equal(h.updates.length,0);
+});
+
+function documentKey(type){const body=KEY.slice(0,8)+type+KEY.slice(10,48);const check=11-[...body].reverse().reduce((s,v,i)=>s+Number(v)*(i%6+2),0)%11;return body+(check===11?0:check===10?1:check)}
+test('new document types claim once, bind the key type and never link an unrelated sales invoice',async()=>{
+ for(const type of ['04','06','07']){
+ const key=documentKey(type),h=harness({issue:{document_type:type},worker:async()=>Response.json({status:'processing',access_key:key})});
+ await h.request({action:'submit',id:ID,document_type:type});await h.request({action:'submit',id:ID,document_type:type});
+ assert.equal(h.issue.access_key,key);assert.equal(h.calls.filter(a=>a==='openapi_submit').length,1);assert.equal(h.updates.length,0);
+ const wrong=harness({issue:{document_type:type},worker:async()=>Response.json({status:'processing',access_key:KEY})});
+ assert.equal((await wrong.request({action:'submit',id:ID,document_type:type})).review_required,true);assert.equal(wrong.issue.access_key,undefined);
+ }
+});
+test('assigned driver can download his authorized guide through document access but cannot emit',async()=>{
+ const h=harness({role:'almacenero',issue:{document_type:'06',status:'authorized',ride_path:'private-guide.pdf'},access:{validate:false,export:true}});
+ assert.match((await h.request({action:'download',id:ID,document_type:'06',kind:'ride'})).url,/ttl=60$/);
+ assert.equal((await h.request({action:'submit',id:ID,document_type:'06'})).error,'ROLE_NOT_ALLOWED');assert.equal(h.calls.length,0);
+});
+test('service schedule only consults pending claims and cannot emit, notify or download',async()=>{
+ const h=harness({serviceAuth:true,issue:{status:'processing',receipt:{provider:'openapi'},updated_at:'2026-01-01'}});
+ const r=await h.request({action:'refresh_pending'});assert.equal(r.consulted,1);assert.deepEqual(h.calls,['openapi_refresh']);
+ for(const action of ['submit','retry','notify','download','refresh','status'])assert.equal((await h.request({action,id:ID,kind:'ride'})).error,'ROLE_NOT_ALLOWED');
+ assert.deepEqual(h.calls,['openapi_refresh']);
 });

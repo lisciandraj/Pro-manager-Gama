@@ -18,8 +18,9 @@ jobs:
           node --check gama-purchases-v14.js
       - name: Validate integration references
         run: |
-          grep -q 'gama-purchases-v14.js' index.html
-          grep -q 'gamaShowPurchases' gama-purchases-v14.js
-          grep -q 'gama_receive_purchase' gama-purchases-v14.js
-          grep -q 'purchase_orders' gama-purchases-v14.js
-          grep -q 'purchase_order_lines' gama-purchases-v14.js
+          rg -q 'gama-purchases-v14.js' src/app/lazy-modules.js
+          rg -q 'src/features/purchasing/workspace.js' config/runtime-assets.json
+          rg -q 'gamaShowPurchases' gama-purchases-v14.js
+          rg -q 'gama_receive_purchase' gama-purchases-v14.js
+          rg -q 'purchase_orders' gama-purchases-v14.js
+          rg -q 'purchase_order_lines' gama-purchases-v14.js

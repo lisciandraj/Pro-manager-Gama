@@ -91,3 +91,13 @@ est hébergé. Le RIDE Carbone HTML utilise des fonctions annoncées Community ;
 le rendu PDF réel et les essais SRI doivent encore être validés sur l’image choisie.
 
 Voir [état vérifié et étapes restantes au 2 octobre](../audits/2026-10-02-sri-recovery.md).
+
+## Documents complémentaires (octobre 2026)
+
+`gama_sri_documents` prépare les codes 03, 04, 06 et 07 à partir de sources métier existantes. Les états et archives sont séparés dans `sri_document_issues`, avec une séquence atomique par type et par série. Le dossier SRI présente un tableau paginé par famille, les références ERP et fiscales, la consultation de la même clé et les téléchargements privés. Voir [les capacités du signataire](../../services/sri/README.md).
+
+Dans Retours, **Reponer y preparar nota de crédito SRI** exige la réception et une confirmation d'inspection. La transaction libère la quarantaine, remet le stock, crée l'avoir et son brouillon 04 ensemble ; un échec fiscal de préparation annule toute la transaction. Elle ne considère pas une émission ou une autorisation externe comme accomplie. Le original doit être une facture réellement autorisée, y compris les factures internes dont le statut fiscal externe est suivi dans leur dossier SRI.
+
+Pour les achats, une facture comptabilisée est mise en file uniquement si l'entreprise est confirmée agente de retención. L'enregistrement de ses métadonnées fiscales vérifiées prépare automatiquement le brouillon 07 si la politique datée du fournisseur est complète. Les erreurs de revue restent visibles sans perdre la facture. Après autorisation, le certificat solde son montant dans le mécanisme comptable de retenues existant, une seule fois. Les pourcentages et comptes se révisent dans le dossier SRI.
+
+Chaque carte de tournée permet de préparer la guía 06 ; l'écran chauffeur ouvre seulement la guía autorisée de sa propre tournée. Les balises dépôt ne sont pas des destinataires. Le brouillon peut être écarté avant envoi pour ajuster la tournée. Après revendication, les arrêts, dates, chauffeur, véhicule et marchandises sont protégés. L'autorisation exige toujours le service privé, son certificat ou le fournisseur fiscal configuré et les essais SRI.

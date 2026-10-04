@@ -9,20 +9,18 @@ the PDF renderer, need their own license/security review.
 
 Coco's existing `gama_sri_prepare` function creates the immutable snapshot of an
 accepted internal invoice: customer identity, legal company identity, net line
-prices, tax and total. It reserves the fiscal series once. The connector handles
-ordinary domestic invoice `01` only. Credit/debit notes, withholding, delivery
-notes, RIMPE, ICE, exports and other regimes are NOT implemented in this adapter.
+prices, tax and total. It reserves the fiscal series once. The connector handles ordinary domestic `01`, credit notes `04`, route guides `06` and withholding certificates `07`, validated against bundled official schemas. Liquidation `03` uses the private signer because the pinned upstream has no endpoint. RIMPE, ICE, exports, reimbursements and dividends require separate mappings.
 A supplier purchase is never converted into a customer invoice.
 
 `gama-sri` checks the authenticated active administrator, accounting action
 permissions and row visibility. Only then can it reach this private gateway.
-All existing tables and policies are preserved; **no schema migration is needed**.
+Existing invoice tables remain compatible. The additive `20261004223009_ec_fiscal_documents.sql` migration supplies the separate immutable document families, supplier policy and purchase queue.
 The server-write-only `sri_invoice_issues.receipt.provider` field records the
 chosen provider when the draft is claimed. Switching the deployment default
 does not change the backend of an already submitted document.
 
 Only the verified fiscal reference is linked back to `external_invoices`.
-No new sales, payments, inventory movements or accounting entries are generated.
+The fiscal connector does not duplicate sales or payments. The ERP return operation performs the inspected stock release and one credit preparation atomically; a verified supplier retention posts one existing withholding ledger offset.
 The interface links the same invoice to its payment screen and process dossier.
 The old Accounting → SRI tab remains compatible. The dedicated `sri` menu entry
 loads the same finance renderer lazily; server authorization still uses the
@@ -63,7 +61,7 @@ existing `accounting` permissions. Hiding a tile is not an authorization control
    identity, establishment, emission point and software provider RUC. Prepare an
    internal invoice and review the frozen amounts. Enable
    `SRI_EMISSION_ENABLED=true` only for supervised tests. The worker performs a
-   non-emitting preview before claiming the invoice and sending it once.
+   non-emitting upstream preview for `01`, or local schema/DTO validation for other supported documents, before claiming the document and sending it once.
 7. Validate real signatures, official XSD, SRI responses, rejection cases, RIDE,
    decimal rounding, document retention and customer email. Production requires
    explicit `SRI_PRODUCTION_ENABLED=true` on the private gateway **and** a
@@ -76,7 +74,7 @@ existing `accounting` permissions. Hiding a tile is not an authorization control
 | --- | --- |
 | Scoped authentication | `POST /auth/login` |
 | Non-emitting preflight | `POST /sri/preview/factura` |
-| Single emission | `POST /sri/emitir/factura` |
+| Single emission | `POST /sri/emitir/factura`, `/nota-credito`, `/guia-remision`, `/retencion` |
 | Reconcile reserved fiscal series | `GET /sri/comprobantes` |
 | Consult SRI authorization | `GET /sri/autorizar/:claveAcceso` |
 | Verify stored document state | `GET /sri/comprobantes/:claveAcceso` |
@@ -96,7 +94,7 @@ key. Do not reset such records to draft manually.
 
 Use **Consultar SRI**. With a key, only that key is queried. Without a key, the
 connector scans a bounded set of records filtered by RUC, date and emission
-point and matches the exact sequence, environment, buyer and total. Multiple
+point and matches the exact sequence, environment and document type. Invoice matches also require buyer and total; new document authorizations are bound to their full frozen XML snapshot. Multiple
 matches or incomplete pagination stop with an explicit reconciliation error.
 No match is **not** proof of non-emission: operator review is required, and the
 connector never creates a new key to recover automatically. A returned `EN_COLA`
@@ -106,7 +104,7 @@ The 49-digit key's checksum, date, issuer, document type, environment and fiscal
 series are checked in Python and again in Edge. Only the upstream's eight random
 digits may differ from the initial Coco snapshot. The authorization lookup must
 return `AUTORIZADO`, the same authorization/key and a timestamp with timezone.
-The signed invoice XML must match the frozen identity, amounts and all line
+The signed document XML must match the frozen identity, amounts and all line
 quantities/prices/taxes; XML entities and duplicate fields are rejected. This is
 structural binding, not an independent cryptographic XAdES verification.
 
@@ -135,3 +133,7 @@ npm run validate
 The HTTP/Edge tests use synthetic responses and structural XML fixtures, not
 real certificates or SRI authorizations. Browser tests intercept the database;
 no fixture writes are permitted against production.
+
+## Additional document constraints
+
+The pinned guide DTO requires a carrier RUC; a carrier cédula is valid through the private signer but is rejected before an Open API claim. The pinned retention contract does not map related-party purchases. Codes/percentages come from a reviewed dated supplier policy, not a built-in fiscal classification table. Signer capability status advertises supported document types, and the UI disables unsupported emission paths. The scheduled, non-emitting reconciliation loop is described in [README](README.md).

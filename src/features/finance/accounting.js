@@ -925,7 +925,8 @@ VIEWS.sri={
   return `<div class="arcPanel gaCard"><h2>${tr('Facturación electrónica SRI')}</h2>
    <p role="status" class="gaHint">${tr(d.ready?'Servicio preparado para pruebas supervisadas; no implica certificación fiscal.':'Emisión SRI desactivada. Falta configurar el servicio de firma, el certificado y validar las pruebas SRI. Puedes guardar la configuración.')}</p>
    <p>${tr('Motor fiscal')}: <b>${esc(d.runtime.provider==='openapi'?'Open API Facturación SRI':'Coco SRI')}</b></p>
-   <p class="gaHint">${tr('Solo facturas nacionales ordinarias. Notas de crédito, retenciones y guías requieren una integración fiscal adicional.')}</p>
+   <p class="gaHint">${tr('Facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra vinculadas a sus documentos de origen.')}</p>
+   <button type="button" class="arcButton primary" id="gaSriDocuments">${tr('Notas de crédito, retenciones y guías')}</button>
    <button type="button" class="arcButton secondary" id="gaSriConfigure">${tr('Configuración SRI')}</button>
    </div><div class="arcPanel gaCard"><h3>${tr('Facturas y estado SRI')}</h3>
    <div class="gaTools"><label>${tr('Mostrar')}<select id="gaSriFilter"><option value="pending" ${state.sriFilter!=='all'?'selected':''}>${tr('Facturas no enviadas al SRI')}</option><option value="all" ${state.sriFilter==='all'?'selected':''}>${tr('Todas las facturas')}</option></select></label><label>${tr('Buscar factura')}<input id="gaSriSearch" value="${esc(state.sriSearch||'')}" maxlength="80"></label><button id="gaSriFind" type="button" class="arcButton secondary">${tr('Buscar')}</button><button id="gaSriReload" type="button" class="arcButton secondary">${tr('Actualizar')}</button>${state.sriInvoiceId?`<button id="gaSriAll" type="button" class="arcButton secondary">${tr('Ver todas las facturas')}</button>`:''}
@@ -956,6 +957,7 @@ VIEWS.sri={
   host.querySelectorAll('[data-ga-sri-source]').forEach(b=>b.onclick=()=>window.GamaInternalInvoices.view(b.dataset.gaSriSource).catch(alertError));
   host.querySelectorAll('[data-ga-sri-pay]').forEach(b=>b.onclick=()=>window.GamaPayments.open({invoiceId:b.dataset.gaSriPay}));
   host.querySelectorAll('[data-ga-sri-flow]').forEach(b=>b.onclick=()=>window.GamaDossierFlow.open('o:'+b.dataset.gaSriFlow));
+  $('gaSriDocuments').onclick=()=>window.GamaSriDocuments.open().catch(alertError);
   $('gaSriConfigure').onclick=()=>window.GamaSettings.openDialog('sri');
   $('gaSriFilter').onchange=()=>{state.sriFilter=$('gaSriFilter').value;state.sriOffset=0;go('sri')};
   $('gaSriSelectPage').onchange=e=>host.querySelectorAll('[data-ga-sri-select]:not(:disabled)').forEach(c=>c.checked=e.target.checked);

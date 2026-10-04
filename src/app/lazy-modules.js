@@ -42,6 +42,7 @@ export const lazyModules={
   "accounting": {
     "global": "GamaAccounting",
     "file": "gama-accounting.js",
+    "dependencies": ["gama-sri-documents.js"],
     "methods": [
       "openSri",
       "mountSriConfig",
@@ -62,6 +63,7 @@ export const lazyModules={
   "returns": {
     "global": "GamaReturns",
     "file": "gama-returns.js",
+    "dependencies": ["gama-sri-documents.js"],
     "methods": [
       "open",
       "openReturn",
@@ -89,7 +91,7 @@ export const lazyModules={
   "tms": {
     "global": "gamaTMS",
     "file": "gama-tms-module.js",
-    "dependencies": ["gama-tms-delivery-operations.js"],
+    "dependencies": ["gama-tms-delivery-operations.js","gama-sri-documents.js"],
     "methods": [
       "open",
       "openDelivery",

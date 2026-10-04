@@ -105,3 +105,7 @@ La carte et le cycle automatique sont dans `src/features/transport/workspace.js`
 `src/features/dashboard/dashboard.js` utilise les agrégations autorisées existantes. Ses filtres, favorites, panneaux et outils de graphique sont décrits dans [Dashboard](modules/dashboard.md). Les préférences locales sont attachées au `user_id` vérifié du résultat serveur ; les CSV vérifient aussi les droits d’export.
 
 Les titres et téléchargements de Documents remplacent les noms techniques contenant un UUID par leur référence ERP, par exemple `DOC-00000017` et `DOC-00000017.jpg`. Les titres et noms de fichiers choisis par les utilisateurs sont conservés. Les données et chemins de stockage restent identiques.
+
+## Documents SRI liés aux opérations
+
+`src/features/finance/sri-documents.js` est une dépendance différée de Comptabilité, Retours et TMS. Elle n'ajoute pas de script au démarrage. Les façades `gama_sri_documents`, `gama_sri_document_access` et `gama_tms_guide` contrôlent les droits dans des helpers privés ; le chauffeur ne peut ni préparer ni émettre. `gama-sri` choisit la table de documents par famille et lie aussi le type à la clé. Le service privé valide les XSD locaux et refuse toute divergence entre l'autorisation et la photographie fiscale. Sa tâche optionnelle de consultation utilise un compte de service uniquement pour reconsulter des documents déjà revendiqués, sans envoyer de nouveau document ni notification.

@@ -19,7 +19,12 @@ def cents(value):
 
 def access_key(issue):
     day = date.fromisoformat(issue['snapshot']['issue_date']).strftime('%d%m%Y')
-    body = ''.join((day, '01', issue['issuer_ruc'],
+    code = issue.get('document_type', '01')
+    if code not in ('01', '03', '04', '06', '07'):
+        raise ValueError('SRI_DOCUMENT_TYPE_UNSUPPORTED')
+    if issue['environment'] not in ('pruebas', 'produccion'):
+        raise ValueError('SRI_ENVIRONMENT_INVALID')
+    body = ''.join((day, code, issue['issuer_ruc'],
                     '1' if issue['environment'] == 'pruebas' else '2',
                     issue['establishment'], issue['emission_point'], issue['sequential'],
                     issue['numeric_code'], '1'))
@@ -40,6 +45,8 @@ def invoice_xml(issue):
     Other regimes (ICE, RIMPE, withholding, export, etc.) require separate
     mappings and are rejected before anything is submitted to the SRI.
     """
+    if issue.get('document_type', '01') != '01':
+        raise ValueError('SRI_DOCUMENT_TYPE_MISMATCH')
     snapshot = issue['snapshot']
     lines = snapshot['lines']
     if not lines:
@@ -116,6 +123,13 @@ def invoice_xml(issue):
     return ET.tostring(root, encoding='utf-8', xml_declaration=True), key
 
 
+def document_xml(issue):
+    if issue.get('document_type', '01') == '01':
+        return invoice_xml(issue)
+    from .documents import fiscal_document_xml
+    return fiscal_document_xml(issue)
+
+
 def sign_xml(xml, p12_data, password):
     from cryptography.hazmat.primitives.serialization import pkcs12, Encoding, PrivateFormat, NoEncryption
     from lxml import etree
@@ -167,6 +181,9 @@ def authorize_sri(access, environment):
 
 
 def ride_pdf(issue):
+    if issue.get('document_type', '01') != '01':
+        from .documents import document_ride
+        return document_ride(issue)
     from reportlab.pdfgen import canvas
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=(595, 842))

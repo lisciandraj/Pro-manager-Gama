@@ -415,13 +415,14 @@ const definitions=[
   },
   {
     "id": "users",
+    "settingsTab": "users",
     "label": "Usuarios",
     "icon": "user",
     "group": "Administración",
     "description": "Cuentas y perfiles",
     "accent": "orange",
     "order": 100,
-    "menu": true,
+    "menu": false,
     "configLabel": "Usuarios y accesos",
     "roles": [
       "admin"

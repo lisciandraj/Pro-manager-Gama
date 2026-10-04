@@ -33,12 +33,9 @@ async function openUsers(page, profiles = PROFILES) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(1200);
-  // In production gama-cloud-users.js is pulled in by gama-supabase.js's
-  // GamaCloudReady chain. The tests replace that file with the mock, which does
-  // not load the chain, so the module is injected here instead.
-  await page.addScriptTag({ url: '/gama-cloud-users.js' });
   await expect(page.locator('#cuRows tr')).toHaveCount(0);
-  await page.click('#mainmenu .gamaF2Card:has-text("Usuarios")');
+  await page.locator('#arcSettings').click();
+  await page.locator('#cfgTab-users').click();
   await page.waitForSelector('#cuRows tr', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(400);
 }
@@ -94,9 +91,9 @@ test('permanent deletion confirms the email, frees the row and hides historical 
 
 test('cancelled or rejected permanent deletion keeps the account and leaves the form retryable',async({page})=>{
  await openUsers(page);await page.evaluate(()=>{window.__deletes=[];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(name,args)=>{if(name!=='gama_delete_user')return c.rpc(name,args);window.__deletes.push(args);return {error:{message:'USER_DELETE_NOT_ALLOWED'}}}}}});
- await row(page,'Paula Martinez').locator('[data-cu-delete]').click();await page.locator('dialog [data-arc-dialog-close]').click();
+ await row(page,'Paula Martinez').locator('[data-cu-delete]').click();await page.locator('dialog[data-identity] [data-arc-dialog-close]').click();
  expect(await page.evaluate(()=>window.__deletes.length)).toBe(0);await expect(row(page,'Paula Martinez')).toBeVisible();
- await row(page,'Paula Martinez').locator('[data-cu-delete]').click();const d=page.locator('dialog');await d.locator('[name=confirmation_email]').fill('paula@example.com');await d.locator('[type=submit]').click();
+ await row(page,'Paula Martinez').locator('[data-cu-delete]').click();const d=page.locator('dialog[data-identity]');await d.locator('[name=confirmation_email]').fill('paula@example.com');await d.locator('[type=submit]').click();
  await expect(d.locator('[role=alert]')).toContainText('Tu perfil no permite eliminar usuarios.');await expect(d.locator('[type=submit]')).toBeEnabled();await expect(row(page,'Paula Martinez')).toHaveCount(1);
 });
 

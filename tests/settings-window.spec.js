@@ -33,7 +33,7 @@ test('la rueda está en la barra superior, junto a la campana, y la configuraci�
 test('el administrador ve todos los apartados en el menú lateral, cada uno con su contenido',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
  await expect(dialog(page)).toBeVisible();await expect(dialog(page).locator('h2')).toHaveText('Configuration');
- await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Facturation SRI','Références des documents','Règles opérationnelles','Importer des données','Sauvegardes','Paramètres d’accès','Sécurité de mon compte']);
+ await expect(tabs(page)).toHaveText(['Langue','Informations sur l\'entreprise','Identité des documents','Réglages fiscaux','Facturation SRI','Références des documents','Règles opérationnelles','Importer des données','Sauvegardes','Utilisateurs','Paramètres d’accès','Sécurité de mon compte']);
  await expect(dialog(page).locator('[role=tablist]')).toHaveAttribute('aria-orientation','vertical');
  // Se abre en el idioma, con el foco en su pestaña.
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-language')).toBeFocused();
@@ -64,7 +64,7 @@ test('teclado: flechas, Inicio y Fin recorren el menú; Escape cierra y devuelve
  await page.keyboard.press('ArrowUp');await expect(page.locator('#cfgTab-security')).toBeFocused();
  await page.keyboard.press('Home');await expect(page.locator('#cfgTab-language')).toBeFocused();
  // Sólo la pestaña elegida entra en el orden de tabulación.
- expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]);
+ expect(await tabs(page).evaluateAll(t=>t.map(x=>x.tabIndex))).toEqual([0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]);
  await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-controls','cfgPane-language');
  await expect(page.locator('#cfgPane-language')).toHaveAttribute('aria-labelledby','cfgTab-language');
  await page.keyboard.press('Escape');await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#arcSettings')).toBeFocused();
@@ -116,7 +116,7 @@ test('reglas operativas: se editan en su apartado y se guardan con su versión',
 test('sin ser administrador: idioma y seguridad de la cuenta, nada de la empresa',async({page})=>{
  await boot(page,'commercial');await page.locator('#arcSettings').click();
  await expect(tabs(page)).toHaveText(['Langue','Importer des données','Sécurité de mon compte']);
- for(const id of ['company','identity','fiscal','references','policies'])await expect(page.locator('#cfgTab-'+id)).toHaveCount(0);
+ for(const id of ['company','identity','fiscal','references','policies','users'])await expect(page.locator('#cfgTab-'+id)).toHaveCount(0);
  await expect(page.locator('#coCompany,#cfgReferences,#cfgPolicies')).toHaveCount(0);
  // Pedir un apartado de administración abre el idioma.
  await page.keyboard.press('Escape');await page.evaluate(()=>GamaSettings.open('policies'));await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');
@@ -169,8 +169,32 @@ test('backup exports and verifies files from its Configuration tab',async({page}
  await page.locator('#recoveryFile').setInputFiles({name:'test.json',mimeType:'application/json',buffer:bytes});await page.locator('#recoveryVerify').click();await expect(page.locator('#recoveryStatus')).toContainText('Intégrité vérifiée');
 });
 
+for(const width of [390,1280])test('users work inside Configuration, refresh live and keep compatible links at '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);
+ await page.evaluate(()=>{__DB.profiles=[{id:'test-admin-uid',full_name:'Admin QA',email:'admin@example.com',role:'administrador',active:true},{id:'staff',full_name:'Staff QA',email:'staff@example.com',role:'comercial',active:false}];GamaCloud.subscribe=(table,changed)=>{if(table==='profiles')window.__profileChanged=changed;return {unsubscribe(){}}}});
+ await expect(page.locator('#mainmenu [data-gama-module=users],.arcSidebar [data-gama-module=users]')).toHaveCount(0);
+ await page.locator('#arcSettings').click();await page.locator('#cfgTab-users').click();
+ await expect(page.locator('#cfgPane-users #users')).toBeVisible();await expect(page.locator('#cuRows tr')).toHaveCount(2);
+ await expect(page.locator('#users [data-invite-user]')).toBeVisible();await expect(page.locator('#users .gamaStdBack')).toBeHidden();
+ await page.locator('[data-cu-toggle=staff]').click();await expect(page.locator('#cuRows tr').filter({hasText:'Staff QA'})).toContainText('Actif');
+ await page.evaluate(()=>{__DB.profiles.find(p=>p.id==='staff').full_name='Staff actualizado';window.__profileChanged()});
+ await expect(page.locator('#cuRows')).toContainText('Staff actualizado');
+ await page.locator('#cfgTab-language').click();await expect(page.locator('#users')).toBeHidden();
+ await page.evaluate(()=>{__DB.profiles.find(p=>p.id==='staff').full_name='Staff al volver';window.__profileChanged()});
+ await page.evaluate(()=>ArcRouter.show('users'));await expect(page.locator('#cfgTab-users')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('#cuRows')).toContainText('Staff al volver');
+ await expect(page.locator('#users')).toHaveCount(1);await expect(page.locator('#users [data-invite-user]')).toHaveCount(1);
+ expect(await dialog(page).locator('.arcSidePanes').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
+ await page.screenshot({path:test.info().outputPath('configuration-users-'+width+'.png')});
+ await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);await expect(page.locator('#users')).toBeHidden();
+ await page.evaluate(()=>ArcRouter.open('users'));await expect(page.locator('#cfgTab-users')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cuRows')).toContainText('Staff al volver');
+ await page.evaluate(()=>{__DB.app_modules=[{id:'users',enabled:false}];return GamaModules.load()});
+ await expect(page.locator('#cfgTab-users')).toHaveCount(0);await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');
+ await page.evaluate(()=>ArcRouter.open('users'));await expect(page.locator('#cfgTab-users')).toHaveCount(0);
+});
+
 test('Configuration honours tab permissions and module deactivation',async({page})=>{
- await boot(page,'commercial');await page.evaluate(()=>ArcRouter.open('reports'));await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-backup,#cfgTab-access-settings')).toHaveCount(0);await page.evaluate(()=>{GamaSettings.open('backup');GamaSettings.open('access-settings')});await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');
+ await boot(page,'commercial');await page.evaluate(()=>ArcRouter.open('reports'));await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cfgTab-backup,#cfgTab-users,#cfgTab-access-settings')).toHaveCount(0);await page.evaluate(()=>{GamaSettings.open('backup');GamaSettings.open('users');ArcRouter.open('users');GamaSettings.open('access-settings')});await expect(page.locator('#cfgTab-reports')).toHaveAttribute('aria-selected','true');await expect(page.locator('#cuRows')).toHaveCount(0);
  await page.evaluate(()=>{__DB.app_modules=[{id:'reports',enabled:false}];return GamaModules.load()});await expect(page.locator('#cfgTab-reports')).toHaveCount(0);await expect(page.locator('#cfgTab-language')).toHaveAttribute('aria-selected','true');
  await page.evaluate(()=>ArcRouter.open('reports'));await expect(page.locator('#cfgTab-reports')).toHaveCount(0);
  await dialog(page).locator('[data-side-close]').click();await expect(dialog(page)).toHaveCount(0);await page.locator('#arcSettings').click();await expect(page.locator('#cfgTab-reports')).toHaveCount(0);

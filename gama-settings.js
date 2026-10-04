@@ -92,6 +92,7 @@ const SECTIONS=[
  {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
  {id:'reports',label:'Importar datos',icon:'spreadsheet',pane:'reports',module:'reports'},
  {id:'backup',label:'Copias de seguridad',icon:'cloud',pane:'backup',admin:true,module:'backup'},
+ {id:'users',label:'Usuarios',icon:'user',pane:'users',admin:true,module:'users'},
  {id:'access-settings',label:'Parámetros de acceso',icon:'lock',pane:'access-settings',admin:true,module:'access-settings'},
  {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
 ];
@@ -104,15 +105,20 @@ const PANES={
  security:host=>window.ArchitectIdentity?.security(host),
  reports:mountImport,
  backup:host=>{portal('backup',host);window.GamaRecovery?.mount()},
+ users:mountUsers,
  'access-settings':host=>{portal('access-settings',host);render('access-settings');window.GamaModules.load().then(()=>{if(dialog?.el.open&&$('access-settings')?.closest('#arcSettingsDialog')&&!busy)render('access-settings')}).catch(()=>{})},
 };
-const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup','access-settings':'cfgAccess'};
+const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup',users:'cfgUsers','access-settings':'cfgAccess'};
 let dialog=null;
 const available=s=>(!s.admin||isAdmin())&&(!s.module||!!window.gamaAccessAllowed?.(s.module));
 /* Move each existing screen into its pane, then park it back on close. File
    selections and in-flight import/export status survive changing tabs. */
 function portal(id,host){const screen=section(id);if(screen.parentElement!==host){dialog.portals.set(screen,screen.parentElement);host.appendChild(screen)}screen.style.setProperty('display','block','important');screen.hidden=false;return screen}
 function restorePortals(api){for(const [screen,parent] of api.portals||[]){screen.classList.remove('active');screen.style.setProperty('display','none','important');screen.hidden=true;(parent?.isConnected?parent:document.querySelector('.wrap')||document.body).appendChild(screen)}api.portals?.clear()}
+async function mountUsers(host){const screen=portal('users',host);
+ try{if(!window.GamaCloudUsers)await window.ArcLoadScript('gama-cloud-users.js');if(!window.GamaCloudUsers)throw Error('USERS_UNAVAILABLE');if(host.isConnected&&window.gamaAccessAllowed?.('users'))await window.GamaCloudUsers.mount()}
+ catch(_){if(!host.isConnected)return;window.ArcUI.render(screen,`<p role="alert">${esc(tx('No se pudo cargar el módulo.'))}</p><button type="button" class="arcButton secondary">${esc(tx('Reintentar'))}</button>`);screen.querySelector('button').onclick=()=>mountUsers(host)}
+}
 async function mountImport(host){const screen=portal('reports',host);if(screen.querySelector('#gamaExcelFile'))return;
  if(!screen.querySelector('#excel-import-module'))screen.innerHTML='<div id="excel-import-module" data-module="excel"></div>';
  const body=screen.querySelector('#excel-import-module');
@@ -124,7 +130,7 @@ function refreshTabs(){if(!dialog?.el.open)return;dialog.setTabs(SECTIONS.filter
 function show(section){
  const el=dialog?.el;if(!el||!available(section))return;
  const host=el.querySelector(`[data-side-pane="${section.pane}"] [data-cfg-host]`);
- if(host&&!host.dataset.cfgMounted){host.dataset.cfgMounted='1';PANES[section.pane]?.(host)}
+ if(host&&(!host.dataset.cfgMounted||section.pane==='users')){host.dataset.cfgMounted='1';PANES[section.pane]?.(host)}
  // La ficha de la empresa es una: cada apartado enseña sólo sus tarjetas.
  el.querySelector('[data-side-pane="company"]')?.setAttribute('data-co-view',section.id);
 }
@@ -136,7 +142,7 @@ function openDialog(section='language'){
  const icon=s=>window.ArcUI.icons[s.icon]||s.icon;
  dialog=window.ArcUI.sideDialog({id:'arcSettingsDialog',prefix:'cfg',title:'Configuración',navLabel:'Apartados de la configuración',opener:document.getElementById('arcSettings'),
   tabs:items.map(s=>({id:s.id,label:s.label,icon:icon(s),pane:s.pane})),
-  panes:[{id:'language',html:PREFERENCES},...[...new Set(SECTIONS.filter(s=>!s.admin||admin).map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host ${['reports','access-settings'].includes(p)?'':'data-gi-ignore'}></div>`}))],
+  panes:[{id:'language',html:PREFERENCES},...[...new Set(SECTIONS.filter(s=>!s.admin||admin).map(s=>s.pane))].filter(p=>HOSTS[p]).map(p=>({id:p,html:`<div id="${HOSTS[p]}" data-cfg-host ${['reports','users','access-settings'].includes(p)?'':'data-gi-ignore'}></div>`}))],
   onSelect:show,onClose:api=>{restorePortals(api);if(dialog===api)dialog=null}});
  dialog.portals=new Map();
  const el=dialog.el;

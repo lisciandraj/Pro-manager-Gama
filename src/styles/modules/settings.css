@@ -35,8 +35,8 @@
 :is(#settings,#access-settings) .cfgCount{color:var(--arc-text-muted);font-size:12px;margin-bottom:12px}.cfgNote{margin:0 0 8px;font-size:13px;color:var(--arc-text-muted)}
 
 
-/* Existing import, recovery and access screens are embedded in Configuration. */
-#arcSettingsDialog :is(#reports,#backup,#access-settings){margin:0;min-width:0;padding:0}
-#arcSettingsDialog :is(#reports,#backup,#access-settings) .gamaStdBack{display:none}
+/* Existing import, recovery, users and access screens are embedded in Configuration. */
+#arcSettingsDialog :is(#reports,#backup,#users,#access-settings){margin:0;min-width:0;padding:0}
+#arcSettingsDialog :is(#reports,#backup,#users,#access-settings) .gamaStdBack{display:none}
 #arcSettingsDialog #reports>.wrap{max-width:none;margin:0;padding:0}
 #arcSettingsDialog .cfgTileGrid{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}

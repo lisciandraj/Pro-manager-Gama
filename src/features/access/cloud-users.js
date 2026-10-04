@@ -1,38 +1,40 @@
 /* GAMA V17 — Usuarios y accesos: lista central Supabase + realtime */
 (function(){
 'use strict';
+if(window.GamaCloudUsers)return;
 const ROLE={administrador:'Administrador',admin:'Administrador',comercial:'Comercial',commercial:'Comercial',almacenero:'Almacenero',magasinier:'Almacenero',rrhh:'Responsable RH',rh:'Responsable RH',cliente:'Cliente',client:'Cliente'};
 const esc=window.ArcUI.esc;
 const t=(es,fr,en)=>({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es);
-let realtime=null, booted=false, selfId=null, generation=0;
+let realtime=null, booted=false, initialization=null, selfId=null, generation=0, authEpoch=0;
+const isOpen=()=>!!window.gamaAccessAllowed?.('users')&&!!document.getElementById('users')?.closest('#arcSettingsDialog[open] [data-side-pane="users"]:not([hidden])');
 function wait(){
   if(!window.GamaCloud||!window.GamaCloudReady)return setTimeout(wait,250);
   window.GamaCloudReady.then(init).catch(e=>console.warn('[GAMA Cloud Users]',e));
 }
-window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;generation++;document.getElementById('cuRows')?.replaceChildren();booted=false;if(document.getElementById('users')?.classList.contains('active'))init()});
-async function init(){
-  if(booted)return;
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;authEpoch++;generation++;document.getElementById('cuRows')?.replaceChildren();selfId=null;booted=false;initialization=null;if(isOpen())mount()});
+window.addEventListener('gama:access-profiles-change',()=>{if(isOpen())load()});
+window.addEventListener('gama:language-change',()=>{if(isOpen())load()});
+function init(){
+  if(booted)return initialization;
   booted=true;
+  const token=authEpoch;
+  initialization=(async()=>{
   try{
     const sr=await window.GamaCloud.getSession(), session=sr?.data?.session;
     if(!session)return;
     const pr=await window.GamaCloud.getProfile();
     const role=pr?.data?.role;
+    if(token!==authEpoch||(role!=='administrador' && role!=='admin'))return;
     selfId=pr?.data?.id||session.user?.id||null;
-    if(role!=='administrador' && role!=='admin')return;
-    // The router needs its target section before the first navigation. Create
-    // the shell now; profiles are still fetched only when the module opens.
+    // Keep one screen; Configuration moves it into its Users pane on demand.
     patch();
-    if(window.ArcRouter.current==='users')await load();
     if(!realtime){
-      try{realtime=await window.GamaCloud.subscribe('profiles',()=>{if(window.ArcRouter.current==='users')load()})}
+      try{realtime=await window.GamaCloud.subscribe('profiles',()=>{if(isOpen())load()})}
       catch(e){console.warn('[GAMA] profiles realtime unavailable',e)}
     }
-
-    window.addEventListener('gama:access-profiles-change',()=>{if(window.ArcRouter.current==='users')load()});
-    // Fechas y horas en el formato del idioma elegido.
-    window.addEventListener('gama:language-change',()=>{if(window.ArcRouter.current==='users')load()});
   }catch(e){console.warn('[GAMA Cloud Users] init failed',e)}
+  })();
+  return initialization;
 }
 function patch(){
   let s=document.getElementById('users');
@@ -123,6 +125,8 @@ function deleteAccount(user){
   }});
  d.dataset.identity='';d.dataset.giIgnore='';d.querySelector('[name=confirmation_email]').autocomplete='off';
 }
-window.ArcRouter.onEnter('users',async()=>{await window.GamaCloudReady;await init();if(selfId){patch();await load();window.ArchitectIdentity?.mount(document.getElementById('users'))}});
+async function mount(){await window.GamaCloudReady;await init();if(selfId&&window.gamaAccessAllowed?.('users')){patch();window.ArchitectIdentity?.mount(document.getElementById('users'));await load()}}
+window.GamaCloudUsers={mount};
+window.ArcRouter.onEnter('users',mount);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 })();

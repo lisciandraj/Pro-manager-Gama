@@ -7,7 +7,7 @@ const fs=require('node:fs'),path=require('node:path');const {restore}=require('.
 // PostgREST responde 400 y ninguna venta con una entrega creada se abre.
 // Pasó con erp_reference.
 test('la vista de las pruebas de entrega tiene todo lo que pide Seguimiento de procesos',async()=>{
- const src=fs.readFileSync(path.join(__dirname,'..','gama-dossier-flow.js'),'utf8');
+ const src=fs.readFileSync(path.join(__dirname,'..','src/features/processes/dossier-flow.js'),'utf8');
  assert.match(src,/by\('tms_proofs','delivery_id',\w+,proofColumns\)/,'la lectura de las pruebas sigue en gama-dossier-flow.js');
  const asked=[...src.matchAll(/PROOF_\w*COLUMNS='([a-z_,]+)'/g)].map(m=>m[1]);
  assert.equal(asked.length,2,'las columnas de la barra y las del detalle');

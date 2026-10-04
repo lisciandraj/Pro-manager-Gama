@@ -4527,3 +4527,96 @@ Límite	Échéance	Deadline
 La necesidad o el proveedor cambió. Actualiza las propuestas antes de crear los borradores.	Le besoin ou le fournisseur a changé. Actualisez les propositions avant de créer les brouillons.	The need or supplier changed. Refresh proposals before creating drafts.
 Selecciona como máximo 500 productos por proveedor.	Sélectionnez au maximum 500 produits par fournisseur.	Select at most 500 products per supplier.
 Físico	Physique	Physical
+A tiempo	À l’heure	On time
+Ajustada manualmente	Ajustée manuellement	Manually adjusted
+Avisar al cliente	Prévenir le client	Notify customer
+Aviso, incidencia o cobro	Message, incident ou encaissement	Message, incident or collection
+Añade un teléfono en la ficha del cliente.	Ajoutez un téléphone à la fiche client.	Add a phone number to the customer record.
+Bajar parada	Descendre l’arrêt	Move stop down
+Cartones rechazados / retorno	Cartons refusés / retour	Refused cartons / return
+Cliente / proveedor	Client / fournisseur	Customer / supplier
+Cliente ausente	Client absent	Customer absent
+Cobro en la entrega	Encaissement à la livraison	Collection on delivery
+Cobro registrado.	Encaissement enregistré.	Payment recorded.
+Confirma la hora antes de preparar el mensaje.	Confirmez l’heure avant de préparer le message.	Confirm the time before preparing the message.
+Coste estimado	Coût estimé	Estimated cost
+Coste/km pendiente en Flota.	Coût/km à compléter dans Flotte.	Cost/km pending in Fleet.
+Crear retorno de los cartones	Créer le retour des cartons	Create carton return
+Dirección incorrecta	Adresse incorrecte	Incorrect address
+El porcentaje usa solo entregas con una hora estimada registrada.	Le pourcentage porte uniquement sur les livraisons avec une heure estimée enregistrée.	The percentage covers only deliveries with a recorded estimated arrival time.
+Entrega rechazada	Livraison refusée	Delivery refused
+Enviar	Envoyer	Send
+Fecha de planificación	Date de planification	Planning date
+Flujo de entregas	Flux des livraisons	Delivery flow
+Gestionar entrega	Gérer la livraison	Manage delivery
+Hora estimada de llegada	Heure d’arrivée estimée	Estimated arrival time
+Importe recibido	Montant reçu	Amount received
+Incidencia registrada.	Incident enregistré.	Incident recorded.
+Incidencia y reprogramación	Incident et reprogrammation	Incident and rescheduling
+Incidencias	Incidents	Incidents
+Incidencias por conductor	Incidents par chauffeur	Incidents by driver
+Indica una hora estimada de llegada.	Indiquez une heure d’arrivée estimée.	Enter an estimated arrival time.
+Indicadores	Indicateurs	Metrics
+Indicadores TMS	Indicateurs TMS	TMS metrics
+Kilómetros y coste por día	Kilomètres et coût par jour	Kilometres and cost per day
+La entrega todavía no tiene una factura. Regístrala para vincular el cobro.	La livraison n’a pas encore de facture. Enregistrez-la pour lier l’encaissement.	This delivery has no invoice yet. Register one to link the payment.
+Llamar	Appeler	Call
+Los km usan el recorrido verificado si existe; en los demás casos son una estimación en línea recta.	Les km utilisent le parcours vérifié lorsqu’il existe ; sinon, ils sont estimés à vol d’oiseau.	Kilometres use the verified road itinerary when available; otherwise, they are estimated in a straight line.
+Mi ruta	Ma tournée	My route
+Mover a otra ruta	Déplacer vers une autre tournée	Move to another route
+Navegar	Naviguer	Navigate
+No hay cartones vinculados a esta expedición.	Aucun carton n’est lié à cette expédition.	No cartons are linked to this shipment.
+No hay entregas.	Aucune livraison.	No deliveries.
+No tienes una ruta asignada.	Aucune tournée ne vous est attribuée.	You have no assigned route.
+Preparar SMS / WhatsApp	Préparer SMS / WhatsApp	Prepare SMS / WhatsApp
+Pruebas de entrega	Preuves de livraison	Delivery proofs
+Registrar incidencia	Enregistrer un incident	Record incident
+Reparto uniforme por parada.	Répartition uniforme par arrêt.	Equal allocation per stop.
+Reprogramada para	Reprogrammée pour	Rescheduled for
+Reprogramar para mañana	Reprogrammer pour demain	Reschedule for tomorrow
+Retorno registrado	Retour enregistré	Return recorded
+Retorno registrado.	Retour enregistré.	Return recorded.
+Ruta actualizada.	Tournée actualisée.	Route updated.
+Rutas sin coste/km	Tournées sans coût/km	Routes without cost/km
+Selecciona los cartones que vuelven. El stock se repone al recibirlos y validarlos en Retornos.	Sélectionnez les cartons qui reviennent. Le stock est rétabli après réception et validation dans Retours.	Select the returning cartons. Stock is restored after receipt and validation in Returns.
+Subir parada	Monter l’arrêt	Move stop up
+Ver retorno	Voir le retour	View return
+entregadas	livrées	delivered
+incidentes	incidents	incidents
+por entrega	par livraison	per delivery
+Preparar	Préparer	Prepare
+Planificar	Planifier	Plan
+Entregar	Livrer	Deliver
+por preparar	à préparer	to prepare
+por planificar	à planifier	to plan
+por cargar	à charger	to load
+por entregar	à livrer	to deliver
+TMS · Hoy	TMS · Aujourd’hui	TMS · Today
+TMS · Planificación	TMS · Planification	TMS · Planning
+Preparar → Planificar → Cargar → Entregar	Préparer → Planifier → Charger → Livrer	Prepare → Plan → Load → Deliver
+No hay un conductor vinculado a tu cuenta.	Aucun chauffeur n’est lié à votre compte.	No driver is linked to your account.
+Latitud GPS	Latitude GPS	GPS latitude
+Longitud GPS	Longitude GPS	GPS longitude
+Stock, entregas, cobros y pagos, facturas, validaciones y accesos.	Stock, livraisons, encaissements et paiements, factures, validations et accès.	Stock, deliveries, receipts and payments, invoices, approvals and access.
+Entrega creada	Livraison créée	Delivery created
+Entrega completada	Livraison terminée	Delivery completed
+Salida de entrega validada	Départ de livraison validé	Delivery departure confirmed
+Carga de entrega escaneada	Chargement scanné	Delivery load scanned
+Coordenadas de entrega corregidas	Coordonnées de livraison corrigées	Delivery coordinates corrected
+Ruta de entrega ajustada	Tournée de livraison ajustée	Delivery route adjusted
+Incidencia de entrega registrada	Incident de livraison enregistré	Delivery incident recorded
+Entrega reprogramada	Livraison reprogrammée	Delivery rescheduled
+Entrega parcial y retorno	Livraison partielle et retour	Partial delivery and return
+Aviso de llegada preparado	Avis d’arrivée préparé	Arrival message prepared
+GPS guardado en la ficha del cliente.	GPS enregistré dans la fiche client.	GPS saved in the customer record.
+GPS guardado para esta entrega.	GPS enregistré pour cette livraison.	GPS saved for this delivery.
+La ruta cambió. Actualiza y vuelve a intentarlo.	La tournée a changé. Actualisez et réessayez.	The route changed. Refresh and retry.
+La ruta ya está en carga o ha salido.	La tournée est déjà en chargement ou est partie.	The route is already loading or has departed.
+La carga supera la capacidad del vehículo.	La charge dépasse la capacité du véhicule.	The load exceeds vehicle capacity.
+Selecciona los cartones rechazados.	Sélectionnez les cartons refusés.	Select the refused cartons.
+Estos cartones ya tienen un retorno.	Ces cartons ont déjà un retour.	These cartons already have a return.
+El cobro requiere la cuenta del conductor asignado.	L’encaissement nécessite le compte du chauffeur affecté.	Collection requires the assigned driver’s account.
+Elige una caja o cuenta bancaria activa.	Choisissez une caisse ou un compte bancaire actif.	Choose an active cash or bank account.
+No hay una factura abierta para este cobro.	Aucune facture ouverte pour cet encaissement.	There is no open invoice for this payment.
+Confirma la salida antes de registrar esta operación.	Confirmez le départ avant d’enregistrer cette opération.	Confirm departure before recording this operation.
+Registra primero el motivo del fallo.	Enregistrez d’abord le motif de l’échec.	Record the failure reason first.

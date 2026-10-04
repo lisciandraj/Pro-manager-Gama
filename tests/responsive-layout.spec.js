@@ -100,13 +100,14 @@ test('module controls fit on phone, landscape, tablet and desktop',async({page})
 
 test('date controls in TMS and document dialogs remain usable on phone and desktop',async({page},info)=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('tms'));
- // Entrega abre en Preparación; las fechas están en Planificación.
+ // Hoy abre en Planificar; la preparación se abre desde el flujo.
+ await page.locator('[data-tms-stage=preparation]').click();
  await expect(page.locator('#gamaPreparationHost')).toBeVisible();
  for(const width of [320,1440]){
   await page.setViewportSize({width,height:900});
   expect(await page.locator('section.active').evaluate(layoutProblems),'Preparación '+width).toEqual([]);
  }
- await page.locator('button.tmsTab').nth(1).click();
+ await page.locator('[data-tms-stage=planning]').click();
  await expect(page.locator('#tDayMap')).toBeVisible();
  await page.locator('details:has(#tDepot) summary').click();
  for(const width of [320,390,844,1440]){

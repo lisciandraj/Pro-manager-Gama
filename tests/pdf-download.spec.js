@@ -87,7 +87,7 @@ test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ p
 
   await page.evaluate(() => window.gamaTMS.open());
   await page.waitForTimeout(900);
-  await page.click('.tmsTab:has-text("Prueba de entrega"), button:has-text("Prueba de entrega")');
+  await page.click('[data-tms-stage=proof]');
   await page.waitForTimeout(600);
   await page.click('#tProofPdf');
   await page.waitForTimeout(1200);
@@ -107,8 +107,9 @@ test('el informe de pruebas de entrega carga las fotos que faltaban', async ({ p
 // prueba por pantalla —que sólo cubre las que ya conozco— este guardián
 // recorre el código y falla en cuanto el patrón reaparezca en cualquier sitio.
 // No necesita navegador, así que es casi instantáneo.
-const SRC = fs.readdirSync(path.join(__dirname, '..'))
-  .filter(f => (f.endsWith('.js') || f === 'index.html') && !f.startsWith('sw.'));
+// A startup bundle contains unrelated modules. Check each original file so
+// navigation in one module cannot be confused with printing in another.
+const SRC = ['src/app/index.html', ...JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config/runtime-assets.json'), 'utf8')).scripts.map(s => s.source)];
 
 /** Quita comentarios: una explicación no es una llamada. */
 function code(text) {
@@ -153,9 +154,9 @@ test('el comprobante lleva los datos de la entrega seleccionada', async ({ page 
 
   await page.evaluate(() => window.gamaTMS.open());
   await page.waitForTimeout(900);
-  await page.click('.tmsTab:has-text("Prueba de entrega"), button:has-text("Prueba de entrega")');
+  await page.click('[data-tms-stage=proof]');
   await page.waitForTimeout(600);
-  await page.click('#tProofOne');
+  await page.click('[data-proof-download=e1]');
   await page.waitForTimeout(900);
 
   const r = await page.evaluate(() => ({ cert: window.__cert, saved: window.__saved }));

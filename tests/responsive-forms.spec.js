@@ -44,7 +44,7 @@ function problems(page){
 }
 const VIEWS={
  'matrice commerciale':page=>page.evaluate(()=>ArcRouter.open('matrix')),
- 'livraison › planification':async page=>{await page.evaluate(()=>ArcRouter.open('tms'));await page.locator('#gama-tms-section .tmsTab',{hasText:'Planification'}).click()},
+ 'livraison › planification':async page=>{await page.evaluate(()=>ArcRouter.open('tms'));await page.locator('[data-tms-stage=planning]').click()},
  'fiche entreprise':page=>page.evaluate(()=>GamaSettings.open('company')),
  'RH › règles':async page=>{await page.evaluate(()=>ArcRouter.open('hr'));await page.locator('#hr .hrTabs button',{hasText:'Règles'}).click()},
 };

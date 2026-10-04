@@ -1,7 +1,17 @@
 /** Presentation only. Document currency always takes precedence over company defaults. */
 export const escapeHtml = value => String(value ?? '').replace(/[&<>"'\\]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','\\':'&#92;'}[c]));
 export const translate = value => window.GamaI18n?.t?.(value) || value;
+const technicalDocumentName = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 export const format = {
+  documentLabel(document) {
+    if (technicalDocumentName.test(String(document.title || ''))) return document.erp_reference || translate('Documento');
+    return document.title || document.erp_reference || translate('Documento');
+  },
+  documentFilename(filename, reference) {
+    if (!reference || !technicalDocumentName.test(String(filename || ''))) return filename || 'document';
+    const extension = String(filename).match(/\.[a-z0-9]{1,8}$/i)?.[0] || '';
+    return String(reference).replace(/[\\/]/g, '_') + extension;
+  },
   money(value, currency) {
     if (!currency && window.GamaCurrency) return window.GamaCurrency.format(value);
     return new Intl.NumberFormat(window.GamaI18n?.locale || 'es-EC', {style:'currency', currency:currency || window.GamaCurrency?.get?.() || 'USD'}).format(Number(value) || 0);

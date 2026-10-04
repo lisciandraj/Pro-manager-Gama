@@ -100,14 +100,14 @@ function build(){
  const shell=document.createElement('div');shell.className='arcShell';shell.id='arcShell';
 
  const side=document.createElement('aside');
- side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));
+ side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));side.setAttribute('data-gi-aria-label','live');
  window.ArcUI.render(side,'<a class="arcBrand" href="#mainmenu" aria-label="COCO ERP">'+MARK+'</a>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
    +'<div class="arcFootBrand">COCO ERP</div>'
    +'<div class="arcFootVersion">'+VERSION+'</div>'
    +'<label class="arcLang">'+svg(ICON.globe)
-    +'<span class="gamaVisuallyHidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">'+esc(T('Idioma'))+'</span>'
+    +'<span data-gi-live class="gamaVisuallyHidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">'+esc(T('Idioma'))+'</span>'
     +'<select id="arcLangSelect"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option></select>'
    +'</label>'
   +'</div>');

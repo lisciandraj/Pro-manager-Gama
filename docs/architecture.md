@@ -23,7 +23,7 @@
 
 ## Construction
 
-`scripts/build.cjs` vérifie le manifeste, compile le catalogue de traductions sans réécrire les sources, copie les modules nommés, compile le noyau, assemble les 46 sections CSS dans l’ordre déclaré, calcule les versions par contenu, génère les pages et le service worker, puis prépare `dist/`.
+`scripts/build.cjs` vérifie le manifeste, compile le catalogue de traductions sans réécrire les sources, compacte les scripts nommés sans renommer les identifiants publics, compile le noyau, assemble les deux lots de démarrage, assemble les 46 sections CSS dans l’ordre déclaré, calcule les versions par contenu, génère les pages et le service worker, puis prépare `dist/`.
 `scripts/lib/assets.cjs` partage le manifeste et les règles de génération avec les contrôles.
 La liste des scripts publiés est explicite : les configurations Playwright et les outils ne sont plus inclus par une recherche de tous les fichiers JS.
 
@@ -31,7 +31,9 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Dashboard/KPI, CRM, RH, Suivi de processus, Compras, Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+
+Le menu et ses droits vivent dans le petit lot `coco-shell.js`, après le transport et le noyau. Les contrôles et les intégrations historiques sont réunis dans `coco-modules.js`, avec une priorité réseau basse. Ces deux lots conservent leur portée classique, leurs identifiants et leur ordre d’exécution. Une ouverture très précoce attend les contrôles partagés ; le fichier peut être réessayé après un échec réseau. La synchronisation centrale a un seul chargement déclaré, sans téléchargement de secours en double.
 
 Les scripts déclarés dans l’entrée ERP utilisent `defer` : leurs téléchargements se chevauchent, avec un ordre d’exécution conservé après l’analyse du HTML. Identité et Supabase précèdent la validation du profil ; le menu peut fonctionner avant la fin du chargement des extensions finales. Les tuiles sont créées masquées puis affichées avec les droits vérifiés. Quand Auth restaure une session sans ancien enregistrement de compatibilité, `gama:profile-ready` réveille aussi le menu ; les changements de rôle sont comparés à l’état réellement appliqué, et les rafraîchissements identiques conservent le DOM.
 
@@ -41,7 +43,9 @@ Projets sépare l’intégration légère (`src/features/projects/integration.js
 
 Stock garde son point d’entrée historique avec une intégration légère. Les existences se chargent en premier ; règles de reposición, fournisseurs, inventaires et étagères attendent leur onglet. Les vues opérationnelles agrègent les sorties côté serveur et créent uniquement des brouillons d’achat avec reçu idempotent ; voir [Stock](modules/stock.md).
 
-CRM, les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite les scripts déclarés à 93 et 1 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
+Le catalogue complet des traductions attend le français ou l’anglais. En espagnol, seuls les messages serveur sont chargés et les scans de traduction inutiles sont évités. Un changement de langue charge une seule fois le catalogue puis retraduit les labels existants, sans changer les valeurs métier. Les liens de modules survolés ou sélectionnés au clavier préchargent leurs scripts sans exécuter de module ni lire de données. Les groupes de dépendances se téléchargent en parallèle avec un ordre d’exécution conservé ; CRM attend également toutes ses extensions avant de traiter un lien direct.
+
+Les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite désormais les scripts déclarés à 15 et 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
 
 ## Données et accès
 
@@ -99,3 +103,5 @@ La carte et le cycle automatique sont dans `src/features/transport/workspace.js`
 ## Vues personnelles du Dashboard
 
 `src/features/dashboard/dashboard.js` utilise les agrégations autorisées existantes. Ses filtres, favorites, panneaux et outils de graphique sont décrits dans [Dashboard](modules/dashboard.md). Les préférences locales sont attachées au `user_id` vérifié du résultat serveur ; les CSV vérifient aussi les droits d’export.
+
+Les titres et téléchargements de Documents remplacent les noms techniques contenant un UUID par leur référence ERP, par exemple `DOC-00000017` et `DOC-00000017.jpg`. Les titres et noms de fichiers choisis par les utilisateurs sont conservés. Les données et chemins de stockage restent identiques.

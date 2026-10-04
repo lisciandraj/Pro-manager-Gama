@@ -75,6 +75,8 @@ function proofContent(l,e,index){
   if(k==='Referencia'&&!v)continue;
   l.text(k+': '+(v||'-'),10);
  }
+ if(e.gps)l.text('GPS: '+e.gps.lat+', '+e.gps.lng+' · precisión '+(e.gps.accuracy??'—')+' m · '+(e.gps.at?fecha(e.gps.at):''),9);
+ if(e.receivedAt)l.text('Registrado en servidor: '+fecha(e.receivedAt),9);
  l.y+=2;
  l.image(e.firma,'Firma de quien recibió',32);
  l.image(e.foto,'Fotografía tomada en la entrega',75);

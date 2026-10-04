@@ -19,7 +19,7 @@
    usuarios. El CRM lee las tablas que ya existen. */
 (function(){
 'use strict';
-if(window.GamaCRM)return;
+if(window.GamaCRM&&!window.GamaCRM.__arcLazy)return;
 
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);
@@ -332,5 +332,5 @@ window.GamaCRM={
  // Las piezas que repite cada pantalla: formularios, fechas, textos, avisos.
  util:{norm,terms,clave,valor,nulo,fecha,paraInput,desdeInput,campo,campoSelect,opciones,msg,error},
 };
-window.GamaOpenCRM=open;
+window.GamaOpenCRM=(...args)=>window.ArcLoad('crm').then(api=>api.open(...args));
 })();

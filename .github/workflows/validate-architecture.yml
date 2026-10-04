@@ -30,7 +30,9 @@ jobs:
         if: always()
         with:
           name: coco-configuration-layout
-          path: test-results/**/configuration-users-*.png
+          path: |
+            test-results/**/configuration-users-*.png
+            test-results/tms-*.png
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/upload-artifact@v4

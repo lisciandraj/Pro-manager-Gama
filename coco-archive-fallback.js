@@ -1,2 +1,2 @@
 /* Generated from src/legacy/archive-fallback.js. Edit the source and run npm run build. */
-window.GamaArchive=window.GamaArchive||{mode:function(){return "active"},register:function(){},go:function(){},tabs:function(){return ""},friendlyError:function(e){return String(e&&e.message||e)}};
+window.GamaArchive=window.GamaArchive||{mode:function(){return"active"},register:function(){},go:function(){},tabs:function(){return""},friendlyError:function(e){return String(e&&e.message||e)}};

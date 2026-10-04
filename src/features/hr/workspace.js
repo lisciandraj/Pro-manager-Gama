@@ -2,7 +2,7 @@
    HR P1 adds work calendars, audited workflows, documents and external payroll. */
 (function(){
 'use strict';
-if(window.GamaHR)return;
+if(window.GamaHR&&!window.GamaHR.__arcLazy)return;
 
 const C=()=>window.GamaCloud;
 const $=id=>document.getElementById(id);

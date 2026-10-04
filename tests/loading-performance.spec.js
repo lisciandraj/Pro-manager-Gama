@@ -1,12 +1,12 @@
 const {test,expect}=require('@playwright/test'),fs=require('node:fs');
 const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
-for(const width of [390,1440])test(`verified home and navigation work before a slow final extension loads at ${width}px`,async({page})=>{
+for(const width of [390,1440])test(`verified home renders before the runtime; early navigation waits safely at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});
  await page.addInitScript(()=>localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'})));
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
  let release;const gate=new Promise(resolve=>release=resolve);
- await page.route('**/architect-pricing.js*',async r=>{await gate;await r.continue()});
+ await page.route('**/coco-modules.js*',async r=>{await gate;await r.continue()});
  try{
   await page.goto('/index.html',{waitUntil:'commit'});
   // A parser-blocking script used to postpone every DOMContentLoaded boot.
@@ -14,7 +14,8 @@ for(const width of [390,1440])test(`verified home and navigation work before a s
   await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible({timeout:5000});
   expect(await page.evaluate(()=>document.readyState)).toBe('interactive');
   expect(await page.evaluate(()=>GamaRoleAccess.isReady())).toBe(true);
-  await page.locator('#mainmenu [data-gama-module="products"]').click();await expect(page.locator('#products')).toBeVisible();
+  await page.locator('#mainmenu [data-gama-module="products"]').click();
+  await expect(page.locator('#mainmenu [data-gama-module="products"]')).toHaveAttribute('aria-busy','true');
  }finally{release();await page.waitForLoadState('domcontentloaded')}
  await expect(page.locator('#products')).toBeVisible();
 });
@@ -95,4 +96,21 @@ for(const width of [390,1440])test(`cold home waits for the profile, reads no pe
  await page.evaluate(async()=>{await Promise.all([ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh(),ArchitectHomeKpis.refresh()]);ArchitectHomeKpis.mount(document.getElementById('ad-kpis'))});
  expect(await page.evaluate(()=>__startup.kpis)).toBe(2);
  await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);
+});
+
+test('Spanish startup skips translation and unopened workspaces; direct CRM and HR links load once',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'})));
+ await page.route('https://**/*',r=>r.abort());await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
+ await page.goto('/index.html');await expect(page.locator('#mainmenu [data-gama-module=crm]')).toBeVisible();
+ const resources=()=>page.evaluate(()=>performance.getEntriesByType('resource').map(r=>new URL(r.name).pathname));
+ expect((await resources()).some(p=>/gama-(i18n-catalog|crm-\w+|hr(?:-p1)?|dossier-flow|purchases-v14)\.js$|architect-(dashboard|home-kpis|kpi-catalog)\.js$/.test(p))).toBe(false);
+ expect(await page.evaluate(()=>GamaI18n.t('A discarded product has stock'))).toBe('El producto descartado todavía tiene stock.');
+ await page.evaluate(()=>ArcRouter.open('crm'));await expect(page.locator('#crm')).toBeVisible();
+ await page.evaluate(()=>GamaCRMOpportunities.open());await page.evaluate(()=>ArcRouter.open('crm'));
+ expect((await resources()).filter(p=>p.endsWith('gama-crm-core.js'))).toHaveLength(1);
+ await page.evaluate(()=>ArcRouter.open('hr'));await expect(page.locator('#hr')).toBeVisible();
+ await page.evaluate(()=>ArcRouter.open('hr'));expect((await resources()).filter(p=>p.endsWith('gama-hr.js'))).toHaveLength(1);
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Produits');
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Products');
+ expect((await resources()).filter(p=>p.endsWith('gama-i18n-catalog.js'))).toHaveLength(1);
 });

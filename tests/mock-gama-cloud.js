@@ -569,7 +569,8 @@
           const product=id=>(window.__DB.products||[]).find(p=>p.id===id)?.name;
           const kinds={receipt:'Recepción de compra',delivery:'Salida por entrega',inventory_adjustment:'Ajuste de inventario'};
           let rows=[...(window.__DB.stock_movements||[]).map(m=>({kind:'stock',at:m.created_at,actor_id:m.user_id,label:kinds[m.movement_type]||(m.type==='in'?'Entrada de stock':'Salida de stock'),detail:[product(m.product_id),m.reason].filter(Boolean).join(' · '),reference:m.erp_reference||null,amount:null,quantity:m.type==='in'?m.quantity:-m.quantity})),
-            ...(window.__DB.external_invoice_payments||[]).map(x=>({kind:'payment',at:x.created_at,actor_id:x.created_by,label:'Cobro de cliente',detail:x.method||'',reference:x.erp_reference||null,amount:x.amount,quantity:null}))];
+            ...(window.__DB.external_invoice_payments||[]).map(x=>({kind:'payment',at:x.created_at,actor_id:x.created_by,label:'Cobro de cliente',detail:x.method||'',reference:x.erp_reference||null,amount:x.amount,quantity:null})),
+            ...(window.__DB.tms_events||[]).map(x=>({kind:'transfer',at:x.at,actor_id:x.user_id,label:({Creada:'Entrega creada',Entregada:'Entrega completada',SALIDA_VALIDADA:'Salida de entrega validada',INCIDENTE:'Incidente de entrega',REPROGRAMADA:'Entrega reprogramada'})[x.type]||'Entrega actualizada',detail:x.note||x.customer||'',reference:(window.__DB.tms_deliveries||[]).find(d=>d.id===x.delivery_id)?.erp_reference,amount:null,quantity:null}))];
           const to=f.to?new Date(new Date(f.to).getTime()+86400000).toISOString():null;
           rows=rows.filter(r=>(!f.kind||r.kind===f.kind)&&(!f.actor||r.actor_id===f.actor)&&(!f.from||r.at>=f.from)&&(!to||r.at<to)&&(!f.search||[r.label,r.detail,r.reference].join(' ').toLowerCase().includes(String(f.search).toLowerCase())))
             .sort((a,b)=>String(b.at).localeCompare(String(a.at))).map(r=>({...r,actor:names[r.actor_id]||null}));
@@ -714,34 +715,73 @@
           return {data:id,error:null};
         }
         if(fn==='gama_refund_accounts')return {data:(window.__DB.financial_accounts||[]).filter(a=>a.active)};
+        if(fn==='gama_tms_today_counts'){
+          const db=window.__DB,day=args?.p_day||db.__today,ds=(db.tms_deliveries||[]).filter(d=>d.delivery_date===day&&!['Entregada','Cancelada'].includes(d.status));
+          const shipped=d=>(db.sales_deliveries||[]).find(s=>s.tms_delivery_id===d.id)?.departed_at;
+          return {data:{preparation:(db.sales_orders||[]).filter(o=>o.status==='confirmed'&&(db.sales_order_lines||[]).some(l=>l.order_id===o.id&&Number(l.quantity)>(db.sales_delivery_lines||[]).filter(x=>x.order_line_id===l.id).reduce((n,x)=>n+Number(x.quantity),0))).length,planning:ds.filter(d=>!d.route_id&&!shipped(d)).length,loading:ds.filter(d=>d.route_id&&!shipped(d)).length,proof:ds.filter(shipped).length,incidents:ds.filter(d=>d.status==='Excepción').length}};
+        }
+        if(fn==='gama_tms_save_gps'){
+          const d=window.__DB.tms_deliveries.find(d=>d.id===args.p_data.delivery_id);if(!d)return {error:{message:'DELIVERY_NOT_FOUND'}};
+          Object.assign(d,{lat:args.p_data.lat,lng:args.p_data.lng});const c=(window.__DB.customers||[]).find(c=>c.id===d.customer_id&&String(c.address||'').trim().toLowerCase()===String(d.address||'').trim().toLowerCase());
+          if(c)Object.assign(c,{lat:d.lat,lng:d.lng,gps_address:c.address});return {data:{delivery_id:d.id,customer_saved:!!c}};
+        }
+        if(fn==='gama_tms_my_route'){
+          const db=window.__DB,employee=(db.hr_employees||[]).find(h=>h.active!==false&&h.profile_id===db._profile.id),driver=(db.fleet_drivers||[]).find(f=>f.active!==false&&employee&&f.employee_id===employee.id);
+          if(!driver)return {data:{driver:null,routes:[],deliveries:[]}};
+          const routes=(db.tms_routes||[]).filter(r=>r.driver_id===driver.id&&(r.route_date===db.__today||['En ruta','En tránsito'].includes(r.status))&&r.status!=='Cancelada');
+          const deliveries=(db.tms_deliveries||[]).filter(d=>d.driver_id===driver.id&&d.delivery_date<=db.__today&&routes.some(r=>r.id===d.route_id)&&d.status!=='Cancelada').map(d=>({...d,phone:(db.customers||[]).find(c=>c.id===d.customer_id)?.phone,...(db.sales_deliveries||[]).find(s=>s.tms_delivery_id===d.id),id:d.id}));
+          return {data:{driver:{id:driver.id,name:driver.name},routes,deliveries}};
+        }
+        if(fn==='gama_tms_move_stop'){
+          const db=window.__DB,p=args.p_data,d=db.tms_deliveries.find(d=>d.id===p.delivery_id),source=db.tms_routes.find(r=>r.id===d?.route_id),target=db.tms_routes.find(r=>r.id===p.target_route_id);
+          if(!source||!target)return {error:{message:'ROUTE_NOT_FOUND'}};if((source.version||1)!==p.source_version||(target.version||1)!==p.target_version)return {error:{message:'ROUTE_STALE'}};
+          if([source,target].some(r=>r.status!=='Planificada'))return {error:{message:'ROUTE_CLOSED'}};
+          const changes=[...new Set([source,target])].map(r=>{const ids=r.stops.filter(id=>id!=='__depot'&&id!==d.id);if(r===target){const before=ids.indexOf(p.before_stop_id);ids.splice(before<0?ids.length:before,0,d.id)}const ds=ids.map(id=>db.tms_deliveries.find(d=>d.id===id)),vehicle=db.fleet_vehicles.find(v=>v.id===r.vehicle_id);return {r,ids,weight:ds.reduce((n,d)=>n+Number(d.weight||0),0),volume:ds.reduce((n,d)=>n+Number(d.volume||0),0),vehicle}});
+          if(changes.some(c=>c.weight>c.vehicle.payload_kg||(c.vehicle.cargo_volume_m3&&c.volume>c.vehicle.cargo_volume_m3)))return {error:{message:'ROUTE_CAPACITY'}};
+          for(const c of changes){const depot=c.r.stops[0]==='__depot',back=c.r.stops.at(-1)==='__depot';Object.assign(c.r,{stops:[...(depot?['__depot']:[]),...c.ids,...(back?['__depot']:[])],weight:c.weight,volume:c.volume,manual_override:true,version:(c.r.version||1)+1})}
+          Object.assign(d,{route_id:target.id,driver_id:target.driver_id});return {data:{delivery_id:d.id,route_id:target.id}};
+        }
+        if(fn==='gama_tms_delivery_action'){
+          const db=window.__DB,p=args.p_data,a=args.p_action,d=(db.tms_deliveries||[]).find(d=>d.id===p.delivery_id),s=(db.sales_deliveries||[]).find(s=>s.tms_delivery_id===d?.id);if(!d)return {error:{message:'DELIVERY_NOT_FOUND'}};
+          db.__tmsOperationCalls=(db.__tmsOperationCalls||[]).concat([{action:a,data:p}]);
+          if(a==='context')return {data:{delivery:{...d},phone:(db.customers||[]).find(c=>c.id===d.customer_id)?.phone,eta:d.eta_at,packages:(db.fulfillment_packages||[]).filter(x=>x.shipment_id===s?.id),invoices:(db.external_invoices||[]).filter(i=>i.order_id===s?.order_id).map(i=>({...i,reference:i.erp_reference||i.number,balance:Number(i.total)-(db.external_invoice_payments||[]).filter(x=>x.invoice_id===i.id).reduce((n,x)=>n+Number(x.amount),0)})),accounts:db.financial_accounts||[],returns:db.return_orders||[]}};
+          db.__tmsReceipts=db.__tmsReceipts||{};if(db.__tmsReceipts[p.request_key])return {data:db.__tmsReceipts[p.request_key]};let result;
+          if(a==='message'){d.eta_at=p.eta;result={eta:p.eta,token:'73000000-0000-4000-8000-000000000001'}}
+          if(a==='incident'){if(!s?.departed_at)return {error:{message:'DEPARTURE_REQUIRED'}};d.status='Excepción';(db.tms_delivery_incidents=db.tms_delivery_incidents||[]).push({...p,created_at:new Date().toISOString(),driver_id:d.driver_id});result={delivery_id:d.id,status:d.status}}
+          if(a==='reschedule'){if(d.status!=='Excepción')return {error:{message:'INCIDENT_REQUIRED'}};const date=new Date(db.__today+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+1);d.delivery_date=date.toISOString().slice(0,10);d.eta_at=null;result={delivery_id:d.id,day:d.delivery_date}}
+          if(a==='partial_return'){if(!p.package_ids?.length)return {error:{message:'PACKAGE_REQUIRED'}};for(const pk of db.fulfillment_packages||[])if(p.package_ids.includes(pk.id))pk.rejected=true;result={id:'ret-tms',number:'RET-00000001'};(db.return_orders=db.return_orders||[]).push(result)}
+          if(a==='collect'){const i=(db.external_invoices||[]).find(i=>i.id===p.invoice_id),payments=db.external_invoice_payments=db.external_invoice_payments||[],paid=payments.filter(x=>x.invoice_id===i?.id).reduce((n,x)=>n+Number(x.amount),0);if(!i||p.amount<=0)return {error:{message:'INVALID_PAYMENT_AMOUNT'}};if(p.amount+paid>Number(i.total))return {error:{message:'PAYMENT_EXCEEDS_BALANCE'}};result={id:nextId('external_invoice_payments'),reference:'COB-00000001',amount:p.amount};payments.push({...p,...result,status:'confirmed'})}
+          db.__tmsReceipts[p.request_key]=result;return {data:result};
+        }
+        if(fn==='gama_tms_metrics')return {data:{delivered:2,with_eta:2,on_time:1,days:[{day:window.__DB.__today,km:42,cost:10.5,missing_cost:0}],drivers:[{name:'Conductor 1',incidents:1}]}};
         if(fn==='gama_tms_capture'){
           if(window.__proofOffline)return {error:{message:'Network unavailable'}};
           const d=args.p_data,delivery=window.__DB.tms_deliveries.find(x=>x.id===d.delivery_id);
           let proof=window.__DB.tms_proofs.find(x=>x.delivery_id===d.delivery_id);
           if(!proof){proof={id:nextId('tms_proofs'),delivery_id:d.delivery_id};window.__DB.tms_proofs.push(proof)}
-          if(d.photo)proof.photo=d.photo;if(d.signature)proof.signature=d.signature;
+          if(d.photo)proof.photo=d.photo;if(d.signature)proof.signature=d.signature;proof.captured_at=d.captured_at;proof.received_at=new Date().toISOString();if(d.gps)Object.assign(proof,{gps_status:d.gps.status,latitude:d.gps.lat,longitude:d.gps.lng,gps_accuracy_m:d.gps.accuracy,gps_recorded_at:d.gps.at});
           if(d.complete)Object.assign(delivery,{status:'Entregada',actual_arrival:d.captured_at,delivered_at:d.captured_at});
           return {data:{delivery_id:delivery.id,complete:d.complete}};
         }
         if(fn==='gama_tms_plan_day'){
           if(window.__DB.__planError)return {error:{message:window.__DB.__planError}};
           window.__DB.__planCalls=(window.__DB.__planCalls||0)+1;
-          const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+          const day=args?.p_day||new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
           const ds=window.__DB.tms_deliveries||[],rs=window.__DB.tms_routes||[],shipments=window.__DB.sales_deliveries||[];
           const ids=ds.filter(d=>d.delivery_date===day&&shipments.some(s=>s.tms_delivery_id===d.id)).map(d=>d.id);
-          const locked=rs.filter(r=>['En ruta','En tránsito','Terminada','Cancelada'].includes(r.status)||ds.some(d=>d.route_id===r.id&&(['En carga','En tránsito','En ruta','Entregada'].includes(d.status)||shipments.some(s=>s.tms_delivery_id===d.id&&s.departed_at))));
+          const locked=rs.filter(r=>r.manual_override||['En ruta','En tránsito','Terminada','Cancelada'].includes(r.status)||ds.some(d=>d.route_id===r.id&&(['En carga','En tránsito','En ruta','Entregada'].includes(d.status)||shipments.some(s=>s.tms_delivery_id===d.id&&s.departed_at))));
           const eligible=ds.filter(d=>ids.includes(d.id)&&['Pendiente de preparación','Planificada','Lista para envío','Excepción'].includes(d.status)&&!locked.some(r=>r.id===d.route_id));
           const settings=(window.__DB.tms_settings||[])[0]||{};
           const point=d=>d.lat!=null&&d.lng!=null&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
           const fleet=window.__DB.fleet_drivers||[],vehicles=window.__DB.fleet_vehicles||[],assignments=window.__DB.fleet_assignments||[];
           const drivers=fleet.filter(d=>d.active!==false&&!locked.some(r=>r.driver_id===d.id)&&!(window.__DB.hr_absences||[]).some(a=>a.employee_id===d.employee_id&&a.status==='aprobada'&&a.start_date<=day&&a.end_date>=day)).map(d=>({d,v:vehicles.find(v=>v.id===assignments.find(a=>a.driver_id===d.id&&!a.ended_on)?.vehicle_id)})).filter(x=>x.v?.status==='in_service');
-          const fingerprint=JSON.stringify([eligible.map(d=>[d.id,d.lat,d.lng,d.weight,d.volume,d.priority]),drivers,settings]);
+          const fingerprint=JSON.stringify([day,eligible.map(d=>[d.id,d.lat,d.lng,d.weight,d.volume,d.priority]),drivers,settings]);
           if(window.__DB.__planHash===fingerprint)return {data:{...window.__DB.__planSummary,changed:false,order_delivery_ids:ids}};
           window.__DB.tms_routes=rs.filter(r=>locked.includes(r)||r.route_date!==day);
           eligible.forEach(d=>{d.route_id=null;d.driver_id=null});let remaining=eligible.filter(point),planned=0;
           for(const {d,v} of drivers){let weight=0,volume=0;const chosen=[];if(!v.payload_kg)continue;
            remaining.forEach(s=>{if(weight+Number(s.weight||0)<=v.payload_kg&&(!v.cargo_volume_m3||volume+Number(s.volume||0)<=v.cargo_volume_m3)){chosen.push(s);weight+=Number(s.weight||0);volume+=Number(s.volume||0)}});
-           if(!chosen.length)continue;const route={id:nextId('tms_routes'),route_date:day,driver_id:d.id,driver_name:d.name,vehicle_id:v.id,vehicle:v.plate,stops:chosen.map(s=>s.id),weight,volume,distance:5,status:'Planificada'};
+           if(!chosen.length)continue;const route={id:nextId('tms_routes'),route_date:day,driver_id:d.id,driver_name:d.name,vehicle_id:v.id,vehicle:v.plate,stops:chosen.map(s=>s.id),weight,volume,distance:5,status:'Planificada',version:1};
            if(settings.depot_lat!=null){route.stops.unshift('__depot');if(settings.return_depot!==false)route.stops.push('__depot')}
            window.__DB.tms_routes.push(route);chosen.forEach(s=>{s.route_id=route.id;s.driver_id=d.id;if(s.status!=='Lista para envío')s.status='Planificada'});planned+=chosen.length;remaining=remaining.filter(s=>!chosen.includes(s));
           }

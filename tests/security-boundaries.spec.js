@@ -73,7 +73,7 @@ test.describe('Límites de seguridad', () => {
   });
 
   test('the users screen can approve and revoke accounts, and cannot lock the admin out of their own', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'gama-cloud-users.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'src/features/access/cloud-users.js'), 'utf8');
     // New accounts arrive deactivated; an administrator has to act on them.
     expect(src).toContain('data-cu-toggle');
     expect(src).toContain("update('profiles'");

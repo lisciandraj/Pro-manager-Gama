@@ -22,7 +22,7 @@ const allowed=(page,ids)=>page.evaluate(ids=>ids.map(id=>gamaAccessAllowed(id)),
 
 test('the access page only manages the modules available to everyone',async({page})=>{
  await boot(page);await openAccess(page);
- await expect(page.locator('#access-settings .gamaStdText p')).toHaveText('Módulos disponibles para toda la empresa.');
+ await expect(page.locator('#access-settings [data-gama-standard-header]')).toHaveCount(0);
  await expect(page.locator('#access-settings .cfgNote')).toHaveText('Los accesos de cada tipo de usuario vienen definidos por defecto.');
  await expect(page.locator('#cfgProfile, [data-role-module], #cfgNewProfile, #cfgSaveProfile, #cfgResetProfile')).toHaveCount(0);
  await expect(page.locator('#access-settings button',{hasText:'Derechos por acción'})).toHaveCount(0);
@@ -103,7 +103,7 @@ test('the retired legacy quote form is not listed among the application modules'
 test('the access page fits a phone and follows the language',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await openAccess(page);
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));
- await expect(page.locator('#access-settings .gamaStdText p')).toHaveText('Modules disponibles pour toute l’entreprise.');
+ await expect(page.locator('#access-settings [data-gama-standard-header]')).toHaveCount(0);
  await expect(page.locator('#access-settings .cfgNote')).toHaveText('Les accès de chaque type d’utilisateur sont définis par défaut.');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

@@ -36,13 +36,11 @@ function render(id='settings'){
  if(!isAdmin()){window.ArcUI.render(s,'');return}
  // Los accesos de cada tipo de usuario vienen definidos por defecto (ArcModules.roles);
  // aquí sólo se eligen los módulos que existen para toda la empresa.
- const head=window.GamaUI.header({title:'Parámetros de acceso',lead:'Módulos disponibles para toda la empresa.'});
-
  const mods=window.GamaModules.list();
  const activos=mods.filter(m=>m.enabled).length;
  const rows=mods.map(m=>moduleTile(m,{on:m.enabled,disabled:m.locked,detail:m.locked?'Disponible permanentemente.':''})).join('');
 
- window.ArcUI.render(s,head+`<details open class="arcPanel card"><summary>${live('Activación general de módulos')}</summary>
+ window.ArcUI.render(s,`<details open class="arcPanel card"><summary>${live('Activación general de módulos')}</summary>
   <h3 data-gi=ba8656559345>Módulos de la aplicación</h3>
   <p class="cfgNote">${live('Los accesos de cada tipo de usuario vienen definidos por defecto.')}</p>
   <div class="cfgCount">${activos} de ${mods.length} activos</div>

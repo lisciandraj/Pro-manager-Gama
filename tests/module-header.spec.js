@@ -142,12 +142,11 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
     exigirIcono(c, id, tarjeta);
   }
 
-  // La copia de seguridad conserva su cabecera dentro de Configuración;
-  // el diálogo proporciona la salida en lugar de otro botón de volver.
+  // Configuration supplies the context and exit for the embedded backup pane.
   await page.evaluate(() => window.showTab('backup', null));
   await expect(page.locator('#cfgTab-backup')).toHaveAttribute('aria-selected', 'true');
-  exigirMolde(await leerCabecera(page, '#backup'), 'backup');
-  await expect(page.locator('#backup .gamaStdBack')).toBeHidden();
+  await expect(page.locator('#backup [data-gama-standard-header]')).toHaveCount(0);
+  await expect(page.locator('#recoveryExport')).toBeVisible();
   await page.locator('#arcSettingsDialog [data-side-close]').click();
   await expect(page.locator('#arcSettingsDialog')).toHaveCount(0);
 

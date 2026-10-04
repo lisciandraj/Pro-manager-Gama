@@ -131,12 +131,17 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
     }
     return path;
   };
+  const settleWithholding = async (id: string) => {
+    const result = await client.rpc('gama_sri_documents', {p_action: 'settle', p_data: {id}});
+    await admin.from(table).update({last_error: result.error ? 'SRI_WITHHOLDING_SETTLEMENT_REQUIRED' : null}).eq('id', id).eq('status', 'authorized');
+    if (result.error) throw Error('SRI_WITHHOLDING_SETTLEMENT_REQUIRED');
+    return result.data;
+  };
   try {
     let issue = await fetchIssue();
     if (input.action === 'refresh' && issue.status === 'authorized' && documentType === '07') {
-      const settled = await client.rpc('gama_sri_documents', {p_action: 'settle', p_data: {id: issue.id}});
-      if (settled.error) throw settled.error;
-      return reply({id: issue.id, status: issue.status, withholding_id: settled.data.id});
+      const settled = await settleWithholding(issue.id);
+      return reply({id: issue.id, status: issue.status, withholding_id: settled.id});
     }
     if (input.action === 'retry') {
       if (issue.receipt?.provider === 'openapi' || issue.access_key || !['error','processing'].includes(issue.status)) return reply({ error: 'SRI_RETRY_REQUIRES_REVIEW' }, 409);
@@ -202,7 +207,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
       } else if (result.status === 'rejected') {
         issue = await save('rejected', { authorization_response: { status: 'rejected', provider: 'openapi', message: result.provider_status } }, issue.status);
       }
-      if (!machine && issue.status === 'authorized' && documentType === '07') await client.rpc('gama_sri_documents', {p_action: 'settle', p_data: {id: issue.id}});
+      if (!machine && issue.status === 'authorized' && documentType === '07') await settleWithholding(issue.id);
       return reply({ id: issue.id, status: issue.status, access_key: issue.access_key, review_required: result.review_required === true });
     }
     if (input.action === 'submit') {
@@ -240,7 +245,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
         issue = await save('authorized', { authorization_response: { status: 'authorized', authorization: result.authorization }, authorized_xml_path: xmlPath,
           ride_path: ridePath, authorized_at: result.authorized_at || new Date().toISOString() }, prior);
       } else if (result.status === 'rejected') issue = await save('rejected', { authorization_response: result }, prior);
-      if (!machine && issue.status === 'authorized' && documentType === '07') await client.rpc('gama_sri_documents', {p_action: 'settle', p_data: {id: issue.id}});
+      if (!machine && issue.status === 'authorized' && documentType === '07') await settleWithholding(issue.id);
       return reply({ id: issue.id, status: issue.status, access_key: issue.access_key });
     }
     if (issue.status !== 'authorized' || !issue.authorized_xml_path || !issue.ride_path) return reply({ error: 'SRI_NOT_AUTHORIZED' }, 409);

@@ -4655,3 +4655,41 @@ La guía todavía está pendiente de autorización.	Le guide attend encore son a
 La ruta todavía no tiene guía de remisión.	La tournée n’a pas encore de guide de transport.	The route has no delivery guide yet.
 Ruta seleccionada	Tournée sélectionnée	Selected route
 Guía preparada. Revisa y envía desde Facturación SRI.	Guide préparé. Vérifiez et envoyez depuis Facturation SRI.	Guide prepared. Review and submit it from SRI invoicing.
+Importar retención XML del cliente	Importer la retenue XML du client	Import customer withholding XML
+Importar retención recibida	Importer une retenue reçue	Import received withholding
+Verificar y aplicar a las facturas	Vérifier et appliquer aux factures	Verify and apply to invoices
+Selecciona el XML del cliente. El SRI verifica la autorización; las facturas se identifican por RUC y número fiscal. La retención reduce el saldo sin registrar un ingreso bancario.	Sélectionnez le XML du client. Le SRI vérifie son autorisation ; les factures sont identifiées par RUC et numéro fiscal. La retenue réduit le solde sans entrée bancaire.	Select the customer XML. The SRI verifies its authorization; invoices are matched by RUC and fiscal number. Withholding reduces balances without recording a bank receipt.
+XML de retención	XML de la retenue	Withholding XML
+Cuenta de retenciones IR recibidas	Compte des retenues IR reçues	Received income withholding account
+Cuenta de retenciones IVA recibidas	Compte des retenues IVA reçues	Received VAT withholding account
+Retención aplicada a las facturas verificadas.	Retenue appliquée aux factures vérifiées.	Withholding applied to verified invoices.
+Formularios 103 y 104	Formulaires 103 et 104	Forms 103 and 104
+Documentar anulación fiscal	Documenter une annulation fiscale	Record fiscal cancellation
+Anulaciones documentadas	Annulations documentées	Documented cancellations
+Baja en portal SRI	Radiation sur le portail SRI	Deregistered in SRI portal
+Preparación mensual para revisión. No presenta declaraciones al SRI. Confirma el factor de crédito tributario, los saldos anteriores y los datos fiscales antes de declarar.	Préparation mensuelle à vérifier. Aucune déclaration SRI n’est déposée. Confirmez le facteur de crédit fiscal, les soldes antérieurs et les données fiscales avant de déclarer.	Monthly preparation for review. No SRI return is submitted. Confirm the tax credit factor, prior balances and fiscal details before filing.
+Factor de crédito tributario (0 a 1)	Facteur de crédit fiscal (0 à 1)	Tax credit factor (0 to 1)
+Crédito del mes anterior	Crédit du mois précédent	Prior month tax credit
+Recalcular	Recalculer	Recalculate
+Exportar preparación 103 y 104	Exporter la préparation 103 et 104	Export preparation for 103 and 104
+Formulario 104 · IVA	Formulaire 104 · IVA	Form 104 · VAT
+Formulario 103 · Retenciones IR	Formulaire 103 · Retenues IR	Form 103 · Income withholding
+IVA generado según el libro	IVA généré selon le livre comptable	VAT generated in the ledger
+IVA de compras según el libro	IVA des achats selon le livre comptable	Purchase VAT in the ledger
+Crédito tributario aplicable	Crédit fiscal applicable	Applicable tax credit
+IVA retenido por clientes	IVA retenu par les clients	VAT withheld by customers
+IVA propio por pagar	IVA propre à payer	Own VAT payable
+Crédito para el mes siguiente	Crédit pour le mois suivant	Tax credit carried forward
+IVA retenido a proveedores por pagar	IVA retenu aux fournisseurs à payer	Withheld supplier VAT payable
+Comprobantes pendientes de revisión	Documents à vérifier	Documents pending review
+Comprobantes	Justificatifs	Documents
+Registra la fecha y la evidencia de la anulación. Las bajas efectuadas en el portal SRI se excluyen del ATS.	Enregistrez la date et le justificatif de l’annulation. Les radiations effectuées sur le portail SRI sont exclues de l’ATS.	Record the cancellation date and evidence. Deregistrations through the SRI portal are excluded from ATS.
+Factura de gestión anulada	Facture de gestion annulée	Cancelled management invoice
+Secuencial inicial	Premier numéro séquentiel	First sequential number
+Secuencial final	Dernier numéro séquentiel	Last sequential number
+Fecha de anulación	Date d’annulation	Cancellation date
+Códigos de establecimientos ATS	Codes des établissements ATS	ATS establishment codes
+Fecha del comprobante	Date du document	Document date
+Código del documento original	Code du document original	Original document code
+Número fiscal original	Numéro fiscal original	Original fiscal number
+Autorización del documento original	Autorisation du document original	Original document authorization

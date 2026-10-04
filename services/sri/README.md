@@ -43,3 +43,7 @@ Set `SRI_PROVIDER=openapi` to use the external NestJS fiscal engine through the
 private gateway instead of the original Python signer. Read [OPENAPI.md](OPENAPI.md)
 for the pinned contract, deployment prerequisites, scoped credentials, supported
 invoice types, PDF renderer license caveat and no-reissue recovery policy.
+
+### Retenciones recibidas
+
+La función `gama-sri-received` usa el mismo trabajador HTTPS/HMAC para verificar XML 07 recibidos. `received_inspect` consulta la autorización real y devuelve los documentos sustentados; `verify_received_batch` compara esos documentos con las facturas obtenidas por RPC, verifica RUC, fechas, bases y porcentajes, y conserva el XML que devolvió el SRI. El navegador no puede suministrar una prueba ni escribir el archivo verificado. Las aplicaciones contables se realizan en lote con `gama_ec_received_batch`; cualquier error revierte todos los offsets y no mueve la caja. La conectividad SRI es necesaria incluso si el archivo cargado incluye una envoltura AUTORIZADO.

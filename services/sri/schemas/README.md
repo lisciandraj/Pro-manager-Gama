@@ -8,6 +8,7 @@ Downloaded from the [official electronic invoicing downloads](https://www.sri.go
 | NotaCredito_V1.1.0.xsd | dfc944cd-5f18-4433-a626-3cc64cfc4549 | 379e9f270d71ab4578f130a736c9abe5eb1d7969375ecdef55d2973583ec5ab0 |
 | GuiaRemision_V1.1.0.xsd | 642ba34d-82d0-49d8-9622-5946f8eda268 | 4777fd94b5f7b108da3db0dd3d2c71d1539ced221cba246ebeaa40fb17f3dee1 |
 | ComprobanteRetencion_V2.0.0.xsd | 90950fca-73a7-4cfb-9c2d-3142b10435f2 | 1e006d6d16c791c8f5b23d1f3e006cd066ccba2bfb797a3cb9098bd09c793cb7 |
+| ComprobanteRetencion_V1.0.0.xsd | 90950fca-73a7-4cfb-9c2d-3142b10435f2 | 79547cecfad14ffe7c3fa5ef7a5ca9d2b9b245fc82873fac8f8b27fcec8ad162 |
 
 Each bundle is served by `/o/sri-portlet-biblioteca-alfresco-internet/descargar/<bundle-id>/` on the official SRI site. The unchanged XML signature schema is from [W3C XMLDSIG](https://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd), SHA-256 `35cf8197da812c85e40d57891b35c94187569ed474a2dac813ce5090dafcd35c`.
 

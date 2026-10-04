@@ -64,6 +64,17 @@ async def execute(request: Request):
             return {'configured': ready, 'provider': provider, 'document_types': documents,
                     'reconciliation_enabled': reconcile_configuration() is not None,
                     'environment': os.getenv('SRI_OPENAPI_ENVIRONMENT') if provider == 'openapi' else None}
+        if action in ('received_inspect', 'verify_received', 'verify_received_batch'):
+            from .received import inspect_authorized, verify, verify_batch
+            raw=base64.b64decode(data['xml_base64'], validate=True)
+            if action == 'received_inspect':
+                return inspect_authorized(raw,os.environ['SRI_ISSUER_RUC'])
+            invoices=data['invoices'] if action=='verify_received_batch' else [data['invoice']]
+            if not isinstance(invoices,list) or not 1 <= len(invoices) <= 50 or any(not isinstance(i,dict) for i in invoices):
+                raise ValueError('SRI_RECEIVED_FIELDS_INVALID')
+            if any(i['issuer_ruc'] != os.environ['SRI_ISSUER_RUC'] for i in invoices):
+                raise ValueError('SRI_CERTIFICATE_ISSUER_MISMATCH')
+            return verify_batch(raw,invoices) if action=='verify_received_batch' else verify(raw,invoices[0])
         issue = data['issue']
         validate(issue)
         if action in ('openapi_preflight', 'openapi_submit', 'openapi_refresh'):

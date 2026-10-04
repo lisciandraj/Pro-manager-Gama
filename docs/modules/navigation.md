@@ -23,8 +23,8 @@
 | Knowledge | Articles, sous-articles et recherche |
 | Documents | Catégories, employés, sources liées, versions et accès |
 | Site web | Site public : publication, catalogue et présentation ; demandes reçues dans Ventes |
-| Configuration (roue dentée) | Entreprise, identité, fiscalité/SRI, références, règles, Importer des données, Sauvegarde, Paramètres d’accès, langue et sécurité |
-| Administration | Utilisateurs et audit ; import, sauvegarde et accès sont des onglets de Configuration |
+| Configuration (roue dentée) | Entreprise, identité, fiscalité/SRI, références, règles, Importer des données, Sauvegarde, Utilisateurs, Paramètres d’accès, langue et sécurité |
+| Administration | Audit ; import, sauvegarde, utilisateurs et accès sont des onglets de Configuration |
 
 ## Compatibilité
 
@@ -47,4 +47,6 @@ L’icône Ventes utilise une progression avec une flèche, distincte du documen
 
 Le type d’accès Client et les modules Catalogue client et Mes livraisons sont retirés de Coco ERP. Les commandes publiques passent par le site internet, puis Ventes → Demandes clients. Les fiches commerciales, commandes, livraisons et documents existants restent gérés par les équipes internes. Les comptes de connexion de type client sont désactivés et ne peuvent plus être approuvés ni invités. Leurs identifiants historiques sont conservés pour les liens d’audit. Les anciens endpoints du portail sont fermés.
 
-`reports`, `backup` et `access-settings` restent les identifiants des onglets Configuration. Ils n’ont plus de tuile ni de lien latéral. Les anciens appels ouvrent directement leur onglet. Les droits et l’activation de chaque fonctionnalité restent inchangés : import pour administrateurs/commerciaux autorisés ; sauvegarde et paramètres d’accès pour administrateurs. Les formulaires existants sont conservés lors du passage entre onglets.
+`reports`, `backup`, `users` et `access-settings` restent les identifiants des onglets Configuration. Ils n’ont plus de tuile ni de lien latéral. Les anciens appels ouvrent directement leur onglet. Les droits et l’activation de chaque fonctionnalité restent inchangés : import pour administrateurs/commerciaux autorisés ; sauvegarde, utilisateurs et paramètres d’accès pour administrateurs. Les formulaires existants sont conservés lors du passage entre onglets.
+
+L’import de produits accepte jusqu’à 3 000 lignes par fichier, pour la simulation et la confirmation. Les doublons, erreurs par ligne et reprises conservent leurs contrôles existants.

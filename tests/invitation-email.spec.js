@@ -24,8 +24,8 @@ async function openUsers(page) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(1200);
-  await page.addScriptTag({ url: '/gama-cloud-users.js' });
-  await page.click('#mainmenu .gamaF2Card[data-gama-module="users"]');
+  await page.locator('#arcSettings').click();
+  await page.locator('#cfgTab-users').click();
   await page.waitForSelector('[data-invite-template]');
   await page.evaluate(async () => {
     const old = GamaCloud.db; window.__invites = [];
@@ -36,7 +36,7 @@ async function openUsers(page) {
 test('el administrador edita el correo de invitación con vista previa y control de versión', async ({ page }) => {
   await openUsers(page);
   await page.locator('[data-invite-template]').click();
-  const d = page.locator('dialog');
+  const d = page.locator('dialog[data-identity]');
   await expect(d.locator('[name=subject]')).toHaveValue('Tu acceso a {empresa}');
   await expect(d.locator('[data-invite-preview]')).toContainText('Tu acceso a Ferretería Andina');
   await d.locator('[name=subject]').fill('Bienvenido a {empresa}, {nombre}');
@@ -49,7 +49,7 @@ test('el administrador edita el correo de invitación con vista previa y control
 test('la invitación envía el asunto y el mensaje ya personalizados, y se pueden retocar', async ({ page }) => {
   await openUsers(page);
   await page.locator('[data-invite-user]').click();
-  const d = page.locator('dialog');
+  const d = page.locator('dialog[data-identity]');
   await d.locator('[name=name]').fill('Paula Martínez');
   await d.locator('[name=email]').fill('paula@example.com');
   await d.locator('[name=role]').selectOption('comercial');
@@ -65,8 +65,8 @@ test('un modelo cambiado por otra persona no se pisa', async ({ page }) => {
   await openUsers(page);
   await page.locator('[data-invite-template]').click();
   await page.evaluate(() => { __DB.access_invitation_template[0].version = 9; });
-  await page.locator('dialog [name=message]').fill('Otro texto');
-  await page.locator('dialog [type=submit]').click();
-  await expect(page.locator('dialog [role=alert]')).not.toBeEmpty();
+  await page.locator('dialog[data-identity] [name=message]').fill('Otro texto');
+  await page.locator('dialog[data-identity] [type=submit]').click();
+  await expect(page.locator('dialog[data-identity] [role=alert]')).not.toBeEmpty();
   expect(await page.evaluate(() => __DB.access_invitation_template[0].message)).not.toBe('Otro texto');
 });

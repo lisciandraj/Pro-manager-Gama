@@ -25,7 +25,14 @@ jobs:
       - run: npm run check:startup
       - run: npm run test:architecture
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/lazy-workspaces.spec.js tests/lazy-pdf.spec.js tests/pdf-on-demand.spec.js tests/pdf-download.spec.js tests/company-settings.spec.js tests/loading-performance.spec.js tests/performance-guard.spec.js tests/security-boundaries.spec.js tests/scanner-integration.spec.js tests/knowledge.spec.js tests/assistant-ia.spec.js tests/tms-module.spec.js tests/tms-loading.spec.js tests/project-management.spec.js tests/stock-adjustments.spec.js tests/excel-import.spec.js tests/i18n-coverage.spec.js --workers=2
+      - run: npx playwright test tests/lazy-workspaces.spec.js tests/lazy-pdf.spec.js tests/pdf-on-demand.spec.js tests/pdf-download.spec.js tests/company-settings.spec.js tests/settings-window.spec.js tests/role-module-access.spec.js tests/loading-performance.spec.js tests/performance-guard.spec.js tests/security-boundaries.spec.js tests/scanner-integration.spec.js tests/knowledge.spec.js tests/assistant-ia.spec.js tests/tms-module.spec.js tests/tms-loading.spec.js tests/project-management.spec.js tests/stock-adjustments.spec.js tests/excel-import.spec.js tests/i18n-coverage.spec.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coco-configuration-layout
+          path: test-results/**/configuration-users-*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

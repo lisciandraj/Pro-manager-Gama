@@ -37,3 +37,10 @@ test('dynamic vendor scripts keep their integrity and use the same download',asy
  assert.equal(a,b);for(const [key,value] of Object.entries(options))assert.equal(x.scripts[0][key],value);
  x.scripts[0].onload();await a;
 });
+
+test('Stock mutations do not download an unopened workspace; opening still forwards through the shared loader',async()=>{
+ const x=loader();vm.runInNewContext(fs.readFileSync('src/features/inventory/integration.js','utf8'),{window:x.window});
+ await x.window.GamaInventoryV2.cargar();assert.equal(x.scripts.length,0);
+ const opened=x.window.GamaOpenWarehouses('stock-entry');assert.equal(x.scripts.length,1);assert.equal(x.scripts[0].src,'gama-stock-workspace.js');
+ x.window.GamaInventoryV2={abrir:entry=>'opened:'+entry};x.scripts[0].onload();assert.equal(await opened,'opened:stock-entry');
+});

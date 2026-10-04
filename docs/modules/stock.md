@@ -33,6 +33,6 @@ La priorité A rassemble les produits qui concentrent les premiers 80 % du capit
 
 ## Accès et validation
 
-Les API publiques sont `SECURITY INVOKER` et délèguent à des fonctions privées contrôlant Auth, MFA, rôle et activation du module. L’agrégateur interne n’est pas exécutable par les clients. Les droits du cache Coco Intelligence restent inchangés. Les nouveaux champs et index sont ajoutés par `20261004184910_stock_workspace_improvements.sql`.
+Les API publiques sont `SECURITY INVOKER` et délèguent à des fonctions privées contrôlant Auth, MFA, rôle et activation du module. L’agrégateur interne n’est pas exécutable par les clients. Les droits du cache Coco Intelligence restent inchangés. Les nouveaux champs et index sont ajoutés par `20261004191646_stock_workspace_improvements.sql`.
 
 Les règles sont testées par restauration complète dans PGlite avec des données isolées (`tests/stock-workspace-db.test.cjs`). Les parcours, chargements différés, reprises et affichages mobiles sont testés avec un transport mémoire dans `tests/stock-workspace.spec.js`, en complément des tests Stock et inventaires existants.

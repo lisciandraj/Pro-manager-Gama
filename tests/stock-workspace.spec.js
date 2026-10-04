@@ -47,6 +47,6 @@ test('cycle reminders prepare a responsible, deadline, priority and scoped next 
 test('failed insight loads can be retried and late responses cannot replace the active tab',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__stockInsightsError='temporary failure'});await page.evaluate(()=>GamaOpenWarehouses());await page.click('[data-iv-tab=acciones]');await expect(page.locator('[data-iv-retry]')).toBeVisible();
  await page.evaluate(()=>window.__stockInsightsError=null);await page.click('[data-iv-retry]');await expect(page.locator('#ivCuerpo')).toContainText('Disponibilidad insuficiente');
- await page.evaluate(()=>{const rpc=ArcData.rpc;ArcData.rpc=(name,data)=>name==='gama_stock_insights'&&data.p_view==='rotacion'?new Promise(resolve=>window.__releaseStockTab=async()=>resolve(await rpc(name,data))):rpc(name,data)});
+ await page.evaluate(()=>{const db=GamaCloud.db;GamaCloud.db=async()=>{const client=await db(),rpc=client.rpc;client.rpc=(name,data)=>name==='gama_stock_insights'&&data.p_view==='rotacion'?new Promise(resolve=>window.__releaseStockTab=async()=>resolve(await rpc(name,data))):rpc(name,data);return client}});
  await page.click('[data-iv-tab=rotacion]');await page.waitForFunction(()=>window.__releaseStockTab);await page.click('[data-iv-tab=existencias]');await expect(page.locator('#ivTabla')).toBeVisible();await page.evaluate(()=>window.__releaseStockTab());await expect(page.locator('#ivTabla')).toBeVisible();await expect(page.locator('#ivsDormantDays')).toHaveCount(0);
 });

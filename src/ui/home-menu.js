@@ -53,7 +53,16 @@ function render(){
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    cuerpo.appendChild(label);
    b.append(icon,cuerpo);
-   b.onclick=()=>openItem(x);
+   b.onclick=()=>{
+     if(b.getAttribute('aria-busy')==='true')return;
+     b.setAttribute('aria-busy','true');
+     Promise.resolve().then(()=>openItem(x)).catch(e=>window.gamaToast?.(window.ArcErrors?.message(e)||e.message))
+       .finally(()=>b.removeAttribute('aria-busy'));
+   };
+   let preparing;
+   b.addEventListener('pointerenter',()=>{if(can(x[1]))preparing=setTimeout(()=>window.ArcPrefetch?.(x[1]),120)});
+   b.addEventListener('pointerleave',()=>clearTimeout(preparing));
+   b.addEventListener('focus',()=>{if(can(x[1]))window.ArcPrefetch?.(x[1])});
    grid.appendChild(b);
  });
  const vacio=document.createElement('div');vacio.className='gamaF2Vacio';vacio.id='gamaF2Vacio';vacio.hidden=true;

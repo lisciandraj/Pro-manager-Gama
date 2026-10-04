@@ -471,6 +471,14 @@
     {
       "source": "src/features/surveys/survey-recipients.js",
       "output": "gama-survey-recipients.js"
+    },
+    {
+      "source": "src/features/transport/delivery-operations.js",
+      "output": "gama-tms-delivery-operations.js"
+    },
+    {
+      "source": "src/features/transport/tracking.js",
+      "output": "gama-tms-tracking.js"
     }
   ],
   "styles": [
@@ -533,6 +541,10 @@
     {
       "source": "src/styles/surveys.css",
       "output": "gama-surveys.css"
+    },
+    {
+      "source": "src/styles/modules/tms-tracking.css",
+      "output": "gama-tms-tracking.css"
     }
   ],
   "moduleStyles": [
@@ -585,5 +597,82 @@
   ],
   "vendors": [
     "assets/vendor/jspdf-2.5.2.umd.min.js"
+  ],
+  "startupBundles": [
+    {
+      "output": "coco-shell.js",
+      "files": [
+        "gama-ui.js",
+        "gama-modules.js",
+        "architect-home-order.js",
+        "gama-menu-final2.js",
+        "gama-role-access.js",
+        "gama-access-control.js",
+        "architect-shell.js",
+        "gama-fixed-header.js"
+      ]
+    },
+    {
+      "output": "coco-modules.js",
+      "files": [
+        "gama-pagination.js",
+        "gama-archive.js",
+        "gama-sort.js",
+        "gama-select-search.js",
+        "gama-tables.js",
+        "coco-pricing-and-photos.js",
+        "coco-sort-fallback.js",
+        "coco-archive-fallback.js",
+        "coco-pagination-fallback.js",
+        "coco-workspace.js",
+        "coco-product-scanner.js",
+        "gama-global-search-core.js",
+        "gama-global-search.js",
+        "gama-scanner-phone.js",
+        "gama-references.js",
+        "gama-company-core.js",
+        "gama-company.js",
+        "gama-pdf-template.js",
+        "gama-quote-pdf.js",
+        "gama-purchase-order-pdf.js",
+        "gama-proveedores-matriz.js",
+        "gama-customer-requests.js",
+        "gama-pdf.js",
+        "gama-photos.js",
+        "gama-price-lists.js",
+        "gama-contacts.js",
+        "gama-settings.js",
+        "gama-sales.js",
+        "gama-quotes.js",
+        "gama-order-preparation.js",
+        "gama-fulfillment.js",
+        "gama-tms-loading.js",
+        "gama-internal-invoices.js",
+        "gama-projects-i18n.js",
+        "coco-project-integration.js",
+        "gama-payments.js",
+        "gama-operations.js",
+        "gama-standard-ui.js",
+        "gama-employee-photos.js",
+        "architect-recovery.js",
+        "architect-partners.js",
+        "architect-audit.js",
+        "architect-service-workflows.js",
+        "architect-sourcing.js",
+        "architect-stock-controls.js",
+        "architect-transport-controls.js",
+        "architect-offline-proofs.js",
+        "architect-project-controls.js",
+        "architect-products-controls.js",
+        "architect-service-products.js",
+        "architect-lots.js",
+        "architect-finance-controls.js",
+        "architect-people.js",
+        "architect-access-controls.js",
+        "architect-barcode-controls.js",
+        "architect-controls.js",
+        "architect-pricing.js"
+      ]
+    }
   ]
 }

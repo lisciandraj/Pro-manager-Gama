@@ -39,10 +39,12 @@ const FIELDS={
  terms:{label:'Plazo de pago desde la entrega (días)',type:'number',required:true,min:0,max:3650,step:1,help:'0 = pago a la entrega.'},
  linkedin:{label:'LinkedIn',maxLength:300},
  primary:{label:'Contacto principal',type:'checkbox'},
+ lat:{label:'Latitud GPS',type:'number',min:-85,max:85,step:'any'},
+ lng:{label:'Longitud GPS',type:'number',min:-180,max:180,step:'any'},
  notes:{label:'Observaciones',type:'textarea',maxLength:4000}
 };
 const LAYOUT={
- clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'phone','email','address','city','province','postalCode','country','category','terms','notes'],
+ clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'phone','email','address','city','province','postalCode','country','lat','lng','category','terms','notes'],
  suppliers:['name','ident','contactName','phone','email','address','city','province','postalCode','country','notes'],
  people:['customer','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes'],
  prospects:['lead','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes']
@@ -151,7 +153,7 @@ async function purge(key){
 
 /* ---- el formulario ---- */
 function fromRecord(kind,x){
- if(kind==='clients')return {name:x.name,ident:x.taxId,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,category:x.category||'A',terms:x.paymentTermsDays??'',notes:x.notes};
+ if(kind==='clients')return {name:x.name,ident:x.taxId,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,lat:x.lat??'',lng:x.lng??'',category:x.category||'A',terms:x.paymentTermsDays??'',notes:x.notes};
  if(kind==='suppliers')return {name:x.name,ident:x.taxId,contactName:x.contactName,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,notes:x.notes};
  return {customer:x.customer_id,lead:x.lead_id,firstName:x.first_name,lastName:x.last_name,jobTitle:x.job_title,role:x.decision_role,phone:x.phone,email:x.email,linkedin:x.linkedin,primary:!!x.is_primary,notes:x.notes};
 }
@@ -218,6 +220,7 @@ async function save(){
   if(!/^\d+$/.test(terms)||Number(terms)>3650)throw Error(T('Indica un plazo de pago entre 0 y 3650 días.'));
   if((rows||[]).some(r=>r.kind==='clients'&&r.id!==editing?.id&&norm(r.ref)===norm(ident)))throw Error(T('Ya existe un cliente con esta identificación.'));
   const row={name,identification:ident,phone:clean(d.phone),email:clean(d.email),address:clean(d.address),city:clean(d.city),province:clean(d.province),postal_code:clean(d.postalCode),country:clean(d.country),category:d.category||'A',payment_terms_days:Number(terms),notes:clean(d.notes)};
+  const lat=String(d.lat??'').trim(),lng=String(d.lng??'').trim();if((lat||lng)&&(!lat||!lng||!Number.isFinite(+lat)||!Number.isFinite(+lng)||Math.abs(+lat)>85||Math.abs(+lng)>180))throw Error(T('Coordenadas inválidas.'));row.lat=lat===''?null:Number(lat);row.lng=lng===''?null:Number(lng);
   await call(editing?C.update('customers',editing.id,row):C.insert('customers',{...row,active:true}));
   changed('customers');
  }else if(kind==='suppliers'){

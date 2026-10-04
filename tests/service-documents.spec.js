@@ -53,3 +53,15 @@ test('SAV offers direct return creation and only view action once linked',async(
  await page.evaluate(async()=>{const r=__DB.service_tickets[0];r.return_id='return1';await GamaService.openTicket(r.id)});
  await expect(create).toHaveCount(0);await expect(page.locator('[data-service-return]')).toBeVisible();
 });
+
+test('delivery documents show ERP references and download without database-generated UUID names',async({page})=>{
+ await boot(page);
+ const technical='Entrega-77f6155c-29c8-4472-87fd-deb882d99a3b.jpg';
+ await page.evaluate(technical=>{
+  __DB.business_documents=[{id:'proof-doc',title:technical,erp_reference:'DOC-00000017',folder:'TMS',source_table:'tms_proofs',source_id:'delivery1',source_module:'tms',visibility:'source',archived:false,version:1}];
+  const db=GamaCloud.db;GamaCloud.db=async()=>{const c=await db();return {...c,rpc:(fn,args)=>fn==='gama_document_download'?Promise.resolve({data:{filename:technical,data_url:'data:image/jpeg;base64,/9j/2Q=='}}):c.rpc(fn,args)}};
+ },technical);
+ await open(page,'documents');await expect(page.locator('#documents')).toContainText('DOC-00000017');await expect(page.locator('#documents')).not.toContainText(technical);
+ await page.locator('#documents [data-sd-action=detail]').click();await expect(page.locator('#documents h2').last()).toHaveText('DOC-00000017');await expect(page.locator('#documents')).not.toContainText(technical);
+ const result=page.waitForEvent('download');await page.locator('#documents [data-sd-action=source-download]').click();expect((await result).suggestedFilename()).toBe('DOC-00000017.jpg');
+});

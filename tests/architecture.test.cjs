@@ -1,7 +1,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {root,manifest,runtimeFiles,header,validateManifest}=require('../scripts/lib/assets.cjs');
+const {root,manifest,runtimeFiles,header,runtimeScript,validateManifest}=require('../scripts/lib/assets.cjs');
 test('runtime copies match their named canonical sources',()=>{
- validateManifest();for(const item of [...manifest.scripts,...manifest.styles])assert.equal(fs.readFileSync(path.join(root,item.output),'utf8'),header(item.source)+fs.readFileSync(path.join(root,item.source),'utf8'),item.output);
+ validateManifest();for(const item of manifest.scripts)assert.equal(fs.readFileSync(path.join(root,item.output),'utf8'),runtimeScript(item.source),item.output);
+ for(const item of manifest.styles)assert.equal(fs.readFileSync(path.join(root,item.output),'utf8'),header(item.source)+fs.readFileSync(path.join(root,item.source),'utf8'),item.output);
 });
 test('HTML boot and deployment do not include test configuration or obsolete preload',()=>{
  const html=fs.readFileSync('index.html','utf8');

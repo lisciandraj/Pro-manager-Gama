@@ -17,15 +17,16 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-gama-icon-180.png?v=20261001-c-logo">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script defer src="gama-i18n-catalog.js?v=a7771660c970"></script>
-<script defer src="gama-i18n.js?v=805357dd883c"></script>
-<script defer src="architect-assets.js?v=2deb5926c340"></script>
-<script defer src="architect-core.js?v=3c4f3866f668"></script>
-<script defer src="gama-inventory-v2.js?v=18e7e4da11bc"></script>
-<script defer src="gama-toast.js?v=97197c810405"></script>
-<script defer src="architect-identity.js?v=084c2594bdf8"></script>
-<script defer src="gama-supabase.js?v=3f2b0c1c8dd9"></script>
-<script defer src="gama-currency.js?v=22500fa3400a"></script>
+<script defer src="architect-assets.js?v=db064422745e"></script>
+<script defer src="architect-core.js?v=f58356d2bca5"></script>
+<script defer src="gama-i18n-server.js?v=971fcefaf4bb"></script>
+<script defer src="gama-i18n.js?v=ce03340d25f5"></script>
+<script defer src="gama-inventory-v2.js?v=9e81925646a5"></script>
+<script defer src="gama-toast.js?v=eab285fe006e"></script>
+<script defer src="architect-identity.js?v=61af5cef1935"></script>
+<script defer src="gama-supabase.js?v=ccdf5fa76eca"></script>
+<script defer src="gama-currency.js?v=95aa9f20fe3d"></script>
+<script defer src="coco-shell.js?v=fdd1d3b3b6a3"></script>
 <title>Coco ERP</title>
 <link rel="stylesheet" href="architect-base.css?v=696bbdf4f357">
 
@@ -37,15 +38,15 @@
 
 
 
-<script defer src="gama-export-schema.js?v=58305f50c03a"></script>
-<script defer src="gama-excel-export.js?v=2648b9165ea3"></script>
+<script defer src="gama-export-schema.js?v=c752a5bb07f0"></script>
+<script defer src="gama-excel-export.js?v=258d85dc42eb"></script>
 <link rel="stylesheet" href="gama-global-search.css?v=67e1a094d1c6">
 <link rel="stylesheet" href="gama-assistant-ia.css?v=398e1d7abc02">
 <!-- Coco ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
 <link rel="stylesheet" href="architect-tokens.css?v=3000ae23c12b">
-<link rel="stylesheet" href="architect-components.css?v=cc751926d973">
+<link rel="stylesheet" href="architect-components.css?v=0d7599e4cd62">
 <link rel="stylesheet" href="architect-ui.css?v=08b83f484655">
 <link rel="stylesheet" href="architect-shell.css?v=8a2e95a14f87">
 <link rel="stylesheet" href="gama-company.css?v=7a62ef7ef4ab">
@@ -156,90 +157,19 @@
 
 </div>
 
-<script defer src="gama-ui.js?v=319ec34058fc"></script>
-<script defer src="gama-modules.js?v=d49124479891"></script>
-<script defer src="gama-pagination.js?v=4985bdf7209d"></script>
-<script defer src="gama-archive.js?v=41745d1a0c78"></script>
-<script defer src="gama-sort.js?v=74bd77580e21"></script>
-<script defer src="gama-select-search.js?v=1ca33f3f9313"></script>
-<script defer src="gama-tables.js?v=8b2811f3cc09"></script>
-<script defer src="coco-pricing-and-photos.js?v=50a0a7174286"></script>
-<script defer src="coco-sort-fallback.js?v=29d3de0f14f7"></script>
-<script defer src="coco-archive-fallback.js?v=0981a5a5a439"></script>
+
+
 <!-- Si el ayudante de paginación no carga, las listas se muestran enteras en vez de romper la página. -->
-<script defer src="coco-pagination-fallback.js?v=26184245dafa"></script>
-<script defer src="coco-workspace.js?v=a9693d113bfa"></script>
-<script defer src="coco-product-scanner.js?v=2c8e17c0917d"></script>
-<script defer src="gama-global-search-core.js?v=ecff09d05197"></script>
-<script defer src="gama-global-search.js?v=4affc7f184fe"></script>
-<script defer src="architect-kpi-catalog.js?v=a691d8146d46"></script>
-<script defer src="architect-home-kpis.js?v=ae433904628f"></script>
-<script defer src="architect-home-order.js?v=e1fc6d357cff"></script>
-<script defer src="gama-menu-final2.js?v=e4aaad5ed656"></script>
-<script defer src="gama-scanner-phone.js?v=84ce78d26b67"></script>
-<script defer src="gama-references.js?v=c83c9002c3b6"></script>
-<script defer src="gama-role-access.js?v=cbd4119cbe47"></script>
-<script defer src="gama-access-control.js?v=fe58592b2d84"></script>
-<script defer src="gama-fixed-header.js?v=035c0ebf62ff"></script>
+
+
+
+
+
 
 <!-- Shared document and business modules. -->
-<script defer src="gama-company-core.js?v=cb6749a90f64"></script>
-<script defer src="gama-company.js?v=fb4ed1c2ef61"></script>
-<script defer src="gama-pdf-template.js?v=fb8de7018913"></script>
-<script defer src="gama-quote-pdf.js?v=88fc243e3876"></script>
-<script defer src="gama-purchase-order-pdf.js?v=ad2a1febed2c"></script>
-<script defer src="gama-central-sync.js?v=c949c316454e"></script>
-<script defer src="gama-purchases-v14.js?v=be4daecac1a3"></script>
-<script defer src="gama-proveedores-matriz.js?v=fee64ff2246c"></script>
-<script defer src="gama-customer-requests.js?v=47f70f5ef768"></script>
-<script defer src="architect-dashboard.js?v=fe1652b4d417"></script>
-<script defer src="gama-pdf.js?v=d7278ea5c79f"></script>
-<script defer src="gama-photos.js?v=6e5a3d416015"></script>
-<script defer src="gama-price-lists.js?v=dd4e7ab28e4a"></script>
-<script defer src="gama-crm-core.js?v=3fb0ee615b96"></script>
-<script defer src="gama-crm-scoring.js?v=c6624f24bb89"></script>
-<script defer src="gama-crm-leads.js?v=59c284b93b1f"></script>
-<script defer src="gama-crm-opportunities.js?v=76e54be2ceb9"></script>
-<script defer src="gama-crm-activities.js?v=be24feab4f69"></script>
-<script defer src="gama-crm-contacts.js?v=cbbf46f8ceb9"></script>
-<script defer src="gama-contacts.js?v=70ae4cf92a7a"></script>
-<script defer src="gama-crm-reports.js?v=fe9ba21bbcc2"></script>
-<script defer src="gama-crm-targets.js?v=ceedd2ebe064"></script>
-<script defer src="gama-hr-p1.js?v=a46ee284b712"></script>
-<script defer src="gama-hr.js?v=9afbb560b96e"></script>
-<script defer src="gama-settings.js?v=98ef4dae9764"></script>
-<script defer src="gama-sales.js?v=781fe7a7746d"></script>
-<script defer src="gama-quotes.js?v=971fe262514f"></script>
-<script defer src="gama-order-preparation.js?v=6c383ff76603"></script>
-<script defer src="gama-fulfillment.js?v=f04712606b3f"></script>
-<script defer src="gama-tms-loading.js?v=d286621f2ebc"></script>
-<script defer src="gama-internal-invoices.js?v=76a74e42eb53"></script>
-<script defer src="gama-dossier-flow.js?v=a6bf9b4892f9"></script>
+<script defer src="coco-modules.js?v=759a184a490d" fetchpriority="low" data-arc-runtime></script>
+<script defer src="gama-central-sync.js?v=78016abf195e" data-gama-central-sync></script>
 <link rel="stylesheet" href="gama-projects.css?v=ea0dc54ea2a8">
-<script defer src="gama-projects-i18n.js?v=6ac604fbc09d"></script>
-<script defer src="coco-project-integration.js?v=c264615cf1e0"></script>
-<script defer src="gama-payments.js?v=a16205cefb96"></script>
-<script defer src="gama-operations.js?v=944daa7a0973"></script>
-<script defer src="gama-standard-ui.js?v=b6f40d578f3b"></script>
 
-<script defer src="gama-employee-photos.js?v=5e4e1842d1b0"></script>
-<script defer src="architect-shell.js?v=38b2049c9e10"></script>
-<script defer src="architect-recovery.js?v=932f108e58e1"></script>
-<script defer src="architect-partners.js?v=1b0f533c6e21"></script>
-<script defer src="architect-audit.js?v=f9dfe3185250"></script>
-<script defer src="architect-service-workflows.js?v=f5f1e775de30"></script>
-<script defer src="architect-sourcing.js?v=170787484a3c"></script>
-<script defer src="architect-stock-controls.js?v=66805dd7b34f"></script>
-<script defer src="architect-transport-controls.js?v=52be115be0b9"></script>
-<script defer src="architect-offline-proofs.js?v=d2bbcb0824cf"></script>
-<script defer src="architect-project-controls.js?v=d1b928bed700"></script>
-<script defer src="architect-products-controls.js?v=c575879f56e7"></script>
-<script defer src="architect-service-products.js?v=424163e3791b"></script>
-<script defer src="architect-lots.js?v=a15d8ce0be0e"></script>
-<script defer src="architect-finance-controls.js?v=155756b952b2"></script>
-<script defer src="architect-people.js?v=3327cc90c6a8"></script>
-<script defer src="architect-access-controls.js?v=8a8695caa6e4"></script>
-<script defer src="architect-barcode-controls.js?v=4d6334a3952c"></script>
-<script defer src="architect-controls.js?v=2a3ed1c5f6fb"></script>
-<script defer src="architect-pricing.js?v=cdc0ea628264"></script>
+
 </body></html>

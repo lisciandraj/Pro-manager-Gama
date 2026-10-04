@@ -1,6 +1,6 @@
 /* GAMA HR P1 — scoped HR workflows. Stored employee data is never translated. */
 (function(){'use strict';
-if(window.GamaHRP1)return;
+if(window.GamaHRP1&&!window.GamaHRP1.__arcLazy)return;
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
 const T=s=>window.GamaI18n?.t(s)||s,tx=s=>`<span data-gi-live>${esc(s)}</span>`;

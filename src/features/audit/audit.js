@@ -6,7 +6,7 @@
 (function(){'use strict';
 const U=window.ArcUI,E=U.esc,$=id=>document.getElementById(id);
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${E(s)}</span>`;
-const KINDS=[['','Todo'],['stock','Movimientos de stock'],['payment','Cobros y pagos'],['invoice','Facturas'],['validation','Validaciones'],['access','Accesos']];
+const KINDS=[['','Todo'],['stock','Movimientos de stock'],['transfer','Transferencias'],['payment','Cobros y pagos'],['invoice','Facturas'],['validation','Validaciones'],['access','Accesos']];
 const LIMIT=50,EXPORT_MAX=5000;
 let filters={kind:'',from:'',to:'',actor:'',search:''},offset=0,request=0,people=null,typing=null;
 const admin=()=>{try{return ['admin','administrador'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)}catch(_){return false}};
@@ -23,7 +23,7 @@ async function staff(){
 async function mount(){
  const s=$('audit');if(!s||!admin())return;
  const list=await staff();if(!s.isConnected)return;
- U.render(s,window.GamaUI.header({title:'Auditoría',lead:'Stock, cobros y pagos, facturas, validaciones y accesos.',module:'audit'})
+ U.render(s,window.GamaUI.header({title:'Auditoría',lead:'Stock, entregas, cobros y pagos, facturas, validaciones y accesos.',module:'audit'})
   +`<div class="arcPanel atPanel"><div class="gdfTabs" role="tablist" aria-label="${E(T('Tipo de acción'))}">${KINDS.map(([k,l])=>`<button type="button" role="tab" class="gdfTab" data-at-kind="${k}" aria-selected="${filters.kind===k}">${tr(l)}</button>`).join('')}</div>`
   +`<div class="atFilters"><label class="atSearch">${tr('Buscar')}<input id="atSearch" type="search" value="${E(filters.search)}" autocomplete="off"></label>`
   +`<label>${tr('Desde')}<input id="atFrom" type="date" value="${E(filters.from)}"></label><label>${tr('Hasta')}<input id="atTo" type="date" value="${E(filters.to)}"></label>`
@@ -73,5 +73,5 @@ async function exportCsv(){
 window.addEventListener('arc:route-change',e=>{if(e.detail.id==='audit')mount()});
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;request++;people=null;const s=$('audit');if(s)s.replaceChildren()});
 window.addEventListener('gama:language-change',()=>{if($('audit')?.classList.contains('active'))mount()});
-window.ArchitectAudit={mount,load};
+window.ArchitectAudit={mount,load,open(kind=''){if(!admin()||!window.gamaAccessAllowed?.('audit'))return false;filters={kind:KINDS.some(k=>k[0]===kind)?kind:'',from:'',to:'',actor:'',search:''};offset=0;return window.ArcRouter.show('audit')}};
 })();

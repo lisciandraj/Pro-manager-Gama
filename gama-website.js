@@ -1,24 +1,2 @@
 /* Generated from src/features/website/website.js. Edit the source and run npm run build. */
-/* Website module: public storefront administration only. */
-(function(){'use strict';
-const E=s=>window.ArcUI.esc(String(s??'')),$=id=>document.getElementById(id),ID='website';
-const words={public:['Sitio público','Site public','Public website'],title:['Sitio web','Site web','Website'],refresh:['Actualizar','Actualiser','Refresh'],loading:['Cargando…','Chargement…','Loading…'],error:['No se pudo cargar. Vuelve a intentarlo.','Impossible de charger. Réessayez.','Could not load. Please retry.']};
-const T=k=>words[k][({es:0,fr:1,en:2}[window.GamaI18n?.language]??0)];
-let serial=0;
-function css(){if($('gwStyle'))return;const l=document.createElement('link');l.id='gwStyle';l.rel='stylesheet';l.href=window.ArcAssets?.['gama-website.css']||'gama-website.css';document.head.appendChild(l)}
-
-async function open(){
- if(!window.gamaAccessAllowed?.(ID))return;
- const token=++serial;css();let host=$(ID);
- if(!host){host=document.createElement('section');host.id=ID;(document.querySelector('.wrap')||document.body).appendChild(host)}
- host.dataset.giIgnore='';
- window.ArcUI.render(host,window.GamaUI.header({title:T('title'),lead:T('public'),module:ID})+`<div class="arcToolbar gwTabs" role="tablist"><button type="button" class="arcButton primary" data-gw-tab="public" role="tab" aria-selected="true" aria-controls="gwBody" id="gwPublic">${E(T('public'))}</button><button type="button" class="arcButton secondary" id="gwReload">${E(T('refresh'))}</button></div><p id="gwStatus" role="status" aria-live="polite">${E(T('loading'))}</p><div id="gwBody" role="tabpanel" aria-labelledby="gwPublic"></div>`);
- window.GamaUI.bindBack(host);window.showTab?.(ID);
- $('gwReload').onclick=()=>{window.GamaStoreAdmin?.reset();open()};
- try{await window.ArcLoadScript('gama-store-admin.js');if(token!==serial||!window.gamaAccessAllowed?.(ID))return;$('gwStatus').textContent='';await window.GamaStoreAdmin.open($('gwBody'))}
- catch(e){if(token===serial&&$('gwStatus'))$('gwStatus').textContent=T('error')}
-}
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;serial++;$(ID)?.replaceChildren()});
-window.addEventListener('gama:language-change',()=>{if($(ID)?.classList.contains('active'))open()});
-window.GamaWebsite={open};
-})();
+(function(){"use strict";const E=s=>window.ArcUI.esc(String(s??"")),$=id=>document.getElementById(id),ID="website",words={public:["Sitio p\xFAblico","Site public","Public website"],title:["Sitio web","Site web","Website"],refresh:["Actualizar","Actualiser","Refresh"],loading:["Cargando\u2026","Chargement\u2026","Loading\u2026"],error:["No se pudo cargar. Vuelve a intentarlo.","Impossible de charger. R\xE9essayez.","Could not load. Please retry."]},T=k=>words[k][{es:0,fr:1,en:2}[window.GamaI18n?.language]??0];let serial=0;function css(){if($("gwStyle"))return;const l=document.createElement("link");l.id="gwStyle",l.rel="stylesheet",l.href=window.ArcAssets?.["gama-website.css"]||"gama-website.css",document.head.appendChild(l)}async function open(){if(!window.gamaAccessAllowed?.(ID))return;const token=++serial;css();let host=$(ID);host||(host=document.createElement("section"),host.id=ID,(document.querySelector(".wrap")||document.body).appendChild(host)),host.dataset.giIgnore="",window.ArcUI.render(host,window.GamaUI.header({title:T("title"),lead:T("public"),module:ID})+`<div class="arcToolbar gwTabs" role="tablist"><button type="button" class="arcButton primary" data-gw-tab="public" role="tab" aria-selected="true" aria-controls="gwBody" id="gwPublic">${E(T("public"))}</button><button type="button" class="arcButton secondary" id="gwReload">${E(T("refresh"))}</button></div><p id="gwStatus" role="status" aria-live="polite">${E(T("loading"))}</p><div id="gwBody" role="tabpanel" aria-labelledby="gwPublic"></div>`),window.GamaUI.bindBack(host),window.showTab?.(ID),$("gwReload").onclick=()=>{window.GamaStoreAdmin?.reset(),open()};try{if(await window.ArcLoadScript("gama-store-admin.js"),token!==serial||!window.gamaAccessAllowed?.(ID))return;$("gwStatus").textContent="",await window.GamaStoreAdmin.open($("gwBody"))}catch{token===serial&&$("gwStatus")&&($("gwStatus").textContent=T("error"))}}window.addEventListener("gama:auth-change",e=>{e.detail?.event!=="TOKEN_REFRESHED"&&(serial++,$(ID)?.replaceChildren())}),window.addEventListener("gama:language-change",()=>{$(ID)?.classList.contains("active")&&open()}),window.GamaWebsite={open}})();

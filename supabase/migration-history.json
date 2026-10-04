@@ -1292,6 +1292,30 @@
       "name": "stock_workspace_improvements",
       "file": "20261004191646_stock_workspace_improvements.sql",
       "sha256": "275b855803218f26b402336be67f745f0e779afa9491441d2424adbbcfa1e1fd"
+    },
+    {
+      "version": "20261004213801",
+      "name": "delivery_transfer_audit",
+      "file": "20261004213801_delivery_transfer_audit.sql",
+      "sha256": "69e7ff114465c66b02cdc61875ed6d211d17c151f9440f74e31565ed5adde576"
+    },
+    {
+      "version": "20261004213802",
+      "name": "tms_today_driver_routes_gps",
+      "file": "20261004213802_tms_today_driver_routes_gps.sql",
+      "sha256": "74753189efa991e21eaad0ce4e4b5cb802606086c99324d950e2640efb7692da"
+    },
+    {
+      "version": "20261004213803",
+      "name": "tms_delivery_operations",
+      "file": "20261004213803_tms_delivery_operations.sql",
+      "sha256": "a25d42adfde8d8a809c2c884615dd2335f41b27faad51039ba76c03a1c88f730"
+    },
+    {
+      "version": "20261004214058",
+      "name": "tms_tracking_private_facade",
+      "file": "20261004214058_tms_tracking_private_facade.sql",
+      "sha256": "5abb299a999d2601ab617b9dd0eb59fbd3bf6716ce0af97fa34d30ec5746abd0"
     }
   ]
 }

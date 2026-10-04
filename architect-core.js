@@ -62,7 +62,18 @@
     var _a, _b;
     return ((_b = (_a = window.GamaI18n) == null ? void 0 : _a.t) == null ? void 0 : _b.call(_a, value)) || value;
   };
+  const technicalDocumentName = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
   const format = {
+    documentLabel(document2) {
+      if (technicalDocumentName.test(String(document2.title || ""))) return document2.erp_reference || translate("Documento");
+      return document2.title || document2.erp_reference || translate("Documento");
+    },
+    documentFilename(filename, reference) {
+      var _a;
+      if (!reference || !technicalDocumentName.test(String(filename || ""))) return filename || "document";
+      const extension = ((_a = String(filename).match(/\.[a-z0-9]{1,8}$/i)) == null ? void 0 : _a[0]) || "";
+      return String(reference).replace(/[\\/]/g, "_") + extension;
+    },
     money(value, currency) {
       var _a, _b, _c;
       if (!currency && window.GamaCurrency) return window.GamaCurrency.format(value);
@@ -141,8 +152,8 @@
     const scope = root && root.querySelectorAll ? root : document;
     const slots = scope.querySelectorAll(".gamaStdIcon[data-arc-icon-slot]");
     if (!slots.length) return;
-    const modules = globalThis.ArcModules, icons2 = (_a = globalThis.ArcUI) == null ? void 0 : _a.icons;
-    if (!modules || !icons2) return;
+    const modules2 = globalThis.ArcModules, icons2 = (_a = globalThis.ArcUI) == null ? void 0 : _a.icons;
+    if (!modules2 || !icons2) return;
     let pending = false;
     slots.forEach((slot) => {
       const section = slot.closest("section[id]");
@@ -151,7 +162,7 @@
         pending = true;
         return;
       }
-      const definition = modules.get(key);
+      const definition = modules2.get(key);
       const drawing = definition && icons2[definition.icon];
       if (!drawing) return;
       slot.dataset.arcFam = definition.accent || "cyan";
@@ -561,7 +572,7 @@
     hasPhoto: !!(p.has_photo || p.photo_data),
     photo: text(p.photo_data)
   });
-  const customerFromRow = (c) => ({ id: c.id, taxId: text(c.identification), name: text(c.name), category: c.category || "A", address: text(c.address), phone: text(c.phone), email: text(c.email), city: text(c.city), province: text(c.province), postalCode: text(c.postal_code), country: text(c.country), notes: text(c.notes), paymentTermsDays: c.payment_terms_days ?? null, active: c.active !== false });
+  const customerFromRow = (c) => ({ id: c.id, taxId: text(c.identification), name: text(c.name), category: c.category || "A", address: text(c.address), phone: text(c.phone), email: text(c.email), city: text(c.city), province: text(c.province), postalCode: text(c.postal_code), country: text(c.country), notes: text(c.notes), paymentTermsDays: c.payment_terms_days ?? null, lat: c.lat ?? null, lng: c.lng ?? null, active: c.active !== false });
   const supplierFromRow = (s) => ({ id: s.id, taxId: text(s.tax_id), name: text(s.name), contactName: text(s.contact_name), address: text(s.address), phone: text(s.phone), email: text(s.email), city: text(s.city), province: text(s.province), postalCode: text(s.postal_code), country: text(s.country), notes: text(s.notes), active: s.active !== false });
   const supplierToRow = (s) => ({ name: s.name, tax_id: s.taxId || null, contact_name: s.contactName || null, address: s.address || null, phone: s.phone || null, email: s.email || null, city: s.city || null, province: s.province || null, postal_code: s.postalCode || null, country: s.country || null, notes: s.notes || null, active: s.active !== false });
   const formatAddress = (c = {}) => [...new Set([c.address, c.city, c.province, c.postalCode ?? c.postal_code, c.country].map((v) => String(v ?? "").trim()).filter(Boolean))].join(", ");
@@ -579,7 +590,7 @@
   };
   const entities = {
     suppliers: { table: "suppliers", select: "id,name,tax_id,contact_name,phone,email,city,address,province,postal_code,country,notes,active,created_at,updated_at", order: "name", search: ["name", "tax_id", "contact_name", "email", "phone", "city"], fromRow: supplierFromRow, toRow: supplierToRow },
-    customers: { table: "customers", select: "id,name,identification,category,address,phone,email,city,province,postal_code,country,notes,payment_terms_days,active,created_at,updated_at", order: "name", search: ["name", "identification", "email", "phone", "city"], fromRow: customerFromRow },
+    customers: { table: "customers", select: "id,name,identification,category,address,phone,email,city,province,postal_code,country,notes,payment_terms_days,lat,lng,active,created_at,updated_at", order: "name", search: ["name", "identification", "email", "phone", "city"], fromRow: customerFromRow },
     products: { table: "products", select: "id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,product_kind,base_unit,order_minimum,order_multiple,lot_tracking,lot_tracking_since,created_at,updated_at", order: "name", search: ["name", "barcode", "reference", "category"], fromRow: productFromRow }
   };
   const supplierFields = [
@@ -1342,6 +1353,7 @@
   };
   function openModule(id, from) {
     var _a, _b, _c;
+    if (window.ArcRuntimeLoaded === false) return window.ArcEnsureRuntime().then(() => openModule(id, from));
     if (window.gamaAccessAllowed && !canOpen(id)) return;
     if (window.GamaModules && !window.GamaModules.enabled(id)) {
       (_b = window.gamaToast) == null ? void 0 : _b.call(window, ((_a = window.GamaI18n) == null ? void 0 : _a.t("Este módulo está desactivado en Configuración.")) || "Este módulo está desactivado en Configuración.");
@@ -1532,6 +1544,12 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "dashboard": { "global": "ArchitectDashboard", "file": "architect-dashboard.js", "dependencies": ["architect-kpi-catalog.js", "architect-home-kpis.js"], "methods": ["refresh"], "apis": { "ArchitectHomeKpis": ["refresh"] } },
+    "crm": { "global": "GamaCRM", "file": "gama-crm-core.js", "extensions": ["gama-crm-scoring.js", "gama-crm-leads.js", "gama-crm-opportunities.js", "gama-crm-activities.js", "gama-crm-contacts.js", "gama-crm-reports.js", "gama-crm-targets.js"], "methods": ["open", "ir"], "aliases": { "GamaOpenCRM": "open" }, "apis": { "GamaCRMLeads": ["open"], "GamaCRMOpportunities": ["open", "openRecord"], "GamaCRMActivities": ["open"], "GamaCRMContacts": ["open"], "GamaCRMReports": ["open"] } },
+    "hr-operations": { "global": "GamaHRP1", "file": "gama-hr-p1.js", "methods": ["mountFinance", "load"] },
+    "hr": { "global": "GamaHR", "file": "gama-hr.js", "dependencies": ["gama-hr-p1.js"], "methods": ["open", "load"], "aliases": { "GamaOpenHR": "open" } },
+    "dossier-flow": { "global": "GamaDossierFlow", "file": "gama-dossier-flow.js", "methods": ["open", "attachHistory"] },
+    "gamaPurchasesV14": { "global": "GamaPurchases", "file": "gama-purchases-v14.js", "methods": ["open", "openOrder", "openDossier", "fromProject"], "aliases": { "gamaShowPurchases": "open", "gamaOpenPurchaseV14": "openOrder", "gamaOpenPurchaseDossier": "openDossier", "gamaCreateProjectPurchase": "fromProject" } },
     "warehouses": { "global": "GamaInventoryV2", "file": "gama-stock-workspace.js", "methods": ["abrir", "openCount", "openAdjustments", "cargar"] },
     "surveys": { "global": "GamaSurveys", "file": "gama-surveys.js", "dependencies": ["gama-survey-form.js"], "methods": ["open"] },
     "website": {
@@ -1615,6 +1633,7 @@
     "tms": {
       "global": "gamaTMS",
       "file": "gama-tms-module.js",
+      "dependencies": ["gama-tms-delivery-operations.js"],
       "methods": [
         "open",
         "openDelivery",
@@ -1627,11 +1646,28 @@
     "projects": { "global": "GamaProjects", "file": "gama-projects.js", "dependencies": ["gama-projects-core.js"], "methods": ["open", "fromSource"] }
   };
   const scripts = /* @__PURE__ */ new Map();
+  const modules = /* @__PURE__ */ new Map(), prepared = /* @__PURE__ */ new Set();
+  const filesFor = (entry) => [...entry.dependencies || [], entry.file, ...entry.extensions || []];
+  function prepareModule(id) {
+    var _a;
+    const entry = lazyModules[id];
+    if (!entry) return;
+    for (const file of filesFor(entry)) {
+      if (prepared.has(file) || scripts.has(file)) continue;
+      prepared.add(file);
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "script";
+      link.href = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
+      document.head.appendChild(link);
+    }
+  }
   function loadScript(file, options = {}) {
     if (scripts.has(file)) return scripts.get(file);
     const pending = new Promise((resolve, reject) => {
       var _a;
       const script = document.createElement("script");
+      script.async = options.ordered !== true;
       script.src = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
       script.dataset.arcAsset = file;
       for (const key of ["integrity", "crossOrigin", "referrerPolicy"])
@@ -1650,13 +1686,27 @@
   async function loadModule(id) {
     const entry = lazyModules[id];
     if (!entry) return;
+    if (modules.has(id)) return modules.get(id);
     const installed = window[entry.global];
-    if (installed && !installed.__arcLazy) return installed;
-    for (const file of entry.dependencies || []) await loadScript(file);
-    await loadScript(entry.file);
-    const api = window[entry.global];
-    if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
-    return api;
+    if (installed && !installed.__arcLazy && !entry.extensions) return installed;
+    prepareModule(id);
+    const pending = (async () => {
+      var _a, _b;
+      if (window.ArcRuntimeLoaded === false) await window.ArcEnsureRuntime();
+      if ((_a = entry.dependencies) == null ? void 0 : _a.length) await Promise.all(entry.dependencies.map((file) => loadScript(file, { ordered: true })));
+      await loadScript(entry.file);
+      if ((_b = entry.extensions) == null ? void 0 : _b.length) await Promise.all(entry.extensions.map((file) => loadScript(file, { ordered: true })));
+      const api = window[entry.global];
+      if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
+      return api;
+    })();
+    modules.set(id, pending);
+    try {
+      return await pending;
+    } catch (error) {
+      if (modules.get(id) === pending) modules.delete(id);
+      throw error;
+    }
   }
   function installLazyModules() {
     for (const [id, entry] of Object.entries(lazyModules)) {
@@ -1678,6 +1728,18 @@
           ])
         )
       };
+      for (const [name, method] of Object.entries(entry.aliases || {}))
+        window[name] = (...args) => window[entry.global][method](...args);
+      for (const [name, methods] of Object.entries(entry.apis || {})) {
+        if (window[name]) continue;
+        window[name] = { __arcLazy: true, ...Object.fromEntries(methods.map((method) => [
+          method,
+          async (...args) => {
+            await loadModule(id);
+            return window[name][method](...args);
+          }
+        ])) };
+      }
     }
   }
   function startPerformance() {
@@ -1708,7 +1770,27 @@
   window.ArcDirectories = { directory };
   window.ArcLoad = loadModule;
   window.ArcLoadScript = loadScript;
+  window.ArcPrefetch = prepareModule;
+  const runtime = document.querySelector("script[data-arc-runtime]");
+  window.ArcRuntimeLoaded = !runtime;
+  window.ArcRuntimeReady = runtime ? new Promise((resolve, reject) => {
+    runtime.addEventListener("load", () => {
+      window.ArcRuntimeLoaded = true;
+      resolve();
+    }, { once: true });
+    runtime.addEventListener("error", () => {
+      window.ArcRuntimeFailed = true;
+      reject(Error("MODULE_LOAD_FAILED"));
+    }, { once: true });
+  }) : Promise.resolve();
+  window.ArcRuntimeReady.catch(() => {
+  });
+  window.ArcEnsureRuntime = () => window.ArcRuntimeLoaded ? Promise.resolve() : window.ArcRuntimeFailed ? loadScript("coco-modules.js", { validate: () => window.ArcRuntimeLoaded }) : window.ArcRuntimeReady;
   installLazyModules();
+  router.onEnter("dashboard", () => {
+    window.ArchitectDashboard.refresh().catch(() => {
+    });
+  });
   startDataEvents();
   startRouter();
   startPerformance();

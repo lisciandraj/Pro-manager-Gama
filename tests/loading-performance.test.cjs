@@ -68,3 +68,14 @@ test('profile reads share only an in-flight request for the exact session',async
  releases.splice(0).forEach(f=>f());assert.ok((await Promise.all(first)).every(r=>r.data.id==='a'));assert.equal((await other).data.id,'b');
  const fresh=context.GamaCloud.getProfile();await new Promise(setImmediate);assert.equal(calls,3,'later refreshes must revalidate profile');releases.shift()();await fresh;
 });
+
+test('document labels and downloads use the ERP reference instead of a generated UUID name',()=>{
+ const context={window:{GamaI18n:{t:x=>x}},Intl};
+ vm.createContext(context);vm.runInContext(source('src/domain/format.js').replace(/export /g,'')+'\nthis.format=format',context);
+ const technical='Entrega-77f6155c-29c8-4472-87fd-deb882d99a3b.jpg';
+ assert.equal(context.format.documentLabel({title:technical,erp_reference:'DOC-00000017'}),'DOC-00000017');
+ assert.equal(context.format.documentLabel({title:technical}),'Documento');
+ assert.equal(context.format.documentFilename(technical,'DOC-00000017'),'DOC-00000017.jpg');
+ assert.equal(context.format.documentLabel({title:'Contrat signé',erp_reference:'DOC-00000018'}),'Contrat signé');
+ assert.equal(context.format.documentFilename('contrat.pdf','DOC-00000018'),'contrat.pdf');
+});

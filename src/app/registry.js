@@ -538,6 +538,7 @@ const openers={
  settings:()=>window.GamaOpenSettings?.()
 };
 function openModule(id,from){
+ if(window.ArcRuntimeLoaded===false)return window.ArcEnsureRuntime().then(()=>openModule(id,from));
  if(window.gamaAccessAllowed&&!canOpen(id))return;
  if(window.GamaModules&&!window.GamaModules.enabled(id)){window.gamaToast?.(window.GamaI18n?.t('Este módulo está desactivado en Configuración.')||'Este módulo está desactivado en Configuración.');return}
  return openers[id]?openers[id](from):window.showTab?.(id,null);

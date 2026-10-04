@@ -103,3 +103,8 @@ test('la pista cabe en un teléfono', async ({ page }) => {
   await expect(rows(page).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });
+
+test('TMS delivery events are in Transferencias with the ERP reference and historical entries',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.tms_deliveries=[{id:'delivery-uuid',erp_reference:'ENT-00000017'}];__DB.tms_events=[{delivery_id:'delivery-uuid',at:'2026-09-30T12:00:00Z',type:'Entregada',user_id:'u2',note:'Firmada por el cliente'}]});
+ await page.evaluate(()=>ArchitectAudit.open('transfer'));await expect(rows(page)).toHaveCount(1);await expect(page.locator('[data-at-kind=transfer]')).toHaveAttribute('aria-selected','true');await expect(page.locator('#atRows')).toContainText('Entrega completada');await expect(page.locator('#atRows')).toContainText('ENT-00000017');await expect(page.locator('#atRows')).toContainText('Ana Almacén');await expect(page.locator('#atRows')).not.toContainText('delivery-uuid');
+});

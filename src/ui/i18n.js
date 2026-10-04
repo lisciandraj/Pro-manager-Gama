@@ -4,14 +4,27 @@
 (function(){
 'use strict';
 if(window.GamaI18n)return;
-const KEY='gama_language_v1',languages=['es','fr','en'],catalog=window.GamaI18nCatalog||{},server=window.GamaI18nServer||{};
-const bySource=new Map(Object.entries(catalog).map(([key,row])=>[row[0],{key,row}]));
+const KEY='gama_language_v1',languages=['es','fr','en'],server=window.GamaI18nServer||{};
+let catalog=window.GamaI18nCatalog||{},bySource,patterns,prefixes,catalogRequest=null,languageRequest=0;
 let language='es';try{const saved=localStorage.getItem(KEY);if(languages.includes(saved))language=saved}catch(_){}
 const normalize=s=>String(s??'').replace(/\s+/g,' ').trim();
 const escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 // {0} holds a number, a date or a time («Creada el 2026-09-10», «Faltan -120 km»).
-const patterns=[...bySource.values()].filter(x=>/\{\d+\}/.test(x.row[0])).map(x=>({...x,re:new RegExp('^'+x.row[0].split(/(\{\d+\})/).map(s=>/^\{\d+\}$/.test(s)?'([\\d.,\\s:+\\-/—]+)':escapeRE(s)).join('')+'$')}));
-const prefixes=[...bySource.values()].filter(x=>x.row[0].length>5&&!x.row[0].includes('{')).sort((a,b)=>b.row[0].length-a.row[0].length);
+function indexCatalog(){
+ bySource=new Map(Object.entries(catalog).map(([key,row])=>[row[0],{key,row}]));
+ patterns=[...bySource.values()].filter(x=>/\{\d+\}/.test(x.row[0])).map(x=>({...x,re:new RegExp('^'+x.row[0].split(/(\{\d+\})/).map(s=>/^\{\d+\}$/.test(s)?'([\\d.,\\s:+\\-/—]+)':escapeRE(s)).join('')+'$')}));
+ prefixes=[...bySource.values()].filter(x=>x.row[0].length>5&&!x.row[0].includes('{')).sort((a,b)=>b.row[0].length-a.row[0].length);
+}
+indexCatalog();
+async function readyCatalog(){
+ if(window.GamaI18nCatalog){if(catalog!==window.GamaI18nCatalog){catalog=window.GamaI18nCatalog;indexCatalog()}return;}
+ if(catalogRequest)return catalogRequest;
+ catalogRequest=(async()=>{
+  await window.ArcLoadScript('gama-i18n-catalog.js',{validate:()=>!!window.GamaI18nCatalog});
+  catalog=window.GamaI18nCatalog;indexCatalog();
+ })();
+ try{await catalogRequest}finally{catalogRequest=null}
+}
 function translated(row){return row[languages.indexOf(language)]}
 // A few server functions answer in English (locales/server-messages.tsv): the
 // message, alone or after «Label: », first becomes its Spanish source text.
@@ -88,6 +101,7 @@ function prepare(root){
  }
 }
 function scan(root){
+ if(language==='es'&&!window.GamaI18nCatalog)return;
  if(!root||root.nodeType!==1)return;prepare(root);localize(root);root.querySelectorAll(selector).forEach(localize);
 }
 let observer,scheduled=false;const pending=new Set();
@@ -112,14 +126,17 @@ function mount(){
  let bar=document.getElementById('gamaLanguagePicker');if(!bar){
   bar=document.createElement('div');bar.id='gamaLanguagePicker';bar.setAttribute('role','group');bar.setAttribute('aria-label','Language / Langue / Idioma');bar.setAttribute('translate','no');
   for(const [code,label] of [['fr','Français'],['en','English'],['es','Español']]){
-   const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">'+flags[code]+'</svg><span>'+label+'</span>';b.onclick=()=>setLanguage(code);bar.appendChild(b);
+   const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.title=label;b.setAttribute('aria-label',label);b.innerHTML='<svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true" focusable="false">'+flags[code]+'</svg><span>'+label+'</span>';b.onclick=()=>setLanguage(code).catch(()=>window.gamaToast?.('No se pudo cargar el idioma. Vuelve a intentarlo.'));bar.appendChild(b);
   }host.appendChild(bar);
  }
  if(bar.parentElement!==host)host.appendChild(bar);
  for(const b of bar.children){const selected=b.dataset.language===language;if(b.getAttribute('aria-pressed')!==String(selected))b.setAttribute('aria-pressed',String(selected))}
 }
-function setLanguage(code){
+async function setLanguage(code){
  if(!languages.includes(code))return false;
+ const request=++languageRequest;
+ if(code!=='es')await readyCatalog();
+ if(request!==languageRequest)return false;
  language=code;try{localStorage.setItem(KEY,code)}catch(_){}
  document.documentElement.lang=code;scan(document.body);mount();
  window.dispatchEvent(new CustomEvent('gama:language-change',{detail:{language:code}}));
@@ -139,5 +156,7 @@ function boot(){
 // Dialog messages use the same reviewed catalogue; typed defaults and answers stay untouched.
 for(const name of ['confirm','prompt']){const native=window[name]?.bind(window);if(native)window[name]=(message,...args)=>native(t(message),...args)}
 window.GamaI18n={t,setLanguage,scan,mount,get language(){return language},get locale(){return {es:'es-EC',fr:'fr-FR',en:'en-GB'}[language]}};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+const requestedLanguage=language;language='es';
+function start(){boot();window.GamaI18n.ready=setLanguage(requestedLanguage).catch(()=>{window.gamaToast?.('No se pudo cargar el idioma. Vuelve a intentarlo.');return false})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

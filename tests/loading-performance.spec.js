@@ -1,5 +1,37 @@
 const {test,expect}=require('@playwright/test'),fs=require('node:fs');
 const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
+for(const width of [390,1440])test(`verified home and navigation work before a slow final extension loads at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await page.addInitScript(()=>localStorage.setItem('gama_session_v1',JSON.stringify({userId:'test-admin-uid',role:'admin',name:'QA'})));
+ await page.route('https://**/*',r=>r.abort());
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
+ let release;const gate=new Promise(resolve=>release=resolve);
+ await page.route('**/architect-pricing.js*',async r=>{await gate;await r.continue()});
+ try{
+  await page.goto('/index.html',{waitUntil:'commit'});
+  // A parser-blocking script used to postpone every DOMContentLoaded boot.
+  // The real menu must now be usable while that script is still downloading.
+  await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible({timeout:5000});
+  expect(await page.evaluate(()=>document.readyState)).toBe('interactive');
+  expect(await page.evaluate(()=>GamaRoleAccess.isReady())).toBe(true);
+  await page.locator('#mainmenu [data-gama-module="products"]').click();await expect(page.locator('#products')).toBeVisible();
+ }finally{release();await page.waitForLoadState('domcontentloaded')}
+ await expect(page.locator('#products')).toBeVisible();
+});
+test('restoring a verified cloud session wakes the menu without a cached compatibility record',async({page})=>{
+ await page.addInitScript(()=>localStorage.clear());
+ await page.route('https://**/*',r=>r.abort());
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
+ await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady()&&window.gamaApplyAccess);
+ await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
+ await page.evaluate(()=>{ArchitectIdentity.ensureMFA=()=>new Promise(resolve=>window.__releaseStartupMfa=resolve)});
+ await page.addScriptTag({url:'/gama-cloud-auth.js'});await page.waitForFunction(()=>window.__releaseStartupMfa);
+ expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
+ await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
+ await page.evaluate(()=>__releaseStartupMfa());
+ await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible();
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).userId)).toBe('test-admin-uid');
+});
 for(const viewport of [{width:1440,height:900},{width:390,height:844}])test(`navigation renders only the selected legacy screen at ${viewport.width}px`,async({page})=>{
  await page.setViewportSize(viewport);
  await page.addInitScript(()=>localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'})));

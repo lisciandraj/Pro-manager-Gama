@@ -1,5 +1,18 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=name=>fs.readFileSync(__dirname+'/../'+name,'utf8');
+test('a verified account published after startup updates access once; unchanged refreshes preserve the menu',async()=>{
+ const storage=new Map(),listeners=new Map();let updates=0,release;
+ const context={console,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},
+  document:{hidden:false,querySelector:()=>null,addEventListener(){}},setInterval(){},setTimeout(){},CustomEvent:class{constructor(type){this.type=type}},
+  addEventListener:(name,fn)=>listeners.set(name,fn),dispatchEvent:event=>listeners.get(event.type)?.(event),gamaApplyAccess:()=>updates++,
+  ArcModules:{roleAliases:{administrador:'admin'},roles:{admin:{perms:'*',label:'Administrador'}}},GamaCloudReady:Promise.resolve(),
+  GamaCloud:{getProfile:()=>new Promise(resolve=>release=resolve),subscribe:async()=>{}}};context.window=context;
+ vm.createContext(context);vm.runInContext(source('gama-role-access.js'),context);await new Promise(setImmediate);updates=0;
+ storage.set('gama_session_v1',JSON.stringify({userId:'a',role:'admin'}));context.dispatchEvent(new context.CustomEvent('gama:profile-ready'));
+ await new Promise(setImmediate);assert.equal(updates,0);release({data:{id:'a',role:'administrador',active:true}});await new Promise(setImmediate);assert.equal(updates,1);
+ const again=context.GamaRoleAccess.load();await new Promise(setImmediate);release({data:{id:'a',role:'administrador',active:true}});await again;assert.equal(updates,1);
+ const revoked=context.GamaRoleAccess.load();await new Promise(setImmediate);release({data:{id:'a',role:'administrador',active:false}});await revoked;assert.equal(storage.has('gama_session_v1'),false);assert.equal(updates,2);
+});
 function references(){const window={};vm.runInNewContext(source('gama-references.js'),{window});return window.GamaReferences}
 test('independent numbered documents need no registry network requests',async()=>{
  const api=references();let requests=0;const client={from(){requests++;throw Error('unnecessary request')}};

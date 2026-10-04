@@ -43,6 +43,7 @@ function render(){
  ordered().forEach(x=>{
    const g=x[3];
    const b=document.createElement('button');b.type='button';b.className='gamaF2Card';
+   b.classList.toggle('aclHidden',!(window.gamaMenuVisible||can)(x[1]));
    b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
    const fam=ACCENT[x[1]]||'cyan';b.dataset.arcFam=fam;
    if(x[1]==='tms')b.dataset.gamaTmsCard='1';

@@ -58,15 +58,19 @@ function hook(){
  injectCss();
  filterHeader();
  window.addEventListener("gama:auth-change",filterHeader);
+ // Register before checking the local compatibility record: cloud auth can
+ // restore it later from an existing Supabase session without a page reload.
+ window.gamaApplyAccess=()=>{filterMenu();filterTabs()};
+ window.addEventListener('gama:modules-change',window.gamaApplyAccess);
+ window.addEventListener('gama:profile-ready',()=>{userBar();filterMenu();filterTabs();window.ArchitectShell?.sync()});
+ filterMenu();filterTabs();
  if(!session()){
   // gama-cloud-auth.js muestra su propio formulario. Si a los 8 s no hay ni
   // sesión ni formulario, la nube no está disponible.
   setTimeout(()=>{if(!session()&&!$('gamaCloudLogin'))offline()},8000);
   return;
  }
- userBar();filterMenu();filterTabs();window.ArchitectShell?.sync();
- window.gamaApplyAccess=()=>{filterMenu();filterTabs()};
- window.addEventListener('gama:modules-change',()=>{filterMenu();filterTabs()});
+ userBar();window.ArchitectShell?.sync();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,80),{once:true});else setTimeout(hook,80);
 window.gamaAccessAllowed=allowed;window.gamaMenuVisible=inMenu;

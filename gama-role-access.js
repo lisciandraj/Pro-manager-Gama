@@ -9,7 +9,7 @@ const aliases=window.ArcModules.roleAliases,roles=window.ArcModules.roles;
 const canonical=r=>aliases[r]||r;
 const dbRoles={admin:'administrador',commercial:'comercial',magasinier:'almacenero',rh:'rrhh'};
 const locked=(r,id)=>id==='settings'||(canonical(r)==='admin'&&['access-settings','users'].includes(id));
-let ready=false,pending=null,generation=0;
+let ready=false,pending=null,generation=0,appliedSignature=null;
 const session=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'null')}catch(_){return null}};
 const signature=()=>JSON.stringify([ready,session()?.role]);
 const base=(r,id)=>{const p=roles[canonical(r)]?.perms;return p==='*'||!!p?.includes(id)};
@@ -22,6 +22,7 @@ function enabled(r,id){
  return ready;
 }
 function changed(){
+ appliedSignature=signature();
  const current=session(),badge=document.querySelector('.aclRole');
  if(badge&&current){const label=roles[canonical(current.role)]?.label||'';badge.textContent=window.GamaI18n?.t?.(label)||label;}
  // All cards already exist. Updating visibility preserves KPI requests, focus
@@ -31,7 +32,9 @@ function changed(){
 }
 async function load(){
  if(pending)return pending;
- const token=generation,previous=signature();
+ // The cloud auth layer may have published a new verified account since the
+ // last render. Compare with what the menu actually applied, not current storage.
+ const token=generation,previous=appliedSignature;
  pending=(async()=>{
   await window.GamaCloudReady;
   const current=session();

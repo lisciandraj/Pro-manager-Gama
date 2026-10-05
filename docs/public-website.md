@@ -97,7 +97,7 @@ Tous les produits actifs existants sont sélectionnés pour le site à l’insta
 
 ## Portail entreprises B2B
 
-Le lien **Mi empresa** ouvre le portail espagnol, sur mobile et ordinateur. La source canonique est `src/storefront/b2b.html/js/css`. La compilation publie `gama-b2b.html` avec l’ERP GitHub Pages et `b2b.html` dans le paquet Cloudflare. Le SDK Auth local et le générateur PDF sont chargés à la demande. Le site public conserve son accès anonyme ; seul le portail nécessite une connexion.
+Le lien **Mi empresa** ouvre le portail espagnol, sur mobile et ordinateur. La source canonique est `src/storefront/b2b.html/js/css`. La compilation publie `gama-b2b.html` avec l’ERP GitHub Pages et `b2b.html` dans le paquet Cloudflare. Le bouton d’administration ouvre la page publiée avec l’ERP. Le lien Mi empresa du site Cloudflare devient disponible après republication de son paquet contenant `b2b.html`. Le SDK Auth local et le générateur PDF sont chargés à la demande. Le site public conserve son accès anonyme ; seul le portail nécessite une connexion.
 
 Dans **Site web → Site public → Portal B2B**, l’administrateur active la catégorie d’accès pour chaque entreprise, invite un nouveau compte ou associe explicitement un compte client existant. Les catégories tarifaires A/B/C restent indépendantes. L’invitation présente entreprise, nom, e-mail, objet et message avant l’envoi explicite. L’Edge Function vérifie les droits Site web, Contactos et Utilisateurs avant d’inviter, puis crée une association avec le jeton de l’administrateur. Une invitation envoyée dont l’association échoue demande une vérification manuelle, sans nouvel envoi automatique. Le lien d’invitation utilise la route de définition de mot de passe autorisée de l’ERP, puis ouvre le portail.
 

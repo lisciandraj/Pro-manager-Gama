@@ -98,7 +98,7 @@ Les onglets Importer des données, Sauvegarde, Utilisateurs et Paramètres d’a
 
 ## Planification TMS quotidienne
 
-La carte Waze Live Map et le cycle automatique sont dans `src/features/transport/workspace.js`. La vue initiale est centrée sur Quito, y compris sans GPS de livraison. L’iframe sans clé est limitée à `embed.waze.com` par la CSP ; le zoom, le cadrage de la zone et la sélection de chaque position restent dans Coco. L’intégration officielle affiche un repère à la fois ; elle ne dessine pas plusieurs clients ni les tournées. Les coordonnées proviennent des données métier et des corrections manuelles, sans appel OpenStreetMap ou Nominatim. `gama_tms_plan_day` expose une façade invocateur et un traitement privé contrôlant les accès, verrouillant la journée et conservant les tournées parties. Les nouvelles livraisons nécessitent un lien de commande à la validation transactionnelle. Voir [TMS](modules/tms.md).
+La carte des livraisons est rendue localement par `src/features/transport/local-map.js` avec un fond Natural Earth livré dans l’application. Tous les points GPS se cadrent ensemble ; sans point, la vue est centrée sur Quito. Zoom, déplacement et filtres fonctionnent sans clé, serveur de tuiles ni géocodeur. Waze reste un lien de navigation. `gama_tms_plan_day` conserve sa façade invocateur et ses verrous transactionnels. `gama_tms_execution` ajoute les réceptions par ligne, l’historique de tentatives, les rôles TMS et la clôture. Voir [TMS](modules/tms.md).
 
 ## Vues personnelles du Dashboard
 
@@ -119,3 +119,5 @@ Le portail B2B est une page autonome produite depuis `src/storefront/`. Ses comp
 ## Traitements durables et portail client
 
 Les règles versionnées, traitements, tentatives et exceptions restent privés. Les façades invocateur filtrent par les droits courants du module. Les actions métier déléguées utilisent un contexte transactionnel fermé et temporaire, sans jeton fabriqué ni droit accordé par un GUC. La file d’envoi utilise pg_net et un secret Vault, une destination Resend fixe, des clés stables et une consultation des statuts réels. Les parcours, limites et paramètres sont dans [automatisations](automation.md). Les associations cloud sont accessibles depuis Contacts ; la rubrique Mes documents du portail reste contrôlée par entreprise à chaque téléchargement.
+
+Le composant partagé de tableau utilise la vue tableau par défaut sur ordinateur et téléphone, avec quadrillage visible. Les préférences explicites de vue cartes restent disponibles. `tms-driver.html` est l’entrée mobile hors ligne ; les données de route et commandes en attente sont dans IndexedDB, séparées du cache statique du service worker.

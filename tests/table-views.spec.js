@@ -29,7 +29,8 @@ test('legacy and shared tables switch to uniform multi-column cards and retain i
 });
 test('portrait and landscape support both modes without overflow and preserve supplier actions after paging',async({page})=>{
  await boot(page,390,844);await fixtures(page);
- await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','cards');
+ await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');
+ const borders=await page.locator('#viewLegacy table').evaluate(t=>[...t.querySelectorAll('th,td')].map(c=>{const s=getComputedStyle(c);return [s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth].every(v=>parseFloat(v)>=1)}));expect(borders.every(Boolean)).toBe(true);
  await page.setViewportSize({width:844,height:390});await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');
  await page.locator('#viewShared').getByRole('button',{name:'Tuiles',exact:true}).click();
  const rows=page.locator('#viewShared tbody tr');expect((await rows.nth(0).boundingBox()).y).toBe((await rows.nth(1).boundingBox()).y);

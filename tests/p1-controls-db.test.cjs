@@ -82,6 +82,6 @@ test('Delivery proof retries are atomic and route schedules distinguish travel a
  const proof=await rpc('gama_tms_capture',input);assert.equal(proof.completed,false);assert.deepEqual(await rpc('gama_tms_capture',input),proof);
  await assert.rejects(rpc('gama_tms_capture',{...input,photo:'data:image/png;base64,dGVzdA=='}),/REQUEST_KEY_CONFLICT/);
  assert.equal((await db.query('select count(*)::int n from tms_proofs where delivery_id=$1',[delivery])).rows[0].n,1);
- await as(client);await assert.rejects(rpc('gama_tms_capture',input),/ROLE_NOT_ALLOWED/);
+ await as(client);await assert.rejects(rpc('gama_tms_capture',input),/TMS_ACCESS_DENIED/);
  }finally{await db.close()}
 });

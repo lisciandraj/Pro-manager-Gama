@@ -62,16 +62,17 @@ test('el componente de tabla declara cabeceras y etiquetas de columna explícita
     ['', 'Código', 'Producto', 'Referencia', 'Familia', 'Categoría', 'Líneas', 'Marca', 'Presentación', 'Descripción', 'Tipo de producto', 'Unidad base', 'Ubicación', 'Proveedor', 'Stock', 'Stock mínimo', 'Stock máximo', 'Pedido mínimo', 'Múltiplo de pedido', 'Cantidad por cartón', 'Peso (g)', 'Volumen (cm³)', 'Precio compra', 'Venta A', 'Venta B', 'IVA', 'Seguimiento por lotes', 'Seguimiento activado el', 'Estado', 'Fecha de creación', 'Última modificación', '']);
   // La fila de cabecera se esconde: en fichas sería una ficha de titulares.
   expect(await page.evaluate(() =>
-    getComputedStyle(document.querySelector('#productsTable [data-gama-head]')).display)).toBe('none');
+    getComputedStyle(document.querySelector('#productsTable [data-gama-head]')).display)).toBe('table-row');
 });
 
 // La primera columna de varias tablas es la foto. Una ficha encabezada sólo
 // por una foto no se distingue de la de al lado, y «FOTO 📦» tampoco aporta.
-test('la foto se enseña sin etiqueta y el titular es el primer dato legible', async ({ page }) => {
+test('la vista de tarjetas explícita conserva foto y titular', async ({ page }) => {
   await boot(page);
   await page.evaluate(() => window.showTab('products', null));
   await page.waitForTimeout(700);
 
+  await page.locator('#productsTable [data-table-view=cards]').click();
   const c = await celdas(page, '#productsTable table');
   expect(c[0], 'la celda de la foto').toMatchObject({ col: '', titulo: false, padL: '0px' });
   expect(c[1], 'el titular de la ficha').toMatchObject({ col: 'Código', titulo: true, padL: '0px' });
@@ -112,6 +113,7 @@ test('una columna alineada a la derecha se endereza dentro de la ficha', async (
   await tablaSuelta(page);
   await page.waitForTimeout(300);
 
+  await page.locator('#fixtureTable [data-table-view=cards]').click();
   const c = await celdas(page, '#fixtureTable table');
   const stock = c.find(x => x.col === 'Stock');
   expect(await page.evaluate(() =>

@@ -23,7 +23,7 @@ const drvFrom=r=>({id:r.driver_id,name:r.name,phone:r.phone||'',vehicle:r.plate|
  vehicleId:r.vehicle_id||null,vehicleStatus:r.vehicle_status||null,
  maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),
  enabled:r.available===true,absent:r.absent===true,employeeId:r.employee_id||null});
-const delFrom=r=>({id:r.id,reference:r.dossier_reference||r.erp_reference||'',customer:r.customer,address:r.address,customerId:r.customer_id||null,phone:r.phone||'',date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||''});
+const delFrom=r=>({id:r.id,reference:r.dossier_reference||r.erp_reference||'',customer:r.customer,address:r.address,customerId:r.customer_id||null,phone:r.phone||'',date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,deliveredAt:r.delivered_at,notes:r.notes||'',execution:r.execution||null,version:r.version||1});
 const rtFrom=r=>({id:r.id,reference:r.erp_reference||'',date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',vehicleId:r.vehicle_id||null,stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),distanceBasis:r.distance_basis||'air',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at,version:r.version||1,costPerKm:r.cost_per_km??null,manual:r.manual_override===true});
 const notify=(message,type)=>window.gamaToast?.(T(message),type?{tipo:type}:undefined);
 const tmsError=e=>({ROUTE_STALE:'La ruta cambió. Actualiza y vuelve a intentarlo.',ROUTE_CLOSED:'La ruta ya está en carga o ha salido.',ROUTE_CAPACITY:'La carga supera la capacidad del vehículo.',GPS_INVALID:'Coordenadas inválidas.',TMS_ACCESS_DENIED:'Tu perfil no puede realizar esta operación.'}[String(e?.message||e)]||window.GamaLoading?.error(e)||e?.message||String(e));
@@ -53,7 +53,7 @@ function driverAbsence(d,date){
 async function pendingDeliveries(api){
  const data=[];
  for(let offset=0;;offset+=300){
-  const r=await api.list('tms_deliveries',{in:{status:['Pendiente de preparación','Planificada','En carga','Lista para envío','En tránsito','En ruta','Excepción']},order:'id',ascending:true,range:[offset,offset+299]});
+  const r=await api.list('tms_deliveries',{in:{status:['Pendiente de preparación','Planificada','En carga','Lista para envío','En tránsito','En ruta','Excepción','Entrega parcial']},order:'id',ascending:true,range:[offset,offset+299]});
   if(r.error)throw r.error;
   const rows=r.data||[];data.push(...rows);if(rows.length<300)return data;
  }
@@ -63,7 +63,7 @@ async function fetchAll(){
  const api=C();if(!api)return;
  const t=day();
  const [drv,rt,del,st,pf,pending,counts]=await Promise.all([
-  (async()=>{const c=await api.db();const r=await window.ArcData.rawRpc('gama_tms_resources');return r.error?{data:[],error:r.error}:{data:r.data||[]}})(),
+  (async()=>{const c=await api.db();const r=await window.ArcData.rawRpc('gama_tms_resources',{p_day:day()});return r.error?{data:[],error:r.error}:{data:r.data||[]}})(),
   api.list('tms_routes',{eq:{route_date:t},order:'created_at',ascending:true}),
   api.list('tms_deliveries',{eq:{delivery_date:t},order:'created_at',ascending:true}),
   api.list('tms_settings',{limit:1}),
@@ -145,9 +145,9 @@ async function open(tab){
  if(['history','tracking'].includes(tab)&&window.gamaAccessAllowed?.('audit'))return window.ArchitectAudit.open('transfer');
  const epoch=++planningEpoch;++proofViewVersion;styles();const x=showSection();
  window.ArcUI.render(x,'<div class="tms"><div class="tmsEmpty" role="status">'+esc(T('Cargando datos de transporte…'))+'</div></div>');
- if(tab==='driver'||(driverView&&tab==='proof')||(!tab&&window.matchMedia('(max-width: 767px)').matches)){
-  try{const r=await window.ArcData.rawRpc('gama_tms_my_route');if(r.error)throw r.error;if(epoch!==planningEpoch)return;
-   if(r.data?.driver||tab==='driver'){driverView={...r.data,routes:(r.data?.routes||[]).map(rtFrom),deliveries:(r.data?.deliveries||[]).map(delFrom)};currentTab='driver';renderDriver();return}
+ if(!tab||tab==='driver'||(driverView&&tab==='proof')||!navigator.onLine){
+  try{const r={data:await window.ArchitectOfflineProofs.bundle()};if(epoch!==planningEpoch)return;
+   if(r.data?.scope==='driver'||tab==='driver'||!navigator.onLine||r.data?.driver&&window.matchMedia('(max-width: 767px)').matches){driverView={...r.data,routes:(r.data?.routes||[]).map(rtFrom),deliveries:(r.data?.deliveries||[]).map(delFrom)};currentTab='driver';renderDriver();return}
   }catch(e){if(tab==='driver'){fail(e,'No se pudo cargar la ruta');return}}
  }
  driverView=null;currentTab='today';selectedStage=['preparation','planning','loading','proof'].includes(tab)?tab:'planning';
@@ -182,18 +182,18 @@ const WORDS={
  legacy:['Historique sans commande liée','Histórico sin pedido enlazado','History without a linked order'],depot:['Coordonnées du dépôt manquantes : départ depuis la première livraison.','Sin coordenadas del depósito: salida desde la primera entrega.','Depot coordinates missing: start at first delivery.'],
  approx:['Arrêts organisés par proximité, priorité et capacité. Les distances de Coco restent estimées ; Waze fournit la navigation et le trafic.','Paradas organizadas por cercanía, prioridad y capacidad. Las distancias de Coco siguen estimadas; Waze ofrece navegación y tráfico.','Stops organized by proximity, priority and capacity. Coco distances remain estimates; Waze provides navigation and traffic.'],
  none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],mapQuito:['Quito · vue initiale','Quito · vista inicial','Quito · initial view'],
- mapPoint:['Livraison à afficher','Entrega que mostrar','Delivery to show'],mapArea:['Zone de toutes les livraisons','Zona de todas las entregas','Area of all deliveries'],mapFit:['Cadrer la zone des livraisons','Encuadrar la zona de entregas','Fit the delivery area'],mapPin:['Waze affiche un repère à la fois. Choisissez une livraison pour voir son point.','Waze muestra un marcador a la vez. Elige una entrega para ver su punto.','Waze shows one pin at a time. Select a delivery to see its location.'],mapOutside:['Ouvrir la carte Waze','Abrir el mapa Waze','Open the Waze map'],mapLoading:['Chargement de Waze…','Cargando Waze…','Loading Waze…'],
+ mapPoint:['Centrer sur une livraison','Centrar en una entrega','Focus a delivery'],mapArea:['Zone de toutes les livraisons','Zona de todas las entregas','Area of all deliveries'],mapFit:['Cadrer la zone des livraisons','Encuadrar la zona de entregas','Fit the delivery area'],mapPin:['Tous les points sont affichés. Déplacez la carte ou utilisez les boutons de zoom.','Todos los puntos se muestran juntos. Arrastra el mapa o usa los botones de zoom.','All delivery points are shown. Drag the map or use the zoom buttons.'],mapOutside:['Ouvrir la carte Waze','Abrir el mapa Waze','Open the Waze map'],mapLoading:['Chargement de Waze…','Cargando Waze…','Loading Waze…'],
  failed:['La planification a échoué. Réessayez.','La planificación falló. Reintenta.','Planning failed. Retry.'],invalid:['Coordonnées invalides.','Coordenadas inválidas.','Invalid coordinates.'],preserved:['L’historique local est conservé sur cet appareil et n’est pas importé sans commande liée.','El histórico local se conserva en este dispositivo y no se ha importado sin pedido enlazado.','Local history is retained on this device and is not imported without a linked order.'],
  planned:['Livraisons planifiées','Entregas planificadas','Planned deliveries'],save:['Enregistrer','Guardar','Save'],cancel:['Annuler','Cancelar','Cancel'],latitude:['Latitude','Latitud','Latitude'],longitude:['Longitude','Longitud','Longitude']};
 const tr=k=>WORDS[k]?.[{fr:0,es:1,en:2}[window.GamaI18n?.language]??1]||k;
 const validPoint=d=>d?.lat!=null&&d?.lng!=null&&Number.isFinite(+d.lat)&&Number.isFinite(+d.lng)&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
 const QUITO={lat:-0.1807,lng:-78.4678,zoom:12};
-let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapPoint='__quito',mapZoom=null,mapView=null,mapObserver=null,authEpoch=0;
+let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapPoint='all',mapZoom=null,mapView=null,mapObserver=null,authEpoch=0;
 const planningActive=()=>currentTab==='today'&&selectedStage==='planning'&&section().classList.contains('active')&&!!window.gamaAccessAllowed?.('tms');
 function markOrigins(){const ids=new Set(plan?.order_delivery_ids||[]);db.deliveries.forEach(d=>d.fromOrder=ids.has(d.id))}
 async function autoPlanning(force=false){
  if(!planningActive()||planningJob||(!force&&Date.now()-lastPlanning<10000))return;
- if(!force&&document.activeElement===document.getElementById('tWazeMap'))return;
+ if(!force&&document.getElementById('tDayMap')?.contains(document.activeElement))return;
  const epoch=planningEpoch;lastPlanning=Date.now();planError='';
  const run=async()=>{
   try{
@@ -210,45 +210,30 @@ function routesForDay(){return db.routes.filter(r=>r.date===day()||r.stops.some(
 function planningBody(ds){
  const routes=routesForDay();
  const missing=ds.filter(d=>d.fromOrder&&!['Entregada','Cancelada'].includes(d.status)&&!validPoint(d));
- return `<div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||day())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button></div><p>${esc(tr('orders'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_capacity?`<p class="tmsAbsente">${esc(tr('capacity'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
- <div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('map'))} · Waze Live Map</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −" disabled>−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +" disabled>+</button><button type="button" class="arcButton tmsBtn" id="tMapFit" aria-label="${esc(tr('mapFit'))}" disabled>↔</button></div></div><label for="tMapPoint" class="tmsMapLabel">${esc(tr('mapPoint'))}</label><select id="tMapPoint" class="tmsMapPoint" aria-label="${esc(tr('mapPoint'))}"></select><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"></div><div id="tMapPoints" class="tmsMapPoints"></div><p class="tmsHint">${esc(tr('mapPin'))}</p><a id="tMapOutside" class="arcButton secondary" target="_blank" rel="noopener noreferrer" hidden>${esc(tr('mapOutside'))}</a><p class="tmsHint">${esc(tr('approx'))}</p>${missing.length?`<p class="tmsAbsente">${esc(tr('missing'))}: ${missing.length}</p>`:''}</div>
- <div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(T('Entregas de hoy'))}</b><small>${ds.length}</small></div><div class="tmsTableScroll"><table class="arcTable tmsTable"><thead><tr><th>${esc(T('Cliente'))}</th><th>${esc(T('Carga'))}</th><th>${esc(T('Estado'))}</th></tr></thead><tbody>${ds.map(d=>`<tr id="tms-delivery-${esc(d.id)}" tabindex="-1"><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)} · ${esc(d.timeWindow||'—')}</small></td><td>${d.weight} kg / ${d.volume} m³</td><td>${badge(d)}<br><button type="button" class="arcButton secondary" data-tms-operate="${esc(d.id)}">${esc(T('Gestionar entrega'))}</button>${d.fromOrder?`<br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-coordinates="${esc(d.id)}"${planningJob?' disabled':''}>${esc(tr('fix'))}</button><br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-loading="${esc(d.id)}">${esc(T('Salida de bultos'))}</button>`:`<br><small>${esc(tr('legacy'))}</small>`}</td></tr>`).join('')}</tbody></table></div></div>
+ return `<div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||day())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button></div><p>${esc(tr('orders'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_cargo?`<p class="tmsAbsente">Carga sin verificar: ${plan.without_cargo}. Abre «Ventana y carga».</p>`:''}${plan?.without_capacity?`<p class="tmsAbsente">${esc(tr('capacity'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
+ <div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('map'))} · Coco</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −" disabled>−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +" disabled>+</button><button type="button" class="arcButton tmsBtn" id="tMapFit" aria-label="${esc(tr('mapFit'))}" disabled>↔</button></div></div><label for="tMapPoint" class="tmsMapLabel">${esc(tr('mapPoint'))}</label><select id="tMapPoint" class="tmsMapPoint" aria-label="${esc(tr('mapPoint'))}"></select><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"></div><div id="tMapPoints" class="tmsMapPoints"></div><p class="tmsHint">${esc(tr('mapPin'))}</p><a id="tMapOutside" class="arcButton secondary" target="_blank" rel="noopener noreferrer" hidden>${esc(tr('mapOutside'))}</a><p class="tmsHint">${esc(tr('approx'))}</p>${missing.length?`<p class="tmsAbsente">${esc(tr('missing'))}: ${missing.length}</p>`:''}</div>
+ <div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(T('Entregas de hoy'))}</b><small>${ds.length}</small></div><div class="tmsTableScroll"><table class="arcTable tmsTable"><thead><tr><th>${esc(T('Cliente'))}</th><th>${esc(T('Carga'))}</th><th>${esc(T('Estado'))}</th></tr></thead><tbody>${ds.map(d=>`<tr id="tms-delivery-${esc(d.id)}" tabindex="-1"><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)} · ${esc(d.timeWindow||'—')}</small></td><td>${d.weight} kg / ${d.volume} m³</td><td>${badge(d)}<br><button type="button" class="arcButton secondary" data-tms-operate="${esc(d.id)}">${esc(T('Gestionar entrega'))}</button><br><button type="button" class="arcButton secondary" data-tms-configure="${esc(d.id)}">Ventana y carga</button>${d.fromOrder?`<br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-coordinates="${esc(d.id)}"${planningJob?' disabled':''}>${esc(tr('fix'))}</button><br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-loading="${esc(d.id)}">${esc(T('Salida de bultos'))}</button>`:`<br><small>${esc(tr('legacy'))}</small>`}</td></tr>`).join('')}</tbody></table></div></div>
  <div><div class="arcPanel tmsCard">${routes.map(routeCard).join('')||`<div class="tmsEmpty">${esc(T('No hay rutas planificadas.'))}</div>`}</div>
  <details class="arcPanel tmsCard"><summary>${esc(T('Configuración avanzada del depósito'))}</summary><div class="tmsForm"><div class="full"><label>${esc(T('Dirección del depósito'))}</label><input id="tDepot" value="${esc(db.settings.depot||'')}"></div><div><label for="tDepotLat">${esc(tr('latitude'))}</label><input id="tDepotLat" type="number" step="any" min="-85" max="85" value="${esc(db.settings.depotPoint?.lat??'')}"></div><div><label for="tDepotLng">${esc(tr('longitude'))}</label><input id="tDepotLng" type="number" step="any" min="-180" max="180" value="${esc(db.settings.depotPoint?.lng??'')}"></div><div><label>${esc(T('Regreso al depósito'))}</label><select id="tReturn"><option value="1"${db.settings.returnDepot?' selected':''}>${esc(T('Sí'))}</option><option value="0"${!db.settings.returnDepot?' selected':''}>${esc(T('No'))}</option></select></div></div><button type="button" class="arcButton tmsBtn" id="tSaveDepot"${planningJob?' disabled':''}>${esc(tr('save'))}</button></details></div></div>`;
 }
 function drawDayMap(){
  const host=document.getElementById('tDayMap');if(!host||!planningActive())return;
  if(!routesForDay().some(r=>r.id===mapRoute))mapRoute='all';
- const routes=routesForDay().filter(r=>mapRoute==='all'||mapRoute===r.id);
- const selected=new Set(routes.flatMap(r=>r.stops));
- const points=db.deliveries.filter(d=>d.date===day()&&d.fromOrder&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
+ const routes=routesForDay().filter(r=>mapRoute==='all'||mapRoute===r.id),selected=new Set(routes.flatMap(r=>r.stops));
+ const points=db.deliveries.filter(d=>d.date===day()&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
  const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,id:'__depot',isDepot:true,customer:db.settings.depot});
  const selector=document.getElementById('tMapPoint'),list=document.getElementById('tMapPoints'),outside=document.getElementById('tMapOutside');
- if(!['all','__quito'].includes(mapPoint)&&!points.some(d=>d.id===mapPoint)||mapPoint==='all'&&!points.length){mapPoint='__quito'}
- selector.innerHTML=`<option value="__quito">${esc(tr('mapQuito'))}</option>${points.length?`<option value="all">${esc(tr('mapArea'))}</option>`:''}${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;selector.disabled=false;
- list.innerHTML=points.filter(d=>!d.isDepot).map(d=>`<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${esc([d.reference,d.customer].filter(Boolean).join(' · '))}</button>`).join('')||`<p class="tmsHint">${esc(tr('none'))}</p>`;
- list.querySelectorAll('[data-map-delivery]').forEach(b=>b.onclick=()=>{mapPoint=b.dataset.mapDelivery;mapZoom=null;drawDayMap();document.getElementById('tms-delivery-'+mapPoint)?.focus({preventScroll:true})});
- const tools=['tMapOut','tMapIn','tMapFit'].map(id=>document.getElementById(id));
- const selectedPoint=points.find(d=>d.id===mapPoint),width=Math.max(240,host.clientWidth),height=host.clientHeight||380;
- let lat=QUITO.lat,lon=QUITO.lng,base=QUITO.zoom;
- if(selectedPoint){lat=+selectedPoint.lat;lon=+selectedPoint.lng;base=15}
- else if(mapPoint==='all'&&points.length){
-  const project=(d,z)=>{const n=256*2**z,s=Math.sin(+d.lat*Math.PI/180);return{x:(+d.lng+180)/360*n,y:(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n}};
-  base=17;
-  for(;base>3;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
-  const projected=points.map(d=>project(d,base)),scale=256*2**base,cx=(Math.min(...projected.map(p=>p.x))+Math.max(...projected.map(p=>p.x)))/2,cy=(Math.min(...projected.map(p=>p.y))+Math.max(...projected.map(p=>p.y)))/2;
-  lat=Math.atan(Math.sinh(Math.PI*(1-2*cy/scale)))*180/Math.PI;lon=cx/scale*360-180;
- }
- const zoom=Math.max(3,Math.min(17,mapZoom??base));
- mapView={lat,lon,zoom};
- const params=new URLSearchParams({lat:String(lat),lon:String(lon),zoom:String(zoom),pin:selectedPoint?'1':'0'}),language=window.GamaI18n?.language,locale=['fr','es'].includes(language)?language+'/':'';
- const url='https://embed.waze.com/'+locale+'iframe?'+params;
- let frame=host.querySelector('iframe');
- if(!frame){frame=document.createElement('iframe');frame.id='tWazeMap';frame.title=tr('map')+' · Waze Live Map';frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';host.replaceChildren(frame)}
- if(frame.getAttribute('src')!==url)frame.src=url;
- tools[0].disabled=zoom<=3;tools[1].disabled=zoom>=17;tools[2].disabled=!points.length;
- outside.href='https://www.waze.com/ul?'+new URLSearchParams({ll:lat+','+lon,zoom:String(zoom)});outside.hidden=false;
+ if(!['all','__quito'].includes(mapPoint)&&!points.some(d=>d.id===mapPoint))mapPoint='all';
+ selector.innerHTML=`<option value="all">${esc(tr('mapArea'))}</option><option value="__quito">${esc(tr('mapQuito'))}</option>${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;
+ list.innerHTML=points.filter(d=>!d.isDepot).map((d,i)=>`<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${i+1}. ${esc([d.reference,d.customer].filter(Boolean).join(' · '))}</button>`).join('')||`<p class="tmsHint">${esc(tr('none'))}</p>`;
+ const select=id=>{mapPoint=id;selector.value=id;list.querySelectorAll('[data-map-delivery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapDelivery===id)));const d=points.find(p=>p.id===id);outside.href=d?wazeUrl(d):'https://www.waze.com/ul?ll=-0.1807%2C-78.4678';document.getElementById('tms-delivery-'+id)?.focus({preventScroll:true})};
+ mapView=window.CocoDeliveryMap.create(host,{points,routes,onSelect:select});if(mapPoint!=='all')mapView.focus(mapPoint);
+ list.querySelectorAll('[data-map-delivery]').forEach(b=>b.onclick=()=>{select(b.dataset.mapDelivery);mapView.focus(mapPoint)});
+ ['tMapOut','tMapIn','tMapFit'].forEach(id=>document.getElementById(id).disabled=false);
+ outside.href='https://www.waze.com/ul?ll=-0.1807%2C-78.4678';outside.hidden=false;
+ const attribution=document.createElement('small');attribution.className='tmsMapAttribution';attribution.textContent='Datos locales: Natural Earth · dominio público. Líneas de ruta orientativas; no son carreteras.';host.append(attribution);
 }
+
 function editCoordinates(id){
  const d=findDelivery(id);if(!d?.fromOrder)return;
  const dlg=document.createElement('dialog');dlg.className='tmsCoordinateDialog';
@@ -259,12 +244,13 @@ function editCoordinates(id){
 function bindPlanning(x){
  x.querySelector('#tRefresh').onclick=()=>autoPlanning(true);
  x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapPoint='all';mapZoom=null;drawDayMap()};
- x.querySelector('#tMapPoint').onchange=e=>{mapPoint=e.target.value;mapZoom=null;drawDayMap()};
- x.querySelector('#tMapIn').onclick=()=>{if(mapView){mapZoom=Math.min(17,mapView.zoom+1);drawDayMap()}};x.querySelector('#tMapOut').onclick=()=>{if(mapView){mapZoom=Math.max(3,mapView.zoom-1);drawDayMap()}};x.querySelector('#tMapFit').onclick=()=>{mapPoint='all';mapZoom=null;drawDayMap()};
+ x.querySelector('#tMapPoint').onchange=e=>{mapPoint=e.target.value;mapView?.focus(mapPoint);const d=findDelivery(mapPoint)||(mapPoint==='__depot'?db.settings.depotPoint:null);x.querySelector('#tMapOutside').href=d?wazeUrl(d):'https://www.waze.com/ul?ll=-0.1807%2C-78.4678'};
+ x.querySelector('#tMapIn').onclick=()=>mapView?.zoom(1);x.querySelector('#tMapOut').onclick=()=>mapView?.zoom(-1);x.querySelector('#tMapFit').onclick=()=>{mapPoint='all';x.querySelector('#tMapPoint').value='all';mapView?.fit()};
+ x.querySelectorAll('[data-tms-configure]').forEach(b=>b.onclick=()=>window.CocoTmsExecution.configure(b.dataset.tmsConfigure,()=>autoPlanning(true)).catch(e=>fail(e,'Planificación')));
  x.querySelectorAll('[data-tms-coordinates]').forEach(b=>b.onclick=()=>editCoordinates(b.dataset.tmsCoordinates));
  x.querySelectorAll('[data-tms-loading]').forEach(b=>b.onclick=()=>window.GamaLoading.open(b.dataset.tmsLoading));
  drawDayMap();mapObserver?.disconnect();let width=x.querySelector('#tDayMap').clientWidth;
- if(window.ResizeObserver){mapObserver=new ResizeObserver(entries=>{if(entries[0].contentRect.width!==width){width=entries[0].contentRect.width;drawDayMap()}});mapObserver.observe(x.querySelector('#tDayMap'))}
+ if(window.ResizeObserver){mapObserver=new ResizeObserver(entries=>{if(entries[0].contentRect.width!==width){width=entries[0].contentRect.width;mapView?.resize()}});mapObserver.observe(x.querySelector('#tDayMap'))}
 }
 setInterval(()=>{if(document.visibilityState==='visible')autoPlanning()},45000);
 window.addEventListener('focus',()=>autoPlanning());
@@ -272,7 +258,7 @@ window.addEventListener('gama:language-change',()=>{if(currentTab==='driver')ren
 window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
 window.addEventListener('gama:sales-change',()=>autoPlanning());
 window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
-window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='__quito';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
+window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){
  return new Promise(resolve=>{
@@ -455,7 +441,7 @@ function editableRoute(r){return !!r&&!['En ruta','En tránsito','Terminada','Ca
 function routeCard(r){
  const stops=routeStops(r).filter(d=>!d.isDepot),editable=editableRoute(r)&&!planningJob&&!moveBusy;
  return `<div class="tmsRoute" data-route-drop="${esc(r.id)}"><div class="tmsRouteHead"><b>${[r.reference,r.driver,r.vehicle].filter(Boolean).map(esc).join(' · ')}</b><small>${r.distance.toFixed(1)} km (${esc(r.distanceBasis==='road'||r.distanceBasis==='road_verified'?T('Carretera'):r.distanceBasis==='mixed'?T('Mixta'):T('Estimada'))}) · ${r.weight} kg · ${r.volume} m³</small></div><p>${esc(T(r.status))}${r.manual?` · <span class="tmsBadge tmsStatus-planned">${esc(T('Ajustada manualmente'))}</span>`:''}</p>
- <button type="button" class="arcButton secondary" data-tms-guide="${esc(r.id)}">${esc(T('Guía de remisión'))}</button><ol class="tmsStops">${stops.map((d,i)=>`<li data-route-stop="${esc(d.id)}" data-route-id="${esc(r.id)}" draggable="${editable}" class="tmsEditableStop"><div><b>${esc(d.reference)} ${esc(d.customer)}</b><small>${esc(d.address)}</small>${badge(d)}</div>${editable?`<div class="tmsStopTools"><button class="arcButton secondary" data-stop-up="${esc(d.id)}" aria-label="${esc(T('Subir parada'))}"${i?'':' disabled'}>↑</button><button class="arcButton secondary" data-stop-down="${esc(d.id)}" aria-label="${esc(T('Bajar parada'))}"${i<stops.length-1?'':' disabled'}>↓</button><select data-stop-target="${esc(d.id)}" aria-label="${esc(T('Mover a otra ruta'))}"><option value="">${esc(T('Mover a otra ruta'))}</option>${db.routes.filter(x=>x.id!==r.id&&editableRoute(x)&&x.date===r.date).map(x=>`<option value="${esc(x.id)}">${esc(x.reference||x.driver)}</option>`).join('')}</select></div>`:''}</li>`).join('')}</ol><a class="arcButton tmsBtn tmsLight" href="${esc(mapsUrl(r))}" target="_blank" rel="noopener noreferrer">Waze</a></div>`;
+ <button type="button" class="arcButton secondary" data-tms-guide="${esc(r.id)}">${esc(T('Guía de remisión'))}</button><button type="button" class="arcButton secondary" data-tms-manifest="${esc(r.id)}">Manifiesto</button> <button type="button" class="arcButton secondary" data-tms-schedule="${esc(r.id)}">Horario</button><ol class="tmsStops">${stops.map((d,i)=>`<li data-route-stop="${esc(d.id)}" data-route-id="${esc(r.id)}" draggable="${editable}" class="tmsEditableStop"><div><b>${esc(d.reference)} ${esc(d.customer)}</b><small>${esc(d.address)}</small>${badge(d)}</div>${editable?`<div class="tmsStopTools"><button class="arcButton secondary" data-stop-up="${esc(d.id)}" aria-label="${esc(T('Subir parada'))}"${i?'':' disabled'}>↑</button><button class="arcButton secondary" data-stop-down="${esc(d.id)}" aria-label="${esc(T('Bajar parada'))}"${i<stops.length-1?'':' disabled'}>↓</button><select data-stop-target="${esc(d.id)}" aria-label="${esc(T('Mover a otra ruta'))}"><option value="">${esc(T('Mover a otra ruta'))}</option>${db.routes.filter(x=>x.id!==r.id&&editableRoute(x)&&x.date===r.date).map(x=>`<option value="${esc(x.id)}">${esc(x.reference||x.driver)}</option>`).join('')}</select></div>`:''}</li>`).join('')}</ol><a class="arcButton tmsBtn tmsLight" href="${esc(mapsUrl(r))}" target="_blank" rel="noopener noreferrer">Waze</a></div>`;
 }
 async function moveStop(id,targetId,beforeId=null){
  if(moveBusy||planningJob)return;const d=findDelivery(id),source=db.routes.find(r=>r.id===d?.routeId),target=db.routes.find(r=>r.id===targetId);if(!source||!target)return;
@@ -463,6 +449,8 @@ async function moveStop(id,targetId,beforeId=null){
  catch(e){notify(tmsError(e),'error');await fetchAll()}finally{moveBusy=false;render()}
 }
 function bindRouteMoves(x){
+ x.querySelectorAll('[data-tms-manifest]').forEach(b=>b.onclick=()=>window.CocoTmsExecution.manifest(b.dataset.tmsManifest).catch(e=>fail(e,'Manifiesto')));
+ x.querySelectorAll('[data-tms-schedule]').forEach(b=>b.onclick=()=>window.CocoTmsExecution.schedule(b.dataset.tmsSchedule).catch(e=>fail(e,'Horario')));
  x.querySelectorAll('[data-tms-guide]').forEach(b=>b.onclick=()=>window.GamaSriDocuments.guide(b.dataset.tmsGuide,true).catch(e=>fail(e,'Guía de remisión')));
  x.querySelectorAll('[data-stop-up],[data-stop-down]').forEach(b=>b.onclick=()=>{const id=b.dataset.stopUp||b.dataset.stopDown,d=findDelivery(id),r=db.routes.find(r=>r.id===d?.routeId),ids=routeStops(r).filter(d=>!d.isDepot).map(d=>d.id),i=ids.indexOf(id);moveStop(id,r.id,b.dataset.stopUp?ids[i-1]:ids[i+2]||null)});
  x.querySelectorAll('[data-stop-target]').forEach(s=>s.onchange=()=>{if(s.value)moveStop(s.dataset.stopTarget,s.value)});
@@ -471,9 +459,9 @@ function bindRouteMoves(x){
 }
 function renderDriver(){
  currentTab='driver';const x=section(),data=driverView||{routes:[],deliveries:[]},lookup=id=>data.deliveries.find(d=>d.id===id);
- window.ArcUI.render(x,`<div class="tms tmsDriver">${window.GamaUI.header({title:'Mi ruta',lead:data.driver?.name||'No hay un conductor vinculado a tu cuenta.'})}<p>${esc(window.ArcFormat.date(today()))}</p><button class="arcButton secondary" id="tDriverRefresh">${esc(T('Actualizar'))}</button>
+ window.ArcUI.render(x,`<div class="tms tmsDriver">${window.GamaUI.header({title:'Mi ruta',lead:data.driver?.name||'No hay un conductor vinculado a tu cuenta.'})}<p>${esc(window.ArcFormat.date(today()))}</p><button class="arcButton secondary" id="tDriverRefresh">${esc(T('Actualizar'))}</button> <button class="arcButton secondary" id="tDriverDownload">Descargar para trabajar sin conexión</button> <button class="arcButton secondary" id="tDriverOutbox">Capturas pendientes</button> <a class="arcButton secondary" href="tms-driver.html">Abrir modo conductor</a><p id="tDriverOfflineStatus" role="status">${data.offline?'Sin conexión · copia descargada':''}</p>
  ${data.routes.map(r=>`<div class="arcPanel tmsCard"><h2>${esc(r.reference||T('Ruta'))} · ${esc(r.vehicle)}</h2><button type="button" class="arcButton primary" data-tms-driver-guide="${esc(r.id)}">${esc(T('Guía de remisión PDF'))}</button><ol class="tmsDriverStops">${r.stops.map(lookup).filter(Boolean).map(d=>`<li><div class="tmsDriverStop"><div class="tmsRouteHead"><b>${esc(d.reference)} ${esc(d.customer)}</b>${badge(d)}</div><p>${esc(d.address)}</p><div class="tmsDriverActions"><a class="arcButton secondary" href="${esc(wazeUrl(d))}" target="_blank" rel="noopener noreferrer">Waze</a>${d.phone?`<a class="arcButton secondary" href="tel:${esc(d.phone.replace(/[^+0-9]/g,''))}">${esc(T('Llamar'))}</a>`:`<button class="arcButton secondary" disabled>${esc(T('Sin teléfono'))}</button>`}<button class="arcButton primary" data-driver-delivered="${esc(d.id)}"${d.status==='Entregada'?' disabled':''}>${esc(T(d.status==='Entregada'?'Entregada':'Entregado'))}</button></div>${d.status==='Entregada'?'':`<button class="arcButton secondary tmsDriverMore" data-tms-operate="${esc(d.id)}">${esc(T('Aviso, incidencia o cobro'))}</button>`}</div></li>`).join('')}</ol></div>`).join('')||`<p class="tmsEmpty">${esc(T('No tienes una ruta asignada.'))}</p>`}</div>`);
- window.GamaUI.bindBack(x);x.querySelector('#tDriverRefresh').onclick=()=>open('driver');
+ window.GamaUI.bindBack(x);x.querySelector('#tDriverRefresh').onclick=()=>open('driver');x.querySelector('#tDriverOutbox').onclick=()=>window.ArchitectOfflineProofs.open();x.querySelector('#tDriverDownload').onclick=async e=>{e.target.disabled=true;try{await window.ArchitectOfflineProofs.download();x.querySelector('#tDriverOfflineStatus').textContent='Ruta descargada. Abre «Modo conductor» para trabajar sin conexión durante 48 horas.'}catch(error){x.querySelector('#tDriverOfflineStatus').textContent=window.CocoTmsExecution.error(error)}finally{e.target.disabled=false}};
  x.querySelectorAll('[data-driver-delivered]').forEach(b=>b.onclick=()=>openProof(b.dataset.driverDelivered,true).catch(e=>fail(e,'No se pudo abrir la entrega')));
  x.querySelectorAll('[data-tms-driver-guide]').forEach(b=>b.onclick=()=>window.GamaSriDocuments.guide(b.dataset.tmsDriverGuide).catch(e=>fail(e,'Guía de remisión')));
  window.GamaTmsOperations?.bind(x,()=>open('driver'));
@@ -494,10 +482,10 @@ function render(){
  if(driverView&&currentTab==='driver')return renderDriver();
  ++proofViewVersion;currentTab='today';const x=section(),ds=db.deliveries.filter(d=>d.date===day());
  window.ArcUI.render(x,`<div class="tms">${window.GamaUI.header({title:day()===today()?'TMS · Hoy':'TMS · Planificación',lead:'Preparar → Planificar → Cargar → Entregar'})}
- <div class="tmsTodayBar"><p>${esc(window.ArcFormat.date(day()))} · ${ds.filter(d=>d.status==='Entregada').length} ${esc(T('entregadas'))}${db.counts.incidents?` · <span class="tmsBadge tmsStatus-incident">${db.counts.incidents} ${esc(T('incidentes'))}</span>`:''}</p><button type="button" class="arcButton secondary" id="tMyRoute">${esc(T('Mi ruta'))}</button><label>${esc(T('Fecha de planificación'))}<input id="tPlanningDay" type="date" min="${today()}" value="${esc(day())}"></label><button class="arcButton secondary" id="tMetrics">${esc(T('Indicadores'))}</button></div>
+ <div class="tmsTodayBar"><p>${esc(window.ArcFormat.date(day()))} · ${ds.filter(d=>d.status==='Entregada').length} ${esc(T('entregadas'))}${db.counts.incidents?` · <span class="tmsBadge tmsStatus-incident">${db.counts.incidents} ${esc(T('incidentes'))}</span>`:''}</p><button type="button" class="arcButton secondary" id="tMyRoute">${esc(T('Mi ruta'))}</button><label>${esc(T('Fecha de planificación'))}<input id="tPlanningDay" type="date" min="${today()}" value="${esc(day())}"></label><button class="arcButton secondary" id="tDayClose">Cierre de jornada</button>${readLocal('gama_session_v1',{}).role==='admin'?'<button class="arcButton secondary" id="tAccess">Roles TMS</button>':''}<button class="arcButton secondary" id="tMetrics">${esc(T('Indicadores'))}</button></div>
  <nav class="tmsFlow" aria-label="${esc(T('Flujo de entregas'))}">${STAGES.map(([id,label,hint],i)=>`<button type="button" class="tmsFlowStep ${selectedStage===id?'active':''}" data-tms-stage="${id}" aria-expanded="${selectedStage===id}" aria-controls="tms-stage-${id}"><span>${i+1}. ${esc(T(label))}</span><strong>${Number(db.counts[id]||0)}</strong><small>${esc(T(hint))}</small></button>`).join('')}</nav>
  ${STAGES.map(([id,label])=>`<div role="region" class="tmsStage" id="tms-stage-${id}"${selectedStage===id?'':' hidden'} aria-label="${esc(T(label))}">${id==='planning'?planningBody(ds):id==='proof'?proofBody():`<div id="${id==='preparation'?'gamaPreparationHost':'gamaLoadingHost'}"></div>`}</div>`).join('')}</div>`);
- window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;mapPoint='__quito';mapRoute='all';mapZoom=null;await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();
+ window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();x.querySelector('#tDayClose').onclick=()=>window.CocoTmsExecution.closure(day(),routesForDay(),()=>reload('today')).catch(e=>fail(e,'Cierre'));x.querySelector('#tAccess')?.addEventListener('click',()=>window.CocoTmsExecution.access().catch(e=>fail(e,'Roles TMS')));
  x.querySelectorAll('[data-tms-stage]').forEach(b=>b.onclick=()=>selectStage(b.dataset.tmsStage).catch(e=>fail(e,'No se pudo cargar la etapa')));
  if(selectedStage==='preparation')window.GamaPreparation?.mount(x.querySelector('#gamaPreparationHost'));
  if(selectedStage==='loading')window.GamaLoading?.mount(x.querySelector('#gamaLoadingHost'));
@@ -514,6 +502,10 @@ function render(){
 function wazeUrl(stop){if(!validPoint(stop)&&!String(stop?.address||'').trim())return '';const q=new URLSearchParams({navigate:'yes',utm_source:'coco_erp'});if(validPoint(stop))q.set('ll',Number(stop.lat)+','+Number(stop.lng));else q.set('q',stop.address.trim());return 'https://www.waze.com/ul?'+q}
 function mapsUrl(r){const stops=routeStops(r),next=stops.find(d=>!d.isDepot&&!['Entregada','Cancelada'].includes(d.status))||stops.findLast(d=>d.isDepot);return next?wazeUrl(next):''}
 async function openProof(id,camera=false){
+ if(navigator.onLine){const ctx=await window.ArcData.rpc('gama_tms_execution',{p_action:'context',p_data:{delivery_id:id}});if(!ctx.lines.length||ctx.shipment?.loading_required&&!ctx.shipment.departed_at)return openLegacyProof(id,camera)}
+ return window.CocoTmsExecution.open(id,{context:findDelivery(id)?.execution,onDone:()=>reload()});
+}
+async function openLegacyProof(id,camera=false){
  if(!driverView&&!await ready())return;
  const d=findDelivery(id);if(!d)return;
  await ensureProof(id);
@@ -547,6 +539,6 @@ GamaPage.register('tmsProofs',()=>render('today'));
 window.gamaTMS={navigationUrl:wazeUrl,openDelivery:async id=>{
  if(!window.gamaAccessAllowed?.('tms'))throw Error('Acceso no permitido.');
  await open('proof');const r=await C().list('tms_deliveries',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Entrega no disponible.');
- db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await ensureProof(id);await renderProofDetail(id);if(camera)document.getElementById('tPhoto')?.click();
+ db.deliveries=db.deliveries.filter(d=>d.id!==id).concat(r.data.map(delFrom));await openProof(id);
 },open,openProof,openDriver:()=>open('driver'),__drivers:()=>db.drivers,viewProofArchive,downloadProofReport,downloadProofCertificate};
 })();

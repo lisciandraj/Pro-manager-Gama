@@ -122,7 +122,7 @@ function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1'
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){
  const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
- const mode=['cards','table'].includes(choice)?choice:(matchMedia('(max-width:760px) and (orientation:portrait)').matches?'cards':'table');
+ const mode=['cards','table'].includes(choice)?choice:'table';
  if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
  state.bar.setAttribute('aria-label',words()[0]);
  [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});

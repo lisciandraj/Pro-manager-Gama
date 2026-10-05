@@ -761,3 +761,18 @@ button.ivCelda:hover{border-color:var(--arc-accent-600);box-shadow:0 0 0 1px var
 .stockAdjustments .arcTable small{display:block;margin-top:4px;line-height:1.4}
 .stockAdjustments .arcTable strong{display:block}
 .stockAdjustmentDialog [data-adjust-preview]{padding:14px;margin:12px 0;line-height:1.5}
+
+/* Shared ERP table grid, including legacy workspaces and dialogs. */
+body{--arc-table-grid:#b6c2d0}
+body table{border-collapse:collapse;border-spacing:0}
+body table :is(th,td),body table.gamaCards.gamaCards[data-gama-view=table] :is(th,td){border:1px solid var(--arc-table-grid)!important}
+body table thead th,body table.gamaCards.gamaCards[data-gama-view=table] th{border-bottom:2px solid var(--arc-table-grid)!important}
+@media(max-width:760px){
+ .arcTableWrap{overflow-x:auto;overscroll-behavior-x:contain}
+ .arcTable{display:table;width:100%}
+ .arcTable thead{display:table-header-group}
+ .arcTable tbody{display:table-row-group}
+ .arcTable tr{display:table-row;padding:0}
+ .arcTable :is(th,td),.arcTable td[data-gama-title],.arcTable td[colspan]{display:table-cell;width:auto;padding:10px 12px}
+ .arcTable td::before{display:none}
+}

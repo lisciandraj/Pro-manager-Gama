@@ -12,7 +12,7 @@ test('TMS keeps manual routes, shares safe tracking, records COD and returns ref
    select set_config('request.jwt.claim.sub','${admin}',false);
    insert into customers(id,name,identification,address,phone) values('${customer}','GPS customer','TMS-OPS','Quito','+593991234567');
    insert into sales_orders(id,customer_id,customer_name,delivery_address,created_by,request_key,status) values('${order}','${customer}','GPS customer','Quito','${admin}',gen_random_uuid(),'confirmed');
-   insert into products(id,name,barcode,stock) values('${product}','Parcel goods','TMS-OPS-P',0);
+   insert into products(id,name,barcode,stock,weight_g,volume_cm3) values('${product}','Parcel goods','TMS-OPS-P',0,100,500);
    insert into financial_accounts(id,name,kind,account_id,currency) select '${account}','Driver cash','cash',id,'USD' from accounting_accounts where code='1000';
    update fleet_drivers set active=false;
    insert into hr_employees(id,full_name,profile_id) values('${id(60)}','Assigned driver','${driverUser}');
@@ -52,7 +52,7 @@ test('TMS keeps manual routes, shares safe tracking, records COD and returns ref
   await db.exec(`reset role;set session_replication_role=replica;update sales_deliveries set departed_at=now(),departure_driver_id='${driver}' where tms_delivery_id='${id(10)}';update tms_deliveries set status='En tránsito' where id='${id(10)}';update tms_routes set status='En ruta' where id='${route1.id}';set session_replication_role=origin;`);
   await as(driverUser);const own=(await db.query('select gama_tms_my_route() r')).rows[0].r;assert.equal(own.driver.id,driver);assert.ok(own.deliveries.every(d=>d.driver_id===driver));assert.ok(!own.deliveries.some(d=>d.id===id(12)));
   const startedVersion=(await db.query('select version from tms_routes where id=$1',[route1.id])).rows[0].version;
-  await assert.rejects(db.query('select gama_tms_move_stop($1)',[{...move,target_route_id:route1.id,source_version:startedVersion,target_version:startedVersion}]),/ROUTE_CLOSED/);
+  await assert.rejects(db.query('select gama_tms_move_stop($1)',[{...move,target_route_id:route1.id,source_version:startedVersion,target_version:startedVersion}]),/TMS_DISPATCH_REQUIRED/);
   const msg={delivery_id:id(10),request_key:uuid(),eta:new Date(Date.now()+3600000).toISOString()};const link=await action('message',msg);assert.equal((await action('message',msg)).token,link.token);
   const reference=(await db.query('select erp_reference from tms_deliveries where id=$1',[id(10)])).rows[0].erp_reference;
   await db.exec('reset role;set role anon');const tracking=(await db.query('select gama_tms_tracking($1) r',[link.token])).rows[0].r;assert.equal(tracking.reference,reference);assert.deepEqual(Object.keys(tracking).sort(),['date','delivered_at','eta','reference','status']);assert.equal((await db.query('select gama_tms_tracking($1) r',[uuid()])).rows[0].r,null);await assert.rejects(db.query('select * from private.tms_tracking_links'),/permission denied/);
@@ -67,10 +67,12 @@ test('TMS keeps manual routes, shares safe tracking, records COD and returns ref
   await action('incident',{delivery_id:id(10),request_key:uuid(),reason:'absent'});assert.equal((await action('reschedule',{delivery_id:id(10),request_key:uuid()})).day,dates.tomorrow);
   assert.ok((await db.query('select departed_at from sales_deliveries where tms_delivery_id=$1',[id(10)])).rows[0].departed_at,'rescheduling keeps the original departure');
   assert.ok(!(await db.query('select gama_tms_my_route() r')).rows[0].r.deliveries.some(d=>d.id===id(10)),'a rescheduled stop is not presented as due today');
-  await db.query('select gama_tms_capture($1)',[{delivery_id:id(10),request_key:uuid(),captured_at:new Date().toISOString(),signature:'data:image/png;base64,AA==',complete:true,gps:{status:'captured',lat:-0.2,lng:-78.5,accuracy:8,at:new Date().toISOString()}}]);
+  await assert.rejects(db.query('select gama_tms_capture($1)',[{delivery_id:id(10),request_key:uuid(),captured_at:new Date().toISOString(),signature:'data:image/png;base64,AA==',complete:true,gps:{status:'captured',lat:-0.2,lng:-78.5,accuracy:8,at:new Date().toISOString()}}]),/RECEIPT_QUANTITIES_REQUIRED/);
+  const ctx=(await db.query('select gama_tms_execution($1,$2) r',['context',{delivery_id:id(10)}])).rows[0].r;
+  await db.query('select gama_tms_execution($1,$2)',['receive',{delivery_id:id(10),version:ctx.delivery.version,request_key:uuid(),occurred_at:new Date().toISOString(),receiver_name:'Cliente',signature:'data:image/png;base64,AA==',reason:'Seis recibidas; cuatro ya retornadas',lines:ctx.lines.filter(l=>+l.remaining>0).map(l=>({id:l.id,accepted:+l.remaining,refused:0,missing:0,deferred:0})),gps:{status:'captured',lat:-0.2,lng:-78.5,accuracy:8,at:new Date().toISOString()}}]);
   const proof=(await db.query('select * from tms_proofs_read where delivery_id=$1',[id(10)])).rows[0];assert.equal(proof.latitude,-0.2);assert.equal(proof.gps_accuracy_m,8);assert.ok(proof.received_at);
-  const metrics=(await db.query('select gama_tms_metrics($1,$2) r',[dates.day,dates.tomorrow])).rows[0].r;assert.equal(metrics.delivered,1);assert.equal(metrics.drivers[0].incidents,1);
-  await as(admin);const audit=(await db.query('select gama_audit_trail($1) r',[{kind:'transfer'}])).rows[0].r;for(const label of ['Ruta de entrega ajustada','Entrega completada','Cobro en la entrega','Entrega parcial y retorno','Entrega reprogramada'])assert.ok(audit.items.some(x=>x.label===label),label);
+  await as(admin);const metrics=(await db.query('select gama_tms_metrics($1,$2) r',[dates.day,dates.tomorrow])).rows[0].r;assert.equal(metrics.delivered,0);assert.equal(metrics.partial,1);assert.equal(metrics.drivers[0].incidents,2);
+  await as(admin);const audit=(await db.query('select gama_audit_trail($1) r',[{kind:'transfer'}])).rows[0].r;for(const label of ['Ruta de entrega ajustada','Cobro en la entrega','Entrega parcial y retorno','Entrega reprogramada'])assert.ok(audit.items.some(x=>x.label===label),label);
   await as(seller);await assert.rejects(action('context',{delivery_id:id(10)}),/TMS_ACCESS_DENIED/);
   await db.exec('reset role');await db.query('update customers set address=$1 where id=$2',['New address',customer]);assert.equal((await db.query('select lat from customers where id=$1',[customer])).rows[0].lat,null);
  }finally{await db.close()}

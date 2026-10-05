@@ -17,3 +17,5 @@ Les accents principaux sont `#157F98`, `#10677D`, `#238FA4` et `#F87826`. Les to
 La barre latérale et la barre supérieure restent blanches. Les titres d’introduction de l’accueil ont été retirés ; les tuiles gardent leur bordure fine et leur personnalisation. Une photo d’employé peut remplacer les initiales du profil.
 
 Les rapports de contraste historiques ne doivent pas être réutilisés après une modification de couleurs : vérifier le couple texte/fond réellement calculé, y compris les surcharges du thème.
+
+Les tableaux de tous les modules utilisent désormais la vue tableau par défaut, y compris en portrait sur téléphone. Les cellules possèdent des bordures horizontales et verticales visibles (`--arc-table-grid` dans `src/ui/components.css`) ; les en-têtes et cellules vides gardent leur alignement. Les grands tableaux défilent dans leur propre zone. Le sélecteur permet toujours un choix explicite des cartes, conservé par compte et tableau (`src/ui/tables.js`).

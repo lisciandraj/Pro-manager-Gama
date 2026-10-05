@@ -10,7 +10,7 @@ for(const width of [390,1440])test(`manual mail handoff preserves content and re
  if(!await page.evaluate(()=>!!window.CocoFlows))await page.addScriptTag({url:'/coco-flow-tools.js'});
  await page.evaluate(()=>{
   window.__mailCalls=[];window.__draft={id:'11111111-1111-4111-8111-111111111111',kind:'invoice_reminder',state:'draft',recipient:'client+test@example.com',subject:'GAMA · facture & suivi',body:'Bonjour Ana,\nSolde : 115 USD.\nLien : https://example.invalid/?a=1&b=2\nMerci !'};
-  const original=ArcData.rpc;ArcData.rpc=async(name,args)=>{if(name!=='gama_messages')return original(name,args);__mailCalls.push(args);if(args.p_action==='context')return {mode:'manual',outbox:[__draft]};if(args.p_action==='manual_sent'){__draft.state='sent_manually';__draft.manual_sent_at=new Date().toISOString();return {state:__draft.state}}return {...__draft}};
+  const original=GamaCloud.db;GamaCloud.db=async()=>{const client=await original();return {...client,rpc:async(name,args)=>{if(name!=='gama_messages')return client.rpc(name,args);__mailCalls.push(structuredClone(args));if(args.p_action==='context')return {data:{mode:'manual',outbox:[structuredClone(__draft)]}};if(args.p_action==='manual_sent'){__draft.state='sent_manually';__draft.manual_sent_at=new Date().toISOString();return {data:{state:__draft.state}}}return {data:structuredClone(__draft)}}}};
  });
  await page.evaluate(()=>CocoFlows.messages());await page.locator('[data-message-draft]').click();
  await expect(page.locator('[data-compose=gmail]')).toBeVisible();
@@ -20,6 +20,8 @@ for(const width of [390,1440])test(`manual mail handoff preserves content and re
  }
  expect(await page.evaluate(()=>__mailCalls.filter(c=>c.p_action==='manual_sent').length)).toBe(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.screenshot({path:'test-results/gama-manual-mail-'+width+'.png',fullPage:true});
+ await page.getByRole('button',{name:'Confirmer l’envoi',exact:true}).click();expect(await page.evaluate(()=>__mailCalls.filter(c=>c.p_action==='manual_sent').length)).toBe(0);
  await page.locator('[name=confirmed]').check();await page.getByRole('button',{name:'Confirmer l’envoi',exact:true}).click();
  await expect(page.locator('[data-message-draft]')).toHaveCount(0);expect(await page.evaluate(()=>__mailCalls.filter(c=>c.p_action==='manual_sent').map(c=>c.p_data.confirmed))).toEqual([true]);await expect(page.locator('dialog').last()).toContainText('confirmation manuelle');
 });

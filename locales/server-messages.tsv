@@ -34,3 +34,27 @@ The previous document must belong to the same employee	El documento anterior deb
 Upload the document first	Sube primero el documento.
 Validate payroll first	Valida primero la nómina.
 Validated payroll is immutable	Una nómina validada no se puede modificar.
+PAYROLL_CHOICE_DATE_REVIEW_REQUIRED	Solicita a RRHH la revisión de una elección fuera del plazo o del mes actual.
+PAYROLL_MINIMUM_SALARY_REQUIRED	El sueldo contractual es inferior al mínimo vigente proporcional a la jornada.
+PAYROLL_PARAMETERS_REVIEW_REQUIRED	Confirma los parámetros del año antes de calcular.
+EC_COMPANY_REQUIRED	Configura la empresa en Ecuador y en USD.
+PAYROLL_CONTRACT_REQUIRED	Completa el sueldo y las fechas del contrato en la ficha del empleado.
+PAYROLL_EMPLOYEE_CHOICES_REQUIRED	Registra las opciones del empleado y su solicitud escrita.
+PAYROLL_WORKED_DAYS_INVALID	Revisa los días trabajados dentro del contrato.
+PAYROLL_INVALID_AMOUNT	Revisa los importes. No se admiten valores negativos ni descuentos superiores al ingreso.
+PAYROLL_RESERVE_DAYS_REVIEW_REQUIRED	Indica los días con derecho a fondos de reserva en el mes de aniversario.
+PAYROLL_RESERVE_DAYS_INVALID	Los días de reserva superan los días trabajados con derecho.
+PAYROLL_RECALCULATE_REQUIRED	Los datos cambiaron. Calcula y revisa otra vez antes de validar.
+PAYROLL_ALREADY_VALIDATED	La nómina validada conserva sus importes. Abre el rol registrado.
+PAYROLL_UTILITIES_WORKFORCE_REVIEW_REQUIRED	Revisa la plantilla completa, incluidos los exempleados del ejercicio.
+PAYROLL_UTILITIES_ZERO_FAMILY_REVIEW_REQUIRED	No hay cargas acreditadas. Confirma con Contabilidad el criterio de reparto del 5%.
+PAYROLL_UTILITIES_DECLARATION_REQUIRED	La provisión definitiva requiere el ejercicio cerrado y la declaración de renta revisada.
+PAYROLL_BANK_DETAILS_REQUIRED	Completa y revisa los datos bancarios de todos los beneficiarios.
+PAYROLL_ACCRUAL_MONTHS_REQUIRED	Faltan nóminas validadas en el periodo de acumulación.
+PAYROLL_ACCRUAL_PERIOD_OPEN	El periodo de acumulación sigue abierto.
+PAYROLL_ACCRUAL_EXTERNAL_REVIEW_REQUIRED	Revisa los décimos de las nóminas externas antes de liquidar.
+PAYROLL_ACCRUAL_EMPTY	No hay décimos acumulados pendientes en este periodo.
+PAYROLL_ACCRUAL_ALREADY_RELEASED	La nómina financia un décimo ya liquidado. Revisa el beneficio antes de anular.
+PAYROLL_NOT_FOUND	El rol no está disponible para esta cuenta.
+SIGNATURE_REQUIRED	Firma dentro del recuadro antes de confirmar.
+PAYROLL_EMPLOYEE_SIGNATURE_REQUIRED	Sólo el empleado puede firmar su rol validado.

@@ -64,7 +64,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build:storefront
-      - run: npx playwright test tests/storefront.spec.js tests/sri-integration.spec.js tests/dossier-flow.spec.js tests/accounting.spec.js tests/fulfillment.spec.js tests/quote-adjust.spec.js tests/select-search.spec.js tests/product-identity.spec.js tests/inventory-quants.spec.js tests/inventory-count.spec.js tests/inventory.spec.js tests/stock-workspace.spec.js tests/audit-controls.spec.js tests/audit-trail.spec.js tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/pdf-on-demand.spec.js tests/reference-formats.spec.js tests/table-controls.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/returns.spec.js tests/website-preview.spec.js tests/surveys.spec.js tests/contacts.spec.js tests/crm-contacts.spec.js tests/dashboard-analysis.spec.js tests/employee-photos.spec.js --workers=2
+      - run: npx playwright test tests/storefront.spec.js tests/b2b-portal.spec.js tests/sri-integration.spec.js tests/dossier-flow.spec.js tests/accounting.spec.js tests/fulfillment.spec.js tests/quote-adjust.spec.js tests/select-search.spec.js tests/product-identity.spec.js tests/inventory-quants.spec.js tests/inventory-count.spec.js tests/inventory.spec.js tests/stock-workspace.spec.js tests/audit-controls.spec.js tests/audit-trail.spec.js tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/pdf-on-demand.spec.js tests/reference-formats.spec.js tests/table-controls.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/returns.spec.js tests/website-preview.spec.js tests/surveys.spec.js tests/contacts.spec.js tests/collections.spec.js tests/crm-contacts.spec.js tests/dashboard-analysis.spec.js tests/employee-photos.spec.js --workers=2
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -72,6 +72,7 @@ jobs:
           name: gama-storefront-layout
           path: |
             test-results/public-storefront-*.png
+            test-results/gama-b2b-*.png
             test-results/gama-*.png
           if-no-files-found: ignore
           retention-days: 7
@@ -95,5 +96,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install requests==2.32.5
+      - run: pip install requests==2.32.5 lxml==6.0.1 reportlab==4.4.3 pypdf==6.10.0
       - run: python -m unittest discover -s tests -p 'test_sri*.py' -v

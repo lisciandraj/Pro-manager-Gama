@@ -4620,3 +4620,272 @@ Elige una caja o cuenta bancaria activa.	Choisissez une caisse ou un compte banc
 No hay una factura abierta para este cobro.	Aucune facture ouverte pour cet encaissement.	There is no open invoice for this payment.
 Confirma la salida antes de registrar esta operación.	Confirmez le départ avant d’enregistrer cette opération.	Confirm departure before recording this operation.
 Registra primero el motivo del fallo.	Enregistrez d’abord le motif de l’échec.	Record the failure reason first.
+Facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra vinculadas a sus documentos de origen.	Factures, avoirs, retenues, guides de transport et liquidations d’achat liés à leurs documents d’origine.	Invoices, credit notes, withholdings, delivery guides and purchase settlements linked to their source documents.
+Notas de crédito, retenciones y guías	Avoirs, retenues et guides de transport	Credit notes, withholdings and delivery guides
+Reponer y preparar nota de crédito SRI	Remettre en stock et préparer l’avoir SRI	Restock and prepare SRI credit note
+Guía de remisión	Guide de transport	Delivery guide
+Guía de remisión PDF	Guide de transport PDF	Delivery guide PDF
+Liquidación de compra	Liquidation d’achat	Purchase settlement
+Comprobante de retención	Certificat de retenue	Withholding certificate
+Documentos electrónicos SRI	Documents électroniques SRI	SRI electronic documents
+Preparar documento SRI	Préparer le document SRI	Prepare SRI document
+Dirección de salida	Adresse de départ	Departure address
+Identificación del transportista	Identifiant du transporteur	Carrier identification
+Fin del transporte	Fin du transport	Transport end
+Las líneas y el IVA deben coincidir con la factura proveedor.	Les lignes et la TVA doivent correspondre à la facture fournisseur.	The lines and VAT must match the supplier invoice.
+Retenciones del proveedor	Retenues du fournisseur	Supplier withholdings
+Cuenta de retenciones por pagar	Compte des retenues à payer	Withholding liability account
+Vigente hasta	En vigueur jusqu’au	Valid until
+Fuente y revisión fiscal	Source et validation fiscale	Source and tax review
+Revisa los códigos y porcentajes vigentes según la condición fiscal del proveedor.	Vérifiez les codes et taux en vigueur selon le statut fiscal du fournisseur.	Review the current codes and rates for the supplier’s tax status.
+Compras pendientes de revisión	Achats en attente de validation	Purchases awaiting review
+Preparar compras verificadas	Préparer les achats vérifiés	Prepare reviewed purchases
+Referencia ERP	Référence ERP	ERP reference
+Descartar para ajustar la ruta	Écarter pour modifier la tournée	Discard to adjust the route
+No hay documentos de este tipo.	Aucun document de ce type.	No documents of this type.
+Los documentos pendientes se consultan por la misma clave de acceso. No se vuelven a emitir.	Les documents en attente sont consultés avec la même clé d’accès. Ils ne sont pas réémis.	Pending documents are checked using the same access key. They are never issued again.
+Confirma el ambiente y los datos fiscales. El documento se enviará una sola vez.	Confirmez l’environnement et les données fiscales. Le document sera envoyé une seule fois.	Confirm the environment and tax details. The document will be submitted once.
+Reponer y preparar nota de crédito	Remettre en stock et préparer l’avoir	Restock and prepare credit note
+Validar devolución	Valider le retour	Validate return
+Ubicación de reposición	Emplacement de remise en stock	Restocking location
+Productos inspeccionados	Produits inspectés	Products inspected
+Motivo de la nota de crédito	Motif de l’avoir	Credit note reason
+La mercancía debe estar recibida e inspeccionada. La reposición y la preparación fiscal se guardan juntas.	La marchandise doit être reçue et inspectée. La remise en stock et la préparation fiscale sont enregistrées ensemble.	Goods must be received and inspected. Restocking and tax preparation are saved together.
+La guía todavía está pendiente de autorización.	Le guide attend encore son autorisation.	The guide is still awaiting authorization.
+La ruta todavía no tiene guía de remisión.	La tournée n’a pas encore de guide de transport.	The route has no delivery guide yet.
+Ruta seleccionada	Tournée sélectionnée	Selected route
+Guía preparada. Revisa y envía desde Facturación SRI.	Guide préparé. Vérifiez et envoyez depuis Facturation SRI.	Guide prepared. Review and submit it from SRI invoicing.
+Importar retención XML del cliente	Importer la retenue XML du client	Import customer withholding XML
+Importar retención recibida	Importer une retenue reçue	Import received withholding
+Verificar y aplicar a las facturas	Vérifier et appliquer aux factures	Verify and apply to invoices
+Selecciona el XML del cliente. El SRI verifica la autorización; las facturas se identifican por RUC y número fiscal. La retención reduce el saldo sin registrar un ingreso bancario.	Sélectionnez le XML du client. Le SRI vérifie son autorisation ; les factures sont identifiées par RUC et numéro fiscal. La retenue réduit le solde sans entrée bancaire.	Select the customer XML. The SRI verifies its authorization; invoices are matched by RUC and fiscal number. Withholding reduces balances without recording a bank receipt.
+XML de retención	XML de la retenue	Withholding XML
+Cuenta de retenciones IR recibidas	Compte des retenues IR reçues	Received income withholding account
+Cuenta de retenciones IVA recibidas	Compte des retenues IVA reçues	Received VAT withholding account
+Retención aplicada a las facturas verificadas.	Retenue appliquée aux factures vérifiées.	Withholding applied to verified invoices.
+Formularios 103 y 104	Formulaires 103 et 104	Forms 103 and 104
+Documentar anulación fiscal	Documenter une annulation fiscale	Record fiscal cancellation
+Anulaciones documentadas	Annulations documentées	Documented cancellations
+Baja en portal SRI	Radiation sur le portail SRI	Deregistered in SRI portal
+Preparación mensual para revisión. No presenta declaraciones al SRI. Confirma el factor de crédito tributario, los saldos anteriores y los datos fiscales antes de declarar.	Préparation mensuelle à vérifier. Aucune déclaration SRI n’est déposée. Confirmez le facteur de crédit fiscal, les soldes antérieurs et les données fiscales avant de déclarer.	Monthly preparation for review. No SRI return is submitted. Confirm the tax credit factor, prior balances and fiscal details before filing.
+Factor de crédito tributario (0 a 1)	Facteur de crédit fiscal (0 à 1)	Tax credit factor (0 to 1)
+Crédito del mes anterior	Crédit du mois précédent	Prior month tax credit
+Recalcular	Recalculer	Recalculate
+Exportar preparación 103 y 104	Exporter la préparation 103 et 104	Export preparation for 103 and 104
+Formulario 104 · IVA	Formulaire 104 · IVA	Form 104 · VAT
+Formulario 103 · Retenciones IR	Formulaire 103 · Retenues IR	Form 103 · Income withholding
+IVA generado según el libro	IVA généré selon le livre comptable	VAT generated in the ledger
+IVA de compras según el libro	IVA des achats selon le livre comptable	Purchase VAT in the ledger
+Crédito tributario aplicable	Crédit fiscal applicable	Applicable tax credit
+IVA retenido por clientes	IVA retenu par les clients	VAT withheld by customers
+IVA propio por pagar	IVA propre à payer	Own VAT payable
+Crédito para el mes siguiente	Crédit pour le mois suivant	Tax credit carried forward
+IVA retenido a proveedores por pagar	IVA retenu aux fournisseurs à payer	Withheld supplier VAT payable
+Comprobantes pendientes de revisión	Documents à vérifier	Documents pending review
+Comprobantes	Justificatifs	Documents
+Registra la fecha y la evidencia de la anulación. Las bajas efectuadas en el portal SRI se excluyen del ATS.	Enregistrez la date et le justificatif de l’annulation. Les radiations effectuées sur le portail SRI sont exclues de l’ATS.	Record the cancellation date and evidence. Deregistrations through the SRI portal are excluded from ATS.
+Factura de gestión anulada	Facture de gestion annulée	Cancelled management invoice
+Secuencial inicial	Premier numéro séquentiel	First sequential number
+Secuencial final	Dernier numéro séquentiel	Last sequential number
+Fecha de anulación	Date d’annulation	Cancellation date
+Códigos de establecimientos ATS	Codes des établissements ATS	ATS establishment codes
+Fecha del comprobante	Date du document	Document date
+Código del documento original	Code du document original	Original document code
+Número fiscal original	Numéro fiscal original	Original fiscal number
+Autorización del documento original	Autorisation du document original	Original document authorization
+
+Automático	Automatique	Automatic
+Cédula ecuatoriana	Cédula équatorienne	Ecuadorian identity card
+RUC persona natural	RUC personne physique	Individual RUC
+RUC sociedad	RUC société	Company RUC
+RUC institución pública	RUC organisme public	Public institution RUC
+RUC extranjero asignado	RUC étranger attribué	Assigned foreign RUC
+Documento extranjero	Document étranger	Foreign identification
+Consumidor final	Consommateur final	Final consumer
+Crédito bloqueado · solicita aprobación	Crédit bloqué · demander une approbation	Credit blocked · request approval
+Crédito disponible	Crédit disponible	Available credit
+Exposición total	Encours total	Total exposure
+Pedidos sin facturar	Commandes non facturées	Unbilled orders
+Balance por antigüedad	Balance âgée	Aged receivables
+0–30 días	0–30 jours	0–30 days
+Estado de cuenta y recordatorio	État de compte et relance	Account statement and reminder
+Los saldos incluyen pagos, notas de crédito, retenciones y ajustes registrados.	Les soldes incluent les paiements, avoirs, retenues et ajustements enregistrés.	Balances include recorded payments, credit notes, withholdings and adjustments.
+Adjuntamos su estado de cuenta actualizado.	Vous trouverez ci-joint votre état de compte actualisé.	Please find your updated account statement attached.
+Fecha de corte	Date de situation	Statement date
+Le agradeceríamos confirmar la fecha prevista de pago. Si ya pagó, envíenos el comprobante para actualizar el saldo.	Merci de confirmer la date de paiement prévue. Si vous avez déjà payé, envoyez-nous le justificatif pour actualiser le solde.	Please confirm the expected payment date. If you have already paid, send us the receipt to update your balance.
+Descargar estado de cuenta PDF	Télécharger l’état de compte PDF	Download account statement PDF
+Preparar correo con estado de cuenta	Préparer un courriel avec l’état de compte	Prepare email with account statement
+Preparar WhatsApp	Préparer un message WhatsApp	Prepare WhatsApp message
+Revisa el mensaje antes de enviar y adjunta el PDF descargado.	Vérifiez le message avant l’envoi et joignez le PDF téléchargé.	Review the message before sending and attach the downloaded PDF.
+Completa el teléfono con el código de país.	Complétez le téléphone avec l’indicatif du pays.	Complete the phone number with the country code.
+Separador decimal	Séparateur décimal	Decimal separator
+Punto · 1,234.56	Point · 1,234.56	Dot · 1,234.56
+Coma · 1.234,56	Virgule · 1.234,56	Comma · 1.234,56
+Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.	Colonnes : date, référence, description et montant, ou débit et crédit. Vérifiez l’aperçu et corrigez les lignes en erreur avant l’import.	Columns: date, reference, description and amount, or debit and credit. Review the preview and correct invalid rows before importing.
+Corrige el archivo antes de importar. Ninguna línea con errores se importa.	Corrigez le fichier avant l’import. Aucune ligne en erreur n’est importée.	Correct the file before importing. Invalid rows are never imported.
+Movimientos importados	Mouvements importés	Transactions imported
+Líneas válidas	Lignes valides	Valid rows
+Corrige todos los errores del archivo.	Corrigez toutes les erreurs du fichier.	Correct all errors in the file.
+Elige un cobro existente o una factura pendiente. Ninguna correspondencia se aplica sola.	Choisissez un encaissement existant ou une facture à régler. Aucune proposition n’est appliquée automatiquement.	Choose an existing receipt or an outstanding invoice. Suggestions are never applied automatically.
+Registrar cobro y conciliar	Enregistrer l’encaissement et rapprocher	Record receipt and reconcile
+Cobro o pago ya registrado	Encaissement ou paiement déjà enregistré	Receipt or payment already recorded
+No se encontró ninguna correspondencia. Busca la factura por cliente o referencia.	Aucune correspondance trouvée. Recherchez la facture par client ou référence.	No match found. Search for the invoice by customer or reference.
+Cliente o referencia de factura	Client ou référence de facture	Customer or invoice reference
+Se retira la asociación con el extracto. El cobro o pago permanece registrado; su anulación se revisa en el documento original.	Le lien avec le relevé est retiré. L’encaissement ou le paiement reste enregistré ; son annulation se traite dans le document d’origine.	The statement association is removed. The receipt or payment remains recorded; review cancellation in the original document.
+Revisa las fechas e importes del extracto. No se admiten fechas futuras ni importes inválidos.	Vérifiez les dates et montants du relevé. Les dates futures et montants invalides sont refusés.	Review statement dates and amounts. Future dates and invalid amounts are rejected.
+Importa entre 1 y 1000 movimientos por archivo.	Importez entre 1 et 1000 mouvements par fichier.	Import between 1 and 1000 transactions per file.
+Selecciona una cuenta activa con cuenta contable y moneda configuradas.	Sélectionnez un compte actif avec son compte comptable et sa devise configurés.	Select an active account with a configured ledger account and currency.
+La operación ya fue registrada con otros datos. Cierra el formulario y vuelve a abrirlo.	L’opération a déjà été enregistrée avec d’autres données. Fermez le formulaire puis rouvrez-le.	The operation was already recorded with different data. Close and reopen the form.
+El movimiento ya está conciliado. Actualiza la lista.	Le mouvement est déjà rapproché. Actualisez la liste.	The transaction is already reconciled. Refresh the list.
+El cobro o pago ya se vinculó a otro movimiento.	L’encaissement ou le paiement est déjà lié à un autre mouvement.	The receipt or payment is already linked to another transaction.
+El cobro o pago cambió. Actualiza las correspondencias.	L’encaissement ou le paiement a changé. Actualisez les correspondances.	The receipt or payment changed. Refresh the suggestions.
+Necesitas permiso para validar la conciliación.	Vous devez avoir le droit de valider le rapprochement.	You need permission to validate reconciliation.
+CSV inválido: comillas fuera de una celda.	CSV invalide : guillemets en dehors d’une cellule.	Invalid CSV: quotes outside a cell.
+CSV inválido: texto después de cerrar comillas.	CSV invalide : texte après les guillemets fermants.	Invalid CSV: text after closing quotes.
+CSV inválido: faltan comillas de cierre.	CSV invalide : guillemets fermants manquants.	Invalid CSV: missing closing quotes.
+Fecha inválida. Usa AAAA-MM-DD o DD/MM/AAAA.	Date invalide. Utilisez AAAA-MM-JJ ou JJ/MM/AAAA.	Invalid date. Use YYYY-MM-DD or DD/MM/YYYY.
+Fecha inexistente.	Cette date n’existe pas.	This date does not exist.
+Signo de importe inválido.	Signe du montant invalide.	Invalid amount sign.
+Importe inválido.	Montant invalide.	Invalid amount.
+Separador decimal inválido.	Séparateur décimal invalide.	Invalid decimal separator.
+Importe ambiguo: elige el separador decimal.	Montant ambigu : choisissez le séparateur décimal.	Ambiguous amount: choose the decimal separator.
+El importe debe tener como máximo dos decimales.	Le montant doit avoir au maximum deux décimales.	Amounts must have at most two decimal places.
+Separador de miles inválido.	Séparateur de milliers invalide.	Invalid thousands separator.
+Importe fuera de rango.	Montant hors limites.	Amount out of range.
+No se reconocen las columnas del CSV. Usa fecha, referencia, descripción e importe, o débito y crédito.	Colonnes CSV non reconnues. Utilisez date, référence, description et montant, ou débit et crédit.	Unrecognized CSV columns. Use date, reference, description and amount, or debit and credit.
+El archivo no contiene movimientos.	Le fichier ne contient aucun mouvement.	The file contains no transactions.
+El archivo supera 1000 movimientos. Divide el extracto antes de importar.	Le fichier dépasse 1000 mouvements. Divisez le relevé avant l’import.	The file exceeds 1000 transactions. Split the statement before importing.
+Usa un débito o un crédito positivo por movimiento.	Utilisez un débit ou un crédit positif par mouvement.	Use a positive debit or credit per transaction.
+El signo no coincide con el tipo crédito.	Le signe ne correspond pas au type crédit.	The sign does not match the credit type.
+Tipo de movimiento desconocido. Usa D o C.	Type de mouvement inconnu. Utilisez D ou C.	Unknown transaction type. Use D or C.
+El movimiento debe tener un importe distinto de cero.	Le montant du mouvement doit être différent de zéro.	The transaction amount must be nonzero.
+La referencia o descripción supera el tamaño permitido.	La référence ou la description dépasse la taille autorisée.	The reference or description exceeds the allowed length.
+Nómina calculada para Ecuador	Paie calculée pour l’Équateur	Calculated Ecuador payroll
+Parámetros de nómina	Paramètres de paie	Payroll parameters
+Salario básico unificado	Salaire de base unifié	Unified basic salary
+Aporte personal IESS (%)	Cotisation salariale IESS (%)	Employee IESS contribution (%)
+Aporte patronal IESS (%)	Cotisation patronale IESS (%)	Employer IESS contribution (%)
+Prima mínima de salud parcial (%)	Cotisation santé minimale à temps partiel (%)	Minimum part-time health premium (%)
+Fondos de reserva (%)	Fonds de réserve (%)	Reserve funds (%)
+Otros aportes patronales (%)	Autres cotisations patronales (%)	Other employer contributions (%)
+Utilidades por tiempo (%)	Participation aux bénéfices selon le temps (%)	Profit sharing by time (%)
+Utilidades por cargas (%)	Participation aux bénéfices selon les personnes à charge (%)	Profit sharing by dependents (%)
+Verifica el SBU, los aportes y las reglas aplicables. Cada confirmación conserva una versión.	Vérifiez le SBU, les cotisations et les règles applicables. Chaque confirmation conserve une version.	Verify the SBU, contributions and applicable rules. Each confirmation retains a version.
+Fuente y revisión	Source et vérification	Source and review
+Confirmar parámetros	Confirmer les paramètres	Confirm parameters
+Confirma los parámetros del año antes de calcular.	Confirmez les paramètres de l’année avant le calcul.	Confirm the year's parameters before calculating.
+Configura la empresa en Ecuador y en USD.	Configurez l’entreprise en Équateur et en USD.	Configure the company in Ecuador and in USD.
+Completa el sueldo y las fechas del contrato en la ficha del empleado.	Complétez le salaire et les dates du contrat sur la fiche de l’employé.	Complete the salary and contract dates on the employee record.
+Registra las opciones del empleado y su solicitud escrita.	Enregistrez les choix de l’employé et sa demande écrite.	Record the employee's choices and written request.
+Revisa los días trabajados dentro del contrato.	Vérifiez les jours travaillés pendant le contrat.	Review days worked within the contract.
+Revisa los importes. No se admiten valores negativos ni descuentos superiores al ingreso.	Vérifiez les montants. Les valeurs négatives et les retenues supérieures au revenu sont refusées.	Review amounts. Negative values and deductions exceeding income are rejected.
+Indica los días con derecho a fondos de reserva en el mes de aniversario.	Indiquez les jours ouvrant droit à la réserve pendant le mois anniversaire.	Specify eligible reserve days in the anniversary month.
+Los días de reserva superan los días trabajados con derecho.	Les jours de réserve dépassent les jours travaillés ouvrant droit.	Reserve days exceed eligible days worked.
+Los datos cambiaron. Calcula y revisa otra vez antes de validar.	Les données ont changé. Recalculez et vérifiez avant la validation.	Data changed. Recalculate and review before validating.
+La nómina validada conserva sus importes. Abre el rol registrado.	Les montants de la paie validée sont conservés. Ouvrez le bulletin enregistré.	Validated payroll retains its amounts. Open the recorded payslip.
+Revisa la plantilla completa, incluidos los exempleados del ejercicio.	Vérifiez tout le personnel, y compris les anciens employés de l’exercice.	Review the entire workforce, including former employees from the year.
+No hay cargas acreditadas. Confirma con Contabilidad el criterio de reparto del 5%.	Aucune personne à charge n’est attestée. Confirmez avec la comptabilité le mode de répartition des 5 %.	No dependents are verified. Confirm the 5% distribution method with Accounting.
+La provisión definitiva requiere el ejercicio cerrado y la declaración de renta revisada.	La provision définitive exige un exercice clos et une déclaration de revenus vérifiée.	The final provision requires a closed year and reviewed income tax declaration.
+Completa y revisa los datos bancarios de todos los beneficiarios.	Complétez et vérifiez les coordonnées bancaires de tous les bénéficiaires.	Complete and review all beneficiaries' bank details.
+Faltan nóminas validadas en el periodo de acumulación.	Des paies validées manquent dans la période d’accumulation.	Validated payroll is missing from the accrual period.
+El periodo de acumulación sigue abierto.	La période d’accumulation reste ouverte.	The accrual period is still open.
+Revisa los décimos de las nóminas externas antes de liquidar.	Vérifiez les décimos des paies externes avant leur liquidation.	Review benefits from external payroll before settlement.
+No hay décimos acumulados pendientes en este periodo.	Aucun décimo accumulé à liquider dans cette période.	No accrued benefits are outstanding in this period.
+La nómina financia un décimo ya liquidado. Revisa el beneficio antes de anular.	La paie finance un décimo déjà liquidé. Vérifiez la prestation avant l’annulation.	The payroll funds an already settled benefit. Review the benefit before cancelling.
+El rol no está disponible para esta cuenta.	Le bulletin n’est pas disponible pour ce compte.	This payslip is unavailable to this account.
+Firma dentro del recuadro antes de confirmar.	Signez dans le cadre avant de confirmer.	Sign inside the box before confirming.
+Sólo el empleado puede firmar su rol validado.	Seul l’employé peut signer son bulletin validé.	Only the employee can sign their validated payslip.
+El sueldo contractual es inferior al mínimo vigente proporcional a la jornada.	Le salaire contractuel est inférieur au minimum en vigueur proportionnel au temps de travail.	The contract salary is below the current minimum proportional to working time.
+Solicita a RRHH la revisión de una elección fuera del plazo o del mes actual.	Demandez aux RH de vérifier un choix hors délai ou hors du mois actuel.	Ask HR to review a choice outside the deadline or current month.
+Días remunerados (máx. 30)	Jours rémunérés (max. 30)	Paid days (max. 30)
+Ingresos remunerativos adicionales	Rémunération supplémentaire	Additional remuneration
+IR calculado por el responsable	IR calculé par le responsable	Income tax calculated by the manager
+Otros descuentos autorizados	Autres retenues autorisées	Other authorized deductions
+Días con derecho a reserva (opcional)	Jours ouvrant droit à la réserve (facultatif)	Eligible reserve days (optional)
+El sueldo contractual procede de la ficha. Los décimos acumulados y la reserva depositada al IESS forman obligaciones; no se suman al neto.	Le salaire contractuel provient de la fiche. Les décimos accumulés et la réserve déposée à l’IESS constituent des dettes ; ils ne sont pas ajoutés au net.	The contract salary comes from the employee record. Accrued benefits and reserves deposited with IESS are liabilities and are excluded from net pay.
+Calcular y revisar	Calculer et vérifier	Calculate and review
+Guardar nómina calculada	Enregistrer la paie calculée	Save calculated payroll
+Opciones y banco del empleado	Choix et banque de l’employé	Employee choices and bank
+Exportar nómina para depósito bancario	Exporter la paie pour les virements bancaires	Export payroll for bank deposit
+Décimos y utilidades	Décimos et participation aux bénéfices	Annual benefits and profit sharing
+Calcular provisión de utilidades	Calculer la provision pour participation aux bénéfices	Calculate profit-sharing provision
+Liquidar décimos acumulados	Liquider les décimos accumulés	Settle accrued benefits
+Las utilidades se calculan sobre el beneficio anual declarado. Los trabajadores y exempleados se revisan por días, jornada y cargas acreditadas.	La participation se calcule sur le bénéfice annuel déclaré. Vérifiez les jours, le temps de travail et les personnes à charge des employés et anciens employés.	Profit sharing uses declared annual profit. Review days, working time and verified dependents for employees and former employees.
+Beneficios liquidados	Prestations liquidées	Settled benefits
+Cargando nómina ecuatoriana…	Chargement de la paie équatorienne…	Loading Ecuador payroll…
+Mensualizado	Mensualisé	Paid monthly
+Acumulado	Accumulé	Accrued
+Décimo tercero	Treizième mois équatorien	Thirteenth salary
+Décimo cuarto	Quatorzième mois équatorien	Fourteenth salary
+Fondos de reserva	Fonds de réserve	Reserve funds
+Sueldo proporcional	Salaire proportionnel	Proportional salary
+Aporte personal IESS	Cotisation salariale IESS	Employee IESS contribution
+Aporte patronal IESS	Cotisation patronale IESS	Employer IESS contribution
+Complemento de salud por jornada parcial	Complément santé pour le temps partiel	Part-time health supplement
+Otros aportes patronales	Autres cotisations patronales	Other employer contributions
+IR revisado	IR vérifié	Reviewed income tax
+Otros descuentos	Autres retenues	Other deductions
+Utilidades	Participation aux bénéfices	Profit sharing
+Pago directo	Versement direct	Direct payment
+Depósito al IESS	Dépôt à l’IESS	Deposit with IESS
+Región del décimo cuarto	Région du quatorzième mois	Fourteenth salary region
+Costa e Insular	Côte et îles	Coast and islands
+Sierra y Amazonía	Sierra et Amazonie	Highlands and Amazon
+Jornada / jornada completa	Temps de travail / temps complet	Working time / full time
+Mínimo sectorial mensual (0 = SBU)	Minimum sectoriel mensuel (0 = SBU)	Monthly sector minimum (0 = SBU)
+Afiliación a jornada completa con otro empleador acreditada	Affiliation à temps complet chez un autre employeur attestée	Verified full-time affiliation with another employer
+Tipo de cuenta	Type de compte	Account type
+Ahorros	Épargne	Savings
+Corriente	Compte courant	Checking
+Identificación del beneficiario	Identifiant du bénéficiaire	Beneficiary identification
+Solicitud escrita y revisión	Demande écrite et vérification	Written request and review
+La elección se guarda para este mes y los siguientes. El sueldo es el mensual contractual, también en jornada parcial.	Le choix est enregistré pour ce mois et les suivants. Le salaire est le montant contractuel mensuel, aussi à temps partiel.	The choice applies to this month and following months. Salary means the monthly contract amount, including part-time work.
+Se exportan sólo importes validados pendientes de pago. El CSV se revisa y adapta al formato del banco; descargarlo no registra ni envía una transferencia.	Seuls les montants validés restant à payer sont exportés. Vérifiez et adaptez le CSV au format bancaire ; son téléchargement ne crée ni n’envoie de virement.	Only validated outstanding amounts are exported. Review and adapt the CSV to the bank format; downloading it neither records nor sends a transfer.
+Incluir beneficios liquidados pendientes	Inclure les prestations liquidées restant à payer	Include outstanding settled benefits
+Rol de pagos	Bulletin de paie	Payslip
+Descargar rol PDF	Télécharger le bulletin PDF	Download payslip PDF
+Firmar recepción del rol	Signer la réception du bulletin	Sign payslip acknowledgment
+Días remunerados	Jours rémunérés	Paid days
+Días de reserva	Jours de réserve	Reserve days
+Acuse de recibo del empleado	Accusé de réception de l’employé	Employee acknowledgment
+Firmado el	Signé le	Signed on
+Huella del rol	Empreinte du bulletin	Payslip fingerprint
+Firma del empleado pendiente	Signature de l’employé en attente	Employee signature pending
+Los importes proceden del rol registrado y sus pagos. La firma acredita la recepción del documento.	Les montants proviennent du bulletin enregistré et de ses paiements. La signature atteste la réception du document.	Amounts come from the recorded payslip and its payments. The signature acknowledges receipt of the document.
+Confirmar firma	Confirmer la signature	Confirm signature
+Firma con el dedo o el ratón. Se registra tu cuenta y la hora del servidor.	Signez avec le doigt ou la souris. Votre compte et l’heure du serveur sont enregistrés.	Sign with your finger or mouse. Your account and server time are recorded.
+Firma del empleado	Signature de l’employé	Employee signature
+Borrar firma	Effacer la signature	Clear signature
+Confirmo que recibí y revisé este rol de pagos.	Je confirme avoir reçu et vérifié ce bulletin de paie.	I confirm I received and reviewed this payslip.
+Confirmar provisión revisada	Confirmer la provision vérifiée	Confirm reviewed provision
+Ejercicio	Exercice	Financial year
+Beneficio líquido declarado	Bénéfice net déclaré	Declared net profit
+Declaración y revisión anual	Déclaration et vérification annuelle	Declaration and annual review
+Revisé los días, la jornada y las cargas de toda la plantilla, incluidos los exempleados.	J’ai vérifié les jours, le temps de travail et les personnes à charge de tout le personnel, anciens employés compris.	I reviewed days, working time and dependents for the whole workforce, including former employees.
+Sin cargas acreditadas	Sans personnes à charge attestées	No verified dependents
+Revisión necesaria	Vérification nécessaire	Review required
+Reparto por días confirmado por Contabilidad	Répartition par jours confirmée par la comptabilité	Distribution by days confirmed by Accounting
+Calcula y revisa los importes antes de confirmar.	Calculez et vérifiez les montants avant de confirmer.	Calculate and review amounts before confirming.
+Jornada	Temps de travail	Working time
+Cargas acreditadas	Personnes à charge attestées	Verified dependents
+Provisión total	Provision totale	Total provision
+Por tiempo	Selon le temps	By working time
+Por cargas	Selon les personnes à charge	By dependents
+Año de pago	Année du versement	Payment year
+Revisión del periodo	Vérification de la période	Period review
+Se suman sólo nóminas validadas acumuladas. Se conserva el coste ya provisionado y se reconoce el beneficio a pagar.	Seules les paies validées accumulées sont additionnées. Le coût déjà provisionné est conservé et la prestation à payer est enregistrée.	Only validated accrued payroll is summed. Previously provisioned cost is retained and the benefit payable is recognized.
+Registrar pago de beneficio	Enregistrer le paiement de la prestation	Record benefit payment
+IR retenido a empleados	IR retenu aux employés	Employee income tax withheld
+Las nóminas validadas cuentan como coste; los pagos reducen el saldo y no duplican el coste.	Les paies validées constituent un coût ; les paiements réduisent le solde sans doubler le coût.	Validated payroll counts as cost; payments reduce the balance without duplicating cost.
+Devoluciones y posventa	Retours et service après-vente	Returns and after-sales service
+Reclamaciones	Réclamations	Claims
+Dirección · este mes	Direction · ce mois	Management · this month
+Ventas netas del mes	Ventes nettes du mois	Monthly net sales
+Margen comercial estimado	Marge commerciale estimée	Estimated sales margin
+Cartera vencida	Créances échues	Overdue receivables
+Stock sin salida · 90 días	Stock sans sortie · 90 jours	Stock without dispatch · 90 days
+Referencias agotadas	Références épuisées	Out-of-stock products
+Saldos y alertas actuales	Soldes et alertes actuels	Current balances and alerts
+facturas sin coste completo	factures sans coût complet	invoices without complete cost
+Ventas sin impuestos, después de abonos. El margen usa el coste histórico de las expediciones y recupera el coste de los productos repuestos. Si faltan costes, se muestra pendiente de revisión. Stock sin rotación valorado al coste de compra actual.	Ventes hors taxes, après avoirs. La marge utilise le coût historique des expéditions et récupère le coût des produits remis en stock. Les coûts manquants nécessitent une vérification. Le stock dormant est valorisé au coût d’achat actuel.	Sales exclude tax and credit notes. Margin uses historical dispatch cost and recovers the cost of restocked goods. Missing costs require review. Dormant stock uses current purchase cost.
+Revisar mínimos y máximos · ventas 90 días	Revoir les minimums et maximums · ventes sur 90 jours	Review minimums and maximums · 90-day sales

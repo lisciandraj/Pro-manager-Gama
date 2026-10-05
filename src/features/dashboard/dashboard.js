@@ -9,7 +9,7 @@ const shift=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()
 const num=v=>v==null?'—':Number(v).toLocaleString(locale(),{maximumFractionDigits:1});
 const money=(v,currency=snapshot?.currency)=>v==null?'—':window.GamaCurrency.format(v,currency||undefined);
 const active=()=>$('dashboard')?.classList.contains('active')&&allowed('dashboard');
-let snapshot=null,generation=0,updated=0,inflight=null,abort=null,range={preset:'month',from:day().slice(0,8)+'01',to:day()};
+let executive=null,snapshot=null,generation=0,updated=0,inflight=null,abort=null,range={preset:'month',from:day().slice(0,8)+'01',to:day()};
 let showAll=false,priorities=null,prioritiesFailed=false;const roleView=()=>{try{const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;return ['almacenero','magasinier'].includes(role)?'logistics':['comercial','commercial'].includes(role)?'sales':'management'}catch{return 'management'}};let view=roleView();
 const definitions=[
  ['payments','Ventas y cobros',[['current.net','Facturado sin impuestos','money','period'],['current.collected','Cobros confirmados','money','period'],['receivable','Pendiente de cobro','money'],['overdue','Cobros vencidos','money']]],
@@ -138,6 +138,11 @@ function priorityPanel(s,has){
  const hidden=items.length-TONES.reduce((n,[tone])=>n+Math.min(6,items.filter(x=>x.tone===tone).length),0);
  return `<article class="arcPanel adPriorities"><div class="adHeading"><div><h2>${E(t('Prioridades de hoy'))}</h2><p>${E(t('Las acciones de seguimiento comercial y logístico. No cambian con el periodo de análisis.'))}</p></div><span class="adDate">${E(date(snapshot.today))}</span></div>${prioritiesFailed?`<p class="adNotice" role="alert">${E(t('No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.'))}</p>`:''}<div class="adPrioBoard">${columns}</div>${hidden>0||showAll?`<div class="arcToolbar"><button type="button" class="arcButton ghost" id="ad-all-alerts">${E(t(showAll?'Ver menos':'Ver todas las prioridades'))} (${num(items.length)})</button></div>`:''}</article>`;
 }
+function executivePanel(){
+ if(view!=='management'||!executive?.metrics)return '';const m=executive.metrics;
+ const fields=[['sales_month','Ventas netas del mes','money','payments'],['margin_month','Margen comercial estimado','money','payments'],['overdue','Cartera vencida','money','payments'],['dormant_stock_value','Stock sin salida · 90 días','money','warehouses'],['stockouts','Referencias agotadas','number','warehouses'],['late_deliveries','Entregas atrasadas','number','tms']];
+ return `<article class="arcPanel adExecutive"><div class="adHeading"><div><h2>${E(t('Dirección · este mes'))}</h2><p>${E(date(executive.month_start))} — ${E(date(executive.today))} · ${E(t('Saldos y alertas actuales'))}</p></div></div><div class="adMetrics">${fields.filter(([key])=>Object.prototype.hasOwnProperty.call(m,key)).map(([key,label,format,module])=>`<div class="arcPanel adMetric" data-ad-executive="${E(key)}"><small>${E(t(label))}</small><strong>${E(format==='money'?money(m[key]):num(m[key]))}</strong>${go(module,'Abrir módulo')}</div>`).join('')}</div><p class="adFootnote">${E(t('Ventas sin impuestos, después de abonos. El margen usa el coste histórico de las expediciones y recupera el coste de los productos repuestos. Si faltan costes, se muestra pendiente de revisión. Stock sin rotación valorado al coste de compra actual.'))}${m.margin_missing_invoices?` ${num(m.margin_missing_invoices)} ${E(t('facturas sin coste completo'))}.`:''}</p></article>`;
+}
 function render(){
  if(!snapshot||!active())return;shell();syncTools();const s=snapshot.sections,p=snapshot.period,has=id=>Object.hasOwn(s,id)&&sourceVisible(id);
  const unavailable=(snapshot.unavailable||[]).filter(id=>allowed(id)),modules=Object.keys(s).filter(sourceVisible),cards=[];
@@ -151,7 +156,7 @@ function render(){
  if(view==='sales'&&has('crm')){cards.push(metric('crm','Pipeline ponderado',s.crm?.weighted,'Potencial × probabilidad · oportunidades abiertas',undefined,'money','weighted'));cards.push(metric('crm','Oportunidades ganadas',s.crm?.won,'Ganadas en el periodo · antes de facturar',undefined,'money','won'))}
  $('ad-content').innerHTML=`<div class="adMeta"><span>${E(date(p.from))} — ${E(date(p.to))} <small>· ${E(t('Comparación'))} ${E(date(p.previous_from))} — ${E(date(p.previous_to))}</small></span><span>${E(t('Actualizado'))} ${E(new Date(snapshot.generated_at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}))}</span></div>
  ${unavailable.length?`<p class="adNotice" role="alert">${E(t('Datos parciales. Fuentes no disponibles:'))} ${unavailable.map(id=>E(t(moduleDef(id)?.label||id))).join(', ')}. ${E(t('Actualiza para reintentar.'))}</p>`:''}
- <div class="adMetrics">${cards.join('')}</div>
+ ${executivePanel()}<div class="adMetrics">${cards.join('')}</div>
  ${priorityPanel(s,has)}
  ${has('payments')?financial(s.payments):''}${has('accounting')?accounting(s.accounting):''}
  <div class="adActivities"><div class="adHeading"><div><h2>${E(t('La empresa por actividad'))}</h2><p>${E(t('Situación actual. Los valores marcados «Periodo» siguen las fechas seleccionadas.'))}</p></div><span class="adDate">${num(modules.filter(id=>!unavailable.includes(id)).length)} ${E(t('fuentes conectadas'))}</span></div>
@@ -200,16 +205,18 @@ async function refresh(force=false){
    let query=c.rpc('gama_company_dashboard',{p_from:range.from,p_to:range.to});if(query.abortSignal)query=query.abortSignal(signal);
    let follow=c.rpc('gama_dashboard_priorities');if(follow.abortSignal)follow=follow.abortSignal(signal);
    const followed=Promise.resolve(follow).then(x=>x,error=>({error}));
+   let direction;if(roleView()==='management'){direction=c.rpc('gama_management_overview',{p_context:'dashboard'});if(direction.abortSignal)direction=direction.abortSignal(signal)}
+   const directed=direction?Promise.resolve(direction).then(x=>x,error=>({error})):Promise.resolve({data:null});
    const r=await Promise.race([query,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TIMEOUT'))},20000)})]);
    if(r.error)throw r.error;if(!r.data||!r.data.sections||!r.data.period||r.data.user_id!==session.user.id)throw Error('INVALID_DASHBOARD');
-   const p=await followed;if(token!==generation||!active())return;
+   const [p,d]=await Promise.all([followed,directed]);if(token!==generation||!active())return;executive=d.error?null:d.data;
    priorities=p.error||!Array.isArray(p.data?.items)?null:p.data;prioritiesFailed=!priorities;if(prioritiesFailed)console.warn('[dashboard] prioridades',p.error?.code||p.error?.message||'INVALID');
    snapshot=r.data;loadPreferences(snapshot.user_id);updated=Date.now();render();
   }catch(error){if(token!==generation||!active())return;console.warn('[dashboard]',error.code||error.message);snapshot=null;$('ad-content').innerHTML=`<div class="arcPanel adNotice" role="alert"><p>${E(t('No se han podido cargar los indicadores. Actualiza para reintentar.'))}</p><button type="button" class="arcButton secondary" id="ad-retry">${E(t('Reintentar'))}</button></div>`;$('ad-retry').onclick=()=>refresh(true);
   }finally{clearTimeout(timer);if(token===generation){inflight=null;$('ad-content')?.removeAttribute('aria-busy')}}
  })();inflight=run;await run;
 }
-function invalidate(){generation++;abort?.abort();inflight=null;snapshot=null;priorities=null;prioritiesFailed=false;updated=0;showAll=false;view=roleView();preferenceOwner=null;prefs=normalizePrefs(null);activity='all';chartType='bars';document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
+function invalidate(){generation++;abort?.abort();inflight=null;executive=null;snapshot=null;priorities=null;prioritiesFailed=false;updated=0;showAll=false;view=roleView();preferenceOwner=null;prefs=normalizePrefs(null);activity='all';chartType='bars';document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
 window.ArchitectDashboard={refresh};
 window.addEventListener('arc:route-change',e=>{if(e.detail?.id==='dashboard')refresh()});
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id==='dashboard'){generation++;abort?.abort();inflight=null;updated=0}});

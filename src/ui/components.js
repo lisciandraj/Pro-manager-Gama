@@ -133,7 +133,7 @@ export function bindTabs(root,onChange) {
    pantalla cierra la ventana: lo que se acaba de abrir queda a la vista. */
 export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onSelect=()=>{},onClose=()=>{}}) {
   const el=document.createElement('dialog');el.className='arcSideDialog';el.id=id;el.setAttribute('aria-labelledby',prefix+'Title');
-  el.innerHTML=`<div class="arcSideDialogHead"><h2 id="${esc(prefix)}Title"><span data-gi-live>${esc(title)}</span></h2><button type="button" class="arcButton arcIconBtn" data-side-close aria-label="Cerrar" data-gi-aria-label="live"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>`
+  el.innerHTML=`<div class="arcSideDialogHead"><h2 id="${esc(prefix)}Title"><span data-gi-live>${esc(title)}</span></h2><button type="button" class="arcButton arcIconBtn" data-side-close data-gi-aria-label=aeccae342e4b aria-label="Cerrar" data-gi-aria-label="live"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>`
     +`<div class="arcSideDialogBody"><nav class="arcSideNav" aria-label="${esc(navLabel)}" data-gi-aria-label="live"><div class="arcSideList" role="tablist" aria-orientation="vertical"></div></nav>`
     +`<div class="arcSidePanes">${panes.map(p=>`<div role="tabpanel" id="${esc(prefix)}Pane-${esc(p.id)}" data-side-pane="${esc(p.id)}" tabindex="0" hidden>${p.html||''}</div>`).join('')}</div></div>`;
   const list=el.querySelector('[role=tablist]');

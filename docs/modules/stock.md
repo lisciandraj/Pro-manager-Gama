@@ -36,3 +36,11 @@ La priorité A rassemble les produits qui concentrent les premiers 80 % du capit
 Les API publiques sont `SECURITY INVOKER` et délèguent à des fonctions privées contrôlant Auth, MFA, rôle et activation du module. L’agrégateur interne n’est pas exécutable par les clients. Les droits du cache Coco Intelligence restent inchangés. Les nouveaux champs et index sont ajoutés par `20261004191646_stock_workspace_improvements.sql`.
 
 Les règles sont testées par restauration complète dans PGlite avec des données isolées (`tests/stock-workspace-db.test.cjs`). Les parcours, chargements différés, reprises et affichages mobiles sont testés avec un transport mémoire dans `tests/stock-workspace.spec.js`, en complément des tests Stock et inventaires existants.
+
+## Seuils proposés sur les ventes
+
+« Revisar mínimos y máximos · ventas 90 días » ouvre une lecture distincte des seuils : seules les quantités réellement expédiées aux clients pendant les 90 derniers jours comptent. Les sorties manuelles, la production, les transferts et les commandes en brouillon sont exclus. La moyenne est quantité / 90 ; le minimum couvre 1,5 fois le délai et le maximum ajoute 14 jours, arrondis à l’unité supérieure. Le délai configuré est utilisé ; l’estimation de 7 jours est explicitement signalée. Aucun seuil n’est proposé sans ventes récentes.
+
+Le responsable valide un produit en un clic. Le serveur recontrôle les ventes et les réglages, puis actualise le produit et sa règle globale dans la même transaction, avec une clé de reprise. Une règle propre à un entrepôt n’est pas remplacée par une règle globale. Aucun achat, réservation ou mouvement physique n’est créé. Les autorisations Produits/modifier et Stock/valider sont requises.
+
+La fiche fournisseur compare aussi délai promis et délai réel jusqu’à la dernière réception. Le taux de livraison incomplète mesure les lignes manquantes lors de la **première** réception, même si un reliquat est reçu plus tard. Le nombre de commandes effectivement mesurées est affiché ; les dates utilisent le fuseau ERP. Tests : `tests/ec-b2b-management-stock-db.test.cjs`.

@@ -104,6 +104,9 @@ def signed_invoice(xml, issue, key):
     The SRI verifies XAdES; this check does not claim independent cryptographic
     signature validation. Reject entities, duplicate fields and altered lines.
     """
+    if issue.get('document_type', '01') != '01':
+        from .documents import signed_document
+        return signed_document(xml, issue, key)
     if not isinstance(xml, str) or len(xml.encode('utf-8')) > MAX_BYTES:
         raise ValueError('SRI_INVALID_AUTHORIZED_XML')
     if re.search(r'<!\s*(DOCTYPE|ENTITY)', xml, re.I):
@@ -185,6 +188,9 @@ class OpenApiSriClient:
             raise ValueError('SRI_OPENAPI_ENVIRONMENT_MISMATCH')
         if issue['environment'] == 'produccion' and self.env.get('SRI_PRODUCTION_ENABLED') != 'true':
             raise ValueError('SRI_PRODUCTION_NOT_ENABLED')
+        if issue.get('document_type', '01') != '01':
+            from .openapi_documents import payload
+            return payload(issue, self.env.get('SRI_OPENAPI_ACCOUNTING', ''))
         return factura_payload(issue, self.env.get('SRI_OPENAPI_ACCOUNTING', ''))
 
     def request(self, method, path, *, payload=None, params=None, binary=False, login=False):
@@ -227,6 +233,10 @@ class OpenApiSriClient:
 
     def preflight(self, issue):
         payload = self.check(issue)
+        if issue.get('document_type', '01') != '01':
+            # Upstream only has a factura preview route. Validate the exact
+            # bundled schema/DTO locally; never use an emission as a preview.
+            return {'ready': True, 'provider': 'openapi'}
         # Preview validates tenant access and DTO without signing or emission.
         result = self.request('POST', '/sri/preview/factura', payload=payload)
         if not isinstance(result.get('xml'), str):
@@ -235,7 +245,8 @@ class OpenApiSriClient:
 
     def submit(self, issue):
         payload = self.check(issue)
-        result = self.request('POST', '/sri/emitir/factura', payload=payload)
+        from .openapi_documents import ROUTES
+        result = self.request('POST', '/sri/emitir/' + ROUTES[issue.get('document_type', '01')], payload=payload)
         if result.get('estado') == 'EN_COLA':
             # This violates the synchronous deployment contract. Keep the claim.
             return {'status': 'processing', 'provider_status': 'EN_COLA', 'review_required': True}
@@ -248,7 +259,7 @@ class OpenApiSriClient:
         found = []
         for page in range(1, 11):
             response = self.request('GET', '/sri/comprobantes', params={
-                'rucEmisor': issue['issuer_ruc'], 'tipoComprobante': '01',
+                'rucEmisor': issue['issuer_ruc'], 'tipoComprobante': issue.get('document_type', '01'),
                 'establecimiento': issue['establishment'], 'puntoEmision': issue['emission_point'],
                 'fechaDesde': issue['snapshot']['issue_date'], 'fechaHasta': issue['snapshot']['issue_date'],
                 'page': page, 'limit': 100})
@@ -261,8 +272,9 @@ class OpenApiSriClient:
                     if (row.get('rucEmisor') != issue['issuer_ruc']
                             or row.get('establecimiento') != issue['establishment']
                             or row.get('puntoEmision') != issue['emission_point']
-                            or row.get('identificacionComprador') != issue['snapshot']['identification']
-                            or cents(row.get('total', '-1')) != cents(issue['snapshot']['total'])):
+                            or (issue.get('document_type', '01') == '01' and
+                                (row.get('identificacionComprador') != issue['snapshot']['identification']
+                                 or cents(row.get('total', '-1')) != cents(issue['snapshot']['total'])))):
                         raise ValueError('SRI_OPENAPI_SERIES_COLLISION')
                     found.append(validate_key(row.get('claveAcceso'), issue))
             pages = response.get('meta', {}).get('totalPages')

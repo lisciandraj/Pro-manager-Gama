@@ -479,6 +479,26 @@
     {
       "source": "src/features/transport/tracking.js",
       "output": "gama-tms-tracking.js"
+    },
+    {
+      "source": "src/features/finance/sri-documents.js",
+      "output": "gama-sri-documents.js"
+    },
+    {
+      "source": "src/features/sales/collections.js",
+      "output": "gama-collections.js"
+    },
+    {
+      "source": "src/domain/bank-statement.js",
+      "output": "gama-bank-statement.js"
+    },
+    {
+      "source": "src/features/hr/ecuador.js",
+      "output": "gama-hr-ecuador.js"
+    },
+    {
+      "source": "src/storefront/b2b.js",
+      "output": "gama-b2b.js"
     }
   ],
   "styles": [
@@ -545,6 +565,10 @@
     {
       "source": "src/styles/modules/tms-tracking.css",
       "output": "gama-tms-tracking.css"
+    },
+    {
+      "source": "src/storefront/b2b.css",
+      "output": "gama-b2b.css"
     }
   ],
   "moduleStyles": [

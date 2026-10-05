@@ -11,9 +11,10 @@ import smtplib
 from email.message import EmailMessage
 from fastapi import FastAPI, HTTPException, Request
 from .openapi import OpenApiSriClient
-from .engine import access_key, invoice_xml, sign_xml, send_sri, authorize_sri, ride_pdf
+from .reconcile import lifespan, configuration as reconcile_configuration
+from .engine import access_key, document_xml, sign_xml, send_sri, authorize_sri, ride_pdf
 
-app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
 
 
 def validate(issue):
@@ -30,7 +31,7 @@ def notify(issue, xml, pdf):
     if not email:
         raise ValueError('SRI_CUSTOMER_EMAIL_MISSING')
     msg = EmailMessage()
-    msg['Subject'] = 'Factura electronica ' + issue['establishment'] + '-' + issue['emission_point'] + '-' + issue['sequential']
+    msg['Subject'] = 'Comprobante electronico ' + issue['establishment'] + '-' + issue['emission_point'] + '-' + issue['sequential']
     msg['From'] = os.environ['SRI_SMTP_FROM']
     msg['To'] = email
     msg.set_content('Adjuntamos el comprobante electronico autorizado por el SRI y su RIDE.')
@@ -57,8 +58,23 @@ async def execute(request: Request):
                 ready = os.getenv('SRI_OPENAPI_ACCOUNTING') in ('SI', 'NO')
             else:
                 ready = provider == 'private_worker' and bool(os.getenv('SRI_P12_BASE64') and os.getenv('SRI_P12_PASSWORD'))
-            return {'configured': ready, 'provider': provider,
+            documents = ['01', '03', '04', '06', '07'] if provider == 'private_worker' else ['01', '04', '06', '07']
+            if os.getenv('SRI_P12_BASE64') and os.getenv('SRI_P12_PASSWORD') and '03' not in documents:
+                documents.append('03')
+            return {'configured': ready, 'provider': provider, 'document_types': documents,
+                    'reconciliation_enabled': reconcile_configuration() is not None,
                     'environment': os.getenv('SRI_OPENAPI_ENVIRONMENT') if provider == 'openapi' else None}
+        if action in ('received_inspect', 'verify_received', 'verify_received_batch'):
+            from .received import inspect_authorized, verify, verify_batch
+            raw=base64.b64decode(data['xml_base64'], validate=True)
+            if action == 'received_inspect':
+                return inspect_authorized(raw,os.environ['SRI_ISSUER_RUC'])
+            invoices=data['invoices'] if action=='verify_received_batch' else [data['invoice']]
+            if not isinstance(invoices,list) or not 1 <= len(invoices) <= 50 or any(not isinstance(i,dict) for i in invoices):
+                raise ValueError('SRI_RECEIVED_FIELDS_INVALID')
+            if any(i['issuer_ruc'] != os.environ['SRI_ISSUER_RUC'] for i in invoices):
+                raise ValueError('SRI_CERTIFICATE_ISSUER_MISMATCH')
+            return verify_batch(raw,invoices) if action=='verify_received_batch' else verify(raw,invoices[0])
         issue = data['issue']
         validate(issue)
         if action in ('openapi_preflight', 'openapi_submit', 'openapi_refresh'):
@@ -68,7 +84,7 @@ async def execute(request: Request):
             client = OpenApiSriClient()
             return getattr(client, action.removeprefix('openapi_'))(issue)
         if action == 'sign':
-            xml, key = invoice_xml(issue)
+            xml, key = document_xml(issue)
             if issue.get('access_key') and issue['access_key'] != key:
                 raise ValueError('SRI_ACCESS_KEY_MISMATCH')
             p12 = base64.b64decode(os.environ['SRI_P12_BASE64'], validate=True)
@@ -83,6 +99,8 @@ async def execute(request: Request):
                 raise ValueError('SRI_ACCESS_KEY_MISMATCH')
             response = authorize_sri(issue['access_key'], issue['environment'])
             if response['status'] == 'authorized':
+                from .openapi import signed_invoice
+                signed_invoice(response['authorized_xml'], issue, issue['access_key'])
                 issue['authorization'] = response['authorization']
                 response['ride_pdf'] = base64.b64encode(ride_pdf(issue)).decode()
                 response['authorized_xml'] = base64.b64encode(response['authorized_xml'].encode()).decode()

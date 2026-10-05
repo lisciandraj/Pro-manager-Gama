@@ -107,16 +107,16 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();if(embedded?.isConnected){window.ArcUI.render(embedded,'<div id="grMain" aria-live="polite"></div>');return embedded}let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Devoluciones, abonos y reembolsos'})
+ window.ArcUI.render(s,GamaUI.header({title:'Devoluciones y posventa',lead:'Devoluciones, reclamaciones, abonos y reembolsos'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('grNav');if(!host)return;
- const summaryTabs=[['all','Todos'],['customer','Clientes'],['supplier','Proveedores']];
+ const summaryTabs=[['all','Todos'],['customer','Clientes'],['supplier','Proveedores'],...(window.gamaAccessAllowed?.('sav')?[['sav','Reclamaciones']]:[])];
  window.ArcUI.render(host,summaryTabs.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="arcButton ${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join(''));
- host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{detailId=null;tab=b.dataset.grTab;filters.partner='';pageOffset=0;go()});
+ host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.grTab==='sav'){window.GamaService?.open();return}detailId=null;tab=b.dataset.grTab;filters.partner='';pageOffset=0;go()});
 }
 function busy(){window.ArcUI.render($('grMain'),`<p class="arcPanel grCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
@@ -374,7 +374,7 @@ function processView(d){
   {title:'Tratamiento',state:d.status==='to_process'?'pending':d.status==='received'?'active':'done',need:'Decidir producto por producto: stock, rebut o devolución al proveedor.',
    body:(d.status==='to_process'?'':decisions)+(d.status==='received'&&pending?`<p class="grHint">${tr('La mercancía está retenida: no cuenta como disponible hasta que decidas.')}</p>`:'')},
   {title:'Acción financiera',state:financialDone?'done':['processed','received'].includes(d.status)?'active':'pending',need:'Elegir la acción financiera —ninguna, abono, reembolso o crédito— y ejecutarla.',
-   body:money_+docs(creditDocs)+`<div class="grActions">${open&&r.refund?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}${open&&r.refund&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('Emitir un abono')}</button>`:''}${open&&r.refund&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('Reembolsar')}</button>`:''}</div>${!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}`},
+   body:money_+docs(creditDocs)+`<div class="grActions">${open&&r.refund?`<button class="arcButton secondary" id="grFinancial">${tr('Elegir la acción financiera')}</button>`:''}${open&&r.refund&&d.invoice_id&&['received','processed'].includes(d.status)?`<button class="arcButton primary" id="grSriComplete">${tr('Reponer y preparar nota de crédito SRI')}</button>`:''}${open&&r.refund&&d.invoice_id?`<button class="arcButton secondary" id="grCredit">${tr('Emitir un abono')}</button>`:''}${open&&r.refund&&outstanding>0?`<button class="arcButton secondary" id="grRefund">${tr('Reembolsar')}</button>`:''}</div>${!d.invoice_id?`<p class="grHint">${tr('Esta devolución no viene de una factura: no se puede emitir un abono, sólo reembolsar.')}</p>`:''}`},
   {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':d.status==='processed'?'active':'pending',need:'Cerrar la devolución cuando todo esté tratado.',
    body:open&&(r.process||r.refund)&&d.status==='processed'?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('Cerrar la devolución')}</button></div>`:''}
  ]:[
@@ -432,6 +432,7 @@ function bindDetail(d){
  $('grReceive')?.addEventListener('click',()=>receiveForm(id));
  $('grShip')?.addEventListener('click',()=>shipForm(id));
  $('grFinancial')?.addEventListener('click',()=>financialForm(d));
+ $('grSriComplete')?.addEventListener('click',()=>window.GamaSriDocuments.completeReturn(d,()=>go()).catch(e=>window.gamaToast?.(err(e))));
  $('grCredit')?.addEventListener('click',()=>creditForm(d));
  $('grRefund')?.addEventListener('click',()=>refundForm(d));
  $('grSupplierCredit')?.addEventListener('click',()=>supplierCreditForm(d));

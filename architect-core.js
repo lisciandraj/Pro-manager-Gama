@@ -102,6 +102,9 @@
     const messages = { AUTH_REQUIRED: "Vuelve a iniciar sesión.", ROLE_NOT_ALLOWED: "Tu perfil no puede realizar esta operación.", PM_FORBIDDEN: "Tu perfil no puede realizar esta operación.", "23505": "Ya existe un registro con estos datos.", "23503": "Este registro está vinculado a otros documentos.", PM_CONFLICT: "Los datos cambiaron. Actualiza antes de guardar.", NETWORK_ERROR: "Comprueba la conexión y vuelve a intentarlo." };
     const specific = (_a = e.message.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0];
     const audit = {
+      EC_IDENTIFICATION_INVALID: ["Revisa el RUC o la cédula y su tipo. El dígito verificador no coincide.", "Vérifiez le RUC ou la cédula et son type. Le chiffre de contrôle ne correspond pas.", "Check the RUC or cédula and its type. The check digit does not match."],
+      PARTNER_IDENTIFICATION_DUPLICATE: ["Ya existe un contacto con esta identificación. Abre su ficha para actualizarlo.", "Un contact possède déjà cette identification. Ouvrez sa fiche pour le mettre à jour.", "A contact with this identification already exists. Open its record to update it."],
+      DOCUMENT_CHANGED: ["La situación cambió. Actualiza la solicitud de aprobación.", "La situation a changé. Actualisez la demande d’approbation.", "The situation changed. Refresh the approval request."],
       STOCK_REQUIRES_MOVEMENT: ["El stock requiere un movimiento con ubicación.", "Le stock nécessite un mouvement avec emplacement.", "Stock requires a located movement."],
       INDEPENDENT_APPROVER_REQUIRED: ["Se requiere otro validador o una excepción autorizada y justificada.", "Un autre validateur est requis, ou une exception autorisée et justifiée.", "A different approver or an authorized justified exception is required."],
       ADJUSTMENT_APPROVAL_REQUIRED: ["Registra una solicitud de ajuste para su validación.", "Enregistrez une demande d’ajustement à valider.", "Submit an adjustment request for approval."],
@@ -314,7 +317,7 @@
     el.className = "arcSideDialog";
     el.id = id;
     el.setAttribute("aria-labelledby", prefix + "Title");
-    el.innerHTML = `<div class="arcSideDialogHead"><h2 id="${escapeHtml(prefix)}Title"><span data-gi-live>${escapeHtml(title)}</span></h2><button type="button" class="arcButton arcIconBtn" data-side-close aria-label="Cerrar" data-gi-aria-label="live"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="arcSideDialogBody"><nav class="arcSideNav" aria-label="${escapeHtml(navLabel)}" data-gi-aria-label="live"><div class="arcSideList" role="tablist" aria-orientation="vertical"></div></nav><div class="arcSidePanes">${panes.map((p) => `<div role="tabpanel" id="${escapeHtml(prefix)}Pane-${escapeHtml(p.id)}" data-side-pane="${escapeHtml(p.id)}" tabindex="0" hidden>${p.html || ""}</div>`).join("")}</div></div>`;
+    el.innerHTML = `<div class="arcSideDialogHead"><h2 id="${escapeHtml(prefix)}Title"><span data-gi-live>${escapeHtml(title)}</span></h2><button type="button" class="arcButton arcIconBtn" data-side-close data-gi-aria-label=aeccae342e4b aria-label="Cerrar" data-gi-aria-label="live"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="arcSideDialogBody"><nav class="arcSideNav" aria-label="${escapeHtml(navLabel)}" data-gi-aria-label="live"><div class="arcSideList" role="tablist" aria-orientation="vertical"></div></nav><div class="arcSidePanes">${panes.map((p) => `<div role="tabpanel" id="${escapeHtml(prefix)}Pane-${escapeHtml(p.id)}" data-side-pane="${escapeHtml(p.id)}" tabindex="0" hidden>${p.html || ""}</div>`).join("")}</div></div>`;
     const list = el.querySelector("[role=tablist]");
     list.__arcTabs = true;
     let items = [], selected = null;
@@ -572,9 +575,9 @@
     hasPhoto: !!(p.has_photo || p.photo_data),
     photo: text(p.photo_data)
   });
-  const customerFromRow = (c) => ({ id: c.id, taxId: text(c.identification), name: text(c.name), category: c.category || "A", address: text(c.address), phone: text(c.phone), email: text(c.email), city: text(c.city), province: text(c.province), postalCode: text(c.postal_code), country: text(c.country), notes: text(c.notes), paymentTermsDays: c.payment_terms_days ?? null, lat: c.lat ?? null, lng: c.lng ?? null, active: c.active !== false });
-  const supplierFromRow = (s) => ({ id: s.id, taxId: text(s.tax_id), name: text(s.name), contactName: text(s.contact_name), address: text(s.address), phone: text(s.phone), email: text(s.email), city: text(s.city), province: text(s.province), postalCode: text(s.postal_code), country: text(s.country), notes: text(s.notes), active: s.active !== false });
-  const supplierToRow = (s) => ({ name: s.name, tax_id: s.taxId || null, contact_name: s.contactName || null, address: s.address || null, phone: s.phone || null, email: s.email || null, city: s.city || null, province: s.province || null, postal_code: s.postalCode || null, country: s.country || null, notes: s.notes || null, active: s.active !== false });
+  const customerFromRow = (c) => ({ id: c.id, taxId: text(c.identification), identificationKind: c.identification_kind || "auto", name: text(c.name), category: c.category || "A", address: text(c.address), phone: text(c.phone), email: text(c.email), city: text(c.city), province: text(c.province), postalCode: text(c.postal_code), country: text(c.country), notes: text(c.notes), paymentTermsDays: c.payment_terms_days ?? null, lat: c.lat ?? null, lng: c.lng ?? null, active: c.active !== false });
+  const supplierFromRow = (s) => ({ id: s.id, taxId: text(s.tax_id), identificationKind: s.identification_kind || "auto", name: text(s.name), contactName: text(s.contact_name), address: text(s.address), phone: text(s.phone), email: text(s.email), city: text(s.city), province: text(s.province), postalCode: text(s.postal_code), country: text(s.country), notes: text(s.notes), active: s.active !== false });
+  const supplierToRow = (s) => ({ name: s.name, tax_id: s.taxId || null, identification_kind: s.identificationKind || "auto", contact_name: s.contactName || null, address: s.address || null, phone: s.phone || null, email: s.email || null, city: s.city || null, province: s.province || null, postal_code: s.postalCode || null, country: s.country || null, notes: s.notes || null, active: s.active !== false });
   const formatAddress = (c = {}) => [...new Set([c.address, c.city, c.province, c.postalCode ?? c.postal_code, c.country].map((v) => String(v ?? "").trim()).filter(Boolean))].join(", ");
   const legacyProduct = (p) => {
     const x = productFromRow(p);
@@ -725,7 +728,7 @@
     { id: "surveys", label: "Encuestas", icon: "checklist", group: "Ventas", description: "Cuestionarios, respuestas y satisfacción", accent: "teal", order: 7.2, menu: true, roles: ["admin", "commercial"] },
     { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: ["admin"] },
     { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
-    { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: true, roles: ["admin", "commercial"] },
+    { id: "sav", label: "Reclamaciones", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: false, tabOf: "returns", roles: ["admin", "commercial"] },
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
       "id": "tms",
@@ -1039,14 +1042,14 @@
     },
     {
       "id": "returns",
-      "label": "Devoluciones",
+      "label": "Devoluciones y posventa",
       "icon": "returnArrow",
       "group": "Logística",
       "description": "Devoluciones, abonos y reembolsos",
       "accent": "teal",
       "order": 7,
       "menu": true,
-      "configLabel": "Devoluciones",
+      "configLabel": "Devoluciones y posventa",
       "roles": [
         "admin",
         "commercial",
@@ -1271,8 +1274,8 @@
       return (_a = window.GamaFleet) == null ? void 0 : _a.open();
     },
     returns: () => {
-      var _a;
-      return (_a = window.GamaReturns) == null ? void 0 : _a.open();
+      var _a, _b, _c;
+      return ((_a = window.gamaAccessAllowed) == null ? void 0 : _a.call(window, "returns")) ? (_b = window.GamaReturns) == null ? void 0 : _b.open() : (_c = window.GamaService) == null ? void 0 : _c.open();
     },
     projects: () => {
       var _a;
@@ -1586,6 +1589,7 @@
     "accounting": {
       "global": "GamaAccounting",
       "file": "gama-accounting.js",
+      "dependencies": ["gama-sri-documents.js"],
       "methods": [
         "openSri",
         "mountSriConfig",
@@ -1606,6 +1610,7 @@
     "returns": {
       "global": "GamaReturns",
       "file": "gama-returns.js",
+      "dependencies": ["gama-sri-documents.js"],
       "methods": [
         "open",
         "openReturn",
@@ -1633,7 +1638,7 @@
     "tms": {
       "global": "gamaTMS",
       "file": "gama-tms-module.js",
-      "dependencies": ["gama-tms-delivery-operations.js"],
+      "dependencies": ["gama-tms-delivery-operations.js", "gama-sri-documents.js"],
       "methods": [
         "open",
         "openDelivery",

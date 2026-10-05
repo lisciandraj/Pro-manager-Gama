@@ -163,3 +163,48 @@ Les nouvelles factures, règlements, dépenses et retours sont comptabilisés da
 La clôture annuelle transfère le résultat à la réserve configurée et ferme les douze mois. Les écritures provenant d’un document s’annulent depuis leur module d’origine, afin de conserver la cohérence du solde commercial et du livre. Les écritures manuelles peuvent être contrepassées.
 
 Le [rapport de comparaison](../audits/2026-10-02-accounting-ecuador.md) décrit les fonctions existantes conservées, les ajouts, les contrôles et les limites restantes. Le [mode d’emploi](accounting-ecuador-guide.md) explique l’ordre des réglages. Ne pas confondre un brouillon ATS valide selon le XSD avec une déclaration déposée ou une validation fiscale complète.
+
+## Retenciones recibidas, ATS y preparación 103/104
+
+En **Libros y herramientas de Ecuador → Abonos y retenciones**, «Importar retención XML del cliente» consulta la clave ante el SRI. Solo el XML autorizado devuelto por el SRI aporta los importes. El RUC emisor y los números fiscales identifican las facturas; un comprobante con varias facturas se aplica en una transacción. El archivo se conserva en el depósito privado. Reimportarlo no duplica la retención. No se crea un ingreso bancario. Se necesitan el trabajador SRI privado configurado y cuentas de activo para IR e IVA recibidos. Se admiten comprobantes 07 versiones 1.0.0 y 2.0.0 nacionales contra facturas 01.
+
+La revisión fiscal incorpora créditos y débitos de clientes y proveedores; las notas 04 y liquidaciones 03 autorizadas en GAMA completan sus datos desde el documento emitido. Los documentos externos requieren revisión, incluyendo el comprobante original modificado. El ATS incorpora retenciones IR, IVA 10/20/30/50/70/100, créditos y anulaciones documentadas. Una retención de cliente recibida este mes puede referir a una venta anterior, sin repetir su facturación. No se inventa una anulación por un rechazo, timeout o cancelación interna. Las bajas en el portal SRI quedan documentadas y excluidas del ATS. Los establecimientos activos se configuran por código, incluyendo los que no vendieron.
+
+**Formularios 103 y 104** prepara los importes del mes desde las escrituras: IVA generado y deducible, IVA recibido de clientes, IVA retenido a proveedores y retenciones IR por concepto. El factor de crédito y el saldo del mes anterior se revisan antes de exportar. El IVA propio y el IVA retenido como agente se muestran separados. La preparación y el ATS son borradores; no presentan ni reemplazan la revisión del formulario vigente. Operaciones extranjeras y especiales requieren datos adicionales y permanecen señaladas para revisión.
+
+Fuentes revisadas el 4 de octubre de 2026: [ATS y catálogos vigentes](https://www.sri.gob.ec/formularios-e-instructivos1), [formularios e instructivos](https://www.sri.gob.ec/web/intersri/formularios-e-instructivos). El XSD ATS descargado coincide con el fixture del repositorio. Pruebas: `tests/sri-received-db.test.cjs`, `tests/sri-received-edge.test.cjs`, `tests/test_sri_received.py` y `tests/accounting-ats.test.cjs`.
+
+## Extractos bancarios y cobros revisados
+
+Banco y caja importa CSV con cabeceras de fecha/fecha valor, referencia/documento,
+descripción/detalle e importe/valor, o columnas débito/crédito. Admite comas,
+punto y coma, tabuladores, BOM, comillas escapadas y descripciones multilínea.
+La fecha valor tiene prioridad cuando está presente. Un selector decimal resuelve
+importes ambiguos; los importes se validan en céntimos y las fechas inexistentes,
+filas inválidas o más de 1000 movimientos bloquean la importación completa. No se
+eliminan filas silenciosamente. Cada cuenta debe estar activa, tener cuenta
+contable y utilizar la moneda de la empresa. La importación no registra dinero.
+
+`gama_bank_invoice_action` propone cobros/pagos ya registrados y facturas con
+saldo suficiente. Se puede buscar una factura por cliente o referencia. El
+responsable revisa y confirma: para una factura crea un cobro real, lo aplica
+contra la cartera canónica y concilia el recibo con el extracto en una sola
+transacción. Reintentos y confirmaciones simultáneas sobre el mismo movimiento
+conservan un recibo, una aplicación y una asociación. Un saldo cambiado o periodo
+cerrado revierte toda la operación. El cliente nunca decide el importe del cobro:
+se obtiene del movimiento bancario bloqueado.
+
+Deshacer retira la asociación con el extracto y conserva el cobro/pago. Para
+corregir el dinero se revisa y anula el documento original. Una aplicación de
+anticipo nunca se propone como otro ingreso bancario. Los importes importados
+no finitos se rechazan también por el endpoint compatible anterior.
+
+Estas cabeceras cubren exportaciones comunes; no se declara un formato
+propietario bancario certificado. Un extracto Excel/PDF necesita exportarse como
+CSV. Los cargos negativos concilian con pagos/gastos existentes; no se inventa
+un gasto ni una factura a partir de la descripción del banco.
+
+Pruebas: `tests/bank-statement.test.cjs`, `tests/bank-invoice-db.test.cjs` y
+`tests/accounting.spec.js`. El esquema completo se restaura en una base aislada;
+los tests verifican caja y asientos reales, reversión por cierre, idempotencia,
+filas inválidas, acceso y datos conservados tras un fallo de validación.

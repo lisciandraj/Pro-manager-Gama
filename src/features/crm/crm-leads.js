@@ -179,23 +179,23 @@ function ficha(){
   +(cli?'<div class="crmAviso" data-gi=21c3f52c58af>Ya convertido en el cliente <b>'+esc(cli.name)+'</b>'
     +(l.converted_at?' el '+esc(fecha(l.converted_at)):'')
     +'. Lo comercial se lleva desde su ficha de cliente; aquí queda el rastro de dónde salió.</div>':'')
-  +'<fieldset class="ctGroup"><legend data-gi-live>Identidad</legend><div class="crmForm">'
+  +'<fieldset class="ctGroup"><legend data-gi-live data-gi=d87a763fa728>Identidad</legend><div class="crmForm">'
    +campoSelect('crmLKind','Tipo',TIPOS,l.kind||'empresa')
    +campo('crmLCompany','Empresa',l.company)
    +campo('crmLFirst','Nombre',l.first_name)
    +campo('crmLLast','Apellidos',l.last_name)
    +campo('crmLJob','Cargo',l.job_title)
-   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Datos de contacto</legend><div class="crmForm">'
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live data-gi=b456b0b4ee4f>Datos de contacto</legend><div class="crmForm">'
    +campo('crmLEmail','Correo',l.email,'email')
    +campo('crmLPhone','Teléfono',l.phone,'tel')
    +campo('crmLPhone2','Otro teléfono',l.phone2,'tel')
-   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Dirección</legend><div class="crmForm">'
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live data-gi=2af66cb65da8>Dirección</legend><div class="crmForm">'
    +campo('crmLAddress','Dirección',l.address)
    +campo('crmLCity','Ciudad',l.city)
    +campo('crmLProvince','Provincia',l.province)
    +campo('crmLPostal','Código postal',l.postal_code)
    +campo('crmLCountry','País',l.country)
-   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live>Información comercial</legend><div class="crmForm">'
+   +'</div></fieldset><fieldset class="ctGroup"><legend data-gi-live data-gi=91ea26a89bf0>Información comercial</legend><div class="crmForm">'
    +campo('crmLWeb','Sitio web',l.website)
    +campo('crmLIndustry','Sector',l.industry)
    +campo('crmLSize','Tamaño',l.company_size)

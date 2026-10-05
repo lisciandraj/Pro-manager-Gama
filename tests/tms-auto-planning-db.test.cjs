@@ -13,7 +13,7 @@ test('daily TMS is order-only, idempotent, capacity aware, and preserves departu
  update fleet_drivers set active=false;
  insert into fleet_drivers(id,name,active) values('${driver}','Daily driver',true);
  insert into fleet_vehicles(id,plate,brand,model,kind,energy,status,payload_kg,cargo_volume_m3) values('${vehicle}','TMS-TEST','Test','Truck','truck','other','in_service',100,10);
- insert into fleet_assignments(vehicle_id,driver_id,started_on) values('${vehicle}','${driver}',current_date);
+ insert into fleet_assignments(vehicle_id,driver_id,started_on) values('${vehicle}','${driver}',(now() at time zone private.erp_timezone())::date);
  insert into tms_settings(id,depot,depot_lat,depot_lng,return_depot) values(true,'Quito',-0.20,-78.50,true) on conflict(id) do update set depot=excluded.depot,depot_lat=excluded.depot_lat,depot_lng=excluded.depot_lng,return_depot=true;
  -- Historical fixture weights: production weights are computed from shipment lines.
  begin;set session_replication_role=replica;
@@ -34,12 +34,12 @@ test('daily TMS is order-only, idempotent, capacity aware, and preserves departu
  await as(admin);await assert.rejects(db.query("insert into tms_deliveries(customer,address) values('Manual','Quito')"),/TMS_ORDER_REQUIRED/);
  assert.equal((await db.query("select count(*)::int n from tms_deliveries where customer='Manual'")).rows[0].n,0);
  // Fleet absence is authoritative, not a browser-only warning.
- await db.exec(`reset role;insert into hr_employees(id,full_name) values('${id(30)}','Absent driver');update fleet_drivers set employee_id='${id(30)}' where id='${driver}';insert into hr_absences(id,employee_id,kind,status,start_date,end_date) values('${id(31)}','${id(30)}','vacaciones','aprobada',current_date,current_date);`);
+ await db.exec(`reset role;insert into hr_employees(id,full_name) values('${id(30)}','Absent driver');update fleet_drivers set employee_id='${id(30)}' where id='${driver}';insert into hr_absences(id,employee_id,kind,status,start_date,end_date) values('${id(31)}','${id(30)}','vacaciones','aprobada',(now() at time zone private.erp_timezone())::date,(now() at time zone private.erp_timezone())::date);`);
  await as(admin);assert.equal((await plan()).planned,0);
  await db.exec(`reset role;update hr_absences set status='pendiente' where id='${id(31)}'`);
  await as(admin);assert.equal((await plan()).planned,2);route=(await db.query('select id from tms_routes')).rows[0].id;
  // Deferred validation allows real creation order: TMS first, shipment second.
- await db.exec(`begin;insert into tms_deliveries(id,customer,address,delivery_date) values('${id(15)}','Linked','Quito',current_date+2);reset role;insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by) values('${order}',gen_random_uuid(),'${id(15)}','${admin}');commit;`);
+ await db.exec(`begin;insert into tms_deliveries(id,customer,address,delivery_date) values('${id(15)}','Linked','Quito',(now() at time zone private.erp_timezone())::date+2);reset role;insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by) values('${order}',gen_random_uuid(),'${id(15)}','${admin}');commit;`);
  await db.exec(`reset role;set session_replication_role=replica;update sales_deliveries set departed_at=now() where tms_delivery_id='${id(10)}';update tms_deliveries set status='En tránsito' where id='${id(10)}';set session_replication_role=origin;`);
  await as(admin);p=await plan();assert.equal(p.planned,0);assert.equal((await db.query('select count(*)::int n from tms_routes where id=$1',[route])).rows[0].n,1);
  await db.exec('reset role');await db.query("insert into app_modules(id,enabled) values('tms',false) on conflict(id) do update set enabled=false");await as(admin);await assert.rejects(plan(),/TMS_ACCESS_DENIED/);

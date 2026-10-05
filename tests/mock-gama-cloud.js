@@ -548,6 +548,9 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='gama_sales_invoice_balances')return {data:(window.__DB.external_invoices||[]).filter(i=>args.p_ids.includes(i.id)).map(i=>{const paid=(window.__DB.external_invoice_payments||[]).filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((a,p)=>a+Number(p.amount),0),credit=(window.__DB.return_credits||[]).filter(c=>c.invoice_id===i.id).reduce((a,c)=>a+Number(c.amount),0),withheld=(window.__DB.accounting_withholdings||[]).filter(w=>w.invoice_id===i.id&&w.status==='posted').reduce((a,w)=>a+Number(w.total),0),balance=i.fiscal_status==='cancelled'?0:Math.max(0,Number(i.total)-paid-credit-withheld);return {id:i.id,paid,balance,due_date:i.due_date,payment_status:i.fiscal_status==='cancelled'?'cancelled':balance===0?'paid':i.due_date&&i.due_date<new Date().toISOString().slice(0,10)?'overdue':balance<Number(i.total)?'partial':'pending'}})};
+        if(fn==='gama_customer_credit_status')return {data:{customer_id:args.p_customer,credit_limit:null,hold_reason:null,receivable:0,commitment:0,exposure:0,overdue:[],blocked:false}};
+
         if(fn==='gama_contact_person_save'){const row={...args.p_data};if(row.is_primary)for(const c of window.__DB.crm_contacts)if((row.lead_id&&c.lead_id===row.lead_id)||(row.customer_id&&c.customer_id===row.customer_id))c.is_primary=false;let result=window.__DB.crm_contacts.find(c=>c.id===args.p_id);if(result)Object.assign(result,row);else{result={...row,id:nextId('crm_contacts'),active:true};window.__DB.crm_contacts.push(result)}return {data:result,error:null};}
 
         if(fn==='gama_action_allowed')return {data:true};
@@ -703,6 +706,16 @@
             const saved={...profile,...args.p_data,configured:true,company_version:profile.company_version+1};delete saved.install_localization;
             window.__DB.company_settings=[saved];return {data:saved};
           }
+        }
+        if(fn==='gama_hr_ec_action'){
+          window.__HR_EC_CALLS=window.__HR_EC_CALLS||[];window.__HR_EC_CALLS.push(args);
+          const f=window.__DB._hr_ec||{},p=args.p_data||{};
+          if(args.p_action==='list')return {data:{parameters:f.parameters||null,employees:(window.__DB.hr_employees||[]).filter(e=>hrIsAdmin()||e.profile_id===window.__DB._session?.profile_id).map(e=>({employee_id:e.id,name:e.full_name,...(window.__DB.hr_employee_private||[]).find(x=>x.employee_id===e.id),terms:f.terms})),benefits:[],accounts:[]}};
+          if(args.p_action==='preview')return {data:f.calculation};
+          if(args.p_action==='calculate'){const row={id:'ec-payroll',employee_id:p.employee_id,period:p.period,erp_reference:'DOC-00000019',source_ref:'EC-PRIVATE',status:'draft',gross:f.calculation.gross,net:f.calculation.net,employer_cost:f.calculation.employer_cost,ec_calculation:f.calculation};window.__DB.hr_payroll=(window.__DB.hr_payroll||[]).filter(x=>x.id!==row.id).concat(row);return {data:row};}
+          if(args.p_action==='slip'){const payroll=window.__DB.hr_payroll.find(x=>x.id===p.payroll_id);return {data:{payroll,employee:{name:'Marie',identification:'1719304188'},company:{configured:true,legal_name:'GAMA QA',currency:'USD'},paid:0,signature:f.signature||null,can_sign:!f.signature&&window.__DB._session?.profile_id==='u1'}};}
+          if(args.p_action==='sign'){f.signature={signature_png:p.signature_png,snapshot_hash:'f'.repeat(64),signed_at:'2026-10-05T01:00:00Z'};return {data:f.signature};}
+          return {data:{ok:true}};
         }
         if(fn==='gama_hr_directory')return {data:hrIsAdmin()?(window.__DB.profiles||[]):[]};
         if(fn==='gama_hr_save_employee'){

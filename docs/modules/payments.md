@@ -50,3 +50,35 @@ commercial staff through the private checked RPC and existing customer RLS.
   overpayment prevention, payment reversal, customer terms and RPC permissions.
 - Existing automatic-delivery-invoice and legacy-delivery-invoice SQL regressions
   are also checked with the new migration inside rollback-only transactions.
+
+## Balance y crédito Ecuador
+
+`gama_customer_aging` calcula los vencimientos pendientes a partir de la cartera
+canónica: cobros, retenciones, créditos y ajustes. Pagos y Contactos abren el
+balance por cliente (sin vencer, 0–30, 31–60, 61–90, más de 90 días y sin fecha).
+Una cuota que vence hoy todavía no está vencida. El estado de cuenta exportable
+incluye las referencias ERP y prepara una relance editable por correo o WhatsApp
+con PDF. Preparar o descargar no envía ningún mensaje ni registra un envío.
+
+`gama_customer_credit_status` muestra facturas pendientes y pedidos confirmados
+sin facturar. Cualquier cuota vencida, retención explícita del crédito o exceso
+del límite bloquea la confirmación, incluso sin límite configurado. La excepción
+exige administrador, permiso de validación, motivo y huella de la deuda y del
+pedido; caduca al cambiar los importes, las líneas o el día. Modificar líneas de
+un pedido confirmado aplica el mismo control. Los bloqueos y cambios de deuda
+se serializan sobre el cliente.
+
+Las ventas consultan `gama_sales_invoice_balances` por lotes de 100 facturas para
+mostrar el mismo saldo que contabilidad. `gama-collections.js` y los generadores
+PDF se cargan únicamente al abrir estas acciones.
+
+Al crear o cambiar una identificación ecuatoriana se comprueba la cédula/RUC de
+persona natural y se bloquea el duplicado normalizado en el directorio. El tipo
+de identificación permite documentos extranjeros y RUC asignados de sociedades,
+organismos públicos y extranjeros; estos últimos no reciben un algoritmo de
+control que el SRI no publica. Los registros históricos sin cambios de identidad
+siguen siendo editables. La validación formal no sustituye una consulta al SRI.
+
+Prueba: `tests/ec-credit-identity-db.test.cjs` restaura el esquema completo y
+comprueba vencimientos parciales, retenes, aprobaciones, cambios de líneas,
+duplicados y acceso denegado.

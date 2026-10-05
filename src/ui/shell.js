@@ -119,12 +119,12 @@ function build(){
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="dialog" aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="dialog" data-gi-aria-label=80dade6fab6f aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'
    /* La configuración vive aquí, junto a la campana: abre su ventana. */
-   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="dialog" aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
+   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="dialog" data-gi-aria-label=bb507137e363 aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
    +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
   +'</div>');
 

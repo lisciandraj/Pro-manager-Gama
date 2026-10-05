@@ -50,3 +50,9 @@ Vite est verrouillé en 6.4.3 dans `package.json` et `package-lock.json`. Après
 Les bibliothèques locales différées figurent dans `vendors` du manifeste pour recevoir une URL à hash de contenu. Après changement de jsPDF, actualiser aussi son chemin et son intégrité dans le chargeur. `node scripts/check-startup.cjs --json` détaille les tailles et leur gzip estimé ; expliquer une augmentation des plafonds avant de modifier le budget.
 
 Pour ajouter un export, suivre le [contrat PDF](pdf-exports.md). Ne pas réintroduire le moteur PDF dans les scripts initiaux. Les notifications utilisent le badge créé par `src/ui/shell.js` ; ne pas observer tout le document pour recréer ce badge.
+
+## Historique des migrations déployées
+
+Les onze migrations Ecuador de cette livraison et les fonctions `gama-sri`, `gama-sri-received` et `architect-user-admin` sont déployées sur le projet de production. `supabase/migration-history.json` associe les versions effectives renvoyées par Supabase aux fichiers canoniques et à leurs empreintes SHA-256. Les noms de fichiers créés par le CLI sont conservés : la version attribuée par le connecteur au déploiement peut différer. Le contrôle des migrations interdit de réécrire un fichier déjà appliqué.
+
+Les anciennes migrations absentes du relevé de 2026-10-03 comprennent des alias historiques déjà déployés et deux réinitialisations contrôlées du catalogue. Leur présence dans le répertoire ne constitue pas une instruction de les réappliquer en production. Comparer les noms et versions de la base avec le relevé avant une nouvelle livraison ; appliquer seulement les migrations réellement nouvelles.

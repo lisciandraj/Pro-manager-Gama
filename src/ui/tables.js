@@ -155,6 +155,7 @@ function existingSearch(t){
  const boundary=t.closest('dialog,[role=tabpanel],section')||t.parentElement;
  for(let scope=t.parentElement;scope;scope=scope.parentElement){
   const inputs=[...scope.querySelectorAll('input')].filter(input=>{
+   if(input.hasAttribute('data-table-search-ignore'))return false;
    if(input.closest('table')||(input.closest('.gamaTableToolbar,.gamaTableSearch')&&!input.hasAttribute('data-gama-native-search'))||input.getAttribute('role')==='combobox'||input.hidden||input.type==='hidden'||input.closest('[hidden]')!==t.closest('[hidden]'))return false;
    if(input.closest('dialog,[role=tabpanel],section')!==t.closest('dialog,[role=tabpanel],section'))return false;
    if(!['text','search'].includes(input.type)||!(/search|busca|filtr/i.test(input.id)||input.type==='search'||input.hasAttribute('data-table-search-for')))return false;

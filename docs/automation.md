@@ -1,6 +1,6 @@
 # Automatisations et flux
 
-État : 5 octobre 2026. Sources : `src/features/processes/`, migrations `20261005145609` à `20261005161024`. Les traitements sont exécutés sur le serveur et continuent quand l’ERP est fermé.
+État : 5 octobre 2026. Sources : `src/features/processes/`, migrations `20261005145609` à `20261005165044`. Les traitements sont exécutés sur le serveur et continuent quand l’ERP est fermé.
 
 Configuration → **Automatisations et exceptions** permet de consulter les règles, traitements, tentatives et dossiers à traiter. Le Centre de notifications propose le même suivi. Une exception peut être affectée avec une prochaine action et une échéance. Les droits de chaque module et le périmètre financier continuent de filtrer les résultats.
 
@@ -19,6 +19,7 @@ Les contrôles opérationnels et financiers sont actifs à l’installation. Les
 | Heures projet | Coût de personnel unique après approbation | Salarié autorisé, coût horaire et preuve d’approbation ; aucune écriture de paie |
 | Suivi SAV | Dossier SLA dépassé affectable | Résolution, inspection physique et crédit existants |
 | Relances et enquêtes | Messages préparés puis envoyés par le fournisseur configuré | Préférences actives, droits et délégation actuels, source non résolue |
+| Satisfaction négative | Dossier SAV unique associé à la réponse client | Question de satisfaction explicitement choisie ; réponses anonymes et quiz exclus |
 | Imports confirmés | Application différée du lot déjà préparé | Confirmation du lot, règle active du même administrateur, contrôles ligne par ligne |
 
 ## Achats et dépenses
@@ -41,8 +42,14 @@ Références techniques : [pg_net](https://supabase.com/docs/guides/database/ext
 
 **Voir les performances mesurées** calcule le P95 des mesures réelles sur sept jours, par module, opération, appareil et réseau. Les échantillons ne contiennent ni paramètres de formulaire, document, URL, token ou texte d’erreur. Les écritures sont bornées et limitées ; conservation quatorze jours. Sans échantillons, aucun P95 n’est inventé. La navigation mesure l’ouverture, les RPC leur réponse ; cela ne remplace pas une mesure de rendu de chaque composant.
 
-Les styles des grands modules se chargent à l’ouverture et les Tarifs/Matrice sont différés. Les tarifs spécifiques lisent toutes les pages. La lecture des classeurs s’effectue dans un Worker local ; elle est interrompue lors d’un nouveau fichier ou d’un changement de session. L’import en arrière-plan s’active pour un lot explicitement confirmé et ses états sont consultables dans les traitements. Les imports réussis restent idempotents et les lignes en erreur se corrigent avant reprise.
+Les styles des grands modules se chargent à l’ouverture et les Tarifs/Matrice sont différés. Les tarifs spécifiques lisent toutes les pages. La lecture et la génération des classeurs s’effectuent dans des Workers locaux ; elle est interrompue lors d’un nouveau fichier ou d’un changement de session. L’import en arrière-plan s’active pour un lot explicitement confirmé et ses états sont consultables dans les traitements. Les imports réussis restent idempotents et les lignes en erreur se corrigent avant reprise.
+
+## Tournées et rapports
+
+**Configurer les distances routières** connecte OpenRouteService dans Vault, avec le profil voiture ou poids lourd. La matrice est demandée au serveur, limitée à 50 lieux et mise en cache 14 jours. Le plan affiche clairement distances routières, mixtes ou estimées ; sans fournisseur ou paire routière disponible, il conserve l’estimation existante. Le formulaire de planning propose les temps routiers disponibles, ajoute l’attente avant une fenêtre horaire et exige un motif pour un horaire tardif ou ambigu. La validation conserve les verrous de départ. Aucun fournisseur ni coordonnée n’est inventé.
+
+[Agent Coco](modules/coco-intelligence.md) conserve la conversation et archive les rapports hebdomadaires PDF sous le préfixe RCO. La tâche hebdomadaire existante ajoute l’archivage du PDF à son envoi par mail, avec déduplication de la période.
 
 ## Vérification
 
-Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` et `background-import-db` restaurent les migrations dans une base isolée. Vault et pg_net sont simulés seulement dans ces fixtures : aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
+Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Vault et pg_net sont simulés seulement dans ces fixtures : aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.

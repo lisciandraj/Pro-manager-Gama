@@ -1,5 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {restore}=require('../scripts/restore-schema.cjs');
+const {fixtureMigration}=require('../scripts/fresh-migration.cjs');
 const actions=require('./standardization-actions.json');
 const migrationFolder=path.join(__dirname,'../supabase/migrations');
 const firstChange=fs.readdirSync(migrationFolder).find(f=>f.endsWith('_standardize_domain_dispatch.sql'));
@@ -25,7 +26,7 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   }
   await db.exec('reset role');
   const folder=path.join(__dirname,'../supabase/migrations');
-  for(const file of fs.readdirSync(folder).filter(f=>f>=firstChange&&f.endsWith('.sql')).sort())await db.exec(fs.readFileSync(path.join(folder,file),'utf8'));
+  for(const file of fs.readdirSync(folder).filter(f=>f>=firstChange&&f.endsWith('.sql')).sort())await db.exec(fixtureMigration(file,fs.readFileSync(path.join(folder,file),'utf8')));
   for(const uid of [admin,client]){
    await actAs(db,uid);await db.exec('begin');
    for(const item of outcomes.filter(x=>x.uid===uid)){

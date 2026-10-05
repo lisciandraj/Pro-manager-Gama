@@ -800,14 +800,14 @@
     },
     {
       "id": "assistant-ia",
-      "label": "Coco Intelligence",
+      "label": "Agent Coco",
       "icon": "cocoBot",
       "group": "Resumen",
-      "description": "Recomendaciones inteligentes, análisis y asistente para tu empresa",
+      "description": "Conversación e informes de análisis semanales para tu empresa",
       "accent": "blue",
       "order": 1,
       "menu": true,
-      "configLabel": "Coco Intelligence",
+      "configLabel": "Agent Coco",
       "roles": [
         "admin"
       ]

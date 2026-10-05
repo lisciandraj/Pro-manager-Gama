@@ -3,10 +3,6 @@ const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const id='22222222-2222-4222-8222-222222222222';
 const answer={id,engine:'openai',as_of:'2026-09-15T12:00:00Z',period:{from:'2026-09-01',to:'2026-09-15'},report:{title:'Analyse des priorités',summary:'Trois produits sous le seuil.',findings:[{title:'Stock disponible',detail:'<img src=x onerror=alert(1)>',evidence_ids:['S1']}],actions:[{priority:'P1',title:'Préparer un réapprovisionnement',owner:'Achats',due:'Sous 2 jours',steps:['Vérifier les achats ouverts','Valider les quantités'],success_metric:'Produits couverts',evidence_ids:['S1']}],limitations:['Données actuelles'],follow_up_questions:['Quels achats sont en retard ?']},coverage:[{table:'products',module:'products',rows:250}],evidence:[{id:'S1',kind:'query_data',label:'products',module:'products',as_of:'2026-09-15T12:00:00Z',data:{matched_rows:250,rows:[{name:'Produit A',stock:2}],truncated:true}}]};
-test('concrete collection and purchase questions work without an OpenAI key and do not send messages or create purchases',async({page})=>{
- await boot(page,{configured:false});await open(page);await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(fn,args)=>fn==='gama_management_overview'?Promise.resolve({data:{today:'2026-10-05',client_count:1,clients:[{name:'Client à relancer',balance:95,days_late:30}],purchase_count:1,purchases:[{name:'Papier à commander',available:2,suggested_quantity:10,supplier_name:'Fournisseur'}]}}):c.rpc(fn,args)}}});
- await page.locator('#aiPrompts button').nth(0).click();await expect(page.locator('#aiOperational')).toContainText('Client à relancer');await expect(page.locator('#aiOperational')).toContainText('95');await page.locator('#aiPrompts button').nth(1).click();await expect(page.locator('#aiOperational')).toContainText('Papier à commander');expect(await page.evaluate(()=>__aiRequests.some(x=>x.action==='ask'))).toBe(false);
-});
 async function boot(page,{role='admin',configured=true}={}){
  await page.addInitScript(({role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Assistant QA'}));localStorage.setItem('gama_language_v1','fr');window.__aiRequests=[];},{role});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;GamaCloud.getSession=async()=>({data:{session:{access_token:'qa-token',user:{id:'qa'}}}});
@@ -35,7 +31,7 @@ async function boot(page,{role='admin',configured=true}={}){
 }
 async function open(page){await page.locator('#mainmenu [data-gama-module="assistant-ia"]').click();await expect(page.locator('#aiConfigure')).toBeVisible();}
 test('admin chat, structured plans, source evidence, follow-up, history and logout clearing',async({page})=>{
- await boot(page);await open(page);await expect(page.locator('#assistant-ia h2')).toHaveText('Coco Intelligence');
+ await boot(page);await open(page);await expect(page.locator('#assistant-ia h2')).toHaveText('Agent Coco');
  await page.locator('#aiQuestion').fill('Analyse mon entreprise');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer h3')).toHaveText('Analyse des priorités');await expect(page.locator('.ai-action')).toContainText('Sous 2 jours');await expect(page.locator('.ai-answer img')).toHaveCount(0);
  await page.locator('.ai-ref').first().click();await expect(page.locator('.ai-scroll table').first()).toContainText('Produit A');await expect(page.locator('#ai-0-S1')).toContainText('Extrait limité');
  await page.locator('[data-followup]').click();await expect(page.locator('#aiQuestion')).toHaveValue('Quels achats sont en retard ?');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toHaveCount(2);expect(await page.evaluate(()=>__aiRequests.filter(x=>x.action==='ask')[1].history_ids)).toEqual([id]);
@@ -46,7 +42,7 @@ for(const role of ['commercial','magasinier','client'])test('module and direct e
  await boot(page,{role});await expect(page.locator('#mainmenu [data-gama-module="assistant-ia"]')).toBeHidden();await page.evaluate(()=>GamaAssistant.open());expect(await page.evaluate(()=>__aiRequests.length)).toBe(0);await expect(page.locator('#assistant-ia')).toHaveCount(0);
 });
 test('missing API key, secure configuration, diagnostic and mobile layout',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page,{configured:false});await open(page);await expect(page.locator('#aiSend')).toBeDisabled();await page.locator('#aiDiagnostic').click();await expect(page.locator('.ai-answer')).toContainText('sans génération IA');
+ await page.setViewportSize({width:390,height:844});await boot(page,{configured:false});await open(page);await expect(page.locator('#aiSend')).toBeDisabled();await expect(page.locator('#aiDiagnostic,#cocoInventoryInsights,#aiPrompts')).toHaveCount(0);
  await page.locator('#aiConfigure').click();await page.locator('#aiKey').fill('sk-not-a-real-secret-for-ui-test');await page.locator('#aiSaveConfig').click();await expect(page.locator('#aiSend')).toBeEnabled();await expect(page.locator('#aiKey')).toHaveValue('');expect(await page.evaluate(()=>Object.values(localStorage).some(v=>String(v).includes('sk-not-a-real')))).toBe(false);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:'test-results/assistant-mobile.png',fullPage:true});
 });
@@ -55,64 +51,13 @@ test('service error preserves question; disabled module clears existing analysis
  await page.evaluate(()=>{GamaModules.enabled=id=>id!=='assistant-ia';window.dispatchEvent(new CustomEvent('gama:modules-change'));});await expect(page.locator('#assistant-ia')).toBeEmpty();
 });
 test('desktop surface and English labels',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});await boot(page);await open(page);await page.locator('#aiQuestion').fill('Analyse');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toBeVisible();await page.screenshot({path:'test-results/assistant-desktop.png',fullPage:true});await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(page.locator('#assistant-ia h2')).toHaveText('Coco Intelligence');await expect(page.locator('#aiSend')).toHaveText('Analyze with AI');
+ await page.setViewportSize({width:1440,height:1000});await boot(page);await open(page);await page.locator('#aiQuestion').fill('Analyse');await page.locator('#aiSend').click();await expect(page.locator('.ai-answer')).toBeVisible();await page.screenshot({path:'test-results/assistant-desktop.png',fullPage:true});await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(page.locator('#assistant-ia h2')).toHaveText('Agent Coco');await expect(page.locator('#aiSend')).toHaveText('Send');
 });
 
-test('Coco stock details, no-key access, refresh, pagination and language changes',async({page})=>{
- await boot(page,{configured:false});await open(page);const box=page.locator('#cocoInventoryInsights');
- await expect(box.locator('.coco-card')).toHaveCount(25);await expect(box).toContainText('produits sans consommation observée');
- await box.locator('summary').first().click();await expect(box).toContainText('Historique insuffisant');
- await expect(box.locator('.coco-values').first()).toContainText('Brouillons déduits');
- await box.locator('[data-coco-explain]').first().click();await expect(page.locator('#aiQuestion')).toHaveValue('Explique la recommandation de stock pour Produit 1');
- await page.locator('#cocoNext').click();await expect(box.locator('.coco-card')).toHaveCount(2);await expect(box).toContainText('Produit 26');await expect(page.locator('#cocoNext')).toBeDisabled();
- await page.locator('#cocoRefresh').click();await expect(box.locator('.coco-card')).toHaveCount(25);
- expect(await page.evaluate(()=>__cocoCalls.filter(x=>x.name==='gama_coco_inventory_analyze').length)).toBe(1);
- await page.setViewportSize({width:390,height:844});expect(await box.evaluate(e=>e.getBoundingClientRect().right<=window.innerWidth)).toBe(true);
- await page.screenshot({path:'test-results/coco-mobile.png',fullPage:true});
- await page.evaluate(()=>GamaI18n.setLanguage('es'));await expect(box).toContainText('Los umbrales propuestos');
- await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'test-results/coco-desktop.png',fullPage:true});
+test('Agent Coco replaces old analysis tools with dated reports and verifies PDF downloads',async({page})=>{
+ await boot(page);await page.evaluate(()=>{ArcData.rpc=async(name,args)=>{if(name==='gama_agent_reports'&&args.p_action==='list'){__aiRequests.push(args);return {rows:[{id:'r2',reference:'RCO-00000002',title:'Rapport hebdomadaire',report_date:'2026-10-05',period_from:'2026-09-28',period_to:'2026-10-04'},{id:'r1',reference:'RCO-00000001',title:'Stock & facturation',report_date:'2026-09-29'}],total:2}}if(name==='gama_agent_reports'){const bytes=new TextEncoder().encode('%PDF-1.7\n'+ 'fixture'.repeat(30)+'\n%%EOF');return {filename:'RCO-00000002.pdf',content_base64:btoa(String.fromCharCode(...bytes)),sha256:Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(v=>v.toString(16).padStart(2,'0')).join('')}}throw Error('Unexpected RPC')}});await open(page);
+ await expect(page.locator('#aiDiagnostic,#cocoInventoryInsights,#aiPrompts,#aiOperational')).toHaveCount(0);await page.locator('#agentReportsTab').click();await expect(page.locator('#agentReportTable tbody tr')).toHaveCount(2);await expect(page.locator('#agentReportTable')).toContainText('RCO-00000002');await expect(page.locator('#agentChat')).toBeHidden();const download=page.waitForEvent('download');await page.locator('[data-agent-pdf]').first().click();expect((await download).suggestedFilename()).toBe('RCO-00000002.pdf');await page.locator('#agentReportOrder').selectOption('asc');await expect.poll(()=>page.evaluate(()=>__aiRequests.filter(x=>x.p_action==='list').at(-1).p_data.order)).toBe('asc');await page.locator('#agentChatTab').click();await expect(page.locator('#aiForm')).toBeVisible();
 });
-test('Coco errors are retryable and late responses cannot restore data after logout',async({page})=>{
- await boot(page);await page.evaluate(()=>window.__cocoError=true);await open(page);
- await expect(page.locator('#cocoInventoryInsights [role="alert"]')).toContainText('indisponible');
- await expect(page.locator('#cocoInventoryInsights')).not.toContainText('migration');
- await page.evaluate(()=>window.__cocoError=false);await page.locator('#cocoRetry').click();await expect(page.locator('.coco-card')).toHaveCount(25);
- await page.evaluate(()=>window.__cocoDelay=true);await page.locator('#cocoRefresh').click();
- await page.waitForFunction(()=>!!window.__cocoResolve);
- await page.evaluate(()=>{localStorage.removeItem('gama_session_v1');window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));window.__cocoResolve();});
- await expect(page.locator('#assistant-ia')).toBeEmpty();
-});
-
-test('Coco uses the real cloud connector and Supabase SDK for stock RPCs',async({page})=>{
- const requests=[];let refreshed=false;
- const addRuntime=name=>page.addScriptTag(process.env.COCO_RUNTIME_BASE_URL?{url:new URL(name,process.env.COCO_RUNTIME_BASE_URL).href}:{path:path.join(__dirname,'..',name)});
- await page.route('**/coco-connector-test',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><html><head></head><body><div class="wrap"></div></body></html>'}));
- // Only auxiliary modules are omitted; both connection layers below are production files.
- for(const name of ['gama-cloud-products.js','gama-cloud-auth.js','gama-cloud-users.js','gama-purchases-supplier-bridge.js','gama-invoice-archive.js'])
-  await page.route('**/'+name+'*',r=>r.fulfill({contentType:'text/javascript',body:''}));
- await page.route('**/rest/v1/rpc/**',r=>{
-  const name=r.request().url().split('/').at(-1),args=r.request().postDataJSON();requests.push({name,args,method:r.request().method()});
-  let data;if(name==='gama_coco_inventory_analyze'){refreshed=true;data={products_analyzed:167};}
-  else data={calculated_at:refreshed?new Date().toISOString():'2000-01-01T00:00:00Z',products_analyzed:167,reorder_count:62,recommendation_count:1,critical_count:48,without_history:165,has_more:false,recommendations:[{id:'test-product',product_name:'Produit connecteur réel',priority:'critical',recommendation_type:'reorder',confidence:20,current_value:{available_stock:0,min:10,max:30},recommended_value:{min:10,max:30,order_qty:30},reasoning:{basis:'configured_thresholds'}}]};
-  return r.fulfill({contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(data)});
- });
- await page.goto('/coco-connector-test');
- await page.evaluate(()=>{
-  localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin'}));
-  window.ArcUI={esc:value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),render:(host,html)=>{host.innerHTML=html;}};
-  window.GamaUI={header:({title})=>'<h2>'+title+'</h2>',bindBack:()=>{}};
-  window.GamaI18n={language:'fr'};window.showTab=id=>document.getElementById(id).classList.add('active');
- });
- await addRuntime('assets/vendor/supabase-2.115.0.js');
- await addRuntime('gama-supabase.js');
- await page.evaluate(()=>window.GamaCloudReady);
- expect(await page.evaluate(()=>typeof GamaCloud.rpc)).toBe('undefined');
- await addRuntime('gama-assistant-ia.js');
- await page.evaluate(()=>GamaAssistant.open());
- await expect(page.locator('#cocoInventoryInsights .coco-card')).toContainText('Produit connecteur réel');
- await expect(page.locator('#cocoInventoryInsights [role="alert"]')).toHaveCount(0);
- expect(requests.map(r=>r.name)).toEqual(['gama_coco_inventory_overview','gama_coco_inventory_analyze','gama_coco_inventory_overview']);
- expect(requests[0].args).toEqual({p_limit:25,p_offset:0});expect(requests.every(r=>r.method==='POST')).toBe(true);
- await page.locator('#cocoRefresh').click();await expect(page.locator('.coco-card')).toHaveCount(1);
- expect(requests.filter(r=>r.name==='gama_coco_inventory_analyze')).toHaveLength(2);
+test('A report response arriving after sign-out cannot restore the archive',async({page})=>{
+ await boot(page);await page.evaluate(()=>{ArcData.rpc=()=>new Promise(resolve=>window.__reportResolve=resolve)});await open(page);await page.locator('#agentReportsTab').click();await page.waitForFunction(()=>!!__reportResolve);await page.evaluate(()=>{localStorage.removeItem('gama_session_v1');window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__reportResolve({rows:[{id:'private',title:'Confidential'}],total:1})});await expect(page.locator('#assistant-ia')).toBeEmpty();
 });

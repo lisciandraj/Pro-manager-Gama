@@ -73,7 +73,8 @@ test('Delivery proof retries are atomic and route schedules distinguish travel a
  // Isolated pre-existing history fixture; only the new origin guard is bypassed.
  await db.exec('reset role;alter table tms_deliveries disable trigger tms_order_origin');await as(admin);const delivery=(await db.query("insert into tms_deliveries(customer,address,status) values('Proof client','Test delivery address','Pendiente de preparación') returning id")).rows[0].id;
  await db.exec('reset role;alter table tms_deliveries enable trigger tms_order_origin');await as(admin);
- const route=(await db.query("insert into tms_routes(stops) values($1) returning id",[[delivery]])).rows[0].id;
+ const route=(await db.query("insert into tms_routes(stops,route_date) values($1,'2026-09-20') returning id",[[delivery]])).rows[0].id;
+ await db.query('update tms_deliveries set route_id=$1 where id=$2',[route,delivery]);
  const schedule=await rpc('gama_route_schedule',{route_id:route,starts_at:'2026-09-20T10:00:00Z',road_source:'Verified road itinerary',legs:[{id:delivery,drive_minutes:20,service_minutes:15,road_km:12}]});
  assert.equal(schedule.duration_minutes,35);assert.equal(schedule.road_km,12);assert.equal(Date.parse(schedule.legs[0].arrival_at),Date.parse('2026-09-20T10:20:00Z'));
  await assert.rejects(rpc('gama_route_schedule',{route_id:route,starts_at:'2026-09-20T10:00:00Z',road_source:'Verified itinerary',legs:[{id:uuid(),drive_minutes:20,service_minutes:15,road_km:12}]}),/ROUTE_LEGS_CHANGED/);

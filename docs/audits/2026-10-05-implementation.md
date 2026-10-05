@@ -22,7 +22,7 @@ Périmètre demandé le 5 octobre 2026 : implémentation des modules et des flux
 | A16 | Parcours Tarifs unifié et marge actualisée | Résolveur commun existant réutilisé ; pagination complète des tarifs spécifiques corrigée. |
 | A17 | Picking mobile et inventaires ABC programmés | Picking scanné existant préservé ; génération des comptages ABC programmée ajoutée. |
 | A18 | Planification TMS / géocodage sans écran | Planification serveur et historique ajoutés ; géocodage serveur encore ouvert. |
-| A19 | Distances routières et fenêtres horaires | En cours — validation requise avant déploiement |
+| A19 | Distances routières et fenêtres horaires | Adaptateur ORS privé, cache serveur et contrôles de fenêtres ajoutés ; clé fournisseur à configurer. |
 | A20 | Encaissements unifiés et rapprochement sûr | Flux d’encaissement canonique existant conservé ; fixtures finance de validation sans double trésorerie. |
 | A21 | Contrôles financiers et clôture par exceptions | Contrôles journaux/factures/stock programmés ajoutés ; clôtures existantes conservées. |
 | A22 | IR annuel et variables de paie approuvées | En cours — validation requise avant déploiement |
@@ -31,10 +31,10 @@ Périmètre demandé le 5 octobre 2026 : implémentation des modules et des flux
 | A25 | Flotte → dépenses / immobilisation / coût tournée | Flotte vers dépense unique implémentée et testée ; coût fiscal à revoir avant postage. |
 | A26 | Heures approuvées → coût projet | Heures, approbation, coût projet unique et annulation implémentés et testés. |
 | A27 | Pilote B2B et conversion web mesurée | Comptes cloud depuis Contacts, tarifs négociés et Mes documents implémentés ; fixture B2B. |
-| A28 | Enquêtes automatiques et apprentissage SAV | Invitation unique après livraison/SAV et arrêt après réponse ajoutés ; exploitation des réponses négatives à compléter. |
-| A29 | Assistant : preuves, coûts et brouillons d'actions | En cours — validation requise avant déploiement |
+| A28 | Enquêtes automatiques et apprentissage SAV | Invitation unique après livraison/SAV et arrêt après réponse ajoutés ; dossier SAV unique pour les réponses négatives à une question explicitement configurée ajouté ; apprentissage Knowledge encore ouvert. |
+| A29 | Agent Coco | Périmètre remplacé à la demande du propriétaire : conversation conservée, anciennes fonctions retirées, tableau PDF privé avec préfixe RCO ; deux rapports historiques et automatisation hebdomadaire. |
 | A30 | Délégations, cycle utilisateurs et traçabilité | Délégations expirantes et révocation effective testées ; anciennes Edge conservées en attente de preuve d’absence d’usage. |
-| A31 | Imports / exports suivis et reprenables | Worker classeur et import confirmé différé/reprenable ajoutés ; export Worker encore ouvert. |
+| A31 | Imports / exports suivis et reprenables | Worker classeur et import confirmé différé/reprenable ajoutés ; export Worker, annulation et contrôle de session ajoutés. |
 | A32 | KPI / recherche : agrégats et index adaptés | En cours — validation requise avant déploiement |
 | A33 | Isolation clients et industrialisation commerciale | Étude, hors construction multi-tenant |
 

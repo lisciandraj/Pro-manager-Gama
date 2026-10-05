@@ -31,7 +31,7 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Dashboard/KPI, CRM, RH, Suivi de processus, Compras, Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Dashboard/KPI, CRM, RH, Suivi de processus, Compras, Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Agent Coco, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
 Le menu et ses droits vivent dans le petit lot `coco-shell.js`, après le transport et le noyau. Les contrôles et les intégrations historiques sont réunis dans `coco-modules.js`, avec une priorité réseau basse. Ces deux lots conservent leur portée classique, leurs identifiants et leur ordre d’exécution. Une ouverture très précoce attend les contrôles partagés ; le fichier peut être réessayé après un échec réseau. La synchronisation centrale a un seul chargement déclaré, sans téléchargement de secours en double.
 

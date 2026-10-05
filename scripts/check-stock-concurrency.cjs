@@ -1,7 +1,7 @@
 // Real multi-session PostgreSQL regression. Refuses non-local or non-empty databases.
 // Run against a disposable PostgreSQL 17 cluster, never an application database.
 const {Client}=require('pg'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto');
-const {freshMigration}=require('./fresh-migration.cjs');
+const {fixtureMigration}=require('./fresh-migration.cjs');
 const connectionString=process.env.STOCK_TEST_DATABASE_URL||'postgres://postgres@127.0.0.1:55439/coco_concurrency';
 const url=new URL(connectionString);
 if(!['localhost','127.0.0.1','[::1]'].includes(url.hostname)||url.pathname!=='/coco_concurrency')throw Error('Requires the disposable local coco_concurrency database');
@@ -13,7 +13,7 @@ async function main(){
   await root.query(fs.readFileSync(path.join(__dirname,'../tests/platform-bootstrap.sql'),'utf8'));
   const directory=path.join(__dirname,'../supabase/migrations');
   for(const file of fs.readdirSync(directory).filter(f=>f.endsWith('.sql')).sort()){
-   const sql=freshMigration(file,fs.readFileSync(path.join(directory,file),'utf8').replace(/create extension if not exists pg_cron(?: with schema \w+)?;/gi,''));
+   const sql=fixtureMigration(file,fs.readFileSync(path.join(directory,file),'utf8'));
    try{await root.query(sql)}catch(e){throw Error(file+': '+e.message,{cause:e})}
   }
   const actor=uuid(),pid=uuid(),other=uuid();

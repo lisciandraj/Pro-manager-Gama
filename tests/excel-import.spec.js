@@ -177,14 +177,6 @@ test.describe('Importar datos — duplicados', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
-      // Stand in for the XLSX CDN parser so the real file -> parse -> import
-      // path runs without a network dependency.
-      // @ts-ignore
-      window.XLSX = {
-        read: () => ({ SheetNames: ['Clientes'], Sheets: { Clientes: {} } }),
-        // @ts-ignore
-        utils: { sheet_to_json: () => window.__ROWS__ || [] },
-      };
       // @ts-ignore
       window.__DB = {
         products: [], suppliers: [], invoices: [], invoice_lines: [],
@@ -206,17 +198,9 @@ test.describe('Importar datos — duplicados', () => {
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
-    await page.evaluate(() => {
-      // @ts-ignore - one already in the DB, one new, and one repeated twice in the file
-      window.__ROWS__ = [
-        { 'Nombre / Razón social': 'Distribuidora Andina S.A.', 'Dirección': 'Av. 10 de Agosto N45-120', 'Correo electrónico': 'a@x.ec' },
-        { 'Nombre / Razón social': 'Comercial El Dorado', 'Dirección': 'Calle 9 de Octubre 312', 'Correo electrónico': 'b@x.ec' },
-        { 'Nombre / Razón social': 'comercial el dorado', 'Dirección': 'calle 9 de octubre 312', 'Correo electrónico': 'b@x.ec' },
-      ];
-    });
-
+    // Exercise the pinned parser in its Worker with actual file contents.
     await page.click('.gamaExcelTypes button[data-type="clients"]');
-    await page.setInputFiles('#gamaExcelFile', TINY_FILE);
+    await page.setInputFiles('#gamaExcelFile', {name:'clientes.csv',mimeType:'text/csv',buffer:Buffer.from('Nombre / Razón social,Dirección,Correo electrónico\nDistribuidora Andina S.A.,Av. 10 de Agosto N45-120,a@x.ec\nComercial El Dorado,Calle 9 de Octubre 312,b@x.ec\ncomercial el dorado,calle 9 de octubre 312,b@x.ec\n')});
     await expect(page.locator('#gamaExcelStatus')).toContainText('3 fila(s) detectada(s)');
 
     await expect(page.locator('#gamaExcelImport')).toBeDisabled();

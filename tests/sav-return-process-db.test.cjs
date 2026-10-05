@@ -1,5 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto'),fs=require('node:fs');
 const {restore}=require('../scripts/restore-schema.cjs');
+const {fixtureMigration}=require('../scripts/fresh-migration.cjs');
 const base='20260928091919_sav_return_creation.sql';
 test('request conversion inherits process identity; old quote offsets are repaired with archived aliases; SAV creates one checked linked return',async()=>{
  const db=await restore({before:base}),admin=uuid(),customer=uuid(),product=uuid(),buyer=uuid();
@@ -23,7 +24,7 @@ test('request conversion inherits process identity; old quote offsets are repair
   const shipment=(await query('select * from sales_deliveries where order_id=$1',[order.id]))[0];
   const dl=(await query('select id from sales_delivery_lines where delivery_id=$1',[shipment.id]))[0].id;
   const stockBefore=await query('select id,quantity,reserved_quantity from stock_quants order by id');
-  for(const f of fs.readdirSync('supabase/migrations').filter(f=>f>=base).sort())await db.exec(fs.readFileSync('supabase/migrations/'+f,'utf8'));
+  for(const f of fs.readdirSync('supabase/migrations').filter(f=>f>=base).sort())await db.exec(fixtureMigration(f,fs.readFileSync('supabase/migrations/'+f,'utf8')));
   const oldAfter=await ref('invoices',oldQuote.id);
   assert.equal(oldAfter.document_reference,'COT-'+String(oldRef.dossier_number).padStart(8,'0'));
   assert.equal(oldAfter.legacy_reference,oldRef.document_reference);

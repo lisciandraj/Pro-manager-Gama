@@ -1,7 +1,7 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-10-05",
-  "source": "supabase_migrations.schema_migrations",
+  "capturedAt": "2026-10-05T17:21:20.010383+00:00",
+  "source": "connected_supabase.list_migrations",
   "applied": [
     {
       "version": "20260825214709",
@@ -1270,6 +1270,42 @@
       "sha256": "1ac2c6a6770a9abc8a240667aa96b5c97679659932c1c5f455bcb4351e2e4060"
     },
     {
+      "version": "20260928101345",
+      "name": "sav_return_creation",
+      "file": "20260928091919_sav_return_creation.sql",
+      "sha256": "93fb198af948fce23c469a40597da88005cd348d64d5365663ba8a32b2b309b5"
+    },
+    {
+      "version": "20260928101352",
+      "name": "shared_process_identity",
+      "file": "20260928091927_shared_process_identity.sql",
+      "sha256": "2645d9275e4b503e9afc71f49d6b3dfc11d3029ba0a807da16eaccf2e57be6ed"
+    },
+    {
+      "version": "20260928114608",
+      "name": "website_preview",
+      "file": "20260928112659_website_preview.sql",
+      "sha256": "c9071f1adadb125e6425a29bbb2af5ec513a3b33e8a2da5255c95d4a89f7eb97"
+    },
+    {
+      "version": "20260928173300",
+      "name": "returns_summary_pagination",
+      "file": "20260928172925_returns_summary_pagination.sql",
+      "sha256": "bedb0c45e451d8ff4746e34cbed3f3607e6c6fc81420c8c7cc4e371fc1a661e3"
+    },
+    {
+      "version": "20260929142009",
+      "name": "employee_photos",
+      "file": "20260929140841_employee_photos.sql",
+      "sha256": "5498cf1410c5f1ab2b738528d32f0d8fac6c026d0b6a740f7eb225bda44419e6"
+    },
+    {
+      "version": "20261001092519",
+      "name": "sri_invoice_selection",
+      "file": "20261001091333_sri_invoice_selection.sql",
+      "sha256": "d504fb67dc07f6001d52df6dd28e64504eb38979ba615c42ce716b52a21d4386"
+    },
+    {
       "version": "20261003074945",
       "name": "accounting_ec_ledger",
       "file": "20261003074945_accounting_ec_ledger.sql",
@@ -1286,6 +1322,84 @@
       "name": "public_storefront",
       "file": "20261003091337_public_storefront.sql",
       "sha256": "c85094987f4f30cb3b8b5a2aa4045ee96d3ea86b23f8931c2427c06c4d5b8fd0"
+    },
+    {
+      "version": "20261003152338",
+      "name": "surveys",
+      "file": "20261003152338_surveys.sql",
+      "sha256": "74e2320102b767a1b5e1652536e03592af3fc694e3aa4a92a7e4741bc291281c"
+    },
+    {
+      "version": "20261003152357",
+      "name": "contacts_people_save",
+      "file": "20261003152357_contacts_people_save.sql",
+      "sha256": "4c226aca6fdfa81689de3d5c5dd84d9403008563b34b2d82f957e6d26d4c5484"
+    },
+    {
+      "version": "20261003161033",
+      "name": "survey_recipients",
+      "file": "20261003161033_survey_recipients.sql",
+      "sha256": "95eed5060d4c6332f1a84e1800e4c9fae8b9870edf393cb97e79b8463114fda8"
+    },
+    {
+      "version": "20261003162302",
+      "name": "contact_addresses",
+      "file": "20261003162302_contact_addresses.sql",
+      "sha256": "f5b81b61d7482df92be82d2e7fb9da7ca8933cea08d8fb5afb1acf60a6bdf2fb"
+    },
+    {
+      "version": "20261003184033",
+      "name": "website_customer_requests",
+      "file": "20261003184033_website_customer_requests.sql",
+      "sha256": "462efee51845c108b053c148e70158fc6821aac09d29e3a363c10bb9853df0ca"
+    },
+    {
+      "version": "20261003184636",
+      "name": "website_default_products",
+      "file": "20261003184636_website_default_products.sql",
+      "sha256": "c3396972c5362cbf526c4895fed61b9352c79d94b7f60a56ff601ebcace310c0"
+    },
+    {
+      "version": "20261003202902",
+      "name": "retire_client_access",
+      "file": "20261003202902_retire_client_access.sql",
+      "sha256": "b52c775949a6bdccc63cbcbdc81a5877ffe6f8f55f880cd68fab25818a9b32ff"
+    },
+    {
+      "version": "20261003212647",
+      "name": "survey_publication_groups",
+      "file": "20261003212647_survey_publication_groups.sql",
+      "sha256": "77b16e64a91f098dbd6f250ca2c4dfa6137c6e82968a571155a96877ab1b1ec1"
+    },
+    {
+      "version": "20261003212648",
+      "name": "process_step_history",
+      "file": "20261003212648_process_step_history.sql",
+      "sha256": "ce7721e625bfe8c81a49cffedea4446febdc7b667ddcfc10877fffd68d35fc93"
+    },
+    {
+      "version": "20261003213121",
+      "name": "survey_recipient_privacy",
+      "file": "20261003213121_survey_recipient_privacy.sql",
+      "sha256": "7bb1822c2f6bd3edfb77b971b15d4e73dee75b152050b5d490c5c4528d41de2a"
+    },
+    {
+      "version": "20261004115531",
+      "name": "tms_order_only_auto_planning",
+      "file": "20261004095113_tms_order_only_auto_planning.sql",
+      "sha256": "781b74c7040154c63b8614574bd28d950c07ff80283a732fb455b45b2e63e855"
+    },
+    {
+      "version": "20261004145757",
+      "name": "product_import_3000_rows",
+      "file": "20261004145757_product_import_3000_rows.sql",
+      "sha256": "236af497c2bc8c4e7b04f976e7d8a21a6893b3cae801ec5cbeeb94b92792e880"
+    },
+    {
+      "version": "20261004155043",
+      "name": "import_product_timeout_and_indexes",
+      "file": "20261004155043_import_product_timeout_and_indexes.sql",
+      "sha256": "d9f5fa357e56d4305665a338311c9441b0cc339e11bbd8f427fe9d7401e86c99"
     },
     {
       "version": "20261004191646",
@@ -1394,6 +1508,72 @@
       "name": "ec_delivery_cost_per_customer",
       "file": "20261005065015_ec_delivery_cost_per_customer.sql",
       "sha256": "6faece06de70966cffbc9b44a6e7c529b8c73863faa7b481e3c8d45918c315c3"
+    },
+    {
+      "version": "20261005171628",
+      "name": "automation_jobs_and_rules",
+      "file": "20261005145609_automation_jobs_and_rules.sql",
+      "sha256": "c37d6248aaff2b904c4c61bced53a59f9c65fd3bffad0ff9dc00c8857a3a8cae"
+    },
+    {
+      "version": "20261005171630",
+      "name": "automation_business_flows",
+      "file": "20261005150601_automation_business_flows.sql",
+      "sha256": "c77d99407fa75bc00ca373902ae6cfa4a6fbdcd86f5694be9ad2ee59d1e76bee"
+    },
+    {
+      "version": "20261005171632",
+      "name": "finance_project_flow_bridges",
+      "file": "20261005151336_finance_project_flow_bridges.sql",
+      "sha256": "f75747fd2893d757e6680aa3e0246f6a65339e5075efdf30f4138463fd0937fc"
+    },
+    {
+      "version": "20261005171633",
+      "name": "b2b_customer_documents_center",
+      "file": "20261005151929_b2b_customer_documents_center.sql",
+      "sha256": "3d97153b50d067ab951ec8e14e903d320f67dc0440810097605e60fea7ee2aed"
+    },
+    {
+      "version": "20261005171634",
+      "name": "operational_metrics",
+      "file": "20261005154518_operational_metrics.sql",
+      "sha256": "3e1ca43abbb53c2ea92b6914936c1d5570ba849d31624f7f543c677da5470f68"
+    },
+    {
+      "version": "20261005171635",
+      "name": "supplier_xml_intake",
+      "file": "20261005154521_supplier_xml_intake.sql",
+      "sha256": "77c1462ab942f6394e89ac5bf2113970c450bd34e39a2727d5608e0f8f0d9735"
+    },
+    {
+      "version": "20261005171723",
+      "name": "customer_followup_flows",
+      "file": "20261005155700_customer_followup_flows.sql",
+      "sha256": "8cc9b41a22bb99e68f9081854c089df0477054bd2d30395764a44b7a0834b68f"
+    },
+    {
+      "version": "20261005171729",
+      "name": "background_import_application",
+      "file": "20261005161024_background_import_application.sql",
+      "sha256": "16215fbb06a310b1a2de9c3082511e6deb446f7d61828690e4f264bbd406359e"
+    },
+    {
+      "version": "20261005171730",
+      "name": "survey_feedback_cases",
+      "file": "20261005163650_survey_feedback_cases.sql",
+      "sha256": "77400a283e54d1ed521ca016d7158571bd5df75c8d1bfc9db3f9ccc016924fd6"
+    },
+    {
+      "version": "20261005171816",
+      "name": "road_matrix_and_time_windows",
+      "file": "20261005164021_road_matrix_and_time_windows.sql",
+      "sha256": "ae3ba50110cdd38b05554b58f4cfaf6f5c8693861eb82be2d70ab8472ab28f7b"
+    },
+    {
+      "version": "20261005171818",
+      "name": "agent_coco_report_archive",
+      "file": "20261005165044_agent_coco_report_archive.sql",
+      "sha256": "3dbeadea989d27de23524aa15286097a04b6dc56aaf717e43f885b5688b5c9f8"
     }
   ]
 }

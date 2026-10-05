@@ -511,6 +511,10 @@
     {
       "source": "src/features/import-export/import-worker.js",
       "output": "coco-import-worker.js"
+    },
+    {
+      "source": "src/features/import-export/export-worker.js",
+      "output": "coco-export-worker.js"
     }
   ],
   "styles": [

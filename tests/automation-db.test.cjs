@@ -32,6 +32,8 @@ test('Durable jobs enforce delegated permissions, dedupe, leases, retries, immut
   await db.query('select private.automation_run(30)');
   j=(await db.query('select * from private.automation_jobs where id=$1',[job])).rows[0];assert.equal(j.state,'succeeded');assert.equal(j.attempts,2);
   assert.equal((await db.query("select count(*)::int n from cron.job where jobname='coco-automation'")).rows[0].n,1);
+  await db.exec("select set_config('request.jwt.claim.sub','',false);select set_config('request.jwt.claims','{}',false)");
+  const cronJob=(await db.query("select private.automation_enqueue('operating_checks','test:headless') id")).rows[0].id;await db.query('select private.automation_run(30)');assert.equal((await db.query('select state from private.automation_jobs where id=$1',[cronJob])).rows[0].state,'succeeded');
   // A forged context setting does not satisfy MFA and a revoked principal stops jobs.
   await db.query("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);
   await as(admin);await db.query("select set_config('app.automation_job','forged',false)");await assert.rejects(rpc('snapshot'),/AUTH_OR_MFA_REQUIRED/);

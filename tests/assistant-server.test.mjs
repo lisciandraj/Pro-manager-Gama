@@ -42,10 +42,10 @@ test('no key produces explicit setup requirement and never a fake AI answer',asy
  const f=fixture(),r=await f.request();assert.equal(r.status,503);assert.equal((await r.json()).error,'AI_NOT_CONFIGURED');
  const status=await (await f.request({action:'status'})).json();assert.deepEqual(status,{configured:false,model:null});
 });
-test('diagnostic uses current server data, confirmed totals, proposed plans and private history',async()=>{
- const f=fixture(),r=await f.request({action:'diagnostic',data:{stock:9999}});assert.equal(r.status,200);
- const a=await r.json();assert.equal(a.engine,'calculated');assert.equal(a.coverage[0].rows,250);assert.ok(!JSON.stringify(a).includes('9999'));assert.ok(a.report.actions.length>=3);
- assert.equal(f.saved.at(-1).status,'complete');assert.ok(f.calls.filter(c=>/rpc\/gama_ai_(query|overview|catalog)/.test(c.url)).every(c=>c.init.headers.Authorization==='Bearer user-token'));
+test('removed diagnostic action cannot read ERP data or store an analysis',async()=>{
+ const f=fixture({key:true}),r=await f.request({action:'diagnostic',data:{stock:9999}});
+ assert.equal(r.status,400);assert.equal((await r.json()).error,'INVALID_ACTION');
+ assert.equal(f.saved.length,0);assert.ok(!f.calls.some(c=>/rpc\/gama_ai_(claim|overview|catalog)/.test(c.url)));
 });
 test('provider output is structured, citations checked, store disabled, query limits disclosed',async()=>{
  const f=fixture({key:true,tool:'query_data'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();assert.equal(a.engine,'openai');assert.equal(a.evidence.length,3);assert.equal(a.evidence[2].data.truncated,true);

@@ -20,7 +20,7 @@ Documents courants :
 
 - [accounting](modules/accounting.md)
 - [notifications](modules/notifications.md)
-- [coco-intelligence](modules/coco-intelligence.md)
+- [Agent Coco](modules/coco-intelligence.md)
 - [commercial-chain](modules/commercial-chain.md)
 - [crm](modules/crm.md)
 - [document-references](modules/document-references.md)

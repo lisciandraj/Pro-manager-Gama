@@ -1,0 +1,56 @@
+/* Generated from src/styles/modules/returns.css. Edit the source and run npm run build. */
+/* gama-returns.js */
+#returns{display:none}#returns.active{display:block}
+.grNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
+.grNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
+.grNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.grCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
+.grCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
+.grKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
+.grKpis .grCard{margin:0}
+.grKpis small{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:700}
+.grKpis strong{display:block;font-size:24px;margin-top:7px;color:var(--arc-text)}
+.grTools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.grTools label{flex:1;min-width:150px;font-size:13px;color:var(--arc-text);font-weight:700}
+.grTools input,.grTools select{width:100%;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
+.grScroll{overflow:auto}
+.grTable{width:100%;border-collapse:collapse;min-width:640px}
+.grTable th,.grTable td{text-align:left;padding:11px;border-bottom:1px solid var(--arc-line-strong);vertical-align:top;font-size:13px}
+.grTable th{font-size:12px;color:var(--arc-navy-700);font-weight:800}
+.grTable tbody tr:nth-child(even){background:var(--arc-surface-3)}
+.grTable td.grNum,.grTable th.grNum{text-align:right;white-space:nowrap}
+.grBadge{display:inline-block;border-radius:18px;padding:4px 10px;background:var(--arc-surface-3);color:var(--arc-navy-700);font-weight:700;font-size:12px}
+.grBadge[data-s=to_process]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.grBadge[data-s=received]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.grBadge[data-s=shipped]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.grBadge[data-s=processed]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=credited]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=closed]{background:var(--arc-success-bg);color:var(--arc-success)}
+.grBadge[data-s=cancelled]{background:var(--arc-surface-3);color:var(--arc-text-muted)}
+.grBadge[data-s=customer]{background:var(--arc-accent-100);color:var(--arc-navy-600)}
+.grBadge[data-s=supplier]{background:var(--arc-fam-sales-bg);color:var(--arc-fam-sales)}
+.grActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
+.grActions button{min-height:44px}
+.grBig{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.grBig button{min-height:86px;font-size:16px;font-weight:800;border-radius:13px;padding:14px}
+.grHint{font-size:13px;color:var(--arc-text-muted);margin:7px 0}
+.grError{color:var(--arc-danger);font-weight:700}
+.grGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+.grGrid label,.grField{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
+.grField{margin-top:11px}
+.grGrid input,.grGrid select,.grGrid textarea,.grField input,.grField select,.grField textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
+.grGrid[hidden],.grCard[hidden],.grField[hidden]{display:none}
+.grDocs{display:flex;gap:9px;flex-wrap:wrap}
+.grDocs button{min-height:40px}
+.grSteps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--arc-text-muted);font-weight:700}
+.grSteps span[aria-current=step]{color:var(--arc-accent-600)}
+.grDl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:13px}
+.grDl dt{color:var(--arc-text-muted);font-weight:700}
+.grDl dd{margin:0;color:var(--arc-text)}
+.grLine{border-top:1px solid var(--arc-line);padding:12px 0}
+.grLine:first-child{border-top:0}
+@media(max-width:700px){.grKpis{grid-template-columns:1fr 1fr}.grKpis strong{font-size:20px}
+ .grTable{min-width:560px}.grTools label{min-width:130px}.grBig{grid-template-columns:1fr}}
+@media(max-width:430px){.grKpis{grid-template-columns:1fr}.grDl{grid-template-columns:1fr}
+ .grDl dd{margin-bottom:6px}}
+

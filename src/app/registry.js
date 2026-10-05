@@ -67,14 +67,14 @@ const definitions=[
   },
   {
     "id": "assistant-ia",
-    "label": "Coco Intelligence",
+    "label": "Agent Coco",
     "icon": "cocoBot",
     "group": "Resumen",
-    "description": "Recomendaciones inteligentes, análisis y asistente para tu empresa",
+    "description": "Conversación e informes de análisis semanales para tu empresa",
     "accent": "blue",
     "order": 1,
     "menu": true,
-    "configLabel": "Coco Intelligence",
+    "configLabel": "Agent Coco",
     "roles": [
       "admin"
     ]
@@ -509,6 +509,7 @@ export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
 /** Route adapters preserve public module IDs and existing cross-module links. */
 const openers={
+ matrix:()=>window.GamaMatrix?.open(),
  surveys:()=>window.GamaSurveys?.open(),
  website:()=>window.GamaWebsite?.open(),
  contacts:from=>window.GamaContacts?.open(from),

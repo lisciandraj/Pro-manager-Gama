@@ -15,6 +15,7 @@ async function boot(page,width=1440,mfa=false){
  else if(a==='submit'){if(window.__B2B_FAIL)error={message:'NETWORK_TEST'};else data={id:'request',reference:'SOL-00000017',total:18.4}}
  else if(a==='favorites')data=[{id:'favorite',name:'Oficina mensual',lines:[{product_id:p.id,name:p.name,quantity:2,active:true}]}];
  else if(a==='requests')data=[{reference:'SOL-00000017',status:'pending',total:18.4,created_at:'2026-10-04T15:00:00Z',delivery_address_snapshot:'Calle Norte 10',requested_delivery_date:'2026-10-10'}];
+ else if(a==='documents')data={total:1,items:[{kind:v.kind||'invoice',id:'invoice',reference:'DOC-00000017',fiscal_number:'001-001-000000017',document_date:'2026-10-01',amount:115,status:'authorized',files:[{id:'file',mime_type:'application/pdf'}]}]};
  else if(a==='invoices')data={total:1,items:[{id:'invoice',reference:'DOC-00000017',fiscal_number:'001-001-000000017',issue_date:'2026-10-01',due_date:'2026-10-02',total:115,balance:95,files:[{id:'file',mime_type:'application/pdf'}]}]};
  else if(a==='invoice_file')data={filename:'DOC-00000017.pdf',mime_type:'application/pdf',content_base64:'JVBERi0xLjQ='};
  else if(a==='deliveries')data={total:1,items:[{id:'delivery',reference:'DOC-00000017',date:'2026-10-04',address:'Calle Norte 10',status:'Entregada',has_proof:false}]};
@@ -37,6 +38,12 @@ for(const width of [390,1440])test('B2B customer sees private prices, repeats fa
  await page.locator('#logout').click();await expect(page.locator('#account')).toBeHidden();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('[name=password]')).toHaveValue('');
 });
 test('B2B revocation clears documents and shows the login again',async({page})=>{await boot(page);await page.locator('[data-tab=invoices]').click();await page.evaluate(()=>__B2B_REVOKED=true);await page.locator('#refresh').click();await expect(page.locator('#account')).toBeHidden();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('#status')).toContainText('no ha activado');});
+test('The customer document center filters documents, downloads a scoped file and clears it when access is revoked',async({page})=>{
+ await boot(page,390);await page.locator('[data-tab=documents]').click();await expect(page.locator('#content')).toContainText('DOC-00000017');
+ const download=page.waitForEvent('download');await page.locator('[data-doc-file]').click();expect((await download).suggestedFilename()).toBe('DOC-00000017.pdf');
+ await page.locator('#documentSearch [name=kind]').selectOption('delivery_proof');await expect.poll(async()=>page.evaluate(()=>__B2B_CALLS.filter(c=>c.p_action==='documents').at(-1).p_data.kind)).toBe('delivery_proof');
+ await page.evaluate(()=>__B2B_REVOKED=true);await page.locator('#refresh').click();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('#account')).toBeHidden();
+});
 
 test('A failed company lookup during login gives a retry message without showing account data',async({page})=>{
  await boot(page);await page.locator('#logout').click();await page.evaluate(()=>__B2B_BOOT_FAIL=true);

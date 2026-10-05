@@ -1,4 +1,4 @@
-import { diagnostic, answerSchema, validateAnswer, systemPrompt, queryTool, articleTool, inventoryTool } from './reports.mjs';
+import { answerSchema, validateAnswer, systemPrompt, queryTool, articleTool, inventoryTool } from './reports.mjs';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 class Failure extends Error {constructor(code,status=500){super(code);this.status=status;}}
@@ -125,33 +125,32 @@ export function createHandler({env,fetch:fetcher}) {
     await db('gama_ai_settings?on_conflict=id',{token:serviceKey,method:'POST',prefer:'return=minimal,resolution=merge-duplicates',body:{id:true,encrypted_key:await encrypt(key),model,updated_by:userId,updated_at:new Date().toISOString()}});return reply({configured:true,model});
    }
    if(body.action==='history'){
-    const rows=await db('gama_ai_history?select=id,question,language,engine,created_at&user_id=eq.'+userId+'&status=eq.complete&order=created_at.desc&limit=20',{token});return reply({rows});
+    const rows=await db('gama_ai_history?select=id,question,language,engine,created_at&user_id=eq.'+userId+'&status=eq.complete&engine=eq.openai&order=created_at.desc&limit=20',{token});return reply({rows});
    }
    if(body.action==='conversation'){
     if(!UUID.test(body.id||''))throw new Failure('INVALID_REQUEST',400);
-    const rows=await db('gama_ai_history?select=id,question,answer,created_at&user_id=eq.'+userId+'&status=eq.complete&id=eq.'+body.id,{token});
+    const rows=await db('gama_ai_history?select=id,question,answer,created_at&user_id=eq.'+userId+'&status=eq.complete&engine=eq.openai&id=eq.'+body.id,{token});
     if(!rows?.length)throw new Failure('NOT_FOUND',404);return reply(rows[0]);
    }
-   if(!['ask','diagnostic'].includes(body.action))throw new Failure('INVALID_ACTION',400);
+   if(body.action!=='ask')throw new Failure('INVALID_ACTION',400);
    const language=['fr','es','en'].includes(body.language)?body.language:'fr';
    const question=typeof body.question==='string'?body.question.trim():'';
    if(!question||question.length>4000||!UUID.test(body.request_id||''))throw new Failure('INVALID_QUESTION',400);
    for(const d of [body.from,body.to])if(d!=null&&d!==''&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))))throw new Failure('INVALID_PERIOD',400);
    if(body.from&&body.to&&body.from>body.to)throw new Failure('INVALID_PERIOD',400);
-   const config=body.action==='ask'?await settings():null;
-   if(body.action==='ask'&&!config.key)throw new Failure('AI_NOT_CONFIGURED',503);
+   const config=await settings();
+   if(!config.key)throw new Failure('AI_NOT_CONFIGURED',503);
    const claimed=await rpc('gama_ai_claim',{p_user:userId,p_id:body.request_id,p_question:question,p_language:language},serviceKey);
    if(!claimed)throw new Failure('REQUEST_ALREADY_EXISTS',409);requestId=body.request_id;
    const catalog=await rpc('gama_ai_catalog',{},token);
    const overview=await rpc('gama_ai_overview',{p_from:body.from||null,p_to:body.to||null},token);
    let answer;
-   if(body.action==='diagnostic')answer=diagnostic(overview,language);
-   else{
+   {
     await rpc('gama_coco_inventory_analyze',{},token);
     const stock=await inventory(token);
     // Only server-owned answers from this administrator can enter the history.
     const ids=Array.isArray(body.history_ids)?body.history_ids.filter(v=>typeof v==='string'&&UUID.test(v)).slice(-4):[];
-    const history=ids.length?await db('gama_ai_history?select=question,answer,created_at&user_id=eq.'+userId+'&status=eq.complete&id=in.('+ids.join(',')+')&order=created_at.asc',{token}):[];
+    const history=ids.length?await db('gama_ai_history?select=question,answer,created_at&user_id=eq.'+userId+'&status=eq.complete&engine=eq.openai&id=in.('+ids.join(',')+')&order=created_at.asc',{token}):[];
     answer=await generate({question,language,overview,catalog,history,config,token,stock});
    }
    await admin(token);

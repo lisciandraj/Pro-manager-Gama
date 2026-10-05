@@ -3,7 +3,7 @@
 | Espace | Contenu et accès |
 | --- | --- |
 | Tableau de bord | Pilotage, priorités et KPI personnalisables |
-| Coco Intelligence | Diagnostics et assistant réservés aux administrateurs |
+| Agent Coco | Conversation et rapports PDF réservés aux administrateurs |
 | Suivi de processus | PDV ventes, PDC achats, PRC retours clients, PRP retours fournisseurs |
 | Ventes | Demandes, devis, commandes, factures/encaissements, tarifs, matrice commerciale, selon les droits |
 | Achats | Commandes fournisseurs, réception, réapprovisionnement et contrôles |

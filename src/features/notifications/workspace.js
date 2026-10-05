@@ -34,6 +34,7 @@ function tabsFor(d){
   ...CATEGORIES.filter(c=>fin||!c.finance).map(c=>{const n=count(d,c.id);return {id:c.id,label:c.label,icon:icon(c.icon),pane:'alerts',badge:n?num(n):'',tone:n?(c.red?'danger':'warning'):''}}),
   ...(window.gamaAccessAllowed?.('projects')?[{id:'projects',label:'Proyectos',icon:icon('project'),pane:'projects',badge:projectCount?num(projectCount):'',tone:projectCount?'warning':''}]:[]),
   {id:'approvals',label:'Validaciones',icon:icon('checklist'),pane:'approvals'},
+  {id:'automation',label:'Tratamientos y excepciones',icon:icon('gauge'),pane:'automation'},
   {id:'preferences',label:'Preferencias',icon:SLIDERS,pane:'preferences'}];
 }
 const otherDialog=()=>[...document.querySelectorAll('dialog[open]')].some(d=>d!==win?.el);
@@ -47,6 +48,7 @@ function choose(t){
  current=t.id;
  if(t.pane==='projects')return projects();
  if(t.pane==='approvals')return window.ArchitectControls?.approvals($('goApprovals')).catch(e=>paneError($('goApprovals'),e));
+ if(t.pane==='automation')return window.CocoAutomation?.mount($('goAutomation'));
  if(t.pane==='preferences')return preferences($('goPreferences'));
 }
 function openWindow(first='all'){
@@ -55,7 +57,7 @@ function openWindow(first='all'){
  win?.el.remove();win=null;current=null;
  win=window.ArcUI.sideDialog({id:'arcNotifyDialog',prefix:'notify',title:'Notificaciones',navLabel:'Apartados de las notificaciones',opener:$('arcNotify'),tabs:tabsFor(snapshot),
   panes:[{id:'alerts',html:'<div class="goTools"><button type="button" class="arcButton secondary" id="goRefresh" data-gi-live data-gi=fe5f6628c7b5>Actualizar</button><button type="button" class="arcButton secondary" id="goSwitch" data-gi-live data-gi=334fff09abf7>Ver el panel de control</button></div><div id="goMain" aria-live="polite" data-gi-live></div>'},
-   {id:'projects',html:'<div id="goProjects"></div>'},{id:'approvals',html:'<div id="goApprovals" data-gi-ignore></div>'},{id:'preferences',html:'<div id="goPreferences" data-gi-ignore></div>'}],
+   {id:'projects',html:'<div id="goProjects"></div>'},{id:'approvals',html:'<div id="goApprovals" data-gi-ignore></div>'},{id:'automation',html:'<div id="goAutomation" data-gi-ignore></div>'},{id:'preferences',html:'<div id="goPreferences" data-gi-ignore></div>'}],
   onSelect:choose,onClose:api=>{if(win===api){win=null;version++}}});
  $('goRefresh').onclick=()=>{load();if(current==='projects')projects()};$('goSwitch').onclick=()=>window.ArcRouter?.open('dashboard');
  win.select(first,{focus:true});

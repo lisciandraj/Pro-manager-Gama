@@ -42,7 +42,7 @@ test('inactive catalogue drafts can be completed without implicit activation',as
 test('Excel reports database duplicates and errors without counting successful imports',async({page})=>{
  await setup(page);
  await page.evaluate(()=>{
-  window.XLSX={read:()=>({SheetNames:['products'],Sheets:{products:{}}}),utils:{sheet_to_json:()=>[{name:'Duplicado',barcode:'D'},{name:'Error',barcode:'E'},{name:'Valido',barcode:'V'}]}};
+
   const old=GamaCloud.db;let result;
   GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
    if(fn!=='gama_import_batch')return c.rpc(fn,args);
@@ -53,7 +53,7 @@ test('Excel reports database duplicates and errors without counting successful i
  });
  await page.click('#arcSettings');
     await page.click('#cfgTab-reports');
- await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\n')});
+ await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\nDuplicado,D\nError,E\nValido,V\n')});
  await expect(page.locator('#gamaExcelImport')).toBeDisabled();await page.click('#gamaExcelValidate');await expect(page.locator('#gamaExcelStatus')).toContainText('2 errores');expect(await page.evaluate(()=>window.__DB.products.length)).toBe(2);await page.click('#gamaExcelImport');
  await expect(page.locator('#gamaExcelStatus')).toContainText('1 importadas · 2 errores');
  expect(await page.evaluate(()=>window.__DB.products.length)).toBe(3);

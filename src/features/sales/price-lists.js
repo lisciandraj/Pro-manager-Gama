@@ -21,8 +21,8 @@ async function load(){
  const api=C();if(!api){msg('La conexión con la nube de Coco ERP no está disponible.',true);return}
  try{
   const [c,p]=await Promise.all([
-   api.list('customers',{order:'name',ascending:true}),
-   api.list('products',{select:'id,name,sale_price,sale_price_b,active',order:'name',ascending:true}),
+   window.ArcData.all('customers',{select:'id,name,category,active',order:'name',ascending:true}),
+   window.ArcData.all('products',{select:'id,name,sale_price,sale_price_b,active',order:'name',ascending:true}),
   ]);
   if(c.error)throw c.error;
   if(p.error)throw p.error;
@@ -36,7 +36,7 @@ async function load(){
 async function loadItems(){
  items=[];
  if(!selected)return;
- const r=await C().list('customer_special_prices',{eq:{customer_id:selected}});
+ const r=await window.ArcData.all('customer_special_prices',{eq:{customer_id:selected}});
  if(r.error)throw r.error;
  items=r.data||[];
 }

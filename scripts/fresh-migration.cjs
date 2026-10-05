@@ -13,4 +13,7 @@ do $$ begin
 end $$;
 `+sql.slice(0,sql.indexOf(marker));
 }
-module.exports={freshMigration};
+// Only disposable fixtures replace managed networking and scheduling with the
+// platform-bootstrap stubs. Production always applies the original migration.
+function fixtureMigration(file,sql){return freshMigration(file,sql.replace(/create extension if not exists (pg_cron|pg_net)(?: with schema \w+)?;/gi,''));}
+module.exports={freshMigration,fixtureMigration};

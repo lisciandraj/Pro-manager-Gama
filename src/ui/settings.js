@@ -87,6 +87,7 @@ const SECTIONS=[
  {id:'sri',label:'Facturación SRI',icon:'invoice',pane:'sri',admin:true},
  {id:'references',label:'Referencias de documentos',icon:'tag',pane:'references',admin:true},
  {id:'policies',label:'Reglas operativas',icon:'gauge',pane:'policies',admin:true},
+ {id:'automation',label:'Automatizaciones y excepciones',icon:'checklist',pane:'automation',admin:true,module:'access-settings'},
  {id:'reports',label:'Importar datos',icon:'spreadsheet',pane:'reports',module:'reports'},
  {id:'backup',label:'Copias de seguridad',icon:'cloud',pane:'backup',admin:true,module:'backup'},
  {id:'users',label:'Usuarios',icon:'user',pane:'users',admin:true,module:'users'},
@@ -99,13 +100,14 @@ const PANES={
  company:host=>window.GamaCompany?.mount(host),
  references:host=>window.GamaReferences?.mountConfig(host),
  policies:host=>window.ArchitectControls?.mountPolicies(host),
+ automation:host=>window.CocoAutomation?.mount(host),
  security:host=>window.ArchitectIdentity?.security(host),
  reports:mountImport,
  backup:host=>{portal('backup',host);window.GamaRecovery?.mount()},
  users:mountUsers,
  'access-settings':host=>{portal('access-settings',host);render('access-settings');window.GamaModules.load().then(()=>{if(dialog?.el.open&&$('access-settings')?.closest('#arcSettingsDialog')&&!busy)render('access-settings')}).catch(()=>{})},
 };
-const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup',users:'cfgUsers','access-settings':'cfgAccess'};
+const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',automation:'cfgAutomation',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup',users:'cfgUsers','access-settings':'cfgAccess'};
 let dialog=null;
 const available=s=>(!s.admin||isAdmin())&&(!s.module||!!window.gamaAccessAllowed?.(s.module));
 /* Move each existing screen into its pane, then park it back on close. File

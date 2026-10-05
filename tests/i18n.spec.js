@@ -111,7 +111,8 @@ test('settings exposes language to all roles without exposing module switches or
 });
 test('access settings is a restricted Configuration tab, personal preferences have no switches',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
- await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(12);
+ await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(13);
+ await expect(page.locator('#cfgTab-automation')).toBeVisible();
  await expect(page.locator('#cfgTab-users')).toHaveText('Usuarios');
  await expect(page.locator('#arcSettingsDialog input[data-mod],#arcSettingsDialog button[data-mod]')).toHaveCount(0);
  await page.locator('#cfgTab-access-settings').click();

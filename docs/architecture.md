@@ -23,7 +23,7 @@
 
 ## Construction
 
-`scripts/build.cjs` vérifie le manifeste, compile le catalogue de traductions sans réécrire les sources, compacte les scripts nommés sans renommer les identifiants publics, compile le noyau, assemble les deux lots de démarrage, assemble les 46 sections CSS dans l’ordre déclaré, calcule les versions par contenu, génère les pages et le service worker, puis prépare `dist/`.
+`scripts/build.cjs` vérifie le manifeste, compile le catalogue de traductions sans réécrire les sources, compacte les scripts nommés sans renommer les identifiants publics, compile le noyau, assemble les deux lots de démarrage, assemble les sections CSS communes dans l’ordre déclaré et publie séparément les styles différés, calcule les versions par contenu, génère les pages et le service worker, puis prépare `dist/`.
 `scripts/lib/assets.cjs` partage le manifeste et les règles de génération avec les contrôles.
 La liste des scripts publiés est explicite : les configurations Playwright et les outils ne sont plus inclus par une recherche de tous les fichiers JS.
 
@@ -31,7 +31,7 @@ Les fichiers racine `gama-*` et `architect-*` restent des **sorties compatibles*
 
 ## Chargement
 
-Le noyau et les dépendances de base restent disponibles au démarrage. Dashboard/KPI, CRM, RH, Suivi de processus, Compras, Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Coco Intelligence, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
+Le noyau et les dépendances de base restent disponibles au démarrage. Dashboard/KPI, CRM, RH, Suivi de processus, Compras, Comptabilité, flotte, retours, SAV/documents, diagnostics d’audit, site web, Knowledge, Agent Coco, Projets, Stock et TMS se chargent à la demande. SAV et Documents partagent un seul téléchargement. Un échec réseau peut être réessayé ; l’ouverture par recherche globale utilise les mêmes points d’entrée.
 
 Le menu et ses droits vivent dans le petit lot `coco-shell.js`, après le transport et le noyau. Les contrôles et les intégrations historiques sont réunis dans `coco-modules.js`, avec une priorité réseau basse. Ces deux lots conservent leur portée classique, leurs identifiants et leur ordre d’exécution. Une ouverture très précoce attend les contrôles partagés ; le fichier peut être réessayé après un échec réseau. La synchronisation centrale a un seul chargement déclaré, sans téléchargement de secours en double.
 
@@ -115,3 +115,7 @@ Les titres et téléchargements de Documents remplacent les noms techniques cont
 Les nouvelles lectures `gama_stock_sales_thresholds` et `gama_management_overview` s’ouvrent avec leurs écrans métier, sans dépendance au démarrage. Les validations des seuils utilisent des reçus de commande et ne touchent pas aux quantités physiques. SAV est un onglet de Retours dans le registre ; ses anciennes routes et contrôles serveur restent compatibles.
 
 Le portail B2B est une page autonome produite depuis `src/storefront/`. Ses comptes utilisent une session Auth séparée dans `sessionStorage` et des associations explicites à une entreprise, vérifiées par les façades SQL. Les profils clients retirés de l’ERP restent inactifs ; les anciennes RLS demeurent fermées. La résolution de prix pure et privée est partagée avec le résolveur interne, dont les contrôles d’accès restent inchangés. Voir [site public](public-website.md), [Stock](modules/stock.md) et [pilotage](company-dashboard.md).
+
+## Traitements durables et portail client
+
+Les règles versionnées, traitements, tentatives et exceptions restent privés. Les façades invocateur filtrent par les droits courants du module. Les actions métier déléguées utilisent un contexte transactionnel fermé et temporaire, sans jeton fabriqué ni droit accordé par un GUC. La file d’envoi utilise pg_net et un secret Vault, une destination Resend fixe, des clés stables et une consultation des statuts réels. Les parcours, limites et paramètres sont dans [automatisations](automation.md). Les associations cloud sont accessibles depuis Contacts ; la rubrique Mes documents du portail reste contrôlée par entreprise à chaque téléchargement.

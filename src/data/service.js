@@ -53,7 +53,11 @@ export async function rpc(name, data = {}) {
   if(r.error){const e=new Error(r.error.message || 'UNKNOWN_ERROR');Object.assign(e,r.error,{details:normalizeError(r.error)});throw e;}
   return r.data;
 }
-export async function rawRpc(name,data={}) {return (await cloud().db()).rpc(name,data);}
+export async function rawRpc(name,data={}) {
+ const started=performance.now();let success=false;
+ try{const r=await (await cloud().db()).rpc(name,data);success=!r.error;return r}
+ finally{if(name!=='gama_operational_metrics')window.dispatchEvent(new CustomEvent('arc:metric',{detail:{metric:'rpc',operation:name,duration_ms:Math.round(performance.now()-started),success}}))}
+}
 export const action = (domain, operation, data = {}) => rpc('gama_'+domain+'_action',{p_action:operation,p_data:data});
 export function startDataEvents() {
   window.addEventListener('gama:data-change',event=>invalidate(event.detail?.table));

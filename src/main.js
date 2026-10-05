@@ -28,6 +28,7 @@ window.ArcRuntimeReady.catch(()=>{});
 window.ArcEnsureRuntime=()=>window.ArcRuntimeLoaded?Promise.resolve():window.ArcRuntimeFailed?
  loadScript('coco-modules.js',{validate:()=>window.ArcRuntimeLoaded}):window.ArcRuntimeReady;
 installLazyModules();
+router.onEnter('matrix',()=>{window.GamaMatrix.render().catch(()=>{})});
 router.onEnter('dashboard',()=>{window.ArchitectDashboard.refresh().catch(()=>{})});
 data.startDataEvents();startRouter();
 

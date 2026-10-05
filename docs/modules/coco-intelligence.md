@@ -1,122 +1,25 @@
-> État relu le 5 octobre 2026. Nom affiché : Coco Intelligence. Accès administrateur ; recommandations calculées côté serveur et assistant optionnel. Le module se charge à son ouverture.
+# Agent Coco
 
-# Coco Intelligence
+État : 5 octobre 2026. Le nom affiché est **Agent Coco**. L’identifiant `assistant-ia`, le point d’entrée `GamaAssistant` et la fonction Edge `gama-assistant-ia` restent compatibles avec la navigation et les droits existants.
 
-Administrator-only GAMA module, available in French, Spanish and English.
+## Conversation
 
-## Activation
+Le module comporte deux onglets : **Conversation** et **Rapports d’analyse**. La conversation conserve les messages libres, les réponses avec leurs preuves, les conversations récentes et la connexion OpenAI. Les diagnostics, filtres de période, cartes de recommandations et raccourcis d’analyse autonomes ont été retirés. L’action Edge `diagnostic` est refusée ; l’historique affiché concerne les conversations OpenAI. Les calculateurs partagés avec Stock et le Dashboard restent disponibles dans leurs modules.
 
-Open **Assistant IA → Connecter l’IA**, enter an OpenAI API key with available
-credit, and save. The default API model is `gpt-4.1-mini`; the administrator may
-specify another compatible GPT model. Model access is checked before saving.
-No API key belongs in the repository, browser storage, screenshots or tests.
+L’accès exige un administrateur actif, le module activé, les droits de son profil et la MFA lorsqu’elle est configurée. Le serveur contrôle chaque demande et conserve les historiques par utilisateur. La conversation consulte les données autorisées ; elle ne poste pas de commande, paiement ou écriture comptable. Les clés restent chiffrées côté serveur. Les lectures utiles à la réponse peuvent être transmises au fournisseur OpenAI avec `store: false`.
 
-An existing `OPENAI_API_KEY` Edge Function secret also works, with optional
-`OPENAI_MODEL`. An explicitly saved module connection takes precedence.
+## Rapports PDF
 
-The calculated diagnostic works without an AI provider and is explicitly marked
-as calculated. Free-form AI questions require the configured provider. A missing
-key or provider failure never becomes a pretend AI response.
+Le tableau affiche la date, le numéro unique, le titre, la période et le téléchargement PDF. Le tri initial présente les dates les plus récentes ; il peut être inversé. La pagination est de 25 rapports. La liste charge uniquement les métadonnées. Le PDF est chargé à la demande, avec une nouvelle vérification des droits ; son empreinte SHA-256 est vérifiée avant le téléchargement.
 
-## Data and behavior
+Le nouveau type documentaire `agent_report` utilise le préfixe **RCO** et le compteur central de l’ERP, par exemple `RCO-00000001`. Le document téléchargé porte ce numéro dans son nom. Le contenu original du PDF est conservé sans modification. Chaque édition est immuable : une même clé et le même contenu retournent le document existant ; une édition contradictoire est refusée.
 
-- `gama_ai_catalog` explicitly allowlists the 82 existing business tables and
-  their readable fields. Extend it when adding a business module. Authentication
-  internals, API credentials, binary attachments and nested audit snapshots are
-  excluded. Knowledge text is read in chunks when necessary.
-- `gama_ai_query` accepts a restricted read description, never model SQL. It
-  checks table and field names, quotes identifiers and values, enforces time and
-  pagination limits, and calculates aggregates over all matching records.
-- `gama_ai_overview` computes current stock, canonical receivables, operational
-  delays and activity indicators. Only invoicing/receipts/orders use the selected
-  period; dates follow `America/Guayaquil`, monetary values follow the existing
-  GAMA convention of USD. Quotes and linked external invoice numbers are not
-  added a second time to the invoice register. Cancelled payments do not count.
-- Answers contain findings, evidence IDs, proposed actions with priorities,
-  owner roles, deadlines and success criteria, plus limitations. Evidence has
-  timestamps, query descriptions and explicit truncation indicators. Counts in
-  “data coverage” show available data, not a claim to have analyzed every row.
-- Plans never modify business data or send messages. The only writes are AI
-  configuration and this administrator's private analysis history.
-- This application currently has one company per Supabase project. The assistant
-  retains the existing RLS scope; it does not introduce a multi-company model.
+Les originaux se trouvent dans `private.agent_report_files`, séparés des métadonnées de `private.agent_reports`. Les tables et l’import interne sont fermés aux visiteurs, comptes clients, utilisateurs non administrateurs et accès direct authentifié. Aucun rapport n’est publié parmi les fichiers du site ou dans Git. Chaque fichier est limité à 5 Mio.
 
-## Security and operation
+Les deux éditions historiques intégrées sont le diagnostic bilingue du **29 septembre 2026** (12 pages) et le rapport hebdomadaire bilingue du **5 octobre 2026** (32 pages, période du 28 septembre au 4 octobre). Le diagnostic est archivé sous **RCO-00000001** et le rapport hebdomadaire sous **RCO-00000002**. L’automatisation hebdomadaire existante conserve son envoi par mail et archive le même PDF dans Agent Coco. Elle utilise une clé stable `weekly:<début>:<fin>` ; une reprise ne crée pas de deuxième édition. Cet archivage complète la tâche existante ; il ne crée pas une seconde planification.
 
-`gama-assistant-ia` has gateway JWT verification enabled. It independently verifies
-the user through Auth, checks the current `profiles.active` and administrator role
-before every operation and again before returning an answer. Its data requests
-use the caller's token, retaining RLS. The database RPCs repeat the role and module
-enablement checks. No business query uses the service-role token.
+## API et validation
 
-History SELECT is restricted to its owner, while the owner is an active
-administrator and the module is enabled. Browser roles cannot insert or update
-history, call the rate-limit claim, or read/write AI settings. A shared database
-rate limit admits at most 4 requests/minute, 30/hour and 100/day per administrator;
-request IDs prevent duplicate execution.
+`gama_agent_reports(p_action, p_data)` expose `list`, `download` et `import`. L’import par l’interface exige le droit de création ; le téléchargement exige le droit d’export. `private.agent_report_import_data(jsonb)` sert uniquement à l’import privilégié des rapports, avec les champs `report_key`, `title`, `report_date`, `period_from`, `period_to`, `languages`, `filename`, `content_base64` et `sha256`. Il ne modifie aucune donnée produit, fournisseur ou client.
 
-Provider keys are AES-GCM encrypted with a random nonce before storage in a table
-accessible only to the server's service role. Prefer a stable, random
-`GAMA_AI_ENCRYPTION_KEY` Edge Function secret for encryption. Without it, the
-service-role key derives the encryption key: rotating it requires reconnecting
-the AI account. Keys and provider errors are never logged or returned. Model
-requests use `store:false`; OpenAI's separate account data retention terms still
-apply. Only relevant company evidence should be retrieved for a question.
-
-## Deployment and verification
-
-Publish frontend changes using the existing GitHub Pages deployment. Apply the
-committed Supabase migrations and deploy `supabase/functions/gama-assistant-ia`
-with `index.ts` as entrypoint and `verify_jwt=true`. No frontend build step or new
-runtime package is required.
-
-Checks:
-
-- `node --test tests/assistant-server.test.mjs`: authorization, truthful missing-key
-  state, calculations from server input, encrypted configuration, provider errors,
-  restricted tools and evidence validation (provider calls are mocked).
-- `npm test -- tests/assistant-ia.spec.js`: admin/non-admin navigation, chat,
-  history, evidence, XSS escaping, settings, logout, mobile and language changes.
-- `supabase/tests/assistant-ia.sql`: actual PostgreSQL role/RLS, injection,
-  aggregation and period checks. Fixtures are enclosed in a rolled-back transaction.
-
-The live overview and unauthenticated Edge Function rejection were checked during
-deployment. A paid model response must also be checked after supplying the real
-provider key; mocked provider tests do not establish real account access.
-
-## Coco Intelligence inventory (V1.1)
-
-The user-facing module is now **Coco Intelligence**; `assistant-ia` remains its
-stable permission/history ID. Its stock panel works without OpenAI credit.
-
-- Demand uses observed outbound delivery, production and manual consumption over
-  30/60/90 days. Transfers, adjustments, supplier returns and future movements do
-  not count. The weighted daily mean is 50%/30%/20% across those fixed windows.
-- Suggested minimum is 1.5 × lead-time demand; maximum is demand over lead time
-  plus 14 days, plus a 50% lead-time safety buffer. Missing lead time defaults to
-  7 days. Confidence is an indicative heuristic based on history and settings.
-- Without demand, retain configured min/max and label the result as configuration
-  based with limited confidence. Service and inactive products are excluded.
-- Available stock excludes reservations. Sent/partial purchases count as incoming;
-  draft purchases are shown separately and deducted to prevent duplicate proposals.
-  Order quantity is positive only below the proposed minimum. Stock above minimum
-  can still receive a threshold-review proposal, with zero purchase quantity.
-- The panel shows all pending recommendations through pages ordered by priority,
-  calculation inputs, a timestamp, refresh/retry controls and a link to Purchases.
-  It never changes product thresholds, physical stock or purchase orders.
-- Each AI question refreshes deterministic recommendations, receives a first page
-  as cited evidence, and can read further pages with `read_inventory`. The model
-  explains supplied quantities; it cannot calculate or apply inventory policy.
-- Both read RPCs and cache refresh require an active administrator and enabled
-  module. Public RPCs use invoker rights; the guarded cache writer resides in the
-  non-exposed private schema with an empty search path. Tables are read-only to
-  browser roles and RLS denies non-admin reads. Refreshes serialize with a
-  transaction advisory lock; refreshed proposals retain IDs and stale ones expire.
-
-Verify with `node --test tests/coco-intelligence-db.test.cjs
- tests/assistant-server.test.mjs` and `npx playwright test tests/assistant-ia.spec.js`.
-Deploy the reliability migration before the updated Edge Function and frontend.
-
-## Concrete operational questions
-
-The first prompts ask which customers to follow up today and what to order this week. They call `gama_management_overview('assistant-ia')` and show current, authorized records without an OpenAI key. Collection balances use the canonical maturity calculation ; purchase proposals retain reservations, incoming/draft purchases, supplier grouping, minimum quantities and pack multiples from Stock. The list displays its returned count and total count. “Open to act” goes to Collections or Stock for review. These answers never send messages, create purchases or change inventory. Remaining free-form analysis retains the configured AI workflow.
+La migration `20261005165044_agent_coco_report_archive.sql` installe le préfixe, le compteur, les tables privées et les RPC. Les tests `agent-coco-reports-db.test.cjs`, `assistant-server.test.mjs` et `assistant-ia.spec.js` vérifient références, déduplication, refus des conflits, confidentialité, tri, pagination, conversation et changement de session.

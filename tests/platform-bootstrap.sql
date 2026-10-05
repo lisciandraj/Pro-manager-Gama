@@ -27,3 +27,15 @@ create publication supabase_realtime;
 create table cron.job(jobid bigint generated always as identity primary key,jobname text,schedule text,command text);
 create function cron.schedule(job_name text,schedule text,command text) returns bigint language plpgsql as $$ declare i bigint;begin insert into cron.job(jobname,schedule,command) values(job_name,schedule,command) returning jobid into i;return i;end $$;
 create function cron.unschedule(job_name text) returns boolean language plpgsql as $$ begin delete from cron.job where jobname=job_name;return true;end $$;
+
+-- Managed extensions only: isolated fixtures record intended requests and
+-- explicit simulated responses. They never contact a provider or use real keys.
+create schema vault;
+create table vault.decrypted_secrets(id uuid primary key default gen_random_uuid(),decrypted_secret text,name text);
+create function vault.create_secret(new_secret text,new_name text default null,new_description text default '') returns uuid language plpgsql as $$declare key uuid;begin insert into vault.decrypted_secrets(decrypted_secret,name) values(new_secret,new_name) returning id into key;return key;end $$;
+create function vault.update_secret(secret_id uuid,new_secret text default null,new_name text default null,new_description text default null) returns void language sql as $$update vault.decrypted_secrets set decrypted_secret=coalesce(new_secret,decrypted_secret),name=coalesce(new_name,name) where id=secret_id$$;
+create schema net;
+create table net.fixture_requests(id bigint generated always as identity primary key,url text,body jsonb,headers jsonb);
+create table net._http_response(id bigint primary key,status_code integer,content text,timed_out boolean default false,error_msg text,created timestamptz default now());
+create function net.http_post(url text,body jsonb default '{}',params jsonb default '{}',headers jsonb default '{}',timeout_milliseconds integer default 2000) returns bigint language plpgsql as $$declare req bigint;begin insert into net.fixture_requests(url,body,headers) values(url,body,headers) returning id into req;return req;end $$;
+create function net.http_get(url text,params jsonb default '{}',headers jsonb default '{}',timeout_milliseconds integer default 2000) returns bigint language plpgsql as $$declare req bigint;begin insert into net.fixture_requests(url,headers) values(url,headers) returning id into req;return req;end $$;

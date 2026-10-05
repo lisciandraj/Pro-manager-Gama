@@ -55,9 +55,35 @@ test('desktop surface and English labels',async({page})=>{
 });
 
 test('Agent Coco replaces old analysis tools with dated reports and verifies PDF downloads',async({page})=>{
- await boot(page);await page.evaluate(()=>{ArcData.rpc=async(name,args)=>{if(name==='gama_agent_reports'&&args.p_action==='list'){__aiRequests.push(args);return {rows:[{id:'r2',reference:'RCO-00000002',title:'Rapport hebdomadaire',report_date:'2026-10-05',period_from:'2026-09-28',period_to:'2026-10-04'},{id:'r1',reference:'RCO-00000001',title:'Stock & facturation',report_date:'2026-09-29'}],total:2}}if(name==='gama_agent_reports'){const bytes=new TextEncoder().encode('%PDF-1.7\n'+ 'fixture'.repeat(30)+'\n%%EOF');return {filename:'RCO-00000002.pdf',content_base64:btoa(String.fromCharCode(...bytes)),sha256:Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(v=>v.toString(16).padStart(2,'0')).join('')}}throw Error('Unexpected RPC')}});await open(page);
- await expect(page.locator('#aiDiagnostic,#cocoInventoryInsights,#aiPrompts,#aiOperational')).toHaveCount(0);await page.locator('#agentReportsTab').click();await expect(page.locator('#agentReportTable tbody tr')).toHaveCount(2);await expect(page.locator('#agentReportTable')).toContainText('RCO-00000002');await expect(page.locator('#agentChat')).toBeHidden();const download=page.waitForEvent('download');await page.locator('[data-agent-pdf]').first().click();expect((await download).suggestedFilename()).toBe('RCO-00000002.pdf');await page.locator('#agentReportOrder').selectOption('asc');await expect.poll(()=>page.evaluate(()=>__aiRequests.filter(x=>x.p_action==='list').at(-1).p_data.order)).toBe('asc');await page.locator('#agentChatTab').click();await expect(page.locator('#aiForm')).toBeVisible();
+ await boot(page);
+ await page.evaluate(async()=>{
+  const db=await GamaCloud.db();
+  GamaCloud.db=async()=>({...db,rpc:async(name,args)=>{
+   if(name==='gama_agent_reports'&&args.p_action==='list'){
+    __aiRequests.push(args);
+    return {data:{rows:[{id:'r2',reference:'RCO-00000002',title:'Rapport hebdomadaire',report_date:'2026-10-05',period_from:'2026-09-28',period_to:'2026-10-04'},{id:'r1',reference:'RCO-00000001',title:'Stock & facturation',report_date:'2026-09-29'}],total:2}};
+   }
+   if(name==='gama_agent_reports'&&args.p_action==='download'){
+    const bytes=new TextEncoder().encode('%PDF-1.7\n'+'fixture'.repeat(30)+'\n%%EOF');
+    return {data:{filename:'RCO-00000002.pdf',content_base64:btoa(String.fromCharCode(...bytes)),sha256:Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(v=>v.toString(16).padStart(2,'0')).join('')}};
+   }
+   return db.rpc(name,args);
+  }});
+ });
+ await open(page);await expect(page.locator('#aiDiagnostic,#cocoInventoryInsights,#aiPrompts,#aiOperational')).toHaveCount(0);
+ await page.locator('#agentReportsTab').click();await expect(page.locator('#agentReportTable tbody tr')).toHaveCount(2);await expect(page.locator('#agentReportTable')).toContainText('RCO-00000002');await expect(page.locator('#agentChat')).toBeHidden();
+ const download=page.waitForEvent('download');await page.locator('[data-agent-pdf]').first().click();expect((await download).suggestedFilename()).toBe('RCO-00000002.pdf');
+ await page.locator('#agentReportOrder').selectOption('asc');await expect.poll(()=>page.evaluate(()=>__aiRequests.filter(x=>x.p_action==='list').at(-1).p_data.order)).toBe('asc');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:'test-results/assistant-reports-mobile.png',fullPage:true});
+ await page.locator('#agentChatTab').click();await expect(page.locator('#aiForm')).toBeVisible();
 });
 test('A report response arriving after sign-out cannot restore the archive',async({page})=>{
- await boot(page);await page.evaluate(()=>{ArcData.rpc=()=>new Promise(resolve=>window.__reportResolve=resolve)});await open(page);await page.locator('#agentReportsTab').click();await page.waitForFunction(()=>!!__reportResolve);await page.evaluate(()=>{localStorage.removeItem('gama_session_v1');window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__reportResolve({rows:[{id:'private',title:'Confidential'}],total:1})});await expect(page.locator('#assistant-ia')).toBeEmpty();
+ await boot(page);
+ await page.evaluate(async()=>{
+  const db=await GamaCloud.db();window.__reportResolve=null;
+  GamaCloud.db=async()=>({...db,rpc:(name,args)=>name==='gama_agent_reports'?new Promise(resolve=>window.__reportResolve=resolve):db.rpc(name,args)});
+ });
+ await open(page);await page.locator('#agentReportsTab').click();await page.waitForFunction(()=>!!window.__reportResolve);
+ await page.evaluate(()=>{localStorage.removeItem('gama_session_v1');window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));window.__reportResolve({data:{rows:[{id:'private',title:'Confidential'}],total:1}})});
+ await expect(page.locator('#assistant-ia')).toBeEmpty();
 });

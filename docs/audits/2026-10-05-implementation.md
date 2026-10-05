@@ -38,4 +38,4 @@ Périmètre demandé le 5 octobre 2026 : implémentation des modules et des flux
 | A32 | KPI / recherche : agrégats et index adaptés | En cours — validation requise avant déploiement |
 | A33 | Isolation clients et industrialisation commerciale | Étude, hors construction multi-tenant |
 
-État de livraison : changements locaux validés en base isolée, pas encore déployés. Les lignes sans preuve de réalisation restent ouvertes et ne sont pas déclarées terminées.
+État de livraison : onze nouvelles migrations appliquées dans l’ERP, historique réconcilié et types régénérés ; deux PDF privés importés avec SHA-256 vérifié et tâche hebdomadaire mise à jour. La publication du frontend suit les contrôles GitHub Actions de cette version. Les lignes sans preuve de réalisation restent ouvertes et ne sont pas déclarées terminées.

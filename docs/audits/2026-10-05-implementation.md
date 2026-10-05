@@ -12,7 +12,7 @@ Périmètre demandé le 5 octobre 2026 : implémentation des modules et des flux
 | A06 | Optimisation SQL / RLS et index ciblés | Index de files, sources et droits ajoutés ; revue des index historiques encore à finaliser. |
 | A07 | Sauvegarde complète et exercice de reprise | En cours — validation requise avant déploiement |
 | A08 | File de traitements, outbox et supervision | Implémenté : file privée, déduplication, baux, tentatives et reprises ; fixture automation-db. |
-| A09 | Envoi réel, statuts et rappels planifiés | Implémenté : outbox Resend, statuts réels, idempotence, préférences ; domaine et clé à configurer. |
+| A09 | Envoi réel, statuts et rappels planifiés | Adapté à la demande du propriétaire : mails préremplis Gmail/Outlook, préparation idempotente et confirmation manuelle ; aucun envoi automatique ni clé Resend. |
 | A10 | Règles versionnées et file d'exceptions par dossier | Implémenté : règles immuables, délégation bornée, droits réévalués, affectation/échéance des exceptions. |
 | A11 | Réapprovisionnement programmé et brouillons | Implémenté : brouillons par fournisseur avec plafond ; activation de la règle requise. |
 | A12 | Réception / achats / factures sans ressaisie | Implémenté et testé : brouillons sur réception, rapprochement/postage atomiques, répétition sans doublon. |
@@ -22,7 +22,7 @@ Périmètre demandé le 5 octobre 2026 : implémentation des modules et des flux
 | A16 | Parcours Tarifs unifié et marge actualisée | Résolveur commun existant réutilisé ; pagination complète des tarifs spécifiques corrigée. |
 | A17 | Picking mobile et inventaires ABC programmés | Picking scanné existant préservé ; génération des comptages ABC programmée ajoutée. |
 | A18 | Planification TMS / géocodage sans écran | Planification serveur et historique ajoutés ; géocodage serveur encore ouvert. |
-| A19 | Distances routières et fenêtres horaires | Adaptateur ORS privé, cache serveur et contrôles de fenêtres ajoutés ; clé fournisseur à configurer. |
+| A19 | Distances routières et fenêtres horaires | Adapté à la demande du propriétaire : navigation Waze par arrêt sans clé ; estimation dans Coco, parcours vérifiés saisis au planning, fenêtres horaires contrôlées. |
 | A20 | Encaissements unifiés et rapprochement sûr | Flux d’encaissement canonique existant conservé ; fixtures finance de validation sans double trésorerie. |
 | A21 | Contrôles financiers et clôture par exceptions | Contrôles journaux/factures/stock programmés ajoutés ; clôtures existantes conservées. |
 | A22 | IR annuel et variables de paie approuvées | En cours — validation requise avant déploiement |

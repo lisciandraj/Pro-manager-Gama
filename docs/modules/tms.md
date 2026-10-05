@@ -26,3 +26,7 @@ La preuve conserve position GPS, précision et heure de l’appareil lorsque la 
 L’ancien historique local `gama-tms-v1` est conservé sur l’appareil, sans réimporter des livraisons non liées à une commande. Les migrations ne suppriment aucun historique de production.
 
 Le bouton **Coste de entrega por cliente** dans les indicateurs ouvre le détail du mois ou de la période sélectionnée (366 jours au maximum). Les arrêts distincts de chaque tournée partagent son montant arrondi au centime ; les montants des clients retombent exactement sur le total connu. Un client avec plusieurs arrêts reçoit la somme de ses parts. Le tableau regroupe client, livraisons, tournées, km, coût connu et arrêts sans tarif ou avec km estimés. La recherche précède la pagination serveur (30 lignes), avec les mêmes droits TMS/MFA que les indicateurs. Un arrêt historique sans client reste identifié comme inconnu ; les tournées sans arrêt restent signalées séparément. Il s’agit d’une attribution estimée des coûts de tournée, pas d’un règlement de fret.
+
+## Navigation Waze
+
+Depuis le 5 octobre 2026, chaque arrêt et le prochain arrêt de tournée ouvrent Waze par lien HTTPS, à partir du GPS ou de l’adresse. OpenRouteService n’est plus appelé. Coco conserve les distances estimées et ses arrêts ; les temps et kilomètres vérifiés dans Waze se saisissent dans le planning et restent contrôlés avec les fenêtres de livraison. Voir [automatisations et navigation](../automation.md).

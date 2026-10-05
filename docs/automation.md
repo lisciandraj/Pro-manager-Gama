@@ -32,11 +32,11 @@ Les dépenses préparées depuis Flotte exigent la case de vérification de la s
 
 ## Envois et préférences
 
-**Configurer les envois** connecte une clé Resend et un expéditeur sur un domaine vérifié. La clé est conservée dans Vault et n’est jamais renvoyée au navigateur. Aucun fournisseur n’est configuré par la migration. Le client active séparément ses rappels et enquêtes dans **Mes préférences** ; les deux sont désactivés par défaut.
+**Mails à envoyer** présente les relances et invitations de questionnaire préparées par les règles autorisées. Le client active séparément ses rappels et enquêtes dans **Mes préférences** ; ils sont désactivés par défaut. Les droits, délégations, préférences, destinataire et document source sont contrôlés à la préparation et à l’ouverture du brouillon. Une facture payée, une enquête répondue, un destinataire modifié ou une préférence retirée annule le brouillon périmé.
 
-Le cron contrôle à nouveau droits, règle, préférence, adresse et source avant chaque envoi. Les états distinguent attente, transmission, acceptation fournisseur, livraison, rebond et résultat incertain. Une acceptation HTTP ne signifie pas livraison. Les reprises utilisent la même clé et le même message ; elles s’arrêtent avant expiration de la fenêtre d’idempotence du fournisseur. Un résultat ambigu exige consultation, sans nouvelle émission automatique. Les invitations de questionnaire sont uniques par client et questionnaire, et cessent après réponse ou révocation.
+**Préparer le mail** ouvre le destinataire, l’objet et le texte. Gmail, Outlook.com, Outlook / Microsoft 365 et l’application mail ouvrent un message prérempli sans clé API. L’utilisateur vérifie puis clique sur Envoyer dans sa boîte mail. Il coche ensuite **J’ai envoyé ce message depuis ma boîte mail** et confirme dans Coco. L’ouverture du brouillon ne marque aucun envoi. L’état **Envoyé · confirmation manuelle** conserve l’auteur et la date ; il ne certifie pas une livraison ou une lecture. Les confirmations répétées restent idempotentes.
 
-Références techniques : [pg_net](https://supabase.com/docs/guides/database/extensions/pg_net), [idempotence Resend](https://resend.com/docs/dashboard/emails/idempotency-keys), [statut d’un envoi](https://resend.com/docs/api-reference/emails/retrieve-email).
+Resend est retiré du parcours actif. Son fournisseur est désactivé, les anciens appels serveur sont neutralisés et le cron d’envoi est supprimé. Les preuves historiques de livraison sont conservées. Aucun mail n’est envoyé automatiquement par Coco. L’envoi Gmail de l’automatisation hebdomadaire Agent Coco reste distinct.
 
 ## Performances et imports
 
@@ -46,10 +46,14 @@ Les styles des grands modules se chargent à l’ouverture et les Tarifs/Matrice
 
 ## Tournées et rapports
 
-**Configurer les distances routières** connecte OpenRouteService dans Vault, avec le profil voiture ou poids lourd. La matrice est demandée au serveur, limitée à 50 lieux et mise en cache 14 jours. Le plan affiche clairement distances routières, mixtes ou estimées ; sans fournisseur ou paire routière disponible, il conserve l’estimation existante. Le formulaire de planning propose les temps routiers disponibles, ajoute l’attente avant une fenêtre horaire et exige un motif pour un horaire tardif ou ambigu. La validation conserve les verrous de départ. Aucun fournisseur ni coordonnée n’est inventé.
+**Navigation Waze** ne nécessite aucune clé API. Chaque arrêt de l’écran chauffeur et du planning ouvre Waze à ses coordonnées GPS, ou recherche son adresse. Le bouton de tournée ouvre le prochain arrêt restant, puis le retour au dépôt lorsqu’il est prévu. Le navigateur utilise le lien officiel HTTPS Waze ; sur téléphone il ouvre l’application installée.
+
+Coco conserve son organisation des arrêts, ses distances estimées et sa carte. Les liens Waze ne fournissent aucune matrice de distances ni temps de trafic à l’ERP. Les kilomètres et minutes vérifiés dans Waze se saisissent dans le planning existant, avec leur source ; les fenêtres de livraison et les validations de départ restent contrôlées. Les horaires routiers déjà vérifiés sont conservés. OpenRouteService est désactivé et son cron/circuit réseau neutralisé.
+
+Référence : [Waze Deep Links](https://developers.google.com/waze/deeplinks).
 
 [Agent Coco](modules/coco-intelligence.md) conserve la conversation et archive les rapports hebdomadaires PDF sous le préfixe RCO. La tâche hebdomadaire existante ajoute l’archivage du PDF à son envoi par mail, avec déduplication de la période.
 
 ## Vérification
 
-Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Vault et pg_net sont simulés seulement dans ces fixtures : aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
+Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Les fixtures vérifient qu’aucune requête aux anciens fournisseurs n’est émise. Aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.

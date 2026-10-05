@@ -29,7 +29,9 @@ for(const file of ['gama-site.html','camera-check.html','tms-tracking.html']){
  fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8')));
 }
 const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront-runtime.json'),'utf8')),pdf_template:'gama-pdf-template.js'};
-fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__','gama-site.html').replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
+const catalogueUrl=new URL(b2bConfig.catalogue_url);
+if(catalogueUrl.protocol!=='https:'||catalogueUrl.username||catalogueUrl.password)throw Error('Public catalogue URL must be HTTPS without credentials');
+fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__',catalogueUrl.href).replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
 const shell=['./','./index.html','./manifest.json','./coco-gama-icon-180.png','./coco-gama-icon-192.png','./coco-gama-icon-512.png'];
 const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
  .replace('__COCO_RELEASE__',hash('architect-assets.js')+'-'+hash('index.html'))

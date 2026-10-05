@@ -57,3 +57,5 @@ Cette migration introduit un socle compilé et remplace les mécanismes transver
 Les tableaux des trois répertoires sont déclaratifs. Les autres tableaux passent par le rendu et le style communs, avec l'adaptateur mobile existant pour leurs colonnes métier. Les calculs de prévisualisation du navigateur ne remplacent jamais les totaux validés côté serveur.
 
 Le typecheck valide les contrats TypeScript ; il ne promet pas la vérification statique de tout le JavaScript historique. La couverture fonctionnelle est assurée par les parcours Playwright et les tests de base de données. Aucun gain de performance n'est annoncé sans mesure avant/après.
+
+Les filtres métier qui interrogent le serveur, comme la recherche d’entreprise et de compte B2B, portent `data-table-search-ignore`. Le tableau conserve son propre champ de recherche des lignes chargées ; les libellés et valeurs des filtres métier restent dans leur formulaire.

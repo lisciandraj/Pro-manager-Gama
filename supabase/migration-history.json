@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-10-03",
+  "capturedAt": "2026-10-05",
   "source": "supabase_migrations.schema_migrations",
   "applied": [
     {
@@ -1316,6 +1316,72 @@
       "name": "tms_tracking_private_facade",
       "file": "20261004214058_tms_tracking_private_facade.sql",
       "sha256": "5abb299a999d2601ab617b9dd0eb59fbd3bf6716ce0af97fa34d30ec5746abd0"
+    },
+    {
+      "version": "20261005052615",
+      "name": "ec_fiscal_documents",
+      "file": "20261004223009_ec_fiscal_documents.sql",
+      "sha256": "b1e8a3d1667fe516803abc24659f09fd75ae9277929f0fa2639a81a13c1e9808"
+    },
+    {
+      "version": "20261005052701",
+      "name": "ec_received_withholdings",
+      "file": "20261004230936_ec_received_withholdings.sql",
+      "sha256": "f37220fe7d8a0cdc29b791441b8b10b4bed47357a94b880b8cbaf3f4f248068c"
+    },
+    {
+      "version": "20261005052732",
+      "name": "ec_ats_and_tax_drafts",
+      "file": "20261004233005_ec_ats_and_tax_drafts.sql",
+      "sha256": "5441bb9fcacdab06eb1d45f4d6c55dfbb6238f675bc7633ad9fab2c1aa7741bd"
+    },
+    {
+      "version": "20261005053136",
+      "name": "ec_credit_identity_and_aging",
+      "file": "20261004234447_ec_credit_identity_and_aging.sql",
+      "sha256": "a9511d5cc27af6606194d273309a04c7f07b5910762213acbe32bb4de061a993"
+    },
+    {
+      "version": "20261005053146",
+      "name": "ec_bank_statement_invoice_matching",
+      "file": "20261005001842_ec_bank_statement_invoice_matching.sql",
+      "sha256": "77616734c02b563b6a4ec0a2443124c09c005be1f5106d83d1e72f107ab1c734"
+    },
+    {
+      "version": "20261005053151",
+      "name": "ec_payroll_calculation_and_employee_receipts",
+      "file": "20261005004521_ec_payroll_calculation_and_employee_receipts.sql",
+      "sha256": "4eac045a83c5d0d57ffb10b0a65d897edeb1588367112add6b0a925be43781b5"
+    },
+    {
+      "version": "20261005053201",
+      "name": "ec_stock_thresholds_and_supplier_score",
+      "file": "20261005013055_ec_stock_thresholds_and_supplier_score.sql",
+      "sha256": "7cf7378c791dae8ba6d1f0003987ecda73e29f4e3c57c26319f5ea107791c73a"
+    },
+    {
+      "version": "20261005053207",
+      "name": "ec_direction_and_actionable_intelligence",
+      "file": "20261005013608_ec_direction_and_actionable_intelligence.sql",
+      "sha256": "76d07ff189903944a6903ede2d6c70f037cd2ae2c8d2e35a76a8824065276a0b"
+    },
+    {
+      "version": "20261005053216",
+      "name": "ec_b2b_customer_portal",
+      "file": "20261005014142_ec_b2b_customer_portal.sql",
+      "sha256": "f8c54b25e9cbec8da37e97c9ea23384f42d2b4196e5205d71ae8706e219b5837"
+    },
+    {
+      "version": "20261005053220",
+      "name": "ec_returns_service_workspace",
+      "file": "20261005022907_ec_returns_service_workspace.sql",
+      "sha256": "5ed7816b20e2ade77d992ad2bf6461dd658d1d554ed51637364fb9e0bc887416"
+    },
+    {
+      "version": "20261005054127",
+      "name": "ec_release_access_and_indexes",
+      "file": "20261005053550_ec_release_access_and_indexes.sql",
+      "sha256": "799453c4e5313dd379e8788063bb8521a4d95b3b5ec5c0cc2bfb792f5f5ec85a"
     }
   ]
 }

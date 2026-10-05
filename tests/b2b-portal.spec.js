@@ -27,7 +27,7 @@ async function boot(page,width=1440,mfa=false){
   Object.defineProperty(HTMLScriptElement.prototype,'integrity',{...descriptor,set(value){descriptor.set.call(this,this.src.endsWith('/assets/vendor/supabase-2.115.0.js')?hash:value)}});
  },'sha384-'+createHash('sha384').update(sdkFixture).digest('base64'));
  await page.route('**/assets/vendor/supabase-2.115.0.js',r=>r.fulfill({contentType:'text/javascript',body:sdkFixture}));
- await page.goto('/gama-b2b.html');
+ await page.goto('/gama-b2b.html');await expect(page.getByRole('link',{name:'Catálogo público',exact:true})).toHaveAttribute('href',/^https:\/\/gama-coco\.pages\.dev\/$/);
  await page.locator('[name=email]').fill('cliente@example.invalid');await page.locator('[name=password]').fill('test-password');await page.locator('#loginForm [type=submit]').click();if(mfa){await expect(page.locator('#mfaDialog')).toBeVisible();expect(await page.evaluate(()=>__B2B_CALLS)).toHaveLength(0);await page.locator('#mfaForm [name=code]').fill('000000');await page.locator('#mfaForm [type=submit]').click();await expect(page.locator('#mfaForm [role=alert]')).toContainText('no es válido');await expect(page.locator('#account')).toBeHidden();await page.locator('#mfaForm [name=code]').fill('123456');await page.locator('#mfaForm [type=submit]').click()}await expect(page.locator('#customerName')).toHaveText('Empresa Costa Azul');
 }
 for(const width of [390,1440])test('B2B customer sees private prices, repeats favorites and retries the reviewed request on '+width,async({page})=>{

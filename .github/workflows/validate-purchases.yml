@@ -2,6 +2,7 @@ name: Validate Coco purchases
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,9 +19,16 @@ jobs:
           node --check gama-purchases-v14.js
       - name: Validate integration references
         run: |
-          rg -q 'gama-purchases-v14.js' src/app/lazy-modules.js
-          rg -q 'src/features/purchasing/workspace.js' config/runtime-assets.json
-          rg -q 'gamaShowPurchases' gama-purchases-v14.js
-          rg -q 'gama_receive_purchase' gama-purchases-v14.js
-          rg -q 'purchase_orders' gama-purchases-v14.js
-          rg -q 'purchase_order_lines' gama-purchases-v14.js
+          node <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const checks = {
+            'src/app/lazy-modules.js': ['gama-purchases-v14.js'],
+            'config/runtime-assets.json': ['src/features/purchasing/workspace.js'],
+            'gama-purchases-v14.js': ['gamaShowPurchases', 'gama_receive_purchase', 'purchase_orders', 'purchase_order_lines'],
+          };
+          for (const [path, references] of Object.entries(checks)) {
+            const content = fs.readFileSync(path, 'utf8');
+            for (const reference of references) assert.ok(content.includes(reference), `${path}: missing ${reference}`);
+          }
+          NODE

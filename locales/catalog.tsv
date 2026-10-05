@@ -4760,3 +4760,120 @@ El signo no coincide con el tipo crédito.	Le signe ne correspond pas au type cr
 Tipo de movimiento desconocido. Usa D o C.	Type de mouvement inconnu. Utilisez D ou C.	Unknown transaction type. Use D or C.
 El movimiento debe tener un importe distinto de cero.	Le montant du mouvement doit être différent de zéro.	The transaction amount must be nonzero.
 La referencia o descripción supera el tamaño permitido.	La référence ou la description dépasse la taille autorisée.	The reference or description exceeds the allowed length.
+Nómina calculada para Ecuador	Paie calculée pour l’Équateur	Calculated Ecuador payroll
+Parámetros de nómina	Paramètres de paie	Payroll parameters
+Salario básico unificado	Salaire de base unifié	Unified basic salary
+Aporte personal IESS (%)	Cotisation salariale IESS (%)	Employee IESS contribution (%)
+Aporte patronal IESS (%)	Cotisation patronale IESS (%)	Employer IESS contribution (%)
+Prima mínima de salud parcial (%)	Cotisation santé minimale à temps partiel (%)	Minimum part-time health premium (%)
+Fondos de reserva (%)	Fonds de réserve (%)	Reserve funds (%)
+Otros aportes patronales (%)	Autres cotisations patronales (%)	Other employer contributions (%)
+Utilidades por tiempo (%)	Participation aux bénéfices selon le temps (%)	Profit sharing by time (%)
+Utilidades por cargas (%)	Participation aux bénéfices selon les personnes à charge (%)	Profit sharing by dependents (%)
+Verifica el SBU, los aportes y las reglas aplicables. Cada confirmación conserva una versión.	Vérifiez le SBU, les cotisations et les règles applicables. Chaque confirmation conserve une version.	Verify the SBU, contributions and applicable rules. Each confirmation retains a version.
+Fuente y revisión	Source et vérification	Source and review
+Confirmar parámetros	Confirmer les paramètres	Confirm parameters
+Confirma los parámetros del año antes de calcular.	Confirmez les paramètres de l’année avant le calcul.	Confirm the year's parameters before calculating.
+Configura la empresa en Ecuador y en USD.	Configurez l’entreprise en Équateur et en USD.	Configure the company in Ecuador and in USD.
+Completa el sueldo y las fechas del contrato en la ficha del empleado.	Complétez le salaire et les dates du contrat sur la fiche de l’employé.	Complete the salary and contract dates on the employee record.
+Registra las opciones del empleado y su solicitud escrita.	Enregistrez les choix de l’employé et sa demande écrite.	Record the employee's choices and written request.
+Revisa los días trabajados dentro del contrato.	Vérifiez les jours travaillés pendant le contrat.	Review days worked within the contract.
+Revisa los importes. No se admiten valores negativos ni descuentos superiores al ingreso.	Vérifiez les montants. Les valeurs négatives et les retenues supérieures au revenu sont refusées.	Review amounts. Negative values and deductions exceeding income are rejected.
+Indica los días con derecho a fondos de reserva en el mes de aniversario.	Indiquez les jours ouvrant droit à la réserve pendant le mois anniversaire.	Specify eligible reserve days in the anniversary month.
+Los días de reserva superan los días trabajados con derecho.	Les jours de réserve dépassent les jours travaillés ouvrant droit.	Reserve days exceed eligible days worked.
+Los datos cambiaron. Calcula y revisa otra vez antes de validar.	Les données ont changé. Recalculez et vérifiez avant la validation.	Data changed. Recalculate and review before validating.
+La nómina validada conserva sus importes. Abre el rol registrado.	Les montants de la paie validée sont conservés. Ouvrez le bulletin enregistré.	Validated payroll retains its amounts. Open the recorded payslip.
+Revisa la plantilla completa, incluidos los exempleados del ejercicio.	Vérifiez tout le personnel, y compris les anciens employés de l’exercice.	Review the entire workforce, including former employees from the year.
+No hay cargas acreditadas. Confirma con Contabilidad el criterio de reparto del 5%.	Aucune personne à charge n’est attestée. Confirmez avec la comptabilité le mode de répartition des 5 %.	No dependents are verified. Confirm the 5% distribution method with Accounting.
+La provisión definitiva requiere el ejercicio cerrado y la declaración de renta revisada.	La provision définitive exige un exercice clos et une déclaration de revenus vérifiée.	The final provision requires a closed year and reviewed income tax declaration.
+Completa y revisa los datos bancarios de todos los beneficiarios.	Complétez et vérifiez les coordonnées bancaires de tous les bénéficiaires.	Complete and review all beneficiaries' bank details.
+Faltan nóminas validadas en el periodo de acumulación.	Des paies validées manquent dans la période d’accumulation.	Validated payroll is missing from the accrual period.
+El periodo de acumulación sigue abierto.	La période d’accumulation reste ouverte.	The accrual period is still open.
+Revisa los décimos de las nóminas externas antes de liquidar.	Vérifiez les décimos des paies externes avant leur liquidation.	Review benefits from external payroll before settlement.
+No hay décimos acumulados pendientes en este periodo.	Aucun décimo accumulé à liquider dans cette période.	No accrued benefits are outstanding in this period.
+La nómina financia un décimo ya liquidado. Revisa el beneficio antes de anular.	La paie finance un décimo déjà liquidé. Vérifiez la prestation avant l’annulation.	The payroll funds an already settled benefit. Review the benefit before cancelling.
+El rol no está disponible para esta cuenta.	Le bulletin n’est pas disponible pour ce compte.	This payslip is unavailable to this account.
+Firma dentro del recuadro antes de confirmar.	Signez dans le cadre avant de confirmer.	Sign inside the box before confirming.
+Sólo el empleado puede firmar su rol validado.	Seul l’employé peut signer son bulletin validé.	Only the employee can sign their validated payslip.
+El sueldo contractual es inferior al mínimo vigente proporcional a la jornada.	Le salaire contractuel est inférieur au minimum en vigueur proportionnel au temps de travail.	The contract salary is below the current minimum proportional to working time.
+Solicita a RRHH la revisión de una elección fuera del plazo o del mes actual.	Demandez aux RH de vérifier un choix hors délai ou hors du mois actuel.	Ask HR to review a choice outside the deadline or current month.
+Días remunerados (máx. 30)	Jours rémunérés (max. 30)	Paid days (max. 30)
+Ingresos remunerativos adicionales	Rémunération supplémentaire	Additional remuneration
+IR calculado por el responsable	IR calculé par le responsable	Income tax calculated by the manager
+Otros descuentos autorizados	Autres retenues autorisées	Other authorized deductions
+Días con derecho a reserva (opcional)	Jours ouvrant droit à la réserve (facultatif)	Eligible reserve days (optional)
+El sueldo contractual procede de la ficha. Los décimos acumulados y la reserva depositada al IESS forman obligaciones; no se suman al neto.	Le salaire contractuel provient de la fiche. Les décimos accumulés et la réserve déposée à l’IESS constituent des dettes ; ils ne sont pas ajoutés au net.	The contract salary comes from the employee record. Accrued benefits and reserves deposited with IESS are liabilities and are excluded from net pay.
+Calcular y revisar	Calculer et vérifier	Calculate and review
+Guardar nómina calculada	Enregistrer la paie calculée	Save calculated payroll
+Opciones y banco del empleado	Choix et banque de l’employé	Employee choices and bank
+Exportar nómina para depósito bancario	Exporter la paie pour les virements bancaires	Export payroll for bank deposit
+Décimos y utilidades	Décimos et participation aux bénéfices	Annual benefits and profit sharing
+Calcular provisión de utilidades	Calculer la provision pour participation aux bénéfices	Calculate profit-sharing provision
+Liquidar décimos acumulados	Liquider les décimos accumulés	Settle accrued benefits
+Las utilidades se calculan sobre el beneficio anual declarado. Los trabajadores y exempleados se revisan por días, jornada y cargas acreditadas.	La participation se calcule sur le bénéfice annuel déclaré. Vérifiez les jours, le temps de travail et les personnes à charge des employés et anciens employés.	Profit sharing uses declared annual profit. Review days, working time and verified dependents for employees and former employees.
+Beneficios liquidados	Prestations liquidées	Settled benefits
+Cargando nómina ecuatoriana…	Chargement de la paie équatorienne…	Loading Ecuador payroll…
+Mensualizado	Mensualisé	Paid monthly
+Acumulado	Accumulé	Accrued
+Décimo tercero	Treizième mois équatorien	Thirteenth salary
+Décimo cuarto	Quatorzième mois équatorien	Fourteenth salary
+Fondos de reserva	Fonds de réserve	Reserve funds
+Sueldo proporcional	Salaire proportionnel	Proportional salary
+Aporte personal IESS	Cotisation salariale IESS	Employee IESS contribution
+Aporte patronal IESS	Cotisation patronale IESS	Employer IESS contribution
+Complemento de salud por jornada parcial	Complément santé pour le temps partiel	Part-time health supplement
+Otros aportes patronales	Autres cotisations patronales	Other employer contributions
+IR revisado	IR vérifié	Reviewed income tax
+Otros descuentos	Autres retenues	Other deductions
+Utilidades	Participation aux bénéfices	Profit sharing
+Pago directo	Versement direct	Direct payment
+Depósito al IESS	Dépôt à l’IESS	Deposit with IESS
+Región del décimo cuarto	Région du quatorzième mois	Fourteenth salary region
+Costa e Insular	Côte et îles	Coast and islands
+Sierra y Amazonía	Sierra et Amazonie	Highlands and Amazon
+Jornada / jornada completa	Temps de travail / temps complet	Working time / full time
+Mínimo sectorial mensual (0 = SBU)	Minimum sectoriel mensuel (0 = SBU)	Monthly sector minimum (0 = SBU)
+Afiliación a jornada completa con otro empleador acreditada	Affiliation à temps complet chez un autre employeur attestée	Verified full-time affiliation with another employer
+Tipo de cuenta	Type de compte	Account type
+Ahorros	Épargne	Savings
+Corriente	Compte courant	Checking
+Identificación del beneficiario	Identifiant du bénéficiaire	Beneficiary identification
+Solicitud escrita y revisión	Demande écrite et vérification	Written request and review
+La elección se guarda para este mes y los siguientes. El sueldo es el mensual contractual, también en jornada parcial.	Le choix est enregistré pour ce mois et les suivants. Le salaire est le montant contractuel mensuel, aussi à temps partiel.	The choice applies to this month and following months. Salary means the monthly contract amount, including part-time work.
+Se exportan sólo importes validados pendientes de pago. El CSV se revisa y adapta al formato del banco; descargarlo no registra ni envía una transferencia.	Seuls les montants validés restant à payer sont exportés. Vérifiez et adaptez le CSV au format bancaire ; son téléchargement ne crée ni n’envoie de virement.	Only validated outstanding amounts are exported. Review and adapt the CSV to the bank format; downloading it neither records nor sends a transfer.
+Incluir beneficios liquidados pendientes	Inclure les prestations liquidées restant à payer	Include outstanding settled benefits
+Rol de pagos	Bulletin de paie	Payslip
+Descargar rol PDF	Télécharger le bulletin PDF	Download payslip PDF
+Firmar recepción del rol	Signer la réception du bulletin	Sign payslip acknowledgment
+Días remunerados	Jours rémunérés	Paid days
+Días de reserva	Jours de réserve	Reserve days
+Acuse de recibo del empleado	Accusé de réception de l’employé	Employee acknowledgment
+Firmado el	Signé le	Signed on
+Huella del rol	Empreinte du bulletin	Payslip fingerprint
+Firma del empleado pendiente	Signature de l’employé en attente	Employee signature pending
+Los importes proceden del rol registrado y sus pagos. La firma acredita la recepción del documento.	Les montants proviennent du bulletin enregistré et de ses paiements. La signature atteste la réception du document.	Amounts come from the recorded payslip and its payments. The signature acknowledges receipt of the document.
+Confirmar firma	Confirmer la signature	Confirm signature
+Firma con el dedo o el ratón. Se registra tu cuenta y la hora del servidor.	Signez avec le doigt ou la souris. Votre compte et l’heure du serveur sont enregistrés.	Sign with your finger or mouse. Your account and server time are recorded.
+Firma del empleado	Signature de l’employé	Employee signature
+Borrar firma	Effacer la signature	Clear signature
+Confirmo que recibí y revisé este rol de pagos.	Je confirme avoir reçu et vérifié ce bulletin de paie.	I confirm I received and reviewed this payslip.
+Confirmar provisión revisada	Confirmer la provision vérifiée	Confirm reviewed provision
+Ejercicio	Exercice	Financial year
+Beneficio líquido declarado	Bénéfice net déclaré	Declared net profit
+Declaración y revisión anual	Déclaration et vérification annuelle	Declaration and annual review
+Revisé los días, la jornada y las cargas de toda la plantilla, incluidos los exempleados.	J’ai vérifié les jours, le temps de travail et les personnes à charge de tout le personnel, anciens employés compris.	I reviewed days, working time and dependents for the whole workforce, including former employees.
+Sin cargas acreditadas	Sans personnes à charge attestées	No verified dependents
+Revisión necesaria	Vérification nécessaire	Review required
+Reparto por días confirmado por Contabilidad	Répartition par jours confirmée par la comptabilité	Distribution by days confirmed by Accounting
+Calcula y revisa los importes antes de confirmar.	Calculez et vérifiez les montants avant de confirmer.	Calculate and review amounts before confirming.
+Jornada	Temps de travail	Working time
+Cargas acreditadas	Personnes à charge attestées	Verified dependents
+Provisión total	Provision totale	Total provision
+Por tiempo	Selon le temps	By working time
+Por cargas	Selon les personnes à charge	By dependents
+Año de pago	Année du versement	Payment year
+Revisión del periodo	Vérification de la période	Period review
+Se suman sólo nóminas validadas acumuladas. Se conserva el coste ya provisionado y se reconoce el beneficio a pagar.	Seules les paies validées accumulées sont additionnées. Le coût déjà provisionné est conservé et la prestation à payer est enregistrée.	Only validated accrued payroll is summed. Previously provisioned cost is retained and the benefit payable is recognized.
+Registrar pago de beneficio	Enregistrer le paiement de la prestation	Record benefit payment
+IR retenido a empleados	IR retenu aux employés	Employee income tax withheld
+Las nóminas validadas cuentan como coste; los pagos reducen el saldo y no duplican el coste.	Les paies validées constituent un coût ; les paiements réduisent le solde sans doubler le coût.	Validated payroll counts as cost; payments reduce the balance without duplicating cost.

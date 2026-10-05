@@ -707,6 +707,16 @@
             window.__DB.company_settings=[saved];return {data:saved};
           }
         }
+        if(fn==='gama_hr_ec_action'){
+          window.__HR_EC_CALLS=window.__HR_EC_CALLS||[];window.__HR_EC_CALLS.push(args);
+          const f=window.__DB._hr_ec||{},p=args.p_data||{};
+          if(args.p_action==='list')return {data:{parameters:f.parameters||null,employees:(window.__DB.hr_employees||[]).filter(e=>hrIsAdmin()||e.profile_id===window.__DB._session?.profile_id).map(e=>({employee_id:e.id,name:e.full_name,...(window.__DB.hr_employee_private||[]).find(x=>x.employee_id===e.id),terms:f.terms})),benefits:[],accounts:[]}};
+          if(args.p_action==='preview')return {data:f.calculation};
+          if(args.p_action==='calculate'){const row={id:'ec-payroll',employee_id:p.employee_id,period:p.period,erp_reference:'DOC-00000019',source_ref:'EC-PRIVATE',status:'draft',gross:f.calculation.gross,net:f.calculation.net,employer_cost:f.calculation.employer_cost,ec_calculation:f.calculation};window.__DB.hr_payroll=(window.__DB.hr_payroll||[]).filter(x=>x.id!==row.id).concat(row);return {data:row};}
+          if(args.p_action==='slip'){const payroll=window.__DB.hr_payroll.find(x=>x.id===p.payroll_id);return {data:{payroll,employee:{name:'Marie',identification:'1719304188'},company:{configured:true,legal_name:'GAMA QA',currency:'USD'},paid:0,signature:f.signature||null,can_sign:!f.signature&&window.__DB._session?.profile_id==='u1'}};}
+          if(args.p_action==='sign'){f.signature={signature_png:p.signature_png,snapshot_hash:'f'.repeat(64),signed_at:'2026-10-05T01:00:00Z'};return {data:f.signature};}
+          return {data:{ok:true}};
+        }
         if(fn==='gama_hr_directory')return {data:hrIsAdmin()?(window.__DB.profiles||[]):[]};
         if(fn==='gama_hr_save_employee'){
           const id=args.p_id||nextId('hr_employees');

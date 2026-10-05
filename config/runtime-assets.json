@@ -491,6 +491,10 @@
     {
       "source": "src/domain/bank-statement.js",
       "output": "gama-bank-statement.js"
+    },
+    {
+      "source": "src/features/hr/ecuador.js",
+      "output": "gama-hr-ecuador.js"
     }
   ],
   "styles": [

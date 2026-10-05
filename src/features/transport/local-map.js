@@ -4,7 +4,7 @@ const E=window.ArcUI.esc,NS='http://www.w3.org/2000/svg',project=(lng,lat)=>{con
 const path=coordinates=>coordinates.map((p,i)=>(i?'L':'M')+project(...p).map(n=>n.toFixed(6)).join(',')).join('');
 let geography;
 function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
- const svg=document.createElementNS(NS,'svg');svg.setAttribute('role','group');svg.setAttribute('aria-label','Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.');svg.setAttribute('tabindex','0');svg.classList.add('tmsLocalMap');
+ const svg=document.createElementNS(NS,'svg');svg.setAttribute('role','group');svg.setAttribute('aria-label',window.GamaI18n?.t('Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.')||'Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.');svg.setAttribute('tabindex','0');svg.classList.add('tmsLocalMap');
  if(!geography){const data=window.CocoMapData||{};geography=`<g class="tmsMapLand">${(data.land||[]).map(r=>`<path d="${path(r)}Z"/>`).join('')}</g><g class="tmsMapRoads">${(data.roads||[]).map(r=>`<path d="${path(r)}"/>`).join('')}</g>`}
  svg.innerHTML=geography+'<g data-map-cities></g><g data-map-routes></g><g data-map-pins></g>';host.replaceChildren(svg);
  let center=project(-78.4678,-.1807),zoom=12,selected=null,width=host.clientWidth||700,height=host.clientHeight||380;

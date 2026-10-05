@@ -124,3 +124,70 @@ test('reuses a nearby legacy search only for its own table and searches preview 
  await expect(page.locator('#legacyClientTable [data-table-search]')).toHaveCount(0);await expect(page.locator('#legacySearchOwner > .gamaTableSearch #legacyModuleSearch')).toBeVisible();await expect(page.locator('#legacyModuleSearch')).toHaveAttribute('placeholder','Rechercher…');await expect(page.locator('#legacyDetailsTable [data-table-search]')).toHaveCount(1);
  await page.locator('#legacyDetailsTable [data-table-search]').fill('telephone');await expect(page.locator('#legacyDetailsTable tbody tr:visible')).toHaveCount(1);await expect(page.locator('#legacyClientTable tbody tr')).toBeVisible();
 });
+
+// Personal column order uses real DOM cells, preserving their controls and the
+// canonical data-source index used by sorting and pagination.
+const columnNames=(host)=>host.locator('thead th').evaluateAll(heads=>heads.map(h=>{const c=h.cloneNode(true);c.querySelectorAll('.gamaColumnGrip,.gamaSortInd,[aria-hidden=true]').forEach(n=>n.remove());return c.textContent.trim()}));
+test('dragging headers moves cells and totals, persists after reload and isolates accounts and tables',async({page})=>{
+ await boot(page);await fixture(page);const host=page.locator('#sortFixture');
+ await host.locator('thead th').nth(1).dragTo(host.locator('thead th').nth(0));
+ expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+ await expect(host.locator('tbody tr').first().locator('td').first()).toHaveText('1 200,50 €');
+ await expect(host.locator('tfoot td')).toHaveAttribute('colspan','5');
+ await host.screenshot({path:'test-results/table-order-desktop.png'});
+ await host.locator('tbody input').first().fill('17');await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
+ await page.evaluate(()=>{const host=document.createElement('div');host.id='independentOrder';document.querySelector('#mainmenu').append(host);host.innerHTML='<table><thead><tr><th>Nom</th><th>Montant</th></tr></thead><tbody><tr><td>Autre</td><td>9</td></tr></tbody></table>';GamaTable.scan(host)});
+ expect(await columnNames(page.locator('#independentOrder'))).toEqual(['Nom','Montant']);
+ await page.reload();await page.waitForFunction(()=>window.GamaTable&&window.ArcUI);await fixture(page);
+ expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+ await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({userId:'other-columns',role:'admin'}));dispatchEvent(new Event('gama:auth-change'))});
+ expect(await columnNames(host)).toEqual(['Nom','Montant','Date','Quantité','Actions']);
+ await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({userId:'column-user',role:'admin'}));dispatchEvent(new Event('gama:auth-change'))});
+ expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+ await host.locator('.gamaColumnHeading').click();await host.getByRole('button',{name:'Réinitialiser l’ordre des colonnes'}).click();
+ expect(await columnNames(host)).toEqual(['Nom','Montant','Date','Quantité','Actions']);
+});
+test('reordered columns retain numeric sorting, hidden columns, search, form values and card labels',async({page})=>{
+ await boot(page);await fixture(page);const host=page.locator('#sortFixture');
+ await host.locator('tbody input').first().fill('17');
+ await host.locator('thead th').nth(1).dragTo(host.locator('thead th').nth(0));
+ await expect(host.locator('tbody tr[data-id=a] input')).toHaveValue('17');
+ // Wait for the synthetic drop-click guard; normal sorting remains unchanged.
+ await expect.poll(()=>host.locator('thead th').first().getAttribute('aria-sort')).toBe('none');
+ await host.locator('thead th').first().press('Enter');
+ // Keyboard should be available immediately after a mouse drag.
+ await expect.poll(()=>order(page)).toEqual(['b','c','a','d']);
+ await host.locator('.gamaColumnHeading').click();await host.getByRole('checkbox',{name:'Montant',exact:true}).uncheck();
+ await expect(host.locator('tbody tr[data-id=a] td').first()).toBeHidden();
+ await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);
+ await host.locator('[data-table-view=cards]').click();await expect(host.locator('tbody tr[data-id=a] td').nth(1)).toHaveAttribute('data-col','Nom');
+ await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
+ await page.evaluate(()=>GamaI18n.setLanguage('en'));expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+});
+test('server columns keep their sort key and personal order on every page',async({page})=>{
+ await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);
+ const phone=host.locator('thead th').nth(3),name=host.locator('thead th').first();await phone.dragTo(name);
+ await expect(host.locator('thead th').first()).toContainText('Téléphone');
+ await host.locator('thead th').first().locator('.arcSort').press('Enter');await expect(host.locator('thead th').first()).toHaveAttribute('aria-sort','ascending');
+ await host.locator('thead th').first().locator('.arcSort').press('Enter');await expect(host.locator('tbody tr').first().locator('td').first()).toHaveText('1024');
+ await host.locator('[data-arc-page="1"]').click();await expect(host.locator('tbody tr')).toHaveCount(5);await expect(host.locator('tbody tr').first().locator('td').first()).toHaveText('1004');
+ await host.locator('[data-ct-edit]').first().click();await expect(page.locator('#ctf-name')).toHaveValue('Fournisseur 4');
+});
+test('keyboard and touch grips move headers without sorting or breaking phone scrolling',async({page})=>{
+ await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
+ const amount=host.getByRole('button',{name:'Déplacer la colonne Montant',exact:true});await amount.press('Alt+ArrowLeft');
+ expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
+ // Dispatch PointerEvents through the browser's hit testing/capture path.
+ await host.locator('table').evaluate(t=>{const grip=t.querySelector('.gamaColumnGrip'),from=grip.getBoundingClientRect(),to=t.querySelectorAll('th')[1].getBoundingClientRect();t.setPointerCapture=()=>{};t.hasPointerCapture=()=>false;grip.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch',pointerId:42,clientX:from.x+5,clientY:from.y+5}));for(const type of ['pointermove','pointerup'])t.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerType:'touch',pointerId:42,clientX:to.x+to.width/2,clientY:to.y+to.height/2}))});
+ expect(await columnNames(host)).toEqual(['Nom','Montant','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ const viewport=host.locator('.gamaTableViewport');await viewport.evaluate(v=>v.scrollLeft=v.scrollWidth);expect(await viewport.evaluate(v=>v.scrollLeft)).toBeGreaterThan(0);
+});
+test('partial body refresh uses canonical cell positions and merged subtotal groups cannot be split',async({page})=>{
+ await boot(page);await fixture(page);const host=page.locator('#sortFixture');await host.locator('thead th').nth(1).dragTo(host.locator('thead th').nth(0));
+ await host.locator('tbody').evaluate(b=>{b.innerHTML='<tr><td>Nueva</td><td>7,50 €</td><td>02/10/2026</td><td>2</td><td><button>Editar</button></td></tr>'});
+ await expect(host.locator('tbody td').first()).toHaveText('7,50 €');await expect(host.locator('tbody td').nth(1)).toHaveAttribute('data-col','Nom');
+ await host.locator('tfoot').evaluate(f=>{f.innerHTML='<tr><td colspan="2">Subtotal</td><td>Fecha</td><td>Cantidad</td><td></td></tr>'});
+ await host.locator('thead th').nth(1).press('Alt+ArrowRight');
+ await expect(host.locator('.gamaColumnStatus')).toContainText('cellules fusionnées');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+});

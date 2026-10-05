@@ -16,7 +16,7 @@ Les coordonnées sont réutilisées depuis la fiche client lorsque son adresse c
 
 Les profils TMS sont **Despachador**, **Conductor** et **Gestor**, configurables par l’administrateur dans **Roles TMS**, à l’intérieur des accès ERP existants. Sans réglage spécifique, un compte actif lié à un conducteur est restreint à ses livraisons ; les autres utilisateurs autorisés du magasin gardent le dispatch. Les preuves, événements et incidents ne s’écrivent plus directement depuis le navigateur. Les commandes contrôlent la version de la livraison et les droits au moment de synchroniser.
 
-**Manifiesto** produit un document imprimable/PDF des arrêts et marchandises ; ce document opérationnel ne remplace pas la guía SRI. **Cierre de jornada** montre les soldes, retours ouverts et facturations à revoir. Une livraison partielle ne peut être soldée qu’après résolution des quantités et retours, confirmation de revue de facturation et motif. Son état partiel reste conservé. Une tournée se ferme quand ses livraisons sont livrées, annulées ou résolues.
+**Manifiesto** télécharge un PDF des arrêts et marchandises avec le générateur local partagé (sans ouvrir une fenêtre d’impression dans la PWA) ; ce document opérationnel ne remplace pas la guía SRI. **Cierre de jornada** montre les soldes, retours ouverts et facturations à revoir. Une livraison partielle ne peut être soldée qu’après résolution des quantités et retours, confirmation de revue de facturation et motif. Son état partiel reste conservé. Une tournée se ferme quand ses livraisons sont livrées, annulées ou résolues.
 
 **Gestionar entrega** propose :
 

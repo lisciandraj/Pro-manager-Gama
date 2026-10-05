@@ -510,3 +510,19 @@ test('one conflicted offline delivery does not block another and account switchi
  const calls=await page.evaluate(()=>__flushCalls);expect(calls.slice(0,2)).toEqual(['first','independent']);expect(calls.filter(x=>x==='independent')).toHaveLength(1);expect(calls).not.toContain('dependent');expect((await page.evaluate(()=>ArchitectOfflineProofs.rows())).map(r=>r.payload.notes)).toEqual(['first','dependent']);
  await page.evaluate(()=>{__DB._profile.id='other-account';window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN',session:{user:{id:'other-account'}}}}))});expect(await page.evaluate(()=>ArchitectOfflineProofs.rows())).toEqual([]);
 });
+
+test('loading manifest downloads a real multipage PDF and rechecks route access before export',async({page})=>{
+ await boot(page,{drivers:DRIVERS});
+ await page.evaluate(async()=>{
+  window.__manifestReads=0;const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_tms_execution'||args.p_action!=='manifest')return c.rpc(fn,args);window.__manifestReads++;
+   if(window.__manifestDenied)return {error:{message:'TMS_ACCESS_DENIED'}};
+   return {data:{route:{erp_reference:'RUT-00000042',route_date:'2026-10-06',driver_name:'Ana Torres',vehicle:'ABC-1234'},guide:null,deliveries:[{delivery:{customer:'Cliente Quito',address:'Av. Amazonas',time_window:'09:00-12:00'},shipment:{number:'ENV-00000042'},lines:Array.from({length:90},(_,i)=>({name:'Producto '+i+' · Papel A4 para oficina',quantity:10,accepted:3,remaining:7}))}]}};
+  }}};
+  await CocoTmsExecution.manifest('route-pdf');
+ });
+ const download=page.waitForEvent('download');await page.locator('[data-ex-print]').click();const file=await download;
+ expect(file.suggestedFilename()).toMatch(/manifiesto.*RUT-00000042.*\.pdf/i);const data=fs.readFileSync(await file.path());expect(data.subarray(0,4).toString()).toBe('%PDF');expect((data.toString('latin1').match(/\/Type \/Page\b/g)||[]).length).toBeGreaterThan(1);expect(await page.evaluate(()=>window.__manifestReads)).toBe(2);
+ await file.saveAs('.build/tms-manifest-verified.pdf');
+ await page.evaluate(()=>window.__manifestDenied=true);await page.locator('[data-ex-print]').click();await expect(page.locator('.tmsManifestDialog [role=alert]')).toContainText('no está asignada');await expect(page.locator('[data-ex-print]')).toBeEnabled();
+});

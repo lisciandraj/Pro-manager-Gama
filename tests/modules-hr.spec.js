@@ -360,12 +360,13 @@ test('en el escritorio la plantilla enseña sus botones sin dejar nada fuera de 
   expect(m.botonesFuera, 'hay filas con los botones fuera de alcance').toBe(0);
 });
 
-test('en el teléfono la plantilla se apila en fichas y no hay nada que arrastrar de lado', async ({ page }) => {
+test('en el teléfono la plantilla permite elegir fichas sin arrastre lateral', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await boot(page, 'admin', { hr_employees: FICHAS_ANCHAS });
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(700);
 
+  await page.locator('#hr .gamaTableViews [data-table-view=cards]').first().click();
   const m = await medirPlantilla(page);
   expect(m.alcanzable).toBe(m.anchoCaja);
   expect(m.botonesFuera).toBe(0);

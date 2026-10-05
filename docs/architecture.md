@@ -98,7 +98,7 @@ Les onglets Importer des données, Sauvegarde, Utilisateurs et Paramètres d’a
 
 ## Planification TMS quotidienne
 
-La carte Waze Live Map et le cycle automatique sont dans `src/features/transport/workspace.js`. L’iframe sans clé est limitée à `embed.waze.com` par la CSP ; le zoom, le cadrage de la zone et la sélection de chaque position restent dans Coco. L’intégration officielle affiche un repère à la fois ; elle ne dessine pas plusieurs clients ni les tournées. Les coordonnées proviennent des données métier et des corrections manuelles, sans appel OpenStreetMap ou Nominatim. `gama_tms_plan_day` expose une façade invocateur et un traitement privé contrôlant les accès, verrouillant la journée et conservant les tournées parties. Les nouvelles livraisons nécessitent un lien de commande à la validation transactionnelle. Voir [TMS](modules/tms.md).
+La carte Waze Live Map et le cycle automatique sont dans `src/features/transport/workspace.js`. La vue initiale est centrée sur Quito, y compris sans GPS de livraison. L’iframe sans clé est limitée à `embed.waze.com` par la CSP ; le zoom, le cadrage de la zone et la sélection de chaque position restent dans Coco. L’intégration officielle affiche un repère à la fois ; elle ne dessine pas plusieurs clients ni les tournées. Les coordonnées proviennent des données métier et des corrections manuelles, sans appel OpenStreetMap ou Nominatim. `gama_tms_plan_day` expose une façade invocateur et un traitement privé contrôlant les accès, verrouillant la journée et conservant les tournées parties. Les nouvelles livraisons nécessitent un lien de commande à la validation transactionnelle. Voir [TMS](modules/tms.md).
 
 ## Vues personnelles du Dashboard
 

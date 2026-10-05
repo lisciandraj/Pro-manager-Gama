@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-10-05T17:21:20.010383+00:00",
+  "capturedAt": "2026-10-05T20:45:47.643819+00:00",
   "source": "connected_supabase.list_migrations",
   "applied": [
     {
@@ -1574,6 +1574,12 @@
       "name": "agent_coco_report_archive",
       "file": "20261005165044_agent_coco_report_archive.sql",
       "sha256": "3dbeadea989d27de23524aa15286097a04b6dc56aaf717e43f885b5688b5c9f8"
+    },
+    {
+      "version": "20261005204249",
+      "name": "manual_mail_and_waze",
+      "file": "20261005190428_manual_mail_and_waze.sql",
+      "sha256": "101d027fcd93aee34e4ffaad678145f47464fbb707abbe9a725bc0f093df6744"
     }
   ]
 }

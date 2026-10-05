@@ -483,6 +483,10 @@
     {
       "source": "src/features/finance/sri-documents.js",
       "output": "gama-sri-documents.js"
+    },
+    {
+      "source": "src/features/sales/collections.js",
+      "output": "gama-collections.js"
     }
   ],
   "styles": [

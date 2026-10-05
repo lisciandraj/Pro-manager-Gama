@@ -29,6 +29,9 @@ export function errorMessage(error) {
   const messages = {AUTH_REQUIRED:'Vuelve a iniciar sesión.', ROLE_NOT_ALLOWED:'Tu perfil no puede realizar esta operación.', PM_FORBIDDEN:'Tu perfil no puede realizar esta operación.', '23505':'Ya existe un registro con estos datos.', '23503':'Este registro está vinculado a otros documentos.', PM_CONFLICT:'Los datos cambiaron. Actualiza antes de guardar.', NETWORK_ERROR:'Comprueba la conexión y vuelve a intentarlo.'};
   const specific=e.message.match(/\b[A-Z][A-Z_]{3,}\b/)?.[0];
   const audit={
+   EC_IDENTIFICATION_INVALID:['Revisa el RUC o la cédula y su tipo. El dígito verificador no coincide.','Vérifiez le RUC ou la cédula et son type. Le chiffre de contrôle ne correspond pas.','Check the RUC or cédula and its type. The check digit does not match.'],
+   PARTNER_IDENTIFICATION_DUPLICATE:['Ya existe un contacto con esta identificación. Abre su ficha para actualizarlo.','Un contact possède déjà cette identification. Ouvrez sa fiche pour le mettre à jour.','A contact with this identification already exists. Open its record to update it.'],
+   DOCUMENT_CHANGED:['La situación cambió. Actualiza la solicitud de aprobación.','La situation a changé. Actualisez la demande d’approbation.','The situation changed. Refresh the approval request.'],
    STOCK_REQUIRES_MOVEMENT:['El stock requiere un movimiento con ubicación.','Le stock nécessite un mouvement avec emplacement.','Stock requires a located movement.'],
    INDEPENDENT_APPROVER_REQUIRED:['Se requiere otro validador o una excepción autorizada y justificada.','Un autre validateur est requis, ou une exception autorisée et justifiée.','A different approver or an authorized justified exception is required.'],
    ADJUSTMENT_APPROVAL_REQUIRED:['Registra una solicitud de ajuste para su validación.','Enregistrez une demande d’ajustement à valider.','Submit an adjustment request for approval.'],

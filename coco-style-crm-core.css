@@ -1,0 +1,59 @@
+/* Generated from src/styles/modules/crm-core.css. Edit the source and run npm run build. */
+/* gama-crm-core.js */
+#crm .crmKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+#crm .crmKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:14px}
+#crm .crmKpi span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
+#crm .crmKpi b{display:block;margin-top:6px;font-size:22px;color:var(--arc-text)}
+#crm .crmKpi small{display:block;margin-top:3px;color:var(--arc-text-subtle);font-size:11px}
+#crm .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
+#crm .crmNav{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+#crm .crmNav button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto;min-height:40px}
+#crm .crmNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+#crm .crmEmbudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+#crm .crmCol{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:11px}
+#crm .crmCol b{display:block;font-size:12.5px;color:var(--arc-text)}
+#crm .crmCol i{display:block;font-style:normal;font-size:19px;font-weight:800;color:var(--arc-accent-600);margin-top:5px}
+#crm .crmCol small{display:block;color:var(--arc-text-muted);font-size:11px;margin-top:2px}
+#crm .crmCol.ganada{background:var(--arc-success-bg);border-color:var(--arc-success-line)}
+#crm .crmCol.perdida{background:var(--arc-danger-bg);border-color:var(--arc-danger-line)}
+#crm .crmMsg{margin:10px 0;font-size:13px}
+#crm .crmMsg.ok{color:var(--arc-success)}
+#crm .crmMsg.err{color:var(--arc-danger);font-weight:700}
+#crm .crmVacio{padding:20px;text-align:center;color:var(--arc-text-subtle)}
+/* De aquí abajo, lo que comparten TODAS las listas y fichas del CRM. Vive en
+   el núcleo y no en la primera pantalla que lo necesitó: si vive en una
+   pantalla, abrir otra primero la deja sin estilo. */
+#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:12px}
+#crm .crmBar input,#crm .crmBar select{min-height:42px}
+#crm .crmTablaWrap{width:100%;overflow-x:auto}
+/* min-width:min-content y no una anchura fija: con un ancho clavado las celdas
+   se salen por la derecha sin que el contenedor cuente ese sobrante como algo
+   que desplazar, y los botones quedan fuera de alcance. */
+#crm .crmTabla{width:100%;min-width:min-content;border-collapse:collapse}
+#crm .crmTabla th,#crm .crmTabla td{padding:9px;border-bottom:1px solid var(--arc-surface-3);text-align:left;font-size:12.5px;vertical-align:top}
+#crm .crmTabla th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--arc-text-muted);background:var(--arc-surface-2)}
+#crm .crmTabla td.r,#crm .crmTabla th.r{text-align:right}
+#crm .crmSub{display:block;color:var(--arc-text-subtle);font-size:11px}
+#crm .crmLink{color:var(--arc-accent-600);font-weight:700}
+#crm .crmTarde{color:var(--arc-danger);font-weight:800;font-size:11px}
+#crm .crmEstado,#crm .crmPri{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+#crm .crmEstado{background:var(--arc-surface-3);color:var(--arc-text-muted)}
+#crm .crmPri{background:var(--arc-surface-2);color:var(--arc-text-muted)}
+#crm .crmAcc{white-space:nowrap}
+#crm .crmAcc button{width:auto;margin:0 3px 3px 0;padding:7px 11px;font-size:12px;min-height:38px}
+#crm .crmForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+#crm .crmForm label,#crm .crmNotas label{display:block;font-size:11px;font-weight:800;color:var(--arc-text-muted);margin-bottom:3px}
+#crm .crmNotas{margin-top:10px}
+#crm .crmNotas textarea{width:100%;padding:9px;border:1px solid var(--arc-line-strong);border-radius:9px;font:inherit;font-size:13px}
+#crm .crmAcciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#crm .crmAcciones button{width:auto;min-height:44px}
+#crm .crmAviso{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-left:4px solid var(--arc-accent-600);border-radius:9px;padding:11px;font-size:13px;color:var(--arc-text-muted);margin-bottom:12px}
+#crm .crmAviso .crmAcciones{margin-top:9px}
+@media(max-width:900px){#crm .crmKpis{grid-template-columns:1fr 1fr}}
+/* En el teléfono la barra se apila y las tablas las convierte en fichas
+   gama-tables.js, como en el resto de la aplicación. */
+@media(max-width:760px){#crm .crmBar{grid-template-columns:minmax(0,1fr)}
+ #crm .crmBar button{width:100%}
+ #crm .crmTabla{--gamaCardsLabel:118px}
+ #crm .crmAcc button{margin:0 4px 4px 0}}
+

@@ -499,6 +499,18 @@
     {
       "source": "src/storefront/b2b.js",
       "output": "gama-b2b.js"
+    },
+    {
+      "source": "src/features/processes/automation.js",
+      "output": "coco-automation.js"
+    },
+    {
+      "source": "src/features/processes/flow-tools.js",
+      "output": "coco-flow-tools.js"
+    },
+    {
+      "source": "src/features/import-export/import-worker.js",
+      "output": "coco-import-worker.js"
     }
   ],
   "styles": [
@@ -569,32 +581,83 @@
     {
       "source": "src/storefront/b2b.css",
       "output": "gama-b2b.css"
+    },
+    {
+      "source": "src/styles/modules/accounting.css",
+      "output": "coco-style-accounting.css"
+    },
+    {
+      "source": "src/styles/modules/fleet.css",
+      "output": "coco-style-fleet.css"
+    },
+    {
+      "source": "src/styles/modules/hr.css",
+      "output": "coco-style-hr.css"
+    },
+    {
+      "source": "src/styles/modules/hr-operations.css",
+      "output": "coco-style-hr-operations.css"
+    },
+    {
+      "source": "src/styles/modules/returns.css",
+      "output": "coco-style-returns.css"
+    },
+    {
+      "source": "src/styles/modules/purchases.css",
+      "output": "coco-style-purchases.css"
+    },
+    {
+      "source": "src/styles/modules/tms-module.css",
+      "output": "coco-style-tms-module.css"
+    },
+    {
+      "source": "src/styles/modules/inventory.css",
+      "output": "coco-style-inventory.css"
+    },
+    {
+      "source": "src/styles/modules/dossier-flow.css",
+      "output": "coco-style-dossier-flow.css"
+    },
+    {
+      "source": "src/styles/modules/crm-core.css",
+      "output": "coco-style-crm-core.css"
+    },
+    {
+      "source": "src/styles/modules/crm-activities.css",
+      "output": "coco-style-crm-activities.css"
+    },
+    {
+      "source": "src/styles/modules/crm-contacts.css",
+      "output": "coco-style-crm-contacts.css"
+    },
+    {
+      "source": "src/styles/modules/crm-leads.css",
+      "output": "coco-style-crm-leads.css"
+    },
+    {
+      "source": "src/styles/modules/crm-opportunities.css",
+      "output": "coco-style-crm-opportunities.css"
+    },
+    {
+      "source": "src/styles/modules/crm-reports.css",
+      "output": "coco-style-crm-reports.css"
+    },
+    {
+      "source": "src/styles/modules/crm-targets.css",
+      "output": "coco-style-crm-targets.css"
     }
   ],
   "moduleStyles": [
     "src/styles/modules/access-control.css",
-    "src/styles/modules/accounting.css",
     "src/styles/modules/archive.css",
     "src/styles/modules/client-catalog.css",
     "src/styles/modules/cloud-auth.css",
     "src/styles/modules/cloud-users.css",
-    "src/styles/modules/crm-activities.css",
-    "src/styles/modules/crm-contacts.css",
-    "src/styles/modules/crm-core.css",
-    "src/styles/modules/crm-leads.css",
-    "src/styles/modules/crm-opportunities.css",
-    "src/styles/modules/crm-reports.css",
-    "src/styles/modules/crm-targets.css",
     "src/styles/modules/customer-requests.css",
-    "src/styles/modules/dossier-flow.css",
     "src/styles/modules/excel-import.css",
     "src/styles/modules/fixed-header.css",
-    "src/styles/modules/fleet.css",
     "src/styles/modules/fulfillment.css",
-    "src/styles/modules/hr-operations.css",
-    "src/styles/modules/hr.css",
     "src/styles/modules/i18n.css",
-    "src/styles/modules/inventory.css",
     "src/styles/modules/invoice-archive.css",
     "src/styles/modules/knowledge.css",
     "src/styles/modules/operations.css",
@@ -602,10 +665,8 @@
     "src/styles/modules/payments.css",
     "src/styles/modules/price-lists.css",
     "src/styles/modules/commercial-matrix.css",
-    "src/styles/modules/purchases.css",
     "src/styles/modules/quote-pdf.css",
     "src/styles/modules/quotes.css",
-    "src/styles/modules/returns.css",
     "src/styles/modules/sales-report.css",
     "src/styles/modules/sales.css",
     "src/styles/modules/sales-2.css",
@@ -615,7 +676,6 @@
     "src/styles/modules/sort.css",
     "src/styles/modules/standard-ui.css",
     "src/styles/modules/tables.css",
-    "src/styles/modules/tms-module.css",
     "src/styles/modules/toast.css",
     "src/styles/modules/ui.css"
   ],
@@ -659,11 +719,9 @@
         "gama-pdf-template.js",
         "gama-quote-pdf.js",
         "gama-purchase-order-pdf.js",
-        "gama-proveedores-matriz.js",
         "gama-customer-requests.js",
         "gama-pdf.js",
         "gama-photos.js",
-        "gama-price-lists.js",
         "gama-contacts.js",
         "gama-settings.js",
         "gama-sales.js",

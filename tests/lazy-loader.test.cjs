@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 function loader(){
  const scripts=[],preloads=[],window={ArcAssets:{'gama-service-documents.js':'gama-service-documents.js?v=123456789abc'}};
- const context={window,document:{createElement:tag=>({tag,dataset:{},remove(){this.removed=true}}),head:{appendChild:s=>(s.tag==='link'?preloads:scripts).push(s)}}};
+ const context={window,document:{createElement:tag=>({tag,dataset:{},remove(){this.removed=true}}),head:{appendChild:s=>{(s.tag==='link'?preloads:scripts).push(s);if(s.rel==='stylesheet')queueMicrotask(()=>s.onload())}}}};
  vm.createContext(context);
  const config=fs.readFileSync('src/app/lazy-modules.js','utf8').replace('export const','const');
  const code=fs.readFileSync('src/app/loader.js','utf8').replace(/^import .*;$/gm,'').replace(/^export \{.*;$/gm,'').replace(/export /g,'');
@@ -70,7 +70,7 @@ test('failed CRM registration retries missing assets before forwarding a direct 
 });
 test('an early workspace call prepares transfers but waits for shared controls to execute',async()=>{
  const x=loader();let release;x.window.ArcRuntimeLoaded=false;x.window.ArcEnsureRuntime=()=>new Promise(r=>release=r);
- const pending=x.loadModule('warehouses');assert.equal(x.preloads.length,1);assert.equal(x.scripts.length,0);
+ const pending=x.loadModule('warehouses');assert.equal(x.preloads.filter(l=>l.as==='script').length,1);assert.equal(x.scripts.length,0);
  x.window.ArcRuntimeLoaded=true;release();await new Promise(setImmediate);
  x.window.GamaInventoryV2={abrir:()=>true};x.scripts[0].onload();await pending;
 });

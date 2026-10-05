@@ -369,6 +369,7 @@ function expenseForm(row){
  </div>
  <label class="gsField">${tr('Descripción')}<input id="gaDescription" required maxlength="500" value="${esc(row?.description||'')}"></label>
  <label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000">${esc(row?.notes||'')}</textarea></label>
+ ${row?.source_reviewed===false?`<label class="gsField"><span><input id="gaSourceReviewed" type="checkbox" required> ${tr('He verificado el justificante, los impuestos y el medio de pago')}</span></label>`:''}
  <p class="gaHint">${tr('El total se calcula solo desde el importe sin impuestos y el impuesto; puedes corregirlo.')}</p>`,
   row?'Guardar':'Registrar',async el=>{
    const v=id=>el.querySelector('#'+id).value;
@@ -376,6 +377,7 @@ function expenseForm(row){
     category_id:v('gaCategory'),description:v('gaDescription'),amount_untaxed:Number(v('gaUntaxed')),
     tax_amount:Number(v('gaTax')||0),amount_total:Number(v('gaTotal')),payment_method:v('gaMethod'),
     financial_account_id:v('gaAccount'),notes:v('gaNotes')});
+   if(row?.source_reviewed===false){const r=await window.ArcData.rawRpc('gama_flow_finance',{p_action:'expense_review',p_data:{id:row.id,reviewed:el.querySelector('#gaSourceReviewed').checked}});if(r.error)throw r.error}
    await go();
   });
  const recalc=()=>{const u=Number($('gaUntaxed').value||0),t=Number($('gaTax').value||0);
@@ -420,18 +422,19 @@ VIEWS.purchases={
   state.rows=d.rows;state.suppliers=d.suppliers;state.accounts=d.accounts;
   return `<div class="arcPanel gaCard"><h3>${tr('Facturas de proveedor')}</h3>
    ${filters({})}
-   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button></div>`:''}
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button><button class="arcButton secondary" id="gaReceiptDrafts">${tr('Recepciones y facturas por revisar')}</button><button class="arcButton secondary" id="gaImportSupplierXml">${tr('Importar XML del proveedor')}</button></div>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
      <td><b>${esc(r.supplier_name)}</b></td><td>${r.erp_reference?'<b>'+esc(r.erp_reference)+'</b><br>':''}${esc(r.number)}</td>
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
-     <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
+     <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.status==='draft'?'draft':r.payment_status)}</td>
      <td><div class="gaActions">
       ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
-      ${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
-      ${rights?.validate&&r.status!=='cancelled'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
+      ${r.status==='draft'?`<button class="arcButton primary" data-ga-draft="${esc(r.id)}">${tr('Revisar')}</button>`:''}
+      ${rights?.create&&Number(r.balance)>0&&r.status==='posted'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
+      ${rights?.validate&&r.status==='posted'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
    </tbody></table></div>
    <p class="gaHint">${tr('Los pedidos de compra siguen en el módulo Compras. Aquí se registra la factura recibida y su pago, que es lo que mueve la tesorería.')}</p></div>`;
@@ -440,6 +443,9 @@ VIEWS.purchases={
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
   document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
+  $('gaImportSupplierXml')?.addEventListener('click',()=>window.CocoFlows.importSupplierXml());
+  $('gaReceiptDrafts')?.addEventListener('click',()=>window.CocoFlows.draftBills());
+  document.querySelectorAll('[data-ga-draft]').forEach(b=>b.onclick=()=>window.CocoFlows.draftBills(b.dataset.gaDraft));
   document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)));
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }

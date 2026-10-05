@@ -23,7 +23,7 @@ const groups=[
  ['Audit','Auditoría','Audit',['gama_audit']],
  ['Configuration','Configuración','Configuration',['app_modules','profiles','gama_document_references','company_settings']],
  ['Facturation SRI','Facturación SRI','SRI invoicing',[]],
- ['Projets','Proyectos','Projects',['pm_projects','pm_items','pm_members','pm_templates','pm_comments','pm_files','pm_links']],
+ ['Projets','Proyectos','Projects',['project_time_entries','pm_projects','pm_items','pm_members','pm_templates','pm_comments','pm_files','pm_links']],
  ['Comptabilité','Contabilidad','Accounting',['accounting_accounts','accounting_journals','accounting_entries','accounting_entry_lines','accounting_periods','accounting_permissions','accounting_taxes','financial_accounts','bank_transactions','reconciliations','expenses','expense_categories','expense_receipts','supplier_invoices','supplier_invoice_payments']],
  ['Flotte','Flota','Fleet',[]],
  ['SAV','Servicio posventa','After-sales',['service_tickets','service_messages','service_events']],

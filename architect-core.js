@@ -691,7 +691,15 @@
     return r.data;
   }
   async function rawRpc(name, data2 = {}) {
-    return (await cloud().db()).rpc(name, data2);
+    const started = performance.now();
+    let success = false;
+    try {
+      const r = await (await cloud().db()).rpc(name, data2);
+      success = !r.error;
+      return r;
+    } finally {
+      if (name !== "gama_operational_metrics") window.dispatchEvent(new CustomEvent("arc:metric", { detail: { metric: "rpc", operation: name, duration_ms: Math.round(performance.now() - started), success } }));
+    }
   }
   const action = (domain, operation, data2 = {}) => rpc("gama_" + domain + "_action", { p_action: operation, p_data: data2 });
   function startDataEvents() {
@@ -1237,6 +1245,10 @@
     });
   };
   const openers = {
+    matrix: () => {
+      var _a;
+      return (_a = window.GamaMatrix) == null ? void 0 : _a.open();
+    },
     surveys: () => {
       var _a;
       return (_a = window.GamaSurveys) == null ? void 0 : _a.open();
@@ -1433,9 +1445,23 @@
     const requested = id;
     id = canonical(id);
     if (!allowed(id)) return refuse(id);
-    const definition = registry.find((m) => m.id === id);
-    if (definition == null ? void 0 : definition.open) return definition.open(requested);
-    return show(id);
+    const definition = registry.find((m) => m.id === id), started = performance.now();
+    const record = (success) => emit("arc:metric", { metric: "navigation", module: id, operation: "open", duration_ms: Math.round(performance.now() - started), success });
+    try {
+      const result = (definition == null ? void 0 : definition.open) ? definition.open(requested) : show(id);
+      if (result == null ? void 0 : result.then) return result.then((r) => {
+        record(true);
+        return r;
+      }, (e) => {
+        record(false);
+        throw e;
+      });
+      record(result !== false);
+      return result;
+    } catch (e) {
+      record(false);
+      throw e;
+    }
   }
   function startRouter() {
     window.addEventListener("gama:modules-change", () => {
@@ -1547,13 +1573,17 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "price-lists": { "global": "gamaPriceLists", "file": "gama-price-lists.js", "methods": ["open"], "aliases": { "GamaOpenPriceLists": "open" } },
+    "matrix": { "global": "GamaMatrix", "file": "gama-proveedores-matriz.js", "methods": ["open", "render"], "apis": { "GamaSuppliers": ["migrate"] } },
+    "workflow-tools": { "global": "CocoFlows", "file": "coco-flow-tools.js", "methods": ["draftBills", "projectTime", "importSupplierXml", "messages"] },
+    "automation": { "global": "CocoAutomation", "file": "coco-automation.js", "methods": ["mount"] },
     "dashboard": { "global": "ArchitectDashboard", "file": "architect-dashboard.js", "dependencies": ["architect-kpi-catalog.js", "architect-home-kpis.js"], "methods": ["refresh"], "apis": { "ArchitectHomeKpis": ["refresh"] } },
-    "crm": { "global": "GamaCRM", "file": "gama-crm-core.js", "extensions": ["gama-crm-scoring.js", "gama-crm-leads.js", "gama-crm-opportunities.js", "gama-crm-activities.js", "gama-crm-contacts.js", "gama-crm-reports.js", "gama-crm-targets.js"], "methods": ["open", "ir"], "aliases": { "GamaOpenCRM": "open" }, "apis": { "GamaCRMLeads": ["open"], "GamaCRMOpportunities": ["open", "openRecord"], "GamaCRMActivities": ["open"], "GamaCRMContacts": ["open"], "GamaCRMReports": ["open"] } },
-    "hr-operations": { "global": "GamaHRP1", "file": "gama-hr-p1.js", "methods": ["mountFinance", "load"] },
-    "hr": { "global": "GamaHR", "file": "gama-hr.js", "dependencies": ["gama-hr-p1.js"], "methods": ["open", "load"], "aliases": { "GamaOpenHR": "open" } },
-    "dossier-flow": { "global": "GamaDossierFlow", "file": "gama-dossier-flow.js", "methods": ["open", "attachHistory"] },
-    "gamaPurchasesV14": { "global": "GamaPurchases", "file": "gama-purchases-v14.js", "methods": ["open", "openOrder", "openDossier", "fromProject", "prepareAction", "prepareSupplierOffer"], "aliases": { "gamaShowPurchases": "open", "gamaOpenPurchaseV14": "openOrder", "gamaOpenPurchaseDossier": "openDossier", "gamaCreateProjectPurchase": "fromProject", "gamaPrepareActionPurchase": "prepareAction", "gamaPrepareSupplierOffer": "prepareSupplierOffer" } },
-    "warehouses": { "global": "GamaInventoryV2", "file": "gama-stock-workspace.js", "methods": ["abrir", "openCount", "openAdjustments", "cargar"] },
+    "crm": { "styles": ["coco-style-crm-core.css", "coco-style-crm-activities.css", "coco-style-crm-contacts.css", "coco-style-crm-leads.css", "coco-style-crm-opportunities.css", "coco-style-crm-reports.css", "coco-style-crm-targets.css"], "global": "GamaCRM", "file": "gama-crm-core.js", "extensions": ["gama-crm-scoring.js", "gama-crm-leads.js", "gama-crm-opportunities.js", "gama-crm-activities.js", "gama-crm-contacts.js", "gama-crm-reports.js", "gama-crm-targets.js"], "methods": ["open", "ir"], "aliases": { "GamaOpenCRM": "open" }, "apis": { "GamaCRMLeads": ["open"], "GamaCRMOpportunities": ["open", "openRecord"], "GamaCRMActivities": ["open"], "GamaCRMContacts": ["open"], "GamaCRMReports": ["open"] } },
+    "hr-operations": { "styles": ["coco-style-hr-operations.css"], "global": "GamaHRP1", "file": "gama-hr-p1.js", "methods": ["mountFinance", "load"] },
+    "hr": { "styles": ["coco-style-hr.css", "coco-style-hr-operations.css"], "global": "GamaHR", "file": "gama-hr.js", "dependencies": ["gama-hr-p1.js"], "methods": ["open", "load"], "aliases": { "GamaOpenHR": "open" } },
+    "dossier-flow": { "styles": ["coco-style-dossier-flow.css"], "global": "GamaDossierFlow", "file": "gama-dossier-flow.js", "methods": ["open", "attachHistory"] },
+    "gamaPurchasesV14": { "styles": ["coco-style-purchases.css"], "global": "GamaPurchases", "file": "gama-purchases-v14.js", "methods": ["open", "openOrder", "openDossier", "fromProject", "prepareAction", "prepareSupplierOffer"], "aliases": { "gamaShowPurchases": "open", "gamaOpenPurchaseV14": "openOrder", "gamaOpenPurchaseDossier": "openDossier", "gamaCreateProjectPurchase": "fromProject", "gamaPrepareActionPurchase": "prepareAction", "gamaPrepareSupplierOffer": "prepareSupplierOffer" } },
+    "warehouses": { "styles": ["coco-style-inventory.css"], "global": "GamaInventoryV2", "file": "gama-stock-workspace.js", "methods": ["abrir", "openCount", "openAdjustments", "cargar"] },
     "surveys": { "global": "GamaSurveys", "file": "gama-surveys.js", "dependencies": ["gama-survey-form.js"], "methods": ["open"] },
     "website": {
       "global": "GamaWebsite",
@@ -1587,6 +1617,7 @@
       ]
     },
     "accounting": {
+      "styles": ["coco-style-accounting.css"],
       "global": "GamaAccounting",
       "file": "gama-accounting.js",
       "dependencies": ["gama-sri-documents.js"],
@@ -1598,6 +1629,7 @@
       ]
     },
     "fleet": {
+      "styles": ["coco-style-fleet.css"],
       "global": "GamaFleet",
       "file": "gama-fleet.js",
       "methods": [
@@ -1608,6 +1640,7 @@
       ]
     },
     "returns": {
+      "styles": ["coco-style-returns.css"],
       "global": "GamaReturns",
       "file": "gama-returns.js",
       "dependencies": ["gama-sri-documents.js"],
@@ -1636,6 +1669,7 @@
       ]
     },
     "tms": {
+      "styles": ["coco-style-tms-module.css"],
       "global": "gamaTMS",
       "file": "gama-tms-module.js",
       "dependencies": ["gama-tms-delivery-operations.js", "gama-sri-documents.js"],
@@ -1651,10 +1685,11 @@
     "projects": { "global": "GamaProjects", "file": "gama-projects.js", "dependencies": ["gama-projects-core.js"], "methods": ["open", "fromSource"] }
   };
   const scripts = /* @__PURE__ */ new Map();
+  const styles = /* @__PURE__ */ new Map();
   const modules = /* @__PURE__ */ new Map(), prepared = /* @__PURE__ */ new Set();
   const filesFor = (entry) => [...entry.dependencies || [], entry.file, ...entry.extensions || []];
   function prepareModule(id) {
-    var _a;
+    var _a, _b;
     const entry = lazyModules[id];
     if (!entry) return;
     for (const file of filesFor(entry)) {
@@ -1666,6 +1701,34 @@
       link.href = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
       document.head.appendChild(link);
     }
+    for (const file of entry.styles || []) {
+      if (prepared.has(file)) continue;
+      prepared.add(file);
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "style";
+      link.href = ((_b = window.ArcAssets) == null ? void 0 : _b[file]) || file;
+      document.head.appendChild(link);
+    }
+  }
+  function loadStyle(file) {
+    if (styles.has(file)) return styles.get(file);
+    const pending = new Promise((resolve, reject) => {
+      var _a;
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
+      link.dataset.arcAsset = file;
+      link.onload = resolve;
+      link.onerror = () => {
+        link.remove();
+        styles.delete(file);
+        reject(Error("MODULE_LOAD_FAILED"));
+      };
+      document.head.appendChild(link);
+    });
+    styles.set(file, pending);
+    return pending;
   }
   function loadScript(file, options = {}) {
     if (scripts.has(file)) return scripts.get(file);
@@ -1693,14 +1756,21 @@
     if (!entry) return;
     if (modules.has(id)) return modules.get(id);
     const installed = window[entry.global];
-    if (installed && !installed.__arcLazy && !entry.extensions) return installed;
+    if (installed && !installed.__arcLazy && !entry.extensions) {
+      await Promise.all((entry.styles || []).map(loadStyle));
+      return installed;
+    }
     prepareModule(id);
     const pending = (async () => {
       var _a, _b;
+      const css = Promise.all((entry.styles || []).map(loadStyle));
+      css.catch(() => {
+      });
       if (window.ArcRuntimeLoaded === false) await window.ArcEnsureRuntime();
       if ((_a = entry.dependencies) == null ? void 0 : _a.length) await Promise.all(entry.dependencies.map((file) => loadScript(file, { ordered: true })));
       await loadScript(entry.file);
       if ((_b = entry.extensions) == null ? void 0 : _b.length) await Promise.all(entry.extensions.map((file) => loadScript(file, { ordered: true })));
+      await css;
       const api = window[entry.global];
       if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
       return api;
@@ -1749,6 +1819,39 @@
   }
   function startPerformance() {
     const entries = [], start = performance.now();
+    let samples = [], epoch = 0, pending = false;
+    const capture = (detail) => {
+      var _a, _b, _c, _d;
+      if (!((_b = (_a = window.GamaRoleAccess) == null ? void 0 : _a.isReady) == null ? void 0 : _b.call(_a))) return;
+      const module = detail.module || ((_c = window.ArcRouter) == null ? void 0 : _c.current) || "mainmenu";
+      if (!/^[a-zA-Z0-9_-]{1,64}$/.test(module) || !/^[a-zA-Z0-9_-]{0,64}$/.test(detail.operation || "")) return;
+      samples.push({ metric: detail.metric, module, operation: detail.operation || "", duration_ms: Math.min(3e5, Math.max(0, detail.duration_ms || 0)), success: detail.success !== false, device: innerWidth < 768 ? "mobile" : "desktop", network: ((_d = navigator.connection) == null ? void 0 : _d.effectiveType) ? ["slow-2g", "2g"].includes(navigator.connection.effectiveType) ? "slow" : "normal" : "unknown" });
+      if (samples.length > 100) samples.shift();
+    };
+    const flush = async () => {
+      if (pending || document.hidden || !samples.length) return;
+      pending = true;
+      const token = epoch, batch = samples.splice(0, 50);
+      try {
+        const db = await window.GamaCloud.db();
+        if (token === epoch) await db.rpc("gama_operational_metrics", { p_action: "record", p_data: { samples: batch } });
+      } catch (_) {
+      } finally {
+        pending = false;
+      }
+    };
+    window.addEventListener("arc:metric", (e) => capture(e.detail));
+    document.addEventListener("click", (e) => {
+      var _a, _b;
+      if ((_b = (_a = e.target).closest) == null ? void 0 : _b.call(_a, "button,[role=button],a")) capture({ metric: "action", duration_ms: 1, success: true });
+    }, { passive: true });
+    window.addEventListener("gama:auth-change", (e) => {
+      var _a;
+      if (((_a = e.detail) == null ? void 0 : _a.event) === "TOKEN_REFRESHED") return;
+      epoch++;
+      samples = [];
+    });
+    setInterval(flush, 3e4);
     const record = (type, detail) => {
       entries.push({ type, at: Math.round(performance.now()), ...detail });
       if (entries.length > 100) entries.shift();
@@ -1763,7 +1866,12 @@
         record("access_ready", { milliseconds: Math.round(performance.now() - start) });
       }
     });
-    window.ArchitectPerformance = { snapshot: () => ({ entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }) };
+    window.ArchitectPerformance = { snapshot: () => ({ entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }), open: async () => {
+      const token = epoch, r = await window.ArcData.rpc("gama_operational_metrics", { p_action: "report" });
+      if (token !== epoch) return;
+      window.ArcUI.dialog({ title: "Rendimiento observado", saveLabel: "Cerrar", body: "<p>Últimos 7 días. El percentil 95 se calcula sobre mediciones reales; sin muestras no se estima. Los tiempos de navegación miden la apertura; los RPC miden la respuesta del servidor.</p>" + window.ArcUI.table({ columns: [{ key: "module", label: "Módulo" }, { key: "operation", label: "Operación" }, { key: "metric", label: "Medición" }, { key: "device", label: "Dispositivo" }, { key: "network", label: "Red" }, { key: "samples", label: "Muestras" }, { key: "p95_ms", label: "P95 (ms)" }, { key: "errors", label: "Errores" }], items: r.rows }), onSave: async () => {
+      } });
+    } };
   }
   window.ArcUI = { ...ui, icons, moduleIcon, esc: escapeHtml };
   window.ArcFormat = format;
@@ -1792,6 +1900,10 @@
   });
   window.ArcEnsureRuntime = () => window.ArcRuntimeLoaded ? Promise.resolve() : window.ArcRuntimeFailed ? loadScript("coco-modules.js", { validate: () => window.ArcRuntimeLoaded }) : window.ArcRuntimeReady;
   installLazyModules();
+  router.onEnter("matrix", () => {
+    window.GamaMatrix.render().catch(() => {
+    });
+  });
   router.onEnter("dashboard", () => {
     window.ArchitectDashboard.refresh().catch(() => {
     });

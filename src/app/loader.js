@@ -1,6 +1,7 @@
 import { lazyModules } from "./lazy-modules.js";
 export { lazyModules } from "./lazy-modules.js";
 const scripts = new Map();
+const styles = new Map();
 const modules = new Map(), prepared = new Set();
 const filesFor = entry => [...(entry.dependencies || []), entry.file, ...(entry.extensions || [])];
 /** Fetch on navigation intent; preloads never execute code or read business data. */
@@ -15,7 +16,9 @@ export function prepareModule(id) {
     link.href = window.ArcAssets?.[file] || file;
     document.head.appendChild(link);
   }
+  for(const file of entry.styles||[]){if(prepared.has(file))continue;prepared.add(file);const link=document.createElement('link');link.rel='preload';link.as='style';link.href=window.ArcAssets?.[file]||file;document.head.appendChild(link)}
 }
+export function loadStyle(file){if(styles.has(file))return styles.get(file);const pending=new Promise((resolve,reject)=>{const link=document.createElement('link');link.rel='stylesheet';link.href=window.ArcAssets?.[file]||file;link.dataset.arcAsset=file;link.onload=resolve;link.onerror=()=>{link.remove();styles.delete(file);reject(Error('MODULE_LOAD_FAILED'))};document.head.appendChild(link)});styles.set(file,pending);return pending}
 /** One request per asset, including modules sharing the same implementation.
  * Failed requests are removed so a later user action can retry. */
 export function loadScript(file, options = {}) {
@@ -45,14 +48,16 @@ export async function loadModule(id) {
   if (!entry) return;
   if (modules.has(id)) return modules.get(id);
   const installed = window[entry.global];
-  if (installed && !installed.__arcLazy && !entry.extensions) return installed;
+  if (installed && !installed.__arcLazy && !entry.extensions){await Promise.all((entry.styles||[]).map(loadStyle));return installed}
   prepareModule(id);
   const pending = (async () => {
+    const css=Promise.all((entry.styles||[]).map(loadStyle));css.catch(()=>{});
     if (window.ArcRuntimeLoaded === false) await window.ArcEnsureRuntime();
     // Dependencies execute first. All their transfers start together.
     if (entry.dependencies?.length) await Promise.all(entry.dependencies.map(file => loadScript(file,{ordered:true})));
     await loadScript(entry.file);
     if (entry.extensions?.length) await Promise.all(entry.extensions.map(file => loadScript(file,{ordered:true})));
+    await css;
     const api = window[entry.global];
     if (!api || api.__arcLazy) throw Error("MODULE_LOAD_FAILED");
     return api;

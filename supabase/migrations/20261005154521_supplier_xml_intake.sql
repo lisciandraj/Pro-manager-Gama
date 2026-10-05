@@ -1,0 +1,43 @@
+create table private.supplier_xml_intakes(id uuid primary key default gen_random_uuid(),hash text not null unique,supplier_id uuid not null references public.suppliers(id),bill_id uuid not null references public.supplier_invoices(id),xml_source text not null,filename text not null,created_by uuid not null references public.profiles(id),created_at timestamptz not null default now());
+alter table private.supplier_xml_intakes enable row level security;
+revoke all on private.supplier_xml_intakes from public,anon,authenticated,service_role;
+create index supplier_xml_supplier on private.supplier_xml_intakes(supplier_id);
+create index supplier_xml_bill on private.supplier_xml_intakes(bill_id);
+create index supplier_xml_actor on private.supplier_xml_intakes(created_by);
+create function private.xml_value(p_doc xml,p_path text) returns text language sql immutable security definer set search_path='' as $$select (xpath(p_path,p_doc)::text[])[1]$$;
+revoke all on function private.xml_value(xml,text) from public,anon,authenticated,service_role;
+create function private.gama_supplier_xml(p_data jsonb) returns jsonb language plpgsql security definer set search_path='' as $$
+#variable_conflict use_variable
+declare rights jsonb:=private.gama_accounting_rights();raw text:=p_data->>'xml';doc xml;hash text;prior private.supplier_xml_intakes;vendor uuid;purchase uuid:=nullif(p_data->>'purchase_order_id','')::uuid;bill public.supplier_invoices;ruc text;buyer text;number text;day_text text;issued date;net numeric;tax numeric;total numeric;counted integer;begin
+ if not private.erp_mfa_ok() or not private.erp_module_allowed('accounting',array['administrador','comercial']) or rights->>'scope'<>'all' or not coalesce((rights->>'create')::boolean,false) or not private.erp_action_allowed('accounting','create') then raise exception 'ROLE_NOT_ALLOWED';end if;
+ if raw is null or octet_length(raw)>2097152 or raw~* '<!DOCTYPE|<!ENTITY' then raise exception 'INVALID_XML';end if;
+ hash:=encode(sha256(convert_to(raw,'UTF8')),'hex');perform pg_advisory_xact_lock(hashtextextended('supplier-xml:'||hash,0));
+ select * into prior from private.supplier_xml_intakes where supplier_xml_intakes.hash=hash;
+ if found then select * into bill from public.supplier_invoices where id=prior.bill_id;if bill.purchase_order_id is distinct from purchase then raise exception 'XML_PURCHASE_CHANGED';end if;return jsonb_build_object('id',bill.id,'existing',true,'status',bill.status);end if;
+ doc:=xmlparse(document raw);
+ if xpath_exists('/autorizacion',doc) then raw:=private.xml_value(doc,'/autorizacion/comprobante/text()');if raw is null or raw~* '<!DOCTYPE|<!ENTITY' then raise exception 'INVALID_XML';end if;doc:=xmlparse(document raw);end if;
+ if not xpath_exists('/factura/infoTributaria',doc) then raise exception 'SUPPLIER_INVOICE_XML_REQUIRED';end if;
+ ruc:=private.xml_value(doc,'/factura/infoTributaria/ruc/text()');buyer:=private.xml_value(doc,'/factura/infoFactura/identificacionComprador/text()');
+ if ruc is null or ruc!~ '^[0-9]{13}$' then raise exception 'ISSUER_RUC_REQUIRED';end if;
+ if exists(select 1 from public.company_settings c where c.id and nullif(c.tax_id,'') is not null and c.tax_id is distinct from buyer) then raise exception 'XML_BUYER_MISMATCH';end if;
+ select count(*),(array_agg(id))[1] into counted,vendor from public.suppliers where active and regexp_replace(coalesce(tax_id,''),'[^0-9]','','g')=ruc;
+ if counted<>1 then raise exception 'SUPPLIER_MATCH_REQUIRED';end if;
+ number:=private.xml_value(doc,'/factura/infoTributaria/estab/text()')||'-'||private.xml_value(doc,'/factura/infoTributaria/ptoEmi/text()')||'-'||private.xml_value(doc,'/factura/infoTributaria/secuencial/text()');
+ if number is null or number!~ '^[0-9]{3}-[0-9]{3}-[0-9]{9}$' then raise exception 'NUMBER_REQUIRED';end if;
+ day_text:=private.xml_value(doc,'/factura/infoFactura/fechaEmision/text()');issued:=to_date(day_text,'DD/MM/YYYY');if to_char(issued,'DD/MM/YYYY') is distinct from day_text then raise exception 'INVALID_DATE';end if;
+ net:=private.xml_value(doc,'/factura/infoFactura/totalSinImpuestos/text()')::numeric;total:=private.xml_value(doc,'/factura/infoFactura/importeTotal/text()')::numeric;
+ if xpath_exists('/factura/infoFactura/totalConImpuestos/totalImpuesto[codigo != "2"]',doc) or coalesce(private.xml_value(doc,'/factura/infoFactura/propina/text()')::numeric,0)<>0 then raise exception 'XML_TAX_REVIEW_REQUIRED';end if;
+ select coalesce(sum(x::text::numeric),0) into tax from unnest(xpath('/factura/infoFactura/totalConImpuestos/totalImpuesto/valor/text()',doc))x;
+ if net is null or total is null or net<0 or total<=0 or total>1000000000 or round(net+tax,2)<>total or total<>round(total,2) or coalesce(private.xml_value(doc,'/factura/infoFactura/moneda/text()'),'DOLAR') not in ('DOLAR','USD') then raise exception 'XML_TOTAL_OR_CURRENCY_INVALID';end if;
+ if purchase is not null and not exists(select 1 from public.purchase_orders o where o.id=purchase and o.supplier_id=vendor and o.status<>'cancelled') then raise exception 'SUPPLIER_MISMATCH';end if;
+ if exists(select 1 from public.supplier_invoices b where b.supplier_id=vendor and b.number=number and b.status<>'cancelled') then raise exception 'SUPPLIER_INVOICE_DUPLICATE';end if;
+ if purchase is not null then select * into bill from public.supplier_invoices b where b.purchase_order_id=purchase and b.status='draft' and not b.source_reviewed order by created_at,id limit 1 for update;end if;
+ if bill.id is null then insert into public.supplier_invoices(supplier_id,purchase_order_id,number,issue_date,subtotal,tax,total,status,source_reviewed,request_key,created_by,notes) values(vendor,purchase,number,issued,net,tax,total,'draft',false,gen_random_uuid(),auth.uid(),'Importado desde XML. La firma y autorización no han sido verificadas; requiere revisión fiscal y recepción.') returning * into bill;
+ else update public.supplier_invoices set number=number,issue_date=issued,subtotal=net,tax=tax,total=total,source_reviewed=false,updated_at=now() where id=bill.id returning * into bill;end if;
+ insert into private.supplier_xml_intakes(hash,supplier_id,bill_id,xml_source,filename,created_by) values(hash,vendor,bill.id,p_data->>'xml',left(coalesce(p_data->>'filename','factura.xml'),200),auth.uid());
+ perform private.automation_exception('supplier-draft:'||bill.id,'receipt_bill','accounting','supplier_invoice',bill.id,'XML_FISCAL_AND_RECEIPT_REVIEW_REQUIRED',null,bill.erp_reference);
+ return jsonb_build_object('id',bill.id,'status','draft','hash',hash,'fiscal_verification','pending');
+end $$;
+create function public.gama_supplier_xml(p_data jsonb) returns jsonb language sql security invoker set search_path='' as $$select private.gama_supplier_xml(p_data)$$;
+revoke all on function public.gama_supplier_xml(jsonb),private.gama_supplier_xml(jsonb) from public,anon,service_role;
+grant execute on function public.gama_supplier_xml(jsonb),private.gama_supplier_xml(jsonb) to authenticated;

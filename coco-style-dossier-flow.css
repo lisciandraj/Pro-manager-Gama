@@ -1,0 +1,38 @@
+/* Generated from src/styles/modules/dossier-flow.css. Edit the source and run npm run build. */
+/* gama-dossier-flow.js */
+#dossier-flow{display:none}#dossier-flow.active{display:block}.gdfTools{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}.gdfTools input{flex:1;min-width:180px}.gdfLayout{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:18px}.gdfList{max-height:75vh;overflow:auto}.gdfRecord{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;margin-bottom:8px;padding:14px;border:1px solid var(--arc-line);background:white;color:var(--arc-text);border-radius:12px;overflow-wrap:anywhere}.gdfRecord[aria-pressed=true]{border:2px solid var(--arc-accent-600);background:var(--arc-surface-3)}.gdfRecord small{display:block;margin-top:5px}.gdfFlow{list-style:none;padding:0;margin:0}.gdfStep{position:relative;background:#fff;border:1px solid var(--arc-line);border-left:5px solid var(--arc-text-subtle);border-radius:12px;margin:0 0 28px;padding:18px;overflow-wrap:anywhere}.gdfStep:not(:last-child):after{content:'↓';position:absolute;bottom:-27px;left:22px;color:var(--arc-accent-600);font-size:24px}.gdfStep.done{border-left-color:var(--arc-success)}.gdfStep.blocked{border-left-color:var(--arc-danger)}.gdfStep.active{border-left-color:var(--arc-warning)}.gdfStep h3{margin:0 0 8px}.gdfBadge{display:inline-block;background:var(--arc-surface-3);padding:4px 9px;border-radius:20px;font-size:13px}.gdfStep ul{padding-left:20px}.gdfStep li{margin:7px 0}.gdfStats{display:flex;flex-wrap:wrap;gap:16px;margin:15px 0}.gdfError{color:var(--arc-danger)}.gdfDelivery{border-top:1px solid var(--arc-line);padding:12px 0}@media(max-width:760px){.gdfLayout{grid-template-columns:1fr}.gdfList{max-height:240px}}
+/* Seguimiento de procesos: una pestaña por proceso (PDV, PDC), una franja con
+   las etapas numeradas y, debajo, cada etapa con los documentos que llevan el
+   número del proceso. El color nunca va solo: cada etapa escribe su estado. */
+.gdfTabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px;border-bottom:1px solid var(--arc-line)}
+.gdfTab{appearance:none;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--arc-text-muted);font:inherit;font-weight:650;padding:10px 14px;min-height:44px;cursor:pointer;margin-bottom:-1px}
+.gdfTab[aria-selected=true]{color:var(--arc-accent-600);border-bottom-color:var(--arc-accent-600)}
+.gdfTab:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+.gdfSummary{margin-bottom:14px}.gdfSummaryHead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.gdfSummaryHead h2{margin:0;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.gdfSummary .gdfBadge[data-status=done]{background:var(--arc-success-bg);color:var(--arc-success)}.gdfSummary .gdfBadge[data-status=blocked]{background:var(--arc-danger-bg);color:var(--arc-danger)}.gdfSummary .gdfBadge[data-status=active]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.gdfNext{margin:10px 0 0}.gdfNext b{margin-right:6px}
+.gdfStepper{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px;counter-reset:none}
+.gdfStepper li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12px;line-height:1.3;color:var(--arc-text-muted);position:relative;padding-top:2px}
+.gdfDot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:750;font-size:13px;background:var(--arc-surface-3);color:var(--arc-text-muted);border:2px solid var(--arc-line)}
+.gdfStepper li[data-state=done] .gdfDot{background:var(--arc-success);border-color:var(--arc-success);color:#fff}
+.gdfStepper li[data-state=active] .gdfDot{background:var(--arc-warning-bg);border-color:var(--arc-warning);color:var(--arc-warning)}
+.gdfStepper li[data-state=blocked] .gdfDot{background:var(--arc-danger-bg);border-color:var(--arc-danger);color:var(--arc-danger)}
+.gdfStepper li[aria-current=step] .gdfStepName{color:var(--arc-text);font-weight:700}
+/* La barra de avance de cada tarjeta de proceso: verde mientras avanza, rojo y rayada si algo lo bloquea. */
+.gdfProgress{display:block;align-self:stretch;height:8px;margin-top:10px;border-radius:999px;background:var(--arc-surface-3);box-shadow:inset 0 0 0 1px var(--arc-line);overflow:hidden}.gdfProgress i{display:block;height:100%;width:0;border-radius:inherit;background:var(--arc-success);transition:width .3s ease}.gdfProgress[data-state=blocked] i{background:repeating-linear-gradient(135deg,rgba(255,255,255,.45) 0 4px,transparent 4px 8px),var(--arc-danger)}.gdfProgress[data-state=closed] i{background:var(--arc-text-subtle)}.gdfProgress:is([data-state=loading],[data-state=unknown]){background:repeating-linear-gradient(90deg,var(--arc-surface-3) 0 8px,var(--arc-line) 8px 16px)}@media(prefers-reduced-motion:reduce){.gdfProgress i{transition:none}}
+.gdfStepHead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.gdfStepHead h3{margin:0;flex:1;min-width:0}
+.gdfNum{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:750;font-size:13px;background:var(--arc-surface-3);color:var(--arc-text)}
+.gdfStep.done .gdfNum{background:var(--arc-success);color:#fff}.gdfStep.blocked .gdfNum{background:var(--arc-danger);color:#fff}.gdfStep.active .gdfNum{background:var(--arc-warning);color:#fff}
+.gdfStep.skip,.gdfStep.closed,.gdfStep.restricted{border-left-color:var(--arc-line);opacity:.8}
+.gdfStep .gdfDocs,.gdfAside .gdfDocs{list-style:none;padding:0;margin:8px 0;display:flex;flex-wrap:wrap;gap:6px}
+.gdfStep .gdfDocs li{margin:0}
+.gdfDoc{appearance:none;font:inherit;font-size:13px;font-weight:650;font-variant-numeric:tabular-nums;border:1px solid var(--arc-line-strong);background:var(--arc-surface);color:var(--arc-text);border-radius:8px;padding:5px 10px;min-height:32px;cursor:pointer}
+.gdfDoc:hover:not(:disabled){border-color:var(--arc-accent-600);color:var(--arc-accent-600)}.gdfDoc:disabled{cursor:default;opacity:.7}
+.gdfDoc:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+.gdfNeed{margin:8px 0 0;font-size:14px}.gdfNeed b{margin-right:6px}
+.gdfActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.gdfActions:empty{display:none}.gdfAction{min-height:42px;max-width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}.gdfAction span+span{margin-left:6px}.gdfAction:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+.gdfAside{margin-top:6px}
+@media(max-width:760px){.gdfStepper{grid-template-columns:repeat(4,minmax(0,1fr))}.gdfStepName{font-size:11px}}
+
+
+.gdfHistory{border-top:1px solid var(--line,#ddd);margin-top:14px;padding-top:10px;font-size:.85rem;overflow-wrap:anywhere}.gdfHistory summary{cursor:pointer;font-weight:600}.gdfHistory ol{list-style:none;margin:12px 0;padding:0;display:grid;gap:12px}.gdfHistory li{display:grid;gap:3px;border-left:3px solid var(--accent,#557c75);padding-left:10px}.gdfHistory span,.gdfHistory small{display:block}.gdfHistoryLatest{margin:0 0 8px}

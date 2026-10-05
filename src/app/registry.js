@@ -509,6 +509,7 @@ export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
 /** Route adapters preserve public module IDs and existing cross-module links. */
 const openers={
+ matrix:()=>window.GamaMatrix?.open(),
  surveys:()=>window.GamaSurveys?.open(),
  website:()=>window.GamaWebsite?.open(),
  contacts:from=>window.GamaContacts?.open(from),

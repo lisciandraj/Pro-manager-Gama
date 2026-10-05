@@ -1,0 +1,67 @@
+[
+  {
+    "category": "ALIMENTOS Y BEBIDAS",
+    "file": "alimentos-bebidas.webp",
+    "alt": "Café, agua, té, galletas y fruta"
+  },
+  {
+    "category": "COMPUTACIÓN, TECNOLOGÍA Y ACCESORIOS",
+    "file": "computacion-tecnologia.webp",
+    "alt": "Portátil, teclado, ratón, teléfono y auriculares"
+  },
+  {
+    "category": "EQUIPOS DE OFICINA",
+    "file": "equipos-oficina.webp",
+    "alt": "Impresora, plastificadora y trituradora de documentos"
+  },
+  {
+    "category": "EQUIPOS E IMPLEMENTOS DE COCINA Y CAFETERÍA",
+    "file": "cocina-cafeteria.webp",
+    "alt": "Olla, taza, hervidor y utensilios de cocina"
+  },
+  {
+    "category": "FERRETERÍA",
+    "file": "ferreteria.webp",
+    "alt": "Taladro, martillo, destornillador y herramientas"
+  },
+  {
+    "category": "HIGIENE",
+    "file": "higiene.webp",
+    "alt": "Jabón, toalla, cepillo de dientes y productos de higiene"
+  },
+  {
+    "category": "LIMPIEZA",
+    "file": "limpieza.webp",
+    "alt": "Cubo, fregona, pulverizador y accesorios de limpieza"
+  },
+  {
+    "category": "MEDICINA",
+    "file": "medicina.webp",
+    "alt": "Botiquín, medicamentos, termómetro y vendas"
+  },
+  {
+    "category": "MUEBLES, HOGAR Y BAZAR",
+    "file": "muebles-hogar.webp",
+    "alt": "Silla, mesa, lámpara y cesta para el hogar"
+  },
+  {
+    "category": "SEGURIDAD INDUSTRIAL",
+    "file": "seguridad-industrial.webp",
+    "alt": "Casco, gafas, guantes, chaleco y calzado de seguridad"
+  },
+  {
+    "category": "SERVICIOS",
+    "file": "servicios.webp",
+    "alt": "Asistencia profesional y atención a empresas"
+  },
+  {
+    "category": "SUMINISTROS DE OFICINA",
+    "file": "suministros-oficina.webp",
+    "alt": "Papel, archivador, cuaderno y material de oficina"
+  },
+  {
+    "category": "SUMINISTROS ESCOLARES",
+    "file": "suministros-escolares.webp",
+    "alt": "Mochila, cuadernos, lápices y material escolar"
+  }
+]

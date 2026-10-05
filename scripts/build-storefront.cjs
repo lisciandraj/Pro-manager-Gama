@@ -2,6 +2,16 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'..'),out=path.join(root,'dist-storefront');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'fonts'),{recursive:true});
 for(const file of ['index.html','site.js','site.css','b2b.js','b2b.css','surveys.html','surveys.js','_headers'])fs.copyFileSync(path.join(root,'src/storefront',file),path.join(out,file));
+const categoryImages=JSON.parse(fs.readFileSync(path.join(root,'config/storefront-category-images.json'),'utf8')),categoryArtwork={};
+fs.mkdirSync(path.join(out,'category-images'),{recursive:true});
+for(const entry of categoryImages){
+ const key=String(entry.category).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
+ if(!key||categoryArtwork[key]||!entry.alt||!/^[a-z0-9-]+\.webp$/.test(entry.file))throw Error('Invalid category illustration: '+entry.category);
+ const file=path.join(root,'src/storefront/category-images',entry.file),bytes=fs.readFileSync(file),version=crypto.createHash('sha256').update(bytes).digest('hex').slice(0,12);
+ fs.copyFileSync(file,path.join(out,'category-images',entry.file));
+ categoryArtwork[key]={src:'/category-images/'+entry.file+'?v='+version,alt:entry.alt};
+}
+fs.writeFileSync(path.join(out,'site.js'),fs.readFileSync(path.join(out,'site.js'),'utf8').replace('__GAMA_CATEGORY_ARTWORK__',JSON.stringify(categoryArtwork).replace(/</g,'\\u003c')));
 fs.copyFileSync(path.join(root,'src/features/surveys/survey-form.js'),path.join(out,'survey-form.js'));
 fs.copyFileSync(path.join(root,'src/styles/surveys.css'),path.join(out,'surveys.css'));
 fs.copyFileSync(path.join(root,'gama-logo.jpg'),path.join(out,'logo.jpg'));

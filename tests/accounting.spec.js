@@ -77,6 +77,7 @@ async function boot(page,scope='all',role='admin'){
  await page.evaluate(async()=>{
   await GamaCloudReady;const old=GamaCloud.db;
   GamaCloud.db=async()=>{const c=await old();return{...c,rpc:async(fn,args)=>{
+   if(fn==='gama_bank_invoice_action'){window.__ACC.calls.push({...args,rpc_name:fn});if(window.__ACC.error)return {error:{message:window.__ACC.error}};if(args.p_action==='suggest')return {data:window.__ACC.bankSuggestions||{bank:window.__ACC.responses.bank_list.rows[0],matches:[]}};return {data:{ok:true,imported:args.p_data.rows?.length||0,id:'bank-action'}};}
    if(fn!=='gama_accounting_action')return c.rpc(fn,args);
    window.__ACC.calls.push(args);
    if(window.__ACC.error)return {error:{message:window.__ACC.error}};
@@ -259,7 +260,7 @@ test('the bank import reads a CSV before sending anything',async({page})=>{
  await expect(page.locator('#gaPreview')).toContainText('$1.250,00');
  await expect(page.locator('#gaPreview')).toContainText('$-800,00');
  await page.locator('#gsSave').click();
- const call=await page.evaluate(()=>window.__ACC.calls.find(c=>c.p_action==='bank_import'));
+ const call=await page.evaluate(()=>window.__ACC.calls.find(c=>c.rpc_name==='gama_bank_invoice_action'&&c.p_action==='import'));
  expect(call.p_data.rows).toEqual([
   {value_date:'2026-09-01',reference:'TRF-9',description:'Pago ACME',amount:1250},
   {value_date:'2026-09-02',reference:'TRF-10',description:'Alquiler',amount:-800}]);
@@ -360,4 +361,15 @@ test('payment terms use simple fields and a stable request key, with no JSON inp
 test('missing fiscal identity blocks the ATS draft and does not download a filing',async({page})=>{
  await bootEcuador(page);await page.locator('#ecTab').selectOption('fiscal_review');let downloaded=false;page.on('download',()=>downloaded=true);
  await page.locator('#ecAts').click();await expect(page.locator('.gsDialog')).toContainText('RUC_REQUIRED');expect(downloaded).toBe(false);
+});
+
+
+test('one invalid statement record blocks import and remains visible',async({page})=>{
+ await boot(page);await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('#gaImport').click();
+ await page.locator('#gaCsv').setInputFiles({name:'bad.csv',mimeType:'text/csv',buffer:Buffer.from('Fecha;Referencia;Descripción;Importe\n31/02/2026;BAD;Fecha errónea;10.00\n01/09/2026;OK;Cobro;20.00')});await expect(page.locator('#gaPreview')).toContainText('Fecha inexistente');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('Corrige el archivo');expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='import'))).toBe(false);
+});
+test('a reviewed bank match sends only the invoice identity and retries with the same key',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__ACC.responses.bank_list.rows[0].amount=500;__ACC.bankSuggestions={bank:__ACC.responses.bank_list.rows[0],matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-00000017 · ACME',amount:500,balance:1000,date:'2026-09-01'}]}});await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('[data-ga-match]').click();await expect(page.locator('#gaMatchChoices')).toContainText('Registrar cobro y conciliar');await page.locator('input[name=gaMatch][value^="invoice|"]').check();
+ await page.evaluate(()=>__ACC.error='AMOUNT_EXCEEDS_BALANCE');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('saldo pendiente');await page.evaluate(()=>__ACC.error=null);await page.locator('#gsSave').click();await expect(page.locator('#gsSave')).toHaveCount(0);
+ const calls=await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='settle'));expect(calls).toHaveLength(2);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data.invoice_id).toBe('inv1');expect(calls[1].p_data.amount).toBeUndefined();
 });

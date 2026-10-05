@@ -173,3 +173,38 @@ La revisión fiscal incorpora créditos y débitos de clientes y proveedores; la
 **Formularios 103 y 104** prepara los importes del mes desde las escrituras: IVA generado y deducible, IVA recibido de clientes, IVA retenido a proveedores y retenciones IR por concepto. El factor de crédito y el saldo del mes anterior se revisan antes de exportar. El IVA propio y el IVA retenido como agente se muestran separados. La preparación y el ATS son borradores; no presentan ni reemplazan la revisión del formulario vigente. Operaciones extranjeras y especiales requieren datos adicionales y permanecen señaladas para revisión.
 
 Fuentes revisadas el 4 de octubre de 2026: [ATS y catálogos vigentes](https://www.sri.gob.ec/formularios-e-instructivos1), [formularios e instructivos](https://www.sri.gob.ec/web/intersri/formularios-e-instructivos). El XSD ATS descargado coincide con el fixture del repositorio. Pruebas: `tests/sri-received-db.test.cjs`, `tests/sri-received-edge.test.cjs`, `tests/test_sri_received.py` y `tests/accounting-ats.test.cjs`.
+
+## Extractos bancarios y cobros revisados
+
+Banco y caja importa CSV con cabeceras de fecha/fecha valor, referencia/documento,
+descripción/detalle e importe/valor, o columnas débito/crédito. Admite comas,
+punto y coma, tabuladores, BOM, comillas escapadas y descripciones multilínea.
+La fecha valor tiene prioridad cuando está presente. Un selector decimal resuelve
+importes ambiguos; los importes se validan en céntimos y las fechas inexistentes,
+filas inválidas o más de 1000 movimientos bloquean la importación completa. No se
+eliminan filas silenciosamente. Cada cuenta debe estar activa, tener cuenta
+contable y utilizar la moneda de la empresa. La importación no registra dinero.
+
+`gama_bank_invoice_action` propone cobros/pagos ya registrados y facturas con
+saldo suficiente. Se puede buscar una factura por cliente o referencia. El
+responsable revisa y confirma: para una factura crea un cobro real, lo aplica
+contra la cartera canónica y concilia el recibo con el extracto en una sola
+transacción. Reintentos y confirmaciones simultáneas sobre el mismo movimiento
+conservan un recibo, una aplicación y una asociación. Un saldo cambiado o periodo
+cerrado revierte toda la operación. El cliente nunca decide el importe del cobro:
+se obtiene del movimiento bancario bloqueado.
+
+Deshacer retira la asociación con el extracto y conserva el cobro/pago. Para
+corregir el dinero se revisa y anula el documento original. Una aplicación de
+anticipo nunca se propone como otro ingreso bancario. Los importes importados
+no finitos se rechazan también por el endpoint compatible anterior.
+
+Estas cabeceras cubren exportaciones comunes; no se declara un formato
+propietario bancario certificado. Un extracto Excel/PDF necesita exportarse como
+CSV. Los cargos negativos concilian con pagos/gastos existentes; no se inventa
+un gasto ni una factura a partir de la descripción del banco.
+
+Pruebas: `tests/bank-statement.test.cjs`, `tests/bank-invoice-db.test.cjs` y
+`tests/accounting.spec.js`. El esquema completo se restaura en una base aislada;
+los tests verifican caja y asientos reales, reversión por cierre, idempotencia,
+filas inválidas, acceso y datos conservados tras un fallo de validación.

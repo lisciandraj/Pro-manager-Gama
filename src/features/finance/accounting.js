@@ -45,7 +45,15 @@ const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contab
  DRAFT_ENTRIES_REMAIN:'Hay asientos en borrador en el periodo. Contabilízalos o elimínalos antes de cerrar.',
  REASON_REQUIRED:'Indica el motivo.',FILE_TOO_LARGE:'El archivo supera el tamaño permitido.',
  TOO_MANY_FILES:'Máximo cuatro justificantes por gasto.',
- INVOICE_CANCELLED:'La factura está anulada.',INVALID_PERIOD:'El periodo seleccionado no es válido.'};
+ INVOICE_CANCELLED:'La factura está anulada.',INVALID_PERIOD:'El periodo seleccionado no es válido.',
+ BANK_IMPORT_ROW_INVALID:'Revisa las fechas e importes del extracto. No se admiten fechas futuras ni importes inválidos.',
+ BANK_IMPORT_LINES_REQUIRED:'Importa entre 1 y 1000 movimientos por archivo.',
+ FINANCIAL_ACCOUNT_REQUIRED:'Selecciona una cuenta activa con cuenta contable y moneda configuradas.',
+ REQUEST_KEY_CONFLICT:'La operación ya fue registrada con otros datos. Cierra el formulario y vuelve a abrirlo.',
+ BANK_ALREADY_MATCHED:'El movimiento ya está conciliado. Actualiza la lista.',
+ SOURCE_ALREADY_MATCHED:'El cobro o pago ya se vinculó a otro movimiento.',
+ MATCH_SOURCE_UNAVAILABLE:'El cobro o pago cambió. Actualiza las correspondencias.',
+ VALIDATE_REQUIRED:'Necesitas permiso para validar la conciliación.'};
 
 let generation=0,opening=0,section='overview',rights=null,scope='none',state={},workspace=ID;
 
@@ -585,7 +593,7 @@ VIEWS.cash={
   document.querySelectorAll('[data-ga-acc]').forEach(b=>b.onclick=()=>accountForm(state.accounts.find(a=>a.id===b.dataset.gaAcc)));
   document.querySelectorAll('[data-ga-moves]').forEach(b=>b.onclick=()=>movements(b.dataset.gaMoves));
   document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>matchForm(b.dataset.gaMatch));
-  document.querySelectorAll('[data-ga-unmatch]').forEach(b=>b.onclick=()=>act(b,()=>mutate('reconcile_undo',{id:b.dataset.gaUnmatch}).then(()=>go())));
+  document.querySelectorAll('[data-ga-unmatch]').forEach(b=>b.onclick=()=>undoBank(b.dataset.gaUnmatch));
  }
 };
 function accountForm(row){
@@ -617,71 +625,34 @@ async function movements(id){
    </tbody></table></div>`,'Cerrar',async()=>{});
  }catch(e){window.gamaToast?.(err(e))}
 }
-/* CSV mínimo: fecha, referencia, descripción, importe. Punto o coma decimal. */
-function parseCsv(text){
- const lines=text.split(/\r?\n/).filter(l=>l.trim());
- if(!lines.length)return[];
- const sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';
- const head=lines[0].toLowerCase();
- const start=/fecha|date|importe|amount/.test(head)?1:0;
- const cols=start?lines[0].split(sep).map(h=>h.trim().toLowerCase()):[];
- const at=names=>cols.findIndex(c=>names.some(n=>c.includes(n)));
- const iDate=start?at(['fecha','date']):0,iRef=start?at(['referencia','reference','ref']):1,
-  iDesc=start?at(['descripcion','descripción','description','concepto','libelle','libellé']):2,
-  iAmt=start?at(['importe','amount','montant','valor']):3;
- return lines.slice(start).map(l=>{
-  const c=l.split(sep).map(x=>x.trim().replace(/^"|"$/g,''));
-  const raw=(c[iAmt<0?3:iAmt]||'').replace(/\s/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');
-  const amount=Number(raw);
-  const date=(c[iDate<0?0:iDate]||'').trim();
-  const iso=/^\d{4}-\d{2}-\d{2}$/.test(date)?date
-   :/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/.test(date)?date.replace(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/,'$3-$2-$1'):'';
-  return {value_date:iso,reference:c[iRef<0?1:iRef]||'',description:c[iDesc<0?2:iDesc]||'—',amount};
- }).filter(r=>r.value_date&&Number.isFinite(r.amount)&&r.amount!==0);
-}
+async function bankRpc(action,data={}){if(!allowed())throw Error('ROLE_NOT_ALLOWED');try{return await window.ArcData.rpc('gama_bank_invoice_action',{p_action:action,p_data:data})}catch(e){throw Error(window.GamaI18n?.t?.(err(e))||err(e))}}
+async function bankMutate(action,data){const r=await bankRpc(action,data);for(const event of ['gama:accounting-change','gama:sales-change'])window.dispatchEvent(new CustomEvent(event));return r}
 function importForm(){
- const key=crypto.randomUUID(),accs=(state.bankAccounts||[]);
- let parsed=[];
- const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">
-  ${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}
-  ${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}
- </div><div id="gaPreview"></div>
- <p class="gaHint">${tr('Columnas esperadas: fecha, referencia, descripción e importe. Un importe negativo es una salida. Las líneas ya importadas no se duplican.')}</p>`,
-  'Importar',async form=>{
-   if(!parsed.length)throw Error('Selecciona un archivo con movimientos válidos.');
-   const r=await mutate('bank_import',{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed});
-   window.gamaToast?.(GamaI18n?.t?.('Movimientos importados')||'Movimientos importados');
-   await go();
-  });
- el.querySelector('#gaCsv').onchange=async e=>{
-  const file=e.target.files[0];if(!file)return;
-  if(file.size>2000000){window.ArcUI.render(el.querySelector('#gaPreview'),`<p class="gaError">${tr('El archivo supera el tamaño permitido.')}</p>`);return}
-  parsed=parseCsv(await file.text()).slice(0,1000);
-  window.ArcUI.render(el.querySelector('#gaPreview'),parsed.length
-   ?`<p>${tr('Líneas detectadas')} : <b>${parsed.length}</b></p><div class="gaScroll"><table class="arcTable gaTable"><tbody>
-     ${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}
-     </tbody></table></div>`
-   :`<p class="gaError">${tr('No se reconoció ninguna línea. Revisa el separador y el formato de la fecha.')}</p>`);
+ const key=crypto.randomUUID(),accs=state.bankAccounts||[];let parsed=[],errors=[],revision=0;
+ const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}</div><div id="gaPreview"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,'Importar',async form=>{
+  if(errors.length||!parsed.length)throw Error('Corrige el archivo antes de importar. Ninguna línea con errores se importa.');
+  const result=await bankMutate('import',{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed});window.gamaToast?.((window.GamaI18n?.t?.('Movimientos importados')||'Movimientos importados')+' · '+result.imported);await go();
+ });
+ el.dataset.bankWorkflow='';
+ const preview=async()=>{const token=++revision;parsed=[];errors=[];const file=el.querySelector('#gaCsv').files[0],host=el.querySelector('#gaPreview');if(!file)return;
+  try{if(file.size>2000000)throw Error('El archivo supera el tamaño permitido.');await window.ArcLoadScript('gama-bank-statement.js');const result=window.GamaBankStatement.parse(await file.text(),{decimalSeparator:el.querySelector('#gaDecimal').value});if(token!==revision||!el.isConnected)return;parsed=result.rows;errors=result.errors;
+   window.ArcUI.render(host,`<p>${tr('Líneas detectadas')} : <b>${result.total}</b> · ${tr('Líneas válidas')}: ${parsed.length} · ${tr('Errores')}: ${errors.length}</p>${errors.length?`<div class="gaError">${errors.slice(0,10).map(e=>`<p>${tr('Fila')} ${e.line}: ${tr(e.message)}</p>`).join('')}${errors.length>10?`<p>${tr('Corrige todos los errores del archivo.')}</p>`:''}</div>`:''}<div class="gaScroll"><table class="arcTable gaTable"><tbody>${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.reference)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}</tbody></table></div>`);
+  }catch(e){if(token===revision&&el.isConnected){parsed=[];errors=[e];window.ArcUI.render(host,`<p class="gaError">${tr(e.message)}</p>`)}}
  };
+ el.querySelector('#gaCsv').onchange=preview;el.querySelector('#gaDecimal').onchange=preview;
 }
 async function matchForm(id){
- let suggestions=[];
- try{suggestions=await rpc('reconcile_suggest',{id})}catch(e){}
- const el=GamaSales.modal('Conciliar el movimiento',
-  suggestions.length?`<p>${tr('Coco ERP propone estas correspondencias. Elige la correcta; ninguna se aplica sola.')}</p>
-   ${suggestions.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.id)}">
-    <b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}</label></p>`).join('')}
-   <p><label><input type="radio" name="gaMatch" value="ignore|"> ${tr('Ignorar este movimiento')}</label></p>`
-  :`<p>${tr('No se encontró ninguna correspondencia. Puedes ignorar el movimiento y tratarlo más tarde.')}</p>
-   <p><label><input type="radio" name="gaMatch" value="ignore|" checked> ${tr('Ignorar este movimiento')}</label></p>`,
-  'Confirmar',async form=>{
-   const picked=form.querySelector('input[name=gaMatch]:checked');
-   if(!picked)throw Error('Selecciona una opción.');
-   const [type,match]=picked.value.split('|');
-   await mutate('reconcile',{id,match_type:type,match_id:match||null});
-   await go();
-  });
+ try{const key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0;
+ const choices=data=>`${data.matches.length?`<p>${tr('Elige un cobro existente o una factura pendiente. Ninguna correspondencia se aplica sola.')}</p>${data.matches.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.kind)}|${esc(s.id)}"><b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}<br><small>${tr(s.type==='invoice'?'Registrar cobro y conciliar':'Cobro o pago ya registrado')}${s.type==='invoice'?' · '+tr('Saldo pendiente')+': '+money(s.balance):''}</small></label></p>`).join('')}`:`<p>${tr('No se encontró ninguna correspondencia. Busca la factura por cliente o referencia.')}</p>`}<p><label><input type="radio" name="gaMatch" value="ignore||"> ${tr('Ignorar este movimiento')}</label></p>`;
+ const el=GamaSales.modal('Conciliar el movimiento',`<p>${esc(result.bank.description)} · <b>${money(result.bank.amount)}</b></p><div class="gaTools"><input id="gaInvoiceSearch" placeholder="${esc(window.GamaI18n?.t?.('Cliente o referencia de factura')||'Cliente o referencia de factura')}"><button type="button" class="arcButton secondary" id="gaInvoiceFind">${tr('Buscar')}</button></div><div id="gaMatchChoices">${choices(result)}</div>`,'Confirmar',async form=>{
+  const picked=form.querySelector('input[name=gaMatch]:checked');if(!picked)throw Error('Selecciona una opción.');const [type,kind,target]=picked.value.split('|');
+  if(type==='invoice')await bankMutate('settle',{request_key:key,bank_id:id,invoice_id:target});else if(type==='cash')await bankMutate('match_source',{request_key:key,bank_id:id,kind,source_id:target});else await mutate('reconcile',{id,match_type:'ignore',match_id:null});await go();
+ });
+ el.dataset.bankWorkflow='';
+ el.querySelector('#gaInvoiceFind').onclick=async()=>{const token=++revision,b=el.querySelector('#gaInvoiceFind');b.disabled=true;try{const next=await bankRpc('suggest',{bank_id:id,search:el.querySelector('#gaInvoiceSearch').value});if(token===revision&&el.isConnected)window.ArcUI.render(el.querySelector('#gaMatchChoices'),choices(next));}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}finally{b.disabled=false}};
+ }catch(e){window.gamaToast?.(window.ArcErrors.message(e))}
 }
+function undoBank(id){const dlg=GamaSales.modal('Deshacer conciliación',`<p>${tr('Se retira la asociación con el extracto. El cobro o pago permanece registrado; su anulación se revisa en el documento original.')}</p>${field('Motivo',`<textarea id="gaUndoReason" required minlength="3"></textarea>`)}`,'Confirmar',async el=>{await bankMutate('undo',{bank_id:id,reason:el.querySelector('#gaUndoReason').value});await go()});dlg.dataset.bankWorkflow='';}
 
 /* ------------------------------------------------------------- contabilidad */
 VIEWS.ledger={
@@ -1285,6 +1256,6 @@ async function exportRows(rows,name){
 }
 
 window.addEventListener('gama:currency-change',()=>{if($(workspace)?.classList.contains('active'))go()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren();$('sri')?.replaceChildren()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;document.querySelectorAll('[data-bank-workflow]').forEach(d=>d.close());opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren();$('sri')?.replaceChildren()});
 window.GamaAccounting={open,openSri,mountSriConfig,rpc,SECTIONS};
 })();

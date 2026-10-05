@@ -4718,3 +4718,45 @@ Preparar correo con estado de cuenta	Préparer un courriel avec l’état de com
 Preparar WhatsApp	Préparer un message WhatsApp	Prepare WhatsApp message
 Revisa el mensaje antes de enviar y adjunta el PDF descargado.	Vérifiez le message avant l’envoi et joignez le PDF téléchargé.	Review the message before sending and attach the downloaded PDF.
 Completa el teléfono con el código de país.	Complétez le téléphone avec l’indicatif du pays.	Complete the phone number with the country code.
+Separador decimal	Séparateur décimal	Decimal separator
+Punto · 1,234.56	Point · 1,234.56	Dot · 1,234.56
+Coma · 1.234,56	Virgule · 1.234,56	Comma · 1.234,56
+Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.	Colonnes : date, référence, description et montant, ou débit et crédit. Vérifiez l’aperçu et corrigez les lignes en erreur avant l’import.	Columns: date, reference, description and amount, or debit and credit. Review the preview and correct invalid rows before importing.
+Corrige el archivo antes de importar. Ninguna línea con errores se importa.	Corrigez le fichier avant l’import. Aucune ligne en erreur n’est importée.	Correct the file before importing. Invalid rows are never imported.
+Movimientos importados	Mouvements importés	Transactions imported
+Líneas válidas	Lignes valides	Valid rows
+Corrige todos los errores del archivo.	Corrigez toutes les erreurs du fichier.	Correct all errors in the file.
+Elige un cobro existente o una factura pendiente. Ninguna correspondencia se aplica sola.	Choisissez un encaissement existant ou une facture à régler. Aucune proposition n’est appliquée automatiquement.	Choose an existing receipt or an outstanding invoice. Suggestions are never applied automatically.
+Registrar cobro y conciliar	Enregistrer l’encaissement et rapprocher	Record receipt and reconcile
+Cobro o pago ya registrado	Encaissement ou paiement déjà enregistré	Receipt or payment already recorded
+No se encontró ninguna correspondencia. Busca la factura por cliente o referencia.	Aucune correspondance trouvée. Recherchez la facture par client ou référence.	No match found. Search for the invoice by customer or reference.
+Cliente o referencia de factura	Client ou référence de facture	Customer or invoice reference
+Se retira la asociación con el extracto. El cobro o pago permanece registrado; su anulación se revisa en el documento original.	Le lien avec le relevé est retiré. L’encaissement ou le paiement reste enregistré ; son annulation se traite dans le document d’origine.	The statement association is removed. The receipt or payment remains recorded; review cancellation in the original document.
+Revisa las fechas e importes del extracto. No se admiten fechas futuras ni importes inválidos.	Vérifiez les dates et montants du relevé. Les dates futures et montants invalides sont refusés.	Review statement dates and amounts. Future dates and invalid amounts are rejected.
+Importa entre 1 y 1000 movimientos por archivo.	Importez entre 1 et 1000 mouvements par fichier.	Import between 1 and 1000 transactions per file.
+Selecciona una cuenta activa con cuenta contable y moneda configuradas.	Sélectionnez un compte actif avec son compte comptable et sa devise configurés.	Select an active account with a configured ledger account and currency.
+La operación ya fue registrada con otros datos. Cierra el formulario y vuelve a abrirlo.	L’opération a déjà été enregistrée avec d’autres données. Fermez le formulaire puis rouvrez-le.	The operation was already recorded with different data. Close and reopen the form.
+El movimiento ya está conciliado. Actualiza la lista.	Le mouvement est déjà rapproché. Actualisez la liste.	The transaction is already reconciled. Refresh the list.
+El cobro o pago ya se vinculó a otro movimiento.	L’encaissement ou le paiement est déjà lié à un autre mouvement.	The receipt or payment is already linked to another transaction.
+El cobro o pago cambió. Actualiza las correspondencias.	L’encaissement ou le paiement a changé. Actualisez les correspondances.	The receipt or payment changed. Refresh the suggestions.
+Necesitas permiso para validar la conciliación.	Vous devez avoir le droit de valider le rapprochement.	You need permission to validate reconciliation.
+CSV inválido: comillas fuera de una celda.	CSV invalide : guillemets en dehors d’une cellule.	Invalid CSV: quotes outside a cell.
+CSV inválido: texto después de cerrar comillas.	CSV invalide : texte après les guillemets fermants.	Invalid CSV: text after closing quotes.
+CSV inválido: faltan comillas de cierre.	CSV invalide : guillemets fermants manquants.	Invalid CSV: missing closing quotes.
+Fecha inválida. Usa AAAA-MM-DD o DD/MM/AAAA.	Date invalide. Utilisez AAAA-MM-JJ ou JJ/MM/AAAA.	Invalid date. Use YYYY-MM-DD or DD/MM/YYYY.
+Fecha inexistente.	Cette date n’existe pas.	This date does not exist.
+Signo de importe inválido.	Signe du montant invalide.	Invalid amount sign.
+Importe inválido.	Montant invalide.	Invalid amount.
+Separador decimal inválido.	Séparateur décimal invalide.	Invalid decimal separator.
+Importe ambiguo: elige el separador decimal.	Montant ambigu : choisissez le séparateur décimal.	Ambiguous amount: choose the decimal separator.
+El importe debe tener como máximo dos decimales.	Le montant doit avoir au maximum deux décimales.	Amounts must have at most two decimal places.
+Separador de miles inválido.	Séparateur de milliers invalide.	Invalid thousands separator.
+Importe fuera de rango.	Montant hors limites.	Amount out of range.
+No se reconocen las columnas del CSV. Usa fecha, referencia, descripción e importe, o débito y crédito.	Colonnes CSV non reconnues. Utilisez date, référence, description et montant, ou débit et crédit.	Unrecognized CSV columns. Use date, reference, description and amount, or debit and credit.
+El archivo no contiene movimientos.	Le fichier ne contient aucun mouvement.	The file contains no transactions.
+El archivo supera 1000 movimientos. Divide el extracto antes de importar.	Le fichier dépasse 1000 mouvements. Divisez le relevé avant l’import.	The file exceeds 1000 transactions. Split the statement before importing.
+Usa un débito o un crédito positivo por movimiento.	Utilisez un débit ou un crédit positif par mouvement.	Use a positive debit or credit per transaction.
+El signo no coincide con el tipo crédito.	Le signe ne correspond pas au type crédit.	The sign does not match the credit type.
+Tipo de movimiento desconocido. Usa D o C.	Type de mouvement inconnu. Utilisez D ou C.	Unknown transaction type. Use D or C.
+El movimiento debe tener un importe distinto de cero.	Le montant du mouvement doit être différent de zéro.	The transaction amount must be nonzero.
+La referencia o descripción supera el tamaño permitido.	La référence ou la description dépasse la taille autorisée.	The reference or description exceeds the allowed length.

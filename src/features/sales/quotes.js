@@ -9,7 +9,7 @@ const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'
 const client=()=>false;
 const state=q=>q.quote_state||'draft';
 const label=s=>({draft:'Borrador',sent:'Enviado',accepted:'Aceptado',rejected:'Rechazado',cancelled:'Cancelado'}[s]||s);
-let page=0,deliveryPage=0,version=0;
+let page=0,deliveryPage=0,version=0,addressEpoch=0;
 const errors={REQUEST_NOT_FOUND:'Solicitud no disponible.',REQUEST_CLOSED:'Esta solicitud está cancelada o rechazada.',REQUEST_HAS_ORDER:'Esta solicitud ya tiene un pedido. Consulta el expediente.',QUOTE_CHANGED:'El presupuesto ha cambiado. Actualiza y revisa la nueva versión antes de continuar.',QUOTE_LOCKED:'Este presupuesto ya no permite esta acción.',QUOTE_EXPIRED:'El presupuesto ha vencido. Solicita una actualización.',QUOTE_HAS_ORDER:'Este presupuesto ya tiene un pedido. Consúltalo en Pedidos de venta.',QUOTE_NOT_FOUND:'Presupuesto no disponible para tu cuenta.',ROLE_NOT_ALLOWED:'Tu perfil no permite esta acción.',DETAILS_REQUIRED:'Completa emisor, cliente y dirección de entrega.',VALIDITY_REQUIRED:'Revisa la fecha y la vigencia.',DESCRIPTION_REQUIRED:'Cada producto necesita una descripción.',DUPLICATE_PRODUCT:'Agrupa las cantidades del mismo producto en una sola línea.',ACCEPTANCE_REFERENCE_REQUIRED:'Indica el medio y la referencia del acuerdo del cliente.',PRODUCT_NOT_FOUND:'Un producto ya no está disponible. Reabre el presupuesto y sustitúyelo.',INVALID_LINES:'Revisa productos, cantidades, precios, descuentos e impuestos.',CUSTOMER_REQUIRED:'Selecciona un cliente activo.',USE_QUOTE_ACTION:'Gestiona este documento desde Presupuestos.'};
 const message=e=>Object.keys(errors).find(k=>String(e?.message||e).includes(k))?errors[Object.keys(errors).find(k=>String(e?.message||e).includes(k))]:String(e?.message||e);
 async function rows(t,o={}){const r=await C().list(t,o);if(r.error)throw r.error;return r.data||[]}
@@ -114,7 +114,7 @@ async function edit(q=null,request=null){if(!window.gamaAccessAllowed?.('quotes'
   dialog.querySelector('.gamaFindBox')?.focus({preventScroll:true});
  }
  $('gqReprice').onclick=()=>run($('gqReprice'),async()=>{const c=$('gqCustomer').value;if(!c)throw Error('Selecciona un cliente.');$('gqSave').disabled=true;try{const priced=await Promise.all(lines.map(async l=>l.product_id?await rpc('gama_resolve_price',{p_customer:c,p_product:l.product_id,p_quantity:l.quantity,p_date:$('gqDate').value}):null));priced.forEach((p,i)=>{if(p){lines[i].list_price=Number(p.unit_price);lines[i].price_source=p.label}});renderLines();totals()}finally{$('gqSave').disabled=false}});
- const addressForm=$('gqForm'),addressInput=$('gqd_delivery_address'),addressBox=document.createElement('div');addressBox.className='gqField';
+ const addressForm=$('gqForm'),addressToken=addressEpoch,addressInput=$('gqd_delivery_address'),addressBox=document.createElement('div');addressBox.className='gqField';
  const addressText=s=>window.GamaI18n?.t?.(s)||s,manualOption=()=>`<option value="">${esc(addressText('Dirección manual / principal'))}</option>`;
  window.ArcUI.render(addressBox,'<label for="gqDeliveryAddress" data-gi-live>Dirección de entrega guardada</label><select id="gqDeliveryAddress" disabled></select><small id="gqAddressStatus" role="status"></small><button type="button" class="arcButton secondary" id="gqAddressRetry" hidden data-gi-live>Actualizar direcciones</button>');
  addressInput.closest('label').before(addressBox);
@@ -125,7 +125,7 @@ async function edit(q=null,request=null){if(!window.gamaAccessAllowed?.('quotes'
   deliveryAddresses=[];addressSelect.disabled=true;addressRetry.hidden=true;window.ArcUI.render(addressSelect,manualOption());addressStatus.textContent='';
   if(!customerId)return;
   addressStatus.textContent=addressText('Cargando direcciones…');
-  const current=()=>revision===addressRevision&&addressForm.isConnected&&$('gqForm')===addressForm&&$('gqCustomer').value===customerId&&window.gamaAccessAllowed?.('quotes');
+  const current=()=>addressToken===addressEpoch&&revision===addressRevision&&addressForm.isConnected&&$('gqForm')===addressForm&&$('gqCustomer').value===customerId&&window.gamaAccessAllowed?.('quotes');
   try{
    const result=await window.GamaCloud.list('customer_addresses',{select:'id,customer_id,label,purpose,address,city,active',eq:{customer_id:customerId,active:true},order:'label',limit:200});
    if(!current())return;if(result.error)throw result.error;
@@ -147,4 +147,5 @@ async function edit(q=null,request=null){if(!window.gamaAccessAllowed?.('quotes'
 async function deliveries(){return false;}
 async function remind(id){if(client()||!window.gamaAccessAllowed?.('quotes'))throw Error('Acceso no permitido.');const q=await documentData(id);if(q.quote_state!=='sent'||!q.quote_sent_at||Date.parse(q.quote_sent_at)>=Date.now()-7*86400000)throw Error('El presupuesto ya no requiere este recordatorio.');await open();await view(id);return window.GamaQuotePdf.send({q:pdfData(q),email:q.quote_details.clientEmail,subject:'Seguimiento del presupuesto '+q.invoice_number,body:'Estimado/a '+q.quote_details.client+',\n\n¿Ha podido revisar nuestro presupuesto '+q.invoice_number+' por '+money(q.total)+'? Quedamos atentos a su respuesta y disponibles para resolver sus dudas.\nPuede responder a este correo para confirmar su aceptación.\n\n'+q.quote_details.seller,filename:'Presupuesto-'+String(q.invoice_number).replace(/[^\w-]/g,'_')+'.pdf'})}
 window.GamaQuotes={open,enter,openRequests,fromRequest,view,edit,deliveries,pdfData,remind,moduleHeader,bindTabBar,merged};
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;addressEpoch++;const select=$('gqDeliveryAddress');if(select){select.disabled=true;select.textContent=''}const status=$('gqAddressStatus');if(status)status.textContent='';const retry=$('gqAddressRetry');if(retry)retry.hidden=true});
 })();

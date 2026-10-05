@@ -35,8 +35,8 @@ test('registered delivery addresses belong to the selected customer and enter th
  await page.locator('#gqCustomer').selectOption('c2');await page.locator('#gqCustomer').selectOption('c1');
  await expect(page.locator('#gqDeliveryAddress')).toBeEnabled();await expect(page.locator('#gqDeliveryAddress option')).toHaveCount(3);
  await page.locator('#gqDeliveryAddress').selectOption('agency');await expect(page.locator('#gqd_delivery_address')).toHaveValue('Calle Norte 25, Quito');
- await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/quote-delivery-address-desktop.png'});
- await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/quote-delivery-address-mobile.png'});
+ await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/gama-quote-delivery-address-desktop.png'});
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/gama-quote-delivery-address-mobile.png'});
  await page.locator('#gqSave').click();expect((await page.evaluate(()=>__quotes[0])).details.delivery_address).toBe('Calle Norte 25, Quito');
  await page.locator('#gqd_delivery_address').fill('Destino acordado por teléfono');await expect(page.locator('#gqDeliveryAddress')).toHaveValue('');
  await page.locator('#gqSave').click();expect((await page.evaluate(()=>__quotes[1])).details.delivery_address).toBe('Destino acordado por teléfono');
@@ -53,6 +53,12 @@ test('an address lookup failure can be retried without losing a manually entered
   Promise.resolve(__addressLookupFails?{error:{message:'Addresses offline'}}:{data:[{id:'retry',customer_id:'c1',label:'Agencia',purpose:'delivery',address:'Saved address',active:true}]}):previous(table,options)});
  await page.locator('#gqCustomer').selectOption('c1');await expect(page.locator('#gqAddressRetry')).toBeVisible();await page.locator('#gqd_delivery_address').fill('Dirección confirmada');
  await page.evaluate(()=>__addressLookupFails=false);await page.locator('#gqAddressRetry').click();await expect(page.locator('#gqDeliveryAddress')).toBeEnabled();await expect(page.locator('#gqAddressRetry')).toBeHidden();await expect(page.locator('#gqd_delivery_address')).toHaveValue('Dirección confirmada');
+});
+test('a pending delivery-address response is discarded when the authenticated account changes',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const previous=GamaCloud.list;GamaCloud.list=(table,options)=>table==='customer_addresses'?new Promise(resolve=>{window.__finishPrivateAddresses=()=>resolve({data:[{id:'private',customer_id:'c1',label:'Previous account branch',purpose:'delivery',address:'Old response',active:true}]})}):previous(table,options)});
+ await page.locator('#gqCustomer').selectOption('c1');await page.waitForFunction(()=>window.__finishPrivateAddresses);
+ await page.evaluate(()=>{window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__finishPrivateAddresses()});
+ await expect(page.locator('#gqDeliveryAddress option[value="private"]')).toHaveCount(0);await expect(page.locator('body')).not.toContainText('Previous account branch');
 });
 test('failed save retains negotiated values and the same request key',async({page})=>{
  await boot(page);await page.locator('[data-k="list_price"]').fill('6.5');await page.locator('[data-k="list_price"]').blur();await page.locator('#gqSave').click();await expect(page.locator('#gqMessage')).toContainText('payload captured');await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__quotes.length)).toBe(2);expect(await page.evaluate(()=>__quotes[0].request_key===__quotes[1].request_key)).toBe(true);await expect(page.locator('[data-k="list_price"]')).toHaveValue('6.5');

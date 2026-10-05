@@ -181,13 +181,14 @@ const WORDS={
  missing:['Coordonnées manquantes','Coordenadas pendientes','Missing coordinates'],capacity:['Capacité ou conducteurs insuffisants','Capacidad o conductores insuficientes','Insufficient capacity or drivers'],fix:['Corriger les coordonnées','Corregir coordenadas','Correct coordinates'],
  legacy:['Historique sans commande liée','Histórico sin pedido enlazado','History without a linked order'],depot:['Coordonnées du dépôt manquantes : départ depuis la première livraison.','Sin coordenadas del depósito: salida desde la primera entrega.','Depot coordinates missing: start at first delivery.'],
  approx:['Arrêts organisés par proximité, priorité et capacité. Les distances de Coco restent estimées ; Waze fournit la navigation et le trafic.','Paradas organizadas por cercanía, prioridad y capacidad. Las distancias de Coco siguen estimadas; Waze ofrece navegación y tráfico.','Stops organized by proximity, priority and capacity. Coco distances remain estimates; Waze provides navigation and traffic.'],
- none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],
+ none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],mapQuito:['Quito · vue initiale','Quito · vista inicial','Quito · initial view'],
  mapPoint:['Livraison à afficher','Entrega que mostrar','Delivery to show'],mapArea:['Zone de toutes les livraisons','Zona de todas las entregas','Area of all deliveries'],mapFit:['Cadrer la zone des livraisons','Encuadrar la zona de entregas','Fit the delivery area'],mapPin:['Waze affiche un repère à la fois. Choisissez une livraison pour voir son point.','Waze muestra un marcador a la vez. Elige una entrega para ver su punto.','Waze shows one pin at a time. Select a delivery to see its location.'],mapOutside:['Ouvrir la carte Waze','Abrir el mapa Waze','Open the Waze map'],mapLoading:['Chargement de Waze…','Cargando Waze…','Loading Waze…'],
  failed:['La planification a échoué. Réessayez.','La planificación falló. Reintenta.','Planning failed. Retry.'],invalid:['Coordonnées invalides.','Coordenadas inválidas.','Invalid coordinates.'],preserved:['L’historique local est conservé sur cet appareil et n’est pas importé sans commande liée.','El histórico local se conserva en este dispositivo y no se ha importado sin pedido enlazado.','Local history is retained on this device and is not imported without a linked order.'],
  planned:['Livraisons planifiées','Entregas planificadas','Planned deliveries'],save:['Enregistrer','Guardar','Save'],cancel:['Annuler','Cancelar','Cancel'],latitude:['Latitude','Latitud','Latitude'],longitude:['Longitude','Longitud','Longitude']};
 const tr=k=>WORDS[k]?.[{fr:0,es:1,en:2}[window.GamaI18n?.language]??1]||k;
 const validPoint=d=>d?.lat!=null&&d?.lng!=null&&Number.isFinite(+d.lat)&&Number.isFinite(+d.lng)&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
-let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapPoint='all',mapZoom=null,mapView=null,mapObserver=null,authEpoch=0;
+const QUITO={lat:-0.1807,lng:-78.4678,zoom:12};
+let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapPoint='__quito',mapZoom=null,mapView=null,mapObserver=null,authEpoch=0;
 const planningActive=()=>currentTab==='today'&&selectedStage==='planning'&&section().classList.contains('active')&&!!window.gamaAccessAllowed?.('tms');
 function markOrigins(){const ids=new Set(plan?.order_delivery_ids||[]);db.deliveries.forEach(d=>d.fromOrder=ids.has(d.id))}
 async function autoPlanning(force=false){
@@ -223,25 +224,29 @@ function drawDayMap(){
  const points=db.deliveries.filter(d=>d.date===day()&&d.fromOrder&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
  const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,id:'__depot',isDepot:true,customer:db.settings.depot});
  const selector=document.getElementById('tMapPoint'),list=document.getElementById('tMapPoints'),outside=document.getElementById('tMapOutside');
- if(!points.some(d=>d.id===mapPoint)){mapPoint='all'}
- selector.innerHTML=`<option value="all">${esc(tr('mapArea'))}</option>${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;selector.disabled=!points.length;
- list.innerHTML=points.filter(d=>!d.isDepot).map(d=>`<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${esc([d.reference,d.customer].filter(Boolean).join(' · '))}</button>`).join('');
+ if(!['all','__quito'].includes(mapPoint)&&!points.some(d=>d.id===mapPoint)||mapPoint==='all'&&!points.length){mapPoint='__quito'}
+ selector.innerHTML=`<option value="__quito">${esc(tr('mapQuito'))}</option>${points.length?`<option value="all">${esc(tr('mapArea'))}</option>`:''}${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;selector.disabled=false;
+ list.innerHTML=points.filter(d=>!d.isDepot).map(d=>`<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${esc([d.reference,d.customer].filter(Boolean).join(' · '))}</button>`).join('')||`<p class="tmsHint">${esc(tr('none'))}</p>`;
  list.querySelectorAll('[data-map-delivery]').forEach(b=>b.onclick=()=>{mapPoint=b.dataset.mapDelivery;mapZoom=null;drawDayMap();document.getElementById('tms-delivery-'+mapPoint)?.focus({preventScroll:true})});
  const tools=['tMapOut','tMapIn','tMapFit'].map(id=>document.getElementById(id));
- if(!points.length){mapView=null;tools.forEach(b=>b.disabled=true);outside.hidden=true;host.innerHTML=`<p class="tmsEmpty">${esc(tr('none'))}</p>`;return}
  const selectedPoint=points.find(d=>d.id===mapPoint),width=Math.max(240,host.clientWidth),height=host.clientHeight||380;
- const project=(d,z)=>{const n=256*2**z,s=Math.sin(+d.lat*Math.PI/180);return{x:(+d.lng+180)/360*n,y:(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n}};
- let base=17;
- for(;base>3;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
- const projected=points.map(d=>project(d,base)),scale=256*2**base,cx=(Math.min(...projected.map(p=>p.x))+Math.max(...projected.map(p=>p.x)))/2,cy=(Math.min(...projected.map(p=>p.y))+Math.max(...projected.map(p=>p.y)))/2;
- const lat=selectedPoint?+selectedPoint.lat:Math.atan(Math.sinh(Math.PI*(1-2*cy/scale)))*180/Math.PI,lon=selectedPoint?+selectedPoint.lng:cx/scale*360-180,zoom=Math.max(3,Math.min(17,mapZoom??(selectedPoint?15:base)));
+ let lat=QUITO.lat,lon=QUITO.lng,base=QUITO.zoom;
+ if(selectedPoint){lat=+selectedPoint.lat;lon=+selectedPoint.lng;base=15}
+ else if(mapPoint==='all'&&points.length){
+  const project=(d,z)=>{const n=256*2**z,s=Math.sin(+d.lat*Math.PI/180);return{x:(+d.lng+180)/360*n,y:(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n}};
+  base=17;
+  for(;base>3;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
+  const projected=points.map(d=>project(d,base)),scale=256*2**base,cx=(Math.min(...projected.map(p=>p.x))+Math.max(...projected.map(p=>p.x)))/2,cy=(Math.min(...projected.map(p=>p.y))+Math.max(...projected.map(p=>p.y)))/2;
+  lat=Math.atan(Math.sinh(Math.PI*(1-2*cy/scale)))*180/Math.PI;lon=cx/scale*360-180;
+ }
+ const zoom=Math.max(3,Math.min(17,mapZoom??base));
  mapView={lat,lon,zoom};
  const params=new URLSearchParams({lat:String(lat),lon:String(lon),zoom:String(zoom),pin:selectedPoint?'1':'0'}),language=window.GamaI18n?.language,locale=['fr','es'].includes(language)?language+'/':'';
  const url='https://embed.waze.com/'+locale+'iframe?'+params;
  let frame=host.querySelector('iframe');
  if(!frame){frame=document.createElement('iframe');frame.id='tWazeMap';frame.title=tr('map')+' · Waze Live Map';frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';host.replaceChildren(frame)}
  if(frame.getAttribute('src')!==url)frame.src=url;
- tools[0].disabled=zoom<=3;tools[1].disabled=zoom>=17;tools[2].disabled=false;
+ tools[0].disabled=zoom<=3;tools[1].disabled=zoom>=17;tools[2].disabled=!points.length;
  outside.href='https://www.waze.com/ul?'+new URLSearchParams({ll:lat+','+lon,zoom:String(zoom)});outside.hidden=false;
 }
 function editCoordinates(id){
@@ -267,7 +272,7 @@ window.addEventListener('gama:language-change',()=>{if(currentTab==='driver')ren
 window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
 window.addEventListener('gama:sales-change',()=>autoPlanning());
 window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
-window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
+window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='__quito';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){
  return new Promise(resolve=>{
@@ -492,7 +497,7 @@ function render(){
  <div class="tmsTodayBar"><p>${esc(window.ArcFormat.date(day()))} · ${ds.filter(d=>d.status==='Entregada').length} ${esc(T('entregadas'))}${db.counts.incidents?` · <span class="tmsBadge tmsStatus-incident">${db.counts.incidents} ${esc(T('incidentes'))}</span>`:''}</p><button type="button" class="arcButton secondary" id="tMyRoute">${esc(T('Mi ruta'))}</button><label>${esc(T('Fecha de planificación'))}<input id="tPlanningDay" type="date" min="${today()}" value="${esc(day())}"></label><button class="arcButton secondary" id="tMetrics">${esc(T('Indicadores'))}</button></div>
  <nav class="tmsFlow" aria-label="${esc(T('Flujo de entregas'))}">${STAGES.map(([id,label,hint],i)=>`<button type="button" class="tmsFlowStep ${selectedStage===id?'active':''}" data-tms-stage="${id}" aria-expanded="${selectedStage===id}" aria-controls="tms-stage-${id}"><span>${i+1}. ${esc(T(label))}</span><strong>${Number(db.counts[id]||0)}</strong><small>${esc(T(hint))}</small></button>`).join('')}</nav>
  ${STAGES.map(([id,label])=>`<div role="region" class="tmsStage" id="tms-stage-${id}"${selectedStage===id?'':' hidden'} aria-label="${esc(T(label))}">${id==='planning'?planningBody(ds):id==='proof'?proofBody():`<div id="${id==='preparation'?'gamaPreparationHost':'gamaLoadingHost'}"></div>`}</div>`).join('')}</div>`);
- window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();
+ window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;mapPoint='__quito';mapRoute='all';mapZoom=null;await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();
  x.querySelectorAll('[data-tms-stage]').forEach(b=>b.onclick=()=>selectStage(b.dataset.tmsStage).catch(e=>fail(e,'No se pudo cargar la etapa')));
  if(selectedStage==='preparation')window.GamaPreparation?.mount(x.querySelector('#gamaPreparationHost'));
  if(selectedStage==='loading')window.GamaLoading?.mount(x.querySelector('#gamaLoadingHost'));

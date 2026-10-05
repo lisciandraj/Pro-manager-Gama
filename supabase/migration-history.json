@@ -1382,6 +1382,18 @@
       "name": "ec_release_access_and_indexes",
       "file": "20261005053550_ec_release_access_and_indexes.sql",
       "sha256": "799453c4e5313dd379e8788063bb8521a4d95b3b5ec5c0cc2bfb792f5f5ec85a"
+    },
+    {
+      "version": "20261005070632",
+      "name": "ec_purchase_retention_completion",
+      "file": "20261005062552_ec_purchase_retention_completion.sql",
+      "sha256": "9e9ab25ee3e93f27e568801ffb3481c88f4b0f7b4e5bdead960afdc9508e0f00"
+    },
+    {
+      "version": "20261005070644",
+      "name": "ec_delivery_cost_per_customer",
+      "file": "20261005065015_ec_delivery_cost_per_customer.sql",
+      "sha256": "6faece06de70966cffbc9b44a6e7c529b8c73863faa7b481e3c8d45918c315c3"
     }
   ]
 }

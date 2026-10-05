@@ -12,21 +12,26 @@ Le code de connexion n'héberge pas à lui seul le moteur NestJS, son stockage d
 certificats ni son générateur PDF. L'émission réelle reste conditionnée à leur
 configuration et aux essais fiscaux, et n'est pas activée par une publication web.
 
-**Périmètre livré : factures nationales ordinaires (01).** Les avoirs, retenues et
-guías de remisión du projet amont ne sont pas encore raccordés aux modules Coco.
-Ils ne sont pas présentés comme fonctionnels.
+**Périmètre intégré au 5 octobre 2026 : documents nationaux ordinaires 01, 03,
+04, 06 et 07.** Les avoirs sont raccordés aux Retours, les retenues et liquidations
+aux factures fournisseurs, et les guías aux tournées TMS. La préparation dans
+l’ERP est déployée ; la signature, l’autorisation réelle et la consultation
+automatique restent conditionnées au déploiement et à la configuration du moteur
+privé. Voir les parcours détaillés en fin de page.
 
 Voir [installation, contrat API et limites de reprise](../../services/sri/OPENAPI.md)
 et [configuration privée d'exemple](../../services/sri/openapi.env.example).
-Aucune nouvelle table n'est nécessaire : le fournisseur est mémorisé dans le reçu
-JSON serveur de chaque émission. Les documents déjà envoyés par le signataire
-historique continuent à utiliser leur traitement historique.
+Les factures 01 conservent leur dossier et leur traitement historique. Les
+documents complémentaires utilisent `sri_document_issues`, leurs séquences par
+type et les politiques/attentes de retenues fournisseurs. Le fournisseur fiscal
+est mémorisé dans le reçu serveur de chaque émission ; un document déjà envoyé
+continue à utiliser le fournisseur avec lequel il a été émis.
 
 ---
 
 ## Contrat historique conservé
 
-> État relu le 30 septembre 2026. Les contrats techniques ci-dessous restent rattachés aux modules actuels ; les commandes de validation et la cartographie des sources sont centralisées dans la documentation de développement.
+> Le flux 01 ci-dessous reste compatible. Les capacités et les parcours complémentaires ont été mis à jour le 5 octobre 2026 ; les commandes de validation et la cartographie des sources sont centralisées dans la documentation de développement.
 
 # Facturación SRI — integration status
 
@@ -34,11 +39,11 @@ The Accounting module now has a SRI section. It creates one fiscal issue from an
 
 The workflow is: configure company and establishment → choose payment means → prepare → sign `.p12` on the private worker → submit to the SRI reception SOAP endpoint → query the authorization endpoint by the same 49-digit key → archive signed/authorized XML and RIDE in a private bucket → link the verified authorization to the commercial invoice → email XML and PDF to the customer. No signing key is accepted in the browser.
 
-The signer deliberately supports only ordinary Ecuadorian domestic invoices with numeric cédula/RUC customer identity, payment code 01/16/19/20, and supported VAT rates. It rejects unsupported tax rates and mismatched totals. Credit/debit notes, withholding, delivery notes, RIMPE, ICE, exports and specialized regimes need their own SRI models. These are not silently converted into ordinary invoices.
+The signer supports ordinary Ecuadorian domestic documents 01, 03, 04, 06 and 07 with reviewed cédula/RUC identities and supported tax data. It rejects unsupported tax rates and mismatched totals. Debit notes (05), RIMPE-specific cases, ICE, exports and specialized regimes need their own mapping. These are not silently converted into ordinary invoices. The pinned Open API supports 01/04/06/07; 03 uses the private certificate signer.
 
 ## Deployment prerequisites
 
-1. Apply `20260927213000_sri_invoice_workflow.sql` to a development database first. Verify its RLS policies and check the existing invoice and accounting flows.
+1. Compare the database history with `supabase/migration-history.json` before applying new migrations. The 01 workflow and the Ecuador document migrations are already deployed on the current production project. A new installation must apply the canonical history to a development database first, then verify permissions and invoice/accounting flows. Do not reapply historical aliases or reset migrations.
 2. Host `services/sri` privately behind HTTPS. Install the pinned `requirements.txt` into its own environment. Provision `SRI_P12_BASE64`, `SRI_P12_PASSWORD`, `SRI_ISSUER_RUC`, `SRI_WORKER_SECRET` and SMTP environment variables on the server. Restrict inbound traffic to the Edge Function if infrastructure permits.
 3. Set the matching `SRI_WORKER_URL` and `SRI_WORKER_SECRET` in Supabase Edge secrets, then deploy `gama-sri` with JWT verification on. The service-role key exists only in Edge secrets. The authenticated `status` action reports readiness to the interface; issuance controls remain disabled by default. Set `SRI_EMISSION_ENABLED=true` only when the private signer is configured and ready for supervised SRI tests in `pruebas`.
 4. Configure the company's Ecuadorian legal identity in Coco; enter the establishment, emission point and registered software provider's RUC in the SRI tab. Run SRI certification tests in `pruebas` with representative real tax cases and the official invoice XSD. Confirm the signed XAdES-BES document, RIDE and email with the SRI responses.
@@ -98,6 +103,6 @@ Voir [état vérifié et étapes restantes au 2 octobre](../audits/2026-10-02-sr
 
 Dans Retours, **Reponer y preparar nota de crédito SRI** exige la réception et une confirmation d'inspection. La transaction libère la quarantaine, remet le stock, crée l'avoir et son brouillon 04 ensemble ; un échec fiscal de préparation annule toute la transaction. Elle ne considère pas une émission ou une autorisation externe comme accomplie. Le original doit être une facture réellement autorisée, y compris les factures internes dont le statut fiscal externe est suivi dans leur dossier SRI.
 
-Pour les achats, une facture comptabilisée est mise en file uniquement si l'entreprise est confirmée agente de retención. L'enregistrement de ses métadonnées fiscales vérifiées prépare automatiquement le brouillon 07 si la politique datée du fournisseur est complète. Les erreurs de revue restent visibles sans perdre la facture. Après autorisation, le certificat solde son montant dans le mécanisme comptable de retenues existant, une seule fois. Les pourcentages et comptes se révisent dans le dossier SRI.
+Pour les achats, une facture comptabilisée est mise en file uniquement si l'entreprise est confirmée agente de retención. La validation tente immédiatement de préparer le brouillon 07 lorsque ses données fiscales et la politique datée du fournisseur sont déjà complètes. La revue fiscale relance cette préparation ; la validation ultérieure de la politique fournisseur la relance aussi sur les 50 premiers dossiers en attente. Un historique plus important reste traitable par la préparation groupée existante. Les erreurs de revue restent visibles sans perdre la facture. Aucun déclencheur n'émet de document ni ne remplace un instantané déjà créé. Après autorisation, le certificat solde son montant dans le mécanisme comptable de retenues existant, une seule fois. Les pourcentages et comptes se révisent dans le dossier SRI.
 
 Chaque carte de tournée permet de préparer la guía 06 ; l'écran chauffeur ouvre seulement la guía autorisée de sa propre tournée. Les balises dépôt ne sont pas des destinataires. Le brouillon peut être écarté avant envoi pour ajuster la tournée. Après revendication, les arrêts, dates, chauffeur, véhicule et marchandises sont protégés. L'autorisation exige toujours le service privé, son certificat ou le fournisseur fiscal configuré et les essais SRI.

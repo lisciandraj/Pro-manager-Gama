@@ -114,7 +114,32 @@ async function edit(q=null,request=null){if(!window.gamaAccessAllowed?.('quotes'
   dialog.querySelector('.gamaFindBox')?.focus({preventScroll:true});
  }
  $('gqReprice').onclick=()=>run($('gqReprice'),async()=>{const c=$('gqCustomer').value;if(!c)throw Error('Selecciona un cliente.');$('gqSave').disabled=true;try{const priced=await Promise.all(lines.map(async l=>l.product_id?await rpc('gama_resolve_price',{p_customer:c,p_product:l.product_id,p_quantity:l.quantity,p_date:$('gqDate').value}):null));priced.forEach((p,i)=>{if(p){lines[i].list_price=Number(p.unit_price);lines[i].price_source=p.label}});renderLines();totals()}finally{$('gqSave').disabled=false}});
- $('gqCustomer').onchange=()=>{const c=customers.find(c=>c.id===$('gqCustomer').value);if(!c)return;for(const [k,v] of Object.entries({client:c.name,clientId:c.identification,clientEmail:c.email,clientAddress:window.ArcEntities.formatAddress(c),delivery_address:window.ArcEntities.formatAddress(c)}))$('gqd_'+k).value=v||''};
+ const addressForm=$('gqForm'),addressInput=$('gqd_delivery_address'),addressBox=document.createElement('div');addressBox.className='gqField';
+ const addressText=s=>window.GamaI18n?.t?.(s)||s,manualOption=()=>`<option value="">${esc(addressText('Dirección manual / principal'))}</option>`;
+ window.ArcUI.render(addressBox,'<label for="gqDeliveryAddress" data-gi-live>Dirección de entrega guardada</label><select id="gqDeliveryAddress" disabled></select><small id="gqAddressStatus" role="status"></small><button type="button" class="arcButton secondary" id="gqAddressRetry" hidden data-gi-live>Actualizar direcciones</button>');
+ addressInput.closest('label').before(addressBox);
+ const addressSelect=$('gqDeliveryAddress'),addressStatus=$('gqAddressStatus'),addressRetry=$('gqAddressRetry');let addressRevision=0,deliveryAddresses=[];
+ window.ArcUI.render(addressSelect,manualOption());
+ async function loadDeliveryAddresses(){
+  const revision=++addressRevision,customerId=$('gqCustomer').value;
+  deliveryAddresses=[];addressSelect.disabled=true;addressRetry.hidden=true;window.ArcUI.render(addressSelect,manualOption());addressStatus.textContent='';
+  if(!customerId)return;
+  addressStatus.textContent=addressText('Cargando direcciones…');
+  const current=()=>revision===addressRevision&&addressForm.isConnected&&$('gqForm')===addressForm&&$('gqCustomer').value===customerId&&window.gamaAccessAllowed?.('quotes');
+  try{
+   const result=await window.GamaCloud.list('customer_addresses',{select:'id,customer_id,label,purpose,address,city,active',eq:{customer_id:customerId,active:true},order:'label',limit:200});
+   if(!current())return;if(result.error)throw result.error;
+   deliveryAddresses=(result.data||[]).filter(a=>a.customer_id===customerId&&a.active!==false&&['delivery','order'].includes(a.purpose));
+   window.ArcUI.render(addressSelect,manualOption()+deliveryAddresses.map(a=>`<option value="${esc(a.id)}">${esc(a.label)} · ${esc(window.ArcEntities.formatAddress(a))}</option>`).join(''));
+   addressSelect.disabled=!deliveryAddresses.length;
+   const selected=deliveryAddresses.find(a=>window.ArcEntities.formatAddress(a)===addressInput.value);addressSelect.value=selected?.id||'';
+   addressStatus.textContent=deliveryAddresses.length?'':addressText('No hay direcciones de entrega guardadas.');
+  }catch(error){if(current()){addressStatus.textContent=window.ArcErrors.message(error);addressRetry.hidden=false}}
+ }
+ addressSelect.onchange=()=>{const address=deliveryAddresses.find(a=>a.id===addressSelect.value);if(address)addressInput.value=window.ArcEntities.formatAddress(address)};
+ addressInput.addEventListener('input',()=>{addressSelect.value=''});addressRetry.onclick=loadDeliveryAddresses;
+ $('gqCustomer').onchange=()=>{const c=customers.find(c=>c.id===$('gqCustomer').value);if(c)for(const [k,v] of Object.entries({client:c.name,clientId:c.identification,clientEmail:c.email,clientAddress:window.ArcEntities.formatAddress(c),delivery_address:window.ArcEntities.formatAddress(c)}))$('gqd_'+k).value=v||'';loadDeliveryAddresses()};
+ if($('gqCustomer').value)loadDeliveryAddresses();
  $('gqAdd').onclick=()=>chooseProduct();$('gqDiscard').onclick=()=>request?openRequests(request.id):q?.id?view(q.id):open();
  $('gqNumber').readOnly=true;
  $('gqForm').onsubmit=e=>{e.preventDefault();run($('gqSave'),async()=>{const details={...d,...Object.fromEntries([...fields.map(x=>x[0]),'terms','notes','customer_comment'].map(k=>[k,$('gqd_'+k).value]))};const payload={id:q?.id,revision:q?.quote_revision||0,request_key:key,customer_id:$('gqCustomer').value,number:$('gqNumber').value,issue_date:$('gqDate').value,valid_until:$('gqValid').value,details,lines:lines.map(({price_source,...line})=>line)};const result=request?await rpc('gama_quote_from_request',{p_request_id:request.id,p_data:payload}):await action('save',payload);window.dispatchEvent(new CustomEvent('gama:sales-change'));await view(result.id)})};renderLines();totals();

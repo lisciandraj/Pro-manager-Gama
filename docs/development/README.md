@@ -53,6 +53,8 @@ Pour ajouter un export, suivre le [contrat PDF](pdf-exports.md). Ne pas réintro
 
 ## Historique des migrations déployées
 
-Les onze migrations Ecuador de cette livraison et les fonctions `gama-sri`, `gama-sri-received` et `architect-user-admin` sont déployées sur le projet de production. `supabase/migration-history.json` associe les versions effectives renvoyées par Supabase aux fichiers canoniques et à leurs empreintes SHA-256. Les noms de fichiers créés par le CLI sont conservés : la version attribuée par le connecteur au déploiement peut différer. Le contrôle des migrations interdit de réécrire un fichier déjà appliqué.
+Les treize migrations Ecuador de cette livraison et les fonctions `gama-sri`, `gama-sri-received` et `architect-user-admin` sont déployées sur le projet de production. `supabase/migration-history.json` associe les versions effectives renvoyées par Supabase aux fichiers canoniques et à leurs empreintes SHA-256. Les noms de fichiers créés par le CLI sont conservés : la version attribuée par le connecteur au déploiement peut différer. Le contrôle des migrations interdit de réécrire un fichier déjà appliqué.
 
 Les anciennes migrations absentes du relevé de 2026-10-03 comprennent des alias historiques déjà déployés et deux réinitialisations contrôlées du catalogue. Leur présence dans le répertoire ne constitue pas une instruction de les réappliquer en production. Comparer les noms et versions de la base avec le relevé avant une nouvelle livraison ; appliquer seulement les migrations réellement nouvelles.
+
+La revue du 5 octobre complète la préparation 07 à la validation fournisseur/revue fiscale/politique fournisseur, et le rapport TMS de coûts par client. Leurs versions de production sont `20261005070632` et `20261005070644`. Voir [la revue des demandes](../audits/2026-10-05-erp-completion.md).

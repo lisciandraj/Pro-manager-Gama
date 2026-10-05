@@ -24,6 +24,36 @@ test('invalid negative prices cannot be submitted',async({page})=>{
 test('changing customer updates identity and explicit repricing uses the new tariff',async({page})=>{
  await boot(page);await page.locator('#gqCustomer').selectOption('c2');await expect(page.locator('#gqd_delivery_address')).toHaveValue('Guayaquil');await page.locator('#gqReprice').click();await expect(page.locator('[data-k="list_price"]')).toHaveValue('10');await expect(page.locator('#gqTotals')).toContainText(/34[.,]50/);
 });
+test('registered delivery addresses belong to the selected customer and enter the saved quote snapshot',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[
+  {id:'agency',customer_id:'c1',label:'Agencia norte',purpose:'delivery',address:'Calle Norte 25',city:'Quito',active:true},
+  {id:'orders',customer_id:'c1',label:'Bodega',purpose:'order',address:'Calle Bodega 10',active:true},
+  {id:'billing',customer_id:'c1',label:'Facturación',purpose:'billing',address:'Billing only',active:true},
+  {id:'inactive',customer_id:'c1',label:'Agencia cerrada',purpose:'delivery',address:'Closed branch',active:false},
+  {id:'other',customer_id:'c2',label:'Otra empresa',purpose:'delivery',address:'Other customer',active:true},
+ ]});
+ await page.locator('#gqCustomer').selectOption('c2');await page.locator('#gqCustomer').selectOption('c1');
+ await expect(page.locator('#gqDeliveryAddress')).toBeEnabled();await expect(page.locator('#gqDeliveryAddress option')).toHaveCount(3);
+ await page.locator('#gqDeliveryAddress').selectOption('agency');await expect(page.locator('#gqd_delivery_address')).toHaveValue('Calle Norte 25, Quito');
+ await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/quote-delivery-address-desktop.png'});
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.locator('#gqForm .gqGrid').first().screenshot({path:'test-results/quote-delivery-address-mobile.png'});
+ await page.locator('#gqSave').click();expect((await page.evaluate(()=>__quotes[0])).details.delivery_address).toBe('Calle Norte 25, Quito');
+ await page.locator('#gqd_delivery_address').fill('Destino acordado por teléfono');await expect(page.locator('#gqDeliveryAddress')).toHaveValue('');
+ await page.locator('#gqSave').click();expect((await page.evaluate(()=>__quotes[1])).details.delivery_address).toBe('Destino acordado por teléfono');
+});
+test('a late address response cannot replace the addresses or destination of a different customer',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const previous=GamaCloud.list;GamaCloud.list=(table,options)=>table==='customer_addresses'?
+  options.eq.customer_id==='c1'?new Promise(resolve=>{window.__finishAddresses=()=>resolve({data:[{id:'late',customer_id:'c1',label:'Agencia tardía',purpose:'delivery',address:'Wrong destination',active:true}]})}):Promise.resolve({data:[{id:'sol',customer_id:'c2',label:'Agencia Sol',purpose:'delivery',address:'Destino Sol',active:true}]}):previous(table,options)});
+ await page.locator('#gqCustomer').selectOption('c1');await page.waitForFunction(()=>window.__finishAddresses);
+ await page.locator('#gqCustomer').selectOption('c2');await expect(page.locator('#gqDeliveryAddress')).toBeEnabled();await page.locator('#gqDeliveryAddress').selectOption('sol');
+ await page.evaluate(()=>__finishAddresses());await expect(page.locator('#gqd_delivery_address')).toHaveValue('Destino Sol');await expect(page.locator('#gqDeliveryAddress')).toHaveValue('sol');await expect(page.locator('#gqDeliveryAddress option[value="late"]')).toHaveCount(0);
+});
+test('an address lookup failure can be retried without losing a manually entered destination',async({page})=>{
+ await boot(page);await page.evaluate(()=>{const previous=GamaCloud.list;window.__addressLookupFails=true;GamaCloud.list=(table,options)=>table==='customer_addresses'?
+  Promise.resolve(__addressLookupFails?{error:{message:'Addresses offline'}}:{data:[{id:'retry',customer_id:'c1',label:'Agencia',purpose:'delivery',address:'Saved address',active:true}]}):previous(table,options)});
+ await page.locator('#gqCustomer').selectOption('c1');await expect(page.locator('#gqAddressRetry')).toBeVisible();await page.locator('#gqd_delivery_address').fill('Dirección confirmada');
+ await page.evaluate(()=>__addressLookupFails=false);await page.locator('#gqAddressRetry').click();await expect(page.locator('#gqDeliveryAddress')).toBeEnabled();await expect(page.locator('#gqAddressRetry')).toBeHidden();await expect(page.locator('#gqd_delivery_address')).toHaveValue('Dirección confirmada');
+});
 test('failed save retains negotiated values and the same request key',async({page})=>{
  await boot(page);await page.locator('[data-k="list_price"]').fill('6.5');await page.locator('[data-k="list_price"]').blur();await page.locator('#gqSave').click();await expect(page.locator('#gqMessage')).toContainText('payload captured');await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__quotes.length)).toBe(2);expect(await page.evaluate(()=>__quotes[0].request_key===__quotes[1].request_key)).toBe(true);await expect(page.locator('[data-k="list_price"]')).toHaveValue('6.5');
 });

@@ -43,6 +43,41 @@ test('SRI documents preserve fiscal sources, prepare purchase retention automati
    assert.equal((await doc('prepare',{document_type:'07',source_id:bill})).id,retention);
    assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[bill]),1);
   });
+  await t.test('reviewing the policy after the invoice resumes its retained draft without a manual batch',async()=>{
+   const account=await one("select id from accounting_accounts where code='2100'"),policy={supplier_id:supplier,income_code:'312',income_rate:2,income_account_id:account,vat_code:'1',vat_rate:30,vat_account_id:account,evidence:'Reviewed dated supplier policy'};
+   await doc('policy_save',{...policy,valid_from:'2027-01-01'});
+   await db.exec('reset role');
+   const pending=await one('insert into supplier_invoices(supplier_id,number,issue_date,subtotal,tax,total,tax_id,status) values($1,$2,$3,100,15,115,$4,$5) returning id',[supplier,'SRI-POLICY-LATE',day,taxid,'posted']);
+   await as(admin);
+   await one('select gama_accounting_ec($1,$2::jsonb)', ['fiscal_save',JSON.stringify({request_key:uuid(),source_type:'supplier_invoice',source_id:pending,document_type:'01',document_number:'001-001-000000018',identification_type:'04',identification:'1719304188001',authorization_number:'1'.repeat(49),support_code:'01',payment_codes:['20'],base_taxed:100,vat:15,evidence:'Original supplier XML reviewed'})]);
+   assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[pending]),0);
+   assert.equal(await one('select last_error from sri_purchase_queue where supplier_invoice_id=$1',[pending]),'SRI_SUPPLIER_POLICY_REQUIRED');
+   await doc('policy_save',{...policy,valid_from:'2026-01-01'});
+   const prepared=await one('select id from sri_document_issues where source_id=$1',[pending]);
+   assert.equal((await one('select snapshot from sri_document_issues where id=$1',[prepared])).withheld_total,6.5);
+   assert.equal(await one('select last_error from sri_purchase_queue where supplier_invoice_id=$1',[pending]),null);
+   await doc('policy_save',{...policy,valid_from:'2026-01-01'});
+   assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[pending]),1);
+   assert.equal(await one('select id from sri_document_issues where source_id=$1',[bill]),retention,'changing the policy preserves the previous frozen document');
+  });
+  await t.test('posting a bill whose fiscal review already exists prepares its retention immediately',async()=>{
+   await db.exec('reset role');
+   const reviewed=await one('insert into supplier_invoices(supplier_id,number,issue_date,subtotal,tax,total,tax_id,status) values($1,$2,$3,100,15,115,$4,$5) returning id',[supplier,'SRI-ALREADY-REVIEWED',day,taxid,'draft']);
+   await q(`insert into accounting_fiscal_documents(source_type,source_id,document_type,document_number,identification_type,identification,authorization_number,support_code,payment_codes,base_zero,base_taxed,base_exempt,base_non_taxable,ice,vat,evidence,reviewed_by)
+    select source_type,$1,document_type,'001-001-000000019',identification_type,identification,authorization_number,support_code,payment_codes,base_zero,base_taxed,base_exempt,base_non_taxable,ice,vat,evidence,reviewed_by from accounting_fiscal_documents where source_id=$2`,[reviewed,bill]);
+   assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[reviewed]),0);
+   await q("update supplier_invoices set status='posted' where id=$1",[reviewed]);await as(admin);
+   const issue=await one('select snapshot from sri_document_issues where source_id=$1',[reviewed]);assert.equal(issue.withheld_total,6.5);
+   await db.exec('reset role');await q("update supplier_invoices set status='posted' where id=$1",[reviewed]);await as(admin);
+   assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[reviewed]),1);
+  });
+  await t.test('a company without confirmed withholding-agent status does not queue or prepare a retention',async()=>{
+   await db.exec('reset role;update accounting_ec_profile set withholding_agent=false;');
+   const ordinary=await one('insert into supplier_invoices(supplier_id,number,issue_date,subtotal,tax,total,tax_id,status) values($1,$2,$3,100,15,115,$4,$5) returning id',[supplier,'SRI-NON-AGENT',day,taxid,'posted']);
+   assert.equal(await one('select count(*)::int from sri_purchase_queue where supplier_invoice_id=$1',[ordinary]),0);
+   assert.equal(await one('select count(*)::int from sri_document_issues where source_id=$1',[ordinary]),0);
+   await db.exec('update accounting_ec_profile set withholding_agent=true;');await as(admin);
+  });
   await t.test('authorization is required; ledger offsets and idempotency are real',async()=>{
    await assert.rejects(doc('settle',{id:retention}),/SRI_NOT_AUTHORIZED/);
    await db.exec('reset role');await q("update sri_document_issues set status='authorized',access_key=$2,authorization_response=jsonb_build_object('authorization',$2::text) where id=$1",[retention,'7'.repeat(49)]);await as(admin);
@@ -79,6 +114,7 @@ test('SRI documents preserve fiscal sources, prepare purchase retention automati
   });
   await t.test('direct writes, anonymous calls and disabled permissions cannot forge documents',async()=>{
    await assert.rejects(q("update sri_document_issues set status='authorized'"),/permission denied/);
+   await assert.rejects(q('select private.gama_sri_try_purchase($1)',[bill]),/permission denied/);
    await db.exec('reset role;set role anon');await assert.rejects(doc('list'),/permission denied/);
    await db.exec(`reset role;insert into erp_action_permissions(role,module,allow_create) values('administrador','accounting',false);`);await as(admin);await assert.rejects(doc('prepare_purchases'),/ROLE_NOT_ALLOWED/);
   });

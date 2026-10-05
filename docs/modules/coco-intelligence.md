@@ -1,4 +1,4 @@
-> État relu le 30 septembre 2026. Nom affiché : Coco Intelligence. Accès administrateur ; recommandations calculées côté serveur et assistant optionnel. Le module se charge à son ouverture.
+> État relu le 5 octobre 2026. Nom affiché : Coco Intelligence. Accès administrateur ; recommandations calculées côté serveur et assistant optionnel. Le module se charge à son ouverture.
 
 # Coco Intelligence
 
@@ -116,3 +116,7 @@ stable permission/history ID. Its stock panel works without OpenAI credit.
 Verify with `node --test tests/coco-intelligence-db.test.cjs
  tests/assistant-server.test.mjs` and `npx playwright test tests/assistant-ia.spec.js`.
 Deploy the reliability migration before the updated Edge Function and frontend.
+
+## Concrete operational questions
+
+The first prompts ask which customers to follow up today and what to order this week. They call `gama_management_overview('assistant-ia')` and show current, authorized records without an OpenAI key. Collection balances use the canonical maturity calculation ; purchase proposals retain reservations, incoming/draft purchases, supplier grouping, minimum quantities and pack multiples from Stock. The list displays its returned count and total count. “Open to act” goes to Collections or Stock for review. These answers never send messages, create purchases or change inventory. Remaining free-form analysis retains the configured AI workflow.

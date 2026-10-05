@@ -34,11 +34,21 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   const { data: auth, error: authError } = machine ? {data: {user: {id: 'scheduler'}}, error: null} : await client.auth.getUser(bearer.slice(7));
   if (authError || !auth.user) return reply({ error: 'AUTH_REQUIRED' }, 401);
   const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
-  if (!profile?.active) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
   const admin = createClient(url, secret);
   let input: { action: string; id: string; kind?: string; document_type?: string };
   try { input = await request.json(); } catch { return reply({ error: 'INVALID_JSON' }, 400); }
   if (!input || typeof input.action !== 'string') return reply({ error: 'INVALID_REQUEST' }, 400);
+  // Retired ERP customer policies hide profiles. The narrow portal RPC verifies
+  // the live login, MFA, membership and document ownership using the caller's JWT.
+  if (!profile || profile.role === 'cliente') {
+    if (input.action !== 'download' || (input.document_type || '01') !== '01' || !/^[a-f0-9-]{36}$/i.test(input.id || '') || !['xml','ride'].includes(input.kind || '')) return reply({error:'ROLE_NOT_ALLOWED'},403);
+    const owned = await client.rpc('gama_b2b_action', {p_action:'sri_document',p_data:{id:input.id,kind:input.kind}});
+    if (owned.error || !owned.data?.path) return reply({error:'NOT_FOUND'},404);
+    const link = await admin.storage.from('sri-documents').createSignedUrl(owned.data.path,60);
+    if (link.error || !link.data?.signedUrl) return reply({error:'SRI_ARCHIVE_MISSING'},404);
+    return reply({url:link.data.signedUrl,filename:owned.data.filename});
+  }
+  if (!profile.active) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
   // Server schedules only consult already claimed documents; they never emit or notify.
   if (machine && !scheduled) {
     if (input.action !== 'refresh_pending') return reply({error: 'ROLE_NOT_ALLOWED'},403);

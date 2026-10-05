@@ -14,11 +14,11 @@ function harness(options={}){
  const access={validate:true,export:true,...options.access};
  function db(isAdmin){
   return {auth:{getUser:async()=>options.noAuth?{error:{message:'invalid'}}:{data:{user:{id:ID}}}},
-   rpc:async()=>({data:options.noAccess?null:access}),
+   rpc:async(name)=>({data:name==='gama_b2b_action'?(options.b2b||null):(options.noAccess?null:access)}),
    from(table){let change=null,filters=[],many=false;const q={
     select(){return q},in(k,v){filters.push([k,v]);return q},order(){return q},limit(){many=true;return q},eq(k,v){filters.push([k,v]);return q},is(k,v){filters.push([k,v]);return q},update(patch){change=patch;return q},
     async resolve(){
-     if(table==='profiles')return {data:{role:options.role||'administrador',active:options.active!==false}};
+     if(table==='profiles')return {data:options.hiddenProfile?null:{role:options.role||'administrador',active:options.active!==false}};
      if(table==='external_invoices'){if(change)updates.push(change);return {data:{id:ID}}}
      if(!isAdmin&&options.invisible)return{data:null};
      if(!filters.every(([k,v])=>(Array.isArray(v)?v.includes(issue[k]):(issue[k]??null)===v)))return{data:null};
@@ -151,4 +151,10 @@ test('service schedule only consults pending claims and cannot emit, notify or d
  const r=await h.request({action:'refresh_pending'});assert.equal(r.consulted,1);assert.deepEqual(h.calls,['openapi_refresh']);
  for(const action of ['submit','retry','notify','download','refresh','status'])assert.equal((await h.request({action,id:ID,kind:'ride'})).error,'ROLE_NOT_ALLOWED');
  assert.deepEqual(h.calls,['openapi_refresh']);
+});
+
+test('B2B customers can download their scoped authorized invoice without accessing emission',async()=>{
+ const h=harness({hiddenProfile:true,active:false,role:'cliente',b2b:{path:'private-own-ride.pdf',filename:'DOC-00000017.pdf'},env:{SRI_WORKER_URL:''}});let r=await h.request({action:'download',id:ID,kind:'ride'});assert.equal(r.status,200);assert.equal(r.filename,'DOC-00000017.pdf');
+ r=await h.request({action:'submit',id:ID});assert.equal(r.status,403);r=await h.request({action:'download',id:ID,kind:'ride',document_type:'06'});assert.equal(r.status,403);
+ const denied=harness({role:'cliente'});r=await denied.request({action:'download',id:ID,kind:'ride'});assert.equal(r.status,404);
 });

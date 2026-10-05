@@ -107,16 +107,16 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();if(embedded?.isConnected){window.ArcUI.render(embedded,'<div id="grMain" aria-live="polite"></div>');return embedded}let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'Devoluciones',lead:'Devoluciones, abonos y reembolsos'})
+ window.ArcUI.render(s,GamaUI.header({title:'Devoluciones y posventa',lead:'Devoluciones, reclamaciones, abonos y reembolsos'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;
 }
 function nav(){
  const host=$('grNav');if(!host)return;
- const summaryTabs=[['all','Todos'],['customer','Clientes'],['supplier','Proveedores']];
+ const summaryTabs=[['all','Todos'],['customer','Clientes'],['supplier','Proveedores'],...(window.gamaAccessAllowed?.('sav')?[['sav','Reclamaciones']]:[])];
  window.ArcUI.render(host,summaryTabs.map(([k,label])=>`<button type="button" data-gi-live data-gr-tab="${k}" class="arcButton ${tab===k&&!detailId?'on':''}" aria-current="${tab===k&&!detailId?'page':'false'}">${esc(label)}</button>`).join(''));
- host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{detailId=null;tab=b.dataset.grTab;filters.partner='';pageOffset=0;go()});
+ host.querySelectorAll('[data-gr-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.grTab==='sav'){window.GamaService?.open();return}detailId=null;tab=b.dataset.grTab;filters.partner='';pageOffset=0;go()});
 }
 function busy(){window.ArcUI.render($('grMain'),`<p class="arcPanel grCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){

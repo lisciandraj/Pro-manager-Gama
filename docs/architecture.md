@@ -1,6 +1,6 @@
 # Architecture actuelle de Coco ERP
 
-État : 30 septembre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. La passerelle fiscale Python reste un service privé distinct ; elle peut utiliser le signataire historique ou le moteur externe Open API Facturación SRI.
+État : 5 octobre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. La passerelle fiscale Python reste un service privé distinct ; elle peut utiliser le signataire historique ou le moteur externe Open API Facturación SRI.
 
 ## Emplacements à modifier
 
@@ -109,3 +109,9 @@ Les titres et téléchargements de Documents remplacent les noms techniques cont
 ## Documents SRI liés aux opérations
 
 `src/features/finance/sri-documents.js` est une dépendance différée de Comptabilité, Retours et TMS. Elle n'ajoute pas de script au démarrage. Les façades `gama_sri_documents`, `gama_sri_document_access` et `gama_tms_guide` contrôlent les droits dans des helpers privés ; le chauffeur ne peut ni préparer ni émettre. `gama-sri` choisit la table de documents par famille et lie aussi le type à la clé. Le service privé valide les XSD locaux et refuse toute divergence entre l'autorisation et la photographie fiscale. Sa tâche optionnelle de consultation utilise un compte de service uniquement pour reconsulter des documents déjà revendiqués, sans envoyer de nouveau document ni notification.
+
+## Pilotage, réapprovisionnement et portail B2B
+
+Les nouvelles lectures `gama_stock_sales_thresholds` et `gama_management_overview` s’ouvrent avec leurs écrans métier, sans dépendance au démarrage. Les validations des seuils utilisent des reçus de commande et ne touchent pas aux quantités physiques. SAV est un onglet de Retours dans le registre ; ses anciennes routes et contrôles serveur restent compatibles.
+
+Le portail B2B est une page autonome produite depuis `src/storefront/`. Ses comptes utilisent une session Auth séparée dans `sessionStorage` et des associations explicites à une entreprise, vérifiées par les façades SQL. Les profils clients retirés de l’ERP restent inactifs ; les anciennes RLS demeurent fermées. La résolution de prix pure et privée est partagée avec le résolveur interne, dont les contrôles d’accès restent inchangés. Voir [site public](public-website.md), [Stock](modules/stock.md) et [pilotage](company-dashboard.md).

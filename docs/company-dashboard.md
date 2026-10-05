@@ -45,3 +45,11 @@ Le navigateur ignore les réponses devenues obsolètes, efface les données lors
 - `tests/dashboard-db.test.cjs` : restauration complète, montants, annulations, plusieurs paiements et avoirs, découpage mensuel, fuseau horaire, référence externe, monnaies distinctes, RLS Documents, profils personnalisés, accès refusés et source indisponible.
 - `tests/dashboard-analysis.spec.js` : période partagée, graphiques, priorités, mobile/paysage, accès aux actions, erreurs et réponses obsolètes.
 - Les tests du tableau de bord font partie du contrôle de publication de l’interface.
+
+## Direction · ce mois
+
+Le bloc Direction rassemble sur une page les ventes nettes du mois hors taxes après avoirs, la marge commerciale estimée, les créances échues, le stock sans sortie depuis 90 jours, les ruptures et les livraisons en retard. Le mois courant reste indiqué explicitement quand la période des analyses inférieures change. Les indicateurs conservent les droits de leurs modules ; la marge nécessite aussi Comptabilité.
+
+La marge utilise les coûts historiques enregistrés lors des expéditions, pondérés par ligne, et récupère le coût des produits remis en stock par les retours crédités. Si une facture n’a pas de coût complet, la marge reste « — » et le nombre de factures à vérifier apparaît. Les valeurs de stock dormant utilisent le prix d’achat actuel. Les créances reprennent les échéances canoniques après paiements, avoirs, retenues reçues et ajustements ; une date d’échéance absente utilise la date de facture. Ces montants ne représentent pas un bénéfice comptable.
+
+`gama_management_overview('dashboard')` est une lecture contrôlée supplémentaire, demandée à l’ouverture du Dashboard et partagée avec les questions concrètes de Coco Intelligence. Elle ne charge aucun module au démarrage. Tests : `tests/ec-b2b-management-stock-db.test.cjs` et `tests/dashboard-analysis.spec.js`.

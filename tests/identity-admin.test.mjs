@@ -38,3 +38,18 @@ test('Invitation carries the personalised subject and message to the email templ
  const empty=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial',subject:'  ',message:'x'}));assert.equal(empty.status,400);
  assert.equal(calls.filter(c=>c.url.includes('/auth/v1/invite?')).length,1,'an empty subject never sends');
 });
+test('B2B invitation preflights the company and binds a portal-only customer using the caller JWT',async()=>{
+ const calls=[],customer='00000000-0000-4000-8000-000000000003';
+ const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const body=options.body?JSON.parse(options.body):{};return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed:true}:{saved:true}):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
+ const result=await handler(request({action:'invite_b2b',customer_id:customer,email:'client@example.invalid',name:'Client',role:'administrador'}));assert.equal(result.status,200);assert.equal((await result.json()).portal_access,true);
+ const invite=calls.findIndex(c=>c.url.includes('/auth/v1/invite?'));assert.ok(calls.findIndex(c=>c.url.includes('/rpc/gama_b2b_admin'))<invite);
+ assert.equal(JSON.parse(calls[invite].options.body).data.b2b_portal,true);
+ assert.deepEqual(JSON.parse(calls.find(c=>c.options.method==='PATCH').options.body),{role:'cliente',full_name:'Client',active:false},'no ERP role or activation can be injected');
+ const linked=calls.filter(c=>c.url.includes('/rpc/gama_b2b_admin')).at(-1);assert.equal(linked.options.headers.Authorization,'Bearer session');assert.deepEqual(JSON.parse(linked.options.body),{p_action:'member',p_data:{customer_id:customer,profile_id:invited,active:true,expected_customer_id:null}});
+});
+test('B2B invitation sends nothing before scope approval and reports a failed binding without resending',async()=>{
+ const customer='00000000-0000-4000-8000-000000000003';let allowed=false,emails=0;
+ const handler=createHandler({env,fetch:async(url,options)=>{const body=options.body?JSON.parse(options.body):{};if(url.includes('/auth/v1/invite?'))emails++;return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed}:null):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
+ const body={action:'invite_b2b',customer_id:customer,email:'client@example.invalid',name:'Client'};
+ assert.equal((await handler(request(body))).status,403);assert.equal(emails,0);allowed=true;const r=await handler(request(body));assert.equal(r.status,409);assert.equal((await r.json()).error,'INVITED_REVIEW_B2B');assert.equal(emails,1);
+});

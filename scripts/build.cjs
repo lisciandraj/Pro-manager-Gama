@@ -28,6 +28,8 @@ fs.writeFileSync(path.join(root,'index.html'),versionHtml(fs.readFileSync(path.j
 for(const file of ['gama-site.html','camera-check.html','tms-tracking.html']){
  fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8')));
 }
+const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront-runtime.json'),'utf8')),pdf_template:'gama-pdf-template.js'};
+fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__','gama-site.html').replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
 const shell=['./','./index.html','./manifest.json','./coco-gama-icon-180.png','./coco-gama-icon-192.png','./coco-gama-icon-512.png'];
 const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
  .replace('__COCO_RELEASE__',hash('architect-assets.js')+'-'+hash('index.html'))
@@ -35,7 +37,7 @@ const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
 fs.writeFileSync(path.join(root,'sw.js'),sw);
 const out=path.join(root,'dist');fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out);
 // Publish only web assets. Tests, build configuration, source code and notes are not copied.
-const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','gama-site.html','camera-check.html','tms-tracking.html','manifest.json',
+const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','gama-site.html','gama-b2b.html','camera-check.html','tms-tracking.html','manifest.json',
  ...fs.readdirSync(root).filter(f=>/\.(png|jpg|jpeg|webp|svg|ico|webmanifest)$/.test(f))];
 for(const file of publicFiles)fs.copyFileSync(path.join(root,file),path.join(out,file));
 for(const folder of ['assets','config/localizations','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});

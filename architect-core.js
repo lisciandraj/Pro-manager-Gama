@@ -728,7 +728,7 @@
     { id: "surveys", label: "Encuestas", icon: "checklist", group: "Ventas", description: "Cuestionarios, respuestas y satisfacción", accent: "teal", order: 7.2, menu: true, roles: ["admin", "commercial"] },
     { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: ["admin"] },
     { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
-    { id: "sav", label: "Servicio posventa", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: true, roles: ["admin", "commercial"] },
+    { id: "sav", label: "Reclamaciones", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: false, tabOf: "returns", roles: ["admin", "commercial"] },
     { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
     {
       "id": "tms",
@@ -1042,14 +1042,14 @@
     },
     {
       "id": "returns",
-      "label": "Devoluciones",
+      "label": "Devoluciones y posventa",
       "icon": "returnArrow",
       "group": "Logística",
       "description": "Devoluciones, abonos y reembolsos",
       "accent": "teal",
       "order": 7,
       "menu": true,
-      "configLabel": "Devoluciones",
+      "configLabel": "Devoluciones y posventa",
       "roles": [
         "admin",
         "commercial",
@@ -1274,8 +1274,8 @@
       return (_a = window.GamaFleet) == null ? void 0 : _a.open();
     },
     returns: () => {
-      var _a;
-      return (_a = window.GamaReturns) == null ? void 0 : _a.open();
+      var _a, _b, _c;
+      return ((_a = window.gamaAccessAllowed) == null ? void 0 : _a.call(window, "returns")) ? (_b = window.GamaReturns) == null ? void 0 : _b.open() : (_c = window.GamaService) == null ? void 0 : _c.open();
     },
     projects: () => {
       var _a;

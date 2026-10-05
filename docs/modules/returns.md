@@ -238,3 +238,7 @@ lo que es: la devolución por un lado y un pedido nuevo por el otro.
   las pestañas de proceso en Seguimiento de procesos, la creación en tres pasos sin doble captura, la
   decisión sobre el producto, el tope del reembolso, los botones de cada
   perfil, PC/tableta/móvil y las tres lenguas.
+
+## Devoluciones y posventa
+
+La navegación reúne Retours y SAV en **Devoluciones y posventa**. La pestaña **Reclamaciones** abre los expedientes de servicio existentes ; se conserva el vínculo que crea y abre una devolución desde una reclamación. Los identificadores públicos `returns` y `sav`, sus permisos, adjuntos y referencias permanecen compatibles. No se muestra una segunda baldosa SAV. Cada pestaña requiere los derechos que tenía su módulo.

@@ -4889,3 +4889,14 @@ Saldos y alertas actuales	Soldes et alertes actuels	Current balances and alerts
 facturas sin coste completo	factures sans coût complet	invoices without complete cost
 Ventas sin impuestos, después de abonos. El margen usa el coste histórico de las expediciones y recupera el coste de los productos repuestos. Si faltan costes, se muestra pendiente de revisión. Stock sin rotación valorado al coste de compra actual.	Ventes hors taxes, après avoirs. La marge utilise le coût historique des expéditions et récupère le coût des produits remis en stock. Les coûts manquants nécessitent une vérification. Le stock dormant est valorisé au coût d’achat actuel.	Sales exclude tax and credit notes. Margin uses historical dispatch cost and recovers the cost of restocked goods. Missing costs require review. Dormant stock uses current purchase cost.
 Revisar mínimos y máximos · ventas 90 días	Revoir les minimums et maximums · ventes sur 90 jours	Review minimums and maximums · 90-day sales
+Dirección manual / principal	Adresse manuelle / principale	Manual / primary address
+Dirección de entrega guardada	Adresse de livraison enregistrée	Saved delivery address
+Actualizar direcciones	Actualiser les adresses	Refresh addresses
+Cargando direcciones…	Chargement des adresses…	Loading addresses…
+No hay direcciones de entrega guardadas.	Aucune adresse de livraison enregistrée.	No saved delivery addresses.
+Coste de entrega por cliente	Coût de livraison par client	Delivery cost by customer
+Cliente no identificado	Client non identifié	Unidentified customer
+Coste conocido	Coût connu	Known cost
+Paradas sin coste/km	Arrêts sans coût/km	Stops without cost/km
+Paradas con km estimados	Arrêts avec km estimés	Stops with estimated km
+Rutas sin paradas	Tournées sans arrêts	Routes without stops

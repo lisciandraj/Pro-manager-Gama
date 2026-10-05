@@ -6,6 +6,7 @@ const messages={ETA_REQUIRED:'Indica una hora estimada de llegada.',INCIDENT_REQ
 const error=e=>T(messages[String(e?.message||e)]||window.ArcErrors.message(e));
 const rpc=(action,data={})=>window.ArcData.rpc('gama_tms_delivery_action',{p_action:action,p_data:data});
 const localTime=v=>v?new Date(new Date(v).getTime()-new Date(v).getTimezoneOffset()*60000).toISOString().slice(0,16):'';
+let reportEpoch=0;
 function bind(root,done){root.querySelectorAll('[data-tms-operate]').forEach(b=>b.onclick=()=>open(b.dataset.tmsOperate,done).catch(e=>window.gamaToast(error(e),{tipo:'error'})))}
 async function open(id,done=()=>{}){
  const data=await rpc('context',{delivery_id:id}),d=data.delivery;
@@ -32,10 +33,36 @@ const returnLink=r=>`<p><button type="button" class="arcButton secondary" data-t
 function bindReturns(dialog){dialog.querySelectorAll('[data-tm-open-return]').forEach(b=>b.onclick=()=>{dialog.close();window.GamaReturns.openReturn(b.dataset.tmOpenReturn)})}
 function costs(routes,root){root.querySelectorAll('[data-route-drop]').forEach(card=>{const r=routes.find(r=>r.id===card.dataset.routeDrop);if(!r)return;const count=r.stops.filter(id=>id!=='__depot').length,cost=r.costPerKm==null?null:r.distance*r.costPerKm;const line=document.createElement('p');line.className='tmsHint';line.textContent=cost==null?T('Coste/km pendiente en Flota.'):T('Coste estimado')+': '+money(cost)+' · '+T('por entrega')+': '+money(count?cost/count:null)+' · '+T('Reparto uniforme por parada.');card.append(line)})}
 async function metrics(){
+ const token=reportEpoch;let revision=0;
  const now=new Date(),from=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10),to=now.toISOString().slice(0,10);
  const dialog=U.dialog({title:T('Indicadores TMS'),saveLabel:T('Cerrar'),body:`<div class="tmsForm"><label>${E(T('Desde'))}<input id="tmFrom" type="date" value="${from}"></label><label>${E(T('Hasta'))}<input id="tmTo" type="date" value="${to}"></label></div><button type="button" class="arcButton secondary" data-tm-metrics>${E(T('Actualizar'))}</button><div data-tm-metric-body></div><p role="alert"></p>`,onSave:async()=>{}});
- const load=async()=>{try{const r=await window.ArcData.rpc('gama_tms_metrics',{p_from:dialog.querySelector('#tmFrom').value,p_to:dialog.querySelector('#tmTo').value});dialog.querySelector('[role=alert]').textContent='';U.render(dialog.querySelector('[data-tm-metric-body]'),`<div class="tmsKpis"><div class="tmsKpi"><span>${E(T('Entregadas'))}</span><strong>${r.delivered}</strong></div><div class="tmsKpi"><span>${E(T('A tiempo'))}</span><strong>${r.with_eta?Math.round(100*r.on_time/r.with_eta)+' %':'—'}</strong></div></div><p>${E(T('El porcentaje usa solo entregas con una hora estimada registrada.'))} ${r.with_eta} / ${r.delivered}</p><h3>${E(T('Kilómetros y coste por día'))}</h3>${U.table({columns:[{key:'day',label:T('Fecha'),value:x=>date(x.day)},{key:'km',label:'km',value:x=>Number(x.km).toFixed(1)},{label:T('Coste estimado'),value:x=>money(x.cost)},{key:'missing_cost',label:T('Rutas sin coste/km')}],items:r.days})}<h3>${E(T('Incidencias por conductor'))}</h3>${U.table({columns:[{key:'name',label:T('Conductor')},{key:'incidents',label:T('Incidencias')}],items:r.drivers})}<p class="tmsHint">${E(T('Los km usan el recorrido verificado si existe; en los demás casos son una estimación en línea recta.'))}</p>`)}catch(e){dialog.querySelector('[role=alert]').textContent=error(e)}};
+ const load=async()=>{const request=++revision;try{const r=await window.ArcData.rpc('gama_tms_metrics',{p_from:dialog.querySelector('#tmFrom').value,p_to:dialog.querySelector('#tmTo').value});if(request!==revision||token!==reportEpoch||!dialog.isConnected||!dialog.open)return;dialog.querySelector('[role=alert]').textContent='';U.render(dialog.querySelector('[data-tm-metric-body]'),`<div class="tmsKpis"><div class="tmsKpi"><span>${E(T('Entregadas'))}</span><strong>${r.delivered}</strong></div><div class="tmsKpi"><span>${E(T('A tiempo'))}</span><strong>${r.with_eta?Math.round(100*r.on_time/r.with_eta)+' %':'—'}</strong></div></div><p>${E(T('El porcentaje usa solo entregas con una hora estimada registrada.'))} ${r.with_eta} / ${r.delivered}</p><h3>${E(T('Kilómetros y coste por día'))}</h3>${U.table({columns:[{key:'day',label:T('Fecha'),value:x=>date(x.day)},{key:'km',label:'km',value:x=>Number(x.km).toFixed(1)},{label:T('Coste estimado'),value:x=>money(x.cost)},{key:'missing_cost',label:T('Rutas sin coste/km')}],items:r.days})}<h3>${E(T('Incidencias por conductor'))}</h3>${U.table({columns:[{key:'name',label:T('Conductor')},{key:'incidents',label:T('Incidencias')}],items:r.drivers})}<p class="tmsHint">${E(T('Los km usan el recorrido verificado si existe; en los demás casos son una estimación en línea recta.'))}</p>`)}catch(e){if(request===revision&&token===reportEpoch&&dialog.isConnected&&dialog.open)dialog.querySelector('[role=alert]').textContent=error(e)}};
+ dialog.dataset.tmsReport='';
+ const clientButton=document.createElement('button');clientButton.type='button';clientButton.className='arcButton secondary';clientButton.dataset.tmCustomerCosts='';clientButton.textContent=T('Coste de entrega por cliente');
+ dialog.querySelector('[data-tm-metrics]').after(clientButton);
+ clientButton.onclick=()=>customerCosts(dialog.querySelector('#tmFrom').value,dialog.querySelector('#tmTo').value);
  dialog.querySelector('[data-tm-metrics]').onclick=load;await load();
 }
+function customerCosts(from,to){
+ const token=reportEpoch,dialog=U.dialog({title:T('Coste de entrega por cliente'),saveLabel:T('Cerrar'),body:`<p>${E(date(from))} – ${E(date(to))}</p><p class="tmsHint">${E(T('Reparto uniforme por parada.'))} ${E(T('Los km usan el recorrido verificado si existe; en los demás casos son una estimación en línea recta.'))}</p><label class="arcField"><span>${E(T('Buscar cliente'))}</span><input type="search" maxlength="100" data-tm-customer-search></label><p role="status" data-tm-unassigned></p><div data-tm-cost-rows></div>`,onSave:async()=>{}});
+ dialog.dataset.tmsReport='';
+ const search=dialog.querySelector('[data-tm-customer-search]');search.onkeydown=e=>{if(e.key==='Enter')e.preventDefault()};
+ const grid=U.dataTable(dialog.querySelector('[data-tm-cost-rows]'),{searchInput:search,initial:{pageSize:30},columns:[
+  {key:'customer',label:T('Cliente'),value:r=>r.customer_id?r.customer:T('Cliente no identificado')},
+  {key:'deliveries',label:T('Entregas'),numeric:true},{key:'routes',label:T('Rutas'),numeric:true},
+  {key:'km',label:'km',numeric:true,value:r=>Number(r.km).toFixed(2)},
+  {key:'cost',label:T('Coste conocido'),numeric:true,value:r=>money(r.cost)},
+  {key:'missing_cost',label:T('Paradas sin coste/km'),numeric:true},
+  {key:'estimated_stops',label:T('Paradas con km estimados'),numeric:true}
+ ],source:async req=>{
+  const r=await window.ArcData.rpc('gama_tms_customer_costs',{p_from:from,p_to:to,p_data:{search:req.search,offset:req.page*req.pageSize,limit:req.pageSize}});
+  if(token!==reportEpoch||!dialog.isConnected||!dialog.open)return {items:[],total:0};
+  // This summary belongs to the whole period, independently of customer search.
+  dialog.querySelector('[data-tm-unassigned]').textContent=r.unassigned_routes?T('Rutas sin paradas')+': '+r.unassigned_routes+' · '+T('Coste conocido')+': '+money(r.unassigned_cost)+' · '+T('Rutas sin coste/km')+': '+r.unassigned_missing_cost:'';
+  return {...r,page:req.page,pageSize:req.pageSize};
+ }});
+ dialog.addEventListener('close',()=>grid.dispose(),{once:true});return dialog;
+}
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;reportEpoch++;document.querySelectorAll('[data-tms-report]').forEach(d=>d.close())});
 window.GamaTmsOperations={bind,open,costs,metrics};
 })();

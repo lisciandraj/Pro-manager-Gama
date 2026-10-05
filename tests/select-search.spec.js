@@ -164,6 +164,7 @@ test.describe('Listas largas — se busca escribiendo', () => {
   test('una lista larga pero fija se queda fuera con data-gama-nofind', async ({ page }) => {
     await boot(page, { customers: CUSTOMERS });
     await page.evaluate(() => window.showTab('dashboard', null));
+    await expect(page.locator('#ad-preset')).toBeVisible();
 
     await page.evaluate(()=>{const select=document.getElementById('ad-preset');for(let i=0;i<12;i++)select.add(new Option('Fixed '+i,'fixed-'+i));GamaSelectSearch.scan(document.getElementById('dashboard'))});
     expect(await page.locator('#ad-preset option').count()).toBeGreaterThan(8);

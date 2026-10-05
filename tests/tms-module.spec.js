@@ -469,3 +469,39 @@ test('public tracking works without an ERP session and an expired link can be re
  await page.goto('/tms-tracking.html?token=73000000-0000-4000-8000-000000000001');await expect(page.locator('#trackingReference')).toHaveText('ENT-00000017');await expect(page.locator('#trackingState')).toHaveText('En tránsito');expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
  fail=true;await page.click('#trackingRefresh');await expect(page.locator('#trackingStatus')).toContainText('caducado');await expect(page.locator('#trackingContent')).not.toBeVisible();fail=false;await page.click('#trackingRefresh');await expect(page.locator('#trackingContent')).toBeVisible();expect(calls).toBe(3);
 });
+
+test('customer delivery costs search the full period before paging and preserve unknown rates on mobile',async({page})=>{
+ await boot(page,{drivers:DRIVERS});
+ await page.evaluate(()=>{
+  const old=GamaCloud.db;window.__costCalls=[];
+  const customers=[{customer_id:'a',customer:'Alfa',deliveries:3,routes:2,km:8.666,cost:6.67,missing_cost:1,estimated_stops:1},{customer_id:'b',customer:'Beta',deliveries:1,routes:1,km:3.333,cost:3.33,missing_cost:0,estimated_stops:0},{customer_id:'c',customer:'Coste desconocido',deliveries:1,routes:1,km:2,cost:null,missing_cost:1,estimated_stops:1},...Array.from({length:30},(_,i)=>({customer_id:'d'+i,customer:'Empresa '+String(i).padStart(2,'0'),deliveries:1,routes:1,km:1,cost:1,missing_cost:0,estimated_stops:0}))];
+  GamaCloud.db=async()=>{const client=await old();return {...client,rpc:async(fn,args)=>{
+   if(fn!=='gama_tms_customer_costs')return client.rpc(fn,args);
+   __costCalls.push(args);const q=args.p_data,rows=customers.filter(x=>x.customer.toLowerCase().includes(q.search.toLowerCase()));
+   return {data:{items:rows.slice(q.offset,q.offset+q.limit),total:rows.length,unassigned_routes:1,unassigned_cost:5,unassigned_missing_cost:0}};
+  }}};
+ });
+ await page.click('#tMetrics');await page.locator('#tmFrom').fill('2026-10-01');await page.locator('#tmTo').fill('2026-10-31');await page.locator('[data-tm-customer-costs]').click();
+ const report=page.locator('dialog[data-tms-report]').last();await expect(report.locator('tbody tr')).toHaveCount(30);await expect(report.locator('tbody tr').first()).toContainText('Alfa');await expect(report.locator('[data-tm-unassigned]')).toContainText('Rutas sin paradas: 1');
+ expect(await page.evaluate(()=>__costCalls[0])).toMatchObject({p_from:'2026-10-01',p_to:'2026-10-31',p_data:{offset:0,limit:30,search:''}});
+ await report.screenshot({path:'test-results/tms-customer-costs-desktop.png'});
+ await report.locator('[data-page-next]').click();await expect(report.locator('tbody tr')).toHaveCount(3);await expect.poll(()=>page.evaluate(()=>__costCalls.at(-1).p_data.offset)).toBe(30);
+ await report.locator('[data-tm-customer-search]').fill('Coste desconocido');await expect(report.locator('tbody tr')).toHaveCount(1);await expect(report.locator('tbody')).toContainText('Coste desconocido');await expect.poll(()=>page.evaluate(()=>__costCalls.at(-1).p_data.offset)).toBe(0);await expect(report.locator('tbody td').nth(4)).toHaveText('—');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await report.screenshot({path:'test-results/tms-customer-costs-mobile.png'});
+});
+
+test('a failed customer-cost lookup can be retried and a pending response cannot survive sign-out',async({page})=>{
+ await boot(page,{drivers:DRIVERS});
+ await page.evaluate(()=>{
+  const old=GamaCloud.db;window.__costFail=true;window.__costPending=false;
+  GamaCloud.db=async()=>{const client=await old();return {...client,rpc:async(fn,args)=>{
+   if(fn!=='gama_tms_customer_costs')return client.rpc(fn,args);
+   if(__costFail)return {error:{message:'Cost report offline'}};
+   return new Promise(resolve=>{__costPending=true;window.__finishCost=()=>resolve({data:{items:[{customer_id:'private',customer:'Private cost after sign-out',deliveries:1,routes:1,km:1,cost:1,missing_cost:0,estimated_stops:0}],total:1,unassigned_routes:0}})});
+  }}};
+ });
+ await page.click('#tMetrics');await page.locator('[data-tm-customer-costs]').click();const report=page.locator('dialog[data-tms-report]').last();await expect(report.locator('[data-tm-cost-rows]')).toContainText('Cost report offline');
+ await page.evaluate(()=>__costFail=false);await report.locator('[data-arc-retry]').click();await page.waitForFunction(()=>__costPending);
+ await page.evaluate(()=>{window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__finishCost()});
+ await expect(page.locator('dialog[data-tms-report]')).toHaveCount(0);await expect(page.locator('body')).not.toContainText('Private cost after sign-out');
+});

@@ -95,6 +95,10 @@ Le suivi des demandes publiques est retiré de Site public : leur traitement se 
 
 Tous les produits actifs existants sont sélectionnés pour le site à l’installation de cette mise à jour. Les nouveaux produits actifs sont sélectionnés automatiquement. Dans **Site web → Site public → Produits publiés**, cocher ou décocher une ligne enregistre immédiatement sa visibilité sans modifier le titre, la description ou les autres réglages. En cas d’échec, la case revient à sa valeur enregistrée et une erreur s’affiche. Une modification concurrente nécessite une actualisation. Un produit décoché reste masqué après archivage et réactivation. Le bouton général de publication du site reste indépendant.
 
+### Images des catégories
+
+Les 13 catégories du site disposent d’une illustration dédiée sur fond blanc, au-dessus de leur intitulé. Elles se chargent à la demande en WebP et restent indépendantes des photos des produits. Cliquer sur la tuile conserve le filtre du catalogue. La série et ses prompts sont documentés dans [les illustrations du site](../src/storefront/category-images/README.md) ; leur correspondance est dans [le manifeste des catégories](../config/storefront-category-images.json). Une nouvelle catégorie sans visuel dédié conserve le repli sur une photo produit. Après modification d’un fichier ou du manifeste, reconstruire et republier le site Cloudflare.
+
 ## Portail entreprises B2B
 
 Le lien **Mi empresa** ouvre le portail espagnol, sur mobile et ordinateur. La source canonique est `src/storefront/b2b.html/js/css`. La compilation publie `gama-b2b.html` avec l’ERP GitHub Pages et `b2b.html` dans le paquet Cloudflare. Le bouton d’administration ouvre la page publiée avec l’ERP. Les liens de catalogue de cette page pointent vers le vrai site public, configuré par `catalogue_url` dans `config/storefront-runtime.json`, et non vers l’aperçu réservé aux administrateurs. Le SDK Auth local et le générateur PDF sont chargés à la demande. Le site public conserve son accès anonyme ; seul le portail nécessite une connexion.

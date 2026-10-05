@@ -11,8 +11,7 @@ const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil
  *  TMS used to keep everything in localStorage under "gama-tms-v1"; it now
  *  reads and writes the tms_* tables, so the tests seed window.__DB instead. */
 async function boot(page, seed = {}) {
-  await page.route('**/nominatim.openstreetmap.org/**',route=>route.abort());
-  await page.route('**/tile.openstreetmap.org/**',route=>route.fulfill({status:200,contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64')}));
+  await page.route('**/embed.waze.com/**',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>Waze Live Map test</title><p>Waze Live Map</p>'}));
   await page.addInitScript(([seedData, day]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
     // Skip the one-time localStorage import unless a test is exercising it.
@@ -362,7 +361,7 @@ test.describe('TMS — automatic daily order planning',()=>{
   await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('today'),delivery('future','2099-01-01'),delivery('legacy',today(),{legacy:true})]});
   await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');
   await expect(page.locator('#tAdd,#tCustomer,#tDate,#tOptimize,[data-tms-pick]')).toHaveCount(0);
-  await expect(page.locator('#tDayMap svg')).toBeVisible();await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
+  await expect(page.locator('#tDayMap iframe')).toBeVisible();await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
   const state=await page.evaluate(()=>({ds:__DB.tms_deliveries,rs:__DB.tms_routes}));expect(state.rs[0].stops).toEqual(['today']);expect(state.ds.find(d=>d.id==='future').delivery_date).toBe('2099-01-01');expect(state.ds.find(d=>d.id==='legacy').route_id).toBeFalsy();
   await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();expect(await page.evaluate(()=>__DB.tms_routes[0].id)).toBe(state.rs[0].id);
  });
@@ -389,26 +388,47 @@ test.describe('TMS — automatic daily order planning',()=>{
   expect(await page.evaluate(()=>__DB.tms_deliveries.length)).toBe(0);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0].id)).toBe('old');
  });
  test('the map and depot form fit a phone viewport',async({page})=>{
-  await page.setViewportSize({width:320,height:900});await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('phone')]});await expect(page.locator('#tDayMap svg')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await page.setViewportSize({width:320,height:900});await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('phone')]});await expect(page.locator('#tDayMap iframe')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
  });
 });
 
-test('automatic geocoding persists positions, replans once, and renders real ordered points',async({page})=>{
- await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'geo',customer:'Geo client',address:'Unique Quito street',delivery_date:today(),status:'Pendiente de preparación',weight:10,volume:1,lat:null,lng:null}]});
- await expect(page.locator('#tRefresh')).toBeEnabled();
- await page.unroute('**/nominatim.openstreetmap.org/**');let requests=0;await page.route('**/nominatim.openstreetmap.org/**',route=>{requests++;return route.fulfill({contentType:'application/json',body:JSON.stringify([{lat:'-0.2',lon:'-78.5'}])})});
- await page.click('#tRefresh');await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');await expect(page.locator('#tRefresh')).toBeEnabled();
- expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBe(-0.2);expect(requests).toBe(1);
- await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();expect(requests).toBe(1);
- await page.locator('[data-map-delivery]').press('Enter');await expect(page.locator('#tms-delivery-geo')).toBeFocused();
+test('Waze Live Map fits today’s delivery area, zooms manually and selects each real position without a key',async({page})=>{
+ const requests=[];page.on('request',r=>requests.push(r.url()));
+ await boot(page,{drivers:DRIVERS,settings:[{id:true,depot:'Quito depot',depot_lat:-0.19,depot_lng:-78.49}],deliveries:[{id:'quito',customer:'Quito client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-0.2,lng:-78.5},{id:'guayaquil',customer:'Guayaquil client',address:'Guayaquil',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-2.17,lng:-79.92}]});
+ await expect(page.locator('#tRefresh')).toBeEnabled();const frame=page.locator('#tWazeMap');await expect(frame).toBeVisible();
+ const initial=new URL(await frame.getAttribute('src'));expect(initial.origin).toBe('https://embed.waze.com');expect(initial.searchParams.has('key')).toBe(false);expect(initial.searchParams.get('pin')).toBe('0');
+ expect(Number(initial.searchParams.get('lat'))).toBeGreaterThan(-2.17);expect(Number(initial.searchParams.get('lat'))).toBeLessThan(-0.2);
+ await page.click('#tMapIn');expect(Number(new URL(await frame.getAttribute('src')).searchParams.get('zoom'))).toBe(Number(initial.searchParams.get('zoom'))+1);
+ await page.click('#tMapOut');expect(new URL(await frame.getAttribute('src')).searchParams.get('zoom')).toBe(initial.searchParams.get('zoom'));
+ await page.selectOption('#tMapPoint','guayaquil');const selected=new URL(await frame.getAttribute('src'));expect(selected.searchParams.get('lat')).toBe('-2.17');expect(selected.searchParams.get('lon')).toBe('-79.92');expect(selected.searchParams.get('pin')).toBe('1');
+ const outside=new URL(await page.locator('#tMapOutside').getAttribute('href'));expect(outside.pathname).toBe('/ul');expect(outside.searchParams.get('ll')).toBe('-2.17,-79.92');
+ await page.selectOption('#tMapPoint','__depot');const depot=new URL(await frame.getAttribute('src'));expect(depot.searchParams.get('lat')).toBe('-0.19');expect(depot.searchParams.get('lon')).toBe('-78.49');expect(depot.searchParams.get('pin')).toBe('1');
+ await page.locator('[data-map-delivery=quito]').press('Enter');await expect(page.locator('#tms-delivery-quito')).toBeFocused();expect(new URL(await frame.getAttribute('src')).searchParams.get('lat')).toBe('-0.2');
+ await page.click('#tMapFit');await expect(page.locator('#tMapPoint')).toHaveValue('all');expect(new URL(await frame.getAttribute('src')).searchParams.get('pin')).toBe('0');
+ expect(requests.filter(url=>/openstreetmap|maps.googleapis.com/.test(url))).toEqual([]);
  await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-planning-desktop.png'});
 });
 
-test('a late geocoding response cannot reopen planning after navigation',async({page})=>{
- await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'lategeo',customer:'Late geo',address:'Slow address',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:null,lng:null}]});await expect(page.locator('#tRefresh')).toBeEnabled();
- await page.unroute('**/nominatim.openstreetmap.org/**');let release,started;const pending=new Promise(r=>release=r),called=new Promise(r=>started=r);await page.route('**/nominatim.openstreetmap.org/**',async route=>{started();await pending;await route.fulfill({contentType:'application/json',body:'[{"lat":"-0.2","lon":"-78.5"}]'})});
- await page.click('#tRefresh');await called;await page.click('[data-tms-stage=proof]');release();await page.waitForTimeout(300);
- await expect(page.locator('#tDayMap')).not.toBeVisible();await expect(page.locator('[data-tms-stage=proof]')).toHaveAttribute('aria-expanded','true');expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
+test('Waze route filters keep the selected delivery and manual zoom across refreshes',async({page})=>{
+ const ds=['a','b','c'].map((id,i)=>({id,customer:id,address:'Quito',delivery_date:today(),status:'Pendiente de preparación',lat:-0.2-i*.01,lng:-78.5-i*.01,weight:40,volume:1}));
+ await boot(page,{drivers:DRIVERS.map(d=>({...d,max_weight:80})),deliveries:ds});await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('[data-map-delivery]')).toHaveCount(3);
+ const route=await page.evaluate(()=>__DB.tms_routes.find(r=>r.driver_id==='drv2').id);await page.selectOption('#tMapRoute',route);await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
+ const id=await page.locator('[data-map-delivery]').getAttribute('data-map-delivery');await page.selectOption('#tMapPoint',id);await page.click('#tMapOut');const src=await page.locator('#tWazeMap').getAttribute('src');
+ await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('#tMapPoint')).toHaveValue(id);await expect(page.locator('#tWazeMap')).toHaveAttribute('src',src);
+ await page.selectOption('#tMapRoute','all');await expect(page.locator('[data-map-delivery]')).toHaveCount(3);
+});
+
+test('missing GPS stays explicit until a manual correction and never triggers OpenStreetMap',async({page})=>{
+ const requests=[];page.on('request',r=>requests.push(r.url()));
+ await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'manualgps',customer:'Manual GPS client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:null,lng:null}]});await expect(page.locator('#tRefresh')).toBeEnabled();
+ await expect(page.locator('#tWazeMap')).toHaveCount(0);expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
+ await page.click('[data-tms-coordinates]');await page.fill('dialog input[name=lat]','-0.2');await page.fill('dialog input[name=lng]','-78.5');await page.click('dialog button[type=submit]');await expect(page.locator('#tWazeMap')).toBeVisible();
+ await page.selectOption('#tMapPoint','manualgps');expect(new URL(await page.locator('#tWazeMap').getAttribute('src')).searchParams.get('lat')).toBe('-0.2');expect(requests.filter(url=>/openstreetmap|maps.googleapis.com/.test(url))).toEqual([]);
+});
+
+test('Waze map coordinates and selections are removed at sign-out',async({page})=>{
+ await boot(page,{drivers:DRIVERS,deliveries:[{id:'privategps',customer:'Private GPS client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-0.2,lng:-78.5}]});await expect(page.locator('#tWazeMap')).toBeVisible();
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('#tWazeMap')).toHaveCount(0);await expect(page.locator('[data-map-delivery]')).toHaveCount(0);await expect(page.locator('#tMapPoint option')).toHaveCount(0);await expect(page.locator('#tMapOutside')).not.toHaveAttribute('href',/./);
 });
 
 test('planning translates delivery and route states in French and English',async({page})=>{

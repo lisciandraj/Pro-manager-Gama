@@ -180,40 +180,25 @@ const WORDS={
  map:['Carte des livraisons du jour','Mapa de entregas del día','Today’s delivery map'],all:['Toutes les tournées','Todas las rutas','All routes'],refresh:['Actualiser','Actualizar','Refresh'],working:['Planification en cours…','Planificando…','Planning…'],
  missing:['Coordonnées manquantes','Coordenadas pendientes','Missing coordinates'],capacity:['Capacité ou conducteurs insuffisants','Capacidad o conductores insuficientes','Insufficient capacity or drivers'],fix:['Corriger les coordonnées','Corregir coordenadas','Correct coordinates'],
  legacy:['Historique sans commande liée','Histórico sin pedido enlazado','History without a linked order'],depot:['Coordonnées du dépôt manquantes : départ depuis la première livraison.','Sin coordenadas del depósito: salida desde la primera entrega.','Depot coordinates missing: start at first delivery.'],
- approx:['Ordre optimisé par proximité, priorité et capacité. Traits et distances à vol d’oiseau ; horaires à vérifier.','Orden por cercanía, prioridad y capacidad. Trazos y distancias en línea recta; verificar horarios.','Ordered by proximity, priority and capacity. Straight-line paths and distances; check time windows.'],
- none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],tiles:['Fond de carte indisponible. Les positions restent visibles.','Mapa de fondo no disponible. Las posiciones siguen visibles.','Map background unavailable. Positions remain visible.'],
+ approx:['Arrêts organisés par proximité, priorité et capacité. Les distances de Coco restent estimées ; Waze fournit la navigation et le trafic.','Paradas organizadas por cercanía, prioridad y capacidad. Las distancias de Coco siguen estimadas; Waze ofrece navegación y tráfico.','Stops organized by proximity, priority and capacity. Coco distances remain estimates; Waze provides navigation and traffic.'],
+ none:['Aucune livraison géolocalisée.','No hay entregas geolocalizadas.','No geolocated deliveries.'],
+ mapPoint:['Livraison à afficher','Entrega que mostrar','Delivery to show'],mapArea:['Zone de toutes les livraisons','Zona de todas las entregas','Area of all deliveries'],mapFit:['Cadrer la zone des livraisons','Encuadrar la zona de entregas','Fit the delivery area'],mapPin:['Waze affiche un repère à la fois. Choisissez une livraison pour voir son point.','Waze muestra un marcador a la vez. Elige una entrega para ver su punto.','Waze shows one pin at a time. Select a delivery to see its location.'],mapOutside:['Ouvrir la carte Waze','Abrir el mapa Waze','Open the Waze map'],mapLoading:['Chargement de Waze…','Cargando Waze…','Loading Waze…'],
  failed:['La planification a échoué. Réessayez.','La planificación falló. Reintenta.','Planning failed. Retry.'],invalid:['Coordonnées invalides.','Coordenadas inválidas.','Invalid coordinates.'],preserved:['L’historique local est conservé sur cet appareil et n’est pas importé sans commande liée.','El histórico local se conserva en este dispositivo y no se ha importado sin pedido enlazado.','Local history is retained on this device and is not imported without a linked order.'],
  planned:['Livraisons planifiées','Entregas planificadas','Planned deliveries'],save:['Enregistrer','Guardar','Save'],cancel:['Annuler','Cancelar','Cancel'],latitude:['Latitude','Latitud','Latitude'],longitude:['Longitude','Longitud','Longitude']};
 const tr=k=>WORDS[k]?.[{fr:0,es:1,en:2}[window.GamaI18n?.language]??1]||k;
 const validPoint=d=>d?.lat!=null&&d?.lng!=null&&Number.isFinite(+d.lat)&&Number.isFinite(+d.lng)&&Math.abs(+d.lat)<=85&&Math.abs(+d.lng)<=180;
-let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapZoom=0,mapObserver=null,authEpoch=0;
-const geoAttempts=new Set();let lastGeo=0;
+let plan=null,planError='',planningJob=null,planningEpoch=0,lastPlanning=0,mapRoute='all',mapPoint='all',mapZoom=null,mapView=null,mapObserver=null,authEpoch=0;
 const planningActive=()=>currentTab==='today'&&selectedStage==='planning'&&section().classList.contains('active')&&!!window.gamaAccessAllowed?.('tms');
-async function coordinates(address){
- if(!address||geoAttempts.has(address))return null;
- geoAttempts.add(address);
- await new Promise(resolve=>setTimeout(resolve,Math.max(0,1100-(Date.now()-lastGeo))));lastGeo=Date.now();
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4000);
- try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ec&q='+encodeURIComponent(address),{headers:{Accept:'application/json'},signal:controller.signal});if(!r.ok)return null;const results=await r.json(),p=results?.[0]?{lat:+results[0].lat,lng:+results[0].lon}:null;return validPoint(p)?p:null}catch(e){return null}finally{clearTimeout(timer)}
-}
 function markOrigins(){const ids=new Set(plan?.order_delivery_ids||[]);db.deliveries.forEach(d=>d.fromOrder=ids.has(d.id))}
 async function autoPlanning(force=false){
  if(!planningActive()||planningJob||(!force&&Date.now()-lastPlanning<10000))return;
+ if(!force&&document.activeElement===document.getElementById('tWazeMap'))return;
  const epoch=planningEpoch;lastPlanning=Date.now();planError='';
  const run=async()=>{
   try{
    await fetchAll();if(epoch!==planningEpoch||!planningActive())return;
    const r=await window.ArcData.rawRpc('gama_tms_plan_day',{p_day:day()});if(r.error)throw r.error;plan=r.data;markOrigins();
    if(epoch!==planningEpoch||!planningActive())return;
-   render('today');let changed=false;
-   if(!validPoint(db.settings.depotPoint)&&db.settings.depot){const p=await coordinates(db.settings.depot);if(p&&epoch===planningEpoch&&planningActive()){const u=await C().upsert('tms_settings',{id:true,depot_lat:p.lat,depot_lng:p.lng},{onConflict:'id'});if(u.error)throw u.error;changed=true}}
-   for(const id of (plan.geocode_delivery_ids||[]).filter(id=>!geoAttempts.has(findDelivery(id)?.address)).slice(0,4)){
-    if(epoch!==planningEpoch||!planningActive())return;
-    const d=findDelivery(id),p=await coordinates(d?.address);
-    if(p&&epoch===planningEpoch&&planningActive()){const u=await window.ArcData.rawRpc('gama_tms_save_gps',{p_data:{delivery_id:id,...p}});if(u.error)throw u.error;changed=true}
-   }
-   if(epoch!==planningEpoch||!planningActive())return;
-   if(changed){const r=await window.ArcData.rawRpc('gama_tms_plan_day',{p_day:day()});if(r.error)throw r.error;plan=r.data}
    await fetchAll();markOrigins();
   }catch(e){console.warn('[TMS] automatic planning',e);if(epoch===planningEpoch)planError=tr('failed')+' '+(window.GamaLoading?.error(e)||e.message||'')}
   finally{if(epoch===planningEpoch&&planningActive())render('today')}
@@ -225,32 +210,39 @@ function planningBody(ds){
  const routes=routesForDay();
  const missing=ds.filter(d=>d.fromOrder&&!['Entregada','Cancelada'].includes(d.status)&&!validPoint(d));
  return `<div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||day())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button></div><p>${esc(tr('orders'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_capacity?`<p class="tmsAbsente">${esc(tr('capacity'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
- <div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('map'))}</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −">−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +">+</button><button type="button" class="arcButton tmsBtn" id="tMapFit">↔</button></div></div><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"></div><p id="tMapError" class="tmsHint" hidden>${esc(tr('tiles'))}</p><small>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></small><p class="tmsHint">${esc(tr('approx'))}</p>${missing.length?`<p class="tmsAbsente">${esc(tr('missing'))}: ${missing.length}</p>`:''}</div>
+ <div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(tr('map'))} · Waze Live Map</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −" disabled>−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +" disabled>+</button><button type="button" class="arcButton tmsBtn" id="tMapFit" aria-label="${esc(tr('mapFit'))}" disabled>↔</button></div></div><label for="tMapPoint" class="tmsMapLabel">${esc(tr('mapPoint'))}</label><select id="tMapPoint" class="tmsMapPoint" aria-label="${esc(tr('mapPoint'))}"></select><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"></div><div id="tMapPoints" class="tmsMapPoints"></div><p class="tmsHint">${esc(tr('mapPin'))}</p><a id="tMapOutside" class="arcButton secondary" target="_blank" rel="noopener noreferrer" hidden>${esc(tr('mapOutside'))}</a><p class="tmsHint">${esc(tr('approx'))}</p>${missing.length?`<p class="tmsAbsente">${esc(tr('missing'))}: ${missing.length}</p>`:''}</div>
  <div class="tmsGrid"><div class="arcPanel tmsCard"><div class="tmsTitle"><b>${esc(T('Entregas de hoy'))}</b><small>${ds.length}</small></div><div class="tmsTableScroll"><table class="arcTable tmsTable"><thead><tr><th>${esc(T('Cliente'))}</th><th>${esc(T('Carga'))}</th><th>${esc(T('Estado'))}</th></tr></thead><tbody>${ds.map(d=>`<tr id="tms-delivery-${esc(d.id)}" tabindex="-1"><td><b>${esc(d.reference||'')} ${esc(d.customer)}</b><br><small>${esc(d.address)} · ${esc(d.timeWindow||'—')}</small></td><td>${d.weight} kg / ${d.volume} m³</td><td>${badge(d)}<br><button type="button" class="arcButton secondary" data-tms-operate="${esc(d.id)}">${esc(T('Gestionar entrega'))}</button>${d.fromOrder?`<br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-coordinates="${esc(d.id)}"${planningJob?' disabled':''}>${esc(tr('fix'))}</button><br><button type="button" class="arcButton tmsBtn tmsLight" data-tms-loading="${esc(d.id)}">${esc(T('Salida de bultos'))}</button>`:`<br><small>${esc(tr('legacy'))}</small>`}</td></tr>`).join('')}</tbody></table></div></div>
  <div><div class="arcPanel tmsCard">${routes.map(routeCard).join('')||`<div class="tmsEmpty">${esc(T('No hay rutas planificadas.'))}</div>`}</div>
  <details class="arcPanel tmsCard"><summary>${esc(T('Configuración avanzada del depósito'))}</summary><div class="tmsForm"><div class="full"><label>${esc(T('Dirección del depósito'))}</label><input id="tDepot" value="${esc(db.settings.depot||'')}"></div><div><label for="tDepotLat">${esc(tr('latitude'))}</label><input id="tDepotLat" type="number" step="any" min="-85" max="85" value="${esc(db.settings.depotPoint?.lat??'')}"></div><div><label for="tDepotLng">${esc(tr('longitude'))}</label><input id="tDepotLng" type="number" step="any" min="-180" max="180" value="${esc(db.settings.depotPoint?.lng??'')}"></div><div><label>${esc(T('Regreso al depósito'))}</label><select id="tReturn"><option value="1"${db.settings.returnDepot?' selected':''}>${esc(T('Sí'))}</option><option value="0"${!db.settings.returnDepot?' selected':''}>${esc(T('No'))}</option></select></div></div><button type="button" class="arcButton tmsBtn" id="tSaveDepot"${planningJob?' disabled':''}>${esc(tr('save'))}</button></details></div></div>`;
 }
 function drawDayMap(){
- const host=document.getElementById('tDayMap');if(!host)return;
+ const host=document.getElementById('tDayMap');if(!host||!planningActive())return;
+ if(!routesForDay().some(r=>r.id===mapRoute))mapRoute='all';
  const routes=routesForDay().filter(r=>mapRoute==='all'||mapRoute===r.id);
  const selected=new Set(routes.flatMap(r=>r.stops));
  const points=db.deliveries.filter(d=>d.date===day()&&d.fromOrder&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
- const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,isDepot:true,customer:db.settings.depot});
- if(!points.length){host.innerHTML=`<p class="tmsEmpty">${esc(tr('none'))}</p>`;return}
- const width=Math.max(240,host.clientWidth),height=380;
+ const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,id:'__depot',isDepot:true,customer:db.settings.depot});
+ const selector=document.getElementById('tMapPoint'),list=document.getElementById('tMapPoints'),outside=document.getElementById('tMapOutside');
+ if(!points.some(d=>d.id===mapPoint)){mapPoint='all'}
+ selector.innerHTML=`<option value="all">${esc(tr('mapArea'))}</option>${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;selector.disabled=!points.length;
+ list.innerHTML=points.filter(d=>!d.isDepot).map(d=>`<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${esc([d.reference,d.customer].filter(Boolean).join(' · '))}</button>`).join('');
+ list.querySelectorAll('[data-map-delivery]').forEach(b=>b.onclick=()=>{mapPoint=b.dataset.mapDelivery;mapZoom=null;drawDayMap();document.getElementById('tms-delivery-'+mapPoint)?.focus({preventScroll:true})});
+ const tools=['tMapOut','tMapIn','tMapFit'].map(id=>document.getElementById(id));
+ if(!points.length){mapView=null;tools.forEach(b=>b.disabled=true);outside.hidden=true;host.innerHTML=`<p class="tmsEmpty">${esc(tr('none'))}</p>`;return}
+ const selectedPoint=points.find(d=>d.id===mapPoint),width=Math.max(240,host.clientWidth),height=host.clientHeight||380;
  const project=(d,z)=>{const n=256*2**z,s=Math.sin(+d.lat*Math.PI/180);return{x:(+d.lng+180)/360*n,y:(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n}};
- let base=14;
- for(;base>2;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
- const z=Math.max(2,Math.min(18,base+mapZoom)),p=points.map(d=>project(d,z));
- const left=(Math.min(...p.map(v=>v.x))+Math.max(...p.map(v=>v.x)))/2-width/2,top=(Math.min(...p.map(v=>v.y))+Math.max(...p.map(v=>v.y)))/2-height/2;
- const pos=d=>{const v=project(d,z);return{x:v.x-left,y:v.y-top}};let tiles='';
- for(let x=Math.floor(left/256);x<=Math.floor((left+width)/256);x++)for(let y=Math.floor(top/256);y<=Math.floor((top+height)/256);y++)if(x>=0&&y>=0&&x<2**z&&y<2**z)tiles+=`<image x="${x*256-left}" y="${y*256-top}" width="256" height="256" href="https://tile.openstreetmap.org/${z}/${x}/${y}.png"/>`;
- const colors=['#0f766e','#2563eb','#c2410c','#7c3aed'];
- const lines=routes.map((r,i)=>{const s=routeStops(r).filter(validPoint);return `<polyline points="${s.map(d=>{const v=pos(d);return v.x+','+v.y}).join(' ')}" fill="none" stroke="${colors[i%colors.length]}" stroke-width="4" opacity=".8"/>`}).join('');
- const markers=points.map(d=>{const v=pos(d),r=routes.find(r=>r.stops.includes(d.id)),index=r?r.stops.filter(id=>id!=='__depot').indexOf(d.id)+1:'•';return `<g transform="translate(${v.x},${v.y})"${d.isDepot?'':` role="button" tabindex="0" data-map-delivery="${esc(d.id)}" aria-label="${esc(d.customer)}"`}><title>${esc(d.customer||'Depósito')} · ${esc(d.address||'')}</title><circle r="13" fill="${d.isDepot?'#334155':r?colors[routes.indexOf(r)%colors.length]:'#b45309'}" stroke="white" stroke-width="2"/><text text-anchor="middle" y="4" fill="white" font-size="12" font-weight="700">${d.isDepot?'D':index}</text></g>`}).join('');
- host.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(tr('map'))}">${tiles}${lines}${markers}</svg>`;
- host.querySelectorAll('image').forEach(img=>img.addEventListener('error',()=>{img.remove();const e=document.getElementById('tMapError');if(e)e.hidden=false}));
- host.querySelectorAll('[data-map-delivery]').forEach(marker=>{const jump=()=>document.getElementById('tms-delivery-'+marker.dataset.mapDelivery)?.focus();marker.addEventListener('click',jump);marker.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();jump()}})});
+ let base=17;
+ for(;base>3;base--){const p=points.map(d=>project(d,base));if(Math.max(...p.map(v=>v.x))-Math.min(...p.map(v=>v.x))<width-80&&Math.max(...p.map(v=>v.y))-Math.min(...p.map(v=>v.y))<height-80)break}
+ const projected=points.map(d=>project(d,base)),scale=256*2**base,cx=(Math.min(...projected.map(p=>p.x))+Math.max(...projected.map(p=>p.x)))/2,cy=(Math.min(...projected.map(p=>p.y))+Math.max(...projected.map(p=>p.y)))/2;
+ const lat=selectedPoint?+selectedPoint.lat:Math.atan(Math.sinh(Math.PI*(1-2*cy/scale)))*180/Math.PI,lon=selectedPoint?+selectedPoint.lng:cx/scale*360-180,zoom=Math.max(3,Math.min(17,mapZoom??(selectedPoint?15:base)));
+ mapView={lat,lon,zoom};
+ const params=new URLSearchParams({lat:String(lat),lon:String(lon),zoom:String(zoom),pin:selectedPoint?'1':'0'}),language=window.GamaI18n?.language,locale=['fr','es'].includes(language)?language+'/':'';
+ const url='https://embed.waze.com/'+locale+'iframe?'+params;
+ let frame=host.querySelector('iframe');
+ if(!frame){frame=document.createElement('iframe');frame.id='tWazeMap';frame.title=tr('map')+' · Waze Live Map';frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';host.replaceChildren(frame)}
+ if(frame.getAttribute('src')!==url)frame.src=url;
+ tools[0].disabled=zoom<=3;tools[1].disabled=zoom>=17;tools[2].disabled=false;
+ outside.href='https://www.waze.com/ul?'+new URLSearchParams({ll:lat+','+lon,zoom:String(zoom)});outside.hidden=false;
 }
 function editCoordinates(id){
  const d=findDelivery(id);if(!d?.fromOrder)return;
@@ -260,9 +252,10 @@ function editCoordinates(id){
  dlg.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,p={lat:Number(f.elements.lat.value),lng:Number(f.elements.lng.value)};if(!validPoint(p)){f.querySelector('[role=alert]').textContent=tr('invalid');return}const b=f.querySelector('[type=submit]');b.disabled=true;try{const r=await window.ArcData.rawRpc('gama_tms_save_gps',{p_data:{delivery_id:id,...p}});if(r.error)throw r.error;dlg.close();notify(r.data?.customer_saved?'GPS guardado en la ficha del cliente.':'GPS guardado para esta entrega.','exito');await autoPlanning(true)}catch(error){f.querySelector('[role=alert]').textContent=T(tmsError(error));b.disabled=false}};
 }
 function bindPlanning(x){
- x.querySelector('#tRefresh').onclick=()=>{geoAttempts.clear();autoPlanning(true)};
- x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapZoom=0;drawDayMap()};
- x.querySelector('#tMapIn').onclick=()=>{mapZoom=Math.min(4,mapZoom+1);drawDayMap()};x.querySelector('#tMapOut').onclick=()=>{mapZoom=Math.max(-4,mapZoom-1);drawDayMap()};x.querySelector('#tMapFit').onclick=()=>{mapZoom=0;drawDayMap()};
+ x.querySelector('#tRefresh').onclick=()=>autoPlanning(true);
+ x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapPoint='all';mapZoom=null;drawDayMap()};
+ x.querySelector('#tMapPoint').onchange=e=>{mapPoint=e.target.value;mapZoom=null;drawDayMap()};
+ x.querySelector('#tMapIn').onclick=()=>{if(mapView){mapZoom=Math.min(17,mapView.zoom+1);drawDayMap()}};x.querySelector('#tMapOut').onclick=()=>{if(mapView){mapZoom=Math.max(3,mapView.zoom-1);drawDayMap()}};x.querySelector('#tMapFit').onclick=()=>{mapPoint='all';mapZoom=null;drawDayMap()};
  x.querySelectorAll('[data-tms-coordinates]').forEach(b=>b.onclick=()=>editCoordinates(b.dataset.tmsCoordinates));
  x.querySelectorAll('[data-tms-loading]').forEach(b=>b.onclick=()=>window.GamaLoading.open(b.dataset.tmsLoading));
  drawDayMap();mapObserver?.disconnect();let width=x.querySelector('#tDayMap').clientWidth;
@@ -274,7 +267,7 @@ window.addEventListener('gama:language-change',()=>{if(currentTab==='driver')ren
 window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
 window.addEventListener('gama:sales-change',()=>autoPlanning());
 window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
-window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapObserver?.disconnect();geoAttempts.clear();db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
+window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){
  return new Promise(resolve=>{
@@ -428,7 +421,7 @@ async function downloadProofReport(){
 async function saveDepot(){
  const x=section(),address=x.querySelector('#tDepot').value.trim(),lat=x.querySelector('#tDepotLat').value,lng=x.querySelector('#tDepotLng').value;
  if((lat!==''||lng!=='')&&(!lat||!lng||!validPoint({lat,lng})))return notify(tr('invalid'));
- try{const r=await C().upsert('tms_settings',{id:true,depot:address||null,depot_lat:lat===''?null:Number(lat),depot_lng:lng===''?null:Number(lng),return_depot:x.querySelector('#tReturn').value==='1',updated_at:now()},{onConflict:'id'});if(r.error)throw r.error;geoAttempts.delete(address);await autoPlanning(true)}catch(e){fail(e,'No se pudieron guardar los parámetros')}
+ try{const r=await C().upsert('tms_settings',{id:true,depot:address||null,depot_lat:lat===''?null:Number(lat),depot_lng:lng===''?null:Number(lng),return_depot:x.querySelector('#tReturn').value==='1',updated_at:now()},{onConflict:'id'});if(r.error)throw r.error;await autoPlanning(true)}catch(e){fail(e,'No se pudieron guardar los parámetros')}
 }
 
 const fechaCorta=s=>{const [y,m,d]=String(s||'').split('-');return d?d+'/'+m+'/'+y:String(s||'')};
@@ -499,7 +492,7 @@ function render(){
  <div class="tmsTodayBar"><p>${esc(window.ArcFormat.date(day()))} · ${ds.filter(d=>d.status==='Entregada').length} ${esc(T('entregadas'))}${db.counts.incidents?` · <span class="tmsBadge tmsStatus-incident">${db.counts.incidents} ${esc(T('incidentes'))}</span>`:''}</p><button type="button" class="arcButton secondary" id="tMyRoute">${esc(T('Mi ruta'))}</button><label>${esc(T('Fecha de planificación'))}<input id="tPlanningDay" type="date" min="${today()}" value="${esc(day())}"></label><button class="arcButton secondary" id="tMetrics">${esc(T('Indicadores'))}</button></div>
  <nav class="tmsFlow" aria-label="${esc(T('Flujo de entregas'))}">${STAGES.map(([id,label,hint],i)=>`<button type="button" class="tmsFlowStep ${selectedStage===id?'active':''}" data-tms-stage="${id}" aria-expanded="${selectedStage===id}" aria-controls="tms-stage-${id}"><span>${i+1}. ${esc(T(label))}</span><strong>${Number(db.counts[id]||0)}</strong><small>${esc(T(hint))}</small></button>`).join('')}</nav>
  ${STAGES.map(([id,label])=>`<div role="region" class="tmsStage" id="tms-stage-${id}"${selectedStage===id?'':' hidden'} aria-label="${esc(T(label))}">${id==='planning'?planningBody(ds):id==='proof'?proofBody():`<div id="${id==='preparation'?'gamaPreparationHost':'gamaLoadingHost'}"></div>`}</div>`).join('')}</div>`);
- window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;geoAttempts.clear();await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();
+ window.GamaUI.bindBack(x);x.querySelector('#tMyRoute').onclick=()=>open('driver');x.querySelector('#tPlanningDay').onchange=async e=>{const value=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value)||value<today())return;planningDate=value;loaded=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;await open('planning')};x.querySelector('#tMetrics').onclick=()=>window.GamaTmsOperations?.metrics();
  x.querySelectorAll('[data-tms-stage]').forEach(b=>b.onclick=()=>selectStage(b.dataset.tmsStage).catch(e=>fail(e,'No se pudo cargar la etapa')));
  if(selectedStage==='preparation')window.GamaPreparation?.mount(x.querySelector('#gamaPreparationHost'));
  if(selectedStage==='loading')window.GamaLoading?.mount(x.querySelector('#gamaLoadingHost'));

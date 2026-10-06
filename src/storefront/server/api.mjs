@@ -2,12 +2,15 @@ import {readJsonBody,BodyError} from '../../../supabase/functions/_shared/http.m
 import runtime from '../../../config/storefront-runtime.json' with {type:'json'};
 export const actions=new Set(['bootstrap','catalog','product','photos','submit']);
 const allowedErrors=new Set(['WEBSITE_INVALID_DATA','WEBSITE_PRODUCT_NOT_FOUND','WEBSITE_PUBLIC_PAUSED','WEBSITE_QUOTES_DISABLED','WEBSITE_CONTACT_REQUIRED','WEBSITE_INVALID_LINES','WEBSITE_INVALID_QUANTITY','WEBSITE_PACK_QUANTITY','WEBSITE_DUPLICATE_PRODUCT','WEBSITE_REQUEST_KEY_REUSED','WEBSITE_RATE_LIMIT']);
+// Record only status/type codes, never request data, credentials or response bodies.
+const upstreamFailure=(status,code)=>console.error(JSON.stringify({event:'storefront_upstream_failure',status,code:typeof code==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(code)?code:'UNKNOWN'}));
 export async function dbRpc(action,data={},env={},fetcher=fetch){
  const headers={'Content-Type':'application/json',apikey:runtime.publishable_key};
  if(action==='submit')headers['x-coco-site-token']=env.COCO_SITE_TOKEN;
- const r=await fetcher(runtime.url+'/rest/v1/rpc/gama_storefront',{method:'POST',redirect:'error',headers,body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(12000)});
- let body;try{body=await r.json()}catch(_){throw Error('WEBSITE_UNAVAILABLE')}
- if(!r.ok)throw Error(allowedErrors.has(body.message)?body.message:'WEBSITE_UNAVAILABLE');return body;
+ // Manual mode keeps redirects visible and never forwards the server credential.
+ let r;try{r=await fetcher(runtime.url+'/rest/v1/rpc/gama_storefront',{method:'POST',redirect:'manual',headers,body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(12000)})}catch(e){upstreamFailure(0,e?.name);throw Error('WEBSITE_UNAVAILABLE')}
+ let body;try{body=await r.json()}catch(_){upstreamFailure(r.status,'INVALID_RESPONSE');throw Error('WEBSITE_UNAVAILABLE')}
+ if(!r.ok){if(!allowedErrors.has(body.message))upstreamFailure(r.status,body?.code);throw Error(allowedErrors.has(body.message)?body.message:'WEBSITE_UNAVAILABLE')}return body;
 }
 const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function onRequest({request,env={},fetcher=fetch}){

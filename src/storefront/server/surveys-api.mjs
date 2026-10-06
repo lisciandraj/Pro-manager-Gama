@@ -5,7 +5,7 @@ const allowedErrors=new Set(['SURVEY_INVALID_DATA','SURVEY_INVALID_ANSWER','SURV
 export async function dbRpc(action,data={},env={},fetcher=fetch){
  const headers={'Content-Type':'application/json',apikey:runtime.publishable_key};
  if(action==='submit')headers['x-coco-site-token']=env.COCO_SITE_TOKEN;
- const r=await fetcher(runtime.url+'/rest/v1/rpc/gama_survey',{method:'POST',redirect:'error',headers,body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(12000)});
+ const r=await fetcher(runtime.url+'/rest/v1/rpc/gama_survey',{method:'POST',redirect:'manual',headers,body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(12000)});
  let body;try{body=await r.json()}catch(_){throw Error('SURVEY_UNAVAILABLE')}
  if(!r.ok)throw Error(allowedErrors.has(body.message)?body.message:'SURVEY_UNAVAILABLE');return body;
 }

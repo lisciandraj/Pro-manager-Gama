@@ -1,6 +1,6 @@
 /** Single registry consumed by home, sidebar, settings, access and router. */
 const definitions=[
-  {id:'surveys',label:'Encuestas',icon:'checklist',group:'Ventas',description:'Cuestionarios, respuestas y satisfacción',accent:'teal',order:7.2,menu:true,roles:['admin','commercial']},
+  {id:'surveys',label:'Encuestas y marketing',icon:'checklist',group:'Ventas',description:'Cuestionarios y campañas e-mail o WhatsApp',accent:'teal',order:7.2,menu:true,roles:['admin','commercial']},
   {id:'sri',label:'Facturación SRI',icon:'invoice',group:'Administración',description:'Facturas electrónicas, autorización SRI y archivo XML / RIDE',accent:'orange',order:15.1,menu:true,roles:['admin']},
   {id:'website',label:'Sitio web',icon:'globe',group:'Administración',description:'Catálogo web, presentación y solicitudes de prueba',accent:'teal',order:16.5,menu:true,roles:['admin']},
   {id:'sav',label:'Reclamaciones',icon:'headset',group:'Ventas',description:'Reclamaciones, garantías y seguimiento',accent:'violet',order:7.1,menu:false,tabOf:'returns',roles:['admin','commercial']},

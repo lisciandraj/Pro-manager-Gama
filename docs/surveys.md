@@ -1,10 +1,10 @@
-# Sondages / Encuestas
+# Sondages et marketing / Encuestas y marketing
 
-Le module **Sondages**, dans les modules de vente, est disponible aux administrateurs et commerciaux autorisés. Les restrictions de modules, d’actions et MFA s’appliquent côté serveur. L’éditeur se charge uniquement à l’ouverture.
+Le module **Sondages et marketing**, dans les modules de vente, est disponible aux administrateurs et commerciaux autorisés. Il comporte les onglets **Sondages** et **Marketing**. Les restrictions de modules, d’actions et MFA s’appliquent côté serveur. Les éditeurs se chargent uniquement à l’ouverture de leur onglet. L’identifiant technique `surveys` et ses autorisations existantes restent compatibles.
 
 ## Créer et diffuser
 
-1. Ouvrir **Sondages → Créer un sondage**.
+1. Ouvrir **Sondages et marketing → Sondages → Créer un sondage**.
 2. Saisir le titre, l’introduction et la langue du questionnaire (français, espagnol ou anglais).
 3. Ajouter des questions et des sections, les réordonner avec les flèches, et indiquer les réponses obligatoires. Types : texte court, texte long, choix unique, choix multiple, nombre, date, date et heure, satisfaction de 1 à 5.
 4. Pour un quiz, cocher l’option de score et renseigner les numéros des choix corrects. Chaque question corrigée vaut un point. Un choix multiple exige exactement toutes les bonnes réponses. Le seuil de réussite est configurable.
@@ -24,12 +24,23 @@ Si le quiz ne contient aucune bonne réponse, la publication propose **Publier s
 - La publication d’un sondage est indépendante de la publication du catalogue. Le catalogue reste en maintenance tant que son bouton de publication est désactivé.
 - Les questions publiées restent figées pour préserver la cohérence des réponses ; les doublons ont leur propre historique. Les brouillons ne sont pas exposés publiquement.
 - Limites : 60 questions/sections, 30 choix par question, 70 Ko par requête. L’écran présente les 50 premières valeurs libres par question et les 200 dernières réponses détaillées ; les distributions et le CSV portent sur toutes les réponses.
-- Cette version s’inspire des questionnaires et résultats d’Odoo. Elle n’implémente pas les matrices, conditions entre questions, sessions animées en direct, certificats PDF ou campagnes d’e-mails.
+- Cette version s’inspire des questionnaires et résultats d’Odoo. Elle n’implémente pas les matrices, conditions entre questions, sessions animées en direct ou certificats PDF.
+
+## Campagnes e-mail et WhatsApp
+
+1. Ouvrir **Marketing → Créer une campagne** et saisir son nom. Choisir le canal **E-mail** ou **WhatsApp**, puis rédiger le message et, pour l’e-mail, son objet. `{name}` et `{campaign}` personnalisent les messages avec le nom du destinataire et de la campagne.
+2. **Enregistrer le brouillon** conserve la campagne dans Coco. Un brouillon peut être repris et modifié. Pour WhatsApp, l’indicatif des numéros locaux vaut **593** par défaut et peut être modifié. Les numéros commençant par `+` ou `00` gardent leur indicatif international.
+3. **Choisir les destinataires** propose une recherche par nom, e-mail ou téléphone dans **Clients** et **Prospects**, avec sélection de la page ou du groupe, et récapitulatif permettant de retirer chaque contact. Les sélections sont conservées entre les groupes et les recherches, avec un maximum de 50 par campagne. Les prospects convertis et les fiches inactives sont exclus. Les personnes CRM nécessitent les droits CRM, y compris lorsqu’elles sont liées à un client.
+4. **Préparer les messages** enregistre les textes personnalisés et les coordonnées vérifiées côté serveur. Les doublons d’e-mail ou de numéro WhatsApp sont signalés ; un seul message est préparé pour une même adresse. Une relance de la même préparation après une erreur réseau réutilise les messages existants. Les messages préparés sont figés : **Dupliquer** crée un nouveau brouillon pour changer le contenu ou les destinataires.
+5. Vérifier chaque message, puis ouvrir **Gmail**, **Outlook**, votre application de messagerie ou **WhatsApp**. Chaque ouverture utilise un destinataire individuel ; les envois sont confirmés dans l’application choisie. Coco conserve l’état **Ouvert dans la messagerie** ou **Ouvert dans WhatsApp**, sans prétendre confirmer l’envoi ou la livraison. **Copier le message** reste disponible. Des coordonnées modifiées ou un contact devenu indisponible bloquent l’ouverture ; dupliquer permet une nouvelle préparation.
+6. Les campagnes préparées et leur suivi peuvent être repris après fermeture de l’écran. **Archiver** conserve l’historique et empêche toute nouvelle ouverture. Aucun envoi automatique ni service WhatsApp Business n’est activé.
 
 ## Architecture et validation
 
 `src/features/surveys/surveys.js` administre les questionnaires par `gama_surveys`. Le rendu commun `survey-form.js` est utilisé par l’aperçu et `src/storefront/surveys.js`. `functions/api/surveys.js` relaie vers `gama_survey`, contrôle l’origine et la taille des requêtes et fournit la clé serveur déjà configurée dans Cloudflare ; aucun secret n’est envoyé au navigateur.
 
+`src/features/surveys/marketing.js` administre les campagnes par `gama_marketing`. `private.marketing_campaigns` conserve les brouillons, le canal, les versions et l’archivage ; `private.marketing_recipients` conserve les messages, les coordonnées et les ouvertures. Ces tables ont RLS et aucun accès direct pour les rôles web. La façade publique est `SECURITY INVOKER` ; l’implémentation privée contrôle les droits Sondages, Contacts, CRM et les actions create/edit. Les coordonnées sont résolues depuis les fiches actives, jamais depuis une adresse fournie par le navigateur. Les liens WhatsApp utilisent `https://wa.me/<numéro>?text=<message>` ; aucune clé WhatsApp n’est nécessaire.
+
 Les tables `private.surveys`, `private.survey_invitations` et `private.survey_responses` ne sont pas lisibles directement par les rôles web. Les destinataires CRM restent protégés par les droits CRM même après suppression du prospect ou de la personne liée. Les façades publiques sont `SECURITY INVOKER`. L’API publique ne renvoie ni les corrigés, ni les participants, ni les résultats des autres répondants. Les questions et réponses sont validées côté SQL, les soumissions sont idempotentes, et les versions protègent les modifications concurrentes.
 
-Tests : `surveys-db.test.cjs`, `surveys-api.test.mjs`, `surveys.spec.js`. Les tests utilisent une base isolée ou des données simulées. La compilation Cloudflare utilise `npm run build:storefront` puis Pages Functions ; le projet Cloudflare étant en Direct Upload, une fusion Git ne le déploie pas automatiquement.
+Tests : `surveys-db.test.cjs`, `surveys-api.test.mjs`, `surveys.spec.js`, `marketing-db.test.cjs`, `marketing.spec.js`. Les tests utilisent une base isolée ou des données simulées. La compilation Cloudflare utilise `npm run build:storefront` puis Pages Functions ; le projet Cloudflare étant en Direct Upload, une fusion Git ne le déploie pas automatiquement. L’onglet Marketing appartient à l’ERP GitHub Pages et ne nécessite pas de modification du portail Cloudflare.

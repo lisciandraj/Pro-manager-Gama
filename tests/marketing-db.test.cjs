@@ -1,0 +1,42 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto'),{restore}=require('../scripts/restore-schema.cjs');
+test('marketing campaigns persist mail and WhatsApp drafts with live recipients, deduplication, retry and authorization',async()=>{
+ const db=await restore(),admin=uuid(),client=uuid(),a=uuid(),b=uuid(),missing=uuid(),lead=uuid(),converted=uuid(),contact=uuid();
+ const q=async(s,p=[])=>(await db.query(s,p)).rows,rpc=async(a,d={})=>(await q('select gama_marketing($1,$2) r',[a,d]))[0].r;
+ try{
+  await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'marketing-admin@example.invalid',client,'marketing-client@example.invalid']);await q("update profiles set role=case when id=$1 then 'administrador' else 'cliente' end,active=true",[admin]);
+  await q("insert into customers(id,name,email,phone) values($1,'A customer','one@example.invalid','099 123 4567'),($2,'B duplicate','ONE@example.invalid','+593991234567'),($3,'C missing',null,'invalid')",[a,b,missing]);
+  await q("insert into crm_leads(id,kind,company,email,phone,converted_customer_id) values($1,'empresa','Actual prospect','lead@example.invalid','+32 470 12 34 56',null),($2,'empresa','Converted','converted@example.invalid','+32470123457',$3)",[lead,converted,a]);
+  await q("insert into crm_contacts(id,customer_id,first_name,email,phone) values($1,$2,'Person','person@example.invalid','0032470123458')",[contact,a]);
+  await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await db.exec('set role authenticated');
+  let s=(await rpc('save',{title:'Campaign',subject:'Hello {name}',message:'Offer: {campaign}, {name}'})).campaign;
+  assert.equal((await rpc('search',{kind:'customer'})).total,4);assert.deepEqual((await rpc('search',{kind:'lead'})).items.map(x=>x.id),[lead]);
+  await assert.rejects(rpc('search',{kind:'supplier'}),/INVALID_DATA/);
+  await assert.rejects(rpc('prepare',{id:s.id,version:0,recipients:[{id:a,kind:'customer'}]}),/CHANGED/);
+  const data={id:s.id,version:s.version,recipients:[{id:a,kind:'customer',email:'forged@example.invalid'},{id:b,kind:'customer'},{id:missing,kind:'customer'},{id:lead,kind:'lead'}]};
+  let prepared=await rpc('prepare',data);assert.equal(prepared.campaign.state,'prepared');assert.equal(prepared.items.filter(x=>x.status==='prepared').length,2);assert.equal(prepared.items.filter(x=>x.status==='duplicate_email').length,1);assert.equal(prepared.items.filter(x=>x.status==='missing_email').length,1);
+  const original=prepared.items.find(x=>x.address==='one@example.invalid'&&x.status==='prepared');assert.equal(original.subject,'Hello '+original.label);assert.equal(original.message,'Offer: Campaign, '+original.label);
+  assert.deepEqual((await rpc('prepare',data)).items.map(x=>x.id),prepared.items.map(x=>x.id));
+  assert.equal((await rpc('draft',{id:s.id,recipient_id:original.id})).address,'one@example.invalid');assert.equal((await rpc('opened',{id:s.id,recipient_id:original.id})).status,'opened');
+  await assert.rejects(rpc('save',{...prepared.campaign,title:'Changed'}),/LOCKED/);
+  await db.exec('reset role');await q('update customers set email=$1 where id=$2',['changed@example.invalid',original.contact_id]);await db.exec('set role authenticated');
+  await assert.rejects(rpc('draft',{id:s.id,recipient_id:original.id}),/CONTACT_CHANGED/);assert.equal((await rpc('get',{id:s.id})).items.find(x=>x.id===original.id).available,false);
+  let wa=(await rpc('save',{title:'WhatsApp',channel:'whatsapp',dialing_code:'593',message:'Bonjour {name} !'})).campaign;
+  const found=await rpc('search',{kind:'customer',channel:'whatsapp'});assert.equal(found.items.find(x=>x.id===missing).selectable,false);
+  await assert.rejects(rpc('prepare',{id:wa.id,version:wa.version,recipients:[{id:converted,kind:'lead'}]}),/INVALID_CONTACT/);
+  await assert.rejects(rpc('prepare',{id:wa.id,version:wa.version,recipients:[{id:a,kind:'supplier'}]}),/INVALID_CONTACT/);
+  await assert.rejects(rpc('prepare',{id:wa.id,version:wa.version,recipients:Array.from({length:51},()=>({id:a,kind:'customer'}))}),/INVALID_DATA/);
+  prepared=await rpc('prepare',{id:wa.id,version:wa.version,recipients:[{id:a,kind:'customer'},{id:b,kind:'customer'},{id:lead,kind:'lead'},{id:contact,kind:'contact'}]});
+  assert.equal(prepared.items.filter(x=>x.status==='duplicate_phone').length,1);assert.equal(prepared.items.filter(x=>x.status==='prepared').length,3);assert.ok(prepared.items.some(x=>x.address==='593991234567'));assert.ok(prepared.items.some(x=>x.address==='32470123456'));assert.ok(prepared.items.some(x=>x.address==='32470123458'));
+  const person=prepared.items.find(x=>x.kind==='contact');await db.exec('reset role');await q('delete from crm_contacts where id=$1',[contact]);await q("update role_module_access set disabled_modules=array['crm'] where role='administrador'");await db.exec('set role authenticated');
+  assert.equal((await rpc('get',{id:wa.id})).items.some(x=>x.kind!=='customer'),false);await assert.rejects(rpc('draft',{id:wa.id,recipient_id:person.id}),/ACCESS_DENIED/);
+  const duplicated=await rpc('duplicate',{id:wa.id});assert.equal(duplicated.campaign.state,'draft');assert.equal(duplicated.items.length,0);
+  const edited=await rpc('save',{...duplicated.campaign,channel:'email',subject:'Updated subject'});assert.equal(edited.campaign.channel,'email');assert.equal(edited.campaign.version,2);
+  const archived=await rpc('archive',{id:wa.id,version:prepared.campaign.version});assert.equal(archived.campaign.state,'archived');await assert.rejects(rpc('draft',{id:wa.id,recipient_id:prepared.items.find(x=>x.kind==='customer'&&x.status==='prepared').id}),/LOCKED/);
+  assert.equal((await rpc('list')).total,3);await assert.rejects(q('select * from private.marketing_campaigns'),/permission denied/);
+  await db.exec('reset role');await q("insert into erp_action_permissions(role,module,allow_create,allow_edit) values('administrador','surveys',false,false)");await db.exec('set role authenticated');await assert.rejects(rpc('save',{title:'Denied'}),/ACCESS_DENIED/);await assert.rejects(rpc('save',edited.campaign),/ACCESS_DENIED/);
+  await db.exec('reset role');await q("update erp_action_permissions set allow_create=true,allow_edit=true where role='administrador' and module='surveys'");await q("update role_module_access set disabled_modules=array['contacts'] where role='administrador'");await db.exec('set role authenticated');assert.equal((await rpc('get',{id:s.id})).items.length,0);await assert.rejects(rpc('search'),/ACCESS_DENIED/);
+  await db.exec('reset role');await q("insert into app_modules(id,enabled) values('surveys',false)");await db.exec('set role authenticated');await assert.rejects(rpc('list'),/ACCESS_DENIED/);
+  await db.exec('reset role');await q("update app_modules set enabled=true where id='surveys'");await q("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);await db.exec('set role authenticated');await assert.rejects(rpc('list'),/ACCESS_DENIED/);await q("select set_config('request.jwt.claims','{\"aal\":\"aal2\"}',false)");assert.equal((await rpc('list')).total,3);await q("select set_config('request.jwt.claims','{}',false)");
+  await q("select set_config('request.jwt.claim.sub',$1,false)",[client]);await assert.rejects(rpc('list'),/ACCESS_DENIED/);await assert.rejects(rpc('search'),/ACCESS_DENIED/);await db.exec('reset role;set role anon');await assert.rejects(rpc('list'),/permission denied/);
+ }finally{await db.close()}
+});

@@ -1,5 +1,6 @@
+import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.115.0';
-const headers={'content-type':'application/json','access-control-allow-origin':'*'};
+const headers={'content-type':'application/json','access-control-allow-origin':'*','cache-control':'no-store','x-content-type-options':'nosniff'};
 const reply=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers});
 Deno.serve(async request=>{
  if(request.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-headers':'authorization,apikey,content-type,x-client-info','access-control-allow-methods':'POST'}});
@@ -9,7 +10,7 @@ Deno.serve(async request=>{
  const url=Deno.env.get('SUPABASE_URL')!,client=createClient(url,Deno.env.get('SUPABASE_ANON_KEY')!,{global:{headers:{Authorization:bearer}}});
  const user=await client.auth.getUser(bearer.slice(7));if(user.error||!user.data.user)return reply({error:'AUTH_REQUIRED'},401);
  const access=await client.rpc('gama_sri_access');if(access.error||access.data?.validate!==true)return reply({error:'ROLE_NOT_ALLOWED'},403);
- let input:{xml_base64:string};try{input=await request.json()}catch{return reply({error:'INVALID_JSON'},400)}
+ let input:{xml_base64:string};try{input=await readJsonBody(request,1450000) as typeof input}catch(error){return reply({error:error instanceof BodyError?error.message:'INVALID_JSON'},error instanceof BodyError?error.status:400)}
  if(!input||typeof input.xml_base64!=='string'||input.xml_base64.length>1400000)return reply({error:'INVALID_REQUEST'},400);
  try{
  const endpoint=Deno.env.get('SRI_WORKER_URL')||'',secret=Deno.env.get('SRI_WORKER_SECRET')||'';let configured=false;

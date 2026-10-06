@@ -1,6 +1,7 @@
+import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.115.0';
 
-const headers = { 'content-type': 'application/json', 'access-control-allow-origin': '*' };
+const headers = { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control':'no-store', 'x-content-type-options':'nosniff' };
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
 const bytes = (data: string) => Uint8Array.from(atob(data), c => c.charCodeAt(0));
 
@@ -36,7 +37,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
   const admin = createClient(url, secret);
   let input: { action: string; id: string; kind?: string; document_type?: string };
-  try { input = await request.json(); } catch { return reply({ error: 'INVALID_JSON' }, 400); }
+  try { input = await readJsonBody(request,12000,{objectOnly:false}); } catch(error) { return reply({ error: error instanceof BodyError?error.message:'INVALID_JSON' }, error instanceof BodyError?error.status:400); }
   if (!input || typeof input.action !== 'string') return reply({ error: 'INVALID_REQUEST' }, 400);
   // Retired ERP customer policies hide profiles. The narrow portal RPC verifies
   // the live login, MFA, membership and document ownership using the caller's JWT.

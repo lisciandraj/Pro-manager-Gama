@@ -1,6 +1,6 @@
 # Exports PDF
 
-Le moteur local `assets/vendor/jspdf-2.5.2.umd.min.js` est téléchargé au premier export, avec vérification d’intégrité. Les appels simultanés partagent le téléchargement et un échec ou un script téléchargé sans SDK peut être réessayé sans recharger l’application.
+Le moteur local `assets/vendor/jspdf-4.2.1.umd.min.js` est téléchargé au premier export, avec vérification d’intégrité. Les appels simultanés partagent le téléchargement et un échec ou un script téléchargé sans SDK peut être réessayé sans recharger l’application.
 
 ## Contrat d’appel
 

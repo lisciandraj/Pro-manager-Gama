@@ -16,3 +16,13 @@ test('public writes require a server secret and same origin; the visitor identit
  r=await onRequest({request:request('submit'),env:{COCO_SITE_TOKEN:token},fetcher:async()=>Response.json({message:'WEBSITE_RATE_LIMIT'},{status:400})});assert.equal(r.status,429);
 });
 test('bootstrap injection cannot close its inert JSON script and SEO text stays plain',()=>{const data={settings:{seo_title:'GAMA <test>',seo_description:'Catalogue',primary_color:'#176072',hero_title:'</script><script>alert(1)</script>'}};const s=escapeBootstrap(data);assert.ok(!s.includes('<'));assert.deepEqual(JSON.parse(s),data);assert.equal(metadata(data).title,'GAMA <test>');assert.equal(metadata({settings:{primary_color:'javascript:bad'}}).color,'#176072')});
+test('upstream redirects are refused and logs never expose credentials or response details',async()=>{
+ const logs=[],original=console.error;console.error=value=>logs.push(value);
+ try{
+  let calls=0;
+  const r=await onRequest({request:request('submit'),env:{COCO_SITE_TOKEN:token},fetcher:async(_,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response('secret='+token,{status:302,headers:{Location:'https://untrusted.invalid/'}})}});
+  assert.equal(calls,1);assert.equal(r.status,503);assert.deepEqual(await r.json(),{error:'WEBSITE_UNAVAILABLE'});
+  assert.equal(logs.length,1);assert.deepEqual(JSON.parse(logs[0]),{event:'storefront_upstream_failure',status:302,code:'INVALID_RESPONSE'});
+  assert.ok(!logs.join('').includes(token));assert.ok(!logs.join('').includes('untrusted.invalid'));
+ }finally{console.error=original}
+});

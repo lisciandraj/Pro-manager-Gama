@@ -28,7 +28,7 @@ function th(key,col,label,align){
  const ind=on?(s.dir==='asc'?'▲':'▼'):'⇅';
  const aria=on?(s.dir==='asc'?'ascending':'descending'):'none';
  return '<th data-gama-sort-key="'+esc(key)+'" data-gama-sort-col="'+esc(col)+'" class="gamaSortTh'+(on?' on':'')+(align==='right'?' r':'')+'" aria-sort="'+aria+'"'
-  +' onclick="GamaSort.go(\''+esc(key)+'\',\''+esc(col)+'\')" title="'+esc(tr('Ordenar por')+' '+tr(label))+'">'
+  +' data-coco-click="sort" title="'+esc(tr('Ordenar por')+' '+tr(label))+'">'
   +'<span data-gi-live>'+esc(label)+'</span> <span class="gamaSortInd">'+ind+'</span></th>';
 }
 /* accessors: {columna: fila => valor}. Los números se comparan como números y

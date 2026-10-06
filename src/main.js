@@ -1,3 +1,4 @@
+import {startLegacyEvents} from './ui/legacy-events.js';
 import * as ui from './ui/components.js';
 import {icons,moduleIcon} from './ui/icons.js';
 import {escapeHtml,format,normalizeError,errorMessage} from './domain/format.js';
@@ -30,7 +31,7 @@ window.ArcEnsureRuntime=()=>window.ArcRuntimeLoaded?Promise.resolve():window.Arc
 installLazyModules();
 router.onEnter('matrix',()=>{window.GamaMatrix.render().catch(()=>{})});
 router.onEnter('dashboard',()=>{window.ArchitectDashboard.refresh().catch(()=>{})});
-data.startDataEvents();startRouter();
+startLegacyEvents();data.startDataEvents();startRouter();
 
 import {startPerformance} from './app/performance.js';
 startPerformance();

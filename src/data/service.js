@@ -1,15 +1,19 @@
 import {entities} from '../domain/entities.js';
 import {normalizeError} from '../domain/format.js';
 const cache = new Map();
+const CACHE_TTL=30000,CACHE_LIMIT=50;let authEpoch=0;
 const cloud = () => { if (!window.GamaCloud) throw Error('NETWORK_ERROR'); return window.GamaCloud; };
 export function invalidate(table) { for (const key of cache.keys()) if (!table || key.startsWith(table + ':')) cache.delete(key); }
 export async function all(table, options = {}, cached = false) {
   const key=table+':'+JSON.stringify(options);
-  if (cached && cache.has(key)) return cache.get(key);
+  const old=cache.get(key),epoch=authEpoch;
+  if(cached&&old&&Date.now()-old.at<CACHE_TTL)return old.promise;
+  cache.delete(key);
   const pending=(async()=>{
     const data=[], seen=new Set(); let offset=0;
     for (let page=0;page<10000;page++) {
       const r=await cloud().list(table,{...options,order:options.order || 'id',range:[offset,offset+199]});
+      if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
       if(r.error)return r;
       const rows=r.data || [];
       if(!rows.length)return {data,error:null};
@@ -21,21 +25,23 @@ export async function all(table, options = {}, cached = false) {
     }
     throw Error('PAGINATION_LIMIT');
   })();
-  if(cached)cache.set(key,pending);
-  try {const r=await pending;if(r.error&&cache.get(key)===pending)cache.delete(key);return r;} catch(e){if(cache.get(key)===pending)cache.delete(key);throw e;}
+  if(cached){cache.set(key,{promise:pending,at:Date.now()});while(cache.size>CACHE_LIMIT)cache.delete(cache.keys().next().value)}
+  try {const r=await pending;if(r.error&&cache.get(key)?.promise===pending)cache.delete(key);return r;} catch(e){if(cache.get(key)?.promise===pending)cache.delete(key);throw e;}
 }
 /** Bound IN filters as well as result ranges, so large document sets fit URL limits. */
 export async function byIds(table,column,ids,options={},cached=false) {
   if(!/^[_a-z][_a-z0-9]*$/.test(column))throw Error('INVALID_FILTER_COLUMN');
-  const keys=[...new Set(ids)],data=[];
+  const keys=[...new Set(ids)],data=[],epoch=authEpoch;
   for(let i=0;i<keys.length;i+=100){
     const result=await all(table,{...options,in:{...options.in,[column]:keys.slice(i,i+100)}},cached);
+    if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
     if(result.error)return result;
     data.push(...result.data);
   }
   return {data,error:null};
 }
 export async function page(entity, options = {}) {
+  const epoch=authEpoch;
   const schema=entities[entity];if(!schema)throw Error('UNKNOWN_ENTITY');
   const size=Math.min(100,Math.max(1,Number(options.pageSize)||20)), index=Math.max(0,Number(options.page)||0);
   const order=options.sort || schema.order;
@@ -44,6 +50,7 @@ export async function page(entity, options = {}) {
   const term=String(options.search||'').trim();
   if(term)request.search={columns:schema.search,value:term};
   const result=await cloud().list(schema.table,request);
+  if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
   if(result.error)throw result.error;
   if(typeof result.count!=='number')throw Error('COUNT_REQUIRED');
   return {items:(result.data||[]).map(schema.fromRow),total:result.count,page:index,pageSize:size,sort:order};
@@ -54,14 +61,14 @@ export async function rpc(name, data = {}) {
   return r.data;
 }
 export async function rawRpc(name,data={}) {
- const started=performance.now();let success=false;
- try{const r=await (await cloud().db()).rpc(name,data);success=!r.error;return r}
+ const started=performance.now(),epoch=authEpoch;let success=false;
+ try{const r=await (await cloud().db()).rpc(name,data);if(epoch!==authEpoch)throw Error('AUTH_CHANGED');success=!r.error;return r}
  finally{if(name!=='gama_operational_metrics')window.dispatchEvent(new CustomEvent('arc:metric',{detail:{metric:'rpc',operation:name,duration_ms:Math.round(performance.now()-started),success}}))}
 }
 export const action = (domain, operation, data = {}) => rpc('gama_'+domain+'_action',{p_action:operation,p_data:data});
 export function startDataEvents() {
   window.addEventListener('gama:data-change',event=>invalidate(event.detail?.table));
-  window.addEventListener('gama:auth-change',()=>invalidate());
+  window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;authEpoch++;invalidate()});
   window.addEventListener('gama:products-cloud-change',()=>invalidate('products'));
   window.addEventListener('gama:stock-cloud-change',()=>{invalidate('products');invalidate('stock_quants');invalidate('stock_movements');invalidate('stock_reservations');});
   window.addEventListener('gama:sales-change',()=>{invalidate('invoices');invalidate('invoice_lines');invalidate('customers');});

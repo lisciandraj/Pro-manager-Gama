@@ -1,4 +1,5 @@
 import { answerSchema, validateAnswer, systemPrompt, queryTool, articleTool, inventoryTool } from './reports.mjs';
+import {readJsonBody,BodyError} from '../_shared/http.mjs';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 class Failure extends Error {constructor(code,status=500){super(code);this.status=status;}}
@@ -105,9 +106,7 @@ export function createHandler({env,fetch:fetcher}) {
   if(req.method!=='POST')return reply({error:'METHOD_NOT_ALLOWED'},405);
   let requestId,userId;
   try{
-   if(Number(req.headers.get('content-length')||0)>16000)throw new Failure('REQUEST_TOO_LARGE',413);
-   const text=await req.text();if(text.length>16000)throw new Failure('REQUEST_TOO_LARGE',413);
-   let body;try{body=JSON.parse(text);}catch{throw new Failure('INVALID_REQUEST',400);}
+   let body;try{body=await readJsonBody(req,16000)}catch(error){if(error instanceof BodyError)throw new Failure(error.status===413?'REQUEST_TOO_LARGE':'INVALID_REQUEST',error.status);throw error}
    const token=req.headers.get('Authorization')?.match(/^Bearer (\S+)$/i)?.[1];if(!token)throw new Failure('AUTH_REQUIRED',401);
    userId=await admin(token);
    if(body.action==='status'){

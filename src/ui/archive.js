@@ -22,8 +22,8 @@ function tabs(key,nActive,nArchived){
  const m=mode(key);
  if(!nArchived&&m!=='archived')return '';
  return '<div class="gamaArcTabs">'
-  +'<button type="button" class="arcButton '+(m==='active'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'active\')">Activos ('+nActive+')</button>'
-  +'<button type="button" class="arcButton '+(m==='archived'?'on':'')+'" onclick="GamaArchive.go(\''+key+'\',\'archived\')">Archivados ('+nArchived+')</button>'
+  +'<button type="button" class="arcButton '+(m==='active'?'on':'')+'" data-coco-click="archive" data-coco-value="'+window.ArcUI.esc(key)+'" data-coco-mode="active">Activos ('+nActive+')</button>'
+  +'<button type="button" class="arcButton '+(m==='archived'?'on':'')+'" data-coco-click="archive" data-coco-value="'+window.ArcUI.esc(key)+'" data-coco-mode="archived">Archivados ('+nArchived+')</button>'
   +'</div>';
 }
 /* Postgres devuelve "violates foreign key constraint ..." — ilegible para

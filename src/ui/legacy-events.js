@@ -1,0 +1,61 @@
+/* Trusted legacy controls. Data attributes select finite callbacks, never evaluated code. */
+const actions=new Map([
+ ["click_0",function(event){focusGlobalSearch()}],
+ ["click_1",function(event){showTab('billing',null)}],
+ ["click_2",function(event){showTab('mainmenu',null)}],
+ ["click_3",function(event){window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')}],
+ ["click_4",function(event){showTab('dashboard',this)}],
+ ["click_5",function(event){showTab('home',this)}],
+ ["click_6",function(event){showTab('products',this)}],
+ ["click_7",function(event){showTab('clients',this)}],
+ ["click_8",function(event){showTab('billing',this)}],
+ ["click_9",function(event){showTab('more',this)}],
+ ["click_10",function(event){scan('homeBarcode')}],
+ ["click_11",function(event){searchProduct()}],
+ ["exportExcel",function(event){exportExcel()}],
+ ["click_13",function(event){exportJSONBackup()}],
+ ["click_14",function(event){event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')}],
+ ["click_15",function(event){createProduct()}],
+ ["click_16",function(event){clearProductForm()}],
+ ["input_0",function(event){GamaPage.reset('products');renderProducts(this.value)}],
+ ["click_18",function(event){exportJSONBackup()}],
+ ["click_19",function(event){restoreJSON()}],
+ ["change_0",function(event){selectClientForInvoice()}],
+ ["click_20",function(event){scan('invoiceBarcode')}],
+ ["click_21",function(event){addInvoiceItem()}],
+ ["click_22",function(event){generateInvoice()}],
+ ["click_23",function(event){downloadInvoicePdf()}],
+ ["click_24",function(event){emailInvoice()}],
+ ["click_25",function(event){generateBarcode()}],
+ ["click_26",function(event){downloadBarcodePdf()}],
+ ['quote-price',function(){window.setInvoiceItemPrice(Number(this.dataset.cocoValue),this.value)}],
+ ['quote-undo',function(){window.clearInvoiceItemPrice(Number(this.dataset.cocoValue))}],
+ ['quote-remove',function(){window.removeInvoiceItem(Number(this.dataset.cocoValue))}],
+ ['purchase-remove',function(){window.gamaRemovePurchaseLineV14(Number(this.dataset.cocoValue))}],
+ ['purchase-assign',function(){window.gamaAssignReplenishmentSupplier(this)}],
+ ['purchase-group',function(){window.gamaAddLowStockGroup(this.dataset.cocoValue)}],
+ ['purchase-all',function(){window.gamaCreateAllReplenishmentDrafts()}],
+ ['purchase-open',function(){window.gamaOpenPurchaseV14(this.dataset.cocoValue)}],
+ ['purchase-close',function(){window.gamaClosePurchaseV14()}],
+ ['purchase-send',function(){return window.gamaSendPurchaseV14(this.dataset.cocoValue)}],
+ ['purchase-pdf',function(){return window.gamaDownloadPurchaseV14(this.dataset.cocoValue)}],
+ ['purchase-receive',function(){return window.gamaReceivePurchaseV14(this.dataset.cocoValue)}],
+ ['purchase-cancel',function(){return window.gamaCancelPurchaseV14(this.dataset.cocoValue)}],
+ ['purchase-return',function(){return window.GamaReturns?.createFrom('supplier',this.dataset.cocoValue)}],
+ ['tms-proof',function(){return window.gamaTMS.open('proof')}],
+ ['invoice-close',function(){document.getElementById('giaView').replaceChildren()}],
+ ['invoice-email',function(){return window.emailGamaCloudInvoice(this.dataset.cocoValue)}],
+ ['invoice-pdf',function(){return window.printGamaCloudInvoice(this.dataset.cocoValue)}],
+ ['page-prev',function(){window.GamaPage.go(this.closest('[data-pager]').dataset.pager,-1)}],
+ ['page-next',function(){window.GamaPage.go(this.closest('[data-pager]').dataset.pager,1)}],
+ ['archive',function(){window.GamaArchive.go(this.dataset.cocoValue,this.dataset.cocoMode)}],
+ ['sort',function(){window.GamaSort.go(this.dataset.gamaSortKey,this.dataset.gamaSortCol)}],
+]);
+export function startLegacyEvents(){
+ for(const type of ['click','input','change'])document.addEventListener(type,event=>{
+  const target=event.target?.closest?.('[data-coco-'+type+']');if(!target||target.disabled)return;
+  const action=actions.get(target.getAttribute('data-coco-'+type));if(!action)return;
+  try{Promise.resolve(action.call(target,event)).catch(report)}catch(error){report(error)}
+ });
+}
+function report(error){window.ArcUI?.toast?.(window.ArcErrors?.message?.(error)||'No se pudo completar la acción.','error')}

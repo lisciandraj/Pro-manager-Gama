@@ -1,7 +1,7 @@
 /* Coco ERP phone scanner: camera lifecycle, decoding and input events. */
 (function(){
 'use strict';
-const ZXING_URL='https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js';
+const ZXING_URL='assets/vendor/zxing-browser-0.2.1.min.js';
 const ZXING_SRI='sha384-HRtzk9lZgkbSgvUyQrnfC/GxiXZgwaNyD7hC9wcXlsBpDhkS80ISl73juef2FRuf';
 let overlay=null,stream=null,zxingControls=null,scanning=false,targetId='',generation=0,pendingTimer=null;
 function getTarget(id){const e=id&&document.getElementById(id);if(e&&e.tagName==='INPUT')return e;const t=targetId&&document.getElementById(targetId);if(t&&t.tagName==='INPUT')return t;return document.getElementById('moveBarcode')||document.getElementById('invoiceBarcode')||null}

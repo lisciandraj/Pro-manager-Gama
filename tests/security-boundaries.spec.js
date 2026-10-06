@@ -41,21 +41,21 @@ test.describe('Límites de seguridad', () => {
 
   });
 
-  test('every external script is pinned to an exact version and carries an integrity hash', () => {
+  test('runtime libraries are local, versioned and match their audited integrity manifest', () => {
     const files = ['index.html', 'gama-supabase.js', 'gama-excel-import-v1.js', 'gama-scanner-phone.js'];
     const urls = [];
     for (const f of files) {
       const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
       for (const m of src.matchAll(/https:\/\/(?:cdn\.jsdelivr\.net|unpkg\.com)\/[^'"\s)]+/g)) urls.push({ f, url: m[0] });
     }
-    expect(urls.length).toBeGreaterThan(0);
-    for (const { f, url } of urls) {
-      // A bare "@2" resolves to whatever the CDN publishes today.
-      expect(url, `${f}: ${url} is not pinned to an exact version`).toMatch(/@\d+\.\d+\.\d+/);
+    expect(urls).toEqual([]);
+    const manifest=JSON.parse(fs.readFileSync(path.join(ROOT,'assets/vendor/manifest.json'),'utf8'));
+    const crypto=require('node:crypto');
+    for(const [file,entry] of Object.entries(manifest)){
+      const bytes=fs.readFileSync(path.join(ROOT,'assets/vendor',file));
+      expect(crypto.createHash('sha256').update(bytes).digest('hex')).toBe(entry.sha256);
+      expect('sha384-'+crypto.createHash('sha384').update(bytes).digest('base64')).toBe(entry.integrity);
     }
-    // Each of the four loaders states an integrity hash next to its URL.
-    const withIntegrity = files.filter(f => /integrity/i.test(fs.readFileSync(path.join(ROOT, f), 'utf8')));
-    expect(withIntegrity.sort()).toEqual(files.sort());
   });
 
   test('a content security policy is declared and does not allow arbitrary script origins', () => {
@@ -69,6 +69,8 @@ test.describe('Límites de seguridad', () => {
     // The allowlist is explicit; a wildcard would defeat the point.
     expect(csp).not.toMatch(/script-src[^;]*\*/);
     expect(csp).not.toContain("'unsafe-eval'");
+    expect(csp.match(/script-src[^;]*/)[0]).not.toContain("'unsafe-inline'");
+    expect(csp).toContain("script-src-attr 'none'");
     expect(csp).toContain('https://mknsaibrewksgomuslev.supabase.co');
   });
 

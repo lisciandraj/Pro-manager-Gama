@@ -1,5 +1,179 @@
 (function() {
   "use strict";
+  const actions = /* @__PURE__ */ new Map([
+    ["click_0", function(event) {
+      focusGlobalSearch();
+    }],
+    ["click_1", function(event) {
+      showTab("billing", null);
+    }],
+    ["click_2", function(event) {
+      showTab("mainmenu", null);
+    }],
+    ["click_3", function(event) {
+      window.gamaShowPurchases ? window.gamaShowPurchases() : alert("El módulo Compras todavía se está cargando. Recarga la página.");
+    }],
+    ["click_4", function(event) {
+      showTab("dashboard", this);
+    }],
+    ["click_5", function(event) {
+      showTab("home", this);
+    }],
+    ["click_6", function(event) {
+      showTab("products", this);
+    }],
+    ["click_7", function(event) {
+      showTab("clients", this);
+    }],
+    ["click_8", function(event) {
+      showTab("billing", this);
+    }],
+    ["click_9", function(event) {
+      showTab("more", this);
+    }],
+    ["click_10", function(event) {
+      scan("homeBarcode");
+    }],
+    ["click_11", function(event) {
+      searchProduct();
+    }],
+    ["exportExcel", function(event) {
+      exportExcel();
+    }],
+    ["click_13", function(event) {
+      exportJSONBackup();
+    }],
+    ["click_14", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.startGamaScan("pBarcode");
+    }],
+    ["click_15", function(event) {
+      createProduct();
+    }],
+    ["click_16", function(event) {
+      clearProductForm();
+    }],
+    ["input_0", function(event) {
+      GamaPage.reset("products");
+      renderProducts(this.value);
+    }],
+    ["click_18", function(event) {
+      exportJSONBackup();
+    }],
+    ["click_19", function(event) {
+      restoreJSON();
+    }],
+    ["change_0", function(event) {
+      selectClientForInvoice();
+    }],
+    ["click_20", function(event) {
+      scan("invoiceBarcode");
+    }],
+    ["click_21", function(event) {
+      addInvoiceItem();
+    }],
+    ["click_22", function(event) {
+      generateInvoice();
+    }],
+    ["click_23", function(event) {
+      downloadInvoicePdf();
+    }],
+    ["click_24", function(event) {
+      emailInvoice();
+    }],
+    ["click_25", function(event) {
+      generateBarcode();
+    }],
+    ["click_26", function(event) {
+      downloadBarcodePdf();
+    }],
+    ["quote-price", function() {
+      window.setInvoiceItemPrice(Number(this.dataset.cocoValue), this.value);
+    }],
+    ["quote-undo", function() {
+      window.clearInvoiceItemPrice(Number(this.dataset.cocoValue));
+    }],
+    ["quote-remove", function() {
+      window.removeInvoiceItem(Number(this.dataset.cocoValue));
+    }],
+    ["purchase-remove", function() {
+      window.gamaRemovePurchaseLineV14(Number(this.dataset.cocoValue));
+    }],
+    ["purchase-assign", function() {
+      window.gamaAssignReplenishmentSupplier(this);
+    }],
+    ["purchase-group", function() {
+      window.gamaAddLowStockGroup(this.dataset.cocoValue);
+    }],
+    ["purchase-all", function() {
+      window.gamaCreateAllReplenishmentDrafts();
+    }],
+    ["purchase-open", function() {
+      window.gamaOpenPurchaseV14(this.dataset.cocoValue);
+    }],
+    ["purchase-close", function() {
+      window.gamaClosePurchaseV14();
+    }],
+    ["purchase-send", function() {
+      return window.gamaSendPurchaseV14(this.dataset.cocoValue);
+    }],
+    ["purchase-pdf", function() {
+      return window.gamaDownloadPurchaseV14(this.dataset.cocoValue);
+    }],
+    ["purchase-receive", function() {
+      return window.gamaReceivePurchaseV14(this.dataset.cocoValue);
+    }],
+    ["purchase-cancel", function() {
+      return window.gamaCancelPurchaseV14(this.dataset.cocoValue);
+    }],
+    ["purchase-return", function() {
+      var _a;
+      return (_a = window.GamaReturns) == null ? void 0 : _a.createFrom("supplier", this.dataset.cocoValue);
+    }],
+    ["tms-proof", function() {
+      return window.gamaTMS.open("proof");
+    }],
+    ["invoice-close", function() {
+      document.getElementById("giaView").replaceChildren();
+    }],
+    ["invoice-email", function() {
+      return window.emailGamaCloudInvoice(this.dataset.cocoValue);
+    }],
+    ["invoice-pdf", function() {
+      return window.printGamaCloudInvoice(this.dataset.cocoValue);
+    }],
+    ["page-prev", function() {
+      window.GamaPage.go(this.closest("[data-pager]").dataset.pager, -1);
+    }],
+    ["page-next", function() {
+      window.GamaPage.go(this.closest("[data-pager]").dataset.pager, 1);
+    }],
+    ["archive", function() {
+      window.GamaArchive.go(this.dataset.cocoValue, this.dataset.cocoMode);
+    }],
+    ["sort", function() {
+      window.GamaSort.go(this.dataset.gamaSortKey, this.dataset.gamaSortCol);
+    }]
+  ]);
+  function startLegacyEvents() {
+    for (const type of ["click", "input", "change"]) document.addEventListener(type, (event) => {
+      var _a, _b;
+      const target = (_b = (_a = event.target) == null ? void 0 : _a.closest) == null ? void 0 : _b.call(_a, "[data-coco-" + type + "]");
+      if (!target || target.disabled) return;
+      const action2 = actions.get(target.getAttribute("data-coco-" + type));
+      if (!action2) return;
+      try {
+        Promise.resolve(action2.call(target, event)).catch(report);
+      } catch (error) {
+        report(error);
+      }
+    });
+  }
+  function report(error) {
+    var _a, _b, _c, _d;
+    (_d = (_a = window.ArcUI) == null ? void 0 : _a.toast) == null ? void 0 : _d.call(_a, ((_c = (_b = window.ArcErrors) == null ? void 0 : _b.message) == null ? void 0 : _c.call(_b, error)) || "No se pudo completar la acción.", "error");
+  }
   const icons = {
     sales: '<path d="M3 20h18M5 17v-4M10 17V9M15 17V5M4 10l6-5 5 1 5-4M16 2h4v4"/>',
     globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
@@ -407,7 +581,7 @@
     const pages = Math.max(1, Math.ceil(total / pageSize));
     return `<div class="arcPager gamaPager">${button({ label: translate("‹ Anterior"), className: "gamaPagerBtn", disabled: page2 <= 0, attrs: 'data-arc-page="-1" data-page-prev' })}<span class="gamaPagerInfo" aria-live="polite">${total ? page2 * pageSize + 1 : 0}–${Math.min(total, (page2 + 1) * pageSize)} ${escapeHtml(translate("de"))} ${total} · ${page2 + 1} / ${pages}</span>${button({ label: translate("Siguiente ›"), className: "gamaPagerBtn", disabled: page2 >= pages - 1, attrs: 'data-arc-page="1" data-page-next' })}</div>`;
   }
-  function dataTable(host, { columns, source, searchInput, searchControl = searchInput, actions = {}, empty, className = "", initial = {} }) {
+  function dataTable(host, { columns, source, searchInput, searchControl = searchInput, actions: actions2 = {}, empty, className = "", initial = {} }) {
     var _a;
     let disposed = false, generation = 0, timer;
     const saved = (_a = window.GamaTable) == null ? void 0 : _a.sourceSort(host);
@@ -451,7 +625,7 @@
       if (b.hasAttribute("data-arc-page")) refresh({ page: Math.max(0, state.page + Number(b.dataset.arcPage)) });
       else if (b.hasAttribute("data-arc-sort")) sortBy(b.dataset.arcSort, state.sort === b.dataset.arcSort && state.ascending !== false ? "desc" : "asc");
       else if (b.hasAttribute("data-arc-retry")) refresh();
-      else for (const [attribute, callback] of Object.entries(actions)) {
+      else for (const [attribute, callback] of Object.entries(actions2)) {
         if (b.hasAttribute(attribute)) {
           callback(b.getAttribute(attribute), b);
           break;
@@ -621,6 +795,8 @@
     supplierToRow
   }, Symbol.toStringTag, { value: "Module" }));
   const cache = /* @__PURE__ */ new Map();
+  const CACHE_TTL = 3e4, CACHE_LIMIT = 50;
+  let authEpoch = 0;
   const cloud = () => {
     if (!window.GamaCloud) throw Error("NETWORK_ERROR");
     return window.GamaCloud;
@@ -629,13 +805,17 @@
     for (const key of cache.keys()) if (!table2 || key.startsWith(table2 + ":")) cache.delete(key);
   }
   async function all(table2, options = {}, cached = false) {
+    var _a, _b;
     const key = table2 + ":" + JSON.stringify(options);
-    if (cached && cache.has(key)) return cache.get(key);
+    const old = cache.get(key), epoch = authEpoch;
+    if (cached && old && Date.now() - old.at < CACHE_TTL) return old.promise;
+    cache.delete(key);
     const pending = (async () => {
       const data2 = [], seen = /* @__PURE__ */ new Set();
       let offset = 0;
       for (let page2 = 0; page2 < 1e4; page2++) {
         const r = await cloud().list(table2, { ...options, order: options.order || "id", range: [offset, offset + 199] });
+        if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
         if (r.error) return r;
         const rows = r.data || [];
         if (!rows.length) return { data: data2, error: null };
@@ -648,27 +828,32 @@
       }
       throw Error("PAGINATION_LIMIT");
     })();
-    if (cached) cache.set(key, pending);
+    if (cached) {
+      cache.set(key, { promise: pending, at: Date.now() });
+      while (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value);
+    }
     try {
       const r = await pending;
-      if (r.error && cache.get(key) === pending) cache.delete(key);
+      if (r.error && ((_a = cache.get(key)) == null ? void 0 : _a.promise) === pending) cache.delete(key);
       return r;
     } catch (e) {
-      if (cache.get(key) === pending) cache.delete(key);
+      if (((_b = cache.get(key)) == null ? void 0 : _b.promise) === pending) cache.delete(key);
       throw e;
     }
   }
   async function byIds(table2, column, ids, options = {}, cached = false) {
     if (!/^[_a-z][_a-z0-9]*$/.test(column)) throw Error("INVALID_FILTER_COLUMN");
-    const keys = [...new Set(ids)], data2 = [];
+    const keys = [...new Set(ids)], data2 = [], epoch = authEpoch;
     for (let i = 0; i < keys.length; i += 100) {
       const result = await all(table2, { ...options, in: { ...options.in, [column]: keys.slice(i, i + 100) } }, cached);
+      if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
       if (result.error) return result;
       data2.push(...result.data);
     }
     return { data: data2, error: null };
   }
   async function page(entity, options = {}) {
+    const epoch = authEpoch;
     const schema = entities[entity];
     if (!schema) throw Error("UNKNOWN_ENTITY");
     const size = Math.min(100, Math.max(1, Number(options.pageSize) || 20)), index = Math.max(0, Number(options.page) || 0);
@@ -678,6 +863,7 @@
     const term = String(options.search || "").trim();
     if (term) request.search = { columns: schema.search, value: term };
     const result = await cloud().list(schema.table, request);
+    if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
     if (result.error) throw result.error;
     if (typeof result.count !== "number") throw Error("COUNT_REQUIRED");
     return { items: (result.data || []).map(schema.fromRow), total: result.count, page: index, pageSize: size, sort: order };
@@ -692,10 +878,11 @@
     return r.data;
   }
   async function rawRpc(name, data2 = {}) {
-    const started = performance.now();
+    const started = performance.now(), epoch = authEpoch;
     let success = false;
     try {
       const r = await (await cloud().db()).rpc(name, data2);
+      if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
       success = !r.error;
       return r;
     } finally {
@@ -708,7 +895,12 @@
       var _a;
       return invalidate((_a = event.detail) == null ? void 0 : _a.table);
     });
-    window.addEventListener("gama:auth-change", () => invalidate());
+    window.addEventListener("gama:auth-change", (event) => {
+      var _a;
+      if (((_a = event.detail) == null ? void 0 : _a.event) === "TOKEN_REFRESHED") return;
+      authEpoch++;
+      invalidate();
+    });
     window.addEventListener("gama:products-cloud-change", () => invalidate("products"));
     window.addEventListener("gama:stock-cloud-change", () => {
       invalidate("products");
@@ -1909,6 +2101,7 @@
     window.ArchitectDashboard.refresh().catch(() => {
     });
   });
+  startLegacyEvents();
   startDataEvents();
   startRouter();
   startPerformance();

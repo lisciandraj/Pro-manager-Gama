@@ -7,6 +7,9 @@ test('TMS keeps manual routes, shares safe tracking, records COD and returns ref
  const action=async(a,d)=>(await db.query('select gama_tms_delivery_action($1,$2) r',[a,d])).rows[0].r;
  const plan=async(day)=>(await db.query('select gama_tms_plan_day($1::date) p',[day])).rows[0].p;
  try{
+ // Test defaults and explicit planner dates must use the same Quito day,
+ // including the five-hour interval after UTC midnight on the CI runner.
+ await db.exec("select set_config('TimeZone',private.erp_timezone(),false)");
   await db.exec(`insert into auth.users(id,email) values('${admin}','tms-ops-admin@example.invalid'),('${driverUser}','tms-ops-driver@example.invalid'),('${seller}','tms-ops-sales@example.invalid');
    update profiles set active=true,role=case id when '${admin}' then 'administrador' when '${driverUser}' then 'almacenero' else 'comercial' end;
    select set_config('request.jwt.claim.sub','${admin}',false);

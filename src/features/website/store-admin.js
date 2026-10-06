@@ -64,6 +64,30 @@ async function loadB2b(){
 }
 
 function connection(){host.querySelector('#gsBody').innerHTML=`<div class="arcPanel gwForm"><h2>${E(T('connection'))}</h2><p>${E(T('connectionHint'))}</p><code>COCO_SITE_TOKEN</code><div class="arcToolbar"><button type="button" class="arcButton secondary" id="gsShowKey">${E(T('showKey'))}</button><button type="button" class="arcButton secondary" id="gsRotateKey">${E(T('rotate'))}</button></div><div id="gsKeyBox" hidden><textarea id="gsKey" readonly aria-label="COCO_SITE_TOKEN" rows="3" spellcheck="false"></textarea><button id="gsCopyKey" type="button" class="arcButton secondary">${E(T('copy'))}</button></div></div>`;const show=async rotate=>{if(rotate&&!window.confirm(T('rotateConfirm')))return;const seq=sequence;try{const r=await rpc(rotate?'public_rotate_connection':'public_connection');if(seq!==sequence||tab!=='connection'||!allowed())return;host.querySelector('#gsKey').value=r.token;host.querySelector('#gsKeyBox').hidden=false}catch(e){if(seq===sequence)status(error(e))}};host.querySelector('#gsShowKey').onclick=()=>show(false);host.querySelector('#gsRotateKey').onclick=()=>show(true);host.querySelector('#gsCopyKey').onclick=async()=>{try{await navigator.clipboard.writeText(host.querySelector('#gsKey').value);status(T('copied'))}catch(_){host.querySelector('#gsKey').select()}}}
+async function customerAccountPicker(){
+ if(!allowed()||!window.gamaAccessAllowed?.('users')||!window.gamaAccessAllowed?.('contacts'))throw Error('ROLE_NOT_ALLOWED');
+ stylesheet();const token=sequence,U=window.ArcUI,txt=(es,fr,en)=>L([es,fr,en]);
+ const current=()=>token===sequence&&allowed()&&window.gamaAccessAllowed?.('users')&&window.gamaAccessAllowed?.('contacts');
+ const d=U.dialog({title:txt('Crear una cuenta cliente para el sitio web','Créer un compte client pour le site internet','Create a customer account for the website'),saveLabel:txt('Volver','Retour','Back'),body:
+ `<p>${E(txt('Selecciona la empresa cliente. Podrás activar su acceso, crear una cuenta e invitarla, o asociar una cuenta existente. El cliente verá sus precios negociados y sus propios documentos.','Sélectionnez l’entreprise cliente. Vous pourrez activer son accès, créer un compte et l’inviter, ou associer un compte existant. Le client verra ses prix négociés et ses propres documents.','Select the customer company. You can enable its access, create and invite an account, or link an existing account. The customer will see their negotiated prices and their own documents.'))}</p>`+
+ U.field({key:'customer_search',label:txt('Buscar un cliente por nombre','Rechercher un client par nom','Find a customer by name'),type:'search',maxLength:100,attrs:'data-table-search-ignore'})+
+ `<button type="button" class="arcButton secondary" data-customer-search>${E(txt('Buscar / actualizar','Rechercher / actualiser','Search / refresh'))}</button>`+
+ U.field({key:'customer_id',label:txt('Empresa cliente','Entreprise cliente','Customer company'),type:'select',disabled:true})+
+ `<p data-customer-status role="status" aria-live="polite"></p><button type="button" class="arcButton primary" data-customer-continue disabled>${E(txt('Continuar con este cliente','Continuer avec ce client','Continue with this customer'))}</button>`});
+ d.classList.add('gsDialog');d.dataset.giIgnore='';
+ let request=0;const select=d.querySelector('[name=customer_id]'),next=d.querySelector('[data-customer-continue]'),notice=d.querySelector('[data-customer-status]');
+ const load=async()=>{const n=++request,previous=select.value;select.disabled=true;next.disabled=true;notice.textContent=T('loading');d.querySelector('[role=alert]').textContent='';
+  try{const r=await window.ArcData.rpc('gama_b2b_admin',{p_action:'list',p_data:{search:d.querySelector('[name=customer_search]').value.trim()}});if(n!==request||!d.open||!current())return;
+   select.replaceChildren(new Option('—',''));for(const c of r.customers||[])select.add(new Option(c.name+(c.identification?' · '+c.identification:''),c.id));
+   select.value=Array.from(select.options).some(o=>o.value===previous)?previous:'';select.disabled=select.options.length===1;next.disabled=!select.value;
+   notice.textContent=select.options.length===1?txt('No se encontraron clientes. Crea la empresa en Contactos o cambia la búsqueda.','Aucun client trouvé. Créez l’entreprise dans Contacts ou modifiez la recherche.','No customers found. Create the company in Contacts or change the search.'):txt('Se muestran hasta 100 clientes. Usa la búsqueda para encontrar otros.','Jusqu’à 100 clients sont affichés. Utilisez la recherche pour en trouver d’autres.','Up to 100 customers are shown. Use search to find others.');
+  }catch(e){if(n===request&&d.open&&current()){select.replaceChildren(new Option('—',''));notice.textContent='';d.querySelector('[role=alert]').textContent=window.ArcErrors.message(e)}}
+ };
+ select.onchange=()=>{next.disabled=select.disabled||!select.value};d.querySelector('[data-customer-search]').onclick=load;
+ d.querySelector('[name=customer_search]').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();load()}};
+ next.onclick=async()=>{if(next.disabled||!current()||!select.value)return;next.disabled=true;try{await customerAccounts(select.value);if(d.open)d.close()}catch(e){if(d.open&&current()){d.querySelector('[role=alert]').textContent=window.ArcErrors.message(e);next.disabled=false}}};
+ await load();return d;
+}
 async function customerAccounts(customerId){
  if(!allowed()||!window.gamaAccessAllowed?.('users'))return;stylesheet();const token=sequence,U=window.ArcUI,txt=(es,fr,en)=>L([es,fr,en]);
  const current=()=>token===sequence&&allowed()&&window.gamaAccessAllowed?.('users');
@@ -78,5 +102,5 @@ async function customerAccounts(customerId){
  d.querySelector('[data-customer-link]')?.addEventListener('click',e=>{const id=d.querySelector('[name=existing]').value;if(id)return mutate(e.currentTarget,'member',{customer_id:customerId,profile_id:id,active:true,expected_customer_id:null})});
 }
 function reset(){sequence++;state=null;dirty=false;busy=false;clearTimeout(timer);host?.querySelector('#gsKey')?.replaceChildren();document.querySelectorAll('.gsDialog').forEach(d=>d.close());host=null}
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')reset()});window.GamaStoreAdmin={open,reset,customerAccounts};
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')reset()});window.GamaStoreAdmin={open,reset,customerAccounts,customerAccountPicker};
 })();

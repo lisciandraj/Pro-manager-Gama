@@ -2,17 +2,40 @@ const {test,expect}=require('@playwright/test'),fs=require('node:fs'),path=requi
 const schema=require('../config/storefront-schema.json'),config=Object.fromEntries(schema.groups.flatMap(g=>g.fields.map(f=>[f.key,f.default])));
 const ids=['10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002'];
 const items=[{id:ids[0],name:'CAFÉ PARA OFICINA',reference:'CAFE-01',category:'Alimentos y bebidas',category_title:'Alimentos y bebidas',unit_price:10,tax_rate:15,order_minimum:2,order_multiple:2,has_photo:false,featured:true,description:'Café de Ecuador',brand:'GAMA',badge:'Para tu equipo'},{id:ids[1],name:'AGUA MINERAL',reference:'AGUA-01',category:'Bebidas',category_title:'Bebidas',unit_price:null,tax_rate:null,order_minimum:0.001,order_multiple:0.001,has_photo:false,featured:true,description:'',brand:'',badge:''}];
-async function boot(page,{width=1440,paused=false,quotes=true,contact=true}={}){
+async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catalogItems=items,categories=catalogItems.map(p=>({category:p.category,title:p.category,count:1,photo_id:p.id})),settings={}}={}){
  await page.setViewportSize({width,height:960});await page.addInitScript(()=>{window.__SITE_CALLS=[];window.__SITE_FAIL=false});
  await page.route('**/site.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.js'),contentType:'text/javascript'}));await page.route('**/site.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.css'),contentType:'text/css'}));await page.route('**/logo.jpg',r=>r.fulfill({path:path.join(__dirname,'../gama-logo.jpg'),contentType:'image/jpeg'}));
  await page.route('**/category-images/*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/category-images',path.basename(new URL(r.request().url()).pathname)),contentType:'image/webp'}));
- await page.route('**/api/storefront',async r=>{const d=r.request().postDataJSON();await page.evaluate(d=>__SITE_CALLS.push(d),d);let out;const c={...config,enable_quotes:quotes,show_contact:contact};
- if(d.p_action==='bootstrap')out={paused,settings:c,currency:'USD',total:items.length,categories:items.map(p=>({category:p.category,title:p.category,count:1,photo_id:p.id})),brands:['GAMA'],featured:items};
- if(d.p_action==='catalog'){const rows=items.filter(p=>(!d.p_data.search||[p.name,p.reference,p.brand].join(' ').toLowerCase().includes(d.p_data.search.toLowerCase()))&&(!d.p_data.category||p.category===d.p_data.category)&&(!d.p_data.brand||p.brand===d.p_data.brand));out={items:rows,total:rows.length,offset:0,limit:12,currency:'USD'}}
- if(d.p_action==='product')out={item:items.find(p=>p.id===d.p_data.id),currency:'USD'};if(d.p_action==='photos')out=[];
+ await page.route('**/api/storefront',async r=>{const d=r.request().postDataJSON();await page.evaluate(d=>__SITE_CALLS.push(d),d);let out;const c={...config,enable_quotes:quotes,show_contact:contact,...settings};
+ if(d.p_action==='bootstrap')out={paused,settings:c,currency:'USD',total:catalogItems.length,categories,brands:[...new Set(catalogItems.map(p=>p.brand).filter(Boolean))],featured:catalogItems};
+ if(d.p_action==='catalog'){const rows=catalogItems.filter(p=>(!d.p_data.search||[p.name,p.reference,p.brand].join(' ').toLowerCase().includes(d.p_data.search.toLowerCase()))&&(!d.p_data.category||p.category===d.p_data.category)&&(!d.p_data.brand||p.brand===d.p_data.brand));out={items:rows,total:rows.length,offset:0,limit:12,currency:'USD'}}
+ if(d.p_action==='product')out={item:catalogItems.find(p=>p.id===d.p_data.id),currency:'USD'};if(d.p_action==='photos')out=[];
  if(d.p_action==='submit'){if(await page.evaluate(()=>__SITE_FAIL)){await page.evaluate(()=>__SITE_FAIL=false);return r.fulfill({status:503,json:{error:'WEBSITE_UNAVAILABLE'}})}out={reference:'WEB-00000001'}}return r.fulfill({json:out})});
  await page.goto('/dist-storefront/index.html');
 }
+const catalogueCategories=require('../config/storefront-category-images.json').map((c,i)=>({category:c.category,title:c.category,count:100+i}));
+const wideItems=[{...items[0],name:'CARTUCHO HP 712 3ED77A 3ED78A 3ED79A COLOR 3 PACK',category:catalogueCategories[1].category,category_title:catalogueCategories[1].title,reference:'CARTUCHO-'.repeat(14),brand:'Marca de accesorios para equipos de impresión',unit_price:676.89,description:'Especificaciones: '+ 'A'.repeat(160)},{...items[1],category:catalogueCategories.at(-1).category,category_title:catalogueCategories.at(-1).title}];
+async function expectContained(page,selectors){
+ const outside=await page.locator(selectors).evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).map(n=>({element:n.id||n.className,left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})).filter(r=>r.left< -1||r.right>innerWidth+1));
+ expect(outside).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(()=>innerWidth+1));
+}
+for(const width of [320,360,390,430,600,768,1024,1440])test('full category catalogue and long product fields fit the viewport on '+width,async({page})=>{
+ await boot(page,{width,catalogItems:wideItems,categories:catalogueCategories});await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);
+ const layout='#header, #catalogo, .catalogue-sidebar, #categoryFilters, .catalogue-content, .catalogue-tools, #siteProducts .product-card, #siteProducts .quick-order, #featuredProducts .quick-order';
+ await expectContained(page,layout);
+ if(width<=800){
+  const filters=page.locator('#categoryFilters');expect(await filters.evaluate(n=>n.scrollWidth>n.clientWidth)).toBe(true);
+  await filters.evaluate(n=>n.scrollLeft=n.scrollWidth);expect(await filters.evaluate(n=>n.scrollLeft)).toBeGreaterThan(0);
+  await filters.locator('[data-category]').last().click();await expect(page.locator('#activeCategory')).toHaveText(catalogueCategories.at(-1).title);await page.locator('#clearFilters').click();
+ }
+ await page.locator('#siteSearch').fill('CARTUCHO');await page.locator('#siteSearch').press('Enter');await expect(page.locator('#siteProducts .product-card')).toHaveCount(1);await expectContained(page,layout);
+ await page.locator('[data-view=grid]').click();await expectContained(page,layout);await page.locator('[data-view=list]').click();
+ await page.locator('#siteProducts .product-details-link').click();await expect(page.locator('#productTitle')).toHaveText(wideItems[0].name);await expectContained(page,'#productDialog, .detail-copy, .detail-order, .specifications, .related-products .quick-order');
+ expect(await page.locator('#productDialog').evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
+ await page.locator('#detailForm [type=submit]').click();await page.locator('[data-close-dialog=productDialog]').click();await page.locator('#cartOpen').click();
+ await expectContained(page,'#cartDialog, #quoteForm input:not([name=website]), #quoteForm textarea');expect(await page.locator('#cartDialog').evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
+ await page.locator('[data-close-dialog=cartDialog]').click();await page.evaluate(()=>scrollTo({top:document.querySelector('#catalogo').offsetTop-150,left:0,behavior:'instant'}));await page.screenshot({path:'test-results/public-storefront-catalogue-'+width+'.png'});
+});
 for(const width of [390,1440])test('public catalogue, product details and retry-safe inquiry on '+width,async({page})=>{
  await boot(page,{width});await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);await expect(page.locator('#siteProducts')).toContainText('$11,50');await expect(page.locator('#siteProducts')).toContainText('Consultar');const categoryTitle=await page.locator('.category-card .category-copy').first().boundingBox(),categoryPhoto=await page.locator('.category-card > .category-visual').first().boundingBox();expect(categoryPhoto.y+categoryPhoto.height).toBeLessThanOrEqual(categoryTitle.y); const categoryTile=await page.locator('.category-card').first().boundingBox(); expect(categoryTitle.y+categoryTitle.height).toBeLessThanOrEqual(categoryTile.y+categoryTile.height);
  await page.locator('#siteSearch').fill('CAFÉ');await expect(page.locator('#siteProducts .product-card')).toHaveCount(1);await page.locator('#siteProducts [data-product]').first().click();await expect(page.locator('#productTitle')).toHaveText('CAFÉ PARA OFICINA');await page.locator('#detailForm [name=quantity]').fill('4');await page.locator('#detailForm [type=submit]').click();await expect(page.locator('#cartCount')).toHaveText('1');await page.locator('[data-close-dialog=productDialog]').click();await page.locator('#cartOpen').click();await expect(page.locator('#cartLines input')).toHaveValue('4');

@@ -10,7 +10,7 @@ La recherche est permanente dans l’en-tête. La saisie et la touche Entrée fi
 
 Le catalogue affiche par défaut une liste structurée : photo, nom, référence/marque, description, lien vers les spécifications, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer en grille sans perdre les filtres. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum deux autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
 
-Les contrôles de navigation, de quantité et de disposition se trouvent dans `tests/storefront.spec.js`, sur 320, 390 et 1440 pixels. Les fixtures n’écrivent pas dans la production.
+Les contrôles de navigation, de quantité et de disposition se trouvent dans `tests/storefront.spec.js`. Le catalogue complet de 13 catégories et les champs produit longs sont vérifiés sur 320, 360, 390, 430, 600, 768, 1024 et 1440 pixels, en liste, grille, fiche produit et formulaire de devis. Les filtres de catégories défilent horizontalement dans leur propre conteneur sur téléphone et tablette, sans élargir la page ; les textes longs reviennent à la ligne. Les champs et tableaux du portail client sont contrôlés séparément dans `tests/b2b-portal.spec.js`. Les fixtures n’écrivent pas dans la production.
 
 ## Paramétrage dans Coco
 

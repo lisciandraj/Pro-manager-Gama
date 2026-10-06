@@ -17,7 +17,7 @@ export function field({id='arc-field-'+(++sequence),key,name=key,label='',type='
     control=`<select${props}${type==='multi'?' multiple':''} ${attrs}>${type==='select'?'<option value="">—</option>':''}${options.map(o=>`<option value="${esc(o.value ?? o.id)}"${values.includes(String(o.value ?? o.id))?' selected':''}>${esc(o.label ?? o.name)}</option>`).join('')}</select>`;
   }else if(type==='textarea')control=`<textarea${props} ${attrs}>${esc(value)}</textarea>`;
   else control=`<input${props} type="${esc(type)}"${type==='checkbox'?value?' checked':'':' value="'+esc(value)+'"'} ${attrs}>`;
-  return `<label class="arcField ${esc(className)}" for="${esc(id)}"><span>${esc(t(label))}${required?' *':''}</span>${control}${help?`<small id="${esc(helpId)}">${esc(t(help))}</small>`:''}<small id="${esc(errorId)}" class="arcFieldError"${error?'':' hidden'}>${esc(t(error))}</small></label>`;
+  return `<label class="arcField ${esc(className)}" for="${esc(id)}"><span data-gi-source="${esc(label+(required?' *':''))}">${esc(t(label))}${required?' *':''}</span>${control}${help?`<small data-gi-source="${esc(help)}" id="${esc(helpId)}">${esc(t(help))}</small>`:''}<small id="${esc(errorId)}" class="arcFieldError"${error?'':' hidden'}>${esc(t(error))}</small></label>`;
 }
 export function panel(html,{className='',id,accent}={}) {return `<div${attributes({id,'data-accent':accent})} class="arcPanel ${esc(className)}">${html}</div>`;}
 export function toolbar(html,{className=''}={}) {return `<div class="arcToolbar ${esc(className)}">${html}</div>`;}
@@ -98,7 +98,7 @@ export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorM
   const el=document.createElement('dialog'),lastFocus=document.activeElement;
   const titleId='arc-dialog-title-'+(++sequence);
   el.className='arcDialog '+className;el.setAttribute('aria-labelledby',titleId);
-  el.innerHTML=`<form class="arcForm"><h2 id="${titleId}">${esc(t(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-arc-dialog-close'})}${dismissOnly?'':button({id:ids.save,type:'submit',variant:'primary',label:t(saveLabel)})}</div></form>`;
+  el.innerHTML=`<form class="arcForm"><h2 data-gi-source="${esc(title)}" id="${titleId}">${esc(t(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-gi-source="Volver" data-arc-dialog-close'})}${dismissOnly?'':button({id:ids.save,type:'submit',variant:'primary',label:t(saveLabel),attrs:'data-gi-source="'+esc(saveLabel)+'"'})}</div></form>`;
   document.body.appendChild(el);
   let formApi;
   const close=()=>{if(formApi?.pending)return;el.close();};
@@ -176,7 +176,7 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
 export function table({columns,items,empty=t('No hay resultados.'),className='',rowAttributes=()=>''}) {
   const titleIndex=columns.findIndex(c=>!c.decorative);
   const html=items.length?items.map(item=>`<tr ${rowAttributes(item)}>${columns.map((col,i)=>`<td data-col="${esc(col.decorative||col.actions?'':t(col.label))}"${i===titleIndex?' data-gama-title':''}${col.sortValue?` data-sort-value="${esc(col.sortValue(item)??'')}"${typeof col.sortValue(item)==='number'?' data-sort-type="number"':''}`:col.key&&typeof item[col.key]==='number'?` data-sort-value="${item[col.key]}" data-sort-type="number"`:''}${col.numeric?' class="arcNumeric"':''}>${col.html?col.html(item):esc(col.value?col.value(item):item[col.key] ?? '')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${columns.length}" class="arcEmpty">${esc(empty)}</td></tr>`;
-  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map((col,i)=>`<th scope="col" data-column-key="${esc(col.sort||col.key||String(i))}"${col.actions?' data-column-kind="actions"':col.decorative?' data-column-kind="decorative"':''}${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}">${esc(t(col.label))} <span aria-hidden="true">⇅</span></button>`:esc(t(col.label))}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
+  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map((col,i)=>`<th scope="col" data-column-key="${esc(col.sort||col.key||String(i))}"${col.actions?' data-column-kind="actions"':col.decorative?' data-column-kind="decorative"':''}${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}"><span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span> <span aria-hidden="true">⇅</span></button>`:`<span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span>`}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
 }
 export function pager({page=0,pageSize=20,total=0}={}) {
   if(total<=pageSize)return '';

@@ -51,7 +51,7 @@ function replaceText(node,source){
 }
 function localize(el){
  if(!el||el.nodeType!==1||el.closest('[translate="no"], [data-gi-ignore],script,style,[contenteditable="true"]'))return;
- const ids=(el.getAttribute('data-gi')||'').split(' '),live=el.hasAttribute('data-gi-live');
+ const ids=(el.getAttribute('data-gi')||'').split(' '),explicit=el.getAttribute('data-gi-source'),live=el.hasAttribute('data-gi-live')||explicit!==null;
  const known=ids.map(id=>catalog[id]).filter(Boolean);
  // What is typed in a text area is the user's: only its placeholder is presentation.
  if((live||known.length)&&el.tagName!=='TEXTAREA'){
@@ -59,11 +59,11 @@ function localize(el){
   if(el.tagName==='OPTION'&&!el.hasAttribute('value'))el.setAttribute('value',el.value);
   for(const node of el.childNodes){if(node.nodeType!==3)continue;
    const previous=textState.get(node),current=node.nodeValue;
-   const source=previous&&current===previous.last?previous.source:current;
+   const source=previous&&current===previous.last?previous.source:explicit!==null&&(!previous||current===t(explicit)||normalize(current)===normalize(explicit))?explicit:current;
    if(live||known.some(row=>row[0]===normalize(source)))replaceText(node,source);
   }
  }
- for(const attr of ['placeholder','title','aria-label']){
+ for(const attr of ['placeholder','title','aria-label','alt']){
   const marker=el.getAttribute('data-gi-'+attr),row=catalog[marker];if(!row&&marker!=='live')continue;
   let states=attributeState.get(el);if(!states){states={};attributeState.set(el,states)}
   const old=states[attr],value=el.getAttribute(attr),source=old&&old.last===value?old.source:value;
@@ -71,7 +71,7 @@ function localize(el){
   const next=t(source);states[attr]={source,last:next};if(value!==next)el.setAttribute(attr,next);
  }
 }
-const selector='[data-gi],[data-gi-live],[data-gi-placeholder],[data-gi-title],[data-gi-aria-label]';
+const selector='[data-gi-source],[data-gi],[data-gi-live],[data-gi-placeholder],[data-gi-title],[data-gi-aria-label],[data-gi-alt]';
 // These are presentation-only hosts. Do not add business-data containers here.
 const liveSelectors=[
  ...['crmLeadFiltro','crmLStatus','crmLPriority','crmCCat','crmATipo','crmAKind','crmAAncla','crmAStatus','crmAPri','crmKFiltro','crmKTipo','crmKRol','crmOTipo','crmOPri'].map(id=>'#'+id+' option'),
@@ -150,7 +150,7 @@ function boot(){
   if(r.type==='childList'){if(r.removedNodes.length)queue(r.target);for(const n of r.addedNodes)queue(n.nodeType===1?n:n.parentElement)}
   else queue(r.target.nodeType===3?r.target.parentElement:r.target);
  }});
- observer.observe(document.body,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['placeholder','title','aria-label']});
+ observer.observe(document.body,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['placeholder','title','aria-label','alt']});
  window.addEventListener('storage',e=>{if(e.key===KEY&&languages.includes(e.newValue)&&e.newValue!==language)setLanguage(e.newValue)});
 }
 // Dialog messages use the same reviewed catalogue; typed defaults and answers stay untouched.

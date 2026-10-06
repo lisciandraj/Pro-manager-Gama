@@ -13,6 +13,27 @@ async function fixtures(page){await page.evaluate(()=>{
  host.innerHTML='<div id="viewLegacy"><table><tr><th>Nombre</th><th>Ciudad</th></tr><tr><td>Uno</td><td>Quito</td></tr><tr><td>Dos</td><td>Manta</td></tr></table></div><div id="viewShared"></div>';
  ArcUI.render(host.querySelector('#viewShared'),ArcUI.table({columns:[{key:'name',label:'Nombre'},{key:'city',label:'Ciudad'}],items:[{name:'Alpha',city:'Quito'},{name:'Beta',city:'Manta'},{name:'Gamma',city:'Cuenca'}]}));
 });await expect(page.locator('#viewFixtures .gamaTableViews')).toHaveCount(2)}
+test('card field labels stay visible on phones, in landscape and on desktop',async({page})=>{
+ await boot(page,390,844);await fixtures(page);
+ for(const id of ['viewLegacy','viewShared'])await page.locator('#'+id+' [data-table-view=cards]').click();
+ for(const width of [320,390,667,844,1440]){
+  await page.setViewportSize({width,height:844});
+  for(const id of ['viewLegacy','viewShared']){
+   const field=page.locator('#'+id+' td').nth(1);
+   const label=await field.evaluate(c=>{const s=getComputedStyle(c,'::before');return {text:s.content,column:c.dataset.col,display:s.display,width:parseFloat(s.width)}});
+   expect(label.column).toBeTruthy();
+   expect(label.text,`${id} label at ${width}px`).toBe(JSON.stringify(label.column));
+   expect(label.display,`${id} label at ${width}px`).not.toBe('none');
+   expect(label.width).toBeGreaterThan(0);
+  }
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.setViewportSize({width:390,height:844});
+ await page.locator('#viewShared [data-table-view=table]').click();
+ expect(await page.locator('#viewShared td').nth(1).evaluate(c=>getComputedStyle(c,'::before').display)).toBe('none');
+ await page.locator('#viewShared [data-table-view=cards]').click();
+ expect(await page.locator('#viewShared td').nth(1).evaluate(c=>getComputedStyle(c,'::before').display)).not.toBe('none');
+});
 test('legacy and shared tables switch to uniform multi-column cards and retain independent preferences',async({page})=>{
  await boot(page);await fixtures(page);
  for(const id of ['viewLegacy','viewShared']){

@@ -15,6 +15,29 @@ async function boot(page){
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));
  await expect(page.locator('#mainmenu [data-gama-module=dashboard]')).toBeVisible();
 }
+test('product card field labels are painted in all languages and viewport sizes',async({page},info)=>{
+ await boot(page);
+ for(const language of ['fr','en','es']){
+  await page.evaluate(async lang=>{ArcRouter.show('mainmenu');await GamaI18n.setLanguage(lang);ArcRouter.open('products')},language);
+  const host=page.locator('#productsTable');
+  await expect(host.locator('tbody tr')).toHaveCount(1);
+  await host.locator('[data-table-view=cards]').click();
+  for(const width of [320,390,667,844,1440]){
+   await page.setViewportSize({width,height:844});
+   const labels=await host.locator('tbody tr').first().evaluate(row=>[...row.cells]
+    .filter(c=>c.dataset.col&&!c.hasAttribute('data-gama-title')&&getComputedStyle(c).display!=='none')
+    .map(c=>{const s=getComputedStyle(c,'::before');return {column:c.dataset.col,text:s.content,display:s.display,width:parseFloat(s.width)}}));
+   expect(labels.length,language+' '+width).toBeGreaterThan(2);
+   for(const label of labels){
+    expect(label.display,language+' '+width+' '+label.column).not.toBe('none');
+    expect(label.text).toBe(JSON.stringify(label.column));expect(label.width).toBeGreaterThan(0);
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:info.outputPath('product-card-'+language+'.png'),fullPage:true});
+ }
+});
 // Check painted controls, excluding intentional horizontal scrolling (tables,
 // tab strips) and the unpainted contents of closed details/search menus.
 function layoutProblems(root){

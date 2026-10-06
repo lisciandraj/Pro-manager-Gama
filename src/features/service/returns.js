@@ -239,7 +239,7 @@ function wizardKind(){
     <button type="button" class="arcButton secondary" data-gr-kind="supplier">${tr('Devolución a un proveedor')}</button>
    </div>`,T('Volver'),async()=>{});
  /* No hay nada que guardar en este paso: la elección es el botón. */
- el.querySelector('#gsSave').remove();
+ el.querySelector('#gsSave')?.remove();
  el.querySelectorAll('[data-gr-kind]').forEach(b=>b.onclick=()=>{el.remove();wizardSource(b.dataset.grKind)});
 }
 /* Paso 2: de qué documento viene. La lista trae lo que hace falta para
@@ -252,7 +252,7 @@ async function wizardSource(kind){
    `<p class="grSteps"><span>${tr('1 · Tipo')}</span><span aria-current="step">${tr('2 · Documento')}</span><span>${tr('3 · Productos')}</span></p>
     <label class="grField" data-gi-live data-gi=5f55edf90089>Buscar<input id="grSrcSearch" type="search" placeholder="${esc(T('Número o nombre'))}"></label>
     <div id="grSrcList" class="grScroll"></div>`,T('Volver'),async()=>{});
-  el.querySelector('#gsSave').remove();
+  el.querySelector('#gsSave')?.remove();
   const draw=q=>{
    const rows=d.rows.filter(r=>!q||`${r.number} ${r.partner}`.toLowerCase().includes(q.toLowerCase()));
    window.ArcUI.render(el.querySelector('#grSrcList'),rows.length?`<table class="arcTable grTable"><tbody>${rows.slice(0,60).map(r=>`<tr>
@@ -457,7 +457,7 @@ async function openFile(fileId){
    ?`<p><a href="${esc(f.data_url)}" download="${esc(f.filename)}">${esc(T('Descargar'))} ${esc(f.filename)}</a></p>`
    :`<img alt="${esc(f.filename)}" src="${esc(f.data_url)}" style="max-width:100%;max-height:62vh">`;
   const el=window.GamaSales.modal(f.filename,body,T('Volver'),async()=>{});
-  el.querySelector('#gsSave').remove();
+  el.querySelector('#gsSave')?.remove();
  }catch(e){window.gamaToast?.(err(e))}
 }
 /* ------------------------------------------------------------- 1 · mercancía */

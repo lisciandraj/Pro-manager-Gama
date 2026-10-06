@@ -237,12 +237,12 @@
       return pending;
     };
   }
-  function dialog({ title, body = "", saveLabel = translate("Guardar"), onSave, error = errorMessage, className = "", ids = {} }) {
+  function dialog({ title, body = "", saveLabel = translate("Guardar"), onSave, error = errorMessage, className = "", ids = {}, dismissOnly = ["Cerrar", "Fermer", "Close", "Volver", "Retour", "Back"].includes(String(saveLabel).trim()) }) {
     const el = document.createElement("dialog"), lastFocus = document.activeElement;
     const titleId = "arc-dialog-title-" + ++sequence;
     el.className = "arcDialog " + className;
     el.setAttribute("aria-labelledby", titleId);
-    el.innerHTML = `<form class="arcForm"><h2 id="${titleId}">${escapeHtml(translate(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions">${button({ id: ids.close, label: translate("Volver"), attrs: "data-arc-dialog-close" })}${button({ id: ids.save, type: "submit", variant: "primary", label: translate(saveLabel) })}</div></form>`;
+    el.innerHTML = `<form class="arcForm"><h2 id="${titleId}">${escapeHtml(translate(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions">${button({ id: ids.close, label: translate("Volver"), attrs: "data-arc-dialog-close" })}${dismissOnly ? "" : button({ id: ids.save, type: "submit", variant: "primary", label: translate(saveLabel) })}</div></form>`;
     document.body.appendChild(el);
     let formApi;
     const close = () => {
@@ -259,7 +259,8 @@
       if (formApi == null ? void 0 : formApi.pending) e.preventDefault();
     });
     el.addEventListener("close", remove, { once: true });
-    formApi = bindForm(el.querySelector("form"), () => onSave(el), { error, onSuccess: () => {
+    if (dismissOnly) el.querySelector("form").addEventListener("submit", (e) => e.preventDefault());
+    else formApi = bindForm(el.querySelector("form"), () => onSave(el), { error, onSuccess: () => {
       el.close();
     } });
     el.showModal();
@@ -269,7 +270,7 @@
   function confirm({ title = translate("Confirmar"), message, confirmLabel = translate("Confirmar"), variant = "danger" } = {}) {
     return new Promise((resolve) => {
       let accepted = false;
-      const el = dialog({ title, body: "<p>" + escapeHtml(message) + "</p>", saveLabel: confirmLabel, onSave: () => {
+      const el = dialog({ title, body: "<p>" + escapeHtml(message) + "</p>", saveLabel: confirmLabel, dismissOnly: false, onSave: () => {
         accepted = true;
       } });
       const save = el.querySelector("[type=submit]");

@@ -712,7 +712,9 @@
     "src/styles/modules/ui.css"
   ],
   "vendors": [
-    "assets/vendor/jspdf-2.5.2.umd.min.js"
+    "assets/vendor/jspdf-4.2.1.umd.min.js",
+    "assets/vendor/xlsx-0.20.3.full.min.js",
+    "assets/vendor/zxing-browser-0.2.1.min.js"
   ],
   "startupBundles": [
     {

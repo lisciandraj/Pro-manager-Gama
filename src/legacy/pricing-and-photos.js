@@ -11,7 +11,7 @@ window.gamaPriceFor=window.gamaPriceFor||function(p){return p?window.gamaCategor
    sin nube, el producto sí lleva su foto encima y se pinta directamente. */
 window.gamaPhotoCell=function(p){
  if(!p)return window.GamaPhotos?window.GamaPhotos.placeholder():'';
- if(p.photo)return '<img class="product-img" loading="lazy" src="'+p.photo+'" alt="">';
+ if(gamaWorkspacePhoto(p.photo))return '<img class="product-img" loading="lazy" src="'+gamaWorkspacePhoto(p.photo)+'" alt="">';
  if(p.hasPhoto&&window.GamaPhotos&&p.id){gamaHydratePhotos();return window.GamaPhotos.slot(p.id)}
  return window.GamaPhotos?window.GamaPhotos.placeholder():'';
 };

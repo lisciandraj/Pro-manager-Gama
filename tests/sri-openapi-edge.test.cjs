@@ -2,8 +2,9 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {webcrypto,createHmac}=require('node:crypto');
-const source=fs.readFileSync('supabase/functions/gama-sri/index.ts','utf8').replace(/^import.*\n/,'');
-const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const source=fs.readFileSync('supabase/functions/gama-sri/index.ts','utf8').replace(/^import.*\n/gm,'');
+const http=fs.readFileSync('supabase/functions/_shared/http.mjs','utf8').replace(/^export /gm,'');
+const code=http+'\n'+ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const ID='00000000-0000-4000-8000-000000000001';
 const KEY='2709202601179001234500110010010000000011234567813';
 function harness(options={}){
@@ -46,7 +47,7 @@ function harness(options={}){
    if(body.action==='openapi_preflight')return Response.json({ready:true});
    if(options.worker)return options.worker(body);
    return Response.json({status:'processing',access_key:KEY,provider_status:'RECIBIDA'});
-  },Response,Request,Blob,URL,TextEncoder,Uint8Array,AbortController,crypto:webcrypto,atob,btoa,setTimeout,clearTimeout,console
+  },Response,Request,Blob,URL,TextEncoder,TextDecoder,Uint8Array,AbortController,crypto:webcrypto,atob,btoa,setTimeout,clearTimeout,console
  });
  return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:options.serviceAuth?'Bearer service':'Bearer user','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
 }

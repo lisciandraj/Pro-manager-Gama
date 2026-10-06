@@ -3,7 +3,7 @@
 <head>
 <link rel="preload" href="assets/vendor/supabase-2.115.0.js" as="script" integrity="sha384-CLZeq1dk8+Uzrs7TVvBUdlFoV5F0DMqgRoeHa8g5wJcuPe5SkVfEvdxB0ZuzlnBQ" crossorigin="anonymous">
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://mknsaibrewksgomuslev.supabase.co wss://mknsaibrewksgomuslev.supabase.co https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self'; form-action 'self' https://mail.google.com https://outlook.live.com; base-uri 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://mknsaibrewksgomuslev.supabase.co wss://mknsaibrewksgomuslev.supabase.co; frame-src 'self'; worker-src 'self' blob:; media-src 'self' blob:; form-action 'self' https://mail.google.com https://outlook.live.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
 <link rel="preconnect" href="https://mknsaibrewksgomuslev.supabase.co" crossorigin>
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -66,9 +66,9 @@
     </div>
   </div>
   <div class="headActions">
-    <button class="arcButton headIcon" data-gama-staff-header onclick="focusGlobalSearch()" data-gi-aria-label=5f55edf90089 aria-label="Buscar">⌕</button>
-    <button class="arcButton headIcon plus" onclick="showTab('billing',null)" data-gi-aria-label=cf0070030a82 aria-label="Nueva factura">＋</button>
-    <button class="arcButton headIcon" data-gama-staff-header onclick="showTab('mainmenu',null)" data-gi-aria-label=1e9c027c8f80 aria-label="Menú principal">☰</button>
+    <button class="arcButton headIcon" data-gama-staff-header data-coco-click="click_0" data-gi-aria-label=5f55edf90089 aria-label="Buscar">⌕</button>
+    <button class="arcButton headIcon plus" data-coco-click="click_1" data-gi-aria-label=cf0070030a82 aria-label="Nueva factura">＋</button>
+    <button class="arcButton headIcon" data-gama-staff-header data-coco-click="click_2" data-gi-aria-label=1e9c027c8f80 aria-label="Menú principal">☰</button>
   </div>
 </header>
 
@@ -78,22 +78,22 @@
 <div class="wrap">
 
 <div class="tabs">
-<button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" onclick="window.gamaShowPurchases ? window.gamaShowPurchases() : alert('El módulo Compras todavía se está cargando. Recarga la página.')"><span data-gi=1bc70818a30d>Compras</span></button>
-<button data-gama-module="dashboard" class="arcButton tab active" onclick="showTab('dashboard',this)">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="arcButton tab" onclick="showTab('home',this)">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
-<button data-gama-module="products" class="arcButton tab" onclick="showTab('products',this)">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="arcButton tab" onclick="showTab('clients',this)">♙<span data-gi=07e1ce1859da>Clientes</span></button>
-<button data-gama-module="billing" class="arcButton tab" onclick="showTab('billing',this)">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" onclick="showTab('more',this)">•••<span data-gi=dd7ab474d5a4>Más</span></button>
+<button type="button" class="arcButton tab" data-gama-module="gamaPurchasesV14" id="gamaPurchasesStaticTab" data-coco-click="click_3"><span data-gi=1bc70818a30d>Compras</span></button>
+<button data-gama-module="dashboard" class="arcButton tab active" data-coco-click="click_4">▦<span data-gi=67b696468610>Dashboard</span></button><button data-gama-module="home" class="arcButton tab" data-coco-click="click_5">⌂<span data-gi=58fcc9468fe1>Inicio</span></button>
+<button data-gama-module="products" class="arcButton tab" data-coco-click="click_6">◇<span data-gi=f598138f026c>Productos</span></button><button data-gama-module="clients" class="arcButton tab" data-coco-click="click_7">♙<span data-gi=07e1ce1859da>Clientes</span></button>
+<button data-gama-module="billing" class="arcButton tab" data-coco-click="click_8">▤<span data-gi=a838b6c699d2>Facturación</span></button><button data-gama-module="more" class="arcButton tab" data-coco-click="click_9">•••<span data-gi=dd7ab474d5a4>Más</span></button>
 </div>
 
 <section id="dashboard" data-gi-aria-label=67b696468610 aria-label="Dashboard"></section>
 <section id="home">
 <div class="arcPanel card"><h2 data-gi=2760658f4d58>Escanear producto</h2>
-<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" onclick="scan('homeBarcode')" data-gi=12cf969040ce>Escanear</button></div>
-<button class="arcButton primary" style="width:100%;margin-top:9px" onclick="searchProduct()" data-gi=5f55edf90089>Buscar</button>
+<div class="scanner"><input id="homeBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button class="arcButton secondary" data-coco-click="click_10" data-gi=12cf969040ce>Escanear</button></div>
+<button class="arcButton primary" style="width:100%;margin-top:9px" data-coco-click="click_11" data-gi=5f55edf90089>Buscar</button>
 <div id="homeResult"></div><video id="camera" playsinline></video>
 </div>
 <div class="arcPanel card"><h3 data-gi=be9ed2baa20c>Copias de seguridad</h3>
 <p class="muted" data-gi=92bf1db0b4ef>Exporta tus bases de productos, clientes y auditoría en archivos Excel compatibles.</p>
-<div class="actions"><button class="arcButton primary" onclick="exportExcel()" data-gi=8be94f4e51a9>Exportar Excel</button><button class="arcButton secondary" onclick="exportJSONBackup()"  data-gi=3730391d8c37>Exportar datos y archivos</button></div>
+<div class="actions"><button class="arcButton primary" data-coco-click="exportExcel" data-gi=8be94f4e51a9>Exportar Excel</button><button class="arcButton secondary" data-coco-click="click_13"  data-gi=3730391d8c37>Exportar datos y archivos</button></div>
 </div>
 </section>
 
@@ -101,7 +101,7 @@
 <div class="arcPanel card">
 <h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2>
 <div class="row">
-<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" onclick="event.preventDefault();event.stopPropagation();window.startGamaScan('pBarcode')" data-gi=12cf969040ce>Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
+<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" data-coco-click="click_14" data-gi=12cf969040ce>Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
 <div><label data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
 <div><label data-gi=4fb77e0eba6a>Familia</label><input id="pFamily"></div><div><label data-gi=42f6bf37d32c>Líneas</label><input id="pLines"></div>
 <div><label data-gi=8e2ca9b0cc8a>Marca</label><input id="pBrand"></div><div><label data-gi=6bbcd2f13499>Presentación</label><input id="pPresentation" data-gi-placeholder=4be5d9d9f1c5 placeholder="Ej. Caja x12"></div>
@@ -118,11 +118,11 @@
 <div><label data-gi=466b08e42a7b>Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
 </div>
 <p class="muted" data-gi=a23425a8bcb4>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en la pestaña Tarifas de Ventas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
-<div class="actions"><button class="arcButton primary" onclick="createProduct()" data-gi=bf33db6763e2>Crear producto</button><button class="arcButton secondary" onclick="clearProductForm()" data-gi=08df229fa5ad>Limpiar</button></div>
+<div class="actions"><button class="arcButton primary" data-coco-click="click_15" data-gi=bf33db6763e2>Crear producto</button><button class="arcButton secondary" data-coco-click="click_16" data-gi=08df229fa5ad>Limpiar</button></div>
 <input type="hidden" id="editingBarcode">
 <input type="hidden" id="editingProductId">
 </div>
-<div class="arcPanel card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" oninput="GamaPage.reset('products');renderProducts(this.value)" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
+<div class="arcPanel card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" data-coco-input="input_0" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
 </section>
 
 
@@ -130,12 +130,12 @@
 <div class="arcPanel card">
 <h3 data-gi=292f20ee64bc>Exportar</h3>
 <div class="actions">
-<button class="arcButton primary" onclick="exportExcel()" data-gi=033706b7012a>Excel — Todos los módulos</button>
-<button class="arcButton secondary" onclick="exportJSONBackup()" data-gi=678575c08965>Copia completa JSON</button>
+<button class="arcButton primary" data-coco-click="exportExcel" data-gi=033706b7012a>Excel — Todos los módulos</button>
+<button class="arcButton secondary" data-coco-click="click_18" data-gi=678575c08965>Copia completa JSON</button>
 </div>
 <h3 data-gi=b299bd553de1>Restaurar JSON</h3>
 <input id="jsonImport" type="file" accept=".json,application/json">
-<button class="arcButton warning" style="width:100%;margin-top:8px" onclick="restoreJSON()" data-gi=299aa6e210d0>Restaurar copia completa</button>
+<button class="arcButton warning" style="width:100%;margin-top:8px" data-coco-click="click_19" data-gi=299aa6e210d0>Restaurar copia completa</button>
 <p class="muted" data-gi=4d7b889125b2>La restauración JSON reemplaza Productos, Clientes, Movimientos y Facturas.</p>
 </div>
 </section>
@@ -144,16 +144,16 @@
 <section id="billing">
 <div class="arcPanel card"><h2 data-gi=080a5b7caa91>Nuevo presupuesto</h2>
 <div class="row"><div><label data-gi=364810aefa0b>RUC emisor</label><input id="sellerRuc"></div><div><label data-gi=203af5250577>Razón social</label><input id="sellerName"></div><div><label data-gi=900413cbb4f3>Establecimiento</label><input id="sellerEst" value="001" maxlength="3"></div><div><label data-gi=e6b24b25ac99>Punto de emisión</label><input id="sellerPoint" value="001" maxlength="3"></div>
-<div style="grid-column:1/-1"><label data-gi=f851d9a83ab0>Cliente</label><select id="clientSelect" onchange="selectClientForInvoice()"><option value="" data-gi=57780de4ab62>Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
+<div style="grid-column:1/-1"><label data-gi=f851d9a83ab0>Cliente</label><select id="clientSelect" data-coco-change="change_0"><option value="" data-gi=57780de4ab62>Selecciona un cliente...</option></select><small id="quoteTariff" class="quoteTariff"></small></div>
 <div><label data-gi=4431e77fbebe>Identificación cliente</label><input id="clientId" readonly></div><div><label data-gi=3543b80b4661>Nombre / Razón social cliente</label><input id="clientName" readonly></div><div><label data-gi=2af66cb65da8>Dirección</label><input id="clientAddress" readonly></div><div><label data-gi=0b61df381e1b>Correo</label><input id="clientEmail" type="email" readonly></div><div><label data-gi=cfd959125106>Forma de pago</label><select id="payment"><option data-gi=4ed786ebd4f8>Transferencia</option><option data-gi=9e8caac2b76e>Tarjeta de crédito</option><option data-gi=213d3a86f31a>Tarjeta de débito</option><option data-gi=22fac51606a2>Efectivo</option><option data-gi=0108f1aeeef4>Otros</option></select></div></div>
-<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="arcButton secondary" onclick="scan('invoiceBarcode')" data-gi=12cf969040ce>Escanear</button></div>
-<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="arcButton primary" style="margin-top:27px;width:100%" onclick="addInvoiceItem()" data-gi=7542a5e800f9>Añadir</button></div></div>
-<div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" onclick="generateInvoice()" data-gi=f3db8ba5ef50>Generar presupuesto</button><button class="arcButton secondary" onclick="downloadInvoicePdf()" data-gi=59e0b6ca6f89>Descargar PDF</button><button class="arcButton secondary" onclick="emailInvoice()" data-gi=4a46598fb8f2>Enviar por correo</button></div><div id="invoicePreview"></div>
+<h3 data-gi=426234e72a5b>Detalle</h3><div class="scanner"><input id="invoiceBarcode" data-gi-placeholder=e876746e9dc3 placeholder="Código de barras del producto"><button class="arcButton secondary" data-coco-click="click_20" data-gi=12cf969040ce>Escanear</button></div>
+<div id="invoiceProductInfo" class="muted"></div><div class="row"><div><label data-gi=8930e00fcc39>Cantidad</label><input id="invoiceQty" type="number" min="1" value="1"></div><div><button class="arcButton primary" style="margin-top:27px;width:100%" data-coco-click="click_21" data-gi=7542a5e800f9>Añadir</button></div></div>
+<div id="invoiceItems"></div><div class="actions"><button class="arcButton primary" data-coco-click="click_22" data-gi=f3db8ba5ef50>Generar presupuesto</button><button class="arcButton secondary" data-coco-click="click_23" data-gi=59e0b6ca6f89>Descargar PDF</button><button class="arcButton secondary" data-coco-click="click_24" data-gi=4a46598fb8f2>Enviar por correo</button></div><div id="invoicePreview"></div>
 </div></section>
 
 <section id="audit"></section>
 
-<section id="barcode"><div class="arcPanel card"><h3 data-gi=28dcf5503d11>Generar un nuevo código de barras</h3><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" onclick="generateBarcode()" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" onclick="downloadBarcodePdf()" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="arcPanel card"><h3 data-gi=28dcf5503d11>Generar un nuevo código de barras</h3><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" data-coco-click="click_25" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" data-coco-click="click_26" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 

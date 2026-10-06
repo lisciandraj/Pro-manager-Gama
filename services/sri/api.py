@@ -4,8 +4,10 @@ Run behind HTTPS; the PKCS#12 and password are environment-only and never
 returned to the browser or saved in the database.
 """
 import base64
+import asyncio
 import hashlib
 import hmac
+import json
 import os
 import smtplib
 from email.message import EmailMessage
@@ -44,12 +46,29 @@ def notify(issue, xml, pdf):
 
 @app.post('/execute')
 async def execute(request: Request):
-    body = await request.body()
+    limit = 2_000_000
+    try:
+        if int(request.headers.get('content-length', '0')) > limit:
+            raise HTTPException(413, 'PAYLOAD_TOO_LARGE')
+    except ValueError:
+        raise HTTPException(400, 'INVALID_CONTENT_LENGTH')
+    chunks = []
+    size = 0
+    try:
+        async with asyncio.timeout(15):
+            async for chunk in request.stream():
+                size += len(chunk)
+                if size > limit:
+                    raise HTTPException(413, 'PAYLOAD_TOO_LARGE')
+                chunks.append(chunk)
+    except TimeoutError:
+        raise HTTPException(408, 'PAYLOAD_TIMEOUT')
+    body = b''.join(chunks)
     expected = hmac.new(os.environ['SRI_WORKER_SECRET'].encode(), body, hashlib.sha256).hexdigest()
     if not hmac.compare_digest(request.headers.get('x-sri-signature', ''), expected):
         raise HTTPException(401, 'UNAUTHORIZED')
     try:
-        data = await request.json()
+        data = json.loads(body)
         action = data['action']
         if action == 'status':
             provider = os.getenv('SRI_PROVIDER', 'private_worker')

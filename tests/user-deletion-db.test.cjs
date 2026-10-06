@@ -10,7 +10,8 @@ test('permanent login deletion releases email, revokes stale JWTs and preserves 
   // Platform fixture: model the real Auth uniqueness and cascading credentials.
   await db.exec(`create unique index fixture_auth_email on auth.users(lower(email));
    alter table auth.mfa_factors drop constraint mfa_factors_user_id_fkey,add foreign key(user_id) references auth.users(id) on delete cascade;
-   create table auth.sessions(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id) on delete cascade);
+   create table if not exists auth.sessions(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id) on delete cascade);
+   alter table auth.sessions drop constraint sessions_user_id_fkey,add foreign key(user_id) references auth.users(id) on delete cascade;
    create table auth.identities(id uuid primary key default gen_random_uuid(),user_id uuid references auth.users(id) on delete cascade);
    create table auth.refresh_tokens(id uuid primary key default gen_random_uuid(),user_id text,session_id uuid references auth.sessions(id) on delete cascade);
    alter table storage.objects add column owner uuid references auth.users(id);

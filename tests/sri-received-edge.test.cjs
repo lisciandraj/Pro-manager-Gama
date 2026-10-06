@@ -1,6 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {webcrypto,createHmac}=require('node:crypto');
-const code=ts.transpileModule(fs.readFileSync('supabase/functions/gama-sri-received/index.ts','utf8').replace(/^import.*\n/,''),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const http=fs.readFileSync('supabase/functions/_shared/http.mjs','utf8').replace(/^export /gm,'');
+const code=http+'\n'+ts.transpileModule(fs.readFileSync('supabase/functions/gama-sri-received/index.ts','utf8').replace(/^import.*\n/gm,''),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const ID='00000000-0000-4000-8000-000000000001',KEY='7'.repeat(49),RUC='1719304188001';
 function harness(options={}){
  let handler;const calls=[],written=[],files=new Map(),env={SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',SRI_WORKER_URL:'https://worker.invalid',SRI_WORKER_SECRET:'fixture',...options.env};
@@ -12,7 +13,7 @@ function harness(options={}){
  vm.runInNewContext(code,{Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn}},createClient:(url,key)=>db(key==='service'),
   fetch:async(url,init)=>{const data=JSON.parse(init.body);calls.push(data.action);assert.equal(init.redirect,'error');assert.equal(init.headers['x-sri-signature'],createHmac('sha256',env.SRI_WORKER_SECRET).update(init.body).digest('hex'));
    if(options.workerError)return Response.json({detail:'SRI_RECEIVED_NOT_AUTHORIZED'},{status:422});
-   return Response.json(data.action==='received_inspect'?{issuer_ruc:RUC,access_key:KEY,sources:['001001000000001']}:{rows:[proof]})},Response,Request,URL,TextEncoder,Uint8Array,AbortSignal,crypto:webcrypto,console});
+   return Response.json(data.action==='received_inspect'?{issuer_ruc:RUC,access_key:KEY,sources:['001001000000001']}:{rows:[proof]})},Response,Request,URL,TextEncoder,TextDecoder,Uint8Array,AbortSignal,crypto:webcrypto,setTimeout,clearTimeout,console});
  return {calls,written,files,request:async input=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:'Bearer fixture','Content-Type':'application/json'},body:JSON.stringify(input??{xml_base64:btoa('<fake-browser-xml/>'),amount:999})}));return{status:r.status,...await r.json()}}};
 }
 test('received XML uses authorized data and server-matched invoice, archives privately and never writes payment',async()=>{

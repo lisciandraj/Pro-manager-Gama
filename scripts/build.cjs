@@ -1,5 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const {root,manifest,hash,runtimeFiles,header,runtimeScript,validateManifest}=require('./lib/assets.cjs');
+const {secureHtml}=require('./lib/csp.cjs');
 validateManifest();
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
@@ -18,12 +19,12 @@ fs.writeFileSync(path.join(root,'architect-components.css'),manifest.moduleStyle
 fs.copyFileSync(path.join(root,'src/ui/base.css'),path.join(root,'architect-base.css'));
 const assets=Object.fromEntries([...runtimeFiles(),...manifest.vendors].map(file=>[file,file+'?v='+hash(file)]));
 fs.writeFileSync(path.join(root,'architect-assets.js'),'/* Generated runtime asset versions. */\nwindow.ArcAssets='+JSON.stringify(assets,null,2)+';\n');
-const versionHtml=html=>html.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,file)=>{
+const versionHtml=html=>secureHtml(html.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,file)=>{
  if(/^https?:/.test(file)||!fs.existsSync(path.join(root,file)))return full;
  // Match the dynamic SDK loader exactly so the browser reuses the preload.
  if(file==='assets/vendor/supabase-2.115.0.js')return key+'="'+file+'"';
  return key+'="'+file+'?v='+hash(file)+'"';
-});
+}));
 fs.writeFileSync(path.join(root,'index.html'),versionHtml(fs.readFileSync(path.join(root,'src/app/index.html'),'utf8')));
 for(const file of ['gama-site.html','camera-check.html','tms-tracking.html','tms-driver.html']){
  fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8')));

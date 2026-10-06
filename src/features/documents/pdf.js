@@ -17,8 +17,8 @@ let authEpoch=0;
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')authEpoch++});
 async function ready(){
  const epoch=authEpoch;
- if(!window.jspdf?.jsPDF)await window.ArcLoadScript('assets/vendor/jspdf-2.5.2.umd.min.js',{
-  integrity:'sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/',
+ if(!window.jspdf?.jsPDF)await window.ArcLoadScript('assets/vendor/jspdf-4.2.1.umd.min.js',{
+  integrity:'sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3',
   crossOrigin:'anonymous',referrerPolicy:'no-referrer',validate:()=>!!window.jspdf?.jsPDF
  });
  if(epoch!==authEpoch)throw Error('AUTH_CHANGED');

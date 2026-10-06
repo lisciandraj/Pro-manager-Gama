@@ -64,7 +64,7 @@ test("PDF download can recover from an engine network failure without reloading 
 }) => {
   await boot(page);
   let attempts = 0;
-  await page.route("**/jspdf-2.5.2.umd.min.js*", (r) =>
+  await page.route("**/jspdf-4.2.1.umd.min.js*", (r) =>
     ++attempts === 1 ? r.abort() : r.continue(),
   );
   expect(

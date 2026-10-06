@@ -1,7 +1,7 @@
 /* Same-origin pinned workbook engine; no network data, tokens or business writes. */
 self.onmessage=event=>{try{
  const {buffer,sheetName,maxRows,filename}=event.data;if(!(buffer instanceof ArrayBuffer)||buffer.byteLength>20971520)throw Error('IMPORT_FILE_TOO_LARGE');
- importScripts(new URL('assets/vendor/xlsx-0.18.5.full.min.js',self.location.href).href);
+ importScripts(new URL('assets/vendor/xlsx-0.20.3.full.min.js',self.location.href).href);
  // CSV bytes have no workbook encoding record. Decode before parsing so names,
  // accented headers and identifiers with leading zeros survive the Worker.
  let input=buffer,options={type:'array',cellDates:true};

@@ -1,3 +1,4 @@
+import {readJsonBody,BodyError} from '../_shared/http.mjs';
 const origin='https://lisciandraj.github.io';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function createHandler({env,fetch:fetcher}){
@@ -12,7 +13,7 @@ export function createHandler({env,fetch:fetcher}){
  const profile=await request('/rest/v1/profiles?select=id,role,active,access_profile&id=eq.'+user.data.id);
  if(!profile.ok||profile.data?.[0]?.role!=='administrador'||profile.data[0].active!==true)return reply({error:'ADMIN_OR_MFA_REQUIRED'},403);
  const mod=await request('/rest/v1/rpc/gama_identity_admin_allowed',{method:'POST',body:{}});if(!mod.ok||mod.data!==true)return reply({error:'MODULE_OR_ACTION_NOT_ALLOWED'},403);
- const text=await req.text();if(text.length>12000)return reply({error:'PAYLOAD_TOO_LARGE'},413);const data=JSON.parse(text);
+ const data=await readJsonBody(req,12000);
  if(!['invite','invite_b2b'].includes(data.action))return reply({error:'INVALID_ACTION'},400);
  const b2b=data.action==='invite_b2b',email=String(data.email||'').trim().toLowerCase(),name=String(data.name||'').trim(),role=b2b?'cliente':data.role;
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>200||(!b2b&&!['administrador','comercial','almacenero','rrhh'].includes(role))||(b2b&&!uuid.test(data.customer_id||'')))return reply({error:'INVALID_INVITATION'},400);
@@ -31,5 +32,5 @@ export function createHandler({env,fetch:fetcher}){
  if(!saved.ok)return reply({error:'INVITED_REVIEW_PROFILE',user_id:id},409);
  if(b2b){const linked=await request('/rest/v1/rpc/gama_b2b_admin',{method:'POST',body:{p_action:'member',p_data:{customer_id:data.customer_id,profile_id:id,active:true,expected_customer_id:null}}});if(!linked.ok||linked.data?.saved!==true)return reply({error:'INVITED_REVIEW_B2B',user_id:id},409)}
  return reply({invited:true,user_id:id,active:false,...(b2b?{portal_access:true}:{})});
- }catch{return reply({error:'IDENTITY_UNAVAILABLE'},503)}};
+ }catch(error){return reply({error:error instanceof BodyError?error.message:'IDENTITY_UNAVAILABLE'},error instanceof BodyError?error.status:503)}};
 }

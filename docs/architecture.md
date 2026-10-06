@@ -88,7 +88,7 @@ Le site GAMA est compilé séparément par `npm run build:storefront` dans `dist
 
 ### Sondages et contacts
 
-Le module `surveys` utilise le chargeur différé et son rendu partagé `gama-survey-form.js`. Son formulaire public Cloudflare est indépendant de l’état du catalogue ; chaque questionnaire nécessite une publication explicite. Les RPC et données privées sont décrites dans [surveys.md](surveys.md).
+Le module `surveys`, affiché **Sondages et marketing**, utilise le chargeur différé et son rendu partagé `gama-survey-form.js`. L’onglet Marketing charge séparément `gama-marketing.js` et conserve des campagnes e-mail ou WhatsApp avec préparation individuelle et suivi des ouvertures. Son formulaire public Cloudflare est indépendant de l’état du catalogue ; chaque questionnaire nécessite une publication explicite. Les RPC et données privées sont décrites dans [surveys.md](surveys.md).
 
 `gama-contacts.js` conserve un adaptateur léger pour les routes historiques ; `gama-contacts-workspace.js` se charge à l’ouverture. Les personnes clientes utilisent `crm_contacts`, et leur enregistrement atomique respecte les droits CRM. Voir [contacts.md](contacts.md).
 

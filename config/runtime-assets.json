@@ -465,6 +465,10 @@
       "output": "gama-surveys.js"
     },
     {
+      "source": "src/features/surveys/marketing.js",
+      "output": "gama-marketing.js"
+    },
+    {
       "source": "src/features/contacts/contacts.js",
       "output": "gama-contacts-workspace.js"
     },

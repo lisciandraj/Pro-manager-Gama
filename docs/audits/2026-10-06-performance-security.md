@@ -53,7 +53,9 @@ Les 397 alertes informatives d'index inutilisés après migration ne justifient 
 - Acceptation de sécurité ciblée : **42 tests réussis**, dont equivalence de lecture entre rôles, politiques restrictives, idempotence, comptes bannis, sessions et MFA.
 - Connecteur SRI Python : **41 tests réussis** ; aucun envoi fiscal réel.
 - Première exécution UI complète : **839 réussites et 31 échecs sur 870 tests**, avec huit workers.
-- Comparaison sur le commit initial : **25 de ces échecs reproduits**. Ils concernent surtout des attentes de présentation, traduction ou parcours historiques. Les six autres sont revérifiés séparément avec deux workers avant livraison ; le rapport de livraison donne le résultat définitif.
+- Comparaison sur le commit initial : **25 de ces échecs reproduits**. Ils concernent des attentes de présentation, traduction ou parcours historiques ; leur validité doit être revue avec le métier.
+- Relance des trois fichiers concernés avec deux workers : **20 réussites et un échec préexistant** (nom du PDF d'étiquettes attendu par le test). Les six échecs non reproduits sur la baseline réussissent tous à cette relance, sans modification de code. Aucune nouvelle régression n'est reproduite par ces vérifications.
+- Le workflow de vente du commit initial est déjà en échec ; ce statut ne constitue pas une validation verte de tous les parcours.
 - Une réussite de tests avec API simulée ne prouve pas le fonctionnement d'un service privé auquel cet audit n'a pas accès.
 
 ## Plan d'action restant
@@ -75,6 +77,8 @@ Les délais ci-dessous sont des objectifs relatifs à la livraison, pas des rend
 La MFA nécessite l'enrôlement des personnes concernées. L'activer de façon globale avant leur enrôlement pourrait couper l'accès à l'ERP. Le déploiement du signataire nécessite l'accès à son hébergement. Ces points ne sont donc pas présentés comme résolus.
 
 ## Exploitation et retour arrière
+
+Livraison des corrections : https://github.com/lisciandraj/Pro-manager-Gama/pull/130. Le site public utilise le déploiement de production Cloudflare `6d18aca7-82a1-437b-9b05-07699eb39108`, avec les fonctions Pages compilées et le commit de code `3050264e870a48fa1bd2b9f277fd3015d1e26421`. L'ERP suit la publication GitHub Pages de la branche principale. Le rapport remis à l'utilisateur contient les résultats des vérifications après publication.
 
 Les sources canoniques sont dans `src/` ; les fichiers racine sont produits par `npm run build`. Le site public est produit par `npm run build:storefront`. Les noms d'API, les RPC et les identifiants de modules sont conservés. Les nouvelles limites HTTP doivent être surveillées sur les erreurs 413/408 pour vérifier qu'un usage normal ne dépasse pas les plafonds.
 

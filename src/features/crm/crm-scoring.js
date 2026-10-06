@@ -112,21 +112,21 @@ async function guardar(lead,total){
    porque la puntuación no es una pantalla: es una explicación. */
 function panel(res){
  if(!res)return '';
- return '<div class="arcPanel card crmPuntos"><h3>Puntuación: '+res.total+' / 100</h3>'
-  +(res.recortado?'<p class="muted">Suman '+res.bruto+' puntos; la ficha guarda 100, que es el máximo.</p>':'')
+ return '<div class="arcPanel card crmPuntos"><h3><span data-gi-live>Puntuación</span>: '+res.total+' / 100</h3>'
+  +(res.recortado?'<p class="muted" data-gi-live>Suman '+res.bruto+' puntos; la ficha guarda 100, que es el máximo.</p>':'')
   +(res.lineas.length
    ?'<table class="arcTable crmTabla"><thead><tr><th data-gi=ea9540cfd593>Por qué</th><th class="r" data-gi=145a6f56de3e>Veces</th><th class="r" data-gi=55a18e3a79c7>Puntos</th></tr></thead><tbody>'
-    +res.lineas.map(l=>'<tr><td><b>'+esc(l.regla.label)+'</b><small class="crmSub">'+esc(l.explica)+'</small></td>'
+    +res.lineas.map(l=>'<tr><td><b>'+esc(l.regla.label)+'</b><small class="crmSub" data-gi-live>'+esc(l.explica)+'</small></td>'
       +'<td class="r">'+l.veces+'</td><td class="r"><b>'+l.puntos+'</b></td></tr>').join('')
     +'</tbody></table>'
    :'<div class="crmVacio" data-gi=b3af09f3659e>Todavía no ha pasado nada que puntúe: ni reuniones, ni oportunidades a su nombre.</div>')
   +(res.pendientes.length
    ?'<div class="crmAviso" data-gi=c67c8d342b67>Estas reglas están configuradas pero hoy no se pueden contar: <b>'
     +res.pendientes.map(r=>esc(r.label)).join('</b>, <b>')+'</b>. '
-    +'Coco ERP envía los correos desde el programa de correo del usuario, sin seguimiento, '
-    +'así que no hay forma honesta de saber si se abrieron. En cuanto el envío lleve seguimiento, contarán solas.</div>'
+    +'<span data-gi-live data-gi=b8f7dd7b3c6d>Coco ERP envía los correos desde el programa de correo del usuario, sin seguimiento,</span> '
+    +'<span data-gi-live data-gi=6e3fa4378b05>así que no hay forma honesta de saber si se abrieron. En cuanto el envío lleve seguimiento, contarán solas.</span></div>'
    :'')
-  +'<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmPtsAplicar">Guardar '+res.total+' en la ficha</button></div>'
+  +'<div class="crmAcciones"><button type="button" class="arcButton primary" id="crmPtsAplicar" data-gi-live>Guardar '+res.total+' en la ficha</button></div>'
   +'</div>';
 }
 

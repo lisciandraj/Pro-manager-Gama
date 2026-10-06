@@ -38,3 +38,5 @@ Le bouton **Coste de entrega por cliente** dans les indicateurs ouvre le détail
 ## Navigation Waze
 
 Depuis le 5 octobre 2026, chaque arrêt et le prochain arrêt de tournée ouvrent Waze par lien HTTPS, à partir du GPS ou de l’adresse. OpenRouteService n’est plus appelé. Coco conserve les distances estimées et ses arrêts ; les temps et kilomètres vérifiés dans Waze se saisissent dans le planning et restent contrôlés avec les fenêtres de livraison. Voir [automatisations et navigation](../automation.md).
+
+La carte des livraisons du jour affiche les commandes de zoom et les points sans les trois textes d’aide « Données locales », « Aucune livraison géolocalisée » et « Tous les points sont affichés ». La provenance du fond reste documentée dans le guide du fond de carte.

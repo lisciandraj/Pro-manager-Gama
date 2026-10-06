@@ -58,3 +58,9 @@ Les treize migrations Ecuador de cette livraison et les fonctions `gama-sri`, `g
 Les anciennes migrations absentes du relevé de 2026-10-03 comprennent des alias historiques déjà déployés et deux réinitialisations contrôlées du catalogue. Leur présence dans le répertoire ne constitue pas une instruction de les réappliquer en production. Comparer les noms et versions de la base avec le relevé avant une nouvelle livraison ; appliquer seulement les migrations réellement nouvelles.
 
 La revue du 5 octobre complète la préparation 07 à la validation fournisseur/revue fiscale/politique fournisseur, et le rapport TMS de coûts par client. Leurs versions de production sont `20261005070632` et `20261005070644`. Voir [la revue des demandes](../audits/2026-10-05-erp-completion.md).
+
+## Traductions de l’interface
+
+Les libellés de l’ERP sont disponibles en espagnol, français et anglais. Ajouter les textes espagnols et leurs traductions relues dans `locales/catalog.tsv`, puis exécuter `npm run build:i18n`. Le compilateur annote les textes statiques des sources et les attributs de présentation (placeholder, titre, aria-label, alt). Isoler les libellés dynamiques avec `data-gi-live` ou `data-gi-source` ; ne jamais marquer un conteneur de noms de produits, clients ou de saisies utilisateur. Les composants partagés conservent la source des titres, champs et colonnes pour changer de langue sans reconstruire le formulaire. Les statuts se traduisent à l’affichage ; leurs valeurs métier ne changent pas.
+
+Le mode chauffeur charge aussi le moteur de langue et met le catalogue en cache lors du téléchargement de la tournée. Vérifier les tests `i18n.spec.js`, `i18n-coverage.spec.js` et `i18n-hr.spec.js` après toute évolution des fenêtres ; ils couvrent les langues, les modules et onglets, les fenêtres TMS et la conservation des valeurs saisies.

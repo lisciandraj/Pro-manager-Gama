@@ -33,7 +33,7 @@ catalog = {}
 for row in rows.values(): key(row)
 VOID = {'area','base','br','col','embed','hr','img','input','link','meta','source','track','wbr'}
 count = 0
-for path in [ROOT/'src/app/index.html', *sorted((ROOT/'src').rglob('*.js'))]:
+for path in [*sorted((ROOT/'src/app').glob('*.html')), *sorted((ROOT/'src').rglob('*.js'))]:
     if path.name in ('i18n.js', 'projects-i18n.js', 'service-worker.js'): continue
     source = path.read_text()
     def mark(m):
@@ -58,8 +58,8 @@ for path in [ROOT/'src/app/index.html', *sorted((ROOT/'src').rglob('*.js'))]:
         if not row: return m[0]
         return f'data-gi-{name}={key(row)} '+m[0]
     # Do not add a second annotation on subsequent builds.
-    source = re.sub(r'<[a-z][\w-]*\b[^<>]*>', lambda tag: re.sub(r'(?<!\S)(placeholder|aria-label|title)=("|\x27)([^<>\n]*?)\2', attribute, tag[0]), source)
-    source = re.sub(r'(data-gi-(?:placeholder|aria-label|title)=[a-f0-9]+ )\1+', r'\1', source)
+    source = re.sub(r'<[a-z][\w-]*\b[^<>]*>', lambda tag: re.sub(r'(?<!\S)(placeholder|aria-label|title|alt)=("|\x27)([^<>\n]*?)\2', attribute, tag[0]), source)
+    source = re.sub(r'(data-gi-(?:placeholder|aria-label|title|alt)=[a-f0-9]+ )\1+', r'\1', source)
     # Isolate literal prefixes from interpolated business values (e.g. Fecha: ${date}).
     def prefix(m):
         opening, tag, literal = m.groups()
@@ -70,7 +70,7 @@ for path in [ROOT/'src/app/index.html', *sorted((ROOT/'src').rglob('*.js'))]:
     source=re.sub(r'(<([a-z][\w-]*)\b[^<>]*>)([^<>$`{}]+)(?=\$\{)',prefix,source)
     if not CATALOG_ONLY and path.read_text() != source: path.write_text(source)
 # Retain keys referenced by previous annotation passes (including icon variants).
-for path in [ROOT/'src/app/index.html', *sorted((ROOT/'src').rglob('*.js'))]:
+for path in [*sorted((ROOT/'src/app').glob('*.html')), *sorted((ROOT/'src').rglob('*.js'))]:
     if path.name in ('i18n.js', 'projects-i18n.js', 'service-worker.js'): continue
     for m in re.finditer(r'data-gi=([a-f0-9]+)>([^<>]+)(?=<)',path.read_text()):
         row=variant(m[2])

@@ -169,8 +169,8 @@ function tarjeta(o){
   +'<small class="crmSub">'+esc(q.nombre)+'</small>'
   +'<div class="crmTarjPie"><b>'+esc(money(o.amount))+'</b><span>'+Number(o.probability||0)+' %</span></div>'
   +'<small class="crmSub">'+esc(o.reference)+' · '+esc(CRM.nombreDe(o.owner_id,gente))+'</small>'
-  +(o.expected_close_date?'<small class="crmSub'+(tarde(o)?' crmTarde':'')+'">Cierre previsto '+esc(fecha(o.expected_close_date))+'</small>':'')
-  +'<select class="crmMover" data-mover="'+esc(o.id)+'" aria-label="Mover ' +esc(o.title)+' de etapa" data-gama-nofind>'
+  +(o.expected_close_date?'<small class="crmSub'+(tarde(o)?' crmTarde':'')+'"><span data-gi-live data-gi=b1ea81c22503>Cierre previsto</span> '+esc(fecha(o.expected_close_date))+'</small>':'')
+  +'<select class="crmMover" data-mover="'+esc(o.id)+'" aria-label="'+esc(window.GamaI18n.t('Mover de etapa'))+' · ' +esc(o.title)+'" data-gama-nofind>'
    +ref.etapas.map(e=>'<option data-gi-live value="'+esc(e.id)+'"'+(String(e.id)===String(o.stage_id)?' selected':'')+'>'+esc(e.name)+'</option>').join('')
   +'</select>'
   +'</div>';
@@ -179,7 +179,7 @@ function tarjeta(o){
    mover y no después de que Postgres rechace el movimiento. */
 function panelPerdida(){
  const o=opos.find(x=>String(x.id)===String(perdiendo.id));
- return '<div class="arcPanel card crmPerdida"><h3>¿Por qué se perdió «'+esc(o?o.title:'')+'»?</h3>'
+ return '<div class="arcPanel card crmPerdida"><h3><span data-gi-live data-gi=c6aa9550ae0f>Motivo de pérdida</span> · '+esc(o?o.title:'')+'</h3>'
   +'<p class="muted" data-gi=f6887961a882>La base no admite una oportunidad perdida sin motivo, y con razón: un embudo que no dice por qué se pierde no sirve para corregir nada.</p>'
   +'<div class="crmForm"><div><label for="crmOMotivo" data-gi=c7b288b1c0bb>Motivo</label><select id="crmOMotivo">'
    +opciones(ref.motivos.map(m=>[m.id,m.name]),'','— elige un motivo —',true)+'</select></div></div>'

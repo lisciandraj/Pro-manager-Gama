@@ -4910,3 +4910,270 @@ Conversación e informes de análisis semanales para tu empresa	Conversation et 
 Datos locales: Natural Earth · dominio público. Líneas de ruta orientativas; no son carreteras.	Données locales : Natural Earth · domaine public. Les lignes des tournées sont indicatives ; ce ne sont pas des routes.	Local data: Natural Earth · public domain. Route lines are illustrative, not roads.
 Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.	Carte des livraisons. Utilisez les flèches pour déplacer la carte et + ou − pour zoomer.	Delivery map. Use the arrow keys to pan and + or − to zoom.
 Descargar manifiesto PDF	Télécharger le manifeste PDF	Download loading manifest PDF
+
+# UI completeness review — 2026-10-06
+Rendimiento observado	Performances observées	Observed performance
+Operación	Opération	Operation
+Medición	Mesure	Measurement
+Dispositivo	Appareil	Device
+Red	Réseau	Network
+Muestras	Échantillons	Samples
+Errores	Erreurs	Errors
+Tipo de identificación fiscal	Type d’identification fiscale	Tax identification type
+Automático (RUC o cédula)	Automatique (RUC ou carte d’identité)	Automatic (RUC or identity card)
+RUC entidad pública	RUC d’organisme public	Public entity RUC
+RUC extranjero sin cédula	RUC étranger sans carte d’identité	Foreign RUC without identity card
+Coordenadas inválidas.	Coordonnées invalides.	Invalid coordinates.
+He verificado el justificante, los impuestos y el medio de pago	J’ai vérifié le justificatif, les taxes et le moyen de paiement	I have checked the supporting document, taxes and payment method
+Recepciones y facturas por revisar	Réceptions et factures à vérifier	Receipts and invoices to review
+Importar XML del proveedor	Importer le XML du fournisseur	Import supplier XML
+Buscar factura	Rechercher une facture	Find invoice
+Permisos guardados	Autorisations enregistrées	Permissions saved
+Deshacer conciliación	Annuler le rapprochement	Undo reconciliation
+Revisa los porcentajes y los días.	Vérifiez les pourcentages et les jours.	Check the percentages and days.
+Registra la entrega antes de calcular los vencimientos de venta.	Enregistrez la livraison avant de calculer les échéances de vente.	Record the delivery before calculating sales due dates.
+Las bases y los impuestos no coinciden con el documento.	Les bases et les taxes ne correspondent pas au document.	The tax bases and amounts do not match the document.
+Confirma el régimen con un documento del SRI y su fecha.	Confirmez le régime avec un document du SRI et sa date.	Confirm the tax regime with an SRI document and its date.
+Selecciona una cuenta financiera activa con cuenta contable y divisa de la empresa.	Sélectionnez un compte financier actif associé à un compte comptable et à la devise de l’entreprise.	Select an active financial account linked to a ledger account in the company currency.
+La cuenta seleccionada no tiene el tipo requerido.	Le compte sélectionné n’est pas du type requis.	The selected account is not of the required type.
+Usa el último día de un mes incluido en el plan.	Utilisez le dernier jour d’un mois inclus dans le plan.	Use the last day of a month included in the plan.
+Selecciona un asiento de adquisición contabilizado en la cuenta del activo.	Sélectionnez une écriture d’acquisition comptabilisée sur le compte de l’actif.	Select an acquisition entry posted to the asset account.
+El coste supera la adquisición disponible.	Le coût dépasse le montant d’acquisition disponible.	The cost exceeds the available acquisition amount.
+Revisa la base, la tasa, el código y la cuenta de retención.	Vérifiez la base, le taux, le code et le compte de retenue.	Check the withholding base, rate, code and account.
+Selecciona un ejercicio completo según el mes de inicio configurado.	Sélectionnez un exercice complet selon le mois de début configuré.	Select a full financial year based on the configured starting month.
+Retención	Retenue à la source	Withholding
+retención	retenue à la source	withholding
+Contabilizar valoración	Comptabiliser la valorisation	Post valuation
+Enviar al SRI	Envoyer au SRI	Send to SRI
+Devolución de mercadería	Retour de marchandises	Goods return
+Revisa y guarda los porcentajes del proveedor.	Vérifiez et enregistrez les pourcentages du fournisseur.	Review and save the supplier percentages.
+Completa y verifica los datos fiscales de la factura proveedor.	Complétez et vérifiez les données fiscales de la facture fournisseur.	Complete and verify the supplier invoice tax information.
+La nota de crédito requiere la factura original autorizada por el SRI.	L’avoir nécessite la facture d’origine autorisée par le SRI.	The credit note requires the original invoice authorized by SRI.
+Completa los parámetros SRI de la empresa.	Complétez les paramètres SRI de l’entreprise.	Complete the company SRI settings.
+Solo puedes descartar una guía que todavía no ha sido enviada.	Seul un bon de transport qui n’a pas encore été envoyé peut être supprimé.	Only a transport document that has not yet been sent can be discarded.
+Completa el transportista, la matrícula y la dirección de salida.	Renseignez le transporteur, l’immatriculation et l’adresse de départ.	Enter the carrier, vehicle registration and departure address.
+Confirma la inspección de los productos antes de reponerlos.	Confirmez l’inspection des produits avant leur remise en stock.	Confirm product inspection before restocking.
+La liquidación requiere un proveedor identificado con cédula, sin RUC.	La liquidation nécessite un fournisseur identifié par carte d’identité, sans RUC.	The purchase settlement requires a supplier identified by identity card, without a RUC.
+El SRI todavía no ha autorizado este documento.	Le SRI n’a pas encore autorisé ce document.	SRI has not yet authorized this document.
+Las líneas no coinciden con el total de la factura proveedor.	Les lignes ne correspondent pas au total de la facture fournisseur.	The lines do not match the supplier invoice total.
+Descargar CSV	Télécharger le CSV	Download CSV
+Número de cuenta	Numéro de compte	Account number
+Foto del empleado	Photo de l’employé	Employee photo
+JPG, PNG o WebP. Se recorta al centro y se comprime automáticamente.	JPG, PNG ou WebP. Recadrage centré et compression automatiques.	JPG, PNG or WebP. Automatically cropped to the centre and compressed.
+Elige una imagen JPG, PNG o WebP.	Choisissez une image JPG, PNG ou WebP.	Choose a JPG, PNG or WebP image.
+Historial de importaciones	Historique des importations	Import history
+Aplicar en segundo plano (activa la regla de importación en Configuración)	Appliquer en arrière-plan (activez la règle d’importation dans Configuration)	Apply in the background (enable the import rule in Configuration)
+Importación en espera. Puedes cerrar esta pantalla y revisar el historial o las automatizaciones.	Importation en attente. Vous pouvez fermer cet écran et consulter l’historique ou les automatisations.	Import queued. You can close this screen and check the history or automations.
+Ver / reintentar	Voir / réessayer	View / retry
+Registro	Enregistrement	Record
+Elige el modo de escaneo y comprueba las cantidades antes de cerrar la preparación.	Choisissez le mode de scan et vérifiez les quantités avant de terminer la préparation.	Choose the scanning mode and check quantities before completing picking.
+Cantidad prevista	Quantité prévue	Expected quantity
+Mínimos y máximos propuestos	Seuils minimums et maximums proposés	Suggested minimum and maximum levels
+Ventas expedidas de los últimos 90 días. Mínimo: demanda diaria × plazo × 1,5. Máximo: mínimo + 14 días de cobertura. Revisa el plazo antes de aplicar.	Ventes expédiées des 90 derniers jours. Minimum : demande quotidienne × délai × 1,5. Maximum : minimum + 14 jours de couverture. Vérifiez le délai avant d’appliquer.	Shipped sales over the last 90 days. Minimum: daily demand × lead time × 1.5. Maximum: minimum + 14 days of coverage. Review the lead time before applying.
+Un plazo sin configurar usa una estimación de 7 días. Las reglas específicas de almacén se revisan por separado.	Un délai non renseigné est estimé à 7 jours. Les règles propres à chaque entrepôt sont vérifiées séparément.	An unspecified lead time defaults to an estimate of 7 days. Warehouse-specific rules are reviewed separately.
+Ventas 90 días	Ventes sur 90 jours	90-day sales
+Actual · mín. / máx.	Actuel · min. / max.	Current · min. / max.
+Propuesto · mín. / máx.	Proposé · min. / max.	Suggested · min. / max.
+estimación	estimation	estimate
+Revisar reglas por almacén	Vérifier les règles par entrepôt	Review warehouse rules
+Ya configurado	Déjà configuré	Already configured
+No hay ventas expedidas en este periodo.	Aucune vente expédiée sur cette période.	No shipped sales in this period.
+Mínimos y máximos actualizados.	Seuils minimums et maximums mis à jour.	Minimum and maximum levels updated.
+Las ventas o las reglas cambiaron. Cierra y vuelve a revisar las propuestas.	Les ventes ou les règles ont changé. Fermez puis vérifiez à nouveau les propositions.	Sales or rules have changed. Close and review the suggestions again.
+Recuento ciego	Comptage à l’aveugle	Blind count
+Error de conexión	Erreur de connexion	Connection error
+Acceso no permitido.	Accès non autorisé.	Access not allowed.
+Recuento no disponible.	Comptage indisponible.	Count unavailable.
+Transfiriendo…	Transfert en cours…	Transferring…
+Creando…	Création en cours…	Creating…
+Validando…	Validation en cours…	Validating…
+Tratamientos y excepciones	Traitements et exceptions	Actions and exceptions
+Historial de la alerta	Historique de l’alerte	Alert history
+Causa identificada	Cause identifiée	Identified cause
+Plazo de seguimiento	Délai de suivi	Follow-up period
+No hay procesos.	Aucun processus.	No processes.
+Formalidades externas	Formalités externes	External formalities
+Documentos externos por completar.	Documents externes à compléter.	External documents to complete.
+Este estado se muestra por separado del cierre operativo.	Ce statut est affiché séparément de la clôture opérationnelle.	This status is shown separately from operational closure.
+Cuestionario de satisfacción	Questionnaire de satisfaction	Satisfaction survey
+Identificador de la pregunta de valoración (1–5)	Identifiant de la question d’évaluation (1–5)	Rating question identifier (1–5)
+Importe máximo por compra	Montant maximum par achat	Maximum amount per purchase
+Importe máximo del presupuesto	Montant maximum du devis	Maximum quotation amount
+Importe máximo del pedido	Montant maximum de la commande	Maximum order amount
+Próxima actividad en días	Prochaine activité dans (jours)	Next activity in days
+Destino previsto	Destination prévue	Expected destination
+Impuesto (%)	Taxe (%)	Tax (%)
+Asignar a estos productos	Affecter à ces produits	Assign to these products
+Crear pedidos prellenados	Créer les commandes pré-remplies	Create prefilled orders
+No hay necesidades con proveedor asignado.	Aucun besoin avec un fournisseur affecté.	No requirements with an assigned supplier.
+Facturas pendientes	Factures en attente	Outstanding invoices
+Estado de cuenta	Relevé de compte	Account statement
+Sin vencimiento	Sans échéance	No due date
+Recordatorio de pago	Rappel de paiement	Payment reminder
+Estimado/a	Madame, Monsieur	Dear customer
+Documento seleccionado	Document sélectionné	Selected document
+Sin validez fiscal	Sans valeur fiscale	Not valid for tax purposes
+Ver reclamación SAV	Voir la réclamation SAV	View service claim
+No hay mercancía pendiente de devolución para esta reclamación.	Aucune marchandise à retourner pour cette réclamation.	No goods remain to be returned for this claim.
+Copia no reconocida.	Sauvegarde non reconnue.	Unrecognized backup.
+Copia restaurada correctamente.	Sauvegarde restaurée.	Backup restored successfully.
+No se pudo cargar el módulo.	Impossible de charger le module.	Could not load the module.
+
+# TMS execution, driver and offline dialogs
+Cierre de jornada	Clôture de journée	End-of-day closure
+Los retornos deben recibirse e inspeccionarse antes del cierre.	Les retours doivent être réceptionnés et inspectés avant la clôture.	Returns must be received and inspected before closure.
+Retornos abiertos	Retours ouverts	Open returns
+Resolver	Résoudre	Resolve
+Cerrar ruta	Clôturer la tournée	Close route
+Resolver entrega parcial	Résoudre une livraison partielle	Resolve partial delivery
+Confirmar revisión	Confirmer la vérification	Confirm review
+He revisado la factura o el abono y las cantidades aceptadas.	J’ai vérifié la facture ou l’avoir et les quantités acceptées.	I have reviewed the invoice or credit note and the accepted quantities.
+Roles TMS	Rôles TMS	TMS roles
+Función	Fonction	Role
+Los perfiles siguen necesitando acceso al módulo TMS. Un conductor solo ve sus propias entregas. Los administradores conservan el rol Gestor.	Les profils doivent toujours disposer d’un accès au module TMS. Un chauffeur voit uniquement ses livraisons. Les administrateurs conservent le rôle Gestionnaire.	Profiles still need access to the TMS module. Drivers only see their own deliveries. Administrators retain the Manager role.
+Gestor	Gestionnaire	Manager
+Despachador	Dispatcheur	Dispatcher
+Prueba del intento	Preuve de la tentative	Attempt proof
+Recepción de la entrega	Réception de la livraison	Delivery receipt
+Guardar recepción	Enregistrer la réception	Save receipt
+Historial de intentos	Historique des tentatives	Attempt history
+Intento	Tentative	Attempt
+Completa	Complète	Complete
+Parcial	Partielle	Partial
+Fallida	Échouée	Failed
+Aceptadas	Acceptées	Accepted
+Rechazadas	Refusées	Refused
+Faltantes	Manquantes	Missing
+Reprogramadas	Replanifiées	Rescheduled
+aceptadas	acceptées	accepted
+rechazadas	refusées	refused
+faltantes	manquantes	missing
+reprogramadas	replanifiées	rescheduled
+Aún no hay intentos registrados.	Aucune tentative enregistrée.	No attempts recorded yet.
+No quedan unidades por entregar. Revisa los retornos y el cierre con el despachador.	Il ne reste aucune unité à livrer. Vérifiez les retours et la clôture avec le dispatcheur.	No units remain to be delivered. Review returns and closure with the dispatcher.
+La recepción se confirma al sincronizar con el servidor.	La réception sera confirmée après synchronisation avec le serveur.	Receipt is confirmed when synchronized with the server.
+Sin conexión: la captura quedará guardada en este dispositivo.	Hors ligne : la saisie sera conservée sur cet appareil.	Offline: the entry will be saved on this device.
+Nombre de quien recibe	Nom du réceptionnaire	Recipient name
+Motivo / observaciones	Motif / observations	Reason / comments
+Foto de entrega o incidencia	Photo de livraison ou d’incident	Delivery or incident photo
+Firma de quien recibe	Signature du réceptionnaire	Recipient signature
+Captura guardada en este dispositivo. Pendiente de sincronización.	Saisie enregistrée sur cet appareil. Synchronisation en attente.	Entry saved on this device. Awaiting synchronization.
+Recepción confirmada.	Réception confirmée.	Receipt confirmed.
+Llegada pendiente de sincronizar	Arrivée en attente de synchronisation	Arrival awaiting synchronization
+Ventana y carga de entrega	Créneau et chargement de livraison	Delivery window and load
+Ventana y carga	Créneau et chargement	Time window and load
+hora de Quito	heure de Quito	Quito time
+Servicio (minutos)	Service (minutes)	Service (minutes)
+Peso y volumen conocidos.	Poids et volume renseignés.	Weight and volume known.
+Falta validar el peso o el volumen.	Le poids ou le volume reste à valider.	Weight or volume still needs validation.
+Registrar medición verificada de carga	Enregistrer une mesure vérifiée du chargement	Record verified load measurements
+Peso total (kg)	Poids total (kg)	Total weight (kg)
+Volumen total (m³)	Volume total (m³)	Total volume (m³)
+La primera ventana prometida se conserva para calcular el OTIF.	Le créneau initialement promis est conservé pour le calcul de l’OTIF.	The original promised window is retained to calculate OTIF.
+Indica una ventana válida dentro del día.	Indiquez un créneau valide sur la journée.	Enter a valid time window within the day.
+Manifiesto de carga	Manifeste de chargement	Loading manifest
+Manifiesto	Manifeste	Manifest
+Horario	Horaire	Schedule
+Guía SRI	Bon de transport SRI	SRI transport document
+Sin emitir	Non émis	Not issued
+Documento operativo. No sustituye la guía de remisión autorizada por el SRI.	Document opérationnel. Ne remplace pas le bon de transport autorisé par le SRI.	Operational document. Does not replace the transport document authorized by SRI.
+Horario de ruta	Horaire de tournée	Route schedule
+Introduce los tiempos y kilómetros verificados de cada tramo. Se añade espera si llegas antes de la ventana.	Indiquez les durées et distances vérifiées de chaque trajet. Un temps d’attente est ajouté en cas d’arrivée avant le créneau.	Enter verified times and distances for each leg. Waiting time is added if you arrive before the delivery window.
+Parada	Arrêt	Stop
+km desde la anterior	km depuis l’arrêt précédent	km from previous stop
+Conducción (min)	Conduite (min)	Driving (min)
+Servicio (min)	Service (min)	Service (min)
+Fuente de verificación	Source de vérification	Verification source
+Recorrido habitual / comprobación manual	Trajet habituel / vérification manuelle	Usual route / manual verification
+Justificación de excepción horaria (si corresponde)	Justification de l’exception horaire (le cas échéant)	Time window exception justification (if applicable)
+Horario guardado.	Horaire enregistré.	Schedule saved.
+La entrega cambió en el servidor. Revisa la captura pendiente antes de reenviarla.	La livraison a changé sur le serveur. Vérifiez la saisie en attente avant de la renvoyer.	The delivery changed on the server. Review the pending entry before resending it.
+Esta entrega no está asignada a tu cuenta.	Cette livraison n’est pas affectée à votre compte.	This delivery is not assigned to your account.
+Esta operación corresponde al despachador.	Cette opération relève du dispatcheur.	This operation requires a dispatcher.
+Las cantidades deben sumar el saldo pendiente.	La somme des quantités doit correspondre au solde restant.	Quantities must add up to the remaining balance.
+Las líneas cambiaron. Actualiza la entrega.	Les lignes ont changé. Actualisez la livraison.	The lines have changed. Refresh the delivery.
+Indica el motivo de la entrega parcial o fallida.	Indiquez le motif de la livraison partielle ou échouée.	Enter the reason for the partial or failed delivery.
+Indica el nombre y la firma de quien recibe.	Indiquez le nom et la signature du réceptionnaire.	Enter the recipient’s name and signature.
+Añade una foto para justificar las unidades faltantes.	Ajoutez une photo pour justifier les unités manquantes.	Add a photo to explain the missing units.
+La entrega ya está cerrada.	La livraison est déjà clôturée.	The delivery is already closed.
+Verifica el peso y el volumen e indica el motivo.	Vérifiez le poids et le volume et indiquez le motif.	Verify weight and volume and enter the reason.
+Quedan cantidades o retornos por resolver.	Des quantités ou des retours restent à traiter.	Quantities or returns remain unresolved.
+Confirma la revisión de facturación y explica el cierre.	Confirmez la vérification de la facturation et expliquez la clôture.	Confirm the billing review and explain the closure.
+Todavía hay entregas pendientes de resolver.	Des livraisons restent à traiter.	Deliveries remain unresolved.
+La copia sin conexión venció. Conéctate y descarga la ruta otra vez.	La copie hors ligne a expiré. Connectez-vous et téléchargez à nouveau la tournée.	The offline copy has expired. Connect and download the route again.
+Descarga primero tu ruta con conexión.	Téléchargez d’abord votre tournée avec une connexion.	Download your route while online first.
+Inicia sesión en Coco ERP antes de sincronizar.	Connectez-vous à Coco ERP avant la synchronisation.	Sign in to Coco ERP before synchronizing.
+Revisa y guarda el horario de la ruta antes de salir.	Vérifiez et enregistrez l’horaire de la tournée avant le départ.	Review and save the route schedule before departure.
+El horario incumple una ventana. Indica el motivo de la excepción.	L’horaire ne respecte pas un créneau. Indiquez le motif de l’exception.	The schedule conflicts with a time window. Enter the exception reason.
+Selecciona una imagen de menos de 25 MB.	Sélectionnez une image de moins de 25 Mo.	Select an image smaller than 25 MB.
+Verifica el peso y el volumen en «Ventana y carga».	Vérifiez le poids et le volume dans « Créneau et chargement ».	Check weight and volume under “Time window and load”.
+Guarda el horario de la ruta para validar las ventanas de entrega.	Enregistrez l’horaire de la tournée pour valider les créneaux de livraison.	Save the route schedule to validate delivery windows.
+La salida debe ser validada por el despachador.	Le départ doit être validé par le dispatcheur.	Departure must be approved by the dispatcher.
+La entrega cambió desde la captura. Compara los saldos antes de confirmar.	La livraison a changé depuis la saisie. Comparez les soldes avant de confirmer.	The delivery changed since the entry was captured. Compare balances before confirming.
+Revisar conflicto	Examiner le conflit	Review conflict
+Revisar captura pendiente	Vérifier la saisie en attente	Review pending entry
+Aplicar a la versión actual	Appliquer à la version actuelle	Apply to current version
+Capturado	Saisi	Captured
+Sincroniza las capturas pendientes antes de añadir otra.	Synchronisez les saisies en attente avant d’en ajouter une autre.	Synchronize pending entries before adding another.
+Conéctate para descargar la ruta.	Connectez-vous pour télécharger la tournée.	Connect to download the route.
+Este navegador no permite preparar el modo sin conexión.	Ce navigateur ne permet pas de préparer le mode hors ligne.	This browser cannot prepare offline mode.
+No se pudo preparar el modo sin conexión. Reintenta.	Impossible de préparer le mode hors ligne. Réessayez.	Could not prepare offline mode. Try again.
+Conéctate para comparar con el servidor.	Connectez-vous pour comparer avec le serveur.	Connect to compare with the server.
+Los saldos ya no coinciden. Conserva la captura y solicita revisión al despachador.	Les soldes ne correspondent plus. Conservez la saisie et demandez une vérification au dispatcheur.	The balances no longer match. Keep the entry and ask the dispatcher to review it.
+Descargar para trabajar sin conexión	Télécharger pour travailler hors ligne	Download for offline work
+Capturas pendientes	Saisies en attente	Pending entries
+Abrir modo conductor	Ouvrir le mode chauffeur	Open driver mode
+Sin conexión · copia descargada	Hors ligne · copie téléchargée	Offline · downloaded copy
+Ruta descargada. Abre «Modo conductor» para trabajar sin conexión durante 48 horas.	Tournée téléchargée. Ouvrez le mode chauffeur pour travailler hors ligne pendant 48 heures.	Route downloaded. Open driver mode to work offline for 48 hours.
+Sin conductor vinculado	Aucun chauffeur associé	No driver linked
+Con conexión	En ligne	Online
+Sin conexión	Hors ligne	Offline
+Actualizar / sincronizar	Actualiser / synchroniser	Refresh / synchronize
+Ver recepción	Voir la réception	View receipt
+No tienes entregas asignadas.	Aucune livraison ne vous est affectée.	You have no assigned deliveries.
+Inicia sesión en Coco ERP, abre Mi ruta y pulsa «Descargar para trabajar sin conexión».	Connectez-vous à Coco ERP, ouvrez Ma tournée et appuyez sur « Télécharger pour travailler hors ligne ».	Sign in to Coco ERP, open My route and select “Download for offline work”.
+Abrir Coco ERP	Ouvrir Coco ERP	Open Coco ERP
+Cargando la ruta…	Chargement de la tournée…	Loading route…
+Mi ruta · Coco ERP	Ma tournée · Coco ERP	My route · Coco ERP
+copia del	copie du	copy from
+{0} captura(s) por sincronizar	{0} saisie(s) à synchroniser	{0} entry/entries to synchronize
+OTIF · promesa inicial	OTIF · engagement initial	OTIF · initial promise
+Entregas parciales	Livraisons partielles	Partial deliveries
+Cobertura de promesas	Couverture des engagements	Promise coverage
+OTIF = entregas completas dentro de la ventana inicial / entregas con promesa.	OTIF = livraisons complètes dans le créneau initial / livraisons avec engagement.	OTIF = complete deliveries within the original window / deliveries with a promise.
+El importe supera el saldo de la factura.	Le montant dépasse le solde de la facture.	The amount exceeds the invoice balance.
+Indica un importe positivo con un máximo de dos decimales.	Indiquez un montant positif avec deux décimales maximum.	Enter a positive amount with at most two decimal places.
+Últimos 7 días. El percentil 95 se calcula sobre mediciones reales; sin muestras no se estima. Los tiempos de navegación miden la apertura; los RPC miden la respuesta del servidor.	Les 7 derniers jours. Le 95e percentile est calculé à partir de mesures réelles ; sans échantillon, il n’est pas estimé. La navigation mesure le temps d’ouverture et les RPC le temps de réponse du serveur.	Last 7 days. The 95th percentile uses actual measurements; no estimate is given without samples. Navigation timings measure opening time; RPC timings measure server response time.
+Transferencia por código de barras	Transfert par code-barres	Barcode transfer
+Comprobante de entrega	Justificatif de livraison	Delivery receipt
+Documento generado por Coco ERP.	Document généré par Coco ERP.	Document generated by Coco ERP.
+No se capturó.	Non capturé.	Not captured.
+Firma de quien recibió	Signature du réceptionnaire	Recipient signature
+Fotografía tomada en la entrega	Photo prise lors de la livraison	Photo taken at delivery
+Firma y fotografía registradas junto a los datos de la entrega.	Signature et photo enregistrées avec les données de livraison.	Signature and photo recorded with the delivery information.
+Pedido a proveedor	Commande fournisseur	Supplier order
+Pedido de compra. No constituye una factura.	Bon de commande. Ne constitue pas une facture.	Purchase order. This is not an invoice.
+DOCUMENTO	DOCUMENT	DOCUMENT
+Tu entrega, paso a paso	Votre livraison, étape par étape	Your delivery, step by step
+Seguimiento de entrega	Suivi de livraison	Delivery tracking
+Consultando entrega…	Consultation de la livraison…	Checking delivery…
+Fecha de entrega	Date de livraison	Delivery date
+Llegada estimada	Arrivée estimée	Estimated arrival
+La hora de llegada es una estimación y puede cambiar durante la ruta.	L’heure d’arrivée est une estimation et peut évoluer pendant la tournée.	The arrival time is an estimate and may change during the route.
+Actualizar seguimiento	Actualiser le suivi	Refresh tracking
+Este enlace ha caducado o no está disponible.	Ce lien a expiré ou n’est pas disponible.	This link has expired or is unavailable.
+La salida debe estar validada antes de registrar la entrega.	Le départ doit être validé avant d’enregistrer la livraison.	Departure must be approved before recording delivery.
+Firma	Signature	Signature
+Llegada registrada	Arrivée enregistrée	Arrival recorded
+Registrar llegada	Enregistrer l’arrivée	Record arrival
+Llegada	Arrivée	Arrival
+Revisar	Vérifier	Review
+Estado actual	Statut actuel	Current status
+Enlázalo en vez de abrir otra ficha de la misma empresa.	Rattachez-le au lieu de créer une autre fiche pour la même entreprise.	Link it instead of creating another record for the same company.
+Mover de etapa	Changer d’étape	Change stage
+Suman {0} puntos; la ficha guarda 100, que es el máximo.	Le total atteint {0} points ; la fiche conserve le maximum de 100.	The total is {0} points; the record stores the maximum of 100.
+Guardar {0} en la ficha	Enregistrer {0} dans la fiche	Save {0} to the record
+listas	prêtes	ready
+importadas	importées	imported
+errores	erreurs	errors
+Importada	Importée	Imported

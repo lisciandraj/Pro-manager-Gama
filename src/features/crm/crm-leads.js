@@ -282,11 +282,11 @@ function convertir(){
     dejarlo puesto haría dudar de si el botón sirvió de algo. */
  const dup=forzar?null:coincidencia(d.email,d.identification);
  return '<div class="arcPanel card">'
-  +'<h3>Convertir «'+esc(nombre(l))+'» en cliente</h3>'
-  +'<p class="muted">Se crea una ficha en Clientes con estos datos y el prospecto queda apuntando a ella. '
-  +'A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</p>'
+  +'<h3><span data-gi-live data-gi=80cb06b598bb>Convertir en cliente</span> · '+esc(nombre(l))+'</h3>'
+  +'<p class="muted"><span data-gi-live data-gi=4b7d17108b6d>Se crea una ficha en Clientes con estos datos y el prospecto queda apuntando a ella.</span> '
+  +'<span data-gi-live data-gi=5f2c5bfd7820>A partir de ahí lo comercial vive en la ficha de cliente —presupuestos, tarifas, catálogo— y aquí queda de dónde salió.</span></p>'
   +(dup?'<div class="crmAviso crmDup" data-gi=7c5a74355dd5>Ya hay un cliente que coincide: <b>'+esc(dup.name)+'</b>'
-    +(dup.identification?' ('+esc(dup.identification)+')':'')+'. Enlázalo en vez de abrir otra ficha de la misma empresa.'
+    +(dup.identification?' ('+esc(dup.identification)+')':'')+'. <span data-gi-live data-gi=5ffd5ba6f378>Enlázalo en vez de abrir otra ficha de la misma empresa.</span>'
     +'<div class="crmAcciones"><button type="button" class="arcButton primary" data-enlazar="'+esc(dup.id)+'" data-gi=558052cf6335>Enlazar con este cliente</button>'
     +'<button class="arcButton" type="button" id="crmCForzar" data-gi=ee7e3dc7f20d>Crear otra ficha de todas formas</button></div></div>':'')
   +'<div class="crmForm">'

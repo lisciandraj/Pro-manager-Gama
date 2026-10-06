@@ -157,3 +157,29 @@ test('login language selector translates immediately and configuration reopens i
  await expect(page.locator('#arcSettingsDialog #gamaLanguagePicker')).toBeVisible();
  await expect(page.locator('#arcSettingsDialog [data-language="fr"]')).toHaveAttribute('aria-pressed','true');
 });
+
+test('TMS execution dialogs translate in all three languages without changing business data or form values',async({page})=>{
+ await boot(page,'admin','fr');await page.evaluate(()=>GamaI18n.ready);
+ await page.addScriptTag({url:'/gama-tms-execution.js'});
+ await page.evaluate(()=>{
+  const delivery={id:'d1',customer:'Entregas Quito',address:'Calle Guardar',status:'En tránsito',delivery_date:'2026-10-06',version:1,weight:2,volume:1,service_minutes:10};
+  const context={delivery,lines:[{id:'l1',name:'Productos',remaining:3,quantity:3,accepted:0}],attempts:[],cargo_known:false};
+  window.ArcData={...window.ArcData,rpc:async(name,args)=>{
+   if(args.p_action==='context')return context;
+   if(args.p_action==='day')return {deliveries:[{...delivery,reference:'ENT-00000001',pending_quantity:3,open_returns:0,invoice_review:true}]};
+   if(args.p_action==='access')return [{profile_id:'u1',name:'Guardar',role:'dispatcher'}];
+   if(args.p_action==='manifest')return {route:{id:'r1',erp_reference:'RUT-00000001',route_date:'2026-10-06',stops:['d1']},deliveries:[context]};
+   return {};
+  }};
+ });
+ const expected={es:['Cierre de jornada','Los retornos deben recibirse','Rutas','En tránsito','Nombre de quien recibe','Aceptadas','Ventana y carga de entrega','Fuente de verificación','Despachador'],fr:['Clôture de journée','Les retours doivent être réceptionnés','Tournées','En transit','Nom du réceptionnaire','Acceptées','Créneau et chargement de livraison','Source de vérification','Dispatcheur'],en:['End-of-day closure','Returns must be received','Routes','In transit','Recipient name','Accepted','Delivery window and load','Verification source','Dispatcher']};
+ for(const lang of ['fr','en','es']){
+  await page.setViewportSize({width:lang==='fr'?390:1440,height:900});
+  await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);const e=expected[lang];
+  await page.evaluate(()=>CocoTmsExecution.closure('2026-10-06',[]));let d=page.locator('dialog').last();for(const text of e.slice(0,4))await expect(d).toContainText(text);await expect(d).toContainText('Entregas Quito');if(lang==='fr'){await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(d).toContainText('End-of-day closure');await expect(d).toContainText('Open returns');await expect(d).toContainText('Entregas Quito');await page.evaluate(()=>GamaI18n.setLanguage('fr'));await expect(d).toContainText('Clôture de journée');await d.screenshot({path:'test-results/tms-closure-fr.png'})}await d.locator('[data-arc-dialog-close]').click();
+  await page.evaluate(()=>CocoTmsExecution.open('d1'));d=page.locator('dialog').last();await expect(d).toContainText(e[4]);await expect(d).toContainText(e[5]);await expect(d).toContainText('Productos');await expect(d).toContainText('Calle Guardar');await d.locator('[name=receiver]').fill('Nombre Guardar');await page.evaluate(()=>GamaI18n.scan(document.body));await expect(d.locator('[name=receiver]')).toHaveValue('Nombre Guardar');await expect(d.locator('[data-quantity=accepted]')).toHaveValue('3');await d.locator('[data-arc-dialog-close]').click();
+  await page.evaluate(()=>CocoTmsExecution.configure('d1'));d=page.locator('dialog').last();await expect(d).toContainText(e[6]);await d.locator('[data-arc-dialog-close]').click();
+  await page.evaluate(()=>CocoTmsExecution.schedule('r1'));d=page.locator('dialog').last();await expect(d).toContainText(e[7]);await expect(d.locator('[name=source]')).toHaveAttribute('placeholder',lang==='fr'?'Trajet habituel / vérification manuelle':lang==='en'?'Usual route / manual verification':'Recorrido habitual / comprobación manual');await d.locator('[data-arc-dialog-close]').click();
+  await page.evaluate(()=>CocoTmsExecution.access());d=page.locator('dialog').last();await expect(d.locator('option[value=dispatcher]')).toHaveText(e[8]);await expect(d.locator('[data-ex-role]')).toHaveValue('dispatcher');await expect(d).toContainText('Guardar');await d.locator('[data-arc-dialog-close]').click();
+ }
+});

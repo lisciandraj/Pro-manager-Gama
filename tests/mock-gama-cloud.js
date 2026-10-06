@@ -738,6 +738,26 @@
           Object.assign(d,{lat:args.p_data.lat,lng:args.p_data.lng});const c=(window.__DB.customers||[]).find(c=>c.id===d.customer_id&&String(c.address||'').trim().toLowerCase()===String(d.address||'').trim().toLowerCase());
           if(c)Object.assign(c,{lat:d.lat,lng:d.lng,gps_address:c.address});return {data:{delivery_id:d.id,customer_saved:!!c}};
         }
+        if(fn==='gama_tms_execution'){
+          const db=window.__DB,p=args.p_data||{},action=args.p_action;
+          const context=id=>{const d=db.tms_deliveries.find(x=>x.id===id);return {delivery:{version:1,...d},shipment:(db.sales_deliveries||[]).find(s=>s.tms_delivery_id===id),scope:db._profile.role==='administrador'?'manager':'driver',lines:structuredClone(db.executionLines?.[id]||[]),attempts:db.executionAttempts?.[id]||[]}};
+          if(action==='context')return {data:context(p.delivery_id)};
+          if(action==='bundle'){const own=await (await window.GamaCloud.db()).rpc('gama_tms_my_route',{});return {data:{...own.data,actor_id:db._profile.id,scope:own.data.driver&&db._profile.role!=='administrador'?'driver':'manager',downloaded_at:new Date().toISOString(),deliveries:own.data.deliveries.map(d=>({...d,execution:context(d.id)}))}}}
+          if(['receive','arrive'].includes(action)){
+           if(window.__proofOffline)return {error:{message:'Network unavailable'}};
+           db.__executionReceipts ||= {};if(db.__executionReceipts[p.request_key])return {data:db.__executionReceipts[p.request_key]};
+           const d=db.tms_deliveries.find(x=>x.id===p.delivery_id);if(p.version!==(d.version||1))return {error:{message:'DELIVERY_STALE'}};
+           d.version=(d.version||1)+1;d.actual_arrival ||= p.occurred_at;
+           if(action==='receive'){
+            d.status=p.lines.every(l=>l.refused+l.missing+l.deferred===0)?'Entregada':'Entrega parcial';if(d.status==='Entregada')d.delivered_at=p.occurred_at;
+            db.tms_proofs.push({delivery_id:d.id,signature:p.signature,photo:p.photo,gps_status:p.gps.status,latitude:p.gps.lat,longitude:p.gps.lng,gps_accuracy_m:p.gps.accuracy});
+            for(const l of db.executionLines[d.id]){const q=p.lines.find(x=>x.id===l.id);if(q){l.remaining-=q.accepted+q.refused+q.missing;l.accepted=(l.accepted||0)+q.accepted;l.refused=(l.refused||0)+q.refused}}
+           }
+           const result=context(d.id);db.__executionReceipts[p.request_key]=result;return {data:result};
+          }
+          if(action==='day')return {data:{deliveries:[]}};
+          return {data:[]};
+        }
         if(fn==='gama_tms_my_route'){
           const db=window.__DB,employee=(db.hr_employees||[]).find(h=>h.active!==false&&h.profile_id===db._profile.id),driver=(db.fleet_drivers||[]).find(f=>f.active!==false&&employee&&f.employee_id===employee.id);
           if(!driver)return {data:{driver:null,routes:[],deliveries:[]}};

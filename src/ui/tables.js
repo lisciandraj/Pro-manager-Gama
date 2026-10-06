@@ -1,32 +1,5 @@
-/* GAMA — Las tablas se leen en el teléfono.
-
-   Una tabla de doce columnas no cabe en 336 px y nunca va a caber. Hasta
-   ahora cada una lo resolvía por su cuenta —o no lo resolvía—: la de
-   productos escondía 855 px de desplazamiento lateral, la de clientes 654, la
-   de auditoría 756, y ninguna enseñaba una barra que avisara de que había más
-   a la derecha. Aquí vive la solución, una sola vez: por debajo de CORTE cada
-   fila se apila en una ficha, con la primera celda de titular y las demás
-   precedidas del nombre de su columna.
-
-   Los nombres no hay que escribirlos: se copian de la cabecera de cada tabla.
-   Por eso esto es un archivo y no un trozo de CSS pegado en cada módulo —a un
-   módulo le basta con pintar su <table class="arcTable"> de siempre—. Y por eso lee la
-   cabecera de las dos formas en que está escrita en esta aplicación: con
-   <thead>, y sin él, que es como se escribieron las tablas de index.html —la
-   fila de <th> cuelga directamente del <tbody> que el navegador inserta solo.
-
-   Una tabla puede quedarse fuera con data-gama-nocards, ella o cualquier
-   antepasado suyo: es para lo que no es una lista de fichas —una previsualización
-   de un archivo importado, con las columnas que traiga.
-
-   Lo segundo que arregla es el gesto. La regla global «table» de index.html le
-   da a TODA tabla su propio overflow-x:auto, y muchos módulos la envuelven
-   además en una caja con overflow:auto. Poner sólo un eje deja el otro en
-   «visible», que el navegador asciende a «auto»: basta un pixel de sobra —el
-   redondeo de la altura de una fila lo produce solo— para que la caja se quede
-   con el gesto de subir la página y el dedo que cae dentro no la mueva. Y sin
-   overscroll-behavior, el arrastre lateral al llegar al borde se lo queda el
-   navegador y dispara su gesto de volver atrás. */
+/* Tablas compartidas: cuadrícula por defecto, vista de tarjetas opcional,
+   búsqueda, ordenación, columnas visibles y orden personal de las columnas. */
 (function(){
 'use strict';
 if(window.GamaTable)return;
@@ -46,7 +19,7 @@ function cabecera(t){
    como «CÓDIGO ⇅». */
 function nombreDeColumna(th){
  const copia=th.cloneNode(true);
- copia.querySelectorAll('.gamaSortInd,[aria-hidden="true"]').forEach(x=>x.remove());
+ copia.querySelectorAll('.gamaSortInd,.gamaColumnGrip,[aria-hidden="true"]').forEach(x=>x.remove());
  return (copia.textContent||'').replace(/\s+/g,' ').trim();
 }
 
@@ -55,14 +28,14 @@ function nombreDeColumna(th){
    lista de valores sueltos —«$620,00» sin decir de qué—, y entonces es
    preferible dejarla como tabla. */
 function etiquetar(t){
- const cab=cabecera(t);
+ const cab=columnInfo(t).map(c=>c.h);
  if(!cab.length)return false;
  const nombres=cab.map(nombreDeColumna);
  cab[0].parentElement.setAttribute('data-gama-head','');
  for(const fila of t.rows){
   if(fila.hasAttribute('data-gama-head'))continue;
   let i=0,titular=false;
-  for(const c of fila.cells){
+  for(const c of originalCells(fila)){
    if(c.tagName!=='TD'){i+=c.colSpan||1;continue}
    const texto=(c.textContent||'').trim();
    /* El titular de la ficha es la primera celda que dice algo legible. Las que
@@ -122,7 +95,7 @@ function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1'
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){
  const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
- const mode=['cards','table'].includes(choice)?choice:(matchMedia('(max-width:760px) and (orientation:portrait)').matches?'cards':'table');
+ const mode=['cards','table'].includes(choice)?choice:'table';
  if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
  state.bar.setAttribute('aria-label',words()[0]);
  [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
@@ -262,7 +235,21 @@ function sorter(t){
  if(key&&window.GamaSort)return {get:()=>GamaSort.get(key),set:(col,dir)=>GamaSort.set(key,col,dir),column:(h,i)=>h.dataset.gamaSortCol||(t.dataset.gamaSortKey?String(i):null)};
  return null;
 }
-function columnInfo(t){const seen=new Set();return cabecera(t).map((h,i)=>{let key=h.dataset.columnKey||h.dataset.gamaSortCol||h.getAttribute('data-gi')||String(i);if(seen.has(key))key+=':'+i;seen.add(key);return {h,i,key,label:nombreDeColumna(h)||cw().actions}});}
+// Canonical positions never change when DOM cells move. Sorting adapters and
+// newly rendered rows still use the module's original schema.
+const columnSchemas=new WeakMap(),rowCells=new WeakMap();
+function originalCells(row){
+ const current=[...row.cells],old=rowCells.get(row);
+ if(old&&old.length===current.length&&old.every(c=>current.includes(c)))return old;
+ rowCells.set(row,current);return current;
+}
+function columnInfo(t){
+ const heads=cabecera(t);let schema=columnSchemas.get(t);
+ if(!schema||schema.length!==heads.length||schema.some(c=>!heads.includes(c.h))){
+  const seen=new Set();schema=heads.map((h,i)=>{let key=h.dataset.columnKey||h.dataset.gamaSortCol||h.getAttribute('data-gi')||String(i);if(seen.has(key))key+=':'+i;seen.add(key);return {h,i,key}});columnSchemas.set(t,schema);
+ }
+ return schema.map(c=>({...c,label:nombreDeColumna(c.h)||cw().actions}));
+}
 function settingsKey(t,cols){return preferenceKey(t).replace('table_view_v1','table_columns_v1')+':'+cols.map(c=>c.key).join('|')}
 function cellValue(cell){
  if(!cell)return null;
@@ -297,13 +284,13 @@ function sortRows(t,state,col,dir){
  for(const body of t.tBodies){
   let run=[];
   const flush=()=>{if(run.length<2){run=[];return}const marker=run[run.length-1].nextSibling;
-   const sorted=run.slice().sort((a,b)=>(col==null?0:compare(cellValue(a.cells[col]),cellValue(b.cells[col]),dir))||state.original.get(a)-state.original.get(b));
+   const sorted=run.slice().sort((a,b)=>(col==null?0:compare(cellValue(originalCells(a)[col]),cellValue(originalCells(b)[col]),dir))||state.original.get(a)-state.original.get(b));
    if(sorted.some((r,i)=>r!==run[i])){const f=document.createDocumentFragment();sorted.forEach(r=>f.append(r));body.insertBefore(f,marker)}run=[];};
   for(const row of [...body.rows]){if([...row.cells].some(c=>c.tagName==='TH'||Number(c.dataset.gamaOriginalSpan||c.colSpan)>1||c.rowSpan>1)){flush();continue}run.push(row)}flush();
  }
 }
 function applyColumns(t,cols,hidden){
- for(const row of t.rows){let i=0;for(const cell of row.cells){const span=cell.dataset.gamaOriginalSpan?Number(cell.dataset.gamaOriginalSpan):cell.colSpan;
+ for(const row of t.rows){let i=0;for(const cell of originalCells(row)){const span=cell.dataset.gamaOriginalSpan?Number(cell.dataset.gamaOriginalSpan):cell.colSpan;
    if(span>1)cell.dataset.gamaOriginalSpan=String(span);
    const count=cols.slice(i,i+span).filter(c=>!hidden.includes(c.key)).length;
    cell.toggleAttribute('data-gama-column-hidden',count===0);if(span>1&&count)cell.colSpan=count;i+=span;
@@ -329,7 +316,9 @@ function controls(t,state){
   summary.onclick=()=>{list.hidden=!list.hidden;summary.setAttribute('aria-expanded',String(!list.hidden))};
   cols.forEach(c=>{const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');input.type='checkbox';input.dataset.tableColumn=c.key;span.textContent=c.label;label.append(input,span);list.append(label);
    input.onchange=()=>{const data=read(key)||{},set=new Set(state.hidden);input.checked?set.delete(c.key):set.add(c.key);data.hidden=[...set];save(key,data);controls(t,state)};});
-  const reset=document.createElement('button');reset.type='button';reset.textContent=w.all;reset.onclick=()=>{const data=read(key)||{};data.hidden=[];save(key,data);controls(t,state)};list.append(reset);details.append(list);box.append(details);
+  const reset=document.createElement('button');reset.type='button';reset.textContent=w.all;reset.onclick=()=>{const data=read(key)||{};data.hidden=[];save(key,data);controls(t,state)};list.append(reset);
+  const resetOrder=document.createElement('button');resetOrder.type='button';resetOrder.dataset.resetColumnOrder='';resetOrder.textContent=ow().reset;resetOrder.onclick=()=>{const data=read(state.key)||{};delete data.order;save(state.key,data);controls(t,state)};list.append(resetOrder);
+  details.append(list);box.append(details);
   const scope=document.createElement('small');scope.className='gamaSortScope';scope.textContent=w.scope;scope.hidden=!!source;box.append(scope);
   state.controls=box;state.toolbar.prepend(box);
  }
@@ -337,11 +326,74 @@ function controls(t,state){
  state.current=current;
  state.available=cols.filter(c=>c.h.dataset.columnKind!=='actions'&&c.h.dataset.columnKind!=='decorative'&&nombreDeColumna(c.h)&&(!source||source.column(c.h,c.i)!=null));
  headers(t,state,selected);
+ columnGestures(t,state);
  state.controls.querySelectorAll('[data-table-column]').forEach(input=>{input.checked=!hidden.includes(input.dataset.tableColumn);input.disabled=input.checked&&cols.length-hidden.length===1;input.title=input.disabled?w.visible:''});
  state.controls.querySelector('.gamaColumnHeading').textContent=w.columns+' ('+(cols.length-hidden.length)+'/'+cols.length+')';
+ reorderColumns(t,state,stored.order);
  applyColumns(t,cols,hidden);
  if(!source)sortRows(t,state,selected?.i,current?.dir);
  cols.forEach(c=>c.h.setAttribute('aria-sort',c===selected?(current.dir==='desc'?'descending':'ascending'):'none'));
+}
+const orderWords={
+ es:{move:'Mover columna',hint:'Arrastra para mover · Alt + ← / →',reset:'Restablecer orden de columnas',saved:'Orden de columnas guardado',blocked:'Esta posición separaría celdas combinadas.'},
+ fr:{move:'Déplacer la colonne',hint:'Glisser pour déplacer · Alt + ← / →',reset:'Réinitialiser l’ordre des colonnes',saved:'Ordre des colonnes enregistré',blocked:'Cette position séparerait des cellules fusionnées.'},
+ en:{move:'Move column',hint:'Drag to move · Alt + ← / →',reset:'Reset column order',saved:'Column order saved',blocked:'This position would split merged cells.'}
+};
+const ow=()=>orderWords[window.GamaI18n?.language]||orderWords.es;
+function columnOrder(state,saved){const keys=state.cols.map(c=>c.key);return [...new Set([...(Array.isArray(saved)?saved.filter(k=>keys.includes(k)):[]),...keys])];}
+function rowGroups(row,cols){let start=0;return originalCells(row).map(cell=>{const span=Number(cell.dataset.gamaOriginalSpan||cell.colSpan),keys=cols.slice(start,start+span).map(c=>c.key);start+=span;return {cell,keys}});}
+function validOrder(t,state,order){
+ // Preserve genuine table/colspan semantics instead of copying totals into
+ // unrelated columns. A merged group may move only as a contiguous block.
+ return [...t.rows].every(row=>rowGroups(row,state.cols).every(g=>{const positions=g.keys.map(k=>order.indexOf(k)).sort((a,b)=>a-b);return g.cell.rowSpan===1&&positions.every((p,i)=>!i||p===positions[i-1]+1)}));
+}
+function reorderColumns(t,state,saved){
+ let order=columnOrder(state,saved);if(!validOrder(t,state,order))order=state.cols.map(c=>c.key);state.order=order;
+ for(const row of t.rows){
+  const wanted=rowGroups(row,state.cols).sort((a,b)=>Math.min(...a.keys.map(k=>order.indexOf(k)))-Math.min(...b.keys.map(k=>order.indexOf(k)))).map(g=>g.cell);
+  wanted.forEach((cell,i)=>{if(row.cells[i]!==cell)row.insertBefore(cell,row.cells[i]||null)});
+ }
+}
+function announceOrder(state,message){
+ if(!state.orderStatus){state.orderStatus=document.createElement('span');state.orderStatus.className='gamaColumnStatus';state.orderStatus.setAttribute('role','status');state.toolbar.append(state.orderStatus)}
+ state.orderStatus.textContent=message;
+}
+function moveColumn(t,state,from,to){
+ const order=state.order.slice(),start=order.indexOf(from),end=order.indexOf(to);if(start<0||end<0||start===end)return;
+ order.splice(start,1);order.splice(end,0,from);
+ if(!validOrder(t,state,order)){announceOrder(state,ow().blocked);return}
+ const data=read(state.key)||{};data.order=order;save(state.key,data);controls(t,state);announceOrder(state,ow().saved);
+}
+function columnGestures(t,state){
+ const enabled=state.cols.length>1&&new Set(state.cols.map(c=>c.h.parentElement)).size===1&&state.cols.every(c=>c.h.colSpan===1&&c.h.rowSpan===1)&&![...t.rows].some(r=>[...r.cells].some(c=>c.rowSpan>1));
+ for(const c of state.cols){
+  c.h.draggable=enabled;
+  if(!enabled){c.h.querySelector('.gamaColumnGrip')?.remove();continue}
+  let grip=c.h.querySelector('.gamaColumnGrip');if(!grip){grip=document.createElement('span');grip.setAttribute('role','button');grip.tabIndex=0;grip.className='gamaColumnGrip';grip.dataset.giIgnore='';grip.setAttribute('translate','no');grip.innerHTML=svg('<g fill="currentColor"><circle cx="8" cy="5" r="1.6"/><circle cx="16" cy="5" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/></g>');c.h.append(grip)}
+  grip.setAttribute('aria-label',ow().move+' '+c.label);grip.title=ow().hint;
+ }
+ if(state.dragBound)return;state.dragBound=true;
+ const header=target=>{const h=target?.closest?.('th');return h?.closest('table')===t&&h.draggable?h:null};
+ const column=h=>state.cols.find(c=>c.h===h)?.key;
+ const clear=()=>{if(state.drag?.frame)cancelAnimationFrame(state.drag.frame);state.cols.forEach(c=>c.h.classList.remove('gamaColumnDragging','gamaColumnDrop'));state.drag=null};
+ const begin=h=>{clear();state.drag={from:column(h),actor:account(),key:state.key};h.classList.add('gamaColumnDragging')};
+ const target=h=>{state.cols.forEach(c=>c.h.classList.toggle('gamaColumnDrop',c.h===h&&column(h)!==state.drag?.from));if(state.drag)state.drag.to=h&&column(h)};
+ const finish=()=>{const d=state.drag;clear();if(d&&d.actor===account()&&d.key===state.key){state.suppressSortUntil=Date.now()+350;moveColumn(t,state,d.from,d.to)}};
+ const scroll=()=>{const d=state.drag;if(!d||d.x==null)return;const v=t.parentElement,r=v.getBoundingClientRect(),delta=d.x<r.left+32?-14:d.x>r.right-32?14:0;if(delta){v.scrollLeft+=delta;target(header(document.elementFromPoint(d.x,d.y)))}d.frame=requestAnimationFrame(scroll)};
+ t.addEventListener('dragstart',e=>{const h=header(e.target);if(!h||e.target.closest('input,select,textarea,a')){e.preventDefault();return}begin(h);e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',column(h));state.drag.frame=requestAnimationFrame(scroll)});
+ t.addEventListener('dragover',e=>{if(!state.drag)return;const h=header(e.target);if(h){e.preventDefault();e.dataTransfer.dropEffect='move';target(h)}state.drag.x=e.clientX;state.drag.y=e.clientY});
+ t.addEventListener('drop',e=>{if(!state.drag)return;e.preventDefault();e.stopPropagation();target(header(e.target));finish()});
+ t.addEventListener('dragend',clear);
+ t.addEventListener('click',e=>{if(e.target.closest('.gamaColumnGrip')||(header(e.target)&&Date.now()<(state.suppressSortUntil||0))){e.preventDefault();e.stopImmediatePropagation();if(e.target.closest('.gamaColumnGrip'))announceOrder(state,ow().hint)}},true);
+ t.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){clear();return}if(e.target.closest('.gamaColumnGrip')&&['Enter',' '].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();announceOrder(state,ow().hint);return}const h=header(e.target);if(!h||!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;
+  e.preventDefault();e.stopImmediatePropagation();const visible=state.order.filter(k=>!state.hidden.includes(k)),from=column(h),to=visible[visible.indexOf(from)+(e.key==='ArrowLeft'?-1:1)];moveColumn(t,state,from,to);(h.querySelector('.gamaColumnGrip')||h).focus({preventScroll:true});h.scrollIntoView({block:'nearest',inline:'nearest'});
+ },true);
+ // Native HTML drag for mouse; pointer capture on the grip for touch/pen.
+ t.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||!e.target.closest('.gamaColumnGrip'))return;const h=header(e.target);if(!h)return;e.preventDefault();begin(h);state.drag.pointer=e.pointerId;state.drag.x=e.clientX;state.drag.y=e.clientY;t.setPointerCapture(e.pointerId);state.drag.frame=requestAnimationFrame(scroll)});
+ t.addEventListener('pointermove',e=>{if(state.drag?.pointer!==e.pointerId)return;e.preventDefault();state.drag.x=e.clientX;state.drag.y=e.clientY;target(header(document.elementFromPoint(e.clientX,e.clientY)))});
+ t.addEventListener('pointerup',e=>{if(state.drag?.pointer!==e.pointerId)return;target(header(document.elementFromPoint(e.clientX,e.clientY)));finish();if(t.hasPointerCapture(e.pointerId))t.releasePointerCapture(e.pointerId)});
+ t.addEventListener('pointercancel',e=>{if(state.drag?.pointer===e.pointerId)clear()});
 }
 function headers(t,state,selected){
  const w=cw();
@@ -356,6 +408,7 @@ function headers(t,state,selected){
  }
  if(state.headerBound)return;state.headerBound=true;
  const activate=e=>{
+  if(e.target.closest('.gamaColumnGrip')||(e.type==='click'&&Date.now()<(state.suppressSortUntil||0)))return;
   const h=e.target.closest('th');if(!h||h.closest('table')!==t||e.target.closest('input,select,textarea,a'))return;
   const c=state.available.find(c=>c.h===h);if(!c)return;
   if(e.type==='keydown'&&!['Enter',' '].includes(e.key))return;

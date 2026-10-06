@@ -21,7 +21,7 @@ self.addEventListener('fetch',event=>{
   // Each entry page keeps its own offline copy: the storefront must not replace the ERP.
   const base=new URL('./',self.location.href).pathname;
   const filename=url.pathname===base?'index.html':url.pathname.slice(base.length);
-  if(!['index.html','gama-site.html'].includes(filename))return;
+  if(!['index.html','gama-site.html','tms-driver.html'].includes(filename))return;
   const key=new URL(filename,self.location.href).href;
   event.respondWith(fetch(request,{cache:'no-store'}).then(response=>save(key,response)).catch(async()=>{
    const cache=await caches.open(CACHE);return await cache.match(key)||Response.error();
@@ -41,5 +41,16 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE),cached=await cache.match(request);
   return cached||save(request,await fetch(request));
+ })());
+});
+self.addEventListener('message',event=>{
+ if(event.data?.type!=='COCO_PRECACHE_DRIVER'||!event.ports[0])return;
+ event.waitUntil((async()=>{
+  try{
+   const base=new URL('./',self.location.href),urls=event.data.urls;
+   if(!Array.isArray(urls)||urls.length>25)throw Error('INVALID_ASSETS');
+   const safe=urls.map(value=>{const url=new URL(value,base);if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||! /\.(js|css|html)$/.test(url.pathname))throw Error('INVALID_ASSET');return url.href});
+   await (await caches.open(CACHE)).addAll(safe);event.ports[0].postMessage({ok:true});
+  }catch(e){event.ports[0].postMessage({ok:false,error:e.message})}
  })());
 });

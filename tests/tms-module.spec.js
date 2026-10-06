@@ -11,7 +11,7 @@ const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil
  *  TMS used to keep everything in localStorage under "gama-tms-v1"; it now
  *  reads and writes the tms_* tables, so the tests seed window.__DB instead. */
 async function boot(page, seed = {}) {
-  await page.route('**/embed.waze.com/**',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>Waze Live Map test</title><p>Waze Live Map</p>'}));
+
   await page.addInitScript(([seedData, day]) => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
     // Skip the one-time localStorage import unless a test is exercising it.
@@ -35,6 +35,7 @@ async function boot(page, seed = {}) {
       sales_deliveries: seedData.shipments || (seedData.deliveries||[]).filter(d=>!d.legacy).map(d=>({id:'s-'+d.id,tms_delivery_id:d.id,loading_required:false,departed_at:null})),
       tms_routes: seedData.routes || [],
       tms_proofs: seedData.proofs || [],
+      executionLines:seedData.executionLines||{},
       tms_events: seedData.events || [],
       tms_settings: seedData.settings || [],
       // El transporte lee RRHH para saber quién está de vacaciones o de baja.
@@ -361,7 +362,7 @@ test.describe('TMS — automatic daily order planning',()=>{
   await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('today'),delivery('future','2099-01-01'),delivery('legacy',today(),{legacy:true})]});
   await expect(page.locator('#tPlanStatus')).toContainText('1 / 1');
   await expect(page.locator('#tAdd,#tCustomer,#tDate,#tOptimize,[data-tms-pick]')).toHaveCount(0);
-  await expect(page.locator('#tDayMap iframe')).toBeVisible();await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
+  await expect(page.locator('#tDayMap svg')).toBeVisible();await expect(page.locator('[data-map-delivery]')).toHaveCount(2);
   const state=await page.evaluate(()=>({ds:__DB.tms_deliveries,rs:__DB.tms_routes}));expect(state.rs[0].stops).toEqual(['today']);expect(state.ds.find(d=>d.id==='future').delivery_date).toBe('2099-01-01');expect(state.ds.find(d=>d.id==='legacy').route_id).toBeFalsy();
   await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();expect(await page.evaluate(()=>__DB.tms_routes[0].id)).toBe(state.rs[0].id);
  });
@@ -388,73 +389,31 @@ test.describe('TMS — automatic daily order planning',()=>{
   expect(await page.evaluate(()=>__DB.tms_deliveries.length)).toBe(0);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama-tms-v1')).deliveries[0].id)).toBe('old');
  });
  test('the map and depot form fit a phone viewport',async({page})=>{
-  await page.setViewportSize({width:320,height:900});await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('phone')]});await expect(page.locator('#tDayMap iframe')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await page.setViewportSize({width:320,height:900});await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('phone')]});await expect(page.locator('#tDayMap svg')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
  });
 });
 
-test('Waze Live Map opens in Quito, zooms manually, fits today’s area and selects each real position without a key',async({page})=>{
+test('local map fits every delivery simultaneously, zooms, pans and focuses Quito without external requests',async({page})=>{
  const requests=[];page.on('request',r=>requests.push(r.url()));
  await boot(page,{drivers:DRIVERS,settings:[{id:true,depot:'Quito depot',depot_lat:-0.19,depot_lng:-78.49}],deliveries:[{id:'quito',customer:'Quito client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-0.2,lng:-78.5},{id:'guayaquil',customer:'Guayaquil client',address:'Guayaquil',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-2.17,lng:-79.92}]});
- await expect(page.locator('#tRefresh')).toBeEnabled();const frame=page.locator('#tWazeMap');await expect(frame).toBeVisible();
- const initial=new URL(await frame.getAttribute('src'));expect(initial.origin).toBe('https://embed.waze.com');expect(initial.searchParams.has('key')).toBe(false);expect(initial.searchParams.get('pin')).toBe('0');
- expect(initial.searchParams.get('lat')).toBe('-0.1807');expect(initial.searchParams.get('lon')).toBe('-78.4678');expect(initial.searchParams.get('zoom')).toBe('12');await expect(page.locator('#tMapPoint')).toHaveValue('__quito');
- await page.click('#tMapIn');expect(Number(new URL(await frame.getAttribute('src')).searchParams.get('zoom'))).toBe(Number(initial.searchParams.get('zoom'))+1);
- await page.click('#tMapOut');expect(new URL(await frame.getAttribute('src')).searchParams.get('zoom')).toBe(initial.searchParams.get('zoom'));
- await page.selectOption('#tMapPoint','guayaquil');const selected=new URL(await frame.getAttribute('src'));expect(selected.searchParams.get('lat')).toBe('-2.17');expect(selected.searchParams.get('lon')).toBe('-79.92');expect(selected.searchParams.get('pin')).toBe('1');
- const outside=new URL(await page.locator('#tMapOutside').getAttribute('href'));expect(outside.pathname).toBe('/ul');expect(outside.searchParams.get('ll')).toBe('-2.17,-79.92');
- await page.selectOption('#tMapPoint','__depot');const depot=new URL(await frame.getAttribute('src'));expect(depot.searchParams.get('lat')).toBe('-0.19');expect(depot.searchParams.get('lon')).toBe('-78.49');expect(depot.searchParams.get('pin')).toBe('1');
- await page.locator('[data-map-delivery=quito]').press('Enter');await expect(page.locator('#tms-delivery-quito')).toBeFocused();expect(new URL(await frame.getAttribute('src')).searchParams.get('lat')).toBe('-0.2');
- await page.click('#tMapFit');await expect(page.locator('#tMapPoint')).toHaveValue('all');expect(new URL(await frame.getAttribute('src')).searchParams.get('pin')).toBe('0');
- const fitted=new URL(await frame.getAttribute('src'));expect(Number(fitted.searchParams.get('lat'))).toBeGreaterThan(-2.17);expect(Number(fitted.searchParams.get('lat'))).toBeLessThan(-0.19);
- await page.selectOption('#tMapPoint','__quito');expect(new URL(await frame.getAttribute('src')).searchParams.get('lat')).toBe('-0.1807');await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('#tMapPoint')).toHaveValue('__quito');
- expect(requests.filter(url=>/openstreetmap|maps.googleapis.com/.test(url))).toEqual([]);
- await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-planning-desktop.png'});
+ await expect(page.locator('#tRefresh')).toBeEnabled();const map=page.locator('#tDayMap svg');await expect(map).toBeVisible();await expect(map.locator('[data-map-pin]')).toHaveCount(3);await expect(page.locator('#tMapPoint')).toHaveValue('all');
+ const zoom=Number(await map.getAttribute('data-zoom'));await page.click('#tMapIn');expect(Number(await map.getAttribute('data-zoom'))).toBeCloseTo(zoom+1);await page.click('#tMapOut');expect(Number(await map.getAttribute('data-zoom'))).toBeCloseTo(zoom);
+ expect(await map.locator('[data-map-pin]').evaluateAll(pins=>pins.every(p=>{const r=p.getBoundingClientRect(),s=p.closest('svg').getBoundingClientRect();return r.left>=s.left&&r.right<=s.right&&r.top>=s.top&&r.bottom<=s.bottom}))).toBe(true);
+ await page.selectOption('#tMapPoint','guayaquil');await expect(map.locator('[data-map-pin]')).toHaveCount(3);expect(new URL(await page.locator('#tMapOutside').getAttribute('href')).searchParams.get('ll')).toBe('-2.17,-79.92');
+ await page.click('#tMapFit');const before=await map.getAttribute('viewBox');await map.focus();await map.press('ArrowRight');expect(await map.getAttribute('viewBox')).not.toBe(before);
+ await page.selectOption('#tMapPoint','__quito');expect(Number(await map.getAttribute('data-zoom'))).toBe(12);await page.click('#tMapFit');
+ expect(requests.filter(url=>/embed.waze|openstreetmap|maps.googleapis.com/.test(url))).toEqual([]);await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-planning-desktop.png'});
 });
-
-test('Waze route filters keep the selected delivery and manual zoom across refreshes',async({page})=>{
+test('local map filters routes and clears all private positions on sign-out',async({page})=>{
  const ds=['a','b','c'].map((id,i)=>({id,customer:id,address:'Quito',delivery_date:today(),status:'Pendiente de preparación',lat:-0.2-i*.01,lng:-78.5-i*.01,weight:40,volume:1}));
- await boot(page,{drivers:DRIVERS.map(d=>({...d,max_weight:80})),deliveries:ds});await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('[data-map-delivery]')).toHaveCount(3);
- const route=await page.evaluate(()=>__DB.tms_routes.find(r=>r.driver_id==='drv2').id);await page.selectOption('#tMapRoute',route);await expect(page.locator('[data-map-delivery]')).toHaveCount(1);
- const id=await page.locator('[data-map-delivery]').getAttribute('data-map-delivery');await page.selectOption('#tMapPoint',id);await page.click('#tMapOut');const src=await page.locator('#tWazeMap').getAttribute('src');
- await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('#tMapPoint')).toHaveValue(id);await expect(page.locator('#tWazeMap')).toHaveAttribute('src',src);
- await page.selectOption('#tMapRoute','all');await expect(page.locator('[data-map-delivery]')).toHaveCount(3);
+ await boot(page,{drivers:DRIVERS.map(d=>({...d,max_weight:80})),deliveries:ds});await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('[data-map-pin]')).toHaveCount(3);
+ const route=await page.evaluate(()=>__DB.tms_routes.find(r=>r.driver_id==='drv2').id);await page.selectOption('#tMapRoute',route);await expect(page.locator('[data-map-pin]')).toHaveCount(1);await page.selectOption('#tMapRoute','all');await expect(page.locator('[data-map-pin]')).toHaveCount(3);
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('#tDayMap svg')).toHaveCount(0);await expect(page.locator('[data-map-delivery]')).toHaveCount(0);await expect(page.locator('#tMapOutside')).not.toHaveAttribute('href',/./);
 });
-
-test('missing GPS stays explicit until a manual correction and never triggers OpenStreetMap',async({page})=>{
- const requests=[];page.on('request',r=>requests.push(r.url()));
+test('missing GPS uses the Quito view without inventing delivery positions',async({page})=>{
  await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[{id:'manualgps',customer:'Manual GPS client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:null,lng:null}]});await expect(page.locator('#tRefresh')).toBeEnabled();
- await expect(page.locator('#tWazeMap')).toBeVisible();expect(new URL(await page.locator('#tWazeMap').getAttribute('src')).searchParams.get('lat')).toBe('-0.1807');expect(new URL(await page.locator('#tWazeMap').getAttribute('src')).searchParams.get('pin')).toBe('0');await expect(page.locator('#tMapFit')).toBeDisabled();expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
- await page.click('[data-tms-coordinates]');await page.fill('dialog input[name=lat]','-0.2');await page.fill('dialog input[name=lng]','-78.5');await page.click('dialog button[type=submit]');await expect(page.locator('#tWazeMap')).toBeVisible();
- await page.selectOption('#tMapPoint','manualgps');expect(new URL(await page.locator('#tWazeMap').getAttribute('src')).searchParams.get('lat')).toBe('-0.2');expect(requests.filter(url=>/openstreetmap|maps.googleapis.com/.test(url))).toEqual([]);
-});
-
-test('Waze map coordinates and selections are removed at sign-out',async({page})=>{
- await boot(page,{drivers:DRIVERS,deliveries:[{id:'privategps',customer:'Private GPS client',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:10,lat:-0.2,lng:-78.5}]});await expect(page.locator('#tWazeMap')).toBeVisible();
- await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('#tWazeMap')).toHaveCount(0);await expect(page.locator('[data-map-delivery]')).toHaveCount(0);await expect(page.locator('#tMapPoint option')).toHaveCount(0);await expect(page.locator('#tMapOutside')).not.toHaveAttribute('href',/./);
-});
-
-test('planning translates delivery and route states in French and English',async({page})=>{
- await boot(page,{deliveries:[{id:'translated',customer:'Translated client',address:'Quito',delivery_date:today(),status:'En tránsito',route_id:'translated-route'}],routes:[{id:'translated-route',route_date:today(),stops:['translated'],status:'En tránsito'}]});
- for(const lang of ['fr','en']){await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);await page.evaluate(()=>gamaTMS.open('planning'));await expect(page.locator('.tms')).not.toContainText('En tránsito');await expect(page.locator('#tDayMap')).toBeVisible()}
-});
-
-test('proof table sorts suppliers and downloads an ERP-named certificate without loading every photo',async({page})=>{
- const iso=new Date().toISOString();await boot(page,{drivers:DRIVERS,documents:[{source_table:'tms_proofs',source_id:'b',erp_reference:'DOC-00000017',supplier_id:'sup-a'}],deliveries:[{id:'a',customer:'Zeta',delivery_date:today(),status:'Entregada',delivered_at:iso},{id:'b',customer:'Beta',delivery_date:today(),status:'Entregada',delivered_at:iso}],proofs:[{delivery_id:'a',photo:'data:image/png;base64,A',captured_at:iso},{delivery_id:'b',photo:'data:image/png;base64,B',captured_at:iso}]});
- await page.evaluate(()=>{__DB.suppliers=[{id:'sup-a',name:'Alfa proveedor'}]});await page.click('[data-tms-stage=proof]');
- await expect(page.locator('[data-proof-row=b]')).toContainText('Alfa proveedor');await expect(page.locator('[data-proof-row=b]')).toContainText('DOC-00000017');await expect(page.locator('.tmsProof img')).toHaveCount(0);
- await page.locator('#tProofTable th[data-gama-sort-col=partner]').click();await expect(page.locator('#tProofTable tbody tr').first()).toHaveAttribute('data-proof-row','b');
- await page.evaluate(()=>{window.__proofDownload='';GamaPdf.proofCertificate=()=>({});GamaPdf.save=(pdf,filename)=>window.__proofDownload=filename});await page.click('[data-proof-download=b]');
- await expect.poll(()=>page.evaluate(()=>window.__proofDownload)).toMatch(/^DOC-00000017/);
- await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-proofs-table.png'});
-});
-
-test('manual stop order and route assignment survive automatic refresh',async({page})=>{
- const deliveries=['a','b','c'].map(id=>({id,customer:id,delivery_date:today(),address:'Quito',lat:-0.2,lng:-78.5,weight:40,volume:1,status:'Pendiente de preparación'}));
- await boot(page,{drivers:DRIVERS.map(d=>({...d,max_weight:80})),deliveries});await expect(page.locator('#tRefresh')).toBeEnabled();
- await page.click('[data-stop-up=b]');await expect(page.locator('[data-route-stop]').first()).toHaveAttribute('data-route-stop','b');
- await page.click('#tRefresh');await expect(page.locator('#tRefresh')).toBeEnabled();await expect(page.locator('[data-route-stop]').first()).toHaveAttribute('data-route-stop','b');
- const target=await page.evaluate(()=>__DB.tms_routes.find(r=>r.driver_id==='drv2').id);await page.selectOption('[data-stop-target=a]',target);
- await expect.poll(()=>page.evaluate(()=>__DB.tms_deliveries.find(d=>d.id==='a').driver_id)).toBe('drv2');await expect(page.locator('[data-route-drop="'+target+'"]')).toContainText('Ajustada manualmente');
+ await expect(page.locator('#tDayMap svg')).toHaveAttribute('data-zoom','12');await expect(page.locator('[data-map-pin]')).toHaveCount(0);expect(await page.evaluate(()=>__DB.tms_deliveries[0].lat)).toBeNull();
+ await page.click('[data-tms-coordinates]');await page.fill('dialog input[name=lat]','-0.2');await page.fill('dialog input[name=lng]','-78.5');await page.click('dialog button[type=submit]');await expect(page.locator('[data-map-pin=manualgps]')).toBeVisible();
 });
 
 test('future planning changes the chosen day and retains today’s deliveries',async({page})=>{
@@ -527,4 +486,43 @@ test('a failed customer-cost lookup can be retried and a pending response cannot
  await page.evaluate(()=>__costFail=false);await report.locator('[data-arc-retry]').click();await page.waitForFunction(()=>__costPending);
  await page.evaluate(()=>{window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__finishCost()});
  await expect(page.locator('dialog[data-tms-report]')).toHaveCount(0);await expect(page.locator('body')).not.toContainText('Private cost after sign-out');
+});
+
+test('received quantities persist offline across a driver-page restart and sync once',async({page,context})=>{
+ await page.setViewportSize({width:390,height:844});
+ await boot(page,{__driver:true,profile:{id:'driver-offline',full_name:'Offline Driver',role:'almacenero',active:true},drivers:[{...DRIVERS[0],employee_id:'offline-employee'}],employees:[{id:'offline-employee',profile_id:'driver-offline',full_name:'Offline Driver',active:true}],routes:[{id:'offline-route',driver_id:'drv1',route_date:today(),vehicle:'Van',status:'En ruta',stops:['offline-delivery']}],deliveries:[{id:'offline-delivery',customer:'Offline customer',address:'Quito',driver_id:'drv1',route_id:'offline-route',delivery_date:today(),status:'En tránsito',version:1}],shipments:[{id:'offline-shipment',tms_delivery_id:'offline-delivery',loading_required:true,departed_at:new Date().toISOString()}],executionLines:{'offline-delivery':[{id:'line-one',name:'Papel A4',quantity:10,remaining:10,accepted:0,refused:0}]}});
+ await page.click('#tDriverDownload');await expect(page.locator('#tDriverOfflineStatus')).toContainText('Ruta descargada',{timeout:40000});
+ await context.setOffline(true);await page.goto('/tms-driver.html');await expect(page.locator('#cocoDriver')).toContainText('Offline customer');
+ await page.reload();await expect(page.locator('#cocoDriver')).toContainText('Sin conexión');await page.click('[data-driver-receive]');
+ await page.locator('[data-quantity=accepted]').fill('6');await page.locator('[data-quantity=refused]').fill('2');await page.locator('[data-quantity=deferred]').fill('2');await page.locator('[name=receiver]').fill('Cliente prueba');await page.locator('[name=reason]').fill('Dos rechazadas y dos para mañana');
+ await page.locator('[data-ex-signature]').scrollIntoViewIfNeeded();const box=await page.locator('[data-ex-signature]').boundingBox();await page.mouse.move(box.x+20,box.y+30);await page.mouse.down();await page.mouse.move(box.x+140,box.y+70);await page.mouse.up();
+ await page.locator('dialog').screenshot({path:'test-results/tms-receipt-mobile.png'});await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);await page.reload();await expect(page.locator('#cocoDriver')).toContainText('1 captura(s) por sincronizar');
+ const queued=await page.evaluate(()=>ArchitectOfflineProofs.rows());expect(queued).toHaveLength(1);expect(queued[0].payload.lines[0]).toMatchObject({accepted:6,refused:2,deferred:2});expect(queued[0].payload.signature).toMatch(/^data:image\/png/);
+ await page.evaluate(()=>{window.__syncKeys=[];GamaCloud.getSession=async()=>({data:{session:{user:{id:'driver-offline'}}}});GamaCloud.db=async()=>({rpc:async(fn,{p_action,p_data})=>{if(p_action!=='receive')return {error:{message:'AUTH_REQUIRED'}};__syncKeys.push(p_data.request_key);return {data:{delivery:{id:'offline-delivery',version:2,status:'Entrega parcial'},lines:[],attempts:[]}}}})});
+ await context.setOffline(false);await page.evaluate(()=>ArchitectOfflineProofs.flush());expect(await page.evaluate(()=>ArchitectOfflineProofs.rows())).toHaveLength(0);await page.evaluate(()=>ArchitectOfflineProofs.flush());expect(new Set(await page.evaluate(()=>__syncKeys)).size).toBe(1);
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await context.setOffline(true);await page.reload();await expect(page.locator('#cocoDriver')).not.toContainText('Offline customer');
+});
+
+test('one conflicted offline delivery does not block another and account switching hides its queue',async({page,context})=>{
+ await boot(page,{drivers:DRIVERS});await context.setOffline(true);
+ await page.evaluate(async()=>{for(const [id,notes] of [['a','first'],['b','independent'],['a','dependent']])await ArchitectOfflineProofs.capture({delivery_id:id,version:1,notes},'notes');window.__flushCalls=[];GamaCloud.db=async()=>({rpc:async(fn,{p_data})=>{if(p_data.notes)__flushCalls.push(p_data.notes);return p_data.delivery_id==='a'?{error:{message:'DELIVERY_STALE'}}:{data:{delivery:{id:'b',version:2},lines:[],attempts:[]}}}})});
+ await context.setOffline(false);await page.evaluate(()=>ArchitectOfflineProofs.flush());
+ const calls=await page.evaluate(()=>__flushCalls);expect(calls.slice(0,2)).toEqual(['first','independent']);expect(calls.filter(x=>x==='independent')).toHaveLength(1);expect(calls).not.toContain('dependent');expect((await page.evaluate(()=>ArchitectOfflineProofs.rows())).map(r=>r.payload.notes)).toEqual(['first','dependent']);
+ await page.evaluate(()=>{__DB._profile.id='other-account';window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN',session:{user:{id:'other-account'}}}}))});expect(await page.evaluate(()=>ArchitectOfflineProofs.rows())).toEqual([]);
+});
+
+test('loading manifest downloads a real multipage PDF and rechecks route access before export',async({page})=>{
+ await boot(page,{drivers:DRIVERS});
+ await page.evaluate(async()=>{
+  window.__manifestReads=0;const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn!=='gama_tms_execution'||args.p_action!=='manifest')return c.rpc(fn,args);window.__manifestReads++;
+   if(window.__manifestDenied)return {error:{message:'TMS_ACCESS_DENIED'}};
+   return {data:{route:{erp_reference:'RUT-00000042',route_date:'2026-10-06',driver_name:'Ana Torres',vehicle:'ABC-1234'},guide:null,deliveries:[{delivery:{customer:'Cliente Quito',address:'Av. Amazonas',time_window:'09:00-12:00'},shipment:{number:'ENV-00000042'},lines:Array.from({length:90},(_,i)=>({name:'Producto '+i+' · Papel A4 para oficina',quantity:10,accepted:3,remaining:7}))}]}};
+  }}};
+  await CocoTmsExecution.manifest('route-pdf');
+ });
+ const download=page.waitForEvent('download');await page.locator('[data-ex-print]').click();const file=await download;
+ expect(file.suggestedFilename()).toMatch(/manifiesto.*RUT-00000042.*\.pdf/i);const data=fs.readFileSync(await file.path());expect(data.subarray(0,4).toString()).toBe('%PDF');expect((data.toString('latin1').match(/\/Type \/Page\b/g)||[]).length).toBeGreaterThan(1);expect(await page.evaluate(()=>window.__manifestReads)).toBe(2);
+ await file.saveAs('.build/tms-manifest-verified.pdf');
+ await page.evaluate(()=>window.__manifestDenied=true);await page.locator('[data-ex-print]').click();await expect(page.locator('.tmsManifestDialog [role=alert]')).toContainText('no está asignada');await expect(page.locator('[data-ex-print]')).toBeEnabled();
 });

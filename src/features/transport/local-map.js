@@ -1,0 +1,38 @@
+/* Local, keyless map. No tile server, geocoder or routing requests. */
+(function(){'use strict';
+const E=window.ArcUI.esc,NS='http://www.w3.org/2000/svg',project=(lng,lat)=>{const s=Math.sin(Math.max(-85,Math.min(85,lat))*Math.PI/180);return [(lng+180)/360*256,(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256]};
+const path=coordinates=>coordinates.map((p,i)=>(i?'L':'M')+project(...p).map(n=>n.toFixed(6)).join(',')).join('');
+let geography;
+function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
+ const svg=document.createElementNS(NS,'svg');svg.setAttribute('role','group');svg.setAttribute('aria-label',window.GamaI18n?.t('Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.')||'Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.');svg.setAttribute('tabindex','0');svg.classList.add('tmsLocalMap');
+ if(!geography){const data=window.CocoMapData||{};geography=`<g class="tmsMapLand">${(data.land||[]).map(r=>`<path d="${path(r)}Z"/>`).join('')}</g><g class="tmsMapRoads">${(data.roads||[]).map(r=>`<path d="${path(r)}"/>`).join('')}</g>`}
+ svg.innerHTML=geography+'<g data-map-cities></g><g data-map-routes></g><g data-map-pins></g>';host.replaceChildren(svg);
+ let center=project(-78.4678,-.1807),zoom=12,selected=null,width=host.clientWidth||700,height=host.clientHeight||380;
+ const positioned=points.map(p=>({...p,p:project(+p.lng,+p.lat)})),pointers=new Map();let gesture;
+ function draw(){
+  width=host.clientWidth||700;height=host.clientHeight||380;const unit=2**-zoom,vw=width*unit,vh=height*unit,left=center[0]-vw/2,top=center[1]-vh/2;
+  svg.setAttribute('viewBox',[left,top,vw,vh].join(' '));svg.dataset.zoom=String(zoom);svg.dataset.points=String(points.length);
+  const g=window.CocoMapData||{};
+  svg.querySelector('[data-map-cities]').innerHTML=(g.cities||[]).filter(c=>zoom>=8||c.rank<5).map(c=>{const p=project(...c.point);return p[0]<left||p[0]>left+vw||p[1]<top||p[1]>top+vh?'':`<g transform="translate(${p.join(',')})"><circle r="${2*unit}" fill="#73808b"/><text x="${5*unit}" y="${-5*unit}" font-size="${12*unit}" fill="#4b5c68">${E(c.name)}</text></g>`}).join('');
+  svg.querySelector('[data-map-routes]').innerHTML=routes.map(r=>{const ps=(r.stops||[]).map(id=>positioned.find(p=>p.id===id)).filter(Boolean);return `<path d="${ps.map((p,i)=>(i?'L':'M')+p.p.join(',')).join('')}" fill="none" stroke="#8b6bcc" stroke-width="1.5" stroke-dasharray="5 5" vector-effect="non-scaling-stroke"/>`}).join('');
+  const used=[];
+  svg.querySelector('[data-map-pins]').innerHTML=positioned.map((p,i)=>{
+   let [x,y]=p.p,attempt=0;while(used.some(q=>Math.hypot(q[0]-x,q[1]-y)<28*unit)&&attempt<positioned.length*12){attempt++;const angle=attempt*2.39996,radius=18*Math.sqrt(attempt)*unit;x=p.p[0]+Math.cos(angle)*radius;y=p.p[1]+Math.sin(angle)*radius}used.push([x,y]);
+   const color=p.isDepot?'#35495e':p.status==='Entregada'?'#15803d':p.status==='Excepción'?'#c2410c':'#6046a8',label=p.isDepot?'D':String(i+1);
+   return `<g data-map-pin="${E(p.id)}" role="button" tabindex="0" aria-label="${E([label,p.reference,p.customer,p.address].filter(Boolean).join(' · '))}"><title>${E(p.customer||p.address)}</title>${attempt?`<path d="M${p.p.join(',')}L${x},${y}" stroke="${color}" stroke-width="1" vector-effect="non-scaling-stroke"/>`:''}<circle cx="${x}" cy="${y}" r="${(selected===p.id?16:13)*unit}" fill="${color}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${x}" y="${y+4*unit}" text-anchor="middle" fill="#fff" font-size="${11*unit}" font-weight="700" pointer-events="none">${label}</text></g>`;
+  }).join('');
+ }
+ function fit(){selected=null;if(!positioned.length){center=project(-78.4678,-.1807);zoom=12}else{const xs=positioned.map(p=>p.p[0]),ys=positioned.map(p=>p.p[1]);center=[(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];zoom=Math.min(15,Math.max(2,Math.log2(Math.min(Math.max(80,width-150)/Math.max(.00001,Math.max(...xs)-Math.min(...xs)),Math.max(80,height-150)/Math.max(.00001,Math.max(...ys)-Math.min(...ys))))))}draw()}
+ function changeZoom(delta){zoom=Math.min(18,Math.max(2,zoom+delta));draw()}
+ function focus(id){if(id==='all')return fit();selected=id;center=id==='__quito'?project(-78.4678,-.1807):positioned.find(p=>p.id===id)?.p||center;zoom=id==='__quito'?12:15;draw()}
+ svg.onclick=e=>{const pin=e.target.closest('[data-map-pin]');if(pin){selected=pin.dataset.mapPin;draw();onSelect(selected)}};
+ svg.onkeydown=e=>{const pin=e.target.closest('[data-map-pin]');if(pin&&['Enter',' '].includes(e.key)){e.preventDefault();onSelect(pin.dataset.mapPin);return}if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(['+','=','-'].includes(e.key))changeZoom(e.key==='-'?-1:1);else{const n=60*2**-zoom;center=[center[0]+(e.key==='ArrowRight'?n:e.key==='ArrowLeft'?-n:0),center[1]+(e.key==='ArrowDown'?n:e.key==='ArrowUp'?-n:0)];draw()}}};
+ const snapshot=()=>{const p=[...pointers.values()];return p.length===1?{point:p[0],center:[...center]}:p.length===2?{distance:Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),zoom}:null};
+ svg.onpointerdown=e=>{if(e.target.closest('[data-map-pin]'))return;svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});gesture=snapshot()};
+ svg.onpointermove=e=>{if(!pointers.has(e.pointerId)||!gesture)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1&&gesture.point){center=[gesture.center[0]-(e.clientX-gesture.point.x)*2**-zoom,gesture.center[1]-(e.clientY-gesture.point.y)*2**-zoom];draw()}else if(pointers.size===2&&gesture.distance){const p=[...pointers.values()];zoom=Math.min(18,Math.max(2,gesture.zoom+Math.log2(Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y)/gesture.distance)));draw()}};
+ svg.onpointerup=svg.onpointercancel=e=>{pointers.delete(e.pointerId);gesture=snapshot()};
+ svg.addEventListener('wheel',e=>{if(e.ctrlKey||document.activeElement===svg){e.preventDefault();changeZoom(e.deltaY>0?-.5:.5)}},{passive:false});
+ fit();return {fit,focus,zoom:changeZoom,resize:draw};
+}
+window.CocoDeliveryMap={create};
+})();

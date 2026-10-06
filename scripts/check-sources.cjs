@@ -11,7 +11,7 @@ for(const file of walk(path.join(root,'src')).filter(f=>f.endsWith('.js'))){
 for(const file of [...runtimeFiles().filter(f=>f.endsWith('.js')),'architect-assets.js','sw.js']){
  acorn.parse(fs.readFileSync(path.join(root,file),'utf8'),{ecmaVersion:'latest',sourceType:'script'});
 }
-for(const file of ['index.html','gama-site.html','camera-check.html']){
+for(const file of ['index.html','gama-site.html','camera-check.html','tms-driver.html','tms-tracking.html']){
  const html=fs.readFileSync(path.join(root,file),'utf8');
  for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(m[1].trim())acorn.parse(m[1],{ecmaVersion:'latest',sourceType:'script'});
  for(const m of html.matchAll(/(?:src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g)){

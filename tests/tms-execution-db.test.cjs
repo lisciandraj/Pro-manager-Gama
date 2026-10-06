@@ -1,0 +1,59 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {randomUUID}=require('node:crypto'),{restore}=require('../scripts/restore-schema.cjs');
+const id=n=>'83000000-0000-0000-0000-'+String(n).padStart(12,'0');
+test('TMS scopes, future resources, partial receipts, idempotency and original promises',async()=>{
+ const db=await restore();
+ const as=uid=>db.exec(`reset role;select set_config('request.jwt.claim.sub','${uid}',false);set role authenticated`);
+ const call=async(action,data)=>(await db.query('select gama_tms_execution($1,$2) r',[action,data])).rows[0].r;
+ try{
+ // Test defaults and explicit planner dates must use the same Quito day,
+ // including the five-hour interval after UTC midnight on the CI runner.
+ await db.exec("select set_config('TimeZone',private.erp_timezone(),false)");
+ await db.exec(`insert into auth.users(id,email) values('${id(1)}','execution-admin@example.invalid'),('${id(2)}','execution-driver@example.invalid'),('${id(3)}','execution-other@example.invalid');update profiles set active=true,role=case when id='${id(1)}' then 'administrador' else 'almacenero' end;select set_config('request.jwt.claim.sub','${id(1)}',false);
+ insert into hr_employees(id,full_name,profile_id) values('${id(4)}','Own driver','${id(2)}'),('${id(5)}','Other driver','${id(3)}');
+ insert into fleet_drivers(id,name,employee_id) values('${id(6)}','Own driver','${id(4)}'),('${id(7)}','Other driver','${id(5)}');
+ insert into fleet_vehicles(id,plate,brand,model,kind,energy,payload_kg,cargo_volume_m3) values('${id(8)}','EXEC-ONE','Test','Van','truck','other',1000,10);
+ insert into fleet_assignments(vehicle_id,driver_id,started_on) values('${id(8)}','${id(6)}',current_date-2);
+ insert into hr_absences(employee_id,kind,status,start_date,end_date) values('${id(4)}','vacaciones','aprobada',(now() at time zone private.erp_timezone())::date+1,(now() at time zone private.erp_timezone())::date+1);
+ insert into customers(id,name) values('${id(9)}','Receipt client');
+ insert into sales_orders(id,customer_id,customer_name,request_key,status,created_by) values('${id(10)}','${id(9)}','Receipt client',gen_random_uuid(),'confirmed','${id(1)}');
+ insert into products(id,name,barcode,weight_g,volume_cm3) values('${id(11)}','Office paper','EXEC-PAPER',100,500);
+ begin;set session_replication_role=replica;
+ insert into tms_routes(id,route_date,driver_id,vehicle_id,stops) values('${id(12)}',(now() at time zone private.erp_timezone())::date,'${id(6)}','${id(8)}','["${id(13)}"]');
+ insert into tms_deliveries(id,customer,address,driver_id,route_id,weight,volume) values('${id(13)}','Receipt client','Quito','${id(6)}','${id(12)}',1,0.005),('${id(14)}','Other delivery','Quito','${id(7)}',null,1,0.005);
+ insert into sales_deliveries(id,number,order_id,request_key,tms_delivery_id,created_by,loading_required) values('${id(15)}','EXEC-15','${id(10)}',gen_random_uuid(),'${id(13)}','${id(1)}',false),('${id(16)}','EXEC-16','${id(10)}',gen_random_uuid(),'${id(14)}','${id(1)}',false);
+ insert into sales_order_lines(id,order_id,product_id,product_name,quantity,unit_price,tax_rate) values('${id(17)}','${id(10)}','${id(11)}','Office paper',10,2,0);
+ insert into sales_delivery_lines(id,delivery_id,order_line_id,location_id,quantity) select '${id(18)}','${id(15)}','${id(17)}',id,10 from warehouse_locations where active limit 1;
+ set session_replication_role=origin;commit;`);
+ await as(id(1));assert.ok((await call('access',{})).length>=3);assert.equal((await call('manifest',{route_id:id(12)})).deliveries.length,1);
+ const resources=(await db.query("select gama_tms_resources(((now() at time zone private.erp_timezone())::date+1)) r")).rows[0].r;assert.equal(resources.find(x=>x.driver_id===id(6)).absent,true);
+ let ctx=await call('context',{delivery_id:id(13)});const windows=(await db.query("select (current_date+time '09:00') at time zone private.erp_timezone() p1,(current_date+time '10:00') at time zone private.erp_timezone() p2,(current_date+time '11:00') at time zone private.erp_timezone() p3")).rows[0],p1=new Date(windows.p1).toISOString(),p2=new Date(windows.p2).toISOString();
+ ctx=await call('configure',{delivery_id:id(13),version:ctx.delivery.version,request_key:randomUUID(),promised_from:p1,promised_until:p2});assert.equal(new Date(ctx.delivery.initial_promised_until).toISOString(),p2);
+ ctx=await call('configure',{delivery_id:id(13),version:ctx.delivery.version,request_key:randomUUID(),promised_from:p1,promised_until:new Date(windows.p3).toISOString()});assert.equal(new Date(ctx.delivery.initial_promised_until).toISOString(),p2);
+ await db.exec(`reset role;set session_replication_role=replica;update sales_deliveries set departed_at=now() where id='${id(15)}';set session_replication_role=origin;`);
+ await as(id(2));await db.query('delete from tms_routes where id=$1',[id(12)]);assert.equal((await db.query('select count(*)::int n from tms_routes')).rows[0].n,1);assert.equal((await db.query('select count(*)::int n from tms_deliveries')).rows[0].n,1);
+ await assert.rejects(call('context',{delivery_id:id(14)}),/TMS_ACCESS_DENIED/);
+ await assert.rejects(db.query('select gama_tms_capture($1)',[{delivery_id:id(14),request_key:randomUUID(),complete:true,signature:'data:image/png;base64,AA==',captured_at:new Date().toISOString()}]),/TMS_ACCESS_DENIED/);
+ ctx=await call('context',{delivery_id:id(13)});
+ const data={delivery_id:id(13),version:ctx.delivery.version,request_key:randomUUID(),occurred_at:new Date().toISOString(),receiver_name:'Cliente prueba',signature:'data:image/png;base64,AA==',reason:'Dos rechazadas y dos para mañana',gps:{status:'denied'},lines:[{id:id(18),accepted:6,refused:2,missing:0,deferred:2}]};
+ const received=await call('receive',data);assert.equal(received.delivery.status,'Entrega parcial');assert.equal(+received.lines[0].remaining,2);assert.equal(+received.lines[0].accepted,6);assert.equal(+received.lines[0].refused,2);
+ assert.deepEqual(await call('receive',data),received);assert.equal((await db.query('select count(*)::int n from tms_delivery_attempts')).rows[0].n,1);
+ await assert.rejects(call('receive',{...data,receiver_name:'Different'}),/REQUEST_KEY_CONFLICT/);
+ await assert.rejects(call('receive',{...data,request_key:randomUUID()}),/DELIVERY_STALE/);
+ await db.exec('reset role');assert.equal(+(await db.query('select private.gama_line_performed($1,true) n',[id(17)])).rows[0].n,6);assert.equal(+(await db.query('select stock from products where id=$1',[id(11)])).rows[0].stock,0);
+ await as(id(3));assert.equal((await db.query('select count(*)::int n from tms_delivery_attempts')).rows[0].n,0);await assert.rejects(call('proof',{proof_id:received.attempts[0].proofs[0].id}),/TMS_ACCESS_DENIED/);
+ await as(id(2));const retry=await call('receive',{...data,version:received.delivery.version,request_key:randomUUID(),reason:'Resto entregado',lines:[{id:id(18),accepted:2,refused:0,missing:0,deferred:0}]});assert.equal(retry.delivery.status,'Entrega parcial');assert.equal(+retry.lines[0].accepted,8);assert.equal(+retry.lines[0].remaining,0);
+ await as(id(1));await assert.rejects(call('close',{route_id:id(12),version:1,request_key:randomUUID()}),/ROUTE_DELIVERIES_PENDING|ROUTE_STALE/);
+ const retId=received.attempts[0].return_id,location=(await db.query('select id from warehouse_locations where active limit 1')).rows[0].id;
+ await assert.rejects(call('settle',{delivery_id:id(13),version:retry.delivery.version,request_key:randomUUID(),reason:'Review completed',invoice_reviewed:true}),/DELIVERY_QUANTITIES_PENDING/);
+ await db.query('select gama_returns_action($1,$2)',['receive',{id:retId,location_id:location}]);
+ const rl=(await db.query('select id from return_lines where return_id=$1',[retId])).rows[0].id;
+ await db.query('select gama_returns_action($1,$2)',['process_line',{id:retId,line_id:rl,location_id:location,disposition:'restocked'}]);
+ await db.query('select gama_returns_action($1,$2)',['close',{id:retId}]);
+ const settled=await call('settle',{delivery_id:id(13),version:retry.delivery.version,request_key:randomUUID(),reason:'Review completed: invoice eight accepted units',invoice_reviewed:true});assert.ok(settled.delivery.settled_at);assert.equal(settled.delivery.status,'Entrega parcial');
+ const routeVersion=(await db.query('select version from tms_routes where id=$1',[id(12)])).rows[0].version;
+ assert.equal((await call('close',{route_id:id(12),version:routeVersion,request_key:randomUUID()})).closed,true);
+ const metrics=(await db.query('select gama_tms_metrics(current_date-1,current_date+2) r')).rows[0].r;assert.equal(metrics.promised,1);assert.equal(metrics.otif,0);assert.equal(metrics.partial,1);
+
+ }finally{await db.close()}
+});

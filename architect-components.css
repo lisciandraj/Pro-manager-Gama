@@ -484,6 +484,19 @@ select,input,textarea,button{pointer-events:auto!important}select{position:relat
  .gamaCards.gamaCards:where(:not([data-gama-view=table])) img{max-width:100%}
 }
 
+
+/* Personal column order: the whole heading drags with a mouse, the grip also
+   handles touch without stealing horizontal scrolling from the table. */
+body table.gamaCards.gamaCards th[draggable=true]{position:relative!important;cursor:grab;padding-right:40px!important}
+body table th .gamaColumnGrip{box-sizing:border-box;position:absolute;right:4px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:28px;min-width:28px;min-height:28px;height:28px;padding:2px;margin:0 0 0 6px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--arc-text-muted);font:inherit;font-size:19px;line-height:1;vertical-align:middle;cursor:grab;touch-action:none;user-select:none;box-shadow:none}
+body table th .gamaColumnGrip:hover,body table th .gamaColumnGrip:focus-visible{background:var(--arc-surface-3);border-color:var(--arc-line-strong);outline:2px solid var(--arc-accent-600)}
+body table th.gamaColumnDragging{opacity:.5;cursor:grabbing}
+body table th.gamaColumnDrop{box-shadow:inset 3px 0 var(--arc-accent-600);background:var(--arc-accent-100)!important}
+.gamaColumnStatus{flex-basis:100%;font-size:12px;color:var(--arc-text-muted)}
+@media(pointer:coarse){body table.gamaCards.gamaCards th[draggable=true]{padding-right:56px!important;height:56px}body table th .gamaColumnGrip{width:44px;min-width:44px;height:44px;min-height:44px}}
+@media print{.gamaColumnGrip,.gamaColumnStatus{display:none!important}}
+
+body table th .gamaColumnGrip svg{width:18px;height:20px;display:block;pointer-events:none}
 /* gama-toast.js */
 
 #gamaToasts{position:fixed;right:18px;bottom:18px;z-index:100100;display:flex;flex-direction:column;gap:9px;width:min(390px,calc(100vw - 28px));pointer-events:none}
@@ -761,3 +774,18 @@ button.ivCelda:hover{border-color:var(--arc-accent-600);box-shadow:0 0 0 1px var
 .stockAdjustments .arcTable small{display:block;margin-top:4px;line-height:1.4}
 .stockAdjustments .arcTable strong{display:block}
 .stockAdjustmentDialog [data-adjust-preview]{padding:14px;margin:12px 0;line-height:1.5}
+
+/* Shared ERP table grid, including legacy workspaces and dialogs. */
+body{--arc-table-grid:#b6c2d0}
+body table{border-collapse:collapse;border-spacing:0}
+body table :is(th,td),body table.gamaCards.gamaCards[data-gama-view=table] :is(th,td){border:1px solid var(--arc-table-grid)!important}
+body table thead th,body table.gamaCards.gamaCards[data-gama-view=table] th{border-bottom:2px solid var(--arc-table-grid)!important}
+@media(max-width:760px){
+ .arcTableWrap{overflow-x:auto;overscroll-behavior-x:contain}
+ .arcTable{display:table;width:100%}
+ .arcTable thead{display:table-header-group}
+ .arcTable tbody{display:table-row-group}
+ .arcTable tr{display:table-row;padding:0}
+ .arcTable :is(th,td),.arcTable td[data-gama-title],.arcTable td[colspan]{display:table-cell;width:auto;padding:10px 12px}
+ .arcTable td::before{display:none}
+}

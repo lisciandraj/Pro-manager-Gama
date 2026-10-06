@@ -98,7 +98,7 @@ Les onglets Importer des données, Sauvegarde, Utilisateurs et Paramètres d’a
 
 ## Planification TMS quotidienne
 
-La carte des livraisons est rendue localement par `src/features/transport/local-map.js` avec un fond Natural Earth livré dans l’application. Tous les points GPS se cadrent ensemble ; sans point, la vue est centrée sur Quito. Zoom, déplacement et filtres fonctionnent sans clé, serveur de tuiles ni géocodeur. Waze reste un lien de navigation. `gama_tms_plan_day` conserve sa façade invocateur et ses verrous transactionnels. `gama_tms_execution` ajoute les réceptions par ligne, l’historique de tentatives, les rôles TMS et la clôture. Voir [TMS](modules/tms.md).
+La carte des livraisons est rendue localement par `src/features/transport/local-map.js` avec un fond Natural Earth et un réseau municipal détaillé de Quito livré dans `src/features/transport/quito-map-data.js`. Le détail se charge depuis Coco au zoom utile, séparément du démarrage et des marqueurs ; un index spatial limite le rendu aux rues visibles. Tous les points GPS se cadrent ensemble, y compris les marqueurs proches sur téléphone ; sans point, la vue est centrée sur Quito. Zoom, déplacement et filtres fonctionnent sans clé, serveur de tuiles ni géocodeur. Waze reste un lien de navigation. `gama_tms_plan_day` conserve sa façade invocateur et ses verrous transactionnels. `gama_tms_execution` ajoute les réceptions par ligne, l’historique de tentatives, les rôles TMS et la clôture. Voir [TMS](modules/tms.md) et [sources cartographiques](tms-map-data.md).
 
 ## Vues personnelles du Dashboard
 

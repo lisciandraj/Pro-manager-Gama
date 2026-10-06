@@ -416,6 +416,50 @@ test('missing GPS uses the Quito view without inventing delivery positions',asyn
  await page.click('[data-tms-coordinates]');await page.fill('dialog input[name=lat]','-0.2');await page.fill('dialog input[name=lng]','-78.5');await page.click('dialog button[type=submit]');await expect(page.locator('[data-map-pin=manualgps]')).toBeVisible();
 });
 
+test('detailed Quito streets and names load locally while every delivery remains on the map',async({page})=>{
+ const requests=[];page.on('request',r=>requests.push(r.url()));
+ await page.setViewportSize({width:390,height:844});
+ await boot(page,{drivers:DRIVERS,deliveries:[
+  {id:'centro',customer:'Centro',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:5,volume:.1,lat:-.208,lng:-78.505},
+  {id:'norte',customer:'Norte',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:5,volume:.1,lat:-.13,lng:-78.48},
+  {id:'valle',customer:'Valle',address:'Cumbayá',delivery_date:today(),status:'Pendiente de preparación',weight:5,volume:.1,lat:-.20,lng:-78.43}
+ ]});
+ const map=page.locator('#tDayMap svg');await expect(map.locator('[data-map-pin]')).toHaveCount(3);
+ await expect(map).toHaveAttribute('data-street-source','municipal');
+ expect(await map.locator('[data-map-pin] circle').evaluateAll(pins=>pins.every(p=>{const r=p.getBoundingClientRect(),h=p.closest('svg').getBoundingClientRect();return r.left>=h.left&&r.right<=h.right&&r.top>=h.top&&r.bottom<=h.bottom}))).toBe(true);
+ await page.selectOption('#tMapPoint','centro');await expect(map).toHaveAttribute('data-zoom','16');
+ await expect.poll(()=>map.locator('.tmsStreetName').count()).toBeGreaterThan(0);
+ expect(Number(await map.getAttribute('data-street-count'))).toBeGreaterThan(20);
+ await expect(map.locator('[data-map-pin]')).toHaveCount(3);
+ expect(requests.filter(url=>/geoquito|arcgisonline|openstreetmap|maps\.googleapis|embed\.waze/.test(url))).toEqual([]);
+ expect(requests.filter(url=>/gama-tms-quito-map-data\.js/.test(url))).toHaveLength(1);
+ await page.locator('#tDayMap').screenshot({path:'test-results/tms-quito-streets-mobile.png'});
+ await page.click('#tMapFit');await expect(map.locator('[data-map-pin]')).toHaveCount(3);
+});
+
+test('a dense set of colocated deliveries stays readable inside the phone map after resize',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const deliveries=Array.from({length:60},(_,i)=>({id:'same-'+i,customer:'Delivery '+i,address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:1,volume:.01,lat:-.208,lng:-78.505}));
+ await boot(page,{drivers:DRIVERS,deliveries});await expect(page.locator('#tRefresh')).toBeEnabled();
+ await page.setViewportSize({width:320,height:844});
+ const map=page.locator('#tDayMap svg');await expect(map.locator('[data-map-pin]')).toHaveCount(60);
+ const readable=()=>map.locator('[data-map-pin] circle').evaluateAll(pins=>{
+  const host=pins[0].closest('svg').getBoundingClientRect(),boxes=pins.map(p=>p.getBoundingClientRect());
+  return boxes.every(r=>r.left>=host.left&&r.right<=host.right&&r.top>=host.top&&r.bottom<=host.bottom)&&boxes.every((a,i)=>boxes.slice(i+1).every(b=>Math.hypot((a.left+a.right-b.left-b.right)/2,(a.top+a.bottom-b.top-b.bottom)/2)>(a.width+b.width)/2));
+ });
+ await expect.poll(readable).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+ await page.locator('#tDayMap').screenshot({path:'test-results/tms-colocated-mobile.png'});
+});
+
+test('a failed detailed-map asset keeps deliveries usable and retries on the next map action',async({page})=>{
+ let attempts=0;await page.route('**/gama-tms-quito-map-data.js*',route=>++attempts===1?route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}):route.continue());
+ await boot(page,{drivers:DRIVERS,deliveries:[{id:'retry-map',customer:'Retry',address:'Quito',delivery_date:today(),status:'Pendiente de preparación',weight:1,volume:.01,lat:-.208,lng:-78.505}]});
+ const map=page.locator('#tDayMap svg');await expect(map.locator('[data-map-pin]')).toHaveCount(1);
+ await expect.poll(()=>attempts).toBe(1);await page.selectOption('#tMapPoint','retry-map');
+ await expect(map).toHaveAttribute('data-street-source','municipal');expect(attempts).toBe(2);
+});
+
 test('future planning changes the chosen day and retains today’s deliveries',async({page})=>{
  const future=new Date(today()+'T12:00:00Z');future.setUTCDate(future.getUTCDate()+1);const next=future.toISOString().slice(0,10);
  await boot(page,{drivers:DRIVERS,deliveries:[{id:'now',customer:'Hoy',address:'Quito',delivery_date:today(),lat:-0.2,lng:-78.5,weight:5,status:'Pendiente de preparación'},{id:'next',customer:'Mañana',address:'Quito',delivery_date:next,lat:-0.3,lng:-78.6,weight:5,status:'Pendiente de preparación'}]});

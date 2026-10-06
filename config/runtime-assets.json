@@ -525,6 +525,10 @@
       "output": "gama-tms-local-map.js"
     },
     {
+      "source": "src/features/transport/quito-map-data.js",
+      "output": "gama-tms-quito-map-data.js"
+    },
+    {
       "source": "src/features/transport/execution.js",
       "output": "gama-tms-execution.js"
     },

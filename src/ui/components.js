@@ -94,11 +94,11 @@ export function guard(action) {
     return pending;
   };
 }
-export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorMessage,className='',ids={}}) {
+export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorMessage,className='',ids={},dismissOnly=['Cerrar','Fermer','Close','Volver','Retour','Back'].includes(String(saveLabel).trim())}) {
   const el=document.createElement('dialog'),lastFocus=document.activeElement;
   const titleId='arc-dialog-title-'+(++sequence);
   el.className='arcDialog '+className;el.setAttribute('aria-labelledby',titleId);
-  el.innerHTML=`<form class="arcForm"><h2 id="${titleId}">${esc(t(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-arc-dialog-close'})}${button({id:ids.save,type:'submit',variant:'primary',label:t(saveLabel)})}</div></form>`;
+  el.innerHTML=`<form class="arcForm"><h2 id="${titleId}">${esc(t(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr('id',ids.error)}></p><div class="arcToolbar gsActions">${button({id:ids.close,label:t('Volver'),attrs:'data-arc-dialog-close'})}${dismissOnly?'':button({id:ids.save,type:'submit',variant:'primary',label:t(saveLabel)})}</div></form>`;
   document.body.appendChild(el);
   let formApi;
   const close=()=>{if(formApi?.pending)return;el.close();};
@@ -106,13 +106,15 @@ export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorM
   el.querySelector('[data-arc-dialog-close]').onclick=close;
   el.addEventListener('cancel',e=>{if(formApi?.pending)e.preventDefault();});
   el.addEventListener('close',remove,{once:true});
-  formApi=bindForm(el.querySelector('form'),()=>onSave(el),{error,onSuccess:()=>{el.close();}});
+  // Read-only windows have a single Back action; Enter must not submit filters.
+  if(dismissOnly)el.querySelector('form').addEventListener('submit',e=>e.preventDefault());
+  else formApi=bindForm(el.querySelector('form'),()=>onSave(el),{error,onSuccess:()=>{el.close();}});
   el.showModal();mount(el);return el;
 }
 export function confirm({title=t('Confirmar'),message,confirmLabel=t('Confirmar'),variant='danger'}={}) {
   return new Promise(resolve=>{
     let accepted=false;
-    const el=dialog({title,body:'<p>'+esc(message)+'</p>',saveLabel:confirmLabel,onSave:()=>{accepted=true;}});
+    const el=dialog({title,body:'<p>'+esc(message)+'</p>',saveLabel:confirmLabel,dismissOnly:false,onSave:()=>{accepted=true;}});
     const save=el.querySelector('[type=submit]');save.classList.remove('primary');save.classList.add(variant);
     el.addEventListener('close',()=>resolve(accepted),{once:true});
   });

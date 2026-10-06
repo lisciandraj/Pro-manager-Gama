@@ -33,11 +33,13 @@
 
 /* Personal column order: the whole heading drags with a mouse, the grip also
    handles touch without stealing horizontal scrolling from the table. */
-body table th[draggable=true]{position:relative;cursor:grab;padding-right:40px!important}
-body table th .gamaColumnGrip{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:28px;min-width:28px;min-height:28px;height:28px;padding:2px;margin:0 0 0 6px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--arc-text-muted);font:inherit;font-size:19px;line-height:1;vertical-align:middle;cursor:grab;touch-action:none;user-select:none;box-shadow:none}
+body table.gamaCards.gamaCards th[draggable=true]{position:relative!important;cursor:grab;padding-right:40px!important}
+body table th .gamaColumnGrip{box-sizing:border-box;position:absolute;right:4px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:28px;min-width:28px;min-height:28px;height:28px;padding:2px;margin:0 0 0 6px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--arc-text-muted);font:inherit;font-size:19px;line-height:1;vertical-align:middle;cursor:grab;touch-action:none;user-select:none;box-shadow:none}
 body table th .gamaColumnGrip:hover,body table th .gamaColumnGrip:focus-visible{background:var(--arc-surface-3);border-color:var(--arc-line-strong);outline:2px solid var(--arc-accent-600)}
 body table th.gamaColumnDragging{opacity:.5;cursor:grabbing}
 body table th.gamaColumnDrop{box-shadow:inset 3px 0 var(--arc-accent-600);background:var(--arc-accent-100)!important}
-.gamaColumnStatus{font-size:12px;color:var(--arc-text-muted)}
-@media(pointer:coarse){body table th[draggable=true]{padding-right:56px!important}body table th .gamaColumnGrip{width:44px;min-width:44px;height:44px;min-height:44px}}
+.gamaColumnStatus{flex-basis:100%;font-size:12px;color:var(--arc-text-muted)}
+@media(pointer:coarse){body table.gamaCards.gamaCards th[draggable=true]{padding-right:56px!important;height:56px}body table th .gamaColumnGrip{width:44px;min-width:44px;height:44px;min-height:44px}}
 @media print{.gamaColumnGrip,.gamaColumnStatus{display:none!important}}
+
+body table th .gamaColumnGrip svg{width:18px;height:20px;display:block;pointer-events:none}

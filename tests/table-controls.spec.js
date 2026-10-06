@@ -130,6 +130,7 @@ test('reuses a nearby legacy search only for its own table and searches preview 
 const columnNames=(host)=>host.locator('thead th').evaluateAll(heads=>heads.map(h=>{const c=h.cloneNode(true);c.querySelectorAll('.gamaColumnGrip,.gamaSortInd,[aria-hidden=true]').forEach(n=>n.remove());return c.textContent.trim()}));
 test('dragging headers moves cells and totals, persists after reload and isolates accounts and tables',async({page})=>{
  await boot(page);await fixture(page);const host=page.locator('#sortFixture');
+ expect(await host.locator('thead th').evaluateAll(heads=>heads.every(h=>{const a=h.getBoundingClientRect(),b=h.querySelector('.gamaColumnGrip').getBoundingClientRect();return b.width>=24&&b.left>=a.left&&b.right<=a.right&&b.top>=a.top&&b.bottom<=a.bottom}))).toBe(true);
  await host.locator('thead th').nth(1).dragTo(host.locator('thead th').nth(0));
  expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
  await expect(host.locator('tbody tr').first().locator('td').first()).toHaveText('1 200,50 €');
@@ -190,4 +191,21 @@ test('partial body refresh uses canonical cell positions and merged subtotal gro
  await host.locator('tfoot').evaluate(f=>{f.innerHTML='<tr><td colspan="2">Subtotal</td><td>Fecha</td><td>Cantidad</td><td></td></tr>'});
  await host.locator('thead th').nth(1).press('Alt+ArrowRight');
  await expect(host.locator('.gamaColumnStatus')).toContainText('cellules fusionnées');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+});
+
+
+test.describe('touch column ordering',()=>{
+ test.use({hasTouch:true});
+ test('a real touch swipe on the visible grip moves a column on a phone',async({page,context})=>{
+  await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
+  expect(await page.evaluate(()=>matchMedia('(pointer:coarse)').matches)).toBe(true);
+  const grip=host.locator('.gamaColumnGrip').first(),head=host.locator('thead th').first();await grip.scrollIntoViewIfNeeded();const g=await grip.boundingBox(),h=await head.boundingBox();
+  expect(g.width).toBeGreaterThanOrEqual(44);expect(g.height).toBeGreaterThanOrEqual(44);expect(g.y).toBeGreaterThanOrEqual(h.y);expect(g.y+g.height).toBeLessThanOrEqual(h.y+h.height);
+  const target=await host.locator('thead th').nth(1).boundingBox(),client=await context.newCDPSession(page),x=g.x+g.width/2,y=g.y+g.height/2,end=target.x+target.width/2;
+  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+  for(let i=1;i<=5;i++)await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(end-x)*i/5,y}]});
+  await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
+  await host.screenshot({path:'test-results/table-order-mobile.png'});
+ });
 });

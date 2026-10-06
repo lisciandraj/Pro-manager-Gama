@@ -231,7 +231,7 @@ function drawDayMap(){
  list.querySelectorAll('[data-map-delivery]').forEach(b=>b.onclick=()=>{select(b.dataset.mapDelivery);mapView.focus(mapPoint)});
  ['tMapOut','tMapIn','tMapFit'].forEach(id=>document.getElementById(id).disabled=false);
  outside.href='https://www.waze.com/ul?ll=-0.1807%2C-78.4678';outside.hidden=false;
- const attribution=document.createElement('small');attribution.className='tmsMapAttribution';attribution.textContent=tr('Datos locales: Natural Earth · dominio público. Líneas de ruta orientativas; no son carreteras.');host.append(attribution);
+ const attribution=document.createElement('small');attribution.className='tmsMapAttribution';attribution.textContent=(s=>window.GamaI18n?.t(s)||s)('Datos locales: Natural Earth · dominio público. Líneas de ruta orientativas; no son carreteras.');host.append(attribution);
 }
 
 function editCoordinates(id){

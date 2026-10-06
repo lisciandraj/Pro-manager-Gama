@@ -369,7 +369,7 @@ function columnGestures(t,state){
  for(const c of state.cols){
   c.h.draggable=enabled;
   if(!enabled){c.h.querySelector('.gamaColumnGrip')?.remove();continue}
-  let grip=c.h.querySelector('.gamaColumnGrip');if(!grip){grip=document.createElement('span');grip.setAttribute('role','button');grip.tabIndex=0;grip.className='gamaColumnGrip';grip.dataset.giIgnore='';grip.setAttribute('translate','no');grip.innerHTML='<span aria-hidden="true">⠿</span>';c.h.append(grip)}
+  let grip=c.h.querySelector('.gamaColumnGrip');if(!grip){grip=document.createElement('span');grip.setAttribute('role','button');grip.tabIndex=0;grip.className='gamaColumnGrip';grip.dataset.giIgnore='';grip.setAttribute('translate','no');grip.innerHTML=svg('<g fill="currentColor"><circle cx="8" cy="5" r="1.6"/><circle cx="16" cy="5" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/></g>');c.h.append(grip)}
   grip.setAttribute('aria-label',ow().move+' '+c.label);grip.title=ow().hint;
  }
  if(state.dragBound)return;state.dragBound=true;

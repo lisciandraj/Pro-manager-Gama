@@ -1,6 +1,6 @@
 {
   "project": "mknsaibrewksgomuslev",
-  "capturedAt": "2026-10-06T12:51:44.976272+00:00",
+  "capturedAt": "2026-10-06T13:15:16.288153+00:00",
   "source": "connected_supabase.list_migrations",
   "applied": [
     {
@@ -1586,6 +1586,12 @@
       "name": "marketing_campaigns",
       "file": "20261006124000_marketing_campaigns.sql",
       "sha256": "6feff479689ba68ea2a68acc83282c00e91f09196e58b6f0b4ae3f420a00dd87"
+    },
+    {
+      "version": "20261006131438",
+      "name": "marketing_attachments",
+      "file": "20261006130042_marketing_attachments.sql",
+      "sha256": "1a8bb975275dd56648ed0e243b2cd012c4883c6b291dbaffa4751508f5db125a"
     }
   ]
 }

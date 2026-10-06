@@ -1,0 +1,29 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto'),{restore}=require('../scripts/restore-schema.cjs');
+test('campaign attachments persist immutable bytes, validate limits, share on duplication and enforce permissions',async()=>{
+ const db=await restore(),admin=uuid(),client=uuid(),customer=uuid();const q=async(s,p=[])=>(await db.query(s,p)).rows;
+ const marketing=async(a,d={})=>(await q('select gama_marketing($1,$2) r',[a,d]))[0].r,files=async(a,d)=>(await q('select gama_marketing_attachments($1,$2) r',[a,d]))[0].r;
+ try{
+  await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'attachment-admin@example.invalid',client,'attachment-client@example.invalid']);await q("update profiles set active=true,role=case when id=$1 then 'administrador' else 'cliente' end",[admin]);await q("insert into customers(id,name,email) values($1,'Attachment customer','attachment@example.invalid')",[customer]);await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await db.exec('set role authenticated');
+  let s=(await marketing('save',{title:'Files',channel:'email',subject:'Offre {name}',message:'Bonjour !'})).campaign;
+  const bytes=Buffer.from([0,255,1,2,3,128,10,13]),fileId=uuid(),add={id:s.id,version:s.version,attachment_id:fileId,filename:'Offre été.pdf',content_base64:bytes.toString('base64'),mime_type:'text/html'};
+  let r=await files('add',add);s=r.campaign;assert.equal(s.version,2);assert.equal(r.attachments[0].mime_type,'application/pdf');assert.equal(r.attachments[0].size,bytes.length);assert.ok(!JSON.stringify(await marketing('get',{id:s.id})).includes(bytes.toString('base64')));
+  assert.equal((await files('add',add)).campaign.version,2);assert.equal((await files('list',{id:s.id})).attachments.length,1);assert.deepEqual(Buffer.from((await files('file',{id:s.id,attachment_id:fileId})).content_base64,'base64'),bytes);
+  await assert.rejects(files('add',{...add,content_base64:'bmV3'}),/FILE_CHANGED/);await assert.rejects(files('add',{...add,attachment_id:uuid(),version:1}),/CHANGED/);
+  await assert.rejects(files('add',{...add,attachment_id:uuid(),filename:'program.exe'}),/FILE_FORMAT/);await assert.rejects(files('add',{...add,attachment_id:uuid(),filename:'bad\r\nBcc: secret.pdf'}),/FILE_FORMAT/);await assert.rejects(files('add',{...add,attachment_id:uuid(),content_base64:'invalid%'}),/FILE_FORMAT/);
+  await assert.rejects(marketing('save',{...s,channel:'whatsapp'}),/ATTACHMENTS_EMAIL_ONLY/);
+  const other=(await marketing('save',{title:'Other'})).campaign;await assert.rejects(files('file',{id:other.id,attachment_id:fileId}),/FILE_UNAVAILABLE/);
+  const copy=await marketing('duplicate',{id:s.id});assert.deepEqual(copy.attachments,r.attachments);await files('remove',{id:copy.campaign.id,version:copy.campaign.version,attachment_id:fileId});assert.equal((await files('list',{id:s.id})).attachments.length,1);assert.deepEqual(Buffer.from((await files('file',{id:s.id,attachment_id:fileId})).content_base64,'base64'),bytes);
+  const prepared=await marketing('prepare',{id:s.id,version:s.version,recipients:[{id:customer,kind:'customer'}]});assert.equal(prepared.attachments.length,1);assert.equal((await marketing('draft',{id:s.id,recipient_id:prepared.items[0].id})).attachments.length,1);await assert.rejects(files('remove',{id:s.id,version:prepared.campaign.version,attachment_id:fileId}),/LOCKED/);await assert.rejects(files('add',{...add,version:prepared.campaign.version}),/LOCKED/);
+  const wa=(await marketing('save',{title:'WA',channel:'whatsapp',message:'Hello'})).campaign;await assert.rejects(files('add',{...add,id:wa.id,attachment_id:uuid(),version:wa.version}),/ATTACHMENTS_EMAIL_ONLY/);
+  let limits=(await marketing('save',{title:'Limits'})).campaign;
+  for(let n=0;n<5;n++){r=await files('add',{...add,id:limits.id,version:limits.version,attachment_id:uuid(),filename:'file'+n+'.txt'});limits=r.campaign}
+  await assert.rejects(files('add',{...add,id:limits.id,version:limits.version,attachment_id:uuid()}),/FILE_LIMIT/);
+  let sizes=(await marketing('save',{title:'Sizes'})).campaign;const large=Buffer.alloc(5242880,1).toString('base64');
+  await assert.rejects(files('add',{...add,id:sizes.id,version:sizes.version,attachment_id:uuid(),content_base64:Buffer.alloc(5242881,1).toString('base64')}),/FILE_LIMIT/);
+  for(let n=0;n<3;n++){r=await files('add',{...add,id:sizes.id,version:sizes.version,attachment_id:uuid(),filename:'big'+n+'.pdf',content_base64:large});sizes=r.campaign}
+  await assert.rejects(files('add',{...add,id:sizes.id,version:sizes.version,attachment_id:uuid()}),/FILE_LIMIT/);
+  await db.exec('reset role');await q("insert into erp_action_permissions(role,module,allow_edit) values('administrador','surveys',false)");await db.exec('set role authenticated');await assert.rejects(files('add',{...add,id:other.id,version:other.version,attachment_id:uuid()}),/ACCESS_DENIED/);assert.equal((await files('file',{id:s.id,attachment_id:fileId})).filename,'Offre été.pdf');await assert.rejects(q('select content from private.marketing_attachment_files'),/permission denied/);
+  await db.exec('reset role');await q("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);await db.exec('set role authenticated');await assert.rejects(files('file',{id:s.id,attachment_id:fileId}),/ACCESS_DENIED/);await q("select set_config('request.jwt.claims','{\"aal\":\"aal2\"}',false)");assert.ok((await files('file',{id:s.id,attachment_id:fileId})).content_base64);
+  await q("select set_config('request.jwt.claim.sub',$1,false)",[client]);await assert.rejects(files('list',{id:s.id}),/ACCESS_DENIED/);await assert.rejects(files('file',{id:s.id,attachment_id:fileId}),/ACCESS_DENIED/);await db.exec('reset role;set role anon');await assert.rejects(files('list',{id:s.id}),/permission denied/);
+ }finally{await db.close()}
+});

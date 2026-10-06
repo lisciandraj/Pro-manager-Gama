@@ -469,6 +469,10 @@
       "output": "gama-marketing.js"
     },
     {
+      "source": "src/domain/marketing-mail.js",
+      "output": "gama-marketing-mail.js"
+    },
+    {
       "source": "src/features/contacts/contacts.js",
       "output": "gama-contacts-workspace.js"
     },

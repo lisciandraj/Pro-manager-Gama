@@ -5,3 +5,5 @@
 .svGroups [aria-pressed="true"]{background:var(--accent,#16665a);color:white}.svGroups span{margin-left:5px}[data-selected-summary]{display:flex;flex-wrap:wrap;gap:6px;width:100%}[data-selected-summary] .svButton{font-size:.8rem;overflow-wrap:anywhere;max-width:100%}
 
 .mkFields{border:0;padding:0;min-width:0}.mkFields [hidden]{display:none!important}.mkRecipient{margin:14px 0;overflow-wrap:anywhere}.mkRecipient details{margin-top:14px}.mkChoice{border-bottom:1px solid var(--sv-line);overflow-wrap:anywhere}.mkChoice>span{min-width:0}.mkRecipient .svIntro{overflow-wrap:anywhere}
+
+#mkAttachments[hidden]{display:none}.mkAttachmentPanel{margin-top:18px}.mkFileRow>span{flex:1;min-width:0;overflow-wrap:anywhere}.mkAttachmentPanel input[type=file]{display:block;max-width:100%;margin-top:12px}

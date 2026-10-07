@@ -4,11 +4,11 @@ Le site public est construit séparément de l’ERP. Tous les produits actifs s
 
 ## Présentation du catalogue
 
-Depuis le 4 octobre 2026, l’accueil commence par les catégories : une tuile blanche avec photo au-dessus du titre, bordure fine et nombre de produits. Les trois colonnes sur téléphone et six sur grand écran reprennent le modèle de navigation fourni, avec le logo GAMA, le bleu pétrole et les actions orange. Les catégories, photos et libellés viennent des produits publiés ; aucune gamme fictive n’est ajoutée.
+Depuis le 7 octobre 2026, l’accueil présente une introduction sobre, des photos de produits réels, les avantages du service, les catégories puis les produits mis en avant. L’en-tête blanc conserve la recherche, le menu, Mi empresa et la sélection de devis. Le logo, le bleu pétrole et l’orange de GAMA restent les repères de la marque. Les catégories défilent dans leur propre conteneur : trois tuiles visibles sur téléphone, six sur grand écran. Le catalogue et les champs longs restent contenus dans la largeur de l’écran.
 
 La recherche est permanente dans l’en-tête. La saisie et la touche Entrée filtrent le catalogue et amènent aux résultats. Le menu **Categorías** ouvre un panneau accessible avec les catégories réelles et les liens configurés. La sélection d’une catégorie ferme le panneau et met à jour les filtres ; Échap ferme le menu et rend le défilement à la page.
 
-Le catalogue affiche par défaut une liste structurée : photo, nom, référence/marque, description, lien vers les spécifications, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer en grille sans perdre les filtres. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum deux autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
+Le catalogue affiche par défaut une grille sobre : photo, nom, référence/marque, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer à une liste détaillée sans perdre les filtres. La liste expose aussi la description, les informations de disponibilité et le lien vers les spécifications. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum deux autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
 
 Les contrôles de navigation, de quantité et de disposition se trouvent dans `tests/storefront.spec.js`. Le catalogue complet de 13 catégories et les champs produit longs sont vérifiés sur 320, 360, 390, 430, 600, 768, 1024 et 1440 pixels, en liste, grille, fiche produit et formulaire de devis. Les filtres de catégories défilent horizontalement dans leur propre conteneur sur téléphone et tablette, sans élargir la page ; les textes longs reviennent à la ligne. Les champs et tableaux du portail client sont contrôlés séparément dans `tests/b2b-portal.spec.js`. Les fixtures n’écrivent pas dans la production.
 
@@ -25,6 +25,16 @@ Les contrôles de navigation, de quantité et de disposition se trouvent dans `t
 9. Dans **Ventes → Demandes clients**, consulter les demandes du site, associer ou créer le contact si nécessaire, puis préparer le devis.
 
 Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Après vérification, préparer le devis dans le module Ventes avec les coordonnées et quantités reçues. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
+
+## Textes, photos et informations légales
+
+Les intitulés et marques de produits existants entièrement en majuscules ont été convertis en minuscules dans Coco. Le site applique aussi cette présentation aux futurs textes publics entièrement en majuscules. Les références, codes-barres, identifiants et valeurs de catégorie utilisées pour les filtres restent inchangés.
+
+236 photographies WebP ont été intégrées dans `products.photo_data` depuis l’ancien catalogue public de GAMA, après vérification du nom et des caractéristiques. Les 21 photos préexistantes sont conservées. Les correspondances par référence seule ont été écartées lorsque le modèle, la taille ou le produit différaient. [Le registre des sources](audits/data/storefront-product-photo-sources-2026-10-07.json) donne l’URL produit, l’image, les dimensions et son empreinte. Les photos se chargent à la demande avec les contrôles de publication habituels. Un fichier absent ou invalide affiche **Foto por confirmar** ; aucune photo produit générée par IA n’est introduite. Le registre [des photos à compléter](audits/data/storefront-missing-photos-2026-10-07.csv) contient les produits restants, y compris les services sans objet physique.
+
+**Site public → Informations légales** propose raison sociale, RUC de 13 chiffres, contact de confidentialité, information légale, livraison/changements/garanties et cookies/stockage. Les conditions de demande et la confidentialité restent modifiables dans les contenus. L’administration signale les informations manquantes. La raison sociale vérifiée, le RUC et l’adresse de confidentialité sont volontairement laissés à compléter sur demande du propriétaire ; le numéro fiscal de 11 chiffres du paramétrage ERP n’est pas présenté comme un RUC valide. Cette mise à jour ne certifie pas une conformité juridique complète : les coordonnées et les modalités réelles de conservation, transfert et livraison doivent être validées par GAMA.
+
+Le pied de page ouvre chaque texte dans une fenêtre accessible. Le formulaire de devis identifie les champs obligatoires : contact, e-mail, sélection avec quantités valides et consentement non précoché. Entreprise, téléphone et observations sont facultatifs. Les taxes sont indiquées près du prix et détaillées dans la fiche. Le formulaire rappelle la finalité du traitement et l’absence de souscription commerciale ; une demande reste à confirmer par l’équipe avant tout achat.
 
 ## Première publication sur Cloudflare Pages
 
@@ -97,7 +107,7 @@ Tous les produits actifs existants sont sélectionnés pour le site à l’insta
 
 ### Images des catégories
 
-Les 13 catégories du site disposent d’une illustration dédiée sur fond blanc, au-dessus de leur intitulé. Elles se chargent à la demande en WebP et restent indépendantes des photos des produits. Cliquer sur la tuile conserve le filtre du catalogue. La série et ses prompts sont documentés dans [les illustrations du site](../src/storefront/category-images/README.md) ; leur correspondance est dans [le manifeste des catégories](../config/storefront-category-images.json). Une nouvelle catégorie sans visuel dédié conserve le repli sur une photo produit. Après modification d’un fichier ou du manifeste, reconstruire et republier le site Cloudflare.
+Les catégories présentent une photographie réelle d’un produit actif publié disposant d’une photo. Le serveur choisit `photo_id` parmi ces produits ; sans photo vérifiée, la tuile affiche un pictogramme neutre. Les anciennes illustrations de catégories générées par IA ne sont plus publiées par la compilation. Cliquer sur une tuile conserve le filtre du catalogue. Les mêmes photos Coco apparaissent dans la grille, les fiches et la sélection de devis.
 
 ### Comptes cloud et Mes documents
 

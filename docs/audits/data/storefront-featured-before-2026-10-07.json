@@ -1,0 +1,50 @@
+[
+  {
+    "id": "447b446b-5781-4102-a35b-64ba4d5aeabc",
+    "version": 2,
+    "reference": "AZRE005",
+    "public_featured": true
+  },
+  {
+    "id": "2ef190df-e80e-4ce2-b078-47654e847db9",
+    "version": 2,
+    "reference": "AGAR001",
+    "public_featured": true
+  },
+  {
+    "id": "6e584227-cc11-4d12-8cbf-b02a23ca6374",
+    "version": 2,
+    "reference": "AGUA002",
+    "public_featured": true
+  },
+  {
+    "id": "103bcc90-ae12-4359-8003-d2f54b970a78",
+    "version": 2,
+    "reference": "AGUA003",
+    "public_featured": true
+  },
+  {
+    "id": "937dd87b-268a-4d87-a435-3cfd39a81b09",
+    "version": 1,
+    "reference": "GRAP011",
+    "public_featured": false
+  },
+  {
+    "id": "4ad54f92-389e-4e75-905e-2b919cdbce7b",
+    "version": 1,
+    "reference": "TECL001",
+    "public_featured": false
+  },
+  {
+    "id": "d1fafdbd-0d2c-4425-ac19-d45d3d6ee3c2",
+    "version": 1,
+    "reference": "CUAD005",
+    "public_featured": false
+  },
+  {
+    "id": "83cac25a-c367-4824-9e2a-1ea0a429f53d",
+    "reference": "EPME004",
+    "version": 1,
+    "public_featured": false
+  }
+]

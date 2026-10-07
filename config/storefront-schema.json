@@ -1,73 +1,1046 @@
 {
-  "version": 1,
+  "version": 2,
   "groups": [
-    {"id":"identity","label":["Identidad y diseño","Identité et apparence","Identity and design"],"fields":[
-      {"key":"brand_name","label":["Nombre comercial","Nom commercial","Brand name"],"type":"text","max":100,"default":"Distribuidora GAMA"},
-      {"key":"tagline","label":["Firma de marca","Signature de marque","Tagline"],"type":"text","max":120,"default":"Lo pides, lo tienes."},
-      {"key":"logo_url","label":["Logotipo","Logo","Logo"],"type":"image","max":400000,"default":""},
-      {"key":"primary_color","label":["Color principal","Couleur principale","Primary color"],"type":"color","default":"#176072"},
-      {"key":"accent_color","label":["Color de acento","Couleur d’accent","Accent color"],"type":"color","default":"#e4884f"},
-      {"key":"background_color","label":["Fondo","Fond","Background"],"type":"color","default":"#f7f6f2"},
-      {"key":"corner_style","label":["Esquinas","Angles","Corners"],"type":"enum","options":["soft","square"],"option_labels":[["Redondeadas","Arrondis","Rounded"],["Rectas","Droits","Square"]],"default":"soft"},
-      {"key":"navigation","label":["Menú","Menu","Navigation"],"type":"list","max":6,"default":[{"label":"Catálogo","href":"#catalogo"},{"label":"Sobre GAMA","href":"#nosotros"},{"label":"Contacto","href":"#contacto"}],"fields":[{"key":"label","label":["Texto","Texte","Text"],"type":"text","max":40},{"key":"href","label":["Destino","Destination","Destination"],"type":"link","max":500}]}
-    ]},
-    {"id":"home","label":["Página de inicio","Page d’accueil","Homepage"],"fields":[
-      {"key":"announcement","label":["Banda superior","Bandeau supérieur","Announcement"],"type":"text","max":180,"default":"Abastecemos el día a día de tu empresa · Quito, Ecuador"},
-      {"key":"hero_label","label":["Etiqueta de inicio","Accroche","Hero label"],"type":"text","max":80,"default":"TU EMPRESA, BIEN ABASTECIDA"},
-      {"key":"hero_title","label":["Título principal","Titre principal","Hero title"],"type":"text","max":120,"default":"Todo lo que necesitas."},
-      {"key":"hero_accent","label":["Segunda línea del título","Deuxième ligne du titre","Title second line"],"type":"text","max":120,"default":"En un solo lugar."},
-      {"key":"hero_intro","label":["Presentación","Présentation","Introduction"],"type":"textarea","max":600,"default":"Productos para tu equipo, tu oficina y cada pausa del día. Encuentra lo que buscas y recibe una atención cercana, de principio a fin."},
-      {"key":"hero_image","label":["Imagen principal (opcional)","Image principale (facultative)","Hero image (optional)"],"type":"image","max":700000,"default":""},
-      {"key":"hero_button","label":["Texto del botón","Texte du bouton","Button label"],"type":"text","max":45,"default":"Explorar el catálogo"},
-      {"key":"hero_button_target","label":["Destino del botón","Destination du bouton","Button destination"],"type":"enum","options":["catalogo","contacto"],"option_labels":[["Catálogo","Catalogue","Catalogue"],["Contacto","Contact","Contact"]],"default":"catalogo"},
-      {"key":"catalog_title","label":["Título del catálogo","Titre du catalogue","Catalogue title"],"type":"text","max":100,"default":"Encuentra tu próximo imprescindible."},
-      {"key":"catalog_intro","label":["Texto del catálogo","Texte du catalogue","Catalogue introduction"],"type":"textarea","max":350,"default":"Una selección para acompañar el día a día de tu negocio."},
-      {"key":"featured_title","label":["Título de destacados","Titre de la sélection","Featured title"],"type":"text","max":100,"default":"La selección GAMA"},
-      {"key":"categories_title","label":["Título de categorías","Titre des catégories","Categories title"],"type":"text","max":100,"default":"Cada necesidad, su solución."},
-      {"key":"show_featured","label":["Mostrar destacados","Afficher la sélection","Show featured products"],"type":"boolean","default":true},
-      {"key":"show_categories","label":["Mostrar categorías","Afficher les catégories","Show categories"],"type":"boolean","default":true},
-      {"key":"show_benefits","label":["Mostrar ventajas","Afficher les avantages","Show benefits"],"type":"boolean","default":true},
-      {"key":"benefits","label":["Ventajas","Avantages","Benefits"],"type":"list","max":4,"default":[{"icon":"box","title":"Un solo proveedor","text":"Haz más sencilla la compra de los productos de tu empresa."},{"icon":"headset","title":"Atención cercana","text":"Te acompañamos para encontrar lo que necesitas."},{"icon":"truck","title":"Entrega coordinada","text":"Confirmamos contigo disponibilidad, condiciones y entrega."}],"fields":[{"key":"icon","label":["Icono","Icône","Icon"],"type":"enum","options":["box","headset","truck","shield"],"option_labels":[["Caja","Colis","Box"],["Atención","Assistance","Support"],["Entrega","Livraison","Delivery"],["Confianza","Confiance","Trust"]]},{"key":"title","label":["Título","Titre","Title"],"type":"text","max":70},{"key":"text","label":["Descripción","Description","Description"],"type":"textarea","max":200}]}
-    ]},
-    {"id":"content","label":["Contenido y páginas","Contenu et pages","Content and pages"],"fields":[
-      {"key":"show_about","label":["Mostrar presentación","Afficher la présentation","Show about section"],"type":"boolean","default":true},
-      {"key":"about_title","label":["Título de presentación","Titre de présentation","About title"],"type":"text","max":120,"default":"Tu negocio avanza. Nosotros lo acompañamos."},
-      {"key":"about_text","label":["Sobre la empresa","À propos de l’entreprise","About the business"],"type":"textarea","max":2000,"default":"En GAMA hacemos más sencilla la búsqueda de productos para tu empresa. Nuestro catálogo reúne una selección práctica y un equipo dispuesto a ayudarte. Cuéntanos qué necesitas: prepararemos una propuesta para ti."},
-      {"key":"about_image","label":["Imagen de presentación","Image de présentation","About image"],"type":"image","max":700000,"default":""},
-      {"key":"show_faq","label":["Mostrar preguntas frecuentes","Afficher les questions fréquentes","Show FAQ"],"type":"boolean","default":true},
-      {"key":"faq","label":["Preguntas frecuentes","Questions fréquentes","Frequently asked questions"],"type":"list","max":10,"default":[{"question":"¿Cómo solicito una cotización?","answer":"Añade productos a tu selección y envía la solicitud con tus datos de contacto. Nuestro equipo confirmará precios, disponibilidad y condiciones."},{"question":"¿Puedo consultar por otros productos?","answer":"Sí. Contacta con nuestro equipo y cuéntanos qué necesita tu empresa."}],"fields":[{"key":"question","label":["Pregunta","Question","Question"],"type":"text","max":180},{"key":"answer","label":["Respuesta","Réponse","Answer"],"type":"textarea","max":1000}]},
-      {"key":"brands","label":["Marcas (opcional)","Marques (facultatif)","Brands (optional)"],"type":"list","max":12,"default":[],"fields":[{"key":"name","label":["Nombre","Nom","Name"],"type":"text","max":70},{"key":"image","label":["Imagen","Image","Image"],"type":"url","max":500}]},
-      {"key":"terms_title","label":["Título de condiciones","Titre des conditions","Terms title"],"type":"text","max":100,"default":"Condiciones de la solicitud"},
-      {"key":"terms_text","label":["Condiciones","Conditions","Terms"],"type":"textarea","max":6000,"default":"Enviar una solicitud no confirma una compra ni reserva productos. Nuestro equipo confirmará la disponibilidad, los precios finales y las condiciones de pago y entrega antes de acordar un pedido."},
-      {"key":"privacy_title","label":["Título de privacidad","Titre de confidentialité","Privacy title"],"type":"text","max":100,"default":"Privacidad"},
-      {"key":"privacy_text","label":["Información de privacidad","Informations de confidentialité","Privacy information"],"type":"textarea","max":6000,"default":"Utilizamos los datos de contacto que nos envías para atender tu solicitud. Puedes contactar con nosotros para consultar el uso de tus datos. No envíes datos bancarios ni información sensible a través de este formulario."},
-      {"key":"footer_note","label":["Texto del pie de página","Texte du pied de page","Footer text"],"type":"textarea","max":350,"default":"Productos y atención para el día a día de tu empresa."}
-    ]},
-    {"id":"contact","label":["Contacto","Contact","Contact"],"fields":[
-      {"key":"show_contact","label":["Mostrar contacto","Afficher les coordonnées","Show contact section"],"type":"boolean","default":true},
-      {"key":"contact_title","label":["Título de contacto","Titre de contact","Contact title"],"type":"text","max":120,"default":"Hablemos de lo que necesitas."},
-      {"key":"contact_intro","label":["Texto de contacto","Texte de contact","Contact introduction"],"type":"textarea","max":500,"default":"Una consulta, una lista de productos o tu próximo pedido. Estamos para ayudarte."},
-      {"key":"phone","label":["Teléfono","Téléphone","Phone"],"type":"text","max":60,"default":"(593-2) 250-1350"},
-      {"key":"email","label":["Correo electrónico","Adresse e-mail","Email"],"type":"email","max":254,"default":""},
-      {"key":"address","label":["Dirección","Adresse","Address"],"type":"textarea","max":300,"default":"Puerto Rico N27-108 y Selva Alegre, Quito"},
-      {"key":"whatsapp","label":["WhatsApp (con código de país)","WhatsApp (avec indicatif du pays)","WhatsApp (with country code)"],"type":"text","max":30,"default":""},
-      {"key":"opening_hours","label":["Horario de atención","Horaires d’ouverture","Opening hours"],"type":"textarea","max":300,"default":""},
-      {"key":"map_url","label":["Enlace al mapa","Lien vers la carte","Map link"],"type":"url","max":500,"default":""},
-      {"key":"facebook_url","label":["Facebook","Facebook","Facebook"],"type":"url","max":500,"default":""},
-      {"key":"instagram_url","label":["Instagram","Instagram","Instagram"],"type":"url","max":500,"default":""},
-      {"key":"linkedin_url","label":["LinkedIn","LinkedIn","LinkedIn"],"type":"url","max":500,"default":""}
-    ]},
-    {"id":"publication","label":["Publicación y catálogo","Publication et catalogue","Publication and catalogue"],"fields":[
-      {"key":"site_enabled","label":["Publicar el sitio","Publier le site","Publish website"],"type":"boolean","default":true},
-      {"key":"website_url","label":["Dirección del sitio Cloudflare","Adresse du site Cloudflare","Cloudflare website address"],"type":"url","max":500,"default":""},
-      {"key":"show_prices","label":["Mostrar precios","Afficher les prix","Show prices"],"type":"boolean","default":true},
-      {"key":"price_display","label":["Presentación de precios","Affichage des prix","Price display"],"type":"enum","options":["with_tax","without_tax"],"option_labels":[["Con impuestos","Taxes comprises","Including tax"],["Sin impuestos","Hors taxes","Excluding tax"]],"default":"with_tax"},
-      {"key":"enable_quotes","label":["Recibir solicitudes de cotización","Recevoir des demandes de devis","Accept quote requests"],"type":"boolean","default":true},
-      {"key":"quote_label","label":["Nombre de la selección","Nom de la sélection","Selection label"],"type":"text","max":50,"default":"Mi cotización"},
-      {"key":"default_sort","label":["Orden del catálogo","Tri du catalogue","Catalogue sorting"],"type":"enum","options":["featured","name","price_asc","price_desc"],"option_labels":[["Destacados primero","Sélection en premier","Featured first"],["Nombre","Nom","Name"],["Precio creciente","Prix croissant","Price ascending"],["Precio decreciente","Prix décroissant","Price descending"]],"default":"featured"},
-      {"key":"page_size","label":["Productos por página","Produits par page","Products per page"],"type":"enum","options":["12","24","36"],"option_labels":[["12","12","12"],["24","24","24"],["36","36","36"]],"default":"12"},
-      {"key":"seo_title","label":["Título para buscadores","Titre pour les moteurs de recherche","Search engine title"],"type":"text","max":100,"default":"Distribuidora GAMA | Productos para tu empresa en Quito"},
-      {"key":"seo_description","label":["Descripción para buscadores","Description pour les moteurs de recherche","Search engine description"],"type":"textarea","max":320,"default":"Descubre el catálogo de Distribuidora GAMA. Productos para tu empresa, atención personalizada y solicitudes de cotización en Quito, Ecuador."}
-    ]}
+    {
+      "id": "identity",
+      "label": [
+        "Identidad y diseño",
+        "Identité et apparence",
+        "Identity and design"
+      ],
+      "fields": [
+        {
+          "key": "brand_name",
+          "label": [
+            "Nombre comercial",
+            "Nom commercial",
+            "Brand name"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Distribuidora GAMA"
+        },
+        {
+          "key": "tagline",
+          "label": [
+            "Firma de marca",
+            "Signature de marque",
+            "Tagline"
+          ],
+          "type": "text",
+          "max": 120,
+          "default": "Lo pides, lo tienes."
+        },
+        {
+          "key": "logo_url",
+          "label": [
+            "Logotipo",
+            "Logo",
+            "Logo"
+          ],
+          "type": "image",
+          "max": 400000,
+          "default": ""
+        },
+        {
+          "key": "primary_color",
+          "label": [
+            "Color principal",
+            "Couleur principale",
+            "Primary color"
+          ],
+          "type": "color",
+          "default": "#176072"
+        },
+        {
+          "key": "accent_color",
+          "label": [
+            "Color de acento",
+            "Couleur d’accent",
+            "Accent color"
+          ],
+          "type": "color",
+          "default": "#e4884f"
+        },
+        {
+          "key": "background_color",
+          "label": [
+            "Fondo",
+            "Fond",
+            "Background"
+          ],
+          "type": "color",
+          "default": "#f7f6f2"
+        },
+        {
+          "key": "corner_style",
+          "label": [
+            "Esquinas",
+            "Angles",
+            "Corners"
+          ],
+          "type": "enum",
+          "options": [
+            "soft",
+            "square"
+          ],
+          "option_labels": [
+            [
+              "Redondeadas",
+              "Arrondis",
+              "Rounded"
+            ],
+            [
+              "Rectas",
+              "Droits",
+              "Square"
+            ]
+          ],
+          "default": "soft"
+        },
+        {
+          "key": "navigation",
+          "label": [
+            "Menú",
+            "Menu",
+            "Navigation"
+          ],
+          "type": "list",
+          "max": 6,
+          "default": [
+            {
+              "label": "Catálogo",
+              "href": "#catalogo"
+            },
+            {
+              "label": "Sobre GAMA",
+              "href": "#nosotros"
+            },
+            {
+              "label": "Contacto",
+              "href": "#contacto"
+            }
+          ],
+          "fields": [
+            {
+              "key": "label",
+              "label": [
+                "Texto",
+                "Texte",
+                "Text"
+              ],
+              "type": "text",
+              "max": 40
+            },
+            {
+              "key": "href",
+              "label": [
+                "Destino",
+                "Destination",
+                "Destination"
+              ],
+              "type": "link",
+              "max": 500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "label": [
+        "Página de inicio",
+        "Page d’accueil",
+        "Homepage"
+      ],
+      "fields": [
+        {
+          "key": "announcement",
+          "label": [
+            "Banda superior",
+            "Bandeau supérieur",
+            "Announcement"
+          ],
+          "type": "text",
+          "max": 180,
+          "default": "Abastecemos el día a día de tu empresa · Quito, Ecuador"
+        },
+        {
+          "key": "hero_label",
+          "label": [
+            "Etiqueta de inicio",
+            "Accroche",
+            "Hero label"
+          ],
+          "type": "text",
+          "max": 80,
+          "default": "Tu empresa, bien abastecida"
+        },
+        {
+          "key": "hero_title",
+          "label": [
+            "Título principal",
+            "Titre principal",
+            "Hero title"
+          ],
+          "type": "text",
+          "max": 120,
+          "default": "Todo lo que necesitas."
+        },
+        {
+          "key": "hero_accent",
+          "label": [
+            "Segunda línea del título",
+            "Deuxième ligne du titre",
+            "Title second line"
+          ],
+          "type": "text",
+          "max": 120,
+          "default": "En un solo lugar."
+        },
+        {
+          "key": "hero_intro",
+          "label": [
+            "Presentación",
+            "Présentation",
+            "Introduction"
+          ],
+          "type": "textarea",
+          "max": 600,
+          "default": "Productos para tu equipo, tu oficina y cada pausa del día. Encuentra lo que buscas y recibe una atención cercana, de principio a fin."
+        },
+        {
+          "key": "hero_image",
+          "label": [
+            "Imagen principal (opcional)",
+            "Image principale (facultative)",
+            "Hero image (optional)"
+          ],
+          "type": "image",
+          "max": 700000,
+          "default": ""
+        },
+        {
+          "key": "hero_button",
+          "label": [
+            "Texto del botón",
+            "Texte du bouton",
+            "Button label"
+          ],
+          "type": "text",
+          "max": 45,
+          "default": "Explorar el catálogo"
+        },
+        {
+          "key": "hero_button_target",
+          "label": [
+            "Destino del botón",
+            "Destination du bouton",
+            "Button destination"
+          ],
+          "type": "enum",
+          "options": [
+            "catalogo",
+            "contacto"
+          ],
+          "option_labels": [
+            [
+              "Catálogo",
+              "Catalogue",
+              "Catalogue"
+            ],
+            [
+              "Contacto",
+              "Contact",
+              "Contact"
+            ]
+          ],
+          "default": "catalogo"
+        },
+        {
+          "key": "catalog_title",
+          "label": [
+            "Título del catálogo",
+            "Titre du catalogue",
+            "Catalogue title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Encuentra tu próximo imprescindible."
+        },
+        {
+          "key": "catalog_intro",
+          "label": [
+            "Texto del catálogo",
+            "Texte du catalogue",
+            "Catalogue introduction"
+          ],
+          "type": "textarea",
+          "max": 350,
+          "default": "Una selección para acompañar el día a día de tu negocio."
+        },
+        {
+          "key": "featured_title",
+          "label": [
+            "Título de destacados",
+            "Titre de la sélection",
+            "Featured title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "La selección GAMA"
+        },
+        {
+          "key": "categories_title",
+          "label": [
+            "Título de categorías",
+            "Titre des catégories",
+            "Categories title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Cada necesidad, su solución."
+        },
+        {
+          "key": "show_featured",
+          "label": [
+            "Mostrar destacados",
+            "Afficher la sélection",
+            "Show featured products"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "show_categories",
+          "label": [
+            "Mostrar categorías",
+            "Afficher les catégories",
+            "Show categories"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "show_benefits",
+          "label": [
+            "Mostrar ventajas",
+            "Afficher les avantages",
+            "Show benefits"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "benefits",
+          "label": [
+            "Ventajas",
+            "Avantages",
+            "Benefits"
+          ],
+          "type": "list",
+          "max": 4,
+          "default": [
+            {
+              "icon": "box",
+              "title": "Un solo proveedor",
+              "text": "Haz más sencilla la compra de los productos de tu empresa."
+            },
+            {
+              "icon": "headset",
+              "title": "Atención cercana",
+              "text": "Te acompañamos para encontrar lo que necesitas."
+            },
+            {
+              "icon": "truck",
+              "title": "Entrega coordinada",
+              "text": "Confirmamos contigo disponibilidad, condiciones y entrega."
+            }
+          ],
+          "fields": [
+            {
+              "key": "icon",
+              "label": [
+                "Icono",
+                "Icône",
+                "Icon"
+              ],
+              "type": "enum",
+              "options": [
+                "box",
+                "headset",
+                "truck",
+                "shield"
+              ],
+              "option_labels": [
+                [
+                  "Caja",
+                  "Colis",
+                  "Box"
+                ],
+                [
+                  "Atención",
+                  "Assistance",
+                  "Support"
+                ],
+                [
+                  "Entrega",
+                  "Livraison",
+                  "Delivery"
+                ],
+                [
+                  "Confianza",
+                  "Confiance",
+                  "Trust"
+                ]
+              ]
+            },
+            {
+              "key": "title",
+              "label": [
+                "Título",
+                "Titre",
+                "Title"
+              ],
+              "type": "text",
+              "max": 70
+            },
+            {
+              "key": "text",
+              "label": [
+                "Descripción",
+                "Description",
+                "Description"
+              ],
+              "type": "textarea",
+              "max": 200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "label": [
+        "Contenido y páginas",
+        "Contenu et pages",
+        "Content and pages"
+      ],
+      "fields": [
+        {
+          "key": "show_about",
+          "label": [
+            "Mostrar presentación",
+            "Afficher la présentation",
+            "Show about section"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "about_title",
+          "label": [
+            "Título de presentación",
+            "Titre de présentation",
+            "About title"
+          ],
+          "type": "text",
+          "max": 120,
+          "default": "Tu negocio avanza. Nosotros lo acompañamos."
+        },
+        {
+          "key": "about_text",
+          "label": [
+            "Sobre la empresa",
+            "À propos de l’entreprise",
+            "About the business"
+          ],
+          "type": "textarea",
+          "max": 2000,
+          "default": "En GAMA hacemos más sencilla la búsqueda de productos para tu empresa. Nuestro catálogo reúne una selección práctica y un equipo dispuesto a ayudarte. Cuéntanos qué necesitas: prepararemos una propuesta para ti."
+        },
+        {
+          "key": "about_image",
+          "label": [
+            "Imagen de presentación",
+            "Image de présentation",
+            "About image"
+          ],
+          "type": "image",
+          "max": 700000,
+          "default": ""
+        },
+        {
+          "key": "show_faq",
+          "label": [
+            "Mostrar preguntas frecuentes",
+            "Afficher les questions fréquentes",
+            "Show FAQ"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "faq",
+          "label": [
+            "Preguntas frecuentes",
+            "Questions fréquentes",
+            "Frequently asked questions"
+          ],
+          "type": "list",
+          "max": 10,
+          "default": [
+            {
+              "question": "¿Cómo solicito una cotización?",
+              "answer": "Añade productos a tu selección y envía la solicitud con tus datos de contacto. Nuestro equipo confirmará precios, disponibilidad y condiciones."
+            },
+            {
+              "question": "¿Puedo consultar por otros productos?",
+              "answer": "Sí. Contacta con nuestro equipo y cuéntanos qué necesita tu empresa."
+            }
+          ],
+          "fields": [
+            {
+              "key": "question",
+              "label": [
+                "Pregunta",
+                "Question",
+                "Question"
+              ],
+              "type": "text",
+              "max": 180
+            },
+            {
+              "key": "answer",
+              "label": [
+                "Respuesta",
+                "Réponse",
+                "Answer"
+              ],
+              "type": "textarea",
+              "max": 1000
+            }
+          ]
+        },
+        {
+          "key": "brands",
+          "label": [
+            "Marcas (opcional)",
+            "Marques (facultatif)",
+            "Brands (optional)"
+          ],
+          "type": "list",
+          "max": 12,
+          "default": [],
+          "fields": [
+            {
+              "key": "name",
+              "label": [
+                "Nombre",
+                "Nom",
+                "Name"
+              ],
+              "type": "text",
+              "max": 70
+            },
+            {
+              "key": "image",
+              "label": [
+                "Imagen",
+                "Image",
+                "Image"
+              ],
+              "type": "url",
+              "max": 500
+            }
+          ]
+        },
+        {
+          "key": "terms_title",
+          "label": [
+            "Título de condiciones",
+            "Titre des conditions",
+            "Terms title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Condiciones de la solicitud"
+        },
+        {
+          "key": "terms_text",
+          "label": [
+            "Condiciones",
+            "Conditions",
+            "Terms"
+          ],
+          "type": "textarea",
+          "max": 6000,
+          "default": "Enviar una solicitud no confirma una compra ni reserva productos. Nuestro equipo confirmará la disponibilidad, los precios finales y las condiciones de pago y entrega antes de acordar un pedido."
+        },
+        {
+          "key": "privacy_title",
+          "label": [
+            "Título de privacidad",
+            "Titre de confidentialité",
+            "Privacy title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Privacidad"
+        },
+        {
+          "key": "privacy_text",
+          "label": [
+            "Información de privacidad",
+            "Informations de confidentialité",
+            "Privacy information"
+          ],
+          "type": "textarea",
+          "max": 6000,
+          "default": "Utilizamos los datos de contacto que nos envías para atender tu solicitud. Puedes contactar con nosotros para consultar el uso de tus datos. No envíes datos bancarios ni información sensible a través de este formulario."
+        },
+        {
+          "key": "footer_note",
+          "label": [
+            "Texto del pie de página",
+            "Texte du pied de page",
+            "Footer text"
+          ],
+          "type": "textarea",
+          "max": 350,
+          "default": "Productos y atención para el día a día de tu empresa."
+        }
+      ]
+    },
+    {
+      "id": "legal",
+      "label": [
+        "Información legal",
+        "Informations légales",
+        "Legal information"
+      ],
+      "fields": [
+        {
+          "key": "legal_name",
+          "label": [
+            "Razón social",
+            "Raison sociale",
+            "Legal entity name"
+          ],
+          "type": "text",
+          "max": 160,
+          "default": ""
+        },
+        {
+          "key": "legal_tax_id",
+          "label": [
+            "RUC (13 dígitos)",
+            "RUC (13 chiffres)",
+            "Tax ID (13 digits)"
+          ],
+          "type": "text",
+          "max": 13,
+          "default": ""
+        },
+        {
+          "key": "privacy_email",
+          "label": [
+            "Contacto de privacidad",
+            "Contact confidentialité",
+            "Privacy contact"
+          ],
+          "type": "email",
+          "max": 254,
+          "default": ""
+        },
+        {
+          "key": "notice_title",
+          "label": [
+            "Título de información legal",
+            "Titre des mentions légales",
+            "Legal information title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Información legal"
+        },
+        {
+          "key": "notice_text",
+          "label": [
+            "Información legal adicional",
+            "Mentions légales complémentaires",
+            "Additional legal information"
+          ],
+          "type": "textarea",
+          "max": 6000,
+          "default": ""
+        },
+        {
+          "key": "delivery_title",
+          "label": [
+            "Título de entregas y devoluciones",
+            "Titre livraison et retours",
+            "Delivery and returns title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Entregas, cambios y garantías"
+        },
+        {
+          "key": "delivery_text",
+          "label": [
+            "Entregas, cambios y garantías",
+            "Livraison, retours et garanties",
+            "Delivery, returns and warranties"
+          ],
+          "type": "textarea",
+          "max": 6000,
+          "default": "Antes de aceptar un pedido, confirmaremos por escrito la disponibilidad, la zona de entrega, el plazo, el costo del envío y las condiciones de pago. El envío no está incluido en el importe indicativo del catálogo.\n\nPara consultar por una entrega, un producto defectuoso, una garantía o una devolución, contacta con GAMA e indica la referencia del pedido y del producto. Revisaremos la solicitud según las condiciones acordadas y los derechos que reconoce la legislación ecuatoriana. Las garantías y los derechos legales del consumidor no se limitan por estas condiciones."
+        },
+        {
+          "key": "storage_title",
+          "label": [
+            "Título de almacenamiento",
+            "Titre du stockage",
+            "Storage information title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Cookies y almacenamiento"
+        },
+        {
+          "key": "storage_text",
+          "label": [
+            "Cookies y almacenamiento",
+            "Cookies et stockage",
+            "Cookies and storage"
+          ],
+          "type": "textarea",
+          "max": 6000,
+          "default": "El catálogo utiliza el almacenamiento de sesión del navegador para conservar los identificadores y cantidades de tu selección en esta pestaña. No guarda en ese espacio tu nombre, correo electrónico ni el contenido del formulario.\n\nEl portal Mi empresa utiliza una sesión de autenticación para mostrar los datos de la empresa autorizada. Puedes cerrarla con Cerrar sesión.\n\nEste catálogo no incorpora herramientas publicitarias, píxeles de seguimiento ni analítica de comportamiento. La infraestructura puede procesar datos técnicos de conexión para servir y proteger el sitio. Los enlaces externos se rigen por las políticas de sus respectivos sitios. Puedes borrar los datos de navegación en los ajustes de tu navegador; la selección o la sesión podrían perderse."
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": [
+        "Contacto",
+        "Contact",
+        "Contact"
+      ],
+      "fields": [
+        {
+          "key": "show_contact",
+          "label": [
+            "Mostrar contacto",
+            "Afficher les coordonnées",
+            "Show contact section"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "contact_title",
+          "label": [
+            "Título de contacto",
+            "Titre de contact",
+            "Contact title"
+          ],
+          "type": "text",
+          "max": 120,
+          "default": "Hablemos de lo que necesitas."
+        },
+        {
+          "key": "contact_intro",
+          "label": [
+            "Texto de contacto",
+            "Texte de contact",
+            "Contact introduction"
+          ],
+          "type": "textarea",
+          "max": 500,
+          "default": "Una consulta, una lista de productos o tu próximo pedido. Estamos para ayudarte."
+        },
+        {
+          "key": "phone",
+          "label": [
+            "Teléfono",
+            "Téléphone",
+            "Phone"
+          ],
+          "type": "text",
+          "max": 60,
+          "default": "(593-2) 250-1350"
+        },
+        {
+          "key": "email",
+          "label": [
+            "Correo electrónico",
+            "Adresse e-mail",
+            "Email"
+          ],
+          "type": "email",
+          "max": 254,
+          "default": ""
+        },
+        {
+          "key": "address",
+          "label": [
+            "Dirección",
+            "Adresse",
+            "Address"
+          ],
+          "type": "textarea",
+          "max": 300,
+          "default": "Puerto Rico N27-108 y Selva Alegre, Quito"
+        },
+        {
+          "key": "whatsapp",
+          "label": [
+            "WhatsApp (con código de país)",
+            "WhatsApp (avec indicatif du pays)",
+            "WhatsApp (with country code)"
+          ],
+          "type": "text",
+          "max": 30,
+          "default": ""
+        },
+        {
+          "key": "opening_hours",
+          "label": [
+            "Horario de atención",
+            "Horaires d’ouverture",
+            "Opening hours"
+          ],
+          "type": "textarea",
+          "max": 300,
+          "default": ""
+        },
+        {
+          "key": "map_url",
+          "label": [
+            "Enlace al mapa",
+            "Lien vers la carte",
+            "Map link"
+          ],
+          "type": "url",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "facebook_url",
+          "label": [
+            "Facebook",
+            "Facebook",
+            "Facebook"
+          ],
+          "type": "url",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "instagram_url",
+          "label": [
+            "Instagram",
+            "Instagram",
+            "Instagram"
+          ],
+          "type": "url",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "linkedin_url",
+          "label": [
+            "LinkedIn",
+            "LinkedIn",
+            "LinkedIn"
+          ],
+          "type": "url",
+          "max": 500,
+          "default": ""
+        }
+      ]
+    },
+    {
+      "id": "publication",
+      "label": [
+        "Publicación y catálogo",
+        "Publication et catalogue",
+        "Publication and catalogue"
+      ],
+      "fields": [
+        {
+          "key": "site_enabled",
+          "label": [
+            "Publicar el sitio",
+            "Publier le site",
+            "Publish website"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "website_url",
+          "label": [
+            "Dirección del sitio Cloudflare",
+            "Adresse du site Cloudflare",
+            "Cloudflare website address"
+          ],
+          "type": "url",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "show_prices",
+          "label": [
+            "Mostrar precios",
+            "Afficher les prix",
+            "Show prices"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "price_display",
+          "label": [
+            "Presentación de precios",
+            "Affichage des prix",
+            "Price display"
+          ],
+          "type": "enum",
+          "options": [
+            "with_tax",
+            "without_tax"
+          ],
+          "option_labels": [
+            [
+              "Con impuestos",
+              "Taxes comprises",
+              "Including tax"
+            ],
+            [
+              "Sin impuestos",
+              "Hors taxes",
+              "Excluding tax"
+            ]
+          ],
+          "default": "with_tax"
+        },
+        {
+          "key": "enable_quotes",
+          "label": [
+            "Recibir solicitudes de cotización",
+            "Recevoir des demandes de devis",
+            "Accept quote requests"
+          ],
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "quote_label",
+          "label": [
+            "Nombre de la selección",
+            "Nom de la sélection",
+            "Selection label"
+          ],
+          "type": "text",
+          "max": 50,
+          "default": "Mi cotización"
+        },
+        {
+          "key": "default_sort",
+          "label": [
+            "Orden del catálogo",
+            "Tri du catalogue",
+            "Catalogue sorting"
+          ],
+          "type": "enum",
+          "options": [
+            "featured",
+            "name",
+            "price_asc",
+            "price_desc"
+          ],
+          "option_labels": [
+            [
+              "Destacados primero",
+              "Sélection en premier",
+              "Featured first"
+            ],
+            [
+              "Nombre",
+              "Nom",
+              "Name"
+            ],
+            [
+              "Precio creciente",
+              "Prix croissant",
+              "Price ascending"
+            ],
+            [
+              "Precio decreciente",
+              "Prix décroissant",
+              "Price descending"
+            ]
+          ],
+          "default": "featured"
+        },
+        {
+          "key": "page_size",
+          "label": [
+            "Productos por página",
+            "Produits par page",
+            "Products per page"
+          ],
+          "type": "enum",
+          "options": [
+            "12",
+            "24",
+            "36"
+          ],
+          "option_labels": [
+            [
+              "12",
+              "12",
+              "12"
+            ],
+            [
+              "24",
+              "24",
+              "24"
+            ],
+            [
+              "36",
+              "36",
+              "36"
+            ]
+          ],
+          "default": "12"
+        },
+        {
+          "key": "seo_title",
+          "label": [
+            "Título para buscadores",
+            "Titre pour les moteurs de recherche",
+            "Search engine title"
+          ],
+          "type": "text",
+          "max": 100,
+          "default": "Distribuidora GAMA | Productos para tu empresa en Quito"
+        },
+        {
+          "key": "seo_description",
+          "label": [
+            "Descripción para buscadores",
+            "Description pour les moteurs de recherche",
+            "Search engine description"
+          ],
+          "type": "textarea",
+          "max": 320,
+          "default": "Descubre el catálogo de Distribuidora GAMA. Productos para tu empresa, atención personalizada y solicitudes de cotización en Quito, Ecuador."
+        }
+      ]
+    }
   ]
 }

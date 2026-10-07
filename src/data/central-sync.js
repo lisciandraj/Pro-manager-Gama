@@ -14,7 +14,7 @@ function localSnapshot(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||
 /* Nunca se pide photo_data en una lista: nueve fotos base64 pesan 1,4 MB y se
    descargaban enteras en cada recarga, mostrara o no fotos la pantalla. Basta
    con has_photo; la foto la trae GamaPhotos sólo para las filas visibles. */
-const PRODUCT_COLUMNS='id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,created_at';
+const PRODUCT_COLUMNS='id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,photo_is_illustrative,created_at';
 function mapProduct(p){return window.ArcEntities.legacyProduct(p)}
 function mapClient(c){return window.ArcEntities.legacyCustomer(c)}
 function userLabel(userId){if(!userId)return'Sistema';return profilesById[userId]||'Usuario desconocido'}

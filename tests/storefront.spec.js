@@ -103,3 +103,17 @@ for(const width of [390,1440])test('real product photo, readable prose and legal
  await expect(page.locator('#quoteForm [name=consent]')).not.toBeChecked();await expect(page.locator('#cartLines .cart-photo img')).toHaveAttribute('src',photo);
  expect(await page.evaluate(()=>__SITE_CALLS.filter(x=>x.p_action==='submit').length)).toBe(0);
 });
+
+for(const width of [320,390,1440])test('illustrative photo is identified on card and detail at '+width,async({page})=>{
+ const photo='data:image/jpeg;base64,'+fs.readFileSync(path.join(__dirname,'../gama-logo.jpg')).toString('base64');
+ const product={...items[0],has_photo:true};
+ await boot(page,{width,catalogItems:[product],photoRows:[{id:product.id,photo_data:photo,photo_is_illustrative:true}]});
+ const card=page.locator('#siteProducts .product-card').first();
+ await expect(card.locator('.photo-caption')).toHaveText('Foto ilustrativa');
+ await expect(card.locator('img')).toHaveAttribute('alt',/Foto ilustrativa/);
+ expect(await card.locator('.product-image').evaluate(n=>n.querySelector('.photo-caption').getBoundingClientRect().bottom<=n.getBoundingClientRect().bottom+1)).toBe(true);
+ await card.locator('.product-name').click();
+ await expect(page.locator('.detail-photo .photo-caption')).toHaveText('Foto ilustrativa');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ expect(await page.locator('#productDialog').evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
+});

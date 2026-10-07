@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'dist-storefront');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'fonts'),{recursive:true});
-for(const file of ['index.html','site.js','site.css','b2b.js','b2b.css','surveys.html','surveys.js','_headers'])fs.copyFileSync(path.join(root,'src/storefront',file),path.join(out,file));
+for(const file of ['index.html','photo-credits.html','site.js','site.css','b2b.js','b2b.css','surveys.html','surveys.js','_headers'])fs.copyFileSync(path.join(root,'src/storefront',file),path.join(out,file));
 fs.copyFileSync(path.join(root,'src/features/surveys/survey-form.js'),path.join(out,'survey-form.js'));
 fs.copyFileSync(path.join(root,'src/styles/surveys.css'),path.join(out,'surveys.css'));
 fs.copyFileSync(path.join(root,'gama-logo.jpg'),path.join(out,'logo.jpg'));

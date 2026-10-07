@@ -4,7 +4,7 @@
 
 Dix enseignes reconnues ont servi de références visuelles, sans prétendre établir un classement mondial : [Bureau Vallée](https://www.bureau-vallee.fr/), [Staples](https://www.staples.com/), [Office Depot](https://www.officedepot.com/), [Lyreco](https://shop.lyreco.fr/), [Bruneau](https://www.bruneau.fr/), [Viking](https://www.viking-direct.co.uk/), [Papier](https://www.papier.com/), [MUJI](https://www.muji.com/), [Ryman](https://www.ryman.co.uk/) et [SuperPaco](https://www.superpaco.com/).
 
-Les distributeurs professionnels ont inspiré la recherche permanente, les filtres et la sélection de devis. Papier et MUJI ont inspiré les espaces blancs, la typographie et la sobriété. Les pages, textes et visuels de ces enseignes ne sont pas copiés. L’identité GAMA conserve son logo et ses couleurs.
+Les distributeurs professionnels ont inspiré la recherche permanente, les filtres et la sélection de devis. Papier et MUJI ont inspiré les espaces blancs, la typographie et la sobriété. Les compositions graphiques et les textes de ces enseignes ne sont pas copiés. L’identité GAMA conserve son logo et ses couleurs. Les photographies de produits utilisées sont documentées séparément ci-dessous.
 
 ## Livraison
 
@@ -12,7 +12,7 @@ Accueil éditorial, cartes en grille, variante en liste, filtres accessibles, na
 
 1784 produits actifs et un produit archivé ont eu leurs noms ou marques entièrement en majuscules normalisés. Les valeurs de catégorie, références et codes-barres sont conservés. Dans la fiche Coco, les champs de classification entièrement en majuscules sont présentés en minuscules sans changer leurs valeurs utilisées par les filtres. Le site applique la même présentation aux futurs libellés.
 
-236 photographies réelles du catalogue historique de la même entreprise ont été vérifiées et ajoutées, sans écraser les 21 photos existantes. Elles sont compressées en WebP et stockées dans `products.photo_data`. [Sources et empreintes](data/storefront-product-photo-sources-2026-10-07.json). 1528 produits actifs restent sans photographie vérifiée, dont 40 services sans objet physique : [liste à compléter](data/storefront-missing-photos-2026-10-07.csv). Aucune correspondance ambiguë entre modèles n’est publiée comme une photo exacte.
+Un premier lot de 236 photographies réelles du catalogue historique de la même entreprise a été vérifié et ajouté, sans écraser les 21 photos existantes. Un [second lot de 142 photos vérifiées](storefront-photo-enrichment-2026-10-07.md), provenant de fabricants, distributeurs et du catalogue historique GAMA, porte à 399 le nombre de produits actifs illustrés sur 1785. Elles sont compressées en WebP et stockées dans `products.photo_data`. Les [sources et empreintes](data/storefront-product-photo-sources-2026-10-07.json) couvrent les 378 ajouts. 1386 produits actifs restent sans photographie vérifiée, dont 40 services sans objet physique : [liste à compléter](data/storefront-missing-photos-2026-10-07.csv). Aucune correspondance ambiguë entre modèles n’est publiée comme une photo exacte.
 
 La sélection mise en avant utilise un cahier, un stylo, une agrafeuse et un clavier réellement publiés, avec leurs photos. Les données commerciales, les prix, les stocks et les documents historiques ne sont pas réécrits par la refonte.
 

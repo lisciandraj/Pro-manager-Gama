@@ -7,9 +7,9 @@ const $=id=>document.getElementById(id);
 const directoryColumns={
  products:[
   {label:'Foto',decorative:true,html:p=>window.gamaPhotoCell?.(legacyProduct({id:p.id,name:p.name,has_photo:p.hasPhoto}))||''},
-  {key:'barcode',label:'Código',sort:'barcode'},{key:'name',label:'Producto',sort:'name'},
+  {key:'barcode',label:'Código',sort:'barcode'},{key:'name',label:'Producto',sort:'name',value:p=>window.gamaProductLabel(p.name)},
   {key:'reference',label:'Referencia',sort:'reference'},
-  {key:'family',label:'Familia',sort:'family'},{key:'category',label:'Categoría',sort:'category'},
+  {key:'family',label:'Familia',sort:'family'},{key:'category',label:'Categoría',sort:'category',value:p=>window.gamaProductLabel(p.category)},
   {key:'lines',label:'Líneas',sort:'lines'},{key:'brand',label:'Marca',sort:'brand'},
   {key:'presentation',label:'Presentación',sort:'presentation'},{key:'description',label:'Descripción',sort:'description'},
   {key:'productKind',label:'Tipo de producto',sort:'product_kind',value:p=>t(p.productKind==='service'?'Servicio':'Artículo almacenado')},

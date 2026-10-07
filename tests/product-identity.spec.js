@@ -25,12 +25,15 @@ for(const [field,value,label] of [['pName','  PAPEL   A4  ','nombre'],['pBarcode
 }
 test('editing identity into another product is blocked but own identity is allowed',async({page})=>{
  const messages=[];page.on('dialog',async d=>{messages.push(d.message());await d.accept()});await setup(page);
+ await page.evaluate(()=>{__DB.products[0].name='papel a4';__DB.products[0].category='SUMINISTROS DE OFICINA'});
  await page.evaluate(()=>window.editProduct('B1'));
+ await expect(page.locator('#pName')).toHaveValue('Papel a4');await expect(page.locator('#pCat')).toHaveValue('Suministros de oficina');
  await page.locator('#pRef').fill('REF-2');await page.evaluate(()=>window.createProduct());
  await expect(page.locator('#gamaToasts')).toContainText('referencia');
  expect(await page.evaluate(()=>window.__DB.products[0].reference)).toBe('REF-1');
  await page.locator('#pRef').fill('REF-1');await page.locator('#pPrice').fill('12');await page.evaluate(()=>window.createProduct());
  expect(await page.evaluate(()=>window.__DB.products[0].sale_price)).toBe(12);
+ expect(await page.evaluate(()=>({name:__DB.products[0].name,category:__DB.products[0].category}))).toEqual({name:'papel a4',category:'SUMINISTROS DE OFICINA'});
 });
 test('inactive catalogue drafts can be completed without implicit activation',async({page})=>{
  page.on('dialog',async d=>d.accept());await setup(page);await page.evaluate(()=>window.editProduct('B2','p2'));

@@ -8,7 +8,7 @@ export const productFromRow = p => ({
   qtyPerCarton:number(p.qty_per_carton), weightG:number(p.weight_g), volumeCm3:number(p.volume_cm3), stock:number(p.stock),
   salePrice:number(p.sale_price), salePriceB:number(p.sale_price_b), purchasePrice:number(p.purchase_price), taxRate:Number(p.tax_rate ?? 15),
   productKind:p.product_kind||'goods', baseUnit:text(p.base_unit), orderMinimum:number(p.order_minimum), orderMultiple:number(p.order_multiple), lotTracking:!!p.lot_tracking, lotTrackingSince:text(p.lot_tracking_since), createdAt:text(p.created_at), updatedAt:text(p.updated_at),
-  active:p.active !== false, hasPhoto:!!(p.has_photo || p.photo_data), photo:text(p.photo_data)
+  active:p.active !== false, hasPhoto:!!(p.has_photo || p.photo_data), photoIsIllustrative:p.photo_is_illustrative===true, photo:text(p.photo_data)
 });
 export const customerFromRow = c => ({id:c.id, taxId:text(c.identification), identificationKind:c.identification_kind||'auto', name:text(c.name), category:c.category || 'A', address:text(c.address), phone:text(c.phone), email:text(c.email), city:text(c.city), province:text(c.province), postalCode:text(c.postal_code), country:text(c.country), notes:text(c.notes), paymentTermsDays:c.payment_terms_days ?? null, lat:c.lat??null,lng:c.lng??null,active:c.active !== false});
 export const supplierFromRow = s => ({id:s.id, taxId:text(s.tax_id), identificationKind:s.identification_kind||'auto', name:text(s.name), contactName:text(s.contact_name), address:text(s.address), phone:text(s.phone), email:text(s.email), city:text(s.city), province:text(s.province), postalCode:text(s.postal_code), country:text(s.country), notes:text(s.notes), active:s.active !== false});
@@ -22,7 +22,7 @@ export const legacySupplier = s => {const x=supplierFromRow(s);return {...x, tax
 export const entities = {
   suppliers:{table:'suppliers', select:'id,name,tax_id,contact_name,phone,email,city,address,province,postal_code,country,notes,active,created_at,updated_at', order:'name', search:['name','tax_id','contact_name','email','phone','city'], fromRow:supplierFromRow, toRow:supplierToRow},
   customers:{table:'customers', select:'id,name,identification,category,address,phone,email,city,province,postal_code,country,notes,payment_terms_days,lat,lng,active,created_at,updated_at', order:'name', search:['name','identification','email','phone','city'], fromRow:customerFromRow},
-  products:{table:'products', select:'id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,product_kind,base_unit,order_minimum,order_multiple,lot_tracking,lot_tracking_since,created_at,updated_at', order:'name', search:['name','barcode','reference','category'], fromRow:productFromRow}
+  products:{table:'products', select:'id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,photo_is_illustrative,product_kind,base_unit,order_minimum,order_multiple,lot_tracking,lot_tracking_since,created_at,updated_at', order:'name', search:['name','barcode','reference','category'], fromRow:productFromRow}
 };
 export const supplierFields = [
   {id:'supName',key:'name',label:'Nombre / razón social',required:true,maxLength:300},

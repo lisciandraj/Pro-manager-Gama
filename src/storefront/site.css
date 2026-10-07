@@ -22,3 +22,8 @@ dialog{color:var(--ink);background:#fff;border:1px solid var(--line);border-radi
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 
 .category-symbol{color:var(--primary)}.category-symbol svg{width:44px;height:44px;stroke-width:1.2}
+
+/* Representative photos retain an explicit label in catalogue and detail views. */
+[data-photo][data-photo-notice="true"]{position:relative;display:block}.photo-caption{display:block;color:var(--muted);font-size:10px;line-height:1.4;margin-top:8px;text-align:center;white-space:normal}.product-list .photo-caption{font-size:8px}.detail-photo .photo-caption{font-size:12px}
+
+.product-image>[data-photo][data-photo-notice="true"]{display:flex;flex-direction:column}.product-image [data-photo-notice="true"] img{height:calc(100% - 22px);min-height:0}.detail-photo>[data-photo][data-photo-notice="true"]{display:flex;flex-direction:column}

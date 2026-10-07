@@ -1,5 +1,7 @@
 # Enrichissement des photographies GAMA — 7 octobre 2026
 
+Les nombres ci-dessous décrivent ce lot de 142 photos au moment de son import. Un [lot ultérieur de 30 photos](storefront-stationery-photos-2026-10-07.md) porte le total à 429 produits illustrés et met à jour le registre de provenance et la liste restante partagés.
+
 ## Résultat
 
 142 photographies de produits supplémentaires sont disponibles dans les fiches partagées par Coco et le site public. Le catalogue compte désormais 399 produits actifs illustrés sur 1785 : 21 photos préexistantes, 236 ajouts du premier lot et 142 de ce lot. Il reste 1386 fiches sans photo vérifiée, dont 40 services sans objet physique. Ce lot ne complète donc pas l’illustration de tout le catalogue.

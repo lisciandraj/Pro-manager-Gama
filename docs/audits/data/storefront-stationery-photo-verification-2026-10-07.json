@@ -1,0 +1,187 @@
+{
+  "checked_at": "2026-10-07T06:02:00.489Z",
+  "url": "https://gama-coco.pages.dev/",
+  "public_photo_hashes": [
+    {
+      "id": "0dbd6372-5bd5-426e-a629-6cd0b79c9f6a",
+      "sha256": "d87f6cbbd2f86d12c775483d2d5460ab240b77bdc345544c11dac692cd99cbc9"
+    },
+    {
+      "id": "eefd2625-721d-477b-89ae-a095dc812a60",
+      "sha256": "ce8725e23cad7005e2d6893db34f0e8d66f6fa4883d77b937284615f97c86c0c"
+    },
+    {
+      "id": "b19991a1-6c9b-450d-9e54-9263179419a1",
+      "sha256": "c0bd37055793dcc49e27f93356acbbec48a8e1a3626dbfac0f91c9459005d096"
+    },
+    {
+      "id": "f71d8714-9434-496d-8306-46c1d322fa6c",
+      "sha256": "994f7b47f1f4a02eed26a3f2c77f4d41750bfd0f9e70705f061538b9e5229a66"
+    },
+    {
+      "id": "896d349f-f84d-462e-833b-f0ffbf3fbee9",
+      "sha256": "0662217ebab7a4fae6e4384ad69dff47040c0c8a102954123e98aeffb17863e5"
+    },
+    {
+      "id": "4982b56c-593c-4194-b65b-e47245507a16",
+      "sha256": "0bcb52fd3396ae90becbe395afeeaf13321178a16cb45c503aa2af81707a8055"
+    },
+    {
+      "id": "6c1a2683-435e-4e70-b63b-5e9c22babc60",
+      "sha256": "223b684488d16c50eef43acaa818f4747dee32456222194d73e45c8022fb3252"
+    },
+    {
+      "id": "ba5347f8-1425-47fb-9276-54af9051ccf4",
+      "sha256": "05140917f562823ee81f2af3367d2bcccd4707cd0909fc53ee679ce0a4ca562d"
+    },
+    {
+      "id": "65fa8371-7f9f-47ce-bf91-2432b1e772d0",
+      "sha256": "e5b32aea760b35bc7886ff6843f02de240b3780862f717dc3aa14f9f66d805af"
+    },
+    {
+      "id": "7892dc34-8af3-4572-a4ab-21bce9b59103",
+      "sha256": "cbb0505c5cdf1cd360032fe3d8523183ca6fdf9af9be517ee250fb5106f1f56a"
+    },
+    {
+      "id": "3d22872d-ac26-418b-8130-0984194995cd",
+      "sha256": "c2404008380b792b7106611c325195c8c301662e524c2483914941811b6191b1"
+    },
+    {
+      "id": "8bd134ed-d247-402d-9807-39d59728a95e",
+      "sha256": "042a717bc51497cc92a30f4085f6383d0d04c97b457c40ffd21058bcd91a8b92"
+    },
+    {
+      "id": "5cd2371b-2ad8-403d-9210-e1d5d97e113e",
+      "sha256": "85e944ee0b0154aaa2887fd88ecb6cefa48b99a21d4111a4682ac1816f663167"
+    },
+    {
+      "id": "d567f2b8-85cb-4815-ab48-e597177e4a02",
+      "sha256": "147bfeb5778dbfdaeefaa94954403d5b9ce2e5b9d026709c96e00af229601560"
+    },
+    {
+      "id": "adfabd63-3068-45f6-999a-1a17553687d5",
+      "sha256": "f34150f91a4691e771576784a8225a683c96656b4b5a2655f8a8c2ef722574b9"
+    },
+    {
+      "id": "acdf6ef9-18da-4747-a123-658c19c56f77",
+      "sha256": "5c07032f4c1c985b3d20ae6f0646283ade1d7bd15125f81606a8d01cc8b0c50c"
+    },
+    {
+      "id": "3cd1e5ea-e9d2-49f9-ba67-21f39eea3e03",
+      "sha256": "c0e20588b8d2fda1429ce6f0dc4f55b92589ddf7a8b9500462c7907e0089d711"
+    },
+    {
+      "id": "4f2461e8-9940-431b-8ca8-d2205cb53bf5",
+      "sha256": "d246c97e549bd01e6335cf088ddc2bea84b5c3e9d4073f282442e1573204df61"
+    },
+    {
+      "id": "6fda0a5f-5c1e-4732-a6be-1dccb4d1bd77",
+      "sha256": "d246c97e549bd01e6335cf088ddc2bea84b5c3e9d4073f282442e1573204df61"
+    },
+    {
+      "id": "65b0ac63-f05e-4d34-af54-26aad6f900cd",
+      "sha256": "a67b7c61d92fe946f78ccda6f03f37391e2c68e4ed7f044f9872a3a562f99656"
+    },
+    {
+      "id": "0c592595-7602-4a32-9c55-86cabc83d261",
+      "sha256": "07c066ec33b80e3c1ed5e017716b4e868e1247a471792f31d0f7d001e8002c93"
+    },
+    {
+      "id": "9ab0b3ca-39d6-4b4d-9bfa-899d671cf21d",
+      "sha256": "dc29201e40a0a5024f6b86e68a9309c21678a1fc8d21534f51830f81cf8f1c08"
+    },
+    {
+      "id": "af4d2aa9-1dff-4c83-bd51-797946caa99d",
+      "sha256": "becc72c5e246dad4c575bc1c2ffc5969ae804a6593249dc1d7220161e106e91e"
+    },
+    {
+      "id": "ca45e9b1-f02b-4870-94c3-36bc7d8e23b9",
+      "sha256": "846df19116c3c4b719c7d119dd536217cd1cbd7d5efd85f562152759e2ffed5a"
+    },
+    {
+      "id": "6e0fb736-b0a0-48c4-8725-0de19fa46a31",
+      "sha256": "d690b7ebc8fa1ced6ce7a90a0c7dd452d494f3b70ba15a2655f705b65257f6fe"
+    },
+    {
+      "id": "8fade8a1-e2e3-4179-9f1a-169c0d37eb02",
+      "sha256": "4282841585b18dc38a586a8090efc6637424d76cd2d70e64da4fa9bee97be431"
+    },
+    {
+      "id": "76df6389-ec4e-4491-a350-10d282c3dc30",
+      "sha256": "062661adcca985a95007ffa686a2cc99e47496e58ee014eb632f8f4db9e26a67"
+    },
+    {
+      "id": "7d2c1791-44fe-4758-98f6-8d217413ceea",
+      "sha256": "d9b5b9f7b81c1c974dbd1d49b8f33ec57db82c4d85fc4956929fefcf7c273217"
+    },
+    {
+      "id": "9bef4bcd-b4d8-4fb9-a181-5ca203cf6220",
+      "sha256": "ba7ea7eec01aaf52c1c70533ad35c10d04e263b2653edef5596b77a113db1b5f"
+    },
+    {
+      "id": "9d86cee7-c522-4721-8a6b-88d29cd4d52b",
+      "sha256": "1a26b6083e13a6cea68c5e777ba8bdc3ce8a84d7a89c3b7df16caf71f975d057"
+    }
+  ],
+  "viewports": [
+    {
+      "width": 320,
+      "reference": "CAL005",
+      "detailPhotoSha256": "d87f6cbbd2f86d12c775483d2d5460ab240b77bdc345544c11dac692cd99cbc9",
+      "photoSharedWithCard": true,
+      "lowercaseName": true,
+      "noOverflowInGridListOrDialog": true,
+      "pageErrors": []
+    },
+    {
+      "width": 390,
+      "reference": "CAL005",
+      "detailPhotoSha256": "d87f6cbbd2f86d12c775483d2d5460ab240b77bdc345544c11dac692cd99cbc9",
+      "photoSharedWithCard": true,
+      "lowercaseName": true,
+      "noOverflowInGridListOrDialog": true,
+      "pageErrors": []
+    },
+    {
+      "width": 1440,
+      "reference": "CAL005",
+      "detailPhotoSha256": "d87f6cbbd2f86d12c775483d2d5460ab240b77bdc345544c11dac692cd99cbc9",
+      "photoSharedWithCard": true,
+      "lowercaseName": true,
+      "noOverflowInGridListOrDialog": true,
+      "pageErrors": []
+    }
+  ],
+  "database": {
+    "before": [
+      {
+        "active_products": 1785,
+        "active_with_photo": 399,
+        "unchanged_fields_checksum": "86b0a2d3dfaaf181fb309c33b7739b2a"
+      }
+    ],
+    "after": [
+      {
+        "active_products": 1785,
+        "active_with_photo": 429,
+        "unchanged_fields_checksum": "86b0a2d3dfaaf181fb309c33b7739b2a"
+      }
+    ],
+    "imported_count": 30,
+    "photo_flag_mismatches": 0,
+    "remaining_without_photo": 1356,
+    "unchanged_fields": "All product columns except photo_data, has_photo and updated_at; MD5 of the ordered JSON rows before and after this import."
+  },
+  "import": {
+    "count": 30,
+    "batches": 14,
+    "overwritten_existing_photos": 0,
+    "guards": [
+      "active product",
+      "same id, name and reference",
+      "empty photo_data"
+    ],
+    "image_bytes": 736006,
+    "ai_generated": false
+  }
+}

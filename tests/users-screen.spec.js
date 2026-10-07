@@ -54,12 +54,12 @@ test.describe('Usuarios — correo asociado', () => {
     expect((await page.locator('#cuRows tr td:nth-child(2)').allTextContents()).every(text=>text!=='—')).toBe(true);
   });
 
-  test('the email sits alongside the active / pending state', async ({ page }) => {
+  test('the email sits alongside the active or customer website access state', async ({ page }) => {
     await openUsers(page);
 
     await expect(row(page, 'Paula Martinez')).toContainText('Activo');
-    await expect(row(page, 'Teddy Boy')).toContainText('Pendiente');
-    // A deactivated account is still identifiable by its address.
+    await expect(row(page, 'Teddy Boy').locator('.cuState')).toHaveText('Acceso por el sitio web');
+    // Customer website access is managed separately from legacy ERP activation.
     await expect(row(page, 'Teddy Boy')).toContainText('teddy@example.com');
     await expect(page.locator('#cuPending')).toBeHidden();
     await expect(row(page,'Teddy Boy').locator('[data-cu-toggle]')).toHaveCount(0);
@@ -127,7 +127,7 @@ test.describe('Usuarios — colores y traducción', () => {
     await expect(row(page, 'Carlos Andrade').locator('.cuBadge')).toHaveText('Magasinier');
     await expect(row(page, 'Jimmy Lisciandra').locator('.cuBadge')).toHaveText('Administrateur');
     await expect(row(page, 'Paula Martinez').locator('.cuState')).toHaveText('Actif');
-    await expect(row(page, 'Teddy Boy').locator('.cuState')).toHaveText('En attente / désactivé');
+    await expect(row(page, 'Teddy Boy').locator('.cuState')).toHaveText('Accès via le site internet');
     await expect(page.locator('#cuCount')).toHaveText('5 utilisateurs');
     await expect(page.locator('#cuPending')).toBeHidden();
     await expect(page.locator('#cuStatus')).not.toContainText('m.');

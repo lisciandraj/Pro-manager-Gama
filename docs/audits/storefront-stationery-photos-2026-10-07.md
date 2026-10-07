@@ -25,3 +25,7 @@ L’empreinte des lignes produits ordonnées, en excluant uniquement `photo_data
 Les [contrôles de production](data/storefront-stationery-photo-verification-2026-10-07.json) confirment les 30 empreintes SHA-256 via l’API publique. La calculatrice Casio AX-120B, référence CAL005, a été contrôlée à 320, 390 et 1440 pixels : même photo dans le catalogue et la fiche, libellé en minuscules, aucun débordement horizontal en grille, en liste ou dans la fenêtre produit, et aucune erreur JavaScript. Les captures téléphone ont été inspectées visuellement. Aucun devis n’a été envoyé.
 
 La [liste restante](data/storefront-missing-photos-2026-10-07.csv) a été réduite à 1356 fiches, en conservant les motifs de non-correspondance déjà identifiés. Elle ne signifie pas que toutes les recherches sont épuisées. Les photos sont diffusées dynamiquement depuis la base commune, sans redéploiement nécessaire du site.
+
+## Lot suivant
+
+Un [quatrième lot de 51 photographies](storefront-expanded-photos-2026-10-07.md) complète ces résultats historiques. Le registre de provenance et la liste des photos manquantes reflètent désormais le cumul des quatre lots.

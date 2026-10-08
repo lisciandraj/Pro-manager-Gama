@@ -38,6 +38,7 @@ export function directory(entity,filter='') {
   prior?.dispose();host.innerHTML='<div data-arc-archive></div><div data-arc-directory></div>';
   let rows=new Map(),lastFilter=filter,lastArchived;
   const grid=ui.dataTable(host.querySelector('[data-arc-directory]'),{columns:directoryColumns[entity],searchControl:$('productSearch'),initial:{search:filter},source:async request=>{
+    if(await window.ArchitectLegacyData?.directory()===false)throw Error('NETWORK_ERROR');
     const archived=window.GamaArchive.mode(key)==='archived';lastArchived=archived;
     let result;
     if(request.sort==='supplier_name'){
@@ -55,7 +56,7 @@ export function directory(entity,filter='') {
     host.querySelector('[data-arc-archive]').innerHTML=window.GamaArchive.tabs(key,archived?other.count:result.total,archived?result.total:other.count);
     return result;
   },actions:{'data-product-controls':id=>window.ArchitectProductsControls.open(id),'data-edit':id=>{const row=rows.get(id);if(row)window.editProduct(row.barcode,row.id);},'data-archive':id=>{const row=rows.get(id);if(row)window.deleteProduct(row.barcode);},'data-restore':id=>window.restoreProduct(id),'data-delete':id=>window.purgeProduct(id)}});
-  const onChange=e=>{if(e.detail?.table===entity)grid.refresh();};window.addEventListener('gama:data-change',onChange);
-  const view={host,refresh(search){const archived=window.GamaArchive.mode(key)==='archived';const changed=search!==lastFilter||archived!==lastArchived;lastFilter=search;grid.refresh(changed?{page:0,search}:{});},dispose(){grid.dispose();window.removeEventListener('gama:data-change',onChange);}};
+  let refreshTimer;const onChange=e=>{if(e.detail?.table!==entity||window.ArcRouter?.current!=='products')return;clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{if(window.ArcRouter?.current==='products')grid.refresh()},250);};window.addEventListener('gama:data-change',onChange);
+  const view={host,refresh(search){const archived=window.GamaArchive.mode(key)==='archived';const changed=search!==lastFilter||archived!==lastArchived;lastFilter=search;grid.refresh(changed?{page:0,search}:{});},dispose(){clearTimeout(refreshTimer);grid.dispose();window.removeEventListener('gama:data-change',onChange);}};
   window.GamaArchive.register(key,()=>grid.refresh({page:0}));views.set(entity,view);
 }

@@ -30,7 +30,7 @@ const last=page=>page.evaluate(()=>window.__opsCalls.filter(c=>c.p_data.track).a
 test('la campana abre una ventana con todas las alertas, cada categoría con su recuento y los demás apartados',async({page})=>{
  await boot(page);await page.locator('#arcNotify').click();
  await expect(win(page)).toBeVisible();await expect(win(page).locator('h2')).toHaveText('Notifications');
- await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Devis sans réponse','Produits sous le minimum','Réceptions en retard','Paiements bientôt à échéance','Factures échues','Projets','Validations','Préférences']);
+ await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Devis sans réponse','Produits sous le minimum','Réceptions en retard','Paiements bientôt à échéance','Factures échues','Projets','Validations','Traitements et exceptions','Préférences']);
  // Se abre en todas las alertas activas, con el foco en su apartado.
  await expect(page.locator('#notifyTab-all')).toHaveAttribute('aria-selected','true');await expect(page.locator('#notifyTab-all')).toBeFocused();
  expect(await last(page)).toMatchObject({kind:'all',state:'active',offset:0});
@@ -100,7 +100,7 @@ test('abrir un dossier u otra pantalla cierra la ventana; el correo se escribe p
 
 test('el almacén no ve las categorías de dinero y en el teléfono todo cabe',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.locator('#arcNotify').click();
- await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Préférences']);
+ await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
  expect(await win(page).boundingBox()).toMatchObject({x:0,y:0,width:390,height:844});
  const all=await page.locator('#notifyTab-all').boundingBox(),next=await page.locator('#notifyTab-shortage').boundingBox();expect(Math.abs(all.y-next.y)).toBeLessThan(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

@@ -34,11 +34,11 @@ function scheduleReload(event){if(event?.detail?.table)window.ArcData.invalidate
    pero seguía lanzando seis consultas denegadas en cada arranque. */
 function isStaffSession(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'null');return !!s&&['admin','administrador','commercial','comercial','magasinier','almacenero'].includes(s.role)}catch(e){return false}}
 async function cachedList(table,options){return window.ArcData.all(table,options,true)}
-const routeTables={products:['products','suppliers'],clients:['customers'],contacts:['customers'],barcode:['products'],billing:['products','customers','invoices'],quotes:['products','customers']};
+const routeTables={products:['products','suppliers'],clients:['customers'],contacts:['customers'],barcode:['products'],billing:['products','customers','invoices']};
 let dataEpoch=0,loadJobs=new Map();
-async function loadAll(route=window.ArcRouter?.current){
- const tables=routeTables[route];if(!tables||!window.GamaCloud||!isStaffSession())return false;
- if(loadJobs.has(route))return loadJobs.get(route);
+async function loadAll(route=window.ArcRouter?.current,full=false){
+ const tables=route==='products'&&!full?['suppliers']:routeTables[route];if(!tables||!window.GamaCloud||!isStaffSession())return false;
+ const jobKey=route+':'+full;if(loadJobs.has(jobKey))return loadJobs.get(jobKey);
  const epoch=dataEpoch,started=performance.now();
  const job=(async()=>{loading=true;try{
   const values=await Promise.all(tables.map(async table=>{
@@ -58,11 +58,11 @@ async function loadAll(route=window.ArcRouter?.current){
    db.invoices=rows.invoices.map(i=>mapInvoice(i,groups.get(i.id)||[]));
   }
   db.__cloud=true;ready=true;
-  if(window.ArcRouter?.current===route)window.renderForRoute?.(route);
+  if(window.ArcRouter?.current===route){if(route==='products')window.populateSupplierSelect?.();else window.renderForRoute?.(route);}
   window.dispatchEvent(new CustomEvent('architect:route-data-ready',{detail:{route,milliseconds:performance.now()-started,tables}}));
   return true;
  }catch(e){console.error('[GAMA CLOUD]',e);if(epoch===dataEpoch&&window.ArcRouter?.current===route)window.gamaToast?.(window.ArcErrors.message(e));return false}
- finally{loadJobs.delete(route);loading=loadJobs.size>0}})();loadJobs.set(route,job);return job;
+ finally{if(epoch===dataEpoch){loadJobs.delete(jobKey);loading=loadJobs.size>0}}})();loadJobs.set(jobKey,job);return job;
 }
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;dataEpoch++;loadJobs=new Map();loading=false;ready=false;profilesById={};for(const key of ['products','archivedProducts','clients','archivedClients','suppliers','moves','invoices'])db[key]=[];window.ArcEntities.suppliersCache=[];if(e.detail?.session)loadAll()});
 async function migrateLocalOnce(){
@@ -75,25 +75,26 @@ async function migrateLocalOnce(){
  for(const inv of snap.invoices||[]){try{const r=await GamaCloud.insert('invoices',{invoice_number:inv.number||inv.id||null,customer_id:clientMap[inv.clientId]||null,user_id:uid(),status:'issued',issue_date:inv.date||new Date().toISOString(),subtotal:Number(inv.sub||0),tax:Number(inv.tax||0),total:Number(inv.total||0),notes:inv.pay||null});if(r.data){for(const line of inv.items||[]){const pid=productMap[line.barcode];if(pid)await GamaCloud.insert('invoice_lines',{invoice_id:r.data.id,product_id:pid,quantity:Number(line.qty||0),unit_price:Number(line.price||0),tax_rate:Number(inv.rate||15),line_total:Number(line.qty||0)*Number(line.price||0)*(1+Number(inv.rate||15)/100)})}}}catch(e){console.warn('Factura local no migrada',e)}}
  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({__migratedToCloud:true}))}catch(e){}
 }
-async function createProductCloud(){const editingId=$('editingProductId')?.value,editing=$('editingBarcode')?.value,b=$('pBarcode')?.value.trim(),n=window.gamaProductFieldValue('pName').trim();if(!b||!n)return alert('El código de barras y el nombre son obligatorios.');const old=editingId?[...db.products,...(db.archivedProducts||[])].find(p=>p.id===editingId):editing?db.products.find(p=>p.barcode===editing):null;if((editingId||editing)&&!old)return alert('Producto no encontrado.');if(!old&&db.products.some(p=>p.barcode===b))return alert('Este código de barras ya existe.');const duplicate=window.gamaProductDuplicate?.({name:n,barcode:b,ref:$('pRef').value.trim()},old);if(duplicate)return alert(duplicate);let photo=null;if($('pPhoto')?.files?.[0]&&window.compressPhoto)photo=await compressPhoto($('pPhoto').files[0]);const row={barcode:b,name:n,description:$('pDescription')?.value.trim()||null,reference:$('pRef').value.trim()||null,category:window.gamaProductFieldValue('pCat').trim()||null,family:$('pFamily')?.value.trim()||null,lines:$('pLines')?.value.trim()||null,brand:$('pBrand')?.value.trim()||null,presentation:$('pPresentation')?.value.trim()||null,location:$('pLoc').value.trim()||null,supplier_id:$('pSupplier')?.value||null,min_stock:Number($('pMin').value)||0,max_stock:Number($('pMaxStock')?.value)||0,qty_per_carton:Number($('pQtyCarton')?.value)||0,weight_g:Number($('pWeight')?.value)||0,volume_cm3:Number($('pVolume')?.value)||0,sale_price:Number($('pPrice').value)||0,sale_price_b:Number($('pSalePriceB')?.value)||0,purchase_price:Number($('pCost')?.value)||0,tax_rate:Number($('pIva').value),active:$('pActive')?.value!=='false'};
+async function refreshProductDirectory(){window.ArcData.invalidate();await loadAll();if(window.ArcRouter?.current==='products')window.renderForRoute?.('products')}
+async function createProductCloud(){if(!await loadAll('products',true))return;const editingId=$('editingProductId')?.value,editing=$('editingBarcode')?.value,b=$('pBarcode')?.value.trim(),n=window.gamaProductFieldValue('pName').trim();if(!b||!n)return alert('El código de barras y el nombre son obligatorios.');const old=editingId?[...db.products,...(db.archivedProducts||[])].find(p=>p.id===editingId):editing?db.products.find(p=>p.barcode===editing):null;if((editingId||editing)&&!old)return alert('Producto no encontrado.');if(!old&&db.products.some(p=>p.barcode===b))return alert('Este código de barras ya existe.');const duplicate=window.gamaProductDuplicate?.({name:n,barcode:b,ref:$('pRef').value.trim()},old);if(duplicate)return alert(duplicate);let photo=null;if($('pPhoto')?.files?.[0]&&window.compressPhoto)photo=await compressPhoto($('pPhoto').files[0]);const row={barcode:b,name:n,description:$('pDescription')?.value.trim()||null,reference:$('pRef').value.trim()||null,category:window.gamaProductFieldValue('pCat').trim()||null,family:$('pFamily')?.value.trim()||null,lines:$('pLines')?.value.trim()||null,brand:$('pBrand')?.value.trim()||null,presentation:$('pPresentation')?.value.trim()||null,location:$('pLoc').value.trim()||null,supplier_id:$('pSupplier')?.value||null,min_stock:Number($('pMin').value)||0,max_stock:Number($('pMaxStock')?.value)||0,qty_per_carton:Number($('pQtyCarton')?.value)||0,weight_g:Number($('pWeight')?.value)||0,volume_cm3:Number($('pVolume')?.value)||0,sale_price:Number($('pPrice').value)||0,sale_price_b:Number($('pSalePriceB')?.value)||0,purchase_price:Number($('pCost')?.value)||0,tax_rate:Number($('pIva').value),active:$('pActive')?.value!=='false'};
  /* photo_data solo viaja cuando el usuario acaba de elegir una imagen. Antes se
     reenviaba la foto vieja en cada edicion (150 kB por guardado) y, ahora que
     las listas ya no traen photo_data, mandarla en blanco habria borrado la foto
     del producto al cambiarle el precio. */
  if(photo)row.photo_data=photo;
  const r=old?await GamaCloud.update('products',old.id,row):await GamaCloud.insert('products',row);if(r.error){alert('No se pudo guardar el producto en la base central: '+r.error.message);return}if(photo&&window.GamaPhotos)GamaPhotos.seed(r.data?.id||old?.id,photo);
- clearProductForm();window.ArcData.invalidate();await loadAll();alert(old?'Producto actualizado en la base central.':'Producto creado en la base central.')}
+ clearProductForm();await refreshProductDirectory();alert(old?'Producto actualizado en la base central.':'Producto creado en la base central.')}
 /* Archivar en lugar de borrar: un producto facturado no se puede eliminar sin
    romper la trazabilidad, y ese era el error de clave ajena que veía el usuario. */
-async function deleteProductCloud(b){const p=db.products.find(x=>x.barcode===b);if(!p)return;
+async function deleteProductCloud(b){if(!await loadAll('products',true))return;const p=db.products.find(x=>x.barcode===b);if(!p)return;
  if(!confirm('¿Archivar «'+p.name+'»?\n\nDejará de aparecer en las listas y en la facturación, pero se conserva en la pestaña Archivados y en el historial.'))return;
  const r=await GamaCloud.update('products',p.id,{active:false});
- if(r.error)alert('No se pudo archivar: '+GamaArchive.friendlyError(r.error,'product'));else {window.ArcData.invalidate();await loadAll()}}
-async function restoreProductCloud(id){const r=await GamaCloud.update('products',id,{active:true});if(r.error)alert('No se pudo restaurar: '+r.error.message);else {window.ArcData.invalidate();await loadAll()}}
-async function purgeProductCloud(id){const p=(db.archivedProducts||[]).find(x=>x.id===id);if(!p)return;
+ if(r.error)alert('No se pudo archivar: '+GamaArchive.friendlyError(r.error,'product'));else {await refreshProductDirectory()}}
+async function restoreProductCloud(id){const r=await GamaCloud.update('products',id,{active:true});if(r.error)alert('No se pudo restaurar: '+r.error.message);else {await refreshProductDirectory()}}
+async function purgeProductCloud(id){if(!await loadAll('products',true))return;const p=(db.archivedProducts||[]).find(x=>x.id===id);if(!p)return;
  if(!confirm('¿Borrar definitivamente «'+p.name+'»?\n\nEsta accion no se puede deshacer. Solo es posible si el producto no aparece en ninguna factura, pedido ni movimiento de stock.'))return;
  const r=await GamaCloud.remove('products',id);
- if(r.error)alert(GamaArchive.friendlyError(r.error,'product'));else {window.ArcData.invalidate();await loadAll()}}
+ if(r.error)alert(GamaArchive.friendlyError(r.error,'product'));else {await refreshProductDirectory()}}
 let legacyQuoteRequest=null;
 async function generateInvoiceCloud(){
  if(!validateQuoteForm())return;
@@ -149,7 +150,7 @@ async function selectClientForInvoiceCloud(){
   :(contractCategory==='B'?'Categoría B · precio al detalle':'Categoría A · precio mayorista');
 }
 function populateClientSelectCloud(){const s=$('clientSelect');if(!s)return;const cur=s.value;window.ArcUI.render(s,'<option value="" data-gi=57780de4ab62>Selecciona un cliente...</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name} — ${c.id}</option>`).join(''));if(cur&&db.clients.some(c=>c.id===cur))s.value=cur}
-window.ArchitectLegacyData={load:loadAll};
+window.ArchitectLegacyData={load:route=>loadAll(route,true),directory:()=>loadAll('products')};
 async function boot(){if(window.__gamaCentralSyncBoot)return;window.__gamaCentralSyncBoot=true;while(!window.GamaCloud)await new Promise(r=>setTimeout(r,150));while(!window.GamaCloudReady)await new Promise(r=>setTimeout(r,150));try{await window.GamaCloudReady;await window.ArcEnsureRuntime?.();for(const route of Object.keys(routeTables))window.ArcRouter.onEnter(route,()=>{loadAll(route)});if(routeTables[window.ArcRouter?.current])await loadAll();if(window.GamaCloudProducts){window.addEventListener('gama:products-cloud-change',scheduleReload);window.addEventListener('gama:stock-cloud-change',scheduleReload)}['customers','suppliers','invoices','invoice_lines'].forEach(table=>GamaCloud.subscribe(table,()=>{window.ArcData.invalidate(table);scheduleReload()}));window.save=function(){try{renderAll()}catch(e){}return true};window.createProduct=window.ArcUI.guard(createProductCloud);window.restoreProduct=restoreProductCloud;window.purgeProduct=purgeProductCloud;window.deleteProduct=deleteProductCloud;window.generateInvoice=window.ArcUI.guard(generateInvoiceCloud);window.selectClientForInvoice=selectClientForInvoiceCloud;window.populateClientSelect=populateClientSelectCloud;window.ArcRouter.onEnter('billing',populateClientSelectCloud);document.body.dataset.dataSource='supabase-central';const badge=document.querySelector('.onlineBadge');if(badge)window.ArcUI.render(badge,'<i></i> Cloud • Tiempo real')}catch(e){window.__gamaCentralSyncBoot=false;console.error('[GAMA] central sync boot failed',e)}}
 window.addEventListener('arc:runtime-ready',()=>{if(!window.__gamaCentralSyncBoot)boot()});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

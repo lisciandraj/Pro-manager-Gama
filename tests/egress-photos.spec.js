@@ -76,6 +76,7 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
 
     // La foto acaba en pantalla…
     const row = page.locator('#productsTable tr', { hasText: 'Con foto' });
+    await row.scrollIntoViewIfNeeded();
     await expect(row.locator('img.product-img')).toHaveAttribute('src', PHOTO);
     // …y el producto sin foto se queda con el dibujo de Productos, sin emoji.
     const sinFoto = page.locator('#productsTable tr', { hasText: 'Sin foto' });
@@ -91,6 +92,7 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
   test('volver a la pantalla reutiliza la foto ya descargada', async ({ page }) => {
     await boot(page, { products: PRODUCTS });
     await page.click('#mainmenu .gamaF2Card:has-text("Productos")');
+    await page.locator('#productsTable tr').filter({hasText:'Con foto'}).scrollIntoViewIfNeeded();
     await expect(page.locator('#productsTable img.product-img')).toHaveCount(1);
 
     const before = await page.evaluate(() =>
@@ -99,6 +101,7 @@ test.describe('Tráfico — las listas no arrastran las fotos', () => {
     // Se sale a otro módulo y se vuelve: la lista se pinta de nuevo, la foto no se pide.
     await page.evaluate(() => window.ArcRouter.open('warehouses'));
     await page.evaluate(() => window.ArcRouter.open('products'));
+    await page.locator('#productsTable tr').filter({hasText:'Con foto'}).scrollIntoViewIfNeeded();
     await expect(page.locator('#productsTable img.product-img')).toHaveCount(1);
 
     const after = await page.evaluate(() =>

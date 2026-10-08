@@ -8,48 +8,38 @@
    Ahora las listas piden columnas concretas (sin photo_data) más el indicador
    has_photo, pintan un hueco donde va la foto, y este módulo trae en un solo
    viaje las fotos de las filas realmente visibles. Lo traído se guarda en
-   memoria mientras dura la sesión: una foto no se pide dos veces. */
+   memoria con límites LRU por sesión: las fotos expulsadas se vuelven a pedir. */
 (function(){
 'use strict';
 if(window.GamaPhotos)return;
 
-const cache=new Map();      // id -> dataURL ('' = no tiene foto)
-const inflight=new Map();   // id -> Promise, para no pedir dos veces a la vez
-const CHUNK=25;             // ids por petición: una página larga no hace una URL gigante
-
-function get(id){return cache.get(id)}
-function put(id,data){cache.set(id,data||'')}
-/* Tras guardar un producto ya sabemos su foto: sembrarla evita ir a buscarla. */
-function seed(id,data){if(id)cache.set(id,data||'')}
-function forget(id){cache.delete(id)}
-
-async function fetchChunk(ids,table){
- const api=window.GamaCloud;
- if(!api)return;
- const r=await api.list(table,{select:'id,photo_data',in:{id:ids}});
- if(r.error)throw r.error;
- // Un id que la consulta no devuelve (archivado, sin permiso) se marca como
- // "sin foto" para no volver a pedirlo en bucle.
- ids.forEach(id=>{if(!cache.has(id))cache.set(id,'')});
- (r.data||[]).forEach(row=>cache.set(row.id,row.photo_data||''));
+const cache=new Map(),inflight=new Map(),queue=[];
+const CHUNK=25,CACHE_LIMIT=160,CACHE_BYTES=4*1024*1024,CONCURRENCY=2;
+let cacheBytes=0,active=0,epoch=0;
+const key=(id,table='products')=>table==='products'?id:table+':'+id;
+function get(id,table){const k=key(id,table),value=cache.get(k);if(value!==undefined){cache.delete(k);cache.set(k,value)}return value}
+function forget(id,table){const k=key(id,table);cacheBytes-=(cache.get(k)||'').length;cache.delete(k);inflight.delete(k)}
+function put(id,data,table){const k=key(id,table),value=data||'';cacheBytes-=(cache.get(k)||'').length;cache.delete(k);cache.set(k,value);cacheBytes+=value.length;while(cache.size>CACHE_LIMIT||cacheBytes>CACHE_BYTES){const oldest=cache.keys().next().value;cacheBytes-=(cache.get(oldest)||'').length;cache.delete(oldest)}}
+function seed(id,data,table){if(id){forget(id,table);put(id,data,table)}}
+function drain(){while(active<CONCURRENCY&&queue.length){const job=queue.shift();if(job.epoch!==epoch){job.resolve(new Map());continue}active++;
+ (async()=>{try{
+  const r=await window.GamaCloud.list(job.table,{select:'id,photo_data',in:{id:job.ids}});if(r.error)throw r.error;
+  const values=new Map((r.data||[]).map(row=>[row.id,row.photo_data||'']));
+  if(job.epoch!==epoch){job.resolve(new Map());return}
+  for(const id of job.ids)if(inflight.get(key(id,job.table))===job)put(id,values.get(id)||'',job.table);
+  job.resolve(values);
+ }catch(e){console.warn('[GAMA Fotos] no se pudieron cargar',e);job.resolve(new Map())}
+ finally{for(const id of job.ids)if(inflight.get(key(id,job.table))===job)inflight.delete(key(id,job.table));active--;drain()}})();
+}}
+async function load(ids,table='products'){
+ if(!window.GamaCloud)return [];
+ const want=[...new Set((ids||[]).filter(Boolean))],token=epoch;
+ const missing=want.filter(id=>get(id,table)===undefined&&!inflight.has(key(id,table)));
+ for(let i=0;i<missing.length;i+=CHUNK){const job={ids:missing.slice(i,i+CHUNK),table,epoch};job.promise=new Promise(resolve=>job.resolve=resolve);job.ids.forEach(id=>inflight.set(key(id,table),job));queue.push(job)}
+ const jobs=want.map(id=>({id,hit:get(id,table),job:inflight.get(key(id,table))}));drain();
+ return Promise.all(jobs.map(async({id,hit,job})=>{const value=hit!==undefined?hit:(await job?.promise)?.get(id)||'';return token===epoch?get(id,table)??value:''}));
 }
-
-/* Trae las fotos que falten de esos ids. Devuelve cuando están en caché. */
-async function load(ids,table){
- table=table||'products';
- const want=[...new Set((ids||[]).filter(Boolean))];
- const missing=want.filter(id=>!cache.has(id)&&!inflight.has(id));
- for(let i=0;i<missing.length;i+=CHUNK){
-  const chunk=missing.slice(i,i+CHUNK);
-  const p=fetchChunk(chunk,table).catch(e=>{
-   console.warn('[GAMA Fotos] no se pudieron cargar',e);
-   chunk.forEach(id=>{if(!cache.has(id))cache.set(id,'')});
-  }).finally(()=>chunk.forEach(id=>inflight.delete(id)));
-  chunk.forEach(id=>inflight.set(id,p));
- }
- await Promise.all(want.map(id=>inflight.get(id)).filter(Boolean));
- return want.map(id=>cache.get(id)||'');
-}
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;cache.clear();cacheBytes=0;inflight.clear();queue.splice(0).forEach(job=>job.resolve(new Map()));observer?.forEach(io=>io.disconnect());observed.clear()});
 
 /* Marcador que se pinta en la lista mientras la foto no está.
    El id va en un atributo, nunca dentro de una URL, así que no hace falta
@@ -82,8 +72,8 @@ function fill(el,data){
    ocultas: hidratar a ciegas habría traído las fotos de pantallas que el
    usuario no ha abierto — el mismo derroche, sólo que más tarde. Un hueco
    dentro de una sección con display:none nunca cruza el observador, así que
-   una foto se descarga cuando de verdad se va a ver, y una sola vez. */
-let observer=null;
+   una foto se descarga cuando se acerca a la zona visible. */
+let observer=null;const observed=new Set();
 function watcher(table){
  // Un observador por tabla: el lote que dispara sabe de dónde pedir.
  if(!('IntersectionObserver' in window))return null;
@@ -92,34 +82,32 @@ function watcher(table){
   observer.set(table,new IntersectionObserver(entries=>{
    const shown=entries.filter(e=>e.isIntersecting).map(e=>e.target);
    if(!shown.length)return;
-   shown.forEach(el=>observer.get(table).unobserve(el));
+   shown.forEach(el=>{observer.get(table).unobserve(el);observed.delete(el)});
    load(shown.map(el=>el.dataset.gamaPhoto),table)
-    .then(()=>shown.forEach(el=>fill(el,cache.get(el.dataset.gamaPhoto))))
+    .then(values=>{const ids=[...new Set(shown.map(el=>el.dataset.gamaPhoto))],loaded=new Map(ids.map((id,i)=>[id,values[i]]));shown.forEach(el=>fill(el,loaded.get(el.dataset.gamaPhoto)))})
     .catch(()=>{});
-  // Margen deliberadamente amplio: lo que decide es si la pestaña está abierta,
-  // no si la fila cae por debajo del pliegue. Un hueco dentro de un display:none
-  // mide 0x0 y no cruza nunca, por mucho margen que se ponga; uno de la pantalla
-  // abierta cuenta aunque haya que bajar para verlo.
-  },{rootMargin:'2000px'}));
+  // A small look-ahead loads the next visible rows without fetching whole screens.
+  },{rootMargin:'300px'}));
  }
  return observer.get(table);
 }
 async function hydrate(root,table){
  table=table||'products';
  const host=root||document;
+ for(const el of observed)if(!el.isConnected){observer?.forEach(io=>io.unobserve(el));observed.delete(el)};
  const slots=[...host.querySelectorAll('[data-gama-photo]')];
  if(!slots.length)return;
  // Lo que ya está en caché se pone de inmediato, sin esperar ni observar.
  const pending=[];
- slots.forEach(el=>{const hit=cache.get(el.dataset.gamaPhoto);if(hit!==undefined)fill(el,hit);else pending.push(el)});
+ slots.forEach(el=>{const hit=get(el.dataset.gamaPhoto,table);if(hit!==undefined)fill(el,hit);else pending.push(el)});
  if(!pending.length)return;
  const io=watcher(table);
  if(!io){ // navegador sin IntersectionObserver: se carga todo de una vez
   await load(pending.map(el=>el.dataset.gamaPhoto),table);
-  pending.forEach(el=>fill(el,cache.get(el.dataset.gamaPhoto)));
+  pending.forEach(el=>fill(el,get(el.dataset.gamaPhoto,table)));
   return;
  }
- pending.forEach(el=>io.observe(el));
+ pending.forEach(el=>{observed.add(el);io.observe(el)});
 }
 
 /* ---- Reducción de las fotos ya guardadas ----
@@ -190,7 +178,7 @@ async function optimizeAll(onProgress){
    if(!nueva||nueva.length>original.length*MIN_GAIN){out.despues+=original.length;out.sinCambio++;continue}
    const u=await api.update('products',p.id,{photo_data:nueva});
    if(u.error)throw u.error;
-   cache.set(p.id,nueva);
+   put(p.id,nueva);
    out.despues+=nueva.length;out.reducidas++;
   }catch(e){console.warn('[GAMA Fotos] no se pudo optimizar',p.name,e);out.fallidas++}
  }

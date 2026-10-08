@@ -1,0 +1,10 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+test('diagnostics record measured interactions and session-window CLS instead of constant clicks',async()=>{
+ const observers={},timers={},events={},records=[];
+ class Observer {static supportedEntryTypes=['event','layout-shift','largest-contentful-paint','longtask'];constructor(callback){this.callback=callback}observe({type}){observers[type]=rows=>this.callback({getEntries:()=>rows})}}
+ const context={performance:{now:()=>0,getEntriesByType:()=>[]},PerformanceObserver:Observer,document:{hidden:false},navigator:{},innerWidth:1440,setInterval:(fn,ms)=>timers[ms]=fn,addEventListener:(type,fn)=>events[type]=fn,GamaRoleAccess:{isReady:()=>true},ArcRouter:{current:'products'},GamaCloud:{db:async()=>({rpc:async(_,args)=>records.push(...args.p_data.samples)})}};context.window=context;
+ vm.createContext(context);vm.runInContext(fs.readFileSync('src/app/performance.js','utf8').replace('export function','function')+'\nstartPerformance()',context);
+ observers.event([{interactionId:1,duration:80},{interactionId:1,duration:144},{interactionId:2,duration:56}]);context.ArcRouter.current='mainmenu';timers[5000]();await timers[30000]();assert.equal(records.length,2);assert.equal(records[0].duration_ms,144);assert.equal(records[0].module,'products');assert.equal(records[1].duration_ms,56);
+ observers['layout-shift']([{startTime:100,value:.1},{startTime:500,value:.2},{startTime:1900,value:.05},{startTime:2000,value:1,hadRecentInput:true}]);observers['largest-contentful-paint']([{startTime:1234.5}]);observers.longtask([{duration:61},{duration:82}]);const v=context.ArchitectPerformance.snapshot().vitals;assert.ok(Math.abs(v.cls-.3)<.0001);assert.equal(v.lcp_ms,1235);assert.equal(v.long_tasks,2);assert.equal(v.long_task_ms,143);
+ observers.event([{interactionId:3,duration:100}]);events['gama:auth-change']({detail:{event:'SIGNED_OUT'}});timers[5000]();await timers[30000]();assert.equal(records.length,2);
+});

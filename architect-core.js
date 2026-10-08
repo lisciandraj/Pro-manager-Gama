@@ -1725,6 +1725,8 @@
     host.innerHTML = "<div data-arc-archive></div><div data-arc-directory></div>";
     let rows = /* @__PURE__ */ new Map(), lastFilter = filter, lastArchived;
     const grid = dataTable(host.querySelector("[data-arc-directory]"), { columns: directoryColumns[entity], searchControl: $("productSearch"), initial: { search: filter }, source: async (request) => {
+      var _a2;
+      if (await ((_a2 = window.ArchitectLegacyData) == null ? void 0 : _a2.directory()) === false) throw Error("NETWORK_ERROR");
       const archived = window.GamaArchive.mode(key) === "archived";
       lastArchived = archived;
       let result;
@@ -1749,9 +1751,15 @@
       const row = rows.get(id);
       if (row) window.deleteProduct(row.barcode);
     }, "data-restore": (id) => window.restoreProduct(id), "data-delete": (id) => window.purgeProduct(id) } });
+    let refreshTimer;
     const onChange = (e) => {
-      var _a2;
-      if (((_a2 = e.detail) == null ? void 0 : _a2.table) === entity) grid.refresh();
+      var _a2, _b2;
+      if (((_a2 = e.detail) == null ? void 0 : _a2.table) !== entity || ((_b2 = window.ArcRouter) == null ? void 0 : _b2.current) !== "products") return;
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        var _a3;
+        if (((_a3 = window.ArcRouter) == null ? void 0 : _a3.current) === "products") grid.refresh();
+      }, 250);
     };
     window.addEventListener("gama:data-change", onChange);
     const view = { host, refresh(search) {
@@ -1760,6 +1768,7 @@
       lastFilter = search;
       grid.refresh(changed ? { page: 0, search } : {});
     }, dispose() {
+      clearTimeout(refreshTimer);
       grid.dispose();
       window.removeEventListener("gama:data-change", onChange);
     } };
@@ -1767,6 +1776,7 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "global-search": { "global": "GamaGlobalSearch", "file": "gama-global-search.js", "dependencies": ["gama-global-search-core.js"], "methods": ["open"] },
     "price-lists": { "global": "gamaPriceLists", "file": "gama-price-lists.js", "methods": ["open"], "aliases": { "GamaOpenPriceLists": "open" } },
     "matrix": { "global": "GamaMatrix", "file": "gama-proveedores-matriz.js", "methods": ["open", "render"], "apis": { "GamaSuppliers": ["migrate"] } },
     "workflow-tools": { "global": "CocoFlows", "file": "coco-flow-tools.js", "methods": ["draftBills", "projectTime", "importSupplierXml", "messages"] },
@@ -2035,15 +2045,59 @@
       }
     };
     window.addEventListener("arc:metric", (e) => capture(e.detail));
-    document.addEventListener("click", (e) => {
+    const vitals = { lcp_ms: null, cls: 0, long_tasks: 0, long_task_ms: 0 }, interactions = /* @__PURE__ */ new Map(), observers = [];
+    function observe(type, callback, options = {}) {
       var _a, _b;
-      if ((_b = (_a = e.target).closest) == null ? void 0 : _b.call(_a, "button,[role=button],a")) capture({ metric: "action", duration_ms: 1, success: true });
-    }, { passive: true });
+      try {
+        if (!((_b = (_a = window.PerformanceObserver) == null ? void 0 : _a.supportedEntryTypes) == null ? void 0 : _b.includes(type))) return;
+        const observer = new PerformanceObserver((list) => callback(list.getEntries()));
+        observer.observe({ type, buffered: true, ...options });
+        observers.push(observer);
+      } catch (_) {
+      }
+    }
+    observe("event", (rows) => {
+      var _a;
+      for (const row of rows) {
+        if (!row.interactionId || !row.duration) continue;
+        const id = row.interactionId, previous = interactions.get(id);
+        if (previous) previous.duration_ms = Math.max(previous.duration_ms, row.duration);
+        else {
+          const sample = { module: ((_a = window.ArcRouter) == null ? void 0 : _a.current) || "mainmenu", metric: "action", operation: "interaction", duration_ms: row.duration, success: true };
+          interactions.set(id, sample);
+        }
+        while (interactions.size > 100) interactions.delete(interactions.keys().next().value);
+      }
+    }, { durationThreshold: 40 });
+    observe("largest-contentful-paint", (rows) => {
+      if (rows.length) vitals.lcp_ms = Math.round(rows.at(-1).startTime);
+    });
+    let shiftStart = 0, shiftEnd = 0, shiftValue = 0;
+    observe("layout-shift", (rows) => {
+      for (const row of rows) if (!row.hadRecentInput) {
+        if (row.startTime - shiftEnd < 1e3 && row.startTime - shiftStart < 5e3) shiftValue += row.value;
+        else {
+          shiftStart = row.startTime;
+          shiftValue = row.value;
+        }
+        shiftEnd = row.startTime;
+        vitals.cls = Math.max(vitals.cls, shiftValue);
+      }
+    });
+    observe("longtask", (rows) => {
+      vitals.long_tasks += rows.length;
+      vitals.long_task_ms += rows.reduce((n, r) => n + r.duration, 0);
+    });
+    setInterval(() => {
+      for (const sample of interactions.values()) capture(sample);
+      interactions.clear();
+    }, 5e3);
     window.addEventListener("gama:auth-change", (e) => {
       var _a;
       if (((_a = e.detail) == null ? void 0 : _a.event) === "TOKEN_REFRESHED") return;
       epoch++;
       samples = [];
+      interactions.clear();
     });
     setInterval(flush, 3e4);
     const record = (type, detail) => {
@@ -2060,7 +2114,7 @@
         record("access_ready", { milliseconds: Math.round(performance.now() - start) });
       }
     });
-    window.ArchitectPerformance = { snapshot: () => ({ entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }), open: async () => {
+    window.ArchitectPerformance = { snapshot: () => ({ vitals: { ...vitals }, entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }), open: async () => {
       const token = epoch, r = await window.ArcData.rpc("gama_operational_metrics", { p_action: "report" });
       if (token !== epoch) return;
       window.ArcUI.dialog({ title: "Rendimiento observado", saveLabel: "Cerrar", body: "<p data-gi=4fc41b9622bf>Últimos 7 días. El percentil 95 se calcula sobre mediciones reales; sin muestras no se estima. Los tiempos de navegación miden la apertura; los RPC miden la respuesta del servidor.</p>" + window.ArcUI.table({ columns: [{ key: "module", label: "Módulo" }, { key: "operation", label: "Operación" }, { key: "metric", label: "Medición" }, { key: "device", label: "Dispositivo" }, { key: "network", label: "Red" }, { key: "samples", label: "Muestras" }, { key: "p95_ms", label: "P95 (ms)" }, { key: "errors", label: "Errores" }], items: r.rows }), onSave: async () => {

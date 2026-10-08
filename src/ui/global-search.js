@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-if(window.GamaGlobalSearch)return;
+if(window.GamaGlobalSearch&&!window.GamaGlobalSearch.__arcLazy)return;
 const Core=window.GamaSearchCore,$=id=>document.getElementById(id);
 const copy={
  fr:{placeholder:'Rechercher dans Coco ERP…',title:'Recherche globale',hint:'Un nom, une référence, un code-barres ou une question métier.',close:'Fermer',loading:'Recherche en cours…',empty:'Aucun résultat. Essaie un nom, un code-barres ou une référence.',short:'Saisis au moins 2 caractères.',more:'Voir plus',scan:'Poursuivre la recherche',error:'Recherche indisponible pour certaines catégories. Réessaie.',retry:'Réessayer',auth:'Connecte-toi pour rechercher dans Coco ERP.',open:'Ouvrir le module',back:'Retour aux résultats',archived:'Archivé',results:'résultat(s)',keyboard:'↑ ↓ parcourir · Entrée ouvrir · Échap fermer',partial:'Les résultats sont chargés par pages.',balance:'Solde',total:'Montant',modules:'Modules',clients:'Clients',contacts:'Contacts',suppliers:'Fournisseurs',products:'Produits et codes-barres',quotes:'Devis',orders:'Commandes',shipments:'Expéditions',deliveries:'Livraisons',invoices:'Factures',payments:'Paiements',knowledge:'Knowledge',orders_late:'Commandes en retard : date promise dépassée avec quantité à expédier, ou livraison en retard.',shipments_late:'Livraisons en retard : date prévue dépassée, hors livraisons terminées et annulées.',invoices_unpaid:'Factures impayées : solde restant, paiements partiels inclus, hors factures annulées.',invoices_overdue:'Factures échues : solde restant et échéance dépassée.',invoices_paid:'Factures payées : solde nul, hors factures annulées.',quotes_unanswered:'Devis envoyés depuis plus de 7 jours, sans réponse.',suggestions:['commandes en retard','factures impayées','devis sans réponse','livraisons en retard']},
@@ -113,7 +113,7 @@ async function activate(r){
 }
 function clear(){controller?.abort();version++;profile=null;client=null;groups=[];visible=[];busy=false;close();document.querySelectorAll('.gspRecord').forEach(d=>d.close());}
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')clear()});window.addEventListener('gama:modules-change',clear);window.addEventListener('storage',e=>{if(e.key==='gama_session_v1')clear()});
-window.addEventListener('gama:language-change',()=>{const input=$('gamaF2Buscar');if(input)mount(input);labels();if(dialog?.open)render()});
+window.addEventListener('gama:language-change',()=>{document.querySelectorAll('#gamaF2Buscar,#arcSearchInput').forEach(mount);labels();if(dialog?.open)render()});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&!e.altKey){e.preventDefault();open()}});
-window.GamaGlobalSearch={open,close,mount};const input=$('gamaF2Buscar');if(input)mount(input);
+window.GamaGlobalSearch={open,close,mount};document.querySelectorAll('#gamaF2Buscar,#arcSearchInput').forEach(mount);
 })();

@@ -543,6 +543,10 @@
     {
       "source": "src/features/transport/driver.js",
       "output": "gama-tms-driver.js"
+    },
+    {
+      "source": "src/ui/global-search-loader.js",
+      "output": "gama-global-search-loader.js"
     }
   ],
   "styles": [
@@ -744,8 +748,7 @@
         "coco-pagination-fallback.js",
         "coco-workspace.js",
         "coco-product-scanner.js",
-        "gama-global-search-core.js",
-        "gama-global-search.js",
+        "gama-global-search-loader.js",
         "gama-scanner-phone.js",
         "gama-references.js",
         "gama-company-core.js",

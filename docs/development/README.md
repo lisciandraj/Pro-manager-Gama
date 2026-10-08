@@ -18,7 +18,7 @@
 | `npm run typecheck` | Contrats TypeScript existants ; ne couvre pas tout le JavaScript |
 | `npm run verify:migrations` | Historique du dépôt ; pas une migration automatique de production |
 | `npm run test:architecture` | Propriété des sources, chargement partagé et ordonné, reprise après erreur, isolation de session, cache statique |
-| `npm run check:startup` | Budget versionné dans `config/performance-budget.json` : 93 scripts, 1 900 000 octets JS et 300 000 octets CSS |
+| `npm run check:startup` | Budget versionné dans `config/performance-budget.json` : 15 scripts, 850 000 octets JS et 300 000 octets CSS |
 | `npm run test:unit` | Tests Node et fixtures SQL isolées |
 | `npm test` | Parcours Playwright ; Chromium requis |
 | `npm run check:generated` | Reconstruction reproductible et absence de dérive |

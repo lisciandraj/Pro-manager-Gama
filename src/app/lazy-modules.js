@@ -1,5 +1,6 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "global-search":{"global":"GamaGlobalSearch","file":"gama-global-search.js","dependencies":["gama-global-search-core.js"],"methods":["open"]},
  "price-lists":{"global":"gamaPriceLists","file":"gama-price-lists.js","methods":["open"],"aliases":{"GamaOpenPriceLists":"open"}},
  "matrix":{"global":"GamaMatrix","file":"gama-proveedores-matriz.js","methods":["open","render"],"apis":{"GamaSuppliers":["migrate"]}},
  "workflow-tools":{"global":"CocoFlows","file":"coco-flow-tools.js","methods":["draftBills","projectTime","importSupplierXml","messages"]},

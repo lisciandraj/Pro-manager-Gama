@@ -164,3 +164,7 @@ La barre client ajoute Catalogue, Mes achats habituels, Mes demandes, Mes docume
 `gama_b2b_storefront` est une façade `SECURITY INVOKER` vers un traitement privé qui dérive l’entreprise de la session, de son association B2B active et des contrôles MFA existants. Il réutilise uniquement la projection publique et le résolveur de prix commun. Aucun identifiant de client fourni par le navigateur ne décide du tarif. Aucun prix privé n’est injecté dans le HTML public ou mis dans le cache Cloudflare. À la déconnexion ou à la révocation d’accès, les vues privées, prix en mémoire et sélections client sont effacés ; une réponse tardive ne les réaffiche pas.
 
 Sources : `src/storefront/site.js`, `b2b.js`, `index.html`, `customer.css`. La page historique ERP reste compatible ; les entrées du site ouvrent la surface commune Cloudflare. Tests : `tests/storefront.spec.js`, `tests/b2b-portal.spec.js`, `tests/b2b-storefront-db.test.cjs`.
+
+## Catégories en tête de l’accueil
+
+La grille de catégories précède la bannière et les avantages. Elle affiche toutes les catégories sur plusieurs lignes : six colonnes sur ordinateur, quatre sur tablette et trois sur téléphone. Les illustrations génériques IA bleu et orange GAMA sont publiées depuis `src/storefront/category-images`, selon `config/storefront-category-images.json`. Elles ne remplacent pas les photos des fiches produits. Les intitulés conservent leur première lettre en majuscule et les compteurs proviennent du catalogue.

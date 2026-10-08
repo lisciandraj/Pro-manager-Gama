@@ -4,6 +4,8 @@ fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'fonts'),{
 for(const file of ['index.html','photo-credits.html','site.js','site.css','customer.css','b2b.js','b2b.css','surveys.html','surveys.js','_headers'])fs.copyFileSync(path.join(root,'src/storefront',file),path.join(out,file));
 fs.copyFileSync(path.join(root,'src/features/surveys/survey-form.js'),path.join(out,'survey-form.js'));
 fs.copyFileSync(path.join(root,'src/styles/surveys.css'),path.join(out,'surveys.css'));
+fs.mkdirSync(path.join(out,'category-images'),{recursive:true});
+for(const {file} of require('../config/storefront-category-images.json'))fs.copyFileSync(path.join(root,'src/storefront/category-images',file),path.join(out,'category-images',file));
 fs.copyFileSync(path.join(root,'gama-logo.jpg'),path.join(out,'logo.jpg'));
 fs.copyFileSync(path.join(root,'fonts/inter-latin-wght-normal.woff2'),path.join(out,'fonts/inter-latin-wght-normal.woff2'));
 const b2bRuntime={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront-runtime.json'),'utf8')),pdf_template:'pdf-template.js'};

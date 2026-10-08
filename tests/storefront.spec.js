@@ -11,6 +11,7 @@ async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catal
  if(d.p_action==='product')out={item:catalogItems.find(p=>p.id===d.p_data.id),currency:'USD'};if(d.p_action==='photos')out=photoRows.filter(p=>d.p_data.ids.includes(p.id));
  if(d.p_action==='submit'){if(await page.evaluate(()=>__SITE_FAIL)){await page.evaluate(()=>__SITE_FAIL=false);return r.fulfill({status:503,json:{error:'WEBSITE_UNAVAILABLE'}})}out={reference:'WEB-00000001'}}return r.fulfill({json:out})});
  await page.route('**/customer.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/customer.css'),contentType:'text/css'}));await page.route('**/b2b.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/b2b.js'),contentType:'text/javascript'}));
+ await page.route('**/category-images/*.webp',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/category-images',new URL(r.request().url()).pathname.split('/').pop()),contentType:'image/webp'}));
  await page.goto('/dist-storefront/index.html');
 }
 const catalogueCategories=require('../config/storefront-category-images.json').map((c,i)=>({category:c.category,title:c.category,count:100+i}));
@@ -21,7 +22,8 @@ async function expectContained(page,selectors){
 }
 for(const width of [320,360,390,430,600,768,1024,1440])test('full category catalogue and long product fields fit the viewport on '+width,async({page})=>{
  await boot(page,{width,catalogItems:wideItems,categories:catalogueCategories});await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);
- const layout='#header, #catalogo, .catalogue-sidebar, #categoryFilters, .catalogue-content, .catalogue-tools, #siteProducts .product-card, #siteProducts .quick-order, #featuredProducts .quick-order';
+ const grid=page.locator('#categories');await expect(grid.locator('img')).toHaveCount(catalogueCategories.length);await expect.poll(()=>grid.locator('img').first().evaluate(n=>n.complete&&n.naturalWidth>0)).toBe(true);expect(await grid.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);expect(await page.locator('#categoriesSection').evaluate(n=>Boolean(n.compareDocumentPosition(document.querySelector('#hero'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);await page.screenshot({path:'test-results/category-home-'+width+'.png'});
+ const layout='#header, #categories .category-card, #catalogo, .catalogue-sidebar, #categoryFilters, .catalogue-content, .catalogue-tools, #siteProducts .product-card, #siteProducts .quick-order, #featuredProducts .quick-order';
  await expectContained(page,layout);
  if(width<=800){
   const filters=page.locator('#categoryFilters');expect(await filters.evaluate(n=>n.scrollWidth>n.clientWidth)).toBe(true);

@@ -45,7 +45,9 @@ Stock garde son point d’entrée historique avec une intégration légère. Les
 
 Le catalogue complet des traductions attend le français ou l’anglais. En espagnol, seuls les messages serveur sont chargés et les scans de traduction inutiles sont évités. Un changement de langue charge une seule fois le catalogue puis retraduit les labels existants, sans changer les valeurs métier. Les liens de modules survolés ou sélectionnés au clavier préchargent leurs scripts sans exécuter de module ni lire de données. Les groupes de dépendances se téléchargent en parallèle avec un ordre d’exécution conservé ; CRM attend également toutes ses extensions avant de traiter un lien direct.
 
-Les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite désormais les scripts déclarés à 15 et 900 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
+Les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite désormais les scripts déclarés à 15 et 850 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
+
+La recherche globale charge son moteur et ses adaptateurs au premier focus ou raccourci Ctrl/Cmd+K. Son entrée légère réutilise `ArcLoad`, puis les contrôles de focus sont repris par le moteur pour permettre la fermeture sans réouverture automatique.
 
 ## Données et accès
 
@@ -54,11 +56,19 @@ Les mutations de stock invalident aussi les quantités par emplacement et les r�
 
 La production et le dossier actif ont des historiques de migrations à rapprocher explicitement : les scripts de restauration et l’export de base documentés dans [Supabase](../supabase/README.md) restent nécessaires. Les migrations déjà appliquées ne sont ni renommées ni réécrites.
 
+L’accueil ne charge plus l’archive historique de devis. Celle-ci attend la route `billing`, regroupe les événements et ne joint que les clients et produits des documents affichés. Le formulaire historique conserve son miroir complet à son ouverture. Produits utilise sa pagination serveur de 20 lignes et charge seulement les fournisseurs via la synchronisation centrale ; le miroir complet reste disponible pour les validations d’édition. Les mutations rafraîchissent explicitement la grille visible.
+
+La cloche demande `gama_operations_action('badge')` : les mêmes droits et préférences que le tableau de bord s’appliquent, avec uniquement le compteur autorisé et sa date. Les demandes simultanées partagent une promesse ; une réponse d’une ancienne session est ignorée. Le tableau de bord détaillé conserve `snapshot`.
+
+`ArchitectPerformance.snapshot()` expose LCP, CLS et tâches longues localement lorsque le navigateur les mesure. Les interactions proviennent d’Event Timing (seuil de 40 ms), sans échantillon artificiel de 1 ms ; ce flux ne constitue pas une mesure complète INP. Voir l’[audit du 8 octobre 2026](development/performance-audit-2026-10-08.md).
+
 ## Cache navigateur
 
 Les URL JS/CSS comportant un hash de contenu peuvent être servies depuis le cache du service worker lorsqu’il est installé. Une nouvelle version possède une autre clé. Les pages HTML restent relues sur le réseau ; ERP et site de test ont chacun leur repli hors ligne. Les réponses métier, les écritures et les diagnostics caméra ne sont pas mis dans ce cache.
 
 Le dépôt ne contient pas actuellement d’enregistrement automatique du service worker dans l’entrée ERP. Le correctif concerne les installations qui l’utilisent déjà ; il ne prouve pas un gain de chargement sur tous les appareils.
+
+Les photos sont chargées à proximité de la zone visible (marge 300 px), par lots de 25 et avec deux requêtes simultanées maximum. Le cache LRU est limité à 160 entrées et 4 Mio de caractères base64 ; ce plafond ne couvre pas les images décodées du DOM. La déconnexion vide le cache et rejette les réponses en vol ; une erreur réseau peut être réessayée.
 
 ## Mise à jour et contrôles communs
 

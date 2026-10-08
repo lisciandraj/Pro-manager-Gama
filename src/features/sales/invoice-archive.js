@@ -4,7 +4,9 @@
 const pad=n=>String(Number(n||0)).padStart(9,'0');
 const esc=window.ArcUI.esc;
 const money=n=>window.GamaCurrency.format(n);
-let cloudInvoices=[],allCustomers=[],page=0,totalCount=0,searchTimer=null;
+let cloudInvoices=[],page=0,totalCount=0,searchTimer=null,reloadTimer=null,generation=0;
+const visible=()=>window.ArcRouter?.current==='billing'&&!document.hidden&&window.gamaAccessAllowed?.('billing');
+const changed=()=>{if(!visible())return;clearTimeout(reloadTimer);reloadTimer=setTimeout(load,250)};
 const PAGE_SIZE=20;
 function isSearching(){return (document.getElementById('giaSearch')?.value||'').trim().length>0}
 function meta(inv){const n=String(inv?.notes||'');if(n.startsWith('GAMA_META:')){try{return JSON.parse(n.slice(10))}catch(e){}}return {payment:n||'-'};}
@@ -46,13 +48,10 @@ window.printGamaCloudInvoice=async function(id){
  }catch(e){console.error('[GAMA PDF archivo]',e);alert('No se pudo generar el PDF: '+(e&&e.message||e))}
 };
 window.emailGamaCloudInvoice=function(id){const inv=cloudInvoices.find(x=>String(x.id)===String(id));if(!inv)return;const email=inv._customer?.email;if(!email)return alert('Este cliente no tiene un correo registrado.');const m=meta(inv);const dateLabel=inv.issue_date?new Date(inv.issue_date).toLocaleDateString('es-EC'):'-';const rate=Number(inv._lines?.[0]?.tax_rate??15);const lines=(inv._lines||[]).map(x=>`- ${x._product?.name||'Producto'} x${x.quantity} — ${money(x.unit_price)} c/u — ${money(Number(x.quantity||0)*Number(x.unit_price||0))}`).join('\n');const number=inv.invoice_number||pad(inv.archive_number);const body=`Estimado/a ${inv._customer?.name||''},\n\nAdjuntamos el presupuesto solicitado:\n\nN.º de presupuesto: ${number}\nFecha: ${dateLabel}\n\n${lines}\n\nSubtotal: ${money(inv.subtotal)}\nIVA: ${money(inv.tax)}\nTOTAL: ${money(inv.total)}\n\nQuedamos atentos a sus comentarios.\n\n${m.sellerName||'GAMA Enterprise Resource Planning'}`;const q={customer_comment:inv.quote_details?.customer_comment??m.customerComment??'',seller:m.sellerName||'GAMA Enterprise Resource Planning',sellerRuc:m.sellerRuc||'-',number,dateLabel,client:inv._customer?.name||'',clientId:inv._customer?.identification||'',clientAddress:inv._customer?.address||'',clientEmail:email,items:(inv._lines||[]).map(x=>({name:x._product?.name||'Producto',qty:x.quantity,price:Number(x.unit_price||0)})),sub:Number(inv.subtotal||0),tax:Number(inv.tax||0),total:Number(inv.total||0),rate};window.GamaQuotePdf.send({q,email,subject:'Presupuesto '+number,body,filename:'Presupuesto-'+number+'.pdf'})};
-async function load(){const billing=ensureSection();if(!billing||!window.GamaCloud)return;const rows=document.getElementById('giaRows');if(rows)window.ArcUI.render(rows,'<div class="giaEmpty"><span class="gamaSpin"></span>Sincronizando con la nube…</div>');const q=(document.getElementById('giaSearch')?.value||'').trim();try{
-  const cr=await window.GamaCloud.list('customers',{order:'name',ascending:true});if(cr.error)throw cr.error;allCustomers=cr.data||[];
-  const customersMap=new Map(allCustomers.map(x=>[String(x.id),x]));
-  const pr=await window.GamaCloud.list('products',{select:'id,name,reference,barcode,category,sale_price,tax_rate,stock,active',order:'name',ascending:true});if(pr.error)throw pr.error;
-  const products=new Map((pr.data||[]).map(x=>[String(x.id),x]));
+async function load(){if(!visible())return;const token=++generation;const billing=ensureSection();if(!billing||!window.GamaCloud)return;const rows=document.getElementById('giaRows');if(rows)window.ArcUI.render(rows,'<div class="giaEmpty"><span class="gamaSpin"></span>Sincronizando con la nube…</div>');const q=(document.getElementById('giaSearch')?.value||'').trim();try{
   let invoiceRows=[];
   if(q){
+    const cr=await window.ArcData.all('customers',{select:'id,name,identification,email',order:'name'},true);if(cr.error)throw cr.error;const allCustomers=cr.data||[];
     const ql=q.toLowerCase();
     const matchIds=allCustomers.filter(c=>[c.name,c.identification,c.email].some(v=>String(v||'').toLowerCase().includes(ql))).map(x=>x.id);
     const queries=[window.GamaCloud.list('invoices',{ilike:{invoice_number:'%'+q+'%'},order:'archive_number',ascending:false,limit:200})];
@@ -66,14 +65,19 @@ async function load(){const billing=ensureSection();if(!billing||!window.GamaClo
     const ir=await window.GamaCloud.list('invoices',{order:'archive_number',ascending:false,range:[page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE-1],count:'exact'});if(ir.error)throw ir.error;
     invoiceRows=ir.data||[];totalCount=ir.count||0;
   }
-  const ids=invoiceRows.map(i=>i.id);let linesByInvoice=new Map();
-  if(ids.length){const lr=await window.GamaCloud.list('invoice_lines',{in:{invoice_id:ids},order:'id',ascending:true});if(lr.error)throw lr.error;(lr.data||[]).forEach(l=>{if(!linesByInvoice.has(String(l.invoice_id)))linesByInvoice.set(String(l.invoice_id),[]);l._product=products.get(String(l.product_id));linesByInvoice.get(String(l.invoice_id)).push(l)})}
+  if(token!==generation||!visible())return;
+  const ids=invoiceRows.map(i=>i.id);const linesByInvoice=new Map();
+  const [cr,lr]=await Promise.all([window.ArcData.byIds('customers','id',invoiceRows.map(i=>i.customer_id).filter(Boolean),{select:'id,name,identification,address,email'}),window.ArcData.byIds('invoice_lines','invoice_id',ids,{order:'id'})]);
+  if(cr.error)throw cr.error;if(lr.error)throw lr.error;if(token!==generation||!visible())return;
+  const pr=await window.ArcData.byIds('products','id',(lr.data||[]).map(l=>l.product_id).filter(Boolean),{select:'id,name'});if(pr.error)throw pr.error;if(token!==generation||!visible())return;
+  const customersMap=new Map((cr.data||[]).map(x=>[String(x.id),x])),products=new Map((pr.data||[]).map(x=>[String(x.id),x]));
+  (lr.data||[]).forEach(l=>{if(!linesByInvoice.has(String(l.invoice_id)))linesByInvoice.set(String(l.invoice_id),[]);l._product=products.get(String(l.product_id));linesByInvoice.get(String(l.invoice_id)).push(l)});
   cloudInvoices=invoiceRows.map(i=>{i._customer=customersMap.get(String(i.customer_id));i._lines=linesByInvoice.get(String(i.id))||[];return i});
   render();
-}catch(e){console.error('[GAMA invoice archive]',e);if(rows)window.ArcUI.render(rows,'<div class="giaEmpty" data-gi=f1a102e13d48>No se pudieron cargar los presupuestos en la nube. Verifica los permisos RLS de Supabase.</div>')}}
+}catch(e){if(token!==generation||!visible())return;console.error('[GAMA invoice archive]',e);if(rows)window.ArcUI.render(rows,'<div class="giaEmpty" data-gi=f1a102e13d48>No se pudieron cargar los presupuestos en la nube. Verifica los permisos RLS de Supabase.</div>')}}
 function renderPager(){const host=document.getElementById('giaPager');if(!host)return;if(isSearching()||!totalCount){window.ArcUI.render(host,'');return}const from=page*PAGE_SIZE+1,to=Math.min(totalCount,(page+1)*PAGE_SIZE);window.ArcUI.render(host,`<span>${from}–${to} de ${totalCount}</span><span><button class="arcButton secondary" type="button" id="giaPrev" ${page<=0?'disabled':''}>‹ Anterior</button> <button class="arcButton secondary" type="button" id="giaNext" ${to>=totalCount?'disabled':''}>Siguiente ›</button></span>`);document.getElementById('giaPrev').onclick=()=>{if(page>0){page--;load()}};document.getElementById('giaNext').onclick=()=>{if(to<totalCount){page++;load()}}}
 function render(){ensureSection();const rows=document.getElementById('giaRows');if(!rows)return;const arr=cloudInvoices;const c=document.getElementById('giaCount');if(c)c.textContent=totalCount+' presupuesto'+(totalCount===1?'':'s');window.ArcUI.render(rows,arr.length?`<div class="giaTable"><table class="arcTable"><thead><tr><th data-gi=e1851374e913>N° archivo</th><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=f851d9a83ab0>Cliente</th><th data-gi=f7c9c2d9d560>Presupuesto</th><th data-gi=c9b3c38247f7>Total</th><th></th></tr></thead><tbody>${arr.map(i=>`<tr><td><span class="giaNum">${esc(pad(i.archive_number))}</span></td><td>${esc(i.issue_date?new Date(i.issue_date).toLocaleDateString('es-EC'):'-')}</td><td>${esc(i._customer?.name||'-')}<small>${esc(i._customer?.identification||'')}</small></td><td>${esc(i.invoice_number||'-')}</td><td><b>${money(i.total)}</b></td><td><button class="arcButton secondary" type="button" data-gia-open="${esc(i.id)}" data-gi=66fe2768d8fe>Ver presupuesto</button></td></tr>`).join('')}</tbody></table></div>`:`<div class="giaEmpty">${isSearching()?'Sin resultados para tu búsqueda.':'No hay presupuestos archivados.'}</div>`);rows.querySelectorAll('[data-gia-open]').forEach(b=>b.onclick=()=>{const i=cloudInvoices.find(x=>String(x.id)===String(b.dataset.giaOpen));if(i){window.ArcUI.render(document.getElementById('giaView'),makeInvoice(i));document.getElementById('giaView').scrollIntoView({behavior:'smooth',block:'start'})}});renderPager()}
-function boot(){css();ensureSection();window.addEventListener('gama:data-change',e=>{if(['invoices','invoice_lines','customers','products'].includes(e.detail?.table))setTimeout(load,100)});window.addEventListener('gama:auth-change',()=>setTimeout(load,300));window.ArcRouter.onEnter('billing',()=>{ensureSection();setTimeout(load,200)});load();}
+function boot(){css();ensureSection();window.addEventListener('gama:data-change',e=>{if(['invoices','invoice_lines','customers','products'].includes(e.detail?.table))changed()});window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;cloudInvoices=[];totalCount=0;clearTimeout(reloadTimer);document.getElementById('giaView')?.replaceChildren();document.getElementById('giaRows')?.replaceChildren();changed()});window.addEventListener('arc:route-leave',e=>{if(e.detail?.id==='billing'){generation++;clearTimeout(reloadTimer)}});window.ArcRouter.onEnter('billing',()=>{ensureSection();clearTimeout(reloadTimer);reloadTimer=setTimeout(load,0)});if(visible())load();}
 function wait(){if(window.GamaCloud&&window.GamaCloudReady){window.GamaCloudReady.then(boot).catch(()=>setTimeout(wait,500))}else setTimeout(wait,250)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 })();

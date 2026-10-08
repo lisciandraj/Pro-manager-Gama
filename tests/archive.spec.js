@@ -73,18 +73,14 @@ test.describe('Archivar en lugar de borrar', () => {
     await expect(page.locator('#productsTable .gamaArcTabs')).toHaveCount(0);
   });
 
-  // Archiving has to actually take the product out of circulation: billing
-  // looks products up by barcode, and an archived one must no longer resolve.
-  test('an archived product can no longer be invoiced by barcode', async ({ page }) => {
+  // The current sales editor must exclude archived products from new quotes.
+  test('an archived product cannot be selected for a new quote', async ({ page }) => {
     await boot(page, { products: [{ ...PRODUCTS[0], active: false }, PRODUCTS[1]] });
-    await page.click('#mainmenu .gamaF2Card:has-text("Presupuestos")');
-  await page.locator('#gqLegacy').click();
-
-    await page.fill('#invoiceBarcode', 'B2');
-    await expect(page.locator('#invoiceProductInfo')).toContainText('Tuerca libre');
-
-    await page.fill('#invoiceBarcode', 'B1');
-    await expect(page.locator('#invoiceProductInfo')).toBeEmpty();
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="quotes"]');
+    await page.locator('#gqNew').click();
+    await page.locator('#gqAdd').click();
+    await expect(page.locator('#gqPickProduct option[value="p2"]')).toHaveText('Tuerca libre · SKU-2');
+    await expect(page.locator('#gqPickProduct option[value="p1"]')).toHaveCount(0);
   });
 
   test('archiving a client keeps the row and its invoices', async ({ page }) => {

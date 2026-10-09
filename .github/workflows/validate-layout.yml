@@ -15,6 +15,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
       - run: npx playwright test --config=playwright.responsive.config.js --workers=2
       - uses: actions/upload-artifact@v4

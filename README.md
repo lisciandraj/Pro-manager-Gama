@@ -24,7 +24,7 @@ npm run dev
 ```
 
 Les sources sont dans `src/`. Après une modification, exécuter `npm run build`.
-Les scripts et styles à la racine ainsi que `index.html` sont des **copies générées** nécessaires à l’hébergement GitHub Pages actuel. Ne pas les modifier directement.
+Les scripts et styles à la racine ainsi que `index.html` sont des **copies générées**. La publication compilée utilise `dist/` et les sources canoniques. Ne pas modifier les sorties directement.
 
 ## Vérifier
 
@@ -47,4 +47,4 @@ Les tests base utilisent des bases isolées ; ils ne sont pas des scripts à ex�
 
 ## Déploiement
 
-GitHub Pages publie la branche principale et ses fichiers générés. `dist/` est également construit, avec uniquement les actifs web nécessaires. Le service SRI et les Edge Functions ont des déploiements distincts ; publier le site ne les déploie pas.
+GitHub Pages publie l’artefact `dist/` construit et testé par `deploy-coco-pages.yml`, après sélection de **GitHub Actions** comme source Pages par le propriétaire. Voir [publication compilée](docs/development/pages-publication.md). `dist/` contient uniquement les actifs web nécessaires. Le service SRI et les Edge Functions ont des déploiements distincts ; publier le site ne les déploie pas.

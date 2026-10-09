@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "coco": {
+      "type": "streamable-http",
+      "url": "https://mknsaibrewksgomuslev.supabase.co/functions/v1/coco-agent-mcp"
+    }
+  }
+}

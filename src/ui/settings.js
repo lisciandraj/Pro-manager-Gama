@@ -10,6 +10,17 @@ const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'
 const isAdmin=()=>role()==='admin'||role()==='administrador';
 
 let busy=false;
+
+// Agent Coco is loaded only when used. OAuth consent waits for a real ERP login.
+window.CocoAgentOpen=async()=>{await window.ArcLoadScript('coco-agent-stock.js');return window.CocoAgent.open()};
+const agentAuthorizationId=new URLSearchParams(location.search).get('authorization_id');
+if(agentAuthorizationId&&/^[A-Za-z0-9_-]{1,200}$/.test(agentAuthorizationId)){
+ let started=false;
+ const consent=async()=>{if(started||!isAdmin())return;await window.GamaCloudReady;const session=await window.GamaCloud.getSession();if(!session.data?.session)return;started=true;try{await window.ArcLoadScript('coco-agent-stock.js');await window.CocoAgent.consent(agentAuthorizationId)}catch(e){started=false;window.gamaToast?.(e.message)}};
+ const schedule=()=>setTimeout(()=>consent().catch(e=>window.gamaToast?.(e.message)),0);
+ window.addEventListener('gama:profile-ready',schedule);schedule();
+}
+
 const tx=s=>window.GamaI18n?.t?.(s)||s;
 const live=s=>`<span data-gi-live>${esc(s)}</span>`;
 function moduleTile(m,{on,disabled,detail=''}){
@@ -92,10 +103,12 @@ const SECTIONS=[
  {id:'backup',label:'Copias de seguridad',icon:'cloud',pane:'backup',admin:true,module:'backup'},
  {id:'users',label:'Usuarios',icon:'user',pane:'users',admin:true,module:'users'},
  {id:'access-settings',label:'Parámetros de acceso',icon:'lock',pane:'access-settings',admin:true,module:'access-settings'},
+ {id:'agent-coco',label:'Agent Coco',icon:'checklist',pane:'agentCoco',admin:true,module:'assistant-ia'},
  {id:'security',label:'Seguridad de mi cuenta',icon:'lock',pane:'security'},
 ];
 // Cada apartado se carga la primera vez que se enseña: abrir la ventana para el idioma no pide nada al servidor.
 const PANES={
+ agentCoco:host=>{const b=document.createElement('button');b.className='arcButton';b.type='button';b.textContent='Agent Coco';b.onclick=()=>window.CocoAgentOpen().catch(e=>window.gamaToast?.(e.message));host.replaceChildren(b)},
  sri:host=>window.GamaAccounting?.mountSriConfig(host),
  company:host=>window.GamaCompany?.mount(host),
  references:host=>window.GamaReferences?.mountConfig(host),
@@ -107,7 +120,7 @@ const PANES={
  users:mountUsers,
  'access-settings':host=>{portal('access-settings',host);render('access-settings');window.GamaModules.load().then(()=>{if(dialog?.el.open&&$('access-settings')?.closest('#arcSettingsDialog')&&!busy)render('access-settings')}).catch(()=>{})},
 };
-const HOSTS={sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',automation:'cfgAutomation',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup',users:'cfgUsers','access-settings':'cfgAccess'};
+const HOSTS={agentCoco:'cfgAgentCoco',sri:'cfgSri',company:'coCompany',references:'cfgReferences',policies:'cfgPolicies',automation:'cfgAutomation',security:'cfgSecurity',reports:'cfgImport',backup:'cfgBackup',users:'cfgUsers','access-settings':'cfgAccess'};
 let dialog=null;
 const available=s=>(!s.admin||isAdmin())&&(!s.module||!!window.gamaAccessAllowed?.(s.module));
 /* Move each existing screen into its pane, then park it back on close. File

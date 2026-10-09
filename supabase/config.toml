@@ -1,0 +1,7 @@
+# Local CLI project identity only. Hosted Auth configuration is not changed by this file.
+project_id = "coco-erp"
+
+# Public OAuth resource discovery is served without an API key. Every MCP POST
+# independently validates the user's Supabase token before any business call.
+[functions.coco-agent-mcp]
+verify_jwt = false

@@ -1,0 +1,25 @@
+name: Test Agent Coco (read only)
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  isolated-agent-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: node scripts/prepare-agent-coco.cjs
+      - run: npm run build
+      - run: node --test tests/coco-agent-mcp.test.mjs tests/coco-agent-db.test.cjs
+      - run: npm run check && npm run typecheck && npm run check:generated && npm run check:startup

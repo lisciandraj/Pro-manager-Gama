@@ -7,7 +7,7 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
  let location;
  const quantity=async()=>{await db.exec('reset role');return Number((await db.query('select quantity from stock_quants where product_id=$1 and location_id=$2',[product,location])).rows[0].quantity)};
  const seedQuantity=async qty=>{await db.exec('reset role');await db.query('update stock_quants set quantity=$1,reserved_quantity=0 where product_id=$2 and location_id=$3',[qty,product,location]);await as(admin)};
- const config={enabled:true,can_write:true,client_ids:['agent-test-client']};
+ const config={enabled:true,can_write:true,client_ids:['agent-test-client','read-only-client'],write_client_ids:['agent-test-client']};
  const prepare=(extra={})=>rpc('prepare',{request_key:uuid(),product_id:product,location_id:location,operation:'out',kind:'internal_use',quantity:1,reason:'consommation interne',...extra});
  const execute=p=>rpc('execute',{command_id:p.id,digest:p.digest,confirmed:true});
  try{
@@ -24,7 +24,7 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
   await assert.rejects(rpc('prepare',{...input,reason:'different reason'}),/REQUEST_KEY_REUSED/);
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:proposal.digest,confirmed:false}),/AGENT_CONFIRMATION_REQUIRED/);
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:'a'.repeat(64),confirmed:true}),/AGENT_CONFIRMATION_REQUIRED/);
-  const done=await execute(proposal);assert.equal(done.status,'executed');assert.equal(done.stock_after,0);assert.ok(done.adjustments[0].movement_id);
+  const done=await execute(proposal);assert.equal(done.status,'executed');assert.equal(done.stock_after,0);const verified=await rpc('status',{command_id:proposal.id});assert.equal(verified.status,'executed');assert.equal(verified.movements.length,1);assert.equal(verified.stock_now,0);assert.ok(done.adjustments[0].movement_id);
   assert.equal(await quantity(),0);await as(admin);assert.deepEqual(await execute(proposal),done);
   await db.exec('reset role');const count=Number((await db.query("select count(*) count from stock_movements where product_id=$1 and reference_type='adjustment_request'",[product])).rows[0].count);assert.equal(count,1);
   assert.equal((await db.query('select reason,kind from stock_adjustment_requests where id=$1',[done.adjustments[0].id])).rows[0].reason,'consommation interne');
@@ -36,6 +36,7 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
   await db.exec('reset role');await db.exec('update erp_policies set stock_adjustment_limit=null');await as(admin);
   p=await prepare();await as(other);await rpc('configure',config);await assert.rejects(execute(p),/AGENT_COMMAND_NOT_FOUND/);
   await as(admin,'unapproved-client');await assert.rejects(rpc('stock',{product_id:product}),/AGENT_CLIENT_NOT_ALLOWED/);
+  await as(admin,'read-only-client');assert.equal((await rpc('stock',{product_id:product})).product_id,product);await assert.rejects(prepare(),/AGENT_WRITE_NOT_ALLOWED/);
   await as(admin,'agent-test-client');assert.equal((await rpc('stock',{product_id:product})).product_id,product);
   assert.equal((await db.query('select id from products where id=$1',[product])).rows.length,0);
   await assert.rejects(rpc('configure',config),/ROLE_NOT_ALLOWED/);

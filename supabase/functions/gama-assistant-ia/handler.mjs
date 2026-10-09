@@ -1,3 +1,4 @@
+import {prepareStockMessage} from './stock-planner.mjs';
 import { answerSchema, validateAnswer, systemPrompt, queryTool, articleTool, inventoryTool } from './reports.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 
@@ -9,6 +10,7 @@ export function createHandler({env,fetch:fetcher}) {
  async function db(path,{token,method='GET',body,prefer='return=representation'}={}) {
   const r=await fetcher(root+'/rest/v1/'+path,{method,headers:{apikey:token===serviceKey?serviceKey:anon,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:prefer},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
   const result=await r.json().catch(()=>null);
+  if(!r.ok&&path==='rpc/coco_agent'&&/^[A-Z][A-Z0-9_]{2,100}$/.test(result?.message||''))throw new Failure(result.message,r.status===401?401:409);
   if(!r.ok)throw new Failure(result?.message==='RATE_LIMIT'?'RATE_LIMIT':r.status===401?'AUTH_REQUIRED':r.status===403?'ADMIN_REQUIRED':'DATA_UNAVAILABLE',result?.message==='RATE_LIMIT'?429:r.status===401?401:r.status===403?403:502);
   return result;
  }
@@ -130,6 +132,16 @@ export function createHandler({env,fetch:fetcher}) {
     if(!UUID.test(body.id||''))throw new Failure('INVALID_REQUEST',400);
     const rows=await db('gama_ai_history?select=id,question,answer,created_at&user_id=eq.'+userId+'&status=eq.complete&engine=eq.openai&id=eq.'+body.id,{token});
     if(!rows?.length)throw new Failure('NOT_FOUND',404);return reply(rows[0]);
+   }
+   if(body.action==='stock_plan'){
+    const question=typeof body.question==='string'?body.question.trim():'';
+    const language=['fr','es','en'].includes(body.language)?body.language:'fr';
+    if(!question||question.length>4000||!UUID.test(body.request_id||''))throw new Failure('INVALID_QUESTION',400);
+    const conf=await settings();if(!conf.key)throw new Failure('AI_NOT_CONFIGURED',503);
+    const agent=async(action,data={})=>rpc('coco_agent',{p_action:action,p_data:data},token);
+    await agent('plan_claim',{request_key:body.request_id});
+    let result;try{result=await prepareStockMessage({question,language,requestKey:body.request_id,config:conf,openai,rpc:agent})}catch(e){if(e.message==='AI_INVALID_RESPONSE')throw new Failure('AI_INVALID_RESPONSE',502);throw e}
+    await admin(token);return reply(result);
    }
    if(body.action!=='ask')throw new Failure('INVALID_ACTION',400);
    const language=['fr','es','en'].includes(body.language)?body.language:'fr';

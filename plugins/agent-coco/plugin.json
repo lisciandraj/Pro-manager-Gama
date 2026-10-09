@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agent-coco",
+  "version": "0.1.0",
+  "description": "Private Coco ERP stock tools: authenticated lookup, immutable proposals, explicit confirmation and auditable receipts.",
+  "author": { "name": "Coco ERP" },
+  "repository": "https://github.com/lisciandraj/Pro-manager-Gama",
+  "keywords": ["erp", "inventory", "stock"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Agent Coco",
+        "shortDescription": "Stock Coco ERP avec confirmation",
+        "longDescription": "Consulter et préparer les mouvements de stock avec les droits de l’utilisateur. Les écritures nécessitent une confirmation explicite et respectent les validations ERP.",
+        "developerName": "Coco ERP",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "defaultPrompt": ["Consulte le stock d’un produit dans Coco ERP."]
+      }
+    }
+  }
+}

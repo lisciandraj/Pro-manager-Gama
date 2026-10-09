@@ -23,3 +23,12 @@ jobs:
       - run: npm run build
       - run: node --test tests/coco-agent-mcp.test.mjs tests/coco-agent-db.test.cjs
       - run: npm run check && npm run typecheck && npm run check:generated && npm run check:startup
+      - name: Package reviewed build workspace (no credentials or remote access)
+        run: |
+          git diff --stat
+          tar --exclude='./.git' --exclude='./.env*' --exclude='./.npmrc' --exclude='./supabase/.temp' --exclude='./test-results' --exclude='./playwright-report' -czf "$RUNNER_TEMP/coco-agent-workspace.tgz" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coco-agent-reviewed-build
+          path: ${{ runner.temp }}/coco-agent-workspace.tgz
+          retention-days: 3

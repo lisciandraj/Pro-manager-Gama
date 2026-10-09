@@ -25,6 +25,12 @@ jobs:
       - run: npm run check && npm run typecheck && npm run check:generated && npm run check:startup
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test tests/coco-agent-ui.spec.js tests/assistant-ia.spec.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coco-agent-interface-results
+          path: test-results/
+          retention-days: 3
       - name: Package reviewed build workspace (no credentials or remote access)
         run: |
           git diff --stat

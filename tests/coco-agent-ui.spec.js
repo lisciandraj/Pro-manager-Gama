@@ -1,5 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
+test.setTimeout(30000);
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const product='11111111-1111-4111-8111-111111111111',command='22222222-2222-4222-8222-222222222222',location='33333333-3333-4333-8333-333333333333';
 function proposal(){return {id:command,digest:'a'.repeat(64),expires_at:new Date(Date.now()+600000).toISOString(),snapshot:{reference:'MED001',name:'Acetaminofen 500 mg caja de 100',unit:'unit',reason:'consommation interne',lines:[{location_id:location,location:'AE07-04',expected_quantity:65,reserved:0,target_quantity:0}]}}}
@@ -10,7 +11,7 @@ async function boot(page){
  await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
  await page.evaluate(({product,location,proposal})=>{
   const original=ArcData.rpc;window.__agentCalls=[];window.__agentStock=65;window.__agentExecutions=0;
-  ArcData.rpc=async(name,args)=>{
+  window.ArcData={...window.ArcData,rpc:async(name,args)=>{
    if(name!=='coco_agent')return original(name,args);const {p_action:a,p_data:d}=args;__agentCalls.push({a,d});
    if(a==='settings')return {enabled:true,can_write:true,client_ids:['read-only'],write_client_ids:[]};
    if(a==='configure')return d;
@@ -20,7 +21,7 @@ async function boot(page){
    if(a==='execute'){if(__agentStock){__agentStock=0;__agentExecutions++}return {status:'executed',stock_after:0,adjustments:[{id:'adjustment',erp_reference:'AJ-TEST'}]}};
    if(a==='status')return {status:'executed',stock_now:__agentStock,original_receipt:{status:'executed'},adjustments:[{id:'adjustment',reference:'AJ-TEST'}],movements:[{id:'movement',reference:'MOV-TEST',quantity:65,stock_before:65,stock_after:0,reason:'consommation interne'}]};
    if(a==='history')return {items:[]};throw Error('UNEXPECTED_ACTION');
-  };
+  }};
  },{product,location,proposal:proposal()});
  await page.locator('#mainmenu [data-gama-module="assistant-ia"]').click();await expect(page.locator('#aiStockPlan')).toBeVisible();
 }
@@ -34,15 +35,17 @@ test('natural-language chat requires its own confirmation and shows the actual m
 });
 test('Agent Coco dialog fits a phone and closes at logout',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.locator('#agentStockActions').click();await expect(page.locator('[data-coco-agent] [name=query]')).toBeVisible();
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.screenshot({path:'test-results/coco-agent-mobile.png',fullPage:true});
+ const dimensions=await page.evaluate(()=>{const d=document.querySelector('[data-coco-agent]'),r=d.getBoundingClientRect();return {viewport:innerWidth,left:r.left,right:r.right,width:r.width,content:d.scrollWidth,client:d.clientWidth,root:document.documentElement.scrollWidth}});
+ console.log('Agent phone dimensions',dimensions);
+ expect(dimensions.left).toBeGreaterThanOrEqual(0);expect(dimensions.right).toBeLessThanOrEqual(dimensions.viewport+1);expect(dimensions.content).toBeLessThanOrEqual(dimensions.client+1);
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('[data-coco-agent]')).toHaveCount(0);
 });
 test('OAuth write consent does not elevate a previously read-only client',async({page})=>{
  await boot(page);let saved=null;await page.exposeFunction('recordAgentConfig',data=>{saved=data});await page.route('https://client.example.invalid/callback**',r=>r.fulfill({body:'OAuth test complete'}));
  await page.evaluate(async()=>{
   await ArcLoadScript('coco-agent-stock.js');const original=ArcData.rpc;
-  ArcData.rpc=async(n,a)=>{if(n==='coco_agent'&&a.p_action==='configure')await window.recordAgentConfig(a.p_data);return original(n,a)};
+  window.ArcData={...window.ArcData,rpc:async(n,a)=>{if(n==='coco_agent'&&a.p_action==='settings')return {enabled:true,can_write:true,client_ids:['read-only'],write_client_ids:[]};if(n==='coco_agent'&&a.p_action==='configure'){await window.recordAgentConfig(a.p_data);return a.p_data}return original(n,a)}};
   GamaCloud.db=async()=>({auth:{oauth:{getAuthorizationDetails:async()=>({data:{authorization_id:'request',client:{id:'new-client',name:'Agent Test'},scope:'email',redirect_uri:'https://client.example.invalid/callback'}}),approveAuthorization:async()=>({data:{redirect_url:'https://client.example.invalid/callback?code=isolated'}})}}});
   await CocoAgent.consent('request');
  });
@@ -50,6 +53,6 @@ test('OAuth write consent does not elevate a previously read-only client',async(
 });
 test('a previously consented OAuth request returns to its client instead of stalling',async({page})=>{
  await boot(page);await page.route('https://client.example.invalid/callback**',r=>r.fulfill({body:'OAuth test complete'}));
- await page.evaluate(async()=>{await ArcLoadScript('coco-agent-stock.js');GamaCloud.db=async()=>({auth:{oauth:{getAuthorizationDetails:async()=>({data:{redirect_url:'https://client.example.invalid/callback?code=isolated'}})}}});CocoAgent.consent('request')});
+ await page.evaluate(async()=>{await ArcLoadScript('coco-agent-stock.js');GamaCloud.db=async()=>({auth:{oauth:{getAuthorizationDetails:async()=>({data:{redirect_url:'https://client.example.invalid/callback?code=isolated'}})}}});await CocoAgent.consent('request')});
  await page.waitForURL('https://client.example.invalid/callback**');
 });

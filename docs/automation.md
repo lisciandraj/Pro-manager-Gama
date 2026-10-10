@@ -18,7 +18,7 @@ Les contrôles opérationnels et financiers sont actifs à l’installation. Les
 | Flotte vers dépenses | Dépense en brouillon unique par coût | Justificatif, taxes et paiement à vérifier |
 | Heures projet | Coût de personnel unique après approbation | Salarié autorisé, coût horaire et preuve d’approbation ; aucune écriture de paie |
 | Suivi SAV | Dossier SLA dépassé affectable | Résolution, inspection physique et crédit existants |
-| Relances et enquêtes | Messages préparés puis envoyés par le fournisseur configuré | Préférences actives, droits et délégation actuels, source non résolue |
+| Relances et enquêtes | Brouillons à envoyer depuis la messagerie ; séquences de relances automatiques en option | Préférences actives, droits et délégation actuels, source non résolue |
 | Satisfaction négative | Dossier SAV unique associé à la réponse client | Question de satisfaction explicitement choisie ; réponses anonymes et quiz exclus |
 | Imports confirmés | Application différée du lot déjà préparé | Confirmation du lot, règle active du même administrateur, contrôles ligne par ligne |
 
@@ -26,7 +26,7 @@ Les contrôles opérationnels et financiers sont actifs à l’installation. Les
 
 Comptabilité → Achats → **Réceptions et factures à vérifier** ouvre les brouillons. Corriger les champs d’après le document réel, enregistrer, puis valider les lignes de réception et les montants. Le serveur poste la facture, approuve le rapprochement et crée son écriture dans une seule transaction. La même clé retournée après une interruption ne poste pas deux fois. Un brouillon ne peut pas être payé.
 
-**Importer XML fournisseur** retrouve exactement un fournisseur actif par RUC, contrôle l’acquéreur si son RUC est renseigné, les montants, la devise et les doublons, puis conserve l’original privé. Les DTD et entités externes sont refusées. La signature et l’autorisation SRI restent à vérifier ; le brouillon ne les certifie pas. Les taxes autres que l’IVA, les pourboires et les documents incompatibles sont signalés à vérifier. L’OCR n’est pas connecté dans cette version.
+**Importer XML fournisseur** retrouve exactement un fournisseur actif par RUC, contrôle l’acquéreur si son RUC est renseigné, les montants, la devise et les doublons, puis conserve l’original privé. Les DTD et entités externes sont refusées. La signature et l’autorisation SRI restent à vérifier ; le brouillon ne les certifie pas. Les taxes autres que l’IVA, les pourboires et les documents incompatibles sont signalés à vérifier. La lecture des factures PDF/photo est disponible dans Comptabilité → Achats : voir le [parcours OCR avec revue humaine](commercial-planning.md).
 
 Les dépenses préparées depuis Flotte exigent la case de vérification de la source avant comptabilisation. Les heures se saisissent depuis le détail Projet ; l’approbation nécessite aussi les droits RH. L’annulation annule le coût projet associé.
 
@@ -36,7 +36,7 @@ Les dépenses préparées depuis Flotte exigent la case de vérification de la s
 
 **Préparer le mail** ouvre le destinataire, l’objet et le texte. Gmail, Outlook.com, Outlook / Microsoft 365 et l’application mail ouvrent un message prérempli sans clé API. L’utilisateur vérifie puis clique sur Envoyer dans sa boîte mail. Il coche ensuite **J’ai envoyé ce message depuis ma boîte mail** et confirme dans Coco. L’ouverture du brouillon ne marque aucun envoi. L’état **Envoyé · confirmation manuelle** conserve l’auteur et la date ; il ne certifie pas une livraison ou une lecture. Les confirmations répétées restent idempotentes.
 
-Resend est retiré du parcours actif. Son fournisseur est désactivé, les anciens appels serveur sont neutralisés et le cron d’envoi est supprimé. Les preuves historiques de livraison sont conservées. Aucun mail n’est envoyé automatiquement par Coco. L’envoi Gmail de l’automatisation hebdomadaire Agent Coco reste distinct.
+Le parcours général des mails préparés reste manuel. Pour les séquences de relances, un administrateur peut désormais configurer Resend dans Comptabilité → Créances → Relances programmées : domaine et expéditeur vérifiés, clé serveur, règle et préférences clients actives. Le fournisseur et les règles restent désactivés à la publication. Seules ces séquences explicitement configurées peuvent être envoyées automatiquement. Les preuves historiques de livraison sont conservées. L’envoi Gmail de l’automatisation hebdomadaire Agent Coco reste distinct.
 
 ## Performances et imports
 
@@ -56,7 +56,7 @@ Référence : [Waze Deep Links](https://developers.google.com/waze/deeplinks).
 
 ## Vérification
 
-Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Les fixtures vérifient qu’aucune requête aux anciens fournisseurs n’est émise. Aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
+Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Les fixtures du parcours manuel vérifient qu’aucune requête fournisseur n’est émise ; `commercial-growth-db` simule séparément l’envoi des séquences autorisées, ses reprises et ses arrêts. Aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
 
 ## Extensions commerciales et financières
 

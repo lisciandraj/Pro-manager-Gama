@@ -1,6 +1,7 @@
 /* Order presentation is lazy; domain actions and permissions stay in GamaSales. */
 (function(){'use strict';
 const T=s=>window.GamaI18n?.t?.(s)||s,E=window.ArcUI.esc;
+const expandedOrders=new Set();
 function mount(d,{counts,money,num,sell,balanceFor}){
  const root=document.getElementById('gsMain');if(!root||root.querySelector('.gsOrderWorkspace'))return;
  const o=d.order,card=root.firstElementChild;if(!card?.classList.contains('gsCard'))return;
@@ -23,6 +24,7 @@ function mount(d,{counts,money,num,sell,balanceFor}){
  const head=document.createElement('div');head.className='gsOrderHead';head.innerHTML=`<h2>${E(T('Pedido de venta'))} ${E(o.number)}</h2><span class="cocoStatus" data-tone="${o.status==='confirmed'?'success':o.status==='cancelled'?'muted':'warning'}">${E(T(label(o.status)))}</span>`;
  const back=actions.querySelector('#gsBack');if(back){back.classList.add('gsOrderBack');head.prepend(back)}
  const more=document.createElement('details');more.className='gsOrderMore';more.innerHTML=`<summary>${E(T('Acciones y detalles operativos'))}</summary>`;
+ more.open=expandedOrders.has(o.id);more.ontoggle=()=>{if(more.isConnected){if(more.open)expandedOrders.add(o.id);else expandedOrders.delete(o.id)}};
  const workspace=document.createElement('div');workspace.className='gsOrderWorkspace';
  const main=document.createElement('article');main.className='arcPanel gsCard gsOrderMain';
  const subtotal=d.lines.reduce((n,l)=>n+Number(l.quantity)*Number(l.unit_price),0),tax=d.lines.reduce((n,l)=>n+Number(l.quantity)*Number(l.unit_price)*Number(l.tax_rate)/100,0);

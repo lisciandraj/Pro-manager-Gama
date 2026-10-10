@@ -316,6 +316,7 @@ test('SRI remains visible in French while unconfigured issuance is disabled and 
  await page.evaluate(()=>GamaAccounting.open({section:'sri'}));
  await expect(page.locator('#gaMain')).toContainText('Émission SRI désactivée');
  await expect(page.locator('[data-ga-sri=prepare]')).toBeDisabled();
+ await page.locator('.gaSriSettings>summary').click();
  await page.locator('#gaSriConfigure').click();
  await expect(page.locator('#cfgSriForm')).toBeVisible();
  await page.locator('#cfgSriProvider').fill('1790012345001');

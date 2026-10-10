@@ -101,13 +101,11 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones de vista son dibujos: cuatro cuadrados para las tarjetas y líneas
-// horizontales para la tabla. El nombre, traducido, queda para el lector de
-// pantalla y como ayuda al pasar el ratón.
-test('les boutons d’affichage sont des logos : quatre carrés pour les tuiles, des lignes pour le tableau',async({page})=>{
+// Los botones conservan sus dibujos y muestran también el nombre traducido.
+test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
- for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe('');const box=await b.boundingBox();expect(Math.round(box.width)).toBe(44);expect(Math.round(box.height)).toBe(44)}
+ for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
  await expect(cards.locator('svg rect')).toHaveCount(4);
  await expect(table.locator('svg path')).toHaveAttribute('d','M4 6h16M4 10h16M4 14h16M4 18h16');
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];

@@ -27,6 +27,7 @@ async function boot(page,state='picking',role='magasinier'){
   return c.rpc(fn,args);
  }}};await GamaSales.openOrder(window.__DB.sales_orders[0].id)});
  await expect(page.locator('#gfDossier')).toContainText('Dossier');
+ await page.locator('.gsOrderMore>summary').click();
 }
 test('identity scan requires an explicit counted quantity and does not pack automatically',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));

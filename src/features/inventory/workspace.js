@@ -228,7 +228,7 @@ function pintarExistencias(host){
   <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
  </select></div></details><div class="ivMoveAction"><button type="button" class="arcButton primary" id="ivNewMovement">${esc(T('Nuevo movimiento'))}</button></div>
 </div>
-<details class="ivHelp"><summary>${esc(T('Cómo leer estos indicadores'))}</summary><p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p></details><div class="ivStockLayout"><div id="ivTabla"></div><aside id="ivInspector" class="ivInspector" aria-live="polite"></aside></div>
+<details class="ivHelp"><summary>${esc(T('Cómo leer estos indicadores'))}</summary><p id="ivStockTotals"></p><p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p></details><div class="ivStockLayout"><div id="ivTabla"></div><aside id="ivInspector" class="ivInspector" aria-live="polite"></aside></div>
 </div>`);
  ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
   const el=$(id);if(!el)return;
@@ -279,6 +279,7 @@ function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;
  const values=[['Productos activos',rows.filter(r=>r.producto.active!==false).length],['Productos bajo mínimo',rows.filter(r=>estado(r).clase==='bajo').length],['Sin existencias',rows.filter(r=>r.onHand<=0).length]];
  window.ArcUI.render(host,values.map(([label,value])=>`<div class="ivKpi"><span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
+ window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(rows.reduce((total,r)=>total+r.valor,0)))}</b>`);
 }
 
 /* ---------- transferencias ---------- */

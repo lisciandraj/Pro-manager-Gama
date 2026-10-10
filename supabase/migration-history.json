@@ -1592,6 +1592,13 @@
       "name": "marketing_attachments",
       "file": "20261006130042_marketing_attachments.sql",
       "sha256": "1a8bb975275dd56648ed0e243b2cd012c4883c6b291dbaffa4751508f5db125a"
+    },
+    {
+      "version": "20261010170822",
+      "name": "sri_invoice_api_snapshot",
+      "file": "20261010170822_sri_invoice_api_snapshot.sql",
+      "sha256": "45ef1237d13fec3815f8a96652d678701cfeb09dfc40336d8a762436e7136c92"
     }
-  ]
+  ],
+  "lastVerifiedAddition": "20261010170822"
 }

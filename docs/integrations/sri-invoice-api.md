@@ -114,3 +114,8 @@ Aucun test ne transmet de facture réelle au SRI.
 Références contrôlées : [SRI, fiche technique 2.34 et schémas XML](https://www.sri.gob.ec/facturacion-electronica),
 [secrets Edge Functions](https://supabase.com/docs/guides/functions/secrets).
 Voir aussi [module SRI](../modules/sri.md) et [installation Open API](../../services/sri/OPENAPI.md).
+
+Déploiement serveur vérifié le 10 octobre 2026 : migration `20261010170822`
+et Edge Function `gama-sri` version 6, JWT activé. Aucun dossier fiscal créé
+pendant cette installation. La publication web se vérifie séparément via le
+workflow Pages et le commit de `coco-build.json`.

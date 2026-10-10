@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test'),fs=require('fs');
 const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8')+fs.readFileSync(__dirname+'/mock-dashboard.js','utf8');
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));window.__DB={products:[],suppliers:[],customers:[],invoices:[],invoice_lines:[],purchase_orders:[],purchase_order_lines:[]}},role);
- await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#ad-period')).toBeVisible();
+ await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.route('**/@supabase/**',r=>r.abort());await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#ad-period')).toBeVisible();await expect(page.locator('.adMetrics').first()).toBeVisible();await page.locator('.adDetails>summary').click();await page.locator('.adFavorites>summary').click();
 }
 async function period(page,from,to){await page.locator('#ad-from').fill(from);await page.locator('#ad-to').fill(to);await page.locator('#ad-period [type=submit]').click()}
 test('direction presents six current management figures and marks missing historical margin as pending',async({page})=>{
@@ -57,7 +57,7 @@ test('favorites save custom dates and layout across reload and can be deleted',a
  await page.selectOption('#ad-activity','payments');await page.click('#ad-customize');await page.locator('[data-ad-panel=priorities]').uncheck();await page.locator('dialog button[type=submit]').click();await expect(page.locator('.adPriorities')).toBeHidden();
  await page.click('#ad-favorite-save');await page.fill('#ad-favorite-name','Ventes janvier');await page.locator('dialog button[type=submit]').click();await expect(page.locator('#ad-favorite option')).toHaveCount(2);
  await page.click('#ad-reset');await expect(page.locator('.adPriorities')).toBeVisible();await page.selectOption('#ad-favorite',{label:'Ventes janvier'});await page.click('#ad-favorite-apply');await expect(page.locator('#ad-from')).toHaveValue('2020-01-01');await expect(page.locator('.adPriorities')).toBeHidden();
- await page.reload();await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#ad-favorite option')).toHaveCount(2);await expect(page.locator('#ad-activity')).toHaveValue('payments');
+ await page.reload();await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');await page.evaluate(()=>showTab('dashboard'));await page.locator('.adFavorites>summary').click();await expect(page.locator('#ad-favorite option')).toHaveCount(2);await expect(page.locator('#ad-activity')).toHaveValue('payments');
  await page.selectOption('#ad-favorite',{label:'Ventes janvier'});await page.click('#ad-favorite-delete');await expect(page.locator('#ad-favorite option')).toHaveCount(1);
 });
 test('chart switches to curves, exports exact values, expands, and selects a period by keyboard',async({page})=>{

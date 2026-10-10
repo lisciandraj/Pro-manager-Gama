@@ -165,13 +165,16 @@ test.describe('Inventario V2 — existencias, reservas y previsión', () => {
 
     const cabeceras = await page.evaluate(() =>
       [...document.querySelectorAll('#ivTabla th')].map(t => t.textContent.replace(/[⇅↑↓]/g,'').trim()));
-    for (const c of ['On hand', 'Reservado', 'Disponible', 'Entrante', 'Previsto', 'Estado'])
+    for (const c of ['Stock físico', 'Reservado', 'Disponible', 'Estado'])
       expect(cabeceras, 'falta la columna ' + c).toContain(c);
+    await expect(page.locator('#ivInspector')).toContainText('Entrante');
+    await expect(page.locator('#ivInspector')).toContainText('Previsto');
 
     await expect(page.locator('#ivTabla')).toContainText('Cemento');
     await expect(page.locator('#ivTabla tr', { hasText: 'Arena' })).toContainText('Sin stock');
     // El valor del stock es lo que hay por lo que costó: 30 × 6.
-    await expect(page.locator('#ivKpis')).toContainText('180');
+    await page.locator('.ivHelp>summary').click();
+    await expect(page.locator('#ivStockTotals')).toContainText('180');
   });
 
   test('el filtro por almacén deja fuera lo que no está en ese almacén', async ({ page }) => {

@@ -30,6 +30,7 @@ test('the follow-up module now lives in the dashboard priorities',async({page})=
  await page.evaluate(()=>{window.__PRIO={today:'2026-09-19',items:[{alert_key:'shortage:o1',kind:'shortage',target:'order',target_id:'o1',reference:'PV-001',customer:'Andes <img src=x onerror=alert(1)>',title:'Pedido bloqueado por stock',detail:'4 unidades sin reservar',tone:'danger',due_on:null}]}});
  await page.evaluate(()=>ArcRouter.open('operations'));
  await expect(page.locator('#dashboard')).toBeVisible();
+ await page.locator('.adDetails>summary').click();
  const red=page.locator('.adPrioColumn[data-tone=danger]');
  await expect(red.locator('[data-ad-prio]')).toHaveCount(1);await expect(page.locator('.adPriorities img')).toHaveCount(0);
  await page.evaluate(()=>{GamaSales.openOrder=async id=>{window.__opened=id}});
@@ -48,7 +49,7 @@ test('saves handling and notes, then exposes refresh failures',async({page})=>{
 });
 test('warehouse priorities omit finance and remain usable on mobile',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');
- await page.evaluate(()=>ArcRouter.open('dashboard'));await expect(page.locator('.adPriorities')).toBeVisible();
+ await page.evaluate(()=>ArcRouter.open('dashboard'));await page.locator('.adDetails>summary').click();await expect(page.locator('.adPriorities')).toBeVisible();
  await expect(page.locator('.adPriorities')).not.toContainText('Factura vencida');await expect(page.locator('.adPriorities')).toContainText('Entrega atrasada');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.screenshot({path:'test-results/priorities-mobile.png',fullPage:true});

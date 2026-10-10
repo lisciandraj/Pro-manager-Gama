@@ -1,0 +1,386 @@
+/* Generated from src/styles/workspace.css. Edit the source and run npm run build. */
+/* Coco workspace, based on the six approved October 2026 mockups.
+   Shared surfaces and layouts only; domain states and permissions stay in JS. */
+body[data-app="coco-erp"]{
+ --coco-blue:#157F98;--coco-blue-dark:#10677D;--coco-orange:#F87826;
+ --coco-ink:#1C2C3E;--coco-muted:#617080;--coco-grid:#D8E2EA;
+ --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
+ background:#F7F8FB;color:var(--coco-ink);
+}
+.arcShell{--arc-sidebar-w:232px;--arc-topbar-h:74px}
+.arcSidebar{border-right:1px solid #DDE5EC}
+.arcBrand{justify-content:flex-start;margin:0;padding:18px 22px;min-height:74px;border-bottom:1px solid #E1E6EC}
+.arcBrand .arcLogo{display:flex;align-items:center;gap:9px;aspect-ratio:auto;overflow:visible;font-size:27px;font-weight:800;letter-spacing:-1px;color:#103B52;white-space:nowrap}
+.arcBrand .arcLogo img{position:static;width:46px;max-width:46px;height:46px;object-fit:contain;clip-path:none}
+.arcBrand .arcLogo b{color:#157F98;font-weight:800}
+.arcBrand .arcLogoMark{width:42px;height:42px}
+.arcNav{padding:16px 12px}
+.arcNavLink{gap:14px;padding:12px 14px;margin-bottom:6px;font-size:14px;min-height:46px;color:#24374A}
+.arcSidebar .arcNavGroup{font-size:10px;padding:12px 14px 6px;letter-spacing:.06em;margin-top:8px}
+.arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 #F87826}
+.arcFoot{padding:12px 0 18px}
+.arcFootBrand,.arcFootVersion{display:none}
+.arcTopbar{padding:12px 28px;border-bottom:1px solid #DDE5EC;gap:20px}
+.arcSearch{max-width:720px}
+.arcSearch input{min-height:46px;background:#F7F9FC;border-color:#D4E0E8;font-size:14px}
+.arcAvatar{background:#10677D}
+.arcContent{padding:26px 28px 32px;background:#F7F8FB}
+.arcMobileBrand,.cocoMobileNav{display:none}
+body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:#10677D;border-color:#10677D;color:#fff;box-shadow:none}
+body .arcContent .arcButton.primary:hover:not(:disabled){background:#0C556B}
+body .arcContent .arcButton.secondary{background:#fff;color:#10677D;border:1px solid #BDD0DC}
+body .arcContent .arcButton:disabled{opacity:.5;cursor:default}
+body #access-settings .cfgInstall{background:#10677D;border-color:#10677D;color:#fff}
+body .arcContent :is(.arcPanel,.ivCard,.gsCard,.gaCard){border-radius:12px;box-shadow:0 2px 8px rgba(23,49,65,.025)}
+body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:16px;margin:0 0 20px;align-items:center}
+body .arcContent .gamaCompactHeader .gamaStdActions{order:-1}
+body .arcContent .gamaCompactHeader .gamaStdText{position:static!important;width:auto!important;height:auto!important;min-width:0;margin:0!important;padding:0!important;overflow:visible!important;clip:auto!important;white-space:normal!important;flex:1}
+body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:26px;font-weight:750;line-height:1.25;letter-spacing:-.025em;margin:0;color:#103B52}
+body .arcContent .gamaCompactHeader .gamaStdText p{display:none}
+body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{background:white;border-color:#C9D8E3;border-radius:9px}
+body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs){border-bottom:1px solid #DDE5EC;gap:8px;padding:0;margin:0 0 20px}
+body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button{background:transparent;border:1px solid transparent;border-radius:0;box-shadow:none;color:#617080;min-height:44px;padding:10px 16px;font-size:14px;font-weight:600}
+body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button:is(.active,.on,[aria-selected=true]){background:transparent;color:#AD4508;border-bottom:2px solid #F87826}
+body .arcContent :is(table.arcTable,table.gamaCards){--arc-table-grid:var(--coco-grid);font-size:13px}
+body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) th{background:#F4F7FA;color:#324C62;padding:13px 14px;font-weight:650;border:1px solid var(--coco-grid)}
+body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) td{padding:14px;border:1px solid var(--coco-grid);vertical-align:middle}
+body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tr:nth-child(even)>td{background:#F7F9FB}
+body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tr[data-selected=true]>td{background:#E7F3F6}
+body .arcContent :is(table.arcTable,table.gamaCards) .arcNumeric{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+body .arcContent .gamaTableTools{gap:8px}
+body .arcContent .gamaTableSwitch button{gap:7px}
+.cocoStatus{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;white-space:nowrap;color:#10677D;background:#E7F3F6}
+.cocoStatus[data-tone=success]{background:#E4F5EC;color:#0D7446}
+.cocoStatus[data-tone=warning]{background:#FFF0E6;color:#AD4508}
+.cocoStatus[data-tone=danger]{background:#FCE9E7;color:#B3261E}
+.cocoStatus[data-tone=muted]{background:#EFF2F5;color:#617080}
+.cocoStatus svg{width:16px;height:16px;flex:none}
+.cocoSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
+.cocoSectionTitle h2,.cocoSectionTitle h3{margin:0;font-size:18px}
+.cocoKeyValues{margin:0}
+.cocoKeyValues>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #E3EAF0;font-size:13px}
+.cocoKeyValues dt{color:#617080}.cocoKeyValues dd{margin:0;text-align:right;font-weight:600}
+
+/* Module launcher: four columns on desktop, two on a phone. */
+#mainmenu .gamaF2Head{margin-bottom:18px}
+#mainmenu .gamaF2Grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+#mainmenu .gamaF2Card[data-arc-fam]{background:#E7F3F6;border:1px solid #B6DCE5;border-radius:12px;padding:24px 16px;min-height:172px;gap:16px;position:relative;color:#10677D;box-shadow:none}
+#mainmenu .gamaF2Card:is([data-arc-fam=orange],[data-arc-fam=red]){background:#FFF0E6;border-color:#F7D5BD}
+#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;border-radius:0;width:58px;height:58px;color:#10677D}
+#mainmenu .gamaF2Icon svg{width:56px;height:56px;stroke-width:1.65}
+#mainmenu .gamaF2Title{font-size:16px;font-weight:650;color:#103B52;line-height:1.35}
+#mainmenu .gamaF2Card:hover{box-shadow:0 5px 15px rgba(16,103,125,.07);border-color:#88BCC9}
+#mainmenu .arcDragHandle{font-size:18px;line-height:28px;top:7px;right:8px;color:#86A0AE;opacity:.45}
+#mainmenu .gamaF2Card:hover .arcDragHandle,#mainmenu .gamaF2Card:focus .arcDragHandle{opacity:1}
+#mainmenu .arcCustomizeButton{min-height:42px;padding:8px 16px;font-size:13px;background:#fff;border:1px solid #BDD0DC;border-radius:8px}
+
+/* Dashboard cockpit: four figures, chart, daily actions and recent orders. */
+#dashboard .adWorkspace{display:flex;flex-direction:column;gap:18px}
+#dashboard .adPeriod{display:flex;flex-wrap:wrap;gap:12px;align-items:end;padding:14px 16px;margin:0}
+#dashboard .adPeriod .arcField{flex:1 1 140px;min-width:0;margin:0;font-size:12px}
+#dashboard .adPeriodActions{display:flex;gap:8px;margin:0}
+#dashboard .adTools{margin:0;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+#dashboard .adTools>.arcField{max-width:220px;min-width:150px;font-size:12px;margin:0}
+#dashboard .adTools>.arcToolbar{margin:0;flex:1;justify-content:flex-end;gap:6px}
+#dashboard .adTools .arcButton{font-size:12px;min-height:38px;padding:8px 10px}
+#dashboard .adKpis{margin:0}
+#dashboard .adKpis>summary{cursor:pointer;color:#10677D;font-size:13px;padding:7px 0}
+#dashboard .adMetrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:16px 0 20px}
+#dashboard .adMetric{padding:18px;min-height:125px;text-align:left;border-color:#E1E6EC}
+#dashboard .adMetricLabel{font-size:13px;font-weight:600;gap:10px;line-height:1.4}
+#dashboard .adMetricLabel svg{width:26px;height:26px;color:#10677D}
+#dashboard .adMetric strong{font-size:28px;letter-spacing:-.025em;margin:10px 0 6px;line-height:1.2}
+#dashboard .adMetric small,#dashboard .adDelta{font-size:11px}
+#dashboard .adMetricArrow{display:none}
+#dashboard .adCockpit{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(275px,1fr);gap:18px;align-items:start;margin:0 0 20px}
+#dashboard .adCockpit .adAnalysis{display:contents}
+#dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:1;padding:20px;min-width:0}
+#dashboard .adCockpit .adCustomers{grid-column:1/-1;grid-row:3;padding:20px}
+#dashboard .adChartScroll{margin-top:14px}
+#dashboard .adChartTools{gap:6px;justify-content:flex-end;margin:6px 0}
+#dashboard .adChartTools .arcButton,#dashboard .adChartTools select{font-size:11px;min-height:32px;padding:6px 9px}
+#dashboard .adHeading h2{font-size:18px}
+#dashboard .adHeading p{font-size:12px}
+#dashboard .adMeta{font-size:11px;color:#617080;margin:0}
+#dashboard .adQuickActions{grid-column:2;grid-row:1;padding:20px}
+#dashboard .adQuickActions h2{font-size:18px;margin:0 0 16px}
+#dashboard .adQuickAction{display:flex;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid #E3EAF0}
+#dashboard .adQuickAction:last-child{border-bottom:0}
+#dashboard .adQuickIcon{width:42px;height:42px;display:grid;place-items:center;background:#E7F3F6;color:#10677D;border-radius:50%;flex:none}
+#dashboard .adQuickIcon svg{width:23px;height:23px}
+#dashboard .adQuickAction>span:nth-child(2){flex:1;font-size:13px;line-height:1.5}
+#dashboard .adQuickAction strong{color:#AD4508;font-size:17px}
+#dashboard .adQuickAction button{font-size:12px;padding:8px 10px;min-height:38px}
+#dashboard .adRecentOrders{grid-column:1/-1;grid-row:2;padding:20px;min-width:0}
+#dashboard .adRecentOrders .arcTableWrap{margin:0}
+#dashboard .adExecutive .adMetrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+#dashboard .adDetails>summary{cursor:pointer;color:#10677D;font-size:14px;font-weight:650;padding:14px 18px;border:1px solid #DDE5EC;background:white;border-radius:10px;list-style-position:inside}
+#dashboard .adDetails[open]>summary{margin-bottom:16px}
+#dashboard .adPrioBoard{gap:16px}
+#dashboard .adModuleGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* Inventory: compact primary columns and a real selected-product inspector. */
+#warehouses .ivKpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
+#warehouses .ivKpi{padding:18px;border:1px solid #B6DCE5;background:#E7F3F6;border-radius:12px;box-shadow:none;min-width:0}
+#warehouses .ivKpi:nth-child(2){background:#FFF0E6;border-color:#F7D5BD;color:#AD4508}
+#warehouses .ivKpi:nth-child(3){background:#FCE9E7;border-color:#F3BDB8;color:#B3261E}
+#warehouses .ivKpi b{font-size:28px;margin-top:9px;display:block;line-height:1.2}
+#warehouses .ivKpi span{font-size:13px;font-weight:600}
+#warehouses .ivFiltros{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0}
+#warehouses .ivFiltros #ivBuscar{flex:2 1 260px;min-width:0;margin:0}
+#warehouses .ivFiltros #ivAlmacen{flex:1 1 180px;min-width:0;margin:0}
+#warehouses .ivFilterDetails{flex:none}
+#warehouses .ivFilterDetails>summary{padding:10px 14px;border:1px solid #BDD0DC;border-radius:8px;cursor:pointer;color:#10677D;background:white;min-height:44px;font-size:13px}
+#warehouses .ivFilterFields{display:flex;flex-wrap:wrap;gap:12px;padding:14px 0}
+#warehouses .ivFilterFields>*{flex:1 1 180px;min-width:0;margin:0}
+#warehouses .ivStockLayout{display:grid;grid-template-columns:minmax(0,1fr) 276px;gap:16px;margin-top:16px;align-items:start}
+#warehouses .ivStockLayout>div{min-width:0}
+#warehouses #ivTabla{overflow-x:auto}
+#warehouses .ivProductOpen{display:flex;align-items:center;gap:10px;padding:0;border:0;box-shadow:none;background:transparent;text-align:left;color:#1C2C3E;min-height:38px;font-size:13px}
+#warehouses .ivProductOpen svg{width:26px;height:26px;color:#10677D;flex:none}
+#warehouses .ivProductOpen>span{min-width:100px;white-space:normal}
+#warehouses .ivProductOpen small{display:block;color:#617080;margin-top:4px;font-size:11px}
+#warehouses .ivInspector{background:white;border:1px solid #D8E2EA;border-radius:12px;padding:18px;position:sticky;top:94px;min-width:0}
+#warehouses .ivInspector h3{font-size:17px;margin:0 0 6px;overflow-wrap:anywhere}
+#warehouses .ivInspector>.muted{font-size:12px;margin:0 0 14px}
+#warehouses .ivInspector .arcButton{width:100%;margin-top:12px;font-size:12px}
+#warehouses .ivInspector meter{width:100%;height:14px;margin-top:12px;accent-color:#0D7446}
+#warehouses .ivHelp{margin-top:14px;font-size:12px;color:#617080}
+#warehouses .ivMoveAction{margin-left:auto;display:flex;gap:8px}
+
+/* Order and process: milestones, lines, next action and activity history. */
+#sales-orders .gsOrderWorkspace{display:grid;grid-template-columns:minmax(0,2fr) minmax(255px,1fr);gap:18px}
+#sales-orders .gsOrderWorkspace>.gsCard{min-width:0}
+#sales-orders .gsOrderHead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+#sales-orders .gsOrderHead h2{font-size:26px;color:#103B52;margin:0;flex:1}
+#sales-orders .gsOrderHead .gsActions{margin:0;gap:8px}
+#sales-orders .gsMilestones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 16px;margin:22px 0 26px;padding:0;list-style:none}
+#sales-orders .gsMilestones li{display:flex;gap:10px;align-items:center;min-width:0;position:relative}
+#sales-orders .gsMilestoneDot{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#DFE5EB;color:#617080;font-weight:700;font-size:13px}
+#sales-orders .gsMilestones [data-state=done] .gsMilestoneDot{background:#0D7446;color:#fff}
+#sales-orders .gsMilestones [data-state=current] .gsMilestoneDot{background:#F87826;color:#fff}
+#sales-orders .gsMilestones strong{display:block;font-size:13px;line-height:1.4}
+#sales-orders .gsMilestones small{font-size:11px;color:#617080;display:block;margin-top:3px}
+#sales-orders .gsOrderMain{grid-column:1;grid-row:1;padding:20px}
+#sales-orders .gsOrderAside{grid-column:2;grid-row:1;align-self:start;display:flex;flex-direction:column;gap:16px;min-width:0}
+#sales-orders .gsOrderNext{padding:20px;border:1px solid #F7D5BD;background:#FFF0E6;border-radius:12px}
+#sales-orders .gsOrderNext h3{font-size:18px;margin:0 0 14px}
+#sales-orders .gsOrderNext p{font-size:13px;line-height:1.6;margin:8px 0}
+#sales-orders .gsOrderNext .arcButton{width:100%;margin-top:12px}
+#sales-orders .gsCustomerCard{background:#fff;border:1px solid #D8E2EA;border-radius:10px;padding:16px;margin-bottom:18px}
+#sales-orders .gsCustomerCard b{font-size:17px;color:#103B52}
+#sales-orders .gsCustomerCard p{margin:7px 0;font-size:12px;color:#617080;line-height:1.5}
+#sales-orders .gsOrderTotal{margin:16px 0 0 auto;max-width:270px;background:#E7F3F6;border-radius:10px;padding:16px}
+#sales-orders .gsOrderTotal strong{font-size:22px}
+#sales-orders .gsOrderHistory{padding:18px}
+#sales-orders .gsOrderHistory h3{margin:0 0 14px;font-size:18px}
+#sales-orders .gsHistoryList{list-style:none;padding:0;margin:0}
+#sales-orders .gsHistoryList li{padding:0 0 16px 20px;margin:0 0 0 5px;border-left:2px solid #B6DCE5;position:relative;font-size:12px;line-height:1.6}
+#sales-orders .gsHistoryList li:before{content:'';width:10px;height:10px;background:#10677D;border-radius:50%;position:absolute;left:-6px;top:5px}
+#sales-orders .gsHistoryList time{color:#617080;font-size:11px;display:block}
+#sales-orders .gsHistoryList strong{font-size:13px;display:block}
+#sales-orders .gsOrderMore{margin-top:18px}
+#sales-orders .gsOrderMore>summary{cursor:pointer;padding:14px 16px;background:#fff;border:1px solid #D8E2EA;border-radius:10px;color:#10677D;font-size:13px;font-weight:600}
+#sales-orders .gsOrderMore[open]>summary{margin-bottom:16px}
+.gdfSteps{gap:14px}
+.gdfStep{border-radius:12px;box-shadow:none}
+.gdfHistory ol{border-left:2px solid #B6DCE5;padding-left:18px}
+
+/* SRI uses fiscal states; none is inferred from an internal validation. */
+#sri .gaSriHeader{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+#sri .gaSriHeader h2{font-size:18px;margin:0}
+#sri .gaSriEnvironment{border:1px solid #F87826;padding:4px 10px;border-radius:8px;color:#AD4508;font-size:12px;font-weight:700;background:#FFF0E6}
+#sri .gaSriTabs{display:flex;gap:12px;flex-wrap:wrap;border-bottom:1px solid #DDE5EC;margin-bottom:18px}
+#sri .gaSriTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;padding:12px 14px;color:#617080;min-height:44px;font-size:14px}
+#sri .gaSriTabs button[aria-selected=true]{border-bottom-color:#F87826;color:#AD4508;font-weight:650}
+#sri .gaSriNotice{background:#FFF0E6;border:1px solid #F7D5BD;border-left:4px solid #F87826;color:#AD4508;border-radius:9px;padding:12px 16px;font-size:13px;line-height:1.5;margin-bottom:18px}
+#sri .gaSriTools{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+#sri .gaSriTools label{margin:0;font-size:12px;min-width:0}
+#sri .gaSriTools label:first-child{flex:1 1 250px}
+#sri .gaSriLayout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(265px,1fr);gap:18px;align-items:start}
+#sri .gaSriLayout>.gaCard{margin:0;min-width:0;padding:16px}
+#sri .gaSriInspector{position:sticky;top:94px;padding:18px;border:1px solid #D8E2EA;background:#fff;border-radius:12px;min-width:0}
+#sri .gaSriInspector h3{font-size:18px;margin:0 0 16px}
+#sri .gaSriSelected{background:#E7F3F6;padding:14px;border-radius:10px;margin-bottom:14px}
+#sri .gaSriSelected small{color:#617080;display:block}
+#sri .gaSriSelected b{display:block;margin-top:6px;font-size:18px}
+#sri .gaSriInspector .gaActions{margin-top:12px}
+#sri .gaSriChecks{list-style:none;padding:0;font-size:13px;line-height:1.6}
+#sri .gaSriChecks li{margin:8px 0;display:flex;gap:7px;align-items:flex-start}
+#sri .gaSriBatch{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding:16px 0 0;border-top:1px solid #E1E6EC;margin-top:16px;font-size:13px}
+#sri .gaSriSettings>summary{cursor:pointer;color:#10677D;font-size:13px;padding:12px 0}
+#sri .gaSriKey{word-break:break-all;white-space:normal;font-size:10px}
+#sri .gaSriRowOpen{padding:0;min-height:36px;box-shadow:none;background:transparent;border:0;color:#103B52;font-weight:650;font-size:13px;text-align:left}
+#sri .gaSriDocs{border-top:1px solid #E1E6EC;margin-top:16px;padding-top:16px;font-size:12px}
+#sri .gaSriDocs h4{font-size:14px;margin:0 0 10px}
+
+@media(min-width:861px) and (max-width:1099px){
+ .arcBrand{justify-content:center;padding:16px 8px}.arcBrand .arcLogo{display:none}.arcBrand .arcLogoMark{display:block}
+ body.arcDrawerOpen .arcBrand{justify-content:flex-start;padding:18px 22px}body.arcDrawerOpen .arcBrand .arcLogo{display:flex}
+ #mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #warehouses .ivStockLayout{grid-template-columns:minmax(0,1fr) 235px}
+ #dashboard .adMetric strong{font-size:24px}
+ #sales-orders .gsOrderWorkspace{grid-template-columns:minmax(0,1.8fr) minmax(220px,1fr)}
+}
+@media(max-width:1100px){#sri .gaSriLayout{grid-template-columns:1fr}#sri .gaSriInspector{position:static}}
+@media(max-width:860px){
+ .arcShell{--arc-sidebar-w:min(84vw,280px)}
+ .arcTopbar{padding:10px 14px;min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
+ .arcMobileBrand{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:800;color:#103B52;white-space:nowrap;margin-right:auto}
+ .arcMobileBrand img{width:34px;height:34px;object-fit:contain}.arcMobileBrand b{color:#157F98}
+ .arcTopbar>.arcSearch{display:none}
+ .arcContent{padding:20px 16px calc(96px + env(safe-area-inset-bottom,0px))}
+ .cocoMobileNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:45;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #DDE5EC}
+ .cocoMobileNav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:0;box-shadow:none;background:transparent;color:#324C62;margin:0;padding:7px 2px;min-height:54px;font-size:11px;min-width:0}
+ .cocoMobileNav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7}
+ .cocoMobileNav button[aria-current=page]{color:#AD4508}
+ .arcBurger{width:36px;min-width:36px;padding:4px}
+ #mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #mainmenu .gamaF2Card[data-arc-fam]{min-height:140px;padding:22px 9px 18px;gap:12px}
+ #mainmenu .gamaF2Icon svg{width:43px;height:43px}#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{width:45px;height:45px}
+ #mainmenu .gamaF2Title{font-size:14px}
+ body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:21px}
+ body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{gap:12px;margin-bottom:16px}
+ #dashboard .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #dashboard .adMetric{padding:14px;min-height:124px}#dashboard .adMetric strong{font-size:25px}
+ #dashboard .adCockpit{grid-template-columns:1fr}
+ #dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:2}
+ #dashboard .adQuickActions{grid-column:1;grid-row:1}
+ #dashboard .adRecentOrders{grid-column:1;grid-row:3}
+ #dashboard .adCockpit .adCustomers{grid-column:1;grid-row:4}
+ #dashboard .adModuleGrid{grid-template-columns:1fr}
+ #dashboard .adExecutive .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #warehouses .ivKpis{gap:9px}#warehouses .ivKpi{padding:12px}#warehouses .ivKpi b{font-size:24px}#warehouses .ivKpi span{font-size:11px}
+ #warehouses .ivStockLayout{grid-template-columns:1fr}#warehouses .ivInspector{position:static}
+ #warehouses .ivFiltros #ivBuscar{flex:1 1 100%}#warehouses .ivFiltros #ivAlmacen{flex:1 1 160px}
+ #warehouses .ivFilterDetails{flex:1 1 auto}#warehouses .ivMoveAction{width:100%;margin:0 0 16px}
+ #sales-orders .gsOrderWorkspace{grid-template-columns:1fr}#sales-orders .gsOrderMain{grid-column:1;grid-row:2}#sales-orders .gsOrderAside{grid-column:1;grid-row:1}
+ #sales-orders .gsOrderAside .gsOrderHistory{display:none}#sales-orders .gsOrderMilestones{margin-top:14px}
+ #sales-orders .gsMilestones{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px}
+ #sales-orders .gsOrderHead h2{font-size:21px}#sales-orders .gsOrderHead .gsActions{width:100%}
+ #sri .gaSriTools{align-items:stretch}#sri .gaSriTools>label:first-child{flex-basis:100%}
+ #sri .gaSriTabs{gap:4px}#sri .gaSriTabs button{font-size:12px;padding:10px 8px}
+ #sri .gaSriHeader .gaActions{width:100%}
+}
+@media print{.cocoMobileNav{display:none}.arcContent{padding:0}.ivInspector,.gaSriInspector{position:static}}
+
+/* Native controls in the approved mockups retain their accessible names. */
+#mainmenu .gamaF2Card .cocoModuleOpen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;flex:1;width:100%;padding:0;min-height:100px;background:transparent;border:0;box-shadow:none;color:inherit}
+#mainmenu .gamaF2Icon svg.arcHomeIllustration{fill:none;stroke:currentColor}
+#mainmenu .cocoModuleFavorite{position:absolute;right:12px;top:12px;width:30px;height:30px;min-height:30px;padding:4px;margin:0;border:0;background:transparent;box-shadow:none;color:#91A9B9}
+#mainmenu .cocoModuleFavorite svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.5;fill:none}
+#mainmenu .cocoModuleFavorite[aria-pressed=true]{color:#AD4508}
+#mainmenu .cocoModuleFavorite[aria-pressed=true] svg{fill:#FFD8B8}
+body .arcContent .gamaTableViews button{display:flex;gap:7px;align-items:center;min-width:0;padding:7px 10px;font-size:12px}
+body .arcContent .gamaTableViews button span{display:inline}
+#dashboard .adPersonal{order:3;font-size:13px;color:#10677D}
+#dashboard .adPersonal>summary{cursor:pointer;padding:12px 0}
+#dashboard .adQuickList>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #E3EAF0;box-shadow:none;text-align:left;font-size:13px;color:#1C2C3E}
+#dashboard .adQuickList>button>span:nth-child(2){flex:1}
+#dashboard .adQuickList strong{font-size:17px;color:#AD4508}
+#dashboard .adQuickActions>.arcButton{width:100%;margin-top:16px}
+#dashboard .adCockpit .adAnalysis[hidden]{display:none}
+#dashboard .adOrderOpen{background:transparent;border:0;box-shadow:none;padding:0;color:#10677D;font-weight:650;min-height:36px}
+#dashboard .adFavorites>summary{cursor:pointer;font-size:12px;min-height:38px;padding:10px;color:#10677D}
+#dashboard .adFavorites[open]{flex:1 1 100%;border-top:1px solid #E3EAF0;padding-top:12px}
+#dashboard .adFavorites .arcToolbar{justify-content:flex-start}
+#warehouses .ivProductOpen>span.ivProductIcon{min-width:28px;width:28px;flex:none}
+#warehouses .ivInspectorIcon{display:grid;place-items:center;background:#E7F3F6;border-radius:10px;width:68px;height:68px;margin:0 0 14px;color:#10677D}
+#warehouses .ivInspectorIcon svg{width:44px;height:44px}
+#warehouses tr[aria-selected=true]>td,#sri tr[aria-selected=true]>td{background:#E7F3F6!important}
+#sales-orders .gsOrderBack{order:-1}
+#sales-orders .gsOrderHead>h2{min-width:180px}
+#sales-orders .gsOperationalDetail>.gsActions{margin-top:0}
+#sri .gaSriInspector>.arcField,#sri .gaSriInspector>label{display:grid;gap:6px;margin-top:16px;font-size:12px}
+#sri .gaSriInspector .gaActions{display:flex;gap:8px;flex-wrap:wrap}
+#sri .gaSriInspector .arcButton{font-size:12px;padding:9px 10px}
+#sri .gaSriInspectorBody>p.gaHint{font-size:12px;line-height:1.55}
+#sri .gaSriChecks [data-validation=valid]{color:#0D7446}
+#sri .gaSriChecks [data-validation=error]{color:#B3261E}
+#sri .gaSriBatch>span:first-child{font-weight:600;color:#10677D}
+.cocoProofSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;gap:10px;margin:8px 0 22px}
+.cocoProofSteps li{display:flex;align-items:center;gap:7px;font-size:12px;color:#617080}
+.cocoProofSteps b{display:grid;place-items:center;width:27px;height:27px;flex:none;background:#EDF1F5;color:#617080;border-radius:50%}
+.cocoProofSteps [data-complete=true] b{background:#10677D;color:#fff}
+.cocoProofDialog{max-width:700px;background:#fff;border:1px solid #D8E2EA;border-radius:14px}
+.cocoProofDialog .tmsSig{border:2px dashed #B6DCE5;border-radius:10px;background:#F7F9FC;touch-action:none}
+.cocoProofDialog .tmsReceiptLines fieldset{border:1px solid #D8E2EA;border-radius:10px;padding:14px}
+.cocoProofDialog [type=submit]{width:100%;background:#10677D;color:#fff;min-height:46px}
+.cocoProofDialog [type=submit]:disabled{background:#E6EBEF;color:#728496;border-color:#D8E2EA;opacity:1}
+@media(max-width:860px){
+ #mainmenu .gamaF2Card .cocoModuleOpen{min-height:98px;gap:12px}
+ #mainmenu .cocoModuleFavorite{right:8px;top:8px;width:27px;height:27px;padding:3px}
+ #sales-orders .gsOrderAside{display:contents}
+ #sales-orders .gsOrderAside .gsOrderHistory{display:block;grid-column:1;grid-row:3}
+ #sales-orders .gsOrderNext{grid-column:1;grid-row:1}
+ #sales-orders .gsOrderMain{grid-row:2}
+ #dashboard .adTools>.arcToolbar{justify-content:flex-start;flex-wrap:wrap}
+ .cocoProofDialog .tmsQuantityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cocoProofDialog .arcToolbar{flex-wrap:wrap}
+}
+.arcBrand .arcLogo{text-decoration:none}
+body .arcContent .gamaStdBack{color:#10677D}
+.cocoModuleTools{margin:0 0 14px;font-size:12px;color:#10677D}
+.cocoModuleTools>summary{cursor:pointer;display:inline-block;padding:9px 12px;border:1px solid #BDD0DC;background:#fff;border-radius:8px;list-style:revert}
+.cocoModuleTools[open]>.arcToolbar{margin-top:12px}
+#warehouses .ivFiltros{margin-bottom:16px}
+#warehouses .ivHelp{margin:0 0 10px}
+#dashboard .adPeriod{padding:10px 14px}
+#dashboard .adTools{padding:10px 14px}
+#dashboard .adChartTools{display:flex;align-items:center;flex-wrap:wrap}
+#dashboard .adChartTools select{width:auto;min-width:120px;flex:0 1 120px}
+#dashboard .adMeta{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}
+#dashboard .adMeta>span{display:block}
+#dashboard .adMeta small{display:inline;font-size:10px}
+#dashboard .adMetric{min-height:144px}
+@media(min-width:1101px){
+ #dashboard .adWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
+ #dashboard #ad-content,#dashboard .adPersonal{grid-column:1/-1}
+ #dashboard .adPeriod .arcField{flex:1 1 80px;font-size:11px}
+ #dashboard .adPeriodActions{width:100%;justify-content:flex-end}
+ #dashboard .adPeriodActions .arcButton{font-size:12px;min-height:36px;padding:6px 12px}
+ #dashboard .adTools{align-content:space-between}
+ #dashboard .adTools>.arcField{min-width:100px;max-width:190px}
+ #dashboard .adTools>.arcToolbar{justify-content:flex-start;flex-wrap:wrap}
+}
+@media(max-width:860px){
+ #hr .hrTabs{display:flex;flex-wrap:nowrap;gap:4px}
+ #hr .hrTabs button{flex:1 1 0;min-width:0;padding:8px 4px;font-size:11px;white-space:normal}
+ #dashboard .adMeta{flex-wrap:wrap}
+ #dashboard .adQuickList strong{max-width:130px;overflow-wrap:anywhere}
+}
+#sales-orders[data-coco-order=true]>.gamaStdHeader,#sales-orders[data-coco-order=true]>.gqModuleTabs,#sales-orders[data-coco-order=true]>.gsTabs,#sales-orders[data-coco-order=true]>.cocoModuleTools{display:none}
+@media(max-width:860px){
+ #hr .hrTabs{flex-wrap:nowrap!important;width:100%;max-width:100%;min-width:0;overflow-x:auto}
+ #hr .hrTabs button{flex:0 0 auto!important;white-space:nowrap!important;padding:9px 12px!important}
+}
+#mainmenu .gamaF2Card .arcDragHandle{top:auto;bottom:6px;right:8px;width:28px;height:28px;min-height:28px}
+body .arcContent .gamaTableViews button{width:auto;min-width:max-content;white-space:nowrap;flex:none}
+#sri input[type=checkbox]{width:16px;height:16px;min-height:16px;flex:none;vertical-align:middle;accent-color:#157F98}
+#sri .gaSriBatch>label{display:flex;align-items:center;flex-direction:row;gap:8px;width:auto;font-size:12px}
+#sri .gaSriRowActions>summary{cursor:pointer;color:#10677D;font-size:12px;padding:8px 0}
+#sri .gaSriRowActions .gaActions{margin:6px 0;display:flex;gap:6px;flex-wrap:wrap}
+#sri .gaSriRowActions .arcButton{font-size:11px;min-height:34px;padding:6px 8px}
+#sri .gaSriTools>label:not(:first-child){max-width:210px}
+
+#sri .gaSriCustomer{display:block;color:#617080;margin-top:5px;font-size:11px;white-space:normal}
+
+/* Keep named table controls and the mobile brand usable on 320px screens. */
+body .arcContent .gamaTableToolbar>.gamaTableControls{flex:1 1 180px}
+body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align:left}
+#dashboard .adPeriod .arcField:has(input[type=date]){flex:1 1 190px;min-width:min(190px,100%)}
+@container ad-dashboard (max-width:900px){
+ #dashboard .adPeriod,#dashboard .adTools{grid-column:1/-1}
+ #dashboard .adCockpit{grid-template-columns:minmax(0,1fr)}
+ #dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:2}
+ #dashboard .adQuickActions{grid-column:1;grid-row:1}
+ #dashboard .adRecentOrders{grid-column:1;grid-row:3}
+ #dashboard .adCockpit .adCustomers{grid-column:1;grid-row:4}
+ #dashboard .adMetrics,#dashboard .adExecutive .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dashboard .adModuleGrid{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+ .arcTopbar{padding:10px 8px;gap:6px}
+ .arcMobileBrand{font-size:16px;gap:6px}
+ .arcMobileBrand img{width:28px;height:28px}
+}

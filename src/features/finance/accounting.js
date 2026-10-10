@@ -883,8 +883,11 @@ VIEWS.sri={
   const client=await GamaCloud.db();
   let query=client.from('sri_invoice_selection').select('id,number,order_id,issue_date,total,document_kind,fiscal_status,external_number,sri_selectable',{count:'exact'}).eq('document_kind','internal');
   if(state.sriInvoiceId)query=query.eq('id',state.sriInvoiceId);
-  else if(state.sriFilter!=='all')query=query.eq('sri_selectable',true);
+  else if(!state.sriFilter||state.sriFilter==='pending')query=query.eq('sri_selectable',true);
   if(state.sriSearch)query=query.ilike('number','%'+state.sriSearch+'%');
+  const fiscalFilters={processing:['signed','received','processing'],authorized:['authorized'],correction:['error','rejected']};
+  const fiscal=fiscalFilters[state.sriFilter]&&!state.sriInvoiceId;
+  if(fiscal){query=client.from('sri_invoice_issues').select('id,source_invoice_id,status,environment,access_key,establishment,emission_point,sequential,last_error,delivered_at,receipt,source:external_invoices!inner(id,number,order_id,issue_date,total,document_kind,fiscal_status,external_number)',{count:'exact'}).in('status',fiscalFilters[state.sriFilter]).eq('source.document_kind','internal');if(state.sriSearch)query=query.ilike('source.number','%'+state.sriSearch+'%')}
   const offset=state.sriOffset||0;
   const [invoices,settings,runtime]=await Promise.all([
    query.order('created_at',{ascending:false}).range(offset,offset+29),
@@ -892,9 +895,12 @@ VIEWS.sri={
    client.functions.invoke('gama-sri',{body:{action:'status'}})]);
   for(const response of [invoices,settings])if(response.error)throw response.error;
   // Fetch issues for precisely this page, not the unrelated 100 most recent issues.
-  const rows=invoices.data||[],ids=rows.map(i=>i.id);
-  const issues=ids.length?await client.from('sri_invoice_issues').select('id,source_invoice_id,status,environment,access_key,establishment,emission_point,sequential,last_error,delivered_at,receipt').in('source_invoice_id',ids):{data:[]};
+  const rows=fiscal?(invoices.data||[]).map(i=>i.source).filter(Boolean):(invoices.data||[]),ids=rows.map(i=>i.id);
+  const issues=fiscal?{data:invoices.data||[]}:ids.length?await client.from('sri_invoice_issues').select('id,source_invoice_id,status,environment,access_key,establishment,emission_point,sequential,last_error,delivered_at,receipt').in('source_invoice_id',ids):{data:[]};
   if(issues.error)throw issues.error;
+  const customers=ids.length?await GamaCloud.list('external_invoices',{select:'id,customer_name:document_snapshot->>customer',in:{id:ids}}):{data:[]};
+  const names=new Map((customers.error?[]:customers.data||[]).map(i=>[i.id,i.customer_name||i.document_snapshot?.customer||'']));
+  for(const invoice of rows)invoice.customer_name=names.get(invoice.id)||'';
   const capabilities=runtime.error?{}:(runtime.data||{});
   return {invoices:rows,total:invoices.count??rows.length,issues:issues.data||[],settings:settings.data?.[0],runtime:capabilities,ready:capabilities.ready===true};
  },
@@ -907,7 +913,7 @@ VIEWS.sri={
    <button type="button" class="arcButton primary" id="gaSriDocuments">${tr('Notas de crédito, retenciones y guías')}</button>
    <button type="button" class="arcButton secondary" id="gaSriConfigure">${tr('Configuración SRI')}</button>
    </div><div class="arcPanel gaCard"><h3>${tr('Facturas y estado SRI')}</h3>
-   <div class="gaTools"><label>${tr('Mostrar')}<select id="gaSriFilter"><option value="pending" ${state.sriFilter!=='all'?'selected':''}>${tr('Facturas no enviadas al SRI')}</option><option value="all" ${state.sriFilter==='all'?'selected':''}>${tr('Todas las facturas')}</option></select></label><label>${tr('Buscar factura')}<input id="gaSriSearch" value="${esc(state.sriSearch||'')}" maxlength="80"></label><button id="gaSriFind" type="button" class="arcButton secondary">${tr('Buscar')}</button><button id="gaSriReload" type="button" class="arcButton secondary">${tr('Actualizar')}</button>${state.sriInvoiceId?`<button id="gaSriAll" type="button" class="arcButton secondary">${tr('Ver todas las facturas')}</button>`:''}
+   <div class="gaTools"><label>${tr('Mostrar')}<select id="gaSriFilter"><option value="pending" ${!state.sriFilter||state.sriFilter==='pending'?'selected':''}>${tr('Facturas no enviadas al SRI')}</option><option value="all" ${state.sriFilter==='all'?'selected':''}>${tr('Todas las facturas')}</option><option value="processing" ${state.sriFilter==='processing'?'selected':''}>${tr('En proceso')}</option><option value="authorized" ${state.sriFilter==='authorized'?'selected':''}>${tr('Autorizadas')}</option><option value="correction" ${state.sriFilter==='correction'?'selected':''}>${tr('Por corregir')}</option></select></label><label>${tr('Buscar factura')}<input id="gaSriSearch" data-coco-preserve-search value="${esc(state.sriSearch||'')}" maxlength="80"></label><button id="gaSriFind" type="button" class="arcButton secondary">${tr('Buscar')}</button><button id="gaSriReload" type="button" class="arcButton secondary">${tr('Actualizar')}</button>${state.sriInvoiceId?`<button id="gaSriAll" type="button" class="arcButton secondary">${tr('Ver todas las facturas')}</button>`:''}
    <label>${tr('Forma de pago de la factura')}<select id="gaSriPayment"><option value="">${tr('Seleccionar')}</option><option value="01">${tr('Efectivo')}</option><option value="16">${tr('Tarjeta de débito')}</option><option value="19">${tr('Tarjeta de crédito')}</option><option value="20">${tr('Otros con sistema financiero')}</option></select></label></div>
    <div class="gaTools"><label><input type="checkbox" id="gaSriSelectPage"> ${tr('Seleccionar esta página')}</label><button type="button" id="gaSriPrepareSelected" class="arcButton secondary" ${rights?.create&&d.settings?.provider_ruc?'':'disabled'}>${tr('Preparar selección')}</button><button type="button" id="gaSriSubmitSelected" class="arcButton primary" ${d.ready?'':'disabled'}>${tr('Enviar selección al SRI')}</button><span id="gaSriBatchStatus" role="status" aria-live="polite"></span></div>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr><th>${tr('Seleccionar')}</th><th>${tr('Factura interna')}</th><th>${tr('Fecha')}</th><th>${tr('Total')}</th><th>${tr('Estado SRI')}</th><th>${tr('Acciones')}</th></tr></thead><tbody>${d.invoices.map(inv=>{
@@ -920,11 +926,11 @@ VIEWS.sri={
      (['signed','received','processing','rejected'].includes(issue.status)&&(issue.access_key||openapi)?button('refresh','Consultar SRI'):'')+
      (issue.status==='authorized'?button('download','XML','xml')+button('download','RIDE PDF','ride')+(!issue.delivered_at?button('notify','Enviar al cliente'):tr('Enviado')):'');
     const selectable=inv.fiscal_status==='unverified'&&!inv.external_number&&(!issue||issue.status==='draft');
-    return `<tr><td><input type="checkbox" data-ga-sri-select="${esc(inv.id)}" data-issue="${esc(issue?.id||'')}" data-environment="${esc(issue?.environment||d.settings?.environment||'pruebas')}" aria-label="${esc(inv.number)}" ${selectable?'':'disabled'}></td><td><b>${esc(inv.number)}</b>${inv.external_number?`<br>${esc(inv.external_number)}`:''}<div class="gaActions">${window.gamaAccessAllowed?.('sales-orders')?`<button type="button" class="arcButton secondary" data-ga-sri-source="${esc(inv.id)}">${tr('Ver factura interna')}</button>`:''}${window.gamaAccessAllowed?.('payments')?`<button type="button" class="arcButton secondary" data-ga-sri-pay="${esc(inv.id)}">${tr('Pagos')}</button>`:''}${inv.order_id&&window.gamaAccessAllowed?.('dossier-flow')?`<button type="button" class="arcButton secondary" data-ga-sri-flow="${esc(inv.order_id)}">${tr('Ver expediente')}</button>`:''}</div></td><td>${esc(inv.issue_date)}</td><td>${esc(money(inv.total))}</td><td><span class="gaBadge" data-s="${esc(status)}">${tr(SRI_STATUS[status]||'Sin preparar')}</span>${issue?`<br>${tr(issue.environment==='pruebas'?'Pruebas':'Producción')}`:''}${issue?.access_key?`<code class="gaSriKey">${esc(issue.access_key)}</code>`:''}${issue?.last_error?`<p class="gaError">${esc(issue.last_error)}</p>`:''}${openapi&&status==='processing'?`<p class="gaHint">${tr('No reenviar: consultar el mismo documento para evitar duplicados.')}</p>`:''}</td><td><div class="gaActions">${actions}${rights?.export?`<button type="button" class="arcButton secondary" data-ga-sri-preview="${esc(inv.id)}">${tr('Verificar datos API')}</button>`:''}</div></td></tr>`;
+    return `<tr data-sri-invoice="${esc(inv.id)}"><td><input type="checkbox" data-ga-sri-select="${esc(inv.id)}" data-issue="${esc(issue?.id||'')}" data-environment="${esc(issue?.environment||d.settings?.environment||'pruebas')}" aria-label="${esc(inv.number)}" ${selectable?'':'disabled'}></td><td><b>${esc(inv.number)}</b>${inv.customer_name?`<small class="gaSriCustomer">${esc(inv.customer_name)}</small>`:''}${inv.external_number?`<br>${esc(inv.external_number)}`:''}<div class="gaActions">${window.gamaAccessAllowed?.('sales-orders')?`<button type="button" class="arcButton secondary" data-ga-sri-source="${esc(inv.id)}">${tr('Ver factura interna')}</button>`:''}${window.gamaAccessAllowed?.('payments')?`<button type="button" class="arcButton secondary" data-ga-sri-pay="${esc(inv.id)}">${tr('Pagos')}</button>`:''}${inv.order_id&&window.gamaAccessAllowed?.('dossier-flow')?`<button type="button" class="arcButton secondary" data-ga-sri-flow="${esc(inv.order_id)}">${tr('Ver expediente')}</button>`:''}</div></td><td>${esc(inv.issue_date)}</td><td>${esc(money(inv.total))}</td><td><span class="gaBadge" data-s="${esc(status)}">${tr(SRI_STATUS[status]||'Sin preparar')}</span>${issue?`<br>${tr(issue.environment==='pruebas'?'Pruebas':'Producción')}`:''}${issue?.access_key?`<code class="gaSriKey">${esc(issue.access_key)}</code>`:''}${issue?.last_error?`<p class="gaError">${esc(issue.last_error)}</p>`:''}${openapi&&status==='processing'?`<p class="gaHint">${tr('No reenviar: consultar el mismo documento para evitar duplicados.')}</p>`:''}</td><td data-sri-actions><div class="gaActions">${actions}${rights?.export?`<button type="button" class="arcButton secondary" data-ga-sri-preview="${esc(inv.id)}">${tr('Verificar datos API')}</button>`:''}</div></td></tr>`;
    }).join('')||`<tr><td colspan="6">${tr('No hay facturas internas para este filtro.')}</td></tr>`}</tbody></table></div>
    <div class="gaTools"><button type="button" id="gaSriPrev" class="arcButton secondary" ${!state.sriOffset?'disabled':''}>${tr('Anterior')}</button><span>${Math.floor((state.sriOffset||0)/30)+1} · ${esc(d.total)} ${tr('facturas')}</span><button type="button" id="gaSriNext" class="arcButton secondary" ${(state.sriOffset||0)+30>=d.total?'disabled':''}>${tr('Siguiente')}</button></div></div>`;
  },
- bind(){
+ bind(d){
   const host=$('gaMain'),alertError=e=>window.gamaToast?.(String(e?.message||e));
   $('gaSriFind').onclick=()=>{state.sriSearch=$('gaSriSearch').value.trim();state.sriOffset=0;go('sri')};
   $('gaSriSearch').onkeydown=e=>{if(e.key==='Enter')$('gaSriFind').click()};
@@ -944,6 +950,7 @@ VIEWS.sri={
     if(result.error||result.data?.error)throw result.error||Error(result.data.error);
     if(current!==generation||!host.isConnected)return;
     const d=result.data;
+    const inspector=host.querySelector('.gaSriInspectorBody');if(inspector?.dataset.invoice===button.dataset.gaSriPreview){const checks=inspector.querySelector('[data-sri-checks]');if(checks)checks.innerHTML=[['issuer','Emisor'],['buyer','Cliente'],['lines','Líneas'],['totals','Totales']].map(([key,label])=>{const failed=(d.errors||[]).some(e=>e.field===key||e.field.startsWith(key+'.'));return `<li data-validation="${failed?'error':d.valid?'valid':'pending'}"><span aria-hidden="true">${failed?'!':d.valid?'✓':'○'}</span>${tr(label)} · ${tr(failed?'Por corregir':d.valid?'Verificado':'Sin verificar')}</li>`}).join('')}
     const fields={'issuer':'Emisor','buyer':'Cliente','document':'Documento','lines':'Líneas','totals':'Totales','payments':'Forma de pago','source':'Factura interna'};
     const labels={required:'Dato obligatorio',length:'Longitud no válida',format:'Formato no válido',decimal:'Importe o precisión no válida',date:'Fecha no válida',unsupported:'Caso no compatible',configuration:'Configuración incompleta',mismatch:'Importes o datos incoherentes',count:'Faltan líneas o hay demasiadas',positive:'La cantidad debe ser positiva',before_issue_date:'Vencimiento anterior a la factura',missing_notification_email:'Falta el correo para la notificación',already_linked_or_cancelled:'Factura ya vinculada o anulada',internal_invoice_required:'Se requiere una factura interna'};
     const notices=[...(d.errors||[]),...(d.warnings||[])].map(e=>`<li>${tr(fields[e.field.split('.')[0]]||e.field)} · <code>${esc(e.field)}</code>: ${tr(labels[e.code]||e.code)}</li>`).join('');
@@ -955,7 +962,8 @@ VIEWS.sri={
    }catch(e){alertError(e)}finally{if(button.isConnected)button.disabled=false}
   });
   $('gaSriFilter').onchange=()=>{state.sriFilter=$('gaSriFilter').value;state.sriOffset=0;go('sri')};
-  $('gaSriSelectPage').onchange=e=>host.querySelectorAll('[data-ga-sri-select]:not(:disabled)').forEach(c=>c.checked=e.target.checked);
+  $('gaSriSelectPage').onchange=e=>{host.querySelectorAll('[data-ga-sri-select]:not(:disabled)').forEach(c=>c.checked=e.target.checked);sriSelection(d)};
+  host.querySelectorAll('[data-ga-sri-select]').forEach(c=>c.onchange=()=>sriSelection(d));
   const batch=async(send)=>{
    const selected=[...host.querySelectorAll('[data-ga-sri-select]:checked:not(:disabled)')];
    if(!selected.length){alertError(Error(window.GamaI18n?.t('Selecciona al menos una factura.')||'Selecciona al menos una factura.'));return}
@@ -1012,8 +1020,45 @@ VIEWS.sri={
    window.dispatchEvent(new Event('gama:accounting-change'));
    await go('sri');
   }catch(e){alertError(e)}finally{if(button.isConnected)button.disabled=false}});
+  sriPresentation(d);
  }
 };
+
+function sriSelection(d){
+ const host=$('gaMain');if(!host)return;const selected=[...host.querySelectorAll('[data-ga-sri-select]:checked:not(:disabled)')],ids=new Set(selected.map(c=>c.dataset.gaSriSelect));
+ const count=$('gaSriSelectionSummary');if(count)count.textContent=selected.length+' '+(window.GamaI18n?.t('seleccionadas')||'seleccionadas')+' · '+money(d.invoices.filter(i=>ids.has(i.id)).reduce((n,i)=>n+Number(i.total),0));
+ $('gaSriPrepareSelected').disabled=!(selected.length&&rights?.create&&d.settings?.provider_ruc);$('gaSriSubmitSelected').disabled=!(selected.length&&d.ready);
+ const all=[...host.querySelectorAll('[data-ga-sri-select]:not(:disabled)')];$('gaSriSelectPage').checked=all.length>0&&selected.length===all.length;$('gaSriSelectPage').indeterminate=selected.length>0&&selected.length<all.length;
+}
+function sriPresentation(d){
+ const host=$('gaMain'),service=host.firstElementChild,card=service?.nextElementSibling;if(!card)return;
+ const env=d.settings?.environment||'pruebas',top=document.createElement('div');top.className='gaSriHeader';top.innerHTML=`<h2>${tr('Facturas y estado SRI')}</h2><span class="gaSriEnvironment">${tr(env==='pruebas'?'Pruebas':'Producción')}</span>`;
+ const tabs=document.createElement('div');tabs.className='gaSriTabs';tabs.setAttribute('role','tablist');
+ for(const [value,label]of [['pending','Por enviar'],['processing','En proceso'],['authorized','Autorizadas'],['correction','Por corregir']]){const button=document.createElement('button');button.type='button';button.setAttribute('role','tab');button.setAttribute('aria-selected',String(state.sriFilter===value||!state.sriFilter&&value==='pending'));button.innerHTML=tr(label);button.onclick=()=>{state.sriFilter=value;state.sriInvoiceId=null;state.sriOffset=0;go('sri')};tabs.append(button)}
+ const notice=document.createElement('p');notice.className='gaSriNotice';notice.setAttribute('role','status');notice.innerHTML=tr(env==='pruebas'?'Ambiente de pruebas: los documentos no tienen validez fiscal.':'Ambiente de producción');
+ const layout=document.createElement('div');layout.className='gaSriLayout';const inspector=document.createElement('aside');inspector.className='gaSriInspector';inspector.setAttribute('aria-live','polite');
+ card.querySelector('h3')?.remove();const tools=card.querySelector('.gaTools');tools.classList.add('gaSriTools');
+ const payment=$('gaSriPayment').closest('label'),batch=tools.nextElementSibling;tools.prepend($('gaSriSearch').closest('label'));batch.classList.add('gaSriBatch');card.append(batch);const summary=document.createElement('span');summary.id='gaSriSelectionSummary';batch.prepend(summary);
+ const body=document.createElement('div');body.className='gaSriInspectorBody';inspector.append(body,payment);
+ const issues=new Map(d.issues.map(i=>[i.source_invoice_id,i])),rows=[...card.querySelectorAll('tbody tr')];let previous=null;
+ function select(inv,row){
+  if(previous)for(const [node,cell]of previous.moves)cell.append(node);
+  const issue=issues.get(inv.id),internal=inv.fiscal_status==='cancelled'?'Anulada':'Factura interna',moves=[];
+  body.innerHTML=`<h3>${tr('Factura seleccionada')}</h3><div class="gaSriSelected"><small>${tr('Factura interna')}</small><b>${esc(inv.number)}</b><p>${esc(money(inv.total))}</p></div><dl class="cocoKeyValues"><div><dt>${tr('Cliente')}</dt><dd>${esc(inv.customer_name||'—')}</dd></div><div><dt>${tr('Estado interno')}</dt><dd>${tr(internal)}</dd></div><div><dt>${tr('Estado SRI')}</dt><dd>${tr(SRI_STATUS[issue?.status]||'Sin preparar')}</dd></div><div><dt>${tr('Fecha')}</dt><dd>${esc(inv.issue_date)}</dd></div><div><dt>${tr('Número fiscal')}</dt><dd>${esc(issue?.sequential?[issue.establishment,issue.emission_point,issue.sequential].join('-'):inv.external_number||'—')}</dd></div></dl><p class="gaHint">${tr(issue?.status==='authorized'?'Autorización confirmada por el SRI.':'La factura interna no equivale a una autorización SRI.')}</p>`;
+  body.dataset.invoice=inv.id;
+  body.insertAdjacentHTML('beforeend',`<ul class="gaSriChecks" data-sri-checks>${['Emisor','Cliente','Líneas','Totales'].map(label=>`<li><span aria-hidden="true">○</span>${tr(label)} · ${tr('Sin verificar')}</li>`).join('')}</ul>`);
+  for(const node of [...row.querySelectorAll('.gaActions')]){moves.push([node,node.parentElement]);body.append(node)}
+  if(issue?.last_error){const error=document.createElement('p');error.className='gaError';error.textContent=issue.last_error;body.append(error)}
+  const docs=document.createElement('div');docs.className='gaSriDocs';docs.innerHTML=`<h4>${tr('Documentos')}</h4>`;
+  if(issue?.status!=='authorized'){docs.innerHTML+=`<button type="button" class="arcButton secondary" disabled>XML</button> <button type="button" class="arcButton secondary" disabled>RIDE PDF</button><p>${tr('Disponibles después de la autorización SRI.')}</p>`}body.append(docs);
+  previous={moves};rows.forEach(r=>{r.setAttribute('aria-selected',String(r===row));const menu=r.querySelector('.gaSriRowActions');if(menu)menu.hidden=r===row});
+ }
+ rows.forEach(row=>{const inv=d.invoices.find(inv=>inv.id===row.dataset.sriInvoice);const groups=[...row.querySelectorAll('.gaActions')];if(groups.length){const menu=document.createElement('details');menu.className='gaSriRowActions';menu.innerHTML=`<summary>${tr('Acciones')}</summary>`;menu.append(...groups);(row.querySelector('[data-sri-actions]')||row.cells[row.cells.length-1]).append(menu)}if(!inv)return;const name=row.querySelector('b'),button=document.createElement('button');button.type='button';button.className='gaSriRowOpen';button.textContent=inv.number;button.onclick=()=>select(inv,row);name.replaceWith(button)});
+ layout.append(card,inspector);const settings=document.createElement('details');settings.className='gaSriSettings';settings.innerHTML=`<summary>${tr('Servicio y configuración SRI')}</summary>`;settings.append(service);
+ host.replaceChildren(top,tabs,notice,layout,settings);
+ if(d.invoices.length){const row=rows.find(row=>row.dataset.sriInvoice===d.invoices[0].id);if(row)select(d.invoices[0],row)}else body.innerHTML=`<h3>${tr('Factura seleccionada')}</h3><p>${tr('Selecciona una factura para ver su detalle.')}</p>`;
+ sriSelection(d);window.ArcUI.mount(host);
+}
 
 async function mountSriConfig(host){
  if(!allowed()||!window.gamaAccessAllowed?.('sri'))return;

@@ -7,7 +7,7 @@ async function boot(page,role='admin'){
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
  await page.goto('/index.html');await openDashboard(page);
 }
-async function openDashboard(page){await page.waitForFunction(()=>document.querySelector('#mainmenu .gamaF2Card'));await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('#arcKpiCustomize')).toBeEnabled()}
+async function openDashboard(page){await page.waitForFunction(()=>document.querySelector('#mainmenu .gamaF2Card'));await page.evaluate(()=>showTab('dashboard'));await page.locator('.adPersonal>summary').click();await expect(page.locator('#arcKpiCustomize')).toBeEnabled()}
 const box=(page,id)=>page.locator('#arcKpiChoices input[value="'+id+'"]');
 const selected=page=>page.locator('.gamaF2Kpi').evaluateAll(els=>els.map(x=>x.dataset.kpi));
 test('30 definitions, exactly four selections, filters, presets, persistence and account isolation',async({page})=>{

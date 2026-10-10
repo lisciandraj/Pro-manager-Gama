@@ -28,8 +28,8 @@ if(window.GamaInventoryV2&&!window.GamaInventoryV2.__arcLazy)return;
 
 const C=()=>window.GamaCloud,$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
-const money=v=>Number(v||0).toLocaleString('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
-const num=v=>Number(v||0).toLocaleString('es-EC',{maximumFractionDigits:3});
+const money=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+const num=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{maximumFractionDigits:3});
 
 let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null,estanterias=[];
@@ -37,6 +37,7 @@ let busquedaUbicacion='',espacioResaltado=null;
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 let serverSnapshot=null,snapshotRequest=0;
 async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
+let selectedProduct=null;
 let pestana='existencias',disponibleV2=null,baseError=null;
 let basePending=null,generation=0,paintRequest=0;
 const secondary=new Map();
@@ -46,7 +47,7 @@ function indexData(){
  quantsByProduct=new Map();for(const q of quants){if(!quantsByProduct.has(q.product_id))quantsByProduct.set(q.product_id,[]);quantsByProduct.get(q.product_id).push(q)}
  incomingByProduct=new Map();for(const x of entrante||[]){if(!incomingByProduct.has(x.product_id))incomingByProduct.set(x.product_id,[]);incomingByProduct.get(x.product_id).push(x)}
 }
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate();pestana='existencias';if($('warehouses'))pintar()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;selectedProduct=null;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate();pestana='existencias';if($('warehouses'))pintar()});
 window.addEventListener('gama:profile-ready',()=>{if(disponibleV2===null&&$('warehouses')?.classList.contains('active')&&window.gamaAccessAllowed?.('warehouses'))abrir()});
 
 /* ---------- datos ---------- */
@@ -216,23 +217,24 @@ function pintarExistencias(host){
  window.ArcUI.render(host,`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
 <div class="ivFiltros">
- <input id="ivBuscar" type="search" data-gi-placeholder=79a86fac0678 placeholder="Buscar por producto, referencia o código…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
+ <input id="ivBuscar" data-coco-preserve-search type="search" data-gi-placeholder=79a86fac0678 placeholder="Buscar por producto, referencia o código…" data-gi-aria-label=2cfb3269b4a0 aria-label="Buscar producto">
  <select id="ivAlmacen" data-gi-aria-label=9a91575b8e4b aria-label="Almacén"><option value="" data-gi=c27ceb62ad08>Todos los almacenes</option>${opcionesAlmacen}</select>
- <label data-gi=3c83e3558107>Hasta<input type="date" id="ivUntil"></label><select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
+ <details class="ivFilterDetails"><summary>${esc(T('Filtros'))}</summary><div class="ivFilterFields"><label data-gi=3c83e3558107>Hasta<input type="date" id="ivUntil"></label><select id="ivCategoria" data-gi-aria-label=558bb20a82ed aria-label="Categoría"><option value="" data-gi=425a839def0b>Todas las categorías</option>${categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
  <select id="ivEstadoFiltro" data-gi-aria-label=98e5acddb6c4 aria-label="Estado">
   <option value="" data-gi=ecda92faab01>Todos los estados</option>
   <option value="bajo" data-gi=9ae983d98529>Stock bajo</option>
   <option value="agotado" data-gi=f562218d7957>Sin stock</option>
   <option value="reservado" data-gi=cda5503e85c6>Con reservas</option>
   <option value="sobre" data-gi=fb2a936b096d>Sobre stock</option>
- </select>
+ </select></div></details><div class="ivMoveAction"><button type="button" class="arcButton primary" id="ivNewMovement">${esc(T('Nuevo movimiento'))}</button></div>
 </div>
-<p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p><div id="ivTabla"></div>
+<details class="ivHelp"><summary>${esc(T('Cómo leer estos indicadores'))}</summary><p id="ivStockTotals"></p><p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p></details><div class="ivStockLayout"><div id="ivTabla"></div><aside id="ivInspector" class="ivInspector" aria-live="polite"></aside></div>
 </div>`);
  ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
   const el=$(id);if(!el)return;
   el[id==='ivBuscar'?'oninput':'onchange']=async()=>{window.GamaPage?.reset('invv2');if(['ivAlmacen','ivUntil'].includes(id))await refreshSnapshot();tabla()};
  });
+ $('ivNewMovement').onclick=()=>window.GamaInventoryV2.openTab(window.ArchitectStockControls?.allowed()?'ajustes':'transferencias');
  window.GamaPage?.register('invv2',tabla);
  tabla();refreshSnapshot().then(()=>{if($('ivTabla'))tabla()});
 }
@@ -254,49 +256,30 @@ function filas(){
 
 function tabla(){
  const host=$('ivTabla');if(!host)return;
- const rows=filas();
- pintarKpis(rows);
- if(!rows.length){window.ArcUI.render(host,'<div class="muted" data-gi=0c22de3a52d5>No hay existencias que coincidan.</div>');return}
- const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows,{0:r=>r.producto.name,1:r=>r.producto.reference,2:r=>r.producto.category,3:r=>[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', '),4:r=>r.onHand,5:r=>r.reservado,6:r=>r.disponible,7:r=>r.entrante,8:r=>r.previsto,9:r=>r.minimo,10:r=>r.maximo,11:r=>r.costo,12:r=>r.valor,13:r=>estado(r).texto}):rows;
- window.ArcUI.render(host,'<table class="arcTable" data-gama-sort-key="invv2"><tr>'
-  +'<th data-gi=77b9238931ed>Producto</th><th data-gi=10ddff5fcc6f>Referencia</th><th data-gi=558bb20a82ed>Categoría</th><th data-gi=9a91575b8e4b>Almacén</th>'
-  +'<th data-gi=9de5d84ed8e5>On hand</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=f4e4f699637b>Disponible</th><th data-gi=ca24af224c4d>Entrante</th><th data-gi=9e0a0b5209ab>Previsto</th>'
-  +'<th data-gi=5d61b4a122c0>Mínimo</th><th data-gi=994d51043f7d>Máximo</th><th data-gi=1fecb6bc9f3e>Costo</th><th data-gi=b2f530c46991>Valor</th><th data-gi=98e5acddb6c4>Estado</th></tr>'
-  +pagina.map(r=>{
-   const e=estado(r);
-   const sitios=[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))];
-   const ubis=r.lineas.map(l=>(ubicacion(l.location_id)||{}).code).filter(Boolean);
-   return `<tr>
-<td><b>${esc(r.producto.name)}</b>${ubis.length?`<small class="ivSub">${esc(ubis.join(' · '))}</small>`:''}</td>
-<td>${esc(r.producto.reference||'—')}</td>
-<td>${esc(r.producto.category||'—')}</td>
-<td>${esc(sitios.join(', ')||'—')}</td>
-<td>${num(r.onHand)}</td>
-<td>${r.reservado?num(r.reservado):'—'}</td>
-<td><b>${num(r.disponible)}</b></td>
-<td>${r.entrante===null?'—':num(r.entrante)}</td>
-<td>${r.previsto===null?'—':num(r.previsto)}</td>
-<td>${r.minimo?num(r.minimo):'—'}</td>
-<td>${r.maximo?num(r.maximo):'—'}</td>
-<td>${money(r.costo)}</td>
-<td>${money(r.valor)}</td>
-<td><span class="ivEstado ${e.clase}">${e.texto}</span></td>
-</tr>`}).join('')
-  +'</table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):''));
- if(window.GamaTable)window.GamaTable.scan();
+ const rows=filas();pintarKpis(rows);
+ if(!rows.length){window.ArcUI.render(host,'<p class="muted">'+esc(T('No hay existencias que coincidan.'))+'</p>');$('ivInspector')?.replaceChildren();return}
+ if(!rows.some(r=>r.producto.id===selectedProduct))selectedProduct=rows[0].producto.id;
+ const sites=r=>[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', ')||'—';
+ const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows,{0:r=>r.producto.name,1:sites,2:r=>r.onHand,3:r=>r.reservado,4:r=>r.disponible,5:r=>estado(r).texto}):rows;
+ const columns=['Producto','Almacén','Stock físico','Reservado','Disponible','Estado'];
+ window.ArcUI.render(host,'<table class="arcTable" data-coco-mobile-cards data-gama-sort-key="invv2"><thead><tr>'+columns.map(c=>'<th>'+esc(T(c))+'</th>').join('')+'</tr></thead><tbody>'+pagina.map(r=>{
+  const e=estado(r),ubis=r.lineas.map(l=>(ubicacion(l.location_id)||{}).code).filter(Boolean);
+  return `<tr data-iv-product="${esc(r.producto.id)}" aria-selected="${r.producto.id===selectedProduct}"><td><button type="button" class="ivProductOpen" data-iv-open="${esc(r.producto.id)}"><span class="ivProductIcon" aria-hidden="true">${window.ArcUI.moduleIcon('cube')}</span><span>${esc(r.producto.name)}<small>${esc(r.producto.reference||'—')}</small></span></button></td><td>${esc(sites(r))}${ubis.length?`<small class="ivSub">${esc(ubis.join(' · '))}</small>`:''}</td><td>${num(r.onHand)}</td><td>${num(r.reservado)}</td><td><b>${num(r.disponible)}</b></td><td><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span></td></tr>`;
+ }).join('')+'</tbody></table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):''));
+ host.querySelectorAll('[data-iv-open]').forEach(b=>b.onclick=()=>{selectedProduct=b.dataset.ivOpen;host.querySelectorAll('[data-iv-product]').forEach(row=>row.setAttribute('aria-selected',String(row.dataset.ivProduct===selectedProduct)));productInspector(rows.find(r=>r.producto.id===selectedProduct));if(window.innerWidth<=760)$('ivInspector').scrollIntoView({behavior:'smooth',block:'nearest'})});
+ productInspector(rows.find(r=>r.producto.id===selectedProduct));window.GamaTable?.scan();
 }
-
+function productInspector(r){
+ const host=$('ivInspector');if(!host||!r)return;const p=r.producto,e=estado(r);
+ const fields=[['Stock físico',num(r.onHand)],['Reservado',num(r.reservado)],['Disponible',num(r.disponible)],['Entrante',r.entrante===null?'—':num(r.entrante)],['Previsto',r.previsto===null?'—':num(r.previsto)],['Mínimo',num(r.minimo)],['Máximo',num(r.maximo)],['Costo',money(r.costo)],['Valor del stock',money(r.valor)]];
+ window.ArcUI.render(host,`<span class="ivInspectorIcon" aria-hidden="true">${window.ArcUI.moduleIcon('cube')}</span><h3>${esc(p.name)}</h3><p class="muted">${esc(p.reference||'—')} · ${esc(p.category||'—')}</p><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span><dl class="cocoKeyValues">${fields.map(([k,v])=>`<div><dt>${esc(T(k))}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h4>${esc(T('Ubicaciones'))}</h4><p class="muted">${esc(r.lineas.map(l=>{const u=ubicacion(l.location_id)||{},w=almacenDe(l.location_id)||{};return `${w.name||'—'} · ${u.code||'—'}`}).join(' / ')||'—')}</p><button type="button" class="arcButton secondary" data-iv-history>${esc(T('Transferencias'))}</button><p class="ivHelp">${esc(T('Físico − todas las reservas = disponible.'))}</p>`);
+ host.querySelector('[data-iv-history]').onclick=()=>window.GamaInventoryV2.openTab('transferencias');
+}
 function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;
- const valor=rows.reduce((s,r)=>s+r.valor,0);
- const bajo=rows.filter(r=>estado(r).clase==='bajo').length;
- const sin=rows.filter(r=>r.onHand<=0).length;
- const res=rows.reduce((s,r)=>s+r.reservado,0);
- window.ArcUI.render(host,`
-<div class="ivKpi"><span data-gi=2b6191504cd7>Valor del stock</span><b>${money(valor)}</b></div>
-<div class="ivKpi"><span data-gi=d8fa61c9be01>Productos bajo mínimo</span><b>${bajo}</b></div>
-<div class="ivKpi"><span data-gi=be6038d25214>Sin existencias</span><b>${sin}</b></div>
-<div class="ivKpi"><span data-gi=3cc912339414>Unidades reservadas</span><b>${num(res)}</b></div>`);
+ const values=[['Productos activos',rows.filter(r=>r.producto.active!==false).length],['Productos bajo mínimo',rows.filter(r=>estado(r).clase==='bajo').length],['Sin existencias',rows.filter(r=>r.onHand<=0).length]];
+ window.ArcUI.render(host,values.map(([label,value])=>`<div class="ivKpi"><span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
+ window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(rows.reduce((total,r)=>total+r.valor,0)))}</b>`);
 }
 
 /* ---------- transferencias ---------- */
@@ -408,7 +391,7 @@ async function historial(){
   window.ArcUI.render(host,'<table class="arcTable"><tr><th data-gi=93b2a9ef782c>Fecha</th><th data-gi=77b9238931ed>Producto</th><th data-gi=8b4e93e928df>Desde</th><th data-gi=d40aa32cd30a>Hacia</th><th data-gi=8930e00fcc39>Cantidad</th></tr>'
    +rows.map(m=>{
     const p=productos.find(x=>x.id===m.product_id);
-    return `<tr><td>${esc(new Date(m.created_at).toLocaleString('es-EC'))}</td>
+    return `<tr><td>${esc(new Date(m.created_at).toLocaleString(window.GamaI18n?.locale||'es-EC'))}</td>
 <td>${esc(p?p.name:'—')}</td>
 <td>${esc((ubicacion(m.source_location_id)||{}).code||'—')}</td>
 <td>${esc((ubicacion(m.destination_location_id)||{}).code||'—')}</td>

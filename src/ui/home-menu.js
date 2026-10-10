@@ -12,11 +12,14 @@ function openItem(x){return window.ArcRouter.open(x[1]);}
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const esc=window.ArcUI.esc;
 const can=id=>!!window.gamaAccessAllowed?.(id);
-const ORDER=window.ArcModules.registry.filter(m=>m.order<100).sort((a,b)=>a.order-b.order).map(m=>m.id);
+const ORDER=['dashboard','assistant-ia','crm','quotes','products','gamaPurchasesV14','warehouses','tms','sri','accounting','contacts','returns','projects','hr','documents','knowledge'];
 const ACCENT=Object.fromEntries(window.ArcModules.registry.map(m=>[m.id,m.accent]));
 const ordered=()=>[...ITEMS].sort((a,b)=>(ORDER.includes(a[1])?ORDER.indexOf(a[1]):100)-(ORDER.includes(b[1])?ORDER.indexOf(b[1]):100));
 const preferenceKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'architect_home_modules_v1:'+String(u.id||u.email||u.username||u.name||u.role||'')}catch(_){return 'architect_home_modules_v1'}};
 function hiddenModules(){try{return new Set(JSON.parse(localStorage.getItem(preferenceKey())||'[]'))}catch(_){return new Set()}}
+const favoriteKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'coco_home_favorites_v1:'+String(u.userId||u.id||u.email||u.username||u.name||'guest')}catch(_){return 'coco_home_favorites_v1:guest'}};
+function favorites(){try{const ids=JSON.parse(localStorage.getItem(favoriteKey())||'[]');return new Set(Array.isArray(ids)?ids.filter(id=>ITEMS.some(x=>x[1]===id)):[])}catch(_){return new Set()}}
+function applyFavorites(){const ids=favorites();document.querySelectorAll('[data-coco-favorite]').forEach(b=>{const selected=ids.has(b.dataset.cocoFavorite);b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',T(selected?'Quitar de favoritos':'Añadir a favoritos'));b.title=b.getAttribute('aria-label')})}
 function applyPreferences(){const hidden=hiddenModules();document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>c.classList.toggle('arcPreferenceHidden',hidden.has(c.dataset.gamaModule)))}
 function personalize(){
  const old=document.getElementById('arcCustomize');if(old)old.remove();
@@ -42,7 +45,7 @@ function render(){
  const grid=document.createElement('div');grid.className='gamaF2Grid';
  ordered().forEach(x=>{
    const g=x[3];
-   const b=document.createElement('button');b.type='button';b.className='gamaF2Card';
+   const b=document.createElement('div');b.className='gamaF2Card';b.tabIndex=0;b.setAttribute('role','group');b.setAttribute('aria-label',T(x[0]));
    b.classList.toggle('aclHidden',!(window.gamaMenuVisible||can)(x[1]));
    b.dataset.gamaGrupo=g;b.dataset.gamaModule=x[1];
    const fam=ACCENT[x[1]]||'cyan';b.dataset.arcFam=fam;
@@ -52,13 +55,17 @@ function render(){
    const cuerpo=document.createElement('span');cuerpo.className='gamaF2Body';
    const label=document.createElement('span');label.className='gamaF2Title';label.textContent=x[0];label.dataset.gamaSource=x[0];
    cuerpo.appendChild(label);
-   b.append(icon,cuerpo);
-   b.onclick=()=>{
+   const opener=document.createElement('button');opener.type='button';opener.className='cocoModuleOpen';opener.append(icon,cuerpo);b.append(opener);
+   const favorite=document.createElement('button');favorite.type='button';favorite.className='cocoModuleFavorite';favorite.dataset.cocoFavorite=x[1];
+   favorite.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>';
+   favorite.onclick=e=>{e.stopPropagation();const ids=favorites();ids.has(x[1])?ids.delete(x[1]):ids.add(x[1]);try{localStorage.setItem(favoriteKey(),JSON.stringify([...ids]))}catch(_){}applyFavorites()};b.append(favorite);
+   const open=()=>{
      if(b.getAttribute('aria-busy')==='true')return;
      b.setAttribute('aria-busy','true');
      Promise.resolve().then(()=>openItem(x)).catch(e=>window.gamaToast?.(window.ArcErrors?.message(e)||e.message))
        .finally(()=>b.removeAttribute('aria-busy'));
    };
+   opener.onclick=open;b.onkeydown=e=>{if(e.target===b&&!e.altKey&&['Enter',' '].includes(e.key)){e.preventDefault();open()}};
    let preparing;
    b.addEventListener('pointerenter',()=>{if(can(x[1]))preparing=setTimeout(()=>window.ArcPrefetch?.(x[1]),120)});
    b.addEventListener('pointerleave',()=>clearTimeout(preparing));
@@ -71,10 +78,11 @@ function render(){
 
  host.append(cabecera,grid);
  acciones.querySelector('button').onclick=personalize;
- window.ArchitectHomeOrder?.mount(grid);applyPreferences();window.GamaI18n?.scan?.(host);
+ window.ArchitectHomeOrder?.mount(grid);applyPreferences();applyFavorites();window.GamaI18n?.scan?.(host);
 }
 
-window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar')});
+window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar');applyFavorites()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')applyFavorites()});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la

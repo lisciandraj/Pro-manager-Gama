@@ -52,7 +52,9 @@ test('Existencias hace lo que hacía Inventario: categoría, stock bajo, búsque
   await page.evaluate(() => ArcRouter.open('warehouses'));
   await expect(rows(page)).toHaveCount(3);
   await expect(page.locator('#ivTabla')).not.toContainText('Producto archivado');
-  await expect(page.locator('#ivKpis')).toContainText(/692[.,]00/);
+  await page.locator('.ivHelp>summary').click();
+  await expect(page.locator('#ivStockTotals')).toContainText(/692[.,]00/);
+  await page.locator('.ivFilterDetails>summary').click();
 
   await page.selectOption('#ivCategoria', 'Frenos');
   await expect(rows(page)).toHaveCount(2);

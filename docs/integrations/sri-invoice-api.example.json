@@ -1,0 +1,105 @@
+{
+  "schema_version": "coco.sri.invoice.v1",
+  "valid": true,
+  "emission_enabled": false,
+  "mode": "preview",
+  "issue_id": null,
+  "status": "unprepared",
+  "idempotency_key": null,
+  "can_prepare": true,
+  "requires_provider_adapter": true,
+  "errors": [],
+  "warnings": [],
+  "payload": {
+    "schema_version": "coco.sri.invoice.v1",
+    "source": {
+      "invoice_id": "00000000-0000-4000-8000-000000000001",
+      "internal_number": "FI-EXAMPLE",
+      "order_id": null,
+      "quote_id": null
+    },
+    "document": {
+      "code": "01",
+      "environment": "pruebas",
+      "currency": "USD",
+      "issue_date": "2026-10-10",
+      "due_date": "2026-11-09",
+      "numbering_owner": "coco",
+      "establishment": "001",
+      "emission_point": "001",
+      "sequential": null,
+      "numeric_code": null
+    },
+    "issuer": {
+      "ruc": "1790012345001",
+      "legal_name": "Emisor de ejemplo",
+      "trade_name": "",
+      "address": "Quito",
+      "establishment_address": "Quito",
+      "accounting_obligation": "NO",
+      "software_provider_ruc": "1790012345001"
+    },
+    "buyer": {
+      "identification_type": "05",
+      "identification": "1719304188",
+      "legal_name": "Cliente de ejemplo",
+      "address": "Quito",
+      "email": "buyer@example.invalid"
+    },
+    "pricing_basis": "net_unit_price",
+    "lines": [
+      {
+        "line_number": 1,
+        "source_line_id": null,
+        "product_id": null,
+        "code": "PAPER",
+        "description": "Papel",
+        "quantity": "2.000000",
+        "unit_price": "9.000000",
+        "discount": "0.00",
+        "subtotal": "18.00",
+        "tax": {
+          "code": "2",
+          "percentage_code": "4",
+          "rate": "15.00",
+          "base": "18.00",
+          "amount": "2.70"
+        },
+        "commercial": {
+          "list_price": "10",
+          "discount_percent": "10"
+        }
+      }
+    ],
+    "totals": {
+      "subtotal": "18.00",
+      "discount": "0.00",
+      "tax": "2.70",
+      "tip": "0.00",
+      "total": "20.70"
+    },
+    "tax_totals": [
+      {
+        "code": "2",
+        "percentage_code": "4",
+        "rate": "15.00",
+        "base": "18.00",
+        "amount": "2.70"
+      }
+    ],
+    "payments": [
+      {
+        "code": "20",
+        "total": "20.70",
+        "term_days": 30,
+        "time_unit": "dias"
+      }
+    ],
+    "additional_information": [
+      {
+        "name": "RUC Proveedor",
+        "value": "1790012345001"
+      }
+    ]
+  }
+}

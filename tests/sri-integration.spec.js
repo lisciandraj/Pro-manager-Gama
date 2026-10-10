@@ -175,3 +175,21 @@ test('payment details open the exact fiscal invoice without posting a payment',a
  await expect(page.locator('#cfgSriForm')).toContainText('El diagnóstico técnico no valida XML, firma, RIDE ni autorización SRI.');
  expect(await page.evaluate(()=>__SRI.calls.some(c=>c.p_action==='sync'))).toBe(false);
  });
+
+test('API verification reports missing data without preparing or sending an invoice',async({page})=>{
+ await boot(page,{responses:{invoice_preview:[{valid:false,errors:[{field:'buyer.identification',code:'required'}],warnings:[],payload:{source:{internal_number:'FI-1'}}}]}});
+ await page.evaluate(()=>GamaAccounting.openSri());await page.locator('[data-ga-sri-preview]').click();
+ const dialog=page.locator('[data-sri-api-preview]');await expect(dialog).toBeVisible();await expect(dialog).toContainText('buyer.identification');await expect(dialog.locator('[data-api-export]')).toBeDisabled();
+ expect(await page.evaluate(()=>__SRI.calls.some(c=>c.fn==='gama_sri_prepare'||c.action==='submit'))).toBe(false);
+ await dialog.locator('[data-api-close]').click();await expect(dialog).toHaveCount(0);
+});
+
+test('API verification exports the versioned data and clears its dialog on logout',async({page})=>{
+ const result={valid:true,errors:[],warnings:[],schema_version:'coco.sri.invoice.v1',emission_enabled:false,payload:{source:{internal_number:'FI-1'},totals:{total:'115.00'}}};
+ await boot(page,{responses:{invoice_preview:[result]}});await page.evaluate(()=>GamaAccounting.openSri());await page.locator('#gaSriPayment').selectOption('20');await page.locator('[data-ga-sri-preview]').click();
+ const dialog=page.locator('[data-sri-api-preview]');await expect(dialog.locator('[data-api-export]')).toBeEnabled();
+ const downloaded=page.waitForEvent('download');await dialog.locator('[data-api-export]').click();const file=await downloaded;expect(file.suggestedFilename()).toBe('Coco-SRI-FI-1.json');
+ expect(JSON.parse(fs.readFileSync(await file.path(),'utf8'))).toEqual(result);
+ expect(await page.evaluate(()=>__SRI.calls.find(c=>c.action==='invoice_preview'))).toMatchObject({id:ID,payment_code:'20'});
+ await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(dialog).toHaveCount(0);
+});

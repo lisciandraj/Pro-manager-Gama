@@ -21,11 +21,11 @@ async function boot(page,options={}){
   GamaCloud.db=async()=>{const base=await old();return{...base,
    from(table){
     if(!['external_invoices','sri_invoice_issues','sri_invoice_selection'].includes(table))return base.from(table);
-    let filters=[],range=[0,9999],orders=[];
-    const q={select(){return q},eq(k,v){filters.push(r=>r[k]===v);return q},in(k,vs){filters.push(r=>vs.includes(r[k]));return q},
-     ilike(k,value){filters.push(r=>String(r[k]||'').toLowerCase().includes(value.slice(1,-1).toLowerCase()));return q},
+    let filters=[],range=[0,9999],orders=[],columns='';const field=(r,k)=>k.split('.').reduce((v,key)=>v?.[key],r);
+    const q={select(value){columns=value;return q},eq(k,v){filters.push(r=>field(r,k)===v);return q},in(k,vs){filters.push(r=>vs.includes(r[k]));return q},
+     ilike(k,value){filters.push(r=>String(field(r,k)||'').toLowerCase().includes(value.slice(1,-1).toLowerCase()));return q},
      order(k,opts){orders.push([k,opts]);return q},range(a,b){range=[a,b];return q},
-     then(ok,fail){let rows=(table==='sri_invoice_selection'?__DB.external_invoices.map(r=>({...r,sri_selectable:r.document_kind==='internal'&&r.fiscal_status==='unverified'&&!r.external_number&&(!__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id)||__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id).status==='draft')})):__DB[table]).filter(r=>filters.every(fn=>fn(r)));for(const[k,o]of orders)rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o.ascending?1:-1));return Promise.resolve({count:rows.length,data:structuredClone(rows.slice(range[0],range[1]+1))}).then(ok,fail)}};
+     then(ok,fail){let rows=(table==='sri_invoice_selection'?__DB.external_invoices.map(r=>({...r,sri_selectable:r.document_kind==='internal'&&r.fiscal_status==='unverified'&&!r.external_number&&(!__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id)||__DB.sri_invoice_issues.find(i=>i.source_invoice_id===r.id).status==='draft')})):table==='sri_invoice_issues'&&columns.includes('external_invoices!inner')?__DB[table].map(i=>({...i,source:__DB.external_invoices.find(v=>v.id===i.source_invoice_id)})):__DB[table]).filter(r=>filters.every(fn=>fn(r)));for(const[k,o]of orders)rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o.ascending?1:-1));return Promise.resolve({count:rows.length,data:structuredClone(rows.slice(range[0],range[1]+1))}).then(ok,fail)}};
     return q;
    },
    rpc:async(fn,args)=>{
@@ -139,7 +139,7 @@ test('payment details open the exact fiscal invoice without posting a payment',a
  await boot(page,{runtime:{ready:true}});await page.evaluate(()=>{__DB.external_invoices.push({...__DB.external_invoices[0],id:'next',number:'NEXT'});return GamaAccounting.openSri()});
  await page.locator('#gaSriPayment').selectOption('01');await page.locator('#gaSriSelectPage').check();page.once('dialog',d=>d.accept());await page.locator('#gaSriSubmitSelected').click();
  await expect.poll(()=>page.evaluate(()=>__SRI.calls.filter(c=>c.action==='submit').length)).toBe(1);
- await expect(page.locator('#gaSriSubmitSelected')).toBeEnabled();expect(await page.evaluate(()=>__SRI.calls.filter(c=>c.fn==='gama_sri_prepare').length)).toBe(1);
+ await expect(page.locator('#gaSriSubmitSelected')).toBeDisabled();expect(await page.evaluate(()=>__SRI.calls.filter(c=>c.fn==='gama_sri_prepare').length)).toBe(1);
  expect(await page.evaluate(()=>__SRI.calls.some(c=>c.action==='refresh'))).toBe(false);
  });
 
@@ -147,7 +147,7 @@ test('payment details open the exact fiscal invoice without posting a payment',a
  await boot(page,{runtime:{ready:true},responses:{submit:[{status:'processing'},{status:'processing'}],refresh:[{status:'authorized'},{status:'authorized'}]}});
  await page.evaluate(()=>{__DB.external_invoices.push({...__DB.external_invoices[0],id:'next',number:'NEXT'});return GamaAccounting.openSri()});
  await page.locator('#gaSriPayment').selectOption('01');await page.locator('#gaSriSelectPage').check();page.once('dialog',d=>d.accept());await page.locator('#gaSriSubmitSelected').click();
- await expect(page.locator('#gaSriSubmitSelected')).toBeEnabled();
+ await expect(page.locator('#gaSriSubmitSelected')).toBeDisabled();
  expect(await page.evaluate(()=>__SRI.calls.filter(c=>['submit','refresh'].includes(c.action)).map(c=>c.action))).toEqual(['submit','refresh','submit','refresh']);
  });
 
@@ -155,7 +155,7 @@ test('payment details open the exact fiscal invoice without posting a payment',a
  for(const responses of [{submit:[{status:'processing'}],refresh:[{status:'processing'}]},{submit:[{status:'rejected'}]}]){
   await boot(page,{runtime:{ready:true},responses});await page.evaluate(()=>{__DB.external_invoices.push({...__DB.external_invoices[0],id:'next',number:'NEXT'});return GamaAccounting.openSri()});
   await page.locator('#gaSriPayment').selectOption('01');await page.locator('#gaSriSelectPage').check();page.once('dialog',d=>d.accept());await page.locator('#gaSriSubmitSelected').click();
-  await expect(page.locator('#gaSriSubmitSelected')).toBeEnabled();
+  await expect(page.locator('#gaSriSubmitSelected')).toBeDisabled();
   expect(await page.evaluate(()=>__SRI.calls.filter(c=>c.action==='submit').length)).toBe(1);
   expect(await page.evaluate(()=>__SRI.calls.filter(c=>c.action==='refresh').length)).toBe(responses.refresh?1:0);
  }
@@ -192,4 +192,18 @@ test('API verification exports the versioned data and clears its dialog on logou
  expect(JSON.parse(fs.readFileSync(await file.path(),'utf8'))).toEqual(result);
  expect(await page.evaluate(()=>__SRI.calls.find(c=>c.action==='invoice_preview'))).toMatchObject({id:ID,payment_code:'20'});
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(dialog).toHaveCount(0);
+});
+
+// These states are paginated by the fiscal query, not guessed from an internal invoice.
+test('fiscal tabs filter source records and inspector preserves authorization boundaries',async({page})=>{
+ await boot(page,{issue:{status:'processing',receipt:{provider:'openapi'}}});
+ await page.evaluate(()=>{const base=__DB.external_invoices[0];__DB.external_invoices.push({...base,id:'authorized-source',number:'AUTHORIZED'},{...base,id:'error-source',number:'CORRECTION'});__DB.sri_invoice_issues.push({id:'authorized-issue',source_invoice_id:'authorized-source',status:'authorized',environment:'pruebas'},{id:'error-issue',source_invoice_id:'error-source',status:'error',environment:'pruebas',last_error:'Missing customer data'});return GamaAccounting.openSri()});
+ await page.locator('.gaSriTabs [role=tab]').nth(1).click();await expect(page.locator('#gaMain tbody tr')).toHaveCount(1);await expect(page.locator('#gaMain tbody')).toContainText('FAC-00000001');await expect(page.locator('[data-ga-sri="submit"]')).toHaveCount(0);await expect(page.locator('.gaSriDocs button').first()).toBeDisabled();
+ await page.locator('.gaSriTabs [role=tab]').nth(2).click();await expect(page.locator('#gaMain tbody')).toContainText('AUTHORIZED');await expect(page.locator('[data-ga-sri="download"][data-kind=xml]')).toBeEnabled();await expect(page.locator('[data-ga-sri-select]')).toBeDisabled();
+ await page.locator('.gaSriTabs [role=tab]').nth(3).click();await expect(page.locator('#gaMain tbody')).toContainText('CORRECTION');await expect(page.locator('.gaSriInspector')).toContainText('Missing customer data');
+});
+test('selection totals and inspector stay tied to their source invoice',async({page})=>{
+ await page.setViewportSize({width:1440,height:1080});await boot(page);await page.evaluate(()=>{__DB.external_invoices.push({...__DB.external_invoices[0],id:'second',number:'FAC-SECOND',total:230});return GamaAccounting.openSri()});await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await expect(page.locator('#gaSriSubmitSelected')).toBeDisabled();await page.locator('[data-ga-sri-select="second"]').check();await expect(page.locator('#gaSriSelectionSummary')).toContainText('230');await page.locator('.gaSriRowOpen').filter({hasText:'FAC-SECOND'}).click();await expect(page.locator('.gaSriSelected')).toContainText('FAC-SECOND');await expect(page.locator('.gaSriChecks')).toContainText('Non vérifié');await page.screenshot({path:'test-results/sri-design-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/sri-design-mobile.png',fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

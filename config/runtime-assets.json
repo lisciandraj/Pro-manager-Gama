@@ -1,5 +1,6 @@
 {
   "scripts": [
+    {"source":"src/features/sales/order-design.js","output":"coco-order-design.js"},
     {"source":"src/features/access/access-controls.js","output":"architect-access-controls.js"},
     {"source":"src/features/audit/audit-controls.js","output":"architect-audit-controls.js"},
     {"source":"src/features/audit/audit.js","output":"architect-audit.js"},
@@ -149,6 +150,7 @@
     {"source":"src/styles/assistant-ia.css","output":"gama-assistant-ia.css"},
     {"source":"src/styles/company.css","output":"gama-company.css"},
     {"source":"src/styles/design.css","output":"gama-design.css"},
+    {"source":"src/styles/workspace.css","output":"coco-workspace.css"},
     {"source":"src/styles/excel-import.css","output":"gama-excel-import.css"},
     {"source":"src/styles/global-search.css","output":"gama-global-search.css"},
     {"source":"src/styles/projects.css","output":"gama-projects.css"},

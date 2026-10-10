@@ -95,17 +95,17 @@ function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1'
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){
  const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
- const mode=['cards','table'].includes(choice)?choice:'table';
+ const mode=['cards','table'].includes(choice)?choice:(t.hasAttribute('data-coco-mobile-cards')&&window.innerWidth<=CORTE?'cards':'table');
  if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
  state.bar.setAttribute('aria-label',words()[0]);
- [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
+ [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.querySelector('span').textContent=label;b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
 }
 function layout(t){
  let state=layouts.get(t);
  if(state&&!state.bar){state.toolbar.remove();state=null}
  if(!state){
   const bar=document.createElement('div');bar.className='gamaTableViews';bar.setAttribute('role','group');bar.setAttribute('translate','no');
-  for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.innerHTML=icons[mode];b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
+  for(const mode of ['cards','table']){const b=document.createElement('button');b.type='button';b.dataset.tableView=mode;b.innerHTML=icons[mode]+'<span></span>'; b.addEventListener('click',()=>{try{localStorage.setItem(preferenceKey(t),mode)}catch(_){}t.dataset.gamaView=mode;for(const button of bar.children)button.setAttribute('aria-pressed',String(button===b));});bar.append(b)}
   const toolbar=document.createElement('div');toolbar.className='gamaTableToolbar';toolbar.append(bar);
   state={bar,toolbar};layouts.set(t,state);
  }
@@ -151,6 +151,7 @@ function restoreSearchFocus(input,key){
  searchFocus=null;
 }
 function standardizeSearch(input,t){
+ if(input.hasAttribute('data-coco-preserve-search')){input.setAttribute('aria-label',sw().label);return}
  const key=preferenceKey(t);let box=input.closest('.gamaTableSearch');
  if(!box){
   // Keep the input outside the replaceable result host, including empty results.

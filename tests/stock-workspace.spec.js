@@ -57,3 +57,7 @@ test('changing accounts clears protected Stock content before the next read',asy
  await expect(page.locator('#warehouses')).not.toContainText('Proveedor A');await expect(page.locator('#ivsCreate')).toHaveCount(0);await page.waitForFunction(()=>GamaRoleAccess.isReady());
  await page.evaluate(()=>GamaOpenWarehouses());await page.click('[data-iv-tab=reabastecimiento]');await expect(page.locator('#ivCuerpo')).toContainText('Tu perfil no tiene acceso a los datos de Compras');await expect(page.locator('#ivCuerpo')).not.toContainText('Proveedor A');
 });
+
+test('product preview follows selection and mobile quantities keep their meaning',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});await boot(page);await page.evaluate(()=>GamaOpenWarehouses());await expect(page.locator('#ivTabla th')).toHaveCount(6);await page.locator('[data-iv-open=p2]').click();await expect(page.locator('#ivInspector')).toContainText('Arena');await expect(page.locator('#ivInspector')).toContainText('Costo');await page.setViewportSize({width:390,height:844});await expect(page.locator('#ivTabla table')).toHaveAttribute('data-gama-view','cards');await expect(page.locator('#ivTabla td[data-col="Stock físico"]').first()).toBeVisible();await page.screenshot({path:'test-results/stock-design-mobile.png',fullPage:true});
+});

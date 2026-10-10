@@ -96,10 +96,10 @@ test('orders are not in any list of modules: the home personalization lists only
  expect(values).not.toContain('matrix');
 });
 
-test('the customer portal keeps its quotes, without tabs',async({page})=>{
+test('retired client accounts cannot enter the employee sales workspace',async({page})=>{
  await boot(page,'client');
  await page.evaluate(()=>GamaQuotes.open());
- await expect(page.locator('#quotes')).toContainText('COT-1');
+ await expect(page.locator('#quotes.active')).toHaveCount(0);
  await expect(page.locator('[data-gq-module-tab]')).toHaveCount(0);
  await page.evaluate(()=>GamaOpenPriceLists());await expect(page.locator('#price-lists.active')).toHaveCount(0);
 });

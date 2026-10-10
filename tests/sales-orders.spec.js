@@ -53,7 +53,7 @@ test('order detail separates physical, reserved, available and purchasing shorta
 test('partial payment sends amount, method and an idempotency key',async({page})=>{
  await boot(page);
  await page.evaluate(({order,line})=>{window.__DB.external_invoices.push({id:'invoice-1',order_id:order,number:'001-001-000000125',issuer_ruc:'1234567890001',software:'Fiscal',issue_date:'2026-09-12',due_date:'2026-10-12',subtotal:600,tax:90,total:690,fiscal_status:'authorized',created_at:'2026-09-12T10:00:00Z'});window.__DB.external_invoice_lines.push({id:'il-1',invoice_id:'invoice-1',order_line_id:line,quantity:60})},ID);
- await page.locator('[data-gs-order]').first().click();await page.locator('[data-gs-payment="invoice-1"]').click();
+ await page.locator('[data-gs-order]').first().click();await page.locator('.gsOrderMore>summary').click();await page.locator('[data-gs-payment="invoice-1"]').click();
  await page.locator('#gsPayAmount').fill('300');await page.locator('#gsPayMethod').selectOption('transfer');await page.locator('#gsPayReference').fill('TRX-ABC');await page.locator('#gsPayAccount').selectOption('financial-1');await page.locator('#gsSave').click();
  await expect(page.locator('dialog')).toHaveCount(0);
  const call=await page.evaluate(()=>window.__commercialCalls[0]);

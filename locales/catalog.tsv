@@ -5222,3 +5222,46 @@ No se pudo leer el documento. Revisa el original y reintenta.	Le document n’a 
 Configura de 1 a 8 etapas entre -30 y 180 días.	Configurez 1 à 8 étapes entre -30 et 180 jours.	Configure 1 to 8 stages between -30 and 180 days.
 Máximo 50 programas recurrentes por cliente.	Maximum 50 programmes récurrents par client.	Maximum 50 recurring schedules per customer.
 El cliente debe confirmar la propuesta desde su portal.	Le client doit confirmer la proposition depuis son portail.	The customer must confirm the proposal in their portal.
+
+Añadir a favoritos	Ajouter aux favoris	Add to favorites
+Quitar de favoritos	Retirer des favoris	Remove from favorites
+Nuevo movimiento	Nouveau mouvement	New movement
+Mis indicadores personales	Mes indicateurs personnels	My personal indicators
+Todos los indicadores y prioridades	Tous les indicateurs et priorités	All indicators and priorities
+Por tratar hoy	À traiter aujourd’hui	To do today
+Pedidos recientes	Commandes récentes	Recent orders
+Ver todos	Voir tout	View all
+Líneas del pedido	Lignes de la commande	Order lines
+Etapas del pedido	Étapes de la commande	Order stages
+Acciones y detalles operativos	Actions et détails opérationnels	Actions and operational details
+Revisar entrega y facturación	Vérifier la livraison et la facturation	Review delivery and invoicing
+Revisar el pedido	Vérifier la commande	Review order
+Revisa el cliente y las cantidades antes de confirmar.	Vérifie le client et les quantités avant de confirmer.	Review customer and quantities before confirming.
+Consulta las expediciones, las pruebas y las facturas vinculadas.	Consulte les expéditions, les preuves et les factures liées.	Review linked shipments, proofs and invoices.
+Comprueba las reservas y los faltantes antes de preparar.	Vérifie les réservations et les manquants avant de préparer.	Check reservations and shortages before preparing.
+Cantidades reservadas	Quantités réservées	Reserved quantities
+Consultar la prueba	Consulter la preuve	View proof
+Ver detalles	Voir les détails	View details
+Servicio y configuración SRI	Service et configuration SRI	SRI service and settings
+Factura seleccionada	Facture sélectionnée	Selected invoice
+Estado interno	État interne	Internal status
+La factura interna no equivale a una autorización SRI.	La facture interne ne constitue pas une autorisation SRI.	An internal invoice is not an SRI authorization.
+Autorización confirmada por el SRI.	Autorisation confirmée par le SRI.	Authorization confirmed by SRI.
+Disponibles después de la autorización SRI.	Disponibles après l’autorisation SRI.	Available after SRI authorization.
+Selecciona una factura para ver su detalle.	Sélectionne une facture pour voir son détail.	Select an invoice to view details.
+Sin verificar	Non vérifié	Unchecked
+Verificado	Vérifié	Verified
+Por enviar	À envoyer	To send
+Por corregir	À corriger	To correct
+En proceso	En traitement	Processing
+Autorizadas	Autorisées	Authorized
+Ambiente de pruebas: los documentos no tienen validez fiscal.	Environnement de test : les documents n’ont pas de validité fiscale.	Test environment: documents have no fiscal validity.
+Ambiente de producción	Environnement de production	Production environment
+seleccionadas	sélectionnées	selected
+Cantidades	Quantités	Quantities
+Acceso restringido	Accès restreint	Restricted access
+Físico − todas las reservas = disponible.	Physique − toutes les réservations = disponible.	Physical − all reservations = available.
+Reserva	Réservation	Reservation
+Filtros	Filtres	Filters
+Vista de dirección	Direction	Management view
+Mostrar	Afficher	Show

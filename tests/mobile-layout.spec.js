@@ -123,7 +123,7 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
   // tabla de precios negociados y ninguna prueba llegaba a ella.
   test('los precios negociados de un cliente caben en una pantalla de 390 px', async ({ page }) => {
     await bootTelefono(page, 390);
-    await page.click('#mainmenu .gamaF2Card:has-text("Tarifas")');
+    await page.click('#mainmenu .gamaF2Card[data-gama-module="quotes"]');await page.click('#gqPricesTab');
     await page.waitForTimeout(900);
     await page.click('[data-pick="c1"]');
     await page.waitForTimeout(600);
@@ -144,7 +144,7 @@ test.describe('Móvil — ninguna pantalla es más ancha que el teléfono', () =
       const fila = tabla && [...tabla.rows].find(r => !r.hasAttribute('data-gama-head'));
       return caja && fila ? {
         fuera: caja.scrollWidth - caja.clientWidth,
-        dentro: tabla.scrollWidth - tabla.clientWidth,
+        dentro: Math.max(0,tabla.scrollWidth - tabla.clientWidth),
         celdas: fila.cells.length,
       } : null;
     }), 'los precios negociados ya no se leen enteros sin arrastrarlos').toEqual({ fuera: 0, dentro: 0, celdas: 5 });

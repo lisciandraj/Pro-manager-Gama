@@ -26,7 +26,7 @@ const VERSION='v1.0.0';
 
 // Use the original supplied file byte-for-byte, including its slogan and ratio.
 // Coco ERP: el logo tal cual, sobre su tarjeta blanca; el robot solo cuando la barra está plegada.
-const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg?v=20261001-c-logo" alt="COCO ERP — Structure Your Business. Simply." width="1536" height="1024"></span><img class="arcLogoMark" src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="180" height="180">';
+const MARK='<span class="arcLogo"><img src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="46" height="46"><span>Coco <b>ERP</b></span></span><img class="arcLogoMark" src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="180" height="180">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
@@ -36,6 +36,8 @@ const ICON={
  gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>',
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
+ more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
 };
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
@@ -85,6 +87,10 @@ function markActive(){
   const on=b.dataset.arcHome?home:(!home&&b.dataset.gamaModule===id);
   if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
  });
+ document.querySelectorAll('[data-coco-mobile]').forEach(b=>{
+  const on=b.dataset.cocoMobile==='home'?home:b.dataset.cocoMobile==='scan'&&id==='barcode';
+  if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
+ });
 }
 
 function closeDrawer(){document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess()}
@@ -115,6 +121,7 @@ function build(){
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
+  +'<span class="arcMobileBrand"><img src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="34" height="34">Coco <b>ERP</b></span>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
@@ -135,6 +142,14 @@ function build(){
  if(menuSection)content.insertBefore(menuSection,wrap);
  main.append(top,content);
  shell.append(side,main);
+ const mobile=document.createElement('nav');mobile.className='cocoMobileNav';mobile.setAttribute('aria-label',T('Navegación principal'));
+ const labels={home:'Inicio',search:'Buscar',scan:'Escanear',more:'Más'},drawings={home:ICON.home,search:ICON.search,scan:ICON.scanner,more:ICON.more};
+ window.ArcUI.render(mobile,Object.keys(labels).map(key=>'<button type="button" data-coco-mobile="'+key+'">'+svg(drawings[key])+'<span data-gi-source="'+labels[key]+'">'+esc(T(labels[key]))+'</span></button>').join(''));
+ shell.append(mobile);
+ mobile.querySelector('[data-coco-mobile=home]').onclick=()=>{closeDrawer();window.GamaUI?.backToMenu?.()};
+ mobile.querySelector('[data-coco-mobile=more]').onclick=()=>document.body.classList.contains('arcDrawerOpen')?closeDrawer():openDrawer();
+ mobile.querySelector('[data-coco-mobile=search]').onclick=()=>{closeDrawer();window.GamaGlobalSearch?.open?.()};
+ mobile.querySelector('[data-coco-mobile=scan]').onclick=async()=>{closeDrawer();if(window.gamaAccessAllowed?.('barcode'))await window.ArcRouter.open('barcode')};
 
  const scrim=document.createElement('div');scrim.className='arcScrim';scrim.addEventListener('click',closeDrawer);
  document.body.appendChild(scrim);
@@ -206,7 +221,7 @@ function adoptSections(){
  });
 }
 function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
-function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings')}
+function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
 
 function boot(){
  build();

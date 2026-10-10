@@ -72,6 +72,7 @@ test('Commercial planning, recurring proposals, collection holds and OCR review 
   await db.exec('reset role');await q('select private.automation_run(12)');
   const messages=await q('select * from private.message_outbox where collection_step is not null');assert.equal(messages.rows.length,1);assert.equal(messages.rows[0].state,'draft');assert.equal(messages.rows[0].collection_step,7);assert.match(messages.rows[0].subject,/Rappel/);
   assert.equal(await one('select private.message_draft_valid(m) from private.message_outbox m where id=$1',[messages.rows[0].id]),true);
+  assert.equal(await one("select private.message_draft_valid(jsonb_populate_record(m,jsonb_build_object('collection_step',0))) from private.message_outbox m where id=$1",[messages.rows[0].id]),false);
   await as(id.admin);await schedule('hold_save',{invoice_id:id.invoice,version:0,disputed:true,reason:'Invoice disputed'});
   await db.exec('reset role');assert.equal(await one('select state from private.message_outbox where id=$1',[messages.rows[0].id]),'cancelled');assert.equal((await one('select private.message_dispatch()')).configured,false);
   await as(id.admin);await schedule('hold_save',{invoice_id:id.invoice,version:1,disputed:false,promise_date:today,promise_amount:100,reason:'Payment promised today'});
@@ -99,6 +100,12 @@ test('Commercial planning, recurring proposals, collection holds and OCR review 
   await assert.rejects(ocr('draft',{...p,reviewed:false}),/SOURCE_REVIEW_REQUIRED/);await assert.rejects(ocr('draft',{...p,total:'12'}),/OCR_TOTAL_OR_CURRENCY_INVALID/);
   const bill=await ocr('draft',p);assert.equal((await ocr('draft',p)).id,bill.id);assert.equal(await one('select status from supplier_invoices where id=$1',[bill.id]),'draft');assert.equal(await one('select count(*)::int from supplier_invoice_payments where supplier_invoice_id=$1',[bill.id]),0);
   await as(id.client);await assert.rejects(ocr('file',{id:ocrClaim.id}),/ROLE_NOT_ALLOWED/);await assert.rejects(q('select * from private.supplier_ocr_intakes'),/permission denied/);
+ });
+ await t.test('reminder batches continue past invoices whose current stage is already prepared',async()=>{
+  await as(id.admin);const cfg=await schedule('context');await schedule('rule_save',{version:cfg.rule.version,enabled:true,steps:[7,30],delivery_mode:'manual',language:'es'});
+  await db.exec('reset role;set session_replication_role=replica');await q("insert into external_invoices(request_key,order_id,number,issue_date,due_date,subtotal,tax,fiscal_status,created_by,document_kind,document_snapshot,issuer_ruc) select gen_random_uuid(),$1,'BATCH-'||n,current_date,current_date-35,100,0,'unverified',$2,'external','{}','1790012345001' from generate_series(1,201)n",[id.order,id.admin]);await db.exec('set session_replication_role=origin');
+  for(let n=0;n<2;n++){await as(id.admin);await rpc('gama_automation','run_once',{kind:'reminders',request_key:uuid()});await db.exec('reset role');await q('select private.automation_run(12)')}
+  assert.equal(await one("select count(*)::int from private.message_outbox m join external_invoices i on i.id=m.source_id where i.number like 'BATCH-%' and m.state='draft' and m.collection_step=30"),201);
  });
  }finally{await db.close()}
 });

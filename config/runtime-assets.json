@@ -129,6 +129,7 @@
     {"source":"src/storefront/b2b.js","output":"gama-b2b.js"},
     {"source":"src/features/processes/automation.js","output":"coco-automation.js"},
     {"source":"src/features/processes/flow-tools.js","output":"coco-flow-tools.js"},
+    { "source": "src/features/finance/commercial-planning.js", "output": "coco-commercial-planning.js" },
     {"source":"src/features/import-export/import-worker.js","output":"coco-import-worker.js"},
     {"source":"src/features/import-export/export-worker.js","output":"coco-export-worker.js"},
     {"source":"src/features/transport/map-data.js","output":"gama-tms-map-data.js"},

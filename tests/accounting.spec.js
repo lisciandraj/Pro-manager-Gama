@@ -373,3 +373,31 @@ test('a reviewed bank match sends only the invoice identity and retries with the
  await page.evaluate(()=>__ACC.error='AMOUNT_EXCEEDS_BALANCE');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('saldo pendiente');await page.evaluate(()=>__ACC.error=null);await page.locator('#gsSave').click();await expect(page.locator('#gsSave')).toHaveCount(0);
  const calls=await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='settle'));expect(calls).toHaveLength(2);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data.invoice_id).toBe('inv1');expect(calls[1].p_data.amount).toBeUndefined();
 });
+
+for(const [language,width] of [['fr',1440],['es',390],['en',390]])test('Business planning screens preserve review and show localized controls '+language,async({page})=>{
+ await page.setViewportSize({width,height:950});await boot(page);
+ await page.evaluate(async language=>{
+  await GamaI18n.setLanguage(language);window.__GROWTH_CALLS=[];
+  const old=GamaCloud.db;GamaCloud.db=async()=>{const client=await old();return {...client,rpc:async(name,args)=>{
+   if(!['gama_commercial_planning','gama_recurring_orders','gama_collections_schedule','gama_supplier_ocr'].includes(name))return client.rpc(name,args);
+   __GROWTH_CALLS.push({name,...args});const a=args.p_action;
+   const responses={profit:{minimum_margin:20,customers:[{customer:'Costa Azul',orders:1,invoiced_net:100,known_margin:60,complete:false}],orders:[{id:'order',reference:'PED-1',customer:'Costa Azul',invoiced_net:100,historical_product_cost:40,operating_cost:0,known_margin:60,estimated_margin:60,complete_operating_cost:false,costs:[]}]},cash:{today:'2026-10-10',balance:100,minimum_balance:0,weeks:Array.from({length:13},(_,i)=>({from:'2026-10-10',to:'2026-10-16',incoming:10,outgoing:5,closing:100+i*5,below_minimum:false})),events:[],scenarios:[],commitments:[]}};
+   if(name==='gama_commercial_planning')return {data:responses[a]||{id:'scenario',saved:true}};
+   if(name==='gama_recurring_orders')return {data:{today:'2026-10-10',plans:[],occurrences:[]}};
+   if(name==='gama_collections_schedule')return {data:{rule:{enabled:false,version:1,config:{}},provider:{enabled:false},holds:[],invoices:[{id:'invoice',number:'FAC-1',customer_name:'Costa Azul',balance:100,due_date:'2026-10-10'}]}};
+   if(name==='gama_supplier_ocr')return {data:a==='list'?[]:{id:'ocr',filename:'supplier.pdf',currency:'USD',buyer_tax_id:'1790012345001',suppliers:[{id:'supplier',name:'Paper supplier',tax_id:'1790012345001'}],purchases:[],extracted:{supplier_tax_id:'1790012345001',number:'PRV-1',issue_date:'2026-10-10',currency:'USD',subtotal:'10',tax:'1.5',total:'11.5',lines:[],warnings:[]}}};
+  }}};
+ },language);
+ const close=()=>page.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
+ await page.evaluate(()=>CocoPlanning.profitability());await expect(page.locator('[data-profit-cost]')).toBeVisible();await page.locator('[data-profit-cost]').click();await page.locator('[data-cost-kind=preparation]').click();
+ const cost=page.locator('dialog[open]').last();await cost.locator('[name=amount]').fill('5');await cost.locator('[name=evidence]').fill('Receipt checked');await cost.locator('[name=basis]').selectOption('actual');await cost.locator('[type=submit]').click();
+ await expect.poll(()=>page.evaluate(()=>__GROWTH_CALLS.some(x=>x.p_action==='cost_save'&&x.p_data.basis==='actual'&&x.p_data.amount==='5'))).toBe(true);await close();
+ await page.evaluate(()=>CocoPlanning.cash());await expect(page.locator('[data-cash-scenario]')).toBeVisible();await page.locator('[data-cash-scenario]').click();await expect(page.locator('dialog[open]').last().locator('[name=collection_percent]')).toHaveValue('100');await close();
+ await page.evaluate(()=>CocoPlanning.recurring({id:'order',customer_id:'customer',customer_name:'Costa Azul'}));await page.locator('[data-recurring-new]').click();await expect(page.locator('dialog[open]').last().locator('[name=name]')).toHaveValue('Costa Azul');await close();
+ await page.evaluate(()=>CocoPlanning.collections());await page.locator('[data-collection-rule]').click();await expect(page.locator('dialog[open]').last().locator('[name=delivery_mode]')).toHaveValue('manual');await close();
+ await page.evaluate(()=>CocoPlanning.ocr('ocr'));const review=page.locator('dialog[open]').last();await expect(review.locator('[name=supplier_id]')).toHaveValue('supplier');await expect(review.locator('[name=reviewed]')).not.toBeChecked();await review.locator('[type=submit]').click();expect(await page.evaluate(()=>__GROWTH_CALLS.some(x=>x.name==='gama_supplier_ocr'&&x.p_action==='draft'))).toBe(false);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await expect(review.locator('[type=submit]')).toHaveText({fr:'Créer le brouillon vérifié',es:'Crear borrador revisado',en:'Create reviewed draft'}[language]);
+ await page.screenshot({path:'test-results/commercial-planning-'+language+'.png',fullPage:true});
+ await page.evaluate(()=>dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('dialog[open][data-commercial-planning]')).toHaveCount(0);
+});

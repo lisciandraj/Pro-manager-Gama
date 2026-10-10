@@ -168,3 +168,7 @@ Sources : `src/storefront/site.js`, `b2b.js`, `index.html`, `customer.css`. La p
 ## Catégories en tête de l’accueil
 
 La grille de catégories précède la bannière et les avantages. Elle affiche toutes les catégories sur plusieurs lignes : six colonnes sur ordinateur, quatre sur tablette et trois sur téléphone. Les illustrations génériques IA bleu et orange GAMA sont publiées depuis `src/storefront/category-images`, selon `config/storefront-category-images.json`. Elles ne remplacent pas les photos des fiches produits. Les intitulés conservent leur première lettre en majuscule et les compteurs proviennent du catalogue.
+
+## Extensions commerciales et financières
+
+Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.

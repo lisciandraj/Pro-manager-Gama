@@ -259,7 +259,7 @@ VIEWS.receivables={
  load:()=>rpc('receivables',{status:state.status||'open',search:state.search||'',offset:state.offset||0,limit:50}),
  render(d){
   state.rows=d.rows;
-  return `<div class="arcPanel gaCard"><h3>${tr('¿Quién nos debe dinero?')}</h3>
+  return `<div class="arcPanel gaCard"><h3>${tr('¿Quién nos debe dinero?')}</h3><button type="button" class="arcButton secondary" id="gaScheduledCollections">${tr('Recordatorios programados')}</button>
    ${filters({status:[['open','Pendientes'],['all','Todas'],['overdue','Vencidas'],['partial','Pago parcial'],['paid','Pagadas']]})}
    <div class="gaKpis">${kpi('Facturado',money(d.metrics.total))}${kpi('Cobrado',money(d.metrics.paid))}
     ${kpi('Pendiente',money(d.metrics.balance))}${kpi('Vencido',money(d.metrics.overdue),'',Number(d.metrics.overdue)>0?'gaDown':'')}</div>
@@ -277,7 +277,7 @@ VIEWS.receivables={
    </tbody></table></div>
    <p class="gaHint">${tr('Los cobros se registran en Pagos de clientes; aquí se consultan y se agrupan por antigüedad.')}</p></div>`;
  },
- bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-cobrar')}
+ bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-cobrar');$('gaScheduledCollections').onclick=()=>window.CocoPlanning.collections()}
 };
 
 VIEWS.payables={
@@ -422,7 +422,7 @@ VIEWS.purchases={
   state.rows=d.rows;state.suppliers=d.suppliers;state.accounts=d.accounts;
   return `<div class="arcPanel gaCard"><h3>${tr('Facturas de proveedor')}</h3>
    ${filters({})}
-   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button><button class="arcButton secondary" id="gaReceiptDrafts">${tr('Recepciones y facturas por revisar')}</button><button class="arcButton secondary" id="gaImportSupplierXml">${tr('Importar XML del proveedor')}</button></div>`:''}
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewBill">${tr('Registrar una factura de proveedor')}</button><button class="arcButton secondary" id="gaReceiptDrafts">${tr('Recepciones y facturas por revisar')}</button><button class="arcButton secondary" id="gaImportSupplierXml">${tr('Importar XML del proveedor')}</button><button type="button" class="arcButton secondary" id="gaSupplierOcr">${tr('Leer factura PDF / foto')}</button></div>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Proveedor','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
@@ -443,6 +443,7 @@ VIEWS.purchases={
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
   document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
+  $('gaSupplierOcr')?.addEventListener('click',()=>window.CocoPlanning.ocr());
   $('gaImportSupplierXml')?.addEventListener('click',()=>window.CocoFlows.importSupplierXml());
   $('gaReceiptDrafts')?.addEventListener('click',()=>window.CocoFlows.draftBills());
   document.querySelectorAll('[data-ga-draft]').forEach(b=>b.onclick=()=>window.CocoFlows.draftBills(b.dataset.gaDraft));
@@ -817,7 +818,7 @@ VIEWS.reports={
    <th>${tr(title)}</th><th class="gaNum">${tr('Importe')}</th></tr></thead><tbody>
    ${rows.map(r=>`<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')
     ||`<tr><td colspan="2">${tr('Sin movimientos.')}</td></tr>`}</tbody></table></div>`;
-  return `<div class="arcPanel gaCard"><h3>${tr('Cuenta de resultados')}</h3>${filters({dates:true})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Cuenta de resultados')}</h3>${scope==='all'?`<div class="gaActions"><button type="button" class="arcButton secondary" id="gaProfitability">${tr('Rentabilidad por pedido y cliente')}</button><button type="button" class="arcButton secondary" id="gaCashScenarios">${tr('Tesorería · 13 semanas')}</button></div>`:''}${filters({dates:true})}
    <div class="gaKpis">${kpi('Productos',money(d.pl.income))}${kpi('Cargas',money(d.pl.expense))}
     ${kpi('Resultado',money(d.pl.result),'',Number(d.pl.result)>=0?'gaUp':'gaDown')}
     ${kpi('Margen',d.pl.margin==null?'—':pct(d.pl.margin))}</div>
@@ -847,7 +848,7 @@ VIEWS.reports={
       money(Number(d.forecast.balance)+Number(h.incoming)-Number(h.outgoing)),
       '+'+window.GamaCurrency.format(h.incoming)+' / −'+window.GamaCurrency.format(h.outgoing))).join('')}</div></div>`:''}`;
  },
- bind(){bindFilters(()=>go(),()=>state.rows,'cuenta-de-resultados')}
+ bind(){bindFilters(()=>go(),()=>state.rows,'cuenta-de-resultados');$('gaProfitability')?.addEventListener('click',()=>window.CocoPlanning.profitability());$('gaCashScenarios')?.addEventListener('click',()=>window.CocoPlanning.cash())}
 };
 
 /* ------------------------------------------------------------- cierres */

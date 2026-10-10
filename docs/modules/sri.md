@@ -106,3 +106,12 @@ Dans Retours, **Reponer y preparar nota de crédito SRI** exige la réception et
 Pour les achats, une facture comptabilisée est mise en file uniquement si l'entreprise est confirmée agente de retención. La validation tente immédiatement de préparer le brouillon 07 lorsque ses données fiscales et la politique datée du fournisseur sont déjà complètes. La revue fiscale relance cette préparation ; la validation ultérieure de la politique fournisseur la relance aussi sur les 50 premiers dossiers en attente. Un historique plus important reste traitable par la préparation groupée existante. Les erreurs de revue restent visibles sans perdre la facture. Aucun déclencheur n'émet de document ni ne remplace un instantané déjà créé. Après autorisation, le certificat solde son montant dans le mécanisme comptable de retenues existant, une seule fois. Les pourcentages et comptes se révisent dans le dossier SRI.
 
 Chaque carte de tournée permet de préparer la guía 06 ; l'écran chauffeur ouvre seulement la guía autorisée de sa propre tournée. Les balises dépôt ne sont pas des destinataires. Le brouillon peut être écarté avant envoi pour ajuster la tournée. Après revendication, les arrêts, dates, chauffeur, véhicule et marchandises sont protégés. L'autorisation exige toujours le service privé, son certificat ou le fournisseur fiscal configuré et les essais SRI.
+
+## Préparation pour un fournisseur externe par API (10 octobre 2026)
+
+Le bouton **Vérifier les données API** contrôle la structure depuis la facture
+interne et permet un export JSON versionné, sans émission ni réservation de numéro.
+La préparation fige désormais les coordonnées et prix déjà enregistrés dans la
+facture ; elle refuse les identités manquantes et les totaux incohérents.
+Voir le [contrat fournisseur indépendant](../integrations/sri-invoice-api.md),
+ses droits, son périmètre et les étapes de raccordement restant au prestataire.

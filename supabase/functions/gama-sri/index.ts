@@ -1,3 +1,4 @@
+import {invoiceContract} from '../_shared/sri-invoice-contract.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.115.0';
 
@@ -36,7 +37,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   if (authError || !auth.user) return reply({ error: 'AUTH_REQUIRED' }, 401);
   const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
   const admin = createClient(url, secret);
-  let input: { action: string; id: string; kind?: string; document_type?: string };
+  let input: { action: string; id: string; kind?: string; document_type?: string; payment_code?: string };
   try { input = await readJsonBody(request,12000,{objectOnly:false}); } catch(error) { return reply({ error: error instanceof BodyError?error.message:'INVALID_JSON' }, error instanceof BodyError?error.status:400); }
   if (!input || typeof input.action !== 'string') return reply({ error: 'INVALID_REQUEST' }, 400);
   // Retired ERP customer policies hide profiles. The narrow portal RPC verifies
@@ -72,6 +73,28 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   if (profile.role !== 'administrador' && input.action !== 'download') return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
   const access = machine ? {data: {validate: true, export: false}, error: null} : documentType === '01' ? await client.rpc('gama_sri_access') : await client.rpc('gama_sri_document_access', {p_id: input.id, p_action: input.action});
   if (access.error || !access.data) return reply({ error: 'ROLE_NOT_ALLOWED' }, 403);
+  // Read-only provider-neutral preparation is available with emission disabled.
+  // Caller-bound reads preserve RLS; no service-role invoice lookup or live customer fallback.
+  if (input.action === 'invoice_preview') {
+    if (documentType !== '01' || !/^[a-f0-9-]{36}$/i.test(input.id || '')) return reply({error:'INVALID_REQUEST'},400);
+    if (!access.data.export) return reply({error:'ROLE_NOT_ALLOWED'},403);
+    const invoice = await client.from('external_invoices').select('id,number,order_id,source_quote_id,issue_date,due_date,subtotal,tax,total,document_kind,fiscal_status,external_number,document_snapshot').eq('id',input.id).maybeSingle();
+    if (invoice.error || !invoice.data || invoice.data.document_kind !== 'internal') return reply({error:'NOT_FOUND'},404);
+    const fiscal = await client.from('sri_invoice_issues').select('*').eq('source_invoice_id',input.id).maybeSingle();
+    if (fiscal.error) return reply({error:'SRI_PREVIEW_FAILED'},500);
+    let settings = {}, company = {};
+    if (!fiscal.data) {
+      const [profileSettings, identity] = await Promise.all([
+        client.from('sri_settings').select('environment,ruc,razon_social,estab,pto_emi,dir_matriz,provider_ruc,accounting_obligation,trade_name,establishment_address').eq('user_id',auth.user.id).maybeSingle(),
+        client.from('company_settings').select('configured,country,currency,tax_id').eq('id',true).maybeSingle()
+      ]);
+      if (profileSettings.error || identity.error) return reply({error:'SRI_PREVIEW_FAILED'},500);
+      settings = profileSettings.data || {}; company = identity.data || {};
+    }
+    const result = invoiceContract({invoice:invoice.data,settings,company,issue:fiscal.data,paymentCode:input.payment_code || ''});
+    const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(result.payload)));
+    return reply({...result,payload_sha256:Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('')});
+  }
   const call = async (action: string, issue: unknown, extra: Record<string, unknown> = {}) => {
     const body = JSON.stringify({ action, issue, ...extra });
     const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(workerSecret!), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);

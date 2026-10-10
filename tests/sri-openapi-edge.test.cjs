@@ -4,7 +4,8 @@ const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {webcrypto,createHmac}=require('node:crypto');
 const source=fs.readFileSync('supabase/functions/gama-sri/index.ts','utf8').replace(/^import.*\n/gm,'');
 const http=fs.readFileSync('supabase/functions/_shared/http.mjs','utf8').replace(/^export /gm,'');
-const code=http+'\n'+ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const contract=fs.readFileSync('supabase/functions/_shared/sri-invoice-contract.mjs','utf8').replace(/^export /gm,'');
+const code=contract+'\n'+http+'\n'+ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const ID='00000000-0000-4000-8000-000000000001';
 const KEY='2709202601179001234500110010010000000011234567813';
 function harness(options={}){
@@ -20,7 +21,9 @@ function harness(options={}){
     select(){return q},in(k,v){filters.push([k,v]);return q},order(){return q},limit(){many=true;return q},eq(k,v){filters.push([k,v]);return q},is(k,v){filters.push([k,v]);return q},update(patch){change=patch;return q},
     async resolve(){
      if(table==='profiles')return {data:options.hiddenProfile?null:{role:options.role||'administrador',active:options.active!==false}};
-     if(table==='external_invoices'){if(change)updates.push(change);return {data:{id:ID}}}
+     if(table==='external_invoices'){if(change)updates.push(change);return {data:options.invoiceHidden?null:(options.invoice||{id:ID})}}
+     if(table==='sri_settings')return {data:options.settings||null};
+     if(table==='company_settings')return {data:options.company||null};
      if(!isAdmin&&options.invisible)return{data:null};
      if(!filters.every(([k,v])=>(Array.isArray(v)?v.includes(issue[k]):(issue[k]??null)===v)))return{data:null};
      if(change)Object.assign(issue,change);
@@ -158,4 +161,14 @@ test('B2B customers can download their scoped authorized invoice without accessi
  const h=harness({hiddenProfile:true,active:false,role:'cliente',b2b:{path:'private-own-ride.pdf',filename:'DOC-00000017.pdf'},env:{SRI_WORKER_URL:''}});let r=await h.request({action:'download',id:ID,kind:'ride'});assert.equal(r.status,200);assert.equal(r.filename,'DOC-00000017.pdf');
  r=await h.request({action:'submit',id:ID});assert.equal(r.status,403);r=await h.request({action:'download',id:ID,kind:'ride',document_type:'06'});assert.equal(r.status,403);
  const denied=harness({role:'cliente'});r=await denied.request({action:'download',id:ID,kind:'ride'});assert.equal(r.status,404);
+});
+
+test('API preview uses caller RLS and export rights with no configured worker, no external calls or mutations',async()=>{
+ const invoice={id:ID,document_kind:'internal',fiscal_status:'unverified',number:'FI-1',issue_date:'2026-10-10',subtotal:10,tax:1.5,total:11.5,document_snapshot:{customer:'Buyer',customer_identification:'1719304188',details:{clientAddress:'Quito'},lines:[{reference:'PAPER',name:'Paper',qty:1,price:10,taxRate:15,subtotal:10,tax:1.5}]}};
+ const options={invoice,issue:{source_invoice_id:'another'},env:{SRI_WORKER_URL:'',SRI_EMISSION_ENABLED:'false'},settings:{environment:'pruebas',ruc:'1790012345001',razon_social:'GAMA',dir_matriz:'Quito',estab:'001',pto_emi:'001',provider_ruc:'1790012345001',accounting_obligation:'NO'},company:{configured:true,country:'EC',currency:'USD',tax_id:'1790012345001'}};
+ const h=harness(options),r=await h.request({action:'invoice_preview',id:ID,payment_code:'20'});
+ assert.equal(r.valid,true);assert.equal(r.mode,'preview');assert.equal(r.emission_enabled,false);assert.match(r.payload_sha256,/^[a-f0-9]{64}$/);assert.equal(r.payload.totals.total,'11.50');assert.deepEqual(h.calls,[]);assert.deepEqual(h.updates,[]);assert.equal(h.files.size,0);
+ for(const extra of [{invoiceHidden:true},{role:'comercial'},{active:false},{access:{export:false}},{noAuth:true},{serviceAuth:true}]){
+  const denied=harness({...options,...extra});assert.ok((await denied.request({action:'invoice_preview',id:ID})).error);assert.deepEqual(denied.calls,[]);
+ }
 });

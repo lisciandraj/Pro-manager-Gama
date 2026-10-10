@@ -5180,3 +5180,26 @@ Importada	Importée	Imported
 Encuestas y marketing	Sondages et marketing	Surveys and marketing
 Cuestionarios y campañas e-mail o WhatsApp	Questionnaires et campagnes e-mail ou WhatsApp	Questionnaires and email or WhatsApp campaigns
 Foto ilustrativa: confirma la referencia y la presentación.	Photo illustrative : confirmez la référence et le conditionnement.	Illustrative photo: confirm the reference and packaging.
+
+Verificar datos API	Vérifier les données API	Check API data
+Estructura de factura para API	Structure de facture pour API	Invoice structure for API
+Datos completos para el adaptador del proveedor.	Données complètes pour l’adaptateur du fournisseur.	Data complete for the provider adapter.
+Completa o corrige los datos indicados.	Complétez ou corrigez les données indiquées.	Complete or correct the indicated data.
+Esta verificación no envía la factura ni reserva un número SRI.	Cette vérification n’envoie pas la facture et ne réserve pas de numéro SRI.	This check does not send the invoice or reserve an SRI number.
+Los precios netos ya incluyen los descuentos comerciales. No aplicar el descuento dos veces.	Les prix nets incluent déjà les remises commerciales. Ne pas déduire la remise deux fois.	Net prices already include commercial discounts. Do not apply the discount twice.
+Descargar JSON para integración	Télécharger le JSON pour intégration	Download integration JSON
+Dato obligatorio	Donnée obligatoire	Required data
+Longitud no válida	Longueur invalide	Invalid length
+Formato no válido	Format invalide	Invalid format
+Importe o precisión no válida	Montant ou précision invalide	Invalid amount or precision
+Fecha no válida	Date invalide	Invalid date
+Caso no compatible	Cas non pris en charge	Unsupported case
+Configuración incompleta	Configuration incomplète	Incomplete configuration
+Importes o datos incoherentes	Montants ou données incohérents	Inconsistent amounts or data
+Faltan líneas o hay demasiadas	Lignes absentes ou trop nombreuses	Missing or too many lines
+La cantidad debe ser positiva	La quantité doit être positive	Quantity must be positive
+Vencimiento anterior a la factura	Échéance antérieure à la facture	Due date precedes invoice
+Falta el correo para la notificación	Adresse e-mail de notification manquante	Notification email missing
+Factura ya vinculada o anulada	Facture déjà liée ou annulée	Invoice already linked or cancelled
+Se requiere una factura interna	Une facture interne est nécessaire	An internal invoice is required
+Totales	Totaux	Totals

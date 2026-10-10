@@ -13,3 +13,8 @@ Both dashboards, sales analysis, overdue alerts, unbilled quantities and collect
 Internal cancellation preserves history and removes its amount from active financial totals; confirmed payments must first be cancelled through the existing audited correction workflow. It does not cancel an external fiscal document or change inventory.
 
 Validation: SQL rollback fixture covers acceptance, idempotency, snapshot lines, financial KPIs, partial payment, reference linking without double count, mismatched amounts, paid-invoice cancellation and warehouse denial. Browser tests cover conversion, copy/PDF, external reference, access boundaries and legacy dashboard source/period alignment. Shared quote/sales/operations/PDF regression suites also run.
+
+API preparation is available from Facturación SRI through the read-only invoice
+preview and JSON export. It uses the saved invoice identity and net line prices;
+fiscal preparation no longer substitutes current customer or order data. See
+[the provider-neutral contract](../integrations/sri-invoice-api.md).

@@ -224,7 +224,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 @media(max-width:1100px){#sri .gaSriLayout{grid-template-columns:1fr}#sri .gaSriInspector{position:static}}
 @media(max-width:860px){
  .arcShell{--arc-sidebar-w:min(84vw,280px)}
- .arcTopbar{padding:10px 14px;min-height:66px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
+ .arcTopbar{padding:10px 14px;min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
  .arcMobileBrand{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:800;color:#103B52;white-space:nowrap;margin-right:auto}
  .arcMobileBrand img{width:34px;height:34px;object-fit:contain}.arcMobileBrand b{color:#157F98}
  .arcTopbar>.arcSearch{display:none}
@@ -333,7 +333,7 @@ body .arcContent .gamaStdBack{color:#10677D}
 #dashboard .adMeta small{display:inline;font-size:10px}
 #dashboard .adMetric{min-height:144px}
 @media(min-width:1101px){
- #dashboard .adWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(350px,1fr);gap:14px}
+ #dashboard .adWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
  #dashboard #ad-content,#dashboard .adPersonal{grid-column:1/-1}
  #dashboard .adPeriod .arcField{flex:1 1 80px;font-size:11px}
  #dashboard .adPeriodActions{width:100%;justify-content:flex-end}
@@ -363,3 +363,23 @@ body .arcContent .gamaTableViews button{width:auto;min-width:max-content;white-s
 #sri .gaSriTools>label:not(:first-child){max-width:210px}
 
 #sri .gaSriCustomer{display:block;color:#617080;margin-top:5px;font-size:11px;white-space:normal}
+
+/* Keep named table controls and the mobile brand usable on 320px screens. */
+body .arcContent .gamaTableToolbar>.gamaTableControls{flex:1 1 180px}
+body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align:left}
+#dashboard .adPeriod .arcField:has(input[type=date]){flex:1 1 190px;min-width:min(190px,100%)}
+@container ad-dashboard (max-width:900px){
+ #dashboard .adPeriod,#dashboard .adTools{grid-column:1/-1}
+ #dashboard .adCockpit{grid-template-columns:minmax(0,1fr)}
+ #dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:2}
+ #dashboard .adQuickActions{grid-column:1;grid-row:1}
+ #dashboard .adRecentOrders{grid-column:1;grid-row:3}
+ #dashboard .adCockpit .adCustomers{grid-column:1;grid-row:4}
+ #dashboard .adMetrics,#dashboard .adExecutive .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dashboard .adModuleGrid{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+ .arcTopbar{padding:10px 8px;gap:6px}
+ .arcMobileBrand{font-size:16px;gap:6px}
+ .arcMobileBrand img{width:28px;height:28px}
+}

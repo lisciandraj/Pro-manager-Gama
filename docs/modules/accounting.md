@@ -208,3 +208,7 @@ Pruebas: `tests/bank-statement.test.cjs`, `tests/bank-invoice-db.test.cjs` y
 `tests/accounting.spec.js`. El esquema completo se restaura en una base aislada;
 los tests verifican caja y asientos reales, reversión por cierre, idempotencia,
 filas inválidas, acceso y datos conservados tras un fallo de validación.
+
+## Pilotage commercial et financier
+
+Les rapports donnent accès à la rentabilité par commande/client et aux scénarios de trésorerie sur 13 semaines. Les créances ouvrent les relances programmées, les achats la lecture des factures PDF/photo. Voir le [guide des cinq extensions](../commercial-planning.md).

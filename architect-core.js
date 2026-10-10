@@ -1776,6 +1776,7 @@
     views.set(entity, view);
   }
   const lazyModules = {
+    "commercial-planning": { "global": "CocoPlanning", "file": "coco-commercial-planning.js", "methods": ["profitability", "cash", "recurring", "collections", "ocr", "quoteMargin"] },
     "global-search": { "global": "GamaGlobalSearch", "file": "gama-global-search.js", "dependencies": ["gama-global-search-core.js"], "methods": ["open"] },
     "price-lists": { "global": "gamaPriceLists", "file": "gama-price-lists.js", "methods": ["open"], "aliases": { "GamaOpenPriceLists": "open" } },
     "matrix": { "global": "GamaMatrix", "file": "gama-proveedores-matriz.js", "methods": ["open", "render"], "apis": { "GamaSuppliers": ["migrate"] } },

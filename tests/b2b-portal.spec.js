@@ -6,8 +6,14 @@ async function boot(page,width=1440,mfa=false){
  await page.addInitScript(mfa=>{window.__B2B_CALLS=[];window.__B2B_FAVORITES={};window.__B2B_CUSTOMER='first';window.__B2B_FAIL=false;window.__B2B_REVOKED=false;window.__B2B_MFA=mfa},mfa);
  const sdkFixture=`
  window.supabase={createClient:()=>{let event;const auth={onAuthStateChange:f=>event=f,signInWithPassword:async()=>({data:{session:{access_token:'test'}}}),getSession:async()=>({data:{session:{access_token:'test'}}}),signOut:async()=>{event?.('SIGNED_OUT');return{}},mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{nextLevel:window.__B2B_MFA?'aal2':'aal1',currentLevel:'aal1'}}),listFactors:async()=>({data:{totp:[{id:'factor',status:'verified',friendly_name:'Mi autenticador'}]}}),challengeAndVerify:async x=>{if(x.code!=='123456')return{error:{message:'bad code'}};window.__B2B_MFA=false;return{}}}};
- return {auth,rpc:(name,d)=>{window.__B2B_CALLS.push(d);let data,error;const p={id:'${ID}',name:'Papel para tu empresa',reference:'PAP-01',category:'Oficina',tax_rate:15,order_minimum:.001,order_multiple:.001,unit_price:8,has_photo:false};
+ return {auth,rpc:(name,d)=>{window.__B2B_CALLS.push({...d,rpc:name});let data,error;const p={id:'${ID}',name:'Papel para tu empresa',reference:'PAP-01',category:'Oficina',tax_rate:15,order_minimum:.001,order_multiple:.001,unit_price:8,has_photo:false};
  const a=d.p_action,v=d.p_data;if(window.__B2B_REVOKED)error={message:'B2B_ACCESS_REQUIRED'};
+ else if(name==='gama_b2b_recurring'){
+ if(a==='list')data={today:'2026-10-04',plans:[{id:'plan',name:'Monthly paper',frequency:'monthly',interval_count:1,next_date:'2026-10-04',active:true,version:1,lines:[{product_id:p.id,name:p.name,quantity:2}]}],occurrences:[{id:'occurrence',name:'Monthly paper',due_date:'2026-10-04',state:window.__B2B_CONFIRMED?'confirmed':'pending'}]};
+ else if(a==='preview')data={price_hash:'reviewed',total:9.2*(v.lines?.[0]?.quantity||2),lines:(v.lines||[{product_id:p.id,quantity:2}]).map(l=>({...l,name:p.name,unit_price:8,total:9.2*l.quantity}))};
+ else if(a==='confirm'){if(window.__B2B_FAIL)error={message:'NETWORK_TEST'};else{window.__B2B_CONFIRMED=true;data={id:'request',reference:'SOL-RECURRING'}}}
+ else data={id:'plan',saved:true};
+ }
  else if(name==='gama_b2b_product_favorites'){
  const saved=window.__B2B_FAVORITES[window.__B2B_CUSTOMER]||=[];
  if(window.__B2B_FAVORITE_FAIL)error={message:'NETWORK_TEST'};
@@ -96,4 +102,13 @@ test('Failed favorite writes are retryable, unavailable favorites remain removab
  await boot(page,390);const heart=page.locator('[data-product-favorite]');await page.evaluate(()=>__B2B_FAVORITE_FAIL=true);await heart.click();await expect(page.locator('#status')).toContainText('vuelve a intentar');await expect(heart).toHaveAttribute('aria-pressed','false');await expect(heart).toBeEnabled();
  await page.evaluate(()=>__B2B_FAVORITE_FAIL=false);await heart.click();await expect(heart).toHaveAttribute('aria-pressed','true');await page.evaluate(()=>__B2B_PRODUCT_INACTIVE=true);await page.locator('[data-tab=favorites]').click();await expect(page.locator('[data-add]')).toBeDisabled();await expect(page.locator('.products')).toContainText('Producto no disponible');
  await page.locator('[data-product-favorite]').click();await expect(page.locator('.favorite-empty')).toBeVisible();await page.evaluate(()=>__B2B_REVOKED=true);await page.locator('#refresh').click();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('#account')).toBeHidden();
+});
+
+for(const width of [390,1440])test('Recurring proposals require current prices and preserve confirmation across a failed request '+width,async({page})=>{
+ await boot(page,width);await page.locator('[data-tab=recurring]').click();await expect(page.locator('#content')).toContainText('Monthly paper');await expectPortalFits(page);
+ await page.locator('[data-rec-review]').click();await expect(page.locator('#recurringConfirm')).toBeEnabled();await page.locator('[data-rec-line]').fill('3');await expect(page.locator('#recurringConfirm')).toBeDisabled();
+ await page.locator('#recurringPreview').click();await expect(page.locator('#recurringConfirm')).toBeEnabled();await page.evaluate(()=>__B2B_FAIL=true);await page.locator('#recurringConfirm').click();await expect(page.locator('#status')).toContainText('vuelve a intentar');
+ await page.evaluate(()=>__B2B_FAIL=false);await page.locator('#recurringConfirm').click();await expect(page.locator('#content')).toContainText('Solicitud confirmada');
+ const calls=await page.evaluate(()=>__B2B_CALLS.filter(x=>x.rpc==='gama_b2b_recurring'&&x.p_action==='confirm'));expect(calls).toHaveLength(2);expect(calls[0].p_data).toEqual(calls[1].p_data);expect(calls[0].p_data.lines[0].quantity).toBe(3);expect(calls[0].p_data.price_hash).toBe('reviewed');
+ await page.locator('[data-tab=catalog]').click();await page.locator('[data-add]').click();await page.locator('[data-tab=cart]').click();await page.getByRole('button',{name:'Programar esta selección',exact:true}).click();await expect(page.locator('#recurringForm')).toBeVisible();await page.locator('#recurringForm [type=submit]').click();await expect(page.locator('#status')).toContainText('Programa guardado');expect(await page.evaluate(()=>__B2B_CALLS.some(x=>x.p_action==='submit'))).toBe(false);await expectPortalFits(page);
 });

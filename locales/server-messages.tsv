@@ -58,3 +58,16 @@ PAYROLL_ACCRUAL_ALREADY_RELEASED	La nómina financia un décimo ya liquidado. Re
 PAYROLL_NOT_FOUND	El rol no está disponible para esta cuenta.
 SIGNATURE_REQUIRED	Firma dentro del recuadro antes de confirmar.
 PAYROLL_EMPLOYEE_SIGNATURE_REQUIRED	Sólo el empleado puede firmar su rol validado.
+RECORD_CHANGED	El registro cambió. Actualiza antes de guardar.
+OCR_FILE_INVALID	Usa PDF, JPG, PNG o WebP de hasta 5 MB.
+OCR_PROCESSING	Este documento ya se está leyendo. Actualiza en unos minutos.
+OCR_CONFIGURATION_REQUIRED	Configura la clave IA antes de leer documentos.
+OCR_RESPONSE_INVALID	La lectura está incompleta. Revisa la calidad del documento y reintenta.
+OCR_TOTAL_OR_CURRENCY_INVALID	Revisa la moneda y los importes: subtotal más impuesto debe ser igual al total.
+OCR_TIMEOUT	La lectura tardó demasiado. El original está conservado; puedes reintentar.
+OCR_PROVIDER_UNAVAILABLE	El servicio de lectura no está disponible. Reintenta más tarde.
+OCR_LEASE_EXPIRED	La sesión de lectura caducó. Vuelve a cargar el documento.
+OCR_FAILED	No se pudo leer el documento. Revisa el original y reintenta.
+INVALID_SEQUENCE	Configura de 1 a 8 etapas entre -30 y 180 días.
+RECURRING_LIMIT	Máximo 50 programas recurrentes por cliente.
+CUSTOMER_CONFIRMATION_REQUIRED	El cliente debe confirmar la propuesta desde su portal.

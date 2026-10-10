@@ -131,3 +131,7 @@ Le portail B2B est une page autonome produite depuis `src/storefront/`. Ses comp
 Les règles versionnées, traitements, tentatives et exceptions restent privés. Les façades invocateur filtrent par les droits courants du module. Les actions métier déléguées utilisent un contexte transactionnel fermé et temporaire, sans jeton fabriqué ni droit accordé par un GUC. La file d’envoi utilise pg_net et un secret Vault, une destination Resend fixe, des clés stables et une consultation des statuts réels. Les parcours, limites et paramètres sont dans [automatisations](automation.md). Les associations cloud sont accessibles depuis Contacts ; la rubrique Mes documents du portail reste contrôlée par entreprise à chaque téléchargement.
 
 Le composant partagé de tableau utilise la vue tableau par défaut sur ordinateur et téléphone, avec quadrillage visible. Les préférences explicites de vue cartes restent disponibles. `tms-driver.html` est l’entrée mobile hors ligne ; les données de route et commandes en attente sont dans IndexedDB, séparées du cache statique du service worker.
+
+## Extensions commerciales et financières
+
+Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.

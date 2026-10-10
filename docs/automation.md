@@ -57,3 +57,7 @@ Référence : [Waze Deep Links](https://developers.google.com/waze/deeplinks).
 ## Vérification
 
 Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Les fixtures vérifient qu’aucune requête aux anciens fournisseurs n’est émise. Aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
+
+## Extensions commerciales et financières
+
+Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.

@@ -5203,3 +5203,22 @@ Falta el correo para la notificación	Adresse e-mail de notification manquante	N
 Factura ya vinculada o anulada	Facture déjà liée ou annulée	Invoice already linked or cancelled
 Se requiere una factura interna	Une facture interne est nécessaire	An internal invoice is required
 Totales	Totaux	Totals
+Recordatorios programados	Relances programmées	Scheduled reminders
+Leer factura PDF / foto	Lire une facture PDF / photo	Read invoice PDF / photo
+Rentabilidad por pedido y cliente	Rentabilité par commande et client	Profitability by order and customer
+Tesorería · 13 semanas	Trésorerie · 13 semaines	Cash planning · 13 weeks
+Pedidos recurrentes	Commandes récurrentes	Recurring orders
+Programar este pedido	Programmer cette commande	Schedule this order
+El registro cambió. Actualiza antes de guardar.	Le dossier a changé. Actualisez avant d’enregistrer.	The record changed. Refresh before saving.
+Usa PDF, JPG, PNG o WebP de hasta 5 MB.	Utilisez un PDF, JPG, PNG ou WebP de 5 Mo maximum.	Use a PDF, JPG, PNG or WebP up to 5 MB.
+Este documento ya se está leyendo. Actualiza en unos minutos.	Ce document est déjà en cours de lecture. Actualisez dans quelques minutes.	This document is already being read. Refresh in a few minutes.
+Configura la clave IA antes de leer documentos.	Configurez la clé IA avant de lire des documents.	Configure the AI key before reading documents.
+La lectura está incompleta. Revisa la calidad del documento y reintenta.	La lecture est incomplète. Vérifiez la qualité du document et réessayez.	Extraction is incomplete. Check document quality and retry.
+Revisa la moneda y los importes: subtotal más impuesto debe ser igual al total.	Vérifiez la devise et les montants : sous-total plus taxe doit égaler le total.	Check the currency and amounts: subtotal plus tax must equal total.
+La lectura tardó demasiado. El original está conservado; puedes reintentar.	La lecture a pris trop de temps. L’original est conservé ; vous pouvez réessayer.	Reading timed out. The original is retained; you can retry.
+El servicio de lectura no está disponible. Reintenta más tarde.	Le service de lecture est indisponible. Réessayez plus tard.	The extraction service is unavailable. Retry later.
+La sesión de lectura caducó. Vuelve a cargar el documento.	La session de lecture a expiré. Rechargez le document.	The reading session expired. Upload the document again.
+No se pudo leer el documento. Revisa el original y reintenta.	Le document n’a pas pu être lu. Vérifiez l’original et réessayez.	The document could not be read. Check the original and retry.
+Configura de 1 a 8 etapas entre -30 y 180 días.	Configurez 1 à 8 étapes entre -30 et 180 jours.	Configure 1 to 8 stages between -30 and 180 days.
+Máximo 50 programas recurrentes por cliente.	Maximum 50 programmes récurrents par client.	Maximum 50 recurring schedules per customer.
+El cliente debe confirmar la propuesta desde su portal.	Le client doit confirmer la proposition depuis son portail.	The customer must confirm the proposal in their portal.

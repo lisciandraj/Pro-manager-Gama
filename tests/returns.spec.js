@@ -311,3 +311,22 @@ test('return summary pagination sends the offset and resets it on type change',a
  await page.locator('#grNext').click();await expect(page.locator('.grTable tbody tr')).toHaveCount(5);expect((await lastCall(page,'overview')).p_data.offset).toBe(25);
  await page.locator('[data-gr-tab=customer]').click();await expect(page.locator('.grTable tbody tr')).toHaveCount(25);expect((await lastCall(page,'overview')).p_data.offset).toBe(0);
 });
+
+test('return stages show recorded dates and next action focuses the treatment without executing it',async({page})=>{
+ const detail={...DETAIL,created_at:'2026-10-01T12:00:00Z',received_at:'2026-10-02T12:00:00Z'};
+ await boot(page,{detail});await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.locator('[data-gr-open=r1]').click();
+ await expect(page.locator('.gdfStep[data-step="3"] .gdfStepDate time')).toHaveAttribute('datetime',detail.received_at);
+ await expect(page.locator('.gdfStepper [data-gdf-date="3"] time')).toHaveText('2 oct. 2026');
+ await expect(page.locator('.gdfStep[data-step="4"] .gdfStepDate time')).toHaveCount(0);
+ await expect(page.locator('.gdfNextCard h4')).toContainText('Traitement');await page.locator('[data-gr-next]').click();await expect(page.locator('[data-gr-process=l1]')).toBeFocused();
+ expect((await calls(page)).filter(c=>c.p_action==='process_line')).toHaveLength(0);
+ await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+test('supplier dispatch keeps its calendar date and a closed return has no next action',async({page})=>{
+ const detail={...DETAIL,kind:'supplier',status:'closed',financial_action:'credit',created_at:'2026-10-01T12:00:00Z',shipped_on:'2026-10-02',closed_at:'2026-10-05T12:00:00Z',credits:[{id:'c1',number:'NCR-1',created_at:'2026-10-04T12:00:00Z',amount:100}]};
+ await boot(page,{detail});await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.locator('[data-gr-open=r1]').click();
+ await expect(page.locator('.gdfStep[data-step="3"] .gdfStepDate time')).toHaveText('2 oct. 2026');
+ await expect(page.locator('.gdfStep[data-step="5"] .gdfStepDate time')).toHaveAttribute('datetime',detail.closed_at);
+ await expect(page.locator('.gdfNextCard')).toContainText('Processus terminé');await expect(page.locator('[data-gr-next]')).toHaveCount(0);
+});

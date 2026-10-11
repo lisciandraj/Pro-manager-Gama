@@ -335,12 +335,21 @@ async function detail(id){
   state.detail=d;
   window.ArcUI.render($('grMain'),processView(d));
   bindDetail(d);
+  window.GamaDossierFlow?.setMilestones($('grMain'),{steps:returnMilestones(d),type:d.kind});
   window.GamaDossierFlow?.attachHistory($('grMain'),'return:'+id,()=>token===generation&&state.detail?.id===id&&rights().view);
  }catch(e){if(token===generation)fail(e,()=>detail(id))}
 }
 /* La ficha como proceso: un resumen, una franja con las etapas y cada etapa
    con sus documentos y sus botones. Los botones son los de siempre, con los
    mismos permisos: sólo cambia dónde aparecen. */
+function returnMilestones(d){
+ const latest=values=>values.filter(v=>v&&Number.isFinite(new Date(v).getTime())).sort((a,b)=>new Date(b)-new Date(a))[0];
+ const customer=d.kind==='customer',finance=!!rights().refund;
+ const treatment=d.lines.length&&d.lines.every(l=>l.processed_at)?latest(d.lines.map(l=>l.processed_at)):null;
+ const financial=d.financial_action==='none'?null:d.financial_action==='refund'?latest(d.refunds.map(f=>f.created_at)):latest(d.credits.map(c=>c.created_at));
+ const dates=customer?[d.created_at,d.created_at,d.received_at,treatment,financial,d.closed_at]:[d.created_at,d.created_at,d.shipped_on,financial,d.closed_at];
+ return dates.map((completedAt,i)=>({completedAt,noCompletion:!finance&&i===(customer?4:3)}));
+}
 function processView(d){
  const r=rights(),customer=d.kind==='customer';
  const pending=d.lines.filter(l=>!l.processed_at).length;
@@ -387,15 +396,18 @@ function processView(d){
   {title:'Cierre del proceso de devolución',state:d.status==='closed'?'done':['shipped','credited'].includes(d.status)?'active':'pending',need:'Cerrar la devolución cuando el proveedor la haya abonado.',
    body:open&&(r.process||r.refund)&&['shipped','credited'].includes(d.status)?`<div class="grActions"><button class="arcButton primary" id="grClose">${tr('Cerrar la devolución')}</button></div>`:''}
  ];
- const current=steps.findIndex(x=>['active','pending','blocked'].includes(x.state));
+ const milestones=returnMilestones(d);steps.forEach((s,i)=>Object.assign(s,milestones[i]));
+ const current=cancelled?-1:steps.findIndex(x=>['active','pending','blocked'].includes(x.state));
  const next=cancelled?'Devolución anulada.':current<0?'Proceso completo.':steps[current].need||'';
- const stateOf=x=>cancelled&&x.state!=='done'?'closed':x.state;
+ const stateOf=x=>cancelled?'closed':x.state;
+ const flow=window.GamaDossierFlow;
+ const nextBox=flow.nextCard({state:cancelled?'closed':current<0?'done':steps[current].state,title:current>=0?steps[current].title:'',description:next,team:current===(customer?4:3)?'Contabilidad':current===steps.length-1?'Administración':'Almacén',actions:current>=0?`<button type="button" class="arcButton secondary gdfAction" data-gr-next="${current+1}">${tr('Ir a la etapa')}</button>`:''});
  return `<div class="grActions"><button class="arcButton secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
   <div class="arcPanel grCard grSummary"><div class="gdfSummaryHead"><h3>${esc(processNumber(d.kind,d.number))}</h3>${badge(STATUS,d.status)}</div>
    <dl class="grDl"><dt>${customer?tr('Cliente'):tr('Proveedor')}</dt><dd>${esc(d.partner||'—')}</dd><dt>${tr('Importe')}</dt><dd>${esc(money(d.amount))}</dd>${d.notes?`<dt>${tr('Comentario')}</dt><dd>${esc(d.notes)}</dd>`:''}</dl>
-   ${next?`<p class="gdfNext"><b>${tr('Próxima acción')}</b> ${tr(next)}</p>`:''}</div>
-  <ol class="gdfStepper" aria-label="${esc(T('Etapas del proceso'))}">${steps.map((x,i)=>`<li data-state="${stateOf(x)}"${i===current?' aria-current="step"':''}><span class="gdfDot">${i+1}</span><span class="gdfStepName">${tr(x.title)}</span></li>`).join('')}</ol>
-  <ol class="gdfFlow">${steps.map((x,i)=>`<li class="arcPanel gdfStep ${stateOf(x)}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(x.title)}</h3><span class="gdfBadge">${tr(STEP_STATES[stateOf(x)])}</span></div>${x.body||''}${['active','pending'].includes(stateOf(x))&&x.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(x.need)}</p>`:''}</li>`).join('')}</ol>
+  </div>
+  ${flow.stepper(steps.map(x=>({...x,state:stateOf(x)})),current)}
+  <div class="gdfProcessBody">${nextBox}<ol class="gdfFlow">${steps.map((x,i)=>`<li class="arcPanel gdfStep ${stateOf(x)}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(x.title)}</h3><span class="gdfBadge">${tr(STEP_STATES[stateOf(x)])}</span></div>${flow.stepDate({...x,state:stateOf(x)},i)}${x.body||''}${['active','pending'].includes(stateOf(x))&&x.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(x.need)}</p>`:''}</li>`).join('')}</ol></div>
   <div class="grActions">
    ${open&&r.create&&d.status==='to_process'?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
    ${open&&r.delete&&d.status==='to_process'?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
@@ -417,6 +429,7 @@ function docLinks(d){
 
 function bindDetail(d){
  const id=d.id,main=$('grMain');
+ main.querySelector('[data-gr-next]')?.addEventListener('click',e=>{const step=main.querySelector(`[data-step="${e.currentTarget.dataset.grNext}"]`);if(!step||!rights().view)return;step.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});const target=step.querySelector('button:not(:disabled)')||step;target.tabIndex=target.tabIndex<0?-1:target.tabIndex;target.focus({preventScroll:true})});
  $('grBack').onclick=()=>{detailId=null;go()};
  const docs=docLinks(d);
  main.querySelectorAll('[data-gr-doc]').forEach(b=>b.onclick=()=>{

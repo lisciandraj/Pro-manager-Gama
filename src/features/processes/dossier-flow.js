@@ -138,6 +138,7 @@ async function detail(key){
  if(!can(ID))return;selected=key;renderList();const token=++generation;window.ArcUI.render($('gdfDetail'),tr('Cargando…'));
  try{
   const shared=await processRPC('state',{key});if(token!==generation)return;serverStates.set(key,shared);
+  if(shared.followup?.owner_id){const owners=await by('profiles','id',[shared.followup.owner_id],'id,full_name').catch(()=>[]);shared.followup.owner_name=owners[0]?.full_name||'';if(token!==generation||!can(ID))return}
   if(key.startsWith('p:')){const o=purchases.find(x=>'p:'+x.id===key);if(!o)return;const x=(await purchaseDataFor([o])).get(o.id);if(token!==generation||!can(ID))return;renderPurchase(o,x);attachHistory($('gdfDetail'),key,()=>token===generation&&can(ID));return}
   const d=records.find(x=>x.key===key);if(!d)return;
   let data=emptySale();
@@ -147,7 +148,7 @@ async function detail(key){
    data=read.get(d.o.id);data.returns=returns;
   }
   /* Paso 1: la oportunidad del CRM de la que nace, por el pedido o por el presupuesto. */
-  if(can('crm')){const opportunity=d.o?.source_opportunity_id?await all('crm_opportunities',{select:'id,reference,title,erp_reference',eq:{id:d.o.source_opportunity_id}}).catch(()=>[]):d.q?await all('crm_opportunities',{select:'id,reference,title,erp_reference',eq:{quote_invoice_id:d.q.id}}).catch(()=>[]):[];data.opportunity=opportunity[0]||null}
+  if(can('crm')){const opportunity=d.o?.source_opportunity_id?await all('crm_opportunities',{select:'id,reference,title,erp_reference,created_at',eq:{id:d.o.source_opportunity_id}}).catch(()=>[]):d.q?await all('crm_opportunities',{select:'id,reference,title,erp_reference,created_at',eq:{quote_invoice_id:d.q.id}}).catch(()=>[]):[];data.opportunity=opportunity[0]||null}
   if(token!==generation||!can(ID))return;renderSale(d,data);attachHistory($('gdfDetail'),key,()=>token===generation&&can(ID));
  }catch(e){if(token===generation)failure()}
 }
@@ -285,9 +286,15 @@ function saleSteps(d,x){
 }
 function renderSale(d,x){
  const {steps:base,closed}=saleSteps(d,x),steps=saleActions(d,x,base);
+ const shared=serverStates.get(d.key);
+ steps[0].completedAt=x.opportunity?.created_at||d.r?.created_at;
+ steps[1].completedAt=d.q?.quote_accepted_at;
+ if(shared?.metrics)steps[3].need=n(shared.metrics.missing)>0?'Reservar las cantidades que faltan o reponerlas con una compra.':'Preparar y escanear cada producto: el bulto queda listo para expedir.';
+ steps[7].completedAt=shared?.closed?shared.followup?.closed_at:null;
+ if(n(shared?.metrics?.open_returns)>0)steps[7].need='Resolver las devoluciones abiertas antes de cerrar el proceso.';
  const returns=(x.returns||[]).length?`<div class="arcPanel card gdfAside"><h3>${tr('Devoluciones de este proceso')}</h3><p>${tr('Se siguen en Devoluciones, en su propio proceso de retorno.')}</p><ul class="gdfDocs">${x.returns.map(r=>docButton(doc(r.number,'returns',r.id,'returns'))).join('')}</ul></div>`:'';
  remember(d.key,steps,closed);
- renderProcess({number:saleNumber(d),party:customer(d),address:d.o?.delivery_address||'',steps,closed,after:returns+externalStatus(serverStates.get(d.key))});
+ renderProcess({key:d.key,number:saleNumber(d),party:customer(d),address:d.o?.delivery_address||'',steps,closed,followup:shared?.followup,after:returns+externalStatus(shared),cancelledPayments:x.payments.filter(p=>p.status==='cancelled').map(p=>p.id)});
  window.ArchitectProjectControls?.mountDossier(d.key,$('gdfDetail'));
 }
 
@@ -323,8 +330,12 @@ function purchaseSteps(o,x){
 }
 function renderPurchase(o,x){
  const {steps:base,closed}=purchaseSteps(o,x),steps=purchaseActions(o,x,base);
+ const shared=serverStates.get('p:'+o.id);
+ steps[0].completedAt=o.created_at;
+ steps[6].completedAt=shared?.closed?shared.followup?.closed_at:null;
+ if(n(shared?.metrics?.open_returns)>0)steps[6].need='Resolver las devoluciones abiertas antes de cerrar el proceso.';
  remember('p:'+o.id,steps,closed);
- renderProcess({number:purchaseNumber(o),party:supplierName(o),address:'',steps,closed,after:''});
+ renderProcess({key:'p:'+o.id,number:purchaseNumber(o),party:supplierName(o),address:'',steps,closed,followup:shared?.followup,after:'',cancelledPayments:x.payments.rows.filter(p=>p.status==='cancelled').map(p=>p.id)});
  window.ArchitectProjectControls?.mountDossier('p:'+o.id,$('gdfDetail'));
 }
 
@@ -334,34 +345,125 @@ function sharedInfo(s,i,fallback){const m=s.metrics;if(!m)return esc(fallback);c
  else value=({3:T('Sin reservar')+`: ${m.missing}`,4:T('Expedido / pedido')+`: ${m.shipped} / ${m.ordered} · `+tr('Entregas firmadas / servicios ejecutados','Livraisons signées / services exécutés','Signed deliveries / completed services')+`: ${m.performed} / ${m.ordered}`,5:tr('Cantidad sin facturar','Quantité non facturée','Unbilled quantity')+`: ${m.unbilled}`,6:T('Cobrado')+`: ${money(m.paid)} · `+tr('Abonos','Avoirs','Credits')+`: ${money(m.credits)} · `+T('Saldo pendiente')+`: ${money(m.balance)}`,7:tr('Devoluciones abiertas','Retours ouverts','Open returns')+`: ${m.open_returns}`})[i]||'';return esc(value)}
 function externalStatus(s){if(!s||s.external_complete===null)return '';return `<div class="arcPanel card"><h3>${tr('Formalidades externas')}</h3><p>${tr(s.external_complete?'Documentos externos completos.':'Documentos externos por completar.')} ${s.external_pending||0}</p><p>${tr('Este estado se muestra por separado del cierre operativo.')}</p></div>`}
 function docButton(x){return `<li><button type="button" class="gdfDoc" data-action="${esc(x.action)}" data-id="${esc(x.id||'')}" ${x.module&&!can(x.module)?'disabled':''}>${esc(x.ref)}</button>${x.issuedReference?`<small class="sdMuted">${esc(T('Documento'))} : ${esc(x.issuedReference)}</small>`:''}</li>`}
-function renderProcess({number,party,address,steps,closed,after}){
+/* The date belongs to a completed business action, never to a generic update.
+   Dates without a time (supplier dispatch, for example) retain their calendar day. */
+const milestoneContexts=new WeakMap();
+function formatMilestone(value,withTime=false){
+ if(!value)return '';
+ const dateOnly=/^\d{4}-\d{2}-\d{2}$/.test(value),date=new Date(dateOnly?value+'T12:00:00Z':value);
+ if(!Number.isFinite(date.getTime()))return '';
+ const options={year:'numeric',month:'short',day:'numeric',timeZone:dateOnly?'UTC':window.GamaCompany?.get()?.timezone||'America/Guayaquil'};
+ if(withTime&&!dateOnly)Object.assign(options,{hour:'2-digit',minute:'2-digit'});
+ return new Intl.DateTimeFormat(window.GamaI18n?.locale||'es-EC',options).format(date);
+}
+function stepDate(s,i,compact=false){
+ if(s.noCompletion)return '';
+ const date=s.state==='done'&&formatMilestone(s.completedAt);
+ const label=s.state==='done'?(date?'Cerrada el':'Fecha de cierre no registrada'):s.state==='pending'?'Por realizar':STATES[s.state];
+ return `<span class="gdfStepDate${compact?' compact':''}" data-gdf-date="${i+1}"${s.state==='done'?' data-completion-date':''}>${date?`${compact?'':tr(label)+' '}<time datetime="${esc(s.completedAt)}" title="${esc(T('Cerrada el')+' '+formatMilestone(s.completedAt,true))}">${esc(date)}</time>`:tr(label)}</span>`;
+}
+function stepper(steps,current,closed=false){
+ return `<ol class="gdfStepper" aria-label="${esc(T('Etapas del proceso'))}">${steps.map((s,i)=>{const state=closed&&s.state!=='done'?'closed':s.state;return `<li data-state="${state}"${i===current?' aria-current="step"':''}><span class="gdfDot" aria-label="${i+1}">${state==='done'?'✓':i+1}</span><span class="gdfStepName">${tr(s.title)}</span>${stepDate({...s,state},i,true)}</li>`}).join('')}</ol>`;
+}
+function nextCard({state='active',title,description,team,actions='',followup}){
+ const finished=['done','closed'].includes(state);
+ const icon=finished?'<path d="m5 12 4 4L19 6"/>':'<path d="M12 3 3 8v9l9 5 9-5V8l-9-5Z"/><path d="m3 8 9 5 9-5M12 13v9M7.5 5.5l9 5"/>';
+ return `<aside class="gdfNextCard" data-next-state="${esc(state)}" aria-label="${esc(T('Próxima acción'))}"><h3>${tr('Próxima acción')}</h3><div class="gdfNextBody"><span class="gdfNextIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span><div>${title?`<h4>${tr(title)}</h4>`:''}<p>${tr(description)}</p></div></div>${!finished&&team?`<p class="gdfNextTeam">${tr('Equipo responsable')} <strong>${tr(team)}</strong></p>`:''}${!finished&&followup?.owner_name?`<p class="gdfNextTeam">${tr('Responsable del expediente')} <strong>${esc(followup.owner_name)}</strong></p>`:''}${!finished&&followup?.next_action?`<div class="gdfFollowup"><b>${tr('Consigna de seguimiento')}</b><p>${esc(followup.next_action)}</p>${followup.due_date?`<p>${tr('Fecha límite')} : <time datetime="${esc(followup.due_date)}">${esc(formatMilestone(followup.due_date))}</time></p>`:''}</div>`:''}${actions?`<div class="gdfActions">${actions}</div>`:''}</aside>`;
+}
+function renderProcess({key,number,party,address,steps,closed,followup,after,cancelledPayments=[]}){
  const links=[];
  const actions=s=>s?.state==='restricted'?[]:(s?.actions||[]).filter(a=>a.id&&can(a.module));
  const actionLinks=s=>actions(s).map(a=>{const key=links.push(a)-1;return `<button type="button" class="arcButton secondary gdfAction" data-gdf-next="${key}">${tr(a.label)}${a.ref?` <span>${esc(a.ref)}</span>`:''}</button>`}).join('');
- const current=steps.findIndex(s=>['active','blocked','pending'].includes(s.state)),summary=summarize(steps,closed);
- /* Lo que este perfil no puede comprobar no se da por hecho: el proceso no está completo para él. */
- const next=closed?'Proceso cerrado.':summary.state==='done'?'Proceso completo.':current<0?'Las etapas siguientes no se pueden comprobar con este perfil.':steps[current].need||'Completar las etapas anteriores.';
- const stepper=`<ol class="gdfStepper" aria-label="${esc(T('Etapas del proceso'))}">${steps.map((s,i)=>`<li data-state="${closed&&s.state!=='done'?'closed':s.state}"${i===current?' aria-current="step"':''}><span class="gdfDot">${i+1}</span><span class="gdfStepName">${tr(s.title)}</span></li>`).join('')}</ol>`;
+ const current=closed?-1:steps.findIndex(s=>['active','blocked','pending'].includes(s.state)),summary=summarize(steps,closed);
+ const readyToClose=!closed&&summary.state==='done',nextStep=readyToClose?steps.length-1:current;
+ const next=closed?'Proceso cerrado.':readyToClose?'Las etapas operativas están terminadas. Revisar el responsable y validar el cierre del proceso.':current<0?'Las etapas siguientes no se pueden comprobar con este perfil.':steps[current].need||'Completar las etapas anteriores.';
+ const teams=key.startsWith('p:')?['Compras','Compras','Almacén','Almacén','Contabilidad','Contabilidad','Administración']:['Comercial','Comercial','Comercial','Almacén','Transporte','Contabilidad','Contabilidad','Administración'];
+ const card=nextCard({state:closed?'closed':readyToClose?'active':steps[current]?.state||'restricted',title:nextStep>=0?steps[nextStep].title:'',description:next,team:teams[nextStep],actions:!closed&&nextStep>=0?actionLinks(steps[nextStep]):'',followup});
  const cards=steps.map((s,i)=>{const docs=(s.docs||[]).filter(Boolean),state=closed&&s.state!=='done'?'closed':s.state;
-  return `<li class="arcPanel gdfStep ${state}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(s.title)}</h3><span class="gdfBadge">${tr(STATES[state])}</span></div>${docs.length?`<ul class="gdfDocs" aria-label="${esc(T('Documentos'))}">${docs.map(docButton).join('')}</ul>`:''}${s.info?`<p>${s.info}</p>`:''}${['active','blocked','pending'].includes(state)&&s.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(s.need)}</p>`:''}<div class="gdfActions">${actionLinks(s)}</div></li>`}).join('');
- window.ArcUI.render($('gdfDetail'),`<div class="arcPanel card gdfSummary"><div class="gdfSummaryHead"><h2>${esc(number)}</h2><span class="gdfBadge" data-status="${summary.state}">${tr(PROCESS_STATUS[summary.state])}</span></div><p>${esc(party)}</p>${address?`<p>${esc(address)}</p>`:''}<p class="gdfNext"><b>${tr('Próxima acción')}</b> ${tr(next)}</p>${!closed&&current>=0?`<div class="gdfActions">${actionLinks(steps[current])}</div>`:''}</div>${stepper}<ol class="gdfFlow">${cards}</ol>${after||''}`);
- $('gdfDetail').querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action,b.dataset.id));
- $('gdfDetail').querySelectorAll('[data-gdf-next]').forEach(b=>b.onclick=async()=>{const a=links[Number(b.dataset.gdfNext)];if(!a||!can(ID)||!can(a.module))return;b.disabled=true;try{await act(a.action,a.id)}finally{b.disabled=false}});
+  return `<li class="arcPanel gdfStep ${state}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${s.state==='done'?'✓':i+1}</span><h3>${tr(s.title)}</h3><span class="gdfBadge">${tr(STATES[state])}</span></div>${stepDate({...s,state},i)}${docs.length?`<ul class="gdfDocs" aria-label="${esc(T('Documentos'))}">${docs.map(docButton).join('')}</ul>`:''}${s.info?`<p>${s.info}</p>`:''}${['active','blocked','pending'].includes(state)&&s.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(s.need)}</p>`:''}<div class="gdfActions">${actionLinks(s)}</div></li>`}).join('');
+ const host=$('gdfDetail');
+ window.ArcUI.render(host,`<div class="arcPanel card gdfSummary"><div class="gdfSummaryHead"><h2>${esc(number)}</h2><span class="gdfBadge" data-status="${summary.state}">${tr(PROCESS_STATUS[summary.state])}</span></div><p>${esc(party)}</p>${address?`<p>${esc(address)}</p>`:''}</div>${stepper(steps,current,closed)}<div class="gdfProcessBody">${card}<ol class="gdfFlow">${cards}</ol></div>${after||''}`);
+ milestoneContexts.set(host,{steps,cancelledPayments});
+ host.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action,b.dataset.id));
+ host.querySelectorAll('[data-gdf-next]').forEach(b=>b.onclick=async()=>{const a=links[Number(b.dataset.gdfNext)];if(!a||!can(ID)||!can(a.module))return;b.disabled=true;try{await act(a.action,a.id)}finally{b.disabled=false}});
 }
 /* Only minimal, server-scoped action metadata is displayed. */
 const historyWords={history:['Historial de acciones','Historique des actions','Action history'],loading:['Cargando historial…','Chargement de l’historique…','Loading history…'],unknown:['Autor no registrado','Auteur non enregistré','Author not recorded'],unavailable:['Usuario no disponible','Utilisateur indisponible','User unavailable'],empty:['No hay acciones registradas para esta etapa.','Aucune action enregistrée pour cette étape.','No actions recorded for this step.'],old:['Etapa completada; no hay una validación con autor registrada.','Étape terminée ; aucune validation avec auteur n’est enregistrée.','Step complete; no validation with an author was recorded.'],failed:['No se pudo cargar el historial.','Impossible de charger l’historique.','Could not load history.'],retry:['Reintentar','Réessayer','Retry'],more:['Ver acciones anteriores','Voir les actions précédentes','Load earlier actions'],request:['Solicitud actualizada','Demande mise à jour','Request updated'],request_created:['Solicitud creada','Demande créée','Request created'],purchase_created:['Origen del pedido registrado','Origine de l’achat enregistrée','Purchase origin recorded'],purchase:['Pedido de compra actualizado','Commande d’achat mise à jour','Purchase order updated'],receipt:['Recepción registrada','Réception enregistrée','Receipt recorded'],stock:['Movimiento de stock','Mouvement de stock','Stock movement'],invoice:['Factura registrada / actualizada','Facture enregistrée / mise à jour','Invoice recorded / updated'],supplier_invoice:['Factura del proveedor registrada / actualizada','Facture fournisseur enregistrée / mise à jour','Supplier invoice recorded / updated'],invoice_match:['Conciliación de factura','Rapprochement de facture','Invoice matching'],payment:['Cobro registrado / actualizado','Encaissement enregistré / mis à jour','Payment recorded / updated'],supplier_payment:['Pago registrado / actualizado','Paiement enregistré / mis à jour','Supplier payment recorded / updated'],closure:['Cierre del proceso actualizado','Clôture du processus mise à jour','Process closure updated'],created:['Pedido creado','Commande créée','Order created'],confirm:['Pedido confirmado','Commande confirmée','Order confirmed'],cancel:['Anulación registrada','Annulation enregistrée','Cancellation recorded'],update:['Pedido actualizado','Commande mise à jour','Order updated'],dispatch:['Expedición registrada','Expédition enregistrée','Dispatch recorded'],shipment:['Expedición registrada','Expédition enregistrée','Dispatch recorded'],return_created:['Devolución creada','Retour créé','Return created'],return_request:['Solicitud de devolución actualizada','Demande de retour mise à jour','Return request updated'],return_treatment:['Tratamiento del producto registrado','Traitement du produit enregistré','Product treatment recorded'],credit:['Abono registrado','Avoir enregistré','Credit recorded'],refund:['Reembolso registrado','Remboursement enregistré','Refund recorded'],financial_decision:['Decisión financiera registrada','Décision financière enregistrée','Financial decision recorded'],quote_save:['Presupuesto guardado','Devis enregistré','Quote saved'],quote_send:['Presupuesto enviado','Devis envoyé','Quote sent'],quote_accept:['Presupuesto aceptado','Devis accepté','Quote accepted'],quote_accepted:['Presupuesto aceptado','Devis accepté','Quote accepted'],quote_reopen:['Presupuesto reabierto','Devis rouvert','Quote reopened'],quote_cancel:['Presupuesto anulado','Devis annulé','Quote cancelled'],quote_reject:['Presupuesto rechazado','Devis refusé','Quote rejected'],internal_invoice:['Factura interna creada','Facture interne créée','Internal invoice created'],internal_external_link:['Factura externa vinculada','Facture externe liée','External invoice linked'],internal_external_number:['Número fiscal registrado','Numéro fiscal enregistré','Fiscal number recorded'],service_complete:['Servicio ejecutado','Service exécuté','Service completed'],service_cancel:['Ejecución de servicio anulada','Exécution du service annulée','Service completion cancelled'],preparation_cancelled:['Preparación anulada','Préparation annulée','Preparation cancelled'],fulfillment:['Acción de preparación','Action de préparation','Preparation action'],delivery:['Acción de entrega','Action de livraison','Delivery action']};
 Object.assign(historyWords,{opportunity:['Opportunidad actualizada','Opportunité mise à jour','Opportunity updated'],opportunity_created:['Opportunidad creada','Opportunité créée','Opportunity created'],proof:['Prueba de entrega registrada','Preuve de livraison enregistrée','Delivery proof recorded'],reserve:['Stock reservado','Stock réservé','Stock reserved'],receipt_auto_reserved:['Stock recibido y reservado','Stock reçu et réservé','Stock received and reserved'],ship:['Expedición registrada','Expédition enregistrée','Dispatch recorded'],invoice_auto_delivery:['Factura creada tras entrega','Facture créée après livraison','Invoice created after delivery'],fulfillment_start:['Preparación iniciada','Préparation commencée','Preparation started'],fulfillment_pick:['Productos preparados','Produits préparés','Products picked'],fulfillment_finish:['Preparación terminada','Préparation terminée','Preparation finished'],fulfillment_package:['Bulto registrado','Colis enregistré','Package recorded'],fulfillment_void_package:['Bulto anulado','Colis annulé','Package cancelled'],fulfillment_incident:['Incidencia registrada','Incident enregistré','Incident recorded'],fulfillment_cancel_preparation:['Preparación anulada','Préparation annulée','Preparation cancelled'],fulfillment_propose_option:['Opción propuesta','Option proposée','Option proposed'],fulfillment_respond_option:['Respuesta del cliente registrada','Réponse du client enregistrée','Customer response recorded']});
 function historyText(k){const i={es:0,fr:1,en:2}[window.GamaI18n?.language]??0;return historyWords[k]?.[i]||k}
+/* Only validation events can date a finished step. Keep this distinct from
+   the latest history entry (which can be a comment, edit or cancellation). */
+function completionRule(key,step,context){
+ const purchase=key.startsWith('p:'),returns=key.startsWith('return:');
+ const rules=purchase?{
+  1:[[1],e=>e.action==='purchase_created'],
+  2:[[2],e=>e.action==='purchase'&&e.status==='sent'],
+  3:[[3],e=>e.action==='receipt'],4:[[4],e=>e.action==='stock'],
+  5:[[5],e=>e.action==='invoice_match'||e.action==='supplier_invoice'&&e.status==='posted'],
+  6:[[6],e=>['supplier_payment','credit'].includes(e.action)]
+ }:returns?{
+  1:[[2],e=>e.action==='return_created'],2:[[2],e=>e.action==='return_created'],
+  3:[[3],e=>['receipt','dispatch'].includes(e.action)],
+  4:[[4],e=>context.type==='supplier'?e.action==='credit':e.action==='return_treatment'],
+  5:[[5],e=>context.type==='supplier'?e.action==='closure':['refund','credit','financial_decision'].includes(e.action)],
+  6:[[6],e=>e.action==='closure']
+ }:{
+  1:[[1],e=>['request_created','opportunity_created'].includes(e.action)],
+  2:[[2],e=>['quote_accept','quote_accepted'].includes(e.action)],3:[[3],e=>e.action==='confirm'],
+  4:[[4,5],e=>['fulfillment_finish','fulfillment_dispatch','ship','dispatch','shipment','service_complete'].includes(e.action)],
+  5:[[5],e=>['proof','delivery_Entregada','service_complete'].includes(e.action)],
+  6:[[6],e=>['internal_invoice','invoice_auto_delivery'].includes(e.action)||e.action==='invoice'&&e.status==='authorized'],
+  7:[[7],e=>['payment','credit'].includes(e.action)]
+ };
+ const rule=rules[step];if(!rule)return null;
+ const cancelled=new Set(context.cancelledPayments||[]);
+ return {sources:rule[0],matches:e=>rule[1](e)&&!['cancelled','rejected'].includes(e.status)&&!cancelled.has(String(e.id).replace(/^(supplier-)?payment-created:/,''))&&!!formatMilestone(e.at)};
+}
+async function attachCompletionDates(host,key,items,read,valid){
+ const context=milestoneContexts.get(host)||{},cache=new Map(),pending=new Map();
+ for(const e of items){if(!cache.has(e.step))cache.set(e.step,[]);cache.get(e.step).push(e)}
+ const load=async(stage,offset)=>{
+  const k=stage+':'+offset;
+  if(!pending.has(k))pending.set(k,read(stage,offset).then(r=>{if(!Array.isArray(r?.items))throw Error('HISTORY_UNAVAILABLE');const rows=cache.get(stage)||[];const known=new Set(rows.map(e=>e.id));const added=r.items.filter(e=>!known.has(e.id));rows.push(...added);cache.set(stage,rows);return added.length}));
+  return pending.get(k);
+ };
+ const cards=[...host.querySelectorAll('.gdfStep.done')];
+ await Promise.all(cards.map(async card=>{
+  const step=Number(card.dataset.step),original=context.steps?.[step-1];
+  if(original?.noCompletion)return;
+  let at=original?.completedAt;
+  if(!formatMilestone(at)){
+   const rule=completionRule(key,step,context);if(!rule)return;
+   try{
+    const candidates=await Promise.all(rule.sources.map(async stage=>{
+     let rows=cache.get(stage)||[],found=rows.find(rule.matches);
+     // A confirmation can be older than the first page of later edits.
+     while(!found&&rows.length<Number(rows[0]?.total||0)&&valid()){
+      const added=await load(stage,rows.length);if(!added)break;
+      rows=cache.get(stage)||[];found=rows.find(rule.matches);
+     }
+     return found?.at;
+    }));
+    at=candidates.filter(Boolean).sort((a,b)=>new Date(b)-new Date(a))[0];
+   }catch(_){return} // No fabricated date if the historical evidence is unavailable.
+  }
+  if(!valid()||!host.isConnected||!formatMilestone(at))return;
+  host.querySelectorAll(`[data-gdf-date="${step}"][data-completion-date]`).forEach(el=>{
+   const compact=el.classList.contains('compact');
+   el.innerHTML=`${compact?'':tr('Cerrada el')+' '}<time datetime="${esc(at)}" title="${esc(T('Cerrada el')+' '+formatMilestone(at,true))}">${esc(formatMilestone(at))}</time>`;
+  });
+ }));
+}
 async function attachHistory(host,key,valid=()=>host.isConnected){
  const cards=[...host.querySelectorAll('.gdfStep:not(.restricted):not(.skip)')];
  const hosts=new Map(cards.map(card=>{const box=document.createElement('div');box.className='gdfHistory';box.textContent=historyText('loading');card.appendChild(box);return [Number(card.dataset.step),{box,card,rows:[]}]}));
  const read=(step=0,offset=0)=>window.ArcData.rpc('gama_process_history',{p_key:key,p_step:step,p_offset:offset});
  function draw(step){const h=hosts.get(step);if(!h||!valid()||!h.box.isConnected)return;const {box,card,rows}=h;const total=Number(rows[0]?.total||rows.length);
-  const item=e=>{const name=e.actor_name==='AUTHOR_NOT_RECORDED'?historyText('unknown'):e.actor_name==='USER_UNAVAILABLE'?historyText('unavailable'):e.actor_name||historyText('unknown'),date=new Date(e.at);const label=historyWords[e.action]?historyText(e.action):e.action?.startsWith('fulfillment_')?historyText('fulfillment')+' · '+e.action.slice(12):e.action?.startsWith('delivery_')?historyText('delivery')+' · '+e.action.slice(9):e.action;return `<li><strong>${esc(label)}</strong><span>${esc(name)} · <time datetime="${esc(e.at)}">${esc(Number.isNaN(date.getTime())?'—':date.toLocaleString())}</time></span>${e.reference?`<small>${esc(e.reference)}</small>`:''}${e.status?`<small>${esc(e.status)}</small>`:''}</li>`};
-  box.innerHTML=rows.length?`<p class="gdfHistoryLatest">${esc(historyText('history'))} · <b>${esc(rows[0].actor_name==='AUTHOR_NOT_RECORDED'?historyText('unknown'):rows[0].actor_name==='USER_UNAVAILABLE'?historyText('unavailable'):rows[0].actor_name)}</b> · ${esc(new Date(rows[0].at).toLocaleString())}</p><details><summary>${esc(historyText('history'))} (${rows.length} / ${total})</summary><ol>${rows.map(item).join('')}</ol>${rows.length<total?`<button type="button" class="arcButton secondary" data-history-more>${esc(historyText('more'))}</button>`:''}</details>`:`<p>${esc(historyText(card.classList.contains('done')?'old':'empty'))}</p>`;
+  const item=e=>{const name=e.actor_name==='AUTHOR_NOT_RECORDED'?historyText('unknown'):e.actor_name==='USER_UNAVAILABLE'?historyText('unavailable'):e.actor_name||historyText('unknown'),date=new Date(e.at);const label=historyWords[e.action]?historyText(e.action):e.action?.startsWith('fulfillment_')?historyText('fulfillment')+' · '+e.action.slice(12):e.action?.startsWith('delivery_')?historyText('delivery')+' · '+e.action.slice(9):e.action;return `<li><strong>${esc(label)}</strong><span>${esc(name)} · <time datetime="${esc(e.at)}">${esc(Number.isNaN(date.getTime())?'—':formatMilestone(e.at,true))}</time></span>${e.reference?`<small>${esc(e.reference)}</small>`:''}${e.status?`<small>${esc(e.status)}</small>`:''}</li>`};
+  box.innerHTML=rows.length?`<p class="gdfHistoryLatest">${esc(historyText('history'))} · <b>${esc(rows[0].actor_name==='AUTHOR_NOT_RECORDED'?historyText('unknown'):rows[0].actor_name==='USER_UNAVAILABLE'?historyText('unavailable'):rows[0].actor_name)}</b> · <time datetime="${esc(rows[0].at)}">${esc(formatMilestone(rows[0].at,true)||'—')}</time></p><details><summary>${esc(historyText('history'))} (${rows.length} / ${total})</summary><ol>${rows.map(item).join('')}</ol>${rows.length<total?`<button type="button" class="arcButton secondary" data-history-more>${esc(historyText('more'))}</button>`:''}</details>`:`<p>${esc(historyText(card.classList.contains('done')?'old':'empty'))}</p>`;
   box.querySelector('[data-history-more]')?.addEventListener('click',async e=>{const b=e.currentTarget;b.disabled=true;try{const r=await read(step,rows.length);if(!valid())return;h.rows.push(...r.items);draw(step);box.querySelector('details').open=true}catch(_){if(valid())b.textContent=historyText('retry')}finally{b.disabled=false}});
  }
- try{const result=await read();if(!valid())return;if(!Array.isArray(result?.items))throw Error('HISTORY_UNAVAILABLE');for(const e of result.items)hosts.get(e.step)?.rows.push(e);for(const step of hosts.keys())draw(step)}catch(_){if(!valid())return;for(const {box} of hosts.values()){box.innerHTML=`<p>${esc(historyText('failed'))}</p><button type="button" class="arcButton secondary">${esc(historyText('retry'))}</button>`;box.querySelector('button').onclick=()=>{for(const {box:b} of hosts.values())b.remove();attachHistory(host,key,valid)}}}
+ try{const result=await read();if(!valid())return;if(!Array.isArray(result?.items))throw Error('HISTORY_UNAVAILABLE');for(const e of result.items)hosts.get(e.step)?.rows.push(e);for(const step of hosts.keys())draw(step);await attachCompletionDates(host,key,result.items,read,valid)}catch(_){if(!valid())return;for(const {box} of hosts.values()){box.innerHTML=`<p>${esc(historyText('failed'))}</p><button type="button" class="arcButton secondary">${esc(historyText('retry'))}</button>`;box.querySelector('button').onclick=()=>{for(const {box:b} of hosts.values())b.remove();attachHistory(host,key,valid)}}}
 }
 async function act(action,id){
  if(!can(ID))return;
@@ -384,7 +486,8 @@ async function act(action,id){
   case'new_supplier_invoice':if(can('accounting'))await window.GamaAccounting.open({section:'purchases',purchaseOrderId:id,newBill:true});break;
  }}catch(e){window.gamaToast?.(T('No se pudo abrir el documento.'))}
 }
-window.GamaDossierFlow={open,group,progress,financialProgress,summarize,attachHistory};
+window.GamaDossierFlow={open,group,progress,financialProgress,summarize,attachHistory,stepDate,stepper,nextCard,formatMilestone,setMilestones:(host,context)=>milestoneContexts.set(host,context)};
+window.addEventListener('gama:language-change',()=>{$(ID)?.querySelectorAll('.gdfStepDate time,.gdfFollowup time,.gdfHistory time').forEach(el=>{el.textContent=formatMilestone(el.dateTime,!!el.closest('.gdfHistory'));if(el.closest('.gdfStepDate'))el.title=T('Cerrada el')+' '+formatMilestone(el.dateTime,true)})});
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id===ID){generation++;clearTimeout(searchTimer);releaseReturns()}});
 window.addEventListener('gama:modules-change',()=>{if($(ID)?.classList.contains('active')){if(can(ID))open(null,{tab});else releaseReturns()}});
 window.addEventListener('gama:process-change',()=>{if(can(ID)&&$(ID)?.classList.contains('active'))open(selected,{tab})});

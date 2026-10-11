@@ -401,7 +401,7 @@ function processView(d){
  const next=cancelled?'Devolución anulada.':current<0?'Proceso completo.':steps[current].need||'';
  const stateOf=x=>cancelled?'closed':x.state;
  const flow=window.GamaDossierFlow;
- const nextBox=flow.nextCard({state:cancelled?'closed':current<0?'done':steps[current].state,title:current>=0?steps[current].title:'',description:next,team:current===(customer?4:3)?'Contabilidad':current===steps.length-1?'Administración':'Almacén',actions:current>=0?`<button type="button" class="arcButton secondary gdfAction" data-gr-next="${current+1}">${tr('Ir a la etapa')}</button>`:''});
+ const nextBox=flow.nextCard({state:cancelled?'closed':current<0?'done':steps[current].state,title:current>=0?steps[current].title:'',description:next,team:current===(customer?4:3)?'Contabilidad':current===steps.length-1?'Administración':'Almacén',actions:current>=0?`<button type="button" class="arcButton secondary gdfAction" data-gr-next="${current+1}">${tr('Ir a la etapa')}</button>`:'',module:'returns'});
  return `<div class="grActions"><button class="arcButton secondary" id="grBack">${tr('← Volver a la lista')}</button></div>
   <div class="arcPanel grCard grSummary"><div class="gdfSummaryHead"><h3>${esc(processNumber(d.kind,d.number))}</h3>${badge(STATUS,d.status)}</div>
    <dl class="grDl"><dt>${customer?tr('Cliente'):tr('Proveedor')}</dt><dd>${esc(d.partner||'—')}</dd><dt>${tr('Importe')}</dt><dd>${esc(money(d.amount))}</dd>${d.notes?`<dt>${tr('Comentario')}</dt><dd>${esc(d.notes)}</dd>`:''}</dl>

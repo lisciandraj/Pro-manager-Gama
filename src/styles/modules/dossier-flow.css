@@ -44,6 +44,9 @@
 .gdfNextBody>div{min-width:0}.gdfNextBody h4{margin:0 0 7px;font-size:15px}.gdfNextBody p{margin:0;font-size:14px;line-height:1.55}
 .gdfNextIcon{display:grid;place-items:center;width:54px;height:54px;flex:none;border-radius:50%;color:#d85b08;background:#ffe5d0}
 .gdfNextIcon svg{width:30px;height:30px}
+.gdfNextIcon[data-arc-module]{color:var(--gama-blue,#157F98)}
+.gdfNextIcon[data-arc-module] svg{stroke-width:1.65}
+.gdfNextIcon[data-arc-module] svg:not(.arcHomeIllustration)>:last-child{stroke:var(--gama-orange,#F87826)}
 .gdfNextTeam{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;border-top:1px solid #efdacc;margin:18px 0 0;padding-top:13px;font-size:13px;color:var(--arc-text-muted)}
 .gdfNextTeam strong{color:var(--arc-text)}
 .gdfNextCard .gdfActions{display:grid;gap:8px;margin-top:18px}.gdfNextCard .gdfAction{width:100%;margin:0;justify-content:center;text-align:center}

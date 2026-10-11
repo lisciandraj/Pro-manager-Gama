@@ -175,6 +175,12 @@
     (_d = (_a = window.ArcUI) == null ? void 0 : _a.toast) == null ? void 0 : _d.call(_a, ((_c = (_b = window.ArcErrors) == null ? void 0 : _b.message) == null ? void 0 : _c.call(_b, error)) || "No se pudo completar la acción.", "error");
   }
   const icons = {
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18"/>',
+    download: '<path d="M12 3v12m-5-5 5 5 5-5M3 16v5h18v-5"/>',
+    send: '<path d="m22 2-7 20-4-9L2 9 22 2ZM11 13 22 2"/>',
+    refresh: '<path d="M20 7a9 9 0 1 0 1 9M20 3v5h-5"/>',
+    alert: '<path d="m12 3 10 18H2L12 3ZM12 9v5M12 17v1"/>',
+    building: '<path d="M4 21V7h9v14M13 11h7v10M2 21h20M7 7V3h6v4M7 11h3M7 15h3M16 15h1M16 18h1M8 21v-3"/>',
     sales: '<path d="M3 20h18M5 17v-4M10 17V9M15 17V5M4 10l6-5 5 1 5-4M16 2h4v4"/>',
     globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
     cocoBot: '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M4 11V7M20 11V7"/><rect x="4" y="6" width="16" height="15" rx="7"/><rect x="6.5" y="10" width="11" height="8" rx="4"/><path d="M8.5 14q1-2 2 0M13.5 14q1-2 2 0M4 11H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1M20 11h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1"/>',

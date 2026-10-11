@@ -115,3 +115,11 @@ La préparation fige désormais les coordonnées et prix déjà enregistrés dan
 facture ; elle refuse les identités manquantes et les totaux incohérents.
 Voir le [contrat fournisseur indépendant](../integrations/sri-invoice-api.md),
 ses droits, son périmètre et les étapes de raccordement restant au prestataire.
+
+## Disposition des maquettes du 11 octobre 2026
+
+Un en-tête unique regroupe le titre, l’environnement fiscal, l’envoi de la sélection et l’actualisation. Les quatre onglets portent des compteurs issus des mêmes sources et droits que la liste, avec les filtres de date et de numéro appliqués avant pagination. Le sélecteur Afficher conserve l’accès à toutes les factures. Une défaillance de comptage affiche « — » et ne bloque pas la liste.
+
+La barre de recherche et les commandes Date, Colonnes et Exporter CSV précèdent le tableau et son panneau de contrôle. L’export CSV concerne uniquement les factures de la page affichée et nécessite le droit d’export. La sélection en tête du tableau et les cases de ligne alimentent le même total et les deux boutons d’envoi ; la copie de l’en-tête réutilise l’action existante et son verrouillage.
+
+Le panneau **Contrôle avant envoi** contient l’identité de la facture, les contrôles vérifiés par l’API, les états interne et fiscal distincts et les documents XML/RIDE. Les valeurs inconnues restent « Non vérifié ». Les paramètres de préparation, les détails de facture et les liens du dossier sont repliables. Une tentative de préparation sans moyen de paiement ouvre les paramètres et place le focus sur le choix requis. Les confirmations d’envoi, l’arrêt d’un lot incertain et l’interdiction de réémission sont inchangés.

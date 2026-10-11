@@ -61,3 +61,31 @@ test('changing accounts clears protected Stock content before the next read',asy
 test('product preview follows selection and mobile quantities keep their meaning',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);await page.evaluate(()=>GamaOpenWarehouses());await expect(page.locator('#ivTabla th')).toHaveCount(6);await page.locator('[data-iv-open=p2]').click();await expect(page.locator('#ivInspector')).toContainText('Arena');await expect(page.locator('#ivInspector')).toContainText('Costo');await page.setViewportSize({width:390,height:844});await expect(page.locator('#ivTabla table')).toHaveAttribute('data-gama-view','cards');await expect(page.locator('#ivTabla td[data-col="Stock físico"]').first()).toBeVisible();await page.screenshot({path:'test-results/stock-design-mobile.png',fullPage:true});
 });
+
+for(const width of [1024,1440])test(`Stock photos stay inside their frame beside product text at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:1000});const db=structuredClone(base);
+ for(const [i,p] of db.products.entries()){
+  const [w,h]=i?[240,960]:[960,240];
+  p.has_photo=true;p.photo_data='data:image/svg+xml;base64,'+Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="#157F98"/></svg>`).toString('base64');
+  p.name+=' — produit avec un nom long et une référence détaillée';
+ }
+ await boot(page,db);await page.evaluate(()=>GamaOpenWarehouses());
+ const checkPhotos=async()=>{
+  await expect.poll(()=>page.locator('#ivTabla img.ivProductPhoto').evaluateAll(imgs=>imgs.length===2&&imgs.every(img=>img.complete&&img.naturalWidth>0))).toBe(true);
+  const boxes=await page.locator('#ivTabla .ivProductOpen').evaluateAll(buttons=>buttons.map(button=>{
+   const photo=button.querySelector('img').getBoundingClientRect(),frame=button.firstElementChild.getBoundingClientRect(),label=button.lastElementChild.getBoundingClientRect();
+   return {contained:photo.left>=frame.left-.5&&photo.top>=frame.top-.5&&photo.right<=frame.right+.5&&photo.bottom<=frame.bottom+.5,gap:label.left-photo.right};
+  }));
+  for(const box of boxes){expect(box.contained,'photo must not spill out of its frame').toBe(true);expect(box.gap,'product name must stay beside the photo').toBeGreaterThanOrEqual(8)}
+  await expect.poll(()=>page.locator('#ivInspector img').evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
+  expect(await page.locator('#ivInspector').evaluate(host=>host.querySelector('img').getBoundingClientRect().bottom<=host.querySelector('h3').getBoundingClientRect().top)).toBe(true);
+ };
+ await checkPhotos();
+ await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos();
+ await page.locator('#ivTabla [data-table-view=table]').click();
+ await page.locator('#ivBuscar').fill('CEM');await page.locator('#ivBuscar').fill('');await checkPhotos();
+ await page.setViewportSize({width:390,height:844});await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos();
+ const reads=await page.evaluate(()=>__DB.__calls.filter(c=>c.table==='products'));
+ expect(reads.some(c=>c.select==='id,photo_data')).toBe(true);
+ expect(reads.some(c=>c.select!=='id,photo_data'&&(c.select==='*'||String(c.select).includes('photo_data')))).toBe(false);
+});

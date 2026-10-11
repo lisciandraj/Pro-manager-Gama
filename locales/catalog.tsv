@@ -55,7 +55,7 @@ Toda la analítica del negocio en una pantalla.	Tous les indicateurs de l’entr
 Volver al menú	Retour au menu	Back to menu
 Movimientos	Mouvements	Stock movements
 Inicio	Accueil	Home
-Dashboard	Tableau de bord	Dashboard
+Dashboard	Dashboard	Dashboard
 Facturación	Facturation	Billing
 Más	Plus	More
 Todo el año	Toute l’année	Full year
@@ -5267,3 +5267,36 @@ Reserva	Réservation	Reservation
 Filtros	Filtres	Filters
 Vista de dirección	Direction	Management view
 Mostrar	Afficher	Show
+
+# Reference layouts: Dashboard, orders and SRI
+Fechas y filtros	Dates et filtres	Dates and filters
+Opciones del gráfico	Options du graphique	Chart options
+Coste histórico · este mes	Coût historique · ce mois	Historical cost · this month
+pedidos por preparar	commandes à préparer	orders to prepare
+productos bajo mínimo	produits sous le seuil	products below minimum
+entregas pendientes	livraisons en attente	pending deliveries
+Stock reservado	Stock réservé	Stock reserved
+Sin planificar	Non planifiée	Not scheduled
+Historial de acciones	Historique des actions	Action history
+Sin acciones registradas.	Aucune action enregistrée.	No actions recorded.
+Documentos vinculados	Documents liés	Linked documents
+Ver documentos y acciones	Voir les documents et les actions	View documents and actions
+Los artículos están reservados. El pedido puede prepararse.	Les articles sont réservés. La commande peut être préparée.	The items are reserved. The order can be prepared.
+Exportar líneas CSV	Télécharger les lignes en CSV	Download lines as CSV
+Ver todo el historial	Voir tout l’historique	View all history
+facturas seleccionadas	factures sélectionnées	invoices selected
+Enviar selección	Envoyer la sélection	Send selection
+Facturas internas y estado fiscal	Factures internes et statut fiscal	Internal invoices and tax status
+Buscar una factura…	Rechercher une facture…	Search for an invoice…
+Elige un periodo válido.	Choisissez une période valide.	Choose a valid period.
+Exportar esta página CSV	Exporter cette page en CSV	Export this page as CSV
+Control antes del envío	Contrôle avant envoi	Pre-submission checks
+Documentos fiscales	Documents fiscaux	Tax documents
+Detalles de la factura	Détails de la facture	Invoice details
+Abrir documento de origen	Ouvrir le document d’origine	Open source document
+Pedido de cliente	Commande	Order
+Detalle del pedido	Détails	Details
+
+facturas SRI por corregir	factures SRI à corriger	SRI invoices to correct
+vencimientos superados	échéances dépassées	overdue invoices
+Parámetros de preparación	Paramètres de préparation	Preparation settings

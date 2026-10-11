@@ -77,6 +77,7 @@ test('dashboard date fields and actions stay separate at narrow widths and enlar
  await expect(page.locator('.adAnalysis')).toBeVisible();
  for(const language of ['fr','en','es']){
   await page.evaluate(lang=>GamaI18n.setLanguage(lang),language);
+  await page.locator('.adPeriodMore>summary').click();
   for(const width of [320,390,600,768,844,1024,1280,1440]){
    await page.setViewportSize({width,height:900});
    expect(await page.locator('#ad-period').evaluate(layoutProblems),language+' '+width).toEqual([]);
@@ -88,6 +89,7 @@ test('dashboard date fields and actions stay separate at narrow widths and enlar
   }
  }
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await page.locator('.adPeriodMore>summary').click();
  await page.setViewportSize({width:1440,height:1000});
  for(const zoom of [1.25,1.5,2]){
   await page.evaluate(z=>document.body.style.zoom=String(z),zoom);

@@ -110,7 +110,7 @@ function layout(t){
   state={bar,toolbar};layouts.set(t,state);
  }
  if(!t.parentElement.classList.contains('gamaTableViewport')){const viewport=document.createElement('div');viewport.className='gamaTableViewport';t.before(viewport);viewport.append(t)}
- const viewport=t.parentElement;if(state.toolbar.nextElementSibling!==viewport)viewport.before(state.toolbar);
+ const viewport=t.parentElement,toolbarHost=t.dataset.gamaToolbarHost&&document.getElementById(t.dataset.gamaToolbarHost);if(toolbarHost&&toolbarHost.closest('section')===t.closest('section')){if(state.toolbar.parentElement!==toolbarHost)toolbarHost.append(state.toolbar)}else if(state.toolbar.nextElementSibling!==viewport)viewport.before(state.toolbar);
  refreshLayout(t,state);
  controls(t,state);
  search(t,state);

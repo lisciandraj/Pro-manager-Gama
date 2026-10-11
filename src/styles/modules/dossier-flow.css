@@ -35,3 +35,30 @@
 
 
 .gdfHistory{border-top:1px solid var(--line,#ddd);margin-top:14px;padding-top:10px;font-size:.85rem;overflow-wrap:anywhere}.gdfHistory summary{cursor:pointer;font-weight:600}.gdfHistory ol{list-style:none;margin:12px 0;padding:0;display:grid;gap:12px}.gdfHistory li{display:grid;gap:3px;border-left:3px solid var(--accent,#557c75);padding-left:10px}.gdfHistory span,.gdfHistory small{display:block}.gdfHistoryLatest{margin:0 0 8px}
+/* Completion dates and the next-action panel share the process state. */
+.gdfProcessBody{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.55fr);grid-template-areas:"flow next";align-items:start;gap:18px}
+.gdfProcessBody>.gdfFlow{grid-area:flow;min-width:0}
+.gdfNextCard{grid-area:next;min-width:0;padding:20px;border:1px solid #f3d6bd;border-radius:12px;background:#fff3e9;overflow-wrap:anywhere;position:sticky;top:calc(var(--arc-topbar-h,74px) + 16px)}
+.gdfNextCard h3{margin:0 0 18px;font-size:18px;color:var(--arc-text)}
+.gdfNextBody{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.gdfNextBody>div{min-width:0}.gdfNextBody h4{margin:0 0 7px;font-size:15px}.gdfNextBody p{margin:0;font-size:14px;line-height:1.55}
+.gdfNextIcon{display:grid;place-items:center;width:54px;height:54px;flex:none;border-radius:50%;color:#d85b08;background:#ffe5d0}
+.gdfNextIcon svg{width:30px;height:30px}
+.gdfNextTeam{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;border-top:1px solid #efdacc;margin:18px 0 0;padding-top:13px;font-size:13px;color:var(--arc-text-muted)}
+.gdfNextTeam strong{color:var(--arc-text)}
+.gdfNextCard .gdfActions{display:grid;gap:8px;margin-top:18px}.gdfNextCard .gdfAction{width:100%;margin:0;justify-content:center;text-align:center}
+.gdfNextCard .gdfAction:first-child{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.gdfNextCard[data-next-state=closed],.gdfNextCard[data-next-state=done]{background:var(--arc-success-bg);border-color:var(--arc-line)}
+.gdfNextCard:is([data-next-state=closed],[data-next-state=done]) .gdfNextIcon{color:var(--arc-success);background:var(--arc-surface)}
+.gdfFollowup{border-top:1px solid #efdacc;margin-top:14px;padding-top:14px;font-size:13px}.gdfFollowup p{margin:6px 0 0;line-height:1.5}
+.gdfStepDate{display:block;font-size:12px;line-height:1.45;color:var(--arc-text-muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
+.gdfStepDate time{font-weight:600}.gdfStepDate.compact{margin:0;max-width:100%}.gdfStepDate.compact time{font-weight:500}
+.gdfStepper{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 12px;padding:14px 8px 20px}
+.gdfStepper li{min-width:0;overflow-wrap:anywhere}.gdfStepper .gdfDot{width:34px;height:34px;margin-bottom:2px}
+.gdfStepper li[aria-current=step] .gdfDot{background:#ef741c;border-color:#ef741c;color:#fff}
+.gdfStepper li[data-state=done] .gdfStepDate time{color:var(--arc-success)}
+@media(max-width:1200px){.gdfProcessBody{grid-template-columns:minmax(0,1fr);grid-template-areas:"next" "flow"}.gdfNextCard{position:static}.gdfNextCard .gdfActions{display:flex}.gdfNextCard .gdfAction{width:auto;flex:1 1 190px}}
+@media(max-width:480px){.gdfNextCard{padding:16px}.gdfNextIcon{width:42px;height:42px}.gdfNextIcon svg{width:26px;height:26px}.gdfStepper{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}.gdfStepName{font-size:12px}.gdfNextCard .gdfAction{flex-basis:100%}}
+.gdfStepper li:not(:nth-child(4n)):not(:last-child)::after{content:"";position:absolute;top:19px;left:calc(50% + 24px);width:calc(100% - 36px);height:1px;background:var(--arc-line-strong);pointer-events:none}
+.gdfStepper li[data-state=done]::after{background:var(--arc-success)}
+@media(max-width:480px){.gdfStepper li:nth-child(even)::after{display:none}}

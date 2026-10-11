@@ -34,6 +34,18 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
     const expected=uid===admin&&item.domain==='returns'&&item.action==='refund'?{ok:false,code:'P0001',message:'REQUEST_KEY_REQUIRED'}:canonicalize(item.before);
     const actual=await probe(item.domain,item.action);
     if(uid===admin&&item.domain==='accounting'&&['chart','settings'].includes(item.action)&&actual.ok){const field=item.action==='chart'?'rows':'accounts';const advance=actual.result[field].find(a=>a.code==='2090');assert.equal(advance?.type,'liability');actual.result[field]=actual.result[field].filter(a=>a.code!=='2090');}
+    // Audit additions extend read metadata while preserving the historical business result.
+    if(uid===admin&&item.domain==='accounting'&&actual.ok&&expected.ok){
+     if(item.action==='bank_list')Object.assign(expected.result,{batches:[],offset:0,limit:50,total:0});
+     if(item.action==='chart')expected.result.rows.forEach(a=>a.cashflow_class=a.type==='equity'?'financing':'operating');
+     if(item.action==='settings')expected.result.currency_locked=false;
+     if(item.action==='overview'){
+      assert.ok(Date.parse(actual.result.generated_at));const today=new Date(expected.result.today+'T00:00:00Z'),start=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth()-1,1)),last=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth(),0)),end=new Date(Math.min(last.getTime(),start.getTime()+(today.getUTCDate()-1)*86400000));
+      Object.assign(expected.result,{basis:'ledger',generated_at:actual.result.generated_at,previous_from:start.toISOString().slice(0,10),previous_to:end.toISOString().slice(0,10),fiscal_from:expected.result.today.slice(0,4)+'-01-01'});expected.result.rights.pay=true;
+     }
+     if(item.action==='report_balance')Object.assign(expected.result,{stock_basis:'dated_valuation',stock_controls:[],stock_coverage:{before_opening:0,complete:true,configured:0,unconfigured:0}});
+     if(item.action==='report_cashflow')Object.assign(expected.result,{basis:'ledger',opening:0,net:0});
+    }
     // Returned goods go back to the arrival zone or a chosen location, never to the warehouse root.
     if(item.domain==='returns'&&item.action==='overview'&&actual.ok&&expected.ok){assert.ok(actual.result.locations.every(l=>l.code!=='STOCK'));assert.ok(actual.result.locations.some(l=>l.code==='LLEGADA'));delete actual.result.locations;delete expected.result.locations;
      // The empty overview now reports its exact pagination count.

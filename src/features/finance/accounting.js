@@ -54,7 +54,34 @@ const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contab
  BANK_ALREADY_MATCHED:'El movimiento ya está conciliado. Actualiza la lista.',
  SOURCE_ALREADY_MATCHED:'El cobro o pago ya se vinculó a otro movimiento.',
  MATCH_SOURCE_UNAVAILABLE:'El cobro o pago cambió. Actualiza las correspondencias.',
- VALIDATE_REQUIRED:'Necesitas permiso para validar la conciliación.'};
+ VALIDATE_REQUIRED:'Necesitas permiso para validar la conciliación.',
+ BASE_CURRENCY_LOCKED:'La moneda base queda bloqueada después de contabilizar. Usa las operaciones en divisas para registrar el cambio.',
+ CLOSURE_BLOCKED:'La revisión contable contiene incidencias que bloquean el cierre. Abre Controles y preparación.',
+ CLOSURE_EXCEPTION_REQUIRED:'Justifica los movimientos bancarios pendientes antes de cerrar.',
+ LINE_FINANCIAL_ACCOUNT_REQUIRED:'Selecciona la cuenta financiera de esta línea bancaria.',
+ BANK_ACCOUNT_MISMATCH:'La cuenta financiera no corresponde a la cuenta contable.',
+ PAYMENT_NOT_ALLOWED:'Tu perfil no permite registrar pagos.',
+ STATEMENT_UNBALANCED:'El saldo inicial más los movimientos debe coincidir con el saldo final del extracto.',
+ MATCH_DIFFERENCE:'Los importes seleccionados no coinciden con el movimiento bancario.',
+ ONE_CUSTOMER_REQUIRED:'Para este cobro, selecciona facturas de un mismo cliente.',
+ SOURCE_ALREADY_POSTED:'La pieza ya tiene asiento. Actualiza la revisión.',
+ FX_BASE_AMOUNT_MISMATCH:'El importe en divisa por el tipo histórico debe coincidir con la factura en moneda base.',
+ FX_UNPAID_INVOICE_REQUIRED:'Selecciona una factura pendiente sin cobros, pagos ni abonos.',
+ FX_PAYMENT_REVIEW_REQUIRED:'Hay pagos fuera del registro de divisas. Revisa la factura antes de continuar.',
+ STOCK_INVOICE_REVIEW_REQUIRED:'Revisa la recepción, las cuentas de stock y el importe facturado antes de contabilizar.',
+ ASSET_SCHEDULE_LOCKED:'El plan ya tiene amortizaciones contabilizadas.',
+ ASSET_EVENT_DATE_INVALID:'Revisa la fecha, el motivo y las amortizaciones posteriores.',
+ ASSET_IMPAIRMENT_EXCEEDED:'La pérdida supera el valor amortizable pendiente.',
+ EXPORT_CHANGED_RETRY:'Los datos cambiaron durante la exportación. Actualiza y repite el dossier.',
+ BANK_EXISTING_POSTING_USE_GROUP:'Este movimiento ya tiene un pago o asiento. Selecciona Pagos existentes para volver a conciliarlo.',
+ ENTRY_BANK_MATCHED:'Deshaz la conciliación bancaria antes de contrapasar esta entrada.',
+ STOCK_MAPPING_LOCKED:'Las cuentas de valoración ya tienen asientos y no pueden cambiarse.',
+ STOCK_AUTOMATION_LOCKED:'La contabilización automática de stock ya está activa. Revisa sus asientos antes de modificarla.',
+ ASSET_DISPOSAL_INVOICE_INVALID:'Revisa la factura de cesión: fecha, base, IVA, estado y uso previo.',
+ ASSET_IMPAIRMENT_ACCOUNT_DISTINCT:'Usa una cuenta de deterioro acumulado distinta del activo y su amortización.'};
+
+// Accounting-only server messages are registered when this workspace loads.
+for(const key of ["BASE_CURRENCY_LOCKED","CLOSURE_BLOCKED","CLOSURE_EXCEPTION_REQUIRED","LINE_FINANCIAL_ACCOUNT_REQUIRED","BANK_ACCOUNT_MISMATCH","PAYMENT_NOT_ALLOWED","STATEMENT_UNBALANCED","MATCH_DIFFERENCE","ONE_CUSTOMER_REQUIRED","SOURCE_ALREADY_POSTED","FX_BASE_AMOUNT_MISMATCH","FX_UNPAID_INVOICE_REQUIRED","FX_PAYMENT_REVIEW_REQUIRED","STOCK_INVOICE_REVIEW_REQUIRED","ASSET_SCHEDULE_LOCKED","ASSET_EVENT_DATE_INVALID","ASSET_IMPAIRMENT_EXCEEDED","EXPORT_CHANGED_RETRY","ENTRY_BANK_MATCHED","ASSET_DISPOSAL_INVOICE_INVALID","ASSET_IMPAIRMENT_ACCOUNT_DISTINCT","BANK_EXISTING_POSTING_USE_GROUP"])(window.GamaI18nServer||(window.GamaI18nServer={}))[key]=ERRORS[key];
 
 let generation=0,opening=0,section='overview',rights=null,scope='none',state={},workspace=ID;
 
@@ -125,8 +152,8 @@ async function go(next){
   window.ArchitectPerformance?.contentReady(workspace,started);
   if(scope==='all'&&workspace===ID&&['ledger','reports','taxes','config','periods','receivables','payables','cash'].includes(section)){
    const tools=document.createElement('div');tools.className='gaTools arcPanel gaCard';
-   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button>`;
-   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');
+   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button><button class="arcButton secondary" id="gaAudit">${tr('Controles y preparación')}</button>`;
+   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');$('gaAudit').onclick=()=>go('audit');
   }
   return true;
  }catch(e){if(token===generation){fail(e,()=>go());window.ArchitectPerformance?.contentReady(workspace,started,false)}}
@@ -142,8 +169,10 @@ async function open(options={}){
   window.GamaCurrency.set(d.currency);
   /* El libro se pone al día al entrar: las facturas y cobros que los módulos
      comerciales han creado desde la última visita se contabilizan solos. */
-  if(rights?.create&&workspace!== 'sri')rpc('sync').catch(()=>{});
-  if(!options.sriWorkspace)state.overview=d;
+  if(rights?.create&&workspace!== 'sri'){
+   try{await rpc('sync')}catch(e){state.syncError=err(e)}
+   if(token!==opening||!allowed())return;
+  }
   if(options.invoiceId&&scope==='all'){
    const r=await window.GamaCloud.list('supplier_invoices',{select:'id,number',eq:{id:options.invoiceId},limit:1});
    if(token!==opening||!allowed())return;
@@ -166,7 +195,7 @@ async function openSri(sourceInvoiceId){
 const VIEWS={};
 
 VIEWS.overview={
- load:async()=>state.overview||rpc('overview'),
+ load:()=>rpc('overview'),
  render(d){
   state.overview=d;
   const rev=trend(d.revenue.month,d.revenue.previous),exp=trend(d.expense.month,d.expense.previous);
@@ -181,7 +210,7 @@ VIEWS.overview={
     ${kpi('Resultado del mes',money(resultMonth),resultMonth>=0?'Beneficio':'Pérdida',resultMonth>=0?'gaUp':'gaDown')}
     ${kpi('Resultado del año',money(resultYear),margin==null?'':'Margen '+pct(margin))}
    </div>
-   <p class="gaHint">${tr('Ingresos sin impuestos. Gastos: gastos contabilizados y facturas de proveedor, sin impuestos.')}</p></div>
+   <p class="gaHint">${tr(d.basis==='ledger'?'Resultado calculado desde el libro. Comparación con el mismo número de días del mes anterior.':'Ingresos sin impuestos. Gastos: gastos contabilizados y facturas de proveedor, sin impuestos.')}</p>${d.generated_at?`<p class="gaHint">${tr('Actualizado')}: ${esc(new Date(d.generated_at).toLocaleString())}</p>`:''}${state.syncError?`<p class="gaError">${tr('Sincronización pendiente')}: ${tr(state.syncError)}</p>`:''}</div>
 
    ${t?`<div class="arcPanel gaCard"><h3>${tr('Tesorería')}</h3>
    <div class="gaKpis">
@@ -299,7 +328,7 @@ VIEWS.payables={
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
-     <td>${rights?.create&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}</td>
+     <td>${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}</td>
     </tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor para este filtro.')}</td></tr>`}
    </tbody></table></div></div>`;
  },
@@ -436,7 +465,7 @@ VIEWS.purchases={
      <td><div class="gaActions">
       ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
       ${r.status==='draft'?`<button class="arcButton primary" data-ga-draft="${esc(r.id)}">${tr('Revisar')}</button>`:''}
-      ${rights?.create&&Number(r.balance)>0&&r.status==='posted'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
+      ${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status==='posted'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
       ${rights?.validate&&r.status==='posted'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
    </tbody></table></div>
@@ -558,15 +587,16 @@ VIEWS.payments={
 VIEWS.cash={
  async load(){
   const [accounts,bank]=await Promise.all([rpc('accounts'),
-   rpc('bank_list',{status:state.status||'unmatched',limit:50})]);
+   rpc('bank_list',{...(state.bankFilters||{}),status:state.bankFilters?.status||'unmatched',offset:state.bankOffset||0,limit:50})]);
   return {accounts,bank};
  },
  render(d){
+  d.bank.total??=d.bank.rows.length;
   state.accounts=d.accounts.rows;state.chart=d.accounts.chart;state.rows=d.bank.rows;state.bankAccounts=d.bank.accounts;
   const total=d.accounts.rows.filter(a=>a.active).reduce((s,a)=>s+Number(a.current_balance||0),0);
   return `<div class="arcPanel gaCard"><h3>${tr('Cuentas de banco y caja')}</h3>
    <div class="gaKpis">${kpi('Saldo total',money(total))}${kpi('Cuentas activas',num(d.accounts.rows.filter(a=>a.active).length,0))}</div>
-   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewAccount">${tr('Añadir una cuenta')}</button></div>`:''}
+   ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewAccount">${tr('Añadir una cuenta')}</button>${rights?.validate?`<button class="arcButton secondary" id="gaCashOperation">${tr('Transferencia, aporte o ajuste')}</button>`:''}</div>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Nombre','Tipo','Banco','Divisa','Saldo inicial','Saldo actual','Estado','Acciones'].map(h=>`<th class="${h.startsWith('Saldo')?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.accounts.rows.map(a=>`<tr>
@@ -577,13 +607,21 @@ VIEWS.cash={
     <td><div class="gaActions"><button class="arcButton secondary" data-ga-moves="${esc(a.id)}">${tr('Movimientos')}</button>
      ${rights?.edit?`<button class="arcButton secondary" data-ga-acc="${esc(a.id)}">${tr('Editar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="8">${tr('Todavía no hay cuentas.')}</td></tr>`}</tbody></table></div>
-   <p class="gaHint">${tr('El saldo actual es el saldo inicial más los cobros y menos los pagos y gastos asignados a la cuenta.')}</p></div>
+   <p class="gaHint">${tr('El saldo actual procede del libro e incluye aperturas, pagos, aportes, traspasos y ajustes contabilizados.')}</p></div>
 
    <div class="arcPanel gaCard"><h3>${tr('Conciliación bancaria')}</h3>
    <div class="gaTools">
-    <label>${tr('Estado')}<select id="gaStatus">${[['unmatched','Sin conciliar'],['matched','Conciliados'],['ignored','Ignorados']].map(([k,v])=>`<option value="${k}" ${(state.status||'unmatched')===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select></label>
+    <label>${tr('Estado')}<select id="gaStatus">${[['unmatched','Sin conciliar'],['matched','Conciliados'],['ignored','Ignorados'],['all','Todos']].map(([k,v])=>`<option value="${k}" ${(state.bankFilters?.status||'unmatched')===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select></label>
+    <label>${tr('Cuenta')}<select id="gaBankAccount">${ecOpts(d.bank.accounts,state.bankFilters?.financial_account_id)}</select></label>
+    <label>${tr('Extracto')}<select id="gaBankBatch">${ecOpts((d.bank.batches||[]).map(b=>({id:b.id,label:[b.account_name,b.date_from,b.date_to,b.lines].join(' · ')})),state.bankFilters?.import_batch)}</select></label>
+    <label>${tr('Buscar')}<input id="gaBankSearch" value="${esc(state.bankFilters?.search||'')}"></label>
+    <label>${tr('Desde')}<input id="gaBankFrom" type="date" value="${esc(state.bankFilters?.from||'')}"></label>
+    <label>${tr('Hasta')}<input id="gaBankTo" type="date" value="${esc(state.bankFilters?.to||'')}"></label>
+    <label>${tr('Importe mínimo')}<input id="gaBankMin" type="number" step="0.01" value="${esc(state.bankFilters?.min_amount??'')}"></label>
+    <label>${tr('Importe máximo')}<input id="gaBankMax" type="number" step="0.01" value="${esc(state.bankFilters?.max_amount??'')}"></label>
     <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
-    ${rights?.create?`<button class="arcButton secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}</div>
+    ${rights?.create?`<button class="arcButton secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}
+    ${rights?.export?`<button class="arcButton secondary" id="gaBankExport">${tr('Exportar todo')}</button>`:''}<button class="arcButton secondary" id="gaStatements">${tr('Revisar extractos')}</button></div>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Fecha','Cuenta','Referencia','Descripción','Importe','Estado','Acciones'].map(h=>`<th class="${h==='Importe'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.bank.rows.map(t=>`<tr>
@@ -594,10 +632,17 @@ VIEWS.cash={
       ?`<button class="arcButton primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
       :`<button class="arcButton secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
+   <p>${esc(d.bank.rows.length?(state.bankOffset||0)+1:0)}–${esc((state.bankOffset||0)+d.bank.rows.length)} / ${esc(d.bank.total??d.bank.rows.length)}</p><div class="gaTools"><button class="arcButton secondary" id="gaBankPrev" ${(state.bankOffset||0)>0?'':'disabled'}>${tr('Anterior')}</button><button class="arcButton secondary" id="gaBankNext" ${(state.bankOffset||0)+d.bank.rows.length<(d.bank.total??d.bank.rows.length)?'':'disabled'}>${tr('Siguiente')}</button></div>
    <p class="gaHint">${tr('Coco ERP propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
  bind(){
-  $('gaApply')?.addEventListener('click',()=>{state.status=$('gaStatus').value;go()});
+  const apply=()=>{state.bankFilters=Object.fromEntries([['status','gaStatus'],['financial_account_id','gaBankAccount'],['import_batch','gaBankBatch'],['search','gaBankSearch'],['from','gaBankFrom'],['to','gaBankTo'],['min_amount','gaBankMin'],['max_amount','gaBankMax']].map(([k,id])=>[k,$(id)?.value||null]));state.bankOffset=0;go()};
+  $('gaApply')?.addEventListener('click',apply);$('gaBankSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')apply()});
+  $('gaBankPrev')?.addEventListener('click',()=>{state.bankOffset=Math.max(0,(state.bankOffset||0)-50);go()});
+  $('gaBankNext')?.addEventListener('click',()=>{state.bankOffset=(state.bankOffset||0)+50;go()});
+  $('gaBankExport')?.addEventListener('click',e=>act(e.target,async()=>{const rows=[];let offset=0,result;do{result=await rpc('bank_list',{...(state.bankFilters||{}),status:state.bankFilters?.status||'unmatched',offset,limit:2000,export:true});rows.push(...result.rows);offset+=result.rows.length}while(result.rows.length&&offset<result.total);await exportRows(rows,'banco')}));
+  $('gaStatements')?.addEventListener('click',()=>{state.auditTab='statements';go('audit')});
+  $('gaCashOperation')?.addEventListener('click',e=>act(e.target,async()=>{await(await auditUi()).cashOperation(auditEnv())}));
   $('gaNewAccount')?.addEventListener('click',()=>accountForm(null));
   $('gaImport')?.addEventListener('click',()=>importForm());
   document.querySelectorAll('[data-ga-acc]').forEach(b=>b.onclick=()=>accountForm(state.accounts.find(a=>a.id===b.dataset.gaAcc)));
@@ -637,6 +682,9 @@ async function movements(id){
 }
 async function bankRpc(action,data={}){if(!allowed())throw Error('ROLE_NOT_ALLOWED');try{return await window.ArcData.rpc('gama_bank_invoice_action',{p_action:action,p_data:data})}catch(e){throw Error(window.GamaI18n?.t?.(err(e))||err(e))}}
 async function bankMutate(action,data){const r=await bankRpc(action,data);for(const event of ['gama:accounting-change','gama:sales-change'])window.dispatchEvent(new CustomEvent(event));return r}
+async function auditUi(){await window.ArcLoadScript('coco-accounting-audit.js');return window.CocoAccountingAudit}
+function auditEnv(){return{state,rights,rpc,entryLines,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
+VIEWS.audit={async load(){return(await auditUi()).load(auditEnv())},render(d){return window.CocoAccountingAudit.render(d,auditEnv())},bind(d){window.CocoAccountingAudit.bind(d,auditEnv())}};
 function importForm(){
  const key=crypto.randomUUID(),accs=state.bankAccounts||[];let parsed=[],errors=[],revision=0;
  const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}</div><div id="gaPreview"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,'Importar',async form=>{
@@ -654,11 +702,12 @@ function importForm(){
 async function matchForm(id){
  try{const key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0;
  const choices=data=>`${data.matches.length?`<p>${tr('Elige un cobro existente o una factura pendiente. Ninguna correspondencia se aplica sola.')}</p>${data.matches.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.kind)}|${esc(s.id)}"><b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}<br><small>${tr(s.type==='invoice'?'Registrar cobro y conciliar':'Cobro o pago ya registrado')}${s.type==='invoice'?' · '+tr('Saldo pendiente')+': '+money(s.balance):''}</small></label></p>`).join('')}`:`<p>${tr('No se encontró ninguna correspondencia. Busca la factura por cliente o referencia.')}</p>`}<p><label><input type="radio" name="gaMatch" value="ignore||"> ${tr('Ignorar este movimiento')}</label></p>`;
- const el=GamaSales.modal('Conciliar el movimiento',`<p>${esc(result.bank.description)} · <b>${money(result.bank.amount)}</b></p><div class="gaTools"><input id="gaInvoiceSearch" placeholder="${esc(window.GamaI18n?.t?.('Cliente o referencia de factura')||'Cliente o referencia de factura')}"><button type="button" class="arcButton secondary" id="gaInvoiceFind">${tr('Buscar')}</button></div><div id="gaMatchChoices">${choices(result)}</div>`,'Confirmar',async form=>{
+ const el=GamaSales.modal('Conciliar el movimiento',`<p>${esc(result.bank.description)} · <b>${money(result.bank.amount)}</b></p><button type="button" class="arcButton secondary" id="gaMatchAdvanced">${tr('Varias facturas, pagos o ajustes')}</button><div class="gaTools"><input id="gaInvoiceSearch" placeholder="${esc(window.GamaI18n?.t?.('Cliente o referencia de factura')||'Cliente o referencia de factura')}"><button type="button" class="arcButton secondary" id="gaInvoiceFind">${tr('Buscar')}</button></div><div id="gaMatchChoices">${choices(result)}</div>`,'Confirmar',async form=>{
   const picked=form.querySelector('input[name=gaMatch]:checked');if(!picked)throw Error('Selecciona una opción.');const [type,kind,target]=picked.value.split('|');
   if(type==='invoice')await bankMutate('settle',{request_key:key,bank_id:id,invoice_id:target});else if(type==='cash')await bankMutate('match_source',{request_key:key,bank_id:id,kind,source_id:target});else await mutate('reconcile',{id,match_type:'ignore',match_id:null});await go();
  });
  el.dataset.bankWorkflow='';
+ el.querySelector('#gaMatchAdvanced').onclick=()=>act(el.querySelector('#gaMatchAdvanced'),async()=>{const ui=await auditUi();el.close();await ui.bankMatch(id,auditEnv())});
  el.querySelector('#gaInvoiceFind').onclick=async()=>{const token=++revision,b=el.querySelector('#gaInvoiceFind');b.disabled=true;try{const next=await bankRpc('suggest',{bank_id:id,search:el.querySelector('#gaInvoiceSearch').value});if(token===revision&&el.isConnected)window.ArcUI.render(el.querySelector('#gaMatchChoices'),choices(next));}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}finally{b.disabled=false}};
  }catch(e){window.gamaToast?.(window.ArcErrors.message(e))}
 }
@@ -718,11 +767,12 @@ async function entryLines(id){
  }catch(e){window.gamaToast?.(err(e))}
 }
 async function entryForm(){
- let chart=[],projects=[],partners=[];
- try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[]}catch(e){}
+ let chart=[],projects=[],partners=[],financial=[];
+ try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[];financial=ctx.financial_accounts||[]}catch(e){}
  const key=crypto.randomUUID(),journals=state.journals||[];
  const row=i=>`<div class="gaGrid" data-ga-line="${i}">
   ${field('Cuenta',`<select class="gaLineAccount"><option value="">—</option>${chart.map(a=>`<option value="${esc(a.id)}">${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`)}
+  ${field('Cuenta financiera',`<select class="gaLineFinancial">${ecOpts(financial)}</select>`)}
   ${field('Concepto',`<input class="gaLineLabel" maxlength="180">`)}
   ${field('Debe',`<input class="gaLineDebit" type="number" min="0" step="0.01" value="0">`)}
   ${field('Haber',`<input class="gaLineCredit" type="number" min="0" step="0.01" value="0">`)}
@@ -737,7 +787,7 @@ async function entryForm(){
   <button type="button" class="arcButton secondary" id="gaAddLine">${tr('Añadir una línea')}</button>
   <p class="gaHint" id="gaBalance"></p>`,'Contabilizar',async form=>{
    const lines=[...form.querySelectorAll('[data-ga-line]')].map(r=>({
-    account_id:r.querySelector('.gaLineAccount').value,label:r.querySelector('.gaLineLabel').value,project_id:r.querySelector('.gaLineProject')?.value||null,partner_type:r.querySelector('.gaLinePartner')?.value.split(':')[0]||null,partner_id:r.querySelector('.gaLinePartner')?.value.split(':')[1]||null,
+    account_id:r.querySelector('.gaLineAccount').value,financial_account_id:r.querySelector('.gaLineFinancial')?.value||null,label:r.querySelector('.gaLineLabel').value,project_id:r.querySelector('.gaLineProject')?.value||null,partner_type:r.querySelector('.gaLinePartner')?.value.split(':')[0]||null,partner_id:r.querySelector('.gaLinePartner')?.value.split(':')[1]||null,
     debit:Number(r.querySelector('.gaLineDebit').value||0),credit:Number(r.querySelector('.gaLineCredit').value||0)}))
     .filter(l=>l.account_id&&(l.debit>0||l.credit>0));
    if(lines.length<2)throw Error('ENTRY_EMPTY');
@@ -830,7 +880,7 @@ VIEWS.reports={
 
    ${d.balance?`<div class="arcPanel gaCard"><h3>${tr('Balance simplificado')} · ${esc(d.balance.as_of)}</h3>
    ${table(group(d.balance.rows,'asset'),'Activo')}
-   <p>${tr('Existencias valoradas al precio de compra')} : <b>${money(d.balance.stock)}</b></p>
+   <p>${tr('Sub-libro de stock a la fecha')} : <b>${money(d.balance.stock)}</b></p>${d.balance.stock_coverage?.complete===false?`<p class="gaHint">${tr('La valoración histórica de stock está incompleta. Configura los costes y la apertura observada antes de validar el balance.')}</p>`:''}
    ${table(group(d.balance.rows,'liability'),'Pasivo')}
    ${table(group(d.balance.rows,'equity'),'Fondos propios')}
    <p>${tr('Resultado del ejercicio')} : <b>${money(d.balance.result)}</b></p>
@@ -874,7 +924,7 @@ VIEWS.periods={
    <p class="gaHint">${tr('Un periodo cerrado rechaza cualquier asiento nuevo, modificado o eliminado en esas fechas. Sólo un administrador con permiso de cierre puede reabrirlo, y la reapertura queda en la auditoría.')}</p></div>`;
  },
  bind(){
-  $('gaClose')?.addEventListener('click',b=>act(b.target,()=>window.ArchitectAccessControls.closing($('gaMonth').value+'-01',()=>mutate('period_close',{period_start:$('gaMonth').value+'-01'}).then(()=>go()))));
+  $('gaClose')?.addEventListener('click',b=>act(b.target,async()=>{const ui=await auditUi();await ui.closing($('gaMonth').value+'-01',auditEnv())}));
   document.querySelectorAll('[data-ga-reopen]').forEach(b=>b.onclick=()=>reasonForm('Reabrir el periodo',r=>mutate('period_reopen',{period_start:b.dataset.gaReopen,reason:r}).then(()=>go())));
  }
 };
@@ -1149,7 +1199,7 @@ VIEWS.config={
   state.chart=d.chart.rows;state.rows=d.chart.rows;state.permissions=d.permissions;
   const pick=(id,label,selected)=>field(label,`<select id="${id}">${d.settings.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===selected?'selected':''}>${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`);
   return `<div class="arcPanel gaCard"><h3>${tr('Empresa')}</h3><div class="gaGrid">
-   ${field('Divisa (ISO 4217)',`<input id="gaCurrency" maxlength="3" value="${esc(d.settings.currency)}" ${rights?.edit?'':'readonly'}>`)}
+   ${field('Divisa (ISO 4217)',`<input id="gaCurrency" maxlength="3" value="${esc(d.settings.currency)}" ${rights?.edit&&!d.settings.currency_locked?'':'readonly'}>`)}
    ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(d.settings.country)}" ${rights?.edit&&!d.settings.localization_country?'':'readonly'}>`)}
    ${field('Primer mes del ejercicio',`<input id="gaFiscal" type="number" min="1" max="12" value="${esc(d.settings.fiscal_year_start_month)}" ${rights?.edit?'':'readonly'}>`)}
    </div>
@@ -1176,13 +1226,13 @@ VIEWS.config={
 
    ${d.permissions.length?`<div class="arcPanel gaCard"><h3>${tr('Permisos de Contabilidad')}</h3>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
-    ${['Usuario','Perfil','Consultar','Crear','Modificar','Eliminar','Validar','Exportar','Cerrar',''].map(h=>`<th>${tr(h)}</th>`).join('')}
+    ${['Usuario','Perfil','Consultar','Lectura contable completa','Crear','Modificar','Eliminar','Validar','Pagar','Exportar','Cerrar',''].map(h=>`<th>${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.permissions.map(p=>{const r=p.rights||{};
     const cell=(k,def)=>`<td><input type="checkbox" data-ga-perm="${esc(p.profile_id)}" data-key="${k}" ${(r[k]??def)?'checked':''}></td>`;
     const admin=p.role==='administrador';
     return `<tr><td><b>${esc(p.name||p.email||'—')}</b></td><td>${esc(p.role)}</td>
-    ${cell('can_view',admin||p.role==='comercial')}${cell('can_create',admin)}${cell('can_edit',admin)}
-    ${cell('can_delete',admin)}${cell('can_validate',admin)}${cell('can_export',admin||p.role==='comercial')}${cell('can_close',admin)}
+    ${cell('can_view',admin||p.role==='comercial')}${cell('can_read_all',admin)}${cell('can_create',admin)}${cell('can_edit',admin)}
+    ${cell('can_delete',admin)}${cell('can_validate',admin)}${cell('can_pay',r.can_create??admin)}${cell('can_export',admin||p.role==='comercial')}${cell('can_close',admin)}
     <td><button class="arcButton secondary" data-ga-perm-save="${esc(p.profile_id)}">${tr('Guardar')}</button></td></tr>`}).join('')}
    </tbody></table></div>
    <p class="gaHint">${tr('Sin fila propia, cada perfil usa su valor por defecto: el administrador todo, el comercial consulta y exporta su lado comercial, el resto nada.')}</p></div>`:''}`;
@@ -1252,7 +1302,7 @@ VIEWS.workbench={
  state.ecContext=ctx;state.ecData=data;
  let body='';
  if(tab==='trial_balance')body=ecTable(data.rows,[['code','Número'],['name','Cuenta'],['opening','Saldo inicial',money],['debit','Debe',money],['credit','Haber',money],['closing','Saldo final',money]])+`<p>${tr('Debe')} : ${money(data.debit)} · ${tr('Haber')} : ${money(data.credit)}</p>`;
- if(['general_ledger','partner_ledger'].includes(tab))body=ecTable(data.rows,[['entry_date','Fecha'],['number','Asiento'],['code','Cuenta'],['reference','Referencia'],['label','Concepto'],['debit','Debe',money],['credit','Haber',money],['running_balance','Saldo',money]])+`<p>${esc((state.ecOffset||0)+1)}–${esc((state.ecOffset||0)+data.rows.length)} / ${esc(data.total)}</p><div class="gaTools">${ecButton('ecPrev','Anterior',(state.ecOffset||0)>0)}${ecButton('ecNext','Siguiente',(state.ecOffset||0)+data.rows.length<data.total)}</div>`;
+ if(['general_ledger','partner_ledger'].includes(tab))body=ecTable(data.rows,[['entry_date','Fecha'],['number','Asiento'],['code','Cuenta'],['reference','Referencia'],['label','Concepto'],['debit','Debe',money],['credit','Haber',money],['running_balance','Saldo',money],['entry_id','Detalle',v=>`<button class="arcButton secondary" data-ec-entry="${esc(v)}">${tr('Ver asiento')}</button>`]])+`<p>${esc((state.ecOffset||0)+1)}–${esc((state.ecOffset||0)+data.rows.length)} / ${esc(data.total)}</p><div class="gaTools">${ecButton('ecPrev','Anterior',(state.ecOffset||0)>0)}${ecButton('ecNext','Siguiente',(state.ecOffset||0)+data.rows.length<data.total)}</div>`;
  if(tab==='analytic')body=ecButton('ecAllocation','Distribuir línea por proyecto',rights?.edit)+ecTable(data.rows,[['name','Proyecto'],['revenue','Productos',money],['expense','Cargas',money],['id','Resultado',(_,r)=>money(Number(r.revenue)-Number(r.expense))]]);
  if(tab==='maturities')body=`<div class="gaTools">${ecButton('ecSchedule','Aplicar condiciones de pago',rights?.edit)}</div>`+ecTable(data.rows,[['number','Factura'],['partner_name','Contacto'],['due_date','Vencimiento'],['amount','Importe',money],['balance','Saldo pendiente',money]]);
  if(tab==='adjustments')body=`<p class="gaHint">${tr('Estos registros afectan al saldo y al libro. No emiten documentos al SRI. Registra una retención solo con su comprobante autorizado.')}</p><div class="gaTools">${ecButton('ecCredit','Registrar abono o débito',rights?.validate)}${ecButton('ecWithhold','Registrar retención documentada',rights?.validate)}${ecButton('ecImportWithhold','Importar retención XML del cliente',rights?.validate)}</div>`+ecTable([...data.adjustments.map(r=>({...r,category:r.kind,cancelAction:'adjustment_cancel'})),...data.withholdings.map(r=>({...r,reference:r.number,total:r.amount,category:'retención',cancelAction:'withholding_cancel'}))],[['issued_on','Fecha'],['reference','Referencia'],['side','Tipo'],['category','Documento'],['total','Importe',money],['status','Estado'],['id','Acciones',(v,r)=>r.status==='posted'&&rights?.validate?`<button class="arcButton secondary" data-ec-cancel="${r.cancelAction}" data-id="${esc(v)}">${tr('Anular')}</button>`:'—']]);
@@ -1268,6 +1318,7 @@ VIEWS.workbench={
  },
  bind({ctx,tab,data}){
  $('ecTab').onchange=()=>{state.ecTab=$('ecTab').value;state.ecOffset=0;go()};
+ document.querySelectorAll('[data-ec-entry]').forEach(b=>b.onclick=()=>entryLines(b.dataset.ecEntry));
  $('ecApply').onclick=()=>{state.ecFrom=$('ec-from').value;state.ecTo=$('ec-to').value;state.ecAccount=$('ec-account')?.value;state.ecPartner=$('ec-partner')?.value;state.ecPartnerType=$('ec-partnerType')?.value;state.ecOffset=0;go()};
  $('ec-partnerType')?.addEventListener('change',()=>{state.ecPartnerType=$('ec-partnerType').value;state.ecPartner=null;go()});
  $('ecPrev')?.addEventListener('click',()=>{state.ecOffset=Math.max(0,(state.ecOffset||0)-200);go()});
@@ -1281,7 +1332,7 @@ VIEWS.workbench={
  $('ecAllocation')?.addEventListener('click',e=>act(e.target,()=>ecAllocationForm(ctx)));
  $('ecProfile')?.addEventListener('click',()=>ecProfileForm(ctx));$('ecJournal')?.addEventListener('click',()=>ecJournalForm(ctx));$('ecTerm')?.addEventListener('click',()=>ecTermForm());
  $('ecOpening')?.addEventListener('click',()=>ecForm('Contabilizar saldo inicial',`<p>${tr('Usa el saldo inicial ya registrado en Banco y caja. Esta operación no añade un cobro.')}</p><div class="gaGrid">${ecField('financial_account_id','Cuenta financiera','',null,ctx.financial_accounts)}${ecField('counter_account_id','Fondos propios','',null,ecAccounts(ctx,'equity'))}${ecField('entry_date','Fecha','date',day())}</div>`,'opening_post',['financial_account_id','counter_account_id','entry_date']));
- $('ecClose')?.addEventListener('click',()=>ecForm('Cerrar ejercicio',`<p>${tr('Transfiere el resultado a fondos propios y bloquea todos los meses del ejercicio. Revisa antes el libro y las obligaciones fiscales.')}</p><div class="gaGrid">${ecField('from','Desde','date',day().slice(0,4)+'-01-01')}${ecField('to','Hasta','date',day().slice(0,4)+'-12-31')}</div>`,'year_close',['from','to']));
+ $('ecClose')?.addEventListener('click',()=>ecForm('Cerrar ejercicio',`<p>${tr('Transfiere el resultado a fondos propios y bloquea todos los meses del ejercicio. Revisa antes el libro y las obligaciones fiscales.')}</p><div class="gaGrid">${ecField('from','Desde','date',day().slice(0,4)+'-01-01')}${ecField('to','Hasta','date',day().slice(0,4)+'-12-31')}</div>${ecField('exceptions','Justificación de diferencias de cierre','textarea')}`,'year_close',['from','to','exceptions']));
  $('ecTaxCalculate')?.addEventListener('click',()=>{state.ecCreditFactor=Number($('ec-credit_factor').value);state.ecPreviousCredit=Number($('ec-previous_credit').value);go('workbench')});
  $('ecTaxExport')?.addEventListener('click',e=>act(e.target,()=>exportRows([...Object.entries(data.form104).map(([concept,value])=>({formulario:'104',concepto:concept,importe:value,desde:data.from,hasta:data.to,estado:'borrador_no_presentado'})),...data.form103.rows.map(r=>({...r,formulario:'103',desde:data.from,hasta:data.to,estado:'borrador_no_presentado'})),...(data.form103.payroll?[{formulario:'103',concepto:'relacion_dependencia',base:data.form103.payroll.base,importe:data.form103.payroll.withheld,desde:data.from,hasta:data.to,estado:'borrador_no_presentado'}]:[])],'formularios-103-104')));
  $('ecCancellation')?.addEventListener('click',()=>ecForm('Documentar anulación fiscal',`<p>${tr('Registra la fecha y la evidencia de la anulación. Las bajas efectuadas en el portal SRI se excluyen del ATS.')}</p><div class="gaGrid">${ecField('source_invoice_id','Factura de gestión anulada','',null,data.cancelled_pending||[])}${ecField('document_type','Código del comprobante','text','01')}${ecField('establishment','Establecimiento','text','')}${ecField('emission_point','Punto de emisión','text','')}${ecField('sequential_start','Secuencial inicial','number','')}${ecField('sequential_end','Secuencial final','number','')}${ecField('authorization_number','Autorización fiscal existente','text','')}${ecField('cancelled_on','Fecha de anulación','date',day())}${ecField('portal_deregistered','Baja en portal SRI','', 'false',[{value:'false',label:'No'},{value:'true',label:'Sí'}])}${ecField('evidence','Motivo y comprobante','textarea')}</div>`,'cancellation_save',['source_invoice_id','document_type','establishment','emission_point','sequential_start','sequential_end','authorization_number','cancelled_on','portal_deregistered','evidence']));
@@ -1370,6 +1421,7 @@ async function exportRows(rows,name){
 }
 
 window.addEventListener('gama:currency-change',()=>{if($(workspace)?.classList.contains('active'))go()});
+for(const event of ['gama:accounting-change','gama:sales-change','gama:purchase-change','gama:stock-change','gama:hr-change'])window.addEventListener(event,()=>{delete state.overview});
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id===workspace){opening++;generation++}});
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;document.querySelectorAll('[data-bank-workflow],[data-sri-api-preview]').forEach(d=>d.close());opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren();$('sri')?.replaceChildren()});
 window.GamaAccounting={open,openSri,mountSriConfig,rpc,SECTIONS};

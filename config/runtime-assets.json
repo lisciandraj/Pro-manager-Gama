@@ -28,6 +28,8 @@
     {"source":"src/features/transport/transport-controls.js","output":"architect-transport-controls.js"},
     {"source":"src/features/access/access-control.js","output":"gama-access-control.js"},
     {"source":"src/features/finance/accounting.js","output":"gama-accounting.js"},
+    {"source":"src/features/finance/accounting-audit.js","output":"coco-accounting-audit.js"},
+    {"source":"src/domain/accounting-export.js","output":"coco-accounting-export.js"},
     {"source":"src/ui/archive.js","output":"gama-archive.js"},
     {"source":"src/features/intelligence/assistant-ia.js","output":"gama-assistant-ia.js"},
     {"source":"src/data/central-sync.js","output":"gama-central-sync.js"},

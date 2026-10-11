@@ -71,3 +71,17 @@ OCR_FAILED	No se pudo leer el documento. Revisa el original y reintenta.
 INVALID_SEQUENCE	Configura de 1 a 8 etapas entre -30 y 180 días.
 RECURRING_LIMIT	Máximo 50 programas recurrentes por cliente.
 CUSTOMER_CONFIRMATION_REQUIRED	El cliente debe confirmar la propuesta desde su portal.
+FINANCIAL_ACCOUNT_REQUIRED	Selecciona una cuenta activa con cuenta contable y moneda configuradas.
+REQUEST_KEY_CONFLICT	La operación ya fue registrada con otros datos. Cierra el formulario y vuelve a abrirlo.
+STOCK_MAPPING_LOCKED	Las cuentas de valoración ya tienen asientos y no pueden cambiarse.
+STOCK_AUTOMATION_LOCKED	La contabilización automática de stock ya está activa. Revisa sus asientos antes de modificarla.
+ACCOUNT_TYPE_REQUIRED	La cuenta seleccionada no tiene el tipo requerido.
+DEPRECIATION_PREVIOUS_PERIOD_REQUIRED	Contabiliza primero los meses anteriores.
+DEPRECIATION_ALREADY_POSTED	Este mes ya está amortizado.
+INVALID_DEPRECIATION_PERIOD	Usa el último día de un mes incluido en el plan.
+OPENING_ALREADY_POSTED	El saldo inicial ya está contabilizado.
+ASSET_ACQUISITION_REQUIRED	Selecciona un asiento de adquisición contabilizado en la cuenta del activo.
+ASSET_COST_EXCEEDED	El coste supera la adquisición disponible.
+DOCUMENT_DATE_BEFORE_INVOICE	La fecha no puede ser anterior a la factura.
+REFUND_CREDIT_UNPOSTED	Contabiliza primero el abono antes de recuperar su reembolso.
+RETURN_REFUND_ALREADY_REVERSED_SALE	La venta ya se ha revertido por un reembolso directo. Revisa la devolución antes de registrar otro abono.

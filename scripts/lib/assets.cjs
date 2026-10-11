@@ -3,7 +3,7 @@ const root=path.resolve(__dirname,'../..');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'config/runtime-assets.json'),'utf8'));
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex').slice(0,12);
 const generated=[...manifest.scripts,...manifest.styles,...(manifest.startupBundles||[])].map(x=>x.output);
-const runtimeFiles=()=>[...new Set([...generated,'architect-core.js','architect-components.css','architect-base.css','gama-i18n-catalog.js','gama-i18n-server.js'])].sort();
+const runtimeFiles=()=>[...new Set([...generated,'architect-core.js','architect-components.css','architect-base.css','gama-i18n-catalog.js','gama-i18n-fr.js','gama-i18n-en.js','gama-i18n-server.js'])].sort();
 const header=source=>'/* Generated from '+source+'. Edit the source and run npm run build. */\n';
 // Preserve public/global identifiers and classic-script scope while removing
 // comments and whitespace. Every generated runtime script uses this contract.

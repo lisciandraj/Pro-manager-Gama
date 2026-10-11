@@ -5,7 +5,7 @@
 'use strict';
 if(window.GamaI18n)return;
 const KEY='gama_language_v1',languages=['es','fr','en'],server=window.GamaI18nServer||{};
-let catalog=window.GamaI18nCatalog||{},bySource,patterns,prefixes,catalogRequest=null,languageRequest=0;
+let catalog=window.GamaI18nCatalog||{},bySource,patterns,prefixes,catalogRequests=new Map(),languageRequest=0;
 let language='es';try{const saved=localStorage.getItem(KEY);if(languages.includes(saved))language=saved}catch(_){}
 const normalize=s=>String(s??'').replace(/\s+/g,' ').trim();
 const escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -16,15 +16,15 @@ function indexCatalog(){
  prefixes=[...bySource.values()].filter(x=>x.row[0].length>5&&!x.row[0].includes('{')).sort((a,b)=>b.row[0].length-a.row[0].length);
 }
 indexCatalog();
-async function readyCatalog(){
- if(window.GamaI18nCatalog){if(catalog!==window.GamaI18nCatalog){catalog=window.GamaI18nCatalog;indexCatalog()}return;}
- if(catalogRequest)return catalogRequest;
- catalogRequest=(async()=>{
-  await window.ArcLoadScript('gama-i18n-catalog.js',{validate:()=>!!window.GamaI18nCatalog});
-  catalog=window.GamaI18nCatalog;indexCatalog();
- })();
- try{await catalogRequest}finally{catalogRequest=null}
+async function readyCatalog(code=language){
+ if(window.GamaI18nCatalog&&!window.GamaI18nCatalogues)return window.GamaI18nCatalog;
+ if(window.GamaI18nCatalogues?.[code])return window.GamaI18nCatalogues[code];
+ if(catalogRequests.has(code))return catalogRequests.get(code);
+ const pending=(async()=>{await window.ArcLoadScript('gama-i18n-'+code+'.js',{validate:()=>!!window.GamaI18nCatalogues?.[code]});return window.GamaI18nCatalogues[code]})();
+ catalogRequests.set(code,pending);
+ try{return await pending}finally{if(catalogRequests.get(code)===pending)catalogRequests.delete(code)}
 }
+
 function translated(row){return row[languages.indexOf(language)]}
 // A few server functions answer in English (locales/server-messages.tsv): the
 // message, alone or after «Label: », first becomes its Spanish source text.
@@ -132,16 +132,18 @@ function mount(){
  if(bar.parentElement!==host)host.appendChild(bar);
  for(const b of bar.children){const selected=b.dataset.language===language;if(b.getAttribute('aria-pressed')!==String(selected))b.setAttribute('aria-pressed',String(selected))}
 }
-async function setLanguage(code){
+async function changeLanguage(code){
  if(!languages.includes(code))return false;
  const request=++languageRequest;
- if(code!=='es')await readyCatalog();
+ const next=code==='es'?null:await readyCatalog(code);
  if(request!==languageRequest)return false;
+ if(next){catalog=next;window.GamaI18nCatalog=next;indexCatalog()}
  language=code;try{localStorage.setItem(KEY,code)}catch(_){}
  document.documentElement.lang=code;scan(document.body);mount();
  window.dispatchEvent(new CustomEvent('gama:language-change',{detail:{language:code}}));
  return true;
 }
+function setLanguage(code){const pending=changeLanguage(code);window.GamaI18n.ready=pending;return pending}
 function boot(){
  document.documentElement.lang=language;
  const s=document.createElement('style');s.id='gamaLanguageCss';

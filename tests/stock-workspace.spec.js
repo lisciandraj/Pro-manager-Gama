@@ -12,7 +12,7 @@ for(const width of [390,1440])test(`Stock opens independently of secondary reads
  expect(requests.some(u=>u.includes('gama-stock-workspace.js'))).toBe(false);expect(requests.some(u=>u.includes('gama-stock-operations.js'))).toBe(false);
  await page.evaluate(()=>{const list=GamaCloud.list;window.__stockReads=[];GamaCloud.list=async(table,o)=>{window.__stockReads.push(table);if(['inventory_counts','reorder_rules','warehouse_shelves','purchase_orders','purchase_order_lines'].includes(table))return new Promise(()=>{});return list(table,o)}});
  await page.evaluate(()=>GamaOpenWarehouses());await expect(page.locator('#ivTabla')).toContainText('0,001');
- const reads=await page.evaluate(()=>window.__stockReads);expect(reads).toContain('stock_quants');expect(reads).not.toContain('inventory_counts');expect(reads).not.toContain('reorder_rules');expect(reads).not.toContain('warehouse_shelves');
+ const reads=await page.evaluate(()=>window.__stockReads);expect(reads).not.toContain('stock_quants');expect(reads).not.toContain('products');expect(await page.evaluate(()=>__stockPageCalls.length)).toBe(1);expect(reads).not.toContain('inventory_counts');expect(reads).not.toContain('reorder_rules');expect(reads).not.toContain('warehouse_shelves');
  expect(requests.filter(u=>u.includes('gama-stock-workspace.js'))).toHaveLength(1);expect(requests.some(u=>u.includes('gama-stock-operations.js'))).toBe(false);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
@@ -88,4 +88,13 @@ for(const width of [1024,1440])test(`Stock photos stay inside their frame beside
  const reads=await page.evaluate(()=>__DB.__calls.filter(c=>c.table==='products'));
  expect(reads.some(c=>c.select==='id,photo_data')).toBe(true);
  expect(reads.some(c=>c.select!=='id,photo_data'&&(c.select==='*'||String(c.select).includes('photo_data')))).toBe(false);
+});
+
+for(const width of [390,1440])test(`paged Stock retains catalogue totals and filters before slicing at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});const db=structuredClone(base);db.products=[];db.stock_quants=[];
+ for(let i=0;i<65;i++){db.products.push({id:'p'+i,name:'Article '+String(i).padStart(3,'0'),reference:'REF-'+i,active:true,purchase_price:2,min_stock:1});db.stock_quants.push({id:'q'+i,product_id:'p'+i,location_id:'l1',quantity:i,reserved_quantity:0})}
+ await boot(page,db);await page.evaluate(()=>GamaOpenWarehouses());await expect(page.locator('[data-iv-product]')).toHaveCount(20);await expect(page.locator('#ivKpis')).toContainText('65');await expect(page.locator('#ivStockTotals')).toContainText('4.160');
+ await page.locator('#ivTabla [data-page-next]').click();await expect(page.locator('#ivTabla')).toContainText('Article 020');await expect(page.locator('#ivTabla .gamaPagerInfo')).toContainText('21–40');await expect(page.locator('#ivKpis')).toContainText('65');
+ await page.locator('#ivBuscar').fill('REF-64');await expect(page.locator('[data-iv-product]')).toHaveCount(1);await expect(page.locator('#ivTabla')).toContainText('Article 064');await expect(page.locator('#ivStockTotals')).toContainText('128');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

@@ -56,6 +56,8 @@ test('warehouse priorities omit finance and remain usable on mobile',async({page
 });
 test('a failed priorities read keeps the dashboard and says so',async({page})=>{
  await boot(page);await page.evaluate(()=>{window.__PRIO_FAIL=true});await page.evaluate(()=>ArcRouter.open('dashboard'));
+ await expect(page.locator('[data-ad-metric=net]')).toBeVisible();
+ await page.locator('.adDetails>summary').click();
  await expect(page.locator('.adPriorities [role=alert]')).toContainText('No se han podido cargar las acciones de seguimiento');
  await expect(page.locator('[data-ad-metric=net]')).toBeVisible();
 });

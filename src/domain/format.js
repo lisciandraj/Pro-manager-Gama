@@ -22,13 +22,15 @@ export const format = {
 export function normalizeError(error) {
   const message = String(error?.message || error || 'UNKNOWN_ERROR');
   const code = error?.code || message.match(/\b[A-Z][A-Z_]{3,}\b/)?.[0] || 'UNKNOWN_ERROR';
-  return { code, message, fields:error?.fields || {}, retryable:['NETWORK_ERROR','57014','53300'].includes(code), cause:error };
+  return { code, message, fields:error?.fields || {}, retryable:['NETWORK_ERROR','TIMEOUT','READ_CANCELLED','57014','53300'].includes(code), cause:error };
 }
 export function errorMessage(error) {
   const e = normalizeError(error);
   const messages = {AUTH_REQUIRED:'Vuelve a iniciar sesión.', ROLE_NOT_ALLOWED:'Tu perfil no puede realizar esta operación.', PM_FORBIDDEN:'Tu perfil no puede realizar esta operación.', '23505':'Ya existe un registro con estos datos.', '23503':'Este registro está vinculado a otros documentos.', PM_CONFLICT:'Los datos cambiaron. Actualiza antes de guardar.', NETWORK_ERROR:'Comprueba la conexión y vuelve a intentarlo.'};
   const specific=e.message.match(/\b[A-Z][A-Z_]{3,}\b/)?.[0];
   const audit={
+   TIMEOUT:['La lectura tarda demasiado. Vuelve a intentarlo.','Le chargement prend trop de temps. Réessayez.','Loading is taking too long. Try again.'],
+   READ_CANCELLED:['La lectura se ha cancelado. Vuelve a intentarlo.','Le chargement a été annulé. Réessayez.','Loading was cancelled. Try again.'],
    EC_IDENTIFICATION_INVALID:['Revisa el RUC o la cédula y su tipo. El dígito verificador no coincide.','Vérifiez le RUC ou la cédula et son type. Le chiffre de contrôle ne correspond pas.','Check the RUC or cédula and its type. The check digit does not match.'],
    PARTNER_IDENTIFICATION_DUPLICATE:['Ya existe un contacto con esta identificación. Abre su ficha para actualizarlo.','Un contact possède déjà cette identification. Ouvrez sa fiche pour le mettre à jour.','A contact with this identification already exists. Open its record to update it.'],
    DOCUMENT_CHANGED:['La situación cambió. Actualiza la solicitud de aprobación.','La situation a changé. Actualisez la demande d’approbation.','The situation changed. Refresh the approval request.'],

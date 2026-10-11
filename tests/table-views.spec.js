@@ -45,7 +45,7 @@ test('legacy and shared tables switch to uniform multi-column cards and retain i
  await page.locator('#viewLegacy').getByRole('button',{name:'Tableau',exact:true}).click();
  await page.evaluate(()=>{document.getElementById('viewFixtures').remove()});await fixtures(page);
  await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');await expect(page.locator('#viewShared table')).toHaveAttribute('data-gama-view','cards');
- await page.evaluate(()=>GamaI18n.setLanguage('en'));
+ await page.locator('#arcLangSelect').selectOption('en');
  await expect(page.locator('#viewLegacy').getByRole('button',{name:'Table',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 test('portrait and landscape support both modes without overflow and preserve supplier actions after paging',async({page})=>{
@@ -110,7 +110,7 @@ test('les boutons d’affichage montrent des icônes et des libellés traduits',
  await expect(table.locator('svg path')).toHaveAttribute('d','M4 6h16M4 10h16M4 14h16M4 18h16');
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];
  expect(await names()).toEqual(['Tuiles','Tuiles','Tableau','Tableau']);
- await page.evaluate(()=>GamaI18n.setLanguage('en'));await expect(cards).toHaveAccessibleName('Cards');expect(await names()).toEqual(['Cards','Cards','Table','Table']);
- await page.evaluate(()=>GamaI18n.setLanguage('es'));await expect(table).toHaveAccessibleName('Tabla');expect(await names()).toEqual(['Tarjetas','Tarjetas','Tabla','Tabla']);
+ await page.locator('#arcLangSelect').selectOption('en');await expect(cards).toHaveAccessibleName('Cards');expect(await names()).toEqual(['Cards','Cards','Table','Table']);
+ await page.locator('#arcLangSelect').selectOption('es');await expect(table).toHaveAccessibleName('Tabla');expect(await names()).toEqual(['Tarjetas','Tarjetas','Tabla','Tabla']);
  await cards.click();await expect(page.locator('#viewShared table')).toHaveAttribute('data-gama-view','cards');await expect(cards).toHaveAttribute('aria-pressed','true');await expect(table).toHaveAttribute('aria-pressed','false');
 });

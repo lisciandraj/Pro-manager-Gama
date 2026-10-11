@@ -10,7 +10,8 @@ const num=v=>v==null?'—':Number(v).toLocaleString(locale(),{maximumFractionDig
 const money=(v,currency=snapshot?.currency)=>v==null?'—':window.GamaCurrency.format(v,currency||undefined);
 const active=()=>$('dashboard')?.classList.contains('active')&&allowed('dashboard');
 let recentOrders=null,recentFailed=false,sriCorrections=null;
-let executive=null,snapshot=null,generation=0,updated=0,inflight=null,abort=null,range={preset:'month',from:day().slice(0,8)+'01',to:day()};
+const panels=new Map();
+let primaryLoading=false,primaryError=false,executive=null,snapshot=null,generation=0,updated=0,inflight=null,abort=null,range={preset:'month',from:day().slice(0,8)+'01',to:day()};
 let detailsExpanded=false,chartOptionsExpanded=false;
 let showAll=false,priorities=null,prioritiesFailed=false;const roleView=()=>{try{const role=JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role;return ['almacenero','magasinier'].includes(role)?'logistics':['comercial','commercial'].includes(role)?'sales':'management'}catch{return 'management'}};let view=roleView();
 const definitions=[
@@ -97,7 +98,7 @@ function shell(){
  const host=$('dashboard');if(!host)return;host.setAttribute('aria-label',t('Panel de control'));
  host.innerHTML=window.ArcUI.header({title:t('Dashboard')})+`<div id="ad-workspace" class="adWorkspace"><details class="adPersonal"><summary>${E(t("Mis indicadores personales"))}</summary><div class="adKpis" role="region" aria-labelledby="arcKpiHeading"><div id="ad-kpis" class="gamaF2Kpis" hidden></div></div></details><form id="ad-period" class="arcPanel adPeriod"><label class="arcField">${E(t('Periodo de análisis'))}<select id="ad-preset" data-gama-nofind>${[['today',h('today')],['week',h('week')],['quarter',h('quarter')],['90',h('ninety')],['month','Este mes'],['previous-month','Mes anterior'],['30','Últimos 30 días'],['year','Este año'],['custom','Personalizado']].map(([v,l])=>`<option value="${v}">${E(t(l))}</option>`).join('')}</select></label><label class="arcField">${E(t('Desde'))}<input id="ad-from" type="date" required></label><label class="arcField">${E(t('Hasta'))}<input id="ad-to" type="date" required></label><label class="arcField">${E(t('Vista'))}<select id="ad-view"><option value="management">${E(t('Vista de dirección'))}</option><option value="sales">${E(t('Comercial'))}</option><option value="logistics">${E(t('Logística'))}</option></select></label><div class="adPeriodActions"><button type="submit" class="arcButton primary">${E(t('Aplicar'))}</button><button type="button" class="arcButton secondary" id="ad-refresh">${E(t('Actualizar'))}</button></div><p id="ad-period-error" class="arcFormError" role="alert"></p></form>${toolbar()}<div id="ad-content" aria-live="polite"></div></div>`;
  window.ArcUI.headerIcon(host,'dashboard');   // esta pantalla se pinta su propia cabecera
- $('ad-view').value=view;$('ad-view').onchange=()=>{view=$('ad-view').value;render()};
+ $('ad-view').value=view;$('ad-view').onchange=()=>{view=$('ad-view').value;refresh(true)};
  const form=$('ad-period');$('ad-preset').onchange=()=>preset($('ad-preset').value);
  for(const id of ['ad-from','ad-to'])$(id).onchange=()=>{$('ad-preset').value='custom'};
  form.onsubmit=e=>{e.preventDefault();const from=$('ad-from').value,to=$('ad-to').value;
@@ -139,6 +140,7 @@ function groupItem(group){
  return `<li><button type="button" class="adPrio adPrioSummary" data-tone="${E(group.tone)}" data-ad-group="${E(group.kind)}"><span class="adAlertCount">${E(num(group.count))}</span><span class="adPrioText"><strong>${E(t(PRIORITY_GROUPS[group.kind]||group.kind))}</strong><small>${E(t(moduleDef('accounting')?.label||'Contabilidad'))}</small></span><span aria-hidden="true">→</span></button></li>`;
 }
 function priorityPanel(s,has){
+ if(!priorities)return `<article class="arcPanel adPriorities"><h2>${E(t('Prioridades de hoy'))}</h2><p role="${prioritiesFailed?'alert':'status'}">${E(t(prioritiesFailed?'No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.':'Cargando…'))}</p></article>`;
  const groups=(priorities?.groups||[]).filter(g=>PRIORITY_GROUPS[g.kind]&&sourceVisible('accounting'));
  const allItems=priorities?.items||[],items=allItems.filter(x=>sourceVisible(({invoice:'payments',service:'sav',delivery:'tms',product:'warehouses',quote:'quotes',bank_transaction:'accounting',expense:'accounting',order:'sales-orders'})[x.target]||x.module||'sales-orders')),summaries=prioritySummaries.filter(([id,key])=>has(id)&&Number(s[id]?.[key])>0);
  const columns=TONES.map(([tone,title,help])=>{
@@ -168,15 +170,17 @@ function render(){
  if(has('tms'))cards.push(metric('tms','Entregas realizadas',s.tms?.delivered,'Periodo seleccionado',undefined,'number','delivered'));
  if(has('sales-orders'))cards.push(metric('sales-orders','Pedidos por expedir',s['sales-orders']?.to_ship,'Situación actual',undefined,'number','to_ship'))}
  if(view==='sales'&&has('crm')){cards.push(metric('crm','Pipeline ponderado',s.crm?.weighted,'Potencial × probabilidad · oportunidades abiertas',undefined,'money','weighted'));cards.push(metric('crm','Oportunidades ganadas',s.crm?.won,'Ganadas en el periodo · antes de facturar',undefined,'money','won'))}
- $('ad-content').innerHTML=`<div class="adMeta"><span>${E(date(p.from))} — ${E(date(p.to))} <small>· ${E(t('Comparación'))} ${E(date(p.previous_from))} — ${E(date(p.previous_to))}</small></span><span>${E(t('Actualizado'))} ${E(new Date(snapshot.generated_at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}))}</span></div>
+ $('ad-content').innerHTML=`${primaryError?failureNotice():''}<div class="adMeta"><span>${E(date(p.from))} — ${E(date(p.to))} <small>· ${E(t('Comparación'))} ${E(date(p.previous_from))} — ${E(date(p.previous_to))}</small></span><span>${E(t('Actualizado'))} ${E(new Date(snapshot.generated_at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}))}</span></div>
  ${unavailable.length?`<p class="adNotice" role="alert">${E(t('Datos parciales. Fuentes no disponibles:'))} ${unavailable.map(id=>E(t(moduleDef(id)?.label||id))).join(', ')}. ${E(t('Actualiza para reintentar.'))}</p>`:''}
  <div class="adMetrics">${cards.join('')}</div>
  <div class="adCockpit">${has('payments')?financial(s.payments):''}${quickActions(s,has)}${has('sales-orders')?recentPanel():''}</div>
- <details class="adDetails"${detailsOpen?' open':''}><summary>${E(t('Todos los indicadores y prioridades'))}</summary>${executivePanel()}${priorityPanel(s,has)}${has('accounting')?accounting(s.accounting):''}
+ <details class="adDetails"${detailsOpen?' open':''}><summary>${E(t('Todos los indicadores y prioridades'))}</summary>${panelStatus()}${executivePanel()}${priorityPanel(s,has)}${has('accounting')?accounting(s.accounting):''}
  <div class="adActivities"><div class="adHeading"><div><h2>${E(t('La empresa por actividad'))}</h2><p>${E(t('Situación actual. Los valores marcados «Periodo» siguen las fechas seleccionadas.'))}</p></div><span class="adDate">${num(modules.filter(id=>!unavailable.includes(id)).length)} ${E(t('fuentes conectadas'))}</span></div>
  <div class="adModuleGrid">${definitions.filter(([id])=>has(id)).sort((a,b)=>{const priority=view==='logistics'?['warehouses','sales-orders','tms','gamaPurchasesV14','returns']:view==='sales'?['crm','quotes','sales-orders','clients','payments']:[];return (priority.includes(a[0])?priority.indexOf(a[0]):100)-(priority.includes(b[0])?priority.indexOf(b[0]):100)}).map(([id,label,metrics])=>`<article class="arcPanel adModule" data-ad-source="${E(id)}"><div class="adModuleHead"><span class="adModuleIcon">${icon(id)}</span><h3>${E(t(label))}</h3></div>${s[id]==null?`<p class="adEmpty">${E(t('Datos no disponibles'))}</p>`:`<dl>${metrics.map(([key,label,type,scope])=>`<div><dt>${E(t(label))}${scope?` <small>${E(t('Periodo'))}</small>`:''}</dt><dd>${E(type==='money'?money(valueAt(s[id],key)):num(valueAt(s[id],key)))}</dd></div>`).join('')}</dl>`}${go(id,'Abrir módulo')}</article>`).join('')}</div></div><div id="ad-hr-cost"></div>
  </details><details class="arcPanel adMethod"><summary>${E(t('Cómo leer estos indicadores'))}</summary><p>${E(t('La facturación incluye las facturas internas y externas válidas una sola vez, antes de abonos. Los cobros incluyen solo pagos confirmados. El pendiente de cobro descuenta pagos y abonos.'))}</p><p>${E(t('Las fechas siguen la zona horaria de la empresa: Ecuador. La comparación usa el intervalo anterior con el mismo número de días.'))}</p><p>${E(t('Los saldos, retrasos y existencias son actuales; no reconstruyen una situación histórica. Solo se muestran los datos permitidos por tu perfil.'))}</p><p>${E(t('Los módulos de configuración y las herramientas de apoyo no generan indicadores adicionales.'))}</p></details>`;
- const detailSection=document.querySelector('#ad-content .adDetails');const customers=document.querySelector('#ad-content .adCustomers');if(customers)detailSection.append(customers);detailSection.ontoggle=()=>{if(document.querySelector('#ad-content .adDetails')===detailSection)detailsExpanded=detailSection.open};
+ const detailSection=document.querySelector('#ad-content .adDetails');const customers=document.querySelector('#ad-content .adCustomers');if(customers)detailSection.append(customers);detailSection.ontoggle=()=>{if(document.querySelector('#ad-content .adDetails')===detailSection){detailsExpanded=detailSection.open;if(detailsExpanded)loadDetails(generation)}};
+ $('ad-content').querySelectorAll('[data-ad-panel-retry]').forEach(b=>b.onclick=()=>{panels.delete(b.dataset.adPanelRetry);loadDetails(generation)});
+ $('ad-retry')?.addEventListener('click',()=>refresh(true));
  $('ad-all-alerts')?.addEventListener('click',()=>{showAll=!showAll;render();$('ad-all-alerts')?.focus()});window.ArcUI.mount($('ad-content'));finishTools();
 }
 function quickActions(s,has){
@@ -236,34 +240,63 @@ async function click(e){
  else if(id==='sav'&&window.GamaService)await window.GamaService.open({filter:focus==='late'?'late':focus==='unassigned'?'unassigned':'open'});
  else await window.ArcRouter.open(id);
  }catch(_){window.gamaToast?.(t('No se ha podido abrir el módulo. Vuelve a intentarlo.'))}finally{b.disabled=false}}
+const failureNotice=()=>`<div class="arcPanel adNotice" role="alert"><p>${E(t('No se han podido cargar los indicadores. Actualiza para reintentar.'))}</p><button type="button" class="arcButton secondary" id="ad-retry">${E(t('Reintentar'))}</button></div>`;
+const primaryModules=()=>view==='logistics'?['warehouses','sales-orders','tms']:view==='sales'?['payments','sales-orders','crm']:['payments','sales-orders','warehouses','tms'];
+function panelStatus(){return ['sections','priorities','executive'].filter(k=>k!=='executive'||view==='management').map(k=>{
+ const status=panels.get(k)?.status,label=k==='sections'?'La empresa por actividad':k==='priorities'?'Prioridades de hoy':'Dirección · este mes';
+ return status==='error'?`<p class="adNotice" role="alert">${E(t(label))} · ${E(t('Datos no disponibles'))} <button type="button" class="arcButton secondary" data-ad-panel-retry="${k}">${E(t('Reintentar'))}</button></p>`:status!=='ready'?`<p role="status">${E(t(label))} · ${E(t('Cargando…'))}</p>`:'';
+}).join('')}
+function loadPanel(key,token,name,args,apply){
+ if(panels.has(key)||token!==generation||!active())return;
+ const job={status:'loading'};panels.set(key,job);
+ job.promise=(async()=>{
+  try{const data=await window.ArcData.rpc(name,args,{read:true,signal:abort?.signal});if(token!==generation||!active())return;apply(data);job.status='ready'}
+  catch(error){if(token!==generation||!active())return;job.status='error';if(key==='priorities')prioritiesFailed=true;console.warn('[dashboard] '+key,error.code||error.message)}
+  finally{if(token===generation&&active())render()}
+ })();
+}
+function loadExecutive(token){if(view==='management')loadPanel('executive',token,'gama_management_overview',{p_context:'dashboard'},data=>{executive=data})}
+function loadDetails(token){
+ if(!snapshot||!detailsExpanded||primaryLoading||primaryError)return;
+ const rest=definitions.map(d=>d[0]).concat('accounting').filter(id=>!primaryModules().includes(id));
+ loadPanel('sections',token,'gama_company_dashboard_sections',{p_from:range.from,p_to:range.to,p_modules:rest},data=>{
+  if(data?.user_id!==snapshot.user_id||data?.period?.from!==snapshot.period.from||data?.period?.to!==snapshot.period.to||!data.sections)throw Error('INVALID_DASHBOARD');
+  snapshot={...snapshot,sections:{...snapshot.sections,...data.sections},unavailable:[...new Set([...(snapshot.unavailable||[]),...(data.unavailable||[])])]};
+ });
+ loadPanel('priorities',token,'gama_dashboard_priorities',{},data=>{if(!Array.isArray(data?.items))throw Error('INVALID_DASHBOARD');priorities=data;prioritiesFailed=false});
+ loadExecutive(token);
+}
 async function refresh(force=false){
- if(!active())return;shell();if(!force&&(inflight||snapshot&&Date.now()-updated<60000))return;
- const token=++generation;abort?.abort();abort=new AbortController();const controller=abort,signal=controller.signal;
- if(force){snapshot=null;sriCorrections=null;updated=0}$('ad-period-error').textContent='';syncForm();$('ad-content').setAttribute('aria-busy','true');$('ad-content').innerHTML=`<p class="arcPanel adEmpty" role="status">${E(t('Cargando los datos de la empresa…'))}</p>`;
- let timer;const run=(async()=>{
-  try{await window.GamaCloudReady;const c=await window.GamaCloud.db();if(token!==generation)return;
+ if(!active())return;const started=performance.now();shell();
+ if(!force&&inflight)return inflight;
+ if(!force&&snapshot&&Date.now()-updated<60000){primaryLoading=false;primaryError=false;if(!abort||abort.signal.aborted)abort=new AbortController();render();loadExecutive(generation);loadDetails(generation);window.ArchitectPerformance?.contentReady('dashboard',started);return}
+ const token=++generation;abort?.abort();abort=new AbortController();const signal=abort.signal;
+ primaryLoading=true;primaryError=false;panels.clear();priorities=null;prioritiesFailed=false;executive=null;sriCorrections=null;
+ $('ad-period-error').textContent='';syncForm();$('ad-content').setAttribute('aria-busy','true');
+ if(snapshot)render();else $('ad-content').innerHTML=`<p class="arcPanel adEmpty" role="status">${E(t('Cargando los datos de la empresa…'))}</p>`;
+ const run=(async()=>{
+  try{await window.GamaCloudReady;
    const session=(await window.GamaCloud.getSession()).data?.session;if(!session)throw Error('AUTH_REQUIRED');
-   let query=c.rpc('gama_company_dashboard',{p_from:range.from,p_to:range.to});if(query.abortSignal)query=query.abortSignal(signal);
-   let follow=c.rpc('gama_dashboard_priorities');if(follow.abortSignal)follow=follow.abortSignal(signal);
-   const followed=Promise.resolve(follow).then(x=>x,error=>({error}));
-   let direction;if(roleView()==='management'){direction=c.rpc('gama_management_overview',{p_context:'dashboard'});if(direction.abortSignal)direction=direction.abortSignal(signal)}
-   const directed=direction?Promise.resolve(direction).then(x=>x,error=>({error})):Promise.resolve({data:null});
-   const r=await Promise.race([query,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TIMEOUT'))},20000)})]);
-   if(r.error)throw r.error;if(!r.data||!r.data.sections||!r.data.period||r.data.user_id!==session.user.id)throw Error('INVALID_DASHBOARD');
-   const [p,d]=await Promise.all([followed,directed]);if(token!==generation||!active())return;executive=d.error?null:d.data;
-   priorities=p.error||!Array.isArray(p.data?.items)?null:p.data;prioritiesFailed=!priorities;if(prioritiesFailed)console.warn('[dashboard] prioridades',p.error?.code||p.error?.message||'INVALID');
-   snapshot=r.data;recentOrders=null;recentFailed=false;loadPreferences(snapshot.user_id);updated=Date.now();render();loadRecentOrders(token);loadSriCorrections(token);
-  }catch(error){if(token!==generation||!active())return;console.warn('[dashboard]',error.code||error.message);snapshot=null;$('ad-content').innerHTML=`<div class="arcPanel adNotice" role="alert"><p>${E(t('No se han podido cargar los indicadores. Actualiza para reintentar.'))}</p><button type="button" class="arcButton secondary" id="ad-retry">${E(t('Reintentar'))}</button></div>`;$('ad-retry').onclick=()=>refresh(true);
-  }finally{clearTimeout(timer);if(token===generation){inflight=null;$('ad-content')?.removeAttribute('aria-busy')}}
+   const data=await window.ArcData.rpc('gama_company_dashboard_sections',{p_from:range.from,p_to:range.to,p_modules:primaryModules()},{read:true,signal});
+   if(token!==generation||!active())return;
+   if(!data?.sections||!data.period||data.user_id!==session.user.id)throw Error('INVALID_DASHBOARD');
+   primaryLoading=false;snapshot=data;recentOrders=null;recentFailed=false;loadPreferences(snapshot.user_id);updated=Date.now();render();window.ArchitectPerformance?.contentReady('dashboard',started);
+   loadRecentOrders(token);loadSriCorrections(token);loadExecutive(token);loadDetails(token);
+  }catch(error){if(token!==generation||!active())return;console.warn('[dashboard]',error.code||error.message);primaryLoading=false;primaryError=true;updated=0;window.ArchitectPerformance?.contentReady('dashboard',started,false);
+   if(snapshot)render();else $('ad-content').innerHTML=failureNotice();
+   $('ad-retry').onclick=()=>refresh(true);
+  }finally{if(token===generation){inflight=null;$('ad-content')?.removeAttribute('aria-busy')}}
  })();inflight=run;await run;
 }
-function invalidate(){generation++;abort?.abort();inflight=null;sriCorrections=null;recentOrders=null;recentFailed=false;executive=null;snapshot=null;priorities=null;prioritiesFailed=false;updated=0;showAll=false;detailsExpanded=false;chartOptionsExpanded=false;view=roleView();preferenceOwner=null;prefs=normalizePrefs(null);activity='all';chartType='bars';document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
+
+function invalidate(){primaryLoading=false;primaryError=false;panels.clear();generation++;abort?.abort();inflight=null;sriCorrections=null;recentOrders=null;recentFailed=false;executive=null;snapshot=null;priorities=null;prioritiesFailed=false;updated=0;showAll=false;detailsExpanded=false;chartOptionsExpanded=false;view=roleView();preferenceOwner=null;prefs=normalizePrefs(null);activity='all';chartType='bars';document.querySelectorAll('[data-dashboard-detail]').forEach(d=>d.close());$('ad-content')?.replaceChildren();if(active())refresh(true)}
 window.ArchitectDashboard={refresh};
 window.addEventListener('arc:route-change',e=>{if(e.detail?.id==='dashboard')refresh()});
-window.addEventListener('arc:route-leave',e=>{if(e.detail?.id==='dashboard'){generation++;abort?.abort();inflight=null;updated=0}});
+window.addEventListener('arc:route-leave',e=>{if(e.detail?.id==='dashboard'){primaryLoading=false;generation++;abort?.abort();inflight=null;for(const [key,job] of panels)if(job.status==='loading')panels.delete(key)}});
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')invalidate()});
 window.addEventListener('gama:modules-change',invalidate);
 window.addEventListener('gama:language-change',()=>{const host=$('dashboard');host?.removeEventListener('click',click);host?.replaceChildren();if(active()){shell();if(snapshot)render();else refresh(true)}});
 window.addEventListener('gama:currency-change',()=>{if(snapshot)render()});
+let mutationTimer;for(const event of ['gama:data-change','gama:sales-change','gama:stock-cloud-change','gama:accounting-change'])window.addEventListener(event,()=>{updated=0;clearTimeout(mutationTimer);mutationTimer=setTimeout(()=>{if(active())refresh(true)},150)});
 window.addEventListener('focus',()=>refresh());
 })();

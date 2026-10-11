@@ -10,8 +10,10 @@ if(new Set(scripts).size!==scripts.length)throw Error('Duplicate initial script'
 if(scripts.some(file=>file.includes('jspdf')))throw Error('PDF engine must load on export');
 const javascript=scripts.map(asset),stylesheets=styles.map(asset);
 const sum=(rows,key)=>rows.reduce((total,row)=>total+row[key],0);
-const totals={initialJavaScriptBytes:sum(javascript,'bytes'),initialStylesheetBytes:sum(stylesheets,'bytes'),initialScriptRequests:scripts.length};
+const sharedDynamic=['assets/vendor/supabase-2.115.0.js','gama-cloud-products.js','gama-cloud-auth.js','gama-cloud-users.js','gama-purchases-supplier-bridge.js','gama-invoice-archive.js'].map(asset);
+const languageAssets=['gama-i18n-fr.js','gama-i18n-en.js'].map(asset);
+const totals={initialJavaScriptBytes:sum(javascript,'bytes'),initialStylesheetBytes:sum(stylesheets,'bytes'),initialScriptRequests:scripts.length,initialSharedDynamicJavaScriptBytes:sum(sharedDynamic,'bytes'),initialFrenchJavaScriptBytes:sum(javascript,'bytes')+sum(sharedDynamic,'bytes')+languageAssets[0].bytes,initialEnglishJavaScriptBytes:sum(javascript,'bytes')+sum(sharedDynamic,'bytes')+languageAssets[1].bytes};
 const exceeded=Object.entries(budget).filter(([key,max])=>totals[key]>max);
 if(exceeded.length)throw Error(exceeded.map(([key,max])=>key+': '+totals[key]+' > '+max).join('\n'));
-const report={totals,budget,javascript,stylesheets,note:'Static file sizes; gzip is an estimate, not a measured transfer or loading time. Dynamic requests are excluded.'};
+const report={totals,budget,javascript,stylesheets,sharedDynamic,languageAssets,note:'Static file sizes; gzip is an estimate, not a measured transfer or loading time. Includes the shared dynamic SDK/adapters and selected language catalogue. Module assets and network timings are excluded.'};
 console.log(JSON.stringify(process.argv.includes('--json')?report:{scripts:scripts.length,bytes:totals.initialJavaScriptBytes,gzipBytes:sum(javascript,'gzipBytes'),budgetBytes:budget.initialJavaScriptBytes,budgetScripts:budget.initialScriptRequests,stylesheetBytes:totals.initialStylesheetBytes,budgetStylesheetBytes:budget.initialStylesheetBytes},null,2));

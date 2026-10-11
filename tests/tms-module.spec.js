@@ -133,13 +133,16 @@ test.describe('TMS — proof-of-delivery archive', () => {
     const proofCalls = await page.evaluate(() =>
       (window.__DB.__calls || []).filter(c => c.table === 'tms_proofs').map(c => c.select)
     );
-    // The index call must exist and must be narrow.
-    expect(proofCalls.length).toBeGreaterThan(0);
-    expect(proofCalls).toContain('delivery_id,captured_at,erp_reference');
-    expect(proofCalls.some(s => s === '*')).toBeFalsy();
+    // Daily planning never waits for the proof archive.
+    expect(proofCalls).toEqual([]);
+    await page.click('[data-tms-stage=proof]');
+    const indexCalls=await page.evaluate(()=>(window.__DB.__calls||[]).filter(c=>c.table==='tms_proofs').map(c=>c.select));
+    // Opening the archive loads only its narrow index.
+    expect(indexCalls.length).toBeGreaterThan(0);
+    expect(indexCalls).toContain('delivery_id,captured_at,erp_reference');
+    expect(indexCalls.some(s => s === '*')).toBeFalsy();
 
     // Opening one POD is what fetches its image, and only that row's.
-    await page.click('[data-tms-stage=proof]');
     await page.click('[data-proof-view=del1]');
     await expect(page.locator('.tmsProof img').first()).toHaveAttribute('src', /PHOTO/);
   });

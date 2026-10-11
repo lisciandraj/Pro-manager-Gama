@@ -35,8 +35,31 @@ let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null,estanterias=[];
 let busquedaUbicacion='',espacioResaltado=null;
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
-let serverSnapshot=null,snapshotRequest=0;
-async function refreshSnapshot(){const n=++snapshotRequest;const warehouse=$('ivAlmacen')?.value||null,until=$('ivUntil')?.value||null;serverSnapshot=null;try{const result=await window.ArcData.rpc('gama_inventory_snapshot',{p_warehouse:warehouse,p_until:until});if(n===snapshotRequest)serverSnapshot={warehouse,until,rows:new Map(result.rows.map(r=>[r.id,r]))}}catch(e){if(n===snapshotRequest)console.warn('[Stock snapshot]',e)}}
+let serverSnapshot=null,snapshotRequest=0,stockPage=null,stockAcceptedAt=0,stockRequest=0,pageController=null,mirrorReady=false;
+let stockFilters={search:'',warehouse:'',category:'',state:'',until:''};
+function pageOptions(){
+ const sort=window.GamaSort?.get('invv2'),columns=['name','warehouse','physical','reserved','available','status'];
+ return {p_warehouse:stockFilters.warehouse||null,p_until:stockFilters.until||null,p_search:stockFilters.search,
+  p_category:stockFilters.category,p_state:stockFilters.state,p_query:window.GamaPage?.query('invv2')||'',p_sort:columns[Number(sort?.col)]||'name',
+  p_direction:sort?.dir||'asc',p_page:window.GamaPage?.page('invv2')||0,p_page_size:20};
+}
+async function readStockPage(){
+ pageController?.abort();pageController=new AbortController();
+ return window.ArcData.rpc('gama_inventory_page',pageOptions(),{read:true,signal:pageController.signal});
+}
+function acceptPage(data){
+ stockPage=data;stockAcceptedAt=Date.now();window.GamaPage?.serverPage('invv2',data.page,data.total);
+ if(!mirrorReady){productos=data.rows.map(r=>({...r,product_kind:'goods'}));quants=data.rows.flatMap(r=>r.lines||[]);indexData()}
+}
+async function refreshStockPage(){
+ if(!$('warehouses')?.classList.contains('active')||pestana!=='existencias')return;
+ const request=++stockRequest,epoch=generation,host=$('ivTabla');
+ host?.setAttribute('aria-busy','true');
+ try{const data=await readStockPage();if(request!==stockRequest||epoch!==generation)return;acceptPage(data);tabla()}
+ catch(error){if(request!==stockRequest||epoch!==generation)return;window.ArcUI.render(host,`<p role="alert">${esc(window.ArcErrors.message(error))}</p><button class="arcButton secondary" data-iv-page-retry>${esc(T('Reintentar'))}</button>`);host?.querySelector('[data-iv-page-retry]')?.addEventListener('click',refreshStockPage)}
+ finally{if(request===stockRequest)host?.removeAttribute('aria-busy')}
+}
+
 let selectedProduct=null;
 let pestana='existencias',disponibleV2=null,baseError=null;
 let basePending=null,generation=0,paintRequest=0;
@@ -47,7 +70,7 @@ function indexData(){
  quantsByProduct=new Map();for(const q of quants){if(!quantsByProduct.has(q.product_id))quantsByProduct.set(q.product_id,[]);quantsByProduct.get(q.product_id).push(q)}
  incomingByProduct=new Map();for(const x of entrante||[]){if(!incomingByProduct.has(x.product_id))incomingByProduct.set(x.product_id,[]);incomingByProduct.get(x.product_id).push(x)}
 }
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;selectedProduct=null;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate();pestana='existencias';if($('warehouses'))pintar()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;generation++;paintRequest++;snapshotRequest++;stockRequest++;pageController?.abort();stockPage=null;mirrorReady=false;stockFilters={search:'',warehouse:'',category:'',state:'',until:''};selectedProduct=null;basePending=null;secondary.clear();disponibleV2=null;serverSnapshot=null;almacenes=[];ubicaciones=[];quants=[];productos=[];entrante=null;conteos=[];reglas=[];proveedores=[];estanterias=[];conteoAbierto=null;indexData();window.GamaStockOperations?.invalidate();pestana='existencias';if($('warehouses'))pintar()});
 window.addEventListener('gama:profile-ready',()=>{if(disponibleV2===null&&$('warehouses')?.classList.contains('active')&&window.gamaAccessAllowed?.('warehouses'))abrir()});
 
 /* ---------- datos ---------- */
@@ -63,16 +86,14 @@ async function cargar(){
  window.GamaStockOperations?.invalidate();
  basePending=(async()=>{
   try{
-   const [w,l,q,p]=await Promise.all([
-    C().list('warehouses',{order:'code',ascending:true}),
-    C().list('warehouse_locations',{order:'code',ascending:true}),
-    window.ArcData.all('stock_quants',{}),
-    window.ArcData.all('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})
+   mirrorReady=false;stockPage=null;
+   const [w,l,data]=await Promise.all([
+    C().list('warehouses',{select:'id,code,name,active',order:'code',ascending:true}),
+    C().list('warehouse_locations',{order:'code',ascending:true}),readStockPage()
    ]);
    if(epoch!==generation)return;
-   for(const r of [w,l,q,p])if(r.error)throw r.error;
-   almacenes=w.data||[];ubicaciones=l.data||[];quants=q.data||[];
-   productos=(p.data||[]).filter(x=>x.active!==false&&x.product_kind!=='service');
+   for(const r of [w,l])if(r.error)throw r.error;
+   almacenes=w.data||[];ubicaciones=l.data||[];acceptPage(data);
    entrante=null;indexData();baseError=null;disponibleV2=true;
   }catch(e){if(epoch===generation){console.warn('[GAMA Inventario V2]',e);baseError=e;disponibleV2=false}}
   finally{if(epoch===generation)basePending=null}
@@ -80,11 +101,25 @@ async function cargar(){
  return basePending;
 }
 
+/* Full mirrors are reserved for operations needing an exhaustive scope. */
+async function ensureMirror(){
+ if(mirrorReady)return;
+ if(secondary.has('mirror'))return secondary.get('mirror');
+ const epoch=generation;
+ const pending=(async()=>{
+  const [q,p]=await Promise.all([window.ArcData.all('stock_quants',{}),window.ArcData.all('products',{select:COLUMNAS_PRODUCTO,order:'name',ascending:true})]);
+  if(epoch!==generation)throw Error('AUTH_CHANGED');
+  if(q.error||p.error)throw q.error||p.error;
+  quants=q.data||[];productos=(p.data||[]).filter(x=>x.active!==false&&x.product_kind!=='service');mirrorReady=true;indexData();
+ })().catch(e=>{if(secondary.get('mirror')===pending)secondary.delete('mirror');throw e});
+ secondary.set('mirror',pending);return pending;
+}
 /* Secondary reads are shared, retryable and scoped to the opened tab. */
 function ensureData(tab){
  if(secondary.has(tab))return secondary.get(tab);
  const epoch=generation;
  const pending=(async()=>{
+  if(['transferencias','ubicaciones','conteos'].includes(tab))await ensureMirror();
   if(tab==='conteos'){
    const r=await window.ArcData.all('inventory_counts',{order:'created_at',ascending:false});if(r.error)throw r.error;
    if(epoch===generation)conteos=r.data||[];
@@ -135,7 +170,7 @@ function resumen(p,filtroAlmacen){
  const onHand=suyos.reduce((s,q)=>s+Number(q.quantity||0),0);
  const reservado=suyos.reduce((s,q)=>s+Number(q.reserved_quantity||0),0);
  const until=$('ivUntil')?.value;const entra=entrante?(incomingByProduct.get(p.id)||[]).filter(x=>(!filtroAlmacen||(almacenDe(x.location_id)||{}).id===filtroAlmacen)&&(!until||(x.expected_date&&x.expected_date.slice(0,10)<=until))).reduce((n,x)=>n+x.quantity,0):null;
- const disp=onHand-reservado;const server=serverSnapshot&&serverSnapshot.warehouse===(filtroAlmacen||null)&&serverSnapshot.until===($('ivUntil')?.value||null)?serverSnapshot.rows.get(p.id):null;
+ const disp=onHand-reservado;const server=stockPage&&stockPage.warehouse_id===(filtroAlmacen||null)&&stockPage.until===($('ivUntil')?.value||null)?stockPage.rows.find(r=>r.id===p.id):null;
  if(server)return {producto:p,onHand:Number(server.physical),reservado:Number(server.reserved),disponible:Number(server.available),entrante:server.incoming===null?null:Number(server.incoming),previsto:server.projected===null?null:Number(server.projected),minimo:Number(p.min_stock||0),maximo:Number(p.max_stock||0),costo:Number(p.purchase_price||0),valor:Number(server.current_cost_value),lineas:suyos};
  return {
   producto:p,onHand,reservado,disponible:disp,
@@ -193,8 +228,8 @@ ${window.ArchitectStockControls?.allowed()?`<button class="arcButton" type="butt
   window.ArcUI.render(cuerpo,`<div class="ivCard" role="alert"><h3 data-gi=495f6696d779>No se pudieron cargar las existencias</h3><p>${esc(mensaje(baseError||Error('Error de conexión')))}</p><button type="button" class="arcButton secondary" data-iv-base-retry data-gi=a9254c5f8128>Reintentar</button></div>`);
   cuerpo.querySelector('[data-iv-base-retry]').onclick=async()=>{disponibleV2=null;pintar();await cargar();await pintar()};return;
  }
- if(disponibleV2===null){window.ArcUI.render(cuerpo,'<div class="ivCard muted"><span class="gamaSpin"></span>Cargando existencias…</div>');return}
- if(pestana!=='existencias'&&pestana!=='transferencias'&&pestana!=='ajustes'){
+ if(disponibleV2===null){window.ArcUI.render(cuerpo,`<div class="ivCard muted" role="status"><span class="gamaSpin"></span>${esc(T('Cargando existencias…'))}</div>`);return}
+ if(pestana!=='existencias'&&pestana!=='ajustes'){
   window.ArcUI.render(cuerpo,'<div class="ivCard muted" role="status" data-gi=22bfaa3660e1>Cargando esta pestaña…</div>');
   try{await ensureData(pestana)}catch(e){if(request===paintRequest){window.ArcUI.render(cuerpo,'<div class="ivCard" role="alert"><p>No se pudo cargar esta pestaña. '+esc(mensaje(e))+'</p><button type="button" class="arcButton secondary" data-iv-retry data-gi=a9254c5f8128>Reintentar</button></div>');cuerpo.querySelector('[data-iv-retry]').onclick=()=>pintar()}return}
   if(request!==paintRequest||!cuerpo.isConnected)return;
@@ -213,7 +248,7 @@ ${window.ArchitectStockControls?.allowed()?`<button class="arcButton" type="butt
 
 function pintarExistencias(host){
  const opcionesAlmacen=almacenes.filter(a=>a.active!==false).map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
- const categorias=[...new Set(productos.map(p=>(p.category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+ const categorias=stockPage?.categories||[];
  window.ArcUI.render(host,`<div class="ivKpis" id="ivKpis"></div>
 <div class="ivCard">
 <div class="ivFiltros">
@@ -230,29 +265,16 @@ function pintarExistencias(host){
 </div>
 <details class="ivHelp"><summary>${esc(T('Cómo leer estos indicadores'))}</summary><p id="ivStockTotals"></p><p class="muted" data-gi=38323341e8c2>Las entradas sin destino o fecha no se asignan a un almacén o plazo. La previsión representa disponible + compras pendientes; no es una fecha prometida de entrega.</p></details><div class="ivStockLayout"><div id="ivTabla"></div><aside id="ivInspector" class="ivInspector" aria-live="polite"></aside></div>
 </div>`);
- ['ivBuscar','ivAlmacen','ivCategoria','ivEstadoFiltro','ivUntil'].forEach(id=>{
-  const el=$(id);if(!el)return;
-  el[id==='ivBuscar'?'oninput':'onchange']=async()=>{window.GamaPage?.reset('invv2');if(['ivAlmacen','ivUntil'].includes(id))await refreshSnapshot();tabla()};
- });
+ const fields={ivBuscar:'search',ivAlmacen:'warehouse',ivCategoria:'category',ivEstadoFiltro:'state',ivUntil:'until'};let debounce;
+ for(const [id,key] of Object.entries(fields)){
+  const el=$(id);el.value=stockFilters[key];
+  el[id==='ivBuscar'?'oninput':'onchange']=()=>{stockFilters[key]=el.value;window.GamaPage?.reset('invv2');clearTimeout(debounce);debounce=setTimeout(refreshStockPage,id==='ivBuscar'?200:0)};
+ }
  $('ivNewMovement').onclick=()=>window.GamaInventoryV2.openTab(window.ArchitectStockControls?.allowed()?'ajustes':'transferencias');
- window.GamaPage?.register('invv2',tabla);
- tabla();refreshSnapshot().then(()=>{if($('ivTabla'))tabla()});
+ window.GamaPage?.register('invv2',refreshStockPage);
+ tabla();
 }
-
-function filas(){
- const q=($('ivBuscar')?.value||'').toLowerCase().trim();
- const alm=$('ivAlmacen')?.value||'';
- const cat=$('ivCategoria')?.value||'';
- const est=$('ivEstadoFiltro')?.value||'';
- return productos
-  .filter(p=>!q||[p.name,p.reference,p.barcode].some(v=>String(v||'').toLowerCase().includes(q)))
-  .filter(p=>!cat||p.category===cat)
-  .map(p=>resumen(p,alm))
-  /* Con un almacén elegido, un producto que no tiene nada ahí no es una fila
-     vacía que llenar: simplemente no está en ese almacén. */
-  .filter(r=>!alm||r.lineas.length||r.entrante>0)
-  .filter(r=>!est||estado(r).clase===est);
-}
+function filas(){return (stockPage?.rows||[]).map(r=>({producto:r,onHand:Number(r.physical),reservado:Number(r.reserved),disponible:Number(r.available),entrante:r.incoming==null?null:Number(r.incoming),previsto:r.projected==null?null:Number(r.projected),minimo:Number(r.min_stock||0),maximo:Number(r.max_stock||0),costo:Number(r.purchase_price||0),valor:Number(r.current_cost_value||0),lineas:r.lines||[],warehouse:r.warehouse}))}
 
 function productPhoto(p){
  return p.has_photo&&window.GamaPhotos?window.GamaPhotos.slot(p.id,'ivProductPhoto'):window.ArcUI.moduleIcon('cube');
@@ -262,13 +284,13 @@ function tabla(){
  const rows=filas();pintarKpis(rows);
  if(!rows.length){window.ArcUI.render(host,'<p class="muted">'+esc(T('No hay existencias que coincidan.'))+'</p>');$('ivInspector')?.replaceChildren();return}
  if(!rows.some(r=>r.producto.id===selectedProduct))selectedProduct=rows[0].producto.id;
- const sites=r=>[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', ')||'—';
- const pagina=window.GamaPage?window.GamaPage.slice('invv2',rows,{0:r=>r.producto.name,1:sites,2:r=>r.onHand,3:r=>r.reservado,4:r=>r.disponible,5:r=>estado(r).texto}):rows;
+ const sites=r=>r.warehouse||[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', ')||'—';
+ const pagina=rows;
  const columns=['Producto','Almacén','Stock físico','Reservado','Disponible','Estado'];
  window.ArcUI.render(host,'<table class="arcTable" data-coco-mobile-cards data-gama-sort-key="invv2"><thead><tr>'+columns.map(c=>'<th>'+esc(T(c))+'</th>').join('')+'</tr></thead><tbody>'+pagina.map(r=>{
   const e=estado(r),ubis=r.lineas.map(l=>(ubicacion(l.location_id)||{}).code).filter(Boolean);
   return `<tr data-iv-product="${esc(r.producto.id)}" aria-selected="${r.producto.id===selectedProduct}"><td><button type="button" class="ivProductOpen" data-iv-open="${esc(r.producto.id)}"><span class="ivProductIcon" aria-hidden="true">${productPhoto(r.producto)}</span><span class="ivProductLabel">${esc(r.producto.name)}<small>${esc(r.producto.reference||'—')}</small></span></button></td><td>${esc(sites(r))}${ubis.length?`<small class="ivSub">${esc(ubis.join(' · '))}</small>`:''}</td><td>${num(r.onHand)}</td><td>${num(r.reservado)}</td><td><b>${num(r.disponible)}</b></td><td><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span></td></tr>`;
- }).join('')+'</tbody></table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):''));
+ }).join('')+'</tbody></table>'+(window.GamaPage?window.GamaPage.controls('invv2',stockPage?.total||0):''));
  host.querySelectorAll('[data-iv-open]').forEach(b=>b.onclick=()=>{selectedProduct=b.dataset.ivOpen;host.querySelectorAll('[data-iv-product]').forEach(row=>row.setAttribute('aria-selected',String(row.dataset.ivProduct===selectedProduct)));productInspector(rows.find(r=>r.producto.id===selectedProduct));if(window.innerWidth<=760)$('ivInspector').scrollIntoView({behavior:'smooth',block:'nearest'})});
  productInspector(rows.find(r=>r.producto.id===selectedProduct));window.GamaTable?.scan();window.GamaPhotos?.hydrate(host);
 }
@@ -281,9 +303,10 @@ function productInspector(r){
 }
 function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;
- const values=[['Productos activos',rows.filter(r=>r.producto.active!==false).length],['Productos bajo mínimo',rows.filter(r=>estado(r).clase==='bajo').length],['Sin existencias',rows.filter(r=>r.onHand<=0).length]];
+ const totals=stockPage?.totals||{};
+ const values=[['Productos activos',totals.products??0],['Productos bajo mínimo',totals.low??0],['Sin existencias',totals.out??0]];
  window.ArcUI.render(host,values.map(([label,value])=>`<div class="ivKpi"><span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
- window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(rows.reduce((total,r)=>total+r.valor,0)))}</b>`);
+ window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(totals.current_cost_value||0))}</b>`);
 }
 
 /* ---------- transferencias ---------- */
@@ -835,7 +858,7 @@ async function borrarEstanteria(sh){
 /* ---------- entrada ---------- */
 
 async function abrir(){
- css();
+ const started=performance.now();css();
  /* La sección se crea aquí, no está escrita en index.html. Hay que crearla y
     pintarla ANTES de pedir que se muestre: showTab recorre las secciones que
     encuentra en ese momento, y a una que todavía no existe no la enciende. */
@@ -843,14 +866,16 @@ async function abrir(){
  pintar();
  if(window.showTab)window.showTab('warehouses',null);
  else seccion().classList.add('active');
- if(disponibleV2===null)await cargar();
- await pintar();
+ if(disponibleV2!==true||Date.now()-stockAcceptedAt>=30000)await cargar();
+ await pintar();window.ArchitectPerformance?.contentReady('warehouses',started,disponibleV2===true);
 }
+window.addEventListener('arc:route-leave',e=>{if(e.detail?.id!=='warehouses')return;generation++;paintRequest++;stockRequest++;pageController?.abort();basePending=null;secondary.clear();mirrorReady=false});
+window.addEventListener('gama:stock-cloud-change',()=>{mirrorReady=false;secondary.delete('mirror');if($('warehouses')?.classList.contains('active')&&pestana==='existencias')refreshStockPage()});
 
 window.GamaOpenWarehouses=abrir;
 window.GamaInventoryV2={openAdjustments:async()=>{if(!window.ArchitectStockControls?.allowed())return;pestana='ajustes';await abrir()},openCount:async id=>{
  if(!window.gamaAccessAllowed?.('warehouses'))throw Error('Acceso no permitido.');
- await abrir();const r=await C().list('inventory_counts',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Recuento no disponible.');
+ await abrir();await ensureMirror();const r=await C().list('inventory_counts',{eq:{id}});if(r.error)throw r.error;if(!r.data?.[0])throw Error('Recuento no disponible.');
  conteos=(conteos||[]).filter(c=>c.id!==id).concat(r.data);pestana='conteos';await abrirConteo(id);
-},abrir,cargar,resumen,estado,sugerencia,limites,refresh:async()=>{await cargar();await pintar()},openTab:async tab=>{pestana=tab;await abrir()},focusProduct:async id=>{pestana='existencias';await abrir();const p=productos.find(x=>x.id===id);if(p&&$('ivBuscar')){$('ivBuscar').value=p.reference||p.name;tabla()}},get datos(){return{almacenes,ubicaciones,quants,productos,entrante,estanterias}}};
+},abrir,cargar,resumen,estado,sugerencia,limites,refresh:async()=>{await cargar();await pintar()},openTab:async tab=>{pestana=tab;await abrir()},focusProduct:async id=>{pestana='existencias';await abrir();const r=await C().list('products',{select:'id,name,reference',eq:{id},limit:1});if(r.error)throw r.error;const p=r.data?.[0];if(p&&$('ivBuscar')){stockFilters.search=p.reference||p.name;$('ivBuscar').value=stockFilters.search;window.GamaPage?.reset('invv2');selectedProduct=id;await refreshStockPage()}},get datos(){return{almacenes,ubicaciones,quants,productos,entrante,estanterias}}};
 })();

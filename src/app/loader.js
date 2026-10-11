@@ -18,13 +18,23 @@ export function prepareModule(id) {
   }
   for(const file of entry.styles||[]){if(prepared.has(file))continue;prepared.add(file);const link=document.createElement('link');link.rel='preload';link.as='style';link.href=window.ArcAssets?.[file]||file;document.head.appendChild(link)}
 }
-export function loadStyle(file){if(styles.has(file))return styles.get(file);const pending=new Promise((resolve,reject)=>{const link=document.createElement('link');link.rel='stylesheet';link.href=window.ArcAssets?.[file]||file;link.dataset.arcAsset=file;link.onload=resolve;link.onerror=()=>{link.remove();styles.delete(file);reject(Error('MODULE_LOAD_FAILED'))};document.head.appendChild(link)});styles.set(file,pending);return pending}
+export function loadStyle(file){
+ if(styles.has(file))return styles.get(file);
+ const pending=new Promise((resolve,reject)=>{const link=document.createElement('link');let settled=false;
+  const timer=setTimeout(()=>link.onerror(),15000);timer?.unref?.();
+  link.rel='stylesheet';link.href=window.ArcAssets?.[file]||file;link.dataset.arcAsset=file;
+  link.onload=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve()};
+  link.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);link.remove();styles.delete(file);reject(Error('MODULE_LOAD_FAILED'))};document.head.appendChild(link)
+ });styles.set(file,pending);return pending;
+}
 /** One request per asset, including modules sharing the same implementation.
  * Failed requests are removed so a later user action can retry. */
 export function loadScript(file, options = {}) {
   if (scripts.has(file)) return scripts.get(file);
   const pending = new Promise((resolve, reject) => {
     const script = document.createElement("script");
+    let settled=false;
+    const timer=setTimeout(()=>script.onerror(),Math.min(60000,Math.max(1000,Number(options.timeoutMs)||15000)));timer?.unref?.();
     // Only dependency groups need an execution queue. Independent downloads
     // (for example a PDF engine) must not postpone unrelated workspaces.
     script.async = options.ordered !== true;
@@ -32,8 +42,9 @@ export function loadScript(file, options = {}) {
     script.dataset.arcAsset = file;
     for (const key of ["integrity", "crossOrigin", "referrerPolicy"])
       if (options[key]) script[key] = options[key];
-    script.onload = () => options.validate && !options.validate() ? script.onerror() : resolve();
+    script.onload = () => {if(settled)return;if(options.validate&&!options.validate())return script.onerror();settled=true;clearTimeout(timer);resolve()};
     script.onerror = () => {
+      if(settled)return;settled=true;clearTimeout(timer);
       script.remove();
       scripts.delete(file);
       reject(Error("MODULE_LOAD_FAILED"));

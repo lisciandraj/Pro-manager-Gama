@@ -881,6 +881,22 @@
             return {id:p.id,physical,reserved,available:physical-reserved,incoming,projected:incoming===null?null:physical-reserved+incoming,current_cost_value:physical*Number(p.purchase_price||0)};
           })}};
         }
+        if(fn==='gama_inventory_page'){
+          window.__stockPageCalls=(window.__stockPageCalls||[]).concat(structuredClone(args));
+          const ware=args.p_warehouse||null,until=args.p_until||null,canBuy=['administrador','comercial'].includes(window.__DB._profile.role);
+          const goods=(window.__DB.products||[]).filter(p=>p.active!==false&&p.product_kind!=='service');
+          const rows=goods.map(p=>{const lines=(window.__DB.stock_quants||[]).filter(q=>q.product_id===p.id&&(!ware||(window.__DB.warehouse_locations||[]).find(l=>l.id===q.location_id)?.warehouse_id===ware));
+            const physical=lines.reduce((n,q)=>n+Number(q.quantity||0),0),reserved=lines.reduce((n,q)=>n+Number(q.reserved_quantity||0),0);
+            const incoming=canBuy?(window.__DB.purchase_order_lines||[]).filter(l=>l.product_id===p.id).reduce((n,l)=>{const o=(window.__DB.purchase_orders||[]).find(o=>o.id===l.purchase_order_id);return n+(o&&['sent','partial'].includes(o.status)&&(!ware||(window.__DB.warehouse_locations||[]).find(v=>v.id===o.destination_location_id)?.warehouse_id===ware)&&(!until||o.expected_date&&o.expected_date.slice(0,10)<=until)?Math.max(0,Number(l.quantity)-Number(l.received_quantity||0)):0)},0):null;
+            const status=physical<=0?'agotado':p.min_stock>0&&physical-reserved<=p.min_stock?'bajo':p.max_stock>0&&physical>p.max_stock?'sobre':reserved>0?'reservado':'ok';
+            const warehouse=[...new Set(lines.map(q=>(window.__DB.warehouses||[]).find(w=>w.id===(window.__DB.warehouse_locations||[]).find(l=>l.id===q.location_id)?.warehouse_id)?.name).filter(Boolean))].sort().join(', ')||'—';
+            const {photo_data,...metadata}=p;return {...metadata,has_photo:!!photo_data,physical,reserved,available:physical-reserved,incoming,projected:incoming==null?null:physical-reserved+incoming,current_cost_value:physical*Number(p.purchase_price||0),lines,warehouse,status};
+          }).filter(r=>(!ware||r.lines.length||r.incoming>0)&&(!args.p_search||[r.name,r.reference,r.barcode].join(' ').toLowerCase().includes(args.p_search.trim().toLowerCase()))&&(!args.p_category||r.category===args.p_category)&&(!args.p_state||r.status===args.p_state)&&(!args.p_query||args.p_query.toLowerCase().split(/\s+/).every(t=>[r.name,r.warehouse,r.physical,r.reserved,r.available].join(' ').toLowerCase().includes(t))));
+          const totals={products:rows.length,low:rows.filter(r=>r.status==='bajo').length,out:rows.filter(r=>r.physical<=0).length,current_cost_value:rows.reduce((n,r)=>n+r.current_cost_value,0)};
+          rows.sort((a,b)=>{const key=args.p_sort||'name',av=a[key],bv=b[key];return (typeof av==='number'?av-bv:String(av).localeCompare(String(bv)))*(args.p_direction==='desc'?-1:1)||String(a.id).localeCompare(String(b.id))});
+          const size=args.p_page_size||20,page=Math.max(0,Math.min(args.p_page||0,Math.ceil(rows.length/size)-1));
+          return {data:{page,page_size:size,total:rows.length,totals,categories:[...new Set(goods.map(p=>p.category).filter(Boolean))].sort(),rows:rows.slice(page*size,(page+1)*size),warehouse_id:ware,until,incoming_visible:canBuy}};
+        }
         if(fn==='gama_stock_insights'){
           const role=window.__DB._profile.role,canBuy=['administrador','comercial'].includes(role),canCount=['administrador','almacenero'].includes(role);
           if(!['administrador','comercial','almacenero'].includes(role))return {error:{message:'ROLE_NOT_ALLOWED'}};

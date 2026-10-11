@@ -32,6 +32,7 @@ export function show(id,button){
   emit('arc:route-change',{id});window.scrollTo({top:0,behavior:'smooth'});return true;
 }
 export function open(id){const requested=id;id=canonical(id);if(!allowed(id))return refuse(id);const definition=registry.find(m=>m.id===id),started=performance.now();
+ emit('arc:route-open',{id,started});
  const record=success=>emit('arc:metric',{metric:'navigation',module:id,operation:'open',duration_ms:Math.round(performance.now()-started),success});
  try{const result=definition?.open?definition.open(requested):show(id);if(result?.then)return result.then(r=>{record(true);return r},e=>{record(false);throw e});record(result!==false);return result}catch(e){record(false);throw e}}
 export function startRouter(){

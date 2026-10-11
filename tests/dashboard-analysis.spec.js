@@ -35,7 +35,7 @@ test('mobile and landscape preserve readable cards and chart scrolling',async({p
  await page.screenshot({path:'test-results/dashboard-mobile.png',fullPage:true});await page.setViewportSize({width:844,height:390});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 test('failures, partial data and stale responses never become zero or overwrite the selected period',async({page})=>{
- await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.evaluate(()=>__DASH.fail=true);await page.locator('#ad-refresh').click();await expect(page.locator('#ad-content [role=alert]')).toContainText('Impossible de charger');await expect(page.locator('[data-ad-metric=net]')).toHaveCount(0);
+ await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.evaluate(()=>__DASH.fail=true);await page.locator('#ad-refresh').click();await expect(page.locator('#ad-content [role=alert]')).toContainText('Impossible de charger');await expect(page.locator('[data-ad-metric=net] strong')).not.toHaveText('—');
  await page.evaluate(()=>{__DASH.fail=false;__DASH.partial=['payments']});await page.locator('#ad-retry').click();await expect(page.locator('#ad-content [role=alert]')).toContainText('Données partielles');await expect(page.locator('[data-ad-metric=net] strong')).toHaveText('—');await expect(page.locator('[data-ad-source=sav]')).toBeVisible();
  await page.evaluate(()=>{__DASH.partial=[];__DASH.delay=500});await period(page,'2020-01-01','2020-01-31');await page.evaluate(()=>__DASH.delay=0);await period(page,'2020-03-01','2020-03-31');await expect(page.locator('[data-ad-metric=net]')).toContainText('36');await page.waitForTimeout(600);await expect(page.locator('[data-ad-metric=net]')).toContainText('36');await expect(page.locator('.adMeta')).toContainText('01/03/2020');
  await period(page,'2020-04-01','2020-03-01');await expect(page.locator('#ad-period-error')).toContainText('période valide');
@@ -80,4 +80,10 @@ test('favorite metadata is scoped to a verified account and contains no business
  await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.click('#ad-favorite-save');await page.fill('#ad-favorite-name','Personnel');await page.locator('dialog button[type=submit]').click();
  const saved=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('coco_dashboard_views_v1:')).map(k=>[k,localStorage.getItem(k)]));expect(saved).toHaveLength(1);expect(saved[0][1]).not.toContain('24000');expect(saved[0][1]).not.toContain('Almacenes');
  await page.evaluate(()=>{__DB._profile.id='another-account';dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_IN'}}))});await page.evaluate(()=>showTab('dashboard'));await expect(page.locator('.adAnalysis')).toBeVisible();await expect(page.locator('#ad-favorite option')).toHaveCount(1);
+});
+
+test('slow optional panels leave the primary Dashboard usable and preserve the period',async({page})=>{
+ await boot(page);await page.locator('.adDetails>summary').click();await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(fn,args)=>['gama_management_overview','gama_dashboard_priorities'].includes(fn)?new Promise(()=>{}):c.rpc(fn,args)}}});
+ await page.locator('#ad-refresh').click();await expect(page.locator('[data-ad-metric=net] strong')).not.toHaveText('—');await expect(page.locator('#ad-content')).not.toHaveAttribute('aria-busy','true');
+ await period(page,'2020-01-01','2020-01-31');await expect(page.locator('[data-ad-metric=net]')).toContainText('12');await expect(page.locator('.adMeta')).toContainText('01/01/2020');await page.locator('.adDetails>summary').click();await expect(page.locator('.adDetails [role=status]').first()).toContainText('Chargement');
 });

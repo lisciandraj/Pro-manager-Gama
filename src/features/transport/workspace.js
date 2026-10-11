@@ -12,6 +12,7 @@ const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:window.GamaCompany?.ge
 let planningDate=today();const day=()=>planningDate;
 const T=v=>window.GamaI18n?.t?.(v)||v;
 let db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]};
+let fetchedAt=0,auxAt=0,auxDay='',auxPending=null;
 let proofViewVersion=0;const gpsRequests=new Map();
 function proofGps(id){if(!gpsRequests.has(id))gpsRequests.set(id,new Promise(resolve=>{if(!navigator.geolocation)return resolve({status:'unavailable'});navigator.geolocation.getCurrentPosition(p=>resolve({status:'captured',lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,at:new Date(p.timestamp).toISOString()}),e=>resolve({status:e.code===1?'denied':e.code===3?'timeout':'unavailable'}),{enableHighAccuracy:true,timeout:6000,maximumAge:0})}));return gpsRequests.get(id)}
 let proofArchiveId=null,proofCache={},loaded=false,currentTab='today',selectedStage='planning',driverView=null,moveBusy=false,proofMetadataReady=false;
@@ -62,15 +63,13 @@ async function fetchAll(){
  const sessionVersion=authEpoch;
  const api=C();if(!api)return;
  const t=day();
- const [drv,rt,del,st,pf,pending,counts]=await Promise.all([
-  (async()=>{const c=await api.db();const r=await window.ArcData.rawRpc('gama_tms_resources',{p_day:day()});return r.error?{data:[],error:r.error}:{data:r.data||[]}})(),
+ const [drv,rt,del,st,pending,counts]=await Promise.all([
+  (async()=>{const r=await window.ArcData.rawRpc('gama_tms_resources',{p_day:t},{read:true});return r.error?{data:[],error:r.error}:{data:r.data||[]}})(),
   api.list('tms_routes',{eq:{route_date:t},order:'created_at',ascending:true}),
   api.list('tms_deliveries',{eq:{delivery_date:t},order:'created_at',ascending:true}),
   api.list('tms_settings',{limit:1}),
-  // Sólo el índice: las fotos y firmas no viajan hasta que se abre una prueba.
-  api.list('tms_proofs',{select:'delivery_id,captured_at,erp_reference',order:'captured_at',ascending:false,limit:ARCHIVE_LIMIT}),
   pendingDeliveries(api),
-  window.ArcData.rawRpc('gama_tms_today_counts',{p_day:day()}),
+  window.ArcData.rawRpc('gama_tms_today_counts',{p_day:t},{read:true}),
  ]);
  if(sessionVersion!==authEpoch)throw Error('Session changed');
  for(const result of [rt,del,st])if(result.error)throw result.error;
@@ -79,38 +78,40 @@ async function fetchAll(){
  db.routes=(rt.data||[]).map(rtFrom);
  const routeIds=[...new Set(pending.filter(d=>d.delivery_date===t&&d.route_id&&!db.routes.some(r=>r.id===d.route_id)).map(d=>d.route_id))];if(routeIds.length){const extra=await api.list('tms_routes',{in:{id:routeIds}});if(extra.error)throw extra.error;db.routes.push(...(extra.data||[]).map(rtFrom))}
  db.deliveries=[...new Map([...(del.data||[]),...pending].map(d=>[d.id,d])).values()].map(delFrom);
- db.counts=counts.data||{};db.proofIndex=pf.data||[];proofMetadataReady=false;
+ db.counts=counts.data||{};proofMetadataReady=false;
  const s=(st.data||[])[0]||{};
  db.settings={depot:s.depot||'',returnDepot:s.return_depot!==false,depotPoint:(s.depot_lat!=null&&s.depot_lng!=null)?{id:'__depot',isDepot:true,address:s.depot||'Depósito',lat:s.depot_lat,lng:s.depot_lng}:null};
- const ids=(pf.data||[]).map(p=>p.delivery_id).filter(Boolean);
- if(ids.length){
-  const arch=await api.list('tms_deliveries',{in:{id:ids},order:'delivered_at',ascending:false});
-  db.archive=(arch.data||[]).map(delFrom);
- }else db.archive=[];
- await Promise.all([fetchHr(api,t),fetchCustomers(api)]);
+ fetchedAt=Date.now();
 }
+async function fetchAux(){
+ if(auxPending)return auxPending;
+ const epoch=authEpoch,t=day();if(auxDay===t&&Date.now()-auxAt<60000)return;
+ const pending=Promise.all([fetchHr(C(),t),fetchCustomers(C())]).then(()=>{if(epoch===authEpoch){auxAt=Date.now();auxDay=t}}).finally(()=>{if(auxPending===pending)auxPending=null});
+ auxPending=pending;return pending;
+}
+
 /* Los clientes van aparte y sin propagar el error, igual que RRHH: si el rol
    no puede leerlos el desplegable se queda vacío y el transporte sigue
    funcionando con los campos escritos a mano. */
 async function fetchCustomers(api){
- try{
+ const epoch=authEpoch;try{
   const r=await api.list('customers',{select:'id,name,address,email,phone,lat,lng,gps_address,active',order:'name',ascending:true});
-  db.customers=r.error?[]:(r.data||[]).filter(c=>c.active!==false);
- }catch(e){db.customers=[]}
+  if(epoch!==authEpoch)return;db.customers=r.error?[]:(r.data||[]).filter(c=>c.active!==false);
+ }catch(e){if(epoch===authEpoch)db.customers=[]}
 }
 /* Fichas de empleado y ausencias que todavía no han terminado (las pasadas ya
    no afectan a ninguna ruta). Va aparte y sin propagar el error: si el rol no
    puede leer RRHH la lista vuelve vacía y el transporte sigue funcionando como
    antes, sin bloquear a nadie. */
 async function fetchHr(api,t){
- try{
+ const epoch=authEpoch;try{
   const [emp,abs]=await Promise.all([
    api.list('hr_employees',{order:'full_name',ascending:true}),
    api.list('hr_absences',{gte:{end_date:t},order:'start_date',ascending:true}),
   ]);
-  db.employees=emp.error?[]:(emp.data||[]);
+  if(epoch!==authEpoch)return;db.employees=emp.error?[]:(emp.data||[]);
   db.absences=abs.error?[]:(abs.data||[]);
- }catch(e){console.warn('[GAMA TMS] RRHH no disponible',e);db.employees=[];db.absences=[]}
+ }catch(e){console.warn('[GAMA TMS] RRHH no disponible',e);if(epoch===authEpoch){db.employees=[];db.absences=[]}}
 }
 async function ensureProof(id){
  if(!id||proofCache[id]!==undefined)return proofCache[id];
@@ -123,7 +124,7 @@ async function ensureProof(id){
 /* ---- migración única desde localStorage ---- */
 async function migrateLocalOnce(){if(localStorage.getItem(MIGRATED_KEY))return;const old=readLocal(LOCAL_KEY,null);localStorage.setItem(MIGRATED_KEY,'1');if(old?.deliveries?.length)notify(tr('preserved'))}
 async function ready(){
- if(loaded)return true;
+ if(loaded&&Date.now()-fetchedAt<30000)return true;
  if(!C()){notify('El módulo de transporte necesita la conexión con la nube. Recarga la aplicación.');return false}
  try{
   await migrateLocalOnce();
@@ -143,24 +144,28 @@ function showSection(){const x=section();window.ArcRouter.show('gama-tms-section
 
 async function open(tab){
  if(['history','tracking'].includes(tab)&&window.gamaAccessAllowed?.('audit'))return window.ArchitectAudit.open('transfer');
- const epoch=++planningEpoch;++proofViewVersion;styles();const x=showSection();
+ const started=performance.now(),epoch=++planningEpoch;++proofViewVersion;styles();const x=showSection();
  window.ArcUI.render(x,'<div class="tms"><div class="tmsEmpty" role="status">'+esc(T('Cargando datos de transporte…'))+'</div></div>');
  if(!tab||tab==='driver'||(driverView&&tab==='proof')||!navigator.onLine){
   try{const r={data:await window.ArchitectOfflineProofs.bundle()};if(epoch!==planningEpoch)return;
-   if(r.data?.scope==='driver'||tab==='driver'||!navigator.onLine||r.data?.driver&&window.matchMedia('(max-width: 767px)').matches){driverView={...r.data,routes:(r.data?.routes||[]).map(rtFrom),deliveries:(r.data?.deliveries||[]).map(delFrom)};currentTab='driver';renderDriver();return}
+   if(r.data?.scope==='driver'||tab==='driver'||!navigator.onLine||r.data?.driver&&window.matchMedia('(max-width: 767px)').matches){driverView={...r.data,routes:(r.data?.routes||[]).map(rtFrom),deliveries:(r.data?.deliveries||[]).map(delFrom)};currentTab='driver';renderDriver();window.ArchitectPerformance?.contentReady('tms',started);return}
   }catch(e){if(tab==='driver'){fail(e,'No se pudo cargar la ruta');return}}
  }
  driverView=null;currentTab='today';selectedStage=['preparation','planning','loading','proof'].includes(tab)?tab:'planning';
  GamaPage.reset('tmsProofs');
  if(!await ready()||epoch!==planningEpoch)return;
  if(selectedStage==='proof')await proofMetadata();
- render('today');
+ render('today');window.ArchitectPerformance?.contentReady('tms',started);
+ await fetchAux();if(epoch!==planningEpoch)return;
  if(selectedStage==='planning')await autoPlanning(true);
 }
 function defaultProofId(){return archiveList().some(d=>d.id===proofArchiveId)?proofArchiveId:''}
 function archiveList(){return db.archive.filter(d=>d.status==='Entregada').sort((a,b)=>String(b.deliveredAt||b.date).localeCompare(String(a.deliveredAt||a.date)))}
 async function proofMetadata(){
- if(proofMetadataReady)return;const epoch=authEpoch,ids=db.proofIndex.map(p=>p.delivery_id);const docs={};
+ if(proofMetadataReady)return;const epoch=authEpoch;
+ const pf=await C().list('tms_proofs',{select:'delivery_id,captured_at,erp_reference',order:'captured_at',ascending:false,limit:ARCHIVE_LIMIT});if(pf.error)throw pf.error;
+ const ids=(pf.data||[]).map(p=>p.delivery_id),docs={};
+ const archive=ids.length?await C().list('tms_deliveries',{in:{id:ids},order:'delivered_at',ascending:false}):{data:[]};if(archive.error)throw archive.error;if(epoch!==authEpoch)return;db.proofIndex=pf.data||[];db.archive=(archive.data||[]).map(delFrom);
  if(ids.length)try{const r=await C().list('business_documents',{select:'source_id,erp_reference,supplier_id',eq:{source_table:'tms_proofs'},in:{source_id:ids}});if(r.error)throw r.error;
   const supplierIds=[...new Set((r.data||[]).map(d=>d.supplier_id).filter(Boolean))];let suppliers=[];
   if(supplierIds.length){const sr=await C().list('suppliers',{select:'id,name',in:{id:supplierIds}});if(!sr.error)suppliers=sr.data||[]}
@@ -197,7 +202,7 @@ async function autoPlanning(force=false){
  const epoch=planningEpoch;lastPlanning=Date.now();planError='';
  const run=async()=>{
   try{
-   await fetchAll();if(epoch!==planningEpoch||!planningActive())return;
+   if(Date.now()-fetchedAt>=30000)await fetchAll();await fetchAux();if(epoch!==planningEpoch||!planningActive())return;
    const r=await window.ArcData.rawRpc('gama_tms_plan_day',{p_day:day()});if(r.error)throw r.error;plan=r.data;markOrigins();
    if(epoch!==planningEpoch||!planningActive())return;
    await fetchAll();markOrigins();
@@ -257,7 +262,7 @@ window.addEventListener('gama:language-change',()=>{if(currentTab==='driver')ren
 window.addEventListener('gama:data-change',()=>{if(planningActive()&&!planningJob)autoPlanning()});
 window.addEventListener('gama:sales-change',()=>autoPlanning());
 window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
-window.addEventListener('gama:auth-change',()=>{planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;fetchedAt=0;auxAt=0;auxPending=null;planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){
  return new Promise(resolve=>{

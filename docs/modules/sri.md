@@ -4,7 +4,7 @@ Le menu Administration contient désormais **Facturación SRI** (`sri`). Il util
 les factures internes existantes, avec accès depuis leur fiche et le suivi des
 paiements. L'onglet Comptabilité → SRI reste disponible. Les factures sont paginées,
 recherchables par numéro et liées au même dossier commercial et aux mêmes paiements.
-Le rendu fiscal ne crée aucun mouvement supplémentaire de stock ou de trésorerie.
+Le rendu fiscal ne crée aucun mouvement supplémentaire de stock ou de trésorerie. L’ouverture autonome lit le contexte comptable (droits, périmètre, devise) sans calculer la synthèse comptable. Les 30 factures et leurs états arrivent avant les compteurs, paramètres et capacités du service. Ces lectures secondaires actualisent les contrôles sans remplacer la sélection en cours. Les actions fiscales restent désactivées jusqu’à réception de leurs prérequis.
 
 Le nouveau fournisseur `openapi` utilise le service privé Python comme passerelle
 vers **Open API Facturación SRI**. Les droits et l'archivage existants sont conservés.

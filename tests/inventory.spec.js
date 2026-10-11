@@ -108,7 +108,7 @@ for (const width of [1280, 320]) {
     await inspector.scrollIntoViewIfNeeded();
     await expect(inspector.locator('img')).toHaveAttribute('src', photos[1]);
     const calls = await page.evaluate(() => window.__DB.__calls.filter(c => c.table === 'products'));
-    expect(calls.some(c => String(c.select).includes('has_photo'))).toBe(true);
+    expect(await page.evaluate(() => window.__stockPageCalls.length)).toBeGreaterThan(0);
     expect(calls.filter(c => c.select === 'id,photo_data')).toHaveLength(before);
     expect(calls.filter(c => c.select !== 'id,photo_data' && (c.select === '*' || String(c.select).includes('photo_data')))).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

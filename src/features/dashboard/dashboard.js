@@ -140,7 +140,7 @@ function groupItem(group){
  return `<li><button type="button" class="adPrio adPrioSummary" data-tone="${E(group.tone)}" data-ad-group="${E(group.kind)}"><span class="adAlertCount">${E(num(group.count))}</span><span class="adPrioText"><strong>${E(t(PRIORITY_GROUPS[group.kind]||group.kind))}</strong><small>${E(t(moduleDef('accounting')?.label||'Contabilidad'))}</small></span><span aria-hidden="true">→</span></button></li>`;
 }
 function priorityPanel(s,has){
- if(!priorities)return `<article class="arcPanel adPriorities"><h2>${E(t('Prioridades de hoy'))}</h2><p role="status">${E(t(prioritiesFailed?'No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.':'Cargando…'))}</p></article>`;
+ if(!priorities)return `<article class="arcPanel adPriorities"><h2>${E(t('Prioridades de hoy'))}</h2><p role="${prioritiesFailed?'alert':'status'}">${E(t(prioritiesFailed?'No se han podido cargar las acciones de seguimiento. Actualiza para reintentar.':'Cargando…'))}</p></article>`;
  const groups=(priorities?.groups||[]).filter(g=>PRIORITY_GROUPS[g.kind]&&sourceVisible('accounting'));
  const allItems=priorities?.items||[],items=allItems.filter(x=>sourceVisible(({invoice:'payments',service:'sav',delivery:'tms',product:'warehouses',quote:'quotes',bank_transaction:'accounting',expense:'accounting',order:'sales-orders'})[x.target]||x.module||'sales-orders')),summaries=prioritySummaries.filter(([id,key])=>has(id)&&Number(s[id]?.[key])>0);
  const columns=TONES.map(([tone,title,help])=>{

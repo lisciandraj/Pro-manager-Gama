@@ -23,7 +23,7 @@ test('financial dashboard uses the server snapshot independently of the quote mi
  await boot(page);await page.evaluate(()=>{
   __DB.invoices.push({id:'unconverted',total:999999,quote_state:'sent'});window.GamaFinancialInvoices=[];
   const original=GamaCloud.db;GamaCloud.db=async()=>{const c=await original();return {...c,rpc:async(fn,args)=>{
-   if(fn!=='gama_company_dashboard')return c.rpc(fn,args);
+   if(!['gama_company_dashboard','gama_company_dashboard_sections'].includes(fn))return c.rpc(fn,args);
    const uid=(await GamaCloud.getSession()).data.session.user.id;
    return {data:{user_id:uid,currency:'USD',generated_at:new Date().toISOString(),today:'2026-09-19',period:{from:args.p_from,to:args.p_to,previous_from:'2026-08-01',previous_to:'2026-08-31'},unavailable:[],sections:{payments:{current:{net:30,total:34.5,collected:0,count:1},previous:{net:0,collected:0},receivable:34.5,overdue:0,overdue_count:0,trend:[],customers:[]}}}};
   }}};showTab('dashboard');renderDashboard();

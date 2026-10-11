@@ -385,7 +385,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 
 /* Reference layouts: Dashboard, order dossier and SRI, October 11 2026. */
 #dashboard>.gamaStdHeader{display:flex;align-items:center;gap:16px;margin:0 0 20px;padding:0;background:transparent;border:0;box-shadow:none;flex-wrap:wrap}
-#dashboard>.gamaStdHeader .gamaStdIcon,#dashboard>.gamaStdHeader .gamaStdKicker,#dashboard>.gamaStdHeader .gamaStdActions{display:none}
+#dashboard>.gamaStdHeader .gamaStdIcon,#dashboard>.gamaStdHeader .gamaStdKicker{display:none}
 #dashboard>.gamaStdHeader .gamaStdText{flex:1;min-width:160px}
 #dashboard>.gamaStdHeader h2{font-size:32px;line-height:1.2;letter-spacing:-.035em;color:#101B2B}
 #dashboard .adHeaderTools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}

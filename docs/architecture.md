@@ -92,6 +92,8 @@ Le module `sri` partage le chargement différé de Comptabilité via `GamaAccoun
 
 Le sous-ensemble de génération ATS, source `src/domain/accounting-ecuador.js`, devient `gama-accounting-ec.js` au build et se charge sur demande. Il ne s’ajoute pas au démarrage. Les contrôles, le périmètre et les écarts sont décrits dans [l’audit comptable équatorien](audits/2026-10-02-accounting-ecuador.md).
 
+`gama_accounting_audit` ajoute la reprise, la revue des relevés, les contrôles de clôture, les dimensions/budgets, le registre de devises et le cycle des immobilisations. La trésorerie et les indicateurs utilisent les écritures validées, avec une affectation explicite au compte financier. Les tables privées ne sont accessibles que par les façades contrôlées. Les écrans `src/features/finance/accounting-audit.js` et l’export `src/domain/accounting-export.js` sont chargés à la demande ; voir [les contrats et la livraison de l’audit](development/accounting-audit-improvements.md).
+
 ## Site public sur Cloudflare Pages
 
 Le site GAMA est compilé séparément par `npm run build:storefront` dans `dist-storefront`. Ses sources sont dans `src/storefront/` et ses Pages Functions dans `src/storefront/server/`, avec des points d’entrée sous `functions/`. Il ne charge pas l’ERP. Le module Site web charge l’administration publique `gama-store-admin.js` à la demande. Les réglages sont définis par `config/storefront-schema.json` et validés dans SQL ; les lectures publiques utilisent la façade `gama_storefront` et une projection limitée. Les modifications administratives et les demandes sont distinctes de l’ancienne prévisualisation. Voir le [guide du site public](public-website.md).

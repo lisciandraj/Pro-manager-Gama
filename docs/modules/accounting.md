@@ -1,4 +1,4 @@
-> État relu le 30 septembre 2026. La comptabilité de gestion intègre aussi un onglet SRI. La préparation fiscale est séparée des écritures internes ; la disponibilité réelle du signataire privé et la validation SRI ne sont pas déduites de la présence du module.
+> État relu le 11 octobre 2026. Les améliorations de l’audit sont décrites dans [le guide de livraison](../development/accounting-audit-improvements.md). La préparation fiscale reste séparée des écritures internes ; la disponibilité du signataire privé et la validation SRI ne sont pas déduites de la présence du module.
 
 # Coco ERP — Contabilidad para equipos pequeños
 
@@ -11,17 +11,17 @@ contable o de facturación electrónica que exija la ley de cada país.
 
 ## Acceso
 
-**Administración → Contabilidad**. Trece secciones: Vista general, Ventas,
+**Administración → Contabilidad**. Catorce secciones: Vista general, Ventas,
 Compras, Gastos, Pagos, Banco y caja, Cuentas por cobrar, Cuentas por pagar,
-Contabilidad, Impuestos, Informes, Cierres y Parámetros.
+Contabilidad, Impuestos, Informes, SRI, Cierres y Parámetros. El botón **Controles y preparación** abre la revisión de cobertura, extractos, dossier PDF/XLSX, preparación fiscal, presupuestos, divisas, activos y stock.
 
 Por defecto el administrador tiene acceso completo, el comercial ve sólo su lado
 —vista general sin tesorería ni impuestos, ventas, cuentas por cobrar e
-informe de resultados— y ni logística ni cliente entran. Los siete permisos
-(consultar, crear, modificar, eliminar, validar, exportar y cerrar) se ajustan
+informe de resultados— y ni logística ni cliente entran. Los permisos
+(consultar, lectura de todo el libro, crear, modificar, eliminar, validar, pagar, exportar y cerrar) se ajustan
 por usuario en **Contabilidad → Parámetros**, y una fila propia sustituye al
 valor por defecto del perfil. Quien puede crear, validar o cerrar ve el libro
-entero; quien sólo consulta se queda en el perímetro comercial.
+entero; el permiso de lectura completa permite consultar sin crear ni validar. El derecho de pago se comprueba por separado.
 
 ## De dónde salen los datos
 
@@ -41,9 +41,13 @@ Sólo se captura aquí lo que no tenía sitio en ninguna pantalla:
   justificantes (PDF, JPG, PNG o WebP de 2 MB).
 - **Facturas de proveedor** y sus pagos. Los pedidos de compra siguen en
   Compras; la factura recibida es lo que crea la deuda y mueve la tesorería.
-- **Cuentas de banco y caja**, con saldo inicial y saldo actual calculado.
+- **Cuentas de banco y caja**, con apertura contabilizada y saldo actual del gran libro. Los saldos iniciales sin asiento se muestran en la revisión.
 - **Movimientos bancarios** importados en CSV, para conciliar.
 - **Asientos manuales** para lo que no nace de un documento.
+
+Los indicadores de productos, gastos y resultado usan el libro contabilizado y se recargan al abrir la vista. La moneda base no puede cambiarse después de la primera contabilización. Las operaciones en divisas conservan su importe extranjero y tasas histórica y de pago, y registran la diferencia de cambio sin cambiar la moneda de los libros.
+
+La revisión de cierre se ejecuta en el servidor tanto para el mes como para el ejercicio. Bloquea documentos sin asiento, borradores, descuadres, líneas bancarias ambiguas y diferencias de stock configurado. Los movimientos pendientes y el stock sin coste constatado requieren explicación; la revisión queda archivada tras reabrir el periodo.
 
 ## Asientos automáticos
 

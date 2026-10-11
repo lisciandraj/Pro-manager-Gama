@@ -5309,3 +5309,207 @@ Responsable del expediente	Responsable du dossier	Case owner
 Las etapas operativas están terminadas. Revisar el responsable y validar el cierre del proceso.	Les étapes opérationnelles sont terminées. Vérifier le responsable et valider la clôture du processus.	The operational steps are complete. Review the owner and validate process closure.
 Resolver las devoluciones abiertas antes de cerrar el proceso.	Résoudre les retours ouverts avant de clôturer le processus.	Resolve open returns before closing the process.
 Ir a la etapa	Accéder à l’étape	Go to step
+Controles y preparación	Contrôles et préparation	Controls and readiness
+Transferencia, aporte o ajuste	Virement, apport ou ajustement	Transfer, contribution or adjustment
+Sub-libro de stock a la fecha	Sous-livre de stock à la date	Dated inventory subledger
+La valoración histórica de stock está incompleta. Configura los costes y la apertura observada antes de validar el balance.	La valorisation historique du stock est incomplète. Configurez les coûts et l’ouverture constatée avant de valider le bilan.	Historical inventory valuation is incomplete. Configure costs and the observed opening before approving the balance sheet.
+Importe mínimo	Montant minimum	Minimum amount
+Importe máximo	Montant maximum	Maximum amount
+Extractos y saldos	Relevés et soldes	Statements and balances
+Lectura completa	Lecture complète	Full read access
+Pagar	Payer	Pay
+Justificación de diferencias de cierre	Justification des écarts de clôture	Closure differences explanation
+La moneda base queda bloqueada después de contabilizar. Usa las operaciones en divisas para registrar el cambio.	La monnaie de base est verrouillée après comptabilisation. Utilisez les opérations en devises pour enregistrer le change.	The base currency is locked after posting. Use foreign currency operations to record exchange differences.
+La revisión contable contiene incidencias que bloquean el cierre. Abre Controles y preparación.	La revue comptable contient des anomalies qui bloquent la clôture. Ouvrez Contrôles et préparation.	The accounting review contains issues blocking closure. Open Controls and readiness.
+Justifica los movimientos bancarios pendientes antes de cerrar.	Justifiez les mouvements bancaires en attente avant de clôturer.	Explain unmatched bank movements before closing.
+Selecciona la cuenta financiera de esta línea bancaria.	Sélectionnez le compte financier de cette ligne bancaire.	Select the financial account for this bank line.
+La cuenta financiera no corresponde a la cuenta contable.	Le compte financier ne correspond pas au compte comptable.	The financial account does not match the ledger account.
+Tu perfil no permite registrar pagos.	Votre profil ne permet pas d’enregistrer des paiements.	Your profile cannot record payments.
+El saldo inicial más los movimientos debe coincidir con el saldo final del extracto.	Le solde initial plus les mouvements doit correspondre au solde final du relevé.	The opening balance plus movements must equal the statement closing balance.
+Los importes seleccionados no coinciden con el movimiento bancario.	Les montants sélectionnés ne correspondent pas au mouvement bancaire.	Selected amounts do not match the bank movement.
+Para este cobro, selecciona facturas de un mismo cliente.	Pour cet encaissement, sélectionnez des factures du même client.	Select invoices for the same customer for this receipt.
+La pieza ya tiene asiento. Actualiza la revisión.	La pièce a déjà une écriture. Actualisez la revue.	The document already has an entry. Refresh the review.
+El importe en divisa por el tipo histórico debe coincidir con la factura en moneda base.	Le montant en devise multiplié par le taux historique doit correspondre à la facture en monnaie de base.	The foreign amount multiplied by the historical rate must match the base currency invoice.
+Selecciona una factura pendiente sin cobros, pagos ni abonos.	Sélectionnez une facture en attente sans encaissement, paiement ni avoir.	Select an unpaid invoice without payments or credits.
+Hay pagos fuera del registro de divisas. Revisa la factura antes de continuar.	Des paiements existent hors du registre de devises. Vérifiez la facture avant de poursuivre.	Payments exist outside the foreign currency register. Review the invoice before continuing.
+Revisa la recepción, las cuentas de stock y el importe facturado antes de contabilizar.	Vérifiez la réception, les comptes de stock et le montant facturé avant de comptabiliser.	Review the receipt, inventory accounts and invoice amount before posting.
+El plan ya tiene amortizaciones contabilizadas.	Le plan comporte déjà des amortissements comptabilisés.	The schedule already has posted depreciation.
+Revisa la fecha, el motivo y las amortizaciones posteriores.	Vérifiez la date, le motif et les amortissements ultérieurs.	Review the date, reason and later depreciation.
+La pérdida supera el valor amortizable pendiente.	La perte dépasse la valeur amortissable restante.	The impairment exceeds the remaining depreciable value.
+Usa una cuenta de deterioro acumulado distinta del activo y su amortización.	Utilisez un compte de dépréciation cumulée distinct de l’actif et de son amortissement.	Use an accumulated impairment account distinct from the asset and depreciation accounts.
+Los datos cambiaron durante la exportación. Actualiza y repite el dossier.	Les données ont changé pendant l’export. Actualisez et recommencez le dossier.	Data changed during export. Refresh and export the package again.
+Deshaz la conciliación bancaria antes de contrapasar esta entrada.	Annulez le rapprochement bancaire avant de contrepasser cette écriture.	Undo the bank match before reversing this entry.
+Las cuentas de valoración ya tienen asientos y no pueden cambiarse.	Les comptes de valorisation ont déjà des écritures et ne peuvent pas être modifiés.	Valuation accounts already have entries and cannot be changed.
+La contabilización automática de stock ya está activa. Revisa sus asientos antes de modificarla.	La comptabilisation automatique du stock est active. Vérifiez ses écritures avant de la modifier.	Automatic inventory posting is active. Review its entries before changing it.
+Revisa la factura de cesión: fecha, base, IVA, estado y uso previo.	Vérifiez la facture de cession : date, base, TVA, état et utilisation antérieure.	Review the disposal invoice: date, net amount, VAT, status and previous use.
+Controles y apertura	Contrôles et reprise	Controls and opening
+Extractos bancarios	Relevés bancaires	Bank statements
+Dossier contable	Dossier comptable	Accounting package
+Preparación y herramientas	Préparation et outils	Readiness and tools
+Presupuestos y analítica	Budgets et analytique	Budgets and analytics
+Operaciones en divisas	Opérations en devises	Foreign currency operations
+Ciclo de activos	Cycle des immobilisations	Asset lifecycle
+Stock y contabilidad	Stock et comptabilité	Stock accounting
+Documentos sin asiento	Pièces sans écriture	Unposted documents
+Aperturas sin asiento	Ouvertures non comptabilisées	Unposted openings
+Líneas sin cuenta financiera	Lignes sans compte financier	Unassigned bank lines
+Stock sin asiento	Stock non comptabilisé	Unposted stock
+Stock sin valoración observada	Stock sans valorisation constatée	Stock without observed valuation
+Diferencia stock / libro	Écart stock / livre	Stock / ledger difference
+Movimientos sin conciliar	Mouvements non rapprochés	Unmatched bank movements
+Identidad fiscal	Identité fiscale	Fiscal identity
+Obligaciones confirmadas	Obligations confirmées	Confirmed obligations
+Cuentas automáticas	Comptes automatiques	Posting accounts
+Configuración SRI de pruebas	Configuration SRI de test	SRI test configuration
+Cobertura contable	Couverture comptable	Posting coverage
+Factura SRI de prueba	Facture SRI de test	SRI test invoice
+Nota de crédito SRI	Note de crédit SRI	SRI credit note
+Retención SRI	Retenue SRI	SRI withholding
+Revisión ATS	Validation ATS	ATS review
+Formularios 103 / 104	Formulaires 103 / 104	Forms 103 / 104
+Validación OCR	Validation OCR	OCR acceptance
+Recordatorios y preferencias	Relances et préférences	Reminders and preferences
+Previsión 13 semanas	Prévision sur 13 semaines	13 week forecast
+Costes y margen	Coûts et marges	Costs and margins
+El libro es la referencia. Revisa las diferencias y corrige las piezas sin borrar el historial.	Le livre est la référence. Examinez les écarts et régularisez les pièces en conservant leur historique.	The ledger is the reference. Review differences and recover documents with their history intact.
+Bloqueante	Bloquant	Blocking
+Justificación al cierre	Justification à la clôture	Closure explanation
+Regla	Règle	Rule
+Cobertura de documentos	Couverture des pièces	Document coverage
+Fecha original	Date d’origine	Original date
+Regularizar	Régulariser	Recover
+Saldos iniciales	Soldes initiaux	Opening balances
+Banco / operaciones	Banque / opérations	Bank / operations
+Libro	Livre	Ledger
+Flujos de gestión	Flux de gestion	Operational flows
+Diferencia a explicar	Écart à expliquer	Difference to explain
+Los aportes, traspasos y ajustes manuales pueden explicar diferencias con los flujos comerciales. El saldo bancario mostrado usa el libro.	Les apports, virements et ajustements manuels peuvent expliquer un écart avec les flux commerciaux. Le solde bancaire affiché utilise le livre.	Contributions, transfers and manual adjustments can explain differences with operational flows. The displayed bank balance uses the ledger.
+Asiento	Écriture	Entry
+Asignar cuenta	Affecter un compte	Assign account
+Cada importación se revisa por separado. Completa los saldos y la referencia del documento bancario.	Chaque import est examiné séparément. Renseignez les soldes et la référence du relevé bancaire.	Review each import separately. Enter the balances and bank statement reference.
+Conciliadas	Rapprochées	Matched
+Libro a la fecha	Livre à la date	Ledger at date
+Dossier fechado con comparativo anual, balance, resultado, tesorería, libros y controles. Las exportaciones recorren todas las páginas.	Dossier daté avec comparatif annuel, bilan, résultat, trésorerie, livres et contrôles. Les exports parcourent toutes les pages.	Dated package with annual comparison, balance sheet, results, cash flow, books and controls. Exports include every page.
+Abrir libros y detalle	Ouvrir les livres et le détail	Open books and entry details
+Ingresos	Produits	Income
+Año anterior	Année précédente	Previous year
+Flujos de tesorería	Flux de trésorerie	Cash flows
+Explotación	Exploitation	Operating
+Inversión	Investissement	Investing
+Financiación	Financement	Financing
+Clasificar cuentas de flujos	Classer les comptes de flux	Classify cash flow accounts
+Añadir dimensión	Ajouter une dimension	Add dimension
+Presupuesto mensual	Budget mensuel	Monthly budget
+Clasificar una línea	Classer une ligne	Tag a line
+Rotación stock	Rotation du stock	Stock turnover
+Productos sin coste	Produits sans coût	Products without cost
+DSO = saldo clientes / ventas netas × días. Rotación = consumo valorado / promedio de stock inicial y final.	DSO = solde clients / ventes nettes × jours. Rotation = consommation valorisée / moyenne des stocks initial et final.	DSO = closing receivables / net sales × days. Turnover = valued consumption / mean opening and closing stock.
+El presupuesto es mensual; la selección incluye un mes parcial.	Le budget est mensuel ; la sélection comprend un mois partiel.	Budgets are monthly; the selection includes a partial month.
+Realizado	Réalisé	Actual
+Listo	Prêt	Ready
+Autorizaciones SRI de prueba	Autorisations SRI de test	SRI test authorizations
+Escenarios de tesorería	Scénarios de trésorerie	Cash scenarios
+Registrar validación o excepción	Enregistrer une validation ou une exception	Record acceptance or exception
+Tesorería 13 semanas	Trésorerie sur 13 semaines	13 week cash forecast
+Rentabilidad	Rentabilité	Profitability
+Ensayo	Essai	Test
+Aplicable	Applicable	Applicable
+Validado	Validé	Verified
+Evidencia / motivo	Preuve / motif	Evidence / reason
+Registra pruebas reales y conserva XML/RIDE. Esta lista no envía documentos, declaraciones ni mensajes a clientes.	Enregistrez les essais réels et conservez XML/RIDE. Cette liste ne transmet aucun document fiscal, déclaration ou message client.	Record actual tests and retain XML/RIDE. This checklist does not submit fiscal documents, declarations or customer messages.
+Vincular factura en divisa	Lier une facture en devise	Link foreign currency invoice
+La factura existente permanece en moneda base. Conserva importe y tipo históricos; el pago usa su tipo real y contabiliza la diferencia de cambio.	La facture existante reste en devise de base. Conservez le montant et le taux historiques ; le paiement utilise son taux réel et comptabilise l’écart de change.	The existing invoice remains in base currency. Preserve its historical amount and rate; payments use the actual rate and post the exchange difference.
+Importe original	Montant d’origine	Original amount
+Tipo histórico	Taux historique	Historical rate
+Moneda base	Devise de base	Base currency
+Pagado en divisa	Réglé en devise	Paid in currency
+Vincula cada activo a su adquisición. Aprueba el plan antes de amortizar; documenta pérdidas y salidas.	Liez chaque actif à son acquisition. Validez le plan avant amortissement ; documentez les dépréciations et les sorties.	Link assets to their acquisition. Approve the schedule before depreciation; document impairment and disposal.
+Amortizado	Amorti	Depreciated
+Deterioro	Dépréciation	Impairment
+Valor neto	Valeur nette	Net value
+Plan	Plan	Schedule
+Amortizar	Amortir	Depreciate
+Activa FIFO/coste medio con un coste inicial comprobado; configura stock, consumo y recibido no facturado antes de automatizar.	Activez FIFO/coût moyen avec un coût initial vérifié ; configurez stock, consommation et reçus non facturés avant automatisation.	Activate FIFO/average cost using a verified opening cost; configure inventory, consumption and GRNI before automation.
+Activer la valoración	Activer la valorisation	Activate valuation
+Método	Méthode	Method
+Configurar cuentas	Configurer les comptes	Configure accounts
+Dimensión	Dimension	Dimension
+Regularización contable	Reprise comptable	Recover posting
+Fecha de corrección	Date de correction	Correction date
+Contrapartida de apertura	Contrepartie d’ouverture	Opening offset
+Referencia del extracto	Référence du relevé	Statement reference
+Documento bancario / evidencia	Document bancaire / preuve	Bank document / evidence
+Centro de costes	Centre de coûts	Cost center
+Agencia	Agence	Branch
+Familia producto	Famille produit	Product family
+Primer día del mes	Premier jour du mois	First day of month
+Dimensión opcional	Dimension facultative	Optional dimension
+Clasificar línea	Classer une ligne	Tag line
+Línea del libro	Ligne du livre	Ledger line
+Categoría de flujo	Catégorie de flux	Cash flow category
+Coste medio	Coût moyen	Average cost
+Coste unitario inicial verificado	Coût unitaire initial vérifié	Verified opening unit cost
+Evidencia de coste y cantidad	Preuve du coût et de la quantité	Cost and quantity evidence
+Recibido no facturado	Reçu non facturé	GRNI
+Contrapartida apertura	Contrepartie d’ouverture	Opening offset
+Contabilizar automáticamente	Comptabiliser automatiquement	Post automatically
+Transferencia entre cuentas	Virement entre comptes	Transfer between accounts
+Aporte de capital	Apport de capital	Capital contribution
+Regularización	Régularisation	Adjustment
+Cuenta destino para transferencia	Compte destinataire du virement	Transfer destination
+Contrapartida aporte / ajuste	Contrepartie apport / ajustement	Contribution / adjustment offset
+Motivo y justificante	Motif et justificatif	Reason and evidence
+Conciliación revisada	Rapprochement vérifié	Reviewed reconciliation
+Buscar factura o pago	Rechercher une facture ou un règlement	Find invoice or payment
+Si hay más resultados, afina la búsqueda.	Affinez la recherche si des résultats restent masqués.	Refine the search if more results remain.
+Pagos existentes	Paiements existants	Existing payments
+Registrar pago de facturas	Enregistrer le règlement de factures	Register invoice settlement
+Gastos / intereses documentados	Frais / intérêts justifiés	Documented fees / interest
+Importe asignado	Montant affecté	Allocated amount
+Cuenta de gastos / intereses	Compte de frais / intérêts	Fees / interest account
+Justificante / motivo	Justificatif / motif	Evidence / reason
+Asignado	Affecté	Allocated
+Revisión de cierre	Revue de clôture	Closure review
+Justificación de movimientos bancarios en tránsito	Justification des mouvements bancaires en transit	Explanation of bank timing differences
+Cerrar periodo	Clôturer la période	Close period
+Factura en moneda base	Facture en devise de base	Base currency invoice
+Divisa ISO	Devise ISO	ISO currency
+Importe en divisa	Montant en devise	Foreign amount
+Unité devise → monnaie base	Une unité de devise → devise de base	One foreign unit → base currency
+Fecha del tipo	Date du taux	Rate date
+Justificante del tipo / factura	Justificatif du taux / facture	Rate / invoice evidence
+Montant en divisa	Montant en devise	Foreign amount
+Tipo de pago	Taux du règlement	Settlement rate
+Banco en moneda base	Banque en devise de base	Base currency bank
+Ganancia de cambio	Gain de change	Exchange gain
+Pérdida de cambio	Perte de change	Exchange loss
+Justificante del pago y tipo	Justificatif du règlement et du taux	Payment and rate evidence
+Prorrata diaria del primer mes	Prorata journalier du premier mois	Daily first month proration
+Pérdida	Perte	Loss account
+Importe del deterioro	Montant de la dépréciation	Impairment amount
+Deterioro acumulado	Dépréciation cumulée	Accumulated impairment
+Cobro de cesión sin IVA	Produit de cession encaissé hors TVA	Received disposal proceeds excluding VAT
+IVA de la cesión	TVA de la cession	Disposal VAT
+ID de factura contabilizada (opcional)	ID de facture comptabilisée (facultatif)	Posted invoice ID (optional)
+Ganancia	Gain	Gain account
+Si vinculas una factura contabilizada, se reclasifica sin repetir su cobro ni su IVA. Sin factura vinculada, se registra el cobro más IVA con el justificante.	Une facture comptabilisée liée est reclassée sans répéter son encaissement ni sa TVA. Sans facture liée, l’encaissement et la TVA sont enregistrés avec le justificatif.	A linked posted invoice is reclassified without duplicating cash or VAT. Without a linked invoice, proceeds plus VAT are recorded with the evidence.
+Situación de terceros a la generación	Situation des tiers à la génération	Current operational partner balances
+Balance	Bilan	Balance sheet
+Balance de cuentas	Balance des comptes	Trial balance
+Clientes actuales	Clients actuels	Current customers
+Proveedores actuales	Fournisseurs actuels	Current suppliers
+Controles	Contrôles	Controls
+Un asiento contabilizado no se modifica ni se borra: se contrapasa.	Une écriture comptabilisée se corrige par contrepassation.	A posted entry is corrected by reversal.
+El saldo actual procede del libro e incluye aperturas, pagos, aportes, traspasos y ajustes contabilizados.	Le solde actuel provient du livre et inclut les ouvertures, paiements, apports, virements et ajustements comptabilisés.	The current balance comes from the ledger and includes posted openings, payments, contributions, transfers and adjustments.
+Extracto	Relevé	Statement
+Fila	Ligne	Row
+Revisar extractos	Examiner les relevés	Review statements
+Sincronización pendiente	Synchronisation en attente	Synchronization pending
+Varias facturas, pagos o ajustes	Plusieurs factures, paiements ou ajustements	Multiple invoices, payments or adjustments
+Ver asiento	Voir l’écriture	View entry
+facturas	factures	invoices
+Este movimiento ya tiene un pago o asiento. Selecciona Pagos existentes para volver a conciliarlo.	Ce mouvement possède déjà un paiement ou une écriture. Choisissez Paiements existants pour le rapprocher à nouveau.	This movement already has a payment or entry. Choose Existing payments to match it again.
+Este movimiento conserva un pago o asiento: vuelve a conciliar su fuente existente.	Ce mouvement conserve un paiement ou une écriture : rapprochez à nouveau sa source existante.	This movement retains a payment or entry: match its existing source again.
+Buscar producto por nombre o referencia	Rechercher un produit par nom ou référence	Find product by name or reference
+Contabiliza primero el abono antes de recuperar su reembolso.	Comptabilisez d’abord l’avoir avant de reprendre son remboursement.	Post the credit before recovering its refund.
+La venta ya se ha revertido por un reembolso directo. Revisa la devolución antes de registrar otro abono.	La vente a déjà été reprise par un remboursement direct. Examinez le retour avant d’enregistrer un autre avoir.	The sale was already reversed by a direct refund. Review the return before recording another credit.

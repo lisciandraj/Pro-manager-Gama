@@ -13,6 +13,8 @@ test('Verified received XML: automatic fiscal matching, atomic offsets, unchange
    insert into sales_orders(id,customer_id,customer_name,request_key,status,created_by) values('${order}','${customer}','Withholding client',gen_random_uuid(),'confirmed','${admin}');
    insert into financial_accounts(id,name,kind,account_id,opening_balance) select '${bank}','Test bank','bank',id,100 from accounting_accounts where code='1000';`);
   account=await one("select id from accounting_accounts where code='1300'");
+  // A bank opening becomes cash only after its reviewed ledger posting.
+  await one("select gama_accounting_ec('opening_post',$1::jsonb)",[JSON.stringify({request_key:uuid(),financial_account_id:bank,counter_account_id:await one("select id from accounting_accounts where code='3000'"),entry_date:'2026-10-01'})]);
   for(let i=0;i<invoices.length;i++){
    const quote=uuid();await q("insert into invoices(id,invoice_number,quote_state,quote_details) values($1,$2,'draft','{}')",[quote,'RC-Q'+i]);
    await q("insert into external_invoices(id,request_key,order_id,number,issue_date,subtotal,tax,fiscal_status,issuer_ruc,created_by,document_kind,source_quote_id,document_snapshot,external_number) values($1,gen_random_uuid(),$2,$3,'2026-10-01',100,15,'unverified','1790012345001',$4,'internal',$5,'{}',$6)",[invoices[i],order,'DOC-RC-'+i,admin,quote,'001-001-00000000'+(i+1)]);

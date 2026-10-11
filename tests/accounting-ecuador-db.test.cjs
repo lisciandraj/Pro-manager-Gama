@@ -60,11 +60,11 @@ test('Ecuador accounting: real ledger, maturities, offsets, assets, payroll and 
    await write('fiscal_save',data);assert.equal((await ec('fiscal_review',{from:'2026-10-01',to:'2026-10-31'})).documents.filter(d=>d.fiscal_id).length,1);
    assert.equal(await scalar('select fiscal_status from external_invoices where id=$1',[invoice]),'unverified');
   });
-  await t.test('opening balance enters ledger once and is not a second cash receipt',async()=>{
+  await t.test('opening balance enters the displayed ledger balance once',async()=>{
    const before=await scalar('select current_balance from private.gama_cash_position where id=$1',[bank]);
    await write('opening_post',{financial_account_id:bank,counter_account_id:await acct('3000'),entry_date:'2026-10-01'});
    await assert.rejects(write('opening_post',{financial_account_id:bank,counter_account_id:await acct('3000'),entry_date:'2026-10-01'}),/OPENING_ALREADY_POSTED/);
-   assert.equal(await scalar('select current_balance from private.gama_cash_position where id=$1',[bank]),before);
+   assert.equal(Number(await scalar('select current_balance from private.gama_cash_position where id=$1',[bank])),Number(before)+25);
   });
   await t.test('depreciation closes rounding on the last instalment',async()=>{
    const assetacct=await scalar("insert into accounting_accounts(code,name,type) values('1501','Equipment','asset') returning id");

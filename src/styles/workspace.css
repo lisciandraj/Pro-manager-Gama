@@ -283,8 +283,9 @@ body .arcContent .gamaTableViews button span{display:inline}
 #dashboard .adFavorites>summary{cursor:pointer;font-size:12px;min-height:38px;padding:10px;color:#10677D}
 #dashboard .adFavorites[open]{flex:1 1 100%;border-top:1px solid #E3EAF0;padding-top:12px}
 #dashboard .adFavorites .arcToolbar{justify-content:flex-start}
-#warehouses .ivProductOpen>span.ivProductIcon{min-width:28px;width:28px;flex:none}
-#warehouses .ivInspectorIcon{display:grid;place-items:center;background:#E7F3F6;border-radius:10px;width:68px;height:68px;margin:0 0 14px;color:#10677D}
+#warehouses .ivProductOpen>span.ivProductIcon{display:grid;place-items:center;min-width:44px;width:44px;height:44px;flex:none}
+#warehouses .ivProductPhoto{display:grid;place-items:center;width:100%;height:100%;object-fit:contain;border-radius:8px;background:white}
+#warehouses .ivInspectorIcon{display:grid;place-items:center;background:#E7F3F6;border-radius:10px;width:120px;height:120px;max-width:100%;margin:0 0 14px;color:#10677D}
 #warehouses .ivInspectorIcon svg{width:44px;height:44px}
 #warehouses tr[aria-selected=true]>td,#sri tr[aria-selected=true]>td{background:#E7F3F6!important}
 #sales-orders .gsOrderBack{order:-1}

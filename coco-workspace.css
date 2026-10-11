@@ -17,6 +17,10 @@ body[data-app="coco-erp"]{
 .arcNav{padding:16px 12px}
 .arcNavLink{gap:14px;padding:12px 14px;margin-bottom:6px;font-size:14px;min-height:46px;color:#24374A}
 .arcSidebar .arcNavGroup{font-size:10px;padding:12px 14px 6px;letter-spacing:.06em;margin-top:8px}
+.arcNavFavorites .arcNavGroup{display:flex;align-items:center;gap:7px;border-top:0;color:#AD4508}
+.arcNavFavorites .arcNavGroup .arcIco{width:14px;height:14px;flex:none}
+.arcNavEmpty{padding:0 14px;margin:4px 0 12px;color:#617080;font-size:12px;line-height:1.5}
+@media(min-width:861px) and (max-width:1099px){body:not(.arcDrawerOpen) .arcNavEmpty{display:none}}
 .arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 #F87826}
 .arcFoot{padding:12px 0 18px}
 .arcFootBrand,.arcFootVersion{display:none}
@@ -234,7 +238,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
  .cocoMobileNav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:0;box-shadow:none;background:transparent;color:#324C62;margin:0;padding:7px 2px;min-height:54px;font-size:11px;min-width:0}
  .cocoMobileNav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7}
  .cocoMobileNav button[aria-current=page]{color:#AD4508}
- .arcBurger{width:36px;min-width:36px;padding:4px}
+ .arcBurger{width:44px;min-width:44px;padding:4px}
  #mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
  #mainmenu .gamaF2Card[data-arc-fam]{min-height:140px;padding:22px 9px 18px;gap:12px}
  #mainmenu .gamaF2Icon svg{width:43px;height:43px}#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{width:45px;height:45px}
@@ -381,7 +385,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
  #dashboard .adModuleGrid{grid-template-columns:1fr}
 }
 @media(max-width:360px){
- .arcTopbar{padding:10px 8px;gap:6px}
- .arcMobileBrand{font-size:16px;gap:6px}
+ .arcTopbar{padding:10px 6px;gap:6px}
+ .arcMobileBrand{font-size:16px;gap:4px}
  .arcMobileBrand img{width:28px;height:28px}
 }

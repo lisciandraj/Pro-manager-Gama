@@ -19,7 +19,7 @@ const preferenceKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_sessi
 function hiddenModules(){try{return new Set(JSON.parse(localStorage.getItem(preferenceKey())||'[]'))}catch(_){return new Set()}}
 const favoriteKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'coco_home_favorites_v1:'+String(u.userId||u.id||u.email||u.username||u.name||'guest')}catch(_){return 'coco_home_favorites_v1:guest'}};
 function favorites(){try{const ids=JSON.parse(localStorage.getItem(favoriteKey())||'[]');return new Set(Array.isArray(ids)?ids.filter(id=>ITEMS.some(x=>x[1]===id)):[])}catch(_){return new Set()}}
-function applyFavorites(){const ids=favorites();document.querySelectorAll('[data-coco-favorite]').forEach(b=>{const selected=ids.has(b.dataset.cocoFavorite);b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',T(selected?'Quitar de favoritos':'Añadir a favoritos'));b.title=b.getAttribute('aria-label')})}
+function applyFavorites(){const ids=favorites();document.querySelectorAll('[data-coco-favorite]').forEach(b=>{const selected=ids.has(b.dataset.cocoFavorite);b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',T(selected?'Quitar de favoritos':'Añadir a favoritos'));b.title=b.getAttribute('aria-label')});window.dispatchEvent(new CustomEvent('coco:favorites-change'))}
 function applyPreferences(){const hidden=hiddenModules();document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>c.classList.toggle('arcPreferenceHidden',hidden.has(c.dataset.gamaModule)))}
 function personalize(){
  const old=document.getElementById('arcCustomize');if(old)old.remove();
@@ -83,6 +83,7 @@ function render(){
 
 window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar');applyFavorites()});
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')applyFavorites()});
+window.addEventListener('storage',e=>{if(e.key===null||e.key===favoriteKey())applyFavorites()});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el
    body que en cada cambio del DOM recorría cada a, button, div, p y span de la
@@ -109,6 +110,6 @@ document.addEventListener('keydown',function(e){
 /* La barra lateral y el menú de tarjetas enseñan lo mismo, así que leen la
    misma lista. Exponerla evita la copia que se desincroniza al añadir un
    módulo: se añade aquí y aparece en los dos sitios. */
-window.GamaMenu={items:ITEMS,groups:GRUPOS,icons:I,open:openItem,render};
+window.GamaMenu={items:ITEMS,groups:GRUPOS,icons:I,open:openItem,render,favorites};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();

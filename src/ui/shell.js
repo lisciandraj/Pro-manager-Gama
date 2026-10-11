@@ -38,22 +38,36 @@ const ICON={
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
  scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+ star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
 };
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
 
 /* ------------------------------------------------------------------ nav */
+function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
+ +svg(window.GamaMenu?.icons?.[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
+function navAllowed(id){
+ if(window.gamaMenuVisible)return !!window.gamaMenuVisible(id);
+ if(window.gamaAccessAllowed)return !!window.gamaAccessAllowed(id);
+ return !window.GamaModules||!!window.GamaModules.enabled(id);
+}
+function syncFavorites(){
+ const host=document.querySelector('.arcNavFavorites'),menu=window.GamaMenu;if(!host||!menu)return;
+ const items=[...(menu.favorites?.()||[])].map(id=>menu.items.find(x=>x[1]===id)).filter(x=>x&&navAllowed(x[1]));
+ const html='<div class="arcNavGroup" id="arcFavoritesTitle">'+svg(ICON.star)+esc(T('Favoritos'))+'</div>'
+  +(items.length?items.map(navLink).join(''):'<p class="arcNavEmpty">'+esc(T('Usa la estrella de las tarjetas de inicio.'))+'</p>');
+ if(host.__favoritesHtml===html)return;
+ host.__favoritesHtml=html;window.ArcUI.render(host,html);bindNav(host);
+}
 function navHtml(){
  const menu=window.GamaMenu;
  if(!menu||!menu.items)return '';
- const icons=menu.icons||{};
  let html='<button type="button" class="arcButton arcNavLink" data-arc-home="1">'
-  +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>';
- const link=x=>'<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
-   +svg(icons[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>';
+  +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>'
+  +'<div class="arcNavFavorites" role="group" aria-labelledby="arcFavoritesTitle"></div>';
  (menu.groups||[]).forEach(group=>{
   html+='<div class="arcNavGroup">'+esc(T(group))+'</div>';
-  html+=menu.items.filter(x=>x[3]===group).map(link).join('');
+  html+=menu.items.filter(x=>x[3]===group).map(navLink).join('');
  });
  return html;
 }
@@ -63,14 +77,9 @@ function navHtml(){
 function applyAccess(){
  const nav=document.querySelector('.arcNav');if(!nav)return;
  nav.querySelectorAll('.arcNavLink[data-gama-module]').forEach(b=>{
-  const id=b.dataset.gamaModule;
-  let ok=true;
-  if(window.gamaMenuVisible)ok=!!window.gamaMenuVisible(id);
-  else if(window.gamaAccessAllowed)ok=!!window.gamaAccessAllowed(id);
-  else if(window.GamaModules)ok=!!window.GamaModules.enabled(id);
-  b.classList.toggle('aclHidden',!ok);
+  b.classList.toggle('aclHidden',!navAllowed(b.dataset.gamaModule));
  });
- nav.querySelectorAll('.arcNavGroup').forEach(label=>{
+ nav.querySelectorAll('.arcNavGroup:not(#arcFavoritesTitle)').forEach(label=>{
   let visible=false;
   for(let n=label.nextElementSibling;n&&!n.classList.contains('arcNavGroup');n=n.nextElementSibling){
    if(n.classList.contains('arcNavLink')&&!n.classList.contains('aclHidden')){visible=true;break}
@@ -159,9 +168,8 @@ function build(){
  applyAccess();markActive();
 }
 
-function bind(side,top){
- side.querySelector('.arcBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
- side.querySelectorAll('.arcNavLink').forEach(b=>{
+function bindNav(root){
+ root.querySelectorAll('.arcNavLink').forEach(b=>{
   b.onclick=()=>{
    closeDrawer();
    if(b.dataset.arcHome){window.GamaUI?.backToMenu?.();setTimeout(markActive,60);return}
@@ -170,6 +178,10 @@ function bind(side,top){
    setTimeout(markActive,200);
   };
  });
+}
+function bind(side,top){
+ side.querySelector('.arcBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
+ bindNav(side);
  const burger=top.querySelector('.arcBurger');
  burger.onclick=()=>document.body.classList.contains('arcDrawerOpen')?closeDrawer():openDrawer();
 
@@ -221,7 +233,7 @@ function adoptSections(){
  });
 }
 function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
-function sync(){adoptSections();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
+function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
 
 function boot(){
  build();
@@ -231,7 +243,7 @@ function boot(){
  });
  /* Synchronize on application events; observe only the existing user chip
     and notification badge, never the complete document tree. */
- sync();['arc:route-change','gama:auth-change','gama:modules-change','gama:profile-ready','gama:operations-change'].forEach(name=>window.addEventListener(name,sync));
+ sync();['arc:route-change','gama:auth-change','gama:modules-change','gama:profile-ready','gama:operations-change','coco:favorites-change'].forEach(name=>window.addEventListener(name,sync));
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});

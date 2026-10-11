@@ -391,10 +391,15 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
 /* Shared table presentation: identical record cards, or a real column grid. */
 .gamaTableViewport{max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain}
 .gamaTableViewport:has(>[data-gama-view=cards]){overflow:visible}
-.gamaTableViews{display:flex;justify-content:flex-end;gap:6px;padding:8px;flex-wrap:wrap}
-.gamaTableViews button{width:44px;min-height:44px;padding:0}
-.gamaTableViews button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-.gamaTableViews button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
+/* Named view buttons share one style in modules, legacy hosts and dialogs.
+   Content determines their width; neither the icon nor the label may shrink. */
+body .gamaTableViews{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:8px;flex-wrap:wrap;max-width:100%;min-width:0;box-sizing:border-box}
+body .gamaTableViews>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;width:auto;min-width:max-content;min-height:44px;height:auto;margin:0;padding:8px 12px;box-sizing:border-box;border:1px solid var(--arc-accent-400);border-radius:var(--arc-r-sm);background:var(--arc-surface);color:var(--arc-accent-700);font:600 12px/1.25 var(--arc-font);white-space:nowrap;overflow-wrap:normal;word-break:normal;box-shadow:none}
+body .gamaTableViews>button>span{display:block;flex:none;margin:0;padding:0;color:inherit;font:inherit;white-space:nowrap}
+body .gamaTableViews>button>svg{display:block;flex:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+body .gamaTableViews>button:hover:not(:disabled){background:var(--arc-accent-50);border-color:var(--arc-accent-600)}
+body .gamaTableViews>button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
+body .gamaTableViews>button:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 .gamaTableToolbar{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
 .gamaTableSearch{display:flex;flex-direction:column;gap:4px;flex:0 0 100%;min-width:0;margin:0;box-sizing:border-box}
 .gamaTableSearch>span{font-size:12px;font-weight:600;color:var(--arc-text-subtle)}

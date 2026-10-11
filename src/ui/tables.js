@@ -84,8 +84,8 @@ function endurecerCaja(t){
 const layouts=new WeakMap();
 const labels={fr:['Affichage','Tuiles','Tableau'],en:['View','Cards','Table'],es:['Vista','Tarjetas','Tabla']};
 function words(){return labels[window.GamaI18n?.language]||labels.es}
-/* Los dos botones son dibujos: cuatro cuadrados para las tarjetas y líneas
-   horizontales para la tabla. El nombre sigue en aria-label y en la ayuda. */
+/* Each view button shows its icon and translated label. The shared stylesheet
+   sizes them by content in every host; aria-label and title use the same words. */
 const svg=body=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+body+'</svg>';
 const icons={
  cards:svg('<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'),

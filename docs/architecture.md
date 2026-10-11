@@ -43,7 +43,7 @@ Projets sépare l’intégration légère (`src/features/projects/integration.js
 
 Stock garde son point d’entrée historique avec une intégration légère. Les existences se chargent en premier ; règles de reposición, fournisseurs, inventaires et étagères attendent leur onglet. Les vues opérationnelles agrègent les sorties côté serveur et créent uniquement des brouillons d’achat avec reçu idempotent ; voir [Stock](modules/stock.md).
 
-Le catalogue complet des traductions attend le français ou l’anglais. En espagnol, seuls les messages serveur sont chargés et les scans de traduction inutiles sont évités. Un changement de langue charge une seule fois le catalogue puis retraduit les labels existants, sans changer les valeurs métier. Les liens de modules survolés ou sélectionnés au clavier préchargent leurs scripts sans exécuter de module ni lire de données. Les groupes de dépendances se téléchargent en parallèle avec un ordre d’exécution conservé ; CRM attend également toutes ses extensions avant de traiter un lien direct.
+Un catalogue distinct est chargé pour le français ou l’anglais, selon la langue choisie. Le catalogue complet reste publié pour la compatibilité. En espagnol, seuls les messages serveur sont chargés et les scans de traduction inutiles sont évités. Un changement de langue charge une seule fois le catalogue correspondant puis retraduit les labels existants, sans changer les valeurs métier. Les liens de modules survolés ou sélectionnés au clavier préchargent leurs scripts sans exécuter de module ni lire de données. Les groupes de dépendances se téléchargent en parallèle avec un ordre d’exécution conservé ; CRM attend également toutes ses extensions avant de traiter un lien direct.
 
 Les constructeurs PDF légers, les traductions Projets et certaines extensions restent chargés au démarrage. Le budget `npm run check:startup` limite désormais les scripts déclarés à 15 et 850 000 octets non compressés ; il n’inclut pas les requêtes dynamiques, CSS, images ou données métier.
 
@@ -60,7 +60,7 @@ L’accueil ne charge plus l’archive historique de devis. Celle-ci attend la r
 
 La cloche demande `gama_operations_action('badge')` : les mêmes droits et préférences que le tableau de bord s’appliquent, avec uniquement le compteur autorisé et sa date. Les demandes simultanées partagent une promesse ; une réponse d’une ancienne session est ignorée. Le tableau de bord détaillé conserve `snapshot`.
 
-`ArchitectPerformance.snapshot()` expose LCP, CLS et tâches longues localement lorsque le navigateur les mesure. Les interactions proviennent d’Event Timing (seuil de 40 ms), sans échantillon artificiel de 1 ms ; ce flux ne constitue pas une mesure complète INP. Voir l’[audit du 8 octobre 2026](development/performance-audit-2026-10-08.md).
+`ArchitectPerformance.snapshot()` expose LCP, CLS et tâches longues localement lorsque le navigateur les mesure. Les interactions proviennent d’Event Timing (seuil de 40 ms), sans échantillon artificiel de 1 ms ; ce flux ne constitue pas une mesure complète INP. Les lectures ont une échéance de 15 secondes et peuvent être réessayées ; les écritures métier conservent leur comportement. La mesure `navigation/content_ready` couvre l’ouverture jusqu’au premier contenu des écrans Devis, Stock, Dashboard, SRI et TMS. Les durées RPC incluent le réseau. Voir l’[audit du 8 octobre 2026](development/performance-audit-2026-10-08.md).
 
 ## Cache navigateur
 
@@ -72,7 +72,7 @@ Les photos sont chargées à proximité de la zone visible (marge 300 px), par l
 
 ## Mise à jour et contrôles communs
 
-`npm run update` reconstruit puis lance `npm run validate`. La CI de release utilise les mêmes contrôles. `config/performance-budget.json` centralise les plafonds du démarrage ; `npm run check:startup` contrôle aussi les CSS et les scripts dupliqués, et `node scripts/check-startup.cjs --json` détaille les tailles. Les requêtes dynamiques ne sont pas incluses.
+`npm run update` reconstruit puis lance `npm run validate`. La CI de release utilise les mêmes contrôles. `config/performance-budget.json` centralise les plafonds du démarrage ; `npm run check:startup` contrôle aussi les CSS et les scripts dupliqués, et `node scripts/check-startup.cjs --json` détaille les tailles. Les plafonds incluent aussi le SDK Supabase, les cinq adaptateurs de démarrage et le catalogue de la langue choisie ; les scripts de modules restent mesurés séparément.
 
 Le manifeste `vendors` versionne par contenu les bibliothèques locales différées sans les ajouter au démarrage. Le chargeur valide la présence de jsPDF après téléchargement et permet une reprise si le SDK est absent.
 

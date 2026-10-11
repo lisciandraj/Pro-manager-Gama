@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 function loader(){
  const scripts=[],preloads=[],window={ArcAssets:{'gama-service-documents.js':'gama-service-documents.js?v=123456789abc'}};
- const context={window,document:{createElement:tag=>({tag,dataset:{},remove(){this.removed=true}}),head:{appendChild:s=>{(s.tag==='link'?preloads:scripts).push(s);if(s.rel==='stylesheet')queueMicrotask(()=>s.onload())}}}};
+ const context={window,setTimeout,clearTimeout,document:{createElement:tag=>({tag,dataset:{},remove(){this.removed=true}}),head:{appendChild:s=>{(s.tag==='link'?preloads:scripts).push(s);if(s.rel==='stylesheet')queueMicrotask(()=>s.onload())}}}};
  vm.createContext(context);
  const config=fs.readFileSync('src/app/lazy-modules.js','utf8').replace('export const','const');
  const code=fs.readFileSync('src/app/loader.js','utf8').replace(/^import .*;$/gm,'').replace(/^export \{.*;$/gm,'').replace(/export /g,'');

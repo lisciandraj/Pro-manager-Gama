@@ -23,7 +23,7 @@ function go(key,delta){pages[key]=Math.max(0,(pages[key]||0)+(Number(delta)||0))
 function register(key,fn){renderers[key]=fn;window.GamaSort?.register(key,fn)}
 function reset(key){pages[key]=0}
 function styles(){ /* Styles are compiled in architect-components.css. */ }
-window.GamaPage={SIZE,slice,controls,go,register,reset,pageCount,page:k=>pages[k]||0,has:key=>typeof renderers[key]==='function',query:key=>queries[key]||'',search(key,value){queries[key]=String(value||'');reset(key);renderers[key]?.()},totals:key=>totals[key]};
+window.GamaPage={SIZE,slice,controls,go,register,reset,pageCount,serverPage(key,page,total){pages[key]=page;totals[key]={total,matched:total}},page:k=>pages[k]||0,has:key=>typeof renderers[key]==='function',query:key=>queries[key]||'',search(key,value){queries[key]=String(value||'');reset(key);renderers[key]?.()},totals:key=>totals[key]};
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;for(const key of Object.keys(queries))delete queries[key];for(const key of Object.keys(totals))delete totals[key];for(const key of Object.keys(pages))delete pages[key]});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',styles,{once:true});else styles();
 })();

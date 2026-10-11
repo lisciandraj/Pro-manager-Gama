@@ -92,3 +92,7 @@ se usan sólo como identidad de prueba; no se cambian. No deja fixtures persiste
 menú, expedición, factura con XML, reintento tras error, permisos y formulario móvil.
 Las reglas de stock se prueban contra PostgreSQL, no mediante una imitación JS.
 El workflow validate-sales ejecuta los tests de interfaz en los cambios futuros.
+
+## Chargement des devis
+
+La liste paginée lit uniquement identifiant, références, état, validité, total et nom du client extrait de `quote_details`. Le document complet, ses lignes et `accepted_snapshot` restent chargés à son ouverture, avec les mêmes données figées pour la fiche et le PDF. Aucun instantané accepté n’est modifié.

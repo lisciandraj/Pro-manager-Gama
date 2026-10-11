@@ -274,7 +274,7 @@
     var _a;
     const message = String((error == null ? void 0 : error.message) || error || "UNKNOWN_ERROR");
     const code = (error == null ? void 0 : error.code) || ((_a = message.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0]) || "UNKNOWN_ERROR";
-    return { code, message, fields: (error == null ? void 0 : error.fields) || {}, retryable: ["NETWORK_ERROR", "57014", "53300"].includes(code), cause: error };
+    return { code, message, fields: (error == null ? void 0 : error.fields) || {}, retryable: ["NETWORK_ERROR", "TIMEOUT", "READ_CANCELLED", "57014", "53300"].includes(code), cause: error };
   }
   function errorMessage(error) {
     var _a, _b;
@@ -282,6 +282,8 @@
     const messages = { AUTH_REQUIRED: "Vuelve a iniciar sesión.", ROLE_NOT_ALLOWED: "Tu perfil no puede realizar esta operación.", PM_FORBIDDEN: "Tu perfil no puede realizar esta operación.", "23505": "Ya existe un registro con estos datos.", "23503": "Este registro está vinculado a otros documentos.", PM_CONFLICT: "Los datos cambiaron. Actualiza antes de guardar.", NETWORK_ERROR: "Comprueba la conexión y vuelve a intentarlo." };
     const specific = (_a = e.message.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0];
     const audit = {
+      TIMEOUT: ["La lectura tarda demasiado. Vuelve a intentarlo.", "Le chargement prend trop de temps. Réessayez.", "Loading is taking too long. Try again."],
+      READ_CANCELLED: ["La lectura se ha cancelado. Vuelve a intentarlo.", "Le chargement a été annulé. Réessayez.", "Loading was cancelled. Try again."],
       EC_IDENTIFICATION_INVALID: ["Revisa el RUC o la cédula y su tipo. El dígito verificador no coincide.", "Vérifiez le RUC ou la cédula et son type. Le chiffre de contrôle ne correspond pas.", "Check the RUC or cédula and its type. The check digit does not match."],
       PARTNER_IDENTIFICATION_DUPLICATE: ["Ya existe un contacto con esta identificación. Abre su ficha para actualizarlo.", "Un contact possède déjà cette identification. Ouvrez sa fiche pour le mettre à jour.", "A contact with this identification already exists. Open its record to update it."],
       DOCUMENT_CHANGED: ["La situación cambió. Actualiza la solicitud de aprobación.", "La situation a changé. Actualisez la demande d’approbation.", "The situation changed. Refresh the approval request."],
@@ -819,9 +821,9 @@
     cache.delete(key);
     const pending = (async () => {
       const data2 = [], seen = /* @__PURE__ */ new Set();
-      let offset = 0;
+      let offset = 0, total = null;
       for (let page2 = 0; page2 < 1e4; page2++) {
-        const r = await cloud().list(table2, { ...options, order: options.order || "id", range: [offset, offset + 199] });
+        const r = await cloud().list(table2, { ...options, count: page2 === 0 ? "exact" : options.count, order: options.order || "id", range: [offset, offset + 199] });
         if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
         if (r.error) return r;
         const rows = r.data || [];
@@ -831,7 +833,8 @@
         seen.add(signature);
         data2.push(...rows);
         offset += rows.length;
-        if (typeof r.count === "number" && offset >= r.count) return { data: data2, error: null };
+        if (typeof r.count === "number") total = r.count;
+        if (total !== null && offset >= total) return { data: data2, error: null };
       }
       throw Error("PAGINATION_LIMIT");
     })();
@@ -875,8 +878,8 @@
     if (typeof result.count !== "number") throw Error("COUNT_REQUIRED");
     return { items: (result.data || []).map(schema.fromRow), total: result.count, page: index, pageSize: size, sort: order };
   }
-  async function rpc(name, data2 = {}) {
-    const r = await rawRpc(name, data2);
+  async function rpc(name, data2 = {}, options = {}) {
+    const r = await rawRpc(name, data2, options);
     if (r.error) {
       const e = new Error(r.error.message || "UNKNOWN_ERROR");
       Object.assign(e, r.error, { details: normalizeError(r.error) });
@@ -884,16 +887,21 @@
     }
     return r.data;
   }
-  async function rawRpc(name, data2 = {}) {
-    const started = performance.now(), epoch = authEpoch;
+  async function rawRpc(name, data2 = {}, options = {}) {
+    var _a;
+    const started = performance.now(), epoch = authEpoch, module = ((_a = window.ArcRouter) == null ? void 0 : _a.current) || "mainmenu";
     let success = false;
     try {
-      const r = await (await cloud().db()).rpc(name, data2);
+      const c = await cloud().db();
+      const r = options.read && cloud().read ? await cloud().read((signal) => {
+        let q = c.rpc(name, data2);
+        return q.abortSignal ? q.abortSignal(signal) : q;
+      }, options) : await c.rpc(name, data2);
       if (epoch !== authEpoch) throw Error("AUTH_CHANGED");
       success = !r.error;
       return r;
     } finally {
-      if (name !== "gama_operational_metrics") window.dispatchEvent(new CustomEvent("arc:metric", { detail: { metric: "rpc", operation: name, duration_ms: Math.round(performance.now() - started), success } }));
+      if (name !== "gama_operational_metrics") window.dispatchEvent(new CustomEvent("arc:metric", { detail: { metric: "rpc", module, operation: name, duration_ms: Math.round(performance.now() - started), success } }));
     }
   }
   const action = (domain, operation, data2 = {}) => rpc("gama_" + domain + "_action", { p_action: operation, p_data: data2 });
@@ -1646,6 +1654,7 @@
     id = canonical(id);
     if (!allowed(id)) return refuse(id);
     const definition = registry.find((m) => m.id === id), started = performance.now();
+    emit("arc:route-open", { id, started });
     const record = (success) => emit("arc:metric", { metric: "navigation", module: id, operation: "open", duration_ms: Math.round(performance.now() - started), success });
     try {
       const result = (definition == null ? void 0 : definition.open) ? definition.open(requested) : show(id);
@@ -1925,13 +1934,24 @@
   function loadStyle(file) {
     if (styles.has(file)) return styles.get(file);
     const pending = new Promise((resolve, reject) => {
-      var _a;
+      var _a, _b;
       const link = document.createElement("link");
+      let settled = false;
+      const timer = setTimeout(() => link.onerror(), 15e3);
+      (_a = timer == null ? void 0 : timer.unref) == null ? void 0 : _a.call(timer);
       link.rel = "stylesheet";
-      link.href = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
+      link.href = ((_b = window.ArcAssets) == null ? void 0 : _b[file]) || file;
       link.dataset.arcAsset = file;
-      link.onload = resolve;
+      link.onload = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve();
+      };
       link.onerror = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         link.remove();
         styles.delete(file);
         reject(Error("MODULE_LOAD_FAILED"));
@@ -1944,15 +1964,27 @@
   function loadScript(file, options = {}) {
     if (scripts.has(file)) return scripts.get(file);
     const pending = new Promise((resolve, reject) => {
-      var _a;
+      var _a, _b;
       const script = document.createElement("script");
+      let settled = false;
+      const timer = setTimeout(() => script.onerror(), Math.min(6e4, Math.max(1e3, Number(options.timeoutMs) || 15e3)));
+      (_a = timer == null ? void 0 : timer.unref) == null ? void 0 : _a.call(timer);
       script.async = options.ordered !== true;
-      script.src = ((_a = window.ArcAssets) == null ? void 0 : _a[file]) || file;
+      script.src = ((_b = window.ArcAssets) == null ? void 0 : _b[file]) || file;
       script.dataset.arcAsset = file;
       for (const key of ["integrity", "crossOrigin", "referrerPolicy"])
         if (options[key]) script[key] = options[key];
-      script.onload = () => options.validate && !options.validate() ? script.onerror() : resolve();
+      script.onload = () => {
+        if (settled) return;
+        if (options.validate && !options.validate()) return script.onerror();
+        settled = true;
+        clearTimeout(timer);
+        resolve();
+      };
       script.onerror = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         script.remove();
         scripts.delete(file);
         reject(Error("MODULE_LOAD_FAILED"));
@@ -2030,6 +2062,13 @@
   }
   function startPerformance() {
     const entries = [], start = performance.now();
+    const routeStarts = /* @__PURE__ */ new Map();
+    window.addEventListener("arc:route-open", (e) => routeStarts.set(e.detail.id, e.detail.started));
+    const contentReady = (module, started, success = true) => {
+      const from = routeStarts.get(module) ?? started;
+      routeStarts.delete(module);
+      window.dispatchEvent(new CustomEvent("arc:metric", { detail: { metric: "navigation", module, operation: "content_ready", duration_ms: Math.round(performance.now() - from), success } }));
+    };
     let samples = [], epoch = 0, pending = false;
     const capture = (detail) => {
       var _a, _b, _c, _d;
@@ -2105,6 +2144,7 @@
       epoch++;
       samples = [];
       interactions.clear();
+      routeStarts.clear();
     });
     setInterval(flush, 3e4);
     const record = (type, detail) => {
@@ -2121,10 +2161,10 @@
         record("access_ready", { milliseconds: Math.round(performance.now() - start) });
       }
     });
-    window.ArchitectPerformance = { snapshot: () => ({ vitals: { ...vitals }, entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }), open: async () => {
+    window.ArchitectPerformance = { contentReady, snapshot: () => ({ vitals: { ...vitals }, entries: entries.map((x) => ({ ...x })), resources: performance.getEntriesByType("resource").filter((r) => ["fetch", "xmlhttprequest", "script"].includes(r.initiatorType)).map((r) => ({ kind: r.initiatorType, milliseconds: Math.round(r.duration), bytes: r.transferSize || null })), navigation: performance.getEntriesByType("navigation").map((n) => ({ domContentLoaded: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd) })) }), open: async () => {
       const token = epoch, r = await window.ArcData.rpc("gama_operational_metrics", { p_action: "report" });
       if (token !== epoch) return;
-      window.ArcUI.dialog({ title: "Rendimiento observado", saveLabel: "Cerrar", body: "<p data-gi=4fc41b9622bf>Últimos 7 días. El percentil 95 se calcula sobre mediciones reales; sin muestras no se estima. Los tiempos de navegación miden la apertura; los RPC miden la respuesta del servidor.</p>" + window.ArcUI.table({ columns: [{ key: "module", label: "Módulo" }, { key: "operation", label: "Operación" }, { key: "metric", label: "Medición" }, { key: "device", label: "Dispositivo" }, { key: "network", label: "Red" }, { key: "samples", label: "Muestras" }, { key: "p95_ms", label: "P95 (ms)" }, { key: "errors", label: "Errores" }], items: r.rows }), onSave: async () => {
+      window.ArcUI.dialog({ title: "Rendimiento observado", saveLabel: "Cerrar", body: "<p data-gi=4fc41b9622bf>Últimos 7 días. El percentil 95 se calcula sobre mediciones reales; sin muestras no se estima. Las mediciones content_ready incluyen la espera hasta el primer contenido; los RPC incluyen la red y la respuesta del servidor.</p>" + window.ArcUI.table({ columns: [{ key: "module", label: "Módulo" }, { key: "operation", label: "Operación" }, { key: "metric", label: "Medición" }, { key: "device", label: "Dispositivo" }, { key: "network", label: "Red" }, { key: "samples", label: "Muestras" }, { key: "p95_ms", label: "P95 (ms)" }, { key: "errors", label: "Errores" }], items: r.rows }), onSave: async () => {
       } });
     } };
   }

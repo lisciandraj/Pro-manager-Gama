@@ -10,9 +10,9 @@ export async function all(table, options = {}, cached = false) {
   if(cached&&old&&Date.now()-old.at<CACHE_TTL)return old.promise;
   cache.delete(key);
   const pending=(async()=>{
-    const data=[], seen=new Set(); let offset=0;
+    const data=[], seen=new Set(); let offset=0,total=null;
     for (let page=0;page<10000;page++) {
-      const r=await cloud().list(table,{...options,order:options.order || 'id',range:[offset,offset+199]});
+      const r=await cloud().list(table,{...options,count:page===0?'exact':options.count,order:options.order || 'id',range:[offset,offset+199]});
       if(epoch!==authEpoch)throw Error('AUTH_CHANGED');
       if(r.error)return r;
       const rows=r.data || [];
@@ -21,7 +21,8 @@ export async function all(table, options = {}, cached = false) {
       const signature=JSON.stringify(rows.map(row=>row.id ?? row));
       if(seen.has(signature))throw Error('PAGINATION_RANGE_IGNORED');
       seen.add(signature); data.push(...rows); offset+=rows.length;
-      if(typeof r.count==='number' && offset>=r.count)return {data,error:null};
+      if(typeof r.count==='number')total=r.count;
+      if(total!==null && offset>=total)return {data,error:null};
     }
     throw Error('PAGINATION_LIMIT');
   })();
@@ -55,15 +56,15 @@ export async function page(entity, options = {}) {
   if(typeof result.count!=='number')throw Error('COUNT_REQUIRED');
   return {items:(result.data||[]).map(schema.fromRow),total:result.count,page:index,pageSize:size,sort:order};
 }
-export async function rpc(name, data = {}) {
-  const r=await rawRpc(name,data);
+export async function rpc(name, data = {}, options = {}) {
+  const r=await rawRpc(name,data,options);
   if(r.error){const e=new Error(r.error.message || 'UNKNOWN_ERROR');Object.assign(e,r.error,{details:normalizeError(r.error)});throw e;}
   return r.data;
 }
-export async function rawRpc(name,data={}) {
- const started=performance.now(),epoch=authEpoch;let success=false;
- try{const r=await (await cloud().db()).rpc(name,data);if(epoch!==authEpoch)throw Error('AUTH_CHANGED');success=!r.error;return r}
- finally{if(name!=='gama_operational_metrics')window.dispatchEvent(new CustomEvent('arc:metric',{detail:{metric:'rpc',operation:name,duration_ms:Math.round(performance.now()-started),success}}))}
+export async function rawRpc(name,data={},options={}) {
+ const started=performance.now(),epoch=authEpoch,module=window.ArcRouter?.current||'mainmenu';let success=false;
+ try{const c=await cloud().db();const r=options.read&&cloud().read?await cloud().read(signal=>{let q=c.rpc(name,data);return q.abortSignal?q.abortSignal(signal):q},options):await c.rpc(name,data);if(epoch!==authEpoch)throw Error('AUTH_CHANGED');success=!r.error;return r}
+ finally{if(name!=='gama_operational_metrics')window.dispatchEvent(new CustomEvent('arc:metric',{detail:{metric:'rpc',module,operation:name,duration_ms:Math.round(performance.now()-started),success}}))}
 }
 export const action = (domain, operation, data = {}) => rpc('gama_'+domain+'_action',{p_action:operation,p_data:data});
 export function startDataEvents() {

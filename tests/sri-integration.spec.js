@@ -216,3 +216,15 @@ test('date range filters fiscal sources before paging and CSV exports only that 
  const download=page.waitForEvent('download');await page.locator('.gaSriTools button[title*="CSV"]').click();const file=await download,body=fs.readFileSync(await file.path(),'utf8');expect(body).toContain('IN-RANGE');expect(body).not.toContain('OUT-OF-RANGE');
  expect(await page.evaluate(()=>__SRI.calls.some(c=>['submit','refresh'].includes(c.action)||c.fn==='gama_sri_prepare'))).toBe(false);
 });
+
+test('a slow fiscal service does not block invoices or replace an existing selection',async({page})=>{
+ await boot(page,{runtime:{ready:true}});await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,functions:{invoke:(name,options)=>options.body.action==='status'?new Promise(resolve=>{window.__releaseSri=()=>resolve({data:__SRI.runtime})}):c.functions.invoke(name,options)}}}});
+ await page.evaluate(()=>GamaAccounting.openSri());await expect(page.locator('[data-sri-invoice]')).toHaveCount(1);await page.locator('[data-ga-sri-select]').check();await expect(page.locator('#gaSriHeaderSubmit')).toBeDisabled();
+ expect(await page.evaluate(()=>__SRI.calls.some(c=>c.p_action==='overview'))).toBe(false);
+ await page.evaluate(()=>__releaseSri());await expect(page.locator('#gaSriHeaderSubmit')).toBeEnabled();await expect(page.locator('[data-ga-sri-select]')).toBeChecked();expect(await page.evaluate(()=>__SRI.calls.some(c=>c.action==='submit'))).toBe(false);
+});
+
+
+test('switching between accounting and SRI does not cancel the destination opening',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaAccounting.open());await page.evaluate(()=>GamaAccounting.openSri());await expect(page.locator('[data-sri-invoice]')).toHaveCount(1);await page.locator('#gaSriAccounting').click();await expect(page.locator('#accounting')).toBeVisible();await expect(page.locator('#gaMain')).not.toContainText('Cargando…');
+});

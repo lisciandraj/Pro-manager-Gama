@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const source=name=>fs.readFileSync(path.join(__dirname,'..',name),'utf8');
 async function boot(){
- const calls=[],context={console,document:{createElement:()=>({}),head:{appendChild(){}}},CustomEvent:class{},dispatchEvent(){}};
+ const calls=[],context={console,AbortController,setTimeout,clearTimeout,document:{createElement:()=>({}),head:{appendChild(){}}},CustomEvent:class{},dispatchEvent(){}};
  context.window=context;vm.createContext(context);vm.runInContext(source('gama-export-schema.js'),context);
  const schemas=new Map(context.GamaExportSchema.map(s=>[s.table,s]));
  context.supabase={createClient:()=>({auth:{onAuthStateChange(){}},from(table){

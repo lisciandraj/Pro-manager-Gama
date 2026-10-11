@@ -11,7 +11,7 @@ function pdf() {
     },
   };
   const context = {
-    window,
+    window,setTimeout,clearTimeout,
     document: {
       createElement: () => ({ dataset: {}, remove() {} }),
       head: { appendChild: (s) => scripts.push(s) },

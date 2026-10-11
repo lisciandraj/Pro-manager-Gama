@@ -21,3 +21,7 @@ En vue Direction et pour le mois courant, le pourcentage de marge est calculé u
 Les séries journalières de plus de sept jours sont regroupées par sept jours, avec le dernier intervalle éventuellement incomplet ; le tableau, le CSV et la sélection d’un intervalle utilisent les mêmes sommes et bornes. Les contrôles du graphique sont repliables et restent ouverts lors d’un changement de représentation.
 
 Les cinq commandes récentes montrent leur date de livraison TMS connue et leur total calculé à partir des lignes accessibles. Le total n’est affiché que pour un profil financier ; si la lecture échoue ou est tronquée, il reste indisponible. Le compteur SRI des documents à corriger est une lecture de comptage seule, sous les droits SRI ; son bouton ouvre directement l’onglet de correction. Les retours tardifs sont ignorés après un changement de compte, de route ou de période.
+
+## Chargement progressif
+
+`gama_company_dashboard_sections` reprend les mêmes calculs, dates, droits et devises que l’API complète. Le premier appel demande uniquement les sections des cartes principales de la vue choisie. Les commandes récentes, le compteur SRI et les indicateurs de direction arrivent indépendamment. Les autres sections et priorités attendent l’ouverture de « Tous les indicateurs et priorités », avec reprise par panneau en cas d’échec. Un panneau en attente ne devient pas un zéro. Les réponses tardives sont ignorées après changement de route, compte ou période. L’API historique `gama_company_dashboard` reste complète et compatible.

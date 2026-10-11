@@ -54,7 +54,7 @@ window.addEventListener('gama:profile-ready',()=>{if(disponibleV2===null&&$('war
 
 /* Las fotos son base64 y pesan: un inventario de mil productos no tiene por
    qué arrastrarlas. Se piden sólo las columnas que la tabla enseña. */
-const COLUMNAS_PRODUCTO='id,name,reference,barcode,category,min_stock,max_stock,purchase_price,stock,active,location,supplier_id,product_kind,replenishment_excluded';
+const COLUMNAS_PRODUCTO='id,name,reference,barcode,category,min_stock,max_stock,purchase_price,stock,active,location,supplier_id,product_kind,replenishment_excluded,has_photo';
 
 async function cargar(){
  if(basePending)return basePending;
@@ -254,6 +254,9 @@ function filas(){
   .filter(r=>!est||estado(r).clase===est);
 }
 
+function productPhoto(p){
+ return p.has_photo&&window.GamaPhotos?window.GamaPhotos.slot(p.id,'ivProductPhoto'):window.ArcUI.moduleIcon('cube');
+}
 function tabla(){
  const host=$('ivTabla');if(!host)return;
  const rows=filas();pintarKpis(rows);
@@ -264,16 +267,17 @@ function tabla(){
  const columns=['Producto','Almacén','Stock físico','Reservado','Disponible','Estado'];
  window.ArcUI.render(host,'<table class="arcTable" data-coco-mobile-cards data-gama-sort-key="invv2"><thead><tr>'+columns.map(c=>'<th>'+esc(T(c))+'</th>').join('')+'</tr></thead><tbody>'+pagina.map(r=>{
   const e=estado(r),ubis=r.lineas.map(l=>(ubicacion(l.location_id)||{}).code).filter(Boolean);
-  return `<tr data-iv-product="${esc(r.producto.id)}" aria-selected="${r.producto.id===selectedProduct}"><td><button type="button" class="ivProductOpen" data-iv-open="${esc(r.producto.id)}"><span class="ivProductIcon" aria-hidden="true">${window.ArcUI.moduleIcon('cube')}</span><span>${esc(r.producto.name)}<small>${esc(r.producto.reference||'—')}</small></span></button></td><td>${esc(sites(r))}${ubis.length?`<small class="ivSub">${esc(ubis.join(' · '))}</small>`:''}</td><td>${num(r.onHand)}</td><td>${num(r.reservado)}</td><td><b>${num(r.disponible)}</b></td><td><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span></td></tr>`;
+  return `<tr data-iv-product="${esc(r.producto.id)}" aria-selected="${r.producto.id===selectedProduct}"><td><button type="button" class="ivProductOpen" data-iv-open="${esc(r.producto.id)}"><span class="ivProductIcon" aria-hidden="true">${productPhoto(r.producto)}</span><span>${esc(r.producto.name)}<small>${esc(r.producto.reference||'—')}</small></span></button></td><td>${esc(sites(r))}${ubis.length?`<small class="ivSub">${esc(ubis.join(' · '))}</small>`:''}</td><td>${num(r.onHand)}</td><td>${num(r.reservado)}</td><td><b>${num(r.disponible)}</b></td><td><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span></td></tr>`;
  }).join('')+'</tbody></table>'+(window.GamaPage?window.GamaPage.controls('invv2',rows.length):''));
  host.querySelectorAll('[data-iv-open]').forEach(b=>b.onclick=()=>{selectedProduct=b.dataset.ivOpen;host.querySelectorAll('[data-iv-product]').forEach(row=>row.setAttribute('aria-selected',String(row.dataset.ivProduct===selectedProduct)));productInspector(rows.find(r=>r.producto.id===selectedProduct));if(window.innerWidth<=760)$('ivInspector').scrollIntoView({behavior:'smooth',block:'nearest'})});
- productInspector(rows.find(r=>r.producto.id===selectedProduct));window.GamaTable?.scan();
+ productInspector(rows.find(r=>r.producto.id===selectedProduct));window.GamaTable?.scan();window.GamaPhotos?.hydrate(host);
 }
 function productInspector(r){
  const host=$('ivInspector');if(!host||!r)return;const p=r.producto,e=estado(r);
  const fields=[['Stock físico',num(r.onHand)],['Reservado',num(r.reservado)],['Disponible',num(r.disponible)],['Entrante',r.entrante===null?'—':num(r.entrante)],['Previsto',r.previsto===null?'—':num(r.previsto)],['Mínimo',num(r.minimo)],['Máximo',num(r.maximo)],['Costo',money(r.costo)],['Valor del stock',money(r.valor)]];
- window.ArcUI.render(host,`<span class="ivInspectorIcon" aria-hidden="true">${window.ArcUI.moduleIcon('cube')}</span><h3>${esc(p.name)}</h3><p class="muted">${esc(p.reference||'—')} · ${esc(p.category||'—')}</p><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span><dl class="cocoKeyValues">${fields.map(([k,v])=>`<div><dt>${esc(T(k))}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h4>${esc(T('Ubicaciones'))}</h4><p class="muted">${esc(r.lineas.map(l=>{const u=ubicacion(l.location_id)||{},w=almacenDe(l.location_id)||{};return `${w.name||'—'} · ${u.code||'—'}`}).join(' / ')||'—')}</p><button type="button" class="arcButton secondary" data-iv-history>${esc(T('Transferencias'))}</button><p class="ivHelp">${esc(T('Físico − todas las reservas = disponible.'))}</p>`);
+ window.ArcUI.render(host,`<span class="ivInspectorIcon" aria-hidden="true">${productPhoto(p)}</span><h3>${esc(p.name)}</h3><p class="muted">${esc(p.reference||'—')} · ${esc(p.category||'—')}</p><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span><dl class="cocoKeyValues">${fields.map(([k,v])=>`<div><dt>${esc(T(k))}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h4>${esc(T('Ubicaciones'))}</h4><p class="muted">${esc(r.lineas.map(l=>{const u=ubicacion(l.location_id)||{},w=almacenDe(l.location_id)||{};return `${w.name||'—'} · ${u.code||'—'}`}).join(' / ')||'—')}</p><button type="button" class="arcButton secondary" data-iv-history>${esc(T('Transferencias'))}</button><p class="ivHelp">${esc(T('Físico − todas las reservas = disponible.'))}</p>`);
  host.querySelector('[data-iv-history]').onclick=()=>window.GamaInventoryV2.openTab('transferencias');
+ window.GamaPhotos?.hydrate(host);
 }
 function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;

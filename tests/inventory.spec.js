@@ -71,3 +71,46 @@ test('Existencias hace lo que hacía Inventario: categoría, stock bajo, búsque
   await page.fill('#ivBuscar', 'no-existe');
   await expect(page.locator('#ivTabla')).toContainText('No hay existencias que coincidan');
 });
+
+for (const width of [1280, 320]) {
+  test(`Entrepôt: photos dans la liste et la fiche, cache et produit sans photo (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await boot(page);
+    const photos = await page.evaluate(() => ['#157F98', '#F87826'].map((color, i) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 32;
+      canvas.getContext('2d').fillStyle = color;
+      canvas.getContext('2d').fillRect(0, 0, 32, 32);
+      const photo = canvas.toDataURL('image/png');
+      window.__DB.products[i].photo_data = photo;
+      return photo;
+    }));
+    await page.evaluate(() => ArcRouter.open('warehouses'));
+    const oil = page.locator('[data-iv-open="p2"] img');
+    await oil.scrollIntoViewIfNeeded();
+    await expect(oil).toBeVisible();
+    await expect(oil).toHaveAttribute('src', photos[1]);
+    expect(await oil.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+
+    const inspector = page.locator('#ivInspector');
+    await inspector.scrollIntoViewIfNeeded();
+    await expect(inspector.locator('img')).toHaveAttribute('src', photos[1]);
+    await page.locator('[data-iv-open="p1"]').click();
+    await expect(inspector.locator('img')).toHaveAttribute('src', photos[0]);
+    await page.locator('[data-iv-open="p3"]').click();
+    await expect(inspector.locator('img')).toHaveCount(0);
+    await expect(inspector.locator('.ivInspectorIcon svg')).toBeVisible();
+    await expect(page.locator('[data-iv-open="p3"] img')).toHaveCount(0);
+
+    const before = await page.evaluate(() => window.__DB.__calls.filter(c => c.select === 'id,photo_data').length);
+    await page.fill('#ivBuscar', 'B100');
+    await expect(page.locator('[data-iv-open="p2"] img')).toHaveAttribute('src', photos[1]);
+    await inspector.scrollIntoViewIfNeeded();
+    await expect(inspector.locator('img')).toHaveAttribute('src', photos[1]);
+    const calls = await page.evaluate(() => window.__DB.__calls.filter(c => c.table === 'products'));
+    expect(calls.some(c => String(c.select).includes('has_photo'))).toBe(true);
+    expect(calls.filter(c => c.select === 'id,photo_data')).toHaveLength(before);
+    expect(calls.filter(c => c.select !== 'id,photo_data' && (c.select === '*' || String(c.select).includes('photo_data')))).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

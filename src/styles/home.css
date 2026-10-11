@@ -1,4 +1,4 @@
-/* Pastel home tiles: module-tinted surface and centered icon/title. */
+/* White home tiles with centered, module-coloured icons and titles. */
 #mainmenu{padding:0}
 #mainmenu .gamaF2Head{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 12px}
 #mainmenu .gamaF2HeadActions{flex:none}
@@ -29,8 +29,8 @@
 #mainmenu [data-arc-fam=pink]{color:var(--arc-icon-pink);background:var(--arc-icon-pink-bg)}
 #mainmenu [data-arc-fam=indigo]{color:var(--arc-icon-indigo);background:var(--arc-icon-indigo-bg)}
 #mainmenu [data-arc-fam=system]{color:var(--arc-text-muted);background:var(--arc-surface-3)}
-/* Keep every tile and its icon in the same family without changing module colors elsewhere. */
-#mainmenu .gamaF2Card[data-arc-fam]{background:color-mix(in srgb,currentColor 12%,white)}
+/* Keep tile surfaces white and retain each icon's module colour. */
+#mainmenu .gamaF2Card[data-arc-fam]{background:#FFF}
 #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:color-mix(in srgb,currentColor 19%,white)}
 #arcRecentActivity{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(210px,1fr);gap:14px;margin-top:20px}
 #arcRecentActivity:empty{display:none}

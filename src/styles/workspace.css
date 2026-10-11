@@ -65,8 +65,8 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 /* Module launcher: four columns on desktop, two on a phone. */
 #mainmenu .gamaF2Head{margin-bottom:18px}
 #mainmenu .gamaF2Grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-#mainmenu .gamaF2Card[data-arc-fam]{background:#E7F3F6;border:1px solid #B6DCE5;border-radius:12px;padding:24px 16px;min-height:172px;gap:16px;position:relative;color:#10677D;box-shadow:none}
-#mainmenu .gamaF2Card:is([data-arc-fam=orange],[data-arc-fam=red]){background:#FFF0E6;border-color:#F7D5BD}
+#mainmenu .gamaF2Card[data-arc-fam]{background:#FFF;border:1px solid #B6DCE5;border-radius:12px;padding:24px 16px;min-height:172px;gap:16px;position:relative;color:#10677D;box-shadow:none}
+#mainmenu .gamaF2Card:is([data-arc-fam=orange],[data-arc-fam=red]){background:#FFF;border-color:#F7D5BD}
 #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;border-radius:0;width:58px;height:58px;color:#10677D}
 #mainmenu .gamaF2Icon svg{width:56px;height:56px;stroke-width:1.65}
 #mainmenu .gamaF2Title{font-size:16px;font-weight:650;color:#103B52;line-height:1.35}

@@ -47,7 +47,7 @@ test('the avatar isolates account changes and falls back for broken images',asyn
 for(const width of [1440,390])test(`Coco approved surfaces fit at ${width}px and preserve the top bar`,async({page})=>{
  await page.setViewportSize({width,height:1000});await boot(page);
  await expect(page.locator('.arcSidebar')).toHaveCSS('background-color','rgb(255, 255, 255)');
- await expect(page.locator('#mainmenu .gamaF2Card').first()).toHaveCSS('background-color','rgb(231, 243, 246)');
+ await expect(page.locator('#mainmenu .gamaF2Card').first()).toHaveCSS('background-color','rgb(255, 255, 255)');
  const bar=()=>page.evaluate(()=>[...document.querySelectorAll('.arcTopbar,.arcTopbar *')].map(el=>{const s=getComputedStyle(el);return [s.color,s.backgroundColor,s.borderColor,s.borderRadius,s.padding,s.fontSize,s.width,s.height]}));
  const before=await bar();await page.evaluate(()=>document.querySelector('link[href^="gama-design.css"]').disabled=true);
  expect(await bar()).toEqual(before);

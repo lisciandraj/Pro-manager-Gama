@@ -87,11 +87,14 @@ const leerCabecera = (page, sel) => page.evaluate(s => {
 }, sel);
 
 /** Comprueba el molde: antetítulo fijo, una frase, y un único botón: volver. */
-function exigirMolde(c, quien) {
+function exigirMolde(c, quien, compactDashboard=false) {
   expect(c.falta, quien + ': falta la cabecera').toBeFalsy();
   expect(c.cabeceras, quien + ': hay más de una cabecera').toBe(1);
   expect(c.kicker, quien + ': el antetítulo no es el de la aplicación').toBe(KICKER);
-  expect(c.lead.length, quien + ': falta la descripción').toBeGreaterThan(10);
+  // The approved Dashboard reference uses a title and inline period/profile
+  // controls, with no subtitle; other shared module headers keep their lead.
+  if(compactDashboard)expect(c.lead, quien + ': la cabecera compacta no lleva subtítulo').toBe('');
+  else expect(c.lead.length, quien + ': falta la descripción').toBeGreaterThan(10);
   expect(c.lead.length, quien + ': la descripción no es de una línea (' + c.lead.length + ' caracteres)').toBeLessThanOrEqual(LEAD_MAX);
   // Una frase: ni un punto seguido en medio.
   expect(c.lead.split(/\.\s/).length, quien + ': la descripción tiene más de una frase').toBe(1);
@@ -163,7 +166,7 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
 // Y los módulos que se pintan solos, que son los que se salían del molde: cada
 // uno añadía su «Actualizar» —o su «Optimizar rutas»— y su propio antetítulo.
 // Se recorre el menú entero para que un módulo nuevo entre también por aquí.
-test('todos los módulos del menú traen exactamente la misma cabecera', async ({ page }) => {
+test('los módulos conservan la cabecera compartida y Dashboard su variante compacta', async ({ page }) => {
   test.slow();
   await boot(page, {
     products: [{ id: 'p1', barcode: 'B1', name: 'Cemento', stock: 40, min_stock: 1, sale_price: 10, tax_rate: 15, active: true, created_at: hoy() }],
@@ -189,7 +192,12 @@ test('todos los módulos del menú traen exactamente la misma cabecera', async (
       return s ? '#' + s.id : '';
     });
     expect(abierta, n + ': no se abrió ninguna pantalla').not.toBe('');
-    exigirMolde(await leerCabecera(page, abierta), n);
+    exigirMolde(await leerCabecera(page, abierta), n, abierta==='#dashboard');
+    if(abierta==='#dashboard'){
+      await expect(page.locator('#dashboard .adHeaderTools #ad-preset')).toBeVisible();
+      await expect(page.locator('#dashboard .adHeaderTools #ad-view')).toBeVisible();
+      await expect(page.locator('#dashboard .adHeaderTools #ad-customize')).toBeVisible();
+    }
   }
 });
 

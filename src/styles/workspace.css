@@ -137,7 +137,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #warehouses .ivStockLayout{display:grid;grid-template-columns:minmax(0,1fr) 276px;gap:16px;margin-top:16px;align-items:start}
 #warehouses .ivStockLayout>div{min-width:0}
 #warehouses #ivTabla{overflow-x:auto}
-#warehouses .ivProductOpen{display:flex;align-items:center;gap:10px;width:100%;max-width:100%;min-width:0;padding:0;border:0;box-shadow:none;background:transparent;text-align:left;color:#1C2C3E;min-height:38px;font-size:13px}
+#warehouses .ivProductOpen{display:flex;align-items:center;gap:10px;width:100%;max-width:100%;min-width:0;margin:0;padding:0;border:0;box-shadow:none;background:transparent;text-align:left;color:#1C2C3E;min-height:38px;font-size:13px}
 #warehouses .ivProductOpen svg{width:26px;height:26px;color:#10677D;flex:none}
 #warehouses .ivProductOpen>.ivProductLabel{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
 #warehouses .ivProductOpen small{display:block;color:#617080;margin-top:4px;font-size:11px}

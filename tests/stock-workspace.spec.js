@@ -73,10 +73,10 @@ for(const width of [1024,1440])test(`Stock photos stay inside their frame beside
  const checkPhotos=async()=>{
   await expect.poll(()=>page.locator('#ivTabla img.ivProductPhoto').evaluateAll(imgs=>imgs.length===2&&imgs.every(img=>img.complete&&img.naturalWidth>0))).toBe(true);
   const boxes=await page.locator('#ivTabla .ivProductOpen').evaluateAll(buttons=>buttons.map(button=>{
-   const photo=button.querySelector('img').getBoundingClientRect(),frame=button.firstElementChild.getBoundingClientRect(),label=button.lastElementChild.getBoundingClientRect();
-   return {contained:photo.left>=frame.left-.5&&photo.top>=frame.top-.5&&photo.right<=frame.right+.5&&photo.bottom<=frame.bottom+.5,gap:label.left-photo.right};
+   const photo=button.querySelector('img').getBoundingClientRect(),frame=button.firstElementChild.getBoundingClientRect(),label=button.lastElementChild.getBoundingClientRect(),control=button.getBoundingClientRect(),cell=button.parentElement.getBoundingClientRect();
+   return {contained:photo.left>=frame.left-.5&&photo.top>=frame.top-.5&&photo.right<=frame.right+.5&&photo.bottom<=frame.bottom+.5,gap:label.left-photo.right,controlFits:control.left>=cell.left-.5&&control.right<=cell.right+.5};
   }));
-  for(const box of boxes){expect(box.contained,'photo must not spill out of its frame').toBe(true);expect(box.gap,'product name must stay beside the photo').toBeGreaterThanOrEqual(8)}
+  for(const box of boxes){expect(box.contained,'photo must not spill out of its frame').toBe(true);expect(box.gap,'product name must stay beside the photo').toBeGreaterThanOrEqual(8);expect(box.controlFits,'product control must stay inside its card').toBe(true)}
   await expect.poll(()=>page.locator('#ivInspector img').evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
   expect(await page.locator('#ivInspector').evaluate(host=>host.querySelector('img').getBoundingClientRect().bottom<=host.querySelector('h3').getBoundingClientRect().top)).toBe(true);
  };
@@ -84,7 +84,7 @@ for(const width of [1024,1440])test(`Stock photos stay inside their frame beside
  await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos();
  await page.locator('#ivTabla [data-table-view=table]').click();
  await page.locator('#ivBuscar').fill('CEM');await page.locator('#ivBuscar').fill('');await checkPhotos();
- await page.setViewportSize({width:390,height:844});await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos();
+ for(const mobileWidth of [390,320]){await page.setViewportSize({width:mobileWidth,height:844});await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos()}
  const reads=await page.evaluate(()=>__DB.__calls.filter(c=>c.table==='products'));
  expect(reads.some(c=>c.select==='id,photo_data')).toBe(true);
  expect(reads.some(c=>c.select!=='id,photo_data'&&(c.select==='*'||String(c.select).includes('photo_data')))).toBe(false);

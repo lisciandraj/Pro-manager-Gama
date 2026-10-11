@@ -180,7 +180,7 @@ function render(){
  $('ad-all-alerts')?.addEventListener('click',()=>{showAll=!showAll;render();$('ad-all-alerts')?.focus()});window.ArcUI.mount($('ad-content'));finishTools();
 }
 function quickActions(s,has){
- let items=[['sales-orders','to_ship','pedidos por preparar','Abrir'],['warehouses','low','productos bajo mínimo','Ver stock'],['tms','pending','entregas pendientes','Abrir']].filter(([id,key])=>has(id)&&s[id]?.[key]!=null);
+ let items=[['sales-orders','to_ship','pedidos por preparar','Abrir'],['warehouses','low','productos bajo mínimo','Ver existencias'],['tms','pending','entregas pendientes','Abrir']].filter(([id,key])=>has(id)&&s[id]?.[key]!=null);
  if(sourceVisible('sri'))items=items.filter(([id])=>id!=='tms').concat([['sri','corrections','facturas SRI por corregir','Corregir']]);
  return `<article class="arcPanel adQuickActions"><h2>${E(t('Por tratar hoy'))}</h2><div class="adQuickList">${items.map(([id,key,label,action])=>`<div class="adQuickAction"><span class="adQuickIcon">${icon(id)}</span><span><strong>${E(num(id==='sri'?sriCorrections:s[id][key]))}</strong> ${E(t(label))}</span><button type="button" class="arcButton secondary" data-ad-open="${id}">${E(t(action))}</button></div>`).join('')||`<p>${E(t('Datos no disponibles'))}</p>`}</div><button type="button" class="adPrioritiesLink" data-ad-show-priorities>${E(t('Ver todas las prioridades'))} →</button></article>`;
 }

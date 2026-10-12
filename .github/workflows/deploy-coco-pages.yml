@@ -8,8 +8,34 @@ permissions:
   contents: read
 concurrency:
   group: coco-pages-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  topbar-menus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check:startup
+      - run: npx playwright install --with-deps chromium
+      - name: Verify top bar subsection menus and existing window flows
+        run: npx playwright test tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coco-topbar-interface-results
+          path: test-results/
+          retention-days: 3
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -28,8 +54,6 @@ jobs:
       - run: npm ci
       - run: npm run update
       - run: npx playwright install --with-deps chromium
-      - name: Verify top bar subsection menus and existing window flows
-        run: npx playwright test tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
       - run: npx playwright test tests/coco-agent-ui.spec.js tests/assistant-ia.spec.js tests/accounting.spec.js tests/accounting-audit.spec.js --workers=2
       - name: Verify deployed server without business credentials
         run: node scripts/check-agent-live.mjs
@@ -46,7 +70,7 @@ jobs:
           retention-days: 3
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, topbar-menus]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

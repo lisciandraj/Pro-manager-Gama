@@ -12,13 +12,28 @@ async function boot(page,state='picking',role='magasinier'){
  await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');await page.waitForFunction(()=>window.GamaFulfillment&&window.GamaCloud);
  await page.evaluate(async()=>{await GamaCloudReady;const old=GamaCloud.db;window.__calls=[];GamaCloud.db=async()=>{const c=await old();return{...c,rpc:async(fn,args)=>{
+  if(fn==='gama_preparation_dispatch'){
+   window.__calls.push({p_action:'auto_dispatch',...args});
+   const once=window.__errorFor?.auto_dispatch;if(once){delete window.__errorFor.auto_dispatch;return {error:{message:once}}}
+   const p=window.__f.preparations.find(p=>p.id===args.p_data.preparation_id),rows=window.__f.pick_lines.filter(l=>l.preparation_id===p.id);
+   if(p.status==='shipped')return {data:{id:p.shipment_id,preparation_id:p.id}};
+   if(rows.some(l=>l.picked!==l.planned))return {error:{message:'PREPARATION_INCOMPLETE'}};
+   const partial=window.__DB.sales_order_lines.some(l=>l.quantity>rows.filter(r=>r.order_line_id===l.id).reduce((s,r)=>s+r.picked,0));
+   if(p.status==='picking'&&partial&&String(args.p_data.reason||'').trim().length<3)return {error:{message:'PARTIAL_REASON_REQUIRED'}};
+   const lines=rows.map(l=>({pick_line_id:l.id,quantity:l.picked-window.__f.package_lines.filter(pl=>pl.pick_line_id===l.id&&window.__f.packages.some(pk=>pk.id===pl.package_id&&pk.status==='active')).reduce((s,pl)=>s+pl.quantity,0)})).filter(l=>l.quantity>0);
+   if(lines.length){window.__f.packages.push({id:'auto-pk',preparation_id:p.id,barcode:'PK-00000002',status:'active'});window.__f.package_lines.push(...lines.map(l=>({package_id:'auto-pk',...l})))}
+   p.status='shipped';p.shipment_id='shipment';
+   window.__DB.sales_deliveries.push({id:'shipment',order_id:p.order_id,number:'ENV-00000001',tms_delivery_id:'tms-shipment'});
+   window.__DB.sales_delivery_lines.push(...rows.map(l=>({delivery_id:'shipment',order_line_id:l.order_line_id,quantity:l.picked})));
+   return {data:{id:'shipment',preparation_id:p.id,tms_delivery_id:'tms-shipment'}};
+  }
   if(fn==='gama_fulfillment_action'){
    if(args.p_action==='options')return {data:window.__options||[]};
    if(args.p_action==='dossier')return {data:structuredClone(window.__f)};
    window.__calls.push(args);if(window.__error)return {error:{message:window.__error}};
    const once=window.__errorFor?.[args.p_action];if(once){delete window.__errorFor[args.p_action];return {error:{message:once}}}
    if(args.p_action==='start')window.__f.preparations[0].status='picking';
-   if(args.p_action==='pick')window.__f.pick_lines[0].picked+=args.p_data.quantity;
+   if(args.p_action==='pick')window.__f.pick_lines.find(l=>l.id===args.p_data.pick_line_id).picked+=args.p_data.quantity;
    if(args.p_action==='package'){window.__f.packages.push({id:'pk',preparation_id:'prep',barcode:'PK-00000001',status:'active'});window.__f.package_lines.push(...args.p_data.lines.map(l=>({package_id:'pk',...l})))}
    if(args.p_action==='finish')window.__f.preparations[0].status='packed';
    return {data:{id:'created'}};
@@ -29,12 +44,14 @@ async function boot(page,state='picking',role='magasinier'){
  await expect(page.locator('#gfDossier')).toContainText('Dossier');
  await page.locator('.gsOrderMore>summary').click();
 }
-test('identity scan requires an explicit counted quantity and does not pack automatically',async({page})=>{
- await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));
+test('identity scan transfers only after the last counted quantity is confirmed, without closure or TMS buttons',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.sales_order_lines[0].quantity=10;return GamaPreparation.open(__DB.sales_orders[0].id)});
  await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
  await expect(page.locator('[data-line-qty="pl"]')).toBeVisible();expect(await page.evaluate(()=>__calls)).toHaveLength(0);
- await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);
- expect((await page.evaluate(()=>__calls[0])).p_data).toMatchObject({quantity:6,scan_mode:'confirm',quantity_confirmed:true});await expect(page.locator('#gfShip')).toHaveCount(0);await expect(page.locator('#gfPack')).toBeVisible();
+ await expect(page.locator('#gfFinish,#gfShip')).toHaveCount(0);
+ await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__f.preparations[0].status)).toBe('shipped');
+ expect((await page.evaluate(()=>__calls[0])).p_data).toMatchObject({quantity:6,scan_mode:'confirm',quantity_confirmed:true});
+ expect((await page.evaluate(()=>__calls)).map(c=>c.p_action)).toEqual(['pick','auto_dispatch']);await expect(page.locator('#gfFinish,#gfShip')).toHaveCount(0);await expect(page.locator('dialog')).toHaveCount(0);
 });
 test('unit mode records one unit per scan; pack mode records the configured factor',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.product_units=[{id:'box',product_id:__DB.products[0].id,barcode:'CAFE-BOX',factor:3,label:'Caja',active:true}];return GamaPreparation.open(__DB.sales_orders[0].id)});
@@ -63,7 +80,7 @@ test('the first scan starts a queued preparation and opens quantity confirmation
 });
 test('a failed manual confirmation retains its idempotency key for retry',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('[data-gf-pick]').click();const qty=page.locator('[data-line-qty="pl"]');await expect(qty).toHaveValue('6');
- await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await qty.press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');await page.evaluate(()=>window.__error=null);await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(2);
+ await page.evaluate(()=>window.__error='EXCEEDS_PLANNED');await qty.press('Enter');await expect(page.locator('#gfScanHint')).toContainText('supera lo previsto');await page.evaluate(()=>window.__error=null);await page.locator('[data-gf-confirm="pl"]').click();await expect.poll(()=>page.evaluate(()=>__calls.filter(c=>c.p_action==='pick').length)).toBe(2);
  expect(await page.evaluate(()=>__calls[0].p_data.request_key===__calls[1].p_data.request_key)).toBe(true);await expect(page.locator('#gfShip')).toHaveCount(0);
 });
 test('a quantity below the expected one asks for confirmation and only then records it',async({page})=>{
@@ -82,10 +99,12 @@ test('the parcel packs the validated quantities and reads weight from the produc
  await page.locator('#gsSave').click();await expect(box).toHaveCount(0);await expect(page.locator('#gamaPreparationHost')).toBeVisible();
  const call=await page.evaluate(()=>__calls[0]);expect(call.p_data.lines).toEqual([{pick_line_id:'pl',quantity:4}]);expect(call.p_data.weight_kg).toBeUndefined();
 });
-test('closing preparation recaps the load and hands off to transport from logistics',async({page})=>{
- await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfFinish').click();
- await expect(page.locator('dialog')).toContainText('Resumen de la preparación');await expect(page.locator('dialog')).toContainText('2 kg');
- await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await page.locator('#gfShip').click();await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('#gamaPreparationHost')).toBeVisible();expect((await page.evaluate(()=>__calls.find(c=>c.p_action==='ship'))).p_data.preparation_id).toBe('prep');
+test('a complete preparation still asks for the partial-delivery reason before automatic handoff',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await page.locator('[data-gf-confirm="pl"]').click();
+ await expect(page.locator('dialog')).toContainText('Justificar entrega parcial');expect(await page.evaluate(()=>__f.packages.length)).toBe(0);expect(await page.evaluate(()=>__f.preparations[0].status)).toBe('picking');
+ await page.locator('#gfReason').fill('Entrega parcial acordada');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
+ await expect.poll(()=>page.evaluate(()=>__f.preparations[0].status)).toBe('shipped');expect((await page.evaluate(()=>__calls.filter(c=>c.p_action==='auto_dispatch').at(-1))).p_data.reason).toBe('Entrega parcial acordada');
+ await expect(page.locator('#gfFinish,#gfShip')).toHaveCount(0);
 });
 test('a failed parcel stays retryable with the same key and only one error prefix',async({page})=>{
  await boot(page);await page.evaluate(()=>{__errorFor={package:'canceling statement due to statement timeout'};return GamaPreparation.open(__DB.sales_orders[0].id)});
@@ -96,12 +115,25 @@ test('a failed parcel stays retryable with the same key and only one error prefi
  const calls=await page.evaluate(()=>__calls.filter(c=>c.p_action==='package'));expect(calls).toHaveLength(2);expect(calls[1].p_data).toEqual(calls[0].p_data);
  expect(await page.evaluate(()=>__f.packages.length)).toBe(1);
 });
-test('a product sheet without weight does not block and is reported in the closing recap',async({page})=>{
- await boot(page);await page.evaluate(()=>{__DB.products[0].weight_g=null;__DB.products[0].volume_cm3=null});
- await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));await page.locator('#gfFinish').click();
- await expect(page.locator('dialog')).toContainText('Sin dato en la ficha del producto');await expect(page.locator('dialog')).toContainText('Sin peso o volumen en la ficha de: Café');
- await page.locator('#gfReason').fill('Entrega parcial');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
- expect((await page.evaluate(()=>__calls[0])).p_action).toBe('finish');
+test('automatic handoff retains the missing-weight information without asking for manual weights',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.products[0].weight_g=null;__DB.products[0].volume_cm3=null;__DB.sales_order_lines[0].quantity=10;__f.pick_lines[0].picked=9;return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await page.locator('[name="gfScanMode"]').selectOption('unit');await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');
+ await expect.poll(()=>page.evaluate(()=>__f.preparations[0].status)).toBe('shipped');await expect(page.locator('#gpTransferred')).toContainText('Peso y dimensiones no indicados');
+ await expect(page.locator('dialog,#weight_kg,#length_cm,#gfFinish,#gfShip')).toHaveCount(0);
+});
+
+test('failed automatic transfer is retryable with its original key and creates only one parcel',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.sales_order_lines[0].quantity=10;__errorFor={auto_dispatch:'canceling statement due to statement timeout'};return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await page.locator('#gfScanCode').fill('CAFE-01');await page.locator('#gfScanCode').press('Enter');await page.locator('[data-gf-confirm="pl"]').click();
+ await expect(page.locator('#gfAutoDispatch .gsError')).toContainText('statement timeout');expect(await page.evaluate(()=>__f.packages.length)).toBe(0);await expect(page.locator('#gfDispatchRetry')).toBeEnabled();
+ await page.locator('#gfDispatchRetry').click();await expect.poll(()=>page.evaluate(()=>__f.preparations[0].status)).toBe('shipped');
+ const calls=await page.evaluate(()=>__calls.filter(c=>c.p_action==='auto_dispatch'));expect(calls).toHaveLength(2);expect(calls[1].p_data).toEqual(calls[0].p_data);expect(await page.evaluate(()=>__f.packages.length)).toBe(1);
+ await page.evaluate(()=>GamaPreparation.open(__DB.sales_orders[0].id));expect(await page.evaluate(()=>__calls.filter(c=>c.p_action==='auto_dispatch').length)).toBe(2);
+});
+
+test('reopening a complete previously packed preparation transfers it automatically',async({page})=>{
+ await boot(page,'packed');await page.evaluate(()=>{__DB.sales_order_lines[0].quantity=10;__f.pick_lines[0].picked=10;__f.packages=[{id:'pk',preparation_id:'prep',barcode:'PK-00000001',status:'active'}];__f.package_lines=[{package_id:'pk',pick_line_id:'pl',quantity:10}];return GamaPreparation.open(__DB.sales_orders[0].id)});
+ await expect.poll(()=>page.evaluate(()=>__f.preparations[0].status)).toBe('shipped');expect(await page.evaluate(()=>__f.packages.map(p=>p.id))).toEqual(['pk']);await expect(page.locator('#gfFinish,#gfShip,dialog')).toHaveCount(0);
 });
 test('dossier shows incoming dates separately from agreed dates and sends substitution proposal',async({page})=>{
  await boot(page,'queued','admin');await expect(page.locator('#gfShortages')).toContainText('OC-01');await expect(page.locator('#gfShortages')).toContainText('Sin confirmar');await page.locator('[data-gf-option]').click();await page.locator('#gfKind').selectOption('substitute');await page.locator('#gfReplacement').selectOption('p2');await page.locator('#gfQty').fill('2');await page.locator('#gfPrice').fill('9');await page.locator('#gfPromise').fill('2026-09-20');await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const c=await page.evaluate(()=>window.__calls[0]);expect(c.p_data).toMatchObject({kind:'substitute',replacement_product_id:'p2',quantity:2,unit_price:9,promised_date:'2026-09-20'});

@@ -85,3 +85,4 @@ ASSET_COST_EXCEEDED	El coste supera la adquisición disponible.
 DOCUMENT_DATE_BEFORE_INVOICE	La fecha no puede ser anterior a la factura.
 REFUND_CREDIT_UNPOSTED	Contabiliza primero el abono antes de recuperar su reembolso.
 RETURN_REFUND_ALREADY_REVERSED_SALE	La venta ya se ha revertido por un reembolso directo. Revisa la devolución antes de registrar otro abono.
+PREPARATION_INCOMPLETE	La preparación todavía tiene cantidades pendientes.

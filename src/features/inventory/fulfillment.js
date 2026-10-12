@@ -44,25 +44,25 @@ function packRows(d,f,pk){return f.package_lines.filter(x=>x.package_id===pk.id)
 function packLabel(d,f,pk){const m=measures(d,packRows(d,f,pk)),dims=[pk.length_cm,pk.width_cm,pk.height_cm].every(v=>v!=null&&Number(v)>0)?n(pk.length_cm)+' × '+n(pk.width_cm)+' × '+n(pk.height_cm)+' cm':null;
  return[pk.weight_kg!=null&&Number(pk.weight_kg)>0?n(pk.weight_kg)+' kg':null,m.volume!=null?n(m.volume)+' m³':null,dims].filter(Boolean).join(' · ')||'Peso y dimensiones no indicados en la ficha del producto'}
 function packedQty(f,id){return f.package_lines.filter(x=>x.pick_line_id===id&&f.packages.some(p=>p.id===x.package_id&&p.status==='active')).reduce((s,x)=>s+Number(x.quantity),0)}
-const dispatches=new Map();
-function dispatchReady(f,p){const rows=f.pick_lines.filter(l=>l.preparation_id===p?.id);return p?.status==='packed'||p?.status==='picking'&&rows.length>0&&rows.every(l=>Number(l.planned)>0&&Number(l.picked)===Number(l.planned))}
-function dispatchRequest(d,p,reason=''){
- let state=dispatches.get(p.id);if(!state){state={};dispatches.set(p.id,state)}
+const transfers=new Map();
+function ready(f,p){const rows=f.pick_lines.filter(l=>l.preparation_id===p?.id);return p?.status==='packed'||p?.status==='picking'&&rows.length>0&&rows.every(l=>Number(l.planned)>0&&Number(l.picked)===Number(l.planned))}
+function transfer(d,p,reason=''){
+ let state=transfers.get(p.id);if(!state){state={};transfers.set(p.id,state)}
  if(state.pending)return state.pending;
  if(state.result)return Promise.resolve(state.result);
  if(!state.data||state.data.reason!==reason)state.data={order_id:d.order.id,preparation_id:p.id,request_key:crypto.randomUUID(),reason};
  state.pending=mutate('auto_dispatch',state.data).then(r=>{state.result=r;return r}).finally(()=>{state.pending=null});return state.pending;
 }
-async function dispatched(d){window.gamaToast?.(T('Preparación enviada automáticamente al TMS.'));await (d.onDone?d.onDone():S().openOrder(d.order.id))}
+async function dispatched(d){window.gamaToast?.(T('Preparación transferida al TMS.'));await (d.onDone?d.onDone():S().openOrder(d.order.id))}
 async function autoDispatch(d,f,host){
- const p=f.preparations.find(x=>['picking','packed'].includes(x.status));if(!wh()||d.order.status!=='confirmed'||!dispatchReady(f,p)||!host.isConnected)return;
+ const p=f.preparations.find(x=>['picking','packed'].includes(x.status));if(!wh()||d.order.status!=='confirmed'||!ready(f,p)||!host.isConnected)return;
  const status=host.querySelector('#gfAutoDispatch');if(!status)return;
- const controls=[...host.querySelectorAll('#gfPreparation input,#gfPreparation select,#gfPreparation button')].map(el=>[el,el.disabled]);controls.forEach(([el])=>{el.disabled=true});
- status.textContent=T('Cerrando los bultos y transfiriendo al TMS automáticamente…');
- try{await dispatchRequest(d,p);await dispatched(d)}
+ const controls=[...host.querySelectorAll('input,select,button')].map(el=>[el,el.disabled]);controls.forEach(([el])=>{el.disabled=true});
+ status.textContent=T('Transferencia automática en curso…');
+ try{await transfer(d,p);await dispatched(d)}
  catch(e){if(!host.isConnected)return;
-  const state=dispatches.get(p.id),partial=String(e.gamaError||e.message).includes('PARTIAL_REASON_REQUIRED');
-  const justify=()=>S().modal('Justificar entrega parcial',`<p>${tr('La preparación está completa, pero quedan productos pendientes del pedido. Indica el motivo para continuar automáticamente.')}</p>${reasonField}`,'Confirmar motivo',async el=>{await dispatchRequest(d,p,val(el,'gfReason'));await dispatched(d)});
+  const state=transfers.get(p.id),partial=String(e.gamaError||e.message).includes('PARTIAL_REASON_REQUIRED');
+  const justify=()=>S().modal('Justificar entrega parcial',`<p>${tr('Indica el motivo de la entrega parcial para continuar.')}</p>${reasonField}`,'Confirmar motivo',async el=>{await transfer(d,p,val(el,'gfReason'));await dispatched(d)});
   window.ArcUI.render(status,`<p class="gsError">${esc(err(e))}</p><button class="arcButton secondary" id="gfDispatchRetry">${tr(state?.result?'Actualizar preparación':partial?'Justificar entrega parcial':'Reintentar transferencia automática')}</button>`);
   status.querySelector('#gfDispatchRetry').onclick=()=>state?.result?dispatched(d):partial?justify():autoDispatch(d,f,host);
   if(partial&&!state.prompted){state.prompted=true;justify()}
@@ -92,7 +92,7 @@ function render(d,f,host){
  <div class="arcPanel gsCard" id="gfPreparation"><h3 data-gi-live data-gi=12beb07b0d96>Preparación</h3>${p?`<div class="gfRow"><b>${esc(p.number)} · <span data-gi-live>${text(p.status)}</span></b><span>${esc(f.staff.find(u=>u.id===p.assigned_to)?.name||'Sin asignar')}</span></div>`:'<p data-gi=a0447b2f072c>No hay preparación activa.</p>'}
  ${wh()&&o.status==='confirmed'&&pending>0?`<div class="gsTools">${!p||p.status==='queued'?'<button class="arcButton primary" id="gfStart" data-gi=d17701883053>Iniciar preparación</button>':''}${p?.status==='picking'?'<button class="arcButton primary" id="gfPack" data-gi-live data-gi=b2072d50f7bb>Crear bulto</button>':''}${p&&p.status!=='queued'?'<button class="arcButton secondary" id="gfCancelPrep" data-gi=286fbaf27913>Cancelar preparación</button>':''}</div>`:''}
  ${wh()&&o.status==='confirmed'&&pending>0&&(!p||['queued','picking'].includes(p.status))?`<div class="gfScanBox"><label class="gsField">${tr('Escanear producto')}<span class="scanner gfScan"><input id="gfScanCode" autocomplete="off" enterkeyhint="go"><button type="button" class="arcButton secondary" data-gf-camera="gfScanCode">${tr('Cámara')}</button></span></label><p class="gsHint" id="gfScanHint" role="status" aria-live="polite">${tr('Escanea cada producto y valida las cantidades contadas.')}</p></div>`:''}
- <div class="gsHint" id="gfAutoDispatch" role="status" aria-live="polite">${p&&['picking','packed'].includes(p.status)?tr('Los bultos se cierran y se envían al TMS automáticamente cuando todas las cantidades están validadas.'):''}</div>
+ <div class="gsHint" id="gfAutoDispatch" role="status" aria-live="polite"></div>
  ${preparationChecklist(d,f,p)}
 
  ${f.incidents.map(i=>`<p class="gsError"><span data-gi-live>${text(i.kind)}</span> · ${n(i.quantity)} · ${esc(i.reason)}. Revisar inventario antes de liberar la reserva.</p>`).join('')}
@@ -210,7 +210,7 @@ function picking(d,f,host){
  if(intent?.scan)scanned(intent.scan);
  else if(intent?.auto){hint(T('Línea validada. Escanea el siguiente producto.'));focus(scanBox)}
  else if(intent?.next){const next=rows.find(l=>pending(l)>0);
-  if(next)open(next.id,'');else{hint('Todas las cantidades están validadas. La transferencia al TMS es automática.');focus(scanBox)}}
+  if(next)open(next.id,'');else focus(scanBox)}
  else if(intent?.line)open(intent.line,'');
  else focus(scanBox);
  if(pickState.pendingScans.length&&!busy)scanned(pickState.pendingScans.shift());
@@ -222,13 +222,7 @@ function pack(d,p,f){const rows=unpacked(d,f,p);if(!rows.length){window.gamaToas
  const m=measures(d,rows);
  form(d,'Crear bulto',`<p data-gi=05c574d9b68f>Se embalan las cantidades ya validadas en la preparación. El peso y el volumen se leen de la ficha del producto.</p>${rows.map(r=>`<div class="gfPackingRow"><b>${esc(r.name)}</b> · ${n(r.quantity)}</div>`).join('')}<p class="gfRow"><span data-gi=1bbafc2de04d>Peso del bulto</span><b data-gi-live>${esc(measureText(m.weight,'kg'))}</b></p><p class="gfRow"><span data-gi=9b44cd7a7223>Volumen del bulto</span><b data-gi-live>${esc(measureText(m.volume,'m³'))}</b></p>${missingNote(m)}`,'package',()=>({preparation_id:p.id,lines:rows.map(r=>({pick_line_id:r.pick_line_id,quantity:r.quantity}))}),'Crear bulto');
 }
-async function ship(d){
- if(!wh())return;
- try{const f=await rpc('dossier',{order_id:d.order.id}),p=f.preparations.find(x=>['picking','packed'].includes(x.status));
-  if(!dispatchReady(f,p))throw Error(T('Valida todas las cantidades antes de la transferencia automática.'));
-  await dispatchRequest(d,p);await dispatched(d);
- }catch(e){if($('gsMessage'))$('gsMessage').textContent=err(e)}
-}
+function ship(d){if(wh())return window.GamaPreparation?.open(d.order.id)}
 async function proposal(d,l){try{const products=await S().refs('products','id,name,reference,sale_price,tax_rate,active');const c=S().counts(l,d);
  const el=form(d,'Proponer una opción al cliente',`<p>${esc(l.product_name)} · ${n(Number(l.quantity)-c.shipped)} pendientes. Una sustitución se limita a cantidades aún sin reservar. Revisa el precio y el IVA del reemplazo antes de enviar.</p><label data-gi=b1c3a5860c71>Opción<select id="gfKind"><option value="partial" data-gi=c87ad43ec1bc>Entrega parcial</option><option value="wait" data-gi=648416ec67a5>Esperar entrega completa</option><option value="substitute" data-gi=0684ca3742e4>Sustituir producto</option></select></label>${input('gfQty','Cantidad afectada','number',`required min="0.001" max="${Number(l.quantity)-c.shipped}" step="0.001" value="${Math.max(0,Number(l.quantity)-c.shipped-c.reserved)||Number(l.quantity)-c.shipped}"`)}<div id="gfReplacementFields" hidden><label data-gi=d838ea12b8e3>Producto de reemplazo<select id="gfReplacement"><option value="" data-gi=3c41f9546e61>Seleccionar…</option>${products.filter(p=>p.active&&p.id!==l.product_id).map(p=>`<option value="${p.id}">${esc(p.name)} · ${esc(p.reference)}</option>`).join('')}</select></label>${input('gfPrice','Precio acordado del reemplazo sin IVA','number',`min="0" step="0.0001" value="${Number(l.unit_price)}"`)}${input('gfReplacementTax','IVA del reemplazo (%)','number',`min="0" max="100" step="0.0001" value="${Number(l.tax_rate)}"`)}</div>${input('gfPromise','Fecha propuesta de entrega','date')}<label data-gi=2e7609564e8e>Condiciones / explicación<textarea id="gfNotes" maxlength="2000"></textarea></label><p data-gi=5bfc1f0b9d45>El cliente podrá responder desde Presupuestos → Opciones de entrega. También puedes registrar su acuerdo externo.</p>`,'propose_option',f=>({line_id:l.id,kind:val(f,'gfKind'),quantity:number(f,'gfQty'),replacement_product_id:val(f,'gfKind')==='substitute'?val(f,'gfReplacement'):null,unit_price:val(f,'gfKind')==='substitute'?number(f,'gfPrice'):null,tax_rate:val(f,'gfKind')==='substitute'?number(f,'gfReplacementTax'):null,promised_date:val(f,'gfPromise'),notes:val(f,'gfNotes')}),'Enviar propuesta');
  el.querySelector('#gfReplacement').onchange=()=>{const product=products.find(p=>p.id===val(el,'gfReplacement'));if(product)el.querySelector('#gfReplacementTax').value=Number(product.tax_rate||0)};

@@ -5526,3 +5526,8 @@ La preparación está completa, pero quedan productos pendientes del pedido. Ind
 Reintentar transferencia automática	Réessayer le transfert automatique	Retry automatic transfer
 Valida todas las cantidades antes de la transferencia automática.	Valide toutes les quantités avant le transfert automatique.	Confirm all quantities before automatic transfer.
 La preparación todavía tiene cantidades pendientes.	La préparation comporte encore des quantités en attente.	Preparation still has outstanding quantities.
+Transferencia automática al completar las cantidades.	Transfert automatique dès validation des quantités.	Automatic transfer once quantities are confirmed.
+Indica el motivo de la entrega parcial para continuar.	Indique le motif de la livraison partielle pour continuer.	Enter the partial delivery reason to continue.
+Escanea los productos y valida sus cantidades. La preparación completa se envía automáticamente al TMS.	Scanne les produits et valide leurs quantités. La préparation complète est transmise automatiquement au TMS.	Scan the products and confirm their quantities. Completed preparation is transferred to TMS automatically.
+Transferencia automática en curso…	Transfert automatique en cours…	Automatic transfer in progress…
+Preparación transferida al TMS.	Préparation transmise au TMS.	Preparation transferred to TMS.

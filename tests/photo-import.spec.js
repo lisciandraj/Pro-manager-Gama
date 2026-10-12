@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
@@ -35,7 +36,7 @@ async function openPhotoTab(page, products = PRODUCTS) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(600);
-  await page.click('#arcSettings');
+  await openSettings(page);
     await page.click('#cfgTab-reports');
   await page.click('.gamaExcelModes button:has-text("Fotos de productos")');
 }

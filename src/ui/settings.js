@@ -173,7 +173,9 @@ function open(id='settings'){
  return openDialog(s?id:'language');
 }
 
-window.GamaSettings={open,render,openDialog};
+// The top bar lists these same permitted sections without mounting any pane.
+const sections=()=>SECTIONS.filter(available).map(s=>({id:s.id,label:s.label,icon:window.ArcUI.icons[s.icon]||s.icon}));
+window.GamaSettings={open,render,openDialog,sections};
 window.GamaOpenSettings=()=>openDialog();
 window.GamaOpenAccessSettings=()=>open('access-settings');
 window.addEventListener('gama:modules-change',refreshTabs);

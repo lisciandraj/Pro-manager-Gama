@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
@@ -14,7 +15,7 @@ async function boot(page,role='admin',language='es'){
 }
 test('three accessible flags switch live, persist, and preserve form and business values',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await page.locator('#arcSettings').click();
+ await openSettings(page);
  await expect(page.locator('#arcSettingsDialog #gamaLanguagePicker button')).toHaveCount(3);
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));
  await page.keyboard.press('Escape');await expect(page.locator('#arcSettingsDialog')).toHaveCount(0);
@@ -92,7 +93,7 @@ test('desktop sidebar visibility uses stable module identifiers across languages
 test('settings exposes language to all roles without exposing module switches or header flags',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'commercial');
  await expect(page.locator('header #gamaLanguagePicker')).toHaveCount(0);
- await page.locator('#arcSettings').click();
+ await openSettings(page);
  const settings=page.locator('#arcSettingsDialog');
  await expect(settings.locator('#gamaLanguagePicker')).toBeVisible();
  await expect(settings.locator('input[data-mod],button[data-mod]')).toHaveCount(0);
@@ -110,7 +111,7 @@ test('settings exposes language to all roles without exposing module switches or
  await page.reload();await expect(page.locator('html')).toHaveAttribute('lang','fr');
 });
 test('access settings is a restricted Configuration tab, personal preferences have no switches',async({page})=>{
- await boot(page);await page.locator('#arcSettings').click();
+ await boot(page);await openSettings(page);
  await expect(page.locator('#arcSettingsDialog [role=tab]')).toHaveCount(14);
  await expect(page.locator('#cfgTab-agent-coco')).toBeVisible();
  await expect(page.locator('#cfgTab-automation')).toBeVisible();

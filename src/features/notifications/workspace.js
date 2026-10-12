@@ -10,7 +10,7 @@ async function rpc(action,data={}){await window.GamaCloudReady;const c=await win
 function error(e){const s=String(e?.message||e);return /ALERT_RESOLVED|ALERT_CHANGED/.test(s)?'El dossier cambió. Actualiza las alertas.':/AUTH_REQUIRED|ROLE_NOT_ALLOWED/.test(s)?'Tu sesión no permite acceder a estos datos.':'No se pudo completar la operación. '+s}
 function css(){ /* Styles are compiled in architect-components.css. */ }
 function badge(n){document.querySelectorAll('[data-go-badge]').forEach(x=>{x.textContent=num(n);x.setAttribute('aria-label',num(n)+' alertas activas')})}
-/* Notificaciones: la campana abre una ventana con un menú lateral. Arriba,
+/* Notificaciones: la campana lista los apartados antes de abrir su ventana. Arriba,
    todas las alertas; después, cada categoría del centro de acción con su
    recuento completo (también lo pospuesto); al final, los proyectos, las
    validaciones y las preferencias. Abrir un dossier cierra la ventana. */
@@ -120,5 +120,5 @@ for(const event of ['gama:sales-change','gama:projects-change'])window.addEventL
 // Renovar el token no cambia nada; cerrar la sesión o perder el permiso cierra la ventana.
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;version++;badgeGeneration++;badgePending=null;snapshot=null;projectCount=0;document.querySelectorAll('[data-go-badge]').forEach(x=>x.textContent='…');if(win?.el.open){if(e.detail?.event==='SIGNED_OUT'||!allowed())win.close();else load()}});
 setInterval(()=>{if(document.hidden||!allowed())return;if(win?.el.open&&!otherDialog())load();else refreshBadge()},60000);
-window.addEventListener('focus',refreshBadge);window.GamaOperations={open,dossier,refreshBadge,preferences:()=>open('notifications',{tab:'preferences'})};setTimeout(refreshBadge,2500);
+window.addEventListener('focus',refreshBadge);window.GamaOperations={open,dossier,refreshBadge,sections:()=>allowed()?tabsFor(snapshot):[],preferences:()=>open('notifications',{tab:'preferences'})};setTimeout(refreshBadge,2500);
 })();

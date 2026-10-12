@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
       - run: npm run update
       - run: npx playwright install --with-deps chromium
+      - name: Verify top bar subsection menus and existing window flows
+        run: npx playwright test tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
       - run: npx playwright test tests/coco-agent-ui.spec.js tests/assistant-ia.spec.js tests/accounting.spec.js tests/accounting-audit.spec.js --workers=2
       - name: Verify deployed server without business credentials
         run: node scripts/check-agent-live.mjs

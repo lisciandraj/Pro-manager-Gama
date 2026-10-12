@@ -64,8 +64,10 @@ test('accounting audit: ledger cash, recovery, bank workflow, rights, analytics,
    const found=await audit('context',{stock_search:'AUDIT-CATALOGUE-1101'});assert.equal(found.stock_product_total,1);assert.equal(found.stock_products[0].name,'Catalogue 1101');
   });
   await t.test('KPI include manual expenses and match the profit and loss ledger on the same period',async()=>{
-   await book('2026-10-04',[{account_id:expense,debit:20},{account_id:bankAccount,financial_account_id:bank,credit:20}]);
-   const overview=await base('overview'),pl=await base('report_pl',{from:'2026-10-01',to:'2026-10-11'});assert.equal(overview.expense.month,pl.expense);assert.equal(overview.revenue.month,pl.income);assert.equal(overview.basis,'ledger');assert.equal(overview.previous_to,'2026-09-11');
+   // Overview uses the database clock; compare both reports on that same period.
+   const clock=(await q("select current_date::text today,date_trunc('month',current_date)::date::text month_start,(current_date-interval '1 month')::date::text previous_to")).rows[0];
+   await book(clock.today,[{account_id:expense,debit:20},{account_id:bankAccount,financial_account_id:bank,credit:20}]);
+   const overview=await base('overview'),pl=await base('report_pl',{from:clock.month_start,to:clock.today});assert.equal(overview.expense.month,pl.expense);assert.equal(overview.revenue.month,pl.income);assert.equal(overview.basis,'ledger');assert.equal(overview.previous_to,clock.previous_to);
   });
   await t.test('bank pagination, search, account/batch filters and statement arithmetic cover all 57 rows',async()=>{
    const batch=uuid();for(let n=0;n<57;n++)await q("insert into bank_transactions(financial_account_id,value_date,reference,description,amount,import_batch) values($1,'2026-10-05',$2,'Audit row',1,$3)",[bank,'ROW-'+n,batch]);

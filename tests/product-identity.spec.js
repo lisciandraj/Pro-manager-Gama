@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs');const path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
@@ -54,7 +55,7 @@ test('Excel reports database duplicates and errors without counting successful i
    return {data:structuredClone(result)};
   }}};
  });
- await page.click('#arcSettings');
+ await openSettings(page);
     await page.click('#cfgTab-reports');
  await page.setInputFiles('#gamaExcelFile',{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from('name,barcode\nDuplicado,D\nError,E\nValido,V\n')});
  await expect(page.locator('#gamaExcelImport')).toBeDisabled();await page.click('#gamaExcelValidate');await expect(page.locator('#gamaExcelStatus')).toContainText('2 errores');expect(await page.evaluate(()=>window.__DB.products.length)).toBe(2);await page.click('#gamaExcelImport');

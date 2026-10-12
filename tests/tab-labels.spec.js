@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
@@ -36,7 +37,7 @@ test('les onglets RH n’ont plus d’icône, côté salarié',async({page})=>{
 const logos=locator=>locator.evaluateAll((tabs,src)=>{const re=new RegExp(src,'u');return tabs.map(t=>({text:t.textContent.trim(),logo:!!t.querySelector('.arcSideIcon svg path, .arcSideIcon svg circle'),emoji:re.test(t.textContent)}))},/\p{Extended_Pictographic}/u.source);
 test('les rubriques des fenêtres Configuration et Notifications ont leur logo, sans emoji',async({page})=>{
  await boot(page);
- await page.locator('#arcSettings').click();
+ await openSettings(page);
  const settings=page.locator('#arcSettingsDialog [role=tab]');await expect(settings.first()).toHaveText('Langue');
  const s=await logos(settings);expect(s.length).toBeGreaterThan(3);expect(s.filter(t=>!t.logo||t.emoji)).toEqual([]);
  await page.keyboard.press('Escape');

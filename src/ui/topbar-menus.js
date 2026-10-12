@@ -21,10 +21,12 @@ function positionTopMenu(){
  if(!topMenu)return;
  const menu=$(TOP_MENUS[topMenu].menu),rect=$(topMenu).getBoundingClientRect(),viewport=window.visualViewport;
  const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,width=viewport?.width||innerWidth,height=viewport?.height||innerHeight,gap=8;
+ const navigation=document.querySelector('.cocoMobileNav'),dock=navigation?.getClientRects().length?navigation.getBoundingClientRect().top:Infinity;
+ const bottom=Math.min(top+height,dock);
  menu.style.width=Math.min(304,width-2*gap)+'px';
  menu.style.left=Math.max(left+gap,Math.min(rect.right-menu.offsetWidth,left+width-menu.offsetWidth-gap))+'px';
- const y=Math.max(top+gap,Math.min(rect.bottom+gap,top+height-gap-44));
- menu.style.top=y+'px';menu.style.maxHeight=Math.max(44,top+height-y-gap)+'px';
+ const y=Math.max(top+gap,Math.min(rect.bottom+gap,bottom-gap-44));
+ menu.style.top=y+'px';menu.style.maxHeight=Math.max(44,bottom-y-gap)+'px';
 }
 function renderTopMenu(){
  if(!topMenu)return;

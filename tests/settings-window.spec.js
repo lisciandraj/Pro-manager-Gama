@@ -58,7 +58,9 @@ for(const width of [320,390,1280])test('dropdown stays inside the viewport and s
  await page.setViewportSize({width,height:600});await boot(page);await page.locator('#arcSettings').click();
  const menu=page.locator('#arcSettingsMenu');await expect(menu).toBeVisible();
  const box=await menu.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);expect(box.y+box.height).toBeLessThanOrEqual(600);
+ const dock=await page.locator('.cocoMobileNav').boundingBox();if(dock)expect(box.y+box.height).toBeLessThanOrEqual(dock.y);
  expect(await menu.evaluate(e=>e.scrollHeight>e.clientHeight)).toBe(true);
+ await page.screenshot({path:test.info().outputPath('topbar-menu-'+width+'.png')});
  await menu.getByRole('menuitem').last().click();await expect(page.locator('#cfgTab-security')).toHaveAttribute('aria-selected','true');
 });
 

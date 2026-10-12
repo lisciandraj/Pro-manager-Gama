@@ -5513,3 +5513,16 @@ Este movimiento conserva un pago o asiento: vuelve a conciliar su fuente existen
 Buscar producto por nombre o referencia	Rechercher un produit par nom ou référence	Find product by name or reference
 Contabiliza primero el abono antes de recuperar su reembolso.	Comptabilisez d’abord l’avoir avant de reprendre son remboursement.	Post the credit before recovering its refund.
 La venta ya se ha revertido por un reembolso directo. Revisa la devolución antes de registrar otro abono.	La vente a déjà été reprise par un remboursement direct. Examinez le retour avant d’enregistrer un autre avoir.	The sale was already reversed by a direct refund. Review the return before recording another credit.
+Abre un pedido, escanea cada producto y valida las cantidades. Los bultos completos se cierran y se envían al TMS automáticamente.	Ouvre une commande, scanne chaque produit et valide les quantités. Les colis complets sont fermés et transmis automatiquement au TMS.	Open an order, scan each product and confirm the quantities. Completed parcels are closed and transferred to TMS automatically.
+Los bultos se cierran y se envían al TMS automáticamente cuando todas las cantidades están validadas.	Les colis sont fermés et transmis automatiquement au TMS dès que toutes les quantités sont validées.	Parcels are closed and transferred to TMS automatically once all quantities are confirmed.
+Preparación cerrada: transferencia automática al TMS.	Préparation clôturée : transfert automatique au TMS.	Preparation closed: automatic transfer to TMS.
+Escanea cada producto y valida las cantidades contadas.	Scanne chaque produit et valide les quantités comptées.	Scan each product and confirm the counted quantities.
+Todas las cantidades están validadas. La transferencia al TMS es automática.	Toutes les quantités sont validées. Le transfert au TMS est automatique.	All quantities are confirmed. Transfer to TMS is automatic.
+Cerrando los bultos y transfiriendo al TMS automáticamente…	Fermeture des colis et transfert automatique au TMS…	Closing parcels and transferring to TMS automatically…
+Preparación enviada automáticamente al TMS.	Préparation transmise automatiquement au TMS.	Preparation transferred to TMS automatically.
+Justificar entrega parcial	Justifier la livraison partielle	Explain partial delivery
+Confirmar motivo	Valider le motif	Confirm reason
+La preparación está completa, pero quedan productos pendientes del pedido. Indica el motivo para continuar automáticamente.	La préparation est complète, mais certains produits de la commande restent en attente. Indique le motif pour poursuivre automatiquement.	Preparation is complete, but some order products remain outstanding. Enter the reason to continue automatically.
+Reintentar transferencia automática	Réessayer le transfert automatique	Retry automatic transfer
+Valida todas las cantidades antes de la transferencia automática.	Valide toutes les quantités avant le transfert automatique.	Confirm all quantities before automatic transfer.
+La preparación todavía tiene cantidades pendientes.	La préparation comporte encore des quantités en attente.	Preparation still has outstanding quantities.

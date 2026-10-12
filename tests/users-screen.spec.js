@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
@@ -34,7 +35,7 @@ async function openUsers(page, profiles = PROFILES) {
   await page.goto('/index.html');
   await page.waitForTimeout(1200);
   await expect(page.locator('#cuRows tr')).toHaveCount(0);
-  await page.locator('#arcSettings').click();
+  await openSettings(page);
   await page.locator('#cfgTab-users').click();
   await page.waitForSelector('#cuRows tr', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(400);

@@ -30,11 +30,10 @@ const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg?v=20261001-c-logo
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
- bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+ bell:window.ArcUI.icons.bell,
  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
- close:'<path d="m6 6 12 12M18 6 6 18"/>',
  gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
- globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>',
+ globe:window.ArcUI.icons.globe,
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
  scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
@@ -42,6 +41,17 @@ const ICON={
 };
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+
+/* Menus are fetched on first use, outside the initial JavaScript budget. */
+let topMenuIntent=0;
+function bindTopMenu(trigger){
+ const open=async last=>{const intent=++topMenuIntent;try{
+  await window.ArcLoadScript('coco-topbar-menus.js');
+  if(intent===topMenuIntent)await window.CocoTopbarMenus.toggle(trigger.id,last);
+ }catch(_){window.gamaToast?.(T('No se pudo cargar el módulo.'))}};
+ trigger.onclick=()=>open(false);
+ trigger.onkeydown=e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open(e.key==='ArrowUp')}};
+}
 
 /* ------------------------------------------------------------------ nav */
 function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
@@ -135,12 +145,12 @@ function build(){
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="dialog" data-gi-aria-label=80dade6fab6f aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="menu" data-gi-aria-label=80dade6fab6f aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
     +'<span class="arcDot" data-go-badge hidden></span></button>'
-   /* La configuración vive aquí, junto a la campana: abre su ventana. */
-   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="dialog" data-gi-aria-label=bb507137e363 aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
+   /* La configuración comparte el mismo menú desplegable. */
+   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="menu" data-gi-aria-label=bb507137e363 aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
    +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
   +'</div>');
 
@@ -191,8 +201,8 @@ function bind(side,top){
  const input=top.querySelector('#arcSearchInput');
  window.GamaGlobalSearch?.mount?.(input);
 
- top.querySelector('#arcNotify').onclick=()=>{closeDrawer();window.GamaOperations?.open?.('notifications')};
- top.querySelector('#arcSettings').onclick=()=>{closeDrawer();window.GamaSettings?.openDialog?.()};
+ bindTopMenu(top.querySelector('#arcNotify'));
+ bindTopMenu(top.querySelector('#arcSettings'));
 
  const lang=side.querySelector('#arcLangSelect');
  lang.value=window.GamaI18n?.language||'es';
@@ -238,7 +248,7 @@ function sync(){adoptSections();syncFavorites();applyAccess();markActive();adopt
 function boot(){
  build();
  document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
+  if(e.key==='Escape'){topMenuIntent++;document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
   if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')&&matchMedia('(max-width:860px)').matches){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
  });
  /* Synchronize on application events; observe only the existing user chip
@@ -248,7 +258,7 @@ function boot(){
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
  window.addEventListener('resize',syncDrawerAccess);
- document.addEventListener('click',e=>{if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
+ document.addEventListener('click',e=>{if(!e.target.closest('#arcNotify,#arcSettings'))topMenuIntent++;if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
  window.addEventListener('gama:language-change',()=>{
   const nav=document.querySelector('.arcNav');
   if(nav){window.ArcUI.render(nav,navHtml());bind(document.querySelector('.arcSidebar'),document.querySelector('.arcTopbar'));sync()}

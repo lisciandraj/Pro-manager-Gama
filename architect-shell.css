@@ -36,6 +36,19 @@
 .arcIconBtn:hover{background:var(--arc-surface-3)}
 .arcIconBtn .arcIco{width:24px;height:24px}
 .arcIconBtn[hidden],.arcDot[hidden]{display:none}
+.arcTopAction{display:flex;align-items:center}
+.arcTopAction:has(>.arcIconBtn[hidden]){display:none}
+.arcTopAction>.arcIconBtn[aria-expanded=true]{color:var(--arc-accent-700);background:var(--arc-surface-3);box-shadow:inset 0 -2px var(--arc-accent-600)}
+.arcTopMenu{position:fixed;z-index:80;width:304px;max-width:calc(100vw - 16px);padding:6px;background:var(--arc-surface);border:1px solid var(--arc-line-strong);border-radius:8px;box-shadow:var(--arc-sh-3);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.arcTopMenu[hidden]{display:none}
+.arcTopMenu .arcTopMenuItem{display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:5px;background:transparent;box-shadow:none;color:var(--arc-navy-700);font-size:13px;font-weight:500;text-align:left;line-height:1.45}
+.arcTopMenuItem>.arcIco{width:19px;height:19px;flex:none}
+.arcTopMenuItem>span:not(.arcTopMenuBadge){min-width:0;flex:1;overflow-wrap:anywhere}
+.arcTopMenu .arcTopMenuItem:hover,.arcTopMenu .arcTopMenuItem:focus-visible{background:var(--arc-surface-3);color:var(--arc-accent-700)}
+.arcTopMenu .arcTopMenuItem:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:-2px}
+.arcTopMenuBadge{min-width:22px;padding:2px 6px;border-radius:5px;font-size:11px;text-align:center;background:var(--arc-surface-3);color:var(--arc-text)}
+.arcTopMenuBadge[data-tone=danger]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.arcTopMenuBadge[data-tone=warning]{background:var(--arc-warning-bg);color:var(--arc-warning)}
 .arcDot{position:absolute;top:1px;right:2px;min-width:17px;height:17px;padding:0 4px;background:var(--arc-danger);color:white;border-radius:99px;font-size:10px;line-height:17px;text-align:center;border:1px solid white}
 .arcUserSlot{display:flex;align-items:center;border-left:1px solid var(--arc-line);padding-left:18px}
 .arcProfile{position:relative}

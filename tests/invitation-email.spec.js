@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
@@ -24,7 +25,7 @@ async function openUsers(page) {
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
   await page.waitForTimeout(1200);
-  await page.locator('#arcSettings').click();
+  await openSettings(page);
   await page.locator('#cfgTab-users').click();
   await page.waitForSelector('[data-invite-template]');
   await page.evaluate(async () => {

@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
@@ -70,7 +71,7 @@ test('en paysage, la navigation, la barre et le contenu évitent l’encoche',as
  expect(parseFloat(after.bar)-parseFloat(before.bar)).toBe(34);
  expect(after.icon).toBeGreaterThanOrEqual(47);expect(after.avatar).toBeLessThanOrEqual(932-34);
  // Las ventanas de Configuración y Notificaciones, a pantalla completa, también.
- await page.locator('#arcSettings').click();
+ await openSettings(page);
  const win=await page.locator('#arcSettingsDialog').boundingBox();expect(win).toMatchObject({x:0,width:932});
  expect(await page.locator('#cfgTab-language').evaluate(e=>e.getBoundingClientRect().left)).toBeGreaterThanOrEqual(47);
  expect(await page.locator('[data-side-close]').evaluate(e=>e.getBoundingClientRect().right)).toBeLessThanOrEqual(932-34);

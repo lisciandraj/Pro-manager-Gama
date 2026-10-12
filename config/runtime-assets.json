@@ -56,6 +56,7 @@
     {"source":"src/features/import-export/import.js","output":"gama-excel-import-v1.js"},
     {"source":"src/features/import-export/export-schema.js","output":"gama-export-schema.js"},
     {"source":"src/ui/session-controls.js","output":"gama-fixed-header.js"},
+    {"source":"src/ui/topbar-menus.js","output":"coco-topbar-menus.js"},
     {"source":"src/features/transport/fleet.js","output":"gama-fleet.js"},
     {"source":"src/features/inventory/fulfillment.js","output":"gama-fulfillment.js"},
     {"source":"src/ui/global-search-core.js","output":"gama-global-search-core.js"},

@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const cloud=require('node:fs').readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
@@ -24,7 +25,7 @@ test.describe('Importar datos', () => {
 
     const tile = page.locator('#mainmenu .gamaF2Card:has-text("Importar datos")');
     await expect(tile).toHaveCount(0);
-    await page.click('#arcSettings');await page.click('#cfgTab-reports');
+    await openSettings(page);await page.click('#cfgTab-reports');
     await expect(page.locator('#arcSettingsDialog')).toBeVisible();
 
     await expect(page.locator('#excel-import-module')).toContainText('Importar datos');
@@ -40,7 +41,7 @@ test.describe('Importar datos', () => {
   test('vuelve al menú con el botón de la cabecera común', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
@@ -68,7 +69,7 @@ test.describe('Importar datos', () => {
   test('auto-detects French column headers with no fixed order', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
@@ -109,7 +110,7 @@ test.describe('Importar datos', () => {
   test('auto-detects compound Spanish headers for clients and suppliers', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
@@ -194,7 +195,7 @@ test.describe('Importar datos — duplicados', () => {
   test('skips clients whose name and address already exist', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForTimeout(500);
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(300);
 
@@ -241,7 +242,7 @@ test.describe('Importar datos — tarifas de cliente', () => {
     await page.route('**/gama-supabase.js*', r => r.fulfill({ contentType: 'text/javascript', body: MOCK }));
     await page.goto('/index.html');
     await page.waitForTimeout(700);
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await page.waitForTimeout(400);
   }

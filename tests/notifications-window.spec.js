@@ -1,3 +1,4 @@
+const {openNotifications}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-dashboard.js'),'utf8');
@@ -27,8 +28,27 @@ async function boot(page,role='admin',language='fr'){
 const win=page=>page.locator('#arcNotifyDialog');
 const last=page=>page.evaluate(()=>window.__opsCalls.filter(c=>c.p_data.track).at(-1).p_data);
 
-test('la campana abre una ventana con todas las alertas, cada categoría con su recuento y los demás apartados',async({page})=>{
+test('the bell dropdown selects a category before loading the window',async({page})=>{
  await boot(page);await page.locator('#arcNotify').click();
+ const menu=page.locator('#arcNotifyMenu');await expect(menu).toBeVisible();await expect(win(page)).toHaveCount(0);
+ expect(await page.evaluate(()=>window.__opsCalls.filter(c=>c.p_data.track).length)).toBe(0);
+ await menu.getByRole('menuitem',{name:'Commandes bloquées',exact:true}).click();
+ await expect(menu).toBeHidden();await expect(win(page)).toBeVisible();
+ await expect(page.locator('#notifyTab-shortage')).toHaveAttribute('aria-selected','true');
+ await expect.poll(()=>last(page).then(d=>d.kind)).toBe('shortage');
+});
+
+test('dropdown notification permissions match the window and menus replace each other',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.locator('#arcNotify').click();
+ const menu=page.locator('#arcNotifyMenu');await expect(menu.getByRole('menuitem')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
+ const box=await menu.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);
+ await page.locator('#arcSettings').click();await expect(menu).toBeHidden();await expect(page.locator('#arcSettingsMenu')).toBeVisible();
+ await page.locator('#arcNotify').click();await expect(page.locator('#arcSettingsMenu')).toBeHidden();await expect(menu).toBeVisible();
+ await page.keyboard.press('End');await page.keyboard.press('Enter');await expect(page.locator('#notifyTab-preferences')).toHaveAttribute('aria-selected','true');
+});
+
+test('la campana abre una ventana con todas las alertas, cada categoría con su recuento y los demás apartados',async({page})=>{
+ await boot(page);await openNotifications(page);
  await expect(win(page)).toBeVisible();await expect(win(page).locator('h2')).toHaveText('Notifications');
  await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Devis sans réponse','Produits sous le minimum','Réceptions en retard','Paiements bientôt à échéance','Factures échues','Projets','Validations','Traitements et exceptions','Préférences']);
  // Se abre en todas las alertas activas, con el foco en su apartado.
@@ -48,7 +68,7 @@ test('la campana abre una ventana con todas las alertas, cada categoría con su 
 });
 
 test('una categoría enseña todas sus alertas, también las pospuestas; «Toutes» vuelve a las activas',async({page})=>{
- await boot(page);await page.locator('#arcNotify').click();await expect(page.locator('#goAlerts article')).toHaveCount(3);
+ await boot(page);await openNotifications(page);await expect(page.locator('#goAlerts article')).toHaveCount(3);
  await page.locator('#notifyTab-shortage').click();
  expect(await last(page)).toMatchObject({kind:'shortage',state:'all',offset:0});
  await expect(page.locator('#goAlerts article')).toHaveCount(2);await expect(page.locator('#goMain h3').first()).toHaveText('Commandes bloquées');
@@ -62,7 +82,7 @@ test('una categoría enseña todas sus alertas, también las pospuestas; «Toute
 });
 
 test('teclado: flechas y Fin recorren el menú; Escape cierra y devuelve el foco a la campana',async({page})=>{
- await boot(page);await page.locator('#arcNotify').click();await expect(page.locator('#notifyTab-all')).toBeFocused();
+ await boot(page);await openNotifications(page);await expect(page.locator('#notifyTab-all')).toBeFocused();
  await page.keyboard.press('ArrowDown');await expect(page.locator('#notifyTab-shortage')).toBeFocused();await expect(page.locator('#notifyTab-shortage')).toHaveAttribute('aria-selected','true');
  await expect.poll(()=>last(page).then(d=>d.kind)).toBe('shortage');
  await page.keyboard.press('End');await expect(page.locator('#notifyTab-preferences')).toBeFocused();await expect(page.locator('#notifyPane-preferences')).toBeVisible();
@@ -70,7 +90,7 @@ test('teclado: flechas y Fin recorren el menú; Escape cierra y devuelve el foco
 });
 
 test('validaciones y preferencias se trabajan dentro de la ventana',async({page})=>{
- await boot(page);await page.locator('#arcNotify').click();
+ await boot(page);await openNotifications(page);
  await page.locator('#notifyTab-approvals').click();
  const approvals=page.locator('#goApprovals');await expect(approvals.locator('h3')).toHaveText('Validations');
  await expect(approvals).toContainText('Remise de 25 % pour Andes');await expect(approvals).toContainText('En attente');
@@ -87,7 +107,7 @@ test('validaciones y preferencias se trabajan dentro de la ventana',async({page}
 });
 
 test('abrir un dossier u otra pantalla cierra la ventana; el correo se escribe por encima de ella',async({page})=>{
- await boot(page);await page.locator('#arcNotify').click();await expect(page.locator('#goAlerts article')).toHaveCount(3);
+ await boot(page);await openNotifications(page);await expect(page.locator('#goAlerts article')).toHaveCount(3);
  // El redactor de correo (recordatorios) se abre encima y Escape sólo lo cierra a él.
  await page.evaluate(()=>GamaQuotePdf.composeDialog({email:'andes@example.invalid',subject:'Recordatorio',body:'Hola'}));
  await expect(page.locator('#gamaMailBack')).toBeVisible();await page.locator('#gamaMailSubject').fill('Recordatorio de pago');await expect(page.locator('#gamaMailSubject')).toHaveValue('Recordatorio de pago');
@@ -99,7 +119,7 @@ test('abrir un dossier u otra pantalla cierra la ventana; el correo se escribe p
 });
 
 test('el almacén no ve las categorías de dinero y en el teléfono todo cabe',async({page})=>{
- await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.locator('#arcNotify').click();
+ await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await openNotifications(page);
  await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
  expect(await win(page).boundingBox()).toMatchObject({x:0,y:0,width:390,height:844});
  const all=await page.locator('#notifyTab-all').boundingBox(),next=await page.locator('#notifyTab-shortage').boundingBox();expect(Math.abs(all.y-next.y)).toBeLessThan(1);
@@ -112,7 +132,7 @@ test('el almacén no ve las categorías de dinero y en el teléfono todo cabe',a
 });
 
 test('cerrar la sesión cierra la ventana; renovar el token no',async({page})=>{
- await boot(page);await page.locator('#arcNotify').click();await expect(win(page)).toBeVisible();
+ await boot(page);await openNotifications(page);await expect(win(page)).toBeVisible();
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'TOKEN_REFRESHED'}})));await expect(win(page)).toBeVisible();
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(win(page)).toHaveCount(0);
 });

@@ -22,7 +22,7 @@ body[data-app="coco-erp"]{
 .arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 #F87826}
 .arcFoot{padding:12px 0 18px}
 .arcFootBrand,.arcFootVersion{display:none}
-.arcTopbar{padding:12px 28px;border-bottom:1px solid #DDE5EC;gap:20px}
+.arcTopbar{padding:12px calc(28px + var(--arc-safe-r)) 12px calc(28px + var(--arc-safe-l));border-bottom:1px solid #DDE5EC;gap:20px}
 .arcSearch{max-width:720px}
 .arcSearch input{min-height:46px;background:#F7F9FC;border-color:#D4E0E8;font-size:14px}
 .arcAvatar{background:#10677D}
@@ -226,7 +226,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 @media(max-width:1100px){#sri .gaSriLayout{grid-template-columns:1fr}#sri .gaSriInspector{position:static}}
 @media(max-width:860px){
  .arcShell{--arc-sidebar-w:min(84vw,280px)}
- .arcTopbar{padding:10px 14px;min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
+ .arcTopbar{padding:10px calc(14px + var(--arc-safe-r)) 10px calc(14px + var(--arc-safe-l));min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
  .arcMobileBrand{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:800;color:#103B52;white-space:nowrap;margin-right:auto}
  .arcMobileBrand img{width:34px;height:34px;object-fit:contain}.arcMobileBrand b{color:#157F98}
  .arcTopbar>.arcSearch{display:none}
@@ -379,7 +379,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
  #dashboard .adModuleGrid{grid-template-columns:1fr}
 }
 @media(max-width:360px){
- .arcTopbar{padding:10px 6px;gap:6px}
+ .arcTopbar{padding:10px calc(6px + var(--arc-safe-r)) 10px calc(6px + var(--arc-safe-l));gap:6px}
  .arcMobileBrand{font-size:16px;gap:4px}
  .arcMobileBrand img{width:28px;height:28px}
 }

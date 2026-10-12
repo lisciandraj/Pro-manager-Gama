@@ -1,3 +1,4 @@
+const {openSettings}=require('./topbar-helpers');
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
@@ -213,7 +214,7 @@ test.describe('Fotos — optimizar las ya guardadas', () => {
   // tiene pestaña. La API de optimización se comprueba en los casos anteriores.
   test('los modos actuales del importador funcionan dentro de Configuración', async ({ page }) => {
     await boot(page, { products: [{ ...PRODUCTS[0] }] });
-    await page.click('#arcSettings');
+    await openSettings(page);
     await page.click('#cfgTab-reports');
     await expect(page.locator('.gamaExcelModes button')).toHaveText(['Datos desde Excel','Fotos de productos']);
     await page.click('.gamaExcelModes button[data-mode="photos"]');

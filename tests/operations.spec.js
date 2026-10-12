@@ -1,3 +1,4 @@
+const {openNotifications}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-dashboard.js'),'utf8');
@@ -87,8 +88,8 @@ test('notifications open only from the top bar bell, in their window',async({pag
  await expect(page.locator('.arcNavLink[data-gama-module="notifications"]')).toHaveCount(0);
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
  const bell=page.locator('#arcNotify');
- await expect(bell).toBeVisible();await expect(bell).toHaveAttribute('aria-haspopup','dialog');
- await bell.click();
+ await expect(bell).toBeVisible();await expect(bell).toHaveAttribute('aria-haspopup','menu');
+ await openNotifications(page);
  await page.evaluate(()=>window.GamaOperations.refreshBadge());
  await expect(page.locator('#arcNotifyDialog')).toBeVisible();
  await expect(page.locator('#arcNotifyDialog #goAlerts')).toBeVisible();

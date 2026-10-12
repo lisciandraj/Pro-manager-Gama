@@ -30,6 +30,14 @@ test('the top bar lists sections first and opens only the selected window',async
  await expect(page.locator('#arcSettings')).toHaveAttribute('aria-expanded','false');
 });
 
+test('top bar menu code loads on first use, shares its request and can retry a failed download',async({page})=>{
+ let requests=0;await page.route('**/coco-topbar-menus.js*',r=>{requests++;return requests===1?r.abort():r.continue()});
+ await boot(page);expect(requests).toBe(0);
+ await page.locator('#arcSettings').click();await expect.poll(()=>requests).toBe(1);await expect(page.locator('#arcSettingsMenu')).toBeHidden();await expect(page.locator('script[data-arc-asset="coco-topbar-menus.js"]')).toHaveCount(0);
+ await page.locator('#arcSettings').click();await expect(page.locator('#arcSettingsMenu')).toBeVisible();expect(requests).toBe(2);
+ await page.locator('#arcNotify').click();await expect(page.locator('#arcNotifyMenu')).toBeVisible();expect(requests).toBe(2);
+});
+
 test('dropdown keyboard selection, outside clicks and profile keep one menu open',async({page})=>{
  await boot(page);const gear=page.locator('#arcSettings'),menu=page.locator('#arcSettingsMenu');
  await gear.focus();await page.keyboard.press('ArrowDown');await expect(menu.getByRole('menuitem').first()).toBeFocused();

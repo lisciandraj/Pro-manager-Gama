@@ -30,11 +30,10 @@ const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg?v=20261001-c-logo
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
- bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+ bell:window.ArcUI.icons.bell,
  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
- close:'<path d="m6 6 12 12M18 6 6 18"/>',
  gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
- globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>',
+ globe:window.ArcUI.icons.globe,
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
  scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
@@ -43,68 +42,15 @@ const ICON={
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
 
-/* Top actions select a subsection first; listing them never loads its data. */
-const TOP_MENUS={
- arcSettings:{module:'settings',title:'Configuración',menu:'arcSettingsMenu',sections:()=>window.GamaSettings?.sections?.()||[],select:id=>window.GamaSettings?.open(id)},
- arcNotify:{module:'notifications',title:'Notificaciones',menu:'arcNotifyMenu',sections:()=>window.GamaOperations?.sections?.()||[],select:id=>window.GamaOperations?.open('notifications',{tab:id})}
-};
-let topMenu=null,menuRequest=0;
-function closeTopMenu({focus=false}={}){
- menuRequest++;
- const current=topMenu;topMenu=null;
- for(const id of Object.keys(TOP_MENUS)){$(id)?.removeAttribute('aria-busy');$(id)?.setAttribute('aria-expanded','false');$(TOP_MENUS[id].menu)?.setAttribute('hidden','')}
- if(focus&&current)$(current)?.focus();
-}
-function positionTopMenu(){
- if(!topMenu)return;
- const menu=$(TOP_MENUS[topMenu].menu),rect=$(topMenu).getBoundingClientRect(),viewport=window.visualViewport;
- const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,width=viewport?.width||innerWidth,height=viewport?.height||innerHeight,gap=8;
- menu.style.width=Math.min(304,width-2*gap)+'px';
- menu.style.left=Math.max(left+gap,Math.min(rect.right-menu.offsetWidth,left+width-menu.offsetWidth-gap))+'px';
- const y=Math.max(top+gap,Math.min(rect.bottom+gap,top+height-gap-44));
- menu.style.top=y+'px';menu.style.maxHeight=Math.max(44,top+height-y-gap)+'px';
-}
-function renderTopMenu(){
- if(!topMenu)return;
- const definition=TOP_MENUS[topMenu],menu=$(definition.menu),items=definition.sections();
- const focused=menu.contains(document.activeElement)?document.activeElement.dataset.arcTopSection:null;
- window.ArcUI.render(menu,items.map(s=>'<button type="button" class="arcButton arcTopMenuItem" role="menuitem" tabindex="-1" data-arc-top-section="'+esc(s.id)+'">'
-  +svg(s.icon||ICON.home)+'<span>'+esc(T(s.label))+'</span>'
-  +(s.badge?'<span class="arcTopMenuBadge"'+(s.tone?' data-tone="'+esc(s.tone)+'"':'')+'>'+esc(s.badge)+'</span>':'')+'</button>').join(''));
- if(!items.length){closeTopMenu();return}
- menu.querySelectorAll('[data-arc-top-section]').forEach(b=>b.onclick=()=>{
-  const id=b.dataset.arcTopSection;
-  // Recheck after a permission change, before invoking the existing screen.
-  if(!window.gamaAccessAllowed?.(definition.module)||!definition.sections().some(s=>s.id===id)){closeTopMenu({focus:true});return}
-  closeTopMenu();Promise.resolve(definition.select(id)).catch(e=>window.gamaToast?.(window.ArcErrors?.message(e)||e.message));
- });
- if(focused){const b=[...menu.querySelectorAll('[data-arc-top-section]')].find(x=>x.dataset.arcTopSection===focused)||menu.firstElementChild;b?.focus()}
- positionTopMenu();
-}
-async function toggleTopMenu(id,last=false){
- if(topMenu===id||$(id)?.hasAttribute('aria-busy')){closeTopMenu({focus:true});return}
- closeTopMenu();closeDrawer();document.querySelector('.arcProfile')?.removeAttribute('open');
- const request=menuRequest,trigger=$(id),definition=TOP_MENUS[id];
- trigger.setAttribute('aria-busy','true');
- try{
-  if(window.ArcRuntimeLoaded===false)await window.ArcEnsureRuntime();
-  if(request!==menuRequest||!window.gamaAccessAllowed?.(definition.module))return;
-  topMenu=id;$(definition.menu).hidden=false;trigger.setAttribute('aria-expanded','true');renderTopMenu();
-  const items=$(definition.menu).querySelectorAll('[role=menuitem]');(last?items[items.length-1]:items[0])?.focus();
- }catch(e){if(request===menuRequest){closeTopMenu();window.gamaToast?.(T('No se pudo cargar el módulo.'))}}
- finally{if(request===menuRequest)trigger.removeAttribute('aria-busy')}
-}
+/* Menus are fetched on first use, outside the initial JavaScript budget. */
+let topMenuIntent=0;
 function bindTopMenu(trigger){
- trigger.onclick=()=>toggleTopMenu(trigger.id);
- trigger.onkeydown=e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();toggleTopMenu(trigger.id,e.key==='ArrowUp')}};
- const menu=$(TOP_MENUS[trigger.id].menu);
- menu.onkeydown=e=>{
-  const items=[...menu.querySelectorAll('[role=menuitem]')],i=items.indexOf(document.activeElement),n=items.length;
-  const next={ArrowDown:(i+1)%n,ArrowUp:(i+n-1)%n,Home:0,End:n-1}[e.key];
-  if(next!=null){e.preventDefault();items[next]?.focus()}
-  else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeTopMenu({focus:true})}
-  else if(e.key==='Tab')closeTopMenu({focus:true});
- };
+ const open=async last=>{const intent=++topMenuIntent;try{
+  await window.ArcLoadScript('coco-topbar-menus.js');
+  if(intent===topMenuIntent)await window.CocoTopbarMenus.toggle(trigger.id,last);
+ }catch(_){window.gamaToast?.(T('No se pudo cargar el módulo.'))}};
+ trigger.onclick=()=>open(false);
+ trigger.onkeydown=e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open(e.key==='ArrowUp')}};
 }
 
 /* ------------------------------------------------------------------ nav */
@@ -167,7 +113,7 @@ function markActive(){
 }
 
 function closeDrawer(){document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess()}
-function openDrawer(){closeTopMenu();document.body.classList.add('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();document.querySelector('.arcNavLink')?.focus()}
+function openDrawer(){document.body.classList.add('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();document.querySelector('.arcNavLink')?.focus()}
 
 /* --------------------------------------------------------------- montaje */
 function build(){
@@ -199,12 +145,12 @@ function build(){
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
   +'<div class="arcTopRight">'
-   +'<div class="arcTopAction"><button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="menu" aria-expanded="false" aria-controls="arcNotifyMenu" data-gi-aria-label=80dade6fab6f aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
+   +'<button type="button" class="arcButton arcIconBtn" id="arcNotify" aria-haspopup="menu" data-gi-aria-label=80dade6fab6f aria-label="Notificaciones" data-gi-aria-label="live">'+svg(ICON.bell)
     /* data-go-badge: el contador de avisos ya existe y se actualiza solo desde
        el módulo de operaciones. Basta con ofrecerle dónde escribir. */
-    +'<span class="arcDot" data-go-badge hidden></span></button><div class="arcTopMenu" id="arcNotifyMenu" role="menu" aria-labelledby="arcNotify" hidden></div></div>'
+    +'<span class="arcDot" data-go-badge hidden></span></button>'
    /* La configuración comparte el mismo menú desplegable. */
-   +'<div class="arcTopAction"><button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="menu" aria-expanded="false" aria-controls="arcSettingsMenu" data-gi-aria-label=bb507137e363 aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button><div class="arcTopMenu" id="arcSettingsMenu" role="menu" aria-labelledby="arcSettings" hidden></div></div>'
+   +'<button type="button" class="arcButton arcIconBtn" id="arcSettings" aria-haspopup="menu" data-gi-aria-label=bb507137e363 aria-label="Configuración" data-gi-aria-label="live">'+svg(ICON.gear)+'</button>'
    +'<div class="arcUserSlot" id="arcUserSlot"><details class="arcProfile"><summary id="arcProfileButton"><span class="arcAvatar" id="arcAvatar"></span><span class="arcProfileText"><b id="arcUserName"></b><span id="arcUserRole"></span></span><span class="arcChevron" aria-hidden="true">⌄</span></summary><div id="arcProfileMenu"></div></details></div>'
   +'</div>');
 
@@ -297,12 +243,12 @@ function adoptSections(){
  });
 }
 function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
-function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');if(topMenu){if($(topMenu)?.hidden)closeTopMenu();else renderTopMenu()}const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
+function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
 
 function boot(){
  build();
  document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeTopMenu({focus:true});document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
+  if(e.key==='Escape'){topMenuIntent++;document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
   if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')&&matchMedia('(max-width:860px)').matches){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
  });
  /* Synchronize on application events; observe only the existing user chip
@@ -311,14 +257,8 @@ function boot(){
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
- window.addEventListener('resize',()=>{syncDrawerAccess();positionTopMenu()});
- window.visualViewport?.addEventListener('resize',positionTopMenu);
- window.visualViewport?.addEventListener('scroll',positionTopMenu);
- window.addEventListener('arc:route-change',()=>closeTopMenu());
- window.addEventListener('gama:auth-change',()=>closeTopMenu());
- document.addEventListener('click',e=>{if(!e.target.closest('.arcTopAction'))closeTopMenu();if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
- document.addEventListener('focusin',e=>{if(!e.target.closest('.arcTopAction'))closeTopMenu()});
- document.querySelector('.arcProfile')?.addEventListener('toggle',e=>{if(e.target.open)closeTopMenu()});
+ window.addEventListener('resize',syncDrawerAccess);
+ document.addEventListener('click',e=>{if(!e.target.closest('#arcNotify,#arcSettings'))topMenuIntent++;if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
  window.addEventListener('gama:language-change',()=>{
   const nav=document.querySelector('.arcNav');
   if(nav){window.ArcUI.render(nav,navHtml());bind(document.querySelector('.arcSidebar'),document.querySelector('.arcTopbar'));sync()}

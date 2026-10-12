@@ -10,25 +10,24 @@ async function boot(page,role='admin'){
  await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');
  await page.waitForFunction(()=>window.GamaSales&&window.GamaCloudReady);
- await page.evaluate(async()=>{await window.GamaCloudReady;const original=GamaCloud.db;window.__salesCalls=[];window.__commercialCalls=[];GamaCloud.db=async()=>{const c=await original();return{...c,rpc:async(name,args)=>{if(name==='gama_receipt_action')return {data:{accounts:[{id:'financial-1',name:'Bank',currency:'USD'}],receipts:[]}};if(name==='gama_fulfillment_action'){return {data:{preparations:[{id:'prep-1',order_id:window.__DB.sales_orders[0].id,number:'PR-00000001',status:'packed'}],pick_lines:[],packages:[],package_lines:[],incidents:[],options:[],returns:[],photos:[],credits:[],incoming:[],staff:[]}}}if(name==='gama_sales_action'){window.__salesCalls.push(args);return window.__salesResponse||{data:{id:window.__DB.sales_orders[0].id},error:null}}if(name==='gama_commercial_action'){window.__commercialCalls.push(args);return window.__commercialResponse||{data:{id:'payment-or-link'},error:null}}return c.rpc(name,args)}}}});
+ await page.evaluate(async()=>{await window.GamaCloudReady;const original=GamaCloud.db;window.__salesCalls=[];window.__commercialCalls=[];GamaCloud.db=async()=>{const c=await original();return{...c,rpc:async(name,args)=>{if(name==='gama_receipt_action')return {data:{accounts:[{id:'financial-1',name:'Bank',currency:'USD'}],receipts:[]}};if(name==='gama_preparation_dispatch'){window.__salesCalls.push({p_action:'auto_dispatch',...args});if(window.__salesResponse?.error)return window.__salesResponse;window.__preparationStatus='shipped';return {data:{id:'shipment-1',preparation_id:'prep-1'}}}if(name==='gama_fulfillment_action'){window.__preparationStatus||='packed';return {data:{preparations:[{id:'prep-1',order_id:window.__DB.sales_orders[0].id,number:'PR-00000001',status:window.__preparationStatus}],pick_lines:[{id:'pick-1',preparation_id:'prep-1',order_line_id:window.__DB.sales_order_lines[0].id,source_location_id:window.__DB.warehouse_locations[0].id,planned:100,picked:100}],packages:[],package_lines:[],incidents:[],options:[],returns:[],photos:[],credits:[],incoming:[],staff:[]}}}if(name==='gama_sales_action'){window.__salesCalls.push(args);return window.__salesResponse||{data:{id:window.__DB.sales_orders[0].id},error:null}}if(name==='gama_commercial_action'){window.__commercialCalls.push(args);return window.__commercialResponse||{data:{id:'payment-or-link'},error:null}}return c.rpc(name,args)}}}});
  await page.waitForTimeout(900);
  // Los pedidos son la pestaña «Pedidos» de Ventas; el almacenero, sin presupuestos, entra directamente en ella.
  await page.locator('.gamaF2Card[data-gama-module="quotes"]').click();
  if(!['magasinier','almacenero'].includes(role))await page.locator('#gqOrdersTab').click();
  await expect(page.locator('#gsMain')).toContainText('PV-00000001');
 }
-test('menu, quantities and shipment references the checked preparation in one call',async({page})=>{
+test('opening a checked preparation from sales automatically transfers it in one call',async({page})=>{
  await boot(page);await page.locator('[data-gs-order]').first().click();
  await expect(page.locator('#gsInvoice')).toHaveCount(0);await expect(page.locator('#gsMain')).toContainText('Confirmado');await expect(page.locator('#gsMain')).toContainText('Sin vincular');await page.screenshot({path:'test-results/sales-desktop.png',fullPage:true});
- await page.locator('#gsShip').click();await page.locator('#gfShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
- await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);
- const calls=await page.evaluate(()=>window.__salesCalls);expect(calls).toHaveLength(1);expect(calls[0].p_action).toBe('ship');expect(calls[0].p_data.preparation_id).toBe('prep-1');expect(calls[0].p_data.lines).toBeUndefined();expect(calls[0].p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
+ await page.locator('#gsShip').click();await expect.poll(()=>page.evaluate(()=>window.__preparationStatus)).toBe('shipped');await expect(page.locator('#gfShip,#gfFinish,dialog')).toHaveCount(0);
+ const calls=await page.evaluate(()=>window.__salesCalls);expect(calls).toHaveLength(1);expect(calls[0].p_action).toBe('auto_dispatch');expect(calls[0].p_data.preparation_id).toBe('prep-1');expect(calls[0].p_data.lines).toBeUndefined();expect(calls[0].p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
 });
 
-test('failed mutation keeps entered data and reuses the retry key',async({page})=>{
- await boot(page);await page.locator('[data-gs-order]').first().click();await page.locator('#gsShip').click();await page.locator('#gfShip').click();await page.locator('#gfShipNote').fill('Envío de bultos controlados');
- await page.evaluate(()=>window.__salesResponse={error:{message:'INSUFFICIENT_RESERVED'}});await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('reserva ha cambiado');await expect(page.locator('#gfShipNote')).toHaveValue('Envío de bultos controlados');
- await page.evaluate(()=>window.__salesResponse=null);await page.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);const a=await page.evaluate(()=>window.__salesCalls);expect(a[0].p_data.request_key).toBe(a[1].p_data.request_key);
+test('failed automatic transfer preserves the preparation and reuses the retry key',async({page})=>{
+ await boot(page);await page.locator('[data-gs-order]').first().click();await page.evaluate(()=>window.__salesResponse={error:{message:'INSUFFICIENT_RESERVED'}});await page.locator('#gsShip').click();
+ await expect(page.locator('#gfAutoDispatch .gsError')).toContainText('reserva ha cambiado');expect(await page.evaluate(()=>window.__preparationStatus)).toBe('packed');await expect(page.locator('.gfPickQuantities')).toContainText('100 / 100');
+ await page.evaluate(()=>window.__salesResponse=null);await page.locator('#gfDispatchRetry').click();await expect.poll(()=>page.evaluate(()=>window.__preparationStatus)).toBe('shipped');await expect(page.locator('dialog')).toHaveCount(0);const a=await page.evaluate(()=>window.__salesCalls);expect(a).toHaveLength(2);expect(a[0].p_data.request_key).toBe(a[1].p_data.request_key);
 });
 test('warehouse role sees fulfilment, not external fiscal records',async({page})=>{
  await boot(page,'magasinier');await expect(page.locator('[data-gs-tab="invoices"]')).toHaveCount(0);await expect(page.locator('#gsNew')).toHaveCount(0);await page.locator('[data-gs-order]').first().click();await expect(page.locator('#gsShip')).toBeVisible();await expect(page.locator('#gsInvoice')).toHaveCount(0);

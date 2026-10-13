@@ -661,6 +661,20 @@
             db.warehouse_locations=db.warehouse_locations.filter(x=>x!==l);return {data:{deleted:1,archived:0,id:l.id,code:l.code}};
           }
         }
+        if(fn==='gama_sales_workspace'){
+          const db=window.__DB,d=args.p_data||{},a=args.p_action;
+          if(a==='quote_list'){let rows=(db.invoices||[]).filter(q=>(!d.search||((q.invoice_number||'')+' '+(q.quote_details?.client||'')).toLowerCase().includes(d.search.toLowerCase()))&&(d.status==='all'||!d.status||(q.quote_state||'draft')===d.status)&&(!d.from||String(q.issue_date||'').slice(0,10)>=d.from)&&(!d.to||String(q.issue_date||'').slice(0,10)<=d.to));return {data:{actor_id:db._profile.id,total:rows.length,rows:rows.slice(d.offset||0,(d.offset||0)+20).map(q=>({...q,invoice_number:(db.gama_document_references||[]).find(r=>r.table_name==='invoices'&&r.document_id===q.id)?.document_reference||q.invoice_number,client:q.quote_details?.client||''}))}}}
+          if(a==='lookups'){const rows=(db[d.kind==='products'?'products':'customers']||[]).filter(x=>x.active!==false&&(!d.search||(x.name+' '+(x.reference||'')+' '+(x.barcode||'')).toLowerCase().includes(d.search.toLowerCase())));return {data:rows.slice(0,30).map(x=>({...x,...(d.kind==='products'?{units:(db.product_units||[]).filter(u=>u.product_id===x.id&&u.active!==false)}:{})}))}}
+          if(a==='prices'){const c=await window.GamaCloud.db();const rows=await Promise.all((d.lines||[]).map(l=>c.rpc('gama_resolve_price',{p_customer:d.customer_id,p_product:l.product_id,p_quantity:l.quantity,p_date:d.date})));const e=rows.find(r=>r.error);return e||{data:rows.map((r,i)=>({...r.data,product_id:d.lines[i].product_id}))}}
+          if(a==='invoice_list')return {data:(db.external_invoices||[]).filter(i=>i.order_id===d.order_id||(i.document_snapshot?.orders||[]).some(o=>o.id===d.order_id))};
+          if(a==='summary'){const lines=(db.sales_order_lines||[]).filter(l=>l.order_id===d.order_id).map(l=>{const ships=(db.sales_delivery_lines||[]).filter(x=>x.order_line_id===l.id),shipped=ships.reduce((n,x)=>n+Number(x.quantity),0);const delivered=ships.filter(x=>{const sd=(db.sales_deliveries||[]).find(s=>s.id===x.delivery_id),td=(db.tms_deliveries||[]).find(t=>t.id===sd?.tms_delivery_id);return td?.status==='Entregada'&&(db.tms_proofs||[]).some(p=>p.delivery_id===td.id&&p.signature)}).reduce((n,x)=>n+Number(x.quantity),0),billed=(db.external_invoice_lines||[]).filter(x=>x.order_line_id===l.id&&(db.external_invoices||[]).some(i=>i.id===x.invoice_id&&!['cancelled','rejected'].includes(i.fiscal_status))).reduce((n,x)=>n+Number(x.quantity),0);return {id:l.id,ordered:l.quantity,shipped,delivered,billed,billable:Math.max(0,delivered-billed)}});return {data:{order_id:d.order_id,lines,invoices:(db.external_invoices||[]).filter(i=>i.order_id===d.order_id)}}}
+          if(a==='review'||a==='review_order')return {data:{required:false,approved:false,revision:1}};
+          if(a==='templates'||a==='billing'||a==='invoice_preview')return {data:[]};
+          if(a==='settings')return {data:{version:1,maximum_discount:null,minimum_margin:null}};
+          if(a==='queue')return {data:{total:0,rows:[]}};
+          if(a==='metrics')return {data:{quotes_open:0,quotes_accepted:0,orders_open:0,invoiced_net:0,receivable:0,overdue:0}};
+          return {error:{message:'Unsupported sales workspace test action: '+a}};
+        }
         if(fn==='gama_resolve_price'){
           const p=(window.__DB.products||[]).find(p=>p.id===args.p_product),c=(window.__DB.customers||[]).find(c=>c.id===args.p_customer),special=(window.__DB.customer_special_prices||[]).find(x=>x.customer_id===c?.id&&x.product_id===p?.id);
           return {data:{unit_price:c?.category==='C'&&special?special.unit_price:c?.category==='B'?p?.sale_price_b??p?.sale_price:p?.sale_price,label:special?'Contrato':'Categoría'}};

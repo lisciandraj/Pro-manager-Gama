@@ -2,11 +2,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const cloud=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 
-// «Ventas» reúne la cadena de la venta en cuatro pestañas:
-// Solicitudes de clientes · Presupuestos · Pedidos · Facturas. Cada pestaña
-// es la pantalla que ya existía y sólo aparece con su permiso; los pedidos y
-// las facturas dejan de tener tarjeta propia para quien ve el módulo, y los
-// pedidos no la tienen para nadie: se entra por Ventas.
+// Five sections retain existing addresses and each module permission.
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));
@@ -21,13 +17,14 @@ async function boot(page,role='admin'){
 }
 const tabs=page=>page.locator('section.active [data-gq-module-tab]');
 
-test('one Sales tile, six tabs including price lists and commercial matrix',async({page})=>{
+test('one Sales tile, five sections and contextual document and price tabs',async({page})=>{
  await boot(page);
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toBeVisible();
  for(const id of ['sales-orders','payments','price-lists','matrix'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
  await expect(page.locator(`.arcNav [data-gama-module="sales-orders"]`)).toBeHidden();
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
- await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos','Facturas','Tarifas','Matriz comercial']);
+ await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos','Pedidos']);
+ await expect(page.locator('#quotes [data-coco-sales-section] option')).toHaveText(['Por tratar','Presupuestos y pedidos','Facturas y cobros','Condiciones comerciales','Pilotaje']);
  await expect(page.locator('#gqDocumentsTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#quotes')).toContainText('COT-1');
  // El presupuesto ya no arrastra sus facturas: están en su pestaña.
@@ -42,11 +39,11 @@ test('one Sales tile, six tabs including price lists and commercial matrix',asyn
  await expect(page.locator('[data-gs-tab="invoices"]')).toHaveCount(0);
  await expect(page.locator('#sales-orders h2')).toContainText('Ventas');
 
- await page.locator('#sales-orders #gqInvoicesTab').click();
+ await page.locator('#sales-orders [data-coco-sales-section]').selectOption('invoice');
  await expect(page.locator('#payments.active')).toBeVisible();
  await expect(page.locator('#payments #gqInvoicesTab')).toHaveAttribute('aria-selected','true');
 
- await page.locator('#payments #gqPricesTab').click();
+ await page.locator('#payments [data-coco-sales-section]').selectOption('conditions');
  await expect(page.locator('#price-lists.active')).toBeVisible();
  await expect(page.locator('#price-lists h2')).toContainText('Ventas');
  await expect(page.locator('#price-lists #gqPricesTab')).toHaveAttribute('aria-selected','true');
@@ -54,7 +51,8 @@ test('one Sales tile, six tabs including price lists and commercial matrix',asyn
  await expect(page.locator('#matrix.active')).toBeVisible();
  await expect(page.locator('#matrix #gqMatrixTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#matrixForm')).toBeVisible();
- await page.locator('#matrix #gqRequestsTab').click();
+ await page.locator('#matrix [data-coco-sales-section]').selectOption('documents');
+ await page.locator('#quotes #gqRequestsTab').click();
  await expect(page.locator('#quotes.active')).toBeVisible();
  await expect(page.locator('#quotes #gqRequestsTab')).toHaveAttribute('aria-selected','true');
 });
@@ -106,7 +104,7 @@ test('retired client accounts cannot enter the employee sales workspace',async({
 
 test('the tabs fit a phone',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(6);
+ await page.evaluate(()=>GamaQuotes.open());await expect(tabs(page)).toHaveCount(3);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
@@ -124,7 +122,7 @@ test('Sales and its price tab use the French labels',async({page})=>{
  await boot(page);await page.evaluate(()=>GamaI18n.setLanguage('fr'));
  await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]')).toContainText('Ventes');
  await page.evaluate(()=>ArcRouter.open('quotes'));
- await page.locator('#quotes #gqPricesTab').click();
+ await page.locator('#quotes [data-coco-sales-section]').selectOption('conditions');
  await expect(page.locator('#price-lists h2')).toContainText('Ventes');
  await expect(page.locator('#price-lists #gqPricesTab')).toHaveText('Tarifs');
 });

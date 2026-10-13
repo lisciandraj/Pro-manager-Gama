@@ -1,98 +1,42 @@
-> État relu le 30 septembre 2026. Les parcours de vente sont réunis dans Ventes : demandes, devis, commandes, factures/encaissements, tarifs et matrice commerciale, selon les droits.
+# Ventes : devis, commandes, factures et encaissements
 
-# Pedidos de venta y facturación externa
+État du 13 octobre 2026. La carte **Ventes** ouvre les documents autorisés. Le sélecteur présente cinq sections, selon les droits : **À traiter**, **Devis et commandes**, **Factures et encaissements**, **Conditions commerciales**, **Pilotage**. Les anciennes adresses `quotes`, `customer-requests`, `sales-orders`, `payments`, `price-lists` et `matrix` restent compatibles. Le magasinier entre par Ventes dans les commandes et conserve ses seules actions logistiques.
 
-> Flujo actualizado: ver [FULFILLMENT_P1.md](fulfillment.md) para el dossier,
-> picking/packing obligatorio, propuestas de entrega y retornos.
+## Parcours
 
-Entrada: **Ventas → Presupuestos y facturas → pestaña Pedidos**. El módulo
-reúne la cadena de la venta en cuatro pestañas —Solicitudes de clientes,
-Presupuestos, Pedidos y Facturas— y cada una aparece sólo con su permiso
-(`customer-requests`, `quotes`, `sales-orders`, `payments`). Dentro de Pedidos
-quedan Todos los pedidos, Expediciones y Pendiente de facturar; las facturas y
-sus cobros son la pestaña Facturas. El almacenero, que sólo tiene los pedidos,
-los abre desde su tarjeta **Pedidos de venta**, sin pestañas. También hay un
-botón «Crear / ver pedido» en cada presupuesto archivado y solicitud de
-cliente.
+1. **À traiter** réunit les demandes sans devis, les devis ouverts, les commandes à terminer et les échéances proches ou dépassées. Les listes sont paginées. La sélection de commandes livrées permet de créer une facture groupée pour un même client.
+2. **Devis et commandes** conserve les demandes, devis et commandes dans des onglets. Les devis se filtrent par référence/client, état, dates, propriétaire, relance et expiration. Une vue peut être enregistrée par utilisateur sur son appareil.
+3. Le devis préremplit l'entreprise et le client. Adresse de livraison et conditions essentielles restent visibles ; les autres détails se déplient. Les lignes se modifient dans une grille, avec unités de vente, quantités, prix hors taxes, remise et TVA. Les changements de quantité, client ou date recalculent le tarif commun `gama_resolve_price` utilisé aussi par le catalogue public. Une réponse de prix devenue ancienne ne remplace pas les valeurs courantes.
+4. Les conditionnements utilisent `product_units.factor`. Quantité de vente × facteur = quantité de stock. Le serveur vérifie le produit, l'unité active et cette conversion. Les lignes conservent le libellé et le facteur historiques ; le stock reste géré dans l'unité de base.
+5. Les commandes directes proposent le même tarif par client et quantité. Un prix manuel exige un motif. La confirmation réserve les quantités disponibles, sans sortie de stock. La préparation, l'emballage, l'expédition et les preuves restent dans le dossier existant ; voir [Préparation et retours](fulfillment.md).
+6. Le dossier de commande montre séparément l'expédition, la livraison signée ou la prestation réalisée, la facturation et le paiement. Une vente est terminée lorsque toutes les quantités sont livrées et facturées et toutes les factures actives sont soldées. L'état fiscal reste distinct.
+7. Une facture interne peut porter sur tout ou partie des quantités **livrées et non encore facturées**. Une livraison physique doit être marquée livrée et avoir une signature ; un service exige une réalisation enregistrée. La facture conserve les prix de commande, le client, l'entreprise et les documents sources dans un instantané. Elle ne crée aucun mouvement de stock.
+8. Plusieurs commandes confirmées du même client peuvent alimenter une facture unique. Les quantités restent rattachées à leurs lignes ; la facture apparaît dans chaque dossier source. Le chiffre d'affaires et le coût sont répartis par commande pour la rentabilité. L'encaissement porte sur la facture unique.
 
-## Uso
+## Conditions et modèles
 
-1. Crear un pedido directo o convertir un presupuesto/solicitud. Se copian el
-   cliente, dirección, productos, cantidades, precios e impuestos; un origen ya
-   convertido abre su pedido existente. Los presupuestos siguen siendo documentos
-   informativos en las tablas actuales, sin migrar ni emitir facturas fiscales.
-2. Confirmar. Se reservan las existencias disponibles por ubicación, sin cambiar
-   el stock físico. «Reservar pendientes» completa reservas tras una reposición.
-3. El almacenero selecciona cantidades y ubicaciones reservadas en «Registrar
-   expedición». Al validar, una sola transacción consume las reservas, registra
-   movimientos de salida, sincroniza el stock y crea una entrega en el TMS.
-   La recepción final por el cliente se sigue con los estados/pruebas del TMS.
-4. El comercial registra la factura emitida en su otro software: emisor,
-   receptor, número, fechas, clave de acceso opcional, importes y cantidades de
-   cada línea. PDF/XML opcionales (5 MB cada uno, 2 por carga, 4 por factura).
-   El registro fiscal y sus cambios de estado **no mueven existencias**.
-5. «Actualizar estado declarado» registra una autorización/rechazo/cancelación
-   comprobada en el software externo, con motivo obligatorio. No realiza ninguna
-   consulta ni anulación ante el SRI. Los archivos se descargan bajo sesión.
+Dans **Conditions commerciales**, les tarifs et la matrice restent disponibles. L'administrateur configure une remise maximale et une marge minimale estimée, ainsi que le mode de facturation par client : automatique à chaque livraison, manuel ou groupé. Un seuil vide est désactivé ; aucun seuil imposé n'est ajouté aux comptes existants. La marge du devis utilise le coût d'achat courant ; celle d'une commande utilise ses coûts historiques lorsqu'ils sont disponibles. Un coût manquant ou une vente à prix nul avec seuil de marge actif demande une validation.
 
-## Límites explícitos de esta versión
+Une exception commerciale demande une approbation administrateur avant l'envoi/l'acceptation du devis ou la confirmation de la commande directe. La validation est liée à l'empreinte du document : changer ses conditions l'invalide. Demande, approbation et motif sont inscrits dans le journal du document.
 
-- Una factura externa se vincula a un pedido; un pedido admite varias facturas
-  y expediciones parciales. No se distribuye una factura entre varios pedidos.
-- Cantidades con hasta 3 decimales para respetar el stock existente. Las líneas
-  duplicadas del mismo producto en el origen se agrupan con precio ponderado;
-  impuestos distintos para el mismo producto requieren corregir el origen.
-- Los importes se contrastan con las líneas a precios del pedido, con tolerancia
-  de 0,02 USD por subtotal/IVA para redondeos. Fletes u otros conceptos no presentes
-  en el pedido no se aceptan silenciosamente.
-- Los registros «por verificar» apartan cantidades para impedir doble vínculo,
-  pero sólo «autorizada» cuenta como facturado autorizado. Rechazados/cancelados
-  conservan su historial y dejan de apartar cantidades.
-- La cancelación del pedido sólo se permite antes de expediciones y sin facturas
-  vigentes. Un pedido ya expedido utiliza el flujo de retorno del dossier; cancelar
-  en TMS o anular una factura no significa que haya regresado mercancía.
-- El registro de cobros se documenta en COMMERCIAL-CHAIN.md y los abonos externos
-  en FULFILLMENT_P1.md. No se implementa emisión SRI ni integración
-  API con proveedores. El indicador de ventas del dashboard anterior conserva su
-  comportamiento y no debe confundirse con este registro fiscal separado.
-- El módulo reutiliza el modelo de una empresa de la instalación actual; no añade
-  aislamiento multiempresa.
+Le dossier permet de **copier une vente** et d'enregistrer un **modèle de devis**. Leur réutilisation crée un nouveau brouillon et recalcule les prix courants. Les documents acceptés restent figés. Les propositions récurrentes existantes sont accessibles dans Pilotage et depuis les commandes ; elles gardent leur confirmation client obligatoire.
 
-## Integridad y seguridad
+## Facturation et fiscalité
 
-Todas las mutaciones pasan por `public.gama_sales_action`, una función invoker que
-llama al procedimiento privado con comprobación de `auth.uid()` y perfil activo.
-El esquema privado contiene la implementación definer con `search_path` vacío.
-No se concede ejecución a `anon`. Las nuevas tablas sólo tienen SELECT con RLS:
-no pueden editarse directamente por PostgREST. El cliente externo no tiene acceso.
+Le mode automatique crée une facture pour les nouvelles quantités livrées lors de la signature ou de la réalisation d'un service. Les modes manuel/groupé attendent l'action du commercial. Une clé stable empêche qu'un rechargement ou une modification de preuve crée une deuxième facture. Les montants sont conservés dans `external_invoices`, le registre financier existant ; ajouter une référence externe ne crée pas un second montant.
 
-Administrador/comercial: crear/confirmar/cancelar pedidos, reservar y gestionar
-facturas. Administrador/almacenero: expediciones. Almacenero: lectura logística y
-reservas, sin lectura de tablas fiscales. Los permisos de menú no sustituyen RLS.
+La facture interne n'a pas de valeur fiscale. L'émission, le suivi et les éventuelles annulations SRI utilisent le module fiscal existant. Annuler un enregistrement financier ne remet pas les marchandises en stock : utiliser le retour. Les factures annulées/rejetées et leurs lignes restent dans l'historique. Les montants/quantités déjà couverts par une facture active ne peuvent être facturés une deuxième fois. Les factures externes historiques restent liées à un seul dossier.
 
-Se bloquean pedidos, reservas y productos en orden estable. Pedido y líneas se
-crean en una transacción; expedir y vincular factura son idempotentes mediante
-claves UUID. La unicidad del origen y de emisor/número/clave evita duplicados.
-Archivos almacenados aparte y descargados sólo a petición: ninguna lista transfiere
-su contenido. Historial append-only en `sales_events` con usuario y fecha.
+## Sécurité et chargement
 
-## Instalación y pruebas
+`public.gama_sales_workspace` est une façade invoker. Son implémentation privée vérifie la session, MFA, le profil actif, les modules et actions autorisés. Les paramètres, modèles, approbations et allocations sont des tables privées avec RLS et sans accès direct PostgREST. Les magasiniers voient les quantités logistiques, sans factures, montants facturés ou encaissements ; aucune entrée anonyme n'est ajoutée.
 
-Migración aditiva: `supabase/migrations/20260911154806_gama_sales_orders_external_invoices.sql`.
-Aplicar una vez, antes del frontend. Usa los helpers y tablas de Inventario V2
-ya existentes en producción. No reconstruir ni borrar el esquema actual.
+Les factures utilisent la transaction et le verrou commun des ventes, un ordre de verrouillage stable et une clé UUID liée à l'acteur et au contenu. Les quantités sont vérifiées sous verrou contre les preuves et factures courantes. Les fichiers et signatures sont chargés à la demande.
 
-`tests/sql/sales-flow.sql` se ejecuta dentro de BEGIN/ROLLBACK, con un perfil admin
-activo. Comprueba idempotencia, salida parcial, rollback ante error de una línea,
-no doble descuento al facturar, límites de cantidad/importe/receptor, archivos,
-conversión de presupuesto, RLS y denegación sin sesión. Los perfiles existentes
-se usan sólo como identidad de prueba; no se cambian. No deja fixtures persistentes.
+Les éditeurs et outils des ventes sont chargés à leur ouverture, avec recherche produits/clients limitée à 30 résultats et conservation de la sélection. La liste des devis ne transfère ni lignes ni instantané accepté. Les plafonds de démarrage restent ceux de `config/performance-budget.json`.
 
-`tests/sales-orders.spec.js` comprueba el contrato de interfaz con el servicio:
-menú, expedición, factura con XML, reintento tras error, permisos y formulario móvil.
-Las reglas de stock se prueban contra PostgreSQL, no mediante una imitación JS.
-El workflow validate-sales ejecuta los tests de interfaz en los cambios futuros.
+## Installation et vérification
 
-## Chargement des devis
+Migration additive : `supabase/migrations/20261013191210_sales_workspace.sql`, puis `supabase/migrations/20261013193446_sales_zero_margin_approval.sql`, après les migrations existantes et avant le frontend. Elle ne crée aucune facture métier et ne réécrit aucun document historique. L'installation conserve son modèle d'une seule entreprise.
 
-La liste paginée lit uniquement identifiant, références, état, validité, total et nom du client extrait de `quote_details`. Le document complet, ses lignes et `accepted_snapshot` restent chargés à son ouverture, avec les mêmes données figées pour la fiche et le PDF. Aucun instantané accepté n’est modifié.
+Les tests `tests/sales-workspace-db.test.cjs` restaurent toutes les migrations dans PostgreSQL isolé et vérifient tarifs/unités, livraison signée, quantités partielles, idempotence, regroupement/rentabilité, approbations et droits. `tests/sales-workspace.spec.js`, `tests/sales-module-tabs.spec.js`, `tests/quote-adjust.spec.js`, `tests/sales-orders.spec.js` et `tests/internal-invoices.spec.js` vérifient les parcours de l'interface, les traductions et le mobile. Les tests de stock, services, fiscalité, paiements et architecture existants restent requis.

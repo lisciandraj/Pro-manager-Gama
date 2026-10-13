@@ -5531,3 +5531,68 @@ Indica el motivo de la entrega parcial para continuar.	Indique le motif de la li
 Escanea los productos y valida sus cantidades. La preparación completa se envía automáticamente al TMS.	Scanne les produits et valide leurs quantités. La préparation complète est transmise automatiquement au TMS.	Scan the products and confirm their quantities. Completed preparation is transferred to TMS automatically.
 Transferencia automática en curso…	Transfert automatique en cours…	Automatic transfer in progress…
 Preparación transferida al TMS.	Préparation transmise au TMS.	Preparation transferred to TMS.
+Abrir pedido	Ouvrir la commande	Open order
+Agrupar entregas	Regrouper les livraisons	Group deliveries
+Agrupar pedidos en una factura	Regrouper les commandes en une facture	Group orders into one invoice
+Automática por entrega	Automatique à la livraison	Automatic on delivery
+Buscar cliente…	Rechercher un client…	Search customers…
+Buscar producto, referencia o código…	Rechercher un produit, une référence ou un code…	Search product, reference or code…
+Buscar referencia o cliente	Rechercher une référence ou un client	Search reference or customer
+Cantidad a facturar	Quantité à facturer	Quantity to invoice
+Cobros por vencer	Encaissements à échéance	Payments due
+Copiar venta	Copier la vente	Copy sale
+Descuento máximo (%)	Remise maximale (%)	Maximum discount (%)
+Documento anterior	Ancien document	Previous document
+Documento interno de gestión. La emisión fiscal se sigue en Facturación SRI.	Document interne de gestion. L’émission fiscale se suit dans Facturation SRI.	Internal management document. Fiscal issuance is tracked in SRI invoicing.
+El condicionamiento no está disponible para este producto.	Ce conditionnement n’est pas disponible pour ce produit.	This packaging is unavailable for this product.
+El producto ya está en el pedido. Modifica su línea.	Ce produit est déjà dans la commande. Modifiez sa ligne.	This product is already in the order. Edit its line.
+Embalaje validado	Emballage validé	Packing validated
+Entrega validada	Livraison validée	Delivery validated
+Entregado por facturar	Livré à facturer	Delivered to invoice
+Facturación parcial	Facturation partielle	Partial invoicing
+Facturación por cliente	Facturation par client	Customer invoicing
+Facturado sin IVA	Facturé hors taxes	Invoiced excluding tax
+Facturar cantidades entregadas	Facturer les quantités livrées	Invoice delivered quantities
+Guarda un presupuesto como modelo desde su ficha.	Enregistrez un devis comme modèle depuis sa fiche.	Save a quote as a template from its details.
+Guardar como modelo	Enregistrer comme modèle	Save as template
+Guardar vista	Enregistrer la vue	Save view
+Hay cantidades entregadas pendientes de facturar.	Des quantités livrées restent à facturer.	Delivered quantities remain to be invoiced.
+Indica el motivo del precio manual.	Indiquez le motif du prix manuel.	Enter the reason for the manual price.
+La solicitud cambió. Actualiza y vuelve a intentarlo.	La demande a changé. Actualisez et réessayez.	The request changed. Refresh and try again.
+Los límites se aplican antes de finalizar un presupuesto o confirmar un pedido. Un campo vacío desactiva ese límite.	Les limites s’appliquent avant la finalisation d’un devis ou la confirmation d’une commande. Un champ vide désactive cette limite.	Limits apply before finalizing a quote or confirming an order. An empty field disables that limit.
+Mi vista guardada	Ma vue enregistrée	My saved view
+Modelo de presupuesto	Modèle de devis	Quote template
+Modelos de presupuesto	Modèles de devis	Quote templates
+Motivo del precio manual	Motif du prix manuel	Reason for manual price
+No hay cantidades entregadas pendientes de facturar.	Aucune quantité livrée ne reste à facturer.	No delivered quantities remain to be invoiced.
+No hay documentos para este filtro.	Aucun document ne correspond à ce filtre.	No documents match this filter.
+Por facturar	À facturer	To invoice
+Por relanzar	À relancer	To follow up
+Por vencer	Échéance proche	Due soon
+Presupuestos abiertos	Devis ouverts	Open quotes
+Presupuestos y pedidos	Devis et commandes	Quotes and orders
+Revisa la cantidad y el factor del condicionamiento.	Vérifiez la quantité et le facteur du conditionnement.	Check the quantity and packaging conversion factor.
+Revisar cobro	Consulter l’encaissement	Review payment
+Revisar presupuesto	Consulter le devis	Review quote
+Revisar solicitud	Consulter la demande	Review request
+Sección de ventas	Section des ventes	Sales section
+Selecciona pedidos del mismo cliente.	Sélectionnez des commandes du même client.	Select orders for the same customer.
+Servicio sin movimiento de stock	Prestation sans mouvement de stock	Service without stock movement
+Un producto ya no está disponible.	Un produit n’est plus disponible.	A product is no longer available.
+Usar modelo	Utiliser le modèle	Use template
+Validación comercial	Validation commerciale	Commercial approval
+Validación comercial necesaria.	Une validation commerciale est nécessaire.	Commercial approval is required.
+Validación solicitada.	Validation demandée.	Approval requested.
+Validar condiciones	Valider les conditions	Approve terms
+Venta completada	Vente terminée	Sale completed
+Vista guardada.	Vue enregistrée.	View saved.
+Selecciona uno o varios pedidos confirmados.	Sélectionnez une ou plusieurs commandes confirmées.	Select one or more confirmed orders.
+La cantidad supera lo entregado pendiente de facturar.	La quantité dépasse le reste livré à facturer.	The quantity exceeds delivered quantities available for invoicing.
+Revisa las líneas de la factura.	Vérifiez les lignes de la facture.	Check the invoice lines.
+La sección de ventas no está disponible. Actualiza la página.	La section des ventes est indisponible. Actualisez la page.	Sales is unavailable. Refresh the page.
+Pilotaje	Pilotage	Management
+Condicionamiento	Conditionnement	Packaging
+Identidad, direcciones y condiciones	Identité, adresses et conditions	Identity, addresses and terms
+Condiciones comerciales validadas	Conditions commerciales validées	Commercial terms approved
+Validación comercial solicitada	Validation commerciale demandée	Commercial approval requested
+Factura de cantidades entregadas creada	Facture des quantités livrées créée	Invoice for delivered quantities created

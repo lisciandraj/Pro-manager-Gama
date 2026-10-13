@@ -424,6 +424,7 @@ function headers(t,state,selected){
 function scan(root=document){
  const tables=new Set([...(root.querySelectorAll?.('table')||[]),...(root.closest?.('table')?[root.closest('table')]:[])]);
  tables.forEach(t=>{
+  if(t.hasAttribute('data-coco-form-grid'))return;
   if(t.closest('[data-gama-nocards]')||(t.closest('[data-arc-table]')?!cabecera(t).length:!etiquetar(t))){
    let state=layouts.get(t);if(!state){const toolbar=document.createElement('div');toolbar.className='gamaTableToolbar';state={toolbar};layouts.set(t,state)}
    if(state.toolbar.nextElementSibling!==t)t.before(state.toolbar);search(t,state);return;

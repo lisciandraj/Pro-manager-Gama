@@ -18,7 +18,7 @@ async function boot(page,role='admin'){
 }
 test('payment module shows invoice content, records partial payment and retains cancelled payment',async({page})=>{
  // Las facturas son la pestaña Facturas de Ventas.
- await boot(page);await page.locator('#mainmenu [data-gama-module="quotes"]').click();await page.locator('#gqInvoicesTab').click();await expect(page.locator('#gpMain')).toContainText('FAC-123');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','due_soon');
+ await boot(page);await page.locator('#mainmenu [data-gama-module="quotes"]').click();await page.locator('#quotes [data-coco-sales-section]').selectOption('invoice');await expect(page.locator('#gpMain')).toContainText('FAC-123');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','due_soon');
  await page.locator('[data-gp-detail]').click();await expect(page.locator('#gpMain')).toContainText('Producto A');await expect(page.locator('#gpMain')).toContainText('2026-08-20');await page.locator('#gpPay').click();await page.locator('#gpAmount').fill('40');await page.locator('#gpReference').fill('BANK-123');await page.locator('#gpAccount').selectOption('bank-1');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('BANK-123');expect(await page.evaluate(()=>__paymentCalls.find(c=>c.p_action==='payment').p_data.amount)).toBe(40);
  await page.locator('[data-gp-cancel]').click();await page.locator('#gpReason').fill('Transferencia devuelta');await page.locator('dialog #gsSave').click();await expect(page.locator('#gpMain')).toContainText('Transferencia devuelta');await expect(page.locator('.gpBadge')).toHaveAttribute('data-state','overdue');
 });

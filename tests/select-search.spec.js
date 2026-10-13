@@ -143,7 +143,7 @@ test.describe('Listas largas — se busca escribiendo', () => {
     await expect(campo(page)).toHaveValue(/Talleres Vega/);
 
     await campo(page).fill('xyz sin sentido');
-    await page.locator('#gqd_sellerRuc').click();
+    await page.locator('#gqd_delivery_address').click();
     await page.waitForTimeout(300);
     await expect(campo(page)).toHaveValue(/Talleres Vega/);
     await expect(page.locator('#gqCustomer')).toHaveValue('c7');

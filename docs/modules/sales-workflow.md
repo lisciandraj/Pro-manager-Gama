@@ -15,7 +15,7 @@
 
 ## Conditions et modèles
 
-Dans **Conditions commerciales**, les tarifs et la matrice restent disponibles. L'administrateur configure une remise maximale et une marge minimale estimée, ainsi que le mode de facturation par client : automatique à chaque livraison, manuel ou groupé. Un seuil vide est désactivé ; aucun seuil imposé n'est ajouté aux comptes existants. La marge du devis utilise le coût d'achat courant ; celle d'une commande utilise ses coûts historiques lorsqu'ils sont disponibles. Un coût manquant avec seuil de marge actif demande une validation.
+Dans **Conditions commerciales**, les tarifs et la matrice restent disponibles. L'administrateur configure une remise maximale et une marge minimale estimée, ainsi que le mode de facturation par client : automatique à chaque livraison, manuel ou groupé. Un seuil vide est désactivé ; aucun seuil imposé n'est ajouté aux comptes existants. La marge du devis utilise le coût d'achat courant ; celle d'une commande utilise ses coûts historiques lorsqu'ils sont disponibles. Un coût manquant ou une vente à prix nul avec seuil de marge actif demande une validation.
 
 Une exception commerciale demande une approbation administrateur avant l'envoi/l'acceptation du devis ou la confirmation de la commande directe. La validation est liée à l'empreinte du document : changer ses conditions l'invalide. Demande, approbation et motif sont inscrits dans le journal du document.
 
@@ -37,6 +37,6 @@ Les éditeurs et outils des ventes sont chargés à leur ouverture, avec recherc
 
 ## Installation et vérification
 
-Migration additive : `supabase/migrations/20261013191210_sales_workspace.sql`, après les migrations existantes, avant le frontend. Elle ne crée aucune facture métier et ne réécrit aucun document historique. L'installation conserve son modèle d'une seule entreprise.
+Migration additive : `supabase/migrations/20261013191210_sales_workspace.sql`, puis `supabase/migrations/20261013193446_sales_zero_margin_approval.sql`, après les migrations existantes et avant le frontend. Elle ne crée aucune facture métier et ne réécrit aucun document historique. L'installation conserve son modèle d'une seule entreprise.
 
 Les tests `tests/sales-workspace-db.test.cjs` restaurent toutes les migrations dans PostgreSQL isolé et vérifient tarifs/unités, livraison signée, quantités partielles, idempotence, regroupement/rentabilité, approbations et droits. `tests/sales-workspace.spec.js`, `tests/sales-module-tabs.spec.js`, `tests/quote-adjust.spec.js`, `tests/sales-orders.spec.js` et `tests/internal-invoices.spec.js` vérifient les parcours de l'interface, les traductions et le mobile. Les tests de stock, services, fiscalité, paiements et architecture existants restent requis.

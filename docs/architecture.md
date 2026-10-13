@@ -137,3 +137,7 @@ Le composant partagé de tableau utilise la vue tableau par défaut sur ordinate
 ## Extensions commerciales et financières
 
 Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.
+
+## Espace ventes
+
+Les cinq sections de Ventes réutilisent les adresses et droits existants. `coco-sales-workspace.js` et `coco-sales-editor.js` sont chargés à la demande ; listes et recherches ne chargent pas le catalogue complet. La façade `gama_sales_workspace` gère les contrôles commerciaux, les modèles et la facturation des quantités livrées. Les factures partielles et groupées utilisent `external_invoices` avec allocations privées par commande, sans second registre financier. Voir [le parcours Ventes](modules/sales-workflow.md).

@@ -86,3 +86,13 @@ DOCUMENT_DATE_BEFORE_INVOICE	La fecha no puede ser anterior a la factura.
 REFUND_CREDIT_UNPOSTED	Contabiliza primero el abono antes de recuperar su reembolso.
 RETURN_REFUND_ALREADY_REVERSED_SALE	La venta ya se ha revertido por un reembolso directo. Revisa la devolución antes de registrar otro abono.
 PREPARATION_INCOMPLETE	La preparación todavía tiene cantidades pendientes.
+SALES_APPROVAL_REQUIRED	Validación comercial necesaria.
+SALES_PRICE_REASON_REQUIRED	Indica el motivo del precio manual.
+SALES_UNIT_INVALID	El condicionamiento no está disponible para este producto.
+SALES_UNIT_QUANTITY	Revisa la cantidad y el factor del condicionamiento.
+NO_DELIVERED_UNBILLED	No hay cantidades entregadas pendientes de facturar.
+CUSTOMER_MISMATCH	Selecciona pedidos del mismo cliente.
+REQUEST_KEY_REUSED	La solicitud cambió. Actualiza y vuelve a intentarlo.
+INVALID_ORDERS	Selecciona uno o varios pedidos confirmados.
+EXCEEDS_UNBILLED	La cantidad supera lo entregado pendiente de facturar.
+SALES_WORKSPACE_UNAVAILABLE	La sección de ventas no está disponible. Actualiza la página.

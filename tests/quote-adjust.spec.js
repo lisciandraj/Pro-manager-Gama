@@ -93,7 +93,7 @@ for(const mode of ['mouse','touch'])test('product search uses one selector and s
   await expect(page.locator('.gqProductPicker')).toHaveCount(0);
   await expect(page.locator('#gqLines .gqLine')).toHaveCount(1);
   await expect(page.locator('#gqLines .gqLine')).toHaveAttribute('data-product-id','p2');
-  await expect(page.locator('#gqLines select')).toHaveCount(0);
+  await expect(page.locator('#gqLines [data-k="sales_unit_id"]')).toHaveCount(1);
   await expect(page.locator('.gqProductHeading')).toContainText('Producto 2');
   if(mode==='touch')await page.locator('#gqLines .gqLine').screenshot({path:'test-results/quote-product-added-mobile.png'});
   await expect(page.locator('#gqLines [data-k="description"]')).toHaveValue('Producto 2');

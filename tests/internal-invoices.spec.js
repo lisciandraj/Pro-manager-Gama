@@ -43,7 +43,7 @@ test('the quote list no longer carries invoices; they live in the Facturas tab',
  await expect(page.locator('.gqLinked, .gqInvoiceRow, [data-gq-invoice], [data-gq-create-invoice]')).toHaveCount(0);
  await expect(page.locator('#quotes')).not.toContainText('FI-2026-00000001');
  expect(await page.evaluate(()=>__DB.__calls.some(c=>c.table==='external_invoices')),'the list no longer reads invoices').toBe(false);
- await page.locator('#quotes [data-coco-sales-section]').selectOption('invoice');await expect(page.locator('#payments.active')).toBeVisible();
+ await page.locator('#quotes [data-coco-sales-section="invoice"]').click();await expect(page.locator('#payments.active')).toBeVisible();
  // The internal invoice and its external reference stay one call away.
  await page.evaluate(()=>GamaInternalInvoices.view('fi1'));await expect(page.locator('#giText')).toBeVisible();await page.locator('#giLink').click();await expect(page.locator('#giNumber')).toHaveValue('001-002-0000456');
 });

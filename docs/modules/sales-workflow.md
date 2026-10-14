@@ -1,6 +1,6 @@
 # Ventes : devis, commandes, factures et encaissements
 
-État du 13 octobre 2026. La carte **Ventes** ouvre les documents autorisés. Le sélecteur présente cinq sections, selon les droits : **À traiter**, **Devis et commandes**, **Factures et encaissements**, **Conditions commerciales**, **Pilotage**. Les anciennes adresses `quotes`, `customer-requests`, `sales-orders`, `payments`, `price-lists` et `matrix` restent compatibles. Le magasinier entre par Ventes dans les commandes et conserve ses seules actions logistiques.
+État du 13 octobre 2026. La carte **Ventes** ouvre les documents autorisés. Cinq onglets visibles dans le module, répartis sur plusieurs lignes sur téléphone, donnent accès aux sections autorisées : **À traiter**, **Devis et commandes**, **Factures et encaissements**, **Conditions commerciales**, **Pilotage**. Les anciennes adresses `quotes`, `customer-requests`, `sales-orders`, `payments`, `price-lists` et `matrix` restent compatibles. Le magasinier entre par Ventes dans les commandes et conserve ses seules actions logistiques.
 
 ## Parcours
 

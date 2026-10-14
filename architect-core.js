@@ -272,9 +272,9 @@
   };
   function normalizeError(error) {
     var _a;
-    const message = String((error == null ? void 0 : error.message) || error || "UNKNOWN_ERROR");
-    const code = (error == null ? void 0 : error.code) || ((_a = message.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0]) || "UNKNOWN_ERROR";
-    return { code, message, fields: (error == null ? void 0 : error.fields) || {}, retryable: ["NETWORK_ERROR", "TIMEOUT", "READ_CANCELLED", "57014", "53300"].includes(code), cause: error };
+    const message2 = String((error == null ? void 0 : error.message) || error || "UNKNOWN_ERROR");
+    const code = (error == null ? void 0 : error.code) || ((_a = message2.match(/\b[A-Z][A-Z_]{3,}\b/)) == null ? void 0 : _a[0]) || "UNKNOWN_ERROR";
+    return { code, message: message2, fields: (error == null ? void 0 : error.fields) || {}, retryable: ["NETWORK_ERROR", "TIMEOUT", "READ_CANCELLED", "57014", "53300"].includes(code), cause: error };
   }
   function errorMessage(error) {
     var _a, _b;
@@ -298,6 +298,81 @@
     if (audit[specific]) return audit[specific][{ es: 0, fr: 1, en: 2 }[(_b = window.GamaI18n) == null ? void 0 : _b.language] ?? 0] + (specific === "PRODUCT_NOT_READY" ? " " + e.message.split(":").slice(1).join(":") : "");
     return translate(messages[e.code] || e.message);
   }
+  let sequence$1 = 0;
+  const forms = /* @__PURE__ */ new WeakSet();
+  const errors = /* @__PURE__ */ new WeakMap();
+  function message(control) {
+    const v = control.validity;
+    if (v.customError) return control.validationMessage;
+    if (v.valueMissing) return translate("Completa este campo.");
+    if (v.typeMismatch && control.type === "email") return translate("Introduce una dirección de correo válida.");
+    if (v.rangeUnderflow) return translate("El valor mínimo es") + " " + control.min + ".";
+    if (v.rangeOverflow) return translate("El valor máximo es") + " " + control.max + ".";
+    if (v.tooShort) return translate("El mínimo de caracteres es") + " " + control.minLength + ".";
+    if (v.tooLong) return translate("El máximo de caracteres es") + " " + control.maxLength + ".";
+    return translate("Revisa el formato o el valor de este campo.");
+  }
+  function show$1(control) {
+    let state = errors.get(control);
+    if (!state) {
+      const id = control.id && control.ownerDocument.getElementById(control.id + "-error");
+      const node = id || document.createElement("small");
+      if (!id) {
+        node.id = "arc-validation-" + ++sequence$1;
+        node.className = "arcFieldError";
+        control.after(node);
+      }
+      state = { node, description: control.getAttribute("aria-describedby"), invalid: control.getAttribute("aria-invalid") };
+      errors.set(control, state);
+    }
+    state.node.hidden = false;
+    state.node.textContent = message(control);
+    control.setAttribute("aria-invalid", "true");
+    control.setAttribute("aria-describedby", [.../* @__PURE__ */ new Set([...(state.description || "").split(/\s+/).filter(Boolean), state.node.id])].join(" "));
+  }
+  function clear(control) {
+    const state = errors.get(control);
+    if (!state || !control.validity.valid) return;
+    state.node.hidden = true;
+    state.node.textContent = "";
+    if (state.description == null) control.removeAttribute("aria-describedby");
+    else control.setAttribute("aria-describedby", state.description);
+    if (state.invalid == null) control.removeAttribute("aria-invalid");
+    else control.setAttribute("aria-invalid", state.invalid);
+  }
+  function mountFieldValidation(root) {
+    var _a;
+    const candidates = [...((_a = root.matches) == null ? void 0 : _a.call(root, "form")) ? [root] : [], ...root.querySelectorAll("form")];
+    for (const form2 of candidates) {
+      if (forms.has(form2)) continue;
+      forms.add(form2);
+      let first = null;
+      form2.addEventListener("invalid", (event) => {
+        const control = event.target;
+        if (!control.matches("input,select,textarea")) return;
+        event.preventDefault();
+        show$1(control);
+        if (first) return;
+        first = control;
+        queueMicrotask(() => {
+          const target = first;
+          first = null;
+          if (!(target == null ? void 0 : target.isConnected)) return;
+          for (let p = target.parentElement; p && p !== form2; p = p.parentElement) if (p.tagName === "DETAILS") p.open = true;
+          target.focus();
+        });
+      }, true);
+      for (const type of ["input", "change"]) form2.addEventListener(type, (event) => {
+        const control = event.target;
+        if (!errors.has(control)) return;
+        if (control.validity.valid) clear(control);
+        else show$1(control);
+      });
+    }
+  }
+  window.addEventListener("gama:language-change", () => {
+    for (const control of document.querySelectorAll("form [aria-invalid=true]")) if (errors.has(control)) show$1(control);
+  });
   let sequence = 0;
   const attr = (key, value) => value == null || value === false ? "" : value === true ? " " + key : " " + key + '="' + escapeHtml(value) + '"';
   const attributes = (values) => Object.entries(values).map(([key, value]) => attr(key, value)).join("");
@@ -374,6 +449,7 @@
   }
   function bindForm(el, onSubmit, { error = errorMessage, onSuccess } = {}) {
     if (el.__arcForm) return el.__arcForm;
+    mountFieldValidation(el);
     let pending = false;
     const submit = async (event) => {
       event.preventDefault();
@@ -382,16 +458,16 @@
       el.setAttribute("aria-busy", "true");
       const controls = [...el.querySelectorAll("button,input[type=submit]")], previous = controls.map((c) => c.disabled);
       controls.forEach((c) => c.disabled = true);
-      const message = el.querySelector("[role=alert]");
-      if (message) message.textContent = "";
+      const message2 = el.querySelector("[role=alert]");
+      if (message2) message2.textContent = "";
       try {
         await onSubmit(el, new FormData(el));
         await (onSuccess == null ? void 0 : onSuccess());
       } catch (e) {
-        if (message) {
-          message.textContent = error(e);
-          message.tabIndex = -1;
-          message.focus();
+        if (message2) {
+          message2.textContent = error(e);
+          message2.tabIndex = -1;
+          message2.focus();
         } else throw e;
       } finally {
         pending = false;
@@ -449,10 +525,10 @@
     mount(el);
     return el;
   }
-  function confirm({ title = translate("Confirmar"), message, confirmLabel = translate("Confirmar"), variant = "danger" } = {}) {
+  function confirm({ title = translate("Confirmar"), message: message2, confirmLabel = translate("Confirmar"), variant = "danger" } = {}) {
     return new Promise((resolve) => {
       let accepted = false;
-      const el = dialog({ title, body: "<p>" + escapeHtml(message) + "</p>", saveLabel: confirmLabel, dismissOnly: false, onSave: () => {
+      const el = dialog({ title, body: "<p>" + escapeHtml(message2) + "</p>", saveLabel: confirmLabel, dismissOnly: false, onSave: () => {
         accepted = true;
       } });
       const save = el.querySelector("[type=submit]");
@@ -669,6 +745,7 @@
   }
   function mount(root = document) {
     var _a, _b, _c, _d, _e, _f, _g;
+    mountFieldValidation(root);
     root.querySelectorAll(".gamaStdBack").forEach((b) => {
       if (!b.__gamaBound) {
         b.__gamaBound = true;
@@ -1600,8 +1677,8 @@
   function refuse(id) {
     var _a, _b, _c, _d;
     if (window.gamaAccessAllowed) {
-      const message = ((_a = window.GamaModules) == null ? void 0 : _a.enabled(id)) === false ? "Este módulo está desactivado en Configuración." : "Acceso denegado para este perfil.";
-      (_d = window.gamaToast) == null ? void 0 : _d.call(window, ((_c = (_b = window.GamaI18n) == null ? void 0 : _b.t) == null ? void 0 : _c.call(_b, message)) || message);
+      const message2 = ((_a = window.GamaModules) == null ? void 0 : _a.enabled(id)) === false ? "Este módulo está desactivado en Configuración." : "Acceso denegado para este perfil.";
+      (_d = window.gamaToast) == null ? void 0 : _d.call(window, ((_c = (_b = window.GamaI18n) == null ? void 0 : _b.t) == null ? void 0 : _c.call(_b, message2)) || message2);
     }
     return false;
   }

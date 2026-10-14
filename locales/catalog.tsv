@@ -5602,3 +5602,16 @@ Coste de combustible/km pendiente en Flota.	Coût de carburant/km manquant dans 
 Pendientes de planificación	En attente de planification	Awaiting planning
 La ruta cambió. Actualiza antes de guardar.	La tournée a changé. Actualisez avant d’enregistrer.	The route changed. Refresh before saving.
 El horario cambió. Vuelve a abrirlo antes de guardar.	Les horaires ont changé. Rouvrez-les avant d’enregistrer.	The schedule changed. Reopen it before saving.
+Completa este campo.	Complétez ce champ.	Complete this field.
+Introduce una dirección de correo válida.	Saisissez une adresse e-mail valide.	Enter a valid email address.
+El valor mínimo es	La valeur minimale est	The minimum value is
+El valor máximo es	La valeur maximale est	The maximum value is
+El mínimo de caracteres es	Le nombre minimal de caractères est	The minimum number of characters is
+El máximo de caracteres es	Le nombre maximal de caractères est	The maximum number of characters is
+Revisa el formato o el valor de este campo.	Vérifiez le format ou la valeur de ce champ.	Check the format or value of this field.
+Filtros y vistas guardadas	Filtres et vues enregistrées	Filters and saved views
+Filtro de fecha activo	Filtre de date actif	Date filter active
+Restablecer filtros	Réinitialiser les filtres	Reset filters
+Prioridades de cobro y conciliación	Priorités de paiement et de rapprochement	Payment and reconciliation priorities
+Facturas de clientes vencidas	Factures clients échues	Overdue customer invoices
+Facturas de proveedores vencidas	Factures fournisseurs échues	Overdue supplier invoices

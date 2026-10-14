@@ -203,7 +203,8 @@ VIEWS.overview={
   const resultYear=Number(d.revenue.year)-Number(d.expense.year);
   const margin=Number(d.revenue.year)>0?resultYear/Number(d.revenue.year)*100:null;
   const c=d.customers,s=d.suppliers,t=d.treasury,x=d.taxes;
-  return `<div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
+  const priority=(target,label,value)=>`<button type="button" class="gaPriority" data-ga-priority="${target}" ${value==null?'disabled':''}><span>${tr(label)}</span><strong>${value==null?'—':esc(num(value,0))}</strong><span class="gaPriorityLink">${tr('Ver documentos')} →</span></button>`;
+  return `<div class="arcPanel gaCard gaPriorities"><h3>${tr('Prioridades de cobro y conciliación')}</h3><div class="gaPriorityGrid">${priority('receivables','Facturas de clientes vencidas',c.overdue_count)}${s?priority('payables','Facturas de proveedores vencidas',s.overdue_count):''}${scope==='all'?priority('cash','Movimientos bancarios sin conciliar',d.alerts?.unmatched):''}</div></div><div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
    <div class="gaKpis">
     ${kpi('Ingresos del mes',money(d.revenue.month),rev.text,rev.cls)}
     ${kpi('Gastos del mes',money(d.expense.month),exp.text,exp.cls)}
@@ -224,7 +225,7 @@ VIEWS.overview={
     ${t.accounts.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.bank_name?'<br>'+esc(a.bank_name):''}</td>
      <td>${tr({bank:'Banco',cash:'Caja',card:'Tarjeta'}[a.kind]||a.kind)}</td>
      <td class="gaNum"><b>${money(a.current_balance)}</b></td>
-     <td class="gaNum">${Number(a.unmatched)||'—'}</td></tr>`).join('')}</tbody></table></div>`
+     <td class="gaNum">${a.unmatched==null?'—':esc(num(a.unmatched,0))}</td></tr>`).join('')}</tbody></table></div>`
     :`<p class="gaHint">${tr('Todavía no hay cuentas de banco o caja. Créalas en Banco y caja.')}</p>`}</div>`:''}
 
    <div class="arcPanel gaCard"><h3>${tr('Clientes')}</h3>
@@ -263,7 +264,14 @@ VIEWS.overview={
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
     <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Coco ERP.')}</p></div>`:''}`;
  },
- bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo))}
+ bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo));
+  document.querySelectorAll('[data-ga-priority]').forEach(b=>b.onclick=()=>{
+   const target=b.dataset.gaPriority;
+   if(target==='cash'){state.bankFilters={status:'unmatched'};state.bankOffset=0;}
+   else{state.search='';state.status='overdue';state.offset=0;delete state.invoiceId;}
+   return go(target);
+  });
+ }
 };
 
 function agingBlock(a){

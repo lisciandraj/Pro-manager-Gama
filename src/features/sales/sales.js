@@ -13,7 +13,7 @@ const role=()=>{try{return JSON.parse(localStorage.getItem('gama_session_v1')||'
 const sell=()=>['admin','administrador','commercial','comercial'].includes(role());
 const warehouse=()=>['admin','administrador','magasinier','almacenero'].includes(role());
 const allowed=()=>['admin','administrador','commercial','comercial','magasinier','almacenero'].includes(role())&&(!window.gamaAccessAllowed||window.gamaAccessAllowed('sales-orders'));
-let tab='orders',page=0,search='',detail=null,version=0,busy=false;
+let tab='orders',page=0,search='',detail=null,version=0,busy=false,detailReturn=null,returnOrderId=null;
 const SIZE=20,PCOLS='id,name,reference,sale_price,sale_price_b,tax_rate,active,base_unit';
 function error(e){
  const s=String(e?.message||e||'');
@@ -73,7 +73,8 @@ async function invoiceBalances(invoices){const ids=invoices.map(i=>i.id),chunks=
 function balanceFor(invoice){return Number(invoice._balance.balance)}
 function paidFor(invoice,d=detail){return d.payments.filter(p=>p.invoice_id===invoice.id&&p.status==='confirmed').reduce((s,p)=>s+Number(p.amount||0),0)}
 function paymentStatus(invoice,paid){if(invoice._balance)return invoice._balance.payment_status;const balance=Math.max(0,Math.round(Number(invoice.total||0)*100)-Math.round(Number(paid||0)*100));if(balance===0)return'paid';if(invoice.due_date&&invoice.due_date<day())return'overdue';if(paid>0)return'partial';return'pending'}
-async function openOrder(id){
+async function openOrder(id,options={}){
+ if(options.returnTo)detailReturn=options.returnTo;else if(returnOrderId!==id)detailReturn=null;returnOrderId=id;
  if(!allowed())return;ensure();if(!$('gsMain'))shell();window.showTab?.('sales-orders');const token=++version;const host=$('gsMain');window.ArcUI.render(host,'<div class="arcPanel gsCard" data-gi=0a37db3d4af4>Cargando pedido…</div>');
  try{
   const [orders,lines,shipments,reservations]=await Promise.all([rows('sales_orders',{eq:{id}}),rows('sales_order_lines',{eq:{order_id:id},order:'product_name'}),rows('sales_deliveries',{eq:{order_id:id},order:'dispatched_at',ascending:false}),rows('stock_reservations',{eq:{reference_type:'sales_order',reference_id:id}})]);
@@ -94,7 +95,7 @@ ${sell()?`<div class="arcPanel gsCard" id="gsLinkedInvoices"><h3 data-gi=25027a1
  if(sell()&&o.status!=='cancelled'){const b=document.createElement('button');b.type='button';b.className='arcButton secondary';b.textContent=window.GamaI18n?.t?.('Programar este pedido')||'Programar este pedido';b.onclick=()=>window.CocoPlanning.recurring(o);$('gsReload').after(b);}
  if(o.status==='confirmed')window.GamaProjects?.sourceButton('order',o.id,$('gsMain').querySelector('.gsActions'));
  if(sell())window.ArcLoadScript('gama-collections.js').then(()=>window.GamaCollections.credit(o.customer_id,o.id,$('gsCredit'))).catch(e=>{const h=$('gsCredit');if(h)h.textContent=window.ArcErrors.message(e)});
- $('gsBack').onclick=()=>{detail=null;load()};$('gsReload').onclick=()=>openOrder(o.id);
+ $('gsBack').onclick=()=>{detail=null;const back=detailReturn;detailReturn=null;returnOrderId=null;return back?back():load()};$('gsReload').onclick=()=>openOrder(o.id);
  $('gsConfirm')?.addEventListener('click',()=>action('confirm'));$('gsReserve')?.addEventListener('click',()=>action('reserve'));
  $('gsCancel')?.addEventListener('click',()=>{if(confirm('¿Cancelar el pedido y liberar sus reservas?'))action('cancel')});
  $('gsShip')?.addEventListener('click',()=>window.GamaPreparation?.open(detail.order.id));
@@ -134,7 +135,8 @@ function cancelPaymentForm(invoiceId,paymentId){const oid=detail.order.id;modal(
 function statusForm(id){const d=detail;if(d.invoices.find(i=>i.id===id)?.document_kind==='internal'){modal('Anular factura interna','<p data-gi=6f43cb34287c>La factura se conserva en el historial y su importe deja de contar en los KPI. No anula el documento externo ni modifica el stock.</p><label class="gsField" data-gi=c7b288b1c0bb>Motivo<textarea id="giCancelReason" required minlength="3"></textarea></label>','Anular factura',async el=>{await rpc('invoice_status',{order_id:d.invoices.find(i=>i.id===id)?.order_id||d.order.id,invoice_id:id,fiscal_status:'cancelled',reason:value(el,'giCancelReason')});await openOrder(d.order.id)});return}modal('Actualizar estado declarado',`<p class="gsHint" data-gi=e936e98758ad>Registra el cambio confirmado en el software emisor. Cancelar aquí no anula un documento ante el SRI y no devuelve mercancía al stock.</p><label class="gsField" data-gi=98e5acddb6c4>Estado<select id="gsNewStatus"><option value="authorized" data-gi=56711872b6ea>Autorizada</option><option value="rejected" data-gi=ed91db3266d0>Rechazada</option><option value="cancelled" data-gi=b0b75a9990bf>Cancelada en el software emisor</option></select></label><label class="gsField" data-gi=7c28fbb37d2e>Motivo / referencia de comprobación<textarea id="gsReason" required minlength="3"></textarea></label>`,'Guardar estado',async el=>{await rpc('invoice_status',{order_id:d.invoices.find(i=>i.id===id)?.order_id||d.order.id,invoice_id:id,fiscal_status:value(el,'gsNewStatus'),reason:value(el,'gsReason')});await openOrder(d.order.id)})}
 function attachForm(id){const oid=detail.order.id,anchor=detail.invoices.find(i=>i.id===id)?.order_id||oid;modal('Adjuntar documento',fileInput,'Guardar archivos',async el=>{const files=await readFiles(el);if(!files.length)throw new Error('Selecciona al menos un archivo.');await rpc('attach',{order_id:anchor,invoice_id:id,files});await openOrder(oid)})}
 async function download(id){try{const a=await rows('external_invoice_files',{eq:{id}}),f=a[0];if(!f)throw new Error('Archivo no disponible.');const b=Uint8Array.from(atob(f.content_base64),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([b],{type:f.mime_type})),link=document.createElement('a');link.href=url;link.download=f.filename.replace(/[\\/]/g,'_');link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){window.gamaToast?.(error(e))}}
-async function open(requestedTab){if(!allowed())return;if(requestedTab==='invoices'&&sell()){if(window.GamaQuotes?.merged?.()&&window.GamaPayments)return window.GamaPayments.open();tab='invoices'}await window.GamaCloudReady;detail=null;shell();window.showTab?.('sales-orders');await load()}
+async function open(requestedTab){if(!allowed())return;detailReturn=null;returnOrderId=null;if(requestedTab==='invoices'&&sell()){if(window.GamaQuotes?.merged?.()&&window.GamaPayments)return window.GamaPayments.open();tab='invoices'}await window.GamaCloudReady;detail=null;shell();window.showTab?.('sales-orders');await load()}
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-gs-source]');if(!b||!allowed()||!sell())return;const source=b.dataset.gsSource,id=b.dataset.gsSourceId;b.disabled=true;try{const existing=await rows('sales_orders',{eq:{[source==='quote'?'source_quote_id':'source_request_id']:id},limit:1});if(existing[0])await openOrder(existing[0].id);else await newOrder(source,id)}catch(err){window.gamaToast?.(error(err))}finally{b.disabled=false}});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED'){detailReturn=null;returnOrderId=null}});
 window.GamaSales={styles:css,open,openOrder,newOrder,counts,error,modal,rows,refs,rpc};
 })();

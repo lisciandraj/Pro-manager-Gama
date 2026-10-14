@@ -1,0 +1,158 @@
+{
+  "before": {
+    "phase": "before",
+    "viewport": 1440,
+    "scenarios": [
+      {
+        "name": "À traiter → devis → retour à À traiter",
+        "clicks": [
+          "Consulter le devis",
+          "gqBack",
+          "queue"
+        ],
+        "extraSelections": 0
+      },
+      {
+        "name": "Liste des devis → devis → retour à la liste",
+        "clicks": [
+          "Voir",
+          "gqBack"
+        ],
+        "extraSelections": 0
+      },
+      {
+        "name": "Synthèse comptable → factures clients échues",
+        "clicks": [
+          "receivables",
+          "gaApply"
+        ],
+        "extraSelections": 1,
+        "filter": "overdue"
+      }
+    ],
+    "timing": {
+      "method": "10 ouvertures après échauffement, navigateur local et RPC simulés; ne mesure pas la production",
+      "samples": [
+        {
+          "ms": 45.5,
+          "rpc": 1
+        },
+        {
+          "ms": 44.90000000037253,
+          "rpc": 1
+        },
+        {
+          "ms": 36.1999999997206,
+          "rpc": 1
+        },
+        {
+          "ms": 33.8000000002794,
+          "rpc": 1
+        },
+        {
+          "ms": 27.399999999906868,
+          "rpc": 1
+        },
+        {
+          "ms": 34.39999999990687,
+          "rpc": 1
+        },
+        {
+          "ms": 25.899999999906868,
+          "rpc": 1
+        },
+        {
+          "ms": 25.200000000186265,
+          "rpc": 1
+        },
+        {
+          "ms": 25.100000000093132,
+          "rpc": 1
+        },
+        {
+          "ms": 24.899999999906868,
+          "rpc": 1
+        }
+      ],
+      "medianMs": 30.600000000093132
+    },
+    "checks": {}
+  },
+  "after": {
+    "phase": "after",
+    "viewport": 1440,
+    "scenarios": [
+      {
+        "name": "À traiter → devis → retour à À traiter",
+        "clicks": [
+          "Consulter le devis",
+          "gqBack"
+        ],
+        "extraSelections": 0
+      },
+      {
+        "name": "Liste des devis → devis → retour à la liste",
+        "clicks": [
+          "Voir",
+          "gqBack"
+        ],
+        "extraSelections": 0
+      },
+      {
+        "name": "Synthèse comptable → factures clients échues",
+        "clicks": [
+          "receivables"
+        ],
+        "extraSelections": 0,
+        "filter": "overdue"
+      }
+    ],
+    "timing": {
+      "method": "10 ouvertures après échauffement, navigateur local et RPC simulés; ne mesure pas la production",
+      "samples": [
+        {
+          "ms": 36,
+          "rpc": 1
+        },
+        {
+          "ms": 31.699999999720603,
+          "rpc": 1
+        },
+        {
+          "ms": 30.5,
+          "rpc": 1
+        },
+        {
+          "ms": 27.300000000279397,
+          "rpc": 1
+        },
+        {
+          "ms": 30.5,
+          "rpc": 1
+        },
+        {
+          "ms": 29.199999999720603,
+          "rpc": 1
+        },
+        {
+          "ms": 32.10000000009313,
+          "rpc": 1
+        },
+        {
+          "ms": 58.6999999997206,
+          "rpc": 1
+        },
+        {
+          "ms": 33.799999999813735,
+          "rpc": 1
+        },
+        {
+          "ms": 37.10000000009313,
+          "rpc": 1
+        }
+      ],
+      "medianMs": 31.899999999906868
+    },
+    "checks": {}
+  }
+}

@@ -402,3 +402,30 @@ for(const [language,width] of [['fr',1440],['es',390],['en',390]])test('Business
  await page.screenshot({path:'test-results/commercial-planning-'+language+'.png',fullPage:true});
  await page.evaluate(()=>dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('dialog[open][data-commercial-planning]')).toHaveCount(0);
 });
+
+test('overview priorities open overdue and unmatched records with their exact filters',async({page},info)=>{
+ await boot(page);await open(page);await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('3');
+ await expect(page.locator('[data-ga-priority=payables] strong')).toHaveText('1');
+ await expect(page.locator('[data-ga-priority=cash] strong')).toHaveText('2');
+ for(const language of ['fr','es','en']){
+  await page.evaluate(lang=>GamaI18n.setLanguage(lang),language);
+  for(const width of [360,390,768,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
+ }
+ await page.locator('[data-ga-priority=receivables]').click();await expect(page.locator('#gaStatus')).toHaveValue('overdue');
+ expect(await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='receivables').at(-1).p_data)).toMatchObject({status:'overdue',offset:0,search:''});
+ await open(page);await page.locator('[data-ga-priority=payables]').click();await expect(page.locator('#gaStatus')).toHaveValue('overdue');
+ await open(page);await page.locator('[data-ga-priority=cash]').click();await expect(page.locator('#gaStatus')).toHaveValue('unmatched');
+ expect(await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='bank_list').at(-1).p_data)).toMatchObject({status:'unmatched',offset:0});
+ await open(page);await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:info.outputPath('accounting-priorities-desktop.png')});
+ await page.setViewportSize({width:390,height:900});await page.screenshot({path:info.outputPath('accounting-priorities-mobile.png')});
+});
+
+test('accounting priority tiles respect commercial scope and distinguish missing from zero',async({page})=>{
+ await boot(page,'commercial','commercial');await open(page);
+ await expect(page.locator('[data-ga-priority]')).toHaveCount(1);
+ await page.evaluate(()=>__ACC.overview.customers.overdue_count=null);await open(page);
+ await expect(page.locator('[data-ga-priority=receivables]')).toBeDisabled();await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('—');
+ await page.evaluate(()=>__ACC.overview.customers.overdue_count=0);await open(page);
+ await expect(page.locator('[data-ga-priority=receivables]')).toBeEnabled();await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('0');
+});

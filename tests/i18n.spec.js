@@ -170,7 +170,7 @@ test('TMS execution dialogs translate in all three languages without changing bu
    if(args.p_action==='context')return context;
    if(args.p_action==='day')return {deliveries:[{...delivery,reference:'ENT-00000001',pending_quantity:3,open_returns:0,invoice_review:true}]};
    if(args.p_action==='access')return [{profile_id:'u1',name:'Guardar',role:'dispatcher'}];
-   if(args.p_action==='manifest')return {route:{id:'r1',erp_reference:'RUT-00000001',route_date:'2026-10-06',stops:['d1']},deliveries:[context]};
+   if(['manifest','schedule'].includes(args.p_action))return {route:{id:'r1',erp_reference:'RUT-00000001',route_date:'2026-10-06',stops:['d1'],version:1},deliveries:[context],config:{shift_start:'08:00:00'}};
    return {};
   }};
  });

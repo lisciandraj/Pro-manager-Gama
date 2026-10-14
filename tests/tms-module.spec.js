@@ -332,18 +332,13 @@ test('POD blocks an unstarted shipment before capture and opens its exact loadin
  await page.evaluate(()=>__DB.sales_deliveries[0].departed_at=new Date().toISOString());await page.click('#tProofRetry');await expect(page.locator('#tSigSave')).toBeVisible();await expect(page.locator('.tms h2')).toContainText('EX-16');
 });
 
-test('pending proof list includes other dates and excludes cancelled deliveries',async({page})=>{
+test('other dates are in the paginated backlog and cancelled deliveries stay excluded',async({page})=>{
  await boot(page,{deliveries:[
-  {id:'future',dossier_reference:'ENT-00000148',customer:'Future client',address:'Quito',delivery_date:'2099-09-14',status:'En tránsito'},
+  {id:'future',erp_reference:'ENT-00000148',customer:'Future client',address:'Quito',delivery_date:'2099-09-14',status:'En tránsito'},
   {id:'past',customer:'Overdue client',address:'Quito',delivery_date:'2020-01-01',status:'En tránsito'},
   {id:'cancel',customer:'Cancelled client',address:'Quito',delivery_date:today(),status:'Cancelada'}
  ]});
- await page.evaluate(()=>gamaTMS.open('proof'));
- await expect(page.locator('#gama-tms-section')).toContainText('ENT-00000148');
- await expect(page.locator('[data-proof-row=future]')).toContainText('2099');
- await expect(page.locator('#gama-tms-section')).toContainText('Overdue client');
- await expect(page.locator('#tProofTable')).not.toContainText('Cancelled client');
- await expect(page.locator('[data-proof-capture=future]')).toBeVisible();
+ await page.evaluate(()=>gamaTMS.open('proof'));await expect(page.locator('#tProofTable')).not.toContainText('Overdue client');await page.click('#tBacklog');const d=page.locator('[data-tms-dispatch]');await expect(d).toContainText('ENT-00000148');await expect(d).toContainText('Overdue client');await expect(d).not.toContainText('Cancelled client');await expect(d.locator('[data-count]')).toHaveText('1–2 / 2');
 });
 
 test('delivery cannot be validated with an empty customer signature',async({page})=>{
@@ -377,7 +372,7 @@ test.describe('TMS — automatic daily order planning',()=>{
  });
  test('capacity and approved absences prevent an impossible assignment',async({page})=>{
   await boot(page,{drivers:[{...DRIVERS[0],max_weight:50,employee_id:'emp1'}, {...DRIVERS[1],max_weight:50}],absences:[{id:'abs',employee_id:'emp1',kind:'vacaciones',status:'aprobada',start_date:today(),end_date:today()}],deliveries:[delivery('a'),delivery('b')]});
-  await expect(page.locator('#tPlanStatus')).toContainText('1 / 2');await expect(page.locator('.tms')).toContainText('Capacidad o conductores insuficientes: 1');expect(await page.evaluate(()=>__DB.tms_routes.map(r=>r.driver_id))).toEqual(['drv2']);
+  await expect(page.locator('#tPlanStatus')).toContainText('1 / 2');await expect(page.locator('.tms')).toContainText('Pendientes de planificación: 1');expect(await page.evaluate(()=>__DB.tms_routes.map(r=>r.driver_id))).toEqual(['drv2']);
  });
  test('departed route is preserved and its driver is excluded',async({page})=>{
   await boot(page,{drivers:DRIVERS.slice(0,1),deliveries:[delivery('moving',today(),{status:'En tránsito',route_id:'started',driver_id:'drv1'}),delivery('waiting')],routes:[{id:'started',route_date:today(),driver_id:'drv1',driver_name:'Started',vehicle:'Truck',stops:['moving'],status:'Planificada'}]});
@@ -477,14 +472,14 @@ test('driver phone reads only its ordered route and opens photo then signature w
  await expect(page.locator('.tmsDriverStops li').first()).toContainText('Second client');await expect(page.locator('.tmsDriver')).not.toContainText('Private other client');await expect(page.locator('.tmsDriverActions a[href^="tel:"]')).toHaveCount(2);
  expect(await page.evaluate(()=>(__DB.__calls||[]).filter(c=>c.table==='tms_deliveries').length)).toBe(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.locator('#gama-tms-section').screenshot({path:'test-results/tms-driver-mobile.png'});
- const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.click('[data-driver-delivered=first]')]);await chooser.setFiles({name:'proof.png',mimeType:'image/png',buffer:TINY_PNG});await expect(page.locator('#tSig')).toBeVisible();
+ const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.click('[data-driver-receive=first]')]);await chooser.setFiles({name:'proof.png',mimeType:'image/png',buffer:TINY_PNG});await expect(page.locator('#tSig')).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>__DB.tms_proofs[0]?.latitude)).toBe(-0.2);await page.locator('#tSig').evaluate(c=>c.getContext('2d').fillRect(20,20,10,5));await page.click('#tSigSave');
  await expect(page.locator('.tmsDriver')).toBeVisible();await expect.poll(()=>page.evaluate(()=>__DB.tms_deliveries.find(d=>d.id==='first').status)).toBe('Entregada');expect(await page.evaluate(()=>__DB.tms_proofs[0].gps_accuracy_m)).toBe(9);
 });
 
 test('delivery operations prepare a tracking message, record a return and payment, and reschedule without a new departure',async({page})=>{
  const departed=new Date().toISOString();await boot(page,{drivers:DRIVERS,customers:[{id:'client',phone:'0991234567'}],deliveries:[{id:'ops',customer:'Operaciones',customer_id:'client',delivery_date:today(),address:'Quito',status:'En tránsito',driver_id:'drv1',route_id:'active'}],routes:[{id:'active',driver_id:'drv1',route_date:today(),stops:['ops'],status:'En ruta',cost_per_km:0.75,distance:10}],shipments:[{id:'shipment',order_id:'order',tms_delivery_id:'ops',loading_required:true,departed_at:departed}],invoices:[{id:'invoice',order_id:'order',erp_reference:'FAC-00000001',total:115}],accounts:[{id:'cash',name:'Caja',kind:'cash'}],packages:[{id:'pk1',barcode:'PK-01',shipment_id:'shipment'},{id:'pk2',barcode:'PK-02',shipment_id:'shipment'}]});
- await expect(page.locator('[data-route-drop=active]')).toContainText('Coste estimado');await page.click('[data-tms-operate=ops]');const dialog=page.locator('dialog').last();
+ await expect(page.locator('[data-route-drop=active]')).toContainText('Combustible estimado');await page.click('[data-tms-operate=ops]');const dialog=page.locator('dialog').last();
  await dialog.locator('summary', {hasText:'Avisar al cliente'}).click();const eta=new Date(Date.now()+3600000);await dialog.locator('#tmEta').fill(new Date(eta.getTime()-eta.getTimezoneOffset()*60000).toISOString().slice(0,16));await dialog.locator('[data-tm-message]').click();
  await expect(dialog.locator('a', {hasText:'WhatsApp'})).toHaveAttribute('href',/wa\.me\/593991234567\?text=.*tms-tracking/);expect(await page.evaluate(()=>__DB.tms_deliveries[0].eta_at)).toBeTruthy();
  await dialog.locator('summary',{hasText:'Cartones rechazados'}).click();await dialog.locator('[data-tm-package]').first().check();await dialog.locator('[data-tm-return]').click();await expect(dialog.locator('[data-tm-returns]')).toContainText('RET-00000001');await expect(dialog.locator('[data-tm-package]').first()).toBeDisabled();
@@ -538,12 +533,12 @@ test('a failed customer-cost lookup can be retried and a pending response cannot
 test('received quantities persist offline across a driver-page restart and sync once',async({page,context})=>{
  await page.setViewportSize({width:390,height:844});
  await boot(page,{__driver:true,profile:{id:'driver-offline',full_name:'Offline Driver',role:'almacenero',active:true},drivers:[{...DRIVERS[0],employee_id:'offline-employee'}],employees:[{id:'offline-employee',profile_id:'driver-offline',full_name:'Offline Driver',active:true}],routes:[{id:'offline-route',driver_id:'drv1',route_date:today(),vehicle:'Van',status:'En ruta',stops:['offline-delivery']}],deliveries:[{id:'offline-delivery',customer:'Offline customer',address:'Quito',driver_id:'drv1',route_id:'offline-route',delivery_date:today(),status:'En tránsito',version:1}],shipments:[{id:'offline-shipment',tms_delivery_id:'offline-delivery',loading_required:true,departed_at:new Date().toISOString()}],executionLines:{'offline-delivery':[{id:'line-one',name:'Papel A4',quantity:10,remaining:10,accepted:0,refused:0}]}});
- await page.click('#tDriverDownload');await expect(page.locator('#tDriverOfflineStatus')).toContainText('Ruta descargada',{timeout:40000});
+ await page.click('[data-driver-download]');await expect(page.locator('[data-driver-status]')).toContainText('Copia sin conexión lista',{timeout:40000});
  await context.setOffline(true);await page.goto('/tms-driver.html');await expect(page.locator('#cocoDriver')).toContainText('Offline customer');
- await page.reload();await expect(page.locator('#cocoDriver')).toContainText('Sin conexión');await page.click('[data-driver-receive]');
+ await page.reload();await expect(page.locator('#cocoDriver')).toContainText('Sin conexión');await page.locator('[data-driver-receive]').first().click();await page.locator('[data-receipt-incident]').click();
  await page.locator('[data-quantity=accepted]').fill('6');await page.locator('[data-quantity=refused]').fill('2');await page.locator('[data-quantity=deferred]').fill('2');await page.locator('[name=receiver]').fill('Cliente prueba');await page.locator('[name=reason]').fill('Dos rechazadas y dos para mañana');
  await page.locator('[data-ex-signature]').scrollIntoViewIfNeeded();const box=await page.locator('[data-ex-signature]').boundingBox();await page.mouse.move(box.x+20,box.y+30);await page.mouse.down();await page.mouse.move(box.x+140,box.y+70);await page.mouse.up();
- await page.locator('dialog').screenshot({path:'test-results/tms-receipt-mobile.png'});await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);await page.reload();await expect(page.locator('#cocoDriver')).toContainText('1 captura(s) por sincronizar');
+ await page.locator('dialog').screenshot({path:'test-results/tms-receipt-mobile.png'});await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog')).toHaveCount(0);await page.reload();await expect(page.locator('#cocoDriver')).toContainText('1 por sincronizar');
  const queued=await page.evaluate(()=>ArchitectOfflineProofs.rows());expect(queued).toHaveLength(1);expect(queued[0].payload.lines[0]).toMatchObject({accepted:6,refused:2,deferred:2});expect(queued[0].payload.signature).toMatch(/^data:image\/png/);
  await page.evaluate(()=>{window.__syncKeys=[];GamaCloud.getSession=async()=>({data:{session:{user:{id:'driver-offline'}}}});GamaCloud.db=async()=>({rpc:async(fn,{p_action,p_data})=>{if(p_action!=='receive')return {error:{message:'AUTH_REQUIRED'}};__syncKeys.push(p_data.request_key);return {data:{delivery:{id:'offline-delivery',version:2,status:'Entrega parcial'},lines:[],attempts:[]}}}})});
  await context.setOffline(false);await page.evaluate(()=>ArchitectOfflineProofs.flush());expect(await page.evaluate(()=>ArchitectOfflineProofs.rows())).toHaveLength(0);await page.evaluate(()=>ArchitectOfflineProofs.flush());expect(new Set(await page.evaluate(()=>__syncKeys)).size).toBe(1);

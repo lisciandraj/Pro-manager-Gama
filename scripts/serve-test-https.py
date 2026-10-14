@@ -6,6 +6,15 @@ import ssl
 import subprocess
 import tempfile
 
+class FixtureHandler(http.server.SimpleHTTPRequestHandler):
+    # Keep asset connections open across the parallel browser contexts.
+    protocol_version = "HTTP/1.1"
+
+
+class FixtureServer(http.server.ThreadingHTTPServer):
+    request_queue_size = 64
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=4175)
 args = parser.parse_args()
@@ -19,6 +28,6 @@ with tempfile.TemporaryDirectory(prefix="coco-test-tls-") as directory:
     )
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(cert, key)
-    with http.server.ThreadingHTTPServer(("127.0.0.1", args.port), http.server.SimpleHTTPRequestHandler) as server:
+    with FixtureServer(("127.0.0.1", args.port), FixtureHandler) as server:
         server.socket = context.wrap_socket(server.socket, server_side=True)
         server.serve_forever()

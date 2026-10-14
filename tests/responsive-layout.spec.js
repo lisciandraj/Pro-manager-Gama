@@ -138,11 +138,15 @@ test('date controls in TMS and document dialogs remain usable on phone and deskt
  }
  await page.locator('[data-tms-stage=planning]').click();
  await expect(page.locator('#tDayMap')).toBeVisible();
- await page.locator('details:has(#tDepot) summary').click();
+ await page.locator('#tSettings').click();
+ const settings=page.locator('[data-tms-dispatch]');
+ await expect(settings.locator('[name=depot]')).toBeVisible();
  for(const width of [320,360,390,768,844,1440]){
   await page.setViewportSize({width,height:width===844?390:900});
   expect(await page.locator('section.active').evaluate(layoutProblems),'TMS '+width).toEqual([]);
+  expect(await settings.evaluate(layoutProblems),'TMS settings '+width).toEqual([]);
  }
+ await settings.locator('[data-arc-dialog-close]').click();
  await page.evaluate(()=>ArcRouter.open('documents'));
  await page.locator('#documents [data-sd-action=new]').click();
  await expect(page.locator('dialog')).toBeVisible();

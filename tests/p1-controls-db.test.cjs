@@ -75,9 +75,12 @@ test('Delivery proof retries are atomic and route schedules distinguish travel a
  await db.exec('reset role;alter table tms_deliveries enable trigger tms_order_origin');await as(admin);
  const route=(await db.query("insert into tms_routes(stops,route_date) values($1,'2026-09-20') returning id",[[delivery]])).rows[0].id;
  await db.query('update tms_deliveries set route_id=$1 where id=$2',[route,delivery]);
- const schedule=await rpc('gama_route_schedule',{route_id:route,starts_at:'2026-09-20T10:00:00Z',road_source:'Verified road itinerary',legs:[{id:delivery,drive_minutes:20,service_minutes:15,road_km:12}]});
- assert.equal(schedule.duration_minutes,35);assert.equal(schedule.road_km,12);assert.equal(Date.parse(schedule.legs[0].arrival_at),Date.parse('2026-09-20T10:20:00Z'));
- await assert.rejects(rpc('gama_route_schedule',{route_id:route,starts_at:'2026-09-20T10:00:00Z',road_source:'Verified itinerary',legs:[{id:uuid(),drive_minutes:20,service_minutes:15,road_km:12}]}),/ROUTE_LEGS_CHANGED/);
+ // Ten UTC is 05:00 in Quito, before the configured working day.
+ const scheduleInput={route_id:route,starts_at:'2026-09-20T10:00:00-05:00',road_source:'Verified road itinerary',legs:[{id:delivery,drive_minutes:20,service_minutes:15,road_km:12}]};
+ await assert.rejects(rpc('gama_route_schedule',{...scheduleInput,starts_at:'2026-09-20T10:00:00Z'}),/TIME_WINDOW_EXCEPTION_REASON_REQUIRED/);
+ const schedule=await rpc('gama_route_schedule',scheduleInput);
+ assert.equal(schedule.duration_minutes,35);assert.equal(schedule.road_km,12);assert.equal(Date.parse(schedule.legs[0].arrival_at),Date.parse('2026-09-20T10:20:00-05:00'));
+ await assert.rejects(rpc('gama_route_schedule',{...scheduleInput,legs:[{id:uuid(),drive_minutes:20,service_minutes:15,road_km:12}]}),/ROUTE_LEGS_CHANGED/);
  const input={request_key:uuid(),delivery_id:delivery,captured_at:new Date().toISOString(),photo:'data:image/png;base64,aGVsbG8=',complete:false};
  const proof=await rpc('gama_tms_capture',input);assert.equal(proof.completed,false);assert.deepEqual(await rpc('gama_tms_capture',input),proof);
  await assert.rejects(rpc('gama_tms_capture',{...input,photo:'data:image/png;base64,dGVzdA=='}),/REQUEST_KEY_CONFLICT/);

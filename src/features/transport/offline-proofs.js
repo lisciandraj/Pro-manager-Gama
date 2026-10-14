@@ -8,16 +8,18 @@ async function actor(){
  const r=await window.GamaCloud.getSession();if(r.error)throw r.error;const id=r.data?.session?.user?.id;if(!id)throw Error('AUTH_REQUIRED');return id;
 }
 async function rows(){const id=await actor();return (await tx('readonly',s=>s.getAll())).filter(r=>r.actor===id).sort((a,b)=>a.created_at.localeCompare(b.created_at))}
-async function cacheBundle(bundle){if(!bundle?.actor_id)throw Error('AUTH_REQUIRED');if(navigator.onLine&&await actor()!==bundle.actor_id)throw Error('AUTH_CHANGED');await tx('readwrite',s=>s.put(bundle),'routes');localStorage.setItem(ACTIVE,bundle.actor_id);return bundle}
+async function cacheBundle(bundle){if(!bundle?.actor_id)throw Error('AUTH_REQUIRED');if(navigator.onLine&&await actor()!==bundle.actor_id)throw Error('AUTH_CHANGED');const old=await tx('readonly',s=>s.get(bundle.actor_id),'routes');if(old?.documents&&!bundle.documents){bundle.documents=old.documents;bundle.prepared_at=old.prepared_at;bundle.prepared_versions=old.prepared_versions;bundle.document_errors=old.document_errors;}await tx('readwrite',s=>s.put(bundle),'routes');localStorage.setItem(ACTIVE,bundle.actor_id);return bundle}
 async function bundle(){
  if(navigator.onLine){await flush();return cacheBundle(await window.ArcData.rpc('gama_tms_execution',{p_action:'bundle',p_data:{}}))}
  const id=await actor(),saved=await tx('readonly',s=>s.get(id),'routes');if(!saved)throw Error('OFFLINE_ROUTE_REQUIRED');return {...saved,offline:true};
 }
 async function updateCached(id,context){const data=await tx('readonly',s=>s.get(id),'routes');if(!data)return;const item=data.deliveries.find(d=>d.id===context.delivery.id);if(item){Object.assign(item,context.delivery,{execution:context});await tx('readwrite',s=>s.put(data),'routes')}}
+async function storeProofFile(id){const client=await window.GamaCloud.db();const result=await client.functions.invoke('tms-proof-files',{body:{proof_id:id}});if(result.error||result.data?.error)throw result.error||Error(result.data.error);return result.data}
 async function flush(){if(!navigator.onLine)return [];if(pending)return pending;pending=(async()=>{const id=await actor(),queue=await rows(),errors=[],blocked=new Set();
  for(const item of queue){if(item.actor!==id||await actor()!==id)break;const delivery=item.payload.delivery_id;if(blocked.has(delivery))continue;
   try{const context=item.action?await window.ArcData.rpc('gama_tms_execution',{p_action:item.action,p_data:item.payload}):await window.ArcData.rpc('gama_tms_capture',{p_data:item.payload});
    if(item.action&&context?.delivery){await updateCached(id,context);const dependent=queue.find(j=>j.depends_on===item.request_key);if(dependent){dependent.payload.version=context.delivery.version;delete dependent.depends_on;await tx('readwrite',s=>s.put(dependent))}}
+   if(item.action==='receive'&&context?.attempts){const attempt=context.attempts.find(a=>a.request_key===item.request_key);for(const proof of attempt?.proofs||[])storeProofFile(proof.id).catch(()=>{})}
    await tx('readwrite',s=>s.delete(item.request_key));window.dispatchEvent(new Event('gama:sales-change'));
   }catch(e){item.error=window.ArcErrors.message(e);item.error_code=e.message;errors.push(item);blocked.add(delivery);await tx('readwrite',s=>s.put(item))}
  }return errors})();try{return await pending}finally{pending=null;window.dispatchEvent(new Event('architect:proof-outbox-change'))}}
@@ -27,14 +29,35 @@ async function captureNow(payload,action=null){const id=await actor(),queue=awai
  const remaining=await rows();return {queued:remaining.some(r=>r.request_key===job.request_key),request_key:job.request_key};
 }
 function capture(payload,action=null){const task=captures.catch(()=>{}).then(()=>captureNow(payload,action));captures=task;return task}
-async function download(){
- if(!navigator.onLine)throw Error('Conéctate para descargar la ruta.');const data=await bundle();
- if(!('serviceWorker' in navigator))throw Error('Este navegador no permite preparar el modo sin conexión.');
- await navigator.serviceWorker.register('sw.js');const reg=await navigator.serviceWorker.ready;
- const urls=['tms-driver.html','architect-core.js','architect-assets.js','architect-tokens.css','architect-base.css','architect-components.css','coco-style-tms-module.css','gama-supabase.js','gama-i18n.js','gama-i18n-server.js','gama-i18n-catalog.js','architect-offline-proofs.js','gama-tms-execution.js','gama-tms-driver.js','assets/vendor/supabase-2.115.0.js'].map(f=>f==='assets/vendor/supabase-2.115.0.js'?f:window.ArcAssets?.[f]||f);
- await new Promise((resolve,reject)=>{const channel=new MessageChannel(),timer=setTimeout(()=>reject(Error('No se pudo preparar el modo sin conexión. Reintenta.')),30000);channel.port1.onmessage=e=>{clearTimeout(timer);channel.port1.close();e.data.ok?resolve():reject(Error(e.data.error||'OFFLINE_CACHE_FAILED'))};reg.active.postMessage({type:'COCO_PRECACHE_DRIVER',urls},[channel.port2])});
- await navigator.storage?.persist?.();return data;
+const preparations=new Map();
+async function prepare(data,{force=false}={}){
+ if(!navigator.onLine)throw Error('Conéctate para descargar la ruta.');
+ const id=await actor();if(data.actor_id!==id)throw Error('AUTH_CHANGED');
+ if(preparations.has(id))return preparations.get(id);
+ const job=(async()=>{
+  const saved=await tx('readonly',s=>s.get(id),'routes');
+  if(!force&&saved?.prepared_at&&Date.now()-Date.parse(saved.prepared_at)<15*60000&&JSON.stringify(saved.prepared_versions)===JSON.stringify(data.routes.map(r=>[r.id,r.version])))return saved;
+  if(!('serviceWorker' in navigator))throw Error('Este navegador no permite preparar el modo sin conexión.');
+  await navigator.serviceWorker.register('sw.js');const reg=await navigator.serviceWorker.ready;
+  const urls=['tms-driver.html','architect-core.js','architect-assets.js','architect-tokens.css','architect-base.css','architect-components.css','coco-style-tms-module.css','coco-workspace.css','gama-supabase.js','gama-i18n.js','gama-i18n-server.js','gama-i18n-catalog.js','architect-offline-proofs.js','gama-tms-execution.js','gama-tms-driver-ui.js','gama-tms-driver.js','gama-tms-delivery-operations.js','gama-sri-documents.js','gama-pdf.js','gama-pdf-template.js','assets/vendor/jspdf-4.2.1.umd.min.js','assets/vendor/supabase-2.115.0.js'].map(f=>window.ArcAssets?.[f]||f);
+  await new Promise((resolve,reject)=>{const channel=new MessageChannel(),timer=setTimeout(()=>{channel.port1.close();reject(Error('OFFLINE_CACHE_FAILED'))},30000);channel.port1.onmessage=e=>{clearTimeout(timer);channel.port1.close();e.data.ok?resolve():reject(Error(e.data.error||'OFFLINE_CACHE_FAILED'))};reg.active.postMessage({type:'COCO_PRECACHE_DRIVER',urls},[channel.port2])});
+  const documents={},errors=[];
+  for(const r of data.routes){try{
+   const doc=await window.ArcData.rpc('gama_tms_dispatch',{p_action:'driver_documents',p_data:{route_id:r.id}});
+   documents[r.id]={...doc,saved_at:new Date().toISOString()};
+   if(doc.guide?.status==='authorized'){
+    await window.ArcLoadScript('gama-sri-documents.js');const link=await window.GamaSriDocuments.edge('download',doc.guide.id,'06','ride'),response=await fetch(link.url,{credentials:'omit',cache:'no-store'});
+    if(!response.ok)throw Error('DOCUMENT_DOWNLOAD_FAILED');const blob=await response.blob();if(blob.size>20*1024*1024||!blob.type.includes('pdf'))throw Error('DOCUMENT_DOWNLOAD_FAILED');documents[r.id].guide_blob=blob;
+   }else errors.push((r.erp_reference||r.reference||r.id)+': '+(doc.guide?.status||'SRI pendiente'));
+  }catch(e){errors.push((r.erp_reference||r.reference||r.id)+': '+e.message)}}
+  if(await actor()!==id)throw Error('AUTH_CHANGED');
+  const current=await tx('readonly',s=>s.get(id),'routes');
+  const output={...current,documents,document_errors:errors,prepared_at:new Date().toISOString(),prepared_versions:data.routes.map(r=>[r.id,r.version])};await cacheBundle(output);await navigator.storage?.persist?.();return output;
+ })();preparations.set(id,job);try{return await job}finally{preparations.delete(id)}
 }
+async function download(){return prepare(await bundle(),{force:true})}
+async function documents(routeId){const id=await actor(),data=await tx('readonly',s=>s.get(id),'routes');return data?.documents?.[routeId]}
+async function guide(routeId){const docs=await documents(routeId);if(docs?.guide_blob){const url=URL.createObjectURL(docs.guide_blob),a=document.createElement('a');a.href=url;a.download='guia-SRI-'+routeId+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);return}if(!navigator.onLine)throw Error('La guía autorizada no está descargada en este dispositivo.');await window.ArcLoadScript('gama-sri-documents.js');return window.GamaSriDocuments.guide(routeId)}
 async function reviewConflict(job){
  if(!navigator.onLine)throw Error('Conéctate para comparar con el servidor.');
  const current=await window.ArcData.rpc('gama_tms_execution',{p_action:'context',p_data:{delivery_id:job.payload.delivery_id}});
@@ -45,5 +68,5 @@ async function reviewConflict(job){
  }});return dialog;
 }
 async function outbox(){try{const queue=await rows(),d=U.dialog({title:t('Pruebas pendientes en este dispositivo','Preuves en attente sur cet appareil','Pending proofs on this device'),saveLabel:t('Cerrar','Fermer','Close'),body:`<p>${t('Estas capturas aún no están confirmadas por el servidor. Consérvalas en este dispositivo hasta sincronizar.','Ces captures ne sont pas encore confirmées par le serveur. Conservez-les sur cet appareil jusqu’à leur synchronisation.','These captures are not yet confirmed by the server. Keep them on this device until synchronized.')}</p><button type=button class="arcButton primary" data-proof-retry>${t('Reintentar sincronización','Réessayer la synchronisation','Retry sync')}</button>${U.table({columns:[{key:'created_at',label:t('Fecha','Date','Date')},{label:t('Entrega','Livraison','Delivery'),value:r=>r.payload.reference||r.payload.delivery_id},{label:t('Tipo','Type','Type'),value:r=>r.action?T({receive:'Recepción',arrive:'Llegada',notes:'Notas'}[r.action]||r.action):r.payload.complete?t('Firma y entrega','Signature et réception','Signature and receipt'):t('Foto','Photo','Photo')},{label:t('Última respuesta','Dernière réponse','Last response'),value:r=>r.error_code?window.CocoTmsExecution?.error({message:r.error_code})||T(r.error):T(r.error||'')},{label:'',actions:true,html:r=>`<button type=button data-proof-review="${E(r.request_key)}">${t('Ver captura','Voir la capture','View capture')}</button>${r.error_code==='DELIVERY_STALE'?`<button type=button data-proof-conflict="${E(r.request_key)}">${E(T('Revisar conflicto'))}</button>`:''}` }],items:queue})}`,onSave:async()=>{}});d.dataset.proofOutbox='';d.dataset.giIgnore='';d.querySelectorAll('[data-proof-conflict]').forEach(b=>b.onclick=()=>reviewConflict(queue.find(j=>j.request_key===b.dataset.proofConflict)).catch(e=>d.querySelector('[role=alert]').textContent=window.ArcErrors.message(e)));d.querySelector('[data-proof-retry]').onclick=async e=>{e.target.disabled=true;try{await flush();d.close();await outbox()}catch(error){d.querySelector('[role=alert]').textContent=window.ArcErrors.message(error);e.target.disabled=false}};d.querySelectorAll('[data-proof-review]').forEach(b=>b.onclick=()=>{const job=queue.find(r=>r.request_key===b.dataset.proofReview);const v=U.dialog({title:t('Captura conservada','Capture conservée','Retained capture'),saveLabel:t('Cerrar','Fermer','Close'),body:`<p>${E(job.payload.reference||job.payload.delivery_id)} · ${E(job.payload.occurred_at||job.payload.captured_at)}</p>${job.payload.photo?`<img alt="${E(T('Foto'))}" style="max-width:100%" src="${E(job.payload.photo)}">`:''}${job.payload.signature?`<img alt="${E(T('Firma'))}" style="max-width:100%" src="${E(job.payload.signature)}">`:''}`,onSave:async()=>{}});v.dataset.proofOutbox=''})}catch(e){alert(window.ArcErrors.message(e))}}
-window.ArchitectOfflineProofs={capture,flush,rows,open:outbox,bundle,cacheBundle,updateCached,download,actor};window.addEventListener('online',()=>flush().catch(()=>{}));window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='SIGNED_OUT'){localStorage.removeItem(ACTIVE);document.querySelectorAll('[data-proof-outbox]').forEach(d=>d.close());window.dispatchEvent(new Event('coco:offline-locked'))}else if(e.detail?.session?.user?.id&&localStorage.getItem(ACTIVE)!==e.detail.session.user.id)localStorage.removeItem(ACTIVE)});
+window.ArchitectOfflineProofs={capture,flush,rows,open:outbox,bundle,cacheBundle,updateCached,download,prepare,documents,guide,actor};window.addEventListener('online',()=>flush().catch(()=>{}));window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='SIGNED_OUT'){localStorage.removeItem(ACTIVE);document.querySelectorAll('[data-proof-outbox]').forEach(d=>d.close());window.dispatchEvent(new Event('coco:offline-locked'))}else if(e.detail?.session?.user?.id&&localStorage.getItem(ACTIVE)!==e.detail.session.user.id)localStorage.removeItem(ACTIVE)});
 })();

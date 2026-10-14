@@ -5596,6 +5596,12 @@ Identidad, direcciones y condiciones	Identité, adresses et conditions	Identity,
 Condiciones comerciales validadas	Conditions commerciales validées	Commercial terms approved
 Validación comercial solicitada	Validation commerciale demandée	Commercial approval requested
 Factura de cantidades entregadas creada	Facture des quantités livrées créée	Invoice for delivered quantities created
+
+Combustible estimado	Carburant estimé	Estimated fuel
+Coste de combustible/km pendiente en Flota.	Coût de carburant/km manquant dans Flotte.	Fuel cost/km missing in Fleet.
+Pendientes de planificación	En attente de planification	Awaiting planning
+La ruta cambió. Actualiza antes de guardar.	La tournée a changé. Actualisez avant d’enregistrer.	The route changed. Refresh before saving.
+El horario cambió. Vuelve a abrirlo antes de guardar.	Les horaires ont changé. Rouvrez-les avant d’enregistrer.	The schedule changed. Reopen it before saving.
 Completa este campo.	Complétez ce champ.	Complete this field.
 Introduce una dirección de correo válida.	Saisissez une adresse e-mail valide.	Enter a valid email address.
 El valor mínimo es	La valeur minimale est	The minimum value is

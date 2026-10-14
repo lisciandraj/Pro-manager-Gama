@@ -143,6 +143,8 @@
     {"source":"src/features/transport/quito-map-data.js","output":"gama-tms-quito-map-data.js"},
     {"source":"src/features/transport/execution.js","output":"gama-tms-execution.js"},
     {"source":"src/features/transport/driver.js","output":"gama-tms-driver.js"},
+    {"source":"src/features/transport/dispatch.js","output":"gama-tms-dispatch.js"},
+    {"source":"src/features/transport/driver-ui.js","output":"gama-tms-driver-ui.js"},
     {"source":"src/ui/global-search-loader.js","output":"gama-global-search-loader.js"},
     {"source":"src/features/intelligence/agent-coco-stock.js","output":"coco-agent-stock.js"}
   ],

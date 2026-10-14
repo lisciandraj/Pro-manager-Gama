@@ -752,10 +752,30 @@
           Object.assign(d,{lat:args.p_data.lat,lng:args.p_data.lng});const c=(window.__DB.customers||[]).find(c=>c.id===d.customer_id&&String(c.address||'').trim().toLowerCase()===String(d.address||'').trim().toLowerCase());
           if(c)Object.assign(c,{lat:d.lat,lng:d.lng,gps_address:c.address});return {data:{delivery_id:d.id,customer_saved:!!c}};
         }
+        if(fn==='gama_tms_dispatch'){
+          const db=window.__DB,p=args.p_data||{},action=args.p_action;
+          db.tms_dispatch_config ||= {version:1,shift_start:'08:00:00',shift_end:'18:00:00',break_after:240,break_minutes:30,max_stops:30,require_guide:false};
+          const route=(db.tms_routes||[]).find(r=>r.id===p.route_id),manifest=()=>({route,deliveries:(db.tms_deliveries||[]).filter(d=>d.route_id===route?.id).map(d=>({delivery:{version:1,...d},lines:db.executionLines?.[d.id]||[],attempts:[]})),guide:null});
+          if(action==='settings')return {data:{config:db.tms_dispatch_config,templates:[],automation:{version:1,enabled:false,valid:false,config:{}},last_job:null,scope:'manager',admin:true}};
+          if(action==='settings_save'){db.tms_dispatch_config={...p,version:p.version+1};if(p.depot_setting)db.tms_settings=[{id:true,...p.depot_setting}];return {data:{saved:true}}}
+          if(action==='planning_status')return {data:{summary:db.__lastPlan||null}};
+          if(action==='schedule')return {data:{...manifest(),schedule:(db.tms_route_schedules||[]).find(s=>s.route_id===p.route_id)||null,config:db.tms_dispatch_config,depot:db.tms_settings?.[0]}};
+          if(action==='driver_documents')return {data:{manifest:manifest(),guide:null}};
+          if(action==='blockers')return {data:{items:[],total:0}};
+          if(action==='closure')return {data:{deliveries:[],routes:db.tms_routes||[],returns:[],cash:[],payments_visible:true}};
+          if(action==='readiness')return {data:{route:{version:1,...route},items:db.tms_deliveries.filter(d=>d.route_id===p.route_id).map(d=>({id:d.id,reference:d.erp_reference,customer:d.customer,version:1,issues:[],departed_at:null})),issues:[],guide:null,ready:true}};
+          if(action==='depart_route'){for(const d of db.tms_deliveries.filter(d=>d.route_id===p.route_id)){d.status='En tránsito';const sh=db.sales_deliveries?.find(s=>s.tms_delivery_id===d.id);if(sh)sh.departed_at=new Date().toISOString()}route.status='En ruta';return {data:{departed:true,route_id:p.route_id}}}
+          if(action==='archive'||action==='backlog'){const all=db.tms_deliveries.filter(d=>(action==='archive'?(db.tms_proofs||[]).some(x=>x.delivery_id===d.id):d.delivery_date!==p.day&&!['Entregada','Cancelada'].includes(d.status))&&(!p.from||d.delivery_date>=p.from)&&(!p.to||d.delivery_date<=p.to)&&(!p.status||d.status===p.status)&&(!p.search||(d.customer+' '+d.erp_reference).toLowerCase().includes(p.search.toLowerCase()))).sort((a,b)=>b.delivery_date.localeCompare(a.delivery_date)||a.id.localeCompare(b.id));return {data:{items:all.slice(p.offset||0,(p.offset||0)+(p.limit||25)),total:all.length,offset:p.offset||0,limit:p.limit||25}}}
+          if(action==='expense')return {data:{route,expense:db.route_expenses?.[route.id]||null,fuel_cost:null}};
+          if(action==='expense_save'){(db.route_expenses||={})[p.route_id]={...p,version:p.version+1};return {data:{saved:true}}}
+          return {data:{saved:true}};
+        }
+        if(fn==='gama_route_schedule'){const p=args.p_data;window.__DB.tms_route_schedules||=[];const old=window.__DB.tms_route_schedules.find(s=>s.route_id===p.route_id);const result={...p,updated_at:new Date().toISOString(),duration_minutes:p.legs.reduce((n,l)=>n+l.drive_minutes+l.service_minutes,0)};if(old)Object.assign(old,result);else window.__DB.tms_route_schedules.push(result);return {data:result};}
         if(fn==='gama_tms_execution'){
           const db=window.__DB,p=args.p_data||{},action=args.p_action;
           const context=id=>{const d=db.tms_deliveries.find(x=>x.id===id);return {delivery:{version:1,...d},shipment:(db.sales_deliveries||[]).find(s=>s.tms_delivery_id===id),scope:db._profile.role==='administrador'?'manager':'driver',lines:structuredClone(db.executionLines?.[id]||[]),attempts:db.executionAttempts?.[id]||[]}};
           if(action==='context')return {data:context(p.delivery_id)};
+          if(action==='manifest'){const route=db.tms_routes.find(r=>r.id===p.route_id);return {data:{route,deliveries:route.stops.filter(id=>id!=='__depot').map(context),guide:null}};}
           if(action==='bundle'){const own=await (await window.GamaCloud.db()).rpc('gama_tms_my_route',{});return {data:{...own.data,actor_id:db._profile.id,scope:own.data.driver&&db._profile.role!=='administrador'?'driver':'manager',downloaded_at:new Date().toISOString(),deliveries:own.data.deliveries.map(d=>({...d,execution:context(d.id)}))}}}
           if(['receive','arrive'].includes(action)){
            if(window.__proofOffline)return {error:{message:'Network unavailable'}};

@@ -399,16 +399,18 @@ body .gamaTableViews>button>svg{display:block;flex:none;width:20px;height:20px;f
 body .gamaTableViews>button:hover:not(:disabled){background:var(--arc-accent-50);border-color:var(--arc-accent-600)}
 body .gamaTableViews>button[aria-pressed=true]{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;border-color:var(--arc-accent-600)!important}
 body .gamaTableViews>button:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
-.gamaTableToolbar{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
-.gamaTableSearch{display:flex;flex-direction:column;gap:4px;flex:0 0 100%;min-width:0;margin:0;box-sizing:border-box}
+.gamaTableToolbar{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
+.gamaTableSearch{display:flex;flex-direction:column;gap:4px;flex:3 1 240px;min-width:0;margin:0;box-sizing:border-box}
 .gamaTableSearch>span{font-size:12px;font-weight:600;color:var(--arc-text-subtle)}
 .gamaTableSearch>input{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 .gamaTableSearch>small:empty{display:none}
 .gamaTableSearchStandalone{width:100%;max-width:100%;padding:8px}
+.gamaTableToolbar:has(.gamaColumnHeading[aria-expanded=true])>.gamaTableControls{flex-basis:100%}
+@media(max-width:760px){.gamaTableSearch{flex-basis:100%}}
 body .gamaTableSearchSubmit{display:none!important}
 @media print{.gamaTableSearchStandalone{display:none!important}}
 body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body table tr[data-gama-search-hidden]{display:none!important}
-.gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-start;flex-shrink:0}
+.gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-end;flex-shrink:0}
 .gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}
 .gamaColumnPicker{width:100%;min-width:0;max-width:100%;margin:0;padding:8px 10px;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
 .gamaColumnHeading{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:0;padding:4px 0;min-height:30px;border:0;background:transparent;color:var(--arc-text-muted);cursor:pointer;box-shadow:none}

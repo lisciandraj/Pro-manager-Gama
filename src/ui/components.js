@@ -1,5 +1,6 @@
 import {moduleIcon} from './icons.js';
 import {escapeHtml as esc, translate as t, errorMessage, format} from '../domain/format.js';
+import {mountFieldValidation} from './form-validation.js';
 let sequence=0;
 const attr=(key,value)=>value==null || value===false?'':value===true?' '+key:' '+key+'="'+esc(value)+'"';
 const attributes=values=>Object.entries(values).map(([key,value])=>attr(key,value)).join('');
@@ -71,6 +72,7 @@ export function form(fields,{id='arc-form-'+(++sequence),values={},submitLabel=t
 }
 export function bindForm(el,onSubmit,{error=errorMessage,onSuccess}={}) {
   if(el.__arcForm)return el.__arcForm;
+  mountFieldValidation(el);
   let pending=false;
   const submit=async event=>{
     event.preventDefault();if(pending || !el.reportValidity())return;
@@ -215,6 +217,7 @@ export function documentLines(lines,{currency,quantity='quantity',price='unit_pr
 }
 /** Explicit render lifecycle, used by the router and module renderers. */
 export function mount(root=document) {
+  mountFieldValidation(root);
   root.querySelectorAll('.gamaStdBack').forEach(b=>{if(!b.__gamaBound){b.__gamaBound=true;b.onclick=()=>window.ArcRouter.show('mainmenu');}});
   root.querySelectorAll('label').forEach(label=>{const control=label.querySelector('input,select,textarea')||(!label.htmlFor&&label.nextElementSibling?.matches('input,select,textarea')?label.nextElementSibling:null);if(control){if(!control.id)control.id='arc-control-'+(++sequence);if(!label.htmlFor)label.htmlFor=control.id;}});
   bindTabs(root);window.GamaTable?.scan?.(root);window.GamaSelectSearch?.scan?.(root);window.gamaApplyAccess?.();window.GamaI18n?.scan?.(root);

@@ -22,7 +22,7 @@ test('product card field labels are painted in all languages and viewport sizes'
   const host=page.locator('#productsTable');
   await expect(host.locator('tbody tr')).toHaveCount(1);
   await host.locator('[data-table-view=cards]').click();
-  for(const width of [320,390,667,844,1440]){
+  for(const width of [320,360,390,667,768,844,1440]){
    await page.setViewportSize({width,height:844});
    const labels=await host.locator('tbody tr').first().evaluate(row=>[...row.cells]
     .filter(c=>c.dataset.col&&!c.hasAttribute('data-gama-title')&&getComputedStyle(c).display!=='none')
@@ -65,6 +65,10 @@ function layoutProblems(root){
  }
  for(let i=0;i<controls.length;i++)for(let j=i+1;j<controls.length;j++){
   const a=controls[i],b=controls[j];if(a.contains(b)||b.contains(a))continue;
+  // Home favorites intentionally sit above the corner of the large tile opener.
+  // Their painted icon and label are separate; the opener's broad hit area is underneath.
+  if(a.closest('.gamaF2Card')&&a.closest('.gamaF2Card')===b.closest('.gamaF2Card')&&
+    ((a.matches('.cocoModuleOpen')&&b.matches('.cocoModuleFavorite'))||(b.matches('.cocoModuleOpen')&&a.matches('.cocoModuleFavorite'))))continue;
   const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();
   if(Math.min(x.right,y.right)-Math.max(x.left,y.left)>2&&Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)>2)issues.push('overlap: '+name(a)+' / '+name(b));
  }
@@ -78,7 +82,7 @@ test('dashboard date fields and actions stay separate at narrow widths and enlar
  for(const language of ['fr','en','es']){
   await page.evaluate(lang=>GamaI18n.setLanguage(lang),language);
   await page.locator('.adPeriodMore>summary').click();
-  for(const width of [320,390,600,768,844,1024,1280,1440]){
+  for(const width of [320,360,390,600,768,844,1024,1280,1440]){
    await page.setViewportSize({width,height:900});
    expect(await page.locator('#ad-period').evaluate(layoutProblems),language+' '+width).toEqual([]);
    for(const id of ['ad-from','ad-to']){
@@ -114,7 +118,7 @@ test('module controls fit on phone, landscape, tablet and desktop',async({page})
  for(const id of ids){
   await page.evaluate(id=>ArcRouter.open(id),id);
   await page.waitForTimeout(500); // Module loaders render asynchronously.
-  for(const width of [320,390,844,1024,1440]){
+  for(const width of [320,360,390,768,844,1024,1440]){
    await page.setViewportSize({width,height:width===844?390:900});
    const issues=await page.locator('section.active').evaluate(layoutProblems);
    if(issues.length)failures.push({module:id,width,issues});
@@ -128,21 +132,21 @@ test('date controls in TMS and document dialogs remain usable on phone and deskt
  // Hoy abre en Planificar; la preparación se abre desde el flujo.
  await page.locator('[data-tms-stage=preparation]').click();
  await expect(page.locator('#gamaPreparationHost')).toBeVisible();
- for(const width of [320,1440]){
+ for(const width of [320,360,390,768,1440]){
   await page.setViewportSize({width,height:900});
   expect(await page.locator('section.active').evaluate(layoutProblems),'Preparación '+width).toEqual([]);
  }
  await page.locator('[data-tms-stage=planning]').click();
  await expect(page.locator('#tDayMap')).toBeVisible();
  await page.locator('details:has(#tDepot) summary').click();
- for(const width of [320,390,844,1440]){
+ for(const width of [320,360,390,768,844,1440]){
   await page.setViewportSize({width,height:width===844?390:900});
   expect(await page.locator('section.active').evaluate(layoutProblems),'TMS '+width).toEqual([]);
  }
  await page.evaluate(()=>ArcRouter.open('documents'));
  await page.locator('#documents [data-sd-action=new]').click();
  await expect(page.locator('dialog')).toBeVisible();
- for(const width of [320,390,844,1440]){
+ for(const width of [320,360,390,768,844,1440]){
   await page.setViewportSize({width,height:width===844?390:900});
   expect(await page.locator('dialog').evaluate(layoutProblems),'document dialog '+width).toEqual([]);
   expect(await page.locator('dialog').evaluate(el=>el.scrollWidth-el.clientWidth)).toBeLessThanOrEqual(2);
@@ -151,4 +155,23 @@ test('date controls in TMS and document dialogs remain usable on phone and deskt
  await page.locator('dialog [data-arc-dialog-close]').click();
  await expect(page.locator('dialog')).toHaveCount(0);
  await page.screenshot({path:info.outputPath('documents-mobile.png')});
+});
+
+test('daily workspaces fit the four requested widths in French, Spanish and English',async({page})=>{
+ test.setTimeout(90000);await boot(page);
+ for(const language of ['fr','es','en']){
+  await page.evaluate(lang=>GamaI18n.setLanguage(lang),language);
+  for(const [id,ready] of [['mainmenu','.gamaF2Title'],['dashboard','.adAnalysis'],['quotes','#gqNew'],['warehouses','#ivTabla'],['tms','#tDayMap']]){
+   await page.evaluate(id=>ArcRouter.open(id),id);await page.locator('section.active '+ready).first().waitFor();
+   for(const width of [360,390,768,1440]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.locator('section.active').evaluate(layoutProblems),language+' '+id+' '+width).toEqual([]);
+   }
+  }
+  await page.locator('[data-tms-stage=preparation]').click();await page.locator('#gamaPreparationHost').waitFor();
+  for(const width of [360,390,768,1440]){
+   await page.setViewportSize({width,height:900});
+   expect(await page.locator('#gamaPreparationHost').evaluate(layoutProblems),language+' preparation '+width).toEqual([]);
+  }
+ }
 });

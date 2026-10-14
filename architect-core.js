@@ -1894,7 +1894,7 @@
       "styles": ["coco-style-tms-module.css"],
       "global": "gamaTMS",
       "file": "gama-tms-module.js",
-      "dependencies": ["gama-tms-map-data.js", "gama-tms-local-map.js", "gama-tms-execution.js", "gama-tms-delivery-operations.js", "gama-sri-documents.js"],
+      "dependencies": ["gama-tms-map-data.js", "gama-tms-local-map.js", "gama-tms-execution.js", "gama-tms-dispatch.js", "gama-tms-driver-ui.js", "gama-tms-delivery-operations.js", "gama-sri-documents.js"],
       "methods": [
         "open",
         "openDelivery",

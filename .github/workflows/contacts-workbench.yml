@@ -1,0 +1,29 @@
+name: Contacts workbench
+on:
+  push:
+    branches: ['feature/contacts-hub-*']
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Prepare isolated development snapshot
+        run: |
+          git archive --format=tar HEAD > /tmp/contacts-source.tar
+          tar -rf /tmp/contacts-source.tar node_modules
+          gzip /tmp/contacts-source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contacts-source
+          path: /tmp/contacts-source.tar.gz
+          retention-days: 2
+      - run: npm run validate

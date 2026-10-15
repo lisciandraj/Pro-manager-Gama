@@ -1,5 +1,6 @@
 {
   "scripts": [
+    {"source":"src/features/sales/dossier.js","output":"coco-sales-dossier.js"},
     {"source":"src/features/sales/editor.js","output":"coco-sales-editor.js"},
     {"source":"src/features/sales/workspace.js","output":"coco-sales-workspace.js"},
     {"source":"src/features/sales/order-design.js","output":"coco-order-design.js"},

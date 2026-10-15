@@ -29,3 +29,5 @@ body .arcContent section:not(#mainmenu) .cocoSalesNavigation{align-items:stretch
 
 body .arcContent #quotes .gqListCard .cocoListHeading .gqTools{margin:0}
 body .arcContent #quotes .gqListCard .gqListFilters>label{margin:0}
+
+.cocoDossierStates span{display:grid;gap:4px;min-width:130px}.cocoDossierStates small{font-size:12px;color:var(--arc-muted)}.cocoOfferNote{white-space:pre-wrap}.cocoOfferOption{padding:10px;border:1px solid var(--arc-border,#bdd3e4);border-radius:8px}.cocoActivities{border-top:1px solid var(--arc-border,#bdd3e4);margin-top:16px;padding-top:12px}.cocoRelated button{min-height:44px}.cocoSalesKpi{text-align:left;background:#fff;cursor:pointer}.cocoSalesKpi:hover{border-color:var(--arc-primary)}.cocoSalesKpi:focus-visible{outline:2px solid var(--arc-primary)}.cocoSalesScroll meter{width:100%;min-width:80px}.cocoOfferEditor{display:grid;gap:8px;margin:14px 0}.cocoOfferEditor textarea{max-width:100%;min-height:70px}.gqManualReason{display:block;width:100%;margin-top:6px}

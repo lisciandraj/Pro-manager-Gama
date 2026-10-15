@@ -12,8 +12,8 @@ async function boot(page){
 test('current quote editor applies negotiated prices to its visible total and save payload',async({page})=>{
  await boot(page);await page.locator('[data-k="list_price"]').fill('6.5');await page.locator('[data-k="list_price"]').blur();await expect(page.locator('#gqTotals')).toContainText(/22[.,]43/);await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__quotes.length)).toBe(1);expect((await page.evaluate(()=>__quotes[0])).lines[0]).toMatchObject({quantity:3,list_price:6.5,discount:0,tax_rate:15});
 });
-test('explicit repricing restores the current customer tariff',async({page})=>{
- await boot(page);await page.locator('[data-k="list_price"]').fill('6.5');await page.locator('[data-k="list_price"]').blur();await page.locator('#gqReprice').click();await expect(page.locator('[data-k="list_price"]')).toHaveValue('8');await expect(page.locator('#gqTotals')).toContainText(/27[.,]60/);
+test('refresh preserves the manual price and returning to automatic pricing restores the shared tariff',async({page})=>{
+ await boot(page);await page.locator('[data-k="list_price"]').fill('6.5');await page.locator('[data-k="list_price"]').blur();await page.locator('#gqReprice').click();await expect(page.locator('[data-k="list_price"]')).toHaveValue('6.5');await page.locator('[data-auto-price]').click();await expect(page.locator('[data-k="list_price"]')).toHaveValue('8');await expect(page.locator('#gqTotals')).toContainText(/27[.,]60/);
 });
 test('discount percentage preserves price precision and the negotiated save values',async({page})=>{
  await boot(page);await page.locator('[data-k="discount"]').fill('18.75');await page.locator('[data-k="discount"]').blur();await expect(page.locator('#gqTotals')).toContainText(/22[.,]43/);await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__quotes.length)).toBe(1);expect((await page.evaluate(()=>__quotes[0])).lines[0]).toMatchObject({list_price:8,discount:18.75});

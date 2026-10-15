@@ -76,7 +76,7 @@ test('commercial dossier, independent states, invoice policies, deposits and sco
    await api('product_policy_save',{product_id:ids.toner,invoice_policy:'delivered'});
   });
   await t.test('bounded invoice board, actual accounting metrics and idempotent activities',async()=>{
-   assert.ok((await api('invoice_board',{view:'all',search:'TONER-DOSSIER'})).total>=1);const day=await v('select ((now() at time zone private.erp_timezone())::date)::text');
+   const board=await api('invoice_board',{view:'all',search:'TONER-DOSSIER'});assert.ok(board.total>=1);assert.ok(board.rows.every(r=>!('invoices' in r.states)&&!('lines' in r.states)));const day=await v('select ((now() at time zone private.erp_timezone())::date)::text');
    const metrics=await api('metrics',{from:day,to:day,group_by:'product'});assert.ok(Number(metrics.ordered_net)>Number(metrics.invoiced_net));assert.ok(metrics.groups.length);
    const data={request_key:uuid(),dossier_id:canonical.id,kind:'call',title:'Confirm delivery date',owner_id:ids.sales,due_at:'2026-10-20T12:00:00Z'};
    const a=await api('activity_save',data);assert.equal((await api('activity_save',data)).id,a.id);await as(ids.sales);await api('activity_complete',{id:a.id});await as(ids.admin);

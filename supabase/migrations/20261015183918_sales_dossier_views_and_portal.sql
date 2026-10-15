@@ -29,7 +29,7 @@ declare result jsonb;off integer:=greatest(0,least(coalesce((p_data->>'offset'):
   and (coalesce(p_data->>'view','eligible')<>'blocked' or a.billable_quantity<=0)),
  page as(select * from filtered order by created_at desc,id offset off limit 30)
  select jsonb_build_object('actor_id',auth.uid(),'total',(select count(*) from filtered),
-  'rows',coalesce((select jsonb_agg(to_jsonb(p)||jsonb_build_object('states',private.sales_order_summary(p.id)) order by created_at desc,id) from page p),'[]'),
+  'rows',coalesce((select jsonb_agg(to_jsonb(p)||jsonb_build_object('states',private.sales_order_summary(p.id)-'invoices'-'lines') order by created_at desc,id) from page p),'[]'),
   'currency',(select currency from public.company_settings where id)) into result;return result;
 end $$;
 

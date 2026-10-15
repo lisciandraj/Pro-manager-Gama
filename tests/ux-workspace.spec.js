@@ -29,7 +29,7 @@ async function boot(page){
 
 test('return from a quote restores the work queue, filters, page, scroll and keyboard focus',async({page})=>{
  await page.setViewportSize({width:1440,height:700});await boot(page);
- await page.locator('[data-coco-sales-section=queue]').click();
+ await page.locator('[data-sales-queue]').click();
  await page.locator('#cocoQueueSearch').fill('UX-');await page.locator('#cocoQueueFind').click();
  await page.locator('#cocoQueueKind').selectOption('quote');
  await expect.poll(()=>page.evaluate(()=>__queueCalls.at(-1).kind)).toBe('quote');
@@ -42,7 +42,7 @@ test('return from a quote restores the work queue, filters, page, scroll and key
  expect(await page.evaluate(()=>__queueCalls.at(-1))).toMatchObject({offset:30,search:'UX-',kind:'quote'});
  expect(Math.abs(await page.evaluate(()=>scrollY)-top)).toBeLessThanOrEqual(2);
  await page.locator('[data-coco-sales-section=documents]').click();
- await page.locator('[data-coco-sales-section=queue]').click();await expect(page.locator('[data-coco-open]')).toHaveCount(5);
+ await page.locator('[data-sales-queue]').click();await expect(page.locator('[data-coco-open]')).toHaveCount(5);
  await page.evaluate(()=>{__DB.invoices.splice(2);return CocoSalesWorkspace.open('queue')});
  await expect(page.locator('[data-coco-open]')).toHaveCount(2);
  expect(await page.evaluate(()=>__queueCalls.at(-1).offset)).toBe(0);

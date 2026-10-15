@@ -36,7 +36,7 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const payload={request_key:uuid(),order_ids:[id]},invoices=await Promise.all(clients.map(c=>rpc(c,'gama_sales_workspace','invoice_create',payload)));
   assert.equal(invoices[0].id,invoices[1].id);assert.equal(Number((await root.query('select sum(quantity) qty from external_invoice_lines where order_line_id=$1',[line])).rows[0].qty),1);
   const payment={invoice_id:invoices[0].id,request_key:uuid(),amount:30,method:'transfer',financial_account_id:bank,paid_at:new Date().toISOString().slice(0,10),reference:'Isolated bank payment'};
-  const payments=await Promise.all(clients.map(c=>rpc(c,'gama_sales_action','payment',payment)));
+  const payments=await Promise.all(clients.map(c=>rpc(c,'gama_payment_action','payment',payment)));
   assert.equal(Number((await root.query("select count(*) from external_invoice_payments where invoice_id=$1 and status='confirmed'",[invoices[0].id])).rows[0].count),1);
   assert.equal(Number((await root.query('select sum(amount) amount from external_invoice_payments where invoice_id=$1',[invoices[0].id])).rows[0].amount),30);
  }finally{for(const c of clients)await c.end();await root.end()}

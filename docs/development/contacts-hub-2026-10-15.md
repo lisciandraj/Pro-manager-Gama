@@ -1,25 +1,29 @@
-# Contacts hub — 15 October 2026
+# Contacts hub — release integration
 
-## Implemented scope
+## Runtime scope
 
-The Contacts dossier adds visible tabs for overview, people and addresses, sales/purchases, finance, activities, documents, cloud accounts and shared profile. It reuses native screens, collections, prices, credit controls and portal administration. The JavaScript and stylesheet are lazy assets rather than new startup dependencies. Document actions open the selected document in the existing library.
+Contacts provides a Contact dossier action with visible Overview, People and addresses, Sales and purchases, Finance, Activities, Documents, Cloud account and Shared profile tabs, filtered by module permissions. Lazy assets preserve startup loading. The dossier reuses existing document, credit, statement and portal screens.
 
-An additive canonical identity links complementary customer/supplier roles only after explicit administrator review, preview, version checks and a reason. Native customer, supplier, invoice, order and B2B membership identifiers remain unchanged. Nature, language, website, industry, tags and parent relationship are shared; operational coordinates and commercial terms remain per role. Relationships reject cycles. A role filter opens the chosen role; archiving a supplier does not archive its customer role.
+The tab callback now executes after ArcUI's existing keyboard and mouse navigation. Previously a second bindTabs call was ignored because the dialog had already mounted its tabs, so newly selected panels stayed empty. Save callbacks are awaited, activity reads use the installed `coco_contact_activities` projection, and quotation creation loads its editor before invoking it.
 
-The server directory handles authorized search and pagination. Client delivery/billing addresses gain structured geographic fields, receiving hours, unloading duration, paired coordinates, an active default per purpose and optimistic versions. Changing an address clears unchanged coordinates. Quote/order/TMS propagation of every new site field remains a rollout integration item; the concurrently updated sales editor is deliberately preserved by this change.
+Native records retain their IDs. Shared profile metadata includes nature, language, industry, website, tags and parent relation. Associating customer and supplier roles requires explicit administrator review. Operational coordinates/terms remain per role. Association grants no portal access.
 
-Activities and notes reuse the CRM ledger, including a new supplier anchor. Completion rejects stale versions. Prospect conversion is atomic and retry-safe, retaining the canonical identity for a newly created customer. Linking a prospect to an existing customer retains that customer's identity. Prepared emails are not marked sent. No email, invitation, payment or fiscal document is emitted automatically.
+## Database state (verified 15 October 2026)
 
-## Deployment gate
+`20261015202048_coco_contacts_hub` is already installed in Supabase. It includes `coco_contact_activities`, converted-lead activity history, versioned site addresses, default-address clearing on archive and atomic conversion transferring people/opportunities without changing their IDs. Do not reapply the SQL draft.
 
-The SQL is still a draft at `supabase/pending/coco_contacts_hub.sql`, not a production migration. Apply it through the supported migration mechanism after review and integration tests; record the actual assigned migration version in the repository. Do not deploy the new conversion/address UI before its backend. The draft's prior path `supabase/pending/contacts-hub.sql` was renamed without SQL changes to match the tests; there must not be two copies to apply.
+The installed migration's single SQL statement has 32,466 characters and MD5 `985c1c5b56df463567be4202d62c6dcc`. Its attempt to be archived into GitHub was blocked by the tool security control. No alternative upload or reapplication was attempted. `supabase/pending/coco_contacts_hub.sql` remains the earlier development fixture, NOT an authoritative production migration. Repository restoration therefore does not yet include the complete installed Contacts schema; this remains a migration-reconciliation task.
 
-The working baseline started at `9b3e988bae73005c243f66707ca18e77c8eef8e7`. Before publication the branch had incorporated sales work at `e09a8a0ef6d3532ccc289eee9bef3ab034765250`. That sales code, its runtime entry, translations, migrations and workflows are preserved. Only the temporary source-snapshot workflow is removed. Never force-update the shared branch over other work.
+A local isolated reconstruction using the exact installed SQL (verified checksum) passed profile association, role filters, default-address rollback, stale saves, required activity dates, conversion idempotency, preservation of person IDs and lead activity origin, hierarchy cycle rejection and portal/anonymous access denial. Existing Contacts/person database tests passed against that schema too. These checks do not send messages or modify production records.
 
-## Validation evidence and limits
+Six browser scenarios exercise the current UI and server contract. Local Chromium navigation is blocked by administrator policy; final UI acceptance must use the existing GitHub release workflow. No CI policy or deployment permission has been relaxed. The original draft database test remains a draft test, not proof of a full production schema restoration.
 
-The isolated Contacts database test applies the draft on the restored schema and passed identity/role, stale edit, authorization, address-default rollback, supplier activity, atomic conversion and ancestry-cycle assertions. Four existing Contacts/person/B2B database tests also passed with the draft overlaid on the original baseline. Local build, JavaScript, type, documentation, generated-file and startup checks passed; architecture tests passed 23/23 on that baseline. These results are not a validation of every subsequent merged change.
+## Access and rollout
 
-Five new browser scenarios are included by the existing Contacts browser suite. The local browser rejected navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`; no local visual test is claimed successful. The repository's normal PR checks must validate the final integrated source before release.
+Open Administration → Contacts → Contact dossier on a record. Use People and addresses to save a delivery site, Activities to plan a follow-up or internal note, and Shared profile for tags, language and relationships. A single Back action dismisses the dossier.
 
-This is not full parity with the original specification. Outstanding work includes the raw CRM prospect directory, cross-role synchronization of operational fields, consolidated multi-establishment KPIs, complete site snapshot propagation, additional fiscal enrichment and advanced import/merge workflows. Existing import/export, credit controls, fiscal validation, marketing exclusions and B2B permissions remain in place rather than being replaced.
+Deployment must follow successful PR validation and the existing `deploy-coco-pages.yml`. Verify its deploy job and the exact revision in `coco-build.json`; a successful build alone is not a deployment. The pre-release main reference is `e03de7b5a89d977ce036980cc8dedeb8a195f442`; a source rollback must not remove additive contact data from Supabase.
+
+## Remaining scope
+
+This release does not implement the entire initial Odoo-inspired specification. Raw CRM lead-directory unification, synchronization of all operational coordinates across roles, multisite KPI consolidation, full receiving-site propagation to every sales/TMS snapshot, fiscal enrichment and advanced import/general duplicate merging remain separate integration work. Existing prices, credit, SRI, marketing exclusions and portal permissions are retained.

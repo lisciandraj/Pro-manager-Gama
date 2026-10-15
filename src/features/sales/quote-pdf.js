@@ -32,6 +32,7 @@ function build(q){
  });
  room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: '+GamaCurrency.symbol(q.currency)+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: '+GamaCurrency.symbol(q.currency)+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  '+GamaCurrency.symbol(q.currency)+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
  if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
+ for(const b of q.offer_blocks||[]){if(b.kind==='section'){doc.setFont('helvetica','bold');paragraph(b.description,11);doc.setFont('helvetica','normal')}else if(b.kind==='note')paragraph(b.description,9);else paragraph('Producto opcional (no incluido): '+b.description+' · '+b.quantity+' × '+GamaCurrency.format(b.list_price),9)}
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
  if(q.customer_comment)paragraph('Comentario del cliente: '+q.customer_comment,9);
  if(q.notes)paragraph(q.notes,9);

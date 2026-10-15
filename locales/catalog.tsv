@@ -5615,3 +5615,73 @@ Restablecer filtros	Réinitialiser les filtres	Reset filters
 Prioridades de cobro y conciliación	Priorités de paiement et de rapprochement	Payment and reconciliation priorities
 Facturas de clientes vencidas	Factures clients échues	Overdue customer invoices
 Facturas de proveedores vencidas	Factures fournisseurs échues	Overdue supplier invoices
+Análisis comercial	Analyse	Analysis
+Configuración comercial	Configuration	Configuration
+Presupuesto finalizado	Devis finalisé	Finalized quote
+Políticas de facturación	Politiques de facturation	Invoicing policies
+Política por defecto	Politique par défaut	Default policy
+Sobre cantidades pedidas	Sur quantités commandées	On ordered quantities
+Sobre cantidades entregadas	Sur quantités livrées	On delivered quantities
+Guardar política del producto	Enregistrer la politique du produit	Save product policy
+Se aplican a las nuevas líneas comerciales. Las condiciones históricas permanecen fijadas.	Ces règles s’appliquent aux nouvelles lignes commerciales. Les conditions historiques restent figées.	These rules apply to new sales lines. Historical terms remain fixed.
+Cuenta de pasivo para anticipos	Compte de passif pour les acomptes	Liability account for down payments
+Preparar un anticipo	Préparer un acompte	Prepare a down payment
+Importe fijo sin IVA o porcentaje del importe pedido sin IVA. Ninguna cantidad se considera entregada.	Montant fixe HT ou pourcentage du montant commandé HT. Aucune quantité n’est considérée comme livrée.	Fixed amount excluding tax or percentage of the order excluding tax. No quantity is treated as delivered.
+Importe / porcentaje	Montant / pourcentage	Amount / percentage
+Importe fijo sin IVA	Montant fixe HT	Fixed amount excluding tax
+La fiscalidad de anticipos requiere revisar el mapeo del proveedor SRI antes de emitir.	Le traitement fiscal des acomptes nécessite de vérifier la correspondance avec le fournisseur SRI avant émission.	Down payment taxation requires reviewing the SRI provider mapping before issuance.
+Configura una cuenta de pasivo para los anticipos.	Configurez un compte de passif pour les acomptes.	Configure a liability account for down payments.
+El anticipo supera el importe pendiente del pedido.	L’acompte dépasse le montant restant de la commande.	The down payment exceeds the remaining order amount.
+Registra los anticipos antes de la primera factura de productos.	Enregistrez les acomptes avant la première facture de produits.	Record down payments before the first product invoice.
+Este anticipo ya se dedujo de una factura activa.	Cet acompte a déjà été déduit d’une facture active.	This down payment has already been deducted from an active invoice.
+La integración fiscal de anticipos necesita una configuración específica.	L’intégration fiscale des acomptes nécessite une configuration spécifique.	Fiscal integration for down payments needs specific configuration.
+Revisa las secciones, notas y productos opcionales.	Vérifiez les sections, notes et produits optionnels.	Review sections, notes and optional products.
+Todavía no hay cantidades entregadas facturables.	Aucune quantité livrée n’est encore facturable.	There are no delivered quantities available to invoice yet.
+Confirma el pedido antes de facturar.	Confirmez la commande avant de facturer.	Confirm the order before invoicing.
+Todas las cantidades ya están facturadas.	Toutes les quantités sont déjà facturées.	All quantities have already been invoiced.
+Buscar referencia, cliente o producto	Rechercher une référence, un client ou un produit	Search reference, customer or product
+Importe facturable sin IVA	Montant facturable HT	Billable amount excluding tax
+Las facturas activas, incluidos los borradores, reservan sus cantidades para evitar la doble facturación.	Les factures actives, y compris les brouillons, réservent leurs quantités pour éviter une double facturation.	Active invoices, including drafts, reserve their quantities to prevent duplicate invoicing.
+Cantidad facturable	Quantité facturable	Billable quantity
+Preparar facturación	Préparer la facturation	Prepare invoicing
+Facturar	Facturer	Invoice
+Bloqueados	Bloqués	Blocked
+Listo para expedir	Prêt à expédier	Ready to ship
+Expedición parcial	Expédition partielle	Partially shipped
+Sin factura contabilizada	Sans facture comptabilisée	No posted invoice
+No facturable	Non facturable	Not billable
+Devuelto	Retourné	Returned
+Cantidad pedida	Quantité commandée	Ordered quantity
+Preparaciones y bultos	Préparations et colis	Preparations and packages
+Agrupar por	Regrouper par	Group by
+Grupo	Groupe	Group
+Importe pedido sin IVA	Montant commandé HT	Ordered amount excluding tax
+Facturado contabilizado sin IVA	Montant facturé et comptabilisé HT	Posted invoice amount excluding tax
+Conversión de presupuestos	Conversion devis–commandes	Quote conversion
+Pedido medio sin IVA	Panier moyen HT	Average order excluding tax
+Pendiente de facturar sin IVA	Reste à facturer HT	Remaining to invoice excluding tax
+Solo las facturas con asiento contabilizado se incluyen en el importe facturado. Los anticipos están incluidos; los abonos se muestran por separado.	Seules les factures avec écriture comptabilisée entrent dans le montant facturé. Les acomptes sont inclus ; les avoirs sont présentés séparément.	Only invoices with a posted entry count towards the invoiced amount. Down payments are included; credit notes are shown separately.
+Abonos contabilizados	Avoirs comptabilisés	Posted credit notes
+Días medios de conversión	Délai moyen de conversion en jours	Average conversion time in days
+El margen usa el coste observado de las nuevas líneas, sin costes de entrega. Sin coste histórico completo se muestra no disponible.	La marge utilise le coût observé des nouvelles lignes, hors frais de livraison. Elle reste indisponible si les coûts historiques sont incomplets.	Margin uses observed costs for new lines, excluding delivery costs. It is unavailable when historical costs are incomplete.
+Distribución	Répartition	Distribution
+Actividades comerciales	Activités commerciales	Sales activities
+Completar	Terminer	Complete
+Cita	Rendez-vous	Appointment
+Producto opcional	Produit optionnel	Optional product
+No incluido en el total	Non inclus dans le total	Not included in the total
+Añadir sección	Ajouter une section	Add section
+Añadir nota	Ajouter une note	Add note
+Añadir opción	Ajouter une option	Add option
+Añadir opción al presupuesto	Ajouter l’option au devis	Add option to quote
+Sección	Section	Section
+Nueva sección	Nouvelle section	New section
+Nueva nota	Nouvelle note	New note
+Tarifa automática	Tarif automatique	Automatic price
+El cliente aceptó esta versión en el portal. Confirma el pedido después de revisar el crédito.	Le client a accepté cette version dans le portail. Confirmez la commande après contrôle du crédit.	The customer accepted this version in the portal. Confirm the order after checking credit.
+Unidad	Unité	Unit
+Añadir y continuar	Ajouter et continuer	Add and continue
+Reglas de precio por fecha y cantidad	Règles tarifaires par date et quantité	Date and quantity price rules
+Crédito autorizado para esta oferta	Crédit autorisé pour cette offre	Credit approved for this offer
+Autorizar excepción de crédito	Autoriser une dérogation de crédit	Approve credit exception
+Solicitar excepción de crédito	Demander une dérogation de crédit	Request credit exception

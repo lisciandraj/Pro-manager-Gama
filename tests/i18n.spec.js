@@ -47,7 +47,8 @@ test('saved French loads lazily rendered sales forms, preserving select values a
  await expect(page.locator('#mainmenu [data-gama-module="users"]')).toBeHidden();
  await page.locator('#mainmenu [data-gama-module="quotes"]').click();
  await page.locator('#gqOrdersTab').click();
- await expect(page.locator('#sales-orders [data-coco-sales-section="invoice"]')).toContainText('Factures');
+ await expect(page.locator('#sales-orders [data-coco-sales-section="invoice"]')).toContainText('À facturer');
+ await expect(page.locator('#sales-orders [data-sales-payments]')).toContainText('Factures');
  await expect(page.locator('.gsTabs')).toContainText('Toutes les commandes');
  await page.locator('#gsNew').click();
  await expect(page.locator('dialog')).toContainText('Adresse de livraison');

@@ -895,6 +895,15 @@
                 licence_expiry:d.licence_expiry||null,days_remaining:days(d.licence_expiry),
                 vehicles:d.vehicles||[]}})}};
         }
+        if(fn==='gama_sales_dossier'){
+          const a=args.p_action,d=args.p_data||{},order=(window.__DB.sales_orders||[]).find(o=>o.id===d.order_id),q=(window.__DB.invoices||[]).find(q=>q.id===d.quote_id);
+          if(a==='dossier'||a==='status')return {data:{dossier_id:d.quote_id||order?.source_quote_id||d.order_id,quote_id:d.quote_id||order?.source_quote_id,offer_blocks:q?.offer_blocks||[],activities:[],related:{}}};
+          if(a==='owners'||a==='extras'||a==='deposit_accounts')return {data:[]};
+          if(a==='invoice_board')return {data:{actor_id:'mock-admin',total:0,rows:[]}};
+          if(a==='configuration')return {data:{settings:{version:1,default_invoice_policy:'delivered'},policies:[]}};
+          if(a==='metrics')return {data:{ordered_net:0,invoiced_net:0,open_quotes:0,conversion_percent:null,average_basket:null,remaining_to_invoice_net:0,partial_deliveries:0,estimated_margin:null,credited_net:0,average_conversion_days:null,groups:[]}};
+          return {data:{recorded:true,sent:false}};
+        }
         if(fn==='gama_quote_reservations')return {data:[]};
         if(fn==='gama_internal_invoice_action'){
           window.__internalCalls=window.__internalCalls||[];window.__internalCalls.push(args);

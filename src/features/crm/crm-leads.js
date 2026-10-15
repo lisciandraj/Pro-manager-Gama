@@ -312,34 +312,16 @@ async function convertirYa(existente){
  const l=abierto;
  if(!l||!l.id)return;
  try{
-  let clienteId=existente||null;
-  if(!clienteId){
-   const nom=val('crmCName');
-   if(!nom){msg('El cliente necesita un nombre.','err');return}
+  let data={};
+  if(!existente){
+   const nom=val('crmCName');if(!nom){msg('El cliente necesita un nombre.','err');return}
    const ident=nulo(val('crmCId')),correo=nulo(val('crmCEmail'));
-   if(coincidencia(correo,ident)&&!forzar){
-    borrador=leerConversion();
-    pintar('Ya hay un cliente con esos datos. Enlázalo, o confirma que quieres otra ficha.','err');
-    return;
-   }
-   /* owner_id, source_id y crm_score son las tres columnas que el CRM añadió a
-      customers: el cliente nace sabiendo quién lo trajo y de dónde salió. */
-   const r=await C().insert('customers',{
-    name:nom,identification:ident,email:correo,
-    phone:nulo(val('crmCPhone')),address:nulo(val('crmCAddress')),
-    city:nulo(val('crmCCity')),province:nulo(val('crmCProv')),postal_code:nulo(val('crmCPostal')),country:nulo(val('crmCCountry')),
-    notes:nulo(val('crmCNotes')),category:val('crmCCat')||'A',active:true,
-    owner_id:l.owner_id||null,source_id:l.source_id||null,crm_score:Number(l.score||0),
-   });
-   if(r.error)throw r.error;
-   clienteId=r.data&&r.data.id;
-   if(!clienteId)throw new Error('La nube no devolvió el cliente creado.');
+   if(coincidencia(correo,ident)&&!forzar){borrador=leerConversion();pintar('Ya hay un cliente con esos datos. Enlázalo, o confirma que quieres otra ficha.','err');return}
+   data={name:nom,identification:ident,email:correo,phone:nulo(val('crmCPhone')),address:nulo(val('crmCAddress')),city:nulo(val('crmCCity')),province:nulo(val('crmCProv')),postal_code:nulo(val('crmCPostal')),country:nulo(val('crmCCountry')),notes:nulo(val('crmCNotes')),category:val('crmCCat')||'A'};
   }
-  const u=await C().update('crm_leads',l.id,{status:'convertido',converted_customer_id:clienteId,converted_at:new Date().toISOString()});
-  /* Si el cliente se creó y el prospecto no se pudo marcar, hay que decirlo
-     con esas palabras: repetir la conversión a ciegas abriría una segunda
-     ficha del mismo cliente, que es justo lo que se quería evitar. */
-  if(u.error)throw new Error('El cliente se creó, pero el prospecto no se pudo marcar como convertido ('+(u.error.message||u.error)+'). Enlázalo desde aquí en vez de convertirlo otra vez.');
+  await window.ArcData.rpc('coco_contact_convert_lead',{p_lead:l.id,p_customer:existente||null,p_data:data});
+  window.ArcData.invalidate('customers');window.ArcData.invalidate('crm_leads');
+  window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'customers'}}));
   await cargar();
   vista='lista';abierto=null;forzar=false;borrador=null;
   pintar(existente?'Prospecto enlazado con el cliente.':'Cliente creado y prospecto convertido.','ok');

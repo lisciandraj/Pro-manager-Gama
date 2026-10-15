@@ -71,12 +71,14 @@ if(!window.gamaAccessAllowed?.('quotes'))return false;const host=$('quotes-main'
   addressStatus.textContent=addressText('Cargando direcciones…');
   const current=()=>addressToken===getAddressEpoch()&&revision===addressRevision&&addressForm.isConnected&&$('gqForm')===addressForm&&$('gqCustomer').value===customerId&&window.gamaAccessAllowed?.('quotes');
   try{
-   const result=await window.GamaCloud.list('customer_addresses',{select:'id,customer_id,label,purpose,address,city,active',eq:{customer_id:customerId,active:true},order:'label',limit:200});
+   const result=await window.GamaCloud.list('customer_addresses',{select:'id,customer_id,label,purpose,address,city,province,postal_code,country,contact_name,phone,email,lat,lng,time_window,unloading_minutes,is_default,active',eq:{customer_id:customerId,active:true},order:'label',limit:200});
    if(!current())return;if(result.error)throw result.error;
    deliveryAddresses=(result.data||[]).filter(a=>a.customer_id===customerId&&a.active!==false&&['delivery','order'].includes(a.purpose));
    window.ArcUI.render(addressSelect,manualOption()+deliveryAddresses.map(a=>`<option value="${esc(a.id)}">${esc(a.label)} · ${esc(window.ArcEntities.formatAddress(a))}</option>`).join(''));
    addressSelect.disabled=!deliveryAddresses.length;
-   const selected=deliveryAddresses.find(a=>window.ArcEntities.formatAddress(a)===addressInput.value);addressSelect.value=selected?.id||'';
+   let selected=deliveryAddresses.find(a=>window.ArcEntities.formatAddress(a)===addressInput.value);
+   if(!q?.id&&!selected&&addressInput.value===window.ArcEntities.formatAddress(customers.find(c=>c.id===customerId)))selected=deliveryAddresses.find(a=>a.is_default&&a.purpose==='delivery');
+   addressSelect.value=selected?.id||'';if(selected&&!q?.id)addressInput.value=window.ArcEntities.formatAddress(selected);
    addressStatus.textContent=deliveryAddresses.length?'':addressText('No hay direcciones de entrega guardadas.');
   }catch(error){if(current()){addressStatus.textContent=window.ArcErrors.message(error);addressRetry.hidden=false}}
  }

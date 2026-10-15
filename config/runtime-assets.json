@@ -125,6 +125,7 @@
     {"source":"src/features/surveys/marketing.js","output":"gama-marketing.js"},
     {"source":"src/domain/marketing-mail.js","output":"gama-marketing-mail.js"},
     {"source":"src/features/contacts/contacts.js","output":"gama-contacts-workspace.js"},
+    {"source":"src/features/contacts/contact-hub.js","output":"coco-contact-hub.js"},
     {"source":"src/features/surveys/survey-recipients.js","output":"gama-survey-recipients.js"},
     {"source":"src/features/transport/delivery-operations.js","output":"gama-tms-delivery-operations.js"},
     {"source":"src/features/transport/tracking.js","output":"gama-tms-tracking.js"},
@@ -149,6 +150,7 @@
     {"source":"src/features/intelligence/agent-coco-stock.js","output":"coco-agent-stock.js"}
   ],
   "styles": [
+    {"source":"src/styles/contact-hub.css","output":"coco-contact-hub.css"},
     {"source":"src/styles/home.css","output":"architect-home.css"},
     {"source":"src/styles/kpis.css","output":"architect-kpis.css"},
     {"source":"src/styles/shell.css","output":"architect-shell.css"},

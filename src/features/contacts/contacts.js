@@ -51,6 +51,7 @@ const LAYOUT={
  prospects:['lead','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes']
 };
 const ARCHIVE='contacts',PAGE=20;
+let directoryUnavailable=false,pageRows=[];
 let kindFilter='',qualityFilter='',rows=null,leads=[],grid=null,editing=null,draft={},pendingOpen=null,epoch=0,who;
 // Clientes y proveedores son del módulo Contactos; los contactos de prospectos, del CRM.
 const can=id=>!!window.gamaAccessAllowed?.(['prospects','people'].includes(id)?'crm':'contacts');
@@ -68,9 +69,9 @@ async function load(){
  const token=epoch,D=window.ArcData,E=window.ArcEntities,out=[];
  const take=r=>{if(r.error)throw r.error;return r.data||[]};
  const jobs=[];let found=[];
- if(can('clients'))jobs.push(D.all('customers',{select:E.entities.customers.select,order:'name'},true).then(r=>{for(const x of take(r)){const c=E.customerFromRow(x);
+ if(can('clients'))jobs.push(D.all('customers',{select:E.entities.customers.select+',identification_kind',order:'name'},true).then(r=>{for(const x of take(r)){const c=E.customerFromRow(x);
   out.push({key:'clients:'+c.id,kind:'clients',id:c.id,name:c.name,detail:c.category?T('Categoría de precios')+' '+c.category:'',ref:c.taxId,phone:c.phone,email:c.email,city:c.city,active:c.active,record:c})}}));
- if(can('suppliers'))jobs.push(D.all('suppliers',{select:E.entities.suppliers.select,order:'name'},true).then(r=>{for(const x of take(r)){const s=E.supplierFromRow(x);
+ if(can('suppliers'))jobs.push(D.all('suppliers',{select:E.entities.suppliers.select+',identification_kind',order:'name'},true).then(r=>{for(const x of take(r)){const s=E.supplierFromRow(x);
   out.push({key:'suppliers:'+s.id,kind:'suppliers',id:s.id,name:s.name,detail:s.contactName?T('Contacto')+': '+s.contactName:'',ref:s.taxId,phone:s.phone,email:s.email,city:s.city,active:s.active,record:s})}}));
  if(can('prospects'))jobs.push(Promise.all([
   D.all('crm_contacts',{select:'id,first_name,last_name,job_title,email,phone,linkedin,decision_role,notes,lead_id,customer_id,is_primary,active',order:'id'},true),
@@ -91,6 +92,20 @@ async function load(){
 function refresh(){rows=null;if(grid&&$('ctTable')?.isConnected)grid.refresh()}
 const matches=(r,terms)=>{if(!terms.length)return true;const h=norm([r.name,r.detail,r.ref,r.phone,r.email,r.city,T(kindOf(r.kind).one)].join(' '));return terms.every(t=>h.includes(t))};
 async function source(req){
+ if(!directoryUnavailable){
+  const token=epoch;try{
+   const data=await window.ArcData.rpc('coco_contact_directory',{p_data:{...req,kind:kindFilter,quality:qualityFilter,archived:window.GamaArchive.mode(ARCHIVE)==='archived'}});
+   if(token!==epoch)return {items:[],total:0,page:0,pageSize:PAGE};
+   if(data?.version===1){
+    const E=window.ArcEntities;pageRows=data.items.map(r=>({...r,key:r.kind+':'+r.id,record:r.kind==='clients'?E.customerFromRow(r.record):r.kind==='suppliers'?E.supplierFromRow(r.record):r.record}));
+    const box=$('ctArchive');if(box)box.innerHTML=window.GamaArchive.tabs(ARCHIVE,data.active_total,data.archived_total);
+    return {...data,items:pageRows};
+   }
+   if(data!=null)throw Error('CONTACT_DIRECTORY_INVALID_RESPONSE');
+   directoryUnavailable=true;
+  }catch(e){if(e?.code==='PGRST202'||/Could not find the function.*coco_contact_directory/.test(String(e?.message||'')))directoryUnavailable=true;else throw e}
+ }
+
  const all=await load(),archived=window.GamaArchive.mode(ARCHIVE)==='archived';
  const box=$('ctArchive');if(box)box.innerHTML=window.GamaArchive.tabs(ARCHIVE,all.filter(r=>r.active).length,all.filter(r=>!r.active).length);
  const terms=norm(req.search).split(/\s+/).filter(Boolean);
@@ -103,7 +118,8 @@ async function source(req){
 /* ---- tabla ---- */
 function actions(r){
  const b=(label,attr,variant)=>U.button({label:T(label),variant,attrs:attr+'="'+esc(r.key)+'"'});
- const out=[];
+ const dossierLabel={es:'Ficha de contacto',fr:'Fiche contact',en:'Contact dossier'}[window.GamaI18n?.language||'es'];
+ const out=[U.button({label:dossierLabel,attrs:'data-ct-dossier="'+esc(r.key)+'"'})];
  if(['clients','suppliers'].includes(r.kind))out.push(b('Historial','data-ct-history'));
  if(r.kind==='clients'&&r.active&&window.gamaAccessAllowed?.('website')&&window.gamaAccessAllowed?.('users'))out.push(b('Cuenta cloud del cliente','data-ct-cloud'));
  if(r.active)out.push(b('Editar','data-ct-edit'),b('Archivar','data-ct-archive','danger'));
@@ -124,7 +140,7 @@ const extraColumns=[
 ];
 const columns=()=>[
  {label:'Nombre',sort:'name',html:r=>`<b>${esc(r.name)}</b>${r.detail?`<small class="ctSub">${esc(r.detail)}</small>`:''}`},
- {label:'Tipo',sort:'kind',html:r=>`<span class="ctBadge" data-kind="${r.kind}">${esc(T(kindOf(r.kind).one))}</span>`},
+ {label:'Tipo',sort:'kind',html:r=>(r.roles?.length?r.roles:[r]).map(role=>`<span class="ctBadge" data-kind="${role.kind}">${esc(T(kindOf(role.kind)?.one||role.kind))}</span>`).join(' ')},
  {label:'Identificación / empresa',sort:'ref',value:r=>r.ref||'—'},
  {label:'Teléfono',sort:'phone',html:r=>r.phone?`<a href="tel:${esc(String(r.phone).replace(/[^+0-9]/g,''))}">${esc(r.phone)}</a>`:'—'},
  {label:'Correo',sort:'email',html:r=>r.email?`<a href="mailto:${esc(encodeURIComponent(r.email))}">${esc(r.email)}</a>`:'—'},
@@ -132,7 +148,7 @@ const columns=()=>[
  ...extraColumns.map(([sort,label,value])=>({sort,label,value:r=>value(r)??'—'})),
  {label:'Acciones',actions:true,html:actions}
 ];
-const find=key=>(rows||[]).find(r=>r.key===key);
+const find=key=>[...pageRows,...(rows||[])].find(r=>r.key===key);
 const say=text=>{const s=$('ctStatus');if(s)s.textContent=text?T(text):''};
 const changed=table=>{window.ArcData.invalidate(table);window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table}}));if(table==='customers')window.dispatchEvent(new Event('gama:sales-change'))};
 const friendly=(e,r)=>window.GamaArchive.friendlyError(e,{clients:'client',suppliers:'supplier'}[r.kind]||'contact');
@@ -252,9 +268,10 @@ function render(){
   +`<p class="gsHint ctStatus" id="ctStatus" role="status"></p><div id="ctEditor" class="ctEditor" hidden></div><div id="ctTable" class="ctTable"></div>`);
  window.GamaUI.bindBack(s);
  $('ctKindFilter').onchange=e=>{kindFilter=e.target.value;grid?.refresh({page:0})};$('ctQualityFilter').onchange=e=>{qualityFilter=e.target.value;grid?.refresh({page:0})};
- $('ctAging').onclick=async()=>{try{await window.ArcLoadScript('gama-collections.js');await window.GamaCollections.aging()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}};$('ctNew').onclick=()=>openForm(kinds()[0]?.id);
+ $('ctAging').onclick=async()=>{try{await window.ArcLoadScript('gama-collections.js');await window.GamaCollections.aging()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}};$('ctNew').onclick=async()=>{await load();openForm(kinds()[0]?.id)};
  grid=U.dataTable($('ctTable'),{columns:columns(),source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
-  'data-ct-edit':key=>{const r=find(key);if(r)openForm(r.kind,r.record)},
+  'data-ct-edit':async key=>{const r=find(key);if(r){await load();openForm(r.kind,r.record)}},
+  'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-history':key=>{const r=find(key);if(r)window.ArchitectPartners?.open(r.kind==='clients'?'customer':'supplier',r.id)},
   'data-ct-cloud':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('gama-store-admin.js');await window.GamaStoreAdmin.customerAccounts(r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-archive':key=>archive(key,false),'data-ct-restore':key=>archive(key,true),'data-ct-purge':purge}});
@@ -279,13 +296,13 @@ function edit(kind,id){pendingOpen={kind,id};if(active()){flush();return true}re
 window.GamaArchive.register(ARCHIVE,()=>grid?.refresh({page:0}));
 window.addEventListener('gama:data-change',e=>{if(['customers','suppliers','crm_contacts','crm_leads'].includes(e.detail?.table))refresh()});
 window.addEventListener('gama:language-change',()=>{if(active())render()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;who=undefined});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;pageRows=[];directoryUnavailable=false;who=undefined;closeForm()});
 window.ArcRouter.onEnter('contacts',()=>{
  // Los contactos del CRM no llegan en tiempo real: al entrar se leen de nuevo.
  for(const t of ['crm_contacts','crm_leads'])window.ArcData.invalidate(t);
  rows=null;editing=null;render();
  return()=>{closeForm();grid?.dispose();grid=null};
 });
-window.GamaContacts={open,edit,refresh,create:kind=>openForm(kind)};
+window.GamaContacts={open,edit,refresh,create:async(kind,initial={})=>{await load();if(!active())await open();openForm(kind);for(const [key,value] of Object.entries(initial)){const field=key==='customer_id'?'customer':key==='lead_id'?'lead':key;draft[field]=value}paintFields()}};
 if(window.ArcRouter.current==='contacts')render();
 })();

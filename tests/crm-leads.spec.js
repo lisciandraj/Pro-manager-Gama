@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
+const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8') + fs.readFileSync(path.join(__dirname, 'mock-contact-conversion.js'), 'utf8');
 
 // La pantalla de Prospectos. Lo que se protege aquí es el puente entre el CRM
 // y el resto de GAMA: convertir un prospecto tiene que crear UN cliente en la

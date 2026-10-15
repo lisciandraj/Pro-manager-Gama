@@ -178,3 +178,6 @@ for(const width of [390,1280])test(`shared address persists, is inherited by peo
  await page.locator('#ctFields summary').click();await expect(page.locator('#ctf-linkedin')).toBeVisible();
  expect(await page.evaluate(()=>ArcEntities.formatAddress({address:'Quito',city:'Quito',country:'Ecuador'}))).toBe('Quito, Ecuador');
 });
+
+// The native Contacts suite also exercises the lazy dossier on release CI.
+require('./contact-hub-ui.cjs');

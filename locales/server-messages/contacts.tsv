@@ -1,0 +1,5 @@
+CONTACT_LINKED_ACCESS_REQUIRED	Necesitas acceso a todos los roles vinculados para sincronizar este cambio.
+CONTACT_VERSION_CONFLICT	La ficha cambió. Actualízala antes de guardar.
+CONTACT_INVALID_COORDINATES	Introduce una pareja válida de coordenadas GPS.
+CONTACT_INVALID_RESPONSE	No se pudieron leer los datos. Reintenta.
+CONTACT_INVALID_CHOICE	Revisa los valores seleccionados.

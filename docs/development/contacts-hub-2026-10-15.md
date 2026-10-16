@@ -1,37 +1,19 @@
-# Contacts hub — release integration
+# Contacts hub — état courant
 
-## Installed SQL archive — verified 16 October 2026
+Le premier lot Contacts a été publié par la PR 164. La fiche à onglets donne accès à la synthèse, aux interlocuteurs et adresses, aux ventes/achats, à la finance, aux activités, aux documents, au compte cloud et au profil partagé selon les permissions. Les actifs sont chargés à la demande ; les services commerciaux, comptables et portail existants restent la source des données.
 
-The earlier GitHub archival blocker is resolved. The exact SQL recorded for installed version `20261015202048_coco_contacts_hub` is now available in [the reference archive](../../supabase/sql/applied/20261015202048_coco_contacts_hub.sql), with [provenance and checksums](../../supabase/sql/applied/20261015202048_coco_contacts_hub.json) and [safe handling instructions](../../supabase/sql/applied/README.md).
+## Alignement du 16 octobre
 
-The archive contains 32,466 characters / 32,518 UTF-8 bytes, MD5 `985c1c5b56df463567be4202d62c6dcc`, SHA-256 `7a13117770a7f57932f6e4c1d3dbde342c6c3d7e062175270d218e240dcb6d79`. Its Git blob is `3f67cb7a31c5ebf1ad0882b7f32c31ea544378e4`. `node --test tests/contact-migration-archive.test.cjs` verifies the archive without connecting to a database or executing SQL.
+Le [contrat d'alignement](contact-alignment.md) remplace l'ancienne limitation des coordonnées séparées par rôle. Clients, fournisseurs et prospects qui partagent explicitement une identité synchronisent maintenant leurs coordonnées communes côté serveur. Les personnes conservent leur identité et leurs coordonnées personnelles ; leur adresse peut être héritée ou indépendante. Notes, tarifs, conditions, crédit et droits portail restent propres à leur contexte.
 
-This is archival only: no migration was replayed and no application source, permissions or operational records were changed. The file is outside the executable migrations directory. The earlier `supabase/pending/coco_contacts_hub.sql` remains a development fixture, not the installed migration. Reconciliation of the automatic reconstruction history is separate and is not claimed complete by this archival operation.
+L'accès courant reste Administration → Contacts. Le nom ouvre la fiche centrale ; « Modifier » ouvre le formulaire harmonisé et protégé par version. Dans la synthèse, une différence non résolue propose « Comparer et harmoniser ». Une association client/fournisseur reste une opération explicite administrateur ; aucune similarité de nom ou de coordonnées ne crée un lien automatique.
 
-## Runtime scope
+## Base et reconstruction
 
-Contacts provides a Contact dossier action with visible Overview, People and addresses, Sales and purchases, Finance, Activities, Documents, Cloud account and Shared profile tabs, filtered by module permissions. Lazy assets preserve startup loading. The dossier reuses existing document, credit, statement and portal screens.
+`20261015202048_coco_contacts_hub` est la migration du premier lot. L'[archive exacte](../../supabase/sql/applied/20261015202048_coco_contacts_hub.sql) et son manifeste restent inchangés. Une copie byte-identique existe désormais dans `supabase/migrations` pour reconstruire une base vide ; cette migration n'a pas été rejouée sur le projet installé. Le brouillon `supabase/pending/coco_contacts_hub.sql` reste réservé au test historique, qui restaure explicitement l'état antérieur.
 
-The tab callback now executes after ArcUI's existing keyboard and mouse navigation. Previously a second bindTabs call was ignored because the dialog had already mounted its tabs, so newly selected panels stayed empty. Save callbacks are awaited, activity reads use the installed `coco_contact_activities` projection, and quotation creation loads its editor before invoking it.
+Le déploiement de l'interface doit passer par les validations puis `deploy-coco-pages.yml`. Vérifier le job de publication et sa révision, pas seulement une compilation. Un retour du code ne doit pas supprimer les colonnes et données additives installées dans Supabase.
 
-Native records retain their IDs. Shared profile metadata includes nature, language, industry, website, tags and parent relation. Associating customer and supplier roles requires explicit administrator review. Operational coordinates/terms remain per role. Association grants no portal access.
+## Limites distinctes
 
-## Database state (verified 15 October 2026)
-
-`20261015202048_coco_contacts_hub` is already installed in Supabase. It includes `coco_contact_activities`, converted-lead activity history, versioned site addresses, default-address clearing on archive and atomic conversion transferring people/opportunities without changing their IDs. Do not reapply the SQL draft.
-
-At the initial release, archiving the installed statement in GitHub was blocked. The archive section above supersedes that restriction; the independent automatic migration-reconstruction reconciliation remains outstanding.
-
-A local isolated reconstruction using the exact installed SQL (verified checksum) passed profile association, role filters, default-address rollback, stale saves, required activity dates, conversion idempotency, preservation of person IDs and lead activity origin, hierarchy cycle rejection and portal/anonymous access denial. Existing Contacts/person database tests passed against that schema too. These checks do not send messages or modify production records.
-
-Six browser scenarios exercise the current UI and server contract. Local Chromium navigation is blocked by administrator policy; final UI acceptance must use the existing GitHub release workflow. No CI policy or deployment permission has been relaxed. The original draft database test remains a draft test, not proof of a full production schema restoration.
-
-## Access and rollout
-
-Open Administration → Contacts → Contact dossier on a record. Use People and addresses to save a delivery site, Activities to plan a follow-up or internal note, and Shared profile for tags, language and relationships. A single Back action dismisses the dossier.
-
-Deployment must follow successful PR validation and the existing `deploy-coco-pages.yml`. Verify its deploy job and the exact revision in `coco-build.json`; a successful build alone is not a deployment. The pre-release main reference is `e03de7b5a89d977ce036980cc8dedeb8a195f442`; a source rollback must not remove additive contact data from Supabase.
-
-## Remaining scope
-
-This release does not implement the entire initial Odoo-inspired specification. Raw CRM lead-directory unification, synchronization of all operational coordinates across roles, multisite KPI consolidation, full receiving-site propagation to every sales/TMS snapshot, fiscal enrichment and advanced import/general duplicate merging remain separate integration work. Existing prices, credit, SRI, marketing exclusions and portal permissions are retained.
+L'alignement des coordonnées ne remplace pas l'ensemble du cahier des charges Odoo : les indicateurs multisites, l'annuaire des prospects CRM bruts, la propagation de toutes les consignes de site vers chaque instantané Ventes/TMS et les enrichissements fiscaux/import/fusion avancés restent des travaux séparés.

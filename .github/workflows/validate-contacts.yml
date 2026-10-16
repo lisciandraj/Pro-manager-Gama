@@ -1,7 +1,7 @@
 name: Validate Contacts dossier
 on:
   push:
-    branches: [main, feature/contacts-hub-2026-10-15]
+    branches: [main, feature/contacts-hub-2026-10-15, feature/contacts-alignment-20261016]
 permissions:
   contents: read
 jobs:
@@ -18,9 +18,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Verify applied migration integrity and contact transactions
+        run: npm run verify:migrations && node --test tests/contact-alignment.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Verify contact dossier browser workflows
-        run: npx playwright test tests/contacts.spec.js --workers=2 --reporter=json > contacts-browser.json
+        run: npx playwright test tests/contacts.spec.js tests/contact-alignment-ui.spec.js --workers=2 --reporter=json > contacts-browser.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

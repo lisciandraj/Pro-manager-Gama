@@ -1,0 +1,13 @@
+{
+  "version": "20261016160823",
+  "name": "coco_contact_alignment",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-16",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 32366,
+  "sha256": "7ed58c4e6c161ab041ffe28530cf55f925d1dfea297d52f659178ffce54b2f8b",
+  "file": "20261016160823_coco_contact_alignment.sql",
+  "purpose": "Installed migration; preserve these bytes and do not replay in production."
+}

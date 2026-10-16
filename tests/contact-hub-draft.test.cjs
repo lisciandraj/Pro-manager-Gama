@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),{randomUUID:uuid}=require('node:crypto');
 const {restore}=require('../scripts/restore-schema.cjs');
 test('contact hub: stable identities, explicit complementary roles, optimistic edits, address defaults and authorization',async()=>{
- const db=await restore(); const q=async(s,a=[])=>(await db.query(s,a)).rows;
+ const db=await restore({before:'20261015202048_coco_contacts_hub.sql'}); const q=async(s,a=[])=>(await db.query(s,a)).rows;
  try{
   await db.exec(fs.readFileSync(require('node:path').join(__dirname,'../supabase/pending/coco_contacts_hub.sql'),'utf8'));
   const admin=uuid(),client=uuid(),customer=uuid(),supplier=uuid(),seller=uuid(),lead=uuid();

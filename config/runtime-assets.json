@@ -161,6 +161,7 @@
     {"source":"src/styles/company.css","output":"gama-company.css"},
     {"source":"src/styles/design.css","output":"gama-design.css"},
     {"source":"src/styles/workspace.css","output":"coco-workspace.css"},
+    {"source":"src/styles/workbench.css","output":"coco-workbench.css"},
     {"source":"src/styles/modules/knowledge.css","output":"coco-style-knowledge.css"},
     {"source":"src/styles/modules/document-library.css","output":"coco-style-document-library.css"},
     {"source":"src/styles/excel-import.css","output":"gama-excel-import.css"},

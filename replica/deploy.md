@@ -29,3 +29,13 @@ Le balayage a utilisé `sweep.py dist --avoid Odoo --domains odoo.com --colors '
 - Retour arrière si nécessaire : rétablir le commit précédent par une nouvelle révision validée et republiée ; aucune restauration de données n'est impliquée.
 
 Le résultat de publication sera ajouté après vérification du marqueur en ligne. Cette préparation ne constitue pas encore une preuve de déploiement.
+
+## Refonte horizontale des modules — 16 octobre 2026
+
+Cette livraison applique la maquette approuvée aux composants partagés des 22 modules activés : lanceur d’applications, navigation horizontale native, espace de travail pleine largeur, tableaux compacts et filtres repliables sur mobile. Le logo et les couleurs Coco sont conservés. Aucun changement de données, de permissions, d’intégration ou de domaine.
+
+- Point de restauration : `54e70e986469dd63a3f27967d1e7763db731c718`.
+- Tests locaux et limites : [rapport de validation](tests/workbench-results.md).
+- Autorisation de publication : demande de déploiement déjà donnée dans la conversation, suivie de la demande d’implémentation de la maquette dans tous les modules.
+- Publication par le workflow existant `deploy-coco-pages.yml`, après les contrôles CI de la demande de fusion.
+- État de préparation : implémentation et vérifications locales terminées ; CI et preuve du commit servi à vérifier après publication.

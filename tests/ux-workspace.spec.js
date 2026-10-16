@@ -69,9 +69,9 @@ test('quote cards and explicit table preference remain usable in every language 
    }else expect(await page.locator('#gqList td.arcNumeric').first().evaluate(e=>getComputedStyle(e).textAlign)).toBe('right');
   }
  }
- await page.setViewportSize({width:390,height:900});await page.locator('[data-table-view=table]').click();
+ await page.setViewportSize({width:390,height:900});await page.locator('#gqOptions>summary').click();await page.locator('[data-table-view=table]').click();
  await page.locator('#gqRefresh').click();await expect(page.locator('#gqList')).toHaveAttribute('data-gama-view','table');
- await page.locator('[data-table-view=cards]').click();await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await page.locator('#gqOptions>summary').click();await page.locator('[data-table-view=cards]').click();await page.evaluate(()=>GamaI18n.setLanguage('fr'));
  await page.screenshot({path:info.outputPath('sales-mobile.png')});
 });
 

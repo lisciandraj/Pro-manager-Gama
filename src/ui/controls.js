@@ -50,7 +50,7 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(admin()&&dupes)bar.append(button(t('Fusionar duplicados','Fusionner les doublons','Merge duplicates'),()=>dupes==='choose'?mergeKind():merge(dupes)));
  if(!bar.children.length)return;
  const header=host.querySelector('.gamaStdHeader');
- if(['warehouses','sales-orders','quotes'].includes(id)){
+ if(bar.children.length>1||['warehouses','sales-orders','quotes'].includes(id)){
   const more=document.createElement('details');more.className='cocoModuleTools';
   const summary=document.createElement('summary');summary.textContent=t('Herramientas','Outils','Tools');more.append(summary,bar);
   if(header)header.append(more);else host.firstElementChild?.after(more);

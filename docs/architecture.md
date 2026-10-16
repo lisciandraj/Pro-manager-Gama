@@ -11,7 +11,7 @@
 | Navigation et cycle de vie | `src/app/router.js` |
 | Structure HTML des pages | `src/app/index.html`, `src/app/gama-site.html` |
 | Composants communs | `src/ui/components.js`, `src/ui/components.css` |
-| Accueil et barre latérale | `src/ui/home-menu.js`, `src/ui/shell.js` |
+| Accueil, lanceur et cadre des modules | `src/ui/home-menu.js`, `src/ui/shell.js` |
 | Modules métier | `src/features/<domaine>/` |
 | Transport, cache de lecture et références | `src/data/` |
 | Formulaires historiques encore utilisés | `src/legacy/` |
@@ -141,3 +141,9 @@ Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relance
 ## Espace ventes
 
 Les cinq sections de Ventes réutilisent les adresses et droits existants. `coco-sales-workspace.js` et `coco-sales-editor.js` sont chargés à la demande ; listes et recherches ne chargent pas le catalogue complet. La façade `gama_sales_workspace` gère les contrôles commerciaux, les modèles et la facturation des quantités livrées. Les factures partielles et groupées utilisent `external_invoices` avec allocations privées par commande, sans second registre financier. Voir [le parcours Ventes](modules/sales-workflow.md).
+
+## Cadre horizontal partagé
+
+`src/ui/shell.js` synchronise le titre et les onglets principaux à partir des événements `arc:route-change` et `arc:module-rendered`. Les mises à jour sont regroupées par animation frame ; aucun observateur global du DOM ni nouvelle lecture métier n’est ajouté. Les onglets ne sont ni clonés ni déplacés : leur placement sur grand écran conserve leurs parents et leurs contrôles. `src/styles/workbench.css`, déclaré dans le manifeste et chargé après les styles communs, fournit les dispositions responsives. Les modules chargés à la demande reçoivent la même présentation dès leur rendu.
+
+Les feuilles CSS et les lots JS de démarrage sont compactés à la construction (espaces/commentaires ordinaires), sans minification des identifiants publics ni réorganisation des règles CSS. Les commentaires de licence CSS sont conservés. Les budgets existants restent les garde-fous ; ils ne sont pas augmentés pour cette refonte.

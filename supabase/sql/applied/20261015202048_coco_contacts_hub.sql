@@ -219,7 +219,7 @@ declare result jsonb;pg integer:=least(1000000,greatest(0,coalesce((p_data->>'pa
   union all
   select k.contact_entity_id,case when k.customer_id is not null then 'people' else 'prospects' end,k.id,
    coalesce(nullif(btrim(concat_ws(' ',k.first_name,k.last_name)),''),k.email,'—'),k.job_title,
-   coalesce(c.name,l.company,concat_ws(' ',l.first_name,last_name)),k.phone,k.email,coalesce(c.city,l.city),k.active,to_jsonb(k),3
+   coalesce(c.name,l.company,concat_ws(' ',l.first_name,l.last_name)),k.phone,k.email,coalesce(c.city,l.city),k.active,to_jsonb(k),3
   from public.crm_contacts k left join public.customers c on c.id=k.customer_id
    and private.erp_module_allowed('contacts',array['administrador','comercial'])
    left join public.crm_leads l on l.id=k.lead_id

@@ -46,7 +46,7 @@ const FIELDS={
 };
 const LAYOUT={
  clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'identKind','phone','email','address','city','province','postalCode','country','lat','lng','category','terms','notes'],
- suppliers:['name','ident','identKind','contactName','phone','email','address','city','province','postalCode','country','notes'],
+ suppliers:['name','ident','identKind','contactName','phone','email','address','city','province','postalCode','country','lat','lng','notes'],
  people:['customer','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes'],
  prospects:['lead','firstName','lastName','jobTitle','role','phone','email','linkedin','primary','notes']
 };
@@ -172,7 +172,7 @@ async function purge(key){
 /* ---- el formulario ---- */
 function fromRecord(kind,x){
  if(kind==='clients')return {name:x.name,ident:x.taxId,identKind:x.identificationKind||'auto',phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,lat:x.lat??'',lng:x.lng??'',category:x.category||'A',terms:x.paymentTermsDays??'',notes:x.notes};
- if(kind==='suppliers')return {name:x.name,ident:x.taxId,identKind:x.identificationKind||'auto',contactName:x.contactName,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,notes:x.notes};
+ if(kind==='suppliers')return {name:x.name,ident:x.taxId,identKind:x.identificationKind||'auto',contactName:x.contactName,phone:x.phone,email:x.email,address:x.address,city:x.city,province:x.province,postalCode:x.postalCode,country:x.country,lat:x.lat??'',lng:x.lng??'',notes:x.notes};
  return {customer:x.customer_id,lead:x.lead_id,firstName:x.first_name,lastName:x.last_name,jobTitle:x.job_title,role:x.decision_role,phone:x.phone,email:x.email,linkedin:x.linkedin,primary:!!x.is_primary,notes:x.notes};
 }
 const leadOptions=current=>leads.filter(l=>l.active!==false||l.id===current).map(l=>({value:l.id,label:leadName(l)})).sort((a,b)=>a.label.localeCompare(b.label));
@@ -188,7 +188,8 @@ function fieldsHtml(kind){
  const groups=[['Identidad',['name','ident','identKind','customer','lead','firstName','lastName']],['Datos de contacto',['contactName','phone','email']],['Dirección',['address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary']],['Observaciones',['notes']]];
  const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
  const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
- return blocks+(more?`<details class="ctGroup"><summary>${tr('Información adicional')}</summary><div class="arcFormGrid ctFields">${more}</div></details>`:'')+(['people','prospects'].includes(kind)?'<p id="ctParentAddress" class="gsHint"></p>':'');
+ const gpsHint={es:'Para localizar la dirección, indica la calle, el número y la ciudad. Las coordenadas guardadas se utilizan en la planificación TMS. Geocodificación: Photon / © OpenStreetMap contributors.',fr:'Pour localiser l’adresse, renseignez la rue, le numéro et la ville. Les coordonnées enregistrées sont utilisées pour la planification TMS. Géocodage : Photon / © OpenStreetMap contributors.',en:'To locate the address, enter the street, number and city. Saved coordinates are used for TMS planning. Geocoding: Photon / © OpenStreetMap contributors.'}[window.GamaI18n?.language||'es'];
+ return blocks+(more?`<details class="ctGroup"><summary>${tr('Información adicional')}</summary><div class="arcFormGrid ctFields">${more}</div></details><p class="gsHint ctGpsHint">${esc(gpsHint)}</p>`:'')+(['people','prospects'].includes(kind)?'<p id="ctParentAddress" class="gsHint"></p>':'');
 }
 function parentAddress(){
  const kind=$('ctType').value, parent=kind==='people'?(rows||[]).find(r=>r.kind==='clients'&&r.id===$('ctf-customer')?.value)?.record:leads.find(l=>l.id===$('ctf-lead')?.value);
@@ -228,6 +229,14 @@ function openForm(kind,record=null){
 }
 function closeForm(){const box=$('ctEditor');editing=null;draft={};if(!box)return;box.hidden=true;box.dataset.kind='';box.replaceChildren()}
 async function userId(){if(who!==undefined)return who;try{const s=await window.GamaCloud.getSession();who=s?.data?.session?.user?.id||null}catch(_){who=null}return who}
+function writeGps(row,values,previous){
+ const lat=String(values.lat??'').trim(),lng=String(values.lng??'').trim();
+ if((lat||lng)&&(!lat||!lng||!Number.isFinite(+lat)||!Number.isFinite(+lng)||Math.abs(+lat)>85||Math.abs(+lng)>180))throw Error(T('Coordenadas inválidas.'));
+ const a=lat===''?null:Number(lat),b=lng===''?null:Number(lng);
+ // An unchanged GPS field must not erase coordinates found by the server
+ // after this editor opened. Address changes are invalidated by the database.
+ if(!previous||a!==(previous.lat??null)||b!==(previous.lng??null)){row.lat=a;row.lng=b}
+}
 async function save(){
  readDraft();
  const kind=editing?.kind||$('ctType').value,d=draft,C=window.GamaCloud;
@@ -238,13 +247,14 @@ async function save(){
   if(!/^\d+$/.test(terms)||Number(terms)>3650)throw Error(T('Indica un plazo de pago entre 0 y 3650 días.'));
   if((rows||[]).some(r=>r.kind==='clients'&&r.id!==editing?.id&&norm(r.ref)===norm(ident)))throw Error(T('Ya existe un cliente con esta identificación.'));
   const row={name,identification:ident,identification_kind:d.identKind||'auto',phone:clean(d.phone),email:clean(d.email),address:clean(d.address),city:clean(d.city),province:clean(d.province),postal_code:clean(d.postalCode),country:clean(d.country),category:d.category||'A',payment_terms_days:Number(terms),notes:clean(d.notes)};
-  const lat=String(d.lat??'').trim(),lng=String(d.lng??'').trim();if((lat||lng)&&(!lat||!lng||!Number.isFinite(+lat)||!Number.isFinite(+lng)||Math.abs(+lat)>85||Math.abs(+lng)>180))throw Error(T('Coordenadas inválidas.'));row.lat=lat===''?null:Number(lat);row.lng=lng===''?null:Number(lng);
+  writeGps(row,d,editing?.record);
   await call(editing?C.update('customers',editing.id,row):C.insert('customers',{...row,active:true}));
   changed('customers');
  }else if(kind==='suppliers'){
   const value={name:clean(d.name),taxId:clean(d.ident)||'',identificationKind:d.identKind||'auto',contactName:clean(d.contactName)||'',phone:clean(d.phone)||'',email:clean(d.email)||'',city:clean(d.city)||'',province:clean(d.province)||'',postalCode:clean(d.postalCode)||'',country:clean(d.country)||'',address:clean(d.address)||'',notes:clean(d.notes)||''};
   if(!value.name)throw Error(T('El nombre del proveedor es obligatorio.'));
   const row=window.ArcEntities.supplierToRow({...editing?.record,...value,active:editing?.record?.active!==false});
+  writeGps(row,d,editing?.record);
   await call(editing?C.update('suppliers',editing.id,row):C.insert('suppliers',row));
   changed('suppliers');
  }else{

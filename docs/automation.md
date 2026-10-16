@@ -24,6 +24,14 @@ Les contrôles opérationnels et financiers sont actifs à l’installation. Les
 
 ## Achats et dépenses
 
+### Réapprovisionnement automatique par minimum et maximum
+
+La règle **Brouillons de réapprovisionnement**, dans Configuration → Automatisations et exceptions, propose deux modes. **Minimum et maximum de la fiche produit** (`basis: min_max`) utilise strictement les seuils de la fiche : dès que le stock physique est inférieur au minimum, la quantité à préparer est `max(0, maximum − stock physique − reliquat des achats en brouillon/envoyés/partiels)`. Les réservations et prévisions ne modifient pas ce maximum. Les produits inactifs, services et produits exclus sont ignorés. Les quantités restent précises à trois décimales ; les prix suivent l’arrondi à deux décimales du contrat Achats.
+
+Un contrôle serveur chaque minute (`interval_minutes: 1`) fonctionne avec l’application fermée. Il crée un brouillon par fournisseur actif, sans inventer un fournisseur ou un délai absent. Un produit sans fournisseur ou sans maximum cohérent reste dans les exceptions. Le plafond par achat configuré et la limite de 500 lignes par fournisseur restent applicables. Les brouillons existants comptent dans les contrôles suivants et dans les propositions manuelles du module Achats. La réception partielle réduit le reliquat pendant qu’elle augmente le stock, sans créer un besoin supplémentaire. Une nouvelle baisse crée seulement le complément manquant ; un brouillon annulé ne couvre plus le besoin.
+
+La délégation existante de 90 jours maximum, ses contrôles de droits et sa date d’expiration restent visibles dans Configuration. L’installation de la migration ne l’active pas : l’activation demandée est une version de règle distincte. Le mode historique **Prévision selon consommation et délai** (`basis: demand`, ou absence de `basis`) conserve son calcul. Les contrôles n’envoient aucun e-mail, n’augmentent aucun stock et ne valident aucun achat.
+
 Comptabilité → Achats → **Réceptions et factures à vérifier** ouvre les brouillons. Corriger les champs d’après le document réel, enregistrer, puis valider les lignes de réception et les montants. Le serveur poste la facture, approuve le rapprochement et crée son écriture dans une seule transaction. La même clé retournée après une interruption ne poste pas deux fois. Un brouillon ne peut pas être payé.
 
 **Importer XML fournisseur** retrouve exactement un fournisseur actif par RUC, contrôle l’acquéreur si son RUC est renseigné, les montants, la devise et les doublons, puis conserve l’original privé. Les DTD et entités externes sont refusées. La signature et l’autorisation SRI restent à vérifier ; le brouillon ne les certifie pas. Les taxes autres que l’IVA, les pourboires et les documents incompatibles sont signalés à vérifier. La lecture des factures PDF/photo est disponible dans Comptabilité → Achats : voir le [parcours OCR avec revue humaine](commercial-planning.md).
@@ -57,6 +65,8 @@ Référence : [Waze Deep Links](https://developers.google.com/waze/deeplinks).
 ## Vérification
 
 Les fixtures `automation-db`, `automation-flows-db`, `supplier-xml-metrics-db`, `message-outbox-db` `background-import-db`, `survey-feedback-db`, `tms-roads-db` et `agent-coco-reports-db` restaurent les migrations dans une base isolée. Les fixtures du parcours manuel vérifient qu’aucune requête fournisseur n’est émise ; `commercial-growth-db` simule séparément l’envoi des séquences autorisées, ses reprises et ses arrêts. Aucune clé réelle ni communication externe n’est utilisée. Les tests B2B vérifient prix, association explicite, suspension, documents et téléchargements entre entreprises. La validation réelle du domaine e-mail, du signataire SRI et des appareils de scan reste liée à leur configuration.
+
+`automatic-minmax-purchases-db` couvre les seuils fixes malgré une règle de prévision différente, le regroupement, les fractions, les brouillons/envoyés/partiels, les produits exclus/services, l’absence de fournisseur/maximum/délai, les reprises idempotentes, les réceptions partielles, la baisse suivante, l’annulation, le plafond et la délégation expirée/révoquée. Les données sont isolées.
 
 ## Extensions commerciales et financières
 

@@ -18,6 +18,33 @@ async function boot(page,role='admin'){
 const dialog=page=>page.locator('#arcSettingsDialog');
 const tabs=page=>dialog(page).locator('[role=tab]');
 
+test('replenishment configuration saves fixed product thresholds and preserves its delegation and other settings',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{
+  let rule={kind:'replenishment',title:'Brouillons de réapprovisionnement',version:1,enabled:false,delegated:true,config:{interval_minutes:1440,max_order_total:1000,destination_location_id:'existing-destination'}};
+  const original=ArcData.rpc;
+  window.ArcData={...ArcData,rpc:async(name,args)=>{
+   if(name!=='gama_automation')return original(name,args);
+   if(args.p_action==='rule_save'){window.__minmaxSave=args.p_data;rule={...rule,...args.p_data,version:2};return rule}
+   return {as_of:new Date().toISOString(),admin:true,rules:[rule],jobs:[],exceptions:[],pending:0,total:0,offset:0};
+  }};
+ });
+ await openSettings(page,'automation');
+ await page.locator('[data-auto-rule="replenishment"]').click();
+ const config=page.locator('dialog.arcDialog');
+ await expect(config.locator('[name=basis]')).toHaveValue('demand');
+ await expect(config).toContainText('Minimum et maximum de la fiche produit');
+ await expect(config).toContainText('déduction faite des brouillons et achats en cours');
+ await config.locator('[name=basis]').selectOption('min_max');
+ await config.locator('[name=enabled]').selectOption('true');
+ await config.locator('[name=interval_minutes]').fill('1');
+ await config.locator('[name=max_order_total]').fill('1000000');
+ await config.locator('button[type=submit]').click();
+ await expect(config).toHaveCount(0);
+ const saved=await page.evaluate(()=>window.__minmaxSave);
+ expect(saved).toMatchObject({kind:'replenishment',enabled:true,expected_version:1,delegation_days:90,config:{basis:'min_max',interval_minutes:1,max_order_total:1000000,destination_location_id:'existing-destination'}});
+});
+
 test('the top bar lists sections first and opens only the selected window',async({page})=>{
  await boot(page);await page.locator('#arcSettings').click();
  const menu=page.locator('#arcSettingsMenu');await expect(menu).toBeVisible();

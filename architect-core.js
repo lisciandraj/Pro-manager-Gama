@@ -837,7 +837,7 @@
     photo: text(p.photo_data)
   });
   const customerFromRow = (c) => ({ id: c.id, taxId: text(c.identification), identificationKind: c.identification_kind || "auto", name: text(c.name), category: c.category || "A", address: text(c.address), phone: text(c.phone), email: text(c.email), city: text(c.city), province: text(c.province), postalCode: text(c.postal_code), country: text(c.country), notes: text(c.notes), paymentTermsDays: c.payment_terms_days ?? null, lat: c.lat ?? null, lng: c.lng ?? null, active: c.active !== false });
-  const supplierFromRow = (s) => ({ id: s.id, taxId: text(s.tax_id), identificationKind: s.identification_kind || "auto", name: text(s.name), contactName: text(s.contact_name), address: text(s.address), phone: text(s.phone), email: text(s.email), city: text(s.city), province: text(s.province), postalCode: text(s.postal_code), country: text(s.country), notes: text(s.notes), active: s.active !== false });
+  const supplierFromRow = (s) => ({ id: s.id, taxId: text(s.tax_id), identificationKind: s.identification_kind || "auto", name: text(s.name), contactName: text(s.contact_name), address: text(s.address), phone: text(s.phone), email: text(s.email), city: text(s.city), province: text(s.province), postalCode: text(s.postal_code), country: text(s.country), lat: s.lat ?? null, lng: s.lng ?? null, notes: text(s.notes), active: s.active !== false });
   const supplierToRow = (s) => ({ name: s.name, tax_id: s.taxId || null, identification_kind: s.identificationKind || "auto", contact_name: s.contactName || null, address: s.address || null, phone: s.phone || null, email: s.email || null, city: s.city || null, province: s.province || null, postal_code: s.postalCode || null, country: s.country || null, notes: s.notes || null, active: s.active !== false });
   const formatAddress = (c = {}) => [...new Set([c.address, c.city, c.province, c.postalCode ?? c.postal_code, c.country].map((v) => String(v ?? "").trim()).filter(Boolean))].join(", ");
   const legacyProduct = (p) => {
@@ -853,7 +853,7 @@
     return { ...x, tax: x.taxId, contact: x.contactName };
   };
   const entities = {
-    suppliers: { table: "suppliers", select: "id,name,tax_id,contact_name,phone,email,city,address,province,postal_code,country,notes,active,created_at,updated_at", order: "name", search: ["name", "tax_id", "contact_name", "email", "phone", "city"], fromRow: supplierFromRow, toRow: supplierToRow },
+    suppliers: { table: "suppliers", select: "id,name,tax_id,contact_name,phone,email,city,address,province,postal_code,country,lat,lng,notes,active,created_at,updated_at", order: "name", search: ["name", "tax_id", "contact_name", "email", "phone", "city"], fromRow: supplierFromRow, toRow: supplierToRow },
     customers: { table: "customers", select: "id,name,identification,category,address,phone,email,city,province,postal_code,country,notes,payment_terms_days,lat,lng,active,created_at,updated_at", order: "name", search: ["name", "identification", "email", "phone", "city"], fromRow: customerFromRow },
     products: { table: "products", select: "id,barcode,name,description,reference,category,family,lines,brand,presentation,location,supplier_id,min_stock,max_stock,qty_per_carton,weight_g,volume_cm3,stock,sale_price,sale_price_b,purchase_price,tax_rate,active,has_photo,photo_is_illustrative,product_kind,base_unit,order_minimum,order_multiple,lot_tracking,lot_tracking_since,created_at,updated_at", order: "name", search: ["name", "barcode", "reference", "category"], fromRow: productFromRow }
   };

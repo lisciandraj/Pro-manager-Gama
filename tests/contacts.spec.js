@@ -18,6 +18,26 @@ async function boot(page,role='admin'){
 const table=page=>page.locator('#ctTable');
 const row=(page,text)=>page.locator('#ctTable tbody tr').filter({has:page.locator('td:first-child b').filter({hasText:text})});
 
+test('saving an unchanged GPS field preserves coordinates resolved while the contact editor was open',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.customers[0].payment_terms_days=0;return ArcRouter.open('contacts')});
+ await row(page,'Ferretería Andina').locator('[data-ct-edit]').click();
+ await expect(page.locator('#ctf-lat')).toHaveValue('');
+ await page.evaluate(()=>Object.assign(__DB.customers[0],{lat:-.21,lng:-78.51}));
+ await page.fill('#ctf-phone','0991234567');await page.locator('#ctSave').click();
+ await expect(page.locator('#ctEditor')).toBeHidden();
+ expect(await page.evaluate(()=>[__DB.customers[0].lat,__DB.customers[0].lng])).toEqual([-.21,-78.51]);
+});
+
+test('supplier contacts display and save a manually corrected GPS pair',async({page})=>{
+ await boot(page);await page.evaluate(()=>{Object.assign(__DB.suppliers[0],{lat:-.2,lng:-78.5});return ArcRouter.open('contacts')});
+ await row(page,'Aceros del Pacífico').locator('[data-ct-edit]').click();
+ await page.locator('#ctFields summary').click();
+ await expect(page.locator('#ctf-lat')).toHaveValue('-0.2');
+ await page.fill('#ctf-lat','-0.23');await page.fill('#ctf-lng','-78.53');await page.locator('#ctSave').click();
+ await expect(page.locator('#ctEditor')).toBeHidden();
+ expect(await page.evaluate(()=>[__DB.suppliers[0].lat,__DB.suppliers[0].lng])).toEqual([-.23,-78.53]);
+});
+
 test('Contacts opens scoped cloud-account management, enables the company and prepares its invitation',async({page})=>{
  await boot(page);await page.evaluate(async()=>{const db=await GamaCloud.db();window.__CLOUD_ENABLED=false;window.__CLOUD_ACCOUNT_CALLS=[];GamaCloud.db=async()=>({...db,rpc:async(name,args)=>{if(name==='gama_b2b_customer_accounts'){__CLOUD_ACCOUNT_CALLS.push(args);return {data:{customer:{id:'c1',name:'Ferretería Andina',email:'cliente@example.invalid',enabled:__CLOUD_ENABLED},members:[],available:[]}}}if(name==='gama_b2b_admin'&&args.p_action==='access'){__CLOUD_ENABLED=args.p_data.enabled;return {data:{saved:true}}}return db.rpc(name,args)}})});await page.evaluate(()=>ArcRouter.open('contacts'));
  await page.locator('[data-ct-cloud="clients:c1"]').click();const account=page.locator('dialog').filter({hasText:'Cuenta cloud del cliente'});await expect(account).toBeVisible();await expect(account.locator('a')).toHaveAttribute('href','https://gama-coco.pages.dev/b2b.html');await expect(account.locator('[data-customer-invite]')).toBeDisabled();await account.locator('[data-customer-access]').click();await expect(page.locator('[data-customer-invite]')).toBeEnabled();await page.locator('[data-customer-invite]').click();await expect(page.locator('dialog input[type=email]')).toHaveValue('cliente@example.invalid');expect((await page.evaluate(()=>__CLOUD_ACCOUNT_CALLS)).every(c=>c.p_customer==='c1')).toBe(true);

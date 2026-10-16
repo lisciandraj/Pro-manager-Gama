@@ -67,3 +67,5 @@ Documents sépare les filtres dans un rail et la recherche/résultats dans une s
 Les spécifications, sources de référence et critères de vérification sont dans [le relevé Replica](../replica/recon.md) et [le contrat des composants](../replica/design/components.md). Les sources runtime restent `src/styles/` et `src/ui/` ; les tokens de référence ne sont pas une seconde feuille de thème à importer.
 
 Les styles propres au pipeline CRM, à Documents et à la base de connaissances sont chargés avec leurs modules via le registre de chargement différé. Cela conserve le budget CSS de démarrage ; `config/runtime-assets.json` reste la source des assets publiés.
+
+Sur mobile, les sélecteurs de période et de vue du Dashboard passent sur des lignes séparées lorsque leur largeur disponible devient insuffisante. Les libellés FR/ES/EN restent lisibles à 16 px, sans débordement des contrôles natifs WebKit à 320 px.

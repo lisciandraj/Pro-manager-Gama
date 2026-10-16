@@ -1,6 +1,8 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
+const {isolateLocalPage}=require('./local-browser-fixture.cjs');
 const cloud=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
+test.use({serviceWorkers:'block'});
 
 async function boot(page){
  await page.addInitScript(()=>{
@@ -8,9 +10,7 @@ async function boot(page){
   localStorage.setItem('gama_tms_migrated_v1','1');
   window.__DB={products:[],suppliers:[],customers:[],sales_orders:[],sales_order_lines:[],invoice_lines:[],external_invoices:[],invoices:Array.from({length:35},(_,i)=>({id:'q'+i,invoice_number:'UX-'+i,quote_state:'draft',quote_revision:1,issue_date:'2026-10-01',quote_valid_until:'2026-11-01',quote_details:{seller:'QA',client:'Cliente de prueba',delivery_address:'Quito'},total:100+i}))};
  });
- // Both local configurations (HTTP and HTTPS) must remain reachable.
- // Every non-local request stays blocked; business reads use the fixture below.
- await page.route('**/*',r=>['127.0.0.1','localhost','[::1]'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
+ await isolateLocalPage(page);
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:cloud}));
  await page.goto('/index.html');await page.waitForFunction(()=>window.gamaAccessAllowed?.('quotes'));
  await page.evaluate(async()=>{

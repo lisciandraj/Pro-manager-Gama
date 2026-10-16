@@ -35,7 +35,7 @@ Dans cet environnement, `PLAYWRIGHT_CHROMIUM_PATH=/tmp/chromium` sélectionne le
 
 ## Limites et publication
 
-Les tests utilisent les mocks et bases isolées du dépôt. Ils ne prouvent pas une exécution avec les données réelles ni une parité fonctionnelle avec Odoo. Le rendu a été vérifié sous Chromium ; Safari/WebKit et les appareils physiques n’ont pas été exercés. Les langues FR/ES/EN sont parcourues dans les scénarios responsive et de validation partagée, pas dans chaque scénario métier.
+Les tests utilisent les mocks et bases isolées du dépôt. Ils ne prouvent pas une exécution avec les données réelles ni une parité fonctionnelle avec Odoo. La passe du 15 octobre a été vérifiée sous Chromium ; le complément WebKit est décrit ci-dessous. Les appareils physiques et Safari sur macOS/iOS n’ont pas été exercés. Les langues FR/ES/EN sont parcourues dans les scénarios responsive et de validation partagée, pas dans chaque scénario métier.
 
 Les images de recherche Odoo ne sont pas embarquées. Les aperçus Coco joints utilisent des données fictives et ne sont pas copiés dans `dist/`. Aucune migration métier ni modification de permission. Cette branche est proposée à la revue avant fusion et publication.
 
@@ -46,3 +46,11 @@ La branche inclut maintenant `c6a5f73`, la version Contacts publiée sur `main` 
 Les 45 scénarios de `contacts.spec.js` (dont les six parcours du dossier), `crm-leads.spec.js` et `service-documents.spec.js` passent sous Chromium. Les 18 tests d’architecture et de chargement passent aussi. Sources, types, liens documentaires, reproductibilité du build et budgets ont été revérifiés. Le binaire temporaire de la veille n’existait plus ; les scénarios ont été exécutés avec le Chromium conservé dans l’environnement, sans modifier les tests.
 
 Budget après intégration : 14 scripts ; 848 280 octets JavaScript et 298 964 octets CSS, dans les limites existantes. Cette intégration ajoute une vérification ciblée ; la validation générale du 15 octobre ci-dessus reste distincte.
+
+## Correction du contrôle CI responsive — 16 octobre 2026
+
+La première CI de la PR #165 a validé 17 des 18 scénarios responsive/UX. Le contrôle du Dashboard échouait sous WebKit en anglais à 320 px. La reproduction locale a identifié un débordement de 8 px en anglais et de 6 px en espagnol : le texte des sélecteurs natifs à 16 px dépassait leurs colonnes de 140 px. Leur base flexible passe à 190 px, ce qui les empile aux petites largeurs. Le rendu reste à 320 px dans les trois langues après correction. Les budgets de démarrage restent identiques.
+
+La fixture des suites `responsive-layout` et `ux-workspace` retire les préconnexions de la copie HTML servie aux tests et limite son `connect-src` à la même origine. Elle bloque aussi les requêtes HTTP externes, les WebSockets et les service workers. Les mocks métier et toutes les assertions de mise en page restent conservés. La page et la politique réseau de production ne sont pas modifiées par cette isolation.
+
+Les 18 scénarios des deux suites ont ensuite terminé avec code 0 et l’état Playwright `passed` sans test échoué. Le scénario Dashboard a également été réexécuté seul sur les deux moteurs : 2 réussites en 11,2 secondes. WebKit 26.6 utilise des bibliothèques portables locales ; seule la sélection du binaire diffère de la configuration CI. Sources, documentation, build reproductible et budgets sont validés après le correctif.

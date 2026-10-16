@@ -109,7 +109,10 @@ test('the sales tabs remain visible and usable on a phone',async({page})=>{
  const sections=page.locator('#quotes .cocoSalesNavigation [role=tab]');
  await expect(sections).toHaveCount(5);await expect(tabs(page)).toHaveCount(2);
  await expect(page.locator('select[data-coco-sales-section]')).toHaveCount(0);
- for(const tab of await sections.all()){await expect(tab).toBeVisible();const box=await tab.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);expect(box.height).toBeGreaterThanOrEqual(44)}
+ // La barre reste sur une seule ligne : chaque onglet doit défiler dans la
+ // zone visible quand le clavier le cible, sans élargir la page.
+ await sections.first().focus();
+ for(let i=0;i<await sections.count();i++){if(i)await page.keyboard.press('ArrowRight');const tab=sections.nth(i);await expect(tab).toBeVisible();await expect(tab).toBeFocused();const box=await tab.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);expect(box.height).toBeGreaterThanOrEqual(44)}
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.screenshot({path:test.info().outputPath('sales-tabs-mobile.png'),fullPage:true});
  const documents=page.locator('#quotes [data-coco-sales-section="documents"]');

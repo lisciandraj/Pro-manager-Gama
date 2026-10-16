@@ -11,8 +11,9 @@ Base et point de restauration : `54e70e986469dd63a3f27967d1e7763db731c718`.
 - Captures locales de Produits, Ventes, CRM, Documents, Knowledge et Dashboard examinées.
 - Affichage, navigation, clavier et responsive : 64 tests réussis sur Chromium et WebKit ; les 22 modules activés vérifiés à 390, 768 et 1440 pixels.
 - Régression ciblée : 97 tests réussis au premier passage ; le seul échec concernait la hauteur minimale des boutons de vue. Après correction à 44 pixels, les 6 tests de cette suite passent, dont le test initialement en échec (98 cas distincts validés au total).
-- Budgets finaux : 14 scripts, 848 196 octets JavaScript sur 850 000, 291 461 octets CSS sur 300 000.
+- Budgets finaux : 14 scripts, 848 550 octets JavaScript sur 850 000, 291 461 octets CSS sur 300 000.
 - Chargement et langues : 9 tests réussis ; formulaires, paysage et encoche mobile : 6 tests réussis. Le contrôle d’encoche mesure désormais le contenu et le menu ouvert, puisque le menu fermé ne réserve plus de colonne.
+- La suite CI Ventes a validé 250 cas et signalé une ancienne assertion imposant tous les onglets simultanément dans l’écran mobile. Le test vérifie maintenant leur accès par flèches clavier ; le conteneur révèle explicitement l’onglet ciblé. Ce parcours, dont l’accès au dernier onglet et l’ouverture de la facturation, passe localement après correction.
 
 Défauts reproduits puis corrigés : chevauchement du bouton Retour avec les sous-onglets Ventes en espagnol (largeur mesurée) ; focus initial du menu avant sa première image visible sous WebKit (focus après ouverture) ; espace sous le contenu en paysage pour la barre mobile ; hauteur des boutons de changement de vue.
 

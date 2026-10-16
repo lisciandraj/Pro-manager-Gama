@@ -128,6 +128,12 @@ function openDrawer(){
    selectors, delegated events, permissions and keyboard handlers keep working. */
 let workspaceFrame=0,activeNav=null;
 const MODULE_NAV='.cocoSalesNavigation,.crmNav:not(.crmSubNav),.ivTabs,.hrTabs,.gaNav,.gfNav,.grNav,.pmTabs,.svTabs,.gwTabs,.gdfTabs,.arcTabs';
+function revealModuleTab(tab){
+ const nav=tab?.closest?.('.cocoModuleNav');if(!nav)return;
+ const r=tab.getBoundingClientRect(),b=nav.getBoundingClientRect();
+ if(r.left<b.left)nav.scrollLeft-=b.left-r.left;
+ else if(r.right>b.right)nav.scrollLeft+=r.right-b.right;
+}
 function syncWorkspace(){
  workspaceFrame=0;
  const section=document.querySelector('.arcContent section.active');
@@ -151,6 +157,7 @@ function syncWorkspace(){
   document.body.style.setProperty('--coco-nav-right',right+'px');
   if(id==='quotes'){const actions=section.querySelector(':scope>.gamaStdHeader');if(actions)section.style.setProperty('--coco-context-actions',Math.ceil(actions.getBoundingClientRect().width+12)+'px')}
  }
+ revealModuleTab(document.activeElement);
 }
 function scheduleWorkspace(){if(!workspaceFrame)workspaceFrame=requestAnimationFrame(syncWorkspace)}
 
@@ -290,6 +297,7 @@ function sync(){adoptSections();syncFavorites();applyAccess();markActive();adopt
 
 function boot(){
  build();
+ document.addEventListener('focusin',e=>revealModuleTab(e.target));
  document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){topMenuIntent++;document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
   if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length&&!x.disabled);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}

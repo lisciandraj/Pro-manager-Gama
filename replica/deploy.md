@@ -38,5 +38,5 @@ Cette livraison applique la maquette approuvée aux composants partagés des 22 
 - Tests locaux et limites : [rapport de validation](tests/workbench-results.md).
 - Demande de fusion : [#167](https://github.com/lisciandraj/Pro-manager-Gama/pull/167).
 - Autorisation de publication : demande de déploiement déjà donnée dans la conversation, suivie de la demande d’implémentation de la maquette dans tous les modules.
-- Publication par le workflow existant `deploy-coco-pages.yml`, après les contrôles CI de la demande de fusion.
+- Publication par le workflow existant `deploy-coco-pages.yml`, avec ses contrôles intégrés avant mise en ligne. L’utilisateur a confirmé « Publie en ligne direct stp » pendant le suivi de la livraison.
 - État de préparation : implémentation et vérifications locales terminées ; CI et preuve du commit servi à vérifier après publication.

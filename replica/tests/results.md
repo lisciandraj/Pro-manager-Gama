@@ -62,3 +62,13 @@ La CI du commit `67c6583` a validé les 18 scénarios responsive/UX, mais la sui
 Les boutons de fiche de paie et d'édition de paie équatorienne restent maintenant désactivés jusqu'à leur branchement. Le scénario existant retarde explicitement la réponse de chargement et vérifie cet état avant de poursuivre la signature et le PDF. Cette assertion échoue sur la version précédente et passe après correction. Les 22 scénarios RH passent en 11,7 secondes, sans échec ni reprise. La suite RH utilise désormais la même isolation réseau locale que les suites responsive/UX.
 
 `npm run build`, `npm run check`, `npm run typecheck`, `npm run check:generated` et `npm run check:startup` passent après correction. Les budgets restent à 14 scripts, 848 280 octets JavaScript et 298 964 octets CSS. Le calcul de paie, les droits et les appels métier ne changent pas. Le déploiement est autorisé par l'utilisateur le 16 octobre ; la validation finale de GitHub et la preuve de version publiée sont consignées dans `../deploy.md`.
+
+## Validation finale et fusion — 16 octobre 2026
+
+Sur `4696f61`, les 13 contrôles GitHub hors mise en page réussissent : en particulier, Sales termine avec 251 scénarios réussis, interface partagée avec 405 et audit avec 171. Le contrôle `layout` attend plus de quinze minutes dans l'installation de Chromium/WebKit, avant l'exécution des tests. La même suite responsive/UX est donc réexécutée sur le code final dans l'environnement local isolé : 18 réussites sous Chromium et WebKit, 0 échec, 0 test ignoré, 0 reprise, en 69,7 secondes. Seule la sélection du WebKit portable diffère de la configuration CI ; les tests et assertions sont identiques.
+
+La PR #165 est fusionnée en `54e70e986469dd63a3f27967d1e7763db731c718`. Le workflow de production reconstruit et vérifie cette révision selon ses conditions existantes. Voir `../deploy.md` pour le résultat réellement publié ; la fusion seule n'est pas une preuve de publication.
+
+La CI de cette version fusionnée a également validé les 18 scénarios responsive/UX sous Chromium et WebKit : job `117063187767`, terminé à 15:56 UTC, 18 réussites en 1,4 minute. Le blocage d'installation concernait le runner précédent de la PR.
+
+Les 15 contrôles GitHub de `54e70e9`, publication incluse, ont terminé avec succès. À 16:04 UTC, `coco-build.json` servi par le site confirme ce commit et le run `38927646633` ; dix fichiers HTML/CSS/JS répondent HTTP 200 avec des empreintes identiques au build validé. Voir [la preuve de publication](deployed-build.json).

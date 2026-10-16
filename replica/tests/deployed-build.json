@@ -1,0 +1,165 @@
+{
+  "site": "https://lisciandraj.github.io/Pro-manager-Gama/",
+  "build": {
+    "commit": "54e70e986469dd63a3f27967d1e7763db731c718",
+    "run": "38927646633",
+    "built_at": "2026-10-16T16:02:57.737Z"
+  },
+  "assets": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "535503e27a19e89d3ca792efe9a11a9fab103d8cff41d4299d6afcb3824231a1",
+      "matches_local_build": true
+    },
+    {
+      "path": "architect-tokens.css",
+      "status": 200,
+      "sha256": "e18631147a355b93bcfc3ccf21d653f99892fabebd7efa1137cebbfc59c17e4c",
+      "matches_local_build": true
+    },
+    {
+      "path": "coco-workspace.css",
+      "status": 200,
+      "sha256": "148917711808309149bbd9885ccdf3f425cef813028ff505880c81f952a2d643",
+      "matches_local_build": true
+    },
+    {
+      "path": "coco-style-crm-opportunities.css",
+      "status": 200,
+      "sha256": "f56e5c8cecaf16942245459cc8a682b3c6325d9d6b3176236b0ec99b20958b8e",
+      "matches_local_build": true
+    },
+    {
+      "path": "coco-style-document-library.css",
+      "status": 200,
+      "sha256": "66c3efbf78ac912ba8365a592cde6b681146b5d6baa1dc56f8cca3e57e86c2b5",
+      "matches_local_build": true
+    },
+    {
+      "path": "coco-style-knowledge.css",
+      "status": 200,
+      "sha256": "8aea1ddb0754d47aa21fd568cb74871518c960ce86b4592431330b421c504476",
+      "matches_local_build": true
+    },
+    {
+      "path": "architect-controls.js",
+      "status": 200,
+      "sha256": "a5ace46222e3cd15c1d55315b73cdc98e139cee1e159b2ff84a12e57c16d8648",
+      "matches_local_build": true
+    },
+    {
+      "path": "coco-workspace.js",
+      "status": 200,
+      "sha256": "31e7812b70559a45b5d38270a7ff80bd7316b592873cd19a1f034123a3b52d4b",
+      "matches_local_build": true
+    },
+    {
+      "path": "gama-hr-ecuador.js",
+      "status": 200,
+      "sha256": "01b1e4574811347b28a7dfc34e5862d0b12cfa30954a92f742ac1dc700a49db0",
+      "matches_local_build": true
+    },
+    {
+      "path": "gama-hr-p1.js",
+      "status": 200,
+      "sha256": "eedd9d1420ba4eb6747acb9d6bde1c28233af502d5ff17957cb0f593fa88195d",
+      "matches_local_build": true
+    }
+  ],
+  "verified": true,
+  "ci": [
+    {
+      "name": "deploy",
+      "id": 117067303854,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646633/job/117067303854"
+    },
+    {
+      "name": "audit",
+      "id": 117063192339,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646634/job/117063192339"
+    },
+    {
+      "name": "shared-interface",
+      "id": 117063189181,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646625/job/117063189181"
+    },
+    {
+      "name": "sri-connector",
+      "id": 117063189131,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646625/job/117063189131"
+    },
+    {
+      "name": "validate",
+      "id": 117063189037,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646625/job/117063189037"
+    },
+    {
+      "name": "stock-adjustments",
+      "id": 117063188977,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646625/job/117063188977"
+    },
+    {
+      "name": "stock-concurrency",
+      "id": 117063188745,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646625/job/117063188745"
+    },
+    {
+      "name": "build",
+      "id": 117063187837,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646633/job/117063187837"
+    },
+    {
+      "name": "layout",
+      "id": 117063187767,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646763/job/117063187767"
+    },
+    {
+      "name": "sales",
+      "id": 117063187592,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646656/job/117063187592"
+    },
+    {
+      "name": "products",
+      "id": 117063187527,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646701/job/117063187527"
+    },
+    {
+      "name": "validate",
+      "id": 117063187451,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646696/job/117063187451"
+    },
+    {
+      "name": "topbar-menus",
+      "id": 117063187360,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646633/job/117063187360"
+    },
+    {
+      "name": "postgres-concurrency",
+      "id": 117063187234,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646666/job/117063187234"
+    },
+    {
+      "name": "contacts",
+      "id": 117063187190,
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646667/job/117063187190"
+    }
+  ],
+  "workflow_url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/38927646633",
+  "verified_at": "2026-10-16T16:04:16.501292Z"
+}

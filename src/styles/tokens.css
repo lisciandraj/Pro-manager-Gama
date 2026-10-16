@@ -96,6 +96,14 @@
  --arc-tap:44px;            /* zona táctil mínima */
  --arc-focus:0 0 0 3px rgba(21,127,152,.35);
  --arc-content-max:1600px;
+ /* Operational workspaces: Odoo layout references, Coco brand roles. */
+ --arc-workspace-radius:8px;
+ --arc-workspace-gap:16px;
+ --arc-command-surface:#FFFFFF;
+ --arc-command-border:#D8E2EA;
+ --arc-input-border:#778695;
+ --arc-workspace-title:24px;
+ --arc-reading-width:78ch;
 }
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo

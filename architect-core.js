@@ -500,7 +500,7 @@
     const titleId = "arc-dialog-title-" + ++sequence;
     el.className = "arcDialog " + className;
     el.setAttribute("aria-labelledby", titleId);
-    el.innerHTML = `<form class="arcForm"><h2 data-gi-source="${escapeHtml(title)}" id="${titleId}">${escapeHtml(translate(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions">${button({ id: ids.close, label: translate("Volver"), attrs: 'data-gi-source="Volver" data-arc-dialog-close' })}${dismissOnly ? "" : button({ id: ids.save, type: "submit", variant: "primary", label: translate(saveLabel), attrs: 'data-gi-source="' + escapeHtml(saveLabel) + '"' })}</div></form>`;
+    el.innerHTML = `<form class="arcForm"><h2 data-gi-source="${escapeHtml(title)}" id="${titleId}">${escapeHtml(translate(title))}</h2>${body}<p class="arcFormError gsError" role="alert"${attr("id", ids.error)}></p><div class="arcToolbar gsActions arcDialogActions">${button({ id: ids.close, label: translate("Volver"), attrs: 'data-gi-source="Volver" data-arc-dialog-close' })}${dismissOnly ? "" : button({ id: ids.save, type: "submit", variant: "primary", label: translate(saveLabel), attrs: 'data-gi-source="' + escapeHtml(saveLabel) + '"' })}</div></form>`;
     document.body.appendChild(el);
     let formApi;
     const close = () => {
@@ -1902,6 +1902,7 @@
       ]
     },
     "sav": {
+      "styles": ["coco-style-document-library.css"],
       "global": "GamaService",
       "file": "gama-service-documents.js",
       "methods": [
@@ -1910,6 +1911,7 @@
       ]
     },
     "documents": {
+      "styles": ["coco-style-document-library.css"],
       "global": "GamaDocuments",
       "file": "gama-service-documents.js",
       "methods": [
@@ -1954,6 +1956,7 @@
       ]
     },
     "knowledge": {
+      "styles": ["coco-style-knowledge.css"],
       "global": "GamaKnowledge",
       "file": "gama-knowledge.js",
       "methods": [

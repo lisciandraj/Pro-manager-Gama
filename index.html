@@ -17,8 +17,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-gama-icon-180.png?v=20261001-c-logo">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script defer src="architect-assets.js?v=cc18984d1e33"></script>
-<script defer src="architect-core.js?v=a3b4912aeb4c"></script>
+<script defer src="architect-assets.js?v=56102495bf00"></script>
+<script defer src="architect-core.js?v=900122b84a3e"></script>
 <script defer src="gama-i18n-server.js?v=b9e270f429f4"></script>
 <script defer src="gama-i18n.js?v=aa5e4028085d"></script>
 <script defer src="gama-inventory-v2.js?v=9e81925646a5"></script>
@@ -45,15 +45,15 @@
 <!-- Coco ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
-<link rel="stylesheet" href="architect-tokens.css?v=3000ae23c12b">
-<link rel="stylesheet" href="architect-components.css?v=5fe02086668d">
+<link rel="stylesheet" href="architect-tokens.css?v=e18631147a35">
+<link rel="stylesheet" href="architect-components.css?v=d6035793d263">
 <link rel="stylesheet" href="architect-ui.css?v=00eca88ea77a">
 <link rel="stylesheet" href="architect-shell.css?v=9a2062fab271">
 <link rel="stylesheet" href="gama-company.css?v=7a62ef7ef4ab">
 <link rel="stylesheet" href="architect-kpis.css?v=baf26374c9d2">
 <link rel="stylesheet" href="architect-home.css?v=7d5e45b6f5e7">
-<link rel="stylesheet" href="gama-design.css?v=7313c0a6f897">
-<link rel="stylesheet" href="coco-workspace.css?v=a95148753e3d">
+<link rel="stylesheet" href="gama-design.css?v=f5debc2b29a2">
+<link rel="stylesheet" href="coco-workspace.css?v=148917711808">
 </head>
 <body data-app="coco-erp">
 
@@ -99,7 +99,8 @@
 </section>
 
 <section id="products">
-<div class="arcPanel card">
+<div class="arcPanel card cocoProductCatalog"><div class="cocoListHeading"><h2 data-gi=165519a35080>Productos disponibles</h2><button type="button" id="cocoNewProduct" class="arcButton primary" data-gi=60cb107bc52e>Nuevo producto</button></div><label for="productSearch" data-gi=6f8f50f6c7ca>Buscar por nombre, código o referencia</label><input id="productSearch" data-coco-input="input_0" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
+<div class="arcPanel card cocoProductForm" id="cocoProductForm">
 <h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2>
 <div class="row">
 <div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" data-coco-click="click_14" data-gi=12cf969040ce>Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
@@ -123,7 +124,6 @@
 <input type="hidden" id="editingBarcode">
 <input type="hidden" id="editingProductId">
 </div>
-<div class="arcPanel card"><h2 data-gi=165519a35080>Productos disponibles</h2><input id="productSearch" data-coco-input="input_0" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
 </section>
 
 
@@ -168,7 +168,7 @@
 
 
 <!-- Shared document and business modules. -->
-<script defer src="coco-modules.js?v=431f0675bd1d" fetchpriority="low" data-arc-runtime></script>
+<script defer src="coco-modules.js?v=57b6f5625f15" fetchpriority="low" data-arc-runtime></script>
 <script defer src="gama-central-sync.js?v=930224f6e76f" data-gama-central-sync></script>
 <link rel="stylesheet" href="gama-projects.css?v=ea0dc54ea2a8">
 

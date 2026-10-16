@@ -85,3 +85,18 @@ test('adding a barcode updates the selected imported product without recreating 
  await expect(page.locator('#editingProductId')).toHaveValue('');
  await expect(page.locator('#editingBarcode')).toHaveValue('');
 });
+
+test('catalogue opens first and create/edit actions focus the correct product draft',async({page})=>{
+ await setup(page);await page.evaluate(()=>window.showTab('products'));
+ const catalogue=page.locator('.cocoProductCatalog'),form=page.locator('#cocoProductForm');
+ expect((await catalogue.boundingBox()).y).toBeLessThan((await form.boundingBox()).y);
+ await page.evaluate(()=>window.editProduct('B1','p1'));
+ await expect(page.locator('#pName')).toHaveValue('Papel A4');
+ await expect(page.locator('#pName')).toBeFocused();
+ await expect(page.locator('#editingProductId')).toHaveValue('p1');
+ await page.locator('#cocoNewProduct').click();
+ await expect(page.locator('#pName')).toHaveValue('');
+ await expect(page.locator('#editingProductId')).toHaveValue('');
+ await expect(page.locator('#pName')).toBeFocused();
+ expect(await page.evaluate(()=>__DB.products.length)).toBe(2);
+});

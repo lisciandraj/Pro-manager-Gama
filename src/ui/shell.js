@@ -24,9 +24,8 @@ const esc=window.ArcUI.esc;
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
-// Use the original supplied file byte-for-byte, including its slogan and ratio.
-// Coco ERP: el logo tal cual, sobre su tarjeta blanca; el robot solo cuando la barra está plegada.
-const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg?v=20261001-c-logo" alt="COCO ERP — Structure Your Business. Simply." width="1536" height="1024"></span><img class="arcLogoMark" src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="180" height="180">';
+// Approved COCO wordmark in the expanded sidebar; the single C in compact views.
+const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261016-approved-logos" alt="COCO ERP" width="1106" height="401"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261016-approved-logos" alt="" width="180" height="180">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
@@ -140,7 +139,7 @@ function build(){
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
-  +'<span class="arcMobileBrand"><img src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="34" height="34">Coco <b>ERP</b></span>'
+  +'<span class="arcMobileBrand"><img src="coco-erp-icon-180.png?v=20261016-approved-logos" alt="" width="34" height="34">Coco <b>ERP</b></span>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'

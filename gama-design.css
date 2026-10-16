@@ -20,11 +20,10 @@
  --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#238FA4;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
 }
 .arcContent{background:var(--arc-canvas)}
-/* Supplied Coco logo, displayed from the unchanged source photograph. */
-.arcBrand .arcLogo{position:relative;aspect-ratio:1160/635;overflow:hidden}
-.arcBrand .arcLogo img{position:absolute;width:132.414%;max-width:none;height:auto;left:-16.38%;top:-29.92%}
-.arcBrand .arcLogoMark{position:relative;overflow:hidden}
-.arcBrand .arcLogoMark img{position:absolute;width:146px;max-width:none;height:auto;left:-18px;top:-18px;clip-path:polygon(0 0,100% 0,100% 34%,38% 34%,38% 100%,0 100%)}
+/* Approved artwork is already framed: show the entire wordmark and icon. */
+.arcBrand .arcLogo{aspect-ratio:1106/401}
+.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}
+.arcBrand .arcLogoMark{object-fit:contain}
 #gamaCloudLogin .brand{overflow:hidden}
 #gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
 #gamaCloudLogin{background:radial-gradient(ellipse at 85% 12%,rgba(248,120,38,.20),transparent 42%),linear-gradient(135deg,#0B3045,#10677D 60%,#157F98);padding:24px}

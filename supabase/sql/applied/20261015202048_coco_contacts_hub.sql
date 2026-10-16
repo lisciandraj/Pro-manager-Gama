@@ -118,7 +118,7 @@ declare eid uuid;tbl text;profile private.coco_contact_entities;peers jsonb;v in
   perform pg_advisory_xact_lock(hashtextextended('coco-contact-role-link',0));
   perform pg_advisory_xact_lock(hashtextextended('coco-contact-parent-graph',0));
   if exists(select 1 from public.customers a join public.customers b on b.contact_entity_id=target where a.contact_entity_id=eid)
-   or exists(select 1 from public.suppliers a join public.suppliers b on b.contact_entity_id=target a.contact_entity_id=eid)
+   or exists(select 1 from public.suppliers a join public.suppliers b on b.contact_entity_id=target where a.contact_entity_id=eid)
    or exists(select 1 from public.crm_contacts where contact_entity_id in(eid,target)) then raise exception 'CONTACT_ROLE_COLLISION';end if;
   if p_action='link_preview' then
    return jsonb_build_object('source',to_jsonb(profile),'target',(select to_jsonb(e) from private.coco_contact_entities e where id=target),
@@ -219,7 +219,7 @@ declare result jsonb;pg integer:=least(1000000,greatest(0,coalesce((p_data->>'pa
   union all
   select k.contact_entity_id,case when k.customer_id is not null then 'people' else 'prospects' end,k.id,
    coalesce(nullif(btrim(concat_ws(' ',k.first_name,k.last_name)),''),k.email,'—'),k.job_title,
-   coalesce(c.name,l.company,concat_ws(' ',l.first_name,l.last_name)),k.phone,k.email,coalesce(c.city,l.city),k.active,to_jsonb(k),3
+   coalesce(c.name,l.company,concat_ws(' ',l.first_name,last_name)),k.phone,k.email,coalesce(c.city,l.city),k.active,to_jsonb(k),3
   from public.crm_contacts k left join public.customers c on c.id=k.customer_id
    and private.erp_module_allowed('contacts',array['administrador','comercial'])
    left join public.crm_leads l on l.id=k.lead_id

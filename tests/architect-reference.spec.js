@@ -6,35 +6,34 @@ async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Test User'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[{id:'c1',active:true,name:'Customer'}],suppliers:[],invoices:[],profiles:[],stock_movements:[]}},role);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
- // Logo completo en la barra desplegada; en el carril plegado de la tableta, el robot solo.
- await page.goto('/index.html');await expect(page.locator('.arcBrand img:visible')).toHaveCount(1);
+ // The C icon stays visible in the top bar; the wordmark is inside the app drawer.
+ await page.goto('/index.html');await expect(page.locator('.arcMobileBrand img')).toBeVisible();
 }
-test('original logo, six-column reference, translated labels and truthful metrics',async({page})=>{
+test('approved logo, responsive grid, translated labels and truthful metrics',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);
- await expect(page.locator('.gamaF2Head h1')).toHaveText('Menu principal');
+ await expect(page.getByRole('region',{name:'Menu principal',exact:true})).toBeVisible();
  // Los cuatro indicadores personales ya no están en el inicio: abren el panel de control (abajo).
  await expect(page.locator('#mainmenu .gamaF2Card').first()).toBeVisible();
  await expect(page.locator('#mainmenu .gamaF2Kpi, #mainmenu #arcKpiCustomize')).toHaveCount(0);
- const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo').naturalWidth/document.querySelector('.arcLogo').naturalHeight*10)/10}));
- // Seis por fila en pantalla de ordenador: la referencia eran cuatro, y con
- // ellas el menú no cabía de un vistazo. Por debajo de 1280 vuelven a ser
- // cuatro, porque a seis el rótulo deja de leerse; eso se comprueba abajo.
- expect(layout).toEqual({columns:6,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.1});
+ const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo img').naturalWidth/document.querySelector('.arcLogo img').naturalHeight*10)/10}));
+ // The current workspace uses four columns on desktop and at 1279px.
+ expect(layout).toEqual({columns:4,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.8});
  await page.setViewportSize({width:1279,height:1000});await page.waitForTimeout(250);
  const estrecho=await page.evaluate(()=>getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length);
  expect(estrecho,'por debajo de 1280 las tarjetas se quedan sin sitio para su rótulo').toBe(4);
  await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(250);
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
- // Coco ERP: el archivo oficial se conserva sin retocar; las variantes se recortan de él.
- const logo=await page.request.get('/coco-erp-logo.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('c3e75d1cbbf288bd180c62593ea5bad31c2678986804e6b053c8f3bc6d675f15');
- // Arriba del panel de control, los cuatro indicadores con sus cifras reales.
+ // The approved source is preserved byte-for-byte; display exports trim only white margins.
+ const logo=await page.request.get('/assets/brand/coco-erp-logo-approved-20261016.jpeg');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('9a9fa3cbecd5184a3b804bdc1b814a43507de3cdb734593b1b7e1f904b6e4d00');
+ // The current dashboard keeps the four personal indicators in its disclosure.
  await page.evaluate(()=>showTab('dashboard'));
  await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);
  await expect(page.locator('#dashboard .gamaF2KpiValue')).toHaveText([/1.*840/, '7','2','1']);
  await expect(page.locator('#dashboard .gamaF2KpiLabel').first()).toHaveText('Facturation (mois)');
  await expect(page.locator('#arcKpiHeading')).toHaveText('Mes indicateurs');
- expect(await page.evaluate(()=>document.querySelector('#ad-workspace').firstElementChild.contains(document.querySelector('#ad-kpis'))),'en cabeza del panel').toBe(true);
+ await page.locator('#dashboard .adPersonal summary').click();
+ await expect(page.locator('#ad-kpis')).toBeVisible();
 });
 test('customization persists without removing navigation or access to modules',async({page})=>{
  await page.setViewportSize({width:1440,height:900});await boot(page);

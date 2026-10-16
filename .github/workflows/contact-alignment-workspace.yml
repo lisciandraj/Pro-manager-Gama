@@ -1,0 +1,35 @@
+name: Contact alignment workspace
+on:
+  push:
+    branches: ['feature/contacts-alignment-20261016']
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Create migration file using the pinned CLI
+        run: |
+          npx --yes supabase@2.120.0 --help
+          npx --yes supabase@2.120.0 migration new --help
+          if ! ls supabase/migrations/*_coco_contact_alignment.sql >/dev/null 2>&1; then
+            npx --yes supabase@2.120.0 migration new coco_contact_alignment
+          fi
+      - name: Prepare local test workspace
+        run: |
+          git archive --format=tar HEAD > /tmp/contact-alignment.tar
+          tar -rf /tmp/contact-alignment.tar node_modules supabase/migrations/*_coco_contact_alignment.sql
+          gzip /tmp/contact-alignment.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contact-alignment-source
+          path: /tmp/contact-alignment.tar.gz
+          retention-days: 2

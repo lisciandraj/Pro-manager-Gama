@@ -1,0 +1,17 @@
+{
+  "version": "20261015202048",
+  "name": "coco_contacts_hub",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-16",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "characters": 32466,
+  "bytes": 32518,
+  "terminal_newline": false,
+  "md5": "985c1c5b56df463567be4202d62c6dcc",
+  "sha256": "7a13117770a7f57932f6e4c1d3dbde342c6c3d7e062175270d218e240dcb6d79",
+  "git_blob_sha1": "3f67cb7a31c5ebf1ad0882b7f32c31ea544378e4",
+  "file": "20261015202048_coco_contacts_hub.sql",
+  "purpose": "Reference archive only; already applied. Do not replay in production."
+}

@@ -1,0 +1,21 @@
+/* Contrat de référence Replica. Ne pas charger en plus du thème existant.
+   Source runtime : src/styles/tokens.css, design.css, workspace.css. */
+:root {
+  --arc-workspace-radius: 8px;
+  --arc-workspace-gap: 16px;
+  --arc-command-surface: #FFFFFF;
+  --arc-command-border: #D8E2EA;
+  --arc-input-border: #778695;
+  --arc-workspace-title: 24px;
+  --arc-reading-width: 78ch;
+}
+.arcContent, .arcSidebar, body > dialog {
+  --arc-accent-700: #0C556B;
+  --arc-accent-600: #10677D;
+  --arc-accent-500: #157F98;
+  --arc-text: #1C2C3E;
+  --arc-text-muted: #526473;
+  --arc-surface-2: #F7F8FA;
+  --arc-line: #D8E2EA;
+  --arc-line-strong: #778695;
+}

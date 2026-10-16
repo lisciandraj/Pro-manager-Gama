@@ -2,11 +2,11 @@
 /* GAMA reference design. Tokens are scoped so the existing top bar is unchanged. */
 .arcContent,.arcSidebar,body>dialog{
  --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:#F87826;
- --arc-accent-700:#10677D;--arc-accent-600:#157F98;--arc-accent-500:#238FA4;
+ --arc-accent-700:#0C556B;--arc-accent-600:#10677D;--arc-accent-500:#157F98;
  --arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
  --arc-navy-700:#24374A;--arc-navy-900:#192B3C;
  --arc-canvas:#F7F8FB;--arc-surface-2:#F7F8FA;--arc-surface-3:#F2F5F7;
- --arc-line:#E1E6EC;--arc-line-strong:#B8C3CE;--arc-text:#1C2C3E;--arc-text-muted:#617080;--arc-text-subtle:#617080;
+ --arc-line:#D8E2EA;--arc-line-strong:#778695;--arc-text:#1C2C3E;--arc-text-muted:#526473;--arc-text-subtle:#526473;
  --arc-card-border:#E1E6EC;--arc-tile-border:#E1E6EC;--arc-card-shadow:0 2px 8px rgba(23,49,65,.035);
  --arc-tile-shadow:0 2px 8px rgba(23,49,65,.035);--arc-control-shadow:none;--arc-field-shadow:none;
  --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;--arc-icon-teal:#157F98;--arc-icon-teal-bg:#E7F3F6;

@@ -1,15 +1,16 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
+const {isolateLocalPage}=require('./local-browser-fixture.cjs');
 const mock=['mock-gama-cloud.js','mock-dashboard.js','mock-service-documents.js'].map(f=>fs.readFileSync(__dirname+'/'+f,'utf8')).join('\n');
+test.use({serviceWorkers:'block'});
 async function boot(page){
+ await isolateLocalPage(page);
  await page.addInitScript(()=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'}));
   localStorage.setItem('gama_tms_migrated_v1','1');
   window.__DB={products:[{id:'p1',name:'Produit de contrôle',barcode:'B1',stock:30,sale_price:10,active:true}],suppliers:[{id:'s1',name:'Fournisseur de contrôle',active:true}],customers:[{id:'c1',name:'Client de contrôle',active:true}],invoices:[],invoice_lines:[],purchase_orders:[],purchase_order_lines:[]};
  });
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
- await page.route('**/@supabase/**',r=>r.abort());
- await page.route('**/nominatim.openstreetmap.org/**',r=>r.abort());
  await page.goto('/index.html');
  await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));

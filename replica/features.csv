@@ -1,0 +1,12 @@
+id,priority,requirement,implementation,status
+common-header,must,En-tête compact et outils regroupés,src/ui/controls.js; src/styles/workspace.css,implemented
+field-contrast,must,Champs délimités et focus clavier visible,src/styles/design.css; src/styles/workspace.css,implemented
+table-preferences,must,"Quadrillage, colonnes et vue personnelle préservés",src/ui/tables.js (inchangé),preserved
+product-entry,must,Catalogue en premier et création/modification ciblées,src/app/index.html; src/legacy/workspace.js,implemented
+sales-tabs,must,Cinq sections et retour de dossier préservés,src/features/sales (inchangé),preserved
+crm-pipeline,should,Hiérarchie de cartes et cibles de déplacement lisibles,src/styles/modules/crm-opportunities.css,implemented
+documents-rail,must,Filtres séparés des résultats sans perdre la recherche,src/features/service/service-documents.js; src/styles/modules/document-library.css,implemented
+knowledge-reading,should,Arbre stable et surface de lecture continue,src/styles/modules/knowledge.css,implemented
+dialog-actions,must,Actions accessibles dans les longs formulaires,src/ui/components.js; src/styles/workspace.css,implemented
+brand-home,must,"Identité, accueil, favoris et données conservés",src/styles/workspace.css,preserved
+mobile-i18n,must,Mise en page et contrôles FR ES EN de 320 à 1440 px,tests/responsive-layout.spec.js,verified

@@ -4,7 +4,8 @@
 @media screen {
  body.cocoWorkbench{--arc-topbar-h:60px;--arc-workspace-title:20px;--arc-workspace-radius:6px;--arc-content-max:none;--coco-nav-left:360px;--coco-nav-right:220px}
  body.cocoWorkbench .arcMain{margin-left:0;min-width:0}
- body.cocoWorkbench .arcSidebar{width:min(304px,calc(100vw - 24px));padding-left:var(--arc-safe-l);transform:translateX(-105%);box-shadow:none;visibility:hidden;transition:transform .16s ease,visibility .16s ease}
+ /* Visibility must switch immediately so the opening menu can receive focus. */
+ body.cocoWorkbench .arcSidebar{width:min(304px,calc(100vw - 24px));padding-left:var(--arc-safe-l);transform:translateX(-105%);box-shadow:none;visibility:hidden;transition:transform .16s ease}
  body.cocoWorkbench.arcDrawerOpen{overflow:hidden}
  body.cocoWorkbench.arcDrawerOpen .arcSidebar{width:min(304px,calc(100vw - 24px));transform:none;visibility:visible;box-shadow:var(--arc-sh-3)}
  body.cocoWorkbench .arcSidebar .arcBrand{padding:8px 16px;margin:30px 16px 12px}

@@ -11,7 +11,7 @@ Base et point de restauration : `54e70e986469dd63a3f27967d1e7763db731c718`.
 - Captures locales de Produits, Ventes, CRM, Documents, Knowledge et Dashboard examinées.
 - Affichage, navigation, clavier et responsive : 64 tests réussis sur Chromium et WebKit ; les 22 modules activés vérifiés à 390, 768 et 1440 pixels.
 - Régression ciblée : 97 tests réussis au premier passage ; le seul échec concernait la hauteur minimale des boutons de vue. Après correction à 44 pixels, les 6 tests de cette suite passent, dont le test initialement en échec (98 cas distincts validés au total).
-- Budgets finaux : 14 scripts, 848 550 octets JavaScript sur 850 000, 291 461 octets CSS sur 300 000.
+- Budgets finaux : 14 scripts, 848 550 octets JavaScript sur 850 000, 291 440 octets CSS sur 300 000.
 - Chargement et langues : 9 tests réussis ; formulaires, paysage et encoche mobile : 6 tests réussis. Le contrôle d’encoche mesure désormais le contenu et le menu ouvert, puisque le menu fermé ne réserve plus de colonne.
 - La suite CI Ventes a validé 250 cas et signalé une ancienne assertion imposant tous les onglets simultanément dans l’écran mobile. Le test vérifie maintenant leur accès par flèches clavier ; le conteneur révèle explicitement l’onglet ciblé. Ce parcours, dont l’accès au dernier onglet et l’ouverture de la facturation, passe localement après correction.
 
@@ -20,3 +20,5 @@ Défauts reproduits puis corrigés : chevauchement du bouton Retour avec les sou
 Des anciennes assertions de navigation ont été adaptées au menu désormais ouvrable. Les suites simultanées utilisent des dossiers de résultats distincts pour éviter les conflits de fichiers de trace. Aucun contrôle métier, budget ou contrainte d’accès n’a été supprimé.
 
 Les résultats CI et la preuve du commit servi seront ajoutés dans le rapport de déploiement.
+
+Après fusion, le contrôle de publication a reproduit une course de focus après la recherche globale : la transition CSS de `visibility` laissait parfois le tiroir non focalisable pendant ses premières images. La visibilité bascule maintenant immédiatement, seule la translation reste animée. Les deux parcours concernés (ouverture du tiroir aux différentes tailles et recherche → clavier → menu) passent chacun trois fois sur Chromium et WebKit, soit 12 vérifications. Aucun test ni contrôle de publication n’a été désactivé.

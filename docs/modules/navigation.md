@@ -2,6 +2,8 @@
 
 Le bouton à neuf points ouvre le menu des applications sur ordinateur, tablette et téléphone. Les favoris précèdent les groupes de modules. Le contenu n’est plus décalé par une barre latérale permanente. Les onglets principaux du module restent des onglets visibles : intégrés à la barre supérieure sur grand écran, défilants dans le module sur les autres formats. La recherche globale, les menus de notifications/configuration et les identifiants de routes restent compatibles.
 
+Dans chaque module, la flèche « Retour au menu » précède son nom dans la barre horizontale, sur ordinateur, tablette et téléphone. Le nom n’est affiché qu’une fois, comme titre principal. Les anciens en-têtes du contenu conservent leurs outils métier mais n’affichent plus le titre et le retour en double ; sans outil, ils ne réservent aucune ligne vide. Le retour utilise le routeur commun et replace le focus sur la tuile du module lorsqu’elle existe. Sur téléphone, le titre du module prend la place de la marque dans la barre pour conserver la place des commandes. L’accueil masque cette flèche ; les fenêtres et les retours au sein d’un dossier gardent leurs propres commandes.
+
 | Espace | Contenu et accès |
 | --- | --- |
 | Tableau de bord | Pilotage, priorités et KPI personnalisables |

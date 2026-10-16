@@ -54,3 +54,11 @@ La première CI de la PR #165 a validé 17 des 18 scénarios responsive/UX. Le c
 La fixture des suites `responsive-layout` et `ux-workspace` retire les préconnexions de la copie HTML servie aux tests et limite son `connect-src` à la même origine. Elle bloque aussi les requêtes HTTP externes, les WebSockets et les service workers. Les mocks métier et toutes les assertions de mise en page restent conservés. La page et la politique réseau de production ne sont pas modifiées par cette isolation.
 
 Les 18 scénarios des deux suites ont ensuite terminé avec code 0 et l’état Playwright `passed` sans test échoué. Le scénario Dashboard a également été réexécuté seul sur les deux moteurs : 2 réussites en 11,2 secondes. WebKit 26.6 utilise des bibliothèques portables locales ; seule la sélection du binaire diffère de la configuration CI. Sources, documentation, build reproductible et budgets sont validés après le correctif.
+
+## Contrôle avant déploiement — 16 octobre 2026
+
+La CI du commit `67c6583` a validé les 18 scénarios responsive/UX, mais la suite Sales a terminé avec 250 réussites et un échec : l'ouverture de la fiche de paie sur mobile. Les boutons étaient actifs avant que le module différé et sa requête de chargement aient installé leurs gestionnaires de clic. Le premier clic pouvait donc être perdu.
+
+Les boutons de fiche de paie et d'édition de paie équatorienne restent maintenant désactivés jusqu'à leur branchement. Le scénario existant retarde explicitement la réponse de chargement et vérifie cet état avant de poursuivre la signature et le PDF. Cette assertion échoue sur la version précédente et passe après correction. Les 22 scénarios RH passent en 11,7 secondes, sans échec ni reprise. La suite RH utilise désormais la même isolation réseau locale que les suites responsive/UX.
+
+`npm run build`, `npm run check`, `npm run typecheck`, `npm run check:generated` et `npm run check:startup` passent après correction. Les budgets restent à 14 scripts, 848 280 octets JavaScript et 298 964 octets CSS. Le calcul de paie, les droits et les appels métier ne changent pas. Le déploiement est autorisé par l'utilisateur le 16 octobre ; la validation finale de GitHub et la preuve de version publiée sont consignées dans `../deploy.md`.

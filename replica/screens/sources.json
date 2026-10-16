@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "02_produits_1.png",
+    "source_page": "https://www.odoo.com/documentation/19.0/applications/inventory_and_mrp/inventory/product_management/configure/type.html",
+    "source_image": "https://github.com/odoo/documentation/blob/19.0/content/applications/inventory_and_mrp/inventory/product_management/configure/type/product-form.png",
+    "sha256": "1b4b83635a00d55e19115effd998051298c4e721b3d4b7b7d104676270201498"
+  },
+  {
+    "filename": "official_crm.webp",
+    "source_page": "https://www.odoo.com/app/crm",
+    "source_image": "https://odoocdn.com/openerp_website/static/src/img/apps/crm/hero_image.webp",
+    "sha256": "f26373711c71b81b7e79dab929cf500dddb8e2f0776e2f72f70eb36e968195fa"
+  },
+  {
+    "filename": "05_ventes_1.png",
+    "source_page": "https://www.odoo.com/documentation/19.0/applications/sales/sales/sales_quotations/create_quotations.html",
+    "source_image": "https://github.com/odoo/documentation/blob/19.0/content/applications/sales/sales/sales_quotations/create_quotations/quotations-dashboard.png",
+    "sha256": "caa003d134f902d6ea664bd8494633cb6c829787880b16c3ebd08fdc352b4989"
+  },
+  {
+    "filename": "official_documents.webp",
+    "source_page": "https://www.odoo.com/app/documents",
+    "source_image": "https://odoocdn.com/openerp_website/static/src/img/apps/documents/hero_image.webp",
+    "sha256": "8b751b82ffe290d2c4842ade5f9f51d1faea5f73ddcadb9f28d966940a9f6470"
+  },
+  {
+    "filename": "official_knowledge.webp",
+    "source_page": "https://www.odoo.com/app/knowledge",
+    "source_image": "https://odoocdn.com/openerp_website/static/src/img/apps/knowledge/hero_image.webp",
+    "sha256": "41090aa345770d5c97a1009692efd39caf8ce778abdb81ca76fa3ec09ad9ab59"
+  }
+]

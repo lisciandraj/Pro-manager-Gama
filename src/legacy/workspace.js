@@ -40,7 +40,14 @@ async function createProduct(){
  clearProductForm();save();
 }
 function populateSupplierSelect(){const s=$('pSupplier');if(!s)return;const cur=s.value;s.innerHTML='<option value="" data-gi=480def1d15a8>Sin proveedor</option>'+(db.suppliers||[]).map(x=>`<option value="${gamaWorkspaceEscape(x.id)}">${gamaWorkspaceEscape(x.name)}</option>`).join('');if(cur&&(db.suppliers||[]).some(x=>x.id===cur))s.value=cur}
-async function editProduct(b,id){await window.ArchitectLegacyData?.load('products');let p=id?[...db.products,...(db.archivedProducts||[])].find(p=>p.id===id):product(b);if(!p)return;$('pActive').value=String(p.active!==false);$('editingProductId').value=p.id||'';$('editingBarcode').value=p.barcode||'';$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);gamaProductFieldCasing(true);showTab('products',null);window.scrollTo({top:0,behavior:'smooth'})}
+async function editProduct(b,id){await window.ArchitectLegacyData?.load('products');let p=id?[...db.products,...(db.archivedProducts||[])].find(p=>p.id===id):product(b);if(!p)return;$('pActive').value=String(p.active!==false);$('editingProductId').value=p.id||'';$('editingBarcode').value=p.barcode||'';$('pBarcode').value=p.barcode;$('pName').value=p.name;$('pRef').value=p.ref||'';$('pCat').value=p.cat||'';$('pDescription').value=p.description||'';$('pFamily').value=p.family||'';$('pLines').value=p.lines||'';$('pBrand').value=p.brand||'';$('pPresentation').value=p.presentation||'';$('pLoc').value=p.loc||'';$('pMin').value=p.min||0;$('pMaxStock').value=p.maxStock||0;$('pQtyCarton').value=p.qtyCarton||0;$('pWeight').value=p.weightG||0;$('pVolume').value=p.volumeCm3||0;$('pCost').value=p.purchase_price||0;$('pPrice').value=p.price||0;$('pSalePriceB').value=p.salePriceB||0;$('pIva').value=p.iva??15;populateSupplierSelect();$('pSupplier').value=p.supplierId||'';gamaShowProductPhoto(p);gamaProductFieldCasing(true);showTab('products',null);gamaFocusProductForm()}
+// The catalogue opens first; creation and editing focus the existing form.
+function gamaFocusProductForm(){
+ const form=$('cocoProductForm');
+ form?.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ $('pName')?.focus({preventScroll:true});
+}
+$('cocoNewProduct')?.addEventListener('click',()=>{clearProductForm();gamaFocusProductForm()});
 /* La ficha muestra la foto en grande: es la unica pantalla que necesita el
    original, asi que se pide justo aqui y para un solo producto. */
 function gamaShowProductPhoto(p){

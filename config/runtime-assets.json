@@ -161,6 +161,8 @@
     {"source":"src/styles/company.css","output":"gama-company.css"},
     {"source":"src/styles/design.css","output":"gama-design.css"},
     {"source":"src/styles/workspace.css","output":"coco-workspace.css"},
+    {"source":"src/styles/modules/knowledge.css","output":"coco-style-knowledge.css"},
+    {"source":"src/styles/modules/document-library.css","output":"coco-style-document-library.css"},
     {"source":"src/styles/excel-import.css","output":"gama-excel-import.css"},
     {"source":"src/styles/global-search.css","output":"gama-global-search.css"},
     {"source":"src/styles/projects.css","output":"gama-projects.css"},
@@ -188,7 +190,7 @@
     {"source":"src/styles/modules/crm-targets.css","output":"coco-style-crm-targets.css"}
   ],
   "moduleStyles": [
-    "src/styles/modules/access-control.css","src/styles/modules/archive.css","src/styles/modules/client-catalog.css","src/styles/modules/cloud-auth.css","src/styles/modules/cloud-users.css","src/styles/modules/customer-requests.css","src/styles/modules/excel-import.css","src/styles/modules/fixed-header.css","src/styles/modules/fulfillment.css","src/styles/modules/i18n.css","src/styles/modules/invoice-archive.css","src/styles/modules/knowledge.css","src/styles/modules/operations.css","src/styles/modules/pagination.css","src/styles/modules/payments.css","src/styles/modules/price-lists.css","src/styles/modules/commercial-matrix.css","src/styles/modules/quote-pdf.css","src/styles/modules/quotes.css","src/styles/modules/sales-report.css","src/styles/modules/sales.css","src/styles/modules/sales-2.css","src/styles/modules/sales-workspace.css","src/styles/modules/scanner-phone.css","src/styles/modules/select-search.css","src/styles/modules/settings.css","src/styles/modules/sort.css","src/styles/modules/standard-ui.css","src/styles/modules/tables.css","src/styles/modules/toast.css","src/styles/modules/ui.css"
+    "src/styles/modules/access-control.css","src/styles/modules/archive.css","src/styles/modules/client-catalog.css","src/styles/modules/cloud-auth.css","src/styles/modules/cloud-users.css","src/styles/modules/customer-requests.css","src/styles/modules/excel-import.css","src/styles/modules/fixed-header.css","src/styles/modules/fulfillment.css","src/styles/modules/i18n.css","src/styles/modules/invoice-archive.css","src/styles/modules/operations.css","src/styles/modules/pagination.css","src/styles/modules/payments.css","src/styles/modules/price-lists.css","src/styles/modules/commercial-matrix.css","src/styles/modules/quote-pdf.css","src/styles/modules/quotes.css","src/styles/modules/sales-report.css","src/styles/modules/sales.css","src/styles/modules/sales-2.css","src/styles/modules/sales-workspace.css","src/styles/modules/scanner-phone.css","src/styles/modules/select-search.css","src/styles/modules/settings.css","src/styles/modules/sort.css","src/styles/modules/standard-ui.css","src/styles/modules/tables.css","src/styles/modules/toast.css","src/styles/modules/ui.css"
   ],
   "vendors": ["assets/vendor/jspdf-4.2.1.umd.min.js","assets/vendor/xlsx-0.20.3.full.min.js","assets/vendor/zxing-browser-0.2.1.min.js"],
   "startupBundles": [

@@ -33,7 +33,7 @@ export const lazyModules={
       "performance"
     ]
   },
-  "sav": {
+  "sav": {"styles":["coco-style-document-library.css"],
     "global": "GamaService",
     "file": "gama-service-documents.js",
     "methods": [
@@ -41,7 +41,7 @@ export const lazyModules={
       "openTicket"
     ]
   },
-  "documents": {
+  "documents": {"styles":["coco-style-document-library.css"],
     "global": "GamaDocuments",
     "file": "gama-service-documents.js",
     "methods": [
@@ -82,7 +82,7 @@ export const lazyModules={
       "mount"
     ]
   },
-  "knowledge": {
+  "knowledge": {"styles":["coco-style-knowledge.css"],
     "global": "GamaKnowledge",
     "file": "gama-knowledge.js",
     "methods": [

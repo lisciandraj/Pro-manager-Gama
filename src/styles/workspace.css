@@ -1,8 +1,8 @@
-/* Coco workspace, based on the six approved October 2026 mockups.
+/* Coco workspace, based on the approved October mockups and Odoo references.
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
  --coco-blue:#157F98;--coco-blue-dark:#10677D;--coco-orange:#F87826;
- --coco-ink:#1C2C3E;--coco-muted:#617080;--coco-grid:#D8E2EA;
+ --coco-ink:#1C2C3E;--coco-muted:#526473;--coco-grid:#C5D1DB;
  --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
  background:#F7F8FB;color:var(--coco-ink);
 }
@@ -33,10 +33,10 @@ body .arcContent .arcButton.secondary{background:#fff;color:#10677D;border:1px s
 body .arcContent .arcButton:disabled{opacity:.5;cursor:default}
 body #access-settings .cfgInstall{background:#10677D;border-color:#10677D;color:#fff}
 body .arcContent :is(.arcPanel,.ivCard,.gsCard,.gaCard){border-radius:12px;box-shadow:0 2px 8px rgba(23,49,65,.025)}
-body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:16px;margin:0 0 20px;align-items:center}
+body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:12px;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--arc-command-border);align-items:center;flex-wrap:wrap}
 body .arcContent .gamaCompactHeader .gamaStdActions{order:-1}
 body .arcContent .gamaCompactHeader .gamaStdText{position:static!important;width:auto!important;height:auto!important;min-width:0;margin:0!important;padding:0!important;overflow:visible!important;clip:auto!important;white-space:normal!important;flex:1}
-body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:26px;font-weight:750;line-height:1.25;letter-spacing:-.025em;margin:0;color:#103B52}
+body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:var(--arc-workspace-title);font-weight:700;line-height:1.25;letter-spacing:-.025em;margin:0;color:#103B52}
 body .arcContent .gamaCompactHeader .gamaStdText p{display:none}
 body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{background:white;border-color:#C9D8E3;border-radius:9px}
 body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs){border-bottom:1px solid #DDE5EC;gap:8px;padding:0;margin:0 0 20px}
@@ -657,3 +657,62 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 @media(max-width:860px){#dashboard .adMetric{padding:14px}#dashboard .adMetricBody>strong{font-size:24px}}
 #sri .gaSriLayout .gaTable [data-sri-select-column]{width:48px;min-width:48px;max-width:48px}
 #sri .gaSriSelectedEnvironment{font-weight:650;color:#AD4508}
+
+/* Replica / Odoo references: quiet work surfaces, strong field boundaries,
+   one command area, and an explicit reading hierarchy. Home branding stays
+   governed by the approved launcher rules above. */
+@media screen{
+ body .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.ivCard,.pmCard,.gkPanel){border-radius:var(--arc-workspace-radius);box-shadow:none}
+ body .arcContent section:not(#mainmenu) :is(input:not([type=hidden],[type=checkbox],[type=radio],[type=range],[type=file],[type=color]),select,textarea),body>dialog :is(input:not([type=hidden],[type=checkbox],[type=radio],[type=range],[type=file],[type=color]),select,textarea){border-color:var(--arc-input-border);border-radius:6px;color:var(--arc-text);background:var(--arc-surface)}
+ body .arcContent section:not(#mainmenu) :is(input,textarea)::placeholder,body>dialog :is(input,textarea)::placeholder{color:var(--arc-text-muted);opacity:1}
+ body .arcContent section:not(#mainmenu) :is(input,textarea)[readonly]{background:var(--arc-surface-2)}
+ body .arcContent section:not(#mainmenu) :is(input,select,textarea)[aria-invalid=true]{border-color:var(--arc-danger)}
+ body :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--arc-accent-700);outline-offset:3px}
+ body .arcContent .cocoHeaderTools{margin:0 0 0 auto;gap:8px;justify-content:flex-end;max-width:100%}
+ body .arcContent .cocoHeaderTools .arcButton{font-size:12px;padding:8px 12px}
+ body .arcContent .gamaStdHeader>.cocoModuleTools{position:relative;margin:0 0 0 auto;align-self:center}
+ body .arcContent .gamaStdHeader>.cocoModuleTools>summary{min-height:44px;display:flex;align-items:center;gap:8px;box-sizing:border-box;font-size:13px}
+ body .arcContent .gamaStdHeader>.cocoModuleTools>summary:after{content:'⌄';font-size:16px}
+ body .arcContent .gamaStdHeader>.cocoModuleTools[open]>summary{background:var(--arc-accent-100)}
+ body .arcContent .gamaStdHeader>.cocoModuleTools>.arcToolbar{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(420px,calc(100vw - 48px));padding:12px;margin:0;background:var(--arc-command-surface);border:1px solid var(--arc-command-border);border-radius:var(--arc-workspace-radius);box-shadow:var(--arc-sh-3)}
+ body .arcContent section:not(#mainmenu) :is(.gamaTableWrap,.arcTableWrap,.gamaTableBox){border-radius:var(--arc-workspace-radius)}
+ body .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) thead th{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--arc-navy-700);background:var(--arc-surface-2)}
+ body .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody td{font-size:13px;line-height:1.5}
+ body .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
+ body .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:is([data-selected=true],[aria-selected=true])>td{background:var(--arc-accent-100)}
+ body .arcContent section:not(#mainmenu) table :is(.arcNumeric,.r){font-variant-numeric:tabular-nums}
+ body .arcContent .cocoProductCatalog>.cocoListHeading{padding-bottom:14px;border-bottom:1px solid var(--arc-command-border);margin-bottom:16px}
+ .cocoProductCatalog .cocoListHeading h2{font-size:20px;margin:0}
+ .cocoProductCatalog>label{display:block;font-size:12px;font-weight:600;margin:0 0 6px;color:var(--arc-text-muted)}
+ .cocoProductCatalog>#productSearch{width:100%;max-width:620px;margin:0 0 12px}
+ .cocoProductForm{scroll-margin-top:calc(var(--arc-topbar-h) + 20px)}
+ .cocoProductForm>h2{font-size:20px;padding-bottom:14px;border-bottom:1px solid var(--arc-command-border)}
+ .cocoProductForm>.row{gap:16px 24px}
+ .cocoProductForm label{font-size:12px;font-weight:600;color:var(--arc-text-muted)}
+ body .arcContent #quotes .cocoSalesNavigation{margin:0 0 12px}
+ body .arcContent #quotes .gqModuleTabs{margin-bottom:12px}
+ body .arcContent #quotes .gqListCard{padding:16px}
+ body .arcContent #quotes .gqListFilters{padding-top:12px;margin-top:12px}
+ body .arcContent #quotes .gqAdvanced{margin:4px 0 8px}
+ /* Shared form sheet, including nested and long forms. */
+ body>dialog.arcDialog{border-color:var(--arc-command-border);border-radius:12px;padding:24px}
+ body>dialog.arcDialog>.arcForm>h2{font-size:22px;line-height:1.3;padding-bottom:16px;border-bottom:1px solid var(--arc-command-border);margin-bottom:20px}
+ body>dialog.arcDialog>.arcForm>.arcDialogActions{background:var(--arc-surface);border-top:1px solid var(--arc-command-border);margin:24px -24px -24px;padding:16px 24px;justify-content:flex-end}
+ body>dialog.arcDialog .arcField>span{font-size:12px;font-weight:600;color:var(--arc-text-muted)}
+ #sales-orders .gsMilestones [data-state=current] .gsMilestoneDot,#sri .gaSriTabs [aria-selected=true] .gaSriTabCount{color:var(--arc-navy-800)}
+}
+@media screen and (min-width:861px){
+ body .arcContent{padding-top:20px}
+ body .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) :is(th,td){padding:9px 12px}
+}
+@media screen and (max-width:1100px){
+ body .arcContent .cocoHeaderTools{flex-basis:100%;justify-content:flex-start}
+}
+@media screen and (max-width:760px){
+ .cocoProductCatalog .cocoListHeading{gap:12px}.cocoProductCatalog .cocoListHeading h2{font-size:18px}
+ body .arcContent section:not(#mainmenu) :is(input:not([type=checkbox],[type=radio]),select,textarea){font-size:16px}
+ body .arcContent .gamaStdHeader>.cocoModuleTools>.arcToolbar{max-width:calc(100vw - 48px)}
+ body>dialog.arcDialog{padding:16px}
+ body>dialog.arcDialog>.arcForm>.arcDialogActions{margin:20px -16px -16px;padding:12px 16px}
+ body>dialog.arcDialog>.arcForm>.arcDialogActions .arcButton{flex:1}
+}

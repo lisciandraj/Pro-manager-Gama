@@ -6,6 +6,33 @@ async function boot(page,role='admin'){
 }
 async function open(page,id){await page.locator(`#mainmenu [data-gama-module="${id==='sav'?'returns':id}"]`).click();if(id==='sav'){await expect(page.locator('#mainmenu [data-gama-module="sav"]')).toHaveCount(0);await page.locator('[data-gr-tab="sav"]').click()}await expect(page.locator(`#${id} [data-sd-action="new"]`)).toBeVisible()}
 async function createTicket(page){await open(page,'sav');await page.locator('#sav [data-sd-action=new]').click();await page.locator('#sd-subject').fill('Colis abîmé');await page.locator('#sd-customer_id').selectOption('customer1');await page.locator('#sd-sales_order_id').selectOption('order1');await page.locator('#sd-assigned_to').selectOption('test-admin-uid');await page.locator('#sd-description').fill('Carton reçu déchiré.');await page.locator('dialog [type=submit]').click();await expect(page.locator('#sav h2').last()).toContainText('Colis abîmé')}
+
+test('document rail and results stay aligned after native search and category filtering',async({page})=>{
+ await boot(page);
+ await page.evaluate(()=>{__DB.business_documents=[
+  {id:'contract',title:'Contrat atelier',folder:'Contrats',category_id:'contracts',visibility:'team',archived:false},
+  {id:'guide',title:'Guide atelier',folder:'General',category_id:'general',visibility:'team',archived:false}
+ ]});
+ await open(page,'documents');
+ const results=page.locator('.sdLibraryContent'),rail=page.locator('.sdLibraryFilters');
+ for(const width of [1440,768,320]){
+  await page.setViewportSize({width,height:900});
+  await expect(results.locator('[data-sd-search]')).toBeVisible();
+  const a=await rail.boundingBox(),b=await results.boundingBox();
+  if(width>760){expect(Math.abs(a.y-b.y)).toBeLessThan(2);expect(b.x).toBeGreaterThanOrEqual(a.x+a.width-1)}
+  else expect(b.y).toBeGreaterThanOrEqual(a.y+a.height-1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ }
+ await results.locator('[data-sd-search]').fill('Contrat');
+ await expect(results.locator('tbody')).toContainText('Contrat atelier');
+ await expect(results.locator('tbody')).not.toContainText('Guide atelier');
+ await results.locator('[data-sd-search]').fill('');
+ await page.locator('[data-sd-category]').selectOption('general');
+ await expect(results.locator('tbody')).toContainText('Guide atelier');
+ await expect(results.locator('tbody')).not.toContainText('Contrat atelier');
+ await page.setViewportSize({width:1440,height:900});
+ expect(Math.abs((await rail.boundingBox()).y-(await results.boundingBox()).y)).toBeLessThan(2);
+});
 test('SAV create, assign, note, resolution validation and conflict retains draft',async({page})=>{
  await boot(page);await createTicket(page);await page.locator('#sd-message').fill('Client rappelé, remplacement prévu.');await page.locator('#sd-message-form [type=submit]').click();await expect(page.locator('.sdTimeline')).toContainText('Client rappelé');
  await page.locator('#sav [data-sd-action=edit]').click();await page.locator('#sd-status').selectOption('resolved');await page.locator('dialog [type=submit]').click();await expect(page.locator('dialog [role=alert]')).toContainText('solution');await page.screenshot({path:'test-results/sav-form.png',fullPage:true});await page.locator('#sd-resolution').fill('Remplacement livré');await page.locator('dialog [type=submit]').click();await expect(page.locator('#sav .sdDetail').first()).toContainText('Remplacement livré');

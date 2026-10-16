@@ -40,7 +40,7 @@ test('customization persists without removing navigation or access to modules',a
  await page.setViewportSize({width:1440,height:900});await boot(page);
  await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize input[value="crm"]').uncheck();await page.locator('#arcCustomize button[value="save"]').click();
  await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
- await expect(page.locator('.arcNav [data-gama-module="crm"]')).toBeVisible();
+ await page.locator('.arcBurger').click();await expect(page.locator('.arcNav [data-gama-module="crm"]')).toBeVisible();
  await page.reload();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
  await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize button[value="reset"]').click();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible();
 });
@@ -52,7 +52,7 @@ test('client role has no administrative metrics, notifications or stock activity
 });
 test('tablet expands the rail and mobile drawer excludes hidden navigation from keyboard',async({page})=>{
  await page.setViewportSize({width:1024,height:800});await boot(page);
- await expect(page.locator('.arcLogoMark')).toBeVisible();await expect(page.locator('.arcLogo')).toBeHidden();
+ await expect(page.locator('.arcLogoMark')).toBeHidden();expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(true);
  await page.locator('.arcBurger').click();await expect(page.locator('.arcNavLabel').first()).toBeVisible();
  await expect(page.locator('.arcLogo')).toBeVisible();await expect(page.locator('.arcLogoMark')).toBeHidden();
  await page.keyboard.press('Escape');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(350);

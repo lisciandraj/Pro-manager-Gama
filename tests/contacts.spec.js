@@ -135,6 +135,7 @@ test('archiving from the table moves the row to Archived and back',async({page})
 
 test('merging duplicates from Contacts asks first whether clients or suppliers',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));
+ await page.locator('#contacts .cocoModuleTools>summary').click();
  await page.locator('#contacts [data-controls-bar] button',{hasText:'Fusionar duplicados'}).click();
  await expect(page.locator('dialog [data-merge-kind]')).toHaveCount(2);
 });

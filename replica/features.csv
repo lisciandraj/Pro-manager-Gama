@@ -10,3 +10,5 @@ knowledge-reading,should,Arbre stable et surface de lecture continue,src/styles/
 dialog-actions,must,Actions accessibles dans les longs formulaires,src/ui/components.js; src/styles/workspace.css,implemented
 brand-home,must,"Identité, accueil, favoris et données conservés",src/styles/workspace.css,preserved
 mobile-i18n,must,Mise en page et contrôles FR ES EN de 320 à 1440 px,tests/responsive-layout.spec.js,verified
+horizontal-workbench,must,Cadre horizontal partagé et lanceur avec favoris,src/ui/shell.js; src/styles/workbench.css,implemented
+compact-sales-list,must,Création recherche filtres pagination et vues regroupées,src/features/sales/quotes.js; src/styles/workbench.css,implemented

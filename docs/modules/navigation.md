@@ -1,5 +1,7 @@
 # Navigation actuelle — Coco ERP
 
+Le bouton à neuf points ouvre le menu des applications sur ordinateur, tablette et téléphone. Les favoris précèdent les groupes de modules. Le contenu n’est plus décalé par une barre latérale permanente. Les onglets principaux du module restent des onglets visibles : intégrés à la barre supérieure sur grand écran, défilants dans le module sur les autres formats. La recherche globale, les menus de notifications/configuration et les identifiants de routes restent compatibles.
+
 | Espace | Contenu et accès |
 | --- | --- |
 | Tableau de bord | Pilotage, priorités et KPI personnalisables |

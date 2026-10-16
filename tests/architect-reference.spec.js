@@ -6,8 +6,8 @@ async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Test User'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[{id:'c1',active:true,name:'Customer'}],suppliers:[],invoices:[],profiles:[],stock_movements:[]}},role);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
- // Logo completo en la barra desplegada; en el carril plegado de la tableta, el icono C.
- await page.goto('/index.html');await expect(page.locator('.arcBrand img:visible')).toHaveCount(1);
+ // The C icon stays visible in the top bar; the wordmark is inside the app drawer.
+ await page.goto('/index.html');await expect(page.locator('.arcMobileBrand img')).toBeVisible();
 }
 test('approved logo, responsive grid, translated labels and truthful metrics',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);
@@ -39,7 +39,7 @@ test('customization persists without removing navigation or access to modules',a
  await page.setViewportSize({width:1440,height:900});await boot(page);
  await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize input[value="crm"]').uncheck();await page.locator('#arcCustomize button[value="save"]').click();
  await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
- await expect(page.locator('.arcNav [data-gama-module="crm"]')).toBeVisible();
+ await page.locator('.arcBurger').click();await expect(page.locator('.arcNav [data-gama-module="crm"]')).toBeVisible();
  await page.reload();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeHidden();
  await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize button[value="reset"]').click();await expect(page.locator('#mainmenu [data-gama-module="crm"]')).toBeVisible();
 });
@@ -51,7 +51,7 @@ test('client role has no administrative metrics, notifications or stock activity
 });
 test('tablet expands the rail and mobile drawer excludes hidden navigation from keyboard',async({page})=>{
  await page.setViewportSize({width:1024,height:800});await boot(page);
- await expect(page.locator('.arcLogoMark')).toBeVisible();await expect(page.locator('.arcLogo')).toBeHidden();
+ await expect(page.locator('.arcLogoMark')).toBeHidden();expect(await page.locator('.arcSidebar').evaluate(x=>x.inert)).toBe(true);
  await page.locator('.arcBurger').click();await expect(page.locator('.arcNavLabel').first()).toBeVisible();
  await expect(page.locator('.arcLogo')).toBeVisible();await expect(page.locator('.arcLogoMark')).toBeHidden();
  await page.keyboard.press('Escape');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(350);

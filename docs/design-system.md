@@ -5,16 +5,16 @@ Coco ERP utilise le thème bleu pétrole et orange inspiré de GAMA depuis le 29
 | Élément | Source actuelle |
 | --- | --- |
 | Tokens globaux | `src/styles/tokens.css` |
-| Ajustements du thème et surfaces | `src/styles/design.css`, puis `src/styles/workspace.css` |
+| Ajustements du thème et surfaces | `src/styles/design.css`, `src/styles/workspace.css`, puis `src/styles/workbench.css` |
 | Accueil | `src/styles/home.css`, `src/ui/home-menu.js` |
-| Barre latérale et supérieure | `src/styles/shell.css`, `src/ui/shell.js` |
+| Lanceur, menu des applications et barre supérieure | `src/styles/shell.css`, `src/ui/shell.js` |
 | Icônes vectorielles des modules | `src/ui/icons.js` |
 | Logo de marque | `coco-erp-logo.png` |
 | Icône C pour smartphone/PC | `coco-erp-icon-180/192/512.png`, variantes maskable, `favicon.ico` |
 | Variantes d’export de marque | `assets/brand/` |
 
 Les accents principaux sont `#157F98`, `#10677D`, `#238FA4` et `#F87826`. Les tokens de texte et fonds déterminent leur usage ; les noms historiques comme `--arc-coco-violet` sont des alias compatibles, pas une description de la couleur affichée.
-La barre latérale et la barre supérieure restent blanches. Depuis le 16 octobre 2026, la barre latérale et la connexion affichent le logo approuvé « COCO » bleu pétrole, avec les extrémités des C suivant les O et « ERP » orange. L’icône approuvée est un seul C bleu pétrole avec lumière et ombre sur une tuile blanche ; elle apparaît dans la navigation compacte/mobile, le favicon et les installations PC/smartphone. Les deux fichiers JPEG approuvés sont conservés intacts dans `assets/brand/coco-erp-*-approved-20261016.jpeg`. `scripts/export-brand-assets.py` (Python avec Pillow) produit les formats web sans redessiner les images ; seul le blanc autour du logo principal est recadré. Les anciennes adresses `coco-gama-*` et `icon-*.png` conservent des exports compatibles. Les URL actives portent la révision `20261016-approved-logos` ; le point de lancement PWA existant reste inchangé pour conserver l’identité des installations. Une photo d’employé peut remplacer les initiales du profil.
+La barre supérieure et le menu des applications restent blancs. Depuis le 16 octobre 2026, le menu ouvrable et la connexion affichent le logo approuvé « COCO » bleu pétrole, avec les extrémités des C suivant les O et « ERP » orange. L’icône approuvée est un seul C bleu pétrole avec lumière et ombre sur une tuile blanche ; elle apparaît dans la barre supérieure à toutes les largeurs, le favicon et les installations PC/smartphone. Les deux fichiers JPEG approuvés sont conservés intacts dans `assets/brand/coco-erp-*-approved-20261016.jpeg`. `scripts/export-brand-assets.py` (Python avec Pillow) produit les formats web sans redessiner les images ; seul le blanc autour du logo principal est recadré. Les anciennes adresses `coco-gama-*` et `icon-*.png` conservent des exports compatibles. Les URL actives portent la révision `20261016-approved-logos` ; le point de lancement PWA existant reste inchangé pour conserver l’identité des installations. Les titres d’introduction de l’accueil ont été retirés ; les tuiles gardent leur bordure fine et leur personnalisation. Une photo d’employé peut remplacer les initiales du profil.
 
 Les rapports de contraste historiques ne doivent pas être réutilisés après une modification de couleurs : vérifier le couple texte/fond réellement calculé, y compris les surcharges du thème.
 
@@ -28,7 +28,7 @@ L’ordre des colonnes se modifie en glissant un en-tête (souris) ou sa poigné
 
 Les fenêtres de consultation partagées affichent une seule action « Retour » (« Volver » / « Back »), sans doublon « Fermer ». Les formulaires conservent leur action métier et leur bouton Retour. Une confirmation explicite conserve ses deux choix. `ArcUI.dialog` reconnaît les anciens libellés de fermeture FR/ES/EN ; `dismissOnly` permet de déclarer ce comportement explicitement.
 
-Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure fine bleue uniforme (`#B6DCE5`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#88BCC9`). La première catégorie de la barre latérale est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
+Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure fine bleue uniforme (`#B6DCE5`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#88BCC9`). La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
 
 Le Dashboard présente les indicateurs du profil, le graphique, les actions du jour et cinq commandes récentes. Son en-tête conserve la flèche de retour au menu partagée avec les autres modules, sur ordinateur et téléphone. Les vues favorites, indicateurs personnels et analyses détaillées restent accessibles dans des sections dépliables. Les commandes récentes sont une lecture limitée soumise aux mêmes droits, annulée visuellement lors d’un changement de compte ou de période.
 
@@ -69,3 +69,15 @@ Les spécifications, sources de référence et critères de vérification sont d
 Les styles propres au pipeline CRM, à Documents et à la base de connaissances sont chargés avec leurs modules via le registre de chargement différé. Cela conserve le budget CSS de démarrage ; `config/runtime-assets.json` reste la source des assets publiés.
 
 Sur mobile, les sélecteurs de période et de vue du Dashboard passent sur des lignes séparées lorsque leur largeur disponible devient insuffisante. Les libellés FR/ES/EN restent lisibles à 16 px, sans débordement des contrôles natifs WebKit à 320 px.
+
+## Espace de travail horizontal — 16 octobre 2026
+
+La maquette Ventes approuvée est adaptée à tous les modules par `src/styles/workbench.css` et `src/ui/shell.js`. Le contenu utilise toute la largeur. Le lanceur ouvre un menu de modules avec Favoris, droits et langue ; Échap et le bouton de fermeture rendent le focus au déclencheur. Le menu fermé est inerte ; ouvert, il retient le focus et rend le contenu derrière lui inerte.
+
+La barre supérieure de 60 px regroupe marque, module actif, recherche globale, notifications, configuration et compte. À partir de 1 180 px, les onglets principaux natifs se placent dans l’espace libre entre le titre et les utilitaires. Leur DOM reste dans le module : les gestionnaires, droits, sélecteurs et raccourcis restent ceux du module. Sur tablette/téléphone, les onglets défilent horizontalement dans le contenu. Les onglets secondaires, étapes TMS, kanban CRM, article Knowledge, documents, cartes et formulaires gardent leur structure métier.
+
+Les surfaces de travail sont blanches, sans ombre lourde, avec rayons de 6 px. Le quadrillage et les références restent lisibles ; les boutons de ligne sont compacts sur ordinateur, les cibles tactiles conservent 44 px. Les champs, états, focus et couleurs s’appuient sur les tokens Coco existants.
+
+Ventes regroupe création, titre, recherche et pagination dans une barre de commande. Les destinations secondaires restent visibles ; les filtres, vues enregistrées et contrôles de tableau sont dépliables sur téléphone, ouverts sur ordinateur. Les filtres appliqués, la pagination serveur, le retour au devis, le choix tableau/tuiles et les clés de préférence restent compatibles. Le site public et les documents imprimés ne sont pas concernés.
+
+Les contrôles de navigation et de mise en page vivent dans `tests/workbench-layout.spec.js`, `tests/architect-shell.spec.js`, `tests/responsive-layout.spec.js` et `tests/ux-workspace.spec.js`. Les tests utilisent uniquement les fixtures locales.

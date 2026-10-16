@@ -64,12 +64,16 @@ test('en paysage, la navigation, la barre et le contenu évitent l’encoche',as
  await page.setViewportSize({width:932,height:430});await boot(page);
  // Sin animaciones: se mide la posición final.
  await page.addStyleTag({content:'*,*::before,*::after{transition:none!important}'});
- const before=await page.evaluate(()=>({side:document.querySelector('.arcSidebar').getBoundingClientRect().width,main:document.querySelector('.arcMain').getBoundingClientRect().left,bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight}));
+ const before=await page.evaluate(()=>({main:document.querySelector('.arcMain').getBoundingClientRect().left,content:parseFloat(getComputedStyle(document.querySelector('.arcContent')).paddingLeft),bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight}));
  await page.addStyleTag({content:':root{--arc-safe-l:47px;--arc-safe-r:34px}'});
- const after=await page.evaluate(()=>({side:document.querySelector('.arcSidebar').getBoundingClientRect().width,main:document.querySelector('.arcMain').getBoundingClientRect().left,bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight,icon:document.querySelector('.arcNavLink .arcIco').getBoundingClientRect().left,avatar:document.querySelector('#arcProfileButton').getBoundingClientRect().right}));
- expect(after.side-before.side).toBe(47);expect(after.main-before.main).toBe(47);
+ const after=await page.evaluate(()=>({main:document.querySelector('.arcMain').getBoundingClientRect().left,content:parseFloat(getComputedStyle(document.querySelector('.arcContent')).paddingLeft),bar:getComputedStyle(document.querySelector('.arcTopbar')).paddingRight,avatar:document.querySelector('#arcProfileButton').getBoundingClientRect().right}));
+ expect(after.main).toBe(before.main);expect(after.content-before.content).toBe(47);
  expect(parseFloat(after.bar)-parseFloat(before.bar)).toBe(34);
- expect(after.icon).toBeGreaterThanOrEqual(47);expect(after.avatar).toBeLessThanOrEqual(932-34);
+ expect(after.avatar).toBeLessThanOrEqual(932-34);
+ // Le menu est désormais un tiroir : vérifier ses liens une fois ouvert.
+ await page.locator('.arcBurger').click();
+ expect(await page.locator('.arcNavLink .arcIco').first().evaluate(e=>e.getBoundingClientRect().left)).toBeGreaterThanOrEqual(47);
+ await page.keyboard.press('Escape');
  // Las ventanas de Configuración y Notificaciones, a pantalla completa, también.
  await openSettings(page);
  const win=await page.locator('#arcSettingsDialog').boundingBox();expect(win).toMatchObject({x:0,width:932});

@@ -20,3 +20,11 @@ Les lignes décoratives #D8E2EA ne portent pas seules une information interactiv
 La planche de primitives est rendue avec les composants ArcUI existants sur une page locale de test. Les images de référence et les données de démonstration ne sont pas chargées par l’application publiée. Les animations existantes respectent `prefers-reduced-motion` ; l’accès au formulaire produit suit également cette préférence.
 
 Les styles propres au pipeline CRM, à Documents et à la base de connaissances sont chargés avec leurs modules via le registre de chargement différé. Cela conserve le budget CSS de démarrage ; `config/runtime-assets.json` reste la source des assets publiés.
+
+## Cadre horizontal approuvé, 16 octobre 2026
+
+- Lanceur : bouton natif 44 px, aria-expanded/controls ; menu modal avec fermeture, Échap, boucle de focus, fond inerte, favoris et droits existants.
+- Onglets de module : boutons natifs conservés dans leur parent ; ligne horizontale défilante, soulignement orange actif, texte pétrole, focus visible. Intégration à la barre de 60 px dès 1 180 px.
+- Liste Ventes : action primaire, titre, recherche et pagination regroupés ; filtres dépliables sur mobile ; aucun contrôle métier factice.
+- Grille : règles horizontales et verticales, nombres alignés à droite, états textuels, préférence par compte conservée.
+- Surfaces : blanc, bordures fines, rayon 6 px et ombre supprimée ; formulaires et fenêtres conservent validation, états d’erreur, fermeture et reprise.

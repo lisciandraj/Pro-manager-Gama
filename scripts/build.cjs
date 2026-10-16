@@ -1,22 +1,23 @@
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const {root,manifest,hash,runtimeFiles,header,runtimeScript,validateManifest}=require('./lib/assets.cjs');
+const {root,manifest,hash,runtimeFiles,runtimeScript,runtimeStyle,compactStyle,validateManifest}=require('./lib/assets.cjs');
 const {secureHtml}=require('./lib/csp.cjs');
 validateManifest();
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
 for(const {source,output} of manifest.styles){
- fs.writeFileSync(path.join(root,output),header(source)+fs.readFileSync(path.join(root,source),'utf8'));
+ fs.writeFileSync(path.join(root,output),runtimeStyle(source));
 }
 for(const bundle of manifest.startupBundles||[]){
  const code=bundle.files.map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n;\n');
  // Parse the combined classic scope too: no duplicate lexical declarations.
  require('acorn').parse(code,{ecmaVersion:'latest',sourceType:'script'});
- fs.writeFileSync(path.join(root,bundle.output),'/* Generated startup bundle: '+bundle.files.join(', ')+'. */\n'+code+(bundle.output==='coco-modules.js'?'\nwindow.ArcRuntimeLoaded=true;window.dispatchEvent(new CustomEvent("arc:runtime-ready"));\n':''));
+ const compact=require('esbuild').transformSync(code,{loader:'js',target:'es2020',minifyWhitespace:true,minifySyntax:false,minifyIdentifiers:false,legalComments:'inline'}).code;
+ fs.writeFileSync(path.join(root,bundle.output),'/* Generated startup bundle: '+bundle.files.join(', ')+'. */\n'+compact+(bundle.output==='coco-modules.js'?'\nwindow.ArcRuntimeLoaded=true;window.dispatchEvent(new CustomEvent("arc:runtime-ready"));\n':''));
 }
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
 fs.copyFileSync(path.join(root,'.build/client/architect-core.js'),path.join(root,'architect-core.js'));
-fs.writeFileSync(path.join(root,'architect-components.css'),manifest.moduleStyles.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('')+'\n'+fs.readFileSync(path.join(root,'src/ui/components.css'),'utf8'));
-fs.copyFileSync(path.join(root,'src/ui/base.css'),path.join(root,'architect-base.css'));
+fs.writeFileSync(path.join(root,'architect-components.css'),compactStyle(manifest.moduleStyles.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\n'+fs.readFileSync(path.join(root,'src/ui/components.css'),'utf8')));
+fs.writeFileSync(path.join(root,'architect-base.css'),runtimeStyle('src/ui/base.css'));
 const assets=Object.fromEntries([...runtimeFiles(),...manifest.vendors].map(file=>[file,file+'?v='+hash(file)]));
 fs.writeFileSync(path.join(root,'architect-assets.js'),'/* Generated runtime asset versions. */\nwindow.ArcAssets='+JSON.stringify(assets,null,2)+';\n');
 const versionHtml=html=>secureHtml(html.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,file)=>{

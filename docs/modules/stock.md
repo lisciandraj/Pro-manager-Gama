@@ -37,6 +37,8 @@ Les API publiques sont `SECURITY INVOKER` et délèguent à des fonctions privé
 
 Les règles sont testées par restauration complète dans PGlite avec des données isolées (`tests/stock-workspace-db.test.cjs`). Les parcours, chargements différés, reprises et affichages mobiles sont testés avec un transport mémoire dans `tests/stock-workspace.spec.js`, en complément des tests Stock et inventaires existants.
 
+La création automatique de brouillons selon les **seuils fixes de la fiche produit**, exécutée côté serveur avec l’application fermée, est décrite dans [Automatisations](../automation.md#réapprovisionnement-automatique-par-minimum-et-maximum). Elle possède son propre mode `min_max` ; elle ne remplace pas les propositions de consommation de cet onglet. Les brouillons d’achat sont également déduits par `replenishment_needs`, utilisé dans Achats.
+
 ## Seuils proposés sur les ventes
 
 « Revisar mínimos y máximos · ventas 90 días » ouvre une lecture distincte des seuils : seules les quantités réellement expédiées aux clients pendant les 90 derniers jours comptent. Les sorties manuelles, la production, les transferts et les commandes en brouillon sont exclus. La moyenne est quantité / 90 ; le minimum couvre 1,5 fois le délai et le maximum ajoute 14 jours, arrondis à l’unité supérieure. Le délai configuré est utilisé ; l’estimation de 7 jours est explicitement signalée. Aucun seuil n’est proposé sans ventes récentes.

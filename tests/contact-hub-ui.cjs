@@ -1,6 +1,6 @@
 /* Browser fixture only. SQL transactions run in the isolated database suite. */
 const {test,expect}=require('@playwright/test'),fs=require('node:fs'),path=require('node:path');
-const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-contact-alignment.js'),'utf8');
 async function boot(page,{denied=false}={}) {
  await page.addInitScript(()=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'}));

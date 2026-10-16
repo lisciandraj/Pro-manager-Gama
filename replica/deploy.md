@@ -36,6 +36,7 @@ Cette livraison applique la maquette approuvée aux composants partagés des 22 
 
 - Point de restauration : `54e70e986469dd63a3f27967d1e7763db731c718`.
 - Tests locaux et limites : [rapport de validation](tests/workbench-results.md).
+- Demande de fusion : [#167](https://github.com/lisciandraj/Pro-manager-Gama/pull/167).
 - Autorisation de publication : demande de déploiement déjà donnée dans la conversation, suivie de la demande d’implémentation de la maquette dans tous les modules.
 - Publication par le workflow existant `deploy-coco-pages.yml`, après les contrôles CI de la demande de fusion.
 - État de préparation : implémentation et vérifications locales terminées ; CI et preuve du commit servi à vérifier après publication.

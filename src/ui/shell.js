@@ -33,6 +33,7 @@ const ICON={
  gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
  globe:window.ArcUI.icons.globe,
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ back:'<path d="m12 5-7 7 7 7M5 12h14"/>',
  scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
  star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
@@ -140,9 +141,17 @@ function syncWorkspace(){
  if(!context||!top)return;
  const id=section?.id||'mainmenu',home=id==='mainmenu';
  document.body.dataset.cocoModule=id;
+ $('cocoModuleBack').hidden=home;
  const title=home?T('Inicio'):(section.querySelector('.gamaStdText h2')?.textContent?.trim()||T(window.ArcModules?.get?.(id==='gama-tms-section'?'tms':id)?.label||''));
  if(context.textContent!==title)context.textContent=title;
  context.title=title;
+ // The app bar owns the module title and home action. Keep the native header
+ // nodes for module selectors, printing and any additional business controls.
+ section?.querySelectorAll('.gamaStdHeader').forEach(header=>{
+  if(home||header.closest('dialog'))return;
+  header.classList.add('cocoWorkspaceHeader');
+  header.classList.toggle('cocoHeaderEmpty',!header.querySelector('button:not(.gamaStdBack),a,input,select,textarea,summary,[role=button]'));
+ });
  const nav=home?null:(id==='sri'?section.querySelector('.gaSriTabs'):section.querySelector(MODULE_NAV));
  if(activeNav!==nav){activeNav?.classList.remove('cocoModuleNav');activeNav=nav;activeNav?.classList.add('cocoModuleNav')}
  const usable=!!nav&&nav.getClientRects().length>0&&nav.querySelector('button');
@@ -187,7 +196,7 @@ function build(){
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.apps)+'</button>'
   +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261016-approved-logos" alt="" width="34" height="34">Coco <b>ERP</b></a>'
-  +'<span id="cocoModuleContext" class="cocoModuleContext"></span>'
+  +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><h1 id="cocoModuleContext" class="cocoModuleContext"></h1></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
@@ -243,6 +252,12 @@ function bind(side,top){
  burger.onclick=()=>document.body.classList.contains('arcDrawerOpen')?closeDrawer():openDrawer();
  side.querySelector('.arcDrawerClose').onclick=closeDrawer;
  top.querySelector('.arcMobileBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
+ top.querySelector('#cocoModuleBack').onclick=()=>{
+  const id=document.body.dataset.cocoModule==='gama-tms-section'?'tms':document.body.dataset.cocoModule;
+  window.GamaUI.backToMenu();
+  const card=[...document.querySelectorAll('#mainmenu .gamaF2Card')].find(el=>el.dataset.gamaModule===id);
+  (card?.querySelector('.cocoModuleOpen')||document.querySelector('.arcBurger'))?.focus({preventScroll:true});
+ };
 
  /* La búsqueda global no cambia de motor: este campo es otra boca del mismo.
     El cableado lo pone mount() —y sólo él—, porque lleva la guarda que impide

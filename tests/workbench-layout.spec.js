@@ -28,7 +28,7 @@ for(const width of [390,768,1440])test(`every enabled module shares the full-wid
   const screen=await page.evaluate(()=>{
    const section=document.querySelector('section.active'),dialog=document.querySelector('dialog[open]');
    const nav=section?.querySelector('.cocoModuleNav'),r=nav?.getBoundingClientRect();
-   return {id:section?.id,dialog:!!dialog,overflow:document.documentElement.scrollWidth-innerWidth,contentLeft:document.querySelector('.arcMain').getBoundingClientRect().left,pinned:document.body.classList.contains('cocoNavPinned'),nav:r?{top:r.top,left:r.left,right:r.right}:null,title:document.querySelector('#cocoModuleContext')?.textContent};
+   return {id:section?.id,dialog:!!dialog,overflow:document.documentElement.scrollWidth-innerWidth,contentLeft:document.querySelector('.arcMain').getBoundingClientRect().left,pinned:document.body.classList.contains('cocoNavPinned'),nav:r?{top:r.top,left:r.left,right:r.right}:null,title:document.querySelector('#cocoModuleContext')?.textContent,duplicateHeaders:[...(section?.querySelectorAll('.gamaStdText h2,.gamaStdBack')||[])].filter(el=>!el.closest('dialog')&&el.getClientRects().length).length};
   });
   report.push({module:id,...screen});
   expect(screen.dialog||screen.id!=='mainmenu',id+' opened').toBe(true);
@@ -39,6 +39,17 @@ for(const width of [390,768,1440])test(`every enabled module shares the full-wid
    expect(screen.nav.top,id+' navigation in app bar').toBe(0);
    expect(screen.nav.left,id+' navigation after brand').toBeGreaterThan(200);
    expect(screen.nav.right,id+' navigation before utilities').toBeLessThan(width-120);
+  }
+  if(!screen.dialog){
+   expect(screen.title,id+' module title').toBeTruthy();
+   expect(screen.duplicateHeaders,id+' duplicate module headings and home arrows').toBe(0);
+   const back=page.locator('.arcTopbar #cocoModuleBack'),title=page.locator('.arcTopbar h1#cocoModuleContext');
+   await expect(back).toBeVisible();await expect(title).toBeVisible();
+   const b=await back.boundingBox(),h=await title.boundingBox();
+   expect(Math.abs(b.y+b.height/2-h.y-h.height/2),id+' title and return share one row').toBeLessThanOrEqual(1);
+   expect(b.x+b.width,id+' return precedes title').toBeLessThanOrEqual(h.x);
+   await back.click();await expect(page.locator('#mainmenu')).toBeVisible();await expect(back).toBeHidden();
+   await expect(page.locator('#mainmenu .gamaF2Card[data-gama-module="'+id+'"] .cocoModuleOpen')).toBeFocused();
   }
  }
  fs.writeFileSync(info.outputPath('module-layout-coverage.json'),JSON.stringify(report,null,2));
@@ -99,6 +110,7 @@ test('global search and module titles follow the selected language without dupli
   await expect(page.locator('[data-coco-sales-section]')).toHaveCount(5);
   await expect(page.locator('#gqSearch')).toHaveCount(1);
   await expect(page.locator('#cocoModuleContext')).toHaveText(await page.locator('#quotes .gamaStdText h2').innerText());
+  await expect(page.locator('#cocoModuleBack')).toHaveAccessibleName(({fr:'Retour au menu',es:'Volver al menú',en:'Back to menu'})[lang]);
   await page.locator('#arcSearchInput').focus();await expect(page.locator('#gamaSpotlight')).toBeVisible();
   await page.keyboard.press('Escape');await expect(page.locator('#gamaSpotlight')).toBeHidden();
  }

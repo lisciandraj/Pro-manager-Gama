@@ -59,9 +59,9 @@ test('partial payment sends amount, method and an idempotency key',async({page})
  expect(call.p_data.financial_account_id).toBe('financial-1');expect(call.p_action).toBe('payment');expect(call.p_data.amount).toBe(300);expect(call.p_data.method).toBe('transfer');expect(call.p_data.request_key).toMatch(/^[a-f0-9-]{36}$/);
 });
 
-test('order reference layout opens documents and full history with keyboard tabs',async({page})=>{
+test('order reference layout opens documents and commercial activities with keyboard tabs',async({page})=>{
  await boot(page);await page.evaluate(()=>{__DB.sales_events=[{id:'event1',order_id:__DB.sales_orders[0].id,action:'confirm',created_at:'2026-09-11T10:00:00Z'}]});await page.locator('[data-gs-order]').first().click();
  await expect(page.locator('.gsMilestones li')).toHaveCount(8);await expect(page.locator('#sales-orders>.gamaStdHeader')).toBeHidden();await expect(page.locator('#gsShip')).toBeVisible();
- await page.locator('#gs-order-tab-details').press('ArrowRight');await expect(page.locator('#gs-order-panel-documents')).toBeVisible();await expect(page.locator('#gs-order-panel-details')).toBeHidden();await page.locator('#gs-order-tab-documents').press('ArrowRight');await expect(page.locator('#gs-order-panel-history')).toContainText('Pedido confirmado');
+ await page.locator('#gs-order-tab-details').press('ArrowRight');await expect(page.locator('#gs-order-panel-documents')).toBeVisible();await expect(page.locator('#gs-order-panel-details')).toBeHidden();await page.locator('#gs-order-tab-documents').press('ArrowRight');await expect(page.locator('#gs-order-panel-history')).toContainText('Actividades comerciales');
  await page.locator('#gs-order-tab-history').press('Home');await expect(page.locator('#gs-order-panel-details')).toBeVisible();expect(await page.evaluate(()=>window.__salesCalls)).toHaveLength(0);
 });

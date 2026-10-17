@@ -5,3 +5,8 @@ project_id = "coco-erp"
 # independently validates the user's Supabase token before any business call.
 [functions.coco-agent-mcp]
 verify_jwt = false
+
+# OAuth callback uses a one-time, expiring state. Every POST validates the
+# Supabase user and current order permissions independently in the handler.
+[functions.coco-order-mail]
+verify_jwt = false

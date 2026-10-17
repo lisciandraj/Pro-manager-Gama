@@ -147,3 +147,7 @@ Les cinq sections de Ventes réutilisent les adresses et droits existants. `coco
 `src/ui/shell.js` synchronise le titre et les onglets principaux à partir des événements `arc:route-change` et `arc:module-rendered`. Les mises à jour sont regroupées par animation frame ; aucun observateur global du DOM ni nouvelle lecture métier n’est ajouté. Les onglets ne sont ni clonés ni déplacés : leur placement sur grand écran conserve leurs parents et leurs contrôles. `src/styles/workbench.css`, déclaré dans le manifeste et chargé après les styles communs, fournit les dispositions responsives. Les modules chargés à la demande reçoivent la même présentation dès leur rendu.
 
 Les feuilles CSS et les lots JS de démarrage sont compactés à la construction (espaces/commentaires ordinaires), sans minification des identifiants publics ni réorganisation des règles CSS. Les commentaires de licence CSS sont conservés. Les budgets existants restent les garde-fous ; ils ne sont pas augmentés pour cette refonte.
+
+## Suivi latéral des commandes
+
+Le [journal des commandes et la messagerie](modules/order-followup.md) se chargent dans le détail Ventes/Achats. Le composant commun conserve les identifiants et les actions métier existants. Les échanges sont protégés par les droits du module, et les identifiants OAuth chiffrés restent dans le schéma privé. La configuration du fournisseur précède les envois réels.

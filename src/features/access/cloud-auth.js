@@ -15,6 +15,7 @@ function showLogin(){style();if(document.getElementById('gamaCloudLogin'))return
    dos veces lanzaba dos peticiones. Y si la red fallaba, la excepción se
    perdía y la pantalla se quedaba quieta sin decir nada. */
 var go=async function(){
+ if(document.getElementById('gamaCloudLoginBtn').disabled)return;
  var e=document.getElementById('gamaCloudEmail').value.trim().toLowerCase(),p=document.getElementById('gamaCloudPass').value;
  var er=document.getElementById('gamaCloudErr'),btn=document.getElementById('gamaCloudLoginBtn'),rotulo=btn.textContent;
  function fallo(msg){er.textContent=msg;er.style.display='block';btn.disabled=false;btn.textContent=rotulo}
@@ -23,18 +24,28 @@ var go=async function(){
  btn.disabled=true;btn.textContent='Iniciando sesión…';
  try{
   var r=await C.signIn(e,p);
-  if(r.error){fallo('No se puede iniciar sesión. Compruebe sus credenciales.');return}
+  if(r.error){fallo(loginError(r.error));return}
   await window.ArchitectIdentity.ensureMFA();
   var pr=await C.getProfile();
+  if(pr.error){fallo(loginError(pr.error));return}
   if(!pr.data||!pr.data.active||!roleMap(pr.data.role)){await C.signOut();fallo('Cuenta no autorizada o desactivada.');return}
   setCompat(r.data.session,pr.data);location.reload();
- }catch(ex){console.warn('[GAMA] login',ex);fallo('No se puede conectar con Coco ERP. Compruebe su conexión e inténtelo de nuevo.')}
+ }catch(ex){console.warn('[GAMA] login',ex);fallo(loginError(ex))}
 };
 document.getElementById('gamaCloudLoginBtn').onclick=go;document.getElementById('gamaCloudEmail').onkeydown=e=>{if(e.key==='Enter')go()};document.getElementById('gamaCloudPass').onkeydown=e=>{if(e.key==='Enter')go()};document.getElementById('gamaCloudEmail').focus()}
 async function ensure(){var r=await C.getSession(),s=r?.data?.session;if(s){if(new URLSearchParams(location.search).get('setup')==='password'){window.ArchitectIdentity.password();return false}await window.ArchitectIdentity.ensureMFA();var p=await C.getProfile();if(p?.data&&setCompat(s,p.data)){var old=document.getElementById('gamaLogin');if(old)old.remove();if(p.data.role==='administrador')adminButton();return true}}showLogin();return false}
 function adminButton(){style();if(document.getElementById('gamaCloudAdminBtn'))return;var b=document.createElement('button');b.id='gamaCloudAdminBtn';b.textContent='Cuentas cloud';b.style='position:fixed;right:14px;top:118px;z-index:70;width:auto;padding:8px 12px;background:var(--arc-accent-600);color:#fff;border:0;border-radius:9px;font-weight:800';b.onclick=adminPanel;document.body.appendChild(b)}
 async function listCloudUsers(){var r=await C.list('profiles',{order:'created_at',ascending:true});if(r.error)throw r.error;return r.data||[]}
 function cloudText(es,fr,en){return ({fr,en}[window.GamaI18n?.locale?.slice(0,2)]||es)}
+// Authentication errors and an unavailable profile are distinct from revoked access.
+function loginError(error){
+ var status=Number(error?.status||error?.statusCode),code=String(error?.code||''),message=String(error?.message||'');
+ if(code==='invalid_credentials'||code==='invalid_login_credentials'||message==='Invalid login credentials')return cloudText('Correo electrónico o contraseña incorrectos.','Adresse e-mail ou mot de passe incorrect.','Incorrect email address or password.');
+ if(status===429||code==='over_request_rate_limit')return cloudText('Demasiados intentos. Inténtelo más tarde.','Trop de tentatives. Réessaie plus tard.','Too many attempts. Please try again later.');
+ if(code==='email_not_confirmed')return cloudText('Confirme su correo electrónico antes de iniciar sesión.','Confirme ton adresse e-mail avant de te connecter.','Confirm your email address before signing in.');
+ if(status>=500||['TIMEOUT','READ_CANCELLED','request_timeout','unexpected_failure'].includes(code)||error?.name==='AuthRetryableFetchError'||/Failed to fetch|NetworkError|fetch failed|Load failed|ECONN/i.test(message))return cloudText('Servicio de conexión temporalmente no disponible. Inténtelo de nuevo.','Service de connexion temporairement indisponible. Réessaie.','Sign-in service temporarily unavailable. Please retry.');
+ return cloudText('No se pudo verificar el acceso. Reintente o contacte al administrador.','Connexion non vérifiée. Réessaie ou contacte l’administrateur.','Sign-in could not be verified. Retry or contact your administrator.');
+}
 function roleLabel(r){return r==='administrador'?'Administrador':r==='comercial'?'Comercial':r==='almacenero'?'Almacenero':r==='rrhh'?'Responsable RH':r==='cliente'?'Cliente':r||'—'}
 function renderCloudUsers(rows){var host=document.getElementById('gamaCloudUsersRows');if(!host)return;window.ArcUI.render(host,rows.length?rows.map(function(x){return '<tr><td>'+esc(x.full_name||'—')+'</td><td>'+esc(x.email||'—')+'</td><td><span class="cloudRole">'+esc(roleLabel(x.role))+'</span></td><td><span class="cloudState '+(x.active===false?'inactive':'active')+'">'+(['cliente','client'].includes(x.role)?cloudText('Acceso por el sitio web','Accès via le site internet','Access through the website'):(x.active===false?'Desactivado':'Activo'))+'</span></td><td>'+esc(x.created_at?new Date(x.created_at).toLocaleDateString('es-EC'):'—')+'</td></tr>'}).join(''):'<tr><td colspan="5" data-gi=33542c79b7e3>No se encontraron usuarios centralizados.</td></tr>')}
 function esc(v){return window.ArcUI.esc(v)}

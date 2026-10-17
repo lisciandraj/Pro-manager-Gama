@@ -48,3 +48,13 @@
 
 @media(max-width:1250px){#gamaPurchasesV14 .cocoDossierMain .gp14Grid{grid-template-columns:minmax(0,1fr)!important}}
 .cocoDossierMain .gp14Actions{flex-wrap:wrap}
+/* Close the phone drawer in CSS while Safari delivers its media-query event. */
+@media(max-width:900px){.cocoFollowup:not(.is-mobile-open)>.cocoFollowupBody{display:none}}
+/* Keep the table tools on one compact row beside a dossier discussion. */
+@media(min-width:1100px){
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools{flex:1 1 100%;margin-left:0}
+ body.cocoWorkbench .cocoDossierMain .cocoListOptions{row-gap:6px;margin:6px 0;padding-top:6px}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaTableControls:not(:has(.gamaColumnHeading[aria-expanded=true])){flex:0 1 auto;flex-wrap:nowrap}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaColumnPicker:has(.gamaColumnHeading[aria-expanded=false]){width:auto}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaSortScope{flex-basis:auto}
+}

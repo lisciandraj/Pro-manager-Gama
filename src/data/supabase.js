@@ -43,7 +43,7 @@ async function getProfile(){
  // cache permissions across refreshes, account changes or later requests.
  const key=u.id+':'+s.access_token;
  if(profileRequest?.key===key)return profileRequest.promise;
- const job={key,promise:Promise.resolve(c.from('profiles').select('*').eq('id',u.id).maybeSingle())};
+ const job={key,promise:read(signal=>c.from('profiles').select('*').eq('id',u.id).abortSignal(signal).maybeSingle()).catch(error=>({data:null,error}))};
  profileRequest=job;
  try{return await job.promise}finally{if(profileRequest===job)profileRequest=null}
 }

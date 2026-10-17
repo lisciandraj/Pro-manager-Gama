@@ -1017,12 +1017,13 @@
     rpc,
     startDataEvents
   }, Symbol.toStringTag, { value: "Module" }));
+  const adminRoles = ["admin"], commercialRoles = ["admin", "commercial"], staffRoles = ["admin", "commercial", "magasinier"], warehouseRoles = ["admin", "magasinier"];
   const definitions = [
-    { id: "surveys", label: "Encuestas y marketing", icon: "checklist", group: "Ventas", description: "Cuestionarios y campañas e-mail o WhatsApp", accent: "teal", order: 7.2, menu: true, roles: ["admin", "commercial"] },
-    { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: ["admin"] },
-    { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: ["admin"] },
-    { id: "sav", label: "Reclamaciones", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: false, tabOf: "returns", roles: ["admin", "commercial"] },
-    { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: ["admin", "commercial", "magasinier"] },
+    { id: "surveys", label: "Encuestas y marketing", icon: "checklist", group: "Ventas", description: "Cuestionarios y campañas e-mail o WhatsApp", accent: "teal", order: 7.2, menu: true, roles: commercialRoles },
+    { id: "sri", label: "Facturación SRI", icon: "invoice", group: "Administración", description: "Facturas electrónicas, autorización SRI y archivo XML / RIDE", accent: "orange", order: 15.1, menu: true, roles: adminRoles },
+    { id: "website", label: "Sitio web", icon: "globe", group: "Administración", description: "Catálogo web, presentación y solicitudes de prueba", accent: "teal", order: 16.5, menu: true, roles: adminRoles },
+    { id: "sav", label: "Reclamaciones", icon: "headset", group: "Ventas", description: "Reclamaciones, garantías y seguimiento", accent: "violet", order: 7.1, menu: false, tabOf: "returns", roles: commercialRoles },
+    { id: "documents", label: "Documentos", icon: "documents", group: "Administración", description: "Archivos, contratos y versiones", accent: "blue", order: 14.1, menu: true, roles: staffRoles },
     {
       "id": "tms",
       "label": "TMS",
@@ -1033,10 +1034,7 @@
       "order": 5,
       "menu": true,
       "configLabel": "TMS",
-      "roles": [
-        "admin",
-        "magasinier"
-      ]
+      "roles": warehouseRoles
     },
     {
       "id": "accounting",
@@ -1048,10 +1046,7 @@
       "order": 15,
       "menu": true,
       "configLabel": "Contabilidad",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "fleet",
@@ -1063,9 +1058,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Gestión de flota",
-      "roles": [
-        "admin"
-      ]
+      "roles": adminRoles
     },
     {
       "id": "projects",
@@ -1077,11 +1070,7 @@
       "order": 12,
       "menu": true,
       "configLabel": "Proyectos",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "assistant-ia",
@@ -1093,9 +1082,7 @@
       "order": 1,
       "menu": true,
       "configLabel": "Agent Coco",
-      "roles": [
-        "admin"
-      ]
+      "roles": adminRoles
     },
     {
       "id": "dashboard",
@@ -1107,11 +1094,7 @@
       "order": 0,
       "menu": true,
       "configLabel": "Panel de control y análisis",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ],
+      "roles": staffRoles,
       "header": [
         "Panel de control",
         "Toda la analítica del negocio en una pantalla."
@@ -1128,11 +1111,7 @@
       "menu": true,
       "topbar": true,
       "configLabel": "Notificaciones y bloqueos",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "knowledge",
@@ -1144,11 +1123,7 @@
       "order": 14,
       "menu": true,
       "configLabel": "Base de conocimientos",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "products",
@@ -1160,11 +1135,7 @@
       "order": 10,
       "menu": true,
       "configLabel": "Productos",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ],
+      "roles": staffRoles,
       "header": [
         "Productos",
         "Crea tus productos y consulta el catálogo."
@@ -1180,11 +1151,7 @@
       "order": 11,
       "menu": true,
       "configLabel": "Almacenes y existencias",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "movement",
@@ -1213,11 +1180,7 @@
       "order": 8,
       "menu": true,
       "configLabel": "Compras",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "matrix",
@@ -1230,10 +1193,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Matriz comercial",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "barcode",
@@ -1245,10 +1205,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Códigos de barras",
-      "roles": [
-        "admin",
-        "magasinier"
-      ],
+      "roles": warehouseRoles,
       "header": [
         "Códigos de barras",
         "Genera códigos de barras para imprimir."
@@ -1264,10 +1221,7 @@
       "order": 3,
       "menu": true,
       "configLabel": "Ventas",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "contacts",
@@ -1279,10 +1233,7 @@
       "order": 16,
       "menu": true,
       "configLabel": "Contactos",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "dossier-flow",
@@ -1294,11 +1245,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Seguimiento de procesos",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "sales-orders",
@@ -1311,11 +1258,7 @@
       "order": 4,
       "menu": false,
       "configLabel": "Pedidos de venta",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "payments",
@@ -1328,10 +1271,7 @@
       "order": 6,
       "menu": false,
       "configLabel": "Pagos de clientes",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "returns",
@@ -1343,11 +1283,7 @@
       "order": 7,
       "menu": true,
       "configLabel": "Devoluciones y posventa",
-      "roles": [
-        "admin",
-        "commercial",
-        "magasinier"
-      ]
+      "roles": staffRoles
     },
     {
       "id": "crm",
@@ -1359,10 +1295,7 @@
       "order": 2,
       "menu": true,
       "configLabel": "CRM",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "price-lists",
@@ -1375,10 +1308,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Tarifas",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "reports",
@@ -1391,10 +1321,7 @@
       "order": 100,
       "menu": false,
       "configLabel": "Importar datos",
-      "roles": [
-        "admin",
-        "commercial"
-      ]
+      "roles": commercialRoles
     },
     {
       "id": "hr",
@@ -1423,9 +1350,7 @@
       "order": 100,
       "menu": true,
       "configLabel": "Auditoría",
-      "roles": [
-        "admin"
-      ],
+      "roles": adminRoles,
       "header": [
         "Auditoría",
         "Stock, cobros y pagos, facturas, validaciones y accesos."
@@ -1442,9 +1367,7 @@
       "order": 100,
       "menu": false,
       "configLabel": "Usuarios y accesos",
-      "roles": [
-        "admin"
-      ]
+      "roles": adminRoles
     },
     {
       "id": "access-settings",
@@ -1458,9 +1381,7 @@
       "menu": false,
       "configLabel": "Parámetros de acceso",
       "locked": true,
-      "roles": [
-        "admin"
-      ]
+      "roles": adminRoles
     },
     {
       "id": "settings",
@@ -1492,9 +1413,7 @@
       "order": 100,
       "menu": false,
       "configLabel": "Copias de seguridad",
-      "roles": [
-        "admin"
-      ],
+      "roles": adminRoles,
       "header": [
         "Copias de seguridad",
         "Exporta tus datos y guarda copias de la base."
@@ -1507,10 +1426,7 @@
       "menu": false,
       "retired": true,
       "configLabel": "Formulario anterior de presupuestos",
-      "roles": [
-        "admin",
-        "commercial"
-      ],
+      "roles": commercialRoles,
       "header": [
         "Presupuestos",
         "Presupuestos para tus clientes, en PDF."
@@ -1670,7 +1586,13 @@
     for (const callback of callbacks) callback();
   }
   const canonical = (id) => aliases[id] || id;
-  const emit = (type, detail) => window.dispatchEvent(new CustomEvent(type, { detail }));
+  const emit = (type, detail) => {
+    window.dispatchEvent(new CustomEvent(type, { detail }));
+    if (type === "arc:route-change") window.ArcLoadScript("coco-module-history.js").then(() => {
+      if (current === detail.id) window.CocoModuleHistory.open(detail.id);
+    }).catch(() => {
+    });
+  };
   function allowed(id) {
     return id === "mainmenu" || (!window.gamaAccessAllowed ? false : canOpen(id === "gama-tms-section" ? "tms" : id));
   }

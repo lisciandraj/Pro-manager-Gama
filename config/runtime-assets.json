@@ -1,6 +1,8 @@
 {
   "scripts": [
     {"source":"src/features/processes/order-followup.js","output":"coco-order-followup.js"},
+    {"source":"src/features/processes/module-history.js","output":"coco-module-history.js"},
+    {"source":"src/features/processes/module-review.js","output":"coco-module-review.js"},
     {"source":"src/features/sales/dossier.js","output":"coco-sales-dossier.js"},
     {"source":"src/features/sales/editor.js","output":"coco-sales-editor.js"},
     {"source":"src/features/sales/workspace.js","output":"coco-sales-workspace.js"},

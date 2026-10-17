@@ -5690,3 +5690,25 @@ Pedido realizado fuera del ERP	Commande passée hors ERP	Order placed outside th
 Confirma únicamente un pedido que ya has realizado por teléfono o desde tu correo.	Confirme uniquement une commande déjà passée par téléphone ou depuis ta messagerie.	Only confirm an order already placed by phone or from your mailbox.
 El pedido se marca como realizado cuando el servicio de correo acepta el envío.	La commande est marquée comme passée lorsque le service mail accepte l’envoi.	The order is marked as placed when the mail service accepts the message.
 No se pudo cargar el seguimiento.	Impossible de charger le suivi.	Could not load follow-up.
+Creación	Création	Creation
+Modificación	Modification	Update
+Eliminación	Suppression	Deletion
+Cambio de estado	Changement de statut	Status change
+Origen de la acción	Origine de l’action	Action source
+Propuesta de Agent Coco	Proposition d’Agent Coco	Agent Coco proposal
+Crear contacto	Créer le contact	Create contact
+Registrar solicitud de ausencia	Enregistrer la demande d’absence	Record absence request
+Archivar documento	Archiver le document	Archive document
+Registrar combustible	Enregistrer le carburant	Record fuel
+Contabilizar asiento	Comptabiliser l’écriture	Post accounting entry
+Registrar nota	Enregistrer la note	Record note
+Líneas contables	Lignes comptables	Accounting lines
+Movimiento bancario	Mouvement bancaire	Bank transaction
+Solicitud de ausencia	Demande d’absence	Absence request
+Carga de combustible	Plein de carburant	Fuel fill
+Archivo del documento	Fichier du document	Document file
+Documento RH	Document RH	HR document
+Actualizar historial	Actualiser l’historique	Refresh history
+Solicitud de ausencia recibida; pendiente de revisión RH.	Demande d’absence reçue ; en attente d’examen RH.	Absence request received; awaiting HR review.
+Solicitud RH revisada.	Demande RH examinée.	HR request reviewed.
+Acción RH vinculada a su origen.	Action RH reliée à sa source.	HR action linked to its source.

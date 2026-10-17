@@ -1,5 +1,7 @@
 # Architecture actuelle de Coco ERP
 
+Le [suivi commun des modules](modules/module-history.md) étend le panneau d’historique à toutes les routes autorisées et aux rubriques de Configuration. Il se charge à la demande, indexe les actions métier réussies sous leurs droits de ligne et reçoit les propositions vérifiables du relais ChatGPT/mail/fichiers.
+
 État : 5 octobre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. La passerelle fiscale Python reste un service privé distinct ; elle peut utiliser le signataire historique ou le moteur externe Open API Facturación SRI.
 
 ## Emplacements à modifier

@@ -90,6 +90,7 @@ async function open(){
    const id=b.dataset.gqOpen,top=window.scrollY;
    return view(id,{returnTo:async()=>{await open();[...document.querySelectorAll('[data-gq-open]')].find(n=>n.dataset.gqOpen===id)?.focus({preventScroll:true});window.scrollTo({top,behavior:'instant'})}});
   });
+  window.CocoSalesWorkspace.follow(host,'sales');
   window.ArchitectPerformance?.contentReady('quotes',started);
  }catch(e){if(token!==version)return;window.ArchitectPerformance?.contentReady('quotes',started,false);fail(host,e)}
 }
@@ -107,6 +108,7 @@ async function view(id,options={}){if(!window.gamaAccessAllowed?.('quotes'))retu
  if(st==='accepted'){const rs=await rpc('gama_quote_reservations',{p_id:q.id});if($('gqReservations'))window.ArcUI.render($('gqReservations'),'<h3 data-gi=7a68bac983b0>Estado de las cantidades</h3><div class="gqScroll"><table class="arcTable"><thead><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=9e9ea5774a2d>Pedido</th><th data-gi=16434c0b6242>Reservado</th><th data-gi=efa85ba37848>Expedido</th><th data-gi=df6ad8d35691>Pendiente de reposición</th></tr></thead><tbody>'+rs.map(l=>`<tr><td>${esc(l.description)}${l.order_status==='cancelled'?' · Pedido cancelado':''}</td><td>${l.quantity}</td><td>${l.reserved}</td><td>${l.shipped}</td><td>${l.order_status==='cancelled'?0:Math.max(0,l.quantity-l.reserved-l.shipped)}</td></tr>`).join('')+'</tbody></table></div>')}
  if(!client()){window.CocoSalesWorkspace.quoteTools(q,host);const a=q.dossier?.portal_acceptance;if(a&&a.revision===q.quote_revision&&!a.processed_order_id&&$('gqReference')){$('gqChannel').value='other';$('gqReference').value='Aceptación portal · '+a.accepted_at;const p=document.createElement('p');p.textContent=T('El cliente aceptó esta versión en el portal. Confirma el pedido después de revisar el crédito.');$('gqReference').closest('.gqGrid').before(p)}}
  if(!client()){const ev=await rows('quote_events',{eq:{quote_id:id},order:'at',ascending:false,limit:50});if($('gqHistory'))window.ArcUI.render($('gqHistory'),'<details><summary data-gi=8b7d4b3b3cfd>Historial de versiones y aceptación</summary>'+ev.map(e=>`<p>${esc(new Date(e.at).toLocaleString('es-EC'))} · v${e.revision} · ${esc({approve:'Condiciones comerciales validadas',request_approval:'Validación comercial solicitada',save:'Guardado',send:'Presupuesto finalizado',accept:'Aceptado',reject:'Rechazado',reopen:'Reabierto',cancel:'Cancelado'}[e.action]||e.action)}${e.detail?.channel?' · '+esc(e.detail.channel):''}${e.detail?.reference?' · '+esc(e.detail.reference):''}</p>`).join('')+'</details>')}
+ if(!client())window.CocoSalesWorkspace.follow(host,'quote',id);
  }catch(e){fail(host,e)}}
 async function edit(q=null,request=null){return window.CocoSalesEditor.quote(q,request,{rows,rpc,action,run,fail,view,open,openRequests,all:null,getAddressEpoch:()=>addressEpoch})}
 async function deliveries(){return false;}

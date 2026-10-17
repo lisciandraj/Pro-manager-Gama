@@ -148,6 +148,6 @@ Les cinq sections de Ventes réutilisent les adresses et droits existants. `coco
 
 Les feuilles CSS et les lots JS de démarrage sont compactés à la construction (espaces/commentaires ordinaires), sans minification des identifiants publics ni réorganisation des règles CSS. Les commentaires de licence CSS sont conservés. Les budgets existants restent les garde-fous ; ils ne sont pas augmentés pour cette refonte.
 
-## Suivi latéral des commandes
+## Discussion des dossiers et propositions ChatGPT
 
-Le [journal des commandes et la messagerie](modules/order-followup.md) se chargent dans le détail Ventes/Achats. Le composant commun conserve les identifiants et les actions métier existants. Les échanges sont protégés par les droits du module, et les identifiants OAuth chiffrés restent dans le schéma privé. La configuration du fournisseur précède les envois réels.
+Le [journal partagé](modules/order-followup.md) se charge à droite dans les Ventes, les Achats et le TMS. Il reprend les étapes autorisées du dossier, les notes et les portraits limités à ses auteurs. ChatGPT lit les nouveaux mails via son propre connecteur puis dépose des propositions en attente par la façade de service `coco_mail_bridge`. Les décisions utilisent la session ERP, la MFA et les droits du module ; les créations de devis passent par le moteur commercial existant. Les connexions OAuth mail dans Supabase sont retirées, leurs jetons supprimés et les archives métier conservées. La [configuration du relais](development/order-mail-setup.md) décrit le déclencheur et la validation.

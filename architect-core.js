@@ -1870,7 +1870,7 @@
   const lazyModules = {
     "sales-dossier": { "global": "CocoSalesDossier", "file": "coco-sales-dossier.js", "methods": ["rpc", "open", "quoteCredit", "mountOrder", "activities", "deposit", "statuses", "blocksHTML", "error"] },
     "sales-editor": { "global": "CocoSalesEditor", "file": "coco-sales-editor.js", "dependencies": ["coco-sales-workspace.js"], "methods": ["quote", "order"] },
-    "sales-workspace": { "global": "CocoSalesWorkspace", "file": "coco-sales-workspace.js", "methods": ["open", "rpc", "lookup", "attachSearch", "invoice", "settings", "billing", "quoteTools", "templates", "orderTools", "duplicate", "error"] },
+    "sales-workspace": { "global": "CocoSalesWorkspace", "file": "coco-sales-workspace.js", "methods": ["follow", "open", "rpc", "lookup", "attachSearch", "invoice", "settings", "billing", "quoteTools", "templates", "orderTools", "duplicate", "error"] },
     "commercial-planning": { "global": "CocoPlanning", "file": "coco-commercial-planning.js", "methods": ["profitability", "cash", "recurring", "collections", "ocr", "quoteMargin"] },
     "global-search": { "global": "GamaGlobalSearch", "file": "gama-global-search.js", "dependencies": ["gama-global-search-core.js"], "methods": ["open"] },
     "price-lists": { "global": "gamaPriceLists", "file": "gama-price-lists.js", "methods": ["open"], "aliases": { "GamaOpenPriceLists": "open" } },
@@ -1972,7 +1972,7 @@
       ]
     },
     "tms": {
-      "styles": ["coco-style-tms-module.css"],
+      "styles": ["coco-style-tms-module.css", "coco-order-followup.css"],
       "global": "gamaTMS",
       "file": "gama-tms-module.js",
       "dependencies": ["gama-tms-map-data.js", "gama-tms-local-map.js", "gama-tms-execution.js", "gama-tms-dispatch.js", "gama-tms-driver-ui.js", "gama-tms-delivery-operations.js", "gama-sri-documents.js"],

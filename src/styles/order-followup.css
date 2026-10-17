@@ -1,42 +1,62 @@
-/* Compact document + left-side activity stream, using Coco's existing tokens. */
-.gsOrderWorkspace.cocoWithFollowup{display:grid!important;grid-template-columns:minmax(290px,350px) minmax(0,1fr)!important;gap:18px;align-items:start}
-#sales-orders .cocoWithFollowup>.gsOrderAside{grid-column:1;grid-row:1;min-width:0;display:flex;flex-direction:column;gap:14px}
-#sales-orders .cocoWithFollowup>.gsOrderMain{grid-column:2;grid-row:1;min-width:0}
-.cocoFollowup{background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-sm);color:var(--arc-text);font:13px/1.5 var(--arc-font);min-width:0;overflow:hidden}
-.cocoFollowup>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;font-weight:700;cursor:pointer;color:var(--arc-navy-900);border-bottom:1px solid var(--arc-line);list-style:none}
+/* Shared right-hand dossier discussion, using Coco's existing colour tokens. */
+.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(310px,370px)!important;gap:18px;align-items:start}
+#sales-orders .cocoWithFollowup>.gsOrderAside{grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+#sales-orders .cocoWithFollowup>.gsOrderMain{grid-column:1;grid-row:1;min-width:0}
+.cocoPurchaseWorkspace>article,.cocoDossierMain{grid-column:1;grid-row:1;min-width:0}
+.cocoPurchaseWorkspace>aside,.cocoDossierWorkspace>aside{grid-column:2;grid-row:1;min-width:0;position:sticky;top:110px}
+.cocoFollowup{background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:10px;color:var(--arc-text);font:13px/1.5 var(--arc-font);min-width:0;overflow:hidden}
+.cocoFollowup>summary{display:flex;align-items:center;gap:9px;padding:14px;font-weight:700;cursor:pointer;color:var(--arc-navy-900);border-bottom:1px solid var(--arc-line);list-style:none}
 .cocoFollowup>summary:after{content:'⌄';font-size:16px}.cocoFollowup[open]>summary:after{content:'⌃'}
-.cocoFollowupBadge{margin-left:auto;font-size:11px;border:1px solid var(--arc-info-line);background:var(--arc-info-bg);color:var(--arc-info);padding:2px 7px;border-radius:4px}
-.cocoFollowupBody{padding:14px}.cocoFollowupTop{margin-bottom:14px}.cocoFollowupParty{font-weight:600;margin:0 0 12px;overflow-wrap:anywhere}
-.cocoFollowupActions{display:flex;flex-wrap:wrap;gap:6px}.cocoFollowup .arcButton{font-size:12px;min-height:34px;padding:7px 10px;border-radius:5px;white-space:normal}
-.cocoFollowupAccount{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:12px 0 3px;overflow-wrap:anywhere}
-.cocoFollowupAccount button,.cocoFollowupReply{border:0;background:transparent;color:var(--arc-accent-600);font:600 12px var(--arc-font);cursor:pointer;padding:4px 0}
+.cocoFollowupBadge{margin-left:auto;font-size:10px;border:1px solid var(--arc-info-line);background:var(--arc-info-bg);color:var(--arc-info);padding:2px 6px;border-radius:4px;max-width:130px;overflow-wrap:anywhere}
+.cocoFollowupBody{padding:12px}.cocoFollowupTop{margin-bottom:12px}.cocoFollowupParty{font-weight:600;margin:0 0 10px;overflow-wrap:anywhere}
+.cocoFollowupActions{display:flex;flex-wrap:wrap;gap:6px}.cocoFollowup .arcButton,.cocoProposalDialog .arcButton{font-size:12px;min-height:36px;padding:7px 10px;border-radius:6px;white-space:normal}
 .cocoFollowup small{display:block;font-size:11px;color:var(--arc-text-muted);overflow-wrap:anywhere}
-.cocoFollowupFilters{display:flex;border-bottom:1px solid var(--arc-line);gap:10px;margin-top:10px}
-.cocoFollowupFilters button{border:0;border-bottom:2px solid transparent;color:var(--arc-text-muted);background:transparent;padding:7px 0;cursor:pointer;font:500 12px var(--arc-font)}
+.cocoFollowupFilters{display:flex;border-bottom:1px solid var(--arc-line);gap:12px;margin-top:10px}
+.cocoFollowupFilters button{border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;color:var(--arc-text-muted);background:transparent;padding:8px 0;cursor:pointer;font:500 12px var(--arc-font)}
 .cocoFollowupFilters button[aria-pressed=true]{border-color:var(--arc-accent-600);color:var(--arc-accent-600);font-weight:700}
-.cocoFollowupNotice:empty{display:none}.cocoFollowupNotice{margin:10px 0;padding:8px;background:var(--arc-info-bg);color:var(--arc-info);border-radius:4px}.cocoFollowupNotice.is-error,.cocoFollowupFormError{color:var(--arc-danger)}
-.cocoFollowupTimeline{list-style:none;padding:0;margin:0;max-height:65vh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-.cocoFollowupEvent{display:grid;grid-template-columns:27px minmax(0,1fr);gap:9px;padding:14px 0;border-bottom:1px solid var(--arc-surface-3);overflow-wrap:anywhere}
-.cocoFollowupAvatar{display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:var(--arc-info-bg);color:var(--arc-info);font-size:10px;font-weight:700}
-.cocoFollowupEvent[data-type=note] .cocoFollowupAvatar{background:var(--arc-warning-bg);color:var(--arc-warning)}
-.cocoFollowupWho{display:flex;flex-wrap:wrap;gap:2px 5px}.cocoFollowupWho strong{font-size:12px}.cocoFollowupWho time{font-size:10px;color:var(--arc-text-muted)}
-.cocoFollowupEventTitle{display:block;font-size:12px;font-weight:500;margin:3px 0}.cocoFollowupText{font-size:12px;margin-top:5px}.cocoFollowupText>summary{cursor:pointer;color:var(--arc-text-muted)}
-.cocoFollowupText[open]>summary{font-size:10px}.cocoFollowupText p{white-space:pre-wrap;overflow-wrap:anywhere;max-height:350px;overflow:auto;margin:7px 0}
-.cocoFollowupDelivery{display:inline-block;font-size:10px;padding:1px 5px;background:var(--arc-info-bg);color:var(--arc-info);border-radius:3px;margin:3px 0}
-.cocoFollowupDelivery[data-state=failed],.cocoFollowupDelivery[data-state=uncertain]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.cocoFollowupNotice:empty{display:none}.cocoFollowupNotice{margin:10px 0;padding:8px;background:var(--arc-info-bg);color:var(--arc-info);border-radius:5px}.cocoFollowupNotice.is-error,.cocoFollowupFormError,.cocoProposalDialog [role=alert]{color:var(--arc-danger)}
+.cocoFollowupTimeline{list-style:none;padding:10px 0;margin:0;max-height:60vh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.cocoFollowupEvent{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;margin:12px 0;overflow-wrap:anywhere;padding-right:12px}
+.cocoFollowupAvatar{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--arc-info-bg);color:var(--arc-info);font-size:10px;font-weight:700;overflow:hidden}
+.cocoFollowupAvatar img{width:100%;height:100%;object-fit:cover}.cocoFollowupEvent[data-type=note] .cocoFollowupAvatar{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.cocoFollowupBubble{min-width:0;background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:2px 12px 12px;padding:10px}
+.cocoFollowupEvent.is-own{padding-right:0;padding-left:12px;grid-template-columns:minmax(0,1fr) 30px}.cocoFollowupEvent.is-own .cocoFollowupAvatar{grid-column:2;grid-row:1}.cocoFollowupEvent.is-own .cocoFollowupBubble{grid-column:1;grid-row:1;border-radius:12px 2px 12px 12px;border-color:var(--arc-info-line);background:var(--arc-info-bg)}
+.cocoFollowupWho{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:baseline}.cocoFollowupWho strong{font-size:12px}.cocoFollowupWho time{font-size:10px;color:var(--arc-text-muted)}
+.cocoFollowupEventTitle{display:block;font-size:12px;font-weight:600;margin:5px 0}.cocoFollowupText{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:350px;overflow:auto;margin:7px 0}
 .cocoFollowupEmpty{padding:24px 0;color:var(--arc-text-muted)}.cocoFollowupMore{margin-top:12px;width:100%}
-.cocoFollowupForm,.cocoFollowupConnect{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:6px;padding:12px;margin:12px 0}
-.cocoFollowup h4{font-size:13px;margin:0 0 10px}.cocoFollowupForm label{display:block;font-size:11px;font-weight:600;margin-bottom:9px}
-.cocoFollowupForm input,.cocoFollowupForm textarea{display:block;width:100%;min-width:0;box-sizing:border-box;font:12px/1.5 var(--arc-font);border:1px solid var(--arc-line-strong);border-radius:4px;background:var(--arc-surface);color:var(--arc-text);padding:8px;margin-top:3px}
-.cocoFollowupForm input[readonly]{background:var(--arc-surface-3)}.cocoFollowupForm textarea{resize:vertical}.cocoFollowup button:focus-visible,.cocoFollowup summary:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
-.cocoPurchaseWorkspace{display:grid;grid-template-columns:minmax(290px,350px) minmax(0,1fr);gap:18px;align-items:start}.cocoPurchaseWorkspace>article,.cocoPurchaseWorkspace>aside{min-width:0}
+.cocoFollowupForm{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:8px;padding:12px;margin:12px 0}
+.cocoFollowup label,.cocoProposalDialog label{display:block;font-size:11px;font-weight:600;margin-bottom:9px}
+.cocoFollowup input,.cocoFollowup textarea,.cocoFollowup select,.cocoProposalDialog input,.cocoProposalDialog select{display:block;width:100%;min-width:0;box-sizing:border-box;font:12px/1.5 var(--arc-font);border:1px solid var(--arc-line-strong);border-radius:5px;background:var(--arc-surface);color:var(--arc-text);padding:8px;margin-top:4px}
+.cocoFollowup textarea{resize:vertical}.cocoFollowup button:focus-visible,.cocoFollowup summary:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
+.cocoFollowupBridge{margin-top:10px;padding:8px 0;border-top:1px solid var(--arc-line);font-size:11px}.cocoFollowupBridge summary{cursor:pointer;color:var(--arc-text-muted)}
+.cocoFollowupProposal{border-top:1px solid var(--arc-line);padding-top:9px;margin-top:9px}.cocoFollowupProposal>.cocoFollowupActions{margin-top:9px}.cocoFollowupProposal>b{font-size:12px;display:block}
+.cocoProposalState{display:inline-block;margin:6px 0;padding:2px 7px;border-radius:4px;background:var(--arc-warning-bg);color:var(--arc-warning);font-size:10px;font-weight:600}.cocoProposalState[data-state=approved]{background:var(--arc-info-bg);color:var(--arc-info)}
+.cocoProposalDialog{max-width:680px;width:calc(100% - 32px);max-height:90svh;overflow:auto;box-sizing:border-box;border:1px solid var(--arc-line);border-radius:12px;padding:22px;background:var(--arc-surface);color:var(--arc-text);font:13px/1.5 var(--arc-font)}
+.cocoProposalDialog::backdrop{background:#0c2f4266}.cocoProposalDialog h3{margin-top:0}.cocoProposalPicker{min-width:0}.cocoProposalLine{display:grid;grid-template-columns:minmax(0,1fr) 90px 30px;gap:8px;align-items:end;margin:10px 0}.cocoProposalLine button{min-height:36px}.cocoProposalDialog [data-quote-fields]{margin:14px 0}.cocoProposalPreview{padding:12px;border:1px solid var(--arc-info-line);border-radius:8px;margin:12px 0}
 #gamaPurchasesV14.cocoPurchaseSelected .gp14Grid,#gamaPurchasesV14.cocoPurchaseSelected .gp14LowStock{display:none!important}
 #gamaPurchasesV14.cocoPurchaseSelected .gp14Detail{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
 .cocoPurchaseWorkspace>article{background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:8px;padding:20px}
-@media(min-width:1100px){#sales-orders .cocoWithFollowup>.gsOrderAside,.cocoPurchaseWorkspace>aside{position:sticky;top:125px}}
-@media(max-width:1000px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace{grid-template-columns:minmax(250px,300px) minmax(0,1fr)!important;gap:12px}.cocoFollowupBody{padding:10px}}
-@media(max-width:760px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace{display:flex!important;flex-direction:column}#sales-orders .cocoWithFollowup>.gsOrderAside,#sales-orders .cocoWithFollowup>.gsOrderMain,.cocoPurchaseWorkspace>article,.cocoPurchaseWorkspace>aside{width:100%;box-sizing:border-box}#sales-orders .cocoWithFollowup>.gsOrderAside{order:-1}.cocoFollowupTimeline{max-height:55vh}.cocoFollowup>summary{padding:12px}.cocoFollowup .arcButton{min-height:40px}.cocoPurchaseWorkspace>article{padding:12px}}
-@media print{.cocoFollowup{display:none}.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace{display:block!important}}
-
+@media(min-width:1100px){#sales-orders .cocoWithFollowup>.gsOrderAside{position:sticky;top:110px}}
+@media(max-width:1100px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:12px}}
+@media(max-width:900px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:block!important;padding-bottom:68px}#sales-orders .cocoWithFollowup>.gsOrderAside,.cocoPurchaseWorkspace>aside,.cocoDossierWorkspace>aside{position:static;min-width:0}.cocoFollowup{position:fixed;z-index:180;right:10px;bottom:12px;width:min(390px,calc(100vw - 20px));box-sizing:border-box;box-shadow:0 8px 28px #0c2f4226;max-height:calc(100svh - 110px);overflow:auto}.cocoFollowupBody{max-height:calc(100svh - 190px);overflow:auto}.cocoFollowupTimeline{max-height:50svh}.cocoFollowup>summary{padding:12px}.cocoFollowup .arcButton{min-height:40px}.cocoPurchaseWorkspace>article{padding:12px}}
+@media print{.cocoFollowup{display:none}.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:block!important}}
 .cocoFollowup [hidden]{display:none!important}
-.cocoFollowupFilters button{border-radius:0;box-shadow:none}
+#gamaPurchasesV14.cocoPurchaseSelected>.cocoDossierWorkspace{grid-template-columns:minmax(0,1fr)!important}
+#gamaPurchasesV14.cocoPurchaseSelected>.cocoDossierWorkspace>aside{display:none}
+.cocoTmsDossierSelect{display:block;font:600 12px var(--arc-font);margin-bottom:10px;color:var(--arc-text)}
+.cocoTmsDossierSelect select{width:100%;padding:9px;border:1px solid var(--arc-line);border-radius:6px;background:var(--arc-surface);color:var(--arc-text);margin-top:5px}
+
+@media(max-width:1250px){#gamaPurchasesV14 .cocoDossierMain .gp14Grid{grid-template-columns:minmax(0,1fr)!important}}
+.cocoDossierMain .gp14Actions{flex-wrap:wrap}
+/* A grid column does not collapse the sheet margin with its module header. */
+.cocoDossierMain>.gqListCard{margin-top:0}
+/* Close the phone drawer in CSS while Safari delivers its media-query event. */
+@media(max-width:900px){.cocoFollowup:not(.is-mobile-open)>.cocoFollowupBody{display:none}}
+/* Keep the table tools on one compact row beside a dossier discussion. */
+@media(min-width:1100px){
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools{flex:1 1 100%;margin-left:0}
+ body.cocoWorkbench .cocoDossierMain .cocoListOptions{row-gap:6px;margin:6px 0;padding-top:6px}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaTableControls:not(:has(.gamaColumnHeading[aria-expanded=true])){flex:0 1 auto;flex-wrap:nowrap}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaColumnPicker:has(.gamaColumnHeading[aria-expanded=false]){width:auto}
+ body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaSortScope{flex-basis:auto}
+}

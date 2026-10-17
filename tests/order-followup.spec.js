@@ -6,7 +6,7 @@ test('sales history is a right-hand discussion with author portraits and each do
 test('notes remain escaped, attributed and shared without a mailbox connection',async({page})=>{
  await boot(page,{connected:false});await page.locator('[data-compose-note]').click();await page.locator('.cocoFollowupForm textarea').fill('Appel effectué <img src=x onerror=alert(1)>');await page.locator('.cocoFollowupForm button[type=submit]').click();await expect(page.locator('.cocoFollowupTimeline')).toContainText('Appel effectué <img');expect(await page.evaluate(()=>window.__mailCalls.length)).toBe(0);await expect(page.locator('[data-connect],[data-mailbox],[data-compose-mail]')).toHaveCount(0);
 });
-test('ChatGPT actions require a checked proposal and an explicit ERP approval',async({page})=>{
+test('Agent Coco actions require a checked proposal and an explicit ERP approval',async({page})=>{
  await boot(page,{proposal:true});await page.locator('[data-review-proposal]').click();const d=page.locator('.cocoProposalDialog');await expect(d.locator('[type=submit]')).toBeDisabled();expect(await page.evaluate(()=>window.__decisions.length)).toBe(0);await d.locator('[data-check]').click();await expect(d.locator('[data-preview]')).toContainText('Costa Azul');await expect(d.locator('[type=submit]')).toBeEnabled();await d.locator('[type=submit]').click();await expect(d).toHaveCount(0);expect(await page.evaluate(()=>window.__decisions.length)).toBe(1);await expect(page.locator('[data-open-proposal]')).toBeVisible();
 });
 test('editing a reviewed proposal invalidates approval, and refusing never creates a draft',async({page})=>{
@@ -17,6 +17,30 @@ test('TMS has a right-hand dossier discussion and a delivery selector',async({pa
 });
 test('phone discussion opens as a right-hand panel without page overflow',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await expect(page.locator('.cocoFollowup')).not.toHaveAttribute('open');await page.locator('.cocoFollowup>summary').click();await expect(page.locator('.cocoFollowupTimeline')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);const box=await page.locator('.cocoFollowup').boundingBox();expect(Math.round(box.x+box.width)).toBe(380);await page.screenshot({path:'test-results/followup-mobile.png',fullPage:true});
+});
+for(const language of ['fr','es','en'])test(`Agent Coco labels include existing analysis authors and module inbox in ${language}`,async({page})=>{
+ await boot(page,{proposal:true,language});await page.evaluate(()=>window.CocoFollowup.mount(document.querySelector('.gsOrderAside'),{kind:'sales',order_id:null}));
+ await expect(page.locator('.cocoFollowupParty')).toContainText('Agent Coco');await expect(page.locator('.cocoFollowupWho strong').filter({hasText:'Agent Coco'})).toHaveCount(1);await expect(page.locator('.cocoFollowupBridge>summary')).toContainText('Agent Coco');await expect(page.locator('.cocoFollowup')).not.toContainText(/chat\s*gpt/i);
+ expect(await page.evaluate(()=>window.__entries[0].actor_name)).toBe('ChatGPT');expect(await page.evaluate(()=>window.__mailCalls.length)).toBe(0);
+});
+test('phone long analyses use one scroll area and keep the close control and proposal actions reachable',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,{proposal:true,summary:'Demande Costa Azul : vérifier les produits, les quantités, le conditionnement et la livraison avant de créer le devis. '.repeat(18)});
+ const panel=page.locator('.cocoFollowup'),header=panel.locator(':scope>summary'),body=panel.locator('.cocoFollowupBody');await header.click();await expect(header).toHaveAttribute('aria-label','Fermer la discussion');
+ const before=await header.boundingBox(),box=await panel.boundingBox();expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(844);expect(box.height).toBeGreaterThan(750);
+ expect(await body.evaluate(e=>e.scrollHeight>e.clientHeight)).toBe(true);expect(await panel.locator('.cocoFollowupTimeline').evaluate(e=>getComputedStyle(e).overflowY)).toBe('visible');expect(await panel.locator('.cocoFollowupText').evaluate(e=>getComputedStyle(e).overflowY)).toBe('visible');
+ await panel.locator('[data-review-proposal]').scrollIntoViewIfNeeded();await expect(panel.locator('[data-review-proposal]')).toBeInViewport();expect(await body.evaluate(e=>e.scrollTop)).toBeGreaterThan(0);expect((await header.boundingBox()).y).toBe(before.y);await expect(header).toBeInViewport();await page.screenshot({path:'test-results/followup-mobile-long-analysis.png'});
+ await header.click();await expect(panel).not.toHaveAttribute('open');await header.click();await header.press('Escape');await expect(panel).not.toHaveAttribute('open');await expect(header).toBeFocused();
+});
+test('small phone review keeps its header and approval controls visible while content scrolls',async({page})=>{
+ await page.setViewportSize({width:320,height:568});await boot(page,{proposal:true,summary:'Le client demande trois paquets de papier. Confirmer la référence produit et l’adresse de livraison. '.repeat(16)});
+ await page.locator('.cocoFollowup>summary').click();await page.locator('[data-review-proposal]').click();const d=page.locator('.cocoProposalDialog');
+ await expect(d.locator('[data-dismiss]')).toBeInViewport();await expect(d.locator('[data-check]')).toBeInViewport();await expect(d.locator('[type=submit]')).toBeInViewport();await expect(d.locator('[data-close]')).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+ const content=d.locator('.cocoProposalContent');expect(await content.evaluate(e=>e.scrollHeight>e.clientHeight)).toBe(true);await d.locator('[type=number]').fill('5');await d.locator('[data-check]').click();await expect(d.locator('[type=submit]')).toBeEnabled();await expect(d.locator('[data-check]')).toBeInViewport();await expect(d.locator('[type=submit]')).toBeInViewport();expect(await page.evaluate(()=>window.__decisions.length)).toBe(0);await page.screenshot({path:'test-results/followup-mobile-review.png'});
+ await page.setViewportSize({width:320,height:360});await expect(d.locator('[data-dismiss]')).toBeInViewport();await expect(d.locator('[data-close]')).toBeInViewport();await d.locator('[data-dismiss]').click();await expect(d).toHaveCount(0);
+});
+test('phone note editor stays usable after viewport resizing without losing an unsaved note',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);const header=page.locator('.cocoFollowup>summary');await header.click();await page.locator('[data-compose-note]').click();const input=page.locator('.cocoFollowupForm textarea');await input.fill('Adresse confirmée par téléphone');
+ await page.setViewportSize({width:390,height:400});await page.locator('.cocoFollowupForm [type=submit]').scrollIntoViewIfNeeded();await expect(page.locator('.cocoFollowupForm [type=submit]')).toBeInViewport();await expect(header).toBeInViewport();await header.click();await header.click();await expect(input).toHaveValue('Adresse confirmée par téléphone');await page.locator('.cocoFollowupForm [type=submit]').click();await expect(page.locator('.cocoFollowupTimeline')).toContainText('Adresse confirmée par téléphone');expect(await page.evaluate(()=>window.__notes.length)).toBe(1);
 });
 test('logout removes notes and pending proposal editors',async({page})=>{
  await boot(page,{proposal:true});await page.locator('[data-review-proposal]').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('.cocoFollowup')).toHaveCount(0);await expect(page.locator('.cocoProposalDialog')).toHaveCount(0);

@@ -2,11 +2,13 @@
 
 Les modules Ventes, Achats et TMS affichent une discussion **à droite**. Sur téléphone, le même volet s’ouvre depuis son bandeau fixé en bas à droite. Les couleurs Coco sont conservées. Les fiches devis, commandes clients et commandes fournisseurs montrent leurs notes et événements. Le TMS dispose d’un sélecteur de livraison et d’une boîte de propositions du module. Les listes de devis et commandes et le module Achats présentent aussi les propositions qui n’ont pas encore de dossier.
 
+Sur téléphone, le volet ouvert utilise la hauteur visible, y compris lorsque le clavier réduit l’écran. Son bandeau et sa fermeture restent visibles ; les messages et notes défilent dans une seule zone, sans défilement imbriqué dans les bulles. Fermer puis rouvrir le volet conserve une note non enregistrée. La revue d’une proposition garde son en-tête et ses boutons de vérification, validation et annulation visibles pendant le défilement du contenu.
+
 Chaque bulle indique l’action ou la note, le nom de l’auteur et la date du serveur. La photo vient du portrait du salarié associé au compte, s’il existe ; sinon ses initiales s’affichent. Une action historique sans auteur reste signalée comme telle. La photo ne donne accès à aucune autre donnée RH.
 
 Les événements du dossier commercial se suivent du devis jusqu’à la commande, aux réservations, à la préparation, aux expéditions, aux preuves, à la facturation et au paiement. Les notes suivent le lien devis → commande → livraison. Les achats reprennent leurs étapes de commande, réception, stock, facture et paiement fournisseur. Le filtre d’étape conserve les étapes autorisées ; les étapes financières restent masquées pour les profils sans accès. Les anciens événements se chargent par pages. Le TMS capture aussi les modifications futures de sa fiche.
 
-## Analyse des mails par ChatGPT
+## Analyse des mails par Agent Coco
 
 La connexion Gmail/Outlook dans Supabase est retirée. Coco ne conserve plus de jetons de boîte mail et l’ancien endpoint `coco-order-mail` répond `410 MAIL_CONNECTOR_REMOVED`. Les notes et archives de messages existantes sont conservées.
 
@@ -14,13 +16,13 @@ ChatGPT utilise sa propre messagerie connectée et un déclencheur sur les nouve
 
 Le déclencheur réveille ChatGPT, qui relit le message réel, écarte les notifications sans intérêt métier puis propose une action. Il ne s’agit pas d’une garantie de traitement instantané : un délai du service est possible. L’ERP actualise la discussion toutes les quinze secondes lorsque la fiche est visible et qu’aucun éditeur n’est ouvert.
 
-Une analyse devient une **note ChatGPT** et une proposition **À valider**. La note indique le résumé et le mail source. Les références ambiguës restent dans les propositions du module. Aucun client ni produit n’est inventé, aucun devis n’est envoyé ou accepté et aucun paiement ou mouvement de stock n’est exécuté par l’analyse.
+L’assistant s’affiche sous le nom **Agent Coco**, y compris pour les analyses déjà enregistrées sous le nom ChatGPT. Ce changement de présentation conserve les auteurs humains et les données historiques. Une analyse devient une **note Agent Coco** et une proposition **À valider**. La note indique le résumé et le mail source. Les références ambiguës restent dans les propositions du module. Aucun client ni produit n’est inventé, aucun devis n’est envoyé ou accepté et aucun paiement ou mouvement de stock n’est exécuté par l’analyse.
 
 Pour une demande de devis, **Examiner la proposition** permet de vérifier ou corriger le client, les produits, les quantités et l’adresse. **Vérifier la proposition** relit les prix et taxes de l’ERP. **Valider l’action** crée un seul devis en brouillon par le moteur commercial existant. Si les prix changent ou si la revue expire, une nouvelle vérification est nécessaire. Le brouillon conserve une note de l’analyse et une note de validation avec son auteur. **Ouvrir le brouillon** permet de poursuivre le dossier.
 
 Les autres demandes d’achat ou de livraison deviennent des propositions de suivi à confirmer comme note ; l’utilisateur poursuit ensuite l’opération dans le module. **Refuser** conserve aussi une note de décision. Les doublons de message et les doubles validations sont neutralisés côté serveur.
 
-Le volet **Analyse par ChatGPT → Suspendre l’analyse** désactive immédiatement le dépôt de nouvelles propositions pour sa boîte. L’automatisation peut également être suspendue dans ChatGPT. Les propositions existantes restent consultables.
+Le volet **Analyse par Agent Coco → Suspendre l’analyse** désactive immédiatement le dépôt de nouvelles propositions pour sa boîte. L’automatisation peut également être suspendue dans ChatGPT. Les propositions existantes restent consultables.
 
 ## Courriers sortants
 

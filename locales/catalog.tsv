@@ -5686,3 +5686,7 @@ Crédito autorizado para esta oferta	Crédit autorisé pour cette offre	Credit a
 Autorizar excepción de crédito	Autoriser une dérogation de crédit	Approve credit exception
 Solicitar excepción de crédito	Demander une dérogation de crédit	Request credit exception
 Nuevo producto	Nouveau produit	New product
+Pedido realizado fuera del ERP	Commande passée hors ERP	Order placed outside the ERP
+Confirma únicamente un pedido que ya has realizado por teléfono o desde tu correo.	Confirme uniquement une commande déjà passée par téléphone ou depuis ta messagerie.	Only confirm an order already placed by phone or from your mailbox.
+El pedido se marca como realizado cuando el servicio de correo acepta el envío.	La commande est marquée comme passée lorsque le service mail accepte l’envoi.	The order is marked as placed when the mail service accepts the message.
+No se pudo cargar el seguimiento.	Impossible de charger le suivi.	Could not load follow-up.

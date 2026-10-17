@@ -62,11 +62,14 @@ function mount(d,{counts,money,num,sell,balanceFor}){
  const progress=document.createElement('div');progress.className='gsOrderProgress';const current=states.findIndex(s=>s[1]==='current');progress.innerHTML=`<ol class="gsMilestones" aria-label="${E(T('Etapas del pedido'))}">${states.map(([title,state,help],i)=>`<li data-state="${state}"${state==='current'?' aria-current="step"':''}><span class="gsMilestoneDot" aria-hidden="true">${state==='done'?'✓':i+1}</span><span><strong>${E(T(title))}</strong><small>${E(T(help))}</small></span></li>`).join('')}</ol>${current>=0?`<span class="gsStepCount">${E(T('Etapa'))} <b>${current+1}</b> / 8</span>`:''}`;
  aside.append(next);if(history&&history!==card){history.classList.add('gsOrderHistory');history.innerHTML=`<h3>${E(T('Historial de acciones'))}</h3><ol class="gsHistoryList">${historyItems.slice(0,3).join('')||historyHTML}</ol><button type="button" class="gsHistoryAll">${E(T('Ver todo el historial'))} →</button>`;aside.append(history)}
  card.querySelector('.gsSummary')?.remove();card.classList.add('gsOperationalDetail');more.append(card);for(const node of [...root.children])if(node!==history&&node!==card)more.append(node);
- workspace.append(main,aside);root.replaceChildren(head,progress,workspace,more);
+ workspace.classList.add('cocoWithFollowup');workspace.append(aside,main);root.replaceChildren(head,progress,workspace,more);
  const tabs=[...main.querySelectorAll('[data-order-tab]')],selectTab=button=>{for(const tab of tabs){const selected=tab===button;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;main.querySelector('#'+tab.getAttribute('aria-controls')).hidden=!selected}};
  tabs.forEach(button=>{button.onclick=()=>selectTab(button)});
  main.querySelector('[data-order-documents]').onclick=()=>reveal(d.invoices.length?'#gsLinkedInvoices':'#gsLinkedShipments');main.querySelectorAll('[data-order-file]').forEach(b=>b.onclick=()=>{const original=[...more.querySelectorAll('[data-gs-file]')].find(x=>x.dataset.gsFile===b.dataset.orderFile);original?.click()});
- history.querySelector('.gsHistoryAll').onclick=()=>{selectTab(tabs[2]);tabs[2].focus()};
+ history.remove();
+ const historyPanel=main.querySelector('#gs-order-panel-history');historyPanel.querySelector('.gsHistoryList')?.remove();
+ tabs[2].textContent=T('Actividades comerciales');historyPanel.querySelector('h3')?.remove();
+ window.ArcLoadScript('coco-order-followup.js').then(()=>{if(root.isConnected&&root.querySelector('.gsOrderWorkspace')===workspace)return window.CocoFollowup.mount(aside,{kind:'sales',order_id:o.id})}).catch(e=>{if(aside.isConnected){const p=document.createElement('p');p.setAttribute('role','alert');p.textContent=T('No se pudo cargar el seguimiento.');aside.prepend(p)}});
  window.ArcUI.mount(root);window.CocoSalesDossier.mountOrder(d,root);
 }
 const label=s=>({draft:'Borrador',confirmed:'Confirmado',cancelled:'Cancelado'})[s]||s;

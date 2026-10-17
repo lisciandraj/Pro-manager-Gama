@@ -53,3 +53,7 @@ Les montants commandés et facturés restent distincts. Les factures brouillon s
 `public.gama_sales_dossier` est invoker. Les fonctions privées vérifient session, MFA, profil, modules et actions ; les tables privées ont RLS et aucun accès direct. Le magasinier reçoit les quantités logistiques, sans coûts ni état financier. Aucune clé privilégiée n'est ajoutée au frontend.
 
 Les migrations additives du 15 octobre s'appliquent dans l'ordre du dépôt après celles du 13 octobre. Les tests serveur `sales-dossier-db`, `sales-workspace-db`, crédit, stock/TMS, comptabilité et portail tournent sur des bases isolées ; `sales-concurrency.test.cjs` utilise deux connexions PostgreSQL 17 dans GitHub Actions. Les tests navigateur couvrent les cinq onglets, les prix manuels, les options, l'ajout multiple, la navigation et les formats FR/ES/EN sur téléphone. Voir [déploiement et retour arrière](../development/sales-dossier-rollout.md) pour les preuves de livraison et les limites.
+
+## Journal et messagerie des commandes
+
+Les commandes clients utilisent désormais le [volet de suivi partagé](order-followup.md) : statut, auteur/date des actions, notes et mails rattachés au dossier. La connexion Gmail ou Microsoft par utilisateur remplace la simple ouverture d’un brouillon pour ce nouveau parcours ; elle nécessite la configuration du fournisseur et le consentement de chaque utilisateur.

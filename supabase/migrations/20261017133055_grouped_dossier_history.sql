@@ -47,10 +47,23 @@ begin
    links:=links||jsonb_build_array(jsonb_build_object('module','accounting','action','supplier_invoice','id',invoice_id,'reference',doc_reference));
   elsif tbl='supplier_invoice_payments' and private.erp_module_allowed('accounting',array['administrador','comercial']) then
    links:=links||jsonb_build_array(jsonb_build_object('module','accounting','action','supplier_invoice','id',after_data->>'supplier_invoice_id','reference',p_reference));
+  elsif tbl='supplier_invoice_matches' and private.erp_module_allowed('accounting',array['administrador','comercial']) then
+   links:=links||jsonb_build_array(jsonb_build_object('module','accounting','action','supplier_invoice','id',after_data->>'invoice_id','reference',p_reference));
   elsif tbl in ('external_invoices','external_invoice_payments') and private.erp_module_allowed('payments',array['administrador','comercial']) then
    invoice_id:=case when tbl='external_invoices' then (after_data->>'id')::uuid else (after_data->>'invoice_id')::uuid end;
    links:=links||jsonb_build_array(jsonb_build_object('module','payments','action','invoice','id',invoice_id,'reference',p_reference));
+  elsif tbl='customer_requests' and private.erp_module_allowed('customer-requests',array['administrador','comercial']) then
+   links:=links||jsonb_build_array(jsonb_build_object('module','customer-requests','action','request','id',after_data->>'id','reference',p_reference));
+  elsif tbl='crm_opportunities' and private.erp_module_allowed('crm',array['administrador','comercial']) then
+   links:=links||jsonb_build_array(jsonb_build_object('module','crm','action','opportunity','id',after_data->>'id','reference',p_reference));
   end if;
+ elsif prefix='request-created' and private.erp_module_allowed('customer-requests',array['administrador','comercial']) then
+  links:=links||jsonb_build_array(jsonb_build_object('module','customer-requests','action','request','id',eid,'reference',p_reference));
+ elsif prefix='opportunity-created' and private.erp_module_allowed('crm',array['administrador','comercial']) then
+  links:=links||jsonb_build_array(jsonb_build_object('module','crm','action','opportunity','id',eid,'reference',p_reference));
+ elsif prefix in ('credit-created','refund-created') and private.erp_module_allowed('returns',array['administrador','comercial','almacenero']) then
+  if prefix='credit-created' then select c.return_id into entity from public.return_credits c where c.id=eid;else select f.return_id into entity from public.return_refunds f where f.id=eid;end if;
+  if entity is not null then links:=links||jsonb_build_array(jsonb_build_object('module','returns','action','return','id',entity,'reference',p_reference));end if;
  elsif prefix in ('delivery','proof') then
   if prefix='delivery' then select e.delivery_id into delivery_id from public.tms_events e where e.id=eid;else delivery_id:=eid;end if;
  elsif prefix in ('payment-created','supplier-payment-created') then

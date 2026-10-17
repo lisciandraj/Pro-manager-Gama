@@ -85,6 +85,15 @@
 .cocoDossierMain .gp14Actions{flex-wrap:wrap}
 /* A grid column does not collapse the sheet margin with its module header. */
 .cocoDossierMain>.gqListCard{margin-top:0}
+.arcContent.cocoHasModuleHistory{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:18px;align-items:start}
+.cocoGlobalHistory{min-width:0;position:sticky;top:100px}.cocoSettingsHistory{margin-top:24px;min-width:0}
+.cocoHasModuleHistory .atFilters{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.cocoSettingsHistory .cocoFollowupTimeline{max-height:45vh}.cocoModuleProposal label{display:block;font-size:12px;font-weight:600;min-width:0}
+.cocoModuleProposal input,.cocoModuleProposal select,.cocoModuleProposal textarea{display:block;width:100%;box-sizing:border-box;padding:9px;border:1px solid var(--arc-line);border-radius:6px;background:var(--arc-surface);color:var(--arc-text);margin-top:4px}
+.cocoModuleProposal [data-module-fields]{margin:16px 0}.cocoLedgerLines{grid-column:1/-1}.cocoLedgerLines fieldset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;border:1px solid var(--arc-line);border-radius:8px;margin:12px 0;padding:12px}
+@media(max-width:1100px){.arcContent.cocoHasModuleHistory{grid-template-columns:minmax(0,1fr) minmax(280px,310px);gap:12px}}
+@media(max-width:900px){.arcContent.cocoHasModuleHistory{display:block;padding-bottom:90px}.cocoGlobalHistory{position:static}.cocoSettingsHistory .cocoFollowup{position:static;width:100%;box-shadow:none}.cocoSettingsHistory .cocoFollowup[open]{height:60dvh;position:relative;top:auto}.cocoSettingsHistory .cocoFollowup>summary{height:64px}.cocoSettingsHistory .cocoFollowupBody{position:absolute;inset:64px 0 0}.cocoLedgerLines fieldset{grid-template-columns:minmax(0,1fr)}}
+@media print{.cocoGlobalHistory,.cocoSettingsHistory{display:none}.arcContent.cocoHasModuleHistory{display:block}}
 /* Close the phone drawer in CSS while Safari delivers its media-query event. */
 @media(max-width:900px){.cocoFollowup:not(.is-mobile-open)>.cocoFollowupBody{display:none}}
 /* Keep the table tools on one compact row beside a dossier discussion. */

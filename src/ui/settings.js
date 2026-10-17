@@ -145,6 +145,7 @@ function show(section){
  if(host&&(!host.dataset.cfgMounted||section.pane==='users')){host.dataset.cfgMounted='1';PANES[section.pane]?.(host)}
  // La ficha de la empresa es una: cada apartado enseña sólo sus tarjetas.
  el.querySelector('[data-side-pane="company"]')?.setAttribute('data-co-view',section.id);
+ window.ArcLoadScript('coco-module-history.js').then(()=>window.dispatchEvent(new CustomEvent('coco:settings-history',{detail:{id:SECTIONS.find(s=>s.id===section.id)?.module||'settings',root:el.querySelector(`[data-side-pane="${section.pane}"]`)}}))).catch(()=>{});
 }
 function openDialog(section='language'){
  const admin=isAdmin(),items=SECTIONS.filter(available);

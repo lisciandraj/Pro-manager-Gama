@@ -1,6 +1,6 @@
 # Relais ChatGPT pour les mails et propositions ERP
 
-Depuis la migration `20261017103243_dossier_chatgpt_followup`, les connexions OAuth mail dans Coco sont retirées. Ne plus configurer les anciens secrets `COCO_GOOGLE_*`, `COCO_MICROSOFT_*` et `COCO_MAIL_ENCRYPTION_KEY` pour ce parcours. Le callback est désactivé et les anciens jetons conservés en base sont supprimés, sans effacer les archives métier.
+Depuis la migration `20261017113550_dossier_chatgpt_followup`, les connexions OAuth mail dans Coco sont retirées. Ne plus configurer les anciens secrets `COCO_GOOGLE_*`, `COCO_MICROSOFT_*` et `COCO_MAIL_ENCRYPTION_KEY` pour ce parcours. Le callback est désactivé et les anciens jetons conservés en base sont supprimés, sans effacer les archives métier.
 
 ## Activation d’une boîte
 

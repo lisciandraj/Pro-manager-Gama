@@ -64,8 +64,8 @@ test('accounting audit: ledger cash, recovery, bank workflow, rights, analytics,
    const found=await audit('context',{stock_search:'AUDIT-CATALOGUE-1101'});assert.equal(found.stock_product_total,1);assert.equal(found.stock_products[0].name,'Catalogue 1101');
   });
   await t.test('KPI include manual expenses and match the profit and loss ledger on the same period',async()=>{
-   // Overview uses the database clock; compare both reports on that same period.
-   const clock=(await q("select current_date::text today,date_trunc('month',current_date)::date::text month_start,(current_date-interval '1 month')::date::text previous_to")).rows[0];
+   // Overview follows the company calendar, which can differ from the runner's UTC date.
+   const clock=(await q("with clock as (select (now() at time zone private.erp_timezone())::date today) select today::text,date_trunc('month',today)::date::text month_start,(today-interval '1 month')::date::text previous_to from clock")).rows[0];
    await book(clock.today,[{account_id:expense,debit:20},{account_id:bankAccount,financial_account_id:bank,credit:20}]);
    const overview=await base('overview'),pl=await base('report_pl',{from:clock.month_start,to:clock.today});assert.equal(overview.expense.month,pl.expense);assert.equal(overview.revenue.month,pl.income);assert.equal(overview.basis,'ledger');assert.equal(overview.previous_to,clock.previous_to);
   });

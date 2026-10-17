@@ -1,6 +1,6 @@
-# Discussion et suivi des dossiers
+# Historique et suivi des dossiers
 
-Les modules Ventes, Achats et TMS affichent une discussion **à droite**. Sur téléphone, le même volet s’ouvre depuis son bandeau fixé en bas à droite. Les couleurs Coco sont conservées. Les fiches devis, commandes clients et commandes fournisseurs montrent leurs notes et événements. Le TMS dispose d’un sélecteur de livraison et d’une boîte de propositions du module. Les listes de devis et commandes et le module Achats présentent aussi les propositions qui n’ont pas encore de dossier.
+Les modules Ventes, Achats et TMS affichent un volet **à droite**, intitulé **Historique du module** dans les vues générales et **Historique du dossier** dans une fiche. Le titre suit le dossier sélectionné, y compris lors du choix d’une livraison dans le TMS. Sur téléphone, le même volet s’ouvre depuis son bandeau fixé en bas à droite. Les couleurs Coco sont conservées. Les fiches devis, commandes clients et commandes fournisseurs montrent leurs notes et événements. Le TMS dispose d’un sélecteur de livraison et d’une boîte de propositions du module. Les listes de devis et commandes et le module Achats présentent aussi les propositions qui n’ont pas encore de dossier.
 
 Sur téléphone, le volet ouvert utilise la hauteur visible, y compris lorsque le clavier réduit l’écran. Son bandeau et sa fermeture restent visibles ; les messages et notes défilent dans une seule zone, sans défilement imbriqué dans les bulles. Fermer puis rouvrir le volet conserve une note non enregistrée. La revue d’une proposition garde son en-tête et ses boutons de vérification, validation et annulation visibles pendant le défilement du contenu.
 

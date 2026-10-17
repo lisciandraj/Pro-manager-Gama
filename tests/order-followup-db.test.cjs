@@ -28,6 +28,14 @@ test('dossier discussion preserves history, retires mailbox OAuth and requires h
    await assert.rejects(q('select * from private.coco_mail_proposals'),/permission denied/);
    await actor(ids.admin,'service_role');await assert.rejects(one('select public.coco_order_mail_service($1,$2)',['account',JSON.stringify({user_id:ids.admin})]),/permission denied/);await bridge('enable',{});await actor(ids.admin);
   });
+  await t.test('actions requested in ChatGPT retain their real source in the existing module and dossier panel',async()=>{
+   await actor(ids.admin,'service_role');
+   const data={account_email:'bridge@example.invalid',module_id:'sales-orders',record_table:'sales_orders',record_id:ids.order,summary:'Action demandée depuis ChatGPT.',source:{type:'chat',id:'real-chat-source',label:'Demande ChatGPT',received_at:new Date().toISOString()}};
+   await one('select public.coco_assistant_bridge($1,$2::jsonb)',['record',JSON.stringify(data)]);await actor(ids.admin);
+   const dossier=await rpc('list',base),module=await rpc('list',inbox);
+   assert(dossier.history.some(x=>x.source_id==='real-chat-source'&&x.links.some(l=>l.module==='sales-orders'&&l.id===ids.order)));
+   assert(module.history.some(x=>x.source_id==='real-chat-source'));
+  });
   await t.test('transaction siblings group before paging and keep scoped product quantities and module links',async()=>{
    await db.exec('reset role');
    await q("insert into sales_events(order_id,action,actor_id,created_at,detail) select $1,'receipt_auto_reserved',$2,'2026-10-17T08:22:00.123456Z',jsonb_build_object('product_id',$3::text,'quantity',1) from generate_series(1,60)",[ids.order,ids.admin,ids.product]);

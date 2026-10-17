@@ -369,14 +369,16 @@ begin
  if p_action<>'list' then raise exception 'INVALID_ACTION';end if;
  if off<0 or off>1000000 then raise exception 'INVALID_OFFSET';end if;
  with visible as materialized(
-  select * from private.coco_module_events where module_id=m
+  select * from private.coco_module_events e where module_id=m
+   and (not coalesce((p_data->>'annotations_only')::boolean,false) or e.action='source_linked' or e.type in ('note','proposal') or e.proposal_id is not null)
+   and (nullif(p_data->>'record_id','') is null or exists(select 1 from jsonb_array_elements(e.links) l where l->>'module'=m and l->>'id'=p_data->>'record_id'))
  ), grouped as (
   select min(id::text) id,max(created_at) at,actor_id,max(actor_name) actor_name,type,action,subject,body,source_type,source_id,source_label,source_email,proposal_id,
    count(*) action_count,jsonb_agg(references_list) refs,jsonb_agg(links) all_links
   from visible
-  group by case when type='action' and proposal_id is null then transaction_id::text else id::text end,actor_id,type,action,subject,body,source_type,source_id,source_label,source_email,proposal_id
+  group by case when type='action' and proposal_id is null then transaction_id::text else id::text end,record_table,actor_id,type,action,subject,body,source_type,source_id,source_label,source_email,proposal_id
  ), paged as (select *,count(*) over() total from grouped order by at desc,id offset off limit 50)
- select coalesce(jsonb_agg(jsonb_build_object('id',p.id,'at',p.at,'actor_id',p.actor_id,'actor_name',p.actor_name,'type',p.type,'action',p.action,'subject',p.subject,'body',p.body,
+ select coalesce(jsonb_agg(jsonb_build_object('id',p.id,'module_id',m,'at',p.at,'actor_id',p.actor_id,'actor_name',p.actor_name,'type',p.type,'action',p.action,'subject',p.subject,'body',p.body,
   'action_count',p.action_count,'source_type',p.source_type,'source_id',p.source_id,'source_label',p.source_label,'source_email',p.source_email,'proposal_id',p.proposal_id,'total',p.total,
   'references',(select coalesce(jsonb_agg(r),'[]') from jsonb_array_elements(p.refs) a cross join lateral jsonb_array_elements(a) r),
   'links',(select coalesce(jsonb_agg(distinct l),'[]') from jsonb_array_elements(p.all_links) a cross join lateral jsonb_array_elements(a) l where private.coco_module_allowed(l->>'module'))

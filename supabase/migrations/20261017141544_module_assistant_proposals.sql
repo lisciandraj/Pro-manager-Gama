@@ -304,7 +304,7 @@ begin
    and p.account_id=coalesce((select o.account_id from private.coco_module_proposals o where o.id=(e->>'proposal_id')::uuid),(e->>'actor_id')::uuid)
    and p.module_id<>m and private.coco_module_allowed(p.module_id)
   ),'[]'::jsonb)) order by h.n),'[]') from jsonb_array_elements(r->'history') with ordinality h(e,n)));
-  r:=jsonb_set(r,'{proposals}',(select coalesce(jsonb_agg(to_jsonb(p)-array['account_id','review','review_hash','reviewed_by','reviewed_at']),'[]') from private.coco_module_proposals p where p.module_id=m and
+  r:=jsonb_set(r,'{proposals}',(select coalesce(jsonb_agg((to_jsonb(p)-array['account_id','review','review_hash','reviewed_by','reviewed_at'])||jsonb_build_object('can_review',private.coco_module_reviewer(m))),'[]') from private.coco_module_proposals p where p.module_id=m and
    p.id in (select (x->>'proposal_id')::uuid from jsonb_array_elements(r->'history') x where x->>'proposal_id' is not null)));
  end if;
  if p_action in ('context','list') then
@@ -315,4 +315,26 @@ begin
 end $$;
 revoke all on function public.coco_module_history(text,jsonb) from public,anon;
 grant execute on function public.coco_module_history(text,jsonb) to authenticated;
+
+-- Keep the established dossier APIs while exposing new source annotations in
+-- their existing panel. Canonical sales/purchase/TMS actions are not duplicated.
+create or replace function public.coco_dossier(p_action text,p_data jsonb default '{}') returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare r jsonb;extra jsonb;items jsonb;m text;oid text:=p_data->>'order_id';
+begin
+ r:=private.coco_dossier(p_action,p_data);
+ if p_action<>'list' then return r;end if;
+ m:=case p_data->>'kind' when 'sales' then 'sales-orders' when 'quote' then 'quotes' when 'purchase' then 'gamaPurchasesV14' when 'tms' then 'tms' end;
+ if m is null or not private.coco_module_allowed(m) then return r;end if;
+ extra:=public.coco_module_history('list',jsonb_build_object('module_id',m,'annotations_only',true,'record_id',oid,'offset',coalesce((p_data->>'offset')::integer,0)));
+ select coalesce(jsonb_agg(e order by e->>'at' desc,e->>'id'),'[]') into items from jsonb_array_elements(extra->'history') e
+ where (e->>'action'='source_linked' or e->>'type' in ('note','proposal') or e->>'proposal_id' is not null)
+ and (oid is null or exists(select 1 from jsonb_array_elements(e->'links') l where l->>'module'=m and l->>'id'=oid));
+ r:=jsonb_set(r,'{history}',coalesce(r->'history','[]')||items);
+ r:=jsonb_set(r,'{proposals}',coalesce(r->'proposals','[]')||coalesce((select jsonb_agg(p) from jsonb_array_elements(extra->'proposals') p
+  where p->>'id' in (select e->>'proposal_id' from jsonb_array_elements(items) e)),'[]'));
+ return r;
+end $$;
+revoke all on function public.coco_dossier(text,jsonb) from public,anon;
+grant execute on function public.coco_dossier(text,jsonb) to authenticated;
 notify pgrst,'reload schema';

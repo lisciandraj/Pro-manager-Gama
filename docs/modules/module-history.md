@@ -1,6 +1,6 @@
 # Historique commun des modules
 
-Chaque module autorisé dispose du même historique : actions, notes et propositions Agent Coco, du plus récent au plus ancien. Le panneau est à droite sur ordinateur et s’ouvre en tiroir sur téléphone. Les rubriques de Configuration l’affichent dans leur fenêtre. Ventes, Achats et TMS conservent leur suivi de dossier existant.
+Chaque module autorisé dispose du même historique : actions, notes et propositions Agent Coco, du plus récent au plus ancien. Le panneau est à droite sur ordinateur et s’ouvre en tiroir sur téléphone. Les rubriques de Configuration l’affichent dans leur fenêtre. Ventes, Achats et TMS conservent leur suivi de dossier existant et affichent aussi les nouvelles annotations de source rattachées à leur module ou à leur enregistrement.
 
 Les nouvelles modifications métier sont indexées après leur réussite par les triggers de la base. Les lignes d’une même transaction, du même auteur et de la même action sont regroupées **avant** pagination. La bulle contient les références ; les premières sont visibles et les autres se déplient. Une simple consultation n’ajoute pas d’action. Les anciennes modifications ne sont pas antidatées ni reconstituées à partir d’hypothèses.
 

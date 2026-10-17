@@ -28,6 +28,20 @@ test('dossier discussion preserves history, retires mailbox OAuth and requires h
    await assert.rejects(q('select * from private.coco_mail_proposals'),/permission denied/);
    await actor(ids.admin,'service_role');await assert.rejects(one('select public.coco_order_mail_service($1,$2)',['account',JSON.stringify({user_id:ids.admin})]),/permission denied/);await bridge('enable',{});await actor(ids.admin);
   });
+  await t.test('transaction siblings group before paging and keep scoped product quantities and module links',async()=>{
+   await db.exec('reset role');
+   await q("insert into sales_events(order_id,action,actor_id,created_at,detail) select $1,'receipt_auto_reserved',$2,'2026-10-17T08:22:00.123456Z',jsonb_build_object('product_id',$3::text,'quantity',1) from generate_series(1,60)",[ids.order,ids.admin,ids.product]);
+   await q("insert into sales_events(order_id,action,actor_id,created_at,detail) values($1,'receipt_auto_reserved',$2,'2026-10-17T08:22:00.123457Z',jsonb_build_object('product_id',$4::text,'quantity',2)),($1,'receipt_auto_reserved',$3,'2026-10-17T08:22:00.123456Z',jsonb_build_object('product_id',$4::text,'quantity',3))",[ids.order,ids.admin,ids.other,ids.product]);
+   await actor(ids.admin);const data=await rpc('list',base),events=data.history.filter(x=>x.action==='receipt_auto_reserved');
+   assert.equal(events.length,3);const grouped=events.find(x=>x.action_count===60);assert(grouped);assert.equal(grouped.references.length,60);assert(grouped.references.every(x=>x.reference==='CHAT-A4'&&x.name==='Paper'&&x.quantity===1));
+   assert(grouped.links.some(x=>x.module==='warehouses'));assert(grouped.links.some(x=>x.action==='preparation'&&x.id===ids.order));assert(grouped.links.some(x=>x.action==='order'&&x.id===ids.order));assert.equal(grouped.total,3);assert.equal(grouped.detail,undefined);
+   assert.equal((await rpc('list',{...base,offset:50})).history.filter(x=>x.action==='receipt_auto_reserved').length,0);
+   // The original milestone API still returns individual audit events.
+   const original=await one('select public.gama_process_history($1,4,0)',['o:'+ids.order]);assert.equal(original.items.length,50);assert.equal(original.items[0].total,62);
+   await actor(ids.warehouse);const limited=await rpc('list',base);assert(limited.history.some(x=>x.action_count===60));assert(limited.history.every(x=>!x.links.some(l=>['payments','accounting'].includes(l.module))));
+   await assert.rejects(one('select private.coco_history_event_details($1,$2,$3,4,null)',['sale:'+uuid(),'o:'+ids.order,'receipt_auto_reserved']),/permission denied/);
+   await actor(ids.admin);
+  });
   let proposal;
   const mail={message_id:'gmail-message-1',thread_id:'thread-1',source_email:'customer@example.invalid',subject:'Devis papier',received_at:new Date().toISOString(),kind:'sales',target_kind:'quote',action:'quote_draft',summary:'Le client demande 3 paquets de papier.',payload:{customer_id:ids.customer,customer_name:'Costa Azul',lines:[{product_id:ids.product,description:'Paper',quantity:3}]}};
   await t.test('mail ingestion creates only a pending note and never a quote or order',async()=>{

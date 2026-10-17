@@ -42,7 +42,7 @@ begin
   if p_id is null and private.tms_scope()='driver' then raise exception 'TMS_ACCESS_DENIED';end if;
   commercial:=private.tms_scope() in ('dispatcher','manager');
  else
-  if not private.erp_module_allowed(mod,array['administrador','comercial','almacenero']) and not
+  if not private.erp_module_allowed(mod,case when p_kind='quote' then array['administrador','comercial'] else array['administrador','comercial','almacenero'] end) and not
    (p_id is null and p_kind='sales' and private.erp_module_allowed('quotes',array['administrador','comercial'])) then raise exception 'ROLE_NOT_ALLOWED';end if;
   commercial:=private.erp_module_allowed(mod,array['administrador','comercial']) or p_id is null and p_kind='sales' and private.erp_module_allowed('quotes',array['administrador','comercial']);
  end if;
@@ -211,9 +211,9 @@ grant execute on function public.coco_dossier(text,jsonb) to authenticated;
 -- only pending proposals. It never executes an ERP business action or sets JWTs.
 create function private.coco_mail_bridge(p_action text,p_data jsonb) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare uid uuid;mailbox text:=lower(btrim(p_data->>'mailbox_email'));sender text:=lower(btrim(p_data->>'source_email'));prop private.coco_mail_proposals;new_entry uuid;payload jsonb;target uuid;kind text;target_kind text;matches jsonb;
+declare uid uuid;mailbox text:=lower(btrim(p_data->>'mailbox_email'));sender text:=lower(btrim(p_data->>'source_email'));prop private.coco_mail_proposals;new_entry uuid;payload jsonb;target uuid;kind text;target_kind text;matches jsonb;dossiers jsonb;target_email text;
 begin
- select u.id into uid from auth.users u join public.profiles p on p.id=u.id where lower(u.email)=mailbox and p.active and p.role in ('administrador','comercial') and (u.banned_until is null or u.banned_until<now());
+ select u.id into uid from auth.users u join public.profiles p on p.id=u.id where lower(u.email)=mailbox and p.active and p.deleted_at is null and p.role in ('administrador','comercial') and (u.banned_until is null or u.banned_until<now());
  if uid is null then raise exception 'MAILBOX_ACCOUNT_NOT_FOUND';end if;
  if p_action='enable' then
   insert into private.coco_mail_bridge_accounts(user_id,email,enabled) values(uid,mailbox,true) on conflict(user_id) do update set enabled=true,email=excluded.email;
@@ -223,7 +223,13 @@ begin
  if p_action='context' then
   select coalesce(jsonb_agg(jsonb_build_object('kind','customer','id',id,'name',name,'address',address)),'[]') into matches from public.customers where active and lower(btrim(customers.email))=sender;
   select matches||coalesce(jsonb_agg(jsonb_build_object('kind','supplier','id',id,'name',name)),'[]') into matches from public.suppliers where active and lower(btrim(suppliers.email))=sender;
-  return jsonb_build_object('contacts',matches,'products',(select coalesce(jsonb_agg(x),'[]') from (select id,name,reference,base_unit from public.products where active and length(coalesce(p_data->>'search',''))>=2 and (name ilike '%'||(p_data->>'search')||'%' or reference ilike '%'||(p_data->>'search')||'%') order by name,id limit 25) x),'existing',(select jsonb_build_object('id',id,'status',status) from private.coco_mail_proposals where mailbox_user=uid and message_id=p_data->>'message_id'));
+  select coalesce(jsonb_agg(x),'[]') into dossiers from (
+   select 'sales'::text kind,o.id,o.number reference,c.name party from public.sales_orders o join public.customers c on c.id=o.customer_id where lower(btrim(c.email))=sender and p_data->>'reference' in (o.number,o.erp_reference)
+   union all select 'quote',q.id,q.invoice_number,c.name from public.invoices q join public.customers c on c.id=q.customer_id where lower(btrim(c.email))=sender and p_data->>'reference' in (q.invoice_number,to_jsonb(q)->>'erp_reference')
+   union all select 'purchase',o.id,o.order_number,c.name from public.purchase_orders o join public.suppliers c on c.id=o.supplier_id where lower(btrim(c.email))=sender and p_data->>'reference' in (o.order_number,o.erp_reference)
+   union all select 'tms',d.id,d.erp_reference,c.name from public.tms_deliveries d left join public.sales_deliveries s on s.tms_delivery_id=d.id left join public.sales_orders o on o.id=s.order_id join public.customers c on c.id=coalesce(d.customer_id,o.customer_id) where lower(btrim(c.email))=sender and p_data->>'reference' in (d.erp_reference,s.number)
+  ) x;
+  return jsonb_build_object('contacts',matches,'dossiers',dossiers,'products',(select coalesce(jsonb_agg(x),'[]') from (select id,name,reference,base_unit from public.products where active and length(coalesce(p_data->>'search',''))>=2 and (name ilike '%'||(p_data->>'search')||'%' or reference ilike '%'||(p_data->>'search')||'%') order by name,id limit 25) x),'existing',(select jsonb_build_object('id',id,'status',status) from private.coco_mail_proposals where mailbox_user=uid and message_id=p_data->>'message_id'));
  elsif p_action='propose' then
   if coalesce(p_data->>'message_id','')='' or sender!~'^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$' or length(coalesce(p_data->>'summary','')) not between 1 and 10000 then raise exception 'INVALID_MESSAGE';end if;
   kind:=p_data->>'kind';target_kind:=coalesce(p_data->>'target_kind',kind);target:=nullif(p_data->>'target_id','')::uuid;payload:=coalesce(p_data->'payload','{}');
@@ -231,6 +237,13 @@ begin
   if jsonb_typeof(payload) is distinct from 'object' or (kind='sales' and target_kind not in ('sales','quote')) or (kind in ('purchase','tms') and kind<>target_kind) then raise exception 'INVALID_PROPOSAL';end if;
   if (p_data->>'action')='quote_draft' and (kind<>'sales' or target is not null) then raise exception 'INVALID_PROPOSAL';end if;
   if target is not null and not (case target_kind when 'sales' then exists(select 1 from public.sales_orders where id=target) when 'quote' then exists(select 1 from public.invoices where id=target) when 'purchase' then exists(select 1 from public.purchase_orders where id=target) when 'tms' then exists(select 1 from public.tms_deliveries where id=target) else false end) then raise exception 'ORDER_NOT_FOUND';end if;
+  if target is not null then
+   if target_kind='sales' then select c.email into target_email from public.sales_orders o join public.customers c on c.id=o.customer_id where o.id=target;
+   elsif target_kind='quote' then select c.email into target_email from public.invoices o join public.customers c on c.id=o.customer_id where o.id=target;
+   elsif target_kind='purchase' then select c.email into target_email from public.purchase_orders o join public.suppliers c on c.id=o.supplier_id where o.id=target;
+   else select c.email into target_email from public.tms_deliveries d left join public.sales_deliveries s on s.tms_delivery_id=d.id left join public.sales_orders o on o.id=s.order_id join public.customers c on c.id=coalesce(d.customer_id,o.customer_id) where d.id=target;end if;
+   if lower(btrim(target_email)) is distinct from sender then raise exception 'MAIL_TARGET_MISMATCH';end if;
+  end if;
   insert into private.coco_mail_proposals(mailbox_user,message_id,thread_id,source_email,source_subject,received_at,kind,target_kind,target_id,action,summary,payload)
    values(uid,p_data->>'message_id',p_data->>'thread_id',sender,left(coalesce(p_data->>'subject',''),300),(p_data->>'received_at')::timestamptz,kind,target_kind,target,p_data->>'action',p_data->>'summary',payload)
    on conflict(mailbox_user,message_id) do nothing returning * into prop;

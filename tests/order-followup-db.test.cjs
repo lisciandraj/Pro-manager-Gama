@@ -16,7 +16,7 @@ test('dossier discussion preserves history, retires mailbox OAuth and requires h
   await q("insert into products(id,name,reference,barcode,sale_price,purchase_price,tax_rate,base_unit) values($1,'Paper','CHAT-A4','CHAT-A4',10,4,15,'Unidad')",[ids.product]);
   await q("insert into sales_orders(id,customer_id,customer_name,created_by,request_key,status) values($1,$2,'Costa Azul',$3,gen_random_uuid(),'draft')",[ids.order,ids.customer,ids.admin]);
   await q("insert into purchase_orders(id,supplier_id,order_number,status,created_by) values($1,$2,'CHAT-PO','draft',$3)",[ids.purchase,ids.supplier,ids.admin]);
-  await db.exec('set session_replication_role=replica');await q("insert into tms_deliveries(id,customer,address,status,created_by) values($1,'Costa Azul','Quito','Pendiente de preparación',$2)",[ids.delivery,ids.admin]);await db.exec('set session_replication_role=origin');
+  await db.exec('set session_replication_role=replica');await q("insert into tms_deliveries(id,customer,address,status,created_by,customer_id) values($1,'Costa Azul','Quito','Pendiente de preparación',$2,$3)",[ids.delivery,ids.admin,ids.customer]);await db.exec('set session_replication_role=origin');
   await q("insert into hr_employees(full_name,profile_id,photo_data) values('Alice',$1,'data:image/png;base64,AA=='),('Other',$2,'data:image/png;base64,AA==')",[ids.admin,ids.other]);
   await actor(ids.admin);
   await t.test('notes are attributed and idempotent; old mailbox access is removed',async()=>{
@@ -31,8 +31,8 @@ test('dossier discussion preserves history, retires mailbox OAuth and requires h
   let proposal;
   const mail={message_id:'gmail-message-1',thread_id:'thread-1',source_email:'customer@example.invalid',subject:'Devis papier',received_at:new Date().toISOString(),kind:'sales',target_kind:'quote',action:'quote_draft',summary:'Le client demande 3 paquets de papier.',payload:{customer_id:ids.customer,customer_name:'Costa Azul',lines:[{product_id:ids.product,description:'Paper',quantity:3}]}};
   await t.test('mail ingestion creates only a pending note and never a quote or order',async()=>{
-   await actor(ids.admin,'service_role');const context=await bridge('context',{source_email:mail.source_email,search:'CHAT-A4'});assert.equal(context.contacts[0].id,ids.customer);assert.equal(context.products[0].id,ids.product);
-   const before=await one('select count(*) from invoices');proposal=await bridge('propose',mail);assert.equal(proposal.status,'pending');assert.equal((await bridge('propose',mail)).duplicate,true);assert.equal(await one('select count(*) from invoices'),before);
+   await actor(ids.admin,'service_role');const context=await bridge('context',{source_email:mail.source_email,search:'CHAT-A4'});assert.equal(context.contacts[0].id,ids.customer);assert.equal(context.products[0].id,ids.product);const reference=await one('select order_number from public.purchase_orders where id=$1',[ids.purchase]);const dossier=await bridge('context',{source_email:'supplier@example.invalid',reference});assert.equal(dossier.dossiers[0].id,ids.purchase);assert.equal((await bridge('context',{source_email:mail.source_email,reference})).dossiers.length,0);
+   await assert.rejects(bridge('propose',{...mail,message_id:'wrong-dossier',kind:'purchase',target_kind:'purchase',target_id:ids.purchase,action:'record_note'}),/MAIL_TARGET_MISMATCH/);const before=await one('select count(*) from invoices');proposal=await bridge('propose',mail);assert.equal(proposal.status,'pending');assert.equal((await bridge('propose',mail)).duplicate,true);assert.equal(await one('select count(*) from invoices'),before);
    await actor(ids.admin);const data=await rpc('list',inbox);assert(data.entries.some(x=>x.actor_name==='ChatGPT'&&x.type==='note'));assert.equal(data.proposals[0].status,'pending');
   });
   let result;
@@ -47,7 +47,7 @@ test('dossier discussion preserves history, retires mailbox OAuth and requires h
   });
   await t.test('shared notes and refusal work for purchases and TMS, respecting module rights',async()=>{
    for(const kind of ['purchase','tms']){
-    const order_id=ids[kind==='purchase'?'purchase':'delivery'];await actor(ids.admin,'service_role');const r=await bridge('propose',{...mail,message_id:'mail-'+kind,kind,target_kind:kind,target_id:order_id,action:'record_note',summary:'Confirmer le rendez-vous par téléphone',payload:{}});await actor(ids.admin);
+    const order_id=ids[kind==='purchase'?'purchase':'delivery'];await actor(ids.admin,'service_role');const r=await bridge('propose',{...mail,source_email:kind==='purchase'?'supplier@example.invalid':mail.source_email,message_id:'mail-'+kind,kind,target_kind:kind,target_id:order_id,action:'record_note',summary:'Confirmer le rendez-vous par téléphone',payload:{}});await actor(ids.admin);
     const data={kind,order_id,proposal_id:r.id};assert.equal((await rpc('list',data)).proposals[0].status,'pending');await rpc('reject_proposal',data);assert.equal((await rpc('list',data)).proposals[0].status,'rejected');
    }
    await actor(ids.admin);const manual={kind:'purchase',order_id:ids.purchase,request_key:uuid(),body:'Confirmed by telephone'};const placed=await one('select public.coco_order_followup($1,$2)',['purchase_manual_sent',JSON.stringify(manual)]);assert.equal((await one('select public.coco_order_followup($1,$2)',['purchase_manual_sent',JSON.stringify(manual)])).id,placed.id);

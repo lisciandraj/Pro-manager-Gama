@@ -6,10 +6,10 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
-logo = Image.open(BRAND / "coco-erp-logo-approved-20261016.jpeg").convert("RGB")
+logo = Image.open(BRAND / "coco-erp-logo-approved-20261017.png").convert("RGB")
 icon = Image.open(BRAND / "coco-erp-icon-approved-20261016.jpeg").convert("RGB")
 
-# Trim only the white presentation margin; retain all blue and orange artwork.
+# Trim only the white presentation margin; retain the approved blue relief.
 mask = Image.new("L", logo.size)
 mask.putdata([255 if max(p) - min(p) > 45 else 0 for p in logo.getdata()])
 left, top, right, bottom = mask.getbbox()

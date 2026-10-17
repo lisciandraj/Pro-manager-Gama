@@ -17,7 +17,7 @@ test('approved logo, responsive grid, translated labels and truthful metrics',as
  await expect(page.locator('#mainmenu .gamaF2Kpi, #mainmenu #arcKpiCustomize')).toHaveCount(0);
  const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo img').naturalWidth/document.querySelector('.arcLogo img').naturalHeight*10)/10}));
  // The compact home fits all 24 modules into four rows on desktop.
- expect(layout).toEqual({columns:6,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.8});
+ expect(layout).toEqual({columns:6,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.7});
  await page.setViewportSize({width:1279,height:1000});await page.waitForTimeout(250);
  const estrecho=await page.evaluate(()=>getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length);
  expect(estrecho,'the compact desktop grid keeps labels readable at 1279px').toBe(6);
@@ -25,7 +25,7 @@ test('approved logo, responsive grid, translated labels and truthful metrics',as
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
  // The approved source is preserved byte-for-byte; display exports trim only white margins.
- const logo=await page.request.get('/assets/brand/coco-erp-logo-approved-20261016.jpeg');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('9a9fa3cbecd5184a3b804bdc1b814a43507de3cdb734593b1b7e1f904b6e4d00');
+ const logo=await page.request.get('/assets/brand/coco-erp-logo-approved-20261017.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('ae1d736f07ab5a8bf915e6051bf707a0996031b3d35296715ea528f35f79f1d3');
  // The current dashboard keeps the four personal indicators in its disclosure.
  await page.evaluate(()=>showTab('dashboard'));
  await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);

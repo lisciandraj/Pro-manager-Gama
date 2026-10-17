@@ -30,6 +30,14 @@ El número del expediente es el del proceso. En «Seguimiento de procesos» la
 venta se muestra como `PDV-00001246` y la compra como `PDC-00001330`: el
 acrónimo del proceso y el número que llevan todos sus documentos.
 
+La reserva de stock de un pedido se muestra una sola vez en la etapa
+«Reserva de stock y preparación», con la referencia común del proceso
+(`RES-00001246`, o el prefijo configurado). Sus productos, ubicaciones y
+reservas parciales forman el detalle del mismo pedido, al que abre el enlace.
+Los identificadores emitidos por fila se conservan para la trazabilidad, sin
+añadir otra referencia visible por producto. Preparaciones y paquetes
+mantienen sus enlaces propios. Esto se aplica también a los pedidos existentes.
+
 Desde septiembre de 2026 la compra entra en el mismo registro. El pedido de
 compra abre su expediente; la factura del proveedor entra en el de su pedido
 y el pago en el de su factura: `OCO-`, `FPR-` y `PPR-00001330`. Una factura de

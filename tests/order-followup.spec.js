@@ -6,6 +6,29 @@ test('sales history is a right-hand discussion with author portraits and each do
 test('notes remain escaped, attributed and shared without a mailbox connection',async({page})=>{
  await boot(page,{connected:false});await page.locator('[data-compose-note]').click();await page.locator('.cocoFollowupForm textarea').fill('Appel effectué <img src=x onerror=alert(1)>');await page.locator('.cocoFollowupForm button[type=submit]').click();await expect(page.locator('.cocoFollowupTimeline')).toContainText('Appel effectué <img');expect(await page.evaluate(()=>window.__mailCalls.length)).toBe(0);await expect(page.locator('[data-connect],[data-mailbox],[data-compose-mail]')).toHaveCount(0);
 });
+for(const kind of ['sales','purchase','tms'])test(`${kind} history shows newest actions and notes first after filtering and refreshing`,async({page})=>{
+ await boot(page,{kind});
+ await page.evaluate(()=>{window.__entries=[
+  {id:'middle',type:'note',actor_name:'Alice',body:'Middle note',created_at:'2026-10-18T12:00:00Z'},
+  {id:'newest',type:'action',subject:'order_updated',actor_name:'Alice',body:'["status"]',created_at:'2026-10-19T12:00:00Z'},
+  {id:'older',type:'note',actor_name:'Alice',body:'Older note',created_at:'2026-10-17T12:00:00Z'}
+ ]});
+ const panel=page.locator(kind==='purchase'?'.cocoPurchaseWorkspace .cocoFollowup':'.cocoFollowup');
+ await panel.locator('[data-refresh]').click();
+ const times=()=>panel.locator('.cocoFollowupTimeline time').evaluateAll(nodes=>nodes.map(n=>n.dateTime));
+ await expect.poll(times).toEqual(['2026-10-19T12:00:00Z','2026-10-18T12:00:00Z','2026-10-17T12:00:00Z','2026-10-16T12:00:00Z']);
+ await panel.locator('[data-filter=notes]').click();await expect.poll(times).toEqual(['2026-10-18T12:00:00Z','2026-10-17T12:00:00Z']);
+ await panel.locator('[data-filter=actions]').click();await expect.poll(times).toEqual(['2026-10-19T12:00:00Z','2026-10-16T12:00:00Z']);
+ await panel.locator('[data-filter=all]').click();await panel.locator('[data-refresh]').click();await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(4);await expect.poll(times).toEqual(['2026-10-19T12:00:00Z','2026-10-18T12:00:00Z','2026-10-17T12:00:00Z','2026-10-16T12:00:00Z']);
+});
+test('purchase module history explains an automatic low-stock draft and opens the actual order',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,{kind:'purchase'});
+ await page.evaluate(()=>window.__entries.push({id:'automatic',kind:'purchase',order_id:null,type:'action',subject:'automatic_minmax_purchase',actor_id:'alice',actor_name:'Alice',body:'OC-000001 · Papelera Central',purchase_order_id:window.__DB.purchase_orders[0].id,replenishment:[{name:'Papier <A4>',reference:'PAP-01',quantity:35,on_hand:5,min_stock:10,max_stock:40}],created_at:'2026-10-17T12:00:00Z'}));
+ await page.locator('[data-coco-click="purchase-close"]').click();const panel=page.locator('.cocoFollowup:visible');await panel.locator('summary').first().click();await panel.locator('[data-refresh]').click();
+ const bubble=panel.locator('.cocoFollowupEvent').filter({hasText:'Brouillon d’achat automatique'});await expect(bubble).toContainText('OC-000001 · Papelera Central');await expect(bubble).toContainText('Stock inférieur au minimum');await expect(bubble).toContainText('Papier <A4> (PAP-01) · Quantité: 35 · Stock: 5 · Minimum: 10 · Maximum: 40');await expect(bubble.locator('.cocoFollowupWho strong')).toHaveText('Alice');await expect(bubble.locator('.cocoFollowupAvatar img')).toHaveCount(1);
+ await panel.locator('[data-filter=actions]').click();await expect(bubble).toBeVisible();await bubble.locator('[data-open-purchase]').scrollIntoViewIfNeeded();await expect(bubble.locator('[data-open-purchase]')).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:'test-results/followup-automatic-purchase-mobile.png'});
+ await bubble.locator('[data-open-purchase]').click();await expect(page.locator('.cocoPurchaseWorkspace .cocoFollowupTitle')).toHaveText('Historique du dossier');await expect(page.locator('.gp14DetailHead')).toContainText('OC-000001');expect(await page.evaluate(()=>window.__DB.purchase_orders[0].status)).toBe('draft');
+});
 test('Agent Coco actions require a checked proposal and an explicit ERP approval',async({page})=>{
  await boot(page,{proposal:true});await page.locator('[data-review-proposal]').click();const d=page.locator('.cocoProposalDialog');await expect(d.locator('[type=submit]')).toBeDisabled();expect(await page.evaluate(()=>window.__decisions.length)).toBe(0);await d.locator('[data-check]').click();await expect(d.locator('[data-preview]')).toContainText('Costa Azul');await expect(d.locator('[type=submit]')).toBeEnabled();await d.locator('[type=submit]').click();await expect(d).toHaveCount(0);expect(await page.evaluate(()=>window.__decisions.length)).toBe(1);await expect(page.locator('[data-open-proposal]')).toBeVisible();
 });

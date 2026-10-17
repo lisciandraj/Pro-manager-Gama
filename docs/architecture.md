@@ -53,6 +53,8 @@ La recherche globale charge son moteur et ses adaptateurs au premier focus ou ra
 
 ## Données et accès
 
+L’écran de connexion distingue les identifiants incorrects, la limitation des tentatives et une indisponibilité serveur. Une erreur de lecture du profil ne désactive pas le compte et ne déclenche pas de déconnexion ; les droits ne sont ouverts qu’après validation d’un profil actif. Les lectures du profil partagent la requête en cours pour la session exacte et expirent après 15 secondes, afin de permettre une nouvelle tentative. Le clavier ne peut pas lancer une seconde connexion pendant une tentative en cours.
+
 Les droits réels restent contrôlés par la base et les fonctions serveur. Le menu n’est pas une frontière de sécurité. `ArcData` gère pagination, appels RPC, cache et invalidation ; `GamaCloud` reste le transport compatible des modules.
 Les mutations de stock invalident aussi les quantités par emplacement et les réservations. Un ancien chargement en erreur ne peut plus évincer une nouvelle entrée de cache après invalidation.
 

@@ -15,16 +15,16 @@ const active=new Set();let epoch=0;
 function error(e){const s=String(e?.message||e);if(/PROPOSAL_CHANGED|PROPOSAL_DECIDED/.test(s))return W('stale');if(/ROLE_NOT_ALLOWED|AUTH_OR_MFA_REQUIRED|TMS_ACCESS_DENIED|ACTION_NOT_ALLOWED/.test(s))return W('permissions');if(/REQUIRED|INVALID_LINES|PRODUCT_NOT_FOUND|INVALID_MESSAGE/.test(s))return W('invalid');return W('error')}
 async function rpc(action,data){const r=await window.ArcData.rawRpc('coco_dossier',{p_action:action,p_data:data},{read:['context','list'].includes(action)});if(r.error)throw r.error;if(!r.data)throw Error('FOLLOWUP_UNAVAILABLE');return r.data}
 const date=value=>new Date(value).toLocaleString(window.GamaI18n?.locale||undefined,{timeZone:window.GamaCompany?.get()?.timezone||'America/Guayaquil',dateStyle:'medium',timeStyle:'short'});
-function ensureStyle(){if(document.querySelector('link[data-coco-followup-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.dataset.cocoFollowupStyle='';l.href=window.ArcAssets?.['coco-order-followup.css']||'coco-order-followup.css';document.head.append(l)}
+function ensureStyle(){if(document.querySelector('link[data-coco-followup-style],link[href*="coco-order-followup.css"]'))return;const l=document.createElement('link');l.rel='stylesheet';l.dataset.cocoFollowupStyle='';l.href=window.ArcAssets?.['coco-order-followup.css']||'coco-order-followup.css';document.head.append(l)}
 function portrait(value){return typeof value==='string'&&value.length<=120000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)?value:''}
 async function openResult(result){if(result?.kind==='quote'&&result.id){await window.ArcRouter.open('quotes');return window.GamaQuotes.view(result.id)}}
 async function mount(host,base){
  if(!host?.isConnected)return;ensureStyle();for(const old of active)if(old.host===host)old.dispose();host.querySelector('.cocoFollowup')?.remove();
  const panel=document.createElement('details');panel.className='cocoFollowup';panel.open=window.innerWidth>900;
  panel.innerHTML=`<summary>${E(W('title'))}<span class="cocoFollowupBadge"></span></summary><div class="cocoFollowupBody"><div class="cocoFollowupTop"></div><div class="cocoFollowupStages"></div><div class="cocoFollowupComposer"></div><div class="cocoFollowupFilters" role="group" aria-label="${E(W('title'))}">${['all','actions','notes','proposals'].map((k,i)=>`<button type="button" data-filter="${k}" aria-pressed="${i===0}">${E(W(k))}</button>`).join('')}</div><div class="cocoFollowupNotice" role="status"></div><ol class="cocoFollowupTimeline"></ol><button type="button" class="arcButton secondary cocoFollowupMore" hidden>${E(W('more'))}</button></div>`;
- host.prepend(panel);const s={panel,base,host,epoch,context:null,items:new Map(),proposals:new Map(),portraits:{},offset:0,filter:'all',stage:0,loading:false,disposed:false,composer:null,serial:0};active.add(s);
+ host.prepend(panel);const compact=window.matchMedia('(max-width: 900px)'),resize=()=>{panel.open=!compact.matches};compact.addEventListener('change',resize);const s={panel,base,host,epoch,context:null,items:new Map(),proposals:new Map(),portraits:{},offset:0,filter:'all',stage:0,loading:false,disposed:false,composer:null,serial:0};active.add(s);
  const valid=()=>!s.disposed&&s.epoch===epoch&&panel.isConnected;
- s.dispose=()=>{s.disposed=true;clearInterval(s.timer);s.dialog?.close();s.dialog?.remove();s.panel.remove();active.delete(s)};
+ s.dispose=()=>{s.disposed=true;compact.removeEventListener('change',resize);clearInterval(s.timer);s.dialog?.close();s.dialog?.remove();s.panel.remove();active.delete(s)};
  s.notice=(msg,bad=false)=>{const n=panel.querySelector('.cocoFollowupNotice');n.textContent=msg;n.classList.toggle('is-error',bad)};
  const proposalBase=p=>p?.kind?{kind:p.target_id?p.target_kind:p.kind,order_id:p.target_id||null}:base;
  function draw(){

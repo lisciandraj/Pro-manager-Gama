@@ -50,6 +50,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: python3 scripts/build-i18n.py --catalog-only
       - run: npx playwright test tests/order-followup.spec.js tests/purchase-order-email.spec.js --workers=2
+      - run: npx playwright test tests/sales-module-tabs.spec.js tests/sales-orders.spec.js tests/tms-module.spec.js --grep "warehouse reaches|standard live search|warehouse role sees|failed detailed-map" --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:

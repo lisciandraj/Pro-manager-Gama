@@ -45,3 +45,6 @@
 #gamaPurchasesV14.cocoPurchaseSelected>.cocoDossierWorkspace>aside{display:none}
 .cocoTmsDossierSelect{display:block;font:600 12px var(--arc-font);margin-bottom:10px;color:var(--arc-text)}
 .cocoTmsDossierSelect select{width:100%;padding:9px;border:1px solid var(--arc-line);border-radius:6px;background:var(--arc-surface);color:var(--arc-text);margin-top:5px}
+
+@media(max-width:1250px){#gamaPurchasesV14 .cocoDossierMain .gp14Grid{grid-template-columns:minmax(0,1fr)!important}}
+.cocoDossierMain .gp14Actions{flex-wrap:wrap}

@@ -15,6 +15,17 @@ async function mount(root,data,refresh,{receive}={}){
  root.querySelectorAll('[data-driver-operations]').forEach(b=>b.onclick=run(async()=>{if(!navigator.onLine)throw Error(t('Conexión requerida','Connexion requise','Connection required'));await window.ArcLoadScript('gama-tms-delivery-operations.js');await window.GamaTmsOperations.open(b.dataset.driverOperations,refresh)}));
  root.querySelectorAll('[data-driver-manifest]').forEach(b=>b.onclick=run(async()=>{const docs=await Q().documents(b.dataset.driverManifest);await X().manifest(b.dataset.driverManifest,docs?.manifest)}));
  root.querySelectorAll('[data-driver-guide]').forEach(b=>b.onclick=run(()=>Q().guide(b.dataset.driverGuide)));
+ if(navigator.onLine&&window.ArcLoadScript&&window.ArcData&&data.deliveries.length){
+  const content=root.querySelector('.tmsDriver'),first=content.firstElementChild;
+  window.ArcLoadScript('coco-order-followup.js').then(async()=>{
+   if(!content.isConnected||content.firstElementChild!==first)return;
+   const id=next?.id||data.deliveries[0].id;await window.CocoFollowup.wrap(content,{kind:'tms',order_id:id});
+   const aside=content.querySelector(':scope>.cocoDossierWorkspace>aside');if(!aside)return;
+   const label=document.createElement('label');label.className='cocoTmsDossierSelect';label.textContent=t('Expediente','Dossier','Dossier');const select=document.createElement('select');select.setAttribute('aria-label',label.textContent);
+   select.innerHTML=data.deliveries.map(d=>`<option value="${E(d.id)}">${E(d.erp_reference||d.reference||'')} · ${E(d.customer)}</option>`).join('');select.value=id;
+   select.onchange=async()=>{await window.CocoFollowup.mount(aside,{kind:'tms',order_id:select.value});aside.querySelector('.cocoFollowupBody')?.prepend(label)};label.append(select);aside.querySelector('.cocoFollowupBody')?.prepend(label);
+  }).catch(()=>{});
+ }
  if(navigator.onLine&&data.routes.length)prepared(false).catch(e=>{if(root.contains(status))status.textContent=t('Preparación sin conexión pendiente: ','Préparation hors connexion en attente : ','Offline preparation pending: ')+X().error(e)});
 }
 window.CocoTmsDriverUI={mount};

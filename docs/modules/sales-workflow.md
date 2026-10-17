@@ -54,6 +54,6 @@ Les montants commandés et facturés restent distincts. Les factures brouillon s
 
 Les migrations additives du 15 octobre s'appliquent dans l'ordre du dépôt après celles du 13 octobre. Les tests serveur `sales-dossier-db`, `sales-workspace-db`, crédit, stock/TMS, comptabilité et portail tournent sur des bases isolées ; `sales-concurrency.test.cjs` utilise deux connexions PostgreSQL 17 dans GitHub Actions. Les tests navigateur couvrent les cinq onglets, les prix manuels, les options, l'ajout multiple, la navigation et les formats FR/ES/EN sur téléphone. Voir [déploiement et retour arrière](../development/sales-dossier-rollout.md) pour les preuves de livraison et les limites.
 
-## Journal et messagerie des commandes
+## Discussion et analyse des mails
 
-Les commandes clients utilisent désormais le [volet de suivi partagé](order-followup.md) : statut, auteur/date des actions, notes et mails rattachés au dossier. La connexion Gmail ou Microsoft par utilisateur remplace la simple ouverture d’un brouillon pour ce nouveau parcours ; elle nécessite la configuration du fournisseur et le consentement de chaque utilisateur.
+Les devis et commandes clients utilisent le [volet de discussion partagé à droite](order-followup.md) : étapes, statut, auteur/date, photo associée et notes. ChatGPT propose les actions issues des nouveaux mails dans cette discussion. La validation d’une demande de devis crée un seul brouillon avec les prix ERP, sans l’envoyer ou l’accepter. La connexion mail dans Supabase est retirée ; chaque boîte est connectée dans ChatGPT.

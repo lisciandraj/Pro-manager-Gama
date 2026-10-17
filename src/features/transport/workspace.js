@@ -15,6 +15,7 @@ let db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocumen
 let fetchedAt=0,auxAt=0,auxDay='',auxPending=null;
 let proofViewVersion=0;const gpsRequests=new Map();
 function proofGps(id){if(!gpsRequests.has(id))gpsRequests.set(id,new Promise(resolve=>{if(!navigator.geolocation)return resolve({status:'unavailable'});navigator.geolocation.getCurrentPosition(p=>resolve({status:'captured',lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy,at:new Date(p.timestamp).toISOString()}),e=>resolve({status:e.code===1?'denied':e.code===3?'timeout':'unavailable'}),{enableHighAccuracy:true,timeout:6000,maximumAge:0})}));return gpsRequests.get(id)}
+let followDeliveryId=null;
 let proofArchiveId=null,proofCache={},loaded=false,currentTab='today',selectedStage='planning',driverView=null,moveBusy=false,proofMetadataReady=false;
 /* ---- mapeo cloud → forma interna (se conserva la del V3 para no tocar la UI) ---- */
 /* Un recurso de reparto es un conductor de Flota con el vehículo que Flota le
@@ -257,7 +258,7 @@ window.addEventListener('gama:sales-change',()=>autoPlanning());
 window.addEventListener('gama:tms-config-change',()=>autoPlanning(true));
 window.addEventListener('gama:tms-change',()=>{if(currentTab==='today')reload('today').catch(e=>fail(e,'TMS'))});
 window.addEventListener('arc:route-leave',e=>{if(!['tms','gama-tms-section'].includes(e.detail?.id))return;planningEpoch++;mapObserver?.disconnect()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;fetchedAt=0;auxAt=0;auxPending=null;planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;followDeliveryId=null;fetchedAt=0;auxAt=0;auxPending=null;planningEpoch++;authEpoch++;currentTab="";loaded=false;proofCache={};gpsRequests.clear();proofArchiveId=null;driverView=null;proofMetadataReady=false;plan=null;mapPoint='all';mapRoute='all';mapZoom=null;mapView=null;mapObserver?.disconnect();document.getElementById('tDayMap')?.replaceChildren();document.getElementById('tMapPoints')?.replaceChildren();document.getElementById('tMapPoint')?.replaceChildren();const outside=document.getElementById('tMapOutside');if(outside){outside.removeAttribute('href');outside.hidden=true}db={deliveries:[],drivers:[],routes:[],archive:[],proofIndex:[],proofDocuments:{},counts:{},settings:{},employees:[],absences:[],customers:[]}});
 
 function downscale(file){
  return new Promise(resolve=>{
@@ -490,6 +491,18 @@ function render(){
  const po=x.querySelector('#tProofOne');if(po)po.onclick=()=>downloadProofCertificate(defaultProofId());
  const pm=x.querySelector('#tProofMail');if(pm)pm.onclick=()=>emailProofCertificate(defaultProofId());
  const sd=x.querySelector('#tSaveDepot');if(sd)sd.onclick=saveDepot;
+ mountDiscussion(x,followDeliveryId);
+}
+
+async function mountDiscussion(root,id=null){
+ const content=root.querySelector('.tms');if(!content)return;const first=content.firstElementChild;
+ try{await window.ArcLoadScript('coco-order-followup.js');if(!content.isConnected||content.firstElementChild!==first)return;
+  await window.CocoFollowup.wrap(content,{kind:'tms',order_id:id});const aside=content.querySelector(':scope>.cocoDossierWorkspace>aside');if(!aside)return;
+  const label=document.createElement('label');label.className='cocoTmsDossierSelect';label.textContent=window.CocoTmsDispatch.t('Expediente','Dossier','Dossier');
+  const select=document.createElement('select');select.setAttribute('aria-label',label.textContent);const options=[...new Map([...db.deliveries,...db.archive].map(d=>[d.id,d])).values()];
+  select.innerHTML='<option value="">'+esc(window.CocoTmsDispatch.t('Propuestas del módulo','Propositions du module','Module proposals'))+'</option>'+options.map(d=>`<option value="${esc(d.id)}">${esc(d.reference||d.date)} · ${esc(d.customer)}</option>`).join('');select.value=id||'';
+  select.onchange=async()=>{followDeliveryId=select.value||null;await window.CocoFollowup.mount(aside,{kind:'tms',order_id:followDeliveryId});aside.querySelector('.cocoFollowupBody')?.prepend(label)};label.append(select);aside.querySelector('.cocoFollowupBody')?.prepend(label);
+ }catch(e){console.warn('[Coco dossier]',e)}
 }
 function wazeUrl(stop){if(!validPoint(stop)&&!String(stop?.address||'').trim())return '';const q=new URLSearchParams({navigate:'yes',utm_source:'coco_erp'});if(validPoint(stop))q.set('ll',Number(stop.lat)+','+Number(stop.lng));else q.set('q',stop.address.trim());return 'https://www.waze.com/ul?'+q}
 function mapsUrl(r){const stops=routeStops(r),next=stops.find(d=>!d.isDepot&&!['Entregada','Cancelada'].includes(d.status))||stops.findLast(d=>d.isDepot);return next?wazeUrl(next):''}

@@ -19,6 +19,8 @@
 .cocoFollowupEvent{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;margin:12px 0;overflow-wrap:anywhere;padding-right:12px}
 .cocoFollowupAvatar{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--arc-info-bg);color:var(--arc-info);font-size:10px;font-weight:700;overflow:hidden}
 .cocoFollowupAvatar img{width:100%;height:100%;object-fit:cover}.cocoFollowupEvent[data-type=note] .cocoFollowupAvatar{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.cocoFollowupAvatar.is-agent{background:var(--arc-info-bg);box-shadow:inset 0 0 0 1px var(--arc-info-line)}
+.cocoFollowupAvatar.is-agent img{object-fit:contain;padding:1px;box-sizing:border-box}
 .cocoFollowupBubble{min-width:0;background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:2px 12px 12px;padding:10px}
 .cocoFollowupEvent.is-own{padding-right:0;padding-left:12px;grid-template-columns:minmax(0,1fr) 30px}.cocoFollowupEvent.is-own .cocoFollowupAvatar{grid-column:2;grid-row:1}.cocoFollowupEvent.is-own .cocoFollowupBubble{grid-column:1;grid-row:1;border-radius:12px 2px 12px 12px;border-color:var(--arc-info-line);background:var(--arc-info-bg)}
 .cocoFollowupWho{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:baseline}.cocoFollowupWho strong{font-size:12px}.cocoFollowupWho time{font-size:10px;color:var(--arc-text-muted)}

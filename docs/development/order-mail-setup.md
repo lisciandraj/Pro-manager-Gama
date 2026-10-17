@@ -47,3 +47,7 @@ Les nouveaux dépôts exigent une boîte activée, un compte actif et une adress
 ## Vérification et publication
 
 Exécuter les tests SQL isolés `order-followup-db.test.cjs`, le test d’endpoint retiré `order-mail.test.mjs`, les tests navigateur `order-followup.spec.js` et `purchase-order-email.spec.js`, puis les contrôles communs du dépôt. Déployer la migration et l’endpoint retiré, publier l’artefact compilé, vérifier le commit dans `coco-build.json` et activer le déclencheur seulement lorsque les façades existent en production. L’activation ne doit pas créer de mail ni de devis de démonstration dans les données réelles.
+
+## Avatar Agent Coco
+
+Les messages signés Agent Coco dans les historiques de module et de dossier utilisent le robot bleu et blanc `assets/agent-coco-avatar-20261017.webp`, avec transparence et ajustement dans le cadre rond sur ordinateur et téléphone. Les anciennes analyses signées ChatGPT sans auteur utilisateur sont affichées avec ce même avatar. Les autres auteurs conservent leur photo ou leurs initiales. Si le robot ne peut pas être chargé, les initiales AC restent visibles.

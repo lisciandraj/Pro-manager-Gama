@@ -16,7 +16,7 @@ Le déploiement ne connecte pas de nouvelles boîtes et ne copie aucune clé de 
 
 Appeler exclusivement la façade `public.coco_mail_bridge(p_action, p_data)` pour les dépôts. Ne pas modifier directement les tables métier ou les tables de suivi et ne jamais fabriquer de JWT ni de session d’utilisateur.
 
-`context` accepte `mailbox_email`, `source_email`, `message_id` et un `search` facultatif de deux caractères minimum et une `reference` exacte facultative. Il renvoie les contacts correspondant exactement à l’expéditeur, jusqu’à 25 produits actifs correspondant à la recherche les dossiers dont la référence et le contact correspondent à l’expéditeur, et un reçu de déduplication éventuel. Ne jamais inventer d’identifiant de contact, de produit ou de dossier. Pour retrouver un dossier, passer la référence exacte à cette même façade ; ne pas lire directement les tables métier. En cas de doute, déposer la proposition dans la boîte du module sans `target_id`.
+`context` accepte `mailbox_email`, `source_email`, `message_id` et un `search` facultatif de deux caractères minimum et une `reference` exacte facultative. Il renvoie les contacts correspondant exactement à l’expéditeur, jusqu’à 25 produits actifs correspondant à la recherche, les dossiers dont la référence et le contact correspondent à l’expéditeur, et un reçu de déduplication éventuel. Ne jamais inventer d’identifiant de contact, de produit ou de dossier. Pour retrouver un dossier, passer la référence exacte à cette même façade ; ne pas lire directement les tables métier. En cas de doute, déposer la proposition dans la boîte du module sans `target_id`.
 
 `propose` accepte :
 

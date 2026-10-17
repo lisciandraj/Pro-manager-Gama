@@ -48,6 +48,8 @@
 
 @media(max-width:1250px){#gamaPurchasesV14 .cocoDossierMain .gp14Grid{grid-template-columns:minmax(0,1fr)!important}}
 .cocoDossierMain .gp14Actions{flex-wrap:wrap}
+/* A grid column does not collapse the sheet margin with its module header. */
+.cocoDossierMain>.gqListCard{margin-top:0}
 /* Close the phone drawer in CSS while Safari delivers its media-query event. */
 @media(max-width:900px){.cocoFollowup:not(.is-mobile-open)>.cocoFollowupBody{display:none}}
 /* Keep the table tools on one compact row beside a dossier discussion. */

@@ -181,7 +181,23 @@ test('contact filters, customer people and supplier addresses are editable',asyn
 });
 
 test('secondary customer addresses can be edited, archived and restored',async({page})=>{
- await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});await page.evaluate(()=>ArchitectPartners.open('customer','c1'));await page.locator('[data-address-edit=a1]').click();await expect(page.locator('dialog').last().locator('[name=address]')).toHaveValue('Calle 1');await page.locator('dialog').last().locator('[name=address]').fill('Calle 2');await page.locator('dialog').last().locator('[type=submit]').click();await expect(page.locator('[data-partner-context]')).toContainText('Calle 2');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Archivar');expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
+ await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});
+ await page.evaluate(()=>ArchitectPartners.open('customer','c1'));
+ // Native close events remove old dialogs asynchronously. Address the current
+ // open customer window and editor, then verify that closed windows are removed.
+ const context=page.getByRole('dialog',{name:'Ferretería Andina',exact:true});
+ const editor=page.locator('dialog[open][data-partner-context]').filter({has:page.locator('[name=address]')});
+ await context.locator('[data-address-edit=a1]').click();
+ await expect(editor.locator('[name=address]')).toHaveValue('Calle 1');
+ await editor.locator('[name=address]').fill('Calle 2');
+ await editor.locator('[type=submit]').click();
+ await expect(context).toContainText('Calle 2');
+ await context.locator('[data-address-toggle=a1]').click();
+ await expect(context.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');
+ await context.locator('[data-address-toggle=a1]').click();
+ await expect(context.locator('[data-address-toggle=a1]')).toHaveText('Archivar');
+ await expect(page.locator('dialog[data-partner-context]')).toHaveCount(1);
+ expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
 });
 
 for(const width of [390,1280])test(`shared address persists, is inherited by people and formats documents at ${width}`,async({page})=>{

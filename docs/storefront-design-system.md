@@ -33,8 +33,8 @@ Les variables sont définies dans `src/storefront/site.css`. `customer.css` les 
 ## Composants
 
 - En-tête blanc : logo, catégories, recherche permanente, accès entreprise et sélection de devis. Bandeau supérieur bleu pétrole.
-- Accueil : catégories en premier, sur six colonnes au maximum et trois sur petit écran, puis bandeau de présentation utilisant les photos déjà disponibles.
-- Catalogue : quatre colonnes sur grand écran, trois sur tablette et deux sur téléphone ; surfaces photo carrées, cartes ouvertes, prix lisible et quantités existantes.
+- Accueil : catégories en premier, sur six colonnes au maximum et trois sur petit écran, sans bandeau de présentation ni section de produits mis en avant.
+- Catalogue : six colonnes à partir de 1024 px, trois sur tablette et deux sur téléphone ; surfaces photo carrées, cartes ouvertes, prix lisible et quantités existantes.
 - Filtres : pastilles horizontales défilant dans leur propre conteneur. Le tri et les vues grille/liste restent disponibles.
 - Fiche produit : fil de navigation descriptif, grande photo, titre, prix, quantité, caractéristiques et livraison à confirmer. Jusqu'à quatre suggestions issues des produits déjà publiés.
 - Devis : produits et coordonnées à gauche, récapitulatif à droite ; une seule colonne sous 800 px. Les mentions de consentement et le comportement idempotent sont conservés.
@@ -48,3 +48,5 @@ Les identifiants DOM, routes, clés de stockage, appels serveur, tarifs négoci�
 ## Vérification
 
 `npm run build`, `npm run build:storefront`, `npm run check:generated`, `npm run check`, `npm run typecheck`, `npm run check:docs` et `tests/storefront-server.test.mjs` vérifient la livraison. Le workflow `storefront-interface.yml` exécute les parcours existants `storefront.spec.js` et `b2b-portal.spec.js` avec leurs captures et contrôles de débordement entre 320 et 1440 px. Les données navigateur sont simulées et les tests ne créent aucune demande dans la production.
+
+Le catalogue affiche 60 produits par page, en grille comme en liste, y compris dans la session entreprise. Deux lots de 30 au maximum respectent la limite actuelle du serveur. La navigation avance de 60 et les filtres reviennent à la première page.

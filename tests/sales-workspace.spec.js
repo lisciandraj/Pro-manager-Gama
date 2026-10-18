@@ -44,3 +44,9 @@ for(const width of [390,1280])test(`a draft request becomes COT in the same unif
  await page.click('[data-gq-open="q1"]');page.once('dialog',d=>d.accept());await page.click('#gqReopen');await expect(page.locator('#gqSend')).toBeVisible();await page.click('#gqBack');await expect(page.locator('#gqList')).toContainText('SOL-00000123');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:`test-results/unified-sales-${width}.png`,fullPage:true});
 });
+
+ test('old drafts are requests while issued archive documents retain COT and stay outside the draft filter',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.invoices.push({id:'old-draft',invoice_number:'COT-OLD-DRAFT',request_reference:'SOL-00000410',quote_state:null,status:'draft',quote_details:{client:'Archivo borrador'}},{id:'old-issued',invoice_number:'COT-OLD-ISSUED',quote_state:null,status:'issued',quote_details:{client:'Archivo emitido'}});return GamaQuotes.open()});
+ await expect(page.locator('#gqList')).toContainText('SOL-00000410');await expect(page.locator('#gqList')).not.toContainText('COT-OLD-DRAFT');await expect(page.locator('#gqList tr').filter({has:page.locator('[data-gq-open="old-issued"]')})).toContainText('Documento anterior');
+ await page.selectOption('#gqFilter','draft');await page.click('#gqFind');await expect(page.locator('#gqList tbody tr')).toHaveCount(2);await expect(page.locator('#gqList')).not.toContainText('COT-OLD-ISSUED');
+});

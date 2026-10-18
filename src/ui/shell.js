@@ -22,7 +22,7 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
 // Approved COCO wordmark in the expanded sidebar; the single C in compact views.
-const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261017-relief-logo" alt="COCO ERP" width="1132" height="427"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261016-approved-logos" alt="" width="180" height="180">';
+const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261018-minimal" alt="COCO ERP" width="1200" height="439"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261018-minimal" alt="" width="180" height="180">';
 
 const ICON={
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
@@ -195,7 +195,7 @@ function build(){
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.apps)+'</button>'
-  +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261016-approved-logos" alt="" width="34" height="34">Coco <b>ERP</b></a>'
+  +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261018-minimal" alt="" width="34" height="34">Coco <b>ERP</b></a>'
   +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><h1 id="cocoModuleContext" class="cocoModuleContext"></h1></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'

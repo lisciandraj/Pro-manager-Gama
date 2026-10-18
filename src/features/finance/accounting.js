@@ -130,7 +130,7 @@ function fail(e,retry){
 }
 function badge(s){return `<span class="arcStatusBadge gaBadge" data-s="${esc(s)}">${tr(STATUS[s]||s)}</span>`}
 function kpi(label,value,hint,cls){
- return `<div class="arcPanel gaCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
+ return `<div class="arcPanel gaCard">${window.ArcUI.metricIcon('ledger')}<small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
 }
 function trend(current,previous){
  const a=Number(current||0),b=Number(previous||0);

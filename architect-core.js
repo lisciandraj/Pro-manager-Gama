@@ -441,8 +441,11 @@
   function badge(status, label = status, { className = "", tone = "neutral" } = {}) {
     return `<span class="arcStatusBadge ${escapeHtml(className)}" data-s="${escapeHtml(status)}" data-tone="${escapeHtml(tone)}">${escapeHtml(translate(label))}</span>`;
   }
-  function kpi({ label, value, help = "", className = "" } = {}) {
-    return `<div class="arcKpi ${escapeHtml(className)}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value ?? "—")}</strong>${help ? "<small>" + escapeHtml(help) + "</small>" : ""}</div>`;
+  function metricIcon(name = "chart") {
+    return `<i class="cocoMetricIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${icons[name] || icons.chart}</svg></i>`;
+  }
+  function kpi({ label, value, help = "", className = "", icon = "chart" } = {}) {
+    return `<div class="arcKpi ${escapeHtml(className)}">${metricIcon(icon)}<span>${escapeHtml(label)}</span><strong>${escapeHtml(value ?? "—")}</strong>${help ? "<small>" + escapeHtml(help) + "</small>" : ""}</div>`;
   }
   function form(fields, { id = "arc-form-" + ++sequence, values = {}, submitLabel = translate("Guardar") } = {}) {
     return `<form id="${escapeHtml(id)}" class="arcForm"><div class="arcFormGrid">${fields.map((f) => field({ ...f, value: values[f.key] ?? "" })).join("")}</div><p class="arcFormError" role="alert"></p>${button({ type: "submit", variant: "primary", label: submitLabel })}</form>`;
@@ -789,6 +792,7 @@
     header,
     headerIcon,
     kpi,
+    metricIcon,
     mount,
     pager,
     panel,
@@ -1773,7 +1777,7 @@
     "matrix": { "global": "GamaMatrix", "file": "gama-proveedores-matriz.js", "methods": ["open", "render"], "apis": { "GamaSuppliers": ["migrate"] } },
     "workflow-tools": { "global": "CocoFlows", "file": "coco-flow-tools.js", "methods": ["draftBills", "projectTime", "importSupplierXml", "messages"] },
     "automation": { "global": "CocoAutomation", "file": "coco-automation.js", "methods": ["mount"] },
-    "dashboard": { "global": "ArchitectDashboard", "file": "architect-dashboard.js", "dependencies": ["architect-kpi-catalog.js", "architect-home-kpis.js"], "methods": ["refresh"], "apis": { "ArchitectHomeKpis": ["refresh"] } },
+    "dashboard": { "styles": ["architect-kpis.css"], "global": "ArchitectDashboard", "file": "architect-dashboard.js", "dependencies": ["architect-kpi-catalog.js", "architect-home-kpis.js"], "methods": ["refresh"], "apis": { "ArchitectHomeKpis": ["refresh"] } },
     "crm": { "styles": ["coco-style-crm-core.css", "coco-style-crm-activities.css", "coco-style-crm-contacts.css", "coco-style-crm-leads.css", "coco-style-crm-opportunities.css", "coco-style-crm-reports.css", "coco-style-crm-targets.css"], "global": "GamaCRM", "file": "gama-crm-core.js", "extensions": ["gama-crm-scoring.js", "gama-crm-leads.js", "gama-crm-opportunities.js", "gama-crm-activities.js", "gama-crm-contacts.js", "gama-crm-reports.js", "gama-crm-targets.js"], "methods": ["open", "ir"], "aliases": { "GamaOpenCRM": "open" }, "apis": { "GamaCRMLeads": ["open"], "GamaCRMOpportunities": ["open", "openRecord"], "GamaCRMActivities": ["open"], "GamaCRMContacts": ["open"], "GamaCRMReports": ["open"] } },
     "hr-operations": { "styles": ["coco-style-hr-operations.css"], "global": "GamaHRP1", "file": "gama-hr-p1.js", "methods": ["mountFinance", "load"] },
     "hr": { "styles": ["coco-style-hr.css", "coco-style-hr-operations.css"], "global": "GamaHR", "file": "gama-hr.js", "dependencies": ["gama-hr-p1.js"], "methods": ["open", "load"], "aliases": { "GamaOpenHR": "open" } },
@@ -1881,7 +1885,7 @@
         "downloadProofCertificate"
       ]
     },
-    "projects": { "global": "GamaProjects", "file": "gama-projects.js", "dependencies": ["gama-projects-core.js"], "methods": ["open", "fromSource"] }
+    "projects": { "styles": ["gama-projects.css"], "global": "GamaProjects", "file": "gama-projects.js", "dependencies": ["gama-projects-core.js"], "methods": ["open", "fromSource"] }
   };
   const scripts = /* @__PURE__ */ new Map();
   const styles = /* @__PURE__ */ new Map();

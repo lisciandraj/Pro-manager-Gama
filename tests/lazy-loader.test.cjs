@@ -47,9 +47,11 @@ test('Stock mutations do not download an unopened workspace; opening still forwa
 
 test('intent preloads files once without executing code or installing a workspace',()=>{
  const x=loader();x.prepareModule('projects');x.prepareModule('projects');
- assert.equal(x.scripts.length,0);assert.equal(x.preloads.length,2);
+ assert.equal(x.scripts.length,0);assert.equal(x.preloads.length,3);
  assert.equal(x.window.GamaProjects.__arcLazy,true);
- assert.ok(x.preloads.every(link=>link.rel==='preload'&&link.as==='script'));
+ assert.ok(x.preloads.every(link=>link.rel==='preload'));
+ assert.equal(x.preloads.filter(link=>link.as==='script').length,2);
+ assert.deepEqual(x.preloads.filter(link=>link.as==='style').map(link=>link.href),['gama-projects.css']);
 });
 test('workspace dependency downloads overlap while preserving classic execution order',async()=>{
  const x=loader(),a=x.loadModule('dashboard'),b=x.loadModule('dashboard');

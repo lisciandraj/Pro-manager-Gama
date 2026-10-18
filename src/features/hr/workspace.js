@@ -258,10 +258,10 @@ function kpis(){
  const year=new Date().getFullYear();
  const enfermos=absences.filter(a=>a.kind==='enfermedad'&&String(a.start_date||'').slice(0,4)===String(year)).length;
  return `<div class="hrKpis">
-  <div class="hrKpi"><span data-gi=e0a032ea89a6>Empleados activos</span><b>${activos}</b></div>
-  <div class="hrKpi"><span data-gi=24635c11f693>Ausentes hoy</span><b>${fuera}</b></div>
-  <div class="hrKpi"><span data-gi=8159fcc540c4>Pendientes de aprobar</span><b>${pend}</b></div>
-  <div class="hrKpi"><span><span data-gi=d2e61c2d0c29>Bajas por enfermedad </span>${year}</span><b>${enfermos}</b></div>
+  <div class="hrKpi">${window.ArcUI.metricIcon('users')}<span data-gi=e0a032ea89a6>Empleados activos</span><b>${activos}</b></div>
+  <div class="hrKpi">${window.ArcUI.metricIcon('calendar')}<span data-gi=24635c11f693>Ausentes hoy</span><b>${fuera}</b></div>
+  <div class="hrKpi">${window.ArcUI.metricIcon('checklist')}<span data-gi=8159fcc540c4>Pendientes de aprobar</span><b>${pend}</b></div>
+  <div class="hrKpi">${window.ArcUI.metricIcon('calendar')}<span><span data-gi=d2e61c2d0c29>Bajas por enfermedad </span>${year}</span><b>${enfermos}</b></div>
  </div>`;
 }
 

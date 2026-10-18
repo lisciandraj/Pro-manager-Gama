@@ -155,3 +155,5 @@ Les feuilles CSS et les lots JS de démarrage sont compactés à la construction
 ## Discussion des dossiers et propositions ChatGPT
 
 Le [journal partagé](modules/order-followup.md) se charge à droite dans les Ventes, les Achats et le TMS. Il reprend les étapes autorisées du dossier, les notes et les portraits limités à ses auteurs. ChatGPT lit les nouveaux mails via son propre connecteur puis dépose des propositions en attente par la façade de service `coco_mail_bridge`. Les décisions utilisent la session ERP, la MFA et les droits du module ; les créations de devis passent par le moteur commercial existant. Les connexions OAuth mail dans Supabase sont retirées, leurs jetons supprimés et les archives métier conservées. La [configuration du relais](development/order-mail-setup.md) décrit le déclencheur et la validation.
+
+Les styles `architect-kpis.css` et `gama-projects.css` sont chargés avec Dashboard et Projets via le registre de modules différés. Les tokens, primitives et la charte ERP restent disponibles dès le démarrage.

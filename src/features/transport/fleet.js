@@ -89,7 +89,7 @@ function fail(e,retry){
 }
 function badge(map,v){return `<span class="arcStatusBadge gfBadge" data-s="${esc(v)}">${tr(map[v]||v)}</span>`}
 function kpi(label,value,hint){
- return `<div class="arcPanel gfCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em>${hint}</em>`:''}</div>`;
+ return `<div class="arcPanel gfCard">${window.ArcUI.metricIcon('truck')}<small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em>${hint}</em>`:''}</div>`;
 }
 /* «5 días» no se puede traducir de una pieza: el catálogo busca el texto
    entero y el número cambia en cada fila. Así el número queda fuera y lo que

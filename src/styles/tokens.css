@@ -108,9 +108,21 @@
  --coco-canvas:#F3F4F6;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
  --coco-line:#DFE3EA;--coco-row-line:#E9ECF1;--coco-column-line:#F1F3F6;
  --coco-ink:#17243B;--coco-muted:#5D6980;
- --coco-action:#F87826;--coco-action-hover:#FF8C45;--coco-on-action:#FFFFFF;
+ /* Logo/illustration orange stays #F87826. The action shade lets white labels
+    meet AA at every point of the subtle gradient, including hover. */
+ --coco-action:#BD4E09;--coco-action-top:#C45310;--coco-action-hover:#B54708;--coco-on-action:#FFFFFF;
  --coco-action-tint:#FFF4ED;--coco-action-line:#F4C9AD;
  --coco-panel-padding:20px;--coco-panel-gap:24px;
+ --coco-surface-sheen:linear-gradient(165deg,#FFFFFF 55%,#FDFDFE);
+ --coco-surface-shadow:0 1px 2px rgb(23 36 59 / .025),inset 0 1px 0 rgb(255 255 255 / .9);
+ --coco-icon-surface:linear-gradient(145deg,#FFFFFF,#F4F6F8);
+ --coco-icon-color:#C4510A;
+ --coco-dialog-surface:linear-gradient(135deg,#FFFFFF,#F4F6F8);
+ --coco-dialog-shadow:0 20px 64px rgb(23 36 59 / .19),inset 0 1px 0 #FFFFFF;
+ --coco-scrim:rgb(23 36 59 / .26);
+ --coco-kanban-surface:#FAFBFD;
+ --coco-chart-orange-top:#E96A1B;--coco-chart-orange-bottom:#C4510A;
+ --coco-chart-blue-top:#238FA4;--coco-chart-blue-bottom:#10677D;
 }
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo

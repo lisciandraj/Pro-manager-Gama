@@ -20,7 +20,7 @@ Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des troi
 | Fond / surfaces | #F3F4F6 / #FFFFFF ; aspect mat, sans texture ajoutée |
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
-| Action principale | Orange, dégradé très léger, texte bleu nuit #0B3045 |
+| Action principale | Orange, dégradé très léger, texte blanc #FFFFFF, comme les références fournies |
 | Bordures | Panneau #DFE3EA ; lignes #E9ECF1 ; saisie #7B8797 |
 | Police | Inter variable locale ; poids 400, 500, 600 |
 | Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |

@@ -31,7 +31,6 @@ body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:#1
 body .arcContent .arcButton.primary:hover:not(:disabled){background:#0C556B}
 body .arcContent .arcButton.secondary{background:#fff;color:#10677D;border:1px solid #BDD0DC}
 body .arcContent .arcButton:disabled{opacity:.5;cursor:default}
-body #access-settings .cfgInstall{background:#10677D;border-color:#10677D;color:#fff}
 body .arcContent :is(.arcPanel,.ivCard,.gsCard,.gaCard){border-radius:12px;box-shadow:0 2px 8px rgba(23,49,65,.025)}
 body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:12px;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--arc-command-border);align-items:center;flex-wrap:wrap}
 body .arcContent .gamaCompactHeader .gamaStdActions{order:-1}

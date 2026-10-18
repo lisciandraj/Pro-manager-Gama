@@ -45,8 +45,8 @@
  /* Matte secondary controls; orange main action with readable petrol text.
     Destructive/success buttons retain their semantic colours and labels. */
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton,.gamaStdAction){border-radius:var(--arc-r-md);font-weight:500;box-shadow:none;line-height:1.4}
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.primary{background:linear-gradient(180deg,var(--coco-action-hover),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action)}
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.primary:hover:not(:disabled){background:var(--coco-action-hover);border-color:var(--coco-action);color:var(--coco-on-action)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton:is(.primary,.cfgInstall){background:linear-gradient(180deg,var(--coco-action-hover),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton:is(.primary,.cfgInstall):hover:not(:disabled){background:var(--coco-action-hover);border-color:var(--coco-action);color:var(--coco-on-action);filter:none}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.secondary{background:var(--coco-surface);border-color:var(--coco-line);color:var(--coco-ink)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.secondary:hover:not(:disabled){background:var(--coco-inset);border-color:var(--arc-accent-600)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){border:1px solid var(--arc-line-strong);border-radius:var(--arc-r-md);box-shadow:none;background:var(--coco-surface);color:var(--coco-ink);font-weight:400;line-height:1.5}

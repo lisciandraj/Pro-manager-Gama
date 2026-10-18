@@ -1,6 +1,6 @@
 # Ventes : dossier commercial, logistique et comptabilité
 
-État du 15 octobre 2026. La carte **Ventes** propose cinq onglets visibles : **Devis**, **Commandes**, **À facturer**, **Analyse**, **Configuration** (administrateur). Les demandes clients restent un sous-onglet des devis ; **À traiter**, **Factures et encaissements**, **Tarifs** et **Matrice commerciale** ouvrent les modules existants. Les anciennes adresses et permissions restent compatibles. Les onglets passent sur plusieurs lignes sur téléphone ; les tableaux conservent leurs contours et leurs libellés en mode cartes.
+État du 15 octobre 2026. La carte **Ventes** propose cinq onglets visibles : **Devis**, **Commandes**, **À facturer**, **Analyse**, **Configuration** (administrateur). Demandes clients et devis partagent un seul tableau dans **Devis** ; **À traiter**, **Factures et encaissements**, **Tarifs** et **Matrice commerciale** ouvrent les modules existants. Les anciennes adresses et permissions restent compatibles. Les onglets passent sur plusieurs lignes sur téléphone ; les tableaux conservent leurs contours et leurs libellés en mode cartes.
 
 Depuis le 18 octobre 2026, les demandes du site et du portail deviennent automatiquement des devis en brouillon, sans envoi, commande ni réservation. Les demandes originales restent liées ; les clients inconnus sont à compléter dans le brouillon. Voir [le parcours du site](../public-website.md#conversion-immédiate-en-brouillon).
 
@@ -59,3 +59,9 @@ Les migrations additives du 15 octobre s'appliquent dans l'ordre du dépôt apr�
 ## Discussion et analyse des mails
 
 Les devis et commandes clients utilisent le [volet de discussion partagé à droite](order-followup.md) : étapes, statut, auteur/date, photo associée et notes. ChatGPT propose les actions issues des nouveaux mails dans cette discussion. La validation d’une demande de devis crée un seul brouillon avec les prix ERP, sans l’envoyer ou l’accepter. La connexion mail dans Supabase est retirée ; chaque boîte est connectée dans ChatGPT.
+
+## Tableau unique des demandes et devis
+
+Depuis le 18 octobre 2026, les anciens sous-onglets Demandes clients et Devis sont fusionnés. Une demande sans devis et un devis en brouillon apparaissent sous leur référence **SOL**, avec l’état **Demande client**. Dès que l’équipe finalise le brouillon, la même ligne affiche sa référence **COT**. Enregistrer le brouillon ne le finalise pas. Une réouverture reprend la même référence SOL. La validation commerciale des conditions reste distincte de la finalisation.
+
+Les demandes déjà liées à un devis ne créent jamais une seconde ligne. Le total, les filtres, la recherche et la pagination portent sur cette liste commune. Les références SOL et COT restent recherchables après validation ; les numéros historiques COT, les demandes originales, les dossiers et leurs liens sont conservés. Un brouillon saisi directement reçoit sa propre référence SOL via le générateur existant, sans créer une demande technique supplémentaire. Les anciennes adresses ouvrent le même tableau, et les liens précis vers une demande ouvrent son détail avec retour au tableau.

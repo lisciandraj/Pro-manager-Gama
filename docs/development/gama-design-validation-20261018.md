@@ -23,6 +23,8 @@ Les CSS de Projets et des KPI personnels se chargent via le registre différé e
 
 La première sélection responsive incluait aussi les tests de référence d’accueil, dont la fixture bloque toutes les URL HTTPS, y compris localhost. Ces huit exécutions ont donc échoué avant le chargement de l’application. Les quatre scénarios concernés ont été rejoués avec leur configuration HTTP habituelle et réussissent. Les 22 scénarios responsive utilisent une origine HTTPS locale compatible WebKit.
 
+La première CI responsive de la PR #194 a réussi 61 des 64 scénarios. Deux exécutions vérifiaient encore l’ancien orange d’action ; elles vérifient désormais la teinte accessible et un contraste d’au moins 4,5:1 sur chaque extrémité du dégradé. Le troisième échec mesurait les titres avant la fin du rendu WebKit : l’attente fixe de 350 ms est remplacée par une assertion réessayée sur leur visibilité, avec les mêmes exigences d’absence de doublons. Les quatre exécutions concernées (Chromium et WebKit) passent après correction, sans modification supplémentaire du code applicatif.
+
 Les captures [PC](../design/erp-home-desktop.png), [téléphone](../design/erp-home-mobile.png) et [fenêtre](../design/erp-dialog.png) proviennent de l’application compilée, avec données locales de test. Aucun enregistrement métier de production n’a été créé pour ces vérifications.
 
 ## Point préexistant

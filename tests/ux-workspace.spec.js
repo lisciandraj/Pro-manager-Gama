@@ -99,12 +99,14 @@ test('quote primary action follows the white-on-orange reference and retains vis
  await expect(page.locator('#gqNew')).toBeFocused();
  const measures=await page.evaluate(()=>{
   const luminance=c=>{const v=c.match(/[\d.]+/g).slice(0,3).map(Number).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]};
-  const contrast=e=>{const s=getComputedStyle(e),a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+  const contrast=(text,background)=>{const a=luminance(text),b=luminance(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
   const action=document.getElementById('gqNew'),s=getComputedStyle(action);
-  return {actionText:s.color,actionBackground:s.backgroundColor,status:contrast(document.querySelector('#gqList .gqBadge')),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
+  const stops=s.backgroundImage.match(/rgba?\([^)]+\)/g)||[s.backgroundColor],badge=getComputedStyle(document.querySelector('#gqList .gqBadge'));
+  return {actionText:s.color,actionBackground:s.backgroundColor,actionContrast:Math.min(...stops.map(c=>contrast(s.color,c))),status:contrast(badge.color,badge.backgroundColor),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
- // White labels on the existing GAMA orange are an explicit visual requirement.
- expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(248, 120, 38)');
+ // The GAMA action shade preserves white labels with readable gradient stops.
+ expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(189, 78, 9)');
+ expect(measures.actionContrast).toBeGreaterThanOrEqual(4.5);
  expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);
  await page.locator('#gqNew').hover();await expect(page.locator('#gqNew')).toHaveCSS('color','rgb(255, 255, 255)');

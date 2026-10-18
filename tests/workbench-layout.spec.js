@@ -24,7 +24,9 @@ for(const width of [390,768,1440])test(`every enabled module shares the full-wid
  for(const id of modules){
   await page.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());GamaUI.backToMenu()});
   await page.evaluate(id=>ArcRouter.open(id),id);
-  await page.waitForTimeout(350);
+  // The app bar synchronizes after a rendered frame; wait for the visible
+  // result instead of assuming every browser paints within 350 milliseconds.
+  await expect.poll(()=>page.evaluate(()=>[...(document.querySelector('section.active')?.querySelectorAll('.gamaStdText h2,.gamaStdBack')||[])].filter(el=>!el.closest('dialog')&&el.getClientRects().length).length),{message:id+' duplicate module headings and home arrows'}).toBe(0);
   const screen=await page.evaluate(()=>{
    const section=document.querySelector('section.active'),dialog=document.querySelector('dialog[open]');
    const nav=section?.querySelector('.cocoModuleNav'),r=nav?.getBoundingClientRect();

@@ -43,3 +43,14 @@ test('settings modules expose the shared history inside their dialog',async({pag
 test('sign-out disposes the global panel and review dialog',async({page})=>{
  await setup(page,{module:'contacts',proposal:true});await page.locator('[data-review-proposal]').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('.cocoGlobalHistory,.cocoModuleProposal')).toHaveCount(0);
 });
+
+for(const width of [390,1440])test(`audit entries keep translated labels, safe references and filters at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page);await page.evaluate(()=>{
+  window.__moduleHistory=[{id:'audit-1',module_id:'products',source_type:'audit',at:'2026-10-18T12:00:00Z',type:'action',action:'receipt',subject:'Recepción de compra',actor_id:'alice',actor_name:'Alice',references:[{id:'m1',reference:'MOV-001',name:'Papier <img src=x onerror=alert(1)>',quantity:5,amount:12.5}],links:[],total:1}];
+ });
+ const panel=page.locator('.cocoGlobalHistory .cocoFollowup');if(width<900)await panel.locator(':scope>summary').click();await panel.locator('[data-refresh]').click();
+ await expect(panel.locator('.cocoFollowupEventTitle')).toHaveText('Réception d’achat');await expect(panel.locator('.cocoFollowupAudit')).toHaveText('Piste d’audit');
+ await expect(panel.locator('.cocoFollowupReferences')).toContainText('Quantité: 5');await expect(panel.locator('.cocoFollowupReferences')).toContainText('Montant: 12,50');await expect(panel.locator('.cocoFollowupReferences img')).toHaveCount(0);
+ await panel.locator('[data-refresh]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(1);await panel.locator('[data-filter=notes]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(0);await panel.locator('[data-filter=actions]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(1);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+});

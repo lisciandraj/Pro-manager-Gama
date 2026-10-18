@@ -36,3 +36,17 @@ Les nouvelles propositions se valident par un administrateur autorisé, ou un re
 - Tests : `tests/module-history-db.test.cjs` et `tests/module-history.spec.js`, avec les régressions du suivi de dossier.
 
 Les correspondances table/module sont explicites dans `private.coco_history_tables`. Un nouveau module ou une nouvelle table métier doit les compléter avec ses règles de lecture. Les tables techniques, secrets et journaux bruts ne sont pas aspirés automatiquement.
+
+## Piste d’audit dans les historiques
+
+Les événements déjà disponibles dans **Piste d’audit** apparaissent aussi dans l’historique des modules et dossiers concernés : mouvements de stock, événements TMS, factures, encaissements/paiements et annulations, remboursements, validations, écritures comptabilisées et changements d’accès. Une mention « Piste d’audit » distingue leur origine. Ils gardent leur véritable date, auteur, référence, quantité ou montant. Les références se déplient comme les autres actions.
+
+Le rattachement utilise les clés étrangères réelles : produit, achat, commande, devis, livraison, client/fournisseur, facture ou retour. Les validations de crédit rejoignent la commande concernée. Aucun rapprochement n’est fait sur le seul nom d’un client ou sur un texte libre. Les historiques sans événement correspondant dans la piste d’audit conservent leurs actions et notes habituelles.
+
+L’accès existant à **Piste d’audit**, ainsi que celui au module destination et aux modules financiers concernés, reste nécessaire pour ces événements supplémentaires. Les autres utilisateurs conservent leur historique métier autorisé ; cette intégration n’élargit aucun droit. Les assistants, notes et propositions restent indépendants. Les journaux bruts et leurs captures avant/après ne sont pas renvoyés dans le panneau.
+
+Les faits historiques existants sont lus directement, sans les recréer ni modifier leurs dates. La projection commune sert également l’écran Piste d’audit. Les traces génériques correspondant exactement à la même action sont remplacées par leur version d’audit plus précise ; les actions déjà présentes dans le parcours d’un dossier sont exclues avant pagination. Les groupes sont construits avant la pagination de 50 éléments. Le panneau trie les sources du plus récent au plus ancien.
+
+Implémentation : migration `20261018174016_audit_in_module_and_dossier_history.sql`, interface partagée `order-followup.js`. Vérifications : `tests/audit-module-history-db.test.cjs`, tests existants de piste d’audit et d’historique, et `tests/module-history.spec.js` sur ordinateur/téléphone.
+
+Les migrations `20261018174935_optimize_audit_history_reads.sql` et `20261018175229_batch_product_history_visibility.sql` évitent de recalculer les permissions de module à chaque événement et regroupent la lecture des produits visibles sous les politiques RLS du lecteur. Les autres dossiers conservent leur contrôle de ligne. Vérification en lecture seule sur les données réelles : lecture du fil Produits en environ 2,75 s, avec plus de 4 000 modifications indexées ; événements d’audit et histories Achats/Comptabilité/Paiements/Utilisateurs contrôlés sans créer de donnée métier.

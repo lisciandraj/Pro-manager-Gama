@@ -4,7 +4,7 @@ const $=id=>document.getElementById(id),E=v=>String(v??'').replace(/[&<>"']/g,c=
 const safeURL=v=>/^https:\/\/[^\s<>"']+$/.test(v||''),safeImage=v=>safeURL(v)||/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v||''),uuid=v=>/^[0-9a-f-]{36}$/i.test(v||'');
 let cfg={},currency='USD',boot=null,generation=0,detailGeneration=0,offset=0,search='',category='',brand='',sort='featured',timer,noticeTimer,sending=false,retryPayload='',requestKey='';
 const customer=()=>window.GamaCustomer?.isActive()===true;let started=false,startSerial=0,customerEpoch=0,accountView='catalog';
-const PAGE_SIZE=60, CATALOG_BATCH_SIZE=30;
+const PAGE_SIZE=100, CATALOG_BATCH_SIZE=30;
 const products=new Map(),photos=new Map(),illustrativePhotos=new Set();let cart=[];
 const categoryKey=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
 try{cart=JSON.parse(sessionStorage.getItem('gama.public.selection')||'[]').filter(x=>uuid(x.id)&&Number(x.qty)>0).slice(0,30)}catch(_){cart=[]}
@@ -51,12 +51,12 @@ function configure(){document.querySelectorAll('main > section:not(#customerArea
 }
 function categoryPriority(c){const k=categoryKey(c.category);return k.includes('SUMINISTROS DE OFICINA')?0:k.includes('SUMINISTROS ESCOLARES')?1:k.includes('COMPUTACI')?2:k.includes('EQUIPOS DE OFICINA')?3:4}
 function filters(){const cats=[...(boot.categories||[])].sort((a,b)=>categoryPriority(a)-categoryPriority(b)),all=[{category:'',title:'Todos los productos',count:boot.total},...cats];$('categoryFilters').className='category-filters';$('categoryFilters').innerHTML=all.map(c=>`<button type="button" class="category-filter ${category===c.category?'active':''}" aria-pressed="${category===c.category}" data-category="${E(c.category)}"><span>${E(catalogLabel(c.title))}</span><small>${E(c.count)}</small></button>`).join('');$('menuCategories').innerHTML=all.map(c=>`<button type="button" class="menu-category ${category===c.category?'active':''}" aria-pressed="${category===c.category}" data-category="${E(c.category)}"><span>${E(catalogLabel(c.title))}</span><small>${E(c.count)}</small></button>`).join('');$('categoriesSection').hidden=!cfg.show_categories||!cats.length;$('categories').innerHTML=cats.map(c=>`<button type="button" class="category-card ${category===c.category?'active':''}" aria-pressed="${category===c.category}" data-category="${E(c.category)}">${categoryImage(c)}<span class="category-copy"><strong>${E(catalogLabel(c.title))}</strong><small>${E(c.count)} ${c.count===1?'producto':'productos'}</small></span></button>`).join('');const brands=boot.brands||[];$('brandFilterWrap').hidden=!brands.length;$('brandFilter').innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${E(b)}">${E(prose(b))}</option>`).join('');$('brandFilter').value=brand}
-async function catalogue(){const seq=++generation;text('activeCategory',search?`Resultados para «${search}»`:catalogLabel((boot.categories||[]).find(c=>c.category===category)?.title||'Todos los productos'));text('siteStatus','Cargando productos…');$('siteProducts').setAttribute('aria-busy','true');try{// The server caps each response at 36; load up to two batches for a 60-item page.
+async function catalogue(){const seq=++generation;text('activeCategory',search?`Resultados para «${search}»`:catalogLabel((boot.categories||[]).find(c=>c.category===category)?.title||'Todos los productos'));text('siteStatus','Cargando productos…');$('siteProducts').setAttribute('aria-busy','true');try{// Keep each request within the server cap while filling a 100-item page.
 const query={search,category,brand,sort,offset,limit:CATALOG_BATCH_SIZE};
 const r=await api('catalog',query);if(seq!==generation)return;
 const items=r.items||[];
-if(r.total>offset+CATALOG_BATCH_SIZE){
- const next=await api('catalog',{...query,offset:offset+CATALOG_BATCH_SIZE});
+for(let loaded=CATALOG_BATCH_SIZE;loaded<PAGE_SIZE&&offset+loaded<r.total;loaded+=CATALOG_BATCH_SIZE){
+ const next=await api('catalog',{...query,offset:offset+loaded,limit:Math.min(CATALOG_BATCH_SIZE,PAGE_SIZE-loaded)});
  if(seq!==generation)return;items.push(...(next.items||[]));
 }
 r.limit=PAGE_SIZE;

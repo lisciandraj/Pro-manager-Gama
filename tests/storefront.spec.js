@@ -169,14 +169,14 @@ test('public selection carries into the customer order and legacy login URL open
  await page.locator('#siteProducts [data-add]').first().click();await expect(page.locator('#cartCount')).toHaveText('1');await loginCustomer(page);await expect(page.locator('#cartCount')).toHaveText('1');await page.locator('#cartOpen').click();await expect(page.locator('#content [data-qty]')).toHaveValue('2');await page.locator('#cartPreview').click();await expect(page.locator('#content .cart-total')).toContainText('9,20');
 });
 
-for(const width of [390,1024,1440])test('catalogue shows 60 products per page with six desktop columns at '+width,async({page})=>{
- const rows=Array.from({length:125},(_,i)=>({...items[0],id:'10000000-0000-4000-8000-'+String(i+1).padStart(12,'0'),name:'Producto '+(i+1),reference:'REF-'+(i+1)}));
+for(const width of [390,1024,1440])test('catalogue shows 100 products per page with ten desktop columns at '+width,async({page})=>{
+ const rows=Array.from({length:205},(_,i)=>({...items[0],id:'10000000-0000-4000-8000-'+String(i+1).padStart(12,'0'),name:'Producto '+(i+1),reference:'REF-'+(i+1)}));
  await boot(page,{width,catalogItems:rows,settings:{page_size:'12',show_featured:true}});
- await expect(page.locator('#siteProducts .product-card')).toHaveCount(60);await expect(page.locator('#hero,#featuredSection')).toHaveCount(0);await expect(page.locator('#sitePager')).toContainText('1 / 3');
- expect(await page.locator('#siteProducts').evaluate(n=>getComputedStyle(n).gridTemplateColumns.split(' ').length)).toBe(width>=1024?6:2);await expectContained(page,'#siteProducts .product-card, #siteProducts .quick-order');if(width===1440){await page.locator('#catalogo').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/gama-catalogue-six-columns.png'})}
- await page.locator('[data-page="1"]').click();await expect(page.locator('#sitePager')).toContainText('2 / 3');await expect(page.locator('#siteProducts .product-card')).toHaveCount(60);await expect(page.locator('#siteProducts .product-name').first()).toHaveText('Producto 61');
+ await expect(page.locator('#siteProducts .product-card')).toHaveCount(100);await expect(page.locator('#hero,#featuredSection')).toHaveCount(0);await expect(page.locator('#sitePager')).toContainText('1 / 3');
+ expect(await page.locator('#siteProducts').evaluate(n=>getComputedStyle(n).gridTemplateColumns.split(' ').length)).toBe(width>=1024?10:2);await expectContained(page,'#siteProducts .product-card, #siteProducts .quick-order');if(width===1440){await page.locator('#catalogo').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/gama-catalogue-ten-columns.png'})}
+ await page.locator('[data-page="1"]').click();await expect(page.locator('#sitePager')).toContainText('2 / 3');await expect(page.locator('#siteProducts .product-card')).toHaveCount(100);await expect(page.locator('#siteProducts .product-name').first()).toHaveText('Producto 101');
  await page.locator('[data-page="1"]').click();await expect(page.locator('#sitePager')).toContainText('3 / 3');await expect(page.locator('#siteProducts .product-card')).toHaveCount(5);await expect(page.locator('[data-page="1"]')).toBeDisabled();
- await page.locator('[data-page="-1"]').click();await expect(page.locator('#sitePager')).toContainText('2 / 3');await expect(page.locator('#siteProducts .product-card')).toHaveCount(60);
- await page.locator('[data-view="list"]').click();await expect(page.locator('#siteProducts .product-card')).toHaveCount(60);
- await page.locator('#siteSearch').fill('REF-125');await page.locator('#siteSearch').press('Enter');await expect(page.locator('#siteProducts .product-card')).toHaveCount(1);await expect(page.locator('#siteProducts .product-name')).toHaveText('Producto 125');
+ await page.locator('[data-page="-1"]').click();await expect(page.locator('#sitePager')).toContainText('2 / 3');await expect(page.locator('#siteProducts .product-card')).toHaveCount(100);
+ await page.locator('[data-view="list"]').click();await expect(page.locator('#siteProducts .product-card')).toHaveCount(100);
+ await page.locator('#siteSearch').fill('REF-205');await page.locator('#siteSearch').press('Enter');await expect(page.locator('#siteProducts .product-card')).toHaveCount(1);await expect(page.locator('#siteProducts .product-name')).toHaveText('Producto 205');
 });

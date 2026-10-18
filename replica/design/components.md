@@ -7,7 +7,7 @@ La source de vérité est `src/styles/tokens.css`. `src/styles/design.css`, char
 | Composant | Variantes, états et règles |
 | --- | --- |
 | Cadre | Fond gris froid mat, barre et menu blancs, séparateurs fins, texte pétrole. Structure existante : barre de 60 px, lanceur avec favoris, onglets natifs horizontaux. Padding 24/16/12 px selon largeur. Retour, menu modal, focus et droits conservés. |
-| Carte / panneau | Blanc, bordure #DFE3EA 1 px, rayon 12 px, reflet satiné et ombre de 1 px, padding 20 px / 16 px sur mobile. Titres 16 px/600 ; contenu 14 px/400. La hauteur dépend du contenu. États vide/chargement/erreur conservés. |
+| Carte / panneau | Blanc, bordure #B5C5D0 1 px, rayon 12 px, reflet satiné et ombre douce de 2–5 px, padding 20 px / 16 px sur mobile. Titres 16 px/600 ; contenu 14 px/400. La hauteur dépend du contenu. États vide/chargement/erreur conservés. |
 | Bouton | Primaire orange soutenu #BD4E09 → #C45310 avec discret dégradé et texte blanc #FFFFFF, comme les références fournies ; secondaire blanc ; danger/succès sémantiques. Rayon 8 px, poids 500. Cible tactile 44 px ; action de ligne compacte sur PC. Survol, disabled natif, aria-busy et libellés existants conservés. Focus pétrole 2 px décalé de 3 px. |
 | Champ | Inter, étiquette persistante, hauteur native ≥44 px, rayon 8 px, bordure #7B8797. Texte 16 px sur téléphone. Placeholder contrasté, lecture seule grisée, erreur textuelle avec aria-invalid. Aide, valeurs, validation et reprise inchangées. |
 | Tableau | En-tête #F8F9FB, texte 13 px/500 ; lignes blanches et cellules 13 px. Padding 10 × 14 px, séparateurs horizontaux #E9ECF1, quadrillage vertical discret #F1F3F6. Survol et sélection pétrole clair. Montants tabulaires alignés à droite ; défilement local. Tri, colonnes, pagination, filtres et préférences inchangés. |
@@ -23,3 +23,5 @@ La source de vérité est `src/styles/tokens.css`. `src/styles/design.css`, char
 Les paires de texte sont mesurées à 4,5:1, les bordures de saisie et le focus à 3:1. Le texte blanc demandé sur les actions est conservé avec une nuance orange soutenue, distincte de l’orange décoratif GAMA. Le point le plus clair du dégradé atteint 4,57:1 ; les résultats recalculés sont dans `contrast.json`. Les séparateurs de surfaces sont décoratifs.
 
 Les contrôles navigateur existants couvrent les modules, le responsive, les trois langues, les listes, les fenêtres et les actions Agent Coco avec des données locales. Les captures de vérification ne sont pas des données de production. Aucune migration SQL, API, route, permission ou fonction métier n’est modifiée.
+
+Correction de lisibilité PC : le fond runtime devient #E4EBF0, les tuiles blanches ont un contour #708897. Les onglets actifs sont bleu pétrole #0C556B avec texte blanc et soulignement orange soutenu. Les mesures historiques des images de référence ci-dessus restent inchangées.

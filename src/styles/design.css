@@ -8,8 +8,8 @@
   --arc-canvas:var(--coco-canvas);--arc-surface:var(--coco-surface);--arc-surface-2:var(--coco-inset);--arc-surface-3:#EEF1F5;
   --arc-line:var(--coco-line);--arc-line-strong:#7B8797;--arc-text:var(--coco-ink);--arc-text-muted:var(--coco-muted);--arc-text-subtle:var(--coco-muted);
   --arc-accent-600:#10677D;--arc-accent-700:#0C556B;--arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
-  --arc-card-border:var(--coco-line);--arc-tile-border:var(--coco-line);--arc-tile-border-bottom:var(--coco-line);
-  --arc-card-shadow:none;--arc-tile-shadow:none;--arc-field-shadow:none;--arc-control-shadow:none;
+  --arc-card-border:var(--coco-line);--arc-tile-border:#708897;--arc-tile-border-bottom:#708897;
+  --arc-card-shadow:var(--coco-surface-shadow);--arc-tile-shadow:var(--coco-surface-shadow);--arc-field-shadow:none;--arc-control-shadow:none;
   --arc-table-grid:var(--coco-row-line);--coco-grid:var(--coco-row-line);
   --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#FFAB72;--arc-viz-4:#86B8C4;--arc-viz-5:#103B52;
  }
@@ -85,7 +85,7 @@
  body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
  body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
  /* Launcher: compact grid, labels, original artwork and favorite tools kept. */
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:1px solid var(--coco-line);border-radius:12px;background:var(--coco-surface);box-shadow:none}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:1px solid var(--arc-tile-border);border-radius:12px;background:var(--coco-surface);box-shadow:none}
  body.cocoWorkbench #mainmenu .gamaF2Card:hover{border-color:#88BCC9;box-shadow:var(--arc-sh-2);transform:none}
  body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue)}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;color:var(--coco-ink)}

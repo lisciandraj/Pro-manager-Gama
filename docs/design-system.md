@@ -17,16 +17,16 @@ Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des quat
 
 | Rôle | Standard |
 | --- | --- |
-| Fond / surfaces | #F3F4F6 / #FFFFFF ; aspect satiné très léger, surfaces de lecture opaques |
+| Fond / surfaces | #E4EBF0 / #FFFFFF ; aspect satiné très léger, surfaces de lecture opaques |
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
 | Action principale | Orange soutenu #BD4E09 → #C45310, texte blanc #FFFFFF ; marque #F87826 conservée |
-| Bordures | Panneau #DFE3EA ; lignes #E9ECF1 ; saisie #7B8797 |
+| Bordures | Panneau #B5C5D0 ; tuiles #708897 ; lignes #E9ECF1 ; saisie #7B8797 |
 | Police | Inter variable locale ; poids 400, 500, 600 |
 | Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |
 | Espacements | Base 4 px ; contenu 24 px PC, 16 px tablette, 12 px téléphone |
 | Rayons | Badge 6, bouton/champ 8, carte 12, fenêtre 16 px |
-| Ombres | Ombre de 1 px et reflet intérieur sur les cartes ; relief et flou réservés aux fenêtres |
+| Ombres | Ombre douce de 2–5 px et reflet intérieur sur les cartes ; flou réservé aux fenêtres |
 
 Le [contrat complet des composants](../replica/design/components.md) précise les tableaux, KPI, graphiques, tuiles, kanban, boutons, formulaires et historiques. Les [tokens exportables](../replica/design/tokens.json) documentent les rôles et les paires de contraste. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats et TMS restent dans leurs styles différés. Aucun nouvel actif graphique ni police distante n’est téléchargé.
 
@@ -47,7 +47,7 @@ L’ordre des colonnes se modifie en glissant un en-tête (souris) ou sa poigné
 
 Les fenêtres de consultation partagées affichent une seule action « Retour » (« Volver » / « Back »), sans doublon « Fermer ». Les formulaires conservent leur action métier et leur bouton Retour. Une confirmation explicite conserve ses deux choix. `ArcUI.dialog` reconnaît les anciens libellés de fermeture FR/ES/EN ; `dismissOnly` permet de déclarer ce comportement explicitement.
 
-Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure fine neutre uniforme (`#DFE3EA`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#88BCC9`). La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
+Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure bleu-gris uniforme (`#708897`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#10677D`). La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
 
 Le Dashboard présente les indicateurs du profil, le graphique, les actions du jour et cinq commandes récentes. Son en-tête conserve la flèche de retour au menu partagée avec les autres modules, sur ordinateur et téléphone. Les vues favorites, indicateurs personnels et analyses détaillées restent accessibles dans des sections dépliables. Les commandes récentes sont une lecture limitée soumise aux mêmes droits, annulée visuellement lors d’un changement de compte ou de période.
 
@@ -123,3 +123,7 @@ Périmètre strict : application ERP ; aucune modification de `src/storefront/`,
 ### Captures de validation
 
 Captures locales de l’application compilée, avec données de test : [accueil PC](design/erp-home-desktop.png), [accueil téléphone](design/erp-home-mobile.png), [fenêtre commune](design/erp-dialog.png). Elles documentent le rendu et ne prouvent pas une publication en production.
+
+### Contraste des surfaces sur PC
+
+Le fond gris bleuté #E4EBF0 détache les surfaces blanches. Les tuiles d’accueil ont un contour #708897 et une ombre douce ; les panneaux et indicateurs partagent le contour #B5C5D0. Les onglets actifs ont un fond bleu pétrole #0C556B, un texte blanc et un soulignement orange soutenu ; leur survol utilise un fond bleu clair et un texte foncé. Les dimensions, fonctions et indicateurs de focus restent inchangés. Cette correction ne concerne pas le site public.

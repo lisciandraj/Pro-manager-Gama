@@ -143,21 +143,21 @@
     "fg": "text",
     "bg": "canvas",
     "size": "normal",
-    "ratio": 14.11,
+    "ratio": 12.9,
     "aa": true,
     "aaa": true,
     "fg_hex": "#17243B",
-    "bg_hex": "#F3F4F6"
+    "bg_hex": "#E4EBF0"
   },
   {
     "fg": "text-muted",
     "bg": "canvas",
     "size": "normal",
-    "ratio": 5.02,
+    "ratio": 4.59,
     "aa": true,
     "aaa": false,
     "fg_hex": "#5D6980",
-    "bg_hex": "#F3F4F6"
+    "bg_hex": "#E4EBF0"
   },
   {
     "fg": "link",
@@ -228,5 +228,35 @@
     "aaa": true,
     "fg_hex": "#238FA4",
     "bg_hex": "#FFFFFF"
+  },
+  {
+    "fg": "border-tile",
+    "bg": "canvas",
+    "size": "ui",
+    "ratio": 3.08,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#708897",
+    "bg_hex": "#E4EBF0"
+  },
+  {
+    "fg": "border-tile",
+    "bg": "surface",
+    "size": "ui",
+    "ratio": 3.71,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#708897",
+    "bg_hex": "#FFFFFF"
+  },
+  {
+    "fg": "on-primary",
+    "bg": "tab-active",
+    "size": "normal",
+    "ratio": 8.31,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#FFFFFF",
+    "bg_hex": "#0C556B"
   }
 ]

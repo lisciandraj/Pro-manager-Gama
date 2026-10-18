@@ -7,7 +7,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
 logo = Image.open(BRAND / "coco-erp-logo-approved-20261018.png").convert("RGB")
-icon = Image.open(BRAND / "coco-erp-icon-approved-20261018.png").convert("RGB")
+icon = Image.open(BRAND / "coco-erp-icon-co-approved-20261018.png").convert("RGB")
 
 # Trim only the white presentation margin; retain the approved monochrome artwork.
 mask = Image.new("L", logo.size)
@@ -21,7 +21,7 @@ cropped.save(ROOT / "coco-erp-logo.png", optimize=True)
 cropped.save(ROOT / "coco-gama-logo.jpg", quality=95, subsampling=0)
 logo.save(ROOT / "coco-erp-logo-full.png", optimize=True)
 
-# Keep the approved OC unchanged and add white safety padding for app masks.
+# Keep the approved CO unchanged and add white safety padding for app masks.
 # The source remains intact; only the export canvas grows by 3% per edge.
 padding = round(icon.width * 0.03)
 padded_icon = Image.new("RGB", (icon.width + 2 * padding, icon.height + 2 * padding), "white")

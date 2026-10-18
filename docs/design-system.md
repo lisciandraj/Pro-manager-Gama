@@ -1,6 +1,6 @@
 # Charte graphique actuelle
 
-Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des trois modèles fournis par le propriétaire, adaptée au bleu pétrole et orange GAMA. La charte ci-dessous remplace les valeurs visuelles des maquettes antérieures, tout en conservant leurs fonctionnalités et leur navigation.
+Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des quatre modèles fournis par le propriétaire, adaptée au bleu pétrole et orange GAMA. La charte ci-dessous remplace les valeurs visuelles des maquettes antérieures, tout en conservant leurs fonctionnalités et leur navigation.
 
 | Élément | Source actuelle |
 | --- | --- |
@@ -17,16 +17,16 @@ Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des troi
 
 | Rôle | Standard |
 | --- | --- |
-| Fond / surfaces | #F3F4F6 / #FFFFFF ; aspect mat, sans texture ajoutée |
+| Fond / surfaces | #F3F4F6 / #FFFFFF ; aspect satiné très léger, surfaces de lecture opaques |
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
-| Action principale | Orange, dégradé très léger, texte blanc #FFFFFF, comme les références fournies |
+| Action principale | Orange soutenu #BD4E09 → #C45310, texte blanc #FFFFFF ; marque #F87826 conservée |
 | Bordures | Panneau #DFE3EA ; lignes #E9ECF1 ; saisie #7B8797 |
 | Police | Inter variable locale ; poids 400, 500, 600 |
 | Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |
 | Espacements | Base 4 px ; contenu 24 px PC, 16 px tablette, 12 px téléphone |
 | Rayons | Badge 6, bouton/champ 8, carte 12, fenêtre 16 px |
-| Ombres | Aucune sur les surfaces ; légères sur les éléments superposés |
+| Ombres | Ombre de 1 px et reflet intérieur sur les cartes ; relief et flou réservés aux fenêtres |
 
 Le [contrat complet des composants](../replica/design/components.md) précise les tableaux, KPI, graphiques, tuiles, kanban, boutons, formulaires et historiques. Les [tokens exportables](../replica/design/tokens.json) documentent les rôles et les paires de contraste. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats et TMS restent dans leurs styles différés. Aucun nouvel actif graphique ni police distante n’est téléchargé.
 
@@ -102,3 +102,24 @@ Les surfaces de travail sont blanches, sans ombre lourde, avec rayons de 12 px. 
 Ventes regroupe création, titre, recherche et pagination dans une barre de commande. Les destinations secondaires restent visibles ; les filtres, vues enregistrées et contrôles de tableau sont dépliables sur téléphone, ouverts sur ordinateur. Les filtres appliqués, la pagination serveur, le retour au devis, le choix tableau/tuiles et les clés de préférence restent compatibles. Le site public et les documents imprimés ne sont pas concernés.
 
 Les contrôles de navigation et de mise en page vivent dans `tests/workbench-layout.spec.js`, `tests/architect-shell.spec.js`, `tests/responsive-layout.spec.js` et `tests/ux-workspace.spec.js`. Les tests utilisent uniquement les fixtures locales.
+
+
+## Affinement UI/UX Pro Max — quatre références du 18 octobre 2026
+
+Le modèle général reste un espace de travail minimal : Inter locale, surfaces blanches, fond gris perle, bleu pétrole pour la navigation et les liens, orange pour les actions. La quatrième référence ajoute un traitement satiné aux cadres et un flou de 8 px derrière les fenêtres modales. Aucun fond photographique ni bruit bitmap ne gêne la lecture. Les préférences de réduction du mouvement et de transparence sont respectées.
+
+`ArcUI.metricIcon(name)` fournit le pictogramme décoratif partagé des KPI. Les compteurs RH, CRM, Stock, Achats, Comptabilité, Flotte et Projets réutilisent la même composition : icône de 34 px, libellé de 13 px, chiffre tabulaire de 22–28 px et détails de 12 px. Les valeurs, sources et calculs sont inchangés. Sur téléphone, icône et texte s’empilent sans réduire les champs sous 16 px.
+
+Les tableaux gardent leurs traits fins et leur quadrillage discret : en-têtes 13 px, lignes avec 10 px de marge verticale, boutons de ligne 36 px sur PC avec souris et 44 px en tactile. Les badges ont un contour allégé, leur état écrit et leurs couleurs sémantiques. Kanban et progression réutilisent les mêmes surfaces ; retard et cible de dépôt restent distingués.
+
+Les graphiques existants utilisent les dégradés pétrole/orange centralisés. Leurs axes, valeurs exactes, alternatives en tableau, exports et liens restent les mêmes, y compris dans la vue agrandie. Aucun indicateur fictif n’est ajouté.
+
+Le texte blanc est conservé sur les boutons orange. La nuance des actions est distincte de l’orange du logo : le contraste minimal mesuré est 4,57:1, également vérifié au point le plus clair du dégradé. Les règles et paires sont dans `replica/design/tokens.json` et `contrast.json`.
+
+Les CSS des KPI personnels et de Projets se chargent avec Dashboard et Projets via `src/app/lazy-modules.js`. Cela conserve le budget de démarrage sans augmenter son plafond. Les formulaires, droits, langues, navigation et préférences des modules sont conservés.
+
+Périmètre strict : application ERP ; aucune modification de `src/storefront/`, des pages publiques, de leurs API ou de leur déploiement Cloudflare. Point de retour de cette passe : commit `e64d3b6f0076aac8b96a577aec7c6e24aa20e7bb`.
+
+### Captures de validation
+
+Captures locales de l’application compilée, avec données de test : [accueil PC](design/erp-home-desktop.png), [accueil téléphone](design/erp-home-mobile.png), [fenêtre commune](design/erp-dialog.png). Elles documentent le rendu et ne prouvent pas une publication en production.

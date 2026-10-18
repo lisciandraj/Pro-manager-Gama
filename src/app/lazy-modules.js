@@ -9,7 +9,7 @@ export const lazyModules={
  "matrix":{"global":"GamaMatrix","file":"gama-proveedores-matriz.js","methods":["open","render"],"apis":{"GamaSuppliers":["migrate"]}},
  "workflow-tools":{"global":"CocoFlows","file":"coco-flow-tools.js","methods":["draftBills","projectTime","importSupplierXml","messages"]},
  "automation":{"global":"CocoAutomation","file":"coco-automation.js","methods":["mount"]},
- "dashboard":{"global":"ArchitectDashboard","file":"architect-dashboard.js","dependencies":["architect-kpi-catalog.js","architect-home-kpis.js"],"methods":["refresh"],"apis":{"ArchitectHomeKpis":["refresh"]}},
+ "dashboard":{"styles":["architect-kpis.css"],"global":"ArchitectDashboard","file":"architect-dashboard.js","dependencies":["architect-kpi-catalog.js","architect-home-kpis.js"],"methods":["refresh"],"apis":{"ArchitectHomeKpis":["refresh"]}},
  "crm":{"styles":["coco-style-crm-core.css","coco-style-crm-activities.css","coco-style-crm-contacts.css","coco-style-crm-leads.css","coco-style-crm-opportunities.css","coco-style-crm-reports.css","coco-style-crm-targets.css"],"global":"GamaCRM","file":"gama-crm-core.js","extensions":["gama-crm-scoring.js","gama-crm-leads.js","gama-crm-opportunities.js","gama-crm-activities.js","gama-crm-contacts.js","gama-crm-reports.js","gama-crm-targets.js"],"methods":["open","ir"],"aliases":{"GamaOpenCRM":"open"},"apis":{"GamaCRMLeads":["open"],"GamaCRMOpportunities":["open","openRecord"],"GamaCRMActivities":["open"],"GamaCRMContacts":["open"],"GamaCRMReports":["open"]}},
  "hr-operations":{"styles":["coco-style-hr-operations.css"],"global":"GamaHRP1","file":"gama-hr-p1.js","methods":["mountFinance","load"]},
  "hr":{"styles":["coco-style-hr.css","coco-style-hr-operations.css"],"global":"GamaHR","file":"gama-hr.js","dependencies":["gama-hr-p1.js"],"methods":["open","load"],"aliases":{"GamaOpenHR":"open"}},
@@ -110,5 +110,5 @@ export const lazyModules={
       "downloadProofCertificate"
     ]
   },
-  "projects": {"global":"GamaProjects","file":"gama-projects.js","dependencies":["gama-projects-core.js"],"methods":["open","fromSource"]}
+  "projects": {"styles":["gama-projects.css"],"global":"GamaProjects","file":"gama-projects.js","dependencies":["gama-projects-core.js"],"methods":["open","fromSource"]}
 };

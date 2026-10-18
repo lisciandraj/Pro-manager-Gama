@@ -43,31 +43,21 @@
     "fg": "on-primary",
     "bg": "primary",
     "size": "normal",
-    "ratio": 2.73,
-    "aa": false,
+    "ratio": 4.93,
+    "aa": true,
     "aaa": false,
     "fg_hex": "#FFFFFF",
-    "bg_hex": "#F87826"
+    "bg_hex": "#BD4E09"
   },
   {
     "fg": "on-primary",
     "bg": "primary-hover",
     "size": "normal",
-    "ratio": 2.31,
-    "aa": false,
+    "ratio": 5.43,
+    "aa": true,
     "aaa": false,
     "fg_hex": "#FFFFFF",
-    "bg_hex": "#FF8C45"
-  },
-  {
-    "fg": "on-orange",
-    "bg": "orange",
-    "size": "normal",
-    "ratio": 2.73,
-    "aa": false,
-    "aaa": false,
-    "fg_hex": "#FFFFFF",
-    "bg_hex": "#F87826"
+    "bg_hex": "#B54708"
   },
   {
     "fg": "success",
@@ -198,5 +188,45 @@
     "aaa": false,
     "fg_hex": "#AD4508",
     "bg_hex": "#FFF4ED"
+  },
+  {
+    "fg": "on-primary",
+    "bg": "primary-top",
+    "size": "normal",
+    "ratio": 4.57,
+    "aa": true,
+    "aaa": false,
+    "fg_hex": "#FFFFFF",
+    "bg_hex": "#C45310"
+  },
+  {
+    "fg": "icon",
+    "bg": "surface-muted",
+    "size": "ui",
+    "ratio": 4.4,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#C4510A",
+    "bg_hex": "#F8F9FB"
+  },
+  {
+    "fg": "chart-orange",
+    "bg": "surface",
+    "size": "ui",
+    "ratio": 3.21,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#E96A1B",
+    "bg_hex": "#FFFFFF"
+  },
+  {
+    "fg": "chart-blue",
+    "bg": "surface",
+    "size": "ui",
+    "ratio": 3.79,
+    "aa": true,
+    "aaa": true,
+    "fg_hex": "#238FA4",
+    "bg_hex": "#FFFFFF"
   }
 ]

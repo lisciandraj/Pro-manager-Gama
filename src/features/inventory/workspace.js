@@ -305,7 +305,7 @@ function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;
  const totals=stockPage?.totals||{};
  const values=[['Productos activos',totals.products??0],['Productos bajo mínimo',totals.low??0],['Sin existencias',totals.out??0]];
- window.ArcUI.render(host,values.map(([label,value])=>`<div class="ivKpi"><span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
+ window.ArcUI.render(host,values.map(([label,value],index)=>`<div class="ivKpi">${window.ArcUI.metricIcon(['cube','alert','stock'][index])}<span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
  window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(totals.current_cost_value||0))}</b>`);
 }
 

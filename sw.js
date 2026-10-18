@@ -1,6 +1,6 @@
 /* Coco ERP static assets only. Business/API responses never enter this cache. */
 const CACHE_PREFIX='coco-erp:'+new URL('./',self.location.href).pathname+':';
-const CACHE=CACHE_PREFIX+'2f362bc66b9f-5b278a580674';
+const CACHE=CACHE_PREFIX+'3ed9b3cfd4e4-a73120f7ab7e';
 const APP_SHELL=["./","./index.html","./manifest.json?v=20261016-approved-logos","./coco-erp-logo.png?v=20261017-relief-logo","./coco-erp-icon-180.png?v=20261016-approved-logos","./coco-erp-icon-192.png?v=20261016-approved-logos","./coco-erp-icon-512.png?v=20261016-approved-logos"];
 const immutable=url=>/^[a-f0-9]{12}$/.test(url.searchParams.get('v')||'');
 async function save(request,response){

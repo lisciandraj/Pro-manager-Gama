@@ -6,7 +6,7 @@ test('one sales row moves from SOL to COT while preserving its source, search an
  const q=async(s,p=[])=>(await db.query(s,p)).rows,one=async(s,p=[])=>Object.values((await q(s,p))[0])[0];
  const as=async(id='',role='authenticated')=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role '+role)};
  const quote=(a,d)=>one('select public.gama_quote_action($1,$2::jsonb)',[a,JSON.stringify(d)]);
- const list=d=>one("select public.gama_sales_workspace('quote_list',$1::jsonb)",[JSON.stringify(d||{})]);
+ const list=d=>one("select public.gama_sales_workspace('quote_list',$1::jsonb)",[JSON.stringify({layout:'requests-quotes',...d})]);
  const payload=()=>({request_key:uuid(),customer_id:customer,issue_date:new Date().toISOString().slice(0,10),valid_until:'2099-01-01',details:{seller:'GAMA',client:'Cliente unificado',delivery_address:'Quito'},lines:[{product_id:product,description:'Papel unificado',quantity:2,list_price:10,discount:0,tax_rate:15}]});
  try{
   await q("insert into auth.users(id,email,email_confirmed_at) values($1,'unified-admin@example.invalid',now()),($2,'unified-wh@example.invalid',now()),($3,'unified-client@example.invalid',now())",[admin,warehouse,client]);
@@ -19,6 +19,7 @@ test('one sales row moves from SOL to COT while preserving its source, search an
   await db.exec('reset role');await db.exec(fs.readFileSync('supabase/migrations/'+migration,'utf8'));await as(admin);
   let sourceReference;
   await t.test('backfill assigns a real SOL to direct drafts without changing COT or creating another request',async()=>{
+   const old=await one("select public.gama_sales_workspace('quote_list','{}'::jsonb)");assert.equal(old.total,1);assert.equal(old.rows[0].invoice_number,original);
    const data=await list();assert.equal(data.total,2);const draft=data.rows.find(r=>r.id===existing.id);assert.match(draft.display_reference,/^SOL-\d{8}$/);assert.equal(draft.invoice_number,original);assert.equal(await one('select count(*) from customer_requests'),1);
    assert.equal((await list({search:draft.display_reference})).rows[0].id,existing.id);
    sourceReference=data.rows.find(r=>r.id===request).display_reference;assert.match(sourceReference,/^SOL-\d{8}$/);

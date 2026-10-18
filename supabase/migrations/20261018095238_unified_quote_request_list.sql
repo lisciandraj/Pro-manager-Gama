@@ -64,13 +64,12 @@ begin
  return result;
 end $$;
 revoke all on function private.sales_unified_quote_list(jsonb) from public,anon,authenticated,service_role;
--- Keep the public RPC and all other actions/permissions unchanged.
-do $$declare body text;start_at integer;end_at integer;begin
+-- Opt in from the new screen. Open tabs on the older release keep their
+-- quote-only response during deployment; every other workspace action is intact.
+do $$declare body text;anchor text:=' if p_action=''quote_list'' then';begin
  select pg_get_functiondef('private.gama_sales_workspace(text,jsonb)'::regprocedure) into body;
- start_at:=strpos(body,' if p_action=''quote_list'' then');
- end_at:=strpos(body,' elsif p_action in (''review_order'',''approve_order'',''request_order_approval'') then');
- if start_at=0 or end_at<=start_at then raise exception 'UNIFIED_QUOTE_LIST_ANCHOR';end if;
- body:=left(body,start_at-1)||' if p_action=''quote_list'' then return private.sales_unified_quote_list(p_data);'||substr(body,end_at);
+ if strpos(body,anchor)=0 then raise exception 'UNIFIED_QUOTE_LIST_ANCHOR';end if;
+ body:=replace(body,anchor,' if p_action=''quote_list'' and p_data->>''layout''=''requests-quotes'' then return private.sales_unified_quote_list(p_data);end if;'||E'\n'||anchor);
  execute body;
 end $$;
 notify pgrst,'reload schema';

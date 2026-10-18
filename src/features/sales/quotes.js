@@ -46,7 +46,7 @@ async function openRequests(id=null){
  if(client()||!window.gamaAccessAllowed?.('customer-requests'))return;
  ++version;activeTab='quote';
  const host=shell('quotes','Ventas','Revisa las condiciones, valida y sigue tu pedido.');
- try{await window.GamaCustomerRequests.mount(host,id,true)}catch(e){if(host.isConnected)fail(host,e)}
+ try{await window.GamaCustomerRequests.mount(host,id)}catch(e){if(host.isConnected)fail(host,e)}
 }
 async function fromRequest(id){
  if(client()||!window.gamaAccessAllowed?.('customer-requests'))return;
@@ -68,7 +68,7 @@ async function open(){
  const started=performance.now();activeTab='quote';const host=shell('quotes','Ventas','');host.textContent=T('Cargando…');const token=++version;
  try{
   await window.GamaCloudReady;
-  const d=await window.CocoSalesWorkspace.rpc('quote_list',{...filters,offset:page*20});if(token!==version)return;
+  const d=await window.CocoSalesWorkspace.rpc('quote_list',{...filters,layout:'requests-quotes',offset:page*20});if(token!==version)return;
   filterOwner=d.actor_id;const a=d.rows,more=page*20+20<d.total;
   window.ArcUI.render(host,`<div class="arcPanel gqCard gqListCard">
    <div class="cocoListCommand"><div class="cocoListHeading"><h3>${tr('Presupuestos')} <span class="cocoListCount">${esc(d.total)}</span></h3><div class="gqTools"><button class="arcButton primary" id="gqNew">${tr('Nueva solicitud')}</button><button class="arcButton secondary" id="gqRefresh">${tr('Actualizar')}</button></div></div>

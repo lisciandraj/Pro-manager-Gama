@@ -20,7 +20,7 @@
 }
 .arcContent{background:var(--arc-canvas)}
 /* Approved artwork is already framed: show the entire wordmark and icon. */
-.arcBrand .arcLogo{aspect-ratio:1132/427}
+.arcBrand .arcLogo{aspect-ratio:1200/439}
 .arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}
 .arcBrand .arcLogoMark{object-fit:contain}
 #gamaCloudLogin .brand{overflow:hidden}

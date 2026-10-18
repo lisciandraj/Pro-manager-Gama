@@ -6,21 +6,27 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
-logo = Image.open(BRAND / "coco-erp-logo-approved-20261017.png").convert("RGB")
-icon = Image.open(BRAND / "coco-erp-icon-approved-20261016.jpeg").convert("RGB")
+logo = Image.open(BRAND / "coco-erp-logo-approved-20261018.png").convert("RGB")
+icon = Image.open(BRAND / "coco-erp-icon-approved-20261018.png").convert("RGB")
 
-# Trim only the white presentation margin; retain the approved blue relief.
+# Trim only the white presentation margin; retain the approved monochrome artwork.
 mask = Image.new("L", logo.size)
 mask.putdata([255 if max(p) - min(p) > 45 else 0 for p in logo.getdata()])
 left, top, right, bottom = mask.getbbox()
 cropped = logo.crop((max(0, left - 32), max(0, top - 24),
                      min(logo.width, right + 32), min(logo.height, bottom + 24)))
+# A 1200px wordmark covers the largest UI slot at 3x without shipping the full source.
+cropped.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
 cropped.save(ROOT / "coco-erp-logo.png", optimize=True)
 cropped.save(ROOT / "coco-gama-logo.jpg", quality=95, subsampling=0)
 logo.save(ROOT / "coco-erp-logo-full.png", optimize=True)
 
-# Keep the supplied white tile, shadows and padding. The C already fits the
-# central safe area used by maskable icons; no additional drawing is applied.
+# Keep the approved OC unchanged and add white safety padding for app masks.
+# The source remains intact; only the export canvas grows by 3% per edge.
+padding = round(icon.width * 0.03)
+padded_icon = Image.new("RGB", (icon.width + 2 * padding, icon.height + 2 * padding), "white")
+padded_icon.paste(icon, (padding, padding))
+icon = padded_icon
 for size in (180, 192, 512):
     image = icon.resize((size, size), Image.Resampling.LANCZOS)
     target = ROOT / f"coco-erp-icon-{size}.png"

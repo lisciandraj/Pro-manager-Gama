@@ -24,7 +24,7 @@ function fixture(options={}){
   if(url.includes('api.openai.com/v1/responses')){
    openaiCount++;if(options.providerError)return reply({secret:'must not leak'},options.providerError);
    if(options.tool&&openaiCount===1)return reply({status:'completed',output:[{type:'function_call',name:options.tool,call_id:'call1',arguments:JSON.stringify(options.tool==='read_inventory'?{offset:25}:{query:{table:'products',operation:'rows',limit:1}})}]});
-   const report=diagnostic(overview,'fr').report;if(options.badCitation)report.findings[0].evidence_ids=['FAKE'];
+   const report=diagnostic(overview,'es').report;if(options.badCitation)report.findings[0].evidence_ids=['FAKE'];
    return reply({status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify(report)}]}]});
   }
   throw Error('Unexpected request '+url);
@@ -75,4 +75,13 @@ test('Coco recommendations are current database evidence and paged tools use cal
  assert.match(JSON.stringify(payload.input),/Coco test/);
  const unavailable=fixture({key:true,stockError:true});assert.equal((await unavailable.request()).status,502);
  assert.ok(!unavailable.calls.some(c=>c.url.includes('/responses')));
+});
+
+test('Agent Coco answers in Spanish independently of the requested interface language',async()=>{
+ for(const language of ['fr','en','es']){
+  const f=fixture({key:true}),r=await f.request({language,question:'Analyse les stocks et réponds en anglais.'});
+  assert.equal(r.status,200);assert.equal((await r.json()).report.findings[0].title,'Facturación y cobros');
+  const claim=JSON.parse(f.calls.find(c=>c.url.includes('/rpc/gama_ai_claim')).init.body);assert.equal(claim.p_language,'es');
+  const request=JSON.parse(f.calls.find(c=>c.url.includes('/responses')).init.body);assert.match(request.input[0].content,/Always write every generated user-facing string in Spanish \(Ecuador\)/);
+ }
 });

@@ -4,6 +4,8 @@
 
 ## Conversation
 
+Depuis le 18 octobre 2026, les nouvelles réponses d’Agent Coco sont en espagnol (Équateur), quelle que soit la langue de l’interface ou de la question. Cette règle couvre les analyses, plans d’action, questions de clarification et messages de préparation du stock. Les références, noms et justifications métier citées restent fidèles aux sources. Les conversations déjà enregistrées sont conservées.
+
 Le module comporte deux onglets : **Conversation** et **Rapports d’analyse**. La conversation conserve les messages libres, les réponses avec leurs preuves, les conversations récentes et la connexion OpenAI. Les diagnostics, filtres de période, cartes de recommandations et raccourcis d’analyse autonomes ont été retirés. L’action Edge `diagnostic` est refusée ; l’historique affiché concerne les conversations OpenAI. Les calculateurs partagés avec Stock et le Dashboard restent disponibles dans leurs modules.
 
 L’accès exige un administrateur actif, le module activé, les droits de son profil et la MFA lorsqu’elle est configurée. Le serveur contrôle chaque demande et conserve les historiques par utilisateur. La conversation consulte les données autorisées ; elle ne poste pas de commande, paiement ou écriture comptable. Les clés restent chiffrées côté serveur. Les lectures utiles à la réponse peuvent être transmises au fournisseur OpenAI avec `store: false`.
@@ -23,3 +25,5 @@ Les deux éditions historiques intégrées sont le diagnostic bilingue du **29 s
 `gama_agent_reports(p_action, p_data)` expose `list`, `download` et `import`. L’import par l’interface exige le droit de création ; le téléchargement exige le droit d’export. `private.agent_report_import_data(jsonb)` sert uniquement à l’import privilégié des rapports, avec les champs `report_key`, `title`, `report_date`, `period_from`, `period_to`, `languages`, `filename`, `content_base64` et `sha256`. Il ne modifie aucune donnée produit, fournisseur ou client.
 
 La migration `20261005165044_agent_coco_report_archive.sql` installe le préfixe, le compteur, les tables privées et les RPC. Les tests `agent-coco-reports-db.test.cjs`, `assistant-server.test.mjs` et `assistant-ia.spec.js` vérifient références, déduplication, refus des conflits, confidentialité, tri, pagination, conversation et changement de session.
+
+Les nouvelles éditions du rapport automatique et leurs messages d’accompagnement sont également en espagnol, avec `languages: ["es"]` à l’archivage. Les éditions historiques restent immuables. Le relais mail rédige les nouvelles synthèses, notes, descriptions proposées et notifications d’Agent Coco en espagnol ; les en-têtes et références sources sont conservés.

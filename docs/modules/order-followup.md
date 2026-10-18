@@ -40,4 +40,4 @@ Les commandes fournisseurs permettent de préparer un mail externe et de téléc
 
 Le [guide du relais ChatGPT](../development/order-mail-setup.md) décrit l’activation, le contrat et les limites. Les tests SQL sont isolés et les tests navigateur simulent les services ; aucun mail réel n’est envoyé pendant ces tests.
 
-Les événements complémentaires de **Piste d’audit** rattachés au module ou au dossier apparaissent dans le même fil, avec une mention d’origine, les références, quantités et montants disponibles. Les événements déjà représentés par le parcours (réception d’achat, livraison, facture ou paiement) ne créent pas une seconde bulle. Les validations et autres événements manquants rejoignent leur dossier par les liens métier réels. Les droits de lecture de la piste d’audit restent exigés ; voir le [contrat de l’historique commun](module-history.md#piste-daudit-dans-les-historiques).
+Les événements supplémentaires de **Piste d’audit** restent dans leur module dédié. Le fil conserve les actions métier du dossier, les notes, sources et propositions habituelles.

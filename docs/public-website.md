@@ -30,9 +30,9 @@ La page `/photo-credits.html`, liée au pied du catalogue, indique les sources, 
 6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, choisir l’affichage des taxes, activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
 7. Cliquer **Enregistrer tous les réglages**. Le brouillon est conservé en naviguant entre les rubriques. En cas de conflit avec un autre administrateur, copier les changements nécessaires avant **Actualiser** ; ce bouton recharge les valeurs enregistrées.
 8. Dans **Produits publiés**, choisir les produits visibles et les produits mis en avant. Le nom, la référence, la photo, le prix de vente, les taxes et les quantités de commande viennent des Produits de Coco. Le titre, la description, la marque, l’étiquette et le nom public de la catégorie peuvent être adaptés ici. Les produits inactifs sont exclus immédiatement.
-9. Dans **Ventes → Demandes clients**, consulter les demandes du site, associer ou créer le contact si nécessaire, puis préparer le devis.
+9. Dans **Ventes → Devis**, consulter les brouillons créés automatiquement à partir des demandes du site ou du portail. La demande originale et ses références restent accessibles dans **Demandes clients** et dans l’historique du devis. Associer ou compléter le client si nécessaire avant l’envoi.
 
-Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Après vérification, préparer le devis dans le module Ventes avec les coordonnées et quantités reçues. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
+Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Chaque demande validée crée immédiatement un devis non envoyé dans Ventes, avec les coordonnées et quantités reçues. Un contact inconnu reste à compléter, sans création de client ni identifiant fiscal inventé. Les prix sont calculés côté serveur, avec les tarifs applicables au client identifié. Les tentatives répétées renvoient la même demande et le même brouillon. Vérifier le brouillon avant de l’envoyer. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
 
 ## Textes, photos et informations légales
 
@@ -172,3 +172,9 @@ La grille de catégories précède la bannière et les avantages. Elle affiche t
 ## Extensions commerciales et financières
 
 Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.
+
+## Conversion immédiate en brouillon
+
+La migration `20261018081814_website_requests_to_draft_quotes.sql` complète l’import du site public et le `submit` authentifié du portail. Elle utilise les tables de devis, leurs références et dossiers existants. Les demandes déjà en attente issues de ces deux canaux sont converties sans toucher aux demandes ERP manuelles ni aux demandes clôturées. Le site public conserve sa réponse limitée à la référence WEB ; les brouillons restent privés jusqu’à leur envoi par l’équipe.
+
+Le traitement ne fabrique aucune session ni identité utilisateur. Une capacité privée liée au processus PostgreSQL, à la transaction et au devis autorise exclusivement les écritures du brouillon lors de la réception ; elle est supprimée avant le retour et ne donne aucun droit ERP au client. Les modifications, envois, validations commerciales et créations de commandes continuent à utiliser les contrôles existants. Les adresses du portail restent liées à leur entreprise. Les notes automatiques d’Agent Coco sont en espagnol et relient le devis, la demande et le module Site web.

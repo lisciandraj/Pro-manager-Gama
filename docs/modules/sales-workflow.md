@@ -2,6 +2,8 @@
 
 État du 15 octobre 2026. La carte **Ventes** propose cinq onglets visibles : **Devis**, **Commandes**, **À facturer**, **Analyse**, **Configuration** (administrateur). Les demandes clients restent un sous-onglet des devis ; **À traiter**, **Factures et encaissements**, **Tarifs** et **Matrice commerciale** ouvrent les modules existants. Les anciennes adresses et permissions restent compatibles. Les onglets passent sur plusieurs lignes sur téléphone ; les tableaux conservent leurs contours et leurs libellés en mode cartes.
 
+Depuis le 18 octobre 2026, les demandes du site et du portail deviennent automatiquement des devis en brouillon, sans envoi, commande ni réservation. Les demandes originales restent liées ; les clients inconnus sont à compléter dans le brouillon. Voir [le parcours du site](../public-website.md#conversion-immédiate-en-brouillon).
+
 ## Observations vérifiées avant intervention
 
 Le dépôt `lisciandraj/Pro-manager-Gama`, le site GitHub Pages et le projet Supabase `mknsaibrewksgomuslev` ont été identifiés. Le frontend est composé de modules JavaScript, d'un noyau Vite et d'un manifeste de compilation ; les sources sont dans `src/`. Le backend utilise les façades publiques invoker et les implémentations privées contrôlées.

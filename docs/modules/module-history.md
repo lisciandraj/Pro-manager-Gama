@@ -2,6 +2,8 @@
 
 Chaque module autorisé dispose du même historique : actions, notes et propositions Agent Coco, du plus récent au plus ancien. Le panneau est à droite sur ordinateur et s’ouvre en tiroir sur téléphone. Les rubriques de Configuration l’affichent dans leur fenêtre. Ventes, Achats et TMS conservent leur suivi de dossier existant et affichent aussi les nouvelles annotations de source rattachées à leur module ou à leur enregistrement.
 
+La feuille de style commune est appliquée à l’ouverture, y compris si la navigation vers TMS l’a déjà préchargée. Une indication `preload` ne remplace pas une feuille `stylesheet`. Les portraits réservent une taille de 30 × 30 px avant le chargement des styles, puis passent à 24 × 24 px sur téléphone. Un chargement CSS échoué peut être retenté à l’ouverture suivante.
+
 Les nouvelles modifications métier sont indexées après leur réussite par les triggers de la base. Les lignes d’une même transaction, du même auteur et de la même action sont regroupées **avant** pagination. La bulle contient les références ; les premières sont visibles et les autres se déplient. Une simple consultation n’ajoute pas d’action. Les anciennes modifications ne sont pas antidatées ni reconstituées à partir d’hypothèses.
 
 L’index ne contient pas de copie complète des enregistrements. Sa lecture utilise les droits du module et les politiques de la ligne métier actuelle, sous l’identité réelle du lecteur. Une modification de classification d’un document s’applique aussi à son historique. Aucun diagnostic, motif médical, salaire, coordonnées bancaires ou fichier binaire n’est copié dans une bulle. Les liens proposés sont des routes internes autorisées.

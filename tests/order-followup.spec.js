@@ -1,4 +1,27 @@
 const {test,expect}=require('@playwright/test');const {boot,delivery}=require('./order-followup-fixture.cjs');
+for(const kind of ['sales','quotes'])test(`${kind} history stays on the right with small avatars after TMS styles are preloaded`,async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});await boot(page,{kind,proposal:true,preloadFollowup:true});
+ const panel=page.locator('.cocoFollowup'),main=page.locator(kind==='sales'?'.gsOrderMain':'.cocoDossierMain');
+ await expect(panel.locator('.cocoFollowupAvatar.is-agent img')).toBeVisible();
+ const side=await panel.boundingBox(),content=await main.boundingBox();
+ expect(side.x).toBeGreaterThanOrEqual(content.x+content.width-1);expect(side.width).toBeLessThanOrEqual(390);
+ for(const img of await panel.locator('.cocoFollowupAvatar img').all()){
+  const box=await img.boundingBox();expect(box.width).toBeLessThanOrEqual(30);expect(box.height).toBeLessThanOrEqual(30);
+ }
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:`test-results/followup-preload-${kind}-desktop.png`,fullPage:true});
+});
+test('a preloaded history stylesheet still opens a bounded phone drawer',async({page})=>{
+ await page.setViewportSize({width:375,height:812});await boot(page,{kind:'quotes',proposal:true,preloadFollowup:true});
+ const panel=page.locator('.cocoFollowup');await panel.locator(':scope>summary').click();
+ await expect(panel.locator('.cocoFollowupTimeline')).toBeVisible();await expect(panel).toHaveClass(/is-mobile-open/);
+ const box=await panel.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(375);expect(box.height).toBeLessThanOrEqual(812);
+ for(const img of await panel.locator('.cocoFollowupAvatar img').all()){
+  const avatar=await img.boundingBox();expect(avatar.width).toBeLessThanOrEqual(24);expect(avatar.height).toBeLessThanOrEqual(24);
+ }
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'test-results/followup-preload-phone.png'});
+});
 test('sales history is a right-hand discussion with author portraits and each dossier stage',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);await expect(page.locator('.cocoFollowupTimeline')).toContainText('Alice');await expect(page.locator('.cocoFollowupTimeline')).toContainText('Commande créée');await expect(page.locator('.cocoFollowupAvatar img')).toHaveCount(1);await expect(page.locator('[data-stage] option')).toHaveCount(7);
  const aside=await page.locator('.cocoFollowup').boundingBox(),main=await page.locator('.gsOrderMain').boundingBox();expect(aside.x).toBeGreaterThan(main.x+main.width-1);await expect(page.locator('.cocoFollowupBubble')).toHaveCount(1);await page.screenshot({path:'test-results/followup-sales-desktop.png',fullPage:true});

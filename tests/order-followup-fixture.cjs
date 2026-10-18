@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {isolateLocalPage}=require('./local-browser-fixture.cjs');
 const cloud=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const order='10000000-0000-4000-8000-000000000001',purchase='10000000-0000-4000-8000-000000000002',delivery='10000000-0000-4000-8000-000000000003';
-async function boot(page,{kind='sales',connected=true,language='fr',proposal=false,summary='Demande client : trois paquets de papier.'}={}){
+async function boot(page,{kind='sales',connected=true,language='fr',proposal=false,preloadFollowup=false,summary='Demande client : trois paquets de papier.'}={}){
  await isolateLocalPage(page);
  await page.addInitScript(({order,purchase,delivery,language})=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Test'}));localStorage.setItem('gama_language',language);localStorage.setItem('gama_tms_migrated_v1','1');const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil'}).format(new Date());
@@ -28,7 +28,9 @@ async function boot(page,{kind='sales',connected=true,language='fr',proposal=fal
    return c.rpc(name,args);
   }};};
  },{connected,language,proposal,summary});
+ if(preloadFollowup)await page.evaluate(()=>window.ArcPrefetch('tms'));
  if(kind==='sales')await page.evaluate(id=>window.GamaSales.openOrder(id),order);
+ else if(kind==='quotes')await page.evaluate(()=>window.ArcRouter.open('quotes'));
  else if(kind==='tms')await page.evaluate(()=>window.ArcRouter.open('tms'));
  else {await page.evaluate(()=>window.gamaShowPurchases());await page.waitForSelector('#gp14Orders .gp14Order');await page.evaluate(id=>window.gamaOpenPurchaseV14(id),purchase)}
  await page.waitForSelector('.cocoFollowupParty',{state:'attached'});

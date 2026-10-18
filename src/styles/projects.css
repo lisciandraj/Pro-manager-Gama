@@ -10,3 +10,6 @@ body #projects .pmTabs button[aria-current=true],
 body #projects .pmTools button[aria-pressed=true]{background:var(--arc-accent-600)!important;color:#fff!important}
 body #projects .pmTabs button[aria-current=true]:hover:not(:disabled),
 body #projects .pmTools button[aria-pressed=true]:hover:not(:disabled){background:var(--arc-accent-700)!important}
+
+/* GAMA reference task board; stage, progress and drag behaviour are unchanged. */
+@media screen{body[data-app=coco-erp] #projects .pmColumn{border:1px solid var(--coco-line);border-radius:12px;padding:12px;background:#FCFCFD}body[data-app=coco-erp] #projects .pmTask{border-radius:10px;border-color:var(--coco-line);padding:14px;background:var(--coco-surface);box-shadow:none}}

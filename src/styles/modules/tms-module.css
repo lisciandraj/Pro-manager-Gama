@@ -21,3 +21,6 @@
 [data-tms-dispatch] section{padding:12px 0;border-bottom:1px solid var(--arc-border,#dbe3eb)}
 [data-tms-dispatch] .tmsForm label{display:flex;flex-direction:column;gap:6px}
 [data-tms-dispatch] input,[data-tms-dispatch] textarea,[data-tms-dispatch] select{max-width:100%;min-height:40px}
+
+/* Shared GAMA theme for the driver's native controls. */
+@media screen{body[data-app=coco-erp] .tmsBtn{border-radius:8px;font-weight:500;box-shadow:none}body[data-app=coco-erp] :is(.tmsPrimary,.tmsOrange){background:var(--coco-action);color:var(--coco-on-action)}body[data-app=coco-erp] .tmsKpi span{font-size:13px;font-weight:500}body[data-app=coco-erp] .tmsKpi strong{font-size:26px;font-weight:600}body[data-app=coco-erp] .tmsKpis{gap:16px}}

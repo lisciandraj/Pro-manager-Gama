@@ -1,87 +1,123 @@
-/* GAMA reference design. Tokens are scoped so the existing top bar is unchanged. */
-.arcContent,.arcSidebar,body>dialog{
- --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:#F87826;
- --arc-accent-700:#0C556B;--arc-accent-600:#10677D;--arc-accent-500:#157F98;
- --arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
- --arc-navy-700:#24374A;--arc-navy-900:#192B3C;
- --arc-canvas:#F7F8FB;--arc-surface-2:#F7F8FA;--arc-surface-3:#F2F5F7;
- --arc-line:#D8E2EA;--arc-line-strong:#778695;--arc-text:#1C2C3E;--arc-text-muted:#526473;--arc-text-subtle:#526473;
- --arc-card-border:#E1E6EC;--arc-tile-border:#E1E6EC;--arc-card-shadow:0 2px 8px rgba(23,49,65,.035);
- --arc-tile-shadow:0 2px 8px rgba(23,49,65,.035);--arc-control-shadow:none;--arc-field-shadow:none;
- --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;--arc-icon-teal:#157F98;--arc-icon-teal-bg:#E7F3F6;
- --arc-icon-violet:#157F98;--arc-icon-violet-bg:#E7F3F6;--arc-icon-orange:#D45C0B;--arc-icon-orange-bg:#FFF0E6;
- --arc-fam-analytics:#157F98;--arc-fam-analytics-bg:#E7F3F6;--arc-fam-sales:#157F98;--arc-fam-sales-bg:#E7F3F6;
- --arc-fam-logistics:#157F98;--arc-fam-logistics-bg:#E7F3F6;--arc-fam-purchase:#157F98;--arc-fam-purchase-bg:#E7F3F6;
- --arc-fam-finance:#D45C0B;--arc-fam-finance-bg:#FFF0E6;--arc-fam-people:#D45C0B;--arc-fam-people-bg:#FFF0E6;--arc-fam-system:#157F98;--arc-fam-system-bg:#E7F3F6;
- --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);--arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
- --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);--arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);--arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
- --arc-tile-border-bottom:#E1E6EC;
- --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#238FA4;--arc-viz-4:#86B8C4;--arc-viz-5:#24495A;
+/* GAMA reference theme — 18 October 2026. Loaded after workspace layouts.
+   Explicit visual components only. No display/position/order changes: routes,
+   handlers, hidden states and data keep their owners. Storefront/print excluded. */
+@media screen {
+ body[data-app=coco-erp],body[data-app=coco-erp] :is(.arcContent,.arcSidebar,dialog,#mainmenu,#gamaCloudLogin){
+  --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:var(--coco-action);
+  --arc-canvas:var(--coco-canvas);--arc-surface:var(--coco-surface);--arc-surface-2:var(--coco-inset);--arc-surface-3:#EEF1F5;
+  --arc-line:var(--coco-line);--arc-line-strong:#7B8797;--arc-text:var(--coco-ink);--arc-text-muted:var(--coco-muted);--arc-text-subtle:var(--coco-muted);
+  --arc-accent-600:#10677D;--arc-accent-700:#0C556B;--arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
+  --arc-card-border:var(--coco-line);--arc-tile-border:var(--coco-line);--arc-tile-border-bottom:var(--coco-line);
+  --arc-card-shadow:none;--arc-tile-shadow:none;--arc-field-shadow:none;--arc-control-shadow:none;
+  --arc-table-grid:var(--coco-row-line);--coco-grid:var(--coco-row-line);
+  --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#FFAB72;--arc-viz-4:#86B8C4;--arc-viz-5:#103B52;
+ }
+ body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:14px/1.5 var(--arc-font);-webkit-font-smoothing:antialiased}
+ body[data-app=coco-erp] :is(button,input,select,textarea){font-family:var(--arc-font)}
+ body.cocoWorkbench .arcContent{background:var(--coco-canvas);padding:24px calc(24px + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(24px + var(--arc-safe-l))}
+ body.cocoWorkbench .arcTopbar{background:var(--coco-surface);border-bottom:1px solid var(--coco-line);box-shadow:none}
+ body.cocoWorkbench .cocoModuleContext{font-size:18px;font-weight:600;letter-spacing:-.025em}
+ body.cocoWorkbench .arcSidebar{background:var(--coco-surface);border-color:var(--coco-line)}
+ body.cocoWorkbench .arcSidebar .arcBrand{border-bottom:1px solid var(--coco-line);padding-bottom:18px}
+ .arcBrand .arcLogo{aspect-ratio:1200/439}.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}.arcBrand .arcLogoMark{object-fit:contain}
+ body.cocoWorkbench .arcSidebar .arcNavLink{border:1px solid transparent;border-radius:8px;color:var(--coco-muted);font-size:14px;font-weight:400;gap:12px;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:var(--coco-action-tint);border-color:var(--coco-action-line);color:var(--arc-coco-orange-text);font-weight:500;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavGroup{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--coco-ink)}
+ body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-inset)}
+ /* Shared surfaces include legacy and lazy-loaded module components. */
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gp14Card,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.ai-panel,.plList,.chartPanel,.hrCard,.crmCard,.svCard,.sdCard,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);box-shadow:none}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.hrCard,.crmCard,.pmPanel,.pmCard,.chartPanel){padding:var(--coco-panel-padding)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(h2,h3){font-weight:600;letter-spacing:-.02em;line-height:1.4}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gaCard,.gfCard,.gqCard,.hrCard,.pmCard)>:is(h2,h3){font-size:16px}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.muted,.hint,.help,.pmMeta){color:var(--coco-muted)}
+ /* KPIs: quiet white surfaces, small labels and one clear figure. */
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.arcKpi,.adMetric,.hrKpi,.ivKpi,.gaKpis>.gaCard,.gfKpi,.grKpi,.gqKpi,.gsKpi,.tmsKpi,.pmKpi,.crmKpi,.dashCard){background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);padding:var(--coco-panel-padding);box-shadow:none;color:var(--coco-ink)}
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>:is(b,strong),body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:28px;font-weight:600;letter-spacing:-.035em;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--coco-ink)}
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>span,body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{font-size:13px;font-weight:500;color:var(--coco-ink)}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon){width:34px;height:34px;border-radius:8px;border:1px solid var(--coco-line);background:var(--coco-inset);color:var(--arc-coco-orange-text);box-shadow:none}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:20px;height:20px;stroke-width:1.6}
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.adMetrics,.hrKpis,.ivKpis,.gaKpis,.pmKpis,.adCockpit,.crmTablero,.pmKanban){gap:16px}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adHeading h2,.adQuickActions h2){font-size:16px}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetric{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-content:start;align-items:center;min-height:160px}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:contents}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>:is(strong,small,.adDelta){grid-column:1/-1;margin:0}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{overflow-wrap:anywhere}
+ /* Matte secondary controls; orange main action with readable petrol text.
+    Destructive/success buttons retain their semantic colours and labels. */
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton,.gamaStdAction){border-radius:var(--arc-r-md);font-weight:500;box-shadow:none;line-height:1.4}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton:is(.primary,.cfgInstall){background:linear-gradient(180deg,var(--coco-action-hover),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton:is(.primary,.cfgInstall):hover:not(:disabled){background:var(--coco-action-hover);border-color:var(--coco-action);color:var(--coco-on-action);filter:none}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.secondary{background:var(--coco-surface);border-color:var(--coco-line);color:var(--coco-ink)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton.secondary:hover:not(:disabled){background:var(--coco-inset);border-color:var(--arc-accent-600)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){border:1px solid var(--arc-line-strong);border-radius:var(--arc-r-md);box-shadow:none;background:var(--coco-surface);color:var(--coco-ink);font-weight:400;line-height:1.5}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input,textarea)::placeholder{color:var(--coco-muted);opacity:1}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input,textarea)[readonly]{background:var(--coco-inset)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcField,label){font-weight:500}
+ body[data-app=coco-erp] :is(input[type=checkbox],input[type=radio]){accent-color:var(--arc-accent-600)}
+ body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-700);outline-offset:3px}
+ /* Fine horizontal rules; retain the column grid and native card views. */
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcTableWrap,.gqScroll,.gsScroll,.gpScroll,.gaScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox,.gamaColumnPicker){border:1px solid var(--coco-line);border-radius:var(--arc-r-md);background:var(--coco-surface)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]){background:var(--coco-surface);border:1px solid var(--coco-line);font-size:13px}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) :is(td,th){padding:12px 14px;border:1px solid var(--coco-column-line)!important;border-block-color:var(--coco-row-line)!important;vertical-align:middle;line-height:1.5}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--coco-ink);border-bottom:1px solid var(--coco-line)!important}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:nth-child(even)>td{background:var(--coco-surface)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:is([data-selected=true],[aria-selected=true])>td{background:var(--arc-accent-100)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table[data-gama-view=cards]>tbody>tr:not([data-gama-head]){border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);box-shadow:none;background:var(--coco-surface)}
+ body[data-app=coco-erp] .arcContent .gamaTableToolbar{gap:12px;margin-block:12px}
+ body[data-app=coco-erp] :is(.gamaTableViews,.gamaTableSwitch){background:var(--coco-inset);border-radius:8px;box-shadow:none}
+ body[data-app=coco-erp] :is(.gamaTableViews,.gamaTableSwitch)>button{border-radius:6px;box-shadow:none;font-weight:500}
+ body[data-app=coco-erp] :is(.gamaTableViews,.gamaTableSwitch)>button:is(.active,.on,[aria-pressed=true]){background:var(--coco-action-tint);border-color:var(--coco-action-line);color:var(--arc-coco-orange-text)}
+ /* Compact outlined labels; semantic text and background colours are kept. */
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcStatusBadge,.cocoStatus,.hrBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.pmBadge,.crmBadge,.ivBadge,.tmsBadge){border:1px solid currentColor;border-radius:6px;padding:3px 8px;font-size:12px;line-height:1.5;font-weight:400;box-shadow:none}
+ /* All chart series, exact amounts, axes, labels and drilldowns are unchanged. */
+ body[data-app=coco-erp] .adBarInvoice{fill:var(--gama-orange);background:var(--gama-orange);rx:5px}
+ body[data-app=coco-erp] .adBarCash{fill:var(--gama-blue);background:var(--gama-blue);rx:5px}
+ body[data-app=coco-erp] .adGridLine{stroke:var(--coco-row-line);stroke-width:1;stroke-dasharray:none}
+ body[data-app=coco-erp] .adChartText{fill:var(--coco-muted);font:12px var(--arc-font)}
+ body[data-app=coco-erp] .adLegend{font-size:12px;font-weight:400;gap:16px}
+ body[data-app=coco-erp] .adLegend i{width:9px;height:9px;border-radius:50%}
+ body[data-app=coco-erp] :is(.pmProgress,.hrBar){height:6px;border-radius:99px;background:var(--arc-surface-3)}
+ body[data-app=coco-erp] .pmProgress span,body[data-app=coco-erp] #hr .hrBar i:not(.full){background:linear-gradient(90deg,var(--coco-action-hover),var(--coco-action));border-radius:99px}
+ /* Launcher: compact grid, labels, original artwork and favorite tools kept. */
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:1px solid var(--coco-line);border-radius:12px;background:var(--coco-surface);box-shadow:none}
+ body.cocoWorkbench #mainmenu .gamaF2Card:hover{border-color:#88BCC9;box-shadow:var(--arc-sh-2);transform:none}
+ body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue)}
+ body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;color:var(--coco-ink)}
+ body.cocoWorkbench #mainmenu .gamaF2Icon svg{stroke-width:1.65}
+ body.cocoWorkbench #mainmenu .gamaF2Icon svg:not(.arcHomeIllustration)>:last-child{stroke:var(--gama-orange)}
+ /* Dialogs, action history and sign-in share the same visual system. */
+ body[data-app=coco-erp] dialog{border-color:var(--coco-line);border-radius:16px;box-shadow:var(--arc-sh-3);background:var(--coco-surface);color:var(--coco-ink)}
+ body[data-app=coco-erp] dialog::backdrop{background:rgb(23 36 59 / .32)}
+ body[data-app=coco-erp] .cocoFollowup>summary{font-weight:500;background:var(--coco-surface)}
+ body[data-app=coco-erp] .cocoFollowupBubble{background:var(--coco-inset);border-color:var(--coco-line);box-shadow:none}
+ body[data-app=coco-erp] .cocoFollowupEvent.is-own .cocoFollowupBubble{background:var(--arc-accent-50);border-color:var(--arc-info-line)}
+ body[data-app=coco-erp] #gamaCloudLogin{background:var(--coco-canvas);padding:24px}
+ body[data-app=coco-erp] #gamaCloudLogin .box{background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:16px;box-shadow:var(--arc-sh-3);width:min(460px,100%)}
+ #gamaCloudLogin .brand{overflow:hidden;margin-bottom:16px}#gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
+ body[data-app=coco-erp] #gamaCloudLogin #gamaCloudLoginBtn{background:var(--coco-action);color:var(--coco-on-action);border-color:var(--coco-action);border-radius:8px;box-shadow:none}
+ body[data-app=coco-erp] #gamaCloudLogin input{border-radius:8px;box-shadow:none}
+ .arcAvatar:has(img){overflow:hidden}.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+ .hrPhotoEditor{display:flex;gap:16px;align-items:center;margin:12px 0 18px;padding:14px;border:1px solid var(--arc-line);border-radius:10px;background:var(--arc-surface-2)}
+ .hrPhotoEditor>div{min-width:0;flex:1}.hrPhotoEditor input{max-width:100%;font-size:12px}.hrPhotoEditor label{margin:0 0 6px}
+ .hrEmployeeAvatar{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:600;flex:none;overflow:hidden;vertical-align:middle}
+ .hrEmployeeAvatar img{width:100%;height:100%;object-fit:cover;display:block}.hrPhotoEditor .hrEmployeeAvatar{width:80px;height:80px;font-size:25px}
+ .hrPerson{display:flex;align-items:center;gap:10px}.hrPerson>div{min-width:0}.hrPhotoEditor .hrPhotoRemove{font-size:12px;min-height:32px;padding:4px 8px;margin-top:6px}
 }
-.arcContent{background:var(--arc-canvas)}
-/* Approved artwork is already framed: show the entire wordmark and icon. */
-.arcBrand .arcLogo{aspect-ratio:1200/439}
-.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}
-.arcBrand .arcLogoMark{object-fit:contain}
-#gamaCloudLogin .brand{overflow:hidden}
-#gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
-#gamaCloudLogin{background:radial-gradient(ellipse at 85% 12%,rgba(248,120,38,.20),transparent 42%),linear-gradient(135deg,#0B3045,#10677D 60%,#157F98);padding:24px}
-#gamaCloudLogin .box{background:#fff;border:1px solid #C6DFE5;box-shadow:0 22px 70px rgba(11,48,69,.28);width:min(460px,100%)}
-#gamaCloudLogin .brand{margin-bottom:10px}
-#gamaCloudLogin #gamaCloudLoginBtn{background:#10677D;border-color:#10677D;color:#fff}
-#gamaCloudLogin #gamaCloudLoginBtn:hover{background:#0C556B}
-#gamaCloudLogin .secondary{background:#FFF0E6;color:#AD4508;border:1px solid #F7D5BD}
-#gamaCloudLogin input:focus{border-color:#157F98;box-shadow:0 0 0 3px #E7F3F6;outline:none}
-@media(max-width:600px){#gamaCloudLogin{padding:16px}#gamaCloudLogin .box{padding:24px 20px}#gamaCloudLogin .brand img.arcLoginLogo{width:100%}}
-/* Home palette follows the new teal/orange artwork without recoloring the top bar. */
-#mainmenu{--gama-blue:#157F98;--gama-blue-dark:#103B52;--gama-orange:#F87826;--arc-accent-600:#157F98;--arc-accent-700:#10677D;--arc-accent-100:#E9F4F7;--arc-accent-50:#F4F9FA;--arc-text:#293545}
-#mainmenu .arcCustomizeButton{color:#10677D;border-color:#C6DFE5;background:#F4F9FA}
-#mainmenu .arcCustomizeButton:hover{background:#E9F4F7;border-color:#157F98}
-#mainmenu .gamaF2Card:focus-visible{outline:3px solid #F87826;outline-offset:3px}
-.arcSidebar{background:#FFF;border-right-color:#E1E6EC}
-.arcSidebar .arcNavLink{font-weight:500;gap:12px}
-.arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 var(--gama-orange)}
-.arcSidebar .arcNavGroup{color:var(--arc-text-muted)}
-#mainmenu .gamaF2Grid{grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:20px}
-#mainmenu .gamaF2Card[data-arc-fam]{background:#FFF;color:var(--gama-blue);border:1px solid #E1E6EC;border-radius:16px;min-height:190px;padding:26px 16px;gap:18px;box-shadow:0 2px 8px rgba(23,49,65,.035)}
-#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue);width:72px;height:72px;border-radius:0}
-#mainmenu .gamaF2Icon svg{width:62px;height:62px;stroke-width:1.65}
-#mainmenu .gamaF2Icon svg:not(.arcHomeIllustration)>:last-child{stroke:var(--gama-orange)}
-#mainmenu .gamaF2Icon svg>[fill=currentColor]{fill:var(--gama-blue)}
-#mainmenu .gamaF2Title{font-size:16px;font-weight:600;line-height:1.4;color:var(--arc-text)}
-@media(hover:hover){#mainmenu .gamaF2Card:hover{border-color:#9BBBC4;box-shadow:0 6px 18px rgba(23,49,65,.08);transform:translateY(-2px)}}
-@media(prefers-reduced-motion:reduce){#mainmenu .gamaF2Card:hover{transform:none}}
-@media(min-width:1400px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:600px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#mainmenu .gamaF2Card[data-arc-fam]{min-height:154px;padding:20px 10px;gap:12px;border-radius:13px}#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{width:54px;height:54px}#mainmenu .gamaF2Icon svg{width:48px;height:48px}#mainmenu .gamaF2Title{font-size:14px}}
-@media screen{
- body .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.ai-panel,.plList,.chartPanel){border:1px solid var(--arc-line);border-radius:12px;background:#FFF;box-shadow:0 2px 8px rgba(23,49,65,.025)}
- body .arcContent section:not(#mainmenu) :is(.arcButton,.gamaStdAction){border-radius:8px;box-shadow:none}
- body .arcContent section:not(#mainmenu) :is(input:not([type=checkbox],[type=radio],[type=range]),select,textarea){border-radius:8px;box-shadow:none}
- body .arcContent section:not(#mainmenu) :is(.arcTableWrap,.gsScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox,.gamaColumnPicker){border-radius:8px;border-color:var(--arc-line)}
- body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs)>button:is(.active,.on,.sel,[aria-selected=true],[aria-pressed=true]){color:#AD4508;border:1px solid transparent;border-bottom:2px solid var(--gama-orange);background:transparent;box-shadow:none}
- body .arcContent section:not(#mainmenu) table.gamaCards :is(thead th,[data-gama-head] th){font-weight:600;background:#F7F8FA;border-bottom-color:var(--arc-line)}
- body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(even)>td{background:#F7F8FA}
- body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:hover>td{background:var(--arc-accent-50)}
- body .arcContent #crm .crmTablero{gap:14px}
- body .arcContent #crm .crmTablero .crmCol{border:1px solid var(--arc-line);border-radius:12px}
- body .arcContent #crm .crmTarjeta{border-radius:9px;box-shadow:0 2px 6px rgba(23,49,65,.03)}
- body .arcContent section:not(#mainmenu) table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){border-radius:10px}
+@media screen and (max-width:1179px){body.cocoWorkbench .arcContent{padding:16px calc(16px + var(--arc-safe-r)) calc(28px + var(--arc-safe-b)) calc(16px + var(--arc-safe-l))}}
+@media screen and (max-width:860px){body.cocoWorkbench .arcContent{padding-bottom:calc(88px + var(--arc-safe-b))}}
+@media screen and (max-width:760px){
+ body[data-app=coco-erp]{--coco-panel-padding:16px;--coco-panel-gap:16px}
+ body.cocoWorkbench .arcContent{padding:12px calc(12px + var(--arc-safe-r)) calc(88px + var(--arc-safe-b)) calc(12px + var(--arc-safe-l))}
+ body.cocoWorkbench .cocoModuleContext{font-size:14px}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetric{display:block}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:block}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricIcon{margin-bottom:12px}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{overflow-wrap:anywhere}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:clamp(18px,5vw,24px);margin:10px 0}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){font-size:16px}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton{min-height:44px}
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.adMetrics,.hrKpis,.ivKpis,.gaKpis,.pmKpis,.adCockpit){gap:12px}
+ body[data-app=coco-erp] #gamaCloudLogin{padding:16px}body[data-app=coco-erp] #gamaCloudLogin .box{padding:24px 20px}
 }
-/* Only the portrait inside the existing top-bar circle changes. */
-.arcAvatar:has(img){overflow:hidden}
-.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
-.hrPhotoEditor{display:flex;gap:16px;align-items:center;margin:12px 0 18px;padding:14px;border:1px solid var(--arc-line);border-radius:10px;background:var(--arc-surface-2)}
-.hrPhotoEditor>div{min-width:0;flex:1}.hrPhotoEditor input{max-width:100%;font-size:12px}.hrPhotoEditor label{margin:0 0 6px}
-.hrEmployeeAvatar{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:600;flex:none;overflow:hidden;vertical-align:middle}
-.hrEmployeeAvatar img{width:100%;height:100%;object-fit:cover;display:block}
-.hrPhotoEditor .hrEmployeeAvatar{width:80px;height:80px;font-size:25px}
-.hrPerson{display:flex;align-items:center;gap:10px}.hrPerson>div{min-width:0}
-.hrPhotoEditor .hrPhotoRemove{font-size:12px;min-height:32px;padding:4px 8px;margin-top:6px}
-@media(max-width:420px){.hrPhotoEditor{padding:10px;gap:10px}.hrPhotoEditor .hrEmployeeAvatar{width:60px;height:60px}}
-
-/* The dashboard uses the same two reporting colours as the GAMA reference. */
-.arcContent .adBarInvoice{fill:var(--gama-orange);background:var(--gama-orange)}
-.arcContent .adBarCash{fill:var(--gama-blue);background:var(--gama-blue)}
-.arcContent .gamaF2KpiIcon{border-radius:50%}
-
-#gamaCloudLogin button{box-shadow:0 4px 14px rgba(16,103,125,.16)}
+@media screen and (max-width:420px){.hrPhotoEditor{padding:10px;gap:10px}.hrPhotoEditor .hrEmployeeAvatar{width:60px;height:60px}}

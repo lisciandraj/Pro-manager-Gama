@@ -1,21 +1,10 @@
-/* Contrat de référence Replica. Ne pas charger en plus du thème existant.
-   Source runtime : src/styles/tokens.css, design.css, workspace.css. */
+/* Reference aliases only; do not import alongside the runtime theme.
+   Runtime source of truth: src/styles/tokens.css and src/styles/design.css. */
 :root {
-  --arc-workspace-radius: 8px;
-  --arc-workspace-gap: 16px;
-  --arc-command-surface: #FFFFFF;
-  --arc-command-border: #D8E2EA;
-  --arc-input-border: #778695;
-  --arc-workspace-title: 24px;
-  --arc-reading-width: 78ch;
-}
-.arcContent, .arcSidebar, body > dialog {
-  --arc-accent-700: #0C556B;
-  --arc-accent-600: #10677D;
-  --arc-accent-500: #157F98;
-  --arc-text: #1C2C3E;
-  --arc-text-muted: #526473;
-  --arc-surface-2: #F7F8FA;
-  --arc-line: #D8E2EA;
-  --arc-line-strong: #778695;
+ --coco-canvas:#F3F4F6;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
+ --coco-ink:#17243B;--coco-muted:#5D6980;--coco-line:#DFE3EA;
+ --coco-action:#F87826;--coco-action-hover:#FF8C45;--coco-on-action:#0B3045;
+ --arc-accent-600:#10677D;--arc-line-strong:#7B8797;
+ --arc-workspace-radius:12px;--arc-workspace-gap:24px;
+ --arc-r-sm:6px;--arc-r-md:8px;--arc-r-lg:12px;--arc-r-xl:16px;
 }

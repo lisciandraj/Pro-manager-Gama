@@ -82,7 +82,8 @@ test('native sales tabs stay in their module, switch with keyboard, and the comm
  await page.evaluate(()=>ArcRouter.open('quotes'));await expect(page.locator('#gqList tbody tr')).toHaveCount(20);
  await expect(page.locator('section.active .cocoSalesNavigation')).toHaveClass(/cocoModuleNav/);
  expect(await page.locator('section.active .cocoSalesNavigation').evaluate(el=>el.closest('section').id)).toBe('quotes');
- expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(330);
+ // The GAMA reference theme allows a roomier toolbar while keeping rows above the fold.
+ expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(400);
  const first=page.locator('[data-coco-sales-section=documents]');await first.focus();await page.keyboard.press('ArrowRight');
  await expect(page.locator('[data-coco-sales-section=orders]')).toBeFocused();await page.keyboard.press('Enter');
  await expect(page.locator('#sales-orders')).toBeVisible();

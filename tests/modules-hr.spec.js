@@ -37,7 +37,7 @@ test('un módulo desactivado desaparece del menú y no se puede abrir', async ({
 
   await page.evaluate(() => window.GamaOpenAccessSettings());
   await page.waitForTimeout(500);
-  // Los dos botones llevan los colores de botón de la aplicación: azul el
+  // Los dos botones llevan los colores de botón de la aplicación: naranja el
   // principal —instalar—, blanco el secundario —desinstalar—. No se fija aquí
   // ningún valor: se comparan contra un botón principal y uno secundario de
   // esta misma pantalla, así que la prueba sigue valiendo si cambia la paleta

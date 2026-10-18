@@ -2,7 +2,7 @@
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
  --coco-blue:#157F98;--coco-blue-dark:#10677D;--coco-orange:#F87826;
- --coco-ink:#1C2C3E;--coco-muted:#526473;--coco-grid:#C5D1DB;
+ --coco-grid:#C5D1DB;
  --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
  background:#F7F8FB;color:var(--coco-ink);
 }
@@ -86,7 +86,6 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #dashboard .adKpis{margin:0}
 #dashboard .adKpis>summary{cursor:pointer;color:#10677D;font-size:13px;padding:7px 0}
 #dashboard .adMetrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:16px 0 20px}
-#dashboard .adMetric{padding:18px;min-height:125px;text-align:left;border-color:#E1E6EC}
 #dashboard .adMetricLabel{font-size:13px;font-weight:600;gap:10px;line-height:1.4}
 #dashboard .adMetricLabel svg{width:26px;height:26px;color:#10677D}
 #dashboard .adMetric strong{font-size:28px;letter-spacing:-.025em;margin:10px 0 6px;line-height:1.2}
@@ -331,7 +330,6 @@ body .arcContent .gamaStdBack{color:#10677D}
 #dashboard .adMeta{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}
 #dashboard .adMeta>span{display:block}
 #dashboard .adMeta small{display:inline;font-size:10px}
-#dashboard .adMetric{min-height:144px}
 @media(min-width:1101px){
  #dashboard .adWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
  #dashboard #ad-content,#dashboard .adPersonal{grid-column:1/-1}
@@ -400,13 +398,9 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #dashboard .adPeriodMore .adTools{margin-top:10px}
 #dashboard .adMetrics{margin:0 0 20px;gap:16px}
 #dashboard .adMeta{font-size:11px;order:4;margin:0 0 12px;color:#617080}
-#dashboard .adMetric{display:flex;align-items:flex-start;gap:16px;min-height:136px;padding:20px 18px;border:1px solid #E1E6EC;box-shadow:0 2px 10px #18314903}
 #dashboard .adMetricIcon{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#E7F3F6;color:#10677D}
-#dashboard .adMetric:nth-child(odd) .adMetricIcon{color:#AD4508;background:#FFF0E6}
-#dashboard .adMetricIcon svg{width:26px;height:26px}
 #dashboard .adMetricBody{display:block;min-width:0;flex:1}
 #dashboard .adMetricLabel{display:block;font-size:14px;line-height:1.35;font-weight:500;color:#24374A}
-#dashboard .adMetricBody>strong{font-size:29px;margin:8px 0 7px;display:block;color:#101B2B;overflow-wrap:anywhere}
 #dashboard .adMetricBody>small{font-size:11px;color:#617080;line-height:1.5}
 #dashboard .adDelta{display:block;margin-top:5px;font-size:11px;color:#0D7446}
 #dashboard .adExecutive .adMetric{display:block}
@@ -603,9 +597,6 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 /* Domain headings replace the shared module heading while viewing a dossier. */
 body #sales-orders[data-coco-order=true]>.gamaStdHeader,body #sales-orders[data-coco-order=true]>.gqModuleTabs,body #sri:has(.gaSriHeader)>.gamaStdHeader{display:none!important}
 body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
-#dashboard .adMetric{flex-direction:row!important}
-#dashboard .adMetric .adMetricIcon{background:#E7F3F6;color:#10677D}
-#dashboard .adMetric:nth-child(odd) .adMetricIcon{background:#FFF0E6;color:#AD4508}
 #dashboard .adMetric .adMetricIcon svg{color:inherit}
 #sales-orders .gsHistoryList .gsHistoryEmpty{padding-left:0;margin-left:0;border:0;color:#617080}
 #sales-orders .gsHistoryList .gsHistoryEmpty:before{display:none}
@@ -634,8 +625,6 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 #dashboard #ad-content>.adMeta{order:2;margin:0 0 14px}
 #dashboard #ad-content>.adDetails{order:3}
 #dashboard #ad-content>.adMethod{order:4}
-#dashboard .adMetric{min-height:132px;padding:18px}
-#dashboard .adMetricBody>strong{margin:5px 0 6px;font-size:28px}
 #dashboard .adMetricBody>small{line-height:14px}
 #dashboard .adDelta{font-size:10px;line-height:14px;margin-top:4px}
 #dashboard .adChart{max-height:220px}

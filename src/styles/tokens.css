@@ -33,16 +33,16 @@
  --arc-accent-50:#F3F9FA;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#F3F7F9;      /* clear separation from white working surfaces */
+ --arc-canvas:#F3F4F6;      /* matte canvas from the October 18 references */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F5F8FA;   /* superficie hundida: cabeceras de tabla, zonas */
- --arc-surface-3:#EDF3F6;
- --arc-line:#BEC5D3;        /* visible shared separators */
- --arc-line-strong:#8A95A8; /* fields and stronger boundaries */
+ --arc-surface-2:#F8F9FB;   /* table headings and inset surfaces */
+ --arc-surface-3:#EEF1F5;
+ --arc-line:#DFE3EA;        /* decorative surface separators */
+ --arc-line-strong:#7B8797; /* interactive boundaries, AA contrast */
 
- --arc-text:#0B172A;        
- --arc-text-muted:#4F5C78;  
- --arc-text-subtle:#5B6883; 
+ --arc-text:#17243B;
+ --arc-text-muted:#5D6980;
+ --arc-text-subtle:#5D6980;
  --arc-text-invert:#FFFFFF;
  --arc-text-on-navy:#DDEEF2; 
 
@@ -71,23 +71,23 @@
  --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
 
  /* -------------------------------------------------------------- radios */
- --arc-r-sm:8px; --arc-r-md:10px; --arc-r-lg:12px; --arc-r-xl:16px; --arc-r-pill:999px;
+ --arc-r-sm:6px; --arc-r-md:8px; --arc-r-lg:12px; --arc-r-xl:16px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
- --arc-sh-1:0 1px 2px rgba(31,36,66,.06), 0 1px 3px rgba(31,36,66,.05);
- --arc-sh-2:0 2px 4px rgba(31,36,66,.06), 0 4px 12px rgba(31,36,66,.06);
- --arc-sh-3:0 8px 24px rgba(31,36,66,.10), 0 2px 6px rgba(31,36,66,.06);
- --arc-sh-nav:0 1px 3px rgba(31,36,66,.08);
+ --arc-sh-1:none;
+ --arc-sh-2:0 4px 16px rgb(23 36 59 / .06);
+ --arc-sh-3:0 16px 48px rgb(23 36 59 / .14);
+ --arc-sh-nav:none;
 
  /* ---------------------------------------------------------- tipografía */
  --arc-font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
- --arc-fs-page:clamp(28px,3vw,40px);   --arc-lh-page:1.2;    /* título de página */
- --arc-fs-section:18px;--arc-lh-section:1.3; /* título de sección */
+ --arc-fs-page:22px;   --arc-lh-page:1.3;    /* title */
+ --arc-fs-section:16px;--arc-lh-section:1.4;
  --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
  --arc-fs-body:14px;   --arc-lh-body:1.55;
  --arc-fs-sec:13px;    --arc-lh-sec:1.5;     /* texto secundario */
  --arc-fs-cap:12px;    --arc-lh-cap:1.45;    /* pie, etiqueta */
- --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:700; --arc-fw-black:800;
+ --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:600; --arc-fw-black:650;
 
  /* ---------------------------------------------------------- estructura */
  --arc-sidebar-w:clamp(192px,16.75vw,240px);
@@ -97,13 +97,20 @@
  --arc-focus:0 0 0 3px rgba(21,127,152,.35);
  --arc-content-max:1600px;
  /* Operational workspaces: Odoo layout references, Coco brand roles. */
- --arc-workspace-radius:8px;
- --arc-workspace-gap:16px;
+ --arc-workspace-radius:12px;
+ --arc-workspace-gap:24px;
  --arc-command-surface:#FFFFFF;
- --arc-command-border:#D8E2EA;
- --arc-input-border:#778695;
- --arc-workspace-title:24px;
+ --arc-command-border:var(--arc-line);
+ --arc-input-border:var(--arc-line-strong);
+ --arc-workspace-title:22px;
  --arc-reading-width:78ch;
+ /* GAMA reference theme: one source for shared and lazy-loaded components. */
+ --coco-canvas:#F3F4F6;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
+ --coco-line:#DFE3EA;--coco-row-line:#E9ECF1;--coco-column-line:#F1F3F6;
+ --coco-ink:#17243B;--coco-muted:#5D6980;
+ --coco-action:#F87826;--coco-action-hover:#FF8C45;--coco-on-action:#0B3045;
+ --coco-action-tint:#FFF4ED;--coco-action-line:#F4C9AD;
+ --coco-panel-padding:20px;--coco-panel-gap:24px;
 }
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
@@ -124,12 +131,10 @@
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
  --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
  /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
- --arc-tile-border:#ABB2C0;--arc-tile-border-bottom:#8A95A8;
- --arc-tile-shadow:inset 0 1px 0 #FFFFFF,0 2px 0 rgba(31,36,66,.14),0 5px 12px rgba(31,36,66,.12);
- --arc-tile-border-hover:#6F7B93;
- --arc-tile-shadow-hover:inset 0 1px 0 #FFFFFF,0 3px 0 rgba(31,36,66,.16),0 8px 18px rgba(31,36,66,.18);
- --arc-control-shadow:0 1px 0 rgba(31,36,66,.15),0 2px 5px rgba(31,36,66,.10);
- --arc-field-shadow:inset 0 1px 2px rgba(31,36,66,.07),0 1px 2px rgba(31,36,66,.07);
+ --arc-tile-border:var(--coco-line);--arc-tile-border-bottom:var(--coco-line);
+ --arc-tile-shadow:none;--arc-tile-border-hover:#88BCC9;
+ --arc-tile-shadow-hover:var(--arc-sh-2);
+ --arc-control-shadow:none;--arc-field-shadow:none;
  
  --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;
  --arc-icon-violet:#D45C0B;--arc-icon-violet-bg:#FFF0E6;

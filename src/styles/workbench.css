@@ -2,7 +2,7 @@
    ERP module. Business-specific grids, forms and map/kanban views keep their
    own structure. Public storefront and printed documents are not targeted. */
 @media screen {
- body.cocoWorkbench{--arc-topbar-h:60px;--arc-workspace-title:20px;--arc-workspace-radius:6px;--arc-content-max:none;--coco-nav-left:360px;--coco-nav-right:220px}
+ body.cocoWorkbench{--arc-topbar-h:60px;--arc-workspace-title:20px;--arc-workspace-radius:var(--arc-r-lg);--arc-content-max:none;--coco-nav-left:360px;--coco-nav-right:220px}
  body.cocoWorkbench .arcMain{margin-left:0;min-width:0}
  /* Visibility must switch immediately so the opening menu can receive focus. */
  body.cocoWorkbench .arcSidebar{width:min(304px,calc(100vw - 24px));padding-left:var(--arc-safe-l);transform:translateX(-105%);box-shadow:none;visibility:hidden;transition:transform .16s ease}
@@ -72,15 +72,7 @@
  body.cocoWorkbench .arcContent .cocoWorkspaceHeader :is(.gamaStdIcon,.gamaStdText,.gamaStdBack){display:none!important}
  body.cocoWorkbench .arcContent .cocoWorkspaceHeader .gamaStdActions:not(:has(>:not(.gamaStdBack))){display:none}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .cocoWorkspaceHeader.cocoHeaderEmpty{display:none!important}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.ai-panel,.plList,.chartPanel){border-radius:6px;box-shadow:none}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(button.arcButton,.gamaStdAction){border-radius:6px;box-shadow:none}
  body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcToolbar,.gsTools,.gpTools,.gaTools,.gfTools,.grTools,.gqTools,.ivTools,.pmToolbar,.svToolbar){gap:8px}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]){border-collapse:collapse;width:100%;border:1px solid var(--arc-line)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) :is(th,td){padding:10px 12px;border:1px solid var(--arc-line);vertical-align:middle;font-size:13px;line-height:1.45}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) thead th{background:var(--arc-surface-2);font-size:12px;font-weight:600;text-transform:none;letter-spacing:0}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tbody tr:nth-child(even)>td{background:var(--arc-surface)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tbody tr:is([data-selected=true],[aria-selected=true])>td{background:var(--arc-accent-100)}
  body.cocoWorkbench .arcContent .gamaTableToolbar{gap:8px;margin:8px 0;align-items:center;padding:0;border:0;background:transparent}
  body.cocoWorkbench .arcContent .gamaTableControls{gap:6px;align-items:center}
  body.cocoWorkbench .arcContent .gamaTableViews{border-radius:5px;box-shadow:none}
@@ -138,8 +130,6 @@
 }
 @media screen and (min-width:761px){
  .cocoQuoteFilters>summary{display:none}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tbody td{padding-top:7px;padding-bottom:7px}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) td button.arcButton{min-height:32px;padding:6px 10px;font-size:12px}
 }
 @media screen and (max-width:1179px){
  body.cocoWorkbench .cocoModuleContext{max-width:220px;font-size:14px}

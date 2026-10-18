@@ -1,11 +1,11 @@
 # Charte graphique actuelle
 
-Coco ERP utilise le thème bleu pétrole et orange inspiré de GAMA depuis le 29 septembre 2026. Les anciennes palettes violet/bleu robot sont conservées uniquement dans l’historique.
+Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des trois modèles fournis par le propriétaire, adaptée au bleu pétrole et orange GAMA. La charte ci-dessous remplace les valeurs visuelles des maquettes antérieures, tout en conservant leurs fonctionnalités et leur navigation.
 
 | Élément | Source actuelle |
 | --- | --- |
 | Tokens globaux | `src/styles/tokens.css` |
-| Ajustements du thème et surfaces | `src/styles/design.css`, `src/styles/workspace.css`, puis `src/styles/workbench.css` |
+| Ajustements du thème et surfaces | `src/styles/workspace.css`, `src/styles/workbench.css`, puis `src/styles/design.css` |
 | Accueil | `src/styles/home.css`, `src/ui/home-menu.js` |
 | Lanceur, menu des applications et barre supérieure | `src/styles/shell.css`, `src/ui/shell.js` |
 | Icônes vectorielles des modules | `src/ui/icons.js` |
@@ -13,12 +13,31 @@ Coco ERP utilise le thème bleu pétrole et orange inspiré de GAMA depuis le 29
 | Icône C pour smartphone/PC | `coco-erp-icon-180/192/512.png`, variantes maskable, `favicon.ico` |
 | Variantes d’export de marque | `assets/brand/` |
 
+## Base visuelle commune
+
+| Rôle | Standard |
+| --- | --- |
+| Fond / surfaces | #F3F4F6 / #FFFFFF ; aspect mat, sans texture ajoutée |
+| Texte / secondaire | #17243B / #5D6980 |
+| Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
+| Action principale | Orange, dégradé très léger, texte bleu nuit #0B3045 |
+| Bordures | Panneau #DFE3EA ; lignes #E9ECF1 ; saisie #7B8797 |
+| Police | Inter variable locale ; poids 400, 500, 600 |
+| Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |
+| Espacements | Base 4 px ; contenu 24 px PC, 16 px tablette, 12 px téléphone |
+| Rayons | Badge 6, bouton/champ 8, carte 12, fenêtre 16 px |
+| Ombres | Aucune sur les surfaces ; légères sur les éléments superposés |
+
+Le [contrat complet des composants](../replica/design/components.md) précise les tableaux, KPI, graphiques, tuiles, kanban, boutons, formulaires et historiques. Les [tokens exportables](../replica/design/tokens.json) documentent les rôles et les paires de contraste. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats et TMS restent dans leurs styles différés. Aucun nouvel actif graphique ni police distante n’est téléchargé.
+
+La refonte est exclusivement visuelle. Les modules, identifiants, données, calculs, droits, actions, filtres, onglets, liens, langues et préférences existantes sont conservés. Les graphiques utilisent leurs vraies séries existantes. La navigation horizontale et le lanceur gardent leur fonctionnement ; leurs couleurs, bordures, espacements et typographie suivent la charte.
+
 Les accents principaux sont `#157F98`, `#10677D`, `#238FA4` et `#F87826`. Les tokens de texte et fonds déterminent leur usage ; les noms historiques comme `--arc-coco-violet` sont des alias compatibles, pas une description de la couleur affichée.
 La barre supérieure et le menu des applications restent blancs. Depuis le 18 octobre 2026, le menu ouvrable et la connexion affichent le logo ultra minimaliste « COCO » en bleu pétrole, avec le O et le C centraux partiellement fusionnés et « ERP » de la même couleur, davantage espacé sous le mot. L’icône PC/smartphone reprend uniquement le monogramme OC central fusionné, sur une tuile blanche, sans relief ni texte. Les originaux sont conservés intacts dans `assets/brand/coco-erp-logo-approved-20261018.png` et `assets/brand/coco-erp-icon-approved-20261018.png`, à côté des références précédentes. `scripts/export-brand-assets.py` (Python avec Pillow) recadre uniquement les marges blanches du logo principal et ajoute 3 % de marge blanche par bord à l’icône pour les masques d’application. Le logo web mesure 1200 × 439 px. Le manifeste, le favicon, les icônes tactiles, la connexion, le menu et le cache hors connexion portent la révision `20261018-minimal`. Les anciennes adresses `coco-gama-*` et `icon-*.png` conservent des exports compatibles. Le point de lancement PWA et son identité existante restent inchangés. Les titres d’introduction de l’accueil ont été retirés ; les tuiles gardent leur bordure fine et leur personnalisation. Une photo d’employé peut remplacer les initiales du profil.
 
 Les rapports de contraste historiques ne doivent pas être réutilisés après une modification de couleurs : vérifier le couple texte/fond réellement calculé, y compris les surcharges du thème.
 
-Les tableaux utilisent la vue tableau par défaut. Le stock, la liste des devis et la file Ventes « À traiter » ouvrent des fiches sur téléphone (760 px ou moins) si le compte n’a pas déjà choisi une vue ; un choix enregistré reste prioritaire. Les cellules possèdent des bordures horizontales et verticales visibles (`--arc-table-grid` dans `src/ui/components.css`) ; les en-têtes et cellules vides gardent leur alignement. Les grands tableaux défilent dans leur propre zone. Le sélecteur permet toujours un choix explicite des cartes, conservé par compte et tableau (`src/ui/tables.js`).
+Les tableaux utilisent la vue tableau par défaut. Le stock, la liste des devis et la file Ventes « À traiter » ouvrent des fiches sur téléphone (760 px ou moins) si le compte n’a pas déjà choisi une vue ; un choix enregistré reste prioritaire. Les cellules possèdent des séparateurs horizontaux fins et un quadrillage vertical discret (tokens `--coco-row-line` et `--coco-column-line`) ; les en-têtes et cellules vides gardent leur alignement. Les grands tableaux défilent dans leur propre zone. Le sélecteur permet toujours un choix explicite des cartes, conservé par compte et tableau (`src/ui/tables.js`).
 
 Le sélecteur « Tuiles / Tableau » utilise partout les mêmes boutons à contour bleu, y compris dans les tableaux historiques et les fenêtres de consultation. Leur largeur s’adapte à l’icône et au libellé traduit, sans compression ; leur hauteur minimale est de 44 px. Le choix actif garde un fond bleu clair et un contour renforcé. La présentation partagée est définie dans `src/styles/ui.css` ; les styles de page ne redéfinissent pas ces boutons.
 
@@ -28,7 +47,7 @@ L’ordre des colonnes se modifie en glissant un en-tête (souris) ou sa poigné
 
 Les fenêtres de consultation partagées affichent une seule action « Retour » (« Volver » / « Back »), sans doublon « Fermer ». Les formulaires conservent leur action métier et leur bouton Retour. Une confirmation explicite conserve ses deux choix. `ArcUI.dialog` reconnaît les anciens libellés de fermeture FR/ES/EN ; `dismissOnly` permet de déclarer ce comportement explicitement.
 
-Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure fine bleue uniforme (`#B6DCE5`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#88BCC9`). La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
+Les maquettes approuvées sont implémentées dans `src/styles/workspace.css` : navigation blanche, tuiles à fond blanc avec leurs icônes bleu/orange et une bordure fine neutre uniforme (`#DFE3EA`), titres visibles, favoris par compte, et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent le même contour, y compris au survol (`#88BCC9`). La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
 
 Le Dashboard présente les indicateurs du profil, le graphique, les actions du jour et cinq commandes récentes. Son en-tête conserve la flèche de retour au menu partagée avec les autres modules, sur ordinateur et téléphone. Les vues favorites, indicateurs personnels et analyses détaillées restent accessibles dans des sections dépliables. Les commandes récentes sont une lecture limitée soumise aux mêmes droits, annulée visuellement lors d’un changement de compte ou de période.
 
@@ -78,7 +97,7 @@ La barre supérieure de 60 px regroupe marque, module actif, recherche globale, 
 
 L’accueil utilise une grille compacte de six colonnes sur ordinateur, cinq sur tablette large, quatre sur tablette et trois sur téléphone. La hauteur des tuiles tient compte de la hauteur d’écran et des 24 modules du registre ; les icônes, marges et espaces sont réduits pour éviter le défilement aux dimensions usuelles. Les libellés restent complets, et les favoris, l’ordre personnel et les droits restent identiques. Sur un écran très court ou avec un zoom important, le contenu conserve sa hauteur lisible et peut défiler, sans masquer de module.
 
-Les surfaces de travail sont blanches, sans ombre lourde, avec rayons de 6 px. Le quadrillage et les références restent lisibles ; les boutons de ligne sont compacts sur ordinateur, les cibles tactiles conservent 44 px. Les champs, états, focus et couleurs s’appuient sur les tokens Coco existants.
+Les surfaces de travail sont blanches, sans ombre lourde, avec rayons de 12 px. Le quadrillage et les références restent lisibles ; les boutons de ligne sont compacts sur ordinateur, les cibles tactiles conservent 44 px. Les champs, états, focus et couleurs s’appuient sur les tokens Coco existants.
 
 Ventes regroupe création, titre, recherche et pagination dans une barre de commande. Les destinations secondaires restent visibles ; les filtres, vues enregistrées et contrôles de tableau sont dépliables sur téléphone, ouverts sur ordinateur. Les filtres appliqués, la pagination serveur, le retour au devis, le choix tableau/tuiles et les clés de préférence restent compatibles. Le site public et les documents imprimés ne sont pas concernés.
 

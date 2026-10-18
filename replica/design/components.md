@@ -1,30 +1,25 @@
-# Contrat des composants Coco
+# Contrat des composants Coco — GAMA, 18 octobre 2026
 
-Les motifs Odoo guident l’organisation et la densité. Coco garde son logo, ses illustrations, sa typographie Inter et ses accents pétrole/orange. Le projet n’utilise pas Tailwind : les rôles de `tokens.json` sont mappés aux variables CSS historiques `--arc-*` dans `tokens.css`, puis aux sources runtime. Aucun framework ni dépendance supplémentaire.
+Les trois modèles fournis (IMG_1295, IMG_1296, IMG_1297) définissent la nouvelle base visuelle. Le fond intérieur mesuré est #F3F4F6, les surfaces #FFFFFF. Leur cadre gris extérieur appartient à la présentation de la maquette. Coco conserve ses logos, ses icônes originales, les couleurs GAMA et Inter locale. Aucun nouveau framework, aucune copie des données ou images PeopleOS.
 
-| Composant | Règles et états |
+La source de vérité est `src/styles/tokens.css`. `src/styles/design.css`, chargé après les mises en page, applique les composants communs. Les styles de modules différés utilisent les mêmes variables. Les fichiers de ce dossier documentent le contrat et ne sont pas importés en plus dans l’application.
+
+| Composant | Variantes, états et règles |
 | --- | --- |
-| En-tête | Titre 24 px/700, séparation fine, outils dans la même zone. Retour visible. Outils étroits dans le panneau natif existant, sans déplacer les cinq sections Ventes. En dessous de 1100 px, actions réparties sur une ligne supplémentaire. |
-| Bouton | Cible 44 px minimum, libellé explicite. Primaire pétrole foncé + blanc ; survol plus sombre ; focus contour 2 px décalé de 3 px. Disabled natif et état occupé existant conservés. |
-| Champ | Étiquette persistante 12 px/600, hauteur existante 44 px, bordure #778695 sur blanc. Placeholder lisible. Lecture seule grisée, erreur textuelle + bordure rouge + aria-invalid. Texte 16 px sur téléphone. Valeurs et aide conservées en cas d’erreur. |
-| Onglets | Libellé, sélection et focus conservés. Sections Ventes toujours visibles, retour à la ligne sur téléphone. Aucun remplacement par un menu de navigation. |
-| Tableau | Quadrillage visible, en-tête 12 px/600, cellules 13 px, montants tabulaires. Survol bleu très clair et sélection bleu clair. Colonnes, tri et vue personnelle gérés par GamaTable sans nouvelle clé. Défilement limité au tableau. États vide/erreur/pagination existants. |
-| Carte CRM | Titre 14 px, montant 16 px, séparateurs fins, rayon 6 px. Étape identifiée par texte et couleur. Cible de déplacement ≥44 px ; état glissé avec bordure pointillée ; retard marqué et libellé ; erreurs de mutation conservent la carte. |
-| Bibliothèque Documents | Rail 210 px, 180 px sur tablette ; contenu minmax(0,1fr). Recherche dans le contenu pour éviter son déplacement hors de la grille par GamaTable. Sur téléphone : rail au-dessus, champs sur deux colonnes si possible. Le titre d’un fichier et sa référence sont hiérarchisés. |
-| Article | Rail 240/210 px, fond de lecture blanc, titre 25 px, texte 15 px avec interligne 1.75 et largeur 78ch maximum. Arbre et article empilés sous 760 px. |
-| Dialogue | Titre et corps séparés, rayon 12 px, padding 24/16 px. Actions dans un pied distinct, dans le flux pour ne pas recouvrir les champs des longs formulaires. Retour et action métier gardent leurs gestionnaires, échec réseau garde le brouillon, validation amène le focus sur le premier champ invalide. Aucun bouton de fermeture redondant. |
-| Badge/alerte | Libellé obligatoire ; success/warning/danger/info sémantiques. Orange de marque avec texte bleu nuit. Ne pas utiliser blanc sur orange pour du texte courant. |
+| Cadre | Fond gris froid mat, barre et menu blancs, séparateurs fins, texte pétrole. Structure existante : barre de 60 px, lanceur avec favoris, onglets natifs horizontaux. Padding 24/16/12 px selon largeur. Retour, menu modal, focus et droits conservés. |
+| Carte / panneau | Blanc, bordure #DFE3EA 1 px, rayon 12 px, ombre nulle, padding 20 px / 16 px sur mobile. Titres 16 px/600 ; contenu 14 px/400. La hauteur dépend du contenu. États vide/chargement/erreur conservés. |
+| Bouton | Primaire orange GAMA avec discret dégradé et texte bleu nuit ; secondaire blanc ; danger/succès sémantiques. Rayon 8 px, poids 500. Cible tactile 44 px ; action de ligne compacte sur PC. Survol, disabled natif, aria-busy et libellés existants conservés. Focus pétrole 2 px décalé de 3 px. |
+| Champ | Inter, étiquette persistante, hauteur native ≥44 px, rayon 8 px, bordure #7B8797. Texte 16 px sur téléphone. Placeholder contrasté, lecture seule grisée, erreur textuelle avec aria-invalid. Aide, valeurs, validation et reprise inchangées. |
+| Tableau | En-tête #F8F9FB, texte 12 px/500 ; lignes blanches et cellules 13 px. Padding 12 × 14 px, séparateurs horizontaux #E9ECF1, quadrillage vertical discret #F1F3F6. Survol et sélection pétrole clair. Montants tabulaires alignés à droite ; défilement local. Tri, colonnes, pagination, filtres et préférences inchangés. |
+| Tableau en cartes | Blanc, rayon 12 px, bordure fine ; libellés de chaque valeur conservés dans toutes les langues. Les préférences enregistrées restent prioritaires. Aucun titre/cellule/contrôle masqué par le thème. |
+| KPI | Carte blanche, petite icône dans un carré arrondi, libellé 13 px, valeur 28 px/600, chiffres tabulaires et sous-texte contrasté. Valeur absente et vrai zéro gardent leur distinction. Liens et calculs restent ceux du module. |
+| Graphique | Séries orange/pétrole et nuances, barres adoucies, grille fine, légende lisible avec repère coloré et libellé. Progressions sur rail gris de 6 px. Les valeurs, échelles, dates, info-bulles, exports, accès clavier et liens détaillés sont conservés. Aucun graphique fictif ajouté. |
+| Kanban | Colonnes légèrement grisées, bordure fine, rayon 12 px ; cartes blanches rayon 10 px, padding 14 px. Titre léger, séparateurs fins, repère d’étape discret. Retard, gagné/perdu, glisser-déposer, focus et contrôles de déplacement gardent leurs états. |
+| Badge | Rayon 6 px, contour fin, fond sémantique léger, texte 12 px/400. État toujours écrit ; couleur jamais seule. |
+| Historique | Même carte blanche, bulles gris très clair / pétrole clair, bordure fine. Avatars, auteurs, dates, regroupements, liens et validation des propositions existants conservés. |
+| Fenêtre | Surface blanche, rayon 16 px, ombre légère réservée à la superposition, voile transparent. Taille, défilement, footer et retours restent adaptés aux formulaires existants. |
+| Accueil | Tuiles blanches avec mêmes bordures et rayons, icônes bleu/orange conservées, texte 14 px/500. Grille compacte, noms complets, favoris et ordre personnel inchangés. |
 
-Les lignes décoratives #D8E2EA ne portent pas seules une information interactive. Les bordures de champs et le focus sont contrôlés à 3:1 ; texte courant à 4.5:1. `contrast.json` enregistre les 17 couples du contrat. Les tests navigateur complètent ces mesures avec les styles réellement calculés.
+Les paires de texte sont vérifiées à 4,5:1, les bordures de saisie et le focus à 3:1. L’orange vif ne porte pas de texte blanc courant : le texte bleu nuit préserve la lisibilité. Les séparateurs de surfaces sont décoratifs. `contrast.json` contient les résultats du contrat.
 
-La planche de primitives est rendue avec les composants ArcUI existants sur une page locale de test. Les images de référence et les données de démonstration ne sont pas chargées par l’application publiée. Les animations existantes respectent `prefers-reduced-motion` ; l’accès au formulaire produit suit également cette préférence.
-
-Les styles propres au pipeline CRM, à Documents et à la base de connaissances sont chargés avec leurs modules via le registre de chargement différé. Cela conserve le budget CSS de démarrage ; `config/runtime-assets.json` reste la source des assets publiés.
-
-## Cadre horizontal approuvé, 16 octobre 2026
-
-- Lanceur : bouton natif 44 px, aria-expanded/controls ; menu modal avec fermeture, Échap, boucle de focus, fond inerte, favoris et droits existants.
-- Onglets de module : boutons natifs conservés dans leur parent ; ligne horizontale défilante, soulignement orange actif, texte pétrole, focus visible. Intégration à la barre de 60 px dès 1 180 px.
-- Liste Ventes : action primaire, titre, recherche et pagination regroupés ; filtres dépliables sur mobile ; aucun contrôle métier factice.
-- Grille : règles horizontales et verticales, nombres alignés à droite, états textuels, préférence par compte conservée.
-- Surfaces : blanc, bordures fines, rayon 6 px et ombre supprimée ; formulaires et fenêtres conservent validation, états d’erreur, fermeture et reprise.
+Les contrôles navigateur existants couvrent les modules, le responsive, les trois langues, les listes, les fenêtres et les actions Agent Coco avec des données locales. Les captures de vérification ne sont pas des données de production. Aucune migration SQL, API, route, permission ou fonction métier n’est modifiée.

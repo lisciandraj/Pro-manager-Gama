@@ -42,7 +42,7 @@
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:contents}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>:is(strong,small,.adDelta){grid-column:1/-1;margin:0}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{overflow-wrap:anywhere}
- /* Matte secondary controls; orange main action with readable petrol text.
+ /* Matte secondary controls; orange main action with the requested white text.
     Destructive/success buttons retain their semantic colours and labels. */
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton,.gamaStdAction){border-radius:var(--arc-r-md);font-weight:500;box-shadow:none;line-height:1.4}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton:is(.primary,.cfgInstall){background:linear-gradient(180deg,var(--coco-action-hover),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action)}

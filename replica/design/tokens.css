@@ -3,7 +3,7 @@
 :root {
  --coco-canvas:#F3F4F6;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
  --coco-ink:#17243B;--coco-muted:#5D6980;--coco-line:#DFE3EA;
- --coco-action:#F87826;--coco-action-hover:#FF8C45;--coco-on-action:#0B3045;
+ --coco-action:#F87826;--coco-action-hover:#FF8C45;--coco-on-action:#FFFFFF;
  --arc-accent-600:#10677D;--arc-line-strong:#7B8797;
  --arc-workspace-radius:12px;--arc-workspace-gap:24px;
  --arc-r-sm:6px;--arc-r-md:8px;--arc-r-lg:12px;--arc-r-xl:16px;

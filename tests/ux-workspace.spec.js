@@ -94,15 +94,18 @@ test('shared field validation is translated, preserves help and values, and reta
  }
 });
 
-test('quote primary action and status remain readable with a visible keyboard focus',async({page})=>{
+test('quote primary action follows the white-on-orange reference and retains visible keyboard focus',async({page})=>{
  await boot(page);await page.locator('#gqNew').focus();await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');
  await expect(page.locator('#gqNew')).toBeFocused();
  const measures=await page.evaluate(()=>{
   const luminance=c=>{const v=c.match(/[\d.]+/g).slice(0,3).map(Number).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]};
   const contrast=e=>{const s=getComputedStyle(e),a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
   const action=document.getElementById('gqNew'),s=getComputedStyle(action);
-  return {action:contrast(action),status:contrast(document.querySelector('#gqList .gqBadge')),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
+  return {actionText:s.color,actionBackground:s.backgroundColor,status:contrast(document.querySelector('#gqList .gqBadge')),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
- expect(measures.action).toBeGreaterThanOrEqual(4.5);expect(measures.status).toBeGreaterThanOrEqual(4.5);
+ // White labels on the existing GAMA orange are an explicit visual requirement.
+ expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(248, 120, 38)');
+ expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);
+ await page.locator('#gqNew').hover();await expect(page.locator('#gqNew')).toHaveCSS('color','rgb(255, 255, 255)');
 });

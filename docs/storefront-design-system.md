@@ -1,52 +1,38 @@
-# Charte graphique du site GAMA
+# Charte graphique du catalogue GAMA
 
-État : 18 octobre 2026. Cette charte concerne le site public et son espace client commun, produits depuis `src/storefront/`. Elle ne remplace pas la charte des modules internes de Coco ERP.
+État du code : 19 octobre 2026. Périmètre : [src/storefront](../src/storefront/), catalogue public et espace client commun. La charte des modules internes de Coco ERP reste distincte. Les tokens normatifs sont dans [DESIGN.md](../DESIGN.md), avec les composants et extensions dans [.impeccable/design.json](../.impeccable/design.json).
 
-## Direction visuelle
+## Référence et identité
 
-Les trois références fournies montrent une boutique sur fond blanc, de grandes photographies sur des surfaces gris clair, une typographie sobre, des filtres en pastilles, des actions arrondies et des fiches à deux colonnes. Le site reprend cette structure avec l'identité GAMA, sans reprendre le logo Shopcart, ses produits, ses avis ou ses promesses commerciales.
+Le propriétaire a choisi [Grocery Website Design / Freshly, par Junaki](https://dribbble.com/shots/26664219-Grocery-Website-Design). L’adaptation reprend son en-tête compact, la recherche à extrémité orange, le ruban de catégories circulaires, les cartes blanches bordées, la photo de détail encadrée, le panneau éditorial orange pâle et le pied de page bleu pétrole. Le nom, le logo, le bleu et l’orange GAMA restent. Les photographies produits, textes espagnols et réglages administrés sont conservés.
 
-UI UX Pro Max a été consulté pour la composition, la hiérarchie des actions et les contrôles de lisibilité. Les résultats automatiques trop génériques ne sont pas la spécification : les références visuelles et les couleurs de la marque priment.
+La source visuelle actuelle est [site.css](../src/storefront/site.css), complétée par [customer.css](../src/storefront/customer.css). Inter est locale. Le bleu pétrole porte prix, actions principales et pied de page ; l’orange clair distingue la recherche et le compteur ; l’orange foncé sert notamment au focus. Les cartes sont plates, presque carrées, avec bordures fines et photos sur fond blanc. Boutons et filtres sont en pastilles. Les couleurs configurées dans Coco restent prioritaires ; `actionColor()` dérive séparément les fonds prévus pour des libellés blancs.
 
-## Tokens partagés
+## Composition et adaptation
 
-Les variables sont définies dans `src/storefront/site.css`. `customer.css` les réutilise pour les écrans connectés. Les couleurs configurées dans Coco restent prioritaires.
+L’en-tête blanc conserve logo, catégories, recherche, accès entreprise et sélection de devis. Une seconde ligne porte les liens administrés et le téléphone lorsqu’il est renseigné. Sur téléphone, la recherche occupe sa propre ligne et le bloc téléphone disparaît.
 
-| Rôle | Valeur par défaut | Utilisation |
-| --- | --- | --- |
-| Bleu pétrole | `#176072` | Identité, liens, navigation et filtres actifs |
-| Orange GAMA | `#E4884F` | Accent de marque |
-| Orange d'action | `#B65325` | Boutons principaux à texte blanc |
-| Texte | `#182B30` | Titres et contenu principal |
-| Texte secondaire | `#5E6B70` | Références, aides et informations secondaires |
-| Surface | `#FFFFFF` | Page, cartes et fenêtres |
-| Surface produit | `#F5F6F6` | Fonds des photos et contrôles secondaires |
-| Bandeau d'accueil | `#FBF3EB` | Surface chaude discrète |
-| Séparateur | `#E5E9EB` | Lignes et cadres légers |
-| Typographie | Inter locale | Police variable sans téléchargement tiers |
-| Arrondis | 12 px / pastille | Images et cartes / boutons et filtres |
-| Espacement | 4, 8, 12, 16, 24, 32, 48, 64 px | Rythme de mise en page |
-| Transition | 160 ms | Changement de couleur et de bordure |
+Les catégories forment un ruban horizontal à illustrations circulaires, avec compteurs réels et flèches précédent/suivant. Le défilement reste contenu ; les flèches parcourent 90 % de la largeur visible. Les fournitures de bureau, fournitures scolaires, produits informatiques et équipements de bureau passent en tête. Cliquer filtre le catalogue. Le catalogue suit immédiatement : aucun hero ni section séparée de produits mis en avant.
 
-`actionColor()` conserve les couleurs de marque et dérive séparément les fonds des contrôles à libellé blanc pour atteindre un contraste d'au moins 4,5:1. Les choix de couleurs administrés restent utilisables. Les animations sont désactivées avec `prefers-reduced-motion`.
+| Largeur de fenêtre | Colonnes produits | Catégories visibles dans le ruban |
+| --- | ---: | ---: |
+| Jusqu’à 600 px | 2 | 2 |
+| 601–800 px | 3 | 3 |
+| 801–1000 px | 4 | 4 |
+| 1001–1023 px | 5 | 5 |
+| 1024–1200 px | 10 | 5 |
+| Plus de 1200 px | 10 | 6 |
 
-## Composants
+Les dix colonnes dès 1024 px sont un choix explicite du propriétaire. La page conserve 100 produits, en grille comme en liste et en session entreprise, livrés progressivement en lots de 30 + 30 + 30 + 10. Les filtres reviennent à la première page ; la pagination avance de 100. Les intitulés longs restent disponibles et reviennent à la ligne.
 
-- En-tête blanc : logo, catégories, recherche permanente, accès entreprise et sélection de devis. Bandeau supérieur bleu pétrole.
-- Accueil : catégories en premier, sur six colonnes au maximum et trois sur petit écran, sans bandeau de présentation ni section de produits mis en avant.
-- Catalogue : dix colonnes à partir de 1024 px, trois sur tablette et deux sur téléphone ; surfaces photo carrées, cartes ouvertes, prix lisible et quantités existantes.
-- Filtres : pastilles horizontales défilant dans leur propre conteneur. Le tri et les vues grille/liste restent disponibles.
-- Fiche produit : fil de navigation descriptif, grande photo, titre, prix, quantité, caractéristiques et livraison à confirmer. Jusqu'à quatre suggestions issues des produits déjà publiés.
-- Devis : produits et coordonnées à gauche, récapitulatif à droite ; une seule colonne sous 800 px. Les mentions de consentement et le comportement idempotent sont conservés.
-- Espace client : même catalogue et mêmes tokens, onglets en pastilles, tableaux à séparateurs discrets et formulaires cohérents. Les favoris restent réservés aux clients connectés.
-- Pages de crédits et questionnaires : chargement de la typographie et des tokens communs, contenu préservé.
+Les filtres en pastilles défilent dans leur propre conteneur. Recherche, marque, tri et vues grille/liste restent disponibles. Les cartes présentent catégorie, photo réelle, référence/marque, prix, nom complet, quantité et ajout. Les images signalées conservent « Foto ilustrativa » ; les images absentes affichent « Foto por confirmar ».
 
-## Contrats préservés
+La fiche présente le titre, une photo unique encadrée de bleu pétrole et les informations à droite, puis les onglets Descripción / Información adicional et jusqu’à quatre suggestions publiées. Les onglets répondent aux flèches, à Début et à Fin. Le détail s’empile jusqu’à 600 px ; les suggestions passent de quatre à deux colonnes jusqu’à 800 px. Le formulaire de devis comporte un récapitulatif latéral et s’empile jusqu’à 800 px. L’espace client partage cette charte, avec onglets en pastilles et tableaux à défilement contenu.
 
-Les identifiants DOM, routes, clés de stockage, appels serveur, tarifs négociés, minimums et multiples, consentement et règles de publication restent compatibles. Le site conserve le parcours de demande de devis ; aucun paiement en ligne, avis produit ou engagement de livraison fictif n'est ajouté. Les réglages de publication dans Coco restent indépendants du déploiement des fichiers.
+Les transitions de couleur et bordure durent 180 ms ; le zoom discret d’une photo dure 300 ms. `prefers-reduced-motion` désactive les transitions et animations, et les flèches de catégories défilent immédiatement. Le focus clavier public est orange foncé ; les contrôles client utilisent le bleu pétrole. Les ombres sont réservées aux fenêtres et confirmations, pas aux cartes.
 
-## Vérification
+## Contrats et validation
 
-`npm run build`, `npm run build:storefront`, `npm run check:generated`, `npm run check`, `npm run typecheck`, `npm run check:docs` et `tests/storefront-server.test.mjs` vérifient la livraison. Le workflow `storefront-interface.yml` exécute les parcours existants `storefront.spec.js` et `b2b-portal.spec.js` avec leurs captures et contrôles de débordement entre 320 et 1440 px. Les données navigateur sont simulées et les tests ne créent aucune demande dans la production.
+La composition conserve les appels serveur, tarifs négociés, minimums et multiples, consentement, réessais idempotents, droits, périmètre client et règles de publication. Aucun paiement en ligne, avis, remise ou engagement de livraison n’est inventé. Les réglages de publication dans Coco restent indépendants du déploiement des fichiers.
 
-Le catalogue affiche 100 produits par page, en grille comme en liste, y compris dans la session entreprise. Quatre lots de 30 au maximum (30 + 30 + 30 + 10) respectent la limite actuelle du serveur. La navigation avance de 100 et les filtres reviennent à la première page.
+Les sources canoniques sont [index.html](../src/storefront/index.html), [site.js](../src/storefront/site.js), [site.css](../src/storefront/site.css) et [customer.css](../src/storefront/customer.css). Les validations pertinentes restent `npm run build`, `npm run build:storefront`, `npm run check:generated`, `npm run check`, `npm run typecheck`, `npm run check:docs`, les tests du serveur storefront et les parcours navigateur storefront/B2B. Les fixtures ne créent aucune demande en production. Cette charte décrit le code ; elle ne constitue pas une attestation de déploiement.

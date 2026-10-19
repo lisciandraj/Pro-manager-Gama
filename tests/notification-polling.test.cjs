@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),vm=requir
 test('notification badges share in-flight work, pause while hidden and back off errors without reusing another session',async()=>{
  let now=0,allowed=true,calls=0;const queue=[],events={},badge={textContent:'',dataset:{},setAttribute(){}};
  class Clock extends Date{static now(){return now}}
- const c={Date:Clock,Promise,setTimeout(){},clearTimeout(){},setInterval(){},document:{hidden:false,querySelectorAll:()=>[badge],getElementById:()=>null,addEventListener(){}},ArcUI:{esc:x=>x},GamaCloudReady:Promise.resolve(),GamaCloud:{db:async()=>({})},ArcData:{rawRpc:async()=>{calls++;return new Promise(resolve=>queue.push(resolve))}},gamaAccessAllowed:()=>allowed,addEventListener:(n,fn)=>events[n]=fn,GamaCurrency:{format:x=>x}};c.window=c;
+ const c={Date:Clock,Promise,setTimeout(){},clearTimeout(){},setInterval(){},document:{hidden:false,querySelectorAll:()=>[badge],getElementById:()=>null,addEventListener(){}},ArcUI:{esc:x=>x,icons:{sliders:''}},GamaCloudReady:Promise.resolve(),GamaCloud:{db:async()=>({})},ArcData:{rawRpc:async()=>{calls++;return new Promise(resolve=>queue.push(resolve))}},gamaAccessAllowed:()=>allowed,addEventListener:(n,fn)=>events[n]=fn,GamaCurrency:{format:x=>x}};c.window=c;
  vm.runInNewContext(fs.readFileSync('src/features/notifications/workspace.js','utf8'),c);const refresh=()=>c.GamaOperations.refreshBadge();
  const first=refresh(),duplicate=refresh();await new Promise(setImmediate);assert.equal(calls,1);queue.shift()({data:{active_count:4}});await Promise.all([first,duplicate]);assert.equal(badge.textContent,'4');
  await refresh();assert.equal(calls,1);now=61000;c.document.hidden=true;await refresh();assert.equal(calls,1);c.document.hidden=false;

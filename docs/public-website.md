@@ -4,7 +4,7 @@ Le site public est construit séparément de l’ERP. Tous les produits actifs s
 
 ## Présentation du catalogue
 
-Depuis le 18 octobre 2026, le site applique la [charte GAMA du catalogue](storefront-design-system.md) : surfaces blanches et gris clair, bleu pétrole, orange d'action à texte blanc, Inter locale, photos généreuses et boutons arrondis. L’accueil conserve les catégories en premier, puis le bandeau de présentation et les produits mis en avant. Le catalogue propose quatre colonnes sur grand écran et deux sur téléphone, avec des filtres en pastilles dans un conteneur défilant. Les fiches produits présentent photo et informations en deux colonnes ; le formulaire de devis dispose d'un récapitulatif latéral sur ordinateur. L'espace client utilise les mêmes tokens et composants.
+Le code du 19 octobre 2026 applique la [charte GAMA du catalogue](storefront-design-system.md), adaptée de la référence Freshly choisie par le propriétaire : Inter locale, surfaces blanches bordées, prix et actions bleu pétrole, recherche à extrémité orange, catégories à illustrations circulaires et pied de page bleu pétrole. Le ruban de catégories précède directement le catalogue, sans hero ni section séparée de produits mis en avant. La grille conserve dix colonnes dès 1024 px, trois entre 601 et 800 px et deux jusqu’à 600 px ; les largeurs intermédiaires sont précisées dans la charte. Les fiches présentent une photo encadrée et les informations en deux colonnes, puis les onglets de description et d’informations supplémentaires ; elles s’empilent jusqu’à 600 px. Le formulaire de devis dispose d’un récapitulatif latéral et s’empile jusqu’à 800 px. L’espace client utilise les mêmes tokens et composants.
 
 La recherche est permanente dans l’en-tête. La saisie et la touche Entrée filtrent le catalogue et amènent aux résultats. Le menu **Categorías** ouvre un panneau accessible avec les catégories réelles et les liens configurés. La sélection d’une catégorie ferme le panneau et met à jour les filtres ; Échap ferme le menu et rend le défilement à la page.
 
@@ -24,7 +24,7 @@ La page `/photo-credits.html`, liée au pied du catalogue, indique les sources, 
 
 1. Ouvrir **Site web**, puis **Site public** avec un compte administrateur autorisé.
 2. **Identité et apparence** : nom commercial, signature, logo, couleurs, angles et liens du menu. Les images PNG, JPEG et WebP sont comprimées lors du chargement.
-3. **Page d’accueil** : bandeau, titres, texte, image, bouton, sélection, catégories et avantages.
+3. **Page d’accueil** : réglages existants de bandeau, titres, texte, image, bouton, sélection, catégories et avantages. Le catalogue actuel utilise le ruban de catégories puis les résultats ; les réglages historiques de hero et de sélection ne créent pas de sections supplémentaires dans cette composition.
 4. **Contenu et pages** : présentation, image, FAQ, marques, conditions, confidentialité et pied de page. Les listes peuvent être ajoutées, supprimées et réordonnées.
 5. **Contact** : téléphone, e-mail, adresse, horaires, WhatsApp avec indicatif international, carte et réseaux sociaux.
 6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, choisir l’affichage des taxes, activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
@@ -117,7 +117,7 @@ Tous les produits actifs existants sont sélectionnés pour le site à l’insta
 
 ### Images des catégories
 
-Les catégories présentent une photographie réelle d’un produit actif publié disposant d’une photo. Le serveur choisit `photo_id` parmi ces produits ; sans photo vérifiée, la tuile affiche un pictogramme neutre. Les anciennes illustrations de catégories générées par IA ne sont plus publiées par la compilation. Cliquer sur une tuile conserve le filtre du catalogue. Les mêmes photos Coco apparaissent dans la grille, les fiches et la sélection de devis.
+Le ruban utilise les illustrations génériques de [src/storefront/category-images](../src/storefront/category-images/), selon [config/storefront-category-images.json](../config/storefront-category-images.json). Elles apparaissent dans des cercles et ne remplacent pas les photographies des produits. Une catégorie sans illustration correspondante utilise le pictogramme SVG de boîte. Cliquer sur une catégorie met à jour le filtre du catalogue. Les mêmes photographies Coco et leurs mentions illustratives restent utilisées dans la grille, les fiches et la sélection de devis.
 
 ### Comptes cloud et Mes documents
 
@@ -159,7 +159,7 @@ L’icône **Mi empresa** se trouve dans la barre horizontale, immédiatement av
 
 ### Catalogue commun après connexion — 7 octobre 2026
 
-Le site Cloudflare conserve le même catalogue avant et après connexion : en-tête, photos, catégories, marques, recherche, tri et fiches produit. **Mi empresa** ouvre une fenêtre de connexion sur cette page ; `/b2b.html` ouvre le même site avec cette fenêtre affichée. Après connexion, les cartes, produits mis en avant et détails montrent les tarifs calculés pour le client authentifié. Le tri par prix utilise ces tarifs et la présentation HT/TTC du site.
+Le site Cloudflare conserve le même catalogue avant et après connexion : en-tête, photos, catégories, marques, recherche, tri et fiches produit. **Mi empresa** ouvre une fenêtre de connexion sur cette page ; `/b2b.html` ouvre le même site avec cette fenêtre affichée. Après connexion, les cartes et détails du catalogue commun montrent les tarifs calculés pour le client authentifié. Le tri par prix utilise ces tarifs et la présentation HT/TTC du site.
 
 La barre client ajoute Catalogue, Mes achats habituels, Mes demandes, Mes documents, Mes préférences, Factures, Livraisons, État de compte et Ma sélection (libellés espagnols sur le site). Les vues documentaires utilisent les mêmes RPC protégées qu’auparavant. Le panier connecté revalide les quantités, paliers et prix avant l’envoi d’une demande, avec la clé d’idempotence existante. Les sélections publiques présentes lors de la connexion sont reprises lorsque leurs produits et quantités restent admissibles. Les services publiés restent visibles et se traitent avec GAMA ; le panier B2B conserve son périmètre de produits physiques.
 
@@ -169,7 +169,7 @@ Sources : `src/storefront/site.js`, `b2b.js`, `index.html`, `customer.css`. La p
 
 ## Catégories en tête de l’accueil
 
-La grille de catégories précède la bannière et les avantages. Elle affiche toutes les catégories sur plusieurs lignes : six colonnes sur ordinateur, quatre sur tablette et trois sur téléphone. Les illustrations génériques IA bleu et orange GAMA sont publiées depuis `src/storefront/category-images`, selon `config/storefront-category-images.json`. Elles ne remplacent pas les photos des fiches produits. Les intitulés conservent leur première lettre en majuscule et les compteurs proviennent du catalogue.
+Les catégories précèdent directement le catalogue dans un seul ruban horizontal : six visibles au-delà de 1200 px, cinq entre 1001 et 1200 px, quatre entre 801 et 1000 px, trois entre 601 et 800 px et deux jusqu’à 600 px. Les flèches précédent/suivant parcourent 90 % de la largeur visible et se désactivent aux extrémités ; le défilement tactile reste disponible. Les fournitures de bureau, fournitures scolaires, produits informatiques et équipements de bureau passent en tête. Les intitulés conservent leur première lettre en majuscule, reviennent à la ligne si nécessaire et les compteurs proviennent du catalogue. Les illustrations de catégories sont distinctes des photographies produits ; aucun hero ni section séparée de produits mis en avant ne s’intercale avant le catalogue.
 
 ## Extensions commerciales et financières
 

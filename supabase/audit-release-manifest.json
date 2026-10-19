@@ -24,9 +24,11 @@
       "applied_hash": "2d5eae439110e78a3c547f94c25d0ae3"
     },
     {
-      "version": "20261019185609",
-      "file": "20261019185609_audit_history_product_set.sql",
-      "sha256": "09dfe33905448e0d2a762517fd9f3b7bb3f4a40cba618e0aa717a23e469a62ea"
+      "version": "20261019190310",
+      "file": "20261019190310_audit_history_product_set.sql",
+      "sha256": "09dfe33905448e0d2a762517fd9f3b7bb3f4a40cba618e0aa717a23e469a62ea",
+      "created_version": "20261019185609",
+      "applied_hash": "81c176bb5496d874784cde09648246df"
     }
   ],
   "applied_via": "Supabase apply_migration; source filenames aligned to the actual server ledger, without registry repair"

@@ -10,8 +10,8 @@ const copy={
 const lang=()=>copy[window.GamaI18n?.language]||copy.es,t=k=>lang()[k]||k;
 const esc=window.ArcUI.esc;
 const money=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{style:'currency',currency:'USD'});
-const icon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>';
-const marks={modules:'▦',clients:'CL',contacts:'CO',suppliers:'FO',products:'PR',quotes:'COT',orders:'PED',shipments:'ENV',deliveries:'ENT',invoices:'FAC',payments:'COB',knowledge:'K'};
+const icon=window.ArcUI.moduleIcon('search');
+const marks={modules:'matrix',clients:'users',contacts:'users',suppliers:'factory',products:'cube',quotes:'invoice',orders:'cart',shipments:'truck',deliveries:'pin',invoices:'invoice',payments:'banknote',knowledge:'knowledge'};
 let dialog,profile=null,client=null,version=0,sessionEpoch=0,closing=false,controller=null,timer=null,groups=[],parsed=null,active=-1,visible=[],busy=false,returnFocus=null;
 const allowed=id=>!!window.gamaAccessAllowed?.(id);
 function mount(input){
@@ -57,7 +57,7 @@ function render(){
  $('gspHint').textContent=parsed?.intent?t(parsed.intent):t('hint');$('gspHint').className=parsed?.intent?'gspIntent':'gspHint';
  $('gspStatus').textContent=busy?t('loading'):q.length<2?t('short'):all.length+mods.length?`${all.length+mods.length} ${t('results')}`:t('empty');
  const sorted=[...groups].sort((a,b)=>Math.max(0,...b.items.map(i=>i.score))-Math.max(0,...a.items.map(i=>i.score)));if(mods.length)sorted.push({source:'modules',items:mods});
- window.ArcUI.render($('gspList'),sorted.filter(g=>g.items.length).map(g=>`<div role="group" aria-label="${esc(t(g.source))}"><div class="gspGroup">${esc(t(g.source))}<span>${g.items.length}</span></div>${[...g.items].sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).map(r=>{const index=visible.push(r)-1;return `<div role="option" tabindex="-1" id="gspOption${index}" data-index="${index}" aria-selected="false"><span class="gspIcon">${esc(marks[r.source]||'•')}</span><span class="gspText"><strong>${esc(r.title)}</strong><small>${esc(r.subtitle)}${r.archived?' · '+esc(t('archived')):''}</small></span>${r.balance!=null?`<span class="gspAmount">${esc(t('balance'))}<b>${esc(money(r.balance))}</b></span>`:r.total!=null?`<span class="gspAmount"><b>${esc(money(r.total))}</b></span>`:''}<span class="gspArrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>`}).join('')}</div>`).join(''));
+ window.ArcUI.render($('gspList'),sorted.filter(g=>g.items.length).map(g=>`<div role="group" aria-label="${esc(t(g.source))}"><div class="gspGroup">${esc(t(g.source))}<span>${g.items.length}</span></div>${[...g.items].sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).map(r=>{const index=visible.push(r)-1;return `<div role="option" tabindex="-1" id="gspOption${index}" data-index="${index}" aria-selected="false"><span class="gspIcon">${window.ArcUI.moduleIcon(marks[r.source]||'documents')}</span><span class="gspText"><strong>${esc(r.title)}</strong><small>${esc(r.subtitle)}${r.archived?' · '+esc(t('archived')):''}</small></span>${r.balance!=null?`<span class="gspAmount">${esc(t('balance'))}<b>${esc(money(r.balance))}</b></span>`:r.total!=null?`<span class="gspAmount"><b>${esc(money(r.total))}</b></span>`:''}<span class="gspArrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>`}).join('')}</div>`).join(''));
  $('gspInput').setAttribute('aria-expanded',String(visible.length>0));active=-1;selection();
  $('gspList').querySelectorAll('[data-index]').forEach(el=>{el.onclick=()=>activate(visible[Number(el.dataset.index)]);el.onpointermove=()=>{active=Number(el.dataset.index);selection()}});
  const more=groups.filter(g=>g.more),errors=groups.filter(g=>g.error);

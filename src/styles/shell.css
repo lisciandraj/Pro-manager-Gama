@@ -9,7 +9,7 @@
 .arcNavLink{display:flex;align-items:center;justify-content:flex-start;gap:15px;width:100%;padding:11px 12px;margin:0 0 3px;background:transparent;border:0;border-radius:8px;box-shadow:none;color:var(--arc-navy-700);font-size:13px;font-weight:500;text-align:left;min-height:44px;line-height:1.4}
 .arcNavLink:hover{background:var(--arc-surface-2);color:var(--arc-navy-900)}
 .arcNavLink[aria-current=page]{background:var(--arc-accent-100);color:var(--arc-accent-700);font-weight:600;box-shadow:inset 3px 0 0 var(--arc-accent-600)}
-.arcNavLink>svg{display:block;width:21px;height:21px;flex:none;color:#6B7280;--gama-blue:currentColor;--gama-orange:currentColor}
+.arcNavLink>svg{display:block;width:21px;height:21px;flex:none;color:var(--gama-blue,#157F98)}
 .arcNavLabel{min-width:0;overflow-wrap:anywhere}
 .arcNavLink.aclHidden{display:none}
 .arcMore{margin-top:10px;border-top:1px solid var(--arc-surface-3);padding-top:8px}

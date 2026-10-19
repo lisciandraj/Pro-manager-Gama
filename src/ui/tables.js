@@ -87,10 +87,7 @@ function words(){return labels[window.GamaI18n?.language]||labels.es}
 /* Each view button shows its icon and translated label. The shared stylesheet
    sizes them by content in every host; aria-label and title use the same words. */
 const svg=body=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+body+'</svg>';
-const icons={
- cards:svg('<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>'),
- table:svg('<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>')
-};
+const icons={cards:window.ArcUI.moduleIcon('matrix'),table:window.ArcUI.moduleIcon('spreadsheet')};
 function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.userId||s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
 function refreshLayout(t,state){

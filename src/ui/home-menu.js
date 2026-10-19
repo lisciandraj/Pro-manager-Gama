@@ -37,7 +37,7 @@ function render(){
  const cabecera=document.createElement('div');cabecera.className='gamaF2Head';
  // Keep customization accessible above the tiles.
  const acciones=document.createElement('div');acciones.className='gamaF2HeadActions';
- window.ArcUI.render(acciones,'<button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg><span>'+esc(T('Personalizar'))+'</span></button>');
+ window.ArcUI.render(acciones,'<button type="button" class="arcButton ghost arcCustomizeButton" id="arcCustomizeOpen">'+window.ArcUI.moduleIcon('matrix')+'<span>'+esc(T('Personalizar'))+'</span></button>');
  cabecera.append(acciones);
 
  // Los cuatro indicadores personales viven arriba del panel de control, no aquí.
@@ -57,7 +57,7 @@ function render(){
    cuerpo.appendChild(label);
    const opener=document.createElement('button');opener.type='button';opener.className='cocoModuleOpen';opener.append(icon,cuerpo);b.append(opener);
    const favorite=document.createElement('button');favorite.type='button';favorite.className='cocoModuleFavorite';favorite.dataset.cocoFavorite=x[1];
-   favorite.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>';
+   favorite.innerHTML=window.ArcUI.moduleIcon('star');
    favorite.onclick=e=>{e.stopPropagation();const ids=favorites();ids.has(x[1])?ids.delete(x[1]):ids.add(x[1]);try{localStorage.setItem(favoriteKey(),JSON.stringify([...ids]))}catch(_){}applyFavorites()};b.append(favorite);
    const open=()=>{
      if(b.getAttribute('aria-busy')==='true')return;

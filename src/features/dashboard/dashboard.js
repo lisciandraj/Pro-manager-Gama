@@ -91,7 +91,7 @@ const prioritySummaries=[
 const PRIORITY_GROUPS={bank_unmatched:'Conciliar los movimientos bancarios',expense_no_receipt:'Adjuntar los justificantes de gasto'};
 const TONES=[['danger','Vencido o límite superado','La fecha o el límite ya se pasó.'],['warning','Esta semana o límite cercano','Vence en los próximos siete días, el límite está cerca o espera una acción.']];
 const valueAt=(object,path)=>path.split('.').reduce((v,k)=>v?.[k],object);
-const icon=(id,override)=>{const name=override||moduleDef(id)?.icon||'chart';return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">${window.ArcUI.icons?.[name]||''}</svg>`};
+const icon=(id,override)=>{const name=override||moduleDef(id)?.icon||'chart';return window.ArcUI.moduleIcon(name)||window.ArcUI.moduleIcon('chart')};
 const go=(id,label,extra='')=>`<button type="button" class="arcButton secondary" data-ad-open="${E(id)}" ${extra}>${E(t(label))} <span aria-hidden="true">→</span></button>`;
 function shell(){
  if($('ad-workspace'))return;

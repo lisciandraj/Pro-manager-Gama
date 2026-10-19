@@ -1,0 +1,21 @@
+{
+  "project_id": "mknsaibrewksgomuslev",
+  "base_commit": "6746cec99c5ed03449a8276560eee3081e2db09c",
+  "migrations": [
+    {
+      "version": "20261019180838",
+      "file": "20261019180838_audit_catalogue_projection.sql",
+      "sha256": "6e4b0afc36efb44bc6e029ec29c53097c91880b6fb0967da006f63451c9767eb"
+    },
+    {
+      "version": "20261019180956",
+      "file": "20261019180956_audit_security_gates.sql",
+      "sha256": "b55566c3ceacac35d811b756950f7be7ab88c877e978d4eb13d4020111053de4"
+    },
+    {
+      "version": "20261019181033",
+      "file": "20261019181033_audit_metrics_context.sql",
+      "sha256": "69e442aaf2896165c03473f7867e300575c575747adeff4797049f07de3a59e2"
+    }
+  ]
+}

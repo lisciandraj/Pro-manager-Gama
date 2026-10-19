@@ -867,7 +867,7 @@ async function abrir(){
  if(window.showTab)window.showTab('warehouses',null);
  else seccion().classList.add('active');
  if(disponibleV2!==true||Date.now()-stockAcceptedAt>=30000)await cargar();
- await pintar();window.ArchitectPerformance?.contentReady('warehouses',started,disponibleV2===true);
+ await pintar();window.ArchitectPerformance?.dataVisible('warehouses',started,disponibleV2===true);window.ArchitectPerformance?.actionsReady('warehouses',started,disponibleV2===true);window.ArchitectPerformance?.contentReady('warehouses',started,disponibleV2===true);
 }
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id!=='warehouses')return;generation++;paintRequest++;stockRequest++;pageController?.abort();basePending=null;secondary.clear();mirrorReady=false});
 window.addEventListener('gama:stock-cloud-change',()=>{mirrorReady=false;secondary.delete('mirror');if($('warehouses')?.classList.contains('active')&&pestana==='existencias')refreshStockPage()});

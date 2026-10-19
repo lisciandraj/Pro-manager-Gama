@@ -9,7 +9,9 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
  const seedQuantity=async qty=>{await db.exec('reset role');await db.query('update stock_quants set quantity=$1,reserved_quantity=0 where product_id=$2 and location_id=$3',[qty,product,location]);await as(admin)};
  const config={enabled:true,can_write:true,client_ids:['agent-test-client','read-only-client'],write_client_ids:['agent-test-client']};
  const prepare=(extra={})=>rpc('prepare',{request_key:uuid(),product_id:product,location_id:location,operation:'out',kind:'internal_use',quantity:1,reason:'consommation interne',...extra});
- const execute=p=>rpc('execute',{command_id:p.id,digest:p.digest,confirmed:true});
+ // These legacy business-rule cases seed an independent approval fixture.
+ // The real human approval protocol is exercised in audit-security-gates-db.test.cjs.
+ const execute=async p=>{const claims=(await db.query("select current_setting('request.jwt.claims',true) c")).rows[0].c;await db.exec('reset role');await db.query("insert into private.coco_agent_approvals(command_id,actor_id,digest,session_id,mfa_timestamp,expires_at) select id,actor_id,digest,$2,1,now()+interval '10 minutes' from private.coco_agent_commands where id=$1 on conflict do nothing",[p.id,uuid()]);await db.query("select set_config('request.jwt.claims',$1,false)",[claims]);await db.exec('set role authenticated');return rpc('execute',{command_id:p.id,digest:p.digest,confirmed:true})};
  try{
   await db.query('insert into auth.users(id,email) values($1,$3),($2,$4)',[admin,other,'agent-test@example.invalid','agent-other@example.invalid']);
   await db.exec("update profiles set role='administrador',active=true;update erp_policies set stock_adjustment_limit=null,stock_adjustment_value_limit=null,stock_adjustment_approval_kinds='{}'");

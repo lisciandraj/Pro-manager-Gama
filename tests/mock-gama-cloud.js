@@ -548,6 +548,8 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='coco_offline_key')return {data:{actor_id:window.__DB._profile.id,key:'ab'.repeat(32)}};
+        if(fn==='coco_security_enrollment')return {data:{administrator:false,verified_factor:false,enforced:false}};
         if(fn==='gama_sales_invoice_balances')return {data:(window.__DB.external_invoices||[]).filter(i=>args.p_ids.includes(i.id)).map(i=>{const paid=(window.__DB.external_invoice_payments||[]).filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((a,p)=>a+Number(p.amount),0),credit=(window.__DB.return_credits||[]).filter(c=>c.invoice_id===i.id).reduce((a,c)=>a+Number(c.amount),0),withheld=(window.__DB.accounting_withholdings||[]).filter(w=>w.invoice_id===i.id&&w.status==='posted').reduce((a,w)=>a+Number(w.total),0),balance=i.fiscal_status==='cancelled'?0:Math.max(0,Number(i.total)-paid-credit-withheld);return {id:i.id,paid,balance,due_date:i.due_date,payment_status:i.fiscal_status==='cancelled'?'cancelled':balance===0?'paid':i.due_date&&i.due_date<new Date().toISOString().slice(0,10)?'overdue':balance<Number(i.total)?'partial':'pending'}})};
         if(fn==='gama_customer_credit_status')return {data:{customer_id:args.p_customer,credit_limit:null,hold_reason:null,receivable:0,commitment:0,exposure:0,overdue:[],blocked:false}};
 

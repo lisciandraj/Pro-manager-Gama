@@ -11,7 +11,7 @@ for(const bundle of manifest.startupBundles||[]){
  const code=bundle.files.map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n;\n');
  // Parse the combined classic scope too: no duplicate lexical declarations.
  require('acorn').parse(code,{ecmaVersion:'latest',sourceType:'script'});
- const compact=require('esbuild').transformSync(code,{loader:'js',target:'es2020',minifyWhitespace:true,minifySyntax:false,minifyIdentifiers:false,legalComments:'inline'}).code;
+ const compact=require('esbuild').transformSync(code,{loader:'js',target:'es2020',minifyWhitespace:true,minifySyntax:false,minifyIdentifiers:true,legalComments:'inline'}).code;
  fs.writeFileSync(path.join(root,bundle.output),'/* Generated startup bundle: '+bundle.files.join(', ')+'. */\n'+compact+(bundle.output==='coco-modules.js'?'\nwindow.ArcRuntimeLoaded=true;window.dispatchEvent(new CustomEvent("arc:runtime-ready"));\n':''));
 }
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
@@ -47,3 +47,8 @@ for(const file of publicFiles)fs.copyFileSync(path.join(root,file),path.join(out
 for(const folder of ['assets','config/localizations','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});
 fs.writeFileSync(path.join(out,'.nojekyll'),'');
 console.log('Coco ERP: '+runtimeFiles().length+' versioned assets built from canonical sources.');
+
+// Stamp only the publication artifact; committed generated assets stay reproducible.
+const buildId=process.env.GITHUB_SHA||process.env.COCO_BUILD_ID||'unknown';
+if(buildId!=='unknown'&&!/^[a-f0-9]{40}$/.test(buildId))throw Error('Invalid build id');
+for(const file of ['index.html','tms-driver.html']){const target=path.join(out,file);fs.writeFileSync(target,fs.readFileSync(target,'utf8').replace('<html','<html data-coco-build="'+buildId+'"'));}

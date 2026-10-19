@@ -29,6 +29,14 @@ const ICON={
  close:'<path d="m6 6 12 12M18 6 6 18"/>',
  back:'<path d="m12 5-7 7 7 7M5 12h14"/>'
 };
+// Keep the original monochrome controls for mobile navigation and the app drawer.
+const NAV_ICON={
+ apps:'<circle cx="5" cy="5" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="19" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/>',
+ home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+ scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
+ more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+};
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
 
@@ -185,7 +193,7 @@ function build(){
 
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
- window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.apps)+'</button>'
+ window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(NAV_ICON.apps)+'</button>'
   +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261018-co" alt="" width="34" height="34"></a>'
   +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><h1 id="cocoModuleContext" class="cocoModuleContext"></h1></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
@@ -209,7 +217,7 @@ function build(){
  main.append(top,content);
  shell.append(side,main);
  const mobile=document.createElement('nav');mobile.className='cocoMobileNav';mobile.setAttribute('aria-label',T('Navegación principal'));
- const labels={home:'Inicio',search:'Buscar',scan:'Escanear',more:'Más'},drawings={home:ICON.home,search:ICON.search,scan:ICON.scanner,more:ICON.more};
+ const labels={home:'Inicio',search:'Buscar',scan:'Escanear',more:'Más'},drawings={home:NAV_ICON.home,search:NAV_ICON.search,scan:NAV_ICON.scanner,more:NAV_ICON.more};
  window.ArcUI.render(mobile,Object.keys(labels).map(key=>'<button type="button" data-coco-mobile="'+key+'">'+svg(drawings[key])+'<span data-gi-source="'+labels[key]+'">'+esc(T(labels[key]))+'</span></button>').join(''));
  shell.append(mobile);
  mobile.querySelector('[data-coco-mobile=home]').onclick=()=>{closeDrawer();window.GamaUI?.backToMenu?.()};

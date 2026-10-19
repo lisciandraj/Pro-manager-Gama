@@ -24,7 +24,7 @@ const CATEGORIES=[
  {id:'due_soon_invoice',label:'Pagos próximos a vencer',phrase:'pagos próximos a vencer',finance:true,icon:'banknote'},
  {id:'overdue_invoice',label:'Facturas vencidas',phrase:'en facturas vencidas',finance:true,red:true,icon:'ledger'},
 ];
-const SLIDERS='<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>';
+const SLIDERS=window.ArcUI.icons.sliders;
 // Antes del primer recuento, las categorías de finanzas se suponen por el perfil; el servidor lo confirma.
 const financeRole=()=>{try{return ['admin','administrador','commercial','comercial'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role)}catch(_){return false}};
 // Las facturas se cuentan por alerta: el centro de acción da el importe de las vencidas.

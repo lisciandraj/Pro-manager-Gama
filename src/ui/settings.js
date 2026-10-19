@@ -89,7 +89,7 @@ function bind(viewId){
    empresa y sólo para el administrador. La ficha de la empresa sigue siendo
    un único formulario con un solo «Guardar»: cada apartado enseña su parte. */
 const PREFERENCES='<div class="arcPanel card"><h3 data-gi-live data-gi=a44204ce1a2f>Idioma de la aplicación</h3><p data-gi-live data-gi=0527a0d7acec>El idioma se guarda en este dispositivo.</p><div id="gamaSettingsLanguage"></div></div>';
-const GLOBE='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18-2.5-2.7-2.5-15.3 0-18Z"/>';
+const GLOBE=window.ArcUI.icons.globe;
 const SECTIONS=[
  {id:'language',label:'Idioma',icon:GLOBE,pane:'language'},
  {id:'company',label:'Información de la empresa',icon:'factory',pane:'company',admin:true},

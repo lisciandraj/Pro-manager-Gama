@@ -35,8 +35,8 @@
  body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.arcKpi,.adMetric,.hrKpi,.ivKpi,.gaKpis>.gaCard,.gfKpi,.grKpi,.gqKpi,.gsKpi,.tmsKpi,.pmKpi,.crmKpi,.dashCard){background:var(--coco-surface-sheen) var(--coco-surface);border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);padding:var(--coco-panel-padding);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink)}
  body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>:is(b,strong),body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:28px;font-weight:600;letter-spacing:-.035em;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--coco-ink)}
  body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>span,body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{font-size:13px;font-weight:500;color:var(--coco-ink)}
- body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon){width:34px;height:34px;border-radius:8px;border:1px solid var(--coco-line);background:var(--coco-inset);color:var(--arc-coco-orange-text);box-shadow:none}
- body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:20px;height:20px;stroke-width:1.6}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon){width:34px;height:34px;border-radius:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:28px;height:28px}
  body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.adMetrics,.hrKpis,.ivKpis,.gaKpis,.pmKpis,.adCockpit,.crmTablero,.pmKanban){gap:16px}
  body[data-app=coco-erp] .arcContent #dashboard :is(.adHeading h2,.adQuickActions h2){font-size:16px}
  body[data-app=coco-erp] .arcContent #dashboard .adMetric{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-content:start;align-items:center;min-height:160px}
@@ -117,8 +117,12 @@
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{color:var(--coco-muted)}
  /* Explicit native metric families, also loaded on demand. */
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:132px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-sheen) var(--coco-surface);border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
- body[data-app=coco-erp] i.cocoMetricIcon,body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon),body[data-app=coco-erp] .gamaF2KpiIcon{display:inline-grid;place-items:center;width:34px;height:34px;min-width:34px;padding:0;margin:0;border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-icon-surface);color:var(--coco-icon-color);box-shadow:inset 0 1px 0 white}
- body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon)>svg{width:19px;height:19px;stroke-width:1.6}
+ body[data-app=coco-erp] i.cocoMetricIcon,body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon),body[data-app=coco-erp] .gamaF2KpiIcon{display:inline-grid;place-items:center;width:34px;height:34px;min-width:34px;padding:0;margin:0;border:0;border-radius:0;background:transparent;color:var(--gama-blue);box-shadow:none}
+ body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon)>svg{width:28px;height:28px}
+ /* Decorative icon holders share a transparent canvas in every business view. */
+ body[data-app=coco-erp] :is(#access-settings .cfgTileIcon,.arcSideIcon,.gspIcon,#sales-orders .gsCustomerIcon,#sales-orders .gsNextIcon,.gdfNextIcon,#warehouses .ivProductIcon:has(>svg),#warehouses .ivInspectorIcon:has(>svg),.gamaStdIcon){background:transparent;border:0;border-radius:0;padding:0;box-shadow:none}
+ body[data-app=coco-erp] .gspIcon svg{width:26px;height:26px}
+ body.cocoWorkbench #mainmenu .cocoModuleFavorite[aria-pressed=true] .cocoIconPrimary{fill:#FFD8B8}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gp14Kpis>div)>span,body[data-app=coco-erp] .arcContent :is(.gaKpis>.gaCard,.gfKpis>.gfCard)>small{grid-column:2;font-size:13px;font-weight:500;line-height:1.45;color:var(--coco-ink);overflow-wrap:anywhere}
  body[data-app=coco-erp] #hr .hrKpi>span>span{display:inline;font:inherit;color:inherit}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gp14Kpis>div,.gaKpis>.gaCard,.gfKpis>.gfCard)>:is(b,strong){grid-column:1/-1;margin:0;font-size:clamp(22px,1.9vw,28px);line-height:1.2;font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums;color:var(--coco-ink);overflow-wrap:anywhere}
@@ -164,6 +168,7 @@
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:block}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricIcon{margin-bottom:12px}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{overflow-wrap:anywhere}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>:is(strong,small,.adDelta){display:block}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:clamp(18px,5vw,24px);margin:10px 0}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){font-size:16px}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton{min-height:44px}

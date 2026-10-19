@@ -10,6 +10,10 @@ L’index ne contient pas de copie complète des enregistrements. Sa lecture uti
 
 ## Origine ChatGPT, fichier, import ou mail
 
+Les écritures métier dont l’origine enregistrée est `chat` affichent **Agent Coco**, quel que soit l’assistant utilisé (ChatGPT, Claude ou autre agent). Le compte authentifié reste conservé dans `actor_id`. Les créations, modifications (y compris les photos) et suppressions enregistrent l’action, la date, les références et la source dans l’historique du module ; les dossiers incluent aussi ces événements. Les validations humaines des propositions restent attribuées à leur validateur. Les anciens événements sans origine identifiable ne sont pas réattribués par supposition.
+
+La passerelle `coco_agent` marque automatiquement l’exécution après les contrôles d’autorisation et de validation, puis restaure le contexte. Les opérations SQL directes d’un assistant doivent déclarer leur origine dans la même transaction avec `set_config('coco.activity_source_type','chat',true)`, un `coco.activity_source_id` unique et un `coco.activity_source_label` descriptif. Les règles de maintenance dans `AGENTS.md` imposent de vérifier la couverture des tables et l’historique produit. Une connexion privilégiée sans origine déclarée ne permet pas de distinguer automatiquement une personne d’un agent.
+
 Les actions effectuées dans l’ERP sont suivies automatiquement. Pour une action demandée dans ChatGPT, l’assistant utilise l’API métier existante puis rattache l’origine au véritable enregistrement avec `coco_assistant_bridge('record', …)`. Cette commande vérifie l’existence de l’enregistrement ; elle ne crée pas de donnée métier. Elle est idempotente par compte, origine, module et enregistrement.
 
 Un fichier envoyé ici doit être réellement lu et transféré avant d’être annoncé comme archivé. Une capture d’écran, un nom de fichier, un lien temporaire ou une analyse de mail ne constituent pas l’original archivé. À défaut de transfert de l’original, la proposition Documents permet de joindre le fichier dans l’ERP avant validation. Il n’existe pas d’écoute permanente des pièces jointes de toutes les conversations ChatGPT.

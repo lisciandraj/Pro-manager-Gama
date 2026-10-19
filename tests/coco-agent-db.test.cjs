@@ -27,6 +27,10 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:proposal.digest,confirmed:false}),/AGENT_CONFIRMATION_REQUIRED/);
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:'a'.repeat(64),confirmed:true}),/AGENT_CONFIRMATION_REQUIRED/);
   const done=await execute(proposal);assert.equal(done.status,'executed');assert.equal(done.stock_after,0);const verified=await rpc('status',{command_id:proposal.id});assert.equal(verified.status,'executed');assert.equal(verified.movements.length,1);assert.equal(verified.stock_now,0);assert.ok(done.adjustments[0].movement_id);
+  await db.exec('reset role');
+  const agentHistory=(await db.query("select actor_name,actor_id,source_type,source_id from private.coco_module_events where source_id=$1",[proposal.id])).rows;
+  assert(agentHistory.length>0);assert(agentHistory.every(e=>e.actor_name==='Agent Coco'&&e.actor_id===admin&&e.source_type==='chat'));
+  assert.notEqual((await db.query("select current_setting('coco.activity_source_type',true) value")).rows[0].value,'chat');
   assert.equal(await quantity(),0);await as(admin);assert.deepEqual(await execute(proposal),done);
   await db.exec('reset role');const count=Number((await db.query("select count(*) count from stock_movements where product_id=$1 and reference_type='adjustment_request'",[product])).rows[0].count);assert.equal(count,1);
   assert.equal((await db.query('select reason,kind from stock_adjustment_requests where id=$1',[done.adjustments[0].id])).rows[0].reason,'consommation interne');

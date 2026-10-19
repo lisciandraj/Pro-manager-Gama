@@ -54,7 +54,7 @@ function bindTopMenu(trigger){
 
 /* ------------------------------------------------------------------ nav */
 function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
- +svg(window.GamaMenu?.icons?.[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
+ +(window.ArcUI.moduleIcon(x[2])||window.ArcUI.moduleIcon('home'))+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
 function navAllowed(id){
  if(window.gamaMenuVisible)return !!window.gamaMenuVisible(id);
  if(window.gamaAccessAllowed)return !!window.gamaAccessAllowed(id);
@@ -72,7 +72,7 @@ function navHtml(){
  const menu=window.GamaMenu;
  if(!menu||!menu.items)return '';
  let html='<button type="button" class="arcButton arcNavLink" data-arc-home="1">'
-  +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>'
+  +window.ArcUI.moduleIcon('home')+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>'
   +'<div class="arcNavFavorites" role="group" aria-labelledby="arcFavoritesTitle"></div>';
  (menu.groups||[]).forEach(group=>{
   html+='<div class="arcNavGroup">'+esc(T(group))+'</div>';

@@ -52,8 +52,13 @@ badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.
 
 // Solid module glyphs: a blue silhouette and one small orange detail, on a
 // transparent 24px canvas. Cutouts use evenodd, never a painted background.
-// Keep the compact navigation/action line icons above independent.
+// Utility/action line icons above remain independent. Sidebar navigation reuses
+// these shapes with both colour layers set to the same grey in shell.css.
 const moduleIllustrations={
+ home:[
+  '<path d="m2 10 9-7a1.6 1.6 0 0 1 2 0l9 7v2h-2v8a1 1 0 0 1-1 1h-4v-7H9v7H5a1 1 0 0 1-1-1v-8H2Z"/>',
+  '<rect x="17" y="3" width="3" height="5" rx=".5"/>'
+ ],
  chart:[
   '<path d="M10.5 3.2a9.3 9.3 0 1 0 10.3 10.3h-8.3a2 2 0 0 1-2-2Z"/>',
   '<path d="M13 2.2a.8.8 0 0 1 .9-.8 10 10 0 0 1 8.7 8.7.8.8 0 0 1-.8.9H13Z"/>'

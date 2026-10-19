@@ -2,12 +2,12 @@ const {test,expect}=require('@playwright/test'),fs=require('node:fs'),path=requi
 const schema=require('../config/storefront-schema.json'),config=Object.fromEntries(schema.groups.flatMap(g=>g.fields.map(f=>[f.key,f.default])));
 const ids=['10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002'];
 const items=[{id:ids[0],name:'CAFÉ PARA OFICINA',reference:'CAFE-01',category:'Alimentos y bebidas',category_title:'Alimentos y bebidas',unit_price:10,tax_rate:15,order_minimum:2,order_multiple:2,has_photo:false,featured:true,description:'Café de Ecuador',brand:'GAMA',badge:'Para tu equipo'},{id:ids[1],name:'AGUA MINERAL',reference:'AGUA-01',category:'Bebidas',category_title:'Bebidas',unit_price:null,tax_rate:null,order_minimum:0.001,order_multiple:0.001,has_photo:false,featured:true,description:'',brand:'',badge:''}];
-async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catalogItems=items,categories=catalogItems.map(p=>({category:p.category,title:p.category,count:1,photo_id:p.id})),settings={},photoRows=[]}={}){
+async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catalogItems=items,categories=catalogItems.map(p=>({category:p.category,title:p.category,count:1,photo_id:p.id})),settings={},photoRows=[],catalogGate=async()=>{}}={}){
  await page.setViewportSize({width,height:960});await page.addInitScript(()=>{window.__SITE_CALLS=[];window.__SITE_FAIL=false});
  await page.route('**/site.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.js'),contentType:'text/javascript'}));await page.route('**/site.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.css'),contentType:'text/css'}));await page.route('**/logo.jpg',r=>r.fulfill({path:path.join(__dirname,'../gama-logo.jpg'),contentType:'image/jpeg'}));
  await page.route('**/api/storefront',async r=>{const d=r.request().postDataJSON();await page.evaluate(d=>__SITE_CALLS.push(d),d);let out;const c={...config,enable_quotes:quotes,show_contact:contact,...settings};
  if(d.p_action==='bootstrap')out={paused,settings:c,currency:'USD',total:catalogItems.length,categories,brands:[...new Set(catalogItems.map(p=>p.brand).filter(Boolean))],featured:catalogItems};
- if(d.p_action==='catalog'){const rows=catalogItems.filter(p=>(!d.p_data.search||[p.name,p.reference,p.brand].join(' ').toLowerCase().includes(d.p_data.search.toLowerCase()))&&(!d.p_data.category||p.category===d.p_data.category)&&(!d.p_data.brand||p.brand===d.p_data.brand));out={items:rows.slice(d.p_data.offset,d.p_data.offset+d.p_data.limit),total:rows.length,offset:d.p_data.offset,limit:d.p_data.limit,currency:'USD'}}
+ if(d.p_action==='catalog'){await catalogGate(d.p_data);const rows=catalogItems.filter(p=>(!d.p_data.search||[p.name,p.reference,p.brand].join(' ').toLowerCase().includes(d.p_data.search.toLowerCase()))&&(!d.p_data.category||p.category===d.p_data.category)&&(!d.p_data.brand||p.brand===d.p_data.brand));out={items:rows.slice(d.p_data.offset,d.p_data.offset+d.p_data.limit),total:rows.length,offset:d.p_data.offset,limit:d.p_data.limit,currency:'USD'}}
  if(d.p_action==='product')out={item:catalogItems.find(p=>p.id===d.p_data.id),currency:'USD'};if(d.p_action==='photos')out=photoRows.filter(p=>d.p_data.ids.includes(p.id));
  if(d.p_action==='submit'){if(await page.evaluate(()=>__SITE_FAIL)){await page.evaluate(()=>__SITE_FAIL=false);return r.fulfill({status:503,json:{error:'WEBSITE_UNAVAILABLE'}})}out={reference:'WEB-00000001'}}return r.fulfill({json:out})});
  await page.route('**/customer.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/customer.css'),contentType:'text/css'}));await page.route('**/b2b.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/b2b.js'),contentType:'text/javascript'}));
@@ -167,6 +167,20 @@ test('late customer catalogue response cannot repaint prices after logout',async
 test('public selection carries into the customer order and legacy login URL opens the same page',async({page})=>{
  await customerFixture(page);await boot(page);await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);await page.route('**/b2b.html',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/b2b.html'),contentType:'text/html'}));await page.goto('/b2b.html');await expect(page.locator('#customerLogin')).toBeVisible();await page.locator('#customerLoginClose').click();await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);
  await page.locator('#siteProducts [data-add]').first().click();await expect(page.locator('#cartCount')).toHaveText('1');await loginCustomer(page);await expect(page.locator('#cartCount')).toHaveText('1');await page.locator('#cartOpen').click();await expect(page.locator('#content [data-qty]')).toHaveValue('2');await page.locator('#cartPreview').click();await expect(page.locator('#content .cart-total')).toContainText('9,20');
+});
+
+for(const width of [390,1440])test('first catalogue batch accepts quantity edits and additions while the remaining page loads at '+width,async({page})=>{
+ let release;const remaining=new Promise(resolve=>release=resolve);
+ const rows=Array.from({length:100},(_,i)=>({...items[0],id:'10000000-0000-4000-8000-'+String(i+1).padStart(12,'0'),name:'Producto '+(i+1),reference:'REF-'+(i+1)}));
+ try{
+  await boot(page,{width,catalogItems:rows,catalogGate:d=>d.offset>0?remaining:Promise.resolve()});
+  await expect(page.locator('#siteProducts .product-card')).toHaveCount(30);
+  await expect(page.locator('#siteProducts')).toHaveAttribute('aria-busy','true');
+  const quantity=page.locator('#siteProducts [data-card-quantity]').first();await quantity.fill('4');
+  await page.locator('#siteProducts [data-add]').first().click();await expect(page.locator('#cartCount')).toHaveText('1');
+  release();await expect(page.locator('#siteProducts .product-card')).toHaveCount(100);
+  await expect(quantity).toHaveValue('4');await expect(page.locator('#siteProducts')).toHaveAttribute('aria-busy','false');
+ }finally{release()}
 });
 
 for(const width of [390,1024,1440])test('catalogue shows 100 products per page with ten desktop columns at '+width,async({page})=>{

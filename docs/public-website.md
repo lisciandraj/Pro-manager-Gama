@@ -86,6 +86,8 @@ Cloudflare injecte dans le HTML le titre, la description et le premier état pub
 
 ## Développement et validation
 
+Le catalogue affiche chaque lot reçu immédiatement, jusqu’aux 100 produits de la page. Les quantités déjà saisies restent en place pendant l’ajout des lots suivants. Une réponse d’une ancienne recherche ou session est ignorée ; l’état occupé du catalogue se termine après les données, indépendamment des photos. La disposition à dix colonnes sur ordinateur reste inchangée. La [proposition SQL issue de l’audit](audits/2026-10-19-catalogue-csv-proposals.md) est distincte : elle n’est pas incluse dans les migrations automatiques et nécessite une recette avant application.
+
 ```sh
 npm ci
 npm run build
@@ -178,3 +180,8 @@ Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relance
 La migration `20261018081814_website_requests_to_draft_quotes.sql` complète l’import du site public et le `submit` authentifié du portail. Elle utilise les tables de devis, leurs références et dossiers existants. Les demandes déjà en attente issues de ces deux canaux sont converties sans toucher aux demandes ERP manuelles ni aux demandes clôturées. Le site public conserve sa réponse limitée à la référence WEB ; les brouillons restent privés jusqu’à leur envoi par l’équipe.
 
 Le traitement ne fabrique aucune session ni identité utilisateur. Une capacité privée liée au processus PostgreSQL, à la transaction et au devis autorise exclusivement les écritures du brouillon lors de la réception ; elle est supprimée avant le retour et ne donne aucun droit ERP au client. Les modifications, envois, validations commerciales et créations de commandes continuent à utiliser les contrôles existants. Les adresses du portail restent liées à leur entreprise. Les notes automatiques d’Agent Coco sont en espagnol et relient le devis, la demande et le module Site web.
+
+
+### Correctifs de l’audit du 19 octobre 2026
+
+La page de 100 produits reste progressive par lots de 30. Les photos démarrent à 300 px de la zone visible, avec deux requêtes de 24 images maximum en parallèle. Chaque lot est peint dès son arrivée ; les recherches et changements de compte annulent les anciennes demandes. Le cache d’images est borné à 150 entrées et 4 Mio de chaînes encodées. Les prix et stocks ne sont pas mis dans un cache partagé. Les images ne conditionnent pas la disponibilité des actions de commande.

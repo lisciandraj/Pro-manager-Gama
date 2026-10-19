@@ -18,5 +18,10 @@
     "source": "npm:@zxing/browser@0.2.1",
     "sha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",
     "integrity": "sha384-HRtzk9lZgkbSgvUyQrnfC/GxiXZgwaNyD7hC9wcXlsBpDhkS80ISl73juef2FRuf"
+  },
+  "web-vitals-6.2.3.iife.js": {
+    "source": "npm:web-vitals@6.2.3",
+    "sha256": "1e5e9b9af6b8d71cfef508e5a869c53b4cf2bbccad8c9b5ac664c34e93f6151a",
+    "integrity": "sha384-sKh//42d8+X4ztiyB4ChMShr0tmbWDWrkHfy9pLz9napB81dM74xVylUQVmZ94PE"
   }
 }

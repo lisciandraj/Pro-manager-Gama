@@ -9,6 +9,7 @@ async function boot(page){
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;GamaCloud.getSession=async()=>({data:{session:{access_token:'isolated-test-token',user:{id:'qa'}}}});`}));
  await page.route('**/functions/v1/gama-assistant-ia',r=>{const body=r.request().postDataJSON();return r.fulfill({contentType:'application/json',body:JSON.stringify(body.action==='stock_plan'?{status:'prepared',proposal:proposal()}:body.action==='status'?{configured:true,model:'test'}:{rows:[]})})});
  await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
+ await page.addScriptTag({url:'/architect-identity.js'});await page.evaluate(()=>{ArchitectIdentity.ensureMFA=async options=>{if(!options?.fresh)throw Error('Expected fresh MFA for approval')}});
  await page.evaluate(({product,location,proposal})=>{
   const original=ArcData.rpc;window.__agentCalls=[];window.__agentStock=65;window.__agentExecutions=0;
   window.ArcData={...window.ArcData,rpc:async(name,args)=>{
@@ -17,7 +18,7 @@ async function boot(page){
    if(a==='configure')return d;
    if(a==='search')return {items:[{id:product,reference:'MED001',name:'Acetaminofen 500 mg caja de 100',base_unit:'unit'}]};
    if(a==='stock')return {product_id:product,unit:'unit',lot_tracking:false,locations:[{location_id:location,location:'AE07-04',available:65,quantity:65}]};
-   if(a==='prepare')return proposal;
+   if(a==='prepare')return proposal;if(a==='approve')return {receipt:'qa-independent-approval'};if(a==='approvals')return {items:[]};
    if(a==='execute'){if(__agentStock){__agentStock=0;__agentExecutions++}return {status:'executed',stock_after:0,adjustments:[{id:'adjustment',erp_reference:'AJ-TEST'}]}};
    if(a==='status')return {status:'executed',stock_now:__agentStock,original_receipt:{status:'executed'},adjustments:[{id:'adjustment',reference:'AJ-TEST'}],movements:[{id:'movement',reference:'MOV-TEST',quantity:65,stock_before:65,stock_after:0,reason:'consommation interne'}]};
    if(a==='history')return {items:[]};throw Error('UNEXPECTED_ACTION');

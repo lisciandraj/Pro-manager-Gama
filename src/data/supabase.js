@@ -35,7 +35,7 @@ async function init(){
 async function db(){const c=await init();if(!c)throw Error('Supabase public key not configured');return c}
 async function getSession(){return (await db()).auth.getSession()}
 async function signIn(email,password){return (await db()).auth.signInWithPassword({email,password})}
-async function signOut(){const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
+async function signOut(){try{await window.ArchitectOfflineProofs?.beforeLogout?.()}catch(e){if(e.message==='LOGOUT_CANCELLED')throw e;window.CocoOfflineVault?.lock();}const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
 async function getProfile(){
  const c=await db(),r=await c.auth.getSession(),s=r.data?.session,u=s?.user;
  if(!u)return {data:null,error:null};

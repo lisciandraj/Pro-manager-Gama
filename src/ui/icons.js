@@ -79,8 +79,8 @@ const artwork={
   '<path d="M5 6h14"/>'
  ],
  car:[
-  '<path d="m4 11 3-7h10l3 7M3 11h18v7H3ZM5 18v3M19 18v3M6 14h2M16 14h2"/>',
-  '<path d="M9 4V2h6v2M10 17h4"/>'
+  '<path d="m4 11 3-7h10l3 7M3 11h18v7H3ZM5 18v3M19 18v3M10 17h4"/>',
+  '<path d="M6 14h2M16 14h2"/>'
  ],
  barcode:[
   '<path d="M3 5v14M6 5v14M9 5v14M16 5v14M21 5v14"/>',
@@ -216,7 +216,7 @@ const artwork={
  ],
  star:[
   '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
-  '<path d="m12 10 2 2-2 2-2-2Z" fill="currentColor" stroke="none"/>'
+  ''
  ],
  menu:[
   '<path d="M3 5h18M3 19h18"/>',
@@ -230,7 +230,7 @@ const artwork={
 artwork.robot=artwork.cocoBot;
 artwork.apps=artwork.matrix;
 
-const layer=(body,role)=>'<g class="cocoIcon'+(role==='blue'?'Primary':'Accent')+'" color="var(--gama-'+role+', '+(role==='blue'?'#157F98':'#F87826')+')" stroke="var(--gama-'+role+', '+(role==='blue'?'#157F98':'#F87826')+')" fill="none" stroke-width="2" stroke-linecap="square" stroke-linejoin="round">'+body+'</g>';
+const layer=(body,role)=>body?'<g class="cocoIcon'+(role==='blue'?'Primary':'Accent')+'" color="var(--gama-'+role+', '+(role==='blue'?'#157F98':'#F87826')+')" stroke="var(--gama-'+role+', '+(role==='blue'?'#157F98':'#F87826')+')" fill="none" stroke-width="2" stroke-linecap="square" stroke-linejoin="round">'+body+'</g>':'';
 /** SVG contents for existing compact renderers, with the same two layers. */
 export const icons=Object.fromEntries(Object.entries(artwork).map(([name,[primary,accent]])=>[name,layer(primary,'blue')+layer(accent,'orange')]));
 

@@ -37,6 +37,12 @@ La barre supérieure et le menu des applications restent blancs. Depuis le 18 oc
 
 Les rapports de contraste historiques ne doivent pas être réutilisés après une modification de couleurs : vérifier le couple texte/fond réellement calculé, y compris les surcharges du thème.
 
+### Icônes des tuiles — 19 octobre 2026
+
+Les 22 modules de l’accueil utilisent une famille de pictogrammes pleins inspirée de la dernière référence du propriétaire : silhouette bleu pétrole #157F98 et un détail orange #F87826 sur chaque icône. Les deux couches sont explicites dans `src/ui/icons.js` ; la couleur ne dépend plus du dernier élément SVG. Les évidements sont transparents (`fill-rule="evenodd"`), sans fond peint, gradient, ombre ou contour décoratif. Le carré arrondi autour de l’icône est supprimé, ainsi que son remplissage, sa bordure et son padding. Le conteneur conserve uniquement sa fonction d’alignement et ses tailles réactives existantes (40 px sur PC, 24 px sur téléphone).
+
+Les tuiles, libellés, favoris, navigation, droits et zones de clic gardent leur fonctionnement. Les pictogrammes partagés avec les en-têtes et la prochaine action du suivi de processus réutilisent le même dessin. Les petites icônes de navigation restent filaires. Le logo COCO, l’icône PWA et le site public ne sont pas concernés. Les captures du 18 octobre ci-dessous documentent l’ancienne iconographie ; le code et cette section font autorité pour les icônes actuelles.
+
 Les tableaux utilisent la vue tableau par défaut. Le stock, la liste des devis et la file Ventes « À traiter » ouvrent des fiches sur téléphone (760 px ou moins) si le compte n’a pas déjà choisi une vue ; un choix enregistré reste prioritaire. Les cellules possèdent des séparateurs horizontaux fins et un quadrillage vertical discret (tokens `--coco-row-line` et `--coco-column-line`) ; les en-têtes et cellules vides gardent leur alignement. Les grands tableaux défilent dans leur propre zone. Le sélecteur permet toujours un choix explicite des cartes, conservé par compte et tableau (`src/ui/tables.js`).
 
 Le sélecteur « Tuiles / Tableau » utilise partout les mêmes boutons à contour bleu, y compris dans les tableaux historiques et les fenêtres de consultation. Leur largeur s’adapte à l’icône et au libellé traduit, sans compression ; leur hauteur minimale est de 44 px. Le choix actif garde un fond bleu clair et un contour renforcé. La présentation partagée est définie dans `src/styles/ui.css` ; les styles de page ne redéfinissent pas ces boutons.

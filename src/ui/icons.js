@@ -50,18 +50,111 @@ matrix:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width=
 warehouse:'<path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M7 20v-6h10v6M7 14h10"/>',
 badge:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/><circle cx="12" cy="12" r="2"/><path d="M8.5 17c.4-1.6 1.8-2.5 3.5-2.5s3.1.9 3.5 2.5"/>'};
 
-// Solid two-colour illustrations for the reference-style home. Sidebar icons stay compact.
+// Solid module glyphs: a blue silhouette and one small orange detail, on a
+// transparent 24px canvas. Cutouts use evenodd, never a painted background.
+// Keep the compact navigation/action line icons above independent.
 const moduleIllustrations={
- chart:'<path d="M3 21h18M5 17v-5h3v5M11 17V8h3v9M17 17V4h3v13"/><path d="m4 8 5-4 5 2 6-4" stroke="var(--gama-orange)"/>',
- cube:'<path d="m12 3 9 5-9 5-9-5Zm-9 5v10l9 5 9-5V8M12 13v10M7.5 5.5l9 5"/>',
- users:'<circle cx="9" cy="7" r="3"/><path d="M2 21v-3a7 7 0 0 1 14 0v3"/><circle cx="18" cy="8" r="2.5" stroke="var(--gama-orange)"/><path d="M17 14a5 5 0 0 1 5 5v2" stroke="var(--gama-orange)"/>',
- truck:'<path d="M2 4h12v13H2Zm12 4h4l4 5v4h-8M17 9v4h5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/>',
- invoice:'<path d="M5 2h10l5 5v15H5ZM15 2v6h5M8 8h3M8 12h8M8 16h4"/><path d="m14 19 2 2 5-5" stroke="var(--gama-orange)"/>',
- cart:'<path d="M2 3h3l3 13h12l3-10H6" stroke="var(--gama-orange)"/><circle cx="9" cy="21" r="1.5"/><circle cx="19" cy="21" r="1.5"/>'
+ chart:[
+  '<path d="M10.5 3.2a9.3 9.3 0 1 0 10.3 10.3h-8.3a2 2 0 0 1-2-2Z"/>',
+  '<path d="M13 2.2a.8.8 0 0 1 .9-.8 10 10 0 0 1 8.7 8.7.8.8 0 0 1-.8.9H13Z"/>'
+ ],
+ cocoBot:[
+  '<path d="M11 4h2v3h-2ZM5 7h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm2 4v3h3v-3Zm7 0v3h3v-3Zm-6 6v1h8v-1ZM0 11h2v6H0Zm22 0h2v6h-2Z"/>',
+  '<circle cx="12" cy="3" r="2"/>'
+ ],
+ handshake:[
+  '<path d="m2 8 4-4 5 1-4 4a3 3 0 0 0 4.2 4.2l2-2 5.3 5.3-4.7 4.7a2 2 0 0 1-2.8 0L5 15Zm7.5 1.5L14 5l4-1 4 4-2 6-1.3 1.3-5.5-5.5-3.4 2.1a1.2 1.2 0 0 1-1.5-1.8Z"/>',
+  '<rect x=".5" y="9" width="3.5" height="8" rx="1" transform="rotate(-25 2.25 13)"/>'
+ ],
+ sales:[
+  '<rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="8" width="4" height="13" rx="1"/>',
+  '<rect x="17" y="3" width="4" height="3" rx="1"/>'
+ ],
+ cube:[
+  '<path d="M3 7.5 12 3l9 4.5-9 4.5ZM3 10l8 4v8l-7-3.5a2 2 0 0 1-1-1.8Zm10 4 8-4v6.7a2 2 0 0 1-1 1.8L13 22Z"/>',
+  '<path d="m7.5 5.25 3-1.5 9 4.5-3 1.5Z"/>'
+ ],
+ cart:[
+  '<path d="M1 3h3.3a1.5 1.5 0 0 1 1.5 1.2L6.6 8H22l-2.2 7.3a2 2 0 0 1-1.9 1.4H8.7a2 2 0 0 1-2-1.6L3.2 6H1Z"/><circle cx="9" cy="20" r="2"/><circle cx="18" cy="20" r="2"/>',
+  '<rect x="11" y="3" width="6" height="4" rx="1"/>'
+ ],
+ warehouse:[
+  '<path d="m2 8.5 9-6a1.8 1.8 0 0 1 2 0l9 6V11H2Zm1 4.5h18v7a1 1 0 0 1-1 1h-4v-7H8v7H4a1 1 0 0 1-1-1Z"/>',
+  '<rect x="10" y="17" width="4" height="4" rx=".6"/>'
+ ],
+ truck:[
+  '<path d="M3 4h10a1 1 0 0 1 1 1v12H2V5a1 1 0 0 1 1-1Zm13 4h3l3 4v5h-6Zm2 2v3h2l-1.5-3Z"/><circle cx="6" cy="20" r="2"/><circle cx="18" cy="20" r="2"/>',
+  '<rect x="5" y="7" width="6" height="3" rx=".7"/>'
+ ],
+ invoice:[
+  '<path d="M4 3a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1v10h-5v8l-3-2-3 2-2-2-2 2Zm3 4v2h9V7Zm0 5v2h5v-2Z"/>',
+  '<path d="m15.5 16.7 2 2 4.5-4.5 1.5 1.5-6 6-3.5-3.5Z"/>'
+ ],
+ ledger:[
+  '<path d="M6 2h13a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6V2Zm3 8v2h8v-2Zm0 5v2h6v-2ZM2 5h3v3H2Zm0 6h3v3H2Zm0 6h3v3H2Z"/>',
+  '<path d="M13 2h4v6l-2-1-2 1Z"/>'
+ ],
+ users:[
+  '<circle cx="9" cy="6" r="4"/><path d="M2 20v-3a7 7 0 0 1 14 0v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1Zm14.5-7.8A5 5 0 0 1 23 17v3a1 1 0 0 1-1 1h-4v-4a9 9 0 0 0-1.5-4.8Z"/>',
+  '<circle cx="19" cy="8" r="3"/>'
+ ],
+ returnArrow:[
+  '<rect x="8" y="9" width="10" height="9" rx="1.5"/><path d="M5 7a3 3 0 0 0-3 3v8a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-5h-3v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Z"/>',
+  '<path d="m10 2-5 4 5 4V7h8V4h-8Z"/>'
+ ],
+ project:[
+  '<rect x="3" y="3" width="11" height="4" rx="1"/><rect x="7" y="10" width="12" height="4" rx="1"/><rect x="12" y="17" width="6" height="4" rx="1"/>',
+  '<rect x="20" y="17" width="3" height="4" rx="1"/>'
+ ],
+ badge:[
+  '<path d="M4 6h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm8 3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm-4 9v1h8v-1a4 4 0 0 0-8 0Z"/>',
+  '<rect x="9" y="2" width="6" height="5" rx="1.5"/>'
+ ],
+ documents:[
+  '<path d="M7 2h7v6a2 2 0 0 0 2 2h5v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm2 11v2h8v-2Zm0 4v2h5v-2ZM1 6h2v14H1Z"/>',
+  '<path d="m16 2 5 6h-5Z"/>'
+ ],
+ knowledge:[
+  '<path d="M5 2h4v10l4-2 4 2V2h2a1 1 0 0 1 1 1v14H6a2 2 0 0 0 0 4h14v2H6a4 4 0 0 1-4-4V5a3 3 0 0 1 3-3Z"/>',
+  '<path d="M11 2h4v7l-2-1-2 1Z"/>'
+ ],
+ checklist:[
+  '<path d="M5 5h2v2h10V5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm1 5v3h3v-3Zm6 0v2h6v-2Zm-6 6v3h3v-3Zm6 0v2h6v-2Z"/>',
+  '<rect x="9" y="2" width="6" height="4" rx="1"/>'
+ ],
+ globe:[
+  '<path d="M10.2 2.2A10 10 0 0 0 2.1 11h4.1a24 24 0 0 1 4-8.8Zm3.6 0a24 24 0 0 1 4 8.8h4.1a10 10 0 0 0-8.1-8.8ZM12 3.1A20 20 0 0 0 8.2 11h7.6A20 20 0 0 0 12 3.1ZM2.1 13a10 10 0 0 0 8.1 8.8 24 24 0 0 1-4-8.8Zm6.1 0a20 20 0 0 0 3.8 7.9 20 20 0 0 0 3.8-7.9Z"/>',
+  '<path d="M17.8 13a24 24 0 0 1-4 8.8 10 10 0 0 0 8.1-8.8Z"/>'
+ ],
+ car:[
+  '<path d="M6 3h12a2 2 0 0 1 1.9 1.4L22 11v9a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2H6v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-9l2.1-6.6A2 2 0 0 1 6 3Zm.7 3-1.4 4h13.4l-1.4-4ZM5 13v2h4v-2Z"/>',
+  '<rect x="15" y="13" width="4" height="2" rx=".6"/>'
+ ],
+ barcode:[
+  '<rect x="2" y="4" width="2" height="16" rx=".5"/><rect x="6" y="4" width="3" height="16" rx=".5"/><rect x="11" y="4" width="2" height="16" rx=".5"/><rect x="19" y="4" width="3" height="16" rx=".5"/>',
+  '<rect x="15" y="4" width="2" height="16" rx=".5"/>'
+ ],
+ folder:[
+  '<path d="M4 3h5l3 3h8a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 10v3h3v-3Zm5 0v3h3v-3Z"/>',
+  '<rect x="16" y="13" width="3" height="3" rx=".5"/>'
+ ],
+ audit:[
+  '<path d="M10 2a8 8 0 1 0 4.5 14.6l5.7 5.7 2.1-2.1-5.7-5.7A8 8 0 0 0 10 2Zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/>',
+  '<path d="m6.5 9.5 2 2 4-4L14 9l-5.5 5.5L5 11Z"/>'
+ ],
+ matrix:[
+  '<rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="8" rx="1.5"/><rect x="2" y="14" width="8" height="8" rx="1.5"/>',
+  '<rect x="14" y="14" width="8" height="8" rx="1.5"/>'
+ ],
+ tag:[
+  '<path d="M3 3h8l11 11-8 8L3 11Zm4 3a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>',
+  '<rect x="11" y="12" width="6" height="2" rx=".5" transform="rotate(-45 14 13)"/>'
+ ]
 };
 
-/** Shared large module artwork; compact navigation keeps the line icons above. */
+/** Shared module artwork; each authored glyph owns both brand colour layers. */
 export function moduleIcon(name) {
- const drawing=moduleIllustrations[name]||icons[name];
- return drawing?'<svg'+(moduleIllustrations[name]?' class="arcHomeIllustration"':'')+' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+drawing+'</svg>':'';
+ const artwork=moduleIllustrations[name];
+ if(artwork)return '<svg class="arcHomeIllustration arcModuleGlyph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><g fill="var(--gama-blue, #157F98)" stroke="none" fill-rule="evenodd">'+artwork[0]+'</g><g fill="var(--gama-orange, #F87826)" stroke="none" fill-rule="evenodd">'+artwork[1]+'</g></svg>';
+ return icons[name]?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>':'';
 }

@@ -84,13 +84,12 @@
  body[data-app=coco-erp] .adInvoiceBottom{stop-color:var(--coco-chart-orange-bottom)}
  body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
  body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
- /* Launcher: compact grid, labels, original artwork and favorite tools kept. */
+ /* Launcher: solid blue glyphs with an orange detail, directly on the tile. */
  body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:1px solid var(--arc-tile-border);border-radius:12px;background:var(--coco-surface);box-shadow:none}
  body.cocoWorkbench #mainmenu .gamaF2Card:hover{border-color:#88BCC9;box-shadow:var(--arc-sh-2);transform:none}
- body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue)}
+ body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue);border:0;border-radius:0;padding:0;box-shadow:none;box-sizing:border-box}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;color:var(--coco-ink)}
- body.cocoWorkbench #mainmenu .gamaF2Icon svg{stroke-width:1.65}
- body.cocoWorkbench #mainmenu .gamaF2Icon svg:not(.arcHomeIllustration)>:last-child{stroke:var(--gama-orange)}
+ body.cocoWorkbench #mainmenu .gamaF2Icon svg.arcModuleGlyph{display:block;fill:none;stroke:none}
  /* Dialogs, action history and sign-in share the same visual system. */
  body[data-app=coco-erp] dialog{border-color:var(--coco-line);border-radius:16px;box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface) var(--coco-surface);color:var(--coco-ink)}
  body[data-app=coco-erp] dialog::backdrop{background:var(--coco-scrim);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -114,7 +113,6 @@
 @media screen {
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gp14Card,.pmPanel,.pmCard,.gkPanel,.ai-panel,.chartPanel,.coCard,.hpBox,.plList,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{border:1px solid var(--coco-line);border-radius:12px;background:var(--coco-icon-surface);padding:8px;box-sizing:content-box}
  body.cocoWorkbench #mainmenu .gamaF2Card:is(:hover,:focus-within){border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-sh-2)}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{color:var(--coco-muted)}
  /* Explicit native metric families, also loaded on demand. */
@@ -175,7 +173,6 @@
 @media screen and (max-width:760px){
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){grid-template-columns:minmax(0,1fr);gap:10px;min-height:0}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gp14Kpis>div)>span,body[data-app=coco-erp] .arcContent :is(.gaKpis>.gaCard,.gfKpis>.gfCard)>small{grid-column:1}
- body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{padding:4px;border-radius:9px}
 }
 @media screen and (max-width:420px){.hrPhotoEditor{padding:10px;gap:10px}.hrPhotoEditor .hrEmployeeAvatar{width:60px;height:60px}}
 @media (prefers-reduced-transparency:reduce){body[data-app=coco-erp] dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(23 36 59 / .48)}}

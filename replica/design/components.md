@@ -18,7 +18,7 @@ La source de vérité est `src/styles/tokens.css`. `src/styles/design.css`, char
 | Badge | Rayon 6 px, contour fin, fond sémantique léger, texte 12 px/400. État toujours écrit ; couleur jamais seule. |
 | Historique | Même carte blanche, bulles gris très clair / pétrole clair, bordure fine. Avatars, auteurs, dates, regroupements, liens et validation des propositions existants conservés. |
 | Fenêtre | Cadre satiné opaque, rayon 16 px, ombre réservée à la superposition, voile flouté de 8 px. Taille, défilement, footer et retours restent adaptés aux formulaires existants. |
-| Accueil | Tuiles blanches avec mêmes bordures et rayons, icônes bleu/orange conservées, texte 14 px/500. Grille compacte, noms complets, favoris et ordre personnel inchangés. |
+| Accueil | Tuiles blanches avec mêmes bordures et rayons, pictogrammes pleins bleu pétrole avec un détail orange, sans carré, fond, bordure ni padding autour de l’icône (référence du 19 octobre 2026), texte 14 px/500. Grille compacte, noms complets, favoris et ordre personnel inchangés. |
 
 Les paires de texte sont mesurées à 4,5:1, les bordures de saisie et le focus à 3:1. Le texte blanc demandé sur les actions est conservé avec une nuance orange soutenue, distincte de l’orange décoratif GAMA. Le point le plus clair du dégradé atteint 4,57:1 ; les résultats recalculés sont dans `contrast.json`. Les séparateurs de surfaces sont décoratifs.
 

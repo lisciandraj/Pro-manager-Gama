@@ -33,8 +33,10 @@ for(const width of [390,1280])test('Cloud account creates a scoped website custo
  await picker.locator('[name=customer_search]').fill('Andina');await picker.locator('[name=customer_search]').press('Enter');
  await expect(picker.locator('[name=customer_id] option')).toHaveCount(2);await picker.locator('[name=customer_id]').selectOption(first);
  await picker.locator('[data-customer-continue]').click();await expect(picker).toHaveCount(0);
- const account=page.locator('dialog').filter({has:page.locator('[data-customer-access]')});await expect(account).toContainText('Andina');
- await expect(account.locator('[data-customer-invite]')).toBeDisabled();await account.locator('[data-customer-access]').click();await page.locator('[data-customer-invite]').click();
+ const account=page.locator('dialog[open]').filter({has:page.locator('[data-customer-access]')});await expect(account).toContainText('Andina');
+ await expect(account.locator('[data-customer-invite]')).toBeDisabled();await account.locator('[data-customer-access]').click();
+ // Saving access replaces the dialog; the closed instance may await its close event.
+ await expect(account.locator('[data-customer-invite]')).toBeEnabled();await account.locator('[data-customer-invite]').click();
  const invite=page.locator('dialog').filter({has:page.locator('[name=message]')});await expect(invite.locator('[name=email]')).toHaveValue('andina@example.invalid');
  expect(await page.evaluate(()=>__CLIENT_INVITES)).toHaveLength(0);await invite.locator('[name=name]').fill('Ana Andina');await invite.locator('[type=submit]').click();
  await expect(invite.locator('[role=status]')).toContainText('Invitation envoyée');await expect(invite.locator('[type=submit]')).toBeDisabled();

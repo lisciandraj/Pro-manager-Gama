@@ -31,6 +31,30 @@ test('all-module history preserves row rights, groups actions, and validates typ
    await actor(admin);await q("select gama_save_role_module_access('comercial',array['documents'],0)");await actor(sales);await assert.rejects(rpc('documents','list'),/ROLE_NOT_ALLOWED/);await actor(admin);
   });
   let contactProposal;
+  await t.test('action context keeps stock snapshots, locations and exact document routes without exposing private fields',async()=>{
+   await actor(admin,'postgres');
+   const product=await v("insert into products(name,reference,barcode) values('Context product','CTX-1','CTX-1') returning id");
+   const wh=await v("insert into warehouses(code,name) values('CTX-WH','Quito') returning id");
+   const location=await v("insert into warehouse_locations(warehouse_id,code,name) values($1,'A-01','Shelf') returning id",[wh]);
+   const quant=await v('insert into stock_quants(product_id,location_id,quantity) values($1,$2,5) returning id',[product,location]);
+   await q('update stock_quants set quantity=8,reserved_quantity=2 where id=$1',[quant]);
+   await actor(admin);const history=(await rpc('warehouses','list')).history;
+   const changed=history.find(x=>x.record_table==='stock_quants'&&x.action==='update'&&x.references.some(r=>r.record_id===quant));assert(changed);
+   const ref=changed.references.find(r=>r.record_id===quant);assert.equal(ref.quantity_mode,'snapshot');assert.match(ref.context.location,/Quito.*A-01.*Shelf/);
+   assert.deepEqual(ref.context.changes.find(c=>c.field==='quantity'),{field:'quantity',before:5,after:8});
+   assert.deepEqual(ref.context.changes.find(c=>c.field==='reserved_quantity'),{field:'reserved_quantity',before:0,after:2});
+   assert(changed.links.some(l=>l.action==='stock_product'&&l.id===product));
+   await actor(admin,'postgres');
+   const privateContext=await v("select private.coco_history_change_context('hr','hr_employees','UPDATE','{}','{\"salary\":9000,\"amount\":99,\"notes\":\"secret\"}')");assert.deepEqual(privateContext,{});
+   const safe=await v("select private.coco_history_change_context('products','products','UPDATE','{}','{\"photo_data\":\"secret-binary\",\"notes\":\"secret-note\",\"sale_price\":12}')");assert(!JSON.stringify(safe).includes('secret'));assert(safe.changes.some(c=>c.field==='photo'&&c.changed));
+   // Different statuses within one transaction no longer split identical action types.
+   await db.exec('begin');
+   await q("insert into private.coco_module_events(module_id,type,action,subject,actor_id,actor_name,body) values('products','action','update','Batch',$1,'Admin','active'),('products','action','update','Batch',$1,'Admin','closed')",[admin]);
+   await db.exec('commit');await actor(admin);
+   const batch=(await rpc('products','list')).history.find(x=>x.subject==='Batch');assert.equal(batch.action_count,2);assert.match(batch.body,/active/);assert.match(batch.body,/closed/);
+   const docLink=await v("select private.coco_history_typed_link('documents','business_documents','doc-id','DOC-001')");assert.equal(docLink.action,'document');assert.equal(docLink.id,'doc-id');
+   await assert.rejects(v("select private.coco_history_change_context('products','products','UPDATE','{}','{}')"),/permission denied/);
+  });
   await t.test('unknown signature remains pending, creates one real prospect/contact on approval and rejects duplicates',async()=>{
    const data={first_name:'New',last_name:'Person',email:'new-person@example.invalid',phone:'+5931234567',company:'Source company'},src=source('signature-1','mail',data.email);
    contactProposal=await propose('contacts','contact_draft',data,src);assert.equal(await v("select count(*) from crm_contacts where email=$1",[data.email]),0);

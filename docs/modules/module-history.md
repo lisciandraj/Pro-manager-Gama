@@ -6,6 +6,14 @@ La feuille de style commune est appliquée à l’ouverture, y compris si la nav
 
 Les nouvelles modifications métier sont indexées après leur réussite par les triggers de la base. Les lignes d’une même transaction, du même auteur et de la même action sont regroupées **avant** pagination. La bulle contient les références ; les premières sont visibles et les autres se déplient. Une simple consultation n’ajoute pas d’action. Les anciennes modifications ne sont pas antidatées ni reconstituées à partir d’hypothèses.
 
+Chaque bulle présente l’auteur, l’action, la date avec les secondes et l’origine enregistrée (ERP, Agent Coco, mail, fichier ou import). Les références portent les quantités, montants et unités disponibles. Une origine ou une mesure absente est signalée, sans déduire une intervention manuelle de la seule présence d’un compte utilisateur. Les nouvelles actions capturent une liste limitée de valeurs avant/après : quantités, seuils, prix, montants, état et activation. Les photos sont indiquées comme modifiées, sans conserver leur contenu. Les modules sensibles restent exclus de cette capture de valeurs.
+
+Pour le stock, la bulle distingue mouvement, réservation et stock par emplacement. Les valeurs de stock sont des états par enregistrement : elles ne sont jamais additionnées comme des mouvements. Les emplacements sont enregistrés avec leurs libellés au moment de l’action. Les autres changements se déplient dans la référence. Les opérations distinctes, auteurs, origines, notes et décisions de proposition restent séparés ; des états différents dans une même opération ne fragmentent plus ses actions du même type.
+
+Les liens de documents connus ouvrent le dossier correspondant (document archivé, devis, commande, facture, livraison). Un lien « Voir le stock » cible le produit. Les autres destinations ouvrent explicitement leur module, avec un seul bouton par module et sans UUID affiché. Les permissions sont vérifiées à l’ouverture et restent contrôlées par les API métier. Les suppressions proposent le module, sans prétendre ouvrir un enregistrement supprimé. Les anciennes données bénéficient des liens lisibles et du regroupement, mais les valeurs avant/après ne sont pas inventées rétroactivement.
+
+Migration : `20261020190329_history_action_context.sql`.
+
 L’index ne contient pas de copie complète des enregistrements. Sa lecture utilise les droits du module et les politiques de la ligne métier actuelle, sous l’identité réelle du lecteur. Une modification de classification d’un document s’applique aussi à son historique. Aucun diagnostic, motif médical, salaire, coordonnées bancaires ou fichier binaire n’est copié dans une bulle. Les liens proposés sont des routes internes autorisées.
 
 ## Historique central d’Agent Coco

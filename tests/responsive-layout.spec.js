@@ -193,7 +193,7 @@ test('home tiles stay square when the viewport is resized or rotated',async({pag
    return {x:r.x,y:r.y,bottom:r.bottom,right:r.right,width:r.width,height:r.height,labelBottom:label.bottom,labelTop:label.top};
   }));
   expect(tiles.length).toBeGreaterThan(0);
-  if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(10);
+  if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(9);
   expect(await page.locator('[data-mfa-enrollment]').count()).toBe(0);
   if(width<=860)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(4);
   const overlaps=[];

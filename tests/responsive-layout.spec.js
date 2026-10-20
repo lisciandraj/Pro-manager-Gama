@@ -119,7 +119,7 @@ test('module controls fit on phone, landscape, tablet and desktop',async({page})
  for(const id of ids){
   await page.evaluate(id=>ArcRouter.open(id),id);
   await page.waitForTimeout(500); // Module loaders render asynchronously.
-  for(const width of [320,360,390,768,844,1024,1440]){
+  for(const width of [320,360,390,768,844,1024,1440,1920]){
    await page.setViewportSize({width,height:width===844?390:900});
    const issues=await page.locator('section.active').evaluate(layoutProblems);
    if(issues.length)failures.push({module:id,width,issues});

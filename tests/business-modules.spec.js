@@ -42,13 +42,20 @@ test('business list search stays beside its action without empty layout rows',as
  for(const id of ['contracts','expenses']){
   await page.evaluate(id=>ArcRouter.open(id),id);
   const host=page.locator('#'+id+' .cocoBusiness');await host.locator('[data-business-new]').waitFor();
-  for(const width of [320,390,768,1440]){
+  for(const width of [320,390,768,1024,1440,1920]){
    await page.setViewportSize({width,height:900});
    const search=host.locator('.arcToolbar [name=search]');await expect(search).toBeVisible();
    const input=await search.boundingBox(),button=await host.locator('[data-business-search]').boundingBox();
    expect(Math.abs(input.y+input.height-button.y-button.height)).toBeLessThanOrEqual(2);
    await expect(host.locator('[data-business-error]')).toBeHidden();
    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(2);
+   if(width<=768){
+    const panel=page.locator('.cocoGlobalHistory .cocoFollowup');await expect(panel).toBeVisible();
+    const history=await panel.boundingBox(),nav=await page.locator('.cocoMobileNav').boundingBox();
+    expect(history.y+history.height).toBeLessThanOrEqual(nav.y-4);
+    const reserve=await page.locator('.arcContent').evaluate(e=>parseFloat(getComputedStyle(e).paddingBottom));
+    expect(reserve).toBeGreaterThanOrEqual(history.height+nav.height+16);
+   }
    if(width===390||width===1440)await page.screenshot({path:info.outputPath(id+'-'+width+'.png')});
   }
   await host.locator('[name=search]').fill('Paper');await host.locator('[data-business-search]').click();

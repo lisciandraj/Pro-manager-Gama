@@ -92,3 +92,18 @@ test('phone note editor stays usable after viewport resizing without losing an u
 test('logout removes notes and pending proposal editors',async({page})=>{
  await boot(page,{proposal:true});await page.locator('[data-review-proposal]').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('.cocoFollowup')).toHaveCount(0);await expect(page.locator('.cocoProposalDialog')).toHaveCount(0);
 });
+
+for(const kind of ['sales','quotes'])test(`${kind} closed history clears phone navigation and final content`,async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page,{kind,proposal:true});
+ const panel=page.locator('.cocoFollowup'),nav=page.locator('.cocoMobileNav');
+ await expect(panel.locator(':scope>summary')).toBeVisible();await expect(nav).toBeVisible();
+ for(const width of [320,390,768,844]){
+  await page.setViewportSize({width,height:width===844?390:844});
+  const history=await panel.boundingBox(),bar=await nav.boundingBox();
+  expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
+  expect(history.x).toBeGreaterThanOrEqual(0);expect(history.x+history.width).toBeLessThanOrEqual(width);
+ }
+ await panel.locator(':scope>summary').click();await expect(panel).toHaveClass(/is-mobile-open/);
+ await panel.locator(':scope>summary').click();await expect(panel).not.toHaveClass(/is-mobile-open/);
+ const bar=await nav.boundingBox(),history=await panel.boundingBox();expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
+});

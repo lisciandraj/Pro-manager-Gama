@@ -167,3 +167,30 @@ tables larges sans agrandir la page. Le site public conserve sa charte distincte
 Les modules Contrats et Dépenses et justificatifs ont chacun un dessin propre : `contract`, une feuille et un stylo orange avec une signature, et `expense`, un reçu dentelé avec une pièce orange. Ces deux icônes utilisent le même catalogue vectoriel 24 × 24 et sont partagées entre accueil, navigation et en-têtes.
 
 Le module `returns` porte le libellé court « Retour » (FR), « Devolución » (ES), « Return » (EN), tout en conservant ses onglets de retours et de réclamations.
+
+### Standard PC et smartphone — toutes les pages ERP
+
+Ces règles s’appliquent aux modules, listes, dossiers, réglages et fenêtres ERP,
+y compris Contrats et Dépenses. Le catalogue public conserve sa charte distincte.
+
+| Élément | PC | Smartphone / tablette étroite |
+| --- | --- | --- |
+| Page | Marges de 20 px, 16 px sous 1180 px ; contenu réductible dans sa colonne | Marges de 12 px sous 760 px, plus les zones de sécurité ; aucun défilement horizontal de la page |
+| Hiérarchie | Titre dans la barre commune, action principale puis filtres et résultats | Même ordre ; commandes qui reviennent à la ligne, recherche et bouton associés |
+| Tableaux | Grille lisible, colonnes et vue conservées par utilisateur | Défilement local du tableau ou vue tuiles ; commandes contenues dans l’écran |
+| Historique | Colonne latérale à partir de 901 px | Résumé fixe au-dessus de la navigation ; ouverture en panneau avec fermeture et gestion du focus |
+| Navigation basse | Absente | Espace réservé jusqu’à 860 px, avec zone de sécurité iOS ; aucun résumé d’historique par-dessus les boutons |
+| Formulaires | Colonnes adaptées à la place disponible | Une colonne lorsque nécessaire, champs à 16 px et commandes tactiles d’au moins 44 px |
+| Espacement | Échelle existante de 4 / 8 / 12 / 16 / 24 px | Même échelle ; les messages d’erreur vides ne réservent pas de rangée |
+| États | Chargement, erreur, vide et données réelles dans la même structure | Même comportement, textes longs et traductions avec retour à la ligne |
+
+Les conteneurs de page utilisent `min-width:0` : un tableau large ne peut pas
+agrandir la colonne ni décaler l’en-tête. Les règles de position de l’historique
+sont dans sa feuille chargée à la demande ; le budget de démarrage reste inchangé.
+L’historique central d’Agent Coco reste dans le flux de sa page.
+
+La suite `responsive-layout.spec.js` parcourt tous les modules visibles de la
+fixture en 320, 360, 390, 768, 844, 1024, 1440 et 1920 px. Les suites formulaires,
+fenêtres, listes métier et historiques complètent ce contrôle, notamment pour
+les chevauchements avec la navigation. Les essais Chromium et WebKit émulent les
+écrans ; ils ne remplacent pas un essai matériel sur iPhone ou Android.

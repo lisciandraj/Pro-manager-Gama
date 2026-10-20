@@ -1598,7 +1598,13 @@
       "name": "sri_invoice_api_snapshot",
       "file": "20261010170822_sri_invoice_api_snapshot.sql",
       "sha256": "45ef1237d13fec3815f8a96652d678701cfeb09dfc40336d8a762436e7136c92"
+    },
+    {
+      "version": "20261020201200",
+      "name": "agent_approval_queue",
+      "file": "20261020195939_agent_approval_queue.sql",
+      "sha256": "7e55293892c85c302ca3028f5ba11bfbc233bdbb3585248b1b947c3731db9c41"
     }
   ],
-  "lastVerifiedAddition": "20261010170822"
+  "lastVerifiedAddition": "20261020201200"
 }

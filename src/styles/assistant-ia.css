@@ -75,3 +75,14 @@
 @media(max-width:600px){#assistant-ia .coco-values{grid-template-columns:repeat(2,minmax(0,1fr))}#assistant-ia .coco-kpis{gap:6px}#assistant-ia .coco-kpis>div{padding:10px}#assistant-ia .coco-card{padding:12px}}
 
 @media(max-width:600px){#assistant-ia .coco-list{max-height:420px}}
+
+/* Approval queue reuses the module panel and toolbar. */
+#assistant-ia .ai-queue-list{list-style:none;padding:0;margin:16px 0}
+#assistant-ia .ai-queue-list li{border-bottom:1px solid var(--arc-border,#b5c5d0)}
+#assistant-ia .ai-queue-row{display:flex;gap:12px;align-items:flex-start;padding:14px 0;cursor:pointer}
+#assistant-ia .ai-queue-row input{width:20px;height:20px;flex:0 0 20px;margin:2px 0;accent-color:var(--arc-primary,#157f98)}
+#assistant-ia .ai-queue-row>span{min-width:0;overflow-wrap:anywhere}
+#assistant-ia .ai-queue-row .ai-meta{display:block;margin-top:4px}
+#assistant-ia .ai-queue-detail{border-top:1px solid var(--arc-border,#b5c5d0);padding:12px 0;overflow-wrap:anywhere}
+#assistant-ia .ai-queue-amounts{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;max-width:440px}
+#assistant-ia .ai-queue-amounts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}

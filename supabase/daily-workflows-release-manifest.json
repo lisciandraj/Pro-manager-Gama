@@ -1,0 +1,61 @@
+{
+  "project_id": "mknsaibrewksgomuslev",
+  "base_commit": "480e36d",
+  "migrations": [
+    {
+      "version": "20261019185130",
+      "file": "20261019185130_audit_catalogue_projection.sql",
+      "sha256": "6e4b0afc36efb44bc6e029ec29c53097c91880b6fb0967da006f63451c9767eb",
+      "created_version": "20261019180838",
+      "applied_hash": "2f941fd1d4ba6ab4151304ba06bc706b"
+    },
+    {
+      "version": "20261019185155",
+      "file": "20261019185155_audit_security_gates.sql",
+      "sha256": "b55566c3ceacac35d811b756950f7be7ab88c877e978d4eb13d4020111053de4",
+      "created_version": "20261019180956",
+      "applied_hash": "39a64fa678f8e53fb389e9cf02601149"
+    },
+    {
+      "version": "20261019185158",
+      "file": "20261019185158_audit_metrics_context.sql",
+      "sha256": "69e442aaf2896165c03473f7867e300575c575747adeff4797049f07de3a59e2",
+      "created_version": "20261019181033",
+      "applied_hash": "2d5eae439110e78a3c547f94c25d0ae3"
+    },
+    {
+      "version": "20261019190310",
+      "file": "20261019190310_audit_history_product_set.sql",
+      "sha256": "09dfe33905448e0d2a762517fd9f3b7bb3f4a40cba618e0aa717a23e469a62ea",
+      "created_version": "20261019185609",
+      "applied_hash": "81c176bb5496d874784cde09648246df"
+    },
+    {
+      "version": "20261019225920",
+      "applied_version": "20261019225920",
+      "file": "20261019225920_history_agent_author.sql",
+      "sha256": "68cb5b96a2a24506a2b4843b81f8fa7ef56c567988c56d9235a759648dff29af",
+      "applied_hash": "ea2a3b76e4e4b1b39894561ccc22d153"
+    },
+    {
+      "version": "20261019230315",
+      "applied_version": "20261019230315",
+      "file": "20261019230315_agent_write_history.sql",
+      "sha256": "eae835f4db65a564e6e6e5ac775671af293d8045eb3027fa8ec50aeea0c1007b",
+      "applied_hash": "58cb20bf6c0e2998379df58775f1f4d0"
+    },
+    {
+      "version": "20261020174233",
+      "applied_version": "20261020174614",
+      "file": "20261020174233_agent_central_history.sql",
+      "sha256": "c6ccdcfc137eacbd5d40f391cedaa0aaa8e4ba8ca5fe06db2b0ecfc6530b6e53",
+      "applied_hash": "4fd290dc7081b7837fbba80e3647e334"
+    },
+    {
+      "version": "20261020185242",
+      "file": "20261020185242_audit_daily_workflows.sql",
+      "sha256": "b1f4dfc458dbcd9b64b44efb285554abb7d1ad4ca111c117e4a10831fa80a0ed"
+    }
+  ],
+  "applied_via": "Supabase apply_migration; source filenames aligned to the actual server ledger, without registry repair"
+}

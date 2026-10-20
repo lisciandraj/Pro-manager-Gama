@@ -77,3 +77,15 @@ for(const width of [390,1440])test(`Agent Coco central history identifies source
  await page.evaluate(()=>window.GamaAssistant.open());await expect(page.locator('.cocoAgentHistory')).toHaveCount(1);await expect(page.locator('.cocoAgentHistory .cocoFollowup')).toHaveAttribute('open','');
  await page.evaluate(()=>window.ArcRouter.open('products'));await expect(page.locator('.cocoAgentHistory')).toHaveCount(0);await expect(page.locator('.arcContent')).toHaveClass(/cocoHasModuleHistory/);
 });
+
+for(const module of ['contacts','assistant-ia'])for(const width of [390,1440])test(`pending approval tab filters ${module} history at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page,{module,proposal:true});
+ const panel=page.locator('.cocoFollowup');if(width<900&&module!=='assistant-ia')await panel.locator(':scope>summary').click();
+ await panel.getByRole('button',{name:'À traiter',exact:true}).click();
+ await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(1);await expect(panel.locator('[data-review-proposal]')).toBeVisible();
+ expect(await page.evaluate(()=>window.__moduleCalls.some(c=>c.p_action==='list'&&c.p_data.pending_only===true))).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+ await page.screenshot({path:`test-results/history-pending-${module}-${width}.png`,fullPage:true});
+ await panel.locator('[data-reject-proposal]').click();await expect(panel.locator('.cocoFollowupEmpty')).toHaveText('Aucune action en attente d’approbation.');
+ await panel.locator('[data-filter=proposals]').click();await expect(panel.locator('.cocoProposalState')).toHaveText('Refusé');
+});

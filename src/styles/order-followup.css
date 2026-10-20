@@ -11,7 +11,7 @@
 .cocoFollowupBody{padding:12px}.cocoFollowupTop{margin-bottom:12px}.cocoFollowupParty{font-weight:600;margin:0 0 10px;overflow-wrap:anywhere}
 .cocoFollowupActions{display:flex;flex-wrap:wrap;gap:6px}.cocoFollowup .arcButton,.cocoProposalDialog .arcButton{font-size:12px;min-height:36px;padding:7px 10px;border-radius:6px;white-space:normal}
 .cocoFollowup small{display:block;font-size:11px;color:var(--arc-text-muted);overflow-wrap:anywhere}
-.cocoFollowupFilters{display:flex;border-bottom:1px solid var(--arc-line);gap:12px;margin-top:10px}
+.cocoFollowupFilters{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--arc-line);gap:12px;margin-top:10px}
 .cocoFollowupFilters button{border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;color:var(--arc-text-muted);background:transparent;padding:8px 0;cursor:pointer;font:500 12px var(--arc-font)}
 .cocoFollowupFilters button[aria-pressed=true]{border-color:var(--arc-accent-600);color:var(--arc-accent-600);font-weight:700}
 .cocoFollowupNotice:empty{display:none}.cocoFollowupNotice{margin:10px 0;padding:8px;background:var(--arc-info-bg);color:var(--arc-info);border-radius:5px}.cocoFollowupNotice.is-error,.cocoFollowupFormError,.cocoProposalDialog [role=alert]{color:var(--arc-danger)}

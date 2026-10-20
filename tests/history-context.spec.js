@@ -50,3 +50,12 @@ for(const language of ['es','en'])test(`context and detail labels support ${lang
  await contextHistory(page,language);await expect(page.locator('.cocoFollowupContext')).toContainText(language==='es'?'Desde el ERP':'Through the ERP');
  await page.locator('.cocoFollowupChanges summary').click();await expect(page.locator('.cocoFollowupChanges')).toContainText(language==='es'?'Reservado':'Reserved');
 });
+
+for(const width of [390,1440])test(`dossier pending tab removes approved actions at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page,{proposal:true});const panel=page.locator('.cocoFollowup');if(width<900)await panel.locator(':scope>summary').click();
+ await panel.getByRole('button',{name:'À traiter',exact:true}).click();await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(1);
+ await panel.locator('[data-review-proposal]').click();const dialog=page.locator('.cocoProposalDialog');await dialog.locator('[data-check]').click();await expect(dialog.locator('[type=submit]')).toBeEnabled();await dialog.locator('[type=submit]').click();
+ await expect(panel.locator('.cocoFollowupEmpty')).toHaveText('Aucune action en attente d’approbation.');
+ await panel.locator('[data-filter=proposals]').click();await expect(panel.locator('.cocoProposalState')).toHaveText('Validé');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+});

@@ -96,5 +96,5 @@ window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRE
 window.addEventListener('gama:modules-change',()=>{if(!allowed())clear();});
 window.addEventListener('storage',e=>{if(e.key==='gama_session_v1')clear();});
 window.addEventListener('gama:language-change',()=>{if(allowed()&&$(ID)?.classList.contains('active')&&!busy){const draft=$('aiQuestion')?.value||'';open().then(()=>{if($('aiQuestion'))$('aiQuestion').value=draft;});}});
-window.GamaAssistant={open};
+window.GamaAssistant={open,openQueue(){const ready=open();if(allowed())$('agentQueueTab')?.click();return ready;}};
 })();

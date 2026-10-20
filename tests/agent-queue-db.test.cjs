@@ -41,13 +41,13 @@ test('action queue preserves human review, permissions, stale-data checks and ca
   await db.exec('reset role');await q("update private.coco_module_proposals set reviewed_at=now()-interval '11 minutes' where id=$1",[id]);await actor(admin);
   assert.equal((await rpc('approve_batch',{items:[{id,hash}],confirmed:true})).rows[0].error,'PROPOSAL_CHANGED');hash=(await rpc('review_batch',{items:[{id}]})).rows[0].result.hash;
  });
- await t.test('mixed batches isolate failures, retry once, and attribute Agent Coco with the human decision',async()=>{
+ await t.test('mixed batches isolate failures, retry once, and separate human decisions from Agent Coco execution',async()=>{
   const result=await rpc('approve_batch',{items:[{id,hash},{id:uuid(),hash:'bad'}],confirmed:true});assert.equal(result.rows.filter(r=>r.ok).length,1);assert.equal(result.rows.filter(r=>!r.ok).length,1);
   assert.equal((await rpc('approve_batch',{items:[{id,hash}],confirmed:true})).rows[0].ok,true);
   assert.equal(await one('select count(*)::int from customer_receipts'),1);assert.equal(await one('select count(*)::int from external_invoice_payments'),1);assert.equal(await one('select status from bank_transactions where id=$1',[bank]),'matched');
   assert.equal((await rpc('list')).total,0);assert.equal((await rpc('list',{status:'approved'})).rows[0].id,id);
   await db.exec('reset role');assert.equal(Number(await one('select balance from private.gama_receivables where id=$1',[invoice])),15);
-  assert.equal(await one("select actor_name from private.coco_module_events where proposal_id=$1 and action='approve_proposal'",[id]),'Agent Coco');
+  assert.equal(await one("select actor_name from private.coco_module_events where proposal_id=$1 and action='approve_proposal'",[id]),'Queue reviewer');
   assert.equal(await one('select decided_by from private.coco_module_proposals where id=$1',[id]),admin);
   assert.ok(await one("select count(*)::int from private.coco_module_events where source_id=$1 and actor_name='Agent Coco'",['queue-test-source']));
   await actor(admin);

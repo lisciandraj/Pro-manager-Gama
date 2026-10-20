@@ -66,3 +66,12 @@ Les événements supplémentaires de **Piste d’audit** ne sont plus intégrés
 Migration : `20261018181322_remove_audit_from_module_history.sql`. Régression : `tests/audit-module-history-db.test.cjs` et tests existants des historiques et de la piste d’audit.
 
 L’onglet **À traiter** affiche uniquement les propositions encore en attente et que l’utilisateur peut approuver. Le filtre est appliqué côté serveur avant la pagination, dans les modules, dossiers et l’historique central d’Agent Coco. Les décisions validées ou refusées restent dans Tout / Propositions mais quittent À traiter après actualisation. Ouvrir cet onglet n’approuve aucune action. Les libellés sont disponibles en français, espagnol et anglais.
+
+### Auteur des décisions
+
+L’acceptation et le refus d’une proposition portent le nom de la personne qui
+prend la décision, dans l’historique du module, du dossier et l’historique central.
+La proposition initiale et les opérations exécutées par l’assistant restent
+attribuées à Agent Coco. La provenance du document ou du message est conservée.
+Les anciennes décisions dont l’identifiant utilisateur est enregistré sont
+corrigées sans modifier leur date ni créer de nouvel événement métier.

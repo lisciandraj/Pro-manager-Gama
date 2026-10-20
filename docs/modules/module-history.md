@@ -64,3 +64,5 @@ Les correspondances table/module sont explicites dans `private.coco_history_tabl
 Les événements supplémentaires de **Piste d’audit** ne sont plus intégrés aux historiques des modules et dossiers. Le module Piste d’audit et ses journaux restent disponibles. Les actions métier, notes, sources et propositions habituelles sont conservées, ainsi que les contrôles de droits et les optimisations de lecture.
 
 Migration : `20261018181322_remove_audit_from_module_history.sql`. Régression : `tests/audit-module-history-db.test.cjs` et tests existants des historiques et de la piste d’audit.
+
+L’onglet **À traiter** affiche uniquement les propositions encore en attente et que l’utilisateur peut approuver. Le filtre est appliqué côté serveur avant la pagination, dans les modules, dossiers et l’historique central d’Agent Coco. Les décisions validées ou refusées restent dans Tout / Propositions mais quittent À traiter après actualisation. Ouvrir cet onglet n’approuve aucune action. Les libellés sont disponibles en français, espagnol et anglais.

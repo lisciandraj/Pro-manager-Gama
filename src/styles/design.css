@@ -20,7 +20,7 @@
  body.cocoWorkbench .cocoModuleContext{font-size:18px;font-weight:600;letter-spacing:-.025em}
  body.cocoWorkbench .arcSidebar{background:var(--coco-surface);border-color:var(--coco-line)}
  body.cocoWorkbench .arcSidebar .arcBrand{border-bottom:1px solid var(--coco-line);padding-bottom:18px}
- .arcBrand .arcLogo{aspect-ratio:1200/439}.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}.arcBrand .arcLogoMark{object-fit:contain}
+ .arcBrand .arcLogo{aspect-ratio:1200/435}.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}.arcBrand .arcLogoMark{object-fit:contain}
  body.cocoWorkbench .arcSidebar .arcNavLink{border:1px solid transparent;border-radius:8px;color:var(--coco-muted);font-size:14px;font-weight:400;gap:12px;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:var(--coco-action-tint);border-color:var(--coco-action-line);color:var(--arc-coco-orange-text);font-weight:500;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavGroup{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--coco-ink)}

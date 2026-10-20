@@ -34,7 +34,7 @@ const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront
 const catalogueUrl=new URL(b2bConfig.catalogue_url);
 if(catalogueUrl.protocol!=='https:'||catalogueUrl.username||catalogueUrl.password)throw Error('Public catalogue URL must be HTTPS without credentials');
 fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__',catalogueUrl.href).replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
-const shell=['./','./index.html','./manifest.json?v=20261018-co','./coco-erp-logo.png?v=20261018-minimal','./coco-erp-icon-180.png?v=20261018-co','./coco-erp-icon-192.png?v=20261018-co','./coco-erp-icon-512.png?v=20261018-co'];
+const shell=['./','./index.html','./manifest.json?v=20261018-co','./coco-erp-logo.png?v=20261020-satin','./coco-erp-icon-180.png?v=20261018-co','./coco-erp-icon-192.png?v=20261018-co','./coco-erp-icon-512.png?v=20261018-co'];
 const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
  .replace('__COCO_RELEASE__',hash('architect-assets.js')+'-'+hash('index.html'))
  .replace('__COCO_APP_SHELL__',JSON.stringify(shell));

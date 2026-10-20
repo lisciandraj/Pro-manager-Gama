@@ -22,7 +22,7 @@ const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
 // Approved COCO wordmark in the expanded sidebar; the single C in compact views.
-const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261018-minimal" alt="COCO ERP" width="1200" height="439"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261018-co" alt="" width="180" height="180">';
+const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261020-satin" alt="COCO ERP" width="1200" height="435"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261018-co" alt="" width="180" height="180">';
 
 const ICON={
  ...window.ArcUI.icons,

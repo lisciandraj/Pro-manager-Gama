@@ -62,6 +62,14 @@ const artwork={
   '<rect x="3" y="6" width="18" height="15" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M8 18a4 4 0 0 1 8 0"/>',
   '<rect x="9" y="2" width="6" height="5" rx="1"/>'
  ],
+ contract:[
+  '<path d="M4 3h12v8M4 3v18h8M7 7h6M7 11h4M7 16h2"/>',
+  '<path d="m13 19 7-7 2 2-7 7-3 1ZM18 14l2 2M7 19l2-2 2 1"/>'
+ ],
+ expense:[
+  '<path d="M4 2h12v10M4 2v20l3-2 3 2 2-2M7 6h6M7 10h4M7 14h2"/>',
+  '<circle cx="17" cy="17" r="5"/><path d="M18.5 14.5H16a1.25 1.25 0 0 0 0 2.5h2a1.25 1.25 0 0 1 0 2.5h-2.5M17 13v8"/>'
+ ],
  documents:[
   '<path d="M7 2h8l6 6v14H7ZM3 6v14M11 13h6M11 17h4"/>',
   '<path d="M15 2v6h6"/>'

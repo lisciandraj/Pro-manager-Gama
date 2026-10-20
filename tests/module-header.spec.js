@@ -194,6 +194,7 @@ test('los módulos conservan la cabecera compartida y Dashboard su variante comp
       return s ? '#' + s.id : '';
     });
     expect(abierta, n + ': no se abrió ninguna pantalla').not.toBe('');
+    await expect(page.locator(abierta+' .gamaStdHeader').first()).toBeAttached();
     exigirMolde(await leerCabecera(page, abierta), n, abierta==='#dashboard');
     if(abierta==='#dashboard'){
       await expect(page.locator('#dashboard .adHeaderTools #ad-preset')).toBeVisible();

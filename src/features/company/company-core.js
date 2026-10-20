@@ -2,6 +2,9 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.GamaCompanyCore=api})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';
 const defaults={legal_name:'',address:'',tax_id:'',phone:'',email:'',website:'',currency:'USD',country:'EC',logo_data:'',document_primary:'#18324A',document_secondary:'#087C8B',company_version:0,configured:false,localization_country:null};
+// Applied only when rendering external documents or preparing messages; stored records stay intact.
+const externalBrand='GAMA Entreprise Resource Planning';
+const communicationText=value=>String(value??'').replace(/\b(?:Coco[ \t]+ERP|GAMA[ \t]+Enterprise[ \t]+Resource[ \t]+Planning)\b/gi,externalBrand);
 const hex=v=>/^#[0-9a-f]{6}$/i.test(v||'');
 function rgb(value){return hex(value)?[1,3,5].map(i=>parseInt(value.slice(i,i+2),16)):[24,50,74]}
 function toHex(v){return '#'+v.map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0')).join('').toUpperCase()}
@@ -28,5 +31,5 @@ function validate(profile){
  if(!hex(profile.document_primary)||!hex(profile.document_secondary))return 'color_invalid';
  return null;
 }
-return {defaults,hex,rgb,toHex,luminance,foreground,textColor,fit,palette,validate};
+return {externalBrand,communicationText,defaults,hex,rgb,toHex,luminance,foreground,textColor,fit,palette,validate};
 });

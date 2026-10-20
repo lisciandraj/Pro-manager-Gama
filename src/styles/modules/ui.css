@@ -185,6 +185,10 @@
 .atFilters{display:grid;grid-template-columns:minmax(200px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:10px 12px;align-items:end;margin:14px 0 6px}
 .atFilters label{display:flex;flex-direction:column;gap:4px;font-weight:650;font-size:13px;margin:0}
 .atFilters #atExport{align-self:end}
+.atFilters .gamaFind{margin-bottom:0}
+.atTable .atDetail{display:block;white-space:normal;overflow-wrap:anywhere;width:clamp(16ch,20vw,22ch);max-width:100%}
+.atTable[data-gama-view=cards] .atDetail{width:auto}
+.atTable td{vertical-align:top}
 @media(max-width:900px){.atFilters{grid-template-columns:1fr 1fr}.atFilters .atSearch{grid-column:1/-1}}
 @media(max-width:520px){.atFilters{grid-template-columns:1fr}}
 .atKind{display:inline-block;font-weight:650;padding:2px 8px;border-radius:999px;background:var(--arc-surface-2);border:1px solid var(--arc-line);white-space:nowrap}

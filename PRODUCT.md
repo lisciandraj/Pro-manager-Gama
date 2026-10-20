@@ -2,6 +2,8 @@
 
 <!-- impeccable:product-schema 1 -->
 
+Scope: this brief describes the public GAMA catalogue. For internal ERP screens (Dashboard, audit trail and operational modules), use [docs/architecture.md](docs/architecture.md), [docs/modules/navigation.md](docs/modules/navigation.md) and [docs/design-system.md](docs/design-system.md).
+
 ## Platform
 
 web

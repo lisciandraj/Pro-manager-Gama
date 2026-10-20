@@ -52,7 +52,7 @@ async function load(){
   U.render($('atRows'),items.length?U.table({className:'atTable',columns:[
    {label:T('Fecha'),value:x=>when(x.at)},
    {label:T('Acción'),html:x=>`<span class="atKind" data-kind="${E(x.kind)}">${tr(x.label)}</span>`},
-   {label:T('Detalle'),value:x=>x.detail||''},
+   {label:T('Detalle'),html:x=>`<span class="atDetail">${E(x.detail||'')}</span>`},
    {label:T('Referencia'),value:x=>x.reference||'—'},
    {label:T('Importe / cantidad'),numeric:true,value:figure},
    {label:T('Quién'),value:x=>x.actor||T('Sistema')}],items}):'');

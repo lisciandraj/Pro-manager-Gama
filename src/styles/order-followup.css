@@ -120,3 +120,9 @@
  .cocoAgentHistory .cocoFollowupBubble{padding:16px}
  .cocoAgentHistory .cocoFollowupEventTitle,.cocoAgentHistory .cocoFollowupText{font-size:14px}
 }
+
+/* Audit readers can reclaim the sidebar width by closing its history panel. */
+@media(min-width:901px){
+ .arcContent.cocoHasModuleHistory:has(>.wrap>#audit.active):has(>.cocoGlobalHistory>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr)}
+ .arcContent:has(>.wrap>#audit.active)>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){order:-1;position:static}
+}

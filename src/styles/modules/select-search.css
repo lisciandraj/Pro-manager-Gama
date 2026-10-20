@@ -1,5 +1,5 @@
 /* gama-select-search.js */
-.gamaFind{position:relative;margin:0 0 6px;flex:1 1 220px;min-width:0}
+.gamaFind{position:relative;margin:0 0 6px;flex:1 1 auto;min-width:0;width:100%}
 .gqField>.gamaFind,.gqGrid label>.gamaFind,.arcField>.gamaFind{flex:none}
 .arcField>.gamaFind .gamaFindMenu{top:100%;max-height:min(240px,35dvh)}
 .gqProductHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}

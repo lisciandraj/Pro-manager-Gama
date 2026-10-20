@@ -413,7 +413,7 @@ body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body 
 .gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-end;flex-shrink:0}
 .gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}
 .gamaColumnPicker{width:100%;min-width:0;max-width:100%;margin:0;padding:8px 10px;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
-.gamaColumnHeading{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:0;padding:4px 0;min-height:30px;border:0;background:transparent;color:var(--arc-text-muted);cursor:pointer;box-shadow:none}
+.gamaColumnHeading{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:0;padding:4px 0;min-height:44px;border:0;background:transparent;color:var(--arc-text-muted);cursor:pointer;box-shadow:none}
 .gamaColumnHeading::before{content:"▸"}.gamaColumnHeading[aria-expanded=true]::before{content:"▾"}
 .gamaColumnHeading:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 .gamaColumnOptions[hidden]{display:none}
@@ -422,7 +422,7 @@ body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body 
 .gamaColumnOptions input[type=checkbox]{width:18px!important;height:18px!important;min-height:18px;flex:0 0 18px;margin:0;accent-color:var(--arc-accent-600)}
 .gamaColumnOptions input:disabled+span{opacity:.6}
 .gamaColumnOptions>button{min-height:30px;margin:0;padding:4px 8px;font-size:12px;align-self:center}
-@media(pointer:coarse){.gamaColumnOptions>label,.gamaColumnOptions>button{min-height:40px}}
+@media(max-width:900px),(pointer:coarse){.gamaColumnOptions>label,.gamaColumnOptions>button{min-height:44px}}
 .gamaSortScope{flex-basis:100%;color:var(--arc-text-subtle);font-size:11px}
 .gamaSortScope[hidden]{display:none}
 table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:none!important}
@@ -555,4 +555,12 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  }
  body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-600)}
  body .arcContent .gamaCompactHeader .gamaStdBack:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+}
+
+/* Stop decorative movement, retaining a visible busy indicator and status text. */
+@media(prefers-reduced-motion:reduce){
+ button[aria-busy=true]::after{animation:none}
+ .gamaSpin{animation:none}
+ .arcSkeleton{animation:none;background:var(--arc-surface-3)}
+ .ivCelda.buscada,.ivOtras>li.buscada{animation:none}
 }

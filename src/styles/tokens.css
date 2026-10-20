@@ -127,11 +127,10 @@
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
    recibe. */
+:root{--arc-motion:160ms}
 @media (prefers-reduced-motion:reduce){
  :root{--arc-motion:0ms}
- *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
-:root{--arc-motion:160ms}
 
 /* Public semantic aliases shared by controls and home tiles. */
 :root{

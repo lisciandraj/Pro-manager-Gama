@@ -103,9 +103,10 @@ test('generated card labels follow translated headers while explicit labels surv
   await expect(page.locator('#qa-table-labels td').nth(2)).toHaveAttribute('data-col','Business label');
  }
 });
-test('phone disclosures, column controls and favorite actions have 44px touch targets',async({page},info)=>{
+test('phone controls keep generous targets and tile stars stay directly accessible',async({page},info)=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await expect(page.locator('#mainmenu .cocoModuleFavorite:visible')).toHaveCount(0);
+ const tileFavorites=page.locator('#mainmenu .cocoModuleFavorite:visible');expect(await tileFavorites.count()).toBeGreaterThan(20);
+ for(const b of await tileFavorites.all()){const r=await b.boundingBox();expect(r.width).toBeGreaterThanOrEqual(28);expect(r.height).toBeGreaterThanOrEqual(28)}
  await page.locator('#arcCustomizeOpen').click();
  const favorites=page.locator('#arcCustomize .arcFavoriteToggle');expect(await favorites.count()).toBeGreaterThan(20);
  for(const b of await favorites.all()){const r=await b.boundingBox();expect(r.width).toBeGreaterThanOrEqual(44);expect(r.height).toBeGreaterThanOrEqual(44)}
@@ -133,4 +134,22 @@ test('reduced motion keeps feedback visible and stops decorative animations',asy
  expect(await page.locator('#qa-motion button').evaluate(e=>getComputedStyle(e,'::after').animationName)).toBe('none');
  await expect(page.locator('#qa-motion [role=status]')).toBeVisible();
  await page.emulateMedia({reducedMotion:'no-preference'});expect(await page.locator('#qa-motion .gamaSpin').evaluate(e=>getComputedStyle(e).animationName)).not.toBe('none');
+});
+
+test('home favorite stars stay visible and toggle directly on phone, tablet and desktop',async({page},info)=>{
+ await boot(page);
+ for(const width of [320,390,768,1440]){
+  await page.setViewportSize({width,height:950});
+  const star=page.locator('#mainmenu [data-coco-favorite=dashboard]');
+  await expect(star).toBeVisible();await expect(star.locator('svg')).toBeVisible();
+  await star.click();await expect(star).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#mainmenu')).toHaveClass(/active/);
+  await expect(page.locator('.arcNavFavorites [data-gama-module=dashboard]')).toHaveCount(1);
+  await page.reload();await expect(star).toHaveAttribute('aria-pressed','true');
+  await star.click();await expect(star).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('.arcNavFavorites [data-gama-module=dashboard]')).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.setViewportSize({width:390,height:844});
+ await page.screenshot({path:info.outputPath('home-tile-stars-restored.png')});
 });

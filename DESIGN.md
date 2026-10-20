@@ -134,6 +134,8 @@ components:
 
 # Design System: GAMA storefront
 
+Scope: the public catalogue only. Internal Coco ERP screens follow [docs/design-system.md](docs/design-system.md); do not apply storefront spacing, colors or component structure to ERP modules.
+
 ## Overview
 
 **Creative North Star: "GAMA / Freshly"**

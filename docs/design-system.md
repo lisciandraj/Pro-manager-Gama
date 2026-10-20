@@ -139,3 +139,17 @@ Captures locales de l’application compilée, avec données de test : [accueil 
 ### Contraste des surfaces sur PC
 
 Le fond gris bleuté #E4EBF0 détache les surfaces blanches. Les tuiles d’accueil ont un contour #708897 et une ombre douce ; les panneaux et indicateurs partagent le contour #B5C5D0. Les onglets actifs ont un fond bleu pétrole #0C556B, un texte blanc et un soulignement orange soutenu ; leur survol utilise un fond bleu clair et un texte foncé. Les dimensions, fonctions et indicateurs de focus restent inchangés. Cette correction ne concerne pas le site public.
+
+## Contrats de mise en page de l’ERP
+
+La structure des cartes Dashboard appartient à `src/styles/workspace.css`. Le thème `src/styles/design.css` règle les couleurs, la typographie et les surfaces, sans imposer de grille à toutes les cartes. `adMetricStandard` contient une icône et un corps ; `adMetricExecutive` empile libellé, montant et action. Les indicateurs de direction passent sur une colonne lorsque le conteneur fait au plus 600 px. Les montants et libellés restent lisibles sans débordement.
+
+Les sélecteurs recherchables (`src/ui/select-search.js`) gardent une hauteur naturelle dans les champs en colonne et conservent le nom accessible du champ. Le seuil de huit options ne doit pas modifier la hauteur de la barre de filtres de plus que la ligne d’aide. Le select natif conserve valeur, validation et événements ; seul le contrôle visible porte le focus et le libellé.
+
+Les libellés `data-col` générés par `src/ui/tables.js` sont recalculés à chaque changement de langue. Les libellés explicitement définis par les modules sont préservés. Dans la piste d’audit, le détail revient à la ligne dans une largeur bornée, y compris pour une chaîne sans espaces ; le tableau conserve son défilement local et ses préférences de colonnes. Sur ordinateur, replier son historique déplace le résumé au-dessus du tableau et lui rend toute la largeur disponible ; rouvrir rétablit les deux colonnes.
+
+Les métadonnées utilisent `--coco-muted`, avec un contraste minimal de 4,5:1 sur le fond de travail. Les commandes de dépliage, favoris et options de colonnes ont une cible tactile d’au moins 44 px sur téléphone et écran tactile. Sur téléphone (< 600 px), les favoris se règlent dans Personnaliser avec un bouton dédié par module, pour éviter qu’une cible de 44 px recouvre l’ouverture des petites tuiles. Le changement de favori est immédiat ; le bouton Enregistrer concerne les modules masqués. La grille d’accueil reste à neuf colonnes sur grand écran et quatre sur téléphone.
+
+Le token `--arc-motion` est nul avec `prefers-reduced-motion: reduce`. Les animations décoratives sont désactivées par composant ; les états d’attente restent signalés par un indicateur statique ou du texte. Ne pas réintroduire de règle universelle qui réduit toutes les animations à une durée presque nulle. Les transitions de largeur de la barre latérale et de la progression de dossier sont supprimées.
+
+La couverture automatisée est dans `tests/layout-audit-regressions.spec.js`, complétée par les suites responsive, formulaires, sélecteurs et espace de travail. Ces essais utilisent des données isolées, sans modifier les données de production.

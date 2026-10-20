@@ -33,7 +33,7 @@ test('favorites refresh from another tab only for the current account',async({pa
 
 test('favorite shortcuts open the module and close the mobile drawer',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
- await page.locator('[data-coco-favorite=warehouses]').click();await page.locator('[data-coco-mobile=more]').click();
+ await page.locator('#arcCustomizeOpen').click();await page.locator('#arcCustomize [data-coco-favorite=warehouses]').click();await page.locator('#arcCustomize [value=cancel]').click();await page.locator('[data-coco-mobile=more]').click();
  await expect(page.locator('#arcFavoritesTitle')).toBeVisible();const shortcut=page.locator('.arcNavFavorites [data-gama-module=warehouses]');await expect(shortcut).toBeVisible();
  await shortcut.click();await expect(page.locator('#warehouses')).toBeVisible();await expect(page.locator('body')).not.toHaveClass(/arcDrawerOpen/);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

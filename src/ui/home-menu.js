@@ -20,13 +20,15 @@ function hiddenModules(){try{return new Set(JSON.parse(localStorage.getItem(pref
 const favoriteKey=()=>{try{const u=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return 'coco_home_favorites_v1:'+String(u.userId||u.id||u.email||u.username||u.name||'guest')}catch(_){return 'coco_home_favorites_v1:guest'}};
 function favorites(){try{const ids=JSON.parse(localStorage.getItem(favoriteKey())||'[]');return new Set(Array.isArray(ids)?ids.filter(id=>ITEMS.some(x=>x[1]===id)):[])}catch(_){return new Set()}}
 function applyFavorites(){const ids=favorites();document.querySelectorAll('[data-coco-favorite]').forEach(b=>{const selected=ids.has(b.dataset.cocoFavorite);b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',T(selected?'Quitar de favoritos':'Añadir a favoritos'));b.title=b.getAttribute('aria-label')});window.dispatchEvent(new CustomEvent('coco:favorites-change'))}
+function toggleFavorite(id){const ids=favorites();ids.has(id)?ids.delete(id):ids.add(id);try{localStorage.setItem(favoriteKey(),JSON.stringify([...ids]))}catch(_){}applyFavorites()}
 function applyPreferences(){const hidden=hiddenModules();document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>c.classList.toggle('arcPreferenceHidden',hidden.has(c.dataset.gamaModule)))}
 function personalize(){
  const old=document.getElementById('arcCustomize');if(old)old.remove();
  const d=document.createElement('dialog');d.id='arcCustomize';d.className='arcCustomize';d.setAttribute('aria-labelledby','arcCustomizeTitle');
  const hidden=hiddenModules();
- window.ArcUI.render(d,'<form method="dialog"><div class="arcSectionHead"><h2 id="arcCustomizeTitle">'+esc(T('Personalizar módulos'))+'</h2><button class="arcButton ghost" value="cancel" aria-label="'+esc(T('Cerrar'))+'">×</button></div><p>'+esc(T('Elige los módulos que se muestran en tu inicio.'))+'</p><div class="arcCustomizeList">'+ordered().filter(x=>(window.gamaMenuVisible||can)(x[1])).map(x=>'<label><input type="checkbox" value="'+esc(x[1])+'" '+(!hidden.has(x[1])?'checked':'')+'><span>'+esc(T(x[0]))+'</span></label>').join('')+'</div><div class="gsActions"><button class="arcButton secondary" value="reset">'+esc(T('Mostrar todos'))+'</button><button class="arcButton primary" value="save">'+esc(T('Guardar'))+'</button></div></form>');
+ window.ArcUI.render(d,'<form method="dialog"><div class="arcSectionHead"><h2 id="arcCustomizeTitle">'+esc(T('Personalizar módulos'))+'</h2><button class="arcButton ghost" value="cancel" aria-label="'+esc(T('Cerrar'))+'">×</button></div><p>'+esc(T('Elige los módulos que se muestran en tu inicio.'))+'</p><div class="arcCustomizeList">'+ordered().filter(x=>(window.gamaMenuVisible||can)(x[1])).map(x=>'<div class="arcCustomizeRow"><label><input type="checkbox" value="'+esc(x[1])+'" '+(!hidden.has(x[1])?'checked':'')+'><span id="arcCustomize-'+esc(x[1])+'">'+esc(T(x[0]))+'</span></label><button type="button" class="arcButton secondary arcFavoriteToggle" data-coco-favorite="'+esc(x[1])+'" aria-describedby="arcCustomize-'+esc(x[1])+'">'+window.ArcUI.moduleIcon('star')+'</button></div>').join('')+'</div><div class="gsActions"><button class="arcButton secondary" value="reset">'+esc(T('Mostrar todos'))+'</button><button class="arcButton primary" value="save">'+esc(T('Guardar'))+'</button></div></form>');
  document.body.appendChild(d);
+ d.querySelectorAll('[data-coco-favorite]').forEach(b=>b.onclick=()=>toggleFavorite(b.dataset.cocoFavorite));applyFavorites();
  d.addEventListener('close',()=>{if(d.returnValue==='save'){const invisible=[...d.querySelectorAll('input:not(:checked)')].map(n=>n.value);try{localStorage.setItem(preferenceKey(),JSON.stringify(invisible))}catch(_){}applyPreferences()}else if(d.returnValue==='reset'){try{localStorage.removeItem(preferenceKey())}catch(_){}applyPreferences()}d.remove()},{once:true});d.showModal();
 }
 
@@ -58,7 +60,7 @@ function render(){
    const opener=document.createElement('button');opener.type='button';opener.className='cocoModuleOpen';opener.append(icon,cuerpo);b.append(opener);
    const favorite=document.createElement('button');favorite.type='button';favorite.className='cocoModuleFavorite';favorite.dataset.cocoFavorite=x[1];
    favorite.innerHTML=window.ArcUI.moduleIcon('star');
-   favorite.onclick=e=>{e.stopPropagation();const ids=favorites();ids.has(x[1])?ids.delete(x[1]):ids.add(x[1]);try{localStorage.setItem(favoriteKey(),JSON.stringify([...ids]))}catch(_){}applyFavorites()};b.append(favorite);
+   favorite.onclick=e=>{e.stopPropagation();toggleFavorite(x[1])};b.append(favorite);
    const open=()=>{
      if(b.getAttribute('aria-busy')==='true')return;
      b.setAttribute('aria-busy','true');

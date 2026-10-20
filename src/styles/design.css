@@ -39,10 +39,6 @@
  body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:28px;height:28px}
  body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.adMetrics,.hrKpis,.ivKpis,.gaKpis,.pmKpis,.adCockpit,.crmTablero,.pmKanban){gap:16px}
  body[data-app=coco-erp] .arcContent #dashboard :is(.adHeading h2,.adQuickActions h2){font-size:16px}
- body[data-app=coco-erp] .arcContent #dashboard .adMetric{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-content:start;align-items:center;min-height:160px}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:contents}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>:is(strong,small,.adDelta){grid-column:1/-1;margin:0}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{overflow-wrap:anywhere}
  /* Matte secondary controls; orange main action with the requested white text.
     Destructive/success buttons retain their semantic colours and labels. */
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton,.gamaStdAction){border-radius:var(--arc-r-md);font-weight:500;box-shadow:none;line-height:1.4}
@@ -164,11 +160,7 @@
  body[data-app=coco-erp]{--coco-panel-padding:16px;--coco-panel-gap:16px}
  body.cocoWorkbench .arcContent{padding:12px calc(12px + var(--arc-safe-r)) calc(88px + var(--arc-safe-b)) calc(12px + var(--arc-safe-l))}
  body.cocoWorkbench .cocoModuleContext{font-size:14px}
- body[data-app=coco-erp] .arcContent #dashboard .adMetric{display:block}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricBody{display:block}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricIcon{margin-bottom:12px}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{overflow-wrap:anywhere}
- body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>:is(strong,small,.adDelta){display:block}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:clamp(18px,5vw,24px);margin:10px 0}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){font-size:16px}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) .arcButton{min-height:44px}

@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20261018-co">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script defer src="architect-assets.js?v=db8c61775fea"></script>
+<script defer src="architect-assets.js?v=1872fd3ee2ff"></script>
 <script defer src="architect-core.js?v=0347bd8e6e0f"></script>
 <script defer src="gama-i18n-server.js?v=b9e270f429f4"></script>
 <script defer src="gama-i18n.js?v=aa5e4028085d"></script>
@@ -26,7 +26,7 @@
 <script defer src="architect-identity.js?v=f8eeb09c0a35"></script>
 <script defer src="gama-supabase.js?v=ec7ff297cbb9"></script>
 <script defer src="gama-currency.js?v=95aa9f20fe3d"></script>
-<script defer src="coco-shell.js?v=bee7c6df6462"></script>
+<script defer src="coco-shell.js?v=ab95c9e8021a"></script>
 <title>Coco ERP</title>
 <link rel="stylesheet" href="architect-base.css?v=28b9b5b886a0">
 
@@ -45,15 +45,15 @@
 <!-- Coco ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
-<link rel="stylesheet" href="architect-tokens.css?v=ea837b58d101">
-<link rel="stylesheet" href="architect-components.css?v=6c46f75531a6">
-<link rel="stylesheet" href="architect-ui.css?v=424ca9925169">
-<link rel="stylesheet" href="architect-shell.css?v=65d0754d64e9">
+<link rel="stylesheet" href="architect-tokens.css?v=2f8501f609dc">
+<link rel="stylesheet" href="architect-components.css?v=3db84ffed4f9">
+<link rel="stylesheet" href="architect-ui.css?v=693dd0c1a2c2">
+<link rel="stylesheet" href="architect-shell.css?v=fef9970c70fa">
 <link rel="stylesheet" href="gama-company.css?v=7a62ef7ef4ab">
 <link rel="stylesheet" href="architect-home.css?v=c94ffb5be6b7">
-<link rel="stylesheet" href="coco-workspace.css?v=d50dac7171f7">
-<link rel="stylesheet" href="coco-workbench.css?v=96d9f588c46e">
-<link rel="stylesheet" href="gama-design.css?v=620498f3b2f0">
+<link rel="stylesheet" href="coco-workspace.css?v=a25ee5f79d46">
+<link rel="stylesheet" href="coco-workbench.css?v=74735f05877f">
+<link rel="stylesheet" href="gama-design.css?v=26ba66eb74d6">
 </head>
 <body data-app="coco-erp">
 
@@ -103,21 +103,21 @@
 <div class="arcPanel card cocoProductForm" id="cocoProductForm">
 <h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2>
 <div class="row">
-<div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" data-coco-click="click_14" data-gi=12cf969040ce>Escanear</button></div><div><label data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
-<div><label data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
-<div><label data-gi=4fb77e0eba6a>Familia</label><input id="pFamily"></div><div><label data-gi=42f6bf37d32c>Líneas</label><input id="pLines"></div>
-<div><label data-gi=8e2ca9b0cc8a>Marca</label><input id="pBrand"></div><div><label data-gi=6bbcd2f13499>Presentación</label><input id="pPresentation" data-gi-placeholder=4be5d9d9f1c5 placeholder="Ej. Caja x12"></div>
-<div><label data-gi=73b9189b6c6e>Ubicación</label><input id="pLoc"></div><div><label data-gi=b06e57532148>Stock mínimo</label><input id="pMin" type="number" min="0" value="0"></div>
-<div><label data-gi=79ac564e567d>Stock máximo</label><input id="pMaxStock" type="number" min="0" value="0"></div><div><label data-gi=78bbfdac42c8>Cantidad por cartón</label><input id="pQtyCarton" type="number" min="0" step="1" value="0"></div>
-<div><label data-gi=7cfff97ea7e9>Peso (g)</label><input id="pWeight" type="number" min="0" step="0.01" value="0"></div><div><label data-gi=15d11bfd7e7a>Volumen (cm³)</label><input id="pVolume" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=e746643f4479>Proveedor</label><select id="pSupplier"><option value="" data-gi=480def1d15a8>Sin proveedor</option></select></div>
+<div><label for="pBarcode" data-gi=994b09c74fb9>Código de barras</label><div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" data-coco-click="click_14" data-gi=12cf969040ce>Escanear</button></div></div><div><label for="pName" data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
+<div><label for="pRef" data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label for="pCat" data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
+<div><label for="pFamily" data-gi=4fb77e0eba6a>Familia</label><input id="pFamily"></div><div><label for="pLines" data-gi=42f6bf37d32c>Líneas</label><input id="pLines"></div>
+<div><label for="pBrand" data-gi=8e2ca9b0cc8a>Marca</label><input id="pBrand"></div><div><label for="pPresentation" data-gi=6bbcd2f13499>Presentación</label><input id="pPresentation" data-gi-placeholder=4be5d9d9f1c5 placeholder="Ej. Caja x12"></div>
+<div><label for="pLoc" data-gi=73b9189b6c6e>Ubicación</label><input id="pLoc"></div><div><label for="pMin" data-gi=b06e57532148>Stock mínimo</label><input id="pMin" type="number" min="0" value="0"></div>
+<div><label for="pMaxStock" data-gi=79ac564e567d>Stock máximo</label><input id="pMaxStock" type="number" min="0" value="0"></div><div><label for="pQtyCarton" data-gi=78bbfdac42c8>Cantidad por cartón</label><input id="pQtyCarton" type="number" min="0" step="1" value="0"></div>
+<div><label for="pWeight" data-gi=7cfff97ea7e9>Peso (g)</label><input id="pWeight" type="number" min="0" step="0.01" value="0"></div><div><label for="pVolume" data-gi=15d11bfd7e7a>Volumen (cm³)</label><input id="pVolume" type="number" min="0" step="0.01" value="0"></div>
+<div><label for="pSupplier" data-gi=e746643f4479>Proveedor</label><select id="pSupplier"><option value="" data-gi=480def1d15a8>Sin proveedor</option></select></div>
 <div><label for="pActive" data-gi=0d1bb95f6d35>Estado del catálogo</label><select id="pActive"><option value="true" data-gi=723858144bd5>Activo</option><option value="false" data-gi=813506a69bcf>Borrador / archivado</option></select></div>
-<div style="grid-column:1/-1"><label data-gi=ee00b96fff26>Descripción</label><textarea id="pDescription" data-gi-placeholder=58ac34f2d35d placeholder="Descripción detallada del producto"></textarea></div>
-<div><label data-gi=1244a9cab6ce>Precio de compra (USD)</label><input id="pCost" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=db3c6eea612b>Precio de venta mayorista (USD) — Categoría A *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=06513ed557d4>Precio de venta al detalle (USD) — Categoría B</label><input id="pSalePriceB" type="number" min="0" step="0.01" value="0"></div>
-<div><label data-gi=1016effd727f>IVA del producto</label><select id="pIva"><option value="15">15%</option><option value="13">13%</option><option value="5">5%</option><option value="0">0%</option></select></div>
-<div><label data-gi=466b08e42a7b>Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div id="pPhotoIllustrative" class="muted" hidden>Foto ilustrativa: confirma la referencia y la presentación.</div><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
+<div style="grid-column:1/-1"><label for="pDescription" data-gi=ee00b96fff26>Descripción</label><textarea id="pDescription" data-gi-placeholder=58ac34f2d35d placeholder="Descripción detallada del producto"></textarea></div>
+<div><label for="pCost" data-gi=1244a9cab6ce>Precio de compra (USD)</label><input id="pCost" type="number" min="0" step="0.01" value="0"></div>
+<div><label for="pPrice" data-gi=db3c6eea612b>Precio de venta mayorista (USD) — Categoría A *</label><input id="pPrice" type="number" min="0" step="0.01" value="0"></div>
+<div><label for="pSalePriceB" data-gi=06513ed557d4>Precio de venta al detalle (USD) — Categoría B</label><input id="pSalePriceB" type="number" min="0" step="0.01" value="0"></div>
+<div><label for="pIva" data-gi=1016effd727f>IVA del producto</label><select id="pIva"><option value="15">15%</option><option value="13">13%</option><option value="5">5%</option><option value="0">0%</option></select></div>
+<div><label for="pPhoto" data-gi=466b08e42a7b>Foto del producto</label><input id="pPhoto" type="file" accept="image/*" capture="environment"><img id="pPreview" class="photo-preview"><div id="pPhotoIllustrative" class="muted" hidden>Foto ilustrativa: confirma la referencia y la presentación.</div><div class="muted" data-gi=b3ad21d224dc>Foto tomada con la cámara o seleccionada desde Fotos.</div></div>
 </div>
 <p class="muted" data-gi=a23425a8bcb4>Los precios de venta dependen de la categoría del cliente. La Categoría C (precio especial por contrato) se gestiona en la pestaña Tarifas de Ventas: si un producto no tiene un precio pactado, se factura al precio mayorista (Categoría A).</p>
 <div class="actions"><button class="arcButton primary" data-coco-click="click_15" data-gi=bf33db6763e2>Crear producto</button><button class="arcButton secondary" data-coco-click="click_16" data-gi=08df229fa5ad>Limpiar</button></div>
@@ -154,7 +154,7 @@
 
 <section id="audit"></section>
 
-<section id="barcode"><div class="arcPanel card"><h3 data-gi=28dcf5503d11>Generar un nuevo código de barras</h3><label data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" data-coco-click="click_25" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" data-coco-click="click_26" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
+<section id="barcode"><div class="arcPanel card"><h3 data-gi=28dcf5503d11>Generar un nuevo código de barras</h3><label for="barcodeType" data-gi=3868d2843d59>Tipo</label><select id="barcodeType"><option value="CODE39" data-gi=7540fe80a379>Code 39 — referencias internas</option><option value="EAN13">EAN-13 — GTIN</option></select><label for="barcodeValue" data-gi=19f94227e86d>Referencia / número</label><input id="barcodeValue" data-gi-placeholder=18e11433dfde placeholder="Ej. PROD-00001"><button class="arcButton primary" style="width:100%;margin-top:10px" data-coco-click="click_25" data-gi=833be4ac1523>Generar</button><button class="arcButton secondary" style="width:100%;margin-top:8px" data-coco-click="click_26" data-gi=cdc31c8c5532>Descargar etiqueta en PDF</button><div class="barcodebox"><svg id="barcodeSvg"></svg><div id="barcodeText"></div><div id="barcodeError" class="low"></div></div></div></section>
 
 </div>
 
@@ -168,7 +168,7 @@
 
 
 <!-- Shared document and business modules. -->
-<script defer src="coco-modules.js?v=0642cf3f942c" fetchpriority="low" data-arc-runtime></script>
+<script defer src="coco-modules.js?v=057d7e00c0f3" fetchpriority="low" data-arc-runtime></script>
 <script defer src="gama-central-sync.js?v=930224f6e76f" data-gama-central-sync></script>
 
 

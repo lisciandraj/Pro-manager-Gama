@@ -5,6 +5,7 @@
 if(window.GamaTable)return;
 
 const CORTE=760;
+const generatedCellLabels=new WeakMap();
 
 /* Las dos formas en que están escritas las cabeceras aquí. */
 function cabecera(t){
@@ -45,7 +46,12 @@ function etiquetar(t){
    const dice=/[\p{L}\p{N}]/u.test(texto);
    const decorativa=!titular&&!dice;
    if(!titular&&dice){titular=true;c.setAttribute('data-gama-title','')}
-   if(!c.hasAttribute('data-col'))c.setAttribute('data-col',decorativa||soloBotones(c)?'':(nombres[i]||''));
+   // Refresh generated labels after translation, preserving explicit module labels.
+   if(!c.hasAttribute('data-col')||generatedCellLabels.get(c)===c.getAttribute('data-col')){
+    const label=decorativa||soloBotones(c)?'':(nombres[i]||'');
+    if(c.getAttribute('data-col')!==label)c.setAttribute('data-col',label);
+    generatedCellLabels.set(c,label);
+   }
    i+=c.colSpan||1;
   }
  }
@@ -437,7 +443,7 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function boot(){
  css();scan();
  window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
- const refresh=()=>document.querySelectorAll('table').forEach(t=>{const state=layouts.get(t);if(state){if(state.bar){refreshLayout(t,state);controls(t,state)}search(t,state)}});
+ const refresh=()=>document.querySelectorAll('table').forEach(t=>{const state=layouts.get(t);if(state){if(state.bar){if(!t.closest('[data-arc-table]'))etiquetar(t);refreshLayout(t,state);controls(t,state)}search(t,state)}});
  window.addEventListener('resize',refresh);window.addEventListener('gama:language-change',refresh);window.addEventListener('gama:auth-change',refresh);
  window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;searchTerms.clear();searchFocus=null;document.querySelectorAll('[data-table-search]').forEach(input=>{input.value=''});refresh()});
  // Cover tables created by legacy dialogs and asynchronous module renderers.

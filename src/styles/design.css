@@ -53,7 +53,7 @@
  body[data-app=coco-erp] :is(input[type=checkbox],input[type=radio]){accent-color:var(--arc-accent-600)}
  body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-700);outline-offset:3px}
  /* Fine horizontal rules; retain the column grid and native card views. */
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcTableWrap,.gqScroll,.gsScroll,.gpScroll,.gaScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox,.gamaColumnPicker){border:1px solid var(--coco-line);border-radius:var(--arc-r-md);background:var(--coco-surface)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcTableWrap,.gqScroll,.gsScroll,.gpScroll,.gaScroll,.gfScroll,.grScroll,.pmTableWrap,.gamaTableBox){border:1px solid var(--coco-line);border-radius:var(--arc-r-md);background:var(--coco-surface)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]){background:var(--coco-surface);border:1px solid var(--coco-line);font-size:13px}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) :is(td,th){padding:12px 14px;border:1px solid var(--coco-column-line)!important;border-block-color:var(--coco-row-line)!important;vertical-align:middle;line-height:1.5}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--coco-ink);border-bottom:1px solid var(--coco-line)!important}

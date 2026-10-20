@@ -44,7 +44,8 @@
  body.cocoWorkbench .arcChevron{font-size:18px;margin-left:0}
  body.cocoWorkbench .arcIconBtn .arcIco{width:21px;height:21px}
  body.cocoWorkbench .arcContent{padding:12px calc(20px + var(--arc-safe-r)) calc(24px + var(--arc-safe-b)) calc(20px + var(--arc-safe-l));background:var(--arc-canvas)}
- body.cocoWorkbench .arcContent>.wrap{max-width:none}
+ body.cocoWorkbench .arcContent>.wrap{max-width:none;min-width:0}
+ body.cocoWorkbench .arcContent>.wrap>section{min-width:0;max-width:100%}
  body.cocoWorkbench .arcContent>#mainmenu{max-width:1560px}
 
  /* Keep native tab buttons in their original module. Pin only this primary
@@ -146,7 +147,7 @@
  body.cocoWorkbench[data-coco-module=mainmenu] .cocoModuleHeading{display:none}
  body.cocoWorkbench:not([data-coco-module=mainmenu]) .arcTopbar>.arcMobileBrand{display:none}
  body.cocoWorkbench .cocoModuleHeading{flex:1;padding-left:0;border:0}
- body.cocoWorkbench .cocoModuleContext{max-width:none;flex:1;font-size:14px}
+ body.cocoWorkbench .cocoModuleContext{max-width:none;flex:1}
  body.cocoWorkbench .arcTopRight{gap:0}
  body.cocoWorkbench .arcUserSlot{padding-left:4px}
  body.cocoWorkbench .arcContent{padding:12px calc(12px + var(--arc-safe-r)) calc(88px + var(--arc-safe-b)) calc(12px + var(--arc-safe-l))}
@@ -157,7 +158,6 @@
  body.cocoWorkbench .arcContent .gamaStdHeader>.cocoModuleTools>summary{min-height:44px}
  body.cocoWorkbench .arcContent section .cocoModuleNav{margin-bottom:10px!important}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button{font-size:13px;padding:10px 12px!important;min-height:44px}
- body.cocoWorkbench .arcContent .gamaTableViews>button{min-height:44px}
  .cocoSalesSubnav .cocoSalesActions{width:100%}
  .cocoListCommand{gap:10px}
  body.cocoWorkbench .cocoListCommand .cocoListHeading{width:100%;flex:1 1 100%;gap:10px;align-items:center;flex-wrap:wrap}

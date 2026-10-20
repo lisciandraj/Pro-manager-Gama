@@ -178,6 +178,8 @@ test('keyboard and touch grips move headers without sorting or breaking phone sc
  await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
  const amount=host.getByRole('button',{name:'Déplacer la colonne Montant',exact:true});await amount.press('Alt+ArrowLeft');
  expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
+ // Keep the header clear of fixed navigation before browser hit testing.
+ await host.locator('thead').evaluate(el=>el.scrollIntoView({block:'center'}));
  // Dispatch PointerEvents through the browser's hit testing/capture path.
  await host.locator('table').evaluate(t=>{const grip=t.querySelector('.gamaColumnGrip'),from=grip.getBoundingClientRect(),to=t.querySelectorAll('th')[1].getBoundingClientRect();t.setPointerCapture=()=>{};t.hasPointerCapture=()=>false;grip.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch',pointerId:42,clientX:from.x+5,clientY:from.y+5}));for(const type of ['pointermove','pointerup'])t.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerType:'touch',pointerId:42,clientX:to.x+to.width/2,clientY:to.y+to.height/2}))});
  expect(await columnNames(host)).toEqual(['Nom','Montant','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
@@ -199,7 +201,7 @@ test.describe('touch column ordering',()=>{
  test('a real touch swipe on the visible grip moves a column on a phone',async({page,context})=>{
   await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
   expect(await page.evaluate(()=>matchMedia('(pointer:coarse)').matches)).toBe(true);
-  const grip=host.locator('.gamaColumnGrip').first(),head=host.locator('thead th').first();await grip.scrollIntoViewIfNeeded();const g=await grip.boundingBox(),h=await head.boundingBox();
+  const grip=host.locator('.gamaColumnGrip').first(),head=host.locator('thead th').first();await head.evaluate(el=>el.scrollIntoView({block:'center'}));const g=await grip.boundingBox(),h=await head.boundingBox();
   expect(g.width).toBeGreaterThanOrEqual(44);expect(g.height).toBeGreaterThanOrEqual(44);expect(g.y).toBeGreaterThanOrEqual(h.y);expect(g.y+g.height).toBeLessThanOrEqual(h.y+h.height);
   const target=await host.locator('thead th').nth(1).boundingBox(),client=await context.newCDPSession(page),x=g.x+g.width/2,y=g.y+g.height/2,end=target.x+target.width/2;
   await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});

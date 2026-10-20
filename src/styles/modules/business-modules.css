@@ -1,4 +1,4 @@
-.cocoBusiness{min-width:0;display:grid;gap:var(--arc-space-4,16px)}
+.cocoBusiness{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:var(--arc-space-4,16px)}
 .cocoBusiness .arcToolbar{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
 .cocoBusiness .arcToolbar .arcField{flex:1 1 220px;margin:0}
 .cocoBusinessDialog{width:min(1200px,calc(100vw - 24px));max-width:calc(100vw - 24px)}
@@ -10,3 +10,17 @@
 .cocoBusinessLines legend{font-weight:600;padding-inline:8px}
 .cocoBusinessDialog [role=alert],.cocoBusiness [role=alert]{overflow-wrap:anywhere}
 @media(max-width:600px){.cocoBusinessDialog{padding:14px}.cocoBusinessDialog .arcFormGrid{grid-template-columns:1fr}.cocoBusiness .arcToolbar>.arcButton{flex:1 1 auto}}
+
+/* Keep server search next to its submit action and reserve no row for an
+   empty error. Grid children must never size the page from table contents. */
+.cocoBusiness>p{margin:0;max-width:75ch;overflow-wrap:anywhere}
+.cocoBusiness>[data-business-error]:empty{display:none}
+.cocoBusiness>.arcToolbar{margin:0}
+.cocoBusiness>.arcToolbar>.arcField{flex:1 1 220px}
+.cocoBusiness>.arcToolbar input{margin:0;min-height:44px}
+.cocoBusiness>details>summary{min-height:44px;box-sizing:border-box;padding-block:12px;cursor:pointer;overflow-wrap:anywhere}
+@media(max-width:600px){
+ .cocoBusiness>.arcToolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end}
+ .cocoBusiness>.arcToolbar>[data-business-new]{grid-column:1/-1;justify-self:start}
+ .cocoBusiness>.arcToolbar>.arcField{min-width:0}
+}

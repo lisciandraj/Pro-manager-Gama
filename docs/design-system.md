@@ -153,3 +153,13 @@ Les métadonnées utilisent `--coco-muted`, avec un contraste minimal de 4,5:1 s
 Le token `--arc-motion` est nul avec `prefers-reduced-motion: reduce`. Les animations décoratives sont désactivées par composant ; les états d’attente restent signalés par un indicateur statique ou du texte. Ne pas réintroduire de règle universelle qui réduit toutes les animations à une durée presque nulle. Les transitions de largeur de la barre latérale et de la progression de dossier sont supprimées.
 
 La couverture automatisée est dans `tests/layout-audit-regressions.spec.js`, complétée par les suites responsive, formulaires, sélecteurs et espace de travail. Ces essais utilisent des données isolées, sans modifier les données de production.
+
+### Listes opérationnelles — 20 octobre 2026
+
+Les commandes partagées des tableaux conservent une recherche pleine largeur sur
+petit écran, suivie des colonnes et du choix de vue. Le sélecteur de colonnes fermé
+occupe une commande de 44 px minimum ; ses options ouvertes restent dans le flux.
+Les listes Contrats et Notes de frais gardent leur recherche serveur et son bouton
+ensemble, avec la création au-dessus sur téléphone. Les erreurs vides ne réservent
+pas de ligne. Leur grille utilise une colonne `minmax(0,1fr)` pour contenir les
+tables larges sans agrandir la page. Le site public conserve sa charte distincte.

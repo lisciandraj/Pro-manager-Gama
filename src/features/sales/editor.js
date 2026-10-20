@@ -74,6 +74,11 @@ if(!window.gamaAccessAllowed?.('quotes'))return false;const host=$('quotes-main'
  const addressText=s=>window.GamaI18n?.t?.(s)||s,manualOption=()=>`<option value="">${esc(addressText('Dirección manual / principal'))}</option>`;
  window.ArcUI.render(addressBox,'<label for="gqDeliveryAddress" data-gi-live data-gi=ef7c27600635>Dirección de entrega guardada</label><select id="gqDeliveryAddress" disabled></select><small id="gqAddressStatus" role="status"></small><button type="button" class="arcButton secondary" id="gqAddressRetry" hidden data-gi-live data-gi=99d838e8512e>Actualizar direcciones</button>');
  addressInput.closest('label').before(addressBox);
+ if(window.gamaAccessAllowed?.('contacts')){
+  const manage=document.createElement('button');manage.type='button';manage.className='arcButton secondary';manage.textContent=addressText('Direcciones de entrega');manage.id='gqManageAddresses';addressBox.append(manage);
+  manage.onclick=async()=>{const customer=$('gqCustomer').value;if(!customer)return;manage.disabled=true;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open('clients',customer,{tab:'relations',onClose:()=>{if(addressForm.isConnected&&$('gqCustomer').value===customer)loadDeliveryAddresses()}})}catch(e){addressStatus.textContent=window.ArcErrors.message(e)}finally{manage.disabled=false}};
+ }
+
  const addressSelect=$('gqDeliveryAddress'),addressStatus=$('gqAddressStatus'),addressRetry=$('gqAddressRetry');let addressRevision=0,deliveryAddresses=[];
  window.ArcUI.render(addressSelect,manualOption());
  async function loadDeliveryAddresses(){

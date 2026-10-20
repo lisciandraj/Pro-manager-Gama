@@ -10,7 +10,7 @@ test('Stock planning uses demand, excludes internal movements, protects purchase
    update profiles set active=(id<>'${inactive}'),role=case when id='${warehouse}' then 'almacenero' when id='${commercial}' then 'comercial' when id='${client}' then 'cliente' else 'administrador' end;
    insert into suppliers(id,name) values('${supplier}','Supply A'),('${supplier2}','Supply B');
    insert into products(id,name,barcode,min_stock,max_stock,purchase_price,supplier_id,created_at,product_kind,replenishment_excluded,order_multiple,replenishment_exclusion_reason) values
-   ('${slow}','Threshold item','STOCK-SLOW',10,40,2,'${supplier}',now()-interval '100 days','goods',false,.001,null),
+   ('${slow}','Threshold item','STOCK-SLOW',15,40,2,'${supplier}',now()-interval '100 days','goods',false,.001,null),
    ('${fast}','Fast item','STOCK-FAST',0,0,3,'${supplier2}',now()-interval '100 days','goods',false,5,null),
    ('${dormant}','Dormant item','STOCK-DORMANT',0,0,4,'${supplier}',now()-interval '100 days','goods',false,.001,null),
    ('${fraction}','Fractional item','STOCK-FRACTION',1,2,5,'${supplier}',now()-interval '100 days','goods',false,.001,null),
@@ -35,8 +35,10 @@ test('Stock planning uses demand, excludes internal movements, protects purchase
   await assert.rejects(rpc('gama_stock_replenish',[{request_key:uuid(),items:[{product_id:excluded,supplier_id:supplier,quantity:39}]}]),/REPLENISHMENT_CHANGED/);
   const late=await rpc('gama_purchase_save',[{request_key:uuid(),supplier_id:supplier,expected_date:'2020-01-01',lines:[{product_id:slow,quantity:2,unit_cost:2}]}]);
   await db.exec('reset role');await db.query("update purchase_orders set status='partial' where id=$1",[late.id]);await db.query('update purchase_order_lines set received_quantity=1 where purchase_order_id=$1',[late.id]);await as(admin);
+  const coverage=(await rpc('gama_stock_insights',['reabastecimiento'])).minmax_coverage.find(r=>r.id===slow);
+  assert.equal(coverage.draft_quantity,37);assert.equal(coverage.incoming,1);assert.equal(coverage.quantity,0);assert.equal(coverage.purchases.find(p=>p.id===late.id).remaining,1);
   const actions=await rpc('gama_stock_insights',['acciones']);assert.equal(actions.late_orders.length,1);assert.equal(actions.late_orders[0].id,late.id);assert.ok(actions.late_orders[0].days_late>0);
-  await as(warehouse);const hidden=await rpc('gama_stock_insights',['acciones']);assert.equal(hidden.can_buy,false);assert.deepEqual(hidden.late_orders,[]);for(const r of hidden.rows){assert.equal(r.incoming,null);assert.equal(r.supplier_id,null);assert.equal(r.suggested_quantity,null)}
+  await as(warehouse);const hidden=await rpc('gama_stock_insights',['acciones']);assert.equal(hidden.can_buy,false);assert.deepEqual(hidden.minmax_coverage,[]);assert.deepEqual(hidden.late_orders,[]);for(const r of hidden.rows){assert.equal(r.incoming,null);assert.equal(r.supplier_id,null);assert.equal(r.suggested_quantity,null)}
   await assert.rejects(rpc('gama_stock_replenish',[payload]),/ROLE_NOT_ALLOWED/);await assert.rejects(rpc('private.stock_insight_rows',[true]),/permission denied/);
   await as(commercial);assert.equal((await rpc('gama_stock_insights',['conteos'])).can_count,false);
   for(const id of [client,inactive]){await as(id);await assert.rejects(rpc('gama_stock_insights',['acciones']),/ROLE_NOT_ALLOWED/)}

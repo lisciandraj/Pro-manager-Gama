@@ -89,3 +89,18 @@ for(const module of ['contacts','assistant-ia'])for(const width of [390,1440])te
  await panel.locator('[data-reject-proposal]').click();await expect(panel.locator('.cocoFollowupEmpty')).toHaveText('Aucune action en attente d’approbation.');
  await panel.locator('[data-filter=proposals]').click();await expect(panel.locator('.cocoProposalState')).toHaveText('Refusé');
 });
+
+for(const module of ['contacts','assistant-ia'])test(`approval and rejection show the human reviewer in ${module}`,async({page})=>{
+ await setup(page,{module});
+ await page.evaluate(()=>{window.__moduleHistory=[
+  {id:'proposal',type:'proposal',action:'proposal',subject:'mail_analysis',actor_name:'Agent Coco',at:'2026-10-20T12:00:00Z',links:[]},
+  ...['approved','rejected'].map((state,i)=>({id:state,type:'action',action:i?'reject_proposal':'approve_proposal',subject:'proposal_'+state,actor_id:'alice',actor_name:'Alice Reviewer',source_type:'chat',source_label:'Agent Coco',at:`2026-10-20T12:0${i+1}:00Z`,links:[]}))
+ ]});
+ const panel=page.locator('.cocoGlobalHistory .cocoFollowup');await panel.locator('[data-refresh]').click();
+ for(const title of ['Proposition validée','Proposition refusée']){
+  const event=panel.locator('.cocoFollowupEvent').filter({has:page.locator('.cocoFollowupEventTitle',{hasText:title})});
+  await expect(event.locator('.cocoFollowupWho strong')).toHaveText('Alice Reviewer');
+  await expect(event.locator('.cocoFollowupAvatar')).not.toHaveClass(/is-agent/);
+ }
+ await expect(panel.locator('.cocoFollowupAvatar.is-agent')).toHaveCount(1);
+});

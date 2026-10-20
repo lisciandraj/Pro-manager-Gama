@@ -27,3 +27,15 @@ Les deux éditions historiques intégrées sont le diagnostic bilingue du **29 s
 La migration `20261005165044_agent_coco_report_archive.sql` installe le préfixe, le compteur, les tables privées et les RPC. Les tests `agent-coco-reports-db.test.cjs`, `assistant-server.test.mjs` et `assistant-ia.spec.js` vérifient références, déduplication, refus des conflits, confidentialité, tri, pagination, conversation et changement de session.
 
 Les nouvelles éditions du rapport automatique et leurs messages d’accompagnement sont également en espagnol, avec `languages: ["es"]` à l’archivage. Les éditions historiques restent immuables. Le relais mail rédige les nouvelles synthèses, notes, descriptions proposées et notifications d’Agent Coco en espagnol ; les en-têtes et références sources sont conservés.
+
+## File d’actions à valider
+
+L’onglet **À valider** d’Agent Coco centralise les propositions structurées des modules. Il fonctionne même sans connexion au modèle IA. Les administrateurs voient uniquement les propositions des modules qu’ils peuvent actuellement réviser. Les états **À valider**, **Exécutées** et **Refusées** sont paginés par 25.
+
+Sélectionner des propositions puis **Vérifier la sélection** produit une revue serveur valable dix minutes. **Valider et exécuter** applique seulement les lignes revues avec succès. Chaque ligne garde son résultat ; un échec n’annule pas les autres lignes. Une nouvelle tentative ne duplique pas une action déjà exécutée. Les propositions incomplètes se corrigent depuis leur historique de module. **Refuser la sélection** demande une confirmation et conserve la trace des propositions.
+
+Dans **Comptabilité → Banque et caisse → Rapprochement**, choisir une facture puis **Envoyer à Agent Coco** crée uniquement une proposition. La revue affiche le compte, la référence bancaire, le montant et les soldes avant/après. La validation enregistre l’encaissement, l’affectation à la facture et le rapprochement dans une transaction, via le traitement bancaire existant. Le statut payé dépend du solde réel ; un paiement partiel ne solde pas artificiellement la facture. Les droits, la période et les données sont contrôlés de nouveau avant exécution.
+
+Le pont de confiance `coco_assistant_bridge('propose', …)` accepte aussi l’action typée `bank_settlement` du module `accounting`, avec seulement `bank_id` et `invoice_id` dans le payload. Il enregistre une proposition, jamais un paiement. La RPC `coco_action_queue` garde la lecture en mode invoker/RLS ; la revue et la décision exigent une session administrateur ERP, pas un jeton OAuth d’agent. Les décisions conservent `decided_by` et l’historique attribue les écritures à Agent Coco.
+
+Les mouvements de stock gardent leur circuit séparé d’approbation MFA, accessible par **Approbations de stock avec MFA** ; ils ne sont pas exécutés par le lot de propositions métier.

@@ -54,3 +54,20 @@ for(const width of [390,1440])test(`audit entries keep translated labels, safe r
  await panel.locator('[data-refresh]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(1);await panel.locator('[data-filter=notes]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(0);await panel.locator('[data-filter=actions]').click();await expect(panel.locator('.cocoFollowupAudit')).toHaveCount(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 });
+
+for(const width of [390,1440])test(`Agent Coco central history identifies source modules and keeps dossier links at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page,{module:'assistant-ia'});
+ await page.evaluate(()=>{window.__moduleHistory=[
+  {id:'central-product',module_id:'products',at:'2026-10-20T15:00:00Z',type:'action',action:'update',subject:'Producto',actor_name:'Agent Coco',source_type:'chat',source_label:'Agent Coco · Claude',references:[{reference:'PAP-01'}],links:[{module:'products',action:'module'}],total:2},
+  {id:'central-order',module_id:'sales-orders',at:'2026-10-20T14:00:00Z',type:'note',action:'note',subject:'Suivi',body:'Suivi du dossier par Agent Coco.',actor_name:'Agent Coco',references:[{reference:'PV-000001'}],links:[{module:'sales-orders',action:'order',id:'10000000-0000-4000-8000-000000000001',reference:'PV-000001'}],total:2}
+ ];window.__centralOpened=null;window.GamaSales.openOrder=async id=>{window.__centralOpened=id}});
+ const panel=page.locator('.cocoGlobalHistory .cocoFollowup');if(width<900)await panel.locator(':scope>summary').click();await panel.locator('[data-refresh]').click();
+ await expect(panel.locator('.cocoFollowupTitle')).toHaveText('Historique central d’Agent Coco');
+ await expect(panel.locator('.cocoFollowupOrigin')).toHaveText(['Produits','Ventes']);await expect(panel.locator('.is-agent')).toHaveCount(2);
+ await panel.locator('[data-refresh]').click();await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(2);
+ await panel.locator('[data-filter=actions]').click();await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(1);
+ await panel.locator('[data-filter=notes]').click();await expect(panel).toContainText('Suivi du dossier par Agent Coco.');
+ await panel.getByRole('button',{name:/PV-000001/}).click();expect(await page.evaluate(()=>window.__centralOpened)).toBe('10000000-0000-4000-8000-000000000001');
+ await panel.locator('[data-filter=all]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+ await page.screenshot({path:`test-results/central-agent-${width}.png`,fullPage:true});
+});

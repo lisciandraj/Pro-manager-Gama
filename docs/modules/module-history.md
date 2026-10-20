@@ -8,6 +8,14 @@ Les nouvelles modifications métier sont indexées après leur réussite par les
 
 L’index ne contient pas de copie complète des enregistrements. Sa lecture utilise les droits du module et les politiques de la ligne métier actuelle, sous l’identité réelle du lecteur. Une modification de classification d’un document s’applique aussi à son historique. Aucun diagnostic, motif médical, salaire, coordonnées bancaires ou fichier binaire n’est copié dans une bulle. Les liens proposés sont des routes internes autorisées.
 
+## Historique central d’Agent Coco
+
+Le panneau du module Agent Coco reprend les actions et notes attribuées explicitement à Agent Coco/ChatGPT ou à une origine `chat`, dans tous les modules et dossiers autorisés. Il lit les événements existants sans les copier ni modifier leurs dates. Les nouvelles actions apparaissent au prochain rafraîchissement. Les décisions humaines de validation/refus ne sont pas réattribuées à l’agent.
+
+Chaque bulle indique son module d’origine et conserve ses références et liens de dossier. Le regroupement reste limité à une transaction et un module ; la pagination chronologique porte sur l’ensemble du flux. Les politiques de ligne des modules et les contrôles existants de chaque dossier restent appliqués. Les conversations récentes de l’assistant restent distinctes de cet historique métier.
+
+Migration : `20261020174233_agent_central_history.sql`.
+
 ## Origine ChatGPT, fichier, import ou mail
 
 Les écritures métier dont l’origine enregistrée est `chat` affichent **Agent Coco**, quel que soit l’assistant utilisé (ChatGPT, Claude ou autre agent). Le compte authentifié reste conservé dans `actor_id`. Les créations, modifications (y compris les photos) et suppressions enregistrent l’action, la date, les références et la source dans l’historique du module ; les dossiers incluent aussi ces événements. Les validations humaines des propositions restent attribuées à leur validateur. Les anciens événements sans origine identifiable ne sont pas réattribués par supposition.

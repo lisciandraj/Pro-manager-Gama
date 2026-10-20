@@ -10,6 +10,8 @@ L’index ne contient pas de copie complète des enregistrements. Sa lecture uti
 
 ## Historique central d’Agent Coco
 
+Dans Agent Coco, l’historique occupe toute la largeur de la page sous la zone de message. Il est ouvert par défaut sur ordinateur comme sur téléphone et défile avec la page. Les autres modules conservent leur panneau latéral.
+
 Le panneau du module Agent Coco reprend les actions et notes attribuées explicitement à Agent Coco/ChatGPT ou à une origine `chat`, dans tous les modules et dossiers autorisés. Il lit les événements existants sans les copier ni modifier leurs dates. Les nouvelles actions apparaissent au prochain rafraîchissement. Les décisions humaines de validation/refus ne sont pas réattribuées à l’agent.
 
 Chaque bulle indique son module d’origine et conserve ses références et liens de dossier. Le regroupement reste limité à une transaction et un module ; la pagination chronologique porte sur l’ensemble du flux. Les politiques de ligne des modules et les contrôles existants de chaque dossier restent appliqués. Les conversations récentes de l’assistant restent distinctes de cet historique métier.

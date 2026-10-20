@@ -9,9 +9,10 @@ async function contextHistory(page,language='fr'){
    {kind:'product',id:product,record_id:record,reference:'DVDG005',name:'DVD grabable cono de 25',quantity:8,quantity_mode:'snapshot',context:{location:'Quito · A-01 · Estante',changes:[{field:'quantity',before:5,after:8},{field:'reserved_quantity',before:0,after:2}]}},
    {kind:'product',id:product,record_id:'second-position',reference:'DVDG005',name:'DVD grabable cono de 25',quantity:3,quantity_mode:'snapshot',context:{location:'Quito · B-02 · Estante',changes:[{field:'quantity',before:6,after:3}]}}
   ],links:[{module:'warehouses',action:'module',id:record,reference:record},{module:'warehouses',action:'module',id:'second-position',reference:'second-position'},{module:'warehouses',action:'stock_product',id:product,reference:'DVDG005'}]}];
-  const original=window.ArcData.rawRpc;window.ArcData.rawRpc=async(name,args,opts)=>name==='coco_module_history'?{data:args.p_action==='context'?context:{context,history:window.__contextHistory,entries:[],proposals:[],portraits:{}}}:original(name,args,opts);
-  const host=document.querySelector('.cocoFollowup').parentElement;await window.CocoFollowup.mount(host,{kind:'module',module_id:'warehouses'});
+  const original=window.GamaCloud.db;window.GamaCloud.db=async()=>{const client=await original();return {...client,rpc:async(name,args)=>name==='coco_module_history'?{data:args.p_action==='context'?context:{context,history:window.__contextHistory,entries:[],proposals:[],portraits:{}}}:client.rpc(name,args)}};
+  await window.ArcRouter.open('warehouses');
  },{product,record});
+ await expect(page.locator('.cocoGlobalHistory .cocoFollowupParty')).toBeAttached();
 }
 for(const width of [390,1440])test(`stock action context is clear, non-additive and usable at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:1000});await contextHistory(page);

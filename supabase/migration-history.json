@@ -1600,6 +1600,18 @@
       "sha256": "45ef1237d13fec3815f8a96652d678701cfeb09dfc40336d8a762436e7136c92"
     },
     {
+      "version": "20261020195816",
+      "name": "business_modules_contracts_expenses_sourcing",
+      "file": "20261020193647_business_modules_contracts_expenses_sourcing.sql",
+      "sha256": "e54974ef125283c9471dc088f5261b2a0795fe54ead9052a40e737f7279b08eb"
+    },
+    {
+      "version": "20261020200536",
+      "name": "business_contract_current_tax",
+      "file": "20261020200251_business_contract_current_tax.sql",
+      "sha256": "2ce7ef96ae37d0109db62402059bfb9ea77d32af1f282d1ccc5d440c5ddd6d4a"
+    },
+    {
       "version": "20261020201200",
       "name": "agent_approval_queue",
       "file": "20261020195939_agent_approval_queue.sql",

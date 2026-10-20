@@ -2,6 +2,8 @@ export const groups=["Resumen","Inventario y compras","Ventas","Administración"
 const adminRoles=['admin'],commercialRoles=['admin','commercial'],staffRoles=['admin','commercial','magasinier'],warehouseRoles=['admin','magasinier'];
 /** Single registry consumed by home, sidebar, settings, access and router. */
 const definitions=[
+  {id:'contracts',label:'Contratos',icon:'documents',group:groups[2],description:'Contratos y pedidos recurrentes',accent:'violet',order:4.1,menu:true,roles:commercialRoles},
+  {id:'expenses',label:'Gastos y justificantes',icon:'ledger',group:groups[3],description:'Justificantes, validación y reembolsos',accent:'orange',order:15.2,menu:true,roles:adminRoles},
   {id:'surveys',label:'Encuestas y marketing',icon:'checklist',group:groups[2],description:'Cuestionarios y campañas e-mail o WhatsApp',accent:'teal',order:7.2,menu:true,roles:commercialRoles},
   {id:'sri',label:'Facturación SRI',icon:'invoice',group:groups[3],description:'Facturas electrónicas, autorización SRI y archivo XML / RIDE',accent:'orange',order:15.1,menu:true,roles:adminRoles},
   {id:'website',label:'Sitio web',icon:'globe',group:groups[3],description:'Catálogo web, presentación y solicitudes de prueba',accent:'teal',order:16.5,menu:true,roles:adminRoles},
@@ -399,6 +401,8 @@ export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
 /** Route adapters preserve public module IDs and existing cross-module links. */
 const openers={
+ contracts:()=>window.CocoBusiness?.contracts(),
+ expenses:()=>window.CocoBusiness?.expenses(),
  matrix:()=>window.GamaMatrix?.open(),
  surveys:()=>window.GamaSurveys?.open(),
  website:()=>window.GamaWebsite?.open(),

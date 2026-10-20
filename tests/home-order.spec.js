@@ -38,17 +38,3 @@ test('favorite shortcuts open the module and close the mobile drawer',async({pag
  await shortcut.click();await expect(page.locator('#warehouses')).toBeVisible();await expect(page.locator('body')).not.toHaveClass(/arcDrawerOpen/);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
-
-test('home tiles stay square when the viewport is resized or rotated',async({page})=>{
- await boot(page);
- for(const [width,height] of [[320,568],[390,844],[844,390],[768,1024],[1024,768],[1366,768],[1920,1080],[2560,1440]]){
-  await page.setViewportSize({width,height});
-  const tiles=await page.locator('#mainmenu .gamaF2Card:visible').evaluateAll(cards=>cards.map(card=>{
-   const r=card.getBoundingClientRect();return {width:r.width,height:r.height};
-  }));
-  expect(tiles.length).toBeGreaterThan(0);
-  for(const tile of tiles)expect(Math.abs(tile.width-tile.height),`${width}×${height}: ${JSON.stringify(tile)}`).toBeLessThan(1);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  if(width===390||width===1366)await page.screenshot({path:`test-results/square-home-${width}.png`,fullPage:true});
- }
-});

@@ -27,6 +27,12 @@ test('Contracts, expenses and supplier consultations use real guarded document w
   await assert.rejects(v('select private.contract_tick()'),/permission denied/);
   await db.exec('reset role');await q('update profiles set active=false where id=$1',[ids.admin]);await v('select private.contract_tick()');assert.equal(await v('select count(*)::int from sales_orders'),1);assert.equal(await v('select last_error from private.customer_contracts where id=$1',[ids.auto]),'ROLE_NOT_ALLOWED');await q('update profiles set active=true where id=$1',[ids.admin]);assert.equal((await v('select private.contract_tick()')).prepared,1);assert.equal(await v('select count(*)::int from sales_orders'),2);await as(ids.admin);
  });
+ await t.test('future drafts resolve current customer prices and taxes without rewriting prior orders',async()=>{
+  const original=(await contract('list')).rows[0],next=uuid();await contract('save',{...original,id:next,version:0,name:'Current price contract',next_date:today,price_mode:'current',automatic:false});
+  await db.exec('reset role');await q('update products set sale_price=12,tax_rate=15 where id=$1',[ids.product]);await as(ids.admin);
+  const order=await contract('generate',{id:next,due_date:today});assert.equal(Number(await v('select unit_price from sales_order_lines where order_id=$1',[order.id])),12);assert.equal(Number(await v('select tax_rate from sales_order_lines where order_id=$1',[order.id])),15);
+  assert.equal(await v('select count(*)::int from sales_order_lines where unit_price=9 and tax_rate=0'),2);
+ });
  await t.test('claims require receipts, lock approved amounts, debit cash only once on reimbursement and leave forecast',async()=>{
   const payload={request_key:uuid(),version:0,description:'Client visit',expense_date:today,category_id:category,paid_by:'employee',employee_id:ids.employee,amount_untaxed:20,tax_amount:0,amount_total:20,currency:'USD',payment_method:'card',due_date:today};
   claim=await expense('save',payload);assert.equal((await expense('save',payload)).id,claim.id);await assert.rejects(expense('save',{...payload,amount_total:30}),/REQUEST_KEY_REUSED/);

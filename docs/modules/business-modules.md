@@ -4,7 +4,7 @@ Les routes `contracts` et `expenses` sont déclarées dans le registre commun et
 
 ## Contrats
 
-Un contrat associe un client, une adresse, des produits, une durée, une fréquence hebdomadaire ou mensuelle et des prix convenus ou recalculés au tarif client. Chaque échéance prépare au maximum un **brouillon** via le circuit de vente existant. Le stock n'est réservé qu'à la confirmation habituelle. L'historique donne accès aux commandes générées. Une échéance déjà traitée ne peut être réutilisée.
+Un contrat associe un client, une adresse, des produits, une durée, une fréquence hebdomadaire ou mensuelle et des prix convenus ou recalculés au tarif client. Chaque échéance prépare au maximum un **brouillon** via le circuit de vente existant. Le taux de taxe est repris sur la fiche produit au moment de préparer la nouvelle commande, y compris lorsque le prix hors taxes est fixé au contrat. Les commandes historiques restent inchangées. Le stock n'est réservé qu'à la confirmation habituelle. L'historique donne accès aux commandes générées. Une échéance déjà traitée ne peut être réutilisée.
 
 La préparation automatique s'exécute à la minute 25 de chaque heure, selon le fuseau de l'entreprise. Elle recontrôle les droits actuels du créateur ; désactivation du compte, retrait des droits ou MFA exigée peuvent la bloquer. L'écran signale alors une vérification nécessaire et permet une préparation interactive. Les échéances anciennes ne créent pas de rattrapage en masse : une seule commande est préparée puis la prochaine date future est calculée en conservant l'ancrage de fin de mois. Les programmes du portail client conservent leur confirmation par le client.
 

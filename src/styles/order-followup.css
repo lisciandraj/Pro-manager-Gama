@@ -61,7 +61,7 @@
 @media(min-width:1100px){#sales-orders .cocoWithFollowup>.gsOrderAside{position:sticky;top:110px}}
 @media(max-width:1100px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:12px}}
 @media(max-width:900px){
- .gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:block!important;padding-bottom:calc(var(--coco-mobile-nav-space,0px) + 96px)}
+ .gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:block!important;padding-bottom:80px}
  #sales-orders .cocoWithFollowup>.gsOrderAside,.cocoPurchaseWorkspace>aside,.cocoDossierWorkspace>aside{position:static;min-width:0}
  .cocoFollowup{position:fixed;z-index:180;right:max(10px,env(safe-area-inset-right,0px));bottom:calc(var(--coco-mobile-nav-space,0px) + 10px);width:min(460px,calc(100vw - max(10px,env(safe-area-inset-left,0px)) - max(10px,env(safe-area-inset-right,0px))));box-sizing:border-box;box-shadow:0 8px 28px #0c2f4226;overflow:hidden}
  .cocoFollowup>summary{display:grid;grid-template-columns:minmax(0,1fr) auto 28px;gap:8px;height:64px;box-sizing:border-box;padding:10px 12px;font-size:14px;line-height:18px}
@@ -142,5 +142,6 @@
    its existing modal viewport and focus management. */
 @media screen and (max-width:860px){
  body.cocoWorkbench{--coco-mobile-nav-space:calc(68px + env(safe-area-inset-bottom,0px))}
+ body.cocoWorkbench .arcContent:has(.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace),
  body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory:not(.cocoAgentHistory)){padding-bottom:calc(var(--coco-mobile-nav-space) + 96px)}
 }

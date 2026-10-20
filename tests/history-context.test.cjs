@@ -28,9 +28,13 @@ test('reference rendering escapes names and locations, preserves quantities befo
  assert(html.includes('5 → 8'));assert(html.includes('0 → 2'));assert(html.includes('&lt;img'));assert(!html.includes('<img'));assert(html.includes('Quito &lt;shelf&gt;'));
  assert.equal(changeText({field:'amount',before:10,after:12.5},{currency:'USD'}),'10 → 12,5 USD');
 });
-test('missing context remains explicit and channel labels are translated',()=>{
- const {actionContext,window}=api();assert.match(actionContext({type:'action',references:[]},false),/Origine non enregistrée/);
- for(const [language,label]of [['fr','Depuis l’ERP'],['es','Desde el ERP'],['en','Through the ERP']]){window.GamaI18n.language=language;assert(actionContext({type:'action',source_type:'erp',references:[]},false).includes(label))}
+test('history omits source rows while retaining missing measurement information',()=>{
+ const {actionContext,window}=api();
+ for(const language of ['fr','es','en']){window.GamaI18n.language=language;
+  assert.equal(actionContext({type:'action',source_type:'erp',references:[{quantity:2}]},false),'');
+  assert.match(actionContext({type:'action',references:[]},false),/cocoFollowupUnmeasured/);
+  assert.equal(actionContext({type:'action',references:[]},true),'');
+ }
 });
 test('exact document and product navigation uses existing APIs and checks current access',async()=>{
  const {openRelated,window,calls}=api();await openRelated({module:'documents',action:'document',id:'doc-1'});await openRelated({module:'warehouses',action:'stock_product',id:'p-1'});

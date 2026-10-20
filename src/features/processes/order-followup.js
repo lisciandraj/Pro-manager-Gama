@@ -8,7 +8,6 @@ words.audit=['Pista de auditoría','Piste d’audit','Audit trail'];
 words.amount=['Importe','Montant','Amount'];
 words.close=['Cerrar historial','Fermer l’historique','Close history'];
 Object.assign(words,{
- how:['Cómo','Comment','How'],viaErp:['Desde el ERP','Depuis l’ERP','Through the ERP'],viaChat:['Por Agent Coco','Par Agent Coco','By Agent Coco'],viaMail:['Desde un correo','Depuis un mail','From an email'],viaFile:['Desde un archivo','Depuis un fichier','From a file'],viaImport:['Importación de datos','Import de données','Data import'],methodUnknown:['Origen no registrado','Origine non enregistrée','Origin not recorded'],
  details:['Detalle de los cambios','Détail des changements','Change details'],notRecorded:['No registrado','Non enregistré','Not recorded'],changed:['Modificado','Modifié','Changed'],yes:['Sí','Oui','Yes'],no:['No','Non','No'],
  openModule:['Abrir módulo','Ouvrir le module','Open module'],openDocument:['Abrir documento','Ouvrir le document','Open document'],stockProduct:['Ver existencias','Voir le stock','View stock'],
  stockBalance:['Existencias por ubicación','Stock par emplacement','Stock by location'],stockMovement:['Movimiento de stock','Mouvement de stock','Stock movement'],stockReservation:['Reserva de stock','Réservation de stock','Stock reservation'],
@@ -85,9 +84,8 @@ function changesFor(r){return (Array.isArray(r.context?.changes)?r.context.chang
 function changeText(c,context={}){const money=['sale_price','purchase_price','unit_price','unit_cost','amount','total','subtotal'].includes(c.field),text=c.changed?W('changed'):(Object.hasOwn(c,'before')?changeValue(c.before)+' → ':'')+changeValue(c.after);return text+(money&&context.currency?' '+context.currency:'')}
 function actionContext(x,automatic){
  if(x.type!=='action')return '';
- const source=x.source_type||x.detail?.source_type,method=automatic?W('automaticPurchase'):({erp:W('viaErp'),chat:W('viaChat'),mail:W('viaMail'),file:W('viaFile'),import:W('viaImport')})[source]||W('methodUnknown');
  const hasMeasure=x.references.some(r=>Number.isFinite(r.quantity)||Number.isFinite(r.amount)||changesFor(r).some(c=>typeof c.after==='number'||typeof c.before==='number'));
- return `<dl class="cocoFollowupContext"><div><dt>${E(W('how'))}</dt><dd>${E(method)}</dd></div></dl>${!hasMeasure&&!automatic?`<small class="cocoFollowupUnmeasured">${E(W('unmeasured'))}</small>`:''}`;
+ return !hasMeasure&&!automatic?`<small class="cocoFollowupUnmeasured">${E(W('unmeasured'))}</small>`:'';
 }
 function referenceList(refs){
  if(!refs.length)return '';const rows=refs.map(r=>{

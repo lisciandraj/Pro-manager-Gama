@@ -19,7 +19,7 @@ for(const width of [390,1440])test(`stock action context is clear, non-additive 
  const panel=page.locator('.cocoFollowup');if(width<900)await panel.locator(':scope>summary').click();
  await expect(panel.locator('.cocoFollowupWho')).toContainText('Jimmy Lisciandra');await expect(panel.locator('time')).toContainText('13:42:15');
  await expect(panel.locator('.cocoFollowupEventTitle')).toHaveText('Stock par emplacement · Modification');
- await expect(panel.locator('.cocoFollowupContext')).toContainText('CommentDepuis l’ERP');
+ await expect(panel.locator('.cocoFollowupContext')).toHaveCount(0);
  await expect(panel.locator('.cocoFollowupReferences')).toContainText('5 → 8');await expect(panel.locator('.cocoFollowupReferences')).toContainText('6 → 3');
  await expect(panel.locator('.cocoFollowupReferences li')).toHaveCount(2);await expect(panel).not.toContainText('Quantité: 11');await expect(panel).not.toContainText(record);
  await panel.locator('.cocoFollowupChanges summary').click();await expect(panel.locator('.cocoFollowupChanges')).toContainText('Réservé0 → 2');
@@ -35,7 +35,7 @@ test('old module UUID links collapse to one honest module destination; document 
   {id:'doc',module_id:'documents',record_table:'business_documents',at:'2026-10-20T18:43:00Z',type:'action',action:'insert',subject:'Documento',actor_name:'Agent Coco',source_type:'chat',links:[{module:'documents',action:'module',id:'doc-1',reference:'DOC-001'}]}];
  });await page.locator('[data-refresh]').click();
  await expect(page.locator('.cocoFollowupLinks')).toHaveCount(2);await expect(page.locator('[data-followup-link]')).toHaveCount(2);
- await expect(page.locator('.cocoFollowupTimeline')).toContainText('Origine non enregistrée');await expect(page.locator('.cocoFollowupTimeline')).toContainText('Quantité et montant non enregistrés');
+ await expect(page.locator('.cocoFollowupTimeline')).not.toContainText('Origine non enregistrée');await expect(page.locator('.cocoFollowupTimeline')).toContainText('Quantité et montant non enregistrés');
  await expect(page.getByRole('button',{name:'Ouvrir le module · Stock / entrepôts'})).toBeVisible();
  await page.evaluate(()=>{window.__docOpened=[];window.ArcRouter.open=async m=>window.__docOpened.push(m);window.GamaDocuments={openRecord:async id=>window.__docOpened.push(id)}});
  await page.getByRole('button',{name:'Ouvrir le document · DOC-001'}).click();expect(await page.evaluate(()=>window.__docOpened)).toEqual(['documents','doc-1']);
@@ -44,10 +44,10 @@ test('same-time dossier actions from different sources or executors stay separat
  await boot(page);await page.evaluate(()=>{
   window.__history=[];const event={type:'action',subject:'reserve',actor_id:'alice',actor_name:'Alice',created_at:'2026-10-20T18:42:00.123456Z',kind:'sales',order_id:'order-a',source_type:'erp'};
   window.__entries=[{...event,id:'a'},{...event,id:'b'},{...event,id:'c',source_type:'import'},{...event,id:'d',source_type:'chat',actor_name:'Agent Coco'},{...event,id:'e',source_type:'chat',actor_name:'Agent Coco',source_id:'other-request'}];
- });await page.locator('[data-refresh]').click();await expect(page.locator('.cocoFollowupEvent')).toHaveCount(4);await expect(page.locator('[data-action-count="2"]')).toHaveCount(1);
+ });await page.locator('[data-refresh]').click();await expect(page.locator('.cocoFollowupEvent')).toHaveCount(4);await expect(page.locator('[data-action-count="2"]')).toHaveCount(1);await expect(page.locator('.cocoFollowupContext')).toHaveCount(0);
 });
 for(const language of ['es','en'])test(`context and detail labels support ${language}`,async({page})=>{
- await contextHistory(page,language);await expect(page.locator('.cocoFollowupContext')).toContainText(language==='es'?'Desde el ERP':'Through the ERP');
+ await contextHistory(page,language);await expect(page.locator('.cocoFollowupContext')).toHaveCount(0);
  await page.locator('.cocoFollowupChanges summary').click();await expect(page.locator('.cocoFollowupChanges')).toContainText(language==='es'?'Reservado':'Reserved');
 });
 

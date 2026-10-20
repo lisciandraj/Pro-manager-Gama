@@ -31,3 +31,7 @@ test('queue fits mobile, supports tab keyboard navigation, and drops responses a
  expect(await page.evaluate(()=>document.querySelector('#agentQueue').scrollWidth<=document.querySelector('#agentQueue').clientWidth+1)).toBe(true);
  await page.locator('#agentQueueCancel').click();await page.evaluate(()=>__queueDelay=true);await page.locator('#agentQueueReview').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await page.evaluate(()=>__resolveQueue());await expect(page.locator('#agentQueueConfirm')).toHaveCount(0);
 });
+
+test('bank proposals opened from module history use the bank review queue',async({page})=>{
+ await boot(page);await page.locator('#agentChatTab').click();await page.addScriptTag({url:'/coco-module-review.js'});await page.evaluate(()=>CocoModuleReview.open({action:'bank_settlement',payload:{bank_id:'bank',invoice_id:'invoice'}},{module_id:'accounting'},()=>{}));await expect(page.locator('#agentQueue')).toBeVisible();await expect(page.locator('[data-queue-id]')).toHaveCount(2);await expect(page.locator('.cocoModuleProposal')).toHaveCount(0);expect(await page.evaluate(()=>__queueCalls.some(x=>x.p_action==='approve_batch'))).toBe(false);
+});

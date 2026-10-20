@@ -1,5 +1,6 @@
 {
   "scripts": [
+    {"source":"src/features/finance/business-modules.js","output":"coco-business-modules.js"},
     {"source":"src/features/processes/order-followup.js","output":"coco-order-followup.js"},
     {"source":"src/features/processes/module-history.js","output":"coco-module-history.js"},
     {"source":"src/features/processes/module-review.js","output":"coco-module-review.js"},
@@ -155,6 +156,7 @@
     {"source":"src/features/intelligence/agent-coco-stock.js","output":"coco-agent-stock.js"}
   ],
   "styles": [
+    {"source":"src/styles/modules/business-modules.css","output":"coco-style-business-modules.css"},
     {"source":"src/styles/order-followup.css","output":"coco-order-followup.css"},
     {"source":"src/styles/contact-hub.css","output":"coco-contact-hub.css"},
     {"source":"src/styles/home.css","output":"architect-home.css"},

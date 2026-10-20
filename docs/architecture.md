@@ -168,3 +168,7 @@ Agent Coco conserve les moteurs de mouvement et leur idempotence. Un exécuteur 
 Les preuves TMS sont chiffrées dans IndexedDB avec AES-GCM et une clé propre au compte conservée côté serveur. Le déverrouillage de l’onglet est conservé au plus 48 heures dans sessionStorage pour permettre les rechargements hors ligne. Il est supprimé à la déconnexion et au changement de compte. Ce choix protège les données après déconnexion ; il ne protège pas un onglet laissé ouvert et déverrouillé ni un navigateur compromis. Les preuves en attente restent récupérables après reconnexion du propriétaire. Les anciennes données en clair sont migrées lors de leur prochaine lecture autorisée ; prévoir la connexion de chaque compte ayant une ancienne file locale avant de déclarer un appareil partagé assaini.
 
 Le HTML publié est marqué par le SHA de construction, sans rendre les fichiers générés versionnés dépendants du commit. La télémétrie ne conserve pas de contenu métier ni d’URL ; elle distingue version, navigateur, PWA, première ouverture/retour et largeur d’écran. Cette dernière reste une approximation du type d’appareil. Web Vitals 6.2.3 fournit les mesures de visite ; les interactions locales restent un diagnostic distinct de l’INP. La rétention existante demeure 14 jours.
+
+## Contrats, dépenses et consultations
+
+Les parcours et RPC des extensions commerciales sont décrits dans [les modules métier](modules/business-modules.md). Ils réutilisent les passerelles de ventes, achats et comptabilité ; les nouvelles routes chargent leur code et leurs styles à la demande.

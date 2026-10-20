@@ -1,5 +1,7 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "contracts":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
+ "expenses":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
  "sales-dossier":{"global":"CocoSalesDossier","file":"coco-sales-dossier.js","methods":["rpc","open","quoteCredit","mountOrder","activities","deposit","statuses","blocksHTML","error"]},
  "sales-editor":{"global":"CocoSalesEditor","file":"coco-sales-editor.js","dependencies":["coco-sales-workspace.js"],"methods":["quote","order"]},
  "sales-workspace":{"global":"CocoSalesWorkspace","file":"coco-sales-workspace.js","methods":["follow","open","rpc","lookup","attachSearch","invoice","settings","billing","quoteTools","templates","orderTools","duplicate","error"]},

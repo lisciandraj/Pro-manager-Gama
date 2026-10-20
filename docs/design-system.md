@@ -154,6 +154,16 @@ Le token `--arc-motion` est nul avec `prefers-reduced-motion: reduce`. Les anima
 
 La couverture automatisée est dans `tests/layout-audit-regressions.spec.js`, complétée par les suites responsive, formulaires, sélecteurs et espace de travail. Ces essais utilisent des données isolées, sans modifier les données de production.
 
+### Listes opérationnelles — 20 octobre 2026
+
+Les commandes partagées des tableaux conservent une recherche pleine largeur sur
+petit écran, suivie des colonnes et du choix de vue. Le sélecteur de colonnes fermé
+occupe une commande de 44 px minimum ; ses options ouvertes restent dans le flux.
+Les listes Contrats et Notes de frais gardent leur recherche serveur et son bouton
+ensemble, avec la création au-dessus sur téléphone. Les erreurs vides ne réservent
+pas de ligne. Leur grille utilise une colonne `minmax(0,1fr)` pour contenir les
+tables larges sans agrandir la page. Le site public conserve sa charte distincte.
+
 Les modules Contrats et Dépenses et justificatifs ont chacun un dessin propre : `contract`, une feuille et un stylo orange avec une signature, et `expense`, un reçu dentelé avec une pièce orange. Ces deux icônes utilisent le même catalogue vectoriel 24 × 24 et sont partagées entre accueil, navigation et en-têtes.
 
 Le module `returns` porte le libellé court « Retour » (FR), « Devolución » (ES), « Return » (EN), tout en conservant ses onglets de retours et de réclamations.

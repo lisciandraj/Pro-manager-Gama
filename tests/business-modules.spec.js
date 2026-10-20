@@ -36,3 +36,22 @@ test('supplier consultation forms fit a small viewport and retain product quanti
  await page.setViewportSize({width:375,height:812});await boot(page);await page.evaluate(()=>CocoBusiness.consultations());await page.locator('dialog [data-business-new]').click();let form=page.locator('dialog[open]').last();await form.locator('[name=name]').fill('Paper consultation');await form.locator('[data-line-add]').click();const line=page.locator('dialog[open]').last();await line.locator('[name=product_id]').selectOption('product-1');await line.locator('[name=quantity]').fill('12');await line.locator('[type=submit]').click();
  form=page.locator('dialog[open]').last();const bounds=await form.boundingBox();expect(bounds.width).toBeLessThanOrEqual(375);expect(bounds.x).toBeGreaterThanOrEqual(0);await form.locator('[type=submit]').click();await expect(page.locator('dialog[open]').last()).toContainText('Paper consultation');expect((await page.evaluate(()=>__businessCalls.find(x=>x.a==='save').d)).lines[0].quantity).toBe(12);
 });
+
+test('business list search stays beside its action without empty layout rows',async({page},info)=>{
+ await boot(page);
+ for(const id of ['contracts','expenses']){
+  await page.evaluate(id=>ArcRouter.open(id),id);
+  const host=page.locator('#'+id+' .cocoBusiness');await host.locator('[data-business-new]').waitFor();
+  for(const width of [320,390,768,1440]){
+   await page.setViewportSize({width,height:900});
+   const search=host.locator('.arcToolbar [name=search]');await expect(search).toBeVisible();
+   const input=await search.boundingBox(),button=await host.locator('[data-business-search]').boundingBox();
+   expect(Math.abs(input.y+input.height-button.y-button.height)).toBeLessThanOrEqual(2);
+   await expect(host.locator('[data-business-error]')).toBeHidden();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(2);
+   if(width===390||width===1440)await page.screenshot({path:info.outputPath(id+'-'+width+'.png')});
+  }
+  await host.locator('[name=search]').fill('Paper');await host.locator('[data-business-search]').click();
+  await expect(host.locator('[name=search]')).toHaveValue('Paper');
+ }
+});

@@ -74,7 +74,6 @@
  body.cocoWorkbench .arcContent section:not(#mainmenu) .cocoWorkspaceHeader.cocoHeaderEmpty{display:none!important}
  body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcToolbar,.gsTools,.gpTools,.gaTools,.gfTools,.grTools,.gqTools,.ivTools,.pmToolbar,.svToolbar){gap:8px}
  body.cocoWorkbench .arcContent .gamaTableToolbar{gap:8px;margin:8px 0;align-items:center;padding:0;border:0;background:transparent}
- body.cocoWorkbench .arcContent .gamaTableControls{gap:6px;align-items:center}
  body.cocoWorkbench .arcContent .gamaTableViews{border-radius:5px;box-shadow:none}
  body.cocoWorkbench .arcContent .gamaTableViews>button{border-radius:4px;font-size:12px;min-height:44px}
  body.cocoWorkbench .arcContent .gamaTableSearch input{min-height:40px;border-radius:6px;background:white}
@@ -251,4 +250,20 @@
  /* Compact web target keeps the module icon clear in the four-column grid. */
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{top:2px;right:2px;width:28px;height:28px;min-height:28px;padding:3px}
  #mainmenu .arcCustomizeButton{min-height:44px}
+}
+
+/* Shared list tools: search first, then column options and view choice.
+   Closed options should take one control row, not a nested panel. */
+@media screen{
+ body.cocoWorkbench .arcContent .gamaTableControls{flex:1 1 160px;align-items:center;gap:6px}
+ body.cocoWorkbench .arcContent .gamaColumnPicker{padding:0;border:0;background:transparent}
+ body.cocoWorkbench .arcContent .gamaColumnHeading{width:auto;margin:0;padding:8px;min-height:44px}
+ body.cocoWorkbench .arcContent .gamaColumnOptions:not([hidden]){padding:8px;border:1px solid var(--arc-line);border-radius:var(--arc-r-sm);background:var(--arc-surface)}
+ body.cocoWorkbench .arcContent .gamaTableSearchStandalone{flex:0 1 auto;padding:0;margin:0}
+ body.cocoWorkbench .arcContent .gamaColumnStatus:empty{display:none}
+}
+@media screen and (max-width:600px){
+ body.cocoWorkbench .arcContent .gamaTableToolbar{align-items:start}
+ body.cocoWorkbench .arcContent .gamaTableToolbar>.gamaTableViews{align-self:flex-start;flex-wrap:wrap;max-width:100%}
+ body.cocoWorkbench .arcContent .gamaTableViews>button{padding:8px;gap:4px}
 }

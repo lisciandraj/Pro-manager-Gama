@@ -449,3 +449,10 @@ test('accounting priority tiles respect commercial scope and distinguish missing
  await page.evaluate(()=>__ACC.overview.customers.overdue_count=0);await open(page);
  await expect(page.locator('[data-ga-priority=receivables]')).toBeEnabled();await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('0');
 });
+
+test('sending a bank invoice to Agent Coco prepares a draft without settling it',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__ACC.bankSuggestions={bank:__ACC.responses.bank_list.rows[0],matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-1',amount:1250,balance:1250,date:'2026-10-20'}]};const original=ArcData.rpc;window.ArcData={...ArcData,rpc:async(n,a)=>{if(n==='coco_action_queue'){__ACC.calls.push({...a,rpc_name:n});return {id:'draft',status:'pending'}}return original(n,a)}}});
+ await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('[data-ga-match]').click();await page.locator('input[name=gaMatch][value^="invoice|"]').check();await page.locator('#gaMatchPropose').click();await expect(page.locator('.gsDialog')).not.toBeVisible();
+ expect(await page.evaluate(()=>__ACC.calls.find(x=>x.rpc_name==='coco_action_queue'))).toMatchObject({p_action:'prepare_bank',p_data:{bank_id:'bt1',invoice_id:'inv1'}});
+ expect(await page.evaluate(()=>__ACC.calls.some(x=>x.p_action==='settle'))).toBe(false);
+});

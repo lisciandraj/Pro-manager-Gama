@@ -717,6 +717,10 @@ async function matchForm(id){
   if(type==='invoice')await bankMutate('settle',{request_key:key,bank_id:id,invoice_id:target});else if(type==='cash')await bankMutate('match_source',{request_key:key,bank_id:id,kind,source_id:target});else await mutate('reconcile',{id,match_type:'ignore',match_id:null});await go();if(advance&&ownerEpoch===opening&&section==='cash'&&allowed())nextId=state.rows?.find(row=>row.status==='unmatched'&&row.id!==id)?.id||null;
  });
  el.dataset.bankWorkflow='';
+ if(JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role==='admin'&&(!window.gamaAccessAllowed||window.gamaAccessAllowed('assistant-ia'))){
+ const proposalButton=document.createElement('button');proposalButton.type='button';proposalButton.className='arcButton secondary';proposalButton.id='gaMatchPropose';proposalButton.textContent=T('Enviar a Agent Coco');el.querySelector('.arcDialogActions').append(proposalButton);
+ proposalButton.onclick=()=>act(proposalButton,async()=>{const picked=el.querySelector('input[name=gaMatch]:checked');if(!picked||picked.value.split('|')[0]!=='invoice')throw Error(T('Selecciona una factura para proponer el cobro.'));const invoice=picked.value.split('|')[2];await window.ArcData.rpc('coco_action_queue',{p_action:'prepare_bank',p_data:{bank_id:id,invoice_id:invoice}});if(ownerEpoch!==opening||!allowed())return;window.gamaToast?.(T('Propuesta enviada a Agent Coco · Por validar'));el.close();});
+ }
  const nextButton=document.createElement('button');nextButton.type='button';nextButton.className='arcButton secondary';nextButton.textContent=T('Conciliar y siguiente');nextButton.id='gaMatchNext';el.querySelector('.arcDialogActions').append(nextButton);
  nextButton.onclick=()=>{advance=true;el.querySelector('form').requestSubmit()};el.querySelector('#gsSave').addEventListener('click',()=>{advance=false});
  el.addEventListener('close',()=>{if(nextId&&ownerEpoch===opening&&section==='cash'&&allowed())queueMicrotask(()=>{if(ownerEpoch===opening&&section==='cash'&&allowed())matchForm(nextId)})},{once:true});

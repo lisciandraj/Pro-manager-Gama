@@ -60,7 +60,7 @@ jobs:
       - name: Verify dispatcher and offline driver workflows
         run: npx playwright test tests/tms-dispatch.spec.js tests/tms-module.spec.js tests/tms-loading.spec.js --workers=2
       - name: Verify module and dossier history, process references and links on desktop and phone
-        run: npx playwright test tests/order-followup.spec.js tests/order-followup-grouping.spec.js tests/module-history.spec.js tests/purchase-order-email.spec.js tests/dossier-flow.spec.js tests/dossier-references.spec.js --workers=2
+        run: npx playwright test tests/order-followup.spec.js tests/order-followup-grouping.spec.js tests/module-history.spec.js tests/history-context.spec.js tests/purchase-order-email.spec.js tests/dossier-flow.spec.js tests/dossier-references.spec.js --workers=2
       - name: Verify sign-in errors, profile deadlines and access recovery
         run: npx playwright test tests/login-recovery.spec.js tests/auth-single-source.spec.js tests/loading-performance.spec.js tests/cloud-customer-accounts.spec.js --workers=2
       - name: Verify deployed server without business credentials

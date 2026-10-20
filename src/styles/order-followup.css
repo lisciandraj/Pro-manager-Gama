@@ -29,6 +29,17 @@
 .cocoFollowupReferences{margin:9px 0;padding-top:8px;border-top:1px solid var(--arc-line);font-size:11px}.cocoFollowupReferences>b{font-size:11px}.cocoFollowupReferences ul{list-style:none;padding:0;margin:4px 0}
 .cocoFollowupReferences li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--arc-line)}.cocoFollowupReferences li>span:first-child{min-width:0;flex:1}.cocoFollowupQuantity{flex:0 0 auto;max-width:45%;text-align:right}.cocoFollowupReferences summary{cursor:pointer;padding:7px 0;color:var(--arc-accent-600)}
 .cocoFollowupLinks{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--arc-line);padding-top:8px;margin-top:8px}.cocoFollowupLinks>.arcButton{max-width:100%;text-align:left;overflow-wrap:anywhere}
+.cocoFollowupContext{margin:7px 0;font-size:11px}
+.cocoFollowupContext>div,.cocoFollowupChanges dl>div{display:flex;flex-wrap:wrap;gap:2px 8px}
+.cocoFollowupContext dt,.cocoFollowupChanges dt{font-weight:600}
+.cocoFollowupContext dd,.cocoFollowupChanges dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.cocoFollowupReferences li{flex-wrap:wrap;align-items:baseline}
+.cocoFollowupReferenceName{flex:1 1 100px}
+.cocoFollowupQuantity{font-variant-numeric:tabular-nums}
+.cocoFollowupChanges{flex:1 0 100%;min-width:0}
+.cocoFollowupChanges dl{margin:0;font-size:11px}
+.cocoFollowupChanges dl>div{padding:3px 0;justify-content:space-between}
+.cocoFollowup .cocoFollowupUnmeasured{font-style:italic}
 .cocoFollowupEmpty{padding:24px 0;color:var(--arc-text-muted)}.cocoFollowupMore{margin-top:12px;width:100%}
 .cocoFollowupForm{background:var(--arc-surface-2);border:1px solid var(--arc-line);border-radius:8px;padding:12px;margin:12px 0}
 .cocoFollowup label,.cocoProposalDialog label{display:block;font-size:11px;font-weight:600;margin-bottom:9px}

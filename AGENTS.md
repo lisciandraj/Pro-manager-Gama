@@ -9,6 +9,10 @@ Read README.md and docs/architecture.md before structural changes.
 - Update current documentation when routes, permissions, loading or UI behavior changes.
 - Historical documents belong in docs/history/ and are not current specifications.
 
+## Delivery preference
+
+- The owner asks to always push maintenance commits after the relevant tests pass (20 October 2026). Push the tested task branch to `lisciandraj/Pro-manager-Gama` without asking again for that routine step; retain the existing CI gates before production publication.
+
 ## AI database writes
 
 - Every AI business mutation must be attributed to Agent Coco in module history. Prefer the existing authenticated agent gateway, which sets provenance during execution and retains approval checks.

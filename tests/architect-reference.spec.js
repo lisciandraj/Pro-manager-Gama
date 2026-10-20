@@ -15,12 +15,12 @@ test('approved logo, responsive grid, translated labels and truthful metrics',as
  // Los cuatro indicadores personales ya no están en el inicio: abren el panel de control (abajo).
  await expect(page.locator('#mainmenu .gamaF2Card').first()).toBeVisible();
  await expect(page.locator('#mainmenu .gamaF2Kpi, #mainmenu #arcKpiCustomize')).toHaveCount(0);
- const layout=await page.evaluate(()=>({columns:getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo img').naturalWidth/document.querySelector('.arcLogo img').naturalHeight*10)/10}));
- // The compact home fits all 24 modules into four rows on desktop.
- expect(layout).toEqual({columns:6,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.8});
+ const layout=await page.evaluate(()=>({columns:[...document.querySelectorAll('#mainmenu .gamaF2Card')].filter(e=>Math.abs(e.getBoundingClientRect().top-document.querySelector('#mainmenu .gamaF2Card').getBoundingClientRect().top)<1).length,nav:getComputedStyle(document.querySelector('.arcSidebar')).backgroundColor,fit:getComputedStyle(document.querySelector('.arcLogo')).objectFit,ratio:Math.round(document.querySelector('.arcLogo img').naturalWidth/document.querySelector('.arcLogo img').naturalHeight*10)/10}));
+ // The compact home fits all 24 modules into three rows on desktop.
+ expect(layout).toEqual({columns:10,nav:'rgb(255, 255, 255)',fit:'contain',ratio:2.8});
  await page.setViewportSize({width:1279,height:1000});await page.waitForTimeout(250);
- const estrecho=await page.evaluate(()=>getComputedStyle(document.querySelector('.gamaF2Grid')).gridTemplateColumns.split(' ').length);
- expect(estrecho,'the compact desktop grid keeps labels readable at 1279px').toBe(6);
+ const estrecho=await page.evaluate(()=>[...document.querySelectorAll('#mainmenu .gamaF2Card')].filter(e=>Math.abs(e.getBoundingClientRect().top-document.querySelector('#mainmenu .gamaF2Card').getBoundingClientRect().top)<1).length);
+ expect(estrecho,'the compact desktop grid keeps labels readable at 1279px').toBe(10);
  await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(250);
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();

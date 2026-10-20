@@ -223,5 +223,13 @@
  body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam],body.cocoWorkbench #mainmenu .gamaF2Icon svg{width:32px;height:32px}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-size:13px}
 }
+/* Desktop launcher: ten equal columns, including short laptop screens. */
+@media screen and (min-width:1180px){
+ body.cocoWorkbench #mainmenu .gamaF2Grid{--coco-home-columns:10;--coco-home-gap:8px}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{--coco-tile-padding:8px 4px}
+ body.cocoWorkbench #mainmenu .gamaF2Card .cocoModuleOpen{gap:4px}
+ body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam],body.cocoWorkbench #mainmenu .gamaF2Icon svg{width:28px;height:28px}
+ body.cocoWorkbench #mainmenu .gamaF2Title{font-size:12px;line-height:1.2}
+}
 @media(prefers-reduced-motion:reduce){body.cocoWorkbench .arcSidebar{transition:none}}
 @media print{.cocoModuleHeading,.arcDrawerClose{display:none!important}.cocoModuleNav{position:static!important}}

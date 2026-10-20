@@ -61,7 +61,7 @@ for(const width of [390,1440])test(`Agent Coco central history identifies source
   {id:'central-product',module_id:'products',at:'2026-10-20T15:00:00Z',type:'action',action:'update',subject:'Producto',actor_name:'Agent Coco',source_type:'chat',source_label:'Agent Coco · Claude',references:[{reference:'PAP-01'}],links:[{module:'products',action:'module'}],total:2},
   {id:'central-order',module_id:'sales-orders',at:'2026-10-20T14:00:00Z',type:'note',action:'note',subject:'Suivi',body:'Suivi du dossier par Agent Coco.',actor_name:'Agent Coco',references:[{reference:'PV-000001'}],links:[{module:'sales-orders',action:'order',id:'10000000-0000-4000-8000-000000000001',reference:'PV-000001'}],total:2}
  ];window.__centralOpened=null;window.GamaSales.openOrder=async id=>{window.__centralOpened=id}});
- const panel=page.locator('.cocoGlobalHistory .cocoFollowup');if(width<900)await panel.locator(':scope>summary').click();await panel.locator('[data-refresh]').click();
+ const panel=page.locator('.cocoGlobalHistory .cocoFollowup');await expect(panel).toHaveAttribute('open','');await panel.locator('[data-refresh]').click();
  await expect(panel.locator('.cocoFollowupTitle')).toHaveText('Historique central d’Agent Coco');
  await expect(panel.locator('.cocoFollowupOrigin')).toHaveText(['Produits','Ventes']);await expect(panel.locator('.is-agent')).toHaveCount(2);
  await panel.locator('[data-refresh]').click();await expect(panel.locator('.cocoFollowupEvent')).toHaveCount(2);
@@ -69,5 +69,11 @@ for(const width of [390,1440])test(`Agent Coco central history identifies source
  await panel.locator('[data-filter=notes]').click();await expect(panel).toContainText('Suivi du dossier par Agent Coco.');
  await panel.getByRole('button',{name:/PV-000001/}).click();expect(await page.evaluate(()=>window.__centralOpened)).toBe('10000000-0000-4000-8000-000000000001');
  await panel.locator('[data-filter=all]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+ const bounds=await page.evaluate(()=>{const history=document.querySelector('.cocoAgentHistory'),section=document.getElementById('assistant-ia'),form=document.getElementById('aiForm');return {history:history.getBoundingClientRect().toJSON(),section:section.getBoundingClientRect().toJSON(),form:form.getBoundingClientRect().toJSON(),position:getComputedStyle(history.querySelector('.cocoFollowup')).position,timeline:getComputedStyle(history.querySelector('.cocoFollowupTimeline')).maxHeight}});
+ expect(bounds.history.y).toBeGreaterThanOrEqual(bounds.form.bottom);expect(Math.abs(bounds.history.width-bounds.section.width)).toBeLessThan(2);expect(bounds.position).toBe('static');expect(bounds.timeline).toBe('none');
+ await page.locator('#agentReportsTab').click();await expect(panel).toBeVisible();await page.locator('#agentChatTab').click();await expect(panel).toBeVisible();
+ await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  await page.screenshot({path:`test-results/central-agent-${width}.png`,fullPage:true});
+ await page.evaluate(()=>window.GamaAssistant.open());await expect(page.locator('.cocoAgentHistory')).toHaveCount(1);await expect(page.locator('.cocoAgentHistory .cocoFollowup')).toHaveAttribute('open','');
+ await page.evaluate(()=>window.ArcRouter.open('products'));await expect(page.locator('.cocoAgentHistory')).toHaveCount(0);await expect(page.locator('.arcContent')).toHaveClass(/cocoHasModuleHistory/);
 });

@@ -10,9 +10,10 @@ async function open(id,root){
   await window.ArcLoadScript('coco-order-followup.js');
   if(token!==session||!window.gamaAccessAllowed?.(id)||root&&!root.isConnected)return;
   const target=root||document.querySelector('.arcContent');if(!target)return;
-  host=document.createElement('aside');host.className=root?'cocoSettingsHistory':'cocoGlobalHistory';host.dataset.historyModule=id;target.append(host);
-  if(!root)target.classList.add('cocoHasModuleHistory');
-  const mounted=await window.CocoFollowup.mount(host,{kind:'module',module_id:id});
+  const inline=!root&&id==='assistant-ia';
+  host=document.createElement(inline?'div':'aside');host.className=root?'cocoSettingsHistory':inline?'cocoGlobalHistory cocoAgentHistory':'cocoGlobalHistory';host.dataset.historyModule=id;target.append(host);
+  if(!root&&!inline)target.classList.add('cocoHasModuleHistory');
+  const mounted=await window.CocoFollowup.mount(host,{kind:'module',module_id:id},{inline});
   if(token!==session){mounted?.dispose();return}follow=mounted;
  }catch(e){if(token===session&&host){const b=document.createElement('button');b.type='button';b.className='arcButton secondary';b.textContent=window.GamaI18n?.t?.('Reintentar')||'Reintentar';b.onclick=()=>open(id,root);host.replaceChildren(b)}}
 }

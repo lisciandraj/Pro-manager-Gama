@@ -80,11 +80,11 @@ async function openRelated(link){
   default:return window.ArcRouter.open(link.module);
  }
 }
-async function mount(host,base){
+async function mount(host,base,{inline=false}={}){
  if(!host?.isConnected)return;ensureStyle();for(const old of active)if(old.host===host)old.dispose();host.querySelector('.cocoFollowup')?.remove();
- const title=W(base.module_id==='assistant-ia'?'agentTitle':base.order_id?'title':'moduleTitle'),panel=document.createElement('details');panel.className='cocoFollowup';panel.open=window.innerWidth>900;
+ const title=W(base.module_id==='assistant-ia'?'agentTitle':base.order_id?'title':'moduleTitle'),panel=document.createElement('details');panel.className='cocoFollowup';panel.open=inline||window.innerWidth>900;
  panel.innerHTML=`<summary><span class="cocoFollowupTitle">${E(title)}</span><span class="cocoFollowupBadge"></span></summary><div class="cocoFollowupBody"><div class="cocoFollowupTop"></div><div class="cocoFollowupStages"></div><div class="cocoFollowupComposer"></div><div class="cocoFollowupFilters" role="group" aria-label="${E(title)}">${['all','actions','notes','proposals'].map((k,i)=>`<button type="button" data-filter="${k}" aria-pressed="${i===0}">${E(W(k))}</button>`).join('')}</div><div class="cocoFollowupNotice" role="status"></div><ol class="cocoFollowupTimeline"></ol><button type="button" class="arcButton secondary cocoFollowupMore" hidden>${E(W('more'))}</button></div>`;
- host.prepend(panel);const compact=window.matchMedia('(max-width: 900px)'),summary=panel.querySelector(':scope>summary'),viewport=window.visualViewport;
+ host.prepend(panel);const compact=window.matchMedia(inline?'not all':'(max-width: 900px)'),summary=panel.querySelector(':scope>summary'),viewport=window.visualViewport;
  const s={panel,base,host,epoch,context:null,items:new Map(),proposals:new Map(),portraits:{},offset:0,filter:'all',stage:0,loading:false,disposed:false,composer:null,serial:0};active.add(s);
  const fitViewport=()=>{if(!compact.matches)return;for(const element of [panel,s.dialog])if(element){element.style.setProperty('--coco-followup-vh',`${viewport?.height||window.innerHeight}px`);element.style.setProperty('--coco-followup-offset',`${viewport?.offsetTop||0}px`)}};
  const mobileOpen=open=>{panel.classList.toggle('is-mobile-open',open);panel.open=open;summary.setAttribute('aria-label',open?W('close'):title);if(open)fitViewport()};

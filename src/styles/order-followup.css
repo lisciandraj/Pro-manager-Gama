@@ -104,3 +104,19 @@
  body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaColumnPicker:has(.gamaColumnHeading[aria-expanded=false]){width:auto}
  body.cocoWorkbench .cocoDossierMain .cocoQuoteTableTools .gamaSortScope{flex-basis:auto}
 }
+
+/* Agent Coco's central history is part of the page, below its message area. */
+.cocoAgentHistory{position:static;min-width:0;width:100%;margin-top:24px}
+.cocoAgentHistory .cocoFollowup{position:static;width:100%;height:auto;max-height:none;box-shadow:none}
+.cocoAgentHistory .cocoFollowup>summary{height:auto;min-height:56px}
+.cocoAgentHistory .cocoFollowupBody{position:static;max-height:none;overflow:visible;padding:16px}
+.cocoAgentHistory .cocoFollowup[open]>.cocoFollowupBody{display:block}
+.cocoAgentHistory .cocoFollowupTimeline,.cocoAgentHistory .cocoFollowupText{max-height:none;overflow:visible}
+.cocoAgentHistory .cocoFollowupEvent{padding-right:0}
+@media(min-width:901px){
+ .cocoAgentHistory .cocoFollowupBody{padding:20px}
+ .cocoAgentHistory .cocoFollowupTop{display:flex;align-items:center;justify-content:space-between;gap:16px}
+ .cocoAgentHistory .cocoFollowupParty{margin:0}
+ .cocoAgentHistory .cocoFollowupBubble{padding:16px}
+ .cocoAgentHistory .cocoFollowupEventTitle,.cocoAgentHistory .cocoFollowupText{font-size:14px}
+}

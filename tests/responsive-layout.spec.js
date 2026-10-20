@@ -123,6 +123,11 @@ test('module controls fit on phone, landscape, tablet and desktop',async({page})
    await page.setViewportSize({width,height:width===844?390:900});
    const issues=await page.locator('section.active').evaluate(layoutProblems);
    if(issues.length)failures.push({module:id,width,issues});
+   for(const picker of await page.locator('section.active .gamaColumnPicker').all()){
+    if(!await picker.isVisible())continue;
+    const style=await picker.evaluate(e=>{const s=getComputedStyle(e);return {border:s.borderTopWidth,padding:s.paddingTop}});
+    expect(style,{module:id,width}).toEqual({border:'0px',padding:'0px'});
+   }
   }
  }
  expect(failures).toEqual([]);

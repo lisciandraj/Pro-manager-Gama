@@ -107,7 +107,7 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 function shell(){
  css();if(embedded?.isConnected){window.ArcUI.render(embedded,'<div id="grMain" aria-live="polite"></div>');return embedded}let s=$(ID);
  if(!s){s=document.createElement('section');s.id=ID;(document.querySelector('.wrap')||document.body).appendChild(s)}
- window.ArcUI.render(s,GamaUI.header({title:'Devoluciones y posventa',lead:'Devoluciones, reclamaciones, abonos y reembolsos'})
+ window.ArcUI.render(s,GamaUI.header({title:'Devolución',lead:'Devoluciones, reclamaciones, abonos y reembolsos'})
   +'<nav class="grNav" id="grNav"></nav><div id="grMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(ID);
  return s;

@@ -54,7 +54,9 @@
     {
       "version": "20261020185242",
       "file": "20261020185242_audit_daily_workflows.sql",
-      "sha256": "b1f4dfc458dbcd9b64b44efb285554abb7d1ad4ca111c117e4a10831fa80a0ed"
+      "sha256": "b1f4dfc458dbcd9b64b44efb285554abb7d1ad4ca111c117e4a10831fa80a0ed",
+      "applied_version": "20261020190946",
+      "applied_hash": "27e79f6f4b69f21bc13d23c607a8780f"
     }
   ],
   "applied_via": "Supabase apply_migration; source filenames aligned to the actual server ledger, without registry repair"

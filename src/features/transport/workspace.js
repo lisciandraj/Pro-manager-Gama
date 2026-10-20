@@ -382,7 +382,7 @@ async function emailProofCertificate(id){
    blob:doc.output('blob'),
    email,
    subject:'Comprobante de entrega — '+legible,
-   body:'Estimado/a '+(d.customer||'cliente')+',\n\nAdjuntamos el comprobante de la entrega realizada el '+legible+' en '+(d.address||'')+'.'+(conductor?'\nTransportista: '+conductor+'.':'')+'\n\nQuedamos a su disposición para cualquier consulta.\n\nGAMA Enterprise Resource Planning',
+   body:'Estimado/a '+(d.customer||'cliente')+',\n\nAdjuntamos el comprobante de la entrega realizada el '+legible+' en '+(d.address||'')+'.'+(conductor?'\nTransportista: '+conductor+'.':'')+'\n\nQuedamos a su disposición para cualquier consulta.\n\nGAMA Entreprise Resource Planning',
    filename:window.GamaPdf.fileName(proofReference(d)==='—'?'entrega':proofReference(d),dia)
   });
  }catch(e){console.error('[GAMA PDF comprobante correo]',e);notify('No se pudo preparar el envío: '+(e&&e.message||e))}
@@ -404,7 +404,7 @@ async function downloadProofReport(){
     firma:pr&&pr.signature||'',foto:pr&&pr.photo||'',gps:pr&&pr.latitude!=null?{lat:pr.latitude,lng:pr.longitude,accuracy:pr.gps_accuracy_m,at:pr.gps_recorded_at}:null,receivedAt:pr?.received_at||null};
   });
   await window.GamaCompany?.load(true);await window.GamaPdf.ready();
-  const doc=window.GamaPdf.proofReport(filas,'Pruebas de entrega — Coco ERP');
+  const doc=window.GamaPdf.proofReport(filas,'Pruebas de entrega — GAMA Entreprise Resource Planning');
   window.GamaPdf.save(doc,window.GamaPdf.fileName('pruebas-entrega',new Date().toISOString().slice(0,10)));
  }catch(e){console.error('[GAMA PDF pruebas]',e);notify('No se pudo generar el informe: '+(e&&e.message||e))}
  finally{if(btn){btn.disabled=false;btn.textContent=texto}}

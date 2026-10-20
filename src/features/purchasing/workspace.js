@@ -275,11 +275,11 @@
     const dateLabel=date(o.order_date),expectedLabel=o.expected_date?date(o.expected_date):'';
     const items=ls.map(l=>{const p=products.find(x=>x.id===l.product_id);return{name:p?.name||'Producto',reference:p?.reference||p?.barcode||'',qty:Number(l.quantity||0),cost:Number(l.unit_cost||0)}});
     const itemLines=items.map(x=>`- ${x.name} x${x.qty} — ${GamaCurrency.format(x.cost)} c/u — ${GamaCurrency.format(x.qty*x.cost)}`).join('\n');
-    const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: ${GamaCurrency.format(o.total)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Enterprise Resource Planning`;
+    const body=`Estimado/a ${supplier.name},\n\nLe solicitamos el siguiente pedido:\n\nN.º de pedido: ${o.order_number}\nFecha: ${dateLabel}${expectedLabel?`\nFecha prevista: ${expectedLabel}`:''}\n\n${itemLines}\n\nTOTAL estimado: ${GamaCurrency.format(o.total)}\n\n${o.notes?o.notes+'\n\n':''}Quedamos atentos a su confirmación.\n\nGAMA Entreprise Resource Planning`;
     const orderPdf={number:o.order_number,dateLabel,expectedLabel,supplier:supplier.name,supplierEmail:supplier.email||'',supplierPhone:supplier.phone||'',supplierAddress:window.ArcEntities.formatAddress(supplier),items,total:Number(o.total||0),notes:o.notes||''};
     await window.GamaCompany?.load(true);await window.GamaPdf.ready();
     const blob=window.GamaPurchaseOrderPdf.build(orderPdf);
-    await window.GamaQuotePdf.sendDocument({blob,email:supplier.email||'',subject:'Pedido '+o.order_number+' — Coco ERP',body,filename:'Pedido-'+o.order_number+'.pdf'});
+    await window.GamaQuotePdf.sendDocument({blob,email:supplier.email||'',subject:'Pedido '+o.order_number+' — GAMA Entreprise Resource Planning',body,filename:'Pedido-'+o.order_number+'.pdf'});
   }
   window.gamaDownloadPurchaseV14=downloadOrder;window.gamaSendPurchaseV14=sendOrder;
   async function cancelOrder(id){if(!canOrder())return alert('Tu perfil no puede cancelar pedidos.');if(!confirm('¿Cancelar este pedido a proveedor?'))return;const o=orders.find(x=>x.id===id);if(!o||o.status!=='sent')return;const r=await C().update('purchase_orders',id,{status:'cancelled',updated_at:new Date().toISOString()});if(r.error)return detailMsg('No se pudo cancelar el pedido: '+r.error.message);await load()} window.gamaCancelPurchaseV14=cancelOrder;

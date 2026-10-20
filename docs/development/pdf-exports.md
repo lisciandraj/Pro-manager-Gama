@@ -26,8 +26,12 @@ Conserver les contrôles d’accès du parcours et traiter les erreurs dans l’
 | Étiquettes groupées | `src/features/inventory/barcode-controls.js` |
 | Rapports Projets | `src/features/projects/projects.js` |
 
-Les noms des fichiers téléchargés restent compatibles ; les nouvelles étiquettes groupées utilisent `Coco-ERP-labels.pdf`. Les API globales et noms publics historiques sont conservés pour les clients existants.
+Les noms des fichiers téléchargés restent compatibles ; les nouvelles étiquettes groupées utilisent `GAMA-labels.pdf`. Les API globales et noms publics historiques sont conservés pour les clients existants.
 
 ## Vérification
 
 `tests/pdf-loader.test.cjs` couvre les appels simultanés, les erreurs réseau et les changements de session. `tests/lazy-pdf.spec.js` construit de vrais PDF avec le moteur local. `tests/company-settings.spec.js` vérifie le logo, ses proportions et les documents multipages. Les suites PDF, Projets et TMS vérifient les données et les téléchargements de leurs parcours.
+
+## Marque des communications externes
+
+Les mentions de marque du modèle PDF commun et des courriels commerciaux utilisent « GAMA Entreprise Resource Planning » (orthographe demandée). Cela couvre les devis, factures internes, commandes fournisseurs, preuves de livraison, étiquettes et pieds de page des rapports. Les anciennes mentions de marque dans les noms d’émetteur et les brouillons de courriel sont normalisées au rendu, sans modifier les enregistrements ni les instantanés acceptés. Les autres raisons sociales, le RUC, les coordonnées et les données des documents sont conservés. Les PDF déjà téléchargés ne sont pas réécrits. L’identité de l’application reste Coco ERP.

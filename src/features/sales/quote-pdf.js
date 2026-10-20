@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 function esc(v){return String(v??'')}
+const externalText=value=>window.GamaCompanyCore?.communicationText(value)??String(value??'');
 /* esc() no escapa: sólo alimenta a jsPDF. Todo lo que entra en innerHTML
    pasa por escHtml, porque un nombre de cliente puede contener < o ". */
 function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -9,13 +10,13 @@ const logoReady=Promise.resolve();
 function build(q){
  if(!window.jspdf?.jsPDF)throw new Error('No se pudo cargar el generador de PDF.');
  const doc=new window.jspdf.jsPDF();let y=0;
- const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:q.seller||base.legal_name,tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
+ const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:externalText(q.seller||base.legal_name),tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
  const colors=window.GamaPdfTemplate.theme(issuer),ink=colors.ink,teal=colors.teal;
  function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
  function tableHead(){room(15);doc.setFillColor(...colors.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...colors.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
- header();if(!issuer){paragraph(q.seller||'GAMA',12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9)}
+ header();if(!issuer){paragraph(externalText(q.seller||'GAMA'),12);paragraph('RUC: '+esc(q.sellerRuc||'—')+(q.sellerAddress?' · '+q.sellerAddress:''),9)}
  paragraph('PREPARADO PARA',9);paragraph(q.client||'');paragraph([q.clientId,q.clientAddress,q.clientEmail].filter(Boolean).join(' · '),9);
  if(q.delivery_address)paragraph('Entrega: '+q.delivery_address+(q.delivery_terms?' · '+q.delivery_terms:''),9);
  tableHead();
@@ -86,6 +87,7 @@ function dialogCss(){ /* Styles are compiled in architect-components.css. */ }
    Es una ventana de verdad (<dialog>): se abre por encima de cualquier otra,
    también de las Notificaciones, y Escape la cierra sólo a ella. */
 function composeDialog({email,subject,body,filename}){
+ subject=externalText(subject);body=externalText(body);
  dialogCss();
  document.getElementById('gamaMailBack')?.remove();
  const back=document.createElement('dialog');back.id='gamaMailBack';back.setAttribute('aria-labelledby','gamaMailTitle');
@@ -108,6 +110,7 @@ function composeDialog({email,subject,body,filename}){
  return back;
 }
 async function sendDocument({blob,email,subject,body,filename}){
+ subject=externalText(subject);body=externalText(body);
  if(blob&&api.isMobile()&&navigator.canShare&&navigator.canShare({files:[new File([blob],filename,{type:'application/pdf'})]})){
   try{await navigator.share({files:[new File([blob],filename,{type:'application/pdf'})],title:subject,text:body});return}
   catch(e){if(e&&e.name==='AbortError')return}

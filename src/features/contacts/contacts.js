@@ -120,6 +120,7 @@ function actions(r){
  const b=(label,attr,variant)=>U.button({label:T(label),variant,attrs:attr+'="'+esc(r.key)+'"'});
  const dossierLabel={es:'Ficha de contacto',fr:'Fiche contact',en:'Contact dossier'}[window.GamaI18n?.language||'es'];
  const out=[U.button({label:dossierLabel,attrs:'data-ct-dossier="'+esc(r.key)+'"'})];
+ if(r.kind==='clients')out.push(b('Direcciones de entrega','data-ct-addresses'));
  if(['clients','suppliers'].includes(r.kind))out.push(b('Historial','data-ct-history'));
  if(r.kind==='clients'&&r.active&&window.gamaAccessAllowed?.('website')&&window.gamaAccessAllowed?.('users'))out.push(b('Cuenta cloud del cliente','data-ct-cloud'));
  if(r.active)out.push(b('Editar','data-ct-edit'),b('Archivar','data-ct-archive','danger'));
@@ -282,6 +283,7 @@ function render(){
  grid=U.dataTable($('ctTable'),{columns:columns(),source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
   'data-ct-edit':async key=>{const r=find(key);if(r){await load();openForm(r.kind,r.record)}},
   'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
+  'data-ct-addresses':async key=>{const r=find(key);if(!r||r.kind!=='clients')return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open('clients',r.id,{tab:'relations'})}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-history':key=>{const r=find(key);if(r)window.ArchitectPartners?.open(r.kind==='clients'?'customer':'supplier',r.id)},
   'data-ct-cloud':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('gama-store-admin.js');await window.GamaStoreAdmin.customerAccounts(r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-archive':key=>archive(key,false),'data-ct-restore':key=>archive(key,true),'data-ct-purge':purge}});

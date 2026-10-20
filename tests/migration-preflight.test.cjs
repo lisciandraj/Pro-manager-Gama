@@ -8,3 +8,11 @@ test('release gate accepts the observed baseline and refuses missing, changed or
  assert.throws(()=>verify(baseline.migrations,{...release,project_id:'wrong'}),/PROJECT_MISMATCH/);
  assert.throws(()=>verify(baseline.migrations,{...release,migrations:release.migrations.map(r=>({...r,sha256:'bad'}))}),/RELEASE_CONTENT_CHANGED/);
 });
+test('a different applied timestamp requires the explicit verified hash and cannot hide a second migration',()=>{
+ const one=release.migrations[0],version='20990101000000',hash='verified-ledger-content';
+ const mapped={...release,migrations:[{...one,applied_version:version,applied_hash:hash}]};
+ const remote=[...baseline.migrations,{version,name:'reviewed',hash}];
+ assert.deepEqual(verify(remote,mapped).pending,[]);
+ assert.throws(()=>verify(remote,{...mapped,migrations:[{...mapped.migrations[0],applied_hash:'changed'}]}),/APPLIED_CONTENT_NOT_VERIFIED/);
+ assert.throws(()=>verify(remote,{...mapped,migrations:[mapped.migrations[0],mapped.migrations[0]]}),/DUPLICATE_RELEASE_VERSION/);
+});

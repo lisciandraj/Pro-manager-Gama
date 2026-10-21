@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 function api(){
  const allowed=new Set(['warehouses','documents','sales-orders','quotes','tms']);
  const calls=[],window={ArcUI:{esc:s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))},GamaI18n:{language:'fr',locale:'fr-FR',t:s=>s},gamaAccessAllowed:id=>allowed.has(id),ArcModules:{get:id=>allowed.has(id)?{label:id}:null},addEventListener(){},ArcRouter:{open:async id=>calls.push(['module',id])},GamaDocuments:{openRecord:async id=>calls.push(['document',id])},GamaInventoryV2:{focusProduct:async id=>calls.push(['product',id])}};
- const source=fs.readFileSync('src/features/processes/order-followup.js','utf8').replace('window.CocoFollowup={mount,wrap};','window.CocoFollowup={groupedActions,referenceList,actionContext,openRelated,safeLinks,changeText};');
+ const source=fs.readFileSync('src/features/processes/order-followup.js','utf8').replace('window.CocoFollowup={mount,wrap};','window.CocoFollowup={groupedActions,referenceList,openRelated,safeLinks,changeText};');
  vm.runInNewContext(source,{window,Intl,Date,console});return {...window.CocoFollowup,window,calls};
 }
 const event={id:'a',type:'action',kind:'sales',order_id:'order',subject:'reserve',actor_id:'alice',actor_name:'Alice',source_type:'erp',created_at:'2026-10-20T13:00:00.123456Z'};
@@ -28,12 +28,12 @@ test('reference rendering escapes names and locations, preserves quantities befo
  assert(html.includes('5 → 8'));assert(html.includes('0 → 2'));assert(html.includes('&lt;img'));assert(!html.includes('<img'));assert(html.includes('Quito &lt;shelf&gt;'));
  assert.equal(changeText({field:'amount',before:10,after:12.5},{currency:'USD'}),'10 → 12,5 USD');
 });
-test('history omits source rows while retaining missing measurement information',()=>{
- const {actionContext,window}=api();
+test('references omit absent measures and retain recorded zero quantities and amounts',()=>{
+ const {referenceList,window}=api();
  for(const language of ['fr','es','en']){window.GamaI18n.language=language;
-  assert.equal(actionContext({type:'action',source_type:'erp',references:[{quantity:2}]},false),'');
-  assert.match(actionContext({type:'action',references:[]},false),/cocoFollowupUnmeasured/);
-  assert.equal(actionContext({type:'action',references:[]},true),'');
+  assert.equal(referenceList([]),'');
+  assert(!referenceList([{reference:'DOC-001'}]).includes('cocoFollowupQuantity'));
+  assert.equal((referenceList([{reference:'P-001',quantity:0,amount:0,currency:'USD'}]).match(/class="cocoFollowupQuantity"/g)||[]).length,2);
  }
 });
 test('exact document and product navigation uses existing APIs and checks current access',async()=>{

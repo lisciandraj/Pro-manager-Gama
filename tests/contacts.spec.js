@@ -98,10 +98,10 @@ test('one form: the contact type, chosen in a drop-down, decides the fields',asy
 
  await page.locator('#ctNew').click();await page.locator('#ctType').selectOption('prospects');
  await expect(page.locator('#ctf-name')).toHaveCount(0);
- await page.locator('#ctf-lead').selectOption('l1');await page.fill('#ctf-firstName','Rosa');await page.fill('#ctf-lastName','Vera');await page.fill('#ctf-jobTitle','Gerente');
+ await page.locator('#ctf-lead').selectOption('l1');await page.fill('#ctf-fullName','Rosa Vera');await page.fill('#ctf-jobTitle','Gerente');
  await page.locator('#ctSave').click();
  await expect(row(page,'Rosa Vera').locator('.ctBadge')).toHaveText('Contacto de prospecto');
- expect(await page.evaluate(()=>__DB.crm_contacts.find(k=>k.first_name==='Rosa'))).toMatchObject({lead_id:'l1',last_name:'Vera',job_title:'Gerente',customer_id:null,active:true});
+ expect(await page.evaluate(()=>__DB.crm_contacts.find(k=>k.first_name==='Rosa Vera'))).toMatchObject({lead_id:'l1',last_name:null,job_title:'Gerente',customer_id:null,active:true});
 
  await page.locator('#ctNew').click();await page.locator('#ctType').selectOption('clients');
  await page.fill('#ctf-name','Hierros Norte');await page.fill('#ctf-ident','1790000000002');
@@ -131,7 +131,7 @@ test('each row opens the same form, with its type fixed and its data filled in',
  expect(await page.evaluate(()=>__DB.suppliers.find(s=>s.id==='s1').country)).toBe('Ecuador');
  await row(page,'Ana Pérez').locator('[data-ct-edit]').click();
  await expect(page.locator('#ctType')).toHaveValue('prospects');
- await expect(page.locator('#ctf-firstName')).toHaveValue('Ana');await expect(page.locator('#ctf-lead')).toHaveValue('l1');
+ await expect(page.locator('#ctf-fullName')).toHaveValue('Ana Pérez');await expect(page.locator('#ctf-lead')).toHaveValue('l1');
  await expect(page.locator('#ctf-primary')).toBeChecked();
  await page.locator('#ctCancel').click();await expect(page.locator('#ctEditor')).toBeHidden();
 });

@@ -81,7 +81,7 @@
  body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
  body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
  /* Launcher: solid blue glyphs with an orange detail, directly on the tile. */
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:1px solid var(--arc-tile-border);border-radius:12px;background:var(--coco-surface);box-shadow:none}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:0;border-radius:12px;background:var(--coco-surface);box-shadow:0 3px 12px rgba(16,59,82,.06)}
  body.cocoWorkbench #mainmenu .gamaF2Card:hover{border-color:#88BCC9;box-shadow:var(--arc-sh-2);transform:none}
  body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue);border:0;border-radius:0;padding:0;box-shadow:none;box-sizing:border-box}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;color:var(--coco-ink)}
@@ -108,7 +108,7 @@
    navigation, hidden states, order, permissions and business handlers intact. */
 @media screen {
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gp14Card,.pmPanel,.pmCard,.gkPanel,.ai-panel,.chartPanel,.coCard,.hpBox,.plList,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background-image:none;box-shadow:0 3px 12px rgba(16,59,82,.06)}
  body.cocoWorkbench #mainmenu .gamaF2Card:is(:hover,:focus-within){border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-sh-2)}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{color:var(--coco-muted)}
  /* Explicit native metric families, also loaded on demand. */

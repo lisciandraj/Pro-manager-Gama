@@ -21,7 +21,7 @@ Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des quat
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
 | Action principale | Orange soutenu #BD4E09 → #C45310, texte blanc #FFFFFF ; marque #F87826 conservée |
-| Bordures | Panneau #B5C5D0 ; tuiles #708897 ; lignes #E9ECF1 ; saisie #7B8797 |
+| Bordures | Panneau #B5C5D0 ; tuiles sans bordure ; lignes #E9ECF1 ; saisie #7B8797 |
 | Police | Inter variable locale ; poids 400, 500, 600 |
 | Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |
 | Espacements | Base 4 px ; contenu 24 px PC, 16 px tablette, 12 px téléphone |
@@ -194,3 +194,7 @@ fixture en 320, 360, 390, 768, 844, 1024, 1440 et 1920 px. Les suites formulaire
 fenêtres, listes métier et historiques complètent ce contrôle, notamment pour
 les chevauchements avec la navigation. Les essais Chromium et WebKit émulent les
 écrans ; ils ne remplacent pas un essai matériel sur iPhone ou Android.
+
+## Accueil — tuiles inspirées du visuel GAMA
+
+Les tuiles restent carrées avec une surface blanche unie, sans contour, séparées par l’espace et une ombre légère. Elles affichent uniquement le pictogramme bleu pétrole/orange existant et le nom du module. Les favoris et le réordonnancement restent disponibles. Le téléphone affiche trois tuiles par rangée, y compris à 320 px ; le grand écran conserve neuf colonnes. La navigation clavier garde un indicateur de focus visible.

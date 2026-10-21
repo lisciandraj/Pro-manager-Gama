@@ -200,7 +200,7 @@ test('home tiles stay square when the viewport is resized or rotated',async({pag
   expect(tiles.length).toBeGreaterThan(0);
   if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(9);
   expect(await page.locator('[data-mfa-enrollment]').count()).toBe(0);
-  if(width<=860)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(4);
+  if(width<=860)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(width<600?3:4);
   const overlaps=[];
   for(let i=0;i<tiles.length;i++)for(let j=i+1;j<tiles.length;j++){
    const a=tiles[i],b=tiles[j];

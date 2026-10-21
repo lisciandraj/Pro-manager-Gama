@@ -13,7 +13,7 @@ async function setup(page,{proposal=false,module='products'}={}){
    if(args.p_action==='approve_proposal'){window.__moduleDecisions.push(args.p_data);window.__moduleProposal.status='approved';window.__moduleProposal.result={module:id,id:'created-record'};return {data:window.__moduleProposal.result}}
    if(args.p_action==='reject_proposal'){window.__moduleProposal.status='rejected';return {data:{status:'rejected'}}}
    if(args.p_action==='note'){window.__moduleNotes.push(args.p_data);return {data:{id:'note-1'}}}
-   return {data:{context,history:window.__moduleHistory||[{id:'group-1',at:'2026-10-17T14:00:00Z',type:'action',action:'insert',subject:'Producto',actor_id:'alice',actor_name:'Alice',action_count:12,references:Array.from({length:12},(_,i)=>({kind:'product',id:'p'+i,reference:'REF-'+i,name:'Produit '+i,quantity:1})),links:[{module:'contacts',action:'module'},{module:'hr',action:'module'},{module:'evil-site',action:'module'}],source_type:'file',source_label:'Extrait de compte.pdf',total:1},...(window.__moduleProposal?[{id:'proposal-event',at:'2026-10-17T14:01:00Z',type:'proposal',action:'proposal',subject:'mail_analysis',actor_name:'Agent Coco',proposal_id:'module-proposal',body:window.__moduleProposal.summary,links:[]}]:[])],entries:window.__moduleNotes.map((n,i)=>({id:'note-'+i,type:'note',actor_id:'alice',actor_name:'Alice',body:n.body,created_at:'2026-10-17T14:02:00Z'})),proposals:window.__moduleProposal?[window.__moduleProposal]:[],portraits:{}}};
+   return {data:{context,history:window.__moduleHistory||[{id:'group-1',at:'2026-10-17T14:00:00Z',type:'action',action:'insert',subject:'Producto',actor_id:'alice',actor_name:'Alice',action_count:12,references:Array.from({length:12},(_,i)=>({kind:'product',id:'p'+i,reference:'REF-'+i,name:'Produit '+i,quantity:1})),links:[{module:'contacts',action:'module'},{module:'hr',action:'module'},{module:'evil-site',action:'module'}],source_type:'file',source_label:'Extrait de compte.pdf',total:1},...(window.__moduleProposal?[{id:'proposal-event',at:'2026-10-17T14:01:00Z',type:'proposal',action:'proposal',subject:'mail_analysis',actor_name:'Agent Coco',proposal_id:'module-proposal',body:window.__moduleProposal.summary,links:[]}]:[])],entries:window.__moduleNotes.map((n,i)=>({id:'note-'+i,type:'note',actor_id:'alice',actor_name:'Alice',body:n.body,created_at:'2026-10-17T14:02:00Z'})),proposals:window.__moduleProposal?[window.__moduleProposal]:[],portraits:window.__modulePortraits||{}}};
   }}};
  },{proposal,module});
  await page.evaluate(id=>window.ArcRouter.open(id),module);await expect(page.locator('.cocoGlobalHistory .cocoFollowupParty')).toBeAttached();
@@ -103,4 +103,18 @@ for(const module of ['contacts','assistant-ia'])test(`approval and rejection sho
   await expect(event.locator('.cocoFollowupAvatar')).not.toHaveClass(/is-agent/);
  }
  await expect(panel.locator('.cocoFollowupAvatar.is-agent')).toHaveCount(1);
+});
+
+for(const width of [390,1440])test(`human history avatars use available portraits and fall back to initials at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page,{module:'assistant-ia'});
+ await page.evaluate(()=>{
+  window.__modulePortraits={alice:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1AAAAABJRU5ErkJggg=='};
+  window.__moduleHistory=[{id:'human',module_id:'contacts',type:'action',action:'reject_proposal',subject:'proposal_rejected',actor_id:'alice',actor_name:'Alice',at:'2026-10-21T18:00:00Z'},{id:'no-photo',module_id:'contacts',type:'action',action:'update',actor_id:'bob',actor_name:'Bob Smith',at:'2026-10-21T17:00:00Z'},{id:'agent',module_id:'contacts',type:'action',action:'update',actor_id:'alice',actor_name:'Agent Coco',at:'2026-10-21T16:00:00Z'}];
+ });
+ const panel=page.locator('.cocoGlobalHistory .cocoFollowup');await panel.locator('[data-refresh]').click();
+ const human=panel.locator('.cocoFollowupEvent').filter({has:page.locator('.cocoFollowupWho strong',{hasText:/^Alice$/})});
+ await expect(human.locator('.cocoFollowupAvatar img')).toHaveAttribute('src',/^data:image\/png;base64,/);
+ const noPhoto=panel.locator('.cocoFollowupEvent').filter({hasText:'Bob Smith'});await expect(noPhoto.locator('.cocoFollowupAvatar')).toHaveText('BS');
+ await expect(panel.locator('.is-agent img')).toHaveAttribute('src',/agent-coco-avatar/);
+ await human.locator('.cocoFollowupAvatar img').evaluate(img=>img.dispatchEvent(new Event('error')));await expect(human.locator('.cocoFollowupAvatar')).toHaveText('A');
 });

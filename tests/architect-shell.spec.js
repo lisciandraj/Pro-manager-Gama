@@ -194,7 +194,7 @@ test.describe('el armazón Coco ERP', () => {
     await boot(page);
     await expect(page.locator('.arcBrand')).toHaveAttribute('aria-label','COCO ERP');
     await expect(page.locator('.arcLogo img')).toHaveAttribute('alt','COCO ERP');
-    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-erp-logo.png?v=20261020-satin');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-erp-logo.png?v=20261021-minimal');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Coco ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Coco ERP/], ['en', /Search Coco ERP/]]) {

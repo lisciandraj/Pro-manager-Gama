@@ -24,8 +24,8 @@ test('approved logo, responsive grid, translated labels and truthful metrics',as
  await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(250);
  await page.locator('#arcProfileButton').click();await expect(page.locator('#aclLogout')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.locator('#aclLogout')).toBeHidden();
- // The approved source is preserved byte-for-byte; display exports trim only white margins.
- const logo=await page.request.get('/assets/brand/coco-erp-logo-approved-20261020.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('18f51c195244deafdffdaaa3af6d21fd32b78abffa63688e4c4eb694781744a7');
+ // The approved source is preserved byte-for-byte; display exports preserve transparency and proportions.
+ const logo=await page.request.get('/assets/brand/coco-erp-logo-approved-20261021.png');expect(crypto.createHash('sha256').update(await logo.body()).digest('hex')).toBe('e137eab75d9dec451f92db7ecf31658dfad723ec7eb1baadb0c48b7747d5f15f');
  // The current dashboard keeps the four personal indicators in its disclosure.
  await page.evaluate(()=>showTab('dashboard'));
  await expect(page.locator('#dashboard .gamaF2Kpi')).toHaveCount(4);

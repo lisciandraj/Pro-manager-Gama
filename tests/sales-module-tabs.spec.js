@@ -23,9 +23,9 @@ test('one Sales tile, five sections and contextual document and price tabs',asyn
  for(const id of ['sales-orders','payments','price-lists','matrix'])await expect(page.locator(`#mainmenu .gamaF2Card[data-gama-module="${id}"]`)).toBeHidden();
  await expect(page.locator(`.arcNav [data-gama-module="sales-orders"]`)).toBeHidden();
  await page.locator('#mainmenu .gamaF2Card[data-gama-module="quotes"]').click();
- await expect(tabs(page)).toHaveText(['Solicitudes de clientes','Presupuestos']);
+ await expect(tabs(page)).toHaveCount(0);
+ await expect(page.locator('#gqRequestsTab,#gqDocumentsTab')).toHaveCount(0);
  await expect(page.locator('#quotes [data-coco-sales-section]')).toHaveText(['Presupuestos','Pedidos','Por facturar','Análisis comercial','Configuración comercial']);
- await expect(page.locator('#gqDocumentsTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#quotes')).toContainText('COT-1');
  // El presupuesto ya no arrastra sus facturas: están en su pestaña.
  await expect(page.locator('#quotes')).not.toContainText('Facturas asociadas al presupuesto');
@@ -53,9 +53,8 @@ test('one Sales tile, five sections and contextual document and price tabs',asyn
  await expect(page.locator('#matrix #gqMatrixTab')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#matrixForm')).toBeVisible();
  await page.locator('#matrix [data-coco-sales-section="documents"]').click();
- await page.locator('#quotes #gqRequestsTab').click();
  await expect(page.locator('#quotes.active')).toBeVisible();
- await expect(page.locator('#quotes #gqRequestsTab')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('#gqList')).toBeVisible();
 });
 
 test('old addresses land on their tab',async({page})=>{
@@ -107,9 +106,12 @@ test('the sales tabs remain visible and usable on a phone',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);
  await page.evaluate(async()=>{await GamaI18n.setLanguage('fr');await GamaQuotes.open()});
  const sections=page.locator('#quotes .cocoSalesNavigation [role=tab]');
- await expect(sections).toHaveCount(5);await expect(tabs(page)).toHaveCount(2);
+ await expect(sections).toHaveCount(5);await expect(tabs(page)).toHaveCount(0);
  await expect(page.locator('select[data-coco-sales-section]')).toHaveCount(0);
- for(const tab of await sections.all()){await expect(tab).toBeVisible();const box=await tab.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);expect(box.height).toBeGreaterThanOrEqual(44)}
+ // La barre reste sur une seule ligne : chaque onglet doit défiler dans la
+ // zone visible quand le clavier le cible, sans élargir la page.
+ await sections.first().focus();
+ for(let i=0;i<await sections.count();i++){if(i)await page.keyboard.press('ArrowRight');const tab=sections.nth(i);await expect(tab).toBeVisible();await expect(tab).toBeFocused();const box=await tab.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);expect(box.height).toBeGreaterThanOrEqual(44)}
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.screenshot({path:test.info().outputPath('sales-tabs-mobile.png'),fullPage:true});
  const documents=page.locator('#quotes [data-coco-sales-section="documents"]');

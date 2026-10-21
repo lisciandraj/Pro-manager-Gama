@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
-const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-contact-alignment.js'),'utf8');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 async function boot(page,role='admin'){
  await page.addInitScript(role=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));
@@ -17,6 +17,26 @@ async function boot(page,role='admin'){
 }
 const table=page=>page.locator('#ctTable');
 const row=(page,text)=>page.locator('#ctTable tbody tr').filter({has:page.locator('td:first-child b').filter({hasText:text})});
+
+test('saving an unchanged GPS field preserves coordinates resolved while the contact editor was open',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DB.customers[0].payment_terms_days=0;return ArcRouter.open('contacts')});
+ await row(page,'Ferretería Andina').locator('[data-ct-edit]').click();
+ await expect(page.locator('#ctf-lat')).toHaveValue('');
+ await page.evaluate(()=>Object.assign(__DB.customers[0],{lat:-.21,lng:-78.51}));
+ await page.fill('#ctf-phone','0991234567');await page.locator('#ctSave').click();
+ await expect(page.locator('#ctEditor')).toBeHidden();
+ expect(await page.evaluate(()=>[__DB.customers[0].lat,__DB.customers[0].lng])).toEqual([-.21,-78.51]);
+});
+
+test('supplier contacts display and save a manually corrected GPS pair',async({page})=>{
+ await boot(page);await page.evaluate(()=>{Object.assign(__DB.suppliers[0],{lat:-.2,lng:-78.5});return ArcRouter.open('contacts')});
+ await row(page,'Aceros del Pacífico').locator('[data-ct-edit]').click();
+ await page.locator('#ctFields summary').click();
+ await expect(page.locator('#ctf-lat')).toHaveValue('-0.2');
+ await page.fill('#ctf-lat','-0.23');await page.fill('#ctf-lng','-78.53');await page.locator('#ctSave').click();
+ await expect(page.locator('#ctEditor')).toBeHidden();
+ expect(await page.evaluate(()=>[__DB.suppliers[0].lat,__DB.suppliers[0].lng])).toEqual([-.23,-78.53]);
+});
 
 test('Contacts opens scoped cloud-account management, enables the company and prepares its invitation',async({page})=>{
  await boot(page);await page.evaluate(async()=>{const db=await GamaCloud.db();window.__CLOUD_ENABLED=false;window.__CLOUD_ACCOUNT_CALLS=[];GamaCloud.db=async()=>({...db,rpc:async(name,args)=>{if(name==='gama_b2b_customer_accounts'){__CLOUD_ACCOUNT_CALLS.push(args);return {data:{customer:{id:'c1',name:'Ferretería Andina',email:'cliente@example.invalid',enabled:__CLOUD_ENABLED},members:[],available:[]}}}if(name==='gama_b2b_admin'&&args.p_action==='access'){__CLOUD_ENABLED=args.p_data.enabled;return {data:{saved:true}}}return db.rpc(name,args)}})});await page.evaluate(()=>ArcRouter.open('contacts'));
@@ -64,7 +84,7 @@ test('one form: the contact type, chosen in a drop-down, decides the fields',asy
  await expect(page.locator('#ctType')).toBeFocused();
  await expect(page.locator('#ctType option')).toHaveText(['Cliente','Proveedor','Contacto de cliente','Contacto de prospecto']);
  await expect(page.locator('#ctType')).toHaveValue('clients');
- await expect(page.locator('#ctf-ident')).not.toHaveAttribute('required','');await expect(page.locator('#ctf-terms')).toBeVisible();
+ await expect(page.locator('#ctf-ident')).toHaveAttribute('required','');await expect(page.locator('#ctf-terms')).toBeVisible();
  await expect(page.locator('#ctf-contactName, #ctf-lead')).toHaveCount(0);
  await page.fill('#ctf-name','Papelera del Sur');await page.fill('#ctf-city','Cuenca');
  await page.locator('#ctType').selectOption('suppliers');
@@ -134,6 +154,7 @@ test('archiving from the table moves the row to Archived and back',async({page})
 
 test('merging duplicates from Contacts asks first whether clients or suppliers',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));
+ await page.locator('#contacts .cocoModuleTools>summary').click();
  await page.locator('#contacts [data-controls-bar] button',{hasText:'Fusionar duplicados'}).click();
  await expect(page.locator('dialog [data-merge-kind]')).toHaveCount(2);
 });
@@ -159,7 +180,23 @@ test('contact filters, customer people and supplier addresses are editable',asyn
 });
 
 test('secondary customer addresses can be edited, archived and restored',async({page})=>{
- await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});await page.evaluate(()=>ArchitectPartners.open('customer','c1'));await page.locator('[data-address-edit=a1]').click();await expect(page.locator('dialog').last().locator('[name=address]')).toHaveValue('Calle 1');await page.locator('dialog').last().locator('[name=address]').fill('Calle 2');await page.locator('dialog').last().locator('[type=submit]').click();await expect(page.locator('[data-partner-context]')).toContainText('Calle 2');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');await page.locator('[data-address-toggle=a1]').click();await expect(page.locator('[data-address-toggle=a1]')).toHaveText('Archivar');expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
+ await boot(page);await page.evaluate(()=>{__DB.customer_addresses=[{id:'a1',customer_id:'c1',label:'Depósito',purpose:'delivery',address:'Calle 1',city:'Quito',active:true}];const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_partner_context'?{data:{entity:{...__DB.customers[0],credit_limit:null},history:[],addresses:__DB.customer_addresses,contacts:[]}}:c.rpc(fn,args)}}});
+ await page.evaluate(()=>ArchitectPartners.open('customer','c1'));
+ // Native close events remove old dialogs asynchronously. Address the current
+ // open customer window and editor, then verify that closed windows are removed.
+ const context=page.getByRole('dialog',{name:'Ferretería Andina',exact:true});
+ const editor=page.locator('dialog[open][data-partner-context]').filter({has:page.locator('[name=address]')});
+ await context.locator('[data-address-edit=a1]').click();
+ await expect(editor.locator('[name=address]')).toHaveValue('Calle 1');
+ await editor.locator('[name=address]').fill('Calle 2');
+ await editor.locator('[type=submit]').click();
+ await expect(context).toContainText('Calle 2');
+ await context.locator('[data-address-toggle=a1]').click();
+ await expect(context.locator('[data-address-toggle=a1]')).toHaveText('Restaurar');
+ await context.locator('[data-address-toggle=a1]').click();
+ await expect(context.locator('[data-address-toggle=a1]')).toHaveText('Archivar');
+ await expect(page.locator('dialog[data-partner-context]')).toHaveCount(1);
+ expect(await page.evaluate(()=>__DB.customer_addresses[0])).toMatchObject({address:'Calle 2',active:true});
 });
 
 for(const width of [390,1280])test(`shared address persists, is inherited by people and formats documents at ${width}`,async({page})=>{

@@ -412,8 +412,8 @@ body .gamaTableSearchSubmit{display:none!important}
 body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body table tr[data-gama-search-hidden]{display:none!important}
 .gamaTableToolbar>.gamaTableViews{margin-left:auto;margin-top:0;padding:0;align-self:flex-end;flex-shrink:0}
 .gamaTableControls{display:flex;align-items:flex-start;gap:8px 12px;flex-wrap:wrap;flex:1;min-width:0;max-width:100%}
-.gamaColumnPicker{width:100%;min-width:0;max-width:100%;margin:0;padding:8px 10px;border:1px solid var(--arc-border);border-radius:8px;background:var(--arc-surface,#fff);box-sizing:border-box}
-.gamaColumnHeading{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:0;padding:4px 0;min-height:30px;border:0;background:transparent;color:var(--arc-text-muted);cursor:pointer;box-shadow:none}
+.gamaColumnPicker{width:auto;min-width:0;max-width:100%;margin:0;padding:0;border:0;background:transparent;box-sizing:border-box}
+.gamaColumnHeading{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:0;padding:4px 0;min-height:44px;border:0;background:transparent;color:var(--arc-text-muted);cursor:pointer;box-shadow:none}
 .gamaColumnHeading::before{content:"▸"}.gamaColumnHeading[aria-expanded=true]::before{content:"▾"}
 .gamaColumnHeading:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 .gamaColumnOptions[hidden]{display:none}
@@ -422,7 +422,7 @@ body table.gamaCards.gamaCards[data-gama-view] tr[data-gama-search-hidden],body 
 .gamaColumnOptions input[type=checkbox]{width:18px!important;height:18px!important;min-height:18px;flex:0 0 18px;margin:0;accent-color:var(--arc-accent-600)}
 .gamaColumnOptions input:disabled+span{opacity:.6}
 .gamaColumnOptions>button{min-height:30px;margin:0;padding:4px 8px;font-size:12px;align-self:center}
-@media(pointer:coarse){.gamaColumnOptions>label,.gamaColumnOptions>button{min-height:40px}}
+@media(max-width:900px),(pointer:coarse){.gamaColumnOptions>label,.gamaColumnOptions>button{min-height:44px}}
 .gamaSortScope{flex-basis:100%;color:var(--arc-text-subtle);font-size:11px}
 .gamaSortScope[hidden]{display:none}
 table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:none!important}
@@ -491,7 +491,6 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body .arcContent section:not(#mainmenu) table.gamaCards:not([data-gama-view=cards]) tbody tr:nth-child(even) td{background:var(--arc-surface-2)}
  body .arcContent section:not(#mainmenu) table.gamaCards tbody tr:hover td{background:var(--arc-accent-50)}
  body .arcContent section:not(#mainmenu) :is(.gamaTableToolbar,.gamaTableControls){gap:6px 10px}
- body .arcContent section:not(#mainmenu) .gamaColumnPicker{border-radius:3px;background:var(--arc-surface);padding:6px 10px}
  body .arcContent section:not(#mainmenu) :is(.gdfTabs,.arcTabs,.crmNav,.hrTabs,.ivTabs,.gaNav,.gfNav,.grNav,.gfTabs,.gamaArcTabs,.gamaExcelModes,.tmsTabs){
   display:flex;flex-wrap:wrap;gap:0;background:transparent;border-bottom:1px solid var(--arc-line-strong);padding:0;margin:12px 0 16px;
  }
@@ -557,9 +556,10 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body .arcContent .gamaCompactHeader .gamaStdBack:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 }
 
-/* Neutral zebra rows: keep data lists readable without changing stock maps. */
-@media screen{
- body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(odd)>td{background:#fff}
- body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:nth-child(even)>td{background:#f3f4f6}
- body .arcContent section:not(#mainmenu) :is(table.gamaCards,table.arcTable):not([data-gama-view=cards])>tbody>tr:hover>td{background:var(--arc-accent-50)}
+/* Stop decorative movement, retaining a visible busy indicator and status text. */
+@media(prefers-reduced-motion:reduce){
+ button[aria-busy=true]::after{animation:none}
+ .gamaSpin{animation:none}
+ .arcSkeleton{animation:none;background:var(--arc-surface-3)}
+ .ivCelda.buscada,.ivOtras>li.buscada{animation:none}
 }

@@ -86,9 +86,9 @@ test.describe('CRM — Contactos', () => {
       const th = document.querySelector('#crm .crmTabla th');
       return th ? getComputedStyle(th).textTransform : null;
     });
-    // The shared table design uses sentence case, including CRM tables.
+    // The reference theme uses sentence case and medium-weight headers everywhere.
     expect(alineado).toBe('none');
-    await expect(page.locator('#crm .crmTabla th').first()).toHaveCSS('font-weight','600');
+    await expect(page.locator('#crm .crmTabla th').first()).toHaveCSS('font-weight','500');
   });
 
   test('la búsqueda ignora tildes y el filtro separa clientes de prospectos', async ({ page }) => {

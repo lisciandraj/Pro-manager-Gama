@@ -548,6 +548,25 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(['coco_contact_record','coco_contact_save'].includes(fn)){
+  const db=window.__DB,table={clients:'customers',suppliers:'suppliers',people:'crm_contacts',prospects:'crm_contacts',leads:'crm_leads'}[args.p_kind];
+  const versions=window.__CONTACT_VERSIONS||(window.__CONTACT_VERSIONS={});
+  let row=(db[table]||[]).find(r=>r.id===args.p_id);
+  if(fn==='coco_contact_save'){
+   if(args.p_id&&!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+   if(row&&args.p_version!==(versions[row.contact_entity_id||row.id]||1))return {error:{message:'CONTACT_VERSION_CONFLICT'}};
+   if(!row){row={id:crypto.randomUUID(),active:true,...(table==='customers'?{category:'A'}:{}),...(table==='crm_contacts'?{address_mode:'parent'}:{})};(db[table]||(db[table]=[])).push(row)}
+   Object.assign(row,args.p_data);const eid=row.contact_entity_id||row.id;versions[eid]=(versions[eid]||1)+1;
+   if(row.contact_entity_id)for(const t of ['customers','suppliers','crm_leads'])for(const peer of db[t]||[])if(peer!==row&&peer.contact_entity_id===row.contact_entity_id){for(const k of ['email','phone','phone2','address','city','province','postal_code','country','lat','lng','website','industry','language'])if(Object.hasOwn(args.p_data,k))peer[k]=args.p_data[k];}
+  }
+  if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+  const version=versions[row.contact_entity_id||row.id]||1;
+  const parent=table==='crm_contacts'&&row.address_mode!=='own'?(db.customers||[]).find(c=>c.id===row.customer_id)||(db.crm_leads||[]).find(l=>l.id===row.lead_id):null;
+  const inherited=parent?{id:parent.id,name:parent.name||parent.company,...Object.fromEntries(['address','city','province','postal_code','country','lat','lng'].map(k=>[k,parent[k]??null]))}:null;
+  return {data:{record:{...row},profile:{id:row.contact_entity_id||row.id,version,tags:[],website:row.website||null,industry:row.industry||null,language:row.language||null,alignment_conflicts:{}},version,inherited_address:inherited}};
+        }
+        if(fn==='coco_offline_key')return {data:{actor_id:window.__DB._profile.id,key:'ab'.repeat(32)}};
+        if(fn==='coco_security_enrollment')return {data:{administrator:false,verified_factor:false,enforced:false}};
         if(fn==='gama_sales_invoice_balances')return {data:(window.__DB.external_invoices||[]).filter(i=>args.p_ids.includes(i.id)).map(i=>{const paid=(window.__DB.external_invoice_payments||[]).filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((a,p)=>a+Number(p.amount),0),credit=(window.__DB.return_credits||[]).filter(c=>c.invoice_id===i.id).reduce((a,c)=>a+Number(c.amount),0),withheld=(window.__DB.accounting_withholdings||[]).filter(w=>w.invoice_id===i.id&&w.status==='posted').reduce((a,w)=>a+Number(w.total),0),balance=i.fiscal_status==='cancelled'?0:Math.max(0,Number(i.total)-paid-credit-withheld);return {id:i.id,paid,balance,due_date:i.due_date,payment_status:i.fiscal_status==='cancelled'?'cancelled':balance===0?'paid':i.due_date&&i.due_date<new Date().toISOString().slice(0,10)?'overdue':balance<Number(i.total)?'partial':'pending'}})};
         if(fn==='gama_customer_credit_status')return {data:{customer_id:args.p_customer,credit_limit:null,hold_reason:null,receivable:0,commitment:0,exposure:0,overdue:[],blocked:false}};
 
@@ -663,7 +682,13 @@
         }
         if(fn==='gama_sales_workspace'){
           const db=window.__DB,d=args.p_data||{},a=args.p_action;
-          if(a==='quote_list'){let rows=(db.invoices||[]).filter(q=>(!d.search||((q.invoice_number||'')+' '+(q.quote_details?.client||'')).toLowerCase().includes(d.search.toLowerCase()))&&(d.status==='all'||!d.status||(q.quote_state||'draft')===d.status)&&(!d.from||String(q.issue_date||'').slice(0,10)>=d.from)&&(!d.to||String(q.issue_date||'').slice(0,10)<=d.to));return {data:{actor_id:db._profile.id,total:rows.length,rows:rows.slice(d.offset||0,(d.offset||0)+20).map(q=>({...q,invoice_number:(db.gama_document_references||[]).find(r=>r.table_name==='invoices'&&r.document_id===q.id)?.document_reference||q.invoice_number,client:q.quote_details?.client||''}))}}}
+          if(a==='quote_list'){
+            const reqs=db.customer_requests||[],ref=(table,id,fallback)=>(db.gama_document_references||[]).find(r=>r.table_name===table&&r.document_id===id)?.document_reference||fallback;
+            let rows=(db.invoices||[]).map(q=>{const st=q.quote_state||(q.status==='draft'?'draft':'legacy'),r=reqs.find(r=>r.invoice_id===q.id),number=ref('invoices',q.id,q.invoice_number),sol=r?ref('customer_requests',r.id,r.erp_reference||r.dossier_reference||'SOL-'+r.id):(q.request_reference||String(number||'SOL-'+q.id).replace(/^COT/,'SOL'));return {...q,quote_state:st,row_kind:'quote',row_key:r?.id||q.id,request_id:r?.id,request_reference:sol,invoice_number:number,display_reference:st==='draft'?sol:number,client:q.quote_details?.client||'',created_at:r?.created_at||q.created_at}});
+            rows.push(...reqs.filter(r=>!r.invoice_id).map(r=>({...r,row_kind:'request',row_key:r.id,request_id:r.id,display_reference:ref('customer_requests',r.id,r.erp_reference||r.dossier_reference||'SOL-'+r.id),quote_state:['cancelled','rejected'].includes(r.status)?r.status:'draft',client:(db.customers||[]).find(c=>c.id===r.customer_id)?.name||r.requester_name,issue_date:r.created_at})));
+            rows=rows.filter(q=>(!d.search||[q.display_reference,q.request_reference,q.invoice_number,q.client].join(' ').toLowerCase().includes(d.search.toLowerCase()))&&(d.status==='all'||!d.status||(q.quote_state||'draft')===d.status)&&(!d.from||String(q.issue_date||'').slice(0,10)>=d.from)&&(!d.to||String(q.issue_date||'').slice(0,10)<=d.to)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))||a.id.localeCompare(b.id));
+            return {data:{actor_id:db._profile.id,total:rows.length,rows:rows.slice(d.offset||0,(d.offset||0)+20)}};
+          }
           if(a==='lookups'){const rows=(db[d.kind==='products'?'products':'customers']||[]).filter(x=>x.active!==false&&(!d.search||(x.name+' '+(x.reference||'')+' '+(x.barcode||'')).toLowerCase().includes(d.search.toLowerCase())));return {data:rows.slice(0,30).map(x=>({...x,...(d.kind==='products'?{units:(db.product_units||[]).filter(u=>u.product_id===x.id&&u.active!==false)}:{})}))}}
           if(a==='prices'){const c=await window.GamaCloud.db();const rows=await Promise.all((d.lines||[]).map(l=>c.rpc('gama_resolve_price',{p_customer:d.customer_id,p_product:l.product_id,p_quantity:l.quantity,p_date:d.date})));const e=rows.find(r=>r.error);return e||{data:rows.map((r,i)=>({...r.data,product_id:d.lines[i].product_id}))}}
           if(a==='invoice_list')return {data:(db.external_invoices||[]).filter(i=>i.order_id===d.order_id||(i.document_snapshot?.orders||[]).some(o=>o.id===d.order_id))};

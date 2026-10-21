@@ -4,11 +4,11 @@ Le site public est construit séparément de l’ERP. Tous les produits actifs s
 
 ## Présentation du catalogue
 
-Depuis le 7 octobre 2026, l’accueil présente une introduction sobre, des photos de produits réels, les avantages du service, les catégories puis les produits mis en avant. L’en-tête blanc conserve la recherche, le menu, Mi empresa et la sélection de devis. Le logo, le bleu pétrole et l’orange de GAMA restent les repères de la marque. Les catégories défilent dans leur propre conteneur : trois tuiles visibles sur téléphone, six sur grand écran. Le catalogue et les champs longs restent contenus dans la largeur de l’écran.
+Le code du 19 octobre 2026 applique la [charte GAMA du catalogue](storefront-design-system.md), adaptée de la référence Freshly choisie par le propriétaire : Inter locale, surfaces blanches bordées, prix et actions bleu pétrole, recherche à extrémité orange, catégories à illustrations circulaires et pied de page bleu pétrole. Le ruban de catégories précède directement le catalogue, sans hero ni section séparée de produits mis en avant. La grille conserve dix colonnes dès 1024 px, trois entre 601 et 800 px et deux jusqu’à 600 px ; les largeurs intermédiaires sont précisées dans la charte. Les fiches présentent une photo encadrée et les informations en deux colonnes, puis les onglets de description et d’informations supplémentaires ; elles s’empilent jusqu’à 600 px. Le formulaire de devis dispose d’un récapitulatif latéral et s’empile jusqu’à 800 px. L’espace client utilise les mêmes tokens et composants.
 
 La recherche est permanente dans l’en-tête. La saisie et la touche Entrée filtrent le catalogue et amènent aux résultats. Le menu **Categorías** ouvre un panneau accessible avec les catégories réelles et les liens configurés. La sélection d’une catégorie ferme le panneau et met à jour les filtres ; Échap ferme le menu et rend le défilement à la page.
 
-Le catalogue affiche par défaut une grille sobre : photo, nom, référence/marque, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer à une liste détaillée sans perdre les filtres. La liste expose aussi la description, les informations de disponibilité et le lien vers les spécifications. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum deux autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
+Le catalogue affiche par défaut une grille sobre : photo, nom, référence/marque, prix indicatif, quantité et **Añadir**. Deux boutons permettent de passer à une liste détaillée sans perdre les filtres. La liste expose aussi la description, les informations de disponibilité et le lien vers les spécifications. La quantité respecte les minimums et multiples de Coco ; une confirmation apparaît sans ouvrir ni déplacer le formulaire de devis. Le détail reprend les spécifications disponibles et suggère au maximum quatre autres produits publiés de la sélection. La disponibilité et la livraison restent à confirmer par GAMA. Le site conserve les textes et réglages administrés, l’absence de paiement en ligne et le parcours de demande de devis.
 
 Les contrôles de navigation, de quantité et de disposition se trouvent dans `tests/storefront.spec.js`. Le catalogue complet de 13 catégories et les champs produit longs sont vérifiés sur 320, 360, 390, 430, 600, 768, 1024 et 1440 pixels, en liste, grille, fiche produit et formulaire de devis. Les filtres de catégories défilent horizontalement dans leur propre conteneur sur téléphone et tablette, sans élargir la page ; les textes longs reviennent à la ligne. Les champs et tableaux du portail client sont contrôlés séparément dans `tests/b2b-portal.spec.js`. Les fixtures n’écrivent pas dans la production.
 
@@ -24,15 +24,15 @@ La page `/photo-credits.html`, liée au pied du catalogue, indique les sources, 
 
 1. Ouvrir **Site web**, puis **Site public** avec un compte administrateur autorisé.
 2. **Identité et apparence** : nom commercial, signature, logo, couleurs, angles et liens du menu. Les images PNG, JPEG et WebP sont comprimées lors du chargement.
-3. **Page d’accueil** : bandeau, titres, texte, image, bouton, sélection, catégories et avantages.
+3. **Page d’accueil** : réglages existants de bandeau, titres, texte, image, bouton, sélection, catégories et avantages. Le catalogue actuel utilise le ruban de catégories puis les résultats ; les réglages historiques de hero et de sélection ne créent pas de sections supplémentaires dans cette composition.
 4. **Contenu et pages** : présentation, image, FAQ, marques, conditions, confidentialité et pied de page. Les listes peuvent être ajoutées, supprimées et réordonnées.
 5. **Contact** : téléphone, e-mail, adresse, horaires, WhatsApp avec indicatif international, carte et réseaux sociaux.
 6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, choisir l’affichage des taxes, activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
 7. Cliquer **Enregistrer tous les réglages**. Le brouillon est conservé en naviguant entre les rubriques. En cas de conflit avec un autre administrateur, copier les changements nécessaires avant **Actualiser** ; ce bouton recharge les valeurs enregistrées.
 8. Dans **Produits publiés**, choisir les produits visibles et les produits mis en avant. Le nom, la référence, la photo, le prix de vente, les taxes et les quantités de commande viennent des Produits de Coco. Le titre, la description, la marque, l’étiquette et le nom public de la catégorie peuvent être adaptés ici. Les produits inactifs sont exclus immédiatement.
-9. Dans **Ventes → Demandes clients**, consulter les demandes du site, associer ou créer le contact si nécessaire, puis préparer le devis.
+9. Dans **Ventes → Devis**, consulter les brouillons créés automatiquement à partir des demandes du site ou du portail. La demande originale et ses références restent accessibles dans l’historique du devis. Le tableau unique présente le brouillon sous **SOL**, puis sous **COT** après finalisation. Associer ou compléter le client si nécessaire avant l’envoi.
 
-Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Après vérification, préparer le devis dans le module Ventes avec les coordonnées et quantités reçues. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
+Les prix sont indicatifs. Un prix absent ou nul est présenté comme « Consultar ». Envoyer une demande ne crée ni commande, ni facture, ni réservation de stock. Chaque demande validée crée immédiatement un devis non envoyé dans Ventes, avec les coordonnées et quantités reçues. Un contact inconnu reste à compléter, sans création de client ni identifiant fiscal inventé. Les prix sont calculés côté serveur, avec les tarifs applicables au client identifié. Les tentatives répétées renvoient la même demande et le même brouillon. Vérifier le brouillon avant de l’envoyer. Aucun paiement en ligne ni envoi automatique d’e-mail n’est activé par ce site.
 
 ## Textes, photos et informations légales
 
@@ -86,6 +86,8 @@ Cloudflare injecte dans le HTML le titre, la description et le premier état pub
 
 ## Développement et validation
 
+Le catalogue affiche chaque lot reçu immédiatement, jusqu’aux 100 produits de la page. Les quantités déjà saisies restent en place pendant l’ajout des lots suivants. Une réponse d’une ancienne recherche ou session est ignorée ; l’état occupé du catalogue se termine après les données, indépendamment des photos. La disposition à dix colonnes sur ordinateur reste inchangée. La [proposition SQL issue de l’audit](audits/2026-10-19-catalogue-csv-proposals.md) est distincte : elle n’est pas incluse dans les migrations automatiques et nécessite une recette avant application.
+
 ```sh
 npm ci
 npm run build
@@ -115,7 +117,7 @@ Tous les produits actifs existants sont sélectionnés pour le site à l’insta
 
 ### Images des catégories
 
-Les catégories présentent une photographie réelle d’un produit actif publié disposant d’une photo. Le serveur choisit `photo_id` parmi ces produits ; sans photo vérifiée, la tuile affiche un pictogramme neutre. Les anciennes illustrations de catégories générées par IA ne sont plus publiées par la compilation. Cliquer sur une tuile conserve le filtre du catalogue. Les mêmes photos Coco apparaissent dans la grille, les fiches et la sélection de devis.
+Le ruban utilise les illustrations génériques de [src/storefront/category-images](../src/storefront/category-images/), selon [config/storefront-category-images.json](../config/storefront-category-images.json). Elles apparaissent dans des cercles et ne remplacent pas les photographies des produits. Une catégorie sans illustration correspondante utilise le pictogramme SVG de boîte. Cliquer sur une catégorie met à jour le filtre du catalogue. Les mêmes photographies Coco et leurs mentions illustratives restent utilisées dans la grille, les fiches et la sélection de devis.
 
 ### Comptes cloud et Mes documents
 
@@ -157,7 +159,7 @@ L’icône **Mi empresa** se trouve dans la barre horizontale, immédiatement av
 
 ### Catalogue commun après connexion — 7 octobre 2026
 
-Le site Cloudflare conserve le même catalogue avant et après connexion : en-tête, photos, catégories, marques, recherche, tri et fiches produit. **Mi empresa** ouvre une fenêtre de connexion sur cette page ; `/b2b.html` ouvre le même site avec cette fenêtre affichée. Après connexion, les cartes, produits mis en avant et détails montrent les tarifs calculés pour le client authentifié. Le tri par prix utilise ces tarifs et la présentation HT/TTC du site.
+Le site Cloudflare conserve le même catalogue avant et après connexion : en-tête, photos, catégories, marques, recherche, tri et fiches produit. **Mi empresa** ouvre une fenêtre de connexion sur cette page ; `/b2b.html` ouvre le même site avec cette fenêtre affichée. Après connexion, les cartes et détails du catalogue commun montrent les tarifs calculés pour le client authentifié. Le tri par prix utilise ces tarifs et la présentation HT/TTC du site.
 
 La barre client ajoute Catalogue, Mes achats habituels, Mes demandes, Mes documents, Mes préférences, Factures, Livraisons, État de compte et Ma sélection (libellés espagnols sur le site). Les vues documentaires utilisent les mêmes RPC protégées qu’auparavant. Le panier connecté revalide les quantités, paliers et prix avant l’envoi d’une demande, avec la clé d’idempotence existante. Les sélections publiques présentes lors de la connexion sont reprises lorsque leurs produits et quantités restent admissibles. Les services publiés restent visibles et se traitent avec GAMA ; le panier B2B conserve son périmètre de produits physiques.
 
@@ -167,8 +169,19 @@ Sources : `src/storefront/site.js`, `b2b.js`, `index.html`, `customer.css`. La p
 
 ## Catégories en tête de l’accueil
 
-La grille de catégories précède la bannière et les avantages. Elle affiche toutes les catégories sur plusieurs lignes : six colonnes sur ordinateur, quatre sur tablette et trois sur téléphone. Les illustrations génériques IA bleu et orange GAMA sont publiées depuis `src/storefront/category-images`, selon `config/storefront-category-images.json`. Elles ne remplacent pas les photos des fiches produits. Les intitulés conservent leur première lettre en majuscule et les compteurs proviennent du catalogue.
+Les catégories précèdent directement le catalogue dans un seul ruban horizontal : six visibles au-delà de 1200 px, cinq entre 1001 et 1200 px, quatre entre 801 et 1000 px, trois entre 601 et 800 px et deux jusqu’à 600 px. Les flèches précédent/suivant parcourent 90 % de la largeur visible et se désactivent aux extrémités ; le défilement tactile reste disponible. Les fournitures de bureau, fournitures scolaires, produits informatiques et équipements de bureau passent en tête. Les intitulés conservent leur première lettre en majuscule, reviennent à la ligne si nécessaire et les compteurs proviennent du catalogue. Les illustrations de catégories sont distinctes des photographies produits ; aucun hero ni section séparée de produits mis en avant ne s’intercale avant le catalogue.
 
 ## Extensions commerciales et financières
 
 Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relances et OCR](commercial-planning.md) pour les écrans, droits, paramétrages et parcours de validation.
+
+## Conversion immédiate en brouillon
+
+La migration `20261018081814_website_requests_to_draft_quotes.sql` complète l’import du site public et le `submit` authentifié du portail. Elle utilise les tables de devis, leurs références et dossiers existants. Les demandes déjà en attente issues de ces deux canaux sont converties sans toucher aux demandes ERP manuelles ni aux demandes clôturées. Le site public conserve sa réponse limitée à la référence WEB ; les brouillons restent privés jusqu’à leur envoi par l’équipe.
+
+Le traitement ne fabrique aucune session ni identité utilisateur. Une capacité privée liée au processus PostgreSQL, à la transaction et au devis autorise exclusivement les écritures du brouillon lors de la réception ; elle est supprimée avant le retour et ne donne aucun droit ERP au client. Les modifications, envois, validations commerciales et créations de commandes continuent à utiliser les contrôles existants. Les adresses du portail restent liées à leur entreprise. Les notes automatiques d’Agent Coco sont en espagnol et relient le devis, la demande et le module Site web.
+
+
+### Correctifs de l’audit du 19 octobre 2026
+
+La page de 100 produits reste progressive par lots de 30. Les photos démarrent à 300 px de la zone visible, avec deux requêtes de 24 images maximum en parallèle. Chaque lot est peint dès son arrivée ; les recherches et changements de compte annulent les anciennes demandes. Le cache d’images est borné à 150 entrées et 4 Mio de chaînes encodées. Les prix et stocks ne sont pas mis dans un cache partagé. Les images ne conditionnent pas la disponibilité des actions de commande.

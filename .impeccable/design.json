@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T21:04:37+00:00",
+  "title": "Design System: GAMA storefront",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "GAMA petrol",
+        "tonalRamp": [
+          "oklch(15.00% 0.0738 218.53)",
+          "oklch(26.43% 0.0738 218.53)",
+          "oklch(37.86% 0.0738 218.53)",
+          "oklch(49.29% 0.0738 218.53)",
+          "oklch(60.71% 0.0738 218.53)",
+          "oklch(72.14% 0.0738 218.53)",
+          "oklch(83.57% 0.0738 218.53)",
+          "oklch(95.00% 0.0738 218.53)"
+        ]
+      },
+      "primary-action": {
+        "role": "primary",
+        "displayName": "Petrol action",
+        "tonalRamp": [
+          "oklch(15.00% 0.0738 218.53)",
+          "oklch(26.43% 0.0738 218.53)",
+          "oklch(37.86% 0.0738 218.53)",
+          "oklch(49.29% 0.0738 218.53)",
+          "oklch(60.71% 0.0738 218.53)",
+          "oklch(72.14% 0.0738 218.53)",
+          "oklch(83.57% 0.0738 218.53)",
+          "oklch(95.00% 0.0738 218.53)"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "GAMA orange",
+        "tonalRamp": [
+          "oklch(15.00% 0.1339 50.93)",
+          "oklch(26.43% 0.1339 50.93)",
+          "oklch(37.86% 0.1339 50.93)",
+          "oklch(49.29% 0.1339 50.93)",
+          "oklch(60.71% 0.1339 50.93)",
+          "oklch(72.14% 0.1339 50.93)",
+          "oklch(83.57% 0.1339 50.93)",
+          "oklch(95.00% 0.1339 50.93)"
+        ]
+      },
+      "accent-action": {
+        "role": "secondary",
+        "displayName": "Deep orange action",
+        "tonalRamp": [
+          "oklch(15.00% 0.1412 43.12)",
+          "oklch(26.43% 0.1412 43.12)",
+          "oklch(37.86% 0.1412 43.12)",
+          "oklch(49.29% 0.1412 43.12)",
+          "oklch(60.71% 0.1412 43.12)",
+          "oklch(72.14% 0.1412 43.12)",
+          "oklch(83.57% 0.1412 43.12)",
+          "oklch(95.00% 0.1412 43.12)"
+        ]
+      },
+      "on-action": {
+        "role": "neutral",
+        "displayName": "White action label",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.0157 232.41)",
+          "oklch(26.43% 0.0157 232.41)",
+          "oklch(37.86% 0.0157 232.41)",
+          "oklch(49.29% 0.0157 232.41)",
+          "oklch(60.71% 0.0157 232.41)",
+          "oklch(72.14% 0.0157 232.41)",
+          "oklch(83.57% 0.0157 232.41)",
+          "oklch(95.00% 0.0157 232.41)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0146 229.14)",
+          "oklch(26.43% 0.0146 229.14)",
+          "oklch(37.86% 0.0146 229.14)",
+          "oklch(49.29% 0.0146 229.14)",
+          "oklch(60.71% 0.0146 229.14)",
+          "oklch(72.14% 0.0146 229.14)",
+          "oklch(83.57% 0.0146 229.14)",
+          "oklch(95.00% 0.0146 229.14)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine border",
+        "tonalRamp": [
+          "oklch(15.00% 0.0051 228.82)",
+          "oklch(26.43% 0.0051 228.82)",
+          "oklch(37.86% 0.0051 228.82)",
+          "oklch(49.29% 0.0051 228.82)",
+          "oklch(60.71% 0.0051 228.82)",
+          "oklch(72.14% 0.0051 228.82)",
+          "oklch(83.57% 0.0051 228.82)",
+          "oklch(95.00% 0.0051 228.82)"
+        ]
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "Soft field",
+        "tonalRamp": [
+          "oklch(15.00% 0.0011 197.14)",
+          "oklch(26.43% 0.0011 197.14)",
+          "oklch(37.86% 0.0011 197.14)",
+          "oklch(49.29% 0.0011 197.14)",
+          "oklch(60.71% 0.0011 197.14)",
+          "oklch(72.14% 0.0011 197.14)",
+          "oklch(83.57% 0.0011 197.14)",
+          "oklch(95.00% 0.0011 197.14)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "warm": {
+        "role": "secondary",
+        "displayName": "Warm editorial panel",
+        "tonalRamp": [
+          "oklch(15.00% 0.0289 60.76)",
+          "oklch(26.43% 0.0289 60.76)",
+          "oklch(37.86% 0.0289 60.76)",
+          "oklch(49.29% 0.0289 60.76)",
+          "oklch(60.71% 0.0289 60.76)",
+          "oklch(72.14% 0.0289 60.76)",
+          "oklch(83.57% 0.0289 60.76)",
+          "oklch(95.00% 0.0289 60.76)"
+        ]
+      },
+      "primary-soft": {
+        "role": "neutral",
+        "displayName": "Pale petrol",
+        "tonalRamp": [
+          "oklch(15.00% 0.0085 197.02)",
+          "oklch(26.43% 0.0085 197.02)",
+          "oklch(37.86% 0.0085 197.02)",
+          "oklch(49.29% 0.0085 197.02)",
+          "oklch(60.71% 0.0085 197.02)",
+          "oklch(72.14% 0.0085 197.02)",
+          "oklch(83.57% 0.0085 197.02)",
+          "oklch(95.00% 0.0085 197.02)"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Error red",
+        "tonalRamp": [
+          "oklch(15.00% 0.1520 24.47)",
+          "oklch(26.43% 0.1520 24.47)",
+          "oklch(37.86% 0.1520 24.47)",
+          "oklch(49.29% 0.1520 24.47)",
+          "oklch(60.71% 0.1520 24.47)",
+          "oklch(72.14% 0.1520 24.47)",
+          "oklch(83.57% 0.1520 24.47)",
+          "oklch(95.00% 0.1520 24.47)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Catalogue headline",
+        "purpose": "Base h1; contextual sizes are recorded in DESIGN.md."
+      },
+      "section": {
+        "displayName": "Section heading",
+        "purpose": "Base h2."
+      },
+      "title": {
+        "displayName": "Compact title",
+        "purpose": "Base h3 and catalogue toolbar title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Public storefront body and inherited form text."
+      },
+      "product-name": {
+        "displayName": "Product name",
+        "purpose": "Full wrapping names in product cards."
+      },
+      "label": {
+        "displayName": "Compact label",
+        "purpose": "Category names and compact control labels."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Shared pill buttons."
+      },
+      "price": {
+        "displayName": "Product price",
+        "purpose": "Base card price; viewport and detail variants are documented."
+      }
+    },
+    "shadows": [
+      {
+        "name": "dialog",
+        "value": "0 24px 80px #12333c30",
+        "purpose": "Public dialogs."
+      },
+      {
+        "name": "notice",
+        "value": "0 10px 32px #102f3926",
+        "purpose": "Transient quotation confirmation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "motion",
+        "value": "180ms",
+        "purpose": "Color and border transitions."
+      },
+      {
+        "name": "photo-duration",
+        "value": "300ms",
+        "purpose": "Product-image hover scale to 1.045."
+      },
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Product-photo transform easing."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-phone-max",
+        "value": "360px"
+      },
+      {
+        "name": "phone-max",
+        "value": "600px"
+      },
+      {
+        "name": "customer-products-max",
+        "value": "760px"
+      },
+      {
+        "name": "tablet-max",
+        "value": "800px"
+      },
+      {
+        "name": "compact-desktop-max",
+        "value": "1000px"
+      },
+      {
+        "name": "ten-column-min",
+        "value": "1024px"
+      },
+      {
+        "name": "container-compact-max",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Petrol action used for product details and quotation submission.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Enviar solicitud</button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:11px 23px;border:1px solid transparent;border-radius:var(--pill,999px);font:550 13px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer;transition:background var(--motion,180ms),color var(--motion,180ms);background:var(--primary-action,#176072);color:var(--on-action,#fff)}.ds-primary:hover{filter:brightness(.92)}.ds-primary:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}.ds-primary:disabled{opacity:.4;cursor:default}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Outline button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary and pagination actions on white.",
+      "html": "<button class=\"ds-outline\" type=\"button\">Siguiente</button>",
+      "css": ".ds-outline{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:11px 23px;border:1px solid transparent;border-radius:var(--pill,999px);font:550 13px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer;transition:background var(--motion,180ms),color var(--motion,180ms);background:var(--surface,#fff);color:var(--primary-action,#176072);border-color:var(--line,#e5e9eb)}.ds-outline:hover{border-color:var(--primary,#176072);background:var(--primary-soft,#eef6f6)}.ds-outline:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}.ds-outline:disabled{opacity:.4;cursor:default}@media(prefers-reduced-motion:reduce){.ds-outline{transition:none}}"
+    },
+    {
+      "name": "Light button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "White action for colored contact surfaces.",
+      "html": "<button class=\"ds-light\" type=\"button\">Escríbenos por WhatsApp</button>",
+      "css": ".ds-light{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:11px 23px;border:1px solid transparent;border-radius:var(--pill,999px);font:550 13px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer;transition:background var(--motion,180ms),color var(--motion,180ms);background:white;color:var(--primary-action,#176072)}.ds-light:hover{text-decoration:none}.ds-light:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-light{transition:none}}"
+    },
+    {
+      "name": "Add action",
+      "kind": "button",
+      "refersTo": "button-add",
+      "description": "Pale petrol product action; fills petrol on hover.",
+      "html": "<button class=\"ds-add\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 8h13l-1.3 9H7.4L5 4H2\"/><circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"17\" cy=\"21\" r=\"1\"/></svg><span>Añadir</span></button>",
+      "css": ".ds-add{display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:9px 13px;border:1px solid transparent;border-radius:var(--pill,999px);background:var(--primary-soft,#eef6f6);color:var(--primary-action,#176072);font:500 11px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer;transition:background var(--motion,180ms),color var(--motion,180ms)}.ds-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}.ds-add:hover{background:var(--primary-action,#176072);color:white}.ds-add:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-add{transition:none}}"
+    },
+    {
+      "name": "Search",
+      "kind": "input",
+      "refersTo": "search",
+      "description": "Permanent catalogue search with orange cap and petrol focus border.",
+      "html": "<form class=\"ds-search\" role=\"search\"><input type=\"search\" aria-label=\"Buscar productos\" placeholder=\"Buscar un producto, marca o referencia\"><button type=\"button\">Buscar<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"m16 16 5 5\"/></svg></button></form>",
+      "css": ".ds-search{display:flex;align-items:center;min-width:0;height:42px;padding-left:18px;border:1px solid var(--line,#e5e9eb);border-radius:var(--pill,999px);background:var(--soft,#f7f8f8)}.ds-search:focus-within{border-color:var(--primary,#176072)}.ds-search input{width:100%;min-width:0;height:40px;padding:0;border:0;border-radius:var(--pill,999px);background:transparent;color:var(--ink,#20292e);font:12px/1.6 var(--font,Inter,Arial,sans-serif)}.ds-search input::placeholder{color:var(--muted,#616b70)}.ds-search input:focus-visible{outline:none}.ds-search button{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;height:40px;padding:0 17px;border:0;border-radius:0 var(--pill,999px) var(--pill,999px) 0;background:var(--accent,#e4884f);color:#382314;font:11px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer}.ds-search button:hover{background:var(--accent,#e4884f)}.ds-search button:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}.ds-search svg{width:17px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}"
+    },
+    {
+      "name": "Category filter",
+      "kind": "chip",
+      "refersTo": "category-filter",
+      "description": "Horizontal filter pill; aria-pressed marks the selected category.",
+      "html": "<button class=\"ds-filter\" type=\"button\" aria-pressed=\"false\"><span>Suministros de oficina</span><small>12</small></button>",
+      "css": ".ds-filter{display:flex;align-items:center;gap:7px;max-width:230px;min-height:40px;padding:9px 14px;border:1px solid var(--line,#e5e9eb);border-radius:var(--pill,999px);background:white;color:var(--ink,#20292e);text-align:left;font:11px/1.4 var(--font,Inter,Arial,sans-serif);cursor:pointer}.ds-filter span{min-width:0;overflow-wrap:anywhere}.ds-filter small{font-size:11px;color:var(--muted,#616b70)}.ds-filter:hover{border-color:var(--primary,#176072)}.ds-filter[aria-pressed=true]{background:var(--primary-action,#176072);border-color:var(--primary-action,#176072);color:white}.ds-filter[aria-pressed=true] small{color:white}.ds-filter:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}"
+    },
+    {
+      "name": "Header navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Compact bordered navigation with contained horizontal scrolling.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navegación principal\"><a href=\"#catalogo\">Catálogo</a><a href=\"#nosotros\">Sobre GAMA</a><a href=\"#contacto\">Contacto</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:28px;min-height:38px;padding:0 16px;border:1px solid var(--line,#e5e9eb);border-radius:4px;min-width:0;overflow-x:auto;scrollbar-width:none;color:var(--ink,#20292e);font-family:var(--font,Inter,Arial,sans-serif)}.ds-nav a{padding-block:8px;white-space:nowrap;font-size:11px;line-height:1.6;color:inherit;text-decoration:none;text-underline-offset:4px}.ds-nav a:first-child{color:var(--primary,#176072)}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}"
+    },
+    {
+      "name": "Product card",
+      "kind": "card",
+      "refersTo": "product-card",
+      "description": "Base card specimen showing the existing no-photo fallback; desktop density is documented in DESIGN.md.",
+      "html": "<article class=\"ds-card\"><span class=\"ds-category\">Suministros de oficina</span><button class=\"ds-photo\" type=\"button\" aria-label=\"Ver producto\"><span class=\"ds-placeholder\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10M7.5 5l9 4\"/></svg><span>Foto por confirmar</span></span></button><div class=\"ds-info\"><span class=\"ds-reference\">Referencia</span><div class=\"ds-price\"><strong>Consultar</strong></div><button class=\"ds-name\" type=\"button\">Nombre del producto</button></div></article>",
+      "css": ".ds-card{position:relative;display:flex;flex-direction:column;min-width:0;padding:13px;border:1px solid var(--line,#e5e9eb);border-radius:5px;background:white;color:var(--ink,#20292e);font-family:var(--font,Inter,Arial,sans-serif);transition:border-color var(--motion,180ms),box-shadow var(--motion,180ms)}.ds-card:hover{border-color:#afc6cb}.ds-category{display:block;min-height:26px;padding-right:24px;color:var(--muted,#616b70);font-size:11px;line-height:1.45;overflow-wrap:anywhere}.ds-photo{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;padding:12px;border:0;border-radius:0;background:white;cursor:pointer}.ds-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:100%;color:var(--muted,#616b70);font:11px/1.6 var(--font,Inter,Arial,sans-serif);text-align:center}.ds-placeholder svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;stroke-width:1}.ds-info{display:flex;flex-direction:column;flex:1;min-width:0;padding-top:9px}.ds-reference{align-self:start;max-width:100%;padding:2px 6px;border:1px solid var(--line,#e5e9eb);border-radius:var(--pill,999px);margin-bottom:7px;color:var(--muted,#616b70);font-size:11px;line-height:1.5;overflow-wrap:anywhere}.ds-price{margin-bottom:8px}.ds-price strong{display:block;color:var(--primary-action,#176072);font-size:19px;font-weight:700;line-height:1.3;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ds-name{padding:0;border:0;background:none;color:inherit;text-align:left;font:500 12px/1.5 var(--font,Inter,Arial,sans-serif);overflow-wrap:anywhere;cursor:pointer}.ds-name:hover{color:var(--primary,#176072)}.ds-card button:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-card{transition:none}}"
+    },
+    {
+      "name": "Category ribbon item",
+      "kind": "custom",
+      "refersTo": "category-card",
+      "description": "Circular fallback specimen for categories without a mapped illustration.",
+      "html": "<button class=\"ds-category-card\" type=\"button\" aria-pressed=\"false\"><span class=\"ds-category-visual\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10M7.5 5l9 4\"/></svg></span><span class=\"ds-category-copy\"><strong>Categoría</strong><small>12 productos</small></span></button>",
+      "css": ".ds-category-card{display:flex;align-items:center;gap:11px;min-width:0;padding:7px 5px;border:1px solid transparent;border-radius:5px;background:white;color:var(--ink,#20292e);text-align:left;font-family:var(--font,Inter,Arial,sans-serif);cursor:pointer;transition:background var(--motion,180ms),border-color var(--motion,180ms)}.ds-category-card:hover,.ds-category-card[aria-pressed=true]{background:var(--primary-soft,#eef6f6);border-color:#c6dadd}.ds-category-visual{display:flex;align-items:center;justify-content:center;width:48px;height:48px;flex:0 0 48px;border-radius:50%;padding:3px;background:#f8e8dc;color:var(--primary,#176072)}.ds-category-visual svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}.ds-category-copy{display:grid;gap:3px;min-width:0;overflow-wrap:anywhere}.ds-category-copy strong{font-size:11px;font-weight:550;line-height:1.4}.ds-category-copy small{font-size:11px;line-height:1.6;color:var(--muted,#616b70);font-variant-numeric:tabular-nums}.ds-category-card:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-category-card{transition:none}}"
+    },
+    {
+      "name": "Product information tabs",
+      "kind": "nav",
+      "refersTo": "detail-tabs",
+      "description": "Underlined information tabs; behavior lives in the storefront controller.",
+      "html": "<div class=\"ds-detail-tabs\" role=\"tablist\" aria-label=\"Información del producto\"><button type=\"button\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Descripción</button><button type=\"button\" role=\"tab\" aria-selected=\"true\">Información adicional</button></div>",
+      "css": ".ds-detail-tabs{display:flex;justify-content:center;gap:32px;border-bottom:1px solid var(--line,#e5e9eb)}.ds-detail-tabs button{min-height:44px;padding:10px 4px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted,#616b70);font:12px/1.6 var(--font,Inter,Arial,sans-serif);cursor:pointer}.ds-detail-tabs button[aria-selected=true]{border-color:var(--primary,#176072);color:var(--ink,#20292e)}.ds-detail-tabs button:hover{background:none}.ds-detail-tabs button:focus-visible{outline:3px solid var(--accent-action,#b65325);outline-offset:3px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "GAMA / Freshly",
+    "overview": "This system applies only to the public catalogue and connected customer surfaces in [src/storefront](src/storefront/). It records the implemented adaptation of the owner's [Freshly reference by Junaki](https://dribbble.com/shots/26664219-Grocery-Website-Design), selected on 19 October 2026. It does not govern Coco ERP; its [internal design system](docs/design-system.md) remains separate.\n\nThe character is compact and commercial: petrol blue anchors white surfaces, orange marks the search action, and delicate borders organize dense product information. GAMA's identity, local Inter font and actual catalogue photography remain. The catalogue composition and its owner-mandated density are recorded in the [surface brief](.impeccable/surfaces/src-storefront-index-html.md).",
+    "keyCharacteristics": [
+      "White, finely bordered product cards with contained photography.",
+      "Petrol prices and primary actions; orange search cap and visible focus.",
+      "Pill controls, restrained corners and compact labels.",
+      "Circular category illustrations, a warm editorial panel and a full petrol footer."
+    ],
+    "rules": [
+      {
+        "name": "The Brand and Action Rule",
+        "body": "Preserve administrator brand colors; derive filled action colors with the existing contrast function instead of replacing the brand palette. The search cap uses dark text on the configured accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contained Overflow Rule",
+        "body": "Keep long product names available and let ribbons, filters and tables scroll within their own containers rather than widening the document.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Card Rule",
+        "body": "Product cards communicate hierarchy through borders, typography and photography; reserve elevation for overlays and notices.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** preserve GAMA's logo, administrator copy and Spanish interface labels.",
+      "**Do** preserve actual product photos, full names and illustrative-photo notices.",
+      "**Do** retain 100 products per page and ten catalogue columns from 1024px.",
+      "**Do** use the same storefront palette and controls before and after customer login.",
+      "**Do** keep keyboard focus visible and respect reduced motion."
+    ],
+    "donts": [
+      "**Don't** apply this storefront system to the ERP modules.",
+      "**Don't** invent ratings, discounts, payment methods or delivery promises from the reference.",
+      "**Don't** add a hero or separate featured-products section to the current catalogue composition.",
+      "**Don't** substitute category illustrations for product photography or invent alternate product views.",
+      "**Don't** change quotations, permissions or customer scope as a visual styling decision."
+    ]
+  }
+}

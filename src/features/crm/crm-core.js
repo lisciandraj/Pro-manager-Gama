@@ -246,7 +246,7 @@ function ir(id){
 
 function css(){ /* Styles are compiled in architect-components.css. */ }
 function kpi(etiqueta,valor,pie){
- return `<div class="crmKpi"><span>${esc(etiqueta)}</span><b>${esc(valor)}</b>${pie?`<small>${esc(pie)}</small>`:''}</div>`;
+ return `<div class="crmKpi">${window.ArcUI.metricIcon('chart')}<span>${esc(etiqueta)}</span><b>${esc(valor)}</b>${pie?`<small>${esc(pie)}</small>`:''}</div>`;
 }
 function pintar(r,cols){
  const s=section();

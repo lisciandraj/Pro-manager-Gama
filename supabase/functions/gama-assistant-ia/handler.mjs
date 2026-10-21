@@ -135,7 +135,7 @@ export function createHandler({env,fetch:fetcher}) {
    }
    if(body.action==='stock_plan'){
     const question=typeof body.question==='string'?body.question.trim():'';
-    const language=['fr','es','en'].includes(body.language)?body.language:'fr';
+    const language='es';
     if(!question||question.length>4000||!UUID.test(body.request_id||''))throw new Failure('INVALID_QUESTION',400);
     const conf=await settings();if(!conf.key)throw new Failure('AI_NOT_CONFIGURED',503);
     const agent=async(action,data={})=>rpc('coco_agent',{p_action:action,p_data:data},token);
@@ -144,7 +144,8 @@ export function createHandler({env,fetch:fetcher}) {
     await admin(token);return reply(result);
    }
    if(body.action!=='ask')throw new Failure('INVALID_ACTION',400);
-   const language=['fr','es','en'].includes(body.language)?body.language:'fr';
+   // Agent Coco always answers in Spanish, independently of the interface.
+   const language='es';
    const question=typeof body.question==='string'?body.question.trim():'';
    if(!question||question.length>4000||!UUID.test(body.request_id||''))throw new Failure('INVALID_QUESTION',400);
    for(const d of [body.from,body.to])if(d!=null&&d!==''&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))))throw new Failure('INVALID_PERIOD',400);

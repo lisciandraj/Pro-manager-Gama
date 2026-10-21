@@ -6,6 +6,14 @@ test('Supplier XML creates one reviewed-later draft and private operational metr
  try{await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'xml-admin@example.invalid',client,'xml-client@example.invalid']);await q("update profiles set active=true,role=case id when $1 then 'administrador' else 'cliente' end",[admin]);await q("insert into suppliers(id,name,tax_id) values($1,'XML supplier','1790012345001')",[supplier]);await as(client);await assert.rejects(importXml({xml}),/ROLE_NOT_ALLOWED/);await assert.rejects(metric('report'),/ROLE_NOT_ALLOWED/);
  await as(admin);await assert.rejects(importXml({xml:'<!DOCTYPE x [<!ENTITY ext SYSTEM "file:///etc/passwd">]><factura>&ext;</factura>'}),/INVALID_XML/);await assert.rejects(importXml({xml:xml.replace('115.00','116.00')}),/XML_TOTAL_OR_CURRENCY_INVALID/);
  const r=await importXml({xml,filename:'invoice.xml'});assert.equal(r.status,'draft');assert.equal((await importXml({xml,filename:'invoice.xml'})).id,r.id);assert.equal(Number(await one('select count(*) from accounting_entries')),0);assert.equal(await one('select source_reviewed from supplier_invoices where id=$1',[r.id]),false);
- const samples=[10,20,30,100].map(duration_ms=>({metric:'rpc',module:'accounting',operation:'gama_flow_finance',duration_ms,success:true,device:'desktop',network:'normal'}));assert.equal((await metric('record',{samples})).accepted,4);const report=await metric('report');assert.equal(report.rows[0].p95_ms,90);assert.equal(report.rows[0].samples,4);assert.ok(!('actor' in report.rows[0]));await assert.rejects(metric('record',{samples:[{...samples[0],operation:'payload?token=secret'}]}),/INVALID_DATA/);await assert.rejects(q('select * from private.supplier_xml_intakes'),/permission denied/);
+ const samples=[10,20,30,100].map(duration_ms=>({metric:'rpc',module:'accounting',operation:'gama_flow_finance',duration_ms,success:true,device:'desktop',network:'normal'}));assert.equal((await metric('record',{samples})).accepted,4);const report=await metric('report');assert.equal(report.rows[0].median_ms,25);assert.equal(report.rows[0].p95_ms,null);assert.equal(report.rows[0].samples,4);assert.ok(!('actor' in report.rows[0]));
+ // Small samples expose a median; a percentile is only meaningful after the
+ // minimum population. Keep the 99/100 boundary and actual calculation covered.
+ const population=Array.from({length:100},(_,i)=>({...samples[0],module:'quotes',duration_ms:i+1}));
+ await metric('record',{samples:population.slice(0,50)});await metric('record',{samples:population.slice(50,99)});
+ assert.equal((await metric('report')).rows.find(r=>r.module==='quotes').p95_ms,null);
+ await metric('record',{samples:population.slice(99)});
+ const large=(await metric('report')).rows.find(r=>r.module==='quotes');assert.equal(large.samples,100);assert.equal(large.p95_ms,95);
+ await assert.rejects(metric('record',{samples:[{...samples[0],operation:'payload?token=secret'}]}),/INVALID_DATA/);await assert.rejects(q('select * from private.supplier_xml_intakes'),/permission denied/);
  }finally{await db.close()}
 });

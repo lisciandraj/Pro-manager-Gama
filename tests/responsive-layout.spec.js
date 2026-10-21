@@ -119,10 +119,15 @@ test('module controls fit on phone, landscape, tablet and desktop',async({page})
  for(const id of ids){
   await page.evaluate(id=>ArcRouter.open(id),id);
   await page.waitForTimeout(500); // Module loaders render asynchronously.
-  for(const width of [320,360,390,768,844,1024,1440]){
+  for(const width of [320,360,390,768,844,1024,1440,1920]){
    await page.setViewportSize({width,height:width===844?390:900});
    const issues=await page.locator('section.active').evaluate(layoutProblems);
    if(issues.length)failures.push({module:id,width,issues});
+   for(const picker of await page.locator('section.active .gamaColumnPicker').all()){
+    if(!await picker.isVisible())continue;
+    const style=await picker.evaluate(e=>{const s=getComputedStyle(e);return {border:s.borderTopWidth,padding:s.paddingTop}});
+    expect(style,{module:id,width}).toEqual({border:'0px',padding:'0px'});
+   }
   }
  }
  expect(failures).toEqual([]);
@@ -178,5 +183,34 @@ test('daily workspaces fit the four requested widths in French, Spanish and Engl
    await page.setViewportSize({width,height:900});
    expect(await page.locator('#gamaPreparationHost').evaluate(layoutProblems),language+' preparation '+width).toEqual([]);
   }
+ }
+});
+
+test('home tiles stay square when the viewport is resized or rotated',async({page})=>{
+ test.setTimeout(60000);
+ await boot(page);
+ for(const lang of ['fr','es','en']){
+ await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);
+ for(const [width,height] of [[320,568],[375,667],[390,844],[430,932],[844,390],[768,1024],[1024,768],[1180,650],[1280,720],[1366,768],[1920,1080],[2560,1440]]){
+  await page.setViewportSize({width,height});
+  const tiles=await page.locator('#mainmenu .gamaF2Card:visible').evaluateAll(cards=>cards.map(card=>{
+   const r=card.getBoundingClientRect();const label=card.querySelector('.gamaF2Title').getBoundingClientRect();
+   return {x:r.x,y:r.y,bottom:r.bottom,right:r.right,width:r.width,height:r.height,labelBottom:label.bottom,labelTop:label.top};
+  }));
+  expect(tiles.length).toBeGreaterThan(0);
+  if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(9);
+  expect(await page.locator('[data-mfa-enrollment]').count()).toBe(0);
+  if(width<=860)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(4);
+  const overlaps=[];
+  for(let i=0;i<tiles.length;i++)for(let j=i+1;j<tiles.length;j++){
+   const a=tiles[i],b=tiles[j];
+   if(!(a.right<=b.x+1||b.right<=a.x+1||a.bottom<=b.y+1||b.bottom<=a.y+1))overlaps.push([i,j]);
+  }
+  expect(overlaps,`${lang} ${width}×${height}: overlapping tiles`).toEqual([]);
+  expect(tiles.filter(t=>t.labelBottom>t.bottom+1||t.labelTop<t.y-1),`${lang} ${width}×${height}: overflowing labels`).toEqual([]);
+  expect(tiles.filter(t=>Math.abs(t.width-t.height)>=1),`${lang} ${width}×${height}: non-square tiles`).toEqual([]);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  if(lang==='fr'&&(width===390||width===1366))await page.screenshot({path:`test-results/square-home-${width}.png`,fullPage:true});
+ }
  }
 });

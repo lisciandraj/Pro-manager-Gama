@@ -110,10 +110,10 @@ test('Spanish startup skips translation and unopened workspaces; direct CRM and 
  expect((await resources()).filter(p=>p.endsWith('gama-crm-core.js'))).toHaveLength(1);
  await page.evaluate(()=>ArcRouter.open('hr'));await expect(page.locator('#hr')).toBeVisible();
  await page.evaluate(()=>ArcRouter.open('hr'));expect((await resources()).filter(p=>p.endsWith('gama-hr.js'))).toHaveLength(1);
- await page.locator('#arcLangSelect').selectOption('fr');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Produits');
- await page.locator('#arcLangSelect').selectOption('en');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Products');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('fr');await page.keyboard.press('Escape');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Produits');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Products');
  expect((await resources()).filter(p=>p.endsWith('gama-i18n-catalog.js'))).toHaveLength(0);
  for(const code of ['fr','en'])expect((await resources()).filter(p=>p.endsWith('gama-i18n-'+code+'.js'))).toHaveLength(1);
- await page.locator('#arcLangSelect').selectOption('fr');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Produits');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('fr');await page.keyboard.press('Escape');await expect(page.locator('#mainmenu [data-gama-module=products] .gamaF2Title')).toHaveText('Produits');
  expect((await resources()).filter(p=>p.endsWith('gama-i18n-fr.js'))).toHaveLength(1);
 });

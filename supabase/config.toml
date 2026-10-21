@@ -5,3 +5,8 @@ project_id = "coco-erp"
 # independently validates the user's Supabase token before any business call.
 [functions.coco-agent-mcp]
 verify_jwt = false
+
+# Retired mailbox endpoint returns 410 without reading credentials or contacting
+# providers. It remains public so old callback links receive the removal notice.
+[functions.coco-order-mail]
+verify_jwt = false

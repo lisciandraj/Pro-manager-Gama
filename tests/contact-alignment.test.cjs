@@ -80,3 +80,26 @@ test('conflicting identities keep original values until an explicit versioned co
   assert.deepEqual((await q('select coco_contact_compare($1,$2) r',['clients',c]))[0].r.fields,{});
  }catch(e){console.error(e.where||e);throw e}finally{await db.close()}
 });
+
+test('alignment remains transactional with the complete current schema, history and geocoding',async()=>{
+ const db=await restore();const q=async(sql,args=[])=>(await db.query(sql,args)).rows;
+ try{
+  const admin=uuid(),c=uuid(),s=uuid();
+  await q('insert into auth.users(id,email) values($1,$2)',[admin,'current-contact@example.invalid']);
+  await q("update profiles set role='administrador',active=true where id=$1",[admin]);
+  await q("insert into customers(id,name,identification,address,city,country) values($1,'Current company','CURRENT-1','Street 1','Quito','Ecuador')",[c]);
+  const entity=(await q('select contact_entity_id from customers where id=$1',[c]))[0].contact_entity_id;
+  await q("insert into suppliers(id,name,contact_entity_id) values($1,'Current company',$2)",[s,entity]);
+  await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await db.exec('set role authenticated');
+  const read=async(kind,id)=>(await q('select coco_contact_record($1,$2) r',[kind,id]))[0].r;
+  const before=await read('clients',c);
+  await q('select coco_contact_save($1,$2,$3,$4)',['clients',c,{phone2:'222',website:'https://current.example.invalid'},before.version]);
+  assert.equal((await read('suppliers',s)).record.phone2,'222');
+  assert.equal((await read('suppliers',s)).record.website,'https://current.example.invalid');
+  await assert.rejects(q('select coco_contact_save($1,$2,$3,$4)',['clients',c,{phone2:'stale'},before.version]),/CONTACT_VERSION_CONFLICT/);
+  assert.equal((await read('clients',c)).record.phone2,'222');
+  await db.exec('reset role');
+  assert.ok((await q("select count(*)::int n from pg_trigger where tgrelid='customers'::regclass and not tgisinternal and tgenabled<>'D'"))[0].n>0);
+  await db.exec('set role anon');await assert.rejects(read('clients',c),/permission denied/);
+ }finally{await db.close()}
+});

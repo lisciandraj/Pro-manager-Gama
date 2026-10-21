@@ -130,7 +130,7 @@ function fail(e,retry){
 }
 function badge(s){return `<span class="arcStatusBadge gaBadge" data-s="${esc(s)}">${tr(STATUS[s]||s)}</span>`}
 function kpi(label,value,hint,cls){
- return `<div class="arcPanel gaCard"><small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
+ return `<div class="arcPanel gaCard">${window.ArcUI.metricIcon('ledger')}<small>${tr(label)}</small><strong>${esc(value)}</strong>${hint?`<em class="${cls||''}">${esc(hint)}</em>`:''}</div>`;
 }
 function trend(current,previous){
  const a=Number(current||0),b=Number(previous||0);
@@ -621,12 +621,14 @@ VIEWS.cash={
    <div class="gaTools">
     <label>${tr('Estado')}<select id="gaStatus">${[['unmatched','Sin conciliar'],['matched','Conciliados'],['ignored','Ignorados'],['all','Todos']].map(([k,v])=>`<option value="${k}" ${(state.bankFilters?.status||'unmatched')===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select></label>
     <label>${tr('Cuenta')}<select id="gaBankAccount">${ecOpts(d.bank.accounts,state.bankFilters?.financial_account_id)}</select></label>
-    <label>${tr('Extracto')}<select id="gaBankBatch">${ecOpts((d.bank.batches||[]).map(b=>({id:b.id,label:[b.account_name,b.date_from,b.date_to,b.lines].join(' · ')})),state.bankFilters?.import_batch)}</select></label>
     <label>${tr('Buscar')}<input id="gaBankSearch" value="${esc(state.bankFilters?.search||'')}"></label>
+    <details class="gaBankAdvanced" ${['import_batch','from','to','min_amount','max_amount'].some(k=>state.bankFilters?.[k]!=null&&state.bankFilters[k]!=='')?'open':''}><summary>${tr('Más filtros')} · ${['import_batch','from','to','min_amount','max_amount'].filter(k=>state.bankFilters?.[k]!=null&&state.bankFilters[k]!=='').length}</summary><div class="gaTools">
+    <label>${tr('Extracto')}<select id="gaBankBatch">${ecOpts((d.bank.batches||[]).map(b=>({id:b.id,label:[b.account_name,b.date_from,b.date_to,b.lines].join(' · ')})),state.bankFilters?.import_batch)}</select></label>
     <label>${tr('Desde')}<input id="gaBankFrom" type="date" value="${esc(state.bankFilters?.from||'')}"></label>
     <label>${tr('Hasta')}<input id="gaBankTo" type="date" value="${esc(state.bankFilters?.to||'')}"></label>
     <label>${tr('Importe mínimo')}<input id="gaBankMin" type="number" step="0.01" value="${esc(state.bankFilters?.min_amount??'')}"></label>
     <label>${tr('Importe máximo')}<input id="gaBankMax" type="number" step="0.01" value="${esc(state.bankFilters?.max_amount??'')}"></label>
+    </div></details>
     <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
     ${rights?.create?`<button class="arcButton secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}
     ${rights?.export?`<button class="arcButton secondary" id="gaBankExport">${tr('Exportar todo')}</button>`:''}<button class="arcButton secondary" id="gaStatements">${tr('Revisar extractos')}</button></div>
@@ -708,13 +710,20 @@ function importForm(){
  el.querySelector('#gaCsv').onchange=preview;el.querySelector('#gaDecimal').onchange=preview;
 }
 async function matchForm(id){
- try{const key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0;
+ try{const ownerEpoch=opening,key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0,advance=false,nextId=null;if(ownerEpoch!==opening||section!=='cash'||!allowed())return;
  const choices=data=>`${data.matches.length?`<p>${tr('Elige un cobro existente o una factura pendiente. Ninguna correspondencia se aplica sola.')}</p>${data.matches.map(s=>`<p><label><input type="radio" name="gaMatch" value="${esc(s.type)}|${esc(s.kind)}|${esc(s.id)}"><b>${esc(s.label)}</b> · ${money(s.amount)} · ${esc(s.date)}<br><small>${tr(s.type==='invoice'?'Registrar cobro y conciliar':'Cobro o pago ya registrado')}${s.type==='invoice'?' · '+tr('Saldo pendiente')+': '+money(s.balance):''}</small></label></p>`).join('')}`:`<p>${tr('No se encontró ninguna correspondencia. Busca la factura por cliente o referencia.')}</p>`}<p><label><input type="radio" name="gaMatch" value="ignore||"> ${tr('Ignorar este movimiento')}</label></p>`;
  const el=GamaSales.modal('Conciliar el movimiento',`<p>${esc(result.bank.description)} · <b>${money(result.bank.amount)}</b></p><button type="button" class="arcButton secondary" id="gaMatchAdvanced">${tr('Varias facturas, pagos o ajustes')}</button><div class="gaTools"><input id="gaInvoiceSearch" placeholder="${esc(window.GamaI18n?.t?.('Cliente o referencia de factura')||'Cliente o referencia de factura')}"><button type="button" class="arcButton secondary" id="gaInvoiceFind">${tr('Buscar')}</button></div><div id="gaMatchChoices">${choices(result)}</div>`,'Confirmar',async form=>{
   const picked=form.querySelector('input[name=gaMatch]:checked');if(!picked)throw Error('Selecciona una opción.');const [type,kind,target]=picked.value.split('|');
-  if(type==='invoice')await bankMutate('settle',{request_key:key,bank_id:id,invoice_id:target});else if(type==='cash')await bankMutate('match_source',{request_key:key,bank_id:id,kind,source_id:target});else await mutate('reconcile',{id,match_type:'ignore',match_id:null});await go();
+  if(type==='invoice')await bankMutate('settle',{request_key:key,bank_id:id,invoice_id:target});else if(type==='cash')await bankMutate('match_source',{request_key:key,bank_id:id,kind,source_id:target});else await mutate('reconcile',{id,match_type:'ignore',match_id:null});await go();if(advance&&ownerEpoch===opening&&section==='cash'&&allowed())nextId=state.rows?.find(row=>row.status==='unmatched'&&row.id!==id)?.id||null;
  });
  el.dataset.bankWorkflow='';
+ if(JSON.parse(localStorage.getItem('gama_session_v1')||'null')?.role==='admin'&&(!window.gamaAccessAllowed||window.gamaAccessAllowed('assistant-ia'))){
+ const proposalButton=document.createElement('button');proposalButton.type='button';proposalButton.className='arcButton secondary';proposalButton.id='gaMatchPropose';proposalButton.textContent=T('Enviar a Agent Coco');el.querySelector('.arcDialogActions').append(proposalButton);
+ proposalButton.onclick=()=>act(proposalButton,async()=>{const picked=el.querySelector('input[name=gaMatch]:checked');if(!picked||picked.value.split('|')[0]!=='invoice')throw Error(T('Selecciona una factura para proponer el cobro.'));const invoice=picked.value.split('|')[2];await window.ArcData.rpc('coco_action_queue',{p_action:'prepare_bank',p_data:{bank_id:id,invoice_id:invoice}});if(ownerEpoch!==opening||!allowed())return;window.gamaToast?.(T('Propuesta enviada a Agent Coco · Por validar'));el.close();});
+ }
+ const nextButton=document.createElement('button');nextButton.type='button';nextButton.className='arcButton secondary';nextButton.textContent=T('Conciliar y siguiente');nextButton.id='gaMatchNext';el.querySelector('.arcDialogActions').append(nextButton);
+ nextButton.onclick=()=>{advance=true;el.querySelector('form').requestSubmit()};el.querySelector('#gsSave').addEventListener('click',()=>{advance=false});
+ el.addEventListener('close',()=>{if(nextId&&ownerEpoch===opening&&section==='cash'&&allowed())queueMicrotask(()=>{if(ownerEpoch===opening&&section==='cash'&&allowed())matchForm(nextId)})},{once:true});
  el.querySelector('#gaMatchAdvanced').onclick=()=>act(el.querySelector('#gaMatchAdvanced'),async()=>{const ui=await auditUi();el.close();await ui.bankMatch(id,auditEnv())});
  el.querySelector('#gaInvoiceFind').onclick=async()=>{const token=++revision,b=el.querySelector('#gaInvoiceFind');b.disabled=true;try{const next=await bankRpc('suggest',{bank_id:id,search:el.querySelector('#gaInvoiceSearch').value});if(token===revision&&el.isConnected)window.ArcUI.render(el.querySelector('#gaMatchChoices'),choices(next));}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}finally{b.disabled=false}};
  }catch(e){window.gamaToast?.(window.ArcErrors.message(e))}

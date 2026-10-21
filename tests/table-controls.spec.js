@@ -34,7 +34,7 @@ test('column visibility persists across render and language, is isolated by user
  await page.evaluate(()=>{for(const key of Object.keys(localStorage)){if(key.includes('table_columns_v1')){const value=JSON.parse(localStorage.getItem(key));value.collapsed=false;localStorage.setItem(key,JSON.stringify(value))}}document.getElementById('sortFixture').remove()});await fixture(page);
  await expect(host.locator('.gamaColumnOptions')).toBeHidden();
  await expect(host.locator('tbody tr').first().locator('td').nth(0)).toBeHidden();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','3');
- await page.locator('#arcLangSelect').selectOption('en');await expect(host.locator('.gamaColumnHeading')).toContainText('Columns');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('.gamaColumnHeading')).toContainText('Columns');
  await host.locator('.gamaColumnHeading').click();await host.getByRole('button',{name:'Show all'}).click();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','5');
  for(const name of ['Nom','Montant','Date','Quantité'])await host.getByRole('checkbox',{name,exact:true}).uncheck();
  await expect(host.getByRole('checkbox',{name:'Actions',exact:true})).toBeDisabled();
@@ -87,7 +87,7 @@ test('every plain table gets one independent search, preserves actions and searc
  await host.locator('.gamaColumnHeading').click();await host.getByRole('checkbox',{name:'Nom',exact:true}).uncheck();await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
  await page.evaluate(()=>{const other=document.createElement('div');other.id='otherSearchTable';document.querySelector('#mainmenu').append(other);ArcUI.render(other,ArcUI.table({columns:[{key:'name',label:'Nom'}],items:[{name:'One'},{name:'Two'}]}));GamaTable.scan(document);GamaTable.scan(document)});
  await expect(page.locator('#otherSearchTable [data-table-search]')).toHaveCount(1);await expect(page.locator('#otherSearchTable tbody tr:visible')).toHaveCount(2);
- await page.locator('#arcLangSelect').selectOption('en');await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
 });
 test('module searches use the standard field without duplicates and search beyond the first server page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
@@ -163,7 +163,7 @@ test('reordered columns retain numeric sorting, hidden columns, search, form val
  await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);
  await host.locator('[data-table-view=cards]').click();await expect(host.locator('tbody tr[data-id=a] td').nth(1)).toHaveAttribute('data-col','Nom');
  await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
- await page.locator('#arcLangSelect').selectOption('en');await expect(page.locator('html')).toHaveAttribute('lang','en');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(page.locator('html')).toHaveAttribute('lang','en');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
 });
 test('server columns keep their sort key and personal order on every page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);
@@ -178,6 +178,8 @@ test('keyboard and touch grips move headers without sorting or breaking phone sc
  await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
  const amount=host.getByRole('button',{name:'Déplacer la colonne Montant',exact:true});await amount.press('Alt+ArrowLeft');
  expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
+ // Keep the header clear of fixed navigation before browser hit testing.
+ await host.locator('thead').evaluate(el=>el.scrollIntoView({block:'center'}));
  // Dispatch PointerEvents through the browser's hit testing/capture path.
  await host.locator('table').evaluate(t=>{const grip=t.querySelector('.gamaColumnGrip'),from=grip.getBoundingClientRect(),to=t.querySelectorAll('th')[1].getBoundingClientRect();t.setPointerCapture=()=>{};t.hasPointerCapture=()=>false;grip.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch',pointerId:42,clientX:from.x+5,clientY:from.y+5}));for(const type of ['pointermove','pointerup'])t.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerType:'touch',pointerId:42,clientX:to.x+to.width/2,clientY:to.y+to.height/2}))});
  expect(await columnNames(host)).toEqual(['Nom','Montant','Date','Quantité','Actions']);expect(await order(page)).toEqual(['a','b','c','d']);
@@ -199,7 +201,7 @@ test.describe('touch column ordering',()=>{
  test('a real touch swipe on the visible grip moves a column on a phone',async({page,context})=>{
   await boot(page,390);await fixture(page);const host=page.locator('#sortFixture');
   expect(await page.evaluate(()=>matchMedia('(pointer:coarse)').matches)).toBe(true);
-  const grip=host.locator('.gamaColumnGrip').first(),head=host.locator('thead th').first();await grip.scrollIntoViewIfNeeded();const g=await grip.boundingBox(),h=await head.boundingBox();
+  const grip=host.locator('.gamaColumnGrip').first(),head=host.locator('thead th').first();await head.evaluate(el=>el.scrollIntoView({block:'center'}));const g=await grip.boundingBox(),h=await head.boundingBox();
   expect(g.width).toBeGreaterThanOrEqual(44);expect(g.height).toBeGreaterThanOrEqual(44);expect(g.y).toBeGreaterThanOrEqual(h.y);expect(g.y+g.height).toBeLessThanOrEqual(h.y+h.height);
   const target=await host.locator('thead th').nth(1).boundingBox(),client=await context.newCDPSession(page),x=g.x+g.width/2,y=g.y+g.height/2,end=target.x+target.width/2;
   await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});

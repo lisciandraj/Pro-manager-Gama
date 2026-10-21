@@ -1,0 +1,1567 @@
+{
+  "project_id": "mknsaibrewksgomuslev",
+  "observed_at": "2026-10-19",
+  "purpose": "Observed ledger only; does not certify equivalence with local migration names. Never use db push --include-all.",
+  "migrations": [
+    {
+      "hash": "0abf515e23de3bf45b399ca36393a7ee",
+      "name": "create_gama_core_schema",
+      "version": "20260825214709"
+    },
+    {
+      "hash": "cc05a4685e7f7cb3f25d679c8ea4ca9a",
+      "name": "secure_role_function_and_enable_realtime_v2",
+      "version": "20260825214750"
+    },
+    {
+      "hash": "c49fd6742732ec74d889fb8e7d2a4ddc",
+      "name": "lock_gama_data_api_to_authenticated",
+      "version": "20260825220700"
+    },
+    {
+      "hash": "452a0fd722fcac4a6d05d1aeea1c118d",
+      "name": "central_realtime_stock_and_photos",
+      "version": "20260826230603"
+    },
+    {
+      "hash": "01a8f325f248e710d53e7d0ce5bee300",
+      "name": "allow_signed_inventory_adjustments",
+      "version": "20260826230640"
+    },
+    {
+      "hash": "ec421688ab0d426799b73d62c0e39a7f",
+      "name": "lock_stock_rpc_to_authenticated",
+      "version": "20260826230906"
+    },
+    {
+      "hash": "0da362a43abc0d7b0a9aeb9c2e0cd98f",
+      "name": "create_customer_requests",
+      "version": "20260831191043"
+    },
+    {
+      "hash": "130e2adcdb612fc1bd85c080cb3e5d50",
+      "name": "customer_requests_invoice_link",
+      "version": "20260831194154"
+    },
+    {
+      "hash": "7ca95cd6d78569df23b17ea0fc101e68",
+      "name": "scope_reads_by_role_and_gate_new_accounts",
+      "version": "20260906122718"
+    },
+    {
+      "hash": "7b5012482236116be995e91fd16b5f02",
+      "name": "add_purchase_orders_and_receiving",
+      "version": "20260826233113"
+    },
+    {
+      "hash": "bf83d277a443acfb563087ed5bd35c29",
+      "name": "enable_purchase_realtime",
+      "version": "20260826233121"
+    },
+    {
+      "hash": "624b1d7e1397e9f87c70203d382fd3c4",
+      "name": "lock_purchase_rpc_execution",
+      "version": "20260826233512"
+    },
+    {
+      "hash": "fb1b77af7b9126e6fcbddf13f96fd62a",
+      "name": "fix_purchase_receiving_roles_and_order_integrity",
+      "version": "20260827180115"
+    },
+    {
+      "hash": "211793757cef12aceee3d72bf0fc0996",
+      "name": "enable_profiles_realtime",
+      "version": "20260828150956"
+    },
+    {
+      "hash": "f8b43cfe41f4a9567603658dca3430ee",
+      "name": "add_invoice_archive_number",
+      "version": "20260828152750"
+    },
+    {
+      "hash": "d7983042ececfcc64365a643452e5530",
+      "name": "add_client_catalog_order_requests",
+      "version": "20260829231322"
+    },
+    {
+      "hash": "714bc596f52887d202fd442f5c4755bd",
+      "name": "add_order_request_total",
+      "version": "20260829231343"
+    },
+    {
+      "hash": "8006c8e42e8fe107baf8236fa6f1919e",
+      "name": "fix_client_order_trigger_search_path",
+      "version": "20260829231457"
+    },
+    {
+      "hash": "e1a021e56418236b0b66de1756ac9f37",
+      "name": "rollback_client_catalog_production",
+      "version": "20260829232822"
+    },
+    {
+      "hash": "4460f76007688ebebcd70d3b6ed13cd1",
+      "name": "add_sri_electronic_invoicing",
+      "version": "20260831223659"
+    },
+    {
+      "hash": "4cc51d9d4c99622020b7ecde11d89f17",
+      "name": "harden_sri_trigger_function",
+      "version": "20260831223830"
+    },
+    {
+      "hash": "58e3b283748bd4dc0aedfe3655d63f2e",
+      "name": "add_cliente_role_to_profiles_check",
+      "version": "20260905114011"
+    },
+    {
+      "hash": "670b35b20c7fe0bb1fbbd6d74c60798c",
+      "name": "add_requester_identity_to_customer_requests",
+      "version": "20260905120541"
+    },
+    {
+      "hash": "5647bf7b8fe04c4be3ce7a6422990d2a",
+      "name": "add_favorite_orders_for_client_catalog",
+      "version": "20260905175610"
+    },
+    {
+      "hash": "356eec7f27e3e5b93ad1fc2fcac65a30",
+      "name": "add_stock_before_after_to_movements",
+      "version": "20260905205940"
+    },
+    {
+      "hash": "a4c42834fa19ad8389ca03d7c099f015",
+      "name": "fix_receive_purchase_role_check",
+      "version": "20260905220848"
+    },
+    {
+      "hash": "f1892e5e0646ec2990daaed0c07a9901",
+      "name": "create_tms_tables",
+      "version": "20260906095346"
+    },
+    {
+      "hash": "efeb1077db9adf5cd516cbdec77fa6d8",
+      "name": "revoke_trigger_function_from_api",
+      "version": "20260906140858"
+    },
+    {
+      "hash": "8fb7d7278ccc62562d4a713f896b9731",
+      "name": "restore_execute_on_is_staff",
+      "version": "20260906142630"
+    },
+    {
+      "hash": "888d108fefb3413a24cb1db60f0f06ba",
+      "name": "add_email_to_profiles",
+      "version": "20260906211136"
+    },
+    {
+      "hash": "aae609ac1fea182904df8f55c5494874",
+      "name": "create_price_lists",
+      "version": "20260906214330"
+    },
+    {
+      "hash": "4ba36c4daa92add4a7de262fb3ab7a44",
+      "name": "catalog_products_deterministic_tariff",
+      "version": "20260906235032"
+    },
+    {
+      "hash": "8913070e32df14ca3748ba234108fae8",
+      "name": "products_has_photo_flag",
+      "version": "20260907000212"
+    },
+    {
+      "hash": "546595f5e034868e3b55be3b1fae7e8c",
+      "name": "fleet_deadline_cron",
+      "version": "20260917195829"
+    },
+    {
+      "hash": "51bd93c9890c34c031b73f39af1a1884",
+      "name": "backup_product_photos_before_recompress",
+      "version": "20260907115433"
+    },
+    {
+      "hash": "477fb5148b78fa2ddabd12bf68a9b7c3",
+      "name": "create_hr_and_app_modules",
+      "version": "20260908063322"
+    },
+    {
+      "hash": "24b355871d3c5e2b38133c53a194314d",
+      "name": "hr_link_employee_to_account",
+      "version": "20260908102849"
+    },
+    {
+      "hash": "4a4f538d477fa61b2203fee266b65a96",
+      "name": "hr_shared_calendar_views",
+      "version": "20260908102923"
+    },
+    {
+      "hash": "97d00f22cfe1b8e2d4cca78ba10b7daf",
+      "name": "hr_split_private_columns_step1_copy",
+      "version": "20260908144152"
+    },
+    {
+      "hash": "28271233bd254e9bdb5cf82af3db93a8",
+      "name": "ec_direction_and_actionable_intelligence",
+      "version": "20261005053207"
+    },
+    {
+      "hash": "6cb57d01b9d7dbf68b1f39cf14ac02eb",
+      "name": "module_assistant_proposals",
+      "version": "20261017173050"
+    },
+    {
+      "hash": "7c26c3ca558688565bf055795e2ffb2b",
+      "name": "hr_split_private_columns_step2_drop_views",
+      "version": "20260908144219"
+    },
+    {
+      "hash": "04d3db34dfc287c9f581a07b63000c29",
+      "name": "hr_is_staff_security_definer",
+      "version": "20260908144315"
+    },
+    {
+      "hash": "aec697365d494d2ef83366d3b87ed2c2",
+      "name": "tms_drivers_employee_link",
+      "version": "20260908172104"
+    },
+    {
+      "hash": "b312da06550eec3276b3e02da719cd25",
+      "name": "gama_product_fields_and_price_categories",
+      "version": "20260908223318"
+    },
+    {
+      "hash": "50ccbcde90698ae012d6b549cf70484e",
+      "name": "gama_supplier_customer_categories",
+      "version": "20260908223341"
+    },
+    {
+      "hash": "646a2aad907af892949248c3b7a1906c",
+      "name": "gama_receive_purchase_sin_purchase_price",
+      "version": "20260908223401"
+    },
+    {
+      "hash": "201d54ed81b13e14a757a509b1a0d9ca",
+      "name": "ec_b2b_customer_portal",
+      "version": "20261005053216"
+    },
+    {
+      "hash": "7fd657dafced06b257eeab82221da521",
+      "name": "gama_catalog_products_por_categoria",
+      "version": "20260908223420"
+    },
+    {
+      "hash": "178ce754156b0945e84ff4382ec66bb4",
+      "name": "gama_drop_purchase_price_y_checks_nuevos_precios",
+      "version": "20260908223456"
+    },
+    {
+      "hash": "56993080844fa890341eedec1e60a4cd",
+      "name": "gama_restaurar_purchase_price_unico",
+      "version": "20260908225230"
+    },
+    {
+      "hash": "8f1e44d33f62f72ae47b2c0064b1ff31",
+      "name": "gama_retirar_categorias_de_proveedor",
+      "version": "20260909054348"
+    },
+    {
+      "hash": "b7ba880b38f9f62932233a89878103bb",
+      "name": "gama_tarifas_especiales_por_cliente_y_producto",
+      "version": "20260909055236"
+    },
+    {
+      "hash": "713c2332fc706eafdc8f37cdb4a60c7e",
+      "name": "gama_catalog_products_tarifas_especiales",
+      "version": "20260909055251"
+    },
+    {
+      "hash": "45bc440eb8907bce516a797210219380",
+      "name": "gama_retirar_tarifas_por_ano_de_contrato",
+      "version": "20260909063116"
+    },
+    {
+      "hash": "d3d62c5b7308e5696e2de693e9800408",
+      "name": "gama_tms_deliveries_customer_id",
+      "version": "20260909152547"
+    },
+    {
+      "hash": "831c019dcfce128f893b1166d19514da",
+      "name": "gama_supplier_contract_prices",
+      "version": "20260909205724"
+    },
+    {
+      "hash": "707d894d70fad1d025bfe9ef624382f5",
+      "name": "gama_customer_special_prices_contract_ref",
+      "version": "20260909212048"
+    },
+    {
+      "hash": "249beec27e99f4f10d3f071842438e70",
+      "name": "gama_drop_supplier_contract_prices",
+      "version": "20260909212108"
+    },
+    {
+      "hash": "35b0c375ad9de89e3b8868b0aaadb476",
+      "name": "gama_crm_01_audit_and_helpers",
+      "version": "20260910051002"
+    },
+    {
+      "hash": "5a37aec2465d1dea942c9862ceca5e1d",
+      "name": "gama_crm_02_lookups",
+      "version": "20260910051053"
+    },
+    {
+      "hash": "6b06bf14854e89ce2f4bbc571e62067d",
+      "name": "gama_crm_03_leads",
+      "version": "20260910052516"
+    },
+    {
+      "hash": "8311fcc01995fbb63b3cbc9f91e7a59d",
+      "name": "gama_crm_04_contacts",
+      "version": "20260910052551"
+    },
+    {
+      "hash": "1f8a8509c3ccf874dec816c41c9d9041",
+      "name": "gama_crm_05_opportunities",
+      "version": "20260910052819"
+    },
+    {
+      "hash": "c109b8de86714c1e39d0703157b452d0",
+      "name": "gama_crm_06_activities_targets_customers",
+      "version": "20260910052859"
+    },
+    {
+      "hash": "cdff2f22ad98cb9aeb69b17e9e198da7",
+      "name": "gama_crm_07_fix_touch_search_path",
+      "version": "20260910054845"
+    },
+    {
+      "hash": "d86d0d4a871a4511d9346c6c83ec91d4",
+      "name": "gama_crm_08_team_directory_view",
+      "version": "20260910150118"
+    },
+    {
+      "hash": "66902e931a4cfee19cf506dcffd837c3",
+      "name": "inventory_v2_phase1_warehouses_locations_quants",
+      "version": "20260911122324"
+    },
+    {
+      "hash": "6871b1a438597385dc53169e81efff75",
+      "name": "inventory_v2_rpc_transfer_adjust_reserve_receipt",
+      "version": "20260911132241"
+    },
+    {
+      "hash": "c58b0aae9cc256188ff4f67b5fbda8ab",
+      "name": "inventory_v2_counts_and_reorder_rules",
+      "version": "20260911132320"
+    },
+    {
+      "hash": "84d51fc62d53a98426b7624a304cd9bc",
+      "name": "gama_sales_orders_external_invoices",
+      "version": "20260911210127"
+    },
+    {
+      "hash": "ae694aa57a8b01bbba2acafffadf565b",
+      "name": "product_identity_guard",
+      "version": "20260912061046"
+    },
+    {
+      "hash": "fddd96d575485cccb84d2d3eaaf6afb6",
+      "name": "deduplicate_products_keep_most_complete",
+      "version": "20260912081917"
+    },
+    {
+      "hash": "1f5bc6f0121eb819f0418232da3d1528",
+      "name": "commercial_transaction_chain",
+      "version": "20260912125649"
+    },
+    {
+      "hash": "f51a27b398a29e2ca4bf4fb419330e51",
+      "name": "client_quotes_delivery_portal",
+      "version": "20260912133221"
+    },
+    {
+      "hash": "e2c3a1652e33240ac0952c41b0d8c239",
+      "name": "tms_loading_scan_gate",
+      "version": "20260912140014"
+    },
+    {
+      "hash": "e4eb70522862e54ee034bb7d9339dc12",
+      "name": "tms_loading_legacy_barcode",
+      "version": "20260912140253"
+    },
+    {
+      "hash": "cbe2e587dcdce4b758b5ad36f672eb6e",
+      "name": "fulfillment_p1",
+      "version": "20260912152533"
+    },
+    {
+      "hash": "81d4efc350059a81fb151c81c1996207",
+      "name": "operations_p2",
+      "version": "20260912172608"
+    },
+    {
+      "hash": "7fa7d180c29e3d8e3526da8ea975e39d",
+      "name": "action_center",
+      "version": "20260912185645"
+    },
+    {
+      "hash": "20e4734e8255f96be4bc6da4224269ff",
+      "name": "internal_invoices",
+      "version": "20260912215915"
+    },
+    {
+      "hash": "ee08e7e501ab7aa6314cc1a59d7b13f6",
+      "name": "hr_p1",
+      "version": "20260913083305"
+    },
+    {
+      "hash": "4223a1cb5bd21e8937c8d616787905f7",
+      "name": "shared_dossier_references",
+      "version": "20260913150025"
+    },
+    {
+      "hash": "e441053a6883131e519993571be56654",
+      "name": "accounting_alias_shadowing_fix",
+      "version": "20260917173816"
+    },
+    {
+      "hash": "9d66612744d415b4a79e7f4535b2980f",
+      "name": "spanish_document_prefixes",
+      "version": "20260913151558"
+    },
+    {
+      "hash": "2036f11cca7c5408c2c25d1463faf952",
+      "name": "simple_invoice_external_number",
+      "version": "20260913171529"
+    },
+    {
+      "hash": "94a7674f1f97c505352c055b8c61dc15",
+      "name": "carry_customer_comment",
+      "version": "20260913174237"
+    },
+    {
+      "hash": "83b97e75b0b52f0771d2368c744249a5",
+      "name": "tms_only_package_control",
+      "version": "20260913180201"
+    },
+    {
+      "hash": "7d9fbbcb2c424927e69b65d4e5c641e3",
+      "name": "dedicated_order_preparation",
+      "version": "20260913183456"
+    },
+    {
+      "hash": "41cbcae86332a0ceee99075966ef12b1",
+      "name": "audit_business_actions",
+      "version": "20260917174733"
+    },
+    {
+      "hash": "cfa773e5e348988aae6889cb5bd5913d",
+      "name": "invoice_after_validated_delivery",
+      "version": "20260913193151"
+    },
+    {
+      "hash": "ade7de76b3ba41a6c68cd58431c29d01",
+      "name": "automatic_invoice_on_delivery",
+      "version": "20260913195625"
+    },
+    {
+      "hash": "607bf24533786786e97614773696fea0",
+      "name": "legacy_delivery_auto_invoice_fix",
+      "version": "20260913201938"
+    },
+    {
+      "hash": "b6e1af68427512f40db24ad32b22fa1d",
+      "name": "payment_tracking_delivery_terms",
+      "version": "20260913210331"
+    },
+    {
+      "hash": "12438fabcbd37fd2b8faece8759a80fa",
+      "name": "payment_list_record_scope",
+      "version": "20260913210459"
+    },
+    {
+      "hash": "5b103403525271a23f30d8c8ba6dce65",
+      "name": "accounting_revenue_report_grouping_fix",
+      "version": "20260917174212"
+    },
+    {
+      "hash": "b22f74d07c8654e87caf78dede1015ce",
+      "name": "payment_canonical_references",
+      "version": "20260913210818"
+    },
+    {
+      "hash": "2216ef94033022c541f050079878cf8f",
+      "name": "unified_request_quote",
+      "version": "20260914161434"
+    },
+    {
+      "hash": "c06530589d704020a56434a1e8c24603",
+      "name": "knowledge_base",
+      "version": "20260914213718"
+    },
+    {
+      "hash": "15743920b919dffea005845e1590ad65",
+      "name": "assistant_ia_admin",
+      "version": "20260915182532"
+    },
+    {
+      "hash": "4fb496851f1f4f139d2e773f4d907054",
+      "name": "assistant_ia_overview_fix",
+      "version": "20260915182625"
+    },
+    {
+      "hash": "a49efa8d819c39bcca2498951151cd27",
+      "name": "assistant_ia_server_settings_policy",
+      "version": "20260915183234"
+    },
+    {
+      "hash": "6964a3e8c157fb28138184c8420b2492",
+      "name": "project_management",
+      "version": "20260916093638"
+    },
+    {
+      "hash": "012636ac2b1cc691b6387b9b3643eb11",
+      "name": "project_item_deletion",
+      "version": "20260916215311"
+    },
+    {
+      "hash": "dd5be53d1a600e4ec123a679b6ad9a8b",
+      "name": "preparation_single_confirmation",
+      "version": "20260917140337"
+    },
+    {
+      "hash": "17643a857232bd4a703e3495fed61bc3",
+      "name": "accounting_module",
+      "version": "20260917162640"
+    },
+    {
+      "hash": "75112ae98b83d652f43aa84db6f321f3",
+      "name": "accounting_module_api",
+      "version": "20260917162834"
+    },
+    {
+      "hash": "74e44bce19575d372feade1b5c06aa1c",
+      "name": "accounting_module_api2",
+      "version": "20260917163255"
+    },
+    {
+      "hash": "f2f6ec9c07d0b12893fd1b99afcfd376",
+      "name": "accounting_module_api3",
+      "version": "20260917173039"
+    },
+    {
+      "hash": "b022ac02b04b2200994831af6b3d4391",
+      "name": "accounting_module_integrations",
+      "version": "20260917173112"
+    },
+    {
+      "hash": "70af30fe65e0db2b90a3afb5b495176c",
+      "name": "accounting_period_audit_verbs",
+      "version": "20260917175044"
+    },
+    {
+      "hash": "e8fe6927260ce9664eefd11d9ef305c3",
+      "name": "accounting_permissions_audit_key",
+      "version": "20260917175752"
+    },
+    {
+      "hash": "ecc267312b3b18421e6758c2ed195a73",
+      "name": "fleet_management",
+      "version": "20260917193154"
+    },
+    {
+      "hash": "1c02677766b99b3f0fd0237e4d08159f",
+      "name": "fleet_management_api",
+      "version": "20260917193348"
+    },
+    {
+      "hash": "d9b323968eefe1b0a37fad392ad39717",
+      "name": "fleet_management_rls",
+      "version": "20260917193925"
+    },
+    {
+      "hash": "2557021217131504f39de884d61a3771",
+      "name": "fleet_management_action_center",
+      "version": "20260917193942"
+    },
+    {
+      "hash": "48846e5e47bebca43e4e650e3bfe3bef",
+      "name": "fleet_management_demo_data",
+      "version": "20260917194131"
+    },
+    {
+      "hash": "391a5f56b294d436e7a6ca483deb75f9",
+      "name": "fleet_alert_log_nulls_not_distinct",
+      "version": "20260917194604"
+    },
+    {
+      "hash": "280d24bbd8732219bb15cc4136fbd138",
+      "name": "fleet_consumption_full_tank_window",
+      "version": "20260918012433"
+    },
+    {
+      "hash": "05ab749b723f032e53e1d40f47636e0a",
+      "name": "fleet_purge_and_hr_licences",
+      "version": "20260918070028"
+    },
+    {
+      "hash": "feb42c676feb4a4a4a7f83a91a668f91",
+      "name": "fleet_accounting_revoke_write_grants",
+      "version": "20260918075634"
+    },
+    {
+      "hash": "7076df7aeb8e581127474aba766536c9",
+      "name": "fleet_cargo_capacity",
+      "version": "20260918104435"
+    },
+    {
+      "hash": "835b21d6c166004f7518177a23bb0bc6",
+      "name": "fleet_vehicle_save_capacity",
+      "version": "20260918104517"
+    },
+    {
+      "hash": "8d10fe8ac3d0d9e663a70e0268b12680",
+      "name": "tms_drivers_into_fleet",
+      "version": "20260918105758"
+    },
+    {
+      "hash": "440bddd62f2c140e759365ae39d60d7c",
+      "name": "dossier_number_no_gaps",
+      "version": "20260918145032"
+    },
+    {
+      "hash": "b9b4037dbed1323a019ad2a7fa5cf04d",
+      "name": "returns_supplier_credit_without_invoice",
+      "version": "20260918174513"
+    },
+    {
+      "hash": "c379920d24408551c5cdb5d6ca1c47d5",
+      "name": "returns_module_model",
+      "version": "20260918153949"
+    },
+    {
+      "hash": "c47ae40f0849535a2cb138546c350a9f",
+      "name": "returns_module_rights_and_reads",
+      "version": "20260918154217"
+    },
+    {
+      "hash": "7b9b36714750846a91f1cea8261f9811",
+      "name": "returns_module_sources_and_create",
+      "version": "20260918154559"
+    },
+    {
+      "hash": "afaa758ea2e7b8725eb6fe35885a5578",
+      "name": "returns_module_workflow",
+      "version": "20260918154752"
+    },
+    {
+      "hash": "c5cebb44cbad1a2a29652285300b4c41",
+      "name": "returns_module_financial",
+      "version": "20260918155349"
+    },
+    {
+      "hash": "39c44b3798eb327b643cbce02a2d11e2",
+      "name": "returns_module_rls_audit",
+      "version": "20260918155758"
+    },
+    {
+      "hash": "528b7fb9bfee5fbb8b0e85337b99597d",
+      "name": "returns_document_reference_kind",
+      "version": "20260918160727"
+    },
+    {
+      "hash": "66955ea84453ca03ecb95bfbbb82591f",
+      "name": "returns_movement_types",
+      "version": "20260918161740"
+    },
+    {
+      "hash": "79005d4f6f15cc79247aa858ad552894",
+      "name": "returns_process_line_guard_order",
+      "version": "20260918162558"
+    },
+    {
+      "hash": "70a64a06fb0261f3a2918cf7c7a0f410",
+      "name": "returns_refund_ambiguous_amount",
+      "version": "20260918163358"
+    },
+    {
+      "hash": "37d81d79236a790391ac3e31176125c8",
+      "name": "returns_overview_ambiguous_kind",
+      "version": "20260918174712"
+    },
+    {
+      "hash": "1335f65251c7592e9e1815d1f36b55a1",
+      "name": "returns_visible_in_dossier_tracker",
+      "version": "20260918175513"
+    },
+    {
+      "hash": "a3d158cddb96f368846b4a5c92ab4e0b",
+      "name": "returns_retire_legacy_fulfillment_actions",
+      "version": "20260918180336"
+    },
+    {
+      "hash": "91fc3f7ded9439cdf20b4030cc89b077",
+      "name": "returns_ai_catalog",
+      "version": "20260918181227"
+    },
+    {
+      "hash": "eed39345a8cc0f519b15874a21cc414e",
+      "name": "returns_drop_legacy_tables",
+      "version": "20260918181359"
+    },
+    {
+      "hash": "6c773eb7fbf37b2b1f5c3e3087809b71",
+      "name": "returns_overview_locations",
+      "version": "20260918182411"
+    },
+    {
+      "hash": "ecb64012f7f6422ba4aac79a6709f9f8",
+      "name": "document_category_policy_initplan",
+      "version": "20260920072353"
+    },
+    {
+      "hash": "cb5efe3a2be037296545e3a179a6e3b0",
+      "name": "tms_proofs_read_reference",
+      "version": "20260923185148"
+    },
+    {
+      "hash": "e9ba7ceac3663a3de7b86e66e3a8cea2",
+      "name": "returns_action_centre_alerts",
+      "version": "20260918183538"
+    },
+    {
+      "hash": "58f8e78c439ecaf6cc414b28c391fdaa",
+      "name": "returns_stats",
+      "version": "20260918183848"
+    },
+    {
+      "hash": "1a044f0dce6c58c101f3f084c3935d5b",
+      "name": "returns_reach_accounting",
+      "version": "20260918213101"
+    },
+    {
+      "hash": "6a1c2ce0ab028c479a4051707ea8d68c",
+      "name": "company_identity_localization",
+      "version": "20260919094748"
+    },
+    {
+      "hash": "7e640e0ca109e1fd74177ce87e68c1aa",
+      "name": "home_module_order",
+      "version": "20260919104031"
+    },
+    {
+      "hash": "35cc14981dd6f56803b4fb7dae1f7d5e",
+      "name": "home_kpi_catalog",
+      "version": "20260919110515"
+    },
+    {
+      "hash": "07da9a4b96ae3f0cc51c879a1c965e8c",
+      "name": "standardize_domain_dispatch",
+      "version": "20260919160503"
+    },
+    {
+      "hash": "180ec3a9c3fca0eb7ed767e0a4a67b24",
+      "name": "atomic_legacy_quote",
+      "version": "20260919160510"
+    },
+    {
+      "hash": "c3c73c83d7f73a3445fb01c983a0e85a",
+      "name": "reconcile_temporary_photo_backup",
+      "version": "20260919160517"
+    },
+    {
+      "hash": "e72b98472bdf0be6056d2addad0574a1",
+      "name": "role_module_access",
+      "version": "20260919201956"
+    },
+    {
+      "hash": "7d4f3c9315cf39c2f8de8353192c95c0",
+      "name": "custom_access_profiles",
+      "version": "20260919211424"
+    },
+    {
+      "hash": "5e60371d2adec16ff21addcdc2f5c1ac",
+      "name": "service_and_documents",
+      "version": "20260919221254"
+    },
+    {
+      "hash": "a97eacb9f339c93083c8c2e9d3cb25c2",
+      "name": "company_dashboard",
+      "version": "20260919225245"
+    },
+    {
+      "hash": "2828514105428ec529ff536436e0a593",
+      "name": "document_categories_employee_sources_access",
+      "version": "20260920072030"
+    },
+    {
+      "hash": "05fa3e413052a5b573c931e74b82d844",
+      "name": "configurable_document_references",
+      "version": "20260920140548"
+    },
+    {
+      "hash": "84c5dda0ffebf37cc6dba69a01c85fb5",
+      "name": "reference_read_performance",
+      "version": "20260920143534"
+    },
+    {
+      "hash": "a83700165ef262a098ac27eb74ac8603",
+      "name": "p0_transactional_purchases_matrix_refunds",
+      "version": "20260920184557"
+    },
+    {
+      "hash": "f4e8a4ed82220cc9b9bcbae29ff47a85",
+      "name": "p0_inventory_snapshot_and_recovery_export",
+      "version": "20260920184608"
+    },
+    {
+      "hash": "4eecc5050728f4686b83b340fd90c73a",
+      "name": "p1_customer_context_audit_and_policies",
+      "version": "20260920184609"
+    },
+    {
+      "hash": "50b6f99b7d5f473cc1462ec156522c17",
+      "name": "p1_commercial_controls_and_merge",
+      "version": "20260920184610"
+    },
+    {
+      "hash": "f18b2108451f0fec4ae34bf4a3e0c57d",
+      "name": "p1_price_rules_and_catalog_commands",
+      "version": "20260920184611"
+    },
+    {
+      "hash": "4010f2a57f61ecd99aa10e8c3b4bdf21",
+      "name": "p1_alert_followup_and_operating_controls",
+      "version": "20260920184612"
+    },
+    {
+      "hash": "4710244e3a8bf1c1296188062df400f6",
+      "name": "p1_counts_and_adjustment_approval",
+      "version": "20260920184613"
+    },
+    {
+      "hash": "54b5b4366e955185752b4ce35104e809",
+      "name": "p1_supplier_offers_and_three_way_match",
+      "version": "20260920184615"
+    },
+    {
+      "hash": "1dc61e1c9ccac181703e4aa3b3cbc371",
+      "name": "p1_import_dry_run_and_retry",
+      "version": "20260920184617"
+    },
+    {
+      "hash": "6616ae78435ffd6e2f928a9e34e6703c",
+      "name": "p1_service_portal_and_document_approval",
+      "version": "20260920184618"
+    },
+    {
+      "hash": "74c3fd06a7da15e5a033aaedf35e9637",
+      "name": "p1_hr_staffing_and_handover",
+      "version": "20260920184619"
+    },
+    {
+      "hash": "b76116c2b892f068d58db8f3b2362fda",
+      "name": "p1_identity_security_and_access_review",
+      "version": "20260920184620"
+    },
+    {
+      "hash": "293e891ef9c6d33ed9d159f9d6b90fa7",
+      "name": "p1_receipts_reconciliation_and_followup",
+      "version": "20260920184630"
+    },
+    {
+      "hash": "eff5a98a2b1f03e80d31af222edbf35a",
+      "name": "p1_product_units_and_historical_costs",
+      "version": "20260920184631"
+    },
+    {
+      "hash": "42ef0aa42152eb8b412c37cc1f73c572",
+      "name": "p1_dossier_and_project_followthrough",
+      "version": "20260920184632"
+    },
+    {
+      "hash": "35575ca5c07803fe6e834dbd2bd89c3e",
+      "name": "p1_transport_proofs_and_notification_preferences",
+      "version": "20260920184634"
+    },
+    {
+      "hash": "6289b4bdb708a5fdee56090acd1ff7f0",
+      "name": "p1_action_permissions_and_closing_controls",
+      "version": "20260920184635"
+    },
+    {
+      "hash": "5914bb06d5c0e260d8b16557901ea392",
+      "name": "p1_workflow_guardrails_and_access_controls",
+      "version": "20260920184636"
+    },
+    {
+      "hash": "8580b0d413f489de444a82313307f721",
+      "name": "p1_barcode_lookup_and_service_sla",
+      "version": "20260920184637"
+    },
+    {
+      "hash": "297338b363f0ef88a9edb1560fc7dfb8",
+      "name": "p1_service_products_and_completion",
+      "version": "20260920184638"
+    },
+    {
+      "hash": "fb8a1f28173a10207a2d020d59ecb0b1",
+      "name": "p1_optional_lot_traceability",
+      "version": "20260920184639"
+    },
+    {
+      "hash": "18d2828d9ac0d743f9f577233af8cbfb",
+      "name": "p1_final_authorization_guards",
+      "version": "20260920184640"
+    },
+    {
+      "hash": "4e3540395b2281df9b62f92f48a52b44",
+      "name": "p1_dashboard_drilldowns_and_stage_metrics",
+      "version": "20260920184641"
+    },
+    {
+      "hash": "8e08d1b1d82a39ccdec58e310185cc17",
+      "name": "dashboard_priorities",
+      "version": "20260922171925"
+    },
+    {
+      "hash": "7143b45c3d701a9e67175e57b687d42a",
+      "name": "dashboard_priorities_groups",
+      "version": "20260922172746"
+    },
+    {
+      "hash": "afb69d683b949027e459ff85ce7b52b3",
+      "name": "purchase_process_number",
+      "version": "20260922174307"
+    },
+    {
+      "hash": "c3227dab5d1a17239ef31ae7668fb00d",
+      "name": "return_process_number",
+      "version": "20260922180027"
+    },
+    {
+      "hash": "1b9ed8fda7a2a30e2c4e066c74ddf436",
+      "name": "delivery_module",
+      "version": "20260922181448"
+    },
+    {
+      "hash": "ded2a8489a9272067586d06c1d2a97ef",
+      "name": "contacts_module",
+      "version": "20260922185312"
+    },
+    {
+      "hash": "d66eff055b76cdf90abb95a2106b1b7a",
+      "name": "audit_trail",
+      "version": "20260922190824"
+    },
+    {
+      "hash": "9b0d77344f35772976c209b0522fbce4",
+      "name": "invitation_template",
+      "version": "20260922191148"
+    },
+    {
+      "hash": "e23e1fa268b773c53d6f8a1c8d320d69",
+      "name": "warehouse_shelves",
+      "version": "20260922204512"
+    },
+    {
+      "hash": "b8c10b812acb65b20e7f14886213e164",
+      "name": "warehouse_default_zones",
+      "version": "20260923061244"
+    },
+    {
+      "hash": "ccd951592863d4642aea64068395f653",
+      "name": "sales_orders_tab_of_quotes",
+      "version": "20260923071616"
+    },
+    {
+      "hash": "bbdeb1be10852d5d306fbf1af724f79e",
+      "name": "payments_tab_of_quotes",
+      "version": "20260923090300"
+    },
+    {
+      "hash": "ecd39751e546a24758d3e674b6a69511",
+      "name": "coco_erp_brand",
+      "version": "20260923102828"
+    },
+    {
+      "hash": "e484fa37b7005e31720496d850df9175",
+      "name": "warehouse_admin",
+      "version": "20260923181223"
+    },
+    {
+      "hash": "51d60079437af3cdb57e8c465f420a0a",
+      "name": "hr_base_role_org_chart",
+      "version": "20260923211728"
+    },
+    {
+      "hash": "4544bf8773d61ffcf7447a9163945e2e",
+      "name": "storefront_category_photos",
+      "version": "20261007015742"
+    },
+    {
+      "hash": "2d058447501ea75ea0d12dc2ffc23dbf",
+      "name": "hr_retire_legacy_rights",
+      "version": "20260923220018"
+    },
+    {
+      "hash": "d17617b54ed38c65e81d8a0d2ee8932c",
+      "name": "product_import_enrichment",
+      "version": "20260925184530"
+    },
+    {
+      "hash": "95455218c0c72936d0beaf165138cd40",
+      "name": "product_import_restore_archived",
+      "version": "20260925184957"
+    },
+    {
+      "hash": "1f3de5046fdfa811a3a8005de1d956a1",
+      "name": "coco_intelligence",
+      "version": "20260925223302"
+    },
+    {
+      "hash": "3b1ea0ef4b8fd1363c32c2fa2b70af87",
+      "name": "coco_intelligence_ai_catalog",
+      "version": "20260925223303"
+    },
+    {
+      "hash": "d5fcfeba2b165f4fb4db250194a3322d",
+      "name": "coco_intelligence_reliability",
+      "version": "20260926083435"
+    },
+    {
+      "hash": "272045485b06856fb858da08d997f0bf",
+      "name": "stock_exception_adjustments",
+      "version": "20260926111248"
+    },
+    {
+      "hash": "529526c5813f2b16bc46d5d763736322",
+      "name": "empty_warehouse_deletion",
+      "version": "20260927111220"
+    },
+    {
+      "hash": "33329349af4d78fdded81a5122c5a686",
+      "name": "delivery_shared_process_reference",
+      "version": "20260927164750"
+    },
+    {
+      "hash": "af760b7574520d6a942bf73a81239379",
+      "name": "audit_stock_integrity",
+      "version": "20260927172009"
+    },
+    {
+      "hash": "dc06537dd2a89a666ac03d16e0adf0d5",
+      "name": "audit_process_state",
+      "version": "20260927172015"
+    },
+    {
+      "hash": "8162fafc800959dc596a90bbe4546ef4",
+      "name": "audit_stock_valuation",
+      "version": "20260927172021"
+    },
+    {
+      "hash": "596af26f0f2ad23f7a4dac9f5b247460",
+      "name": "audit_monitoring",
+      "version": "20260927172029"
+    },
+    {
+      "hash": "b0c3c112084b7e1fadd3b4155975f3cd",
+      "name": "fix_package_reference_timeout",
+      "version": "20260927181757"
+    },
+    {
+      "hash": "2d9342fd9fc5d80156633cffabdd336a",
+      "name": "permanent_user_deletion",
+      "version": "20260927205219"
+    },
+    {
+      "hash": "b59ff974c9e6c936936b9ae648025351",
+      "name": "sri_invoice_workflow",
+      "version": "20260927220329"
+    },
+    {
+      "hash": "7fc1034e70ccdf061805e5149dcf11d9",
+      "name": "sav_return_creation",
+      "version": "20260928101345"
+    },
+    {
+      "hash": "cbc7118e77942504e3bff9a967a6d2fc",
+      "name": "shared_process_identity",
+      "version": "20260928101352"
+    },
+    {
+      "hash": "e59b06a71fd318063b9d347e31e53dfb",
+      "name": "website_preview",
+      "version": "20260928114608"
+    },
+    {
+      "hash": "1746472a13e9306c90d87b626b42f8f3",
+      "name": "website_default_products",
+      "version": "20261003184636"
+    },
+    {
+      "hash": "c4073fa93a3f65e4bef887012b00a571",
+      "name": "b2b_product_favorites",
+      "version": "20261007190055"
+    },
+    {
+      "hash": "dca4fa7ced575f206c62dc48c8976955",
+      "name": "universal_module_history",
+      "version": "20261017173040"
+    },
+    {
+      "hash": "c78e2fc859bf93259d2c97a94c5a0bfa",
+      "name": "returns_summary_pagination",
+      "version": "20260928173300"
+    },
+    {
+      "hash": "1043ded454bf6ea11318e9e70089fd07",
+      "name": "employee_photos",
+      "version": "20260929142009"
+    },
+    {
+      "hash": "d0afed17810a243dd295e83581b7ab19",
+      "name": "sri_invoice_selection",
+      "version": "20261001092519"
+    },
+    {
+      "hash": "9f208215365a29bb2a18d165c22918ec",
+      "name": "accounting_ec_ledger",
+      "version": "20261003074945"
+    },
+    {
+      "hash": "4d27fae333bdf86006d9fd6d153df72a",
+      "name": "accounting_ec_fk_indexes",
+      "version": "20261003075343"
+    },
+    {
+      "hash": "6d52e89362d1df0a61f9e2d07dd1d7c6",
+      "name": "public_storefront",
+      "version": "20261003091337"
+    },
+    {
+      "hash": "4918bca9f742aa708177b4250daddcfd",
+      "name": "surveys",
+      "version": "20261003152338"
+    },
+    {
+      "hash": "9adf469437042109e3089326b2a5c083",
+      "name": "contacts_people_save",
+      "version": "20261003152357"
+    },
+    {
+      "hash": "33cb5d990fb5e1e042e3d19f9718ffa7",
+      "name": "survey_recipients",
+      "version": "20261003161033"
+    },
+    {
+      "hash": "69ef1478b4f01243ada41721a8009257",
+      "name": "contact_addresses",
+      "version": "20261003162302"
+    },
+    {
+      "hash": "a46620d92782db28c6c483b4cda6a7c9",
+      "name": "website_customer_requests",
+      "version": "20261003184033"
+    },
+    {
+      "hash": "560fba8dfab9007700a33bed1d75b2e2",
+      "name": "ec_stock_thresholds_and_supplier_score",
+      "version": "20261005053201"
+    },
+    {
+      "hash": "4c3adbe8183b21c118351a0b0c02bc0d",
+      "name": "storefront_legal_identity",
+      "version": "20261006230109"
+    },
+    {
+      "hash": "17df19ab6fa50cfe7edcb997f40f6e19",
+      "name": "b2b_unified_storefront",
+      "version": "20261007194805"
+    },
+    {
+      "hash": "34466552fb8f0fe77abe4a84da7d6922",
+      "name": "retire_client_access",
+      "version": "20261003202902"
+    },
+    {
+      "hash": "7b7a315ab4cda07cd76421bd3264466a",
+      "name": "survey_publication_groups",
+      "version": "20261003212647"
+    },
+    {
+      "hash": "f22a3bbd37af6a18431bddfb7088015a",
+      "name": "process_step_history",
+      "version": "20261003212648"
+    },
+    {
+      "hash": "ef52eff78ae69ce5f88455d21322f741",
+      "name": "survey_recipient_privacy",
+      "version": "20261003213121"
+    },
+    {
+      "hash": "7ac695478b4e7e5817238b888f2b0fc8",
+      "name": "tms_order_only_auto_planning",
+      "version": "20261004115531"
+    },
+    {
+      "hash": "e30c0bca42483237094faac1e1cc4309",
+      "name": "product_import_3000_rows",
+      "version": "20261004145757"
+    },
+    {
+      "hash": "25fddc611a1dcc3a9e6355bf2a978651",
+      "name": "import_product_timeout_and_indexes",
+      "version": "20261004155043"
+    },
+    {
+      "hash": "0c6e95f7d0d86867c968c3b1fc5df117",
+      "name": "stock_workspace_improvements",
+      "version": "20261004191646"
+    },
+    {
+      "hash": "3321865bfc773222b99efeca9f5795e9",
+      "name": "delivery_transfer_audit",
+      "version": "20261004213801"
+    },
+    {
+      "hash": "983954274d49f0ed20db0253b269585b",
+      "name": "tms_today_driver_routes_gps",
+      "version": "20261004213802"
+    },
+    {
+      "hash": "b3f75caa4148affae32d0b2b301b793f",
+      "name": "tms_delivery_operations",
+      "version": "20261004213803"
+    },
+    {
+      "hash": "7033a43eae9f86b72f5e08a66a3791af",
+      "name": "tms_tracking_private_facade",
+      "version": "20261004214058"
+    },
+    {
+      "hash": "cf011882345632ae247b44eec36f3e1e",
+      "name": "ec_fiscal_documents",
+      "version": "20261005052615"
+    },
+    {
+      "hash": "c3a9528b08b4d2bb6df71439218ac103",
+      "name": "ec_received_withholdings",
+      "version": "20261005052701"
+    },
+    {
+      "hash": "02c67ed070083ba6ba52b9f4a5727047",
+      "name": "ec_ats_and_tax_drafts",
+      "version": "20261005052732"
+    },
+    {
+      "hash": "f6e712df29c0cc5d80f32fe1bec51106",
+      "name": "ec_credit_identity_and_aging",
+      "version": "20261005053136"
+    },
+    {
+      "hash": "1037f74096ec72e729b4b350b820e88c",
+      "name": "ec_bank_statement_invoice_matching",
+      "version": "20261005053146"
+    },
+    {
+      "hash": "71c9653bff037032ca92b37c3a569dca",
+      "name": "ec_payroll_calculation_and_employee_receipts",
+      "version": "20261005053151"
+    },
+    {
+      "hash": "4f9f96509877b45e191483300e2b70ac",
+      "name": "ec_returns_service_workspace",
+      "version": "20261005053220"
+    },
+    {
+      "hash": "75eb0a06ddd00dfc62e08d2f3c60790c",
+      "name": "ec_release_access_and_indexes",
+      "version": "20261005054127"
+    },
+    {
+      "hash": "c59df40df6f6e6671641c2740eb330c2",
+      "name": "ec_purchase_retention_completion",
+      "version": "20261005070632"
+    },
+    {
+      "hash": "c35b98c9fc2b0e1fab5b482886794ce7",
+      "name": "ec_delivery_cost_per_customer",
+      "version": "20261005070644"
+    },
+    {
+      "hash": "bbad2be08c5796f76e364164b964b1f9",
+      "name": "automation_jobs_and_rules",
+      "version": "20261005171628"
+    },
+    {
+      "hash": "622b6620856bfb03506e911664249390",
+      "name": "automation_business_flows",
+      "version": "20261005171630"
+    },
+    {
+      "hash": "6333d465f3c6f435c3eaae647c18a183",
+      "name": "finance_project_flow_bridges",
+      "version": "20261005171632"
+    },
+    {
+      "hash": "a6cba9fbf6dc617e47e8aaeefa5e5848",
+      "name": "b2b_customer_documents_center",
+      "version": "20261005171633"
+    },
+    {
+      "hash": "c4657195aefe6663caf19958593997f9",
+      "name": "operational_metrics",
+      "version": "20261005171634"
+    },
+    {
+      "hash": "62262872d82c11bf61d741f1837afa18",
+      "name": "supplier_xml_intake",
+      "version": "20261005171635"
+    },
+    {
+      "hash": "f3620492f2106a6f3924105e18e5f94a",
+      "name": "customer_followup_flows",
+      "version": "20261005171723"
+    },
+    {
+      "hash": "f0e4de92406e49d779893331c942e1aa",
+      "name": "background_import_application",
+      "version": "20261005171729"
+    },
+    {
+      "hash": "46113ad3f49714fd100def422f6f23f9",
+      "name": "survey_feedback_cases",
+      "version": "20261005171730"
+    },
+    {
+      "hash": "3756a9b1beb63526e1249f3da75522fb",
+      "name": "road_matrix_and_time_windows",
+      "version": "20261005171816"
+    },
+    {
+      "hash": "98ebeb98f3a0aea2207473fa4176637a",
+      "name": "agent_coco_report_archive",
+      "version": "20261005171818"
+    },
+    {
+      "hash": "89f24211887b10b8d4c08d0f1d8cdcd7",
+      "name": "manual_mail_and_waze",
+      "version": "20261005204249"
+    },
+    {
+      "hash": "830cbad2bab900152b62f666b2073de3",
+      "name": "tms_execution_phase1",
+      "version": "20261005234010"
+    },
+    {
+      "hash": "763ec3ae694be77554b3a5e236b3ae70",
+      "name": "marketing_campaigns",
+      "version": "20261006125130"
+    },
+    {
+      "hash": "3ca0aea7393479bf7e45ddcd16ea701b",
+      "name": "marketing_attachments",
+      "version": "20261006131438"
+    },
+    {
+      "hash": "d35e018391e11d7ea4ea0fa7f90f0085",
+      "name": "performance_security_audit",
+      "version": "20261006214828"
+    },
+    {
+      "hash": "2ad2d465c4c19d4179caf47fea47df75",
+      "name": "performance_notification_badge",
+      "version": "20261008131512"
+    },
+    {
+      "hash": "fdd3297f27580ad2ec8b5e6e4a570394",
+      "name": "agent_coco_gateway",
+      "version": "20261009164509"
+    },
+    {
+      "hash": "10626ce8f611459b530e05ec42848db6",
+      "name": "sri_invoice_api_snapshot",
+      "version": "20261010170822"
+    },
+    {
+      "hash": "1853adbdd5dfed2c12d8345477f8bd9b",
+      "name": "commercial_profitability_and_cash_scenarios",
+      "version": "20261010220840"
+    },
+    {
+      "hash": "9043274ef9663f3cf50c8ecc516d5197",
+      "name": "recurring_customer_orders",
+      "version": "20261010220842"
+    },
+    {
+      "hash": "5050807f10c85cd9c606adfc59c8bfc7",
+      "name": "scheduled_collection_sequences",
+      "version": "20261010220932"
+    },
+    {
+      "hash": "a2a107aac2425baadcbf436cc8b99a75",
+      "name": "supplier_document_ocr_review",
+      "version": "20261010221437"
+    },
+    {
+      "hash": "66d38d097139acf3dd18e5c04517538b",
+      "name": "collection_sequence_stage_revalidation",
+      "version": "20261010222011"
+    },
+    {
+      "hash": "ae480947afe512918c5e14836261aa5e",
+      "name": "performance_paged_stock_and_dashboard",
+      "version": "20261011164023"
+    },
+    {
+      "hash": "63c75c3d96d9cb99181e93991f2c7be4",
+      "name": "accounting_audit_core",
+      "version": "20261011211512"
+    },
+    {
+      "hash": "3a5c2d0394cbaf2950d855ecdad5f75b",
+      "name": "accounting_audit_extensions",
+      "version": "20261011213506"
+    },
+    {
+      "hash": "8bb908d6a5c861bf50f37dce97ce387b",
+      "name": "accounting_return_recovery",
+      "version": "20261011214628"
+    },
+    {
+      "hash": "ecfc29a4fe2715e845eb6d43afd7b5ac",
+      "name": "accounting_audit_actor_indexes",
+      "version": "20261011214826"
+    },
+    {
+      "hash": "f78719e17491c03d811907ddcf55cda0",
+      "name": "preparation_auto_dispatch",
+      "version": "20261012180222"
+    },
+    {
+      "hash": "67d022b90e0594f2bebc60c1dfcde35c",
+      "name": "sales_workspace",
+      "version": "20261013191210"
+    },
+    {
+      "hash": "d50d13c58dc12ab8ea191f1cd23d4d32",
+      "name": "sales_zero_margin_approval",
+      "version": "20261013193446"
+    },
+    {
+      "hash": "67389b55bcc162ca3e53f8663101b0a1",
+      "name": "tms_simplification_and_dispatch",
+      "version": "20261014200220"
+    },
+    {
+      "hash": "839547adda7b6059ac0ff1df34e6442f",
+      "name": "sales_dossier_lifecycle",
+      "version": "20261015193030"
+    },
+    {
+      "hash": "38ea62b99410797608605e94a87cd58d",
+      "name": "sales_billing_and_deposits",
+      "version": "20261015193130"
+    },
+    {
+      "hash": "273a8137e26516348cde1c5c651deea5",
+      "name": "sales_dossier_views_and_portal",
+      "version": "20261015193131"
+    },
+    {
+      "hash": "990c0238130130c868f0c54bfbb60aa6",
+      "name": "sales_terms_and_pricing_rules",
+      "version": "20261015193132"
+    },
+    {
+      "hash": "dec5d90d3afcf09031a6526e7d142c61",
+      "name": "sales_transition_integrity",
+      "version": "20261015193133"
+    },
+    {
+      "hash": "985c1c5b56df463567be4202d62c6dcc",
+      "name": "coco_contacts_hub",
+      "version": "20261015202048"
+    },
+    {
+      "hash": "8bbba86700adb5312c450b4d8565acbe",
+      "name": "coco_contact_alignment",
+      "version": "20261016160823"
+    },
+    {
+      "hash": "cc35061978fe9021eeb148ef8cf4a16a",
+      "name": "automatic_minmax_purchase_drafts",
+      "version": "20261016204331"
+    },
+    {
+      "hash": "0320651dd6c7a50546b16191078e788b",
+      "name": "contact_address_geocoding",
+      "version": "20261016210906"
+    },
+    {
+      "hash": "0f16af907d2ec28072f01c4b7ec8be43",
+      "name": "photon_default_language",
+      "version": "20261016212234"
+    },
+    {
+      "hash": "228baa7b212bd6540d0553fe7d5b69e6",
+      "name": "order_followup_mail",
+      "version": "20261017093147"
+    },
+    {
+      "hash": "5461bb64fabdde5aae0d4a0a0d638d97",
+      "name": "dossier_chatgpt_followup",
+      "version": "20261017113550"
+    },
+    {
+      "hash": "e45f934011d6ec2973ee26115c70a46a",
+      "name": "minmax_purchase_module_history",
+      "version": "20261017132505"
+    },
+    {
+      "hash": "db44328e7dbe1a6ef6521ccf8113eb84",
+      "name": "grouped_dossier_history",
+      "version": "20261017134404"
+    },
+    {
+      "hash": "a731e08db379c63b2739f0399fd61ae8",
+      "name": "optimize_module_history_policies",
+      "version": "20261017173424"
+    },
+    {
+      "hash": "ac5540fed9c7b5c6445f4b4aed135975",
+      "name": "website_requests_to_draft_quotes",
+      "version": "20261018094434"
+    },
+    {
+      "hash": "afb9522364ef98ee018cdf20dd5fb12a",
+      "name": "unified_quote_request_list",
+      "version": "20261018100659"
+    },
+    {
+      "hash": "ac50079dc120b87139af5e2150a021a1",
+      "name": "unified_legacy_draft_references",
+      "version": "20261018104510"
+    },
+    {
+      "hash": "07e7eeba4876b72cb31b4e0491b50ecc",
+      "name": "audit_in_module_and_dossier_history",
+      "version": "20261018174743"
+    },
+    {
+      "hash": "876d5ab626cc9f0702cfc990e3aaf985",
+      "name": "optimize_audit_history_reads",
+      "version": "20261018175059"
+    },
+    {
+      "hash": "cbb3ef612d90f089b66f404dfb23bb40",
+      "name": "batch_product_history_visibility",
+      "version": "20261018175320"
+    },
+    {
+      "hash": "bb1d4f2196ffbee470ad146bde26e7c9",
+      "name": "remove_audit_from_module_history",
+      "version": "20261018181449"
+    }
+  ]
+}

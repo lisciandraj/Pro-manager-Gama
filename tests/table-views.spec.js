@@ -45,7 +45,7 @@ test('legacy and shared tables switch to uniform multi-column cards and retain i
  await page.locator('#viewLegacy').getByRole('button',{name:'Tableau',exact:true}).click();
  await page.evaluate(()=>{document.getElementById('viewFixtures').remove()});await fixtures(page);
  await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');await expect(page.locator('#viewShared table')).toHaveAttribute('data-gama-view','cards');
- await page.locator('#arcLangSelect').selectOption('en');
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');
  await expect(page.locator('#viewLegacy').getByRole('button',{name:'Table',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 test('portrait and landscape support both modes without overflow and preserve supplier actions after paging',async({page})=>{
@@ -101,16 +101,20 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones conservan sus dibujos y muestran también el nombre traducido.
+// Los botones muestran iconos bicolores y el nombre traducido.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
  for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
  await expect(cards.locator('svg rect')).toHaveCount(4);
- await expect(table.locator('svg path')).toHaveAttribute('d','M4 6h16M4 10h16M4 14h16M4 18h16');
+ for(const button of [cards,table]){
+  await expect(button.locator('svg')).toBeVisible();
+  await expect(button.locator('.cocoIconPrimary')).toHaveCSS('stroke','rgb(21, 127, 152)');
+  await expect(button.locator('.cocoIconAccent')).toHaveCSS('stroke','rgb(248, 120, 38)');
+ }
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];
  expect(await names()).toEqual(['Tuiles','Tuiles','Tableau','Tableau']);
- await page.locator('#arcLangSelect').selectOption('en');await expect(cards).toHaveAccessibleName('Cards');expect(await names()).toEqual(['Cards','Cards','Table','Table']);
- await page.locator('#arcLangSelect').selectOption('es');await expect(table).toHaveAccessibleName('Tabla');expect(await names()).toEqual(['Tarjetas','Tarjetas','Tabla','Tabla']);
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(cards).toHaveAccessibleName('Cards');expect(await names()).toEqual(['Cards','Cards','Table','Table']);
+ await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('es');await page.keyboard.press('Escape');await expect(table).toHaveAccessibleName('Tabla');expect(await names()).toEqual(['Tarjetas','Tarjetas','Tabla','Tabla']);
  await cards.click();await expect(page.locator('#viewShared table')).toHaveAttribute('data-gama-view','cards');await expect(cards).toHaveAttribute('aria-pressed','true');await expect(table).toHaveAttribute('aria-pressed','false');
 });

@@ -3,7 +3,7 @@ import {registry,aliases,canOpen} from './registry.js';
 const hooks=new Map();let current='mainmenu',cleanups=[];
 function unmount(){const callbacks=cleanups;cleanups=[];for(const callback of callbacks)callback();}
 const canonical=id=>aliases[id] || id;
-const emit=(type,detail)=>window.dispatchEvent(new CustomEvent(type,{detail}));
+const emit=(type,detail)=>{window.dispatchEvent(new CustomEvent(type,{detail}));if(type==='arc:route-change')window.ArcLoadScript('coco-module-history.js').then(()=>{if(current===detail.id)window.CocoModuleHistory.open(detail.id)}).catch(()=>{});};
 function allowed(id){return id==='mainmenu'||(!window.gamaAccessAllowed?false:canOpen(id==='gama-tms-section'?'tms':id));}
 function refuse(id){
   if(window.gamaAccessAllowed){

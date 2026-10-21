@@ -2,6 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const {isolateLocalPage}=require('./local-browser-fixture.cjs');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
@@ -36,6 +37,7 @@ test('ningún módulo se dibuja su propia cabecera', () => {
 const hoy = () => new Date().toISOString().slice(0, 10);
 
 async function boot(page, db = {}) {
+  await isolateLocalPage(page);
   await page.addInitScript(seed => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
     localStorage.setItem('gama_tms_migrated_v1', '1');
@@ -157,7 +159,7 @@ test('las pantallas de index.html traen el mismo molde de cabecera', async ({ pa
   // dejaban al usuario encerrado.
   await page.evaluate(() => window.showTab('products', null));
   await page.waitForTimeout(200);
-  await page.click('#products .gamaStdBack');
+  await page.click('.arcTopbar #cocoModuleBack');
   await page.waitForTimeout(300);
   await expect(page.locator('#mainmenu')).toBeVisible();
   await expect(page.locator('#products')).toBeHidden();
@@ -192,6 +194,7 @@ test('los módulos conservan la cabecera compartida y Dashboard su variante comp
       return s ? '#' + s.id : '';
     });
     expect(abierta, n + ': no se abrió ninguna pantalla').not.toBe('');
+    await expect(page.locator(abierta+' .gamaStdHeader').first()).toBeAttached();
     exigirMolde(await leerCabecera(page, abierta), n, abierta==='#dashboard');
     if(abierta==='#dashboard'){
       await expect(page.locator('#dashboard .adHeaderTools #ad-preset')).toBeVisible();
@@ -239,24 +242,25 @@ test('cada cabecera lleva el icono de la tarjeta que abre el módulo', async ({ 
   }
 });
 
-test('la cabecera compacta conserva una flecha centrada y accesible para volver', async ({ page }) => {
+test('la barra horizontal reúne el título y una flecha accesible para volver', async ({ page }) => {
   await boot(page, {
     products: [{ id: 'p1', barcode: 'B1', name: 'Cemento', stock: 40, min_stock: 1, sale_price: 10, tax_rate: 15, active: true }],
   });
   await page.evaluate(() => window.showTab('products', null));
   const header = page.locator('#products .gamaCompactHeader');
-  await expect(header).toBeVisible();
   await expect(header.locator('.gamaStdIcon')).toBeHidden();
-  const back = header.locator('.gamaStdBack');
+  await expect(header.locator('.gamaStdBack')).toBeHidden();
+  await expect(header.locator('.gamaStdText h2')).toBeHidden();
+  const back = page.locator('.arcTopbar #cocoModuleBack');
   await expect(back).toBeVisible();
   await expect(back).toHaveAccessibleName(/Volver/);
   const style = await back.evaluate(el => {
-    const rect = el.getBoundingClientRect(), arrow = getComputedStyle(el, '::before');
+    const rect = el.getBoundingClientRect(), arrow = el.querySelector('svg').getBoundingClientRect();
     return { width: rect.width, height: rect.height, arrowWidth: arrow.width, arrowHeight: arrow.height,
-      color: arrow.backgroundColor, centerX: parseFloat(arrow.left), centerY: parseFloat(arrow.top), transform: arrow.transform };
+      offsetX: arrow.x-rect.x, offsetY: arrow.y-rect.y };
   });
-  expect(style).toEqual({ width: 44, height: 44, arrowWidth: '24px', arrowHeight: '24px',
-    color: 'rgb(0, 0, 0)', centerX: 21, centerY: 21, transform: 'matrix(1, 0, 0, 1, -12, -12)' });
+  expect(style).toEqual({ width: 44, height: 44, arrowWidth: 24, arrowHeight: 24,
+    offsetX: 10, offsetY: 10 });
   await back.click();
   await expect(page.locator('#mainmenu')).toBeVisible();
 });

@@ -1,5 +1,7 @@
 # Architecture actuelle de Coco ERP
 
+Le [suivi commun des modules](modules/module-history.md) étend le panneau d’historique à toutes les routes autorisées et aux rubriques de Configuration. Il se charge à la demande, indexe les actions métier réussies sous leurs droits de ligne et reçoit les propositions vérifiables du relais ChatGPT/mail/fichiers.
+
 État : 5 octobre 2026. Application statique JavaScript, noyau ES modules compilé avec Vite, modules métier existants encapsulés, Supabase pour Auth/PostgreSQL/Storage/Realtime/Edge Functions. La passerelle fiscale Python reste un service privé distinct ; elle peut utiliser le signataire historique ou le moteur externe Open API Facturación SRI.
 
 ## Emplacements à modifier
@@ -11,7 +13,7 @@
 | Navigation et cycle de vie | `src/app/router.js` |
 | Structure HTML des pages | `src/app/index.html`, `src/app/gama-site.html` |
 | Composants communs | `src/ui/components.js`, `src/ui/components.css` |
-| Accueil et barre latérale | `src/ui/home-menu.js`, `src/ui/shell.js` |
+| Accueil, lanceur et cadre des modules | `src/ui/home-menu.js`, `src/ui/shell.js` |
 | Modules métier | `src/features/<domaine>/` |
 | Transport, cache de lecture et références | `src/data/` |
 | Formulaires historiques encore utilisés | `src/legacy/` |
@@ -50,6 +52,8 @@ Les constructeurs PDF légers, les traductions Projets et certaines extensions r
 La recherche globale charge son moteur et ses adaptateurs au premier focus ou raccourci Ctrl/Cmd+K. Son entrée légère réutilise `ArcLoad`, puis les contrôles de focus sont repris par le moteur pour permettre la fermeture sans réouverture automatique.
 
 ## Données et accès
+
+L’écran de connexion distingue les identifiants incorrects, la limitation des tentatives et une indisponibilité serveur. Une erreur de lecture du profil ne désactive pas le compte et ne déclenche pas de déconnexion ; les droits ne sont ouverts qu’après validation d’un profil actif. Les lectures du profil partagent la requête en cours pour la session exacte et expirent après 15 secondes, afin de permettre une nouvelle tentative. Le clavier ne peut pas lancer une seconde connexion pendant une tentative en cours.
 
 Les droits réels restent contrôlés par la base et les fonctions serveur. Le menu n’est pas une frontière de sécurité. `ArcData` gère pagination, appels RPC, cache et invalidation ; `GamaCloud` reste le transport compatible des modules.
 Les mutations de stock invalident aussi les quantités par emplacement et les réservations. Un ancien chargement en erreur ne peut plus évincer une nouvelle entrée de cache après invalidation.
@@ -141,3 +145,30 @@ Voir [rentabilité, commandes récurrentes, trésorerie sur 13 semaines, relance
 ## Espace ventes
 
 Les cinq sections de Ventes réutilisent les adresses et droits existants. `coco-sales-workspace.js` et `coco-sales-editor.js` sont chargés à la demande ; listes et recherches ne chargent pas le catalogue complet. La façade `gama_sales_workspace` gère les contrôles commerciaux, les modèles et la facturation des quantités livrées. Les factures partielles et groupées utilisent `external_invoices` avec allocations privées par commande, sans second registre financier. Voir [le parcours Ventes](modules/sales-workflow.md).
+
+## Cadre horizontal partagé
+
+`src/ui/shell.js` synchronise le titre et les onglets principaux à partir des événements `arc:route-change` et `arc:module-rendered`. Les mises à jour sont regroupées par animation frame ; aucun observateur global du DOM ni nouvelle lecture métier n’est ajouté. Les onglets ne sont ni clonés ni déplacés : leur placement sur grand écran conserve leurs parents et leurs contrôles. `src/styles/workbench.css`, déclaré dans le manifeste et chargé après les styles communs, fournit les dispositions responsives. Les modules chargés à la demande reçoivent la même présentation dès leur rendu.
+
+Les feuilles CSS et les lots JS de démarrage sont compactés à la construction (espaces/commentaires ordinaires), sans minification des identifiants publics ni réorganisation des règles CSS. Les commentaires de licence CSS sont conservés. Les budgets existants restent les garde-fous ; ils ne sont pas augmentés pour cette refonte.
+
+## Discussion des dossiers et propositions ChatGPT
+
+Le [journal partagé](modules/order-followup.md) se charge à droite dans les Ventes, les Achats et le TMS. Il reprend les étapes autorisées du dossier, les notes et les portraits limités à ses auteurs. ChatGPT lit les nouveaux mails via son propre connecteur puis dépose des propositions en attente par la façade de service `coco_mail_bridge`. Les décisions utilisent la session ERP, la MFA et les droits du module ; les créations de devis passent par le moteur commercial existant. Les connexions OAuth mail dans Supabase sont retirées, leurs jetons supprimés et les archives métier conservées. La [configuration du relais](development/order-mail-setup.md) décrit le déclencheur et la validation.
+
+Les styles `architect-kpis.css` et `gama-projects.css` sont chargés avec Dashboard et Projets via le registre de modules différés. Les tokens, primitives et la charte ERP restent disponibles dès le démarrage.
+
+
+## Durcissement préparé après l’audit du 19 octobre 2026
+
+Les migrations `audit_catalogue_projection`, `audit_security_gates` et `audit_metrics_context` sont livrées individuellement après vérification du manifeste et du registre observé. Le registre historique n’a pas été réparé par ressemblance de noms. Les resets ponctuels sont archivés hors du chemin courant.
+
+Agent Coco conserve les moteurs de mouvement et leur idempotence. Un exécuteur privé non accessible aux rôles API est précédé d’une garde d’approbation : session ERP sans client OAuth, MFA récente postérieure à la proposition, digest, acteur et expiration. Une vérification TOTP ne peut approuver qu’une proposition. L’activation MFA devient permanente pour un compte après vérification ; les administrateurs peuvent ouvrir « Sécurité de mon compte » pour terminer personnellement l’enrôlement et préparer leur récupération. Le bandeau de rappel au-dessus de l’application est retiré ; les contrôles MFA existants restent appliqués.
+
+Les preuves TMS sont chiffrées dans IndexedDB avec AES-GCM et une clé propre au compte conservée côté serveur. Le déverrouillage de l’onglet est conservé au plus 48 heures dans sessionStorage pour permettre les rechargements hors ligne. Il est supprimé à la déconnexion et au changement de compte. Ce choix protège les données après déconnexion ; il ne protège pas un onglet laissé ouvert et déverrouillé ni un navigateur compromis. Les preuves en attente restent récupérables après reconnexion du propriétaire. Les anciennes données en clair sont migrées lors de leur prochaine lecture autorisée ; prévoir la connexion de chaque compte ayant une ancienne file locale avant de déclarer un appareil partagé assaini.
+
+Le HTML publié est marqué par le SHA de construction, sans rendre les fichiers générés versionnés dépendants du commit. La télémétrie ne conserve pas de contenu métier ni d’URL ; elle distingue version, navigateur, PWA, première ouverture/retour et largeur d’écran. Cette dernière reste une approximation du type d’appareil. Web Vitals 6.2.3 fournit les mesures de visite ; les interactions locales restent un diagnostic distinct de l’INP. La rétention existante demeure 14 jours.
+
+## Contrats, dépenses et consultations
+
+Les parcours et RPC des extensions commerciales sont décrits dans [les modules métier](modules/business-modules.md). Ils réutilisent les passerelles de ventes, achats et comptabilité ; les nouvelles routes chargent leur code et leurs styles à la demande.

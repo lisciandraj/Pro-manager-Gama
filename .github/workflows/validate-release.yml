@@ -35,6 +35,16 @@ jobs:
       - run: node scripts/check-stock-concurrency.cjs
         env:
           STOCK_TEST_DATABASE_URL: postgres://postgres:isolated-ci-only@127.0.0.1:5432/coco_concurrency
+      - name: Measure product history with 4158 and 40000 events under real row policies
+        run: node scripts/benchmark-history-postgres.cjs history-postgres.json
+        env:
+          STOCK_TEST_DATABASE_URL: postgres://postgres:isolated-ci-only@127.0.0.1:5432/coco_concurrency
+          COCO_HISTORY_ISOLATED: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: history-postgres-benchmark
+          path: history-postgres.json
+          retention-days: 14
   validate:
     runs-on: ubuntu-latest
     steps:

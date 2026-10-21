@@ -9,7 +9,9 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
  const seedQuantity=async qty=>{await db.exec('reset role');await db.query('update stock_quants set quantity=$1,reserved_quantity=0 where product_id=$2 and location_id=$3',[qty,product,location]);await as(admin)};
  const config={enabled:true,can_write:true,client_ids:['agent-test-client','read-only-client'],write_client_ids:['agent-test-client']};
  const prepare=(extra={})=>rpc('prepare',{request_key:uuid(),product_id:product,location_id:location,operation:'out',kind:'internal_use',quantity:1,reason:'consommation interne',...extra});
- const execute=p=>rpc('execute',{command_id:p.id,digest:p.digest,confirmed:true});
+ // These legacy business-rule cases seed an independent approval fixture.
+ // The real human approval protocol is exercised in audit-security-gates-db.test.cjs.
+ const execute=async p=>{const claims=(await db.query("select current_setting('request.jwt.claims',true) c")).rows[0].c;await db.exec('reset role');await db.query("insert into private.coco_agent_approvals(command_id,actor_id,digest,session_id,mfa_timestamp,expires_at) select id,actor_id,digest,$2,1,now()+interval '10 minutes' from private.coco_agent_commands where id=$1 on conflict do nothing",[p.id,uuid()]);await db.query("select set_config('request.jwt.claims',$1,false)",[claims]);await db.exec('set role authenticated');return rpc('execute',{command_id:p.id,digest:p.digest,confirmed:true})};
  try{
   await db.query('insert into auth.users(id,email) values($1,$3),($2,$4)',[admin,other,'agent-test@example.invalid','agent-other@example.invalid']);
   await db.exec("update profiles set role='administrador',active=true;update erp_policies set stock_adjustment_limit=null,stock_adjustment_value_limit=null,stock_adjustment_approval_kinds='{}'");
@@ -25,6 +27,10 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:proposal.digest,confirmed:false}),/AGENT_CONFIRMATION_REQUIRED/);
   await assert.rejects(rpc('execute',{command_id:proposal.id,digest:'a'.repeat(64),confirmed:true}),/AGENT_CONFIRMATION_REQUIRED/);
   const done=await execute(proposal);assert.equal(done.status,'executed');assert.equal(done.stock_after,0);const verified=await rpc('status',{command_id:proposal.id});assert.equal(verified.status,'executed');assert.equal(verified.movements.length,1);assert.equal(verified.stock_now,0);assert.ok(done.adjustments[0].movement_id);
+  await db.exec('reset role');
+  const agentHistory=(await db.query("select actor_name,actor_id,source_type,source_id from private.coco_module_events where source_id=$1",[proposal.id])).rows;
+  assert(agentHistory.length>0);assert(agentHistory.every(e=>e.actor_name==='Agent Coco'&&e.actor_id===admin&&e.source_type==='chat'));
+  assert.notEqual((await db.query("select current_setting('coco.activity_source_type',true) value")).rows[0].value,'chat');
   assert.equal(await quantity(),0);await as(admin);assert.deepEqual(await execute(proposal),done);
   await db.exec('reset role');const count=Number((await db.query("select count(*) count from stock_movements where product_id=$1 and reference_type='adjustment_request'",[product])).rows[0].count);assert.equal(count,1);
   assert.equal((await db.query('select reason,kind from stock_adjustment_requests where id=$1',[done.adjustments[0].id])).rows[0].reason,'consommation interne');

@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test'),fs=require('node:fs'),path=require('node:path');
-const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.readFileSync(path.join(__dirname,'mock-contact-alignment.js'),'utf8');
+const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 async function boot(page){
  await page.addInitScript(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'QA'}));window.__DB={products:[],invoices:[],invoice_lines:[],profiles:[],
  customers:[{id:'c1',contact_entity_id:'same',name:'Shared',phone:'1',phone2:'2',email:'test@example.invalid',country:'Ecuador',city:'Quito',category:'A',active:true}],

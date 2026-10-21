@@ -198,6 +198,15 @@ function processDoc(row,ref,number,action,id,module){
  const common=window.GamaReferences?.processReference({...row,erp_reference:ref},number)||ref;
  return ref?{...doc(common,action,id,module),issuedReference:common!==ref?ref:null}:null;
 }
+/* Las filas por producto/ubicación son el detalle de una sola reserva del
+   pedido. Su referencia común se abre una vez; los números técnicos de cada
+   fila no son documentos adicionales del proceso. */
+function reservationDoc(rows,number,orderId){
+ const first=[...rows].sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||''))||String(a.id).localeCompare(String(b.id))).find(r=>r.erp_reference||r.dossier_reference);
+ if(!first||!orderId)return null;
+ const ref=first.erp_reference||first.dossier_reference;
+ return doc(window.GamaReferences?.processReference({...first,erp_reference:ref},number)||ref,'order',orderId,'sales-orders');
+}
 
 const STATES={done:'Completado',active:'En curso',blocked:'Bloqueado',pending:'Pendiente',skip:'Sin esta etapa',closed:'Cerrado',restricted:'Sin acceso a estos datos'};
 const nextAction=(label,action,id,module)=>({label,action,id,module});
@@ -264,7 +273,7 @@ function saleSteps(d,x){
   {title:'Pedido',state:d.o?(confirmed?'done':d.o.status==='cancelled'?'closed':'active'):'pending',
    docs:[d.o&&stage(d.o,d.o.number,'order',d.o.id,'sales-orders')],need:'Confirmar el pedido: reserva el stock disponible y abre la preparación.'},
   {title:'Reserva de stock y preparación',state:!confirmed?'pending':p.missing>0?'blocked':(p.complete||(p.ordered>0&&p.packed>=p.ordered))?'done':(x.reservations.length||x.preps.length)?'active':'pending',
-   docs:[...x.reservations.map(r=>stage(r,r.erp_reference||r.dossier_reference,'order',d.o?.id,'sales-orders')),...x.preps.map(r=>stage(r,r.number,'preparation',d.o?.id,'tms')),...x.packages.map(r=>stage(r,r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'tms'))],
+   docs:[reservationDoc(x.reservations,processId,d.o?.id),...x.preps.map(r=>stage(r,r.number,'preparation',d.o?.id,'tms')),...x.packages.map(r=>stage(r,r.erp_reference||r.dossier_reference,'preparation',d.o?.id,'tms'))],
    info:d.o?`${tr('Sin reservar')} : ${p.missing} · ${tr('Preparado / previsto')} : ${p.picked} / ${p.planned}`:'',
    need:p.missing>0?'Reservar las cantidades que faltan o reponerlas con una compra.':'Preparar y escanear cada producto: el bulto queda listo para expedir.'},
   {title:'Expedición y recepción',state:p.done?'done':x.transport.some(t=>t.status==='Excepción'||late(t))?'blocked':x.ships.length?'active':'pending',

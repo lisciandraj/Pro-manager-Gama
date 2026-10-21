@@ -1,15 +1,17 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "contracts":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
+ "expenses":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
  "sales-dossier":{"global":"CocoSalesDossier","file":"coco-sales-dossier.js","methods":["rpc","open","quoteCredit","mountOrder","activities","deposit","statuses","blocksHTML","error"]},
  "sales-editor":{"global":"CocoSalesEditor","file":"coco-sales-editor.js","dependencies":["coco-sales-workspace.js"],"methods":["quote","order"]},
- "sales-workspace":{"global":"CocoSalesWorkspace","file":"coco-sales-workspace.js","methods":["open","rpc","lookup","attachSearch","invoice","settings","billing","quoteTools","templates","orderTools","duplicate","error"]},
+ "sales-workspace":{"global":"CocoSalesWorkspace","file":"coco-sales-workspace.js","methods":["follow","open","rpc","lookup","attachSearch","invoice","settings","billing","quoteTools","templates","orderTools","duplicate","error"]},
  "commercial-planning":{"global":"CocoPlanning","file":"coco-commercial-planning.js","methods":["profitability","cash","recurring","collections","ocr","quoteMargin"]},
  "global-search":{"global":"GamaGlobalSearch","file":"gama-global-search.js","dependencies":["gama-global-search-core.js"],"methods":["open"]},
  "price-lists":{"global":"gamaPriceLists","file":"gama-price-lists.js","methods":["open"],"aliases":{"GamaOpenPriceLists":"open"}},
  "matrix":{"global":"GamaMatrix","file":"gama-proveedores-matriz.js","methods":["open","render"],"apis":{"GamaSuppliers":["migrate"]}},
  "workflow-tools":{"global":"CocoFlows","file":"coco-flow-tools.js","methods":["draftBills","projectTime","importSupplierXml","messages"]},
  "automation":{"global":"CocoAutomation","file":"coco-automation.js","methods":["mount"]},
- "dashboard":{"global":"ArchitectDashboard","file":"architect-dashboard.js","dependencies":["architect-kpi-catalog.js","architect-home-kpis.js"],"methods":["refresh"],"apis":{"ArchitectHomeKpis":["refresh"]}},
+ "dashboard":{"styles":["architect-kpis.css"],"global":"ArchitectDashboard","file":"architect-dashboard.js","dependencies":["architect-kpi-catalog.js","architect-home-kpis.js"],"methods":["refresh"],"apis":{"ArchitectHomeKpis":["refresh"]}},
  "crm":{"styles":["coco-style-crm-core.css","coco-style-crm-activities.css","coco-style-crm-contacts.css","coco-style-crm-leads.css","coco-style-crm-opportunities.css","coco-style-crm-reports.css","coco-style-crm-targets.css"],"global":"GamaCRM","file":"gama-crm-core.js","extensions":["gama-crm-scoring.js","gama-crm-leads.js","gama-crm-opportunities.js","gama-crm-activities.js","gama-crm-contacts.js","gama-crm-reports.js","gama-crm-targets.js"],"methods":["open","ir"],"aliases":{"GamaOpenCRM":"open"},"apis":{"GamaCRMLeads":["open"],"GamaCRMOpportunities":["open","openRecord"],"GamaCRMActivities":["open"],"GamaCRMContacts":["open"],"GamaCRMReports":["open"]}},
  "hr-operations":{"styles":["coco-style-hr-operations.css"],"global":"GamaHRP1","file":"gama-hr-p1.js","methods":["mountFinance","load"]},
  "hr":{"styles":["coco-style-hr.css","coco-style-hr-operations.css"],"global":"GamaHR","file":"gama-hr.js","dependencies":["gama-hr-p1.js"],"methods":["open","load"],"aliases":{"GamaOpenHR":"open"}},
@@ -97,7 +99,7 @@ export const lazyModules={
       "open"
     ]
   },
-  "tms": {"styles":["coco-style-tms-module.css"],
+  "tms": {"styles":["coco-style-tms-module.css","coco-order-followup.css"],
     "global": "gamaTMS",
     "file": "gama-tms-module.js",
     "dependencies": ["gama-tms-map-data.js","gama-tms-local-map.js","gama-tms-execution.js","gama-tms-dispatch.js","gama-tms-driver-ui.js","gama-tms-delivery-operations.js","gama-sri-documents.js"],
@@ -110,5 +112,5 @@ export const lazyModules={
       "downloadProofCertificate"
     ]
   },
-  "projects": {"global":"GamaProjects","file":"gama-projects.js","dependencies":["gama-projects-core.js"],"methods":["open","fromSource"]}
+  "projects": {"styles":["gama-projects.css"],"global":"GamaProjects","file":"gama-projects.js","dependencies":["gama-projects-core.js"],"methods":["open","fromSource"]}
 };

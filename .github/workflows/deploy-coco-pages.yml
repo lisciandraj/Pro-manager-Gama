@@ -10,6 +10,29 @@ concurrency:
   group: coco-pages-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  business-modules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run build
+      - run: node --test tests/business-modules-db.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/business-modules.spec.js tests/module-header.spec.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-module-test-results
+          path: test-results
+          retention-days: 7
   topbar-menus:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -27,7 +50,9 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check:startup
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify square home tiles in Chromium and WebKit before publication
+        run: npx playwright test --config=playwright.responsive.config.js tests/responsive-layout.spec.js --grep "home tiles stay square" --workers=2
       - name: Verify top bar subsection menus and existing window flows
         run: npx playwright test tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
       - uses: actions/upload-artifact@v4
@@ -54,9 +79,22 @@ jobs:
       - run: npm ci
       - run: npm run update
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/coco-agent-ui.spec.js tests/assistant-ia.spec.js tests/accounting.spec.js tests/accounting-audit.spec.js --workers=2
+      - run: npx playwright test tests/coco-agent-ui.spec.js tests/agent-queue.spec.js tests/assistant-ia.spec.js tests/accounting.spec.js tests/accounting-audit.spec.js --workers=2
       - name: Verify dispatcher and offline driver workflows
         run: npx playwright test tests/tms-dispatch.spec.js tests/tms-module.spec.js tests/tms-loading.spec.js --workers=2
+      - name: Verify module and dossier history, process references and links on desktop and phone
+        run: npx playwright test tests/order-followup.spec.js tests/order-followup-grouping.spec.js tests/module-history.spec.js tests/history-context.spec.js tests/purchase-order-email.spec.js tests/dossier-flow.spec.js tests/dossier-references.spec.js --workers=2
+      - name: Preserve history context screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coco-history-context-results
+          path: |
+            test-results/history-context*
+            test-results/history-pending*
+          retention-days: 3
+      - name: Verify sign-in errors, profile deadlines and access recovery
+        run: npx playwright test tests/login-recovery.spec.js tests/auth-single-source.spec.js tests/loading-performance.spec.js tests/cloud-customer-accounts.spec.js --workers=2
       - name: Verify deployed server without business credentials
         run: node scripts/check-agent-live.mjs
       - name: Stamp the exact source revision
@@ -72,7 +110,7 @@ jobs:
           retention-days: 3
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [build, topbar-menus]
+    needs: [build, topbar-menus, business-modules]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

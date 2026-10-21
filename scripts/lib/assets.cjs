@@ -10,6 +10,10 @@ const header=source=>'/* Generated from '+source+'. Edit the source and run npm 
 const runtimeScript=source=>header(source)+require('esbuild').transformSync(fs.readFileSync(path.join(root,source),'utf8'),{
  loader:'js',target:'es2020',minifyWhitespace:true,minifySyntax:true,minifyIdentifiers:false,legalComments:'none'
 }).code;
+// Whitespace-only CSS compaction preserves rule order, selector specificity,
+// custom properties and license comments. Keep readable canonical sources.
+const compactStyle=css=>require('esbuild').transformSync(css,{loader:'css',minifyWhitespace:true,minifySyntax:false,legalComments:'inline'}).code;
+const runtimeStyle=source=>header(source)+compactStyle(fs.readFileSync(path.join(root,source),'utf8'));
 function validateManifest(){
  const outputs=new Set(),sources=new Set();
  for(const item of [...manifest.scripts,...manifest.styles]){
@@ -28,4 +32,4 @@ function validateManifest(){
  }
  for(const file of manifest.moduleStyles)if(!fs.existsSync(path.join(root,file)))throw Error('Missing stylesheet: '+file);
 }
-module.exports={root,manifest,hash,generated,runtimeFiles,header,runtimeScript,validateManifest};
+module.exports={root,manifest,hash,generated,runtimeFiles,header,runtimeScript,runtimeStyle,compactStyle,validateManifest};

@@ -1,5 +1,6 @@
 name: Validate Contacts dossier
 on:
+  pull_request:
   push:
     branches: [main, feature/contacts-hub-2026-10-15, feature/contacts-alignment-20261016]
 permissions:

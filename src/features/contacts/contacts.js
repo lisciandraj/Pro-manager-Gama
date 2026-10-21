@@ -42,7 +42,7 @@ const FIELDS={
  city:{label:'Ciudad',maxLength:200},
  province:{label:'Provincia',maxLength:120},
  category:{label:'Categoría de precios',type:'select',options:CATEGORIAS},
- terms:{label:'Plazo de pago desde la entrega (días)',type:'number',min:0,max:3650,step:1,help:'0 = pago a la entrega.'},
+ terms:{label:'Plazo de pago desde la entrega (días)',type:'number',required:true,min:0,max:3650,step:1,help:'0 = pago a la entrega.'},
  linkedin:{label:'LinkedIn',maxLength:300},
  primary:{label:'Contacto principal',type:'checkbox'},
  lat:{label:'Latitud GPS',type:'number',min:-85,max:85,step:'any'},
@@ -53,7 +53,7 @@ const FIELDS={
 const COORDINATES=['phone','phone2','email','address','city','province','postalCode','country','lat','lng'];
 const SHARED_PROFILE=['website','industry','language'];
 const LAYOUT={
- clients:['name','ident','identKind',...COORDINATES,...SHARED_PROFILE,'category','terms','notes'],
+ clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'identKind',...COORDINATES,...SHARED_PROFILE,'category','terms','notes'],
  suppliers:['name','ident','identKind','contactName',...COORDINATES,...SHARED_PROFILE,'notes'],
  people:['customer','firstName','lastName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes'],
  prospects:['lead','firstName','lastName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes']
@@ -128,6 +128,7 @@ function actions(r){
  const b=(label,attr,variant)=>U.button({label:T(label),variant,attrs:attr+'="'+esc(r.key)+'"'});
  const dossierLabel={es:'Ficha de contacto',fr:'Fiche contact',en:'Contact dossier'}[window.GamaI18n?.language||'es'];
  const out=[U.button({label:dossierLabel,attrs:'data-ct-dossier="'+esc(r.key)+'"'})];
+ if(r.kind==='clients')out.push(b('Direcciones de entrega','data-ct-addresses'));
  if(['clients','suppliers'].includes(r.kind))out.push(b('Historial','data-ct-history'));
  if(r.kind==='clients'&&r.active&&window.gamaAccessAllowed?.('website')&&window.gamaAccessAllowed?.('users'))out.push(b('Cuenta cloud del cliente','data-ct-cloud'));
  if(r.active)out.push(b('Editar','data-ct-edit'),b('Archivar','data-ct-archive','danger'));
@@ -204,14 +205,15 @@ function fieldsHtml(kind){
   const [key,over]=Array.isArray(entry)?entry:[entry,{}];
   const f={...FIELDS[key],...over};
   const options=key==='customer'?(rows||[]).filter(r=>r.kind==='clients'&&(r.active||r.id===draft.customer)).map(r=>({value:r.id,label:r.name})):key==='lead'?leadOptions(draft.lead):(f.options||[]).map(([value,label])=>({value,label:T(label)}));
-  return U.field({id:'ctf-'+key,key,label:f.label,type:f.type||'text',value:draft[key]??(f.type==='checkbox'?false:''),required:!!f.required,
+  return U.field({id:'ctf-'+key,key,label:f.label,type:f.type||'text',value:draft[key]??(f.type==='checkbox'?false:''),required:!!f.required&&!(editing&&((key==='ident'&&!editing.record.taxId)||(key==='terms'&&editing.record.paymentTermsDays==null))),
    maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
  });
  const keys=LAYOUT[kind].map(e=>Array.isArray(e)?e[0]:e);
  const groups=[['Identidad',['name','ident','identKind','customer','lead','firstName','lastName']],['Datos de contacto',['contactName','phone','phone2','email','website']],['Dirección',['addressMode','address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','industry','language']],['Observaciones',['notes']]];
  const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
  const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
- return blocks+(more?`<details class="ctGroup"><summary>${tr('Información adicional')}</summary><div class="arcFormGrid ctFields">${more}</div></details>`:'')+(['people','prospects'].includes(kind)?'<p id="ctParentAddress" class="gsHint"></p>':'');
+ const gpsHint={es:'Para localizar la dirección, indica la calle, el número y la ciudad. Las coordenadas guardadas se utilizan en la planificación TMS. Geocodificación: Photon / © OpenStreetMap contributors.',fr:'Pour localiser l’adresse, renseignez la rue, le numéro et la ville. Les coordonnées enregistrées sont utilisées pour la planification TMS. Géocodage : Photon / © OpenStreetMap contributors.',en:'To locate the address, enter the street, number and city. Saved coordinates are used for TMS planning. Geocoding: Photon / © OpenStreetMap contributors.'}[window.GamaI18n?.language||'es'];
+ return blocks+(more?`<details class="ctGroup"><summary>${tr('Información adicional')}</summary><div class="arcFormGrid ctFields">${more}</div></details><p class="gsHint ctGpsHint">${esc(gpsHint)}</p>`:'')+(['people','prospects'].includes(kind)?'<p id="ctParentAddress" class="gsHint"></p>':'');
 }
 function parentAddress(){
  const kind=$('ctType').value,person=['people','prospects'].includes(kind),inherit=person&&($('ctf-addressMode')?.value||'parent')==='parent';
@@ -254,6 +256,14 @@ function openForm(kind,record=null){
 }
 function closeForm(){const box=$('ctEditor');editorSeq++;editing=null;draft={};if(!box)return;box.hidden=true;box.dataset.kind='';box.replaceChildren()}
 async function userId(){if(who!==undefined)return who;try{const s=await window.GamaCloud.getSession();who=s?.data?.session?.user?.id||null}catch(_){who=null}return who}
+function writeGps(row,values,previous){
+ const lat=String(values.lat??'').trim(),lng=String(values.lng??'').trim();
+ if((lat||lng)&&(!lat||!lng||!Number.isFinite(+lat)||!Number.isFinite(+lng)||Math.abs(+lat)>85||Math.abs(+lng)>180))throw Error(T('Coordenadas inválidas.'));
+ const a=lat===''?null:Number(lat),b=lng===''?null:Number(lng);
+ // An unchanged GPS field must not erase coordinates found by the server
+ // after this editor opened. Address changes are invalidated by the database.
+ if(!previous||a!==(previous.lat??null)||b!==(previous.lng??null)){row.lat=a;row.lng=b}
+}
 async function save(){
  readDraft();const kind=editing?.kind||$('ctType').value,d=draft,token=epoch,request=editorSeq;
  const data={phone:clean(d.phone),phone2:clean(d.phone2),email:clean(d.email),website:clean(d.website),industry:clean(d.industry),language:clean(d.language),
@@ -261,15 +271,14 @@ async function save(){
  data[kind==='suppliers'?'tax_id':'identification']=clean(d.ident);
  const own=!['people','prospects'].includes(kind)||d.addressMode==='own';
  if(own){for(const [key,column] of [['address','address'],['city','city'],['province','province'],['postalCode','postal_code'],['country','country']])data[column]=clean(d[key]);
-  const lat=String(d.lat??'').trim(),lng=String(d.lng??'').trim();
-  if((lat||lng)&&(!lat||!lng||!Number.isFinite(+lat)||!Number.isFinite(+lng)||Math.abs(+lat)>85||Math.abs(+lng)>180))throw Error(T('Coordenadas inválidas.'));
-  data.lat=lat===''?null:Number(lat);data.lng=lng===''?null:Number(lng);
+  writeGps(data,d,editing?.record);
  }
  if(kind==='clients'||kind==='suppliers'){
   data.name=clean(d.name);if(!data.name)throw Error(T('El nombre del proveedor es obligatorio.'));
   if(data[kind==='clients'?'identification':'tax_id']&&(rows||[]).some(r=>r.kind===kind&&r.id!==editing?.id&&norm(r.ref)===norm(d.ident)))throw Error(T('Ya existe un cliente con esta identificación.'));
   if(kind==='clients'){
-   const terms=String(d.terms??'').trim();if(terms!==''&&(!/^\d+$/.test(terms)||Number(terms)>3650))throw Error(T('Indica un plazo de pago entre 0 y 3650 días.'));
+   if(!data.identification&&(!editing||editing.record.taxId))throw Error(T('El nombre y la identificación son obligatorios.'));
+   const terms=String(d.terms??'').trim();if((terms===''&&(!editing||editing.record.paymentTermsDays!=null))||(terms!==''&&(!/^\d+$/.test(terms)||Number(terms)>3650)))throw Error(T('Indica un plazo de pago entre 0 y 3650 días.'));
    data.category=d.category||'A';data.payment_terms_days=terms===''?null:Number(terms);
   }else data.contact_name=clean(d.contactName);
  }else{
@@ -300,6 +309,7 @@ function render(){
   'data-ct-edit':async key=>{const r=find(key);if(r){await load();await openRecord(r.kind,r.id)}},
   'data-ct-open':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
+  'data-ct-addresses':async key=>{const r=find(key);if(!r||r.kind!=='clients')return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open('clients',r.id,{tab:'relations'})}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-history':key=>{const r=find(key);if(r)window.ArchitectPartners?.open(r.kind==='clients'?'customer':'supplier',r.id)},
   'data-ct-cloud':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('gama-store-admin.js');await window.GamaStoreAdmin.customerAccounts(r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-archive':key=>archive(key,false),'data-ct-restore':key=>archive(key,true),'data-ct-purge':purge}});

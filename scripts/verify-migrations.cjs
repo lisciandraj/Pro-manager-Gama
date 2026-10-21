@@ -4,8 +4,8 @@ const ledger=JSON.parse(fs.readFileSync(path.join(root,'supabase/migration-histo
 // Applied SQL archives become replayable without changing their recorded bytes.
 const archives=path.join(root,'supabase/sql/applied');
 if(fs.existsSync(archives))for(const file of fs.readdirSync(archives).filter(f=>f.endsWith('.json'))){const row=JSON.parse(fs.readFileSync(path.join(archives,file),'utf8'));if(row.file&&fs.existsSync(path.join(dir,row.file))&&!ledger.applied.some(r=>r.file===row.file))ledger.applied.push(row);}
-for(const row of ledger.applied){const file=path.join(dir,row.file);if(!fs.existsSync(file))throw Error('Missing applied migration: '+row.file);const hash=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(hash!==row.sha256)throw Error('Applied migration was rewritten: '+row.file);}
+for(const row of ledger.applied){const file=row.archive?path.join(root,'supabase',row.archive):path.join(dir,row.file);if(!fs.existsSync(file))throw Error('Missing applied migration: '+row.file);const hash=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(hash!==row.sha256)throw Error('Applied migration was rewritten: '+row.file);}
 const files=fs.readdirSync(dir).filter(f=>f.endsWith('.sql')).sort(),versions=files.map(f=>f.split('_')[0]);
 if(new Set(versions).size!==versions.length)throw Error('Duplicate migration timestamp');
 if(files.some(f=>!/^\d{14}_[a-z0-9_]+\.sql$/.test(f)))throw Error('Invalid migration filename');
-console.log(ledger.applied.length+' applied migrations verified; '+(files.length-ledger.applied.length)+' new migrations.');
+console.log(ledger.applied.length+' applied migrations verified; '+(files.length-ledger.applied.filter(r=>!r.archive).length)+' new migrations.');

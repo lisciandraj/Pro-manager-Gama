@@ -2,6 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const {isolateLocalPage}=require('./local-browser-fixture.cjs');
 
 // La refonte cambió la piel de la aplicación, no lo que hace. Estas pruebas
 // vigilan justo eso: que la barra lateral lleve a los mismos módulos que el
@@ -23,6 +24,7 @@ const ANCHOS = [
 ];
 
 async function boot(page) {
+  await isolateLocalPage(page);
   await page.addInitScript(() => {
     localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Ana Torres' }));
     // @ts-ignore
@@ -93,36 +95,20 @@ test.describe('el armazón Coco ERP', () => {
     });
   }
 
-  test('la barra lateral se adapta: completa, en iconos y en cajón', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test('el directorio de aplicaciones se abre como cajón en escritorio, tableta y teléfono', async ({ page }) => {
     await boot(page);
-    await expect(page.locator('.arcLogo')).toBeVisible();
-    await expect(page.locator('.arcNavLink .arcNavLabel').first()).toBeVisible();
-    await expect(page.locator('.arcBurger')).toBeHidden();
-
-    // Tableta apaisada: sólo iconos, sin rótulos, y el contenido no se tapa.
-    await page.setViewportSize({ width: 1024, height: 800 });
-    await page.waitForTimeout(250);
-    await expect(page.locator('.arcNavLink .arcNavLabel').first()).toBeHidden();
-    await expect(page.locator('.arcBurger')).toBeVisible();
-
-    // Teléfono: cajón fuera de pantalla hasta que se pulsa el botón.
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(250);
-    await expect(page.locator('.arcBurger')).toBeVisible();
-    const fuera = await page.evaluate(() =>
-      document.querySelector('.arcSidebar').getBoundingClientRect().right <= 1);
-    expect(fuera, 'el cajón debería estar fuera de pantalla').toBeTruthy();
-
-    await page.click('.arcBurger');
-    await page.waitForTimeout(300);
-    await expect(page.locator('.arcSidebar')).toBeInViewport();
-    await expect(page.locator('.arcBurger')).toHaveAttribute('aria-expanded', 'true');
-
-    // Y se cierra con Escape, sin ratón.
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-    await expect(page.locator('.arcBurger')).toHaveAttribute('aria-expanded', 'false');
+    for (const width of [1440, 1024, 390]) {
+      await page.setViewportSize({width,height:900});
+      await expect(page.locator('.arcBurger')).toBeVisible();
+      expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
+      await page.locator('.arcBurger').click();
+      await expect(page.locator('.arcSidebar')).toBeInViewport();
+      await expect(page.locator('.arcLogo')).toBeVisible();
+      await expect(page.locator('.arcNavLink .arcNavLabel').first()).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.locator('.arcBurger')).toHaveAttribute('aria-expanded','false');
+      await expect(page.locator('.arcBurger')).toBeFocused();
+    }
   });
 
   test('la barra lateral abre los mismos módulos que el menú', async ({ page }) => {
@@ -138,12 +124,14 @@ test.describe('el armazón Coco ERP', () => {
     });
     expect(desajuste, 'hay enlaces que no apuntan a ningún módulo').toEqual([]);
 
+    await page.click('.arcBurger');
     await page.click('.arcNavLink[data-gama-module="products"]');
     await page.waitForTimeout(600);
     await expect(page.locator('#products')).toBeVisible();
     await expect(page.locator('.arcNavLink[data-gama-module="products"]')).toHaveAttribute('aria-current', 'page');
 
     // Y «Inicio» devuelve al menú, que es de donde se sale.
+    await page.click('.arcBurger');
     await page.click('.arcNavLink[data-arc-home]');
     await page.waitForTimeout(500);
     await expect(page.locator('#mainmenu')).toBeVisible();
@@ -188,6 +176,8 @@ test.describe('el armazón Coco ERP', () => {
 
     // Y el foco de teclado se distingue en la navegación: sin marca visible,
     // quien no usa ratón no sabe dónde está.
+    await page.locator('.arcBurger').focus();await page.keyboard.press('Enter');
+    await expect(page.locator('.arcNavLink').first()).toBeFocused();
     const marca = await page.evaluate(() => {
       const el = document.querySelector('.arcNavLink');
       el.focus();
@@ -203,8 +193,8 @@ test.describe('el armazón Coco ERP', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await boot(page);
     await expect(page.locator('.arcBrand')).toHaveAttribute('aria-label','COCO ERP');
-    await expect(page.locator('.arcLogo img')).toHaveAttribute('alt','COCO ERP — Structure Your Business. Simply.');
-    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-gama-logo.jpg?v=20261001-c-logo');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('alt','COCO ERP');
+    await expect(page.locator('.arcLogo img')).toHaveAttribute('src','coco-erp-logo.png?v=20261020-satin');
     await expect(page.locator('#arcSearchInput')).toHaveAttribute('placeholder', /Coco ERP/);
 
     for (const [idioma, esperado] of [['fr', /Rechercher dans Coco ERP/], ['en', /Search Coco ERP/]]) {

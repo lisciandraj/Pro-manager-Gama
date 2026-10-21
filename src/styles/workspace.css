@@ -2,7 +2,7 @@
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
  --coco-blue:#157F98;--coco-blue-dark:#10677D;--coco-orange:#F87826;
- --coco-ink:#1C2C3E;--coco-muted:#526473;--coco-grid:#C5D1DB;
+ --coco-grid:#C5D1DB;
  --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
  background:#F7F8FB;color:var(--coco-ink);
 }
@@ -16,7 +16,7 @@ body[data-app="coco-erp"]{
 .arcSidebar .arcNavGroup{font-size:10px;padding:12px 14px 6px;letter-spacing:.06em;margin-top:8px}
 .arcNavFavorites .arcNavGroup{display:flex;align-items:center;gap:7px;border-top:0;color:#AD4508}
 .arcNavFavorites .arcNavGroup .arcIco{width:14px;height:14px;flex:none}
-.arcNavEmpty{padding:0 14px;margin:4px 0 12px;color:#617080;font-size:12px;line-height:1.5}
+.arcNavEmpty{padding:0 14px;margin:4px 0 12px;color:var(--coco-muted);font-size:12px;line-height:1.5}
 @media(min-width:861px) and (max-width:1099px){body:not(.arcDrawerOpen) .arcNavEmpty{display:none}}
 .arcSidebar .arcNavLink[aria-current=page]{background:#FFF0E6;color:#AD4508;box-shadow:inset 3px 0 0 #F87826}
 .arcFoot{padding:12px 0 18px}
@@ -31,7 +31,6 @@ body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:#1
 body .arcContent .arcButton.primary:hover:not(:disabled){background:#0C556B}
 body .arcContent .arcButton.secondary{background:#fff;color:#10677D;border:1px solid #BDD0DC}
 body .arcContent .arcButton:disabled{opacity:.5;cursor:default}
-body #access-settings .cfgInstall{background:#10677D;border-color:#10677D;color:#fff}
 body .arcContent :is(.arcPanel,.ivCard,.gsCard,.gaCard){border-radius:12px;box-shadow:0 2px 8px rgba(23,49,65,.025)}
 body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:12px;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--arc-command-border);align-items:center;flex-wrap:wrap}
 body .arcContent .gamaCompactHeader .gamaStdActions{order:-1}
@@ -40,7 +39,7 @@ body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:var(--arc-workspac
 body .arcContent .gamaCompactHeader .gamaStdText p{display:none}
 body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{background:white;border-color:#C9D8E3;border-radius:9px}
 body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs){border-bottom:1px solid #DDE5EC;gap:8px;padding:0;margin:0 0 20px}
-body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button{background:transparent;border:1px solid transparent;border-radius:0;box-shadow:none;color:#617080;min-height:44px;padding:10px 16px;font-size:14px;font-weight:600}
+body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button{background:transparent;border:1px solid transparent;border-radius:0;box-shadow:none;color:var(--coco-muted);min-height:44px;padding:10px 16px;font-size:14px;font-weight:600}
 body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button:is(.active,.on,[aria-selected=true]){background:transparent;color:#AD4508;border-bottom:2px solid #F87826}
 body .arcContent :is(table.arcTable,table.gamaCards){--arc-table-grid:var(--coco-grid);font-size:13px}
 body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) th{background:#F4F7FA;color:#324C62;padding:13px 14px;font-weight:650;border:1px solid var(--coco-grid)}
@@ -54,13 +53,13 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 .cocoStatus[data-tone=success]{background:#E4F5EC;color:#0D7446}
 .cocoStatus[data-tone=warning]{background:#FFF0E6;color:#AD4508}
 .cocoStatus[data-tone=danger]{background:#FCE9E7;color:#B3261E}
-.cocoStatus[data-tone=muted]{background:#EFF2F5;color:#617080}
+.cocoStatus[data-tone=muted]{background:#EFF2F5;color:var(--coco-muted)}
 .cocoStatus svg{width:16px;height:16px;flex:none}
 .cocoSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
 .cocoSectionTitle h2,.cocoSectionTitle h3{margin:0;font-size:18px}
 .cocoKeyValues{margin:0}
 .cocoKeyValues>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #E3EAF0;font-size:13px}
-.cocoKeyValues dt{color:#617080}.cocoKeyValues dd{margin:0;text-align:right;font-weight:600}
+.cocoKeyValues dt{color:var(--coco-muted)}.cocoKeyValues dd{margin:0;text-align:right;font-weight:600}
 
 /* Module launcher: four columns on desktop, two on a phone. */
 #mainmenu .gamaF2Head{margin-bottom:18px}
@@ -86,7 +85,6 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #dashboard .adKpis{margin:0}
 #dashboard .adKpis>summary{cursor:pointer;color:#10677D;font-size:13px;padding:7px 0}
 #dashboard .adMetrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:16px 0 20px}
-#dashboard .adMetric{padding:18px;min-height:125px;text-align:left;border-color:#E1E6EC}
 #dashboard .adMetricLabel{font-size:13px;font-weight:600;gap:10px;line-height:1.4}
 #dashboard .adMetricLabel svg{width:26px;height:26px;color:#10677D}
 #dashboard .adMetric strong{font-size:28px;letter-spacing:-.025em;margin:10px 0 6px;line-height:1.2}
@@ -101,7 +99,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #dashboard .adChartTools .arcButton,#dashboard .adChartTools select{font-size:11px;min-height:32px;padding:6px 9px}
 #dashboard .adHeading h2{font-size:18px}
 #dashboard .adHeading p{font-size:12px}
-#dashboard .adMeta{font-size:11px;color:#617080;margin:0}
+#dashboard .adMeta{font-size:11px;color:var(--coco-muted);margin:0}
 #dashboard .adQuickActions{grid-column:2;grid-row:1;padding:20px}
 #dashboard .adQuickActions h2{font-size:18px;margin:0 0 16px}
 #dashboard .adQuickAction{display:flex;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid #E3EAF0}
@@ -139,13 +137,13 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #warehouses .ivProductOpen{display:flex;align-items:center;gap:10px;width:100%;max-width:100%;min-width:0;margin:0;padding:0;border:0;box-shadow:none;background:transparent;text-align:left;color:#1C2C3E;min-height:38px;font-size:13px}
 #warehouses .ivProductOpen svg{width:26px;height:26px;color:#10677D;flex:none}
 #warehouses .ivProductOpen>.ivProductLabel{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
-#warehouses .ivProductOpen small{display:block;color:#617080;margin-top:4px;font-size:11px}
+#warehouses .ivProductOpen small{display:block;color:var(--coco-muted);margin-top:4px;font-size:11px}
 #warehouses .ivInspector{background:white;border:1px solid #D8E2EA;border-radius:12px;padding:18px;position:sticky;top:94px;min-width:0}
 #warehouses .ivInspector h3{font-size:17px;margin:0 0 6px;overflow-wrap:anywhere}
 #warehouses .ivInspector>.muted{font-size:12px;margin:0 0 14px}
 #warehouses .ivInspector .arcButton{width:100%;margin-top:12px;font-size:12px}
 #warehouses .ivInspector meter{width:100%;height:14px;margin-top:12px;accent-color:#0D7446}
-#warehouses .ivHelp{margin-top:14px;font-size:12px;color:#617080}
+#warehouses .ivHelp{margin-top:14px;font-size:12px;color:var(--coco-muted)}
 #warehouses .ivMoveAction{margin-left:auto;display:flex;gap:8px}
 
 /* Order and process: milestones, lines, next action and activity history. */
@@ -156,11 +154,11 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sales-orders .gsOrderHead .gsActions{margin:0;gap:8px}
 #sales-orders .gsMilestones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 16px;margin:22px 0 26px;padding:0;list-style:none}
 #sales-orders .gsMilestones li{display:flex;gap:10px;align-items:center;min-width:0;position:relative}
-#sales-orders .gsMilestoneDot{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#DFE5EB;color:#617080;font-weight:700;font-size:13px}
+#sales-orders .gsMilestoneDot{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#DFE5EB;color:var(--coco-muted);font-weight:700;font-size:13px}
 #sales-orders .gsMilestones [data-state=done] .gsMilestoneDot{background:#0D7446;color:#fff}
 #sales-orders .gsMilestones [data-state=current] .gsMilestoneDot{background:#F87826;color:#fff}
 #sales-orders .gsMilestones strong{display:block;font-size:13px;line-height:1.4}
-#sales-orders .gsMilestones small{font-size:11px;color:#617080;display:block;margin-top:3px}
+#sales-orders .gsMilestones small{font-size:11px;color:var(--coco-muted);display:block;margin-top:3px}
 #sales-orders .gsOrderMain{grid-column:1;grid-row:1;padding:20px}
 #sales-orders .gsOrderAside{grid-column:2;grid-row:1;align-self:start;display:flex;flex-direction:column;gap:16px;min-width:0}
 #sales-orders .gsOrderNext{padding:20px;border:1px solid #F7D5BD;background:#FFF0E6;border-radius:12px}
@@ -169,7 +167,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sales-orders .gsOrderNext .arcButton{width:100%;margin-top:12px}
 #sales-orders .gsCustomerCard{background:#fff;border:1px solid #D8E2EA;border-radius:10px;padding:16px;margin-bottom:18px}
 #sales-orders .gsCustomerCard b{font-size:17px;color:#103B52}
-#sales-orders .gsCustomerCard p{margin:7px 0;font-size:12px;color:#617080;line-height:1.5}
+#sales-orders .gsCustomerCard p{margin:7px 0;font-size:12px;color:var(--coco-muted);line-height:1.5}
 #sales-orders .gsOrderTotal{margin:16px 0 0 auto;max-width:270px;background:#E7F3F6;border-radius:10px;padding:16px}
 #sales-orders .gsOrderTotal strong{font-size:22px}
 #sales-orders .gsOrderHistory{padding:18px}
@@ -177,7 +175,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sales-orders .gsHistoryList{list-style:none;padding:0;margin:0}
 #sales-orders .gsHistoryList li{padding:0 0 16px 20px;margin:0 0 0 5px;border-left:2px solid #B6DCE5;position:relative;font-size:12px;line-height:1.6}
 #sales-orders .gsHistoryList li:before{content:'';width:10px;height:10px;background:#10677D;border-radius:50%;position:absolute;left:-6px;top:5px}
-#sales-orders .gsHistoryList time{color:#617080;font-size:11px;display:block}
+#sales-orders .gsHistoryList time{color:var(--coco-muted);font-size:11px;display:block}
 #sales-orders .gsHistoryList strong{font-size:13px;display:block}
 #sales-orders .gsOrderMore{margin-top:18px}
 #sales-orders .gsOrderMore>summary{cursor:pointer;padding:14px 16px;background:#fff;border:1px solid #D8E2EA;border-radius:10px;color:#10677D;font-size:13px;font-weight:600}
@@ -191,7 +189,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriHeader h2{font-size:18px;margin:0}
 #sri .gaSriEnvironment{border:1px solid #F87826;padding:4px 10px;border-radius:8px;color:#AD4508;font-size:12px;font-weight:700;background:#FFF0E6}
 #sri .gaSriTabs{display:flex;gap:12px;flex-wrap:wrap;border-bottom:1px solid #DDE5EC;margin-bottom:18px}
-#sri .gaSriTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;padding:12px 14px;color:#617080;min-height:44px;font-size:14px}
+#sri .gaSriTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;padding:12px 14px;color:var(--coco-muted);min-height:44px;font-size:14px}
 #sri .gaSriTabs button[aria-selected=true]{border-bottom-color:#F87826;color:#AD4508;font-weight:650}
 #sri .gaSriNotice{background:#FFF0E6;border:1px solid #F7D5BD;border-left:4px solid #F87826;color:#AD4508;border-radius:9px;padding:12px 16px;font-size:13px;line-height:1.5;margin-bottom:18px}
 #sri .gaSriTools{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:18px}
@@ -202,7 +200,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriInspector{position:sticky;top:94px;padding:18px;border:1px solid #D8E2EA;background:#fff;border-radius:12px;min-width:0}
 #sri .gaSriInspector h3{font-size:18px;margin:0 0 16px}
 #sri .gaSriSelected{background:#E7F3F6;padding:14px;border-radius:10px;margin-bottom:14px}
-#sri .gaSriSelected small{color:#617080;display:block}
+#sri .gaSriSelected small{color:var(--coco-muted);display:block}
 #sri .gaSriSelected b{display:block;margin-top:6px;font-size:18px}
 #sri .gaSriInspector .gaActions{margin-top:12px}
 #sri .gaSriChecks{list-style:none;padding:0;font-size:13px;line-height:1.6}
@@ -298,8 +296,8 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriChecks [data-validation=error]{color:#B3261E}
 #sri .gaSriBatch>span:first-child{font-weight:600;color:#10677D}
 .cocoProofSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;gap:10px;margin:8px 0 22px}
-.cocoProofSteps li{display:flex;align-items:center;gap:7px;font-size:12px;color:#617080}
-.cocoProofSteps b{display:grid;place-items:center;width:27px;height:27px;flex:none;background:#EDF1F5;color:#617080;border-radius:50%}
+.cocoProofSteps li{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--coco-muted)}
+.cocoProofSteps b{display:grid;place-items:center;width:27px;height:27px;flex:none;background:#EDF1F5;color:var(--coco-muted);border-radius:50%}
 .cocoProofSteps [data-complete=true] b{background:#10677D;color:#fff}
 .cocoProofDialog{max-width:700px;background:#fff;border:1px solid #D8E2EA;border-radius:14px}
 .cocoProofDialog .tmsSig{border:2px dashed #B6DCE5;border-radius:10px;background:#F7F9FC;touch-action:none}
@@ -331,7 +329,6 @@ body .arcContent .gamaStdBack{color:#10677D}
 #dashboard .adMeta{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}
 #dashboard .adMeta>span{display:block}
 #dashboard .adMeta small{display:inline;font-size:10px}
-#dashboard .adMetric{min-height:144px}
 @media(min-width:1101px){
  #dashboard .adWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
  #dashboard #ad-content,#dashboard .adPersonal{grid-column:1/-1}
@@ -361,7 +358,7 @@ body .arcContent .gamaStdBack{color:#10677D}
 #sri .gaSriRowActions .arcButton{font-size:11px;min-height:34px;padding:6px 8px}
 #sri .gaSriTools>label:not(:first-child){max-width:210px}
 
-#sri .gaSriCustomer{display:block;color:#617080;margin-top:5px;font-size:11px;white-space:normal}
+#sri .gaSriCustomer{display:block;color:var(--coco-muted);margin-top:5px;font-size:11px;white-space:normal}
 
 /* Keep named table controls and the mobile brand usable on 320px screens. */
 body .arcContent .gamaTableToolbar>.gamaTableControls{flex:1 1 180px}
@@ -399,17 +396,27 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #dashboard .adPeriodMore[open]{flex-basis:100%}
 #dashboard .adPeriodMore .adTools{margin-top:10px}
 #dashboard .adMetrics{margin:0 0 20px;gap:16px}
-#dashboard .adMeta{font-size:11px;order:4;margin:0 0 12px;color:#617080}
-#dashboard .adMetric{display:flex;align-items:flex-start;gap:16px;min-height:136px;padding:20px 18px;border:1px solid #E1E6EC;box-shadow:0 2px 10px #18314903}
+#dashboard .adMeta{font-size:11px;order:4;margin:0 0 12px;color:var(--coco-muted)}
 #dashboard .adMetricIcon{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#E7F3F6;color:#10677D}
-#dashboard .adMetric:nth-child(odd) .adMetricIcon{color:#AD4508;background:#FFF0E6}
-#dashboard .adMetricIcon svg{width:26px;height:26px}
 #dashboard .adMetricBody{display:block;min-width:0;flex:1}
 #dashboard .adMetricLabel{display:block;font-size:14px;line-height:1.35;font-weight:500;color:#24374A}
-#dashboard .adMetricBody>strong{font-size:29px;margin:8px 0 7px;display:block;color:#101B2B;overflow-wrap:anywhere}
-#dashboard .adMetricBody>small{font-size:11px;color:#617080;line-height:1.5}
+#dashboard .adMetricBody>small{font-size:11px;color:var(--coco-muted);line-height:1.5}
 #dashboard .adDelta{display:block;margin-top:5px;font-size:11px;color:#0D7446}
-#dashboard .adExecutive .adMetric{display:block}
+/* Structural variants: icon metrics and executive figures have distinct content. */
+#dashboard .adMetricStandard{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-content:start;align-items:center;min-height:160px;min-width:0}
+#dashboard .adMetricStandard .adMetricBody{display:contents}
+#dashboard .adMetricStandard .adMetricBody>:is(strong,small,.adDelta){grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+#dashboard .adMetricExecutive{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;min-width:0;min-height:160px;text-align:left}
+#dashboard .adMetricExecutive>small{font-size:13px;line-height:1.4;color:var(--coco-muted)}
+#dashboard .adMetricExecutive>strong{display:block;max-width:100%;margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#dashboard .adMetricExecutive>.arcButton{width:auto;max-width:100%;margin-top:auto;white-space:normal;overflow-wrap:anywhere;min-height:44px}
+@media(max-width:760px){
+ #dashboard .adMetricStandard{display:block}
+ #dashboard .adMetricStandard .adMetricBody{display:block}
+ #dashboard .adMetricStandard .adMetricIcon{margin-bottom:12px}
+ #dashboard .adMetricStandard .adMetricBody>:is(strong,small,.adDelta){display:block}
+ #dashboard .adMetricExecutive>strong{font-size:clamp(18px,5vw,24px)}
+}
 #dashboard .adCockpit{grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:18px;align-items:stretch}
 #dashboard .adCockpit .adAnalysis>article:first-child{display:flex;flex-direction:column;min-height:310px;padding:20px}
 #dashboard .adChartHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0}
@@ -421,7 +428,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #dashboard .adChart{width:100%;min-width:500px;max-height:265px}
 #dashboard .adChartText{font-size:13px}
 #dashboard .adChartOptions,#dashboard .adChartData{font-size:11px;margin-top:5px}
-#dashboard .adChartOptions>summary,#dashboard .adChartData>summary{color:#617080;cursor:pointer}
+#dashboard .adChartOptions>summary,#dashboard .adChartData>summary{color:var(--coco-muted);cursor:pointer}
 #dashboard .adChartTools{justify-content:flex-start}
 #dashboard .adQuickActions{padding:20px;display:flex;flex-direction:column}
 #dashboard .adQuickList{margin-top:14px;flex:1}
@@ -432,7 +439,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #dashboard .adQuickAction .adQuickIcon{width:46px;height:46px}
 #dashboard .adQuickAction:nth-child(odd) .adQuickIcon{background:#FFF0E6;color:#AD4508}
 #dashboard .adQuickAction .arcButton{min-height:40px;min-width:76px;font-size:12px;padding:8px 12px;border-color:#157F98}
-#dashboard .adPrioritiesLink{padding:8px 0 0;background:transparent;border:0;box-shadow:none;text-align:left;font-size:11px;color:#10677D;min-height:28px}
+#dashboard .adPrioritiesLink{padding:8px 0 0;background:transparent;border:0;box-shadow:none;text-align:left;font-size:11px;color:#10677D;min-height:44px}
 #dashboard .adRecentOrders{padding:18px 20px}
 #dashboard .adRecentOrders .cocoSectionTitle{margin:0 0 14px}
 #dashboard .adRecentOrders .cocoSectionTitle>.arcButton{border:0;background:transparent;padding:0;font-size:13px}
@@ -458,7 +465,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsMilestones strong{font-size:14px;background:#F7F8FB;margin-top:2px}
 #sales-orders .gsMilestones small{font-size:12px;line-height:1.4}
 #sales-orders .gsMilestones [data-state=current] strong,#sales-orders .gsMilestones [data-state=current] small{color:#AD4508}
-#sales-orders .gsStepCount{position:absolute;top:12px;right:0;font-size:12px;color:#617080;padding:12px 0 12px 16px;border-left:1px solid #DDE5EC}
+#sales-orders .gsStepCount{position:absolute;top:12px;right:0;font-size:12px;color:var(--coco-muted);padding:12px 0 12px 16px;border-left:1px solid #DDE5EC}
 #sales-orders .gsOrderWorkspace{grid-template-columns:minmax(0,1.85fr) minmax(285px,1fr);gap:18px;align-items:start}
 #sales-orders .gsOrderMain{padding:0;min-height:470px}
 #sales-orders .gsOrderTabs{display:flex;gap:14px;border-bottom:1px solid #E1E6EC;padding:0 12px}
@@ -473,11 +480,11 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsCustomerTitle{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
 #sales-orders .gsCustomerTitle b{font-size:18px;color:#101B2B}
 #sales-orders .gsCustomerFacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-#sales-orders .gsCustomerFacts>div{display:flex;gap:8px;align-items:flex-start;border-right:1px solid #E1E6EC;padding-right:8px;font-size:12px;color:#617080}
+#sales-orders .gsCustomerFacts>div{display:flex;gap:8px;align-items:flex-start;border-right:1px solid #E1E6EC;padding-right:8px;font-size:12px;color:var(--coco-muted)}
 #sales-orders .gsCustomerFacts>div:last-child{border:0}
 #sales-orders .gsCustomerFacts svg{width:20px;height:20px;flex:none;color:#24374A}
 #sales-orders .gsCustomerFacts strong{display:block;font-size:13px;color:#1C2C3E;margin-top:4px;font-weight:600;overflow-wrap:anywhere}
-#sales-orders .gsCustomerAddress{font-size:11px;margin:10px 0 0;color:#617080}
+#sales-orders .gsCustomerAddress{font-size:11px;margin:10px 0 0;color:var(--coco-muted)}
 #sales-orders .gsOrderPanel td,#sales-orders .gsOrderPanel th{padding:12px 16px;font-size:13px}
 #sales-orders .gsOrderPanel .ivSub{display:none}
 #sales-orders .gsOrderTotal{max-width:300px;padding:16px 18px;font-size:14px;margin-top:16px}
@@ -489,7 +496,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsNextMessage p{font-size:14px;line-height:1.65;margin:0}
 #sales-orders .gsNextOwner{display:flex;gap:10px;align-items:center;border-top:1px solid #EADCCE;padding-top:14px;font-size:13px}
 #sales-orders .gsNextOwner svg{width:20px;height:20px}
-#sales-orders .gsNextOwner span{color:#617080}
+#sales-orders .gsNextOwner span{color:var(--coco-muted)}
 #sales-orders .gsNextOwner strong{margin-left:10px}
 #sales-orders .gsOrderHistory{padding:20px;margin:0}
 #sales-orders .gsHistoryList li{border-left:1px solid #69B38B;padding:0 0 22px 28px;margin-left:13px}
@@ -497,7 +504,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsHistoryList li:before{content:'✓';display:grid;place-items:center;width:22px;height:22px;left:-11px;top:0;background:#0D7446;color:white;font-size:13px;outline:4px solid white}
 #sales-orders .gsHistoryList strong{font-size:14px;color:#1C2C3E}
 #sales-orders .gsHistoryList time{font-size:12px;margin-bottom:3px}
-#sales-orders .gsHistoryList p{font-size:12px;color:#617080;margin:3px 0}
+#sales-orders .gsHistoryList p{font-size:12px;color:var(--coco-muted);margin:3px 0}
 #sales-orders .gsHistoryAll{background:transparent;border:0;padding:12px 0 0;box-shadow:none;color:#10677D;font-size:12px}
 #sales-orders .gsDocumentList{padding:0;list-style:none}
 #sales-orders .gsDocumentList li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #E1E6EC}
@@ -508,7 +515,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriTitle{flex:1;min-width:0}
 #sri .gaSriTitle>div{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 #sri .gaSriTitle h2{font-size:30px;letter-spacing:-.03em;color:#101B2B}
-#sri .gaSriTitle p{font-size:14px;color:#617080;margin:5px 0 0}
+#sri .gaSriTitle p{font-size:14px;color:var(--coco-muted);margin:5px 0 0}
 #sri .gaSriEnvironment{background:#FFF9F4;font-size:13px}
 #sri .gaSriHeaderActions{display:flex;gap:10px;align-items:center}
 #sri .gaSriHeaderActions button,#sri .gaSriBatch button{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px}
@@ -549,7 +556,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriLayout .gaCard>.gaTools:not(.gaSriBatch){padding:10px 14px;margin:0;font-size:12px;justify-content:flex-end}
 #sri .gaSriLayout .gaCard>.gaTools:not(.gaSriBatch) button{min-height:30px;padding:5px 10px;font-size:11px}
 #sri .gaSriBatch{margin:0!important;padding:14px 16px!important;gap:10px;font-size:13px;border-top:1px solid #E1E6EC;flex-wrap:wrap}
-#sri .gaSriBatch #gaSriSelectionSummary{flex:1;color:#617080;font-weight:400}
+#sri .gaSriBatch #gaSriSelectionSummary{flex:1;color:var(--coco-muted);font-weight:400}
 #sri .gaSriBatch #gaSriSelectionSummary strong{font-size:19px;color:#101B2B}
 #sri .gaSriBatch #gaSriBatchStatus:empty{display:none}
 #sri .gaSriInspector{position:static;padding:16px;align-self:start}
@@ -570,14 +577,14 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriDocs>div{display:flex;gap:8px}
 #sri .gaSriDocs button{font-size:11px;min-height:38px;padding:8px;flex:1}
 #sri .gaSriDocs svg{width:20px;height:20px;vertical-align:middle}
-#sri .gaSriDocs p{font-size:11px;color:#617080;line-height:1.5;margin:8px 0 0}
-#sri .gaSriInvoiceInfo,#sri .gaSriSourceActions{font-size:12px;color:#617080;margin-top:10px}
+#sri .gaSriDocs p{font-size:11px;color:var(--coco-muted);line-height:1.5;margin:8px 0 0}
+#sri .gaSriInvoiceInfo,#sri .gaSriSourceActions{font-size:12px;color:var(--coco-muted);margin-top:10px}
 #sri .gaSriInvoiceInfo summary,#sri .gaSriSourceActions summary{cursor:pointer;padding:4px 0;color:#10677D}
 #sri .gaSriMainActions .arcButton,#sri .gaSriSourceActions .arcButton{font-size:11px;min-height:34px;padding:7px 9px}
-#sri .gaSriPaymentField{font-size:12px;color:#617080;margin:12px 0 8px}
+#sri .gaSriPaymentField{font-size:12px;color:var(--coco-muted);margin:12px 0 8px}
 #sri .gaSriPaymentField select{font-size:13px;min-height:40px;background:white}
 #sri #gaSriPrepareSelected{font-size:12px;min-height:38px;width:100%}
-#sri .gaSriUpdated{text-align:right;font-size:11px;color:#617080;margin:16px 0 0}
+#sri .gaSriUpdated{text-align:right;font-size:11px;color:var(--coco-muted);margin:16px 0 0}
 @media(max-width:1200px){
  #dashboard .adMetric{gap:10px;padding:16px 12px}#dashboard .adMetricBody>strong{font-size:24px}#dashboard .adMetricIcon{width:40px;height:40px}
  #sales-orders .gsOrderHead{flex-wrap:wrap}#sales-orders .gsOrderHeadActions{margin-left:auto}#sales-orders .gsOrderProgress{padding-right:0}#sales-orders .gsStepCount{position:static;display:block;text-align:right;border:0;padding:10px 0 0}
@@ -589,25 +596,23 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 }
 @media(max-width:860px){
  #dashboard>.gamaStdHeader h2{font-size:27px}#dashboard .adHeaderTools{gap:8px;width:100%}#dashboard .adHeaderField{flex:1 1 190px}#dashboard .adHeaderField select{width:100%;min-width:0;font-size:12px}#dashboard .adHeaderTools #ad-customize{width:100%;font-size:13px}
- #dashboard .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#dashboard .adMetric{display:block;min-height:160px;padding:14px}#dashboard .adMetricIcon{margin-bottom:10px;width:36px;height:36px}#dashboard .adMetricIcon svg{width:22px;height:22px}#dashboard .adMetricLabel{font-size:12px}#dashboard .adMetricBody>strong{font-size:24px}
+ #dashboard .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#dashboard .adMetricStandard{display:block;min-height:160px;padding:14px}#dashboard .adMetricIcon{margin-bottom:10px;width:36px;height:36px}#dashboard .adMetricIcon svg{width:22px;height:22px}#dashboard .adMetricLabel{font-size:12px}#dashboard .adMetricBody>strong{font-size:24px}
  #dashboard .adCockpit{grid-template-columns:minmax(0,1fr)}#dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:2;padding:16px}#dashboard .adQuickActions{grid-column:1;grid-row:1;padding:16px}#dashboard .adRecentOrders{grid-column:1;grid-row:3;padding:16px}
  #dashboard .adQuickAction{padding:12px 0}#dashboard .adChartHeading h2,#dashboard .adQuickActions h2,#dashboard .adRecentOrders h2{font-size:19px}
  #dashboard .adMeta{flex-wrap:wrap}#dashboard .adMeta small{display:none}#dashboard .adOptions{display:block}
- #sales-orders .gsOrderHead{gap:10px;margin-bottom:16px}#sales-orders .gsOrderHead h2{font-size:23px}#sales-orders .gsOrderTitle{gap:8px}#sales-orders .gsOrderHeadActions{width:100%;margin:8px 0 0}#sales-orders .gsOrderHeadActions button{flex:1;font-size:12px;padding:10px}
+ #sales-orders .gsOrderHead{gap:10px;margin-bottom:16px}#sales-orders .gsOrderHead h2{font-size:23px;max-width:100%;min-width:0}#sales-orders .gsOrderTitle{gap:8px}#sales-orders .gsOrderHeadActions{width:100%;margin:8px 0 0}#sales-orders .gsOrderHeadActions button{flex:1;font-size:12px;padding:10px}
  #sales-orders .gsOrderProgress{padding:12px 0;margin-bottom:10px}#sales-orders .gsMilestones{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;row-gap:20px}#sales-orders .gsMilestones li:nth-child(2n):after{display:none}#sales-orders .gsMilestones strong{font-size:12px}#sales-orders .gsMilestones small{font-size:11px}#sales-orders .gsMilestoneDot{width:30px;height:30px;font-size:14px}#sales-orders .gsMilestones li{gap:9px}#sales-orders .gsMilestones li:not(:nth-child(4n)):after{top:15px;left:36px}
  #sales-orders .gsOrderWorkspace{grid-template-columns:minmax(0,1fr)}#sales-orders .gsOrderTabs{gap:0;padding:0 6px}#sales-orders .gsOrderTabs button{flex:1;font-size:12px;padding:14px 7px}#sales-orders .gsOrderPanel{padding:12px 10px 18px}#sales-orders .gsCustomerCard{padding:14px 10px;gap:10px}#sales-orders .gsCustomerTitle b{font-size:16px}#sales-orders .gsOrderMain{min-height:0}#sales-orders .gsOrderNext{padding:16px}#sales-orders .gsNextMessage p{font-size:13px}
  #sri .gaSriTitle h2{font-size:24px}#sri .gaSriTitle p{font-size:12px}#sri .gaSriHeaderActions{width:100%;margin:0}#sri .gaSriHeaderActions button{font-size:12px;padding:10px;flex:1}#sri .gaSriTabs{width:100%;flex:auto;gap:4px}#sri .gaSriTabs button{font-size:12px;padding:12px 9px}
  #sri .gaSriNotice{font-size:12px;padding:12px}#sri .gaSriSearchField{flex:1 1 190px!important}#sri .gaSriTools{gap:8px}#sri #gaSriTableTools{flex:1}#sri .gaSriDateFilter summary{padding:10px 12px}#sri .gaSriDateFilter form{left:0;right:auto}#sri .gaSriTools .arcButton{font-size:12px}#sri .gaSriBatch{flex-direction:column;align-items:stretch}#sri .gaSriLayout .gaTable th,#sri .gaSriLayout .gaTable td{padding:14px 12px}#sri .gaSriLayout>.gaCard{min-height:320px}
 }
 @container ad-dashboard (max-width:900px){#dashboard .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}#dashboard .adCockpit{grid-template-columns:minmax(0,1fr)}}
+@container ad-dashboard (max-width:600px){#dashboard .adExecutive .adMetrics{grid-template-columns:minmax(0,1fr)}#dashboard .adMetricExecutive{min-height:0}}
 /* Domain headings replace the shared module heading while viewing a dossier. */
 body #sales-orders[data-coco-order=true]>.gamaStdHeader,body #sales-orders[data-coco-order=true]>.gqModuleTabs,body #sri:has(.gaSriHeader)>.gamaStdHeader{display:none!important}
 body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
-#dashboard .adMetric{flex-direction:row!important}
-#dashboard .adMetric .adMetricIcon{background:#E7F3F6;color:#10677D}
-#dashboard .adMetric:nth-child(odd) .adMetricIcon{background:#FFF0E6;color:#AD4508}
 #dashboard .adMetric .adMetricIcon svg{color:inherit}
-#sales-orders .gsHistoryList .gsHistoryEmpty{padding-left:0;margin-left:0;border:0;color:#617080}
+#sales-orders .gsHistoryList .gsHistoryEmpty{padding-left:0;margin-left:0;border:0;color:var(--coco-muted)}
 #sales-orders .gsHistoryList .gsHistoryEmpty:before{display:none}
 #sri .gaSriChecks li>span:not(:first-child){font-size:13px;line-height:1.4;color:inherit}
 #sri .gaSriValidation .cocoKeyValues>div{padding:5px 0;min-height:0}
@@ -615,7 +620,7 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 #sri .gaSriSelected small{font-size:11px}
 #sri .gaSriSelected>div>span{font-size:13px}
 #sri .gaSriSelected p{margin:0}
-@media(max-width:860px){#dashboard .adMetric{flex-direction:column!important}body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:27px}}
+@media(max-width:860px){#dashboard .adMetricExecutive{flex-direction:column}body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:27px}}
 #dashboard .adMetricBody>.adOverdue{color:#B33C0C;font-weight:600}
 #sri .gaSriTabCount{background:#E8EDF3;color:#415267}
 #sri .gaSriTabs [aria-selected=true] .gaSriTabCount{background:#F87826;color:white}
@@ -634,12 +639,10 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 #dashboard #ad-content>.adMeta{order:2;margin:0 0 14px}
 #dashboard #ad-content>.adDetails{order:3}
 #dashboard #ad-content>.adMethod{order:4}
-#dashboard .adMetric{min-height:132px;padding:18px}
-#dashboard .adMetricBody>strong{margin:5px 0 6px;font-size:28px}
 #dashboard .adMetricBody>small{line-height:14px}
 #dashboard .adDelta{font-size:10px;line-height:14px;margin-top:4px}
 #dashboard .adChart{max-height:220px}
-#dashboard .adChartOptions>summary,#dashboard .adChartData>summary{font-size:11px;line-height:16px;padding:0;min-height:16px}
+#dashboard .adChartOptions>summary,#dashboard .adChartData>summary{font-size:12px;line-height:20px;padding:12px 0;min-height:44px;box-sizing:border-box}
 #dashboard .adQuickAction{padding:14px 0;min-height:70px}
 #sri .gaSriSelected small{line-height:16px}
 #sri .gaSriSelected b{font-size:18px;line-height:24px;margin:3px 0}

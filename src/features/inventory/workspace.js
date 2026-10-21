@@ -305,7 +305,7 @@ function pintarKpis(rows){
  const host=$('ivKpis');if(!host)return;
  const totals=stockPage?.totals||{};
  const values=[['Productos activos',totals.products??0],['Productos bajo mínimo',totals.low??0],['Sin existencias',totals.out??0]];
- window.ArcUI.render(host,values.map(([label,value])=>`<div class="ivKpi"><span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
+ window.ArcUI.render(host,values.map(([label,value],index)=>`<div class="ivKpi">${window.ArcUI.metricIcon(['cube','alert','stock'][index])}<span>${esc(T(label))}</span><b>${num(value)}</b></div>`).join(''));
  window.ArcUI.render($('ivStockTotals'),`${esc(T('Valor del stock'))}: <b>${esc(money(totals.current_cost_value||0))}</b>`);
 }
 
@@ -867,7 +867,7 @@ async function abrir(){
  if(window.showTab)window.showTab('warehouses',null);
  else seccion().classList.add('active');
  if(disponibleV2!==true||Date.now()-stockAcceptedAt>=30000)await cargar();
- await pintar();window.ArchitectPerformance?.contentReady('warehouses',started,disponibleV2===true);
+ await pintar();window.ArchitectPerformance?.dataVisible('warehouses',started,disponibleV2===true);window.ArchitectPerformance?.actionsReady('warehouses',started,disponibleV2===true);window.ArchitectPerformance?.contentReady('warehouses',started,disponibleV2===true);
 }
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id!=='warehouses')return;generation++;paintRequest++;stockRequest++;pageController?.abort();basePending=null;secondary.clear();mirrorReady=false});
 window.addEventListener('gama:stock-cloud-change',()=>{mirrorReady=false;secondary.delete('mirror');if($('warehouses')?.classList.contains('active')&&pestana==='existencias')refreshStockPage()});

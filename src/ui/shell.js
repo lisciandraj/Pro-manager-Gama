@@ -1,8 +1,7 @@
 /* COCO ERP — El armazón de la aplicación.
 
-   Barra lateral fija a la izquierda, barra superior arriba, contenido en el
-   resto. Sustituye a la cabecera azul oscura y a la fila de pestañas del pie
-   que la aplicación arrastraba desde su primera versión.
+   Barra de aplicaciones compacta, navegación de módulo horizontal y contenido
+   a todo el ancho. El directorio de módulos y los favoritos viven en un cajón.
 
    Es puramente estructural: no toca showTab, ni el control de acceso, ni la
    búsqueda global, ni la sesión. Mueve nodos que ya existen —el chip de
@@ -10,11 +9,9 @@
    lista de módulos de GamaMenu, así que un módulo nuevo aparece en la lateral
    sin tocar este archivo.
 
-   Los tres tamaños no son el mismo diseño encogido:
-     escritorio  barra lateral siempre presente;
-     tableta     lateral reducida a iconos, con el rótulo en el title;
-     teléfono    lateral fuera de pantalla, se abre como cajón desde el botón
-                 del menú, y la barra superior se queda en lo imprescindible. */
+   Las pestañas nativas conservan su DOM y sus manejadores. En escritorio se
+   colocan en el espacio libre de la cabecera; en tableta y móvil se desplazan
+   horizontalmente dentro de su módulo. Nunca se duplican los botones. */
 (function(){
 'use strict';
 if(window.ArchitectShell)return;
@@ -24,20 +21,21 @@ const esc=window.ArcUI.esc;
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const VERSION='v1.0.0';
 
-// Use the original supplied file byte-for-byte, including its slogan and ratio.
-// Coco ERP: el logo tal cual, sobre su tarjeta blanca; el robot solo cuando la barra está plegada.
-const MARK='<span class="arcLogo"><img src="coco-gama-logo.jpg?v=20261001-c-logo" alt="COCO ERP — Structure Your Business. Simply." width="1536" height="1024"></span><img class="arcLogoMark" src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="180" height="180">';
+// Approved COCO wordmark in the expanded sidebar; the single C in compact views.
+const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261020-satin" alt="COCO ERP" width="1200" height="435"></span><img class="arcLogoMark" src="coco-erp-icon-180.png?v=20261018-co" alt="" width="180" height="180">';
 
 const ICON={
- search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
- bell:window.ArcUI.icons.bell,
- menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
- gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
- globe:window.ArcUI.icons.globe,
+ ...window.ArcUI.icons,
+ close:'<path d="m6 6 12 12M18 6 6 18"/>',
+ back:'<path d="m12 5-7 7 7 7M5 12h14"/>'
+};
+// Keep the original monochrome controls for mobile navigation and the app drawer.
+const NAV_ICON={
+ apps:'<circle cx="5" cy="5" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="19" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/>',
  home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
  scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
- star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
 };
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
@@ -55,7 +53,7 @@ function bindTopMenu(trigger){
 
 /* ------------------------------------------------------------------ nav */
 function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
- +svg(window.GamaMenu?.icons?.[x[2]]||ICON.home)+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
+ +(window.ArcUI.moduleIcon(x[2])||window.ArcUI.moduleIcon('home'))+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
 function navAllowed(id){
  if(window.gamaMenuVisible)return !!window.gamaMenuVisible(id);
  if(window.gamaAccessAllowed)return !!window.gamaAccessAllowed(id);
@@ -73,7 +71,7 @@ function navHtml(){
  const menu=window.GamaMenu;
  if(!menu||!menu.items)return '';
  let html='<button type="button" class="arcButton arcNavLink" data-arc-home="1">'
-  +svg(ICON.home)+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>'
+  +window.ArcUI.moduleIcon('home')+'<span class="arcNavLabel">'+esc(T('Inicio'))+'</span></button>'
   +'<div class="arcNavFavorites" role="group" aria-labelledby="arcFavoritesTitle"></div>';
  (menu.groups||[]).forEach(group=>{
   html+='<div class="arcNavGroup">'+esc(T(group))+'</div>';
@@ -112,8 +110,63 @@ function markActive(){
  });
 }
 
-function closeDrawer(){document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess()}
-function openDrawer(){document.body.classList.add('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();document.querySelector('.arcNavLink')?.focus()}
+let drawerReturn=null;
+function closeDrawer(){const wasOpen=document.body.classList.contains('arcDrawerOpen');document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess();if(wasOpen)(drawerReturn?.isConnected?drawerReturn:b)?.focus({preventScroll:true});drawerReturn=null}
+function openDrawer(){
+ drawerReturn=document.activeElement;document.body.classList.add('arcDrawerOpen');
+ const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();
+ // A drawer transitioning from visibility:hidden cannot receive focus until
+ // its first painted frame in WebKit. Do not steal focus after user input.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const side=document.querySelector('.arcSidebar');
+  if(document.body.classList.contains('arcDrawerOpen')&&!side?.contains(document.activeElement))side?.querySelector('.arcNavLink:not(.aclHidden)')?.focus({preventScroll:true});
+ }));
+}
+
+/* Only top-level navigation is promoted. It remains in its module, so scoped
+   selectors, delegated events, permissions and keyboard handlers keep working. */
+let workspaceFrame=0,activeNav=null;
+const MODULE_NAV='.cocoSalesNavigation,.crmNav:not(.crmSubNav),.ivTabs,.hrTabs,.gaNav,.gfNav,.grNav,.pmTabs,.svTabs,.gwTabs,.gdfTabs,.arcTabs';
+function revealModuleTab(tab){
+ const nav=tab?.closest?.('.cocoModuleNav');if(!nav)return;
+ const r=tab.getBoundingClientRect(),b=nav.getBoundingClientRect();
+ if(r.left<b.left)nav.scrollLeft-=b.left-r.left;
+ else if(r.right>b.right)nav.scrollLeft+=r.right-b.right;
+}
+function syncWorkspace(){
+ workspaceFrame=0;
+ const section=document.querySelector('.arcContent section.active');
+ const context=$('cocoModuleContext'),top=document.querySelector('.arcTopbar');
+ if(!context||!top)return;
+ const id=section?.id||'mainmenu',home=id==='mainmenu';
+ document.body.dataset.cocoModule=id;
+ $('cocoModuleBack').hidden=home;
+ const title=home?T('Inicio'):(section.querySelector('.gamaStdText h2')?.textContent?.trim()||T(window.ArcModules?.get?.(id==='gama-tms-section'?'tms':id)?.label||''));
+ if(context.textContent!==title)context.textContent=title;
+ context.title=title;
+ // The app bar owns the module title and home action. Keep the native header
+ // nodes for module selectors, printing and any additional business controls.
+ section?.querySelectorAll('.gamaStdHeader').forEach(header=>{
+  if(home||header.closest('dialog'))return;
+  header.classList.add('cocoWorkspaceHeader');
+  header.classList.toggle('cocoHeaderEmpty',!header.querySelector('button:not(.gamaStdBack),a,input,select,textarea,summary,[role=button]'));
+ });
+ const nav=home?null:(id==='sri'?section.querySelector('.gaSriTabs'):section.querySelector(MODULE_NAV));
+ if(activeNav!==nav){activeNav?.classList.remove('cocoModuleNav');activeNav=nav;activeNav?.classList.add('cocoModuleNav')}
+ const usable=!!nav&&nav.getClientRects().length>0&&nav.querySelector('button');
+ const pinned=!!usable&&matchMedia('(min-width:1180px)').matches;
+ document.body.classList.toggle('cocoNavPinned',pinned);
+ if(pinned){
+  const left=context.getBoundingClientRect().right+12;
+  const right=innerWidth-document.querySelector('.arcSearch').getBoundingClientRect().left+12;
+  top.style.setProperty('--coco-nav-left',left+'px');
+  document.body.style.setProperty('--coco-nav-left',left+'px');
+  document.body.style.setProperty('--coco-nav-right',right+'px');
+  if(id==='quotes'){const actions=section.querySelector(':scope>.gamaStdHeader');if(actions)section.style.setProperty('--coco-context-actions',Math.ceil(actions.getBoundingClientRect().width+12)+'px')}
+ }
+ revealModuleTab(document.activeElement);
+}
+function scheduleWorkspace(){if(!workspaceFrame)workspaceFrame=requestAnimationFrame(syncWorkspace)}
 
 /* --------------------------------------------------------------- montaje */
 function build(){
@@ -123,10 +176,11 @@ function build(){
  if(!wrap)return;
 
  const shell=document.createElement('div');shell.className='arcShell';shell.id='arcShell';
+ document.body.classList.add('cocoWorkbench');
 
  const side=document.createElement('aside');
- side.className='arcSidebar';side.setAttribute('aria-label',T('Navegación principal'));side.setAttribute('data-gi-aria-label','live');
- window.ArcUI.render(side,'<a class="arcBrand" href="#mainmenu" aria-label="COCO ERP">'+MARK+'</a>'
+ side.className='arcSidebar';side.id='cocoAppMenu';side.setAttribute('aria-label',T('Navegación principal'));side.setAttribute('data-gi-aria-label','live');
+ window.ArcUI.render(side,'<button type="button" class="arcButton arcDrawerClose" data-gi-aria-label="live" aria-label="'+esc(T('Cerrar'))+'">'+svg(ICON.close)+'</button><a class="arcBrand" href="#mainmenu" aria-label="COCO ERP">'+MARK+'</a>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
    +'<div class="arcFootBrand">COCO ERP</div>'
@@ -139,8 +193,9 @@ function build(){
 
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
- window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" aria-expanded="false" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(ICON.menu)+'</button>'
-  +'<span class="arcMobileBrand"><img src="coco-gama-icon-180.png?v=20261001-c-logo" alt="" width="34" height="34">Coco <b>ERP</b></span>'
+ window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(NAV_ICON.apps)+'</button>'
+  +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261018-co" alt="" width="34" height="34"></a>'
+  +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><h1 id="cocoModuleContext" class="cocoModuleContext"></h1></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
@@ -162,7 +217,7 @@ function build(){
  main.append(top,content);
  shell.append(side,main);
  const mobile=document.createElement('nav');mobile.className='cocoMobileNav';mobile.setAttribute('aria-label',T('Navegación principal'));
- const labels={home:'Inicio',search:'Buscar',scan:'Escanear',more:'Más'},drawings={home:ICON.home,search:ICON.search,scan:ICON.scanner,more:ICON.more};
+ const labels={home:'Inicio',search:'Buscar',scan:'Escanear',more:'Más'},drawings={home:NAV_ICON.home,search:NAV_ICON.search,scan:NAV_ICON.scanner,more:NAV_ICON.more};
  window.ArcUI.render(mobile,Object.keys(labels).map(key=>'<button type="button" data-coco-mobile="'+key+'">'+svg(drawings[key])+'<span data-gi-source="'+labels[key]+'">'+esc(T(labels[key]))+'</span></button>').join(''));
  shell.append(mobile);
  mobile.querySelector('[data-coco-mobile=home]').onclick=()=>{closeDrawer();window.GamaUI?.backToMenu?.()};
@@ -194,6 +249,14 @@ function bind(side,top){
  bindNav(side);
  const burger=top.querySelector('.arcBurger');
  burger.onclick=()=>document.body.classList.contains('arcDrawerOpen')?closeDrawer():openDrawer();
+ side.querySelector('.arcDrawerClose').onclick=closeDrawer;
+ top.querySelector('.arcMobileBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
+ top.querySelector('#cocoModuleBack').onclick=()=>{
+  const id=document.body.dataset.cocoModule==='gama-tms-section'?'tms':document.body.dataset.cocoModule;
+  window.GamaUI.backToMenu();
+  const card=[...document.querySelectorAll('#mainmenu .gamaF2Card')].find(el=>el.dataset.gamaModule===id);
+  (card?.querySelector('.cocoModuleOpen')||document.querySelector('.arcBurger'))?.focus({preventScroll:true});
+ };
 
  /* La búsqueda global no cambia de motor: este campo es otra boca del mismo.
     El cableado lo pone mount() —y sólo él—, porque lleva la guarda que impide
@@ -242,14 +305,15 @@ function adoptSections(){
   if(sec.id!=='mainmenu')wrap.appendChild(sec);
  });
 }
-function syncDrawerAccess(){const side=document.querySelector('.arcSidebar');if(side)side.inert=matchMedia('(max-width:860px)').matches&&!document.body.classList.contains('arcDrawerOpen')}
-function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
+function syncDrawerAccess(){const open=document.body.classList.contains('arcDrawerOpen'),side=document.querySelector('.arcSidebar');if(side){side.inert=!open;if(open){side.setAttribute('role','dialog');side.setAttribute('aria-modal','true')}else{side.removeAttribute('role');side.removeAttribute('aria-modal')}}for(const root of document.querySelectorAll('.arcMain,.cocoMobileNav'))root.inert=open}
+function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();scheduleWorkspace();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
 
 function boot(){
  build();
+ document.addEventListener('focusin',e=>revealModuleTab(e.target));
  document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){topMenuIntent++;document.querySelector('.arcProfile')?.removeAttribute('open');if(document.body.classList.contains('arcDrawerOpen')){closeDrawer();document.querySelector('.arcBurger')?.focus()}}
-  if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')&&matchMedia('(max-width:860px)').matches){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
+  if(e.key==='Tab'&&document.body.classList.contains('arcDrawerOpen')){const items=[...document.querySelectorAll('.arcSidebar a,.arcSidebar button,.arcSidebar select,.arcSidebar summary')].filter(x=>x.getClientRects().length&&!x.disabled);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}
  });
  /* Synchronize on application events; observe only the existing user chip
     and notification badge, never the complete document tree. */
@@ -257,7 +321,10 @@ function boot(){
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
- window.addEventListener('resize',syncDrawerAccess);
+ window.addEventListener('resize',scheduleWorkspace);
+ window.addEventListener('arc:module-rendered',scheduleWorkspace);
+ document.fonts?.ready.then(scheduleWorkspace);
+ if(window.ResizeObserver)new ResizeObserver(scheduleWorkspace).observe(document.querySelector('.arcTopbar'));
  document.addEventListener('click',e=>{if(!e.target.closest('#arcNotify,#arcSettings'))topMenuIntent++;if(!e.target.closest('.arcProfile'))document.querySelector('.arcProfile')?.removeAttribute('open')});
  window.addEventListener('gama:language-change',()=>{
   const nav=document.querySelector('.arcNav');
@@ -266,5 +333,5 @@ function boot(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 
-window.ArchitectShell={sync,openDrawer,closeDrawer,markActive};
+window.ArchitectShell={sync,openDrawer,closeDrawer,markActive,syncWorkspace:scheduleWorkspace};
 })();

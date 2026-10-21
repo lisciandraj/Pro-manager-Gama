@@ -375,6 +375,26 @@ test('a reviewed bank match sends only the invoice identity and retries with the
  const calls=await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='settle'));expect(calls).toHaveLength(2);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);expect(calls[1].p_data.invoice_id).toBe('inv1');expect(calls[1].p_data.amount).toBeUndefined();
 });
 
+test('reconcile and next requires a choice, retries safely and opens only the next unmatched row',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  const rows=__ACC.responses.bank_list.rows;rows.push({...rows[0],id:'bt2',description:'Second transfer'});
+  const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+   if(fn==='gama_bank_invoice_action'&&args.p_action==='suggest')return {data:{bank:rows.find(r=>r.id===args.p_data.bank_id),matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-1',amount:1250,balance:1250,date:'2026-10-20'}]}};
+   const result=await c.rpc(fn,args);
+   if(fn==='gama_bank_invoice_action'&&args.p_action==='settle'&&!result.error)rows.splice(rows.findIndex(r=>r.id===args.p_data.bank_id),1);
+   return result;
+  }}};
+ });
+ await open(page);await page.locator('[data-ga-section=cash]').click();
+ await expect(page.locator('#gaBankFrom')).toBeHidden();await page.locator('.gaBankAdvanced summary').click();await expect(page.locator('#gaBankFrom')).toBeVisible();
+ await page.locator('[data-ga-match=bt1]').click();await page.locator('#gaMatchNext').click();await expect(page.locator('#gsFormError')).not.toBeEmpty();
+ expect(await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='settle').length)).toBe(0);
+ await page.locator('input[name=gaMatch][value^="invoice|"]').check();await page.evaluate(()=>__ACC.error='network request failed');await page.locator('#gaMatchNext').click();await expect(page.locator('#gsFormError')).not.toBeEmpty();
+ await page.evaluate(()=>__ACC.error=null);await page.locator('#gaMatchNext').click();
+ await expect(page.locator('.gsDialog')).toContainText('Second transfer');await expect(page.locator('input[name=gaMatch]:checked')).toHaveCount(0);
+ const calls=await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='settle'));expect(calls).toHaveLength(2);expect(calls[0].p_data.request_key).toBe(calls[1].p_data.request_key);
+});
+
 for(const [language,width] of [['fr',1440],['es',390],['en',390]])test('Business planning screens preserve review and show localized controls '+language,async({page})=>{
  await page.setViewportSize({width,height:950});await boot(page);
  await page.evaluate(async language=>{
@@ -428,4 +448,11 @@ test('accounting priority tiles respect commercial scope and distinguish missing
  await expect(page.locator('[data-ga-priority=receivables]')).toBeDisabled();await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('—');
  await page.evaluate(()=>__ACC.overview.customers.overdue_count=0);await open(page);
  await expect(page.locator('[data-ga-priority=receivables]')).toBeEnabled();await expect(page.locator('[data-ga-priority=receivables] strong')).toHaveText('0');
+});
+
+test('sending a bank invoice to Agent Coco prepares a draft without settling it',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__ACC.bankSuggestions={bank:__ACC.responses.bank_list.rows[0],matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-1',amount:1250,balance:1250,date:'2026-10-20'}]};const original=ArcData.rpc;window.ArcData={...ArcData,rpc:async(n,a)=>{if(n==='coco_action_queue'){__ACC.calls.push({...a,rpc_name:n});return {id:'draft',status:'pending'}}return original(n,a)}}});
+ await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('[data-ga-match]').click();await page.locator('input[name=gaMatch][value^="invoice|"]').check();await page.locator('#gaMatchPropose').click();await expect(page.locator('.gsDialog')).not.toBeVisible();
+ expect(await page.evaluate(()=>__ACC.calls.find(x=>x.rpc_name==='coco_action_queue'))).toMatchObject({p_action:'prepare_bank',p_data:{bank_id:'bt1',invoice_id:'inv1'}});
+ expect(await page.evaluate(()=>__ACC.calls.some(x=>x.p_action==='settle'))).toBe(false);
 });

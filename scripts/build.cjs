@@ -1,22 +1,23 @@
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const {root,manifest,hash,runtimeFiles,header,runtimeScript,validateManifest}=require('./lib/assets.cjs');
+const {root,manifest,hash,runtimeFiles,runtimeScript,runtimeStyle,compactStyle,validateManifest}=require('./lib/assets.cjs');
 const {secureHtml}=require('./lib/csp.cjs');
 validateManifest();
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
 for(const {source,output} of manifest.styles){
- fs.writeFileSync(path.join(root,output),header(source)+fs.readFileSync(path.join(root,source),'utf8'));
+ fs.writeFileSync(path.join(root,output),runtimeStyle(source));
 }
 for(const bundle of manifest.startupBundles||[]){
  const code=bundle.files.map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n;\n');
  // Parse the combined classic scope too: no duplicate lexical declarations.
  require('acorn').parse(code,{ecmaVersion:'latest',sourceType:'script'});
- fs.writeFileSync(path.join(root,bundle.output),'/* Generated startup bundle: '+bundle.files.join(', ')+'. */\n'+code+(bundle.output==='coco-modules.js'?'\nwindow.ArcRuntimeLoaded=true;window.dispatchEvent(new CustomEvent("arc:runtime-ready"));\n':''));
+ const compact=require('esbuild').transformSync(code,{loader:'js',target:'es2020',minifyWhitespace:true,minifySyntax:false,minifyIdentifiers:true,legalComments:'inline'}).code;
+ fs.writeFileSync(path.join(root,bundle.output),'/* Generated startup bundle: '+bundle.files.join(', ')+'. */\n'+compact+(bundle.output==='coco-modules.js'?'\nwindow.ArcRuntimeLoaded=true;window.dispatchEvent(new CustomEvent("arc:runtime-ready"));\n':''));
 }
 execFileSync(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'build'],{cwd:root,stdio:'inherit'});
 fs.copyFileSync(path.join(root,'.build/client/architect-core.js'),path.join(root,'architect-core.js'));
-fs.writeFileSync(path.join(root,'architect-components.css'),manifest.moduleStyles.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('')+'\n'+fs.readFileSync(path.join(root,'src/ui/components.css'),'utf8'));
-fs.copyFileSync(path.join(root,'src/ui/base.css'),path.join(root,'architect-base.css'));
+fs.writeFileSync(path.join(root,'architect-components.css'),compactStyle(manifest.moduleStyles.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\n'+fs.readFileSync(path.join(root,'src/ui/components.css'),'utf8')));
+fs.writeFileSync(path.join(root,'architect-base.css'),runtimeStyle('src/ui/base.css'));
 const assets=Object.fromEntries([...runtimeFiles(),...manifest.vendors].map(file=>[file,file+'?v='+hash(file)]));
 fs.writeFileSync(path.join(root,'architect-assets.js'),'/* Generated runtime asset versions. */\nwindow.ArcAssets='+JSON.stringify(assets,null,2)+';\n');
 const versionHtml=html=>secureHtml(html.replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(full,key,file)=>{
@@ -33,7 +34,7 @@ const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront
 const catalogueUrl=new URL(b2bConfig.catalogue_url);
 if(catalogueUrl.protocol!=='https:'||catalogueUrl.username||catalogueUrl.password)throw Error('Public catalogue URL must be HTTPS without credentials');
 fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__',catalogueUrl.href).replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
-const shell=['./','./index.html','./manifest.json','./coco-gama-icon-180.png','./coco-gama-icon-192.png','./coco-gama-icon-512.png'];
+const shell=['./','./index.html','./manifest.json?v=20261018-co','./coco-erp-logo.png?v=20261020-satin','./coco-erp-icon-180.png?v=20261018-co','./coco-erp-icon-192.png?v=20261018-co','./coco-erp-icon-512.png?v=20261018-co'];
 const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
  .replace('__COCO_RELEASE__',hash('architect-assets.js')+'-'+hash('index.html'))
  .replace('__COCO_APP_SHELL__',JSON.stringify(shell));
@@ -46,3 +47,8 @@ for(const file of publicFiles)fs.copyFileSync(path.join(root,file),path.join(out
 for(const folder of ['assets','config/localizations','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});
 fs.writeFileSync(path.join(out,'.nojekyll'),'');
 console.log('Coco ERP: '+runtimeFiles().length+' versioned assets built from canonical sources.');
+
+// Stamp only the publication artifact; committed generated assets stay reproducible.
+const buildId=process.env.GITHUB_SHA||process.env.COCO_BUILD_ID||'unknown';
+if(buildId!=='unknown'&&!/^[a-f0-9]{40}$/.test(buildId))throw Error('Invalid build id');
+for(const file of ['index.html','tms-driver.html']){const target=path.join(out,file);fs.writeFileSync(target,fs.readFileSync(target,'utf8').replace('<html','<html data-coco-build="'+buildId+'"'));}

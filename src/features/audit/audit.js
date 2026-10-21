@@ -52,7 +52,7 @@ async function load(){
   U.render($('atRows'),items.length?U.table({className:'atTable',columns:[
    {label:T('Fecha'),value:x=>when(x.at)},
    {label:T('Acción'),html:x=>`<span class="atKind" data-kind="${E(x.kind)}">${tr(x.label)}</span>`},
-   {label:T('Detalle'),value:x=>x.detail||''},
+   {label:T('Detalle'),html:x=>`<span class="atDetail">${E(x.detail||'')}</span>`},
    {label:T('Referencia'),value:x=>x.reference||'—'},
    {label:T('Importe / cantidad'),numeric:true,value:figure},
    {label:T('Quién'),value:x=>x.actor||T('Sistema')}],items}):'');
@@ -63,7 +63,13 @@ async function load(){
 async function exportCsv(){
  await window.ArchitectAccessControls.requireAction('audit','export');
  const rows=[];for(let at=0;at<EXPORT_MAX;at+=200){const r=await rpc({...filters,offset:at,limit:200});rows.push(...(r.items||[]));if(!r.has_more)break}
- const cell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ // Text cells must remain text when a spreadsheet opens the CSV.
+ // Keep numeric amount/quantity cells numeric, including negative values.
+ const cell=v=>{
+  let s=String(v??'');
+  if(typeof v!=='number'&&(/^[=+@\-\t\r\n\0]/.test(s)||/^\s+[=+@\-]/.test(s)))s="'"+s;
+  return '"'+s.replace(/"/g,'""')+'"';
+ };
  const csv=[[T('Fecha'),T('Tipo'),T('Acción'),T('Detalle'),T('Referencia'),T('Importe'),T('Cantidad'),T('Quién')].map(cell).join(';'),
   ...rows.map(x=>[x.at,T(KINDS.find(k=>k[0]===x.kind)?.[1]||x.kind),T(x.label),x.detail,x.reference,x.amount,x.quantity,x.actor].map(cell).join(';'))].join('\r\n');
  const url=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');

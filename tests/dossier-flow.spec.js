@@ -26,6 +26,39 @@ test('card and detail display the same authoritative blocked state and document 
  await boot(page);await expect(page.locator('.gdfStep').nth(3)).toHaveClass(/blocked/);await expect(page.locator('.gdfRecord').first().locator('.gdfProgress')).toHaveAttribute('data-state','blocked');await expect(page.locator('.gdfSummary .gdfBadge')).toHaveText('Proceso bloqueado');await expect(page.locator('.gdfStep').nth(4)).toContainText('4 / 10');
  await page.evaluate(()=>GamaSales.openOrder=id=>window.__opened=id);await page.locator('.gdfStep').nth(2).locator('[data-action="order"]').click();expect(await page.evaluate(()=>__opened)).toBe('o0');
 });
+for(const width of [1280,390])test(`one stock reservation reference covers every product and location at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:844});await boot(page);
+ await page.evaluate(async()=>{
+  __processRows[0].o.dossier_number=3155;
+  __DB.sales_order_lines=[{id:'l0',order_id:'o0',product_id:'p0',quantity:3},{id:'l1',order_id:'o0',product_id:'p1',quantity:4}];
+  __DB.stock_reservations=[
+   {id:'r1',reference_id:'o0',reference_type:'sales_order',product_id:'p0',location_id:'a',quantity:1,status:'active',erp_reference:'RES-00003172'},
+   {id:'r2',reference_id:'o0',reference_type:'sales_order',product_id:'p0',location_id:'b',quantity:2,status:'active',erp_reference:'RES-00003162'},
+   {id:'r3',reference_id:'o0',reference_type:'sales_order',product_id:'p1',location_id:'b',quantity:4,status:'active',erp_reference:'RES-00003176'},
+   {id:'r4',reference_id:'o1',reference_type:'sales_order',product_id:'p2',quantity:9,status:'active',erp_reference:'RES-00009999'}
+  ];
+  __DB.sales_reservation_links=[{reservation_id:'r1',line_id:'l0'},{reservation_id:'r2',line_id:'l0'},{reservation_id:'r3',line_id:'l1'}];
+  __DB.fulfillment_preparations=[{id:'prep',order_id:'o0',number:'PRE-00003155',status:'picking'}];
+  __DB.fulfillment_packages=[{id:'pack',preparation_id:'prep',erp_reference:'PAQ-00003155',status:'active'}];
+  __processStates['o:o0'].steps[3].state='active';__processStates['o:o0'].metrics.missing=0;
+  window.__reservationOpened=null;GamaSales.openOrder=id=>window.__reservationOpened=id;
+  await GamaDossierFlow.open('o:o0');
+ });
+ const stage=page.locator('.gdfStep[data-step="4"]');
+ await expect(stage.locator('.gdfDoc[data-action="order"]')).toHaveCount(1);
+ await expect(stage.locator('.gdfDoc[data-action="order"]')).toHaveText('RES-00003155');
+ await expect(stage.locator('.gdfDoc')).toHaveCount(3);
+ await expect(stage).toContainText('PRE-00003155');await expect(stage).toContainText('PAQ-00003155');
+ for(const ref of ['RES-00003172','RES-00003162','RES-00003176','RES-00009999'])await expect(stage).not.toContainText(ref);
+ await stage.locator('.gdfDoc[data-action="order"]').click();expect(await page.evaluate(()=>__reservationOpened)).toBe('o0');
+ expect(await page.evaluate(()=>__DB.stock_reservations.length)).toBe(4);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.evaluate(async()=>{await GamaDossierFlow.open('o:o1')});
+ await expect(stage.locator('.gdfDoc[data-action="order"]')).toHaveCount(1);
+ await expect(stage.locator('.gdfDoc[data-action="order"]')).toHaveText('RES-00000002');
+ await page.evaluate(async()=>{await GamaDossierFlow.open('o:o2')});
+ await expect(stage.locator('.gdfDoc[data-action="order"]')).toHaveCount(0);
+});
 test('credits and services can complete operations while external paperwork stays separate',async({page})=>{
  await boot(page);await page.evaluate(async()=>{const s=__processStates['o:o0'];s.steps.forEach(x=>x.state='done');Object.assign(s.metrics,{performed:10,shipped:10,unbilled:0,balance:0,credits:100,missing:0});await GamaDossierFlow.open('o:o0')});
  await expect(page.locator('.gdfSummary .gdfBadge')).toHaveText('Proceso completo');await expect(page.locator('.gdfStep').nth(6)).toContainText('Abonos');await expect(page.locator('.gdfStep').nth(6)).toContainText(/\$0[.,]00/);await expect(page.locator('#gdfDetail')).toContainText('Documentos externos por completar.');

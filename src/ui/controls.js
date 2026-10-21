@@ -38,6 +38,8 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(id==='barcode')bar.append(button(t('Identificar código','Identifier un code','Identify code'),()=>window.ArchitectBarcode.identify()),button(t('Etiquetas por lote','Étiquettes par lot','Batch labels'),()=>window.ArchitectBarcode.batch()));
  if(id==='sav'&&admin())bar.append(button(t('Plazos de respuesta','Délais de réponse','Response deadlines'),sla));
  if(id==='payments')bar.append(button(t('Cobros y anticipos','Encaissements et acomptes','Receipts and deposits'),()=>window.ArchitectFinanceControls.receipts()));
+ if(['dashboard','accounting'].includes(id)&&admin())bar.append(button(t('Tesorería · 13 semanas','Trésorerie · 13 semaines','Cash planning · 13 weeks'),()=>window.CocoPlanning.cash()),button(t('Rentabilidad por pedido y cliente','Rentabilité par commande et client','Profitability by order and customer'),()=>window.CocoPlanning.profitability()));
+ if(id==='gamaPurchasesV14'&&['admin','administrador','commercial','comercial'].includes(JSON.parse(localStorage.getItem('gama_session_v1')||'{}').role))bar.append(button(t('Consultas a proveedores','Consultations fournisseurs','Supplier consultations'),()=>window.CocoBusiness.consultations()));
  if(id==='accounting')bar.append(button(t('Valoración histórica','Valorisation historique','Historical valuation'),()=>window.ArchitectProductsControls.valuation()));
  if(id==='accounting')bar.append(button(t('Conciliación agrupada','Rapprochement groupé','Grouped reconciliation'),()=>window.ArchitectFinanceControls.reconcile()));
  if(id==='hr'&&(admin()||window.GamaHRP1?.isHR))bar.append(button(t('Planificación del personal','Planification du personnel','Staff planning'),()=>window.ArchitectPeople.hr()));
@@ -50,7 +52,7 @@ function mount(id){const host=$(id);if(!host)return;let bar=host.querySelector('
  if(admin()&&dupes)bar.append(button(t('Fusionar duplicados','Fusionner les doublons','Merge duplicates'),()=>dupes==='choose'?mergeKind():merge(dupes)));
  if(!bar.children.length)return;
  const header=host.querySelector('.gamaStdHeader');
- if(['warehouses','sales-orders','quotes'].includes(id)){
+ if(bar.children.length>1||['warehouses','sales-orders','quotes'].includes(id)){
   const more=document.createElement('details');more.className='cocoModuleTools';
   const summary=document.createElement('summary');summary.textContent=t('Herramientas','Outils','Tools');more.append(summary,bar);
   if(header)header.append(more);else host.firstElementChild?.after(more);

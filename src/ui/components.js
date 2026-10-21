@@ -66,7 +66,9 @@ export function headerIcon(root,id='') {
 const SECTION_ALIAS={'gama-tms-section':'tms'};
 
 export function badge(status,label=status,{className='',tone='neutral'}={}) {return `<span class="arcStatusBadge ${esc(className)}" data-s="${esc(status)}" data-tone="${esc(tone)}">${esc(t(label))}</span>`;}
-export function kpi({label,value,help='',className=''}={}) {return `<div class="arcKpi ${esc(className)}"><span>${esc(label)}</span><strong>${esc(value ?? '—')}</strong>${help?'<small>'+esc(help)+'</small>':''}</div>`;}
+/** Decorative metric artwork. Labels and figures remain the accessible content. */
+export function metricIcon(name='chart') {return `<i class="cocoMetricIcon" aria-hidden="true">${moduleIcon(name)||moduleIcon('chart')}</i>`;}
+export function kpi({label,value,help='',className='',icon='chart'}={}) {return `<div class="arcKpi ${esc(className)}">${metricIcon(icon)}<span>${esc(label)}</span><strong>${esc(value ?? '—')}</strong>${help?'<small>'+esc(help)+'</small>':''}</div>`;}
 export function form(fields,{id='arc-form-'+(++sequence),values={},submitLabel=t('Guardar')}={}) {
   return `<form id="${esc(id)}" class="arcForm"><div class="arcFormGrid">${fields.map(f=>field({...f,value:values[f.key] ?? ''})).join('')}</div><p class="arcFormError" role="alert"></p>${button({type:'submit',variant:'primary',label:submitLabel})}</form>`;
 }

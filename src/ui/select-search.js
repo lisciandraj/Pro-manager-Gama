@@ -148,7 +148,10 @@ function enhance(sel){
  input.setAttribute('aria-autocomplete','list');
  input.setAttribute('aria-expanded','false');
  input.setAttribute('aria-controls',id+'-menu');
- input.setAttribute('aria-label',tx(sel,'Buscar y elegir en la lista'));
+ // Preserve the field's name; a generic label must not override its visible label.
+ if(sel.hasAttribute('aria-labelledby'))input.setAttribute('aria-labelledby',sel.getAttribute('aria-labelledby'));
+ else if(sel.hasAttribute('aria-label'))input.setAttribute('aria-label',sel.getAttribute('aria-label'));
+ else if(!labels.length)input.setAttribute('aria-label',tx(sel,'Buscar y elegir en la lista'));
  /* El asidero estable para encontrar este campo desde fuera —una prueba, otro
     módulo—: el aria-controls apunta al menú, que lleva un número de serie. */
  if(sel.id)input.setAttribute('data-gama-for',sel.id);

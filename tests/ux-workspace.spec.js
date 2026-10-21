@@ -69,9 +69,9 @@ test('quote cards and explicit table preference remain usable in every language 
    }else expect(await page.locator('#gqList td.arcNumeric').first().evaluate(e=>getComputedStyle(e).textAlign)).toBe('right');
   }
  }
- await page.setViewportSize({width:390,height:900});await page.locator('[data-table-view=table]').click();
+ await page.setViewportSize({width:390,height:900});await page.locator('#gqOptions>summary').click();await page.locator('[data-table-view=table]').click();
  await page.locator('#gqRefresh').click();await expect(page.locator('#gqList')).toHaveAttribute('data-gama-view','table');
- await page.locator('[data-table-view=cards]').click();await page.evaluate(()=>GamaI18n.setLanguage('fr'));
+ await page.locator('#gqOptions>summary').click();await page.locator('[data-table-view=cards]').click();await page.evaluate(()=>GamaI18n.setLanguage('fr'));
  await page.screenshot({path:info.outputPath('sales-mobile.png')});
 });
 
@@ -94,15 +94,20 @@ test('shared field validation is translated, preserves help and values, and reta
  }
 });
 
-test('quote primary action and status remain readable with a visible keyboard focus',async({page})=>{
+test('quote primary action follows the white-on-orange reference and retains visible keyboard focus',async({page})=>{
  await boot(page);await page.locator('#gqNew').focus();await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');
  await expect(page.locator('#gqNew')).toBeFocused();
  const measures=await page.evaluate(()=>{
   const luminance=c=>{const v=c.match(/[\d.]+/g).slice(0,3).map(Number).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]};
-  const contrast=e=>{const s=getComputedStyle(e),a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+  const contrast=(text,background)=>{const a=luminance(text),b=luminance(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
   const action=document.getElementById('gqNew'),s=getComputedStyle(action);
-  return {action:contrast(action),status:contrast(document.querySelector('#gqList .gqBadge')),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
+  const stops=s.backgroundImage.match(/rgba?\([^)]+\)/g)||[s.backgroundColor],badge=getComputedStyle(document.querySelector('#gqList .gqBadge'));
+  return {actionText:s.color,actionBackground:s.backgroundColor,actionContrast:Math.min(...stops.map(c=>contrast(s.color,c))),status:contrast(badge.color,badge.backgroundColor),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
- expect(measures.action).toBeGreaterThanOrEqual(4.5);expect(measures.status).toBeGreaterThanOrEqual(4.5);
+ // The GAMA action shade preserves white labels with readable gradient stops.
+ expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(189, 78, 9)');
+ expect(measures.actionContrast).toBeGreaterThanOrEqual(4.5);
+ expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);
+ await page.locator('#gqNew').hover();await expect(page.locator('#gqNew')).toHaveCSS('color','rgb(255, 255, 255)');
 });

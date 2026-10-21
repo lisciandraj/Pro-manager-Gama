@@ -1,6 +1,6 @@
 # Charte graphique actuelle
 
-Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des quatre modèles fournis par le propriétaire, adaptée au bleu pétrole et orange GAMA. La charte ci-dessous remplace les valeurs visuelles des maquettes antérieures, tout en conservant leurs fonctionnalités et leur navigation.
+Coco ERP utilise une charte commune adaptée au bleu pétrole et orange GAMA. Depuis le 21 octobre 2026, les principes Apple Design font évoluer cette base : surfaces opaques, profondeur discrète, typographie système et navigation sélectionnée bleu clair. La charte ci-dessous remplace les valeurs visuelles des maquettes antérieures, tout en conservant leurs fonctionnalités et leur navigation.
 
 | Élément | Source actuelle |
 | --- | --- |
@@ -17,16 +17,16 @@ Coco ERP utilise depuis le 18 octobre 2026 une charte commune dérivée des quat
 
 | Rôle | Standard |
 | --- | --- |
-| Fond / surfaces | #E4EBF0 / #FFFFFF ; aspect satiné très léger, surfaces de lecture opaques |
+| Fond / surfaces | #EDF1F4 / #FFFFFF ; surfaces de lecture opaques et mates |
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
-| Action principale | Orange soutenu #BD4E09 → #C45310, texte blanc #FFFFFF ; marque #F87826 conservée |
-| Bordures | Panneau #B5C5D0 ; tuiles sans bordure ; lignes #E9ECF1 ; saisie #7B8797 |
-| Police | Inter variable locale ; poids 400, 500, 600 |
+| Action principale | Orange soutenu #BD4E09, texte blanc #FFFFFF ; marque #F87826 conservée |
+| Bordures | Panneau #C9D3DA ; tuiles sans bordure ; lignes #DDE4E9 ; saisie #7B8797 |
+| Police | Police système Apple / Inter locale en repli ; poids 400, 500, 600 |
 | Échelle | Métadonnées 12, corps 14, section 16, titre 22, chiffres 28 px |
 | Espacements | Base 4 px ; contenu 24 px PC, 16 px tablette, 12 px téléphone |
 | Rayons | Badge 6, bouton/champ 8, carte 12, fenêtre 16 px |
-| Ombres | Ombre douce de 2–5 px et reflet intérieur sur les cartes ; flou réservé aux fenêtres |
+| Ombres | Ombre de 1–2 px sans reflet sur les cartes ; profondeur réservée aux fenêtres |
 
 Le [contrat complet des composants](../replica/design/components.md) précise les tableaux, KPI, graphiques, tuiles, kanban, boutons, formulaires et historiques. Les [tokens exportables](../replica/design/tokens.json) documentent les rôles et les paires de contraste. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats et TMS restent dans leurs styles différés. Aucun nouvel actif graphique ni police distante n’est téléchargé.
 
@@ -198,3 +198,15 @@ les chevauchements avec la navigation. Les essais Chromium et WebKit émulent le
 ## Accueil — tuiles inspirées du visuel GAMA
 
 Les tuiles restent carrées avec une surface blanche unie, sans contour, séparées par l’espace et une ombre légère. Elles affichent uniquement le pictogramme bleu pétrole/orange existant et le nom du module. Les favoris et le réordonnancement restent disponibles. Le téléphone affiche trois tuiles par rangée, y compris à 320 px ; le grand écran conserve neuf colonnes. La navigation clavier garde un indicateur de focus visible.
+
+
+### Apple Design — 21 octobre 2026
+
+Application des fondations HIG au web, sans imposer les conventions d’une application native :
+- `layout.md › Best practices` : hiérarchie stable, navigation existante et espaces sûrs conservés.
+- `typography.md › Best practices` : police système, titres différenciés, chiffres tabulaires et champs mobiles de 16 px.
+- `color.md › Inclusive color` : sélection identifiée par fond bleu clair, trait inférieur et graisse ; orange réservé aux actions principales. Les libellés de statuts restent présents.
+- `accessibility.md` : focus visible, réduction du mouvement et contraste renforcé selon les préférences du système ; contrôles partagés de 44 px sur écran tactile.
+- `lists-and-tables.md` : surfaces opaques et quadrillage lisible, défilement des grands tableaux dans leur conteneur.
+
+Les tuiles carrées (neuf colonnes sur grand écran, trois sur téléphone), favoris, icônes, historique latéral PC et central Agent Coco restent en place. Le site B2B et les documents imprimés ont leurs propres styles. Le mode sombre complet n’est pas livré par cette évolution : les modules historiques nécessitent un audit dédié avant activation.

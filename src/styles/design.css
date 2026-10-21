@@ -1,5 +1,5 @@
-/* GAMA reference theme — 18 October 2026. UI/UX Pro Max, four owner references.
-   Loaded after workspace layouts. Satin surfaces and frosted overlays.
+/* Coco ERP — Apple Design principles, 21 October 2026.
+   Loaded after workspace layouts. Opaque reading surfaces, restrained depth.
    Explicit visual components only. No display/position/order changes: routes,
    handlers, hidden states and data keep their owners. Storefront/print excluded. */
 @media screen {
@@ -13,16 +13,16 @@
   --arc-table-grid:var(--coco-row-line);--coco-grid:var(--coco-row-line);
   --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#FFAB72;--arc-viz-4:#86B8C4;--arc-viz-5:#103B52;
  }
- body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:14px/1.5 var(--arc-font);-webkit-font-smoothing:antialiased}
+ body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:.875rem/1.55 var(--arc-font);-webkit-font-smoothing:antialiased}
  body[data-app=coco-erp] :is(button,input,select,textarea){font-family:var(--arc-font)}
  body.cocoWorkbench .arcContent{background:var(--coco-canvas);padding:24px calc(24px + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(24px + var(--arc-safe-l))}
  body.cocoWorkbench .arcTopbar{background:var(--coco-surface);border-bottom:1px solid var(--coco-line);box-shadow:none}
- body.cocoWorkbench .cocoModuleContext{font-size:18px;font-weight:600;letter-spacing:-.025em}
+ body.cocoWorkbench .cocoModuleContext{font-size:1.25rem;font-weight:600;letter-spacing:-.025em}
  body.cocoWorkbench .arcSidebar{background:var(--coco-surface);border-color:var(--coco-line)}
  body.cocoWorkbench .arcSidebar .arcBrand{border-bottom:1px solid var(--coco-line);padding-bottom:18px}
  .arcBrand .arcLogo{aspect-ratio:1200/435}.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}.arcBrand .arcLogoMark{object-fit:contain}
- body.cocoWorkbench .arcSidebar .arcNavLink{border:1px solid transparent;border-radius:8px;color:var(--coco-muted);font-size:14px;font-weight:400;gap:12px;box-shadow:none}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:var(--coco-action-tint);border-color:var(--coco-action-line);color:var(--arc-coco-orange-text);font-weight:500;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink{border:1px solid transparent;border-radius:8px;min-height:44px;color:var(--coco-muted);font-size:14px;font-weight:400;gap:12px;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:var(--arc-accent-100);border-color:transparent;color:var(--arc-accent-700);font-weight:600;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavGroup{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--coco-ink)}
  body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-inset)}
  /* Shared surfaces include legacy and lazy-loaded module components. */
@@ -57,7 +57,6 @@
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]){background:var(--coco-surface);border:1px solid var(--coco-line);font-size:13px}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) :is(td,th){padding:12px 14px;border:1px solid var(--coco-column-line)!important;border-block-color:var(--coco-row-line)!important;vertical-align:middle;line-height:1.5}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--coco-ink);border-bottom:1px solid var(--coco-line)!important}
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:nth-child(even)>td{background:var(--coco-surface)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) tbody tr:is([data-selected=true],[aria-selected=true])>td{background:var(--arc-accent-100)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table[data-gama-view=cards]>tbody>tr:not([data-gama-head]){border:1px solid var(--coco-line);border-radius:var(--arc-r-lg);box-shadow:none;background:var(--coco-surface)}
@@ -81,22 +80,20 @@
  body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
  body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
  /* Launcher: solid blue glyphs with an orange detail, directly on the tile. */
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:0;border-radius:12px;background:var(--coco-surface);box-shadow:0 3px 12px rgba(16,59,82,.06)}
- body.cocoWorkbench #mainmenu .gamaF2Card:hover{border-color:#88BCC9;box-shadow:var(--arc-sh-2);transform:none}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{border:0;border-radius:12px;background:var(--coco-surface);box-shadow:0 2px 8px rgb(16 59 82 / .05)}
  body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;color:var(--gama-blue);border:0;border-radius:0;padding:0;box-shadow:none;box-sizing:border-box}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;color:var(--coco-ink)}
  body.cocoWorkbench #mainmenu .gamaF2Icon svg.arcModuleGlyph{display:block;fill:none;stroke:none}
  /* Dialogs, action history and sign-in share the same visual system. */
  body[data-app=coco-erp] dialog{border-color:var(--coco-line);border-radius:16px;box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface) var(--coco-surface);color:var(--coco-ink)}
  body[data-app=coco-erp] dialog::backdrop{background:var(--coco-scrim);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
- body[data-app=coco-erp] .cocoFollowup>summary{font-weight:500;background:var(--coco-surface)}
- body[data-app=coco-erp] .cocoFollowupBubble{background:var(--coco-inset);border-color:var(--coco-line);box-shadow:none}
+ body[data-app=coco-erp] .cocoFollowupBubble{padding:14px;line-height:1.6;background:var(--coco-inset);border-color:var(--coco-line);box-shadow:none}
  body[data-app=coco-erp] .cocoFollowupEvent.is-own .cocoFollowupBubble{background:var(--arc-accent-50);border-color:var(--arc-info-line)}
  body[data-app=coco-erp] #gamaCloudLogin{background:var(--coco-canvas);padding:24px}
  body[data-app=coco-erp] #gamaCloudLogin .box{background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:16px;box-shadow:var(--arc-sh-3);width:min(460px,100%)}
  #gamaCloudLogin .brand{overflow:hidden;margin-bottom:16px}#gamaCloudLogin .brand img.arcLoginLogo{width:min(400px,100%);height:auto}
  body[data-app=coco-erp] #gamaCloudLogin #gamaCloudLoginBtn{background:var(--coco-action);color:var(--coco-on-action);border-color:var(--coco-action);border-radius:8px;box-shadow:none}
- body[data-app=coco-erp] #gamaCloudLogin input{border-radius:8px;box-shadow:none}
+ body[data-app=coco-erp] #gamaCloudLogin :is(input,button){min-height:44px;font-size:1rem;border-radius:8px;box-shadow:none}
  .arcAvatar:has(img){overflow:hidden}.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
  .hrPhotoEditor{display:flex;gap:16px;align-items:center;margin:12px 0 18px;padding:14px;border:1px solid var(--arc-line);border-radius:10px;background:var(--arc-surface-2)}
  .hrPhotoEditor>div{min-width:0;flex:1}.hrPhotoEditor input{max-width:100%;font-size:12px}.hrPhotoEditor label{margin:0 0 6px}
@@ -108,7 +105,7 @@
    navigation, hidden states, order, permissions and business handlers intact. */
 @media screen {
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gp14Card,.pmPanel,.pmCard,.gkPanel,.ai-panel,.chartPanel,.coCard,.hpBox,.plList,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background-image:none;box-shadow:0 3px 12px rgba(16,59,82,.06)}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background-image:none;box-shadow:0 2px 8px rgb(16 59 82 / .05)}
  body.cocoWorkbench #mainmenu .gamaF2Card:is(:hover,:focus-within){border-color:var(--arc-tile-border-hover);box-shadow:var(--arc-sh-2)}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{color:var(--coco-muted)}
  /* Explicit native metric families, also loaded on demand. */
@@ -134,7 +131,7 @@
  /* Tables keep a white reading surface, light rules and compact desktop rows. */
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcButton,.gamaStdAction,.tmsBtn){transition:background-color 160ms ease,border-color 160ms ease,box-shadow 160ms ease}
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcButton,.gamaStdAction,.tmsBtn):active:not(:disabled){box-shadow:inset 0 1px 3px rgb(23 36 59 / .12)}
- body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcButton.primary,.tmsPrimary,.tmsOrange){background:linear-gradient(180deg,var(--coco-action-top),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action);box-shadow:inset 0 1px 0 rgb(255 255 255 / .18)}
+ body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcButton.primary,.tmsPrimary,.tmsOrange){background:linear-gradient(180deg,var(--coco-action-top),var(--coco-action)) var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action);box-shadow:none}
  body[data-app=coco-erp] :is(.arcContent,dialog) :is(.arcButton.primary,.tmsPrimary,.tmsOrange):hover:not(:disabled){background:var(--coco-action-hover);color:var(--coco-on-action)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) td{padding-block:10px;font-variant-numeric:tabular-nums}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) th{font-size:13px;padding-block:11px}
@@ -149,9 +146,8 @@
  body[data-app=coco-erp] .arcContent #crm .crmTarjPie{padding-top:10px;margin-top:10px;border-top:1px solid var(--coco-row-line)}
  body[data-app=coco-erp] .arcContent #crm .crmTarjPie b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
  body[data-app=coco-erp] .arcContent #crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}
- body[data-app=coco-erp] .cocoFollowup>summary{background:var(--coco-surface-sheen)}
- body[data-app=coco-erp] .cocoFollowupBubble{border-radius:12px;box-shadow:inset 0 1px 0 white}
- body[data-app=coco-erp] #gamaCloudLogin .box{background:var(--coco-dialog-surface);box-shadow:var(--coco-dialog-shadow)}
+ body[data-app=coco-erp] .cocoFollowup>summary{font-weight:600;background:var(--coco-surface)}
+ body[data-app=coco-erp] .cocoFollowupBubble{border-radius:12px;box-shadow:none}
 }
 @media screen and (min-width:761px) and (pointer:fine){body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) table:not([data-gama-view=cards]) .arcButton{min-height:36px;padding:7px 12px;font-size:12px}}
 @media screen and (max-width:1179px){body.cocoWorkbench .arcContent{padding:16px calc(16px + var(--arc-safe-r)) calc(28px + var(--arc-safe-b)) calc(16px + var(--arc-safe-l))}}
@@ -159,7 +155,7 @@
 @media screen and (max-width:760px){
  body[data-app=coco-erp]{--coco-panel-padding:16px;--coco-panel-gap:16px}
  body.cocoWorkbench .arcContent{padding:12px calc(12px + var(--arc-safe-r)) calc(88px + var(--arc-safe-b)) calc(12px + var(--arc-safe-l))}
- body.cocoWorkbench .cocoModuleContext{font-size:14px}
+ body.cocoWorkbench .cocoModuleContext{font-size:1rem}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{overflow-wrap:anywhere}
  body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:clamp(18px,5vw,24px);margin:10px 0}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea){font-size:16px}
@@ -174,3 +170,11 @@
 @media screen and (max-width:420px){.hrPhotoEditor{padding:10px;gap:10px}.hrPhotoEditor .hrEmployeeAvatar{width:60px;height:60px}}
 @media (prefers-reduced-transparency:reduce){body[data-app=coco-erp] dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(23 36 59 / .48)}}
 @media print{body[data-app=coco-erp] .cocoMetricIcon{display:none}}
+
+@media (prefers-reduced-motion:reduce) {
+ body[data-app=coco-erp] *,body[data-app=coco-erp] *::before,body[data-app=coco-erp] *::after {animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:0s!important;scroll-behavior:auto!important}
+}
+@media (prefers-contrast:more) {
+ body[data-app=coco-erp] {--coco-line:#73818E;--coco-row-line:#73818E;--coco-column-line:#73818E;--coco-muted:#364454;--coco-surface-shadow:none}
+ body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible {outline-width:3px}
+}

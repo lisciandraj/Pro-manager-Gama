@@ -33,11 +33,11 @@
  --arc-accent-50:#F3F9FA;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#E4EBF0;      /* matte canvas from the October 18 references */
+ --arc-canvas:#EDF1F4;      /* matte canvas from the October 18 references */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
  --arc-surface-2:#F8F9FB;   /* table headings and inset surfaces */
  --arc-surface-3:#EEF1F5;
- --arc-line:#B5C5D0;        /* decorative surface separators */
+ --arc-line:#C9D3DA;        /* decorative surface separators */
  --arc-line-strong:#7B8797; /* interactive boundaries, AA contrast */
 
  --arc-text:#17243B;
@@ -80,11 +80,11 @@
  --arc-sh-nav:none;
 
  /* ---------------------------------------------------------- tipografía */
- --arc-font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
- --arc-fs-page:22px;   --arc-lh-page:1.3;    /* title */
- --arc-fs-section:16px;--arc-lh-section:1.4;
+ --arc-font:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Arial,sans-serif;
+ --arc-fs-page:1.5rem;   --arc-lh-page:1.3;    /* title */
+ --arc-fs-section:1rem;--arc-lh-section:1.4;
  --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
- --arc-fs-body:14px;   --arc-lh-body:1.55;
+ --arc-fs-body:.875rem;   --arc-lh-body:1.55;
  --arc-fs-sec:13px;    --arc-lh-sec:1.5;     /* texto secundario */
  --arc-fs-cap:12px;    --arc-lh-cap:1.45;    /* pie, etiqueta */
  --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:600; --arc-fw-black:650;
@@ -105,19 +105,19 @@
  --arc-workspace-title:22px;
  --arc-reading-width:78ch;
  /* GAMA reference theme: one source for shared and lazy-loaded components. */
- --coco-canvas:#E4EBF0;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
- --coco-line:#B5C5D0;--coco-row-line:#E9ECF1;--coco-column-line:#F1F3F6;
+ --coco-canvas:#EDF1F4;--coco-surface:#FFFFFF;--coco-inset:#F8F9FB;
+ --coco-line:#C9D3DA;--coco-row-line:#DDE4E9;--coco-column-line:#E8EDF1;
  --coco-ink:#17243B;--coco-muted:#5D6980;
  /* Logo/illustration orange stays #F87826. The action shade lets white labels
     meet AA at every point of the subtle gradient, including hover. */
- --coco-action:#BD4E09;--coco-action-top:#C45310;--coco-action-hover:#B54708;--coco-on-action:#FFFFFF;
+ --coco-action:#BD4E09;--coco-action-top:#BD4E09;--coco-action-hover:#B54708;--coco-on-action:#FFFFFF;
  --coco-action-tint:#FFF4ED;--coco-action-line:#F4C9AD;
  --coco-panel-padding:20px;--coco-panel-gap:24px;
- --coco-surface-sheen:linear-gradient(165deg,#FFFFFF 55%,#FDFDFE);
- --coco-surface-shadow:0 2px 5px rgb(16 59 82 / .10),inset 0 1px 0 rgb(255 255 255 / .9);
+ --coco-surface-sheen:linear-gradient(#FFFFFF,#FFFFFF);
+ --coco-surface-shadow:0 1px 2px rgb(16 59 82 / .04);
  --coco-icon-surface:linear-gradient(145deg,#FFFFFF,#F4F6F8);
  --coco-icon-color:#C4510A;
- --coco-dialog-surface:linear-gradient(135deg,#FFFFFF,#F4F6F8);
+ --coco-dialog-surface:linear-gradient(#FFFFFF,#FFFFFF);
  --coco-dialog-shadow:0 20px 64px rgb(23 36 59 / .19),inset 0 1px 0 #FFFFFF;
  --coco-scrim:rgb(23 36 59 / .26);
  --coco-kanban-surface:#FAFBFD;

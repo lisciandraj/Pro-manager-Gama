@@ -75,3 +75,7 @@ La proposition initiale et les opérations exécutées par l’assistant restent
 attribuées à Agent Coco. La provenance du document ou du message est conservée.
 Les anciennes décisions dont l’identifiant utilisateur est enregistré sont
 corrigées sans modifier leur date ni créer de nouvel événement métier.
+
+## Photo de l’auteur
+
+Les listes renvoient les portraits disponibles des seuls auteurs présents sur la page autorisée de l’historique. La photo RH active est utilisée dans les modules, les dossiers et l’historique central, y compris pour les acceptations et refus humains. Les politiques RH existantes restent appliquées : les données privées ne sont pas exposées et une photo non accessible reste remplacée par les initiales. Les annotations ajoutées au dossier conservent leurs portraits. Agent Coco garde son propre avatar ; une image absente ou illisible utilise les initiales.

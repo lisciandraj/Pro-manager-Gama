@@ -548,6 +548,23 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(['coco_contact_record','coco_contact_save'].includes(fn)){
+  const db=window.__DB,table={clients:'customers',suppliers:'suppliers',people:'crm_contacts',prospects:'crm_contacts',leads:'crm_leads'}[args.p_kind];
+  const versions=window.__CONTACT_VERSIONS||(window.__CONTACT_VERSIONS={});
+  let row=(db[table]||[]).find(r=>r.id===args.p_id);
+  if(fn==='coco_contact_save'){
+   if(args.p_id&&!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+   if(row&&args.p_version!==(versions[row.contact_entity_id||row.id]||1))return {error:{message:'CONTACT_VERSION_CONFLICT'}};
+   if(!row){row={id:crypto.randomUUID(),active:true,...(table==='customers'?{category:'A'}:{}),...(table==='crm_contacts'?{address_mode:'parent'}:{})};(db[table]||(db[table]=[])).push(row)}
+   Object.assign(row,args.p_data);const eid=row.contact_entity_id||row.id;versions[eid]=(versions[eid]||1)+1;
+   if(row.contact_entity_id)for(const t of ['customers','suppliers','crm_leads'])for(const peer of db[t]||[])if(peer!==row&&peer.contact_entity_id===row.contact_entity_id){for(const k of ['email','phone','phone2','address','city','province','postal_code','country','lat','lng','website','industry','language'])if(Object.hasOwn(args.p_data,k))peer[k]=args.p_data[k];}
+  }
+  if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+  const version=versions[row.contact_entity_id||row.id]||1;
+  const parent=table==='crm_contacts'&&row.address_mode!=='own'?(db.customers||[]).find(c=>c.id===row.customer_id)||(db.crm_leads||[]).find(l=>l.id===row.lead_id):null;
+  const inherited=parent?{id:parent.id,name:parent.name||parent.company,...Object.fromEntries(['address','city','province','postal_code','country','lat','lng'].map(k=>[k,parent[k]??null]))}:null;
+  return {data:{record:{...row},profile:{id:row.contact_entity_id||row.id,version,tags:[],website:row.website||null,industry:row.industry||null,language:row.language||null,alignment_conflicts:{}},version,inherited_address:inherited}};
+        }
         if(fn==='coco_offline_key')return {data:{actor_id:window.__DB._profile.id,key:'ab'.repeat(32)}};
         if(fn==='coco_security_enrollment')return {data:{administrator:false,verified_factor:false,enforced:false}};
         if(fn==='gama_sales_invoice_balances')return {data:(window.__DB.external_invoices||[]).filter(i=>args.p_ids.includes(i.id)).map(i=>{const paid=(window.__DB.external_invoice_payments||[]).filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((a,p)=>a+Number(p.amount),0),credit=(window.__DB.return_credits||[]).filter(c=>c.invoice_id===i.id).reduce((a,c)=>a+Number(c.amount),0),withheld=(window.__DB.accounting_withholdings||[]).filter(w=>w.invoice_id===i.id&&w.status==='posted').reduce((a,w)=>a+Number(w.total),0),balance=i.fiscal_status==='cancelled'?0:Math.max(0,Number(i.total)-paid-credit-withheld);return {id:i.id,paid,balance,due_date:i.due_date,payment_status:i.fiscal_status==='cancelled'?'cancelled':balance===0?'paid':i.due_date&&i.due_date<new Date().toISOString().slice(0,10)?'overdue':balance<Number(i.total)?'partial':'pending'}})};

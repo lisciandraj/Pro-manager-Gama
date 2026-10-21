@@ -105,7 +105,6 @@ test('one form: the contact type, chosen in a drop-down, decides the fields',asy
 
  await page.locator('#ctNew').click();await page.locator('#ctType').selectOption('clients');
  await page.fill('#ctf-name','Hierros Norte');await page.fill('#ctf-ident','1790000000002');
- await page.locator('#ctSave').click();await expect(page.locator('#ctEditor')).toBeVisible();
  await page.fill('#ctf-terms','45');await page.locator('#ctf-category').selectOption('B');await page.locator('#ctSave').click();
  await expect(row(page,'Hierros Norte').locator('.ctBadge')).toHaveText('Cliente');
  expect(await page.evaluate(()=>__DB.customers.find(c=>c.name==='Hierros Norte'))).toMatchObject({identification:'1790000000002',payment_terms_days:45,category:'B',active:true});
@@ -211,7 +210,7 @@ for(const width of [390,1280])test(`shared address persists, is inherited by peo
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await row(page,'Luis Mora').locator('[data-ct-edit]').click();
  await expect(page.locator('#ctParentAddress')).toContainText('Av. Amazonas 10, Quito, Pichincha, 170101, Ecuador');
- await expect(page.locator('#ctf-address')).toHaveCount(0);await expect(page.locator('#ctf-linkedin')).toBeHidden();
+ await expect(page.locator('#ctf-address')).toBeHidden();await expect(page.locator('#ctf-linkedin')).toBeHidden();
  await page.locator('#ctFields summary').click();await expect(page.locator('#ctf-linkedin')).toBeVisible();
  expect(await page.evaluate(()=>ArcEntities.formatAddress({address:'Quito',city:'Quito',country:'Ecuador'}))).toBe('Quito, Ecuador');
 });

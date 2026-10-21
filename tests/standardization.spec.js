@@ -33,11 +33,11 @@ test('shared form blocks duplicate requests, reports failures and allows a retry
  await page.locator('#ctNew').click();await page.locator('#ctType').selectOption('suppliers');
  await page.fill('#ctf-name','New supplier');
  await page.evaluate(()=>{
-  const original=window.GamaCloud.insert;window.__submissions=0;
+  const original=window.GamaCloud.db;window.__submissions=0;
   // El primer envío se queda en vuelo hasta que la prueba lo suelta: sin un
   // plazo fijo, el botón deshabilitado se comprueba siempre a tiempo.
   window.__release=null;const held=new Promise(r=>window.__release=r);
-  window.GamaCloud.insert=async(...args)=>{window.__submissions++;if(window.__submissions===1){await held;return {error:{message:'NETWORK_ERROR'}}}return original(...args);};
+  window.GamaCloud.db=async()=>{const db=await original();return {...db,rpc:async(name,args)=>{if(name==='coco_contact_save'){window.__submissions++;if(window.__submissions===1){await held;return {error:{message:'NETWORK_ERROR'}}}}return db.rpc(name,args)}}};
   const form=document.getElementById('ctForm');form.requestSubmit();form.requestSubmit();
  });
  await expect(page.locator('#ctSave')).toBeDisabled();expect(await page.evaluate(()=>window.__submissions)).toBe(1);

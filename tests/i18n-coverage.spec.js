@@ -5,7 +5,7 @@ const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8')+fs.
 // Con la interfaz en francés o en inglés no queda nada en español: pestañas, estados,
 // botones, mensajes, alertas compuestas por el servidor. Los datos del negocio
 // (nombres de productos, clientes, referencias) se muestran tal cual.
-const catalogRows=()=>fs.readFileSync(path.join(ROOT,'locales/catalog.tsv'),'utf8').split('\n').filter(l=>l.includes('\t')&&!l.startsWith('#')).map(l=>l.split('\t'));
+const catalogRows=()=>['locales/catalog.tsv',...fs.readdirSync(path.join(ROOT,'locales/modules')).filter(f=>f.endsWith('.tsv')).sort().map(f=>'locales/modules/'+f)].flatMap(f=>fs.readFileSync(path.join(ROOT,f),'utf8').split('\n').filter(l=>l.includes('\t')&&!l.startsWith('#')).map(l=>l.split('\t')));
 const generated=name=>{const line=fs.readFileSync(path.join(ROOT,'gama-i18n-catalog.js'),'utf8').split('\n').find(l=>l.startsWith('window.'+name+'='));return JSON.parse(line.slice(line.indexOf('=')+1).replace(/;\s*$/,''))};
 const builtCatalog=()=>generated('GamaI18nCatalog');
 // Inspect the marked templates before bundling changes quotes and escapes.

@@ -17,7 +17,7 @@ test('Contact geocoding validates exact addresses, runs asynchronously, preserve
  try{
   // Address-site extensions are already deployed in Coco; test them against
   // the same pending contact hub schema without assuming they are in baseline.
-  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/pending/coco_contacts_hub.sql'),'utf8'));
+  assert.ok(await one("select to_regclass('private.coco_contact_entities')"),'restoration includes the installed Contacts hub');
   await db.exec(fs.readFileSync(path.join(dir,file),'utf8'));
   await db.exec(fs.readFileSync(path.join(dir,'20261016212234_photon_default_language.sql'),'utf8'));
   await db.exec(`create or replace function net.http_get(url text,params jsonb default '{}',headers jsonb default '{}',timeout_milliseconds integer default 2000)

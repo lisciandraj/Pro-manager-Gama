@@ -5,7 +5,7 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// Current white cards sit above a light-grey canvas with uniform blue borders.
+// Borderless white tiles are separated by space and a soft shadow.
 // Keep text readable while applying the requested application-wide contrast.
 test.describe('Contraste del menú principal', () => {
   test('tiles are visibly separated from the page canvas', async ({ page }) => {
@@ -48,16 +48,17 @@ test.describe('Contraste del menú principal', () => {
         borderVsCard: ratio(cs.borderColor, cs.backgroundColor),
         background:cs.backgroundColor,
         border:cs.borderColor,
+        borderWidth:cs.borderTopWidth,
+        shadow:cs.boxShadow,
         titleContrast: ratio(getComputedStyle(card.querySelector('.gamaF2Title')).color,cs.backgroundColor),
       };
     });
 
     expect(m).not.toBeNull();
     expect(m.cardVsCanvas).toBeGreaterThan(1.05);
-    expect(m.borderVsCanvas).toBeGreaterThan(1.01);
-    expect(m.borderVsCard).toBeGreaterThan(1.05);
+    expect(m.borderWidth).toBe('0px');
+    expect(m.shadow).not.toBe('none');
     expect(m.background).toBe('rgb(255, 255, 255)');
-    expect(m.border).toBe('rgb(182, 220, 229)');
     expect(m.titleContrast).toBeGreaterThanOrEqual(4.5);
   });
 

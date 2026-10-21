@@ -6,19 +6,17 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
-logo = Image.open(BRAND / "coco-erp-logo-approved-20261020.png").convert("RGB")
+logo = Image.open(BRAND / "coco-erp-logo-approved-20261021.png").convert("RGBA")
 icon = Image.open(BRAND / "coco-erp-icon-co-approved-20261018.png").convert("RGB")
 
-# Trim only the white presentation margin; retain the approved satin-blue artwork.
-mask = Image.new("L", logo.size)
-mask.putdata([255 if max(p) - min(p) > 45 else 0 for p in logo.getdata()])
-left, top, right, bottom = mask.getbbox()
-cropped = logo.crop((max(0, left - 32), max(0, top - 24),
-                     min(logo.width, right + 32), min(logo.height, bottom + 24)))
-# A 1200px wordmark covers the largest UI slot at 3x without shipping the full source.
+# Keep the approved transparent minimalist artwork and its original proportions.
+cropped = logo.copy()
 cropped.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
 cropped.save(ROOT / "coco-erp-logo.png", optimize=True)
-cropped.save(ROOT / "coco-gama-logo.jpg", quality=95, subsampling=0)
+# Legacy JPEG consumers require a white background rather than discarded alpha.
+legacy = Image.new("RGB", cropped.size, "white")
+legacy.paste(cropped, mask=cropped.getchannel("A"))
+legacy.save(ROOT / "coco-gama-logo.jpg", quality=95, subsampling=0)
 logo.save(ROOT / "coco-erp-logo-full.png", optimize=True)
 
 # Keep the approved CO unchanged and add white safety padding for app masks.

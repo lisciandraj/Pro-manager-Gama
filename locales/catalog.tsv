@@ -5734,3 +5734,26 @@ Justificantes, validación y reembolsos	Justificatifs, validation et rembourseme
 Enviar a Agent Coco	Envoyer à Agent Coco	Send to Agent Coco
 Selecciona una factura para proponer el cobro.	Sélectionne une facture pour proposer l’encaissement.	Select an invoice to propose the receipt.
 Propuesta enviada a Agent Coco · Por validar	Proposition envoyée à Agent Coco · À valider	Proposal sent to Agent Coco · To approve
+
+Catálogo del presupuesto	Catalogue du devis	Quote catalog
+Añadir selección	Ajouter la sélection	Add selection
+Selecciona un cliente antes de abrir el catálogo.	Sélectionne un client avant d’ouvrir le catalogue.	Select a customer before opening the catalog.
+El presupuesto cambió. Cierra el catálogo y vuelve a abrirlo.	Le devis a changé. Ferme le catalogue puis ouvre-le à nouveau.	The quote changed. Close and reopen the catalog.
+El condicionamiento cambió. Revisa la selección.	Le conditionnement a changé. Vérifie la sélection.	The packaging changed. Review the selection.
+Servicio · sin control de stock	Service · sans suivi de stock	Service · no stock tracking
+Disponibilidad no informada	Disponibilité non renseignée	Availability not provided
+Disponible sin reservar	Disponible non réservé	Available, unreserved
+Cantidad superior al disponible	Quantité supérieure au disponible	Quantity exceeds availability
+Cantidad de stock	Quantité de stock	Stock quantity
+Tarifa no disponible. Actualiza para reintentar.	Tarif indisponible. Actualise pour réessayer.	Price unavailable. Refresh to retry.
+Calculando tarifa…	Calcul du tarif…	Calculating price…
+Ya está en el presupuesto	Déjà dans le devis	Already in the quote
+Productos seleccionados	Produits sélectionnés	Selected products
+No hay productos para esta búsqueda.	Aucun produit pour cette recherche.	No products match this search.
+El presupuesto admite hasta 200 productos.	Le devis accepte jusqu’à 200 produits.	The quote supports up to 200 products.
+Cargando productos…	Chargement des produits…	Loading products…
+Hasta 30 resultados. Afina la búsqueda por nombre, referencia o código.	Jusqu’à 30 résultats. Affine la recherche par nom, référence ou code.	Up to 30 results. Refine by name, reference or code.
+Selecciona al menos un producto.	Sélectionne au moins un produit.	Select at least one product.
+Un producto ya no está disponible. Actualiza el catálogo.	Un produit n’est plus disponible. Actualise le catalogue.	A product is no longer available. Refresh the catalog.
+Precios del cliente y disponibilidad orientativa. El stock se reserva al confirmar el pedido.	Prix client et disponibilité indicative. Le stock est réservé à la confirmation de la commande.	Customer prices and indicative availability. Stock is reserved when the order is confirmed.
+Ver selección	Voir la sélection	View selection

@@ -93,6 +93,7 @@
  --arc-sidebar-w:clamp(192px,16.75vw,240px);
  --arc-sidebar-w-collapsed:72px;
  --arc-topbar-h:70px;
+ --coco-catalog-width:64rem;--coco-catalog-card-width:20rem;--coco-catalog-line:1px;
  --arc-tap:44px;            /* zona táctil mínima */
  --arc-focus:0 0 0 3px rgba(21,127,152,.35);
  --arc-content-max:1600px;

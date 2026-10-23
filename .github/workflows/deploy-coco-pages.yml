@@ -132,3 +132,40 @@ jobs:
           JS
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify the revision and catalog assets served by Pages
+        env:
+          COCO_PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          node --input-type=module <<'JS'
+          import {setTimeout as delay} from 'node:timers/promises';
+          const base=new URL(process.env.COCO_PAGES_URL);
+          if(base.protocol!=='https:')throw Error('Expected HTTPS Pages URL');
+          const read=async path=>{
+            const url=new URL(path,base);
+            const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(20000)});
+            if(!response.ok)throw Error(url.pathname+' returned '+response.status);
+            return response.text();
+          };
+          let last;
+          for(let attempt=0;attempt<12;attempt++){
+            try{
+              const marker=JSON.parse(await read('coco-build.json?verification='+process.env.GITHUB_RUN_ID+'-'+attempt));
+              if(marker.commit!==process.env.GITHUB_SHA)throw Error('Served revision '+marker.commit+' differs from '+process.env.GITHUB_SHA);
+              const html=await read('./?verification='+process.env.GITHUB_RUN_ID);
+              const assetFile=html.match(/src=["']([^"']*architect-assets\.js[^"']*)["']/)?.[1];
+              if(!assetFile)throw Error('Asset manifest missing from served page');
+              const assets=await read(assetFile);
+              for(const file of ['coco-sales-catalog.js','coco-sales-catalog.css']){
+                const key=file.replaceAll('.','\\.');
+                const versioned=assets.match(new RegExp('["\\x27]'+key+'["\\x27]\\s*:\\s*["\\x27]([^"\\x27]+)["\\x27]'))?.[1];
+                if(!versioned)throw Error(file+' missing from served asset manifest');
+                const body=await read(versioned);
+                if(!body.includes(file.endsWith('.js')?'CocoSalesCatalog':'cocoQuoteCatalog'))throw Error('Unexpected served catalog asset');
+              }
+              console.log('Verified Pages commit '+marker.commit+' at '+base.href+'; catalog JS and CSS served successfully.');
+              process.exit(0);
+            }catch(error){last=error;console.log('Publication verification attempt '+(attempt+1)+': '+error.message);}
+            if(attempt<11)await delay(10000);
+          }
+          throw last;
+          JS

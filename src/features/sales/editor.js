@@ -101,6 +101,23 @@ if(!window.gamaAccessAllowed?.('quotes'))return false;const host=$('quotes-main'
  addressInput.addEventListener('input',()=>{addressSelect.value=''});addressRetry.onclick=loadDeliveryAddresses;
  $('gqCustomer').onchange=()=>{const c=customers.find(c=>c.id===$('gqCustomer').value);if(c)for(const [k,v] of Object.entries({client:c.name,clientId:c.identification,clientEmail:c.email,clientAddress:window.ArcEntities.formatAddress(c),delivery_address:window.ArcEntities.formatAddress(c)}))$('gqd_'+k).value=v||'';loadDeliveryAddresses();autoReprice()};
  if($('gqCustomer').value){loadDeliveryAddresses();if(!q?.id)$('gqCustomer').onchange()}window.CocoSalesWorkspace.attachSearch($('gqCustomer'),'customers',customers);$('gqDate').addEventListener('change',()=>{autoReprice()});
+ const catalogButton=document.createElement('button');catalogButton.type='button';catalogButton.className='arcButton primary';catalogButton.id='gqCatalog';catalogButton.textContent=T('Catálogo del presupuesto');$('gqAdd').before(catalogButton);
+ catalogButton.onclick=async()=>{
+  const form=$('gqForm'),customerId=$('gqCustomer').value,date=$('gqDate').value,epoch=getAddressEpoch();
+  const current=()=>form.isConnected&&form===$('gqForm')&&epoch===getAddressEpoch()&&window.gamaAccessAllowed?.('quotes')&&$('gqCustomer').value===customerId&&$('gqDate').value===date;
+  if(!customerId){$('gqMessage').textContent=T('Selecciona un cliente antes de abrir el catálogo.');$('gqCustomer').focus();return;}
+  catalogButton.disabled=true;
+  try{
+   await window.ArcLoadScript('coco-sales-catalog.js');if(!current())return;
+   window.CocoSalesCatalog.open({customerId,date,existingIds:lines.map(l=>l.product_id),isCurrent:current,onAdd:batch=>{
+    if(!current())throw Error(T('El presupuesto cambió. Cierra el catálogo y vuelve a abrirlo.'));
+    if(batch.some(x=>lines.some(l=>l.product_id===x.line.product_id)))throw Error('DUPLICATE_PRODUCT');
+    if(lines.length+batch.length>200)throw Error(T('El presupuesto admite hasta 200 productos.'));
+    batch.forEach(({product})=>{const index=products.findIndex(p=>p.id===product.id);if(index<0)products.push(product);else products[index]=product;});
+    lines.push(...batch.map(x=>x.line));renderLines();totals();$('gqMessage').textContent='';
+   }});
+  }catch(e){if(current())$('gqMessage').textContent=T(message(e));}finally{if(form.isConnected)catalogButton.disabled=false;}
+ };
  $('gqAdd').onclick=()=>chooseProduct();$('gqDiscard').onclick=()=>request?openRequests(request.id):q?.id?view(q.id):open();
  $('gqNumber').readOnly=true;
  $('gqForm').onsubmit=e=>{e.preventDefault();if(pricing)return;run($('gqSave'),async()=>{const details={...d,...Object.fromEntries([...fields.map(x=>x[0]),'terms','notes','customer_comment'].map(k=>[k,$('gqd_'+k).value]))};const payload={id:q?.id,revision:q?.quote_revision||0,request_key:key,customer_id:$('gqCustomer').value,number:$('gqNumber').value,issue_date:$('gqDate').value,valid_until:$('gqValid').value,details,offer_blocks:offerBlocks,lines:lines.map(({price_source,priceRequest,priceEditVersion,...line})=>line)};const result=request?await rpc('gama_quote_from_request',{p_request_id:request.id,p_data:payload}):await action('save',payload);window.dispatchEvent(new CustomEvent('gama:sales-change'));await view(result.id)})};renderLines();totals();

@@ -40,3 +40,7 @@ Les données existantes sont `products`, `invoices`/lignes, `crm_pipeline_stages
 ## Limites
 
 La conformité fonctionnelle complète avec Odoo n’est pas un objectif. Les accès de production, achats, données fiscales et paiements réels ne sont pas utilisés comme fixtures. Les contrôles automatiques et captures de cette passe utilisent les mocks du dépôt.
+
+## Analyse distribution du 23 octobre 2026
+
+La comparaison fonctionnelle Business Central, NetSuite, SAP Business One, Odoo et Acumatica, sa matrice métier et le lot catalogue sont dans [distribution-2026-10-23/recon.md](distribution-2026-10-23/recon.md). Les constats visuels historiques ci-dessus ne remplacent pas l’état récent.

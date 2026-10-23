@@ -67,3 +67,13 @@ Depuis le 18 octobre 2026, les anciens sous-onglets Demandes clients et Devis so
 Les demandes déjà liées à un devis ne créent jamais une seconde ligne. Le total, les filtres, la recherche et la pagination portent sur cette liste commune. Les références SOL et COT restent recherchables après validation ; les numéros historiques COT, les demandes originales, les dossiers et leurs liens sont conservés. Un brouillon saisi directement reçoit sa propre référence SOL via le générateur existant, sans créer une demande technique supplémentaire. Les anciennes adresses ouvrent le même tableau, et les liens précis vers une demande ouvrent son détail avec retour au tableau.
 
 Les anciens brouillons sans état de devis moderne suivent la même règle SOL. Les archives déjà émises conservent COT et l’état Document antérieur ; leurs montants et états enregistrés ne sont pas réécrits.
+
+## Catalogue de devis
+
+Depuis l'éditeur d'un brouillon, **Catalogue du devis** permet de sélectionner plusieurs produits, puis de les ajouter en une fois. Choisir d'abord le client. La recherche serveur affiche jusqu'à 30 résultats par recherche ; la sélection est conservée entre recherches et peut être revue avec **Voir la sélection**. Jusqu'à 200 produits au total dans ce parcours.
+
+Pour chaque article sélectionné, le conditionnement et la quantité déterminent la quantité de stock envoyée au moteur tarifaire commun. Le prix affiché est celui du conditionnement, hors TVA. La disponibilité est une photographie non réservée ; un manque est signalé et les services sont distingués. Aucune date de livraison n'est promise. Produits/unités/prix sont relus avant ajout ; une erreur ne crée aucune ligne partielle.
+
+Les produits déjà présents restent dans leurs lignes, avec leurs prix manuels et motifs. Le catalogue ne les fusionne pas. **Retour** abandonne la sélection ; **Ajouter la sélection** modifie seulement le brouillon à l'écran. La sauvegarde et l'historique utilisent le parcours existant. Le site public, la confirmation et les règles de crédit/stock/facturation ne changent pas.
+
+Étude, limites et validation : [comparaison distribution](../../replica/distribution-2026-10-23/recon.md).

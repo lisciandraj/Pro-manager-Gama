@@ -96,3 +96,12 @@ REQUEST_KEY_REUSED	La solicitud cambió. Actualiza y vuelve a intentarlo.
 INVALID_ORDERS	Selecciona uno o varios pedidos confirmados.
 EXCEEDS_UNBILLED	La cantidad supera lo entregado pendiente de facturar.
 SALES_WORKSPACE_UNAVAILABLE	La sección de ventas no está disponible. Actualiza la página.
+FORECAST_REQUIRED	Actualiza la previsión antes de proponer una fecha.
+FORECAST_CHANGED	La disponibilidad cambió. Actualiza la previsión.
+PROMISE_NOT_FEASIBLE	La fecha propuesta ya no es viable con las existencias y compras actuales.
+OPTION_REPROPOSE_REQUIRED	Esta propuesta es anterior al control de versiones. Retírala y crea una nueva.
+OPTION_TERMS_CHANGED	Las condiciones del pedido cambiaron. Crea una nueva propuesta.
+SALES_PRICE_CHANGED	El precio del cliente cambió. Actualiza la tarifa.
+SALES_TAX_CHANGED	El impuesto del producto cambió. Actualiza el producto.
+SUBSTITUTION_DATE_SEPARATE	Acuerda primero la sustitución; después revisa la fecha del producto aceptado.
+INVALID_LEAD_DAYS	Revisa los días de preparación y transporte.

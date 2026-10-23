@@ -141,3 +141,42 @@ test('catalog requires a customer before querying customer prices',async({page})
  await catalogBoot(page);await page.locator('#gqNew').click();await page.locator('#gqCatalog').click();
  await expect(page.locator('#gqMessage')).toContainText('Selecciona un cliente');await expect(page.locator('.cocoQuoteCatalog')).toHaveCount(0);
 });
+
+async function distributionBoot(page,language='es',width=1440){
+ const errors=await catalogBoot(page,{language,width});
+ await page.evaluate(()=>{
+  window.__distributionCalls=[];window.__distributionDelay=0;window.__distributionFailure=false;
+  const previous=GamaCloud.db;GamaCloud.db=async()=>{const db=await previous();return {...db,rpc:async(fn,args)=>{
+   if(fn==='gama_commercial_planning'&&args.p_action==='quote_margin')return {data:{minimum_margin:25,missing_costs:args.p_data.lines.some(l=>l.product_id==='p2')?1:0,margin_percent:60,can_view_line_margins:true,line_margins:args.p_data.lines.map((l,index)=>({product_id:l.product_id,index,unit_cost:l.product_id==='p2'?null:20,margin_percent:l.product_id==='p2'?null:Math.round(100*(l.unit_price-20)/l.unit_price)}))}};
+   if(fn==='gama_sales_dossier'&&args.p_action==='availability'){
+    __distributionCalls.push(structuredClone(args));if(__distributionDelay)await new Promise(r=>setTimeout(r,__distributionDelay));if(__distributionFailure)return {error:{message:'Forecast unavailable'}};
+    return {data:{fingerprint:'forecast-fixture',confirmed:false,rows:args.p_data.lines.map(l=>({...l,name:__DB.products.find(p=>p.id===l.product_id).name,reserved_for_order:0,prior_unreserved:6,available_date:l.product_id==='p1'?'2099-01-03':null,delivery_date:l.product_id==='p1'?'2099-01-'+String(3+Number(args.p_data.preparation_days)+Number(args.p_data.transport_days)).padStart(2,'0'):null,late_incoming:l.product_id==='p2'?4:0,undated_incoming:0}))}};
+   }
+   return db.rpc(fn,args);
+  }}};
+ });return errors;
+}
+for(const [language,width,title,margin,unknown] of [['es',1440,'Disponibilidad y acuerdos','Margen estimado','Coste desconocido'],['fr',390,'Disponibilité et accords','Marge estimée','Coût inconnu'],['en',390,'Availability and agreements','Estimated margin','Unknown cost']]){
+ test('distribution forecast and per-line margins are readable at '+width+' '+language,async({page},testInfo)=>{
+  const errors=await distributionBoot(page,language,width);await editor(page);
+  await page.locator('#gqCatalog').click();await catalogCard(page,'p1').locator('[data-select]').check();await catalogCard(page,'p2').locator('[data-select]').check();await page.locator('#cocoCatalogAdd').click();
+  await expect(page.locator('[data-line-margin="0"]')).toContainText(margin);await expect(page.locator('[data-line-margin="0"]')).toContainText('60');await expect(page.locator('[data-line-margin="1"]')).toContainText(unknown);
+  await page.locator('#gqAvailability').click();const dialog=page.locator('dialog[data-sales-commitments]');await expect(dialog).toContainText(title);await expect(dialog.locator('[data-forecast-body]')).toContainText('2099-01-03');await expect(dialog.locator('[data-forecast-body]')).toContainText('Cable');
+  await expect(dialog.locator('[data-forecast-propose]')).toHaveCount(0);
+  await dialog.locator('[name=transport_days]').fill('2');await expect(dialog.locator('[data-forecast-body]')).toBeEmpty();await dialog.locator('[data-forecast-refresh]').click();await expect(dialog).toContainText('2099-01-05');
+  const calls=await page.evaluate(()=>__distributionCalls);expect(calls.at(-1).p_data).toMatchObject({transport_days:2,preparation_days:0});expect(await page.evaluate(()=>__saved.length)).toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.screenshot({path:testInfo.outputPath('distribution-'+language+'-'+width+'.png'),fullPage:true});expect(errors).toEqual([]);
+ });
+}
+test('forecast errors are retryable and late data cannot reopen a dialog after navigation or authentication',async({page})=>{
+ await distributionBoot(page);await editor(page);await page.locator('#gqAdd').click();await page.locator('#gqPickProduct').selectOption('p1');await page.locator('#gqPickAdd').click();
+ await page.evaluate(()=>__distributionFailure=true);await page.locator('#gqAvailability').click();const dialog=page.locator('dialog[data-sales-commitments]');await expect(dialog.locator('[data-forecast-error]')).not.toBeEmpty();
+ await page.evaluate(()=>__distributionFailure=false);await dialog.locator('[data-forecast-refresh]').click();await expect(dialog).toContainText('2099-01-03');
+ await page.evaluate(()=>__distributionDelay=300);await dialog.locator('[data-forecast-refresh]').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('arc:route-change')));await expect(dialog).toHaveCount(0);await page.waitForTimeout(400);await expect(page.locator('dialog[data-sales-commitments]')).toHaveCount(0);
+ await page.locator('#gqAvailability').click();await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await page.waitForTimeout(400);await expect(page.locator('dialog[data-sales-commitments]')).toHaveCount(0);
+});
+test('quote list exposes the next activity without executing or interpolating its title',async({page})=>{
+ await distributionBoot(page);await page.evaluate(async()=>{__DB.invoices=[{id:'next-quote',invoice_number:'COT-7',quote_state:'sent',issue_date:'2026-10-23',total:57.5,quote_details:{client:'Andes'},next_activity:{title:'Call <img src=x onerror=alert(1)>',owner_name:'Alice',due_at:'2026-01-01T12:00:00Z',overdue:true}}];await ArcRouter.open('quotes')});
+ const list=page.locator('#gqList');await expect(list).toContainText('Próxima actividad');await expect(list).toContainText('Call <img');await expect(list).toContainText('Alice');await expect(list.locator('img')).toHaveCount(0);
+});

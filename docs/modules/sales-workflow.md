@@ -77,3 +77,47 @@ Pour chaque article sélectionné, le conditionnement et la quantité détermine
 Les produits déjà présents restent dans leurs lignes, avec leurs prix manuels et motifs. Le catalogue ne les fusionne pas. **Retour** abandonne la sélection ; **Ajouter la sélection** modifie seulement le brouillon à l'écran. La sauvegarde et l'historique utilisent le parcours existant. Le site public, la confirmation et les règles de crédit/stock/facturation ne changent pas.
 
 Étude, limites et validation : [comparaison distribution](../../replica/distribution-2026-10-23/recon.md).
+
+## Suivi, marges et engagements de distribution
+
+La liste des devis affiche la prochaine activité ouverte du dossier : titre,
+responsable, échéance et retard. Les activités datées précèdent celles sans date.
+La clôture est idempotente et rejoint l'historique du dossier.
+
+L'éditeur affiche une marge estimée par ligne pour les profils autorisés aux
+finances, issue du même service que la marge totale. Un coût inconnu reste
+inconnu. Les prix manuels, motifs, conditionnements et versions ne changent pas.
+
+**Disponibilité prévue** dans le devis et **Disponibilité et accords** dans la
+commande ouvrent une projection en lecture seule. Elle utilise les quantités
+physiques libres, les réservations propres à la commande, les engagements
+confirmés antérieurs et les achats envoyés/partiels encore à recevoir. L'ordre
+FIFO est celui du moteur d'allocation existant. Les arrivages en retard ou sans
+date sont signalés et ne fondent pas une promesse. Les services ne reçoivent pas
+une date de stock. Les cartes mobiles montrent les mêmes données que le tableau.
+
+La préparation et le transport sont saisis en **jours calendaires** ; aucune
+heure de tournée, durée interurbaine ou règle de jours fériés n'est présumée.
+Une proposition de livraison partielle utilise la quantité concernée. Le serveur
+recalcule la date à la proposition et à l'accord, sans réserver un arrivage futur.
+
+Les substitutions utilisent `sales_fulfillment_options` et le moteur de reliquats
+existant. Le tarif client est proposé automatiquement ; un prix manuel nécessite
+un motif. Le devis accepté reste inchangé. Un administrateur peut approuver les
+conditions commerciales exactes ; l'accord du client doit encore être référencé
+par le vendeur et le crédit est recontrôlé si l'exposition augmente. Une quantité
+réservée, préparée ou facturée reste protégée par les règles existantes. Une
+modification du dossier ou des coûts après approbation empêche l'application
+silencieuse de l'ancienne proposition. La réponse répétée est idempotente.
+
+Le portail B2B conserve ses droits et ses parcours actuels : cette livraison
+n'ajoute aucun bouton d'acceptation de substitution au portail et ne réactive pas
+les anciens comptes client ERP. Aucun message client n'est envoyé par ces actions.
+
+Les notifications et priorités existantes ajoutent les activités commerciales
+en retard, accords en attente et engagements de livraison dépassés. Le magasinier
+voit les engagements logistiques ; les éléments commerciaux restent filtrés.
+Les options et leurs conditions utilisent l'index d'historique expurgé existant,
+avec la provenance Agent Coco lorsque le contexte d'exécution la fournit.
+
+Contrats et limites : [architecture du lot distribution](../../replica/distribution-2026-10-23/remaining-architecture.md).

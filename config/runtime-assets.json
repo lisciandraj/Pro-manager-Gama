@@ -6,6 +6,7 @@
     {"source":"src/features/processes/module-review.js","output":"coco-module-review.js"},
     {"source":"src/features/sales/dossier.js","output":"coco-sales-dossier.js"},
     {"source":"src/features/sales/catalog.js","output":"coco-sales-catalog.js"},
+    {"source":"src/features/sales/commitments.js","output":"coco-sales-commitments.js"},
     {"source":"src/features/sales/editor.js","output":"coco-sales-editor.js"},
     {"source":"src/features/sales/workspace.js","output":"coco-sales-workspace.js"},
     {"source":"src/features/sales/order-design.js","output":"coco-order-design.js"},

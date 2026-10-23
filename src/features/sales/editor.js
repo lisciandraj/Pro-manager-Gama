@@ -108,7 +108,7 @@ if(!window.gamaAccessAllowed?.('quotes'))return false;const host=$('quotes-main'
   if(!customerId){$('gqMessage').textContent=T('Selecciona un cliente antes de abrir el catálogo.');$('gqCustomer').focus();return;}
   catalogButton.disabled=true;
   try{
-   await window.ArcLoadScript('coco-sales-catalog.js');if(!current())return;
+   await Promise.all([window.ArcLoadScript('coco-sales-catalog.js'),window.ArcLoadStyle('coco-sales-catalog.css')]);if(!current())return;
    window.CocoSalesCatalog.open({customerId,date,existingIds:lines.map(l=>l.product_id),isCurrent:current,onAdd:batch=>{
     if(!current())throw Error(T('El presupuesto cambió. Cierra el catálogo y vuelve a abrirlo.'));
     if(batch.some(x=>lines.some(l=>l.product_id===x.line.product_id)))throw Error('DUPLICATE_PRODUCT');

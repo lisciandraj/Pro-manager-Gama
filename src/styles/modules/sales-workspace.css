@@ -31,23 +31,3 @@ body .arcContent #quotes .gqListCard .cocoListHeading .gqTools{margin:0}
 body .arcContent #quotes .gqListCard .gqListFilters>label{margin:0}
 
 .cocoDossierStates span{display:grid;gap:4px;min-width:130px}.cocoDossierStates small{font-size:12px;color:var(--arc-muted)}.cocoOfferNote{white-space:pre-wrap}.cocoOfferOption{padding:10px;border:1px solid var(--arc-border,#bdd3e4);border-radius:8px}.cocoActivities{border-top:1px solid var(--arc-border,#bdd3e4);margin-top:16px;padding-top:12px}.cocoRelated button{min-height:44px}.cocoSalesKpi{text-align:left;background:#fff;cursor:pointer}.cocoSalesKpi:hover{border-color:var(--arc-primary)}.cocoSalesKpi:focus-visible{outline:2px solid var(--arc-primary)}.cocoSalesScroll meter{width:100%;min-width:80px}.cocoOfferEditor{display:grid;gap:8px;margin:14px 0}.cocoOfferEditor textarea{max-width:100%;min-height:70px}.gqManualReason{display:block;width:100%;margin-top:6px}
-
-
-/* Multi-product quote selection: existing Coco controls, no global overrides. */
-.cocoQuoteCatalog.arcDialog{width:min(var(--coco-catalog-width),calc(100vw - var(--arc-s6)));max-width:calc(100vw - var(--arc-s6))}
-.cocoCatalogTools{display:flex;align-items:end;flex-wrap:wrap;gap:var(--arc-s3);margin-block:var(--arc-s3)}
-.cocoCatalogTools>label:first-child{flex:1;min-width:0}
-.cocoCatalogTools label,.cocoCatalogFields label{display:grid;gap:var(--arc-s2)}
-.cocoCatalogTools input[type=search]{width:100%;min-width:0}
-.cocoCatalogGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--coco-catalog-card-width)),1fr));gap:var(--arc-s3)}
-.cocoCatalogCard{display:grid;align-content:start;gap:var(--arc-s2);padding:var(--arc-s4);border:var(--coco-catalog-line) solid var(--arc-line);border-radius:var(--arc-r-lg);background:var(--arc-surface);min-width:0;overflow-wrap:anywhere}
-.cocoCatalogCard[data-selected=true]{border-color:var(--arc-primary);background:var(--arc-surface-2)}
-.cocoCatalogChoice{display:flex!important;align-items:center;gap:var(--arc-s2);min-height:var(--arc-tap);cursor:pointer}
-.cocoCatalogChoice input{flex-shrink:0;accent-color:var(--arc-primary)}
-.cocoCatalogChoice small,.cocoCatalogChoice strong{display:block}
-.cocoCatalogCard small{color:var(--arc-text-muted);font-size:var(--arc-fs-sec)}
-.cocoCatalogCard p{margin:0}
-.cocoCatalogFields{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--arc-s2)}
-.cocoCatalogFields input,.cocoCatalogFields select{width:100%;min-width:0;min-height:var(--arc-tap)}
-.cocoCatalogExisting{font-weight:var(--arc-fw-bold)}
-.cocoQuoteCatalog [data-catalog-status]{color:var(--arc-text-muted)}

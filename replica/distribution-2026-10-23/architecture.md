@@ -6,7 +6,7 @@ Reprend [recon](recon.md) et [matrice](features.csv). Stack inchangée : JavaScr
 
 - sales/catalog.js → coco-sales-catalog.js, différé via le manifeste existant. ArcUI.dialog assure focus, retour et protection contre doubles soumissions.
 - editor.js transmet client/date, identité du formulaire/session, produits déjà présents et callback d'ajout atomique en mémoire. Les lignes antérieures, remises et prix manuels ne sont pas réécrits.
-- Styles dans sales-workspace.css, tokens Coco, cibles tactiles, champs nommés ; catalogue ES/FR/EN compilé. La charte du 23 octobre prévaut sur les anciens relevés visuels.
+- Styles différés dans sales-catalog.css, chargés avec ArcLoadStyle (le chargeur de styles existant), tokens Coco, cibles tactiles, champs nommés ; catalogue ES/FR/EN compilé. La charte du 23 octobre prévaut sur les anciens relevés visuels.
 - Aucun nouveau moteur de stock, prix ou facturation. Pas de coût additionnel de service.
 
 ## Contrats

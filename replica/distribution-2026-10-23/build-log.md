@@ -48,3 +48,9 @@ historiques existants et au catalogue FR/ES/EN. Les 25 scénarios du suivi de
 dossier passent, dont trois vérifications des nouveaux libellés. Les 71 scénarios existants
 du contrôle ciblé (préparation, suivi, flux et révision de devis) avaient réussi
 lors du même contrôle ; aucun envoi client n’a été effectué.
+
+Le job CI autonome `dossier-discussion` reconstruisait uniquement les traductions
+et servait les anciens scripts racine. Il reconstruit désormais les sources
+canoniques et vérifie leur reproductibilité avant ses tests, comme la publication.
+Les nouveaux tests de libellés ont révélé cette divergence ; leurs exigences
+FR/ES/EN sont conservées.

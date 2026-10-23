@@ -35,3 +35,10 @@ en plus du commit réellement servi et des actifs catalogue.
 Dernière validation ciblée du backend : 23 tests réussis (distribution, historique
 commun, zones entrepôt). Le scénario de livraison partielle vérifie aussi que
 l’alerte se ferme après la quantité promise, malgré un reliquat non promis.
+
+CI : les trois listes attendues des tests de fenêtre Notifications ont été
+complétées avec les nouvelles catégories, en conservant les comparaisons exactes
+par rôle. Un scénario vérifie aussi leurs compteurs et filtres serveur.
+Audit axe local limité au nouveau dialogue, à 390 et 1440 px : aucune violation
+automatique signalée (une vérification incomplète dans chaque taille). La CSP
+est restée active ; aucune conclusion de conformité globale n’est tirée.

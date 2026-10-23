@@ -40,7 +40,7 @@ test('the bell dropdown selects a category before loading the window',async({pag
 
 test('dropdown notification permissions match the window and menus replace each other',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.locator('#arcNotify').click();
- const menu=page.locator('#arcNotifyMenu');await expect(menu.getByRole('menuitem')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
+ const menu=page.locator('#arcNotifyMenu');await expect(menu.getByRole('menuitem')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Engagements de livraison dépassés','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
  const box=await menu.boundingBox();expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(390);
  await page.locator('#arcSettings').click();await expect(menu).toBeHidden();await expect(page.locator('#arcSettingsMenu')).toBeVisible();
  await page.locator('#arcNotify').click();await expect(page.locator('#arcSettingsMenu')).toBeHidden();await expect(menu).toBeVisible();
@@ -50,7 +50,7 @@ test('dropdown notification permissions match the window and menus replace each 
 test('la campana abre una ventana con todas las alertas, cada categoría con su recuento y los demás apartados',async({page})=>{
  await boot(page);await openNotifications(page);
  await expect(win(page)).toBeVisible();await expect(win(page).locator('h2')).toHaveText('Notifications');
- await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Devis sans réponse','Produits sous le minimum','Réceptions en retard','Paiements bientôt à échéance','Factures échues','Projets','Validations','Traitements et exceptions','Préférences']);
+ await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Devis sans réponse','Produits sous le minimum','Activités commerciales échues','Accords en attente','Engagements de livraison dépassés','Réceptions en retard','Paiements bientôt à échéance','Factures échues','Projets','Validations','Traitements et exceptions','Préférences']);
  // Se abre en todas las alertas activas, con el foco en su apartado.
  await expect(page.locator('#notifyTab-all')).toHaveAttribute('aria-selected','true');await expect(page.locator('#notifyTab-all')).toBeFocused();
  expect(await last(page)).toMatchObject({kind:'all',state:'active',offset:0});
@@ -120,7 +120,7 @@ test('abrir un dossier u otra pantalla cierra la ventana; el correo se escribe p
 
 test('el almacén no ve las categorías de dinero y en el teléfono todo cabe',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await openNotifications(page);
- await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
+ await expect(win(page).locator('[role=tab] .arcSideLabel')).toHaveText(['Toutes les alertes','Commandes bloquées','Livraisons en retard','Produits sous le minimum','Engagements de livraison dépassés','Réceptions en retard','Projets','Validations','Traitements et exceptions','Préférences']);
  expect(await win(page).boundingBox()).toMatchObject({x:0,y:0,width:390,height:844});
  const all=await page.locator('#notifyTab-all').boundingBox(),next=await page.locator('#notifyTab-shortage').boundingBox();expect(Math.abs(all.y-next.y)).toBeLessThan(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -135,4 +135,12 @@ test('cerrar la sesión cierra la ventana; renovar el token no',async({page})=>{
  await boot(page);await openNotifications(page);await expect(win(page)).toBeVisible();
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'TOKEN_REFRESHED'}})));await expect(win(page)).toBeVisible();
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(win(page)).toHaveCount(0);
+});
+
+test('distribution exception categories use server counts and preserve the same dossier filter',async({page})=>{
+ await boot(page);await page.evaluate(()=>Object.assign(__ops.counts,{sales_activity:2,sales_option:3,sales_promise:1}));await openNotifications(page);
+ for(const [kind,count] of [['sales_activity','2'],['sales_option','3'],['sales_promise','1']]){
+  await expect(page.locator('#notifyTab-'+kind+' .arcSideBadge')).toHaveText(count);
+  await page.locator('#notifyTab-'+kind).click();expect(await last(page)).toMatchObject({kind,state:'all',offset:0});
+ }
 });

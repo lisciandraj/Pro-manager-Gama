@@ -18,7 +18,7 @@ function open({customerId,date,existingIds=[],isCurrent,onAdd}){
  const unit=c=>(c.product.units||[]).find(u=>u.id===c.unitId);
  function line(c){
   const u=unit(c),factor=Number(u?.factor||1),sold=Number(c.quantity),quantity=Math.round(sold*factor*1000)/1000;
-  if(c.unitId&&!u)throw Error(T('El condicionamiento cambió. Revisa la selección.'));
+  if(c.unitId&&(!u||Number(u.factor)!==c.unitFactor))throw Error(T('El condicionamiento cambió. Revisa la selección.'));
   if(!Number.isFinite(factor)||factor<=0||!Number.isFinite(sold)||sold<=0||!Number.isFinite(quantity)||quantity<=0||
    (factor!==1&&!Number.isInteger(sold))||Math.abs(sold*factor-quantity)>0.0000001)
    throw Error(T('Revisa productos, cantidades, precios, descuentos e impuestos.'));
@@ -102,7 +102,7 @@ function open({customerId,date,existingIds=[],isCurrent,onAdd}){
    };
    card.querySelector('[data-unit]').onchange=e=>{
     c.unitId=e.target.value;const factor=Number(unit(c)?.factor||1),input=card.querySelector('[data-quantity]');
-    input.min=input.step=factor===1?'0.001':'1';schedulePrice(c);
+    c.unitFactor=factor;input.min=input.step=factor===1?'0.001':'1';schedulePrice(c);
    };
    card.querySelector('[data-quantity]').oninput=e=>{c.quantity=e.target.value;schedulePrice(c);};
   });
@@ -118,7 +118,7 @@ function open({customerId,date,existingIds=[],isCurrent,onAdd}){
    if(!current()||version!==searchVersion)return;
    results=found.map(p=>{
     let c=choices.get(p.id);
-    if(!c){c={product:p,unitId:'',quantity:1,price:null,priceError:false,revision:0};choices.set(p.id,c);}else c.product=p;
+    if(!c){c={product:p,unitId:'',unitFactor:1,quantity:1,price:null,priceError:false,revision:0};choices.set(p.id,c);}else c.product=p;
     return c;
    });
    draw();status.textContent=T('Hasta 30 resultados. Afina la búsqueda por nombre, referencia o código.');
@@ -140,8 +140,8 @@ function open({customerId,date,existingIds=[],isCurrent,onAdd}){
     const p=fresh.find(p=>p.id===c.product.id&&p.active!==false);
     if(!p)throw Error(T('Un producto ya no está disponible. Actualiza el catálogo.'));
     // Do not silently reinterpret a previously selected pack.
-    const before=unit(c),after=(p.units||[]).find(u=>u.id===c.unitId);
-    if(c.unitId&&(!after||Number(before?.factor)!==Number(after.factor)))throw Error(T('El condicionamiento cambió. Revisa la selección.'));
+    const after=(p.units||[]).find(u=>u.id===c.unitId);
+    if(c.unitId&&(!after||c.unitFactor!==Number(after.factor)))throw Error(T('El condicionamiento cambió. Revisa la selección.'));
     const next={...c,product:p};return {product:p,line:line(next)};
    });
    const prices=await rpc('prices',{customer_id:customerId,date,lines:prepared.map(x=>({product_id:x.line.product_id,quantity:x.line.quantity}))});

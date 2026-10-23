@@ -57,7 +57,7 @@ async function catalogBoot(page,{width=1440,language='es',role='admin'}={}){
     const a=args.p_action,d=args.p_data||{};__catalogCalls.push({action:a,data:d});
     if(a==='lookups'&&d.kind==='products'){
      if(window.__catalogDelay)await new Promise(r=>setTimeout(r,window.__catalogDelay));
-     return {data:__DB.products.filter(p=>p.active&&(!d.ids||d.ids.includes(p.id))&&(!d.search||(p.name+' '+p.reference).toLowerCase().includes(d.search.toLowerCase()))).slice(0,d.ids?200:30).map(p=>({...p,units:__DB.product_units.filter(u=>u.product_id===p.id&&u.active)}))};
+     return {data:__DB.products.filter(p=>p.active&&(!d.ids||d.ids.includes(p.id))&&(!d.search||(p.name+' '+p.reference).toLowerCase().includes(d.search.toLowerCase()))).slice(0,d.ids?200:30).map(p=>({...p,units:__DB.product_units.filter(u=>u.product_id===p.id&&u.active).map(u=>({...u}))}))};
     }
     if(a==='prices'){
      if(window.__catalogFailure)return {error:{message:'Price service unavailable'}};

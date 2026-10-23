@@ -42,3 +42,9 @@ par rôle. Un scénario vérifie aussi leurs compteurs et filtres serveur.
 Audit axe local limité au nouveau dialogue, à 390 et 1440 px : aucune violation
 automatique signalée (une vérification incomplète dans chaque taille). La CSP
 est restée active ; aucune conclusion de conformité globale n’est tirée.
+
+Revue finale : libellés des activités et accords de substitution ajoutés aux
+historiques existants et au catalogue FR/ES/EN. Les 25 scénarios du suivi de
+dossier passent, dont trois vérifications des nouveaux libellés. Les 71 scénarios existants
+du contrôle ciblé (préparation, suivi, flux et révision de devis) avaient réussi
+lors du même contrôle ; aucun envoi client n’a été effectué.

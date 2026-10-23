@@ -107,3 +107,13 @@ for(const kind of ['sales','quotes'])test(`${kind} closed history clears phone n
  await panel.locator(':scope>summary').click();await expect(panel).not.toHaveClass(/is-mobile-open/);
  const bar=await nav.boundingBox(),history=await panel.boundingBox();expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
 });
+
+for(const [language,approved,accepted,completed] of [['es','Condiciones de sustitución aprobadas','Sustitución aceptada','Actividad finalizada'],['fr','Conditions de substitution validées','Substitution acceptée','Activité terminée'],['en','Substitution terms approved','Substitution accepted','Activity completed']]){
+ test('distribution history uses business labels in '+language,async({page})=>{
+  await boot(page,{kind:'sales',language});await page.evaluate(()=>{
+   window.__history=['substitution_commercial_approved','substitution_agreement_applied','activity_completed'].map((action,i)=>({id:'distribution-event-'+i,action,actor_id:'alice',actor_name:'Alice',at:'2026-10-23T12:00:00Z'}));
+  });
+  const panel=page.locator('.cocoFollowup');await panel.locator('[data-refresh]').click();
+  const timeline=panel.locator('.cocoFollowupTimeline');await expect(timeline).toContainText(approved);await expect(timeline).toContainText(accepted);await expect(timeline).toContainText(completed);await expect(timeline).not.toContainText('substitution_agreement_applied');
+ });
+}

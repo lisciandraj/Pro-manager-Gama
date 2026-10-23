@@ -132,7 +132,7 @@ jobs:
           JS
       - id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify the revision and catalog assets served by Pages
+      - name: Verify the revision and sales assets served by Pages
         env:
           COCO_PAGES_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
@@ -155,14 +155,14 @@ jobs:
               const assetFile=html.match(/src=["']([^"']*architect-assets\.js[^"']*)["']/)?.[1];
               if(!assetFile)throw Error('Asset manifest missing from served page');
               const assets=await read(assetFile);
-              for(const file of ['coco-sales-catalog.js','coco-sales-catalog.css']){
+              for(const file of ['coco-sales-catalog.js','coco-sales-catalog.css','coco-sales-commitments.js']){
                 const key=file.replaceAll('.','\\.');
                 const versioned=assets.match(new RegExp('["\\x27]'+key+'["\\x27]\\s*:\\s*["\\x27]([^"\\x27]+)["\\x27]'))?.[1];
                 if(!versioned)throw Error(file+' missing from served asset manifest');
                 const body=await read(versioned);
-                if(!body.includes(file.endsWith('.js')?'CocoSalesCatalog':'cocoQuoteCatalog'))throw Error('Unexpected served catalog asset');
+                if(!body.includes(file==='coco-sales-commitments.js'?'CocoSalesCommitments':file.endsWith('.js')?'CocoSalesCatalog':'cocoQuoteCatalog'))throw Error('Unexpected served catalog asset');
               }
-              console.log('Verified Pages commit '+marker.commit+' at '+base.href+'; catalog JS and CSS served successfully.');
+              console.log('Verified Pages commit '+marker.commit+' at '+base.href+'; catalog and distribution planning assets served successfully.');
               process.exit(0);
             }catch(error){last=error;console.log('Publication verification attempt '+(attempt+1)+': '+error.message);}
             if(attempt<11)await delay(10000);

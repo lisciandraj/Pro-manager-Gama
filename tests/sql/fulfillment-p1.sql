@@ -47,7 +47,7 @@ begin
  if (select coalesce(length_cm,width_cm,height_cm) from public.fulfillment_packages where id=pkg) is not null then raise exception 'FAIL_PACKAGE_DIMENSIONS';end if;
  denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid()));exception when others then if sqlerrm like '%PARTIAL_REASON_REQUIRED%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_PARTIAL_REASON';end if;
- res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','wait','quantity',12,'promised_date',current_date+5));opt:=(res->>'id')::uuid;
+ res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'line_id',lid,'kind','wait','quantity',12));opt:=(res->>'id')::uuid;
  perform public.gama_fulfillment_action('respond_option',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'option_id',opt,'decision','accepted','agreement_reference','Email test'));
  denied:=false;begin perform public.gama_fulfillment_action('finish',jsonb_build_object('order_id',oid,'request_key',gen_random_uuid(),'reason','Partial test'));exception when others then if sqlerrm like '%WAIT_FOR_COMPLETE%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_WAIT_AGREEMENT';end if;
@@ -75,7 +75,7 @@ begin
  -- Full replacement retains the original line at zero and requires customer ownership.
  res:=public.gama_sales_action('create',jsonb_build_object('request_key',gen_random_uuid(),'customer_id',c,'delivery_address','Quito','lines',jsonb_build_array(jsonb_build_object('product_id',emptyprod,'quantity',2,'unit_price',20,'tax_rate',0))));oid2:=(res->>'id')::uuid;
  perform public.gama_sales_action('confirm',jsonb_build_object('order_id',oid2));select id into lid2 from public.sales_order_lines where order_id=oid2;
- res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid2,'request_key',gen_random_uuid(),'line_id',lid2,'kind','substitute','quantity',2,'replacement_product_id',subprod,'unit_price',18,'tax_rate',0,'promised_date',current_date+3));opt:=(res->>'id')::uuid;
+ res:=public.gama_fulfillment_action('propose_option',jsonb_build_object('order_id',oid2,'request_key',gen_random_uuid(),'line_id',lid2,'kind','substitute','quantity',2,'replacement_product_id',subprod,'unit_price',18,'tax_rate',0,'price_mode','manual','price_reason','Customer agreed substitute discount'));opt:=(res->>'id')::uuid;
  execute 'reset role';perform set_config('request.jwt.claim.sub',outsider::text,true);execute 'set local role authenticated';
  denied:=false;begin perform public.gama_fulfillment_action('respond_option',jsonb_build_object('request_key',gen_random_uuid(),'option_id',opt,'decision','accepted'));exception when others then if sqlerrm like '%ORDER_NOT_FOUND%' then denied:=true;else raise;end if;end;
  if not denied then raise exception 'FAIL_CUSTOMER_OWNERSHIP';end if;

@@ -5757,3 +5757,50 @@ Selecciona al menos un producto.	Sélectionne au moins un produit.	Select at lea
 Un producto ya no está disponible. Actualiza el catálogo.	Un produit n’est plus disponible. Actualise le catalogue.	A product is no longer available. Refresh the catalog.
 Precios del cliente y disponibilidad orientativa. El stock se reserva al confirmar el pedido.	Prix client et disponibilité indicative. Le stock est réservé à la confirmation de la commande.	Customer prices and indicative availability. Stock is reserved when the order is confirmed.
 Ver selección	Voir la sélection	View selection
+Próxima actividad	Prochaine activité	Next activity
+Sin actividad pendiente	Aucune activité en attente	No pending activity
+Coste desconocido · margen no disponible	Coût inconnu · marge indisponible	Unknown cost · margin unavailable
+Disponibilidad prevista	Disponibilité prévisionnelle	Forecast availability
+Añade productos al presupuesto.	Ajoute des produits au devis.	Add products to the quote.
+La previsión descuenta los compromisos anteriores. No reserva existencias ni envía mensajes al cliente.	La prévision déduit les engagements antérieurs. Elle ne réserve aucun stock et n’envoie aucun message au client.	The forecast deducts earlier commitments. It does not reserve stock or send customer messages.
+Preparación · días calendario	Préparation · jours calendaires	Preparation · calendar days
+Transporte · días calendario	Transport · jours calendaires	Transport · calendar days
+Actualizar previsión	Actualiser la prévision	Refresh forecast
+El documento cambió. Vuelve a abrir la previsión.	Le document a changé. Rouvre la prévision.	The document changed. Reopen the forecast.
+Revisa los días de preparación y transporte.	Vérifie les jours de préparation et de transport.	Check preparation and transport days.
+Reservado para este pedido	Réservé pour cette commande	Reserved for this order
+Compromisos anteriores	Engagements antérieurs	Earlier commitments
+Disponible desde	Disponible à partir du	Available from
+Servicio · fecha a coordinar	Service · date à convenir	Service · date to arrange
+Sin fecha fiable	Aucune date fiable	No reliable date
+Entrega posible desde	Livraison envisageable à partir du	Delivery possible from
+Arribos atrasados o sin fecha excluidos de la promesa	Arrivages en retard ou sans date exclus de la promesse	Late or undated arrivals excluded from the promise
+Confirma los días de preparación y transporte antes de acordar una fecha. La disponibilidad futura depende de que lleguen las compras previstas.	Confirme les jours de préparation et de transport avant de convenir d’une date. La disponibilité future dépend de la réception des achats prévus.	Confirm preparation and transport days before agreeing a date. Future availability depends on expected purchases arriving.
+Actualiza la previsión después de cambiar los plazos.	Actualise la prévision après modification des délais.	Refresh the forecast after changing lead times.
+Solo se sustituye el faltante no reservado. El presupuesto aceptado conserva sus condiciones originales.	Seul le reliquat non réservé peut être remplacé. Le devis accepté conserve ses conditions d’origine.	Only the unreserved shortage can be replaced. The accepted quote keeps its original terms.
+Las cantidades del reemplazo se expresan en unidades base.	Les quantités du remplacement sont exprimées en unités de base.	Replacement quantities are expressed in base units.
+La propuesta no envía mensajes. Registra el acuerdo del cliente antes de aplicarla.	La proposition n’envoie aucun message. Enregistre l’accord du client avant de l’appliquer.	The proposal sends no messages. Record customer agreement before applying it.
+Guardar propuesta	Enregistrer la proposition	Save proposal
+Revisar condiciones de sustitución	Vérifier les conditions du remplacement	Review replacement terms
+La validación comercial no sustituye el acuerdo del cliente ni el control de crédito.	La validation commerciale ne remplace pas l’accord du client ni le contrôle du crédit.	Commercial approval does not replace customer agreement or credit checks.
+Actividades comerciales vencidas	Activités commerciales échues	Overdue sales activities
+Acuerdos pendientes	Accords en attente	Pending agreements
+Compromisos de entrega vencidos	Engagements de livraison dépassés	Overdue delivery commitments
+Actividad comercial vencida	Activité commerciale échue	Overdue sales activity
+Acuerdo del cliente pendiente	Accord du client en attente	Customer agreement pending
+Compromiso de entrega vencido	Engagement de livraison dépassé	Overdue delivery commitment
+Seguimiento comercial	Suivi commercial	Sales follow-up
+Actualiza la previsión antes de proponer una fecha.	Actualise la prévision avant de proposer une date.	Refresh the forecast before proposing a date.
+La disponibilidad cambió. Actualiza la previsión.	La disponibilité a changé. Actualise la prévision.	Availability changed. Refresh the forecast.
+La fecha propuesta ya no es viable con las existencias y compras actuales.	La date proposée n’est plus réalisable avec les stocks et achats actuels.	The proposed date is no longer feasible with current stock and purchases.
+Esta propuesta es anterior al control de versiones. Retírala y crea una nueva.	Cette proposition précède le contrôle des versions. Retire-la puis crée une nouvelle proposition.	This proposal predates version checks. Withdraw it and create a new proposal.
+Las condiciones del pedido cambiaron. Crea una nueva propuesta.	Les conditions de la commande ont changé. Crée une nouvelle proposition.	The order terms changed. Create a new proposal.
+El precio del cliente cambió. Actualiza la tarifa.	Le prix client a changé. Actualise le tarif.	The customer price changed. Refresh pricing.
+El impuesto del producto cambió. Actualiza el producto.	La taxe du produit a changé. Actualise le produit.	The product tax changed. Refresh the product.
+Acuerda primero la sustitución; después revisa la fecha del producto aceptado.	Conviens d’abord du remplacement, puis vérifie la date du produit accepté.	Agree the replacement first, then review the accepted product’s date.
+Actividad creada	Activité créée	Activity created
+Actividad finalizada	Activité terminée	Activity completed
+Condiciones de sustitución aprobadas	Conditions de substitution validées	Substitution terms approved
+Sustitución aceptada	Substitution acceptée	Substitution accepted
+Acuerdo de entrega / sustitución	Accord de livraison / substitution	Delivery / substitution agreement
+Condiciones de sustitución	Conditions de substitution	Substitution terms

@@ -132,6 +132,11 @@ async function customerFixture(page,{restore=false}={}){
  if(a==='product')data={item:priced.find(p=>p.id===d.id)};
  }else if(name==='gama_b2b_product_favorites'){
  if(a==='ids')data=window.__SAVED;if(a==='set'){window.__SAVED=d.favorite?[d.product_id]:[];data={saved:true}}if(a==='list')data={total:window.__SAVED.length,items:window.__SAVED.map(id=>({...ps.find(p=>p.id===id),unit_price:window.__PRIVATE_PRICE,active:true}))};
+ }else if(name==='gama_b2b_fulfillment'){
+ const proposal={id:'portal-option',reference:'SO-PORTAL',kind:'substitute',status:'proposed',quantity:2,product_name:'Papel original',customer_decision:window.__PORTAL_CONSENT||null};
+ if(a==='list')data={total:1,items:[proposal]};
+ if(a==='detail')data={...proposal,currency:'USD',address:'Quito',product:{name:'Papel original',reference:'PAP',unit_price:50,tax_rate:15},replacement:{name:'Papel equivalente',reference:'REP',unit_price:40,tax_rate:15},original_total:115,proposed_total:92,fingerprint:'portal-fingerprint',can_respond:!window.__PORTAL_CONSENT,current:true,notes:'',promised_date:null};
+ if(a==='respond'){window.__PORTAL_CONSENT=d.decision;data={id:d.id,decision:d.decision,confirmation_pending:true};}
  }else if(a==='bootstrap')data={customer:{name:window.__CUSTOMER_NAME,identification:'1790012345001',category:'B'},currency:'USD',total:95,overdue:0,today:'2026-10-07',addresses:[]};
  else if(a==='favorites')data=[];
  else if(a==='preview')data={total:d.lines.reduce((n,l)=>n+l.quantity*4.6,0),price_hash:'reviewed',lines:d.lines.map(l=>({...l,name:'Café para oficina',unit_price:4,tax_rate:15,total:l.quantity*4.6}))};
@@ -203,4 +208,10 @@ for(const width of [390,1440])test('category ribbon and product information tabs
  await page.locator('#specificationsTab').focus();await page.keyboard.press('ArrowLeft');await expect(page.locator('#descriptionTab')).toBeFocused();await expect(page.locator('#descriptionPanel')).toBeVisible();await expect(page.locator('#specificationsPanel')).toBeHidden();
  await page.keyboard.press('End');await expect(page.locator('#specificationsTab')).toBeFocused();await expect(page.locator('#specificationsPanel')).toBeVisible();await expect(page.locator('#descriptionPanel')).toBeHidden();
  await expectContained(page,'#productDialog, .detail-title, .detail-photo, .detail-copy, .detail-tabs, .specifications');
+});
+
+for(const width of [320,390,1440])test('embedded customer portal reviews and records delivery consent at '+width,async({page})=>{
+ await customerFixture(page);await boot(page,{width});await loginCustomer(page);await page.locator('[data-tab=agreements]').click();await expect(page.locator('#catalogo')).toBeHidden();await page.locator('[data-agreement-language]').selectOption('fr');await page.locator('[data-agreement]').click();await expect(page.locator('#content')).toContainText('Papel equivalente');await expect(page.locator('#agreementResponse')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.locator('#agreementResponse [name=agree]').check();await page.getByRole('button',{name:'Accepter la proposition',exact:true}).click();await expect(page.locator('#status')).toContainText('GAMA doit');const calls=await page.evaluate(()=>__CUSTOMER_CALLS.filter(c=>c.name==='gama_b2b_fulfillment'&&c.p_action==='respond'));expect(calls).toHaveLength(1);expect(calls[0].p_data).toMatchObject({fingerprint:'portal-fingerprint',decision:'accepted',agree:true});await page.screenshot({path:'test-results/embedded-agreement-'+width+'.png',fullPage:true});
+ await page.locator('#logout').click();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('#customerArea')).toBeHidden();
 });

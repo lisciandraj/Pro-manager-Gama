@@ -76,7 +76,56 @@ async function acceptQuote(id){
  const close=()=>{if(token!==authEpoch&&dialog.isConnected)dialog.close()};document.addEventListener('gama:customer-auth',close,{once:true});
 }
 
+// Proposal text is local to this flow; the surrounding storefront retains its language.
+let agreementLanguage=['es','fr','en'].includes(new URL(location.href).searchParams.get('lang'))?new URL(location.href).searchParams.get('lang'):(['es','fr','en'].includes(document.documentElement.lang)?document.documentElement.lang:'es');
+const agreementWords={
+ title:['Propuestas de entrega','Propositions de livraison','Delivery proposals'],language:['Idioma de las propuestas','Langue des propositions','Proposal language'],
+ intro:['Revisa las entregas parciales, nuevas fechas y sustituciones propuestas para tus pedidos.','Consultez les livraisons partielles, nouvelles dates et substitutions proposées pour vos commandes.','Review partial deliveries, new dates and substitutions proposed for your orders.'],
+ empty:['No tienes propuestas.','Vous n’avez aucune proposition.','You have no proposals.'],review:['Revisar propuesta','Examiner la proposition','Review proposal'],back:['Volver','Retour','Back'],
+ partial:['Entrega parcial','Livraison partielle','Partial delivery'],wait:['Esperar disponibilidad','Attendre la disponibilité','Wait for availability'],substitute:['Sustitución','Substitution','Substitution'],
+ proposed:['Por revisar','À examiner','Awaiting review'],accepted:['Aplicada por GAMA','Appliquée par GAMA','Applied by GAMA'],rejected:['Rechazada','Refusée','Rejected'],withdrawn:['Retirada por GAMA','Retirée par GAMA','Withdrawn by GAMA'],
+ pending:['Aceptación recibida; GAMA debe validar y aplicar el acuerdo.','Accord reçu ; GAMA doit le valider et l’appliquer.','Acceptance received; GAMA must validate and apply the agreement.'],
+ stale:['Las condiciones han cambiado. Solicita a GAMA una nueva propuesta.','Les conditions ont changé. Demandez une nouvelle proposition à GAMA.','The terms have changed. Ask GAMA for a new proposal.'],
+ notice:['Tu respuesta se registra para estas condiciones. GAMA verificará el crédito, los precios y las existencias antes de aplicar la propuesta.','Votre réponse porte sur ces conditions. GAMA vérifiera le crédit, les prix et le stock avant d’appliquer la proposition.','Your response is recorded for these terms. GAMA will check credit, prices and stock before applying the proposal.'],
+ original:['Producto original','Produit d’origine','Original product'],replacement:['Producto de sustitución','Produit de remplacement','Replacement product'],quantity:['Cantidad afectada (unidades base)','Quantité concernée (unités de base)','Affected quantity (base units)'],
+ price:['Precio por unidad base sin IVA','Prix par unité de base hors TVA','Price per base unit excluding tax'],tax:['IVA','TVA','Tax'],pack:['Presentación original','Conditionnement d’origine','Original packaging'],
+ oldTotal:['Importe original para esta cantidad, IVA incluido','Montant initial pour cette quantité, TVA comprise','Original amount for this quantity, including tax'],newTotal:['Importe propuesto para esta cantidad, IVA incluido','Montant proposé pour cette quantité, TVA comprise','Proposed amount for this quantity, including tax'],difference:['Diferencia','Différence','Difference'],
+ date:['Fecha de entrega propuesta','Date de livraison proposée','Proposed delivery date'],noDate:['Sin fecha acordada','Aucune date convenue','No agreed date'],
+ agree:['He revisado los productos, cantidades, importes y condiciones antes de responder.','J’ai vérifié les produits, quantités, montants et conditions avant de répondre.','I have reviewed the products, quantities, amounts and terms before responding.'],
+ accept:['Aceptar propuesta','Accepter la proposition','Accept proposal'],reject:['Rechazar propuesta','Refuser la proposition','Reject proposal'],
+ rejectedNotice:['Rechazo registrado. El pedido conserva sus condiciones anteriores.','Refus enregistré. La commande conserve ses conditions précédentes.','Rejection recorded. The order keeps its previous terms.'],
+ retry:['No se pudo registrar la respuesta. Conservamos tu selección; vuelve a intentar.','La réponse n’a pas pu être enregistrée. Votre choix est conservé ; réessayez.','The response could not be recorded. Your selection is preserved; please retry.'],
+ closed:['Esta propuesta ya tiene respuesta o fue retirada. Actualiza la lista.','Cette proposition a déjà reçu une réponse ou a été retirée. Actualisez la liste.','This proposal was already answered or withdrawn. Refresh the list.'],
+ previous:['Anterior','Précédent','Previous'],next:['Siguiente','Suivant','Next']};
+const at=k=>agreementWords[k]?.[['es','fr','en'].indexOf(agreementLanguage)]||k;
+const aq=v=>Number(v||0).toLocaleString({es:'es-EC',fr:'fr-FR',en:'en-US'}[agreementLanguage],{maximumFractionDigits:3});
+const agreementApi=(a,d={})=>rpc(a,d,'gama_b2b_fulfillment');
+const agreementState=d=>d.status==='proposed'&&d.customer_decision==='accepted'?at('pending'):at(d.status);
+function agreementHeader(){return `<div class="toolbar"><h2>${E(at('title'))}</h2><label>${E(at('language'))}<select data-agreement-language>${['es','fr','en'].map((l,i)=>`<option value="${l}" ${l===agreementLanguage?'selected':''}>${['Español','Français','English'][i]}</option>`).join('')}</select></label></div>`}
+function agreementLocale(host,refresh){host.lang=agreementLanguage;host.querySelector('[data-agreement-language]').onchange=e=>{agreementLanguage=e.target.value;refresh()};const button=$('tabs').querySelector('[data-tab=agreements]');if(button)button.textContent=at('title')}
+async function agreementsView(serial){
+ const r=await agreementApi('list',{offset});if(serial!==viewSerial)return;const host=$('content');
+ host.innerHTML=agreementHeader()+`<p>${E(at('intro'))}</p>`+(r.items.length?r.items.map(d=>`<article class="card favorite"><h3>${E(d.reference)} · ${E(at(d.kind))}</h3><p>${E(d.product_name)} · ${aq(d.quantity)}</p><p>${E(agreementState(d))}</p><button type="button" data-agreement="${E(d.id)}">${E(at('review'))}</button></article>`).join(''):`<p class="notice">${E(at('empty'))}</p>`)+`<div class="pager">${offset?`<button data-page="prev">${E(at('previous'))}</button>`:''}<span>${r.total?offset+1:0}–${Math.min(offset+30,r.total)} / ${r.total}</span>${offset+30<r.total?`<button data-page="next">${E(at('next'))}</button>`:''}</div>`;
+ agreementLocale(host,()=>choose('agreements'));bindPages();host.querySelectorAll('[data-agreement]').forEach(b=>b.onclick=()=>run(b,()=>agreementDetail(b.dataset.agreement)));
+}
+async function agreementDetail(id){
+ const serial=++viewSerial,d=await agreementApi('detail',{id});if(serial!==viewSerial)return;const host=$('content'),format=v=>Number(v||0).toLocaleString({es:'es-EC',fr:'fr-FR',en:'en-US'}[agreementLanguage],{style:'currency',currency:d.currency||'USD'});
+ const product=(p,label)=>`<section class="card"><h3>${E(at(label))}</h3><p><strong>${E(p.name)}</strong> · ${E(p.reference)}</p><p>${E(at('price'))}: ${E(format(p.unit_price))} · ${E(at('tax'))}: ${aq(p.tax_rate)} %</p>${p.pack_label?`<p>${E(at('pack'))}: ${E(p.pack_label)} × ${aq(p.pack_factor)}</p>`:''}</section>`;
+ host.innerHTML=agreementHeader()+`<h3>${E(d.reference)} · ${E(at(d.kind))}</h3><p>${E(d.address)}</p><p class="notice">${E(agreementState(d))}</p>${!d.current&&d.status==='proposed'?`<p role="alert">${E(at('stale'))}</p>`:''}<p><strong>${E(at('quantity'))}: ${aq(d.quantity)}</strong></p><div class="form-grid">${product(d.product,'original')}${d.replacement?product(d.replacement,'replacement'):''}</div><p>${E(at('oldTotal'))}: ${E(format(d.original_total))}<br>${E(at('newTotal'))}: <strong>${E(format(d.proposed_total))}</strong><br>${E(at('difference'))}: ${E(format(d.proposed_total-d.original_total))}</p><p>${E(at('date'))}: ${E(d.promised_date||at('noDate'))}</p><p>${E(d.notes)}</p><p>${E(at('notice'))}</p><form id="agreementResponse">${d.can_respond?`<label class="agreement-check"><input type="checkbox" name="agree" required> ${E(at('agree'))}</label>`:''}<p role="alert"></p><div class="toolbar">${d.can_respond?`<button type="submit" name="decision" value="accepted" class="primary" disabled>${E(at('accept'))}</button><button type="submit" name="decision" value="rejected" disabled>${E(at('reject'))}</button>`:''}<button type="button" data-agreement-back>${E(at('back'))}</button></div></form>`;
+ agreementLocale(host,()=>agreementDetail(id).catch(e=>status(error(e),true)));host.querySelector('[data-agreement-back]').onclick=()=>choose('agreements');
+ const form=$('agreementResponse'),buttons=[...form.querySelectorAll('[type=submit]')];form.elements.agree?.addEventListener('change',()=>buttons.forEach(b=>b.disabled=!form.elements.agree.checked));
+ let submitting=false;
+ form.onsubmit=async e=>{e.preventDefault();if(submitting||!form.reportValidity()||!d.can_respond||!e.submitter)return;const decision=e.submitter.value;if(!['accepted','rejected'].includes(decision))return;
+  const payload={id,fingerprint:d.fingerprint,decision,agree:form.elements.agree.checked};payload.request_key=intent('portal_respond_option',payload);submitting=true;buttons.forEach(b=>b.disabled=true);form.querySelector('[role=alert]').textContent='';
+  try{await agreementApi('respond',payload);if(serial!==viewSerial)return;await view('agreements');status(at(decision==='accepted'?'pending':'rejectedNotice'))}
+  catch(e){if(serial!==viewSerial)return;const message=String(e?.message||e),stale=/OPTION_TERMS_CHANGED/.test(message),closed=/OPTION_CLOSED|OPTION_RESPONSE_RECORDED|OPTION_NOT_FOUND/.test(message);form.querySelector('[role=alert]').textContent=at(stale?'stale':closed?'closed':'retry');if(!stale&&!closed)buttons.forEach(b=>b.disabled=!form.elements.agree.checked)}
+  finally{submitting=false}
+ };
+}
+
 async function view(next){if(!boot)return;tab=next;const serial=++viewSerial;$('tabs').querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));const host=$('content');if(embedded){host.hidden=tab==='catalog';document.dispatchEvent(new CustomEvent('gama:customer-view',{detail:{tab}}));if(tab==='catalog'){host.replaceChildren();return}}host.innerHTML='<p>Consultando tu empresa…</p>';status();
+ if(tab==='agreements'){await agreementsView(serial);return;}
+ host.removeAttribute('lang');
  if(tab==='recurring'){await recurringView(serial);return;}
  if(tab==='preferences'){
   const r=await rpc('preferences');if(serial!==viewSerial)return;

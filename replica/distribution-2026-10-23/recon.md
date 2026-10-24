@@ -74,3 +74,11 @@ F05 : S05 → besoins nets → brouillon fournisseur ; F06 : S06 → document au
 Données confirmées : customers → invoices (devis) → invoice_lines → products/product_units ; erp_price ; stock_quants moins réservations ; dossier lié à sales_orders, livraisons, external_invoices et paiements. Confiance élevée, migrations et code inspectés. Sélection du catalogue éphémère, aucune table ni identifiant métier supplémentaire.
 
 Taille S, une fenêtre et un point d'entrée. Risques : asynchronisme, conversion d'unités, conservation des conditions négociées. [Architecture](architecture.md), [livraison](features.csv), [tests](test-plan.md).
+
+### Complément après Q1–Q5 / S1–S3
+
+Le consentement B2B de S2, explicitement reporté après le lot précédent, est
+implémenté dans le portail actif. `portal-architecture.md` précise les preuves,
+contrats et scénarios ; `remaining-test-plan.md` contient les validations. Il
+réutilise les options, accords et contrôles commerciaux existants. Ce complément
+n'ajoute ni calendrier métier ni automatisme de notification/paiement.

@@ -5811,3 +5811,18 @@ Propuesta rechazada en el portal B2B	Proposition refusée dans le portail B2B	Pr
 Aplicar acuerdo B2B	Appliquer l’accord B2B	Apply B2B agreement
 El cliente aceptó estas condiciones en el portal. Se volverán a comprobar el crédito, el margen y las existencias.	Le client a accepté ces conditions dans le portail. Le crédit, la marge et le stock seront vérifiés à nouveau.	The customer accepted these terms in the portal. Credit, margin and stock will be checked again.
 Calendario contable	Échéancier comptable	Accounting schedule
+Tipos, grupos, numeración y bloqueos	Types, groupes, séquences et verrouillages	Types, groups, numbering and lock dates
+Grupo contable	Groupe comptable	Account group
+Numeración del diario	Séquence du journal	Journal numbering
+Fecha de bloqueo	Date de verrouillage	Lock date
+Excepción de bloqueo	Exception de verrouillage	Lock exception
+Fecha contable ajustada	Date comptable ajustée	Adjusted accounting date
+Fuera de balance	Hors bilan	Off-balance sheet
+La fecha contable está bloqueada de forma irreversible.	La date comptable est verrouillée de façon irréversible.	The accounting date is irreversibly locked.
+La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.	La date de la pièce d’origine est verrouillée. Examinez une exception ou une contre-écriture à date ouverte.	The source entry date is locked. Review an exception or a counter-entry on an open date.
+Columna asignada inválida.	Colonne affectée invalide.	Invalid mapped column.
+Cada columna solo puede usarse una vez.	Chaque colonne ne peut être utilisée qu’une fois.	Each column can only be used once.
+Asigna fecha e importe, o fecha con débito y crédito.	Affectez la date et le montant, ou la date avec débit et crédit.	Map date and amount, or date with debit and credit.
+Fila de cabecera inválida.	Ligne d’en-tête invalide.	Invalid header row.
+Separador de columnas inválido.	Séparateur de colonnes invalide.	Invalid column separator.
+El número de columnas no coincide con la cabecera.	Le nombre de colonnes ne correspond pas à l’en-tête.	Column count differs from the header.

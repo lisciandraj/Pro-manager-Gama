@@ -105,3 +105,5 @@ SALES_PRICE_CHANGED	El precio del cliente cambió. Actualiza la tarifa.
 SALES_TAX_CHANGED	El impuesto del producto cambió. Actualiza el producto.
 SUBSTITUTION_DATE_SEPARATE	Acuerda primero la sustitución; después revisa la fecha del producto aceptado.
 INVALID_LEAD_DAYS	Revisa los días de preparación y transporte.
+ACCOUNTING_HARD_LOCKED	La fecha contable está bloqueada de forma irreversible.
+ACCOUNTING_DATE_LOCKED	La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.

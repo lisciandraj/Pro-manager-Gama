@@ -108,6 +108,18 @@ test('native accounting plans: independent amounts, posting, cancellation and au
    await q("select set_config('coco.activity_source_type','',false)");await write('activate',{id:p.id});
    const rows=(await q('select actor_id,actor_name from private.coco_module_events where record_id=$1 order by created_at desc',[p.id])).rows;assert.equal(rows[0].actor_id,admin);assert.notEqual(rows[0].actor_name,'Agent Coco');
   });
+  await t.test('module history uses the existing RLS policy and links to exact schedules and entries',async()=>{
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await db.exec('set role authenticated');
+   const history=await v("select coco_module_history('list','{\"module_id\":\"accounting\"}'::jsonb)");
+   const plans=history.history.filter(x=>x.record_table==='accounting_plans');assert.ok(plans.length>0);
+   assert.ok(plans.some(x=>x.links.some(l=>l.action==='accounting_plan'&&l.id)));
+   assert.ok(plans.some(x=>x.references.some(r=>r.context?.changes.some(c=>c.field==='amount'))));
+   assert.ok(history.history.some(x=>x.links.some(l=>l.action==='accounting_entry'&&l.id)));
+   await db.exec('reset role');await q('update accounting_permissions set can_read_all=false where profile_id=$1',[reader]);
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[reader]);await db.exec('set role authenticated');
+   await assert.rejects(v("select coco_module_history('list','{\"module_id\":\"accounting\"}'::jsonb)"),/NOT_ALLOWED/);
+   await db.exec('reset role');await q('update accounting_permissions set can_read_all=true where profile_id=$1',[reader]);await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);
+  });
   await t.test('scheduler only posts approved automatic plans and rechecks current approver rights',async()=>{
    const data={name:'Approved automation',kind:'recurring',journal_id:journal,amount:'2',starts_on:'2026-10-01',ends_on:'2026-10-31',automatic:true,lines:[{account_id:expense,debit:'2'},{account_id:liability,credit:'2'}]};
    const p=await write('save',data);await q('select private.gama_accounting_plans_tick()');assert.equal((await rpc('detail',{id:p.id})).items[0].entry_id,null);

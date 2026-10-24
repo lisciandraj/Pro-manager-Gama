@@ -6,4 +6,4 @@ S12 — nouveaux échéanciers de charges/produits différés, OD récurrentes e
 
 S01–S07 — navigation en familles et maintien des raccourcis compatibles. S05/S12/historique — liens vers le dossier ou l'écriture précis. Pas de modification des politiques de stock, du schéma de sociétés, des taxes réelles ou des paramètres SRI.
 
-Tests : scénarios serveur isolés, six parcours navigateur avec axe, concurrence sur deux sessions PostgreSQL et suites existantes. Les modalités comptables non couvertes sont listées dans la matrice, jamais remplacées par des écrans simulés.
+Tests : scénarios serveur isolés, neuf parcours navigateur avec axe, concurrence sur deux sessions PostgreSQL et suites existantes. Les modalités comptables non couvertes sont listées dans la matrice, jamais remplacées par des écrans simulés.

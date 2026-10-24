@@ -300,14 +300,28 @@ select cron.schedule('coco-accounting-plans','15 * * * *','select private.gama_a
 
 -- Register capture before the first user mutation. Details remain behind the same accounting rights.
 insert into private.coco_history_tables(table_name,module_id,label,table_schema,key_column) values
- ('accounting_plans','accounting','Plan contable','private','id');
+ ('accounting_plans','accounting','Calendario contable','private','id');
 create trigger coco_module_history after insert or update or delete on private.accounting_plans for each row execute function private.coco_capture_module_event();
-alter function private.coco_history_record_visible(text,text,uuid) rename to coco_history_record_visible_before_plans;
-create function private.coco_history_record_visible(p_table text,p_id text,p_owner uuid) returns boolean
+-- Preserve the original function OID: existing RLS policies bind to it.
+do $$begin execute replace(pg_get_functiondef('private.coco_history_record_visible(text,text,uuid)'::regprocedure),'FUNCTION private.coco_history_record_visible(', 'FUNCTION private.coco_history_record_visible_before_plans(');end $$;
+revoke all on function private.coco_history_record_visible_before_plans(text,text,uuid) from public,anon,service_role;
+grant execute on function private.coco_history_record_visible_before_plans(text,text,uuid) to authenticated;
+create or replace function private.coco_history_record_visible(p_table text,p_id text,p_owner uuid) returns boolean
 language plpgsql stable security invoker set search_path='' as $$begin
  if p_table='accounting_plans' then return private.coco_module_allowed('accounting');end if;
  return private.coco_history_record_visible_before_plans(p_table,p_id,p_owner);
 end $$;
 revoke all on function private.coco_history_record_visible(text,text,uuid) from public,anon;
 grant execute on function private.coco_history_record_visible(text,text,uuid) to authenticated;
+-- Preserve all existing document routes and emit precise accounting routes.
+do $$begin execute replace(pg_get_functiondef('private.coco_history_typed_link(text,text,text,text)'::regprocedure),'FUNCTION private.coco_history_typed_link(', 'FUNCTION private.coco_history_typed_link_before_plans(');end $$;
+revoke all on function private.coco_history_typed_link_before_plans(text,text,text,text) from public,anon,service_role;
+grant execute on function private.coco_history_typed_link_before_plans(text,text,text,text) to authenticated;
+create or replace function private.coco_history_typed_link(p_module text,p_table text,p_id text,p_reference text) returns jsonb
+language sql immutable security invoker set search_path='' as $$
+ select case when p_table in ('accounting_plans','accounting_entries') then jsonb_strip_nulls(jsonb_build_object('module','accounting','id',p_id,'reference',p_reference,'action',case when p_table='accounting_plans' then 'accounting_plan' else 'accounting_entry' end))
+ else private.coco_history_typed_link_before_plans(p_module,p_table,p_id,p_reference) end
+$$;
+revoke all on function private.coco_history_typed_link(text,text,text,text) from public,anon,service_role;
+grant execute on function private.coco_history_typed_link(text,text,text,text) to authenticated;
 notify pgrst,'reload schema';

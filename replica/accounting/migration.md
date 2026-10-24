@@ -2,7 +2,7 @@
 
 1. Inventorier les pièces et associations avec les contrôles existants (sans `sync` dans un script de lecture). Conserver les totaux avant/après dans `results.md`.
 2. Tester la restauration complète des migrations dans PGlite, puis les scénarios comptables isolés. Les tests n'utilisent aucun identifiant réel ni le serveur de production.
-3. Appliquer la migration additive `20261024132320_accounting_plans.sql` uniquement après réussite. Aucune reprise des 58 écritures ni compensation d'écart ; aucun plan de production n'est créé pour tester.
+3. Appliquer la migration additive `20261024155142_accounting_plans.sql` uniquement après réussite. Aucune reprise des 58 écritures ni compensation d'écart ; aucun plan de production n'est créé pour tester.
 4. Vérifier les définitions des façades, ACL, triggers, RLS et le registre de migrations. Comparer nombre d'écritures, débit, crédit, banques et périodes à l'inventaire initial.
 5. Conserver le commit précédent pour un retour de l'interface. La base additive peut rester en place sans usage. Avant suppression d'une table de plans, arrêter ses utilisateurs et exporter plans/occurrences/commandes ; si des écritures existent, conserver les tables et corriger par contre-écritures. Ne jamais supprimer les écritures issues de plans utilisés.
 

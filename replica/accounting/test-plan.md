@@ -1,6 +1,6 @@
 # Plan de vérification
 
-F01 : suites Ventes, factures, paiements, rapprochement et livres existantes. Elles couvrent les contrats de chaque étape ; leur réussite n'est pas une comparaison exhaustive sur instance Odoo.
+F01 : `tests/accounting-sale-to-bank-db.test.cjs` restaure le schéma isolé, prépare uniquement les données de référence, puis passe toutes les transitions métier par les API publiques en rôle authenticated. Vente de deux unités à 50 USD, sans taxe dans ce scénario : facture interne de 100, écriture automatique unique, paiement de 100, import bancaire rejouable, rapprochement sans nouvelle écriture de trésorerie. Résultats indépendants : balance débit = crédit = 200 ; produit = 100 ; solde bancaire = 100 ; reste dû = 0 ; trésorerie et revenu du tableau de bord = 100. La seconde facturation des mêmes quantités est refusée. Les suites existantes couvrent les autres contrats ; leur réussite n'est pas une comparaison exhaustive sur instance Odoo.
 
 F06–F08 : scénarios calculés indépendamment du moteur : assurance 1 200 sur douze mois = 100/mois ; 100 au prorata des 90 jours de janvier à mars 2026 = 34,44 / 31,11 / 34,45 ; 300 du 16 janvier au 28 février sur mois proportionnels = 102,13 / 197,87. Emprunt 1 200, douze mensualités à capital constant, taux nominal annuel 12 % : capital 100, intérêts du premier mois 12 et du dernier 1, total intérêts 78. L'annuité calculée est 106,62 avant ajustement final du capital.
 

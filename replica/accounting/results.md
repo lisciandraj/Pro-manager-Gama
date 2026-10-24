@@ -17,7 +17,7 @@ Code applicatif testé : `9d43d1f26ca20837a0417bd7c5ce7100679dfa91`.
 | Suite serveur générale | 552 tests : 550 réussis, zéro échec, 2 SKIP pour services dédiés | [Publication de branche](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40108055343), job build |
 | Non-régression interface partagée | 430 réussis | [Release](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40108055173) |
 | Comptabilité, audit, historique et nouveaux échéanciers | 61 parcours navigateur réussis | [Échéanciers natifs](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40108055234) |
-| Droits, calculs et historique des échéanciers | 16 tests serveur réussis | `tests/accounting-plans-db.test.cjs` |
+| Droits, calculs et historique des échéanciers | 18 tests serveur réussis | `tests/accounting-plans-db.test.cjs` |
 | Concurrence réelle | Deux connexions PostgreSQL 17, réussite ; aucun SKIP dans ce job | Même workflow, job concurrency |
 | Chaîne vente jusqu'aux rapports | Réussie en base isolée : facture 100 USD, paiement 100, banque 100, solde dû zéro ; rapprochement sans double trésorerie | `tests/accounting-sale-to-bank-db.test.cjs` |
 | Calculs et intégrations ciblés | 70 tests réussis, zéro échec, zéro SKIP | Plans, livres, banque, valorisation existante, avances et contexte historique |
@@ -28,6 +28,8 @@ Les workflows Achats, Ventes, concurrence Ventes/Stock, Contacts, identité Prod
 Les neuf combinaisons FR/ES/EN × 390/768/1440 utilisent les RPC réelles dans PGlite isolé. Les scans axe du formulaire et du détail ne rapportent aucune violation ciblée WCAG 2 A/AA. Les [captures conservées](evidence/README.md) ont été examinées. Elles ne certifient pas tous les écrans du périmètre complet.
 
 Défaut découvert puis corrigé avant migration : renommer une fonction de visibilité conservait son ancienne liaison dans la politique RLS de l'historique. Le remplacement conserve désormais l'OID. Le test lit réellement l'historique sous authenticated, vérifie les liens exacts et refuse le périmètre commercial insuffisant. Aucun contrôle d'accès n'a été désactivé.
+
+Le correctif d'arrondi a été ajouté après cette CI : 19 tests locaux échéanciers et chaîne complète réussis, zéro échec, zéro SKIP. Le cas 0,03 USD sur six mois révélait un reliquat négatif ; chaque montant est désormais plafonné au solde à répartir. Le cas de prêt à 0 % passe également. La CI du dernier commit de la PR reste la preuve de validation globale de ce correctif.
 
 ## Migration et conservation des données
 
@@ -52,6 +54,8 @@ Les trois tables privées ont RLS activé et aucun accès direct accordé à ano
 L'audit initial n'a trouvé aucun doublon de source comptable, numéro de facture client ou référence fournisseur normalisée ; aucun candidat bancaire dupliqué avec référence non vide ; aucun paiement actif sans pièce attendue ; aucun rapprochement déclaré sans lien ; aucun groupe de rapprochement déséquilibré. Base + taxe correspond aux totaux examinés. Ces contrôles ciblés ne certifient ni la conformité fiscale ni toutes les données.
 
 La sauvegarde logique ciblée est conservée séparément du dépôt public : 378 144 octets, SHA-256 `2bef42f16df30ab0918449fb4f9cd96360defafd0d467fe23c1d4caa1cc744e3`. Aucun historique n'est rejoué et aucune écriture d'équilibrage n'est ajoutée. La sauvegarde intégrale/PITR et son exercice de restauration ne sont pas attestés ; ils restent requis avant une conversion structurelle de l'historique.
+
+Correctif appliqué : **20261024160011_accounting_plan_rounding_guard**, 765 octets, SHA-256 `9ef5824b397dfc247322c4767532da7cb3dc349a16184c236e7f3dff4398a676`, vérifié par lecture du SQL enregistré dans Supabase. Il remplace uniquement le calcul de l'échéancier, conserve la fonction et ses droits et ne transforme aucun plan existant (aucun plan n'a été créé à ce point de contrôle). [Archive du correctif](../../supabase/sql/applied/20261024160011_accounting_plan_rounding_guard.json).
 
 ## Limites de vérification en production
 

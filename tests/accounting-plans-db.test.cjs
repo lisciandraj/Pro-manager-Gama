@@ -53,6 +53,13 @@ test('native accounting plans: independent amounts, posting, cancellation and au
    await assert.rejects(rpc('preview',{name:'Bad template',kind:'recurring',journal_id:journal,amount:'10',starts_on:'2026-01-01',ends_on:'2026-02-01',lines:[{account_id:expense,debit:'10'},{account_id:liability,credit:'9'}]}),/ENTRY_UNBALANCED/);
    await assert.rejects(rpc('preview',{...def,computation:'full_months'}),/PLAN_COMPUTATION_UNSUPPORTED/);
   });
+  await t.test('rounding a tiny deferral never creates a negative final amount or recognizes more than its source',async()=>{
+   const line=await source('2026-01-01',expense,equity,0.03),input={...def,name:'Three cents over six months',source_line_id:line,amount:'0.03',ends_on:'2026-06-30'};
+   const d=await rpc('preview',input);assert.ok(d.items.every(x=>x.amount>=0));assert.deepEqual(d.items.map(x=>x.amount),[0.01,0.01,0.01,0,0,0]);
+   const p=await write('save',input);await write('activate',{id:p.id});await write('post_due',{id:p.id,through:'2026-06-30'});
+   const detail=await rpc('detail',{id:p.id});assert.equal(detail.plan.status,'closed');assert.equal(detail.items.filter(x=>x.entry_id).length,3);
+   assert.equal(Number(await v("select sum(l.debit) from accounting_entry_lines l join private.accounting_plan_items i on i.entry_id=l.entry_id where i.plan_id=$1",[p.id])),0.03);
+  });
   await t.test('deferred revenue inverts expense logic without duplicating tax or money',async()=>{
    const line=await source('2026-02-01',equity,income,200);const p=await write('save',{...def,name:'Deferred revenue',kind:'deferred_revenue',source_line_id:line,amount:'200',starts_on:'2026-02-01',ends_on:'2026-03-31',deferral_account_id:liability});
    await write('activate',{id:p.id});await write('post_due',{id:p.id,through:'2026-02-28'});const d=await rpc('detail',{id:p.id});assert.equal(d.items[0].amount,100);
@@ -73,6 +80,12 @@ test('native accounting plans: independent amounts, posting, cancellation and au
    const preview=await rpc('preview',{...d,schedule:[{date:'2026-01-31',principal:'600',interest:'12'},{date:'2026-02-28',principal:'600',interest:'6'}]});assert.equal(preview.items.filter(x=>x.kind==='payment').length,2);
    await assert.rejects(rpc('preview',{...d,schedule:[{date:'2026-01-31',principal:'1000',interest:'12'}]}),/PLAN_TOTAL_MISMATCH/);
    await assert.rejects(rpc('preview',{...d,schedule:[{date:'2026-02-28',principal:'600',interest:'12'},{date:'2026-01-31',principal:'600',interest:'6'}]}),/PLAN_DATES_INVALID/);
+  });
+  await t.test('zero-interest loans post principal without creating a zero-value journal line',async()=>{
+   const line=await source('2026-01-01',equity,liability,1200),p=await write('save',{name:'Interest free loan',kind:'loan',journal_id:journal,source_line_id:line,amount:'1200',starts_on:'2026-01-31',ends_on:'2026-12-31',short_account_id:short,interest_account_id:interest,computation:'annuity',annual_rate:'0',months:12});
+   await write('activate',{id:p.id});await write('post_due',{id:p.id,through:'2026-01-31'});const d=await rpc('detail',{id:p.id});
+   assert.equal(d.items[0].principal,100);assert.equal(d.items[0].interest,0);assert.ok(d.items[0].entry_id);
+   assert.equal(Number(await v('select count(*) from accounting_entry_lines where entry_id=$1 and debit=0 and credit=0',[d.items[0].entry_id])),0);
   });
   await t.test('no future posting; source reversal is detected',async()=>{
    await assert.rejects(write('post_due',{id:deferred.id,through:'2099-01-01'}),/PLAN_FUTURE_POSTING/);

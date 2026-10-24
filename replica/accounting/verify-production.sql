@@ -16,7 +16,7 @@ select jsonb_build_object(
  'supplier_payments',(select count(*) from public.supplier_invoice_payments),
  'receipts',(select count(*) from public.customer_receipts),
  'plans',(select count(*) from private.accounting_plans),
- 'migration',(select jsonb_agg(jsonb_build_object('version',version,'name',name)) from supabase_migrations.schema_migrations where name='accounting_plans'),
+ 'migration',(select jsonb_agg(jsonb_build_object('version',version,'name',name)) from supabase_migrations.schema_migrations where name in ('accounting_plans','accounting_plan_rounding_guard')),
  'scheduler',(select jsonb_agg(jsonb_build_object('schedule',schedule,'active',active)) from cron.job where jobname='coco-accounting-plans'),
  'rls',(select jsonb_agg(jsonb_build_object('table',relname,'enabled',relrowsecurity)) from pg_class where oid in ('private.accounting_plans'::regclass,'private.accounting_plan_items'::regclass,'private.accounting_plan_runs'::regclass)),
  'acl',jsonb_build_object(

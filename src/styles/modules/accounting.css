@@ -3,9 +3,7 @@
 .gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
 .gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
 .gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
-.gaNav{display:block;min-width:0}
-.gaFamilies,.gaShortcuts{display:flex;gap:var(--arc-space-2,6px);overflow-x:auto;max-width:100%;padding-bottom:var(--arc-space-2,6px)}
-.gaFamilies{flex-wrap:wrap}
+.gaShortcuts{display:flex;gap:6px;overflow:auto;max-width:100%;margin:8px 0}.gaShortcuts button{flex:none;min-height:44px}
 .gaPlans{min-width:0}
 .gaPlans .gaScroll{max-width:100%;overscroll-behavior-inline:contain}
 .gaPlans .gaTable th,.gaPlans .gaTable td{border:1px solid var(--arc-line-strong)}

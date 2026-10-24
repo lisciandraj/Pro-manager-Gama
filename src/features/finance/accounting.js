@@ -108,7 +108,7 @@ function shell(){
  let s=$(workspace);
  if(!s){s=document.createElement('section');s.id=workspace;(document.querySelector('.wrap')||document.body).appendChild(s)}
  window.ArcUI.render(s,GamaUI.header({title:workspace==='sri'?'Facturación SRI':'Contabilidad',lead:workspace==='sri'?'Factura interna → SRI → XML y RIDE autorizados':'Lo que vendes, lo que gastas, lo que te deben y tu tesorería.'})
-  +'<nav class="gaNav" id="gaNav"></nav><div id="gaMain" aria-live="polite"></div>');
+  +'<nav class="gaNav" id="gaNav"></nav><nav class="gaShortcuts" id="gaShortcuts"></nav><div id="gaMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(workspace);
  return s;
 }
@@ -120,9 +120,11 @@ function nav(){
  }
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
  const families=[['overview','Vista general'],['sales','Clientes'],['purchases','Proveedores'],['cash','Banco y caja'],['ledger','Contabilidad'],['reports','Informes'],['config','Configuración']];
- window.ArcUI.render(host,`<div class="gaFamilies">${families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary" data-gi-live>${esc(label)}</button>`).join('')}</div><div class="gaShortcuts">${visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':''}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join('')}</div>`);
+ const group=({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',taxes:'config',sri:'config'})[section]||section;
+ window.ArcUI.render(host,families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary ${group===k?'on':''}" aria-current="${group===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join(''));
+ const shortcuts=$('gaShortcuts');window.ArcUI.render(shortcuts,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':'secondary'}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-ga-family]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaFamily)});
- host.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaSection)});
+ shortcuts.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaSection)});
 }
 function busy(){window.ArcUI.render($('gaMain'),`<p class="arcPanel gaCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){

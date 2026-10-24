@@ -17,7 +17,7 @@ async function boot(page,language){
  await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());await page.evaluate(()=>GamaAccounting.open({section:'plans'}));
  await expect(page.locator('#planNew')).toBeVisible();return {db,expense,liability,journal};
 }
-for(const language of ['es','fr','en'])for(const width of [390,1440])test(`schedule workflow uses real SQL in ${language} at ${width}px`,async({page})=>{
+for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`schedule workflow uses real SQL in ${language} at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=500)errors.push('HTTP '+r.status())});
  const {db,expense,liability,journal}=await boot(page,language);
  try{
@@ -27,11 +27,15 @@ for(const language of ['es','fr','en'])for(const width of [390,1440])test(`sched
   await form.locator('#plan-amount').fill('10.01');await form.locator('#plan-starts_on').fill('2026-01-31');await form.locator('#plan-ends_on').fill('2026-02-28');
   const lines=form.locator('[data-plan-line]');await lines.nth(0).locator('select').selectOption(expense);await lines.nth(0).locator('[data-debit]').fill('10.01');await lines.nth(1).locator('select').selectOption(liability);await lines.nth(1).locator('[data-credit]').fill('10.01');
   await form.locator('#planPreview').click();await expect(form.locator('#planPreviewResult tbody tr')).toHaveCount(2);
+  expect((await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
+  await page.screenshot({path:`test-results/accounting19-form-${language}-${width}.png`,fullPage:false});
   await form.locator('#gsSave').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('.gaPlans')).toContainText('Café Quito <recurring>');
   expect((await db.query("select count(*)::int n from accounting_entries where source_type='accounting_schedule'")).rows[0].n).toBe(0);
   await page.locator('#planActivate').click();await expect(page.locator('#planPost')).toBeEnabled();await page.locator('#planPost').click();await expect(page.locator('[data-plan-entry]')).toHaveCount(2);
   const violations=(await new AxeBuilder({page}).include('.gaPlans').withTags(['wcag2a','wcag2aa']).analyze()).violations;expect(violations).toEqual([]);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);expect(errors).toEqual([]);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  expect(await page.locator('#gaNav').evaluate(e=>e.getBoundingClientRect().height)).toBeLessThanOrEqual(64);
+  expect(await page.locator('#gaShortcuts').evaluate(e=>e.getBoundingClientRect().height)).toBeLessThanOrEqual(70);expect(errors).toEqual([]);
   const r=(await db.query("select count(*)::int n,sum(l.debit)::numeric debit,sum(l.credit)::numeric credit from accounting_entries e join accounting_entry_lines l on l.entry_id=e.id where e.source_type='accounting_schedule'")).rows[0];expect(r.n).toBe(4);expect(Number(r.debit)).toBe(20.02);expect(r.debit).toBe(r.credit);
   await page.screenshot({path:`test-results/accounting19-${language}-${width}.png`,fullPage:false});
   await page.locator('[data-plan-entry]').first().click();await expect(page.locator('[data-entry-plan]')).toHaveCount(1);await page.locator('[data-entry-plan]').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('.gaPlans')).toContainText('Café Quito <recurring>');

@@ -67,3 +67,10 @@ Déploiement additif SQL avant les actifs web, après contrôles verts. Retour a
 du frontend par réversion ; conserver les colonnes/snapshots ajoutés pour ne perdre
 aucun accord. Les gardes serveur restent actives et compatibles avec les lectures
 existantes. Publication vérifiée par le commit et les actifs servis.
+
+## Suite du portail
+
+Le report de l'accord client B2B est traité par `portal-architecture.md` :
+consentement sur l'option existante puis application commerciale, sans réactiver
+l'ancien accès client ERP. Le calendrier métier reste celui défini dans ce lot
+(jours calendaires) ; aucun nouveau calendrier ni automatisme client n'est ajouté.

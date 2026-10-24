@@ -5,5 +5,5 @@ Q3 Disponibilite avant ajout,devis,must,documented,implemented,sans promesse ni 
 Q4 Activite datee en liste,devis,should,documented,implemented,projection de l'existant
 Q5 Marge par ligne,devis,should,documented,implemented,projection serveur autorisee
 S1 Disponibilite datee,stock,should,documented,implemented,dates fiables et projection unique
-S2 Substitution approuvee,ventes,could,documented,implemented,versions et accords
+S2 Substitution approuvee,ventes,could,documented,implemented,versions et accords externes ou consentement B2B puis application GAMA
 S3 Exceptions par role,pilotage,should,documented,implemented,reunir vues existantes

@@ -9,3 +9,8 @@ Le téléchargement Chromium local renvoie une archive tronquée ; les parcours 
 Les résultats définitifs, migrations effectivement appliquées, soldes après migration et commit réellement publié seront consignés après la CI et les lectures de production.
 
 Vérification ciblée après ajout du planificateur et du garde de source : 69 tests passés, zéro échec, zéro SKIP (plans, livres, banque, valorisation, avances et historique). Sources, types, liens de documentation et archives de migrations ont passé leurs contrôles.
+
+
+CI du commit `d83808672bdf71628f7ba2443f965362b86233e1` : [échéanciers natifs](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40106958977), 61 parcours navigateur réussis et test PostgreSQL 17 à deux sessions réussi. Les neuf scénarios d'échéancier contrôlent trois langues et trois largeurs, avec axe sur le formulaire et le détail. Les captures ont été examinées ; une première disposition trop haute sur téléphone a été corrigée, puis vérifiée à nouveau. Les tests généraux de la base sur la version intégrée précédente ont compté 549 réussites, zéro échec et deux SKIP de services dédiés ; les jobs de concurrence exécutent ces cas avec leurs services.
+
+Polissage complémentaire en attente de CI : classe primaire Coco pour les actions principales, exclusion du tableau de saisie des outils de consultation, lien depuis l'historique réel vers l'échéancier. La migration de production n'est pas encore appliquée à ce point de contrôle.

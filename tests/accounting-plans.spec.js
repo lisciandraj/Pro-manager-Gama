@@ -26,6 +26,8 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`s
   await form.locator('#plan-kind').selectOption('recurring');await form.locator('#plan-name').fill('Café Quito <recurring>');await form.locator('#plan-journal_id').selectOption(journal);
   await form.locator('#plan-amount').fill('10.01');await form.locator('#plan-starts_on').fill('2026-01-31');await form.locator('#plan-ends_on').fill('2026-02-28');
   const lines=form.locator('[data-plan-line]');await lines.nth(0).locator('select').selectOption(expense);await lines.nth(0).locator('[data-debit]').fill('10.01');await lines.nth(1).locator('select').selectOption(liability);await lines.nth(1).locator('[data-credit]').fill('10.01');
+  await expect(form.locator('#planPreview')).toHaveClass(/primary/);
+  await expect(form.locator('[data-plan-recurring] .gamaTableToolbar')).toHaveCount(0);
   await form.locator('#planPreview').click();await expect(form.locator('#planPreviewResult tbody tr')).toHaveCount(2);
   expect((await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
   await page.screenshot({path:`test-results/accounting19-form-${language}-${width}.png`,fullPage:false});
@@ -38,6 +40,11 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`s
   expect(await page.locator('#gaShortcuts').evaluate(e=>e.getBoundingClientRect().height)).toBeLessThanOrEqual(70);expect(errors).toEqual([]);
   const r=(await db.query("select count(*)::int n,sum(l.debit)::numeric debit,sum(l.credit)::numeric credit from accounting_entries e join accounting_entry_lines l on l.entry_id=e.id where e.source_type='accounting_schedule'")).rows[0];expect(r.n).toBe(4);expect(Number(r.debit)).toBe(20.02);expect(r.debit).toBe(r.credit);
   await page.screenshot({path:`test-results/accounting19-${language}-${width}.png`,fullPage:false});
+  if(width===1440){
+   const history=page.locator('[data-history-module="accounting"]');await history.locator('[data-refresh]').click();
+   await expect(history).toContainText('Café Quito <recurring>');
+   const link=history.locator('[data-followup-link]').filter({hasText:'Café Quito <recurring>'}).first();await expect(link).toBeVisible();await link.click();await expect(page.locator('.gaPlans')).toContainText('Café Quito <recurring>');
+  }
   await page.locator('[data-plan-entry]').first().click();await expect(page.locator('[data-entry-plan]')).toHaveCount(1);await page.locator('[data-entry-plan]').click();await expect(page.locator('dialog')).toHaveCount(0);await expect(page.locator('.gaPlans')).toContainText('Café Quito <recurring>');
  }finally{await db.close()}
 });

@@ -48,3 +48,16 @@ F01 vente → facture interne → écriture → paiement → banque → balance.
 États requis pour S01–S12 : chargement, vide, erreur avec reprise, refus serveur, liste paginée, détail, clavier, 390 px / tablette / PC, FR/ES/EN. L'interface conserve la charte Coco ; aucune comparaison de pixels avec Odoo n'est une condition de parité.
 
 La matrice `features.csv` distingue présence du code, tests Coco et preuve d'équivalence Odoo. Une fonction partielle reste un écart, même si ses tests Coco passent. L'objectif complet représente plusieurs domaines comptables ; cette livraison ne doit pas être annoncée comme 100 % équivalente.
+
+## Attribution des éditions : preuves supplémentaires
+
+Les manifestes officiels de la branche **19.0** ont été consultés le 24 octobre 2026 par le connecteur GitHub, uniquement pour leurs métadonnées. Aucun fichier Odoo n'est intégré au dépôt Coco.
+
+| Module | Métadonnée constatée | Limite de la preuve |
+| --- | --- | --- |
+| [account](https://github.com/odoo/odoo/blob/19.0/addons/account/__manifest__.py) | Facturation et paiements, licence LGPL-3 ; dépend d'analytic | Présence du socle Community ; ne prouve pas tous les menus ou rapports Enterprise |
+| [analytic](https://github.com/odoo/odoo/blob/19.0/addons/analytic/__manifest__.py) | Comptabilité analytique, licence LGPL-3 | Les budgets et autres compléments restent distincts |
+| [stock_account](https://github.com/odoo/odoo/blob/19.0/addons/stock_account/__manifest__.py) | Intégration stock/comptabilité, LGPL-3 ; dépend de stock et account | Ne prouve pas la concordance des traitements actuels de Coco avec les règles 19.0 |
+| [account_accountant / account_reports](https://www.odoo.com/documentation/19.0/fr/developer/howtos/accounting_localization.html) | La documentation distingue les rapports fiscaux accessibles via Comptabilité Enterprise | Les identifiants et licences de tous les compléments avancés n'ont pas été inspectés sur une instance licenciée |
+
+La matrice précise les socles Community documentés tout en conservant Enterprise comme référence fonctionnelle. Une dépendance partagée n'est pas une preuve d'exclusivité d'édition. Les développements récents `cf03d88` et `74a2610` ont été intégrés avant la CI.

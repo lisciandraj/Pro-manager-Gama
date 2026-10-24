@@ -38,7 +38,7 @@ function ensureStyle(){
 }
 function portrait(value){return typeof value==='string'&&value.length<=120000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)?value:''}
 async function openResult(result){if(result?.module==='documents'&&result.id)return openRelated({module:'documents',action:'document',id:result.id});if(result?.kind==='quote'&&result.id){await window.ArcRouter.open('quotes');return window.GamaQuotes.view(result.id)}if(result?.module)return openRelated({module:result.module,action:'module',id:result.id})}
-const linkModules={order:'sales-orders',purchase:'gamaPurchasesV14',quote:'quotes',delivery:'tms',preparation:'tms',invoice:'payments',supplier_invoice:'accounting',request:'customer-requests',opportunity:'crm',return:'returns',document:'documents',stock_product:'warehouses'};
+const linkModules={order:'sales-orders',purchase:'gamaPurchasesV14',quote:'quotes',delivery:'tms',preparation:'tms',invoice:'payments',supplier_invoice:'accounting',accounting_plan:'accounting',accounting_entry:'accounting',request:'customer-requests',opportunity:'crm',return:'returns',document:'documents',stock_product:'warehouses'};
 const moduleWords={'sales-orders':'salesModule',gamaPurchasesV14:'purchaseModule',quotes:'quoteModule',warehouses:'stockModule',tms:'tmsModule',payments:'invoiceModule',accounting:'accountingModule','customer-requests':'requestModule',crm:'crmModule',returns:'returnsModule'};
 const moduleLabel=id=>moduleWords[id]?W(moduleWords[id]):T(window.ArcModules?.get(id)?.label||id);
 const technicalId=value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value||''));
@@ -47,7 +47,7 @@ function safeLinks(links){
  return [...new Map(allowed.map(l=>[JSON.stringify([l.module,l.action,l.action==='module'?'':l.id||'']),l])).values()];
 }
 function entryLinks(x,base){
- const typed=({sales_orders:'order',purchase_orders:'purchase',invoices:'quote',tms_deliveries:'delivery',external_invoices:'invoice',supplier_invoices:'supplier_invoice',business_documents:'document',crm_opportunities:'opportunity'})[x.record_table];
+ const typed=({sales_orders:'order',purchase_orders:'purchase',invoices:'quote',tms_deliveries:'delivery',external_invoices:'invoice',supplier_invoices:'supplier_invoice',accounting_plans:'accounting_plan',accounting_entries:'accounting_entry',business_documents:'document',crm_opportunities:'opportunity'})[x.record_table];
  const links=(Array.isArray(x.links)?x.links:[]).map(l=>typed&&x.action!=='delete'&&l.action==='module'&&l.id&&linkModules[typed]===l.module?{...l,action:typed}:l),action=({sales:'order',purchase:'purchase',quote:'quote',tms:'delivery'})[x.kind];
  if(action&&x.order_id)links.push({module:linkModules[action],action,id:x.order_id,reference:x.reference});
  if(x.purchase_order_id)links.push({module:'gamaPurchasesV14',action:'purchase',id:x.purchase_order_id});
@@ -105,6 +105,8 @@ async function openRelated(link){
   case 'preparation':return window.GamaPreparation.open(link.id);
   case 'invoice':return window.GamaPayments.open({invoiceId:link.id});
   case 'supplier_invoice':return window.GamaAccounting.open({section:'purchases',invoiceId:link.id});
+  case 'accounting_plan':return window.GamaAccounting.open({planId:link.id});
+  case 'accounting_entry':return window.GamaAccounting.open({section:'ledger',entryId:link.id});
   case 'request':return window.GamaOpenCustomerRequest(link.id);
   case 'opportunity':return window.GamaCRMOpportunities.openRecord(link.id);
   case 'return':return window.GamaReturns.openReturn(link.id);

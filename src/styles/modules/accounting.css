@@ -3,6 +3,14 @@
 .gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
 .gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
 .gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.gaShortcuts{display:flex;gap:6px;overflow:auto;max-width:100%;margin:8px 0}.gaShortcuts button{flex:none;min-height:44px}
+.gaPlans{min-width:0}
+.gaPlans .gaScroll{max-width:100%;overscroll-behavior-inline:contain}
+.gaPlans .gaTable th,.gaPlans .gaTable td{border:1px solid var(--arc-line-strong)}
+.gaPlans .gaNum{font-variant-numeric:tabular-nums}
+#planLines select,#planLines input{max-width:100%;min-width:0}
+#planPreviewResult .gaScroll{max-height:50vh;overflow:auto}
+[data-plan-source][hidden],[data-plan-deferred][hidden],[data-plan-recurring][hidden],[data-plan-loan][hidden]{display:none}
 .gaCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
 .gaCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
 .gaKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}

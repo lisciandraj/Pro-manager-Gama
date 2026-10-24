@@ -124,8 +124,10 @@ test('the dashboard reads the whole business and formats in the company currency
  await expect(main).toContainText('+20 %');             // 12000 vs 10000
  await expect(main).toContainText('6,5');               // retraso medio
  await expect(main).toContainText('$900,00');           // saldo de impuestos 1800-900
- await expect(page.locator('#gaNav button')).toHaveCount(14);
- await expect(page.locator('#gaNav [data-ga-section="sri"]')).toBeVisible();
+ await expect(page.locator('#gaShortcuts [data-ga-section]')).toHaveCount(15);
+ await expect(page.locator('#gaNav [data-ga-family]')).toHaveText(['Vista general','Clientes','Proveedores','Banco y caja','Contabilidad','Informes','Configuración']);
+ await expect(page.locator('#gaShortcuts [data-ga-section="plans"]')).toBeVisible();
+ await expect(page.locator('#gaShortcuts [data-ga-section="sri"]')).toBeVisible();
 });
 
 test('a euro company shows euros everywhere without touching the amounts',async({page})=>{
@@ -224,7 +226,9 @@ test('tax and balance screens never claim to be a legal filing',async({page})=>{
 
 test('a commercial profile sees its own side and never the ledger or the cash',async({page})=>{
  await boot(page,'commercial','commercial');await open(page);
- const nav=page.locator('#gaNav button');
+ const nav=page.locator('#gaShortcuts [data-ga-section]');
+ await expect(page.locator('#gaNav [data-ga-family]')).toHaveText(['Vista general','Clientes','Informes']);
+ await expect(page.locator('[data-ga-family="ledger"], [data-ga-family="cash"], [data-ga-section="plans"]')).toHaveCount(0);
  await expect(nav).toHaveCount(4);
  await expect(nav).toHaveText(['Vista general','Ventas','Cuentas por cobrar','Informes']);
  await expect(page.locator('[data-ga-section="ledger"]')).toHaveCount(0);

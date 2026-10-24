@@ -11,6 +11,10 @@ contable o de facturación electrónica que exija la ley de cada país.
 
 ## Acceso
 
+La extensión nativa del 24 de octubre añade **Periodificación y préstamos**: planes de gastos e ingresos diferidos (días o meses proporcionales), asientos recurrentes no bancarios y préstamos con calendario importado o calculado. Primero se revisa el cálculo, se guarda un borrador y una persona autorizada lo valida. La ejecución automática es opcional y vuelve a comprobar los derechos del aprobador. Los préstamos reclasifican la deuda; su pago bancario sigue siendo una operación separada. Anular conserva los asientos y genera contrapartidas en una fecha abierta. El detalle enlaza la fuente y las entradas; las entradas permiten volver al plan.
+
+Referencia funcional: Odoo 19.0 Enterprise. La cobertura **no es una equivalencia completa**: [matriz y límites](../../replica/accounting/parity.md), [fuentes](../../replica/accounting/recon.md), [arquitectura](../../replica/accounting/architecture.md), [pruebas](../../replica/accounting/test-plan.md). La política de stock histórica y el servicio SRI no cambian.
+
 **Administración → Contabilidad**. Catorce secciones: Vista general, Ventas,
 Compras, Gastos, Pagos, Banco y caja, Cuentas por cobrar, Cuentas por pagar,
 Contabilidad, Impuestos, Informes, SRI, Cierres y Parámetros. El botón **Controles y preparación** abre la revisión de cobertura, extractos, dossier PDF/XLSX, preparación fiscal, presupuestos, divisas, activos y stock.

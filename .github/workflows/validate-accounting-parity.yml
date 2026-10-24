@@ -1,0 +1,51 @@
+name: Validate native accounting plans
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/accounting-plans.spec.js tests/accounting-audit.spec.js tests/accounting.spec.js tests/module-history.spec.js --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accounting19-browser-results
+          path: test-results/
+          retention-days: 14
+  concurrency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: coco_test_accounting
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/accounting-plans-concurrency.test.cjs
+        env:
+          COCO_ACCOUNTING_TEST_DATABASE_URL: postgresql://postgres:isolated-ci-only@127.0.0.1:5432/coco_test_accounting

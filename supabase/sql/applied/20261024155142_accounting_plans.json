@@ -1,0 +1,13 @@
+{
+  "version": "20261024155142",
+  "name": "accounting_plans",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-24",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 33281,
+  "sha256": "0c96babf4cd2be510008b4ba6286ce8bc7f2967ab6ae777a32c8ed9c67eba508",
+  "file": "20261024155142_accounting_plans.sql",
+  "purpose": "Installed migration; preserve these bytes and do not replay in production."
+}

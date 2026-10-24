@@ -113,7 +113,7 @@ declare f public.sales_fulfillment_options;s jsonb;begin
   select * into f from public.sales_fulfillment_options where id=(p_data->>'option_id')::uuid;
   if f.customer_decision='accepted' then
    -- Stable authoritative reference also keeps retries byte-identical.
-   p_data:=p_data||jsonb_build_object('agreement_reference','Portal B2B · '||f.id::text||' · '||f.customer_responded_at::text);
+   p_data:=p_data||jsonb_build_object('agreement_reference','Portal B2B · '||f.id::text||' · '||to_char(f.customer_responded_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'));
    if not exists(select 1 from private.fulfillment_requests where request_key=nullif(p_data->>'request_key','')::uuid) then
     s:=private.b2b_fulfillment_snapshot(f.id);
     if not (s->>'current')::boolean or f.customer_response_fingerprint is distinct from s->>'fingerprint' then raise exception 'OPTION_TERMS_CHANGED';end if;

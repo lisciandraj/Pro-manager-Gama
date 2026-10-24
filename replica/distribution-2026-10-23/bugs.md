@@ -35,3 +35,9 @@ Le scénario de changement de facteur échouait : la fixture partageait ses obje
   ligne initiale ; seuls les remplacements modifient le prix présenté.
 - Aucune notification client automatique. L'accord accepté attend toujours
   l'application par GAMA. Les dates continuent d'utiliser les jours calendaires.
+
+- La validation complète a signalé une assertion de nom de fonction devenue
+  obsolète après l'ajout du garde B2B. Le test vérifie désormais les deux
+  délégations jusqu'au moteur canonique et conserve ses assertions de zones.
+- La référence serveur B2B utilise UTC : un changement de fuseau entre deux
+  appels ne modifie pas le reçu idempotent (test de relance dédié).

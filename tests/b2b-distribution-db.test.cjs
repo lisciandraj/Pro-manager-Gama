@@ -31,7 +31,7 @@ test('B2B distribution consent uses scoped customers and canonical staff applica
    assert.equal(Number(await v("select count(*) from sales_events where order_id=$1 and action='fulfillment_customer_accepted'",[x.o.id])),1);
    const alerts=await call('gama_operations_action','snapshot',{kind:'sales_option',state:'all'});assert.match(JSON.stringify(alerts),/Acuerdo B2B recibido/);
    await as(ids.warehouse);await assert.rejects(staff('respond_option',{option_id:x.opt.id,decision:'accepted',request_key:uuid()}),/ROLE_NOT_ALLOWED/);
-   await as(ids.sales);const apply={option_id:x.opt.id,decision:'accepted',request_key:uuid()};await staff('respond_option',apply);await staff('respond_option',apply);
+   await as(ids.sales);const apply={option_id:x.opt.id,decision:'accepted',request_key:uuid()};await staff('respond_option',apply);await db.exec("set timezone='America/Guayaquil'");await staff('respond_option',apply);await db.exec("set timezone='UTC'");
    assert.equal(Number(await v('select quantity from sales_order_lines where id=$1',[x.line])),0);assert.match(await v('select agreement_reference from sales_fulfillment_options where id=$1',[x.opt.id]),/^Portal B2B/);
    await as(ids.client);assert.deepEqual(await api('respond',x.payload),response);assert.equal((await api('detail',{id:x.opt.id})).status,'accepted');
   });

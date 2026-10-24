@@ -24,6 +24,7 @@
     "check:vendors": "node scripts/check-vendors.cjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@electric-sql/pglite": "0.3.14",
     "@playwright/test": "^1.47.0",
     "acorn": "8.15.0",

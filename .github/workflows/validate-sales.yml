@@ -18,7 +18,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Build canonical sources and verify deterministic generated assets
         run: npm run build && npm run check:generated
-      - run: node --test tests/sales-workspace-db.test.cjs tests/distribution-commitments-db.test.cjs
+      - run: node --test tests/sales-workspace-db.test.cjs tests/distribution-commitments-db.test.cjs tests/b2b-distribution-db.test.cjs
       - run: node --test tests/global-search-core.test.cjs
       - run: node --test tests/project-management-core.test.cjs tests/project-management-db.test.cjs
       - run: node --check gama-projects.js

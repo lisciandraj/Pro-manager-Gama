@@ -54,8 +54,9 @@ test('las otras ubicaciones se vacían hacia la zona de llegada y se gestionan a
   assert.equal((await loc('CUARENTENA')).name,'Cuarentena','la antigua RET-QUARANTINE pasa a ser la cuarentena');
   assert.equal((await loc('AB01-01')).parent_id,root);
 
-  // The distribution guard delegates preparation unchanged to the canonical engine.
-  assert.ok((await one("select pg_get_functiondef('private.gama_fulfillment_action(text,jsonb)'::regprocedure) d")).d.includes('return private.gama_fulfillment_action_before_distribution(p_action,p_data)'));
+  // Both agreement guards keep preparation delegated to the canonical engine.
+  for(const [wrapper,target] of [['gama_fulfillment_action','gama_fulfillment_action_before_portal_agreements'],['gama_fulfillment_action_before_portal_agreements','gama_fulfillment_action_before_distribution']])
+   assert.ok((await one(`select pg_get_functiondef(('private.'||$1||'(text,jsonb)')::regprocedure) d`,[wrapper])).d.includes('return private.'+target+'(p_action,p_data)'),wrapper);
   // Los procesos usan las zonas por su papel.
   for(const [fn,text] of [['gama_fulfillment_action_before_distribution',"gama_zone(loc.warehouse_id,'departure')"],['gama_returns_processing',"gama_zone(loc.warehouse_id,'quarantine')"]])
    assert.ok((await one(`select pg_get_functiondef(p.oid) d from pg_proc p where p.proname=$1 and p.pronamespace='private'::regnamespace`,[fn])).d.includes(text),fn);

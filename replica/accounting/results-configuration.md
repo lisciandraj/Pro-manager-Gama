@@ -1,5 +1,8 @@
 # Résultats vérifiés — configuration et relevés, 25 octobre 2026
 
+Complément ultérieur : [19 types de comptes et contrôles hors bilan](off-balance.md).
+Le présent point de contrôle conserve les résultats du premier lot de configuration.
+
 Cette extension native complète la configuration de Coco et l'import CSV. Elle
 ne livre pas toute la comptabilité Odoo. Référence inchangée : **Odoo 19.0
 Enterprise**. La matrice contient maintenant 107 lignes : **51 testées, 30

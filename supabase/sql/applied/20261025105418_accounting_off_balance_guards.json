@@ -1,0 +1,13 @@
+{
+  "version": "20261025105418",
+  "name": "accounting_off_balance_guards",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 4810,
+  "sha256": "5f4de037f47e2c58aa2e534c6b3658b0545584dd04d57880ee2f966ba4eda62c",
+  "file": "20261025105418_accounting_off_balance_guards.sql",
+  "purpose": "Installed native account-type and off-balance guard correction; preserve these bytes and do not replay in production."
+}

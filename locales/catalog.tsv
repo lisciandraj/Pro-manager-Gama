@@ -5826,3 +5826,6 @@ Asigna fecha e importe, o fecha con débito y crédito.	Affectez la date et le m
 Fila de cabecera inválida.	Ligne d’en-tête invalide.	Invalid header row.
 Separador de columnas inválido.	Séparateur de colonnes invalide.	Invalid column separator.
 El número de columnas no coincide con la cabecera.	Le nombre de colonnes ne correspond pas à l’en-tête.	Column count differs from the header.
+Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.	Séparez les comptes hors bilan des comptes financiers dans une autre écriture.	Keep off-balance accounts separate from financial accounts in another entry.
+Un asiento fuera de balance no admite impuestos.	Une écriture hors bilan ne peut pas comporter de taxes.	An off-balance entry cannot include taxes.
+Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.	Une écriture hors bilan ne peut pas comporter de trésorerie ni de rapprochement.	An off-balance entry cannot include cash movements or reconciliation.

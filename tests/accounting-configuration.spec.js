@@ -18,7 +18,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`n
  const value=async(sql,p=[])=>Object.values((await db.query(sql,p)).rows[0])[0];
  try{
   await expect(page.locator('.gaConfiguration')).toContainText(({es:'Configuración contable',fr:'Paramétrage comptable',en:'Accounting configuration'})[language]);
-  await page.locator('#acAccountNew').click();await dialog.locator('#ac-code').fill('6801');await dialog.locator('#ac-name').fill('Café Quito <account>');await dialog.locator('#ac-account_type').selectOption('expense');
+  await page.locator('#acAccountNew').click();await dialog.locator('#ac-code').fill('6801');await dialog.locator('#ac-name').fill('Café Quito <account>');await dialog.locator('#ac-account_type').selectOption('expense_other');
   expect((await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);await expect(page.locator('.gaConfiguration')).toContainText('Café Quito <account>');
   const account=await value("select id from accounting_accounts where code='6801'");
   await page.locator('[data-ac-tab="numbering"]').click();await page.locator(`[data-ac-numbering="${journal}"]`).click();await dialog.locator('#ac-enabled').selectOption('true');await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);

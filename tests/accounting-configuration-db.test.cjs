@@ -17,8 +17,8 @@ test('native accounting configuration: types, hierarchy, numbering and dated loc
   await t.test('migration preserves historical configuration until explicitly activated',async()=>{
    const c=await rpc('context');assert.equal(c.locks.length,0);assert.equal(c.groups.length,0);assert.ok(c.journals.every(j=>j.numbering===null));assert.equal(c.lock_admin,true);
   });
-  await t.test('all eighteen documented account types preserve their families, retries and off-balance reporting',async()=>{
-   const types=['asset_receivable','asset_cash','asset_current','asset_non_current','asset_prepayments','asset_fixed','liability_payable','liability_credit_card','liability_current','liability_non_current','equity','equity_unaffected','income','income_other','expense','expense_depreciation','expense_direct_cost','off_balance'];
+  await t.test('all nineteen documented account types preserve their families, retries and off-balance reporting',async()=>{
+   const types=['asset_receivable','asset_cash','asset_current','asset_non_current','asset_prepayments','asset_fixed','liability_payable','liability_credit_card','liability_current','liability_non_current','equity','equity_unaffected','income','income_other','expense','expense_other','expense_depreciation','expense_direct_cost','off_balance'];
    for(let i=0;i<types.length;i++){
     const input={request_key:uuid(),code:'TYPE-'+i,name:'Type '+types[i],account_type:types[i],active:true};const result=await rpc('account_save',input);assert.deepEqual(await rpc('account_save',input),result);
     if(types[i]==='off_balance')off1=result.id;
@@ -28,8 +28,42 @@ test('native accounting configuration: types, hierarchy, numbering and dated loc
    const trial=await rpc('group_balance',{from:'2026-01-01',to:'2026-01-31'});assert.equal(trial.debit,20);assert.equal(trial.credit,20);
    const pl=await ledger('report_pl',{from:'2026-01-01',to:'2026-01-31'});assert.equal(pl.income,0);assert.equal(pl.expense,0);
    const bs=await ledger('report_balance',{from:'2026-01-01',to:'2026-01-31'});assert.ok(!bs.rows.some(a=>[off1,off2].includes(a.id)));
-   await assert.rejects(write('account_save',{id:off1,code:'TYPE-17',name:'Changed used family',account_type:'asset_current'}),/ACCOUNT_TYPE_POSTED_IMMUTABLE/);
+   const otherExpense=await v("select id from accounting_accounts where account_type='expense_other' limit 1");
+   await db.exec('begin');try{await post('2026-01-15',37,'OD',otherExpense,income);const result=await ledger('report_pl',{from:'2026-01-01',to:'2026-01-31'});assert.equal(result.expense,37);assert.equal(result.income,37);}finally{await db.exec('rollback')}
+   await assert.rejects(write('account_save',{id:off1,code:'TYPE-18',name:'Changed used family',account_type:'asset_current'}),/ACCOUNT_TYPE_POSTED_IMMUTABLE/);
    await assert.rejects(write('account_save',{code:'BAD',name:'Unknown type',account_type:'invented'}),/ACCOUNT_SUBTYPE_INVALID/);
+  });
+  await t.test('off-balance records reject mixed accounts, taxes, cash attribution and reconciliation atomically',async()=>{
+   const before=Number(await v('select count(*) from accounting_entries'));
+   await assert.rejects(post('2026-01-16',20,'OD',off1,income),/OFF_BALANCE_MIXED/);
+   assert.equal(Number(await v('select count(*) from accounting_entries')),before);
+   const line=(await q('select l.id,l.entry_id from accounting_entry_lines l join accounting_entries e on e.id=l.entry_id where l.account_id=$1 and e.status=\'posted\' limit 1',[off1])).rows[0];
+   await db.exec('reset role;begin');
+   try{
+    const normalBank=await v("insert into financial_accounts(name,kind,account_id) select 'Off-balance guard fixture','bank',id from accounting_accounts where code='1000' returning id");
+    const offBank=await v("insert into financial_accounts(name,kind,account_id) values('Invalid master fixture','bank',$1) returning id",[off1]);
+    const tax=await v('select id from accounting_taxes limit 1');assert.ok(tax);
+    for(const [name,taxId,financial,expected]of [['tax',tax,null,/OFF_BALANCE_TAXES/],['cash',null,offBank,/OFF_BALANCE_RECONCILIATION/]]){
+     await db.exec('savepoint invalid_off');
+     const id=await v("insert into accounting_entries(journal_id,entry_date) values($1,'2026-01-16') returning id",[journal]);
+     await q('insert into accounting_entry_lines(entry_id,account_id,debit,tax_id,financial_account_id) values($1,$2,20,$3,$4)',[id,off1,taxId,financial]);
+     await q('insert into accounting_entry_lines(entry_id,account_id,credit) values($1,$2,20)',[id,off2]);
+     await assert.rejects(db.exec('set constraints accounting_off_balance_entry,accounting_off_balance_lines immediate'),expected,name);
+     await db.exec('rollback to invalid_off;release invalid_off');
+    }
+    await assert.rejects(q('insert into private.accounting_bank_bindings(line_id,financial_account_id,reason) values($1,$2,$3)',[line.id,normalBank,'Denied off-balance binding']),/OFF_BALANCE_RECONCILIATION/);
+   }finally{await db.exec('rollback;set role authenticated')}
+   // Exercise both existing match registries under independent savepoints.
+   await db.exec('reset role;begin');
+   try{
+    const bank=await v("insert into financial_accounts(name,kind,account_id) select 'Match guard fixture','bank',id from accounting_accounts where code='1000' returning id");
+    const transaction=await v("insert into bank_transactions(financial_account_id,value_date,description,amount) values($1,'2026-01-16','Isolated reconciliation fixture',20) returning id",[bank]);
+    const group=await v("insert into bank_match_groups(request_key,financial_account_id,note) values($1,$2,'Off-balance guard') returning id",[uuid(),bank]);
+    await db.exec('savepoint bad_match');await assert.rejects(q("insert into bank_match_sources(group_id,kind,source_id,amount) values($1,'ledger_entry',$2,20)",[group,line.entry_id]),/OFF_BALANCE_RECONCILIATION/);await db.exec('rollback to bad_match;release bad_match');
+    await db.exec('savepoint bad_reconciliation');await assert.rejects(q("insert into reconciliations(bank_transaction_id,match_type,match_id,amount) values($1,'manual',$2,20)",[transaction,line.entry_id]),/OFF_BALANCE_RECONCILIATION/);await db.exec('rollback to bad_reconciliation;release bad_reconciliation');
+   }finally{await db.exec('rollback;set role authenticated')}
+   assert.equal(Number(await v('select count(*) from accounting_entries')),before);
+   await assert.rejects(q('select private.gama_off_balance_entry($1)',[line.entry_id]),/permission denied/);
   });
   await t.test('code ranges automatically nest existing groups and never double-count account lines',async()=>{
    group=await write('group_save',{name:'Sales subgroup',prefix_start:'40',prefix_end:'49'});

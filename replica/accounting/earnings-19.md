@@ -10,12 +10,12 @@ le bénéfice. Une OD explicite d'affectation utilise ces comptes et les comptes
 de destination choisis. Aucune écriture automatique d'équilibrage ne remplace
 cette décision.
 
-## Intégration native prévue
+## Intégration native
 
-Les rapports liront les écritures canoniques, leurs dates comptables et le mois
+Les rapports lisent les écritures canoniques, leurs dates comptables et le mois
 de début d'exercice existant. Les écritures historiques et les clôtures Coco
-déjà validées seront conservées. Une ligne calculée portera un indicateur
-explicite et des liens vers les mouvements qui l'expliquent ; elle ne sera
+déjà validées sont conservées. Une ligne calculée porte un indicateur
+explicite et des liens vers les mouvements qui l'expliquent ; elle n’est
 jamais enregistrée comme pièce validée.
 
 Les comptes d'affectation utilisent le sous-type `equity_unaffected` déjà
@@ -26,9 +26,11 @@ Scénarios indépendants : bénéfice de 100, affectation de 60 puis 40, perte d
 30, plusieurs comptes d'affectation, contrepassation, exercice commençant en
 juillet, dates verrouillées et lectures/export sans autorisation.
 
-Statut : rapports natifs et contrôles serveur implémentés. Dix tests de base
-isolée réussissent ; neuf parcours navigateur ES/FR/EN × 390/768/1440 ont réussi au commit
-021acae3. Le test du nombre de raccourcis existants a été adapté au nouveau
-rapport. H13 reste partiel jusqu’à validation complète et déploiement.
+Statut : H13 testé dans les environnements isolés. Treize tests serveur et
+neuf parcours navigateur ES/FR/EN × 390/768/1440 réussissent. La concurrence
+PostgreSQL 17 vérifie deux clôtures simultanées. Le commit `75e601cb` passe
+les douze workflows, dont 88 tests du parcours comptable et 173 tests
+transversaux d’architecture. Les [preuves](results-earnings-19.md) distinguent
+ces validations de la navigation authentifiée en production, non attestée.
 
 Les rapports existants excluent aussi les comptes d’affectation du bilan et affichent le résultat non affecté. Avec cette configuration, la clôture annuelle exige une affectation complète, conserve le bénéfice dans le compte de résultat et verrouille les douze mois sans seconde écriture de transfert. Les contrôles et justificatifs de clôture existants restent obligatoires. Sans compte d’affectation configuré, le fonctionnement historique est conservé.

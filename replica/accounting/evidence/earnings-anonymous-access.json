@@ -1,0 +1,7 @@
+{
+  "captured_at": "2026-10-25T21:00:49.065450+00:00",
+  "request": "anonymous context RPC; no business mutation",
+  "http_status": 401,
+  "code": "42501",
+  "access_denied": true
+}

@@ -10,11 +10,11 @@ Treize tests serveur isolés réussissent : bénéfice 100, affectation partiell
 exercice de juillet, compte archivé, export cohérent et droits. Le report est
 une valeur calculée : aucun test de consultation ne crée de pièce.
 
-Les neuf parcours ES/FR/EN × 390/768/1440 passent au commit `19688a70`, avec
+Les neuf parcours ES/FR/EN × 390/768/1440 passent au commit `75e601cb`, avec
 création réelle d'une OD d'affectation dans la base isolée, accès aux écritures,
 export CSV, bilan à écart nul, axe et absence de débordement. Le job
-`121213277179`, run `40208096096`, compte **88 tests navigateur réussis**.
-La concurrence PostgreSQL existante passe dans le même workflow.
+`121223069631`, run `40211358886`, compte **88 tests navigateur réussis**.
+La concurrence PostgreSQL 17 passe dans le job `121223069461`, avec deux clôtures simultanées : une seule réussite, douze périodes fermées et aucune écriture de second transfert. Les douze workflows du commit réussissent ; le job d’architecture ajoute 173 parcours transversaux et 23 tests structurels réussis.
 
 Une ouverture est agrégée une fois par compte dans le grand livre. Les lectures
 d'un rapport partagent le même instantané PostgreSQL. L'export compare une
@@ -50,4 +50,6 @@ La navigation authentifiée en production reste non attestée avec la session
 disponible. Ces preuves ne constituent pas une équivalence de tout le module
 Comptabilité ni des sociétés/branches, stocks ou services encore ouverts.
 
-La migration complémentaire `20261025161011_accounting_earnings_integration` (4 968 octets, SHA-256 `3ba7a364e2eba3b88cb52097e082dcd0697a367a58275cd4ca796fcf115632ba`) relie les rapports et la clôture existants. Les tests vérifient le refus d’une clôture après affectation partielle et la clôture complète sans doublon, avec douze mois verrouillés et résultat net conservé. La course entre deux clôtures est ajoutée au traitement PostgreSQL. **47 tests serveur ciblés sont réussis** avec les régressions Ecuador et échéanciers. La [preuve après intégration](evidence/earnings-integration-after-migration.json) confirme les mêmes comptes, écritures et lignes.
+La migration complémentaire `20261025161011_accounting_earnings_integration` (4 968 octets, SHA-256 `3ba7a364e2eba3b88cb52097e082dcd0697a367a58275cd4ca796fcf115632ba`) relie les rapports et la clôture existants. Les tests vérifient le refus d’une clôture après affectation partielle et la clôture complète sans doublon, avec douze mois verrouillés et résultat net conservé. La course entre deux clôtures est vérifiée sur PostgreSQL 17 en CI. **47 tests serveur ciblés sont réussis** avec les régressions Ecuador et échéanciers. La [preuve après intégration](evidence/earnings-integration-after-migration.json) confirme les mêmes comptes, écritures et lignes.
+
+Le [contrôle anonyme HTTP](evidence/earnings-anonymous-access.json) refuse le RPC par 401/42501. Le contrôle SQL confirme une façade publique invoker, le refus à `anon`, l’accès authentifié et le rapport privé STABLE. La revue de sécurité ne relève pas de nouvelle alerte : les deux avertissements préexistants concernent la revue administrateur et la protection des mots de passe divulgués.

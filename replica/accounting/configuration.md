@@ -53,6 +53,17 @@ Tests isolés : `tests/accounting-configuration-db.test.cjs`, `tests/bank-statem
 
 Scénarios indépendants : produit de 100 avant février puis 30 en février → ouverture du groupe de produits -100, crédit 30, clôture -130 ; séquences annuelles et mensuelles remises à 1 ; exercice débutant en juillet → juin 2026 appartient à 2025, juillet à 2026 ; verrou au 31 mai → écriture demandée le 15 mai datée au 1er juin ; import mappé de 19,25 USD rejoué sans second mouvement et sans nouveau cash.
 
-Les 77 tests ciblés disponibles au premier contrôle local ont réussi. Les tests navigateur FR/ES/EN × 390/768/1440 et la concurrence PostgreSQL réelle doivent réussir en CI avant statut final. Le navigateur local n'a pas pu être téléchargé ; aucun succès navigateur n'est déduit des seuls tests serveur. Le registre de migration et les contrôles après application seront consignés à la publication.
+Les 77 tests ciblés du contrôle local ont réussi. La [CI 40183687082](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40183687082) valide 70 parcours navigateur, dont les neuf nouveaux FR/ES/EN × 390/768/1440, et la concurrence PostgreSQL 17 réelle. La suite générale compte 572 tests : 570 réussis, zéro échec, deux SKIP de services dédiés. L'interface partagée compte 430 réussites. Le navigateur local n'a pas pu être téléchargé ; les preuves navigateur proviennent du runner CI, pas des seuls tests serveur.
+
+Migration appliquée : **20261025102114_accounting_configuration_parity**,
+32 547 octets, SHA-256 `e84690a18d3ef6c4069f0e13b393c93ec9134c2ada4a098a390c61438a50bd78`,
+identique au SQL enregistré par Supabase. Les [contrôles après migration](evidence/configuration-after-migration.json)
+montrent des réglages vides, les droits attendus et des données historiques
+inchangées. Le détail de livraison et ses limites figurent dans
+[results-configuration.md](results-configuration.md).
 
 Défauts reproduits et corrigés avant publication : le mécanisme historique de référence Coco rétablissait son alias après une validation numérotée ; le numéro final est désormais conservé lors des mises à jour suivantes. Le contrôle d'actions ne possède pas d'action générique `close` : la nouvelle API utilise les droits de clôture comptables et la restriction générique de validation existante, sans supprimer les contrôles de rôle ou MFA.
+
+Les tests navigateur ont aussi révélé des aperçus CSV défilants inaccessibles au
+clavier sur téléphone. Leurs régions sont désormais nommées et focalisables ;
+les trois langues passent le contrôle axe sans supprimer cette règle.

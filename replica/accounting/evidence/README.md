@@ -9,3 +9,23 @@ Captures du commit `9d43d1f26ca20837a0417bd7c5ce7100679dfa91`, [GitHub Actions 4
 Les neuf combinaisons FR/ES/EN × 390/768/1440 ont passé le parcours complet des échéanciers et les contrôles axe WCAG 2 A/AA du formulaire et du détail. Le job comporte 61 tests navigateur au total. Il vérifie également, après rafraîchissement, le lien depuis l'historique réel vers le plan exact, puis l'aller-retour entre plan et écriture. Les captures sont prises avant ce rafraîchissement ; l'historique vide sur l'image n'est donc pas la preuve de ce dernier contrôle.
 
 Cette couverture ne certifie pas l'accessibilité ou la fidélité fonctionnelle de chaque écran du périmètre Odoo. Le détail des écarts reste dans [la matrice](../features.csv).
+
+## Configuration et relevés — 25 octobre 2026
+
+Code applicatif `9671f5a48cd818d7c7f07df84ada13732132cc4b`,
+[CI 40183687082](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40183687082) :
+70 parcours navigateur réussis, dont neuf nouveaux parcours complets de
+configuration et correspondance CSV en FR/ES/EN × 390/768/1440. Le job PostgreSQL
+17 vérifie aussi les numéros concurrents et la course verrouillage/validation.
+
+- [Balance par groupes sur ordinateur](accounting-config-fr-1440.png).
+- [Configuration sur téléphone](accounting-config-fr-390.png).
+- [Correspondance CSV sur ordinateur](accounting-csv-fr-1440.png).
+- [Correspondance CSV sur téléphone](accounting-csv-fr-390.png).
+
+Les captures sont examinées et utilisent uniquement les données fictives du
+runner isolé. Les formulaires possèdent un défilement interne ; le bouton
+d'import et les aperçus peuvent se trouver sous la partie visible de la capture.
+Le test les parcourt et soumet réellement le fichier mappé, puis vérifie son
+réimport sans doublon ni écriture de cash. Le rafraîchissement ultérieur de
+l'historique et les liens vers le groupe exact sont testés séparément de l'image.

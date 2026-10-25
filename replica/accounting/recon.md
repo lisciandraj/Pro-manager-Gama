@@ -49,6 +49,14 @@ F01 vente → facture interne → écriture → paiement → banque → balance.
 
 La matrice `features.csv` distingue présence du code, tests Coco et preuve d'équivalence Odoo. Une fonction partielle reste un écart, même si ses tests Coco passent. L'objectif complet représente plusieurs domaines comptables ; cette livraison ne doit pas être annoncée comme 100 % équivalente.
 
+Relecture ciblée du **25 octobre 2026**, toujours en version 19.0 : les dates de
+verrouillage et le [résultat reporté](https://www.odoo.com/documentation/19.0/applications/finance/accounting/reporting/year_end.html)
+sont distincts. Odoo 19 affiche le résultat précédent dans une ligne dynamique
+de la balance et du grand livre, avant son affectation manuelle. Les comptes
+d'affectation ne se comportent pas comme les autres comptes de capitaux propres.
+Le sous-type disponible dans Coco ne reproduit pas encore ces calculs ; H13 les
+recense explicitement, sans modifier les clôtures historiques de Coco.
+
 ## Attribution des éditions : preuves supplémentaires
 
 Les manifestes officiels de la branche **19.0** ont été consultés le 24 octobre 2026 par le connecteur GitHub, uniquement pour leurs métadonnées. Aucun fichier Odoo n'est intégré au dépôt Coco.

@@ -1,0 +1,132 @@
+{
+  "rpc": {
+    "anonymous": false,
+    "authenticated": true,
+    "public_invoker": true,
+    "private_definer": true,
+    "empty_search_path": true,
+    "authenticated_post_trigger": false
+  },
+  "banks": [
+    {
+      "n": 5,
+      "amount": 3631.75,
+      "status": "ignored"
+    },
+    {
+      "n": 27,
+      "amount": -858.07,
+      "status": "matched"
+    },
+    {
+      "n": 57,
+      "amount": 9240.73,
+      "status": "unmatched"
+    }
+  ],
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "tables": [
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_date_adjustments",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_groups",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_lock_dates",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_lock_exceptions",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_number_counters",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "table": "accounting_numbering",
+      "service_role": false,
+      "authenticated": false
+    }
+  ],
+  "entries": 58,
+  "accounts": 526,
+  "currency": "USD",
+  "receipts": 3,
+  "migration": [
+    {
+      "name": "accounting_configuration_parity",
+      "bytes": 32547,
+      "sha256": "e84690a18d3ef6c4069f0e13b393c93ec9134c2ada4a098a390c61438a50bd78",
+      "version": "20261025102114",
+      "statement_count": 1
+    }
+  ],
+  "checked_at": "2026-10-25T10:21:24.617701+00:00",
+  "configuration": {
+    "locks": 0,
+    "groups": 0,
+    "counters": 0,
+    "numbering": 0,
+    "exceptions": 0,
+    "adjustments": 0
+  },
+  "history_tables": 5,
+  "posting_trigger": "O",
+  "customer_invoices": 17,
+  "customer_payments": 20,
+  "supplier_invoices": 6,
+  "supplier_payments": 7,
+  "unbalanced_entries": 0,
+  "classified_accounts": 0,
+  "history_capture_triggers": 5,
+  "historical_rows": {
+    "lines": {
+      "rows": 138,
+      "unchanged": true
+    },
+    "entries": {
+      "rows": 58,
+      "unchanged": true
+    },
+    "periods": {
+      "rows": 2,
+      "unchanged": true
+    },
+    "accounts": {
+      "rows": 526,
+      "unchanged": true
+    },
+    "journals": {
+      "rows": 5,
+      "unchanged": true
+    },
+    "bank_transactions": {
+      "rows": 89,
+      "unchanged": true
+    }
+  },
+  "accounts_comparison_ignored_only_new_nullable_field": "account_type"
+}

@@ -13,7 +13,7 @@ Référence inchangée : Odoo **19.0 Enterprise**, documentation officielle cons
 
 Les 19 types couvrent les six sous-types d'actif, quatre de passif, deux de capitaux propres, deux de produits, quatre de charges et le hors bilan. Les comptes historiques ne reçoivent pas de sous-type inventé : ils restent « À classifier » jusqu'au choix d'une personne autorisée. Le hors bilan participe à la balance générale, sans entrer dans le bilan ou le compte de résultat. Les rapports légaux propres aux localisations demeurent un écart séparé de la matrice.
 
-Les groupes possèdent une plage de préfixes de même longueur. Le compte choisit la plage la plus précise ; les parents sont recalculés à partir des plages contenantes. Les chevauchements au même niveau et les cycles sont refusés. La balance affiche ouverture, débit, crédit et clôture, avec accès au grand livre filtré. Le total d'un parent comprend ses enfants : ces lignes ne doivent pas être additionnées entre elles.
+Les groupes possèdent une plage de préfixes de même longueur. Le compte choisit la plage la plus précise ; les parents sont recalculés à partir des plages contenantes. Les chevauchements au même niveau et les cycles sont refusés. La balance affiche ouverture, débit, crédit et clôture, avec accès au grand livre filtré. Le filtre de groupe s'applique à ses comptes, ses sous-groupes, ses totaux et l'export. Le total d'un parent comprend ses enfants : ces lignes ne doivent pas être additionnées entre elles.
 
 ## Numérotation et références
 

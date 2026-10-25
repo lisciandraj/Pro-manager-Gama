@@ -1,4 +1,4 @@
-# Autres charges et séparation du hors bilan
+# Types de comptes, hors bilan et balance filtrée
 
 Le premier lot de configuration exposait 18 types, d'après le tableau du guide
 fonctionnel. La relecture du **25 octobre 2026** confirme le dix-neuvième type
@@ -67,3 +67,23 @@ la migration n'a créé ni modifié de pièce métier.
 
 Ce correctif conserve les 107 lignes de couverture et ne ferme pas H13 :
 l'affectation du résultat reporté propre à Odoo 19 reste à développer.
+
+## Balance par groupe
+
+Le filtre de groupe s'applique désormais aux comptes, à la hiérarchie affichée,
+aux totaux et à l'export. Le premier calcul filtrait les comptes mais conservait
+les totaux et groupes du livre complet. Le correctif utilise le même sous-arbre
+pour toutes ces valeurs, sans ajouter les totaux parents à ceux des enfants.
+
+Scénario indépendant : le livre comporte 30 USD au débit et au crédit ; le
+groupe de produits seul présente débit 0, crédit 30, ouverture -100 et clôture
+-130. Le filtre de son parent conserve ses deux niveaux ; le filtre du sous-groupe
+ne conserve que ce niveau et ses comptes. Les tests SQL et les neuf parcours
+navigateur vérifient cette portée.
+
+Migration appliquée : **20261025110129_accounting_group_filter_totals**,
+1 197 octets, SHA-256 `2a4810028d56380a06aa19542ba1ba5d88f13948333da67505d75a51657e1373`.
+La fonction conserve son OID et ses droits ; la façade publique reste invoker.
+Les 58 écritures, 138 lignes et totaux de 8 552,49 USD restent inchangés.
+[Preuve agrégée](evidence/group-filter-after-migration.json) et
+[archive du SQL](../../supabase/sql/applied/20261025110129_accounting_group_filter_totals.json).

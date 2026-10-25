@@ -33,7 +33,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`n
   // The test role has no private table access; resolve it through the real API.
   const context=await value("select gama_accounting_configuration('context')"),child=context.groups.find(g=>g.prefix_start==='68');expect(child.parent_id).toBe(context.groups.find(g=>g.prefix_start==='6').id);expect(group).toBe(null);
   await page.locator('[data-ac-tab="balance"]').click();await page.locator('#ac-from').fill('2026-05-01');await page.locator('#ac-to').fill('2026-06-30');await page.locator('#acApply').click();await expect(page.locator('.gaConfiguration')).toContainText('100');
-  await page.locator(`[data-ac-balance-group="${child.id}"]`).click();await expect(page.locator('[data-ac-ledger]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toContainText('6801');
+  await page.locator(`[data-ac-balance-group="${child.id}"]`).click();await expect(page.locator('[data-ac-balance-group]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toContainText('6801');
   expect((await new AxeBuilder({page}).include('.gaConfiguration').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.screenshot({path:`test-results/accounting-config-${language}-${width}.png`,fullPage:false});
   await page.locator('[data-ac-ledger]').click();await expect(page.locator('#ecTab')).toHaveValue('general_ledger');await expect(page.locator('#ec-account')).toHaveValue(account);await expect(page.locator('#gaMain')).toContainText('100');

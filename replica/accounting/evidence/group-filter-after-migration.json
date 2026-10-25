@@ -1,0 +1,20 @@
+{
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "groups": 0,
+  "entries": 58,
+  "migration": [
+    {
+      "name": "accounting_group_filter_totals",
+      "bytes": 1197,
+      "sha256": "2a4810028d56380a06aa19542ba1ba5d88f13948333da67505d75a51657e1373",
+      "version": "20261025110129",
+      "statement_count": 1
+    }
+  ],
+  "checked_at": "2026-10-25T11:03:06.106772+00:00",
+  "public_invoker": true,
+  "selected_groups": true,
+  "selected_totals": true
+}

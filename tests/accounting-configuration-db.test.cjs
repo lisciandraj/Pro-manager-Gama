@@ -75,6 +75,9 @@ test('native accounting configuration: types, hierarchy, numbering and dated loc
    const d=await rpc('group_balance',{from:'2026-02-01',to:'2026-02-28'}),root=d.groups.find(g=>g.id===parent.id),child=d.groups.find(g=>g.id===group.id);
    assert.equal(root.opening,-100);assert.equal(root.credit,30);assert.equal(root.closing,-130);assert.equal(child.closing,root.closing);
    assert.equal(d.debit,30);assert.equal(d.credit,30);assert.equal(d.accounts.find(a=>a.id===income).group_id,group.id);
+   const filtered=await rpc('group_balance',{from:'2026-02-01',to:'2026-02-28',group_id:group.id});
+   assert.equal(filtered.debit,0);assert.equal(filtered.credit,30);assert.equal(filtered.groups.length,1);assert.equal(filtered.groups[0].id,group.id);assert.equal(filtered.groups[0].closing,-130);assert.ok(filtered.accounts.every(a=>a.group_id===group.id));
+   const parentFilter=await rpc('group_balance',{from:'2026-02-01',to:'2026-02-28',group_id:parent.id});assert.equal(parentFilter.groups.length,2);assert.equal(parentFilter.credit,30);
   });
   await t.test('journal numbering applies only on validation, resets by year and preserves old references',async()=>{
    const before=await ledger('entries',{from:'2026-01-01',to:'2026-12-31'}),old=before.rows.map(e=>[e.id,e.number]);

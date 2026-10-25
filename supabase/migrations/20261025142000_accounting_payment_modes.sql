@@ -326,8 +326,8 @@ declare result jsonb;previous text:=current_setting('coco.payment_bank_evidence'
  if p_action='settle' then
   rights:=private.gama_accounting_rights();
   if auth.uid() is null or not private.erp_mfa_ok() or not private.erp_module_allowed('accounting',array['administrador','comercial'])
-   or rights->>'scope'<>'all' or not coalesce((rights->>'view')::boolean,false) or not coalesce((rights->>'validate')::boolean,false)
-   or not private.erp_action_allowed('accounting','validate') then raise exception 'ROLE_NOT_ALLOWED';end if;
+   or rights->>'scope'<>'all' or not coalesce((rights->>'view')::boolean,false) then raise exception 'ROLE_NOT_ALLOWED';end if;
+  if not coalesce((rights->>'validate')::boolean,false) or not private.erp_action_allowed('accounting','validate') then raise exception 'VALIDATE_REQUIRED';end if;
   k:=nullif(p_data->>'request_key','')::uuid;if k is null then raise exception 'REQUEST_KEY_REQUIRED';end if;
   perform pg_advisory_xact_lock(hashtextextended('payment-intent-settle:'||k::text,0));
   select * into prior from private.command_receipts where domain='payment-intent-settle' and request_key=k;

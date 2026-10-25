@@ -36,6 +36,8 @@ const STATUS={pending:'No pagada',partial:'Pago parcial',paid:'Pagada',overdue:'
 const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contabilidad.',
  NOT_ALLOWED:'No tienes permiso para esta acción. Pídelo en Parámetros de acceso.',
  PERIOD_CLOSED:'El periodo contable está cerrado. Un administrador puede reabrirlo.',
+ ACCOUNTING_HARD_LOCKED:'La fecha contable está bloqueada de forma irreversible.',
+ ACCOUNTING_DATE_LOCKED:'La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.',
  ENTRY_UNBALANCED:'El asiento no cuadra: el total del debe debe igualar al del haber.',
  ENTRY_EMPTY:'El asiento no tiene importes.',
  ENTRY_POSTED_IMMUTABLE:'Un asiento contabilizado no se modifica ni se borra: se contrapasa.',
@@ -120,7 +122,7 @@ function nav(){
  }
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
  const families=[['overview','Vista general'],['sales','Clientes'],['purchases','Proveedores'],['cash','Banco y caja'],['ledger','Contabilidad'],['reports','Informes'],['config','Configuración']];
- const group=({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',taxes:'config',sri:'config'})[section]||section;
+ const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',taxes:'config',sri:'config'})[section]||section;
  window.ArcUI.render(host,families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary ${group===k?'on':''}" aria-current="${group===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join(''));
  const shortcuts=$('gaShortcuts');window.ArcUI.render(shortcuts,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':'secondary'}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-ga-family]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaFamily)});
@@ -156,8 +158,8 @@ async function go(next){
   window.ArchitectPerformance?.contentReady(workspace,started);
   if(scope==='all'&&workspace===ID&&['ledger','reports','taxes','config','periods','receivables','payables','cash'].includes(section)){
    const tools=document.createElement('div');tools.className='gaTools arcPanel gaCard';
-   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button><button class="arcButton secondary" id="gaAudit">${tr('Controles y preparación')}</button>`;
-   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');$('gaAudit').onclick=()=>go('audit');
+   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button><button class="arcButton secondary" id="gaAudit">${tr('Controles y preparación')}</button><button class="arcButton secondary" id="gaConfiguration">${tr('Tipos, grupos, numeración y bloqueos')}</button>`;
+   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');$('gaAudit').onclick=()=>go('audit');$('gaConfiguration').onclick=()=>{state.configurationTab=section==='reports'?'balance':'accounts';state.configurationOffset=0;return go('configuration')};
   }
   return true;
  }catch(e){if(token===generation){fail(e,()=>go());window.ArchitectPerformance?.contentReady(workspace,started,false)}}
@@ -166,7 +168,7 @@ async function open(options={}){
  if(!allowed())return;
  const token=++opening;
  workspace=options.sriWorkspace?'sri':ID;
- state={planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId?'plans':options.section||'overview';
+ state={configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId?'plans':options.section||'overview';
  shell();
  try{
   const d=await rpc(options.sriWorkspace?'context':'overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;
@@ -702,19 +704,29 @@ async function plansUi(){await window.ArcLoadScript('coco-accounting-plans.js');
 function auditEnv(){return{state,rights,rpc,entryLines,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
 VIEWS.audit={async load(){return(await auditUi()).load(auditEnv())},render(d){return window.CocoAccountingAudit.render(d,auditEnv())},bind(d){window.CocoAccountingAudit.bind(d,auditEnv())}};
 VIEWS.plans={async load(){return(await plansUi()).load(auditEnv())},render(d){return window.CocoAccountingPlans.render(d,auditEnv())},bind(d){window.CocoAccountingPlans.bind(d,auditEnv())}};
+async function configurationUi(){await window.ArcLoadScript('coco-accounting-configuration.js');return window.CocoAccountingConfiguration}
+VIEWS.configuration={async load(){return(await configurationUi()).load(auditEnv())},render(d){return window.CocoAccountingConfiguration.render(d,auditEnv())},bind(d){window.CocoAccountingConfiguration.bind(d,auditEnv())}};
 function importForm(){
- const key=crypto.randomUUID(),accs=state.bankAccounts||[];let parsed=[],errors=[],revision=0;
- const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}</div><div id="gaPreview"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,'Importar',async form=>{
+ const key=crypto.randomUUID(),accs=state.bankAccounts||[],L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);let parsed=[],errors=[],revision=0,mapping=null,signature='',currentFile=null,fileText=null;
+ const columnLabels=()=>({date:L('Fecha','Date','Date'),reference:L('Referencia','Référence','Reference'),description:L('Descripción','Description','Description'),amount:L('Importe con signo','Montant signé','Signed amount'),debit:L('Débito','Débit','Debit'),credit:L('Crédito','Crédit','Credit'),direction:L('Sentido D/C (opcional)','Sens D/C (facultatif)','Direction D/C (optional)')});
+ const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}${field(L('Columnas del archivo','Colonnes du fichier','File columns'),`<select id="gaMappingMode"><option value="auto">${esc(L('Reconocimiento automático','Reconnaissance automatique','Automatic recognition'))}</option><option value="manual">${esc(L('Asignar columnas','Affecter les colonnes','Map columns'))}</option></select>`)}</div><div id="gaMappingControls" hidden><div class="gaGrid">${field(L('Separador de columnas','Séparateur de colonnes','Column separator'),`<select id="gaDelimiter"><option value="">${esc(L('Automático','Automatique','Automatic'))}</option><option value=";">;</option><option value=",">,</option><option value="tab">${esc(L('Tabulación','Tabulation','Tab'))}</option></select>`)}${field(L('Primera línea (1–20)','Première ligne (1–20)','First row (1–20)'),`<input id="gaHeaderRow" type="number" min="1" max="20" step="1" value="1">`)}${field(L('La primera línea contiene títulos','La première ligne contient les titres','First row contains headers'),`<select id="gaHasHeader"><option value="true">${esc(L('Sí','Oui','Yes'))}</option><option value="false">${esc(L('No','Non','No'))}</option></select>`)}</div><div id="gaColumnMapping" class="gaGrid"></div><div id="gaRawPreview"></div></div><div id="gaPreview" aria-live="polite"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,'Importar',async form=>{
   if(errors.length||!parsed.length)throw Error('Corrige el archivo antes de importar. Ninguna línea con errores se importa.');
   const result=await bankMutate('import',{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed});window.gamaToast?.((window.GamaI18n?.t?.('Movimientos importados')||'Movimientos importados')+' · '+result.imported);await go();
  });
  el.dataset.bankWorkflow='';
- const preview=async()=>{const token=++revision;parsed=[];errors=[];const file=el.querySelector('#gaCsv').files[0],host=el.querySelector('#gaPreview');if(!file)return;
-  try{if(file.size>2000000)throw Error('El archivo supera el tamaño permitido.');await window.ArcLoadScript('gama-bank-statement.js');const result=window.GamaBankStatement.parse(await file.text(),{decimalSeparator:el.querySelector('#gaDecimal').value});if(token!==revision||!el.isConnected)return;parsed=result.rows;errors=result.errors;
-   window.ArcUI.render(host,`<p>${tr('Líneas detectadas')} : <b>${result.total}</b> · ${tr('Líneas válidas')}: ${parsed.length} · ${tr('Errores')}: ${errors.length}</p>${errors.length?`<div class="gaError">${errors.slice(0,10).map(e=>`<p>${tr('Fila')} ${e.line}: ${tr(e.message)}</p>`).join('')}${errors.length>10?`<p>${tr('Corrige todos los errores del archivo.')}</p>`:''}</div>`:''}<div class="gaScroll"><table class="arcTable gaTable"><tbody>${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.reference)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}</tbody></table></div>`);
-  }catch(e){if(token===revision&&el.isConnected){parsed=[];errors=[e];window.ArcUI.render(host,`<p class="gaError">${tr(e.message)}</p>`)}}
+ const preview=async()=>{const token=++revision;parsed=[];errors=[];const save=el.querySelector('#gsSave'),file=el.querySelector('#gaCsv').files[0],host=el.querySelector('#gaPreview'),manual=el.querySelector('#gaMappingMode').value==='manual';save.disabled=true;el.querySelector('#gaMappingControls').hidden=!manual;if(!file)return;
+  try{if(file.size>2000000)throw Error('El archivo supera el tamaño permitido.');if(file!==currentFile){currentFile=file;fileText=file.text();mapping=null;signature='';el.querySelector('#gaColumnMapping').replaceChildren()}
+   await window.ArcLoadScript('gama-bank-statement.js');const text=await fileText;if(token!==revision||!el.isConnected)return;const parser=window.GamaBankStatement,config={decimalSeparator:el.querySelector('#gaDecimal').value};
+   if(manual){config.separator=el.querySelector('#gaDelimiter').value.replace('tab','\t')||undefined;config.headerRow=Number(el.querySelector('#gaHeaderRow').value)-1;config.hasHeader=el.querySelector('#gaHasHeader').value==='true';const meta=parser.inspect(text,config),nextSignature=[meta.separator,meta.headerRow,config.hasHeader].join('|');
+    if(nextSignature!==signature||!mapping){mapping=meta.columns;signature=nextSignature;window.ArcUI.render(el.querySelector('#gaColumnMapping'),Object.entries(columnLabels()).map(([key,label])=>field(label,`<select data-bank-column="${key}" aria-label="${esc(label)}"><option value="-1">${esc(L('Sin asignar','Non affectée','Not mapped'))}</option>${meta.headers.map((h,i)=>`<option value="${i}" ${mapping[key]===i?'selected':''}>${esc((i+1)+' · '+h)}</option>`).join('')}</select>`)).join(''));el.querySelectorAll('[data-bank-column]').forEach(select=>select.onchange=()=>{mapping[select.dataset.bankColumn]=Number(select.value);preview()})}
+    window.ArcUI.render(el.querySelector('#gaRawPreview'),`<p>${esc(L('Primeras líneas del archivo','Premières lignes du fichier','First file rows'))}</p><div class="gaScroll" tabindex="0" role="region" aria-label="${esc(L('Vista previa CSV','Aperçu CSV','CSV preview'))}"><table class="arcTable gaTable" data-coco-form-grid><thead><tr>${meta.headers.map((h,i)=>`<th>${esc((i+1)+' · '+h)}</th>`).join('')}</tr></thead><tbody>${meta.sample.map(r=>`<tr>${r.cells.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);config.mapping=mapping;
+   }
+   const result=parser.parse(text,config);if(token!==revision||!el.isConnected)return;parsed=result.rows;errors=result.errors;
+   if(!manual){el.querySelector('#gaHeaderRow').value=Math.max(1,result.headerRow+1);el.querySelector('#gaHasHeader').value=result.headerRow<0?'false':'true'}
+   window.ArcUI.render(host,`<p>${tr('Líneas detectadas')} : <b>${result.total}</b> · ${tr('Líneas válidas')}: ${parsed.length} · ${tr('Errores')}: ${errors.length}</p>${errors.length?`<div class="gaError" role="alert">${errors.slice(0,10).map(e=>`<p>${tr('Fila')} ${e.line}: ${tr(e.message)}</p>`).join('')}${errors.length>10?`<p>${tr('Corrige todos los errores del archivo.')}</p>`:''}</div>`:''}<div class="gaScroll" tabindex="0" role="region" aria-label="${esc(L('Vista previa CSV','Aperçu CSV','CSV preview'))}"><table class="arcTable gaTable" data-coco-form-grid><thead><tr><th>${tr('Fecha')}</th><th>${tr('Referencia')}</th><th>${tr('Descripción')}</th><th class="gaNum">${tr('Importe')}</th></tr></thead><tbody>${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.reference)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}</tbody></table></div>`);save.disabled=errors.length>0||parsed.length===0;
+  }catch(e){if(token===revision&&el.isConnected){parsed=[];errors=[e];window.ArcUI.render(host,`<p class="gaError" role="alert">${tr(e.message)}</p>${!manual?`<p>${esc(L('Usa Asignar columnas para elegir los campos del archivo.','Utilisez Affecter les colonnes pour choisir les champs du fichier.','Use Map columns to choose the file fields.'))}</p>`:''}`)}}
  };
- el.querySelector('#gaCsv').onchange=preview;el.querySelector('#gaDecimal').onchange=preview;
+ el.querySelector('#gsSave').disabled=true;for(const selector of ['#gaCsv','#gaDecimal','#gaMappingMode','#gaDelimiter','#gaHeaderRow','#gaHasHeader'])el.querySelector(selector).onchange=preview;
 }
 async function matchForm(id){
  try{const ownerEpoch=opening,key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0,advance=false,nextId=null;if(ownerEpoch!==opening||section!=='cash'||!allowed())return;
@@ -758,7 +770,7 @@ VIEWS.ledger={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Fecha','Diario','Referencia','Concepto','Debe','Haber','Estado','Acciones'].map(h=>`<th class="${['Debe','Haber'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(e=>`<tr>
-    <td><b>${esc(e.number)}</b></td><td>${esc(e.entry_date)}</td><td>${esc(e.journal_code)}</td>
+    <td><b>${esc(e.number)}</b>${e.erp_reference&&e.erp_reference!==e.number?`<br><small>${esc(e.erp_reference)}</small>`:''}</td><td>${esc(e.entry_date)}</td><td>${esc(e.journal_code)}</td>
     <td>${esc(e.reference||'—')}</td><td>${esc(e.memo||'—')}</td>
     <td class="gaNum">${money(e.total_debit)}</td><td class="gaNum">${money(e.total_credit)}</td>
     <td>${badge(e.status)}${Number(e.total_debit)!==Number(e.total_credit)?`<br><span class="gaError">${tr('Descuadrado')}</span>`:''}</td>
@@ -1247,7 +1259,7 @@ VIEWS.config={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Nombre','Tipo','Estado','Acciones'].map(h=>`<th>${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.chart.rows.map(a=>`<tr><td><b>${esc(a.code)}</b></td><td>${esc(a.name)}</td>
-    <td>${tr({asset:'Activo',liability:'Pasivo',equity:'Fondos propios',income:'Productos',expense:'Cargas'}[a.type]||a.type)}</td>
+    <td>${tr({asset:'Activo',liability:'Pasivo',equity:'Fondos propios',income:'Productos',expense:'Cargas',off_balance:'Fuera de balance'}[a.type]||a.type)}</td>
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
     <td>${rights?.edit?`<button class="arcButton secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
@@ -1286,18 +1298,7 @@ VIEWS.config={
  }
 };
 function chartForm(row){
- GamaSales.modal(row?'Editar la cuenta':'Añadir una cuenta',`<div class="gaGrid">
-  ${field('Número',`<input id="gaCode" required maxlength="20" value="${esc(row?.code||'')}">`)}
-  ${field('Nombre',`<input id="gaName" required maxlength="160" value="${esc(row?.name||'')}">`)}
-  ${field('Tipo',`<select id="gaType" ${row?.is_system?'disabled':''}>${[['asset','Activo'],['liability','Pasivo'],['equity','Fondos propios'],['income','Productos'],['expense','Cargas']].map(([k,v])=>`<option value="${k}" ${row?.type===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
-  ${row?field('Estado',`<select id="gaActive"><option value="true" ${row.active?'selected':''} data-gi-live data-gi=69d17ca16834>Activa</option><option value="false" ${row.active?'':'selected'} data-gi-live data-gi=059c89444ff7>Inactiva</option></select>`):''}
- </div>${row?.is_system?`<p class="gaHint">${tr('Cuenta usada por los asientos automáticos: puede renombrarse y renumerarse, pero no cambia de tipo.')}</p>`:''}`,
-  'Guardar',async el=>{
-   const v=id=>el.querySelector('#'+id)?.value;
-   await mutate('chart_save',{id:row?.id||null,code:v('gaCode'),name:v('gaName'),
-    type:v('gaType')||row?.type,active:v('gaActive')!=='false'});
-   await go();
-  });
+ configurationUi().then(ui=>ui.editAccount(row,auditEnv())).catch(e=>window.gamaToast?.(err(e)));
 }
 
 /* Ecuador accounting workbench: all writes use the audited, idempotent RPC. */

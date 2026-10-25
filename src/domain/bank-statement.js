@@ -20,17 +20,35 @@ function cents(value,decimal){let s=String(value).trim().replace(/(?:USD|US\$)/g
  const integer=parts[0];if(integer.includes(group)&&!new RegExp('^[1-9][0-9]{0,2}(\\'+group+'[0-9]{3})+$').test(integer))throw Error('Separador de miles inválido.');const clean=integer.split(group).join('');if(!/^\d+$/.test(clean))throw Error('Importe inválido.');
  const amount=BigInt(clean)*100n+BigInt((parts[1]||'').padEnd(2,'0'));if(amount>99999999999999n)throw Error('Importe fuera de rango.');return Number(negative?-amount:amount);
 }
+function inspect(text,options={}){
+ text=String(text).replace(/^\uFEFF/,'');if(text.length>2000000)throw Error('El archivo supera el tamaño permitido.');const explicit=/^sep=([,;\t])\r?\n/i.exec(text);if(explicit)text=text.slice(explicit[0].length);
+ if(options.separator&&![';',',','\t'].includes(options.separator))throw Error('Separador de columnas inválido.');
+ let list,separator,score=-1;for(const sep of options.separator?[options.separator]:explicit?[explicit[1]]:[';',',','\t']){
+  let candidate;try{candidate=records(text,sep)}catch(e){if(options.separator||explicit)throw e;continue;}
+  const header=Number.isInteger(options.headerRow)?options.headerRow:0,counts=candidate.slice(header,header+10).map(r=>r.cells.length),columns=candidate[header]?.cells.length||0;
+  const quality=columns>1?counts.filter(n=>n===columns).length+columns/100:0;if(quality>score){list=candidate;separator=sep;score=quality;}
+ }
+ if(!list?.length)throw Error('El archivo no contiene movimientos.');const header=options.headerRow??0;if(!Number.isInteger(header)||header<0||header>=list.length||header>19)throw Error('Fila de cabecera inválida.');
+ const headers=list[header].cells,start=header+(options.hasHeader===false?0:1),normalized=headers.map(norm),columns=Object.fromEntries(Object.keys(aliases).map(k=>[k,options.hasHeader===false?-1:(aliases[k].map(h=>normalized.indexOf(h)).find(i=>i>=0)??-1)]));return {list,separator,headerRow:header,headers,columns,sample:list.slice(start,start+5).map(r=>({line:r.line,cells:r.cells})),total:list.length-start};
+}
 function parse(text,options={}){text=String(text).replace(/^\uFEFF/,'');if(text.length>2000000)throw Error('El archivo supera el tamaño permitido.');const explicit=/^sep=([,;\t])\r?\n/i.exec(text);if(explicit)text=text.slice(explicit[0].length);
- let list,separator,columns,start=0;
- for(const sep of explicit?[explicit[1]]:[';',',','\t']){let candidate;try{candidate=records(text,sep);}catch(e){if(explicit)throw e;continue;}for(let i=0;i<Math.min(20,candidate.length);i++){const headers=candidate[i].cells.map(norm),at=k=>aliases[k].map(h=>headers.indexOf(h)).find(i=>i>=0)??-1,map=Object.fromEntries(Object.keys(aliases).map(k=>[k,at(k)]));if(map.date>=0&&(map.amount>=0||(map.debit>=0&&map.credit>=0))){list=candidate;separator=sep;columns=map;start=i+1;break;}}if(list)break;
+ if(options.separator&&![';',',','\t'].includes(options.separator))throw Error('Separador de columnas inválido.');
+ let list,separator,columns,start=0,expectedColumns;
+ if(options.mapping){const found=inspect(text,{...options,separator:options.separator||explicit?.[1]});list=found.list;separator=found.separator;start=found.headerRow+(options.hasHeader===false?0:1);expectedColumns=found.headers.length;columns={};
+  for(const k of Object.keys(aliases)){const value=options.mapping[k];if(value!==undefined&&value!==null&&value!==-1&&(!Number.isInteger(value)||value<0||value>=found.headers.length))throw Error('Columna asignada inválida.');columns[k]=value??-1;}
+  const selected=Object.values(columns).filter(i=>i>=0);if(new Set(selected).size!==selected.length)throw Error('Cada columna solo puede usarse una vez.');
+  if(columns.date<0||!((columns.amount>=0&&columns.debit<0&&columns.credit<0)||(columns.amount<0&&columns.debit>=0&&columns.credit>=0)))throw Error('Asigna fecha e importe, o fecha con débito y crédito.');
+ }
+ for(const sep of list?[]:options.separator?[options.separator]:explicit?[explicit[1]]:[';',',','\t']){let candidate;try{candidate=records(text,sep);}catch(e){if(explicit||options.separator)throw e;continue;}for(let i=0;i<Math.min(20,candidate.length);i++){const headers=candidate[i].cells.map(norm),at=k=>aliases[k].map(h=>headers.indexOf(h)).find(i=>i>=0)??-1,map=Object.fromEntries(Object.keys(aliases).map(k=>[k,at(k)]));if(map.date>=0&&(map.amount>=0||(map.debit>=0&&map.credit>=0))){list=candidate;separator=sep;columns=map;start=i+1;break;}}if(list)break;
   if(candidate[0]?.cells.length===4){try{date(candidate[0].cells[0]);list=candidate;separator=sep;columns={date:0,reference:1,description:2,amount:3,debit:-1,credit:-1,direction:-1};break;}catch(_){}}
  }
  if(!list)throw Error('No se reconocen las columnas del CSV. Usa fecha, referencia, descripción e importe, o débito y crédito.');const total=list.length-start;if(total<1)throw Error('El archivo no contiene movimientos.');if(total>1000)throw Error('El archivo supera 1000 movimientos. Divide el extracto antes de importar.');
  const rows=[],errors=[];for(const record of list.slice(start)){try{const c=record.cells,get=k=>columns[k]>=0?c[columns[k]]||'':'';let amount;
    if(columns.debit>=0&&columns.credit>=0){const debit=cents(get('debit'),options.decimalSeparator)||0,credit=cents(get('credit'),options.decimalSeparator)||0;if(debit<0||credit<0||(debit&&credit))throw Error('Usa un débito o un crédito positivo por movimiento.');amount=credit-debit;}
    else{amount=cents(get('amount'),options.decimalSeparator);const direction=norm(get('direction'));if(direction){if(['d','debito','cargo','retiro'].includes(direction))amount=-Math.abs(amount);else if(['c','credito','abono','deposito'].includes(direction)){if(amount<0)throw Error('El signo no coincide con el tipo crédito.');}else throw Error('Tipo de movimiento desconocido. Usa D o C.');}}
+   if(options.mapping&&c.length!==expectedColumns)throw Error('El número de columnas no coincide con la cabecera.');
    if(amount===null||!amount)throw Error('El movimiento debe tener un importe distinto de cero.');const reference=get('reference'),description=get('description')||'—';if(reference.length>180||description.length>300)throw Error('La referencia o descripción supera el tamaño permitido.');rows.push({value_date:date(get('date')),reference,description,amount:amount/100});
   }catch(e){errors.push({line:record.line,message:e.message});}}
- return {rows,errors,separator,total};
+ return {rows,errors,separator,total,columns,headerRow:start-1};
 }
-return {parse,date,cents};});
+return {parse,inspect,date,cents};});

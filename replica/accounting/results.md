@@ -1,5 +1,8 @@
 # Résultats vérifiés — 24 octobre 2026
 
+Dernier lot : [configuration et relevés, 25 octobre 2026](results-configuration.md).
+Le présent document conserve le point de contrôle du lot initial des échéanciers.
+
 Cette extension livre des échéanciers natifs ; elle ne réalise pas toute la comptabilité Odoo. Référence fonctionnelle : Odoo 19.0 Enterprise. La [matrice](features.csv) contient 106 lignes : 48 testées, 32 partielles, 20 à développer, 2 à analyser, 3 bloquées par des services non raccordés et 1 exclusion explicite (SRI). « Testé » désigne le scénario précis de la ligne, pas une comparaison exhaustive sur instance Enterprise.
 
 ## Code et intégration

@@ -25,5 +25,19 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   const cancelled=await Promise.allSettled(clients.map(c=>rpc(c,'cancel',{id,reason:'Concurrent reviewed correction',reversal_date:'2026-10-01',request_key:uuid()})));
   assert.equal(cancelled.filter(x=>x.status==='fulfilled').length,1);assert.match(cancelled.find(x=>x.status==='rejected').reason.message,/PLAN_STATE_INVALID/);
   assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='accounting_plan_reversal'")).rows[0].n),3);
+  // Journal numbering is allocated at validation and shares a lock even when
+  // two configured journal formats would otherwise produce the same number.
+  const journals=(await root.query("insert into accounting_journals(code,name,kind) values('CN1','Concurrent one','misc'),('XCN1','Concurrent two','misc') returning id,code")).rows;
+  for(const j of journals)await root.query("select public.gama_accounting_configuration('numbering_save',$1::jsonb)",[JSON.stringify({request_key:uuid(),journal_id:j.id,enabled:true,prefix:j.code==='CN1'?'X{JRN}/{YYYY}/':'{JRN}/{YYYY}/',reset:'year',padding:5,start_at:1})]);
+  const post=async(c,j,day)=>{const r=await c.query("select public.gama_accounting_action('entry_manual',$1::jsonb) value",[JSON.stringify({request_key:uuid(),journal:j,entry_date:day,lines:[{account_id:chart['6080'],debit:5},{account_id:chart['3000'],credit:5}]})]);return r.rows[0].value};
+  const numbered=await Promise.all(clients.map((c,i)=>post(c,journals[i].code,'2026-05-01')));
+  const numbers=(await root.query('select number from accounting_entries where id=any($1::uuid[]) order by number',[numbered.map(x=>x.id)])).rows.map(x=>x.number);assert.deepEqual(numbers,['XCN1/2026/00001','XCN1/2026/00002']);
+  const shifted=await Promise.all([
+   clients[0].query("select public.gama_accounting_configuration('lock_save',$1::jsonb)",[JSON.stringify({request_key:uuid(),kind:'all',lock_date:'2026-05-31',reason:'Concurrent period review'})]),
+   post(clients[1],'CN1','2026-05-15')
+  ]);
+  const when=(await root.query('select entry_date::text from accounting_entries where id=$1',[shifted[1].id])).rows[0].entry_date;assert.ok(['2026-05-15','2026-06-01'].includes(when));
+  const final=await post(clients[1],'CN1','2026-05-15');assert.equal((await root.query('select entry_date::text from accounting_entries where id=$1',[final.id])).rows[0].entry_date,'2026-06-01');
+  assert.equal((await root.query('select count(*)::integer n from accounting_entries e where status in (\'posted\',\'reversed\') and (select sum(debit-credit) from accounting_entry_lines where entry_id=e.id)<>0')).rows[0].n,0);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

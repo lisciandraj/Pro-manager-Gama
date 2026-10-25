@@ -1,4 +1,4 @@
-> État relu le 11 octobre 2026. Les améliorations de l’audit sont décrites dans [le guide de livraison](../development/accounting-audit-improvements.md). La préparation fiscale reste séparée des écritures internes ; la disponibilité du signataire privé et la validation SRI ne sont pas déduites de la présence du module.
+> État relu le 25 octobre 2026. Les améliorations de l’audit sont décrites dans [le guide de livraison](../development/accounting-audit-improvements.md). La préparation fiscale reste séparée des écritures internes ; la disponibilité du signataire privé et la validation SRI ne sont pas déduites de la présence du module.
 
 # Coco ERP — Contabilidad para equipos pequeños
 
@@ -15,9 +15,27 @@ La extensión nativa del 24 de octubre añade **Periodificación y préstamos**:
 
 Referencia funcional: Odoo 19.0 Enterprise. La cobertura **no es una equivalencia completa**: [matriz y límites](../../replica/accounting/parity.md), [fuentes](../../replica/accounting/recon.md), [arquitectura](../../replica/accounting/architecture.md), [pruebas](../../replica/accounting/test-plan.md). La política de stock histórica y el servicio SRI no cambian.
 
-**Administración → Contabilidad**. Catorce secciones: Vista general, Ventas,
-Compras, Gastos, Pagos, Banco y caja, Cuentas por cobrar, Cuentas por pagar,
-Contabilidad, Impuestos, Informes, SRI, Cierres y Parámetros. El botón **Controles y preparación** abre la revisión de cobertura, extractos, dossier PDF/XLSX, preparación fiscal, presupuestos, divisas, activos y stock.
+**Administración → Contabilidad**. Siete familias de navegación: Vista general,
+Clientes, Proveedores, Banco y caja, Contabilidad, Informes y Configuración.
+Los accesos directos conservan los recorridos existentes, incluyendo gastos,
+pagos, impuestos, cierres, periodificación, SRI y parámetros.
+El botón **Controles y preparación** abre la revisión de cobertura, extractos,
+dossier PDF/XLSX, preparación fiscal, presupuestos, divisas, activos y stock.
+
+El botón **Tipos, grupos, numeración y bloqueos**, en Parámetros y las vistas
+contables, abre cinco pestañas: tipos y cuentas, grupos, numeración, bloqueos y
+balance por grupos. Los 18 tipos detallados requieren una clasificación explícita;
+las cuentas históricas conservan su familia sin recibir un subtipo inventado.
+Los rangos de códigos determinan la jerarquía de grupos y el balance permite
+abrir el mayor filtrado. El total de un grupo superior ya incluye sus subgrupos.
+
+La numeración de un diario se activa para las validaciones futuras: puede ser
+continua, mensual, anual o por ejercicio. La referencia ERP permanece estable.
+No se renumera el histórico. Los bloqueos por fecha pueden afectar todo el libro,
+ventas, compras o impuestos; sus excepciones requieren administrador, permiso de
+cierre, motivo y vigencia. Un bloqueo definitivo exige confirmación y es
+irreversible. El bloqueo mensual existente sigue aplicándose. La migración no
+activa ninguna de estas políticas en producción. [Reglas y límites](../../replica/accounting/configuration.md).
 
 Por defecto el administrador tiene acceso completo, el comercial ve sólo su lado
 —vista general sin tesorería ni impuestos, ventas, cuentas por cobrar e
@@ -87,8 +105,11 @@ deliberadamente neutro y no impone ninguna numeración nacional.
 
 ## Conciliación bancaria
 
-El CSV admite separador `;` o `,`, fecha `AAAA-MM-DD` o `DD/MM/AAAA`, y decimal
-con coma o punto. Una línea ya importada no se duplica. GAMA **propone**
+El CSV admite separador `;`, `,` o tabulación, fecha `AAAA-MM-DD` o `DD/MM/AAAA`,
+y decimal con coma o punto. La asignación manual permite elegir las columnas,
+la primera fila y si contiene encabezados, con vista previa del archivo y de los
+movimientos interpretados. Un error bloquea la importación completa; una línea ya
+importada no se duplica. Importar el extracto no registra un nuevo cobro. GAMA **propone**
 correspondencias puntuadas por importe, fecha y nombre; nunca concilia solo.
 
 ## Divisa

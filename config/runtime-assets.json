@@ -40,6 +40,7 @@
     {"source":"src/features/finance/accounting.js","output":"gama-accounting.js"},
     {"source":"src/features/finance/accounting-audit.js","output":"coco-accounting-audit.js"},
     {"source":"src/features/finance/accounting-plans.js","output":"coco-accounting-plans.js"},
+    {"source":"src/features/finance/accounting-configuration.js","output":"coco-accounting-configuration.js"},
     {"source":"src/domain/accounting-export.js","output":"coco-accounting-export.js"},
     {"source":"src/ui/archive.js","output":"gama-archive.js"},
     {"source":"src/features/intelligence/assistant-ia.js","output":"gama-assistant-ia.js"},

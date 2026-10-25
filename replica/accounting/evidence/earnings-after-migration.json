@@ -1,0 +1,17 @@
+{
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "entries": 58,
+  "line_hash": "c996fd5043aa641010a0a2d22a320d18",
+  "entry_hash": "8228409ea82e520f349e6a63c77ec8c6",
+  "unbalanced": 0,
+  "captured_at": "2026-10-25T15:50:09.913059+00:00",
+  "account_hash": "1a7ca7918ec4f0341306c832b2a7a8ad",
+  "stable_report": true,
+  "anonymous_execute": false,
+  "new_report_exists": true,
+  "authenticated_execute": true,
+  "appropriation_accounts": 0,
+  "historical_values_unchanged": true
+}

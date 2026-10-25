@@ -1,0 +1,13 @@
+{
+  "version": "20261025154847",
+  "name": "accounting_earnings_19",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 13511,
+  "sha256": "48caaa81d71c66f0bb7f97ab8cc2427b26bdf518d5c4669cc112932f787cbf7b",
+  "file": "20261025154847_accounting_earnings_19.sql",
+  "purpose": "Native annual-reset reports, calculated carry-forward and appropriation type guard; preserve these bytes and do not replay in production."
+}

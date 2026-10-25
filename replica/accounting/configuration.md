@@ -11,9 +11,9 @@ Référence inchangée : Odoo **19.0 Enterprise**, documentation officielle cons
 | [Séquences](https://www.odoo.com/documentation/19.0/applications/finance/accounting/customer_invoices/sequence.html) | Numéro final à la validation, formats et périodicité ; renumérotation de masse distincte | Même écran → Séquences ; le lot ne renumérote pas l'historique |
 | [Rapprochement](https://www.odoo.com/documentation/19.0/applications/finance/accounting/bank/reconciliation.html) | Import et contrôle des mouvements avant rapprochement | Banque et caisse → Importer CSV → Affecter les colonnes |
 
-Les 18 types couvrent les six sous-types d'actif, quatre de passif, deux de capitaux propres, deux de produits, trois de charges et le hors bilan. Les comptes historiques ne reçoivent pas de sous-type inventé : ils restent « À classifier » jusqu'au choix d'une personne autorisée. Le hors bilan participe à la balance générale, sans entrer dans le bilan ou le compte de résultat. Les rapports légaux propres aux localisations demeurent un écart séparé de la matrice.
+Les 19 types couvrent les six sous-types d'actif, quatre de passif, deux de capitaux propres, deux de produits, quatre de charges et le hors bilan. Les comptes historiques ne reçoivent pas de sous-type inventé : ils restent « À classifier » jusqu'au choix d'une personne autorisée. Le hors bilan participe à la balance générale, sans entrer dans le bilan ou le compte de résultat. Les rapports légaux propres aux localisations demeurent un écart séparé de la matrice.
 
-Les groupes possèdent une plage de préfixes de même longueur. Le compte choisit la plage la plus précise ; les parents sont recalculés à partir des plages contenantes. Les chevauchements au même niveau et les cycles sont refusés. La balance affiche ouverture, débit, crédit et clôture, avec accès au grand livre filtré. Le total d'un parent comprend ses enfants : ces lignes ne doivent pas être additionnées entre elles.
+Les groupes possèdent une plage de préfixes de même longueur. Le compte choisit la plage la plus précise ; les parents sont recalculés à partir des plages contenantes. Les chevauchements au même niveau et les cycles sont refusés. La balance affiche ouverture, débit, crédit et clôture, avec accès au grand livre filtré. Le filtre de groupe s'applique à ses comptes, ses sous-groupes, ses totaux et l'export. Le total d'un parent comprend ses enfants : ces lignes ne doivent pas être additionnées entre elles.
 
 ## Numérotation et références
 
@@ -67,3 +67,5 @@ Défauts reproduits et corrigés avant publication : le mécanisme historique de
 Les tests navigateur ont aussi révélé des aperçus CSV défilants inaccessibles au
 clavier sur téléphone. Leurs régions sont désormais nommées et focalisables ;
 les trois langues passent le contrôle axe sans supprimer cette règle.
+
+Correctif de référence : [Autres charges et garde-fous hors bilan](off-balance.md). Le premier lot de configuration exposait 18 types ; le dix-neuvième est confirmé par la référence technique 19.0. Une écriture hors bilan doit rester séparée des comptes ordinaires, des taxes et du rapprochement.

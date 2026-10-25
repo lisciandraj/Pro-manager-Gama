@@ -1,0 +1,13 @@
+{
+  "version": "20261025110129",
+  "name": "accounting_group_filter_totals",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 1197,
+  "sha256": "2a4810028d56380a06aa19542ba1ba5d88f13948333da67505d75a51657e1373",
+  "file": "20261025110129_accounting_group_filter_totals.sql",
+  "purpose": "Installed scoped trial-balance correction; preserve these bytes and do not replay in production."
+}

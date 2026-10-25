@@ -107,3 +107,6 @@ SUBSTITUTION_DATE_SEPARATE	Acuerda primero la sustitución; después revisa la f
 INVALID_LEAD_DAYS	Revisa los días de preparación y transporte.
 ACCOUNTING_HARD_LOCKED	La fecha contable está bloqueada de forma irreversible.
 ACCOUNTING_DATE_LOCKED	La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.
+OFF_BALANCE_MIXED	Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.
+OFF_BALANCE_TAXES	Un asiento fuera de balance no admite impuestos.
+OFF_BALANCE_RECONCILIATION	Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.

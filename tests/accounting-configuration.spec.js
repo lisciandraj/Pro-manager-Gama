@@ -18,7 +18,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`n
  const value=async(sql,p=[])=>Object.values((await db.query(sql,p)).rows[0])[0];
  try{
   await expect(page.locator('.gaConfiguration')).toContainText(({es:'Configuración contable',fr:'Paramétrage comptable',en:'Accounting configuration'})[language]);
-  await page.locator('#acAccountNew').click();await dialog.locator('#ac-code').fill('6801');await dialog.locator('#ac-name').fill('Café Quito <account>');await dialog.locator('#ac-account_type').selectOption('expense');
+  await page.locator('#acAccountNew').click();await dialog.locator('#ac-code').fill('6801');await dialog.locator('#ac-name').fill('Café Quito <account>');await dialog.locator('#ac-account_type').selectOption('expense_other');
   expect((await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);await expect(page.locator('.gaConfiguration')).toContainText('Café Quito <account>');
   const account=await value("select id from accounting_accounts where code='6801'");
   await page.locator('[data-ac-tab="numbering"]').click();await page.locator(`[data-ac-numbering="${journal}"]`).click();await dialog.locator('#ac-enabled').selectOption('true');await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);
@@ -33,7 +33,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`n
   // The test role has no private table access; resolve it through the real API.
   const context=await value("select gama_accounting_configuration('context')"),child=context.groups.find(g=>g.prefix_start==='68');expect(child.parent_id).toBe(context.groups.find(g=>g.prefix_start==='6').id);expect(group).toBe(null);
   await page.locator('[data-ac-tab="balance"]').click();await page.locator('#ac-from').fill('2026-05-01');await page.locator('#ac-to').fill('2026-06-30');await page.locator('#acApply').click();await expect(page.locator('.gaConfiguration')).toContainText('100');
-  await page.locator(`[data-ac-balance-group="${child.id}"]`).click();await expect(page.locator('[data-ac-ledger]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toContainText('6801');
+  await page.locator(`[data-ac-balance-group="${child.id}"]`).click();await expect(page.locator('[data-ac-balance-group]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toHaveCount(1);await expect(page.locator('[data-ac-ledger]')).toContainText('6801');
   expect((await new AxeBuilder({page}).include('.gaConfiguration').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.screenshot({path:`test-results/accounting-config-${language}-${width}.png`,fullPage:false});
   await page.locator('[data-ac-ledger]').click();await expect(page.locator('#ecTab')).toHaveValue('general_ledger');await expect(page.locator('#ec-account')).toHaveValue(account);await expect(page.locator('#gaMain')).toContainText('100');

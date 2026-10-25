@@ -24,7 +24,7 @@ dossier PDF/XLSX, preparación fiscal, presupuestos, divisas, activos y stock.
 
 El botón **Tipos, grupos, numeración y bloqueos**, en Parámetros y las vistas
 contables, abre cinco pestañas: tipos y cuentas, grupos, numeración, bloqueos y
-balance por grupos. Los 18 tipos detallados requieren una clasificación explícita;
+balance por grupos. Los 19 tipos detallados requieren una clasificación explícita;
 las cuentas históricas conservan su familia sin recibir un subtipo inventado.
 Los rangos de códigos determinan la jerarquía de grupos y el balance permite
 abrir el mayor filtrado. El total de un grupo superior ya incluye sus subgrupos.

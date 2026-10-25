@@ -25,7 +25,7 @@ const SECTIONS=[
  ['overview','Vista general'],['sales','Ventas'],['purchases','Compras'],['expenses','Gastos'],
  ['payments','Pagos'],['cash','Banco y caja'],['receivables','Cuentas por cobrar'],
  ['payables','Cuentas por pagar'],['ledger','Contabilidad'],['taxes','Impuestos'],
- ['reports','Informes'],['periods','Cierres'],['plans','Periodificación y préstamos'],['sri','Facturación SRI'],['config','Parámetros']
+ ['reports','Informes'],['earnings','Libros y afectación del resultado'],['periods','Cierres'],['plans','Periodificación y préstamos'],['sri','Facturación SRI'],['config','Parámetros']
 ];
 /* Lo que ve un perfil comercial: su lado del negocio, sin libro mayor ni tesorería. */
 const COMMERCIAL=new Set(['overview','sales','receivables','reports']);
@@ -125,7 +125,7 @@ function nav(){
  }
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
  const families=[['overview','Vista general'],['sales','Clientes'],['purchases','Proveedores'],['cash','Banco y caja'],['ledger','Contabilidad'],['reports','Informes'],['config','Configuración']];
- const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',taxes:'config',sri:'config'})[section]||section;
+ const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',earnings:'reports',taxes:'config',sri:'config'})[section]||section;
  window.ArcUI.render(host,families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary ${group===k?'on':''}" aria-current="${group===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join(''));
  const shortcuts=$('gaShortcuts');window.ArcUI.render(shortcuts,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':'secondary'}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-ga-family]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaFamily)});
@@ -704,11 +704,12 @@ async function bankRpc(action,data={}){if(!allowed())throw Error('ROLE_NOT_ALLOW
 async function bankMutate(action,data){const r=await bankRpc(action,data);for(const event of ['gama:accounting-change','gama:sales-change'])window.dispatchEvent(new CustomEvent(event));return r}
 async function auditUi(){await window.ArcLoadScript('coco-accounting-audit.js');return window.CocoAccountingAudit}
 async function plansUi(){await window.ArcLoadScript('coco-accounting-plans.js');return window.CocoAccountingPlans}
-function auditEnv(){return{state,rights,rpc,entryLines,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
+function auditEnv(){return{state,rights,rpc,entryLines,entryForm,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
 VIEWS.audit={async load(){return(await auditUi()).load(auditEnv())},render(d){return window.CocoAccountingAudit.render(d,auditEnv())},bind(d){window.CocoAccountingAudit.bind(d,auditEnv())}};
 VIEWS.plans={async load(){return(await plansUi()).load(auditEnv())},render(d){return window.CocoAccountingPlans.render(d,auditEnv())},bind(d){window.CocoAccountingPlans.bind(d,auditEnv())}};
 async function configurationUi(){await window.ArcLoadScript('coco-accounting-configuration.js');return window.CocoAccountingConfiguration}
 VIEWS.configuration={async load(){return(await configurationUi()).load(auditEnv())},render(d){return window.CocoAccountingConfiguration.render(d,auditEnv())},bind(d){window.CocoAccountingConfiguration.bind(d,auditEnv())}};
+VIEWS.earnings={async load(){await window.ArcLoadScript('coco-accounting-earnings.js');return window.CocoAccountingEarnings.load(auditEnv())},render(d){return window.CocoAccountingEarnings.render(d,auditEnv())},bind(d){window.CocoAccountingEarnings.bind(d,auditEnv())}};
 function importForm(){
  const key=crypto.randomUUID(),accs=state.bankAccounts||[],L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);let parsed=[],errors=[],revision=0,mapping=null,signature='',currentFile=null,fileText=null;
  const columnLabels=()=>({date:L('Fecha','Date','Date'),reference:L('Referencia','Référence','Reference'),description:L('Descripción','Description','Description'),amount:L('Importe con signo','Montant signé','Signed amount'),debit:L('Débito','Débit','Debit'),credit:L('Crédito','Crédit','Credit'),direction:L('Sentido D/C (opcional)','Sens D/C (facultatif)','Direction D/C (optional)')});
@@ -811,9 +812,9 @@ async function entryLines(id){
  }catch(e){window.gamaToast?.(err(e))}
 }
 async function entryForm(){
- let chart=[],projects=[],partners=[],financial=[];
- try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[];financial=ctx.financial_accounts||[]}catch(e){}
- const key=crypto.randomUUID(),journals=state.journals||[];
+ let chart=[],projects=[],partners=[],financial=[],journalRows=state.journals||[];
+ try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[];financial=ctx.financial_accounts||[];journalRows=ctx.journals||journalRows}catch(e){}
+ const key=crypto.randomUUID(),journals=journalRows;
  const row=i=>`<div class="gaGrid" data-ga-line="${i}">
   ${field('Cuenta',`<select class="gaLineAccount"><option value="">—</option>${chart.map(a=>`<option value="${esc(a.id)}">${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`)}
   ${field('Cuenta financiera',`<select class="gaLineFinancial">${ecOpts(financial)}</select>`)}

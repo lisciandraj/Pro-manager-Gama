@@ -118,3 +118,4 @@ PAYMENT_BANK_ACCOUNT_CHANGED	La cuenta bancaria cambió desde el registro del pa
 PAYMENT_SETTLEMENT_MISMATCH	El pago no coincide con la conciliación seleccionada.
 PAYMENT_MATCH_SAME_DATE_REQUIRED	Para este pago, selecciona movimientos bancarios de la misma fecha.
 PAYMENT_PENDING_INTENTS_USE_MATCH	La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.
+ACCOUNT_APPROPRIATION_TYPE_LOCKED	Una cuenta utilizada no puede cambiar entre afectación anual y patrimonio permanente.

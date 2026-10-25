@@ -38,6 +38,25 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   ]);
   const when=(await root.query('select entry_date::text from accounting_entries where id=$1',[shifted[1].id])).rows[0].entry_date;assert.ok(['2026-05-15','2026-06-01'].includes(when));
   const final=await post(clients[1],'CN1','2026-05-15');assert.equal((await root.query('select entry_date::text from accounting_entries where id=$1',[final.id])).rows[0].entry_date,'2026-06-01');
+  // Registered payments without entries still reserve the available debt.
+  // Two independent sessions cannot both reserve 60 against a bill of 100.
+  const supplier=uuid(),bank=uuid();await root.query("insert into suppliers(id,name) values($1,'Concurrent payment supplier')",[supplier]);
+  await root.query("insert into financial_accounts(id,name,kind,account_id) select $1,'Concurrent payment bank','bank',id from accounting_accounts where code='1000'",[bank]);
+  const api=async(c,fn,a,d)=>{const r=await c.query(`select public.${fn}($1,$2::jsonb) value`,[a,JSON.stringify(d)]);return r.rows[0].value};
+  const day=(await root.query("select ((now() at time zone private.erp_timezone())::date)::text as business_date")).rows[0].business_date;
+  await api(root,'gama_accounting_payment_modes','save',{request_key:uuid(),financial_account_id:bank,method:'transfer',direction:'out',mode:'none'});
+  const bill=await api(root,'gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:supplier,number:'CONCURRENT-NO-ENTRY',issue_date:day,subtotal:100,tax:0,total:100});
+  const paymentInput={supplier_invoice_id:bill.id,financial_account_id:bank,paid_at:day,amount:60,method:'transfer',reference:'CONCURRENT-60'};
+  const reserved=await Promise.allSettled(clients.map(c=>api(c,'gama_accounting_action','supplier_payment',{...paymentInput,request_key:uuid()})));
+  assert.equal(reserved.filter(x=>x.status==='fulfilled').length,1);assert.match(reserved.find(x=>x.status==='rejected').reason.message,/AMOUNT_EXCEEDS_BALANCE/);
+  const payment=reserved.find(x=>x.status==='fulfilled').value;
+  await api(root,'gama_bank_invoice_action','import',{request_key:uuid(),financial_account_id:bank,rows:[{value_date:day,reference:'CONCURRENT-60',description:'Isolated bank evidence',amount:-60}]});
+  const bankRow=(await api(root,'gama_accounting_action','bank_list',{search:'CONCURRENT-60'})).rows[0];
+  const matching={account_id:bank,banks:[bankRow.id],sources:[{kind:'supplier_payment',id:payment.id}],note:'Concurrent reviewed settlement'};
+  const matched=await Promise.allSettled(clients.map(c=>api(c,'gama_bank_match','apply',{...matching,request_key:uuid()})));
+  assert.equal(matched.filter(x=>x.status==='fulfilled').length,1);assert.match(matched.find(x=>x.status==='rejected').reason.message,/BANK_ALREADY_MATCHED|SOURCE_ALREADY_MATCHED/);
+  assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='payment_settlement'")).rows[0].n),1);
+  assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-60);
   assert.equal((await root.query('select count(*)::integer n from accounting_entries e where status in (\'posted\',\'reversed\') and (select sum(debit-credit) from accounting_entry_lines where entry_id=e.id)<>0')).rows[0].n,0);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

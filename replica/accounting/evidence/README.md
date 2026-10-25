@@ -29,3 +29,5 @@ d'import et les aperçus peuvent se trouver sous la partie visible de la capture
 Le test les parcourt et soumet réellement le fichier mappé, puis vérifie son
 réimport sans doublon ni écriture de cash. Le rafraîchissement ultérieur de
 l'historique et les liens vers le groupe exact sont testés séparément de l'image.
+
+Les captures `accounting-payment-method-fr-390.png` et `accounting-payment-method-fr-1440.png` proviennent du run CI 40204766828, commit b01edfc0, avec données fictives uniquement. Elles montrent le haut de la configuration ; le parcours navigateur effectue ensuite règlement, rapprochement et annulation dans les trois langues et aux trois largeurs.

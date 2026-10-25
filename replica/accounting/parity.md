@@ -16,3 +16,5 @@ Odoo n'est pas retenue : la référence visuelle demandée est Coco, dont les
 composants sont vérifiés dans les captures et parcours isolés.
 
 Priorités de reprise : comptes d’attente et états des paiements ; résultat reporté et valorisation Odoo 19 avec transition ; moteur de taxes et positions fiscales ; analytique/budgets révisables ; séparation multi-sociétés puis consolidation ; méthodes d’immobilisations et services externes. Les séquences sont opérationnelles pour les nouvelles validations, mais B04 reste partiel pour l'inférence du format et la renumérotation de masse.
+
+Le lot [paiements et comptes d’attente](results-payment-modes.md) étend B14/E05 sans les déclarer complets : paramètres, traitement figé, solde réellement comptabilisé, liquidation et annulation sont vérifiés ; méthodes personnalisées multiples et résiduels datés restent visibles.

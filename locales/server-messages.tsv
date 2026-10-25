@@ -110,3 +110,11 @@ ACCOUNTING_DATE_LOCKED	La fecha de la pieza original está bloqueada. Revisa una
 OFF_BALANCE_MIXED	Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.
 OFF_BALANCE_TAXES	Un asiento fuera de balance no admite impuestos.
 OFF_BALANCE_RECONCILIATION	Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.
+PAYMENT_UNMATCH_FIRST	Deshaz primero la conciliación de este pago.
+PAYMENT_NO_ENTRY_NOT_ALLOCATABLE	Este anticipo sin asiento no puede imputarse a una factura.
+PAYMENT_OUTSTANDING_ACCOUNT_INVALID	Selecciona una cuenta de espera activa distinta del banco y de las cuentas de terceros.
+PAYMENT_MODE_INVALID	Revisa el medio, el sentido y el tratamiento del pago.
+PAYMENT_BANK_ACCOUNT_CHANGED	La cuenta bancaria cambió desde el registro del pago.
+PAYMENT_SETTLEMENT_MISMATCH	El pago no coincide con la conciliación seleccionada.
+PAYMENT_MATCH_SAME_DATE_REQUIRED	Para este pago, selecciona movimientos bancarios de la misma fecha.
+PAYMENT_PENDING_INTENTS_USE_MATCH	La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.

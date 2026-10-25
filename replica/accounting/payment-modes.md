@@ -35,9 +35,11 @@ depuis la banque, annulation, isolation, historique et reprise idempotente.
 Les montants attendus sont indépendants du code : facture 100, règlement 40,
 acompte 150. `tests/accounting-payment-modes.spec.js` parcourt la configuration,
 le règlement client, le rapprochement et son annulation sur une vraie base de
-test, en ES/FR/EN à 390/768/1440 px. La CI PostgreSQL utilise deux sessions pour
+test, en ES/FR/EN à 390/768/1440 px. Les neuf combinaisons sont réussies.
+La CI PostgreSQL utilise deux sessions pour
 la réservation concurrente d'une dette de 100 et le rapprochement d'un même
-paiement de 60. Résultats de CI et publication à consigner après exécution.
+paiement de 60. Voir [les résultats](results-payment-modes.md) et la PR 246 pour
+la migration installée et la preuve de publication.
 
 ## Écarts encore ouverts
 

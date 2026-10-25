@@ -241,3 +241,7 @@ filas inválidas, acceso y datos conservados tras un fallo de validación.
 ## Pilotage commercial et financier
 
 Les rapports donnent accès à la rentabilité par commande/client et aux scénarios de trésorerie sur 13 semaines. Les créances ouvrent les relances programmées, les achats la lecture des factures PDF/photo. Voir le [guide des cinq extensions](../commercial-planning.md).
+
+### Medios de pago y liquidación bancaria
+
+Configuración → Medios de pago distingue banco directo, cuenta de espera y sin asiento por cuenta financiera, medio y sentido. Cada pago conserva su tratamiento. La deuda y el estado En proceso de pago proceden del registro real; conciliar liquida la espera y deshacer la conciliación contra-pasa el movimiento sin borrar el pago. Consulte [las reglas y límites](../../replica/accounting/payment-modes.md).

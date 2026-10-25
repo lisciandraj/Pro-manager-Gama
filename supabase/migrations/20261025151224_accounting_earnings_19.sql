@@ -35,7 +35,7 @@ declare rights jsonb:=private.gama_accounting_rights();d1 date;d2 date;fy date;a
 
  if p_action='context' then
   return jsonb_build_object('from',d1,'to',d2,'fiscal_from',fy,'rights',rights,'snapshot_at',snapshot_at,'revision',revision,
-   'accounts',coalesce((select jsonb_agg(jsonb_build_object('id',id,'code',code,'name',name,'type',type,'account_type',account_type) order by code) from public.accounting_accounts where active),'[]'));
+   'accounts',coalesce((select jsonb_agg(jsonb_build_object('id',id,'code',code,'name',name,'type',type,'account_type',account_type,'active',active) order by code) from public.accounting_accounts),'[]'));
  elsif p_action='trial_balance' then
   with amounts as(select a.id,a.code,a.name,a.type,a.account_type,
    coalesce(sum(l.debit-l.credit) filter(where e.entry_date<d1 and (not(a.type in('income','expense') or coalesce(a.account_type,'')='equity_unaffected') or e.entry_date>=fy)),0) opening,
@@ -50,13 +50,15 @@ declare rights jsonb:=private.gama_accounting_rights();d1 date;d2 date;fy date;a
   return result||jsonb_build_object('from',d1,'to',d2,'fiscal_from',fy,'snapshot_at',snapshot_at,'revision',revision,'offset',off,'limit',lim,
    'result_brought_forward',case when aid is null then jsonb_build_object('calculated',true,'opening',carry,'debit',0,'credit',0,'closing',carry,'source_to',fy-1) end);
  elsif p_action='ledger' then
-  with movements as(select l.id,l.entry_id,l.account_id,a.code,a.name,a.type,a.account_type,e.entry_date,e.number,e.reference,e.source_type,e.source_id,l.label,l.debit,l.credit,l.position,
-    coalesce((select sum(b.debit-b.credit) from public.accounting_entry_lines b join public.accounting_entries x on x.id=b.entry_id
-     where b.account_id=a.id and x.status in('posted','reversed') and coalesce(x.posted_at,x.created_at)<=snapshot_at and x.entry_date<d1
-     and (not(a.type in('income','expense') or coalesce(a.account_type,'')='equity_unaffected') or x.entry_date>=fy)),0)
+  with openings as(select a.id,coalesce(sum(l.debit-l.credit) filter(where e.status in('posted','reversed') and e.entry_date<d1 and coalesce(e.posted_at,e.created_at)<=snapshot_at
+    and (not(a.type in('income','expense') or coalesce(a.account_type,'')='equity_unaffected') or e.entry_date>=fy)),0) amount
+    from public.accounting_accounts a left join public.accounting_entry_lines l on l.account_id=a.id left join public.accounting_entries e on e.id=l.entry_id
+    where (aid is null or a.id=aid) and a.account_type is distinct from 'off_balance' group by a.id),
+  movements as(select l.id,l.entry_id,l.account_id,a.code,a.name,a.type,a.account_type,e.entry_date,e.number,e.reference,e.source_type,e.source_id,l.label,l.debit,l.credit,l.position,
+    o.amount
     +sum(l.debit-l.credit) over(partition by a.id order by e.entry_date,e.created_at,e.id,l.position,l.id) running_balance,
     e.created_at
-   from public.accounting_entry_lines l join public.accounting_entries e on e.id=l.entry_id join public.accounting_accounts a on a.id=l.account_id
+   from public.accounting_entry_lines l join public.accounting_entries e on e.id=l.entry_id join public.accounting_accounts a on a.id=l.account_id join openings o on o.id=a.id
    where e.status in('posted','reversed') and coalesce(e.posted_at,e.created_at)<=snapshot_at and e.entry_date between d1 and d2
    and a.account_type is distinct from 'off_balance' and (aid is null or a.id=aid))
   select jsonb_build_object('rows',coalesce((select jsonb_agg(to_jsonb(z) order by code,entry_date,created_at,entry_id,position,id) from(select * from movements order by code,entry_date,created_at,entry_id,position,id offset off limit lim)z),'[]'),'total',count(*)) into result from movements;

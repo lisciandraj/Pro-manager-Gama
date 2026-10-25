@@ -49,6 +49,12 @@ test('Odoo 19 earnings reports reset annually and trace explicit profit appropri
    await book('2025-12-31',app1,chart['3000'],100);
    await denied(()=>api('gama_accounting_configuration','account_save',{request_key:uuid(),id:app1,code:'APP-1',name:'Attempted type change',account_type:'equity'}),/ACCOUNT_APPROPRIATION_TYPE_LOCKED/);
   });
+  await scenario('inactive accounts remain selectable and their historical movements remain in reports',async()=>{
+   const saved=await api('gama_accounting_configuration','account_save',{request_key:uuid(),code:'ARCH-INC',name:'Archived income',account_type:'income'});await book('2025-12-31',chart['1000'],saved.id,100);
+   await api('gama_accounting_configuration','account_save',{request_key:uuid(),id:saved.id,code:'ARCH-INC',name:'Archived income',account_type:'income',active:false});
+   const context=await report('context');assert.equal(context.accounts.find(a=>a.id===saved.id).active,false);
+   const ledger=await report('ledger',{from:'2025-01-01',to:'2025-12-31',account_id:saved.id});assert.equal(ledger.rows.length,1);assert.equal(ledger.rows[0].credit,100);assert.equal((await report('trial_balance')).result_brought_forward.closing,-100);
+  });
   await scenario('paging snapshots, read-only exports, anonymous and private access remain controlled',async()=>{
    await book('2025-12-31',chart['1000'],chart['4000'],100);const r=await report('trial_balance',{limit:1});assert.equal(r.rows.length,1);assert.ok(r.snapshot_at);assert.ok(r.revision);
    await q("select set_config('request.jwt.claim.sub',$1,false)",[reader]);await report('trial_balance');await denied(()=>report('trial_balance',{export:true}),/NOT_ALLOWED/);

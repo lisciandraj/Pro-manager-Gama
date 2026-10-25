@@ -26,6 +26,7 @@ Scénarios indépendants : bénéfice de 100, affectation de 60 puis 40, perte d
 30, plusieurs comptes d'affectation, contrepassation, exercice commençant en
 juillet, dates verrouillées et lectures/export sans autorisation.
 
-Statut : rapports natifs et contrôles serveur implémentés. Neuf tests de base
-isolée réussissent ; neuf parcours navigateur ES/FR/EN × 390/768/1440 sont
-préparés. H13 reste partiel jusqu’à leur validation.
+Statut : rapports natifs et contrôles serveur implémentés. Dix tests de base
+isolée réussissent ; neuf parcours navigateur ES/FR/EN × 390/768/1440 ont réussi au commit
+021acae3. Le test du nombre de raccourcis existants a été adapté au nouveau
+rapport. H13 reste partiel jusqu’à validation complète et déploiement.

@@ -124,7 +124,7 @@ test('the dashboard reads the whole business and formats in the company currency
  await expect(main).toContainText('+20 %');             // 12000 vs 10000
  await expect(main).toContainText('6,5');               // retraso medio
  await expect(main).toContainText('$900,00');           // saldo de impuestos 1800-900
- await expect(page.locator('#gaShortcuts [data-ga-section]')).toHaveCount(15);
+ await expect(page.locator('#gaShortcuts [data-ga-section]')).toHaveCount(16);
  await expect(page.locator('#gaNav [data-ga-family]')).toHaveText(['Vista general','Clientes','Proveedores','Banco y caja','Contabilidad','Informes','Configuración']);
  await expect(page.locator('#gaShortcuts [data-ga-section="plans"]')).toBeVisible();
  await expect(page.locator('#gaShortcuts [data-ga-section="sri"]')).toBeVisible();

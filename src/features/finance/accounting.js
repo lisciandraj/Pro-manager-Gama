@@ -29,7 +29,7 @@ const SECTIONS=[
 ];
 /* Lo que ve un perfil comercial: su lado del negocio, sin libro mayor ni tesorería. */
 const COMMERCIAL=new Set(['overview','sales','receivables','reports']);
-const STATUS={pending:'No pagada',partial:'Pago parcial',paid:'Pagada',overdue:'Vencida',
+const STATUS={pending:'No pagada',partial:'Pago parcial',in_payment:'En proceso de pago',paid:'Pagada',overdue:'Vencida',
  cancelled:'Anulada',missing_terms:'Plazo por configurar',awaiting_delivery:'Entrega pendiente',
  due_soon:'Próxima a vencer',draft:'Borrador',posted:'Contabilizada',reversed:'Contrapasada',
  open:'Abierto',closed:'Cerrado',matched:'Conciliado',unmatched:'Sin conciliar',ignored:'Ignorado'};
@@ -535,11 +535,11 @@ async function billForm(context={}){
 }
 function supplierPaymentForm(row){
  if(!row)return;
- const key=crypto.randomUUID(),accs=(state.accounts||[]).filter(a=>a.active);
+ const key=crypto.randomUUID(),accs=(state.accounts||[]).filter(a=>a.active),available=Math.max(0,Number(row.balance)-Number(row.unposted_payment||0));
  GamaSales.modal('Registrar un pago a proveedor',
   `<p><b>${esc(row.supplier_name)}</b> · ${esc(row.number)}<br>${tr('Pendiente')} : <b>${money(row.balance)}</b></p>
    <div class="gaGrid">
-   ${field('Importe',`<input id="gaAmount" type="number" required min="0.01" max="${esc(row.balance)}" step="0.01" value="${Number(row.balance).toFixed(2)}">`)}
+   ${field('Importe',`<input id="gaAmount" type="number" required min="0.01" max="${esc(available)}" step="0.01" value="${available.toFixed(2)}">`)}
    ${field('Fecha',`<input id="gaDate" type="date" required max="${day()}" value="${day()}">`)}
    ${field('Medio',`<select id="gaMethod">${Object.entries(METHODS).map(([k,v])=>`<option value="${k}" data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
    ${field('Cuenta de banco o caja',`<select id="gaAccount"><option value="">—</option>${options(accs)}</select>`)}

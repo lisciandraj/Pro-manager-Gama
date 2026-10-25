@@ -5829,3 +5829,19 @@ El número de columnas no coincide con la cabecera.	Le nombre de colonnes ne cor
 Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.	Séparez les comptes hors bilan des comptes financiers dans une autre écriture.	Keep off-balance accounts separate from financial accounts in another entry.
 Un asiento fuera de balance no admite impuestos.	Une écriture hors bilan ne peut pas comporter de taxes.	An off-balance entry cannot include taxes.
 Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.	Une écriture hors bilan ne peut pas comporter de trésorerie ni de rapprochement.	An off-balance entry cannot include cash movements or reconciliation.
+En proceso de pago	En paiement	In payment
+Banco directo	Banque directe	Direct bank
+Cuenta de espera	Compte d’attente	Outstanding account
+Sin asiento	Sans écriture	No journal entry
+Pendiente de conciliación	En attente de rapprochement	Awaiting bank reconciliation
+El cobro se contabilizará directamente en banco o caja.	Le règlement sera comptabilisé directement en banque ou en caisse.	The payment will post directly to bank or cash.
+El cobro reducirá el saldo y esperará la conciliación bancaria.	Le règlement réduira le solde et attendra le rapprochement bancaire.	The payment will reduce the balance and await bank reconciliation.
+Sin asiento: el importe debido no cambia hasta la conciliación bancaria.	Sans écriture : le montant dû reste inchangé jusqu’au rapprochement bancaire.	No journal entry: the amount due remains unchanged until bank reconciliation.
+Deshaz primero la conciliación de este pago.	Annulez d’abord le rapprochement de ce paiement.	Undo this payment’s bank reconciliation first.
+Este anticipo sin asiento no puede imputarse a una factura.	Cet acompte sans écriture ne peut pas être affecté à une facture.	This advance without a journal entry cannot be allocated to an invoice.
+Selecciona una cuenta de espera activa distinta del banco y de las cuentas de terceros.	Sélectionnez un compte d’attente actif distinct de la banque et des comptes tiers.	Select an active outstanding account distinct from bank and partner accounts.
+Revisa el medio, el sentido y el tratamiento del pago.	Vérifiez le moyen, le sens et le traitement du paiement.	Review the payment method, direction and treatment.
+La cuenta bancaria cambió desde el registro del pago.	Le compte bancaire a changé depuis l’enregistrement du paiement.	The bank ledger account changed after the payment was registered.
+El pago no coincide con la conciliación seleccionada.	Le paiement ne correspond pas au rapprochement sélectionné.	The payment does not match the selected reconciliation.
+Para este pago, selecciona movimientos bancarios de la misma fecha.	Pour ce paiement, sélectionnez des mouvements bancaires de la même date.	For this payment, select bank transactions with the same date.
+La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.	La facture a des paiements sans écriture en attente. Sélectionnez-les dans le rapprochement pour éviter un second encaissement.	The invoice has pending payments without journal entries. Select them for reconciliation to avoid a second receipt.

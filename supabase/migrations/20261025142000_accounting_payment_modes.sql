@@ -264,15 +264,15 @@ do $$begin execute replace(pg_get_functiondef('private.gama_accounting_action(te
 revoke all on function private.gama_accounting_action_before_payment_modes(text,jsonb) from public,anon,authenticated,service_role;
 create or replace function private.gama_accounting_action(p_action text,p_data jsonb default '{}') returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare result jsonb;b public.bank_transactions;g uuid;k uuid;begin
+declare result jsonb;bank_record public.bank_transactions;g uuid;k uuid;begin
  if p_action='reconcile' and exists(select 1 from private.accounting_payment_treatments where source_type=p_data->>'match_type' and source_id=nullif(p_data->>'match_id','')::uuid and mode<>'bank') then
-  select * into b from public.bank_transactions where id=(p_data->>'id')::uuid;
+  select * into bank_record from public.bank_transactions where id=(p_data->>'id')::uuid;
   k:=nullif(p_data->>'request_key','')::uuid;if k is null then raise exception 'REQUEST_KEY_REQUIRED';end if;
-  result:=private.gama_bank_match('apply',jsonb_build_object('request_key',k,'account_id',b.financial_account_id,'banks',jsonb_build_array(b.id),'sources',jsonb_build_array(jsonb_build_object('kind',p_data->>'match_type','id',p_data->>'match_id')),'note',coalesce(p_data->>'notes','')));
-  return jsonb_build_object('id',b.id,'status','matched','group_id',result->>'id');
+  result:=private.gama_bank_match('apply',jsonb_build_object('request_key',k,'account_id',bank_record.financial_account_id,'banks',jsonb_build_array(bank_record.id),'sources',jsonb_build_array(jsonb_build_object('kind',p_data->>'match_type','id',p_data->>'match_id')),'note',coalesce(p_data->>'notes','')));
+  return jsonb_build_object('id',bank_record.id,'status','matched','group_id',result->>'id');
  elsif p_action='reconcile_undo' then
-  select x.group_id,b.financial_account_id into g,k from public.bank_match_banks x join public.bank_match_groups m on m.id=x.group_id
-   join public.bank_transactions b on b.id=x.bank_id where x.bank_id=(p_data->>'id')::uuid and m.cancelled_at is null
+  select x.group_id,bt.financial_account_id into g,k from public.bank_match_banks x join public.bank_match_groups m on m.id=x.group_id
+   join public.bank_transactions bt on bt.id=x.bank_id where x.bank_id=(p_data->>'id')::uuid and m.cancelled_at is null
    and exists(select 1 from private.accounting_payment_settlements s where s.group_id=m.id);
   if g is not null then
    perform private.gama_bank_match('cancel',jsonb_build_object('id',g,'account_id',k,'reason',p_data->>'reason'));

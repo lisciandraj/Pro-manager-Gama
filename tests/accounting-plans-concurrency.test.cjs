@@ -43,7 +43,7 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   const supplier=uuid(),bank=uuid();await root.query("insert into suppliers(id,name) values($1,'Concurrent payment supplier')",[supplier]);
   await root.query("insert into financial_accounts(id,name,kind,account_id) select $1,'Concurrent payment bank','bank',id from accounting_accounts where code='1000'",[bank]);
   const api=async(c,fn,a,d)=>{const r=await c.query(`select public.${fn}($1,$2::jsonb) value`,[a,JSON.stringify(d)]);return r.rows[0].value};
-  const day=(await root.query("select ((now() at time zone private.erp_timezone())::date)::text day")).rows[0].day;
+  const day=(await root.query("select ((now() at time zone private.erp_timezone())::date)::text as business_date")).rows[0].business_date;
   await api(root,'gama_accounting_payment_modes','save',{request_key:uuid(),financial_account_id:bank,method:'transfer',direction:'out',mode:'none'});
   const bill=await api(root,'gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:supplier,number:'CONCURRENT-NO-ENTRY',issue_date:day,subtotal:100,tax:0,total:100});
   const paymentInput={supplier_invoice_id:bill.id,financial_account_id:bank,paid_at:day,amount:60,method:'transfer',reference:'CONCURRENT-60'};

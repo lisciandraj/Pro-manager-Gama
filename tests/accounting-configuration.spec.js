@@ -26,7 +26,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`n
   const entry=await value("select public.gama_accounting_action('entry_manual',$1::jsonb)",[JSON.stringify({request_key:uuid(),journal:'OD',entry_date:'2026-05-15',lines:[{account_id:account,debit:100},{account_id:chart['4000'],credit:100}]})]);
   await page.locator('[data-ac-tab="locks"]').click();await expect(page.locator('[data-ac-entry]')).toHaveCount(1);await expect(page.locator('.gaConfiguration')).toContainText('2026-06-01');await expect(page.locator('.gaConfiguration')).toContainText('2026-05-15');
   {const e=(await db.query('select number,erp_reference,entry_date::text from accounting_entries where id=$1',[entry.id])).rows[0];expect(e.number).toBe('OD/2026/00001');expect(e.erp_reference).toMatch(/^ASI-/);expect(e.entry_date).toBe('2026-06-01')}
-  await page.locator('[data-ac-entry]').click();await expect(dialog.locator('tbody')).toContainText('6801');await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);
+  await page.locator('[data-ac-entry]').click();await expect(dialog.locator('tbody')).toContainText('6801');await dialog.locator('#gsClose').click();await expect(dialog).toHaveCount(0);
   await page.locator('[data-ac-tab="groups"]').click();
   for(const [name,prefix]of [['Gastos 68 <group>','68'],['Gastos 6','6']]){await page.locator('#acGroupNew').click();await dialog.locator('#ac-name').fill(name);await dialog.locator('#ac-prefix_start').fill(prefix);await dialog.locator('#ac-prefix_end').fill(prefix);await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0)}
   const group=await value("select id from private.accounting_groups where prefix_start='68'").catch(()=>null);

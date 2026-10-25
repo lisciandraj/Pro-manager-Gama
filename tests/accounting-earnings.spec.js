@@ -11,7 +11,7 @@ async function boot(page,language){
  await page.exposeFunction('__earningsRpc',async(fn,args={})=>{try{if(!/^[a-z_]+$/.test(fn)||Object.keys(args).some(k=>!/^[a-z_]+$/.test(k)))throw Error('TEST_IDENTIFIER');const entries=Object.entries(args);return {data:await value('select public.'+fn+'('+entries.map(([k],i)=>k+'=> $'+(i+1)).join(',')+')',entries.map(([,v])=>v))}}catch(e){return {error:{message:e.message,code:e.code}}}});
  await page.addInitScript(({language})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Earnings UI'}));localStorage.setItem('gama_language_v1',language)},{language});
  await page.route('https://**/*',r=>r.abort());await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+`;(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(fn,args)=>window.__earningsRpc(fn,args)}}})();`}));
- await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());await page.evaluate(()=>GamaAccounting.open({section:'earnings'}));await expect(page.locator('#erApply')).toBeVisible();return{db,chart,app,rpc,value};
+ await page.goto('/index.html');await page.waitForFunction(()=>window.GamaRoleAccess?.isReady());await page.evaluate(()=>GamaAccounting.open({section:'reports'}));await page.locator('#gaFiscalReports').click();await expect(page.locator('#erApply')).toBeVisible();return{db,chart,app,rpc,value};
 }
 for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`explicit earnings appropriation and report drilldown in ${language} at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});const errors=[];page.on('pageerror',e=>errors.push(e.message));const {db,chart,app,rpc,value}=await boot(page,language),dialog=page.locator('dialog');
@@ -26,6 +26,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`e
   await page.locator('[data-er-tab="profit_loss"]').click();await page.locator('#erFrom').fill('2025-01-01');await page.locator('#erTo').fill('2025-12-31');await page.locator('#erApply').click();await expect(page.locator('.gaEarnings')).toContainText('Isolated appropriation');
   const pl=await rpc('gama_accounting_earnings','profit_loss',{from:'2025-01-01',to:'2025-12-31'});expect(pl.result).toBe(100);expect(pl.appropriated).toBe(60);expect(pl.remaining_result).toBe(40);
   await page.locator('[data-er-tab="balance"]').click();expect((await rpc('gama_accounting_earnings','balance',{to:'2026-12-31'})).difference).toBe(0);expect(errors).toEqual([]);
+  await page.evaluate(()=>GamaAccounting.open({section:'workbench'}));await page.locator('#ecTab').selectOption('setup');await page.locator('#ecClose').click();await expect(dialog.locator('#ec-from')).toHaveValue('2025-01-01');await expect(dialog.locator('#ec-to')).toHaveValue('2025-12-31');await dialog.locator('#gsSave').click();await expect(dialog.locator('#gsFormError')).toContainText(({es:'Afecta',fr:'Affectez',en:'Appropriate'})[language]);await dialog.locator('#gsClose').click();expect(errors).toEqual([]);
   await db.exec('reset role');expect(Number(await value('select count(*) from accounting_entries'))).toBe(2);
  }finally{await db.close()}
 });

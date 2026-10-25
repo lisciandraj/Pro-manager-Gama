@@ -14,6 +14,13 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   const line=(await root.query('select id from accounting_entry_lines where entry_id=$1 and account_id=$2',[entry,chart['6080']])).rows[0].id;
   const journal=(await root.query("select id from accounting_journals where code='OD'")).rows[0].id;
   for(let i=0;i<2;i++){const c=new Client({connectionString:url.toString()});await c.connect();await c.query("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await c.query('set role authenticated');clients.push(c)}
+  const annualChart=Object.fromEntries((await root.query("select code,id from accounting_accounts where code in('1000','4000','3000')")).rows.map(x=>[x.code,x.id]));
+  const annualApp=(await root.query("select public.gama_accounting_configuration('account_save',$1::jsonb) r",[JSON.stringify({request_key:uuid(),code:'APP-CONCURRENT',name:'Concurrent appropriation',account_type:'equity_unaffected'})])).rows[0].r.id;
+  for(const [a,b]of [[annualChart['1000'],annualChart['4000']],[annualApp,annualChart['3000']]])await root.query("select public.gama_accounting_action('entry_manual',$1::jsonb)",[JSON.stringify({request_key:uuid(),journal:'OD',entry_date:'2025-12-31',lines:[{account_id:a,debit:100},{account_id:b,credit:100}]})]);
+  const annual=await Promise.allSettled(clients.map(c=>c.query("select public.gama_accounting_ec('year_close',$1::jsonb)",[JSON.stringify({request_key:uuid(),from:'2025-01-01',to:'2025-12-31'})])));
+  assert.equal(annual.filter(r=>r.status==='fulfilled').length,1);assert.match(annual.find(r=>r.status==='rejected').reason.message,/YEAR_ALREADY_CLOSED/);
+  assert.equal(Number((await root.query("select count(*) n from accounting_periods where status='closed' and period_start between '2025-01-01' and '2025-12-31'")).rows[0].n),12);
+  assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='year_close'")).rows[0].n),0);
   const input={kind:'deferred_expense',name:'Concurrent insurance',journal_id:journal,source_line_id:line,amount:'1200',starts_on:'2026-01-01',ends_on:'2026-12-31',deferral_account_id:chart['1200'],computation:'months'};
   const saved=await Promise.allSettled(clients.map(c=>rpc(c,'save',{...input,request_key:uuid()})));assert.equal(saved.filter(x=>x.status==='fulfilled').length,1);assert.match(saved.find(x=>x.status==='rejected').reason.message,/PLAN_SOURCE_CAPACITY/);
   const id=saved.find(x=>x.status==='fulfilled').value.id,key=uuid();const activated=await Promise.all(clients.map(c=>rpc(c,'activate',{id,request_key:key})));assert.deepEqual(activated[0],activated[1]);

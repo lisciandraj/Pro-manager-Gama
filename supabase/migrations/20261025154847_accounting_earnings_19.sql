@@ -16,7 +16,7 @@ revoke all on function private.gama_appropriation_type_guard() from public,anon,
 create trigger accounting_appropriation_type before update of account_type on public.accounting_accounts for each row execute function private.gama_appropriation_type_guard();
 
 create function private.gama_accounting_earnings(p_action text,p_data jsonb default '{}') returns jsonb
-language plpgsql security definer set search_path='' as $$
+language plpgsql stable security definer set search_path='' as $$
 declare rights jsonb:=private.gama_accounting_rights();d1 date;d2 date;fy date;aid uuid;snapshot_at timestamptz;off integer;lim integer;
  result jsonb;carry numeric;income numeric;expense numeric;appropriated numeric;prior_result numeric;assets numeric;liabilities numeric;equity numeric;revision text;begin
  if auth.uid() is null or not private.erp_mfa_ok() or not private.erp_module_allowed('accounting',array['administrador','comercial'])
@@ -30,6 +30,11 @@ declare rights jsonb:=private.gama_accounting_rights();d1 date;d2 date;fy date;a
  aid:=nullif(p_data->>'account_id','')::uuid;off:=greatest(0,coalesce((p_data->>'offset')::integer,0));lim:=least(200,greatest(1,coalesce((p_data->>'limit')::integer,50)));
  snapshot_at:=least(coalesce(nullif(p_data->>'snapshot_at','')::timestamptz,statement_timestamp()),statement_timestamp());
  select md5(coalesce(string_agg(concat_ws(':',id,code,name,type,account_type,active,updated_at),',' order by id),'')) into revision from public.accounting_accounts;
+ -- The fixed timestamp excludes later postings; the revision additionally
+ -- detects a transaction which started earlier and became visible between
+ -- export pages. Clients must restart rather than combine different books.
+ select md5(revision||':'||count(*)::text||':'||coalesce(sum(hashtextextended(to_jsonb(e)::text,0)::numeric)::text,'0')) into revision
+  from public.accounting_entries e where e.status in('posted','reversed') and coalesce(e.posted_at,e.created_at)<=snapshot_at;
  select coalesce(sum(l.debit-l.credit),0) into carry from public.accounting_entry_lines l join public.accounting_entries e on e.id=l.entry_id join public.accounting_accounts a on a.id=l.account_id
  where e.status in('posted','reversed') and e.entry_date<fy and coalesce(e.posted_at,e.created_at)<=snapshot_at and (a.type in('income','expense') or a.account_type='equity_unaffected');
 

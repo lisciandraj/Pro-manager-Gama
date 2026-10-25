@@ -24,6 +24,20 @@ test('Odoo 19 earnings reports reset annually and trace explicit profit appropri
    await book('2025-12-31',app2,chart['2000'],40);assert.equal((await report('trial_balance')).result_brought_forward.closing,0);
    const p=await report('profit_loss',{from:'2025-01-01',to:'2025-12-31'});assert.equal(p.result,100);assert.equal(p.appropriated,100);assert.equal(p.remaining_result,0);assert.equal(p.rows.filter(a=>a.account_type==='equity_unaffected').length,2);
    b=await report('balance');assert.equal(b.equity,60);assert.equal(b.liabilities,40);assert.equal(b.unallocated_result,0);assert.equal(b.difference,0);assert.ok(!b.rows.some(a=>a.id===app1||a.id===app2));
+   const existing=await api('gama_accounting_action','report_balance',{to:'2026-12-31'});assert.equal(existing.result,0);assert.equal(existing.difference,0);assert.ok(!existing.rows.some(a=>['APP-1','APP-2'].includes(a.code)));
+   const existingPl=await api('gama_accounting_action','report_pl',{from:'2025-01-01',to:'2025-12-31'});assert.equal(existingPl.result,100);assert.equal(existingPl.appropriated,100);
+  });
+  await scenario('annual closing cannot distribute profit again after a partial appropriation',async()=>{
+   await book('2025-12-31',chart['1000'],chart['4000'],100);await book('2025-12-31',app1,chart['3000'],60);const n=await v('select count(*)::integer from accounting_entries');
+   await denied(()=>api('gama_accounting_ec','year_close',{request_key:uuid(),from:'2025-01-01',to:'2025-12-31'}),/EARNINGS_ALLOCATION_REQUIRED/);
+   assert.equal(await v('select count(*)::integer from accounting_entries'),n);assert.equal(Number(await v("select count(*) from accounting_periods where status='closed'")),0);
+  });
+  await scenario('fully appropriated annual closing locks twelve months without clearing profit accounts or creating a second entry',async()=>{
+   await book('2025-12-31',chart['1000'],chart['4000'],100);await book('2025-12-31',app1,chart['3000'],100);const n=await v('select count(*)::integer from accounting_entries');
+   const input={request_key:uuid(),from:'2025-01-01',to:'2025-12-31'},closed=await api('gama_accounting_ec','year_close',input);assert.deepEqual(await api('gama_accounting_ec','year_close',input),closed);assert.equal(closed.entry_id,null);assert.equal(closed.result,100);assert.equal(closed.method,'explicit_appropriation');assert.equal(closed.closed_months,12);
+   assert.equal(await v('select count(*)::integer from accounting_entries'),n);assert.equal(Number(await v("select count(*) from accounting_periods where status='closed' and period_start between '2025-01-01' and '2025-12-31'")),12);
+   assert.equal((await report('profit_loss',{from:'2025-01-01',to:'2025-12-31'})).result,100);assert.equal((await report('trial_balance')).result_brought_forward.closing,0);
+   await denied(()=>api('gama_accounting_ec','year_close',{...input,request_key:uuid()}),/YEAR_ALREADY_CLOSED/);
   });
   await scenario('appropriation ledger resets its opening annually and runs from current-year movements',async()=>{
    await book('2025-12-31',chart['1000'],chart['4000'],100);await book('2025-12-31',app1,chart['3000'],100);await book('2026-01-03',app1,chart['3000'],5);
@@ -54,6 +68,10 @@ test('Odoo 19 earnings reports reset annually and trace explicit profit appropri
    await api('gama_accounting_configuration','account_save',{request_key:uuid(),id:saved.id,code:'ARCH-INC',name:'Archived income',account_type:'income',active:false});
    const context=await report('context');assert.equal(context.accounts.find(a=>a.id===saved.id).active,false);
    const ledger=await report('ledger',{from:'2025-01-01',to:'2025-12-31',account_id:saved.id});assert.equal(ledger.rows.length,1);assert.equal(ledger.rows[0].credit,100);assert.equal((await report('trial_balance')).result_brought_forward.closing,-100);
+  });
+  await scenario('export revision exposes a change in the visible ledger before pages can be combined',async()=>{
+   await book('2025-12-31',chart['1000'],chart['4000'],100);const first=await report('trial_balance',{limit:1});
+   await book('2025-12-31',chart['1000'],chart['4000'],25);const next=await report('trial_balance',{limit:1,offset:1,snapshot_at:first.snapshot_at,export:true});assert.notEqual(next.revision,first.revision);
   });
   await scenario('paging snapshots, read-only exports, anonymous and private access remain controlled',async()=>{
    await book('2025-12-31',chart['1000'],chart['4000'],100);const r=await report('trial_balance',{limit:1});assert.equal(r.rows.length,1);assert.ok(r.snapshot_at);assert.ok(r.revision);

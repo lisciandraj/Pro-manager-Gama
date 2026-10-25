@@ -58,3 +58,5 @@ reprise structurelle de l'historique.
 B14/E05 restent partiels pour les méthodes personnalisées multiples de même
 famille et les résiduels bancaires sur plusieurs dates. Ce lot ne prouve pas
 une équivalence complète à Odoo 19.
+
+Publication vérifiée du lot : commit `095ccd9aff330507e29397416eea0e0d55e107d6`, run `40208007050`. Les cinq actifs servis correspondent au Git publié ; voir [le contrôle public](evidence/payment-public-095ccd9.json) et la PR 246. La navigation authentifiée de production reste non attestée.

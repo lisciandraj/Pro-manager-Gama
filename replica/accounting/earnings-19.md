@@ -30,3 +30,5 @@ Statut : rapports natifs et contrôles serveur implémentés. Dix tests de base
 isolée réussissent ; neuf parcours navigateur ES/FR/EN × 390/768/1440 ont réussi au commit
 021acae3. Le test du nombre de raccourcis existants a été adapté au nouveau
 rapport. H13 reste partiel jusqu’à validation complète et déploiement.
+
+Les rapports existants excluent aussi les comptes d’affectation du bilan et affichent le résultat non affecté. Avec cette configuration, la clôture annuelle exige une affectation complète, conserve le bénéfice dans le compte de résultat et verrouille les douze mois sans seconde écriture de transfert. Les contrôles et justificatifs de clôture existants restent obligatoires. Sans compte d’affectation configuré, le fonctionnement historique est conservé.

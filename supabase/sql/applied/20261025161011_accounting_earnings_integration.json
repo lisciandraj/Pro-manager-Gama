@@ -1,0 +1,13 @@
+{
+  "version": "20261025161011",
+  "name": "accounting_earnings_integration",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 4968,
+  "sha256": "3ba7a364e2eba3b88cb52097e082dcd0697a367a58275cd4ca796fcf115632ba",
+  "file": "20261025161011_accounting_earnings_integration.sql",
+  "purpose": "Connect explicit appropriation with canonical balance sheet and annual closure without a second profit transfer; immutable production source."
+}

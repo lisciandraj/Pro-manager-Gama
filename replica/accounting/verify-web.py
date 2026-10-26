@@ -38,8 +38,9 @@ try:
     manifest_path = re.search(r'src=["\']([^"\']*architect-assets\.js[^"\']*)["\']', html).group(1)
     manifest = fetch(manifest_path).decode('utf-8')
     assets = json.loads(re.search(r'window\.ArcAssets\s*=\s*(\{.*?\});', manifest, re.S).group(1))
-    names = ['coco-accounting-configuration.js', 'gama-accounting.js', 'gama-payments.js',
-             'gama-i18n-fr.js', 'gama-i18n-en.js']
+    names = ['architect-finance-controls.js', 'coco-modules.js',
+             'coco-accounting-configuration.js', 'gama-accounting.js', 'gama-payments.js',
+             'gama-i18n-catalog.js', 'gama-i18n-server.js', 'gama-i18n-fr.js', 'gama-i18n-en.js']
     try:
         git_bytes('coco-accounting-earnings.js')
         names.append('coco-accounting-earnings.js')

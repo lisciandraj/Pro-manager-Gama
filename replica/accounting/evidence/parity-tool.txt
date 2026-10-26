@@ -1,8 +1,8 @@
-Parity: 63.7 / 100
+Parity: 64.6 / 100
 
-features 63.7  (106 counted, must-haves 52 of 106 done)
+features 64.6  (106 counted, must-haves 54 of 106 done)
 
-Not shippable yet: 54 must-have features are not done.
+Not shippable yet: 52 must-have features are not done.
 
 By area, weakest first
 - M                             33.3  (6 features)
@@ -10,21 +10,21 @@ By area, weakest first
 - K                             40.0  (5 features)
 - I                             41.7  (6 features)
 - E                             57.1  (7 features)
-- B                             64.3  (14 features)
 - L                             65.0  (10 features)
+- B                             67.9  (14 features)
 - H                             69.2  (13 features)
 - D                             70.0  (5 features)
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
 - C                             77.8  (9 features)
-- F                             81.8  (11 features)
+- F                             86.4  (11 features)
 - G                             91.7  (6 features)
 
 Missing, in build order
 - [must] B: Escompte de règlement et traitement fiscal, no  (Reproduire échéances et écritures d'escompte au paiement)
 - [must] B: Positions fiscales et règles de substitution, no  (Règles datées de substitution des comptes/taxes non démontrées)
 - [must] B: Taxes sur encaissements et extourne au délettrage, no  (Comptes transitoires et exigibilité au rapprochement à développer)
-- [must] D: Autofacturation fournisseur, no  (Parcours Odoo à inventorier séparément du simple enregistrement d'une facture)
+- [must] D: Autofacturation fournisseur, no  (Analyse officielle du 26 octobre terminée. Parcours natif et choix du canal restent à développer ; Peppol dépend d’un accès autorisé. Aucune émission SRI ajoutée.)
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
 - [must] F: Imports OFX QIF CAMT CODA, no  (Ne pas présenter l'import CSV comme support de ces formats)
@@ -40,12 +40,11 @@ Missing, in build order
 - [must] J: Succursales et livres alternatifs, no  (Les dimensions agence ne remplacent pas les droits et livres des succursales)
 - [must] K: Valorisation perpétuelle Odoo 19 à la facturation, no  (Politique actuelle aux mouvements conservée ; transition et contrôle de soldes nécessaires)
 - [must] K: Valorisation périodique Odoo 19 à la clôture, no  (Les mouvements historiques ne prouvent pas la valorisation à la clôture)
-- [must] L: Intrastat EC sales list 1099 dépenses non admises, no  (Fonctions de localisation à inventorier et rendre configurables selon applicabilité)
+- [must] L: Intrastat EC sales list 1099 dépenses non admises, no  (Périmètre identifié dans les docs officielles 19.0 de reporting, Belgique et USA ; capacités non implémentées, non exclues. Leur activation exige une configuration de localisation appropriée.)
 - [must] M: OCR fournisseurs opérationnel, no  (Accès au flux existant ; prestataire accès coût et preuve de traitement non attestés)
 - [must] M: Paiement en ligne de factures, no  (Prestataire marchand webhooks clés et coûts non raccordés pour Coco)
 - [must] M: Synchronisation bancaire réelle, no  (Odoo cite Plaid Yodlee Salt Edge Ponto Enable Banking Basiq ; aucun contrat natif Coco ni banque équatorienne vérifiés)
 - [must] A: Cartes de journaux et activités à traiter, partial  (Vue opérationnelle présente ; regroupement complet par journal et activités Odoo à étendre)
-- [must] B: Comptes d'attente par moyen de paiement, partial  (Trois modes et cinq moyens Coco implémentés et testés côté serveur ; neuf parcours navigateur réussis et concurrence PostgreSQL vérifiée. Noms libres et plusieurs méthodes personnalisées de même famille dans un journal restent à ajouter ; rapprochement des nouveaux modes sur plusieurs dates suivi en F06.)
 - [must] B: Comptes par défaut produits catégories et tiers, partial  (Correspondances globales présentes ; héritage produit/catégorie/tiers incomplet)
 - [must] B: Séquences par journal et exercices, partial  (Opérationnel pour futures validations ; inférence depuis un numéro édité et renumérotation de masse Odoo restent à développer. Formats limités aux variables documentées dans configuration.md.)
 - [must] B: Taxes incluses fixes composées et arrondi global, partial  (Les taxes simples ne démontrent pas les combinaisons de calcul Odoo)
@@ -55,9 +54,8 @@ Missing, in build order
 - [must] C: Remises commerciales et base taxable, partial  (Remises existantes ; comparaison de toutes les politiques fiscales manquante)
 - [must] D: Préparation des paiements et lots de règlement, partial  (Paiement multiple présent ; fichiers bancaires normalisés à ajouter)
 - [must] E: Paiements fournisseurs autonomes et avances, partial  (Parité complète des avances fournisseur non démontrée)
-- [must] E: États enregistré affecté en paiement rapproché, partial  (Modes banque / attente / sans écriture, états en paiement, montants dus réels et annulation contrôlée implémentés ; scénarios serveur et neuf parcours navigateur réussis. Couverture complète des méthodes personnalisées et résiduels bancaires sur plusieurs dates reste à démontrer.)
+- [must] E: États enregistré affecté en paiement rapproché, partial  (Les traitements banque/attente/sans écriture, les méthodes nommées, les reliquats datés et les annulations sont vérifiés. Les statuts et échéances historiques Coco sont conservés ; la correspondance exhaustive des libellés et transitions Odoo reste à attester. Aucune équivalence totale des états n’est annoncée.)
 - [must] F: Modèles de rapprochement réutilisables et suggestions, partial  (Suggestions existantes ; moteur complet de modèles non disponible)
-- [must] F: Rapprochement partiel réutilisant un résiduel bancaire, partial  (Paiements partiels de facture présents ; résiduel de transaction bancaire à étendre ; les nouveaux traitements de paiement exigent actuellement une même date bancaire dans un groupe, sans choisir une date arbitraire pour plusieurs mouvements.)
 - [must] G: Recherche filtres pagination et retour à l'origine, partial  (Filtres présents ; regroupements Odoo et tous les liens à étendre)
 - [must] H: Clôture anticipée et renégociation d'emprunt, partial  (Annulation avec contre-écritures disponible ; clôture prospective et modification contractuelle à développer)
 - [must] H: Reclassements automatiques entre comptes et cut-off groupé, partial  (OD périodiques présentes ; moteur de transferts et cut-off Odoo incomplet)

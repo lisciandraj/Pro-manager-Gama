@@ -1,0 +1,93 @@
+{
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "tables": {
+    "public.reconciliations": {
+      "md5": "49e667f20224f4e021e29d84d31dcc81",
+      "count": 1
+    },
+    "public.bank_match_banks": {
+      "md5": "0514325c7b0abed9897271e8ceb2fbe3",
+      "count": 26
+    },
+    "public.company_settings": {
+      "md5": "a09b1cfbbc2fb5b6016ea5dfeb45974c",
+      "count": 1
+    },
+    "public.bank_match_groups": {
+      "md5": "98d9d2079e4ee892eed6800b661c2cdd",
+      "count": 26
+    },
+    "public.bank_transactions": {
+      "md5": "9f6ebefce6c0569a1eae49af57296e72",
+      "count": 89
+    },
+    "public.customer_receipts": {
+      "md5": "73b399541f9b1e2e00436ff0b4bc104a",
+      "count": 3
+    },
+    "public.external_invoices": {
+      "md5": "33eafa931111dd76eb1b33fd76e23441",
+      "count": 17
+    },
+    "public.supplier_invoices": {
+      "md5": "7aa6aa20e511f2dcd0a616d21f50d513",
+      "count": 6
+    },
+    "public.accounting_entries": {
+      "md5": "f59cc67a42eb6bb12f50d6589f81e70e",
+      "count": 58
+    },
+    "public.accounting_periods": {
+      "md5": "8a219d199e919e6a7e67bec28a755b1b",
+      "count": 2
+    },
+    "public.bank_match_sources": {
+      "md5": "c3e583b5392960ca8c7f28889367956a",
+      "count": 27
+    },
+    "public.financial_accounts": {
+      "md5": "2d1e7261a761ba1bfc89507a97d24e72",
+      "count": 1
+    },
+    "public.accounting_accounts": {
+      "md5": "f45e283db02999b13e7f707e4f218a49",
+      "count": 526
+    },
+    "public.accounting_journals": {
+      "md5": "036cc4dca2b1a70451d1cdb0715cf70b",
+      "count": 5
+    },
+    "public.accounting_entry_lines": {
+      "md5": "8834ccd4350f5ef6dbcaaad058106f50",
+      "count": 138
+    },
+    "public.external_invoice_payments": {
+      "md5": "a7dfa155a42b7ef0eaf03b4dd00fd7fd",
+      "count": 20
+    },
+    "public.supplier_invoice_payments": {
+      "md5": "f206e7617c61b9478a35ecfebfc2d572",
+      "count": 7
+    },
+    "private.accounting_payment_methods": {
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "count": 0
+    },
+    "private.accounting_payment_treatments": {
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "count": 0
+    },
+    "private.accounting_payment_settlements": {
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "count": 0
+    }
+  },
+  "entries": 58,
+  "currency": "USD",
+  "unbalanced": 0,
+  "captured_at": "2026-10-26T20:07:55.635461+00:00",
+  "unchanged_tables": true,
+  "changed_tables": []
+}

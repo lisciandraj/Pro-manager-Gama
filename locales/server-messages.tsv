@@ -111,7 +111,6 @@ OFF_BALANCE_MIXED	Separa las cuentas fuera de balance de las cuentas financieras
 OFF_BALANCE_TAXES	Un asiento fuera de balance no admite impuestos.
 OFF_BALANCE_RECONCILIATION	Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.
 PAYMENT_UNMATCH_FIRST	Deshaz primero la conciliación de este pago.
-PAYMENT_NO_ENTRY_NOT_ALLOCATABLE	Este anticipo sin asiento no puede imputarse a una factura.
 PAYMENT_OUTSTANDING_ACCOUNT_INVALID	Selecciona una cuenta de espera activa distinta del banco y de las cuentas de terceros.
 PAYMENT_MODE_INVALID	Revisa el medio, el sentido y el tratamiento del pago.
 PAYMENT_BANK_ACCOUNT_CHANGED	La cuenta bancaria cambió desde el registro del pago.
@@ -120,3 +119,15 @@ PAYMENT_MATCH_SAME_DATE_REQUIRED	Para este pago, selecciona movimientos bancario
 PAYMENT_PENDING_INTENTS_USE_MATCH	La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.
 ACCOUNT_APPROPRIATION_TYPE_LOCKED	Una cuenta utilizada no puede cambiar entre afectación anual y patrimonio permanente.
 EARNINGS_ALLOCATION_REQUIRED	Afecta todo el resultado antes de cerrar el ejercicio.
+PAYMENT_METHOD_UNAVAILABLE	Este medio no está activo para la cuenta y el sentido seleccionados.
+PAYMENT_METHOD_IDENTITY_IMMUTABLE	Un medio utilizado conserva su cuenta, familia y sentido.
+PAYMENT_METHOD_NAME_INVALID	El nombre debe tener entre 1 y 120 caracteres.
+MATCH_AMOUNT_EXCEEDS_REMAINING	El importe supera el saldo o tiene un signo incorrecto.
+MATCH_DUPLICATE_LINE	Selecciona cada movimiento u origen una sola vez.
+MATCH_ALLOCATION_REQUIRED	Indica la distribución por movimiento para conciliar importes de signos distintos en varias fechas.
+MATCH_ALLOCATION_INVALID	Revisa los movimientos, los orígenes y los signos de la distribución.
+MATCH_ALLOCATION_DIFFERENCE	La distribución debe coincidir con cada importe seleccionado.
+MATCH_GROUP_REQUIRED	Esta línea contiene varias conciliaciones. Elige el grupo en Conciliación agrupada.
+BANK_DATE_LOCKED	La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.
+PAYMENT_UNALLOCATE_FIRST	Libera primero las imputaciones de este anticipo antes de anular su conciliación.
+PAYMENT_NO_ENTRY_NOT_ALLOCATABLE	Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.

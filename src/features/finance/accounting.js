@@ -352,7 +352,7 @@ VIEWS.payables={
    </tbody></table></div></div>`;
  },
  bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-pagar');
-  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)))}
+  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))))}
 };
 
 /* ------------------------------------------------------------------ gastos */
@@ -498,7 +498,7 @@ VIEWS.purchases={
   $('gaImportSupplierXml')?.addEventListener('click',()=>window.CocoFlows.importSupplierXml());
   $('gaReceiptDrafts')?.addEventListener('click',()=>window.CocoFlows.draftBills());
   document.querySelectorAll('[data-ga-draft]').forEach(b=>b.onclick=()=>window.CocoFlows.draftBills(b.dataset.gaDraft));
-  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)));
+  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))));
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }
 };
@@ -534,8 +534,9 @@ async function billForm(context={}){
  $('gaSubtotal').oninput=recalc;$('gaTaxAmount').oninput=recalc;
  if(purchase){$('gaPurchase').value=purchase.id;$('gaSupplier').value=purchase.supplier_id}
 }
-function supplierPaymentForm(row){
+async function supplierPaymentForm(row){
  if(!row)return;
+ const methods=await window.ArcData.rpc('gama_accounting_payment_modes',{p_action:'context',p_data:{}});let chosen=()=>({method:$('gaMethod').value,payment_method_id:null});
  const key=crypto.randomUUID(),accs=(state.accounts||[]).filter(a=>a.active),available=Math.max(0,Number(row.balance)-Number(row.unposted_payment||0));
  GamaSales.modal('Registrar un pago a proveedor',
   `<p><b>${esc(row.supplier_name)}</b> · ${esc(row.number)}<br>${tr('Pendiente')} : <b>${money(row.balance)}</b></p>
@@ -548,9 +549,10 @@ function supplierPaymentForm(row){
   </div>`,'Guardar el pago',async el=>{
    const v=id=>el.querySelector('#'+id).value;
    await mutate('supplier_payment',{request_key:key,supplier_invoice_id:row.id,amount:Number(v('gaAmount')),
-    paid_at:v('gaDate'),method:v('gaMethod'),financial_account_id:v('gaAccount'),reference:v('gaReference')});
+    paid_at:v('gaDate'),...chosen(),financial_account_id:v('gaAccount'),reference:v('gaReference')});
    await go();
   });
+ chosen=window.ArchitectFinanceControls.paymentMethods(document.querySelector('dialog'),methods,{account:'#gaAccount',method:'#gaMethod',direction:'out',preferred:methods.preferences?.find(p=>p.partner_type==='supplier'&&p.partner_id===row.supplier_id)?.method_id});
 }
 
 /* ------------------------------------------------------------------ ventas */

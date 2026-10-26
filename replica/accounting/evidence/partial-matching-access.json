@@ -1,0 +1,50 @@
+{
+  "acl": {
+    "anon_matches": false,
+    "anon_methods": false,
+    "direct_postings": false,
+    "direct_allocations": false,
+    "direct_preferences": false,
+    "authenticated_matches": true,
+    "authenticated_methods": true
+  },
+  "rls": [
+    {
+      "table": "accounting_payment_preferences",
+      "enabled": true
+    },
+    {
+      "table": "accounting_match_allocations",
+      "enabled": true
+    },
+    {
+      "table": "accounting_match_postings",
+      "enabled": true
+    }
+  ],
+  "facades": [
+    {
+      "name": "gama_accounting_payment_modes",
+      "definer": false
+    },
+    {
+      "name": "gama_bank_match",
+      "definer": false
+    }
+  ],
+  "history": [
+    {
+      "table": "accounting_payment_preferences",
+      "enabled": true
+    },
+    {
+      "table": "accounting_match_postings",
+      "enabled": true
+    }
+  ],
+  "new_tables": {
+    "postings": 0,
+    "allocations": 0,
+    "preferences": 0
+  }
+}

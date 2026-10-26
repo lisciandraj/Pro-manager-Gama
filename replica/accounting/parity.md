@@ -1,22 +1,15 @@
 # Parité fonctionnelle vérifiable
 
-Référence : Odoo 19.0 Enterprise, sources officielles du 24 octobre 2026.
+Référence : **Odoo 19.0 Enterprise**, sources officielles consultées les 24–26 octobre 2026. L’interface de référence reste Coco.
 
-107 lignes de couverture. Statuts : testé : 52, partiel : 31, à développer : 18, à analyser : 2, bloqué : 3, exclu avec justification : 1. La revue du 25 octobre distingue le résultat reporté dynamique propre à Odoo 19 en H13, maintenant vérifié avec affectation et clôture sans double transfert.
+La matrice contient **107 lignes** : **54 testées, 29 partielles, 20 à développer, 0 à analyser, 3 bloquées et 1 exclusion SRI explicite**. Il reste donc **52 fonctions obligatoires incomplètes ou non démontrées** dans le périmètre de 106 lignes. Un score global ne compense aucun écart.
 
-Le statut « testé » atteste un scénario Coco isolé conforme à la règle précisée dans cette ligne. Il ne démontre pas toute la famille Odoo ni une comparaison sur instance Enterprise. Les lignes partielles, à développer, à analyser ou bloquées interdisent de qualifier le module d’équivalent intégral. La concurrence PostgreSQL réelle et les parcours des échéanciers, de configuration et d'import mappé ont réussi en CI ; le contrôle multi-écrans du périmètre complet reste partiel. Seule la facturation électronique SRI est exclue sur instruction explicite.
+Le statut « testé » atteste les scénarios Coco et critères précis de la ligne, en base isolée, comparés aux règles Odoo documentées. Il ne démontre pas toute une famille Odoo ni une comparaison exhaustive sur instance Enterprise. La classification détaillée des éditions et la couverture de tous les écrans restent également limitées. Le périmètre complet n’est pas livré.
 
-Ne pas remplacer ces écarts par un score favorable. Le périmètre complet n’est pas livré. Les extensions testées peuvent être publiées comme améliorations additives du module existant, sans annonce d’équivalence.
+Le lot [moyens nommés et reliquats](partial-matching.md) termine les critères B14 et F06 : méthodes de même famille, préférences tiers, paiements figés, reliquats, plusieurs dates et annulation partielle. E05 reste partiel : les traitements et soldes réels sont vérifiés, tandis que la correspondance exhaustive des libellés/transitions avec Odoo reste à attester. Cette réserve est conservée malgré la réussite des tests.
 
-Le [diagnostic du script Replica](evidence/parity-tool.txt), exécuté sur cette
-matrice, conclut également que le périmètre complet n'est pas prêt : 54 fonctions
-obligatoires restent incomplètes ou non démontrées. Sa pondération des fonctions
-partielles ne remplace aucun critère d'acceptation. La comparaison de pixels avec
-Odoo n'est pas retenue : la référence visuelle demandée est Coco, dont les
-composants sont vérifiés dans les captures et parcours isolés.
+Les 97 parcours comptables, dont neuf combinaisons ES/FR/EN × 390/768/1440 supplémentaires, et la concurrence PostgreSQL 17 réussissent dans le run 40387433781. Les derniers contrôles de liens d’historique et l’archive des migrations sont consignés dans [les résultats du lot](results-partial-matching.md). La comparaison de pixels avec Odoo est écartée : les composants, couleurs, montants et défilements sont évalués par rapport à Coco.
 
-Priorités de reprise : méthodes de paiement personnalisées et résiduels bancaires ; valorisation Odoo 19 avec transition ; moteur de taxes et positions fiscales ; analytique/budgets révisables ; séparation multi-sociétés puis consolidation ; méthodes d’immobilisations et services externes. Les séquences sont opérationnelles pour les nouvelles validations, mais B04 reste partiel pour l'inférence du format et la renumérotation de masse.
+D05 (autofacturation) et L10 (rapports de localisation) ont été identifiés dans les sources officielles 19.0 et passent à « à développer », sans exclusion. Les priorités suivantes restent la valorisation 19 avec reprise, les taxes/positions fiscales, l’analytique et les budgets révisables, le multi-sociétés/consolidation, les méthodes d’amortissement et les services connectés. Le résultat reporté H13, les configurations et échéanciers déjà livrés sont conservés.
 
-Le lot [paiements et comptes d’attente](results-payment-modes.md) étend B14/E05 sans les déclarer complets : paramètres, traitement figé, solde réellement comptabilisé, liquidation et annulation sont vérifiés ; méthodes personnalisées multiples et résiduels datés restent visibles.
-
-Le moteur [de report et d’affectation du résultat](earnings-19.md) est vérifié par treize tests serveur chiffrés, neuf parcours multilingues et une course PostgreSQL de clôture. La PR 247 consigne la publication exacte ; la navigation authentifiée en production reste non attestée et N04 partiel.
+Le [diagnostic Replica](evidence/parity-tool.txt) conserve la liste des fonctions obligatoires manquantes. Il ne constitue pas une autorisation de présenter le module comme équivalent complet.

@@ -117,6 +117,27 @@ test('Named payment methods and dated partial matches use the canonical ledger',
    await denied(()=>apply([b.id],[source(p.id)],{allocations:[{bank_id:b.id,kind:'customer_payment',source_id:p.id,amount:99}]}),/MATCH_ALLOCATION_DIFFERENCE/);assert.equal(await count(),n);
    await apply([{id:b.id,amount:40}],[source(p.id,40)]);await rpc('gama_accounting_action','reconcile',{id:b.id,match_type:'customer_payment',match_id:p.id,request_key:uuid()});assert.equal(await cash(),100);assert.equal((await balance(inv)).pending_payment,0);
   });
+  await scenario('fees across two bank dates require and verify an explicit signed allocation',async()=>{
+   await mode();const inv=await invoice(),p=await pay(inv),yesterday=await v('select ($1::date-1)::text',[day]);
+   const fee=await rpc('gama_accounting_action','expense_save',{request_key:uuid(),expense_date:day,description:'Isolated bank fee',amount_untaxed:3,tax_amount:0,amount_total:3,payment_method:'transfer',financial_account_id:ids.bank});await rpc('gama_accounting_action','expense_post',{id:fee.id});assert.equal(await cash(),-3);
+   const a=await bankRow(40,yesterday),b=await bankRow(57),sources=[source(p.id),source(fee.id,-3,'expense')];await denied(()=>apply([a.id,b.id],sources),/MATCH_ALLOCATION_REQUIRED/);
+   const allocations=[{bank_id:a.id,kind:'customer_payment',source_id:p.id,amount:40},{bank_id:b.id,kind:'customer_payment',source_id:p.id,amount:60},{bank_id:b.id,kind:'expense',source_id:fee.id,amount:-3}];
+   const preview=await rpc('gama_bank_match','preview',{account_id:ids.bank,banks:[a.id,b.id],sources,allocations});assert.equal(preview.amount,97);await apply([a.id,b.id],sources,{allocations});assert.equal(await cash(),97);assert.equal((await balance(inv)).payment_status,'paid');
+  });
+  await scenario('a no-entry receipt allocates only settled credit and cannot unmatch credit already used',async()=>{
+   await mode('none');const inv=await invoice(),r=await rpc('gama_receipt_action','receive',{request_key:uuid(),customer_id:ids.customer,financial_account_id:ids.bank,amount:150,paid_at:day,method:'transfer',reference:'INTENDED-ADVANCE-150'}),bank=await bankRow(60);
+   const group=await apply([bank.id],[source(r.id,60,'customer_receipt')]);
+   await denied(()=>rpc('gama_receipt_action','allocate',{request_key:uuid(),id:r.id,invoice_id:inv.id,amount:61}),/PAYMENT_NO_ENTRY_NOT_ALLOCATABLE/);
+   const allocation=await rpc('gama_receipt_action','allocate',{request_key:uuid(),id:r.id,invoice_id:inv.id,amount:60});assert.equal((await balance(inv)).balance,40);assert.equal((await balance(inv)).unposted_payment,0);assert.equal((await balance(inv)).pending_payment,0);assert.equal(await cash(),60);
+   await denied(()=>undo(group),/PAYMENT_UNALLOCATE_FIRST/);
+   await rpc('gama_payment_action','cancel_payment',{invoice_id:inv.id,payment_id:allocation.id,reason:'Release the settled advance allocation'});await undo(group);assert.equal((await balance(inv)).balance,100);assert.equal(await cash(),0);
+  });
+  await scenario('named outbound method and supplier preference preserve the selected accounting mode',async()=>{
+   const method=await named('Vendor local cheque','none',{direction:'out'});await rpc('gama_accounting_payment_modes','preference_save',{request_key:uuid(),partner_type:'supplier',partner_id:ids.supplier,method_id:method.id});
+   const inv=await rpc('gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:ids.supplier,number:'NAMED-VENDOR',issue_date:day,subtotal:100,tax:0,total:100});
+   const payment=await rpc('gama_accounting_action','supplier_payment',{request_key:uuid(),supplier_invoice_id:inv.id,financial_account_id:ids.bank,amount:100,paid_at:day,reference:'NAMED-VENDOR-PAYMENT'});assert.equal(await raw("select method_id from private.accounting_payment_treatments where source_type='supplier_payment' and source_id=$1",[payment.id]),method.id);assert.equal(await cash(),0);
+   const bank=await bankRow(-100);await apply([bank.id],[source(payment.id,-100,'supplier_payment')]);assert.equal(await cash(),-100);
+  });
   await scenario('locked bank date refuses the group instead of moving its cash to a later period',async()=>{
    await mode();const inv=await invoice(),p=await pay(inv),b=await bankRow(100),n=await count();await rpc('gama_accounting_configuration','lock_save',{request_key:uuid(),kind:'all',lock_date:day,reason:'Isolated locked bank period'});
    await denied(()=>apply([b.id],[source(p.id)]),/BANK_DATE_LOCKED|ACCOUNTING.*LOCKED/);assert.equal(await count(),n);assert.equal(await v('select status from bank_transactions where id=$1',[b.id]),'unmatched');assert.equal(await cash(),0);

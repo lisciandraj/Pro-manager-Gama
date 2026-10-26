@@ -70,6 +70,12 @@ declare rights jsonb:=private.gama_accounting_rights();acc uuid:=nullif(p_data->
  if p_action='cancel' then
   select * into grp from public.bank_match_groups where id=(p_data->>'id')::uuid and financial_account_id=acc for update;if not found then raise exception 'MATCH_NOT_FOUND';end if;
   if length(btrim(coalesce(p_data->>'reason','')))<3 then raise exception 'REASON_REQUIRED';end if;
+  -- A no-entry receipt can allocate only settled credit. Undoing a portion
+  -- must first release any invoice allocations that depend on that credit.
+  for src in select t.*,s.amount group_amount from public.bank_match_sources s join private.accounting_payment_treatments t on t.source_type=s.kind and t.source_id=s.source_id where s.group_id=grp.id and t.source_type='customer_receipt' and t.mode='none' and grp.cancelled_at is null loop
+   perform 1 from public.customer_receipts where id=src.source_id for update;
+   if coalesce((select sum(p.amount) from public.external_invoice_payments p where p.receipt_id=src.source_id and p.status='confirmed'),0)>abs(src.amount)-abs(private.gama_match_source_remaining('customer_receipt',src.source_id))-abs(src.group_amount) then raise exception 'PAYMENT_UNALLOCATE_FIRST';end if;
+  end loop;
   update public.bank_match_groups set cancelled_at=coalesce(cancelled_at,now()),cancellation_reason=coalesce(cancellation_reason,p_data->>'reason') where id=grp.id;
   update public.bank_transactions b set status=case when private.gama_match_bank_remaining(b.id)=0 then 'matched' else 'unmatched' end where b.id in(select bank_id from public.bank_match_banks where group_id=grp.id);
   return jsonb_build_object('cancelled',true);
@@ -181,7 +187,7 @@ language sql stable security definer set search_path='' as $$
   select p.amount,coalesce(t.mode,r.mode) mode,coalesce(t.source_type,r.source_type) source_type,coalesce(t.source_id,r.source_id) source_id,abs(coalesce(t.amount,r.amount)) original
   from public.external_invoice_payments p left join private.accounting_payment_treatments t on t.source_type='customer_payment' and t.source_id=p.id left join private.accounting_payment_treatments r on r.source_type='customer_receipt' and r.source_id=p.receipt_id where p_side='customer' and p.invoice_id=p_invoice and p.status='confirmed'
   union all select p.amount,t.mode,t.source_type,t.source_id,abs(t.amount) from public.supplier_invoice_payments p left join private.accounting_payment_treatments t on t.source_type='supplier_payment' and t.source_id=p.id where p_side='supplier' and p.supplier_invoice_id=p_invoice and p.status='confirmed'
- ), classified as(select *,round(amount*abs(coalesce(private.gama_match_source_remaining(source_type,source_id),0))/nullif(original,0),2) remaining from payments where mode is not null)
+ ), classified as(select *,case when source_type='customer_receipt' and mode='none' then 0 else round(amount*abs(coalesce(private.gama_match_source_remaining(source_type,source_id),0))/nullif(original,0),2) end remaining from payments where mode is not null)
  select jsonb_build_object('unposted',coalesce(sum(remaining) filter(where mode='none'),0),'pending',coalesce(sum(remaining) filter(where mode in('none','outstanding')),0)) from classified
 $$;
 -- A legacy whole-match must never consume a residual a second time.
@@ -215,5 +221,26 @@ revoke all on function private.gama_payment_action_before_method_names(text,json
 create or replace function private.gama_payment_action(p_action text,p_data jsonb default '{}') returns jsonb
 language plpgsql security definer set search_path='' as $$declare r jsonb;begin
  r:=private.gama_payment_action_before_method_names(p_action,p_data);
- if p_action='detail' then r:=jsonb_set(r,'{payments}',coalesce((select jsonb_agg(p||jsonb_build_object('payment_method_name',coalesce(t.method_name,rt.method_name))) from jsonb_array_elements(r->'payments') p left join private.accounting_payment_treatments t on t.source_type='customer_payment' and t.source_id=(p->>'id')::uuid left join public.external_invoice_payments cp on cp.id=(p->>'id')::uuid left join private.accounting_payment_treatments rt on rt.source_type='customer_receipt' and rt.source_id=cp.receipt_id),'[]'));end if;return r;
+ if p_action='detail' then r:=jsonb_set(r,'{payments}',coalesce((select jsonb_agg(p||jsonb_build_object('payment_method_name',coalesce(t.method_name,rt.method_name),'bank_matched',case when rt.mode='none' then true else coalesce((p->>'bank_matched')::boolean,false) end)) from jsonb_array_elements(r->'payments') p left join private.accounting_payment_treatments t on t.source_type='customer_payment' and t.source_id=(p->>'id')::uuid left join public.external_invoice_payments cp on cp.id=(p->>'id')::uuid left join private.accounting_payment_treatments rt on rt.source_type='customer_receipt' and rt.source_id=cp.receipt_id),'[]'));end if;return r;
+end $$;
+
+-- A receipt without an entry becomes allocatable as real bank evidence arrives.
+-- Its allocation consumes settled receivable credit, never expected cash.
+do $$declare s text;a text;b text;begin
+ s:=pg_get_functiondef('private.gama_payment_mode_capture()'::regprocedure);
+ a:=$a$if exists(select 1 from private.accounting_payment_treatments where source_type='customer_receipt'
+   and source_id=(j->>'receipt_id')::uuid and mode='none') then raise exception 'PAYMENT_NO_ENTRY_NOT_ALLOCATABLE';end if;$a$;
+ b:=$b$if exists(select 1 from private.accounting_payment_treatments where source_type='customer_receipt' and source_id=(j->>'receipt_id')::uuid and mode='none') then
+  perform 1 from public.customer_receipts where id=(j->>'receipt_id')::uuid for update;
+  select abs(t.amount)-abs(private.gama_match_source_remaining(t.source_type,t.source_id))-coalesce((select sum(p.amount) from public.external_invoice_payments p where p.receipt_id=t.source_id and p.status='confirmed'),0) into available from private.accounting_payment_treatments t where t.source_type='customer_receipt' and t.source_id=(j->>'receipt_id')::uuid;
+  if (j->>'amount')::numeric>coalesce(available,0) then raise exception 'PAYMENT_NO_ENTRY_NOT_ALLOCATABLE';end if;
+ end if;$b$;
+ if position(a in s)=0 then raise exception 'RECEIPT_SETTLED_CREDIT_ANCHOR';end if;execute replace(s,a,b);
+end $$;
+
+do $$begin execute replace(pg_get_functiondef('private.gama_accounting_action(text,jsonb)'::regprocedure),'FUNCTION private.gama_accounting_action(', 'FUNCTION private.gama_accounting_action_before_partial_undo(');end $$;
+revoke all on function private.gama_accounting_action_before_partial_undo(text,jsonb) from public,anon,authenticated,service_role;
+create or replace function private.gama_accounting_action(p_action text,p_data jsonb default '{}') returns jsonb language plpgsql security definer set search_path='' as $$begin
+ if p_action='reconcile_undo' and auth.uid() is not null and private.erp_mfa_ok() and private.erp_action_allowed('accounting','validate') and private.gama_accounting_rights()->>'scope'='all' and (select count(*) from public.bank_match_banks b join public.bank_match_groups g on g.id=b.group_id where b.bank_id=(p_data->>'id')::uuid and g.cancelled_at is null)>1 then raise exception 'MATCH_GROUP_REQUIRED';end if;
+ return private.gama_accounting_action_before_partial_undo(p_action,p_data);
 end $$;

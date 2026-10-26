@@ -67,14 +67,14 @@ do $$declare fn text;act text;direction text;partner text;body text;begin
   body:=format($body$
   create or replace function private.%1$I(p_action text,p_data jsonb default '{}') returns jsonb language plpgsql security definer set search_path='' as $f$
   declare result jsonb;normalized jsonb;old_method text:=coalesce(current_setting('coco.payment_method_id',true),'');k uuid;prior private.command_receipts;begin
-   if p_action<>%2$L then return private.%3$I(p_action,p_data);end if;
+   if p_action<>%2$L or (nullif(p_data->>'request_key','') is null and nullif(p_data->>'payment_method_id','') is null) then return private.%3$I(p_action,p_data);end if;
    if auth.uid() is null or not private.erp_mfa_ok() then raise exception 'AUTH_OR_MFA_REQUIRED';end if;
    k:=nullif(p_data->>'request_key','')::uuid;if k is null then raise exception 'REQUEST_KEY_REQUIRED';end if;
    perform pg_advisory_xact_lock(hashtextextended(%4$L||k::text,0));
    select * into prior from private.command_receipts where domain=%4$L and request_key=k;
    if found then if prior.actor_id<>auth.uid() or prior.payload<>p_data then raise exception 'REQUEST_KEY_CONFLICT';end if;
     -- Existing reader enforces the current user's role, even for a replay.
-    if not private.erp_action_allowed(case when %2$L='payment' then 'payments' else 'accounting' end,'create') then raise exception 'NOT_ALLOWED';end if;
+    if not private.erp_action_allowed(case when %2$L in ('payment','receive') then 'payments' else 'accounting' end,'create') then raise exception 'NOT_ALLOWED';end if;
     return prior.result;end if;
    normalized:=private.gama_named_payment_prepare(p_data,%5$L,%6$s);
    result:=private.%3$I(p_action,normalized);
@@ -147,7 +147,7 @@ revoke all on function private.gama_receipt_action_before_method_context(text,js
 create or replace function private.gama_receipt_action(p_action text,p_data jsonb default '{}') returns jsonb
 language plpgsql security definer set search_path='' as $$declare r jsonb;begin
  r:=private.gama_receipt_action_before_method_context(p_action,p_data);
- if p_action='context' then r:=r||jsonb_build_object('payment_methods',coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'name',m.name,'financial_account_id',m.financial_account_id,'direction',m.direction,'method',m.method,'mode',m.mode,'is_default',m.is_default) order by m.is_default desc,m.name,m.method) from private.accounting_payment_methods m where active),'[]'),
+ if p_action='context' then r:=r||jsonb_build_object('payment_methods',coalesce((select jsonb_agg(jsonb_build_object('id',m.id,'name',m.name,'financial_account_id',m.financial_account_id,'direction',m.direction,'method',m.method,'mode',m.mode,'is_default',m.is_default) order by m.is_default desc,m.name,m.method) from private.accounting_payment_methods m where m.active and m.direction='in' and exists(select 1 from jsonb_array_elements(r->'accounts') a where (a->>'id')::uuid=m.financial_account_id)),'[]'),
  'preferred_method_id',(select method_id from private.accounting_payment_preferences where partner_type='customer' and partner_id=nullif(p_data->>'customer_id','')::uuid));end if;return r;
 end $$;
 -- Extend existing sanitized history and use its record-specific link.

@@ -46,3 +46,7 @@ groupes → balance → grand livre → historique. La création de l'écriture 
 saisie UI. L'import de 19,25 USD avec colonnes inconnues est bloqué en présence
 d'une date impossible, puis réussi et rejoué sans doublon ni écriture de cash.
 FR/ES/EN × 390/768/1440, absence de débordement et scans axe complètent le parcours.
+
+## Moyens nommés et reliquats datés
+
+`accounting-partial-matching-db.test.cjs` utilise les calculs indépendants de [partial-matching.md](partial-matching.md), contrôle les préférences et noms figés, les dates, fournisseurs, frais signés, avances et autorisations. `accounting-payment-upgrade-db.test.cjs` applique les migrations sur une base déjà peuplée et compare les empreintes ; il vérifie ensuite l'annulation et le rejeu d'un rapprochement antérieur. `accounting-partial-matching.spec.js` exécute le parcours préférence → paiement → banque 40 puis 60 → aperçu → annulation du premier groupe, dans neuf combinaisons de langue et de largeur. La suite de concurrence ajoute une course de deux paiements sur une seule ligne bancaire de 150 ; une seule portion de 100 est acceptée, puis seulement les 50 restants.

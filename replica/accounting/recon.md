@@ -54,8 +54,7 @@ verrouillage et le [résultat reporté](https://www.odoo.com/documentation/19.0/
 sont distincts. Odoo 19 affiche le résultat précédent dans une ligne dynamique
 de la balance et du grand livre, avant son affectation manuelle. Les comptes
 d'affectation ne se comportent pas comme les autres comptes de capitaux propres.
-Le sous-type disponible dans Coco ne reproduit pas encore ces calculs ; H13 les
-recense explicitement, sans modifier les clôtures historiques de Coco.
+Les calculs H13 ont ensuite été implémentés et testés dans la PR 247 ; voir [earnings-19.md](earnings-19.md), sans modification des clôtures historiques de Coco.
 
 ## Attribution des éditions : preuves supplémentaires
 
@@ -69,3 +68,11 @@ Les manifestes officiels de la branche **19.0** ont été consultés le 24 octob
 | [account_accountant / account_reports](https://www.odoo.com/documentation/19.0/fr/developer/howtos/accounting_localization.html) | La documentation distingue les rapports fiscaux accessibles via Comptabilité Enterprise | Les identifiants et licences de tous les compléments avancés n'ont pas été inspectés sur une instance licenciée |
 
 La matrice précise les socles Community documentés tout en conservant Enterprise comme référence fonctionnelle. Une dépendance partagée n'est pas une preuve d'exclusivité d'édition. Les développements récents `cf03d88` et `74a2610` ont été intégrés avant la CI.
+
+Reprise du **26 octobre 2026** : main `21aeb2c`, PR 243–247 intégrées ; contrôle de USD et des huit migrations comptables précédentes. Les nouveaux moyens nommés et rapprochements partiels sont décrits dans [partial-matching.md](partial-matching.md). La sauvegarde et la relecture de l’existant figurent dans [resume-2026-10-26.md](resume-2026-10-26.md).
+
+## Compléments d’inventaire du 26 octobre
+
+D05 : l’[autofacturation fournisseur](https://www.odoo.com/documentation/19.0/applications/finance/accounting/vendor_bills.html) dispose d’un journal dédié, d’une séquence par tiers et d’un envoi de la facture ou de l’avoir émis au nom du fournisseur. Le simple enregistrement d’une facture reçue ne reproduit pas ce parcours. La transmission Peppol nécessite une inscription et un point d’accès compatible ; elle ne découle pas de l’existence d’un PDF.
+
+L10 : les [retours fiscaux 19.0](https://www.odoo.com/documentation/19.0/applications/finance/accounting/reporting/tax_returns.html) distinguent les capacités liées au pays. La documentation [USA](https://www.odoo.com/documentation/19.0/applications/finance/fiscal_localizations/united_states.html) décrit l’export des paiements aux prestataires pour 1099 ; la documentation [Belgique](https://www.odoo.com/documentation/19.0/applications/finance/fiscal_localizations/belgium.html) décrit les catégories de dépenses non admises. Intrastat et EC Sales List sont rattachés à l’UE. Ces capacités identifiées restent à développer avec une configuration explicite ; aucune applicabilité fiscale à l’entreprise de Quito n’est présumée. Aucune règle issue de master ou saas-19.3 n’est retenue.

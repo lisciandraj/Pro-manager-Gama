@@ -56,7 +56,7 @@ language plpgsql security definer set search_path='' as $$
 declare rights jsonb:=private.gama_accounting_rights();acc uuid:=nullif(p_data->>'account_id','')::uuid;
  bank public.bank_transactions;grp public.bank_match_groups;src record;x jsonb;y jsonb;amount numeric;remaining numeric;bid uuid;sid uuid;kind text;
  banks jsonb:='[]';sources jsonb:='[]';alloc jsonb:='[]';bank_total numeric:=0;source_total numeric:=0;key uuid:=nullif(p_data->>'request_key','')::uuid;
- need numeric;available numeric;take numeric;i integer;v_date date;begin
+ need numeric;available numeric;take numeric;i integer;v_date date;legacy_whole boolean:=false;begin
  if not private.erp_module_allowed('accounting',array['administrador','comercial']) or not coalesce((rights->>'view')::boolean,false) or rights->>'scope'<>'all' then raise exception 'ROLE_NOT_ALLOWED';end if;
  if not exists(select 1 from public.financial_accounts where id=acc) then raise exception 'FINANCIAL_ACCOUNT_REQUIRED';end if;
  if p_action='context' then return jsonb_build_object(
@@ -118,7 +118,13 @@ declare rights jsonb:=private.gama_accounting_rights();acc uuid:=nullif(p_data->
  elsif jsonb_array_length(banks)=1 then
   select jsonb_agg(jsonb_build_object('bank_id',banks->0->>'id','kind',s->>'kind','source_id',s->>'id','amount',s->'amount')) into alloc from jsonb_array_elements(sources) s;
  else
-  if (select count(distinct sign((s->>'amount')::numeric)) from jsonb_array_elements(sources) s)>1 or (select count(distinct sign((b->>'amount')::numeric)) from jsonb_array_elements(banks) b)>1 then raise exception 'MATCH_ALLOCATION_REQUIRED';end if;
+  if (select count(distinct sign((s->>'amount')::numeric)) from jsonb_array_elements(sources) s)>1 or (select count(distinct sign((b->>'amount')::numeric)) from jsonb_array_elements(banks) b)>1 then
+   legacy_whole:=not exists(select 1 from jsonb_array_elements(p_data->'banks') b where jsonb_typeof(b)<>'string') and not exists(select 1 from jsonb_array_elements(p_data->'sources') s where s ? 'amount') and not exists(select 1 from jsonb_array_elements(sources) s join private.accounting_payment_treatments t on t.source_type=s->>'kind' and t.source_id=(s->>'id')::uuid where t.mode<>'bank');
+   if not legacy_whole then raise exception 'MATCH_ALLOCATION_REQUIRED';end if;
+  end if;
+  -- Historical whole matches of already posted bank sources retain their
+  -- many-to-many group. They create no dated settlement or invented split.
+  if not legacy_whole then
   -- Deterministic FIFO by the actual bank dates, shown in the preview.
   for x in select value from jsonb_array_elements(banks) order by value->>'value_date',value->>'id' loop
    need:=(x->>'amount')::numeric;
@@ -129,9 +135,10 @@ declare rights jsonb:=private.gama_accounting_rights();acc uuid:=nullif(p_data->
    end loop;
   end loop;
  end if;
+ end if;
  if exists(select 1 from jsonb_array_elements(alloc) a where not exists(select 1 from jsonb_array_elements(banks) b where b->>'id'=a->>'bank_id') or not exists(select 1 from jsonb_array_elements(sources) s where s->>'kind'=a->>'kind' and s->>'id'=a->>'source_id' and sign((s->>'amount')::numeric)=sign((a->>'amount')::numeric)) or (a->>'amount')::numeric=0 or (a->>'amount')::numeric<>round((a->>'amount')::numeric,2) or a->>'amount' is null) then raise exception 'MATCH_ALLOCATION_INVALID';end if;
  if exists(select 1 from jsonb_array_elements(alloc) a group by a->>'bank_id',a->>'kind',a->>'source_id' having count(*)>1) then raise exception 'MATCH_DUPLICATE_LINE';end if;
- if exists(select 1 from jsonb_array_elements(banks) b where (b->>'amount')::numeric<>coalesce((select sum((a->>'amount')::numeric) from jsonb_array_elements(alloc) a where a->>'bank_id'=b->>'id'),0)) or exists(select 1 from jsonb_array_elements(sources) s where (s->>'amount')::numeric<>coalesce((select sum((a->>'amount')::numeric) from jsonb_array_elements(alloc) a where a->>'kind'=s->>'kind' and a->>'source_id'=s->>'id'),0)) then raise exception 'MATCH_ALLOCATION_DIFFERENCE';end if;
+ if not legacy_whole and (exists(select 1 from jsonb_array_elements(banks) b where (b->>'amount')::numeric<>coalesce((select sum((a->>'amount')::numeric) from jsonb_array_elements(alloc) a where a->>'bank_id'=b->>'id'),0)) or exists(select 1 from jsonb_array_elements(sources) s where (s->>'amount')::numeric<>coalesce((select sum((a->>'amount')::numeric) from jsonb_array_elements(alloc) a where a->>'kind'=s->>'kind' and a->>'source_id'=s->>'id'),0))) then raise exception 'MATCH_ALLOCATION_DIFFERENCE';end if;
  if p_action='preview' then return jsonb_build_object('banks',banks,'sources',sources,'allocations',alloc,'amount',bank_total);end if;
  insert into public.bank_match_groups(request_key,financial_account_id,note) values(key,acc,left(coalesce(p_data->>'note',''),2000)) returning * into grp;
  for x in select value from jsonb_array_elements(banks) loop insert into public.bank_match_banks(group_id,bank_id,amount) values(grp.id,(x->>'id')::uuid,(x->>'amount')::numeric);end loop;

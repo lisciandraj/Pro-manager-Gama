@@ -5851,3 +5851,15 @@ Con cuentas de afectación, registra primero el reparto completo del resultado. 
 Afecta todo el resultado antes de cerrar el ejercicio.	Affectez la totalité du résultat avant de clôturer l’exercice.	Appropriate the full result before closing the fiscal year.
 El ejercicio ya está cerrado.	L’exercice est déjà clôturé.	The fiscal year is already closed.
 El libro cambió durante la exportación. Actualiza el informe y vuelve a exportar.	Le livre a changé pendant l’export. Actualisez le rapport puis relancez l’export.	The ledger changed during export. Refresh the report and export again.
+Este medio no está activo para la cuenta y el sentido seleccionados.	Cette méthode est inactive pour le compte et le sens sélectionnés.	This method is inactive for the selected account and direction.
+Un medio utilizado conserva su cuenta, familia y sentido.	Une méthode utilisée conserve son compte, sa famille et son sens.	A used method retains its account, family and direction.
+El nombre debe tener entre 1 y 120 caracteres.	Le nom doit comporter entre 1 et 120 caractères.	The name must contain between 1 and 120 characters.
+El importe supera el saldo o tiene un signo incorrecto.	Le montant dépasse le solde ou porte un signe incorrect.	The amount exceeds the remaining balance or has the wrong sign.
+Selecciona cada movimiento u origen una sola vez.	Sélectionnez chaque mouvement ou origine une seule fois.	Select each transaction or source only once.
+Indica la distribución por movimiento para conciliar importes de signos distintos en varias fechas.	Indiquez la répartition par mouvement pour rapprocher des montants de signes différents sur plusieurs dates.	Enter allocations by transaction to match amounts of different signs across dates.
+Revisa los movimientos, los orígenes y los signos de la distribución.	Vérifiez les mouvements, les origines et les signes de la répartition.	Review transactions, sources and signs in the allocation.
+La distribución debe coincidir con cada importe seleccionado.	La répartition doit correspondre à chaque montant sélectionné.	The allocation must agree with every selected amount.
+Esta línea contiene varias conciliaciones. Elige el grupo en Conciliación agrupada.	Cette ligne contient plusieurs rapprochements. Choisissez le groupe dans Rapprochement groupé.	This line has several matches. Select the group in Grouped reconciliation.
+La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.	La date bancaire est verrouillée. Vérifiez la clôture ou une exception avant le rapprochement.	The bank date is locked. Review the closing or an exception before matching.
+Libera primero las imputaciones de este anticipo antes de anular su conciliación.	Libérez d’abord les affectations de cet acompte avant d’annuler son rapprochement.	Release this advance’s allocations before cancelling its bank match.
+Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.	Vous pouvez affecter uniquement la partie de cet acompte déjà rapprochée et disponible.	You can allocate only the already matched and available portion of this advance.

@@ -124,6 +124,11 @@ test('Named payment methods and dated partial matches use the canonical ledger',
    const allocations=[{bank_id:a.id,kind:'customer_payment',source_id:p.id,amount:40},{bank_id:b.id,kind:'customer_payment',source_id:p.id,amount:60},{bank_id:b.id,kind:'expense',source_id:fee.id,amount:-3}];
    const preview=await rpc('gama_bank_match','preview',{account_id:ids.bank,banks:[a.id,b.id],sources,allocations});assert.equal(preview.amount,97);await apply([a.id,b.id],sources,{allocations});assert.equal(await cash(),97);assert.equal((await balance(inv)).payment_status,'paid');
   });
+  await scenario('legacy whole matching of already-posted receipts and fees retains its prior contract',async()=>{
+   const inv=await invoice(),p=await pay(inv),yesterday=await v('select ($1::date-1)::text',[day]);
+   const fee=await rpc('gama_accounting_action','expense_save',{request_key:uuid(),expense_date:day,description:'Pre-existing direct bank fee',amount_untaxed:3,tax_amount:0,amount_total:3,payment_method:'transfer',financial_account_id:ids.bank});await rpc('gama_accounting_action','expense_post',{id:fee.id});assert.equal(await cash(),97);
+   const a=await bankRow(40,yesterday),b=await bankRow(57),n=await count();const g=await apply([a.id,b.id],[source(p.id),source(fee.id,undefined,'expense')]);assert.equal(await cash(),97);assert.equal(await count(),n);await undo(g);assert.equal(await cash(),97);assert.equal((await balance(inv)).balance,0);
+  });
   await scenario('a no-entry receipt allocates only settled credit and cannot unmatch credit already used',async()=>{
    await mode('none');const inv=await invoice(),r=await rpc('gama_receipt_action','receive',{request_key:uuid(),customer_id:ids.customer,financial_account_id:ids.bank,amount:150,paid_at:day,method:'transfer',reference:'INTENDED-ADVANCE-150'}),bank=await bankRow(60);
    const group=await apply([bank.id],[source(r.id,60,'customer_receipt')]);

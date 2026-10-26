@@ -147,6 +147,13 @@ test('Named payment methods and dated partial matches use the canonical ledger',
    await mode();const inv=await invoice(),p=await pay(inv),b=await bankRow(100),n=await count();await rpc('gama_accounting_configuration','lock_save',{request_key:uuid(),kind:'all',lock_date:day,reason:'Isolated locked bank period'});
    await denied(()=>apply([b.id],[source(p.id)]),/BANK_DATE_LOCKED|ACCOUNTING.*LOCKED/);assert.equal(await count(),n);assert.equal(await v('select status from bank_transactions where id=$1',[b.id]),'unmatched');assert.equal(await cash(),0);
   });
+  await scenario('history links the real settlement entry and hides treasury details from limited-scope readers',async()=>{
+   await mode();const inv=await invoice(),p=await pay(inv),b=await bankRow(100),g=await apply([b.id],[source(p.id)]),data=await ctx(),posting=data.groups.find(x=>x.id===g.id).postings[0];
+   const history=await rpc('coco_module_history','list',{module_id:'accounting',limit:100});assert.ok(JSON.stringify(history).includes(posting.entry_id));
+   const link=await v("select private.coco_history_typed_link('accounting','accounting_match_postings',$1,'Isolated settlement')",[posting.id]);assert.equal(link.action,'accounting_entry');assert.equal(link.id,posting.entry_id);
+   await db.exec('reset role');await q('update accounting_permissions set can_read_all=false where profile_id=$1',[ids.reader]);await db.exec('set role authenticated');await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.reader]);
+   assert.equal(await v("select private.coco_history_record_visible('accounting_match_postings',$1,$2)",[posting.id,ids.admin]),false);assert.equal(await v("select private.coco_history_typed_link('accounting','accounting_match_postings',$1,'Isolated settlement')",[posting.id]),null);
+  });
   await scenario('private storage anonymous callers and reader writes cannot access the new operations',async()=>{
    await denied(()=>q('select * from private.accounting_match_allocations'),/permission denied/);await denied(()=>q('select * from private.accounting_payment_preferences'),/permission denied/);
    await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.reader]);await denied(()=>named('Forbidden'),/NOT_ALLOWED/);await denied(()=>apply([],[]),/NOT_ALLOWED|ROLE_NOT_ALLOWED|VALIDATE_REQUIRED/);

@@ -1,0 +1,13 @@
+{
+  "version": "20261026193755",
+  "name": "accounting_bank_history_links",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-26",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 3187,
+  "sha256": "7369f819c5d73c9f9033864b06f0c37c42f65838adfbac5a9d9080ab939bb06d",
+  "file": "20261026193755_accounting_bank_history_links.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

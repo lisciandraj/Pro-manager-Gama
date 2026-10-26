@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUU
 const {restore}=require('../scripts/restore-schema.cjs');
 
 test('Accounting payment upgrade preserves populated ledgers and prior whole matches',async t=>{
- const db=await restore({before:'20261026184303'}),ids=Object.fromEntries(['admin','reader','customer','product','bank','supplier'].map(k=>[k,uuid()]));
+ const db=await restore({before:'20261026193150'}),ids=Object.fromEntries(['admin','reader','customer','product','bank','supplier'].map(k=>[k,uuid()]));
  const q=(s,p=[])=>db.query(s,p),v=async(s,p=[])=>Object.values((await q(s,p)).rows[0])[0];
  const rpc=(fn,a,d={})=>v(`select public.${fn}($1,$2::jsonb)`,[a,JSON.stringify(d)]);
  const mode=(m='outstanding',direction='in',method='transfer',account)=>rpc('gama_accounting_payment_modes','save',{request_key:uuid(),financial_account_id:ids.bank,direction,method,mode:m,outstanding_account_id:account||chart['1200']});
@@ -54,7 +54,7 @@ test('Accounting payment upgrade preserves populated ledgers and prior whole mat
    settings:await v("select md5(string_agg((to_jsonb(t)-'name'-'active'-'is_default')::text,',' order by id)) from private.accounting_payment_methods t")
   });
   const before=await fingerprint();
-  for(const file of ['20261026184303_accounting_custom_payment_methods.sql','20261026184510_accounting_partial_bank_matching.sql'])await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations',file),'utf8'));
+  for(const file of ['20261026193150_accounting_custom_payment_methods.sql','20261026193151_accounting_partial_bank_matching.sql','20261026193755_accounting_bank_history_links.sql'])await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations',file),'utf8'));
   assert.deepEqual(await fingerprint(),before,'No existing business row or ledger amount may change');
   assert.equal(await v('select count(*)::integer from private.accounting_match_allocations'),0);assert.equal(await v('select count(*)::integer from private.accounting_match_postings'),0);assert.equal(await v('select count(*)::integer from private.accounting_payment_preferences'),0);
   const retained=await v('select to_jsonb(t) from private.accounting_payment_methods t limit 1');assert.equal(retained.is_default,true);assert.equal(retained.active,true);assert.equal(retained.name,null);

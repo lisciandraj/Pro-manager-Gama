@@ -19,3 +19,9 @@ pour faciliter le retour arrière. Si un défaut du trigger est confirmé, prép
 et tester une migration corrective avec les mêmes garanties avant application.
 
 Les futures migrations de stock Odoo 19, multi-sociétés et reprise historique nécessitent une préparation distincte des données et une restauration intégrale attestée. Aucun de ces changements structurels n'est appliqué par cette extension.
+
+## Lot du 26 octobre : méthodes et rapprochements partiels
+
+Les trois migrations et leurs empreintes réellement appliquées sont consignées dans [results-partial-matching.md](results-partial-matching.md). La reprise isolée peuplée et les 20 empreintes de production vérifient l’absence de modification de l’historique. Les contrôles HTTP anonymes et SQL des privilèges sont archivés. Les nouveaux paramètres restent inactifs et les nouvelles tables vides après installation.
+
+Vérifier après publication `coco-build.json` et les actifs réellement référencés par `architect-assets.js`, en particulier `coco-modules.js`, `gama-payments.js`, `gama-accounting.js`, `coco-accounting-configuration.js` et les catalogues FR/EN/serveur. La session actuelle étant déconnectée, cette vérification de déploiement ne constitue pas une validation connectée des écrans de production.

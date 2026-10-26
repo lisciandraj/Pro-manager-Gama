@@ -1,0 +1,13 @@
+{
+  "version": "20261026193151",
+  "name": "accounting_partial_bank_matching",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-26",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 30343,
+  "sha256": "c80659301e45f5c58f0a151b68e6af2879386c3eeb087193bfa5d294998ef118",
+  "file": "20261026193151_accounting_partial_bank_matching.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

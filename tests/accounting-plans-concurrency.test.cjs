@@ -64,6 +64,21 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(matched.filter(x=>x.status==='fulfilled').length,1);assert.match(matched.find(x=>x.status==='rejected').reason.message,/BANK_ALREADY_MATCHED|SOURCE_ALREADY_MATCHED/);
   assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='payment_settlement'")).rows[0].n),1);
   assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-60);
+  // Two separate payments compete for the same residual of a larger bank row.
+  const partialPayments=[];
+  for(let i=0;i<2;i++){
+   const inv=await api(root,'gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:supplier,number:'PARTIAL-RACE-'+i,issue_date:day,subtotal:100,tax:0,total:100});
+   partialPayments.push(await api(root,'gama_accounting_action','supplier_payment',{request_key:uuid(),supplier_invoice_id:inv.id,financial_account_id:bank,paid_at:day,amount:100,method:'transfer',reference:'PARTIAL-RACE-'+i}));
+  }
+  await api(root,'gama_bank_invoice_action','import',{request_key:uuid(),financial_account_id:bank,rows:[{value_date:day,reference:'PARTIAL-RACE-150',description:'Isolated larger bank outflow',amount:-150}]});
+  const partialBank=(await api(root,'gama_accounting_action','bank_list',{search:'PARTIAL-RACE-150'})).rows[0];
+  const contested=await Promise.allSettled(clients.map((c,i)=>api(c,'gama_bank_match','apply',{request_key:uuid(),account_id:bank,banks:[{id:partialBank.id,amount:-100}],sources:[{kind:'supplier_payment',id:partialPayments[i].id,amount:-100}],note:'Concurrent allocation of one residual'})));
+  assert.equal(contested.filter(r=>r.status==='fulfilled').length,1);assert.match(contested.find(r=>r.status==='rejected').reason.message,/MATCH_AMOUNT_EXCEEDS_REMAINING/);
+  assert.equal(Number((await root.query('select private.gama_match_bank_remaining($1) amount',[partialBank.id])).rows[0].amount),-50);
+  const loser=contested.findIndex(r=>r.status==='rejected');
+  await api(clients[loser],'gama_bank_match','apply',{request_key:uuid(),account_id:bank,banks:[{id:partialBank.id,amount:-50}],sources:[{kind:'supplier_payment',id:partialPayments[loser].id,amount:-50}],note:'Consume exactly the remaining fifty'});
+  assert.equal(Number((await root.query('select private.gama_match_bank_remaining($1) amount',[partialBank.id])).rows[0].amount),0);
+  assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-210);
   assert.equal((await root.query('select count(*)::integer n from accounting_entries e where status in (\'posted\',\'reversed\') and (select sum(debit-credit) from accounting_entry_lines where entry_id=e.id)<>0')).rows[0].n,0);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

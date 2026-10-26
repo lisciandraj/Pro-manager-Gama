@@ -8,7 +8,7 @@ Livraison suivie dans la [PR 248](https://github.com/lisciandraj/Pro-manager-Gam
 
 La révision `287c062` a réussi les **97 parcours comptables** et la course réelle à deux sessions PostgreSQL 17 (run `40387433781`). La précédente révision vérifiait **617 tests serveur**, aucun échec, deux tests de services dédiés ignorés dans cette suite mais couverts par leurs workflows réels, et **430 tests d’interface partagée**. Les nombres du dernier commit sont consignés dans la PR après les contrôles finaux.
 
-**31 tests ciblés** comprenant historique, reprise et contrats ont ensuite réussi ; **22 scénarios** centrés sur paiements, historique, reprise et dispatch réussissent après alignement des versions de migration. Les neuf parcours supplémentaires couvrent ES/FR/EN × 390/768/1440, axe et absence de débordement. Les captures mobile et ordinateur ont été examinées. Le parcours inclut l’ouverture de l’écriture réelle depuis le groupe.
+**31 tests ciblés** comprenant historique, reprise et contrats ont ensuite réussi. Les **23 tests** de la dernière validation ciblée couvrent les méthodes, rapprochements, reprise et vente → rapports, y compris deux flux bancaires opposés de 100 le même jour dans les modes attente et sans écriture. Ce dernier scénario échouait avant le correctif : aucun mouvement bancaire brut n’était enregistré pour un net nul. Il vérifie désormais débit bancaire = 100 et crédit bancaire = 100, puis l’annulation et les restes dus. Les neuf parcours supplémentaires couvrent ES/FR/EN × 390/768/1440, axe et absence de débordement. Les captures mobile et ordinateur ont été examinées. Le parcours inclut l’ouverture de l’écriture réelle depuis le groupe.
 
 La base de reprise est peuplée avant les migrations : les empreintes des écritures, lignes, paiements, banques, groupes, traitements et paramètres sont identiques après. Un rapprochement antérieur reste rejouable et annulable sans deuxième contrepassation.
 
@@ -19,8 +19,9 @@ La base de reprise est peuplée avant les migrations : les empreintes des écrit
 | 20261026193150 | accounting_custom_payment_methods | 18 821 | 8dba6a71261f5aef19bfee39b0689cbb830bf28b6cb8c274b5f25a67781898bc |
 | 20261026193151 | accounting_partial_bank_matching | 30 343 | c80659301e45f5c58f0a151b68e6af2879386c3eeb087193bfa5d294998ef118 |
 | 20261026193755 | accounting_bank_history_links | 3 187 | 7369f819c5d73c9f9033864b06f0c37c42f65838adfbac5a9d9080ab939bb06d |
+| 20261026200744 | accounting_bank_gross_flows | 1 683 | 2144c9f8e8e8c84e6ea988dc913f9994cd623783c0eb342705ea5c2014815412 |
 
-Les fichiers de la PR ont été alignés sur les versions attribuées par Supabase avant intégration. Les octets appliqués sont archivés sans réécriture dans `supabase/sql/applied/`. Aucune ancienne migration déjà présente sur main ni version du registre de production n’est renommée ou rejouée.
+Les fichiers de la PR ont été alignés sur les versions attribuées par Supabase avant intégration. Les octets des quatre migrations appliquées sont archivés sans réécriture dans `supabase/sql/applied/`. Aucune ancienne migration déjà présente sur main ni version du registre de production n’est renommée ou rejouée. Le correctif des flux bruts est une migration supplémentaire ; il ne réécrit aucune pièce historique.
 
 ## Conservation et accès
 

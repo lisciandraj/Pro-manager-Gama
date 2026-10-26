@@ -2,6 +2,8 @@
 
 Référence figée : Odoo 19.0 Enterprise. [Rapprochement bancaire, section Transactions](https://www.odoo.com/documentation/19.0/applications/finance/accounting/bank/reconciliation.html), consultée le 26 octobre 2026. Ce complément étend l’inventaire ; il ne décrit pas une fonctionnalité déjà livrée.
 
+État initial conservé pour la traçabilité. Le [lot suivant](bank-import-ledger.md) implémente depuis cet audit une politique explicite d’import au livre et les cartes de journaux. F12 est désormais partiel ; les historiques déjà rapprochés restent à reprendre.
+
 ## Écart explicite F12
 
 La référence crée une écriture banque/compte d’attente pour chaque transaction bancaire, avant son rapprochement. Le rapprochement remplace ensuite sa contrepartie par le tiers, paiement ou compte choisi. Coco conserve actuellement les transactions importées dans `bank_transactions` et comptabilise leurs traitements métier ensuite. Les nouvelles portions datées de la PR 248 ne changent pas cette politique d’import. Le rapprochement partiel testé ne démontre donc pas cette autre capacité.

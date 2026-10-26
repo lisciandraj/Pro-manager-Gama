@@ -15,4 +15,4 @@ La matrice contient 108 points de contrôle ; elle n'est pas une preuve que l'in
 
 Seule l'émission fiscale électronique SRI est hors périmètre sur instruction explicite. Les outils fiscaux déjà présents restent distincts des pièces internes.
 
-F12 : comptabilisation des transactions importées sur banque/attente avant rapprochement. La politique actuelle de Coco attend le traitement métier ; une transition vérifiée doit traiter séparément lignes non rapprochées, portions actives et paiements déjà comptabilisés. Le compte d’attente devra être configuré, avec comparaison avant/après sans écriture d’équilibrage arbitraire. Voir [complément d’audit](journal-dashboard-audit.md).
+F12 partiel : le [lot import au livre](bank-import-ledger.md) ajoute une politique explicite banque/attente et une reprise sélectionnée des seules lignes sans rapprochement antérieur. La transition des portions de groupes historiques actifs et paiements déjà comptabilisés reste à traiter séparément. Le compte d’attente devra être configuré, avec comparaison avant/après sans écriture d’équilibrage arbitraire. Voir [complément d’audit](journal-dashboard-audit.md).

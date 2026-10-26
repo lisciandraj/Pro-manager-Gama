@@ -31,3 +31,5 @@ Le traitement pg_cron `coco-accounting-plans` s'exécute chaque heure à la minu
 Étapes restantes : voir la matrice. La migration ne modifie ni les montants existants, ni le stock, ni les périodes, ni SRI. Toute conversion multi-sociétés et toute modification de politique du stock exigent leur propre reprise ; elles ne sont pas activées par cette extension.
 
 La suite native de paramétrage et de correspondance CSV est décrite dans [configuration.md](configuration.md), avec les règles de numérotation, de dates, les protections de concurrence et les écarts conservés.
+
+La suite banque/attente et les cartes de journaux réutilisent le même livre et les groupes existants : voir [architecture du lot](bank-import-ledger.md).

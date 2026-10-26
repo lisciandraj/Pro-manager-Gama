@@ -1,8 +1,8 @@
-Parity: 64.6 / 100
+Parity: 64.0 / 100
 
-features 64.6  (106 counted, must-haves 54 of 106 done)
+features 64.0  (107 counted, must-haves 54 of 107 done)
 
-Not shippable yet: 52 must-have features are not done.
+Not shippable yet: 53 must-have features are not done.
 
 By area, weakest first
 - M                             33.3  (6 features)
@@ -17,7 +17,7 @@ By area, weakest first
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
 - C                             77.8  (9 features)
-- F                             86.4  (11 features)
+- F                             79.2  (12 features)
 - G                             91.7  (6 features)
 
 Missing, in build order
@@ -28,6 +28,7 @@ Missing, in build order
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
 - [must] F: Imports OFX QIF CAMT CODA, no  (Ne pas présenter l'import CSV comme support de ces formats)
+- [must] F: Écriture bancaire et compte d’attente dès import du relevé, no  (Écart identifié le 26 octobre 2026 en préparant les cartes de journaux. Coco conserve actuellement les lignes importées hors du livre jusqu’au traitement métier. Voir journal-dashboard-audit.md ; reprise nécessaire avant activation, sans compte d’attente ni écriture historique inventés.)
 - [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
 - [must] H: Différés en mois complets et traitements groupés, no  (Le traitement du dernier mois incomplet et le regroupement Odoo restent à comparer)
 - [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)

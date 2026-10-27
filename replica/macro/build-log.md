@@ -23,3 +23,11 @@ Migration initiale installée sous la version 20261027192448. Correction additiv
 du périmètre de l’historique installée sous 20261027192816 ; les octets archivés
 sont ceux du registre réel. Les migrations appliquées ne sont pas réécrites.
 Agent Coco v7 est actif, JWT conservé, fichiers déployés identiques aux sources.
+
+PR #254 fusionnée sous `2278e6f380706ccd047cc28b2258a7c1f3960261`. Le workflow
+de publication `40571513399` a réussi. La même révision est servie publiquement ;
+JavaScript de l’espace, CSS et cœur de navigation comparés aux sources validées,
+sans différence. Validation complète sur main : 669 tests serveur/unitaires
+réussis, deux conditionnels ignorés, aucun échec ; 211 parcours navigateur
+réussis dans le job de construction. Voir [livraison](deploy.md) et
+`deployment.json` pour les preuves et le périmètre.

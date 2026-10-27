@@ -25,6 +25,47 @@
     "deployed_files_match_sources": true
   },
   "frontend": {
-    "status": "awaiting CI publication"
+    "status": "verified_live",
+    "workflow_conclusion": "success",
+    "verified_at": "2026-10-27T20:32:48Z",
+    "url": "https://lisciandraj.github.io/Pro-manager-Gama/",
+    "marker": {
+      "commit": "2278e6f380706ccd047cc28b2258a7c1f3960261",
+      "run": "40571513399",
+      "built_at": "2026-10-27T20:31:03.142Z"
+    },
+    "assets": [
+      {
+        "file": "coco-workhub.js",
+        "path": "coco-workhub.js?v=b2fb041a3880",
+        "sha256": "b2fb041a3880039e2be3f3c2b0e22aa9a587b888e8291d0c09092d6d7ae48df8",
+        "bytes": 34120
+      },
+      {
+        "file": "coco-style-workhub.css",
+        "path": "coco-style-workhub.css?v=ebf8129cfc22",
+        "sha256": "ebf8129cfc22049aaa0f2c1699e17d267f8914f9d352b1f52ce4e1a4db432b14",
+        "bytes": 6259
+      },
+      {
+        "file": "architect-core.js",
+        "path": "architect-core.js?v=47efb1e0d65d",
+        "sha256": "47efb1e0d65d45e192c41a7d28e548cb95d4097103b3238fc859e791b8369e7a",
+        "bytes": 81496
+      }
+    ]
+  },
+  "validation": {
+    "main_build_job": 122445240319,
+    "unit_tests": {
+      "total": 671,
+      "passed": 669,
+      "failed": 0,
+      "skipped": 2
+    },
+    "browser_tests_in_build_job": 211,
+    "workspace_browser_tests": 3,
+    "targeted_local_browser_tests": 30,
+    "complementary_main_checks_passed": 15
   }
 }

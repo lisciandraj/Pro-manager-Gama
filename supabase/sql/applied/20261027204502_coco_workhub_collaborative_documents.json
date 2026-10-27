@@ -1,0 +1,13 @@
+{
+  "version": "20261027225549",
+  "name": "coco_workhub_collaborative_documents",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 17454,
+  "sha256": "e078d963a36a9b5532b8a62b139e0329ce19aba89358a0762df20ab1adbecbe9",
+  "file": "20261027204502_coco_workhub_collaborative_documents.sql",
+  "purpose": "Channel-scoped CRDT documents; exact installed ledger bytes verified; history function OID and full policy expression unchanged."
+}

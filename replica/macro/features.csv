@@ -9,7 +9,7 @@ Contexte transmis à Agent Coco,agents,must,yes,yes,Brouillon contrôlé par uti
 Classement et report personnels,inbox,must,yes,yes,Sans modifier les états métier
 FR ES EN et téléphone,interface,must,yes,yes,Identité Coco
 Propositions mail existantes,email,should,yes,partial,Relais existant ; aucune boîte Gmail complète
-Édition CRDT simultanée,docs,could,yes,no,Chantier distinct ; Knowledge natif conservé
+Édition CRDT simultanée,docs,could,yes,yes,Texte Markdown privé par canal ; fusion Yjs et versions ; pas éditeur riche ni édition par Agent
 Appels et transcription,calls,could,yes,no,Fournisseur et consentement à définir
 Calendrier et réservation,calendar,could,yes,no,Connecteur à définir
 Tableur collaboratif et canvas,docs,could,yes,no,Chantier distinct

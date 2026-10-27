@@ -34,3 +34,10 @@ propositions mail, et ne prétend pas être une synchronisation Gmail complète.
 
 Ordre : S01/S02 et permissions → F02/F03 → liens et recherche → F05/F06 → tests
 SQL isolés, navigateur ordinateur/téléphone, contrôles communs, CI et publication.
+
+## Deuxième tranche : documents collaboratifs
+
+S07 et F08/F09/F10 ajoutent la coédition de texte sous les droits du canal.
+Le schéma, les reçus de validation, la fonction Edge et les limites sont décrits
+dans [les documents collaboratifs](collaborative-documents.md). Les articles
+Knowledge et fichiers métiers restent dans leurs modules.

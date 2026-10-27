@@ -1,4 +1,16 @@
 /* Scoped workspace layout; shared Coco tokens remain authoritative. */
+#workhub{--wh-doc-height:52vh}
+#workhub.whEditingDocument .whPanes{grid-template-columns:minmax(0,1fr)}
+#workhub .whDocEditor{padding:var(--arc-s4)}
+#workhub .whDocEditor h2{font-size:var(--arc-fs-section);margin-block:var(--arc-s4) var(--arc-s2)}
+#workhub #whDocText{min-height:var(--wh-doc-height);line-height:var(--arc-lh-body);width:100%;white-space:pre-wrap}
+#workhub .whDocShare{display:flex;align-items:center;gap:var(--arc-s2)}
+#workhub .whDocShare input{width:var(--arc-tap)}
+.whDocVersions{display:grid;gap:var(--arc-s2);margin-block:var(--arc-s3)}
+@media(max-width:48rem){
+ #workhub .whDocEditor>.whActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+ #workhub .whDocEditor>.whActions button{width:100%;white-space:normal;overflow-wrap:normal}
+}
 #workhub{--wh-rail:13rem;--wh-preview:22rem;--wh-line:1px;--wh-body-max:70vh;--wh-message-max:44rem;--wh-text-min:6rem;--wh-mobile:48rem}
 #workhub .whWorkspace{color:var(--arc-text);font:var(--arc-fs-body)/var(--arc-lh-body) var(--arc-font)}
 #workhub .whTop,#workhub .whTop form,#workhub .whControls,#workhub .whActions,#workhub .whPaging,#workhub .whChannelHead{display:flex;align-items:center;gap:var(--arc-s2);flex-wrap:wrap}

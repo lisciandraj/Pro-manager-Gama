@@ -98,6 +98,11 @@ export function createHandler({env,fetch:fetcher}) {
       }else if(args.action==='channel'){
        if(!UUID.test(args.channel_id||''))throw new Error('INVALID_WORKSPACE_CHANNEL');
        query.channel_id=args.channel_id;data=await rpc('coco_workhub',{p_action:'context',p_data:{channel_id:args.channel_id,limit:30}},token);
+      }else if(args.action==='document'){
+       if(!UUID.test(args.document_id||'')||!Number.isInteger(args.offset)||args.offset<0||args.offset>100000)throw new Error('INVALID_WORKSPACE_DOCUMENT');
+       query.document_id=args.document_id;query.offset=args.offset;
+       const doc=await rpc('coco_workhub_documents',{p_action:'read',p_data:{id:args.document_id}},token);
+       data={id:doc.id,title:doc.title,body:doc.body.slice(args.offset,args.offset+8000),version:doc.version,updated_at:doc.updated_at,offset:args.offset,next_offset:args.offset+8000<doc.body.length?args.offset+8000:null};
       }else throw new Error('READ_ONLY_TOOL');
      }else if(call.name==='read_article'){
       if(!UUID.test(args.id)||!Number.isInteger(args.offset)||args.offset<0||args.offset>100000)throw new Error('INVALID_ARTICLE');
@@ -105,7 +110,7 @@ export function createHandler({env,fetch:fetcher}) {
       const raw=await rpc('gama_ai_query',{p_query:{table,operation:'rows',columns:['id','title','body','properties','updated_at'],filters:[{column:'id',operator:'eq',value:args.id}],limit:1}},token);
       const r=raw.rows[0];data=r?{id:r.id,title:r.title,properties:r.properties,updated_at:r.updated_at,body:r.body.slice(args.offset,args.offset+8000),offset:args.offset,next_offset:args.offset+8000<r.body.length?args.offset+8000:null}:{missing:true};
      }else throw new Error('READ_ONLY_TOOL');
-     const src={id:'S'+(evidence.length+1),kind:call.name,label:table,module,as_of:new Date().toISOString(),query,...bounded(data,call.name==='read_article'?8000:2400)};
+     const src={id:'S'+(evidence.length+1),kind:call.name,label:table,module,as_of:new Date().toISOString(),query,...bounded(data,call.name==='read_article'||call.name==='read_workspace'&&args.action==='document'?8000:2400)};
      evidence.push(src);input.push({type:'function_call_output',call_id:call.call_id,output:JSON.stringify(src)});
     }catch(e){if(e instanceof Failure&&[401,403].includes(e.status))throw e;input.push({type:'function_call_output',call_id:call.call_id,output:JSON.stringify({error:'QUERY_FAILED',message:'Check table, columns, types and allowed read-only operators. Do not treat this as empty data.'})});}
    }

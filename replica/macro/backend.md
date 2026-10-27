@@ -12,3 +12,16 @@ La mise à jour utilise une migration additive. Les prototypes et essais sont
 isolés des données réelles. La publication du site est distincte de l'installation
 de cette migration ; les deux doivent être vérifiées avant de déclarer le module
 en production.
+
+## Documents collaboratifs
+
+Migration installée sous `20261027225549` ; les octets archivés correspondent au
+registre réel. Quatre tables privées avec RLS, aucune exécution anonyme, aucun
+accès du navigateur au point de préparation des reçus. L’OID du résolveur et
+l’empreinte de la politique d’historique sont inchangés après installation.
+
+La fonction `coco-workhub-documents` v1 et Agent Coco v8 sont actifs avec
+vérification JWT. Les cinq fichiers documentaires et les six fichiers Agent
+relus dans le service correspondent exactement aux sources locales testées.
+Les essais utilisent uniquement des bases isolées ; aucun document fictif créé
+en production. Le site reste à publier avec ses contrôles existants.

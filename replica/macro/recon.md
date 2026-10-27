@@ -54,3 +54,9 @@ sont des chantiers distincts. Le relais mail et les approbations Coco existants
 sont conservés ; aucun nouvel OAuth mail, compte fournisseur ou abonnement.
 Un lien dans un canal ne donne jamais accès à un dossier ERP autrement interdit.
 Les API privées, logos, ressources et textes de Macro ne sont pas intégrés.
+
+## Extension S07 — texte partagé
+
+Documents privés par canal, création avec lien explicite, coédition de texte,
+versions consultables, export, archivage et retrait des droits. Parcours F08,
+F09 et F10 détaillés dans [la seconde tranche](collaborative-documents.md).

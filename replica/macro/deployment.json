@@ -19,12 +19,36 @@
   },
   "agent_function": {
     "name": "gama-assistant-ia",
-    "version": 7,
+    "version": 8,
     "status": "ACTIVE",
     "verify_jwt": true,
     "deployed_files_match_sources": true
   },
   "frontend": {
-    "status": "awaiting CI publication"
+    "status": "awaiting collaborative documents publication"
+  },
+  "collaborative_documents": {
+    "migration_version": "20261027225549",
+    "canonical_file": "20261027204502_coco_workhub_collaborative_documents.sql",
+    "sha256": "e078d963a36a9b5532b8a62b139e0329ce19aba89358a0762df20ab1adbecbe9",
+    "private_rls_tables": 4,
+    "history_oid_preserved": "68383",
+    "history_policy_md5": "119d1102f33acb8f656b65cf0dc6d954",
+    "anonymous_execute": false,
+    "browser_can_stage": false,
+    "function": {
+      "name": "coco-workhub-documents",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "files_match_sources": true
+    },
+    "validation": {
+      "server_tests_passed": 17,
+      "history_regression_tests_passed": 19,
+      "browser_tests_passed": 32,
+      "browser_recheck_after_mobile_fix": 2,
+      "npm_audit_vulnerabilities": 0
+    }
   }
 }

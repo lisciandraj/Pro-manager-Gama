@@ -23,3 +23,18 @@ Migration initiale installée sous la version 20261027192448. Correction additiv
 du périmètre de l’historique installée sous 20261027192816 ; les octets archivés
 sont ceux du registre réel. Les migrations appliquées ne sont pas réécrites.
 Agent Coco v7 est actif, JWT conservé, fichiers déployés identiques aux sources.
+
+## S07 — documents collaboratifs
+
+27 octobre 2026. Texte partagé par canal, liens et recherche, coédition Yjs
+avec validation serveur et reçus sous le jeton original, versions et export,
+archivage, mémoire des brouillons dans l’onglet. 17 contrôles serveur incluant
+Agent Coco et documents, 19 contrôles des historiques existants et 32 parcours
+navigateur réussis. Le contrôle visuel a corrigé les boutons comprimés sur
+téléphone ; les deux parcours documentaires repassent après correction, avec
+assertion de lisibilité et analyse axe. Captures S07 ordinateur et téléphone.
+
+Les articles/fichiers métiers sont conservés. Synchronisation du texte toutes
+les deux secondes, sans présence partagée ni hors-ligne durable. Éditeur riche,
+écriture documentaire par Agent Coco, tableur/canvas et intégrations externes
+restent hors de cette tranche. Installation et publication encore à vérifier.

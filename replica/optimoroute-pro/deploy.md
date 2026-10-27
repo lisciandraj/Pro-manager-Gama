@@ -35,3 +35,13 @@ Le site doit servir une révision incluant la fusion ci-dessus et les correctifs
 ## Limites à suivre
 
 GPS limité au premier plan de la PWA ; arrêter explicitement en fin de tournée. ETA et distances de repli estimées. Notifications SMS/WhatsApp manuelles conservées. Dépôts multiples et dimensions de capacité supplémentaires absents de ce lot. Fonctions partielles et absentes détaillées dans features.csv.
+
+
+## Ressources additionnelles · 27 octobre 2026
+
+- Capacités supplémentaires et lieux indépendants du conducteur, dans la marque et les droits Coco existants. Projection publique client inchangée.
+- 52 parcours navigateur TMS réussis, puis 10 parcours Pro relancés avec assertions CSV/GPX supplémentaires ; axe du calendrier et du formulaire mobile sans violation.
+- Base isolée : 11 contrôles de l’extension des ressources, en plus des scénarios Pro, dispatch et trajets vérifiés. Reproduction du contournement individuel puis refus confirmé.
+- Production préliminaire : contrats de fonctions attendus présents, colonne de dimensions absente avant installation, empreinte de l’autorisation d’historique conservée pour comparaison après migration.
+- Construction, sources/types, liens, génération reproductible et nettoyage de marque de dist réussis. Contrôles complets et publication à confirmer avant d’annoncer cette nouvelle tranche en ligne.
+- Cette extension n’active aucun fournisseur d’envoi, aucun GPS en arrière-plan et aucun service payant. Les limites restantes sont dans features.csv.

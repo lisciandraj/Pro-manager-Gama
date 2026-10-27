@@ -18,3 +18,12 @@ La planification du jour conserve les verrous, indisponibilités RH/Flotte, capa
 Les positions sont attachées au compte vérifié et à la tournée affectée. Les doublons sont idempotents ; une position future ou trop ancienne est refusée, l’heure de réception serveur est conservée. L’interface indique la dernière heure et n’affiche aucune « position en direct » sans donnée récente. La collecte GPS démarre explicitement dans Mi ruta et s’arrête à la déconnexion, au changement de compte ou quand l’écran est fermé.
 
 Ordre : F01 conservé → règles/ressources et planning F02/F03 → GPS F04 → avis F05 → analyse/export F06 → tests base isolée et navigateur → migration → publication compilée et vérification du commit servi.
+
+
+## Ressources complémentaires · 27 octobre 2026
+
+`tms_pro_settings.dimensions` définit quatre clés/unités communes au plus. `tms_pro_order_rules.loads` et `tms_pro_vehicle_rules.capacities` conservent des valeurs numériques non négatives, au plus trois décimales. Les champs absents des anciennes requêtes sont préservés. Une livraison doit renseigner chaque dimension active, même à zéro ; un véhicule sans capacité explicite vaut zéro. Les helpers privés vérifient le cumul de la tournée dans le planificateur, le déplacement, l’affectation et le contrôle de départ. Le trigger sur `sales_deliveries.departed_at` couvre également le départ individuel historique. Les mutations de configuration, le planning, les déplacements et les départs RPC prennent le même verrou de configuration avant leurs verrous métier.
+
+Les profils conducteur contiennent `start_location`, `end_location`, `end_mode`. Un trigger serveur initialise `tms_routes.route_points` et protège cet instantané des remplacements clients. Les mêmes points servent à la faisabilité, aux kilomètres, aux trajets vérifiés, à la carte et à la navigation. Les identifiants historiques `__depot` restent inchangés : occurrence initiale = départ, occurrence finale = arrivée. Changer de conducteur invalide un horaire si ses points changent. Les anciennes tournées `{}` conservent le dépôt partagé ; aucune reprise de données métier.
+
+`tms_pro_timing` calcule une seule fois attente, pause, service et retour pour la faisabilité et l’ETA enregistrée. Il corrige la réserve doublée d’une pause future qui empêchait à tort les journées courtes. Aucun temps routier externe ni trafic ne sont inventés.

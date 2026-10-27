@@ -1,0 +1,14 @@
+[
+  {
+    "rpc": "gama_accounting_bank_import",
+    "status": 401,
+    "code": "42501",
+    "message": "permission denied for function gama_accounting_bank_import"
+  },
+  {
+    "rpc": "gama_accounting_journals",
+    "status": 401,
+    "code": "42501",
+    "message": "permission denied for function gama_accounting_journals"
+  }
+]

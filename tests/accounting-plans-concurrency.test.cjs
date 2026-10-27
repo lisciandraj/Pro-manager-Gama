@@ -80,5 +80,20 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(Number((await root.query('select private.gama_match_bank_remaining($1) amount',[partialBank.id])).rows[0].amount),0);
   assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-210);
   assert.equal((await root.query('select count(*)::integer n from accounting_entries e where status in (\'posted\',\'reversed\') and (select sum(debit-credit) from accounting_entry_lines where entry_id=e.id)<>0')).rows[0].n,0);
+  // Statement import is idempotent across two real sessions, including two
+  // distinct request keys for the identical original bank line.
+  const suspense=(await root.query("insert into accounting_accounts(code,name,type,account_type) values('CONCURRENT-SUSPENSE','Isolated suspense','asset','asset_current') returning id")).rows[0].id;
+  const bankJournal=(await root.query("select id from accounting_journals where code='BAN'")).rows[0].id;
+  await api(root,'gama_accounting_bank_import','save',{request_key:uuid(),financial_account_id:bank,journal_id:bankJournal,suspense_account_id:suspense,start_date:day});
+  const importData={financial_account_id:bank,rows:[{value_date:day,reference:'CONCURRENT-POSTED-100',description:'Isolated unique statement',amount:-100}]};
+  const imports=await Promise.all(clients.map(c=>api(c,'gama_bank_invoice_action','import',{...importData,request_key:uuid()})));
+  assert.equal(imports.reduce((n,r)=>n+r.imported,0),1);assert.equal((await root.query("select count(*)::integer n from accounting_entries where source_type='bank_transaction'")).rows[0].n,1);
+  const statement=(await api(root,'gama_accounting_action','bank_list',{search:'CONCURRENT-POSTED-100'})).rows[0];assert.ok(statement.entry_id);
+  const newPayments=[];
+  for(let i=0;i<2;i++){const b=await api(root,'gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:supplier,number:'POSTED-RACE-'+i,issue_date:day,subtotal:100,tax:0,total:100});newPayments.push(await api(root,'gama_accounting_action','supplier_payment',{request_key:uuid(),supplier_invoice_id:b.id,financial_account_id:bank,amount:100,paid_at:day,method:'transfer',reference:'POSTED-RACE-'+i}))}
+  const attempts=await Promise.allSettled(clients.map((c,i)=>api(c,'gama_bank_match','apply',{request_key:uuid(),account_id:bank,banks:[{id:statement.id,amount:-60}],sources:[{kind:'supplier_payment',id:newPayments[i].id,amount:-60}],note:'Isolated concurrent bank allocation'})));
+  assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);assert.match(attempts.find(r=>r.status==='rejected').reason.message,/MATCH_AMOUNT_EXCEEDS_REMAINING/);
+  assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-310);
+  assert.equal(Number((await root.query('select sum(debit-credit) balance from accounting_entry_lines where account_id=$1',[suspense])).rows[0].balance),40);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

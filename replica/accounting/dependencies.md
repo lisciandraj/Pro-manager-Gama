@@ -1,6 +1,6 @@
 # Dépendances et écarts non masqués
 
-La matrice contient 107 points de contrôle ; elle n'est pas une preuve que l'inventaire des compléments et localisations Odoo est exhaustif.
+La matrice contient 108 points de contrôle ; elle n'est pas une preuve que l'inventaire des compléments et localisations Odoo est exhaustif.
 
 | Dépendance | État vérifié | Accès et coût |
 | --- | --- | --- |
@@ -14,3 +14,5 @@ La matrice contient 107 points de contrôle ; elle n'est pas une preuve que l'in
 Écarts structurels : multi-sociétés et consolidation, valorisation Odoo 19 à la facture/clôture, moteur complet de taxes/positions fiscales, révisions budgétaires et engagements, modèles analytiques, dégressif d'immobilisations, formats bancaires supplémentaires, moteur complet de rapports et actions groupées. Ils restent à développer, pas exclus.
 
 Seule l'émission fiscale électronique SRI est hors périmètre sur instruction explicite. Les outils fiscaux déjà présents restent distincts des pièces internes.
+
+F12 partiel : le [lot import au livre](bank-import-ledger.md) ajoute une politique explicite banque/attente et une reprise sélectionnée des seules lignes sans rapprochement antérieur. La transition des portions de groupes historiques actifs et paiements déjà comptabilisés reste à traiter séparément. Le compte d’attente devra être configuré, avec comparaison avant/après sans écriture d’équilibrage arbitraire. Voir [complément d’audit](journal-dashboard-audit.md).

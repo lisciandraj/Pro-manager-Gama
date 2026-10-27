@@ -131,3 +131,9 @@ MATCH_GROUP_REQUIRED	Esta línea contiene varias conciliaciones. Elige el grupo 
 BANK_DATE_LOCKED	La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.
 PAYMENT_UNALLOCATE_FIRST	Libera primero las imputaciones de este anticipo antes de anular su conciliación.
 PAYMENT_NO_ENTRY_NOT_ALLOCATABLE	Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.
+BANK_IMPORT_CONFIGURATION_INVALID	Selecciona un diario bancario activo y una fecha inicial.
+BANK_IMPORT_SUSPENSE_INVALID	Selecciona una cuenta transitoria activa, distinta de banco, clientes y proveedores.
+BANK_IMPORT_LEGACY_MATCH_REVIEW	Este movimiento tiene conciliaciones anteriores. Revisa su recuperación antes de contabilizarlo.
+BANK_IMPORT_POSTED_IMMUTABLE	El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.
+BANK_IMPORT_OUTSIDE_POLICY	El movimiento no está incluido en una configuración activa.
+EXPORT_NOT_ALLOWED	Tu perfil no permite exportar estos datos.

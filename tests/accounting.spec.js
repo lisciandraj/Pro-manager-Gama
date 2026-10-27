@@ -78,6 +78,8 @@ async function boot(page,scope='all',role='admin'){
   await GamaCloudReady;const old=GamaCloud.db;
   GamaCloud.db=async()=>{const c=await old();return{...c,rpc:async(fn,args)=>{
    if(fn==='gama_bank_invoice_action'){window.__ACC.calls.push({...args,rpc_name:fn});if(window.__ACC.error)return {error:{message:window.__ACC.error}};if(args.p_action==='suggest')return {data:window.__ACC.bankSuggestions||{bank:window.__ACC.responses.bank_list.rows[0],matches:[]}};return {data:{ok:true,imported:args.p_data.rows?.length||0,id:'bank-action'}};}
+   if(fn==='gama_accounting_journals'){window.__ACC.calls.push(args);return {data:args.p_action==='entries'?{...structuredClone(window.__ACC.responses.entries),total:window.__ACC.responses.entries.rows.length,debit:2500,credit:2500}: {journals:[],banks:[],from:window.__ACC.overview.today,to:window.__ACC.overview.today}}}
+   if(fn==='gama_accounting_bank_import')return {data:{rows:[]}};
    if(fn!=='gama_accounting_action')return c.rpc(fn,args);
    window.__ACC.calls.push(args);
    if(window.__ACC.error)return {error:{message:window.__ACC.error}};

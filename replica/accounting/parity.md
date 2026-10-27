@@ -2,7 +2,7 @@
 
 Référence : **Odoo 19.0 Enterprise**, sources officielles consultées les 24–26 octobre 2026. L’interface de référence reste Coco.
 
-La matrice contient **107 lignes** : **54 testées, 29 partielles, 20 à développer, 0 à analyser, 3 bloquées et 1 exclusion SRI explicite**. Il reste donc **52 fonctions obligatoires incomplètes ou non démontrées** dans le périmètre de 106 lignes. Un score global ne compense aucun écart.
+La matrice contient **108 lignes** : **54 testées, 30 partielles, 20 à développer, 0 à analyser, 3 bloquées et 1 exclusion SRI explicite**. Il reste donc **53 fonctions obligatoires incomplètes ou non démontrées** dans le périmètre de 107 lignes. Un score global ne compense aucun écart.
 
 Le statut « testé » atteste les scénarios Coco et critères précis de la ligne, en base isolée, comparés aux règles Odoo documentées. Il ne démontre pas toute une famille Odoo ni une comparaison exhaustive sur instance Enterprise. La classification détaillée des éditions et la couverture de tous les écrans restent également limitées. Le périmètre complet n’est pas livré.
 
@@ -13,3 +13,7 @@ Les 97 parcours comptables, dont neuf combinaisons ES/FR/EN × 390/768/1440 supp
 D05 (autofacturation) et L10 (rapports de localisation) ont été identifiés dans les sources officielles 19.0 et passent à « à développer », sans exclusion. Les priorités suivantes restent la valorisation 19 avec reprise, les taxes/positions fiscales, l’analytique et les budgets révisables, le multi-sociétés/consolidation, les méthodes d’amortissement et les services connectés. Le résultat reporté H13, les configurations et échéanciers déjà livrés sont conservés.
 
 Le [diagnostic Replica](evidence/parity-tool.txt) conserve la liste des fonctions obligatoires manquantes. Il ne constitue pas une autorisation de présenter le module comme équivalent complet.
+
+Le complément d’audit [journaux et compte d’attente](journal-dashboard-audit.md) ajoute F12 : la pièce banque/attente dès l’import est distincte du rapprochement partiel livré. Le lot import au livre en réalise le traitement configuré des nouvelles lignes et la reprise sélectionnée des lignes jamais rapprochées. F12 reste partiel pour les groupes historiques ; l’inventaire précédent de 107 points ne le couvrait pas explicitement.
+
+Le lot [relevés au grand livre](bank-import-ledger.md) étend F12, A02 et G04 sans déclarer ces familles entièrement couvertes. Les fonctions testées et les limites de reprise restent distinguées.

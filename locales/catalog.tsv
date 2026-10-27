@@ -5863,3 +5863,11 @@ Esta línea contiene varias conciliaciones. Elige el grupo en Conciliación agru
 La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.	La date bancaire est verrouillée. Vérifiez la clôture ou une exception avant le rapprochement.	The bank date is locked. Review the closing or an exception before matching.
 Libera primero las imputaciones de este anticipo antes de anular su conciliación.	Libérez d’abord les affectations de cet acompte avant d’annuler son rapprochement.	Release this advance’s allocations before cancelling its bank match.
 Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.	Vous pouvez affecter uniquement la partie de cet acompte déjà rapprochée et disponible.	You can allocate only the already matched and available portion of this advance.
+Selecciona un diario bancario activo y una fecha inicial.	Sélectionnez un journal bancaire actif et une date de début.	Select an active bank journal and a starting date.
+Selecciona una cuenta transitoria activa, distinta de banco, clientes y proveedores.	Sélectionnez un compte transitoire actif, distinct de la banque et des comptes tiers.	Select an active suspense account distinct from bank and partner accounts.
+Este movimiento tiene conciliaciones anteriores. Revisa su recuperación antes de contabilizarlo.	Ce mouvement possède des rapprochements antérieurs. Sa reprise doit être examinée avant comptabilisation.	This transaction has earlier matches. Review its migration before posting it.
+El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.	Le relevé comptabilisé conserve sa date et son montant. Corrigez par une opération documentée.	A posted statement retains its date and amount. Correct it through a documented transaction.
+El movimiento no está incluido en una configuración activa.	Le mouvement n’entre pas dans une configuration active.	The transaction is outside an active posting policy.
+Tu perfil no permite exportar estos datos.	Votre profil ne permet pas d’exporter ces données.	Your profile cannot export this data.
+Contabilización de extractos	Comptabilisation des relevés	Statement posting
+Movimiento bancario contabilizado	Mouvement bancaire comptabilisé	Bank transaction posted

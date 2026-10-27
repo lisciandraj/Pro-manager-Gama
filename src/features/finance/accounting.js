@@ -12,6 +12,8 @@
 if(window.GamaAccounting&&!window.GamaAccounting.__arcLazy)return;
 const ID='accounting',$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
+const L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
+const journalRpc=(action,data={})=>window.ArcData.rpc('gama_accounting_journals',{p_action:action,p_data:data});
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
@@ -206,7 +208,7 @@ async function openSri(sourceInvoiceId){
 const VIEWS={};
 
 VIEWS.overview={
- load:()=>rpc('overview'),
+ async load(){const d=await rpc('overview');if(scope==='all')d.journalDashboard=await journalRpc('dashboard',{from:state.journalFrom||monthStart(),to:state.journalTo||day()});return d;},
  render(d){
   state.overview=d;
   const rev=trend(d.revenue.month,d.revenue.previous),exp=trend(d.expense.month,d.expense.previous);
@@ -215,7 +217,7 @@ VIEWS.overview={
   const margin=Number(d.revenue.year)>0?resultYear/Number(d.revenue.year)*100:null;
   const c=d.customers,s=d.suppliers,t=d.treasury,x=d.taxes;
   const priority=(target,label,value)=>`<button type="button" class="gaPriority" data-ga-priority="${target}" ${value==null?'disabled':''}><span>${tr(label)}</span><strong>${value==null?'—':esc(num(value,0))}</strong><span class="gaPriorityLink">${tr('Ver documentos')} →</span></button>`;
-  return `<div class="arcPanel gaCard gaPriorities"><h3>${tr('Prioridades de cobro y conciliación')}</h3><div class="gaPriorityGrid">${priority('receivables','Facturas de clientes vencidas',c.overdue_count)}${s?priority('payables','Facturas de proveedores vencidas',s.overdue_count):''}${scope==='all'?priority('cash','Movimientos bancarios sin conciliar',d.alerts?.unmatched):''}</div></div><div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
+  return `${d.journalDashboard?.journals?journalDashboard(d.journalDashboard):''}<div class="arcPanel gaCard gaPriorities"><h3>${tr('Prioridades de cobro y conciliación')}</h3><div class="gaPriorityGrid">${priority('receivables','Facturas de clientes vencidas',c.overdue_count)}${s?priority('payables','Facturas de proveedores vencidas',s.overdue_count):''}${scope==='all'?priority('cash','Movimientos bancarios sin conciliar',d.alerts?.unmatched):''}</div></div><div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
    <div class="gaKpis">
     ${kpi('Ingresos del mes',money(d.revenue.month),rev.text,rev.cls)}
     ${kpi('Gastos del mes',money(d.expense.month),exp.text,exp.cls)}
@@ -275,7 +277,7 @@ VIEWS.overview={
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
     <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Coco ERP.')}</p></div>`:''}`;
  },
- bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo));
+ bind(){bindJournalDashboard();document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo));
   document.querySelectorAll('[data-ga-priority]').forEach(b=>b.onclick=()=>{
    const target=b.dataset.gaPriority;
    if(target==='cash'){state.bankFilters={status:'unmatched'};state.bankOffset=0;}
@@ -284,6 +286,17 @@ VIEWS.overview={
   });
  }
 };
+
+function journalDashboard(d){const kind=k=>({sales:L('Ventas','Ventes','Sales'),purchases:L('Compras','Achats','Purchases'),bank:L('Banco','Banque','Bank'),cash:L('Caja','Caisse','Cash'),misc:L('Operaciones diversas','Opérations diverses','Miscellaneous')}[k]||k);return `<div role="region" class="arcPanel gaCard gaJournalDashboard" data-gi-ignore aria-label="${esc(L('Diarios contables','Journaux comptables','Accounting journals'))}"><h3>${esc(L('Diarios contables','Journaux comptables','Accounting journals'))}</h3><div class="gaTools"><label>${esc(L('Desde','Du','From'))}<input id="gaJFrom" type="date" value="${esc(d.from)}"></label><label>${esc(L('Hasta','Au','To'))}<input id="gaJTo" type="date" value="${esc(d.to)}"></label><button class="arcButton primary" id="gaJApply">${esc(L('Aplicar','Appliquer','Apply'))}</button></div><div class="gaPriorityGrid">${d.journals.map(j=>`<article class="arcPanel gaCard"><h4>${esc(j.code+' · '+j.name)}</h4><p>${esc(kind(j.kind))}${j.active?'':' · '+esc(L('Inactivo','Inactif','Inactive'))}</p><p>${esc(L('Debe / Haber','Débit / Crédit','Debit / Credit'))}<br><b>${money(j.debit)} / ${money(j.credit)}</b></p><div class="gaActions"><button class="arcButton secondary" data-ga-journal="${esc(j.id)}" data-ga-entry-status="all">${esc(L('Asientos','Écritures','Entries'))} · ${Number(j.posted_count)+Number(j.draft_count)}</button><button class="arcButton primary" data-ga-journal="${esc(j.id)}" data-ga-entry-status="draft" ${Number(j.draft_count)?'':'disabled'}>${esc(L('Borradores','Brouillons','Drafts'))} · ${esc(j.draft_count)}</button></div></article>`).join('')}</div><h4>${esc(L('Banco y caja','Banque et caisse','Bank and cash'))}</h4><div class="gaPriorityGrid">${(d.banks||[]).map(b=>`<article class="arcPanel gaCard"><h4>${esc(b.name)}</h4><p>${esc(L('Saldo del libro al','Solde du livre au','Ledger balance through'))} ${esc(d.to)}<br><b>${money(b.balance)}</b></p><p>${esc(L('Pendiente de conciliación','Restant à rapprocher','Remaining to match'))}: ${money(b.unmatched_amount)}</p>${b.legacy_count?`<p class="gaHint">${esc(b.legacy_count)} ${esc(L('movimientos conservan el tratamiento anterior.','mouvements conservent le traitement historique.','transactions retain the legacy treatment.'))}</p>`:''}<div class="gaActions"><button class="arcButton secondary" data-ga-bank-ledger="${esc(b.id)}" data-ga-bank-name="${esc(b.name)}" data-ga-bank-from="${esc(b.balance_from||d.from)}">${esc(L('Ver libro','Voir le livre','View ledger'))}</button><button class="arcButton primary" data-ga-bank-pending="${esc(b.id)}">${esc(L('Conciliar','Rapprocher','Match'))} · ${esc(b.unmatched_count)}</button></div></article>`).join('')||`<p>${esc(L('No hay cuentas activas.','Aucun compte actif.','No active accounts.'))}</p>`}</div></div>`}
+function bindJournalDashboard(){
+ $('gaJApply')?.addEventListener('click',()=>{state.journalFrom=$('gaJFrom').value;state.journalTo=$('gaJTo').value;go('overview')});
+ const dates=()=>{state.from=state.journalFrom||monthStart();state.to=state.journalTo||day();state.search='';state.entryOffset=0};
+ document.querySelectorAll('[data-ga-journal]').forEach(b=>b.onclick=()=>{dates();state.journal=b.dataset.gaJournal;state.entryStatus=b.dataset.gaEntryStatus;delete state.entryBank;delete state.entryBankName;go('ledger')});
+ document.querySelectorAll('[data-ga-bank-ledger]').forEach(b=>b.onclick=()=>{dates();state.journal=null;state.entryStatus='all';state.entryBank=b.dataset.gaBankLedger;state.entryBankName=b.dataset.gaBankName;state.from=b.dataset.gaBankFrom;go('ledger')});
+ document.querySelectorAll('[data-ga-bank-pending]').forEach(b=>b.onclick=()=>{state.bankFilters={financial_account_id:b.dataset.gaBankPending,status:'unmatched',from:state.journalFrom||monthStart(),to:state.journalTo||day()};state.bankOffset=0;go('cash')});
+}
+function journalEntryFilters(){return {from:state.from||monthStart(),to:state.to||day(),search:state.search||'',journal_id:state.journal||null,financial_account_id:state.entryBank||null,status:state.entryStatus||'all',offset:state.entryOffset||0,limit:60}}
+async function exportJournalEntries(){const filters=journalEntryFilters(),rows=[];let page,offset=0,revision;do{page=await journalRpc('entries',{...filters,offset,limit:200,export:true});revision??=page.revision;if(page.revision!==revision)throw Error('EXPORT_CHANGED_RETRY');rows.push(...page.rows);offset+=page.rows.length}while(page.rows.length&&offset<page.total);if((await journalRpc('entries',{...filters,limit:1,offset:0,export:true})).revision!==revision)throw Error('EXPORT_CHANGED_RETRY');await exportRows(rows,'asientos')}
 
 function agingBlock(a){
  const cells=[['Sin vencer',a.current],['1–30 días',a.d30],['31–60 días',a.d60],['61–90 días',a.d90],['Más de 90 días',a.older]];
@@ -401,7 +414,7 @@ VIEWS.expenses={
   document.querySelectorAll('[data-ga-receipt]').forEach(b=>b.onclick=()=>receiptForm(b.dataset.gaReceipt));
  }
 };
-async function act(b,fn){b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e));b.disabled=false}}
+async function act(b,fn){const disabled=b.disabled;b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e))}finally{if(b.isConnected)b.disabled=disabled}}
 function reasonForm(title,save){
  GamaSales.modal(title,`<label class="gsField">${tr('Motivo')}<textarea id="gaReason" required minlength="3" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('El motivo queda en el historial de auditoría.')}</p>`,'Confirmar',
@@ -651,7 +664,7 @@ VIEWS.cash={
     <td>${esc(t.value_date)}</td><td>${esc(t.account_name)}</td><td>${esc(t.reference||'—')}</td>
     <td>${esc(t.description)}</td><td class="gaNum"><b class="${Number(t.amount)>=0?'gaUp':'gaDown'}">${money(t.amount)}</b></td>
     <td>${badge(t.status)}</td>
-    <td>${rights?.validate?(t.status==='unmatched'
+    <td>${t.entry_id?`<button class="arcButton secondary" data-ga-bank-entry="${esc(t.entry_id)}">${tr('Ver asiento')}</button>`:''}${rights?.validate?(t.status==='unmatched'
       ?`<button class="arcButton primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
       :`<button class="arcButton secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
@@ -659,6 +672,7 @@ VIEWS.cash={
    <p class="gaHint">${tr('Coco ERP propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
  bind(){
+  document.querySelectorAll('[data-ga-bank-entry]').forEach(b=>b.onclick=()=>entryLines(b.dataset.gaBankEntry));
   const apply=()=>{state.bankFilters=Object.fromEntries([['status','gaStatus'],['financial_account_id','gaBankAccount'],['import_batch','gaBankBatch'],['search','gaBankSearch'],['from','gaBankFrom'],['to','gaBankTo'],['min_amount','gaBankMin'],['max_amount','gaBankMax']].map(([k,id])=>[k,$(id)?.value||null]));state.bankOffset=0;go()};
   $('gaApply')?.addEventListener('click',apply);$('gaBankSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')apply()});
   $('gaBankPrev')?.addEventListener('click',()=>{state.bankOffset=Math.max(0,(state.bankOffset||0)-50);go()});
@@ -758,20 +772,22 @@ function undoBank(id){const dlg=GamaSales.modal('Deshacer conciliación',`<p>${t
 
 /* ------------------------------------------------------------- contabilidad */
 VIEWS.ledger={
- load:()=>rpc('entries',{from:state.from||monthStart(),to:state.to||day(),search:state.search||'',
-  journal_id:state.journal||null,limit:60}),
+ load:()=>journalRpc('entries',journalEntryFilters()),
  render(d){
-  state.rows=d.rows;state.journals=d.journals;
+  state.rows=d.rows;state.journals=d.journals;state.entryTotal=d.total??d.rows.length;
   return `<div class="arcPanel gaCard"><h3>${tr('Asientos y diarios')}</h3>
    <div class="gaTools">
     <label>${tr('Diario')}<select id="gaJournal"><option value="">${tr('Todos')}</option>
      ${d.journals.map(j=>`<option value="${esc(j.id)}" ${state.journal===j.id?'selected':''}>${esc(j.code)} · ${esc(j.name)}</option>`).join('')}</select></label>
+    <label>${tr('Estado')}<select id="gaEntryStatus">${['all','draft','posted','reversed'].map(k=>`<option value="${k}" ${(state.entryStatus||'all')===k?'selected':''}>${esc(k==='all'?T('Todos'):T(STATUS[k]))}</option>`).join('')}</select></label>
     <label>${tr('Desde')}<input id="gaFrom" type="date" value="${esc(state.from||monthStart())}"></label>
     <label>${tr('Hasta')}<input id="gaTo" type="date" value="${esc(state.to||day())}"></label>
     <label>${tr('Buscar')}<input id="gaSearch" value="${esc(state.search||'')}"></label>
     <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
     ${rights?.export?`<button class="arcButton secondary" id="gaExport">${tr('Exportar')}</button>`:''}
     ${rights?.create?`<button class="arcButton secondary" id="gaNewEntry">${tr('Asiento manual')}</button>`:''}</div>
+   ${state.entryBank?`<p>${tr('Cuenta financiera')}: ${esc(state.entryBankName||'')} <button class="arcButton secondary" id="gaEntryAllBanks">${tr('Todos')}</button></p>`:''}
+   <p>${tr('Debe')}: ${money(d.debit??0)} · ${tr('Haber')}: ${money(d.credit??0)}</p>
    ${Number(d.pending)>0?`<p class="gaHint">${tr('Facturas de venta todavía sin asiento')} : <b>${esc(num(d.pending,0))}</b>.
     ${rights?.create?`<button class="arcButton secondary" id="gaSync">${tr('Contabilizar ahora')}</button>`:''}</p>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
@@ -784,13 +800,16 @@ VIEWS.ledger={
     <td><div class="gaActions"><button class="arcButton secondary" data-ga-lines="${esc(e.id)}">${tr('Detalle')}</button>
      ${rights?.validate&&e.status==='posted'&&(!e.source_type||e.source_type==='manual')?`<button class="arcButton secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="9">${tr('No hay asientos en este periodo.')}</td></tr>`}</tbody></table></div>
+   <p>${d.rows.length?(state.entryOffset||0)+1:0}–${(state.entryOffset||0)+d.rows.length} / ${state.entryTotal}</p><div class="gaTools"><button class="arcButton secondary" id="gaEntryPrev" ${(state.entryOffset||0)>0?'':'disabled'}>${tr('Anterior')}</button><button class="arcButton secondary" id="gaEntryNext" ${(state.entryOffset||0)+d.rows.length<state.entryTotal?'':'disabled'}>${tr('Siguiente')}</button></div>
    <p class="gaHint">${tr('Todo asiento cumple debe = haber. Un asiento contabilizado no se borra: se contrapasa y ambos quedan en el libro.')}</p></div>`;
  },
  bind(){
   const apply=()=>{state.journal=$('gaJournal').value||null;state.from=$('gaFrom').value;state.to=$('gaTo').value;
-   state.search=$('gaSearch').value;go()};
+   state.search=$('gaSearch').value;state.entryStatus=$('gaEntryStatus').value;state.entryOffset=0;go()};
   $('gaApply').onclick=apply;
-  $('gaExport')?.addEventListener('click',()=>exportRows(state.rows,'asientos'));
+  $('gaExport')?.addEventListener('click',()=>act($('gaExport'),exportJournalEntries));
+  $('gaEntryPrev').onclick=()=>{state.entryOffset=Math.max(0,(state.entryOffset||0)-60);return go()};$('gaEntryNext').onclick=()=>{state.entryOffset=(state.entryOffset||0)+60;return go()};
+  $('gaEntryAllBanks')?.addEventListener('click',()=>{delete state.entryBank;delete state.entryBankName;state.entryOffset=0;go()});
   $('gaNewEntry')?.addEventListener('click',()=>entryForm());
   $('gaSync')?.addEventListener('click',b=>act(b.target,()=>mutate('sync').then(()=>go())));
   document.querySelectorAll('[data-ga-lines]').forEach(b=>b.onclick=()=>entryLines(b.dataset.gaLines));
@@ -806,11 +825,13 @@ async function entryLines(id){
    </tr></thead><tbody>${lines.map(l=>`<tr><td><b>${esc(l.code)}</b> ${esc(l.account)}</td><td>${esc(l.label||'')}</td>
     <td class="gaNum">${Number(l.debit)?money(l.debit):'—'}</td><td class="gaNum">${Number(l.credit)?money(l.credit):'—'}</td></tr>`).join('')}
    <tr><td colspan="2"><b>${tr('Total')}</b></td><td class="gaNum"><b>${money(d)}</b></td><td class="gaNum"><b>${money(c)}</b></td></tr>
-   </tbody></table></div><div data-entry-plans></div>`,'Cerrar',async()=>{});
+   </tbody></table></div><div data-entry-plans></div><div data-entry-bank></div>`,'Cerrar',async()=>{});
   if(scope==='all'){
    try{const d=await window.ArcData.rpc('gama_accounting_plans',{p_action:'entry_plans',p_data:{entry_id:id}});
     if(el.isConnected){const host=el.querySelector('[data-entry-plans]');host.innerHTML=(d?.rows||[]).map(p=>`<button type="button" class="arcButton secondary" data-entry-plan="${esc(p.id)}">${esc(p.name)}</button>`).join('');host.querySelectorAll('[data-entry-plan]').forEach(b=>b.onclick=()=>{el.close();state.planId=b.dataset.entryPlan;go('plans')})}
    }catch(e){/* Existing ledger detail remains usable before the additive migration is deployed. */}
+   const source=await window.ArcData.rpc('gama_accounting_bank_import',{p_action:'entry_source',p_data:{entry_id:id}});
+   if(el.isConnected&&source?.rows?.length){const host=el.querySelector('[data-entry-bank]');host.innerHTML=source.rows.map(b=>`<p>${tr('Extracto')}: ${esc(b.reference||b.id)} · ${esc(b.value_date)} · ${money(b.amount)} · ${badge(b.status)}<br>${esc(b.description)}</p>${rights?.validate&&b.status==='unmatched'&&Number(b.remaining)!==0?`<button type="button" class="arcButton secondary" data-entry-bank-match="${esc(b.id)}">${tr('Conciliar')}</button>`:''}`).join('');host.querySelectorAll('[data-entry-bank-match]').forEach(b=>b.onclick=()=>{el.close();matchForm(b.dataset.entryBankMatch)})}
   }
  }catch(e){window.gamaToast?.(err(e))}
 }

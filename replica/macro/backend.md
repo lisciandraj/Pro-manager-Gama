@@ -24,4 +24,6 @@ La fonction `coco-workhub-documents` v1 et Agent Coco v8 sont actifs avec
 vérification JWT. Les cinq fichiers documentaires et les six fichiers Agent
 relus dans le service correspondent exactement aux sources locales testées.
 Les essais utilisent uniquement des bases isolées ; aucun document fictif créé
-en production. Le site reste à publier avec ses contrôles existants.
+en production. Le site est publié à la révision
+`559886e049936addd7913375047325d289b46901`, avec ses contrôles existants
+réussis et ses fichiers publics comparés aux sources construites.

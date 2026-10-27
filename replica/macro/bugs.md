@@ -15,3 +15,15 @@ Le contrôle de régression RH l’a reproduit. La migration corrective conserve
 intégralement la politique courante et le résolveur du nouvel espace. Les 20
 contrôles ciblés des historiques, propositions et canaux passent. La correction
 est installée et son expression vérifiée avant publication de l’interface.
+
+B03 · S2 · Sur téléphone, les actions de l’éditeur documentaire se comprimaient
+dans une seule ligne et les libellés devenaient illisibles. Correction : grille
+sur deux colonnes avec retour à la ligne. Vérification visuelle, assertions de
+taille et analyse axe réussies sur les deux parcours documentaires.
+
+B04 · S2 · Une autre session pouvait archiver un document dont un brouillon
+restait en mémoire. Le statut masquait alors les modifications non enregistrées.
+Correction : afficher ensemble l’archivage et le brouillon, bloquer l’archivage
+local pendant une sauvegarde ou avec du texte non enregistré, puis autoriser
+la réactivation et l’enregistrement du brouillon. Parcours à deux sessions
+réussi, sans perte de texte.

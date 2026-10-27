@@ -25,7 +25,60 @@
     "deployed_files_match_sources": true
   },
   "frontend": {
-    "status": "awaiting collaborative documents publication"
+    "status": "verified_live",
+    "workflow_conclusion": "success",
+    "workflow_url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40602198031",
+    "verified_at": "2026-10-27T23:47:42Z",
+    "url": "https://lisciandraj.github.io/Pro-manager-Gama/",
+    "marker": {
+      "commit": "559886e049936addd7913375047325d289b46901",
+      "run": "40602198031",
+      "built_at": "2026-10-27T23:45:58.612Z"
+    },
+    "assets": [
+      {
+        "file": "coco-workhub-documents.js",
+        "path": "coco-workhub-documents.js?v=762b31faaec7",
+        "sha256": "762b31faaec77fe22dc2921f6d8711710349aae08e7b512b9c29714b11ece95b",
+        "bytes": 14356
+      },
+      {
+        "file": "coco-workhub.js",
+        "path": "coco-workhub.js?v=f8222d8db0c5",
+        "sha256": "f8222d8db0c5bbe324356da5301f1df168547544313f5a35bc9d60727166a0bc",
+        "bytes": 37632
+      },
+      {
+        "file": "coco-style-workhub.css",
+        "path": "coco-style-workhub.css?v=661a0bb223e2",
+        "sha256": "661a0bb223e20feeaa68552a25bb8aede851b9331f93e514c5a8acf58a4fa060",
+        "bytes": 7038
+      },
+      {
+        "file": "architect-core.js",
+        "path": "architect-core.js?v=fb7f5f85dc56",
+        "sha256": "fb7f5f85dc562b6a30144b4a62a71eb1aa9394ddc0ac5419ba441e7bb71b2c82",
+        "bytes": 81647
+      },
+      {
+        "file": "gama-assistant-ia.js",
+        "path": "gama-assistant-ia.js?v=91adc3df6596",
+        "sha256": "91adc3df65960cddf8147fbb4140face0817fae8761566748b367e10e248534b",
+        "bytes": 35595
+      },
+      {
+        "file": "coco-order-followup.js",
+        "path": "coco-order-followup.js?v=3e699d3a91ca",
+        "sha256": "3e699d3a91ca574da3530ecee7c9ee8c1cbfeebeb47014fdf57f6b39983a9eb4",
+        "bytes": 51521
+      },
+      {
+        "file": "assets/vendor/yjs-13.6.33.js",
+        "path": "assets/vendor/yjs-13.6.33.js?v=db791bd89a8d",
+        "sha256": "db791bd89a8d169aeff4e3ec7005b19cf764bca81bf0d1b1117ccd7e70b8944b",
+        "bytes": 80237
+      }
+    ]
   },
   "collaborative_documents": {
     "migration_version": "20261027225549",
@@ -50,5 +103,37 @@
       "browser_recheck_after_mobile_fix": 2,
       "npm_audit_vulnerabilities": 0
     }
-  }
+  },
+  "validation": {
+    "main_build_job": 122533148595,
+    "unit_tests": {
+      "total": 716,
+      "passed": 714,
+      "failed": 0,
+      "skipped": 2
+    },
+    "browser_tests_in_build_job": 223,
+    "workspace_and_document_browser_tests": 5,
+    "main_checks_passed": 19,
+    "local_architecture_tests_passed": 24
+  },
+  "server_functions": [
+    {
+      "name": "gama-assistant-ia",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "bundle_sha256": "968dae6e02bb05b3e529e2cbdf20468e42a33a7c387e4e172d6685c22f4cb7ce",
+      "files_match_sources": true
+    },
+    {
+      "name": "coco-workhub-documents",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "bundle_sha256": "ac008feaed86109f17cbf1834d8bf31a617d9a007c4e9abbaf69e0c21959b8f6",
+      "files_match_sources": true
+    }
+  ],
+  "verified_local_at": "2026-10-28T00:47:42+01:00"
 }

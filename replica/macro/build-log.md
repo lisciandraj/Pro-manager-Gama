@@ -37,4 +37,21 @@ assertion de lisibilité et analyse axe. Captures S07 ordinateur et téléphone.
 Les articles/fichiers métiers sont conservés. Synchronisation du texte toutes
 les deux secondes, sans présence partagée ni hors-ligne durable. Éditeur riche,
 écriture documentaire par Agent Coco, tableur/canvas et intégrations externes
-restent hors de cette tranche. Installation et publication encore à vérifier.
+restent hors de cette tranche.
+
+La migration documentaire et les fonctions serveur sont installées. Les PR
+[#260](https://github.com/lisciandraj/Pro-manager-Gama/pull/260) et
+[#262](https://github.com/lisciandraj/Pro-manager-Gama/pull/262) sont fusionnées.
+La publication de la révision `559886e049936addd7913375047325d289b46901`
+est vérifiée le 28 octobre 2026 à 00 h 47, heure de Bruxelles : sept fichiers
+publics correspondent octet pour octet aux fichiers construits localement.
+
+Un contrôle supplémentaire reproduit l’archivage depuis une autre session
+pendant qu’un brouillon reste en mémoire. Le statut conserve le brouillon et
+permet sa restauration ; l’archivage local est bloqué tant que l’enregistrement
+reste incomplet. Les deux parcours documentaires et les 24 contrôles
+d’architecture passent après correction. Le pipeline final passe avec 714 tests
+serveur et unitaires réussis, deux tests conditionnels ignorés, 223 tests
+navigateur réussis et les 19 vérifications de la révision au vert.
+
+Voir [le rapport de livraison](deploy.md) et [les preuves structurées](deployment.json).

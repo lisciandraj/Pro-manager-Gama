@@ -5,7 +5,7 @@ const endpoint='https://mknsaibrewksgomuslev.supabase.co/rest/v1/rpc/gama_tms_tr
 const key='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
 const date=v=>v?new Date(/^\d{4}-\d{2}-\d{2}$/.test(v)?v+'T12:00:00':v).toLocaleString(document.documentElement.lang,{dateStyle:'medium',...(!/^\d{4}-\d{2}-\d{2}$/.test(v)?{timeStyle:'short'}:{})}):t('Por confirmar','À confirmer','To be confirmed');
 let busy=false;
-const t=(es,fr,en)=>({fr,en}[new URLSearchParams(location.search).get('lang')||navigator.language.slice(0,2)]||es);
+const t=(es,fr,en)=>({fr,en}[new URLSearchParams(location.search).get('lang')||'es']||es);
 document.documentElement.lang=t('es','fr','en');
 document.querySelector('h1').textContent=t('Seguimiento de entrega','Suivi de livraison','Delivery tracking');
 document.querySelector('.eyebrow').textContent=t('Tu entrega, paso a paso','Votre livraison, étape par étape','Your delivery, step by step');

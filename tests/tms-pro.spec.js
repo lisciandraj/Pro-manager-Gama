@@ -16,17 +16,17 @@ const proMock=`if(fn==='gama_tms_pro'){
  if(args.p_action==='export')return {data:{dimensions:state.settings.dimensions,items:[{reference:'DEL-1',customer:'=HYPERLINK("https://example.invalid")',address:'Quito & valle',delivery_date:day,route_reference:'R1',stop_number:1,lat:-.2,lng:-78.5,route_points:r.route_points,loads:state.rules[d.id]?.loads}]}};
  }
  `;
-async function boot(page,{routePoints=null}={}){
- await page.addInitScript(({routePoints})=>{
+async function boot(page,{routePoints=null,depot=null}={}){
+ await page.addInitScript(({routePoints,depot})=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Test Admin'}));localStorage.setItem('gama_tms_migrated_v1','1');
   const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil'}).format(new Date());
   window.__DB={products:[],customers:[],suppliers:[],profiles:[],_profile:{id:'admin',full_name:'Admin',role:'administrador',active:true},__today:day,
    fleet_drivers:[{id:'driver',name:'Driver',active:true}],fleet_vehicles:[{id:'truck',plate:'TRUCK',status:'in_service',payload_kg:1000,cargo_volume_m3:10}],fleet_assignments:[{id:'assign',vehicle_id:'truck',driver_id:'driver'}],
    tms_routes:[{id:'route',route_date:day,erp_reference:'R-1',driver_id:'driver',driver_name:'Driver',vehicle_id:'truck',vehicle:'TRUCK',stops:['delivery'],status:'Planificada',manual_override:true,version:1}],
    tms_deliveries:[{id:'delivery',erp_reference:'DEL-1',customer:'Test customer',address:'Quito',delivery_date:day,route_id:'route',driver_id:'driver',lat:-.2,lng:-78.5,weight:1,volume:1,status:'Planificada',version:1}],
-   tms_settings:[],tms_proofs:[],sales_deliveries:[{id:'shipment',number:'SHIP',tms_delivery_id:'delivery',loading_required:true,loading_version:1}],executionLines:{delivery:[]},hr_employees:[],hr_absences:[],tms_events:[],external_invoice_payments:[],external_invoices:[],return_orders:[],business_documents:[]};
-  if(routePoints){window.__DB.tms_routes[0].route_points=routePoints;window.__DB.tms_routes[0].stops=['__depot','delivery','__depot']}
- },{routePoints});
+   tms_settings:depot?[depot]:[],tms_proofs:[],sales_deliveries:[{id:'shipment',number:'SHIP',tms_delivery_id:'delivery',loading_required:true,loading_version:1}],executionLines:{delivery:[]},hr_employees:[],hr_absences:[],tms_events:[],external_invoice_payments:[],external_invoices:[],return_orders:[],business_documents:[]};
+  if(routePoints){window.__DB.tms_routes[0].route_points=routePoints;window.__DB.tms_routes[0].stops=[...(routePoints.start?['__depot']:[]),'delivery',...(routePoints.end?['__depot']:[])]}
+ },{routePoints,depot});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:base.replace("if(fn==='gama_tms_dispatch'){",proMock+"if(fn==='gama_tms_dispatch'){")}));
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=500)errors.push('HTTP '+r.status())});
  await page.goto('/index.html');await page.locator('#mainmenu [data-gama-module=tms]').first().click();await expect(page.locator('#tDayMap')).toBeVisible();return errors;
@@ -87,4 +87,10 @@ test('the daily map and driver navigation distinguish a route’s saved start an
  const downloaded=page.waitForEvent('download');await page.evaluate(()=>window.CocoTmsPro.exportData({from:window.__DB.__today,to:window.__DB.__today},'gpx'));const gpx=fs.readFileSync(await (await downloaded).path(),'utf8');expect(gpx).toContain('<rtept lat="-0.19" lon="-78.49">');expect(gpx).toContain('<rtept lat="-0.22" lon="-78.52">');
  await page.evaluate(async()=>{const host=document.createElement('section');host.id='endpoint-driver';host.className='active';document.body.append(host);window.ArchitectOfflineProofs={rows:async()=>[],actor:async()=>'admin',prepare:async()=>({}),documents:async()=>({})};await window.CocoTmsDriverUI.mount(host,{actor_id:'admin',downloaded_at:new Date().toISOString(),routes:window.__DB.tms_routes,deliveries:[],driver:{name:'Driver'}},async()=>{})});
  await expect(page.locator('#endpoint-driver .tmsDriverEndpoint')).toHaveCount(2);await expect(page.locator('#endpoint-driver .tmsDriverEndpoint').last().getByRole('link',{name:'Waze'})).toHaveAttribute('href',/ll=-0.22%2C-78.52/);expect(errors).toEqual([]);
+});
+
+test('optional road geometry respects a saved open end even when the shared depot requires a return',async({page})=>{
+ const sent=[];await page.route('https://routing.openstreetmap.de/**',route=>{const points=new URL(route.request().url()).pathname.split('/').at(-1).split(';').map(p=>p.split(',').map(Number));sent.push(points);return route.fulfill({json:{code:'Ok',routes:[{geometry:{coordinates:points},distance:1000,duration:120}]}})});
+ const errors=await boot(page,{routePoints:{start:{label:'Own start',lat:-.19,lng:-78.49},end:null},depot:{id:true,depot:'General depot',depot_lat:-.3,depot_lng:-78.6,return_depot:true}});
+ await page.locator('#tMapRoads').check();await expect.poll(()=>sent.length).toBe(1);expect(sent[0]).toEqual([[-78.49,-.19],[-78.5,-.2]]);await expect(page.locator('#tMapRoadStatus')).toContainText('Línea continua');expect(errors).toEqual([]);
 });

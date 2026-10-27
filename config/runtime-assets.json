@@ -156,6 +156,7 @@
     {"source":"src/features/import-export/export-worker.js","output":"coco-export-worker.js"},
     {"source":"src/features/transport/map-data.js","output":"gama-tms-map-data.js"},
     {"source":"src/features/transport/local-map.js","output":"gama-tms-local-map.js"},
+    {"source":"src/features/transport/road-map.js","output":"coco-tms-road-map.js"},
     {"source":"src/features/transport/quito-map-data.js","output":"gama-tms-quito-map-data.js"},
     {"source":"src/features/transport/execution.js","output":"gama-tms-execution.js"},
     {"source":"src/features/transport/driver.js","output":"gama-tms-driver.js"},

@@ -40,8 +40,11 @@ GPS limité au premier plan de la PWA ; arrêter explicitement en fin de tourné
 ## Ressources additionnelles · 27 octobre 2026
 
 - Capacités supplémentaires et lieux indépendants du conducteur, dans la marque et les droits Coco existants. Projection publique client inchangée.
-- 52 parcours navigateur TMS réussis, puis 10 parcours Pro relancés avec assertions CSV/GPX supplémentaires ; axe du calendrier et du formulaire mobile sans violation.
+- 59 parcours navigateur TMS réussis après intégration de la carte publiée par #258, y compris CSV/GPX, absence de retour général sur une fin ouverte et axe du calendrier/formulaire mobile. Les 24 contrôles d’architecture sont aussi réussis.
 - Base isolée : 11 contrôles de l’extension des ressources, en plus des scénarios Pro, dispatch et trajets vérifiés. Reproduction du contournement individuel puis refus confirmé.
 - Production préliminaire : contrats de fonctions attendus présents, colonne de dimensions absente avant installation, empreinte de l’autorisation d’historique conservée pour comparaison après migration.
 - Construction, sources/types, liens, génération reproductible et nettoyage de marque de dist réussis. Contrôles complets et publication à confirmer avant d’annoncer cette nouvelle tranche en ligne.
 - Cette extension n’active aucun fournisseur d’envoi, aucun GPS en arrière-plan et aucun service payant. Les limites restantes sont dans features.csv.
+
+
+La PR de cette tranche est [#259](https://github.com/lisciandraj/Pro-manager-Gama/pull/259). La fusion conserve la mise à jour de carte #258 et raccorde son tracé facultatif aux lieux enregistrés. La vérification complète locale a progressé sans échec observé mais son processus n’a pas terminé dans l’environnement ; le statut de validation intégrale doit être celui du workflow CI, pas ce journal partiel.

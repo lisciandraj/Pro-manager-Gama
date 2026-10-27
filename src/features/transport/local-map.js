@@ -31,13 +31,17 @@ function visibleStreets(left,top,right,bottom){
  for(let x=Math.floor(left/GRID);x<=Math.floor(right/GRID);x++)for(let y=Math.floor(top/GRID);y<=Math.floor(bottom/GRID);y++)for(const id of streetNetwork.index.get(x+','+y)||[])ids.add(id);
  return [...ids].map(id=>streetNetwork.roads[id]).filter(r=>r.bounds[0]<=right&&r.bounds[2]>=left&&r.bounds[1]<=bottom&&r.bounds[3]>=top);
 }
-function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
+const palette=['#28677d','#b75a11','#6c50a4','#237854','#a13962'];
+const routeColor=(r,i)=>r.color||palette[i%palette.length];
+const positionedPoints=points=>points.filter(p=>p.lng!==null&&p.lat!==null&&p.lng!==''&&p.lat!==''&&Number.isFinite(+p.lng)&&Number.isFinite(+p.lat)&&Math.abs(+p.lat)<=85&&Math.abs(+p.lng)<=180).map(p=>({...p,p:project(+p.lng,+p.lat)}));
+function create(host,{points=[],routes=[],vehicles=[],onSelect=()=>{},view=null}={}){
  const svg=document.createElementNS(NS,'svg');svg.setAttribute('role','group');svg.setAttribute('aria-label',window.GamaI18n?.t('Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.')||'Mapa de entregas. Usa las flechas para desplazar y + o − para ampliar.');svg.setAttribute('tabindex','0');svg.classList.add('tmsLocalMap');
  if(!geography){const data=window.CocoMapData||{};geography=`<g class="tmsMapLand">${(data.land||[]).map(r=>`<path d="${path(r)}Z"/>`).join('')}</g><g class="tmsMapRoads">${(data.roads||[]).map(r=>`<path d="${path(r)}"/>`).join('')}</g>`}
- svg.innerHTML=geography+'<g data-map-streets></g><g data-map-street-labels></g><g data-map-cities></g><g data-map-routes></g><g data-map-pins></g><g data-map-scale aria-hidden="true"></g>';host.replaceChildren(svg);
+ svg.innerHTML=geography+'<g data-map-streets></g><g data-map-street-labels></g><g data-map-cities></g><g data-map-routes></g><g data-map-pins></g><g data-map-vehicles></g><g data-map-scale aria-hidden="true"></g>';host.replaceChildren(svg);
  let center=project(-78.4678,-.1807),zoom=12,selected=null,width=0,height=0,autoFit=true,requested=false,frame=0;
- const positioned=points.filter(p=>Number.isFinite(+p.lng)&&Number.isFinite(+p.lat)&&p.lng!==null&&p.lat!==null).map(p=>({...p,p:project(+p.lng,+p.lat)})),pointers=new Map();let gesture;
- const measure=()=>{width=host.clientWidth||700;height=host.clientHeight||380};
+ let positioned=positionedPoints(points);const pointers=new Map();let gesture;
+ // Explicit dimensions also give Safari a definite SVG viewport in flex layouts.
+ const measure=()=>{width=host.clientWidth||700;height=host.clientHeight||380;svg.setAttribute('width',String(width));svg.setAttribute('height',String(height))};
  const queueDraw=()=>{if(!frame)frame=requestAnimationFrame(()=>{frame=0;if(svg.isConnected)draw()})};
  function drawStreets(left,top,vw,vh,unit){
   const roadsHost=svg.querySelector('[data-map-streets]'),labelsHost=svg.querySelector('[data-map-street-labels]');
@@ -77,7 +81,14 @@ function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
   drawStreets(left,top,vw,vh,unit);
   const g=window.CocoMapData||{};
   svg.querySelector('[data-map-cities]').innerHTML=(g.cities||[]).filter(c=>zoom>=8||c.rank<5).map(c=>{const p=project(...c.point);return p[0]<left||p[0]>left+vw||p[1]<top||p[1]>top+vh?'':`<g transform="translate(${p.join(',')})"><circle r="${2*unit}" fill="#73808b"/><text x="${5*unit}" y="${-5*unit}" font-size="${12*unit}" fill="#4b5c68">${E(c.name)}</text></g>`}).join('');
-  svg.querySelector('[data-map-routes]').innerHTML=routes.map(r=>{const ps=(r.stops||[]).map(id=>positioned.find(p=>p.id===id)).filter(Boolean);return `<path d="${ps.map((p,i)=>(i?'L':'M')+p.p.join(',')).join('')}" fill="none" stroke="#8b6bcc" stroke-width="1.5" stroke-dasharray="5 5" vector-effect="non-scaling-stroke"/>`}).join('');
+  const stopLabels=new Map();
+  svg.querySelector('[data-map-routes]').innerHTML=routes.map((r,i)=>{
+   let number=0;for(const id of r.stops||[])if(id!=='__depot')stopLabels.set(id,{number:++number,color:routeColor(r,i)});
+   // Break the line at a missing GPS stop instead of implying a direct journey.
+   let connected=false;const ordered=(r.stops||[]).map(id=>{const p=positioned.find(p=>p.id===id);if(!p){connected=false;return ''}const d=(connected?'L':'M')+p.p.join(',');connected=true;return d}).join('');
+   const road=Array.isArray(r.geometry)&&r.geometry.length>1;
+   return `<path data-map-route="${E(r.id||i)}" data-route-basis="${road?'road':'order'}" d="${road?path(r.geometry):ordered}" fill="none" stroke="${E(routeColor(r,i))}" stroke-width="${road?4:2.5}"${road?'':' stroke-dasharray="6 5"'} stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"><title>${E(r.reference||r.driver||'')}</title></path>`;
+  }).join('');
   const used=[],gap=autoFit?Math.min(28,Math.sqrt(Math.max(1,(width-40)*(height-40))/Math.max(1,positioned.length))*.8):28;
   const radius=Math.max(5,Math.min(13,gap/2-1)),margin=radius+5;
   const free=(x,y)=>used.every(q=>Math.hypot(q[0]-x,q[1]-y)>=gap);
@@ -94,9 +105,10 @@ function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
     if(nearest){x=nearest.x;y=nearest.y}
    }
    used.push([x,y]);const moved=Math.hypot(x-px,y-py)>.5;x=left+x*unit;y=top+y*unit;
-   const color=p.isDepot?'#35495e':p.status==='Entregada'?'#15803d':p.status==='Excepción'?'#c2410c':'#6046a8',label=p.isDepot?'D':String(i+1);
+   const color=p.isDepot?'#35495e':p.status==='Entregada'?'#15803d':p.status==='Excepción'?'#c2410c':stopLabels.get(p.id)?.color||'#28677d',label=p.isDepot?'D':String(stopLabels.get(p.id)?.number||i+1);
    return `<g data-map-pin="${E(p.id)}" role="button" tabindex="0" aria-label="${E([label,p.reference,p.customer,p.address].filter(Boolean).join(' · '))}"><title>${E(p.customer||p.address)}</title>${moved?`<path d="M${p.p.join(',')}L${x},${y}" stroke="${color}" stroke-width="1" vector-effect="non-scaling-stroke"/>`:''}<circle cx="${x}" cy="${y}" r="${(selected===p.id?radius+3:radius)*unit}" fill="${color}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${x}" y="${y+4*unit}" text-anchor="middle" fill="#fff" font-size="${Math.min(11,radius)*unit}" font-weight="700" pointer-events="none">${label}</text></g>`;
   }).join('');
+  svg.querySelector('[data-map-vehicles]').innerHTML=positionedPoints(vehicles).map(p=>`<g data-map-vehicle="${E(p.id)}" transform="translate(${p.p.join(',')})"><title>${E(p.customer||'')} · ${E(p.observedAt||'')}</title><circle r="${17*unit}" fill="${E(p.color||'#28677d')}" fill-opacity=".18"/><rect x="${-10*unit}" y="${-8*unit}" width="${20*unit}" height="${16*unit}" rx="${4*unit}" fill="${E(p.color||'#28677d')}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text y="${4*unit}" text-anchor="middle" font-size="${11*unit}" fill="#fff">${E(p.label||'V')}</text></g>`).join('');
   const latitude=Math.atan(Math.sinh(Math.PI*(1-2*center[1]/256))),meters=40075016.686*Math.cos(latitude)/256*unit,target=100*meters,power=10**Math.floor(Math.log10(target)),distance=[5,2,1].map(n=>n*power).find(n=>n<=target),length=distance/meters;
   const sx=left+20*unit,sy=top+(height-16)*unit;
   svg.querySelector('[data-map-scale]').innerHTML=`<path d="M${sx},${sy-4*unit}v${4*unit}h${length*unit}v${-4*unit}" stroke="#42586b" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"/><text x="${sx}" y="${sy-7*unit}" font-size="${10*unit}" fill="#42586b">${distance>=1000?distance/1000+' km':distance+' m'}</text>`;
@@ -111,7 +123,10 @@ function create(host,{points=[],routes=[],onSelect=()=>{}}={}){
  svg.onpointermove=e=>{if(!pointers.has(e.pointerId)||!gesture)return;autoFit=false;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1&&gesture.point){center=[gesture.center[0]-(e.clientX-gesture.point.x)*2**-zoom,gesture.center[1]-(e.clientY-gesture.point.y)*2**-zoom];queueDraw()}else if(pointers.size===2&&gesture.distance){const p=[...pointers.values()];zoom=Math.min(19,Math.max(2,gesture.zoom+Math.log2(Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y)/gesture.distance)));queueDraw()}};
  svg.onpointerup=svg.onpointercancel=e=>{pointers.delete(e.pointerId);gesture=snapshot()};
  svg.addEventListener('wheel',e=>{if(e.ctrlKey||document.activeElement===svg){e.preventDefault();changeZoom(e.deltaY>0?-.5:.5)}},{passive:false});
- fit();return {fit,focus,zoom:changeZoom,resize:()=>autoFit?fit():draw()};
+ if(view&&Array.isArray(view.center)&&view.center.every(Number.isFinite)&&Number.isFinite(view.zoom)){center=[...view.center];zoom=view.zoom;selected=view.selected;autoFit=view.autoFit;if(autoFit)fit();else draw()}else fit();
+ return {fit,focus,zoom:changeZoom,resize:()=>autoFit?fit():draw(),snapshot:()=>({center:[...center],zoom,selected,autoFit}),
+  update:data=>{positioned=positionedPoints(data.points||[]);routes=data.routes||[];vehicles=data.vehicles||[];onSelect=data.onSelect||onSelect;if(autoFit)fit();else draw()},
+  destroy:()=>{cancelAnimationFrame(frame);pointers.clear();svg.remove()}};
 }
-window.CocoDeliveryMap={create};
+window.CocoDeliveryMap={create,routeColor};
 })();

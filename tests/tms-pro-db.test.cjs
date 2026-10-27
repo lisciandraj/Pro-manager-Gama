@@ -30,7 +30,8 @@ test('Native TMS Pro: constraints, weekly planning, GPS, feedback and authorized
    await assert.rejects(rpc('driver_save',{driver_id:drivers[1],version:0,shift_start:'18:00',shift_end:'08:00'}),/check constraint/);
    await rpc('vehicle_save',{vehicle_id:vehicles[0],version:0,features:['lift']});
    assert.equal((await rpc('resources',range)).resources.filter(r=>drivers.includes(r.driver_id)).length,2);
-   await db.exec('reset role');assert.ok((await query("select count(*)::int n from private.coco_module_events where record_table='tms_pro_driver_rules'"))[0].n>0);await as(admin);
+   assert.ok((await query("select count(*)::int n from private.coco_module_events where record_table='tms_pro_driver_rules'"))[0].n>0,'authenticated dispatcher can read new rule history through its existing RLS policy');
+   await as(users[0]);assert.equal((await query("select count(*)::int n from private.coco_module_events where record_table='tms_pro_driver_rules'"))[0].n,0,'drivers cannot read dispatcher configuration history');await as(admin);
   });
   await t.test('matching driver, equipment, date and second of three time windows are enforced',async()=>{
    await rule(ids[0],{driver_id:drivers[0],skills:['installation'],features:['lift'],windows:[{from:'08:00',to:'08:05'},{from:'10:00',to:'11:00'},{from:'15:00',to:'16:00'}]});
@@ -106,9 +107,11 @@ test('TMS Pro upgrade preserves populated history and the existing history autho
   const before=(await db.query('select * from tms_deliveries order by id')).rows;
   const source=(await db.query("select prosrc from pg_proc where oid='private.coco_history_record_visible(text,text,uuid)'::regprocedure")).rows[0].prosrc;
   await db.exec(fs.readFileSync('supabase/migrations/'+migration,'utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/20261027193029_tms_pro_preserve_function_dependencies.sql','utf8'));
   assert.deepEqual((await db.query('select * from tms_deliveries order by id')).rows,before);
   assert.equal((await db.query("select prosrc from pg_proc where oid='private.coco_history_record_visible_before_tms_pro(text,text,uuid)'::regprocedure")).rows[0].prosrc,source);
   assert.equal((await db.query("select count(*)::int n from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='private' and c.relkind='r' and c.relname like 'tms_pro_%' and not c.relrowsecurity")).rows[0].n,0);
   assert.equal((await db.query("select has_function_privilege('anon','public.gama_tms_pro(text,jsonb)','execute') allowed")).rows[0].allowed,false);
+  assert.ok((await db.query("select pg_get_expr(polqual,polrelid) expression from pg_policy where polrelid='private.coco_module_events'::regclass")).rows.every(r=>!r.expression.includes('coco_history_record_visible_before_tms_pro(')));
  }finally{await db.close()}
 });

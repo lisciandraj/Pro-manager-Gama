@@ -2,6 +2,10 @@
    Reference: IMG_1313, 19 October 2026. A clear blue contour, one orange detail,
    a transparent 24px canvas. Each colour is an authored part of the drawing. */
 const artwork={
+ workhub:[
+  '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 9v12M13 13h5M13 17h3"/>',
+  '<path d="M6 6h2M11 6h2"/>'
+ ],
  home:[
   '<path d="m3 10 9-7 9 7M5 9v12h14V9"/>',
   '<path d="M10 21v-7h4v7"/>'

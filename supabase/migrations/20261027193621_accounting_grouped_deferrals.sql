@@ -236,10 +236,14 @@ end $$;
 
 insert into private.coco_history_tables(table_name,module_id,label,table_schema,key_column) values('accounting_deferral_batches','accounting','Cierre agrupado de diferidos','private','id');
 create trigger coco_module_history after insert or update or delete on private.accounting_deferral_batches for each row execute function private.coco_capture_module_event();
-do $$declare s text;begin
- s:=pg_get_functiondef('private.coco_history_record_visible(text,text,uuid)'::regprocedure);
- if strpos(s,'''accounting_stock_reviews''')=0 then raise exception 'DEFER_HISTORY_ANCHOR';end if;
- execute replace(s,'''accounting_stock_reviews''','''accounting_stock_reviews'',''accounting_deferral_batches''');
+-- Delegate to the latest history implementation, including independently shipped modules.
+do $$begin execute replace(pg_get_functiondef('private.coco_history_record_visible(text,text,uuid)'::regprocedure),'FUNCTION private.coco_history_record_visible(', 'FUNCTION private.coco_history_record_visible_before_deferrals(');end $$;
+revoke all on function private.coco_history_record_visible_before_deferrals(text,text,uuid) from public,anon,service_role;
+grant execute on function private.coco_history_record_visible_before_deferrals(text,text,uuid) to authenticated;
+create or replace function private.coco_history_record_visible(p_table text,p_id text,p_owner uuid) returns boolean language plpgsql stable set search_path='' as $$begin
+ if p_table='accounting_deferral_batches' then
+  return auth.uid() is not null and private.erp_mfa_ok() and private.coco_module_allowed('accounting') and coalesce(private.gama_accounting_rights()->>'scope','')='all' and coalesce((private.gama_accounting_rights()->>'view')::boolean,false);
+ end if;return private.coco_history_record_visible_before_deferrals(p_table,p_id,p_owner);
 end $$;
 do $$begin execute replace(pg_get_functiondef('private.coco_history_typed_link(text,text,text,text)'::regprocedure),'FUNCTION private.coco_history_typed_link(', 'FUNCTION private.coco_history_typed_link_before_deferrals(');end $$;
 revoke all on function private.coco_history_typed_link_before_deferrals(text,text,text,text) from public,anon,service_role;

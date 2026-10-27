@@ -1,0 +1,13 @@
+{
+  "version": "20261027193621",
+  "name": "accounting_grouped_deferrals",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "e8c7d88a0dd2f3163187a3cdbc4c2451d82bd9b27fb90c26ab46735fa9e46f54",
+  "bytes": 29792,
+  "statement_count": 1,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "file": "20261027193621_accounting_grouped_deferrals.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

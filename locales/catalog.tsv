@@ -5874,3 +5874,12 @@ Tu perfil no permite exportar estos datos.	Votre profil ne permet pas d’export
 Contabilización de extractos	Comptabilisation des relevés	Statement posting
 Movimiento bancario contabilizado	Mouvement bancaire comptabilisé	Bank transaction posted
 Valor del stock y cierre	Valeur du stock et clôture	Inventory value and closing
+Revisa las líneas diferidas: concepto, referencia única y un máximo de 200 líneas.	Vérifiez les lignes différées : libellé, référence unique et maximum de 200 lignes.	Review deferred lines: description, unique reference and at most 200 lines.
+Indica ambas fechas de cada diferido, con el final igual o posterior al inicio.	Indiquez les deux dates de chaque différé, avec une fin égale ou postérieure au début.	Enter both deferral dates, with the end on or after the start.
+Los importes diferidos deben ser positivos y no superar la base sin impuestos.	Les montants différés doivent être positifs et ne pas dépasser la base hors taxes.	Deferred amounts must be positive and must not exceed the amount excluding tax.
+La fuente contable no admite esta distribución; revisa los anticipos y las cuentas.	La source comptable ne permet pas cette répartition ; vérifiez les acomptes et les comptes.	The accounting source does not support this allocation; review deposits and accounts.
+Configura primero el diario, la cuenta y el cálculo en Diferidos de facturas.	Configurez d’abord le journal, le compte et le calcul dans Différés de factures.	First configure the journal, account and calculation under Invoice deferrals.
+Revisa los parámetros de diferidos de facturas.	Vérifiez les paramètres des différés de factures.	Review invoice deferral settings.
+Diferidos de facturas	Différés de factures	Invoice deferrals
+Inicio del diferido	Début du différé	Deferral start
+Fin del diferido	Fin du différé	Deferral end

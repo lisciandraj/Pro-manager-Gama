@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-27",
+  "project": "mknsaibrewksgomuslev",
+  "tested_source_commit": "1a3a184f573855f95bcbb880c092c67cf02ed926",
+  "migrations": [
+    {
+      "version": "20261027225549",
+      "name": "coco_workhub_collaborative_documents",
+      "exact_source_sql": true
+    },
+    {
+      "version": "20261027225653",
+      "name": "tms_resource_loads_and_endpoints",
+      "exact_source_sql": true
+    },
+    {
+      "version": "20261027225700",
+      "name": "accounting_invoice_deferrals",
+      "exact_source_sql": true
+    }
+  ],
+  "database": {
+    "historical_tables_compared": 54,
+    "historical_values_unchanged": true,
+    "ledger_balanced": true,
+    "history_policy_unchanged": true,
+    "history_capture_enabled": true,
+    "new_settings_inactive": true,
+    "no_test_business_mutations": true,
+    "private_evidence": "Detailed fingerprints and backups kept outside this repository"
+  },
+  "permissions": [
+    {
+      "rls": true,
+      "name": "accounting_invoice_deferral_settings",
+      "anonymous_select": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false
+    },
+    {
+      "rls": true,
+      "name": "coco_workhub_document_commits",
+      "anonymous_select": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false
+    },
+    {
+      "rls": true,
+      "name": "coco_workhub_document_receipts",
+      "anonymous_select": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false
+    },
+    {
+      "rls": true,
+      "name": "coco_workhub_document_versions",
+      "anonymous_select": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false
+    },
+    {
+      "rls": true,
+      "name": "coco_workhub_documents",
+      "anonymous_select": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false
+    }
+  ],
+  "facades": [
+    {
+      "name": "coco_workhub_document_stage",
+      "config": [
+        "search_path=\"\""
+      ],
+      "definer": false,
+      "service_execute": true,
+      "anonymous_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "name": "coco_workhub_documents",
+      "config": [
+        "search_path=\"\""
+      ],
+      "definer": false,
+      "service_execute": false,
+      "anonymous_execute": false,
+      "authenticated_execute": true
+    },
+    {
+      "name": "gama_accounting_invoice_deferrals",
+      "config": [
+        "search_path=\"\""
+      ],
+      "definer": false,
+      "service_execute": false,
+      "anonymous_execute": false,
+      "authenticated_execute": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "coco-workhub-documents",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_files_match_tested": true
+    },
+    {
+      "name": "gama-assistant-ia",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_files_match_tested": true
+    }
+  ],
+  "security": {
+    "new_warn_findings": 0,
+    "expected_info_increase": 3
+  },
+  "web": {
+    "published": false,
+    "current_served_commit": "631b3ab67531421a6828dc7c151a6c57261bbcb8",
+    "publication_authorized_on": "2026-10-28",
+    "state": "authorized_pending_ci_merge_and_http_verification"
+  },
+  "validation": {
+    "browser_distinct_cases": 128,
+    "history_and_collaboration_regression_cases": 17,
+    "targeted_server_passed": 29,
+    "targeted_server_failed": 0,
+    "full_unit": "No terminal result attested for the full suite. Five history harness failures exposed by the copy cleanup were corrected; the focused history unit suite then passed 5/5. Full GitHub CI is still required.",
+    "github_ci": "pending_pull_request",
+    "authenticated_production_ui": "not_verified",
+    "history_unit_passed": 5
+  },
+  "http_checks": {
+    "documents_anonymous_post": 401,
+    "assistant_anonymous_post": 401,
+    "documents_cors_preflight": 204,
+    "documents_cors_origin": "https://lisciandraj.github.io"
+  }
+}

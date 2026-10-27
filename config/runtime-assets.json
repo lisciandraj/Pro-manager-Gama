@@ -43,6 +43,7 @@
     {"source":"src/features/finance/accounting-audit.js","output":"coco-accounting-audit.js"},
     {"source":"src/features/finance/accounting-plans.js","output":"coco-accounting-plans.js"},
     {"source":"src/features/finance/accounting-deferrals.js","output":"coco-accounting-deferrals.js"},
+    {"source":"src/features/finance/accounting-invoice-deferrals.js","output":"coco-accounting-invoice-deferrals.js"},
     {"source":"src/features/finance/accounting-configuration.js","output":"coco-accounting-configuration.js"},
     {"source":"src/features/finance/accounting-earnings.js","output":"coco-accounting-earnings.js"},
     {"source":"src/features/finance/accounting-stock19.js","output":"coco-accounting-stock19.js"},

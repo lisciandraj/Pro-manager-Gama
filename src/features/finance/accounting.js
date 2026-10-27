@@ -498,6 +498,7 @@ VIEWS.purchases={
       ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
       ${r.status==='draft'?`<button class="arcButton primary" data-ga-draft="${esc(r.id)}">${tr('Revisar')}</button>`:''}
       ${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status==='posted'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
+      <button type="button" class="arcButton secondary" data-ga-deferral="${esc(r.id)}">${tr('Diferidos de facturas')}</button>
       ${rights?.validate&&r.status==='posted'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
    </tbody></table></div>
@@ -505,6 +506,7 @@ VIEWS.purchases={
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
+  document.querySelectorAll('[data-ga-deferral]').forEach(b=>b.onclick=()=>act(b,async()=>{await window.ArcLoadScript('coco-accounting-invoice-deferrals.js');await window.CocoInvoiceDeferrals.showPlans('supplier',b.dataset.gaDeferral)}));
   document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
   $('gaSupplierOcr')?.addEventListener('click',()=>window.CocoPlanning.ocr());
@@ -518,12 +520,13 @@ VIEWS.purchases={
 async function billForm(context={}){
  if(!allowed()||scope!=='all'||!rights?.create)return;
  const token=opening;
+ await window.ArcLoadScript('coco-accounting-invoice-deferrals.js');
  const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
  if(token!==opening||!allowed()||!rights?.create)return;
  const purchase=context.purchaseOrderId&&purchases.data.find(p=>p.id===context.purchaseOrderId&&p.status!=='cancelled');
  if(context.purchaseOrderId&&!purchase)throw Error('DOCUMENT_NOT_FOUND');
  const key=crypto.randomUUID(),sup=state.suppliers||[];
- GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
+ const el=GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
   ${field('Pedido de compra (opcional)',`<select id="gaPurchase"><option value="">—</option>${purchases.data.filter(p=>p.status!=='cancelled').map(p=>`<option value="${esc(p.id)}">${esc(p.order_number)}</option>`).join('')}</select>`)}
   ${field('Número de la factura',`<input id="gaNumber" required maxlength="80">`)}
@@ -532,16 +535,17 @@ async function billForm(context={}){
   ${field('Base imponible',`<input id="gaSubtotal" type="number" required min="0" step="0.01">`)}
   ${field('Impuesto',`<input id="gaTaxAmount" type="number" min="0" step="0.01" value="0">`)}
   ${field('Total',`<input id="gaTotal" type="number" required min="0.01" step="0.01">`)}
- </div><label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
+ </div>${window.CocoInvoiceDeferrals.editor()}<label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('Al guardar se crea el asiento en el diario de compras y la factura aparece en cuentas por pagar.')}</p>`,
   'Registrar',async el=>{
    const v=id=>el.querySelector('#'+id).value;
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
     purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
-    tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes')});
+    tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el)});
    await go();
   });
+ window.CocoInvoiceDeferrals.bindEditor(el);
  const recalc=()=>{const s=Number($('gaSubtotal').value||0),t=Number($('gaTaxAmount').value||0);
   if(s>0)$('gaTotal').value=(s+t).toFixed(2)};
  $('gaSubtotal').oninput=recalc;$('gaTaxAmount').oninput=recalc;

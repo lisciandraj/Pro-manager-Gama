@@ -2,6 +2,7 @@ const {test,expect}=require('@playwright/test'),fs=require('node:fs'),{randomUUI
 const AxeBuilder=require('@axe-core/playwright').default,{restore}=require('../scripts/restore-schema.cjs'),{isolateLocalPage}=require('./local-browser-fixture.cjs');
 const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');test.setTimeout(180000);
 for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`stock review, draft and ledger in ${language} at ${width}px`,async({page})=>{
+ page.setDefaultTimeout(15000);
  const db=await restore(),admin=uuid(),product=uuid(),errors=[];
  const v=async(s,p=[])=>Object.values((await db.query(s,p)).rows[0])[0];
  try{

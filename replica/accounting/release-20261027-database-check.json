@@ -1,0 +1,150 @@
+{
+  "checked_at": "2026-10-27T20:40:40.936225+00:00",
+  "project": "mknsaibrewksgomuslev",
+  "migrations": [
+    {
+      "version": "20261027180512",
+      "name": "accounting_stock19_review",
+      "statement_count": 1,
+      "bytes": 34895,
+      "sha256": "6924ac10cc62282d757f7f000ec2306b6f29db3de8a9d8aaf00ccdb049f3855a"
+    },
+    {
+      "version": "20261027183731",
+      "name": "accounting_statement_formats",
+      "statement_count": 1,
+      "bytes": 9835,
+      "sha256": "9476eb8e02d9b72793df9904769e463889bab9a9380511208c123ce1f883fede"
+    },
+    {
+      "version": "20261027193621",
+      "name": "accounting_grouped_deferrals",
+      "statement_count": 1,
+      "bytes": 29792,
+      "sha256": "e8c7d88a0dd2f3163187a3cdbc4c2451d82bd9b27fb90c26ab46735fa9e46f54"
+    }
+  ],
+  "baseline": "grouped-deferrals-production-verification.json:after",
+  "compared_tables": 38,
+  "changed_tables": [],
+  "ledger": {
+    "currency": "USD",
+    "entries": 58,
+    "lines": 138,
+    "debit": 8552.49,
+    "credit": 8552.49,
+    "unbalanced": 0
+  },
+  "checks": {
+    "rpcs": [
+      {
+        "name": "gama_accounting_deferrals",
+        "invoker": true,
+        "arguments": "p_action text, p_data jsonb",
+        "anonymous_execute": false,
+        "authenticated_execute": true
+      },
+      {
+        "name": "gama_bank_statement_import",
+        "invoker": true,
+        "arguments": "p_data jsonb",
+        "anonymous_execute": false,
+        "authenticated_execute": true
+      }
+    ],
+    "new_rows": {
+      "bank_sources": 0,
+      "deferral_links": 0,
+      "deferral_batches": 0
+    }
+  },
+  "tables": [
+    {
+      "schema": "private",
+      "table": "accounting_deferral_batch_plans",
+      "rls": true,
+      "anonymous_read": false,
+      "authenticated_read": false
+    },
+    {
+      "schema": "private",
+      "table": "accounting_deferral_batches",
+      "rls": true,
+      "anonymous_read": false,
+      "authenticated_read": false
+    },
+    {
+      "schema": "private",
+      "table": "accounting_statement_sources",
+      "rls": true,
+      "anonymous_read": false,
+      "authenticated_read": false
+    }
+  ],
+  "security": [
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 1
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1
+    }
+  ],
+  "business_test_operations": 0,
+  "authenticated_production_ui": "not verified",
+  "integration": {
+    "scheduler": [
+      {
+        "active": true,
+        "jobname": "coco-accounting-plans",
+        "schedule": "15 * * * *"
+      }
+    ],
+    "tms_delegation": true,
+    "history_capture": true,
+    "history_mapping": true,
+    "deferral_history": true,
+    "recent_scheduler": [
+      {
+        "status": "succeeded",
+        "end_time": "2026-10-27T20:15:00.285236+00:00",
+        "start_time": "2026-10-27T20:15:00.152438+00:00"
+      },
+      {
+        "status": "succeeded",
+        "end_time": "2026-10-27T19:15:00.167089+00:00",
+        "start_time": "2026-10-27T19:15:00.115928+00:00"
+      }
+    ],
+    "recent_migrations": [
+      {
+        "name": "accounting_grouped_deferrals",
+        "version": "20261027193621"
+      },
+      {
+        "name": "tms_pro_preserve_function_dependencies",
+        "version": "20261027193345"
+      },
+      {
+        "name": "coco_workhub_preserve_history_scope",
+        "version": "20261027192816"
+      },
+      {
+        "name": "coco_unified_workspace",
+        "version": "20261027192448"
+      },
+      {
+        "name": "tms_pro_planning_tracking",
+        "version": "20261027192047"
+      },
+      {
+        "name": "accounting_statement_formats",
+        "version": "20261027183731"
+      }
+    ],
+    "workhub_delegation": true
+  }
+}

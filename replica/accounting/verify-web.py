@@ -41,8 +41,10 @@ try:
     names = ['architect-finance-controls.js', 'coco-modules.js',
              'coco-accounting-configuration.js', 'gama-accounting.js', 'gama-payments.js',
              'gama-i18n-catalog.js', 'gama-i18n-server.js', 'gama-i18n-fr.js', 'gama-i18n-en.js']
-    for optional in ['coco-accounting-earnings.js', 'coco-accounting-stock19.js', 'coco-accounting-deferrals.js',
-                     'coco-bank-formats.js', 'coco-import-worker.js']:
+    for optional in ['coco-accounting-plans.js', 'coco-accounting-earnings.js',
+                     'coco-accounting-stock19.js', 'coco-accounting-deferrals.js',
+                     'coco-bank-formats.js', 'coco-import-worker.js',
+                     'coco-order-followup.js', 'coco-style-accounting.css']:
         try:
             git_bytes(optional)
             names.append(optional)

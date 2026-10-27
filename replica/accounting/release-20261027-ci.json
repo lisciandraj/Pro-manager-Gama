@@ -1,0 +1,189 @@
+{
+  "source_commit": "04985a1b6707919b0b42fe056089a58059e6e147",
+  "published_source_tree": "a96103308b30982bccd7d62f1f883991feac582a",
+  "merged_commit": "73cb2c2740d564aeb9d4f973134dba2af4bf33bc",
+  "pull_request": 252,
+  "all_workflows_passed": true,
+  "workflows": [
+    {
+      "id": 40572012500,
+      "name": "Validate Contacts dossier",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012500"
+    },
+    {
+      "id": 40572012470,
+      "name": "Audit hardening regression",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012470"
+    },
+    {
+      "id": 40572012479,
+      "name": "Validate responsive layout",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012479"
+    },
+    {
+      "id": 40572012312,
+      "name": "Validate sales concurrency",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012312"
+    },
+    {
+      "id": 40572012474,
+      "name": "Test Agent Coco (read only)",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012474"
+    },
+    {
+      "id": 40572012361,
+      "name": "Validate Coco architecture",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012361"
+    },
+    {
+      "id": 40572012471,
+      "name": "Validate Coco purchases",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012471"
+    },
+    {
+      "id": 40572012296,
+      "name": "Validate product identity and photos",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012296"
+    },
+    {
+      "id": 40572012364,
+      "name": "Validate sales workflow",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012364"
+    },
+    {
+      "id": 40572012446,
+      "name": "Validate native accounting plans",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012446"
+    },
+    {
+      "id": 40572012588,
+      "name": "Build and publish Coco ERP",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012588"
+    },
+    {
+      "id": 40572012516,
+      "name": "Validate Coco release",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40572012516"
+    }
+  ],
+  "native_browser": {
+    "run": 40572012446,
+    "job": 122428404658,
+    "passed": 135,
+    "failed": 0
+  },
+  "build": {
+    "run": 40572012588,
+    "job": 122428660142,
+    "unit_passed": 695,
+    "unit_failed": 0,
+    "unit_skipped": 2,
+    "separate_postgresql_jobs": "Accounting concurrency 122428404253; sales concurrency workflow 40572012312 both passed",
+    "browser_suites": [
+      {
+        "area": "Agent Coco and accounting",
+        "passed": 52
+      },
+      {
+        "area": "TMS",
+        "passed": 49
+      },
+      {
+        "area": "History and dossier links",
+        "passed": 80
+      },
+      {
+        "area": "Workhub",
+        "passed": 3
+      },
+      {
+        "area": "Login and recovery",
+        "passed": 27
+      }
+    ]
+  },
+  "publication": {
+    "commit": "73cb2c2740d564aeb9d4f973134dba2af4bf33bc",
+    "run": 40577786520,
+    "job": 122461129485,
+    "conclusion": "success",
+    "built_at": "2026-10-27T20:48:28.088Z",
+    "http_checked_at": "2026-10-27T20:49:13.700919+00:00",
+    "matching_assets": 17,
+    "url": "https://lisciandraj.github.io/Pro-manager-Gama/"
+  },
+  "main_workflows": [
+    {
+      "id": 40577786575,
+      "name": "Validate sales concurrency",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786575"
+    },
+    {
+      "id": 40577786725,
+      "name": "Validate Coco purchases",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786725"
+    },
+    {
+      "id": 40577786663,
+      "name": "Validate responsive layout",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786663"
+    },
+    {
+      "id": 40577786505,
+      "name": "Validate product identity and photos",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786505"
+    },
+    {
+      "id": 40577786533,
+      "name": "Validate Contacts dossier",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786533"
+    },
+    {
+      "id": 40577786624,
+      "name": "Validate sales workflow",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786624"
+    },
+    {
+      "id": 40577786709,
+      "name": "Validate Coco architecture",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786709"
+    },
+    {
+      "id": 40577786598,
+      "name": "Validate Coco release",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786598"
+    },
+    {
+      "id": 40577786544,
+      "name": "Validate native accounting plans",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786544"
+    },
+    {
+      "id": 40577786520,
+      "name": "Build and publish Coco ERP",
+      "conclusion": "success",
+      "url": "https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40577786520"
+    }
+  ]
+}

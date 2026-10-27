@@ -1,0 +1,13 @@
+{
+  "version": "20261027192816",
+  "name": "coco_workhub_preserve_history_scope",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 1152,
+  "sha256": "ba11f546104e2f9e576fc1d3777879b7e614c9a6c3361c34e9e8213af017c278",
+  "file": "20261027192700_coco_workhub_preserve_history_scope.sql",
+  "purpose": "Preserves the full pre-existing HR, proposal and optimized product history access policy with the workspace resolver; exact ledger bytes verified."
+}

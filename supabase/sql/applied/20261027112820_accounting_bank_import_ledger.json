@@ -1,0 +1,13 @@
+{
+  "version": "20261027112820",
+  "name": "accounting_bank_import_ledger",
+  "statement_count": 1,
+  "bytes": 22950,
+  "sha256": "60a0b6a7bc04afb50b6c209e43be1d0919806dba6e1deeb4fc6c471c258ae66a",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "file": "20261027112820_accounting_bank_import_ledger.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

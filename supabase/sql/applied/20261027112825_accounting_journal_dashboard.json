@@ -1,0 +1,13 @@
+{
+  "version": "20261027112825",
+  "name": "accounting_journal_dashboard",
+  "statement_count": 1,
+  "bytes": 5882,
+  "sha256": "da06b76378d62858d4513dbb41c86f5ed11062bddf60201b2a12b190eb2e8079",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "file": "20261027112825_accounting_journal_dashboard.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

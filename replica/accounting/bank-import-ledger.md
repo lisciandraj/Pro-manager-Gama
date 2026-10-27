@@ -26,7 +26,7 @@ A02 reste partiel : les cartes et les listes sont réelles, mais le périmètre 
 
 Les modifications métier sont capturées dans l’historique Coco. Les contrôles de lecture masquent les liens bancaires aux profils commerciaux limités. La migration reste uniquement dans le registre technique.
 
-Tests : [base import](../../tests/accounting-bank-import-db.test.cjs), [cartes et listes](../../tests/accounting-journal-dashboard-db.test.cjs), [parcours trilingues](../../tests/accounting-bank-import.spec.js), [concurrence PostgreSQL](../../tests/accounting-plans-concurrency.test.cjs) et [reprise peuplée sans modification](../../tests/accounting-payment-upgrade-db.test.cjs). Résultats définitifs et publication à consigner après CI dans le fichier de résultats associé.
+Tests : [base import](../../tests/accounting-bank-import-db.test.cjs), [cartes et listes](../../tests/accounting-journal-dashboard-db.test.cjs), [parcours trilingues](../../tests/accounting-bank-import.spec.js), [concurrence PostgreSQL](../../tests/accounting-plans-concurrency.test.cjs) et [reprise peuplée sans modification](../../tests/accounting-payment-upgrade-db.test.cjs). Les [résultats, versions installées et contrôles de production](results-bank-import.md) distinguent la preuve de chaque scénario et les limites restantes.
 
 ## Déploiement et retour arrière
 

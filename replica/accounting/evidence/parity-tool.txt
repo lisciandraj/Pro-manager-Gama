@@ -1,6 +1,6 @@
-Parity: 64.0 / 100
+Parity: 64.5 / 100
 
-features 64.0  (107 counted, must-haves 54 of 107 done)
+features 64.5  (107 counted, must-haves 54 of 107 done)
 
 Not shippable yet: 53 must-have features are not done.
 
@@ -17,7 +17,7 @@ By area, weakest first
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
 - C                             77.8  (9 features)
-- F                             79.2  (12 features)
+- F                             83.3  (12 features)
 - G                             91.7  (6 features)
 
 Missing, in build order
@@ -28,7 +28,6 @@ Missing, in build order
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
 - [must] F: Imports OFX QIF CAMT CODA, no  (Ne pas présenter l'import CSV comme support de ces formats)
-- [must] F: Écriture bancaire et compte d’attente dès import du relevé, no  (Écart identifié le 26 octobre 2026 en préparant les cartes de journaux. Coco conserve actuellement les lignes importées hors du livre jusqu’au traitement métier. Voir journal-dashboard-audit.md ; reprise nécessaire avant activation, sans compte d’attente ni écriture historique inventés.)
 - [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
 - [must] H: Différés en mois complets et traitements groupés, no  (Le traitement du dernier mois incomplet et le regroupement Odoo restent à comparer)
 - [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)
@@ -45,7 +44,7 @@ Missing, in build order
 - [must] M: OCR fournisseurs opérationnel, no  (Accès au flux existant ; prestataire accès coût et preuve de traitement non attestés)
 - [must] M: Paiement en ligne de factures, no  (Prestataire marchand webhooks clés et coûts non raccordés pour Coco)
 - [must] M: Synchronisation bancaire réelle, no  (Odoo cite Plaid Yodlee Salt Edge Ponto Enable Banking Basiq ; aucun contrat natif Coco ni banque équatorienne vérifiés)
-- [must] A: Cartes de journaux et activités à traiter, partial  (Vue opérationnelle présente ; regroupement complet par journal et activités Odoo à étendre)
+- [must] A: Cartes de journaux et activités à traiter, partial  (Cartes natives avec montants, brouillons, soldes bancaires et listes filtrées ; tests en cours. Toutes les activités de journaux Odoo restent à couvrir. Voir bank-import-ledger.md.)
 - [must] B: Comptes par défaut produits catégories et tiers, partial  (Correspondances globales présentes ; héritage produit/catégorie/tiers incomplet)
 - [must] B: Séquences par journal et exercices, partial  (Opérationnel pour futures validations ; inférence depuis un numéro édité et renumérotation de masse Odoo restent à développer. Formats limités aux variables documentées dans configuration.md.)
 - [must] B: Taxes incluses fixes composées et arrondi global, partial  (Les taxes simples ne démontrent pas les combinaisons de calcul Odoo)
@@ -57,7 +56,8 @@ Missing, in build order
 - [must] E: Paiements fournisseurs autonomes et avances, partial  (Parité complète des avances fournisseur non démontrée)
 - [must] E: États enregistré affecté en paiement rapproché, partial  (Les traitements banque/attente/sans écriture, les méthodes nommées, les reliquats datés et les annulations sont vérifiés. Les statuts et échéances historiques Coco sont conservés ; la correspondance exhaustive des libellés et transitions Odoo reste à attester. Aucune équivalence totale des états n’est annoncée.)
 - [must] F: Modèles de rapprochement réutilisables et suggestions, partial  (Suggestions existantes ; moteur complet de modèles non disponible)
-- [must] G: Recherche filtres pagination et retour à l'origine, partial  (Filtres présents ; regroupements Odoo et tous les liens à étendre)
+- [must] F: Écriture bancaire et compte d’attente dès import du relevé, partial  (Import banque/attente configurable, rapprochement et annulation reliés. Reprise des anciens groupes encore spécifique ; paramètres de production non activés automatiquement. Les paiements directs et imports peuvent coexister avant rapprochement ; celui-ci retire le doublon. Voir bank-import-ledger.md.)
+- [must] G: Recherche filtres pagination et retour à l'origine, partial  (Pagination des écritures, filtres exacts, export complet et liens import/écriture ajoutés. Regroupements et totalité des liens métiers restent à étendre.)
 - [must] H: Clôture anticipée et renégociation d'emprunt, partial  (Annulation avec contre-écritures disponible ; clôture prospective et modification contractuelle à développer)
 - [must] H: Reclassements automatiques entre comptes et cut-off groupé, partial  (OD périodiques présentes ; moteur de transferts et cut-off Odoo incomplet)
 - [must] I: Dimensions centres agences familles, partial  (Dimensions simples présentes ; plans hiérarchiques et applicabilité obligatoire manquants)

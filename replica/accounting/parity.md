@@ -14,6 +14,6 @@ D05 (autofacturation) et L10 (rapports de localisation) ont été identifiés da
 
 Le [diagnostic Replica](evidence/parity-tool.txt) conserve la liste des fonctions obligatoires manquantes. Il ne constitue pas une autorisation de présenter le module comme équivalent complet.
 
-Le complément d’audit [journaux et compte d’attente](journal-dashboard-audit.md) ajoute F12 : la pièce banque/attente dès l’import est distincte du rapprochement partiel livré. Elle reste à développer avec sa reprise ; l’inventaire précédent de 107 points ne la couvrait pas explicitement.
+Le complément d’audit [journaux et compte d’attente](journal-dashboard-audit.md) ajoute F12 : la pièce banque/attente dès l’import est distincte du rapprochement partiel livré. Le lot import au livre en réalise le traitement configuré des nouvelles lignes et la reprise sélectionnée des lignes jamais rapprochées. F12 reste partiel pour les groupes historiques ; l’inventaire précédent de 107 points ne le couvrait pas explicitement.
 
 Le lot [relevés au grand livre](bank-import-ledger.md) étend F12, A02 et G04 sans déclarer ces familles entièrement couvertes. Les fonctions testées et les limites de reprise restent distinguées.

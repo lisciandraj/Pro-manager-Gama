@@ -1,0 +1,133 @@
+{
+  "checked_at": "2026-10-27T20:49:13.700919+00:00",
+  "url": "https://lisciandraj.github.io/Pro-manager-Gama/",
+  "expected_commit": "73cb2c2740d564aeb9d4f973134dba2af4bf33bc",
+  "git_ref": "73cb2c2740d564aeb9d4f973134dba2af4bf33bc",
+  "assets": [
+    {
+      "name": "architect-finance-controls.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/architect-finance-controls.js?v=266afacbea0e",
+      "bytes": 21560,
+      "sha256": "266afacbea0e97c52dd841f802d5d8ccca70c31415eba6d169eeacbd93994298",
+      "matches_git": true
+    },
+    {
+      "name": "coco-modules.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-modules.js?v=9a3d7c11e86d",
+      "bytes": 556804,
+      "sha256": "9a3d7c11e86d349cdca45ce626ef01759423a623aada48385d1b46aaf53f0066",
+      "matches_git": true
+    },
+    {
+      "name": "coco-accounting-configuration.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-accounting-configuration.js?v=0d7733b1d0b9",
+      "bytes": 41106,
+      "sha256": "0d7733b1d0b91a948825604b6cb8910a790cee088f902f2c666965e1c8c278d2",
+      "matches_git": true
+    },
+    {
+      "name": "gama-accounting.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-accounting.js?v=b71542f79df6",
+      "bytes": 181282,
+      "sha256": "b71542f79df6cfa880aac6ca8935a9db59d1de43d298e95453dd33f74974220b",
+      "matches_git": true
+    },
+    {
+      "name": "gama-payments.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-payments.js?v=84f547c01891",
+      "bytes": 16163,
+      "sha256": "84f547c01891a7ea3890feeca711d35b9ed190a4326d5509241a595cabac2d6c",
+      "matches_git": true
+    },
+    {
+      "name": "gama-i18n-catalog.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-i18n-catalog.js?v=54eaf63ddecf",
+      "bytes": 736240,
+      "sha256": "54eaf63ddecf09a61142c2ac537fc1d022c97695c27f203df541974d6e9297f4",
+      "matches_git": true
+    },
+    {
+      "name": "gama-i18n-server.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-i18n-server.js?v=eef194801b1b",
+      "bytes": 12688,
+      "sha256": "eef194801b1b801d5947f8f36316b0a03d4aa811c6da49b26558387f9a554d0d",
+      "matches_git": true
+    },
+    {
+      "name": "gama-i18n-fr.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-i18n-fr.js?v=9af7da3907cb",
+      "bytes": 535657,
+      "sha256": "9af7da3907cb7e775c928237796b82d0da6fcf71563b4b7cef20f3eff58c81cc",
+      "matches_git": true
+    },
+    {
+      "name": "gama-i18n-en.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/gama-i18n-en.js?v=38e5ee2de67a",
+      "bytes": 499365,
+      "sha256": "38e5ee2de67afa7fe290266a5c817d7fde416322d58341e8294e139c2b9a9f65",
+      "matches_git": true
+    },
+    {
+      "name": "coco-accounting-plans.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-accounting-plans.js?v=a4ff535019ad",
+      "bytes": 25223,
+      "sha256": "a4ff535019add48caddc95b750c309960bbbd6bbb0d09a681a5cc1c8da21c7f3",
+      "matches_git": true
+    },
+    {
+      "name": "coco-accounting-earnings.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-accounting-earnings.js?v=ce6496f0e80b",
+      "bytes": 10448,
+      "sha256": "ce6496f0e80b0f00c9d397727523a8865b4f369020f8b928c33d5fe93dbd751a",
+      "matches_git": true
+    },
+    {
+      "name": "coco-accounting-stock19.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-accounting-stock19.js?v=fccbc93ccb03",
+      "bytes": 15383,
+      "sha256": "fccbc93ccb03b86c4a56c3d83c68fcbf24711e52d30144ba8da5f9f527b046ee",
+      "matches_git": true
+    },
+    {
+      "name": "coco-accounting-deferrals.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-accounting-deferrals.js?v=09a7bd986679",
+      "bytes": 12798,
+      "sha256": "09a7bd9866796fbba2c3e2d59a6f83e8820bb2d860f1d5ccc1df353150d63931",
+      "matches_git": true
+    },
+    {
+      "name": "coco-bank-formats.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-bank-formats.js?v=92f568c08ce9",
+      "bytes": 16950,
+      "sha256": "92f568c08ce943a0e40144cc9a64deb22e56d5d0d9de9f3721cf9ce2bdc64985",
+      "matches_git": true
+    },
+    {
+      "name": "coco-import-worker.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-import-worker.js?v=f2065377bdda",
+      "bytes": 2262,
+      "sha256": "f2065377bdda42c3b6847c2171f2660175beaf676f8bc62e972542514523ca80",
+      "matches_git": true
+    },
+    {
+      "name": "coco-order-followup.js",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-order-followup.js?v=af75955585d8",
+      "bytes": 51369,
+      "sha256": "af75955585d829b7e359ef940f777341e4b4f68ac58a174a257447f01237f09d",
+      "matches_git": true
+    },
+    {
+      "name": "coco-style-accounting.css",
+      "served_url": "https://lisciandraj.github.io/Pro-manager-Gama/coco-style-accounting.css?v=4658d612dc23",
+      "bytes": 5736,
+      "sha256": "4658d612dc2331071c9773e7eac3d152a0e77e94c83125d49bec05ee5a054169",
+      "matches_git": true
+    }
+  ],
+  "build": {
+    "commit": "73cb2c2740d564aeb9d4f973134dba2af4bf33bc",
+    "run": "40577786520",
+    "built_at": "2026-10-27T20:48:28.088Z"
+  },
+  "ok": true
+}

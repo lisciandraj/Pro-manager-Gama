@@ -26,7 +26,7 @@ const drvFrom=r=>({id:r.driver_id,name:r.name,phone:r.phone||'',vehicle:r.plate|
  maxWeight:Number(r.max_weight||0),maxVolume:Number(r.max_volume||0),
  enabled:r.available===true,absent:r.absent===true,employeeId:r.employee_id||null});
 const delFrom=r=>({id:r.id,reference:r.dossier_reference||r.erp_reference||'',customer:r.customer,address:r.address,customerId:r.customer_id||null,phone:r.phone||'',date:r.delivery_date,timeWindow:r.time_window||'',priority:r.priority||'Normal',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Pendiente de preparación',lat:r.lat,lng:r.lng,routeId:r.route_id,driverId:r.driver_id,actualArrival:r.actual_arrival,etaAt:r.eta_at,etaBasis:r.eta_basis,deliveredAt:r.delivered_at,notes:r.notes||'',execution:r.execution||null,version:r.version||1});
-const rtFrom=r=>({id:r.id,reference:r.erp_reference||'',date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',vehicleId:r.vehicle_id||null,stops:Array.isArray(r.stops)?r.stops:[],distance:Number(r.distance||0),distanceBasis:r.distance_basis||'air',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at,version:r.version||1,costPerKm:r.cost_per_km??null,manual:r.manual_override===true});
+const rtFrom=r=>({id:r.id,reference:r.erp_reference||'',date:r.route_date,driverId:r.driver_id,driver:r.driver_name||'',vehicle:r.vehicle||'',vehicleId:r.vehicle_id||null,stops:Array.isArray(r.stops)?r.stops:[],routePoints:r.route_points||{},distance:Number(r.distance||0),distanceBasis:r.distance_basis||'air',weight:Number(r.weight||0),volume:Number(r.volume||0),status:r.status||'Planificada',createdAt:r.created_at,version:r.version||1,costPerKm:r.cost_per_km??null,manual:r.manual_override===true});
 const notify=(message,type)=>window.gamaToast?.(T(message),type?{tipo:type}:undefined);
 const tmsError=e=>({ROUTE_STALE:'La ruta cambió. Actualiza y vuelve a intentarlo.',ROUTE_CLOSED:'La ruta ya está en carga o ha salido.',ROUTE_CAPACITY:'La carga supera la capacidad del vehículo.',GPS_INVALID:'Coordenadas inválidas.',TMS_ACCESS_DENIED:'Tu perfil no puede realizar esta operación.'}[String(e?.message||e)]||window.GamaLoading?.error(e)||e?.message||String(e));
 
@@ -172,7 +172,7 @@ const proofReference=d=>db.proofDocuments[d.id]?.reference||db.proofIndex.find(p
 const proofPartner=d=>db.proofDocuments[d.id]?.partner||d.customer||'';
 const color=d=>status(d)==='Excepción'?'incident':status(d)==='Entregada'?'delivered':['En tránsito','En ruta','En carga'].includes(status(d))?'transit':['Planificada','Lista para envío'].includes(status(d))?'planned':'pending';
 const badge=d=>`<span class="tmsBadge tmsStatus-${color(d)}">${esc(T(status(d)))}</span>`;
-function routeStops(r){return(r.stops||[]).map(id=>id==='__depot'?{id:'__depot',customer:'Depósito',address:db.settings?.depot||'Depósito',isDepot:true,...(db.settings.depotPoint||{})}:db.deliveries.find(d=>d.id===id)).filter(Boolean)}
+function routeStops(r){return(r.stops||[]).map((id,i)=>{if(id!=='__depot')return db.deliveries.find(d=>d.id===id);const key=i===0?'start':'end',point=r.routePoints?.[key],legacy=!Object.hasOwn(r.routePoints||{},'start');return {customer:point?.label||T('Depósito'),address:point?.label||db.settings?.depot||T('Depósito'),isDepot:true,...(legacy?db.settings.depotPoint||{}:point||{}),id:legacy?'__depot':r.id+':'+(key==='end'&&point?.lat===r.routePoints.start?.lat&&point?.lng===r.routePoints.start?.lng?'start':key)}}).filter(Boolean)}
 function status(d){return d.status||'Pendiente de preparación'}
 /* Daily planning is one atomic, idempotent server operation. */
 const WORDS={
@@ -254,13 +254,13 @@ function updateMapRoutes(){
 }
 function mapRoutes(){return routesForDay().filter(r=>mapRoute==='all'||mapRoute===r.id).map((r,i)=>{
  const stops=[...r.stops],depot=db.settings.depotPoint;
- if(validPoint(depot)&&stops[0]!=='__depot')stops.unshift('__depot');if(validPoint(depot)&&db.settings.returnDepot&&stops.at(-1)!=='__depot')stops.push('__depot');
+ if(!Object.hasOwn(r.routePoints||{},'start')){if(validPoint(depot)&&stops[0]!=='__depot')stops.unshift('__depot');if(validPoint(depot)&&db.settings.returnDepot&&stops.at(-1)!=='__depot')stops.push('__depot')}
  return {...r,stops,color:window.CocoDeliveryMap?.routeColor(r,routesForDay().findIndex(x=>x.id===r.id)),geometry:roadEnabled?roadResults.get(r.id)?.geometry:null};
 })}
 async function loadRoadRoutes(){
  if(!roadEnabled||!planningActive()||document.hidden||!navigator.onLine)return;
- const routes=mapRoutes(),points=[...db.deliveries,db.settings.depotPoint].filter(Boolean);
- const inputs=routes.map(r=>({id:r.id,points:r.stops.map(id=>points.find(p=>p.id===id)).map(p=>validPoint(p)?[+Number(p.lng).toFixed(6),+Number(p.lat).toFixed(6)]:null)}));
+ const routes=mapRoutes();
+ const inputs=routes.map(r=>({id:r.id,points:routeStops(r).map(p=>validPoint(p)?[+Number(p.lng).toFixed(6),+Number(p.lat).toFixed(6)]:null)}));
  const key=JSON.stringify({day:day(),inputs});if(roadKey===key)return;roadKey=key;const token=++roadEpoch;
  roadResults.clear();roadState='mapRoadLoading';mapStatus();let failed=false;
  try{
@@ -311,14 +311,16 @@ function drawDayMap(){
  if(!routesForDay().some(r=>r.id===mapRoute))mapRoute='all';
  loadRoadRoutes();const routes=mapRoutes(),selected=new Set(routes.flatMap(r=>r.stops));
  const points=db.deliveries.filter(d=>d.date===day()&&validPoint(d)&&(mapRoute==='all'||selected.has(d.id)));
- const depot=db.settings.depotPoint;if(validPoint(depot))points.push({...depot,id:'__depot',isDepot:true,customer:db.settings.depot});
+ for(const r of routes)for(const p of routeStops(r).filter(p=>p.isDepot&&validPoint(p)))if(!points.some(x=>x.id===p.id))points.push(p);
+ const depot=db.settings.depotPoint;if(validPoint(depot)&&!points.some(p=>p.id==='__depot'))points.push({...depot,customer:db.settings.depot});
+ const renderRoutes=routes.map(r=>({...r,stops:routeStops(r).map(p=>p.id)}));
  const selector=document.getElementById('tMapPoint'),list=document.getElementById('tMapPoints'),outside=document.getElementById('tMapOutside');
  if(!['all','__quito'].includes(mapPoint)&&!points.some(d=>d.id===mapPoint))mapPoint='all';
- selector.innerHTML=`<option value="all">${esc(tr('mapArea'))}</option><option value="__quito">${esc(tr('mapQuito'))}</option>${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?T('Depósito'):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;
+ selector.innerHTML=`<option value="all">${esc(tr('mapArea'))}</option><option value="__quito">${esc(tr('mapQuito'))}</option>${points.map(d=>`<option value="${esc(d.id)}">${esc(d.isDepot?(d.customer||T('Depósito')):[d.reference,d.customer].filter(Boolean).join(' · '))}</option>`).join('')}`;selector.value=mapPoint;
  list.innerHTML=points.filter(d=>!d.isDepot).map((d,i)=>{const r=routes.find(r=>r.stops.includes(d.id)),number=r?r.stops.filter(id=>id!=='__depot').indexOf(d.id)+1:i+1;return `<button type="button" class="arcButton secondary" data-map-delivery="${esc(d.id)}" aria-pressed="${mapPoint===d.id}">${number}. ${esc([d.reference,d.customer,T(d.status)].filter(Boolean).join(' · '))}</button>`}).join('');
  const select=id=>{mapPoint=id;selector.value=id;list.querySelectorAll('[data-map-delivery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapDelivery===id)));const d=points.find(p=>p.id===id);outside.href=d?wazeUrl(d):'https://www.waze.com/ul?ll=-0.1807%2C-78.4678';document.getElementById('tms-delivery-'+id)?.focus({preventScroll:true})};
  try{
-  const data={points,routes,vehicles:liveVehicles(),onSelect:select};
+  const data={points,routes:renderRoutes,vehicles:liveVehicles(),onSelect:select};
   if(host.querySelector('svg')&&mapView?.update)mapView.update(data);
   else{const view=mapView?.snapshot?.();mapView?.destroy?.();mapView=window.CocoDeliveryMap.create(host,{...data,view});if(!view&&mapPoint!=='all')mapView.focus(mapPoint)}
  }catch(e){console.warn('[TMS] map rendering',e);mapFailure(host);return}
@@ -344,7 +346,7 @@ function bindPlanning(x){
  x.querySelector('#tRefresh').onclick=()=>autoPlanning(true);
  x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapPoint='all';mapZoom=null;mapView?.destroy?.();mapView=null;drawDayMap()};
  x.querySelector('#tMapRoads').onchange=e=>{roadEnabled=e.target.checked;roadEpoch++;roadKey='';roadResults.clear();if(!roadEnabled)window.CocoTmsRoadMap?.clear();x.querySelector('#tMapRoadAttribution').hidden=!roadEnabled;drawDayMap()};
- x.querySelector('#tMapPoint').onchange=e=>{mapPoint=e.target.value;mapView?.focus(mapPoint);const d=findDelivery(mapPoint)||(mapPoint==='__depot'?db.settings.depotPoint:null);x.querySelector('#tMapOutside').href=d?wazeUrl(d):'https://www.waze.com/ul?ll=-0.1807%2C-78.4678'};
+ x.querySelector('#tMapPoint').onchange=e=>{mapPoint=e.target.value;mapView?.focus(mapPoint);const d=findDelivery(mapPoint)||routesForDay().flatMap(routeStops).find(p=>p.id===mapPoint)||(mapPoint==='__depot'?db.settings.depotPoint:null);x.querySelector('#tMapOutside').href=d?wazeUrl(d):'https://www.waze.com/ul?ll=-0.1807%2C-78.4678'};
  x.querySelector('#tMapIn').onclick=()=>mapView?.zoom(1);x.querySelector('#tMapOut').onclick=()=>mapView?.zoom(-1);x.querySelector('#tMapFit').onclick=()=>{mapPoint='all';x.querySelector('#tMapPoint').value='all';mapView?.fit()};
  x.querySelectorAll('[data-tms-addresses]').forEach(b=>b.onclick=async()=>{const d=findDelivery(b.dataset.tmsAddresses);if(!d?.customerId)return;b.disabled=true;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open('clients',d.customerId,{tab:'relations'})}catch(e){fail(e,'Planificación')}finally{b.disabled=false}});
  x.querySelectorAll('[data-tms-configure]').forEach(b=>b.onclick=()=>window.CocoTmsExecution.configure(b.dataset.tmsConfigure,()=>autoPlanning(true)).catch(e=>fail(e,'Planificación')));

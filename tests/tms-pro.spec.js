@@ -1,28 +1,32 @@
 const {test,expect}=require('@playwright/test'),fs=require('node:fs'),path=require('node:path'),AxeBuilder=require('@axe-core/playwright').default;
 const base=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
 const proMock=`if(fn==='gama_tms_pro'){
- const p=args.p_data||{},day=window.__DB.__today,d=window.__DB.tms_deliveries[0],r=window.__DB.tms_routes[0];window.__proCalls=window.__proCalls||[];window.__proCalls.push({action:args.p_action,data:p});
- if(args.p_action==='overview')return {data:{settings:{version:1,balance:'compact'},days:[{day,total:1,planned:1,delivered:0}],deliveries:[d]}};
+ const p=args.p_data||{},day=window.__DB.__today,d=window.__DB.tms_deliveries[0],r=window.__DB.tms_routes[0],state=window.__proState||(window.__proState={settings:{version:1,balance:'compact',dimensions:[]},drivers:[],vehicles:[],rules:{}});window.__proCalls=window.__proCalls||[];window.__proCalls.push({action:args.p_action,data:p});
+ if(args.p_action==='overview')return {data:{settings:state.settings,days:[{day,total:1,planned:1,delivered:0}],deliveries:[d]}};
  if(args.p_action==='preview')return {data:{fingerprint:'stable-plan',count:1,days:7,from:p.from,to:p.to}};
  if(args.p_action==='plan_range')return {data:{days:[{today:day,planned:1,total:1}]}};
- if(args.p_action==='resources')return {data:{resources:[{driver_id:'driver',name:'Conductor Quito',plate:'TRUCK',vehicle_id:'truck',available:true}],drivers:[],vehicles:[]}};
- if(args.p_action==='rules')return {data:{delivery:{...d,service_minutes:10,version:1},rules:null}};
- if(['rules_save','driver_save','vehicle_save','settings_save','position'].includes(args.p_action))return {data:{stored:true,version:1}};
+ if(args.p_action==='resources')return {data:{resources:[{driver_id:'driver',name:'Conductor Quito',plate:'TRUCK',vehicle_id:'truck',available:true}],settings:state.settings,drivers:state.drivers,vehicles:state.vehicles}};
+ if(args.p_action==='rules')return {data:{delivery:{...d,service_minutes:10,version:1},rules:state.rules[p.delivery_id]||null}};
+ if(args.p_action==='settings_save'){state.settings={...state.settings,...p,version:state.settings.version+1};return {data:state.settings}};
+ if(['driver_save','vehicle_save'].includes(args.p_action)){const list=args.p_action==='driver_save'?state.drivers:state.vehicles,key=args.p_action==='driver_save'?'driver_id':'vehicle_id',i=list.findIndex(x=>x[key]===p[key]),row={...list[i],...p,version:(list[i]?.version||0)+1};if(i<0)list.push(row);else list[i]=row;return {data:row}};
+ if(args.p_action==='rules_save'){state.rules[p.delivery_id]={...p,version:(state.rules[p.delivery_id]?.version||0)+1};return {data:state.rules[p.delivery_id]}};
+ if(args.p_action==='position')return {data:{stored:true}};
  if(args.p_action==='live')return {data:p.route_id?{points:[{lat:-.2,lng:-78.5,observed_at:new Date().toISOString()}]}:{routes:[{...r,total:1,completed:0,position:{lat:-.2,lng:-78.5,observed_at:new Date().toISOString()},deliveries:[{customer:d.customer,status:d.status,eta:new Date().toISOString()}]}]}};
  if(args.p_action==='analytics')return {data:{metrics:{total:1,delivered:0,promised:1,otif:0},feedback:{average:5,count:1},routes:[{...r,planned_km:5,gps_points:3}]}};
- if(args.p_action==='export')return {data:{items:[{reference:'DEL-1',customer:'=HYPERLINK("https://example.invalid")',address:'Quito & valle',delivery_date:day,route_reference:'R1',stop_number:1,lat:-.2,lng:-78.5}]}};
+ if(args.p_action==='export')return {data:{dimensions:state.settings.dimensions,items:[{reference:'DEL-1',customer:'=HYPERLINK("https://example.invalid")',address:'Quito & valle',delivery_date:day,route_reference:'R1',stop_number:1,lat:-.2,lng:-78.5,route_points:r.route_points,loads:state.rules[d.id]?.loads}]}};
  }
  `;
-async function boot(page){
- await page.addInitScript(()=>{
+async function boot(page,{routePoints=null,depot=null}={}){
+ await page.addInitScript(({routePoints,depot})=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Test Admin'}));localStorage.setItem('gama_tms_migrated_v1','1');
   const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil'}).format(new Date());
   window.__DB={products:[],customers:[],suppliers:[],profiles:[],_profile:{id:'admin',full_name:'Admin',role:'administrador',active:true},__today:day,
    fleet_drivers:[{id:'driver',name:'Driver',active:true}],fleet_vehicles:[{id:'truck',plate:'TRUCK',status:'in_service',payload_kg:1000,cargo_volume_m3:10}],fleet_assignments:[{id:'assign',vehicle_id:'truck',driver_id:'driver'}],
    tms_routes:[{id:'route',route_date:day,erp_reference:'R-1',driver_id:'driver',driver_name:'Driver',vehicle_id:'truck',vehicle:'TRUCK',stops:['delivery'],status:'Planificada',manual_override:true,version:1}],
    tms_deliveries:[{id:'delivery',erp_reference:'DEL-1',customer:'Test customer',address:'Quito',delivery_date:day,route_id:'route',driver_id:'driver',lat:-.2,lng:-78.5,weight:1,volume:1,status:'Planificada',version:1}],
-   tms_settings:[],tms_proofs:[],sales_deliveries:[{id:'shipment',number:'SHIP',tms_delivery_id:'delivery',loading_required:true,loading_version:1}],executionLines:{delivery:[]},hr_employees:[],hr_absences:[],tms_events:[],external_invoice_payments:[],external_invoices:[],return_orders:[],business_documents:[]};
- });
+   tms_settings:depot?[depot]:[],tms_proofs:[],sales_deliveries:[{id:'shipment',number:'SHIP',tms_delivery_id:'delivery',loading_required:true,loading_version:1}],executionLines:{delivery:[]},hr_employees:[],hr_absences:[],tms_events:[],external_invoice_payments:[],external_invoices:[],return_orders:[],business_documents:[]};
+  if(routePoints){window.__DB.tms_routes[0].route_points=routePoints;window.__DB.tms_routes[0].stops=[...(routePoints.start?['__depot']:[]),'delivery',...(routePoints.end?['__depot']:[])]}
+ },{routePoints,depot});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:base.replace("if(fn==='gama_tms_dispatch'){",proMock+"if(fn==='gama_tms_dispatch'){")}));
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=500)errors.push('HTTP '+r.status())});
  await page.goto('/index.html');await page.locator('#mainmenu [data-gama-module=tms]').first().click();await expect(page.locator('#tDayMap')).toBeVisible();return errors;
@@ -60,4 +64,33 @@ test('customer can leave one review after delivery through the token page',async
 for(const [lang,expected] of [['fr','En transit'],['en','In transit']])test('public tracking supports explicit '+lang+' language without changing the Spanish default',async({page})=>{
  await page.route('**/rest/v1/rpc/gama_tms_tracking',r=>r.fulfill({json:{reference:'DEL-1',status:'En tránsito',date:'2026-10-27'}}));
  await page.goto('/tms-tracking.html?token=11111111-1111-4111-8111-111111111111&lang='+lang);await expect(page.locator('#trackingState')).toHaveText(expected);await expect(page.locator('html')).toHaveAttribute('lang',lang);
+});
+
+test('additional dimensions, vehicle capacities and explicit delivery loads save through accessible editors',async({page})=>{
+ const errors=await boot(page);await page.locator('#tProWorkspace').click();const workspace=page.locator('.tmsProDialog').first();await workspace.locator('[data-pro-tab=resources]').click();await workspace.locator('[data-pro-dimensions]').click();
+ const definition=page.locator('[data-tms-pro]').last();await definition.locator('[name=key_0]').fill('pallets');await definition.locator('[name=label_0]').fill('Palets');await definition.locator('[name=unit_0]').fill('pal');await definition.getByRole('button',{name:'Guardar',exact:true}).click();
+ await workspace.locator('[data-pro-vehicle]').click();const capacity=page.locator('[data-tms-pro]').last();await capacity.locator('[name=load_pallets]').fill('3');await capacity.getByRole('button',{name:'Guardar',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__proCalls.find(x=>x.action==='vehicle_save')?.data.capacities)).toEqual({pallets:3});
+ await workspace.locator('[data-pro-tab=calendar]').click();await workspace.locator('[data-pro-rule]').click();const rule=page.locator('[data-tms-pro]').last();await rule.getByRole('button',{name:'Guardar',exact:true}).click();expect(await page.evaluate(()=>window.__proCalls.filter(x=>x.action==='rules_save').length)).toBe(0);
+ await rule.locator('[name=load_pallets]').fill('0');await rule.getByRole('button',{name:'Guardar',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.__proCalls.find(x=>x.action==='rules_save')?.data.loads)).toEqual({pallets:0});
+ await workspace.locator('[data-pro-tab=analytics]').click();const downloaded=page.waitForEvent('download');await workspace.locator('[data-pro-csv]').click();const csv=fs.readFileSync(await (await downloaded).path(),'utf8');expect(csv).toContain('Palets (pal)');expect(csv.trim()).toMatch(/,"0"$/);expect(errors).toEqual([]);
+});
+test('custom start and end locations are editable on a phone with valid coordinates and keyboard controls',async({page})=>{
+ const errors=await boot(page);await page.setViewportSize({width:390,height:844});await page.locator('#tProWorkspace').click();const workspace=page.locator('.tmsProDialog').first();await workspace.locator('[data-pro-tab=resources]').click();await workspace.locator('[data-pro-driver]').click();const d=page.locator('[data-tms-pro]').last();
+ await expect(d.locator('[data-pro-start]')).toBeHidden();await d.locator('[name=custom_start]').focus();await page.keyboard.press('Space');await expect(d.locator('[data-pro-start]')).toBeVisible();await d.locator('[name=origin_label]').fill('Depósito Norte');await d.locator('[name=origin_lat]').fill('-0.19');await d.locator('[name=origin_lng]').fill('-78.49');await d.locator('[name=end_mode]').selectOption('custom');await d.locator('[name=destination_label]').fill('Depósito Sur');await d.locator('[name=destination_lat]').fill('-0.22');await d.locator('[name=destination_lng]').fill('-78.52');
+ expect((await new AxeBuilder({page}).include('[data-tms-pro]:last-of-type').analyze()).violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await d.getByRole('button',{name:'Guardar',exact:true}).scrollIntoViewIfNeeded();await d.screenshot({path:test.info().outputPath('tms-resource-endpoints-mobile.png')});await d.evaluate(el=>el.scrollTop=0);await d.screenshot({path:test.info().outputPath('tms-resource-shifts-mobile.png')});
+ await d.getByRole('button',{name:'Guardar',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.__proCalls.find(x=>x.action==='driver_save')?.data.start_location)).toEqual({label:'Depósito Norte',lat:-.19,lng:-78.49});expect(await page.evaluate(()=>window.__proCalls.find(x=>x.action==='driver_save').data.end_location)).toEqual({label:'Depósito Sur',lat:-.22,lng:-78.52});expect(errors).toEqual([]);
+});
+test('the daily map and driver navigation distinguish a route’s saved start and return points',async({page})=>{
+ const routePoints={start:{label:'Depósito Norte',lat:-.19,lng:-78.49},end:{label:'Depósito Sur',lat:-.22,lng:-78.52}},errors=await boot(page,{routePoints});
+ await expect(page.locator('#tMapPoint')).toContainText('Depósito Norte');await expect(page.locator('#tMapPoint')).toContainText('Depósito Sur');await page.locator('#tMapPoint').selectOption('route:end');await expect(page.locator('#tMapOutside')).toHaveAttribute('href',/ll=-0.22%2C-78.52/);
+ const downloaded=page.waitForEvent('download');await page.evaluate(()=>window.CocoTmsPro.exportData({from:window.__DB.__today,to:window.__DB.__today},'gpx'));const gpx=fs.readFileSync(await (await downloaded).path(),'utf8');expect(gpx).toContain('<rtept lat="-0.19" lon="-78.49">');expect(gpx).toContain('<rtept lat="-0.22" lon="-78.52">');
+ await page.evaluate(async()=>{const host=document.createElement('section');host.id='endpoint-driver';host.className='active';document.body.append(host);window.ArchitectOfflineProofs={rows:async()=>[],actor:async()=>'admin',prepare:async()=>({}),documents:async()=>({})};await window.CocoTmsDriverUI.mount(host,{actor_id:'admin',downloaded_at:new Date().toISOString(),routes:window.__DB.tms_routes,deliveries:[],driver:{name:'Driver'}},async()=>{})});
+ await expect(page.locator('#endpoint-driver .tmsDriverEndpoint')).toHaveCount(2);await expect(page.locator('#endpoint-driver .tmsDriverEndpoint').last().getByRole('link',{name:'Waze'})).toHaveAttribute('href',/ll=-0.22%2C-78.52/);expect(errors).toEqual([]);
+});
+
+test('optional road geometry respects a saved open end even when the shared depot requires a return',async({page})=>{
+ const sent=[];await page.route('https://routing.openstreetmap.de/**',route=>{const points=new URL(route.request().url()).pathname.split('/').at(-1).split(';').map(p=>p.split(',').map(Number));sent.push(points);return route.fulfill({json:{code:'Ok',routes:[{geometry:{coordinates:points},distance:1000,duration:120}]}})});
+ const errors=await boot(page,{routePoints:{start:{label:'Own start',lat:-.19,lng:-78.49},end:null},depot:{id:true,depot:'General depot',depot_lat:-.3,depot_lng:-78.6,return_depot:true}});
+ await page.locator('#tMapRoads').check();await expect.poll(()=>sent.length).toBe(1);expect(sent[0]).toEqual([[-78.49,-.19],[-78.5,-.2]]);await expect(page.locator('#tMapRoadStatus')).toContainText('Línea continua');expect(errors).toEqual([]);
 });

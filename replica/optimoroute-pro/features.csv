@@ -24,17 +24,17 @@ ETA actualisée depuis une position récente,Suivi,must,yes,yes,Estimation local
 Lien client de suivi,Client,must,yes,yes,Jeton aléatoire expirant et projection minimale
 Note et commentaire après livraison,Client,must,yes,yes,Avis unique sans possibilité de réécriture
 Équilibrer les arrêts ou le temps,Planning,should,yes,partial,Heuristique native; pas une équivalence de son algorithme propriétaire
-Temps routiers et itinéraire optimisé sur route,Planning,should,yes,partial,Temps vérifiés réutilisés; repli estimé et navigation Waze
+Temps routiers et itinéraire optimisé sur route,Planning,should,yes,partial,Tracé OSRM facultatif dans l’ordre Coco; temps vérifiés réutilisés et repli estimé; pas de réoptimisation mondiale des temps routiers
 Analytics prévu et réalisé,Analyse,should,yes,partial,OTIF et écarts d'arrivée; pas de kilométrage réel complet sans trace complète
-Export Excel et appareils GPS,Exports,should,yes,yes,CSV ouvrable par Excel et GPX regroupé par tournée
+Export Excel et appareils GPS,Exports,should,yes,yes,CSV avec charges et unités; GPX avec points de départ et retour enregistrés
 Historique des tournées et preuves,Analyse,should,yes,yes,Recherche et archives existantes préservées
 API pour les livraisons et la planification,Intégration,should,yes,yes,RPC natives authentifiées; schéma différent de l'API OptimoRoute
 Import de commandes à livrer,Intégration,should,yes,partial,Par les commandes et la préparation Coco; aucune livraison détachée du stock
 Notifications SMS et email automatiques,Client,should,yes,partial,Préparation SMS/WhatsApp existante; envoi manuel conservé et aucun fournisseur activé
 Commandes ou visites récurrentes,Calendrier,should,yes,partial,Modèles de tournée existants et récurrence commerciale; pas de tâches terrain autonomes
 GPS mobile en arrière-plan,Conducteur,should,yes,partial,La PWA arrête le partage lorsque la page est masquée
-Départs et arrivées à plusieurs dépôts,Ressources,could,yes,no,Le dépôt TMS partagé reste la référence de cette version
-Capacités personnalisées supplémentaires,Ressources,could,yes,no,Poids et volume disponibles; dimensions supplémentaires non implémentées
+Départs et arrivées à plusieurs dépôts,Ressources,could,yes,yes,Départ propre au conducteur; retour général ou au départ ou lieu distinct ou fin ouverte; points conservés par tournée
+Capacités personnalisées supplémentaires,Ressources,could,yes,yes,Jusqu’à quatre dimensions communes; charges cumulées et inconnues bloquantes; planning et déplacements et départs individuels/groupés
 Début de journée flexible automatique,Ressources,could,yes,no,Horaires individuels fixes configurables
 Réimporter les contacts et données propriétaires,Contenu,could,yes,skip,Données de GAMA uniquement
 Routage poids lourds dangereux et nuitées,Custom,could,yes,skip,Fonctions de l'offre Custom hors Pro

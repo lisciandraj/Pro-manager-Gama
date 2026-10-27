@@ -15,3 +15,14 @@ F06-H1 : agrégats et note disponibles au dispatch ; CSV et GPX téléchargés. 
 S02/S04/S05 : navigateur 1440 px/390 px, absence d'erreurs de page et HTTP 5xx, contrôle axe du calendrier, formulaire clavier et contraintes de largeur. Captures sauvegardées dans clone-screens/.
 
 Migration : restauration intégrale en base isolée ; essai d'application après historique peuplé et conservation de l'implémentation précédente d'autorisation des historiques. Aucune fixture ni faux départ n'est injecté en production.
+
+
+F03-H2 : définir deux dimensions, capacités par véhicule et charges par livraison ; le cumul répartit les livraisons sur deux véhicules. F03-N2 : valeur négative, type texte, quatrième décimale, clé inconnue, doublon de clé, coordonnées invalides ou lieu de fin manquant sont refusés.
+
+F03-E3 : une charge absente reste inconnue, une charge zéro est explicite. La livraison non renseignée reste non planifiée et son blocage est expliqué. F03-E4 : déplacement manuel et mise à jour directe en surcharge refusés avec conservation de toutes les affectations. F03-E5 : baisse de capacité ou dimension ajoutée après planning bloque le départ groupé et individuel sans modifier les expéditions ni le stock. Une clé/unité utilisée reste stable.
+
+F02-H2 : départ et arrivée distincts conservés sur chaque tournée ; le retour distant empêche une affectation qui dépasse la journée et la fin ouverte l’autorise sans faux retour. F02-E3 : changement de profil ne déplace pas une tournée existante ; remplacement client de l’instantané ignoré ; changement de conducteur invalide les trajets vérifiés. Les ETA et pauses utilisent le même calcul au planning.
+
+F06-H2 : CSV avec unités et charges nulles explicites, GPX avec points de départ et fin. Interface 390 px : changement au clavier du départ propre, coordonnées obligatoires uniquement lorsqu’elles sont visibles, contrôle axe du formulaire, absence de débordement de page. La carte et Waze distinguent les deux lieux.
+
+Migration des ressources : tournées historiques et définition de l’autorisation d’historique inchangées ; helpers privés non exécutables par anon ou le conducteur.

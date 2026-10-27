@@ -53,3 +53,8 @@ Réutiliser ArcUI.dialog/table/button, panneaux Coco, carte locale, quatre étap
 ## Limites et taille
 
 8 écrans, 6 parcours. Complexité L. Les trois points difficiles : optimisation sous contraintes, concurrence intermodules, GPS mobile hors premier plan. Le moteur propriétaire, ses cartes et ses actifs ne sont pas repris. La PWA ne peut pas garantir la collecte GPS écran éteint comme une application native. Les notifications SMS automatiques nécessitent un fournisseur configuré ; aucun envoi simulé. Les fonctions de l’offre Custom (longue distance avec nuitées, matières dangereuses, dépôts dynamiques) ne font pas partie du périmètre Pro.
+
+
+## Complément public : capacités et lieux
+
+Les capacités configurables et les lieux de départ/fin indépendants sont décrits dans les références publiques du fournisseur : [paramètres des conducteurs et véhicules](https://optimoroute.com/driver-and-vehicle/) et [référence API publique](https://optimoroute.com/api/). Leur comportement a été réimplémenté dans les règles natives Coco, sans appel aux services du fournisseur. Les rechargements intermédiaires automatiques ne font pas partie de cette extension.

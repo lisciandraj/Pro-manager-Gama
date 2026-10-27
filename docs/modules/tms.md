@@ -87,6 +87,16 @@ Les fichiers de nouvelles preuves utilisent le bucket privé `tms-attempt-proofs
 Les tests de base isolée couvrent contraintes, horaires, versions, départ groupé et annulation atomique, rejeu sans stock supplémentaire, coûts et plus de 200 preuves. Les tests d’interface couvrent réouverture d’horaire, réception simplifiée, départ, recherche et mobile ; le parcours hors connexion conserve ses tests de reprise et de changement de compte.
 
 
+## Capacités additionnelles et lieux des tournées
+
+Dans **Planification et suivi → Ressources → Capacités supplémentaires**, le dispatch définit jusqu’à quatre dimensions en plus du poids et du volume : clé stable, nom et unité. Les capacités se règlent sur chaque véhicule et les charges dans les contraintes de chaque livraison. Une charge inconnue bloque la planification et le départ ; saisir explicitement zéro si elle ne consomme pas cette capacité. Une capacité véhicule vide vaut zéro. Les charges sont cumulées pour la tournée entière et vérifiées aussi au déplacement manuel et au départ individuel de l’expédition. Les clés et unités déjà utilisées restent stables pour conserver le sens des archives ; le nom reste modifiable.
+
+L’éditeur conducteur conserve son horaire et ses compétences, puis propose un départ propre et quatre fins possibles : réglage général du dépôt, retour au départ, autre lieu ou dernière livraison. Chaque lieu propre exige un nom et des coordonnées valides. Le temps et la distance du retour entrent dans la faisabilité. La pause est comptée une seule fois, lorsque la tournée l’exige, y compris lorsqu’une attente peut l’absorber.
+
+Les nouvelles tournées conservent leurs coordonnées de départ et d’arrivée dans `tms_routes.route_points`. Changer le profil ne déplace donc pas les tournées existantes. Une tournée automatique non protégée peut être recréée par la planification ; une tournée fixée doit être révisée explicitement. Un changement de conducteur qui modifie ses lieux invalide l’horaire vérifié et les ETA. Les tournées historiques sans instantané continuent d’utiliser le dépôt partagé, sans réécriture de leurs données. La carte, l’éditeur des trajets vérifiés, Waze dans Ma tournée et l’export GPX lisent les mêmes points. Le CSV ajoute les charges et leurs unités.
+
+La migration additive `20261027204533_tms_resource_loads_and_endpoints.sql` étend les tables et fonctions existantes sans changer les noms des façades. Les réglages restent privés et journalisés ; les coordonnées ne sont pas ajoutées à la projection publique de suivi client. Aucun ordre de vente, mouvement de stock ou départ n’est créé par l’installation. Les tests sont dans `tests/tms-resources-db.test.cjs` et les parcours d’interface de `tests/tms-pro.spec.js`.
+
 ## Carte quotidienne et actualisation automatique
 
 La carte se rafraîchit toutes les 15 secondes pendant que Planifier est visible,
@@ -131,3 +141,6 @@ La CSP de la seule entrée ERP autorise précisément le chemin de cette API.
 Contrôles : `tests/tms-module.spec.js` couvre l’état vide en français sur téléphone,
 les mises à jour sans perte de vue, les numéros selon le planning, le suivi GPS,
 l’arrêt des lectures, le consentement routier et le repli en cas de panne.
+
+
+Les tracés routiers facultatifs reprennent aussi les points de départ/fin conservés par chaque nouvelle tournée. Une fin ouverte ne reçoit pas le retour général. L’activation de l’option transmet ces coordonnées de lieux au même fournisseur avec celles des livraisons ; les positions GPS observées du chauffeur restent exclues.

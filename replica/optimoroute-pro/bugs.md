@@ -10,3 +10,10 @@
 | TMS-PRO-06 | S3 | Un navigateur anglais changeait la langue d’anciens liens de suivi sans paramètre de langue | Espagnol historique par défaut ; FR/EN explicites dans le lien, couverts par tests |
 
 Les limites produit sont dans features.csv ; elles ne sont pas présentées comme des défauts corrigés. La comparaison graphique à un écran authentifié d'OptimoRoute n'a pas été réalisée.
+
+
+| ID | Gravité | Reproduction | Correction et preuve |
+| --- | --- | --- | --- |
+| TMS-RES-01 | S2 | Courte journée de 30 min, service de 5 min proche du départ : pause future réservée deux fois et livraison laissée non planifiée | Un calcul partagé de pause/attente/service/retour ; scénario court avec retour distant puis fin ouverte dans tms-resources-db |
+| TMS-RES-02 | S1 | Baisser une capacité personnalisée après planning puis utiliser le départ individuel historique | Gate sur departed_at partagé avec le départ groupé ; essai initial reproduit, refus et absence de mutation vérifiés |
+| TMS-RES-03 | S3 | Remplacement des marqueurs de dépôts retirant le dépôt général dans une carte sans tournée | Marqueur général et déduplication conservés ; test de carte existant et navigation aux deux lieux réussis |

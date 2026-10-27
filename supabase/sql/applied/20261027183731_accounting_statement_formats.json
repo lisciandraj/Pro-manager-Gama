@@ -1,0 +1,13 @@
+{
+  "version": "20261027183731",
+  "name": "accounting_statement_formats",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "9476eb8e02d9b72793df9904769e463889bab9a9380511208c123ce1f883fede",
+  "bytes": 9835,
+  "statement_count": 1,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "file": "20261027183731_accounting_statement_formats.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

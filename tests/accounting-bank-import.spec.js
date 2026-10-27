@@ -28,7 +28,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`b
   await dialog.locator('#gaAccount').selectOption(bank);await expect(dialog.locator('#gsSave')).toBeEnabled();await dialog.locator('#gsSave').click();await expect(dialog).toHaveCount(0);
   await expect(page.locator('[data-ga-bank-entry]')).toHaveCount(1);const entry=await value("select id from accounting_entries where source_type='bank_transaction'");expect(entry).toBeTruthy();
   await page.locator('[data-ga-bank-entry]').click();await expect(dialog).toContainText('UI-SUSPENSE');await expect(dialog.locator('[data-entry-bank]')).toContainText('BANK-UI-100');await dialog.locator('#gsClose').click();
-  await page.locator('[data-ga-family="overview"]').click();await expect(page.locator('.gaJournalDashboard')).toContainText('Isolated bank');
+  await page.locator('[data-ga-family="overview"]').click();await expect(page.locator('.gaJournalDashboard')).toBeVisible();await expect(page.locator('.gaJournalDashboard')).toContainText('Isolated bank');
   expect((await new AxeBuilder({page}).include('.gaJournalDashboard').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.screenshot({path:`test-results/accounting-journals-${language}-${width}.png`,fullPage:false});
   await page.locator(`[data-ga-journal="${journal}"][data-ga-entry-status="all"]`).click();await expect(page.locator('#gaJournal')).toHaveValue(journal);await expect(page.locator('#gaEntryStatus')).toHaveValue('all');await expect(page.locator('[data-ga-lines]')).toHaveCount(1);

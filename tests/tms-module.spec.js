@@ -490,7 +490,7 @@ test('delivery operations prepare a tracking message, record a return and paymen
 
 test('public tracking works without an ERP session and an expired link can be retried',async({page})=>{
  let fail=false,calls=0;await page.route('**/rest/v1/rpc/gama_tms_tracking',route=>{calls++;return route.fulfill({contentType:'application/json',body:JSON.stringify(fail?null:{reference:'ENT-00000017',date:today(),status:'En tránsito',eta:new Date().toISOString(),delivered_at:null})})});
- await page.goto('/tms-tracking.html?token=73000000-0000-4000-8000-000000000001');await expect(page.locator('#trackingReference')).toHaveText('ENT-00000017');await expect(page.locator('#trackingState')).toHaveText('En tránsito');expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
+ await page.goto('/tms-tracking.html?token=73000000-0000-4000-8000-000000000001&lang=es');await expect(page.locator('#trackingReference')).toHaveText('ENT-00000017');await expect(page.locator('#trackingState')).toHaveText('En tránsito');expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
  fail=true;await page.click('#trackingRefresh');await expect(page.locator('#trackingStatus')).toContainText('caducado');await expect(page.locator('#trackingContent')).not.toBeVisible();fail=false;await page.click('#trackingRefresh');await expect(page.locator('#trackingContent')).toBeVisible();expect(calls).toBe(3);
 });
 

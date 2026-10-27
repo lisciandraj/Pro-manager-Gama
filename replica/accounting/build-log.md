@@ -1,5 +1,7 @@
 # Construction
 
+27 octobre 2026 — H14 : dates sur lignes des factures clients, ventilation nette fournisseur et revue de brouillon, configuration des différés, génération atomique et liens aux échéanciers. 14 tests serveur et 12 parcours navigateur réussis ; migration peuplée sans reprise historique. Les avoirs et sources à plusieurs comptes de résultat restent explicites dans la matrice. [Architecture et limites](invoice-deferrals.md), [preuves](results-invoice-deferrals.md).
+
 24 octobre 2026 — audit de main et de production ; référence Odoo 19.0 Enterprise ; matrice de 106 points, toutes les lacunes conservées explicitement.
 
 S12 — nouveaux échéanciers de charges/produits différés, OD récurrentes et emprunts, prévisualisation serveur, brouillon, approbation humaine, exécution manuelle/planifiée, annulation conservant les pièces. Les calculs sont PostgreSQL numeric et les dates sont civiles. Les contrôles de capacité et les liens entre plan/source/écriture sont natifs.

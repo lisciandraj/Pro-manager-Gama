@@ -1,0 +1,13 @@
+{
+  "version": "20261027225653",
+  "name": "tms_resource_loads_and_endpoints",
+  "file": "20261027204533_tms_resource_loads_and_endpoints.sql",
+  "statement_count": 1,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "853d7b64efea1f56c0aee34a47600ee8d9f46951a050aa81b47382a730f8f953",
+  "bytes": 24821,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL verified against source. Schema-only installation; preserve SQL bytes and never replay in production."
+}

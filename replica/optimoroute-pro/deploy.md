@@ -48,3 +48,8 @@ GPS limité au premier plan de la PWA ; arrêter explicitement en fin de tourné
 
 
 La PR de cette tranche est [#259](https://github.com/lisciandraj/Pro-manager-Gama/pull/259). La fusion conserve la mise à jour de carte #258 et raccorde son tracé facultatif aux lieux enregistrés. La vérification complète locale a progressé sans échec observé mais son processus n’a pas terminé dans l’environnement ; le statut de validation intégrale doit être celui du workflow CI, pas ce journal partiel.
+
+Reprise commune : migration des ressources `20261027225653` installée et SQL
+exact archivé ; empreintes historiques inchangées, sans modifier les données
+de tournée. L'interface de ce complément est intégrée à main par #259 ; la reprise
+commune conserve son code et vérifiera le commit servi après sa publication. Voir [l'état consolidé](../integration-2026-10-27/README.md).

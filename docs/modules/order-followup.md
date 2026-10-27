@@ -41,3 +41,5 @@ Les commandes fournisseurs permettent de préparer un mail externe et de téléc
 Le [guide du relais ChatGPT](../development/order-mail-setup.md) décrit l’activation, le contrat et les limites. Les tests SQL sont isolés et les tests navigateur simulent les services ; aucun mail réel n’est envoyé pendant ces tests.
 
 Les événements supplémentaires de **Piste d’audit** restent dans leur module dédié. Le fil conserve les actions métier du dossier, les notes, sources et propositions habituelles.
+
+Les quantités et montants apparaissent seulement lorsqu’une valeur est enregistrée. Une action sans ces données ne comporte aucun libellé de quantité ou montant manquant ; les valeurs nulles au sens numérique (zéro) et les variations chiffrées restent visibles.

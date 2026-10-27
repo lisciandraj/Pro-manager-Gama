@@ -37,4 +37,10 @@ assertion de lisibilité et analyse axe. Captures S07 ordinateur et téléphone.
 Les articles/fichiers métiers sont conservés. Synchronisation du texte toutes
 les deux secondes, sans présence partagée ni hors-ligne durable. Éditeur riche,
 écriture documentaire par Agent Coco, tableur/canvas et intégrations externes
-restent hors de cette tranche. Installation et publication encore à vérifier.
+restent hors de cette tranche.
+
+Reprise commune du 27 octobre : migration documentaire `20261027225549`
+installée, SQL exact archivé, fonction documentaire v1 et Agent Coco v8 actifs
+avec JWT conservé et sources identiques. Les valeurs historiques, politiques
+et captures sont vérifiées. L'interface est autorisée à la publication le 28 octobre ; elle attend
+les contrôles CI et la vérification de la version servie ; voir `replica/integration-2026-10-27/README.md`.

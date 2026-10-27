@@ -137,3 +137,9 @@ BANK_IMPORT_LEGACY_MATCH_REVIEW	Este movimiento tiene conciliaciones anteriores.
 BANK_IMPORT_POSTED_IMMUTABLE	El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.
 BANK_IMPORT_OUTSIDE_POLICY	El movimiento no está incluido en una configuración activa.
 EXPORT_NOT_ALLOWED	Tu perfil no permite exportar estos datos.
+INVOICE_DEFERRAL_LINES_INVALID	Revisa las líneas diferidas: concepto, referencia única y un máximo de 200 líneas.
+INVOICE_DEFERRAL_DATES_REQUIRED	Indica ambas fechas de cada diferido, con el final igual o posterior al inicio.
+INVOICE_DEFERRAL_AMOUNT_INVALID	Los importes diferidos deben ser positivos y no superar la base sin impuestos.
+INVOICE_DEFERRAL_SOURCE_INVALID	La fuente contable no admite esta distribución; revisa los anticipos y las cuentas.
+INVOICE_DEFERRAL_CONFIG_REQUIRED	Configura primero el diario, la cuenta y el cálculo en Diferidos de facturas.
+INVOICE_DEFERRAL_CONFIG_INVALID	Revisa los parámetros de diferidos de facturas.

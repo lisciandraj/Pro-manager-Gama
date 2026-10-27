@@ -126,5 +126,15 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(defDrafts.filter(r=>r.status==='fulfilled').length,1);assert.match(defDrafts.find(r=>r.status==='rejected').reason.message,/DEFER_PERIOD_EXISTS/);
   const defBatch=defDrafts.find(r=>r.status==='fulfilled').value.id,defKey=uuid(),defPosts=await Promise.all(clients.map(c=>api(c,'gama_accounting_deferrals','post',{id:defBatch,request_key:defKey})));
   assert.deepEqual(defPosts[0],defPosts[1]);assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type in('deferral_closing','deferral_reversal') and status='posted'")).rows[0].n),2);
+  // An invoice retry must not allocate its lines or open deferrals twice.
+  const defSupplier=uuid();await root.query("insert into suppliers(id,name) values($1,'Concurrent deferral supplier')",[defSupplier]);
+  const defSetting={kind:'deferred_expense',journal_id:journal,deferral_account_id:chart['1200'],mode:'individual',computation:'months',enabled:true,expected_version:0,request_key:uuid()};
+  await api(root,'gama_accounting_invoice_deferrals','save',defSetting);
+  const defBill={request_key:uuid(),supplier_id:defSupplier,number:'CONCURRENT-DEFERRAL',issue_date:'2026-07-01',subtotal:'1200',tax:'0',total:'1200',payment_terms_days:30,
+   deferral_lines:[{key:uuid(),name:'Annual service',amount:'1200',deferred_start:'2026-07-01',deferred_end:'2027-06-30'}]};
+  const defBills=await Promise.all(clients.map(c=>api(c,'gama_accounting_action','supplier_invoice_save',defBill)));assert.equal(defBills[0].id,defBills[1].id);
+  assert.equal(Number((await root.query('select count(*) n from private.accounting_plans where supplier_invoice_id=$1',[defBills[0].id])).rows[0].n),1);
+  const defSettings=await Promise.allSettled(clients.map(c=>api(c,'gama_accounting_invoice_deferrals','save',{...defSetting,expected_version:1,computation:'days',request_key:uuid()})));
+  assert.equal(defSettings.filter(r=>r.status==='fulfilled').length,1);assert.match(defSettings.find(r=>r.status==='rejected').reason.message,/DOCUMENT_CHANGED/);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

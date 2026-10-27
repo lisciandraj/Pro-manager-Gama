@@ -174,7 +174,7 @@ async function open(options={}){
  if(!allowed())return;
  const token=++opening;
  workspace=options.sriWorkspace?'sri':ID;
- state={stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId?'plans':options.section||'overview';
+ state={deferralMode:!!options.deferralBatch,deferralBatch:options.deferralBatch||null,stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId||options.deferralBatch?'plans':options.section||'overview';
  shell();
  try{
   const d=await rpc(options.sriWorkspace?'context':'overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;

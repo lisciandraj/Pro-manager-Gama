@@ -1,8 +1,8 @@
-## Parity: 65.4 / 100
+## Parity: 65.3 / 100
 
-features 65.4  (107 counted, must-haves 54 of 107 done)
+features 65.3  (108 counted, must-haves 54 of 108 done)
 
-Not shippable yet: 53 must-have features are not done.
+Not shippable yet: 54 must-have features are not done.
 
 ## By area, weakest first
 - M                             33.3  (6 features)
@@ -12,7 +12,7 @@ Not shippable yet: 53 must-have features are not done.
 - E                             57.1  (7 features)
 - L                             65.0  (10 features)
 - B                             67.9  (14 features)
-- H                             69.2  (13 features)
+- H                             67.9  (14 features)
 - D                             70.0  (5 features)
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
@@ -28,7 +28,7 @@ Not shippable yet: 53 must-have features are not done.
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
 - [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
-- [must] H: Différés en mois complets et traitements groupés, no  (Le traitement du dernier mois incomplet et le regroupement Odoo restent à comparer)
+- [must] H: Création automatique des différés depuis les lignes de factures, no  (Les échéanciers natifs sont actuellement créés depuis une ligne comptable validée sélectionnée explicitement. Les paramètres automatiques de facture restent ouverts.)
 - [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)
 - [must] I: Budgets analytiques révisions et workflow, no  (Brouillon ouvert révisé et révisions distinctes à implémenter)
 - [must] I: Engagements achats non facturés dans les budgets, no  (Ajouter les commandes confirmées au réalisé sans doubler la part facturée)
@@ -58,6 +58,7 @@ Not shippable yet: 53 must-have features are not done.
 - [must] F: Écriture bancaire et compte d’attente dès import du relevé, partial  (Import banque/attente configurable, rapprochement et annulation reliés. Reprise des anciens groupes encore spécifique ; paramètres de production non activés automatiquement. Les paiements directs et imports peuvent coexister avant rapprochement ; celui-ci retire le doublon. Voir bank-import-ledger.md.)
 - [must] G: Recherche filtres pagination et retour à l'origine, partial  (Pagination des écritures, filtres exacts, export complet et liens import/écriture ajoutés. Regroupements et totalité des liens métiers restent à étendre.)
 - [must] H: Clôture anticipée et renégociation d'emprunt, partial  (Annulation avec contre-écritures disponible ; clôture prospective et modification contractuelle à développer)
+- [must] H: Différés en mois complets et traitements groupés, partial  (27 tests serveur et 18 parcours navigateur réussis ; neuf nouveaux parcours rejoués après pagination. Course PostgreSQL 17 et publication en attente. Création automatique depuis les lignes de factures suivie séparément en H14.)
 - [must] H: Reclassements automatiques entre comptes et cut-off groupé, partial  (OD périodiques présentes ; moteur de transferts et cut-off Odoo incomplet)
 - [must] I: Dimensions centres agences familles, partial  (Dimensions simples présentes ; plans hiérarchiques et applicabilité obligatoire manquants)
 - [must] J: Taux automatiques comptes bancaires en devises, partial  (Registre de change existant en banque USD ; banques étrangères et fournisseur de taux non raccordés)

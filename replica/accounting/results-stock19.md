@@ -23,6 +23,8 @@ Une sauvegarde logique ciblée a été conservée avant intervention (2 196 666 
 
 ## Limites de la preuve
 
+La PR 250 a été intégrée à `main` au commit `706da8e906098bb361df4ec7bafaaa24b6302fcf`. Les douze workflows de son dernier commit ont réussi. Le déploiement Pages `40560762364` a réussi ; le contrôle HTTP en lecture seule confirme cette révision et l'identité exacte des douze actifs comptables vérifiés, dont le module stock. Preuve : [stock19-web-verification.json](stock19-web-verification.json).
+
 Le contrôle authentifié de l'interface de production reste à effectuer avec un accès autorisé. Une tentative de connexion a été rejetée par la revue automatique d'autorisation faute de compte désigné ; aucun contournement de session n'est utilisé. Les essais navigateur ci-dessus utilisent une base isolée, pas les données réelles.
 
 La valorisation perpétuelle à la facture, les régularisations complètes de stock, les comptes par catégorie/emplacement et les clôtures programmées restent ouverts dans la matrice. K02 et K03 demeurent partiels malgré ce parcours opérationnel.

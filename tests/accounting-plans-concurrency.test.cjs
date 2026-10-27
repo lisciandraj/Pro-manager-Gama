@@ -114,5 +114,16 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   const postRace=await Promise.all(clients.map(c=>api(c,'gama_accounting_stock19','post',{request_key:postKey,id:stockReview})));assert.deepEqual(postRace[0],postRace[1]);
   assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='stock_closing' and status='posted'")).rows[0].n),1);
   assert.equal(Number((await root.query('select sum(debit-credit) value from accounting_entry_lines where account_id=$1',[stockAccount])).rows[0].value),96);
+
+  // The same grouped period and review cannot be created or posted twice.
+  const defSource=(await root.query("select private.gama_accounting_book('OD','2026-01-01','Isolated grouped source','manual',null,'QA',$1::jsonb) id",[JSON.stringify([{account_id:chart['6080'],debit:1200},{account_id:chart['3000'],credit:1200}])])).rows[0].id;
+  const defLine=(await root.query('select id from accounting_entry_lines where entry_id=$1 and account_id=$2',[defSource,chart['6080']])).rows[0].id;
+  const defPlan=await rpc(root,'save',{request_key:uuid(),kind:'deferred_expense',name:'Concurrent grouped deferral',journal_id:journal,source_line_id:defLine,amount:'1200',starts_on:'2026-01-01',ends_on:'2026-12-31',deferral_account_id:chart['1200'],computation:'full_months',mode:'grouped'});
+  await rpc(root,'activate',{id:defPlan.id,request_key:uuid()});
+  const defInput={kind:'deferred_expense',journal_id:journal,as_of:'2026-01-31'},defPreview=await api(root,'gama_accounting_deferrals','preview',defInput);
+  const defDrafts=await Promise.allSettled(clients.map(c=>api(c,'gama_accounting_deferrals','generate',{...defInput,revision:defPreview.revision,reason:'Concurrent closing review',request_key:uuid()})));
+  assert.equal(defDrafts.filter(r=>r.status==='fulfilled').length,1);assert.match(defDrafts.find(r=>r.status==='rejected').reason.message,/DEFER_PERIOD_EXISTS/);
+  const defBatch=defDrafts.find(r=>r.status==='fulfilled').value.id,defKey=uuid(),defPosts=await Promise.all(clients.map(c=>api(c,'gama_accounting_deferrals','post',{id:defBatch,request_key:defKey})));
+  assert.deepEqual(defPosts[0],defPosts[1]);assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type in('deferral_closing','deferral_reversal') and status='posted'")).rows[0].n),2);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

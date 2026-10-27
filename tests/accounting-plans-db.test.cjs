@@ -51,7 +51,7 @@ test('native accounting plans: independent amounts, posting, cancellation and au
   await t.test('unbalanced, nonfinite and subcent templates fail before any document is created',async()=>{
    for(const amount of ['NaN','Infinity','1.001','1e3','-2'])await assert.rejects(rpc('preview',{...def,amount}),/PLAN_NUMBER_INVALID/);
    await assert.rejects(rpc('preview',{name:'Bad template',kind:'recurring',journal_id:journal,amount:'10',starts_on:'2026-01-01',ends_on:'2026-02-01',lines:[{account_id:expense,debit:'10'},{account_id:liability,credit:'9'}]}),/ENTRY_UNBALANCED/);
-   await assert.rejects(rpc('preview',{...def,computation:'full_months'}),/PLAN_COMPUTATION_UNSUPPORTED/);
+   await assert.rejects(rpc('preview',{...def,computation:'unsupported_quarters'}),/PLAN_COMPUTATION_UNSUPPORTED/);
   });
   await t.test('rounding a tiny deferral never creates a negative final amount or recognizes more than its source',async()=>{
    const line=await source('2026-01-01',expense,equity,0.03),input={...def,name:'Three cents over six months',source_line_id:line,amount:'0.03',ends_on:'2026-06-30'};

@@ -38,7 +38,7 @@ function ensureStyle(){
 }
 function portrait(value){return typeof value==='string'&&value.length<=120000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)?value:''}
 async function openResult(result){if(result?.module==='documents'&&result.id)return openRelated({module:'documents',action:'document',id:result.id});if(result?.kind==='quote'&&result.id){await window.ArcRouter.open('quotes');return window.GamaQuotes.view(result.id)}if(result?.module)return openRelated({module:result.module,action:'module',id:result.id})}
-const linkModules={order:'sales-orders',purchase:'gamaPurchasesV14',quote:'quotes',delivery:'tms',preparation:'tms',invoice:'payments',supplier_invoice:'accounting',accounting_plan:'accounting',accounting_stock:'accounting',accounting_entry:'accounting',accounting_configuration:'accounting',request:'customer-requests',opportunity:'crm',return:'returns',document:'documents',stock_product:'warehouses'};
+const linkModules={order:'sales-orders',purchase:'gamaPurchasesV14',quote:'quotes',delivery:'tms',preparation:'tms',invoice:'payments',supplier_invoice:'accounting',accounting_plan:'accounting',accounting_deferral:'accounting',accounting_stock:'accounting',accounting_entry:'accounting',accounting_configuration:'accounting',request:'customer-requests',opportunity:'crm',return:'returns',document:'documents',stock_product:'warehouses'};
 const moduleWords={'sales-orders':'salesModule',gamaPurchasesV14:'purchaseModule',quotes:'quoteModule',warehouses:'stockModule',tms:'tmsModule',payments:'invoiceModule',accounting:'accountingModule','customer-requests':'requestModule',crm:'crmModule',returns:'returnsModule'};
 const moduleLabel=id=>moduleWords[id]?W(moduleWords[id]):T(window.ArcModules?.get(id)?.label||id);
 const technicalId=value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value||''));
@@ -105,6 +105,7 @@ async function openRelated(link){
   case 'preparation':return window.GamaPreparation.open(link.id);
   case 'invoice':return window.GamaPayments.open({invoiceId:link.id});
   case 'supplier_invoice':return window.GamaAccounting.open({section:'purchases',invoiceId:link.id});
+  case 'accounting_deferral':return window.GamaAccounting.open({deferralBatch:link.id});
   case 'accounting_plan':return window.GamaAccounting.open({planId:link.id});
   case 'accounting_stock':return window.GamaAccounting.open({section:'stock19',stockReview:link.tab==='products'?null:link.id,stockProduct:link.tab==='products'?link.id:null,stockTab:link.tab||'preview'});
   case 'accounting_entry':return window.GamaAccounting.open({section:'ledger',entryId:link.id});

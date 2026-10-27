@@ -24,3 +24,17 @@
 
 /* Shared GAMA theme for the driver's native controls. */
 @media screen{body[data-app=coco-erp] .tmsBtn{border-radius:8px;font-weight:500;box-shadow:none}body[data-app=coco-erp] :is(.tmsPrimary,.tmsOrange){background:var(--coco-action);color:var(--coco-on-action)}body[data-app=coco-erp] .tmsKpi span{font-size:13px;font-weight:500}body[data-app=coco-erp] .tmsKpi strong{font-size:26px;font-weight:600}body[data-app=coco-erp] .tmsKpis{gap:16px}}
+/* Extended dispatch uses the shared Coco surfaces and controls. */
+.tmsProDialog{width:min(94vw,76rem);max-width:94vw}
+.tmsProDialog .arcForm{min-width:0}
+.tmsProTabs{display:flex;gap:var(--arc-r-md);overflow-x:auto;padding-block:var(--arc-r-md);margin-block:var(--arc-r-md)}
+.tmsProTabs .arcButton{white-space:nowrap;flex-shrink:0}
+.tmsProTabs [aria-pressed=true]{border-color:var(--arc-coco-blue);color:var(--arc-coco-blue-text);background:var(--arc-surface-3)}
+.tmsProCalendar{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:var(--arc-r-lg);margin-block:var(--arc-r-lg)}
+.tmsProCalendar article{padding:var(--arc-r-xl);border-radius:var(--arc-r-lg);background:var(--arc-surface-2)}
+.tmsProDays{display:flex;flex-wrap:wrap;gap:var(--arc-r-lg)}
+.tmsProPeriod{align-items:end}
+.tmsProDialog .tmsDayMap{height:22rem;min-height:16rem;margin-block:var(--arc-r-lg)}
+.tmsGpsControls{margin-block:var(--arc-r-lg);padding:var(--arc-r-lg);background:var(--arc-surface-2);border-radius:var(--arc-r-lg)}
+.tmsGpsControls p{color:var(--arc-text-muted)}
+@media(max-width:40rem){.tmsProDialog .tmsForm{grid-template-columns:1fr}.tmsProCalendar{grid-template-columns:repeat(2,minmax(0,1fr))}.tmsProDialog .tmsDayMap{height:18rem}.tmsProDays{gap:var(--arc-r-md)}}

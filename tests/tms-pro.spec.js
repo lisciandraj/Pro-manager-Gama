@@ -57,3 +57,7 @@ test('customer can leave one review after delivery through the token page',async
  await page.route('**/rest/v1/rpc/gama_tms_feedback',r=>{const body=r.request().postDataJSON();expect(body.p_rating).toBe(5);submitted=true;calls++;return r.fulfill({json:{accepted:true}})});
  await page.goto('/tms-tracking.html?token=11111111-1111-4111-8111-111111111111&lang=es');await expect(page.locator('#trackingFeedback')).toBeVisible();await page.locator('#feedbackRating').selectOption('5');await page.locator('#feedbackComment').fill('Muy bien');await page.locator('#feedbackSend').click();await expect(page.locator('#trackingFeedback')).toBeHidden();await expect(page.locator('#feedbackMessage')).toContainText('Gracias');expect(calls).toBe(1);
 });
+for(const [lang,expected] of [['fr','En transit'],['en','In transit']])test('public tracking supports explicit '+lang+' language without changing the Spanish default',async({page})=>{
+ await page.route('**/rest/v1/rpc/gama_tms_tracking',r=>r.fulfill({json:{reference:'DEL-1',status:'En tránsito',date:'2026-10-27'}}));
+ await page.goto('/tms-tracking.html?token=11111111-1111-4111-8111-111111111111&lang='+lang);await expect(page.locator('#trackingState')).toHaveText(expected);await expect(page.locator('html')).toHaveAttribute('lang',lang);
+});

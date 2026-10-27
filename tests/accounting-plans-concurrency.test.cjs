@@ -95,5 +95,19 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);assert.match(attempts.find(r=>r.status==='rejected').reason.message,/MATCH_AMOUNT_EXCEEDS_REMAINING/);
   assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-310);
   assert.equal(Number((await root.query('select sum(debit-credit) balance from accounting_entry_lines where account_id=$1',[suspense])).rows[0].balance),40);
+  // Inventory review and ledger validation serialize with movement valuation.
+  const stockProduct=(await root.query("insert into products(name,purchase_price) values('Concurrent closing stock',99) returning id")).rows[0].id;
+  const stockAccount=(await root.query("insert into accounting_accounts(code,name,type,account_type) values('STOCK-RACE','Isolated closing stock','asset','asset_current') returning id")).rows[0].id;
+  const location=(await root.query('select id from warehouse_locations where active limit 1')).rows[0].id;
+  await root.query("select gama_stock_adjust($1,$2,8,null,'Isolated observed count')",[stockProduct,location]);
+  await api(root,'gama_accounting_stock19','configure',{request_key:uuid(),product_id:stockProduct,method:'standard',opening_unit_cost:'12',reason:'Isolated observed cost evidence'});
+  await api(root,'gama_accounting_stock19','policy',{request_key:uuid(),product_id:stockProduct,mode:'periodic',standard:'continental',start_date:day,stock_account_id:stockAccount,variation_account_id:chart['6080'],expense_account_id:chart['6080'],journal_id:journal,reason:'Isolated reviewed stock policy'});
+  const preview=await api(root,'gama_accounting_stock19','preview',{as_of:day});assert.equal(preview.blocked,0);
+  const draftRace=await Promise.allSettled(clients.map(c=>api(c,'gama_accounting_stock19','generate',{request_key:uuid(),as_of:day,revision:preview.revision,reason:'Concurrent isolated stock closing'})));
+  assert.equal(draftRace.filter(r=>r.status==='fulfilled').length,1);assert.match(draftRace.find(r=>r.status==='rejected').reason.message,/STOCK_DRAFT_EXISTS/);
+  const stockReview=draftRace.find(r=>r.status==='fulfilled').value.id,postKey=uuid();
+  const postRace=await Promise.all(clients.map(c=>api(c,'gama_accounting_stock19','post',{request_key:postKey,id:stockReview})));assert.deepEqual(postRace[0],postRace[1]);
+  assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='stock_closing' and status='posted'")).rows[0].n),1);
+  assert.equal(Number((await root.query('select sum(debit-credit) value from accounting_entry_lines where account_id=$1',[stockAccount])).rows[0].value),96);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

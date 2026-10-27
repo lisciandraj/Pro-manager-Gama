@@ -27,7 +27,7 @@ const SECTIONS=[
  ['overview','Vista general'],['sales','Ventas'],['purchases','Compras'],['expenses','Gastos'],
  ['payments','Pagos'],['cash','Banco y caja'],['receivables','Cuentas por cobrar'],
  ['payables','Cuentas por pagar'],['ledger','Contabilidad'],['taxes','Impuestos'],
- ['reports','Informes'],['earnings','Libros y afectación del resultado'],['periods','Cierres'],['plans','Periodificación y préstamos'],['sri','Facturación SRI'],['config','Parámetros']
+ ['reports','Informes'],['earnings','Libros y afectación del resultado'],['periods','Cierres'],['stock19','Valor del stock y cierre'],['plans','Periodificación y préstamos'],['sri','Facturación SRI'],['config','Parámetros']
 ];
 /* Lo que ve un perfil comercial: su lado del negocio, sin libro mayor ni tesorería. */
 const COMMERCIAL=new Set(['overview','sales','receivables','reports']);
@@ -127,7 +127,7 @@ function nav(){
  }
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
  const families=[['overview','Vista general'],['sales','Clientes'],['purchases','Proveedores'],['cash','Banco y caja'],['ledger','Contabilidad'],['reports','Informes'],['config','Configuración']];
- const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',plans:'ledger',earnings:'reports',taxes:'config',sri:'config'})[section]||section;
+ const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',stock19:'ledger',plans:'ledger',earnings:'reports',taxes:'config',sri:'config'})[section]||section;
  window.ArcUI.render(host,families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary ${group===k?'on':''}" aria-current="${group===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join(''));
  const shortcuts=$('gaShortcuts');window.ArcUI.render(shortcuts,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':'secondary'}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
  host.querySelectorAll('[data-ga-family]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaFamily)});
@@ -174,7 +174,7 @@ async function open(options={}){
  if(!allowed())return;
  const token=++opening;
  workspace=options.sriWorkspace?'sri':ID;
- state={configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId?'plans':options.section||'overview';
+ state={stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId?'plans':options.section||'overview';
  shell();
  try{
   const d=await rpc(options.sriWorkspace?'context':'overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;
@@ -727,6 +727,7 @@ VIEWS.plans={async load(){return(await plansUi()).load(auditEnv())},render(d){re
 async function configurationUi(){await window.ArcLoadScript('coco-accounting-configuration.js');return window.CocoAccountingConfiguration}
 VIEWS.configuration={async load(){return(await configurationUi()).load(auditEnv())},render(d){return window.CocoAccountingConfiguration.render(d,auditEnv())},bind(d){window.CocoAccountingConfiguration.bind(d,auditEnv())}};
 VIEWS.earnings={async load(){await window.ArcLoadScript('coco-accounting-earnings.js');return window.CocoAccountingEarnings.load(auditEnv())},render(d){return window.CocoAccountingEarnings.render(d,auditEnv())},bind(d){window.CocoAccountingEarnings.bind(d,auditEnv())}};
+VIEWS.stock19={async load(){await window.ArcLoadScript('coco-accounting-stock19.js');return window.CocoAccountingStock19.load(auditEnv())},render(d){return window.CocoAccountingStock19.render(d,auditEnv())},bind(d){window.CocoAccountingStock19.bind(d,auditEnv())}};
 function importForm(){
  const key=crypto.randomUUID(),accs=state.bankAccounts||[],L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);let parsed=[],errors=[],revision=0,mapping=null,signature='',currentFile=null,fileText=null;
  const columnLabels=()=>({date:L('Fecha','Date','Date'),reference:L('Referencia','Référence','Reference'),description:L('Descripción','Description','Description'),amount:L('Importe con signo','Montant signé','Signed amount'),debit:L('Débito','Débit','Debit'),credit:L('Crédito','Crédit','Credit'),direction:L('Sentido D/C (opcional)','Sens D/C (facultatif)','Direction D/C (optional)')});
@@ -825,11 +826,12 @@ async function entryLines(id){
    </tr></thead><tbody>${lines.map(l=>`<tr><td><b>${esc(l.code)}</b> ${esc(l.account)}</td><td>${esc(l.label||'')}</td>
     <td class="gaNum">${Number(l.debit)?money(l.debit):'—'}</td><td class="gaNum">${Number(l.credit)?money(l.credit):'—'}</td></tr>`).join('')}
    <tr><td colspan="2"><b>${tr('Total')}</b></td><td class="gaNum"><b>${money(d)}</b></td><td class="gaNum"><b>${money(c)}</b></td></tr>
-   </tbody></table></div><div data-entry-plans></div><div data-entry-bank></div>`,'Cerrar',async()=>{});
+   </tbody></table></div><div data-entry-plans></div><div data-entry-bank></div><div data-entry-stock></div>`,'Cerrar',async()=>{});
   if(scope==='all'){
    try{const d=await window.ArcData.rpc('gama_accounting_plans',{p_action:'entry_plans',p_data:{entry_id:id}});
     if(el.isConnected){const host=el.querySelector('[data-entry-plans]');host.innerHTML=(d?.rows||[]).map(p=>`<button type="button" class="arcButton secondary" data-entry-plan="${esc(p.id)}">${esc(p.name)}</button>`).join('');host.querySelectorAll('[data-entry-plan]').forEach(b=>b.onclick=()=>{el.close();state.planId=b.dataset.entryPlan;go('plans')})}
    }catch(e){/* Existing ledger detail remains usable before the additive migration is deployed. */}
+   try{const stock=await window.ArcData.rpc('gama_accounting_stock19',{p_action:'entry_review',p_data:{entry_id:id}});if(el.isConnected&&stock?.id){const host=el.querySelector('[data-entry-stock]');host.innerHTML=`<button type="button" class="arcButton secondary">${tr('Valor del stock y cierre')} · ${esc(stock.as_of)}</button>`;host.querySelector('button').onclick=()=>{el.close();state.stockReview=stock.id;state.stockOffset=0;go('stock19')}}}catch(e){/* Existing entries remain readable during the additive rollout. */}
    const source=await window.ArcData.rpc('gama_accounting_bank_import',{p_action:'entry_source',p_data:{entry_id:id}});
    if(el.isConnected&&source?.rows?.length){const host=el.querySelector('[data-entry-bank]');host.innerHTML=source.rows.map(b=>`<p>${tr('Extracto')}: ${esc(b.reference||b.id)} · ${esc(b.value_date)} · ${money(b.amount)} · ${badge(b.status)}<br>${esc(b.description)}</p>${rights?.validate&&b.status==='unmatched'&&Number(b.remaining)!==0?`<button type="button" class="arcButton secondary" data-entry-bank-match="${esc(b.id)}">${tr('Conciliar')}</button>`:''}`).join('');host.querySelectorAll('[data-entry-bank-match]').forEach(b=>b.onclick=()=>{el.close();matchForm(b.dataset.entryBankMatch)})}
   }

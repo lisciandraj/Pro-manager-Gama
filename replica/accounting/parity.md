@@ -1,19 +1,79 @@
-# Parité fonctionnelle vérifiable
+## Parity: 65.0 / 100
 
-Référence : **Odoo 19.0 Enterprise**, sources officielles consultées les 24–26 octobre 2026. L’interface de référence reste Coco.
+features 65.0  (107 counted, must-haves 54 of 107 done)
 
-La matrice contient **108 lignes** : **54 testées, 30 partielles, 20 à développer, 0 à analyser, 3 bloquées et 1 exclusion SRI explicite**. Il reste donc **53 fonctions obligatoires incomplètes ou non démontrées** dans le périmètre de 107 lignes. Un score global ne compense aucun écart.
+Not shippable yet: 53 must-have features are not done.
 
-Le statut « testé » atteste les scénarios Coco et critères précis de la ligne, en base isolée, comparés aux règles Odoo documentées. Il ne démontre pas toute une famille Odoo ni une comparaison exhaustive sur instance Enterprise. La classification détaillée des éditions et la couverture de tous les écrans restent également limitées. Le périmètre complet n’est pas livré.
+## By area, weakest first
+- M                             33.3  (6 features)
+- J                             35.7  (7 features)
+- I                             41.7  (6 features)
+- K                             50.0  (5 features)
+- E                             57.1  (7 features)
+- L                             65.0  (10 features)
+- B                             67.9  (14 features)
+- H                             69.2  (13 features)
+- D                             70.0  (5 features)
+- N                             70.0  (5 features)
+- A                             75.0  (2 features)
+- C                             77.8  (9 features)
+- F                             83.3  (12 features)
+- G                             91.7  (6 features)
 
-Le lot [moyens nommés et reliquats](partial-matching.md) termine les critères B14 et F06 : méthodes de même famille, préférences tiers, paiements figés, reliquats, plusieurs dates et annulation partielle. E05 reste partiel : les traitements et soldes réels sont vérifiés, tandis que la correspondance exhaustive des libellés/transitions avec Odoo reste à attester. Cette réserve est conservée malgré la réussite des tests.
+## Missing, in build order
+- [must] B: Escompte de règlement et traitement fiscal, no  (Reproduire échéances et écritures d'escompte au paiement)
+- [must] B: Positions fiscales et règles de substitution, no  (Règles datées de substitution des comptes/taxes non démontrées)
+- [must] B: Taxes sur encaissements et extourne au délettrage, no  (Comptes transitoires et exigibilité au rapprochement à développer)
+- [must] D: Autofacturation fournisseur, no  (Analyse officielle du 26 octobre terminée. Parcours natif et choix du canal restent à développer ; Peppol dépend d’un accès autorisé. Aucune émission SRI ajoutée.)
+- [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
+- [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
+- [must] F: Imports OFX QIF CAMT CODA, no  (Ne pas présenter l'import CSV comme support de ces formats)
+- [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
+- [must] H: Différés en mois complets et traitements groupés, no  (Le traitement du dernier mois incomplet et le regroupement Odoo restent à comparer)
+- [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)
+- [must] I: Budgets analytiques révisions et workflow, no  (Brouillon ouvert révisé et révisions distinctes à implémenter)
+- [must] I: Engagements achats non facturés dans les budgets, no  (Ajouter les commandes confirmées au réalisé sans doubler la part facturée)
+- [must] I: Modèles de distribution automatique combinables, no  (Critères compte tiers produit et séquence à implémenter)
+- [must] J: Consolidation correspondance et éliminations, no  (Nécessite la séparation des sociétés puis les correspondances et ajustements)
+- [must] J: Gains et pertes latents et extourne, no  (Réévaluation des soldes ouverts à une date et extourne documentée)
+- [must] J: Multi-sociétés isolées et droits par société, no  (Le schéma actuel reste mono-société ; ne pas annoncer l'isolation sans company_id et politiques dédiées)
+- [must] J: Succursales et livres alternatifs, no  (Les dimensions agence ne remplacent pas les droits et livres des succursales)
+- [must] K: Valorisation perpétuelle Odoo 19 à la facturation, no  (Politique actuelle aux mouvements conservée ; transition et contrôle de soldes nécessaires)
+- [must] L: Intrastat EC sales list 1099 dépenses non admises, no  (Périmètre identifié dans les docs officielles 19.0 de reporting, Belgique et USA ; capacités non implémentées, non exclues. Leur activation exige une configuration de localisation appropriée.)
+- [must] M: OCR fournisseurs opérationnel, no  (Accès au flux existant ; prestataire accès coût et preuve de traitement non attestés)
+- [must] M: Paiement en ligne de factures, no  (Prestataire marchand webhooks clés et coûts non raccordés pour Coco)
+- [must] M: Synchronisation bancaire réelle, no  (Odoo cite Plaid Yodlee Salt Edge Ponto Enable Banking Basiq ; aucun contrat natif Coco ni banque équatorienne vérifiés)
+- [must] A: Cartes de journaux et activités à traiter, partial  (Cartes natives avec montants, brouillons, soldes bancaires et listes filtrées ; 106 parcours comptables réussis (CI 40495218927). Toutes les activités de journaux Odoo restent à couvrir. Voir bank-import-ledger.md.)
+- [must] B: Comptes par défaut produits catégories et tiers, partial  (Correspondances globales présentes ; héritage produit/catégorie/tiers incomplet)
+- [must] B: Séquences par journal et exercices, partial  (Opérationnel pour futures validations ; inférence depuis un numéro édité et renumérotation de masse Odoo restent à développer. Formats limités aux variables documentées dans configuration.md.)
+- [must] B: Taxes incluses fixes composées et arrondi global, partial  (Les taxes simples ne démontrent pas les combinaisons de calcul Odoo)
+- [must] C: Facture directe sans commande, partial  (Facturation existante centrée sur les ventes ; parcours autonome complet à vérifier)
+- [must] C: Justificatifs et factures archivées, partial  (Documents existants ; toutes les permissions et origines à comparer)
+- [must] C: Relevé client et relances programmées, partial  (Relances existantes ; scénarios Odoo groupés et modèles à compléter)
+- [must] C: Remises commerciales et base taxable, partial  (Remises existantes ; comparaison de toutes les politiques fiscales manquante)
+- [must] D: Préparation des paiements et lots de règlement, partial  (Paiement multiple présent ; fichiers bancaires normalisés à ajouter)
+- [must] E: Paiements fournisseurs autonomes et avances, partial  (Parité complète des avances fournisseur non démontrée)
+- [must] E: États enregistré affecté en paiement rapproché, partial  (Les traitements banque/attente/sans écriture, les méthodes nommées, les reliquats datés et les annulations sont vérifiés. Les statuts et échéances historiques Coco sont conservés ; la correspondance exhaustive des libellés et transitions Odoo reste à attester. Aucune équivalence totale des états n’est annoncée.)
+- [must] F: Modèles de rapprochement réutilisables et suggestions, partial  (Suggestions existantes ; moteur complet de modèles non disponible)
+- [must] F: Écriture bancaire et compte d’attente dès import du relevé, partial  (Import banque/attente configurable, rapprochement et annulation reliés. Reprise des anciens groupes encore spécifique ; paramètres de production non activés automatiquement. Les paiements directs et imports peuvent coexister avant rapprochement ; celui-ci retire le doublon. Voir bank-import-ledger.md.)
+- [must] G: Recherche filtres pagination et retour à l'origine, partial  (Pagination des écritures, filtres exacts, export complet et liens import/écriture ajoutés. Regroupements et totalité des liens métiers restent à étendre.)
+- [must] H: Clôture anticipée et renégociation d'emprunt, partial  (Annulation avec contre-écritures disponible ; clôture prospective et modification contractuelle à développer)
+- [must] H: Reclassements automatiques entre comptes et cut-off groupé, partial  (OD périodiques présentes ; moteur de transferts et cut-off Odoo incomplet)
+- [must] I: Dimensions centres agences familles, partial  (Dimensions simples présentes ; plans hiérarchiques et applicabilité obligatoire manquants)
+- [must] J: Taux automatiques comptes bancaires en devises, partial  (Registre de change existant en banque USD ; banques étrangères et fournisseur de taux non raccordés)
+- [must] K: Coût standard et écarts de prix, partial  (Coût standard approuvé, mouvements et réévaluation du restant implémentés. Écarts de prix et frais d’approche standard restent à compléter. Voir stock19-closing.md ; preuves CI/publication à compléter.)
+- [must] K: Reçus non facturés retours et comptes transitoires, partial  (GRNI et retours présents ; synchronisation finale Odoo 19 manquante)
+- [must] K: Valorisation périodique Odoo 19 à la clôture, partial  (Revue périodique manuelle, brouillon, validation humaine, sources périmées refusées et contrepassation implémentés. Programmation et comptes par catégorie/emplacement restent à développer ; preuves CI/publication à compléter.)
+- [must] L: Analyse factures et marges, partial  (Analyses existantes ; axes et pivots de la référence à compléter)
+- [must] L: Moteur de rapports personnalisés comparatifs et regroupements, partial  (Dossier PDF/XLSX et comparaison annuelle présents ; moteur d'expressions Odoo absent)
+- [must] L: Rapports analytique budget immobilisations, partial  (Rapports disponibles pour les fonctions présentes ; dimensions et méthodes manquantes restent visibles)
+- [must] L: Rapports de différés et prêts, partial  (Échéanciers et pièces accessibles ; pivots historiques Odoo et regroupements annuels à étendre)
+- [must] L: Taxes applicables et déclarations de pays, partial  (Préparation existante séparée ; aucune conformité ou télédéclaration présumée)
+- [must] M: Favoris de recherche et actions groupées générales, partial  (Recherche et actions ciblées existantes ; favoris et toute la couverture de masse à compléter)
+- [must] M: Portail et partage avec expert-comptable, partial  (Portail et exports présents ; partage spécialisé et envoi groupé à vérifier)
+- [must] N: Mobile tablette PC et trois langues, partial  (Neuf combinaisons FR/ES/EN × 390/768/1440 pour échéanciers, configuration et mapping CSV ; axe et absence de débordement réussis. Pas de preuve exhaustive de chaque écran du périmètre Odoo. ; neuf parcours de paiement supplémentaires réussis dans les trois langues et largeurs.)
+- [must] N: Propositions Agent Coco et file à traiter, partial  (Passerelle et file actuelles conservées ; propositions spécifiques des échéanciers et nouveaux paramètres encore à raccorder. Aucune suggestion non approuvée ne modifie les paramètres.)
+- [must] N: Sauvegarde restauration et comparaison soldes réels, partial  (Restauration isolée testable ; sauvegarde physique/PITR de production à attester)
 
-Les 97 parcours comptables, dont neuf combinaisons ES/FR/EN × 390/768/1440 supplémentaires, et la concurrence PostgreSQL 17 réussissent dans le run 40387433781. Les derniers contrôles de liens d’historique et l’archive des migrations sont consignés dans [les résultats du lot](results-partial-matching.md). La comparaison de pixels avec Odoo est écartée : les composants, couleurs, montants et défilements sont évalués par rapport à Coco.
-
-D05 (autofacturation) et L10 (rapports de localisation) ont été identifiés dans les sources officielles 19.0 et passent à « à développer », sans exclusion. Les priorités suivantes restent la valorisation 19 avec reprise, les taxes/positions fiscales, l’analytique et les budgets révisables, le multi-sociétés/consolidation, les méthodes d’amortissement et les services connectés. Le résultat reporté H13, les configurations et échéanciers déjà livrés sont conservés.
-
-Le [diagnostic Replica](evidence/parity-tool.txt) conserve la liste des fonctions obligatoires manquantes. Il ne constitue pas une autorisation de présenter le module comme équivalent complet.
-
-Le complément d’audit [journaux et compte d’attente](journal-dashboard-audit.md) ajoute F12 : la pièce banque/attente dès l’import est distincte du rapprochement partiel livré. Le lot import au livre en réalise le traitement configuré des nouvelles lignes et la reprise sélectionnée des lignes jamais rapprochées. F12 reste partiel pour les groupes historiques ; l’inventaire précédent de 107 points ne le couvrait pas explicitement.
-
-Le lot [relevés au grand livre](bank-import-ledger.md) étend F12, A02 et G04 sans déclarer ces familles entièrement couvertes. Les fonctions testées et les limites de reprise restent distinguées.
+## Left out on purpose (not scored)
+- SRI facturation électronique: Exclusion explicite du donneur d'ordre ; ne pas modifier ce service

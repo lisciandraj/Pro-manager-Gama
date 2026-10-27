@@ -1,6 +1,6 @@
 # Stock : préparation de la transition Odoo 19
 
-Audit du 27 octobre 2026, en lecture seule. **K02–K05 restent incomplets** : ce document prépare leur construction et n’atteste aucune nouvelle fonction de stock publiée.
+Audit du 27 octobre 2026, en lecture seule. **K02–K05 restent incomplets** : ce document décrit le diagnostic initial. L’implémentation du coût standard et de la revue périodique est suivie dans [stock19-closing.md](stock19-closing.md) ; sa publication doit être vérifiée séparément.
 
 ## Référence figée
 

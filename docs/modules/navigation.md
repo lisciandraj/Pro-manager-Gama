@@ -56,3 +56,6 @@ Le type d’accès Client et les modules Catalogue client et Mes livraisons sont
 `reports`, `backup`, `users` et `access-settings` restent les identifiants des onglets Configuration. Ils n’ont plus de tuile ni de lien latéral. Les anciens appels ouvrent directement leur onglet. Les droits et l’activation de chaque fonctionnalité restent inchangés : import pour administrateurs/commerciaux autorisés ; sauvegarde, utilisateurs et paramètres d’accès pour administrateurs. Les formulaires existants sont conservés lors du passage entre onglets. Ces quatre écrans affichent directement leurs actions et formulaires, sans reprendre l’introduction de tuile « COCO ERP », le titre et la description du module.
 
 L’import de produits accepte jusqu’à 3 000 lignes par fichier, pour la simulation et la confirmation. Chaque appel d’import dispose d’un délai serveur de 60 secondes, avec des recherches indexées sur le nom, la référence et le code-barres normalisés. Les doublons, erreurs par ligne et reprises conservent leurs contrôles existants. Les délais des autres opérations ne changent pas.
+
+Le groupe Résumé comprend aussi [Espace de travail](workhub.md) : réception
+commune, discussions privées et liens vers les tâches et documents autorisés.

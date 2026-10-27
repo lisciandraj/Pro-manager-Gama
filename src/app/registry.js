@@ -2,6 +2,7 @@ export const groups=["Resumen","Inventario y compras","Ventas","Administración"
 const adminRoles=['admin'],commercialRoles=['admin','commercial'],staffRoles=['admin','commercial','magasinier'],warehouseRoles=['admin','magasinier'];
 /** Single registry consumed by home, sidebar, settings, access and router. */
 const definitions=[
+  {id:'workhub',label:'Espacio de trabajo',icon:'workhub',group:groups[0],description:'Conversaciones, tareas, documentos y contexto del equipo',accent:'blue',order:0.5,menu:true,roles:staffRoles},
   {id:'contracts',label:'Contratos',icon:'contract',group:groups[2],description:'Contratos y pedidos recurrentes',accent:'violet',order:4.1,menu:true,roles:commercialRoles},
   {id:'expenses',label:'Gastos y justificantes',icon:'expense',group:groups[3],description:'Justificantes, validación y reembolsos',accent:'orange',order:15.2,menu:true,roles:adminRoles},
   {id:'surveys',label:'Encuestas y marketing',icon:'checklist',group:groups[2],description:'Cuestionarios y campañas e-mail o WhatsApp',accent:'teal',order:7.2,menu:true,roles:commercialRoles},
@@ -401,6 +402,7 @@ export const tabsOf=id=>definitions.filter(m=>m.tabOf===id).map(m=>m.id);
 export const canOpen=id=>!!window.gamaAccessAllowed?.(id)||tabsOf(id).some(t=>window.gamaAccessAllowed?.(t));
 /** Route adapters preserve public module IDs and existing cross-module links. */
 const openers={
+ workhub:()=>window.CocoWorkhub?.open(),
  contracts:()=>window.CocoBusiness?.contracts(),
  expenses:()=>window.CocoBusiness?.expenses(),
  matrix:()=>window.GamaMatrix?.open(),

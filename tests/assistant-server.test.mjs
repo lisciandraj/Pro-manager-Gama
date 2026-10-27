@@ -18,12 +18,13 @@ function fixture(options={}){
   if(url.includes('/rpc/gama_ai_overview'))return reply(overview);
   if(url.includes('/rpc/gama_coco_inventory_analyze'))return options.stockError?reply({message:'unavailable'},500):reply({products_analyzed:1});
   if(url.includes('/rpc/gama_coco_inventory_overview'))return reply({calculated_at:'2026-09-26T10:00:00Z',recommendation_count:1,reorder_count:1,has_more:false,recommendations:[{product_name:'Coco test',recommended_value:{min:11,max:25,order_qty:18},reasoning:{basis:'observed_demand'}}]});
+  if(url.includes('/rpc/coco_workhub'))return options.workspaceDenied?reply({message:'WORKHUB_FORBIDDEN'},403):reply({channel:{id:uid,name:'Deliveries'},rows:[{id:rid,body:'Current delivery coordination',links:[]}]});
   if(url.includes('/rpc/gama_ai_query'))return reply({table:'products',matched_rows:250,rows:[{stock:35,name:'<img src=x onerror=alert(1)>'}],truncated:true});
   if(url.includes('/gama_ai_history?')){if(init.method==='PATCH'){saved.push(body);return reply([]);}return reply([]);}
   if(url.includes('api.openai.com/v1/models/'))return reply({id:'gpt-4.1-mini'});
   if(url.includes('api.openai.com/v1/responses')){
    openaiCount++;if(options.providerError)return reply({secret:'must not leak'},options.providerError);
-   if(options.tool&&openaiCount===1)return reply({status:'completed',output:[{type:'function_call',name:options.tool,call_id:'call1',arguments:JSON.stringify(options.tool==='read_inventory'?{offset:25}:{query:{table:'products',operation:'rows',limit:1}})}]});
+   if(options.tool&&openaiCount===1)return reply({status:'completed',output:[{type:'function_call',name:options.tool,call_id:'call1',arguments:JSON.stringify(options.tool==='read_inventory'?{offset:25}:options.tool==='read_workspace'?(options.workspaceArgs||{action:'channel',query:'',channel_id:uid}):{query:{table:'products',operation:'rows',limit:1}})}]});
    const report=diagnostic(overview,'es').report;if(options.badCitation)report.findings[0].evidence_ids=['FAKE'];
    return reply({status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify(report)}]}]});
   }
@@ -84,4 +85,12 @@ test('Agent Coco answers in Spanish independently of the requested interface lan
   const claim=JSON.parse(f.calls.find(c=>c.url.includes('/rpc/gama_ai_claim')).init.body);assert.equal(claim.p_language,'es');
   const request=JSON.parse(f.calls.find(c=>c.url.includes('/responses')).init.body);assert.match(request.input[0].content,/Always write every generated user-facing string in Spanish \(Ecuador\)/);
  }
+});
+
+test('workspace memory reads current caller-scoped evidence and cannot write or bypass channel rights',async()=>{
+ const f=fixture({key:true,tool:'read_workspace'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();
+ assert.equal(a.evidence[2].kind,'read_workspace');assert.equal(a.evidence[2].module,'workhub');assert.equal(a.evidence[2].data.rows[0].body,'Current delivery coordination');
+ const read=f.calls.find(c=>c.url.includes('/rpc/coco_workhub'));assert.equal(read.init.headers.Authorization,'Bearer user-token');assert.equal(JSON.parse(read.init.body).p_action,'context');
+ const denied=fixture({key:true,tool:'read_workspace',workspaceDenied:true});assert.equal((await denied.request()).status,403);assert(!JSON.stringify(denied.saved).includes('Current delivery coordination'));
+ const write=fixture({key:true,tool:'read_workspace',workspaceArgs:{action:'message_create',query:'send',channel_id:uid}});assert.equal((await write.request()).status,200);assert(!write.calls.some(c=>c.url.includes('/rpc/coco_workhub')));
 });

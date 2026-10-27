@@ -27,7 +27,7 @@ create index accounting_bank_import_posting_account on private.accounting_bank_i
 create index accounting_bank_import_posting_suspense on private.accounting_bank_import_postings(suspense_account_id);
 create index accounting_bank_import_posting_actor on private.accounting_bank_import_postings(created_by);
 -- The existing allocation foreign key is used by the settlement source lookup.
-create index if not exists accounting_match_allocation_source on private.accounting_match_allocations(group_id,kind,source_id);
+create index accounting_match_allocation_group_source on private.accounting_match_allocations(group_id,kind,source_id);
 alter table private.accounting_bank_import_policies enable row level security;
 alter table private.accounting_bank_import_postings enable row level security;
 revoke all on private.accounting_bank_import_policies,private.accounting_bank_import_postings from public,anon,authenticated,service_role;

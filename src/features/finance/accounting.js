@@ -414,7 +414,7 @@ VIEWS.expenses={
   document.querySelectorAll('[data-ga-receipt]').forEach(b=>b.onclick=()=>receiptForm(b.dataset.gaReceipt));
  }
 };
-async function act(b,fn){b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e));b.disabled=false}}
+async function act(b,fn){const disabled=b.disabled;b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e))}finally{if(b.isConnected)b.disabled=disabled}}
 function reasonForm(title,save){
  GamaSales.modal(title,`<label class="gsField">${tr('Motivo')}<textarea id="gaReason" required minlength="3" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('El motivo queda en el historial de auditoría.')}</p>`,'Confirmar',

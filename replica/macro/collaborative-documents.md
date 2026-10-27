@@ -65,3 +65,12 @@ copié dans le texte actuel, sans rembobiner le graphe collaboratif.
 
 Cette tranche ne couvre pas les feuilles collaboratives, le canvas, les appels,
 le calendrier ou la synchronisation complète de messagerie.
+
+## Construction et archivage concurrent
+
+Le build normal régénère le lot CRDT depuis son point d’entrée sous src et
+les dépendances épinglées ; l’intégrité et les licences restent reproductibles.
+Si une autre session archive un document pendant qu’un brouillon est conservé
+dans cet onglet, l’écran en lecture seule indique aussi les modifications
+locales non enregistrées. La réactivation reste possible pour un propriétaire
+autorisé, puis ce texte peut être enregistré sans perte.

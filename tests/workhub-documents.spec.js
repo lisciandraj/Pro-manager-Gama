@@ -66,8 +66,13 @@ test('two actual editors merge, keep cursor position, export, show versions and 
   expect(await b.locator('.whDocEditor>.whActions button').evaluateAll(buttons=>buttons.every(button=>{const r=button.getBoundingClientRect();return r.width>=120&&r.height<100;}))).toBe(true);
   for(const p of [a,b])expect((await new AxeBuilder({page:p}).include('#workhub').analyze()).violations).toEqual([]);
   await b.evaluate(()=>window.scrollTo(0,0));await a.screenshot({path:'test-results/workhub-document-desktop.png',fullPage:true});await b.screenshot({path:'test-results/workhub-document-mobile.png',fullPage:true});
-  await expect(a.locator('#whDocStatus')).toHaveText('Toutes les modifications sont enregistrées.');await a.getByRole('button',{name:'Archiver',exact:true}).click();await a.locator('[data-workhub-document-dialog]').getByRole('button',{name:'Confirmer',exact:true}).click();await expect(b.locator('#whDocText')).toHaveJSProperty('readOnly',true);
+  await b.locator('#whDocText').fill('Validé ✓ '+merged+' — brouillon à conserver');await expect(b.locator('#whDocArchive')).toBeDisabled();await b.locator('#whDocBack').click();
+  await expect(a.locator('#whDocStatus')).toHaveText('Toutes les modifications sont enregistrées.');await a.getByRole('button',{name:'Archiver',exact:true}).click();await a.locator('[data-workhub-document-dialog]').getByRole('button',{name:'Confirmer',exact:true}).click();
+  await b.getByRole('button',{name:'Documents archivés',exact:true}).click();await b.locator('#whList .whRow').filter({hasText:'Plan partagé Quito'}).click();await b.getByRole('button',{name:'Ouvrir dans son module',exact:true}).click();
+  await expect(b.locator('#whDocText')).toHaveJSProperty('readOnly',true);await expect(b.locator('#whDocText')).toHaveValue('Validé ✓ '+merged+' — brouillon à conserver');await expect(b.locator('#whDocStatus')).toContainText('Modifications locales non enregistrées.');
+  await expect(b.locator('#whDocArchive')).toBeEnabled();
   await a.getByRole('button',{name:'Réactiver',exact:true}).click();await a.locator('[data-workhub-document-dialog]').getByRole('button',{name:'Confirmer',exact:true}).click();await expect(b.locator('#whDocText')).toHaveJSProperty('readOnly',false);
+  await b.locator('#whDocSave').click();await expect(b.locator('#whDocStatus')).toHaveText('Toutes les modifications sont enregistrées.');await expect(a.locator('#whDocText')).toHaveValue('Validé ✓ '+merged+' — brouillon à conserver');
   await c.revoke();await expect(b.locator('#whDocText')).toHaveCount(0);await expect(b.locator('#whList')).toContainText('plus accessible');
   expect(c.errors).toEqual([]);
  }finally{await c.close();}

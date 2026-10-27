@@ -16,7 +16,7 @@
  const valid=s=>session===s&&s.epoch===epoch&&allowed()&&s.isCurrent()&&!!$('workhub')?.classList.contains('active');
  const date=v=>new Date(v).toLocaleString(window.GamaI18n?.locale||'es-EC',{dateStyle:'medium',timeStyle:'short'});
  const rpc=(action,data)=>window.ArcData.rpc('coco_workhub_documents',{p_action:action,p_data:data});
- function status(s,error=s.error){if(!valid(s))return;const host=$('whDocStatus');if(!host)return;host.textContent=error||t(s.meta.archived?'archived':s.busy?'saving':s.dirty?'dirty':'saved');host.setAttribute('role',error?'alert':'status');$('whDocSave').disabled=s.busy||!s.dirty||s.meta.archived;}
+ function status(s,error=s.error){if(!valid(s))return;const host=$('whDocStatus');if(!host)return;host.textContent=error||(s.meta.archived?t('archived')+(s.dirty?' '+t('dirty'):''):t(s.busy?'saving':s.dirty?'dirty':'saved'));host.setAttribute('role',error?'alert':'status');$('whDocSave').disabled=s.busy||!s.dirty||s.meta.archived;$('whDocArchive').disabled=s.busy||!s.meta.archived&&s.dirty;}
  function pause({erase=false}={}){
   const s=session;session=null;epoch++;
   if(s){clearTimeout(s.saveTimer);clearTimeout(s.pollTimer);s.controller?.abort();if(!erase&&s.doc&&s.dirty)drafts.set(s.id,{state:encode(Y.encodeStateAsUpdate(s.doc)),batch:s.batch,edit:s.edit});s.doc?.destroy();}

@@ -64,7 +64,7 @@ ordinateur et téléphone. Les mails visibles sont des propositions déjà reçu
 par le relais Coco ; cette vue ne remplace pas une boîte Gmail complète.
 
 Les appels/transcriptions, la visioconférence, un calendrier connecté, les liens
-de réservation, les éditeurs CRDT, le tableur collaboratif et les agents de code
+de réservation, les éditeurs riches, le tableur collaboratif et les agents de code
 ne font pas partie de cette tranche. Aucun abonnement ni nouveau fournisseur
 n'est activé. Le [suivi de parité](../../replica/macro/features.csv) les conserve
 explicitement comme non réalisés.
@@ -78,3 +78,31 @@ le classement, les retraits de droits et l'historique.
 à ce même SQL isolé pour les parcours ordinateur/téléphone, erreurs, langues,
 clavier, absence de HTML interprété et analyse axe. Aucun jeu d'essai n'est
 écrit dans les données de production.
+
+## Documents partagés
+
+Dans Documents ou dans un canal, **Nouveau document partagé** crée un texte
+réservé aux membres de ce canal. Le formulaire permet de publier son lien dans
+la discussion. Plusieurs collègues peuvent modifier le texte ; leurs apports
+sont fusionnés et la sélection locale suit les changements distants. Le statut
+indique explicitement les modifications encore locales et la sauvegarde réussie.
+
+**Exporter le texte** télécharge le contenu Markdown. **Versions enregistrées**
+permet de consulter et recopier les anciens passages. Le créateur ou le
+propriétaire du canal peut archiver puis réactiver le document ; l’archive reste
+en lecture seule et se retrouve dans Documents archivés. Les références retour,
+la recherche et Agent Coco relisent les droits actuels du canal.
+
+Le texte est synchronisé toutes les deux secondes lorsque l’éditeur est affiché.
+Les brouillons non enregistrés sont conservés en mémoire lors de la navigation
+dans le même onglet et effacés à la déconnexion ou au retrait d’accès. Un
+avertissement protège la fermeture avant sauvegarde ; l’export permet de garder
+le texte en cas de réseau indisponible. Il n’y a pas de stockage documentaire
+hors ligne durable, de présence avec curseurs distants ni d’éditeur riche.
+
+Les versions de texte conservées sont limitées aux cinquante derniers numéros
+de version. La saisie est limitée à 100 000 caractères, 200 000 octets UTF-8 et
+280 000 octets d’état collaboratif ; un document très modifié peut atteindre la
+limite d’état avant la limite de texte. Le statut demande alors un export vers
+un nouveau document. Les limites et contrôles sont détaillés dans
+[l’architecture](../../replica/macro/collaborative-documents.md).

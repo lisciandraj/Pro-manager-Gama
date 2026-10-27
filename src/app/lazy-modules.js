@@ -1,5 +1,6 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "workhub-documents":{"global":"CocoWorkhubDocs","file":"coco-workhub-documents.js","dependencies":["assets/vendor/yjs-13.6.33.js"],"methods":["mount","open"]},
  "workhub":{"global":"CocoWorkhub","file":"coco-workhub.js","styles":["coco-style-workhub.css"],"methods":["open","openChannel"]},
  "contracts":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
  "expenses":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},

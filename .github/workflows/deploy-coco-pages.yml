@@ -85,7 +85,7 @@ jobs:
       - name: Verify module and dossier history, process references and links on desktop and phone
         run: npx playwright test tests/order-followup.spec.js tests/order-followup-grouping.spec.js tests/module-history.spec.js tests/history-context.spec.js tests/purchase-order-email.spec.js tests/dossier-flow.spec.js tests/dossier-references.spec.js --workers=2
       - name: Verify shared workspace with isolated SQL and desktop/mobile flows
-        run: npx playwright test tests/workhub.spec.js --workers=1
+        run: npx playwright test tests/workhub.spec.js tests/workhub-documents.spec.js --workers=1
       - name: Preserve history context screenshots
         uses: actions/upload-artifact@v4
         if: always()

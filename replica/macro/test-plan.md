@@ -20,3 +20,16 @@
 Les fournisseurs externes, le compte Gmail complet et les appels ne sont pas
 simulés comme des fonctions terminées. Les essais de production seront limités
 au schéma, à ses droits et à la publication, sans création d'objets métier.
+
+## S07 : coédition
+
+- Deux contextes navigateur distincts sur une base isolée : création, lien dans
+  le canal, modifications concurrentes, maintien de la sélection, export et versions.
+- Téléphone 390 px : boutons lisibles, absence de débordement et analyse axe.
+- Réponse perdue après commit : brouillon conservé à la navigation et nouvelle
+  tentative sans second numéro de version ; langues FR/EN/ES et déconnexion.
+- Archivage partagé, réactivation, membre retiré et lecture Agent refusée.
+- Corps CRDT invalide, données structurées non prises en charge, texte trop grand,
+  tentatives de contournement du validateur et clé de requête réutilisée.
+- OID du résolveur d’historique et expression de la politique identiques avant
+  et après migration ; aucun texte documentaire dans l’index d’historique.

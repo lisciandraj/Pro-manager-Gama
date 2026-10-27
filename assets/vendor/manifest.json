@@ -23,5 +23,10 @@
     "source": "npm:web-vitals@6.2.3",
     "sha256": "1e5e9b9af6b8d71cfef508e5a869c53b4cf2bbccad8c9b5ac664c34e93f6151a",
     "integrity": "sha384-sKh//42d8+X4ztiyB4ChMShr0tmbWDWrkHfy9pLz9napB81dM74xVylUQVmZ94PE"
+  },
+  "yjs-13.6.33.js": {
+    "source": "npm:yjs@13.6.33; npm:lib0@0.2.119",
+    "sha256": "db791bd89a8d169aeff4e3ec7005b19cf764bca81bf0d1b1117ccd7e70b8944b",
+    "integrity": "sha384-d/ZGl7DF119sszxv4PY6H/KBEdoqmLdv56XpaAh1HWPsiiFRBzuC+pvpdim0Ximm"
   }
 }

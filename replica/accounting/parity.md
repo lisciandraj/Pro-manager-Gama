@@ -1,6 +1,6 @@
-## Parity: 65.0 / 100
+## Parity: 65.4 / 100
 
-features 65.0  (107 counted, must-haves 54 of 107 done)
+features 65.4  (107 counted, must-haves 54 of 107 done)
 
 Not shippable yet: 53 must-have features are not done.
 
@@ -17,7 +17,7 @@ Not shippable yet: 53 must-have features are not done.
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
 - C                             77.8  (9 features)
-- F                             83.3  (12 features)
+- F                             87.5  (12 features)
 - G                             91.7  (6 features)
 
 ## Missing, in build order
@@ -27,7 +27,6 @@ Not shippable yet: 53 must-have features are not done.
 - [must] D: Autofacturation fournisseur, no  (Analyse officielle du 26 octobre terminée. Parcours natif et choix du canal restent à développer ; Peppol dépend d’un accès autorisé. Aucune émission SRI ajoutée.)
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
-- [must] F: Imports OFX QIF CAMT CODA, no  (Ne pas présenter l'import CSV comme support de ces formats)
 - [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
 - [must] H: Différés en mois complets et traitements groupés, no  (Le traitement du dernier mois incomplet et le regroupement Odoo restent à comparer)
 - [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)
@@ -54,6 +53,7 @@ Not shippable yet: 53 must-have features are not done.
 - [must] D: Préparation des paiements et lots de règlement, partial  (Paiement multiple présent ; fichiers bancaires normalisés à ajouter)
 - [must] E: Paiements fournisseurs autonomes et avances, partial  (Parité complète des avances fournisseur non démontrée)
 - [must] E: États enregistré affecté en paiement rapproché, partial  (Les traitements banque/attente/sans écriture, les méthodes nommées, les reliquats datés et les annulations sont vérifiés. Les statuts et échéances historiques Coco sont conservés ; la correspondance exhaustive des libellés et transitions Odoo reste à attester. Aucune équivalence totale des états n’est annoncée.)
+- [must] F: Imports OFX QIF CAMT CODA et XLSX, partial  (Lecteurs et parcours locaux opérationnels. CI, migration et publication à vérifier. Corrections OFX, CODA applications séparées/multi-extraits et variantes bancaires restent à couvrir ; banques en devise étrangère en J03. Voir bank-formats.md.)
 - [must] F: Modèles de rapprochement réutilisables et suggestions, partial  (Suggestions existantes ; moteur complet de modèles non disponible)
 - [must] F: Écriture bancaire et compte d’attente dès import du relevé, partial  (Import banque/attente configurable, rapprochement et annulation reliés. Reprise des anciens groupes encore spécifique ; paramètres de production non activés automatiquement. Les paiements directs et imports peuvent coexister avant rapprochement ; celui-ci retire le doublon. Voir bank-import-ledger.md.)
 - [must] G: Recherche filtres pagination et retour à l'origine, partial  (Pagination des écritures, filtres exacts, export complet et liens import/écriture ajoutés. Regroupements et totalité des liens métiers restent à étendre.)
@@ -61,9 +61,9 @@ Not shippable yet: 53 must-have features are not done.
 - [must] H: Reclassements automatiques entre comptes et cut-off groupé, partial  (OD périodiques présentes ; moteur de transferts et cut-off Odoo incomplet)
 - [must] I: Dimensions centres agences familles, partial  (Dimensions simples présentes ; plans hiérarchiques et applicabilité obligatoire manquants)
 - [must] J: Taux automatiques comptes bancaires en devises, partial  (Registre de change existant en banque USD ; banques étrangères et fournisseur de taux non raccordés)
-- [must] K: Coût standard et écarts de prix, partial  (Coût standard approuvé, mouvements et réévaluation du restant implémentés. Écarts de prix et frais d’approche standard restent à compléter. Voir stock19-closing.md ; preuves CI/publication à compléter.)
+- [must] K: Coût standard et écarts de prix, partial  (Coût standard approuvé, mouvements et réévaluation du restant implémentés. Écarts de prix et frais d’approche standard restent à compléter. Voir stock19-closing.md ; neuf parcours isolés réussis, migration appliquée sans changement des 30 tables suivies ; publication web en attente des gates finaux. Voir results-stock19.md.)
 - [must] K: Reçus non facturés retours et comptes transitoires, partial  (GRNI et retours présents ; synchronisation finale Odoo 19 manquante)
-- [must] K: Valorisation périodique Odoo 19 à la clôture, partial  (Revue périodique manuelle, brouillon, validation humaine, sources périmées refusées et contrepassation implémentés. Programmation et comptes par catégorie/emplacement restent à développer ; preuves CI/publication à compléter.)
+- [must] K: Valorisation périodique Odoo 19 à la clôture, partial  (Revue périodique manuelle, brouillon, validation humaine, sources périmées refusées et contrepassation implémentés. Programmation et comptes par catégorie/emplacement restent à développer ; neuf parcours isolés réussis, migration appliquée sans changement des 30 tables suivies ; publication web en attente des gates finaux. Voir results-stock19.md.)
 - [must] L: Analyse factures et marges, partial  (Analyses existantes ; axes et pivots de la référence à compléter)
 - [must] L: Moteur de rapports personnalisés comparatifs et regroupements, partial  (Dossier PDF/XLSX et comparaison annuelle présents ; moteur d'expressions Odoo absent)
 - [must] L: Rapports analytique budget immobilisations, partial  (Rapports disponibles pour les fonctions présentes ; dimensions et méthodes manquantes restent visibles)

@@ -64,3 +64,5 @@
 .gaPriorityLink{font-size:var(--arc-fs-sec);color:var(--arc-accent-700)}
 .gaPriority:hover:not(:disabled){border-color:var(--arc-accent-600);background:var(--arc-accent-50)}
 .gaPriority:disabled{cursor:default;opacity:.65}
+
+[data-bank-workflow] [hidden]{display:none!important}

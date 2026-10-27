@@ -95,6 +95,11 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);assert.match(attempts.find(r=>r.status==='rejected').reason.message,/MATCH_AMOUNT_EXCEEDS_REMAINING/);
   assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-310);
   assert.equal(Number((await root.query('select sum(debit-credit) balance from accounting_entry_lines where account_id=$1',[suspense])).rows[0].balance),40);
+  // Stable source IDs serialize even when requests use different keys.
+  const structured={financial_account_id:bank,format:'ofx',source_account:'ISOLATED-CONCURRENT',currency:'USD',rows:[{source_uid:'ofx:STRUCT-ONE',value_date:day,reference:'STRUCT-ONE',description:'Concurrent structured source',amount:12}]};
+  const structuredResults=await Promise.all(clients.map(async c=>(await c.query('select public.gama_bank_statement_import($1::jsonb) value',[JSON.stringify({...structured,request_key:uuid()})])).rows[0].value));
+  assert.equal(structuredResults.reduce((n,r)=>n+r.imported,0),1);
+  assert.equal(Number((await root.query("select count(*) n from private.accounting_statement_sources where source_uid='ofx:STRUCT-ONE'")).rows[0].n),1);
   // Inventory review and ledger validation serialize with movement valuation.
   const stockProduct=(await root.query("insert into products(name,purchase_price) values('Concurrent closing stock',99) returning id")).rows[0].id;
   const stockAccount=(await root.query("insert into accounting_accounts(code,name,type,account_type) values('STOCK-RACE','Isolated closing stock','asset','asset_current') returning id")).rows[0].id;

@@ -41,11 +41,13 @@ try:
     names = ['architect-finance-controls.js', 'coco-modules.js',
              'coco-accounting-configuration.js', 'gama-accounting.js', 'gama-payments.js',
              'gama-i18n-catalog.js', 'gama-i18n-server.js', 'gama-i18n-fr.js', 'gama-i18n-en.js']
-    try:
-        git_bytes('coco-accounting-earnings.js')
-        names.append('coco-accounting-earnings.js')
-    except subprocess.CalledProcessError:
-        pass
+    for optional in ['coco-accounting-earnings.js', 'coco-accounting-stock19.js',
+                     'coco-bank-formats.js', 'coco-import-worker.js']:
+        try:
+            git_bytes(optional)
+            names.append(optional)
+        except subprocess.CalledProcessError:
+            pass
     for name in names:
         served = fetch(assets[name])
         expected = git_bytes(name)

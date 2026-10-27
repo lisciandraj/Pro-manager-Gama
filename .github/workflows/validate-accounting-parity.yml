@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/accounting-stock19.spec.js tests/accounting-bank-import.spec.js tests/accounting-partial-matching.spec.js tests/accounting-earnings.spec.js tests/accounting-payment-modes.spec.js tests/accounting-configuration.spec.js tests/accounting-plans.spec.js tests/accounting-audit.spec.js tests/accounting.spec.js tests/module-history.spec.js --workers=2
+      - run: npx playwright test tests/accounting-statement-formats.spec.js tests/accounting-stock19.spec.js tests/accounting-bank-import.spec.js tests/accounting-partial-matching.spec.js tests/accounting-earnings.spec.js tests/accounting-payment-modes.spec.js tests/accounting-configuration.spec.js tests/accounting-plans.spec.js tests/accounting-audit.spec.js tests/accounting.spec.js tests/module-history.spec.js --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:

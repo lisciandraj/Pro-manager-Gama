@@ -189,9 +189,9 @@ begin
  elsif p_action='entry_review' then
   return coalesce((select jsonb_build_object('id',r.review_id,'as_of',s.as_of) from private.accounting_stock_review_entries r join private.accounting_stock_reviews s on s.id=r.review_id where r.entry_id=(p_data->>'entry_id')::uuid or r.reversal_entry_id=(p_data->>'entry_id')::uuid limit 1),'{}');
  elsif p_action='products' then
-  with rows as(select p.id,p.name,p.reference,b.method,b.quantity,b.value,b.standard_unit_cost,to_jsonb(pol) policy,
+  with rows as(select p.id,p.name,p.reference,cost_book.method,cost_book.quantity,cost_book.value,cost_book.standard_unit_cost,to_jsonb(stock_policy) policy,
     coalesce((select sum(quantity) from public.stock_quants where product_id=p.id),0) physical_quantity
-   from public.products p left join public.stock_cost_books b on b.product_id=p.id left join private.accounting_stock_policies pol on pol.id=p.id where p.product_kind='goods'
+   from public.products p left join public.stock_cost_books cost_book on cost_book.product_id=p.id left join private.accounting_stock_policies stock_policy on stock_policy.id=p.id where p.product_kind='goods'
    and (pid is null or p.id=pid)
    and (nullif(p_data->>'search','') is null or concat_ws(' ',p.name,p.reference) ilike '%'||(p_data->>'search')||'%'))
   select jsonb_build_object('total',(select count(*) from rows),'rows',coalesce((select jsonb_agg(r) from(select * from rows order by name,id limit 50 offset off)r),'[]')) into result;return result;

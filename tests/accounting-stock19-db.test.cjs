@@ -26,6 +26,9 @@ test('Stock 19 observed costs and reviewed periodic closing use the canonical le
   await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await q("insert into suppliers(id,name) values($1,'Isolated stock supplier')",[supplier]);
   chart=Object.fromEntries((await q("select code,id from accounting_accounts where code in('1200','5000','6010')")).rows.map(r=>[r.code,r.id]));journal=await v("select id from accounting_journals where code='OD'");
   location=(await q('select id from warehouse_locations where active limit 1')).rows[0];day=await v("select ((now() at time zone private.erp_timezone())::date)::text");await db.exec('set role authenticated');
+  await scenario('product configuration list reads empty and configured books without ambiguous SQL aliases',async()=>{
+   const id=await product();await adjust(id,8);let listed=await api('products',{product_id:id});assert.equal(listed.total,1);assert.equal(Number(listed.rows[0].physical_quantity),8);assert.equal(listed.rows[0].method,null);await book(id,'standard','12');await policy(id);listed=await api('products',{product_id:id});assert.equal(listed.rows[0].method,'standard');assert.equal(listed.rows[0].policy.mode,'periodic');assert.equal(Number(listed.rows[0].value),96);
+  });
   await scenario('unvalued physical quantity blocks closing without inventing catalogue cost',async()=>{
    const id=await product();await adjust(id,5);const p=await preview();assert.equal(p.blocked,1);assert.equal(p.products[0].value,null);assert.equal(p.products[0].review,'cost_book_missing');
    await deny(()=>generate(),/COVERAGE_INCOMPLETE/);assert.equal(await v('select count(*)::int from accounting_entries'),0);

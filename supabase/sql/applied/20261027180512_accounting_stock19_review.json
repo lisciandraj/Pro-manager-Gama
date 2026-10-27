@@ -1,0 +1,13 @@
+{
+  "version": "20261027180512",
+  "name": "accounting_stock19_review",
+  "statement_count": 1,
+  "bytes": 34895,
+  "sha256": "6924ac10cc62282d757f7f000ec2306b6f29db3de8a9d8aaf00ccdb049f3855a",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "file": "20261027180512_accounting_stock19_review.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

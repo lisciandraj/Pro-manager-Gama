@@ -37,3 +37,5 @@ Contrôle de production avant intervention, 27 octobre à 17:15 UTC : zéro sous
 Exécuter les tests isolés et les workflows existants, archiver la migration effectivement appliquée, comparer les empreintes des données et les soldes avant/après, puis publier le build GitHub Pages. La preuve d'une connexion utilisateur en production reste distincte des contrôles SQL/API et des essais isolés.
 
 En cas de retour arrière, conserver les tables, photographies et pièces ; republier le build précédent pour retirer le point d'entrée. Ne pas supprimer les écritures après activation. Corriger une clôture via sa contrepassation ; une politique déjà utilisée nécessite une transition comptable explicitement préparée. La conversion des valeurs historiques reste suspendue à une sauvegarde complète et à un exercice de restauration, conformément au plan de reprise.
+
+Preuves et migration effectivement appliquée : [résultats détaillés](results-stock19.md).

@@ -95,6 +95,11 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);assert.match(attempts.find(r=>r.status==='rejected').reason.message,/MATCH_AMOUNT_EXCEEDS_REMAINING/);
   assert.equal(Number((await root.query('select current_balance from private.gama_cash_position where id=$1',[bank])).rows[0].current_balance),-310);
   assert.equal(Number((await root.query('select sum(debit-credit) balance from accounting_entry_lines where account_id=$1',[suspense])).rows[0].balance),40);
+  // Stable source IDs serialize even when requests use different keys.
+  const structured={financial_account_id:bank,format:'ofx',source_account:'ISOLATED-CONCURRENT',currency:'USD',rows:[{source_uid:'ofx:STRUCT-ONE',value_date:day,reference:'STRUCT-ONE',description:'Concurrent structured source',amount:12}]};
+  const structuredResults=await Promise.all(clients.map(async c=>(await c.query('select public.gama_bank_statement_import($1::jsonb) value',[JSON.stringify({...structured,request_key:uuid()})])).rows[0].value));
+  assert.equal(structuredResults.reduce((n,r)=>n+r.imported,0),1);
+  assert.equal(Number((await root.query("select count(*) n from private.accounting_statement_sources where source_uid='ofx:STRUCT-ONE'")).rows[0].n),1);
   // Inventory review and ledger validation serialize with movement valuation.
   const stockProduct=(await root.query("insert into products(name,purchase_price) values('Concurrent closing stock',99) returning id")).rows[0].id;
   const stockAccount=(await root.query("insert into accounting_accounts(code,name,type,account_type) values('STOCK-RACE','Isolated closing stock','asset','asset_current') returning id")).rows[0].id;
@@ -109,5 +114,17 @@ test('two real sessions cannot double-allocate, activate or post a schedule',{sk
   const postRace=await Promise.all(clients.map(c=>api(c,'gama_accounting_stock19','post',{request_key:postKey,id:stockReview})));assert.deepEqual(postRace[0],postRace[1]);
   assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type='stock_closing' and status='posted'")).rows[0].n),1);
   assert.equal(Number((await root.query('select sum(debit-credit) value from accounting_entry_lines where account_id=$1',[stockAccount])).rows[0].value),96);
+
+  // The same grouped period and review cannot be created or posted twice.
+  // Use July after the earlier scenario locked January through May.
+  const defSource=(await root.query("select private.gama_accounting_book('OD','2026-07-01','Isolated grouped source','manual',null,'QA',$1::jsonb) id",[JSON.stringify([{account_id:chart['6080'],debit:1200},{account_id:chart['3000'],credit:1200}])])).rows[0].id;
+  const defLine=(await root.query('select id from accounting_entry_lines where entry_id=$1 and account_id=$2',[defSource,chart['6080']])).rows[0].id;
+  const defPlan=await rpc(root,'save',{request_key:uuid(),kind:'deferred_expense',name:'Concurrent grouped deferral',journal_id:journal,source_line_id:defLine,amount:'1200',starts_on:'2026-07-01',ends_on:'2027-06-30',deferral_account_id:chart['1200'],computation:'full_months',mode:'grouped'});
+  await rpc(root,'activate',{id:defPlan.id,request_key:uuid()});
+  const defInput={kind:'deferred_expense',journal_id:journal,as_of:'2026-07-31'},defPreview=await api(root,'gama_accounting_deferrals','preview',defInput);
+  const defDrafts=await Promise.allSettled(clients.map(c=>api(c,'gama_accounting_deferrals','generate',{...defInput,revision:defPreview.revision,reason:'Concurrent closing review',request_key:uuid()})));
+  assert.equal(defDrafts.filter(r=>r.status==='fulfilled').length,1);assert.match(defDrafts.find(r=>r.status==='rejected').reason.message,/DEFER_PERIOD_EXISTS/);
+  const defBatch=defDrafts.find(r=>r.status==='fulfilled').value.id,defKey=uuid(),defPosts=await Promise.all(clients.map(c=>api(c,'gama_accounting_deferrals','post',{id:defBatch,request_key:defKey})));
+  assert.deepEqual(defPosts[0],defPosts[1]);assert.equal(Number((await root.query("select count(*) n from accounting_entries where source_type in('deferral_closing','deferral_reversal') and status='posted'")).rows[0].n),2);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

@@ -32,6 +32,14 @@ Workflow de publication : https://github.com/lisciandraj/Pro-manager-Gama/action
 
 Le site doit servir une révision incluant la fusion ci-dessus et les correctifs d’historique/langue avant d’annoncer la disponibilité de l’écran **TMS → Planification et suivi**. La publication reste soumise aux jobs de construction, aux tests métier et aux parcours d’interface existants.
 
+## Vérification finale du 27 octobre 2026
+
+Publication terminée : https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40570867837
+
+Les quatre jobs (métier, interface, compilation et publication) ont réussi. Le site sert le commit `00ceb13d55e351ef3e0e601732700cdca149cb4e`, qui inclut l’intégration et les correctifs. Les cinq actifs TMS contrôlés sont présents et leurs empreintes SHA-256 correspondent aux fichiers testés : `coco-tms-pro.js`, `coco-tms-gps.js`, `gama-tms-tracking.js`, `gama-tms-dispatch.js` et `coco-style-tms-module.css`.
+
+Les 10 tests serveur TMS et 12 tests complémentaires des historiques ont réussi. Les deux migrations TMS sont installées ; aucune ancienne liaison de politique vers l’implémentation d’historique antérieure ne subsiste.
+
 ## Limites à suivre
 
 GPS limité au premier plan de la PWA ; arrêter explicitement en fin de tournée. ETA et distances de repli estimées. Notifications SMS/WhatsApp manuelles conservées. Dépôts multiples et dimensions de capacité supplémentaires absents de ce lot. Fonctions partielles et absentes détaillées dans features.csv.

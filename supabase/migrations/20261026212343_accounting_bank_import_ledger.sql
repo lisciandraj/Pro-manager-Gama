@@ -26,6 +26,8 @@ create index accounting_bank_import_posting_bank on private.accounting_bank_impo
 create index accounting_bank_import_posting_account on private.accounting_bank_import_postings(bank_account_id);
 create index accounting_bank_import_posting_suspense on private.accounting_bank_import_postings(suspense_account_id);
 create index accounting_bank_import_posting_actor on private.accounting_bank_import_postings(created_by);
+-- The existing allocation foreign key is used by the settlement source lookup.
+create index if not exists accounting_match_allocation_source on private.accounting_match_allocations(group_id,kind,source_id);
 alter table private.accounting_bank_import_policies enable row level security;
 alter table private.accounting_bank_import_postings enable row level security;
 revoke all on private.accounting_bank_import_policies,private.accounting_bank_import_postings from public,anon,authenticated,service_role;
@@ -70,7 +72,7 @@ language plpgsql security definer set search_path='' as $$begin
  end if;
  if exists(select 1 from private.accounting_bank_import_postings where id=old.id) and
   (tg_op='DELETE' or new.amount is distinct from old.amount or new.value_date is distinct from old.value_date or new.financial_account_id is distinct from old.financial_account_id or new.status='ignored') then raise exception 'BANK_IMPORT_POSTED_IMMUTABLE';end if;
- return new;
+ if tg_op='DELETE' then return old;end if;return new;
 end $$;
 revoke all on function private.gama_bank_import_capture() from public,anon,authenticated,service_role;
 create trigger zz_bank_import_capture after insert on public.bank_transactions for each row execute function private.gama_bank_import_capture();
@@ -172,19 +174,19 @@ language plpgsql security definer set search_path='' as $$declare r jsonb;begin
  if p_action='bank_list' then r:=jsonb_set(r,'{rows}',coalesce((select jsonb_agg(b||jsonb_build_object('entry_id',p.entry_id,'remaining',private.gama_match_bank_remaining((b->>'id')::uuid)) order by ord) from jsonb_array_elements(r->'rows') with ordinality x(b,ord) left join private.accounting_bank_import_postings p on p.id=(b->>'id')::uuid),'[]'));end if;return r;
 end $$;
 
-insert into private.coco_history_tables(table_name,module_id,label,table_schema,key_column) values
- ('accounting_bank_import_policies','accounting','Contabilización de extractos','private','id'),
- ('accounting_bank_import_postings','accounting','Movimiento bancario contabilizado','private','id');
+insert into private.coco_history_tables(table_name,module_id,label,table_schema,key_column,parent_table,parent_column) values
+ ('accounting_bank_import_policies','accounting','Contabilización de extractos','private','id','financial_accounts','id'),
+ ('accounting_bank_import_postings','accounting','Movimiento bancario contabilizado','private','id','accounting_entries','entry_id');
 create trigger coco_module_history after insert or update or delete on private.accounting_bank_import_policies for each row execute function private.coco_capture_module_event();
 create trigger coco_module_history after insert or update or delete on private.accounting_bank_import_postings for each row execute function private.coco_capture_module_event();
 do $$declare s text;begin
  s:=pg_get_functiondef('private.coco_history_record_visible(text,text,uuid)'::regprocedure);
  execute replace(s,'''accounting_match_postings'')','''accounting_match_postings'',''accounting_bank_import_policies'',''accounting_bank_import_postings'')');
 end $$;
-create function private.coco_bank_import_history_link(p_id text,p_reference text) returns jsonb language plpgsql stable security definer set search_path='' as $$declare eid uuid;begin
+create function private.coco_bank_import_history_link(p_id text,p_reference text) returns jsonb language plpgsql stable security definer set search_path='' as $$declare eid uuid;entry_ref text;begin
  if not private.coco_history_record_visible('accounting_bank_import_postings',p_id,null) then return null;end if;
- select entry_id into eid from private.accounting_bank_import_postings where id=p_id::uuid;
- if eid is null then return null;end if;return jsonb_build_object('module','accounting','id',eid,'reference',p_reference,'action','accounting_entry');
+ select p.entry_id,coalesce(nullif(e.erp_reference,''),e.number) into eid,entry_ref from private.accounting_bank_import_postings p join public.accounting_entries e on e.id=p.entry_id where p.id=p_id::uuid;
+ if eid is null then return null;end if;return jsonb_build_object('module','accounting','id',eid,'reference',entry_ref,'action','accounting_entry');
 end $$;
 revoke all on function private.coco_bank_import_history_link(text,text) from public,anon,service_role;
 grant execute on function private.coco_bank_import_history_link(text,text) to authenticated;

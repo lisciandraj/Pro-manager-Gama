@@ -5869,3 +5869,5 @@ Este movimiento tiene conciliaciones anteriores. Revisa su recuperación antes d
 El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.	Le relevé comptabilisé conserve sa date et son montant. Corrigez par une opération documentée.	A posted statement retains its date and amount. Correct it through a documented transaction.
 El movimiento no está incluido en una configuración activa.	Le mouvement n’entre pas dans une configuration active.	The transaction is outside an active posting policy.
 Tu perfil no permite exportar estos datos.	Votre profil ne permet pas d’exporter ces données.	Your profile cannot export this data.
+Contabilización de extractos	Comptabilisation des relevés	Statement posting
+Movimiento bancario contabilizado	Mouvement bancaire comptabilisé	Bank transaction posted

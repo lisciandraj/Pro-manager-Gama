@@ -103,10 +103,13 @@ test('Statement imports reach the canonical bank and suspense ledger',async t=>{
    await deny(()=>q('delete from bank_transactions where id=$1',[b.id]),/POSTED_IMMUTABLE/);
    await deny(()=>q("update bank_transactions set status='ignored' where id=$1",[b.id]),/POSTED_IMMUTABLE/);
   });
+  await scenario('the posting guard retains legacy deletion semantics for unposted rows',async()=>{
+   const b=await bankRow(30);assert.equal(b.entry_id,null);await db.exec('reset role');await q('delete from bank_transactions where id=$1',[b.id]);assert.equal(await v('select count(*)::integer from bank_transactions where id=$1',[b.id]),0);assert.equal(await cash(),0);
+  });
   await scenario('request binding privileges history and balance totals are preserved',async()=>{
    const input={request_key:uuid(),financial_account_id:ids.bank,journal_id:journal,suspense_account_id:suspense,start_date:day};const a=await api('save',input);assert.deepEqual(await api('save',input),a);
    await deny(()=>api('save',{...input,start_date:'2026-01-01'}),/REQUEST_KEY_CONFLICT/);
-   const b=await bankRow(100);const link=await v("select private.coco_history_typed_link('accounting','accounting_bank_import_postings',$1,'Statement')",[b.id]);assert.equal(link.id,b.entry_id);
+   const b=await bankRow(100);const link=await v("select private.coco_history_typed_link('accounting','accounting_bank_import_postings',$1,'Statement')",[b.id]);assert.equal(link.id,b.entry_id);assert.equal(link.reference,await v('select erp_reference from accounting_entries where id=$1',[b.entry_id]));
    const history=await rpc('coco_module_history','list',{module_id:'accounting',limit:100});assert.ok(JSON.stringify(history).includes(b.entry_id));
    const totals=(await q('select sum(debit)::text debit,sum(credit)::text credit from accounting_entry_lines')).rows[0];assert.equal(totals.debit,totals.credit);
    await deny(()=>q('select * from private.accounting_bank_import_postings'),/permission denied/);

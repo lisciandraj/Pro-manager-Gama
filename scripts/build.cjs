@@ -2,6 +2,9 @@ const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('no
 const {root,manifest,hash,runtimeFiles,runtimeScript,runtimeStyle,compactStyle,validateManifest}=require('./lib/assets.cjs');
 const {secureHtml}=require('./lib/csp.cjs');
 validateManifest();
+// The owned CRDT entry is canonical source too; keep the local vendor bundle,
+// license and integrity reproducible on every normal build.
+execFileSync(process.execPath,[path.join(root,'scripts/build-workhub-vendor.cjs')],{cwd:root,stdio:'inherit'});
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
 for(const {source,output} of manifest.styles){

@@ -1,0 +1,96 @@
+{
+  "commit": "362bbd3353fc02bb39db9d5e1c8592dce8fee68f",
+  "merged_commit": "0263cb443cc7917e160e4e1f76e6b04bcf9c75f1",
+  "unit": {
+    "tests": 640,
+    "passed": 638,
+    "failed": 0,
+    "skipped": 2,
+    "note": "PostgreSQL concurrency checks run in dedicated jobs."
+  },
+  "accounting_browser": {
+    "tests": 106,
+    "passed": 106,
+    "run": 40496922600
+  },
+  "responsive_on_main": {
+    "tests": 102,
+    "passed": 102,
+    "run": 40499366493
+  },
+  "pull_request_workflows": [
+    {
+      "id": 40496922740,
+      "name": "Validate Coco purchases",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922601,
+      "name": "Validate sales concurrency",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922735,
+      "name": "Audit hardening regression",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922602,
+      "name": "Validate Contacts dossier",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922600,
+      "name": "Validate native accounting plans",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922640,
+      "name": "Validate sales workflow",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922650,
+      "name": "Validate Coco architecture",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922643,
+      "name": "Test Agent Coco (read only)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922648,
+      "name": "Validate Coco release",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922620,
+      "name": "Validate product identity and photos",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922673,
+      "name": "Build and publish Coco ERP",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40496922625,
+      "name": "Validate responsive layout",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "publication_workflow": 40499366368
+}

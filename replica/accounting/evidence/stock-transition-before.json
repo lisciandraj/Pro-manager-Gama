@@ -1,0 +1,94 @@
+{
+  "books": 0,
+  "methods": null,
+  "posted_sources": null,
+  "valuation_rows": 0,
+  "automatic_books": 0,
+  "valuation_types": null,
+  "unconfigured_positive_stock": 1756,
+  "movements": 1923,
+  "checked_at": "2026-10-27T11:37:25.534854+00:00",
+  "movement_sources": [
+    {
+      "n": 1745,
+      "reference_type": "adjustment_request"
+    },
+    {
+      "n": 4,
+      "reference_type": "customer_return"
+    },
+    {
+      "n": 3,
+      "reference_type": "inventory_count"
+    },
+    {
+      "n": 25,
+      "reference_type": "purchase_order"
+    },
+    {
+      "n": 47,
+      "reference_type": "sales_delivery"
+    },
+    {
+      "n": 61,
+      "reference_type": "sales_order"
+    },
+    {
+      "n": 1,
+      "reference_type": "supplier_return"
+    },
+    {
+      "n": 37,
+      "reference_type": null
+    }
+  ],
+  "customer_invoices": 17,
+  "supplier_invoices": 6,
+  "supplier_match_lines": 7,
+  "supplier_match_headers": 6,
+  "movements_missing_unit_cost": 39,
+  "supplier_invoices_with_order": 6,
+  "customer_invoice_quantity_links": 42,
+  "cost_epoch": "2026-09-20T18:46:31.759235+00:00",
+  "missing_cost_groups": [
+    {
+      "n": 3,
+      "last_at": "2026-09-11T21:26:00.896293+00:00",
+      "first_at": "2026-09-11T21:26:00.896293+00:00",
+      "reference_type": "inventory_count",
+      "missing_locations": 0
+    },
+    {
+      "n": 6,
+      "last_at": "2026-09-13T18:38:19.829228+00:00",
+      "first_at": "2026-09-11T21:34:10.17443+00:00",
+      "reference_type": "purchase_order",
+      "missing_locations": 0
+    },
+    {
+      "n": 9,
+      "last_at": "2026-09-19T10:27:44.237842+00:00",
+      "first_at": "2026-09-12T13:22:19.202067+00:00",
+      "reference_type": "sales_delivery",
+      "missing_locations": 0
+    },
+    {
+      "n": 8,
+      "last_at": "2026-09-19T10:26:37.771203+00:00",
+      "first_at": "2026-09-12T22:12:02.029693+00:00",
+      "reference_type": "sales_order",
+      "missing_locations": 0
+    },
+    {
+      "n": 13,
+      "last_at": "2026-09-06T10:59:35.896937+00:00",
+      "first_at": "2026-08-26T23:14:35.528519+00:00",
+      "reference_type": null,
+      "missing_locations": 13
+    }
+  ],
+  "invoice_link_coverage": {
+    "sales_without_quantities": 0,
+    "purchases_without_quantities": 0
+  }
+}

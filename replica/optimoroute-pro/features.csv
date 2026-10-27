@@ -1,0 +1,40 @@
+feature,area,priority,original,clone,notes
+Planifier les livraisons du jour,Planning,must,yes,yes,Moteur natif avec capacités et protections existantes
+Affecter plusieurs conducteurs et véhicules,Planning,must,yes,yes,Ressources Flotte et indisponibilités RH
+Respecter poids et volume,Planning,must,yes,yes,Données inconnues bloquantes
+Trois créneaux de service,Contraintes,must,yes,yes,Planning et horaire vérifié et contrôle de départ
+Durée du service,Contraintes,must,yes,yes,Minutes par livraison
+Quatre niveaux de priorité,Contraintes,must,yes,yes,Urgente Alta Normal Baja
+Compétences du conducteur,Contraintes,must,yes,yes,Règles privées et validation serveur
+Équipements du véhicule,Contraintes,must,yes,yes,Règles privées et validation serveur
+Conducteur imposé,Contraintes,must,yes,yes,Le déplacement manuel ne contourne pas la règle
+Horaires individuels et vitesse relative,Ressources,must,yes,yes,Compléments versionnés à Flotte
+Pause et maximum d'arrêts,Ressources,must,yes,yes,Paramètres TMS existants
+Planification sur cinq semaines,Calendrier,must,yes,yes,Période de 1 à 35 jours avec aperçu et reçu idempotent
+Dates flexibles et jours autorisés,Calendrier,must,yes,yes,Report des livraisons non affectées dans les dates autorisées
+Conserver les tournées parties ou manuelles,Calendrier,must,yes,yes,Aucune réécriture des départs
+Réordonner ou déplacer un arrêt,Dispatch,must,yes,yes,Glisser-déposer et boutons téléphone existants
+Application chauffeur avec navigation,Conducteur,must,yes,yes,PWA et Waze existants
+Réception et signature et photo et notes,Conducteur,must,yes,yes,Essais immuables et quantités reçues
+Travailler hors connexion,Conducteur,must,yes,yes,Outbox chiffrée existante avec reprise
+Partager explicitement la position GPS,Suivi,must,yes,yes,Uniquement le chauffeur de la tournée partie
+Position du chauffeur et fraîcheur,Suivi,must,yes,yes,Dispatch autorisé et absence de position explicite
+Traces GPS par tournée,Suivi,must,yes,yes,Les 2000 dernières positions sont consultables
+ETA actualisée depuis une position récente,Suivi,must,yes,yes,Estimation locale sans écraser la prévision analytique
+Lien client de suivi,Client,must,yes,yes,Jeton aléatoire expirant et projection minimale
+Note et commentaire après livraison,Client,must,yes,yes,Avis unique sans possibilité de réécriture
+Équilibrer les arrêts ou le temps,Planning,should,yes,partial,Heuristique native; pas une équivalence de son algorithme propriétaire
+Temps routiers et itinéraire optimisé sur route,Planning,should,yes,partial,Temps vérifiés réutilisés; repli estimé et navigation Waze
+Analytics prévu et réalisé,Analyse,should,yes,partial,OTIF et écarts d'arrivée; pas de kilométrage réel complet sans trace complète
+Export Excel et appareils GPS,Exports,should,yes,yes,CSV ouvrable par Excel et GPX regroupé par tournée
+Historique des tournées et preuves,Analyse,should,yes,yes,Recherche et archives existantes préservées
+API pour les livraisons et la planification,Intégration,should,yes,yes,RPC natives authentifiées; schéma différent de l'API OptimoRoute
+Import de commandes à livrer,Intégration,should,yes,partial,Par les commandes et la préparation Coco; aucune livraison détachée du stock
+Notifications SMS et email automatiques,Client,should,yes,partial,Préparation SMS/WhatsApp existante; envoi manuel conservé et aucun fournisseur activé
+Commandes ou visites récurrentes,Calendrier,should,yes,partial,Modèles de tournée existants et récurrence commerciale; pas de tâches terrain autonomes
+GPS mobile en arrière-plan,Conducteur,should,yes,partial,La PWA arrête le partage lorsque la page est masquée
+Départs et arrivées à plusieurs dépôts,Ressources,could,yes,no,Le dépôt TMS partagé reste la référence de cette version
+Capacités personnalisées supplémentaires,Ressources,could,yes,no,Poids et volume disponibles; dimensions supplémentaires non implémentées
+Début de journée flexible automatique,Ressources,could,yes,no,Horaires individuels fixes configurables
+Réimporter les contacts et données propriétaires,Contenu,could,yes,skip,Données de GAMA uniquement
+Routage poids lourds dangereux et nuitées,Custom,could,yes,skip,Fonctions de l'offre Custom hors Pro

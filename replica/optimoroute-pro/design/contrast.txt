@@ -1,0 +1,9 @@
+  AAA   15.53:1  text                     on bg                   
+  AAA   14.75:1  text                     on surface              
+  AA     5.53:1  text-muted               on bg                   
+  AA     5.25:1  text-muted               on surface              
+  AA     6.45:1  on-accent                on accent               
+  AA     6.45:1  accent                   on bg                   
+  PASS   4.41:1  border-input             on bg                   ui
+
+  7 pairs, 0 failing AA

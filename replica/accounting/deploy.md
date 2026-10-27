@@ -20,6 +20,12 @@ et tester une migration corrective avec les mêmes garanties avant application.
 
 Les futures migrations de stock Odoo 19, multi-sociétés et reprise historique nécessitent une préparation distincte des données et une restauration intégrale attestée. Aucun de ces changements structurels n'est appliqué par cette extension.
 
+## Lot du 27 octobre : relevés au grand livre et journaux
+
+La PR 249 publie `0263cb443cc7917e160e4e1f76e6b04bcf9c75f1`. Les migrations `20261027112820` et `20261027112825`, leurs empreintes et les 23 contrôles historiques sont détaillés dans [results-bank-import.md](results-bank-import.md). La vérification du manifeste et de dix fichiers servis atteste la publication effective ; les contrôles du serveur et ceux du navigateur connecté sont distingués. Aucun compte transitoire ou début de reprise n’est choisi automatiquement. Le retour arrière conserve le schéma et les pièces utilisées, selon [bank-import-ledger.md](bank-import-ledger.md).
+
+Le prochain travail de valorisation repose sur [stock-transition-19.md](stock-transition-19.md). Ce diagnostic est préparatoire, sans migration ni changement de méthode sur les données réelles.
+
 ## Lot du 26 octobre : méthodes et rapprochements partiels
 
 Les trois migrations et leurs empreintes réellement appliquées sont consignées dans [results-partial-matching.md](results-partial-matching.md). La reprise isolée peuplée et les 20 empreintes de production vérifient l’absence de modification de l’historique. Les contrôles HTTP anonymes et SQL des privilèges sont archivés. Les nouveaux paramètres restent inactifs et les nouvelles tables vides après installation.

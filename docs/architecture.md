@@ -174,3 +174,10 @@ Le HTML publié est marqué par le SHA de construction, sans rendre les fichiers
 Les parcours et RPC des extensions commerciales sont décrits dans [les modules métier](modules/business-modules.md). Ils réutilisent les passerelles de ventes, achats et comptabilité ; les nouvelles routes chargent leur code et leurs styles à la demande.
 
 Le portail actif expose aussi `gama_b2b_fulfillment` : le client répond aux propositions de livraison/substitution de son entreprise, puis GAMA applique l’accord avec les contrôles commerciaux existants. La preuve est conservée sur `sales_fulfillment_options`, sans moteur ni stock parallèle. Voir [architecture des accords B2B](../replica/distribution-2026-10-23/portal-architecture.md).
+
+## Espace de travail partagé
+
+La route différée `workhub` relie les discussions et leur contexte aux Projets,
+Knowledge, Documents, CRM et propositions Agent Coco existants. Les lectures
+conservent les RLS d’origine ; les canaux restent réservés à leurs membres.
+Voir [parcours et accès](modules/workhub.md) et [architecture de cette intégration](../replica/macro/architecture.md).

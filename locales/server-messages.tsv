@@ -143,3 +143,5 @@ INVOICE_DEFERRAL_AMOUNT_INVALID	Los importes diferidos deben ser positivos y no 
 INVOICE_DEFERRAL_SOURCE_INVALID	La fuente contable no admite esta distribución; revisa los anticipos y las cuentas.
 INVOICE_DEFERRAL_CONFIG_REQUIRED	Configura primero el diario, la cuenta y el cálculo en Diferidos de facturas.
 INVOICE_DEFERRAL_CONFIG_INVALID	Revisa los parámetros de diferidos de facturas.
+ASSET_METHOD_INVALID	Selecciona un método de depreciación válido.
+ASSET_FACTOR_INVALID	Indica un factor mensual mayor que cero y menor que uno, con seis decimales como máximo.

@@ -16,14 +16,14 @@ features 91.6  (37 counted, must-haves 24 of 24 done)
 - Exports                      100.0  (1 features)
 
 ## Missing, in build order
-- [should] Analyse: Analytics prévu et réalisé, partial  (OTIF et écarts d'arrivée; pas de kilométrage réel complet sans trace complète)
+- [should] Analyse: Analytics prévu et réalisé, partial  (OTIF et écarts d’arrivée ; somme partielle des segments GPS filtrés, minutes observées et segments exclus. Pas de kilométrage routier réel complet.)
 - [should] Calendrier: Commandes ou visites récurrentes, partial  (Modèles de tournée existants et récurrence commerciale; pas de tâches terrain autonomes)
 - [should] Client: Notifications SMS et email automatiques, partial  (Préparation SMS/WhatsApp existante; envoi manuel conservé et aucun fournisseur activé)
 - [should] Conducteur: GPS mobile en arrière-plan, partial  (La PWA arrête le partage lorsque la page est masquée)
 - [should] Intégration: Import de commandes à livrer, partial  (Par les commandes et la préparation Coco; aucune livraison détachée du stock)
-- [should] Planning: Temps routiers et itinéraire optimisé sur route, partial  (Temps vérifiés réutilisés; repli estimé et navigation Waze)
+- [should] Planning: Temps routiers et itinéraire optimisé sur route, partial  (Tracé OSRM facultatif dans l’ordre Coco; temps vérifiés réutilisés et repli estimé; pas de réoptimisation mondiale des temps routiers)
 - [should] Planning: Équilibrer les arrêts ou le temps, partial  (Heuristique native; pas une équivalence de son algorithme propriétaire)
-- [could] Ressources: Début de journée flexible automatique, no  (Horaires individuels fixes configurables)
+- [could] Ressources: Début de journée flexible automatique, no  (Horaires fixes et proposition manuelle fondée sur l’attente initiale; optimisation automatique globale encore absente)
 
 ## Left out on purpose (not scored)
 - Réimporter les contacts et données propriétaires: Données de GAMA uniquement

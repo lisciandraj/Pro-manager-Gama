@@ -11,6 +11,6 @@ FR ES EN et téléphone,interface,must,yes,yes,Identité Coco
 Propositions mail existantes,email,should,yes,partial,Relais existant ; aucune boîte Gmail complète
 Édition CRDT simultanée,docs,could,yes,yes,Texte Markdown privé par canal ; fusion Yjs et versions ; pas éditeur riche ni édition par Agent
 Appels et transcription,calls,could,yes,no,Fournisseur et consentement à définir
-Calendrier et réservation,calendar,could,yes,no,Connecteur à définir
+Calendrier et réservation,calendar,could,yes,partial,"Agenda natif des tâches Projets et activités CRM affectées, sous RLS et fuseau Quito ; ni réservation ni synchronisation externe."
 Tableur collaboratif et canvas,docs,could,yes,no,Chantier distinct
 Agents de code et MCP,agents,could,yes,no,Chantier distinct

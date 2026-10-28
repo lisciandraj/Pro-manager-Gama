@@ -12,7 +12,7 @@ const proMock=`if(fn==='gama_tms_pro'){
  if(args.p_action==='rules_save'){state.rules[p.delivery_id]={...p,version:(state.rules[p.delivery_id]?.version||0)+1};return {data:state.rules[p.delivery_id]}};
  if(args.p_action==='position')return {data:{stored:true}};
  if(args.p_action==='live')return {data:p.route_id?{points:[{lat:-.2,lng:-78.5,observed_at:new Date().toISOString()}]}:{routes:[{...r,total:1,completed:0,position:{lat:-.2,lng:-78.5,observed_at:new Date().toISOString()},deliveries:[{customer:d.customer,status:d.status,eta:new Date().toISOString()}]}]}};
- if(args.p_action==='analytics')return {data:{metrics:{total:1,delivered:0,promised:1,otif:0},feedback:{average:5,count:1},routes:[{...r,planned_km:5,gps_points:3}]}};
+ if(args.p_action==='analytics')return {data:{metrics:{total:1,delivered:0,promised:1,otif:0},feedback:{average:5,count:1},routes:[{...r,planned_km:5,gps_points:3,trace:window.__testTrace??null}]}};
  if(args.p_action==='export')return {data:{dimensions:state.settings.dimensions,items:[{reference:'DEL-1',customer:'=HYPERLINK("https://example.invalid")',address:'Quito & valle',delivery_date:day,route_reference:'R1',stop_number:1,lat:-.2,lng:-78.5,route_points:r.route_points,loads:state.rules[d.id]?.loads}]}};
  }
  `;
@@ -93,4 +93,14 @@ test('optional road geometry respects a saved open end even when the shared depo
  const sent=[];await page.route('https://routing.openstreetmap.de/**',route=>{const points=new URL(route.request().url()).pathname.split('/').at(-1).split(';').map(p=>p.split(',').map(Number));sent.push(points);return route.fulfill({json:{code:'Ok',routes:[{geometry:{coordinates:points},distance:1000,duration:120}]}})});
  const errors=await boot(page,{routePoints:{start:{label:'Own start',lat:-.19,lng:-78.49},end:null},depot:{id:true,depot:'General depot',depot_lat:-.3,depot_lng:-78.6,return_depot:true}});
  await page.locator('#tMapRoads').check();await expect.poll(()=>sent.length).toBe(1);expect(sent[0]).toEqual([[-78.49,-.19],[-78.5,-.2]]);await expect(page.locator('#tMapRoadStatus')).toContainText('Línea continua');expect(errors).toEqual([]);
+});
+
+for(const width of [390,1440])test('GPS analytics distinguishes partial zero traces from absent data '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});const errors=await boot(page);
+ await page.evaluate(()=>{window.__testTrace={observed_km:0,observed_minutes:2,accepted_segments:2,excluded_segments:3};});
+ await page.locator('#tProWorkspace').click();const d=page.locator('.tmsProDialog');await d.locator('[data-pro-tab=analytics]').click();
+ await expect(d).toContainText('0.000');await expect(d).toContainText('2 / 3');await expect(d).toContainText('130 km/h');
+ for(const lang of ['fr','en','es']){await page.evaluate(l=>GamaI18n.setLanguage(l),lang);await d.locator('[data-pro-tab=analytics]').click();await expect(d).toContainText('0.000');}
+ expect((await new AxeBuilder({page}).include('.tmsProDialog').analyze()).violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await d.screenshot({path:test.info().outputPath('tms-observed-gps.png')});
+ await page.evaluate(()=>{window.__testTrace={observed_km:null,observed_minutes:0,accepted_segments:0,excluded_segments:0};});await d.locator('[data-pro-tab=analytics]').click();await expect(d).not.toContainText('0.000');expect(errors).toEqual([]);
 });

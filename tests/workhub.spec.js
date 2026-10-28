@@ -13,12 +13,12 @@ async function boot(page,{mobile=false,role='admin'}={}){
  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[user]);await db.exec('set role authenticated');
  const sql=async(name,a,d={})=>(await db.query(`select public.${name}($1,$2::jsonb) result`,[a,JSON.stringify(d)])).rows[0].result;
  const project=role==='client'?null:(await sql('gama_projects_action','create_project',{name:'Quito deliveries',start_date:'2026-10-01',due_date:'2026-12-31',request_key:uuid()})).project_id;
- await page.exposeFunction('__workhubServer',async(name,args)=>{try{return {data:await sql(name,args.p_action,args.p_data)}}catch(e){return {error:{message:e.message,code:e.code}}}});
+ await page.exposeFunction('__workhubServer',async(name,args)=>{try{return {data:name==='coco_workhub_calendar'?(await db.query('select public.coco_workhub_calendar($1::jsonb) r',[JSON.stringify(args.p_data)])).rows[0].r:await sql(name,args.p_action,args.p_data)}}catch(e){return {error:{message:e.message,code:e.code}}}});
  await page.addInitScript(({role,user})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Coordinator QA'}));localStorage.setItem('gama_language_v1','fr');window.__workhubUid=user;},{role,user});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
  if(mobile)await page.setViewportSize({width:390,height:844});else await page.setViewportSize({width:1440,height:1000});
  await page.goto('/index.html');await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
- await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(name,args)=>['coco_workhub','gama_projects_action','coco_module_history','coco_module_history_events'].includes(name)?window.__workhubServer(name,args):c.rpc(name,args)}};});
+ await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:(name,args)=>['coco_workhub','coco_workhub_calendar','gama_projects_action','coco_module_history','coco_module_history_events'].includes(name)?window.__workhubServer(name,args):c.rpc(name,args)}};});
  return {db,user,colleague,project,errors,sql};
 }
 async function open(page){await page.locator('#mainmenu [data-gama-module=workhub]').click();await expect(page.locator('#whNav')).toBeVisible();await expect(page.locator('#whList')).not.toHaveText('Chargement…');}
@@ -54,4 +54,20 @@ test('mobile, language changes, draft preserved on failed send and cleared at lo
 });
 test('client cannot open the workspace or trigger its RPC',async({page})=>{
  const c=await boot(page,{role:'client'});try{await expect(page.locator('#mainmenu [data-gama-module=workhub]')).toBeHidden();await page.evaluate(()=>ArcRouter.open('workhub'));await expect(page.locator('#workhub')).toHaveCount(0);expect(c.errors).toEqual([]);}finally{await c.db.close();}
+});
+
+for(const mobile of [false,true])test('personal agenda keeps civil dates, pagination and navigation '+(mobile?'mobile':'desktop'),async({page})=>{
+ const c=await boot(page,{mobile});try{
+  await c.db.exec('reset role');
+  await c.db.query("insert into pm_items(project_id,kind,title,owner_id,due_date,status,created_by) select $1,'task','Agenda task '||lpad(n::text,2,'0'),$2,'2026-10-02','todo',$2 from generate_series(1,43)n",[c.project,c.user]);
+  const customer=(await c.db.query("insert into customers(name,address) values('Agenda CRM customer','Quito') returning id")).rows[0].id;await c.db.query("insert into crm_activities(kind,subject,customer_id,owner_id,due_at,status) values('tarea','Agenda CRM midnight',$1,$2,'2026-11-01T04:59:00.123456Z','pendiente')",[customer,c.user]);
+  await c.db.exec('set role authenticated');await open(page);await page.evaluate(()=>{window.Date=new Proxy(Date,{construct(target,args,newTarget){if(typeof args[0]==='string'&&/^\d{4}-\d{2}-\d{2} /.test(args[0]))throw Error('NON_ISO_TIMESTAMP');return Reflect.construct(target,args,newTarget)}})});await page.locator('[data-wh-view=calendar]').click();
+  await page.locator('#whCalendarFrom').fill('2026-10-01');await page.locator('#whCalendarTo').fill('2026-10-31');await page.locator('[data-wh-calendar-show]').click();
+  await expect(page.locator('#whList')).toContainText('1–40 / 44');await page.locator('[data-wh-next]').click();await expect(page.locator('#whList')).toContainText('41–44 / 44');await expect(page.locator('#whList')).toContainText('Agenda CRM midnight');await expect(page.locator('#whList')).toContainText('23:59');
+  await page.locator('[data-wh-row]').first().click();await expect(page.locator('#whDetail')).toContainText('Agenda task');
+  for(const lang of ['es','en','fr']){await page.evaluate(l=>GamaI18n.setLanguage(l),lang);await expect(page.locator('#whCalendarFrom')).toHaveValue('2026-10-01');await expect(page.locator('#whList')).toContainText('44');}
+  await page.locator('#whCalendarTo').fill('2027-10-31');await page.locator('[data-wh-calendar-show]').click();await expect(page.locator('#whNotice')).toContainText('93 jours');await expect(page.locator('#whList')).toContainText('44');
+  const a11y=await new AxeBuilder({page}).include('#workhub').analyze();expect(a11y.violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.screenshot({path:test.info().outputPath('workhub-agenda.png'),fullPage:true});expect(c.errors).toEqual([]);
+ }finally{await c.db.close()}
 });

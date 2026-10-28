@@ -149,3 +149,5 @@ Les tracés routiers facultatifs reprennent aussi les points de départ/fin cons
 ## Proposition de départ plus tardif
 
 L’éditeur d’un horaire vérifié peut proposer de décaler le départ de l’attente enregistrée à la première livraison. La proposition exige des trajets conservés, un horaire sans demande de révision et une tournée non partie ; elle reste dans la journée et avant la fin de service du conducteur. Modifier un trajet désactive la proposition. Le clic ne sauvegarde rien : Enregistrer recalcule les créneaux, pauses et limites au serveur avec les contrôles de version existants. Cette aide ne constitue pas une optimisation automatique globale des heures de départ.
+
+L’analyse avancée affiche aussi les kilomètres GPS observés et les minutes des segments exploitables, ainsi que les segments exclus. Le calcul ne relie pas des positions espacées de plus de cinq minutes, imprécises au-delà de 50 m ou impliquant plus de 130 km/h. La distance additionne des segments directs et ne remplace pas le kilométrage routier total ; une valeur absente reste distincte de zéro. Voir [la livraison du 28 octobre](../../replica/continuation-2026-10-28/README.md).

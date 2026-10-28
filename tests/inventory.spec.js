@@ -93,6 +93,8 @@ for (const width of [1280, 320]) {
     expect(await oil.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
 
     const inspector = page.locator('#ivInspector');
+    await expect(inspector).toBeHidden();
+    await page.locator('[data-iv-open="p2"]').click();
     await inspector.scrollIntoViewIfNeeded();
     await expect(inspector.locator('img')).toHaveAttribute('src', photos[1]);
     await page.locator('[data-iv-open="p1"]').click();
@@ -105,6 +107,7 @@ for (const width of [1280, 320]) {
     const before = await page.evaluate(() => window.__DB.__calls.filter(c => c.select === 'id,photo_data').length);
     await page.fill('#ivBuscar', 'B100');
     await expect(page.locator('[data-iv-open="p2"] img')).toHaveAttribute('src', photos[1]);
+    await page.locator('[data-iv-open="p2"]').click();
     await inspector.scrollIntoViewIfNeeded();
     await expect(inspector.locator('img')).toHaveAttribute('src', photos[1]);
     const calls = await page.evaluate(() => window.__DB.__calls.filter(c => c.table === 'products'));

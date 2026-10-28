@@ -167,6 +167,8 @@ test.describe('Inventario V2 — existencias, reservas y previsión', () => {
       [...document.querySelectorAll('#ivTabla th')].map(t => t.textContent.replace(/[⇅↑↓]/g,'').trim()));
     for (const c of ['Stock físico', 'Reservado', 'Disponible', 'Estado'])
       expect(cabeceras, 'falta la columna ' + c).toContain(c);
+    await expect(page.locator('#ivInspector')).toBeHidden();
+    await page.locator('[data-iv-open="p1"]').click();
     await expect(page.locator('#ivInspector')).toContainText('Entrante');
     await expect(page.locator('#ivInspector')).toContainText('Previsto');
 

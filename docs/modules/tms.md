@@ -144,3 +144,8 @@ l’arrêt des lectures, le consentement routier et le repli en cas de panne.
 
 
 Les tracés routiers facultatifs reprennent aussi les points de départ/fin conservés par chaque nouvelle tournée. Une fin ouverte ne reçoit pas le retour général. L’activation de l’option transmet ces coordonnées de lieux au même fournisseur avec celles des livraisons ; les positions GPS observées du chauffeur restent exclues.
+
+
+## Proposition de départ plus tardif
+
+L’éditeur d’un horaire vérifié peut proposer de décaler le départ de l’attente enregistrée à la première livraison. La proposition exige des trajets conservés, un horaire sans demande de révision et une tournée non partie ; elle reste dans la journée et avant la fin de service du conducteur. Modifier un trajet désactive la proposition. Le clic ne sauvegarde rien : Enregistrer recalcule les créneaux, pauses et limites au serveur avec les contrôles de version existants. Cette aide ne constitue pas une optimisation automatique globale des heures de départ.

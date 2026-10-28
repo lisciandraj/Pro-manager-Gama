@@ -35,6 +35,6 @@ Commandes ou visites récurrentes,Calendrier,should,yes,partial,Modèles de tour
 GPS mobile en arrière-plan,Conducteur,should,yes,partial,La PWA arrête le partage lorsque la page est masquée
 Départs et arrivées à plusieurs dépôts,Ressources,could,yes,yes,Départ propre au conducteur; retour général ou au départ ou lieu distinct ou fin ouverte; points conservés par tournée
 Capacités personnalisées supplémentaires,Ressources,could,yes,yes,Jusqu’à quatre dimensions communes; charges cumulées et inconnues bloquantes; planning et déplacements et départs individuels/groupés
-Début de journée flexible automatique,Ressources,could,yes,no,Horaires individuels fixes configurables
+Début de journée flexible automatique,Ressources,could,yes,no,Horaires fixes et proposition manuelle fondée sur l’attente initiale; optimisation automatique globale encore absente
 Réimporter les contacts et données propriétaires,Contenu,could,yes,skip,Données de GAMA uniquement
 Routage poids lourds dangereux et nuitées,Custom,could,yes,skip,Fonctions de l'offre Custom hors Pro

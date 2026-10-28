@@ -53,3 +53,15 @@ Reprise commune : migration des ressources `20261027225653` installée et SQL
 exact archivé ; empreintes historiques inchangées, sans modifier les données
 de tournée. L'interface de ce complément est intégrée à main par #259 ; la reprise
 commune conserve son code et vérifiera le commit servi après sa publication. Voir [l'état consolidé](../integration-2026-10-27/README.md).
+
+
+## Aide au départ différé · 28 octobre 2026
+
+La PR [#264](https://github.com/lisciandraj/Pro-manager-Gama/pull/264) ajoute une proposition manuelle dans l’éditeur d’horaire vérifié. Le clic prépare une heure plus tardive, sans sauvegarde ni recalcul automatique global. La validation serveur existante recalcule les contraintes lors de la confirmation ; aucune migration ni écriture métier de production n’est exécutée par cette installation.
+
+Révision testée : `a6c51778acc4b8ab58a7b2937762ff0849cacfbf`, arbre `9ccf8afe8d70a3382eeec02edf502b7f7dc4c64b`. CI [40717096611](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40717096611) réussie : 728 tests de validation (726 réussis, deux conditionnels ignorés), 27 parcours Coco Clair et 65 parcours TMS, dont six nouveaux cas. Les neuf tests serveur dispatch/trajets vérifiés sont aussi réussis localement. Le navigateur local n’a pas pu être téléchargé ; les résultats d’interface proviennent de la CI.
+
+Fusion : `bf7445b198b6f8958e08ffcbf9d80a357220d0f8`. Publication réussie dans [40719428685](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40719428685) : construction, métier, menus et déploiement sont tous réussis. La présentation Coco Clair actuelle et les fonctionnalités précédentes sont conservées.
+
+
+Vérification HTTP indépendante : `coco-build.json` sert `bf7445b198b6f8958e08ffcbf9d80a357220d0f8` et le run `40719428685`. Le manifeste actif référence le nouveau `gama-tms-execution.js` ; son empreinte SHA-256 correspond exactement au fichier testé et le contrôle `data-suggest-start` est présent. Accès : ouvrir l’horaire d’une tournée contenant une attente vérifiée à sa première livraison. Cette proposition reste à confirmer ; le démarrage flexible automatique global demeure absent de la matrice.

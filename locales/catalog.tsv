@@ -5883,3 +5883,5 @@ Revisa los parámetros de diferidos de facturas.	Vérifiez les paramètres des d
 Diferidos de facturas	Différés de factures	Invoice deferrals
 Inicio del diferido	Début du différé	Deferral start
 Fin del diferido	Fin du différé	Deferral end
+Selecciona un método de depreciación válido.	Sélectionnez une méthode d’amortissement valide.	Select a valid depreciation method.
+Indica un factor mensual mayor que cero y menor que uno, con seis decimales como máximo.	Indiquez un facteur mensuel supérieur à zéro et inférieur à un, avec six décimales au plus.	Enter a monthly factor greater than zero and less than one, with up to six decimal places.

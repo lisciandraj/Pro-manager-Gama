@@ -14,3 +14,5 @@ Les points partiels et absents figurent dans `features.csv`. Ce lot ne constitue
 - Intégration de #258 : actualisation de carte, positions récentes, routes colorées et tracé routier facultatif conservés. Les coordonnées de départ/fin viennent de l’instantané ; aucune arrivée générale ajoutée aux fins ouvertes. 59 parcours navigateur et 24 contrôles d’architecture réussis.
 
 - 2026-10-28 · Proposition de départ différé dans l’éditeur d’horaire vérifié, à partir de l’attente de la première livraison. Validation serveur explicite conservée. Optimisation automatique globale toujours absente.
+
+28 octobre — Analyse des traces : segments GPS filtrés (précision, intervalle, vitesse), kilomètres directs et minutes observées, exclusions visibles. Couverture routière complète toujours partielle. Voir [la reprise commune](../continuation-2026-10-28/README.md).

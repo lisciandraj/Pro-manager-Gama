@@ -44,3 +44,5 @@ installée, SQL exact archivé, fonction documentaire v1 et Agent Coco v8 actifs
 avec JWT conservé et sources identiques. Les valeurs historiques, politiques
 et captures sont vérifiées. L'interface est autorisée à la publication le 28 octobre ; elle attend
 les contrôles CI et la vérification de la version servie ; voir `replica/integration-2026-10-27/README.md`.
+
+28 octobre — Agenda personnel natif : Projets et activités CRM ouvertes affectées, dates Quito, période bornée et pagination, permissions des sources conservées. Calendrier externe et réservation restent absents. Voir [la reprise commune](../continuation-2026-10-28/README.md).

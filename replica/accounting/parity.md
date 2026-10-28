@@ -1,8 +1,8 @@
-## Parity: 66.2 / 100
+## Parity: 67.1 / 100
 
-features 66.2  (108 counted, must-haves 55 of 108 done)
+features 67.1  (108 counted, must-haves 56 of 108 done)
 
-Not shippable yet: 53 must-have features are not done.
+Not shippable yet: 52 must-have features are not done.
 
 ## By area, weakest first
 - M                             33.3  (6 features)
@@ -15,8 +15,8 @@ Not shippable yet: 53 must-have features are not done.
 - D                             70.0  (5 features)
 - N                             70.0  (5 features)
 - A                             75.0  (2 features)
-- H                             75.0  (14 features)
 - C                             77.8  (9 features)
+- H                             82.1  (14 features)
 - F                             87.5  (12 features)
 - G                             91.7  (6 features)
 
@@ -27,7 +27,6 @@ Not shippable yet: 53 must-have features are not done.
 - [must] D: Autofacturation fournisseur, no  (Analyse officielle du 26 octobre terminée. Parcours natif et choix du canal restent à développer ; Peppol dépend d’un accès autorisé. Aucune émission SRI ajoutée.)
 - [must] E: Chèques SEPA NACHA prélèvements et lots, no  (Formats documentés et procédures applicables à inventorier sans supposer la banque compatible)
 - [must] E: Compensation de tiers autorisée, no  (Lettrage compensé avec mêmes droits et contrôles de solde)
-- [must] H: Amortissement dégressif et dégressif puis linéaire, no  (Méthodes et transitions documentées non implémentées)
 - [must] H: Modèles et groupes d'immobilisations, no  (Réutilisation des paramètres et groupes à développer)
 - [must] I: Budgets analytiques révisions et workflow, no  (Brouillon ouvert révisé et révisions distinctes à implémenter)
 - [must] I: Engagements achats non facturés dans les budgets, no  (Ajouter les commandes confirmées au réalisé sans doubler la part facturée)

@@ -25,7 +25,7 @@ Lien client de suivi,Client,must,yes,yes,Jeton aléatoire expirant et projection
 Note et commentaire après livraison,Client,must,yes,yes,Avis unique sans possibilité de réécriture
 Équilibrer les arrêts ou le temps,Planning,should,yes,partial,Heuristique native; pas une équivalence de son algorithme propriétaire
 Temps routiers et itinéraire optimisé sur route,Planning,should,yes,partial,Tracé OSRM facultatif dans l’ordre Coco; temps vérifiés réutilisés et repli estimé; pas de réoptimisation mondiale des temps routiers
-Analytics prévu et réalisé,Analyse,should,yes,partial,OTIF et écarts d'arrivée; pas de kilométrage réel complet sans trace complète
+Analytics prévu et réalisé,Analyse,should,yes,partial,"OTIF et écarts d’arrivée ; somme partielle des segments GPS filtrés, minutes observées et segments exclus. Pas de kilométrage routier réel complet."
 Export Excel et appareils GPS,Exports,should,yes,yes,CSV avec charges et unités; GPX avec points de départ et retour enregistrés
 Historique des tournées et preuves,Analyse,should,yes,yes,Recherche et archives existantes préservées
 API pour les livraisons et la planification,Intégration,should,yes,yes,RPC natives authentifiées; schéma différent de l'API OptimoRoute

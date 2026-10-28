@@ -1,0 +1,13 @@
+{
+  "version": "20261028182357",
+  "name": "coco_three_workstreams",
+  "file": "20261028175918_coco_three_workstreams.sql",
+  "statement_count": 1,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "a095d8dc9b99518fd2df94735a1d5affc5c4afd7bf2828caa2fe95dd9f3e973e",
+  "bytes": 8197,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-28",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed schema-only SQL. All 17 tracked historical table fingerprints unchanged. Never replay in production."
+}

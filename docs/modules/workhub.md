@@ -106,3 +106,7 @@ de version. La saisie est limitée à 100 000 caractères, 200 000 octets UTF-8 
 limite d’état avant la limite de texte. Le statut demande alors un export vers
 un nouveau document. Les limites et contrôles sont détaillés dans
 [l’architecture](../../replica/macro/collaborative-documents.md).
+
+## Agenda personnel
+
+L’onglet Agenda rassemble les tâches Projets et les activités CRM ouvertes affectées au compte connecté. La période est limitée à 93 jours et les résultats sont paginés. Les dates civiles des tâches sont préservées ; les activités utilisent le fuseau ERP. Les droits d’accès restent ceux des modules sources, vérifiés à chaque requête par `coco_workhub_calendar`. Il s’agit d’une lecture des travaux natifs ; les réservations et calendriers externes ne sont pas synchronisés.

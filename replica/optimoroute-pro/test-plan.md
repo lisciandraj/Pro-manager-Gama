@@ -26,3 +26,6 @@ F02-H2 : départ et arrivée distincts conservés sur chaque tournée ; le retou
 F06-H2 : CSV avec unités et charges nulles explicites, GPX avec points de départ et fin. Interface 390 px : changement au clavier du départ propre, coordonnées obligatoires uniquement lorsqu’elles sont visibles, contrôle axe du formulaire, absence de débordement de page. La carte et Waze distinguent les deux lieux.
 
 Migration des ressources : tournées historiques et définition de l’autorisation d’historique inchangées ; helpers privés non exécutables par anon ou le conducteur.
+
+
+F02-H3 · Départ différé : première attente vérifiée de 35 minutes, proposition de 09:45 à 10:20, absence d’écriture avant confirmation, puis sauvegarde par la façade d’horaire existante. F02-N3 : proposition absente si horaire à revoir, fin de service dépassée, tournée partie ou livraison déjà partie individuellement ; une édition du trajet désactive le bouton. Six scénarios d’interface couvrent cette tranche.

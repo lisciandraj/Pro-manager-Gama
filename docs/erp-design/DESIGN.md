@@ -231,3 +231,5 @@ TMS place les arrêts et la préparation à gauche de la vraie carte quotidienne
 - **Don't** forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.
 - **Don't** transformer une valeur inconnue ou un échec de chargement en zéro ou succès.
 - **Don't** appliquer ce contrat au site public ni modifier son autorité visuelle racine.
+
+La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.

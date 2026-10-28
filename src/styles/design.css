@@ -57,7 +57,7 @@
  body[data-app=coco-erp] .cocoFollowup>summary{font-weight:600;background:var(--coco-surface)}
  body[data-app=coco-erp] .cocoFollowupBubble{border-radius:12px;box-shadow:none}
  body.cocoWorkbench{--arc-topbar-h:64px;--arc-workspace-radius:8px;--arc-workspace-title:22px;--coco-panel-padding:24px;background:var(--coco-surface)}
- body.cocoWorkbench .arcTopbar{height:64px;min-height:64px;padding-inline:20px;gap:8px;border-color:var(--coco-line)}
+ body.cocoWorkbench .arcTopbar{height:64px;min-height:64px;padding-inline:calc(20px + var(--arc-safe-l)) calc(20px + var(--arc-safe-r));gap:8px;border-color:var(--coco-line)}
  body.cocoWorkbench .cocoModuleContext{font-size:22px;font-weight:600;max-width:270px;letter-spacing:-.025em}
  body.cocoWorkbench .arcContent{padding:28px calc(32px + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(32px + var(--arc-safe-l));background:var(--coco-surface)}
  body.cocoWorkbench .arcContent>.wrap{margin:0;padding:0;width:100%}
@@ -96,7 +96,7 @@
  body.cocoWorkbench .arcContent .gamaSortScope{font-size:11px;font-weight:400}
  body.cocoWorkbench .arcContent :is(.gqScroll,.gsScroll,.gaScroll,.gfScroll,.grScroll,.tmsTableScroll,.gamaTableBox,.arcTableWrap){border-color:var(--coco-line);border-radius:0;box-shadow:none}
  body.cocoWorkbench .arcContent table:not([data-gama-view=cards]){border-collapse:collapse;background:white;border:0}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td){border:0;border-bottom:1px solid var(--coco-row-line);padding:12px 16px;vertical-align:middle}
+ body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(th,td){border:0!important;border-bottom:1px solid var(--coco-row-line)!important;padding:12px 16px;vertical-align:middle}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;color:var(--coco-muted);height:44px}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) td{font-size:14px;height:61px;background:white}
  body.cocoWorkbench .arcContent #audit table:not([data-gama-view=cards]) :is(th,td){padding-inline:10px}
@@ -137,7 +137,7 @@
  body[data-app=coco-erp] #gamaCloudLogin{padding:16px}body[data-app=coco-erp] #gamaCloudLogin .box{padding:24px 20px}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){grid-template-columns:minmax(0,1fr);gap:10px;min-height:0}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gp14Kpis>div)>span,body[data-app=coco-erp] .arcContent :is(.gaKpis>.gaCard,.gfKpis>.gfCard)>small{grid-column:1}
- body.cocoWorkbench .arcTopbar{height:60px;min-height:60px;padding-inline:8px}
+ body.cocoWorkbench .arcTopbar{height:60px;min-height:60px;padding-inline:calc(8px + var(--arc-safe-l)) calc(8px + var(--arc-safe-r))}
  body.cocoWorkbench .arcContent{padding:20px calc(16px + var(--arc-safe-r)) calc(96px + var(--arc-safe-b)) calc(16px + var(--arc-safe-l))}
  body.cocoWorkbench .cocoModuleContext{font-size:18px;max-width:none}
  body.cocoWorkbench .arcContent h2{font-size:23px}

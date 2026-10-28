@@ -64,3 +64,18 @@ test('phone records keep named fields while editable business lines retain a tab
  await expect(page.locator('#clair-lines table')).toHaveAttribute('data-gama-view','table');
  await page.locator('#clair-lines input[type=number]').fill('7');await expect(page.locator('#clair-lines input[type=number]')).toHaveValue('7');
 });
+
+test('purchases opens with the list and keeps an unfinished draft inside its disclosure',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>ArcRouter.open('gamaPurchasesV14'));
+ await expect(page.locator('#gp14Orders')).toBeVisible();await expect(page.locator('#gp14Supplier')).toBeHidden();
+ expect((await page.locator('#gp14Orders').boundingBox()).y).toBeLessThan(844);
+ await page.locator('#gp14Editor>summary').click();await page.locator('#gp14SupplierRef').fill('Brouillon à conserver');
+ await page.locator('#gp14Editor>summary').click();await expect(page.locator('#gp14Orders')).toBeVisible();
+ await page.locator('#gp14Editor>summary').click();await expect(page.locator('#gp14SupplierRef')).toHaveValue('Brouillon à conserver');
+});
+for(const module of ['contracts','expenses'])test(module+' failed load shows a localized retry without runtime diagnostics',async({page})=>{
+ await boot(page);await page.evaluate(id=>ArcRouter.open(id),module);
+ const root=page.locator('#'+module);await expect(root.locator('[role=alert]')).toHaveText('Le chargement des données a échoué. Réessayez.');
+ await root.locator('[data-retry]').click();await expect(root.locator('[role=alert]')).toHaveText('Le chargement des données a échoué. Réessayez.');
+ await expect(root).not.toContainText('Cannot read');
+});

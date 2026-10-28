@@ -50,6 +50,7 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
     await expect(page.locator('#gp14Draft')).toContainText('Papel A4');
     await expect(page.locator('#gp14Supplier')).toHaveValue('sup1');
 
+    if(!await page.locator('#gp14Editor').evaluate(e=>e.open))await page.locator('#gp14Editor>summary').click();
     await page.click('#gp14Save');
 
     await expect(page.locator('#gp14Msg')).toContainText('Pedido creado');
@@ -75,6 +76,7 @@ test.describe('Compras: low-stock suggestion -> purchase order', () => {
     // El aviso ya no es un alert() del navegador sino el aviso propio de la
     // aplicación (gama-toast.js). Lo que se comprueba es lo mismo: que avisa,
     // y con qué.
+    if(!await page.locator('#gp14Editor').evaluate(e=>e.open))await page.locator('#gp14Editor>summary').click();
     await page.click('#gp14Save');
     await expect(page.locator('#gamaToasts')).toContainText('Selecciona un proveedor.');
   });
@@ -118,6 +120,7 @@ test.describe('Compras: el proveedor se pone solo desde la ficha del producto', 
       window.gamaShowPurchases();
     }, productos);
     await page.waitForTimeout(700);
+    await page.locator('#gp14Editor>summary').click();
   }
 
   const PRODUCTOS = [

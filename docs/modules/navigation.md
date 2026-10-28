@@ -67,3 +67,5 @@ L’import de produits accepte jusqu’à 3 000 lignes par fichier, pour la simu
 
 Le groupe Résumé comprend aussi [Espace de travail](workhub.md) : réception
 commune, discussions privées et liens vers les tâches et documents autorisés.
+
+La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.

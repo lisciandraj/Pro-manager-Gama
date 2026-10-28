@@ -224,3 +224,5 @@ Application des fondations HIG au web, sans imposer les conventions d’une appl
 - `lists-and-tables.md` : surfaces opaques, séparateurs horizontaux lisibles et défilement des grands tableaux dans leur conteneur.
 
 Les tuiles carrées (neuf colonnes sur grand écran, trois sur téléphone), favoris et icônes restent en place. L’historique de module est progressif ; celui du dossier sélectionné reste ouvert sur PC et le central Agent Coco reste dans le flux. Le site B2B et les documents imprimés ont leurs propres styles. Le mode sombre complet n’est pas livré par cette évolution : les modules historiques nécessitent un audit dédié avant activation.
+
+La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.

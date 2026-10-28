@@ -3,7 +3,7 @@
 const E=window.ArcUI.esc,NS='http://www.w3.org/2000/svg',GRID=256*.02/360;
 const project=(lng,lat)=>{const s=Math.sin(Math.max(-85,Math.min(85,lat))*Math.PI/180);return [(lng+180)/360*256,(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256]};
 const path=coordinates=>coordinates.map((p,i)=>(i?'L':'M')+project(...p).map(n=>n.toFixed(6)).join(',')).join('');
-let geography,streetNetwork,streetPromise;
+let geography,streetNetwork,streetPromise,streetFailure;
 function decodeStreets(data){
  const bytes=atob(data.packed),roads=[],index=new Map();let cursor=0;
  const uint=()=>{let value=0,shift=0,byte;do{byte=bytes.charCodeAt(cursor++);if(!Number.isFinite(byte)||shift>28)throw Error('INVALID_MAP_SNAPSHOT');value+=(byte&127)*2**shift;shift+=7}while(byte&128);return value};
@@ -20,10 +20,13 @@ function decodeStreets(data){
  if(cursor!==bytes.length)throw Error('INVALID_MAP_SNAPSHOT');
  return {roads,index};
 }
+// A resize/background redraw must not retry a failed optional asset.
+// The next map gesture clears the failure and can request it again.
 function streets(){
  if(streetNetwork)return Promise.resolve(streetNetwork);
+ if(streetFailure)return Promise.reject(streetFailure);
  if(!streetPromise)streetPromise=(window.CocoQuitoMapData?Promise.resolve():window.ArcLoadScript('gama-tms-quito-map-data.js',{validate:()=>!!window.CocoQuitoMapData}))
-  .then(()=>streetNetwork=decodeStreets(window.CocoQuitoMapData)).catch(error=>{streetPromise=null;throw error});
+  .then(()=>streetNetwork=decodeStreets(window.CocoQuitoMapData)).catch(error=>{streetPromise=null;streetFailure=error;throw error});
  return streetPromise;
 }
 function visibleStreets(left,top,right,bottom){
@@ -114,17 +117,18 @@ function create(host,{points=[],routes=[],vehicles=[],onSelect=()=>{},view=null}
   svg.querySelector('[data-map-scale]').innerHTML=`<path d="M${sx},${sy-4*unit}v${4*unit}h${length*unit}v${-4*unit}" stroke="#42586b" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"/><text x="${sx}" y="${sy-7*unit}" font-size="${10*unit}" fill="#42586b">${distance>=1000?distance/1000+' km':distance+' m'}</text>`;
  }
  function fit(){measure();autoFit=true;selected=null;if(!positioned.length){center=project(-78.4678,-.1807);zoom=12}else{const xs=positioned.map(p=>p.p[0]),ys=positioned.map(p=>p.p[1]);center=[(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];zoom=Math.min(15,Math.max(2,Math.log2(Math.min(Math.max(80,width-90)/Math.max(.00001,Math.max(...xs)-Math.min(...xs)),Math.max(80,height-90)/Math.max(.00001,Math.max(...ys)-Math.min(...ys))))))}draw()}
- function changeZoom(delta){autoFit=false;zoom=Math.min(19,Math.max(2,zoom+delta));draw()}
- function focus(id){if(id==='all')return fit();autoFit=false;selected=id;center=id==='__quito'?project(-78.4678,-.1807):positioned.find(p=>p.id===id)?.p||center;zoom=id==='__quito'?12:16;draw()}
- svg.onclick=e=>{const pin=e.target.closest('[data-map-pin]');if(pin){selected=pin.dataset.mapPin;draw();onSelect(selected)}};
- svg.onkeydown=e=>{const pin=e.target.closest('[data-map-pin]');if(pin&&['Enter',' '].includes(e.key)){e.preventDefault();onSelect(pin.dataset.mapPin);return}if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(['+','=','-'].includes(e.key))changeZoom(e.key==='-'?-1:1);else{autoFit=false;const n=60*2**-zoom;center=[center[0]+(e.key==='ArrowRight'?n:e.key==='ArrowLeft'?-n:0),center[1]+(e.key==='ArrowDown'?n:e.key==='ArrowUp'?-n:0)];draw()}}};
+ function retryStreets(){streetFailure=null;requested=false}
+ function changeZoom(delta){retryStreets();autoFit=false;zoom=Math.min(19,Math.max(2,zoom+delta));draw()}
+ function focus(id){retryStreets();if(id==='all')return fit();autoFit=false;selected=id;center=id==='__quito'?project(-78.4678,-.1807):positioned.find(p=>p.id===id)?.p||center;zoom=id==='__quito'?12:16;draw()}
+ svg.onclick=e=>{retryStreets();const pin=e.target.closest('[data-map-pin]');if(pin){selected=pin.dataset.mapPin;draw();onSelect(selected)}};
+ svg.onkeydown=e=>{const pin=e.target.closest('[data-map-pin]');if(pin&&['Enter',' '].includes(e.key)){e.preventDefault();onSelect(pin.dataset.mapPin);return}if(['+','=','-','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();retryStreets();if(['+','=','-'].includes(e.key))changeZoom(e.key==='-'?-1:1);else{autoFit=false;const n=60*2**-zoom;center=[center[0]+(e.key==='ArrowRight'?n:e.key==='ArrowLeft'?-n:0),center[1]+(e.key==='ArrowDown'?n:e.key==='ArrowUp'?-n:0)];draw()}}};
  const snapshot=()=>{const p=[...pointers.values()];return p.length===1?{point:p[0],center:[...center]}:p.length===2?{distance:Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),zoom}:null};
- svg.onpointerdown=e=>{if(e.target.closest('[data-map-pin]'))return;svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});gesture=snapshot()};
+ svg.onpointerdown=e=>{retryStreets();if(e.target.closest('[data-map-pin]'))return;svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});gesture=snapshot()};
  svg.onpointermove=e=>{if(!pointers.has(e.pointerId)||!gesture)return;autoFit=false;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1&&gesture.point){center=[gesture.center[0]-(e.clientX-gesture.point.x)*2**-zoom,gesture.center[1]-(e.clientY-gesture.point.y)*2**-zoom];queueDraw()}else if(pointers.size===2&&gesture.distance){const p=[...pointers.values()];zoom=Math.min(19,Math.max(2,gesture.zoom+Math.log2(Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y)/gesture.distance)));queueDraw()}};
  svg.onpointerup=svg.onpointercancel=e=>{pointers.delete(e.pointerId);gesture=snapshot()};
  svg.addEventListener('wheel',e=>{if(e.ctrlKey||document.activeElement===svg){e.preventDefault();changeZoom(e.deltaY>0?-.5:.5)}},{passive:false});
  if(view&&Array.isArray(view.center)&&view.center.every(Number.isFinite)&&Number.isFinite(view.zoom)){center=[...view.center];zoom=view.zoom;selected=view.selected;autoFit=view.autoFit;if(autoFit)fit();else draw()}else fit();
- return {fit,focus,zoom:changeZoom,resize:()=>autoFit?fit():draw(),snapshot:()=>({center:[...center],zoom,selected,autoFit}),
+ return {fit:()=>{retryStreets();fit()},focus,zoom:changeZoom,resize:()=>autoFit?fit():draw(),snapshot:()=>({center:[...center],zoom,selected,autoFit}),
   update:data=>{positioned=positionedPoints(data.points||[]);routes=data.routes||[];vehicles=data.vehicles||[];onSelect=data.onSelect||onSelect;if(autoFit)fit();else draw()},
   destroy:()=>{cancelAnimationFrame(frame);pointers.clear();svg.remove()}};
 }

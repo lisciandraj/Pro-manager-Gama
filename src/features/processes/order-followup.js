@@ -121,7 +121,7 @@ async function mount(host,base,{inline=false}={}){
  host.prepend(panel);const compact=window.matchMedia(inline?'not all':'(max-width: 900px)'),summary=panel.querySelector(':scope>summary'),viewport=window.visualViewport;
  const s={panel,base,host,epoch,context:null,items:new Map(),proposals:new Map(),portraits:{},offset:0,filter:'all',stage:0,loading:false,disposed:false,composer:null,serial:0};active.add(s);
  const fitViewport=()=>{if(!compact.matches)return;for(const element of [panel,s.dialog])if(element){element.style.setProperty('--coco-followup-vh',`${viewport?.height||window.innerHeight}px`);element.style.setProperty('--coco-followup-offset',`${viewport?.offsetTop||0}px`)}};
- const mobileOpen=open=>{panel.classList.toggle('is-mobile-open',open);panel.open=open;summary.setAttribute('aria-label',open?W('close'):title);if(open)fitViewport()};
+ const mobileOpen=open=>{desktopOpen=open;panel.classList.toggle('is-mobile-open',open);panel.open=open;summary.setAttribute('aria-label',open?W('close'):title);if(open)fitViewport()};
  let desktopOpen=inline||(!base.module_id&&!!base.order_id);
  panel.addEventListener('toggle',()=>{if(!compact.matches)desktopOpen=panel.open});
  const resize=()=>{panel.classList.remove('is-mobile-open');panel.open=inline||(!compact.matches&&desktopOpen);summary.removeAttribute('aria-label');fitViewport()};

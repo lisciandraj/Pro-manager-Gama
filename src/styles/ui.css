@@ -453,6 +453,13 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=cards]){overflow-x:visible!important}
 }
 @media print{.gamaTableViews{display:none!important}.gamaTableViewport{overflow:visible!important}}
+@media screen and (max-width:760px){
+ body table.gamaCards[data-gama-view=cards]>tbody{gap:0;padding:0}
+ body table.gamaCards[data-gama-view=cards] tr:not([data-gama-head]){border:0!important;border-bottom:1px solid var(--coco-row-line,var(--arc-line))!important;border-radius:0;box-shadow:none;padding:20px 0!important}
+ body table.gamaCards[data-gama-view=cards] tr>td{font-size:16px!important;line-height:1.5}
+ body table.gamaCards[data-gama-view=cards] td::before{font-size:12px;font-weight:400}
+ body table.gamaCards[data-gama-view=cards] td button{min-height:44px}
+}
 
 /* Keep real column widths on phones; the viewport, rather than text, shrinks. */
 @media screen and (max-width:1024px){

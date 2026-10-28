@@ -53,17 +53,18 @@ for(const width of [1440,390])test(`Coco reference surfaces fit at ${width}px an
  const bar=page.locator('.arcTopbar');
  await expect(bar).toHaveCSS('background-color','rgb(255, 255, 255)');
  const bounds=await bar.boundingBox();
- expect(bounds.height).toBe(60);expect(bounds.width).toBe(width);expect(bounds.y).toBe(0);
+ expect(bounds.height).toBe(width>760?64:60);expect(bounds.width).toBe(width);expect(bounds.y).toBe(0);
  for(const selector of ['.arcBurger','.arcAvatar',...(width>=760?['.arcSearch input']:[])]){
   const control=bar.locator(selector);await expect(control).toBeVisible();
   const box=await control.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);
-  expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(60);
+  expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(bounds.height);
  }
  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBe(0);
  await page.screenshot({path:`test-results/gama-menu-${width}.png`,fullPage:true});
  await page.evaluate(()=>window.GamaOpenHR());
- await expect(page.locator('#hrPhoto')).toBeVisible();
+ await expect(page.locator('#hrPhoto')).toBeHidden();
+ await page.locator('#hrEmployeeEditor>summary').click();await expect(page.locator('#hrPhoto')).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)).toBe(0);
  await page.screenshot({path:`test-results/gama-hr-${width}.png`,fullPage:true});
 });

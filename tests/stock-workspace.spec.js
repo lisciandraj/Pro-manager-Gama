@@ -80,7 +80,7 @@ for(const width of [1024,1440])test(`Stock photos stay inside their frame beside
   await expect.poll(()=>page.locator('#ivInspector img').evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
   expect(await page.locator('#ivInspector').evaluate(host=>host.querySelector('img').getBoundingClientRect().bottom<=host.querySelector('h3').getBoundingClientRect().top)).toBe(true);
  };
- await checkPhotos();
+ await page.locator('[data-iv-open]').first().click();await checkPhotos();
  await page.locator('#ivTabla [data-table-view=cards]').click();await checkPhotos();
  await page.locator('#ivTabla [data-table-view=table]').click();
  await page.locator('#ivBuscar').fill('CEM');await page.locator('#ivBuscar').fill('');await checkPhotos();

@@ -85,7 +85,8 @@ test('native sales tabs stay in their module, switch with keyboard, and the comm
  await expect(page.locator('section.active .cocoSalesNavigation')).toHaveClass(/cocoModuleNav/);
  expect(await page.locator('section.active .cocoSalesNavigation').evaluate(el=>el.closest('section').id)).toBe('quotes');
  // The GAMA reference theme allows a roomier toolbar while keeping rows above the fold.
- expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(400);
+ // The compact history utility row remains in normal flow above the list.
+ expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(460);
  const first=page.locator('[data-coco-sales-section=documents]');await first.focus();await page.keyboard.press('ArrowRight');
  await expect(page.locator('[data-coco-sales-section=orders]')).toBeFocused();await page.keyboard.press('Enter');
  await expect(page.locator('#sales-orders')).toBeVisible();

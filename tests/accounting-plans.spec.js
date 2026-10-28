@@ -41,7 +41,7 @@ for(const language of ['es','fr','en'])for(const width of [390,768,1440])test(`s
   const r=(await db.query("select count(*)::int n,sum(l.debit)::numeric debit,sum(l.credit)::numeric credit from accounting_entries e join accounting_entry_lines l on l.entry_id=e.id where e.source_type='accounting_schedule'")).rows[0];expect(r.n).toBe(4);expect(Number(r.debit)).toBe(20.02);expect(r.debit).toBe(r.credit);
   await page.screenshot({path:`test-results/accounting19-${language}-${width}.png`,fullPage:false});
   if(width===1440){
-   const history=page.locator('[data-history-module="accounting"]');await history.locator('[data-refresh]').click();
+   const history=page.locator('[data-history-module="accounting"]');await history.locator(':scope>.cocoFollowup>summary').click();await history.locator('[data-refresh]').click();
    await expect(history).toContainText('Café Quito <recurring>');
    const link=history.locator('[data-followup-link]').filter({hasText:'Café Quito <recurring>'}).first();await expect(link).toBeVisible();await link.click();await expect(page.locator('.gaPlans')).toContainText('Café Quito <recurring>');
   }

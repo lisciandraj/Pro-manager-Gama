@@ -13,3 +13,8 @@ body #projects .pmTools button[aria-pressed=true]:hover:not(:disabled){backgroun
 
 /* GAMA reference task board; stage, progress and drag behaviour are unchanged. */
 @media screen{body[data-app=coco-erp] #projects .pmColumn{border:1px solid var(--coco-line);border-radius:12px;padding:12px;background:#FCFCFD}body[data-app=coco-erp] #projects .pmTask{border-radius:10px;border-color:var(--coco-line);padding:14px;background:var(--coco-surface);box-shadow:none}}
+
+/* Coco Clair: native module finish, loaded on demand. */
+@media screen{
+ body.cocoWorkbench #projects .pmColumn{background:var(--coco-inset);border:0;border-radius:8px;padding:14px}
+ body.cocoWorkbench #projects .pmTask{background:white;border:1px solid var(--coco-line);border-radius:7px;padding:16px;box-shadow:none}}

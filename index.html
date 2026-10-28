@@ -17,8 +17,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="coco-erp-icon-180.png?v=20261018-co">
 <!-- Va en la cabecera y antes que nada: reemplaza window.alert, y tiene que
      estar puesto antes de que cualquier módulo pueda dar su primer aviso. -->
-<script defer src="architect-assets.js?v=c6c7dabb557d"></script>
-<script defer src="architect-core.js?v=fb7f5f85dc56"></script>
+<script defer src="architect-assets.js?v=749419f581a3"></script>
+<script defer src="architect-core.js?v=b96b64c9e7d6"></script>
 <script defer src="gama-i18n-server.js?v=4deabcc7fc18"></script>
 <script defer src="gama-i18n.js?v=aa5e4028085d"></script>
 <script defer src="gama-inventory-v2.js?v=9e81925646a5"></script>
@@ -41,19 +41,19 @@
 <script defer src="gama-export-schema.js?v=b4b73c4319a6"></script>
 <script defer src="gama-excel-export.js?v=eceaadf7eb41"></script>
 <link rel="stylesheet" href="gama-global-search.css?v=4d5d6f88ecb2">
-<link rel="stylesheet" href="gama-assistant-ia.css?v=f17421d1c846">
+<link rel="stylesheet" href="gama-assistant-ia.css?v=1c7285abfe9a">
 <!-- Coco ERP: tokens primero, sistema de diseño después. Van al final
      del head a propósito, para vestir las hojas históricas de arriba sin
      tener que borrarlas ni recurrir a !important. -->
-<link rel="stylesheet" href="architect-tokens.css?v=9fe8c1e8f19c">
-<link rel="stylesheet" href="architect-components.css?v=6691e4ca1978">
-<link rel="stylesheet" href="architect-ui.css?v=cc6e6cb0ef59">
+<link rel="stylesheet" href="architect-tokens.css?v=b28e60b06bf6">
+<link rel="stylesheet" href="architect-components.css?v=ac155868a087">
+<link rel="stylesheet" href="architect-ui.css?v=037f8392fb9c">
 <link rel="stylesheet" href="architect-shell.css?v=fef9970c70fa">
 <link rel="stylesheet" href="gama-company.css?v=7a62ef7ef4ab">
 <link rel="stylesheet" href="architect-home.css?v=c94ffb5be6b7">
 <link rel="stylesheet" href="coco-workspace.css?v=a25ee5f79d46">
 <link rel="stylesheet" href="coco-workbench.css?v=30591aefd715">
-<link rel="stylesheet" href="gama-design.css?v=9772ef9adcfb">
+<link rel="stylesheet" href="gama-design.css?v=1280d042059f">
 </head>
 <body data-app="coco-erp">
 
@@ -100,8 +100,8 @@
 
 <section id="products">
 <div class="arcPanel card cocoProductCatalog"><div class="cocoListHeading"><h2 data-gi=165519a35080>Productos disponibles</h2><button type="button" id="cocoNewProduct" class="arcButton primary" data-gi=60cb107bc52e>Nuevo producto</button></div><label for="productSearch" data-gi=6f8f50f6c7ca>Buscar por nombre, código o referencia</label><input id="productSearch" data-coco-input="input_0" data-gi-placeholder=6f8f50f6c7ca placeholder="Buscar por nombre, código o referencia"><div id="productsTable"></div></div>
-<div class="arcPanel card cocoProductForm" id="cocoProductForm">
-<h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2>
+<div class="arcPanel card cocoProductForm" id="cocoProductForm" hidden>
+<div class="cocoProductFormHeading"><h2 data-gi=e50c2b0891dd>Ficha completa del producto</h2><button type="button" class="arcButton secondary" id="cocoProductClose" data-gi=ab26ae7bca36>Volver</button></div>
 <div class="row">
 <div><label for="pBarcode" data-gi=994b09c74fb9>Código de barras</label><div class="scanner"><input id="pBarcode" data-gi-placeholder=994b09c74fb9 placeholder="Código de barras"><button type="button" class="arcButton gamaPhoneScanBtn" data-coco-click="click_14" data-gi=12cf969040ce>Escanear</button></div></div><div><label for="pName" data-gi=9c130ebfb8bd>Nombre *</label><input id="pName"></div>
 <div><label for="pRef" data-gi=10ddff5fcc6f>Referencia</label><input id="pRef"></div><div><label for="pCat" data-gi=558bb20a82ed>Categoría</label><input id="pCat"></div>
@@ -168,8 +168,8 @@
 
 
 <!-- Shared document and business modules. -->
-<script defer src="coco-modules.js?v=2e4218614bb7" fetchpriority="low" data-arc-runtime></script>
-<script defer src="gama-central-sync.js?v=930224f6e76f" data-gama-central-sync></script>
+<script defer src="coco-modules.js?v=a6c5d242b17f" fetchpriority="low" data-arc-runtime></script>
+<script defer src="gama-central-sync.js?v=20c4547c60c5" data-gama-central-sync></script>
 
 
 </body></html>

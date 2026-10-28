@@ -34,5 +34,6 @@ async function boot(page,{kind='sales',connected=true,language='fr',proposal=fal
  else if(kind==='tms')await page.evaluate(()=>window.ArcRouter.open('tms'));
  else {await page.evaluate(()=>window.gamaShowPurchases());await page.waitForSelector('#gp14Orders .gp14Order');await page.evaluate(id=>window.gamaOpenPurchaseV14(id),purchase)}
  await page.waitForSelector('.cocoFollowupParty',{state:'attached'});
+ if(await page.evaluate(()=>innerWidth>900)){const p=page.locator(kind==='purchase'?'.cocoPurchaseWorkspace .cocoFollowup':'.cocoFollowup');if(!await p.evaluate(e=>e.open))await p.locator(':scope>summary').click();}
 }
 module.exports={boot,order,purchase,delivery};

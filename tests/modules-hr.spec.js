@@ -131,6 +131,8 @@ test('RRHH descuenta las vacaciones aprobadas en días laborables', async ({ pag
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(600);
 
+  await expect(page.locator('#hrName')).toBeHidden();
+  await page.locator('#hrEmployeeEditor>summary').click();
   await page.fill('#hrName', 'María Pérez');
   await page.fill('#hrLeaveDays', '15');
   await page.click('#hrSave');

@@ -17,6 +17,10 @@ async function setup(page,{proposal=false,module='products'}={}){
   }}};
  },{proposal,module});
  await page.evaluate(id=>window.ArcRouter.open(id),module);await expect(page.locator('.cocoGlobalHistory .cocoFollowupParty')).toBeAttached();
+ if(await page.evaluate(()=>innerWidth>900)){
+  const panel=page.locator('.cocoGlobalHistory>.cocoFollowup');
+  if(!await panel.evaluate(e=>e.open))await panel.locator(':scope>summary').click();
+ }
 }
 test('all-module sidebar groups references, shows sources, keeps authorized internal links and preserves business DOM',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await setup(page);const history=page.locator('.cocoGlobalHistory');await expect(history.locator('.cocoFollowupTitle')).toHaveText('Historique du module');await expect(history.locator('.cocoFollowupCount')).toHaveText('12 actions');await expect(history).toContainText('Extrait de compte.pdf');await expect(history.locator('.cocoFollowupReferences li:visible')).toHaveCount(5);await history.locator('.cocoFollowupReferences summary').click();await expect(history.locator('.cocoFollowupReferences li:visible')).toHaveCount(12);await expect(history.locator('.cocoFollowupLinks')).toContainText('Contacts');await expect(history).not.toContainText('evil-site');

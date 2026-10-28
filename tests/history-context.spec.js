@@ -13,6 +13,7 @@ async function contextHistory(page,language='fr'){
   await window.ArcRouter.open('warehouses');
  },{product,record});
  await expect(page.locator('.cocoGlobalHistory .cocoFollowupParty')).toBeAttached();
+ if(await page.evaluate(()=>innerWidth>900))await page.locator('.cocoGlobalHistory>.cocoFollowup>summary').click();
 }
 for(const width of [390,1440])test(`stock action context is clear, non-additive and usable at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:1000});await contextHistory(page);

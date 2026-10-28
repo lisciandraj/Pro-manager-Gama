@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T00:00:00Z",
+  "title": "Design System: Coco ERP — Coco Clair",
+  "extensions": {
+    "colorMeta": {
+      "petrol": {
+        "role": "primary",
+        "displayName": "Pétrole des liens et sélections",
+        "tonalRamp": [
+          "oklch(15.00% 0.0825 220.44)",
+          "oklch(26.43% 0.0825 220.44)",
+          "oklch(37.86% 0.0825 220.44)",
+          "oklch(49.29% 0.0825 220.44)",
+          "oklch(60.71% 0.0825 220.44)",
+          "oklch(72.14% 0.0825 220.44)",
+          "oklch(83.57% 0.0825 220.44)",
+          "oklch(95.00% 0.0825 220.44)"
+        ]
+      },
+      "petrol-deep": {
+        "role": "primary",
+        "displayName": "Pétrole profond",
+        "tonalRamp": [
+          "oklch(15.00% 0.0746 224.39)",
+          "oklch(26.43% 0.0746 224.39)",
+          "oklch(37.86% 0.0746 224.39)",
+          "oklch(49.29% 0.0746 224.39)",
+          "oklch(60.71% 0.0746 224.39)",
+          "oklch(72.14% 0.0746 224.39)",
+          "oklch(83.57% 0.0746 224.39)",
+          "oklch(95.00% 0.0746 224.39)"
+        ]
+      },
+      "brand-blue": {
+        "role": "primary",
+        "displayName": "Bleu de marque Coco",
+        "tonalRamp": [
+          "oklch(15.00% 0.0952 219.07)",
+          "oklch(26.43% 0.0952 219.07)",
+          "oklch(37.86% 0.0952 219.07)",
+          "oklch(49.29% 0.0952 219.07)",
+          "oklch(60.71% 0.0952 219.07)",
+          "oklch(72.14% 0.0952 219.07)",
+          "oklch(83.57% 0.0952 219.07)",
+          "oklch(95.00% 0.0952 219.07)"
+        ]
+      },
+      "action": {
+        "role": "secondary",
+        "displayName": "Orange des actions",
+        "tonalRamp": [
+          "oklch(15.00% 0.1584 44.50)",
+          "oklch(26.43% 0.1584 44.50)",
+          "oklch(37.86% 0.1584 44.50)",
+          "oklch(49.29% 0.1584 44.50)",
+          "oklch(60.71% 0.1584 44.50)",
+          "oklch(72.14% 0.1584 44.50)",
+          "oklch(83.57% 0.1584 44.50)",
+          "oklch(95.00% 0.1584 44.50)"
+        ]
+      },
+      "action-hover": {
+        "role": "secondary",
+        "displayName": "Orange de survol",
+        "tonalRamp": [
+          "oklch(15.00% 0.1562 42.99)",
+          "oklch(26.43% 0.1562 42.99)",
+          "oklch(37.86% 0.1562 42.99)",
+          "oklch(49.29% 0.1562 42.99)",
+          "oklch(60.71% 0.1562 42.99)",
+          "oklch(72.14% 0.1562 42.99)",
+          "oklch(83.57% 0.1562 42.99)",
+          "oklch(95.00% 0.1562 42.99)"
+        ]
+      },
+      "brand-orange": {
+        "role": "secondary",
+        "displayName": "Orange des pictogrammes",
+        "tonalRamp": [
+          "oklch(15.00% 0.1791 47.91)",
+          "oklch(26.43% 0.1791 47.91)",
+          "oklch(37.86% 0.1791 47.91)",
+          "oklch(49.29% 0.1791 47.91)",
+          "oklch(60.71% 0.1791 47.91)",
+          "oklch(72.14% 0.1791 47.91)",
+          "oklch(83.57% 0.1791 47.91)",
+          "oklch(95.00% 0.1791 47.91)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre",
+        "tonalRamp": [
+          "oklch(15.00% 0.0471 261.24)",
+          "oklch(26.43% 0.0471 261.24)",
+          "oklch(37.86% 0.0471 261.24)",
+          "oklch(49.29% 0.0471 261.24)",
+          "oklch(60.71% 0.0471 261.24)",
+          "oklch(72.14% 0.0471 261.24)",
+          "oklch(83.57% 0.0471 261.24)",
+          "oklch(95.00% 0.0471 261.24)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Texte secondaire",
+        "tonalRamp": [
+          "oklch(15.00% 0.0393 263.36)",
+          "oklch(26.43% 0.0393 263.36)",
+          "oklch(37.86% 0.0393 263.36)",
+          "oklch(49.29% 0.0393 263.36)",
+          "oklch(60.71% 0.0393 263.36)",
+          "oklch(72.14% 0.0393 263.36)",
+          "oklch(83.57% 0.0393 263.36)",
+          "oklch(95.00% 0.0393 263.36)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Blanc de travail",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "inset": {
+        "role": "neutral",
+        "displayName": "Fond en retrait",
+        "tonalRamp": [
+          "oklch(15.00% 0.0025 228.78)",
+          "oklch(26.43% 0.0025 228.78)",
+          "oklch(37.86% 0.0025 228.78)",
+          "oklch(49.29% 0.0025 228.78)",
+          "oklch(60.71% 0.0025 228.78)",
+          "oklch(72.14% 0.0025 228.78)",
+          "oklch(83.57% 0.0025 228.78)",
+          "oklch(95.00% 0.0025 228.78)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Séparateur",
+        "tonalRamp": [
+          "oklch(15.00% 0.0102 238.52)",
+          "oklch(26.43% 0.0102 238.52)",
+          "oklch(37.86% 0.0102 238.52)",
+          "oklch(49.29% 0.0102 238.52)",
+          "oklch(60.71% 0.0102 238.52)",
+          "oklch(72.14% 0.0102 238.52)",
+          "oklch(83.57% 0.0102 238.52)",
+          "oklch(95.00% 0.0102 238.52)"
+        ]
+      },
+      "input-line": {
+        "role": "neutral",
+        "displayName": "Contour de saisie",
+        "tonalRamp": [
+          "oklch(15.00% 0.0280 255.62)",
+          "oklch(26.43% 0.0280 255.62)",
+          "oklch(37.86% 0.0280 255.62)",
+          "oklch(49.29% 0.0280 255.62)",
+          "oklch(60.71% 0.0280 255.62)",
+          "oklch(72.14% 0.0280 255.62)",
+          "oklch(83.57% 0.0280 255.62)",
+          "oklch(95.00% 0.0280 255.62)"
+        ]
+      },
+      "selected": {
+        "role": "primary",
+        "displayName": "Sélection claire",
+        "tonalRamp": [
+          "oklch(15.00% 0.0134 214.36)",
+          "oklch(26.43% 0.0134 214.36)",
+          "oklch(37.86% 0.0134 214.36)",
+          "oklch(49.29% 0.0134 214.36)",
+          "oklch(60.71% 0.0134 214.36)",
+          "oklch(72.14% 0.0134 214.36)",
+          "oklch(83.57% 0.0134 214.36)",
+          "oklch(95.00% 0.0134 214.36)"
+        ]
+      },
+      "hover": {
+        "role": "primary",
+        "displayName": "Survol clair",
+        "tonalRamp": [
+          "oklch(15.00% 0.0065 208.78)",
+          "oklch(26.43% 0.0065 208.78)",
+          "oklch(37.86% 0.0065 208.78)",
+          "oklch(49.29% 0.0065 208.78)",
+          "oklch(60.71% 0.0065 208.78)",
+          "oklch(72.14% 0.0065 208.78)",
+          "oklch(83.57% 0.0065 208.78)",
+          "oklch(95.00% 0.0065 208.78)"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Succès",
+        "tonalRamp": [
+          "oklch(15.00% 0.1138 156.80)",
+          "oklch(26.43% 0.1138 156.80)",
+          "oklch(37.86% 0.1138 156.80)",
+          "oklch(49.29% 0.1138 156.80)",
+          "oklch(60.71% 0.1138 156.80)",
+          "oklch(72.14% 0.1138 156.80)",
+          "oklch(83.57% 0.1138 156.80)",
+          "oklch(95.00% 0.1138 156.80)"
+        ]
+      },
+      "success-bg": {
+        "role": "semantic",
+        "displayName": "Fond de succès",
+        "tonalRamp": [
+          "oklch(15.00% 0.0215 163.06)",
+          "oklch(26.43% 0.0215 163.06)",
+          "oklch(37.86% 0.0215 163.06)",
+          "oklch(49.29% 0.0215 163.06)",
+          "oklch(60.71% 0.0215 163.06)",
+          "oklch(72.14% 0.0215 163.06)",
+          "oklch(83.57% 0.0215 163.06)",
+          "oklch(95.00% 0.0215 163.06)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Avertissement",
+        "tonalRamp": [
+          "oklch(15.00% 0.1190 65.12)",
+          "oklch(26.43% 0.1190 65.12)",
+          "oklch(37.86% 0.1190 65.12)",
+          "oklch(49.29% 0.1190 65.12)",
+          "oklch(60.71% 0.1190 65.12)",
+          "oklch(72.14% 0.1190 65.12)",
+          "oklch(83.57% 0.1190 65.12)",
+          "oklch(95.00% 0.1190 65.12)"
+        ]
+      },
+      "warning-bg": {
+        "role": "semantic",
+        "displayName": "Fond d’avertissement",
+        "tonalRamp": [
+          "oklch(15.00% 0.0271 78.19)",
+          "oklch(26.43% 0.0271 78.19)",
+          "oklch(37.86% 0.0271 78.19)",
+          "oklch(49.29% 0.0271 78.19)",
+          "oklch(60.71% 0.0271 78.19)",
+          "oklch(72.14% 0.0271 78.19)",
+          "oklch(83.57% 0.0271 78.19)",
+          "oklch(95.00% 0.0271 78.19)"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Erreur",
+        "tonalRamp": [
+          "oklch(15.00% 0.1783 28.70)",
+          "oklch(26.43% 0.1783 28.70)",
+          "oklch(37.86% 0.1783 28.70)",
+          "oklch(49.29% 0.1783 28.70)",
+          "oklch(60.71% 0.1783 28.70)",
+          "oklch(72.14% 0.1783 28.70)",
+          "oklch(83.57% 0.1783 28.70)",
+          "oklch(95.00% 0.1783 28.70)"
+        ]
+      },
+      "danger-bg": {
+        "role": "semantic",
+        "displayName": "Fond d’erreur",
+        "tonalRamp": [
+          "oklch(15.00% 0.0210 24.79)",
+          "oklch(26.43% 0.0210 24.79)",
+          "oklch(37.86% 0.0210 24.79)",
+          "oklch(49.29% 0.0210 24.79)",
+          "oklch(60.71% 0.0210 24.79)",
+          "oklch(72.14% 0.0210 24.79)",
+          "oklch(83.57% 0.0210 24.79)",
+          "oklch(95.00% 0.0210 24.79)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Titre de contenu",
+        "purpose": "Titre de page dans le contenu du module."
+      },
+      "title": {
+        "displayName": "Titre du bandeau",
+        "purpose": "Nom unique du module sur grand écran."
+      },
+      "section": {
+        "displayName": "Titre de section",
+        "purpose": "Hiérarchie intermédiaire des surfaces de travail."
+      },
+      "body": {
+        "displayName": "Texte et valeurs PC",
+        "purpose": "Texte courant et principales valeurs de liste sur ordinateur."
+      },
+      "value-mobile": {
+        "displayName": "Valeurs et saisie mobile",
+        "purpose": "Principales valeurs des fiches et champs de saisie sur téléphone."
+      },
+      "label": {
+        "displayName": "Libellé secondaire",
+        "purpose": "Métadonnées, en-têtes et badges."
+      },
+      "button": {
+        "displayName": "Commande commune",
+        "purpose": "Libellé des boutons partagés."
+      }
+    },
+    "shadows": [
+      {
+        "name": "workspace",
+        "value": "none",
+        "purpose": "Surfaces, contrôles et tuiles ordinaires au repos."
+      },
+      {
+        "name": "overlay-low",
+        "value": "0 4px 16px rgb(23 36 59 / .06)",
+        "purpose": "Token de profondeur légère disponible pour les éléments superposés."
+      },
+      {
+        "name": "dialog",
+        "value": "0 20px 64px rgb(23 36 59 / .19), inset 0 1px 0 #FFFFFF",
+        "purpose": "Fenêtres superposées ; les surfaces de travail restent plates."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-standard",
+        "value": "160ms",
+        "purpose": "Durée partagée des transitions fonctionnelles."
+      },
+      {
+        "name": "duration-reduced",
+        "value": "0ms",
+        "purpose": "Token commun avec prefers-reduced-motion: reduce ; les composants suppriment le mouvement décoratif."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-lists-max",
+        "value": "760px"
+      },
+      {
+        "name": "bottom-navigation-max",
+        "value": "860px"
+      },
+      {
+        "name": "history-and-map-stack-max",
+        "value": "900px"
+      },
+      {
+        "name": "desktop-tabs-min",
+        "value": "1180px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Action principale",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Commande principale orange ; les actions secondaires restent plus discrètes.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Enregistrer</button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:6px;box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-action,#bd4e09);border-color:var(--coco-action,#bd4e09);color:var(--coco-on-action,#fff)}.ds-primary:hover:not(:disabled){background:var(--coco-action-hover,#b54708)}.ds-primary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-primary:active:not(:disabled){background:var(--coco-action-hover,#b54708)}.ds-primary:disabled{opacity:.55;cursor:not-allowed}"
+    },
+    {
+      "name": "Action secondaire",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Retour ou action complémentaire sur fond blanc.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Retour</button>",
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:6px;box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b)}.ds-secondary:hover:not(:disabled){background:var(--coco-inset,#f7f9fa);border-color:var(--arc-accent-600,#10677d)}.ds-secondary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-secondary:active:not(:disabled){background:var(--arc-accent-50,#f3f9fa)}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}"
+    },
+    {
+      "name": "Action discrète",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Commande de moindre priorité avec libellé pétrole.",
+      "html": "<button class=\"ds-ghost\" type=\"button\">Actualiser</button>",
+      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:6px;box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:transparent;border-color:transparent;color:var(--arc-accent-600,#10677d)}.ds-ghost:hover:not(:disabled){background:var(--coco-inset,#f7f9fa)}.ds-ghost:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-ghost:active:not(:disabled){background:var(--arc-accent-100,#e7f3f6)}.ds-ghost:disabled{opacity:.55;cursor:not-allowed}"
+    },
+    {
+      "name": "Champ de saisie",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Libellé persistant et contour de champ distinct du séparateur de panneau.",
+      "html": "<label class=\"ds-field\">Référence<input class=\"ds-field-input\" type=\"text\" value=\"REF-001\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;color:var(--coco-ink,#17243b);font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);}.ds-field-input{min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--arc-line-strong,#7b8797);border-radius:6px;background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b);font:400 14px/1.5 var(--arc-font,Inter,Arial,sans-serif);box-shadow:none}.ds-field-input:hover{border-color:var(--arc-accent-600,#10677d)}.ds-field-input:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:var(--arc-danger,#b3261e)}.ds-field-input[readonly]{background:var(--coco-inset,#f7f9fa)}@media(max-width:760px){.ds-field-input{font-size:16px}}"
+    },
+    {
+      "name": "Onglets de module",
+      "kind": "nav",
+      "refersTo": "module-tab",
+      "description": "Navigation horizontale ; le soulignement et le poids identifient l’onglet actif.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Ventes\"><button class=\"ds-tab\" type=\"button\" aria-current=\"page\">À traiter</button><button class=\"ds-tab\" type=\"button\">Devis</button><button class=\"ds-tab\" type=\"button\">Commandes</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:20px;overflow-x:auto;border-bottom:1px solid var(--coco-line,#dfe6eb);background:var(--coco-surface,#fff)}.ds-tab{min-height:44px;flex:none;padding:10px 2px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--coco-muted,#5d6980);font:400 14px/1.35 var(--arc-font,Inter,Arial,sans-serif);cursor:pointer}.ds-tab[aria-current=page]{border-bottom-color:var(--arc-accent-600,#10677d);color:var(--arc-accent-600,#10677d);font-weight:600}.ds-tab:hover{background:var(--arc-accent-100,#e7f3f6);color:var(--arc-accent-600,#10677d)}.ds-tab:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;outline-offset:-3px}.ds-tab:active{background:var(--arc-accent-100,#e7f3f6)}"
+    },
+    {
+      "name": "Statut confirmé",
+      "kind": "chip",
+      "refersTo": "status-success",
+      "description": "Indication lisible ; le texte explicite porte le sens du statut.",
+      "html": "<span class=\"ds-status\">Confirmé</span>",
+      "css": ".ds-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:0;border-radius:5px;background:var(--arc-success-bg,#e4f5ec);color:var(--arc-success,#0d7446);font:500 12px/1.45 var(--arc-font,Inter,Arial,sans-serif)}"
+    },
+    {
+      "name": "Panneau de travail",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Surface plate pour un contenu groupé ; les listes principales peuvent rester sans cadre.",
+      "html": "<article class=\"ds-panel\"><h3 class=\"ds-panel-title\">Détails</h3><p class=\"ds-panel-text\">Les informations complémentaires restent accessibles dans le dossier.</p></article>",
+      "css": ".ds-panel{padding:24px;border:1px solid var(--coco-line,#dfe6eb);border-radius:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b);box-shadow:none;font:400 14px/1.55 var(--arc-font,Inter,Arial,sans-serif)}.ds-panel-title{margin:0 0 12px;font-size:17px;line-height:1.4;font-weight:600;letter-spacing:-.02em}.ds-panel-text{margin:0;color:var(--coco-muted,#5d6980)}@media(max-width:760px){.ds-panel{padding:16px}}"
+    },
+    {
+      "name": "Fiche mobile de liste",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Enregistrement dans le flux, séparé par une ligne horizontale, avec ses libellés.",
+      "html": "<article class=\"ds-record\"><h3 class=\"ds-record-title\">Référence</h3><dl class=\"ds-record-fields\"><div><dt>Client</dt><dd>Nom du client</dd></div><div><dt>Statut</dt><dd>À traiter</dd></div></dl><button class=\"ds-record-action\" type=\"button\">Ouvrir</button></article>",
+      "css": ".ds-record{padding:20px 0;border:0;border-bottom:1px solid var(--coco-row-line,#dfe6eb);border-radius:0;background:var(--coco-surface,#fff);box-shadow:none;color:var(--coco-ink,#17243b);font:400 16px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-record-title{margin:0 0 12px;font-size:16px;line-height:1.5;font-weight:600}.ds-record-fields{margin:0}.ds-record-fields>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:10px;padding:6px 0}.ds-record-fields dt{font-size:11px;color:var(--coco-muted,#5d6980)}.ds-record-fields dd{margin:0;overflow-wrap:anywhere}.ds-record-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:6px;box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);margin-top:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b)}.ds-record-action:hover{background:var(--coco-inset,#f7f9fa);border-color:var(--arc-accent-600,#10677d)}.ds-record-action:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-record-action:active{background:var(--arc-accent-50,#f3f9fa)}"
+    },
+    {
+      "name": "Historique replié",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Résumé de module dans une ligne utilitaire du flux normal ; fermé, il ne réserve aucun rail latéral.",
+      "html": "<details class=\"ds-history\"><summary class=\"ds-history-summary\">Historique du module</summary><div class=\"ds-history-body\">Aucune action enregistrée.</div></details>",
+      "css": ".ds-history{border:1px solid var(--coco-line,#dfe6eb);border-radius:8px;background:var(--coco-surface,#fff);box-shadow:none;color:var(--coco-ink,#17243b);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-history-summary{min-height:44px;padding:10px 12px;font-weight:500;cursor:pointer}.ds-history-summary:hover{background:var(--coco-inset,#f7f9fa)}.ds-history-summary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-history-summary:active{background:var(--arc-accent-50,#f3f9fa)}.ds-history[open]>.ds-history-summary{border-bottom:1px solid var(--coco-line,#dfe6eb)}.ds-history-body{padding:12px;color:var(--coco-muted,#5d6980)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Coco Clair",
+    "overview": "Une interface de gestion sobre et familière : bandeau horizontal, espace blanc, listes lisibles et détails progressifs. La hiérarchie s’inspire de la grammaire de travail d’Odoo ; les pictogrammes bicolores, les favoris pétrole et les actifs de marque existants conservent l’identité Coco.\n\nCe contrat concerne les modules internes servis par `src/app/index.html`. Les sources d’exécution sont `src/styles/tokens.css`, `src/styles/design.css`, les composants communs et les styles différés des modules. Les valeurs ci-dessus décrivent cette implémentation ; les mises en page spécialisées gardent leurs besoins métier. Le site public possède son propre `DESIGN.md` à la racine du dépôt.",
+    "keyCharacteristics": [
+      "Une action principale identifiable, des détails ouverts à la demande.",
+      "Un espace de travail blanc, des lignes horizontales fines et des surfaces plates.",
+      "Une navigation stable, des listes compactes sur PC et des fiches lisibles sur téléphone.",
+      "Des données réelles, des états explicites et les droits métier existants."
+    ],
+    "rules": [
+      {
+        "name": "The Action Rule",
+        "body": "Réserver l’orange d’action à la commande principale ; employer le pétrole pour les liens et les sélections.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Workspace Rule",
+        "body": "Séparer les contenus ordinaires par l’espace et les lignes ; réserver la profondeur aux éléments superposés.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reprendre les tokens et composants communs avant d’ajouter une règle locale.",
+      "Do conserver les pictogrammes Coco et une seule action principale identifiable.",
+      "Do laisser accessibles les colonnes, détails et formulaires complets à la demande.",
+      "Do respecter les préférences existantes, les langues, les droits et les états réels.",
+      "Do vérifier ensemble les formats PC et téléphone, le focus et les textes longs."
+    ],
+    "donts": [
+      "Don't remettre un fond gris global, des ombres de carte ou une navigation latérale permanente dans l’ERP.",
+      "Don't présenter l’orange de marque comme la couleur du texte blanc des actions principales.",
+      "Don't forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.",
+      "Don't transformer une valeur inconnue ou un échec de chargement en zéro ou succès.",
+      "Don't appliquer ce contrat au site public ni modifier son autorité visuelle racine."
+    ]
+  }
+}

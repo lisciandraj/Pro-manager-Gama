@@ -16,7 +16,7 @@
  let pollTimer=null,epoch=0,revision=0,previewRevision=0,boot={},view='inbox',filter='active',kind='',offset=0,query='',rows=[],total=0,channel=null,messages=[],selected=null,reply=null,sending=false;
  const drafts=new Map();let documentId=null,calendarFrom='',calendarTo='',calendarZone='America/Guayaquil';
  function calendarDefaults(){if(calendarFrom)return;const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());calendarFrom=day.slice(0,7)+'-01';const end=new Date(day.slice(0,7)+'-01T12:00:00Z');end.setUTCMonth(end.getUTCMonth()+1,0);calendarTo=end.toISOString().slice(0,10);}
- function calendarDate(r){return r.kind==='task'?date(r.due_at):new Date(r.due_at).toLocaleString(window.GamaI18n?.locale||'es-EC',{timeZone:calendarZone,dateStyle:'medium',timeStyle:'short'});}
+ function calendarDate(r){return r.kind==='task'?date(r.due_at):new Date(r.due_at.replace(' ','T').replace(/\.(\d+)/,(_,fraction)=>'.'+fraction.slice(0,3).padEnd(3,'0')).replace(/([+-]\d{2})$/,'$1:00')).toLocaleString(window.GamaI18n?.locale||'es-EC',{timeZone:calendarZone,dateStyle:'medium',timeStyle:'short'});}
  function pauseDocument(){if(window.CocoWorkhubDocs&&!window.CocoWorkhubDocs.__arcLazy)window.CocoWorkhubDocs.pause();}
  async function documentRpc(action,data){const token=epoch;if(!allowed())throw Error('WORKHUB_FORBIDDEN');await window.GamaCloudReady;const r=await window.ArcData.rpc('coco_workhub_documents',{p_action:action,p_data:data});if(token!==epoch||!allowed())throw Error('WORKHUB_FORBIDDEN');return r;}
  const valid=token=>token===epoch&&allowed()&&!!$(ID)?.classList.contains('active');

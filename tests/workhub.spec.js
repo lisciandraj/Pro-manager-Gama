@@ -60,12 +60,13 @@ for(const mobile of [false,true])test('personal agenda keeps civil dates, pagina
  const c=await boot(page,{mobile});try{
   await c.db.exec('reset role');
   await c.db.query("insert into pm_items(project_id,kind,title,owner_id,due_date,status,created_by) select $1,'task','Agenda task '||lpad(n::text,2,'0'),$2,'2026-10-02','todo',$2 from generate_series(1,43)n",[c.project,c.user]);
-  await c.db.exec('set role authenticated');await open(page);await page.locator('[data-wh-view=calendar]').click();
+  const customer=(await c.db.query("insert into customers(name,address) values('Agenda CRM customer','Quito') returning id")).rows[0].id;await c.db.query("insert into crm_activities(kind,subject,customer_id,owner_id,due_at,status) values('tarea','Agenda CRM midnight',$1,$2,'2026-11-01T04:59:00.123456Z','pendiente')",[customer,c.user]);
+  await c.db.exec('set role authenticated');await open(page);await page.evaluate(()=>{window.Date=new Proxy(Date,{construct(target,args,newTarget){if(typeof args[0]==='string'&&/^\d{4}-\d{2}-\d{2} /.test(args[0]))throw Error('NON_ISO_TIMESTAMP');return Reflect.construct(target,args,newTarget)}})});await page.locator('[data-wh-view=calendar]').click();
   await page.locator('#whCalendarFrom').fill('2026-10-01');await page.locator('#whCalendarTo').fill('2026-10-31');await page.locator('[data-wh-calendar-show]').click();
-  await expect(page.locator('#whList')).toContainText('1–40 / 43');await page.locator('[data-wh-next]').click();await expect(page.locator('#whList')).toContainText('41–43 / 43');
+  await expect(page.locator('#whList')).toContainText('1–40 / 44');await page.locator('[data-wh-next]').click();await expect(page.locator('#whList')).toContainText('41–44 / 44');await expect(page.locator('#whList')).toContainText('Agenda CRM midnight');await expect(page.locator('#whList')).toContainText('23:59');
   await page.locator('[data-wh-row]').first().click();await expect(page.locator('#whDetail')).toContainText('Agenda task');
-  for(const lang of ['es','en','fr']){await page.evaluate(l=>GamaI18n.setLanguage(l),lang);await expect(page.locator('#whCalendarFrom')).toHaveValue('2026-10-01');await expect(page.locator('#whList')).toContainText('43');}
-  await page.locator('#whCalendarTo').fill('2027-10-31');await page.locator('[data-wh-calendar-show]').click();await expect(page.locator('#whNotice')).toContainText('93 jours');await expect(page.locator('#whList')).toContainText('43');
+  for(const lang of ['es','en','fr']){await page.evaluate(l=>GamaI18n.setLanguage(l),lang);await expect(page.locator('#whCalendarFrom')).toHaveValue('2026-10-01');await expect(page.locator('#whList')).toContainText('44');}
+  await page.locator('#whCalendarTo').fill('2027-10-31');await page.locator('[data-wh-calendar-show]').click();await expect(page.locator('#whNotice')).toContainText('93 jours');await expect(page.locator('#whList')).toContainText('44');
   const a11y=await new AxeBuilder({page}).include('#workhub').analyze();expect(a11y.violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.screenshot({path:test.info().outputPath('workhub-agenda.png'),fullPage:true});expect(c.errors).toEqual([]);
  }finally{await c.db.close()}

@@ -20,3 +20,31 @@
 @media(max-width:1099px){.gamaF2KpiValue{font-size:21px}.gamaF2Kpi{gap:8px}.gamaF2KpiIcon{width:38px;height:38px}}
 @media(max-width:860px){.gamaF2Kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gamaF2Kpi{padding:12px;min-height:104px}}
 @media(max-width:430px){.gamaF2Kpi{gap:9px;padding:12px 10px;flex-direction:column}.gamaF2KpiIcon svg{width:24px;height:24px}.gamaF2KpiText{padding:0}.gamaF2KpiLabel{min-height:34px}.gamaF2KpiValue{font-size:20px}}
+
+/* Coco Clair: native module finish, loaded on demand. */
+@media screen{
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>:is(b,strong),body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:28px;font-weight:600;letter-spacing:-.035em;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--coco-ink)}
+ body[data-app=coco-erp] .arcContent section:not(#mainmenu) :is(.hrKpi,.ivKpi,.pmKpi,.crmKpi)>span,body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{font-size:13px;font-weight:500;color:var(--coco-ink)}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon){width:34px;height:34px;border-radius:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:28px;height:28px}
+ body[data-app=coco-erp] .arcContent #dashboard :is(.adHeading h2,.adQuickActions h2){font-size:16px}
+ body[data-app=coco-erp] .adBarInvoice{fill:var(--ad-invoice-fill,var(--gama-orange));background:var(--gama-orange);rx:5px}
+ body[data-app=coco-erp] .adBarCash{fill:var(--ad-cash-fill,var(--gama-blue));background:var(--gama-blue);rx:5px}
+ body[data-app=coco-erp] .adGridLine{stroke:var(--coco-row-line);stroke-width:1;stroke-dasharray:none}
+ body[data-app=coco-erp] .adChartText{fill:var(--coco-muted);font:12px var(--arc-font)}
+ body[data-app=coco-erp] .adLegend{font-size:12px;font-weight:400;gap:16px}
+ body[data-app=coco-erp] .adLegend i{width:9px;height:9px;border-radius:50%}
+ body[data-app=coco-erp] .adInvoiceTop{stop-color:var(--coco-chart-orange-top)}
+ body[data-app=coco-erp] .adInvoiceBottom{stop-color:var(--coco-chart-orange-bottom)}
+ body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
+ body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
+ body[data-app=coco-erp] i.cocoMetricIcon,body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon),body[data-app=coco-erp] .gamaF2KpiIcon{display:inline-grid;place-items:center;width:34px;height:34px;min-width:34px;padding:0;margin:0;border:0;border-radius:0;background:transparent;color:var(--gama-blue);box-shadow:none}
+ body.cocoWorkbench #dashboard .adMetric{border:0;border-radius:0;box-shadow:none;background:white;padding:16px 20px}
+ body.cocoWorkbench #dashboard .adMetricBody>strong{font-size:28px;font-weight:600}
+ body.cocoWorkbench #dashboard :is(.adChart,.adQuickActions,.adRecentOrders){border-color:var(--coco-line);box-shadow:none;border-radius:8px}}
+@media screen and (max-width:760px){
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricLabel{overflow-wrap:anywhere}
+ body[data-app=coco-erp] .arcContent #dashboard .adMetricBody>strong{font-size:clamp(18px,5vw,24px);margin:10px 0}
+ body.cocoWorkbench #dashboard .adMetric{padding:14px 0}}
+
+@media screen{body[data-app=coco-erp] .arcContent section#dashboard :is(.adMetric,.adQuickActions,.adRecentOrders,.adChart,.adAnalysis>article){border:0;border-radius:0;box-shadow:none;background:white}body[data-app=coco-erp] .arcContent section#dashboard .adMetric{min-height:100px;padding:12px 16px}body[data-app=coco-erp] .arcContent section#dashboard .adMetrics{gap:16px;border-bottom:1px solid var(--coco-line);padding-bottom:20px}body[data-app=coco-erp] .arcContent section#dashboard :is(.adQuickActions,.adRecentOrders){padding:16px 0}}

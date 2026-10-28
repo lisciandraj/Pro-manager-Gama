@@ -62,7 +62,7 @@ test('el componente de tabla declara cabeceras y etiquetas de columna explícita
     ['', 'Código', 'Producto', 'Referencia', 'Familia', 'Categoría', 'Líneas', 'Marca', 'Presentación', 'Descripción', 'Tipo de producto', 'Unidad base', 'Ubicación', 'Proveedor', 'Stock', 'Stock mínimo', 'Stock máximo', 'Pedido mínimo', 'Múltiplo de pedido', 'Cantidad por cartón', 'Peso (g)', 'Volumen (cm³)', 'Precio compra', 'Venta A', 'Venta B', 'IVA', 'Seguimiento por lotes', 'Seguimiento activado el', 'Estado', 'Fecha de creación', 'Última modificación', '']);
   // La fila de cabecera se esconde: en fichas sería una ficha de titulares.
   expect(await page.evaluate(() =>
-    getComputedStyle(document.querySelector('#productsTable [data-gama-head]')).display)).toBe('table-row');
+    getComputedStyle(document.querySelector('#productsTable [data-gama-head]')).display)).toBe('none');
 });
 
 // La primera columna de varias tablas es la foto. Una ficha encabezada sólo
@@ -75,8 +75,8 @@ test('la vista de tarjetas explícita conserva foto y titular', async ({ page })
   await page.locator('#productsTable [data-table-view=cards]').click();
   const c = await celdas(page, '#productsTable table');
   expect(c[0], 'la celda de la foto').toMatchObject({ col: '', titulo: false, padL: '0px' });
-  expect(c[1], 'el titular de la ficha').toMatchObject({ col: 'Código', titulo: true, padL: '0px' });
-  expect(c[2].padL, 'un dato normal guarda hueco para su etiqueta').not.toBe('0px');
+  expect(c[2], 'el titular de la ficha').toMatchObject({ col: 'Producto', titulo: true, padL: '0px' });
+  expect(c[3].padL, 'un dato normal guarda hueco para su etiqueta').not.toBe('0px');
   // Y la celda que sólo lleva botones no gasta hueco en una etiqueta.
   expect(c[c.length - 1]).toMatchObject({ col: '', padL: '0px' });
   await expect(page.locator('#productsTable button[data-edit]').first()).toHaveAccessibleName(/Editar/);
@@ -132,7 +132,7 @@ test('en el escritorio las tablas siguen siendo tablas', async ({ page }) => {
     const fila = [...t.rows].find(r => !r.hasAttribute('data-gama-head'));
     return {
       cabecera: getComputedStyle(t.querySelector('[data-gama-head]')).display,
-      celda: getComputedStyle(fila.cells[1]).display,
+      celda: getComputedStyle(fila.cells[2]).display,
     };
   })).toEqual({ cabecera: 'table-row', celda: 'table-cell' });
 });

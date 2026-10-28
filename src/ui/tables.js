@@ -96,9 +96,16 @@ const svg=body=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
 const icons={cards:window.ArcUI.moduleIcon('matrix'),table:window.ArcUI.moduleIcon('spreadsheet')};
 function account(){try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return s.userId||s.id||s.email||s.name||s.role||'guest'}catch(_){return 'guest'}}
 function preferenceKey(t){const host=t.parentElement.closest('[id]')||document.body;return 'architect_table_view_v1:'+account()+':'+host.id+':'+[...host.querySelectorAll('table')].indexOf(t)}
+// Read-only work lists become readable phone records. Editable lines,
+// explicit no-cards grids and personal view choices retain their behavior.
+function phoneRecords(t){
+ return t.hasAttribute('data-coco-mobile-cards')||!!t.closest('section')&&
+  !t.closest('dialog,[data-gama-nocards],[data-coco-form-grid]')&&
+  !t.querySelector('input:not([type=checkbox]),select,textarea,[contenteditable=true]');
+}
 function refreshLayout(t,state){
  const key=preferenceKey(t);let choice=null;try{choice=localStorage.getItem(key)}catch(_){}
- const mode=['cards','table'].includes(choice)?choice:(t.hasAttribute('data-coco-mobile-cards')&&window.innerWidth<=CORTE?'cards':'table');
+ const mode=['cards','table'].includes(choice)?choice:(phoneRecords(t)&&window.innerWidth<=CORTE?'cards':'table');
  if(t.dataset.gamaView!==mode)t.dataset.gamaView=mode;
  state.bar.setAttribute('aria-label',words()[0]);
  [...state.bar.children].forEach((b,i)=>{const label=words()[i+1];if(b.getAttribute('aria-label')!==label){b.setAttribute('aria-label',label);b.title=label}b.querySelector('span').textContent=label;b.setAttribute('aria-pressed',String(b.dataset.tableView===mode))});
@@ -304,7 +311,13 @@ function applyColumns(t,cols,hidden){
 }
 function controls(t,state){
  const cols=columnInfo(t);if(!cols.length)return;
- const w=cw(),key=settingsKey(t,cols),stored=read(key)||{},hidden=Array.isArray(stored.hidden)?stored.hidden.filter(k=>cols.some(c=>c.key===k)):[];
+ const w=cw(),key=settingsKey(t,cols),stored=read(key)||{};
+ const primary=(t.dataset.cocoPrimaryColumns||'').split(/\s+/).filter(Boolean);
+ // This is a display default, never a persisted preference. Every field and
+ // row action remains in the chooser, and Show all is an explicit override.
+ const initial=primary.length&&cols.some(c=>primary.includes(c.key))?cols.filter(c=>
+  !primary.includes(c.key)&&!['actions','decorative'].includes(c.h.dataset.columnKind)).map(c=>c.key):[];
+ const hidden=Array.isArray(stored.hidden)?stored.hidden.filter(k=>cols.some(c=>c.key===k)):initial;
  if(hidden.length===cols.length)hidden.pop();
  const source=sorter(t),current=source?.get?.()||(!source?stored.sort:null),signature=JSON.stringify([account(),window.GamaI18n?.language,cols.map(c=>[c.key,c.label]),!!source]);
  state.cols=cols;state.key=key;state.hidden=hidden;state.source=source;

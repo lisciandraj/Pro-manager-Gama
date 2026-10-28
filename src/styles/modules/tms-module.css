@@ -39,3 +39,40 @@
 .tmsGpsControls{margin-block:var(--arc-r-lg);padding:var(--arc-r-lg);background:var(--arc-surface-2);border-radius:var(--arc-r-lg)}
 .tmsGpsControls p{color:var(--arc-text-muted)}
 @media(max-width:40rem){.tmsProDialog .tmsForm{grid-template-columns:1fr}.tmsProCalendar{grid-template-columns:repeat(2,minmax(0,1fr))}.tmsProDialog .tmsDayMap{height:18rem}.tmsProDays{gap:var(--arc-r-md)}}
+
+/* Coco Clair: the actual day map and stop controls share the first workspace.
+   GPS updates, route filters, privacy/attribution and existing events stay live. */
+@media screen{
+ body.cocoWorkbench .tms{max-width:none}
+ .tmsDayWorkspace{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);gap:20px;align-items:start}
+ .tmsDayWorkspace>.tmsPlanningCard{grid-column:1;margin:0}
+ .tmsDayWorkspace>.tmsMapCard{grid-column:2;grid-row:1 / span 2;margin:0;min-width:0}
+ .tmsDayWorkspace>.tmsDayStops{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:16px;min-width:0}
+ .tmsDayStops>.tmsCard,.tmsDayStops>div>.tmsCard{margin:0}
+ .tmsDayStops .tmsTable{min-width:0}
+ .tmsDayWorkspace .tmsMapTools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+ .tmsDayWorkspace .tmsDayMap{height:460px;border-radius:6px}
+ .tmsDayWorkspace .tmsMapLabel,.tmsDayWorkspace .tmsHint{font-size:12px}
+ .tmsDayWorkspace .tmsMapPoint{min-height:44px;font-size:13px}
+ .tmsDayWorkspace .tmsTitle{gap:12px;align-items:center;flex-wrap:wrap}
+ .tmsDayWorkspace .tmsTitle>b{font-size:16px;font-weight:600}
+ body.cocoWorkbench .tmsFlow{gap:0;border-bottom:1px solid var(--coco-line);margin-bottom:24px}
+ body.cocoWorkbench .tmsFlowStep{border:0;border-bottom:2px solid transparent;border-radius:0;background:white;box-shadow:none;padding:12px;font-weight:500}
+ body.cocoWorkbench .tmsFlowStep.active{border:0;border-bottom:2px solid var(--arc-accent-600);background:var(--arc-accent-50)}
+ body.cocoWorkbench .tmsFlowStep strong{font-size:22px;font-weight:600;margin:4px 0}
+ body.cocoWorkbench .tmsTodayBar{gap:12px;margin-bottom:20px}
+}
+@media screen and (max-width:900px){
+ .tmsDayWorkspace{display:flex;flex-direction:column;gap:20px}
+ .tmsDayWorkspace>.tmsMapCard{order:0;width:100%}
+ .tmsDayWorkspace>.tmsPlanningCard{order:1;width:100%}
+ .tmsDayWorkspace>.tmsDayStops{order:2;width:100%}
+ .tmsDayWorkspace .tmsDayMap{height:300px}
+ .tmsDayWorkspace .tmsMapTools{width:100%}
+ .tmsDayWorkspace .tmsMapTools select{flex:1;min-width:0;max-width:100%}
+ .tmsDayWorkspace .tmsMapPoint{font-size:16px}
+ body.cocoWorkbench .tmsFlowStep{padding:10px 6px;font-size:12px;min-height:44px}
+ body.cocoWorkbench .tmsFlowStep small{font-size:11px}
+}
+
+@media screen and (max-width:900px){body.cocoWorkbench .tmsTodayBar{flex-wrap:nowrap;overflow-x:auto;align-items:center;gap:8px;margin:8px 0 12px;padding-bottom:4px;scrollbar-width:thin}body.cocoWorkbench .tmsTodayBar>*{flex:0 0 auto;max-width:190px}body.cocoWorkbench .tmsTodayBar>p{font-size:12px;max-width:115px}body.cocoWorkbench .tmsTodayBar label{font-size:12px}body.cocoWorkbench .tmsFlow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:12px}body.cocoWorkbench .tmsFlowStep{min-width:0;padding:8px 4px;gap:0}body.cocoWorkbench .tmsFlowStep strong{font-size:18px;margin:2px 0}body.cocoWorkbench .tmsFlowStep small{display:none}body.cocoWorkbench .tmsDayWorkspace .tmsMapCard{padding:12px}body.cocoWorkbench .tmsDayWorkspace .tmsMapTools{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}body.cocoWorkbench .tmsDayWorkspace .tmsMapTools>*{flex:0 0 auto}body.cocoWorkbench .tmsDayWorkspace .tmsMapTools select{max-width:180px}.tmsDayWorkspace .tmsMapLabel{margin:4px 0}}

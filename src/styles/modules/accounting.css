@@ -66,3 +66,18 @@
 .gaPriority:disabled{cursor:default;opacity:.65}
 
 [data-bank-workflow] [hidden]{display:none!important}
+
+/* Coco Clair: native module finish, loaded on demand. */
+@media screen{
+ body[data-app=coco-erp] .arcContent .gaKpis>.gaCard>em.gaUp{color:var(--arc-success)}
+ body[data-app=coco-erp] .arcContent .gaKpis>.gaCard>em.gaDown{color:var(--arc-danger)}
+ body.cocoWorkbench :is(#gaShortcuts,.gaShortcuts){gap:16px;flex-wrap:nowrap;overflow-x:auto;border-bottom:1px solid var(--coco-line);padding-bottom:8px;margin:0 0 24px}
+ body.cocoWorkbench .gaShortcuts>button{border:0;background:transparent;font-size:13px;font-weight:400;white-space:nowrap;box-shadow:none;border-radius:0}
+ body.cocoWorkbench .gaShortcuts>button.on{background:transparent;color:var(--arc-accent-600);border-bottom:2px solid var(--arc-accent-600);font-weight:600}
+ body.cocoWorkbench .gaKpis{gap:24px;margin-block:24px}
+ body.cocoWorkbench .gaKpis .gaCard{border:1px solid var(--coco-line);border-radius:8px;padding:24px}
+ body.cocoWorkbench .gaKpis strong{font-size:28px;font-weight:600}
+ body.cocoWorkbench .gaKpis small{font-weight:400}}
+@media screen and (max-width:760px){
+ body.cocoWorkbench .gaKpis{grid-template-columns:1fr;gap:16px}
+ body.cocoWorkbench .gaKpis .gaCard{padding:18px}}

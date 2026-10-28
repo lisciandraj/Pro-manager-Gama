@@ -56,7 +56,7 @@
    un violeta que no existe en ningún otro botón de la aplicación, y dejaba
    las dos acciones igual de llamativas. */
 #access-settings .cfgModuleAction{width:100%;min-height:44px;margin-top:auto;white-space:normal;overflow-wrap:anywhere;font-size:14px;font-weight:600}
-#access-settings .cfgInstall{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+#access-settings .cfgInstall{background:var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action)}
 #access-settings .cfgInstall:hover:not(:disabled){filter:brightness(.92)}
 #access-settings .cfgUninstall{background:var(--arc-surface);border-color:var(--arc-line-strong);color:var(--arc-text)}
 #access-settings .cfgUninstall:hover:not(:disabled){background:var(--arc-surface-2)}
@@ -188,6 +188,7 @@
 .atFilters .gamaFind{margin-bottom:0}
 .atTable .atDetail{display:block;white-space:normal;overflow-wrap:anywhere;width:clamp(16ch,20vw,22ch);max-width:100%}
 .atTable[data-gama-view=cards] .atDetail{width:auto}
+@media screen and (min-width:761px) and (max-width:1179px){.atTable .atDetail{width:16ch}}
 .atTable td{vertical-align:top}
 @media(max-width:900px){.atFilters{grid-template-columns:1fr 1fr}.atFilters .atSearch{grid-column:1/-1}}
 @media(max-width:520px){.atFilters{grid-template-columns:1fr}}

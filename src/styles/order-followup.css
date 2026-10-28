@@ -96,7 +96,7 @@
 .cocoDossierMain .gp14Actions{flex-wrap:wrap}
 /* A grid column does not collapse the sheet margin with its module header. */
 .cocoDossierMain>.gqListCard{margin-top:0}
-.arcContent.cocoHasModuleHistory{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:18px;align-items:start}
+.arcContent.cocoHasModuleHistory{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:18px;align-items:start;align-content:start}
 .cocoGlobalHistory{min-width:0;position:sticky;top:100px}.cocoSettingsHistory{margin-top:24px;min-width:0}
 .cocoHasModuleHistory .atFilters{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
 .cocoSettingsHistory .cocoFollowupTimeline{max-height:45vh}.cocoModuleProposal label{display:block;font-size:12px;font-weight:600;min-width:0}
@@ -132,10 +132,22 @@
  .cocoAgentHistory .cocoFollowupEventTitle,.cocoAgentHistory .cocoFollowupText{font-size:14px}
 }
 
-/* Audit readers can reclaim the sidebar width by closing its history panel. */
+/* Closed module history leaves the full working width available. */
 @media(min-width:901px){
- .arcContent.cocoHasModuleHistory:has(>.wrap>#audit.active):has(>.cocoGlobalHistory>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr)}
- .arcContent:has(>.wrap>#audit.active)>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){order:-1;position:static}
+ .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr);row-gap:12px}
+ .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap{grid-column:1;grid-row:2}
+ .arcContent>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;position:static;justify-self:end;width:min(270px,100%)}
+ .cocoGlobalHistory>.cocoFollowup:not([open])>summary{min-height:44px;padding:10px 12px}
+ .cocoDossierWorkspace:has(>aside>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr)!important;align-content:start}
+ .cocoDossierWorkspace>aside:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;position:static;justify-self:end;width:min(270px,100%)}
+ .cocoDossierWorkspace:has(>aside>.cocoFollowup:not([open]))>.cocoDossierMain{grid-column:1;grid-row:2}
+}
+@media screen and (max-width:900px){
+ .arcContent.cocoHasModuleHistory{display:flex;flex-direction:column;gap:12px}
+ .arcContent.cocoHasModuleHistory>.wrap{width:100%}
+ .cocoGlobalHistory:has(>.cocoFollowup:not(.is-mobile-open)){order:-1;width:100%}
+ .cocoFollowup:not(.is-mobile-open):not(.cocoAgentHistory .cocoFollowup){position:static;width:100%;height:auto;box-shadow:none}
+ .cocoFollowup:not([open])>summary{height:auto;min-height:44px;padding:10px 12px}
 }
 
 /* Closed history sits above the shared phone navigation. Open history keeps

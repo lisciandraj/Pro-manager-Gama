@@ -23,8 +23,8 @@
 /* Shared ERP table grid, including legacy workspaces and dialogs. */
 body{--arc-table-grid:#b6c2d0}
 body table{border-collapse:collapse;border-spacing:0}
-body table :is(th,td),body table.gamaCards.gamaCards[data-gama-view=table] :is(th,td){border:1px solid var(--arc-table-grid)!important}
-body table thead th,body table.gamaCards.gamaCards[data-gama-view=table] th{border-bottom:2px solid var(--arc-table-grid)!important}
+body table :is(th,td),body table.gamaCards.gamaCards[data-gama-view=table] :is(th,td){border:0!important;border-bottom:1px solid var(--arc-table-grid)!important}
+body table thead th,body table.gamaCards.gamaCards[data-gama-view=table] th{border-bottom:1px solid var(--arc-table-grid)!important}
 @media(max-width:760px){
  .arcTableWrap{overflow-x:auto;overscroll-behavior-x:contain}
  .arcTable{display:table;width:100%}

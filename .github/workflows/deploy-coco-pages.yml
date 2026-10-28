@@ -79,6 +79,8 @@ jobs:
       - run: npm ci
       - run: npm run update
       - run: npx playwright install --with-deps chromium
+      - name: Verify Coco Clair lists, editors and responsive workspaces
+        run: npx playwright test tests/coco-clair.spec.js tests/workbench-layout.spec.js tests/layout-audit-regressions.spec.js tests/ux-workspace.spec.js --workers=2
       - run: npx playwright test tests/coco-agent-ui.spec.js tests/agent-queue.spec.js tests/assistant-ia.spec.js tests/accounting.spec.js tests/accounting-audit.spec.js --workers=2
       - name: Verify dispatcher and offline driver workflows
         run: npx playwright test tests/tms-dispatch.spec.js tests/tms-module.spec.js tests/tms-loading.spec.js tests/tms-pro.spec.js --workers=2

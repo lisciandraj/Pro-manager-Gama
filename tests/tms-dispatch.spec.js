@@ -36,7 +36,7 @@ test('a later departure suggestion is unsaved, single-use and still goes through
  const d=page.locator('dialog').last(),button=d.locator('[data-suggest-start]');await expect(button).toContainText('10:20');await button.click();await expect(d.locator('[name=starts]')).toHaveValue('10:20');await expect(button).toBeDisabled();
  expect(await page.evaluate(()=>window.__DB.tms_route_schedules[0].starts_at)).toContain('09:45');await d.locator('button[type=submit]').click();await expect.poll(()=>page.evaluate(()=>window.__DB.tms_route_schedules[0].starts_at)).toContain('10:20');
 });
-for(const mode of ['review','changed-leg','shift-end','departed'])test('departure suggestions reject '+mode+' schedules',async({page})=>{
- await boot(page);await page.evaluate(mode=>{const s=window.__DB.tms_route_schedules[0];s.legs[0].waiting_minutes=mode==='shift-end'?1000:35;if(mode==='review')s.needs_review=true;if(mode==='departed')window.__DB.tms_routes[0].status='En ruta'},mode);
+for(const mode of ['review','changed-leg','shift-end','departed','delivery-departed'])test('departure suggestions reject '+mode+' schedules',async({page})=>{
+ await boot(page);await page.evaluate(mode=>{const s=window.__DB.tms_route_schedules[0];s.legs[0].waiting_minutes=mode==='shift-end'?1000:35;if(mode==='review')s.needs_review=true;if(mode==='departed')window.__DB.tms_routes[0].status='En ruta';if(mode==='delivery-departed')window.__DB.tms_deliveries[0].status='En tránsito'},mode);
  await page.evaluate(()=>window.CocoTmsExecution.schedule('route'));const d=page.locator('dialog').last();if(mode==='changed-leg'){await d.locator('[data-drive]').fill('25');await expect(d.locator('[data-suggest-start]')).toBeDisabled()}else await expect(d.locator('[data-suggest-start]')).toHaveCount(0);
 });

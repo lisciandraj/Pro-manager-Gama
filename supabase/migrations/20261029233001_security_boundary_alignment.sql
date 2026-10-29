@@ -4,7 +4,7 @@ create or replace function private.erp_internal_account() returns boolean
 language sql stable security definer set search_path='' as $$
  select auth.uid() is not null and exists(select 1 from public.profiles p
   where p.id=auth.uid() and p.active and p.deleted_at is null
-  and p.role in ('administrador','comercial','almacenero'))
+  and p.role<>'cliente')
 $$;
 
 -- Preserve live SQL implementations and their existing signatures/grants.

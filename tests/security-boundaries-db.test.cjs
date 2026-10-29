@@ -5,7 +5,7 @@ test('security: direct reads and legacy commands preserve current authority',asy
  const db=await restore(),admin=uuid(),seller=uuid(),warehouse=uuid(),customerLogin=uuid(),product=uuid(),bank=uuid(),approval=uuid();
  const q=async(sql,args=[])=>(await db.query(sql,args)).rows,one=async(sql,args=[])=>Object.values((await q(sql,args))[0])[0];
  const as=async id=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated')};
- const owner=()=>db.exec('reset role');
+ const owner=async()=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[admin])};
  try{
   for(const id of [admin,seller,warehouse,customerLogin])await q('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[id,id+'@example.invalid']);
   for(const [id,role]of [[admin,'administrador'],[seller,'comercial'],[warehouse,'almacenero'],[customerLogin,'cliente']])await q("update profiles set role=$2,active=($2<>'cliente') where id=$1",[id,role]);

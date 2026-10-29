@@ -10,7 +10,7 @@ test('returns preserve module revocation, invoice lineage and consumed refund ca
   await q("update profiles set active=true,role=case when id=$1 then 'administrador' else 'comercial' end",[ids.admin]);
   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
   await q("insert into customers(id,name) values($1,'Return source'),($2,'Other customer')",[ids.customer,ids.other]);
-  await q("insert into products(id,name,sale_price,purchase_price) values($1,'Return item',10,4)",[ids.product]);
+  await q("insert into products(id,name,barcode,sale_price,purchase_price) values($1,'Return item','RETURN-SEC-FIXTURE',10,4)",[ids.product]);
   for(const [order,customer]of [[ids.order,ids.customer],[ids.otherOrder,ids.other]])await q("insert into sales_orders(id,customer_id,customer_name,request_key,status,created_by) values($1,$2,'Fixture',gen_random_uuid(),'confirmed',$3)",[order,customer,ids.admin]);
   await q("insert into sales_order_lines(id,order_id,product_id,product_name,quantity,unit_price,tax_rate) values($1,$2,$3,'Return item',2,10,0)",[ids.line,ids.order,ids.product]);
   const invoices=[];

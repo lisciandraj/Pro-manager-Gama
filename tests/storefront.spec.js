@@ -6,12 +6,16 @@ async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catal
  await page.setViewportSize({width,height:960});await page.addInitScript(()=>{window.__SITE_CALLS=[];window.__SITE_FAIL=false});
  await page.route('**/site.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.js'),contentType:'text/javascript'}));await page.route('**/site.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/site.css'),contentType:'text/css'}));await page.route('**/logo.jpg',r=>r.fulfill({path:path.join(__dirname,'../gama-logo.jpg'),contentType:'image/jpeg'}));
  await page.route('**/api/storefront',async r=>{const d=r.request().postDataJSON();await page.evaluate(d=>__SITE_CALLS.push(d),d);let out;const c={...config,enable_quotes:quotes,show_contact:contact,...settings};
- if(d.p_action==='bootstrap')out={paused,settings:c,currency:'USD',total:catalogItems.length,categories,brands:[...new Set(catalogItems.map(p=>p.brand).filter(Boolean))],featured:catalogItems};
+ if(d.p_action==='bootstrap')out={commerce:{turnstile_sitekey:'test-key'},paused,settings:c,currency:'USD',total:catalogItems.length,categories,brands:[...new Set(catalogItems.map(p=>p.brand).filter(Boolean))],featured:catalogItems};
  if(d.p_action==='catalog'){await catalogGate(d.p_data);const rows=catalogItems.filter(p=>(!d.p_data.search||[p.name,p.reference,p.brand].join(' ').toLowerCase().includes(d.p_data.search.toLowerCase()))&&(!d.p_data.category||p.category===d.p_data.category)&&(!d.p_data.brand||p.brand===d.p_data.brand));out={items:rows.slice(d.p_data.offset,d.p_data.offset+d.p_data.limit),total:rows.length,offset:d.p_data.offset,limit:d.p_data.limit,currency:'USD'}}
  if(d.p_action==='product')out={item:catalogItems.find(p=>p.id===d.p_data.id),currency:'USD'};if(d.p_action==='photos')out=photoRows.filter(p=>d.p_data.ids.includes(p.id));
+ if(d.p_action==='commerce_reviews')out={count:0,average:null,items:[]};if(d.p_action==='commerce_review_eligibility')out={eligible:false};
  if(d.p_action==='submit'){if(await page.evaluate(()=>__SITE_FAIL)){await page.evaluate(()=>__SITE_FAIL=false);return r.fulfill({status:503,json:{error:'WEBSITE_UNAVAILABLE'}})}out={reference:'WEB-00000001'}}return r.fulfill({json:out})});
  await page.route('**/customer.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/customer.css'),contentType:'text/css'}));await page.route('**/b2b.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/b2b.js'),contentType:'text/javascript'}));
  await page.route('**/category-images/*.webp',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/category-images',new URL(r.request().url()).pathname.split('/').pop()),contentType:'image/webp'}));
+ await page.route('**/commerce.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.js'),contentType:'text/javascript'}));
+ await page.route('**/commerce.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.css'),contentType:'text/css'}));
+ await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({contentType:'text/javascript',body:'window.turnstile={render:(el,opts)=>{window.__turnstileCallback=opts.callback;opts.callback("test-human-token");return 1},remove:()=>{},reset:()=>window.__turnstileCallback?.("test-human-token")};'}));
  await page.goto('/dist-storefront/index.html');
 }
 const catalogueCategories=require('../config/storefront-category-images.json').map((c,i)=>({category:c.category,title:c.category,count:100+i}));
@@ -137,6 +141,12 @@ async function customerFixture(page,{restore=false}={}){
  if(a==='list')data={total:1,items:[proposal]};
  if(a==='detail')data={...proposal,currency:'USD',address:'Quito',product:{name:'Papel original',reference:'PAP',unit_price:50,tax_rate:15},replacement:{name:'Papel equivalente',reference:'REP',unit_price:40,tax_rate:15},original_total:115,proposed_total:92,fingerprint:'portal-fingerprint',can_respond:!window.__PORTAL_CONSENT,current:true,notes:'',promised_date:null};
  if(a==='respond'){window.__PORTAL_CONSENT=d.decision;data={id:d.id,decision:d.decision,confirmation_pending:true};}
+ }else if(window.__APPROVAL_FIXTURE&&['approvals','approval_detail','approval_edit','approval_approve'].includes(a)){
+ const id='40000000-0000-4000-8000-000000000001',lines=window.__APPROVAL_LINES||[{product_id:ps[0].id,quantity:2,name:ps[0].name,unit_price:4,total:9.2}];
+ if(a==='approvals')data=[{id,version:window.__APPROVAL_VERSION||1,status:'pending',stage:1,total:9.2,requester:'Comprador',created_at:'2026-10-29'}];
+ if(a==='approval_detail')data={id,version:window.__APPROVAL_VERSION||1,status:'pending',stage:1,can_decide:true,cart:{lines,total:9.2,price_hash:'reviewed'},decisions:[]};
+ if(a==='approval_edit'){window.__APPROVAL_LINES=d.lines;window.__APPROVAL_VERSION=2;data={saved:true}}
+ if(a==='approval_approve')data={approved:true,complete:true};
  }else if(a==='bootstrap')data={customer:{name:window.__CUSTOMER_NAME,identification:'1790012345001',category:'B'},currency:'USD',total:95,overdue:0,today:'2026-10-07',addresses:[]};
  else if(a==='favorites')data=[];
  else if(a==='preview')data={total:d.lines.reduce((n,l)=>n+l.quantity*4.6,0),price_hash:'reviewed',lines:d.lines.map(l=>({...l,name:'Café para oficina',unit_price:4,tax_rate:15,total:l.quantity*4.6}))};
@@ -152,8 +162,8 @@ async function customerFixture(page,{restore=false}={}){
 async function loginCustomer(page){await page.locator('#b2bAccess').click();await expect(page.locator('#customerLogin')).toBeVisible();await page.locator('#loginForm [name=email]').fill('customer@example.invalid');await page.locator('#loginForm [name=password]').fill('fixture-password');await page.locator('#loginForm [type=submit]').click();await expect(page.locator('#customerName')).toHaveText('Empresa Costa Azul');await expect(page.locator('#customerLogin')).not.toBeVisible();await expect(page.locator('#siteProducts .product-card')).toHaveCount(2)}
 for(const width of [320,390,1440])test('customer stays in the same catalogue with negotiated prices, tabs and scoped order at '+width,async({page})=>{
  await customerFixture(page);await boot(page,{width});await expect(page.locator('#siteProducts .product-price').first()).toContainText('11,50');
- const before=page.url();await loginCustomer(page);expect(page.url()).toBe(before);await expect(page.locator('#hero')).toHaveCount(0);await expect(page.locator('#siteProducts .product-price').first()).toContainText('4,60');await expect(page.locator('#featuredSection')).toHaveCount(0);await expect(page.locator('#tabs')).toBeVisible();await expect(page.locator('#customerArea #content')).toBeHidden();
- await page.locator('#siteProducts .product-name').first().click();await expect(page.locator('#productDialog .product-price').first()).toContainText('4,60');await expect(page.locator('#productDialog .specifications')).toContainText('4,00');await page.locator('[data-close-dialog=productDialog]').click();
+ const before=page.url();await loginCustomer(page);expect(page.url()).toBe(before);await expect(page.locator('#hero')).toHaveCount(0);await expect(page.locator('#siteProducts .product-price').first()).toContainText('4,00');await expect(page.locator('#featuredSection')).toHaveCount(0);await expect(page.locator('#tabs')).toBeVisible();await expect(page.locator('#customerArea #content')).toBeHidden();
+ await page.locator('#siteProducts .product-name').first().click();await expect(page.locator('#productDialog .product-price').first()).toContainText('4,00');await expect(page.locator('#productDialog .specifications')).toContainText('4,00');await page.locator('[data-close-dialog=productDialog]').click();
  await page.locator('#siteProducts [data-customer-favorite]').first().click();await expect(page.locator('#siteProducts [data-customer-favorite]').first()).toHaveAttribute('aria-pressed','true');await page.locator('[data-tab=favorites]').click();await expect(page.locator('#content')).toContainText('Mis compras habituales');await expect(page.locator('#content .product')).toHaveCount(1);await expect(page.locator('#catalogo')).toBeHidden();
  await page.locator('[data-tab=documents]').click();await expect(page.locator('#content')).toContainText('DOC-00000018');await page.locator('[data-tab=requests]').click();await expect(page.locator('#content')).toContainText('SOL-00000018');
  await page.locator('[data-tab=catalog]').click();await expect(page.locator('#catalogo')).toBeVisible();await page.locator('#siteSort').selectOption('price_desc');await expect(page.locator('#siteProducts .product-name').first()).toHaveText('Agua mineral');await page.locator('#siteSort').selectOption('price_asc');await expect(page.locator('#siteProducts .product-name').first()).toHaveText('Café para oficina');
@@ -163,7 +173,7 @@ for(const width of [320,390,1440])test('customer stays in the same catalogue wit
  await page.locator('#logout').click();await expect(page.locator('#customerArea')).toBeHidden();await expect(page.locator('#siteProducts .product-price').first()).toContainText('11,50');await expect(page.locator('#cartCount')).toHaveText('0');expect(await page.locator('body').innerText()).not.toContain('Empresa Costa Azul');expect(await page.locator('body').innerText()).not.toContain('DOC-00000018');
 });
 test('restored customer session has no public price flash and revocation clears all private views',async({page})=>{
- await customerFixture(page,{restore:true});await boot(page);await expect(page.locator('#siteProducts .product-price').first()).toContainText('4,60');expect(await page.evaluate(()=>__SITE_CALLS.some(c=>c.p_action==='catalog'))).toBe(false);
+ await customerFixture(page,{restore:true});await boot(page);await expect(page.locator('#siteProducts .product-price').first()).toContainText('4,00');expect(await page.evaluate(()=>__SITE_CALLS.some(c=>c.p_action==='catalog'))).toBe(false);
  await page.evaluate(()=>__REVOKED=true);await page.locator('[data-tab=documents]').click();await expect(page.locator('#customerArea')).toBeHidden();await expect(page.locator('#siteProducts .product-price').first()).toContainText('11,50');
 });
 test('late customer catalogue response cannot repaint prices after logout',async({page})=>{
@@ -214,4 +224,38 @@ for(const width of [320,390,1440])test('embedded customer portal reviews and rec
  await customerFixture(page);await boot(page,{width});await loginCustomer(page);await page.locator('[data-tab=agreements]').click();await expect(page.locator('#catalogo')).toBeHidden();await page.locator('[data-agreement-language]').selectOption('fr');await page.locator('[data-agreement]').click();await expect(page.locator('#content')).toContainText('Papel equivalente');await expect(page.locator('#agreementResponse')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.locator('#agreementResponse [name=agree]').check();await page.getByRole('button',{name:'Accepter la proposition',exact:true}).click();await expect(page.locator('#status')).toContainText('GAMA doit');const calls=await page.evaluate(()=>__CUSTOMER_CALLS.filter(c=>c.name==='gama_b2b_fulfillment'&&c.p_action==='respond'));expect(calls).toHaveLength(1);expect(calls[0].p_data).toMatchObject({fingerprint:'portal-fingerprint',decision:'accepted',agree:true});await page.screenshot({path:'test-results/embedded-agreement-'+width+'.png',fullPage:true});
  await page.locator('#logout').click();await expect(page.locator('#content')).toBeEmpty();await expect(page.locator('#customerArea')).toBeHidden();
+});
+
+for(const width of [390,1440])test('guest billing, mixed totals review and receipt never charge a card on '+width,async({page})=>{
+ await boot(page,{width});
+ await page.route('**/api/storefront',async route=>{const {p_action:a,p_data:d}=route.request().postDataJSON();
+  if(a==='commerce_preview'){const n=d.lines[0].quantity*10;return route.fulfill({json:{subtotal:n,tax:n*.15,total:n*1.15,price_hash:'current-prices',lines:d.lines}})}
+  if(a==='commerce_checkout'){await page.evaluate(d=>window.__CHECKOUT=d,d);return route.fulfill({json:{id:'20000000-0000-4000-8000-000000000001',access_token:'30000000-0000-4000-8000-000000000001',reference:'COT-GUEST-001',total:23,payment_enabled:false}})}
+  return route.fallback();
+ });
+ await expect(page.locator('#siteProducts .product-card')).toHaveCount(2);await page.locator('#siteProducts [data-add]').first().click();await page.locator('#cartOpen').click();
+ await page.locator('#purchaseMode').selectOption('order');await expect(page.locator('#billingFields')).toBeVisible();await expect(page.locator('#cartTitle')).toHaveText('Solicitar un pedido sin cuenta');await expect(page.locator('#quoteForm [name=phone]')).toHaveAttribute('required','');await expect(page.getByLabel('Teléfono *',{exact:true})).toBeVisible();
+ await page.locator('#quoteForm [name=contact_name]').fill('Cliente Invitado');await page.locator('#quoteForm [name=email]').fill('invitado@example.invalid');await page.locator('#quoteForm [name=phone]').fill('0999999999');
+ await page.locator('[name=billing_name]').fill('Cliente Invitado');await page.locator('[name=identification]').fill('1799999999001');await page.locator('[name=city]').fill('Quito');await page.locator('[name=billing_address]').fill('Calle de prueba 123');await page.locator('[name=consent]').check();await page.locator('[name=terms_accepted]').check();
+ await page.locator('#quoteSend').click();await expect(page.locator('#checkoutAmounts')).toContainText('23,00');await expect(page.locator('#checkoutAmounts')).toContainText('3,00');await expect(page.getByRole('button',{name:'Pagar en línea'})).toBeDisabled();
+ expect(await page.evaluate(()=>window.__CHECKOUT)).toBeUndefined();await page.screenshot({path:'test-results/gama-guest-review-'+width+'.png',fullPage:true});await page.locator('#quoteSend').click();await expect(page.locator('#quoteStatus')).toContainText('COT-GUEST-001');
+ const sent=await page.evaluate(()=>window.__CHECKOUT);expect(sent.billing.identification).toBe('1799999999001');expect(sent.price_hash).toBe('current-prices');expect(sent.terms_accepted).toBe(true);expect(sent.human_token).toBe('test-human-token');
+ expect(await page.evaluate(()=>Object.values(sessionStorage).join(' '))).not.toContain('invitado@example.invalid');expect(await page.evaluate(()=>Object.values(sessionStorage).join(' '))).not.toContain('1799999999001');
+ await expectContained(page,'#cartDialog,#billingFields,.order-summary');
+});
+
+
+for(const width of [390,1440])test('verified guest review keeps bot verification inside the active dialog at '+width,async({page})=>{
+ await page.addInitScript(()=>sessionStorage.setItem('gama.guest.receipts',JSON.stringify([{id:'20000000-0000-4000-8000-000000000001',access_token:'30000000-0000-4000-8000-000000000001',reference:'COT-001'}])));
+ await boot(page,{width});await page.route('**/api/storefront',async route=>{const {p_action:a,p_data:d}=route.request().postDataJSON();if(a==='commerce_review_eligibility')return route.fulfill({json:{eligible:true}});if(a==='commerce_review_save'){await page.evaluate(d=>window.__REVIEW=d,d);return route.fulfill({json:{saved:true}})}return route.fallback()});
+ await page.locator('#siteProducts .product-name').first().click();await expect(page.locator('.review-form')).toBeVisible();await expect(page.locator('.review-form #humanVerification')).toHaveCount(1);
+ await page.locator('.review-form [name=rating]').selectOption('4');await page.locator('.review-form [name=body]').fill('Buen producto para la oficina.');await page.locator('.review-form [type=submit]').click();await expect(page.locator('.review-form')).toContainText('Opinión publicada');expect((await page.evaluate(()=>window.__REVIEW)).human_token).toBe('test-human-token');
+ await page.locator('[data-close-dialog=productDialog]').click();await page.locator('#siteProducts [data-add]').first().click();await page.locator('#cartOpen').click();await expect(page.locator('#quoteForm #humanVerification')).toHaveCount(1);await expectContained(page,'#cartDialog');
+});
+for(const width of [390,1440])test('approver edits quantities, adds products and submits a revised approval at '+width,async({page})=>{
+ await customerFixture(page);await boot(page,{width});await loginCustomer(page);await page.evaluate(()=>window.__APPROVAL_FIXTURE=true);
+ await page.locator('[data-tab=approvals]').click();await page.getByRole('button',{name:'Revisar solicitud',exact:true}).click();await expect(page.locator('[data-approval-decision=approve]')).toBeVisible();await page.locator('[data-approval-edit]').click();
+ await page.locator('#content [data-qty]').fill('4');await page.locator('#content [data-qty]').press('Tab');await page.locator('[data-edit-catalog]').click();await page.locator('#siteProducts [data-add]').nth(1).click();await page.locator('[data-tab=cart]').click();await expect(page.locator('#content [data-qty]')).toHaveCount(2);
+ await page.locator('#cartPreview').click();await expect(page.locator('#orderForm [type=submit]')).toBeEnabled();await page.locator('#orderForm [type=submit]').click();await expect(page.locator('#content h2')).toHaveText('Aprobaciones de compra');
+ const calls=await page.evaluate(()=>__CUSTOMER_CALLS.filter(x=>x.p_action==='approval_edit'));expect(calls).toHaveLength(1);expect(calls[0].p_data.lines).toHaveLength(2);expect(calls[0].p_data.lines[0].quantity).toBe(4);expect(calls[0].p_data.version).toBe(1);await expectContained(page,'#content');await page.evaluate(()=>scrollTo({top:0,left:0,behavior:'instant'}));await page.screenshot({path:'test-results/gama-approvals-'+width+'.png'});
 });

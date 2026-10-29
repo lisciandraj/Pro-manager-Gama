@@ -1,28 +1,35 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
 import {onRequest} from '../src/storefront/server/api.mjs';import {escapeBootstrap,metadata} from '../src/storefront/server/middleware.mjs';
-const token='a'.repeat(64),request=(action,data={},headers={})=>new Request('https://gama.pages.dev/api/storefront',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://gama.pages.dev','CF-Connecting-IP':'198.51.100.5',...headers},body:JSON.stringify({p_action:action,p_data:data})});
+const token='a'.repeat(64),secureEnv={COCO_SITE_TOKEN:token,TURNSTILE_SITE_KEY:'test-key',TURNSTILE_SECRET_KEY:'test-secret'},withHuman=fn=>async(u,o)=>u.includes('challenges.cloudflare.com')?Response.json({success:true,hostname:'gama.pages.dev',action:'gama_commerce'}):fn(u,o),request=(action,data={},headers={})=>new Request('https://gama.pages.dev/api/storefront',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://gama.pages.dev','CF-Connecting-IP':'198.51.100.5',...headers},body:JSON.stringify({p_action:action,p_data:{...data,...(["submit","commerce_checkout"].includes(action)?{human_token:"test-human-token"}:{})}})});
 test('public proxy only allows the catalogue contract and bounds the complete body',async()=>{
  for(const a of ['public_connection','public_inquiries','delete','overview']){const r=await onRequest({request:request(a),fetcher:()=>assert.fail('must not reach database')});assert.equal(r.status,400)}
  let r=await onRequest({request:new Request('https://gama.pages.dev/api/storefront')});assert.equal(r.status,405);
  r=await onRequest({request:request('bootstrap',{value:'x'.repeat(28000)}),fetcher:()=>assert.fail()});assert.equal(r.status,413);
- let sent; r=await onRequest({request:request('catalog',{search:'Café',visitor:'untrusted'}),fetcher:async(u,o)=>{sent=JSON.parse(o.body);assert.equal(o.headers['x-coco-site-token'],undefined);return Response.json({items:[],total:0})}});assert.equal(r.status,200);assert.equal(sent.p_data.visitor,undefined);
+ let sent; r=await onRequest({request:request('catalog',{search:'Café',visitor:'untrusted'}),fetcher:withHuman(async(u,o)=>{sent=JSON.parse(o.body);assert.equal(o.headers['x-coco-site-token'],undefined);return Response.json({items:[],total:0})})});assert.equal(r.status,200);assert.equal(sent.p_data.visitor,undefined);
 });
 test('public writes require a server secret and same origin; the visitor identity is overwritten',async()=>{
  let r=await onRequest({request:request('submit'),fetcher:()=>assert.fail()});assert.equal(r.status,503);
- r=await onRequest({request:request('submit',{}, {Origin:'https://other.invalid'}),env:{COCO_SITE_TOKEN:token},fetcher:()=>assert.fail()});assert.equal(r.status,403);
- r=await onRequest({request:request('submit',{visitor:'attacker',contact_name:'QA'}),env:{COCO_SITE_TOKEN:token},fetcher:async(u,o)=>{assert.equal(o.headers['x-coco-site-token'],token);assert.equal(JSON.parse(o.body).p_data.visitor,'198.51.100.5');assert.ok(o.headers.apikey.startsWith('sb_publishable_'));return Response.json({reference:'WEB-00000001'})}});
+ r=await onRequest({request:request('submit',{}, {Origin:'https://other.invalid'}),env:secureEnv,fetcher:()=>assert.fail()});assert.equal(r.status,403);
+ r=await onRequest({request:request('submit',{visitor:'attacker',contact_name:'QA'}),env:secureEnv,fetcher:withHuman(async(u,o)=>{assert.equal(o.headers['x-coco-site-token'],token);assert.equal(JSON.parse(o.body).p_data.visitor,'198.51.100.5');assert.ok(o.headers.apikey.startsWith('sb_publishable_'));return Response.json({reference:'WEB-00000001'})})});
  assert.equal(r.status,200);assert.deepEqual(await r.json(),{reference:'WEB-00000001'});
  r=await onRequest({request:request('bootstrap'),fetcher:async()=>Response.json({message:'private table failed; secret='+token},{status:500})});assert.equal(r.status,503);assert.deepEqual(await r.json(),{error:'WEBSITE_UNAVAILABLE'});
- r=await onRequest({request:request('submit'),env:{COCO_SITE_TOKEN:token},fetcher:async()=>Response.json({message:'WEBSITE_RATE_LIMIT'},{status:400})});assert.equal(r.status,429);
+ r=await onRequest({request:request('submit'),env:secureEnv,fetcher:withHuman(async()=>Response.json({message:'WEBSITE_RATE_LIMIT'},{status:400}))});assert.equal(r.status,429);
 });
 test('bootstrap injection cannot close its inert JSON script and SEO text stays plain',()=>{const data={settings:{seo_title:'GAMA <test>',seo_description:'Catalogue',primary_color:'#176072',hero_title:'</script><script>alert(1)</script>'}};const s=escapeBootstrap(data);assert.ok(!s.includes('<'));assert.deepEqual(JSON.parse(s),data);assert.equal(metadata(data).title,'GAMA <test>');assert.equal(metadata({settings:{primary_color:'javascript:bad'}}).color,'#176072')});
 test('upstream redirects are refused and logs never expose credentials or response details',async()=>{
  const logs=[],original=console.error;console.error=value=>logs.push(value);
  try{
   let calls=0;
-  const r=await onRequest({request:request('submit'),env:{COCO_SITE_TOKEN:token},fetcher:async(_,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response('secret='+token,{status:302,headers:{Location:'https://untrusted.invalid/'}})}});
+  const r=await onRequest({request:request('submit'),env:secureEnv,fetcher:withHuman(async(_,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response('secret='+token,{status:302,headers:{Location:'https://untrusted.invalid/'}})})});
   assert.equal(calls,1);assert.equal(r.status,503);assert.deepEqual(await r.json(),{error:'WEBSITE_UNAVAILABLE'});
   assert.equal(logs.length,1);assert.deepEqual(JSON.parse(logs[0]),{event:'storefront_upstream_failure',status:302,code:'INVALID_RESPONSE'});
   assert.ok(!logs.join('').includes(token));assert.ok(!logs.join('').includes('untrusted.invalid'));
  }finally{console.error=original}
+});
+test('bot verification rejects forged, expired, wrong-host and wrong-action tokens before the database',async()=>{
+ for(const verification of [{success:false},{success:true,hostname:'attacker.invalid',action:'gama_commerce'},{success:true,hostname:'gama.pages.dev',action:'other'}]){
+  let databaseCalls=0;const r=await onRequest({request:request('commerce_checkout'),env:secureEnv,fetcher:async(url)=>{if(url.includes('challenges.cloudflare.com'))return Response.json(verification);databaseCalls++;return Response.json({})}});
+  assert.equal(r.status,400);assert.equal(databaseCalls,0);assert.equal((await r.json()).error,'HUMAN_VERIFICATION_REQUIRED');
+ }
+ const r=await onRequest({request:request('commerce_checkout'),env:secureEnv,fetcher:withHuman(async(url,options)=>{assert.ok(url.endsWith('/gama_commerce'));const data=JSON.parse(options.body);assert.equal(data.p_action,'checkout');assert.equal(data.p_data.human_token,undefined);assert.equal(data.p_data.visitor,'198.51.100.5');return Response.json({payment_enabled:false})})});assert.equal(r.status,200);
 });

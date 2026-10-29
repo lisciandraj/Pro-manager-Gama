@@ -28,3 +28,5 @@
  .sdLibraryFilters .sdFilters>[data-sd-action=new]{flex-basis:100%}
  .sdLibraryContent{padding:12px}
 }
+
+@media screen{body.cocoWorkbench #documents .sdLibrary{border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}}

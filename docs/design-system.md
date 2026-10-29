@@ -1,6 +1,6 @@
 # Charte graphique actuelle
 
-Coco ERP applique la charte Coco Clair aux modules internes : espace de travail blanc, Inter locale, listes lisibles, détails progressifs et navigation horizontale. Le bleu pétrole, l’orange et les actifs Coco conservent l’identité du produit. Le contrat de tokens actuel est [Coco Clair ERP](erp-design/DESIGN.md), accompagné de sa sidecar `erp-design/.impeccable/design.json`. Les fichiers `DESIGN.md` et `.impeccable/design.json` à la racine concernent exclusivement le site public GAMA.
+Coco ERP applique la charte Coco Premium aux modules internes : toile porcelaine, surfaces satinées, profondeur multicouche, Inter locale, listes lisibles et navigation horizontale. Le bleu pétrole, l’orange et les actifs Coco conservent l’identité du produit. Le contrat de tokens actuel est [Coco Premium ERP](erp-design/DESIGN.md), accompagné de sa sidecar `erp-design/.impeccable/design.json`. Les fichiers `DESIGN.md` et `.impeccable/design.json` à la racine concernent exclusivement le site public GAMA.
 
 | Élément | Source actuelle |
 | --- | --- |
@@ -18,24 +18,24 @@ Coco ERP applique la charte Coco Clair aux modules internes : espace de travail 
 
 | Rôle | Standard |
 | --- | --- |
-| Fond / surfaces | #FFFFFF ; fond en retrait #F7F9FA ; surfaces opaques et mates |
+| Fond / surfaces | #F3F5F7 ; surface #FFFFFF ; fond en retrait #EDF2F4 ; satin blanc opaque |
 | Texte / secondaire | #17243B / #5D6980 |
 | Marque | Bleu pétrole #157F98, lien #10677D, orange #F87826 |
-| Action principale | Orange soutenu #BD4E09, texte blanc #FFFFFF ; marque #F87826 conservée |
-| Bordures | Panneaux et lignes #DFE6EB ; tuiles d’accueil sans contour ; saisie #7B8797 ; pas de quadrillage vertical ordinaire |
+| Action principale | Dégradé #BD4E09 → #B54708, texte blanc #FFFFFF ; marque #F87826 conservée |
+| Bordures | Lignes #DFE6EB ; panneaux et tuiles élevés sans contour ; saisie #7B8797 ; pas de quadrillage vertical ordinaire |
 | Police | Inter variable locale en premier, puis polices système ; poids courants 400, 500, 600 |
 | Échelle | Métadonnées 12, corps et valeurs PC 14, principales valeurs de fiches et saisie téléphone 16, section 17, titre 22/24 px |
 | Espacements | Base 4 px ; contenu grand PC 28 px en haut et 32 px sur les côtés ; sous 1180 px 24/20 px ; panneaux 24 px, 16 px sur téléphone |
-| Rayons | Badge 5, bouton/champ 6, panneau 8, fenêtre partagée 12 px ; composants spécialisés selon leur contrat |
-| Ombres | Aucune sur les surfaces de travail, contrôles et tuiles ; profondeur réservée aux superpositions |
+| Rayons | Badge 5, bouton/champ 10, panneau 16 (14 sur téléphone), fenêtre partagée 24 px ; composants spécialisés selon leur contrat |
+| Ombres | Trois niveaux multicouches : surface, survol interactif, superposition ; pas d’ombres imbriquées |
 
-Le [contrat Coco Clair ERP](erp-design/DESIGN.md) précise les tokens, composants, tableaux, formulaires progressifs et historiques actuels. Sa sidecar présente les contrôles sans dépendance de framework. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats, RH et TMS restent dans leurs styles différés. Les contrats sous `replica/design/` et les captures datées documentent les étapes antérieures ; ils ne remplacent pas la charte courante. Aucun nouvel actif graphique ni police distante n’est téléchargé.
+Le [contrat Coco Premium ERP](erp-design/DESIGN.md) précise les tokens, composants, tableaux, formulaires progressifs et historiques actuels. Sa sidecar présente les contrôles sans dépendance de framework. `src/styles/tokens.css` reste la source runtime ; `design.css` applique le thème commun après les styles de disposition. Les adaptations CRM, Achats, RH et TMS restent dans leurs styles différés. Les contrats sous `replica/design/` et les captures datées documentent les étapes antérieures ; ils ne remplacent pas la charte courante. Aucun nouvel actif graphique ni police distante n’est téléchargé.
 
 La refonte est exclusivement visuelle. Les modules, identifiants, données, calculs, droits, actions, filtres, onglets, liens, langues et préférences existantes sont conservés. Les graphiques utilisent leurs vraies séries existantes. La navigation horizontale et le lanceur gardent leur fonctionnement ; leurs couleurs, bordures, espacements et typographie suivent la charte.
 
 Les accents principaux sont `#157F98`, `#10677D`, `#238FA4` et `#F87826`. Les tokens de texte et fonds déterminent leur usage ; les noms historiques comme `--arc-coco-violet` sont des alias compatibles, pas une description de la couleur affichée.
 
-**Référence d’identité du 20 octobre 2026.** Le paragraphe suivant décrit les actifs de marque approuvés ; sa mention d’une bordure de tuile appartient à cette révision. Les règles Coco Clair ci-dessus déterminent la présentation actuelle des tuiles.
+**Référence d’identité du 20 octobre 2026.** Le paragraphe suivant décrit les actifs de marque approuvés ; sa mention d’une bordure de tuile appartient à cette révision. Les règles Coco Premium ci-dessus déterminent la présentation actuelle des tuiles.
 
 La barre supérieure et le menu des applications restent blancs. Depuis le 20 octobre 2026, le menu ouvrable et la connexion affichent le logo « COCO » en bleu pétrole avec des nuances satinées, une texture brossée discrète et un léger relief lumineux, avec le O et le C centraux partiellement fusionnés et « ERP » de la même couleur, davantage espacé sous le mot. L’icône PC/smartphone reprend uniquement le monogramme CO, avec le C à gauche, le O à droite et le même écart courbé que dans le logo principal, sur une tuile blanche, sans relief ni texte. Les originaux sont conservés intacts dans `assets/brand/coco-erp-logo-approved-20261020.png` et `assets/brand/coco-erp-icon-co-approved-20261018.png`, à côté des références précédentes. `scripts/export-brand-assets.py` (Python avec Pillow) recadre uniquement les marges blanches du logo principal et ajoute 3 % de marge blanche par bord à l’icône pour les masques d’application. Le logo web mesure 1200 × 435 px. Le logo principal utilise la révision `20261020-satin` ; le manifeste, le favicon et les icônes PC/smartphone utilisent `20261018-co`, y compris dans le menu et le cache hors connexion. Les anciennes adresses `coco-gama-*` et `icon-*.png` conservent des exports compatibles. Le point de lancement PWA et son identité existante restent inchangés. Les titres d’introduction de l’accueil ont été retirés ; les tuiles gardent leur bordure fine et leur personnalisation. Une photo d’employé peut remplacer les initiales du profil.
 
@@ -53,7 +53,7 @@ La barre latérale reprend désormais les deux couleurs, conformément à cette 
 
 Les libellés, calculs, destinations, autorisations, focus clavier et cibles tactiles restent ceux des composants existants. Les captures du 18 octobre ci-dessous documentent l’ancienne iconographie ; le code et cette section font autorité pour les icônes actuelles.
 
-Les tableaux restent le défaut sur PC. Sur téléphone (760 px ou moins), les listes en lecture seule utilisent des fiches si le compte n’a pas choisi de vue. Les lignes éditables, grilles de formulaire, fenêtres et tableaux explicitement exclus gardent le tableau, sauf choix explicite ou adaptation propre au module. Un choix enregistré reste prioritaire. Les cellules ont des séparateurs horizontaux fins (`--coco-row-line`) ; `--coco-column-line` est transparent dans la charte ordinaire. Les en-têtes et cellules vides restent alignés. Les grands tableaux défilent dans leur propre zone. Le choix Tuiles / Tableau reste conservé par compte et tableau (`src/ui/tables.js`). Les fiches mobiles partagées sont plates, séparées par une ligne horizontale.
+Les tableaux restent le défaut sur PC. Sur téléphone (760 px ou moins), les listes en lecture seule utilisent des fiches si le compte n’a pas choisi de vue. Les lignes éditables, grilles de formulaire, fenêtres et tableaux explicitement exclus gardent le tableau, sauf choix explicite ou adaptation propre au module. Un choix enregistré reste prioritaire. Les cellules ont des séparateurs horizontaux fins (`--coco-row-line`) ; `--coco-column-line` est transparent dans la charte ordinaire. Les en-têtes et cellules vides restent alignés. Les grands tableaux défilent dans leur propre zone. Le choix Tuiles / Tableau reste conservé par compte et tableau (`src/ui/tables.js`). Les fiches mobiles partagées sont des surfaces blanches de 14 px de rayon, espacées de 12 px, avec 16 px de marge intérieure.
 
 Le sélecteur « Tuiles / Tableau » utilise les mêmes boutons partagés, y compris dans les tableaux historiques et les fenêtres de consultation. Leur largeur s’adapte à l’icône et au libellé traduit, sans compression ; leur hauteur minimale est de 44 px. Le contour ordinaire est discret ; le choix actif garde un fond clair et un contour pétrole. La présentation est définie dans `src/styles/ui.css` et la finition commune dans `src/styles/design.css` ; les styles de page ne redéfinissent pas ces boutons.
 
@@ -63,7 +63,7 @@ L’ordre des colonnes se modifie en glissant un en-tête (souris) ou sa poigné
 
 Les fenêtres de consultation partagées affichent une seule action « Retour » (« Volver » / « Back »), sans doublon « Fermer ». Les formulaires conservent leur action métier et leur bouton Retour. Une confirmation explicite conserve ses deux choix. `ArcUI.dialog` reconnaît les anciens libellés de fermeture FR/ES/EN ; `dismissOnly` permet de déclarer ce comportement explicitement.
 
-La charte commune est implémentée dans `src/styles/workspace.css`, `src/styles/workbench.css` puis `src/styles/design.css` : navigation blanche, tuiles blanches sans contour ni ombre avec leurs icônes bleu/orange, titres visibles, favoris par compte et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent ce même traitement ; le survol emploie un fond en retrait. La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
+La charte commune est implémentée dans `src/styles/workspace.css`, `src/styles/workbench.css` puis `src/styles/design.css` : navigation blanche, tuiles blanches satinées sans contour avec une ombre douce avec leurs icônes bleu/orange, titres visibles, favoris par compte et navigation mobile Accueil/Recherche/Scanner/Plus. Toutes les familles de modules utilisent ce même traitement ; le survol renforce légèrement la profondeur. La première catégorie du menu des applications est « Favoris » : les modules étoilés sur l’accueil y apparaissent immédiatement, dans l’ordre de leur ajout et selon les droits du compte. Retirer une étoile retire aussi son raccourci ; les changements sont synchronisés entre les onglets du navigateur. Sans favori, une indication explique comment en ajouter. Les favoris sont aussi accessibles dans le menu mobile. L’accès au scanner conserve les droits du module. Les favoris et l’ordre personnel des modules sont indépendants.
 
 Le Dashboard présente les indicateurs du profil, le graphique, les actions du jour et cinq commandes récentes. Son en-tête conserve la flèche de retour au menu partagée avec les autres modules, sur ordinateur et téléphone. Les vues favorites, indicateurs personnels et analyses détaillées restent accessibles dans des sections dépliables. Les commandes récentes sont une lecture limitée soumise aux mêmes droits, annulée visuellement lors d’un changement de compte ou de période.
 
@@ -88,7 +88,7 @@ Le catalogue Produits apparaît avant le formulaire complet. Nouveau produit et 
 
 Les historiques de module démarrent repliés : résumé dans une ligne utilitaire du flux normal au-dessus du travail, compact sur PC (270 px maximum) et pleine largeur sur téléphone. Un historique fermé ne réserve aucune colonne latérale. Les dossiers sélectionnés gardent leur historique ouvert sur PC ; l’historique central d’Agent Coco reste ouvert dans sa page. Les lectures, propositions, droits et commandes de focus restent ceux des composants existants.
 
-TMS utilise sa vraie carte quotidienne, les marqueurs GPS et les filtres de tournée. La préparation et les arrêts sont à gauche de la carte sur PC. Jusqu’à 900 px, les outils et la progression deviennent compacts et la carte précède les listes longues. Tracés, attribution, confidentialité, routage et actions métier sont conservés. Agent Coco conserve l’ordre conversations récentes, message et historique central ; les cadres sont aplatis et les contrôles suivent Coco Clair.
+TMS utilise sa vraie carte quotidienne, les marqueurs GPS et les filtres de tournée. La préparation et les arrêts sont à gauche de la carte sur PC. Jusqu’à 900 px, les outils et la progression deviennent compacts et la carte précède les listes longues. Tracés, attribution, confidentialité, routage et actions métier sont conservés. Agent Coco conserve l’ordre conversations récentes, message et historique central ; les panneaux satinés et les contrôles suivent Coco Premium.
 
 ## Parcours quotidiens — octobre 2026
 
@@ -109,7 +109,7 @@ Les références réunies pour Coco sont appliquées à la hiérarchie et à la 
 
 Documents sépare les filtres dans un rail et la recherche/résultats dans une surface principale. La recherche doit rester dans `.sdLibraryContent`, car GamaTable normalise son emplacement. Les deux zones s’empilent sous 760 px. La base de connaissances réunit son arbre et l’article dans une surface de lecture. Les cartes d’opportunité, champs, en-têtes et pieds des dialogues partagés suivent les tokens harmonisés.
 
-La spécification visuelle courante est [Coco Clair ERP](erp-design/DESIGN.md). Le [relevé Replica](../replica/recon.md) conserve les sources de référence historiques. Les sources runtime restent `src/styles/` et `src/ui/` ; les tokens documentaires ne sont pas une seconde feuille de thème à importer.
+La spécification visuelle courante est [Coco Premium ERP](erp-design/DESIGN.md). Le [relevé Replica](../replica/recon.md) conserve les sources de référence historiques. Les sources runtime restent `src/styles/` et `src/ui/` ; les tokens documentaires ne sont pas une seconde feuille de thème à importer.
 
 Les styles propres au pipeline CRM, à Documents et à la base de connaissances sont chargés avec leurs modules via le registre de chargement différé. Cela conserve le budget CSS de démarrage ; `config/runtime-assets.json` reste la source des assets publiés.
 
@@ -123,7 +123,7 @@ La barre supérieure de 64 px sur PC et 60 px sur téléphone regroupe marque, m
 
 L’accueil utilise une grille compacte de neuf colonnes sur ordinateur (à partir de 1180 px, y compris sur écran court), avec 24 px d’espacement horizontal et vertical, cinq sur tablette large, quatre sur tablette et trois sur téléphone jusqu’à 760 px. Les tuiles restent toujours carrées (un espace carré en flux normal, calculé par `::before` et `padding-top: 100 %`, évite les chevauchements de rangées sur Safari) : leur hauteur suit leur largeur, en portrait comme en paysage. Le bouton du module remplit ce carré en position absolue ; les libellés et icônes s’adaptent aux trois colonnes du téléphone. Les rangées utilisent Flexbox avec retour à la ligne et une largeur calculée par colonne pour éviter le calcul cyclique de hauteur de CSS Grid dans WebKit lors des redimensionnements ; sur un écran court, la page défile plutôt que d’aplatir les tuiles. Les icônes, marges et espaces conservent leurs adaptations par taille d’écran. Les libellés restent complets, et les favoris, l’ordre personnel et les droits restent identiques. Sur un écran très court ou avec un zoom important, le contenu conserve sa hauteur lisible et peut défiler, sans masquer de module.
 
-Les surfaces de travail sont blanches et plates, avec des panneaux de 8 px de rayon et des listes sans cadre périphérique. Les lignes horizontales et les références restent lisibles ; les commandes communes conservent leur cible de 44 px. Les champs, états, focus et couleurs s’appuient sur les tokens Coco.
+Les surfaces de travail sont blanches et satinées, avec des panneaux de 16 px de rayon, une ombre multicouche et des listes intégrées sans seconde ombre. Les lignes horizontales et les références restent lisibles ; les commandes communes conservent leur cible de 44 px. Les champs, états, focus et couleurs s’appuient sur les tokens Coco.
 
 Ventes regroupe création, titre, recherche et pagination dans une barre de commande. Les destinations secondaires restent visibles ; les filtres, vues enregistrées et contrôles de tableau sont dépliables sur téléphone, ouverts sur ordinateur. Les filtres appliqués, la pagination serveur, le retour au devis, le choix tableau/tuiles et les clés de préférence restent compatibles. Le site public et les documents imprimés ne sont pas concernés.
 
@@ -132,7 +132,7 @@ Les contrôles de navigation et de mise en page vivent dans `tests/workbench-lay
 
 ## Affinement UI/UX Pro Max — quatre références du 18 octobre 2026
 
-Le modèle général est un espace de travail minimal : Inter locale, toile et surfaces blanches, bleu pétrole pour la navigation et les liens, orange pour les actions. Coco Clair emploie des surfaces plates et un voile de fenêtre sans flou. Aucun fond photographique ni bruit bitmap ne gêne la lecture. Les préférences de réduction du mouvement et de transparence sont respectées.
+Le modèle général est un espace de travail minimal : Inter locale, toile porcelaine légèrement texturée, surfaces blanches satinées, bleu pétrole pour la navigation et orange pour les actions. Coco Premium emploie trois niveaux de profondeur et un voile de fenêtre sans flou. Le pointillé statique reste sur la toile, à l’écart du contenu. Les préférences de réduction du mouvement et de transparence sont respectées.
 
 `ArcUI.metricIcon(name)` fournit le pictogramme décoratif partagé des KPI. Les compteurs RH, CRM, Stock, Achats, Comptabilité, Flotte et Projets réutilisent la même composition : icône de 34 px, libellé de 13 px, chiffre tabulaire de 22–28 px et détails de 12 px. Les valeurs, sources et calculs sont inchangés. Sur téléphone, icône et texte s’empilent sans réduire les champs sous 16 px.
 
@@ -140,7 +140,7 @@ Les tableaux gardent des séparateurs horizontaux fins : en-têtes communs de 12
 
 Les graphiques existants utilisent les dégradés pétrole/orange centralisés. Leurs axes, valeurs exactes, alternatives en tableau, exports et liens restent les mêmes, y compris dans la vue agrandie. Aucun indicateur fictif n’est ajouté.
 
-Le texte blanc est conservé sur les boutons orange. La nuance unie des actions est distincte de l’orange du logo ; son survol est plus sombre. Vérifier les couples calculés dans les composants actuels. Les rapports de contraste de `replica/design/` restent datés et ne constituent pas un audit de chaque état de l’interface.
+Le texte blanc est conservé sur les boutons orange. La nuance dégradée des actions est distincte de l’orange du logo ; son survol est plus sombre. Vérifier les couples calculés dans les composants actuels. Les rapports de contraste de `replica/design/` restent datés et ne constituent pas un audit de chaque état de l’interface.
 
 Les CSS des KPI personnels et de Projets se chargent avec Dashboard et Projets via `src/app/lazy-modules.js`. Cela conserve le budget de démarrage sans augmenter son plafond. Les formulaires, droits, langues, navigation et préférences des modules sont conservés.
 
@@ -152,7 +152,7 @@ Captures locales d’une révision antérieure de l’application compilée, ave
 
 ### Contraste des surfaces sur PC
 
-La toile et les surfaces sont blanches. Les zones secondaires et en-têtes de tableau utilisent le fond en retrait ; les séparateurs restent fins. Les tuiles et KPI sont plats. Les onglets actifs utilisent un texte et un soulignement pétrole, sans fond sombre. Les contrôles gardent un contour de focus visible. Le site public suit son propre contrat.
+La toile est porcelaine et les surfaces sont blanches. Les zones secondaires et en-têtes de tableau utilisent le fond en retrait ; les séparateurs restent fins. Les tuiles et KPI portent une ombre douce. Les onglets actifs utilisent un texte et un soulignement pétrole, sans fond sombre. Les contrôles gardent un contour de focus visible. Le site public suit son propre contrat.
 
 ## Contrats de mise en page de l’ERP
 
@@ -211,7 +211,7 @@ les chevauchements avec la navigation. Les essais Chromium et WebKit émulent le
 
 ## Accueil — tuiles inspirées du visuel GAMA
 
-Les tuiles restent carrées avec une surface blanche unie, sans contour ni ombre, séparées par l’espace. Elles affichent uniquement le pictogramme bleu pétrole/orange existant et le nom du module. Les favoris et le réordonnancement restent disponibles. Le téléphone affiche trois tuiles par rangée, y compris à 320 px ; le grand écran conserve neuf colonnes. La navigation clavier garde un indicateur de focus visible.
+Les tuiles restent carrées avec une surface blanche satinée, sans contour et avec une ombre douce, séparées par l’espace. Elles affichent uniquement le pictogramme bleu pétrole/orange existant et le nom du module. Les favoris et le réordonnancement restent disponibles. Le téléphone affiche trois tuiles par rangée, y compris à 320 px ; le grand écran conserve neuf colonnes. La navigation clavier garde un indicateur de focus visible.
 
 
 ### Apple Design — 21 octobre 2026
@@ -226,3 +226,7 @@ Application des fondations HIG au web, sans imposer les conventions d’une appl
 Les tuiles carrées (neuf colonnes sur grand écran, trois sur téléphone), favoris et icônes restent en place. L’historique de module est progressif ; celui du dossier sélectionné reste ouvert sur PC et le central Agent Coco reste dans le flux. Le site B2B et les documents imprimés ont leurs propres styles. Le mode sombre complet n’est pas livré par cette évolution : les modules historiques nécessitent un audit dédié avant activation.
 
 La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.
+
+## Direction premium du 29 octobre 2026
+
+Les références Geex fournies par le propriétaire inspirent les matières et la profondeur ; les structures métier, la palette pétrole/orange et les composants Coco sont conservés. Les tokens de `src/styles/tokens.css` pilotent la finition commune et les modules différés. Voir la [planche des composants](erp-design/components.html) et le [contrat de réutilisation](erp-design/DESIGN.md#réutilisation). Les micro-interactions confirment la pression, le favori sélectionné et les superpositions, sans séquence d’arrivée des pages. Aucun nouveau moteur JavaScript ni dépendance réseau n’est ajouté.

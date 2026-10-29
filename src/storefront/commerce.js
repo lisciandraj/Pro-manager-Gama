@@ -12,7 +12,10 @@ function mode(){const active=isCheckout();$('billingFields').hidden=!active;$('b
 function resetHuman(){token='';if(widget!==undefined&&window.turnstile)window.turnstile.reset(widget)}
 async function ensureHuman(target){
  const host=target||$('quoteSend').parentElement;
- if(verificationBox.parentElement!==host){if(target)host.append(verificationBox);else $('quoteSend').before(verificationBox)}
+ if(verificationBox.parentElement!==host){
+  if(widget!==undefined){window.turnstile.remove(widget);widget=undefined;token=''}
+  if(target)host.append(verificationBox);else $('quoteSend').before(verificationBox);
+ }
  if(widget!==undefined)return;
  if(!commerce.turnstile_sitekey)throw Error('HUMAN_VERIFICATION_UNAVAILABLE');
  if(!scriptPromise)scriptPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=resolve;s.onerror=()=>reject(Error('HUMAN_VERIFICATION_UNAVAILABLE'));document.head.append(s)}).catch(e=>{scriptPromise=null;throw e});

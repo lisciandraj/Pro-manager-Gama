@@ -15,7 +15,7 @@ async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catal
  await page.route('**/category-images/*.webp',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/category-images',new URL(r.request().url()).pathname.split('/').pop()),contentType:'image/webp'}));
  await page.route('**/commerce.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.js'),contentType:'text/javascript'}));
  await page.route('**/commerce.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.css'),contentType:'text/css'}));
- await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({contentType:'text/javascript',body:'window.turnstile={render:(el,opts)=>{window.__turnstileCallback=opts.callback;opts.callback("test-human-token");return 1},reset:()=>window.__turnstileCallback?.("test-human-token")};'}));
+ await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({contentType:'text/javascript',body:'window.turnstile={render:(el,opts)=>{window.__turnstileCallback=opts.callback;opts.callback("test-human-token");return 1},remove:()=>{},reset:()=>window.__turnstileCallback?.("test-human-token")};'}));
  await page.goto('/dist-storefront/index.html');
 }
 const catalogueCategories=require('../config/storefront-category-images.json').map((c,i)=>({category:c.category,title:c.category,count:100+i}));

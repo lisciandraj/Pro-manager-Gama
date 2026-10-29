@@ -14,8 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
           persist-credentials: false
+          ref: 46d4927f5ba0345ba0afcb83e9dbcac05670b474
       - name: Verify the application source is the tested revision
         run: git diff --exit-code "$GAMA_SOURCE_COMMIT" HEAD -- . ':(exclude).github/workflows/gama-publication-bundle.yml'
       - uses: actions/setup-node@v4
@@ -70,6 +71,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          ref: 46d4927f5ba0345ba0afcb83e9dbcac05670b474
       - uses: actions/setup-node@v4
         with:
           node-version: 22

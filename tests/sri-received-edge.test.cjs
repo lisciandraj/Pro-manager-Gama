@@ -27,7 +27,11 @@ test('large or missing XML is rejected without contacting the worker',async()=>{
 });
 
 test('test-environment or unknown-environment evidence cannot offset a production invoice',async()=>{
- for(const options of [{invoice:{environment:'pruebas'}},{invoice:{environment:null}},{proof:{environment:'pruebas'}},{proof:{environment:undefined}}]){
+ for(const options of [{invoice:{environment:'pruebas'}},{invoice:{environment:null}},{proof:{environment:'pruebas'}},{proof:{environment:null}},{invoice:{environment:'pruebas'},proof:{environment:undefined}}]){
   const h=harness(options),r=await h.request();assert.equal(r.error,'SRI_RECEIVED_ENVIRONMENT_MISMATCH');assert.equal(h.written.length,0);assert.equal(h.files.size,0);
  }
+});
+
+test('legacy worker proofs retain the authoritative environment check through their access key',async()=>{
+ const h=harness({proof:{environment:undefined}}),r=await h.request();assert.equal(r.status,200);assert.equal(r.rows[0].invoice_id,ID);assert.equal(h.files.size,1);
 });

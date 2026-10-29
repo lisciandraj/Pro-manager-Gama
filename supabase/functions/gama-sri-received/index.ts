@@ -33,7 +33,10 @@ Deno.serve(async request=>{
  for(const result of verified.rows){
   const invoice=invoices.find(i=>i.id===result.invoice_id);
   if(!invoice||!/^[0-9]{49}$/.test(result.access_key)||result.access_key!==inspected.access_key||result.issuer_ruc!==invoice.customer_identification||!Array.isArray(result.lines)||!result.authorized_at||typeof result.authorized_xml!=='string'||result.authorized_xml.length>1048576)throw Error('SRI_RECEIVED_FIELDS_INVALID');
-  if(result.environment!==invoice.environment||result.access_key[23]!== (invoice.environment==='pruebas'?'1':'2'))throw Error('SRI_RECEIVED_ENVIRONMENT_MISMATCH');
+  // Legacy workers encode the environment in the authorized access key. If a
+  // worker also returns the explicit field, require both representations to agree.
+  const keyEnvironment=result.access_key[23]==='1'?'pruebas':'produccion';
+  if(keyEnvironment!==invoice.environment||(result.environment!==undefined&&result.environment!==keyEnvironment))throw Error('SRI_RECEIVED_ENVIRONMENT_MISMATCH');
   const raw=new TextEncoder().encode(result.authorized_xml),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',raw))].map(v=>v.toString(16).padStart(2,'0')).join('');const path='received/'+result.access_key+'/'+hash+'.xml';
   const saved=await admin.storage.from('sri-documents').upload(path,raw,{contentType:'application/xml',upsert:false});if(saved.error&&!saved.error.message.includes('already exists'))throw Error('SRI_ARCHIVE_FAILED');
   const row={invoice_id:invoice.id,access_key:result.access_key,issuer_ruc:result.issuer_ruc,number:result.number,issued_on:result.issued_on,amount:result.amount,lines:result.lines,authorized_at:result.authorized_at,xml_path:path,xml_sha256:hash,verified_by:user.data.user.id};

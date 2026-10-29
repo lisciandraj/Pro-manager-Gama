@@ -26,7 +26,7 @@
  #knowledge #gkArticleTitle{font-size:22px}
 }
 
-/* Coco Clair: native module finish, loaded on demand. */
+/* Coco Premium: native module finish, loaded on demand. */
 @media screen{
- body.cocoWorkbench :is(#documents,#knowledge) :is(.sdLibrary,.gkLayout,.gdocLayout){border:1px solid var(--coco-line);border-radius:8px;background:white;box-shadow:none}
+ body.cocoWorkbench :is(#documents,#knowledge) :is(.sdLibrary,.gkLayout,.gdocLayout){border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench #knowledge :is(.gkArticle,.gkContent) :is(p,li){font-size:15px;line-height:1.7;max-width:70ch}}

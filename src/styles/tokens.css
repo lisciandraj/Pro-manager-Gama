@@ -33,7 +33,7 @@
  --arc-accent-50:#F3F9FA;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#FFFFFF;      /* Coco Clair: the work surface is white. */
+ --arc-canvas:#F3F5F7;      /* Cool porcelain canvas, opaque white working surfaces. */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
  --arc-surface-2:#F7F9FA;   /* table headings and inset surfaces */
  --arc-surface-3:#EEF1F5;
@@ -71,13 +71,13 @@
  --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
 
  /* -------------------------------------------------------------- radios */
- --arc-r-sm:6px; --arc-r-md:8px; --arc-r-lg:8px; --arc-r-xl:12px; --arc-r-pill:999px;
+ --arc-r-sm:10px; --arc-r-md:12px; --arc-r-lg:16px; --arc-r-xl:24px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
- --arc-sh-1:none;
- --arc-sh-2:0 4px 16px rgb(23 36 59 / .06);
- --arc-sh-3:0 16px 48px rgb(23 36 59 / .14);
- --arc-sh-nav:none;
+ --arc-sh-1:0 2px 4px rgb(16 59 82 / .025),0 8px 24px -12px rgb(16 59 82 / .12),inset 0 1px 0 rgb(255 255 255 / .9);
+ --arc-sh-2:0 3px 8px rgb(16 59 82 / .04),0 16px 36px -16px rgb(16 59 82 / .18),inset 0 1px 0 #FFFFFF;
+ --arc-sh-3:0 8px 20px rgb(16 59 82 / .08),0 28px 72px -16px rgb(16 59 82 / .24),inset 0 1px 0 #FFFFFF;
+ --arc-sh-nav:0 1px 3px rgb(16 59 82 / .03),0 6px 20px -12px rgb(16 59 82 / .16);
 
  /* ---------------------------------------------------------- tipografía */
  --arc-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -98,7 +98,7 @@
  --arc-focus:0 0 0 3px rgba(21,127,152,.35);
  --arc-content-max:1600px;
  /* Operational workspaces: Odoo layout references, Coco brand roles. */
- --arc-workspace-radius:12px;
+ --arc-workspace-radius:var(--arc-r-lg);
  --arc-workspace-gap:24px;
  --arc-command-surface:#FFFFFF;
  --arc-command-border:var(--arc-line);
@@ -106,22 +106,30 @@
  --arc-workspace-title:22px;
  --arc-reading-width:78ch;
  /* GAMA reference theme: one source for shared and lazy-loaded components. */
- --coco-canvas:#FFFFFF;--coco-surface:#FFFFFF;--coco-inset:#F7F9FA;
+ --coco-canvas:#F3F5F7;--coco-surface:#FFFFFF;--coco-inset:#EDF2F4;
  --coco-line:#DFE6EB;--coco-row-line:#DFE6EB;--coco-column-line:transparent;
  --coco-ink:#17243B;--coco-muted:#5D6980;
  /* Logo/illustration orange stays #F87826. The action shade lets white labels
     meet AA at every point of the subtle gradient, including hover. */
- --coco-action:#BD4E09;--coco-action-top:#BD4E09;--coco-action-hover:#B54708;--coco-on-action:#FFFFFF;
+ --coco-action:#B54708;--coco-action-top:#BD4E09;--coco-action-hover:#A83F07;--coco-on-action:#FFFFFF;
  --coco-action-tint:#FFF4ED;--coco-action-line:#F4C9AD;
  --coco-panel-padding:24px;--coco-panel-gap:24px;
- --coco-surface-sheen:linear-gradient(#FFFFFF,#FFFFFF);
- --coco-surface-shadow:none;
+ --coco-surface-sheen:linear-gradient(155deg,#FFFFFF 35%,#FBFCFD);
+ --coco-surface-shadow:var(--arc-sh-1);
+ --coco-canvas-light:linear-gradient(125deg,#EEF4F5,#F4F5F8 60%,#F6F4F1);
+ /* Static, sub-pixel stipple on the canvas only. No image request or moving noise. */
+ --coco-canvas-texture:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cg fill='%23103b52' fill-opacity='.035'%3E%3Ccircle cx='7' cy='19' r='.6'/%3E%3Ccircle cx='53' cy='8' r='.6'/%3E%3Ccircle cx='31' cy='61' r='.6'/%3E%3Ccircle cx='82' cy='46' r='.6'/%3E%3Ccircle cx='65' cy='87' r='.6'/%3E%3C/g%3E%3C/svg%3E");
+ --coco-action-fill:linear-gradient(180deg,var(--coco-action-top),var(--coco-action));
+ --coco-action-shadow:0 1px 2px rgb(91 38 9 / .13),0 4px 10px -4px rgb(181 71 8 / .28),inset 0 1px 0 rgb(255 255 255 / .18);
+ --coco-pressed-shadow:inset 0 2px 3px rgb(16 59 82 / .12);
+ --coco-motion-feedback:120ms;--coco-motion-state:180ms;--coco-motion-overlay:240ms;
+ --coco-ease:cubic-bezier(.16,1,.3,1);
  --coco-icon-surface:linear-gradient(145deg,#FFFFFF,#F4F6F8);
  --coco-icon-color:#C4510A;
- --coco-dialog-surface:linear-gradient(#FFFFFF,#FFFFFF);
- --coco-dialog-shadow:0 20px 64px rgb(23 36 59 / .19),inset 0 1px 0 #FFFFFF;
+ --coco-dialog-surface:var(--coco-surface-sheen);
+ --coco-dialog-shadow:var(--arc-sh-3);
  --coco-scrim:rgb(23 36 59 / .26);
- --coco-kanban-surface:#FAFBFD;
+ --coco-kanban-surface:#EAF0F2;
  --coco-chart-orange-top:#E96A1B;--coco-chart-orange-bottom:#C4510A;
  --coco-chart-blue-top:#238FA4;--coco-chart-blue-bottom:#10677D;
 }

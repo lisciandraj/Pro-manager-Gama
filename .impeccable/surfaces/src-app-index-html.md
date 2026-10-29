@@ -5,7 +5,7 @@ primary_target: "src/app/index.html"
 related_targets: ["src/styles/tokens.css", "src/styles/design.css", "src/styles/workbench.css", "src/styles/ui.css", "src/ui/components.css", "src/ui/tables.js", "src/styles/modules/", "src/features/"]
 ---
 
-# Coco ERP — Coco Clair
+# Coco ERP — Coco Premium
 
 MODE: Operate. Les équipes retrouvent leur travail, lisent les informations utiles et poursuivent une opération sous leurs droits existants.
 
@@ -13,13 +13,13 @@ SCOPE: Application interne servie par `src/app/index.html`, ses 27 modules actif
 
 DESIGN AUTHORITY: Lire `docs/erp-design/DESIGN.md` et sa sidecar `docs/erp-design/.impeccable/design.json` pour les tokens et composants de l’ERP. Le `DESIGN.md`, le `PRODUCT.md` et la sidecar à la racine décrivent le storefront GAMA ; ils ne déterminent pas le thème de l’ERP. `docs/design-system.md` précise les contrats d’interface et les actifs de marque conservés.
 
-DIRECTION: Coco Clair reprend la hiérarchie de gestion simple et propre approuvée : bandeau horizontal, espace blanc, tableaux lisibles sur PC, fiches de consultation sur téléphone et détails progressifs. Le pétrole, l’orange et les pictogrammes Coco portent l’identité. Les références couvrent l’accueil, les 27 modules actifs et 12 écrans internes ; les données, fonctions et autorisations viennent des modules réels.
+DIRECTION: Coco Premium reprend la hiérarchie de gestion simple et propre approuvée : bandeau horizontal, espace blanc, tableaux lisibles sur PC, fiches de consultation sur téléphone et détails progressifs. Le pétrole, l’orange et les pictogrammes Coco portent l’identité. Les références couvrent l’accueil, les 27 modules actifs et 12 écrans internes ; les données, fonctions et autorisations viennent des modules réels.
 
 FIRST VIEWPORT: Un retour au menu, un seul titre de module, ses onglets et les utilitaires existants. Le contenu commence par son action, sa recherche et ses résultats, son indicateur utile ou son espace de travail spécialisé. Les formulaires Produits, Employé et l’inspecteur Stock apparaissent à la demande. L’historique de module démarre replié sans rail vide ; son résumé occupe une ligne utilitaire dans le flux normal au-dessus du travail, compact sur PC et pleine largeur en haut sur téléphone.
 
-VISUAL GRAMMAR: Inter locale en premier, toile blanche, fond en retrait très clair, lignes horizontales, contrôles de 6 px de rayon et panneaux de 8 px, sans ombre de travail. Titres de bandeau et de contenu distincts, sections lisibles, valeurs principales de 14 px sur PC et 16 px dans les fiches mobiles. Les commandes partagées gardent leurs cibles de 44 px et un focus pétrole visible. Une action principale orange à texte blanc ; liens, sélections et onglets actifs pétrole. Les statuts gardent leur libellé.
+VISUAL GRAMMAR: Références Geex du 29 octobre 2026 adaptées au pétrole/orange Coco. Toile porcelaine légèrement texturée, surfaces blanches satinées, ombres multicouches définies par tokens. Panneaux 16 px (14 px sur téléphone), contrôles 10 px, fenêtres 24 px. Une action principale orange à texte blanc, liens et sélections pétrole. Inter locale, chiffres tabulaires, statuts libellés. Mouvement limité au retour de pression, favori sélectionné et superpositions ; aucune chorégraphie de chargement, respect du mouvement réduit.
 
-RESPONSIVE: Les onglets rejoignent le bandeau à partir de 1180 px et défilent dans le module sur les autres formats. Jusqu’à 760 px, les listes en lecture seule deviennent des fiches en l’absence de choix enregistré ; les grilles éditables et fenêtres conservent leurs tableaux. Les fiches mobiles sont séparées par des traits, avec des noms de champ visibles. Les préférences explicites de vue, colonnes et ordre gardent priorité. L’accueil utilise neuf colonnes sur grand écran et trois sur téléphone, avec des favoris de 44 px. La navigation inférieure conserve sa place et les zones de sécurité.
+RESPONSIVE: Les onglets rejoignent le bandeau à partir de 1180 px et défilent dans le module sur les autres formats. Jusqu’à 760 px, les listes en lecture seule deviennent des fiches en l’absence de choix enregistré ; les grilles éditables et fenêtres conservent leurs tableaux. Les fiches mobiles ont une surface blanche et leurs noms de champ visibles. Les préférences explicites de vue, colonnes et ordre gardent priorité. L’accueil utilise neuf colonnes sur grand écran et trois sur téléphone, avec des favoris de 44 px. La navigation inférieure conserve sa place et les zones de sécurité.
 
 SPECIALIZED WORKSPACES: TMS garde sa vraie carte et ses événements GPS ; arrêts et préparation à gauche, carte à droite sur PC, outils et étapes compacts puis carte tôt sur téléphone. Attribution, confidentialité, filtres et routage restent fonctionnels. Agent Coco conserve conversations récentes, message et historique central dans le flux. Les kanbans, articles, arbres, graphiques et éditeurs spécialisés gardent leurs structures métier. Un historique de dossier sélectionné reste ouvert sur PC ; le central Agent Coco reste ouvert dans sa page.
 

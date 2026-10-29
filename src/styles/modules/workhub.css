@@ -64,11 +64,11 @@
 @media(max-width:1100px){#workhub .whPanes{grid-template-columns:minmax(0,1fr)}#workhub .whGrid{grid-template-columns:11rem minmax(0,1fr)}}
 @media(max-width:700px){#workhub .whGrid{grid-template-columns:minmax(0,1fr);gap:var(--arc-s3)}#workhub .whNavMain,#workhub .whChannelNav{display:flex;gap:var(--arc-s2);overflow-x:auto;padding-block:var(--arc-s1)}#workhub .whNavButton{flex:0 0 auto;max-width:var(--wh-rail)}#workhub .whChannelHead{margin-block:var(--arc-s3) var(--arc-s1)}#workhub .whTop>button{flex:1}#workhub .whTop form{flex-basis:100%}#workhub .whReply{margin-inline-start:var(--arc-s2)}#workhub .whActions>button{flex:1}#workhub .whPanes{gap:var(--arc-s3)}}
 
-/* Coco Clair: native module finish, loaded on demand. */
+/* Coco Premium: native module finish, loaded on demand. */
 @media screen{
  body.cocoWorkbench #workhub .whGrid{gap:24px}
  body.cocoWorkbench #workhub .whNavButton[aria-current]{background:var(--arc-accent-100);color:var(--arc-accent-600)}
- body.cocoWorkbench #workhub :is(#whList,#whDetail){border-radius:8px;border-color:var(--coco-line)}
+ body.cocoWorkbench #workhub :is(#whList,#whDetail){border-radius:var(--arc-r-lg);border:0;box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-sheen)}
  body.cocoWorkbench #workhub .whMessage{border:0;border-radius:6px;background:var(--coco-inset)}}
 @media screen and (max-width:760px){
  body.cocoWorkbench #workhub .whPanes{gap:20px}}

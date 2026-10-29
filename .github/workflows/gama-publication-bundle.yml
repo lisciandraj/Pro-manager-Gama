@@ -63,3 +63,29 @@ jobs:
           name: gama-publication-bundle
           path: gama-publication-bundle.json
           retention-days: 3
+  verify-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read-only checks of the compiled Cloudflare preview
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          const base='https://3e83a7f1.gama-coco.pages.dev';
+          const read=async pathname=>{const r=await fetch(base+pathname,{cache:'no-store',signal:AbortSignal.timeout(20000)});assert.equal(r.status,200,pathname);return r;};
+          const html=await (await read('/')).text();assert.ok(html.includes('commerce.js'),'commerce module');
+          for(const file of ['commerce.js','commerce.css','b2b.js','site.js']){
+            const body=await (await read('/'+file)).text();
+            assert.equal(body,fs.readFileSync('src/storefront/'+file,'utf8'),file+' must match tested source');
+          }
+          const r=await fetch(base+'/api/storefront',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_action:'bootstrap',p_data:{}}),signal:AbortSignal.timeout(20000)});
+          assert.equal(r.status,200,'public catalogue bootstrap');const p=await r.json();assert.ok(p.settings,'public catalogue settings');
+          console.log(JSON.stringify({verified_url:base,assets_match_source:true,bootstrap_status:r.status,policy_bundle_available:!!p.policies}));
+          NODE

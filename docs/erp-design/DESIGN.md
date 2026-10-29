@@ -197,7 +197,7 @@ Les surfaces utilisent les tokens runtime, avec des ombres colorées par le pét
 - Courbe commune : `cubic-bezier(.16,1,.3,1)`.
 - Le favori sélectionné se stabilise brièvement à sa place : l’utilisateur retrouve un raccourci personnel confirmé.
 - La pression d’un bouton s’enfonce de 1 px ; les contrôles indisponibles ou occupés ne bougent pas.
-- Aucun défilement animé ni apparition en cascade des pages. Les fenêtres apparaissent sur 4 px sans retarder leur contenu.
+- Aucun défilement animé ni apparition en cascade des pages. Les fenêtres apparaissent par un fondu sans déplacer leurs bords, y compris en plein écran sur téléphone.
 - `prefers-reduced-motion` supprime ces mouvements tout en conservant couleurs, états, focus et textes de retour.
 - Contraste renforcé et couleurs forcées fournissent des séparateurs explicites ; impression sans toile texturée ni ombres.
 

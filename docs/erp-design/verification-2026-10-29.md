@@ -8,7 +8,8 @@ La direction reprend les surfaces claires, les arrondis et la profondeur des cin
 - Toutes les routes visibles du profil de test sont ouvertes à 390, 768 et 1440 px ; aucun débordement horizontal, titre dupliqué ou navigation perdue. Le [rapport des modules](module-layout-coverage.json) conserve les observations.
 - Les parcours de listes, formulaires, recherche, préférences, favoris, historique et retour au menu restent fonctionnels. Vérifications complémentaires à 320, 1024 px et dans les trois langues FR/ES/EN.
 - Texte des actions à contraste supérieur ou égal à 4,5:1 aux extrémités du dégradé ; focus clavier, cibles de 44 px et réduction des animations vérifiés.
-- Compilation reproductible ; budget initial conservé : 299 954 octets CSS sur 300 000, 14 scripts sur 15, aucune dépendance JavaScript ajoutée. Les poids ne constituent pas une mesure du temps de chargement réseau.
+- Compilation reproductible ; budget initial conservé : 299 904 octets CSS sur 300 000, 14 scripts sur 15, aucune dépendance JavaScript ajoutée. Les poids ne constituent pas une mesure du temps de chargement réseau.
+- Après le contrôle de publication : 35 tests Notifications, Paramètres et Coco Premium réussis. Les fenêtres apparaissent par fondu sans translation, ce qui garde leurs bords alignés pendant l'ouverture, notamment en plein écran sur téléphone.
 
 Le détecteur Impeccable a été exécuté une fois. Ses avis de palette, rayon et taille comparent par défaut le `DESIGN.md` racine du storefront ; l’autorité ERP est `docs/erp-design/DESIGN.md`. Inter locale est conservée pour l’interface de gestion. Les anciens rails de statut signalés sont des règles historiques, supprimées lorsqu’elles étaient redondantes ou remplacées dans les styles CRM différés. Les états métier gardent leurs libellés.
 

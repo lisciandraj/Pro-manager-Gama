@@ -1,0 +1,77 @@
+{
+  "commit": "0263cb443cc7917e160e4e1f76e6b04bcf9c75f1",
+  "accounting_browser": {
+    "run": 40499366506,
+    "passed": 106
+  },
+  "responsive": {
+    "run": 40499366493,
+    "passed": 102
+  },
+  "publication": {
+    "run": 40499366368,
+    "conclusion": "success"
+  },
+  "workflows": [
+    {
+      "id": 40499366493,
+      "name": "Validate responsive layout",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366390,
+      "name": "Validate Coco purchases",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366448,
+      "name": "Validate sales concurrency",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366496,
+      "name": "Validate Contacts dossier",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366412,
+      "name": "Validate product identity and photos",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366539,
+      "name": "Validate Coco architecture",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366402,
+      "name": "Validate Coco release",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366368,
+      "name": "Build and publish Coco ERP",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366505,
+      "name": "Validate sales workflow",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40499366506,
+      "name": "Validate native accounting plans",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

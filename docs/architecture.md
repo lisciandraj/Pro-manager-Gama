@@ -136,7 +136,7 @@ Le portail B2B est une page autonome produite depuis `src/storefront/`. Ses comp
 
 Les règles versionnées, traitements, tentatives et exceptions restent privés. Les façades invocateur filtrent par les droits courants du module. Les actions métier déléguées utilisent un contexte transactionnel fermé et temporaire, sans jeton fabriqué ni droit accordé par un GUC. La file d’envoi utilise pg_net et un secret Vault, une destination Resend fixe, des clés stables et une consultation des statuts réels. Les parcours, limites et paramètres sont dans [automatisations](automation.md). Les associations cloud sont accessibles depuis Contacts ; la rubrique Mes documents du portail reste contrôlée par entreprise à chaque téléchargement.
 
-Le composant partagé de tableau utilise la vue tableau par défaut sur ordinateur et téléphone, avec quadrillage visible. Les préférences explicites de vue cartes restent disponibles. `tms-driver.html` est l’entrée mobile hors ligne ; les données de route et commandes en attente sont dans IndexedDB, séparées du cache statique du service worker.
+Le composant partagé utilise le tableau sur ordinateur et des fiches sur téléphone (760 px ou moins) pour les listes en lecture seule, en l’absence de préférence explicite. Les grilles éditables, fenêtres et tableaux exclus conservent leur structure ; les choix enregistrés restent prioritaires. Produits et Contacts proposent six champs métier par défaut, en plus des éléments décoratifs et actions ; toutes les colonnes restent accessibles et ce défaut n’est pas enregistré comme préférence. Le thème Coco Premium combine surfaces satinées, ombres multicouches et séparateurs horizontaux sans quadrillage vertical ordinaire ; voir [la charte ERP](erp-design/DESIGN.md). `tms-driver.html` est l’entrée mobile hors ligne ; les données de route et commandes en attente sont dans IndexedDB, séparées du cache statique du service worker.
 
 ## Extensions commerciales et financières
 
@@ -172,3 +172,12 @@ Le HTML publié est marqué par le SHA de construction, sans rendre les fichiers
 ## Contrats, dépenses et consultations
 
 Les parcours et RPC des extensions commerciales sont décrits dans [les modules métier](modules/business-modules.md). Ils réutilisent les passerelles de ventes, achats et comptabilité ; les nouvelles routes chargent leur code et leurs styles à la demande.
+
+Le portail actif expose aussi `gama_b2b_fulfillment` : le client répond aux propositions de livraison/substitution de son entreprise, puis GAMA applique l’accord avec les contrôles commerciaux existants. La preuve est conservée sur `sales_fulfillment_options`, sans moteur ni stock parallèle. Voir [architecture des accords B2B](../replica/distribution-2026-10-23/portal-architecture.md).
+
+## Espace de travail partagé
+
+La route différée `workhub` relie les discussions et leur contexte aux Projets,
+Knowledge, Documents, CRM et propositions Agent Coco existants. Les lectures
+conservent les RLS d’origine ; les canaux restent réservés à leurs membres.
+Voir [parcours et accès](modules/workhub.md) et [architecture de cette intégration](../replica/macro/architecture.md).

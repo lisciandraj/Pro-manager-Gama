@@ -27,7 +27,7 @@ La page `/photo-credits.html`, liée au pied du catalogue, indique les sources, 
 3. **Page d’accueil** : réglages existants de bandeau, titres, texte, image, bouton, sélection, catégories et avantages. Le catalogue actuel utilise le ruban de catégories puis les résultats ; les réglages historiques de hero et de sélection ne créent pas de sections supplémentaires dans cette composition.
 4. **Contenu et pages** : présentation, image, FAQ, marques, conditions, confidentialité et pied de page. Les listes peuvent être ajoutées, supprimées et réordonnées.
 5. **Contact** : téléphone, e-mail, adresse, horaires, WhatsApp avec indicatif international, carte et réseaux sociaux.
-6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, choisir l’affichage des taxes, activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
+6. **Publication et catalogue** : activer/mettre en pause le site, renseigner son adresse HTTPS, afficher/masquer les prix, vérifier les taux par produit (le public voit le TTC, le client B2B son tarif HT), activer les demandes de devis, choisir tri et pagination, titre et description pour les moteurs de recherche.
 7. Cliquer **Enregistrer tous les réglages**. Le brouillon est conservé en naviguant entre les rubriques. En cas de conflit avec un autre administrateur, copier les changements nécessaires avant **Actualiser** ; ce bouton recharge les valeurs enregistrées.
 8. Dans **Produits publiés**, choisir les produits visibles et les produits mis en avant. Le nom, la référence, la photo, le prix de vente, les taxes et les quantités de commande viennent des Produits de Coco. Le titre, la description, la marque, l’étiquette et le nom public de la catégorie peuvent être adaptés ici. Les produits inactifs sont exclus immédiatement.
 9. Dans **Ventes → Devis**, consulter les brouillons créés automatiquement à partir des demandes du site ou du portail. La demande originale et ses références restent accessibles dans l’historique du devis. Le tableau unique présente le brouillon sous **SOL**, puis sous **COT** après finalisation. Associer ou compléter le client si nécessaire avant l’envoi.
@@ -40,7 +40,7 @@ Les intitulés et marques de produits existants entièrement en majuscules ont �
 
 459 photographies WebP ont été intégrées dans `products.photo_data`, depuis l’ancien catalogue public de GAMA et des pages publiques de fabricants ou distributeurs, après vérification des correspondances décrites dans les audits. Ces quatre lots et les 21 photos préexistantes constituent les 480 photographies conservées avant l’ajout des 1305 visuels illustratifs décrit ci-dessus. Les correspondances par référence seule ont été écartées lorsque le modèle, la taille ou le produit différaient. [Le registre des sources](audits/data/storefront-product-photo-sources-2026-10-07.json) donne l’URL produit, l’image, les dimensions et son empreinte. Les photos se chargent à la demande avec les contrôles de publication habituels. Un fichier absent ou invalide affiche **Foto por confirmar** ; aucune photo produit générée par IA n’est introduite. Le registre [des photos à compléter](audits/data/storefront-missing-photos-2026-10-07.csv) ne contient désormais aucune fiche active restante.
 
-**Site public → Informations légales** propose raison sociale, RUC de 13 chiffres, contact de confidentialité, information légale, livraison/changements/garanties et cookies/stockage. Les conditions de demande et la confidentialité restent modifiables dans les contenus. L’administration signale les informations manquantes. La raison sociale vérifiée, le RUC et l’adresse de confidentialité sont volontairement laissés à compléter sur demande du propriétaire ; le numéro fiscal de 11 chiffres du paramétrage ERP n’est pas présenté comme un RUC valide. Cette mise à jour ne certifie pas une conformité juridique complète : les coordonnées et les modalités réelles de conservation, transfert et livraison doivent être validées par GAMA.
+**Site public → Informations légales** propose raison sociale, RUC de 13 chiffres, contact de confidentialité, information légale, livraison/changements/garanties et cookies/stockage. Les textes du 29 octobre 2026 précisent les règles de commande, confidentialité, retours et stockage. Les champs administrés ajoutent les informations propres à GAMA à ce socle ; leur cohérence doit être vérifiée avant publication. L’administration signale les informations manquantes. La raison sociale vérifiée, le RUC et l’adresse de confidentialité sont volontairement laissés à compléter sur demande du propriétaire ; le numéro fiscal de 11 chiffres du paramétrage ERP n’est pas présenté comme un RUC valide. Cette mise à jour ne certifie pas une conformité juridique complète : les coordonnées et les modalités réelles de conservation, transfert et livraison doivent être validées par GAMA.
 
 Le pied de page ouvre chaque texte dans une fenêtre accessible. Le formulaire de devis identifie les champs obligatoires : contact, e-mail, sélection avec quantités valides et consentement non précoché. Entreprise, téléphone et observations sont facultatifs. Les taxes sont indiquées près du prix et détaillées dans la fiche. Le formulaire rappelle la finalité du traitement et l’absence de souscription commerciale ; une demande reste à confirmer par l’équipe avant tout achat.
 
@@ -184,4 +184,107 @@ Le traitement ne fabrique aucune session ni identité utilisateur. Une capacité
 
 ### Correctifs de l’audit du 19 octobre 2026
 
+Le démarrage public/B2B utilise la projection privée existante, avec ses règles de publication et de masquage des prix. Depuis la migration `20261024140000_storefront_bootstrap_photo_budget.sql`, les compteurs, catégories et marques ne lisent plus les images. Pour chaque catégorie, les identifiants sont examinés dans l’ordre jusqu’à la première photo valide ; les huit produits mis en avant au maximum sont ensuite projetés intégralement. Les réponses et contrôles d’accès restent identiques, sans cache métier ni augmentation du délai PostgreSQL. Le test `storefront-bootstrap-db.test.cjs` compare les réponses avant/après, couvre les images invalides/absentes et interdit les lectures de photos inutiles. Pour revenir en arrière, restaurer uniquement le corps `bootstrap` de la fonction précédente après contrôle des éventuelles évolutions ultérieures ; aucune donnée ni permission n’est à restaurer.
+
 La page de 100 produits reste progressive par lots de 30. Les photos démarrent à 300 px de la zone visible, avec deux requêtes de 24 images maximum en parallèle. Chaque lot est peint dès son arrivée ; les recherches et changements de compte annulent les anciennes demandes. Le cache d’images est borné à 150 entrées et 4 Mio de chaînes encodées. Les prix et stocks ne sont pas mis dans un cache partagé. Les images ne conditionnent pas la disponibilité des actions de commande.
+
+
+## Achats et approbations — évolution du 29 octobre 2026
+
+La migration `20261029201003_gama_ecommerce_workflows.sql` ajoute des tables privées protégées pour les reçus invités, avis et approbations. Les écritures sont enregistrées dans l’historique du module. Aucun taux produit ni identité commerciale existante n’est remplacé.
+
+- **Prix** : public TTC, entreprise connectée HT avec ses tarifs négociés. Le serveur recalcule le sous-total, l’IVA et le total et refuse un aperçu devenu obsolète. Le taux vient du produit ; il n’existe pas de remplacement global par 15 %.
+- **Invité** : sélectionner « Solicitar un pedido sin cuenta », compléter contact, e-mail, téléphone, nom de facturation, RUC/cédula/passeport, ville et adresse, lire les conditions puis revoir le détail avant l’envoi. Une demande et un devis brouillon sont créés, avec facturation transmise au devis. GAMA confirme disponibilité, livraison et paiement. Le reçu et sa clé privée restent dans la session de l’onglet, sans coordonnées de facturation. La version des conditions et les compléments configurés sont conservés côté serveur. Ce reçu n’est ni une facture SRI ni un achat payé.
+- **Protection antibot** : configurer `TURNSTILE_SITE_KEY` et le secret `TURNSTILE_SECRET_KEY` dans Cloudflare Pages, avec le domaine exact autorisé. Le serveur vérifie le jeton, l’hôte et l’action `gama_commerce` avant l’envoi public ; en cas de panne il refuse l’envoi. Le secret Coco reste nécessaire. Les appels de lecture ne consomment pas de défi.
+- **Avis** : contrôle serveur d’une ligne de commande confirmée pour l’entreprise ou le reçu invité. Un avis par produit et entreprise/reçu, modifiable par nouvel envoi. La publication affiche seulement la note, le texte, la date et « Compra verificada ». Un devis en attente n’ouvre aucun droit d’avis. Le reçu invité est propre à cet onglet ; la récupération interappareils n’est pas implémentée.
+- **Administration B2B** : dans les accès B2B, « Circuit d’achat » attribue acheteur, demandeur ou approbateur. Créer d’abord les approbateurs de l’entreprise puis affecter les demandeurs aux niveaux. Un approbateur peut servir plusieurs demandeurs. Plusieurs approbateurs au même niveau sont des alternatives : un seul valide ce niveau. Les modifications de rôle/circuit sont refusées tant que des demandes concernées attendent une décision.
+- **Approvals** : le demandeur envoie vers « Aprobaciones ». Le propriétaire ou un approbateur affecté peut ajouter, supprimer ou modifier les quantités ; cela recommence les validations au premier niveau. Chaque décision vérifie entreprise, acteur, niveau, version et prix. Seul le dernier niveau transmet à GAMA pour le processus commercial habituel. L’acceptation directe d’un devis est refusée au demandeur.
+- **Catalogues** : « Catalogue autorisé » dans l’administration B2B limite une entreprise à des références actives. Les cartes, détails et paniers appliquent ce droit côté serveur. Le mode non restreint reste le défaut pour les clients existants.
+- **Historique** : « Historial de pedidos » affiche les commandes de l’entreprise. Copier prépare une nouvelle sélection qui doit être revue aux prix actuels et repasse par le circuit requis. Les invités retrouvent les références de cet onglet au pied de page.
+- **Paiement et WhatsApp** : le bouton de paiement explique son indisponibilité tant qu’aucun prestataire marchand n’est configuré. Le bouton WhatsApp existant devient visible après saisie d’un numéro d’entreprise vérifié avec indicatif international dans Contact.
+- **Cookies** : aucune publicité ni analyse comportementale n’est activée. La fenêtre de préférences décrit et conserve uniquement les choix nécessaires. Toute future intégration facultative doit ajouter son blocage avant consentement et le retrait du consentement.
+
+L’audit [Équateur au 29 octobre 2026](audits/gama-ecommerce-reglementation-2026-10-29.md) précise les sources et les éléments opérationnels à valider. Le domaine commercial n’est pas automatiquement associé au projet Pages.
+
+## Conformité, informations légales et WhatsApp — 29 octobre 2026
+
+Dans **Site web → Informations légales**, GAMA peut modifier la raison sociale,
+le RUC, l'adresse légale, le représentant, le contact confidentialité, l'adresse
+de retour, les zones/délais/frais de livraison, les modalités de remboursement,
+les garanties et les compléments de confidentialité. **Contact et WhatsApp**
+contient le numéro international et le message d'accueil. Aucun numéro ni RUC
+n'est inventé. Le serveur refuse un RUC non vide qui n'a pas 13 chiffres et un
+numéro WhatsApp hors du format international attendu ; le contrôle de format
+ne remplace pas la vérification officielle du RUC ou du titulaire du numéro.
+
+**Site web → Conformité et demandes** regroupe :
+
+- Les demandes gratuites de droits, retours, garanties et réclamations envoyées
+  depuis le pied de page du site, sans compte. Elles sont protégées par la même
+  vérification Turnstile, l'origine, la clé serveur et les quotas que les autres
+  écritures publiques. Une réponse n'indique jamais si une personne est cliente.
+- Le suivi privé : responsable, vérification d'identité, objectif de réponse,
+  justification, notes, preuve de réponse envoyée et gel pour litige. La liste
+  n'expose pas le message ou l'e-mail ; le détail exige les droits Site web.
+  Les réponses se transmettent par les canaux internes existants. Marquer une
+  demande comme répondue n'envoie pas de message. Un retour doit ensuite être
+  vérifié et traité dans **Retours / SAV** ; aucun stock ou remboursement ne se
+  déclenche depuis le formulaire public.
+- Un registre de traitements, prestataires/transferts, conservation, incidents,
+  analyse DPD/MTGE, contrôles fiscaux et essais opérationnels. Le passage à
+  « Vérifié » ou « Non applicable » exige responsable, analyse et référence de
+  preuve ; il s'agit d'une déclaration de l'opérateur, pas d'une certification.
+  Les SKU, taux, sources et validations comptables se documentent dans les fiches
+  fiscales ; les taux se modifient toujours dans **Produits**.
+- Une modération des avis motivée (données personnelles, abus ou hors sujet),
+  sans modification de leur texte. Les avis d'une vente qui n'est plus confirmée
+  ne sont plus présentés comme achats vérifiés. L'acheteur peut modifier ou
+  retirer son avis depuis la fiche produit.
+- Les versions légales courantes et archivées. Les modèles de base sont dans
+  `config/storefront-policies.json`, avec leurs compléments publics issus de
+  Coco. Le serveur produit le texte et l'identifiant de version. Changer une
+  information légale change cette version ; changer un titre d'accueil seul ne
+  la change pas. Un nouveau pedido invité ou une acceptation de devis B2B refuse
+  une version périmée. Les reçus déjà acceptés et leurs reprises idempotentes
+  conservent le texte initial. Les reçus invités se téléchargent en JSON depuis
+  l'historique de la session, sans jeton d'accès ni données de facturation.
+
+### Conservation et échéances
+
+Les demandes de droits reçoivent un **objectif opérationnel de 15 jours depuis
+leur réception**. Le référent doit vérifier le calcul juridique applicable et
+le documenter. Une vérification d'identité n'allonge pas cet objectif. Pour les
+retours, le délai de l'article 45 est apprécié depuis la réception du bien avec
+le calendrier et les conditions applicables ; le serveur ne refuse pas une
+requête sur la base d'un calendrier supposé. Les délais et notifications
+SPDP/ARCOTEL des incidents doivent être qualifiés et exécutés par le référent.
+
+La purge quotidienne est **désactivée par défaut**. Dans Conformité →
+Conservation automatique, un administrateur peut enregistrer une durée et la
+référence du calendrier approuvé, puis l'activer. Le nombre de dossiers candidats
+est calculé sur la règle enregistrée. Elle efface les noms, e-mails, textes et
+références commerciales des demandes clôturées arrivées à échéance, sauf gel
+pour litige. La référence de suivi et les dates restent conservées : cette
+opération n'est pas présentée comme une anonymisation complète. Les factures,
+commandes, comptes, pièces SRI, autres données métier et sauvegardes sont hors
+périmètre ; leurs durées, purges et procédures doivent être traitées séparément.
+Les empreintes salées utilisées uniquement pour les quotas de ce nouveau canal
+sont nettoyées après deux jours. Les événements métier sont indexés dans
+l'historique Site web sans message, e-mail ou jeton.
+
+### Preuves et décisions externes toujours nécessaires
+
+L'identité, les conditions commerciales et WhatsApp doivent être renseignés par
+GAMA. Les contrats/DPA, l'analyse DPD/MTGE, le calendrier de conservation, les
+habilitations B2B, les droits des photos et les essais de restauration nécessitent
+des preuves réelles. Le paiement reste désactivé tant qu'aucun prestataire et
+compte marchand ne sont configurés. La configuration et la certification SRI
+restent celles du module Facturation SRI. Aucune fiche « Vérifié » du nouveau
+registre n'active ces services. Les contrôles livrés ne constituent donc pas une
+attestation « 100 % conforme » de l'entreprise.
+
+Validation : `commerce-compliance-db.test.cjs`, `commerce-workflows-db.test.cjs`,
+`sales-dossier-db.test.cjs`, `storefront-db.test.cjs`, `storefront-server.test.mjs`
+et les parcours de `storefront.spec.js`. Les essais métier utilisent des bases
+isolées et des identités fictives ; aucune demande de test n'est créée en
+production.

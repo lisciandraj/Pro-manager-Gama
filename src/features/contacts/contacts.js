@@ -66,6 +66,7 @@ const kinds=()=>KINDS.filter(k=>can(k.id));
 const kindOf=id=>KINDS.find(k=>k.id===id);
 const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const clean=v=>{const s=String(v??'').trim();return s||null};
+const personName=(x={})=>[x.first_name,x.last_name].filter(Boolean).join(' ').trim();
 function section(){let s=$('contacts');if(!s){s=document.createElement('section');s.id='contacts';(document.querySelector('.wrap')||document.body).append(s)}return s}
 const active=()=>window.ArcRouter.current==='contacts'&&section().classList.contains('active');
 const leadName=l=>String(l.company||'').trim()||[l.first_name,l.last_name].filter(Boolean).join(' ').trim()||T('(sin nombre)');
@@ -85,7 +86,7 @@ async function load(){
   D.all('crm_leads',{select:'id,company,first_name,last_name,address,city,province,postal_code,country,active',order:'id'},true)]).then(([k,l])=>{
   found=take(l);const byId=new Map(found.map(x=>[x.id,x]));
   for(const x of take(k)){if(!x.lead_id&&!x.customer_id)continue;const lead=byId.get(x.lead_id)||{},kind=x.customer_id?'people':'prospects';
-   const name=[x.first_name,x.last_name].filter(Boolean).join(' ').trim()||x.email||T('(sin nombre)');
+   const name=personName(x)||x.email||T('(sin nombre)');
    out.push({key:kind+':'+x.id,kind,id:x.id,name,detail:[x.job_title,x.is_primary?T('★ Principal'):''].filter(Boolean).join(' · '),
     ref:lead.id?leadName(lead):'',phone:x.phone,email:x.email,city:x.address_mode==='own'?x.city:lead.city,active:x.active!==false,record:x})}}));
  await Promise.all(jobs);
@@ -184,7 +185,7 @@ function fromRecord(kind,x){
   website:x.website,industry:x.industry,language:x.language,notes:x.notes};
  if(kind==='clients')return {...common,name:x.name,category:x.category||'A',terms:x.paymentTermsDays??''};
  if(kind==='suppliers')return {...common,name:x.name,contactName:x.contactName};
- return {...common,customer:x.customer_id,lead:x.lead_id,fullName:[x.first_name,x.last_name].filter(Boolean).join(' ').trim(),jobTitle:x.job_title,role:x.decision_role,
+ return {...common,customer:x.customer_id,lead:x.lead_id,fullName:personName(x),jobTitle:x.job_title,role:x.decision_role,
   addressMode:x.address_mode||'parent',linkedin:x.linkedin,primary:!!x.is_primary};
 }
 async function openRecord(kind,id){
@@ -282,10 +283,11 @@ async function save(){
  }else{
   Object.assign(data,{customer_id:kind==='people'?clean(d.customer):null,lead_id:kind==='prospects'?clean(d.lead):null,
    first_name:clean(d.fullName),last_name:null,job_title:clean(d.jobTitle),decision_role:clean(d.role),linkedin:clean(d.linkedin),is_primary:!!d.primary,address_mode:d.addressMode||'parent'});
-  const oldName=[editing?.record?.first_name,editing?.record?.last_name].filter(Boolean).join(' ').trim();
-  if(editing&&clean(d.fullName)===clean(oldName)){data.first_name=editing.record.first_name;data.last_name=editing.record.last_name}
+  // Keep historical components byte-for-byte unless the user changes the name.
+  // New/renamed contacts use the existing columns without guessing a name split.
+  if(editing&&clean(d.fullName)===clean(personName(editing.record))){data.first_name=editing.record.first_name;data.last_name=editing.record.last_name}
   if(!data.customer_id&&!data.lead_id)throw Error(T('Elige el prospecto al que pertenece el contacto.'));
-  if(!(data.first_name||data.last_name||data.email))throw Error(T('Un contacto necesita al menos un nombre, unos apellidos o un correo.'));
+  if(!(data.first_name||data.last_name||data.email))throw Error(T('Un contacto necesita al menos un nombre o un correo.'));
  }
  const result=await window.ArcData.rpc('coco_contact_save',{p_kind:kind,p_id:editing?.id||null,p_data:data,p_version:editing?.record?._contactVersion??null});
  if(!result?.record)throw Error('CONTACT_INVALID_RESPONSE');
@@ -305,7 +307,7 @@ function render(){
  window.GamaUI.bindBack(s);
  $('ctKindFilter').onchange=e=>{kindFilter=e.target.value;grid?.refresh({page:0})};$('ctQualityFilter').onchange=e=>{qualityFilter=e.target.value;grid?.refresh({page:0})};
  $('ctAging').onclick=async()=>{try{await window.ArcLoadScript('gama-collections.js');await window.GamaCollections.aging()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}};$('ctNew').onclick=async()=>{const token=epoch,req=++editorSeq;await load();if(token===epoch&&req===editorSeq&&active())openForm(kinds()[0]?.id)};
- grid=U.dataTable($('ctTable'),{columns:columns(),source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
+ grid=U.dataTable($('ctTable'),{columns:columns(),primaryColumns:['name','kind','phone','email','city','active'],source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
   'data-ct-edit':async key=>{const r=find(key);if(r){await load();await openRecord(r.kind,r.id)}},
   'data-ct-open':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},

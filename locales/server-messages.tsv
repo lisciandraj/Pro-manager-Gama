@@ -96,3 +96,52 @@ REQUEST_KEY_REUSED	La solicitud cambió. Actualiza y vuelve a intentarlo.
 INVALID_ORDERS	Selecciona uno o varios pedidos confirmados.
 EXCEEDS_UNBILLED	La cantidad supera lo entregado pendiente de facturar.
 SALES_WORKSPACE_UNAVAILABLE	La sección de ventas no está disponible. Actualiza la página.
+FORECAST_REQUIRED	Actualiza la previsión antes de proponer una fecha.
+FORECAST_CHANGED	La disponibilidad cambió. Actualiza la previsión.
+PROMISE_NOT_FEASIBLE	La fecha propuesta ya no es viable con las existencias y compras actuales.
+OPTION_REPROPOSE_REQUIRED	Esta propuesta es anterior al control de versiones. Retírala y crea una nueva.
+OPTION_TERMS_CHANGED	Las condiciones del pedido cambiaron. Crea una nueva propuesta.
+SALES_PRICE_CHANGED	El precio del cliente cambió. Actualiza la tarifa.
+SALES_TAX_CHANGED	El impuesto del producto cambió. Actualiza el producto.
+SUBSTITUTION_DATE_SEPARATE	Acuerda primero la sustitución; después revisa la fecha del producto aceptado.
+INVALID_LEAD_DAYS	Revisa los días de preparación y transporte.
+ACCOUNTING_HARD_LOCKED	La fecha contable está bloqueada de forma irreversible.
+ACCOUNTING_DATE_LOCKED	La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.
+OFF_BALANCE_MIXED	Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.
+OFF_BALANCE_TAXES	Un asiento fuera de balance no admite impuestos.
+OFF_BALANCE_RECONCILIATION	Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.
+PAYMENT_UNMATCH_FIRST	Deshaz primero la conciliación de este pago.
+PAYMENT_OUTSTANDING_ACCOUNT_INVALID	Selecciona una cuenta de espera activa distinta del banco y de las cuentas de terceros.
+PAYMENT_MODE_INVALID	Revisa el medio, el sentido y el tratamiento del pago.
+PAYMENT_BANK_ACCOUNT_CHANGED	La cuenta bancaria cambió desde el registro del pago.
+PAYMENT_SETTLEMENT_MISMATCH	El pago no coincide con la conciliación seleccionada.
+PAYMENT_MATCH_SAME_DATE_REQUIRED	Para este pago, selecciona movimientos bancarios de la misma fecha.
+PAYMENT_PENDING_INTENTS_USE_MATCH	La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.
+ACCOUNT_APPROPRIATION_TYPE_LOCKED	Una cuenta utilizada no puede cambiar entre afectación anual y patrimonio permanente.
+EARNINGS_ALLOCATION_REQUIRED	Afecta todo el resultado antes de cerrar el ejercicio.
+PAYMENT_METHOD_UNAVAILABLE	Este medio no está activo para la cuenta y el sentido seleccionados.
+PAYMENT_METHOD_IDENTITY_IMMUTABLE	Un medio utilizado conserva su cuenta, familia y sentido.
+PAYMENT_METHOD_NAME_INVALID	El nombre debe tener entre 1 y 120 caracteres.
+MATCH_AMOUNT_EXCEEDS_REMAINING	El importe supera el saldo o tiene un signo incorrecto.
+MATCH_DUPLICATE_LINE	Selecciona cada movimiento u origen una sola vez.
+MATCH_ALLOCATION_REQUIRED	Indica la distribución por movimiento para conciliar importes de signos distintos en varias fechas.
+MATCH_ALLOCATION_INVALID	Revisa los movimientos, los orígenes y los signos de la distribución.
+MATCH_ALLOCATION_DIFFERENCE	La distribución debe coincidir con cada importe seleccionado.
+MATCH_GROUP_REQUIRED	Esta línea contiene varias conciliaciones. Elige el grupo en Conciliación agrupada.
+BANK_DATE_LOCKED	La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.
+PAYMENT_UNALLOCATE_FIRST	Libera primero las imputaciones de este anticipo antes de anular su conciliación.
+PAYMENT_NO_ENTRY_NOT_ALLOCATABLE	Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.
+BANK_IMPORT_CONFIGURATION_INVALID	Selecciona un diario bancario activo y una fecha inicial.
+BANK_IMPORT_SUSPENSE_INVALID	Selecciona una cuenta transitoria activa, distinta de banco, clientes y proveedores.
+BANK_IMPORT_LEGACY_MATCH_REVIEW	Este movimiento tiene conciliaciones anteriores. Revisa su recuperación antes de contabilizarlo.
+BANK_IMPORT_POSTED_IMMUTABLE	El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.
+BANK_IMPORT_OUTSIDE_POLICY	El movimiento no está incluido en una configuración activa.
+EXPORT_NOT_ALLOWED	Tu perfil no permite exportar estos datos.
+INVOICE_DEFERRAL_LINES_INVALID	Revisa las líneas diferidas: concepto, referencia única y un máximo de 200 líneas.
+INVOICE_DEFERRAL_DATES_REQUIRED	Indica ambas fechas de cada diferido, con el final igual o posterior al inicio.
+INVOICE_DEFERRAL_AMOUNT_INVALID	Los importes diferidos deben ser positivos y no superar la base sin impuestos.
+INVOICE_DEFERRAL_SOURCE_INVALID	La fuente contable no admite esta distribución; revisa los anticipos y las cuentas.
+INVOICE_DEFERRAL_CONFIG_REQUIRED	Configura primero el diario, la cuenta y el cálculo en Diferidos de facturas.
+INVOICE_DEFERRAL_CONFIG_INVALID	Revisa los parámetros de diferidos de facturas.
+ASSET_METHOD_INVALID	Selecciona un método de depreciación válido.
+ASSET_FACTOR_INVALID	Indica un factor mensual mayor que cero y menor que uno, con seis decimales como máximo.

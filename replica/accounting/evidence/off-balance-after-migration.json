@@ -1,0 +1,64 @@
+{
+  "acl": {
+    "anon_entry": false,
+    "service_entry": false,
+    "authenticated_entry": false,
+    "authenticated_trigger": false
+  },
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "entries": 58,
+  "triggers": [
+    {
+      "name": "accounting_off_balance_account",
+      "table": "accounting_accounts",
+      "enabled": "O",
+      "deferrable": true
+    },
+    {
+      "name": "accounting_off_balance_binding",
+      "table": "accounting_bank_bindings",
+      "enabled": "O",
+      "deferrable": false
+    },
+    {
+      "name": "accounting_off_balance_entry",
+      "table": "accounting_entries",
+      "enabled": "O",
+      "deferrable": true
+    },
+    {
+      "name": "accounting_off_balance_lines",
+      "table": "accounting_entry_lines",
+      "enabled": "O",
+      "deferrable": true
+    },
+    {
+      "name": "accounting_off_balance_match",
+      "table": "bank_match_sources",
+      "enabled": "O",
+      "deferrable": false
+    },
+    {
+      "name": "accounting_off_balance_reconciliation",
+      "table": "reconciliations",
+      "enabled": "O",
+      "deferrable": false
+    }
+  ],
+  "migration": [
+    {
+      "name": "accounting_off_balance_guards",
+      "bytes": 4810,
+      "sha256": "5f4de037f47e2c58aa2e534c6b3658b0545584dd04d57880ee2f966ba4eda62c",
+      "version": "20261025105418",
+      "statement_count": 1
+    }
+  ],
+  "checked_at": "2026-10-25T10:55:01.780563+00:00",
+  "empty_search_path": true,
+  "off_balance_accounts": 0,
+  "other_expense_family": "expense",
+  "existing_entries_checked": 58
+}

@@ -1,0 +1,13 @@
+{
+  "version": "20261027192448",
+  "name": "coco_unified_workspace",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-27",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 26861,
+  "sha256": "d87320eee5bebb869777653013d0b4504ae02abae4dddef2a48d77048fde9ff2",
+  "file": "20261027190537_coco_unified_workspace.sql",
+  "purpose": "Installed additive workspace schema; exact ledger bytes verified; never replay in production."
+}

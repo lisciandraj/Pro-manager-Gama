@@ -1,0 +1,36 @@
+/* Optional road geometry. No coordinates leave Coco until the dispatcher opts in. */
+(function(){'use strict';
+const cache=new Map();let queue=Promise.resolve(),lastRequest=0,epoch=0,controllers=new Set();
+const valid=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=85;
+async function route(points){
+ if(points.length<2||points.some(p=>!valid(p)))throw Error('ROUTE_GPS_MISSING');
+ const key=JSON.stringify(points),old=cache.get(key),token=epoch;
+ if(old&&Date.now()-old.at<15*60000)return old.value;
+ const run=async()=>{
+  if(token!==epoch)throw Error('ROUTE_CANCELLED');
+  const fresh=cache.get(key);if(fresh&&Date.now()-fresh.at<15*60000)return fresh.value;
+  const geometry=[];let distance=0,duration=0;
+  // The public provider allows at most one request/second. Split long routes
+  // with a shared waypoint; order and assignments remain the ERP planner's.
+  for(let start=0;start<points.length-1;start+=89){
+   const wait=Math.max(0,1100-(Date.now()-lastRequest));if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
+   if(token!==epoch)throw Error('ROUTE_CANCELLED');
+   const controller=new AbortController();controllers.add(controller);const timer=setTimeout(()=>controller.abort(),12000);
+   try{
+    lastRequest=Date.now();
+    const coordinates=points.slice(start,start+90).map(p=>p.join(',')).join(';');
+    const response=await fetch('https://routing.openstreetmap.de/routed-car/route/v1/driving/'+coordinates+'?overview=full&geometries=geojson&steps=false',{signal:controller.signal,credentials:'omit',referrerPolicy:'strict-origin-when-cross-origin'});
+    if(!response.ok)throw Error('ROUTE_UNAVAILABLE');const data=await response.json(),r=data.routes?.[0];
+    if(data.code!=='Ok'||!r||!Array.isArray(r.geometry?.coordinates)||r.geometry.coordinates.length<2||r.geometry.coordinates.length>100000||!r.geometry.coordinates.every(valid)||!Number.isFinite(r.distance)||!Number.isFinite(r.duration))throw Error('ROUTE_UNAVAILABLE');
+    for(const point of r.geometry.coordinates.slice(start?1:0))geometry.push(point);distance+=r.distance;duration+=r.duration;
+   }finally{clearTimeout(timer);controllers.delete(controller)}
+  }
+  if(token!==epoch)throw Error('ROUTE_CANCELLED');
+  const value={geometry,distance,duration};cache.set(key,{at:Date.now(),value});while(cache.size>30)cache.delete(cache.keys().next().value);return value;
+ };
+ const pending=queue.then(run);queue=pending.catch(()=>{});return pending;
+}
+function clear(){epoch++;controllers.forEach(c=>c.abort());controllers.clear();cache.clear()}
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')clear()});
+window.CocoTmsRoadMap={route,clear};
+})();

@@ -37,7 +37,7 @@ export function directory(entity,filter='') {
   if(prior?.host===host&&host.firstElementChild){prior.refresh(filter);return;}
   prior?.dispose();host.innerHTML='<div data-arc-archive></div><div data-arc-directory></div>';
   let rows=new Map(),lastFilter=filter,lastArchived;
-  const grid=ui.dataTable(host.querySelector('[data-arc-directory]'),{columns:directoryColumns[entity],searchControl:$('productSearch'),initial:{search:filter},source:async request=>{
+  const grid=ui.dataTable(host.querySelector('[data-arc-directory]'),{columns:directoryColumns[entity],primaryColumns:['name','reference','category','stock','sale_price','active'],searchControl:$('productSearch'),initial:{search:filter},source:async request=>{
     if(await window.ArchitectLegacyData?.directory()===false)throw Error('NETWORK_ERROR');
     const archived=window.GamaArchive.mode(key)==='archived';lastArchived=archived;
     let result;

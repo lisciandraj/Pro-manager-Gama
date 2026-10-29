@@ -1,0 +1,13 @@
+{
+  "version": "20261024160011",
+  "name": "accounting_plan_rounding_guard",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-24",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 765,
+  "sha256": "9ef5824b397dfc247322c4767532da7cb3dc349a16184c236e7f3dff4398a676",
+  "file": "20261024160011_accounting_plan_rounding_guard.sql",
+  "purpose": "Installed migration; preserve these bytes and do not replay in production."
+}

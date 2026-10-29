@@ -25,3 +25,8 @@
  body .arcContent #knowledge #gkMain{padding:20px 16px}
  #knowledge #gkArticleTitle{font-size:22px}
 }
+
+/* Coco Premium: native module finish, loaded on demand. */
+@media screen{
+ body.cocoWorkbench :is(#documents,#knowledge) :is(.sdLibrary,.gkLayout,.gdocLayout){border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench #knowledge :is(.gkArticle,.gkContent) :is(p,li){font-size:15px;line-height:1.7;max-width:70ch}}

@@ -5,9 +5,13 @@ on:
       - 'src/storefront/**'
       - 'scripts/build-storefront.cjs'
       - 'tests/storefront.spec.js'
+      - 'tests/commerce-workflows-db.test.cjs'
+      - 'supabase/migrations/*gama_ecommerce_workflows.sql'
       - 'tests/b2b-portal.spec.js'
       - 'tests/storefront-progressive.test.cjs'
       - 'tests/storefront-projection-db.test.cjs'
+      - 'tests/storefront-bootstrap-db.test.cjs'
+      - 'supabase/migrations/*storefront_bootstrap*.sql'
       - 'tests/helpers/storefront-proposal.cjs'
       - 'docs/audits/proposals/coco-storefront-projection*.sql'
       - '.github/workflows/storefront-interface.yml'
@@ -32,9 +36,10 @@ jobs:
       - run: npm ci
       - run: npm run build && npm run build:storefront
       - run: node --test tests/storefront-server.test.mjs
+      - run: node --test tests/commerce-workflows-db.test.cjs
       - name: Verify the audit proposal with isolated public and B2B fixtures
         run: |
-          node --test tests/storefront-progressive.test.cjs tests/storefront-projection-db.test.cjs
+          node --test tests/storefront-progressive.test.cjs tests/storefront-projection-db.test.cjs tests/storefront-bootstrap-db.test.cjs
           node --require ./tests/helpers/storefront-proposal.cjs --test --test-concurrency=2 tests/storefront-db.test.cjs tests/b2b-storefront-db.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Verify public and connected catalogue at phone, tablet and desktop sizes

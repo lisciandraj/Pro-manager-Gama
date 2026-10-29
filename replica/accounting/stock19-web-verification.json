@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-27T18:54:06.161508+00:00",
+  "url": "https://lisciandraj.github.io/Pro-manager-Gama/",
+  "commit": "706da8e906098bb361df4ec7bafaaa24b6302fcf",
+  "run": "40560762364",
+  "built_at": "2026-10-27T18:47:59.586Z",
+  "command": "python3 replica/accounting/verify-web.py --commit 706da8e906098bb361df4ec7bafaaa24b6302fcf --ref 706da8e906098bb361df4ec7bafaaa24b6302fcf",
+  "asset_count": 12,
+  "all_asset_bytes_match_git": true,
+  "stock_asset": {
+    "name": "coco-accounting-stock19.js",
+    "bytes": 15383,
+    "sha256": "fccbc93ccb03b86c4a56c3d83c68fcbf24711e52d30144ba8da5f9f527b046ee"
+  },
+  "exit_code": 0,
+  "authenticated_production_ui": "not_verified"
+}

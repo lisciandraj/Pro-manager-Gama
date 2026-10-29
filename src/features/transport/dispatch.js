@@ -7,6 +7,8 @@ const button=(label,attrs='',primary=false)=>`<button type="button" class="arcBu
 const done=()=>window.dispatchEvent(new Event('gama:tms-change'));
 const money=v=>v==null?'—':(window.GamaCurrency?.format(v)||Number(v).toFixed(2));
 const labels={
+ TMS_LOAD_REQUIRED:()=>t('Carga adicional sin indicar','Charge supplémentaire non renseignée','Additional load missing'),
+ TMS_CONSTRAINT_CONFLICT:()=>t('Revisar competencias, equipamiento, fechas y ventanas','Vérifier compétences, équipements, dates et créneaux','Review skills, equipment, dates and time windows'),
  GPS_REQUIRED:()=>t('Coordenadas pendientes','Coordonnées manquantes','Missing coordinates'),
  CARGO_MEASUREMENT_REQUIRED:()=>t('Peso / volumen sin verificar','Poids / volume à vérifier','Unverified weight / volume'),
  DRIVER_UNAVAILABLE:()=>t('Conductor o vehículo no disponible','Conducteur ou véhicule indisponible','Driver or vehicle unavailable'),
@@ -29,6 +31,7 @@ function dialog(options){const d=U.dialog({saveLabel:t('Cerrar','Fermer','Close'
 function guard(d,fn){return async e=>{const b=e?.currentTarget;b&&(b.disabled=true);try{await fn(e)}catch(error){d.querySelector('[role=alert]').textContent=err(error)}finally{if(b?.isConnected)b.disabled=false}}}
 function go(module){window.ArcRouter.open(module)}
 function bindFixes(d,refresh){
+ d.querySelectorAll('[data-fix-rules]').forEach(b=>{if(b.dataset.fixRules)b.onclick=guard(d,()=>window.CocoTmsPro.rules(b.dataset.fixRules,refresh));else b.remove()});
  d.querySelectorAll('[data-fix-load]').forEach(b=>b.onclick=guard(d,()=>window.GamaLoading.open(b.dataset.fixLoad)));
  d.querySelectorAll('[data-fix-cargo]').forEach(b=>b.onclick=guard(d,()=>window.CocoTmsExecution.configure(b.dataset.fixCargo,refresh)));
  d.querySelectorAll('[data-fix-gps]').forEach(b=>b.onclick=()=>window.gamaTMS.coordinates(b.dataset.fixGps));
@@ -37,6 +40,7 @@ function bindFixes(d,refresh){
  d.querySelectorAll('[data-fix-fleet]').forEach(b=>b.onclick=()=>{d.close();go('fleet')});
 }
 function fixes(codes,id,route){return [...new Set(codes)].map(code=>{
+ if(code==='TMS_LOAD_REQUIRED'||code==='TMS_CONSTRAINT_CONFLICT')return button(t('Restricciones','Contraintes','Constraints'),`data-fix-rules="${E(id||'')}"`);
  if(code==='GPS_REQUIRED')return button(t('GPS','GPS','GPS'),`data-fix-gps="${E(id)}"`);
  if(['CARGO_MEASUREMENT_REQUIRED','WINDOW_SHIFT_OR_REMAINING_CAPACITY','TIME_WINDOW_BEFORE_SHIFT','SERVICE_EXCEEDS_SHIFT'].includes(code))return button(t('Ventana y carga','Créneau et chargement','Window and cargo'),`data-fix-cargo="${E(id)}"`);
  if(code==='LOADING_INCOMPLETE'||code==='SHIPMENT_REVIEW_REQUIRED')return button(t('Cargar','Charger','Load'),`data-fix-load="${E(id)}"`);
@@ -97,10 +101,10 @@ function bind(root,day,routes,refresh=done){
  root.querySelectorAll('[data-route-ready]').forEach(b=>b.onclick=()=>readiness(b.dataset.routeReady,refresh).catch(e=>window.gamaToast(err(e),{tipo:'error'})));
  root.querySelectorAll('[data-route-expense]').forEach(b=>b.onclick=()=>expenses(b.dataset.routeExpense).catch(e=>window.gamaToast(err(e),{tipo:'error'})));
  root.querySelectorAll('[data-route-template]').forEach(b=>b.onclick=()=>template(b.dataset.routeTemplate).catch(e=>window.gamaToast(err(e),{tipo:'error'})));
- const actions={'tSettings':()=>settings(refresh),'tArchiveAll':()=>archive(day),'tBacklog':()=>archive(day,'backlog'),'tDayMore':()=>archive(day,'deliveries'),'tBlockers':()=>blockers(day),'tDayClose':()=>closure(day,routes,refresh)};
+ const actions={'tProWorkspace':()=>window.CocoTmsPro.open(day,refresh),'tSettings':()=>settings(refresh),'tArchiveAll':()=>archive(day),'tBacklog':()=>archive(day,'backlog'),'tDayMore':()=>archive(day,'deliveries'),'tBlockers':()=>blockers(day),'tDayClose':()=>closure(day,routes,refresh)};
  for(const [id,fn] of Object.entries(actions)){const b=root.querySelector('#'+id);if(b)b.onclick=()=>fn().catch(e=>window.gamaToast(err(e),{tipo:'error'}))}
 }
-function toolbar(){return `${button(t('Configuración','Configuration','Settings'),'id="tSettings"')}${button(t('Otros días / pendientes','Autres jours / retards','Other days / backlog'),'id="tBacklog"')}${button(t('Bloqueos','Blocages','Blockers'),'id="tBlockers"')}${button(t('Todo el historial','Tout l’historique','Full history'),'id="tArchiveAll"')}`}
+function toolbar(){return `${button(t('Planificación y seguimiento','Planning et suivi','Planning and tracking'),'id="tProWorkspace"')}${button(t('Configuración','Configuration','Settings'),'id="tSettings"')}${button(t('Otros días / pendientes','Autres jours / retards','Other days / backlog'),'id="tBacklog"')}${button(t('Bloqueos','Blocages','Blockers'),'id="tBlockers"')}${button(t('Todo el historial','Tout l’historique','Full history'),'id="tArchiveAll"')}`}
 window.CocoTmsDispatch={rpc,settings,readiness,archive,blockers,expenses,closure,bind,toolbar,routeActions,t};
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;document.querySelectorAll('[data-tms-dispatch]').forEach(d=>d.close())});
 })();

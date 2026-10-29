@@ -1,0 +1,98 @@
+{
+  "acl": {
+    "anonymous_rpc": false,
+    "authenticated_rpc": true,
+    "service_scheduler": false,
+    "authenticated_table": false,
+    "authenticated_scheduler": false
+  },
+  "rls": [
+    {
+      "table": "accounting_plans",
+      "enabled": true
+    },
+    {
+      "table": "accounting_plan_items",
+      "enabled": true
+    },
+    {
+      "table": "accounting_plan_runs",
+      "enabled": true
+    }
+  ],
+  "banks": [
+    {
+      "n": 5,
+      "amount": 3631.75,
+      "status": "ignored"
+    },
+    {
+      "n": 27,
+      "amount": -858.07,
+      "status": "matched"
+    },
+    {
+      "n": 57,
+      "amount": 9240.73,
+      "status": "unmatched"
+    }
+  ],
+  "debit": 8552.49,
+  "lines": 138,
+  "plans": 0,
+  "credit": 8552.49,
+  "entries": 58,
+  "currency": "USD",
+  "receipts": 3,
+  "migration": [
+    {
+      "name": "accounting_plans",
+      "version": "20261024155142"
+    },
+    {
+      "name": "accounting_plan_rounding_guard",
+      "version": "20261024160011"
+    }
+  ],
+  "scheduler": [
+    {
+      "active": true,
+      "schedule": "15 * * * *"
+    }
+  ],
+  "checked_at": "2026-10-25T10:04:12.608204+00:00",
+  "configuration_rpc": null,
+  "customer_invoices": 17,
+  "customer_payments": 20,
+  "supplier_invoices": 6,
+  "supplier_payments": 7,
+  "unbalanced_entries": 0,
+  "backup_comparison": {
+    "lines": {
+      "rows": 138,
+      "unchanged": true
+    },
+    "entries": {
+      "rows": 58,
+      "unchanged": true
+    },
+    "periods": {
+      "rows": 2,
+      "unchanged": true
+    },
+    "accounts": {
+      "rows": 526,
+      "unchanged": true
+    },
+    "journals": {
+      "rows": 5,
+      "unchanged": true
+    },
+    "bank_transactions": {
+      "rows": 89,
+      "unchanged": true
+    }
+  },
+  "backup_sha256": "2bef42f16df30ab0918449fb4f9cd96360defafd0d467fe23c1d4caa1cc744e3",
+  "backup_scope": "Targeted ledger/accounts/journals/periods/bank transactions; full-project PITR not attested."
+}

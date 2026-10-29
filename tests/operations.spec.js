@@ -102,7 +102,7 @@ test('the action centre categories are the window sections, with full totals, an
  await boot(page);await page.evaluate(()=>{__ops.action_center={shortage:3,late_delivery:2,quote:5,low_stock:4,receipt:2,overdue_invoice:4850}});
  await page.evaluate(()=>GamaOperations.open('notifications'));
  await expect(page.locator('#notifyTab-shortage .arcSideBadge')).toHaveText('3');await expect(page.locator('#notifyTab-quote .arcSideBadge')).toHaveText('5');
- await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(7);
+ await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(10);
  await page.locator('#notifyTab-overdue_invoice').click();
  expect(await page.evaluate(()=>__opsCalls.at(-1).p_data)).toMatchObject({kind:'overdue_invoice',state:'all',offset:0});
  // Las vencidas se dicen en dinero, como en el centro de acción.
@@ -122,7 +122,7 @@ test('purchase action prepares only targeted products and preserves an existing 
 });
 test('warehouse action center hides money and purchasing controls on mobile',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page,'magasinier');await page.evaluate(()=>GamaOperations.open('notifications'));
- await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(4);await expect(page.locator('#goAlerts article')).toHaveCount(1);await expect(page.locator('[data-go-action]')).toHaveCount(0);await expect(page.locator('#arcNotifyDialog [role=tablist]')).not.toContainText(/[Ff]acturas/);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await expect(page.locator('#arcNotifyDialog [role=tab][aria-controls="notifyPane-alerts"]:not(#notifyTab-all)')).toHaveCount(5);await expect(page.locator('#goAlerts article')).toHaveCount(1);await expect(page.locator('[data-go-action]')).toHaveCount(0);await expect(page.locator('#arcNotifyDialog [role=tablist]')).not.toContainText(/[Ff]acturas/);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
 test('quote reminder prepares the exact document and rejects a resolved quote',async({page})=>{

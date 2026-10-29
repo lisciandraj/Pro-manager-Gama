@@ -3,6 +3,14 @@
 .gaNav{display:flex;gap:6px;overflow:auto;margin:14px 0;padding-bottom:4px}
 .gaNav button{border:1px solid var(--arc-line-strong);background:#fff;color:var(--arc-text);border-radius:999px;padding:9px 14px;font-weight:800;white-space:nowrap;cursor:pointer;min-height:42px}
 .gaNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+.gaShortcuts{display:flex;gap:6px;overflow:auto;max-width:100%;margin:8px 0}.gaShortcuts button{flex:none;min-height:44px}
+.gaPlans{min-width:0}
+.gaPlans .gaScroll{max-width:100%;overscroll-behavior-inline:contain}
+.gaPlans .gaTable th,.gaPlans .gaTable td{border:1px solid var(--arc-line-strong)}
+.gaPlans .gaNum{font-variant-numeric:tabular-nums}
+#planLines select,#planLines input{max-width:100%;min-width:0}
+#planPreviewResult .gaScroll{max-height:50vh;overflow:auto}
+[data-plan-source][hidden],[data-plan-deferred][hidden],[data-plan-recurring][hidden],[data-plan-loan][hidden]{display:none}
 .gaCard{background:#fff;border:1px solid var(--arc-line-strong);border-radius:13px;padding:17px;margin:12px 0;overflow-wrap:anywhere}
 .gaCard h3{margin:0 0 10px;font-size:16px;color:var(--arc-text)}
 .gaKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
@@ -56,3 +64,20 @@
 .gaPriorityLink{font-size:var(--arc-fs-sec);color:var(--arc-accent-700)}
 .gaPriority:hover:not(:disabled){border-color:var(--arc-accent-600);background:var(--arc-accent-50)}
 .gaPriority:disabled{cursor:default;opacity:.65}
+
+[data-bank-workflow] [hidden]{display:none!important}
+
+/* Coco Clair: native module finish, loaded on demand. */
+@media screen{
+ body[data-app=coco-erp] .arcContent .gaKpis>.gaCard>em.gaUp{color:var(--arc-success)}
+ body[data-app=coco-erp] .arcContent .gaKpis>.gaCard>em.gaDown{color:var(--arc-danger)}
+ body.cocoWorkbench :is(#gaShortcuts,.gaShortcuts){gap:16px;flex-wrap:nowrap;overflow-x:auto;border-bottom:1px solid var(--coco-line);padding-bottom:8px;margin:0 0 24px}
+ body.cocoWorkbench .gaShortcuts>button{border:0;background:transparent;font-size:13px;font-weight:400;white-space:nowrap;box-shadow:none;border-radius:0}
+ body.cocoWorkbench .gaShortcuts>button.on{background:transparent;color:var(--arc-accent-600);border-bottom:2px solid var(--arc-accent-600);font-weight:600}
+ body.cocoWorkbench .gaKpis{gap:24px;margin-block:24px}
+ body.cocoWorkbench .gaKpis .gaCard{border:1px solid var(--coco-line);border-radius:8px;padding:24px}
+ body.cocoWorkbench .gaKpis strong{font-size:28px;font-weight:600}
+ body.cocoWorkbench .gaKpis small{font-weight:400}}
+@media screen and (max-width:760px){
+ body.cocoWorkbench .gaKpis{grid-template-columns:1fr;gap:16px}
+ body.cocoWorkbench .gaKpis .gaCard{padding:18px}}

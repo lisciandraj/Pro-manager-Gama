@@ -1,0 +1,176 @@
+{
+  "tables": [
+    {
+      "rls": true,
+      "anon": false,
+      "name": "accounting_bank_import_policies",
+      "service_role": false,
+      "authenticated": false
+    },
+    {
+      "rls": true,
+      "anon": false,
+      "name": "accounting_bank_import_postings",
+      "service_role": false,
+      "authenticated": false
+    }
+  ],
+  "facades": [
+    {
+      "anon": false,
+      "name": "gama_accounting_bank_import",
+      "invoker": true,
+      "service_role": false,
+      "authenticated": true,
+      "empty_search_path": true
+    },
+    {
+      "anon": false,
+      "name": "gama_accounting_journals",
+      "invoker": true,
+      "service_role": false,
+      "authenticated": true,
+      "empty_search_path": true
+    }
+  ],
+  "helpers": [
+    {
+      "name": "gama_accounting_action_before_import_ledger",
+      "anon_can_execute": false,
+      "client_can_execute": false
+    },
+    {
+      "name": "gama_bank_import_capture",
+      "anon_can_execute": false,
+      "client_can_execute": false
+    },
+    {
+      "name": "gama_bank_import_post",
+      "anon_can_execute": false,
+      "client_can_execute": false
+    },
+    {
+      "name": "gama_payment_mode_settle_before_import",
+      "anon_can_execute": false,
+      "client_can_execute": false
+    }
+  ],
+  "history": [
+    {
+      "name": "accounting_bank_import_policies",
+      "parent": "financial_accounts",
+      "capture": true,
+      "parent_column": "id"
+    },
+    {
+      "name": "accounting_bank_import_postings",
+      "parent": "accounting_entries",
+      "capture": true,
+      "parent_column": "entry_id"
+    }
+  ],
+  "new_rows": {
+    "policies": 0,
+    "postings": 0
+  },
+  "checked_at": "2026-10-27T11:28:39.086161+00:00",
+  "migrations": [
+    {
+      "name": "accounting_bank_import_ledger",
+      "bytes": 22950,
+      "sha256": "60a0b6a7bc04afb50b6c209e43be1d0919806dba6e1deeb4fc6c471c258ae66a",
+      "version": "20261027112820",
+      "statement_count": 1
+    },
+    {
+      "name": "accounting_journal_dashboard",
+      "bytes": 5882,
+      "sha256": "da06b76378d62858d4513dbb41c86f5ed11062bddf60201b2a12b190eb2e8079",
+      "version": "20261027112825",
+      "statement_count": 1
+    }
+  ],
+  "bank_triggers": [
+    {
+      "name": "aa_bank_import_immutable",
+      "enabled": true
+    },
+    {
+      "name": "zz_bank_import_capture",
+      "enabled": true
+    }
+  ],
+  "allocation_fk_index": "CREATE INDEX accounting_match_allocation_group_source ON private.accounting_match_allocations USING btree (group_id, kind, source_id)",
+  "read_only_facades": {
+    "rights": {
+      "pay": true,
+      "edit": true,
+      "view": true,
+      "close": true,
+      "scope": "all",
+      "create": true,
+      "delete": true,
+      "export": true,
+      "validate": true
+    },
+    "entries": 58,
+    "journals": 5,
+    "entry_debit": 8552.49,
+    "entry_credit": 8552.49,
+    "identity_test": "existing administrator profile, SQL role authenticated, aal1, read-only transaction",
+    "dashboard_debit": 8552.49,
+    "dashboard_credit": 8552.49,
+    "financial_accounts": 1,
+    "eligible_suspense_accounts": 0
+  },
+  "advisors": {
+    "checked_at": "2026-10-27T11:28:39.086161+00:00",
+    "security": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 135,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+      }
+    ],
+    "performance": [
+      {
+        "name": "unindexed_foreign_keys",
+        "level": "INFO",
+        "count": 37,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys"
+      },
+      {
+        "name": "auth_rls_initplan",
+        "level": "WARN",
+        "count": 203,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan"
+      },
+      {
+        "name": "no_primary_key",
+        "level": "INFO",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0004_no_primary_key"
+      },
+      {
+        "name": "unused_index",
+        "level": "INFO",
+        "count": 623,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index"
+      }
+    ],
+    "notes": "Two pre-existing security warnings. New private tables have RLS with no client policy by design; access is through checked RPCs. Allocation foreign key index reduces unindexed keys from 38 to 37."
+  }
+}

@@ -56,3 +56,14 @@
  #crm .crmTabla{--gamaCardsLabel:118px}
  #crm .crmAcc button{margin:0 4px 4px 0}}
 
+
+/* Coco Clair: native module finish, loaded on demand. */
+@media screen{
+ body[data-app=coco-erp] .arcContent #crm .crmTarjPie{padding-top:10px;margin-top:10px;border-top:1px solid var(--coco-row-line)}
+ body[data-app=coco-erp] .arcContent #crm .crmTarjPie b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+ body[data-app=coco-erp] .arcContent #crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}
+ body.cocoWorkbench #crm .crmTablero{gap:20px}
+ body.cocoWorkbench #crm .crmTablero .crmCol{background:var(--coco-inset);border:0;border-radius:8px;padding:14px}
+ body.cocoWorkbench #crm .crmTarjeta{background:white;border:1px solid var(--coco-line);border-radius:7px;padding:16px;box-shadow:none}}
+
+@media screen{body.cocoWorkbench .arcContent section#crm .crmKpis{gap:12px;border-bottom:1px solid var(--coco-line);padding-bottom:16px}body.cocoWorkbench .arcContent section#crm .crmKpi{border:0;border-radius:0;background:white;min-height:84px;padding:10px 14px}body.cocoWorkbench .arcContent section#crm .crmKpi strong{font-size:24px}}

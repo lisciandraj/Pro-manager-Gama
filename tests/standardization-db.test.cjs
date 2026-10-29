@@ -37,7 +37,7 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
     // Audit additions extend read metadata while preserving the historical business result.
     if(uid===admin&&item.domain==='accounting'&&actual.ok&&expected.ok){
      if(item.action==='bank_list')Object.assign(expected.result,{batches:[],offset:0,limit:50,total:0});
-     if(item.action==='chart')expected.result.rows.forEach(a=>a.cashflow_class=a.type==='equity'?'financing':'operating');
+     if(item.action==='chart')expected.result.rows.forEach(a=>{a.cashflow_class=a.type==='equity'?'financing':'operating';a.account_type=null;});
      if(item.action==='settings')expected.result.currency_locked=false;
      if(item.action==='overview'){
       assert.ok(Date.parse(actual.result.generated_at));const today=new Date(expected.result.today+'T00:00:00Z'),start=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth()-1,1)),last=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth(),0)),end=new Date(Math.min(last.getTime(),start.getTime()+(today.getUTCDate()-1)*86400000));

@@ -1,0 +1,13 @@
+{
+  "version": "20261026193150",
+  "name": "accounting_custom_payment_methods",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-26",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 18821,
+  "sha256": "8dba6a71261f5aef19bfee39b0689cbb830bf28b6cb8c274b5f25a67781898bc",
+  "file": "20261026193150_accounting_custom_payment_methods.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

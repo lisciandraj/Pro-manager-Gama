@@ -18,7 +18,7 @@ test('RH en français : sous-titre, indicateurs, fiche et légende du planning',
  await expect(page.locator('#hr .gamaStdText p')).toHaveText('Employés, absences et calendrier de l’équipe.');
  const year=await page.evaluate(()=>new Date().getFullYear());
  await expect(page.locator('#hr .hrKpi > span')).toHaveText(['Employés actifs','Absents aujourd’hui','En attente d’approbation',`Arrêts maladie ${year}`]);
- await expect(page.locator('#hr .hrGrid h3').first()).toHaveText('Nouvel employé');
+ await expect(page.locator('#hrEmployeeEditor>summary')).toHaveText('Nouvel employé');
  await page.locator('#hr .hrTabs button',{hasText:'Planification'}).click();
  await expect(page.locator('#hr .hrPlanLeyenda')).toHaveText(['Congés','Maladie','Autorisation d’absence','Formation','Autre','En attente d’approbation']);
 });

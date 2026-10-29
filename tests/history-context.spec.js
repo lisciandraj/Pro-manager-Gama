@@ -13,6 +13,7 @@ async function contextHistory(page,language='fr'){
   await window.ArcRouter.open('warehouses');
  },{product,record});
  await expect(page.locator('.cocoGlobalHistory .cocoFollowupParty')).toBeAttached();
+ if(await page.evaluate(()=>innerWidth>900))await page.locator('.cocoGlobalHistory>.cocoFollowup>summary').click();
 }
 for(const width of [390,1440])test(`stock action context is clear, non-additive and usable at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:1000});await contextHistory(page);
@@ -35,7 +36,8 @@ test('old module UUID links collapse to one honest module destination; document 
   {id:'doc',module_id:'documents',record_table:'business_documents',at:'2026-10-20T18:43:00Z',type:'action',action:'insert',subject:'Documento',actor_name:'Agent Coco',source_type:'chat',links:[{module:'documents',action:'module',id:'doc-1',reference:'DOC-001'}]}];
  });await page.locator('[data-refresh]').click();
  await expect(page.locator('.cocoFollowupLinks')).toHaveCount(2);await expect(page.locator('[data-followup-link]')).toHaveCount(2);
- await expect(page.locator('.cocoFollowupTimeline')).not.toContainText('Origine non enregistrée');await expect(page.locator('.cocoFollowupTimeline')).toContainText('Quantité et montant non enregistrés');
+ await expect(page.locator('.cocoFollowupTimeline')).not.toContainText('Origine non enregistrée');await expect(page.locator('.cocoFollowupTimeline')).not.toContainText('Quantité et montant non enregistrés');
+ await expect(page.locator('.cocoFollowupUnmeasured')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Ouvrir le module · Stock / entrepôts'})).toBeVisible();
  await page.evaluate(()=>{window.__docOpened=[];window.ArcRouter.open=async m=>window.__docOpened.push(m);window.GamaDocuments={openRecord:async id=>window.__docOpened.push(id)}});
  await page.getByRole('button',{name:'Ouvrir le document · DOC-001'}).click();expect(await page.evaluate(()=>window.__docOpened)).toEqual(['documents','doc-1']);

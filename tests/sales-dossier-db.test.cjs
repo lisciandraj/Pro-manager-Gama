@@ -88,9 +88,10 @@ test('commercial dossier, independent states, invoice policies, deposits and sco
     await q('insert into b2b_customer_access(customer_id,enabled,updated_by) values($1,true,$2) on conflict(customer_id) do update set enabled=true',[customer,ids.admin]);
     await q('insert into b2b_memberships(profile_id,customer_id,updated_by) values($1,$2,$3)',[profile,customer,ids.admin]);}
    await as(ids.portal);const doc=await call('gama_b2b_action','quote_document',{id:q1.id});assert.equal(doc.revision,sent.revision);assert.ok(!JSON.stringify(doc).includes('PRIVATE COST NOTE'));
-   const r=await call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true});assert.equal(r.accepted,true);assert.equal(r.order_confirmed,false);
-   assert.equal((await call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true})).accepted_at,r.accepted_at);
-   await assert.rejects(api('dossier',{quote_id:q1.id}),/ROLE_NOT_ALLOWED/);await as(ids.otherPortal);await assert.rejects(call('gama_b2b_action','quote_document',{id:q1.id}),/NOT_FOUND/);await assert.rejects(call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true}),/NOT_FOUND/);
+   await assert.rejects(call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true,policy_version:'obsolete'}),/COMMERCE_POLICY_CHANGED/);
+   const r=await call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true,policy_version:doc.policies.version});assert.equal(r.accepted,true);assert.equal(r.order_confirmed,false);
+   assert.equal((await call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true,policy_version:doc.policies.version})).accepted_at,r.accepted_at);
+   await assert.rejects(api('dossier',{quote_id:q1.id}),/ROLE_NOT_ALLOWED/);await as(ids.otherPortal);await assert.rejects(call('gama_b2b_action','quote_document',{id:q1.id}),/NOT_FOUND/);await assert.rejects(call('gama_b2b_action','quote_accept',{id:q1.id,revision:sent.revision,agree:true,policy_version:doc.policies.version}),/NOT_FOUND/);
    await as(ids.admin);assert.ok((await api('dossier',{quote_id:q1.id})).portal_acceptance);assert.equal(await v('select count(*)::int from sales_orders where source_quote_id=$1',[q1.id]),0);
   });
   await t.test('quote acceptance blocks credit until a specific administrator decision; retries cannot alter accepted terms',async()=>{

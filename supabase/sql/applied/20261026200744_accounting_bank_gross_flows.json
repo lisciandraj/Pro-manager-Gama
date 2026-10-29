@@ -1,0 +1,13 @@
+{
+  "version": "20261026200744",
+  "name": "accounting_bank_gross_flows",
+  "statement_count": 1,
+  "bytes": 1683,
+  "sha256": "2144c9f8e8e8c84e6ea988dc913f9994cd623783c0eb342705ea5c2014815412",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-26",
+  "encoding": "UTF-8",
+  "file": "20261026200744_accounting_bank_gross_flows.sql",
+  "purpose": "Installed and verified without historical data changes; preserve these SQL bytes and never replay in production."
+}

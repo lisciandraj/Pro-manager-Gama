@@ -67,3 +67,57 @@ Depuis le 18 octobre 2026, les anciens sous-onglets Demandes clients et Devis so
 Les demandes déjà liées à un devis ne créent jamais une seconde ligne. Le total, les filtres, la recherche et la pagination portent sur cette liste commune. Les références SOL et COT restent recherchables après validation ; les numéros historiques COT, les demandes originales, les dossiers et leurs liens sont conservés. Un brouillon saisi directement reçoit sa propre référence SOL via le générateur existant, sans créer une demande technique supplémentaire. Les anciennes adresses ouvrent le même tableau, et les liens précis vers une demande ouvrent son détail avec retour au tableau.
 
 Les anciens brouillons sans état de devis moderne suivent la même règle SOL. Les archives déjà émises conservent COT et l’état Document antérieur ; leurs montants et états enregistrés ne sont pas réécrits.
+
+## Catalogue de devis
+
+Depuis l'éditeur d'un brouillon, **Catalogue du devis** permet de sélectionner plusieurs produits, puis de les ajouter en une fois. Choisir d'abord le client. La recherche serveur affiche jusqu'à 30 résultats par recherche ; la sélection est conservée entre recherches et peut être revue avec **Voir la sélection**. Jusqu'à 200 produits au total dans ce parcours.
+
+Pour chaque article sélectionné, le conditionnement et la quantité déterminent la quantité de stock envoyée au moteur tarifaire commun. Le prix affiché est celui du conditionnement, hors TVA. La disponibilité est une photographie non réservée ; un manque est signalé et les services sont distingués. Aucune date de livraison n'est promise. Produits/unités/prix sont relus avant ajout ; une erreur ne crée aucune ligne partielle.
+
+Les produits déjà présents restent dans leurs lignes, avec leurs prix manuels et motifs. Le catalogue ne les fusionne pas. **Retour** abandonne la sélection ; **Ajouter la sélection** modifie seulement le brouillon à l'écran. La sauvegarde et l'historique utilisent le parcours existant. Le site public, la confirmation et les règles de crédit/stock/facturation ne changent pas.
+
+Étude, limites et validation : [comparaison distribution](../../replica/distribution-2026-10-23/recon.md).
+
+## Suivi, marges et engagements de distribution
+
+La liste des devis affiche la prochaine activité ouverte du dossier : titre,
+responsable, échéance et retard. Les activités datées précèdent celles sans date.
+La clôture est idempotente et rejoint l'historique du dossier.
+
+L'éditeur affiche une marge estimée par ligne pour les profils autorisés aux
+finances, issue du même service que la marge totale. Un coût inconnu reste
+inconnu. Les prix manuels, motifs, conditionnements et versions ne changent pas.
+
+**Disponibilité prévue** dans le devis et **Disponibilité et accords** dans la
+commande ouvrent une projection en lecture seule. Elle utilise les quantités
+physiques libres, les réservations propres à la commande, les engagements
+confirmés antérieurs et les achats envoyés/partiels encore à recevoir. L'ordre
+FIFO est celui du moteur d'allocation existant. Les arrivages en retard ou sans
+date sont signalés et ne fondent pas une promesse. Les services ne reçoivent pas
+une date de stock. Les cartes mobiles montrent les mêmes données que le tableau.
+
+La préparation et le transport sont saisis en **jours calendaires** ; aucune
+heure de tournée, durée interurbaine ou règle de jours fériés n'est présumée.
+Une proposition de livraison partielle utilise la quantité concernée. Le serveur
+recalcule la date à la proposition et à l'accord, sans réserver un arrivage futur.
+
+Les substitutions utilisent `sales_fulfillment_options` et le moteur de reliquats
+existant. Le tarif client est proposé automatiquement ; un prix manuel nécessite
+un motif. Le devis accepté reste inchangé. Un administrateur peut approuver les
+conditions commerciales exactes ; l'accord du client doit encore être référencé
+par le vendeur et le crédit est recontrôlé si l'exposition augmente. Une quantité
+réservée, préparée ou facturée reste protégée par les règles existantes. Une
+modification du dossier ou des coûts après approbation empêche l'application
+silencieuse de l'ancienne proposition. La réponse répétée est idempotente.
+
+Le portail B2B conserve ses droits et ses parcours actuels : cette livraison
+n'ajoute aucun bouton d'acceptation de substitution au portail et ne réactive pas
+les anciens comptes client ERP. Aucun message client n'est envoyé par ces actions.
+
+Les notifications et priorités existantes ajoutent les activités commerciales
+en retard, accords en attente et engagements de livraison dépassés. Le magasinier
+voit les engagements logistiques ; les éléments commerciaux restent filtrés.
+Les options et leurs conditions utilisent l'index d'historique expurgé existant,
+avec la provenance Agent Coco lorsque le contexte d'exécution la fournit.
+
+Contrats et limites : [architecture du lot distribution](../../replica/distribution-2026-10-23/remaining-architecture.md).

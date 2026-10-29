@@ -1,0 +1,9 @@
+feature,area,priority,original,clone,notes
+Q1 Catalogue multi-selection,devis,must,documented,implemented,PR239 publiee
+Q2 Conditionnement et prix avant ajout,devis,must,documented,implemented,erp_price et product_units reutilises
+Q3 Disponibilite avant ajout,devis,must,documented,implemented,sans promesse ni reservation
+Q4 Activite datee en liste,devis,should,documented,implemented,projection de l'existant
+Q5 Marge par ligne,devis,should,documented,implemented,projection serveur autorisee
+S1 Disponibilite datee,stock,should,documented,implemented,dates fiables et projection unique
+S2 Substitution approuvee,ventes,could,documented,implemented,versions et accords externes ou consentement B2B puis application GAMA
+S3 Exceptions par role,pilotage,should,documented,implemented,reunir vues existantes

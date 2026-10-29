@@ -1,0 +1,26 @@
+{
+  "debit": 8552.49,
+  "lines": 138,
+  "credit": 8552.49,
+  "entries": 58,
+  "line_hash": "c996fd5043aa641010a0a2d22a320d18",
+  "entry_hash": "8228409ea82e520f349e6a63c77ec8c6",
+  "migrations": [
+    {
+      "name": "accounting_earnings_19",
+      "bytes": 13511,
+      "sha256": "48caaa81d71c66f0bb7f97ab8cc2427b26bdf518d5c4669cc112932f787cbf7b",
+      "version": "20261025154847"
+    },
+    {
+      "name": "accounting_earnings_integration",
+      "bytes": 4968,
+      "sha256": "3ba7a364e2eba3b88cb52097e082dcd0697a367a58275cd4ca796fcf115632ba",
+      "version": "20261025161011"
+    }
+  ],
+  "unbalanced": 0,
+  "captured_at": "2026-10-25T16:17:57.463723+00:00",
+  "account_hash": "1a7ca7918ec4f0341306c832b2a7a8ad",
+  "appropriation_accounts": 0
+}

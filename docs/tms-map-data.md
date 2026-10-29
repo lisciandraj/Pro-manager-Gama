@@ -16,4 +16,16 @@ Source : [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/), 
 
 `src/features/transport/map-data.js` contient les contours de l’Équateur, du Pérou et de la Colombie, 168 segments routiers intersectant l’Équateur continental et 37 villes équatoriennes. Les coordonnées sont arrondies à 5 décimales ; les lignes sont simplifiées à 0,00035 degré pour limiter le poids. Les données restent livrées avec le logiciel. Elles servent de fond aux vues nationales et sont complétées par le réseau municipal dans Quito. Waze s’ouvre uniquement sur action utilisateur.
 
-Aucune clé, API cartographique, tuile distante, OpenStreetMap ou service Google Maps n’est utilisé par la carte. Les coordonnées des clients restent locales dans cette vue. Le fond n’est pas un document de délimitation territoriale. Les trois textes d’aide retirés de la carte restent absents ; la provenance est documentée ici.
+Le fond local ne nécessite aucune clé, API cartographique, tuile distante ni service Google Maps. Une option distincte de tracé routier est décrite ci-dessous. Les coordonnées des clients restent locales dans cette vue. Le fond n’est pas un document de délimitation territoriale. Les trois textes d’aide retirés de la carte restent absents ; la provenance est documentée ici.
+
+
+## Tracés routiers facultatifs
+
+Depuis le 27 octobre 2026, l’option explicite de la carte quotidienne peut demander
+la géométrie d’une tournée au [serveur OSRM de FOSSGIS](https://routing.openstreetmap.de/about.html),
+selon son [contrat HTTP officiel](https://project-osrm.org/docs/v5.22.0/api/).
+Le fond municipal reste local ; seul le tracé utilise les données OpenStreetMap
+via ce service, qui journalise les requêtes de coordonnées. Le profil voiture
+n’inclut pas le trafic ni les restrictions poids lourds. Une attribution et un
+lien de correction apparaissent sur la carte. Voir le [parcours TMS](modules/tms.md)
+pour le consentement, le rythme, le cache et les limites.

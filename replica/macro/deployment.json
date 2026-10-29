@@ -1,0 +1,54 @@
+{
+  "verified_on": "2026-10-27",
+  "database": {
+    "project": "mknsaibrewksgomuslev",
+    "migration_version": "20261027192448",
+    "canonical_file": "20261027190537_coco_unified_workspace.sql",
+    "sha256": "d87320eee5bebb869777653013d0b4504ae02abae4dddef2a48d77048fde9ff2",
+    "rls_tables": 6,
+    "history_mappings": 4,
+    "anonymous_execute": false,
+    "invoker_facade": true,
+    "new_security_advisories": 0,
+    "history_scope_correction": {
+      "version": "20261027192816",
+      "canonical_file": "20261027192700_coco_workhub_preserve_history_scope.sql",
+      "sha256": "ba11f546104e2f9e576fc1d3777879b7e614c9a6c3361c34e9e8213af017c278",
+      "verified": true
+    }
+  },
+  "agent_function": {
+    "name": "gama-assistant-ia",
+    "version": 8,
+    "status": "ACTIVE",
+    "verify_jwt": true,
+    "deployed_files_match_sources": true
+  },
+  "frontend": {
+    "status": "awaiting collaborative documents publication"
+  },
+  "collaborative_documents": {
+    "migration_version": "20261027225549",
+    "canonical_file": "20261027204502_coco_workhub_collaborative_documents.sql",
+    "sha256": "e078d963a36a9b5532b8a62b139e0329ce19aba89358a0762df20ab1adbecbe9",
+    "private_rls_tables": 4,
+    "history_oid_preserved": "68383",
+    "history_policy_md5": "119d1102f33acb8f656b65cf0dc6d954",
+    "anonymous_execute": false,
+    "browser_can_stage": false,
+    "function": {
+      "name": "coco-workhub-documents",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "files_match_sources": true
+    },
+    "validation": {
+      "server_tests_passed": 17,
+      "history_regression_tests_passed": 19,
+      "browser_tests_passed": 32,
+      "browser_recheck_after_mobile_fix": 2,
+      "npm_audit_vulnerabilities": 0
+    }
+  }
+}

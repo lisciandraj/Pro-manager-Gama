@@ -1,0 +1,33 @@
+# Preuves d'interface isolées
+
+Captures du commit `9d43d1f26ca20837a0417bd7c5ce7100679dfa91`, [GitHub Actions 40108055234](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40108055234), le 24 octobre 2026. Les données visibles sont fictives et limitées à PGlite sur le runner de test. Ces images ne représentent pas des opérations effectuées en production.
+
+- [Détail sur ordinateur](accounting19-fr-1440.png) : navigation Coco, tableau de montants et historique à droite.
+- [Détail sur téléphone](accounting19-fr-390.png) : navigation défilante interne et historique replié.
+- [Formulaire sur téléphone](accounting19-form-fr-390.png) : bouton primaire Coco et tableau de saisie avec défilement interne.
+
+Les neuf combinaisons FR/ES/EN × 390/768/1440 ont passé le parcours complet des échéanciers et les contrôles axe WCAG 2 A/AA du formulaire et du détail. Le job comporte 61 tests navigateur au total. Il vérifie également, après rafraîchissement, le lien depuis l'historique réel vers le plan exact, puis l'aller-retour entre plan et écriture. Les captures sont prises avant ce rafraîchissement ; l'historique vide sur l'image n'est donc pas la preuve de ce dernier contrôle.
+
+Cette couverture ne certifie pas l'accessibilité ou la fidélité fonctionnelle de chaque écran du périmètre Odoo. Le détail des écarts reste dans [la matrice](../features.csv).
+
+## Configuration et relevés — 25 octobre 2026
+
+Code applicatif `9671f5a48cd818d7c7f07df84ada13732132cc4b`,
+[CI 40183687082](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/40183687082) :
+70 parcours navigateur réussis, dont neuf nouveaux parcours complets de
+configuration et correspondance CSV en FR/ES/EN × 390/768/1440. Le job PostgreSQL
+17 vérifie aussi les numéros concurrents et la course verrouillage/validation.
+
+- [Balance par groupes sur ordinateur](accounting-config-fr-1440.png).
+- [Configuration sur téléphone](accounting-config-fr-390.png).
+- [Correspondance CSV sur ordinateur](accounting-csv-fr-1440.png).
+- [Correspondance CSV sur téléphone](accounting-csv-fr-390.png).
+
+Les captures sont examinées et utilisent uniquement les données fictives du
+runner isolé. Les formulaires possèdent un défilement interne ; le bouton
+d'import et les aperçus peuvent se trouver sous la partie visible de la capture.
+Le test les parcourt et soumet réellement le fichier mappé, puis vérifie son
+réimport sans doublon ni écriture de cash. Le rafraîchissement ultérieur de
+l'historique et les liens vers le groupe exact sont testés séparément de l'image.
+
+Les captures `accounting-payment-method-fr-390.png` et `accounting-payment-method-fr-1440.png` proviennent du run CI 40204766828, commit b01edfc0, avec données fictives uniquement. Elles montrent le haut de la configuration ; le parcours navigateur effectue ensuite règlement, rapprochement et annulation dans les trois langues et aux trois largeurs.

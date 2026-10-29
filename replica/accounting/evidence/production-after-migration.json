@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-10-24T15:52:00Z",
+  "migration_sha256": "0c96babf4cd2be510008b4ba6286ce8bc7f2967ab6ae777a32c8ed9c67eba508",
+  "verification": {
+    "acl": {
+      "anonymous_rpc": false,
+      "authenticated_rpc": true,
+      "service_scheduler": false,
+      "authenticated_table": false,
+      "authenticated_scheduler": false
+    },
+    "rls": [
+      {
+        "table": "accounting_plans",
+        "enabled": true
+      },
+      {
+        "table": "accounting_plan_items",
+        "enabled": true
+      },
+      {
+        "table": "accounting_plan_runs",
+        "enabled": true
+      }
+    ],
+    "banks": [
+      {
+        "n": 5,
+        "amount": 3631.75,
+        "status": "ignored"
+      },
+      {
+        "n": 27,
+        "amount": -858.07,
+        "status": "matched"
+      },
+      {
+        "n": 57,
+        "amount": 9240.73,
+        "status": "unmatched"
+      }
+    ],
+    "debit": 8552.49,
+    "lines": 138,
+    "plans": 0,
+    "credit": 8552.49,
+    "entries": 58,
+    "receipts": 3,
+    "migration": [
+      {
+        "name": "accounting_plans",
+        "version": "20261024155142"
+      }
+    ],
+    "scheduler": [
+      {
+        "active": true,
+        "schedule": "15 * * * *"
+      }
+    ],
+    "customer_invoices": 17,
+    "customer_payments": 20,
+    "supplier_invoices": 6,
+    "supplier_payments": 7,
+    "unbalanced_entries": 0
+  }
+}

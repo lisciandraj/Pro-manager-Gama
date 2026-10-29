@@ -24,6 +24,7 @@ test('three accessible flags switch live, persist, and preserve form and busines
  await expect(page.locator('#gamaACLUser b')).toHaveText('Productos');
  await page.evaluate(()=>GamaUI.backToMenu());
  await page.locator('#mainmenu [data-gama-module="products"]').click();
+ await page.locator('#cocoNewProduct').click();
  const input=page.locator('#pName');
  await input.fill('Productos client entry');
  await page.evaluate(()=>{const p=document.createElement('p');p.id='qaBusiness';p.textContent='Guardar';document.querySelector('#products').appendChild(p)});

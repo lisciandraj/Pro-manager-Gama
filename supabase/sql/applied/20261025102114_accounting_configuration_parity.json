@@ -1,0 +1,13 @@
+{
+  "version": "20261025102114",
+  "name": "accounting_configuration_parity",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 32547,
+  "sha256": "e84690a18d3ef6c4069f0e13b393c93ec9134c2ada4a098a390c61438a50bd78",
+  "file": "20261025102114_accounting_configuration_parity.sql",
+  "purpose": "Installed additive configuration migration; preserve these bytes and do not replay in production."
+}

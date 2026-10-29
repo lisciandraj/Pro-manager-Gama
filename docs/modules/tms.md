@@ -1,5 +1,21 @@
 # TMS : flux quotidien, tournées et preuves de livraison
 
+## Planning étendu et suivi
+
+**Planification et suivi** ouvre quatre vues dans le TMS : calendrier, ressources, suivi, analyse et exports. Les commandes, colis, réceptions, retours et paiements restent ceux du parcours ci-dessous.
+
+Le calendrier accepte une période de 1 à 35 jours à partir d’aujourd’hui, jusqu’à 1 000 livraisons liées à des commandes. **Aperçu** annonce la période et le volume ; **Appliquer le planning** vérifie son empreinte et refuse les changements intervenus entre-temps. Les dates flexibles et jours autorisés concernent uniquement les livraisons non affectées et non parties. Les livraisons qui ne tiennent pas le premier jour peuvent passer au prochain jour autorisé, dans la période. Une réexécution de la même requête conserve son résultat et ne reproduit aucun mouvement de stock. Les tournées protégées par un départ, un horaire ou une modification manuelle ne sont pas réécrites.
+
+**Contraintes** propose jusqu’à trois créneaux en heure de Quito, durée de service, quatre priorités, jours et dates autorisés, conducteur imposé, compétences et équipements nécessaires. **Ressources** complète Flotte avec les qualifications, horaires individuels et un facteur de vitesse de 0,5 à 1,5. Les versions empêchent d’écraser une modification concurrente. Les qualifications et créneaux sont aussi vérifiés lors de la saisie de l’horaire et du contrôle de départ. Les modes par nombre d’arrêts ou temps estimé sont des heuristiques, sans garantie de retrouver les tournées d’un moteur tiers.
+
+Dans **Ma tournée**, le chauffeur affecté à une tournée partie peut activer **Partager le GPS**. Le navigateur demande l’autorisation de localisation. La position, sa précision, l’heure appareil et l’heure serveur sont conservées ; le dispatch voit la fraîcheur, les arrêts et les 2 000 dernières positions de la tournée. La collecte s’arrête à la fermeture/au masquage de la page ou au changement de compte. Elle ne fonctionne pas de manière garantie écran éteint. Une position de moins de cinq minutes et de précision inférieure ou égale à 200 m permet une ETA recalculée, toujours estimée, sans réécrire la prévision conservée pour l’analyse. La collecte est limitée côté serveur à une mesure par dix secondes au maximum ; l’interface envoie environ toutes les trente secondes.
+
+Le lien client existant permet, après livraison complète, de donner une note de 1 à 5 et un commentaire. Il n’expose ni les coordonnées des autres livraisons ni la trace GPS du chauffeur. Un jeton expiré est refusé ; un avis déjà déposé ne peut pas être remplacé par un second appel. Les avis entrent dans l’analyse et l’historique avec une référence à la livraison.
+
+**Analyse et exports** présente OTIF, livraisons, satisfaction, prévisions de distance/durée, couverture GPS et écart d’arrivée. Le CSV protège les cellules contre l’exécution de formules ; le GPX regroupe les points GPS des arrêts par tournée pour les appareils compatibles. L’export conserve les permissions TMS existantes, est limité à 10 000 lignes et demande de réduire la période au-delà. Aucun kilométrage réel complet n’est déduit d’une trace partielle.
+
+La comparaison aux fonctions documentées d’OptimoRoute Pro et ses limites figurent dans [le dossier Replica](../../replica/optimoroute-pro/recon.md). Les notifications restent dans le parcours manuel existant ; aucun abonnement SMS, compte externe ni application native n’est activé par cette extension. Le tracé routier facultatif de la carte quotidienne est décrit plus bas. La migration `tms_pro_planning_tracking` précède la publication des nouveaux actifs.
+
 Dans **Préparer**, chaque scan conserve son mode (confirmation de quantité, unité ou conditionnement). Lorsque toutes les quantités prévues de la préparation ont été enregistrées, Coco ferme les colis et les transmet automatiquement au TMS, sans boutons **Fermer le colis / Cerrar preparación** ni **Envoyer au TMS**. Les colis créés manuellement sont conservés ; seules les quantités encore non emballées sont ajoutées à un nouveau colis. Les poids restent calculés depuis les fiches produits. La date de planification reprend la dernière date convenue des lignes préparées, au plus tôt aujourd’hui dans le fuseau de l’ERP.
 
 La RPC `gama_preparation_dispatch` regroupe emballage, clôture et création de la livraison dans une transaction, avec les mêmes contrôles métier et droits TMS/MFA que les actions existantes. Un colis incomplet ne peut pas être transmis. Une livraison partielle exige toujours son motif ; la politique « attendre la livraison complète » et la quantité convenue du prochain envoi restent bloquantes. Une erreur annule l’ensemble de la transmission, sans annuler les scans déjà validés. La reprise conserve la clé de requête ; une préparation déjà transmise renvoie sa livraison existante, même après une réouverture de l’écran. Le contrôle de chargement et l’autorisation de départ restent distincts de cette transmission au TMS.
@@ -10,7 +26,7 @@ Les livraisons proviennent du parcours commande/préparation existant. Une inser
 
 Le serveur conserve les règles de session/MFA, les droits TMS, les ressources Flotte/RH disponibles et les capacités de poids/volume. Un poids maximal absent bloque le véhicule. Le planner préserve les tournées parties, en chargement, terminées, historiques, mixtes, avec horaires routiers ou ajustées manuellement. Les arrêts se réordonnent par glisser-déposer ou boutons monter/descendre ; un sélecteur permet de changer de tournée sur téléphone. La mutation vérifie les versions des deux tournées, leur date, le départ et la capacité ; une mise à jour concurrente demande une actualisation.
 
-Les coordonnées sont réutilisées depuis la fiche client lorsque son adresse correspond. Une correction TMS enregistre aussi la position du client seulement si l’adresse correspond. Un changement d’adresse invalide la position ancienne. Les champs latitude/longitude sont disponibles dans Contactos. **Carte des livraisons du jour** affiche une carte locale multipoints, enrichie avec plus de 64 000 segments du réseau municipal de Quito, ses rues et leurs noms. L’actif détaillé se charge sur demande depuis Coco, sans clé ni API cartographique. Le cadrage initial inclut toutes les livraisons géolocalisées et le dépôt, même hors de Quito. Sans GPS, la vue reste centrée sur Quito (−0,1807, −78,4678). Les boutons +/−, le glissement, le pincement tactile et les flèches du clavier permettent le déplacement, jusqu’au détail des rues ; une échelle indique les distances. Le filtre limite les points à une tournée ; sélectionner un client centre la vue sans supprimer les autres marqueurs. Les points proches sont décalés visuellement avec un trait vers leur position exacte, à l’intérieur du cadre disponible en vue générale, et le cadrage s’adapte au redimensionnement sur téléphone. Les traits de tournée indiquent l’ordre, pas un itinéraire routier. Le fond national reste Natural Earth et le détail municipal couvre Quito et ses vallées ; aucune position fictive n’est créée. Voir [provenance et couverture du fond](../tms-map-data.md).
+Les coordonnées sont réutilisées depuis la fiche client lorsque son adresse correspond. Une correction TMS enregistre aussi la position du client seulement si l’adresse correspond. Un changement d’adresse invalide la position ancienne. Les champs latitude/longitude sont disponibles dans Contactos. **Carte des livraisons du jour** affiche une carte locale multipoints, enrichie avec plus de 64 000 segments du réseau municipal de Quito, ses rues et leurs noms. L’actif détaillé se charge sur demande depuis Coco, sans clé ni API cartographique. Le cadrage initial inclut toutes les livraisons géolocalisées et le dépôt, même hors de Quito. Sans GPS, la vue reste centrée sur Quito (−0,1807, −78,4678). Les boutons +/−, le glissement, le pincement tactile et les flèches du clavier permettent le déplacement, jusqu’au détail des rues ; une échelle indique les distances. Le filtre limite les points à une tournée ; sélectionner un client centre la vue sans supprimer les autres marqueurs. Les points proches sont décalés visuellement avec un trait vers leur position exacte, à l’intérieur du cadre disponible en vue générale, et le cadrage s’adapte au redimensionnement sur téléphone. Les traits de tournée en pointillés indiquent l’ordre ; l’option routière décrite ci-dessous peut ajouter un tracé suivant les rues. Le fond national reste Natural Earth et le détail municipal couvre Quito et ses vallées ; aucune position fictive n’est créée. Voir [provenance et couverture du fond](../tms-map-data.md).
 
 **Mi ruta** reconnaît un conducteur lié à son compte, même sur ordinateur. **Descargar para trabajar sin conexión** prépare la route, les lignes et les fichiers nécessaires à `tms-driver.html`. Cette page se rouvre hors ligne pendant 48 heures après téléchargement. Les commandes sont stockées avant envoi dans l’IndexedDB historique `architect-proof-outbox` (version 2, migration additive). Elles gardent l’acteur, la clé idempotente, l’heure, les quantités et les preuves. Un échec bloque seulement les commandes suivantes de la même livraison. Une reconnexion exige les droits courants du serveur. Déconnexion explicite ou changement de compte masque la copie locale sans supprimer les preuves non synchronisées. Le mode hors ligne requiert une première préparation en ligne et un navigateur autorisant service worker et stockage local.
 
@@ -69,3 +85,69 @@ Les douze actions de l’audit sont couvertes par les parcours suivants :
 Les fichiers de nouvelles preuves utilisent le bucket privé `tms-attempt-proofs`. La fonction Edge `tms-proof-files` lit d’abord la preuve au travers du JWT de l’appelant et des contrôles TMS, copie uniquement les octets acceptés, relit l’objet et vérifie SHA-256 avant d’enregistrer sa référence immuable. Aucun upload, écrasement ou effacement direct n’est ouvert au navigateur. Les copies historiques restent disponibles : une indisponibilité de stockage ne bloque pas la confirmation ni ne supprime une capture. Déployer la migration puis cette fonction avant les nouveaux actifs. Aucune reprise massive ni purge d’archives n’est effectuée.
 
 Les tests de base isolée couvrent contraintes, horaires, versions, départ groupé et annulation atomique, rejeu sans stock supplémentaire, coûts et plus de 200 preuves. Les tests d’interface couvrent réouverture d’horaire, réception simplifiée, départ, recherche et mobile ; le parcours hors connexion conserve ses tests de reprise et de changement de compte.
+
+
+## Capacités additionnelles et lieux des tournées
+
+Dans **Planification et suivi → Ressources → Capacités supplémentaires**, le dispatch définit jusqu’à quatre dimensions en plus du poids et du volume : clé stable, nom et unité. Les capacités se règlent sur chaque véhicule et les charges dans les contraintes de chaque livraison. Une charge inconnue bloque la planification et le départ ; saisir explicitement zéro si elle ne consomme pas cette capacité. Une capacité véhicule vide vaut zéro. Les charges sont cumulées pour la tournée entière et vérifiées aussi au déplacement manuel et au départ individuel de l’expédition. Les clés et unités déjà utilisées restent stables pour conserver le sens des archives ; le nom reste modifiable.
+
+L’éditeur conducteur conserve son horaire et ses compétences, puis propose un départ propre et quatre fins possibles : réglage général du dépôt, retour au départ, autre lieu ou dernière livraison. Chaque lieu propre exige un nom et des coordonnées valides. Le temps et la distance du retour entrent dans la faisabilité. La pause est comptée une seule fois, lorsque la tournée l’exige, y compris lorsqu’une attente peut l’absorber.
+
+Les nouvelles tournées conservent leurs coordonnées de départ et d’arrivée dans `tms_routes.route_points`. Changer le profil ne déplace donc pas les tournées existantes. Une tournée automatique non protégée peut être recréée par la planification ; une tournée fixée doit être révisée explicitement. Un changement de conducteur qui modifie ses lieux invalide l’horaire vérifié et les ETA. Les tournées historiques sans instantané continuent d’utiliser le dépôt partagé, sans réécriture de leurs données. La carte, l’éditeur des trajets vérifiés, Waze dans Ma tournée et l’export GPX lisent les mêmes points. Le CSV ajoute les charges et leurs unités.
+
+La migration additive `20261027204533_tms_resource_loads_and_endpoints.sql` étend les tables et fonctions existantes sans changer les noms des façades. Les réglages restent privés et journalisés ; les coordonnées ne sont pas ajoutées à la projection publique de suivi client. Aucun ordre de vente, mouvement de stock ou départ n’est créé par l’installation. Les tests sont dans `tests/tms-resources-db.test.cjs` et les parcours d’interface de `tests/tms-pro.spec.js`.
+
+## Carte quotidienne et actualisation automatique
+
+La carte se rafraîchit toutes les 15 secondes pendant que Planifier est visible,
+avec reprise immédiate au retour de connexion. Les événements Realtime des tables
+TMS déclenchent aussi une lecture regroupée ; le sondage fonctionne même sans
+publication Realtime. Les lectures passent par les droits existants. Le filtre de
+tournée, le centrage et un zoom/déplacement manuel sont conservés. Les changements
+métier actualisent également les listes, sans interrompre un formulaire ouvert.
+Les abonnements sont retirés à la sortie et les données sont effacées à la
+déconnexion. Les tournées et les livraisons restent filtrées selon la date choisie
+(en heure de l’entreprise, Quito par défaut). Aucun traitement du suivi ne relance
+le planner ni n’écrit une position ou une livraison.
+
+Les véhicules apparaissent avec les positions explicitement partagées par les
+chauffeurs, reçues via `gama_tms_pro('live')`. Une position de plus de cinq minutes
+ou une lecture GPS en erreur retire le marqueur du véhicule ; les livraisons
+restent consultables. La dernière actualisation et une perte de connexion sont
+visibles. Sans livraison, Quito reste affiché avec un état vide explicite. Une
+erreur de rendu propose Réessayer au lieu de laisser une zone vide. Les dimensions
+SVG explicites stabilisent le rendu dans les dispositions mobiles.
+
+Les couleurs et numéros reprennent l’ordre optimisé du planner Coco ; le départ
+et le retour au dépôt sont inclus selon la configuration. Les pointillés indiquent
+un ordre estimé, sans prétendre suivre les rues. **Afficher les trajets routiers**
+active explicitement un calcul OSRM opéré par FOSSGIS, sans clé payante : seuls les
+couples longitude/latitude des arrêts sont transmis, jamais les noms, références,
+identifiants ou positions des chauffeurs. Le choix est limité à la session et
+réinitialisé à la déconnexion. Les traits pleins suivent la géométrie routière
+dans le même ordre, sans modifier les affectations ni les horaires validés. Les
+retours et changements de coordonnées invalident le tracé en cours. Une panne du
+service laisse les arrêts et l’ordre indicatif disponibles.
+
+Ce calcul utilise un profil voiture, sans trafic en direct, restrictions de
+camions ni garantie de disponibilité. Le planner reste une heuristique respectant
+ses contraintes existantes, pas une optimisation mondiale des temps routiers.
+Waze reste disponible pour la navigation. Le client applique un maximum d’une
+requête par 1,1 seconde, un cache mémoire de 15 minutes (30 trajets), une échéance
+réseau de 12 secondes et des lots de 90 points. Les attributions OpenStreetMap,
+OSRM/FOSSGIS et le lien de correction sont affichés lorsque l’option est active.
+La CSP de la seule entrée ERP autorise précisément le chemin de cette API.
+
+Contrôles : `tests/tms-module.spec.js` couvre l’état vide en français sur téléphone,
+les mises à jour sans perte de vue, les numéros selon le planning, le suivi GPS,
+l’arrêt des lectures, le consentement routier et le repli en cas de panne.
+
+
+Les tracés routiers facultatifs reprennent aussi les points de départ/fin conservés par chaque nouvelle tournée. Une fin ouverte ne reçoit pas le retour général. L’activation de l’option transmet ces coordonnées de lieux au même fournisseur avec celles des livraisons ; les positions GPS observées du chauffeur restent exclues.
+
+
+## Proposition de départ plus tardif
+
+L’éditeur d’un horaire vérifié peut proposer de décaler le départ de l’attente enregistrée à la première livraison. La proposition exige des trajets conservés, un horaire sans demande de révision et une tournée non partie ; elle reste dans la journée et avant la fin de service du conducteur. Modifier un trajet désactive la proposition. Le clic ne sauvegarde rien : Enregistrer recalcule les créneaux, pauses et limites au serveur avec les contrôles de version existants. Cette aide ne constitue pas une optimisation automatique globale des heures de départ.
+
+L’analyse avancée affiche aussi les kilomètres GPS observés et les minutes des segments exploitables, ainsi que les segments exclus. Le calcul ne relie pas des positions espacées de plus de cinq minutes, imprécises au-delà de 50 m ou impliquant plus de 130 km/h. La distance additionne des segments directs et ne remplace pas le kilométrage routier total ; une valeur absente reste distincte de zéro. Voir [la livraison du 28 octobre](../../replica/continuation-2026-10-28/README.md).

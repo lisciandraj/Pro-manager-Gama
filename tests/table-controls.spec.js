@@ -56,6 +56,7 @@ test('sorts all contacts before pagination, keeps hidden columns after page chan
 test('product server sorting includes all data columns and sorts beyond the first page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
  await expect(host.locator('th.gamaClickableHeader')).toHaveCount(30);
+ await host.locator('.gamaColumnHeading').click();await host.getByRole('button',{name:'Tout afficher',exact:true}).click();
  for(const key of ['reference','family','category','lines','presentation','description','product_kind','base_unit','min_stock','max_stock','order_minimum','order_multiple','qty_per_carton','weight_g','volume_cm3','lot_tracking','lot_tracking_since','created_at','updated_at'])await expect(host.locator('th[data-column-key="'+key+'"]')).toBeVisible();
  await expect(host.locator('tbody tr').first()).toContainText('Référence 0');await expect(host.locator('tbody tr').first()).toContainText('Famille 0');await expect(host.locator('tbody tr').first()).toContainText('Catégorie 0');await expect(host.locator('tbody tr').first()).toContainText('Description complète 0');
  await host.locator('th[data-column-key=family]').click();await host.locator('th[data-column-key=family]').click();await expect(host.locator('tbody tr').first()).toContainText('Famille 24');

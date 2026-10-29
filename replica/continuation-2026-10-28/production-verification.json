@@ -1,0 +1,41 @@
+{
+  "verified_on": "2026-10-28",
+  "project": "mknsaibrewksgomuslev",
+  "migration": {
+    "version": "20261028182357",
+    "name": "coco_three_workstreams",
+    "file": "20261028175918_coco_three_workstreams.sql",
+    "statement_count": 1,
+    "source": "supabase_migrations.schema_migrations.statements[1]",
+    "sha256": "a095d8dc9b99518fd2df94735a1d5affc5c4afd7bf2828caa2fe95dd9f3e973e",
+    "bytes": 8197,
+    "project": "mknsaibrewksgomuslev",
+    "verified_on": "2026-10-28",
+    "encoding": "UTF-8",
+    "purpose": "Exact installed schema-only SQL. All 17 tracked historical table fingerprints unchanged. Never replay in production."
+  },
+  "historical_tables_checked": 17,
+  "historical_tables_unchanged": 17,
+  "exact_installed_sql": true,
+  "calendar_security_invoker": true,
+  "calendar_anonymous_execute": false,
+  "calendar_authenticated_execute": true,
+  "asset_helper_authenticated_execute": false,
+  "trace_helper_authenticated_execute": false,
+  "new_security_warnings": 0,
+  "local_validation": {
+    "unit_tests": 736,
+    "passed": 734,
+    "failed": 0,
+    "skipped": 2,
+    "browser_tests": 22,
+    "browser_failed": 0,
+    "accessibility_passed": true,
+    "generated_reproducible": true,
+    "startup_bytes": 797821,
+    "startup_budget": 850000
+  },
+  "authenticated_production_browser": false,
+  "physical_pwa_field_acceptance": false,
+  "publication": "See the pull request for CI, merge commit and served web verification."
+}

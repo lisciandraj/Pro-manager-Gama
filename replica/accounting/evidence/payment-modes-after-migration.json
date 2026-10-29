@@ -1,0 +1,79 @@
+{
+  "debit": 8552.49,
+  "credit": 8552.49,
+  "line_count": 138,
+  "new_tables": {
+    "methods": 0,
+    "treatments": 0,
+    "settlements": 0
+  },
+  "unbalanced": 0,
+  "captured_at": "2026-10-25T15:15:04.373492+00:00",
+  "collections": [
+    {
+      "n": 58,
+      "name": "entries",
+      "checksum": "8228409ea82e520f349e6a63c77ec8c6"
+    },
+    {
+      "n": 138,
+      "name": "lines",
+      "checksum": "c996fd5043aa641010a0a2d22a320d18"
+    },
+    {
+      "n": 526,
+      "name": "accounts",
+      "checksum": "1a7ca7918ec4f0341306c832b2a7a8ad"
+    },
+    {
+      "n": 20,
+      "name": "customer_payments",
+      "checksum": "fe7b02813cae9911d0bc4bf8099457c3"
+    },
+    {
+      "n": 3,
+      "name": "customer_receipts",
+      "checksum": "a7dbf32b53d3bce01c3eb39d8c5c42ba"
+    },
+    {
+      "n": 7,
+      "name": "supplier_payments",
+      "checksum": "84a305713359e0f8c8186986936405c4"
+    },
+    {
+      "n": 89,
+      "name": "bank_transactions",
+      "checksum": "186546be119488f1699068dddb7569a4"
+    },
+    {
+      "n": 26,
+      "name": "bank_match_groups",
+      "checksum": "268a6d8130f84c9c8b36c5ce0e8acbd3"
+    },
+    {
+      "n": 27,
+      "name": "bank_match_sources",
+      "checksum": "ea44e88bf6cca7b0c22f0e0852e9b50e"
+    }
+  ],
+  "entry_count": 58,
+  "private_tables": [
+    {
+      "rls": true,
+      "table": "accounting_payment_methods",
+      "client_select": false
+    },
+    {
+      "rls": true,
+      "table": "accounting_payment_settlements",
+      "client_select": false
+    },
+    {
+      "rls": true,
+      "table": "accounting_payment_treatments",
+      "client_select": false
+    }
+  ],
+  "anonymous_rpc_execute": false,
+  "historical_values_unchanged": true
+}

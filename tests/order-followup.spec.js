@@ -2,6 +2,7 @@ const {test,expect}=require('@playwright/test');const {boot,delivery}=require('.
 for(const kind of ['sales','quotes'])test(`${kind} history stays on the right with small avatars after TMS styles are preloaded`,async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page,{kind,proposal:true,preloadFollowup:true});
  const panel=page.locator('.cocoFollowup'),main=page.locator(kind==='sales'?'.gsOrderMain':'.cocoDossierMain');
+ if(!await panel.evaluate(e=>e.open))await panel.locator(':scope>summary').click();
  await expect(panel.locator('.cocoFollowupAvatar.is-agent img')).toBeVisible();
  const side=await panel.boundingBox(),content=await main.boundingBox();
  expect(side.x).toBeGreaterThanOrEqual(content.x+content.width-1);expect(side.width).toBeLessThanOrEqual(390);
@@ -99,11 +100,22 @@ for(const kind of ['sales','quotes'])test(`${kind} closed history clears phone n
  await expect(panel.locator(':scope>summary')).toBeVisible();await expect(nav).toBeVisible();
  for(const width of [320,390,768,844]){
   await page.setViewportSize({width,height:width===844?390:844});
+  await expect(panel).toHaveCSS('position','static');await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));await panel.scrollIntoViewIfNeeded();await expect(panel).toBeInViewport();
   const history=await panel.boundingBox(),bar=await nav.boundingBox();
   expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
   expect(history.x).toBeGreaterThanOrEqual(0);expect(history.x+history.width).toBeLessThanOrEqual(width);
  }
  await panel.locator(':scope>summary').click();await expect(panel).toHaveClass(/is-mobile-open/);
  await panel.locator(':scope>summary').click();await expect(panel).not.toHaveClass(/is-mobile-open/);
- const bar=await nav.boundingBox(),history=await panel.boundingBox();expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
+ await panel.scrollIntoViewIfNeeded();await expect(panel).toHaveCSS('position','static');const bar=await nav.boundingBox(),history=await panel.boundingBox();expect(history.y+history.height).toBeLessThanOrEqual(bar.y-4);
 });
+
+for(const [language,approved,accepted,completed] of [['es','Condiciones de sustitución aprobadas','Sustitución aceptada','Actividad finalizada'],['fr','Conditions de substitution validées','Substitution acceptée','Activité terminée'],['en','Substitution terms approved','Substitution accepted','Activity completed']]){
+ test('distribution history uses business labels in '+language,async({page})=>{
+  await boot(page,{kind:'sales',language});await page.evaluate(()=>{
+   window.__history=['substitution_commercial_approved','substitution_agreement_applied','activity_completed'].map((action,i)=>({id:'distribution-event-'+i,action,actor_id:'alice',actor_name:'Alice',at:'2026-10-23T12:00:00Z'}));
+  });
+  const panel=page.locator('.cocoFollowup');await panel.locator('[data-refresh]').click();
+  const timeline=panel.locator('.cocoFollowupTimeline');await expect(timeline).toContainText(approved);await expect(timeline).toContainText(accepted);await expect(timeline).toContainText(completed);await expect(timeline).not.toContainText('substitution_agreement_applied');
+ });
+}

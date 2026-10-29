@@ -177,17 +177,17 @@ export function sideDialog({id,prefix,title,navLabel,tabs=[],panes=[],opener,onS
   document.body.appendChild(el);setTabs(tabs);mount(el);el.showModal();
   return api;
 }
-export function table({columns,items,empty=t('No hay resultados.'),className='',rowAttributes=()=>''}) {
+export function table({columns,items,empty=t('No hay resultados.'),className='',rowAttributes=()=>'',primaryColumns=[]}) {
   const titleIndex=columns.findIndex(c=>!c.decorative);
   const html=items.length?items.map(item=>`<tr ${rowAttributes(item)}>${columns.map((col,i)=>`<td data-col="${esc(col.decorative||col.actions?'':t(col.label))}"${i===titleIndex?' data-gama-title':''}${col.sortValue?` data-sort-value="${esc(col.sortValue(item)??'')}"${typeof col.sortValue(item)==='number'?' data-sort-type="number"':''}`:col.key&&typeof item[col.key]==='number'?` data-sort-value="${item[col.key]}" data-sort-type="number"`:''}${col.numeric?' class="arcNumeric"':''}>${col.html?col.html(item):esc(col.value?col.value(item):item[col.key] ?? '')}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${columns.length}" class="arcEmpty">${esc(empty)}</td></tr>`;
-  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"><thead><tr data-gama-head>${columns.map((col,i)=>`<th scope="col" data-column-key="${esc(col.sort||col.key||String(i))}"${col.actions?' data-column-kind="actions"':col.decorative?' data-column-kind="decorative"':''}${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}"><span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span> <span aria-hidden="true">⇅</span></button>`:`<span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span>`}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
+  return `<div class="arcTableWrap gamaTableBox" data-arc-table><table class="arcTable gamaCards ${esc(className)}"${primaryColumns.length?` data-coco-primary-columns="${esc(primaryColumns.join(' '))}"`:''}><thead><tr data-gama-head>${columns.map((col,i)=>`<th scope="col" data-column-key="${esc(col.sort||col.key||String(i))}"${col.actions?' data-column-kind="actions"':col.decorative?' data-column-kind="decorative"':''}${col.numeric?' class="arcNumeric"':''}>${col.sort?`<button type="button" class="arcSort" data-arc-sort="${esc(col.sort)}"><span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span> <span aria-hidden="true">⇅</span></button>`:`<span data-gi-source="${esc(col.label)}">${esc(t(col.label))}</span>`}</th>`).join('')}</tr></thead><tbody>${html}</tbody></table></div>`;
 }
 export function pager({page=0,pageSize=20,total=0}={}) {
   if(total<=pageSize)return '';
   const pages=Math.max(1,Math.ceil(total/pageSize));
   return `<div class="arcPager gamaPager">${button({label:t('‹ Anterior'),className:'gamaPagerBtn',disabled:page<=0,attrs:'data-arc-page="-1" data-page-prev'})}<span class="gamaPagerInfo" aria-live="polite">${total?page*pageSize+1:0}–${Math.min(total,(page+1)*pageSize)} ${esc(t('de'))} ${total} · ${page+1} / ${pages}</span>${button({label:t('Siguiente ›'),className:'gamaPagerBtn',disabled:page>=pages-1,attrs:'data-arc-page="1" data-page-next'})}</div>`;
 }
-export function dataTable(host,{columns,source,searchInput,searchControl=searchInput,actions={},empty,className='',initial={}}) {
+export function dataTable(host,{columns,source,searchInput,searchControl=searchInput,actions={},empty,className='',initial={},primaryColumns=[]}) {
   let disposed=false,generation=0,timer;
   const saved=window.GamaTable?.sourceSort(host);
   const state={page:0,pageSize:20,search:'',...initial,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
@@ -202,7 +202,7 @@ export function dataTable(host,{columns,source,searchInput,searchControl=searchI
     try{
       const result=await source({...state});if(disposed||token!==generation||!host.isConnected)return;
       if(result.total>0&&state.page*state.pageSize>=result.total){return refresh({page:Math.max(0,Math.ceil(result.total/state.pageSize)-1)});}
-      host.innerHTML=table({columns,items:result.items,empty,className})+pager(result);
+      host.innerHTML=table({columns,items:result.items,empty,className,primaryColumns})+pager(result);
       window.GamaTable?.bind(host.querySelector('table'),{get:()=>state.sort?{col:state.sort,dir:state.ascending===false?'desc':'asc'}:null,set:sortBy,column:(_,i)=>columns[i].sort??null,search:{input:searchControl,get:()=>state.search,set:scheduleSearch}});mount(host);
     }catch(e){if(!disposed&&token===generation){host.innerHTML='<p role="alert">'+esc(errorMessage(e))+'</p>'+button({label:t('Reintentar'),attrs:'data-arc-retry'});}}
     finally{if(token===generation)host.removeAttribute('aria-busy');}

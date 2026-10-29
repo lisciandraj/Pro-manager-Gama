@@ -44,10 +44,19 @@ async function editProduct(b,id){await window.ArchitectLegacyData?.load('product
 // The catalogue opens first; creation and editing focus the existing form.
 function gamaFocusProductForm(){
  const form=$('cocoProductForm');
+ if(form)form.hidden=false;
+ const catalog=document.querySelector('#products .cocoProductCatalog');if(catalog)catalog.hidden=true;
  form?.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  $('pName')?.focus({preventScroll:true});
 }
+function gamaCloseProductForm(){
+ const form=$('cocoProductForm');if(form)form.hidden=true;
+ const catalog=document.querySelector('#products .cocoProductCatalog');if(catalog)catalog.hidden=false;
+ if($('products')?.classList.contains('active'))$('cocoNewProduct')?.focus({preventScroll:true});
+}
+window.CocoProductEditor={close:gamaCloseProductForm};
 $('cocoNewProduct')?.addEventListener('click',()=>{clearProductForm();gamaFocusProductForm()});
+$('cocoProductClose')?.addEventListener('click',gamaCloseProductForm);
 /* La ficha muestra la foto en grande: es la unica pantalla que necesita el
    original, asi que se pide justo aqui y para un solo producto. */
 function gamaShowProductPhoto(p){

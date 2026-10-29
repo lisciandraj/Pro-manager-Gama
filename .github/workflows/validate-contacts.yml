@@ -20,10 +20,10 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Verify applied migration integrity and contact transactions
-        run: npm run verify:migrations && node --test tests/contact-alignment.test.cjs
+        run: npm run verify:migrations && node --test tests/contact-alignment.test.cjs tests/contact-single-name.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Verify contact dossier browser workflows
-        run: npx playwright test tests/contacts.spec.js tests/contact-alignment-ui.spec.js --workers=2 --reporter=json > contacts-browser.json
+        run: npx playwright test tests/contacts.spec.js tests/contact-alignment-ui.spec.js tests/contact-single-name.spec.js tests/crm-contacts.spec.js tests/global-search.spec.js --workers=2 --reporter=json > contacts-browser.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

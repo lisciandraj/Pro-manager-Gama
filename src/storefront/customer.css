@@ -11,3 +11,6 @@
 @media(max-width:600px){.customer-area .heading{padding:12px 0 20px}.customer-area .heading h1{font-size:23px}.customer-area .card{padding:16px}.customer-dialog h1{font-size:26px}.product-card .catalog-favorite{top:6px;right:6px}.product-list .catalog-favorite{left:auto;right:8px;top:8px}}
 
 #mfaDialog{border:0}
+
+/* Explicit consent stays readable on small screens. */
+#agreementResponse .agreement-check{display:flex;flex-direction:row;align-items:flex-start;gap:12px}#agreementResponse .agreement-check input{width:20px;height:20px;flex-shrink:0}#agreementResponse [role=alert]{overflow-wrap:anywhere}

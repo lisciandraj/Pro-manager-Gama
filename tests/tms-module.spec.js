@@ -45,10 +45,11 @@ async function boot(page, seed = {}) {
       business_documents:seedData.documents||[], external_invoices:seedData.invoices||[], financial_accounts:seedData.accounts||[], external_invoice_payments:[], fulfillment_packages:seedData.packages||[], return_orders:[],
       _profile:seedData.profile||{id:'test-admin-uid',full_name:'Test Admin',role:'administrador',active:true},
       __today: day,
+      __liveRoutes:seedData.liveRoutes||[],
     };
   }, [seed, today()]);
   await page.route('**/gama-supabase.js*', route =>
-    route.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD })
+    route.fulfill({ contentType: 'text/javascript', body: MOCK_GAMA_CLOUD.replace("if(fn==='gama_tms_dispatch'){",`if(fn==='gama_tms_pro'&&args.p_action==='live'){window.__liveReads=(window.__liveReads||0)+1;return window.__DB.__liveFailure?{error:{message:'Network unavailable'}}:{data:{routes:window.__DB.__liveRoutes}};}if(fn==='gama_tms_dispatch'){`) })
   );
   await page.route('**/@supabase/**', route => route.abort());
   await page.goto('/index.html');
@@ -490,7 +491,7 @@ test('delivery operations prepare a tracking message, record a return and paymen
 
 test('public tracking works without an ERP session and an expired link can be retried',async({page})=>{
  let fail=false,calls=0;await page.route('**/rest/v1/rpc/gama_tms_tracking',route=>{calls++;return route.fulfill({contentType:'application/json',body:JSON.stringify(fail?null:{reference:'ENT-00000017',date:today(),status:'En tránsito',eta:new Date().toISOString(),delivered_at:null})})});
- await page.goto('/tms-tracking.html?token=73000000-0000-4000-8000-000000000001');await expect(page.locator('#trackingReference')).toHaveText('ENT-00000017');await expect(page.locator('#trackingState')).toHaveText('En tránsito');expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
+ await page.goto('/tms-tracking.html?token=73000000-0000-4000-8000-000000000001&lang=es');await expect(page.locator('#trackingReference')).toHaveText('ENT-00000017');await expect(page.locator('#trackingState')).toHaveText('En tránsito');expect(await page.evaluate(()=>localStorage.getItem('gama_session_v1'))).toBeNull();
  fail=true;await page.click('#trackingRefresh');await expect(page.locator('#trackingStatus')).toContainText('caducado');await expect(page.locator('#trackingContent')).not.toBeVisible();fail=false;await page.click('#trackingRefresh');await expect(page.locator('#trackingContent')).toBeVisible();expect(calls).toBe(3);
 });
 
@@ -567,4 +568,57 @@ test('loading manifest downloads a real multipage PDF and rechecks route access 
  expect(file.suggestedFilename()).toMatch(/manifiesto.*RUT-00000042.*\.pdf/i);const data=fs.readFileSync(await file.path());expect(data.subarray(0,4).toString()).toBe('%PDF');expect((data.toString('latin1').match(/\/Type \/Page\b/g)||[]).length).toBeGreaterThan(1);expect(await page.evaluate(()=>window.__manifestReads)).toBe(2);
  await file.saveAs('.build/tms-manifest-verified.pdf');
  await page.evaluate(()=>window.__manifestDenied=true);await page.locator('[data-ex-print]').click();await expect(page.locator('.tmsManifestDialog [role=alert]')).toContainText('no está asignada');await expect(page.locator('[data-ex-print]')).toBeEnabled();
+});
+
+
+test.describe('TMS — live daily map',()=>{
+ const ds=()=>['a','b'].map((id,i)=>({id,customer:'Client '+id,address:'Quito',delivery_date:today(),status:'En tránsito',route_id:'route-live',driver_id:'drv1',lat:-.20-i*.01,lng:-78.50-i*.01,weight:5,volume:.1}));
+ const seed=()=>({drivers:DRIVERS,deliveries:ds(),routes:[{id:'route-live',erp_reference:'R-LIVE',route_date:today(),driver_id:'drv1',driver_name:'Driver',vehicle:'TRUCK',stops:['b','a'],status:'En ruta'}],settings:[{depot:'Depot',depot_lat:-.18,depot_lng:-78.48,return_depot:true}]});
+ test('empty French phone map renders Quito and enabled controls',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setViewportSize({width:390,height:844});await page.addInitScript(()=>localStorage.setItem('gama_language_v1','fr'));
+  await boot(page);await expect(page.locator('#tDayMap svg')).toBeVisible();await expect(page.locator('#tMapIn')).toBeEnabled();
+  await expect(page.locator('#tMapEmpty')).toContainText('Aucune livraison');await expect(page.locator('#tDayMap svg')).toHaveAttribute('data-street-source','municipal');
+  expect(await page.locator('#tDayMap svg path').count()).toBeGreaterThan(5);expect(errors).toEqual([]);
+  await page.locator('#tDayMap').screenshot({path:'test-results/tms-live-empty-phone.png'});
+ });
+ test('remote delivery changes update the map and list without resetting the chosen viewport',async({page})=>{
+  await boot(page,seed());await expect(page.locator('#tRefresh')).toBeEnabled();await page.locator('#tMapIn').click();
+  const zoom=await page.locator('#tDayMap svg').getAttribute('data-zoom'),view=await page.locator('#tDayMap svg').getAttribute('viewBox');
+  await page.evaluate(()=>{const d=__DB.tms_deliveries[0];Object.assign(d,{status:'Entregada',lat:-.205});window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'tms_deliveries'}}))});
+  await expect(page.locator('[data-map-pin=a] circle')).toHaveAttribute('fill','#15803d');await expect(page.locator('#tms-delivery-a')).toContainText('Entregada');
+  await expect(page.locator('#tDayMap svg')).toHaveAttribute('data-zoom',zoom);await expect(page.locator('#tDayMap svg')).toHaveAttribute('viewBox',view);
+  await expect(page.locator('[data-map-pin=b] text')).toHaveText('1');await expect(page.locator('[data-map-pin=a] text')).toHaveText('2');
+  const leg=await page.locator('[data-map-route=route-live]').getAttribute('d');expect((leg.match(/L/g)||[]).length).toBe(3);
+ });
+ test('polling shows fresh shared vehicle positions and stops outside the planning stage',async({page})=>{
+  await page.clock.install();
+  const data=seed();data.liveRoutes=[{id:'route-live',route_date:today(),driver_name:'Driver',position:{lat:-.195,lng:-78.49,observed_at:new Date().toISOString()}}];
+  await boot(page,data);await expect(page.locator('[data-map-vehicle=route-live]')).toHaveCount(1);
+  const old=await page.locator('[data-map-vehicle=route-live]').getAttribute('transform');
+  await page.evaluate(()=>__DB.__liveRoutes[0].position.lng=-78.493);await page.clock.fastForward(16000);
+  await expect(page.locator('[data-map-vehicle=route-live]')).not.toHaveAttribute('transform',old);
+  await page.locator('[data-tms-stage=loading]').click();const reads=await page.evaluate(()=>window.__liveReads);await page.clock.fastForward(32000);
+  expect(await page.evaluate(()=>window.__liveReads)).toBe(reads);
+ });
+ test('failed or stale GPS never leaves a fresh vehicle marker on screen',async({page})=>{
+  const data=seed();data.liveRoutes=[{id:'route-live',route_date:today(),position:{lat:-.19,lng:-78.49,observed_at:new Date(Date.now()-6*60000).toISOString()}}];
+  await boot(page,data);await expect.poll(()=>page.evaluate(()=>window.__liveReads||0)).toBeGreaterThan(0);await expect(page.locator('[data-map-vehicle]')).toHaveCount(0);
+  await page.evaluate(()=>{__DB.__liveFailure=true;window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'tms_routes'}}))});
+  await expect(page.locator('#tMapGps')).toContainText('no disponible');await expect(page.locator('[data-map-pin=a]')).toHaveCount(1);
+ });
+ test('road geometry is opt-in, uses optimized stop order and keeps coordinates out of names',async({page})=>{
+  const requests=[];await page.route('https://routing.openstreetmap.de/**',async route=>{requests.push(route.request().url());await route.fulfill({contentType:'application/json',body:JSON.stringify({code:'Ok',routes:[{distance:5000,duration:600,geometry:{type:'LineString',coordinates:[[-78.48,-.18],[-78.485,-.18],[-78.51,-.21],[-78.50,-.20],[-78.48,-.18]]}}]})})});
+  await boot(page,seed());expect(requests).toEqual([]);await page.locator('#tMapRoads').check();
+  await expect(page.locator('[data-map-route=route-live]')).toHaveAttribute('data-route-basis','road');expect(requests).toHaveLength(1);
+  expect(requests[0]).toContain('-78.48,-0.18;-78.51,-0.21;-78.5,-0.2;-78.48,-0.18');expect(requests[0]).not.toMatch(/Client|Driver|TRUCK/);
+  await page.locator('#tMapIn').click();await page.locator('#tMapRoads').uncheck();await expect(page.locator('[data-map-route=route-live]')).toHaveAttribute('data-route-basis','order');
+  await page.locator('#tMapRoads').check();await expect(page.locator('[data-map-route=route-live]')).toHaveAttribute('data-route-basis','road');
+  await page.setViewportSize({width:390,height:844});await page.locator('#tDayMap').screenshot({path:'test-results/tms-live-routes-phone.png'});
+ });
+ test('routing service failure retains map and labels the indicative route',async({page})=>{
+  await page.route('https://routing.openstreetmap.de/**',route=>route.fulfill({status:503,body:'Unavailable'}));
+  await boot(page,seed());await page.locator('#tMapRoads').check();await expect(page.locator('#tMapRoadStatus')).toContainText('no disponible');
+  await expect(page.locator('[data-map-route=route-live]')).toHaveAttribute('data-route-basis','order');await expect(page.locator('[data-map-pin=a]')).toHaveCount(1);
+ });
 });

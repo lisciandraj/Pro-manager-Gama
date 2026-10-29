@@ -11,3 +11,9 @@ test('HTML boot and deployment do not include test configuration or obsolete pre
  for(const file of ['playwright.config.js','playwright.responsive.config.js'])assert.ok(!runtimeFiles().includes(file));
  for(const file of ['gama-knowledge.js','gama-assistant-ia.js','gama-role-spanish.js'])assert.ok(!html.includes('<script src="'+file));
 });
+test('only the ERP can request the explicitly enabled road routing API',()=>{
+ const erp=fs.readFileSync('index.html','utf8');
+ assert.ok(erp.includes('https://routing.openstreetmap.de/routed-car/route/'));
+ for(const file of ['tms-driver.html','tms-tracking.html','gama-site.html','gama-b2b.html'])assert.ok(!fs.readFileSync(file,'utf8').includes('https://routing.openstreetmap.de/routed-car/route/'),file);
+ assert.ok(!erp.includes("connect-src *"));
+});

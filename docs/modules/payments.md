@@ -82,3 +82,9 @@ siguen siendo editables. La validación formal no sustituye una consulta al SRI.
 Prueba: `tests/ec-credit-identity-db.test.cjs` restaura el esquema completo y
 comprueba vencimientos parciales, retenes, aprobaciones, cambios de líneas,
 duplicados y acceso denegado.
+
+## Traitements comptables des règlements
+
+Comptabilité → Configuration → Moyens de paiement distingue banque directe, compte d’attente et sans écriture par compte financier, moyen et sens. L’absence de configuration conserve le traitement historique. Chaque nouveau règlement fige son traitement.
+
+Un règlement sur compte d’attente réduit la créance mais reste En paiement jusqu’au rapprochement. Sans écriture, le montant dû est conservé jusqu’à la preuve bancaire ; son montant réservé empêche un deuxième enregistrement du même solde. L’écran distingue traitement et rapprochement. Annuler le rapprochement contre-passe le transfert et conserve le paiement. Voir [les règles et limites](../../replica/accounting/payment-modes.md).

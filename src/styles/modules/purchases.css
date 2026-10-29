@@ -3,3 +3,7 @@
 
 
 @media screen{body[data-app=coco-erp] .arcContent #gamaPurchasesV14 .gp14Kpis{gap:16px}body[data-app=coco-erp] .arcContent #gamaPurchasesV14 .gp14Kpis>div{background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:12px;padding:var(--coco-panel-padding)}body[data-app=coco-erp] .arcContent #gamaPurchasesV14 .gp14Kpis span{font-size:13px;font-weight:500}body[data-app=coco-erp] .arcContent #gamaPurchasesV14 .gp14Kpis b{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}}
+
+@media screen{body.cocoWorkbench .arcContent #gamaPurchasesV14 .gp14Grid{grid-template-columns:minmax(0,1fr)}.gp14Editor>summary{display:flex;width:fit-content;align-items:center;min-height:44px;padding:10px 16px;background:var(--coco-action);color:var(--coco-on-action);border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;list-style:none}.gp14Editor>summary::-webkit-details-marker{display:none}.gp14Editor>summary:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}body.cocoWorkbench .arcContent #gamaPurchasesV14 .gp14Grid>.card,body.cocoWorkbench .arcContent #gamaPurchasesV14 .gp14Form{border:0;border-radius:0;box-shadow:none;padding:16px 0}.gp14Editor[open]{margin-bottom:16px}}
+
+@media screen and (max-width:760px){body.cocoWorkbench .arcContent #gamaPurchasesV14 .gp14Kpis{grid-template-columns:repeat(5,minmax(128px,1fr));overflow-x:auto;gap:12px;padding-bottom:12px}}

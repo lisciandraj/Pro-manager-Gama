@@ -283,7 +283,7 @@ function tabla(){
  const host=$('ivTabla');if(!host)return;
  const rows=filas();pintarKpis(rows);
  if(!rows.length){window.ArcUI.render(host,'<p class="muted">'+esc(T('No hay existencias que coincidan.'))+'</p>');$('ivInspector')?.replaceChildren();return}
- if(!rows.some(r=>r.producto.id===selectedProduct))selectedProduct=rows[0].producto.id;
+ if(!rows.some(r=>r.producto.id===selectedProduct))selectedProduct=null;
  const sites=r=>r.warehouse||[...new Set(r.lineas.map(l=>(almacenDe(l.location_id)||{}).name).filter(Boolean))].join(', ')||'—';
  const pagina=rows;
  const columns=['Producto','Almacén','Stock físico','Reservado','Disponible','Estado'];
@@ -295,10 +295,12 @@ function tabla(){
  productInspector(rows.find(r=>r.producto.id===selectedProduct));window.GamaTable?.scan();window.GamaPhotos?.hydrate(host);
 }
 function productInspector(r){
- const host=$('ivInspector');if(!host||!r)return;const p=r.producto,e=estado(r);
+ const host=$('ivInspector');if(!host)return;host.hidden=!r;if(!r){host.replaceChildren();return}const p=r.producto,e=estado(r);
  const fields=[['Stock físico',num(r.onHand)],['Reservado',num(r.reservado)],['Disponible',num(r.disponible)],['Entrante',r.entrante===null?'—':num(r.entrante)],['Previsto',r.previsto===null?'—':num(r.previsto)],['Mínimo',num(r.minimo)],['Máximo',num(r.maximo)],['Costo',money(r.costo)],['Valor del stock',money(r.valor)]];
  window.ArcUI.render(host,`<span class="ivInspectorIcon" aria-hidden="true">${productPhoto(p)}</span><h3>${esc(p.name)}</h3><p class="muted">${esc(p.reference||'—')} · ${esc(p.category||'—')}</p><span class="ivEstado ${e.clase}">${esc(T(e.texto))}</span><dl class="cocoKeyValues">${fields.map(([k,v])=>`<div><dt>${esc(T(k))}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><h4>${esc(T('Ubicaciones'))}</h4><p class="muted">${esc(r.lineas.map(l=>{const u=ubicacion(l.location_id)||{},w=almacenDe(l.location_id)||{};return `${w.name||'—'} · ${u.code||'—'}`}).join(' / ')||'—')}</p><button type="button" class="arcButton secondary" data-iv-history>${esc(T('Transferencias'))}</button><p class="ivHelp">${esc(T('Físico − todas las reservas = disponible.'))}</p>`);
  host.querySelector('[data-iv-history]').onclick=()=>window.GamaInventoryV2.openTab('transferencias');
+ const close=document.createElement('button');close.type='button';close.className='arcButton secondary';close.textContent=T('Volver');close.dataset.ivClose='';
+ close.onclick=()=>{selectedProduct=null;host.hidden=true;host.replaceChildren();const button=[...document.querySelectorAll('[data-iv-open]')].find(b=>b.dataset.ivOpen===p.id);document.querySelectorAll('[data-iv-product]').forEach(row=>row.setAttribute('aria-selected','false'));button?.focus()};host.prepend(close);
  window.GamaPhotos?.hydrate(host);
 }
 function pintarKpis(rows){

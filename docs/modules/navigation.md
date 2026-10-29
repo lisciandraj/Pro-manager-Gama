@@ -4,6 +4,14 @@ Le bouton à neuf points ouvre le menu des applications sur ordinateur, tablette
 
 Dans chaque module, la flèche « Retour au menu » précède son nom dans la barre horizontale, sur ordinateur, tablette et téléphone. Le nom n’est affiché qu’une fois, comme titre principal. Les anciens en-têtes du contenu conservent leurs outils métier mais n’affichent plus le titre et le retour en double ; sans outil, ils ne réservent aucune ligne vide. Le retour utilise le routeur commun et replace le focus sur la tuile du module lorsqu’elle existe. Sur téléphone, le titre du module prend la place de la marque dans la barre pour conserver la place des commandes. L’accueil masque cette flèche ; les fenêtres et les retours au sein d’un dossier gardent leurs propres commandes.
 
+La charte [Coco Clair ERP](../erp-design/DESIGN.md) s’applique aux modules internes et à leurs fenêtres : Inter locale, espace blanc, onglets pétrole, action principale orange et contrôles partagés. Le site public possède une charte distincte. L’accueil garde neuf colonnes sur grand écran et trois sur téléphone, sans contour ni ombre de tuile ; les étoiles visibles disposent d’une cible mobile de 44 px.
+
+Les listes en lecture seule passent en fiches jusqu’à 760 px si aucune vue n’est enregistrée ; les tableaux éditables et les fenêtres conservent leur grille. Le choix explicite de vue et les préférences de colonnes restent prioritaires. Produits et Contacts montrent d’abord six champs métier, en plus des éléments décoratifs et actions ; les 32 champs Produits restent dans Colonnes, sans enregistrer le défaut compact comme préférence.
+
+Produits ouvre le catalogue ; Nouveau produit ou Modifier affiche la fiche complète. Retour la masque en conservant le brouillon en mémoire ; un enregistrement réussi la ferme. L’éditeur Employé est un dépliant natif fermé au départ et ouvert à la création ou à l’édition. L’inspecteur de Stock n’apparaît qu’après sélection d’un produit ; Retour efface la sélection et replace le focus dans la liste.
+
+L’historique de module démarre replié dans une ligne utilitaire du flux normal, au-dessus du travail : compact sur PC et pleine largeur en haut sur téléphone ; il ne réserve pas de colonne lorsqu’il est fermé. Un dossier sélectionné garde son historique ouvert sur PC. Agent Coco conserve ses conversations récentes, son message puis son historique central ouvert dans la page. Dans TMS, les arrêts sont à gauche et la carte réelle à droite sur PC ; les outils compacts et la carte passent avant les listes longues sur téléphone. Les actions, filtres, événements GPS et contrôles d’accès restent ceux des modules.
+
 | Espace | Contenu et accès |
 | --- | --- |
 | Tableau de bord | Pilotage, priorités et KPI personnalisables |
@@ -57,6 +65,11 @@ Le type d’accès Client et les modules Catalogue client et Mes livraisons sont
 
 L’import de produits accepte jusqu’à 3 000 lignes par fichier, pour la simulation et la confirmation. Chaque appel d’import dispose d’un délai serveur de 60 secondes, avec des recherches indexées sur le nom, la référence et le code-barres normalisés. Les doublons, erreurs par ligne et reprises conservent leurs contrôles existants. Les délais des autres opérations ne changent pas.
 
+Le groupe Résumé comprend aussi [Espace de travail](workhub.md) : réception
+commune, discussions privées et liens vers les tâches et documents autorisés.
+
+La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.
+
 ## Nom des contacts
 
-Les interlocuteurs clients et prospects utilisent un seul champ « Nom du contact », en français, espagnol et anglais. Les colonnes séparées Prénom/Nom et ces doublons dans l’aperçu de recherche sont retirés. Une modification des autres coordonnées conserve les composantes historiques du nom ; le nom complet reste affiché dans les listes et les fiches.
+Les interlocuteurs clients et prospects utilisent un seul champ « Nom du contact » dans Contacts et dans l’onglet Contacts du CRM, en français, espagnol et anglais. Les colonnes séparées Prénom/Nom et ces doublons dans l’aperçu de recherche sont retirés. La recherche retrouve le nom complet, ses différentes parties et les accents. Une modification des autres coordonnées conserve les composantes historiques du nom ; le nom complet reste affiché dans les listes et les fiches. Un nom créé ou explicitement modifié est enregistré en entier dans la colonne existante `first_name`, avec `last_name` vide, sans découpage automatique. Aucune migration ni réécriture globale des données n’est nécessaire ; les liens entre rôles, les sauvegardes versionnées et les historiques existants sont conservés.

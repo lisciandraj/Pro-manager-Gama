@@ -12,6 +12,8 @@
 if(window.GamaAccounting&&!window.GamaAccounting.__arcLazy)return;
 const ID='accounting',$=id=>document.getElementById(id);
 const esc=window.ArcUI.esc;
+const L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
+const journalRpc=(action,data={})=>window.ArcData.rpc('gama_accounting_journals',{p_action:action,p_data:data});
 const T=s=>window.GamaI18n?.t?.(s)||s;
 const tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 const money=v=>window.GamaCurrency.format(v);
@@ -25,19 +27,24 @@ const SECTIONS=[
  ['overview','Vista general'],['sales','Ventas'],['purchases','Compras'],['expenses','Gastos'],
  ['payments','Pagos'],['cash','Banco y caja'],['receivables','Cuentas por cobrar'],
  ['payables','Cuentas por pagar'],['ledger','Contabilidad'],['taxes','Impuestos'],
- ['reports','Informes'],['periods','Cierres'],['sri','Facturación SRI'],['config','Parámetros']
+ ['reports','Informes'],['earnings','Libros y afectación del resultado'],['periods','Cierres'],['stock19','Valor del stock y cierre'],['plans','Periodificación y préstamos'],['sri','Facturación SRI'],['config','Parámetros']
 ];
 /* Lo que ve un perfil comercial: su lado del negocio, sin libro mayor ni tesorería. */
 const COMMERCIAL=new Set(['overview','sales','receivables','reports']);
-const STATUS={pending:'No pagada',partial:'Pago parcial',paid:'Pagada',overdue:'Vencida',
+const STATUS={pending:'No pagada',partial:'Pago parcial',in_payment:'En proceso de pago',paid:'Pagada',overdue:'Vencida',
  cancelled:'Anulada',missing_terms:'Plazo por configurar',awaiting_delivery:'Entrega pendiente',
  due_soon:'Próxima a vencer',draft:'Borrador',posted:'Contabilizada',reversed:'Contrapasada',
  open:'Abierto',closed:'Cerrado',matched:'Conciliado',unmatched:'Sin conciliar',ignored:'Ignorado'};
 const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contabilidad.',
  NOT_ALLOWED:'No tienes permiso para esta acción. Pídelo en Parámetros de acceso.',
  PERIOD_CLOSED:'El periodo contable está cerrado. Un administrador puede reabrirlo.',
+ ACCOUNTING_HARD_LOCKED:'La fecha contable está bloqueada de forma irreversible.',
+ ACCOUNTING_DATE_LOCKED:'La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.',
  ENTRY_UNBALANCED:'El asiento no cuadra: el total del debe debe igualar al del haber.',
  ENTRY_EMPTY:'El asiento no tiene importes.',
+ OFF_BALANCE_MIXED:'Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.',
+ OFF_BALANCE_TAXES:'Un asiento fuera de balance no admite impuestos.',
+ OFF_BALANCE_RECONCILIATION:'Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.',
  ENTRY_POSTED_IMMUTABLE:'Un asiento contabilizado no se modifica ni se borra: se contrapasa.',
  ENTRY_NOT_POSTED:'Sólo se contrapasa un asiento contabilizado.',
  EXPENSE_POSTED:'El gasto ya está contabilizado. Anúlalo para corregirlo.',
@@ -108,7 +115,7 @@ function shell(){
  let s=$(workspace);
  if(!s){s=document.createElement('section');s.id=workspace;(document.querySelector('.wrap')||document.body).appendChild(s)}
  window.ArcUI.render(s,GamaUI.header({title:workspace==='sri'?'Facturación SRI':'Contabilidad',lead:workspace==='sri'?'Factura interna → SRI → XML y RIDE autorizados':'Lo que vendes, lo que gastas, lo que te deben y tu tesorería.'})
-  +'<nav class="gaNav" id="gaNav"></nav><div id="gaMain" aria-live="polite"></div>');
+  +'<nav class="gaNav" id="gaNav"></nav><nav class="gaShortcuts" id="gaShortcuts"></nav><div id="gaMain" aria-live="polite"></div>');
  GamaUI.bindBack(s);window.showTab?.(workspace);
  return s;
 }
@@ -119,8 +126,12 @@ function nav(){
   $('gaSriAccounting').onclick=()=>open();return;
  }
  const visible=SECTIONS.filter(([k])=>scope==='all'||COMMERCIAL.has(k));
- window.ArcUI.render(host,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':''}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
- host.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaSection)});
+ const families=[['overview','Vista general'],['sales','Clientes'],['purchases','Proveedores'],['cash','Banco y caja'],['ledger','Contabilidad'],['reports','Informes'],['config','Configuración']];
+ const group=section==='configuration'?(state.configurationTab==='balance'?'reports':'config'):({receivables:'sales',payables:'purchases',expenses:'purchases',payments:'cash',periods:'ledger',stock19:'ledger',plans:'ledger',earnings:'reports',taxes:'config',sri:'config'})[section]||section;
+ window.ArcUI.render(host,families.filter(([k])=>scope==='all'||COMMERCIAL.has(k)).map(([k,label])=>`<button type="button" data-ga-family="${k}" class="arcButton secondary ${group===k?'on':''}" aria-current="${group===k?'page':'false'}" data-gi-live>${esc(label)}</button>`).join(''));
+ const shortcuts=$('gaShortcuts');window.ArcUI.render(shortcuts,visible.map(([k,label])=>`<button type="button" data-gi-live data-ga-section="${k}" class="arcButton ${section===k?'on':'secondary'}" aria-current="${section===k?'page':'false'}">${esc(label)}</button>`).join(''));
+ host.querySelectorAll('[data-ga-family]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaFamily)});
+ shortcuts.querySelectorAll('[data-ga-section]').forEach(b=>b.onclick=()=>{delete state.invoiceId;go(b.dataset.gaSection)});
 }
 function busy(){window.ArcUI.render($('gaMain'),`<p class="arcPanel gaCard">${tr('Cargando…')}</p>`)}
 function fail(e,retry){
@@ -152,8 +163,9 @@ async function go(next){
   window.ArchitectPerformance?.contentReady(workspace,started);
   if(scope==='all'&&workspace===ID&&['ledger','reports','taxes','config','periods','receivables','payables','cash'].includes(section)){
    const tools=document.createElement('div');tools.className='gaTools arcPanel gaCard';
-   tools.innerHTML=`<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button><button class="arcButton secondary" id="gaAudit">${tr('Controles y preparación')}</button>`;
-   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');$('gaAudit').onclick=()=>go('audit');
+   tools.innerHTML=`${section==='reports'?`<button class="arcButton primary" id="gaFiscalReports">${tr('Libros y afectación del resultado')}</button>`:''}<button class="arcButton secondary" id="gaWorkbench">${tr('Libros y herramientas de Ecuador')}</button><button class="arcButton secondary" id="gaAudit">${tr('Controles y preparación')}</button><button class="arcButton secondary" id="gaConfiguration">${tr('Tipos, grupos, numeración y bloqueos')}</button>`;
+   $('gaMain').prepend(tools);$('gaWorkbench').onclick=()=>go('workbench');$('gaAudit').onclick=()=>go('audit');$('gaConfiguration').onclick=()=>{state.configurationTab=section==='reports'?'balance':'accounts';state.configurationOffset=0;return go('configuration')};
+   $('gaFiscalReports')?.addEventListener('click',()=>go('earnings'));
   }
   return true;
  }catch(e){if(token===generation){fail(e,()=>go());window.ArchitectPerformance?.contentReady(workspace,started,false)}}
@@ -162,7 +174,7 @@ async function open(options={}){
  if(!allowed())return;
  const token=++opening;
  workspace=options.sriWorkspace?'sri':ID;
- state={sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.section||'overview';
+ state={deferralMode:!!options.deferralBatch,deferralBatch:options.deferralBatch||null,stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId||options.deferralBatch?'plans':options.section||'overview';
  shell();
  try{
   const d=await rpc(options.sriWorkspace?'context':'overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;
@@ -181,6 +193,7 @@ async function open(options={}){
   }
  }catch(e){if(token===opening&&allowed()){nav();fail(e,()=>open(options))}return}
  const loaded=await go(section);
+ if(loaded&&token===opening&&scope==='all'&&options.entryId)await entryLines(options.entryId);
  if(loaded&&token===opening&&allowed()&&scope==='all'&&rights?.create&&options.newBill&&options.purchaseOrderId)await billForm({purchaseOrderId:options.purchaseOrderId});
 }
 
@@ -195,7 +208,7 @@ async function openSri(sourceInvoiceId){
 const VIEWS={};
 
 VIEWS.overview={
- load:()=>rpc('overview'),
+ async load(){const d=await rpc('overview');if(scope==='all')d.journalDashboard=await journalRpc('dashboard',{from:state.journalFrom||monthStart(),to:state.journalTo||day()});return d;},
  render(d){
   state.overview=d;
   const rev=trend(d.revenue.month,d.revenue.previous),exp=trend(d.expense.month,d.expense.previous);
@@ -204,7 +217,7 @@ VIEWS.overview={
   const margin=Number(d.revenue.year)>0?resultYear/Number(d.revenue.year)*100:null;
   const c=d.customers,s=d.suppliers,t=d.treasury,x=d.taxes;
   const priority=(target,label,value)=>`<button type="button" class="gaPriority" data-ga-priority="${target}" ${value==null?'disabled':''}><span>${tr(label)}</span><strong>${value==null?'—':esc(num(value,0))}</strong><span class="gaPriorityLink">${tr('Ver documentos')} →</span></button>`;
-  return `<div class="arcPanel gaCard gaPriorities"><h3>${tr('Prioridades de cobro y conciliación')}</h3><div class="gaPriorityGrid">${priority('receivables','Facturas de clientes vencidas',c.overdue_count)}${s?priority('payables','Facturas de proveedores vencidas',s.overdue_count):''}${scope==='all'?priority('cash','Movimientos bancarios sin conciliar',d.alerts?.unmatched):''}</div></div><div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
+  return `${d.journalDashboard?.journals?journalDashboard(d.journalDashboard):''}<div class="arcPanel gaCard gaPriorities"><h3>${tr('Prioridades de cobro y conciliación')}</h3><div class="gaPriorityGrid">${priority('receivables','Facturas de clientes vencidas',c.overdue_count)}${s?priority('payables','Facturas de proveedores vencidas',s.overdue_count):''}${scope==='all'?priority('cash','Movimientos bancarios sin conciliar',d.alerts?.unmatched):''}</div></div><div class="arcPanel gaCard"><h3>${tr('Resultado del mes')}</h3>
    <div class="gaKpis">
     ${kpi('Ingresos del mes',money(d.revenue.month),rev.text,rev.cls)}
     ${kpi('Gastos del mes',money(d.expense.month),exp.text,exp.cls)}
@@ -264,7 +277,7 @@ VIEWS.overview={
     <p>${tr('Asientos descuadrados')} : <b>${esc(num(d.alerts.unbalanced,0))}</b></p>
     <p class="gaHint">${tr('Estas alertas también aparecen en el Centro de acción de Coco ERP.')}</p></div>`:''}`;
  },
- bind(){document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo));
+ bind(){bindJournalDashboard();document.querySelectorAll('[data-ga-go]').forEach(b=>b.onclick=()=>go(b.dataset.gaGo));
   document.querySelectorAll('[data-ga-priority]').forEach(b=>b.onclick=()=>{
    const target=b.dataset.gaPriority;
    if(target==='cash'){state.bankFilters={status:'unmatched'};state.bankOffset=0;}
@@ -273,6 +286,17 @@ VIEWS.overview={
   });
  }
 };
+
+function journalDashboard(d){const kind=k=>({sales:L('Ventas','Ventes','Sales'),purchases:L('Compras','Achats','Purchases'),bank:L('Banco','Banque','Bank'),cash:L('Caja','Caisse','Cash'),misc:L('Operaciones diversas','Opérations diverses','Miscellaneous')}[k]||k);return `<div role="region" class="arcPanel gaCard gaJournalDashboard" data-gi-ignore aria-label="${esc(L('Diarios contables','Journaux comptables','Accounting journals'))}"><h3>${esc(L('Diarios contables','Journaux comptables','Accounting journals'))}</h3><div class="gaTools"><label>${esc(L('Desde','Du','From'))}<input id="gaJFrom" type="date" value="${esc(d.from)}"></label><label>${esc(L('Hasta','Au','To'))}<input id="gaJTo" type="date" value="${esc(d.to)}"></label><button class="arcButton primary" id="gaJApply">${esc(L('Aplicar','Appliquer','Apply'))}</button></div><div class="gaPriorityGrid">${d.journals.map(j=>`<article class="arcPanel gaCard"><h4>${esc(j.code+' · '+j.name)}</h4><p>${esc(kind(j.kind))}${j.active?'':' · '+esc(L('Inactivo','Inactif','Inactive'))}</p><p>${esc(L('Debe / Haber','Débit / Crédit','Debit / Credit'))}<br><b>${money(j.debit)} / ${money(j.credit)}</b></p><div class="gaActions"><button class="arcButton secondary" data-ga-journal="${esc(j.id)}" data-ga-entry-status="all">${esc(L('Asientos','Écritures','Entries'))} · ${Number(j.posted_count)+Number(j.draft_count)}</button><button class="arcButton primary" data-ga-journal="${esc(j.id)}" data-ga-entry-status="draft" ${Number(j.draft_count)?'':'disabled'}>${esc(L('Borradores','Brouillons','Drafts'))} · ${esc(j.draft_count)}</button></div></article>`).join('')}</div><h4>${esc(L('Banco y caja','Banque et caisse','Bank and cash'))}</h4><div class="gaPriorityGrid">${(d.banks||[]).map(b=>`<article class="arcPanel gaCard"><h4>${esc(b.name)}</h4><p>${esc(L('Saldo del libro al','Solde du livre au','Ledger balance through'))} ${esc(d.to)}<br><b>${money(b.balance)}</b></p><p>${esc(L('Pendiente de conciliación','Restant à rapprocher','Remaining to match'))}: ${money(b.unmatched_amount)}</p>${b.legacy_count?`<p class="gaHint">${esc(b.legacy_count)} ${esc(L('movimientos conservan el tratamiento anterior.','mouvements conservent le traitement historique.','transactions retain the legacy treatment.'))}</p>`:''}<div class="gaActions"><button class="arcButton secondary" data-ga-bank-ledger="${esc(b.id)}" data-ga-bank-name="${esc(b.name)}" data-ga-bank-from="${esc(b.balance_from||d.from)}">${esc(L('Ver libro','Voir le livre','View ledger'))}</button><button class="arcButton primary" data-ga-bank-pending="${esc(b.id)}">${esc(L('Conciliar','Rapprocher','Match'))} · ${esc(b.unmatched_count)}</button></div></article>`).join('')||`<p>${esc(L('No hay cuentas activas.','Aucun compte actif.','No active accounts.'))}</p>`}</div></div>`}
+function bindJournalDashboard(){
+ $('gaJApply')?.addEventListener('click',()=>{state.journalFrom=$('gaJFrom').value;state.journalTo=$('gaJTo').value;go('overview')});
+ const dates=()=>{state.from=state.journalFrom||monthStart();state.to=state.journalTo||day();state.search='';state.entryOffset=0};
+ document.querySelectorAll('[data-ga-journal]').forEach(b=>b.onclick=()=>{dates();state.journal=b.dataset.gaJournal;state.entryStatus=b.dataset.gaEntryStatus;delete state.entryBank;delete state.entryBankName;go('ledger')});
+ document.querySelectorAll('[data-ga-bank-ledger]').forEach(b=>b.onclick=()=>{dates();state.journal=null;state.entryStatus='all';state.entryBank=b.dataset.gaBankLedger;state.entryBankName=b.dataset.gaBankName;state.from=b.dataset.gaBankFrom;go('ledger')});
+ document.querySelectorAll('[data-ga-bank-pending]').forEach(b=>b.onclick=()=>{state.bankFilters={financial_account_id:b.dataset.gaBankPending,status:'unmatched',from:state.journalFrom||monthStart(),to:state.journalTo||day()};state.bankOffset=0;go('cash')});
+}
+function journalEntryFilters(){return {from:state.from||monthStart(),to:state.to||day(),search:state.search||'',journal_id:state.journal||null,financial_account_id:state.entryBank||null,status:state.entryStatus||'all',offset:state.entryOffset||0,limit:60}}
+async function exportJournalEntries(){const filters=journalEntryFilters(),rows=[];let page,offset=0,revision;do{page=await journalRpc('entries',{...filters,offset,limit:200,export:true});revision??=page.revision;if(page.revision!==revision)throw Error('EXPORT_CHANGED_RETRY');rows.push(...page.rows);offset+=page.rows.length}while(page.rows.length&&offset<page.total);if((await journalRpc('entries',{...filters,limit:1,offset:0,export:true})).revision!==revision)throw Error('EXPORT_CHANGED_RETRY');await exportRows(rows,'asientos')}
 
 function agingBlock(a){
  const cells=[['Sin vencer',a.current],['1–30 días',a.d30],['31–60 días',a.d60],['61–90 días',a.d90],['Más de 90 días',a.older]];
@@ -341,7 +365,7 @@ VIEWS.payables={
    </tbody></table></div></div>`;
  },
  bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-pagar');
-  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)))}
+  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))))}
 };
 
 /* ------------------------------------------------------------------ gastos */
@@ -390,7 +414,7 @@ VIEWS.expenses={
   document.querySelectorAll('[data-ga-receipt]').forEach(b=>b.onclick=()=>receiptForm(b.dataset.gaReceipt));
  }
 };
-async function act(b,fn){b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e));b.disabled=false}}
+async function act(b,fn){const disabled=b.disabled;b.disabled=true;try{await fn()}catch(e){window.gamaToast?.(err(e))}finally{if(b.isConnected)b.disabled=disabled}}
 function reasonForm(title,save){
  GamaSales.modal(title,`<label class="gsField">${tr('Motivo')}<textarea id="gaReason" required minlength="3" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('El motivo queda en el historial de auditoría.')}</p>`,'Confirmar',
@@ -474,6 +498,7 @@ VIEWS.purchases={
       ${r.purchase_order_id?`<button class="arcButton secondary" data-ga-match="${esc(r.id)}">${tr('Control compra / recepción / factura')}</button>`:''}
       ${r.status==='draft'?`<button class="arcButton primary" data-ga-draft="${esc(r.id)}">${tr('Revisar')}</button>`:''}
       ${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status==='posted'?`<button class="arcButton primary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}
+      <button type="button" class="arcButton secondary" data-ga-deferral="${esc(r.id)}">${tr('Diferidos de facturas')}</button>
       ${rights?.validate&&r.status==='posted'&&Number(r.paid)===0?`<button class="arcButton secondary" data-ga-void="${esc(r.id)}">${tr('Anular')}</button>`:''}
      </div></td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor registradas.')}</td></tr>`}
    </tbody></table></div>
@@ -481,25 +506,27 @@ VIEWS.purchases={
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'facturas-proveedor');
+  document.querySelectorAll('[data-ga-deferral]').forEach(b=>b.onclick=()=>act(b,async()=>{await window.ArcLoadScript('coco-accounting-invoice-deferrals.js');await window.CocoInvoiceDeferrals.showPlans('supplier',b.dataset.gaDeferral)}));
   document.querySelectorAll('[data-ga-match]').forEach(b=>b.onclick=()=>window.ArchitectSourcing.match(b.dataset.gaMatch));
   $('gaNewBill')?.addEventListener('click',()=>billForm());
   $('gaSupplierOcr')?.addEventListener('click',()=>window.CocoPlanning.ocr());
   $('gaImportSupplierXml')?.addEventListener('click',()=>window.CocoFlows.importSupplierXml());
   $('gaReceiptDrafts')?.addEventListener('click',()=>window.CocoFlows.draftBills());
   document.querySelectorAll('[data-ga-draft]').forEach(b=>b.onclick=()=>window.CocoFlows.draftBills(b.dataset.gaDraft));
-  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay)));
+  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))));
   document.querySelectorAll('[data-ga-void]').forEach(b=>b.onclick=()=>reasonForm('Anular la factura',r=>mutate('supplier_invoice_cancel',{id:b.dataset.gaVoid,reason:r}).then(()=>go())));
  }
 };
 async function billForm(context={}){
  if(!allowed()||scope!=='all'||!rights?.create)return;
  const token=opening;
+ await window.ArcLoadScript('coco-accounting-invoice-deferrals.js');
  const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
  if(token!==opening||!allowed()||!rights?.create)return;
  const purchase=context.purchaseOrderId&&purchases.data.find(p=>p.id===context.purchaseOrderId&&p.status!=='cancelled');
  if(context.purchaseOrderId&&!purchase)throw Error('DOCUMENT_NOT_FOUND');
  const key=crypto.randomUUID(),sup=state.suppliers||[];
- GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
+ const el=GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
   ${field('Pedido de compra (opcional)',`<select id="gaPurchase"><option value="">—</option>${purchases.data.filter(p=>p.status!=='cancelled').map(p=>`<option value="${esc(p.id)}">${esc(p.order_number)}</option>`).join('')}</select>`)}
   ${field('Número de la factura',`<input id="gaNumber" required maxlength="80">`)}
@@ -508,28 +535,30 @@ async function billForm(context={}){
   ${field('Base imponible',`<input id="gaSubtotal" type="number" required min="0" step="0.01">`)}
   ${field('Impuesto',`<input id="gaTaxAmount" type="number" min="0" step="0.01" value="0">`)}
   ${field('Total',`<input id="gaTotal" type="number" required min="0.01" step="0.01">`)}
- </div><label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
+ </div>${window.CocoInvoiceDeferrals.editor()}<label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('Al guardar se crea el asiento en el diario de compras y la factura aparece en cuentas por pagar.')}</p>`,
   'Registrar',async el=>{
    const v=id=>el.querySelector('#'+id).value;
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
     purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
-    tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes')});
+    tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el)});
    await go();
   });
+ window.CocoInvoiceDeferrals.bindEditor(el);
  const recalc=()=>{const s=Number($('gaSubtotal').value||0),t=Number($('gaTaxAmount').value||0);
   if(s>0)$('gaTotal').value=(s+t).toFixed(2)};
  $('gaSubtotal').oninput=recalc;$('gaTaxAmount').oninput=recalc;
  if(purchase){$('gaPurchase').value=purchase.id;$('gaSupplier').value=purchase.supplier_id}
 }
-function supplierPaymentForm(row){
+async function supplierPaymentForm(row){
  if(!row)return;
- const key=crypto.randomUUID(),accs=(state.accounts||[]).filter(a=>a.active);
+ const methods=await window.ArcData.rpc('gama_accounting_payment_modes',{p_action:'context',p_data:{}});let chosen=()=>({method:$('gaMethod').value,payment_method_id:null});
+ const key=crypto.randomUUID(),accs=(state.accounts||[]).filter(a=>a.active),available=Math.max(0,Number(row.balance)-Number(row.unposted_payment||0));
  GamaSales.modal('Registrar un pago a proveedor',
   `<p><b>${esc(row.supplier_name)}</b> · ${esc(row.number)}<br>${tr('Pendiente')} : <b>${money(row.balance)}</b></p>
    <div class="gaGrid">
-   ${field('Importe',`<input id="gaAmount" type="number" required min="0.01" max="${esc(row.balance)}" step="0.01" value="${Number(row.balance).toFixed(2)}">`)}
+   ${field('Importe',`<input id="gaAmount" type="number" required min="0.01" max="${esc(available)}" step="0.01" value="${available.toFixed(2)}">`)}
    ${field('Fecha',`<input id="gaDate" type="date" required max="${day()}" value="${day()}">`)}
    ${field('Medio',`<select id="gaMethod">${Object.entries(METHODS).map(([k,v])=>`<option value="${k}" data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
    ${field('Cuenta de banco o caja',`<select id="gaAccount"><option value="">—</option>${options(accs)}</select>`)}
@@ -537,9 +566,10 @@ function supplierPaymentForm(row){
   </div>`,'Guardar el pago',async el=>{
    const v=id=>el.querySelector('#'+id).value;
    await mutate('supplier_payment',{request_key:key,supplier_invoice_id:row.id,amount:Number(v('gaAmount')),
-    paid_at:v('gaDate'),method:v('gaMethod'),financial_account_id:v('gaAccount'),reference:v('gaReference')});
+    paid_at:v('gaDate'),...chosen(),financial_account_id:v('gaAccount'),reference:v('gaReference')});
    await go();
   });
+ chosen=window.ArchitectFinanceControls.paymentMethods(document.querySelector('dialog'),methods,{account:'#gaAccount',method:'#gaMethod',direction:'out',preferred:methods.preferences?.find(p=>p.partner_type==='supplier'&&p.partner_id===row.supplier_id)?.method_id});
 }
 
 /* ------------------------------------------------------------------ ventas */
@@ -630,7 +660,7 @@ VIEWS.cash={
     <label>${tr('Importe máximo')}<input id="gaBankMax" type="number" step="0.01" value="${esc(state.bankFilters?.max_amount??'')}"></label>
     </div></details>
     <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
-    ${rights?.create?`<button class="arcButton secondary" id="gaImport">${tr('Importar CSV')}</button>`:''}
+    ${rights?.create?`<button class="arcButton secondary" id="gaImport">${esc(L('Importar un extracto','Importer un relevé','Import a statement'))}</button>`:''}
     ${rights?.export?`<button class="arcButton secondary" id="gaBankExport">${tr('Exportar todo')}</button>`:''}<button class="arcButton secondary" id="gaStatements">${tr('Revisar extractos')}</button></div>
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Fecha','Cuenta','Referencia','Descripción','Importe','Estado','Acciones'].map(h=>`<th class="${h==='Importe'?'gaNum':''}">${tr(h)}</th>`).join('')}
@@ -638,7 +668,7 @@ VIEWS.cash={
     <td>${esc(t.value_date)}</td><td>${esc(t.account_name)}</td><td>${esc(t.reference||'—')}</td>
     <td>${esc(t.description)}</td><td class="gaNum"><b class="${Number(t.amount)>=0?'gaUp':'gaDown'}">${money(t.amount)}</b></td>
     <td>${badge(t.status)}</td>
-    <td>${rights?.validate?(t.status==='unmatched'
+    <td>${t.entry_id?`<button class="arcButton secondary" data-ga-bank-entry="${esc(t.entry_id)}">${tr('Ver asiento')}</button>`:''}${rights?.validate?(t.status==='unmatched'
       ?`<button class="arcButton primary" data-ga-match="${esc(t.id)}">${tr('Conciliar')}</button>`
       :`<button class="arcButton secondary" data-ga-unmatch="${esc(t.id)}">${tr('Deshacer')}</button>`):''}</td>
    </tr>`).join('')||`<tr><td colspan="7">${tr('No hay movimientos con este filtro.')}</td></tr>`}</tbody></table></div>
@@ -646,6 +676,7 @@ VIEWS.cash={
    <p class="gaHint">${tr('Coco ERP propone correspondencias; nunca concilia solo. Tú validas cada asociación.')}</p></div>`;
  },
  bind(){
+  document.querySelectorAll('[data-ga-bank-entry]').forEach(b=>b.onclick=()=>entryLines(b.dataset.gaBankEntry));
   const apply=()=>{state.bankFilters=Object.fromEntries([['status','gaStatus'],['financial_account_id','gaBankAccount'],['import_batch','gaBankBatch'],['search','gaBankSearch'],['from','gaBankFrom'],['to','gaBankTo'],['min_amount','gaBankMin'],['max_amount','gaBankMax']].map(([k,id])=>[k,$(id)?.value||null]));state.bankOffset=0;go()};
   $('gaApply')?.addEventListener('click',apply);$('gaBankSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')apply()});
   $('gaBankPrev')?.addEventListener('click',()=>{state.bankOffset=Math.max(0,(state.bankOffset||0)-50);go()});
@@ -693,21 +724,40 @@ async function movements(id){
 async function bankRpc(action,data={}){if(!allowed())throw Error('ROLE_NOT_ALLOWED');try{return await window.ArcData.rpc('gama_bank_invoice_action',{p_action:action,p_data:data})}catch(e){throw Error(window.GamaI18n?.t?.(err(e))||err(e))}}
 async function bankMutate(action,data){const r=await bankRpc(action,data);for(const event of ['gama:accounting-change','gama:sales-change'])window.dispatchEvent(new CustomEvent(event));return r}
 async function auditUi(){await window.ArcLoadScript('coco-accounting-audit.js');return window.CocoAccountingAudit}
-function auditEnv(){return{state,rights,rpc,entryLines,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
+async function plansUi(){await window.ArcLoadScript('coco-accounting-plans.js');return window.CocoAccountingPlans}
+function auditEnv(){return{state,rights,rpc,entryLines,entryForm,ecRpc,ecWrite,mutate,go,day,monthStart,err,exportRows,ecTable,ecField,ecOpts,ecAccounts,ecButton,money,esc,tr,act}}
 VIEWS.audit={async load(){return(await auditUi()).load(auditEnv())},render(d){return window.CocoAccountingAudit.render(d,auditEnv())},bind(d){window.CocoAccountingAudit.bind(d,auditEnv())}};
+VIEWS.plans={async load(){return(await plansUi()).load(auditEnv())},render(d){return window.CocoAccountingPlans.render(d,auditEnv())},bind(d){window.CocoAccountingPlans.bind(d,auditEnv())}};
+async function configurationUi(){await window.ArcLoadScript('coco-accounting-configuration.js');return window.CocoAccountingConfiguration}
+VIEWS.configuration={async load(){return(await configurationUi()).load(auditEnv())},render(d){return window.CocoAccountingConfiguration.render(d,auditEnv())},bind(d){window.CocoAccountingConfiguration.bind(d,auditEnv())}};
+VIEWS.earnings={async load(){await window.ArcLoadScript('coco-accounting-earnings.js');return window.CocoAccountingEarnings.load(auditEnv())},render(d){return window.CocoAccountingEarnings.render(d,auditEnv())},bind(d){window.CocoAccountingEarnings.bind(d,auditEnv())}};
+VIEWS.stock19={async load(){await window.ArcLoadScript('coco-accounting-stock19.js');return window.CocoAccountingStock19.load(auditEnv())},render(d){return window.CocoAccountingStock19.render(d,auditEnv())},bind(d){window.CocoAccountingStock19.bind(d,auditEnv())}};
 function importForm(){
- const key=crypto.randomUUID(),accs=state.bankAccounts||[];let parsed=[],errors=[],revision=0;
- const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field('Archivo CSV',`<input id="gaCsv" type="file" accept=".csv,text/csv">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}</div><div id="gaPreview"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,'Importar',async form=>{
+ const key=crypto.randomUUID(),accs=state.bankAccounts||[],L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);let parsed=[],errors=[],revision=0,mapping=null,signature='',currentFile=null,fileText=null,statementMeta=null,selectedSheet='';
+ const columnLabels=()=>({date:L('Fecha','Date','Date'),reference:L('Referencia','Référence','Reference'),description:L('Descripción','Description','Description'),amount:L('Importe con signo','Montant signé','Signed amount'),debit:L('Débito','Débit','Debit'),credit:L('Crédito','Crédit','Credit'),direction:L('Sentido D/C (opcional)','Sens D/C (facultatif)','Direction D/C (optional)')});
+ const el=GamaSales.modal('Importar movimientos bancarios',`<div class="gaGrid">${field('Cuenta',`<select id="gaAccount" required>${options(accs)}</select>`)}${field(L('Archivo de extracto','Fichier du relevé','Statement file'),`<input id="gaCsv" type="file" accept=".csv,.ofx,.qfx,.qif,.xml,.cod,.coda,.xlsx,text/csv,application/xml">`)}${field('Separador decimal',`<select id="gaDecimal"><option value="" data-gi-live data-gi=b803f24d52ed>Automático</option><option value="." data-gi-live data-gi=cbbb096fcd40>Punto · 1,234.56</option><option value="," data-gi-live data-gi=9dbd41f0fe12>Coma · 1.234,56</option></select>`)}${field(L('Columnas del archivo','Colonnes du fichier','File columns'),`<select id="gaMappingMode"><option value="auto">${esc(L('Reconocimiento automático','Reconnaissance automatique','Automatic recognition'))}</option><option value="manual">${esc(L('Asignar columnas','Affecter les colonnes','Map columns'))}</option></select>`)}</div><label class="arcField" id="gaWorkbookLabel" hidden><span>${esc(L('Hoja del libro','Feuille du classeur','Workbook sheet'))}</span><select id="gaWorkbook"></select></label><div id="gaStructuredControls" class="gaGrid" hidden><label class="arcField"><span>${esc(L('Cuenta en el archivo','Compte dans le fichier','Account in file'))}</span><select id="gaStatement"></select></label><label class="arcField" id="gaQifDateLabel" hidden><span>${esc(L('Orden de fechas QIF','Ordre des dates QIF','QIF date order'))}</span><select id="gaQifDates"><option value="">—</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select></label></div><div id="gaStatementInfo" role="status"></div><div id="gaMappingControls" hidden><div class="gaGrid">${field(L('Separador de columnas','Séparateur de colonnes','Column separator'),`<select id="gaDelimiter"><option value="">${esc(L('Automático','Automatique','Automatic'))}</option><option value=";">;</option><option value=",">,</option><option value="tab">${esc(L('Tabulación','Tabulation','Tab'))}</option></select>`)}${field(L('Primera línea (1–20)','Première ligne (1–20)','First row (1–20)'),`<input id="gaHeaderRow" type="number" min="1" max="20" step="1" value="1">`)}${field(L('La primera línea contiene títulos','La première ligne contient les titres','First row contains headers'),`<select id="gaHasHeader"><option value="true">${esc(L('Sí','Oui','Yes'))}</option><option value="false">${esc(L('No','Non','No'))}</option></select>`)}</div><div id="gaColumnMapping" class="gaGrid"></div><div id="gaRawPreview"></div></div><div id="gaPreview" aria-live="polite"></div><p class="gaHint">${tr('Columnas: fecha, referencia, descripción e importe, o débito y crédito. Revisa la vista previa; corrige las líneas con errores antes de importar.')}</p>`,L('Importar','Importer','Import'),async form=>{
   if(errors.length||!parsed.length)throw Error('Corrige el archivo antes de importar. Ninguna línea con errores se importa.');
-  const result=await bankMutate('import',{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed});window.gamaToast?.((window.GamaI18n?.t?.('Movimientos importados')||'Movimientos importados')+' · '+result.imported);await go();
+  let result;try{result=statementMeta?await window.ArcData.rpc('gama_bank_statement_import',{p_data:{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed,...statementMeta}}):await bankMutate('import',{request_key:key,financial_account_id:form.querySelector('#gaAccount').value,rows:parsed})}catch(e){throw Error(window.CocoBankFormats?.message(e,window.GamaI18n?.language)||err(e))}window.dispatchEvent(new CustomEvent('gama:accounting-change'));window.gamaToast?.((window.GamaI18n?.t?.('Movimientos importados')||'Movimientos importados')+' · '+result.imported);await go();
  });
  el.dataset.bankWorkflow='';
- const preview=async()=>{const token=++revision;parsed=[];errors=[];const file=el.querySelector('#gaCsv').files[0],host=el.querySelector('#gaPreview');if(!file)return;
-  try{if(file.size>2000000)throw Error('El archivo supera el tamaño permitido.');await window.ArcLoadScript('gama-bank-statement.js');const result=window.GamaBankStatement.parse(await file.text(),{decimalSeparator:el.querySelector('#gaDecimal').value});if(token!==revision||!el.isConnected)return;parsed=result.rows;errors=result.errors;
-   window.ArcUI.render(host,`<p>${tr('Líneas detectadas')} : <b>${result.total}</b> · ${tr('Líneas válidas')}: ${parsed.length} · ${tr('Errores')}: ${errors.length}</p>${errors.length?`<div class="gaError">${errors.slice(0,10).map(e=>`<p>${tr('Fila')} ${e.line}: ${tr(e.message)}</p>`).join('')}${errors.length>10?`<p>${tr('Corrige todos los errores del archivo.')}</p>`:''}</div>`:''}<div class="gaScroll"><table class="arcTable gaTable"><tbody>${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.reference)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}</tbody></table></div>`);
-  }catch(e){if(token===revision&&el.isConnected){parsed=[];errors=[e];window.ArcUI.render(host,`<p class="gaError">${tr(e.message)}</p>`)}}
+ const preview=async()=>{const token=++revision;parsed=[];errors=[];statementMeta=null;const save=el.querySelector('#gsSave'),file=el.querySelector('#gaCsv').files[0],host=el.querySelector('#gaPreview'),manual=el.querySelector('#gaMappingMode').value==='manual';save.disabled=true;el.querySelector('#gaMappingControls').hidden=!manual;if(!file)return;
+  try{if(file.size>2000000)throw Error('El archivo supera el tamaño permitido.');await window.ArcLoadScript('gama-bank-statement.js');await window.ArcLoadScript('coco-bank-formats.js');if(file!==currentFile||selectedSheet!==el.querySelector('#gaWorkbook').value){if(file!==currentFile)el.querySelector('#gaWorkbook').replaceChildren();currentFile=file;selectedSheet=el.querySelector('#gaWorkbook').value;fileText=window.CocoBankFormats.readFile(file,selectedSheet);mapping=null;signature='';el.querySelector('#gaColumnMapping').replaceChildren();el.querySelector('#gaStatement').replaceChildren()}
+   const loadedFile=await fileText,isWorkbook=typeof loadedFile==='object';el.querySelector('#gaWorkbookLabel').hidden=!isWorkbook;if(isWorkbook&&!el.querySelector('#gaWorkbook').options.length){el.querySelector('#gaWorkbook').innerHTML=loadedFile.sheets.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');el.querySelector('#gaWorkbook').value=loadedFile.sheet;selectedSheet=loadedFile.sheet}const text=isWorkbook?loadedFile.text:loadedFile;if(token!==revision||!el.isConnected)return;const parser=window.GamaBankStatement,config={decimalSeparator:el.querySelector('#gaDecimal').value};
+   const formats=window.CocoBankFormats,format=formats.detect(text,isWorkbook?'converted.csv':file.name),structured=format!=='csv';
+   el.querySelector('#gaStructuredControls').hidden=!structured;el.querySelector('#gaQifDateLabel').hidden=format!=='qif';el.querySelector('#gaMappingMode').closest('label').hidden=structured;el.querySelector('#gaDecimal').closest('label').hidden=structured&&format!=='qif';el.querySelector('#gaMappingControls').hidden=structured||!manual;el.querySelector('#gaStatementInfo').textContent='';
+   if(manual&&!structured){config.separator=el.querySelector('#gaDelimiter').value.replace('tab','\t')||undefined;config.headerRow=Number(el.querySelector('#gaHeaderRow').value)-1;config.hasHeader=el.querySelector('#gaHasHeader').value==='true';const meta=parser.inspect(text,config),nextSignature=[meta.separator,meta.headerRow,config.hasHeader].join('|');
+    if(nextSignature!==signature||!mapping){mapping=meta.columns;signature=nextSignature;window.ArcUI.render(el.querySelector('#gaColumnMapping'),Object.entries(columnLabels()).map(([key,label])=>field(label,`<select data-bank-column="${key}" aria-label="${esc(label)}"><option value="-1">${esc(L('Sin asignar','Non affectée','Not mapped'))}</option>${meta.headers.map((h,i)=>`<option value="${i}" ${mapping[key]===i?'selected':''}>${esc((i+1)+' · '+h)}</option>`).join('')}</select>`)).join(''));el.querySelectorAll('[data-bank-column]').forEach(select=>select.onchange=()=>{mapping[select.dataset.bankColumn]=Number(select.value);preview()})}
+    window.ArcUI.render(el.querySelector('#gaRawPreview'),`<p>${esc(L('Primeras líneas del archivo','Premières lignes du fichier','First file rows'))}</p><div class="gaScroll" tabindex="0" role="region" aria-label="${esc(L('Vista previa CSV','Aperçu CSV','CSV preview'))}"><table class="arcTable gaTable" data-coco-form-grid><thead><tr>${meta.headers.map((h,i)=>`<th>${esc((i+1)+' · '+h)}</th>`).join('')}</tr></thead><tbody>${meta.sample.map(r=>`<tr>${r.cells.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);config.mapping=mapping;
+   }
+   let result;
+   if(structured){const account=accs.find(a=>a.id===el.querySelector('#gaAccount').value),loaded=formats.parse(text,{format,dateOrder:el.querySelector('#gaQifDates').value,decimalSeparator:config.decimalSeparator,currency:account?.currency||''}),select=el.querySelector('#gaStatement');if(!select.options.length)select.innerHTML=loaded.statements.map((st,i)=>`<option value="${i}">${esc((st.account||L('Cuenta seleccionada','Compte sélectionné','Selected account'))+' · '+st.currency+' · '+st.rows.length)}</option>`).join('');
+    const st=loaded.statements[Number(select.value)||0];if(!account||st.currency!==account.currency)throw Error('STATEMENT_CURRENCY_MISMATCH');statementMeta={format,source_account:st.account||'selected',currency:st.currency};result={rows:await formats.prepare(st,format),errors:[],total:st.rows.length};el.querySelector('#gaStatementInfo').textContent=[format.toUpperCase(),st.account||account.name,st.currency,st.opening!==undefined?L('Saldo inicial','Solde initial','Opening balance')+': '+money(st.opening/100):'',st.closing!==undefined?L('Saldo final','Solde final','Closing balance')+': '+money(st.closing/100):''].filter(Boolean).join(' · ');
+   }else {result=parser.parse(text,config);if(isWorkbook&&!result.errors.length){const account=accs.find(a=>a.id===el.querySelector('#gaAccount').value);if(!account)throw Error('STATEMENT_ACCOUNT_REQUIRED');statementMeta={format:'xlsx',source_account:'selected',currency:account.currency};result.rows=await formats.prepare({rows:result.rows},'xlsx')}}if(token!==revision||!el.isConnected)return;parsed=result.rows;errors=result.errors;
+   if(!manual&&!structured){el.querySelector('#gaHeaderRow').value=Math.max(1,result.headerRow+1);el.querySelector('#gaHasHeader').value=result.headerRow<0?'false':'true'}
+   window.ArcUI.render(host,`<p>${tr('Líneas detectadas')} : <b>${result.total}</b> · ${tr('Líneas válidas')}: ${parsed.length} · ${tr('Errores')}: ${errors.length}</p>${errors.length?`<div class="gaError" role="alert">${errors.slice(0,10).map(e=>`<p>${tr('Fila')} ${e.line}: ${tr(e.message)}</p>`).join('')}${errors.length>10?`<p>${tr('Corrige todos los errores del archivo.')}</p>`:''}</div>`:''}<div class="gaScroll" tabindex="0" role="region" aria-label="${esc(L('Vista previa CSV','Aperçu CSV','CSV preview'))}"><table class="arcTable gaTable" data-coco-form-grid><thead><tr><th>${tr('Fecha')}</th><th>${tr('Referencia')}</th><th>${tr('Descripción')}</th><th class="gaNum">${tr('Importe')}</th></tr></thead><tbody>${parsed.slice(0,5).map(r=>`<tr><td>${esc(r.value_date)}</td><td>${esc(r.reference)}</td><td>${esc(r.description)}</td><td class="gaNum">${money(r.amount)}</td></tr>`).join('')}</tbody></table></div>`);save.disabled=errors.length>0||parsed.length===0;
+  }catch(e){if(token===revision&&el.isConnected){parsed=[];errors=[e];window.ArcUI.render(host,`<p class="gaError" role="alert">${esc(window.CocoBankFormats?.message(e,window.GamaI18n?.language)||tr(e.message))}</p>${!manual&&!statementMeta&&!/STATEMENT_/.test(e.message)?`<p>${esc(L('Usa Asignar columnas para elegir los campos del archivo.','Utilisez Affecter les colonnes pour choisir les champs du fichier.','Use Map columns to choose the file fields.'))}</p>`:''}`)}}
  };
- el.querySelector('#gaCsv').onchange=preview;el.querySelector('#gaDecimal').onchange=preview;
+ el.querySelector('#gsSave').disabled=true;for(const selector of ['#gaCsv','#gaWorkbook','#gaAccount','#gaStatement','#gaQifDates','#gaDecimal','#gaMappingMode','#gaDelimiter','#gaHeaderRow','#gaHasHeader'])el.querySelector(selector).onchange=preview;
 }
 async function matchForm(id){
  try{const ownerEpoch=opening,key=crypto.randomUUID();let result=await bankRpc('suggest',{bank_id:id}),revision=0,advance=false,nextId=null;if(ownerEpoch!==opening||section!=='cash'||!allowed())return;
@@ -732,39 +782,44 @@ function undoBank(id){const dlg=GamaSales.modal('Deshacer conciliación',`<p>${t
 
 /* ------------------------------------------------------------- contabilidad */
 VIEWS.ledger={
- load:()=>rpc('entries',{from:state.from||monthStart(),to:state.to||day(),search:state.search||'',
-  journal_id:state.journal||null,limit:60}),
+ load:()=>journalRpc('entries',journalEntryFilters()),
  render(d){
-  state.rows=d.rows;state.journals=d.journals;
+  state.rows=d.rows;state.journals=d.journals;state.entryTotal=d.total??d.rows.length;
   return `<div class="arcPanel gaCard"><h3>${tr('Asientos y diarios')}</h3>
    <div class="gaTools">
     <label>${tr('Diario')}<select id="gaJournal"><option value="">${tr('Todos')}</option>
      ${d.journals.map(j=>`<option value="${esc(j.id)}" ${state.journal===j.id?'selected':''}>${esc(j.code)} · ${esc(j.name)}</option>`).join('')}</select></label>
+    <label>${tr('Estado')}<select id="gaEntryStatus">${['all','draft','posted','reversed'].map(k=>`<option value="${k}" ${(state.entryStatus||'all')===k?'selected':''}>${esc(k==='all'?T('Todos'):T(STATUS[k]))}</option>`).join('')}</select></label>
     <label>${tr('Desde')}<input id="gaFrom" type="date" value="${esc(state.from||monthStart())}"></label>
     <label>${tr('Hasta')}<input id="gaTo" type="date" value="${esc(state.to||day())}"></label>
     <label>${tr('Buscar')}<input id="gaSearch" value="${esc(state.search||'')}"></label>
     <button class="arcButton primary" id="gaApply">${tr('Aplicar')}</button>
     ${rights?.export?`<button class="arcButton secondary" id="gaExport">${tr('Exportar')}</button>`:''}
     ${rights?.create?`<button class="arcButton secondary" id="gaNewEntry">${tr('Asiento manual')}</button>`:''}</div>
+   ${state.entryBank?`<p>${tr('Cuenta financiera')}: ${esc(state.entryBankName||'')} <button class="arcButton secondary" id="gaEntryAllBanks">${tr('Todos')}</button></p>`:''}
+   <p>${tr('Debe')}: ${money(d.debit??0)} · ${tr('Haber')}: ${money(d.credit??0)}</p>
    ${Number(d.pending)>0?`<p class="gaHint">${tr('Facturas de venta todavía sin asiento')} : <b>${esc(num(d.pending,0))}</b>.
     ${rights?.create?`<button class="arcButton secondary" id="gaSync">${tr('Contabilizar ahora')}</button>`:''}</p>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Fecha','Diario','Referencia','Concepto','Debe','Haber','Estado','Acciones'].map(h=>`<th class="${['Debe','Haber'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(e=>`<tr>
-    <td><b>${esc(e.number)}</b></td><td>${esc(e.entry_date)}</td><td>${esc(e.journal_code)}</td>
+    <td><b>${esc(e.number)}</b>${e.erp_reference&&e.erp_reference!==e.number?`<br><small>${esc(e.erp_reference)}</small>`:''}</td><td>${esc(e.entry_date)}</td><td>${esc(e.journal_code)}</td>
     <td>${esc(e.reference||'—')}</td><td>${esc(e.memo||'—')}</td>
     <td class="gaNum">${money(e.total_debit)}</td><td class="gaNum">${money(e.total_credit)}</td>
     <td>${badge(e.status)}${Number(e.total_debit)!==Number(e.total_credit)?`<br><span class="gaError">${tr('Descuadrado')}</span>`:''}</td>
     <td><div class="gaActions"><button class="arcButton secondary" data-ga-lines="${esc(e.id)}">${tr('Detalle')}</button>
      ${rights?.validate&&e.status==='posted'&&(!e.source_type||e.source_type==='manual')?`<button class="arcButton secondary" data-ga-rev="${esc(e.id)}">${tr('Contrapasar')}</button>`:''}</div></td>
    </tr>`).join('')||`<tr><td colspan="9">${tr('No hay asientos en este periodo.')}</td></tr>`}</tbody></table></div>
+   <p>${d.rows.length?(state.entryOffset||0)+1:0}–${(state.entryOffset||0)+d.rows.length} / ${state.entryTotal}</p><div class="gaTools"><button class="arcButton secondary" id="gaEntryPrev" ${(state.entryOffset||0)>0?'':'disabled'}>${tr('Anterior')}</button><button class="arcButton secondary" id="gaEntryNext" ${(state.entryOffset||0)+d.rows.length<state.entryTotal?'':'disabled'}>${tr('Siguiente')}</button></div>
    <p class="gaHint">${tr('Todo asiento cumple debe = haber. Un asiento contabilizado no se borra: se contrapasa y ambos quedan en el libro.')}</p></div>`;
  },
  bind(){
   const apply=()=>{state.journal=$('gaJournal').value||null;state.from=$('gaFrom').value;state.to=$('gaTo').value;
-   state.search=$('gaSearch').value;go()};
+   state.search=$('gaSearch').value;state.entryStatus=$('gaEntryStatus').value;state.entryOffset=0;go()};
   $('gaApply').onclick=apply;
-  $('gaExport')?.addEventListener('click',()=>exportRows(state.rows,'asientos'));
+  $('gaExport')?.addEventListener('click',()=>act($('gaExport'),exportJournalEntries));
+  $('gaEntryPrev').onclick=()=>{state.entryOffset=Math.max(0,(state.entryOffset||0)-60);return go()};$('gaEntryNext').onclick=()=>{state.entryOffset=(state.entryOffset||0)+60;return go()};
+  $('gaEntryAllBanks')?.addEventListener('click',()=>{delete state.entryBank;delete state.entryBankName;state.entryOffset=0;go()});
   $('gaNewEntry')?.addEventListener('click',()=>entryForm());
   $('gaSync')?.addEventListener('click',b=>act(b.target,()=>mutate('sync').then(()=>go())));
   document.querySelectorAll('[data-ga-lines]').forEach(b=>b.onclick=()=>entryLines(b.dataset.gaLines));
@@ -775,18 +830,26 @@ async function entryLines(id){
  try{
   const lines=await rpc('entry_lines',{id});
   const d=lines.reduce((s,l)=>s+Number(l.debit||0),0),c=lines.reduce((s,l)=>s+Number(l.credit||0),0);
-  GamaSales.modal('Detalle del asiento',`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
+  const el=GamaSales.modal('Detalle del asiento',`<div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
    ${['Cuenta','Concepto','Debe','Haber'].map(h=>`<th class="${['Debe','Haber'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${lines.map(l=>`<tr><td><b>${esc(l.code)}</b> ${esc(l.account)}</td><td>${esc(l.label||'')}</td>
     <td class="gaNum">${Number(l.debit)?money(l.debit):'—'}</td><td class="gaNum">${Number(l.credit)?money(l.credit):'—'}</td></tr>`).join('')}
    <tr><td colspan="2"><b>${tr('Total')}</b></td><td class="gaNum"><b>${money(d)}</b></td><td class="gaNum"><b>${money(c)}</b></td></tr>
-   </tbody></table></div>`,'Cerrar',async()=>{});
+   </tbody></table></div><div data-entry-plans></div><div data-entry-bank></div><div data-entry-stock></div>`,'Cerrar',async()=>{});
+  if(scope==='all'){
+   try{const d=await window.ArcData.rpc('gama_accounting_plans',{p_action:'entry_plans',p_data:{entry_id:id}});
+    if(el.isConnected){const host=el.querySelector('[data-entry-plans]');host.innerHTML=(d?.rows||[]).map(p=>`<button type="button" class="arcButton secondary" data-entry-plan="${esc(p.id)}">${esc(p.name)}</button>`).join('');host.querySelectorAll('[data-entry-plan]').forEach(b=>b.onclick=()=>{el.close();state.planId=b.dataset.entryPlan;go('plans')})}
+   }catch(e){/* Existing ledger detail remains usable before the additive migration is deployed. */}
+   try{const stock=await window.ArcData.rpc('gama_accounting_stock19',{p_action:'entry_review',p_data:{entry_id:id}});if(el.isConnected&&stock?.id){const host=el.querySelector('[data-entry-stock]');host.innerHTML=`<button type="button" class="arcButton secondary">${tr('Valor del stock y cierre')} · ${esc(stock.as_of)}</button>`;host.querySelector('button').onclick=()=>{el.close();state.stockReview=stock.id;state.stockOffset=0;go('stock19')}}}catch(e){/* Existing entries remain readable during the additive rollout. */}
+   const source=await window.ArcData.rpc('gama_accounting_bank_import',{p_action:'entry_source',p_data:{entry_id:id}});
+   if(el.isConnected&&source?.rows?.length){const host=el.querySelector('[data-entry-bank]');host.innerHTML=source.rows.map(b=>`<p>${tr('Extracto')}: ${esc(b.reference||b.id)} · ${esc(b.value_date)} · ${money(b.amount)} · ${badge(b.status)}<br>${esc(b.description)}</p>${rights?.validate&&b.status==='unmatched'&&Number(b.remaining)!==0?`<button type="button" class="arcButton secondary" data-entry-bank-match="${esc(b.id)}">${tr('Conciliar')}</button>`:''}`).join('');host.querySelectorAll('[data-entry-bank-match]').forEach(b=>b.onclick=()=>{el.close();matchForm(b.dataset.entryBankMatch)})}
+  }
  }catch(e){window.gamaToast?.(err(e))}
 }
 async function entryForm(){
- let chart=[],projects=[],partners=[],financial=[];
- try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[];financial=ctx.financial_accounts||[]}catch(e){}
- const key=crypto.randomUUID(),journals=state.journals||[];
+ let chart=[],projects=[],partners=[],financial=[],journalRows=state.journals||[];
+ try{chart=(await rpc('chart')).rows.filter(a=>a.active);const ctx=await ecRpc('context');projects=ctx.projects||[];partners=ctx.partners||[];financial=ctx.financial_accounts||[];journalRows=ctx.journals||journalRows}catch(e){}
+ const key=crypto.randomUUID(),journals=journalRows;
  const row=i=>`<div class="gaGrid" data-ga-line="${i}">
   ${field('Cuenta',`<select class="gaLineAccount"><option value="">—</option>${chart.map(a=>`<option value="${esc(a.id)}">${esc(a.code)} · ${esc(a.name)}</option>`).join('')}</select>`)}
   ${field('Cuenta financiera',`<select class="gaLineFinancial">${ecOpts(financial)}</select>`)}
@@ -1235,7 +1298,7 @@ VIEWS.config={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Número','Nombre','Tipo','Estado','Acciones'].map(h=>`<th>${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.chart.rows.map(a=>`<tr><td><b>${esc(a.code)}</b></td><td>${esc(a.name)}</td>
-    <td>${tr({asset:'Activo',liability:'Pasivo',equity:'Fondos propios',income:'Productos',expense:'Cargas'}[a.type]||a.type)}</td>
+    <td>${tr({asset:'Activo',liability:'Pasivo',equity:'Fondos propios',income:'Productos',expense:'Cargas',off_balance:'Fuera de balance'}[a.type]||a.type)}</td>
     <td>${a.active?tr('Activa'):tr('Inactiva')}</td>
     <td>${rights?.edit?`<button class="arcButton secondary" data-ga-chart="${esc(a.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
@@ -1274,29 +1337,18 @@ VIEWS.config={
  }
 };
 function chartForm(row){
- GamaSales.modal(row?'Editar la cuenta':'Añadir una cuenta',`<div class="gaGrid">
-  ${field('Número',`<input id="gaCode" required maxlength="20" value="${esc(row?.code||'')}">`)}
-  ${field('Nombre',`<input id="gaName" required maxlength="160" value="${esc(row?.name||'')}">`)}
-  ${field('Tipo',`<select id="gaType" ${row?.is_system?'disabled':''}>${[['asset','Activo'],['liability','Pasivo'],['equity','Fondos propios'],['income','Productos'],['expense','Cargas']].map(([k,v])=>`<option value="${k}" ${row?.type===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
-  ${row?field('Estado',`<select id="gaActive"><option value="true" ${row.active?'selected':''} data-gi-live data-gi=69d17ca16834>Activa</option><option value="false" ${row.active?'':'selected'} data-gi-live data-gi=059c89444ff7>Inactiva</option></select>`):''}
- </div>${row?.is_system?`<p class="gaHint">${tr('Cuenta usada por los asientos automáticos: puede renombrarse y renumerarse, pero no cambia de tipo.')}</p>`:''}`,
-  'Guardar',async el=>{
-   const v=id=>el.querySelector('#'+id)?.value;
-   await mutate('chart_save',{id:row?.id||null,code:v('gaCode'),name:v('gaName'),
-    type:v('gaType')||row?.type,active:v('gaActive')!=='false'});
-   await go();
-  });
+ configurationUi().then(ui=>ui.editAccount(row,auditEnv())).catch(e=>window.gamaToast?.(err(e)));
 }
 
 /* Ecuador accounting workbench: all writes use the audited, idempotent RPC. */
 const EC_TABS=[['trial_balance','Balance de comprobación'],['general_ledger','Libro mayor'],['partner_ledger','Libro de contactos'],['analytic','Analítica por proyecto'],['maturities','Vencimientos'],['adjustments','Abonos y retenciones'],['fiscal_review','Revisión fiscal'],['tax_drafts','Formularios 103 y 104'],['setup','Configuración Ecuador'],['assets','Activos y amortización'],['integrations','Enlaces con nómina y stock']];
-const EC_ERRORS={YEAR_NOT_FINISHED:'El ejercicio todavía no ha terminado.',SOURCE_CANCELLATION_REQUIRED:'Anula el documento desde su módulo de origen.',ASSET_MONTHLY_AMOUNT_TOO_SMALL:'El importe mensual debe ser de al menos un centavo.',TAX_DATE_INVALID:'El impuesto no está vigente en la fecha del asiento.',REQUEST_KEY_CONFLICT:'La solicitud ya existe con otros datos.',ACCOUNTED_SOURCE_IMMUTABLE:'El documento ya tiene asiento. Corrígelo mediante un abono o una contrapartida.',TERMS_MUST_TOTAL_100:'Los porcentajes deben sumar 100.',INVALID_TERMS:'Revisa los porcentajes y los días.',DELIVERY_DATE_REQUIRED:'Registra la entrega antes de calcular los vencimientos de venta.',FISCAL_TOTAL_MISMATCH:'Las bases y los impuestos no coinciden con el documento.',FISCAL_EVIDENCE_REQUIRED:'Confirma el régimen con un documento del SRI y su fecha.',PAYROLL_ACCOUNTS_REQUIRED:'Configura las tres cuentas de nómina.',FINANCIAL_ACCOUNT_REQUIRED:'Selecciona una cuenta financiera activa con cuenta contable y divisa de la empresa.',ACCOUNT_TYPE_REQUIRED:'La cuenta seleccionada no tiene el tipo requerido.',DEPRECIATION_PREVIOUS_PERIOD_REQUIRED:'Contabiliza primero los meses anteriores.',DEPRECIATION_ALREADY_POSTED:'Este mes ya está amortizado.',INVALID_DEPRECIATION_PERIOD:'Usa el último día de un mes incluido en el plan.',OPENING_ALREADY_POSTED:'El saldo inicial ya está contabilizado.',YEAR_ALREADY_CLOSED:'Este ejercicio ya tiene un asiento de cierre.',ASSET_ACQUISITION_REQUIRED:'Selecciona un asiento de adquisición contabilizado en la cuenta del activo.',ASSET_COST_EXCEEDED:'El coste supera la adquisición disponible.',WITHHOLDING_BASE_EXCEEDED:'La base de retención supera la base o el IVA de la factura.',INVALID_WITHHOLDING:'Revisa la base, la tasa, el código y la cuenta de retención.',INVALID_FISCAL_YEAR:'Selecciona un ejercicio completo según el mes de inicio configurado.',VALUATION_ALREADY_POSTED:'La valoración ya está contabilizada.',RUC_REQUIRED:'Falta un RUC válido de 13 dígitos.',DOCUMENT_DATE_BEFORE_INVOICE:'La fecha no puede ser anterior a la factura.'};
+const EC_ERRORS={EARNINGS_ALLOCATION_REQUIRED:'Afecta todo el resultado antes de cerrar el ejercicio.',ACCOUNT_APPROPRIATION_TYPE_LOCKED:'Una cuenta utilizada no puede cambiar entre afectación anual y patrimonio permanente.',EXPORT_CHANGED_RETRY:'El libro cambió durante la exportación. Actualiza el informe y vuelve a exportar.',YEAR_NOT_FINISHED:'El ejercicio todavía no ha terminado.',SOURCE_CANCELLATION_REQUIRED:'Anula el documento desde su módulo de origen.',ASSET_MONTHLY_AMOUNT_TOO_SMALL:'El importe mensual debe ser de al menos un centavo.',TAX_DATE_INVALID:'El impuesto no está vigente en la fecha del asiento.',REQUEST_KEY_CONFLICT:'La solicitud ya existe con otros datos.',ACCOUNTED_SOURCE_IMMUTABLE:'El documento ya tiene asiento. Corrígelo mediante un abono o una contrapartida.',TERMS_MUST_TOTAL_100:'Los porcentajes deben sumar 100.',INVALID_TERMS:'Revisa los porcentajes y los días.',DELIVERY_DATE_REQUIRED:'Registra la entrega antes de calcular los vencimientos de venta.',FISCAL_TOTAL_MISMATCH:'Las bases y los impuestos no coinciden con el documento.',FISCAL_EVIDENCE_REQUIRED:'Confirma el régimen con un documento del SRI y su fecha.',PAYROLL_ACCOUNTS_REQUIRED:'Configura las tres cuentas de nómina.',FINANCIAL_ACCOUNT_REQUIRED:'Selecciona una cuenta financiera activa con cuenta contable y divisa de la empresa.',ACCOUNT_TYPE_REQUIRED:'La cuenta seleccionada no tiene el tipo requerido.',DEPRECIATION_PREVIOUS_PERIOD_REQUIRED:'Contabiliza primero los meses anteriores.',DEPRECIATION_ALREADY_POSTED:'Este mes ya está amortizado.',INVALID_DEPRECIATION_PERIOD:'Usa el último día de un mes incluido en el plan.',OPENING_ALREADY_POSTED:'El saldo inicial ya está contabilizado.',YEAR_ALREADY_CLOSED:'El ejercicio ya está cerrado.',ASSET_ACQUISITION_REQUIRED:'Selecciona un asiento de adquisición contabilizado en la cuenta del activo.',ASSET_COST_EXCEEDED:'El coste supera la adquisición disponible.',WITHHOLDING_BASE_EXCEEDED:'La base de retención supera la base o el IVA de la factura.',INVALID_WITHHOLDING:'Revisa la base, la tasa, el código y la cuenta de retención.',INVALID_FISCAL_YEAR:'Selecciona un ejercicio completo según el mes de inicio configurado.',VALUATION_ALREADY_POSTED:'La valoración ya está contabilizada.',RUC_REQUIRED:'Falta un RUC válido de 13 dígitos.',DOCUMENT_DATE_BEFORE_INVOICE:'La fecha no puede ser anterior a la factura.'};
 Object.assign(ERRORS,EC_ERRORS);
 async function ecRpc(action,data={}){
  if(!allowed()||scope!=='all')throw Error('ROLE_NOT_ALLOWED');
  await window.GamaCloudReady;
  const r=await window.ArcData.rawRpc('gama_accounting_ec',{p_action:action,p_data:data});
- if(r.error)throw Error(err(r.error));if(r.data==null)throw Error('EMPTY');return r.data;
+ if(r.error){const message=T(err(r.error));throw Object.assign(new Error(message),{gamaMessage:message})}if(r.data==null)throw Error('EMPTY');return r.data;
 }
 async function ecWrite(action,data){const r=await ecRpc(action,{...data,request_key:data.request_key||crypto.randomUUID()});window.dispatchEvent(new CustomEvent('gama:accounting-change'));return r}
 const ecOpts=(rows,selected,blank=true)=>`${blank?'<option value="">—</option>':''}${rows.map(r=>`<option value="${esc(r.id??r.value)}" ${String(r.id??r.value)===String(selected)?'selected':''} data-gi-live>${esc(r.label||[r.code,r.name].filter(Boolean).join(' · '))}</option>`).join('')}`;
@@ -1349,7 +1401,7 @@ VIEWS.workbench={
  $('ecAllocation')?.addEventListener('click',e=>act(e.target,()=>ecAllocationForm(ctx)));
  $('ecProfile')?.addEventListener('click',()=>ecProfileForm(ctx));$('ecJournal')?.addEventListener('click',()=>ecJournalForm(ctx));$('ecTerm')?.addEventListener('click',()=>ecTermForm());
  $('ecOpening')?.addEventListener('click',()=>ecForm('Contabilizar saldo inicial',`<p>${tr('Usa el saldo inicial ya registrado en Banco y caja. Esta operación no añade un cobro.')}</p><div class="gaGrid">${ecField('financial_account_id','Cuenta financiera','',null,ctx.financial_accounts)}${ecField('counter_account_id','Fondos propios','',null,ecAccounts(ctx,'equity'))}${ecField('entry_date','Fecha','date',day())}</div>`,'opening_post',['financial_account_id','counter_account_id','entry_date']));
- $('ecClose')?.addEventListener('click',()=>ecForm('Cerrar ejercicio',`<p>${tr('Transfiere el resultado a fondos propios y bloquea todos los meses del ejercicio. Revisa antes el libro y las obligaciones fiscales.')}</p><div class="gaGrid">${ecField('from','Desde','date',day().slice(0,4)+'-01-01')}${ecField('to','Hasta','date',day().slice(0,4)+'-12-31')}</div>${ecField('exceptions','Justificación de diferencias de cierre','textarea')}`,'year_close',['from','to','exceptions']));
+ $('ecClose')?.addEventListener('click',e=>act(e.currentTarget,async()=>{const ctx=await window.ArcData.rpc('gama_accounting_earnings',{p_action:'context',p_data:{to:day()}}),start=new Date(ctx.fiscal_from+'T00:00:00Z'),end=new Date(start.getTime()-86400000);start.setUTCFullYear(start.getUTCFullYear()-1);ecForm('Cerrar ejercicio',`<p>${tr('Con cuentas de afectación, registra primero el reparto completo del resultado. El cierre verifica el libro y bloquea todos los meses sin duplicar ese reparto. Sin esa configuración se conserva el cierre histórico.')}</p><div class="gaGrid">${ecField('from','Desde','date',start.toISOString().slice(0,10))}${ecField('to','Hasta','date',end.toISOString().slice(0,10))}</div>${ecField('exceptions','Justificación de diferencias de cierre','textarea')}`,'year_close',['from','to','exceptions'])}));
  $('ecTaxCalculate')?.addEventListener('click',()=>{state.ecCreditFactor=Number($('ec-credit_factor').value);state.ecPreviousCredit=Number($('ec-previous_credit').value);go('workbench')});
  $('ecTaxExport')?.addEventListener('click',e=>act(e.target,()=>exportRows([...Object.entries(data.form104).map(([concept,value])=>({formulario:'104',concepto:concept,importe:value,desde:data.from,hasta:data.to,estado:'borrador_no_presentado'})),...data.form103.rows.map(r=>({...r,formulario:'103',desde:data.from,hasta:data.to,estado:'borrador_no_presentado'})),...(data.form103.payroll?[{formulario:'103',concepto:'relacion_dependencia',base:data.form103.payroll.base,importe:data.form103.payroll.withheld,desde:data.from,hasta:data.to,estado:'borrador_no_presentado'}]:[])],'formularios-103-104')));
  $('ecCancellation')?.addEventListener('click',()=>ecForm('Documentar anulación fiscal',`<p>${tr('Registra la fecha y la evidencia de la anulación. Las bajas efectuadas en el portal SRI se excluyen del ATS.')}</p><div class="gaGrid">${ecField('source_invoice_id','Factura de gestión anulada','',null,data.cancelled_pending||[])}${ecField('document_type','Código del comprobante','text','01')}${ecField('establishment','Establecimiento','text','')}${ecField('emission_point','Punto de emisión','text','')}${ecField('sequential_start','Secuencial inicial','number','')}${ecField('sequential_end','Secuencial final','number','')}${ecField('authorization_number','Autorización fiscal existente','text','')}${ecField('cancelled_on','Fecha de anulación','date',day())}${ecField('portal_deregistered','Baja en portal SRI','', 'false',[{value:'false',label:'No'},{value:'true',label:'Sí'}])}${ecField('evidence','Motivo y comprobante','textarea')}</div>`,'cancellation_save',['source_invoice_id','document_type','establishment','emission_point','sequential_start','sequential_end','authorization_number','cancelled_on','portal_deregistered','evidence']));

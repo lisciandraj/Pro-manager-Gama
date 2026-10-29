@@ -16,7 +16,8 @@ async function setup(page,extraProducts=[]){
 for(const [field,value,label] of [['pName','  PAPEL   A4  ','nombre'],['pBarcode','b1','código de barras'],['pRef','ref-2','referencia']]){
  test('creation blocks duplicated '+label+' including archived products',async({page})=>{
   const messages=[];page.on('dialog',async d=>{messages.push(d.message());await d.accept()});await setup(page);
-  await page.evaluate(()=>{window.showTab('products');document.getElementById('pName').value='Nuevo';document.getElementById('pBarcode').value='B3';document.getElementById('pRef').value='R3'});
+  await page.evaluate(()=>window.showTab('products'));await page.locator('#cocoNewProduct').click();
+  await page.evaluate(()=>{document.getElementById('pName').value='Nuevo';document.getElementById('pBarcode').value='B3';document.getElementById('pRef').value='R3'});
   await page.locator('#'+field).fill(value);
   await page.evaluate(()=>window.createProduct());
   await expect(page.locator('#gamaToasts')).toContainText(label);
@@ -89,11 +90,12 @@ test('adding a barcode updates the selected imported product without recreating 
 test('catalogue opens first and create/edit actions focus the correct product draft',async({page})=>{
  await setup(page);await page.evaluate(()=>window.showTab('products'));
  const catalogue=page.locator('.cocoProductCatalog'),form=page.locator('#cocoProductForm');
- expect((await catalogue.boundingBox()).y).toBeLessThan((await form.boundingBox()).y);
+ await expect(catalogue).toBeVisible();await expect(form).toBeHidden();
  await page.evaluate(()=>window.editProduct('B1','p1'));
  await expect(page.locator('#pName')).toHaveValue('Papel A4');
  await expect(page.locator('#pName')).toBeFocused();
  await expect(page.locator('#editingProductId')).toHaveValue('p1');
+ await page.locator('#cocoProductClose').click();
  await page.locator('#cocoNewProduct').click();
  await expect(page.locator('#pName')).toHaveValue('');
  await expect(page.locator('#editingProductId')).toHaveValue('');

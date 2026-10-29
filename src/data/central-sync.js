@@ -83,7 +83,7 @@ async function createProductCloud(){if(!await loadAll('products',true))return;co
     del producto al cambiarle el precio. */
  if(photo)row.photo_data=photo;
  const r=old?await GamaCloud.update('products',old.id,row):await GamaCloud.insert('products',row);if(r.error){alert('No se pudo guardar el producto en la base central: '+r.error.message);return}if(photo&&window.GamaPhotos)GamaPhotos.seed(r.data?.id||old?.id,photo);
- clearProductForm();await refreshProductDirectory();alert(old?'Producto actualizado en la base central.':'Producto creado en la base central.')}
+ clearProductForm();await refreshProductDirectory();window.CocoProductEditor?.close();alert(old?'Producto actualizado en la base central.':'Producto creado en la base central.')}
 /* Archivar en lugar de borrar: un producto facturado no se puede eliminar sin
    romper la trazabilidad, y ese era el error de clave ajena que veía el usuario. */
 async function deleteProductCloud(b){if(!await loadAll('products',true))return;const p=db.products.find(x=>x.barcode===b);if(!p)return;

@@ -39,5 +39,34 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const payments=await Promise.all(clients.map(c=>rpc(c,'gama_payment_action','payment',payment)));
   assert.equal(Number((await root.query("select count(*) from external_invoice_payments where invoice_id=$1 and status='confirmed'",[invoices[0].id])).rows[0].count),1);
   assert.equal(Number((await root.query('select sum(amount) amount from external_invoice_payments where invoice_id=$1',[invoices[0].id])).rows[0].amount),30);
+  // Two real sessions compete for the same last unit, then retry one
+  // substitution agreement. Neither confirmation nor the amendment mints stock.
+  await root.query('update customers set credit_limit=null where id=$1',[customer]);
+  const scarce=uuid(),replacement=uuid();
+  await root.query("insert into products(id,name,reference,barcode,sale_price,purchase_price,tax_rate) values($1,'Last unit','LAST-UNIT','LAST-UNIT',40,10,0),($2,'Last replacement','LAST-REPLACEMENT','LAST-REPLACEMENT',40,10,0)",[scarce,replacement]);
+  const location=(await root.query('select id from warehouse_locations where active limit 1')).rows[0].id;
+  await root.query('insert into stock_quants(product_id,location_id,quantity) values($1,$3,1),($2,$3,1)',[scarce,replacement,location]);
+  const candidates=await Promise.all(clients.map(c=>rpc(c,'gama_sales_action','create',{source:'manual',request_key:uuid(),customer_id:customer,lines:[{product_id:scarce,quantity:1,unit_price:40,tax_rate:0,price_mode:'auto'}]})));
+  await Promise.all(clients.map((c,i)=>rpc(c,'gama_sales_action','confirm',{order_id:candidates[i].id})));
+  assert.equal(Number((await root.query('select reserved_quantity from stock_quants where product_id=$1',[scarce])).rows[0].reserved_quantity),1);
+  const shortage=(await root.query("select l.id,l.order_id from sales_order_lines l where l.product_id=$1 and not exists(select 1 from sales_reservation_links sl join stock_reservations sr on sr.id=sl.reservation_id where sl.line_id=l.id and sr.status='active')",[scarce])).rows[0];
+  assert.ok(shortage);
+  const option=await rpc(clients[0],'gama_fulfillment_action','propose_option',{order_id:shortage.order_id,line_id:shortage.id,kind:'substitute',quantity:1,replacement_product_id:replacement,unit_price:40,tax_rate:0,price_mode:'auto',request_key:uuid()});
+  const portal=uuid();await root.query('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[portal,'concurrent-portal@example.invalid']);
+  await root.query("update profiles set role='cliente',active=false where id=$1",[portal]);
+  await root.query('insert into b2b_customer_access(customer_id,enabled,updated_by) values($1,true,$2)',[customer,admin]);
+  await root.query('insert into b2b_memberships(profile_id,customer_id,updated_by) values($1,$2,$3)',[portal,customer,admin]);
+  for(const c of clients)await c.query("select set_config('request.jwt.claim.sub',$1,false)",[portal]);
+  const detail=await rpc(clients[0],'gama_b2b_fulfillment','detail',{id:option.id}),consent={id:option.id,fingerprint:detail.fingerprint,decision:'accepted',agree:true,request_key:uuid()};
+  const responses=await Promise.all(clients.map(c=>rpc(c,'gama_b2b_fulfillment','respond',consent)));assert.deepEqual(responses[0],responses[1]);
+  assert.equal(Number((await root.query("select count(*) from sales_events where entity_id=$1 and action='fulfillment_customer_accepted'",[option.id])).rows[0].count),1);
+  assert.equal((await root.query('select status from sales_fulfillment_options where id=$1',[option.id])).rows[0].status,'proposed');
+  for(const c of clients)await c.query("select set_config('request.jwt.claim.sub',$1,false)",[admin]);
+  const agreement={option_id:option.id,decision:'accepted',request_key:uuid()};
+  const results=await Promise.all(clients.map(c=>rpc(c,'gama_fulfillment_action','respond_option',agreement)));
+  assert.equal(results[0].id,results[1].id);
+  assert.equal(Number((await root.query('select quantity from sales_order_lines where id=$1',[shortage.id])).rows[0].quantity),0);
+  assert.equal(Number((await root.query('select reserved_quantity from stock_quants where product_id=$1',[replacement])).rows[0].reserved_quantity),1);
+  assert.equal(Number((await root.query("select count(*) from sales_events where order_id=$1 and action='substitution_agreement_applied'",[shortage.order_id])).rows[0].count),1);
  }finally{for(const c of clients)await c.end();await root.end()}
 });

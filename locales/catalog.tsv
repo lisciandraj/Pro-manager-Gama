@@ -1,4 +1,6 @@
 # Spanish source	French	English
+Espacio de trabajo	Espace de travail	Workspace
+Conversaciones, tareas, documentos y contexto del equipo	Discussions, tâches, documents et contexte d’équipe	Conversations, tasks, documents and team context
 Menú principal	Menu principal	Main menu
 Accede rápidamente a todas las funciones de Coco ERP.	Accédez rapidement à toutes les fonctions de Coco ERP.	Quickly access all Coco ERP features.
 Buscar un módulo	Rechercher un module	Search modules
@@ -5735,3 +5737,153 @@ Enviar a Agent Coco	Envoyer à Agent Coco	Send to Agent Coco
 Selecciona una factura para proponer el cobro.	Sélectionne une facture pour proposer l’encaissement.	Select an invoice to propose the receipt.
 Propuesta enviada a Agent Coco · Por validar	Proposition envoyée à Agent Coco · À valider	Proposal sent to Agent Coco · To approve
 Nombre del contacto	Nom du contact	Contact name
+
+Catálogo del presupuesto	Catalogue du devis	Quote catalog
+Añadir selección	Ajouter la sélection	Add selection
+Selecciona un cliente antes de abrir el catálogo.	Sélectionne un client avant d’ouvrir le catalogue.	Select a customer before opening the catalog.
+El presupuesto cambió. Cierra el catálogo y vuelve a abrirlo.	Le devis a changé. Ferme le catalogue puis ouvre-le à nouveau.	The quote changed. Close and reopen the catalog.
+El condicionamiento cambió. Revisa la selección.	Le conditionnement a changé. Vérifie la sélection.	The packaging changed. Review the selection.
+Servicio · sin control de stock	Service · sans suivi de stock	Service · no stock tracking
+Disponibilidad no informada	Disponibilité non renseignée	Availability not provided
+Disponible sin reservar	Disponible non réservé	Available, unreserved
+Cantidad superior al disponible	Quantité supérieure au disponible	Quantity exceeds availability
+Cantidad de stock	Quantité de stock	Stock quantity
+Tarifa no disponible. Actualiza para reintentar.	Tarif indisponible. Actualise pour réessayer.	Price unavailable. Refresh to retry.
+Calculando tarifa…	Calcul du tarif…	Calculating price…
+Ya está en el presupuesto	Déjà dans le devis	Already in the quote
+Productos seleccionados	Produits sélectionnés	Selected products
+No hay productos para esta búsqueda.	Aucun produit pour cette recherche.	No products match this search.
+El presupuesto admite hasta 200 productos.	Le devis accepte jusqu’à 200 produits.	The quote supports up to 200 products.
+Cargando productos…	Chargement des produits…	Loading products…
+Hasta 30 resultados. Afina la búsqueda por nombre, referencia o código.	Jusqu’à 30 résultats. Affine la recherche par nom, référence ou code.	Up to 30 results. Refine by name, reference or code.
+Selecciona al menos un producto.	Sélectionne au moins un produit.	Select at least one product.
+Un producto ya no está disponible. Actualiza el catálogo.	Un produit n’est plus disponible. Actualise le catalogue.	A product is no longer available. Refresh the catalog.
+Precios del cliente y disponibilidad orientativa. El stock se reserva al confirmar el pedido.	Prix client et disponibilité indicative. Le stock est réservé à la confirmation de la commande.	Customer prices and indicative availability. Stock is reserved when the order is confirmed.
+Ver selección	Voir la sélection	View selection
+Próxima actividad	Prochaine activité	Next activity
+Sin actividad pendiente	Aucune activité en attente	No pending activity
+Coste desconocido · margen no disponible	Coût inconnu · marge indisponible	Unknown cost · margin unavailable
+Disponibilidad prevista	Disponibilité prévisionnelle	Forecast availability
+Añade productos al presupuesto.	Ajoute des produits au devis.	Add products to the quote.
+La previsión descuenta los compromisos anteriores. No reserva existencias ni envía mensajes al cliente.	La prévision déduit les engagements antérieurs. Elle ne réserve aucun stock et n’envoie aucun message au client.	The forecast deducts earlier commitments. It does not reserve stock or send customer messages.
+Preparación · días calendario	Préparation · jours calendaires	Preparation · calendar days
+Transporte · días calendario	Transport · jours calendaires	Transport · calendar days
+Actualizar previsión	Actualiser la prévision	Refresh forecast
+El documento cambió. Vuelve a abrir la previsión.	Le document a changé. Rouvre la prévision.	The document changed. Reopen the forecast.
+Revisa los días de preparación y transporte.	Vérifie les jours de préparation et de transport.	Check preparation and transport days.
+Reservado para este pedido	Réservé pour cette commande	Reserved for this order
+Compromisos anteriores	Engagements antérieurs	Earlier commitments
+Disponible desde	Disponible à partir du	Available from
+Servicio · fecha a coordinar	Service · date à convenir	Service · date to arrange
+Sin fecha fiable	Aucune date fiable	No reliable date
+Entrega posible desde	Livraison envisageable à partir du	Delivery possible from
+Arribos atrasados o sin fecha excluidos de la promesa	Arrivages en retard ou sans date exclus de la promesse	Late or undated arrivals excluded from the promise
+Confirma los días de preparación y transporte antes de acordar una fecha. La disponibilidad futura depende de que lleguen las compras previstas.	Confirme les jours de préparation et de transport avant de convenir d’une date. La disponibilité future dépend de la réception des achats prévus.	Confirm preparation and transport days before agreeing a date. Future availability depends on expected purchases arriving.
+Actualiza la previsión después de cambiar los plazos.	Actualise la prévision après modification des délais.	Refresh the forecast after changing lead times.
+Solo se sustituye el faltante no reservado. El presupuesto aceptado conserva sus condiciones originales.	Seul le reliquat non réservé peut être remplacé. Le devis accepté conserve ses conditions d’origine.	Only the unreserved shortage can be replaced. The accepted quote keeps its original terms.
+Las cantidades del reemplazo se expresan en unidades base.	Les quantités du remplacement sont exprimées en unités de base.	Replacement quantities are expressed in base units.
+La propuesta no envía mensajes. Registra el acuerdo del cliente antes de aplicarla.	La proposition n’envoie aucun message. Enregistre l’accord du client avant de l’appliquer.	The proposal sends no messages. Record customer agreement before applying it.
+Guardar propuesta	Enregistrer la proposition	Save proposal
+Revisar condiciones de sustitución	Vérifier les conditions du remplacement	Review replacement terms
+La validación comercial no sustituye el acuerdo del cliente ni el control de crédito.	La validation commerciale ne remplace pas l’accord du client ni le contrôle du crédit.	Commercial approval does not replace customer agreement or credit checks.
+Actividades comerciales vencidas	Activités commerciales échues	Overdue sales activities
+Acuerdos pendientes	Accords en attente	Pending agreements
+Compromisos de entrega vencidos	Engagements de livraison dépassés	Overdue delivery commitments
+Actividad comercial vencida	Activité commerciale échue	Overdue sales activity
+Acuerdo del cliente pendiente	Accord du client en attente	Customer agreement pending
+Compromiso de entrega vencido	Engagement de livraison dépassé	Overdue delivery commitment
+Seguimiento comercial	Suivi commercial	Sales follow-up
+Actualiza la previsión antes de proponer una fecha.	Actualise la prévision avant de proposer une date.	Refresh the forecast before proposing a date.
+La disponibilidad cambió. Actualiza la previsión.	La disponibilité a changé. Actualise la prévision.	Availability changed. Refresh the forecast.
+La fecha propuesta ya no es viable con las existencias y compras actuales.	La date proposée n’est plus réalisable avec les stocks et achats actuels.	The proposed date is no longer feasible with current stock and purchases.
+Esta propuesta es anterior al control de versiones. Retírala y crea una nueva.	Cette proposition précède le contrôle des versions. Retire-la puis crée une nouvelle proposition.	This proposal predates version checks. Withdraw it and create a new proposal.
+Las condiciones del pedido cambiaron. Crea una nueva propuesta.	Les conditions de la commande ont changé. Crée une nouvelle proposition.	The order terms changed. Create a new proposal.
+El precio del cliente cambió. Actualiza la tarifa.	Le prix client a changé. Actualise le tarif.	The customer price changed. Refresh pricing.
+El impuesto del producto cambió. Actualiza el producto.	La taxe du produit a changé. Actualise le produit.	The product tax changed. Refresh the product.
+Acuerda primero la sustitución; después revisa la fecha del producto aceptado.	Conviens d’abord du remplacement, puis vérifie la date du produit accepté.	Agree the replacement first, then review the accepted product’s date.
+Actividad creada	Activité créée	Activity created
+Actividad finalizada	Activité terminée	Activity completed
+Condiciones de sustitución aprobadas	Conditions de substitution validées	Substitution terms approved
+Sustitución aceptada	Substitution acceptée	Substitution accepted
+Acuerdo de entrega / sustitución	Accord de livraison / substitution	Delivery / substitution agreement
+Condiciones de sustitución	Conditions de substitution	Substitution terms
+Periodificación y préstamos	Différés, récurrences et emprunts	Deferrals, recurring entries and loans
+
+Acuerdo B2B recibido: confirmar aplicación	Accord B2B reçu : confirmer l’application	B2B agreement received: confirm application
+Propuesta rechazada en el portal B2B	Proposition refusée dans le portail B2B	Proposal rejected in B2B portal
+Aplicar acuerdo B2B	Appliquer l’accord B2B	Apply B2B agreement
+El cliente aceptó estas condiciones en el portal. Se volverán a comprobar el crédito, el margen y las existencias.	Le client a accepté ces conditions dans le portail. Le crédit, la marge et le stock seront vérifiés à nouveau.	The customer accepted these terms in the portal. Credit, margin and stock will be checked again.
+Calendario contable	Échéancier comptable	Accounting schedule
+Tipos, grupos, numeración y bloqueos	Types, groupes, séquences et verrouillages	Types, groups, numbering and lock dates
+Grupo contable	Groupe comptable	Account group
+Numeración del diario	Séquence du journal	Journal numbering
+Fecha de bloqueo	Date de verrouillage	Lock date
+Excepción de bloqueo	Exception de verrouillage	Lock exception
+Fecha contable ajustada	Date comptable ajustée	Adjusted accounting date
+Fuera de balance	Hors bilan	Off-balance sheet
+La fecha contable está bloqueada de forma irreversible.	La date comptable est verrouillée de façon irréversible.	The accounting date is irreversibly locked.
+La fecha de la pieza original está bloqueada. Revisa una excepción o una contrapartida en fecha abierta.	La date de la pièce d’origine est verrouillée. Examinez une exception ou une contre-écriture à date ouverte.	The source entry date is locked. Review an exception or a counter-entry on an open date.
+Columna asignada inválida.	Colonne affectée invalide.	Invalid mapped column.
+Cada columna solo puede usarse una vez.	Chaque colonne ne peut être utilisée qu’une fois.	Each column can only be used once.
+Asigna fecha e importe, o fecha con débito y crédito.	Affectez la date et le montant, ou la date avec débit et crédit.	Map date and amount, or date with debit and credit.
+Fila de cabecera inválida.	Ligne d’en-tête invalide.	Invalid header row.
+Separador de columnas inválido.	Séparateur de colonnes invalide.	Invalid column separator.
+El número de columnas no coincide con la cabecera.	Le nombre de colonnes ne correspond pas à l’en-tête.	Column count differs from the header.
+Separa las cuentas fuera de balance de las cuentas financieras en otro asiento.	Séparez les comptes hors bilan des comptes financiers dans une autre écriture.	Keep off-balance accounts separate from financial accounts in another entry.
+Un asiento fuera de balance no admite impuestos.	Une écriture hors bilan ne peut pas comporter de taxes.	An off-balance entry cannot include taxes.
+Un asiento fuera de balance no admite movimientos de tesorería ni conciliación.	Une écriture hors bilan ne peut pas comporter de trésorerie ni de rapprochement.	An off-balance entry cannot include cash movements or reconciliation.
+En proceso de pago	En paiement	In payment
+Banco directo	Banque directe	Direct bank
+Cuenta de espera	Compte d’attente	Outstanding account
+Sin asiento	Sans écriture	No journal entry
+Pendiente de conciliación	En attente de rapprochement	Awaiting bank reconciliation
+El cobro se contabilizará directamente en banco o caja.	Le règlement sera comptabilisé directement en banque ou en caisse.	The payment will post directly to bank or cash.
+El cobro reducirá el saldo y esperará la conciliación bancaria.	Le règlement réduira le solde et attendra le rapprochement bancaire.	The payment will reduce the balance and await bank reconciliation.
+Sin asiento: el importe debido no cambia hasta la conciliación bancaria.	Sans écriture : le montant dû reste inchangé jusqu’au rapprochement bancaire.	No journal entry: the amount due remains unchanged until bank reconciliation.
+Deshaz primero la conciliación de este pago.	Annulez d’abord le rapprochement de ce paiement.	Undo this payment’s bank reconciliation first.
+Este anticipo sin asiento no puede imputarse a una factura.	Cet acompte sans écriture ne peut pas être affecté à une facture.	This advance without a journal entry cannot be allocated to an invoice.
+Selecciona una cuenta de espera activa distinta del banco y de las cuentas de terceros.	Sélectionnez un compte d’attente actif distinct de la banque et des comptes tiers.	Select an active outstanding account distinct from bank and partner accounts.
+Revisa el medio, el sentido y el tratamiento del pago.	Vérifiez le moyen, le sens et le traitement du paiement.	Review the payment method, direction and treatment.
+La cuenta bancaria cambió desde el registro del pago.	Le compte bancaire a changé depuis l’enregistrement du paiement.	The bank ledger account changed after the payment was registered.
+El pago no coincide con la conciliación seleccionada.	Le paiement ne correspond pas au rapprochement sélectionné.	The payment does not match the selected reconciliation.
+Para este pago, selecciona movimientos bancarios de la misma fecha.	Pour ce paiement, sélectionnez des mouvements bancaires de la même date.	For this payment, select bank transactions with the same date.
+La factura tiene pagos sin asiento pendientes. Selecciónalos en el conciliador para evitar un segundo cobro.	La facture a des paiements sans écriture en attente. Sélectionnez-les dans le rapprochement pour éviter un second encaissement.	The invoice has pending payments without journal entries. Select them for reconciliation to avoid a second receipt.
+Libros y afectación del resultado	Livres et affectation du résultat	Fiscal books and earnings appropriation
+Una cuenta utilizada no puede cambiar entre afectación anual y patrimonio permanente.	Un compte utilisé ne peut pas passer de l’affectation annuelle aux capitaux propres permanents.	A used account cannot switch between annual appropriation and permanent equity.
+Con cuentas de afectación, registra primero el reparto completo del resultado. El cierre verifica el libro y bloquea todos los meses sin duplicar ese reparto. Sin esa configuración se conserva el cierre histórico.	Avec des comptes d’affectation, enregistrez d’abord la répartition complète du résultat. La clôture contrôle le livre et verrouille les mois sans doubler cette affectation. Sans cette configuration, la clôture historique est conservée.	With appropriation accounts, record the full earnings allocation first. Closing checks the ledger and locks all months without duplicating the allocation. Without that configuration, the existing closing policy is retained.
+Afecta todo el resultado antes de cerrar el ejercicio.	Affectez la totalité du résultat avant de clôturer l’exercice.	Appropriate the full result before closing the fiscal year.
+El ejercicio ya está cerrado.	L’exercice est déjà clôturé.	The fiscal year is already closed.
+El libro cambió durante la exportación. Actualiza el informe y vuelve a exportar.	Le livre a changé pendant l’export. Actualisez le rapport puis relancez l’export.	The ledger changed during export. Refresh the report and export again.
+Este medio no está activo para la cuenta y el sentido seleccionados.	Cette méthode est inactive pour le compte et le sens sélectionnés.	This method is inactive for the selected account and direction.
+Un medio utilizado conserva su cuenta, familia y sentido.	Une méthode utilisée conserve son compte, sa famille et son sens.	A used method retains its account, family and direction.
+El nombre debe tener entre 1 y 120 caracteres.	Le nom doit comporter entre 1 et 120 caractères.	The name must contain between 1 and 120 characters.
+El importe supera el saldo o tiene un signo incorrecto.	Le montant dépasse le solde ou porte un signe incorrect.	The amount exceeds the remaining balance or has the wrong sign.
+Selecciona cada movimiento u origen una sola vez.	Sélectionnez chaque mouvement ou origine une seule fois.	Select each transaction or source only once.
+Indica la distribución por movimiento para conciliar importes de signos distintos en varias fechas.	Indiquez la répartition par mouvement pour rapprocher des montants de signes différents sur plusieurs dates.	Enter allocations by transaction to match amounts of different signs across dates.
+Revisa los movimientos, los orígenes y los signos de la distribución.	Vérifiez les mouvements, les origines et les signes de la répartition.	Review transactions, sources and signs in the allocation.
+La distribución debe coincidir con cada importe seleccionado.	La répartition doit correspondre à chaque montant sélectionné.	The allocation must agree with every selected amount.
+Esta línea contiene varias conciliaciones. Elige el grupo en Conciliación agrupada.	Cette ligne contient plusieurs rapprochements. Choisissez le groupe dans Rapprochement groupé.	This line has several matches. Select the group in Grouped reconciliation.
+La fecha bancaria está bloqueada. Revisa el cierre o una excepción antes de conciliar.	La date bancaire est verrouillée. Vérifiez la clôture ou une exception avant le rapprochement.	The bank date is locked. Review the closing or an exception before matching.
+Libera primero las imputaciones de este anticipo antes de anular su conciliación.	Libérez d’abord les affectations de cet acompte avant d’annuler son rapprochement.	Release this advance’s allocations before cancelling its bank match.
+Solo puedes imputar la parte de este anticipo que ya está conciliada y disponible.	Vous pouvez affecter uniquement la partie de cet acompte déjà rapprochée et disponible.	You can allocate only the already matched and available portion of this advance.
+Selecciona un diario bancario activo y una fecha inicial.	Sélectionnez un journal bancaire actif et une date de début.	Select an active bank journal and a starting date.
+Selecciona una cuenta transitoria activa, distinta de banco, clientes y proveedores.	Sélectionnez un compte transitoire actif, distinct de la banque et des comptes tiers.	Select an active suspense account distinct from bank and partner accounts.
+Este movimiento tiene conciliaciones anteriores. Revisa su recuperación antes de contabilizarlo.	Ce mouvement possède des rapprochements antérieurs. Sa reprise doit être examinée avant comptabilisation.	This transaction has earlier matches. Review its migration before posting it.
+El extracto contabilizado conserva su fecha e importe. Corrige mediante una operación documentada.	Le relevé comptabilisé conserve sa date et son montant. Corrigez par une opération documentée.	A posted statement retains its date and amount. Correct it through a documented transaction.
+El movimiento no está incluido en una configuración activa.	Le mouvement n’entre pas dans une configuration active.	The transaction is outside an active posting policy.
+Tu perfil no permite exportar estos datos.	Votre profil ne permet pas d’exporter ces données.	Your profile cannot export this data.
+Contabilización de extractos	Comptabilisation des relevés	Statement posting
+Movimiento bancario contabilizado	Mouvement bancaire comptabilisé	Bank transaction posted
+Valor del stock y cierre	Valeur du stock et clôture	Inventory value and closing
+Revisa las líneas diferidas: concepto, referencia única y un máximo de 200 líneas.	Vérifiez les lignes différées : libellé, référence unique et maximum de 200 lignes.	Review deferred lines: description, unique reference and at most 200 lines.
+Indica ambas fechas de cada diferido, con el final igual o posterior al inicio.	Indiquez les deux dates de chaque différé, avec une fin égale ou postérieure au début.	Enter both deferral dates, with the end on or after the start.
+Los importes diferidos deben ser positivos y no superar la base sin impuestos.	Les montants différés doivent être positifs et ne pas dépasser la base hors taxes.	Deferred amounts must be positive and must not exceed the amount excluding tax.
+La fuente contable no admite esta distribución; revisa los anticipos y las cuentas.	La source comptable ne permet pas cette répartition ; vérifiez les acomptes et les comptes.	The accounting source does not support this allocation; review deposits and accounts.
+Configura primero el diario, la cuenta y el cálculo en Diferidos de facturas.	Configurez d’abord le journal, le compte et le calcul dans Différés de factures.	First configure the journal, account and calculation under Invoice deferrals.
+Revisa los parámetros de diferidos de facturas.	Vérifiez les paramètres des différés de factures.	Review invoice deferral settings.
+Diferidos de facturas	Différés de factures	Invoice deferrals
+Inicio del diferido	Début du différé	Deferral start
+Fin del diferido	Fin du différé	Deferral end
+Selecciona un método de depreciación válido.	Sélectionnez une méthode d’amortissement valide.	Select a valid depreciation method.
+Indica un factor mensual mayor que cero y menor que uno, con seis decimales como máximo.	Indiquez un facteur mensuel supérieur à zéro et inférieur à un, avec six décimales au plus.	Enter a monthly factor greater than zero and less than one, with up to six decimal places.
+Un contacto necesita al menos un nombre o un correo.	Un contact doit avoir au moins un nom ou une adresse e-mail.	A contact needs at least a name or an email address.

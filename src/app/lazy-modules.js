@@ -1,5 +1,7 @@
 /** Public entry points for workspaces fetched on first use. */
 export const lazyModules={
+ "workhub-documents":{"global":"CocoWorkhubDocs","file":"coco-workhub-documents.js","dependencies":["assets/vendor/yjs-13.6.33.js"],"methods":["mount","open"]},
+ "workhub":{"global":"CocoWorkhub","file":"coco-workhub.js","styles":["coco-style-workhub.css"],"methods":["open","openChannel"]},
  "contracts":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
  "expenses":{"global":"CocoBusiness","file":"coco-business-modules.js","styles":["coco-style-business-modules.css"],"methods":["contracts","expenses","consultations"]},
  "sales-dossier":{"global":"CocoSalesDossier","file":"coco-sales-dossier.js","methods":["rpc","open","quoteCredit","mountOrder","activities","deposit","statuses","blocksHTML","error"]},
@@ -47,7 +49,7 @@ export const lazyModules={
     "global": "GamaDocuments",
     "file": "gama-service-documents.js",
     "methods": [
-      "open"
+      "open","openRecord"
     ]
   },
   "accounting": {"styles":["coco-style-accounting.css"],
@@ -96,13 +98,13 @@ export const lazyModules={
     "global": "GamaAssistant",
     "file": "gama-assistant-ia.js",
     "methods": [
-      "open"
+      "open","openContext","openQueue"
     ]
   },
   "tms": {"styles":["coco-style-tms-module.css","coco-order-followup.css"],
     "global": "gamaTMS",
     "file": "gama-tms-module.js",
-    "dependencies": ["gama-tms-map-data.js","gama-tms-local-map.js","gama-tms-execution.js","gama-tms-dispatch.js","gama-tms-driver-ui.js","gama-tms-delivery-operations.js","gama-sri-documents.js"],
+    "dependencies": ["gama-tms-map-data.js","gama-tms-local-map.js","gama-tms-execution.js","gama-tms-dispatch.js","coco-tms-pro.js","coco-tms-gps.js","gama-tms-driver-ui.js","gama-tms-delivery-operations.js","gama-sri-documents.js"],
     "methods": [
       "open",
       "openDelivery",

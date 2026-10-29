@@ -1,0 +1,23 @@
+.purchase-mode {display:block;margin-block-end:24px;max-width:36rem;font-weight:600}
+.purchase-mode select {display:block;width:100%;margin-block-start:8px}
+#billingFields {border:0;padding:0;margin:28px 0 0;min-width:0}
+#billingFields legend {font-size:18px;font-weight:650;padding:0}
+#billingFields p,.product-reviews>p,.commerce-dialog-body>p {max-width:70ch;color:var(--muted)}
+#billingFields .full-width {grid-column:1/-1}
+.commerce-totals dl {display:grid;grid-template-columns:1fr auto;gap:12px 16px;font-variant-numeric:tabular-nums}
+.commerce-totals dd {margin:0;text-align:end}
+.commerce-totals p,.commerce-totals small {font-size:13px;display:block;margin-block:12px}
+#humanVerification {margin-block:16px;min-height:0;max-width:100%;overflow:hidden}
+.product-reviews {margin-block-start:32px;padding-block-start:24px;border-top:1px solid var(--line,#e5e9eb)}
+.commerce-row {padding-block:20px;border-bottom:1px solid var(--line,#e5e9eb);overflow-wrap:anywhere}
+.commerce-row h3,.commerce-row p {margin-block:0 8px}
+.review-form {display:grid;gap:16px;max-width:44rem;margin-block-start:24px}
+.review-form label {display:grid;gap:8px}
+.review-form input,.review-form textarea,.review-form select {font:inherit;width:100%;min-width:0}
+.commerce-dialog {width:min(720px,calc(100% - 24px));max-height:88dvh;border:0;border-radius:8px;padding:28px;color:var(--ink);background:#fff;overflow:auto}
+.commerce-dialog::backdrop {background:rgb(8 30 38 / .5)}
+.commerce-dialog-body {overflow-wrap:anywhere}
+.approval-toolbar {display:flex;flex-wrap:wrap;gap:12px;margin-block:20px}
+.approval-edit-notice {padding:16px;background:var(--primary-soft,#eef6f6);margin-block:16px}
+@media(max-width:600px){.commerce-dialog {padding:20px}.review-form input,.review-form select,.review-form textarea,#billingFields input,#billingFields select {font-size:16px}.purchase-mode {font-size:16px}.commerce-totals dl {gap:10px}.product-reviews {margin-block-start:24px}}
+.commerce-support{display:grid;gap:18px}.commerce-support label{display:grid;gap:8px}.commerce-support input,.commerce-support select,.commerce-support textarea{width:100%;min-width:0;max-width:100%;font:inherit}.commerce-support .commerce-honeypot{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}

@@ -287,8 +287,9 @@ function employeesTab(){
  }).join('');
 
  return `<div class="hrGrid">
-  <div class="arcPanel card">
-   <h3 data-gi-live>${editing?'Editar empleado':'Nuevo empleado'}</h3>
+  <details class="hrEmployeeEditor" id="hrEmployeeEditor"${editing?' open':''}>
+   <summary data-gi-live>${editing?'Editar empleado':'Nuevo empleado'}</summary>
+   <div class="hrEmployeeFields">
    <div class="hrPhotoEditor"><span id="hrPhotoPreview" class="hrEmployeeAvatar" aria-hidden="true"></span><div>
     <label for="hrPhoto">${esc(window.GamaEmployeePhotos?.t('label')||'Foto del empleado')}</label>
     <input id="hrPhoto" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="hrPhotoHelp">
@@ -331,7 +332,8 @@ function employeesTab(){
     <button type="button" class="arcButton primary" id="hrSave" data-gi-live>${editing?'Guardar cambios':'Guardar empleado'}</button>
     <button type="button" class="arcButton secondary" id="hrClear" data-gi=08df229fa5ad>Limpiar</button>
    </div>
-  </div>
+   </div>
+  </details>
   <div class="arcPanel card">
    <h3 data-gi=65ebd9bd0f84>Plantilla <small class="muted">(${employees.length})</small></h3>
    ${employees.length?`<div class="hrTable"><table class="arcTable">

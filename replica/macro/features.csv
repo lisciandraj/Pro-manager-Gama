@@ -1,0 +1,16 @@
+feature,area,priority,original,clone,notes
+Réception commune,workspace,must,yes,yes,Messages et travail autorisé dans une liste
+Canaux privés et membres,chat,must,yes,yes,Collègues internes existants
+Réponses en fil,chat,must,yes,yes,Fil limité au canal
+Créer une tâche depuis un message,tasks,must,yes,yes,Moteur Projets natif
+Liens et références retour,links,must,yes,yes,Droits des sources inchangés
+Recherche commune,search,must,yes,yes,Messages tâches articles documents clients
+Contexte transmis à Agent Coco,agents,must,yes,yes,Brouillon contrôlé par utilisateur
+Classement et report personnels,inbox,must,yes,yes,Sans modifier les états métier
+FR ES EN et téléphone,interface,must,yes,yes,Identité Coco
+Propositions mail existantes,email,should,yes,partial,Relais existant ; aucune boîte Gmail complète
+Édition CRDT simultanée,docs,could,yes,yes,Texte Markdown privé par canal ; fusion Yjs et versions ; pas éditeur riche ni édition par Agent
+Appels et transcription,calls,could,yes,no,Fournisseur et consentement à définir
+Calendrier et réservation,calendar,could,yes,partial,"Agenda natif des tâches Projets et activités CRM affectées, sous RLS et fuseau Quito ; ni réservation ni synchronisation externe."
+Tableur collaboratif et canvas,docs,could,yes,no,Chantier distinct
+Agents de code et MCP,agents,could,yes,no,Chantier distinct

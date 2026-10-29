@@ -1,0 +1,13 @@
+{
+  "version": "20261027225700",
+  "name": "accounting_invoice_deferrals",
+  "file": "20261027211954_accounting_invoice_deferrals.sql",
+  "statement_count": 1,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "d91005c15357afbeff60250afdb876850264f929b56bf1628cf0c480b702b78c",
+  "bytes": 22222,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-27",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL verified against source. Schema-only installation; preserve SQL bytes and never replay in production."
+}

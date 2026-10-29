@@ -78,6 +78,8 @@ async function boot(page,scope='all',role='admin'){
   await GamaCloudReady;const old=GamaCloud.db;
   GamaCloud.db=async()=>{const c=await old();return{...c,rpc:async(fn,args)=>{
    if(fn==='gama_bank_invoice_action'){window.__ACC.calls.push({...args,rpc_name:fn});if(window.__ACC.error)return {error:{message:window.__ACC.error}};if(args.p_action==='suggest')return {data:window.__ACC.bankSuggestions||{bank:window.__ACC.responses.bank_list.rows[0],matches:[]}};return {data:{ok:true,imported:args.p_data.rows?.length||0,id:'bank-action'}};}
+   if(fn==='gama_accounting_journals'){window.__ACC.calls.push(args);return {data:args.p_action==='entries'?{...structuredClone(window.__ACC.responses.entries),total:window.__ACC.responses.entries.rows.length,debit:2500,credit:2500}: {journals:[],banks:[],from:window.__ACC.overview.today,to:window.__ACC.overview.today}}}
+   if(fn==='gama_accounting_bank_import')return {data:{rows:[]}};
    if(fn!=='gama_accounting_action')return c.rpc(fn,args);
    window.__ACC.calls.push(args);
    if(window.__ACC.error)return {error:{message:window.__ACC.error}};
@@ -124,8 +126,11 @@ test('the dashboard reads the whole business and formats in the company currency
  await expect(main).toContainText('+20 %');             // 12000 vs 10000
  await expect(main).toContainText('6,5');               // retraso medio
  await expect(main).toContainText('$900,00');           // saldo de impuestos 1800-900
- await expect(page.locator('#gaNav button')).toHaveCount(14);
- await expect(page.locator('#gaNav [data-ga-section="sri"]')).toBeVisible();
+ await expect(page.locator('#gaShortcuts [data-ga-section]')).toHaveCount(17);
+ await expect(page.locator('#gaNav [data-ga-family]')).toHaveText(['Vista general','Clientes','Proveedores','Banco y caja','Contabilidad','Informes','Configuración']);
+ await expect(page.locator('#gaShortcuts [data-ga-section="plans"]')).toBeVisible();
+ await expect(page.locator('#gaShortcuts [data-ga-section="stock19"]')).toBeVisible();
+ await expect(page.locator('#gaShortcuts [data-ga-section="sri"]')).toBeVisible();
 });
 
 test('a euro company shows euros everywhere without touching the amounts',async({page})=>{
@@ -224,7 +229,9 @@ test('tax and balance screens never claim to be a legal filing',async({page})=>{
 
 test('a commercial profile sees its own side and never the ledger or the cash',async({page})=>{
  await boot(page,'commercial','commercial');await open(page);
- const nav=page.locator('#gaNav button');
+ const nav=page.locator('#gaShortcuts [data-ga-section]');
+ await expect(page.locator('#gaNav [data-ga-family]')).toHaveText(['Vista general','Clientes','Informes']);
+ await expect(page.locator('[data-ga-family="ledger"], [data-ga-family="cash"], [data-ga-section="plans"]')).toHaveCount(0);
  await expect(nav).toHaveCount(4);
  await expect(nav).toHaveText(['Vista general','Ventas','Cuentas por cobrar','Informes']);
  await expect(page.locator('[data-ga-section="ledger"]')).toHaveCount(0);
@@ -367,7 +374,7 @@ test('missing fiscal identity blocks the ATS draft and does not download a filin
 
 test('one invalid statement record blocks import and remains visible',async({page})=>{
  await boot(page);await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('#gaImport').click();
- await page.locator('#gaCsv').setInputFiles({name:'bad.csv',mimeType:'text/csv',buffer:Buffer.from('Fecha;Referencia;Descripción;Importe\n31/02/2026;BAD;Fecha errónea;10.00\n01/09/2026;OK;Cobro;20.00')});await expect(page.locator('#gaPreview')).toContainText('Fecha inexistente');await page.locator('#gsSave').click();await expect(page.locator('#gsFormError')).toContainText('Corrige el archivo');expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='import'))).toBe(false);
+ await page.locator('#gaCsv').setInputFiles({name:'bad.csv',mimeType:'text/csv',buffer:Buffer.from('Fecha;Referencia;Descripción;Importe\n31/02/2026;BAD;Fecha errónea;10.00\n01/09/2026;OK;Cobro;20.00')});await expect(page.locator('#gaPreview')).toContainText('Fecha inexistente');await expect(page.locator('#gsSave')).toBeDisabled();expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='import'))).toBe(false);
 });
 test('a reviewed bank match sends only the invoice identity and retries with the same key',async({page})=>{
  await boot(page);await page.evaluate(()=>{__ACC.responses.bank_list.rows[0].amount=500;__ACC.bankSuggestions={bank:__ACC.responses.bank_list.rows[0],matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-00000017 · ACME',amount:500,balance:1000,date:'2026-09-01'}]}});await open(page);await page.locator('[data-ga-section="cash"]').click();await page.locator('[data-ga-match]').click();await expect(page.locator('#gaMatchChoices')).toContainText('Registrar cobro y conciliar');await page.locator('input[name=gaMatch][value^="invoice|"]').check();

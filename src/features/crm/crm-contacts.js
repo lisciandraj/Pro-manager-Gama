@@ -68,8 +68,9 @@ async function cargar(){
 }
 
 /* ---- presentación ---- */
+const nombreCompleto=k=>[k.first_name,k.last_name].filter(Boolean).join(' ').trim();
 function nombre(k){
- const n=[k.first_name,k.last_name].filter(Boolean).join(' ').trim();
+ const n=nombreCompleto(k);
  return n||String(k.email||'').trim()||'(sin nombre)';
 }
 function nombreLead(l){
@@ -192,8 +193,7 @@ function formulario(){
    +'<div id="crmKCajaProspecto"'+(tipo==='prospecto'?'':' hidden')+'>'
     +'<label for="crmKProspecto" data-gi=cd8a1cafd6a4>Prospecto</label><select id="crmKProspecto">'
     +opciones(prospectosVivos().map(p=>[p.id,nombreLead(p)]),k.lead_id,'— elige un prospecto —')+'</select></div>'
-   +campo('crmKFirst','Nombre',k.first_name)
-   +campo('crmKLast','Apellidos',k.last_name)
+   +campo('crmKFullName','Nombre del contacto',nombreCompleto(k))
    +campo('crmKJob','Cargo',k.job_title)
    +campo('crmKEmail','Correo',k.email,'email')
    +campo('crmKPhone','Teléfono',k.phone,'tel')
@@ -219,8 +219,8 @@ function leerFormulario(){
      porque al cambiar de ficha hay que borrar el enlace anterior. */
   customer_id:tipo==='cliente'?quien:null,
   lead_id:tipo==='cliente'?null:quien,
-  first_name:nulo(val('crmKFirst')),
-  last_name:nulo(val('crmKLast')),
+  first_name:nulo(val('crmKFullName')),
+  last_name:null,
   job_title:nulo(val('crmKJob')),
   email:nulo(val('crmKEmail')),
   phone:nulo(val('crmKPhone')),
@@ -229,8 +229,10 @@ function leerFormulario(){
   notes:nulo(val('crmKNotes')),
   is_primary:!!($('crmKPrincipal')&&$('crmKPrincipal').checked),
  };
+ // Editing another field must not rewrite historical name components.
+ if(abierto?.id&&d.first_name===nulo(nombreCompleto(abierto))){d.first_name=abierto.first_name;d.last_name=abierto.last_name}
  if(!(d.last_name||d.first_name||d.email)){
-  msg('Un contacto necesita al menos un nombre, unos apellidos o un correo.','err');return null;
+  msg('Un contacto necesita al menos un nombre o un correo.','err');return null;
  }
  return d;
 }

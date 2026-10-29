@@ -1,0 +1,13 @@
+{
+  "version": "20261025151430",
+  "name": "accounting_payment_modes",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-10-25",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 41442,
+  "sha256": "a4f8a4981acbce3ae5b7591e04c3c48e6d1b161d15b96aca67fef2a43ef43c68",
+  "file": "20261025151430_accounting_payment_modes.sql",
+  "purpose": "Installed opt-in payment modes, source snapshots and bank settlement; preserve these bytes and do not replay in production."
+}

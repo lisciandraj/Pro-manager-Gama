@@ -71,6 +71,26 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const assets=await Promise.all(assetWrites);assert.equal(assets.filter(x=>x.value).length,1);assert.match(assets.find(x=>x.error).error.message,/ASSET_COST_EXCEEDED/);
   const winner=assets.findIndex(x=>x.value);assert.deepEqual(await rpc(clients[winner],'gama_accounting_ec','asset_save',assetInputs[winner]),assets[winner].value);
   assert.equal(Number((await root.query('select sum(cost) value from accounting_assets where acquisition_entry_id=$1',[acquisition])).rows[0].value),60);
+  // Cancellation must lock the invoice before its unpaid check, while payment
+  // registration uses the same invoice lock before validating posted state.
+  const supplier=(await root.query("insert into suppliers(name) values('Cancellation race supplier') returning id")).rows[0].id;
+  const bill=await rpc(clients[0],'gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:supplier,number:'CANCEL-RACE',issue_date:'2026-10-10',subtotal:40,tax:0,total:40});
+  const billEntry=(await root.query("select id from accounting_entries where source_type='supplier_invoice' and source_id=$1 and status='posted'",[bill.id])).rows[0].id;
+  await root.query('begin');await root.query('select id from accounting_entries where id=$1 for update',[billEntry]);
+  const cancel=rpc(clients[0],'gama_accounting_action','supplier_invoice_cancel',{id:bill.id,reason:'Isolated concurrent cancellation'}).then(value=>({value}),error=>({error}));
+  let pay,paymentFinished=false;
+  try{
+   const deadline=Date.now()+4000;let waiting=false;
+   while(Date.now()<deadline){waiting=(await root.query('select cardinality(pg_blocking_pids($1))>0 waiting',[pids[0]])).rows[0].waiting;if(waiting)break;await new Promise(resolve=>setTimeout(resolve,25))}
+   assert.equal(waiting,true,'cancellation reached the existing entry lock');
+   pay=rpc(clients[1],'gama_accounting_action','supplier_payment',{request_key:uuid(),supplier_invoice_id:bill.id,financial_account_id:bank,paid_at:'2026-10-10',amount:10,method:'transfer',reference:'Cancellation race payment'}).then(value=>{paymentFinished=true;return {value}},error=>{paymentFinished=true;return {error}});
+   const paymentDeadline=Date.now()+4000;let paymentWaiting=false;
+   while(Date.now()<paymentDeadline&&!paymentFinished){paymentWaiting=(await root.query('select cardinality(pg_blocking_pids($1))>0 waiting',[pids[1]])).rows[0].waiting;if(paymentWaiting)break;await new Promise(resolve=>setTimeout(resolve,25))}
+   assert.ok(paymentWaiting||paymentFinished,'payment reached a bounded outcome or invoice lock');
+  }finally{await root.query('commit')}
+  const cancelled=await cancel,paid=await pay;assert.ok(cancelled.value,cancelled.error?.message);assert.ok(paid.error,'payment cannot commit against the cancelled invoice');assert.match(paid.error.message,/POSTED_SUPPLIER_INVOICE_REQUIRED|INVOICE_CANCELLED|AMOUNT_EXCEEDS_BALANCE/);
+  assert.equal((await root.query('select status from supplier_invoices where id=$1',[bill.id])).rows[0].status,'cancelled');
+  assert.equal(Number((await root.query("select count(*) from supplier_invoice_payments where supplier_invoice_id=$1 and status='confirmed'",[bill.id])).rows[0].count),0);
   for(const c of clients)await c.query('set statement_timeout=0');
   // Two real sessions compete for the same last unit, then retry one
   // substitution agreement. Neither confirmation nor the amendment mints stock.

@@ -69,7 +69,7 @@ declare r text;p public.accounting_permissions;rights jsonb;permission text;
  none jsonb:=jsonb_build_object('view',false,'create',false,'edit',false,'delete',false,'validate',false,'export',false,'close',false,'pay',false,'scope','none');
 begin
  r:=coalesce(private.current_user_role(),'');
- if auth.uid() is null or r='' then return none;end if;
+ if auth.uid() is null or r='' or not private.erp_module_allowed('accounting',array['administrador','comercial']) then return none;end if;
  rights:=case when r='administrador' then jsonb_build_object('view',true,'create',true,'edit',true,'delete',true,'validate',true,'export',true,'close',true,'pay',true,'scope','all')
  when r='comercial' then jsonb_build_object('view',true,'create',false,'edit',false,'delete',false,'validate',false,'export',true,'close',false,'pay',false,'scope','commercial') else none end;
  select * into p from public.accounting_permissions where profile_id=auth.uid();
@@ -86,6 +86,15 @@ begin
   'pay',coalesce((rights->>'pay')::boolean,false) and private.erp_action_allowed('accounting','create') and private.erp_action_allowed('accounting','validate'));
  return rights;
 end $$;
+
+-- Preparing a new price book is a create action even before its approval.
+do $audit$
+declare src text;before_text text:='if p_action=''save'' then';
+begin
+ src:=pg_get_functiondef('private.gama_price_book_action(text,jsonb)'::regprocedure);
+ if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:price_book_create';end if;
+ execute replace(src,before_text,before_text||' if not private.erp_action_allowed(''price-lists'',''create'') then raise exception ''ACTION_NOT_ALLOWED:price-lists:create'';end if;');
+end $audit$;
 
 -- Commercial summaries remain available through scoped invoker/RPC projections.
 -- Raw ledger, banking, supplier and expense tables require full financial scope.

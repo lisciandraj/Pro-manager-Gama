@@ -42,6 +42,8 @@ test('security: direct reads and legacy commands preserve current authority',asy
    await q("update erp_action_permissions set allow_validate=true where role='almacenero' and module='gamaPurchasesV14'");await as(warehouse);
    await one('select gama_receive_purchase($1,$2::jsonb,$3)',[order.id,data,'Fixture receipt']);
    await owner();assert.equal(Number(await one('select received_quantity from purchase_order_lines where id=$1',[line])),1);
+   await as(seller);await assert.rejects(q('update purchase_order_lines set received_quantity=2 where id=$1',[line]),/permission denied/);
+   await owner();assert.equal(Number(await one('select received_quantity from purchase_order_lines where id=$1',[line])),1);
   });
   await t.test('legacy manual movements cannot bypass value-based approval',async()=>{
    await owner();await q('update erp_policies set stock_adjustment_limit=10,stock_adjustment_value_limit=5 where id');await as(warehouse);
@@ -63,6 +65,23 @@ test('security: direct reads and legacy commands preserve current authority',asy
    assert.equal(await one("select private.dashboard_access('payments')"),false);assert.equal(await one("select private.dashboard_access('sales-orders')"),false);
    await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'quotes') where role='comercial'");await as(seller);
    assert.equal(await one("select private.dashboard_access('payments')"),true);
+  });
+  await t.test('native pricing drafts require the current create permission',async()=>{
+   await owner();await q("insert into erp_action_permissions(role,module,allow_create,updated_by) values('comercial','price-lists',false,$1) on conflict(role,module) do update set allow_create=false",[admin]);
+   const data={request_key:uuid(),name:'Restricted pricing fixture',kind:'promotion',valid_from:'2026-01-01',lines:[{product_id:product,min_quantity:1,unit_price:12}]};await as(seller);
+   assert.equal(await one("select public.gama_action_allowed('price-lists','create')"),false);
+   await assert.rejects(one("select public.gama_price_book_action('save',$1::jsonb)",[JSON.stringify(data)]),/ACTION_NOT_ALLOWED:price-lists:create/);
+   await owner();assert.equal(await one('select count(*)::int from erp_price_books where name=$1',[data.name]),0);
+   await q("update erp_action_permissions set allow_create=true where role='comercial' and module='price-lists'");await as(seller);
+   const book=await one("select public.gama_price_book_action('save',$1::jsonb)",[JSON.stringify(data)]);assert.equal(book.status,'draft');assert.equal(book.created_by,seller);
+   await assert.rejects(one("select public.gama_price_book_action('approve',$1::jsonb)",[JSON.stringify({id:book.id})]),/APPROVAL_ADMIN_REQUIRED/);
+  });
+  await t.test('accounting override readers lose access when their module is disabled',async()=>{
+   await owner();await q("update role_module_access set disabled_modules=array_append(disabled_modules,'accounting') where role='comercial'");await as(seller);
+   const rights=await one('select private.gama_accounting_rights()');assert.equal(rights.view,false);assert.equal(rights.scope,'none');
+   await assert.rejects(one("select public.gama_supplier_match('preview',$1::jsonb)",[JSON.stringify({id:uuid()})]),/ROLE_NOT_ALLOWED/);
+   await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'accounting') where role='comercial'");await as(seller);
+   assert.equal((await one('select private.gama_accounting_rights()')).scope,'all');
   });
   await t.test('direct reorder policies cannot bypass product, warehouse or action restrictions',async()=>{
    await owner();const rule=await one('insert into reorder_rules(product_id,min_quantity,max_quantity) values($1,2,10) returning id',[product]);

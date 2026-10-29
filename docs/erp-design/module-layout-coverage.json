@@ -1,0 +1,986 @@
+[
+  {
+    "viewport": "workbench-layout-every-ena-f5d9e-ll-width-workspace-at-390px-chromium",
+    "modules": [
+      {
+        "module": "workhub",
+        "id": "workhub",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Espace de travail",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contracts",
+        "id": "contracts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contrats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "expenses",
+        "id": "expenses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dépenses et justificatifs",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "surveys",
+        "id": "surveys",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 141,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Sondages et marketing",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "sri",
+        "id": "sri",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Facturation SRI",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "website",
+        "id": "website",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 141,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Site web",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "documents",
+        "id": "documents",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Documents",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "tms",
+        "id": "gama-tms-section",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "TMS · Aujourd’hui",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "accounting",
+        "id": "accounting",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 193,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Comptabilité",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "fleet",
+        "id": "fleet",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 141,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Gestion de flotte",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "projects",
+        "id": "projects",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 141,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Projets",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "assistant-ia",
+        "id": "assistant-ia",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Agent Coco",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dashboard",
+        "id": "dashboard",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dashboard",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "knowledge",
+        "id": "knowledge",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Base de connaissances",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "products",
+        "id": "products",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Produits",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "warehouses",
+        "id": "warehouses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 193,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Entrepôts et stocks",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "gamaPurchasesV14",
+        "id": "gamaPurchasesV14",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Achats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "barcode",
+        "id": "barcode",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Codes-barres",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "quotes",
+        "id": "quotes",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 132,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Ventes",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contacts",
+        "id": "contacts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contacts",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dossier-flow",
+        "id": "dossier-flow",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 141,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Suivi de processus",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "returns",
+        "id": "returns",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 193,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Retour",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "crm",
+        "id": "crm",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 193,
+          "left": 16,
+          "right": 374
+        },
+        "title": "CRM",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "hr",
+        "id": "hr",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 193,
+          "left": 16,
+          "right": 374
+        },
+        "title": "Ressources humaines",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "audit",
+        "id": "audit",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 157,
+          "left": 32,
+          "right": 358
+        },
+        "title": "Piste d’audit",
+        "duplicateHeaders": 0
+      }
+    ]
+  },
+  {
+    "viewport": "workbench-layout-every-ena-a7111-l-width-workspace-at-1440px-chromium",
+    "modules": [
+      {
+        "module": "workhub",
+        "id": "workhub",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Espace de travail",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contracts",
+        "id": "contracts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contrats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "expenses",
+        "id": "expenses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dépenses et justificatifs",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "surveys",
+        "id": "surveys",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 417.453125,
+          "right": 1189.90625
+        },
+        "title": "Sondages et marketing",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "sri",
+        "id": "sri",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Facturation SRI",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "website",
+        "id": "website",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 268.609375,
+          "right": 1189.90625
+        },
+        "title": "Site web",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "documents",
+        "id": "documents",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Documents",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "tms",
+        "id": "gama-tms-section",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "TMS · Aujourd’hui",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "accounting",
+        "id": "accounting",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 311.40625,
+          "right": 1189.90625
+        },
+        "title": "Comptabilité",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "fleet",
+        "id": "fleet",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 348.65625,
+          "right": 1189.90625
+        },
+        "title": "Gestion de flotte",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "projects",
+        "id": "projects",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 252.15625,
+          "right": 1189.90625
+        },
+        "title": "Projets",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "assistant-ia",
+        "id": "assistant-ia",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Agent Coco",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dashboard",
+        "id": "dashboard",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dashboard",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "knowledge",
+        "id": "knowledge",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Base de connaissances",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "products",
+        "id": "products",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Produits",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "warehouses",
+        "id": "warehouses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 377.5625,
+          "right": 1189.90625
+        },
+        "title": "Entrepôts et stocks",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "gamaPurchasesV14",
+        "id": "gamaPurchasesV14",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Achats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "barcode",
+        "id": "barcode",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Codes-barres",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "quotes",
+        "id": "quotes",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 251.703125,
+          "right": 1189.90625
+        },
+        "title": "Ventes",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contacts",
+        "id": "contacts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contacts",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dossier-flow",
+        "id": "dossier-flow",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 373.109375,
+          "right": 1189.90625
+        },
+        "title": "Suivi de processus",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "returns",
+        "id": "returns",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 247.703125,
+          "right": 1189.90625
+        },
+        "title": "Retour",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "crm",
+        "id": "crm",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 229.359375,
+          "right": 1189.90625
+        },
+        "title": "CRM",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "hr",
+        "id": "hr",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 403.5625,
+          "right": 1189.90625
+        },
+        "title": "Ressources humaines",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "audit",
+        "id": "audit",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": true,
+        "nav": {
+          "top": 0,
+          "left": 305.859375,
+          "right": 1189.90625
+        },
+        "title": "Piste d’audit",
+        "duplicateHeaders": 0
+      }
+    ]
+  },
+  {
+    "viewport": "workbench-layout-every-ena-0af77-ll-width-workspace-at-768px-chromium",
+    "modules": [
+      {
+        "module": "workhub",
+        "id": "workhub",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Espace de travail",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contracts",
+        "id": "contracts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contrats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "expenses",
+        "id": "expenses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dépenses et justificatifs",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "surveys",
+        "id": "surveys",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 149,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Sondages et marketing",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "sri",
+        "id": "sri",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Facturation SRI",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "website",
+        "id": "website",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 149,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Site web",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "documents",
+        "id": "documents",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Documents",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "tms",
+        "id": "gama-tms-section",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "TMS · Aujourd’hui",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "accounting",
+        "id": "accounting",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 203,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Comptabilité",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "fleet",
+        "id": "fleet",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 149,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Gestion de flotte",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "projects",
+        "id": "projects",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 149,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Projets",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "assistant-ia",
+        "id": "assistant-ia",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Agent Coco",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dashboard",
+        "id": "dashboard",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Dashboard",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "knowledge",
+        "id": "knowledge",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Base de connaissances",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "products",
+        "id": "products",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Produits",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "warehouses",
+        "id": "warehouses",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 203,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Entrepôts et stocks",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "gamaPurchasesV14",
+        "id": "gamaPurchasesV14",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Achats",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "barcode",
+        "id": "barcode",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Codes-barres",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "quotes",
+        "id": "quotes",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 142,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Ventes",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "contacts",
+        "id": "contacts",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": null,
+        "title": "Contacts",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "dossier-flow",
+        "id": "dossier-flow",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 149,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Suivi de processus",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "returns",
+        "id": "returns",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 203,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Retour",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "crm",
+        "id": "crm",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 203,
+          "left": 20,
+          "right": 748
+        },
+        "title": "CRM",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "hr",
+        "id": "hr",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 203,
+          "left": 20,
+          "right": 748
+        },
+        "title": "Ressources humaines",
+        "duplicateHeaders": 0
+      },
+      {
+        "module": "audit",
+        "id": "audit",
+        "dialog": false,
+        "overflow": 0,
+        "contentLeft": 0,
+        "pinned": false,
+        "nav": {
+          "top": 173,
+          "left": 44,
+          "right": 724
+        },
+        "title": "Piste d’audit",
+        "duplicateHeaders": 0
+      }
+    ]
+  }
+]

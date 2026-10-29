@@ -26,6 +26,20 @@ begin
  if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:reserve';end if;
  execute replace(src,before_text,'coalesce(private.current_user_role(),'''') not in');
 
+ src:=pg_get_functiondef('private.api_gama_register_stock_movement(uuid,text,numeric,text,text)'::regprocedure);
+ before_text:='select coalesce(sum(quantity),0) into v_total_before from public.stock_quants where product_id=p_product_id;';
+ if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:manual_movement';end if;
+ execute replace(src,before_text,$gate$
+ if exists(select 1 from public.erp_policies policy join public.products product on product.id=p_product_id where policy.id and
+  ((policy.stock_adjustment_value_limit is not null and
+    (coalesce(product.purchase_price,0)<=0 or abs(v_delta)*product.purchase_price>policy.stock_adjustment_value_limit))
+   or cardinality(policy.stock_adjustment_approval_kinds)>0)) then
+  -- This legacy contract has no structured adjustment kind. Use the approval
+  -- workflow whenever it cannot establish the configured policy exception.
+  raise exception 'ADJUSTMENT_APPROVAL_REQUIRED';
+ end if;
+ $gate$||before_text);
+
  src:=pg_get_functiondef('private.gama_receive_purchase(uuid,jsonb,text)'::regprocedure);
  if src!~* '\mbegin\M' then raise exception 'SECURITY_PATCH_ANCHOR:purchase_receipt';end if;
  execute regexp_replace(src,'\mbegin\M',$gate$begin

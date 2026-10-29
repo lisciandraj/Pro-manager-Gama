@@ -15,7 +15,7 @@ async function boot(page,{width=1440,paused=false,quotes=true,contact=true,catal
  await page.route('**/category-images/*.webp',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/category-images',new URL(r.request().url()).pathname.split('/').pop()),contentType:'image/webp'}));
  await page.route('**/commerce.js*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.js'),contentType:'text/javascript'}));
  await page.route('**/commerce.css*',r=>r.fulfill({path:path.join(__dirname,'../dist-storefront/commerce.css'),contentType:'text/css'}));
- await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({contentType:'text/javascript',body:'window.turnstile={render:(el,opts)=>{window.__turnstileCallback=opts.callback;opts.callback("test-human-token");return 1},remove:()=>{},reset:()=>window.__turnstileCallback?.("test-human-token")};'}));
+ await page.route('https://challenges.cloudflare.com/**',r=>r.fulfill({contentType:'text/javascript',body:'window.turnstile={render:(el,opts)=>{const visual=document.createElement("div");visual.dataset.testid="human-widget";visual.style.cssText="width:"+(opts.size==="compact"?150:300)+"px;height:"+(opts.size==="compact"?140:65)+"px";el.append(visual);window.__turnstileCallback=opts.callback;opts.callback("test-human-token");return 1},remove:()=>document.querySelectorAll("[data-testid=human-widget]").forEach(n=>n.remove()),reset:()=>window.__turnstileCallback?.("test-human-token")};'}));
  await page.goto('/dist-storefront/index.html');
 }
 const catalogueCategories=require('../config/storefront-category-images.json').map((c,i)=>({category:c.category,title:c.category,count:100+i}));
@@ -40,6 +40,7 @@ for(const width of [320,360,390,430,600,768,1024,1440])test('full category catal
  expect(await page.locator('#productDialog').evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
  await page.locator('#detailForm [type=submit]').click();await page.locator('[data-close-dialog=productDialog]').click();await page.locator('#cartOpen').click();
  await expectContained(page,'#cartDialog, #quoteForm input:not([name=website]), #quoteForm textarea');expect(await page.locator('#cartDialog').evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
+ await expect(page.getByTestId('human-widget')).toBeVisible();expect(await page.getByTestId('human-widget').evaluate(n=>n.getBoundingClientRect().width<=n.parentElement.clientWidth)).toBe(true);
  await page.locator('[data-close-dialog=cartDialog]').click();await page.evaluate(()=>scrollTo({top:document.querySelector('#catalogo').offsetTop-150,left:0,behavior:'instant'}));await page.screenshot({path:'test-results/public-storefront-catalogue-'+width+'.png'});
 });
 for(const width of [390,1440])test('public catalogue, product details and retry-safe inquiry on '+width,async({page})=>{

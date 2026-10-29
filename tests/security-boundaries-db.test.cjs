@@ -8,7 +8,7 @@ test('security: direct reads and legacy commands preserve current authority',asy
  const owner=()=>db.exec('reset role');
  try{
   for(const id of [admin,seller,warehouse,customerLogin])await q('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[id,id+'@example.invalid']);
-  for(const [id,role]of [[admin,'administrador'],[seller,'comercial'],[warehouse,'almacenero'],[customerLogin,'cliente']])await q('update profiles set role=$2,active=true where id=$1',[id,role]);
+  for(const [id,role]of [[admin,'administrador'],[seller,'comercial'],[warehouse,'almacenero'],[customerLogin,'cliente']])await q("update profiles set role=$2,active=($2<>'cliente') where id=$1",[id,role]);
   await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);
   await q("insert into products(id,name,purchase_price,sale_price) values($1,'Security fixture',10,15)",[product]);
   const location=await one('select id from warehouse_locations where active limit 1');
@@ -30,6 +30,12 @@ test('security: direct reads and legacy commands preserve current authority',asy
   await t.test('commercial accounting scope does not expose raw bank data',async()=>{
    await as(seller);assert.equal(await one('select count(*)::int from financial_accounts where id=$1',[bank]),0);
    await as(admin);assert.equal(await one('select count(*)::int from financial_accounts where id=$1',[bank]),1);
+  });
+  await t.test('legacy manual movements cannot bypass value-based approval',async()=>{
+   await owner();await q('update erp_policies set stock_adjustment_limit=10,stock_adjustment_value_limit=5 where id');await as(warehouse);
+   await assert.rejects(one("select public.gama_register_stock_movement($1,'out',1,'Fixture adjustment',null)",[product]),/ADJUSTMENT_APPROVAL_REQUIRED/);
+   await owner();assert.equal(Number(await one('select quantity from stock_quants where product_id=$1 and location_id=$2',[product,location])),5);
+   await q('update erp_policies set stock_adjustment_value_limit=null where id');
   });
   await t.test('accounting overrides cannot restore a role-denied legacy edit',async()=>{
    await owner();await q('insert into accounting_permissions(profile_id,can_view,can_edit,can_read_all) values($1,true,true,true)',[seller]);

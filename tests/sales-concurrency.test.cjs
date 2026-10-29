@@ -39,6 +39,21 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const payments=await Promise.all(clients.map(c=>rpc(c,'gama_payment_action','payment',payment)));
   assert.equal(Number((await root.query("select count(*) from external_invoice_payments where invoice_id=$1 and status='confirmed'",[invoices[0].id])).rows[0].count),1);
   assert.equal(Number((await root.query('select sum(amount) amount from external_invoice_payments where invoice_id=$1',[invoices[0].id])).rows[0].amount),30);
+  // Separate returns share one invoice cap. Hold the existing customer posting
+  // lock until both sessions wait: one on that lock, the other on the invoice.
+  const returns=[];
+  for(let n=0;n<2;n++)returns.push((await root.query("insert into return_orders(kind,customer_id,order_id,invoice_id,reason,created_by) values('customer',$1,$2,$3,'commercial',$4) returning id",[customer,id,invoices[0].id,admin])).rows[0].id);
+  const pids=[];for(const c of clients){await c.query("set statement_timeout='8s'");pids.push((await c.query('select pg_backend_pid() pid')).rows[0].pid)}
+  await root.query('begin');await root.query('select id from customers where id=$1 for update',[customer]);
+  const competing=clients.map((c,i)=>rpc(c,'gama_returns_action','credit',{id:returns[i],amount:40}).then(value=>({value}),error=>({error})));
+  try{
+   const deadline=Date.now()+4000;let waiting=0;
+   while(Date.now()<deadline){waiting=Number((await root.query('select count(*) n from unnest($1::int[]) pid where cardinality(pg_blocking_pids(pid))>0',[pids])).rows[0].n);if(waiting===2)break;await new Promise(resolve=>setTimeout(resolve,25))}
+   assert.equal(waiting,2,'both transactions reached their bounded lock wait');
+  }finally{await root.query('commit')}
+  const credits=await Promise.all(competing);assert.equal(credits.filter(x=>x.value).length,1);assert.match(credits.find(x=>x.error).error.message,/CREDIT_EXCEEDS_INVOICE/);
+  assert.equal(Number((await root.query('select sum(amount) amount from return_credits where invoice_id=$1',[invoices[0].id])).rows[0].amount),40);
+  for(const c of clients)await c.query('set statement_timeout=0');
   // Two real sessions compete for the same last unit, then retry one
   // substitution agreement. Neither confirmation nor the amendment mints stock.
   await root.query('update customers set credit_limit=null where id=$1',[customer]);

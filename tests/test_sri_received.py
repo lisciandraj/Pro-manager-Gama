@@ -21,11 +21,21 @@ def received(version='2.0.0'):
             for tag in ['codigo','codigoRetencion','baseImponible','porcentajeRetener','valorRetenido']:element(item,tag,tax.findtext(tag))
             for tag,value in [('codDocSustento','01'),('numDocSustento','001001000000007'),('fechaEmisionDocSustento','25/09/2026')]:element(item,tag,value)
     root.append(ET.fromstring(SIG));xml=ET.tostring(root,encoding='unicode')
-    invoice={'id':'fixture','issuer_ruc':'1790012345001','customer_identification':'1719304188001','fiscal_number':'001-001-000000007','issue_date':'2026-09-25','subtotal':100,'tax':15}
+    invoice={'id':'fixture','environment':'pruebas','issuer_ruc':'1790012345001','customer_identification':'1719304188001','fiscal_number':'001-001-000000007','issue_date':'2026-09-25','subtotal':100,'tax':15}
     response={'status':'authorized','authorization':key,'authorized_at':'2026-09-27T12:00:00-05:00','authorized_xml':xml}
     return xml,invoice,response
 
 class SriReceivedTest(unittest.TestCase):
+    def test_environment_is_bound_before_authorization_lookup(self):
+        xml,invoice,response=received();calls=[]
+        def lookup(*args):calls.append(args);return response
+        for environment in ['produccion',None,'unknown']:
+            with self.subTest(environment=environment):
+                wrong={**invoice,'environment':environment}
+                with self.assertRaisesRegex(ValueError,'ENVIRONMENT_MISMATCH'):verify(xml,wrong,lookup)
+                with self.assertRaisesRegex(ValueError,'ENVIRONMENT_MISMATCH'):verify_batch(xml,[invoice,wrong],lookup)
+        self.assertEqual(calls,[])
+
     def test_both_retention_versions_use_the_actual_online_authorization(self):
         for version in ['1.0.0','2.0.0']:
             xml,invoice,response=received(version);calls=[]

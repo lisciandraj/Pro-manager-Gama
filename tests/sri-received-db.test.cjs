@@ -18,16 +18,23 @@ test('Verified received XML: automatic fiscal matching, atomic offsets, unchange
   for(let i=0;i<invoices.length;i++){
    const quote=uuid();await q("insert into invoices(id,invoice_number,quote_state,quote_details) values($1,$2,'draft','{}')",[quote,'RC-Q'+i]);
    await q("insert into external_invoices(id,request_key,order_id,number,issue_date,subtotal,tax,fiscal_status,issuer_ruc,created_by,document_kind,source_quote_id,document_snapshot,external_number) values($1,gen_random_uuid(),$2,$3,'2026-10-01',100,15,'unverified','1790012345001',$4,'internal',$5,'{}',$6)",[invoices[i],order,'DOC-RC-'+i,admin,quote,'001-001-00000000'+(i+1)]);
-   receipts.push(await one("insert into accounting_received_sri(invoice_id,access_key,issuer_ruc,number,issued_on,amount,lines,authorized_at,xml_path,xml_sha256,verified_by) values($1,$2,'1719304188001','001-001-000000004','2026-10-02',13,$3,now(),'received/test.xml',$4,$5) returning id",[invoices[i],'7'.repeat(49),JSON.stringify([{tax_kind:'income',code:'312',base:100,rate:10,amount:10},{tax_kind:'vat',code:'1',base:15,rate:20,amount:3}]),'a'.repeat(64),admin]));
+   receipts.push(await one("insert into accounting_received_sri(invoice_id,access_key,issuer_ruc,number,issued_on,amount,lines,authorized_at,xml_path,xml_sha256,verified_by) values($1,$2,'1719304188001','001-001-000000004','2026-10-02',13,$3,now(),'received/test.xml',$4,$5) returning id",[invoices[i],'7'.repeat(23)+'2'+'7'.repeat(25),JSON.stringify([{tax_kind:'income',code:'312',base:100,rate:10,amount:10},{tax_kind:'vat',code:'1',base:15,rate:20,amount:3}]),'a'.repeat(64),admin]));
   }
   await as(admin);
   await t.test('invoice matching uses RUC and fiscal number, not ERP reference',async()=>{
-   const found=await one('select gama_ec_received_match($1,$2)',['1719304188001','001001000000001']);assert.equal(found.id,invoices[0]);assert.match(found.number,/^FAC-/);
+   const found=await one('select gama_ec_received_match($1,$2)',['1719304188001','001001000000001']);assert.equal(found.id,invoices[0]);assert.equal(found.environment,'produccion');assert.match(found.number,/^FAC-/);
    await assert.rejects(one('select gama_ec_received_match($1,$2)',['1799999999001','001001000000001']),/SRI_RECEIVED_INVOICE_NOT_FOUND/);
   });
   await t.test('one bad receipt rolls back the complete batch',async()=>{
    await assert.rejects(post([receipts[0],uuid()]),/SRI_RECEIVED_VERIFICATION_REQUIRED/);
    assert.equal(await one('select count(*)::int from accounting_withholdings'),0);
+  });
+  await t.test('a previously verified test receipt cannot offset a production invoice',async()=>{
+   await db.exec('reset role');
+   await q('update accounting_received_sri set access_key=$1 where id=$2',['7'.repeat(23)+'1'+'7'.repeat(25),receipts[0]]);await as(admin);
+   await assert.rejects(post([receipts[0]]),/SRI_RECEIVED_ENVIRONMENT_MISMATCH/);
+   assert.equal(await one('select count(*)::int from accounting_withholdings'),0);
+   await db.exec('reset role');await q('update accounting_received_sri set access_key=$1 where id=$2',['7'.repeat(23)+'2'+'7'.repeat(25),receipts[0]]);await as(admin);
   });
   await t.test('all invoices are offset once, and no bank receipt is created',async()=>{
    const r=await post(receipts);assert.equal(r.rows.length,2);assert.ok(r.rows.every(x=>x.amount===13));

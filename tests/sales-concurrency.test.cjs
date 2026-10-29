@@ -53,6 +53,24 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   }finally{await root.query('commit')}
   const credits=await Promise.all(competing);assert.equal(credits.filter(x=>x.value).length,1);assert.match(credits.find(x=>x.error).error.message,/CREDIT_EXCEEDS_INVOICE/);
   assert.equal(Number((await root.query('select sum(amount) amount from return_credits where invoice_id=$1',[invoices[0].id])).rows[0].amount),40);
+  // Acquisition capacity belongs to the posted entry, not each request key.
+  // Without an early entry lock, both inserts reach the FK wait after reading
+  // the same capacity. With it, the second command reads the committed asset.
+  const asset=(await root.query("insert into accounting_accounts(code,name,type) values('RACE-ASSET','Race asset','asset') returning id")).rows[0].id;
+  const depreciation=(await root.query("insert into accounting_accounts(code,name,type) values('RACE-DEP','Race depreciation','asset') returning id")).rows[0].id;
+  const chart=(await root.query("select code,id from accounting_accounts where code in ('3000','6080')")).rows;
+  const acquisition=(await root.query("select private.gama_accounting_book('OD','2026-10-10','Acquisition fixture','manual',null,'Acquisition fixture',$1::jsonb) id",[JSON.stringify([{account_id:asset,debit:100},{account_id:chart.find(x=>x.code==='3000').id,credit:100}])])).rows[0].id;
+  const assetInputs=clients.map((_,i)=>({request_key:uuid(),name:'Concurrent asset '+i,acquired_on:'2026-10-10',cost:60,residual:0,months:3,first_depreciation:'2026-10-10',asset_account_id:asset,depreciation_account_id:depreciation,expense_account_id:chart.find(x=>x.code==='6080').id,acquisition_entry_id:acquisition}));
+  await root.query('begin');await root.query('select id from accounting_entries where id=$1 for update',[acquisition]);
+  const assetWrites=clients.map((c,i)=>rpc(c,'gama_accounting_ec','asset_save',assetInputs[i]).then(value=>({value}),error=>({error})));
+  try{
+   const deadline=Date.now()+4000;let waiting=0;
+   while(Date.now()<deadline){waiting=Number((await root.query('select count(*) n from unnest($1::int[]) pid where cardinality(pg_blocking_pids(pid))>0',[pids])).rows[0].n);if(waiting===2)break;await new Promise(resolve=>setTimeout(resolve,25))}
+   assert.equal(waiting,2,'both asset commands reached the acquisition lock');
+  }finally{await root.query('commit')}
+  const assets=await Promise.all(assetWrites);assert.equal(assets.filter(x=>x.value).length,1);assert.match(assets.find(x=>x.error).error.message,/ASSET_COST_EXCEEDED/);
+  const winner=assets.findIndex(x=>x.value);assert.deepEqual(await rpc(clients[winner],'gama_accounting_ec','asset_save',assetInputs[winner]),assets[winner].value);
+  assert.equal(Number((await root.query('select sum(cost) value from accounting_assets where acquisition_entry_id=$1',[acquisition])).rows[0].value),60);
   for(const c of clients)await c.query('set statement_timeout=0');
   // Two real sessions compete for the same last unit, then retry one
   // substitution agreement. Neither confirmation nor the amendment mints stock.

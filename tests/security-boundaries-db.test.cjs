@@ -64,6 +64,18 @@ test('security: direct reads and legacy commands preserve current authority',asy
    await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'quotes') where role='comercial'");await as(seller);
    assert.equal(await one("select private.dashboard_access('payments')"),true);
   });
+  await t.test('direct reorder policies cannot bypass product, warehouse or action restrictions',async()=>{
+   await owner();const rule=await one('insert into reorder_rules(product_id,min_quantity,max_quantity) values($1,2,10) returning id',[product]);
+   await q("insert into erp_action_permissions(role,module,allow_edit,allow_validate,allow_delete,updated_by) values('comercial','warehouses',false,false,false,$1) on conflict(role,module) do update set allow_edit=false,allow_validate=false,allow_delete=false",[admin]);
+   await as(seller);assert.equal((await q('update reorder_rules set min_quantity=3 where id=$1 returning id',[rule])).length,0);assert.equal((await q('delete from reorder_rules where id=$1 returning id',[rule])).length,0);
+   await assert.rejects(q('insert into reorder_rules(product_id,min_quantity,max_quantity) values($1,3,10)',[product]),/row-level security/);
+   await owner();assert.equal(Number(await one('select min_quantity from reorder_rules where id=$1',[rule])),2);
+   await q("update erp_action_permissions set allow_edit=true,allow_validate=true,allow_delete=true where role='comercial' and module='warehouses'");
+   await q("update role_module_access set disabled_modules=array_append(disabled_modules,'warehouses') where role='comercial'");await as(seller);
+   assert.equal((await q('update reorder_rules set min_quantity=3 where id=$1 returning id',[rule])).length,0);
+   await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'warehouses') where role='comercial'");await as(seller);
+   assert.equal((await q('update reorder_rules set min_quantity=3 where id=$1 returning id',[rule])).length,1);
+  });
   await t.test('manual GPS stays local while provider-verified cache entries remain reusable',async()=>{
    await owner();await q('update private.contact_geocode_settings set enabled=false');
    const source=await one("insert into customers(name,address,city,country,lat,lng) values('Manual GPS','Av. Boundary 123','Quito','Ecuador',-0.2,-78.5) returning id");

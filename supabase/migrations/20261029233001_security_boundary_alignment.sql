@@ -160,4 +160,52 @@ begin
  $gate$);
 end $audit$;
 
+-- Distinct commands consuming the same posted acquisition share one lock.
+-- Reversal also locks this entry, so status and remaining value are read after it.
+do $audit$
+declare src text;before_text text:='eid:=(p_data->>''acquisition_entry_id'')::uuid;';
+begin
+ src:=pg_get_functiondef('private.gama_accounting_ec_write_base(text,jsonb)'::regprocedure);
+ if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:asset_acquisition';end if;
+ execute replace(src,before_text,before_text||' perform 1 from public.accounting_entries where id=eid for update;');
+end $audit$;
+
+-- Fulfillment amendments cannot consume already performed service quantities.
+-- The canonical handler locks the same order as service completion/cancellation.
+do $audit$
+declare src text;before_text text:='coalesce((select sum(quantity) from public.sales_delivery_lines where order_line_id=l.id),0)';
+begin
+ src:=pg_get_functiondef('private.gama_fulfillment_action_before_distribution(text,jsonb)'::regprocedure);
+ if (length(src)-length(replace(src,before_text,'')))/length(before_text)<>2 then raise exception 'SECURITY_PATCH_ANCHOR:fulfillment_performed';end if;
+ execute replace(src,before_text,'private.gama_line_performed(l.id)');
+end $audit$;
+
+-- Merging into an existing replacement line keeps that line's cost snapshot.
+-- The human approval preview must price the exact same resulting order.
+do $audit$
+declare src text;before_text text;
+begin
+ src:=pg_get_functiondef('private.sales_option_review(jsonb,boolean,boolean)'::regprocedure);
+ before_text:='union all select opt.quantity,opt.unit_price,nullif(p.purchase_price,0) from public.products p where p.id=opt.replacement_product_id';
+ if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:substitution_cost';end if;
+ execute replace(src,before_text,$gate$union all select opt.quantity,opt.unit_price,
+  case when replacement.id is not null then snapshot.unit_cost else nullif(p.purchase_price,0) end
+  from public.products p left join public.sales_order_lines replacement on replacement.order_id=opt.order_id and replacement.product_id=p.id
+  left join private.order_cost_snapshots snapshot on snapshot.line_id=replacement.id
+  where p.id=opt.replacement_product_id$gate$);
+end $audit$;
+
+-- Direct threshold-policy changes obey the same product/warehouse authority as
+-- the reviewed threshold RPC, plus the requested create/edit/delete restriction.
+-- Trusted RPCs retain their own validation and atomic batch implementation.
+do $$declare operation text;permission text;gate text;begin
+ foreach operation in array array['insert','update','delete'] loop
+  permission:=case operation when 'insert' then 'create' when 'update' then 'edit' else 'delete' end;
+  gate:=format('private.erp_module_allowed(''warehouses'',array[''administrador'',''comercial'',''almacenero'']) and private.erp_module_allowed(''products'',array[''administrador'',''comercial'']) and private.erp_action_allowed(''products'',''edit'') and private.erp_action_allowed(''warehouses'',''validate'') and private.erp_action_allowed(''warehouses'',%L)',permission);
+  execute format('create policy %I on public.reorder_rules as restrictive for %s to authenticated %s %s','security_reorder_'||operation,operation,
+   case when operation<>'insert' then 'using ('||gate||')' else '' end,
+   case when operation<>'delete' then 'with check ('||gate||')' else '' end);
+ end loop;
+end $$;
+
 notify pgrst,'reload schema';

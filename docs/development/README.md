@@ -71,6 +71,8 @@ Les migrations `20261029233001` à `20261029233004` alignent les chemins histori
 
 Les contrats récurrents conservent leur auteur d'origine, mais toute sauvegarde ou reprise d'une préparation automatique engage les droits de son dernier responsable (`scheduled_by`). Elle exige le droit de créer une commande. Le traitement horaire revérifie les droits de ce responsable ; une modification ne peut donc pas utiliser implicitement les droits supérieurs d'un ancien auteur. Les contrats historiques non modifiés conservent leur responsable initial.
 
+Le budget d'une acquisition est verrouillé avant la création d'une immobilisation. Les écritures directes des seuils de réapprovisionnement respectent les modules, actions et validation exigés par leur interface. Une substitution conserve les quantités de services déjà effectuées ; lorsqu'elle rejoint une ligne existante, sa revue de marge utilise le coût mémorisé de cette ligne, comme la commande résultante.
+
 Les photos en cache échappent leurs attributs HTML. Le visualiseur de justificatifs utilise des propriétés DOM avec des URL de données PDF/image autorisées. Les exports CSV traitent les textes commençant comme des formules sans convertir les montants numériques négatifs en texte.
 
 Le workflow `audit-hardening.yml` exécute les fixtures ciblées avant ses parcours navigateur. Les contrôles de publication habituels restent requis. Les tests de concurrence utilisent exclusivement la base PostgreSQL jetable prévue par `validate-sales-concurrency.yml`. Aucun test métier ne doit viser une base connectée de production.

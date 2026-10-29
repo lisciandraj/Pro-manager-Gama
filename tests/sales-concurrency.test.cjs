@@ -72,6 +72,10 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   await root.query('insert into b2b_customer_access(customer_id,enabled,updated_by) values($1,true,$2)',[customer,admin]);
   await root.query('insert into b2b_memberships(profile_id,customer_id,updated_by) values($1,$2,$3)',[portal,customer,admin]);
   for(const c of clients)await c.query("select set_config('request.jwt.claim.sub',$1,false)",[portal]);
+  await root.query("update b2b_memberships set purchasing_role='requester' where profile_id=$1",[portal]);
+  const held=await rpc(clients[0],'gama_b2b_fulfillment','detail',{id:option.id});assert.equal(held.can_respond,false);
+  await assert.rejects(rpc(clients[0],'gama_b2b_fulfillment','respond',{id:option.id,fingerprint:held.fingerprint,decision:'accepted',agree:true,request_key:uuid()}),/COMMERCE_APPROVAL_REQUIRED/);
+  await root.query("update b2b_memberships set purchasing_role='buyer' where profile_id=$1",[portal]);
   const detail=await rpc(clients[0],'gama_b2b_fulfillment','detail',{id:option.id}),consent={id:option.id,fingerprint:detail.fingerprint,decision:'accepted',agree:true,request_key:uuid()};
   const responses=await Promise.all(clients.map(c=>rpc(c,'gama_b2b_fulfillment','respond',consent)));assert.deepEqual(responses[0],responses[1]);
   assert.equal(Number((await root.query("select count(*) from sales_events where entity_id=$1 and action='fulfillment_customer_accepted'",[option.id])).rows[0].count),1);

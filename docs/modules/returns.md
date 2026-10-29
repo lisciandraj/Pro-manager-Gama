@@ -242,3 +242,11 @@ lo que es: la devolución por un lado y un pedido nuevo por el otro.
 ## Devoluciones y posventa
 
 La navegación reúne Retours y SAV en **Devoluciones y posventa**. La pestaña **Reclamaciones** abre los expedientes de servicio existentes ; se conserva el vínculo que crea y abre una devolución desde una reclamación. Los identificadores públicos `returns` y `sav`, sus permisos, adjuntos y referencias permanecen compatibles. No se muestra una segunda baldosa SAV. Cada pestaña requiere los derechos que tenía su módulo.
+
+## Contrôles de cohérence des retours (29 octobre 2026)
+
+La désactivation du module Retours s'applique aussi aux RPC natifs et aux lectures directes de ses tables. Un retour client ne peut nommer qu'une facture du même client et de la commande d'origine ; une facture groupée doit contenir une allocation réelle pour cette commande. La vérification est répétée avant émission d'un avoir, y compris pour les retours antérieurs.
+
+Les avoirs de retours distincts verrouillent leur facture commune avant de lire le plafond restant. Un retour portant un avoir ou un remboursement ne peut plus être annulé sans traitement financier explicite. Les anciennes annulations dont les effets financiers subsistent continuent de consommer la quantité retournable ; la migration ne réécrit aucun remboursement historique. Un retour sans effet financier et sans réception reste annulable.
+
+Régressions : `tests/returns-security-db.test.cjs` pour les droits, la filiation et l'annulation ; `tests/sales-concurrency.test.cjs` pour deux sessions concurrentes sur une même facture.

@@ -35,3 +35,7 @@ La première version n'automatise pas les validations indépendantes, les transf
 `npm run update` compile et lance les contrôles communs. Les tests `coco-agent-db.test.cjs`, `coco-agent-mcp.test.mjs`, `coco-agent-planner.test.mjs` et `coco-agent-ui.spec.js` couvrent le circuit et ses refus. Les fixtures, y compris la sortie de 65 unités vers zéro, sont **isolées**, jamais chargées dans la production. `node scripts/check-agent-live.mjs` vérifie seulement la santé publique et le refus des requêtes sans authentification ; il ne déplace aucun stock.
 
 Pour prouver une sortie réelle de MED001, il faut une session ERP autorisée : lire le stock courant, préparer « tout le stock » avec le motif exact « consommation interne », confirmer, puis relire le mouvement, son numéro, son auteur et le stock. Les tests isolés et un déploiement ACTIVE ne remplacent pas cette preuve. Lors du contrôle de déploiement, le stock réel restait à 65 et aucun accès Agent Coco n'était activé.
+
+## Lot affiché lors de l'approbation (29 octobre 2026)
+
+Une proposition de stock suivie par lot contient et affiche l'identifiant, le code et la quantité du lot dans l'instantané soumis à l'approbation. Le digest existant couvre cet instantané. Une proposition antérieure sans identifiant de lot doit être préparée de nouveau ; l'exécution vérifie aussi la correspondance entre lot affiché et lot demandé. Les contrôles humains, MFA et de stock courant restent applicables.

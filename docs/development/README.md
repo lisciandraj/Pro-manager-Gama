@@ -39,7 +39,7 @@ Les sections CSS métier sont dans `src/styles/modules/` et assemblées dans l�
 ## Tests et publication
 
 Privilégier les comportements observables : mêmes droits, mêmes documents, cache sans fuite de session, reprise après échec, mobile utilisable.
-La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
+La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Actions construit, teste puis publie l’artefact `dist/` sur GitHub Pages. Les migrations SQL, Edge Functions et le service SRI ont des déploiements distincts.
 
 Ne jamais exécuter une fixture de test contre la base de production. Les tests SRI simulés ne remplacent pas l’autorisation réelle du SRI ni un essai de signature avec le service privé.
 
@@ -64,3 +64,13 @@ La revue du 5 octobre complète la préparation 07 à la validation fournisseur/
 Les libellés de l’ERP sont disponibles en espagnol, français et anglais. Ajouter les textes espagnols et leurs traductions relues dans `locales/catalog.tsv`, puis exécuter `npm run build:i18n`. Le compilateur annote les textes statiques des sources et les attributs de présentation (placeholder, titre, aria-label, alt). Isoler les libellés dynamiques avec `data-gi-live` ou `data-gi-source` ; ne jamais marquer un conteneur de noms de produits, clients ou de saisies utilisateur. Les composants partagés conservent la source des titres, champs et colonnes pour changer de langue sans reconstruire le formulaire. Les statuts se traduisent à l’affichage ; leurs valeurs métier ne changent pas.
 
 Le mode chauffeur charge aussi le moteur de langue et met le catalogue en cache lors du téléchargement de la tournée. Vérifier les tests `i18n.spec.js`, `i18n-coverage.spec.js` et `i18n-hr.spec.js` après toute évolution des fenêtres ; ils couvrent les langues, les modules et onglets, les fenêtres TMS et la conservation des valeurs saisies.
+
+## Maintenance des frontières d'autorisation (29 octobre 2026)
+
+Les migrations `20261029233001` à `20261029233004` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
+
+Les contrats récurrents conservent leur auteur d'origine, mais toute sauvegarde ou reprise d'une préparation automatique engage les droits de son dernier responsable (`scheduled_by`). Elle exige le droit de créer une commande. Le traitement horaire revérifie les droits de ce responsable ; une modification ne peut donc pas utiliser implicitement les droits supérieurs d'un ancien auteur. Les contrats historiques non modifiés conservent leur responsable initial.
+
+Les photos en cache échappent leurs attributs HTML. Le visualiseur de justificatifs utilise des propriétés DOM avec des URL de données PDF/image autorisées. Les exports CSV traitent les textes commençant comme des formules sans convertir les montants numériques négatifs en texte.
+
+Le workflow `audit-hardening.yml` exécute les fixtures ciblées avant ses parcours navigateur. Les contrôles de publication habituels restent requis. Les tests de concurrence utilisent exclusivement la base PostgreSQL jetable prévue par `validate-sales-concurrency.yml`. Aucun test métier ne doit viser une base connectée de production.

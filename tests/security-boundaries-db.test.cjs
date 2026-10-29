@@ -31,10 +31,22 @@ test('security: direct reads and legacy commands preserve current authority',asy
    await as(seller);assert.equal(await one('select count(*)::int from financial_accounts where id=$1',[bank]),0);
    await as(admin);assert.equal(await one('select count(*)::int from financial_accounts where id=$1',[bank]),1);
   });
+  await t.test('the legacy partial receipt requires purchase validation permission',async()=>{
+   await owner();const supplier=await one("insert into suppliers(name) values('Receipt security fixture') returning id");await as(admin);
+   const order=await one('select gama_purchase_save($1::jsonb)',[JSON.stringify({request_key:uuid(),supplier_id:supplier,lines:[{product_id:product,quantity:2,unit_cost:10,tax_rate:0}]})]);
+   await owner();await q("update purchase_orders set status='sent' where id=$1",[order.id]);const line=await one('select id from purchase_order_lines where purchase_order_id=$1',[order.id]);
+   await q("insert into erp_action_permissions(role,module,allow_validate,updated_by) values('almacenero','gamaPurchasesV14',false,$1) on conflict(role,module) do update set allow_validate=false",[admin]);await as(warehouse);
+   const data=JSON.stringify([{line_id:line,quantity:1,location_id:location}]);
+   await assert.rejects(one('select gama_receive_purchase($1,$2::jsonb,$3)',[order.id,data,'Fixture receipt']),/ACTION_NOT_ALLOWED/);
+   await owner();assert.equal(Number(await one('select received_quantity from purchase_order_lines where id=$1',[line])),0);
+   await q("update erp_action_permissions set allow_validate=true where role='almacenero' and module='gamaPurchasesV14'");await as(warehouse);
+   await one('select gama_receive_purchase($1,$2::jsonb,$3)',[order.id,data,'Fixture receipt']);
+   await owner();assert.equal(Number(await one('select received_quantity from purchase_order_lines where id=$1',[line])),1);
+  });
   await t.test('legacy manual movements cannot bypass value-based approval',async()=>{
    await owner();await q('update erp_policies set stock_adjustment_limit=10,stock_adjustment_value_limit=5 where id');await as(warehouse);
    await assert.rejects(one("select public.gama_register_stock_movement($1,'out',1,'Fixture adjustment',null)",[product]),/ADJUSTMENT_APPROVAL_REQUIRED/);
-   await owner();assert.equal(Number(await one('select quantity from stock_quants where product_id=$1 and location_id=$2',[product,location])),5);
+   await owner();assert.equal(Number(await one('select quantity from stock_quants where product_id=$1 and location_id=$2',[product,location])),6);
    await q('update erp_policies set stock_adjustment_value_limit=null where id');
   });
   await t.test('accounting overrides cannot restore a role-denied legacy edit',async()=>{
@@ -51,6 +63,17 @@ test('security: direct reads and legacy commands preserve current authority',asy
    assert.equal(await one("select private.dashboard_access('payments')"),false);assert.equal(await one("select private.dashboard_access('sales-orders')"),false);
    await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'quotes') where role='comercial'");await as(seller);
    assert.equal(await one("select private.dashboard_access('payments')"),true);
+  });
+  await t.test('manual GPS stays local while provider-verified cache entries remain reusable',async()=>{
+   await owner();await q('update private.contact_geocode_settings set enabled=false');
+   const source=await one("insert into customers(name,address,city,country,lat,lng) values('Manual GPS','Av. Boundary 123','Quito','Ecuador',-0.2,-78.5) returning id");
+   const other=await one("insert into customers(name,address,city,country) values('Different customer','Av. Boundary 123','Quito','Ecuador') returning id");
+   assert.equal(await one('select lat from customers where id=$1',[other]),null);
+   assert.equal(await one('select lat from customers where id=$1',[source]),-0.2);
+   const key=await one("select private.contact_address_key(to_jsonb(c)) from customers c where id=$1",[source]);
+   await q("update private.contact_geocode_cache set source='Photon / OpenStreetMap contributors' where address_key=$1",[key]);
+   await one("select private.contact_geocode_enqueue('customers',$1)",[other]);
+   assert.equal(await one('select lat from customers where id=$1',[other]),-0.2);
   });
  }finally{await db.close()}
 });

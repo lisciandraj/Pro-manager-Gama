@@ -123,3 +123,9 @@ Un en-tête unique regroupe le titre, l’environnement fiscal, l’envoi de la 
 La barre de recherche et les commandes Date, Colonnes et Exporter CSV précèdent le tableau et son panneau de contrôle. L’export CSV concerne uniquement les factures de la page affichée et nécessite le droit d’export. La sélection en tête du tableau et les cases de ligne alimentent le même total et les deux boutons d’envoi ; la copie de l’en-tête réutilise l’action existante et son verrouillage.
 
 Le panneau **Contrôle avant envoi** contient l’identité de la facture, les contrôles vérifiés par l’API, les états interne et fiscal distincts et les documents XML/RIDE. Les valeurs inconnues restent « Non vérifié ». Les paramètres de préparation, les détails de facture et les liens du dossier sont repliables. Une tentative de préparation sans moyen de paiement ouvre les paramètres et place le focus sur le choix requis. Les confirmations d’envoi, l’arrêt d’un lot incertain et l’interdiction de réémission sont inchangés.
+
+## Environnement des retenues reçues (29 octobre 2026)
+
+Le rapprochement renvoie désormais l'environnement de la facture : dossier SRI associé en priorité, sinon clé électronique externe, sinon production pour une créance ordinaire sans clé. Le vérificateur Python, l'Edge Function et la comptabilisation SQL exigent que la clé de la retenue utilise ce même environnement. Un reçu ancien incompatible est refusé à la comptabilisation ; aucune donnée historique n'est modifiée automatiquement.
+
+Déployer la migration `20261029233002_received_sri_environment.sql`, le service privé `services/sri` et `gama-sri-received` de façon coordonnée. Le service renvoie désormais `environment` dans chaque preuve vérifiée. Une ancienne version du service ne satisfait pas le nouveau contrat Edge et l'import reste alors bloqué. La publication des sites ne déploie pas ce service privé. Les tests utilisent uniquement des réponses SRI simulées.

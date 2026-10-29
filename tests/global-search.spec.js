@@ -37,3 +37,16 @@ test('Knowledge opens the selected article, responsive layout and translations',
  await page.locator('#gspList [role=option]').filter({hasText:'Procédure Coca Cola'}).click();await expect(page.locator('#gkArticleTitle')).toHaveText('Procédure Coca Cola');
  await page.setViewportSize({width:1440,height:1000});await page.evaluate(()=>GamaI18n.setLanguage('en'));await page.keyboard.press('Control+k');await expect(page.locator('#gspInput')).toHaveAttribute('placeholder','Search Coco ERP…');await page.locator('#gspInput').fill('unpaid invoices');await expect(page.locator('#gspHint')).toContainText('Unpaid invoices');await expect(page.locator('#gspList')).toContainText('FAC-00000283');await page.screenshot({path:'test-results/spotlight-desktop.png'});
 });
+
+for(const language of ['fr','es','en'])for(const width of [1440,390])test(`contact search shows one complete name in ${language} at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await boot(page);await page.evaluate(language=>GamaI18n.setLanguage(language),language);
+ await page.evaluate(()=>__searchData.crm_contacts.push({id:'k2',first_name:'María del Carmen Peña',last_name:null,active:true}));
+ await search(page,'Juan Perez');await page.locator('#gspList [role=option]').filter({hasText:'Juan Pérez'}).click();
+ await expect(page.locator('.gspRecord h2')).toHaveText('Juan Pérez');
+ const fields=await page.locator('.gspRecord dt').allTextContents();
+ for(const label of ['Prénom','Apellidos','First name','Last name','first_name','last_name'])expect(fields).not.toContain(label);
+ await expect(page.locator('.gspRecord dl')).not.toContainText('Pérez');
+ await page.locator('.gspRecord [data-close]').click();await search(page,'pena carmen');
+ await page.locator('#gspList [role=option]').filter({hasText:'María del Carmen Peña'}).click();await expect(page.locator('.gspRecord h2')).toHaveText('María del Carmen Peña');
+ expect(await page.locator('.gspRecord').evaluate(d=>d.scrollWidth<=d.clientWidth)).toBe(true);
+});

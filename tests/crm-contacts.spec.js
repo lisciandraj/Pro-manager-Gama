@@ -122,8 +122,7 @@ test.describe('CRM — Contactos', () => {
     await page.click('#crmKNuevo');
     await page.waitForTimeout(400);
     await page.selectOption('#crmKCliente', 'c2');
-    await page.fill('#crmKFirst', 'Elena');
-    await page.fill('#crmKLast', 'Paredes');
+    await page.fill('#crmKFullName', 'Elena Paredes');
     await page.fill('#crmKJob', 'Gerente general');
     await page.fill('#crmKEmail', 'elena@sur.ec');
     await page.selectOption('#crmKRol', 'decisor');
@@ -132,8 +131,9 @@ test.describe('CRM — Contactos', () => {
 
     const k = await db(page, () =>
       // @ts-ignore
-      window.__DB.crm_contacts.find(x => x.last_name === 'Paredes'));
+      window.__DB.crm_contacts.find(x => x.first_name === 'Elena Paredes'));
     expect(k.customer_id).toBe('c2');
+    expect(k.last_name).toBeNull();
     expect(k.lead_id).toBeNull();          // uno u otro, nunca los dos
     expect(k.decision_role).toBe('decisor');
     expect(k.is_primary).toBe(false);
@@ -155,7 +155,7 @@ test.describe('CRM — Contactos', () => {
     await expect(page.locator('#crmKCajaProspecto')).toBeVisible();
     await expect(page.locator('#crmKCajaCliente')).toBeHidden();
     // Cambiar de tipo no puede borrar lo ya escrito.
-    await expect(page.locator('#crmKFirst')).toHaveValue('Beto');
+    await expect(page.locator('#crmKFullName')).toHaveValue('Beto Salas');
     await page.selectOption('#crmKProspecto', 'l1');
     await page.click('#crmKGuardar');
     await page.waitForTimeout(700);
@@ -172,13 +172,13 @@ test.describe('CRM — Contactos', () => {
 
     await page.click('#crmKNuevo');
     await page.waitForTimeout(400);
-    await page.fill('#crmKFirst', 'Nadie');
+    await page.fill('#crmKFullName', 'Nadie');
     await page.click('#crmKGuardar');           // sin elegir cliente
     await page.waitForTimeout(400);
     await expect(page.locator('#crmMsg')).toContainText('Elige el cliente');
 
     await page.selectOption('#crmKCliente', 'c2');
-    await page.fill('#crmKFirst', '');
+    await page.fill('#crmKFullName', '');
     await page.click('#crmKGuardar');           // sin nombre ni correo
     await page.waitForTimeout(400);
     await expect(page.locator('#crmMsg')).toContainText('al menos un nombre');

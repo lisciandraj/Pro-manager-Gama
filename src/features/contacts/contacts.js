@@ -27,8 +27,7 @@ const FIELDS={
  country:{label:'País',maxLength:120},
  postalCode:{label:'Código postal',maxLength:30},
  lead:{label:'Prospecto',type:'select',required:true},
- firstName:{label:'Nombre',maxLength:120},
- lastName:{label:'Apellidos',maxLength:120},
+ fullName:{label:'Nombre del contacto',maxLength:241},
  jobTitle:{label:'Cargo',maxLength:120},
  role:{label:'Papel en la decisión',type:'select',options:PAPELES},
  phone2:{label:'Otro teléfono',type:'tel',maxLength:80},
@@ -55,8 +54,8 @@ const SHARED_PROFILE=['website','industry','language'];
 const LAYOUT={
  clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'identKind',...COORDINATES,...SHARED_PROFILE,'category','terms','notes'],
  suppliers:['name','ident','identKind','contactName',...COORDINATES,...SHARED_PROFILE,'notes'],
- people:['customer','firstName','lastName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes'],
- prospects:['lead','firstName','lastName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes']
+ people:['customer','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes'],
+ prospects:['lead','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes']
 };
 const ARCHIVE='contacts',PAGE=20;
 let directoryUnavailable=false,pageRows=[];
@@ -67,6 +66,7 @@ const kinds=()=>KINDS.filter(k=>can(k.id));
 const kindOf=id=>KINDS.find(k=>k.id===id);
 const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const clean=v=>{const s=String(v??'').trim();return s||null};
+const personName=(x={})=>[x.first_name,x.last_name].filter(Boolean).join(' ').trim();
 function section(){let s=$('contacts');if(!s){s=document.createElement('section');s.id='contacts';(document.querySelector('.wrap')||document.body).append(s)}return s}
 const active=()=>window.ArcRouter.current==='contacts'&&section().classList.contains('active');
 const leadName=l=>String(l.company||'').trim()||[l.first_name,l.last_name].filter(Boolean).join(' ').trim()||T('(sin nombre)');
@@ -86,7 +86,7 @@ async function load(){
   D.all('crm_leads',{select:'id,company,first_name,last_name,address,city,province,postal_code,country,active',order:'id'},true)]).then(([k,l])=>{
   found=take(l);const byId=new Map(found.map(x=>[x.id,x]));
   for(const x of take(k)){if(!x.lead_id&&!x.customer_id)continue;const lead=byId.get(x.lead_id)||{},kind=x.customer_id?'people':'prospects';
-   const name=[x.first_name,x.last_name].filter(Boolean).join(' ').trim()||x.email||T('(sin nombre)');
+   const name=personName(x)||x.email||T('(sin nombre)');
    out.push({key:kind+':'+x.id,kind,id:x.id,name,detail:[x.job_title,x.is_primary?T('★ Principal'):''].filter(Boolean).join(' · '),
     ref:lead.id?leadName(lead):'',phone:x.phone,email:x.email,city:x.address_mode==='own'?x.city:lead.city,active:x.active!==false,record:x})}}));
  await Promise.all(jobs);
@@ -141,7 +141,6 @@ const extraColumns=[
  ['contactName','Persona de contacto',r=>r.record.contactName],
  ['category','Categoría de precios',r=>r.kind==='clients'?r.record.category:null],
  ['terms','Plazo de pago (días)',r=>r.kind==='clients'?r.record.paymentTermsDays:null],
- ['firstName','Nombre de pila',r=>r.record.first_name],['lastName','Apellidos',r=>r.record.last_name],
  ['jobTitle','Cargo',r=>r.record.job_title],
  ['role','Papel en la decisión',r=>r.record.decision_role?T(PAPELES.find(p=>p[0]===r.record.decision_role)?.[1]||r.record.decision_role):null],
  ['linkedin','LinkedIn',r=>r.record.linkedin],['primary','Contacto principal',r=>['prospects','people'].includes(r.kind)?T(r.record.is_primary?'Sí':'No'):null],
@@ -186,7 +185,7 @@ function fromRecord(kind,x){
   website:x.website,industry:x.industry,language:x.language,notes:x.notes};
  if(kind==='clients')return {...common,name:x.name,category:x.category||'A',terms:x.paymentTermsDays??''};
  if(kind==='suppliers')return {...common,name:x.name,contactName:x.contactName};
- return {...common,customer:x.customer_id,lead:x.lead_id,firstName:x.first_name,lastName:x.last_name,jobTitle:x.job_title,role:x.decision_role,
+ return {...common,customer:x.customer_id,lead:x.lead_id,fullName:personName(x),jobTitle:x.job_title,role:x.decision_role,
   addressMode:x.address_mode||'parent',linkedin:x.linkedin,primary:!!x.is_primary};
 }
 async function openRecord(kind,id){
@@ -209,7 +208,7 @@ function fieldsHtml(kind){
    maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
  });
  const keys=LAYOUT[kind].map(e=>Array.isArray(e)?e[0]:e);
- const groups=[['Identidad',['name','ident','identKind','customer','lead','firstName','lastName']],['Datos de contacto',['contactName','phone','phone2','email','website']],['Dirección',['addressMode','address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','industry','language']],['Observaciones',['notes']]];
+ const groups=[['Identidad',['name','ident','identKind','customer','lead','fullName']],['Datos de contacto',['contactName','phone','phone2','email','website']],['Dirección',['addressMode','address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','industry','language']],['Observaciones',['notes']]];
  const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
  const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
  const gpsHint={es:'Para localizar la dirección, indica la calle, el número y la ciudad. Las coordenadas guardadas se utilizan en la planificación TMS. Geocodificación: Photon / © OpenStreetMap contributors.',fr:'Pour localiser l’adresse, renseignez la rue, le numéro et la ville. Les coordonnées enregistrées sont utilisées pour la planification TMS. Géocodage : Photon / © OpenStreetMap contributors.',en:'To locate the address, enter the street, number and city. Saved coordinates are used for TMS planning. Geocoding: Photon / © OpenStreetMap contributors.'}[window.GamaI18n?.language||'es'];
@@ -283,9 +282,12 @@ async function save(){
   }else data.contact_name=clean(d.contactName);
  }else{
   Object.assign(data,{customer_id:kind==='people'?clean(d.customer):null,lead_id:kind==='prospects'?clean(d.lead):null,
-   first_name:clean(d.firstName),last_name:clean(d.lastName),job_title:clean(d.jobTitle),decision_role:clean(d.role),linkedin:clean(d.linkedin),is_primary:!!d.primary,address_mode:d.addressMode||'parent'});
+   first_name:clean(d.fullName),last_name:null,job_title:clean(d.jobTitle),decision_role:clean(d.role),linkedin:clean(d.linkedin),is_primary:!!d.primary,address_mode:d.addressMode||'parent'});
+  // Keep historical components byte-for-byte unless the user changes the name.
+  // New/renamed contacts use the existing columns without guessing a name split.
+  if(editing&&clean(d.fullName)===clean(personName(editing.record))){data.first_name=editing.record.first_name;data.last_name=editing.record.last_name}
   if(!data.customer_id&&!data.lead_id)throw Error(T('Elige el prospecto al que pertenece el contacto.'));
-  if(!(data.first_name||data.last_name||data.email))throw Error(T('Un contacto necesita al menos un nombre, unos apellidos o un correo.'));
+  if(!(data.first_name||data.last_name||data.email))throw Error(T('Un contacto necesita al menos un nombre o un correo.'));
  }
  const result=await window.ArcData.rpc('coco_contact_save',{p_kind:kind,p_id:editing?.id||null,p_data:data,p_version:editing?.record?._contactVersion??null});
  if(!result?.record)throw Error('CONTACT_INVALID_RESPONSE');

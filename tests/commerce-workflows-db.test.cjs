@@ -55,6 +55,15 @@ test('commerce: verified reviews, guest idempotency, tenant isolation and two-st
   await assert.rejects(one('select public.gama_b2b_storefront($1,$2::jsonb)',['product',JSON.stringify({id:product})]),/WEBSITE_PRODUCT_NOT_FOUND/);
   await assert.rejects(one("select private.gama_b2b_action_before_ecommerce('submit','{}')"),/permission denied/);
   await as(admin);await catalogue('save',{customer_id:customer,restricted:false,references:''});
+  // Recurring confirmations also wait for every approval, without a request FK error.
+  await as(requester);const recurring=(a,d={})=>one('select public.gama_b2b_recurring($1,$2::jsonb)',[a,JSON.stringify(d)]);
+  const date=await one("select (now() at time zone private.erp_timezone())::date::text");
+  await recurring('save',{name:'Monthly supplies',lines,frequency:'monthly',next_date:date,interval_count:1,active:true});
+  const occurrence=(await recurring('list')).occurrences[0];const basket=await recurring('preview',{id:occurrence.id});
+  const recurringPayload={id:occurrence.id,price_hash:basket.price_hash};const held=await recurring('confirm',recurringPayload);assert.equal(held.approval_required,true);
+  assert.equal((await recurring('confirm',recurringPayload)).id,held.id);
+  for(const actor of [approver,approver2]){await as(actor);const detail=await b2b('approval_detail',{id:held.id});await b2b('approval_approve',{id:held.id,version:detail.version,price_hash:detail.cart.price_hash})}
+  await as(requester);const finished=(await recurring('list')).occurrences.find(x=>x.id===occurrence.id);assert.ok(finished.request_id);assert.equal(finished.approval_id,held.id);
   await as(admin);const conn=await one("select public.gama_website('public_connection','{}')");
   await as(null);await q("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':conn.token})]);
   const guestLines=[{product_id:product,quantity:1},{product_id:zero,quantity:2}],gp=await commerce('preview',{lines:guestLines});assert.equal(gp.subtotal,18);assert.equal(gp.tax,1.5);assert.equal(gp.total,19.5);

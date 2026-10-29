@@ -20,6 +20,7 @@ create table private.commerce_approvals(
  created_at timestamptz not null default now(),updated_at timestamptz not null default now()
 );
 create index commerce_approvals_scope on private.commerce_approvals(customer_id,status,created_at desc);
+alter table private.recurring_occurrences add column approval_id uuid references private.commerce_approvals;
 create table private.commerce_guest_orders(
  id uuid primary key default gen_random_uuid(), request_key uuid not null unique,
  request_id uuid not null unique references public.customer_requests,
@@ -211,6 +212,7 @@ declare cid uuid:=private.gama_b2b_customer();role_name text;result jsonb;v_cart
   select min(stage) into next_stage from private.commerce_approvers where customer_id=cid and requester_id=a.created_by and stage>a.stage;
   if next_stage is null then
    result:=private.gama_b2b_action_before_ecommerce('submit',a.payload||jsonb_build_object('request_key',a.id,'price_hash',v_cart->'price_hash'));
+   update private.recurring_occurrences set request_id=(result->>'id')::uuid where approval_id=a.id;
   end if;
   update private.commerce_approvals set status=case when next_stage is null then 'approved' else 'pending' end,stage=coalesce(next_stage,stage),
    request_id=case when next_stage is null then (result->>'id')::uuid else request_id end,version=version+1,updated_at=now(),
@@ -228,6 +230,18 @@ declare cid uuid:=private.gama_b2b_customer();role_name text;result jsonb;v_cart
 end $$;
 revoke all on function private.gama_b2b_action(text,jsonb) from public,anon;
 grant execute on function private.gama_b2b_action(text,jsonb) to authenticated;
+
+-- A recurring proposal can submit an approval instead of a commercial request.
+-- Retain its idempotent result and link the request only after the last decision.
+do $$declare body text;begin
+ select pg_get_functiondef('private.gama_recurring_orders(text,jsonb,boolean)'::regprocedure) into body;
+ if strpos(body,'request_id=(result->>''id'')::uuid,confirmation=payload')=0 then raise exception 'COMMERCE_RECURRING_ANCHOR';end if;
+ body:=replace(body,'jsonb_build_object(''id'',o.request_id,''existing'',true)',
+  'jsonb_build_object(''id'',coalesce(o.request_id,o.approval_id),''existing'',true,''approval_required'',o.approval_id is not null and o.request_id is null)');
+ body:=replace(body,'request_id=(result->>''id'')::uuid,confirmation=payload',
+  'request_id=case when result->>''approval_required''=''true'' then null else (result->>''id'')::uuid end,approval_id=case when result->>''approval_required''=''true'' then (result->>''id'')::uuid else null end,confirmation=payload');
+ execute body;
+end $$;
 
 alter function private.gama_b2b_admin(text,jsonb) rename to gama_b2b_admin_before_ecommerce;
 revoke all on function private.gama_b2b_admin_before_ecommerce(text,jsonb) from public,anon,authenticated,service_role;

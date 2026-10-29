@@ -141,6 +141,12 @@ async function customerFixture(page,{restore=false}={}){
  if(a==='list')data={total:1,items:[proposal]};
  if(a==='detail')data={...proposal,currency:'USD',address:'Quito',product:{name:'Papel original',reference:'PAP',unit_price:50,tax_rate:15},replacement:{name:'Papel equivalente',reference:'REP',unit_price:40,tax_rate:15},original_total:115,proposed_total:92,fingerprint:'portal-fingerprint',can_respond:!window.__PORTAL_CONSENT,current:true,notes:'',promised_date:null};
  if(a==='respond'){window.__PORTAL_CONSENT=d.decision;data={id:d.id,decision:d.decision,confirmation_pending:true};}
+ }else if(window.__APPROVAL_FIXTURE&&['approvals','approval_detail','approval_edit','approval_approve'].includes(a)){
+ const id='40000000-0000-4000-8000-000000000001',lines=window.__APPROVAL_LINES||[{product_id:ps[0].id,quantity:2,name:ps[0].name,unit_price:4,total:9.2}];
+ if(a==='approvals')data=[{id,version:window.__APPROVAL_VERSION||1,status:'pending',stage:1,total:9.2,requester:'Comprador',created_at:'2026-10-29'}];
+ if(a==='approval_detail')data={id,version:window.__APPROVAL_VERSION||1,status:'pending',stage:1,can_decide:true,cart:{lines,total:9.2,price_hash:'reviewed'},decisions:[]};
+ if(a==='approval_edit'){window.__APPROVAL_LINES=d.lines;window.__APPROVAL_VERSION=2;data={saved:true}}
+ if(a==='approval_approve')data={approved:true,complete:true};
  }else if(a==='bootstrap')data={customer:{name:window.__CUSTOMER_NAME,identification:'1790012345001',category:'B'},currency:'USD',total:95,overdue:0,today:'2026-10-07',addresses:[]};
  else if(a==='favorites')data=[];
  else if(a==='preview')data={total:d.lines.reduce((n,l)=>n+l.quantity*4.6,0),price_hash:'reviewed',lines:d.lines.map(l=>({...l,name:'Café para oficina',unit_price:4,tax_rate:15,total:l.quantity*4.6}))};
@@ -232,8 +238,24 @@ for(const width of [390,1440])test('guest billing, mixed totals review and recei
  await page.locator('#quoteForm [name=contact_name]').fill('Cliente Invitado');await page.locator('#quoteForm [name=email]').fill('invitado@example.invalid');await page.locator('#quoteForm [name=phone]').fill('0999999999');
  await page.locator('[name=billing_name]').fill('Cliente Invitado');await page.locator('[name=identification]').fill('1799999999001');await page.locator('[name=city]').fill('Quito');await page.locator('[name=billing_address]').fill('Calle de prueba 123');await page.locator('[name=consent]').check();await page.locator('[name=terms_accepted]').check();
  await page.locator('#quoteSend').click();await expect(page.locator('#checkoutAmounts')).toContainText('23,00');await expect(page.locator('#checkoutAmounts')).toContainText('3,00');await expect(page.getByRole('button',{name:'Pagar en línea'})).toBeDisabled();
- expect(await page.evaluate(()=>window.__CHECKOUT)).toBeUndefined();await page.locator('#quoteSend').click();await expect(page.locator('#quoteStatus')).toContainText('COT-GUEST-001');
+ expect(await page.evaluate(()=>window.__CHECKOUT)).toBeUndefined();await page.screenshot({path:'test-results/gama-guest-review-'+width+'.png',fullPage:true});await page.locator('#quoteSend').click();await expect(page.locator('#quoteStatus')).toContainText('COT-GUEST-001');
  const sent=await page.evaluate(()=>window.__CHECKOUT);expect(sent.billing.identification).toBe('1799999999001');expect(sent.price_hash).toBe('current-prices');expect(sent.terms_accepted).toBe(true);expect(sent.human_token).toBe('test-human-token');
  expect(await page.evaluate(()=>Object.values(sessionStorage).join(' '))).not.toContain('invitado@example.invalid');expect(await page.evaluate(()=>Object.values(sessionStorage).join(' '))).not.toContain('1799999999001');
  await expectContained(page,'#cartDialog,#billingFields,.order-summary');
+});
+
+
+for(const width of [390,1440])test('verified guest review keeps bot verification inside the active dialog at '+width,async({page})=>{
+ await page.addInitScript(()=>sessionStorage.setItem('gama.guest.receipts',JSON.stringify([{id:'20000000-0000-4000-8000-000000000001',access_token:'30000000-0000-4000-8000-000000000001',reference:'COT-001'}])));
+ await boot(page,{width});await page.route('**/api/storefront',async route=>{const {p_action:a,p_data:d}=route.request().postDataJSON();if(a==='commerce_review_eligibility')return route.fulfill({json:{eligible:true}});if(a==='commerce_review_save'){await page.evaluate(d=>window.__REVIEW=d,d);return route.fulfill({json:{saved:true}})}return route.fallback()});
+ await page.locator('#siteProducts .product-name').first().click();await expect(page.locator('.review-form')).toBeVisible();await expect(page.locator('.review-form #humanVerification')).toHaveCount(1);
+ await page.locator('.review-form [name=rating]').selectOption('4');await page.locator('.review-form [name=body]').fill('Buen producto para la oficina.');await page.locator('.review-form [type=submit]').click();await expect(page.locator('.review-form')).toContainText('Opinión publicada');expect((await page.evaluate(()=>window.__REVIEW)).human_token).toBe('test-human-token');
+ await page.locator('[data-close-dialog=productDialog]').click();await page.locator('#siteProducts [data-add]').first().click();await page.locator('#cartOpen').click();await expect(page.locator('#quoteForm #humanVerification')).toHaveCount(1);await expectContained(page,'#cartDialog');
+});
+for(const width of [390,1440])test('approver edits quantities, adds products and submits a revised approval at '+width,async({page})=>{
+ await customerFixture(page);await boot(page,{width});await loginCustomer(page);await page.evaluate(()=>window.__APPROVAL_FIXTURE=true);
+ await page.locator('[data-tab=approvals]').click();await page.getByRole('button',{name:'Revisar solicitud',exact:true}).click();await expect(page.locator('[data-approval-decision=approve]')).toBeVisible();await page.locator('[data-approval-edit]').click();
+ await page.locator('#content [data-qty]').fill('4');await page.locator('#content [data-qty]').press('Tab');await page.locator('[data-edit-catalog]').click();await page.locator('#siteProducts [data-add]').nth(1).click();await page.locator('[data-tab=cart]').click();await expect(page.locator('#content [data-qty]')).toHaveCount(2);
+ await page.locator('#cartPreview').click();await expect(page.locator('#orderForm [type=submit]')).toBeEnabled();await page.locator('#orderForm [type=submit]').click();await expect(page.locator('#content h2')).toHaveText('Aprobaciones de compra');
+ const calls=await page.evaluate(()=>__CUSTOMER_CALLS.filter(x=>x.p_action==='approval_edit'));expect(calls).toHaveLength(1);expect(calls[0].p_data.lines).toHaveLength(2);expect(calls[0].p_data.lines[0].quantity).toBe(4);expect(calls[0].p_data.version).toBe(1);await expectContained(page,'#content');await page.screenshot({path:'test-results/gama-approvals-'+width+'.png',fullPage:true});
 });

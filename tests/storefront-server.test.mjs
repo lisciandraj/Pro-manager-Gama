@@ -33,3 +33,10 @@ test('bot verification rejects forged, expired, wrong-host and wrong-action toke
  }
  const r=await onRequest({request:request('commerce_checkout'),env:secureEnv,fetcher:withHuman(async(url,options)=>{assert.ok(url.endsWith('/gama_commerce'));const data=JSON.parse(options.body);assert.equal(data.p_action,'checkout');assert.equal(data.p_data.human_token,undefined);assert.equal(data.p_data.visitor,'198.51.100.5');return Response.json({payment_enabled:false})})});assert.equal(r.status,200);
 });
+test('rights/returns and review withdrawal require the same origin, human proof and server-only credential',async()=>{
+ for(const action of ['commerce_case_submit','commerce_review_delete']){
+  let calls=0;const denied=await onRequest({request:request(action),env:secureEnv,fetcher:()=>{calls++;assert.fail()}});assert.equal(denied.status,400);assert.equal(calls,0);
+  const r=await onRequest({request:request(action,{human_token:'test-human-token',visitor:'forged',email:'private@example.invalid'}),env:secureEnv,fetcher:withHuman(async(url,o)=>{assert.ok(url.endsWith('/gama_commerce'));assert.equal(o.headers['x-coco-site-token'],token);const d=JSON.parse(o.body);assert.equal(d.p_data.visitor,'198.51.100.5');assert.equal(d.p_data.human_token,undefined);return Response.json({reference:'GAMA-TEST'})})});assert.equal(r.status,200);
+ }
+ const r=await onRequest({request:request('bootstrap'),env:secureEnv,fetcher:async()=>Response.json({policies:{version:'content-bound-version',documents:{terms:'terms'}},settings:{}})});assert.equal((await r.json()).commerce.policy_version,'content-bound-version');
+});

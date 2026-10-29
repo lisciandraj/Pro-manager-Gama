@@ -136,6 +136,7 @@
     {"source":"src/features/projects/integration.js","output":"coco-project-integration.js"},
     {"source":"src/domain/accounting-ecuador.js","output":"gama-accounting-ec.js"},
     {"source":"src/features/website/store-admin.js","output":"gama-store-admin.js"},
+    {"source":"src/features/website/compliance-admin.js","output":"gama-compliance-admin.js"},
     {"source":"src/features/surveys/survey-form.js","output":"gama-survey-form.js"},
     {"source":"src/features/surveys/surveys.js","output":"gama-surveys.js"},
     {"source":"src/features/surveys/marketing.js","output":"gama-marketing.js"},

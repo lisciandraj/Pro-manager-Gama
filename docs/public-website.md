@@ -205,3 +205,86 @@ La migration `20261029201003_gama_ecommerce_workflows.sql` ajoute des tables pri
 - **Cookies** : aucune publicité ni analyse comportementale n’est activée. La fenêtre de préférences décrit et conserve uniquement les choix nécessaires. Toute future intégration facultative doit ajouter son blocage avant consentement et le retrait du consentement.
 
 L’audit [Équateur au 29 octobre 2026](audits/gama-ecommerce-reglementation-2026-10-29.md) précise les sources et les éléments opérationnels à valider. Le domaine commercial n’est pas automatiquement associé au projet Pages.
+
+## Conformité, informations légales et WhatsApp — 29 octobre 2026
+
+Dans **Site web → Informations légales**, GAMA peut modifier la raison sociale,
+le RUC, l'adresse légale, le représentant, le contact confidentialité, l'adresse
+de retour, les zones/délais/frais de livraison, les modalités de remboursement,
+les garanties et les compléments de confidentialité. **Contact et WhatsApp**
+contient le numéro international et le message d'accueil. Aucun numéro ni RUC
+n'est inventé. Le serveur refuse un RUC non vide qui n'a pas 13 chiffres et un
+numéro WhatsApp hors du format international attendu ; le contrôle de format
+ne remplace pas la vérification officielle du RUC ou du titulaire du numéro.
+
+**Site web → Conformité et demandes** regroupe :
+
+- Les demandes gratuites de droits, retours, garanties et réclamations envoyées
+  depuis le pied de page du site, sans compte. Elles sont protégées par la même
+  vérification Turnstile, l'origine, la clé serveur et les quotas que les autres
+  écritures publiques. Une réponse n'indique jamais si une personne est cliente.
+- Le suivi privé : responsable, vérification d'identité, objectif de réponse,
+  justification, notes, preuve de réponse envoyée et gel pour litige. La liste
+  n'expose pas le message ou l'e-mail ; le détail exige les droits Site web.
+  Les réponses se transmettent par les canaux internes existants. Marquer une
+  demande comme répondue n'envoie pas de message. Un retour doit ensuite être
+  vérifié et traité dans **Retours / SAV** ; aucun stock ou remboursement ne se
+  déclenche depuis le formulaire public.
+- Un registre de traitements, prestataires/transferts, conservation, incidents,
+  analyse DPD/MTGE, contrôles fiscaux et essais opérationnels. Le passage à
+  « Vérifié » ou « Non applicable » exige responsable, analyse et référence de
+  preuve ; il s'agit d'une déclaration de l'opérateur, pas d'une certification.
+  Les SKU, taux, sources et validations comptables se documentent dans les fiches
+  fiscales ; les taux se modifient toujours dans **Produits**.
+- Une modération des avis motivée (données personnelles, abus ou hors sujet),
+  sans modification de leur texte. Les avis d'une vente qui n'est plus confirmée
+  ne sont plus présentés comme achats vérifiés. L'acheteur peut modifier ou
+  retirer son avis depuis la fiche produit.
+- Les versions légales courantes et archivées. Les modèles de base sont dans
+  `config/storefront-policies.json`, avec leurs compléments publics issus de
+  Coco. Le serveur produit le texte et l'identifiant de version. Changer une
+  information légale change cette version ; changer un titre d'accueil seul ne
+  la change pas. Un nouveau pedido invité ou une acceptation de devis B2B refuse
+  une version périmée. Les reçus déjà acceptés et leurs reprises idempotentes
+  conservent le texte initial. Les reçus invités se téléchargent en JSON depuis
+  l'historique de la session, sans jeton d'accès ni données de facturation.
+
+### Conservation et échéances
+
+Les demandes de droits reçoivent un **objectif opérationnel de 15 jours depuis
+leur réception**. Le référent doit vérifier le calcul juridique applicable et
+le documenter. Une vérification d'identité n'allonge pas cet objectif. Pour les
+retours, le délai de l'article 45 est apprécié depuis la réception du bien avec
+le calendrier et les conditions applicables ; le serveur ne refuse pas une
+requête sur la base d'un calendrier supposé. Les délais et notifications
+SPDP/ARCOTEL des incidents doivent être qualifiés et exécutés par le référent.
+
+La purge quotidienne est **désactivée par défaut**. Dans Conformité →
+Conservation automatique, un administrateur peut enregistrer une durée et la
+référence du calendrier approuvé, puis l'activer. Le nombre de dossiers candidats
+est calculé sur la règle enregistrée. Elle efface les noms, e-mails, textes et
+références commerciales des demandes clôturées arrivées à échéance, sauf gel
+pour litige. La référence de suivi et les dates restent conservées : cette
+opération n'est pas présentée comme une anonymisation complète. Les factures,
+commandes, comptes, pièces SRI, autres données métier et sauvegardes sont hors
+périmètre ; leurs durées, purges et procédures doivent être traitées séparément.
+Les empreintes salées utilisées uniquement pour les quotas de ce nouveau canal
+sont nettoyées après deux jours. Les événements métier sont indexés dans
+l'historique Site web sans message, e-mail ou jeton.
+
+### Preuves et décisions externes toujours nécessaires
+
+L'identité, les conditions commerciales et WhatsApp doivent être renseignés par
+GAMA. Les contrats/DPA, l'analyse DPD/MTGE, le calendrier de conservation, les
+habilitations B2B, les droits des photos et les essais de restauration nécessitent
+des preuves réelles. Le paiement reste désactivé tant qu'aucun prestataire et
+compte marchand ne sont configurés. La configuration et la certification SRI
+restent celles du module Facturation SRI. Aucune fiche « Vérifié » du nouveau
+registre n'active ces services. Les contrôles livrés ne constituent donc pas une
+attestation « 100 % conforme » de l'entreprise.
+
+Validation : `commerce-compliance-db.test.cjs`, `commerce-workflows-db.test.cjs`,
+`sales-dossier-db.test.cjs`, `storefront-db.test.cjs`, `storefront-server.test.mjs`
+et les parcours de `storefront.spec.js`. Les essais métier utilisent des bases
+isolées et des identités fictives ; aucune demande de test n'est créée en
+production.

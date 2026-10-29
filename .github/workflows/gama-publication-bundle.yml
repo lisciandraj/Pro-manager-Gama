@@ -1,0 +1,65 @@
+name: Package GAMA publication
+on:
+  push:
+    branches: [build/gama-compliance-publication-20261029]
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+      GAMA_SOURCE_COMMIT: 46d4927f5ba0345ba0afcb83e9dbcac05670b474
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Verify the application source is the tested revision
+        run: git diff --exit-code "$GAMA_SOURCE_COMMIT" HEAD -- . ':(exclude).github/workflows/gama-publication-bundle.yml'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build && npm run build:storefront
+      - name: Install the pinned publication compiler
+        run: npm install --prefix "$RUNNER_TEMP/gama-publication-tools" --no-audit --no-fund --package-lock=false wrangler@4.156.0 blake3-wasm@2.1.5
+      - name: Compile the public Worker
+        run: node "$RUNNER_TEMP/gama-publication-tools/node_modules/wrangler/bin/wrangler.js" pages functions build functions --outfile "$RUNNER_TEMP/gama-publication-worker.mjs" --minify
+      - name: Package public assets without production credentials
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs'), path = require('node:path'), assert = require('node:assert/strict'), crypto = require('node:crypto');
+          const {hash} = require(path.join(process.env.RUNNER_TEMP, 'gama-publication-tools/node_modules/blake3-wasm'));
+          const out = path.resolve('dist-storefront'), manifest = {};
+          const ignore = new Set(['_headers','_redirects','_routes.json','_worker.js']);
+          function walk(dir) {
+           for (const e of fs.readdirSync(dir,{withFileTypes:true})) {
+            const file=path.join(dir,e.name);
+            if(e.isDirectory())walk(file);
+            else if(!ignore.has(e.name)){
+             const key='/'+path.relative(out,file).split(path.sep).join('/');
+             manifest[key]=hash(fs.readFileSync(file).toString('base64')+path.extname(file).substring(1)).toString('hex').slice(0,32);
+            }
+           }
+          }
+          walk(out);
+          const baseline={"/assets/vendor/jspdf-4.2.1.LICENSE":"bad566673cb95e473b707e78ccf740e8","/assets/vendor/jspdf-4.2.1.umd.min.js":"4645dba45ae0cabf815d3e062ccdffeb","/assets/vendor/supabase-2.115.0.LICENSE":"07ce713daafe324a118e23b7dbd8a500","/assets/vendor/supabase-2.115.0.js":"7a69458a3dd98e5fd89aa4c4419e7bdc","/b2b.css":"46fc5dffa0801eeaf125b17a6a150341","/b2b.html":"5ca12d30401eae3f16384b28f2eb49d8","/b2b.js":"2ebc10d7ed0cff4194616225cda3129a","/category-images/alimentos-bebidas.webp":"dd86160799f0897f5cce37247977354f","/category-images/cocina-cafeteria.webp":"a00fcaec5566e2fb066b7a695934661a","/category-images/computacion-tecnologia.webp":"4c5dfca98667b5a541220eabf0ca36c1","/category-images/equipos-oficina.webp":"33deb2dc87b03f3888bdde3a2a5c993c","/category-images/ferreteria.webp":"fa4f901f513661f4e6fbe3b188094de3","/category-images/higiene.webp":"e76f875f9615927d9209911983c4e30a","/category-images/limpieza.webp":"a17eb539c7776ebafa428e59a8f176c6","/category-images/medicina.webp":"ef69f98d922f7fefcfd6c0feaca2de6e","/category-images/muebles-hogar.webp":"da7c78207bae290589e2cfe177d27892","/category-images/seguridad-industrial.webp":"2e2d434922bdede5206e2f944c4acd0a","/category-images/servicios.webp":"6f303588e344667716cf4227e28a3b3f","/category-images/suministros-escolares.webp":"17cb77372f0105e19cb3b98bbd45ef8b","/category-images/suministros-oficina.webp":"1e4e50db814ac4bf4ab7a1c49025f26a","/commerce.css":"5d81e26526646e71bd135e76d429068b","/commerce.js":"628149a8a24d0f4ade1af763e5e5a6bc","/customer.css":"c03f05aa4353dfd0fcd3409a65882f9f","/fonts/inter-latin-wght-normal.woff2":"6d816f85b659cca213b3dff1d5fcdfd3","/index.html":"42ce6816b78e2da0efac3437f1a028a3","/logo.jpg":"3c956149008f8cc96bf2743cb951b199","/pdf-template.js":"c96b72dac2c96614bbb78155efbb8daf","/photo-credits.html":"49139273f4b9e5cce2b29ef588c169cd","/site.css":"f70dbe3f6c0ae55fb6be4f4d75cf6b1d","/site.js":"3b7025ce3c89b76ba3975832b3de4512","/survey-form.js":"d0d1048326ac1af359615a408bdca6f1","/surveys.css":"98c8aeae6955bbb9d75f33fea56dd795","/surveys.html":"0ec834cffca27e5269f16ad8355f4cee","/surveys.js":"b0921d9d5e6166f2fb5ecb7127bf4ad0"};
+          const changed=new Set(['/index.html','/b2b.html','/commerce.js','/commerce.css','/b2b.js','/site.js']);
+          assert.equal(Object.keys(manifest).length,Object.keys(baseline).length);
+          for(const [file,value] of Object.entries(baseline))if(!changed.has(file))assert.equal(manifest[file],value,'Unchanged asset '+file);
+          const worker=fs.readFileSync(path.join(process.env.RUNNER_TEMP,'gama-publication-worker.mjs'),'utf8');
+          assert.ok(worker.startsWith('--')&&worker.includes('commerce_policies'));
+          const bundle={source_commit:process.env.GAMA_SOURCE_COMMIT,source_tree:'f2a6a268bdefc7379fa77a0f0acf049ffc6bfc13',manifest,worker,headers:fs.readFileSync(path.join(out,'_headers'),'utf8'),routes:fs.readFileSync(path.join(out,'_routes.json'),'utf8')};
+          const json=JSON.stringify(bundle);fs.writeFileSync('gama-publication-bundle.json',json);
+          console.log('GAMA_BUNDLE_SHA256='+crypto.createHash('sha256').update(json).digest('hex'));
+          const encoded=Buffer.from(json).toString('base64'),size=10000,total=Math.ceil(encoded.length/size);
+          for(let i=0;i<total;i++)console.log('GAMA_BUNDLE_CHUNK='+JSON.stringify({index:i,total,data:encoded.slice(i*size,(i+1)*size)}));
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gama-publication-bundle
+          path: gama-publication-bundle.json
+          retention-days: 3

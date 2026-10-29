@@ -17,6 +17,7 @@ async function ensureHuman(target){
   if(target)host.append(verificationBox);else $('quoteSend').before(verificationBox);
  }
  if(widget!==undefined)return;
+ if(!commerce.turnstile_sitekey)await refreshPolicies();
  if(!commerce.turnstile_sitekey)throw Error('HUMAN_VERIFICATION_UNAVAILABLE');
  if(!scriptPromise)scriptPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=resolve;s.onerror=()=>reject(Error('HUMAN_VERIFICATION_UNAVAILABLE'));document.head.append(s)}).catch(e=>{scriptPromise=null;throw e});
  await scriptPromise;if(widget!==undefined)return;
@@ -40,8 +41,9 @@ function attach(ctx){
  const help=document.createElement('button');help.type='button';help.className='text-link';help.id='commerceSupport';help.textContent='Privacidad, devoluciones y reclamaciones';help.onclick=()=>support();cookies.after(help);
  $('whatsappLink')?.addEventListener('click',e=>{e.preventDefault();whatsapp()});
 }
-function configure(data){settings=data.settings||{};if(data.commerce)commerce=data.commerce;if(data.policies?.version){policyVersion=data.policies.version;policies=data.policies.documents||{}}}
-async function refreshPolicies(){const p=await api('policies');if(!p?.version||!p.documents)throw Error('NETWORK_ERROR');policyVersion=p.version;policies=p.documents;return p}
+function setPolicies(p){if(!p?.version||!p.documents)return;if(policyVersion&&policyVersion!==p.version){preview=null;previewSignature='';const agreed=$('quoteForm')?.elements.terms_accepted;if(agreed)agreed.checked=false}policyVersion=p.version;policies=p.documents}
+function configure(data){settings=data.settings||{};if(data.commerce)commerce=data.commerce;setPolicies(data.policies)}
+async function refreshPolicies(){const p=await api('policies');if(!p?.version||!p.documents)throw Error('NETWORK_ERROR');setPolicies(p);if(p.commerce)commerce=p.commerce;return p}
 async function checkout(form,lines){
  if(busy)return;busy=true;const button=$('quoteSend');button.disabled=true;
  try{

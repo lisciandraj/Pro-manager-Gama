@@ -16,7 +16,7 @@ export async function dbRpc(action,data={},env={},fetcher=fetch){
  let r;try{r=await fetcher(runtime.url+'/rest/v1/rpc/'+(commerce?'gama_commerce':'gama_storefront'),{method:'POST',redirect:'manual',headers,body:JSON.stringify({p_action:commerce?action.slice(9):action,p_data:data}),signal:AbortSignal.timeout(12000)})}catch(e){upstreamFailure(0,e?.name);throw Error('WEBSITE_UNAVAILABLE')}
  let body;try{body=await r.json()}catch(_){upstreamFailure(r.status,'INVALID_RESPONSE');throw Error('WEBSITE_UNAVAILABLE')}
  if(!r.ok){if(!allowedErrors.has(body.message))upstreamFailure(r.status,body?.code);throw Error(allowedErrors.has(body.message)?body.message:'WEBSITE_UNAVAILABLE')}
- if(action==='bootstrap')body.commerce={turnstile_sitekey:env.TURNSTILE_SITE_KEY||'',payment_enabled:false,policy_version:body.policies?.version||''};
+ if(action==='bootstrap'||action==='commerce_policies')body.commerce={turnstile_sitekey:env.TURNSTILE_SITE_KEY||'',payment_enabled:false,policy_version:body.policies?.version||body.version||''};
  return body;
 }
 export async function verifyHuman(token,request,env,fetcher){

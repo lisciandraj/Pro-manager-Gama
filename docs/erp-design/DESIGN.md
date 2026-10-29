@@ -1,17 +1,19 @@
 ---
-name: Coco ERP — Coco Clair
-description: Interface de gestion blanche, lisible et progressive pour les modules internes de Coco ERP.
+name: Coco ERP — Coco Premium
+description: Interface de gestion SaaS premium, satinée, lisible et progressive pour les modules internes de Coco ERP.
 colors:
   petrol: "#10677d"
   petrol-deep: "#0c556b"
   brand-blue: "#157f98"
-  action: "#bd4e09"
-  action-hover: "#b54708"
+  action: "#b54708"
+  action-top: "#bd4e09"
+  action-hover: "#a83f07"
   brand-orange: "#f87826"
   ink: "#17243b"
   muted: "#5d6980"
   surface: "#ffffff"
-  inset: "#f7f9fa"
+  inset: "#edf2f4"
+  canvas: "#f3f5f7"
   line: "#dfe6eb"
   input-line: "#7b8797"
   selected: "#e7f3f6"
@@ -61,10 +63,10 @@ typography:
     fontWeight: 500
     lineHeight: 1.55
 rounded:
-  control: "6px"
-  panel: "8px"
+  control: "10px"
+  panel: "16px"
   badge: "5px"
-  dialog: "12px"
+  dialog: "24px"
 spacing:
   s1: "4px"
   s2: "8px"
@@ -121,20 +123,20 @@ components:
     textColor: "{colors.petrol}"
 ---
 
-# Design System: Coco ERP — Coco Clair
+# Design System: Coco ERP — Coco Premium
 
 ## Overview
 
-**Creative North Star: "Coco Clair"**
+**Creative North Star: "Coco Premium"**
 
-Une interface de gestion sobre et familière : bandeau horizontal, espace blanc, listes lisibles et détails progressifs. La hiérarchie s’inspire de la grammaire de travail d’Odoo ; les pictogrammes bicolores, les favoris pétrole et les actifs de marque existants conservent l’identité Coco.
+Une interface SaaS premium inspirée des cinq références Geex fournies le 29 octobre 2026 : toile porcelaine, panneaux blancs satinés, profondeur multicouche et formes adoucies. Le bandeau horizontal, les pictogrammes bicolores, les favoris pétrole et les détails progressifs conservent les repères opérationnels Coco. Les palettes violettes, les marques et les données des références ne sont pas reprises.
 
 Ce contrat concerne les modules internes servis par `src/app/index.html`. Les sources d’exécution sont `src/styles/tokens.css`, `src/styles/design.css`, les composants communs et les styles différés des modules. Les valeurs ci-dessus décrivent cette implémentation ; les mises en page spécialisées gardent leurs besoins métier. Le site public possède son propre `DESIGN.md` à la racine du dépôt.
 
 **Key Characteristics:**
 
 - Une action principale identifiable, des détails ouverts à la demande.
-- Un espace de travail blanc, des lignes horizontales fines et des surfaces plates.
+- Une toile légèrement teintée, des surfaces satinées et des ombres douces à trois niveaux.
 - Une navigation stable, des listes compactes sur PC et des fiches lisibles sur téléphone.
 - Des données réelles, des états explicites et les droits métier existants.
 
@@ -146,11 +148,11 @@ Le pétrole porte les liens, les onglets actifs, les sélections et le focus. Le
 
 ### Secondary
 
-L’orange d’action reçoit du texte blanc. Son survol est plus sombre. L’orange de marque reste distinct, dans les pictogrammes et illustrations ; les graphiques conservent leurs séries et leurs libellés.
+L’orange d’action reçoit du texte blanc sur un dégradé #BD4E09 → #B54708. Son survol #A83F07 est plus sombre ; le contraste est vérifié aux deux extrémités. L’orange de marque reste distinct, dans les pictogrammes et illustrations ; les graphiques conservent leurs séries et leurs libellés.
 
 ### Neutral
 
-La surface blanche sert à la fois de toile et de surface principale. Le fond en retrait distingue les en-têtes de tableau, champs en lecture seule et zones secondaires. L’encre, le texte secondaire, les séparateurs et le contour de saisie ont chacun leur rôle ; un séparateur de panneau ne remplace pas le contour d’un champ.
+La toile porcelaine porte un dégradé très léger et un pointillé statique discret ; les surfaces de travail restent blanches et opaques. Le fond en retrait distingue les en-têtes de tableau, champs en lecture seule et zones secondaires. L’encre, le texte secondaire, les séparateurs et le contour de saisie ont chacun leur rôle ; un séparateur de panneau ne remplace pas le contour d’un champ.
 
 Les statuts succès, avertissement et erreur conservent les couleurs sémantiques réellement utilisées par les composants. Chaque statut porte un libellé ; une valeur inconnue reste indiquée comme telle.
 
@@ -166,23 +168,42 @@ Les rôles du frontmatter sont ceux de la charte commune. Le bandeau utilise le 
 
 La barre supérieure mesure 64 px sur PC et 60 px jusqu’à 760 px. Le contenu dispose de 28 px en haut et 32 px sur les côtés sur grand écran ; sous 1180 px, ses marges sont de 24 px en haut et 20 px sur les côtés, plus les zones de sécurité. Les onglets principaux rejoignent le bandeau à partir de 1180 px et défilent dans le module sur les formats plus étroits. Le lanceur remplace la navigation latérale permanente.
 
-L’accueil garde des tuiles carrées sans contour ni ombre, neuf colonnes à partir de 1180 px et trois sur téléphone jusqu’à 760 px. Les tailles intermédiaires suivent la place disponible. Les favoris et l’ordre personnel restent attachés au compte.
+L’accueil garde des tuiles carrées sans contour avec une ombre douce, neuf colonnes à partir de 1180 px et trois sur téléphone jusqu’à 760 px. Les tailles intermédiaires suivent la place disponible. Les favoris et l’ordre personnel restent attachés au compte.
 
 Les listes PC utilisent une barre de recherche, le choix des colonnes et les boutons Tuiles / Tableau partagés. Produits et Contacts démarrent avec six champs métier, en plus des éléments décoratifs et actions. Toutes les colonnes restent disponibles ; les préférences enregistrées ont priorité et le choix compact initial n’est pas enregistré comme préférence.
 
-Jusqu’à 760 px, les listes en lecture seule ouvrent des fiches si aucune préférence explicite n’existe. Les lignes éditables, tableaux de formulaire, fenêtres et grilles déclarées sans cartes restent des tableaux, sauf choix explicite ou adaptation propre au module. Les grandes tables défilent dans leur zone. Les fiches mobiles partagées ont des séparateurs horizontaux, leurs libellés et leurs actions ; elles n’empilent pas des cadres décoratifs.
+Jusqu’à 760 px, les listes en lecture seule ouvrent des fiches si aucune préférence explicite n’existe. Les lignes éditables, tableaux de formulaire, fenêtres et grilles déclarées sans cartes restent des tableaux, sauf choix explicite ou adaptation propre au module. Les grandes tables défilent dans leur zone. Les fiches mobiles partagées sont des surfaces blanches de 14 px de rayon, avec 16 px de marge intérieure, leurs libellés et leurs actions. Les ombres ne sont pas empilées sur leurs sous-contenus.
 
 Le bas de page réserve la place de la navigation mobile et des zones de sécurité. Les conteneurs peuvent rétrécir sans élargir toute la page. Les dispositions doubles s’empilent selon le composant ; la carte TMS et l’historique utilisent un seuil de 900 px distinct du seuil des listes.
 
 ## Elevation & Depth
 
-Les surfaces de travail, tuiles, contrôles et KPI n’ont pas d’ombre au repos. La séparation vient des espaces, traits fins et fonds en retrait. Les fenêtres et menus superposés conservent leur profondeur fonctionnelle et un voile opaque ; aucun effet de vitre n’est nécessaire pour hiérarchiser le travail. Les ombres de superposition, le focus et les préférences de mouvement figurent dans la sidecar.
+Les surfaces utilisent les tokens runtime, avec des ombres colorées par le pétrole et un reflet supérieur discret :
 
-**The Flat Workspace Rule.** Séparer les contenus ordinaires par l’espace et les lignes ; réserver la profondeur aux éléments superposés.
+| Niveau | Token | Emploi |
+| --- | --- | --- |
+| En retrait | `--coco-inset` | Colonnes kanban, champs en lecture seule, zones secondaires ; aucune ombre |
+| Surface | `--arc-sh-1` / `--coco-surface-shadow` | Panneaux, KPI, fiches, tuiles ; deux ombres douces et reflet interne |
+| Élevé | `--arc-sh-2` | Survol d’un élément interactif, menus secondaires |
+| Superposition | `--arc-sh-3` / `--coco-dialog-shadow` | Fenêtres et lanceur d’applications |
+
+`--coco-surface-sheen` décrit le satin blanc ; `--coco-surface-fill` le compose avec un fond blanc opaque, y compris lorsque les images de fond sont désactivées. `--coco-action-fill` et `--coco-action-shadow` portent le relief orange. Les surfaces élevées n’ajoutent pas de contour décoratif ; les champs conservent leur contour contrasté. Le pointillé SVG intégré n’est présent que sur la toile, sans requête réseau. Aucun flou de fond permanent ni dépendance d’animation n’est ajouté.
+
+**Règle de profondeur.** Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats. Les états erreur, retard et sélection gardent leur signification et leur libellé.
+
+## Motion and feedback
+
+- Retour immédiat : 120 ms ; changement d’état : 180 ms ; ouverture de fenêtre/lanceur : 240 ms.
+- Courbe commune : `cubic-bezier(.16,1,.3,1)`.
+- Le favori sélectionné se stabilise brièvement à sa place : l’utilisateur retrouve un raccourci personnel confirmé.
+- La pression d’un bouton s’enfonce de 1 px ; les contrôles indisponibles ou occupés ne bougent pas.
+- Aucun défilement animé ni apparition en cascade des pages. Les fenêtres apparaissent par un fondu sans déplacer leurs bords, y compris en plein écran sur téléphone.
+- `prefers-reduced-motion` supprime ces mouvements tout en conservant couleurs, états, focus et textes de retour.
+- Contraste renforcé et couleurs forcées fournissent des séparateurs explicites ; impression sans toile texturée ni ombres.
 
 ## Shapes
 
-Les boutons et champs partagent un angle discrètement adouci ; les panneaux ont un rayon légèrement plus large, selon le frontmatter. Les listes intégrées restent sans cadre périphérique. Les badges ont une forme compacte ; les avatars, repères GPS et numéros d’arrêt conservent leur géométrie propre. Les fenêtres partagées emploient le rayon de dialogue ; certains dialogues métier conservent leurs dimensions spécifiques.
+Les boutons et champs partagent un angle discrètement adouci ; les panneaux ont un rayon légèrement plus large, selon le frontmatter. Les listes indépendantes portent une surface arrondie ; les listes intégrées à un panneau ne cumulent pas d’ombre. Les badges ont une forme compacte ; les avatars, repères GPS et numéros d’arrêt conservent leur géométrie propre. Les fenêtres partagées emploient le rayon de dialogue ; certains dialogues métier conservent leurs dimensions spécifiques.
 
 ## Components
 
@@ -200,7 +221,7 @@ Un retour au menu et un seul titre de module dans le bandeau, un lanceur à neuf
 
 ### Lists / Cards / Status
 
-Les tables utilisent des lignes horizontales, un en-tête en retrait et des montants alignés à droite. Les fiches mobiles partagées affichent les noms de colonnes et leurs valeurs sans contour de carte supplémentaire. Les badges gardent leur texte et leurs couleurs sémantiques. Les tableaux spécialisés, kanbans, arbres et graphiques conservent leur structure fonctionnelle.
+Les tables utilisent des lignes horizontales, un en-tête en retrait et des montants alignés à droite. Les fiches mobiles partagées affichent les noms de colonnes et leurs valeurs sur une surface blanche, sans contour supplémentaire. Les badges gardent leur texte et leurs couleurs sémantiques. Les tableaux spécialisés, kanbans, arbres et graphiques conservent leur structure fonctionnelle.
 
 ### Progressive Editors
 
@@ -212,7 +233,7 @@ L’historique de module démarre replié. Son résumé compact occupe une ligne
 
 ### TMS / Agent Coco
 
-TMS place les arrêts et la préparation à gauche de la vraie carte quotidienne sur PC ; sur téléphone, les outils et étapes sont compacts et la carte apparaît tôt. GPS, fonds, tracés, filtres de tournée, attribution, confidentialité et actions de livraison restent ceux du module. Agent Coco garde sa structure de conversations récentes, message et historique central ; les cadres sont aplatis et les contrôles suivent la charte commune.
+TMS place les arrêts et la préparation à gauche de la vraie carte quotidienne sur PC ; sur téléphone, les outils et étapes sont compacts et la carte apparaît tôt. GPS, fonds, tracés, filtres de tournée, attribution, confidentialité et actions de livraison restent ceux du module. Agent Coco garde sa structure de conversations récentes, message et historique central ; les panneaux utilisent les surfaces communes et les conversations restent dans le flux.
 
 ## Do's and Don'ts
 
@@ -226,10 +247,24 @@ TMS place les arrêts et la préparation à gauche de la vraie carte quotidienne
 
 ### Don't:
 
-- **Don't** remettre un fond gris global, des ombres de carte ou une navigation latérale permanente dans l’ERP.
+- **Don't** empiler les ombres, ajouter des halos décoratifs ou remplacer le lanceur par une navigation permanente.
 - **Don't** présenter l’orange de marque comme la couleur du texte blanc des actions principales.
 - **Don't** forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.
 - **Don't** transformer une valeur inconnue ou un échec de chargement en zéro ou succès.
 - **Don't** appliquer ce contrat au site public ni modifier son autorité visuelle racine.
 
 La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.
+
+
+## Réutilisation
+
+Les composants `ArcUI` et les classes métier existantes consomment les mêmes tokens. Pour une nouvelle zone :
+
+```html
+<section class="cocoSurface">
+  <h2>Commandes</h2>
+  <button class="arcButton primary" type="button">Créer une commande</button>
+</section>
+```
+
+`cocoSurface--inset` donne une zone secondaire sans ombre, `cocoSurface--raised` un niveau élevé. Ne pas ajouter les trois variantes simultanément. Les nouveaux composants réutilisent les tokens de rayon, espacement et mouvement ; les anciens noms `arc-*` restent compatibles. Les styles spécialisés restent chargés avec leur module. La [planche des composants](components.html) utilise les vrais fichiers CSS compilés et expose les états de contrôle.

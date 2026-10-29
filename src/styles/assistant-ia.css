@@ -11,7 +11,7 @@
 #assistant-ia button:focus-visible,#assistant-ia input:focus-visible,#assistant-ia textarea:focus-visible,#assistant-ia summary:focus-visible{outline:3px solid var(--arc-accent-600);outline-offset:3px}
 #assistant-ia button:disabled{opacity:.58;cursor:default}
 #assistant-ia .ai-muted-button{background:white;color:var(--arc-text);border:1px solid var(--arc-line)}
-#assistant-ia .ai-primary{background:var(--coco-action);color:#fff;border:1px solid var(--coco-action);font-weight:500}
+#assistant-ia .ai-primary{background:var(--coco-action-fill);color:#fff;border:1px solid var(--coco-action);border-radius:var(--arc-r-sm);box-shadow:var(--coco-action-shadow);font-weight:500}
 #assistant-ia .ai-recent-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 #assistant-ia .ai-recent-heading h3{margin:0}
 #assistant-ia .ai-history{display:flex;gap:12px;min-width:0;overflow-x:auto;padding:4px 4px 12px;scroll-padding-inline:4px;scroll-snap-type:x proximity;overscroll-behavior-x:contain;scrollbar-color:var(--arc-line-strong) var(--arc-surface-2)}
@@ -87,13 +87,13 @@
 #assistant-ia .ai-queue-amounts{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;max-width:440px}
 #assistant-ia .ai-queue-amounts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 
-/* Coco Clair: native module finish, loaded on demand. */
+/* Coco Premium: native module finish, loaded on demand. */
 @media screen{
- body.cocoWorkbench #assistant-ia :is(.ai-panel,.aiChat,.aiConversation,.cocoAgentRecent){border-color:var(--coco-line);border-radius:8px;box-shadow:none}
+ body.cocoWorkbench #assistant-ia :is(.ai-panel,.aiChat,.aiConversation,.cocoAgentRecent){border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench #assistant-ia .cocoAgentRecent{border:0;padding:0;background:transparent}
  body.cocoWorkbench #assistant-ia textarea{min-height:96px}}
 @media screen and (min-width:761px){
  body.cocoWorkbench #assistant-ia>div:not(.gamaStdHeader):not(.cocoAgentGlobalHistory){max-width:1080px;margin-inline:auto}
  body.cocoWorkbench #assistant-ia>.cocoAgentGlobalHistory{max-width:none}}
 
-@media screen{body.cocoWorkbench .arcContent section#assistant-ia .ai-panel{border:0;border-radius:0;padding:16px 0;box-shadow:none}#assistant-ia :is(.ai-tools,.ai-tabs) button{background:white;border:0;border-bottom:2px solid transparent;border-radius:0;color:var(--coco-muted)}#assistant-ia :is(.ai-tools,.ai-tabs) button[aria-selected=true]{border-bottom-color:var(--arc-accent-600);color:var(--arc-accent-600)}#assistant-ia .ai-status{border:0;border-bottom:1px solid var(--coco-line);border-radius:0;background:white;padding:12px 0}#assistant-ia .ai-primary:disabled{background:var(--coco-action);color:white;opacity:.55}}
+@media screen{body.cocoWorkbench .arcContent section#assistant-ia .ai-panel{border:0;border-radius:var(--arc-r-lg);padding:var(--coco-panel-padding);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill)}#assistant-ia :is(.ai-tools,.ai-tabs) button{background:white;border:0;border-bottom:2px solid transparent;border-radius:0;color:var(--coco-muted)}#assistant-ia :is(.ai-tools,.ai-tabs) button[aria-selected=true]{border-bottom-color:var(--arc-accent-600);color:var(--arc-accent-600)}#assistant-ia .ai-status{border:0;border-radius:var(--arc-r-md);background:var(--coco-inset);padding:12px 16px}#assistant-ia .ai-primary:disabled{background:var(--coco-action);color:white;opacity:.55}}

@@ -40,3 +40,7 @@ test('rights/returns and review withdrawal require the same origin, human proof 
  }
  const r=await onRequest({request:request('bootstrap'),env:secureEnv,fetcher:async()=>Response.json({policies:{version:'content-bound-version',documents:{terms:'terms'}},settings:{}})});assert.equal((await r.json()).commerce.policy_version,'content-bound-version');
 });
+
+test('policy refresh supplies public human-verification configuration for restored B2B sessions',async()=>{
+ const r=await onRequest({request:request('commerce_policies'),env:secureEnv,fetcher:async()=>Response.json({version:'policy-v2',documents:{terms:'Terms'}})});const p=await r.json();assert.equal(p.commerce.turnstile_sitekey,'test-key');assert.equal(p.commerce.policy_version,'policy-v2');assert.ok(!JSON.stringify(p).includes('test-secret'));
+});

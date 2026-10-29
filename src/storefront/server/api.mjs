@@ -1,11 +1,11 @@
 import {readJsonBody,BodyError} from '../../../supabase/functions/_shared/http.mjs';
 import runtime from '../../../config/storefront-runtime.json' with {type:'json'};
-const commerceActions=['preview','checkout','guest_order','guest_repeat','reviews','review_eligibility','review_save'];
+const commerceActions=['preview','checkout','guest_order','guest_repeat','reviews','review_eligibility','review_save','review_delete','policies','case_submit'];
 export const actions=new Set(['bootstrap','catalog','product','photos','submit',...commerceActions.map(a=>'commerce_'+a)]);
-const protectedActions=new Set(['submit','commerce_checkout','commerce_review_save']);
+const protectedActions=new Set(['submit','commerce_checkout','commerce_review_save','commerce_review_delete','commerce_case_submit']);
 const serverActions=new Set([...protectedActions,'commerce_guest_order','commerce_guest_repeat','commerce_review_eligibility']);
 const allowedErrors=new Set(['WEBSITE_INVALID_DATA','WEBSITE_PRODUCT_NOT_FOUND','WEBSITE_PUBLIC_PAUSED','WEBSITE_QUOTES_DISABLED','WEBSITE_CONTACT_REQUIRED','WEBSITE_INVALID_LINES','WEBSITE_INVALID_QUANTITY','WEBSITE_PACK_QUANTITY','WEBSITE_DUPLICATE_PRODUCT','WEBSITE_REQUEST_KEY_REUSED','WEBSITE_RATE_LIMIT']);
-for(const code of ['COMMERCE_PRICE_REQUIRED','COMMERCE_BILLING_REQUIRED','COMMERCE_TERMS_REQUIRED','COMMERCE_PURCHASE_REQUIRED','CART_PRICE_CHANGED','NOT_FOUND','HUMAN_VERIFICATION_REQUIRED','HUMAN_VERIFICATION_UNAVAILABLE'])allowedErrors.add(code);
+for(const code of ['COMMERCE_PRICE_REQUIRED','COMMERCE_BILLING_REQUIRED','COMMERCE_TERMS_REQUIRED','COMMERCE_POLICY_CHANGED','COMMERCE_PURCHASE_REQUIRED','CART_PRICE_CHANGED','NOT_FOUND','HUMAN_VERIFICATION_REQUIRED','HUMAN_VERIFICATION_UNAVAILABLE'])allowedErrors.add(code);
 // Record only status/type codes, never request data, credentials or response bodies.
 const upstreamFailure=(status,code)=>console.error(JSON.stringify({event:'storefront_upstream_failure',status,code:typeof code==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(code)?code:'UNKNOWN'}));
 export async function dbRpc(action,data={},env={},fetcher=fetch){
@@ -16,7 +16,7 @@ export async function dbRpc(action,data={},env={},fetcher=fetch){
  let r;try{r=await fetcher(runtime.url+'/rest/v1/rpc/'+(commerce?'gama_commerce':'gama_storefront'),{method:'POST',redirect:'manual',headers,body:JSON.stringify({p_action:commerce?action.slice(9):action,p_data:data}),signal:AbortSignal.timeout(12000)})}catch(e){upstreamFailure(0,e?.name);throw Error('WEBSITE_UNAVAILABLE')}
  let body;try{body=await r.json()}catch(_){upstreamFailure(r.status,'INVALID_RESPONSE');throw Error('WEBSITE_UNAVAILABLE')}
  if(!r.ok){if(!allowedErrors.has(body.message))upstreamFailure(r.status,body?.code);throw Error(allowedErrors.has(body.message)?body.message:'WEBSITE_UNAVAILABLE')}
- if(action==='bootstrap')body.commerce={turnstile_sitekey:env.TURNSTILE_SITE_KEY||'',payment_enabled:false,policy_version:'2026-10-29'};
+ if(action==='bootstrap'||action==='commerce_policies')body.commerce={turnstile_sitekey:env.TURNSTILE_SITE_KEY||'',payment_enabled:false,policy_version:body.policies?.version||body.version||''};
  return body;
 }
 export async function verifyHuman(token,request,env,fetcher){

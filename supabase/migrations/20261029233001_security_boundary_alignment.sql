@@ -98,7 +98,7 @@ do $$declare t text;begin
 end $$;
 
 do $audit$
-declare src text;before_text text;
+declare src text;before_text text;storefront_handler regprocedure;
 begin
  -- All configured stages remain required when an individual approver is inactive.
  src:=pg_get_functiondef('private.gama_b2b_action(text,jsonb)'::regprocedure);
@@ -135,7 +135,11 @@ begin
  execute replace(src,before_text,before_text||' and source=''Photon / OpenStreetMap contributors''');
 
  -- Reuse the existing intake lock before checking the shared email/day budgets.
- src:=pg_get_functiondef('storefront_api.gama_storefront(text,jsonb)'::regprocedure);
+ -- The compliance facade delegates intake to the preserved native handler.
+ -- Also support projects where that additive facade has not been applied yet.
+ storefront_handler:=coalesce(to_regprocedure('storefront_api.gama_storefront_before_compliance(text,jsonb)'),
+  'storefront_api.gama_storefront(text,jsonb)'::regprocedure);
+ src:=pg_get_functiondef(storefront_handler);
  before_text:='perform pg_advisory_xact_lock(hashtextextended(''public-web-visitor:''||visitor,0));';
  if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:public_budget';end if;
  execute replace(src,before_text,'perform pg_advisory_xact_lock(741932,1);'||before_text);

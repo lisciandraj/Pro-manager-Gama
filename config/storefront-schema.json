@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "groups": [
     {
       "id": "identity",
@@ -643,6 +643,28 @@
           "default": ""
         },
         {
+          "key": "legal_address",
+          "label": [
+            "Domicilio legal",
+            "Adresse légale",
+            "Registered address"
+          ],
+          "type": "textarea",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "legal_representative",
+          "label": [
+            "Representante legal",
+            "Représentant légal",
+            "Legal representative"
+          ],
+          "type": "text",
+          "max": 160,
+          "default": ""
+        },
+        {
           "key": "privacy_email",
           "label": [
             "Contacto de privacidad",
@@ -718,15 +740,114 @@
           "type": "textarea",
           "max": 6000,
           "default": "El catálogo utiliza el almacenamiento de sesión del navegador para conservar los identificadores y cantidades de tu selección en esta pestaña. No guarda en ese espacio tu nombre, correo electrónico ni el contenido del formulario.\n\nEl portal Mi empresa utiliza una sesión de autenticación para mostrar los datos de la empresa autorizada. Puedes cerrarla con Cerrar sesión.\n\nEste catálogo no incorpora herramientas publicitarias, píxeles de seguimiento ni analítica de comportamiento. La infraestructura puede procesar datos técnicos de conexión para servir y proteger el sitio. Los enlaces externos se rigen por las políticas de sus respectivos sitios. Puedes borrar los datos de navegación en los ajustes de tu navegador; la selección o la sesión podrían perderse."
+        },
+        {
+          "key": "returns_address",
+          "label": [
+            "Dirección de devoluciones",
+            "Adresse des retours",
+            "Returns address"
+          ],
+          "type": "textarea",
+          "max": 500,
+          "default": ""
+        },
+        {
+          "key": "delivery_areas",
+          "label": [
+            "Zonas de entrega",
+            "Zones de livraison",
+            "Delivery areas"
+          ],
+          "type": "textarea",
+          "max": 1500,
+          "default": ""
+        },
+        {
+          "key": "delivery_timeframes",
+          "label": [
+            "Plazos de entrega",
+            "Délais de livraison",
+            "Delivery timeframes"
+          ],
+          "type": "textarea",
+          "max": 1500,
+          "default": ""
+        },
+        {
+          "key": "delivery_costs",
+          "label": [
+            "Costos y condiciones del envío",
+            "Frais et conditions de livraison",
+            "Delivery costs and conditions"
+          ],
+          "type": "textarea",
+          "max": 1500,
+          "default": ""
+        },
+        {
+          "key": "refund_terms",
+          "label": [
+            "Procedimiento y medios de reembolso",
+            "Procédure et moyens de remboursement",
+            "Refund procedure and methods"
+          ],
+          "type": "textarea",
+          "max": 1500,
+          "default": ""
+        },
+        {
+          "key": "warranty_terms",
+          "label": [
+            "Garantías comerciales aplicables",
+            "Garanties commerciales applicables",
+            "Applicable commercial warranties"
+          ],
+          "type": "textarea",
+          "max": 1500,
+          "default": ""
+        },
+        {
+          "key": "privacy_retention",
+          "label": [
+            "Conservación por finalidad (texto público)",
+            "Conservation par finalité (texte public)",
+            "Retention by purpose (public text)"
+          ],
+          "type": "textarea",
+          "max": 3000,
+          "default": ""
+        },
+        {
+          "key": "privacy_recipients",
+          "label": [
+            "Prestadores y flujos de datos (texto público)",
+            "Prestataires et flux de données (texte public)",
+            "Providers and data flows (public text)"
+          ],
+          "type": "textarea",
+          "max": 3000,
+          "default": ""
+        },
+        {
+          "key": "privacy_rights_process",
+          "label": [
+            "Atención de derechos (texto público)",
+            "Exercice des droits (texte public)",
+            "Rights handling (public text)"
+          ],
+          "type": "textarea",
+          "max": 3000,
+          "default": ""
         }
       ]
     },
     {
       "id": "contact",
       "label": [
-        "Contacto",
-        "Contact",
-        "Contact"
+        "Contacto y WhatsApp",
+        "Contact et WhatsApp",
+        "Contact and WhatsApp"
       ],
       "fields": [
         {
@@ -797,9 +918,9 @@
         {
           "key": "whatsapp",
           "label": [
-            "WhatsApp (con código de país)",
-            "WhatsApp (avec indicatif du pays)",
-            "WhatsApp (with country code)"
+            "WhatsApp con código de país (ej. +593…)",
+            "WhatsApp avec indicatif pays (ex. +593…)",
+            "WhatsApp including country code (e.g. +593…)"
           ],
           "type": "text",
           "max": 30,
@@ -858,6 +979,17 @@
           ],
           "type": "url",
           "max": 500,
+          "default": ""
+        },
+        {
+          "key": "whatsapp_message",
+          "label": [
+            "Mensaje inicial de WhatsApp (sin datos personales)",
+            "Message initial WhatsApp (sans données personnelles)",
+            "Initial WhatsApp message (no personal data)"
+          ],
+          "type": "textarea",
+          "max": 250,
           "default": ""
         }
       ]

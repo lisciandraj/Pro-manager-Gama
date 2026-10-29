@@ -20,7 +20,7 @@
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:var(--arc-accent-100);border-color:transparent;color:var(--arc-accent-700);font-weight:600;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavGroup{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--coco-ink)}
  body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-inset)}
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gp14Card,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.plList,.chartPanel,.hrCard,.crmCard,.svCard,.sdCard,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background:var(--coco-surface-sheen) var(--coco-surface);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gp14Card,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.plList,.chartPanel,.hrCard,.crmCard,.svCard,.sdCard,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.hrCard,.crmCard,.pmPanel,.pmCard,.chartPanel){padding:var(--coco-panel-padding)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(h2,h3){font-weight:600;letter-spacing:-.02em;line-height:1.4}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gaCard,.gfCard,.gqCard,.hrCard,.pmCard)>:is(h2,h3){font-size:16px}
@@ -34,7 +34,7 @@
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcField,label){font-weight:500}
  body[data-app=coco-erp] :is(input[type=checkbox],input[type=radio]){accent-color:var(--arc-accent-600)}
  body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-700);outline-offset:3px}
- body[data-app=coco-erp] dialog{border-color:transparent;border-radius:var(--arc-r-xl);box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface) var(--coco-surface);color:var(--coco-ink)}
+ body[data-app=coco-erp] dialog{border-color:transparent;border-radius:var(--arc-r-xl);box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface);color:var(--coco-ink)}
  body[data-app=coco-erp] dialog::backdrop{background:var(--coco-scrim);-webkit-backdrop-filter:none;backdrop-filter:none}
  body[data-app=coco-erp] .cocoFollowupBubble{padding:14px;line-height:1.6;background:var(--coco-inset);border-color:var(--coco-line);box-shadow:none}
  body[data-app=coco-erp] .cocoFollowupEvent.is-own .cocoFollowupBubble{background:var(--arc-accent-50);border-color:var(--arc-info-line)}
@@ -44,7 +44,7 @@
  body[data-app=coco-erp] #gamaCloudLogin #gamaCloudLoginBtn{background:var(--coco-action-top) var(--coco-action-fill);color:var(--coco-on-action);border-color:var(--coco-action);border-radius:var(--arc-r-sm);box-shadow:var(--coco-action-shadow)}
  body[data-app=coco-erp] #gamaCloudLogin :is(input,button){min-height:44px;font-size:1rem;border-radius:var(--arc-r-sm);box-shadow:none}
  .arcAvatar:has(img){overflow:hidden}.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
- body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:132px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-sheen) var(--coco-surface);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:132px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon)>svg{width:28px;height:28px}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon){display:inline-grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite[aria-pressed=true] .cocoIconPrimary{fill:var(--gama-blue,#157F98)}
@@ -54,7 +54,7 @@
  body[data-app=coco-erp] .gamaF2Kpi{background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] .gamaF2KpiValue{font-weight:600;letter-spacing:-.025em}
  body.cocoWorkbench{--arc-topbar-h:64px;--arc-workspace-radius:var(--arc-r-lg);--arc-workspace-title:22px;--coco-panel-padding:24px;background:var(--coco-canvas)}
- body.cocoWorkbench .arcTopbar{height:64px;min-height:64px;padding-inline:calc(20px + var(--arc-safe-l)) calc(20px + var(--arc-safe-r));gap:8px;border-color:transparent;background:var(--coco-surface-sheen);box-shadow:var(--arc-sh-nav)}
+ body.cocoWorkbench .arcTopbar{height:64px;min-height:64px;padding-inline:calc(20px + var(--arc-safe-l)) calc(20px + var(--arc-safe-r));gap:8px;border-color:transparent;background:var(--coco-surface-fill);box-shadow:var(--arc-sh-nav)}
  body.cocoWorkbench .cocoModuleContext{font-size:22px;font-weight:600;max-width:270px;letter-spacing:-.025em}
  body.cocoWorkbench .arcContent{padding:28px calc(32px + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(32px + var(--arc-safe-l));background:var(--coco-canvas-texture),var(--coco-canvas-light)}
  body.cocoWorkbench .arcContent h2{font-size:24px;line-height:1.3}
@@ -65,7 +65,7 @@
  body.cocoWorkbench :is(.arcContent,dialog) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){border-radius:var(--arc-r-sm);border-color:var(--arc-line-strong);box-shadow:inset 0 1px 2px rgb(16 59 82 / .025);background-color:var(--coco-surface)}
  body.cocoWorkbench :is(.arcContent,dialog) :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench :is(.gamaTableSearch,.ai-input,.whComposer):focus-within{outline:2px solid var(--arc-accent-600);outline-offset:3px}
- body.cocoWorkbench :is(.arcContent,dialog) :is(.arcPanel,.card,.gp14Card,.pmPanel,.gkPanel,.ai-panel,.chartPanel,.coCard){background:var(--coco-surface-sheen);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcPanel,.card,.gp14Card,.pmPanel,.gkPanel,.ai-panel,.chartPanel,.coCard){background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench .arcContent :is(.gqListCard,.cocoProductCatalog,#ctTable,.ctTable,.cocoBusiness>.arcTableWrap){border:0;border-radius:0;box-shadow:none;padding:0}
  body.cocoWorkbench .arcContent section#quotes .gqListCard{padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaStdHeader{border-bottom:0;padding-bottom:0}
@@ -97,7 +97,7 @@
  body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(td.arcNumeric,th.arcNumeric,td.gaNum,th.gaNum){text-align:right;font-variant-numeric:tabular-nums}
  body.cocoWorkbench .arcContent :is(.arcStatusBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.hrBadge,.pmBadge,.tmsBadge){border:0;border-radius:5px;font-size:12px;padding:3px 8px;font-weight:500}
  body.cocoWorkbench .arcContent :is(.gamaPager,.gqListPager,.arcPager){font-size:12px;color:var(--coco-muted)}
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background:var(--coco-surface-sheen);border:0!important;box-shadow:var(--coco-surface-shadow)!important;border-radius:var(--arc-r-lg)}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background:var(--coco-surface-fill);border:0!important;box-shadow:var(--coco-surface-shadow)!important;border-radius:var(--arc-r-lg)}
  body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]:hover{background:var(--coco-surface);box-shadow:var(--arc-sh-2)!important}
  body.cocoWorkbench #mainmenu .gamaF2Grid{--coco-home-gap:24px}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-size:13px;font-weight:500;line-height:1.35}
@@ -107,7 +107,7 @@
  .cocoProductFormHeading h2{margin:0}
  body.cocoWorkbench .arcContent section#products :is(.cocoProductForm,.cocoProductCatalog){border:0;padding:0;border-radius:0;box-shadow:none;background:transparent}
  body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcTableWrap,.gamaTableBox,.ctTable){border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.tmsKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-sheen);min-height:112px;padding:20px}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.tmsKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill);min-height:112px;padding:20px}
  body.cocoWorkbench .arcContent #warehouses .ivStockLayout:has(>#ivInspector[hidden]){grid-template-columns:minmax(0,1fr)}
  body.cocoWorkbench .arcContent #contacts :is(td,th){white-space:normal;overflow-wrap:anywhere}
  body.cocoWorkbench .arcContent #contacts td:last-child{min-width:170px;max-width:280px}
@@ -128,14 +128,14 @@
  body[data-app=coco-erp] ::selection{background:#CCE5EC;color:var(--arc-navy-900)}
  body[data-app=coco-erp] :is(input,textarea,[contenteditable=true]){caret-color:var(--arc-accent-600)}
  body[data-app=coco-erp] a{text-underline-offset:.2em}
- body[data-app=coco-erp] .cocoSurface{background:var(--coco-surface-sheen);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);padding:var(--coco-panel-padding)}
+ body[data-app=coco-erp] .cocoSurface{background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);padding:var(--coco-panel-padding)}
  body[data-app=coco-erp] .cocoSurface--inset{background:var(--coco-inset);box-shadow:none;border-radius:var(--arc-r-md)}
  body[data-app=coco-erp] .cocoSurface--raised{box-shadow:var(--arc-sh-2)}
- body.cocoWorkbench .arcSidebar{background:var(--coco-surface-sheen);border:0;border-radius:0 var(--arc-r-xl) var(--arc-r-xl) 0;transition:transform var(--coco-motion-overlay) var(--coco-ease)}
+ body.cocoWorkbench .arcSidebar{background:var(--coco-surface-fill);border:0;border-radius:0 var(--arc-r-xl) var(--arc-r-xl) 0;transition:transform var(--coco-motion-overlay) var(--coco-ease)}
  body.cocoWorkbench .arcSidebar .arcNavLink{border-radius:var(--arc-r-sm);transition:background-color var(--coco-motion-feedback),color var(--coco-motion-feedback)}
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:linear-gradient(100deg,#E2F0F3,#EFF6F7)}
  body.cocoWorkbench :is(.arcBurger,.arcIconBtn,.cocoModuleBack){border-radius:var(--arc-r-sm)}
- body.cocoWorkbench .cocoMobileNav{background:var(--coco-surface-sheen);box-shadow:0 -2px 6px rgb(16 59 82 / .025),0 -12px 32px -16px rgb(16 59 82 / .12)}
+ body.cocoWorkbench .cocoMobileNav{background:var(--coco-surface-fill);box-shadow:0 -2px 6px rgb(16 59 82 / .025),0 -12px 32px -16px rgb(16 59 82 / .12)}
  body.cocoWorkbench #mainmenu .gamaF2Card{transition:box-shadow var(--coco-motion-state) var(--coco-ease),background-color var(--coco-motion-state)}
  body.cocoWorkbench #mainmenu .gamaF2Card:focus-within{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{border-radius:var(--arc-r-sm)}

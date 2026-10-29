@@ -187,7 +187,7 @@ Les surfaces utilisent les tokens runtime, avec des ombres colorées par le pét
 | Élevé | `--arc-sh-2` | Survol d’un élément interactif, menus secondaires |
 | Superposition | `--arc-sh-3` / `--coco-dialog-shadow` | Fenêtres et lanceur d’applications |
 
-`--coco-surface-sheen` décrit le satin blanc. `--coco-action-fill` et `--coco-action-shadow` portent le relief orange. Les surfaces élevées n’ajoutent pas de contour décoratif ; les champs conservent leur contour contrasté. Le pointillé SVG intégré n’est présent que sur la toile, sans requête réseau. Aucun flou de fond permanent ni dépendance d’animation n’est ajouté.
+`--coco-surface-sheen` décrit le satin blanc ; `--coco-surface-fill` le compose avec un fond blanc opaque, y compris lorsque les images de fond sont désactivées. `--coco-action-fill` et `--coco-action-shadow` portent le relief orange. Les surfaces élevées n’ajoutent pas de contour décoratif ; les champs conservent leur contour contrasté. Le pointillé SVG intégré n’est présent que sur la toile, sans requête réseau. Aucun flou de fond permanent ni dépendance d’animation n’est ajouté.
 
 **Règle de profondeur.** Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats. Les états erreur, retard et sélection gardent leur signification et leur libellé.
 

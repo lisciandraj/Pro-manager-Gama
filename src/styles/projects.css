@@ -17,4 +17,4 @@ body #projects .pmTools button[aria-pressed=true]:hover:not(:disabled){backgroun
 /* Coco Premium: native module finish, loaded on demand. */
 @media screen{
  body.cocoWorkbench #projects .pmColumn{background:var(--coco-kanban-surface);border:0;border-radius:var(--arc-r-lg);padding:14px}
- body.cocoWorkbench #projects .pmTask{background:var(--coco-surface-sheen);border:0;border-radius:var(--arc-r-md);padding:16px;box-shadow:var(--coco-surface-shadow)}}
+ body.cocoWorkbench #projects .pmTask{background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-md);padding:16px;box-shadow:var(--coco-surface-shadow)}}

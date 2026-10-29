@@ -32,7 +32,7 @@
  body[data-app=coco-erp] .arcContent #crm .crmColCab b::before{content:'';display:inline-block;width:8px;height:8px;background:var(--gama-orange);border-radius:50%;margin-right:8px}
  body[data-app=coco-erp] .arcContent #crm .crmCol.ganada .crmColCab b::before{background:var(--arc-success)}
  body[data-app=coco-erp] .arcContent #crm .crmCol.perdida .crmColCab b::before{background:var(--arc-danger)}
- body[data-app=coco-erp] .arcContent #crm .crmTarjeta{border-radius:var(--arc-r-md);border:0;padding:16px;background:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] .arcContent #crm .crmTarjeta{border-radius:var(--arc-r-md);border:0;padding:16px;background:var(--coco-surface-fill);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] .arcContent #crm .crmTarjTit b{font-weight:500;line-height:1.5}
  body[data-app=coco-erp] .arcContent #crm .crmTarjeta:hover{box-shadow:var(--arc-sh-2)}
  body[data-app=coco-erp] .arcContent #crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}

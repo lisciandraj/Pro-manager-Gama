@@ -20,3 +20,4 @@
 .approval-toolbar {display:flex;flex-wrap:wrap;gap:12px;margin-block:20px}
 .approval-edit-notice {padding:16px;background:var(--primary-soft,#eef6f6);margin-block:16px}
 @media(max-width:600px){.commerce-dialog {padding:20px}.review-form input,.review-form select,.review-form textarea,#billingFields input,#billingFields select {font-size:16px}.purchase-mode {font-size:16px}.commerce-totals dl {gap:10px}.product-reviews {margin-block-start:24px}}
+.commerce-support{display:grid;gap:18px}.commerce-support label{display:grid;gap:8px}.commerce-support input,.commerce-support select,.commerce-support textarea{width:100%;min-width:0;max-width:100%;font:inherit}.commerce-support .commerce-honeypot{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}

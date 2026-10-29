@@ -113,3 +113,20 @@ Le site peut être déclaré prêt sur le périmètre vérifié lorsque chaque e
 - **S19** — SPDP-SPD-2026-0005-R, grande échelle : https://www.spdp.gob.ec/wp-content/uploads/2026/08/Resolucion0005.pdf
 
 Recherche non retenue comme preuve primaire : une consolidation commerciale a signalé une date de modification LRTI au 19 octobre 2026, mais son renvoi ne suffisait pas à établir la réforme applicable. Aucune modification de taux générale postérieure à S1 n'a été identifiée dans les sources officielles consultées. Une confirmation fiscale SKU par SKU reste nécessaire ; aucun catalogue existant n'a été requalifié par cette recherche.
+
+## Mise en œuvre du complément demandé le 29 octobre 2026
+
+Les contrôles logiciels complémentaires sont décrits dans
+[Site public — Conformité, informations légales et WhatsApp](../public-website.md#conformité-informations-légales-et-whatsapp--29-octobre-2026).
+Ils ajoutent les champs publics manquants, le canal de demandes de droits et de
+retours, leur suivi privé et leurs preuves, les versions complètes des conditions
+acceptées (invité et acceptation de devis B2B), le retrait/modération des avis et
+la purge paramétrable des seules demandes clôturées.
+
+Le registre de conformité permet de documenter les écarts organisationnels,
+contractuels, fiscaux et opérationnels. Il n'invente pas les preuves pour les
+clôturer. La durée de conservation automatique reste à valider avant activation.
+Le calendrier juridique des retours et incidents, les contrats des prestataires,
+la qualification IVA du catalogue, la facturation SRI effective et le paiement
+réel restent à démontrer par les responsables concernés. Les champs légaux et
+WhatsApp sont modifiables dans Coco sans déploiement de code.

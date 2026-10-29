@@ -5,3 +5,5 @@
 
 /* Gridded tables scroll inside their grid cell on narrow screens. */
 .gsLayout>*,.gsLayout .gwForm>*{min-width:0}
+
+.gcCompliance{display:grid;gap:18px}.gcCompliance h2{margin:0}.gcSummary{padding:16px;border:1px solid var(--border,#dce3e9);border-radius:8px}.gcSummary p{margin:6px 0}.gcDialog label,.gcRetention label{display:grid;gap:7px}.gcDialog input,.gcDialog select,.gcDialog textarea,.gcRetention input,.gcRetention textarea{font:inherit;max-width:100%;width:100%;min-width:0}.gcDialog input[type=checkbox],.gcRetention input[type=checkbox]{width:auto;justify-self:start}.gcText{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6}.gcCompliance [data-content]{min-width:0;overflow-wrap:anywhere}.gcDialog details{padding:12px 0;border-bottom:1px solid var(--border,#dce3e9)}

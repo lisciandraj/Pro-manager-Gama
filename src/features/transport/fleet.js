@@ -680,8 +680,8 @@ async function maintenanceForm(current){
 function download(rows,name){
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
- const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
- const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
+ const cell=v=>{let text=v==null?'':String(v);if(typeof v==='string'&&/^[\s\uFEFF]*[=+@-]/.test(text))text="'"+text;return /[";\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+ const csv='﻿'+[keys.map(cell).join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);

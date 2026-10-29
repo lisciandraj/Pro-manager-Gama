@@ -8,6 +8,7 @@ function dialog(title){const d=document.createElement('dialog');d.dataset.cocoAg
 function setError(d,e){if(d.isConnected)d.querySelector('[data-error]').textContent=message(e);}
 const status=s=>({prepared:tr('Préparé, non exécuté','Preparado, no ejecutado','Prepared, not executed'),executed:tr('Exécuté','Ejecutado','Executed'),pending_approval:tr('En attente de validation ERP','Pendiente de aprobación ERP','Awaiting ERP approval'),rejected:tr('Refusé','Rechazado','Rejected'),failed:tr('Refusé','Rechazado','Rejected')}[s]||s);
 function table(lines){return window.ArcUI.table({columns:[{key:'location',label:tr('Emplacement','Ubicación','Location'),value:r=>r.location||r.location_id},{key:'expected_quantity',label:tr('Avant','Antes','Before')},{key:'reserved',label:tr('Réservé','Reservado','Reserved')},{key:'target_quantity',label:tr('Après','Después','After')}],items:lines});}
+function lotSummary(snapshot){return snapshot.lot_tracking?`<p>${tr('Lot','Lote','Lot')} : ${E(snapshot.lot_code||snapshot.lot_id||tr('Proposition à recréer','Vuelve a preparar la propuesta','Prepare a new proposal'))} · ${E(snapshot.lot_quantity)} ${E(snapshot.unit)}</p>`:'';}
 async function approveProposal(p){
  if(!window.ArchitectIdentity)await window.ArcLoadScript('architect-identity.js');
  await window.ArchitectIdentity.ensureMFA({fresh:true,after:p.created_at});
@@ -16,7 +17,7 @@ async function approveProposal(p){
 async function pendingApprovals(){
  const revision=epoch,d=dialog(tr('Approbations Agent Coco','Aprobaciones Agent Coco','Agent Coco approvals')),host=d.querySelector('[data-body]');
  try{const data=await rpc('approvals');if(revision!==epoch||!d.isConnected)return;
- window.ArcUI.render(host,data.items.map(p=>`<article class="arcPanel"><h3>${E(p.snapshot.reference)} — ${E(p.snapshot.name)}</h3><p>${E(p.snapshot.reason)}</p><p>${E(p.snapshot.unit)} · ${E(p.client_id||'ERP')}</p>${table(p.snapshot.lines)}<p>${E(new Date(p.expires_at).toLocaleString())}</p><button type="button" class="arcButton" data-agent-approve="${E(p.id)}" ${p.approved?'disabled':''}>${tr('Approuver avec mon authentificateur','Aprobar con mi autenticador','Approve with my authenticator')}</button></article>`).join('')||E(tr('Aucune proposition en attente.','No hay propuestas pendientes.','No pending proposals.')));
+ window.ArcUI.render(host,data.items.map(p=>`<article class="arcPanel"><h3>${E(p.snapshot.reference)} — ${E(p.snapshot.name)}</h3><p>${E(p.snapshot.reason)}</p><p>${E(p.snapshot.unit)} · ${E(p.client_id||'ERP')}</p>${lotSummary(p.snapshot)}${table(p.snapshot.lines)}<p>${E(new Date(p.expires_at).toLocaleString())}</p><button type="button" class="arcButton" data-agent-approve="${E(p.id)}" ${p.approved||(p.snapshot.lot_tracking&&!p.snapshot.lot_id)?'disabled':''}>${tr('Approuver avec mon authentificateur','Aprobar con mi autenticador','Approve with my authenticator')}</button></article>`).join('')||E(tr('Aucune proposition en attente.','No hay propuestas pendientes.','No pending proposals.')));
  for(const b of host.querySelectorAll('[data-agent-approve]'))b.onclick=async()=>{b.disabled=true;try{await approveProposal(data.items.find(p=>p.id===b.dataset.agentApprove));b.textContent=tr('Approuvé','Aprobado','Approved')}catch(e){setError(d,e);b.disabled=false}};
  }catch(e){setError(d,e)}
 }

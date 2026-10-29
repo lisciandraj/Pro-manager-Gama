@@ -20,7 +20,7 @@ async function ensureHuman(target){
  if(!commerce.turnstile_sitekey)throw Error('HUMAN_VERIFICATION_UNAVAILABLE');
  if(!scriptPromise)scriptPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=resolve;s.onerror=()=>reject(Error('HUMAN_VERIFICATION_UNAVAILABLE'));document.head.append(s)}).catch(e=>{scriptPromise=null;throw e});
  await scriptPromise;if(widget!==undefined)return;
- widget=window.turnstile.render($('humanVerification'),{sitekey:commerce.turnstile_sitekey,action:'gama_commerce','response-field':false,language:'es',callback:t=>{token=t},'expired-callback':()=>{token=''},'error-callback':()=>{token='';$('humanStatus').textContent='No se pudo verificar la conexión. Vuelve a abrir tu selección.'}});
+ widget=window.turnstile.render($('humanVerification'),{sitekey:commerce.turnstile_sitekey,size:'compact',action:'gama_commerce','response-field':false,language:'es',callback:t=>{token=t},'expired-callback':()=>{token=''},'error-callback':()=>{token='';$('humanStatus').textContent='No se pudo verificar la conexión. Vuelve a abrir tu selección.'}});
 }
 async function humanToken(target){await ensureHuman(target);if(!token)throw Error('HUMAN_VERIFICATION_REQUIRED');return token}
 function attach(ctx){

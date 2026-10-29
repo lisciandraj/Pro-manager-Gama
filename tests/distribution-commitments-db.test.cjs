@@ -72,7 +72,7 @@ test('distribution projections and approved amendments use the canonical stock a
    assert.equal(Number(await v('select quantity from sales_order_lines where id=$1',[line])),2);
    const remainder=await fulfill('propose_option',{...proposed,quantity:1,request_key:uuid()});await fulfill('respond_option',{option_id:remainder.id,decision:'accepted',agreement_reference:'Replace only unperformed work',request_key:uuid()});
    assert.equal(Number(await v('select quantity from sales_order_lines where id=$1',[line])),1);assert.equal(Number(await v('select sum(quantity) from sales_service_completions where order_line_id=$1 and cancelled_at is null',[line])),1);
-   await as(ids.admin);await q("update erp_action_permissions set allow_validate=true where role='comercial' and module='sales-orders'");
+   await as(ids.admin);await db.exec('reset role');await q("update erp_action_permissions set allow_validate=true where role='comercial' and module='sales-orders'");await as(ids.admin);
   });
   await t.test('a changed commercial line invalidates an outstanding amendment and manual prices require a reason',async()=>{
    const o=await order(2),data={order_id:o.id,line_id:o.line,kind:'substitute',quantity:1,replacement_product_id:ids.replacement,unit_price:41,tax_rate:15,price_mode:'manual',request_key:uuid()};

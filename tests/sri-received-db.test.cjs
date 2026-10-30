@@ -62,5 +62,13 @@ test('Verified received XML: automatic fiscal matching, atomic offsets, unchange
    await as(sales);assert.equal(await one('select count(*)::int from accounting_received_sri'),0);await assert.rejects(post(receipts),/ROLE_NOT_ALLOWED/);
    await db.exec('reset role;set role anon');await assert.rejects(post(receipts),/permission denied/);
   });
+  await t.test('fresh payments cannot collect an amount already offset by a verified withholding',async()=>{
+   await as(admin);
+   const input={invoice_id:invoices[0],financial_account_id:bank,paid_at:'2026-10-02',method:'transfer',reference:'Residual after withholding'};
+   const pay=amount=>one("select gama_payment_action('payment',$1::jsonb)",[JSON.stringify({...input,request_key:uuid(),amount})]);
+   await assert.rejects(pay(103),/PAYMENT_EXCEEDS_BALANCE/);
+   assert.equal(await one('select count(*)::int from external_invoice_payments where invoice_id=$1',[invoices[0]]),0);
+   await pay(102);const detail=await one("select gama_payment_action('detail',$1::jsonb)",[JSON.stringify({invoice_id:invoices[0]})]);assert.equal(detail.balance,0);
+  });
  }finally{await db.close()}
 });

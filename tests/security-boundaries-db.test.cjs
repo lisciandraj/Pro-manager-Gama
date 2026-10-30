@@ -119,5 +119,31 @@ test('security: direct reads and legacy commands preserve current authority',asy
    await one("select private.contact_geocode_enqueue('customers',$1)",[other]);
    assert.equal(await one('select lat from customers where id=$1',[other]),-0.2);
   });
+  await t.test('storage structure commands enforce create, edit and delete while preserving authorized zone creation',async()=>{
+   await as(admin);
+   const act=(schema,name,action,data)=>one(`select ${schema}.${name}($1,$2::jsonb)`,[action,JSON.stringify(data)]);
+   const w=await act('public','gama_warehouse_action','save',{code:'SECURITY-WH',name:'Structure fixture'});
+   const loc=await act('public','gama_location_action','save',{warehouse_id:w.id,code:'FIXTURE',name:'Location fixture'});
+   const shelf=await act('public','gama_shelf_action','save',{warehouse_id:w.id,code:'QA',name:'Shelf fixture',column_count:1,row_count:1});
+   const cases=[
+    ['gama_warehouse_action',w.id,{code:'DENIED-WH',name:'Denied warehouse'},{id:w.id,name:'Edited warehouse'}],
+    ['gama_location_action',loc.id,{warehouse_id:w.id,code:'DENIED-LOC',name:'Denied location'},{id:loc.id,name:'Edited location'}],
+    ['gama_shelf_action',shelf.id,{warehouse_id:w.id,code:'QB',column_count:1,row_count:1},{id:shelf.id,version:shelf.version,name:'Edited shelf',column_count:1,row_count:1}]
+   ];
+   await owner();await q("insert into erp_action_permissions(role,module,allow_create,allow_edit,allow_delete,updated_by) values('almacenero','warehouses',false,false,false,$1) on conflict(role,module) do update set allow_create=false,allow_edit=false,allow_delete=false",[admin]);await as(warehouse);
+   for(const schema of ['public','private'])for(const [name,id,create,edit]of cases){
+    await assert.rejects(act(schema,name,'save',create),/ACTION_NOT_ALLOWED:warehouses/);
+    await assert.rejects(act(schema,name,'save',edit),/ACTION_NOT_ALLOWED:warehouses/);
+    await assert.rejects(act(schema,name,'delete',{id}),/ACTION_NOT_ALLOWED:warehouses/);
+   }
+   for(const [table,id]of [['warehouses',w.id],['warehouse_locations',loc.id],['warehouse_shelves',shelf.id]]){
+    await assert.rejects(q(`update ${table} set name='Direct edit' where id=$1`,[id]),/permission denied/);
+    await assert.rejects(q(`delete from ${table} where id=$1`,[id]),/permission denied/);
+   }
+   await owner();assert.equal(await one('select name from warehouses where id=$1',[w.id]),'Structure fixture');
+   await q("update erp_action_permissions set allow_create=true,allow_edit=true,allow_delete=true where role='almacenero' and module='warehouses'");await as(warehouse);
+   for(const [name,,create,edit]of cases){const made=await act('public',name,'save',create);assert.ok(made.id);assert.ok((await act('public',name,'save',edit)).id);await act('public',name,'delete',{id:made.id})}
+   await act('public','gama_shelf_action','delete',{id:shelf.id});await act('public','gama_location_action','delete',{id:loc.id});await act('public','gama_warehouse_action','delete',{id:w.id});
+  });
  }finally{await db.close()}
 });

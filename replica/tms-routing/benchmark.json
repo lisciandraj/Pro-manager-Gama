@@ -13,7 +13,7 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 710
+        "calculation_ms": 608
       },
       "optimized": {
         "km": 115.13,
@@ -22,7 +22,7 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 881
+        "calculation_ms": 895
       },
       "km_change_percent": -4.79,
       "minutes_change_percent": -3.7
@@ -38,7 +38,7 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 2166
+        "calculation_ms": 2330
       },
       "optimized": {
         "km": 162.03,
@@ -47,7 +47,7 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 3625
+        "calculation_ms": 3843
       },
       "km_change_percent": -5.45,
       "minutes_change_percent": -3.1
@@ -63,7 +63,7 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 7013
+        "calculation_ms": 7536
       },
       "optimized": {
         "km": 263.84,
@@ -72,10 +72,12 @@
         "window_violations": 0,
         "window_compliance": 100,
         "shift_violations": 0,
-        "calculation_ms": 13626
+        "calculation_ms": 13527
       },
       "km_change_percent": -8.05,
       "minutes_change_percent": -4.36
     }
-  ]
+  ],
+  "pglite": "0.4.6",
+  "postgres": "17.5"
 }

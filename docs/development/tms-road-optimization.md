@@ -71,6 +71,10 @@ Pour 100 livraisons, l’ancien moteur en affecte 96 et le nouveau 100 : les tot
 
 | Livraisons / véhicules | Servies avant → après | Km avant → après | Minutes cumulées avant → après | Créneaux respectés après | Calcul avant → après |
 | --- | --- | --- | --- | --- | --- |
-| 20 / 2 | 20 → 20 | 120.92 → 115.13 | 297 → 286 | 100 % | 0.71 s → 0.88 s |
-| 50 / 3 | 50 → 50 | 171.37 → 162.03 | 516 → 500 | 100 % | 2.17 s → 3.62 s |
-| 100 / 5 | 96 → 100 | 286.95 → 263.84 | 963 → 921 | 100 % | 7.01 s → 13.63 s |
+| 20 / 2 | 20 → 20 | 120.92 → 115.13 | 297 → 286 | 100 % | 0.61 s → 0.90 s |
+| 50 / 3 | 50 → 50 | 171.37 → 162.03 | 516 → 500 | 100 % | 2.33 s → 3.84 s |
+| 100 / 5 | 96 → 100 | 286.95 → 263.84 | 963 → 921 | 100 % | 7.54 s → 13.53 s |
+
+### Moteur des tests SQL
+
+La dépendance de développement PGlite est figée à 0.4.6, avec son empreinte npm officielle dans le lockfile. Cette version reste sur PostgreSQL 17.5. Le moteur 0.3.14 provoquait un plantage WebAssembly reproductible dans les règlements fournisseurs après reconstruction du catalogue étendu ; le même fichier de tests réussit avec 0.4.6 sous Node 22.23.4, avec les mêmes assertions et le même point d’entrée. Le helper initialise explicitement UTC pour conserver des fixtures indépendantes du fuseau de la machine ; les horaires métier restent ceux de Quito. Ce changement concerne seulement les tests isolés, sans mise à jour du PostgreSQL de production.

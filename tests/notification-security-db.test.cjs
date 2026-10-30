@@ -18,9 +18,15 @@ test('native alerts and retained history preserve current driver and source audi
   await q("insert into tms_deliveries(id,customer,address,driver_id,status,delivery_date) values($1,'Own dummy delivery','Quito',$2,'Excepción',current_date-1),($3,'Foreign dummy delivery','Quito',$4,'Excepción',current_date-1)",[deliveryA,fleetA,deliveryB,fleetB]);
   await q("insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by,loading_required) select $1,gen_random_uuid(),id,$2,false from tms_deliveries where id=any($3::uuid[])",[order,admin,[deliveryA,deliveryB]]);
   await db.exec('commit');
+  await q("insert into tms_proofs(delivery_id,photo,signature,captured_at,captured_by) values($1,'data:image/jpeg;base64,b3du','own proof',now(),$3),($2,'data:image/jpeg;base64,Zm9yZWlnbg==','foreign proof',now(),$3)",[deliveryA,deliveryB,admin]);
+  const ownDocument=await one("select id from business_documents where source_table='tms_proofs' and source_id=$1",[deliveryA]);
+  const foreignDocument=await one("select id from business_documents where source_table='tms_proofs' and source_id=$1",[deliveryB]);
   await as(admin);const full=await ops('snapshot',{track:true,state:'all'}),foreign=full.alerts.find(a=>a.alert_key==='delivery:'+deliveryB);assert.ok(foreign);assert.equal(full.metrics.late_deliveries,2);
   const fleet=full.alerts.find(a=>a.kind==='fleet_deadline');assert.ok(fleet);
   await as(driverA);assert.equal(await one('select private.tms_can_read($1)',[deliveryB]),false);assert.equal(await one('select count(*)::int from tms_deliveries where id=$1',[deliveryB]),0);
+  assert.equal((await one('select public.gama_document_download($1)',[ownDocument])).data_url,'data:image/jpeg;base64,b3du');
+  assert.equal(await one('select count(*)::int from business_documents where id=$1',[foreignDocument]),0);
+  await assert.rejects(one('select public.gama_document_download($1)',[foreignDocument]),/DOCUMENT_UNAVAILABLE/);
   const own=await ops('snapshot',{track:true,state:'all'});assert.equal(own.alerts.some(a=>a.alert_key===foreign.alert_key),false);assert.equal(own.alerts.some(a=>a.alert_key==='delivery:'+deliveryA),true);assert.equal(own.metrics.late_deliveries,1);
   assert.equal((await ops('badge')).active_count,own.active_count);
   const priorities=await one('select public.gama_dashboard_priorities()');assert.equal(JSON.stringify(priorities).includes(deliveryB),false);

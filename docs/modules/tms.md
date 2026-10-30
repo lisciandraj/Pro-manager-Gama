@@ -1,5 +1,9 @@
 # TMS : flux quotidien, tournées et preuves de livraison
 
+## Optimisation avec les temps routiers
+
+Le bouton **Optimiser avec les temps routiers**, dans Planifier, alimente le planificateur avec une matrice privée de distances et durées directionnelles. Une recherche locale améliore l’ordre en revérifiant fenêtres, pauses et fin de service. Les tournées protégées restent figées. Sans service privé configuré ou sans matrice valide, la mention **Estimation de déplacement** reste affichée. L’option publique de tracé cartographique est indépendante. Voir [architecture, comparaison, activation et validation](../development/tms-road-optimization.md).
+
 ## Planning étendu et suivi
 
 **Planification et suivi** ouvre quatre vues dans le TMS : calendrier, ressources, suivi, analyse et exports. Les commandes, colis, réceptions, retours et paiements restent ceux du parcours ci-dessous.

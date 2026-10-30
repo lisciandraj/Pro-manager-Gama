@@ -10,3 +10,7 @@ verify_jwt = false
 # providers. It remains public so old callback links receive the removal notice.
 [functions.coco-order-mail]
 verify_jwt = false
+
+# Private road-matrix adapter; caller authorization and TMS/MFA checks run before routing.
+[functions.tms-routing]
+verify_jwt = true

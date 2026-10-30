@@ -126,7 +126,9 @@ test('Odoo 19 payment modes preserve residuals, cash, matching and immutable his
    for(const schema of ['public','private'])await denied(()=>v(`select ${schema}.gama_commercial_action('cancel_payment',$1::jsonb)`,[JSON.stringify({invoice_id:inv.id,payment_id:p.id,reason:'Denied cancellation'})]),/ROLE_NOT_ALLOWED/);
    assert.equal(await v('select count(*)::int from external_invoice_payments where id=$1',[p.id]),0);
    await db.exec('reset role');assert.equal(await v('select status from external_invoice_payments where id=$1',[p.id]),'confirmed');
-   await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'payments') where role='comercial'");await db.exec('set role authenticated');
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
+   await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'payments') where role='comercial'");
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.reader]);await db.exec('set role authenticated');
    assert.equal((await balance(inv)).balance,80);await rpc('gama_payment_action','cancel_payment',{invoice_id:inv.id,payment_id:p.id,reason:'Authorized cancellation'});assert.equal((await balance(inv)).balance,100);
    await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
   });

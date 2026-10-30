@@ -1,0 +1,44 @@
+{
+	email {$TMS_TLS_EMAIL}
+	admin off
+	# Request paths contain coordinates. Disable runtime logs as well as access logs.
+	log default {
+		output discard
+	}
+	servers {
+		max_header_size 16KB
+		timeouts {
+			read_header 5s
+			read_body 5s
+			write 50s
+			idle 30s
+		}
+	}
+}
+
+{$TMS_OSRM_SITE} {
+	header {
+		Cache-Control "no-store"
+		X-Content-Type-Options nosniff
+		X-Coco-Road-Version {$TMS_ROAD_DATA_VERSION}
+		-Server
+	}
+	@matrix {
+		method GET
+		path /table/v1/driving/*
+		header Authorization "Bearer {$TMS_OSRM_TOKEN}"
+	}
+	handle @matrix {
+		request_body {
+			max_size 1KB
+		}
+		reverse_proxy osrm:5000 {
+			header_up -Authorization
+			transport http {
+				dial_timeout 3s
+				response_header_timeout 40s
+			}
+		}
+	}
+	respond "Unauthorized" 401
+}

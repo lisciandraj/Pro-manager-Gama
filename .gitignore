@@ -21,3 +21,7 @@ __pycache__/
 # Private SRI deployment state and secrets
 services/sri/.runtime/
 services/sri/deploy/*.env
+
+# Private routing credentials and downloaded/prepared OSM graphs.
+services/tms-routing/.runtime/
+services/tms-routing/deploy/*.env

@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
-const files=['README.md','AGENTS.md','supabase/README.md','services/sri/README.md','config/localizations/README.md'];
+const files=['README.md','AGENTS.md','supabase/README.md','services/sri/README.md','services/tms-routing/README.md','config/localizations/README.md'];
 function collect(dir){for(const entry of fs.readdirSync(path.join(root,dir),{withFileTypes:true})){const file=dir+'/'+entry.name;if(entry.isDirectory())collect(file);else if(file.endsWith('.md'))files.push(file);}}
 collect('docs');
 const broken=[];

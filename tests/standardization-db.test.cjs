@@ -6,6 +6,22 @@ const migrationFolder=path.join(__dirname,'../supabase/migrations');
 const firstChange=fs.readdirSync(migrationFolder).find(f=>f.endsWith('_standardize_domain_dispatch.sql'));
 const admin='00000000-0000-0000-0000-000000009001',client='00000000-0000-0000-0000-000000009002',product='00000000-0000-0000-0000-000000009003',customer='00000000-0000-0000-0000-000000009004';
 const actAs=async(db,id)=>db.exec(`reset role;select set_config('request.jwt.claim.sub','${id}',false);set role authenticated;`);
+// Fleet SQL ranks consumption by average only. Equal ranks have no secondary
+// order; normalize each consecutive tie without reordering distinct ranks.
+const fleetRankTies=rows=>{
+ const result=rows.slice();
+ for(let from=0;from<result.length;){let to=from+1;while(to<result.length&&result[to].avg_litres_100km===result[from].avg_litres_100km)to++;
+  result.splice(from,to-from,...result.slice(from,to).sort((a,b)=>a.vehicle_id.localeCompare(b.vehicle_id)));from=to;
+ }
+ return result;
+};
+test('fleet parity normalizes equal ranks while preserving rank order and complete records',()=>{
+ const a={vehicle_id:'a',avg_litres_100km:10,cost_per_km:2},b={vehicle_id:'b',avg_litres_100km:10,cost_per_km:3},c={vehicle_id:'c',avg_litres_100km:5,cost_per_km:1},d={vehicle_id:'d',avg_litres_100km:null,cost_per_km:null};
+ assert.deepEqual(fleetRankTies([b,a,c,d]),[a,b,c,d]);
+ assert.notDeepEqual(fleetRankTies([c,b,a,d]),[a,b,c,d],'different ranks must retain the SQL order');
+ assert.notDeepEqual(fleetRankTies([{...a,cost_per_km:9},b,c,d]),[a,b,c,d],'changed amounts must remain observable');
+ assert.notDeepEqual(fleetRankTies([a,c,d]),[a,b,c,d],'missing vehicles must remain observable');
+});
 test('reconstructed schema preserves domain dispatch results, errors and permissions',async()=>{
  const db=await restore({before:firstChange});
  try{
@@ -50,6 +66,10 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
     if(item.domain==='returns'&&item.action==='overview'&&actual.ok&&expected.ok){assert.ok(actual.result.locations.every(l=>l.code!=='STOCK'));assert.ok(actual.result.locations.some(l=>l.code==='LLEGADA'));delete actual.result.locations;delete expected.result.locations;
      // The empty overview now reports its exact pagination count.
      assert.equal(expected.result.rows.length,0);expected.result.total=0;}
+    if(item.domain==='fleet'&&item.action==='overview'&&actual.ok&&expected.ok){
+     actual.result.consumption=fleetRankTies(actual.result.consumption);
+     expected.result.consumption=fleetRankTies(expected.result.consumption);
+    }
     assert.deepEqual(actual,expected,uid+': '+item.domain+'.'+item.action);
    }
    await db.exec('rollback');

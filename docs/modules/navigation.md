@@ -69,3 +69,7 @@ Le groupe Résumé comprend aussi [Espace de travail](workhub.md) : réception
 commune, discussions privées et liens vers les tâches et documents autorisés.
 
 La création d’une commande fournisseur dans Achats utilise aussi une section fermée à l’arrivée. Les préparations issues du stock, d’un projet ou d’une offre fournisseur ouvrent cette section avec leurs lignes existantes ; la fermer conserve la saisie. Les erreurs de chargement de Contrats et Dépenses conservent une action Réessayer et ne deviennent pas une liste vide.
+
+## Nom des contacts
+
+Les interlocuteurs clients et prospects utilisent un seul champ « Nom du contact » dans Contacts et dans l’onglet Contacts du CRM, en français, espagnol et anglais. Les colonnes séparées Prénom/Nom et ces doublons dans l’aperçu de recherche sont retirés. La recherche retrouve le nom complet, ses différentes parties et les accents. Une modification des autres coordonnées conserve les composantes historiques du nom ; le nom complet reste affiché dans les listes et les fiches. Un nom créé ou explicitement modifié est enregistré en entier dans la colonne existante `first_name`, avec `last_name` vide, sans découpage automatique. Aucune migration ni réécriture globale des données n’est nécessaire ; les liens entre rôles, les sauvegardes versionnées et les historiques existants sont conservés.

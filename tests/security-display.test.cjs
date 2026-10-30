@@ -37,3 +37,19 @@ test('receipt viewer refuses markup, external URLs and active data types before 
   const r=await viewReceipt({data_url:value,filename:'fixture'});assert.equal(r.opened,0);assert.deepEqual(r.errors,['INVALID_FILE']);
  }
 });
+test('financial report cache clears on cross-tab identity and permission changes and rejects stale responses',async()=>{
+ const handlers=new Map();let role='comercial',moduleAllowed=true,calls=0;
+ const context={ArcUI:{esc:String},ArcFormat:{money:String},localStorage:{getItem:()=>JSON.stringify({role})},gamaAccessAllowed:()=>moduleAllowed,GamaCloudReady:Promise.resolve(),GamaCloud:{db:async()=>({})},ArcData:{rawRpc:async()=>{calls++;return {data:[{id:'first-actor-finance'}]}}},setTimeout(){},addEventListener:(name,fn)=>{const list=handlers.get(name)||[];list.push(fn);handlers.set(name,list)}};
+ context.window=context;vm.createContext(context);vm.runInContext(read('src/features/sales/internal-invoices.js'),context);
+ const event=name=>(handlers.get(name)||[]).forEach(fn=>fn({detail:{event:'SIGNED_IN'}}));
+ assert.equal((await context.GamaInternalInvoices.financialData())[0].id,'first-actor-finance');
+ await context.GamaInternalInvoices.financialData();assert.equal(calls,1);
+ let resolveOld;context.ArcData.rawRpc=()=>new Promise(resolve=>{resolveOld=resolve});
+ const old=context.GamaInternalInvoices.financialData(true);await new Promise(setImmediate);
+ event('gama:auth-change');assert.equal(context.GamaFinancialInvoices.length,0);
+ resolveOld({data:[{id:'late-first-actor-finance'}]});assert.equal((await old).length,0);assert.equal(context.GamaFinancialInvoices.length,0);
+ context.ArcData.rawRpc=async()=>({data:[{id:'second-actor-finance'}]});
+ assert.equal((await context.GamaInternalInvoices.financialData())[0].id,'second-actor-finance');
+ moduleAllowed=false;event('gama:modules-change');assert.equal(context.GamaFinancialInvoices.length,0);assert.equal((await context.GamaInternalInvoices.financialData()).length,0);
+ moduleAllowed=true;role='almacenero';event('gama:auth-change');assert.equal((await context.GamaInternalInvoices.financialData()).length,0);
+});

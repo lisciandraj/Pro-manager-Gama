@@ -67,7 +67,7 @@ Le mode chauffeur charge aussi le moteur de langue et met le catalogue en cache 
 
 ## Maintenance des frontières d'autorisation (29 octobre 2026)
 
-Les migrations `20261029233001` à `20261029233007` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
+Les migrations `20261029233001` à `20261029233008` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
 
 Les contrats récurrents conservent leur auteur d'origine, mais toute sauvegarde ou reprise d'une préparation automatique engage les droits de son dernier responsable (`scheduled_by`). Elle exige le droit de créer une commande. Le traitement horaire revérifie les droits de ce responsable ; une modification ne peut donc pas utiliser implicitement les droits supérieurs d'un ancien auteur. Les contrats historiques non modifiés conservent leur responsable initial.
 
@@ -80,5 +80,7 @@ Les alertes, leur historique, leurs compteurs et les priorités du tableau de bo
 Les quantités reçues des lignes d'achat passent par les fonctions de réception. Leur modification directe par le client authentifié est interdite. L'annulation d'une facture fournisseur et la confirmation d'un paiement verrouillent toutes deux la facture avant de relire son état, y compris pour les anciens modes de paiement.
 
 Un avis masqué conserve la décision de modération après sa suppression par l'acheteur. Une nouvelle soumission reste masquée jusqu'à restauration explicite par un administrateur. Le registre privé de cette décision ne conserve pas le texte supprimé de l'avis.
+
+L'ancienne API de factures internes applique les mêmes droits de facturation que l'espace Ventes. Elle reconnaît les commandes secondaires des factures groupées et refuse de refacturer leurs lignes. Ses mutations utilisent le verrou commun des factures. Le cache du rapport financier est vidé au changement de compte ou de droits, et une ancienne réponse en cours ne peut pas le remplir à nouveau.
 
 Le workflow `audit-hardening.yml` exécute les fixtures ciblées avant ses parcours navigateur. Les contrôles de publication habituels restent requis. Les tests de concurrence utilisent exclusivement la base PostgreSQL jetable prévue par `validate-sales-concurrency.yml`. Aucun test métier ne doit viser une base connectée de production.

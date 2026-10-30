@@ -76,6 +76,19 @@ test('security: direct reads and legacy commands preserve current authority',asy
    const book=await one("select public.gama_price_book_action('save',$1::jsonb)",[JSON.stringify(data)]);assert.equal(book.status,'draft');assert.equal(book.created_by,seller);
    await assert.rejects(one("select public.gama_price_book_action('approve',$1::jsonb)",[JSON.stringify({id:book.id})]),/APPROVAL_ADMIN_REQUIRED/);
   });
+  await t.test('legacy invoice report and mutation paths obey current billing modules and actions',async()=>{
+   await owner();await q("update role_module_access set disabled_modules=array_append(disabled_modules,'payments') where role='comercial'");await as(seller);
+   for(const schema of ['public','private'])for(const action of ['report','eligibility','create','link_external']){
+    await assert.rejects(one(`select ${schema}.gama_internal_invoice_action($1,$2::jsonb)`,[action,JSON.stringify({quote_ids:[],quote_id:uuid(),invoice_id:uuid()})]),/ROLE_NOT_ALLOWED/);
+   }
+   await owner();await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'payments') where role='comercial'");
+   await q("insert into erp_action_permissions(role,module,allow_create,allow_edit,updated_by) values('comercial','sales-orders',false,false,$1) on conflict(role,module) do update set allow_create=false,allow_edit=false",[admin]);await as(seller);
+   await assert.rejects(one("select public.gama_internal_invoice_action('create',$1::jsonb)",[JSON.stringify({quote_id:uuid()})]),/ROLE_NOT_ALLOWED/);
+   await assert.rejects(one("select public.gama_internal_invoice_action('link_external',$1::jsonb)",[JSON.stringify({invoice_id:uuid(),number:'Denied'})]),/ROLE_NOT_ALLOWED/);
+   assert.ok(Array.isArray(await one("select public.gama_internal_invoice_action('report','{}')")));
+   await owner();await q("update erp_action_permissions set allow_create=true,allow_edit=true where role='comercial' and module='sales-orders'");await as(seller);
+   await assert.rejects(one("select public.gama_internal_invoice_action('create',$1::jsonb)",[JSON.stringify({quote_id:uuid()})]),/QUOTE_NOT_ACCEPTED/);
+  });
   await t.test('accounting override readers lose access when their module is disabled',async()=>{
    await owner();await q("update role_module_access set disabled_modules=array_append(disabled_modules,'accounting') where role='comercial'");await as(seller);
    const rights=await one('select private.gama_accounting_rights()');assert.equal(rights.view,false);assert.equal(rights.scope,'none');

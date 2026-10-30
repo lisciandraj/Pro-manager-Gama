@@ -37,11 +37,22 @@ def main():
         manifest = prepare.prepare(state, fixture / 'network.osm', fixture / 'points.json', '20,50,100', '1g')
         values = prepare.read_env(state / 'server.env')
         override = state / 'ci-only.yml'
-        override.write_text('services:\n  caddy:\n    environment:\n      TMS_OSRM_SITE: http://localhost:80\n    ports: !override\n      - 127.0.0.1::80\n')
+        # No hostname matcher: the checker reaches the published 127.0.0.1 port,
+        # rather than sending Host: localhost to the container.
+        override.write_text("services:\n  caddy:\n    environment:\n      TMS_OSRM_SITE: ':80'\n    ports: !override\n      - 127.0.0.1::80\n")
         project = 'coco-road-ci-' + uuid.uuid4().hex[:12]
         compose = ['docker', 'compose', '--project-name', project, '--env-file', str(state / 'server.env'),
                    '-f', str(DEPLOY / 'compose.yml'), '-f', str(override)]
         try:
+            stage = 'validate-production-proxy-config'
+            try:
+                command(compose + ['run', '--rm', '--no-deps', '-e', 'TMS_OSRM_SITE=https://roads.example.invalid',
+                                   'caddy', 'caddy', 'validate', '--config', '/etc/caddy/Caddyfile', '--adapter', 'caddyfile'])
+            except subprocess.CalledProcessError as error:
+                # Configuration-only validation receives no coordinate requests.
+                safe = (error.stdout + error.stderr).replace(values['TMS_OSRM_TOKEN'], '[REDACTED]')
+                print(json.dumps({'proxy_config_diagnostic': safe[-1800:]}))
+                raise
             stage = 'start-proxy-and-internal-osrm'
             command(compose + ['up', '--detach'])
             address = command(compose + ['port', 'caddy', '80'])

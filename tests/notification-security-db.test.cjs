@@ -12,7 +12,12 @@ test('native alerts and retained history preserve current driver and source audi
   }
   await owner();await q("insert into hr_employees(id,full_name,profile_id) values($1,'Driver A',$2),($3,'Driver B',$4)",[employeeA,driverA,employeeB,driverB]);
   await q("insert into fleet_drivers(id,name,employee_id,licence_expiry) values($1,'Driver A',$2,current_date+2),($3,'Driver B',$4,null)",[fleetA,employeeA,fleetB,employeeB]);
+  const customer=await one("insert into customers(name) values('Notification fixture customer') returning id");
+  const order=await one("insert into sales_orders(customer_id,customer_name,request_key,status,created_by) values($1,'Notification fixture customer',gen_random_uuid(),'confirmed',$2) returning id",[customer,admin]);
+  await db.exec('begin');
   await q("insert into tms_deliveries(id,customer,address,driver_id,status,delivery_date) values($1,'Own dummy delivery','Quito',$2,'Excepción',current_date-1),($3,'Foreign dummy delivery','Quito',$4,'Excepción',current_date-1)",[deliveryA,fleetA,deliveryB,fleetB]);
+  await q("insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by,loading_required) select $1,gen_random_uuid(),id,$2,false from tms_deliveries where id=any($3::uuid[])",[order,admin,[deliveryA,deliveryB]]);
+  await db.exec('commit');
   await as(admin);const full=await ops('snapshot',{track:true,state:'all'}),foreign=full.alerts.find(a=>a.alert_key==='delivery:'+deliveryB);assert.ok(foreign);assert.equal(full.metrics.late_deliveries,2);
   const fleet=full.alerts.find(a=>a.kind==='fleet_deadline');assert.ok(fleet);
   await as(driverA);assert.equal(await one('select private.tms_can_read($1)',[deliveryB]),false);assert.equal(await one('select count(*)::int from tms_deliveries where id=$1',[deliveryB]),0);

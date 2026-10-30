@@ -10,4 +10,20 @@ begin
  if position(before_text in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:supplier_cancel_lock';end if;
  execute replace(src,before_text,'select * into r from public.supplier_invoices where id=(p_data->>''id'')::uuid for update;');
 end $audit$;
+
+-- Legacy methods have no accounting_payment_methods row, so their earlier
+-- payment-mode trigger returns before locking. Every confirmed payment must
+-- lock and re-read the invoice, including direct writes and status changes.
+create or replace function private.automation_supplier_payment_guard() returns trigger
+language plpgsql security definer set search_path='' as $$
+declare invoice public.supplier_invoices;
+begin
+ if new.status='confirmed' then
+  select * into invoice from public.supplier_invoices where id=new.supplier_invoice_id for update;
+  if not found or invoice.status<>'posted' or not coalesce(invoice.source_reviewed,false) then
+   raise exception 'POSTED_SUPPLIER_INVOICE_REQUIRED';
+  end if;
+ end if;
+ return new;
+end $$;
 notify pgrst,'reload schema';

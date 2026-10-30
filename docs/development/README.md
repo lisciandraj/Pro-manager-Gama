@@ -67,12 +67,18 @@ Le mode chauffeur charge aussi le moteur de langue et met le catalogue en cache 
 
 ## Maintenance des frontières d'autorisation (29 octobre 2026)
 
-Les migrations `20261029233001` à `20261029233004` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
+Les migrations `20261029233001` à `20261029233007` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
 
 Les contrats récurrents conservent leur auteur d'origine, mais toute sauvegarde ou reprise d'une préparation automatique engage les droits de son dernier responsable (`scheduled_by`). Elle exige le droit de créer une commande. Le traitement horaire revérifie les droits de ce responsable ; une modification ne peut donc pas utiliser implicitement les droits supérieurs d'un ancien auteur. Les contrats historiques non modifiés conservent leur responsable initial.
 
 Le budget d'une acquisition est verrouillé avant la création d'une immobilisation. Les écritures directes des seuils de réapprovisionnement respectent les modules, actions et validation exigés par leur interface. Une substitution conserve les quantités de services déjà effectuées ; lorsqu'elle rejoint une ligne existante, sa revue de marge utilise le coût mémorisé de cette ligne, comme la commande résultante.
 
 Les photos en cache échappent leurs attributs HTML. Le visualiseur de justificatifs utilise des propriétés DOM avec des URL de données PDF/image autorisées. Les exports CSV traitent les textes commençant comme des formules sans convertir les montants numériques négatifs en texte.
+
+Les alertes, leur historique, leurs compteurs et les priorités du tableau de bord respectent les droits actuels sur leur source. Un chauffeur ne reçoit que ses livraisons ; un lecteur qui perd un droit ne peut plus lire les notes retenues ni marquer résolue une alerte devenue invisible. La création d'un tarif et les dérogations comptables restent soumises aux droits d'action et d'accès au module.
+
+Les quantités reçues des lignes d'achat passent par les fonctions de réception. Leur modification directe par le client authentifié est interdite. L'annulation d'une facture fournisseur et la confirmation d'un paiement verrouillent toutes deux la facture avant de relire son état, y compris pour les anciens modes de paiement.
+
+Un avis masqué conserve la décision de modération après sa suppression par l'acheteur. Une nouvelle soumission reste masquée jusqu'à restauration explicite par un administrateur. Le registre privé de cette décision ne conserve pas le texte supprimé de l'avis.
 
 Le workflow `audit-hardening.yml` exécute les fixtures ciblées avant ses parcours navigateur. Les contrôles de publication habituels restent requis. Les tests de concurrence utilisent exclusivement la base PostgreSQL jetable prévue par `validate-sales-concurrency.yml`. Aucun test métier ne doit viser une base connectée de production.

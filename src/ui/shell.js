@@ -159,6 +159,10 @@ function syncWorkspace(){
  const nav=home?null:(id==='sri'?section.querySelector('.gaSriTabs'):section.querySelector(MODULE_NAV));
  if(activeNav!==nav){activeNav?.classList.remove('cocoModuleNav');activeNav=nav;activeNav?.classList.add('cocoModuleNav')}
  revealModuleTab(document.activeElement);
+ // Sticky business panels follow the painted app bar, including wrapped
+ // translations and font loading, rather than a legacy fixed height.
+ const offset=Math.ceil(top.getBoundingClientRect().height)+'px';
+ if(document.body.style.getPropertyValue('--coco-topbar-offset')!==offset)document.body.style.setProperty('--coco-topbar-offset',offset);
 }
 function scheduleWorkspace(){if(!workspaceFrame)workspaceFrame=requestAnimationFrame(syncWorkspace)}
 
@@ -315,7 +319,7 @@ function boot(){
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
- window.addEventListener('resize',scheduleWorkspace);
+ window.addEventListener('resize',()=>{syncDrawerAccess();scheduleWorkspace()});
  matchMedia('(min-width:1180px)').addEventListener('change',()=>{if(desktopNavigation())closeDrawer();else syncDrawerAccess()});
  window.addEventListener('arc:module-rendered',scheduleWorkspace);
  document.fonts?.ready.then(scheduleWorkspace);

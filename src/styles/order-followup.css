@@ -3,7 +3,7 @@
 #sales-orders .cocoWithFollowup>.gsOrderAside{grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;gap:14px}
 #sales-orders .cocoWithFollowup>.gsOrderMain{grid-column:1;grid-row:1;min-width:0}
 .cocoPurchaseWorkspace>article,.cocoDossierMain{grid-column:1;grid-row:1;min-width:0}
-.cocoPurchaseWorkspace>aside,.cocoDossierWorkspace>aside{grid-column:2;grid-row:1;min-width:0;position:sticky;top:110px}
+.cocoPurchaseWorkspace>aside,.cocoDossierWorkspace>aside{grid-column:2;grid-row:1;min-width:0;position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px)}
 .cocoFollowup{background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:10px;color:var(--arc-text);font:13px/1.5 var(--arc-font);min-width:0;overflow:hidden}
 .cocoFollowup>summary{display:flex;align-items:center;gap:9px;padding:14px;font-weight:700;cursor:pointer;color:var(--arc-navy-900);border-bottom:1px solid var(--arc-line);list-style:none}
 .cocoFollowup>summary:after{content:'⌄';font-size:16px}.cocoFollowup[open]>summary:after{content:'⌃'}
@@ -58,7 +58,7 @@
 #gamaPurchasesV14.cocoPurchaseSelected .gp14Grid,#gamaPurchasesV14.cocoPurchaseSelected .gp14LowStock{display:none!important}
 #gamaPurchasesV14.cocoPurchaseSelected .gp14Detail{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
 .cocoPurchaseWorkspace>article{background:var(--arc-surface);border:1px solid var(--arc-line);border-radius:8px;padding:20px}
-@media(min-width:1100px){#sales-orders .cocoWithFollowup>.gsOrderAside{position:sticky;top:110px}}
+@media(min-width:1100px){#sales-orders .cocoWithFollowup>.gsOrderAside{position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px)}}
 @media(max-width:1100px){.gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:12px}}
 @media(max-width:900px){
  .gsOrderWorkspace.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace{display:block!important;padding-bottom:80px}
@@ -97,7 +97,7 @@
 /* A grid column does not collapse the sheet margin with its module header. */
 .cocoDossierMain>.gqListCard{margin-top:0}
 .arcContent.cocoHasModuleHistory{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:18px;align-items:start;align-content:start}
-.cocoGlobalHistory{min-width:0;position:sticky;top:100px}.cocoSettingsHistory{margin-top:24px;min-width:0}
+.cocoGlobalHistory{min-width:0;position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px)}.cocoSettingsHistory{margin-top:24px;min-width:0}
 .cocoHasModuleHistory .atFilters{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
 .cocoSettingsHistory .cocoFollowupTimeline{max-height:45vh}.cocoModuleProposal label{display:block;font-size:12px;font-weight:600;min-width:0}
 .cocoModuleProposal input,.cocoModuleProposal select,.cocoModuleProposal textarea{display:block;width:100%;box-sizing:border-box;padding:9px;border:1px solid var(--arc-line);border-radius:6px;background:var(--arc-surface);color:var(--arc-text);margin-top:4px}

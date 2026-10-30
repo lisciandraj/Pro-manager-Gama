@@ -199,6 +199,8 @@ Le titre du bandeau suit le rôle `title`, puis passe à 23 px sous 1180 px et �
 
 À partir de 1180 px, la barre latérale mesure 244 px, avec un retrait de 16 px sur trois côtés ; le contenu principal commence à 276 px. L’en-tête a une hauteur minimale de 112 px : titre et description à gauche, recherche globale complète, notifications, configuration et compte à droite. Le contenu dispose de 18 px en haut, 36 px à gauche et 42 px à droite, en plus des zones de sécurité applicables. Les onglets natifs restent dans le contenu du module à toutes les tailles ; ils défilent horizontalement si nécessaire.
 
+Les minima d’en-tête sont définis sans surcharge de hauteur sur le cadre interne. Les panneaux métier collants suivent la hauteur réellement peinte du bandeau, recalculée après redimensionnement, traduction et chargement des polices. Les retraits horizontaux du bandeau ajoutent les zones de sécurité : 36/42 px sur PC, 24/24 px sur tablette et 10/10 px sur téléphone.
+
 Sous 1180 px, la navigation devient un tiroir de largeur maximale 304 px, l’espace principal revient au bord de l’écran et l’en-tête passe à 96 px minimum. Jusqu’à 760 px, l’en-tête passe à 72 px minimum, la recherche globale rejoint son accès mobile et la description est masquée. Le contenu utilise 16 px en haut et 14 px sur les côtés, ramenés à 12 px plus les zones de sécurité jusqu’à 359 px. La navigation basse Accueil / Recherche / Scanner / Plus reste disponible jusqu’à 860 px ; le contenu réserve 96 px plus la zone de sécurité en bas.
 
 L’accueil conserve des tuiles carrées dont la hauteur suit leur largeur. Des rangées Flexbox avec un espace carré dans le flux évitent les calculs cycliques de hauteur de WebKit ; les écrans courts défilent.
@@ -216,7 +218,7 @@ Jusqu’à 359 px, les tuiles conservent trois colonnes avec une marge intérieu
 
 Entre 861 et 1179 px avec une hauteur au plus 700 px, la règle d’écran court utilise six colonnes. Les règles PC suivantes conservent sept ou neuf colonnes. Les favoris, l’ordre personnel et les modules autorisés restent attachés au compte.
 
-Les tableaux PC gardent leurs outils de recherche, colonnes et choix Tuiles / Tableau. Les préférences enregistrées sont prioritaires. Jusqu’à 760 px, les listes en lecture seule sans préférence s’ouvrent en fiches ; les grilles éditables, fenêtres et tableaux exclus conservent leur structure et leur défilement local. Les conteneurs peuvent rétrécir sans élargir toute la page.
+Dans Ventes sur PC, le menu Outils partage la rangée des onglets. Les tableaux PC gardent leurs outils de recherche, colonnes et choix Tuiles / Tableau. Les préférences enregistrées sont prioritaires. Jusqu’à 760 px, les listes en lecture seule sans préférence s’ouvrent en fiches ; les grilles éditables, fenêtres et tableaux exclus conservent leur structure et leur défilement local. Les conteneurs peuvent rétrécir sans élargir toute la page.
 
 ## Elevation & Depth
 

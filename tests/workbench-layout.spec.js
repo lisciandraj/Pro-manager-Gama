@@ -59,7 +59,7 @@ test('tablet and phone drawer traps focus, restores it, and keeps module favorit
  for(const width of [1024,768,390]){
   await page.setViewportSize({width,height:900});
   await expect(page.locator('.arcBurger')).toBeVisible();
-  expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
+  await expect.poll(()=>page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
   await page.locator('.arcBurger').click();
   await expect(page.locator('.arcSidebar')).toHaveAttribute('aria-modal','true');
   await expect(page.locator('.arcNavFavorites')).toBeVisible();
@@ -141,7 +141,7 @@ test('desktop navigation remains usable across the drawer breakpoint without tra
  await expect(page.locator('#products')).toBeVisible();
  await page.setViewportSize({width:390,height:844});
  await expect(page.locator('.arcBurger')).toBeVisible();
- expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
+ await expect.poll(()=>page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
  await page.locator('.arcBurger').click();await page.keyboard.press('Escape');
  await expect(page.locator('.arcBurger')).toBeFocused();
 });

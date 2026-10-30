@@ -1,0 +1,49 @@
+name: coco-tms-road
+services:
+  osrm:
+    image: ${OSRM_IMAGE:?Run prepare.py init first}
+    command: [osrm-routed, --algorithm, ch, --max-table-size, '128', --threads, '2', --verbosity, WARNING, /data/network.osrm]
+    restart: unless-stopped
+    user: '65532:65532'
+    read_only: true
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256
+    cpus: '${TMS_OSRM_CPUS:-2}'
+    mem_limit: ${TMS_OSRM_MEMORY:-4g}
+    tmpfs: [/tmp:size=16m,mode=1777]
+    volumes:
+      - ${TMS_OSRM_DATA_DIR:?Prepare and validate a graph first}:/data:ro
+    networks: [routing]
+    logging: {driver: none}
+  caddy:
+    image: ${CADDY_IMAGE:?Run prepare.py init first}
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    cpus: '0.5'
+    mem_limit: 128m
+    tmpfs: [/tmp:size=16m,mode=1777]
+    environment:
+      TMS_OSRM_SITE: ${TMS_OSRM_URL:?Set the dedicated HTTPS hostname}
+      TMS_TLS_EMAIL: ${TMS_TLS_EMAIL:?Set the certificate contact}
+      TMS_OSRM_TOKEN: ${TMS_OSRM_TOKEN:?Generate a private routing token}
+      TMS_ROAD_DATA_VERSION: ${TMS_ROAD_DATA_VERSION:?Prepare the road graph first}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - tls-data:/data
+      - tls-config:/config
+    networks: [routing, outbound]
+    depends_on: [osrm]
+    logging: {driver: none}
+networks:
+  routing: {internal: true}
+  outbound: {}
+volumes:
+  tls-data: {}
+  tls-config: {}

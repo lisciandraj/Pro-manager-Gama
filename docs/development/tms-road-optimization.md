@@ -45,6 +45,8 @@ Les deux façades de planification et le commit technique de matrice ont un dél
 
 ## Activation externe nécessaire
 
+Le [paquet de serveur privé](../../services/tms-routing/README.md) fournit le prétraitement OSRM, le proxy HTTPS authentifié, les images figées, les contrôles de disponibilité et la validation Docker isolée 20/50/100. Il reste à lui fournir un serveur permanent. Le compte Cloudflare consulté le 30 octobre 2026 n’a ni moteur routier ni tunnel et l’API Containers exige Workers Paid ; aucune offre n’a été modifiée.
+
 La migration et l’Edge Function peuvent être publiées sans service routier. Dans ce cas, **Optimiser avec les temps routiers** indique que le service reste à configurer, et le planificateur natif amélioré utilise son estimation habituelle. Ne pas présenter ce mode comme une optimisation sur des routes réelles.
 
 Pour activer la matrice :

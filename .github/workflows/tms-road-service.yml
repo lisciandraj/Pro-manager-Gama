@@ -1,0 +1,52 @@
+name: Validate private TMS road service
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - services/tms-routing/**
+      - scripts/check-tms-road-service.mjs
+      - tests/tms-road-service*
+      - supabase/functions/tms-routing/**
+      - supabase/functions/_shared/http.mjs
+      - .github/workflows/tms-road-service.yml
+  pull_request:
+    paths:
+      - services/tms-routing/**
+      - scripts/check-tms-road-service.mjs
+      - tests/tms-road-service*
+      - supabase/functions/tms-routing/**
+      - supabase/functions/_shared/http.mjs
+      - .github/workflows/tms-road-service.yml
+permissions:
+  contents: read
+concurrency:
+  group: tms-road-service-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  isolated-osrm:
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify readiness boundaries and preservation of an existing configuration
+        run: node --test tests/tms-road-service.test.mjs
+      - name: Verify actual pinned OSRM, authentication, private network and 20/50/100 matrices
+        run: python tests/tms-road-service-integration.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tms-road-service-verification-${{ matrix.runner }}
+          path: test-results/tms-road-service.json
+          if-no-files-found: error
+          retention-days: 14

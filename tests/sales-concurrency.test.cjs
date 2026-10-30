@@ -91,6 +91,28 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const cancelled=await cancel,paid=await pay;assert.ok(cancelled.value,cancelled.error?.message);assert.ok(paid.error,'payment cannot commit against the cancelled invoice');assert.match(paid.error.message,/POSTED_SUPPLIER_INVOICE_REQUIRED|INVOICE_CANCELLED|AMOUNT_EXCEEDS_BALANCE/);
   assert.equal((await root.query('select status from supplier_invoices where id=$1',[bill.id])).rows[0].status,'cancelled');
   assert.equal(Number((await root.query("select count(*) from supplier_invoice_payments where supplier_invoice_id=$1 and status='confirmed'",[bill.id])).rows[0].count),0);
+  // Different visitors share the same email quota. Holding the sales lock
+  // distinguishes an admission lock from the later draft-quote creation lock:
+  // both requests must wait before counting, then only one may consume slot 5.
+  const connection=await rpc(clients[0],'gama_website','public_connection',{});
+  for(const c of clients){
+   await c.query('reset role');await c.query("select set_config('request.jwt.claim.sub','',false)");
+   await c.query("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':connection.token})]);await c.query('set role anon');
+  }
+  const inquiry={contact_name:'Quota fixture',email:'quota-race@example.invalid',company:'QA',consent:true,lines:[{product_id:product,quantity:1}]};
+  for(let i=0;i<4;i++)await rpc(clients[0],'gama_storefront','submit',{...inquiry,request_key:uuid(),visitor:'198.51.100.7'});
+  const requests=clients.map((_,i)=>({...inquiry,request_key:uuid(),visitor:'198.51.100.'+(10+i)}));
+  await root.query('begin');await root.query('select pg_advisory_xact_lock(741932,1)');
+  const intake=clients.map((c,i)=>rpc(c,'gama_storefront','submit',requests[i]).then(value=>({value}),error=>({error})));
+  try{
+   const deadline=Date.now()+4000;let waiting=0;
+   while(Date.now()<deadline){waiting=Number((await root.query('select count(*) n from unnest($1::int[]) pid where cardinality(pg_blocking_pids(pid))>0',[pids])).rows[0].n);if(waiting===2)break;await new Promise(resolve=>setTimeout(resolve,25))}
+   assert.equal(waiting,2,'both distinct visitors reached the bounded shared admission lock');
+  }finally{await root.query('commit')}
+  const submissions=await Promise.all(intake);assert.equal(submissions.filter(x=>x.value).length,1);assert.match(submissions.find(x=>x.error).error.message,/WEBSITE_RATE_LIMIT/);
+  assert.equal(Number((await root.query('select count(*) n from private.website_public_inquiries where email=$1',[inquiry.email])).rows[0].n),5);
+  const accepted=submissions.findIndex(x=>x.value);assert.deepEqual(await rpc(clients[accepted],'gama_storefront','submit',requests[accepted]),submissions[accepted].value);
+  for(const c of clients){await c.query('reset role');await c.query("select set_config('request.jwt.claim.sub',$1,false)",[admin]);await c.query("select set_config('request.headers','{}',false)");await c.query('set role authenticated')}
   for(const c of clients)await c.query('set statement_timeout=0');
   // Two real sessions compete for the same last unit, then retry one
   // substitution agreement. Neither confirmation nor the amendment mints stock.

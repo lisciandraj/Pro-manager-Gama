@@ -26,6 +26,7 @@ concurrency:
 jobs:
   isolated-osrm:
     strategy:
+      fail-fast: false
       matrix:
         runner: [ubuntu-latest, ubuntu-24.04-arm]
     runs-on: ${{ matrix.runner }}

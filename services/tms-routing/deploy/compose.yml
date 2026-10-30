@@ -12,7 +12,7 @@ services:
     pids_limit: 256
     cpus: '${TMS_OSRM_CPUS:-2}'
     mem_limit: ${TMS_OSRM_MEMORY:-4g}
-    tmpfs: [/tmp:size=16m,mode=1777]
+    tmpfs: ['/tmp:size=16m,mode=1777']
     volumes:
       - ${TMS_OSRM_DATA_DIR:?Prepare and validate a graph first}:/data:ro
     networks: [routing]
@@ -27,7 +27,7 @@ services:
     pids_limit: 128
     cpus: '0.5'
     mem_limit: 128m
-    tmpfs: [/tmp:size=16m,mode=1777]
+    tmpfs: ['/tmp:size=16m,mode=1777']
     environment:
       TMS_OSRM_SITE: ${TMS_OSRM_URL:?Set the dedicated HTTPS hostname}
       TMS_TLS_EMAIL: ${TMS_TLS_EMAIL:?Set the certificate contact}

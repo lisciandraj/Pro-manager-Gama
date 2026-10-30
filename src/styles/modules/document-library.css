@@ -29,4 +29,10 @@
  .sdLibraryContent{padding:12px}
 }
 
-@media screen{body.cocoWorkbench #documents .sdLibrary{border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}}
+/* Geex library: two separated white surfaces, with a clear reading gutter. */
+@media screen{
+ body.cocoWorkbench #documents .sdLibrary{grid-template-columns:230px minmax(0,1fr);gap:30px;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible}
+ body.cocoWorkbench #documents .sdLibraryFilters{background:var(--coco-surface);border:0;border-radius:var(--arc-r-lg);padding:24px;box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench #documents .sdLibraryContent{background:var(--coco-surface);border-radius:var(--arc-r-lg);padding:24px;box-shadow:var(--coco-surface-shadow)}
+}
+@media screen and (max-width:760px){body.cocoWorkbench #documents .sdLibrary{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}body.cocoWorkbench #documents :is(.sdLibraryFilters,.sdLibraryContent){padding:16px}}

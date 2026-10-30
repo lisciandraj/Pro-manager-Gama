@@ -26,7 +26,13 @@
  #knowledge #gkArticleTitle{font-size:22px}
 }
 
-/* Coco Premium: native module finish, loaded on demand. */
+/* Geex document workspace: independent navigation and article surfaces. */
 @media screen{
- body.cocoWorkbench :is(#documents,#knowledge) :is(.sdLibrary,.gkLayout,.gdocLayout){border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench #knowledge :is(.gkArticle,.gkContent) :is(p,li){font-size:15px;line-height:1.7;max-width:70ch}}
+ body.cocoWorkbench .arcContent #knowledge .gkLayout{grid-template-columns:230px minmax(0,1fr);gap:30px;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible}
+ body.cocoWorkbench .arcContent #knowledge .gkLayout>.gkPanel{background:var(--coco-surface);border:0;border-radius:var(--arc-r-lg);padding:24px;box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench .arcContent #knowledge #gkMain{padding:28px}
+ body.cocoWorkbench #knowledge .gkTree button{border-radius:12px;min-height:44px}
+ body.cocoWorkbench #knowledge .gkTree button[aria-current=true]{box-shadow:none;font-weight:500}
+ body.cocoWorkbench #knowledge :is(.gkArticle,.gkContent) :is(p,li){font-size:15px;line-height:1.7;max-width:70ch}
+}
+@media screen and (max-width:760px){body.cocoWorkbench .arcContent #knowledge .gkLayout{grid-template-columns:minmax(0,1fr);gap:16px}body.cocoWorkbench .arcContent #knowledge .gkLayout>.gkPanel,body.cocoWorkbench .arcContent #knowledge #gkMain{padding:18px}}

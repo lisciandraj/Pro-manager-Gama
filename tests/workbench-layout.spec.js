@@ -16,7 +16,7 @@ async function boot(page){
  await page.evaluate(()=>GamaI18n.setLanguage('fr'));
 }
 
-for(const width of [390,768,1440])test(`every enabled module shares the full-width workspace at ${width}px`,async({page},info)=>{
+for(const width of [390,768,1440])test(`every enabled module shares the responsive GAMA workspace at ${width}px`,async({page},info)=>{
  test.setTimeout(120000);await page.setViewportSize({width,height:900});await boot(page);
  const modules=await page.evaluate(()=>GamaMenu.items.filter(x=>gamaMenuVisible(x[1])).map(x=>x[1]));
  expect(modules.length).toBeGreaterThan(20);
@@ -35,13 +35,9 @@ for(const width of [390,768,1440])test(`every enabled module shares the full-wid
   report.push({module:id,...screen});
   expect(screen.dialog||screen.id!=='mainmenu',id+' opened').toBe(true);
   expect(screen.overflow,id+' horizontal overflow').toBeLessThanOrEqual(2);
-  expect(screen.contentLeft,id+' full-width workspace').toBe(0);
+  expect(screen.contentLeft,id+' desktop sidebar allowance').toBe(width>=1180?276:0);
+  expect(screen.pinned,id+' native tabs stay in the content').toBe(false);
   await expect(page.locator('.arcTopbar')).toBeVisible();
-  if(screen.pinned&&!screen.dialog){
-   expect(screen.nav.top,id+' navigation in app bar').toBe(0);
-   expect(screen.nav.left,id+' navigation after brand').toBeGreaterThan(200);
-   expect(screen.nav.right,id+' navigation before utilities').toBeLessThan(width-120);
-  }
   if(!screen.dialog){
    expect(screen.title,id+' module title').toBeTruthy();
    expect(screen.duplicateHeaders,id+' duplicate module headings and home arrows').toBe(0);
@@ -58,9 +54,9 @@ for(const width of [390,768,1440])test(`every enabled module shares the full-wid
  await info.attach('module-layout-coverage',{body:JSON.stringify(report,null,2),contentType:'application/json'});
 });
 
-test('application drawer traps focus, restores it, and keeps module favorites accessible on every device',async({page})=>{
+test('tablet and phone drawer traps focus, restores it, and keeps module favorites accessible',async({page})=>{
  await boot(page);
- for(const width of [1440,1024,390]){
+ for(const width of [1024,768,390]){
   await page.setViewportSize({width,height:900});
   await expect(page.locator('.arcBurger')).toBeVisible();
   expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
@@ -86,7 +82,7 @@ test('native sales tabs stay in their module, switch with keyboard, and the comm
  expect(await page.locator('section.active .cocoSalesNavigation').evaluate(el=>el.closest('section').id)).toBe('quotes');
  // The GAMA reference theme allows a roomier toolbar while keeping rows above the fold.
  // The compact history utility row remains in normal flow above the list.
- expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(460);
+ expect((await page.locator('#gqList').boundingBox()).y).toBeLessThan(560);
  const first=page.locator('[data-coco-sales-section=documents]');await first.focus();await page.keyboard.press('ArrowRight');
  await expect(page.locator('[data-coco-sales-section=orders]')).toBeFocused();await page.keyboard.press('Enter');
  await expect(page.locator('#sales-orders')).toBeVisible();
@@ -118,4 +114,34 @@ test('global search and module titles follow the selected language without dupli
   await page.locator('#arcSearchInput').focus();await expect(page.locator('#gamaSpotlight')).toBeVisible();
   await page.keyboard.press('Escape');await expect(page.locator('#gamaSpotlight')).toBeHidden();
  }
+});
+
+
+test('desktop navigation remains usable across the drawer breakpoint without trapping the app',async({page})=>{
+ await page.setViewportSize({width:1024,height:900});await boot(page);
+ await page.locator('.arcBurger').click();
+ await expect(page.locator('.arcSidebar')).toHaveAttribute('aria-modal','true');
+ await page.setViewportSize({width:1440,height:900});
+ await expect(page.locator('.arcSidebar')).toBeVisible();
+ await expect(page.locator('.arcBurger')).toBeHidden();
+ await expect(page.locator('.arcSidebar')).not.toHaveAttribute('aria-modal','true');
+ expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(false);
+ expect(await page.locator('.arcMain').evaluate(el=>el.inert)).toBe(false);
+ await page.evaluate(()=>document.fonts.ready);
+ expect(await page.evaluate(()=>[400,500,600].every(weight=>document.fonts.check(weight+' 14px Poppins')))).toBe(true);
+ // A real long translated label must fit without breaking its final word.
+ // This also covers the narrowest persistent-sidebar breakpoint.
+ for(const width of [1180,1280,1440]){
+  await page.setViewportSize({width,height:900});
+  const label=await page.locator('#mainmenu [data-gama-module=knowledge] .gamaF2Title').evaluate(el=>({height:el.getBoundingClientRect().height,line:parseFloat(getComputedStyle(el).lineHeight)}));
+  expect(label.height,'knowledge label at '+width).toBeLessThanOrEqual(label.line*2.1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(2);
+ }
+ await page.locator('.arcNavLink[data-gama-module=products]').last().click();
+ await expect(page.locator('#products')).toBeVisible();
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('.arcBurger')).toBeVisible();
+ expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
+ await page.locator('.arcBurger').click();await page.keyboard.press('Escape');
+ await expect(page.locator('.arcBurger')).toBeFocused();
 });

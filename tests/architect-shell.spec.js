@@ -95,9 +95,9 @@ test.describe('el armazón Coco ERP', () => {
     });
   }
 
-  test('el directorio de aplicaciones se abre como cajón en escritorio, tableta y teléfono', async ({ page }) => {
+  test('el directorio de aplicaciones se abre como cajón en tableta y teléfono', async ({ page }) => {
     await boot(page);
-    for (const width of [1440, 1024, 390]) {
+    for (const width of [1024, 768, 390]) {
       await page.setViewportSize({width,height:900});
       await expect(page.locator('.arcBurger')).toBeVisible();
       expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(true);
@@ -124,14 +124,12 @@ test.describe('el armazón Coco ERP', () => {
     });
     expect(desajuste, 'hay enlaces que no apuntan a ningún módulo').toEqual([]);
 
-    await page.click('.arcBurger');
     await page.click('.arcNavLink[data-gama-module="products"]');
     await page.waitForTimeout(600);
     await expect(page.locator('#products')).toBeVisible();
     await expect(page.locator('.arcNavLink[data-gama-module="products"]')).toHaveAttribute('aria-current', 'page');
 
     // Y «Inicio» devuelve al menú, que es de donde se sale.
-    await page.click('.arcBurger');
     await page.click('.arcNavLink[data-arc-home]');
     await page.waitForTimeout(500);
     await expect(page.locator('#mainmenu')).toBeVisible();
@@ -176,7 +174,7 @@ test.describe('el armazón Coco ERP', () => {
 
     // Y el foco de teclado se distingue en la navegación: sin marca visible,
     // quien no usa ratón no sabe dónde está.
-    await page.locator('.arcBurger').focus();await page.keyboard.press('Enter');
+    await page.locator('.arcNavLink').first().focus();
     await expect(page.locator('.arcNavLink').first()).toBeFocused();
     const marca = await page.evaluate(() => {
       const el = document.querySelector('.arcNavLink');

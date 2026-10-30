@@ -1,7 +1,7 @@
 /* COCO ERP — El armazón de la aplicación.
 
-   Barra de aplicaciones compacta, navegación de módulo horizontal y contenido
-   a todo el ancho. El directorio de módulos y los favoritos viven en un cajón.
+   Navegación lateral flotante en escritorio y cajón accesible en pantallas
+   pequeñas. Las pestañas permanecen dentro del módulo, bajo su cabecera.
 
    Es puramente estructural: no toca showTab, ni el control de acceso, ni la
    búsqueda global, ni la sesión. Mueve nodos que ya existen —el chip de
@@ -9,9 +9,8 @@
    lista de módulos de GamaMenu, así que un módulo nuevo aparece en la lateral
    sin tocar este archivo.
 
-   Las pestañas nativas conservan su DOM y sus manejadores. En escritorio se
-   colocan en el espacio libre de la cabecera; en tableta y móvil se desplazan
-   horizontalmente dentro de su módulo. Nunca se duplican los botones. */
+   Las pestañas nativas conservan su DOM y sus manejadores y se desplazan
+   horizontalmente cuando hace falta. Nunca se duplican los botones. */
 (function(){
 'use strict';
 if(window.ArchitectShell)return;
@@ -111,8 +110,10 @@ function markActive(){
 }
 
 let drawerReturn=null;
-function closeDrawer(){const wasOpen=document.body.classList.contains('arcDrawerOpen');document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess();if(wasOpen)(drawerReturn?.isConnected?drawerReturn:b)?.focus({preventScroll:true});drawerReturn=null}
+const desktopNavigation=()=>matchMedia('(min-width:1180px)').matches;
+function closeDrawer(){const wasOpen=document.body.classList.contains('arcDrawerOpen');document.body.classList.remove('arcDrawerOpen');const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','false');syncDrawerAccess();if(wasOpen){const fallback=desktopNavigation()?document.querySelector('.arcSidebar [aria-current=page]'):b;(drawerReturn?.isConnected&&drawerReturn.getClientRects().length?drawerReturn:fallback)?.focus({preventScroll:true})}drawerReturn=null}
 function openDrawer(){
+ if(desktopNavigation()){document.querySelector('.arcSidebar .arcNavLink[aria-current=page],.arcSidebar .arcNavLink:not(.aclHidden)')?.focus({preventScroll:true});return}
  drawerReturn=document.activeElement;document.body.classList.add('arcDrawerOpen');
  const b=document.querySelector('.arcBurger');if(b)b.setAttribute('aria-expanded','true');syncDrawerAccess();
  // A drawer transitioning from visibility:hidden cannot receive focus until
@@ -141,9 +142,13 @@ function syncWorkspace(){
  const id=section?.id||'mainmenu',home=id==='mainmenu';
  document.body.dataset.cocoModule=id;
  $('cocoModuleBack').hidden=home;
- const title=home?T('Inicio'):(section.querySelector('.gamaStdText h2')?.textContent?.trim()||T(window.ArcModules?.get?.(id==='gama-tms-section'?'tms':id)?.label||''));
+ const module=window.ArcModules?.get?.(id==='gama-tms-section'?'tms':id);
+ const title=home?T('Inicio'):(section.querySelector('.gamaStdText h2')?.textContent?.trim()||T(module?.label||''));
  if(context.textContent!==title)context.textContent=title;
  context.title=title;
+ const subtitle=$('cocoModuleSubtitle'),description=home?'Coco ERP · GAMA':T(module?.description||'');
+ if(subtitle.textContent!==description)subtitle.textContent=description;
+ subtitle.hidden=!description;
  // The app bar owns the module title and home action. Keep the native header
  // nodes for module selectors, printing and any additional business controls.
  section?.querySelectorAll('.gamaStdHeader').forEach(header=>{
@@ -153,17 +158,6 @@ function syncWorkspace(){
  });
  const nav=home?null:(id==='sri'?section.querySelector('.gaSriTabs'):section.querySelector(MODULE_NAV));
  if(activeNav!==nav){activeNav?.classList.remove('cocoModuleNav');activeNav=nav;activeNav?.classList.add('cocoModuleNav')}
- const usable=!!nav&&nav.getClientRects().length>0&&nav.querySelector('button');
- const pinned=!!usable&&matchMedia('(min-width:1180px)').matches;
- document.body.classList.toggle('cocoNavPinned',pinned);
- if(pinned){
-  const left=context.getBoundingClientRect().right+12;
-  const right=innerWidth-document.querySelector('.arcSearch').getBoundingClientRect().left+12;
-  top.style.setProperty('--coco-nav-left',left+'px');
-  document.body.style.setProperty('--coco-nav-left',left+'px');
-  document.body.style.setProperty('--coco-nav-right',right+'px');
-  if(id==='quotes'){const actions=section.querySelector(':scope>.gamaStdHeader');if(actions)section.style.setProperty('--coco-context-actions',Math.ceil(actions.getBoundingClientRect().width+12)+'px')}
- }
  revealModuleTab(document.activeElement);
 }
 function scheduleWorkspace(){if(!workspaceFrame)workspaceFrame=requestAnimationFrame(syncWorkspace)}
@@ -195,7 +189,7 @@ function build(){
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(NAV_ICON.apps)+'</button>'
   +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261018-co" alt="" width="34" height="34"></a>'
-  +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><h1 id="cocoModuleContext" class="cocoModuleContext"></h1></div>'
+  +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><div class="cocoModuleText"><h1 id="cocoModuleContext" class="cocoModuleContext"></h1><p id="cocoModuleSubtitle" class="cocoModuleSubtitle"></p></div></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
    +'<kbd>⌘ K</kbd></div>'
@@ -305,7 +299,7 @@ function adoptSections(){
   if(sec.id!=='mainmenu')wrap.appendChild(sec);
  });
 }
-function syncDrawerAccess(){const open=document.body.classList.contains('arcDrawerOpen'),side=document.querySelector('.arcSidebar');if(side){side.inert=!open;if(open){side.setAttribute('role','dialog');side.setAttribute('aria-modal','true')}else{side.removeAttribute('role');side.removeAttribute('aria-modal')}}for(const root of document.querySelectorAll('.arcMain,.cocoMobileNav'))root.inert=open}
+function syncDrawerAccess(){const open=!desktopNavigation()&&document.body.classList.contains('arcDrawerOpen'),side=document.querySelector('.arcSidebar');if(side){side.inert=!desktopNavigation()&&!open;if(open){side.setAttribute('role','dialog');side.setAttribute('aria-modal','true')}else{side.removeAttribute('role');side.removeAttribute('aria-modal')}}for(const root of document.querySelectorAll('.arcMain,.cocoMobileNav'))root.inert=open}
 function sync(){adoptSections();syncFavorites();applyAccess();markActive();adoptUser();syncBadge();syncDrawerAccess();scheduleWorkspace();const n=$('arcNotify');if(n)n.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('notifications');const g=$('arcSettings');if(g)g.hidden=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('settings');const scan=document.querySelector('[data-coco-mobile=scan]');if(scan)scan.disabled=!!window.gamaAccessAllowed&&!window.gamaAccessAllowed('barcode')}
 
 function boot(){
@@ -322,6 +316,7 @@ function boot(){
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});
  window.addEventListener('resize',scheduleWorkspace);
+ matchMedia('(min-width:1180px)').addEventListener('change',()=>{if(desktopNavigation())closeDrawer();else syncDrawerAccess()});
  window.addEventListener('arc:module-rendered',scheduleWorkspace);
  document.fonts?.ready.then(scheduleWorkspace);
  if(window.ResizeObserver)new ResizeObserver(scheduleWorkspace).observe(document.querySelector('.arcTopbar'));

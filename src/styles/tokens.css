@@ -1,4 +1,7 @@
 @font-face{font-family:Inter;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-latin-regular.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-latin-medium.woff2") format("woff2");font-style:normal;font-weight:500;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-latin-semibold.woff2") format("woff2");font-style:normal;font-weight:600 900;font-display:swap}
 /* Coco ERP — shared design tokens.
    The current theme uses petrol blue, orange and neutral working surfaces.
    Historical variable names remain public aliases for existing modules.
@@ -33,16 +36,16 @@
  --arc-accent-50:#F3F9FA;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#F3F5F7;      /* Cool porcelain canvas, opaque white working surfaces. */
+ --arc-canvas:#F4F3F8;      /* Geex reference canvas, with GAMA brand accents. */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F7F9FA;   /* table headings and inset surfaces */
- --arc-surface-3:#EEF1F5;
- --arc-line:#DFE6EB;        /* decorative surface separators */
+ --arc-surface-2:#F0EFF5;   /* table headings and inset surfaces */
+ --arc-surface-3:#EDEBF3;
+ --arc-line:#E9E7F0;        /* decorative surface separators */
  --arc-line-strong:#7B8797; /* interactive boundaries, AA contrast */
 
- --arc-text:#17243B;
- --arc-text-muted:#5D6980;
- --arc-text-subtle:#5D6980;
+ --arc-text:#29283D;
+ --arc-text-muted:#686779;
+ --arc-text-subtle:#686779;
  --arc-text-invert:#FFFFFF;
  --arc-text-on-navy:#DDEEF2; 
 
@@ -71,16 +74,16 @@
  --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
 
  /* -------------------------------------------------------------- radios */
- --arc-r-sm:10px; --arc-r-md:12px; --arc-r-lg:16px; --arc-r-xl:24px; --arc-r-pill:999px;
+ --arc-r-sm:12px; --arc-r-md:16px; --arc-r-lg:22px; --arc-r-xl:28px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
- --arc-sh-1:0 2px 4px rgb(16 59 82 / .025),0 8px 24px -12px rgb(16 59 82 / .12),inset 0 1px 0 rgb(255 255 255 / .9);
- --arc-sh-2:0 3px 8px rgb(16 59 82 / .04),0 16px 36px -16px rgb(16 59 82 / .18),inset 0 1px 0 #FFFFFF;
+ --arc-sh-1:0 2px 5px rgb(41 40 61 / .012),0 10px 28px -20px rgb(41 40 61 / .06);
+ --arc-sh-2:0 4px 10px rgb(41 40 61 / .035),0 16px 32px -16px rgb(41 40 61 / .14);
  --arc-sh-3:0 8px 20px rgb(16 59 82 / .08),0 28px 72px -16px rgb(16 59 82 / .24),inset 0 1px 0 #FFFFFF;
  --arc-sh-nav:0 1px 3px rgb(16 59 82 / .03),0 6px 20px -12px rgb(16 59 82 / .16);
 
  /* ---------------------------------------------------------- tipografía */
- --arc-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+ --arc-font:"Poppins","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
  --arc-fs-page:1.5rem;   --arc-lh-page:1.3;    /* title */
  --arc-fs-section:1rem;--arc-lh-section:1.4;
  --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
@@ -90,9 +93,9 @@
  --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:600; --arc-fw-black:650;
 
  /* ---------------------------------------------------------- estructura */
- --arc-sidebar-w:clamp(192px,16.75vw,240px);
+ --arc-sidebar-w:244px;
  --arc-sidebar-w-collapsed:72px;
- --arc-topbar-h:70px;
+ --arc-topbar-h:112px;
  --coco-catalog-width:64rem;--coco-catalog-card-width:20rem;--coco-catalog-line:1px;
  --arc-tap:44px;            /* zona táctil mínima */
  --arc-focus:0 0 0 3px rgba(21,127,152,.35);
@@ -106,31 +109,30 @@
  --arc-workspace-title:22px;
  --arc-reading-width:78ch;
  /* GAMA reference theme: one source for shared and lazy-loaded components. */
- --coco-canvas:#F3F5F7;--coco-surface:#FFFFFF;--coco-inset:#EDF2F4;
- --coco-line:#DFE6EB;--coco-row-line:#DFE6EB;--coco-column-line:transparent;
- --coco-ink:#17243B;--coco-muted:#5D6980;
+ --coco-canvas:#F4F3F8;--coco-surface:#FFFFFF;--coco-inset:#F0EFF5;
+ --coco-line:#E9E7F0;--coco-row-line:#ECEAF2;--coco-column-line:transparent;
+ --coco-ink:#29283D;--coco-muted:#686779;
  /* Logo/illustration orange stays #F87826. The action shade lets white labels
     meet AA at every point of the subtle gradient, including hover. */
  --coco-action:#B54708;--coco-action-top:#BD4E09;--coco-action-hover:#A83F07;--coco-on-action:#FFFFFF;
  --coco-action-tint:#FFF4ED;--coco-action-line:#F4C9AD;
- --coco-panel-padding:24px;--coco-panel-gap:24px;
- --coco-surface-sheen:linear-gradient(155deg,#FFFFFF 35%,#FBFCFD);
+ --coco-panel-padding:24px;--coco-panel-gap:30px;
+ --coco-surface-sheen:none;
  --coco-surface-fill:var(--coco-surface-sheen) var(--coco-surface);
  --coco-surface-shadow:var(--arc-sh-1);
- --coco-canvas-light:linear-gradient(125deg,#EEF4F5,#F4F5F8 60%,#F6F4F1);
- /* Static, sub-pixel stipple on the canvas only. No image request or moving noise. */
- --coco-canvas-texture:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cg fill='%23103b52' fill-opacity='.035'%3E%3Ccircle cx='7' cy='19' r='.6'/%3E%3Ccircle cx='53' cy='8' r='.6'/%3E%3Ccircle cx='31' cy='61' r='.6'/%3E%3Ccircle cx='82' cy='46' r='.6'/%3E%3Ccircle cx='65' cy='87' r='.6'/%3E%3C/g%3E%3C/svg%3E");
+ --coco-canvas-light:linear-gradient(var(--coco-canvas),var(--coco-canvas));
+ --coco-canvas-texture:none;
  --coco-action-fill:linear-gradient(180deg,var(--coco-action-top),var(--coco-action));
  --coco-action-shadow:0 1px 2px rgb(91 38 9 / .13),0 4px 10px -4px rgb(181 71 8 / .28),inset 0 1px 0 rgb(255 255 255 / .18);
  --coco-pressed-shadow:inset 0 2px 3px rgb(16 59 82 / .12);
  --coco-motion-feedback:120ms;--coco-motion-state:180ms;--coco-motion-overlay:240ms;
  --coco-ease:cubic-bezier(.16,1,.3,1);
- --coco-icon-surface:linear-gradient(145deg,#FFFFFF,#F4F6F8);
+ --coco-icon-surface:var(--coco-inset);
  --coco-icon-color:#C4510A;
  --coco-dialog-surface:var(--coco-surface-fill);
  --coco-dialog-shadow:var(--arc-sh-3);
  --coco-scrim:rgb(23 36 59 / .26);
- --coco-kanban-surface:#EAF0F2;
+ --coco-kanban-surface:transparent;
  --coco-chart-orange-top:#E96A1B;--coco-chart-orange-bottom:#C4510A;
  --coco-chart-blue-top:#238FA4;--coco-chart-blue-bottom:#10677D;
 }

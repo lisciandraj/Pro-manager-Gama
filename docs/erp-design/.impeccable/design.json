@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-29T00:00:00Z",
-  "title": "Design System: Coco ERP — Coco Premium",
+  "generatedAt": "2026-10-30T00:00:00Z",
+  "title": "Design System: Coco ERP — Geex / GAMA",
   "extensions": {
     "colorMeta": {
       "petrol": {
         "role": "primary",
-        "displayName": "Pétrole des liens et sélections",
+        "displayName": "Pétrole accessible",
         "tonalRamp": [
           "oklch(15.00% 0.0825 220.44)",
           "oklch(26.43% 0.0825 220.44)",
@@ -34,7 +34,7 @@
       },
       "brand-blue": {
         "role": "primary",
-        "displayName": "Bleu de marque Coco",
+        "displayName": "Bleu de marque GAMA",
         "tonalRamp": [
           "oklch(15.00% 0.0952 219.07)",
           "oklch(26.43% 0.0952 219.07)",
@@ -48,15 +48,49 @@
       },
       "action": {
         "role": "secondary",
-        "displayName": "Orange des actions"
+        "displayName": "Orange des actions",
+        "tonalRamp": [
+          "oklch(15.00% 0.1562 42.99)",
+          "oklch(26.43% 0.1562 42.99)",
+          "oklch(37.86% 0.1562 42.99)",
+          "oklch(49.29% 0.1562 42.99)",
+          "oklch(60.71% 0.1562 42.99)",
+          "oklch(72.14% 0.1562 42.99)",
+          "oklch(83.57% 0.1562 42.99)",
+          "oklch(95.00% 0.1562 42.99)"
+        ]
+      },
+      "action-top": {
+        "role": "secondary",
+        "displayName": "Orange haut du dégradé",
+        "tonalRamp": [
+          "oklch(15.00% 0.1584 44.50)",
+          "oklch(26.43% 0.1584 44.50)",
+          "oklch(37.86% 0.1584 44.50)",
+          "oklch(49.29% 0.1584 44.50)",
+          "oklch(60.71% 0.1584 44.50)",
+          "oklch(72.14% 0.1584 44.50)",
+          "oklch(83.57% 0.1584 44.50)",
+          "oklch(95.00% 0.1584 44.50)"
+        ]
       },
       "action-hover": {
         "role": "secondary",
-        "displayName": "Orange de survol"
+        "displayName": "Orange de survol",
+        "tonalRamp": [
+          "oklch(15.00% 0.1497 41.89)",
+          "oklch(26.43% 0.1497 41.89)",
+          "oklch(37.86% 0.1497 41.89)",
+          "oklch(49.29% 0.1497 41.89)",
+          "oklch(60.71% 0.1497 41.89)",
+          "oklch(72.14% 0.1497 41.89)",
+          "oklch(83.57% 0.1497 41.89)",
+          "oklch(95.00% 0.1497 41.89)"
+        ]
       },
       "brand-orange": {
         "role": "secondary",
-        "displayName": "Orange des pictogrammes",
+        "displayName": "Orange de marque GAMA",
         "tonalRamp": [
           "oklch(15.00% 0.1791 47.91)",
           "oklch(26.43% 0.1791 47.91)",
@@ -70,30 +104,30 @@
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Encre",
+        "displayName": "Encre lavande sombre",
         "tonalRamp": [
-          "oklch(15.00% 0.0471 261.24)",
-          "oklch(26.43% 0.0471 261.24)",
-          "oklch(37.86% 0.0471 261.24)",
-          "oklch(49.29% 0.0471 261.24)",
-          "oklch(60.71% 0.0471 261.24)",
-          "oklch(72.14% 0.0471 261.24)",
-          "oklch(83.57% 0.0471 261.24)",
-          "oklch(95.00% 0.0471 261.24)"
+          "oklch(15.00% 0.0381 285.92)",
+          "oklch(26.43% 0.0381 285.92)",
+          "oklch(37.86% 0.0381 285.92)",
+          "oklch(49.29% 0.0381 285.92)",
+          "oklch(60.71% 0.0381 285.92)",
+          "oklch(72.14% 0.0381 285.92)",
+          "oklch(83.57% 0.0381 285.92)",
+          "oklch(95.00% 0.0381 285.92)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Texte secondaire",
         "tonalRamp": [
-          "oklch(15.00% 0.0393 263.36)",
-          "oklch(26.43% 0.0393 263.36)",
-          "oklch(37.86% 0.0393 263.36)",
-          "oklch(49.29% 0.0393 263.36)",
-          "oklch(60.71% 0.0393 263.36)",
-          "oklch(72.14% 0.0393 263.36)",
-          "oklch(83.57% 0.0393 263.36)",
-          "oklch(95.00% 0.0393 263.36)"
+          "oklch(15.00% 0.0281 287.93)",
+          "oklch(26.43% 0.0281 287.93)",
+          "oklch(37.86% 0.0281 287.93)",
+          "oklch(49.29% 0.0281 287.93)",
+          "oklch(60.71% 0.0281 287.93)",
+          "oklch(72.14% 0.0281 287.93)",
+          "oklch(83.57% 0.0281 287.93)",
+          "oklch(95.00% 0.0281 287.93)"
         ]
       },
       "surface": {
@@ -112,20 +146,58 @@
       },
       "inset": {
         "role": "neutral",
-        "displayName": "Fond en retrait"
+        "displayName": "Lavande en retrait",
+        "tonalRamp": [
+          "oklch(15.00% 0.0080 293.91)",
+          "oklch(26.43% 0.0080 293.91)",
+          "oklch(37.86% 0.0080 293.91)",
+          "oklch(49.29% 0.0080 293.91)",
+          "oklch(60.71% 0.0080 293.91)",
+          "oklch(72.14% 0.0080 293.91)",
+          "oklch(83.57% 0.0080 293.91)",
+          "oklch(95.00% 0.0080 293.91)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Toile lavande claire",
+        "tonalRamp": [
+          "oklch(15.00% 0.0067 295.45)",
+          "oklch(26.43% 0.0067 295.45)",
+          "oklch(37.86% 0.0067 295.45)",
+          "oklch(49.29% 0.0067 295.45)",
+          "oklch(60.71% 0.0067 295.45)",
+          "oklch(72.14% 0.0067 295.45)",
+          "oklch(83.57% 0.0067 295.45)",
+          "oklch(95.00% 0.0067 295.45)"
+        ]
       },
       "line": {
         "role": "neutral",
-        "displayName": "Séparateur",
+        "displayName": "Séparateur de surface",
         "tonalRamp": [
-          "oklch(15.00% 0.0102 238.52)",
-          "oklch(26.43% 0.0102 238.52)",
-          "oklch(37.86% 0.0102 238.52)",
-          "oklch(49.29% 0.0102 238.52)",
-          "oklch(60.71% 0.0102 238.52)",
-          "oklch(72.14% 0.0102 238.52)",
-          "oklch(83.57% 0.0102 238.52)",
-          "oklch(95.00% 0.0102 238.52)"
+          "oklch(15.00% 0.0122 296.34)",
+          "oklch(26.43% 0.0122 296.34)",
+          "oklch(37.86% 0.0122 296.34)",
+          "oklch(49.29% 0.0122 296.34)",
+          "oklch(60.71% 0.0122 296.34)",
+          "oklch(72.14% 0.0122 296.34)",
+          "oklch(83.57% 0.0122 296.34)",
+          "oklch(95.00% 0.0122 296.34)"
+        ]
+      },
+      "row-line": {
+        "role": "neutral",
+        "displayName": "Séparateur de ligne",
+        "tonalRamp": [
+          "oklch(15.00% 0.0109 297.62)",
+          "oklch(26.43% 0.0109 297.62)",
+          "oklch(37.86% 0.0109 297.62)",
+          "oklch(49.29% 0.0109 297.62)",
+          "oklch(60.71% 0.0109 297.62)",
+          "oklch(72.14% 0.0109 297.62)",
+          "oklch(83.57% 0.0109 297.62)",
+          "oklch(95.00% 0.0109 297.62)"
         ]
       },
       "input-line": {
@@ -144,7 +216,7 @@
       },
       "selected": {
         "role": "primary",
-        "displayName": "Sélection claire",
+        "displayName": "Sélection pétrole claire",
         "tonalRamp": [
           "oklch(15.00% 0.0134 214.36)",
           "oklch(26.43% 0.0134 214.36)",
@@ -158,7 +230,7 @@
       },
       "hover": {
         "role": "primary",
-        "displayName": "Survol clair",
+        "displayName": "Survol pétrole clair",
         "tonalRamp": [
           "oklch(15.00% 0.0065 208.78)",
           "oklch(26.43% 0.0065 208.78)",
@@ -262,15 +334,19 @@
       },
       "title": {
         "displayName": "Titre du bandeau",
-        "purpose": "Nom unique du module sur grand écran."
+        "purpose": "Nom unique du module : 26 px PC, 23 px tablette, 18 px téléphone."
       },
       "section": {
         "displayName": "Titre de section",
         "purpose": "Hiérarchie intermédiaire des surfaces de travail."
       },
       "body": {
-        "displayName": "Texte et valeurs PC",
-        "purpose": "Texte courant et principales valeurs de liste sur ordinateur."
+        "displayName": "Texte courant",
+        "purpose": "Texte courant et contrôles partagés."
+      },
+      "table": {
+        "displayName": "Valeurs de tableau PC",
+        "purpose": "Cellules des listes opérationnelles sur ordinateur."
       },
       "value-mobile": {
         "displayName": "Valeurs et saisie mobile",
@@ -283,23 +359,32 @@
       "button": {
         "displayName": "Commande commune",
         "purpose": "Libellé des boutons partagés."
+      },
+      "home-label": {
+        "displayName": "Libellé d’accueil",
+        "purpose": "Nom complet du module sur les tuiles PC et téléphone."
       }
     },
     "shadows": [
       {
         "name": "surface",
-        "value": "0 2px 4px rgb(16 59 82 / .025),0 8px 24px -12px rgb(16 59 82 / .12),inset 0 1px 0 rgb(255 255 255 / .9)",
+        "value": "0 2px 5px rgb(41 40 61 / .012),0 10px 28px -20px rgb(41 40 61 / .06)",
         "purpose": "Panneaux, KPI et tuiles ; une seule ombre par groupe."
       },
       {
         "name": "raised",
-        "value": "0 3px 8px rgb(16 59 82 / .04),0 16px 36px -16px rgb(16 59 82 / .18),inset 0 1px 0 #FFFFFF",
+        "value": "0 4px 10px rgb(41 40 61 / .035),0 16px 32px -16px rgb(41 40 61 / .14)",
         "purpose": "Survol interactif et menus."
       },
       {
         "name": "dialog",
         "value": "0 8px 20px rgb(16 59 82 / .08),0 28px 72px -16px rgb(16 59 82 / .24),inset 0 1px 0 #FFFFFF",
-        "purpose": "Fenêtres et lanceur."
+        "purpose": "Fenêtres et tiroir ouvert."
+      },
+      {
+        "name": "action",
+        "value": "0 1px 2px rgb(91 38 9 / .13),0 4px 10px -4px rgb(181 71 8 / .28),inset 0 1px 0 rgb(255 255 255 / .18)",
+        "purpose": "Relief de la commande principale orange."
       }
     ],
     "motion": [
@@ -316,7 +401,7 @@
       {
         "name": "overlay",
         "value": "240ms",
-        "purpose": "Fenêtre, lanceur et favori."
+        "purpose": "Fenêtre, tiroir et favori."
       },
       {
         "name": "easing",
@@ -343,8 +428,12 @@
         "value": "900px"
       },
       {
-        "name": "desktop-tabs-min",
+        "name": "desktop-sidebar-min",
         "value": "1180px"
+      },
+      {
+        "name": "home-nine-columns-min",
+        "value": "1440px"
       }
     ]
   },
@@ -355,7 +444,7 @@
       "refersTo": "button-primary",
       "description": "Commande principale orange ; les actions secondaires restent plus discrètes.",
       "html": "<button class=\"ds-primary\" type=\"button\">Enregistrer</button>",
-      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:var(--arc-r-sm,10px);box-shadow:var(--coco-action-shadow);cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-action-fill,linear-gradient(#BD4E09,#B54708));border-color:var(--coco-action,#bd4e09);color:var(--coco-on-action,#fff)}.ds-primary:hover:not(:disabled){background:var(--coco-action-hover,#b54708)}.ds-primary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-primary:active:not(:disabled){background:var(--coco-action-hover,#b54708)}.ds-primary:disabled{opacity:.55;cursor:not-allowed}"
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E7F0);border-radius:var(--arc-r-sm,12px);box-shadow:var(--coco-action-shadow);cursor:pointer;font:500 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif);background:var(--coco-action-fill,linear-gradient(#BD4E09,#B54708));border-color:var(--coco-action,#B54708);color:var(--coco-on-action,#fff)}.ds-primary:hover:not(:disabled){background:var(--coco-action-hover,#A83F07)}.ds-primary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-primary:active:not(:disabled){background:var(--coco-action-hover,#A83F07)}.ds-primary:disabled{opacity:.55;cursor:not-allowed}"
     },
     {
       "name": "Action secondaire",
@@ -363,7 +452,7 @@
       "refersTo": "button-secondary",
       "description": "Retour ou action complémentaire sur fond blanc.",
       "html": "<button class=\"ds-secondary\" type=\"button\">Retour</button>",
-      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:var(--arc-r-sm,10px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b)}.ds-secondary:hover:not(:disabled){background:var(--coco-inset,#f7f9fa);border-color:var(--arc-accent-600,#10677d)}.ds-secondary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-secondary:active:not(:disabled){background:var(--arc-accent-50,#f3f9fa)}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}"
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E7F0);border-radius:var(--arc-r-sm,12px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif);background:var(--coco-surface,#fff);color:var(--coco-ink,#29283D)}.ds-secondary:hover:not(:disabled){background:var(--coco-inset,#F0EFF5);border-color:var(--arc-accent-600,#10677d)}.ds-secondary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-secondary:active:not(:disabled){background:var(--arc-accent-50,#f3f9fa)}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}"
     },
     {
       "name": "Action discrète",
@@ -371,7 +460,7 @@
       "refersTo": "button-ghost",
       "description": "Commande de moindre priorité avec libellé pétrole.",
       "html": "<button class=\"ds-ghost\" type=\"button\">Actualiser</button>",
-      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:var(--arc-r-sm,10px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:transparent;border-color:transparent;color:var(--arc-accent-600,#10677d)}.ds-ghost:hover:not(:disabled){background:var(--coco-inset,#f7f9fa)}.ds-ghost:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-ghost:active:not(:disabled){background:var(--arc-accent-100,#e7f3f6)}.ds-ghost:disabled{opacity:.55;cursor:not-allowed}"
+      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E7F0);border-radius:var(--arc-r-sm,12px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif);background:transparent;border-color:transparent;color:var(--arc-accent-600,#10677d)}.ds-ghost:hover:not(:disabled){background:var(--coco-inset,#F0EFF5)}.ds-ghost:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-ghost:active:not(:disabled){background:var(--arc-accent-100,#e7f3f6)}.ds-ghost:disabled{opacity:.55;cursor:not-allowed}"
     },
     {
       "name": "Champ de saisie",
@@ -379,15 +468,15 @@
       "refersTo": "field",
       "description": "Libellé persistant et contour de champ distinct du séparateur de panneau.",
       "html": "<label class=\"ds-field\">Référence<input class=\"ds-field-input\" type=\"text\" value=\"REF-001\"></label>",
-      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;color:var(--coco-ink,#17243b);font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);}.ds-field-input{min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--arc-line-strong,#7b8797);border-radius:var(--arc-r-sm,10px);background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b);font:400 14px/1.5 var(--arc-font,Inter,Arial,sans-serif);box-shadow:none}.ds-field-input:hover{border-color:var(--arc-accent-600,#10677d)}.ds-field-input:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:var(--arc-danger,#b3261e)}.ds-field-input[readonly]{background:var(--coco-inset,#f7f9fa)}@media(max-width:760px){.ds-field-input{font-size:16px}}"
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;color:var(--coco-ink,#29283D);font:500 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif);}.ds-field-input{min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--arc-line-strong,#7b8797);border-radius:var(--arc-r-sm,12px);background:var(--coco-surface,#fff);color:var(--coco-ink,#29283D);font:400 14px/1.5 var(--arc-font,Poppins,Inter,Arial,sans-serif);box-shadow:none}.ds-field-input:hover{border-color:var(--arc-accent-600,#10677d)}.ds-field-input:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:var(--arc-danger,#b3261e)}.ds-field-input[readonly]{background:var(--coco-inset,#F0EFF5)}@media(max-width:760px){.ds-field-input{font-size:16px}}"
     },
     {
       "name": "Onglets de module",
       "kind": "nav",
       "refersTo": "module-tab",
-      "description": "Navigation horizontale ; le soulignement et le poids identifient l’onglet actif.",
-      "html": "<nav class=\"ds-tabs\" aria-label=\"Ventes\"><button class=\"ds-tab\" type=\"button\" aria-current=\"page\">À traiter</button><button class=\"ds-tab\" type=\"button\">Devis</button><button class=\"ds-tab\" type=\"button\">Commandes</button></nav>",
-      "css": ".ds-tabs{display:flex;gap:20px;overflow-x:auto;border-bottom:1px solid var(--coco-line,#dfe6eb);background:var(--coco-surface,#fff)}.ds-tab{min-height:44px;flex:none;padding:10px 2px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--coco-muted,#5d6980);font:400 14px/1.35 var(--arc-font,Inter,Arial,sans-serif);cursor:pointer}.ds-tab[aria-current=page]{border-bottom-color:var(--arc-accent-600,#10677d);color:var(--arc-accent-600,#10677d);font-weight:600}.ds-tab:hover{background:var(--arc-accent-100,#e7f3f6);color:var(--arc-accent-600,#10677d)}.ds-tab:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;outline-offset:-3px}.ds-tab:active{background:var(--arc-accent-100,#e7f3f6)}"
+      "description": "Onglets natifs dans le contenu du module, défilants, avec sélection pétrole.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Exemple de sections\"><button class=\"ds-tab\" aria-current=\"page\">Vue d’ensemble</button><button class=\"ds-tab\">Historique</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:10px;overflow-x:auto;padding:4px 0}.ds-tab{flex:none;min-height:46px;padding:11px 18px;border:1px solid transparent;border-radius:14px;background:var(--coco-inset,#F0EFF5);color:var(--coco-ink,#29283D);font:400 13px/1.4 var(--arc-font,Poppins,Inter,Arial,sans-serif);cursor:pointer}.ds-tab[aria-current=page]{background:var(--arc-accent-100,#E7F3F6);border-color:var(--arc-accent-600,#10677D);color:var(--arc-accent-700,#0C556B);font-weight:500}.ds-tab:hover{background:var(--arc-accent-100,#E7F3F6)}.ds-tab:focus-visible{outline:2px solid var(--arc-accent-600,#10677D);outline-offset:-3px}.ds-tab:active{background:var(--arc-accent-100,#E7F3F6)}"
     },
     {
       "name": "Statut confirmé",
@@ -395,57 +484,66 @@
       "refersTo": "status-success",
       "description": "Indication lisible ; le texte explicite porte le sens du statut.",
       "html": "<span class=\"ds-status\">Confirmé</span>",
-      "css": ".ds-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:0;border-radius:5px;background:var(--arc-success-bg,#e4f5ec);color:var(--arc-success,#0d7446);font:500 12px/1.45 var(--arc-font,Inter,Arial,sans-serif)}"
+      "css": ".ds-status{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:0;border-radius:9px;background:var(--arc-success-bg,#e4f5ec);color:var(--arc-success,#0d7446);font:400 12px/1.45 var(--arc-font,Poppins,Inter,Arial,sans-serif)}"
     },
     {
       "name": "Panneau de travail",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Surface blanche satinée, profondeur légère, contenu et contrôles conservés.",
+      "description": "Surface blanche opaque, profondeur légère, contenu et contrôles conservés.",
       "html": "<article class=\"ds-panel\"><h3 class=\"ds-panel-title\">Détails</h3><p class=\"ds-panel-text\">Les informations complémentaires restent accessibles dans le dossier.</p></article>",
-      "css": ".ds-panel{padding:24px;border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b);box-shadow:var(--coco-surface-shadow);font:400 14px/1.55 var(--arc-font,Inter,Arial,sans-serif)}.ds-panel-title{margin:0 0 12px;font-size:17px;line-height:1.4;font-weight:600;letter-spacing:-.02em}.ds-panel-text{margin:0;color:var(--coco-muted,#5d6980)}@media(max-width:760px){.ds-panel{padding:16px}}"
+      "css": ".ds-panel{padding:24px;border:0;border-radius:var(--arc-r-lg,22px);background:var(--coco-surface,#fff);color:var(--coco-ink,#29283D);box-shadow:var(--coco-surface-shadow);font:400 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif)}.ds-panel-title{margin:0 0 12px;font-size:17px;line-height:1.4;font-weight:600;letter-spacing:-.02em}.ds-panel-text{margin:0;color:var(--coco-muted,#686779)}@media(max-width:760px){.ds-panel{padding:16px}}"
     },
     {
       "name": "Fiche mobile de liste",
       "kind": "custom",
-      "refersTo": "panel",
-      "description": "Surface blanche satinée, profondeur légère, contenu et contrôles conservés.",
+      "refersTo": "mobile-card",
+      "description": "Surface blanche opaque, profondeur légère, contenu et contrôles conservés.",
       "html": "<article class=\"ds-record\"><h3 class=\"ds-record-title\">Référence</h3><dl class=\"ds-record-fields\"><div><dt>Client</dt><dd>Nom du client</dd></div><div><dt>Statut</dt><dd>À traiter</dd></div></dl><button class=\"ds-record-action\" type=\"button\">Ouvrir</button></article>",
-      "css": ".ds-record{padding:16px;border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#17243b);font:400 16px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-record-title{margin:0 0 12px;font-size:16px;line-height:1.5;font-weight:600}.ds-record-fields{margin:0}.ds-record-fields>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:10px;padding:6px 0}.ds-record-fields dt{font-size:11px;color:var(--coco-muted,#5d6980)}.ds-record-fields dd{margin:0;overflow-wrap:anywhere}.ds-record-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#dfe6eb);border-radius:var(--arc-r-sm,10px);box-shadow:var(--coco-surface-shadow);cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);margin-top:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#17243b)}.ds-record-action:hover{background:var(--coco-inset,#f7f9fa);border-color:var(--arc-accent-600,#10677d)}.ds-record-action:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-record-action:active{background:var(--arc-accent-50,#f3f9fa)}"
+      "css": ".ds-record{padding:16px;border:0;border-radius:14px;background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#29283D);font:400 16px/1.5 var(--arc-font,Poppins,Inter,Arial,sans-serif)}.ds-record-title{margin:0 0 12px;font-size:16px;line-height:1.5;font-weight:600}.ds-record-fields{margin:0}.ds-record-fields>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:10px;padding:6px 0}.ds-record-fields dt{font-size:11px;color:var(--coco-muted,#686779)}.ds-record-fields dd{margin:0;overflow-wrap:anywhere}.ds-record-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E7F0);border-radius:var(--arc-r-sm,12px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Poppins,Inter,Arial,sans-serif);margin-top:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#29283D)}.ds-record-action:hover{background:var(--coco-inset,#F0EFF5);border-color:var(--arc-accent-600,#10677d)}.ds-record-action:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-record-action:active{background:var(--arc-accent-50,#f3f9fa)}"
     },
     {
       "name": "Historique replié",
       "kind": "custom",
       "refersTo": "panel",
-      "description": "Surface blanche satinée, profondeur légère, contenu et contrôles conservés.",
+      "description": "Surface blanche opaque, profondeur légère, contenu et contrôles conservés.",
       "html": "<details class=\"ds-history\"><summary class=\"ds-history-summary\">Historique du module</summary><div class=\"ds-history-body\">Aucune action enregistrée.</div></details>",
-      "css": ".ds-history{border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#17243b);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-history-summary{min-height:44px;padding:10px 12px;font-weight:500;cursor:pointer}.ds-history-summary:hover{background:var(--coco-inset,#f7f9fa)}.ds-history-summary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-history-summary:active{background:var(--arc-accent-50,#f3f9fa)}.ds-history[open]>.ds-history-summary{border-bottom:1px solid var(--coco-line,#dfe6eb)}.ds-history-body{padding:12px;color:var(--coco-muted,#5d6980)}"
+      "css": ".ds-history{border:0;border-radius:var(--arc-r-lg,22px);background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#29283D);font:400 13px/1.5 var(--arc-font,Poppins,Inter,Arial,sans-serif)}.ds-history-summary{min-height:44px;padding:10px 12px;font-weight:500;cursor:pointer}.ds-history-summary:hover{background:var(--coco-inset,#F0EFF5)}.ds-history-summary:focus-visible{outline:2px solid var(--arc-accent-600,#10677d);outline-offset:3px;}.ds-history-summary:active{background:var(--arc-accent-50,#f3f9fa)}.ds-history[open]>.ds-history-summary{border-bottom:1px solid var(--coco-line,#E9E7F0)}.ds-history-body{padding:12px;color:var(--coco-muted,#686779)}"
+    },
+    {
+      "name": "Lien latéral",
+      "kind": "nav",
+      "refersTo": "sidebar-link",
+      "description": "Destination du menu PC ou du tiroir, avec état courant explicite.",
+      "html": "<nav class=\"ds-side\" aria-label=\"Exemple de modules\"><a class=\"ds-side-link\" href=\"#dashboard\" aria-current=\"page\">Dashboard</a><a class=\"ds-side-link\" href=\"#documents\">Documents</a></nav>",
+      "css": ".ds-side{width:204px;padding:20px;background:var(--coco-surface,#FFFFFF);border-radius:28px}.ds-side-link{display:flex;align-items:center;min-height:48px;padding:12px 16px;margin-bottom:6px;border-radius:14px;color:var(--coco-ink,#29283D);font:400 13px/1.5 var(--arc-font,Poppins,Inter,Arial,sans-serif);text-decoration:none}.ds-side-link[aria-current=page]{background:linear-gradient(100deg,#deedf1,#eaf3f5);color:var(--arc-accent-700,#0C556B)}.ds-side-link:hover,.ds-side-link:active{background:var(--coco-inset,#F0EFF5)}.ds-side-link:focus-visible{outline:2px solid var(--arc-accent-600,#10677D);outline-offset:3px}"
     }
   ],
   "narrative": {
-    "northStar": "Coco Premium",
-    "overview": "Interface de gestion inspirée des références Geex : toile porcelaine, surfaces satinées, ombres multicouches ; navigation, identité et fonctions Coco conservées.",
+    "northStar": "Geex / GAMA",
+    "overview": "L’autorité visuelle est la direction demandée par le propriétaire le 30 octobre 2026 : reconstruire l’apparence des captures Geex fournies avec l’orange et le bleu pétrole GAMA. Elle remplace la précédente finition Coco Premium. La composition associe une navigation latérale flottante, un en-tête ample, une toile lavande très claire et des panneaux blancs aux angles doux. Les captures constituent la référence ; aucun fichier Figma ni code source Geex n’a été importé.\n\nCe contrat concerne les modules internes servis par `src/app/index.html`. Les tokens proviennent de `src/styles/tokens.css`, puis des dispositions `workbench.css`, de la finition `design.css` et des feuilles différées. Les fonctions, droits, langues, favoris, historiques et données métier restent ceux de Coco. Le site public possède un `DESIGN.md` distinct à la racine du dépôt.",
     "keyCharacteristics": [
-      "Surfaces blanches sur une toile légèrement teintée.",
-      "Profondeur à trois niveaux, sans ombres imbriquées.",
-      "Orange pour les actions, pétrole pour les sélections.",
-      "Mouvement bref au service des états, préférence de réduction respectée."
+      "Navigation latérale flottante sur PC, tiroir accessible sur tablette.",
+      "Toile lavande claire, surfaces blanches et ombres discrètes.",
+      "Poppins locale, titre unique et description traduite du module.",
+      "Orange pour la commande principale, pétrole pour les liens et sélections.",
+      "Contrôles et structures métier conservés dans leur module."
     ],
     "rules": [
       {
         "name": "The Action Rule",
-        "body": "Orange pour la commande principale ; pétrole pour les sélections.",
+        "body": "Réserver l’orange d’action à la commande principale ; employer le pétrole pour les liens et les sélections.",
         "section": "colors"
       },
       {
-        "name": "The Surface Rule",
-        "body": "Une seule ombre par groupe ; champs contrastés et états métier conservés.",
-        "section": "elevation"
+        "name": "The Readability Rule",
+        "body": "Conserver les libellés complets, les traductions et le retour à la ligne sans comprimer la cible de commande.",
+        "section": "typography"
       },
       {
-        "name": "The Feedback Rule",
-        "body": "Transitions brèves ; mouvement réduit sans perte des états.",
-        "section": "motion"
+        "name": "The Surface Rule",
+        "body": "Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats.",
+        "section": "elevation"
       }
     ],
     "dos": [
@@ -456,9 +554,12 @@
       "Do vérifier ensemble les formats PC et téléphone, le focus et les textes longs."
     ],
     "donts": [
-      "Ne pas empiler les ombres.",
-      "Ne pas animer le chargement de chaque page.",
-      "Ne pas modifier les données, droits, préférences ou structures métier."
+      "Don't rétablir le bandeau d’onglets épinglés, le satin ou la texture de toile de la révision précédente.",
+      "Don't empiler les ombres ni ajouter des halos décoratifs.",
+      "Don't présenter l’orange de marque comme la couleur du texte blanc des actions principales.",
+      "Don't forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.",
+      "Don't transformer une valeur inconnue ou un échec de chargement en zéro ou succès.",
+      "Don't appliquer ce contrat au site public ni modifier son autorité visuelle racine."
     ]
   }
 }

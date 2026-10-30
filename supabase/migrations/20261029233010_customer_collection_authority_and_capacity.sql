@@ -30,7 +30,7 @@ begin
 
  -- Advance allocation holds the same invoice lock and must reserve pending
  -- ordinary payments as well as the amount already posted to the receivable.
- src:=pg_get_functiondef('private.gama_receipt_action_before_payment_modes(text,jsonb)'::regprocedure);
+ src:=pg_get_functiondef('private.gama_receipt_action_core(text,jsonb)'::regprocedure);
  anchor:='amount>remaining or amount>inv.balance';
  if position(anchor in src)=0 then raise exception 'SECURITY_PATCH_ANCHOR:receipt_allocation_capacity';end if;
  execute replace(src,anchor,'amount>remaining or amount>greatest(0,inv.balance-inv.unposted_payment)');

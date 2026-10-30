@@ -1,0 +1,13 @@
+{
+  "version": "20261030193932",
+  "name": "tms_road_optimization",
+  "file": "20261030191545_tms_road_optimization.sql",
+  "statement_count": 1,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "sha256": "1196aaed0901133021d0ddb798f59e3653684a590e9383cb9bce2504b84404a4",
+  "bytes": 23819,
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-10-30",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed schema-only SQL verified against the tested source. Edge Function tms-routing version 1 deployed with JWT verification. Never replay this migration in production."
+}

@@ -1,0 +1,83 @@
+{
+  "dataset": "synthetic directional grid; not real Quito routes; no live traffic",
+  "scope": "isolated PGlite, current planner versus road-aware native assignment plus bounded 2-opt; matrix acquisition excluded",
+  "results": [
+    {
+      "deliveries": 20,
+      "vehicles": 2,
+      "locations": 23,
+      "baseline": {
+        "km": 120.92,
+        "estimated_minutes": 297,
+        "served": 20,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 608
+      },
+      "optimized": {
+        "km": 115.13,
+        "estimated_minutes": 286,
+        "served": 20,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 895
+      },
+      "km_change_percent": -4.79,
+      "minutes_change_percent": -3.7
+    },
+    {
+      "deliveries": 50,
+      "vehicles": 3,
+      "locations": 54,
+      "baseline": {
+        "km": 171.37,
+        "estimated_minutes": 516,
+        "served": 50,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 2330
+      },
+      "optimized": {
+        "km": 162.03,
+        "estimated_minutes": 500,
+        "served": 50,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 3843
+      },
+      "km_change_percent": -5.45,
+      "minutes_change_percent": -3.1
+    },
+    {
+      "deliveries": 100,
+      "vehicles": 5,
+      "locations": 105,
+      "baseline": {
+        "km": 286.95,
+        "estimated_minutes": 963,
+        "served": 96,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 7536
+      },
+      "optimized": {
+        "km": 263.84,
+        "estimated_minutes": 921,
+        "served": 100,
+        "window_violations": 0,
+        "window_compliance": 100,
+        "shift_violations": 0,
+        "calculation_ms": 13527
+      },
+      "km_change_percent": -8.05,
+      "minutes_change_percent": -4.36
+    }
+  ],
+  "pglite": "0.4.6",
+  "postgres": "17.5"
+}

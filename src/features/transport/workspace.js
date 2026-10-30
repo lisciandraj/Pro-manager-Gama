@@ -192,7 +192,7 @@ Object.assign(WORDS,{
  mapSync:['Actualisation toutes les 15 s','Actualización cada 15 s','Updates every 15 s'],mapStale:['Connexion interrompue · dernières données conservées','Conexión interrumpida · últimos datos conservados','Connection interrupted · keeping last data'],
  mapGps:['Véhicules avec GPS récent','Vehículos con GPS reciente','Vehicles with recent GPS'],mapGpsUnavailable:['Suivi GPS indisponible','Seguimiento GPS no disponible','GPS tracking unavailable'],
  mapOrder:['Pointillés : ordre des arrêts optimisé par Coco, distances estimées.','Línea discontinua: orden de paradas optimizado por Coco, distancias estimadas.','Dashed lines: stop order optimized by Coco, estimated distances.'],
- mapRoad:['Afficher les trajets routiers','Mostrar recorridos por carretera','Show road routes'],mapRoadPrivacy:['Cette option transmet uniquement les coordonnées des arrêts à FOSSGIS (OSRM/OpenStreetMap). Aucun nom ni GPS chauffeur n’est envoyé.','Esta opción envía solo las coordenadas de las paradas a FOSSGIS (OSRM/OpenStreetMap). No envía nombres ni GPS del conductor.','This option sends only stop coordinates to FOSSGIS (OSRM/OpenStreetMap). No names or driver GPS are sent.'],
+ roadOptimize:['Optimiser avec les temps routiers','Optimizar con tiempos viales','Optimize with road times'],roadPrivacy:['Le service privé configuré reçoit uniquement les coordonnées des arrêts, départs et retours. Les tournées protégées sont conservées.','El servicio privado configurado recibe solo las coordenadas de paradas, inicios y finales. Se conservan las rutas protegidas.','The configured private service receives only stop, start and end coordinates. Protected routes are retained.'],mapRoad:['Afficher les trajets routiers','Mostrar recorridos por carretera','Show road routes'],mapRoadPrivacy:['Cette option transmet uniquement les coordonnées des arrêts à FOSSGIS (OSRM/OpenStreetMap). Aucun nom ni GPS chauffeur n’est envoyé.','Esta opción envía solo las coordenadas de las paradas a FOSSGIS (OSRM/OpenStreetMap). No envía nombres ni GPS del conductor.','This option sends only stop coordinates to FOSSGIS (OSRM/OpenStreetMap). No names or driver GPS are sent.'],
  mapRoadLoading:['Calcul des trajets routiers…','Calculando recorridos por carretera…','Calculating road routes…'],mapRoadFailed:['Tracé routier indisponible pour certaines tournées : ordre indicatif en pointillés.','Recorrido por carretera no disponible para algunas rutas: orden indicativo en línea discontinua.','Road routes unavailable for some tours: indicative order shown as dashed lines.'],
  mapRoadReady:['Traits pleins : trajets routiers selon l’ordre Coco, sans trafic en direct ni restrictions poids lourds.','Línea continua: recorridos por carretera en el orden Coco, sin tráfico en directo ni restricciones de camiones.','Solid lines: road routes in Coco stop order, without live traffic or truck restrictions.']
 });
@@ -292,7 +292,7 @@ function routesForDay(){return db.routes.filter(r=>r.date===day()||r.stops.some(
 function planningBody(ds){
  const routes=routesForDay();
  const missing=ds.filter(d=>d.fromOrder&&!['Entregada','Cancelada'].includes(d.status)&&!validPoint(d));
- return `<div class="tmsDayWorkspace"><div class="arcPanel tmsCard tmsPlanningCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||day())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button></div><p>${esc(tr('orders'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_cargo?`<p class="tmsAbsente">Carga sin verificar: ${plan.without_cargo}. Abre «Ventana y carga».</p>`:''}${plan?.without_capacity?`<p class="tmsAbsente">${esc(T('Pendientes de planificación'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
+ return `<div class="tmsDayWorkspace"><div class="arcPanel tmsCard tmsPlanningCard"><div class="tmsTitle"><b>${esc(tr('auto'))} · ${esc(plan?.today||day())}</b><button type="button" class="arcButton tmsBtn tmsLight" id="tRefresh"${planningJob?' disabled':''}>${esc(planningJob?tr('working'):tr('refresh'))}</button><button type="button" class="arcButton secondary" id="tRoadOptimize"${planningJob?' disabled':''}>${esc(tr('roadOptimize'))}</button></div><p>${esc(tr('orders'))}</p><p class="tmsHint" id="tRoadBasis">${esc(routingDescription())}</p><p class="tmsHint">${esc(tr('roadPrivacy'))}</p><div role="status" id="tPlanStatus">${plan?`${esc(tr('planned'))}: ${plan.planned} / ${plan.total}`:''}</div>${planError?`<p role="alert" class="tmsAbsente">${esc(planError)}</p>`:''}${avisoAusencias()}${plan?.without_cargo?`<p class="tmsAbsente">Carga sin verificar: ${plan.without_cargo}. Abre «Ventana y carga».</p>`:''}${plan?.without_capacity?`<p class="tmsAbsente">${esc(T('Pendientes de planificación'))}: ${plan.without_capacity}</p>`:''}${plan?.depot_missing?`<p class="tmsHint">${esc(tr('depot'))}</p>`:''}</div>
  <div class="arcPanel tmsCard tmsMapCard"><div class="tmsTitle"><b>${esc(tr('map'))} · Coco</b><div class="tmsMapTools"><select id="tMapRoute" aria-label="${esc(tr('all'))}"><option value="all">${esc(tr('all'))}</option>${routes.map(r=>`<option value="${esc(r.id)}"${mapRoute===r.id?' selected':''}>${esc(r.reference||r.driver||r.id)}</option>`).join('')}</select><button type="button" class="arcButton tmsBtn" id="tMapOut" aria-label="Zoom −" disabled>−</button><button type="button" class="arcButton tmsBtn" id="tMapIn" aria-label="Zoom +" disabled>+</button><button type="button" class="arcButton tmsBtn" id="tMapFit" aria-label="${esc(tr('mapFit'))}" disabled>↔</button></div></div>
  <div class="tmsMapSummary"><span id="tMapSync"></span><span id="tMapGps"></span><span>${esc(T('Entregas de hoy'))}: <b id="tMapDayCount">${ds.length}</b></span></div>
  <label for="tMapPoint" class="tmsMapLabel">${esc(tr('mapPoint'))}</label><select id="tMapPoint" class="tmsMapPoint" aria-label="${esc(tr('mapPoint'))}"></select><div id="tDayMap" class="tmsDayMap" aria-label="${esc(tr('map'))}"><p role="status" class="tmsEmpty">${esc(tr('mapLoading'))}</p></div>
@@ -342,7 +342,39 @@ function editCoordinates(id){
  document.body.appendChild(dlg);dlg.showModal();dlg.addEventListener('close',()=>dlg.remove());dlg.querySelector('[data-close]').onclick=()=>dlg.close();
  dlg.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,p={lat:Number(f.elements.lat.value),lng:Number(f.elements.lng.value)};if(!validPoint(p)){f.querySelector('[role=alert]').textContent=tr('invalid');return}const b=f.querySelector('[type=submit]');b.disabled=true;try{const r=await window.ArcData.rawRpc('gama_tms_save_gps',{p_data:{delivery_id:id,...p}});if(r.error)throw r.error;dlg.close();notify(r.data?.customer_saved?'GPS guardado en la ficha del cliente.':'GPS guardado para esta entrega.','exito');await autoPlanning(true)}catch(error){f.querySelector('[role=alert]').textContent=T(tmsError(error));b.disabled=false}};
 }
+async function optimizeRoads(){
+ if(planningJob||!planningActive())return;
+ const token=planningEpoch;planError='';
+ const run=async()=>{try{
+  const client=await window.GamaCloud.db(),result=await client.functions.invoke('tms-routing',{body:{day:day()}});
+  let code=result.data?.error;if(result.error?.context)try{code=(await result.error.context.json()).error}catch{}
+  if(result.error||code)throw Error(code||'ROAD_PROVIDER_UNAVAILABLE');
+  if(token!==planningEpoch||!planningActive())return;
+  const r=await window.ArcData.rawRpc('gama_tms_plan_day',{p_day:day()});if(r.error)throw r.error;
+  if(token!==planningEpoch||!planningActive())return;plan=r.data;await fetchAll();markOrigins();
+ }catch(e){if(token===planningEpoch)planError=routingError(e.message)}
+ finally{if(token===planningEpoch&&planningActive())render('today')}};
+ planningJob=run();render('today');try{await planningJob}finally{planningJob=null;if(token===planningEpoch&&planningActive())render('today')}
+}
+function routingError(code){
+ const reasons={
+ ROAD_PROVIDER_NOT_CONFIGURED:['Le service routier privé reste à configurer. Le planning utilise des estimations.','Falta configurar el servicio vial privado. La planificación utiliza estimaciones.','Configure the private road service. Planning currently uses estimates.'],
+ ROAD_MATRIX_BUSY:['Un calcul routier est déjà en cours. Réessayez dans deux minutes.','Ya hay un cálculo vial en curso. Reintenta en dos minutos.','A road calculation is already running. Retry in two minutes.'],
+ ROAD_MATRIX_RATE_LIMIT:['Limite de calcul routier atteinte. Le planning existant est conservé.','Límite de cálculo vial alcanzado. Se conserva la planificación existente.','Road calculation limit reached. The existing plan is retained.'],
+ ROAD_MATRIX_LOCATION_LIMIT:['Maximum : 128 lieux distincts, départs et retours compris.','Máximo: 128 lugares distintos, incluidos inicios y finales.','Maximum: 128 distinct locations, including starts and ends.'],
+ ROAD_MATRIX_STALE:['Les lieux ont changé. Relancez le calcul routier.','Los lugares cambiaron. Vuelve a calcular.','Locations changed. Recalculate the road matrix.']
+ };
+ const generic=['Calcul routier indisponible. Le planning existant est conservé ; actualisez pour obtenir une estimation.','Cálculo vial no disponible. Se conserva la planificación existente; actualiza para obtener una estimación.','Road calculation unavailable. The existing plan is retained; refresh to obtain an estimate.'];
+ return (reasons[code]||generic)[({'fr':0,'es':1,'en':2})[(window.GamaI18n?.language||document.documentElement.lang||'es').slice(0,2)]??1];
+}
+function routingDescription(){
+ const road=plan?.routing?.mode==='road';
+ const texts=road?['Matrice routière privée · optimisation native · sans trafic en direct.','Matriz vial privada · optimización nativa · sin tráfico en directo.','Private road matrix · native optimization · no live traffic.']:['Estimation de déplacement · matrice routière absente ou périmée.','Estimación de desplazamiento · matriz vial ausente o caducada.','Travel estimate · road matrix unavailable or expired.'];
+ const desc=texts[({'fr':0,'es':1,'en':2})[(window.GamaI18n?.language||document.documentElement.lang||'es').slice(0,2)]??1];
+ return desc+(road&&plan.routing.measured_at?' '+new Date(plan.routing.measured_at).toLocaleString():'');
+}
 function bindPlanning(x){
+ x.querySelector('#tRoadOptimize').onclick=()=>optimizeRoads();
  x.querySelector('#tRefresh').onclick=()=>autoPlanning(true);
  x.querySelector('#tMapRoute').onchange=e=>{mapRoute=e.target.value;mapPoint='all';mapZoom=null;mapView?.destroy?.();mapView=null;drawDayMap()};
  x.querySelector('#tMapRoads').onchange=e=>{roadEnabled=e.target.checked;roadEpoch++;roadKey='';roadResults.clear();if(!roadEnabled)window.CocoTmsRoadMap?.clear();x.querySelector('#tMapRoadAttribution').hidden=!roadEnabled;drawDayMap()};

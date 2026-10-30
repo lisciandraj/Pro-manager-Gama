@@ -5,6 +5,8 @@ const {unaccent}=require('@electric-sql/pglite/contrib/unaccent');
 const {freshMigration}=require('./fresh-migration.cjs');
 async function restore({before}={}){
  const db=new PGlite({extensions:{pg_trgm,unaccent}});
+ // Keep disposable fixtures in UTC; initdb must not inherit a host offset.
+ await db.exec("set time zone 'UTC'");
  await db.exec(fs.readFileSync(path.join(__dirname,'../tests/platform-bootstrap.sql'),'utf8'));
  const directory=path.join(__dirname,'../supabase/migrations');
  for(const file of fs.readdirSync(directory).filter(f=>f.endsWith('.sql')).sort()){

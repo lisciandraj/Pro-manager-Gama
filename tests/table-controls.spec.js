@@ -1,3 +1,4 @@
+const {openAppNavigation}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const mock=fs.readFileSync(__dirname+'/mock-gama-cloud.js','utf8');
@@ -34,7 +35,7 @@ test('column visibility persists across render and language, is isolated by user
  await page.evaluate(()=>{for(const key of Object.keys(localStorage)){if(key.includes('table_columns_v1')){const value=JSON.parse(localStorage.getItem(key));value.collapsed=false;localStorage.setItem(key,JSON.stringify(value))}}document.getElementById('sortFixture').remove()});await fixture(page);
  await expect(host.locator('.gamaColumnOptions')).toBeHidden();
  await expect(host.locator('tbody tr').first().locator('td').nth(0)).toBeHidden();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','3');
- await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('.gamaColumnHeading')).toContainText('Columns');
+ await openAppNavigation(page);await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('.gamaColumnHeading')).toContainText('Columns');
  await host.locator('.gamaColumnHeading').click();await host.getByRole('button',{name:'Show all'}).click();await expect(host.locator('tfoot td')).toHaveAttribute('colspan','5');
  for(const name of ['Nom','Montant','Date','Quantité'])await host.getByRole('checkbox',{name,exact:true}).uncheck();
  await expect(host.getByRole('checkbox',{name:'Actions',exact:true})).toBeDisabled();
@@ -88,7 +89,7 @@ test('every plain table gets one independent search, preserves actions and searc
  await host.locator('.gamaColumnHeading').click();await host.getByRole('checkbox',{name:'Nom',exact:true}).uncheck();await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
  await page.evaluate(()=>{const other=document.createElement('div');other.id='otherSearchTable';document.querySelector('#mainmenu').append(other);ArcUI.render(other,ArcUI.table({columns:[{key:'name',label:'Nom'}],items:[{name:'One'},{name:'Two'}]}));GamaTable.scan(document);GamaTable.scan(document)});
  await expect(page.locator('#otherSearchTable [data-table-search]')).toHaveCount(1);await expect(page.locator('#otherSearchTable tbody tr:visible')).toHaveCount(2);
- await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
+ await openAppNavigation(page);await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(host.locator('[data-table-search]')).toHaveAttribute('placeholder','Search…');await expect(host.locator('[data-table-search]')).toHaveValue('Alpha');
 });
 test('module searches use the standard field without duplicates and search beyond the first server page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
@@ -164,7 +165,7 @@ test('reordered columns retain numeric sorting, hidden columns, search, form val
  await host.locator('[data-table-search]').fill('Alpha');await expect(host.locator('tbody tr:visible')).toHaveCount(1);
  await host.locator('[data-table-view=cards]').click();await expect(host.locator('tbody tr[data-id=a] td').nth(1)).toHaveAttribute('data-col','Nom');
  await host.getByRole('button',{name:'Ouvrir Alpha'}).click();expect(await page.evaluate(()=>window.__opened)).toBe('a');
- await page.locator('.arcBurger').click();await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(page.locator('html')).toHaveAttribute('lang','en');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
+ await openAppNavigation(page);await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(page.locator('html')).toHaveAttribute('lang','en');expect(await columnNames(host)).toEqual(['Montant','Nom','Date','Quantité','Actions']);
 });
 test('server columns keep their sort key and personal order on every page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);

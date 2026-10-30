@@ -362,7 +362,11 @@
       },
       "home-label": {
         "displayName": "Libellé d’accueil",
-        "purpose": "Nom complet du module sur les tuiles PC et téléphone."
+        "purpose": "Nom complet du module sur les tuiles PC et téléphone à partir de 360 px ; compact-home-label prend le relais jusqu’à 359 px."
+      },
+      "compact-home-label": {
+        "displayName": "Libellé d’accueil sur petit téléphone",
+        "purpose": "Jusqu’à 359 px : titres de 11 px, interligne 1,25 ; trois colonnes, intervalle de grille 6 px, marge intérieure 6 px / 2 px, icônes de 28 px et intervalle icône/libellé de 6 px. La page utilise 12 px par côté plus les zones de sécurité."
       }
     },
     "shadows": [
@@ -415,6 +419,10 @@
       }
     ],
     "breakpoints": [
+      {
+        "name": "small-phone-max",
+        "value": "359px"
+      },
       {
         "name": "phone-lists-max",
         "value": "760px"

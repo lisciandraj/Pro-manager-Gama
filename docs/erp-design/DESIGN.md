@@ -74,6 +74,11 @@ typography:
     fontSize: "12px"
     fontWeight: 500
     lineHeight: 1.35
+  compact-home-label:
+    fontFamily: "Poppins, Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
+    fontSize: "11px"
+    fontWeight: 500
+    lineHeight: 1.25
 rounded:
   control: "12px"
   inset: "16px"
@@ -186,7 +191,7 @@ La toile lavande claire est un aplat sans texture ni satin. Les panneaux sont bl
 
 Poppins est livrée localement en régulier, moyen et semi-gras ; Inter locale et les polices système servent de repli. Les trois fichiers WOFF2 représentent 28 768 octets et sont accompagnés de `fonts/Poppins-OFL.txt` (SIL OFL 1.1, auteurs Poppins/itfoundry, distribution Google Fonts). Aucune police distante n’est requise au rendu.
 
-Le titre du bandeau suit le rôle `title`, puis passe à 23 px sous 1180 px et à 18 px jusqu’à 760 px. Sa description utilise 12 px et disparaît sur téléphone. Les titres de contenu restent distincts des titres de section ; le nom du module ne se répète pas dans un second en-tête. Les cellules PC utilisent généralement le rôle `table`, les valeurs de fiche et les champs mobiles le rôle `value-mobile`. Les montants utilisent des chiffres tabulaires et s’alignent à droite. Les libellés d’accueil sur PC et téléphone ont le rôle `home-label` ; les adaptations intermédiaires restent dans `workbench.css`.
+Le titre du bandeau suit le rôle `title`, puis passe à 23 px sous 1180 px et à 18 px jusqu’à 760 px. Sa description utilise 12 px et disparaît sur téléphone. Les titres de contenu restent distincts des titres de section ; le nom du module ne se répète pas dans un second en-tête. Les cellules PC utilisent généralement le rôle `table`, les valeurs de fiche et les champs mobiles le rôle `value-mobile`. Les montants utilisent des chiffres tabulaires et s’alignent à droite. Les libellés d’accueil sur PC et téléphone ont le rôle `home-label` ; jusqu’à 359 px, ils utilisent `compact-home-label`. Les adaptations intermédiaires restent dans `workbench.css`.
 
 **The Readability Rule.** Conserver les libellés complets, les traductions et le retour à la ligne sans comprimer la cible de commande.
 
@@ -194,17 +199,20 @@ Le titre du bandeau suit le rôle `title`, puis passe à 23 px sous 1180 px et �
 
 À partir de 1180 px, la barre latérale mesure 244 px, avec un retrait de 16 px sur trois côtés ; le contenu principal commence à 276 px. L’en-tête a une hauteur minimale de 112 px : titre et description à gauche, recherche globale complète, notifications, configuration et compte à droite. Le contenu dispose de 18 px en haut, 36 px à gauche et 42 px à droite, en plus des zones de sécurité applicables. Les onglets natifs restent dans le contenu du module à toutes les tailles ; ils défilent horizontalement si nécessaire.
 
-Sous 1180 px, la navigation devient un tiroir de largeur maximale 304 px, l’espace principal revient au bord de l’écran et l’en-tête passe à 96 px minimum. Jusqu’à 760 px, l’en-tête passe à 72 px minimum, la recherche globale rejoint son accès mobile et la description est masquée. Le contenu utilise 16 px en haut et 14 px sur les côtés. La navigation basse Accueil / Recherche / Scanner / Plus reste disponible jusqu’à 860 px ; le contenu réserve 96 px plus la zone de sécurité en bas.
+Sous 1180 px, la navigation devient un tiroir de largeur maximale 304 px, l’espace principal revient au bord de l’écran et l’en-tête passe à 96 px minimum. Jusqu’à 760 px, l’en-tête passe à 72 px minimum, la recherche globale rejoint son accès mobile et la description est masquée. Le contenu utilise 16 px en haut et 14 px sur les côtés, ramenés à 12 px plus les zones de sécurité jusqu’à 359 px. La navigation basse Accueil / Recherche / Scanner / Plus reste disponible jusqu’à 860 px ; le contenu réserve 96 px plus la zone de sécurité en bas.
 
 L’accueil conserve des tuiles carrées dont la hauteur suit leur largeur. Des rangées Flexbox avec un espace carré dans le flux évitent les calculs cycliques de hauteur de WebKit ; les écrans courts défilent.
 
 | Largeur de la fenêtre | Colonnes d’accueil | Espacement |
 | --- | --- | --- |
-| Jusqu’à 760 px | 3 | 8 px |
+| Jusqu’à 359 px | 3 | 6 px |
+| 360–760 px | 3 | 8 px |
 | 761–860 px | 4 | 10 px |
 | 861–1179 px | 5 | 12 px |
 | 1180–1439 px | 7 | 18 px |
 | À partir de 1440 px | 9 | 16 px |
+
+Jusqu’à 359 px, les tuiles conservent trois colonnes avec une marge intérieure de 6 px verticalement et 2 px horizontalement, un intervalle de 6 px entre icône et libellé, des icônes de 28 px et le rôle `compact-home-label`. Les titres complets restent à l’intérieur de leur carré.
 
 Entre 861 et 1179 px avec une hauteur au plus 700 px, la règle d’écran court utilise six colonnes. Les règles PC suivantes conservent sept ou neuf colonnes. Les favoris, l’ordre personnel et les modules autorisés restent attachés au compte.
 
@@ -221,7 +229,7 @@ La séparation repose d’abord sur l’espace entre surfaces. Les ombres sont l
 | Élevé | `--arc-sh-2` | Survol interactif et menus |
 | Superposition | `--arc-sh-3` / `--coco-dialog-shadow` | Fenêtres et tiroir ouvert |
 
-Les valeurs exactes des ombres et du mouvement figurent dans la sidecar. `--coco-surface-sheen` et `--coco-canvas-texture` valent `none`. La barre latérale PC n’a pas d’ombre ; son léger dégradé blanc conserve sa séparation de la toile. Le voile des fenêtres reste sans flou permanent.
+Les valeurs exactes des ombres et du mouvement figurent dans la sidecar. `--coco-surface-sheen` et `--coco-canvas-texture` valent `none`. La barre latérale PC n’a pas d’ombre ; son léger dégradé blanc est composé sur un fond blanc opaque et conserve sa séparation de la toile. Le voile des fenêtres reste sans flou permanent.
 
 **The Surface Rule.** Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats.
 

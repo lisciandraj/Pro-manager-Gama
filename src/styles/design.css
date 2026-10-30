@@ -177,6 +177,15 @@
  .cocoProductFormHeading h2{font-size:21px}
  body.cocoWorkbench #products .cocoProductForm>.row{gap:18px}
 }
+/* Small phones keep three square tiles and complete translated labels. */
+@media screen and (max-width:359px){
+ body.cocoWorkbench .arcContent{padding-inline:calc(12px + var(--arc-safe-l)) calc(12px + var(--arc-safe-r))}
+ body.cocoWorkbench #mainmenu .gamaF2Grid{--coco-home-gap:6px}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{--coco-tile-padding:6px 2px}
+ body.cocoWorkbench #mainmenu .gamaF2Card .cocoModuleOpen{gap:6px}
+ body.cocoWorkbench #mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam],body.cocoWorkbench #mainmenu .gamaF2Icon svg{width:28px;height:28px}
+ body.cocoWorkbench #mainmenu .gamaF2Title{font-size:11px;line-height:1.25}
+}
 @media (prefers-reduced-transparency:reduce){body[data-app=coco-erp] dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(23 36 59 / .48)}
 }
 @media print{body[data-app=coco-erp] .cocoMetricIcon{display:none}

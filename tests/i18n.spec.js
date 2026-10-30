@@ -1,4 +1,4 @@
-const {openSettings}=require('./topbar-helpers');
+const {openSettings,openAppNavigation}=require('./topbar-helpers');
 const {test,expect}=require('@playwright/test');
 const fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
@@ -89,7 +89,7 @@ test('desktop sidebar visibility uses stable module identifiers across languages
  await page.evaluate(()=>GamaI18n.setLanguage('en'));
  await expect(page.locator('#mainmenu [data-gama-module="quotes"]')).toBeVisible();
  await expect(page.locator('#mainmenu [data-gama-module="products"]')).toBeVisible();
- await page.locator('.arcBurger').click();
+ await openAppNavigation(page);
  await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toBeVisible();
  await expect(page.locator('.arcNavLink[data-gama-module="quotes"]')).toContainText('Sales');
 });

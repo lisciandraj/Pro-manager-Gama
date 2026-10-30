@@ -14,6 +14,7 @@ Navigation PC flottante de 244 px à 16 px du bord, contenu à 276 px, en-tête 
 - Conserver modules, ACL, données, calculs, formulaires, filtres, liens, langues, favoris, ordre personnel et historiques existants.
 - Sous 1180 px : tiroir avec focus retenu, Échap, retour de focus et arrière-plan inerte. Conserver la navigation basse mobile et les zones de sécurité.
 - Accueil : sept colonnes de 1180 à 1439 px, neuf dès 1440 px, trois jusqu’à 760 px ; tuiles carrées et libellés complets sans débordement de page.
+- Jusqu’à 359 px : garder trois colonnes avec un intervalle de 6 px, un retrait de page de 12 px plus les zones de sécurité, des icônes de 28 px, des titres de 11 px à interligne 1,25 et une marge intérieure de tuile de 6 px / 2 px. Les titres restent complets dans leur carré.
 - Garder la cible tactile de 44 px des contrôles partagés, le focus visible, les statuts écrits, la saisie mobile à 16 px et les préférences de mouvement/contraste.
 - Les tableaux larges défilent localement ; les préférences de vue restent prioritaires. Les grilles éditables et fenêtres gardent leurs contrôles métier.
 

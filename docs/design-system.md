@@ -25,7 +25,7 @@ Coco ERP applique la direction Geex / GAMA approuvée le 30 octobre 2026 : toile
 | Bordures | Lignes #E9E7F0 ; lignes de tableau #ECEAF2 ; saisie #7B8797 ; pas de quadrillage vertical ordinaire |
 | Police | Poppins locale 400, 500, 600 ; Inter locale et polices système en repli ; licence `fonts/Poppins-OFL.txt` |
 | Échelle | Métadonnées 12, cellules PC 13, corps 14, valeurs de fiche et saisie mobile 16, section 17, contenu 24, titre du bandeau 26/23/18 px selon largeur |
-| Espacements | Base 4 px ; contenu PC haut 18, gauche 36, droite 42 px ; tablette côtés 24 px ; téléphone haut 16 et côtés 14 px ; panneaux 24/16 px |
+| Espacements | Base 4 px ; contenu PC haut 18, gauche 36, droite 42 px ; tablette côtés 24 px ; téléphone haut 16 et côtés 14 px (12 px jusqu’à 359 px), plus zones de sécurité ; panneaux 24/16 px |
 | Rayons | Badge 9, bouton/champ 12, panneau 22 (14 sur téléphone), fenêtre et cadre latéral 28 px ; composants spécialisés selon leur contrat |
 | Ombres | Surface très légère, survol interactif, superposition ; aucun reflet satiné ni ombre imbriquée |
 
@@ -121,7 +121,7 @@ La navigation latérale PC reste visible à partir de 1180 px : largeur 244 px, 
 
 Le bandeau mesure au moins 112 px sur PC, 96 px sous 1180 px et 72 px jusqu’à 760 px. Il affiche un titre unique et la description traduite existante du module. La recherche globale reste complète sur PC et tablette, puis rejoint son accès mobile. Les onglets natifs restent dans le contenu, dans leur DOM d’origine, avec défilement horizontal ; ils ne sont plus épinglés dans l’en-tête.
 
-L’accueil utilise trois colonnes jusqu’à 760 px, quatre de 761 à 860 px, cinq de 861 à 1179 px, sept de 1180 à 1439 px et neuf à partir de 1440 px. Entre 861 et 1179 px avec une hauteur au plus 700 px, il utilise six colonnes. Les tuiles restent carrées ; Flexbox et un espace carré dans le flux évitent le calcul cyclique de hauteur dans WebKit. Les écrans courts défilent sans aplatir les tuiles. Les libellés complets, favoris et ordre personnel sont conservés.
+L’accueil utilise trois colonnes jusqu’à 760 px, quatre de 761 à 860 px, cinq de 861 à 1179 px, sept de 1180 à 1439 px et neuf à partir de 1440 px. Entre 861 et 1179 px avec une hauteur au plus 700 px, il utilise six colonnes. Jusqu’à 359 px, les trois colonnes utilisent un intervalle de 6 px, un retrait de page de 12 px plus les zones de sécurité, une marge intérieure de tuile de 6 px / 2 px, des icônes de 28 px et des titres de 11 px à interligne 1,25. Les tuiles restent carrées ; Flexbox et un espace carré dans le flux évitent le calcul cyclique de hauteur dans WebKit. Les écrans courts défilent sans aplatir les tuiles. Les libellés complets, favoris et ordre personnel sont conservés.
 
 Les surfaces blanches emploient un rayon de 22 px, réduit à 14 px sur téléphone, et une ombre très discrète. CRM et Projets placent les tâches sur des colonnes sans fond. Documents et Knowledge séparent le rail blanc de 230 px et le panneau principal par 30 px, puis s’empilent jusqu’à 760 px. Les contrôles partagés gardent leur cible de 44 px.
 
@@ -186,7 +186,7 @@ y compris Contrats et Dépenses. Le catalogue public conserve sa charte distinct
 
 | Élément | PC | Smartphone / tablette étroite |
 | --- | --- | --- |
-| Page | Dès 1180 px, contenu à 276 px avec retrait haut 18, gauche 36 et droite 42 px ; sous 1180 px côtés 24 px | Jusqu’à 760 px, haut 16 et côtés 14 px ; place de la navigation basse et zones de sécurité ; aucun défilement horizontal de la page |
+| Page | Dès 1180 px, contenu à 276 px avec retrait haut 18, gauche 36 et droite 42 px ; sous 1180 px côtés 24 px | Jusqu’à 760 px, haut 16 et côtés 14 px (12 px jusqu’à 359 px), plus zones de sécurité ; place de la navigation basse et zones de sécurité ; aucun défilement horizontal de la page |
 | Hiérarchie | Titre dans la barre commune, action principale puis filtres et résultats | Même ordre ; commandes qui reviennent à la ligne, recherche et bouton associés |
 | Tableaux | Séparateurs horizontaux, colonnes et vue conservées par compte | Fiches pour les listes en lecture seule sans préférence ; grilles éditables et fenêtres en tableau ; défilement local |
 | Historique | Module replié dans une ligne utilitaire au-dessus du travail, sans rail vide ; colonne lorsqu’il est ouvert ; dossier sélectionné ouvert | Module replié dans le flux en haut ; ouverture en panneau avec fermeture et gestion du focus |

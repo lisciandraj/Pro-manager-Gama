@@ -9,7 +9,7 @@ test('security: native CRM tables and independent child writes obey current modu
  try{
   for(const [id,role]of [[admin,'administrador'],[seller,'comercial']]){await q('insert into auth.users(id,email) values($1,$2)',[id,id+'@example.invalid']);await q('update profiles set role=$2,active=true where id=$1',[id,role])}
   await owner();await q("insert into customers(id,name) values($1,'CRM security fixture')",[customer]);
-  for(const id of [product,otherProduct])await q("insert into products(id,name) values($1,'CRM fixture product')",[id]);
+  for(const id of [product,otherProduct])await q('insert into products(id,name) values($1,$2)',[id,'CRM fixture '+id]);
   const stage=await one('select id from crm_pipeline_stages where active and not is_won and not is_lost limit 1');
   await q("insert into crm_opportunities(id,title,customer_id,owner_id,stage_id,amount,created_by) values($1,'Protected opportunity',$2,$3,$4,10,$3)",[opportunity,customer,seller,stage]);
   await q('insert into crm_opportunity_lines(id,opportunity_id,product_id,quantity,unit_price) values($1,$2,$3,1,10)',[line,opportunity,product]);

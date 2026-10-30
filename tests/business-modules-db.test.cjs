@@ -64,5 +64,16 @@ test('Contracts, expenses and supplier consultations use real guarded document w
   for(const fn of [contract,expense,consult])await assert.rejects(fn('list'),/ROLE_NOT_ALLOWED/);
   await assert.rejects(q('select * from private.expense_claims'),/permission denied/);
  });
+ await t.test('a contract editor cannot schedule changed work with the original author authority',async()=>{
+  await as(ids.admin);const id=uuid(),data={id,version:0,name:'Delegation fixture',customer_id:ids.customer,delivery_address:'Quito',price_mode:'current',frequency:'monthly',interval_count:1,start_date:today,next_date:today,automatic:false,lines:[{product_id:ids.product,quantity:1,unit_price:12}]};await contract('save',data);
+  await db.exec('reset role');await q("insert into erp_action_permissions(role,module,allow_create,allow_edit,updated_by) values('comercial','sales-orders',false,false,$1) on conflict(role,module) do update set allow_create=false,allow_edit=false",[ids.admin]);await as(ids.sales);
+  await assert.rejects(contract('save',{...data,version:1,automatic:true,lines:[{...data.lines[0],quantity:3}]}),/ROLE_NOT_ALLOWED/);
+  await db.exec('reset role');let saved=(await q('select * from private.customer_contracts where id=$1',[id])).rows[0];assert.equal(saved.automatic,false);assert.equal(saved.lines[0].quantity,1);
+  await q("update erp_action_permissions set allow_create=true,allow_edit=true where role='comercial' and module='sales-orders'");await as(ids.sales);
+  await contract('save',{...data,version:1,automatic:true});await db.exec('reset role');saved=(await q('select * from private.customer_contracts where id=$1',[id])).rows[0];assert.equal(saved.created_by,ids.admin);assert.equal(saved.scheduled_by,ids.sales);
+  await q("update erp_action_permissions set allow_create=false where role='comercial' and module='sales-orders'");await v('select private.contract_tick()');assert.equal(await v('select count(*)::int from private.contract_occurrences where contract_id=$1',[id]),0);
+  await q("update erp_action_permissions set allow_create=true where role='comercial' and module='sales-orders'");await v('select private.contract_tick()');
+  assert.equal(await v('select o.created_by from sales_orders o join private.contract_occurrences c on c.order_id=o.id where c.contract_id=$1',[id]),ids.sales);assert.equal(await v('select count(*)::int from stock_reservations'),0);
+ });
  }finally{await db.close()}
 });

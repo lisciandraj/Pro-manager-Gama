@@ -51,12 +51,19 @@ def content(xml):
     return root
 
 
+def invoice_environment(key, invoice):
+    environment = invoice.get('environment')
+    if environment not in ('pruebas', 'produccion') or key[23] != ('1' if environment == 'pruebas' else '2'):
+        raise ValueError('SRI_RECEIVED_ENVIRONMENT_MISMATCH')
+    return environment
+
+
 def verify(xml, invoice, lookup=authorize_sri):
     uploaded = content(xml)
     key = single(uploaded,'infoTributaria/claveAcceso')
     if uploaded.tag != 'comprobanteRetencion' or not key_valid(key) or key[8:10] != '07' or key[23] not in '12':
         raise ValueError('SRI_RECEIVED_DOCUMENT_INVALID')
-    result = lookup(key, 'pruebas' if key[23] == '1' else 'produccion')
+    result = lookup(key, invoice_environment(key, invoice))
     if result.get('status') != 'authorized' or result.get('authorization') != key or not result.get('authorized_at'):
         raise ValueError('SRI_NOT_AUTHORIZED')
     root = content(result['authorized_xml'])
@@ -101,7 +108,7 @@ def verify(xml, invoice, lookup=authorize_sri):
     if not lines or total<=0 or bases['income']>amount(invoice['subtotal']) or bases['vat']>amount(invoice['tax']):
         raise ValueError('SRI_RECEIVED_INVOICE_MISMATCH')
     number='-'.join(single(root,'infoTributaria/'+field) for field in ['estab','ptoEmi','secuencial'])
-    return {'access_key':key,'issuer_ruc':issuer,'number':number,'issued_on':issued.isoformat(),'amount':str(total),'lines':lines,'authorized_at':result['authorized_at'],'authorized_xml':etree.tostring(root,encoding='unicode')}
+    return {'access_key':key,'environment':invoice['environment'],'issuer_ruc':issuer,'number':number,'issued_on':issued.isoformat(),'amount':str(total),'lines':lines,'authorized_at':result['authorized_at'],'authorized_xml':etree.tostring(root,encoding='unicode')}
 
 
 def inspect(xml, own_ruc):
@@ -124,7 +131,8 @@ def verify_batch(xml, invoices, lookup=authorize_sri):
         raise ValueError('SRI_RECEIVED_FIELDS_INVALID')
     key=single(content(xml),'infoTributaria/claveAcceso')
     if not key_valid(key) or key[8:10]!='07' or key[23] not in '12': raise ValueError('SRI_RECEIVED_DOCUMENT_INVALID')
-    result=lookup(key,'pruebas' if key[23]=='1' else 'produccion')
+    for invoice in invoices: invoice_environment(key, invoice)
+    result=lookup(key,invoices[0]['environment'])
     if result.get('status')!='authorized' or result.get('authorization')!=key: raise ValueError('SRI_NOT_AUTHORIZED')
     sources=inspect(result['authorized_xml'],invoices[0]['issuer_ruc'])['sources']
     if sources!=sorted(i['fiscal_number'].replace('-','') for i in invoices): raise ValueError('SRI_RECEIVED_INVOICE_MISMATCH')

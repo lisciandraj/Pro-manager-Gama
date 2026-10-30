@@ -20,6 +20,13 @@ test('commerce: verified reviews, guest idempotency, tenant isolation and two-st
   await assert.rejects(config('approval_config_save',{customer_id:customer,profile_id:requester,role:'requester',approvers:[{profile_id:other,stage:1}]}),/COMMERCE_APPROVER_REQUIRED/);
   await config('approval_config_save',{customer_id:customer,profile_id:requester,role:'requester',approvers:[{profile_id:approver,stage:1},{profile_id:approver2,stage:2}]});
   const lines=[{product_id:product,quantity:2},{product_id:zero,quantity:1}];
+  // Deactivation cannot remove the first configured approval level.
+  await config('member',{profile_id:approver,customer_id:customer,expected_customer_id:customer,active:false});
+  await as(requester);const blockedCart=await b2b('preview',{lines});
+  const blocked=await b2b('submit',{lines,price_hash:blockedCart.price_hash,request_key:uuid()});
+  let blockedDetail=await b2b('approval_detail',{id:blocked.id});assert.equal(blockedDetail.stage,1);
+  await as(approver2);await assert.rejects(b2b('approval_approve',{id:blocked.id,version:blockedDetail.version,price_hash:blockedDetail.cart.price_hash}),/ROLE_NOT_ALLOWED/);
+  await as(admin);await config('member',{profile_id:approver,customer_id:customer,expected_customer_id:customer,active:true});
   await as(requester);let preview=await b2b('preview',{lines});assert.equal(preview.total,21.4);
   const payload={lines,price_hash:preview.price_hash,request_key:uuid()};const submitted=await b2b('submit',payload);
   assert.equal(submitted.approval_required,true);assert.deepEqual(await b2b('submit',payload),submitted);
@@ -46,12 +53,20 @@ test('commerce: verified reviews, guest idempotency, tenant isolation and two-st
   await as(requester);await commerce('review_save',{product_id:product,rating:4,body:'Buen producto <script>texto</script>'});
   let reviews=await commerce('reviews',{product_id:product});assert.equal(reviews.count,1);assert.equal(reviews.average,4);assert.equal(reviews.items[0].customer_id,undefined);assert.equal((await commerce('review_eligibility',{product_id:product})).own_review.rating,4);
   await as(admin);const moderation=await one("select public.gama_compliance_admin('reviews','{}')");const review=moderation.items[0];await one("select public.gama_compliance_admin('review_moderate',$1)",[JSON.stringify({id:review.id,updated_at:review.updated_at,hidden:true,reason:'personal_data'})]);await as(requester);assert.equal((await commerce('reviews',{product_id:product})).count,0);await commerce('review_delete',{product_id:product});assert.equal((await commerce('review_eligibility',{product_id:product})).own_review,null);
+  await commerce('review_save',{product_id:product,rating:4,body:'Buen producto <script>texto</script>'});assert.equal((await commerce('reviews',{product_id:product})).count,0);assert.equal((await commerce('review_eligibility',{product_id:product})).own_review.hidden,true);
+  await as(admin);const recreated=(await one("select public.gama_compliance_admin('reviews','{}')")).items[0];await one("select public.gama_compliance_admin('review_moderate',$1)",[JSON.stringify({id:recreated.id,updated_at:recreated.updated_at,hidden:false,reason:'restored'})]);
+  await as(requester);assert.equal((await commerce('reviews',{product_id:product})).count,1);await commerce('review_delete',{product_id:product});await commerce('review_save',{product_id:product,rating:4,body:'Restored buyer review'});assert.equal((await commerce('reviews',{product_id:product})).count,1);
   const copy=await b2b('repeat_order',{id:order});assert.equal(copy.lines[0].quantity,2);
   await as(other);await assert.rejects(b2b('repeat_order',{id:order}),/NOT_FOUND/);await assert.rejects(commerce('review_save',{product_id:product,rating:1,body:'Foreign account'}),/COMMERCE_PURCHASE_REQUIRED/);
   const catalogue=(a,d)=>one('select public.gama_commerce_catalog_admin($1,$2::jsonb)',[a,JSON.stringify(d)]);
   await assert.rejects(catalogue('save',{customer_id:customer,restricted:false,references:''}),/ROLE_NOT_ALLOWED/);
+  await as(requester);const favorite=(action,data={})=>one('select public.gama_b2b_product_favorites($1,$2::jsonb)',[action,JSON.stringify(data)]);
+  await favorite('set',{product_id:product,favorite:true});
   await as(admin);await catalogue('save',{customer_id:customer,restricted:true,references:'COM-PAPER'});
   await as(requester);assert.equal((await b2b('catalog')).total,1);
+  assert.equal((await favorite('ids')).includes(product),false);assert.equal((await favorite('list')).items.some(p=>p.id===product),false);
+  await assert.rejects(favorite('set',{product_id:product,favorite:true}),/COMMERCE_CATALOG_RESTRICTED/);
+  await favorite('set',{product_id:product,favorite:false});
   await assert.rejects(b2b('preview',{lines:[{product_id:product,quantity:1}]}),/COMMERCE_CATALOG_RESTRICTED/);
   await assert.rejects(one('select public.gama_b2b_storefront($1,$2::jsonb)',['product',JSON.stringify({id:product})]),/WEBSITE_PRODUCT_NOT_FOUND/);
   await assert.rejects(one("select private.gama_b2b_action_before_ecommerce('submit','{}')"),/permission denied/);

@@ -28,7 +28,7 @@ test('FIFO / moving average conserve value through receipts, exits, transfer and
    await assert.rejects(rpc('gama_valuation','landed',{...credit,request_key:uuid(),source_reference:method+'-INVALID-CREDIT',amount:-10000}),/check constraint/);
    assert.equal((await rpc('gama_valuation','report',{as_of:'2000-01-01T00:00:00Z'})).items.find(p=>p.id===product).value,null);
    await assert.rejects(rpc('gama_valuation','configure',{...config,request_key:uuid(),method:method==='fifo'?'avco':'fifo'}),/METHOD_CHANGE_REQUIRES_EMPTY_STOCK/);
-   const dest=(await db.query("insert into warehouse_locations(warehouse_id,code,name) values($1,$2,'Cost destination') returning id",[location.warehouse_id,method+'-COST'])).rows[0].id;
+   const dest=(await rpc('gama_location_action','save',{warehouse_id:location.warehouse_id,code:method+'-COST',name:'Cost destination'})).id;
    await rpc('gama_stock_transfer',product,loc,dest,2,'Cost transfer','COST-TRANSFER');
    assert.equal((await rpc('gama_valuation','report',{})).items.find(p=>p.id===product).value,row.value);
    await rpc('gama_stock_adjust',product,loc,0,null,'Consumed remaining six');await rpc('gama_stock_adjust',product,dest,0,null,'Consumed final two');

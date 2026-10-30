@@ -40,7 +40,18 @@ test('Sales workbench shares prices, checks approval and invoices delivered quan
   });
   await t.test('grouping creates one invoice visible from every order and refuses different customers',async()=>{
    for(const k of ['o2','o3']){const o=await order(id.customer,1);id[k]=o.id;const line=await one('select id from sales_order_lines where order_id=$1',[o.id]);id[k==='o2'?'line2':'line3']=line;await rpc('gama_sales_action','confirm',{order_id:o.id});await deliver(o.id,line,1);}
+   // Historical accepted-quote parents exercise the still-callable legacy
+   // producer alongside current grouped billing. Only fixture setup bypasses
+   // quote lifecycle triggers; all billing calls below use normal authority.
+   const quotes={};await db.exec('reset role;set session_replication_role=replica');
+   for(const oid of [id.o2,id.o3]){quotes[oid]=await one("insert into invoices(invoice_number,quote_state,quote_revision,quote_details,subtotal,tax) values($1,'accepted',1,'{}',10,1.5) returning id",['SEC-'+oid]);await q('update sales_orders set source_quote_id=$1 where id=$2',[quotes[oid],oid]);}
+   await db.exec('set session_replication_role=origin');await as(id.admin);
    const g=await ws('invoice_create',{request_key:uuid(),order_ids:[id.o2,id.o3]});await db.exec('reset role');assert.equal(await one('select count(*) from private.sales_invoice_orders where invoice_id=$1',[g.id]),2);await as(id.admin);
+   const anchor=await one('select order_id from external_invoices where id=$1',[g.id]),secondary=[id.o2,id.o3].find(oid=>oid!==anchor),before=await one('select count(*) from external_invoices');
+   assert.equal((await rpc('gama_internal_invoice_action','eligibility',{quote_ids:[quotes[secondary]]}))[0].invoice_id,g.id);
+   await assert.rejects(rpc('gama_internal_invoice_action','create',{quote_id:quotes[secondary]}),/ORDER_ALREADY_INVOICED/);
+   assert.equal(await one('select count(*) from external_invoices'),before);
+   assert.equal(Number(await one('select sum(il.quantity) from external_invoice_lines il join sales_order_lines ol on ol.id=il.order_line_id where ol.order_id=$1',[secondary])),1);
    for(const oid of [id.o2,id.o3])assert.ok((await ws('invoice_list',{order_id:oid})).some(i=>i.id===g.id));const day=await one('select ((now() at time zone private.erp_timezone())::date)::text');const profit=await rpc('gama_commercial_planning','profit',{from:day,to:day});for(const oid of [id.o2,id.o3])assert.equal(profit.orders.find(o=>o.id===oid).invoiced_net,10);
    const sources=await rpc('gama_returns_action','sources',{kind:'customer'});for(const oid of [id.o2,id.o3])assert.ok(sources.rows.some(s=>s.order_id===oid&&s.invoice_id===g.id));
    const shipment=await one('select id from sales_deliveries where order_id=$1 limit 1',[id.o3]);assert.equal((await rpc('gama_returns_action','source_lines',{kind:'customer',source_id:shipment})).invoice_id,g.id);

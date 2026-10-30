@@ -39,7 +39,7 @@ Les sections CSS métier sont dans `src/styles/modules/` et assemblées dans l�
 ## Tests et publication
 
 Privilégier les comportements observables : mêmes droits, mêmes documents, cache sans fuite de session, reprise après échec, mobile utilisable.
-La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
+La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Actions construit, teste puis publie l’artefact `dist/` sur GitHub Pages. Les migrations SQL, Edge Functions et le service SRI ont des déploiements distincts.
 
 Ne jamais exécuter une fixture de test contre la base de production. Les tests SRI simulés ne remplacent pas l’autorisation réelle du SRI ni un essai de signature avec le service privé.
 
@@ -64,3 +64,29 @@ La revue du 5 octobre complète la préparation 07 à la validation fournisseur/
 Les libellés de l’ERP sont disponibles en espagnol, français et anglais. Ajouter les textes espagnols et leurs traductions relues dans `locales/catalog.tsv`, puis exécuter `npm run build:i18n`. Le compilateur annote les textes statiques des sources et les attributs de présentation (placeholder, titre, aria-label, alt). Isoler les libellés dynamiques avec `data-gi-live` ou `data-gi-source` ; ne jamais marquer un conteneur de noms de produits, clients ou de saisies utilisateur. Les composants partagés conservent la source des titres, champs et colonnes pour changer de langue sans reconstruire le formulaire. Les statuts se traduisent à l’affichage ; leurs valeurs métier ne changent pas.
 
 Le mode chauffeur charge aussi le moteur de langue et met le catalogue en cache lors du téléchargement de la tournée. Vérifier les tests `i18n.spec.js`, `i18n-coverage.spec.js` et `i18n-hr.spec.js` après toute évolution des fenêtres ; ils couvrent les langues, les modules et onglets, les fenêtres TMS et la conservation des valeurs saisies.
+
+## Maintenance des frontières d'autorisation (29 octobre 2026)
+
+Les migrations `20261029233001` à `20261029233011` alignent les chemins historiques avec les contrôles courants : compte interne actif, identité non bannie des automatisations, droits d'action comptables et de réception d'achat, périmètre financier des lectures, accès aux preuves TMS, approbation des ajustements de stock, catalogue et consentement B2B, quota commun du formulaire public et coordonnées provenant du géocodeur. Les coordonnées manuelles restent propres au contact ; seul le cache vérifié par le fournisseur peut alimenter un autre contact.
+
+Les contrats récurrents conservent leur auteur d'origine, mais toute sauvegarde ou reprise d'une préparation automatique engage les droits de son dernier responsable (`scheduled_by`). Elle exige le droit de créer une commande. Le traitement horaire revérifie les droits de ce responsable ; une modification ne peut donc pas utiliser implicitement les droits supérieurs d'un ancien auteur. Les contrats historiques non modifiés conservent leur responsable initial.
+
+Le budget d'une acquisition est verrouillé avant la création d'une immobilisation. Les écritures directes des seuils de réapprovisionnement respectent les modules, actions et validation exigés par leur interface. Une substitution conserve les quantités de services déjà effectuées ; lorsqu'elle rejoint une ligne existante, sa revue de marge utilise le coût mémorisé de cette ligne, comme la commande résultante.
+
+Les photos en cache échappent leurs attributs HTML. Le visualiseur de justificatifs utilise des propriétés DOM avec des URL de données PDF/image autorisées. Les exports CSV traitent les textes commençant comme des formules sans convertir les montants numériques négatifs en texte.
+
+Les alertes, leur historique, leurs compteurs et les priorités du tableau de bord respectent les droits actuels sur leur source. Un chauffeur ne reçoit que ses livraisons ; un lecteur qui perd un droit ne peut plus lire les notes retenues ni marquer résolue une alerte devenue invisible. La création d'un tarif et les dérogations comptables restent soumises aux droits d'action et d'accès au module.
+
+Les quantités reçues des lignes d'achat passent par les fonctions de réception. Leur modification directe par le client authentifié est interdite. L'annulation d'une facture fournisseur et la confirmation d'un paiement verrouillent toutes deux la facture avant de relire son état, y compris pour les anciens modes de paiement.
+
+Un avis masqué conserve la décision de modération après sa suppression par l'acheteur. Une nouvelle soumission reste masquée jusqu'à restauration explicite par un administrateur. Le registre privé de cette décision ne conserve pas le texte supprimé de l'avis.
+
+L'ancienne API de factures internes applique les mêmes droits de facturation que l'espace Ventes. Elle reconnaît les commandes secondaires des factures groupées et refuse de refacturer leurs lignes. Ses mutations utilisent le verrou commun des factures. Le cache du rapport financier est vidé au changement de compte ou de droits, et une ancienne réponse en cours ne peut pas le remplir à nouveau.
+
+Les créations, modifications et suppressions d'entrepôts, rayonnages et emplacements appliquent les droits d'action du module Entrepôts dans leurs commandes. Les écritures directes du client sur ces tables sont retirées ; les processus de réception, préparation et retour continuent de créer leurs zones métier par leurs fonctions contrôlées.
+
+Les lecteurs d'encaissements, les relances et l'annulation d'un paiement exigent l'accès courant au module Paiements, y compris son module parent. Les reprises d'encaissements et d'avances revérifient cet accès. Le plafond d'un nouveau paiement utilise le solde net courant après avoirs et retenues ; une affectation d'avance réserve aussi les paiements en attente. Ces contrôles s'effectuent après verrouillage de la facture. Les tests couvrent les refus et les encaissements autorisés au solde exact.
+
+Le workflow `audit-hardening.yml` exécute les fixtures ciblées avant ses parcours navigateur. Les contrôles de publication habituels restent requis. Les tests de concurrence utilisent exclusivement la base PostgreSQL jetable prévue par `validate-sales-concurrency.yml`. Aucun test métier ne doit viser une base connectée de production.
+
+Le CRUD natif CRM applique le droit de module aux opportunités, lignes et activités. Les lignes respectent les droits de création/modification/suppression et le droit de modifier leur opportunité avant la première écriture, même si le recalcul du montant parent est une seconde requête. La lecture commerciale partagée et la suppression autorisée du parent avec ses lignes restent permises ; `security-crm-db` vérifie ces deux contrôles positifs.

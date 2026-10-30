@@ -465,7 +465,8 @@ async function receiptForm(id){
   });
  el.querySelectorAll('[data-ga-file]').forEach(b=>b.onclick=async()=>{
   try{const f=await rpc('expense_receipt_get',{id:b.dataset.gaFile});
-   const w=window.open();if(w)w.document.write(`<iframe src="${f.data_url}" style="border:0;width:100%;height:100%"></iframe>`);
+   if(typeof f.data_url!=='string'||f.data_url.length>2800000||!/^data:(?:application\/pdf|image\/(?:png|jpeg|webp));base64,[A-Za-z0-9+/]+={0,2}$/.test(f.data_url))throw Error('INVALID_FILE');
+   const w=window.open();if(w){w.opener=null;w.document.title=String(f.filename||'');const frame=w.document.createElement('iframe');frame.src=f.data_url;frame.title=String(f.filename||'');frame.style.cssText='border:0;width:100%;height:100vh';w.document.body.replaceChildren(frame);}
   }catch(e){window.gamaToast?.(err(e))}});
 }
 
@@ -1482,8 +1483,8 @@ async function exportRows(rows,name){
  try{await window.ArchitectAccessControls.requireAction('accounting','export')}catch(e){window.gamaToast?.(window.ArcErrors.message(e));return}
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
- const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
- const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
+ const cell=v=>{let text=v==null?'':String(v);if(typeof v==='string'&&/^[\s\uFEFF]*[=+@-]/.test(text))text="'"+text;return /[";\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+ const csv='﻿'+[keys.map(cell).join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);

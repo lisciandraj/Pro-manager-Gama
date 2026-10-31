@@ -38,7 +38,7 @@
 /* Completion dates and the next-action panel share the process state. */
 .gdfProcessBody{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.55fr);grid-template-areas:"flow next";align-items:start;gap:18px}
 .gdfProcessBody>.gdfFlow{grid-area:flow;min-width:0}
-.gdfNextCard{grid-area:next;min-width:0;padding:20px;border:1px solid #f3d6bd;border-radius:12px;background:#fff3e9;overflow-wrap:anywhere;position:sticky;top:calc(var(--arc-topbar-h,74px) + 16px)}
+.gdfNextCard{grid-area:next;min-width:0;padding:20px;border:1px solid #f3d6bd;border-radius:12px;background:#fff3e9;overflow-wrap:anywhere;position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px)}
 .gdfNextCard h3{margin:0 0 18px;font-size:18px;color:var(--arc-text)}
 .gdfNextBody{display:flex;align-items:flex-start;gap:14px;min-width:0}
 .gdfNextBody>div{min-width:0}.gdfNextBody h4{margin:0 0 7px;font-size:15px}.gdfNextBody p{margin:0;font-size:14px;line-height:1.55}

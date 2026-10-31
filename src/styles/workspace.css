@@ -6,7 +6,7 @@ body[data-app="coco-erp"]{
  --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
  background:#F7F8FB;color:var(--coco-ink);
 }
-.arcShell{--arc-sidebar-w:232px;--arc-topbar-h:74px}
+.arcShell{--arc-sidebar-w:232px}
 .arcSidebar{border-right:1px solid #DDE5EC}
 .arcBrand{justify-content:flex-start;margin:0;padding:18px 22px;min-height:74px;border-bottom:1px solid #E1E6EC}
 .arcBrand .arcLogo{display:block}
@@ -138,7 +138,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #warehouses .ivProductOpen svg{width:26px;height:26px;color:#10677D;flex:none}
 #warehouses .ivProductOpen>.ivProductLabel{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
 #warehouses .ivProductOpen small{display:block;color:var(--coco-muted);margin-top:4px;font-size:11px}
-#warehouses .ivInspector{background:white;border:1px solid #D8E2EA;border-radius:12px;padding:18px;position:sticky;top:94px;min-width:0}
+#warehouses .ivInspector{background:white;border:1px solid #D8E2EA;border-radius:12px;padding:18px;position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px);min-width:0}
 #warehouses .ivInspector h3{font-size:17px;margin:0 0 6px;overflow-wrap:anywhere}
 #warehouses .ivInspector>.muted{font-size:12px;margin:0 0 14px}
 #warehouses .ivInspector .arcButton{width:100%;margin-top:12px;font-size:12px}
@@ -197,7 +197,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriTools label:first-child{flex:1 1 250px}
 #sri .gaSriLayout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(265px,1fr);gap:18px;align-items:start}
 #sri .gaSriLayout>.gaCard{margin:0;min-width:0;padding:16px}
-#sri .gaSriInspector{position:sticky;top:94px;padding:18px;border:1px solid #D8E2EA;background:#fff;border-radius:12px;min-width:0}
+#sri .gaSriInspector{position:sticky;top:calc(var(--coco-topbar-offset,var(--arc-topbar-h,74px)) + 16px);padding:18px;border:1px solid #D8E2EA;background:#fff;border-radius:12px;min-width:0}
 #sri .gaSriInspector h3{font-size:18px;margin:0 0 16px}
 #sri .gaSriSelected{background:#E7F3F6;padding:14px;border-radius:10px;margin-bottom:14px}
 #sri .gaSriSelected small{color:var(--coco-muted);display:block}

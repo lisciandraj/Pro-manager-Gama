@@ -51,10 +51,11 @@ for(const width of [1440,390])test(`Coco reference surfaces fit at ${width}px an
  // The new theme deliberately includes the app bar's typography and border.
  // Its existing height and usable controls remain part of the layout contract.
  const bar=page.locator('.arcTopbar');
- await expect(bar).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(bar).toHaveCSS('background-color','rgb(244, 243, 248)');
  const bounds=await bar.boundingBox();
- expect(bounds.height).toBe(width>760?64:60);expect(bounds.width).toBe(width);expect(bounds.y).toBe(0);
- for(const selector of ['.arcBurger','.arcAvatar',...(width>=760?['.arcSearch input']:[])]){
+ expect(bounds.height).toBe(width>=1180?112:72);expect(bounds.width).toBe(width-(width>=1180?276:0));expect(bounds.y).toBe(0);
+ if(width>=1180){await expect(page.locator('.arcBurger')).toBeHidden();await expect(page.locator('.arcSidebar')).toBeVisible()}
+ for(const selector of ['.arcAvatar',...(width>=1180?['.arcSearch input']:['.arcBurger'])]){
   const control=bar.locator(selector);await expect(control).toBeVisible();
   const box=await control.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);

@@ -11,10 +11,15 @@ body #projects .pmTools button[aria-pressed=true]{background:var(--arc-accent-60
 body #projects .pmTabs button[aria-current=true]:hover:not(:disabled),
 body #projects .pmTools button[aria-pressed=true]:hover:not(:disabled){background:var(--arc-accent-700)!important}
 
-/* GAMA reference task board; stage, progress and drag behaviour are unchanged. */
-@media screen{body[data-app=coco-erp] #projects .pmColumn{border:1px solid var(--coco-line);border-radius:12px;padding:12px;background:#FCFCFD}body[data-app=coco-erp] #projects .pmTask{border-radius:10px;border-color:var(--coco-line);padding:14px;background:var(--coco-surface);box-shadow:none}}
-
-/* Coco Premium: native module finish, loaded on demand. */
+/* Geex task board: quiet columns and individual white task surfaces. */
 @media screen{
- body.cocoWorkbench #projects .pmColumn{background:var(--coco-kanban-surface);border:0;border-radius:var(--arc-r-lg);padding:14px}
- body.cocoWorkbench #projects .pmTask{background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-md);padding:16px;box-shadow:var(--coco-surface-shadow)}}
+ body.cocoWorkbench #projects .pmKanban{gap:30px;padding:8px 0 20px;scroll-padding-inline:12px;overscroll-behavior-x:contain}
+ body.cocoWorkbench #projects .pmColumn{background:transparent;border:0;border-radius:0;padding:0;min-width:0}
+ body.cocoWorkbench #projects .pmColumn h3{font-size:15px;font-weight:500;margin:0 0 24px;padding:0 2px}
+ body.cocoWorkbench #projects .pmTask{background:var(--coco-surface);border:0;border-radius:var(--arc-r-lg);padding:20px;margin-bottom:22px;gap:14px;box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench #projects .pmTask:focus-within{outline:2px solid var(--arc-accent-600);outline-offset:3px}
+ body.cocoWorkbench #projects .pmTask .pmLink{color:var(--coco-ink);font-size:14px;font-weight:400;line-height:1.6}
+ body.cocoWorkbench #projects .pmTask .pmMeta{font-size:12px}
+ body.cocoWorkbench #projects .pmTask select{min-height:44px;background:var(--coco-inset);border:1px solid transparent;border-radius:10px}
+}
+@media screen and (max-width:760px){body.cocoWorkbench #projects .pmKanban{gap:16px}}

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-30",
+  "environment": "Compiled local preview with isolated in-memory fixtures, Chrome via browser UI",
+  "production": false,
+  "home_1180_stable_scrollbar": {
+    "layout_width": 1180,
+    "label": "Base de connaissances",
+    "label_width": 94.421875,
+    "label_height": 32.375,
+    "line_height": 16.2,
+    "lines": 2,
+    "screenshot": "screens/geex-gama-home-scrollbar-1180.jpg"
+  },
+  "sales_desktop": {
+    "layout_width": 1440,
+    "layout_height": 1000,
+    "screenshot_scale": 0.9,
+    "table_top": 553,
+    "rendered_rows": 20,
+    "screenshot": "screens/geex-gama-sales-corrections-desktop.jpg"
+  },
+  "landscape_safe_area": {
+    "layout_width": 932,
+    "layout_height": 430,
+    "safe_left": 47,
+    "safe_right": 34,
+    "header_padding": "16px 58px 16px 71px",
+    "header_height": 97.796875,
+    "client_width": 917,
+    "avatar_right": 859
+  },
+  "checks": {
+    "architecture_passed": 24,
+    "startup_css_bytes": 296813,
+    "startup_js_bytes": 798084,
+    "startup_scripts": 14
+  },
+  "limits": [
+    "WebKit result requires GitHub Actions; no local Safari execution.",
+    "Screen fixtures do not call the production backend."
+  ]
+}

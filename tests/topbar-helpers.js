@@ -6,4 +6,10 @@ async function openNotifications(page,section='all'){
  await page.locator('#arcNotify').click();
  await page.locator('#arcNotifyMenu [data-arc-top-section="'+section+'"]').click();
 }
-module.exports={openSettings,openNotifications};
+async function openAppNavigation(page){
+ const button=page.locator('.arcBurger');
+ if(await button.isVisible())await button.click();
+ await page.locator('.arcSidebar').waitFor({state:'visible'});
+ await page.waitForFunction(()=>document.querySelector('.arcSidebar')?.inert===false);
+}
+module.exports={openSettings,openNotifications,openAppNavigation};

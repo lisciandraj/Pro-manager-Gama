@@ -86,9 +86,9 @@ test.describe('CRM — Contactos', () => {
       const th = document.querySelector('#crm .crmTabla th');
       return th ? getComputedStyle(th).textTransform : null;
     });
-    // The reference theme uses sentence case and medium-weight headers everywhere.
+    // The reference theme uses sentence case and regular-weight headers everywhere.
     expect(alineado).toBe('none');
-    await expect(page.locator('#crm .crmTabla th').first()).toHaveCSS('font-weight','500');
+    await expect(page.locator('#crm .crmTabla th').first()).toHaveCSS('font-weight','400');
   });
 
   test('la búsqueda ignora tildes y el filtro separa clientes de prospectos', async ({ page }) => {

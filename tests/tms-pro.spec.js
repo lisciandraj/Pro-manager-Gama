@@ -49,9 +49,10 @@ test('exports quote CSV formulas and generate GPX with escaped names',async({pag
  let pending=page.waitForEvent('download');await d.locator('[data-pro-csv]').click();const csv=fs.readFileSync(await (await pending).path(),'utf8');expect(csv).toContain("'=");
  pending=page.waitForEvent('download');await d.locator('[data-pro-gpx]').click();const xml=fs.readFileSync(await (await pending).path(),'utf8');expect(xml).toContain('<rtept lat="-0.2" lon="-78.5">');expect(xml).toContain('&quot;');
 });
+// Component fixtures belong to the real workspace, clear of desktop navigation.
 test('GPS requires explicit action and stops on account change',async({page,context})=>{
  await context.grantPermissions(['geolocation']);await context.setGeolocation({latitude:-.2,longitude:-78.5,accuracy:8});await boot(page);
- await page.evaluate(()=>{const host=document.createElement('section');host.id='gps-test';host.className='active';host.innerHTML='<div class="tmsDriverActions"></div>';document.body.append(host);window.CocoTmsGps.mount(host,{actor_id:'admin',routes:[{id:'route',status:'En ruta'}]})});
+ await page.evaluate(()=>{const host=document.createElement('section');host.id='gps-test';host.className='active';host.innerHTML='<div class="tmsDriverActions"></div>';document.querySelector('.arcContent>.wrap').append(host);window.CocoTmsGps.mount(host,{actor_id:'admin',routes:[{id:'route',status:'En ruta'}]})});
  expect(await page.evaluate(()=>window.__proCalls?.filter(x=>x.action==='position').length||0)).toBe(0);await page.locator('[data-driver-gps]').click();await expect.poll(()=>page.evaluate(()=>window.__proCalls?.filter(x=>x.action==='position').length||0)).toBe(1);
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));await expect(page.locator('[data-driver-gps]')).toHaveText('Compartir GPS');
 });
@@ -85,7 +86,7 @@ test('the daily map and driver navigation distinguish a route’s saved start an
  const routePoints={start:{label:'Depósito Norte',lat:-.19,lng:-78.49},end:{label:'Depósito Sur',lat:-.22,lng:-78.52}},errors=await boot(page,{routePoints});
  await expect(page.locator('#tMapPoint')).toContainText('Depósito Norte');await expect(page.locator('#tMapPoint')).toContainText('Depósito Sur');await page.locator('#tMapPoint').selectOption('route:end');await expect(page.locator('#tMapOutside')).toHaveAttribute('href',/ll=-0.22%2C-78.52/);
  const downloaded=page.waitForEvent('download');await page.evaluate(()=>window.CocoTmsPro.exportData({from:window.__DB.__today,to:window.__DB.__today},'gpx'));const gpx=fs.readFileSync(await (await downloaded).path(),'utf8');expect(gpx).toContain('<rtept lat="-0.19" lon="-78.49">');expect(gpx).toContain('<rtept lat="-0.22" lon="-78.52">');
- await page.evaluate(async()=>{const host=document.createElement('section');host.id='endpoint-driver';host.className='active';document.body.append(host);window.ArchitectOfflineProofs={rows:async()=>[],actor:async()=>'admin',prepare:async()=>({}),documents:async()=>({})};await window.CocoTmsDriverUI.mount(host,{actor_id:'admin',downloaded_at:new Date().toISOString(),routes:window.__DB.tms_routes,deliveries:[],driver:{name:'Driver'}},async()=>{})});
+ await page.evaluate(async()=>{const host=document.createElement('section');host.id='endpoint-driver';host.className='active';document.querySelector('.arcContent>.wrap').append(host);window.ArchitectOfflineProofs={rows:async()=>[],actor:async()=>'admin',prepare:async()=>({}),documents:async()=>({})};await window.CocoTmsDriverUI.mount(host,{actor_id:'admin',downloaded_at:new Date().toISOString(),routes:window.__DB.tms_routes,deliveries:[],driver:{name:'Driver'}},async()=>{})});
  await expect(page.locator('#endpoint-driver .tmsDriverEndpoint')).toHaveCount(2);await expect(page.locator('#endpoint-driver .tmsDriverEndpoint').last().getByRole('link',{name:'Waze'})).toHaveAttribute('href',/ll=-0.22%2C-78.52/);expect(errors).toEqual([]);
 });
 

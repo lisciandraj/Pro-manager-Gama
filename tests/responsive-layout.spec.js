@@ -191,14 +191,14 @@ test('home tiles stay square when the viewport is resized or rotated',async({pag
  await boot(page);
  for(const lang of ['fr','es','en']){
  await page.evaluate(lang=>GamaI18n.setLanguage(lang),lang);
- for(const [width,height] of [[320,568],[375,667],[390,844],[430,932],[844,390],[768,1024],[1024,768],[1180,650],[1280,720],[1366,768],[1920,1080],[2560,1440]]){
+ for(const [width,height] of [[320,568],[375,667],[390,844],[430,932],[844,390],[768,1024],[1024,768],[1180,650],[1280,720],[1366,768],[1440,900],[1920,1080],[2560,1440]]){
   await page.setViewportSize({width,height});
   const tiles=await page.locator('#mainmenu .gamaF2Card:visible').evaluateAll(cards=>cards.map(card=>{
    const r=card.getBoundingClientRect();const label=card.querySelector('.gamaF2Title').getBoundingClientRect();
    return {x:r.x,y:r.y,bottom:r.bottom,right:r.right,width:r.width,height:r.height,labelBottom:label.bottom,labelTop:label.top};
   }));
   expect(tiles.length).toBeGreaterThan(0);
-  if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(9);
+  if(width>=1180)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(width>=1440?9:7);
   expect(await page.locator('[data-mfa-enrollment]').count()).toBe(0);
   if(width<=860)expect(tiles.filter(tile=>Math.abs(tile.y-tiles[0].y)<1)).toHaveLength(width<600?3:4);
   const overlaps=[];

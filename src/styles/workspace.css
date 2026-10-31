@@ -26,7 +26,7 @@ body[data-app="coco-erp"]{
 .arcSearch input{min-height:46px;background:#F7F9FC;border-color:#D4E0E8;font-size:14px}
 .arcAvatar{background:#10677D}
 .arcContent{padding:26px 28px 32px;background:#F7F8FB}
-.arcMobileBrand,.cocoMobileNav{display:none}
+.cocoMobileNav{display:none}
 body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:#10677D;border-color:#10677D;color:#fff;box-shadow:none}
 body .arcContent .arcButton.primary:hover:not(:disabled){background:#0C556B}
 body .arcContent .arcButton.secondary{background:#fff;color:#10677D;border:1px solid #BDD0DC}
@@ -224,8 +224,6 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 @media(max-width:860px){
  .arcShell{--arc-sidebar-w:min(84vw,280px)}
  .arcTopbar{padding:10px calc(14px + var(--arc-safe-r)) 10px calc(14px + var(--arc-safe-l));min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
- .arcMobileBrand{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:800;color:#103B52;white-space:nowrap;margin-right:auto}
- .arcMobileBrand img{width:34px;height:34px;object-fit:contain}.arcMobileBrand b{color:#157F98}
  .arcTopbar>.arcSearch{display:none}
  .arcContent{padding:20px 16px calc(96px + env(safe-area-inset-bottom,0px))}
  .cocoMobileNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:45;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #DDE5EC}
@@ -376,8 +374,6 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 }
 @media(max-width:360px){
  .arcTopbar{padding:10px calc(6px + var(--arc-safe-r)) 10px calc(6px + var(--arc-safe-l));gap:6px}
- .arcMobileBrand{font-size:16px;gap:4px}
- .arcMobileBrand img{width:28px;height:28px}
 }
 
 /* Reference layouts: Dashboard, order dossier and SRI, October 11 2026. */

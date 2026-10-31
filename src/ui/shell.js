@@ -192,7 +192,6 @@ function build(){
  const main=document.createElement('div');main.className='arcMain';
  const top=document.createElement('header');top.className='arcTopbar';
  window.ArcUI.render(top,'<button type="button" class="arcButton arcBurger" data-gi-aria-label="live" aria-expanded="false" aria-controls="cocoAppMenu" aria-label="'+esc(T('Abrir el menú'))+'">'+svg(NAV_ICON.apps)+'</button>'
-  +'<a class="arcMobileBrand" href="#mainmenu" aria-label="Coco ERP"><img src="coco-erp-icon-180.png?v=20261018-co" alt="" width="34" height="34"></a>'
   +'<div class="cocoModuleHeading"><button type="button" id="cocoModuleBack" class="arcButton cocoModuleBack" hidden data-gi-aria-label="live" aria-label="'+esc(T('Volver al menú'))+'" title="'+esc(T('Volver al menú'))+'" data-gi-title="live">'+svg(ICON.back)+'</button><div class="cocoModuleText"><h1 id="cocoModuleContext" class="cocoModuleContext"></h1><p id="cocoModuleSubtitle" class="cocoModuleSubtitle"></p></div></div>'
   +'<div class="arcSearch">'+svg(ICON.search)
    +'<input type="search" id="arcSearchInput" autocomplete="off" placeholder="'+esc(T('Buscar en Coco ERP…'))+'" aria-label="'+esc(T('Buscar en Coco ERP…'))+'">'
@@ -248,7 +247,6 @@ function bind(side,top){
  const burger=top.querySelector('.arcBurger');
  burger.onclick=()=>document.body.classList.contains('arcDrawerOpen')?closeDrawer():openDrawer();
  side.querySelector('.arcDrawerClose').onclick=closeDrawer;
- top.querySelector('.arcMobileBrand').onclick=e=>{e.preventDefault();closeDrawer();window.GamaUI?.backToMenu?.()};
  top.querySelector('#cocoModuleBack').onclick=()=>{
   const id=document.body.dataset.cocoModule==='gama-tms-section'?'tms':document.body.dataset.cocoModule;
   window.GamaUI.backToMenu();

@@ -7,8 +7,8 @@ async function boot(page,role='admin'){
  await page.addInitScript(role=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'Test User'}));localStorage.setItem('gama_language_v1','fr');window.__DB={products:[],customers:[{id:'c1',active:true,name:'Customer'}],suppliers:[],invoices:[],profiles:[],stock_movements:[]}},role);
  await page.route('https://**/*',r=>r.abort());
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock+bridge}));
- // Desktop uses the sidebar wordmark; compact screens use the top-bar icon.
- await page.goto('/index.html');await expect(page.locator(page.viewportSize().width>=1180?'.arcLogo img':'.arcMobileBrand img')).toBeVisible();
+ // Desktop keeps the sidebar wordmark; compact screens expose the menu button.
+ await page.goto('/index.html');await expect(page.locator(page.viewportSize().width>=1180?'.arcLogo img':'.arcBurger')).toBeVisible();
 }
 test('approved logo, responsive grid, translated labels and truthful metrics',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await boot(page);

@@ -23,7 +23,7 @@
  body.cocoWorkbench .arcSidebar .arcLang select{text-align:left;font-size:12px}
  body.cocoWorkbench .arcDrawerClose{display:none}
  body.cocoWorkbench .arcTopbar{height:auto;min-height:var(--arc-topbar-h);padding:20px calc(42px + var(--arc-safe-r)) 16px calc(36px + var(--arc-safe-l));gap:28px;flex-wrap:nowrap;background:var(--coco-canvas);border:0;box-shadow:none}
- body.cocoWorkbench .arcBurger,body.cocoWorkbench .arcMobileBrand{display:none}
+ body.cocoWorkbench .arcBurger{display:none}
  .cocoModuleHeading{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:1;padding:0;border:0}
  .cocoModuleText{min-width:0;flex:1}
  body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:26px;line-height:44px;font-weight:600;letter-spacing:-.025em;color:var(--coco-ink)}
@@ -121,14 +121,11 @@
  body.cocoWorkbench{--arc-topbar-h:72px}
  body.cocoWorkbench .arcTopbar{padding:10px calc(10px + var(--arc-safe-r)) 10px calc(10px + var(--arc-safe-l));gap:6px}
  body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
- body.cocoWorkbench .arcMobileBrand{display:flex;align-items:center;margin-right:auto}
- body.cocoWorkbench .arcMobileBrand img{display:block;width:34px;height:34px;object-fit:contain}
  body.cocoWorkbench[data-coco-module=mainmenu] .cocoModuleHeading{display:none}
- body.cocoWorkbench:not([data-coco-module=mainmenu]) .arcTopbar>.arcMobileBrand{display:none}
  .cocoModuleHeading{gap:5px}
  body.cocoWorkbench .cocoModuleContext{font-size:18px}
  .cocoModuleSubtitle{display:none}
- body.cocoWorkbench .arcTopRight{gap:0}
+ body.cocoWorkbench .arcTopRight{gap:0;margin-left:auto}
  body.cocoWorkbench .arcUserSlot{margin-left:2px}
  body.cocoWorkbench .arcAvatar{width:38px;height:38px;font-size:13px;border-radius:12px}
  body.cocoWorkbench .arcContent{padding:16px calc(14px + var(--arc-safe-r)) calc(92px + var(--arc-safe-b)) calc(14px + var(--arc-safe-l))}

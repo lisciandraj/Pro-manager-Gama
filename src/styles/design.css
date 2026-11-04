@@ -1,15 +1,15 @@
-/* Geex / GAMA: white surfaces, soft corners and shared interaction states.
+/* Coco / GAMA: quiet surfaces, readable data and shared interaction states.
    Module-specific finishes are loaded with their native module styles. */
 @media screen{
  body[data-app=coco-erp],body[data-app=coco-erp] :is(.arcContent,.arcSidebar,dialog,#mainmenu,#gamaCloudLogin){
-  --gama-blue:#157F98;--gama-blue-dark:#10677D;--gama-orange:var(--arc-coco-orange);
-  --arc-canvas:var(--coco-canvas);--arc-surface:var(--coco-surface);--arc-surface-2:var(--coco-inset);--arc-surface-3:#EDEBF3;
-  --arc-line:var(--coco-line);--arc-line-strong:#7B8797;--arc-text:var(--coco-ink);--arc-text-muted:var(--coco-muted);--arc-text-subtle:var(--coco-muted);
-  --arc-accent-600:#10677D;--arc-accent-700:#0C556B;--arc-accent-100:#E7F3F6;--arc-accent-50:#F3F9FA;
+  --gama-blue:#157F98;--gama-blue-dark:#2F7180;--gama-orange:var(--arc-coco-orange);
+  --arc-canvas:var(--coco-canvas);--arc-surface:var(--coco-surface);--arc-surface-2:var(--coco-inset);--arc-surface-3:#E7EEF0;
+  --arc-line:var(--coco-line);--arc-line-strong:#819298;--arc-text:var(--coco-ink);--arc-text-muted:var(--coco-muted);--arc-text-subtle:var(--coco-muted);
+  --arc-accent-600:#2F7180;--arc-accent-700:#245C69;--arc-accent-100:#E5F0F2;--arc-accent-50:#F1F7F8;
   --arc-card-border:var(--coco-line);--arc-tile-border:#708897;--arc-tile-border-bottom:#708897;
   --arc-card-shadow:var(--coco-surface-shadow);--arc-tile-shadow:var(--coco-surface-shadow);--arc-field-shadow:none;--arc-control-shadow:none;
   --arc-table-grid:var(--coco-row-line);--coco-grid:var(--coco-row-line);
-  --arc-viz-1:#F87826;--arc-viz-2:#157F98;--arc-viz-3:#FFAB72;--arc-viz-4:#86B8C4;--arc-viz-5:#103B52;
+  --arc-viz-1:#AF5C35;--arc-viz-2:#2F7180;--arc-viz-3:#D5A385;--arc-viz-4:#89B3BD;--arc-viz-5:#103B52;
  }
  body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:.875rem/1.55 var(--arc-font);-webkit-font-smoothing:antialiased}
  body[data-app=coco-erp] :is(button,input,select,textarea){font-family:var(--arc-font)}
@@ -38,7 +38,7 @@
  body[data-app=coco-erp] #gamaCloudLogin #gamaCloudLoginBtn{background:var(--coco-action-top) var(--coco-action-fill);color:var(--coco-on-action);border-color:var(--coco-action);border-radius:var(--arc-r-sm);box-shadow:var(--coco-action-shadow)}
  body[data-app=coco-erp] #gamaCloudLogin :is(input,button){min-height:44px;font-size:1rem;border-radius:var(--arc-r-sm);box-shadow:none}
  .arcAvatar:has(img){overflow:hidden}.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
- body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:132px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:116px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon)>svg{width:28px;height:28px}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon){display:inline-grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite[aria-pressed=true] .cocoIconPrimary{fill:var(--gama-blue,#157F98)}
@@ -47,12 +47,12 @@
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi)>small,body[data-app=coco-erp] .arcContent :is(.gaKpis>.gaCard,.gfKpis>.gfCard)>em{grid-column:1/-1;margin:0;font-size:12px;font-weight:400;line-height:1.5;color:var(--coco-muted)}
  body[data-app=coco-erp] .gamaF2Kpi{background-image:var(--coco-surface-sheen);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] .gamaF2KpiValue{font-weight:600;letter-spacing:-.025em}
- body.cocoWorkbench .arcContent h2{font-size:24px;line-height:1.3}
- body.cocoWorkbench .arcContent h3{font-size:17px;line-height:1.4}
+ body.cocoWorkbench .arcContent h2{font-family:var(--arc-font-display);font-size:24px;line-height:1.3}
+ body.cocoWorkbench .arcContent h3{font-family:var(--arc-font-display);font-size:17px;line-height:1.4}
  body.cocoWorkbench :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton,.tmsBtn){border-radius:var(--arc-r-sm);font-weight:500;box-shadow:none}
  body.cocoWorkbench :is(.arcContent section:not(#mainmenu),dialog) :is(.arcButton.primary,.cfgInstall,.tmsPrimary,.tmsOrange){background:var(--coco-action-top) var(--coco-action-fill);color:var(--coco-on-action);border-color:var(--coco-action);box-shadow:var(--coco-action-shadow)}
  body.cocoWorkbench .arcContent :is(.gamaStdActions,.gqTools,.cocoSalesActions,.ctBar,.whActions)>.arcButton.primary~.arcButton.primary{background:white;color:var(--arc-accent-600);border-color:var(--coco-line)}
- body.cocoWorkbench :is(.arcContent,dialog) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){border-radius:var(--arc-r-sm);border-color:var(--arc-line-strong);box-shadow:inset 0 1px 2px rgb(16 59 82 / .025);background-color:var(--coco-surface)}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){border-radius:var(--arc-r-sm);border-color:var(--arc-line-strong);box-shadow:none;background-color:var(--coco-surface)}
  body.cocoWorkbench :is(.arcContent,dialog) :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench :is(.gamaTableSearch,.ai-input,.whComposer):focus-within{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench :is(.arcContent,dialog) :is(.arcPanel,.card,.gp14Card,.pmPanel,.gkPanel,.ai-panel,.chartPanel,.coCard){background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
@@ -74,13 +74,13 @@
  body.cocoWorkbench .arcContent .gamaColumnHeading{font-size:13px;font-weight:500;color:var(--coco-muted)}
  body.cocoWorkbench .arcContent .gamaSortScope{font-size:11px;font-weight:400}
  body.cocoWorkbench .arcContent table:not([data-gama-view=cards]){border-collapse:collapse;background:white;border:0}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(th,td){border:0!important;border-bottom:1px solid var(--coco-row-line)!important;padding:12px 16px;vertical-align:middle}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--coco-surface);font-size:12px;font-weight:400;color:var(--coco-muted);height:64px}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) td{font-size:13px;height:68px;background:white}
+ body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(th,td){border:0!important;border-bottom:1px solid var(--coco-row-line)!important;padding:4px 16px;vertical-align:middle}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;color:var(--coco-muted);height:var(--coco-table-heading)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) td{font-size:13px;height:var(--coco-table-row);background:var(--coco-surface)}
  body.cocoWorkbench .arcContent #audit table:not([data-gama-view=cards]) :is(th,td){padding-inline:10px}
  body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
  body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(td.arcNumeric,th.arcNumeric,td.gaNum,th.gaNum){text-align:right;font-variant-numeric:tabular-nums}
- body.cocoWorkbench .arcContent :is(.arcStatusBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.hrBadge,.pmBadge,.tmsBadge){border:0;border-radius:9px;font-size:12px;padding:5px 10px;font-weight:400}
+ body.cocoWorkbench .arcContent :is(.arcStatusBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.hrBadge,.pmBadge,.tmsBadge){border:0;border-radius:6px;font-size:12px;padding:4px 9px;font-weight:500}
  body.cocoWorkbench .arcContent :is(.gamaPager,.gqListPager,.arcPager){font-size:12px;color:var(--coco-muted)}
  body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background:var(--coco-surface-fill);border:0!important;box-shadow:var(--coco-surface-shadow)!important;border-radius:var(--arc-r-lg)}
  body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]:hover{background:var(--coco-surface);box-shadow:var(--arc-sh-2)!important}
@@ -91,13 +91,29 @@
  .cocoProductFormHeading h2{margin:0}
  body.cocoWorkbench .arcContent section#products :is(.cocoProductForm,.cocoProductCatalog){border:0;padding:0;border-radius:0;box-shadow:none;background:transparent}
  body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcTableWrap,.gamaTableBox,.ctTable,.gqScroll,.pmTableWrap){border:0;border-radius:var(--arc-r-lg);background:var(--coco-surface);box-shadow:var(--coco-surface-shadow)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.tmsKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill);min-height:150px;padding:24px}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.tmsKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill);min-height:116px;padding:20px}
  body.cocoWorkbench .arcContent #warehouses .ivStockLayout:has(>#ivInspector[hidden]){grid-template-columns:minmax(0,1fr)}
  body.cocoWorkbench .arcContent #contacts :is(td,th){white-space:normal;overflow-wrap:anywhere}
  body.cocoWorkbench .arcContent #contacts td:last-child{min-width:170px;max-width:280px}
  body.cocoWorkbench .arcContent #contacts td:last-child .arcButton{margin:3px;white-space:normal}
  body.cocoWorkbench .arcContent #audit table:not([data-gama-view=cards]) :is(th,td){white-space:normal}
- body.cocoWorkbench #products .cocoProductForm>.row{gap:20px 24px}
+ body.cocoWorkbench #products .cocoProductForm>.row{gap:var(--coco-form-row-gap) var(--coco-form-column-gap)}
+ /* One rhythm for shared and legacy forms. Layout columns and control order
+    remain owned by each module; labels stay adjacent to their own field. */
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcFormGrid,.row,.gaGrid,.ivForm,.hpGrid,.coPair):has(input,select,textarea){row-gap:var(--coco-form-row-gap);column-gap:var(--coco-form-column-gap)}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(label,.arcField):not([hidden]):has(> :is(input:not([type=checkbox],[type=radio],[type=hidden],[type=range],[type=color]),select,textarea,.gamaFind)){
+  display:flex;flex-direction:column;align-items:stretch;gap:var(--coco-field-gap);font-size:13px;line-height:1.5;font-weight:500;
+ }
+ body.cocoWorkbench :is(.arcContent,dialog) :is(label,.arcField)>:is(input:not([type=checkbox],[type=radio]),select,textarea,.gamaFind){margin-block:0}
+ body.cocoWorkbench :is(.arcContent,dialog) .row>div>label{margin-bottom:var(--coco-field-gap);font-size:13px;font-weight:500}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcField>span,.cocoProductForm label){font-size:13px;font-weight:500;color:var(--coco-ink)}
+ body.cocoWorkbench :is(.arcContent,dialog) .coCard label{margin-bottom:var(--coco-form-row-gap)}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcFormGrid,.row,.gaGrid,.ivForm,.hpGrid,.coPair)>:is(label,.arcField){margin-bottom:0}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcFormGrid,.row,.gaGrid,.ivForm,.hpGrid) :is(input:not([type=checkbox],[type=radio],[type=hidden]),select,textarea){min-height:44px;padding:10px 12px;font-weight:400}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcFormGrid,.row,.gaGrid,.ivForm,.hpGrid) textarea{min-height:100px;resize:vertical}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcDialogActions,.arcFormActions){gap:12px;margin-top:var(--coco-section-gap)}
+ body.cocoWorkbench .arcContent .cocoProductForm>.actions{gap:12px;margin-top:var(--coco-section-gap);padding-top:20px;border-top:1px solid var(--coco-line)}
+ body.cocoWorkbench .arcContent :is(.gaKpis,.gfKpis,.ivKpis,.hrKpis,.crmKpis,.pmKpis,.tmsKpis){gap:16px}
  body.cocoWorkbench #products .cocoProductForm>p{max-width:75ch}
  body.cocoWorkbench .cocoFollowup{border-radius:var(--arc-r-lg);border:0;box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench .cocoFollowupBubble{border-radius:var(--arc-r-md);box-shadow:none;border-color:var(--coco-line)}
@@ -147,8 +163,13 @@
 }
 @media screen and (max-width:1179px){
 }
+/* Labels and field values have distinct roles; inherited label styles must
+   not shrink the entered value. Phone fields keep their 16px rule below. */
+@media screen and (min-width:761px){
+ body.cocoWorkbench :is(.arcContent,dialog) :is(input:not([type=checkbox],[type=radio],[type=hidden]),select,textarea){font-size:14px}
+}
 @media screen and (max-width:760px){
- body[data-app=coco-erp]{--coco-panel-padding:16px;--coco-panel-gap:16px;--arc-r-lg:14px}
+ body[data-app=coco-erp]{--coco-panel-padding:16px;--coco-panel-gap:16px;--coco-form-row-gap:20px;--coco-form-column-gap:16px;--arc-r-lg:12px}
  body[data-app=coco-erp] #gamaCloudLogin{padding:16px}body[data-app=coco-erp] #gamaCloudLogin .box{padding:24px 20px}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){grid-template-columns:minmax(0,1fr);gap:10px;min-height:0}
  body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gp14Kpis>div)>span,body[data-app=coco-erp] .arcContent :is(.gaKpis>.gaCard,.gfKpis>.gfCard)>small{grid-column:1}
@@ -175,7 +196,7 @@
  body.cocoWorkbench #mainmenu .cocoModuleFavorite svg{width:16px;height:16px}
  .cocoProductFormHeading{align-items:flex-start;gap:12px;margin-bottom:24px}
  .cocoProductFormHeading h2{font-size:21px}
- body.cocoWorkbench #products .cocoProductForm>.row{gap:18px}
+ body.cocoWorkbench #products .cocoProductForm>.row{gap:var(--coco-form-row-gap) var(--coco-form-column-gap)}
 }
 /* Small phones keep three square tiles and complete translated labels. */
 @media screen and (max-width:359px){

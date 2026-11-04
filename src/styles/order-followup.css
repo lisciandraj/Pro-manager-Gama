@@ -135,8 +135,8 @@
 /* Closed module history leaves the full working width available. */
 @media(min-width:901px){
  .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr);row-gap:12px}
- .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap{grid-column:1;grid-row:2}
- .arcContent>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;position:static;justify-self:end;width:min(270px,100%)}
+ .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap{grid-column:1;grid-row:var(--coco-history-content-row,2)}
+ .arcContent>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;position:static;align-self:start;justify-self:var(--coco-history-alignment,end);width:min(270px,100%);z-index:1}
  .cocoGlobalHistory>.cocoFollowup:not([open])>summary{min-height:44px;padding:10px 12px}
  .cocoDossierWorkspace:has(>aside>.cocoFollowup:not([open])){grid-template-columns:minmax(0,1fr)!important;align-content:start}
  .cocoDossierWorkspace>aside:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;position:static;justify-self:end;width:min(270px,100%)}
@@ -156,4 +156,37 @@
  body.cocoWorkbench{--coco-mobile-nav-space:calc(68px + env(safe-area-inset-bottom,0px))}
  body.cocoWorkbench .arcContent:has(.cocoWithFollowup,.cocoPurchaseWorkspace,.cocoDossierWorkspace),
  body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory:not(.cocoAgentHistory)){padding-bottom:calc(var(--coco-mobile-nav-space) + 96px)}
+}
+
+/* Utility composition loads with history, rather than the initial shell. */
+@media screen and (min-width:1180px){
+ /* A closed history summary and the module tools share their utility row.
+    The history panel stays outside the business DOM and reclaims its own
+    column when opened. Specialized headers keep their existing layout. */
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])):has(>.wrap>section.active:not(#dashboard)>.cocoWorkspaceHeader:not(.cocoHeaderEmpty)>.cocoModuleTools){--coco-history-content-row:1;--coco-history-alignment:start}
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap>section.active:not(#dashboard)>.cocoWorkspaceHeader:not(.cocoHeaderEmpty):has(>.cocoModuleTools){margin-left:286px;min-height:44px}
+ /* The closed sales history occupies the reserved right end of the existing
+    secondary toolbar. Opening it restores the native dossier columns. */
+ body.cocoWorkbench .arcContent #quotes:has(#quotes-main>.cocoDossierWorkspace>aside>.cocoFollowup:not([open]))>.cocoSalesSubnav{min-height:56px;padding-right:286px;box-sizing:border-box}
+ body.cocoWorkbench #quotes-main>.cocoDossierWorkspace:has(>aside>.cocoFollowup:not([open])){position:relative}
+ body.cocoWorkbench #quotes-main>.cocoDossierWorkspace>aside:has(>.cocoFollowup:not([open])){position:absolute;top:-64px;right:0;width:270px}
+ body.cocoWorkbench #quotes-main>.cocoDossierWorkspace:has(>aside>.cocoFollowup:not([open]))>.cocoDossierMain{grid-row:1}
+}
+@media screen and (min-width:1280px){
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])):has(>.wrap>#dashboard.active){--coco-history-content-row:1;--coco-history-alignment:start}
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])):has(>.wrap>#dashboard.active)>.cocoGlobalHistory{width:min(270px,calc(35% - 16px))}
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap>#dashboard.active>.cocoWorkspaceHeader{margin-left:min(286px,35%)}
+}
+/* A reserved utility area keeps existing module DOM and translated controls.
+   At narrower widths the ordinary stacked layout remains available. */
+@media screen and (min-width:390px) and (max-width:760px){
+ body.cocoWorkbench:is([data-coco-module=products],[data-coco-module=dashboard]) .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])){display:grid;grid-template-columns:minmax(0,1fr)}
+ body.cocoWorkbench:is([data-coco-module=products],[data-coco-module=dashboard]) .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open]))>.wrap{grid-column:1;grid-row:1}
+ body.cocoWorkbench:is([data-coco-module=products],[data-coco-module=dashboard]) .arcContent>.cocoGlobalHistory:has(>.cocoFollowup:not([open])){grid-column:1;grid-row:1;order:0;justify-self:start;width:calc(100% - 152px)}
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])) #products>.cocoWorkspaceHeader{margin-left:calc(100% - 140px);min-height:56px}
+ body.cocoWorkbench .arcContent.cocoHasModuleHistory:has(>.cocoGlobalHistory>.cocoFollowup:not([open])) #dashboard>.cocoWorkspaceHeader{display:grid;grid-template-columns:minmax(0,1fr) 140px;grid-template-rows:minmax(56px,auto) auto;row-gap:12px}
+ body.cocoWorkbench #dashboard>.cocoWorkspaceHeader>.cocoModuleTools{grid-column:2;grid-row:1;margin:0;justify-self:end}
+ body.cocoWorkbench #dashboard .adHeaderTools{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px;width:100%}
+ body.cocoWorkbench #dashboard .adHeaderField{min-width:0}
+ body.cocoWorkbench #dashboard #ad-customize{grid-column:1/-1}
 }

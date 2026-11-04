@@ -13,9 +13,10 @@ test('accounting audit: ledger cash, recovery, bank workflow, rights, analytics,
  try{
   await db.exec(`insert into auth.users(id,email) values('${admin}','audit-admin@example.invalid'),('${reader}','audit-reader@example.invalid');update profiles set active=true,role=case when id='${admin}' then 'administrador' else 'comercial' end;select set_config('request.jwt.claim.sub','${admin}',false);insert into suppliers(id,name) values('${supplier}','Audit supplier');insert into customers(id,name,identification) values('${customer}','Audit customer','0912345678001');`);
   [bankAccount,equity,expense,income]=await Promise.all(['1000','3000','6080','4000'].map(acc));
-  await q("insert into financial_accounts(id,name,kind,account_id,opening_balance) values($1,'Audit bank','bank',$2,1000)",[bank,bankAccount]);
+  await q("insert into financial_accounts(id,name,kind,account_id,opening_balance,created_at) values($1,'Audit bank','bank',$2,1000,'2026-10-01T12:00:00Z')",[bank,bankAccount]);
+  // Fixed October fixtures must not inherit the runner's current-month start.
   await t.test('opening is posted once; manual bank entries and reversal update cash, overview and forecast',async()=>{
-   assert.equal(await cash(bank),0);assert.equal((await audit('controls',{to:'2026-10-31'})).openings.length,1);
+   assert.equal(await cash(bank),0);assert.equal((await audit('controls',{from:'2026-10-01',to:'2026-10-31'})).openings.length,1);
    await write('opening_post',{financial_account_id:bank,counter_account_id:equity,entry_date:'2026-10-01'});assert.equal(await cash(bank),1000);
    deposit=await book('2026-10-02',[{account_id:bankAccount,debit:100},{account_id:equity,credit:100}]);assert.equal(await cash(bank),1100);
    assert.equal((await base('overview')).treasury.balance,1100);assert.equal((await base('forecast')).balance,1100);
@@ -37,11 +38,11 @@ test('accounting audit: ledger cash, recovery, bank workflow, rights, analytics,
    await db.exec('alter table supplier_invoices disable trigger ec_source_post');
    legacy=await v("insert into supplier_invoices(supplier_id,number,issue_date,subtotal,total,status) values($1,'AUDIT-LEGACY','2026-09-28',13.13,13.13,'posted') returning id",[supplier]);
    await db.exec("alter table supplier_invoices enable trigger ec_source_post;insert into accounting_periods(period_start,period_end,status) values('2026-09-01','2026-09-30','closed') on conflict(period_start) do update set status='closed'");
-   assert.ok((await audit('controls',{to:'2026-10-31'})).missing.some(r=>r.source_id===legacy));
+   assert.ok((await audit('controls',{from:'2026-10-01',to:'2026-10-31'})).missing.some(r=>r.source_id===legacy));
    const data={request_key:uuid(),source_type:'supplier_invoice',source_id:legacy,entry_date:'2026-10-04',reason:'Reviewed legacy bill from closed September'};
    const result=await audit('recovery_post',data);assert.deepEqual(await audit('recovery_post',data),result);
    assert.equal(await v('select issue_date::text from supplier_invoices where id=$1',[legacy]),'2026-09-28');assert.equal(await v('select entry_date::text from accounting_entries where id=$1',[result.entry_id]),'2026-10-04');
-   assert.ok(!(await audit('controls',{to:'2026-10-31'})).missing.some(r=>r.source_id===legacy));assert.equal(await v("select status from accounting_periods where period_start='2026-09-01'"),'closed');
+   assert.ok(!(await audit('controls',{from:'2026-10-01',to:'2026-10-31'})).missing.some(r=>r.source_id===legacy));assert.equal(await v("select status from accounting_periods where period_start='2026-09-01'"),'closed');
   });
   await t.test('direct refunds reverse revenue; credited refunds clear receivables without a second sale reversal',async()=>{
    const invoice=await customerInvoice('REFUND-AUDIT',100),receivable=await acc('1100');
@@ -161,7 +162,7 @@ test('accounting audit: ledger cash, recovery, bank workflow, rights, analytics,
    await v('select gama_stock_adjust($1,$2,8,null,$3)',[product,receipt,'Reviewed stock consumption']);assert.equal(await balance(stock),80);assert.equal(await balance(cogs),20);
    await assert.rejects(v("select gama_valuation('accounts',$1::jsonb)",[JSON.stringify({request_key:uuid(),product_id:product,stock_account_id:bankAccount,expense_account_id:cogs})]),/STOCK_MAPPING_LOCKED/);
    assert.ok((await audit('context')).stock_books.some(r=>r.product_id===product&&r.name==='Audit perpetual stock'));
-   assert.ok((await audit('controls',{to:'2026-10-31'})).stock.every(r=>r.difference===0));
+   assert.ok((await audit('controls',{from:'2026-10-01',to:'2026-10-31'})).stock.every(r=>r.difference===0));
   });
  }finally{await db.close()}
 });

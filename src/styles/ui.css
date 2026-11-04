@@ -436,7 +436,8 @@ table.gamaCards.gamaCards[data-gama-view] tr>[data-gama-column-hidden]{display:n
  body table.gamaCards[data-gama-view=table]>tbody{display:table-row-group!important}
  body table.gamaCards[data-gama-view=table]>tfoot{display:table-footer-group!important}
  body table.gamaCards[data-gama-view=table] tr,body table.gamaCards[data-gama-view=table] [data-gama-head]{display:table-row!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
- body table.gamaCards[data-gama-view=table] :is(th,td){display:table-cell!important;width:auto!important;padding:10px 12px!important;border-bottom:1px solid var(--arc-line)!important;vertical-align:middle!important;position:static!important}
+ body table.gamaCards[data-gama-view=table] :is(th,td){display:table-cell!important;width:auto!important;padding:var(--coco-table-cell-padding,10px 12px)!important;border-bottom:1px solid var(--arc-line)!important;vertical-align:middle!important;position:static!important}
+ body table.gamaCards[data-gama-view=table] th{height:var(--coco-table-heading,44px)}
  body table.gamaCards[data-gama-view=table] td::before{display:none!important;content:none!important}
  body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=table]){overflow-x:auto!important;overscroll-behavior-x:contain}
  body :is(.arcTableWrap,.gamaScrollX):has(table[data-gama-view=cards]){overflow-x:visible!important}

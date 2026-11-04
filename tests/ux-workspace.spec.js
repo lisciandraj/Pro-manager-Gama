@@ -104,8 +104,8 @@ test('quote primary action follows the white-on-orange reference and retains vis
   const stops=s.backgroundImage.match(/rgba?\([^)]+\)/g)||[s.backgroundColor],badge=getComputedStyle(document.querySelector('#gqList .gqBadge'));
   return {actionText:s.color,actionBackground:s.backgroundColor,actionContrast:Math.min(...stops.map(c=>contrast(s.color,c))),status:contrast(badge.color,badge.backgroundColor),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
- // The GAMA action shade preserves white labels with readable gradient stops.
- expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(189, 78, 9)');
+ // The muted GAMA action shade preserves white labels and AA contrast.
+ expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(175, 92, 53)');
  expect(measures.actionContrast).toBeGreaterThanOrEqual(4.5);
  expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);

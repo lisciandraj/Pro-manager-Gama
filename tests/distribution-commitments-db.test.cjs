@@ -61,6 +61,19 @@ test('distribution projections and approved amendments use the canonical stock a
    assert.equal(Number(await v('select quantity from sales_order_lines where order_id=$1 and product_id=$2',[second.id,ids.replacement])),6);
    assert.equal(Number(await v("select count(*) from sales_events where order_id=$1 and action='substitution_agreement_applied'",[second.id])),1);
   });
+  await t.test('substitution preserves completed service quantities and still permits the unperformed remainder',async()=>{
+   const service=uuid();await db.exec('reset role');await q("insert into products(id,name,reference,barcode,product_kind,base_unit,sale_price,purchase_price,tax_rate) values($1,'Service amendment','DIST-SVC','DIST-SVC','service','hour',50,20,15)",[service]);await as(ids.admin);
+   const o=await sales('create',{source:'manual',request_key:uuid(),customer_id:ids.customer,lines:[{product_id:service,quantity:2,unit_price:50,tax_rate:15,price_mode:'auto'}]});await sales('confirm',{order_id:o.id});const line=await v('select id from sales_order_lines where order_id=$1',[o.id]);
+   const proposed={order_id:o.id,line_id:line,kind:'substitute',quantity:2,replacement_product_id:ids.replacement,unit_price:40,tax_rate:15,price_mode:'auto',request_key:uuid()};
+   const old=await fulfill('propose_option',proposed);await call('gama_service_execution','complete',{order_id:o.id,line_id:line,quantity:1,performed_on:today,evidence:'Completed service fixture',request_key:uuid()});
+   await db.exec('reset role');await q("insert into erp_action_permissions(role,module,allow_validate,updated_by) values('comercial','sales-orders',false,$1) on conflict(role,module) do update set allow_validate=false",[ids.admin]);await as(ids.sales);
+   await assert.rejects(fulfill('propose_option',{...proposed,request_key:uuid()}),/EXCEEDS_ORDERED/);
+   await assert.rejects(fulfill('respond_option',{option_id:old.id,decision:'accepted',agreement_reference:'Changed service request',request_key:uuid()}),/OPTION_STALE/);
+   assert.equal(Number(await v('select quantity from sales_order_lines where id=$1',[line])),2);
+   const remainder=await fulfill('propose_option',{...proposed,quantity:1,request_key:uuid()});await fulfill('respond_option',{option_id:remainder.id,decision:'accepted',agreement_reference:'Replace only unperformed work',request_key:uuid()});
+   assert.equal(Number(await v('select quantity from sales_order_lines where id=$1',[line])),1);assert.equal(Number(await v('select sum(quantity) from sales_service_completions where order_line_id=$1 and cancelled_at is null',[line])),1);
+   await as(ids.admin);await db.exec('reset role');await q("update erp_action_permissions set allow_validate=true where role='comercial' and module='sales-orders'");await as(ids.admin);
+  });
   await t.test('a changed commercial line invalidates an outstanding amendment and manual prices require a reason',async()=>{
    const o=await order(2),data={order_id:o.id,line_id:o.line,kind:'substitute',quantity:1,replacement_product_id:ids.replacement,unit_price:41,tax_rate:15,price_mode:'manual',request_key:uuid()};
    await assert.rejects(fulfill('propose_option',data),/SALES_PRICE_REASON_REQUIRED/);
@@ -90,6 +103,18 @@ test('distribution projections and approved amendments use the canonical stock a
    await assert.rejects(fulfill('respond_option',response),/ROLE_NOT_ALLOWED/);
    await as(ids.admin);await fulfill('respond_option',response);
    await as(ids.admin);assert.equal(await v('select status from sales_fulfillment_options where id=$1',[opt.id]),'accepted');
+   const current=await call('gama_sales_workspace','settings');await call('gama_sales_workspace','settings_save',{version:current.version,minimum_margin:null,maximum_discount:null});
+  });
+  await t.test('merged substitutions display the existing cost snapshot before approving the resulting margin',async()=>{
+   const a=uuid(),b=uuid();await db.exec('reset role');await q("insert into products(id,name,reference,barcode,sale_price,purchase_price,tax_rate) values($1,'Merge origin','MERGE-A','MERGE-A',100,1,15),($2,'Merge replacement','MERGE-B','MERGE-B',100,90,15)",[a,b]);await as(ids.admin);
+   const o=await sales('create',{source:'manual',request_key:uuid(),customer_id:ids.customer,lines:[{product_id:a,quantity:10,unit_price:100,tax_rate:15,price_mode:'auto'},{product_id:b,quantity:1,unit_price:100,tax_rate:15,price_mode:'auto'}]});await sales('confirm',{order_id:o.id});
+   const line=await v('select id from sales_order_lines where order_id=$1 and product_id=$2',[o.id,a]);await db.exec('reset role');await q('update products set purchase_price=1 where id=$1',[b]);await as(ids.admin);
+   const settings=await call('gama_sales_workspace','settings');await call('gama_sales_workspace','settings_save',{version:settings.version,minimum_margin:20,maximum_discount:null});
+   const opt=await fulfill('propose_option',{order_id:o.id,line_id:line,kind:'substitute',quantity:9,replacement_product_id:b,unit_price:100,tax_rate:15,price_mode:'auto',request_key:uuid()});
+   const preview=await api('option_review',{option_id:opt.id});assert.equal(preview.margin_percent,18.09);
+   const response={option_id:opt.id,decision:'accepted',agreement_reference:'Reviewed merged-line exception',request_key:uuid()};await assert.rejects(fulfill('respond_option',response),/SALES_APPROVAL_REQUIRED/);
+   await api('option_approve',{option_id:opt.id,fingerprint:preview.fingerprint,reason:'Approve the displayed 18.09 percent margin'});await fulfill('respond_option',response);
+   const applied=await call('gama_sales_workspace','review_order',{order_id:o.id});assert.equal(applied.margin,preview.margin_percent);assert.equal(applied.approved,true);
    const current=await call('gama_sales_workspace','settings');await call('gama_sales_workspace','settings_save',{version:current.version,minimum_margin:null,maximum_discount:null});
   });
   await t.test('increased exposure is rechecked and a rejected amendment leaves the order and receipt untouched',async()=>{

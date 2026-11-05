@@ -42,5 +42,12 @@ test('Durable jobs enforce delegated permissions, dedupe, leases, retries, immut
   const denied=await rpc('run_once',{kind:'replenishment',request_key:uuid()});
   await db.exec('reset role');await db.query('update profiles set active=false where id=$1',[admin]);await db.query('select private.automation_run(30)');
   assert.equal((await db.query('select error_code from private.automation_jobs where id=$1',[denied.id])).rows[0].error_code,'DELEGATION_REQUIRED');
+  await db.query('update profiles set active=true where id=$1',[admin]);
+  await as(admin);await db.exec("select set_config('request.jwt.claims','{\"aal\":\"aal2\"}',false)");
+  const banned=await rpc('run_once',{kind:'replenishment',request_key:uuid()});
+  await db.exec('reset role');await db.query("update auth.users set banned_until=now()+interval '1 day' where id=$1",[admin]);
+  await db.query('select private.automation_run(30)');
+  assert.equal((await db.query('select error_code from private.automation_jobs where id=$1',[banned.id])).rows[0].error_code,'DELEGATION_REQUIRED');
+  assert.equal((await db.query('select count(*)::int n from private.automation_execution_context')).rows[0].n,0);
  }finally{await db.close()}
 });

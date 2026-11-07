@@ -237,7 +237,7 @@
  body.cocoWorkbench #dashboard .adBarInvoice{fill:var(--arc-viz-1);background:var(--arc-viz-1)}
  body.cocoWorkbench #dashboard .adBarCash{fill:var(--arc-viz-2);background:var(--arc-viz-2)}
 }
-@media screen and (min-width:1280px){body.cocoWorkbench .arcTopRight .arcProfileText{display:flex;font-size:12px}body.cocoWorkbench .arcChevron{display:block;font-size:18px}}
+@container (min-width:900px){body.cocoWorkbench .arcTopRight .arcProfileText{display:flex;font-size:12px}body.cocoWorkbench .arcChevron{display:block;font-size:18px}}
 @media screen and (max-width:760px){
  body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
  body.cocoWorkbench .arcTopRight{gap:0}

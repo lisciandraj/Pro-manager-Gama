@@ -22,7 +22,7 @@
  body.cocoWorkbench .arcSidebar .arcLang .arcIco{display:block}
  body.cocoWorkbench .arcSidebar .arcLang select{text-align:left;font-size:12px}
  body.cocoWorkbench .arcDrawerClose{display:none}
- body.cocoWorkbench .arcTopbar{height:auto;min-height:80px;padding:16px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 12px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:24px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line);padding-top:12px;padding-bottom:12px}
+ body.cocoWorkbench .arcTopbar{container-type:inline-size;height:auto;min-height:80px;padding:16px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 12px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:24px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line);padding-top:12px;padding-bottom:12px}
  body.cocoWorkbench .arcBurger{display:none}
  .cocoModuleHeading{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:1;padding:0;border:0}
  .cocoModuleText{min-width:0;flex:1}

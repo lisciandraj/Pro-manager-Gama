@@ -55,3 +55,9 @@ console.log('Coco ERP: '+runtimeFiles().length+' versioned assets built from can
 const buildId=process.env.GITHUB_SHA||process.env.COCO_BUILD_ID||'unknown';
 if(buildId!=='unknown'&&!/^[a-f0-9]{40}$/.test(buildId))throw Error('Invalid build id');
 for(const file of ['index.html','tms-driver.html']){const target=path.join(out,file);fs.writeFileSync(target,fs.readFileSync(target,'utf8').replace('<html','<html data-coco-build="'+buildId+'"'));}
+
+// HTTP headers are honored by controlled hosts such as Cloudflare Pages;
+// GitHub Pages keeps the meta CSP but cannot apply this _headers artifact.
+const {erpHttpHeaders,writeReleaseManifest}=require('./lib/release.cjs');
+fs.writeFileSync(path.join(out,'_headers'),erpHttpHeaders(out));
+writeReleaseManifest({root,output:out,kind:'erp'});

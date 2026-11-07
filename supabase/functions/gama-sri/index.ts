@@ -15,6 +15,18 @@ function matchesIssue(key: string, issue: { environment: string; issuer_ruc: str
   return key === body + (check === 11 ? 0 : check === 10 ? 1 : check);
 }
 
+// This machine capability is independent of Supabase's global database key.
+// The handler grants it only the oldest-pending consultation operation below.
+async function reconcileCapability(request: Request): Promise<boolean> {
+  const expected = Deno.env.get('SRI_RECONCILE_TOKEN') || '';
+  const supplied = request.headers.get('x-coco-sri-reconcile') || '';
+  if (!/^[a-f0-9]{64}$/i.test(expected) || !/^[a-f0-9]{64}$/i.test(supplied)) return false;
+  const hash = async (value: string) => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)));
+  const [a,b] = await Promise.all([hash(expected),hash(supplied)]);
+  let difference = 0; for (let i=0;i<a.length;i++) difference |= a[i] ^ b[i];
+  return difference === 0;
+}
+
 async function handle(request: Request, scheduled = false): Promise<Response> {
   if (request.method === 'OPTIONS') return new Response(null, { headers: { ...headers, 'access-control-allow-headers': 'authorization,apikey,content-type,x-client-info', 'access-control-allow-methods': 'POST' } });
   if (request.method !== 'POST') return reply({ error: 'METHOD_NOT_ALLOWED' }, 405);
@@ -31,8 +43,14 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   const enabled = configured && Deno.env.get('SRI_EMISSION_ENABLED') === 'true';
   const bearer = request.headers.get('Authorization') || '';
   if (!bearer.startsWith('Bearer ')) return reply({ error: 'AUTH_REQUIRED' }, 401);
-  const machine = bearer === 'Bearer ' + secret;
-  const client = createClient(url, machine ? secret : publishable, { global: { headers: { Authorization: bearer } } });
+  const legacySetting = Deno.env.get('SRI_LEGACY_RECONCILE_UNTIL');
+  const legacyUntil = Date.parse(legacySetting || '');
+  const scopedConfigured = /^[a-f0-9]{64}$/i.test(Deno.env.get('SRI_RECONCILE_TOKEN') || '');
+  // Preserve the running scheduler until its dedicated capability is provisioned.
+  // Once provisioned, legacy authority requires an explicit, expiring grace.
+  const legacyMachine = bearer === 'Bearer ' + secret && (!scopedConfigured && legacySetting == null || Number.isFinite(legacyUntil) && Date.now() < legacyUntil);
+  const machine = scheduled && bearer === 'Bearer ' + secret || await reconcileCapability(request) || legacyMachine;
+  const client = createClient(url, machine ? secret : publishable, { global: { headers: { Authorization: machine ? 'Bearer ' + secret : bearer } } });
   const { data: auth, error: authError } = machine ? {data: {user: {id: 'scheduler'}}, error: null} : await client.auth.getUser(bearer.slice(7));
   if (authError || !auth.user) return reply({ error: 'AUTH_REQUIRED' }, 401);
   const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
@@ -61,7 +79,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
     }));
     const d=candidates.flat().sort((a,b)=>a.updated_at.localeCompare(b.updated_at))[0];
     if(!d)return reply({consulted:0});
-    const response=await handle(new Request(request.url,{method:'POST',headers:{Authorization:bearer,'Content-Type':'application/json'},body:JSON.stringify({action:'refresh',id:d.id,document_type:d.document_type||'01'})}),true);
+    const response=await handle(new Request(request.url,{method:'POST',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/json'},body:JSON.stringify({action:'refresh',id:d.id,document_type:d.document_type||'01'})}),true);
     const result=await response.json();
     await admin.from(d.table).update({updated_at:new Date().toISOString(),...(result.error?{last_error:result.error}:{})}).eq('id',d.id).in('status',['signed','received','processing']);
     return reply({consulted:1,id:d.id,status:result.status||'pending',error:result.error||null});

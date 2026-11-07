@@ -1,0 +1,22 @@
+[Unit]
+Description=Coco encrypted off-provider backup
+Wants=network-online.target
+After=network-online.target
+OnFailure=coco-backup-alert.service
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+WorkingDirectory=/opt/coco
+EnvironmentFile=/etc/coco/backup.env
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py backup --root /srv/coco-backups --run
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/coco-backups
+ReadOnlyPaths=/etc/coco
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+TimeoutStartSec=2h

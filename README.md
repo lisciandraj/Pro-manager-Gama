@@ -10,6 +10,7 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Charte graphique actuelle](docs/design-system.md)
 - [Audit technique et organisation](docs/audits/2026-09-30.md)
 - [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)
+- [Sécurité : correctifs, validations et activations du 7 novembre](docs/audits/2026-11-07-security-implementation.md)
 - [Revue de maintenance et contrôles communs](docs/audits/2026-09-30-maintenance.md)
 - [Index de la documentation](docs/README.md)
 

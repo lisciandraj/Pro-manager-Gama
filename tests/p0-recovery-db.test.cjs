@@ -1,4 +1,15 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto');const {restore}=require('../scripts/restore-schema.cjs'),{drill,verify,hash}=require('../scripts/restore-application-export.cjs');
-test('Export restores every application table and private workflow state in isolation',async()=>{const db=await restore(),a=uuid();let data;try{await db.exec(`insert into auth.users(id,email) values('${a}','restore-admin@example.invalid');update profiles set role='administrador',active=true where id='${a}';insert into suppliers(name) values('Restore Supplier');select set_config('request.jwt.claim.sub','${a}',false);set role authenticated`);data=(await db.query('select gama_recovery_export() result')).rows[0].result;data.files=[];}finally{await db.close()}
- assert.ok(data.tables['private.erp_reference_counters']);assert.ok(data.tables['private.gama_alert_handling']);const payload=JSON.stringify(data),envelope={format:'architect-verified-export',payload,sha256:hash(payload)};const result=await drill(envelope);assert.ok(result.success);assert.equal(result.tables,Object.keys(data.tables).length);assert.ok(result.relations>100);assert.throws(()=>verify({...envelope,payload:payload+' '}),/CHECKSUM/);
+test('Scoped business export restores declared data and relations without credentials or capability tokens',async()=>{const db=await restore(),a=uuid(),survey=uuid(),oldToken=uuid();let data;try{
+ await db.exec(`insert into auth.users(id,email) values('${a}','restore-admin@example.invalid');update profiles set role='administrador',active=true where id='${a}';insert into suppliers(name) values('Restore Supplier');select set_config('request.jwt.claim.sub','${a}',false);`);
+ await db.query("insert into private.surveys(id,title,token,created_by) values($1,'Recovery fixture survey',$2,$3)",[survey,oldToken,a]);
+ await db.query("insert into private.offline_proof_keys(actor_id,key_material) values($1,$2)",[a,'2'.repeat(64)]);
+ await db.exec('set role authenticated');data=(await db.query('select gama_recovery_export() result')).rows[0].result;data.files=[];
+ }finally{await db.close()}
+ assert.equal(data.scope,'business_data_and_files');assert.equal(data.coverage.full_backup,false);
+ assert.ok(data.tables['private.erp_reference_counters']);assert.ok(data.tables['private.gama_alert_handling']);assert.ok(!Object.hasOwn(data.tables,'private.offline_proof_keys'));
+ assert.ok(data.coverage.excluded_tables.includes('private.offline_proof_keys'));assert.equal(data.tables['private.surveys'].find(s=>s.id===survey).token,undefined);assert.ok(!JSON.stringify(data).includes(oldToken));
+ const payload=JSON.stringify(data),envelope={format:'architect-verified-export',payload,sha256:hash(payload)},result=await drill(envelope);
+ assert.ok(result.success);assert.equal(result.tables,Object.keys(data.tables).length);assert.ok(result.relations>100);assert.match(result.scope,/scoped business data/);assert.throws(()=>verify({...envelope,payload:payload+' '}),/CHECKSUM/);
+ const legacy={...data,scope:'application_data_and_files'};delete legacy.coverage;const oldPayload=JSON.stringify(legacy),oldEnvelope={format:'architect-verified-export',payload:oldPayload,sha256:hash(oldPayload)};
+ assert.equal(verify(oldEnvelope).scope,'application_data_and_files');await assert.rejects(drill(oldEnvelope),/LEGACY_EXPORT_READ_ONLY/);
 });

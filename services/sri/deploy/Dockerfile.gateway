@@ -1,8 +1,10 @@
-FROM python:3.12.11-slim
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
 WORKDIR /app
-COPY services/sri/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt && useradd --uid 10001 --create-home sri
-COPY services/sri /app/services/sri
+COPY services/sri/requirements.lock /app/requirements.lock
+RUN pip install --no-cache-dir --require-hashes -r requirements.lock && useradd --uid 10001 --create-home sri
+COPY services/sri/*.py /app/services/sri/
+COPY services/sri/schemas /app/services/sri/schemas
+COPY services/sri/fonts /app/services/sri/fonts
 USER sri
 EXPOSE 8000
 CMD ["uvicorn", "services.sri.api:app", "--host", "0.0.0.0", "--port", "8000"]

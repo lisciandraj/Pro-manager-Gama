@@ -65,11 +65,7 @@ async function exportCsv(){
  const rows=[];for(let at=0;at<EXPORT_MAX;at+=200){const r=await rpc({...filters,offset:at,limit:200});rows.push(...(r.items||[]));if(!r.has_more)break}
  // Text cells must remain text when a spreadsheet opens the CSV.
  // Keep numeric amount/quantity cells numeric, including negative values.
- const cell=v=>{
-  let s=String(v??'');
-  if(typeof v!=='number'&&(/^[=+@\-\t\r\n\0]/.test(s)||/^\s+[=+@\-]/.test(s)))s="'"+s;
-  return '"'+s.replace(/"/g,'""')+'"';
- };
+ const cell=U.csvCell;
  const csv=[[T('Fecha'),T('Tipo'),T('Acción'),T('Detalle'),T('Referencia'),T('Importe'),T('Cantidad'),T('Quién')].map(cell).join(';'),
   ...rows.map(x=>[x.at,T(KINDS.find(k=>k[0]===x.kind)?.[1]||x.kind),T(x.label),x.detail,x.reference,x.amount,x.quantity,x.actor].map(cell).join(';'))].join('\r\n');
  const url=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');

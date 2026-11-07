@@ -1,5 +1,6 @@
 name: Validate Coco release
 on:
+  workflow_call:
   push:
     branches: [main]
   pull_request:
@@ -13,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        image: postgres:17@sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f
         env:
           POSTGRES_DB: coco_concurrency
           POSTGRES_PASSWORD: isolated-ci-only
@@ -25,8 +26,8 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -40,7 +41,7 @@ jobs:
         env:
           STOCK_TEST_DATABASE_URL: postgres://postgres:isolated-ci-only@127.0.0.1:5432/coco_concurrency
           COCO_HISTORY_ISOLATED: '1'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: history-postgres-benchmark
           path: history-postgres.json
@@ -48,20 +49,22 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - run: python -m pip install lxml==6.1.3
+      - run: python -m pip install --require-hashes -r services/sri/requirements.lock
       - run: npm ci
       - run: npm run build
       - run: npm audit --audit-level=high
+      - name: Verify backup scheduling, restoration and incident checks without live services
+        run: python3 -m unittest discover -s tests -p 'test_coco_operations.py' -v
       - run: npm run validate
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coco-static-release
           path: dist/
@@ -69,8 +72,8 @@ jobs:
   shared-interface:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -80,7 +83,7 @@ jobs:
       - run: npm run build:storefront
       - run: npx playwright test tests/storefront.spec.js tests/security-boundaries.spec.js tests/audit-xss.spec.js tests/b2b-portal.spec.js tests/manual-mail-waze.spec.js tests/sri-integration.spec.js tests/dossier-flow.spec.js tests/accounting.spec.js tests/fulfillment.spec.js tests/quote-adjust.spec.js tests/select-search.spec.js tests/product-identity.spec.js tests/inventory-quants.spec.js tests/inventory-count.spec.js tests/inventory.spec.js tests/stock-workspace.spec.js tests/audit-controls.spec.js tests/audit-trail.spec.js tests/assistant-ia.spec.js tests/standardization.spec.js tests/loading-performance.spec.js tests/pdf-on-demand.spec.js tests/reference-formats.spec.js tests/table-controls.spec.js tests/table-views.spec.js tests/suppliers-directory.spec.js tests/table-cards.spec.js tests/pagination.spec.js tests/auth-single-source.spec.js tests/cloud-customer-accounts.spec.js tests/module-header.spec.js tests/service-documents.spec.js tests/returns.spec.js tests/website-preview.spec.js tests/surveys.spec.js tests/marketing.spec.js tests/contacts.spec.js tests/collections.spec.js tests/crm-contacts.spec.js tests/dashboard-analysis.spec.js tests/employee-photos.spec.js --workers=2
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: gama-storefront-layout
@@ -94,8 +97,8 @@ jobs:
   stock-adjustments:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -107,10 +110,10 @@ jobs:
   sri-connector:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - run: pip install -r services/sri/requirements.txt pypdf==6.10.0 pip-audit
-      - run: pip-audit -r services/sri/requirements.txt
+      - run: python -m pip install --require-hashes -r services/sri/test-requirements.lock
+      - run: pip-audit -r services/sri/requirements.lock --no-deps --disable-pip
       - run: python -m unittest discover -s tests -p 'test_sri*.py' -v

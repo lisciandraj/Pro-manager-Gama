@@ -1,0 +1,23 @@
+{
+  "verified_date": "2026-11-07",
+  "actions": {
+    "actions/checkout@v4": "11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-node@v4": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+    "actions/setup-python@v5": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "actions/upload-artifact@v4": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "actions/upload-pages-artifact@v4": "7b1f4a764d45c48632c6b24a0339c27f5614fb0b",
+    "actions/deploy-pages@v4": "d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+    "actions/download-artifact@v4": "d3f86a106a0bac45b974a628896c90dbdf5c8093"
+  },
+  "docker": {
+    "python:3.12.11-slim": "sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f",
+    "postgres:17.6": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "postgres:17": "sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f",
+    "redis:7.4.5-alpine": "sha256:bb186d083732f669da90be8b0f975a37812b15e913465bb14d845db72a4e3e08"
+  },
+  "scanner_version": "8.30.1",
+  "scanner_archive": {
+    "name": "gitleaks_8.30.1_linux_x64.tar.gz",
+    "sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+  }
+}

@@ -1,0 +1,20 @@
+# This repository context is used only for the private SRI gateway.
+**
+!services/
+!services/sri/
+!services/sri/*.py
+!services/sri/requirements.lock
+!services/sri/schemas/
+!services/sri/schemas/*.xsd
+!services/sri/fonts/
+!services/sri/fonts/*.ttf
+!services/sri/fonts/*.txt
+# Defense in depth even if the allowlist above changes.
+**/.env*
+**/*.env
+**/*.p12
+**/*.pfx
+**/*.pem
+**/*.key
+**/.runtime/**
+**/__pycache__/**

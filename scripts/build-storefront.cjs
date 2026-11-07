@@ -19,3 +19,5 @@ for(const file of ['supabase-2.115.0.js','supabase-2.115.0.LICENSE','jspdf-4.2.1
 let survey=fs.readFileSync(path.join(out,'surveys.html'),'utf8');for(const file of ['surveys.js','surveys.css','survey-form.js']){const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(out,file))).digest('hex').slice(0,12);survey=survey.replace('/'+file,'/'+file+'?v='+hash)}fs.writeFileSync(path.join(out,'surveys.html'),survey);
 fs.writeFileSync(path.join(out,'_routes.json'),JSON.stringify({version:1,include:['/','/index.html','/api/storefront','/api/surveys'],exclude:[]}));
 console.log('Public GAMA catalogue built in dist-storefront; Pages Functions supply the Coco connection.');
+
+require('./lib/release.cjs').writeReleaseManifest({root,output:out,kind:'storefront'});

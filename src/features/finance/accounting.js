@@ -51,7 +51,7 @@ const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contab
  AMOUNT_EXCEEDS_BALANCE:'El importe supera el saldo pendiente de la factura.',
  CANCEL_PAYMENTS_FIRST:'Anula primero los pagos registrados de esta factura.',
  DRAFT_ENTRIES_REMAIN:'Hay asientos en borrador en el periodo. Contabilízalos o elimínalos antes de cerrar.',
- REASON_REQUIRED:'Indica el motivo.',FILE_TOO_LARGE:'El archivo supera el tamaño permitido.',
+ REASON_REQUIRED:'Indica el motivo.',FILE_TOO_LARGE:'El archivo supera el tamaño permitido.',DOCUMENT_FILE_INVALID:'Formato de archivo no permitido.',
  TOO_MANY_FILES:'Máximo cuatro justificantes por gasto.',
  INVOICE_CANCELLED:'La factura está anulada.',INVALID_PERIOD:'El periodo seleccionado no es válido.',
  BANK_IMPORT_ROW_INVALID:'Revisa las fechas e importes del extracto. No se admiten fechas futuras ni importes inválidos.',
@@ -460,13 +460,17 @@ async function receiptForm(id){
    if(!file)return;
    if(file.size>2000000)throw Error('FILE_TOO_LARGE');
    const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+   window.ArcUI.attachmentBlob({data_url:data,mime_type:file.type});
    await mutate('expense_receipt',{expense_id:id,filename:file.name,mime_type:file.type,data_url:data});
    await go();
   });
+ el.dataset.accountingReceipts='';
  el.querySelectorAll('[data-ga-file]').forEach(b=>b.onclick=async()=>{
+  const token=generation;b.disabled=true;
   try{const f=await rpc('expense_receipt_get',{id:b.dataset.gaFile});
-   const w=window.open();if(w)w.document.write(`<iframe src="${f.data_url}" style="border:0;width:100%;height:100%"></iframe>`);
-  }catch(e){window.gamaToast?.(err(e))}});
+   if(token!==generation||!allowed()||!b.isConnected)return;
+   window.ArcUI.openAttachment(f);
+  }catch(e){window.gamaToast?.(err(e))}finally{b.disabled=false}});
 }
 
 /* ------------------------------------------------------ compras y proveedores */
@@ -1210,7 +1214,7 @@ function sriPresentation(d){
  dates.querySelector('form').onsubmit=e=>{e.preventDefault();const from=$('gaSriFrom').value,to=$('gaSriTo').value;if(from&&to&&from>to){$('gaSriTo').setCustomValidity(window.GamaI18n?.t('Elige un periodo válido.')||'Elige un periodo válido.');$('gaSriTo').reportValidity();return}state.sriFrom=from;state.sriTo=to;state.sriOffset=0;go('sri')};dates.querySelectorAll('input').forEach(input=>input.oninput=()=>$('gaSriTo').setCustomValidity(''));
  const tableTools=document.createElement('div');tableTools.id='gaSriTableTools';tools.append(dates,tableTools);
  const table=card.querySelector('table');table.dataset.gamaToolbarHost=tableTools.id;
- const exportButton=document.createElement('button');exportButton.type='button';exportButton.className='arcButton secondary';exportButton.innerHTML=sriIcon('download')+tr('Exportar CSV');exportButton.title=window.GamaI18n?.t('Exportar esta página CSV')||'Exportar esta página CSV';exportButton.disabled=!rights?.export;exportButton.onclick=()=>{if(!rights?.export)return;const cell=v=>'"'+String(v??'').replace(/^(\s*[=+@\-]|[\t\r])/,"'$1").replace(/"/g,'""')+'"',rows=[['Factura interna','Cliente','Fecha','Total','Estado SRI'].map(x=>window.GamaI18n?.t(x)||x),...d.invoices.map(inv=>[inv.number,inv.customer_name,inv.issue_date,inv.total,window.GamaI18n?.t(SRI_STATUS[d.issues.find(i=>i.source_invoice_id===inv.id)?.status]||'Sin preparar')])],url=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='coco-sri-page-'+(1+Math.floor((state.sriOffset||0)/30))+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};tools.append(exportButton);
+ const exportButton=document.createElement('button');exportButton.type='button';exportButton.className='arcButton secondary';exportButton.innerHTML=sriIcon('download')+tr('Exportar CSV');exportButton.title=window.GamaI18n?.t('Exportar esta página CSV')||'Exportar esta página CSV';exportButton.disabled=!rights?.export;exportButton.onclick=()=>{if(!rights?.export)return;const cell=window.ArcUI.csvCell,rows=[['Factura interna','Cliente','Fecha','Total','Estado SRI'].map(x=>window.GamaI18n?.t(x)||x),...d.invoices.map(inv=>[inv.number,inv.customer_name,inv.issue_date,inv.total,window.GamaI18n?.t(SRI_STATUS[d.issues.find(i=>i.source_invoice_id===inv.id)?.status]||'Sin preparar')])],url=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='coco-sri-page-'+(1+Math.floor((state.sriOffset||0)/30))+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};tools.append(exportButton);
  const body=document.createElement('div');body.className='gaSriInspectorBody';const preparation=document.createElement('details');preparation.id='gaSriPreparation';preparation.innerHTML=`<summary>${tr('Parámetros de preparación')}</summary>`;payment.classList.add('gaSriPaymentField');const prepared=$('gaSriPrepareSelected');preparation.append(payment,prepared);inspector.append(body,preparation);
  const stamp=document.createElement('p');stamp.className='gaSriUpdated';stamp.textContent=(window.GamaI18n?.t('Última actualización')||'Última actualización')+': '+new Date().toLocaleTimeString(window.GamaI18n?.locale||'fr-FR',{hour:'2-digit',minute:'2-digit'});inspector.append(stamp);
  const issues=new Map(d.issues.map(i=>[i.source_invoice_id,i])),rows=[...card.querySelectorAll('tbody tr')];let previous=null;
@@ -1479,11 +1483,12 @@ async function ecAssetForm(ctx){
 /* Un CSV con separador de punto y coma: Excel lo abre de doble clic en las tres
    lenguas y no hace falta ninguna librería. El export respeta el filtro activo. */
 async function exportRows(rows,name){
+ const token=generation;
  try{await window.ArchitectAccessControls.requireAction('accounting','export')}catch(e){window.gamaToast?.(window.ArcErrors.message(e));return}
+ if(token!==generation||!allowed())return;
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
- const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
- const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
+ const csv=window.ArcUI.csvRows([keys,...rows.map(r=>keys.map(k=>r[k]))]);
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -1492,6 +1497,6 @@ async function exportRows(rows,name){
 window.addEventListener('gama:currency-change',()=>{if($(workspace)?.classList.contains('active'))go()});
 for(const event of ['gama:accounting-change','gama:sales-change','gama:purchase-change','gama:stock-change','gama:hr-change'])window.addEventListener(event,()=>{delete state.overview});
 window.addEventListener('arc:route-leave',e=>{if(e.detail?.id===workspace){opening++;generation++}});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;document.querySelectorAll('[data-bank-workflow],[data-sri-api-preview]').forEach(d=>d.close());opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren();$('sri')?.replaceChildren()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;document.querySelectorAll('[data-bank-workflow],[data-sri-api-preview],[data-accounting-receipts]').forEach(d=>d.close());opening++;generation++;rights=null;scope='none';state={};$(ID)?.replaceChildren();$('sri')?.replaceChildren()});
 window.GamaAccounting={open,openSri,mountSriConfig,rpc,SECTIONS};
 })();

@@ -33,7 +33,26 @@ The Edge Function atomically claims drafts, binds access keys to document type, 
 
 ## Automatic consultation
 
-Set `SRI_SUPABASE_URL` and `SRI_SUPABASE_SERVICE_ROLE_KEY` privately in this worker deployment. The FastAPI lifespan then consults one oldest pending document every 60 seconds (`SRI_RECONCILE_INTERVAL`, 60–3600 seconds), across all document types. `gama-sri` accepts this service credential only for `refresh_pending`; scheduled code cannot emit, reset, notify or download documents. This also works with `SRI_EMISSION_ENABLED=false`. No browser session is required. With no private scheduler credentials, this loop stays disabled and the document screen consults visible pending documents while open.
+Set `SRI_SUPABASE_URL`, the **public** `SRI_SUPABASE_PUBLISHABLE_KEY` and a
+separate random 256-bit hex `SRI_RECONCILE_TOKEN` privately in this worker.
+Install the same token as an Edge secret. The worker never needs the global
+`service_role` key. The FastAPI lifespan consults one oldest pending document
+per interval (`SRI_RECONCILE_INTERVAL`, 60–3600 seconds). The Edge handler validates
+the capability and accepts **only** `refresh_pending`; it cannot emit, reset,
+notify or download documents. It works with `SRI_EMISSION_ENABLED=false`.
+No browser session is required. If the dedicated credentials are absent, this
+loop stays disabled; the document screen can still consult visible pending
+records while open.
+
+Roll out the Edge capability and private worker together. The Edge gateway must
+allow the request through (`verify_jwt=false` for `gama-sri`); the handler still
+verifies every human bearer with Auth and every machine capability itself.
+For a strictly temporary transition of an already-running legacy worker, the
+Edge may be given an explicit future `SRI_LEGACY_RECONCILE_UNTIL` ISO timestamp.
+When the dedicated token is provisioned, no timestamp means no legacy service-key machine access. Before provisioning it, the old Edge scheduler route remains compatible so a code update alone does not interrupt reconciliation. Remove the old key from
+the private host and rotate it after the switch; never use this grace as the
+steady-state configuration. Rotation of the dedicated token is coordinated on
+both sides and does not change database keys.
 
 The worker must be deployed separately from GitHub Pages. A passing XML/schema/PDF fixture is not SRI certification or proof of successful production signing.
 

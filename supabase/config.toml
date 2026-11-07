@@ -14,3 +14,8 @@ verify_jwt = false
 # Private road-matrix adapter; caller authorization and TMS/MFA checks run before routing.
 [functions.tms-routing]
 verify_jwt = true
+
+# Human JWTs are verified by Auth.getUser in the handler. The refresh-only
+# machine capability has its own independent verifier and cannot issue invoices.
+[functions.gama-sri]
+verify_jwt = false

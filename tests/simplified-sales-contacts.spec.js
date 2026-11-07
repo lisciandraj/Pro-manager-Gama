@@ -16,14 +16,17 @@ async function boot(page,role='admin'){
  await page.waitForFunction(()=>document.body.dataset.dataSource==='supabase-central');
 }
 test('contact creation suggests the existing identity before save and can reuse its editor',async({page})=>{
- await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));await page.click('#ctNew');
+ await boot(page);await page.evaluate(()=>{window.__CONTACT_PROFILES={c1:{nature:'company',mobile:'0991112222',ref:'CLIENT-ODOO',street2:'Office 4',tags:['Wholesale, local']}};return ArcRouter.open('contacts')});await page.click('#ctNew');
  await page.fill('#ctf-name','  ÁNDINA  ');await expect(page.locator('#ctDuplicates')).toBeVisible();
  await expect(page.locator('#ctDuplicates')).toContainText('Andina');
  expect(await page.evaluate(()=>__DB.customers.length)).toBe(1);
  await page.click('[data-ct-reuse="clients:c1"]');await expect(page.locator('#ctf-name')).toHaveValue('Andina');
  await expect(page.locator('#ctDuplicates')).toBeHidden();
+ await expect(page.locator('#ctf-mobile')).toHaveValue('0991112222');await expect(page.locator('#ctf-reference')).toHaveValue('CLIENT-ODOO');
+ await expect(page.locator('#ctf-street2')).toHaveValue('Office 4');await expect(page.locator('#ctf-tags')).toHaveValue('Wholesale, local');
  await page.fill('#ctf-phone','0999999999');await page.click('#ctSave');await expect(page.locator('#ctEditor')).toBeHidden();
  expect(await page.evaluate(()=>[__DB.customers.length,__DB.customers[0].phone])).toEqual([1,'0999999999']);
+ expect(await page.evaluate(()=>__CONTACT_PROFILES.c1)).toMatchObject({mobile:'0991112222',ref:'CLIENT-ODOO',street2:'Office 4',tags:['Wholesale, local']});
 });
 test('contact duplicate hints follow changed identity and contact type without blocking distinct names',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));await page.click('#ctNew');

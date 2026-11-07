@@ -60,3 +60,15 @@ spécialisés et les états de compte existants restent disponibles.
 Validation : `tests/simplified-sales-contacts.spec.js` couvre les suggestions,
 leur retrait, la réutilisation, l’ordre chronologique et la fermeture à la
 fin de session.
+
+## Champs Contacts Odoo
+
+Les formulaires de création et de modification reprennent les champs standard de la fiche Contacts Odoo 18 : particulier/société, civilité, nom, société liée pour un interlocuteur, poste, téléphone, mobile, second téléphone Coco, e-mail, site web, langue, identification fiscale, étiquettes, adresse structurée avec complément, référence interne, immatriculation de société, photo/logo par URL et commercial responsable. Les adresses de facturation/livraison, le secteur, les notes internes, l’archivage et les conditions commerciales déjà présents restent accessibles dans le dossier. Les conditions de paiement et tarifs gardent leurs moteurs Coco existants.
+
+Le mobile est distinct du second téléphone. Les nouveaux champs sont conservés dans le profil de l’identité partagée ; une personne liée garde son propre profil. La sauvegarde `coco_contact_save` accepte un objet facultatif `p_data.odoo`, dans la même transaction et sous la même version que les coordonnées. Les champs absents restent inchangés ; une valeur `null` efface un champ facultatif. La liste des commerciaux vient de l’équipe CRM autorisée ; sans accès CRM, l’attribution existante est préservée. Les erreurs et conflits conservent le brouillon. Les photos sont des liens d’images HTTP(S), affichés sans en-tête de provenance ; aucun fichier n’est téléversé par ce champ.
+
+Le complément d’adresse est affiché dans le dossier et hérité par les interlocuteurs. Il ne réécrit pas les instantanés commerciaux ni les destinations TMS. Les champs propres aux extensions Odoo (multi-sociétés, comptes bancaires/comptables, position fiscale et formats de facturation) ne créent pas de seconde configuration comptable dans Contacts.
+
+Référence : [formulaire Contacts Odoo 18](https://github.com/odoo/odoo/blob/18.0/odoo/addons/base/views/res_partner_views.xml). Contrôles dédiés : `tests/contact-odoo-fields.test.cjs` pour les transactions et droits, `tests/contact-odoo-fields.spec.js` pour les formulaires et le dossier en français, sur téléphone et ordinateur.
+
+La migration Contacts Odoo a été installée en production le 7 novembre 2026, version `20261107191036`. Le SQL du dépôt est identique aux octets enregistrés dans le registre Supabase (SHA-256 `4f5986be6d465ab310bb4aff6a26cdf03197757791799f31adfd067961d92d67`). Les colonnes, façades invocateur, droits et déclencheurs d’historique ont été vérifiés après installation ; aucun contact métier de test n’a été créé en production. La publication de l’interface reste contrôlée séparément par le workflow Pages.

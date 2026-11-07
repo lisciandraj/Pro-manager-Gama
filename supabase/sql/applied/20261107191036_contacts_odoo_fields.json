@@ -1,0 +1,13 @@
+{
+  "version": "20261107191036",
+  "name": "contacts_odoo_fields",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-11-07",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 10507,
+  "sha256": "4f5986be6d465ab310bb4aff6a26cdf03197757791799f31adfd067961d92d67",
+  "file": "20261107191036_contacts_odoo_fields.sql",
+  "purpose": "Installed migration; preserve these bytes and do not replay in production."
+}

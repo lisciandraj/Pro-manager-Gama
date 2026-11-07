@@ -102,7 +102,7 @@ function wireActions(rows){
     const id=b.dataset.cuToggle, next=b.dataset.cuNext==='1';
     if(!next&&!confirm('¿Desactivar esta cuenta? Perderá el acceso inmediatamente.'))return;
     b.disabled=true;
-    try{const r=await window.GamaCloud.update('profiles',id,{active:next});if(r&&r.error)throw r.error;await load();}
+    try{await window.ArchitectIdentity.withStepUp('identity_admin','profile:'+id,async()=>{const r=await window.GamaCloud.update('profiles',id,{active:next});if(r&&r.error)throw r.error});await load();}
     catch(e){alert('No se pudo cambiar el estado: '+(e.message||e));b.disabled=false;}
   });
   document.querySelectorAll('[data-cu-role]').forEach(sel=>sel.onchange=async()=>{
@@ -131,7 +131,7 @@ function deleteAccount(user){
   onSave:async el=>{
    const email=String(new FormData(el.querySelector('form')).get('confirmation_email')||'').trim().toLowerCase();
    if(email!==String(user.email||'').trim().toLowerCase())throw Error(deleteError({message:'USER_EMAIL_CONFIRMATION_MISMATCH'}));
-   try{await window.ArchitectIdentity?.ensureMFA?.();await window.ArcData.rpc('gama_delete_user',{p_user_id:user.id,p_email:email})}
+   try{await window.ArchitectIdentity.ensureMFA();await window.ArchitectIdentity.withStepUp('identity_admin','profile:'+user.id,()=>window.ArcData.rpc('gama_delete_user',{p_user_id:user.id,p_email:email}))}
    catch(e){throw Error(deleteError(e))}
    await load();window.gamaToast?.(t('Cuenta eliminada. El correo está disponible para una nueva cuenta.','Compte supprimé. L’adresse e-mail est disponible pour un nouveau compte.','Account deleted. The email is available for a new account.'));
   }});

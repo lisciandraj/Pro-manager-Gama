@@ -8,10 +8,12 @@ export function providerInputReservation(body,{document=false}={}){
 }
 export function createProviderBudget({root,service,fetcher}){
  async function rpc(action,data){
+  const deny=(code,status=503)=>{if(action==='reserve')console.warn(JSON.stringify({event:'ai_provider_admission_denied',code}));throw new ProviderBudgetError(code,status);};
   let response;
-  try{response=await fetcher(root+'/rest/v1/rpc/coco_ai_provider_budget',{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(10000)});}catch{throw new ProviderBudgetError('AI_BUDGET_UNAVAILABLE');}
+  try{response=await fetcher(root+'/rest/v1/rpc/coco_ai_provider_budget',{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(10000)});}catch{return deny('AI_BUDGET_UNAVAILABLE');}
   const result=await response.json().catch(()=>null);
-  if(!response.ok){const code=safeCode(result?.message);console.warn(JSON.stringify({event:'ai_provider_admission_denied',code}));throw new ProviderBudgetError(code,response.status===429||/LIMIT|CONCURRENCY/.test(result?.message||'')?429:503);}
+  if(!response.ok){const code=safeCode(result?.message);return deny(code,response.status===429||/LIMIT|CONCURRENCY/.test(result?.message||'')?429:503);}
+  if(action==='reserve'&&(!result||typeof result.id!=='string'))return deny('AI_BUDGET_UNAVAILABLE');
   return result;
  }
  return async function withProviderBudget({operation,actorId,requestId,body,document=false},perform){

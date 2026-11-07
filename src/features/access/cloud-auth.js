@@ -58,7 +58,21 @@ if(window.gamaAccessAllowed?.('website')&&window.gamaAccessAllowed?.('users')&&w
  d.querySelector('.box h3').before(b,error);
  b.onclick=async()=>{if(b.disabled)return;b.disabled=true;error.textContent='';try{await window.ArcLoadScript('gama-store-admin.js');if(d.isConnected)await window.GamaStoreAdmin.customerAccountPicker()}catch(e){if(d.isConnected)error.textContent=window.ArcErrors.message(e)}finally{if(b.isConnected)b.disabled=false}};
 }
-try{renderCloudUsers(await listCloudUsers())}catch(e){window.ArcUI.render(document.getElementById('gamaCloudUsersRows'),'<tr><td colspan="5">No se pueden cargar los usuarios cloud: '+esc(e.message||e)+'</td></tr>')}document.getElementById('gamaAC').onclick=async()=>{var m=document.getElementById('gamaAM');m.style.display='none';var body={full_name:document.getElementById('gamaAN').value.trim(),email:document.getElementById('gamaAE').value.trim().toLowerCase(),password:document.getElementById('gamaAP').value,role:document.getElementById('gamaAR').value};if(!body.full_name||!body.email||body.password.length<12){m.textContent='Nombre, correo electrónico y contraseña de al menos 12 caracteres son obligatorios.';m.style.display='block';return}var s=(await C.getSession()).data.session;var r=await fetch(C.url+'/functions/v1/gama-admin-users',{method:'POST',headers:{Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify(body)});var j=await r.json();if(!r.ok){m.textContent=j.error||'No se puede crear la cuenta.';m.style.display='block';return}m.className='ok';m.textContent='Cuenta creada correctamente.';document.getElementById('gamaAN').value='';document.getElementById('gamaAE').value='';document.getElementById('gamaAP').value='';try{renderCloudUsers(await listCloudUsers())}catch(e){}}}
+try{renderCloudUsers(await listCloudUsers())}catch(e){window.ArcUI.render(document.getElementById('gamaCloudUsersRows'),'<tr><td colspan="5">No se pueden cargar los usuarios cloud: '+esc(e.message||e)+'</td></tr>')}
+document.getElementById('gamaAC').onclick=async()=>{
+ var b=document.getElementById('gamaAC'),m=document.getElementById('gamaAM');if(b.disabled)return;m.style.display='none';
+ var body={full_name:document.getElementById('gamaAN').value.trim(),email:document.getElementById('gamaAE').value.trim().toLowerCase(),password:document.getElementById('gamaAP').value,role:document.getElementById('gamaAR').value};
+ if(!body.full_name||!body.email||body.password.length<12){m.textContent='Nombre, correo electrónico y contraseña de al menos 12 caracteres son obligatorios.';m.style.display='block';return}
+ b.disabled=true;
+ try{
+  var identity=window.ArchitectIdentity,resource=await identity.identityEdgeResource('create',body.email,body.role);
+  var r=await identity.withStepUp('identity_admin',resource,async()=>{var s=(await C.getSession()).data.session;return fetch(C.url+'/functions/v1/gama-admin-users',{method:'POST',headers:{Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify(body)})}),j=await r.json();
+  if(!r.ok)throw Error(j.error||'No se puede crear la cuenta.');
+  m.className='ok';m.textContent='Cuenta creada correctamente.';m.style.display='block';document.getElementById('gamaAN').value='';document.getElementById('gamaAE').value='';document.getElementById('gamaAP').value='';
+  try{renderCloudUsers(await listCloudUsers())}catch(e){}
+ }catch(e){m.className='err';m.textContent=window.ArcErrors.message(e);m.style.display='block'}finally{if(b.isConnected)b.disabled=false}
+}}
+
 ensure().catch(e=>{localStorage.removeItem('gama_session_v1');showLogin();console.warn('[GAMA] Session verification unavailable',e.message)});window.addEventListener('gama:auth-change',e=>{if(e.detail?.session&&e.detail.event!=='PASSWORD_RECOVERY')(async()=>{await window.ArchitectIdentity.ensureMFA();const p=await C.getProfile();if(setCompat(e.detail.session,p.data)&&p.data.role==='administrador')adminButton()})().catch(error=>console.warn('[GAMA] Session MFA verification unavailable',error.message))});
 }).catch(e=>console.warn('[GAMA] Cloud auth unavailable',e))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();})();

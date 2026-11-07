@@ -4,7 +4,7 @@ const auth=async()=>(await window.GamaCloud.db()).auth;
 const dialog=o=>{const d=U.dialog(o);d.dataset.identity='';d.dataset.giIgnore='';return d};
 async function identityPolicy(action='status',data={}){
  const db=await window.GamaCloud.db(),r=await db.rpc('coco_identity_policy',{p_action:action,p_data:data});if(r.error)throw r.error;
- if(action==='status'&&(!r.data||typeof r.data.authorized!=='boolean'||typeof r.data.required!=='boolean'||typeof r.data.policy_active!=='boolean'))throw Error('IDENTITY_POLICY_UNAVAILABLE');
+ if(action==='status'&&(!r.data||typeof r.data.authorized!=='boolean'||typeof r.data.administrator!=='boolean'||typeof r.data.required!=='boolean'||typeof r.data.policy_active!=='boolean'))throw Error('IDENTITY_POLICY_UNAVAILABLE');
  return r.data;
 }
 async function requiredEnrollment(a){
@@ -29,11 +29,17 @@ async function ensureMFA({fresh=false,after=0}={}){
  challenge=(async()=>{const factors=await a.mfa.listFactors();if(factors.error)throw factors.error;const verified=factors.data.totp.filter(f=>f.status==='verified');if(!verified.length)throw Error('MFA_FACTOR_REQUIRED');return new Promise((resolve,reject)=>{let done=false;const d=dialog({title:t('Verificación en dos pasos','Vérification en deux étapes','Two-step verification'),body:F({key:'factor',label:t('Autenticador','Authentificateur','Authenticator'),type:'select',required:true,options:verified.map(f=>({id:f.id,name:f.friendly_name||'Coco ERP'}))})+F({key:'code',label:t('Código de seis cifras','Code à six chiffres','Six-digit code'),required:true,maxLength:6}),onSave:async el=>{const data=Object.fromEntries(new FormData(el.querySelector('form')));if(!/^\d{6}$/.test(data.code))throw Error(t('Código no válido','Code invalide','Invalid code'));const wait=after?Math.max(0,(Math.floor(Date.parse(after)/1000)+1)*1000-Date.now()+20):0;if(wait)await new Promise(resolve=>setTimeout(resolve,wait));const res=await a.mfa.challengeAndVerify({factorId:data.factor,code:data.code});if(res.error)throw res.error;await window.ArcData.rpc('coco_security_enrollment',{p_action:'activate'});done=true;resolve(true)}});const input=d.querySelector('[name=code]');input.inputMode='numeric';input.autocomplete='one-time-code';d.addEventListener('close',()=>{if(!done){window.GamaCloud.signOut();reject(Error('MFA_CANCELLED'))}},{once:true})})})();try{return await challenge}finally{challenge=null}
 }
 async function withStepUp(action,resource,callback,{force=false}={}){
- const policy=await identityPolicy();if(!force&&!policy.policy_active)return await callback();
+ const policy=await identityPolicy();if(!force&&(!policy.policy_active||!policy.administrator))return await callback();
  const prepared=await window.ArcData.rpc('coco_identity_step_up',{p_action:'prepare',p_data:{action,resource}});
  await ensureMFA({fresh:true,after:prepared.created_at});
  await window.ArcData.rpc('coco_identity_step_up',{p_action:'approve',p_data:{id:prepared.id}});
  return await callback();
+}
+async function identityEdgeResource(operation,email,role,customerId=''){
+ const effectiveRole=operation==='invite_b2b'?'cliente':({admin:'administrador',commercial:'comercial',magasinier:'almacenero',rh:'rrhh'}[role]||role);
+ const binding=JSON.stringify([operation,String(email||'').trim().toLowerCase(),effectiveRole,String(customerId||'').toLowerCase()]);
+ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(binding));
+ return 'identity-edge:'+Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
 }
 async function policySettings(){
  const readiness=await identityPolicy('readiness');
@@ -64,7 +70,7 @@ async function invite(){let tpl;try{tpl=await template()}catch(e){alert(window.A
   +`<details class="idMail"><summary>${t('Correo que recibirá','E-mail qu’il recevra','Email they will receive')}</summary>`+F({key:'subject',label:t('Asunto','Objet','Subject'),value:tpl.subject,required:true,maxLength:150})+F({key:'message',label:t('Mensaje','Message','Message'),type:'textarea',value:tpl.message,required:true,maxLength:4000})+placeholders()+`<div class="idPreview" data-invite-preview aria-live="polite"></div></details>`,
   onSave:async el=>{await ensureMFA();const data=Object.fromEntries(new FormData(el.querySelector('form'))),v=values(data);
    const body={action:'invite',name:data.name,email:data.email,role:data.role,company:tpl.company,subject:fill(data.subject,v),message:fill(data.message,v)};
-   const db=await window.GamaCloud.db(),r=await db.functions.invoke('architect-user-admin',{body});if(r.error)throw r.error;if(r.data.error)throw Error(r.data.error);window.gamaToast?.(t('Invitación enviada; cuenta pendiente.','Invitation envoyée ; compte en attente.','Invitation sent; account pending.'))}});
+   const resource=await identityEdgeResource('invite',body.email,body.role),r=await withStepUp('identity_admin',resource,async()=>{const db=await window.GamaCloud.db();return db.functions.invoke('architect-user-admin',{body})});if(r.error)throw r.error;if(r.data.error)throw Error(r.data.error);window.gamaToast?.(t('Invitación enviada; cuenta pendiente.','Invitation envoyée ; compte en attente.','Invitation sent; account pending.'))}});
  const values=data=>{data=data||Object.fromEntries(new FormData(d.querySelector('form')));return {nombre:String(data.name||'').trim(),correo:String(data.email||'').trim(),rol:roleLabel(data.role),empresa:tpl.company}};
  d.querySelector('form').addEventListener('input',()=>preview(d,()=>values()));preview(d,()=>values());return d}
 async function invitationTemplate(){let tpl;try{tpl=await template()}catch(e){alert(window.ArcErrors.message(e));return}
@@ -77,6 +83,6 @@ let settingPassword=false;
 async function password(){if(settingPassword)return;settingPassword=true;const d=dialog({title:t('Definir contraseña','Définir le mot de passe','Set password'),body:F({key:'password',label:t('Nueva contraseña (12 caracteres mínimo)','Nouveau mot de passe (12 caractères minimum)','New password (minimum 12 characters)'),type:'password',required:true})+F({key:'repeat',label:t('Confirmar contraseña','Confirmer le mot de passe','Confirm password'),type:'password',required:true}),onSave:async el=>{const data=Object.fromEntries(new FormData(el.querySelector('form')));if(data.password.length<12||data.password!==data.repeat)throw Error(t('Comprueba las dos contraseñas.','Vérifiez les deux mots de passe.','Check both passwords.'));const a=await auth(),r=await a.updateUser({password:data.password});if(r.error)throw r.error;const b2b=r.data?.user?.user_metadata?.b2b_portal===true||new URLSearchParams(location.search).get('portal')==='b2b';history.replaceState({},'',location.pathname);await a.signOut();localStorage.removeItem('gama_session_v1');if(b2b)location.assign('https://gama-coco.pages.dev/b2b.html');else location.reload()}});d.addEventListener('close',()=>{settingPassword=false},{once:true})}
 async function customerAccount(){try{await window.ArcLoadScript('gama-store-admin.js');return await window.GamaStoreAdmin.customerAccountPicker()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}}
 function mount(host){if(!host||host.querySelector('[data-invite-user]'))return;const bar=document.createElement('div');bar.className='arcToolbar';bar.dataset.giIgnore='';U.render(bar,`<button type=button class="arcButton secondary" data-invite-user>${t('Invitar un usuario','Inviter un utilisateur','Invite a user')}</button><button type=button class="arcButton secondary" data-invite-template>${t('Correo de invitación','E-mail d’invitation','Invitation email')}</button><button type=button class="arcButton secondary" data-my-security>${t('Seguridad de mi cuenta','Sécurité de mon compte','My account security')}</button>`);if(window.gamaAccessAllowed?.('website')&&window.gamaAccessAllowed?.('users')&&window.gamaAccessAllowed?.('contacts')){const b=document.createElement('button');b.type='button';b.className='arcButton primary';b.dataset.inviteCustomer='';b.textContent=t('Crear cuenta cliente (sitio web)','Créer un compte client (site internet)','Create customer account (website)');b.onclick=customerAccount;bar.append(b)}host.prepend(bar);bar.querySelector('[data-invite-user]').onclick=invite;bar.querySelector('[data-invite-template]').onclick=invitationTemplate;bar.querySelector('[data-my-security]').onclick=()=>security()}
-window.ArchitectIdentity={ensureMFA,security,invite,invitationTemplate,recovery,password,mount,identityPolicy,withStepUp,policySettings};
+window.ArchitectIdentity={ensureMFA,security,invite,invitationTemplate,recovery,password,mount,identityPolicy,withStepUp,identityEdgeResource,policySettings};
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')securityEpoch++;if(e.detail?.event==='PASSWORD_RECOVERY')setTimeout(password,0);if(e.detail?.event==='SIGNED_OUT')document.querySelectorAll('[data-identity]').forEach(d=>d.close())});
 })();

@@ -22,6 +22,7 @@ def main(argv=None):
     keep = sub.add_parser('retention'); keep.add_argument('--root', type=Path, required=True); keep.add_argument('--policy', type=Path, required=True); keep.add_argument('--apply', action='store_true')
     alert = sub.add_parser('alert'); alert.add_argument('--event', choices=sorted(EVENTS), required=True)
     signals = sub.add_parser('signals'); signals.add_argument('--file', type=Path, required=True)
+    signals.add_argument('--require-collection', action='store_true', help='Require complete v2 source coverage from the actual collector')
     incident = sub.add_parser('incident'); incident.add_argument('--scenario', choices=['account-compromise', 'backup-failure', 'data-exposure'], required=True); incident.add_argument('--output', type=Path, required=True)
     for command in [backup, upload, check, keep, signals, alert]:
         command.add_argument('--send-alert', action='store_true', help='Deliver sanitized event to configured webhook; disabled unless explicit')
@@ -71,10 +72,10 @@ def main(argv=None):
             if args.send_alert and not result['delivery']['sent']:
                 print(json.dumps(result)); return 1
         elif args.action == 'signals':
-            result = security_signals(args.file)
+            result = security_signals(args.file, require_collection=args.require_collection)
             if args.send_alert:
                 deliveries = []
-                for event, count in result['counts'].items():
+                for event, count in result['alert_counts'].items():
                     if count: deliveries.append({'event': event, **sanitized_alert(event, count)})
                 result['alert_delivery'] = deliveries
                 if any(not delivery['sent'] for delivery in deliveries):

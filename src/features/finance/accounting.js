@@ -1336,7 +1336,7 @@ VIEWS.config={
   document.querySelectorAll('[data-ga-perm-save]').forEach(b=>b.onclick=()=>act(b,async()=>{
    const id=b.dataset.gaPermSave,payload={profile_id:id};
    document.querySelectorAll(`[data-ga-perm="${id}"]`).forEach(c=>payload[c.dataset.key]=c.checked);
-   await mutate('permission_save',payload);
+   await window.ArchitectIdentity.withStepUp('identity_admin','accounting-rights:'+id,()=>mutate('permission_save',payload));
    window.gamaToast?.(GamaI18n?.t?.('Permisos guardados')||'Permisos guardados');
   }));
  }

@@ -180,13 +180,33 @@ def retention(root, policy_file, apply=False, clock=None):
             'checked_at': clock.isoformat()}
 
 
-def security_signals(path, max_age_hours=2):
+def security_signals(path, max_age_hours=2, require_collection=False):
     data = json.loads(read_regular(path))
     observed = datetime.fromisoformat(data['observed_at'])
-    if data.get('version') != 1 or observed.tzinfo is None or not 0 <= (now() - observed).total_seconds() <= max_age_hours * 3600:
+    if data.get('version') not in (1,2) or observed.tzinfo is None or not 0 <= (now() - observed).total_seconds() <= max_age_hours * 3600:
         raise ValueError('SECURITY_SIGNALS_STALE_OR_INVALID')
     counts = data.get('counts', {})
     if not isinstance(counts, dict) or set(counts) - EVENTS or any(type(v) is not int or not 0 <= v <= 100000000 for v in counts.values()):
         raise ValueError('SECURITY_SIGNALS_INVALID')
+    alerts = counts
+    if data['version']==2:
+        coverage = data.get('coverage')
+        required = {'erp_audit','export_events','ai_usage','auth_logs','auth_audit_logs','function_logs'}
+        if data.get('complete') is not True or not isinstance(coverage,dict) or not required <= set(coverage) or any(coverage[key]!='complete' for key in required) or any(value not in ('complete','not_configured') for value in coverage.values()):
+            raise ValueError('SECURITY_COLLECTION_INCOMPLETE')
+        measured = {'privileged_role_change','sensitive_export','auth_denial','mfa_removed','ai_budget_rejected'}
+        if coverage.get('backup')=='complete': measured.add('backup_failed')
+        if coverage.get('certificates')=='complete': measured.add('certificate_expiring')
+        if not measured <= set(counts):
+            raise ValueError('SECURITY_COLLECTION_COUNTERS_INCOMPLETE')
+        metrics=data.get('metrics',{})
+        expected={'ai_calls','ai_failed','ai_expired','ai_reserved_microusd','ai_settled_charged_microusd','ai_input_tokens','ai_output_tokens'}
+        if set(metrics)!=expected or any(type(value) is not int or not 0<=value<=10**18 for value in metrics.values()):
+            raise ValueError('SECURITY_COLLECTION_USAGE_INCOMPLETE')
+        alerts = data.get('alert_counts')
+        if not isinstance(alerts,dict) or set(alerts)-set(counts) or any(type(v) is not int or v!=counts[key] for key,v in alerts.items()):
+            raise ValueError('SECURITY_ALERT_COUNTERS_INVALID')
+    elif require_collection:
+        raise ValueError('SECURITY_COLLECTOR_REQUIRED')
     return {'event': 'security_signals', 'observed_at': observed.isoformat(), 'counts': counts,
-            'action_required': any(counts.values()), 'checked_at': now().isoformat()}
+            'alert_counts': alerts, 'action_required': any(alerts.values()), 'checked_at': now().isoformat()}

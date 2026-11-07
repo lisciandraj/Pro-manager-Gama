@@ -69,7 +69,7 @@ Validation locale de l’outillage : `python3 -m unittest discover -s tests -p '
 
 ### Livraison chiffrée vers Google Drive
 
-La destination choisie est le dossier privé **« Coco ERP - sécurité »**. Son ID doit être lu dans le dossier réellement vérifié, puis renseigné dans `COCO_DRIVE_FOLDER_ID`. Aucun ID n’est fourni ou inventé dans le modèle et cette intégration n’est pas activée : il reste à vérifier/créer le dossier, provisionner les accès du serveur privé, exécuter une première copie et son contrôle. Aucun transfert de données réelles n’a été effectué pendant l’implémentation.
+La destination choisie est le dossier privé **« Coco ERP - sécurité »**, créé et relu le 7 novembre 2026 sur le Drive du compte Coco ERP. La relecture des permissions ne relève que le propriétaire. L’ID constaté est conservé dans une configuration opérationnelle privée, à installer dans `COCO_DRIVE_FOLDER_ID` sur l’hôte ; aucun ID n’est inventé dans le modèle publié. L’intégration automatique n’est pas activée : il reste à provisionner les accès du serveur privé, exécuter une première copie et son contrôle. Aucun transfert de données réelles n’a été effectué pendant l’implémentation.
 
 `scripts/coco_drive_backup.py` utilise uniquement la bibliothèque standard Python et l’API HTTPS Google Drive v3. Avant toute requête, il vérifie la copie complète, les empreintes et l’enveloppe binaire age des fichiers privés. Il ne transfère que les artefacts `.age` explicitement inventoriés : ni dump clair, ni `COMPLETE.json` clair, ni fichier voisin ou identité privée age. Le manifeste métier, les chemins Storage et les actifs de coffre restent chiffrés. **Ne jamais inclure l’identité privée age dans l’inventaire du coffre** ; elle reste indépendante du serveur de sauvegarde.
 

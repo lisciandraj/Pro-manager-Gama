@@ -5,14 +5,14 @@ const actor='00000000-0000-4000-8000-000000000001',invited='00000000-0000-4000-8
 const request=(body,headers={})=>new Request('https://example.invalid/invite',{method:'POST',headers:{authorization:'Bearer session',origin:'https://lisciandraj.github.io',...headers},body:JSON.stringify(body)});
 const env=k=>({SUPABASE_URL:'https://example.invalid',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'service-test'})[k];
 test('Invitation verifies the caller and keeps the invited profile inactive',async()=>{
- const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
+ const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:(url.includes('/rpc/gama_identity_admin_allowed')||url.includes('/rpc/coco_identity_admin_authorize'))?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
  const r=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial'}));assert.equal(r.status,200);assert.equal((await r.json()).active,false);
  const invite=calls.find(c=>c.url.includes('/auth/v1/invite?'));assert.equal(invite.options.headers.Authorization,'Bearer service-test');assert.equal(JSON.parse(invite.options.body).email,'staff@example.invalid');
  const patch=calls.find(c=>c.options.method==='PATCH');assert.deepEqual(JSON.parse(patch.options.body),{role:'comercial',full_name:'Staff',active:false});
 });
 // «Responsable RH» es un perfil de base: se invita como los demás; un rol inventado no.
 test('Invitation accepts the HR base role and refuses unknown roles',async()=>{
- const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
+ const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:(url.includes('/rpc/gama_identity_admin_allowed')||url.includes('/rpc/coco_identity_admin_authorize'))?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
  assert.equal((await handler(request({action:'invite',email:'rh@example.invalid',name:'RH',role:'rrhh'}))).status,200);
  assert.deepEqual(JSON.parse(calls.find(c=>c.options.method==='PATCH').options.body),{role:'rrhh',full_name:'RH',active:false});
  assert.equal((await handler(request({action:'invite',email:'x@example.invalid',name:'X',role:'hr'}))).status,400);
@@ -31,7 +31,7 @@ test('Invitation is blocked by module/action restrictions before sending an emai
 });
 
 test('Invitation carries the personalised subject and message to the email template',async()=>{
- const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
+ const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const data=url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:(url.includes('/rpc/gama_identity_admin_allowed')||url.includes('/rpc/coco_identity_admin_authorize'))?true:url.includes('/auth/v1/invite?')?{id:invited}:[];return Response.json(data)}});
  const r=await handler(request({action:'invite',email:'staff@example.invalid',name:'Staff',role:'comercial',company:'Ferretería Andina',subject:' Tu acceso a Ferretería Andina ',message:'Hola Staff:\n\nBienvenido.\u0007'}));assert.equal(r.status,200);
  const body=JSON.parse(calls.find(c=>c.url.includes('/auth/v1/invite?')).options.body);
  assert.deepEqual(body.data,{full_name:'Staff',invite_subject:'Tu acceso a Ferretería Andina',invite_message:'Hola Staff:\n\nBienvenido.',company_name:'Ferretería Andina'});
@@ -40,7 +40,7 @@ test('Invitation carries the personalised subject and message to the email templ
 });
 test('B2B invitation preflights the company and binds a portal-only customer using the caller JWT',async()=>{
  const calls=[],customer='00000000-0000-4000-8000-000000000003';
- const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const body=options.body?JSON.parse(options.body):{};return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed:true}:{saved:true}):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
+ const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});const body=options.body?JSON.parse(options.body):{};return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:(url.includes('/rpc/gama_identity_admin_allowed')||url.includes('/rpc/coco_identity_admin_authorize'))?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed:true}:{saved:true}):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
  const result=await handler(request({action:'invite_b2b',customer_id:customer,email:'client@example.invalid',name:'Client',role:'administrador'}));assert.equal(result.status,200);assert.equal((await result.json()).portal_access,true);
  const invite=calls.findIndex(c=>c.url.includes('/auth/v1/invite?'));assert.ok(calls.findIndex(c=>c.url.includes('/rpc/gama_b2b_admin'))<invite);
  assert.equal(JSON.parse(calls[invite].options.body).data.b2b_portal,true);
@@ -49,7 +49,26 @@ test('B2B invitation preflights the company and binds a portal-only customer usi
 });
 test('B2B invitation sends nothing before scope approval and reports a failed binding without resending',async()=>{
  const customer='00000000-0000-4000-8000-000000000003';let allowed=false,emails=0;
- const handler=createHandler({env,fetch:async(url,options)=>{const body=options.body?JSON.parse(options.body):{};if(url.includes('/auth/v1/invite?'))emails++;return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:url.includes('/rpc/gama_identity_admin_allowed')?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed}:null):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
+ const handler=createHandler({env,fetch:async(url,options)=>{const body=options.body?JSON.parse(options.body):{};if(url.includes('/auth/v1/invite?'))emails++;return Response.json(url.endsWith('/auth/v1/user')?{id:actor}:url.includes('/profiles?select=')?[{id:actor,role:'administrador',active:true}]:(url.includes('/rpc/gama_identity_admin_allowed')||url.includes('/rpc/coco_identity_admin_authorize'))?true:url.includes('/rpc/gama_b2b_admin')?(body.p_action==='invitation_context'?{allowed}:null):url.includes('/auth/v1/invite?')?{id:invited}:[])}});
  const body={action:'invite_b2b',customer_id:customer,email:'client@example.invalid',name:'Client'};
  assert.equal((await handler(request(body))).status,403);assert.equal(emails,0);allowed=true;const r=await handler(request(body));assert.equal(r.status,409);assert.equal((await r.json()).error,'INVITED_REVIEW_B2B');assert.equal(emails,1);
+});
+
+test('invitation consumes the exact actor-bound proof before any service side effect',async()=>{
+ const {identityEdgeResource}=await import('../supabase/functions/_shared/identity-step-up.mjs');
+ const expected=await identityEdgeResource('invite','staff@example.invalid','comercial');
+ for(const approved of [false,true]){
+  const calls=[];const handler=createHandler({env,fetch:async(url,options)=>{calls.push({url,options});
+   if(url.endsWith('/auth/v1/user'))return Response.json({id:actor});
+   if(url.includes('/profiles?select='))return Response.json([{role:'administrador',active:true}]);
+   if(url.includes('/rpc/gama_identity_admin_allowed'))return Response.json(true);
+   if(url.includes('/rpc/coco_identity_admin_authorize')){assert.equal(options.headers.Authorization,'Bearer session');assert.deepEqual(JSON.parse(options.body),{p_resource:expected});return Response.json(approved)}
+   if(url.includes('/auth/v1/invite?'))return Response.json({id:invited});
+   return Response.json([]);
+  }});
+  const result=await handler(request({action:'invite',email:' STAFF@EXAMPLE.INVALID ',name:'Staff',role:'comercial'}));
+  assert.equal(result.status,approved?200:403);
+  assert.equal(calls.some(c=>c.options.headers.Authorization==='Bearer service-test'),approved);
+  if(approved)assert.ok(calls.findIndex(c=>c.url.includes('coco_identity_admin_authorize'))<calls.findIndex(c=>c.url.includes('/auth/v1/invite?')));
+ }
 });

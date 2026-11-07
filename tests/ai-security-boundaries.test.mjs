@@ -79,3 +79,15 @@ test('global budget failure is closed and every attempted provider call finalize
  let invoked=false;const denied=createProviderBudget({root,service:'server-fixture',fetcher:async()=>Response.json({message:'AI_BUDGET_CONCURRENCY_LIMIT'},{status:429})});
  await assert.rejects(denied(context,async()=>{invoked=true}),/AI_BUDGET_CONCURRENCY_LIMIT/);assert.equal(invoked,false);
 });
+test('admission and finalization logs have distinct safe events and no provider body or context',async()=>{
+ const messages=[],warning=console.warn;console.warn=value=>messages.push(JSON.parse(value));
+ const context={operation:'ocr',actorId:'private-actor',requestId:'private-request',body:{model:'gpt-4.1-mini',max_output_tokens:1000,input:'private-document'}};
+ try{
+  const denied=createProviderBudget({root:'https://db.invalid',service:'private-service-key',fetcher:async()=>Response.json({message:'provider secret private-email@example.invalid'},{status:503})});
+  await assert.rejects(denied(context,async()=>assert.fail('no paid call')),/AI_BUDGET_UNAVAILABLE/);
+  assert.deepEqual(messages,[{event:'ai_provider_admission_denied',code:'AI_BUDGET_UNAVAILABLE'}]);messages.length=0;
+  const deferred=createProviderBudget({root:'https://db.invalid',service:'private-service-key',fetcher:async(_url,options)=>JSON.parse(options.body).p_action==='reserve'?Response.json({id:'fixture-lease'}):Response.json({message:'AI_BUDGET_CONFIGURATION_REQUIRED',details:'private-provider-body'},{status:503})});
+  assert.deepEqual(await deferred(context,async()=>({usage:{input_tokens:4,output_tokens:5}})),{usage:{input_tokens:4,output_tokens:5}});
+  assert.deepEqual(messages,[{event:'ai_provider_finalization_deferred',code:'AI_BUDGET_FINALIZATION_DEFERRED'}]);
+ }finally{console.warn=warning;}
+});

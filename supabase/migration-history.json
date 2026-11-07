@@ -1646,7 +1646,13 @@
       "name": "audit_receipt_validation",
       "sha256": "10c8353fe5be02c69094f871a74fa328332e701d257df13b2cb2bec7b055d6ca",
       "file": "20261107195905_audit_receipt_validation.sql"
+    },
+    {
+      "version": "20261107220404",
+      "name": "security_monitor_aggregates",
+      "file": "20261107212039_security_monitor_aggregates.sql",
+      "sha256": "c75251e410c6252f61a1dd089dea216f038a307d36330714e85a19ce71816569"
     }
   ],
-  "lastVerifiedAddition": "20261107203955"
+  "lastVerifiedAddition": "20261107220404"
 }

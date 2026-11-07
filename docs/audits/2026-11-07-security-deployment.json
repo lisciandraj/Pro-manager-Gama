@@ -46,19 +46,40 @@
         "sha256": "10c8353fe5be02c69094f871a74fa328332e701d257df13b2cb2bec7b055d6ca",
         "version": "20261107203955",
         "statement_count": 1
+      },
+      {
+        "version": "20261107220404",
+        "name": "security_monitor_aggregates",
+        "sha256": "c75251e410c6252f61a1dd089dea216f038a307d36330714e85a19ce71816569",
+        "bytes": 5541,
+        "statement_count": 1
       }
     ],
     "public_buckets": 0,
     "identity_policy_present": false,
-    "public_tables_without_rls": 0
+    "public_tables_without_rls": 0,
+    "aggregate_execute": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": true
+    },
+    "export_log_select": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": false
+    },
+    "export_volatility": {
+      "private": "v",
+      "public": "v"
+    }
   },
   "edge_functions": [
     {
       "name": "gama-assistant-ia",
-      "version": 9,
+      "version": 10,
       "status": "ACTIVE",
       "verify_jwt": true,
-      "ezbr_sha256": "adbc8080ac02f171b9118aeddb409347a0869b26f325506ae53198e622b1919f",
+      "ezbr_sha256": "1ea867cd4f461eea2c8761bdcdcbf214d737fdc42d36d9463aecc94888d9584f",
       "runtime_files_verified": [
         {
           "file": "_shared/ai-keyring.mjs",
@@ -66,7 +87,7 @@
         },
         {
           "file": "_shared/ai-provider-budget.mjs",
-          "sha256": "264671f116262b85695b84df4081f29945ec462d1d07934e80babece7568224d"
+          "sha256": "9a9953feff2ac2db3a5b13830722051c197e5f2944101de54ad5185e2141fdae"
         },
         {
           "file": "_shared/http.mjs",
@@ -100,10 +121,10 @@
     },
     {
       "name": "coco-supplier-ocr",
-      "version": 2,
+      "version": 3,
       "status": "ACTIVE",
       "verify_jwt": true,
-      "ezbr_sha256": "57e87f5198be37259861cb236d3dfc0a73682c2b459815b4c14ce521831182d3",
+      "ezbr_sha256": "e351d0b1b7bc45241c6b7b8f19bb75b90934ef77547339682e31789e3e9edacd",
       "runtime_files_verified": [
         {
           "file": "_shared/ai-keyring.mjs",
@@ -111,7 +132,7 @@
         },
         {
           "file": "_shared/ai-provider-budget.mjs",
-          "sha256": "264671f116262b85695b84df4081f29945ec462d1d07934e80babece7568224d"
+          "sha256": "9a9953feff2ac2db3a5b13830722051c197e5f2944101de54ad5185e2141fdae"
         },
         {
           "file": "_shared/http.mjs",
@@ -159,11 +180,38 @@
   ],
   "pending": [
     "identity migration: connector confirmation repeatedly expires despite full-access app setting and explicit user authorization",
+    "admin Edge handlers with bound rights proofs: deploy only after identity migration",
     "web publication: retain CI release gates",
-    "Google Drive folder/connectivity, private backup host/credentials and actual restore drill",
+    "private backup host/credentials, first encrypted Drive upload and actual restore drill",
     "personal MFA enrollment and activation",
     "Auth management settings and dedicated secret provisioning",
     "private SRI host capability cutover",
     "Cloudflare ERP headers and GitHub branch protection administration"
+  ],
+  "google_drive": {
+    "account": "Coco ERP",
+    "folder_name": "Coco ERP - sécurité",
+    "created_and_read_back": true,
+    "observed_permissions": [
+      "user:owner"
+    ],
+    "folder_id_location": "private operational configuration; omitted from source repository",
+    "scheduled_backup_active": false,
+    "real_backup_uploaded": false
+  },
+  "unauthenticated_function_checks": {
+    "gama-assistant-ia": 401,
+    "coco-supplier-ocr": 401,
+    "gama-sri": 401
+  },
+  "pending_identity_migration": {
+    "file": "20261107195615_audit_identity_policy.sql",
+    "sha256": "7ad4320bd2a016c4b7de922c4d9df33342e6d4e0c4e14e98199f4f54fbf5e9c5",
+    "status": "connector confirmation expired repeatedly; not applied",
+    "default_enforcement": false
+  },
+  "pending_admin_edge_functions": [
+    "architect-user-admin",
+    "gama-admin-users"
   ]
 }

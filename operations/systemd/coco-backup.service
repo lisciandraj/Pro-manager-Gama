@@ -10,7 +10,8 @@ User=coco-backup
 Group=coco-backup
 WorkingDirectory=/opt/coco
 EnvironmentFile=/etc/coco/backup.env
-ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py backup --root /srv/coco-backups --run
+# Fail the job unless the entire encrypted set is verified in the configured Drive folder.
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py backup --root /srv/coco-backups --run --drive
 UMask=0077
 NoNewPrivileges=yes
 PrivateTmp=yes

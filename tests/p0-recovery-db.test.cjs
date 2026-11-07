@@ -16,7 +16,9 @@ test('Scoped business export restores declared data and relations without creden
   const fresh=(await restored.query('select token from private.surveys where id=$1',[survey])).rows[0].token;assert.notEqual(fresh,oldToken);
   const saved=(await restored.query('select payload,answers from private.survey_responses where id=$1',[response.id])).rows[0];assert.equal(saved.payload.token,undefined);assert.equal(saved.answers.rating,5);
   await restored.query("select set_config('request.jwt.claim.sub','',false),set_config('request.jwt.claims','{}',false)");await restored.exec('set role anon');
+  await restored.exec('savepoint invalid_survey_token');
   await assert.rejects(restored.query("select public.gama_survey('get',$1::jsonb)",[JSON.stringify({token:oldToken})]),/SURVEY_UNAVAILABLE/);
+  await restored.exec('rollback to savepoint invalid_survey_token');
   const readable=(await restored.query("select public.gama_survey('get',$1::jsonb) r",[JSON.stringify({token:fresh})])).rows[0].r;assert.equal(readable.title,'Recovery fixture survey');await restored.exec('reset role');
  }});
  assert.ok(result.success);assert.equal(result.tables,Object.keys(data.tables).length);assert.ok(result.relations>100);assert.match(result.scope,/scoped business data/);assert.throws(()=>verify({...envelope,payload:payload+' '}),/CHECKSUM/);

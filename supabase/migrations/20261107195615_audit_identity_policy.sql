@@ -134,5 +134,9 @@ do $$declare body text;begin
  body:=replace(body,$anchor$then raise exception 'EXPORT_NOT_ALLOWED';end if;$anchor$,$new$then raise exception 'EXPORT_NOT_ALLOWED';end if; perform private.coco_consume_step_up('backup_export','all');$new$);
  execute body;
 end $$;
+-- The export now consumes a one-use approval. Both entry points must retain
+-- write-capable volatility, including when the policy is currently pending.
+alter function private.gama_recovery_export() volatile;
+alter function public.gama_recovery_export() volatile;
 select cron.schedule('coco-identity-step-up-expiry','*/10 * * * *',$job$delete from private.coco_identity_step_ups where expires_at<now()-interval '10 minutes'$job$);
 notify pgrst,'reload schema';

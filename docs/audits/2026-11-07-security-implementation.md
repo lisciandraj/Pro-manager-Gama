@@ -6,8 +6,8 @@ Cette livraison répond aux quinze priorités de la revue du site public et de C
 
 | N° | Mise en œuvre | Activation ou preuve d’exploitation |
 | --- | --- | --- |
-| 1 | Export technique chiffré, inventaire de coffre séparé, marqueur atomique, surveillance de fraîcheur, modèles systemd et restauration isolée. | Hôte privé, `pg_dump 17`, `age`, destination indépendante, identifiants et exercice de restauration encore nécessaires. Voir [reprise](../operations/recovery.md). |
-| 2 | Politique serveur de MFA obligatoire, état personnel disponible avant lecture métier, enrôlement guidé, activation conditionnée aux facteurs vérifiés et à la récupération, preuve fraîche liée aux actions sensibles. | Le relevé du 7 novembre compte six administrateurs actifs, aucun facteur vérifié et aucune activation persistante. Chaque personne doit enrôler son propre facteur avant activation globale. Ne pas couper les accès avant la publication du parcours. |
+| 1 | Export technique chiffré, inventaire de coffre séparé, marqueur atomique, livraison Drive chiffrée avec contrôle distant, surveillance de fraîcheur, modèles systemd et restauration isolée. | Destination choisie : Drive du compte Coco ERP, dossier « Coco ERP - sécurité ». Le connecteur échoue encore ; dossier réel, hôte privé, `pg_dump 17`, `age`, identifiants et exercice de restauration restent nécessaires. Voir [reprise](../operations/recovery.md). |
+| 2 | Politique serveur de MFA obligatoire, état personnel disponible avant lecture métier, enrôlement guidé, activation conditionnée aux facteurs vérifiés et à la récupération, preuve fraîche liée aux actions sensibles. | Migration d’identité préparée et testée mais confirmation Supabase expirée à plusieurs reprises, malgré le réglage « Autoriser toutes les actions » et l’autorisation de l’utilisateur. Le relevé compte six administrateurs actifs sans facteur vérifié. Chaque personne doit enrôler son propre facteur avant activation globale ; publier le parcours avant de rendre le MFA obligatoire. |
 | 3 | Export applicatif limité à des ressources et colonnes explicites, contrôlé côté serveur, exclusions déclarées, données sensibles non exportées par copie indirecte d’audit ; enveloppe chiffrée et vérification des anciens formats. | L’export métier ne remplace pas la sauvegarde technique. Le contrôle d’action est une cohérence de permission, pas une séparation de fonctions face à un administrateur qui gère déjà les droits. |
 | 4 | Validation de release et recherche de secrets sur l’historique complet exigées dans le graphe de publication, même révision et artefact vérifiés. | La lecture des règles de branche avec la connexion GitHub actuelle retourne HTTP 403. Le propriétaire disposant de l’administration doit appliquer et constater les règles déclarées. |
 | 5 | Favoris B2B soumis au même contrôle de catalogue que le catalogue et le panier, y compris après changement d’autorisation ; suppression toujours possible. | Tests SQL avec clients et produits factices ; aucun accès au tarif d’une autre entreprise n’est revendiqué. |
@@ -30,6 +30,14 @@ Cette livraison répond aux quinze priorités de la revue du site public et de C
 4. Préparer un compte d’administration de secours et les facteurs personnels ; activer ensuite la politique obligatoire depuis le parcours protégé. Le statut en attente ne signifie pas que les comptes sont déjà protégés.
 5. Fournir les liaisons opérationnelles manquantes, exécuter le contrôle à blanc puis une sauvegarde/restauration isolée. Ne pas annoncer de RPO/RTO avant cet exercice.
 
+## État constaté et validation
+
+Quatre migrations sont appliquées : accès `20261107202657`, Workhub `20261107203620`, budget IA `20261107203702`, justificatifs `20261107203955`. Les SHA-256 des statements installés correspondent exactement aux fichiers revus ; leurs horodatages effectifs sont rapprochés dans le registre sans rejouer l’historique. Les tâches de purge technique Workhub et IA sont actives sous `postgres`. Le contrôle relève zéro bucket public et zéro table publique sans RLS.
+
+Les fonctions `gama-assistant-ia` version 9, `coco-supplier-ocr` version 2 et `gama-sri` version 7 sont actives. Tous les fichiers retournés par la relecture des runtimes correspondent aux sources soumises ; les fichiers partagés inutilisés sont éliminés par le bundler. Le contrôle automatique a initialement refusé l’OCR, puis accepté le déploiement après constat que la version 1 utilisait déjà le même endpoint OpenAI et qu’aucune facture n’était traitée par ce déploiement. Aucune émission fiscale ni consommation IA réelle n’a été déclenchée. Les [preuves techniques](2026-11-07-security-deployment.json) consignent versions, empreintes et étapes encore non activées.
+
+La suite complète Node 22 a exécuté 818 tests : 813 réussis, deux ignorés et trois échecs de fixtures/actifs ensuite corrigés. Les régressions concernées, la restauration et le MFA repassent ensemble : 21 assertions réussies. Les contrôles sources, types, documentation, migrations, actifs générés et budget de démarrage passent. Les 153 scénarios Chromium sécurité/métier et les 23 scénarios de Configuration passent ; 30 tests Python couvrent sauvegarde, restauration et Drive sans réseau réel. Le scanner Gitleaks épinglé vérifie 1 394 commits sans détection après examen d’une fixture synthétique et vérification des canaris. Les contrôles CI de la révision finale doivent encore confirmer la publication.
+
 ## Commandes de vérification
 
 Les commandes locales emploient des fixtures et des services simulés, pas des données de production.
@@ -43,7 +51,7 @@ node tests/security-access-hardening-db.test.cjs
 node tests/workhub-quota-hardening-db.test.cjs
 node tests/receipt-content-hardening-db.test.cjs
 node tests/ai-provider-budget-db.test.cjs
-python3 -m unittest discover -s tests -p 'test_coco_operations.py' -v
+python3 -m unittest discover -s tests -p 'test_coco_*.py' -v
 ```
 
 Les tests du parcours d’identité, des exports chiffrés et du navigateur complètent ces contrôles. Le compte rendu de livraison doit donner les résultats réellement observés, les identifiants de migration et les versions publiées ; les commandes ci-dessus seules ne sont pas une preuve de réussite.

@@ -95,7 +95,7 @@ def vault_assets(path):
             raise ValueError('Vault asset too large')
     return entries
 
-def run(destination):
+def run(destination, report=True):
     origin = preflight()
     for binary in ('pg_dump', 'age'):
         if not shutil.which(binary):
@@ -183,7 +183,8 @@ def run(destination):
     artifacts = [{'file': f['file'], 'sha256': f['sha256']} for f in files + encrypted_assets]
     artifacts.append({'file': 'manifest.json.age', 'sha256': digest(destination/'manifest.json.age')})
     atomic_json(destination/'COMPLETE.json', {'format': 'coco-encrypted-backup', 'version': 2, 'encrypted_files': len(artifacts), 'artifacts': artifacts, 'finished_at': manifest['finished_at']})
-    print(json.dumps({'complete': True, 'objects': len(objects), 'encrypted_files': len(artifacts), 'vault_assets': len(encrypted_assets)}))
+    if report:
+        print(json.dumps({'complete': True, 'objects': len(objects), 'encrypted_files': len(artifacts), 'vault_assets': len(encrypted_assets)}))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

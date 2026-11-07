@@ -17,3 +17,10 @@ regexes = [
   '''^123e4567\-e89b\-42d3\-a456\-426614174000$''',
   '''^gamaPurchasesV14$''',
 ]
+
+[[allowlists]]
+description = "Synthetic assistant encryption fixture, never provisioned; exact test path and value must both match"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^tests/assistant-server[.]test[.]mjs$''']
+regexes = ['''^fixture\-dedicated\-encryption\-key\-32\-bytes$''']

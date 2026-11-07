@@ -62,7 +62,7 @@ jobs:
       - run: npm run build
       - run: npm audit --audit-level=high
       - name: Verify backup scheduling, restoration and incident checks without live services
-        run: python3 -m unittest discover -s tests -p 'test_coco_operations.py' -v
+        run: python3 -m unittest discover -s tests -p 'test_coco_*.py' -v
       - run: npm run validate
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

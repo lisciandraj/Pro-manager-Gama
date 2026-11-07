@@ -1,0 +1,13 @@
+{
+  "version": "20261107203702",
+  "name": "audit_ai_budget",
+  "sha256": "136e2fe7fe3cc11e27b019b977602f4397774a6b0c16298b004f23eec0a277ea",
+  "file": "20261107195614_audit_ai_budget.sql",
+  "statement_count": 1,
+  "bytes": 8998,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-11-07",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL SHA-256 verified against reviewed canonical source; schema-only migration, never replay in production."
+}

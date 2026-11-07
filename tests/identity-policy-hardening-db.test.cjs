@@ -9,6 +9,8 @@ test('admin MFA policy activates only after enrollment/recovery and binds step-u
  const prepare=async(action,resource)=>{const p=await step('prepare',{action,resource});await db.exec('reset role');await q("update private.coco_identity_step_ups set created_at=now()-interval '3 seconds' where id=$1",[p.id]);return p};
  const fresh=()=>Math.floor(Date.now()/1000);
  try{
+  const exports=await q("select n.nspname,p.provolatile from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname='gama_recovery_export' and n.nspname in('public','private')");
+  assert.equal(exports.length,2);assert.ok(exports.every(p=>p.provolatile==='v'),'exports consume a one-use proof and cannot be declared stable');
   for(const id of [admin,second,staff])await q('insert into auth.users(id,email) values($1,$2)',[id,id+'@example.invalid']);
   await q("update public.profiles set active=true,role=case when id=$1 then 'comercial' else 'administrador' end",[staff]);
   for(const [sid,id] of [[session,admin],[otherSession,second],[staffSession,staff]])await q('insert into auth.sessions(id,user_id) values($1,$2)',[sid,id]);

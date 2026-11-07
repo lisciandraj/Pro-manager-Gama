@@ -44,7 +44,14 @@ test('FIFO / moving average conserve value through receipts, exits, transfer and
    const ledger=(await db.query("select a.code,sum(l.debit-l.credit)::numeric balance from accounting_entry_lines l join accounting_entries e on e.id=l.entry_id join accounting_accounts a on a.id=l.account_id where e.source_type='stock_valuation' group by a.code")).rows;
    assert.equal(Number(ledger.find(a=>a.code==='1200').balance),0);assert.equal(Number(ledger.find(a=>a.code==='5000').balance),method==='fifo'?330:660);
   });
-  const recovery=await rpc('gama_recovery_export');assert.equal(recovery.tables['public.stock_cost_books'].length,2);assert.ok(recovery.tables['public.stock_valuation_entries'].length>0);assert.ok(recovery.tables['private.stock_valuation_commands'].length>0);
+  const recovery=await rpc('gama_recovery_export');
+  assert.equal(recovery.scope,'business_data_and_files');assert.equal(recovery.coverage.full_backup,false);
+  assert.equal(recovery.tables['public.stock_cost_books'].length,2);assert.ok(recovery.tables['public.stock_valuation_entries'].length>0);
+  // Valuation evidence is business data; actor/payload/result command receipts
+  // are runtime replay state, deliberately outside the scoped application export.
+  assert.equal(Object.hasOwn(recovery.tables,'private.stock_valuation_commands'),false);
+  assert.ok(recovery.coverage.excluded_tables.includes('private.stock_valuation_commands'));
+  assert.ok(recovery.excludes.includes('runtime_authorization_and_queues'));
   await db.exec('reset role;set role anon');await assert.rejects(rpc('gama_valuation','report',{}),/permission denied/);
  }finally{await db.close()}
 });

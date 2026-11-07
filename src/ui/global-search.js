@@ -93,8 +93,9 @@ async function activate(r){
  try{
   const data=await identity();if(token!==version||signal.aborted)return;if(!Core.access(data.profile,r.module,allowed)&&r.source!=='modules')throw Error('AUTH_REQUIRED');if(!allowed(r.module))throw Error('AUTH_REQUIRED');
   if(details[r.source])return await preview(r,data.client,signal);
+  if(r.source==='modules'){close();return r.element.click();}
+  return await window.ArcRouter.navigate(r.module,async()=>{
   close();
-  if(r.source==='modules')return r.element.click();
   if(r.source==='orders')return await window.GamaSales.openOrder(r.id);
   if(r.source==='shipments')return await window.GamaSales.openOrder(r.orderId);
   if(r.source==='deliveries'){
@@ -109,6 +110,7 @@ async function activate(r){
   if(r.source==='vehicles')return await window.GamaFleet.openVehicle(r.id);
   if(r.source==='fleet_drivers')return await window.GamaFleet.openDriver();
   if(r.source==='knowledge')return await window.GamaKnowledge.openArticle(r.id);
+  });
  }catch(e){if(dialog?.open)$('gspStatus').textContent=t('error');else window.gamaToast?.(t('error'))}finally{busy=false}
 }
 function clear(){controller?.abort();version++;profile=null;client=null;groups=[];visible=[];busy=false;close();document.querySelectorAll('.gspRecord').forEach(d=>d.close());}

@@ -70,3 +70,10 @@ Primary sources reviewed on 2026-10-05:
 - [Current Labor Code supplied by the Ministry](https://www.trabajo.gob.ec/wp-content/plugins/download-monitor/download.php?force=1&id=1628), articles 97, 111–114 and reserve entitlement. Do not restore the unconstitutional old 24-SBU utility cap.
 
 `tests/ec-payroll-db.test.cjs` runs the real schema in an isolated database: unreviewed rates, minimums/part-time health, gross/net/cost, reserve entitlement, forged totals, stale validation, own-only receipt/hash, annual pools/ex-employees/rounding, one-time provisions, partial payment limits, cash balance and draft 103. `tests/hr-p1.spec.js` checks review/save and the mobile signature/PDF path. Existing HR, accounting and access regressions remain required.
+
+
+## File commune des demandes à valider
+
+**Validations de l’équipe** est disponible pour RH/administration comme pour les N+1 autorisés. Cette file présente uniquement les absences en attente, dans l’ordre de leur date de début, avec le type, les dates, les fractions de journée, les jours ouvrés et le solde de congés par année concernée. Les demandes acceptées ou rejetées quittent cette file après actualisation, sans supprimer leur historique.
+
+Un N+1 voit uniquement les demandes de ses collaborateurs directs autorisés, sans ses propres demandes ni les salaires et documents privés. RH conserve son périmètre existant. La décision utilise la même mise à jour contrôlée par la base, et le refus exige toujours un motif. Les demandes en attente ne réservent pas de solde : les chevauchements et les droits disponibles sont vérifiés à nouveau par le serveur lors de l’approbation.

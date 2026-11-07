@@ -174,7 +174,7 @@ async function open(options={}){
  if(!allowed())return;
  const token=++opening;
  workspace=options.sriWorkspace?'sri':ID;
- state={deferralMode:!!options.deferralBatch,deferralBatch:options.deferralBatch||null,stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId||options.deferralBatch?'plans':options.section||'overview';
+ state={status:['all','open','overdue','partial','paid'].includes(options.status)?options.status:undefined,deferralMode:!!options.deferralBatch,deferralBatch:options.deferralBatch||null,stockProduct:options.stockProduct||null,stockReview:options.stockReview||null,stockTab:options.stockTab||'preview',configurationTab:options.configurationTab||'accounts',configurationId:options.configurationId||null,planId:options.planId||null,sriInvoiceId:options.sourceInvoiceId||null,sriOffset:0,sriSearch:'',sriFilter:['pending','processing','authorized','correction','all'].includes(options.sriFilter)?options.sriFilter:'pending'};section=options.planId||options.deferralBatch?'plans':options.section||'overview';
  shell();
  try{
   const d=await rpc(options.sriWorkspace?'context':'overview');if(token!==opening||!allowed())return;rights=d.rights;scope=d.scope;
@@ -775,6 +775,7 @@ async function matchForm(id){
  nextButton.onclick=()=>{advance=true;el.querySelector('form').requestSubmit()};el.querySelector('#gsSave').addEventListener('click',()=>{advance=false});
  el.addEventListener('close',()=>{if(nextId&&ownerEpoch===opening&&section==='cash'&&allowed())queueMicrotask(()=>{if(ownerEpoch===opening&&section==='cash'&&allowed())matchForm(nextId)})},{once:true});
  el.querySelector('#gaMatchAdvanced').onclick=()=>act(el.querySelector('#gaMatchAdvanced'),async()=>{const ui=await auditUi();el.close();await ui.bankMatch(id,auditEnv())});
+ el.querySelector('#gaInvoiceSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.querySelector('#gaInvoiceFind').click()}});
  el.querySelector('#gaInvoiceFind').onclick=async()=>{const token=++revision,b=el.querySelector('#gaInvoiceFind');b.disabled=true;try{const next=await bankRpc('suggest',{bank_id:id,search:el.querySelector('#gaInvoiceSearch').value});if(token===revision&&el.isConnected)window.ArcUI.render(el.querySelector('#gaMatchChoices'),choices(next));}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}finally{b.disabled=false}};
  }catch(e){window.gamaToast?.(window.ArcErrors.message(e))}
 }

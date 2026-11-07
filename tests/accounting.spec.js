@@ -463,3 +463,46 @@ test('sending a bank invoice to Agent Coco prepares a draft without settling it'
  expect(await page.evaluate(()=>__ACC.calls.find(x=>x.rpc_name==='coco_action_queue'))).toMatchObject({p_action:'prepare_bank',p_data:{bank_id:'bt1',invoice_id:'inv1'}});
  expect(await page.evaluate(()=>__ACC.calls.some(x=>x.p_action==='settle'))).toBe(false);
 });
+
+test('OCR pre-fills extracted terms and asks for review again after a correction',async({page})=>{
+ await boot(page);await open(page);await page.evaluate(async()=>{
+  const base=GamaCloud.db;window.__OCR_REVIEW={filename:'supplier.pdf',currency:'USD',buyer_tax_id:'1790012345001',suppliers:[{id:'supplier',name:'Paper supplier',tax_id:'1790012345001'}],purchases:[{id:'po',supplier_id:'supplier',order_number:'PO-77',total:11.5,received_total:11.5}],extracted:{supplier_tax_id:'179 0012345001',purchase_reference:'PO-77',number:'BILL-77',issue_date:'2026-10-01',due_date:'2026-10-31',subtotal:10,tax:1.5,total:11.5,lines:[]}};
+  GamaCloud.db=async()=>{const c=await base();return {...c,rpc:(name,args)=>name==='gama_supplier_ocr'?Promise.resolve({data:__OCR_REVIEW}):c.rpc(name,args)}};
+  await CocoPlanning.ocr('ocr');
+ });
+ const d=page.locator('[data-commercial-planning][open]').last();await expect(d.locator('[name=supplier_id]')).toHaveValue('supplier');await expect(d.locator('[name=purchase_order_id]')).toHaveValue('po');await expect(d.locator('[name=payment_terms_days]')).toHaveValue('30');
+ await d.locator('[name=reviewed]').check();await d.locator('[name=total]').fill('12');await expect(d.locator('[name=reviewed]')).not.toBeChecked();await expect(d.locator('[data-ocr-match]')).toContainText(await page.evaluate(()=>GamaCurrency.format(.5)));
+ await d.locator('[data-arc-dialog-close]').click();await page.evaluate(async()=>{__OCR_REVIEW.extracted.due_date='2026-99-99';await CocoPlanning.ocr('ocr')});await expect(page.locator('[data-commercial-planning][open]').last().locator('[name=payment_terms_days]')).toHaveValue('0');
+});
+
+test('bank search Enter searches without confirming the selected settlement',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__ACC.bankSuggestions={bank:__ACC.responses.bank_list.rows[0],matches:[{type:'invoice',kind:'customer_invoice',id:'inv1',label:'DOC-17',amount:500,balance:1000,date:'2026-09-01'}]}});await open(page);await page.locator('[data-ga-section=cash]').click();await page.locator('[data-ga-match]').click();await page.locator('input[name=gaMatch][value^="invoice|"]').check();await page.locator('#gaInvoiceSearch').fill('ACME');await page.locator('#gaInvoiceSearch').press('Enter');
+ await expect.poll(()=>page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='suggest'&&c.p_data.search==='ACME'))).toBe(true);expect(await page.evaluate(()=>__ACC.calls.some(c=>c.p_action==='settle'||c.p_action==='match_source'||c.p_action==='reconcile'))).toBe(false);await expect(page.locator('#gaMatchChoices')).toBeVisible();
+});
+
+test('direct accounting links keep the overdue filter and reject unknown statuses',async({page})=>{
+ await boot(page);await page.evaluate(()=>GamaAccounting.open({section:'payables',status:'overdue'}));await expect(page.locator('#gaStatus')).toHaveValue('overdue');expect(await page.evaluate(()=>__ACC.calls.filter(c=>c.p_action==='payables').at(-1).p_data.status)).toBe('overdue');
+ await page.evaluate(()=>GamaAccounting.open({section:'payables',status:'arbitrary'}));await expect(page.locator('#gaStatus')).toHaveValue('open');
+});
+
+test('consolidated reminders show excluded invoices and prepare a fresh multiline message',async({page})=>{
+ await boot(page);await open(page);await page.evaluate(async()=>{
+  await GamaI18n.setLanguage('fr');const base=GamaCloud.db;window.__GROUPED={calls:[],blocked:false};
+  GamaCloud.db=async()=>{const c=await base();return {...c,rpc:(name,args)=>{
+   if(name==='gama_collections_schedule')return Promise.resolve({data:{rule:{enabled:false,version:1,config:{}},provider:{enabled:false},holds:[],invoices:[]}});
+   if(name!=='gama_collections_preview')return c.rpc(name,args);__GROUPED.calls.push(args);return Promise.resolve({data:args.p_customer?{today:'2026-11-07',customer:{id:'c1',name:'Client <Coco>'},total:__GROUPED.blocked?0:65,eligible_count:__GROUPED.blocked?0:2,excluded_count:1,complete:true,rows:[{invoice_id:'i1',number:'FAC-1',due_date:'2026-10-01',balance:50,eligible_amount:__GROUPED.blocked?0:25,exclusion:__GROUPED.blocked?'preference':null},{invoice_id:'i2',number:'FAC-2',due_date:'2026-10-02',balance:40,eligible_amount:__GROUPED.blocked?0:40,exclusion:__GROUPED.blocked?'preference':null},{invoice_id:'i3',number:'LITIGE-9',balance:30,eligible_amount:0,exclusion:'dispute'}]}:{today:'2026-11-07',total:1,rows:[{id:'c1',name:'Client <Coco>',total:65,eligible_count:2,excluded_count:1}]}});
+  }}};await CocoPlanning.collections();
+ });
+ await page.locator('[data-collection-grouped]').click();await page.locator('[data-collection-customer=c1]').click();await expect(page.locator('[data-commercial-planning][open]').last()).toContainText('Litige');await page.locator('[data-collection-prepare]').click();const textarea=page.locator('[data-collection-text]');await expect(textarea).toContainText('FAC-1');expect(await textarea.inputValue()).toContain('\n');expect(await textarea.inputValue()).not.toContain('\\n');expect(await textarea.inputValue()).not.toContain('LITIGE-9');expect(await page.evaluate(()=>__GROUPED.calls.filter(c=>c.p_customer==='c1').length)).toBe(2);
+ await page.locator('[data-commercial-planning][open]').last().locator('[data-arc-dialog-close]').click();await page.locator('[data-collection-customer=c1]').click();await page.evaluate(()=>__GROUPED.blocked=true);await page.locator('[data-collection-prepare]').click();await expect(page.locator('[data-collection-text]')).toHaveCount(0);await expect(page.locator('[data-collection-prepare]')).toBeDisabled();await expect(page.locator('[data-commercial-planning][open]').last()).toContainText('Relances non autorisées');
+});
+
+test('failed grouped-reminder pagination retries the same page without skipping customers',async({page})=>{
+ await boot(page);await open(page);await page.evaluate(async()=>{
+  const base=GamaCloud.db;window.__GROUP_PAGES={calls:[],fail:true};GamaCloud.db=async()=>{const c=await base();return {...c,rpc:(name,args)=>{
+   if(name==='gama_collections_schedule')return Promise.resolve({data:{rule:{enabled:false,version:1,config:{}},provider:{enabled:false},holds:[],invoices:[]}});
+   if(name!=='gama_collections_preview')return c.rpc(name,args);__GROUP_PAGES.calls.push(args.p_data.offset);if(args.p_data.offset===30&&__GROUP_PAGES.fail)return Promise.resolve({error:{message:'NETWORK_TEST'}});return Promise.resolve({data:{total:65,rows:[{id:'customer-'+args.p_data.offset,name:'Customer '+args.p_data.offset,total:10,eligible_count:1,excluded_count:0}]}});
+  }}};await CocoPlanning.collections();
+ });
+ await page.locator('[data-collection-grouped]').click();await expect(page.locator('[data-collection-groups]')).toContainText('Customer 0');await page.locator('[data-collection-next]').click();await expect(page.locator('[data-collection-next]')).toBeEnabled();await expect(page.locator('[data-collection-groups]')).toContainText('Customer 0');await page.evaluate(()=>__GROUP_PAGES.fail=false);await page.locator('[data-collection-next]').click();await expect(page.locator('[data-collection-groups]')).toContainText('Customer 30');expect(await page.evaluate(()=>__GROUP_PAGES.calls)).toEqual([0,30,30]);await expect(page.locator('[data-collection-count]')).toHaveText('31–60 / 65');
+});

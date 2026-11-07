@@ -65,6 +65,28 @@ test('Commercial planning, recurring proposals, collection holds and OCR review 
   await q('update private.recurring_orders set anchor_day=31 where id=$1',[recurringId]);assert.equal(await one("select private.recurring_advance(s,'2026-01-31')::text from private.recurring_orders s where id=$1",[recurringId]),'2026-02-28');assert.ok(endMonth);
   await as(id.admin);
  });
+ await t.test('consolidated reminders group by identity and recheck balances, consent and holds without writing',async()=>{
+  await db.exec('reset role;begin');
+  const customer=uuid(),order=uuid(),oldOrder=uuid(),docs=Array.from({length:7},()=>uuid());
+  await q("insert into customers(id,name,email) values($1,'Growth client','grouped@example.invalid')",[customer]);await db.exec('set session_replication_role=replica');
+  await q("insert into sales_orders(id,number,request_key,customer_id,customer_name,status,created_by) values($1,'GROUP-ORDER',gen_random_uuid(),$2,'Growth client','confirmed',$3)",[order,customer,id.admin]);
+  await q("insert into sales_orders(id,number,request_key,customer_id,customer_name,status,created_by) values($1,'GROUP-OLD-NAME',gen_random_uuid(),$2,'Old customer name','confirmed',$3)",[oldOrder,customer,id.admin]);
+  for(let n=0;n<docs.length;n++)await q("insert into external_invoices(id,request_key,order_id,number,issue_date,due_date,subtotal,tax,fiscal_status,created_by,document_kind,document_snapshot) values($1,gen_random_uuid(),$2,$3,current_date,current_date+$4::integer,$5,0,'unverified',$6,'internal',jsonb_build_object('sales_schema','coco.sales.invoice.v2'))",[docs[n],n===1?oldOrder:order,'GROUP-'+n,n===5?8:-8,[50,40,30,50,60,70,80][n],id.admin]);
+  await q("insert into accounting_maturities(side,invoice_id,due_date,amount,position) values('customer',$1,current_date-8,25,1),('customer',$1,current_date+8,25,2)",[docs[0]]);
+  await q("insert into private.collection_holds(invoice_id,disputed,promise_date,suspend_until,reason,updated_by) values($1,true,null,null,'dispute fixture',$4),($2,false,current_date,null,'promise fixture',$4),($3,false,null,current_date,'suspension fixture',$4)",[docs[2],docs[3],docs[4],id.admin]);
+  await q("insert into external_invoice_payments(invoice_id,request_key,amount,paid_at,method,status,created_by) values($1,gen_random_uuid(),80,current_date,'cash','confirmed',$2)",[docs[6],id.admin]);
+  await db.exec('set session_replication_role=origin');await as(id.admin);
+  const preview=(c,search='')=>one('select gama_collections_preview($1,$2::jsonb)',[c,JSON.stringify({search})]);
+  assert.equal((await preview(customer)).total,0,'missing preference never permits a reminder');
+  await db.exec('reset role');await q("insert into private.customer_message_preferences(customer_id,invoice_reminders,evidence,updated_by) values($1,true,'fixture consent',$2)",[customer,id.admin]);await as(id.admin);
+  const grouped=await preview(null);assert.equal(grouped.rows.filter(x=>x.id===customer).length,1,'renamed snapshots share one canonical customer group');assert.equal(grouped.rows.find(x=>x.id===customer).total,65);assert.equal(grouped.rows.find(x=>x.id===customer).name,'Growth client');assert.equal((await preview(null,'Growth client')).rows.find(x=>x.id===customer).total,65);assert.ok(grouped.rows.some(x=>x.id===id.customer),'customers with identical names stay separate');
+  const detail=await preview(customer);assert.equal(detail.total,65);assert.equal(detail.eligible_count,2);assert.equal(detail.excluded_count,4);assert.equal(detail.rows.length,6,'paid documents are absent');assert.equal(detail.complete,true);
+  assert.deepEqual(detail.rows.filter(x=>x.exclusion).map(x=>x.exclusion).sort(),['dispute','not_due','promise','suspended']);assert.equal(detail.rows.find(x=>x.invoice_id===docs[0]).eligible_amount,25,'future maturity is excluded from a partly overdue invoice');
+  await db.exec('reset role');const before=await one('select count(*)::int from private.message_outbox');await q("update private.customer_message_preferences set invoice_reminders=false where customer_id=$1",[customer]);await as(id.admin);assert.equal((await preview(customer)).total,0,'prepare rechecks revoked consent');
+  await db.exec('reset role');assert.equal(await one('select count(*)::int from private.message_outbox'),before,'preview creates no message');
+  await db.exec('reset role;rollback');await as(id.client);await assert.rejects(preview(customer),/ROLE_NOT_ALLOWED/);await as(id.admin);await assert.rejects(one('select * from private.coco_collection_preview_rows($1)',[customer]),/permission denied/);
+  await as(id.admin);
+ });
  await t.test('reminder sequence obeys preferences, holds, settled balances, provider opt-in and stable deduplication',async()=>{
   await as(id.admin);const cfg=await schedule('context');await schedule('rule_save',{version:cfg.rule.version,enabled:true,steps:[-3,7,14,30],delivery_mode:'manual',language:'fr'});
   await rpc('gama_messages','preferences_save',{customer_id:id.customer,invoice_reminders:true,surveys:false,evidence:'Client opted in'});

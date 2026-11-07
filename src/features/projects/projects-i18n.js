@@ -1,5 +1,10 @@
 /* Project module translations: ES / FR / EN. User data is never translated. */
 window.GamaProjectsText={
+"record_task_time": ["Registrar tiempo", "Saisir du temps", "Record time"],
+"hours_to_add": ["Horas a añadir", "Heures à ajouter", "Hours to add"],
+"new_total_hours": ["Nuevo total de horas", "Nouveau total d’heures", "New total hours"],
+"task_time_help": ["Este tiempo actualiza el esfuerzo de la tarea. No crea un coste aprobado ni modifica la nómina.", "Ce temps actualise l’effort de la tâche. Il ne crée aucun coût approuvé et ne modifie pas la paie.", "This time updates task effort. It does not create an approved cost or change payroll."],
+"task_time_saved": ["Tiempo registrado.", "Temps enregistré.", "Time recorded."],
 "delete_item": ["Eliminar elemento", "Supprimer l’élément", "Delete item"],
 "delete_permanently": ["Eliminar definitivamente", "Supprimer définitivement", "Delete permanently"],
 "delete_item_help": ["El elemento se eliminará de las vistas y de los cálculos del proyecto. Sus comentarios, documentos y enlaces se conservarán en el proyecto. Los impactos ya aplicados no se revierten. El historial se conserva y la referencia no se reutiliza.", "L’élément sera retiré des vues et des calculs du projet. Ses commentaires, documents et liens seront conservés dans le projet. Les impacts déjà appliqués ne sont pas annulés. L’historique est conservé et la référence ne sera pas réutilisée.", "The item will be removed from project views and calculations. Its comments, documents and links will remain on the project. Previously applied impacts are not reversed. History is retained and the reference will not be reused."],

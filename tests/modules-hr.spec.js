@@ -236,7 +236,7 @@ test('cada entrada del menú comparte registro, permisos y catálogo', async ({p
 // en hr_employees y hr_absences, y dos vistas que enseñan menos columnas—,
 // probada aparte contra Postgres. Aquí se fija lo que debe llegar a pantalla:
 // que no aparezcan ni el sueldo ajeno ni el motivo de una baja, y que nadie
-// que no sea administrador tenga a mano el botón de aprobar.
+// sin responsabilidad de validación tenga a mano el botón de aprobar.
 const PLANTILLA = [
   { id: 'e1', full_name: 'María Pérez', position: 'Comercial', active: true, profile_id: 'u-maria' },
   { id: 'e2', full_name: 'Luis Gómez', position: 'Almacenero', active: true, profile_id: null },
@@ -305,14 +305,24 @@ test('un empleado ve lo suyo y el calendario, nunca los datos de los demás', as
 });
 
 test('el administrador conserva la vista completa y puede ligar ficha y cuenta', async ({ page }) => {
-  await boot(page, 'admin', { hr_employees: PLANTILLA, hr_absences: AUSENCIAS,
+  await boot(page, 'admin', { hr_employees: PLANTILLA, hr_absences: [...AUSENCIAS,
+    { id: 'a3', employee_id: 'e1', kind: 'vacaciones', start_date: '2026-10-01', end_date: '2026-10-02', status: 'pendiente' }],
     hr_employee_private: PLANTILLA_PRIV, hr_absence_private: AUSENCIAS_PRIV });
   await page.evaluate(() => window.GamaOpenHR());
   await page.waitForTimeout(800);
 
-  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/, /Reglas de vacaciones/, /Documentos e historial/, /Nómina y costes/, /Organigrama/]);
+  // RH/admin comparte ahora la misma cola pendiente que los N+1 autorizados.
+  await expect(page.locator('#hr .hrTabs button')).toHaveText([/Empleados/, /Ausencias/, /Planificación/, /Reglas de vacaciones/, /Documentos e historial/, /Nómina y costes/, /Validaciones del equipo/, /Organigrama/]);
   await expect(page.locator('#hr')).toContainText('2.500');          // los sueldos siguen ahí
   await expect(page.locator('#hrAccount'), 'falta el enlace con la cuenta').toHaveCount(1);
+
+  await page.locator('#hr [data-tab="validaciones"]').click();
+  const request = page.locator('#hr tr').filter({ has: page.locator('[data-absence-id="a3"]') });
+  await expect(request).toContainText('María Pérez');
+  await expect(request).toContainText('2026-10-01');
+  await expect(request).toContainText('Vacaciones');
+  await expect(request.locator('[data-absence-status="aprobada"]')).toBeVisible();
+  await expect(page.locator('#hr [data-absence-id="a1"], #hr [data-absence-id="a2"]')).toHaveCount(0);
 
   await page.click('#hr .hrTabs button:has-text("Planificación")');
   await page.waitForTimeout(500);

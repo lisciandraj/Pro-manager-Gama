@@ -33,6 +33,8 @@ const num=v=>Number(v||0).toLocaleString(window.GamaI18n?.locale||'es-EC',{maxim
 
 let almacenes=[],ubicaciones=[],quants=[],productos=[],entrante=[];
 let reglas=[],proveedores=[],conteos=[],lineas=[],conteoAbierto=null,estanterias=[];
+let countView={id:null,mode:'all'};
+const countWrites=new Map();
 let busquedaUbicacion='',espacioResaltado=null;
 const T=s=>window.GamaI18n?.t?.(s)||s,tr=s=>`<span data-gi-live>${esc(s)}</span>`;
 let serverSnapshot=null,snapshotRequest=0,stockPage=null,stockAcceptedAt=0,stockRequest=0,pageController=null,mirrorReady=false;
@@ -544,6 +546,12 @@ function pintarConteoAbierto(host){
  const c=conteoAbierto;
  const cerrado=c.status==='validated'||c.status==='cancelled';
  const blind=c.blind&&!cerrado&&lineas.some(l=>l.counted_quantity==null);
+ if(countView.id!==c.id)countView={id:c.id,mode:'all'};
+ if(blind&&countView.mode==='differences')countView.mode='all';
+ if(cerrado&&countView.mode==='pending')countView.mode='all';
+ const difference=l=>l.counted_quantity!=null&&Number(l.counted_quantity)!==Number(l.expected_quantity);
+ const pending=lineas.filter(l=>l.counted_quantity==null).length;
+ const visible=lineas.filter(l=>countView.mode==='pending'?l.counted_quantity==null:countView.mode==='differences'?difference(l):true);
  const nombre=id=>{const p=productos.find(x=>x.id===id);return p?p.name:'—'};
  window.ArcUI.render(host,`<div class="ivCard">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
@@ -552,39 +560,60 @@ function pintarConteoAbierto(host){
  <button type="button" class="arcButton secondary" id="ivcVolver" data-gi=168ed65792a2>← Recuentos</button>
 </div>
 ${cerrado?'<div class="ivAviso" style="margin-top:12px" data-gi=fa6448081c49>Este recuento ya está cerrado: sus líneas no se pueden cambiar.</div>':''}
+<label class="gsField" style="margin-top:14px">${tr('Mostrar líneas del recuento')}<select id="ivcView"><option value="all">${esc(T('Todas las líneas'))}</option>${!cerrado?`<option value="pending">${esc(T('Por contar'))} · ${pending}</option>`:''}${!blind?`<option value="differences">${esc(T('Solo diferencias'))} · ${lineas.filter(difference).length}</option>`:''}</select></label>
+${!cerrado?`<p class="muted">${tr('Entrada guarda la cantidad y pasa a la siguiente línea por contar.')}</p>`:''}
 <div style="margin-top:14px" id="ivcLineas"></div>
 ${cerrado?'':'<button type="button" class="arcButton primary" id="ivcValidar" style="width:100%;margin-top:14px" data-gi=9fe3da1b140d>Validar y ajustar existencias</button>'}
 </div>`);
  $('ivcVolver').onclick=()=>{conteoAbierto=null;pintar()};
+ $('ivcView').value=countView.mode;
+ $('ivcView').onchange=e=>{countView.mode=e.target.value;pintarConteoAbierto(host);$('ivcView')?.focus()};
  const host2=$('ivcLineas');
- window.ArcUI.render(host2,lineas.length?'<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=bd091ce27ef6>Esperado</th><th data-gi=a57f17f4753d>Contado</th><th data-gi=e702db1e219e>Diferencia</th></tr>'
-  +lineas.map(l=>{
+ window.ArcUI.render(host2,visible.length?'<table class="arcTable"><tr><th data-gi=77b9238931ed>Producto</th><th data-gi=73b9189b6c6e>Ubicación</th><th data-gi=bd091ce27ef6>Esperado</th><th data-gi=a57f17f4753d>Contado</th><th data-gi=e702db1e219e>Diferencia</th></tr>'
+  +visible.map(l=>{
    const dif=l.counted_quantity===null||l.counted_quantity===undefined?null:Number(l.counted_quantity)-Number(l.expected_quantity);
    return `<tr>
 <td><b>${esc(nombre(l.product_id))}</b></td>
 <td>${esc((ubicacion(l.location_id)||{}).code||'—')}</td>
 <td>${blind?'—':num(l.expected_quantity)}</td>
-<td>${cerrado?(l.counted_quantity===null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="0.001" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
+<td>${cerrado?(l.counted_quantity==null?'—':num(l.counted_quantity)):`<input type="number" min="0" step="0.001" aria-label="${esc(T('Contado')+' · '+nombre(l.product_id)+' · '+((ubicacion(l.location_id)||{}).code||''))}" style="width:90px" value="${l.counted_quantity===null||l.counted_quantity===undefined?'':l.counted_quantity}" data-ivc-linea="${esc(l.id)}">`}</td>
 <td>${blind||dif===null?'—':`<b class="${dif<0?'low':dif>0?'ok':''}">${dif>0?'+':''}${num(dif)}</b>`}${!cerrado&&!blind&&dif!==null&&dif!==0?`<br><button type="button" class="arcButton secondary" data-recount="${esc(l.id)}">Segundo recuento${l.recount_quantity!=null?' · '+num(l.recount_quantity):''}</button>`:''}</td>
 </tr>`}).join('')+'</table>'
-  :'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>');
+  :lineas.length?`<p class="muted" role="status">${tr('No hay líneas en esta vista.')}</p>`:'<div class="muted" data-gi=edd267836bdc>Este recuento no tiene líneas: el almacén no tiene existencias registradas.</div>');
  host2.querySelectorAll('[data-recount]').forEach(b=>b.onclick=()=>window.ArcUI.dialog({title:'Segundo recuento · otra persona',body:window.ArcUI.field({key:'quantity',label:'Cantidad observada',type:'number',min:0,step:0.001,required:true}),onSave:async el=>{const n=Number(new FormData(el.querySelector('form')).get('quantity'));const r=await C().update('inventory_count_lines',b.dataset.recount,{recount_quantity:n});if(r.error)throw r.error;await abrirConteo(c.id)}}));
- host2.querySelectorAll('[data-ivc-linea]').forEach(i=>i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value));
+ host2.querySelectorAll('[data-ivc-linea]').forEach(i=>{
+  i.onchange=()=>apuntar(i.dataset.ivcLinea,i.value);
+  i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();apuntar(i.dataset.ivcLinea,i.value,true)}};
+ });
  if(!cerrado&&$('ivcValidar'))$('ivcValidar').onclick=validarConteo;
  if(window.GamaTable)window.GamaTable.scan();
 }
 
 /* Apuntar lo contado NO mueve existencias: sólo guarda la línea. El stock se
    mueve al validar, y por la puerta de siempre. */
-async function apuntar(id,valor){
+async function apuntar(id,valor,advance=false){
  const n=valor===''?null:Number(valor);
  if(n!==null&&(!Number.isFinite(n)||n<0))return window.gamaToast('La cantidad contada no es válida.');
- try{
-  const r=await C().update('inventory_count_lines',id,{counted_quantity:n});
-  if(r.error)throw r.error;
-  const l=lineas.find(x=>x.id===id);if(l)l.counted_quantity=n;
-  pintarConteoAbierto($('ivCuerpo'));
- }catch(e){window.gamaToast(mensaje(e))}
+ if(countWrites.has(id))return countWrites.get(id);
+ const epoch=generation,countId=conteoAbierto?.id,input=[...document.querySelectorAll('[data-ivc-linea]')].find(el=>el.dataset.ivcLinea===id);
+ const controls=[...document.querySelectorAll('#ivcLineas input,#ivcValidar,#ivcView')].map(el=>({el,disabled:el.disabled}));
+ controls.forEach(({el})=>el.disabled=true);let failed=false;
+ const task=(async()=>{
+  try{
+   const r=await C().update('inventory_count_lines',id,{counted_quantity:n});if(r.error)throw r.error;
+   if(epoch!==generation||conteoAbierto?.id!==countId)return;
+   const l=lineas.find(x=>x.id===id);if(l)l.counted_quantity=n;
+   pintarConteoAbierto($('ivCuerpo'));
+   if(advance){
+    const fields=[...document.querySelectorAll('#ivcLineas [data-ivc-linea]')];
+    const index=lineas.findIndex(l=>l.id===id),ordered=[...lineas.slice(index+1),...lineas.slice(0,index)];
+    const next=ordered.find(l=>l.counted_quantity==null&&fields.some(el=>el.dataset.ivcLinea===l.id));
+    const target=next?fields.find(el=>el.dataset.ivcLinea===next.id):$('ivcValidar');target?.focus();
+   }
+  }catch(e){failed=true;if(epoch===generation&&conteoAbierto?.id===countId)window.gamaToast(mensaje(e))}
+  finally{countWrites.delete(id);controls.forEach(({el,disabled})=>{if(el.isConnected)el.disabled=disabled});if(failed&&epoch===generation&&conteoAbierto?.id===countId)input?.focus()}
+ })();
+ countWrites.set(id,task);return task;
 }
 
 async function validarConteo(){

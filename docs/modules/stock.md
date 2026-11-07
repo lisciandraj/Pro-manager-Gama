@@ -46,3 +46,24 @@ La création automatique de brouillons selon les **seuils fixes de la fiche prod
 Le responsable valide un produit en un clic. Le serveur recontrôle les ventes et les réglages, puis actualise le produit et sa règle globale dans la même transaction, avec une clé de reprise. Une règle propre à un entrepôt n’est pas remplacée par une règle globale. Aucun achat, réservation ou mouvement physique n’est créé. Les autorisations Produits/modifier et Stock/valider sont requises.
 
 La fiche fournisseur compare aussi délai promis et délai réel jusqu’à la dernière réception. Le taux de livraison incomplète mesure les lignes manquantes lors de la **première** réception, même si un reliquat est reçu plus tard. Le nombre de commandes effectivement mesurées est affiché ; les dates utilisent le fuseau ERP. Tests : `tests/ec-b2b-management-stock-db.test.cjs`.
+
+## Comptage en continu — simplification des flux
+
+Un recensement ouvert propose les vues Toutes les lignes, À compter et Écarts
+uniquement. Les écarts et leur filtre restent masqués tant qu'un comptage aveugle
+contient une quantité non saisie. Les filtres ne changent ni les lignes du
+recensement ni ses quantités. Entrée enregistre la quantité observée puis place
+le focus sur la prochaine ligne non comptée dans la vue ; après la dernière,
+le bouton de validation reçoit le focus, sans être exécuté. Un échec conserve
+la saisie et le focus. L'enregistrement ne déplace pas le stock ; la validation
+et les contrôles de second compteur restent ceux du parcours existant.
+
+Dans Achats, « Réceptionner et suivant » enregistre les quantités du dossier
+courant puis ouvre une autre commande envoyée ou partielle dans le filtre
+courant. Cette action n'enregistre jamais la réception suivante. Les quantités
+et la destination restent proposées depuis chaque commande. Un échec conserve
+le dossier et ses saisies ; une reprise identique conserve la même clé
+idempotente. Les commandes du dossier sont verrouillées pendant la requête et
+une réponse d'une ancienne session ne peut ouvrir un dossier pour le nouveau
+compte. Les contrôles serveur de quantité, rôle, stock et historique restent
+ceux de `gama_receive_purchase_once`.

@@ -1,44 +1,44 @@
 ---
-name: "Coco ERP — GAMA"
-description: "Gestion quotidienne lisible, surfaces neutres et accents pétrole/orange GAMA."
+name: "Coco ERP — référence claire"
+description: "Gestion quotidienne lisible, surfaces blanches et navigation violette partagée."
 colors:
-  petrol: "#2F7180"
-  petrol-deep: "#245C69"
-  brand-blue: "#157F98"
-  action: "#AF5C35"
-  action-hover: "#974B2A"
-  brand-orange: "#F87826"
-  ink: "#283B42"
-  muted: "#5F7178"
+  petrol: "#6246CC"
+  petrol-deep: "#5438BA"
+  brand-blue: "#6246CC"
+  action: "#6246CC"
+  action-hover: "#5438BA"
+  brand-orange: "#6246CC"
+  ink: "#262331"
+  muted: "#676473"
   surface: "#FFFFFF"
-  inset: "#EEF3F4"
-  canvas: "#F5F7F8"
-  line: "#E1E8EA"
-  row-line: "#E8EEF0"
-  input-line: "#819298"
-  selected: "#E5F0F2"
-  hover: "#F1F7F8"
-  success: "#28704E"
-  success-bg: "#EDF6F0"
-  warning: "#865D19"
-  warning-bg: "#FAF4E7"
-  danger: "#AD403B"
-  danger-bg: "#FBEEEC"
+  inset: "#FAFAFC"
+  canvas: "#FFFFFF"
+  line: "#E9E9F0"
+  row-line: "#E9E9F0"
+  input-line: "#8E8A9C"
+  selected: "#F0EBFC"
+  hover: "#F8F6FE"
+  success: "#16785D"
+  success-bg: "#E8F8F2"
+  warning: "#976015"
+  warning-bg: "#FBF2E6"
+  danger: "#BE3848"
+  danger-bg: "#FFF0F1"
 typography:
   headline:
-    fontFamily: "Poppins, Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
     fontSize: "24px"
     fontWeight: 600
     lineHeight: 1.3
     letterSpacing: "-0.02em"
   title:
-    fontFamily: "Poppins, Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
     fontSize: "24px"
     fontWeight: 600
     lineHeight: "44px"
     letterSpacing: "-0.025em"
   section:
-    fontFamily: "Poppins, Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
     fontSize: "17px"
     fontWeight: 600
     lineHeight: 1.4
@@ -97,10 +97,10 @@ rounded:
   control: "8px"
   inset: "12px"
   panel: "16px"
-  mobile-panel: "12px"
+  mobile-panel: "16px"
   badge: "6px"
   navigation: "8px"
-  dialog: "20px"
+  dialog: "16px"
 spacing:
   s1: "4px"
   s2: "8px"
@@ -168,47 +168,47 @@ components:
     height: "44px"
 ---
 
-# Design System: Coco ERP — GAMA
+# Design System: Coco ERP — référence claire
 
 ## Overview
 
 **Creative North Star: "Coco / GAMA — gestion sereine"**
 
-Coco ERP privilégie un travail quotidien calme et lisible : choisir un module, repérer ou rechercher une information, puis agir dans les parcours existants. Une toile neutre, des surfaces blanches, des accents GAMA atténués et une hiérarchie compacte rendent les données utiles visibles plus tôt. Les formulaires séparent clairement libellés, valeurs et groupes de champs sans élargir les listes opérationnelles.
+Coco ERP privilégie un travail quotidien calme et lisible : choisir un module, repérer ou rechercher une information, puis agir dans les parcours existants. Une toile blanche, une navigation gris très clair, un accent violet et une hiérarchie compacte rendent les données utiles visibles plus tôt. Les formulaires séparent clairement libellés, valeurs et groupes de champs sans élargir les listes opérationnelles.
 
-Ce contrat décrit l’application interne servie par `src/app/index.html`. Il réconcilie la finition professionnelle du 4 novembre 2026 demandée par le propriétaire avec la structure ERP existante ; les références Geex restent historiques. Les tokens viennent de `src/styles/tokens.css`, appliqués par `workbench.css`, `design.css`, les contrôles partagés et les feuilles différées. Les fonctions, identifiants, droits, langues FR/ES/EN, favoris, historiques et données métier sont conservés. Le site public possède son propre `DESIGN.md` à la racine.
+Ce contrat décrit l’application interne servie par `src/app/index.html`. Il applique la référence graphique fournie le 7 novembre 2026 à l’application réelle GitHub Pages ; l’aperçu privé Sites reste distinct. Les révisions GAMA et Geex antérieures restent historiques pour la finition visuelle. Les tokens viennent de `src/styles/tokens.css`, appliqués par `workbench.css`, `design.css`, les contrôles partagés et les feuilles différées. Les fonctions, identifiants, droits, langues FR/ES/EN, favoris, historiques et données métier sont conservés. Le site public possède son propre `DESIGN.md` à la racine.
 
 **Key Characteristics:**
 
-- Toile neutre, surfaces blanches et ombres peu profondes.
-- Inter pour le travail courant, Poppins pour les titres.
+- Toile blanche, navigation gris clair et cartes à contour fin sans ombre.
+- Inter pour les titres, les valeurs et les contrôles.
 - Libellés proches de leur champ et groupes de formulaire espacés.
-- Orange cuivré pour la commande principale, pétrole pour les liens et sélections.
+- Violet uni pour la commande principale et la destination active.
 - Navigation et utilitaires compacts, structures métier conservées.
 
 ## Colors
 
 ### Primary
 
-Le pétrole atténué porte les liens, le focus et les sélections ; sa nuance profonde renforce les libellés actifs. Le bleu de marque reste inchangé dans les actifs et pictogrammes approuvés. Les icônes latérales emploient le texte secondaire au repos et retrouvent les accents de marque sur la destination courante.
+Le violet `#6246CC` porte les actions principales, liens et sélections ; le survol utilise `#5438BA`. La destination latérale active combine fond violet et texte/icône blancs. Les noms historiques `petrol`, `brand-blue` et `brand-orange` restent des alias compatibles et ne prescrivent plus leurs anciennes teintes.
 
-### Secondary
+### Reporting and semantic states
 
-L’orange cuivré d’action utilise un fond uni et un texte blanc ; son survol est plus sombre. L’orange brut GAMA reste réservé aux actifs, pictogrammes et usages décoratifs existants. Les graphiques conservent leurs séries, libellés et valeurs réels.
+Les graphiques conservent leurs séries réelles et utilisent le bleu `#467CF5`, le violet `#6246CC`, la lavande `#C9BDF7` et le mauve `#B3A0D6`. Les statuts utilisent succès `#16785D` sur `#E8F8F2`, attention `#976015` sur `#FBF2E6` et erreur `#BE3848` sur `#FFF0F1`, avec un libellé explicite.
 
 ### Neutral
 
-La toile est un gris froid très clair, sans texture ni satin. Les panneaux sont blancs et opaques ; le fond en retrait distingue les zones secondaires et les en-têtes de tableaux partagés. Les séparateurs de surface sont discrets, les champs possèdent un contour distinct. Succès, avertissement et erreur conservent leurs libellés explicites.
+La toile et les panneaux sont blancs, la navigation `#F6F6F9` et les retraits `#FAFAFC`. Les bordures fines `#E9E9F0` organisent les cartes ; les champs utilisent `#8E8A9C`. Les cartes n’ont pas d’ombre ni de gradient ; la profondeur est réservée aux superpositions.
 
-Les couples mesurés dans la finition courante donnent 4,74:1 pour texte secondaire/toile, 4,77:1 pour blanc/action et 5,53:1 pour blanc/pétrole. Ces mesures portent sur ces couples, pas sur chaque état métier.
+Couples de tokens calculés : texte secondaire/blanc 5,76:1 ; blanc/action 6,43:1 ; blanc/survol 7,92:1 ; états sémantiques au moins 4,74:1. Ces calculs ne certifient pas chaque état réellement peint.
 
-**The Action Rule.** Réserver l’orange d’action à la commande principale ; employer le pétrole pour les liens et les sélections.
+**The Action Rule.** Réserver le violet plein à la commande principale et à la destination courante ; employer les surfaces claires pour les commandes secondaires.
 
 ## Typography
 
-Inter locale est la police du texte de travail, des valeurs et des contrôles ; elle est préchargée par l’application. Poppins locale reste réservée aux titres du bandeau et du contenu. Les polices système servent de repli. Les licences locales restent dans `fonts/` ; aucune police distante n’est requise au rendu.
+Inter locale est la police des titres, du texte de travail, des valeurs et des contrôles ; elle est préchargée par l’application. Les polices système servent de repli. Les licences locales restent dans `fonts/` ; aucune police distante n’est requise au rendu.
 
-Le titre unique du bandeau utilise `title`, puis passe à 23 px sous 1180 px et à 18 px jusqu’à 760 px. Sa description traduite utilise 12 px et disparaît sur téléphone. `headline` et `section` décrivent les titres de contenu ; certains panneaux emploient le titre compact de 16 px. Les cellules PC utilisent généralement `table`, les libellés de formulaire `field-label` et les valeurs `field-value`, explicitement à 14 px sur PC. Champs et valeurs de fiches passent à `value-mobile` sur téléphone. Les montants emploient des chiffres tabulaires et s’alignent à droite.
+Le titre unique du bandeau utilise `title`, puis reste à 24 px sur PC/tablette et passe à 20 px jusqu’à 760 px. Sa description traduite utilise 12 px et disparaît sur téléphone. `headline` et `section` décrivent les titres de contenu ; certains panneaux emploient le titre compact de 16 px. Les cellules PC utilisent généralement `table`, les libellés de formulaire `field-label` et les valeurs `field-value`, explicitement à 14 px sur PC. Champs et valeurs de fiches passent à `value-mobile` sur téléphone. Les montants emploient des chiffres tabulaires et s’alignent à droite.
 
 L’accueil garde ses adaptations existantes : les libellés ont généralement 12 px sur grand PC et téléphone ; l’interligne devient 1,2 sur grand PC, et les largeurs intermédiaires conservent leurs ajustements de 13–14 px. Jusqu’à 359 px, `compact-home-label` conserve les noms complets dans trois colonnes.
 
@@ -216,9 +216,9 @@ L’accueil garde ses adaptations existantes : les libellés ont généralement 
 
 ## Layout
 
-À partir de 1180 px, la barre latérale mesure 232 px, avec un retrait de 12 px sur trois côtés ; le contenu principal commence à 256 px. Le bandeau a une hauteur minimale de 88 px : retour et titre unique à gauche, recherche globale et utilitaires existants à droite. Le contenu reçoit 20 px en haut, 28 px sur les côtés et 32 px en bas, plus les zones de sécurité. La recherche globale mesure 44 px de haut.
+À partir de 1180 px, la barre latérale droite mesure 256 px, sans retrait ni arrondi ; le contenu principal commence à 256 px. Le bandeau blanc a une hauteur minimale de 80 px : retour et titre unique à gauche, recherche globale et utilitaires existants à droite. Le contenu reçoit 20 px en haut, 28 px sur les côtés et 32 px en bas, plus les zones de sécurité. La recherche globale mesure 40 px de haut sur PC.
 
-Sous 1180 px, le menu devient un tiroir de largeur maximale 304 px, l’espace principal revient au bord de l’écran et le bandeau passe à 80 px minimum. Le contenu utilise 18 px en haut et 24 px sur les côtés. Jusqu’à 760 px, le bandeau passe à 72 px minimum, la recherche globale rejoint son accès mobile et la description est masquée. L’accueil téléphone conserve menu et compte sans logo CO dans le bandeau. Le contenu utilise 16 px en haut et 14 px sur les côtés, ramenés à 12 px jusqu’à 359 px, plus les zones de sécurité. La navigation basse Accueil / Recherche / Scanner / Plus reste disponible jusqu’à 860 px ; le contenu réserve sa place et les historiques ajoutent leur réserve de sécurité propre.
+Sous 1180 px, le menu devient un tiroir de largeur maximale 304 px, l’espace principal revient au bord de l’écran et le bandeau passe à 80 px minimum. Le contenu utilise 18 px en haut et 24 px sur les côtés. Jusqu’à 760 px, le bandeau conserve son minimum de 80 px, la recherche globale rejoint son accès mobile et la description est masquée. L’accueil téléphone conserve menu et compte sans logo CO dans le bandeau. Le contenu utilise 16 px en haut et 14 px sur les côtés, ramenés à 12 px jusqu’à 359 px, plus les zones de sécurité. La navigation basse Accueil / Recherche / Scanner / Plus reste disponible jusqu’à 860 px ; le contenu réserve sa place et les historiques ajoutent leur réserve de sécurité propre.
 
 Ces minima ne bloquent pas une hauteur nécessaire au contenu. Les panneaux métier collants suivent la hauteur réellement peinte du bandeau, recalculée après redimensionnement, traduction et chargement des polices. Les onglets natifs restent dans le contenu de leur module, avec défilement horizontal lorsque nécessaire.
 
@@ -226,7 +226,7 @@ Ces minima ne bloquent pas une hauteur nécessaire au contenu. Les panneaux mét
 
 Le rythme partagé conserve un écart de 8 px entre libellé et champ. Les rangées de formulaire utilisent 24 px sur PC et 20 px sur téléphone ; les colonnes utilisent respectivement 24 et 16 px. Une section ou une rangée d’actions peut être séparée de 32 px. Les modules gardent leurs colonnes et leur ordre métier ; les champs s’empilent selon leur place disponible. Les panneaux génériques utilisent 24 px de marge intérieure sur PC et 16 px sur téléphone.
 
-Les tableaux PC partagés utilisent 4 px verticalement et 16 px horizontalement dans les cellules. Le token de ligne vaut nominalement 52 px ; une ligne contenant une commande de 44 px mesure effectivement environ 53 px avec son séparateur. L’en-tête nominal de 44 px peut également grandir selon ses contrôles. Aucun de ces tokens ne fixe une hauteur exacte universelle : les tableaux spécialisés et les métriques Dashboard conservent leurs dimensions dictées par le contenu.
+Les listes de travail PC utilisent 12 px verticalement et 16 px horizontalement dans les cellules, un contour fin par ligne et 8 px de séparation entre lignes. Les actions de 44 px restent accessibles ; les lignes grandissent selon leur contenu. Les documents papier sont exclus de cette finition. Aucun de ces tokens ne fixe une hauteur exacte universelle : les tableaux spécialisés et les métriques Dashboard conservent leurs dimensions dictées par le contenu.
 
 Jusqu’à 760 px, les listes en lecture seule sans préférence enregistrée s’ouvrent en fiches ; les grilles éditables, fenêtres et tableaux exclus conservent leur structure et leur défilement local. Les choix explicites de vue, colonnes et ordre restent prioritaires. Les conteneurs peuvent rétrécir sans élargir toute la page.
 
@@ -247,30 +247,30 @@ Entre 861 et 1179 px avec une hauteur au plus 700 px, l’accueil utilise six co
 
 ## Elevation & Depth
 
-La profondeur repose d’abord sur l’espace et les fonds, puis sur des ombres peu profondes. Les contrôles et panneaux imbriqués n’empilent pas la profondeur. Les valeurs exactes des ombres et du mouvement figurent dans la sidecar.
+L’espace, les fonds et les bordures organisent les surfaces de travail. Cartes, tuiles, KPI et commandes sont sans ombre ; seule une superposition reçoit de la profondeur. Les valeurs exactes des ombres et du mouvement figurent dans la sidecar.
 
 | Rôle | Token runtime | Emploi |
 | --- | --- | --- |
 | En retrait | `--coco-inset` | Zones secondaires, sans ombre |
-| Surface | `--arc-sh-1` / `--coco-surface-shadow` | Panneaux, KPI, fiches et tuiles |
-| Élevé | `--arc-sh-2` | Survol interactif et menus |
+| Surface | `--arc-sh-1` / `--coco-surface-shadow` = `none` | Panneaux, KPI, fiches et tuiles plats |
+| Élevé | `--arc-sh-2` | Menus et superpositions légères |
 | Superposition | `--arc-sh-3` / `--coco-dialog-shadow` | Fenêtres et tiroir ouvert |
 
 La barre latérale PC et la commande principale sont plates. `--coco-surface-sheen` et `--coco-canvas-texture` valent `none`. Le voile des fenêtres reste sans flou permanent.
 
-**The Surface Rule.** Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats.
+**The Surface Rule.** Utiliser une bordure fine sans ombre pour les cartes, et réserver la profondeur aux superpositions.
 
 Les retours de pression, d’état et de superposition durent 120, 180 et 240 ms, avec `cubic-bezier(.16,1,.3,1)`. Aucun chargement de page n’apparaît en cascade. La réduction du mouvement conserve les couleurs, focus, textes et états sans déplacement décoratif. Impression, contraste renforcé et couleurs forcées gardent leurs adaptations. Ce contrat décrit le thème clair livré ; un mode sombre complet n’est pas activé par cette finition.
 
 ## Shapes
 
-Les commandes et champs partagés utilisent `control`, les fonds en retrait `inset`, les surfaces `panel`, et les fenêtres ainsi que le cadre latéral `dialog`. Jusqu’à 760 px, le rayon partagé des surfaces devient `mobile-panel`. Les onglets et liens latéraux utilisent `navigation`, les badges leur rayon compact. Avatars, repères GPS et autres formes métier gardent leur géométrie spécifique.
+Les commandes et champs partagés utilisent `control`, les fonds en retrait `inset`, les surfaces `panel`, et les fenêtres `dialog`. Les surfaces de travail et fenêtres utilisent 16 px, y compris sur téléphone ; la barre latérale droite n’a pas d’arrondi. Les onglets et liens latéraux utilisent `navigation`, les badges leur rayon compact. Avatars, repères GPS et autres formes métier gardent leur géométrie spécifique.
 
 ## Components
 
 ### Buttons
 
-La commande principale est orange cuivré avec texte blanc ; les actions secondaires sont blanches et les commandes discrètes utilisent le pétrole. Les contrôles communs conservent une hauteur minimale de 44 px. Les barres métier spécialisées gardent leur densité propre. Le focus visible utilise un trait pétrole de 2 px décalé de 3 px. Les états indisponibles et occupés gardent leur sémantique et ne bougent pas à la pression.
+La commande principale est violette unie avec texte blanc ; les actions secondaires sont blanches et les commandes discrètes utilisent le violet. Les contrôles communs conservent une hauteur minimale de 44 px. Les barres métier spécialisées gardent leur densité propre. Le focus visible utilise un trait violet de 2 px décalé de 3 px. Les états indisponibles et occupés gardent leur sémantique et ne bougent pas à la pression.
 
 ### Inputs / Fields
 
@@ -278,11 +278,11 @@ Fond blanc, contour de saisie explicite, libellé persistant et rayon commun. Le
 
 ### Navigation
 
-La navigation latérale conserve groupes, favoris et liens autorisés. La destination courante combine fond pétrole clair, libellé plus sombre et icône de marque. Le tiroir fermé est inerte ; ouvert, il retient le focus, rend l’arrière-plan inerte, se ferme avec Échap et rend le focus au déclencheur. Les onglets natifs restent dans leur module avec fond et contour pétrole pour la sélection. Les favoris de l’accueil et la navigation basse gardent leur accès et leur cible tactile.
+La navigation latérale conserve groupes, favoris et liens autorisés. La destination courante combine fond violet plein et libellé/icône blancs. Le tiroir fermé est inerte ; ouvert, il retient le focus, rend l’arrière-plan inerte, se ferme avec Échap et rend le focus au déclencheur. Les onglets natifs restent dans leur module avec fond violet clair et contour violet pour la sélection. Les favoris de l’accueil et la navigation basse gardent leur accès et leur cible tactile.
 
 ### Lists / Cards / Status
 
-Les tableaux ont des séparateurs horizontaux fins, sans quadrillage vertical ordinaire, des en-têtes en retrait et des montants alignés à droite. Les fiches mobiles affichent les noms des colonnes avec leurs valeurs. Les statuts portent leur texte et leur couleur sémantique. Tableaux spécialisés, arbres et graphiques conservent leurs contrôles métier.
+Les listes de travail utilisent des lignes blanches à contour fin et une séparation verticale de 8 px, des en-têtes discrets et des montants alignés à droite. Les exports papier et grilles spécialisées gardent leurs contrôles. Les fiches mobiles affichent les noms des colonnes avec leurs valeurs. Les statuts portent leur texte et leur couleur sémantique. Tableaux spécialisés, arbres et graphiques conservent leurs contrôles métier.
 
 CRM et Projets placent leurs tâches blanches sur des colonnes sans surface de fond. Documents et Knowledge séparent un rail blanc de 230 px et une surface principale blanche par 30 px ; les deux zones s’empilent jusqu’à 760 px. Ces finitions sont chargées avec leurs modules.
 
@@ -296,9 +296,9 @@ Entre 390 et 760 px, Produits et Dashboard placent l’historique fermé et Outi
 
 ### Reuse
 
-Les composants `ArcUI`, classes métier et primitives `cocoSurface`, `cocoSurface--inset` et `cocoSurface--raised` consomment les mêmes tokens. Utiliser une seule variante de profondeur par groupe. Les anciens noms `arc-*` restent compatibles et ne décrivent pas nécessairement la couleur affichée. La [planche des composants](components.html) reste un outil de consultation des CSS compilés ; la [vérification du 30 octobre](verification-2026-10-30.md) décrit une révision historique.
+Les composants `ArcUI`, classes métier et primitives `cocoSurface`, `cocoSurface--inset` et `cocoSurface--raised` consomment les mêmes tokens. Utiliser une bordure fine sans ombre pour les cartes ; réserver la profondeur aux superpositions. Les anciens noms `arc-*` restent compatibles et ne décrivent pas nécessairement la couleur affichée. La [planche des composants](components.html) reste un outil de consultation des CSS compilés ; la [vérification du 30 octobre](verification-2026-10-30.md) décrit une révision historique.
 
-La revue de finition du 4 novembre utilise les captures finales PC/téléphone des surfaces Accueil, Produits, fiche produit, Dashboard et Devis, sous `.impeccable/review/`. Il s’agit de captures de fixtures pour l’assurance qualité. Aucun raster destiné au produit n’a été créé ni modifié par cette finition : logos, icônes et autres actifs approuvés sont préexistants. Leur provenance reste décrite dans [la charte commune](../design-system.md). Le budget CSS initial mesuré reste de 298 874 octets sur un plafond de 300 000 ; la composition d’historique reste différée.
+La revue de finition historique du 4 novembre utilisait les captures PC/téléphone des surfaces Accueil, Produits, fiche produit, Dashboard et Devis, sous `.impeccable/review/`. Il s’agit de captures de fixtures pour l’assurance qualité. Aucun raster destiné au produit n’a été créé ni modifié par cette finition : logos, icônes et autres actifs approuvés sont préexistants. Leur provenance reste décrite dans [la charte commune](../design-system.md). Le budget CSS initial doit être remesuré après la refonte ; son plafond de 300 000 octets et le chargement différé restent contrôlés par les scripts du projet.
 
 ## Do's and Don'ts
 
@@ -316,7 +316,7 @@ La revue de finition du 4 novembre utilise les captures finales PC/téléphone d
 - **Don't** remettre une seconde occurrence du titre de module dans le contenu.
 - **Don't** déplacer ni cloner les contrôles métier pour composer une barre utilitaire.
 - **Don't** empiler les ombres ni ajouter des halos ou textures décoratifs.
-- **Don't** utiliser l’orange brut du logo pour une action à texte blanc.
+- **Don't** réintroduire des couleurs d’action locales ni des gradients sur les cartes.
 - **Don't** forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.
 - **Don't** transformer une valeur inconnue ou un échec de chargement en zéro ou succès.
 - **Don't** appliquer ce contrat au site public ni modifier son autorité visuelle racine.

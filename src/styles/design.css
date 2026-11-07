@@ -2,19 +2,19 @@
    Module-specific finishes are loaded with their native module styles. */
 @media screen{
  body[data-app=coco-erp],body[data-app=coco-erp] :is(.arcContent,.arcSidebar,dialog,#mainmenu,#gamaCloudLogin){
-  --gama-blue:#157F98;--gama-blue-dark:#2F7180;--gama-orange:var(--arc-coco-orange);
-  --arc-canvas:var(--coco-canvas);--arc-surface:var(--coco-surface);--arc-surface-2:var(--coco-inset);--arc-surface-3:#E7EEF0;
-  --arc-line:var(--coco-line);--arc-line-strong:#819298;--arc-text:var(--coco-ink);--arc-text-muted:var(--coco-muted);--arc-text-subtle:var(--coco-muted);
-  --arc-accent-600:#2F7180;--arc-accent-700:#245C69;--arc-accent-100:#E5F0F2;--arc-accent-50:#F1F7F8;
-  --arc-card-border:var(--coco-line);--arc-tile-border:#708897;--arc-tile-border-bottom:#708897;
-  --arc-card-shadow:var(--coco-surface-shadow);--arc-tile-shadow:var(--coco-surface-shadow);--arc-field-shadow:none;--arc-control-shadow:none;
-  --arc-table-grid:var(--coco-row-line);--coco-grid:var(--coco-row-line);
-  --arc-viz-1:#AF5C35;--arc-viz-2:#2F7180;--arc-viz-3:#D5A385;--arc-viz-4:#89B3BD;--arc-viz-5:#103B52;
+  --gama-blue:#6246CC;--gama-blue-dark:#5438BA;--gama-orange:#6246CC;
+  --arc-canvas:#FFFFFF;--arc-surface:#FFFFFF;--arc-surface-2:#FAFAFC;--arc-surface-3:#F3F2F7;
+  --arc-line:#E9E9F0;--arc-line-strong:#8E8A9C;--arc-text:#262331;--arc-text-muted:#676473;--arc-text-subtle:#676473;
+  --arc-accent-600:#6246CC;--arc-accent-700:#5438BA;--arc-accent-100:#F0EBFC;--arc-accent-50:#F8F6FE;
+  --arc-card-border:#E9E9F0;--arc-tile-border:#E9E9F0;--arc-tile-border-bottom:#E9E9F0;
+  --arc-card-shadow:none;--arc-tile-shadow:none;--arc-field-shadow:none;--arc-control-shadow:none;
+  --arc-table-grid:var(--coco-row-line);--coco-grid:#E9E9F0;
+  --arc-viz-1:#467CF5;--arc-viz-2:#6246CC;--arc-viz-3:#C9BDF7;--arc-viz-4:#B3A0D6;--arc-viz-5:#8E78CD;
  }
  body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:.875rem/1.55 var(--arc-font);-webkit-font-smoothing:antialiased}
  body[data-app=coco-erp] :is(button,input,select,textarea){font-family:var(--arc-font)}
  .arcBrand .arcLogo{aspect-ratio:1200/435}.arcBrand .arcLogo img{display:block;width:100%;height:auto;object-fit:contain}.arcBrand .arcLogoMark{object-fit:contain}
- body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gp14Card,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.plList,.chartPanel,.hrCard,.crmCard,.svCard,.sdCard,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.dashCard,.dashPanel,.gsCard,.gpCard,.gp14Card,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel,.coCard,.hpBox,.plList,.chartPanel,.hrCard,.crmCard,.svCard,.sdCard,.adQuickActions,.adRecentOrders,.cocoFollowup,.ivInspector){background:var(--coco-surface-fill);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.tmsCard,.ivCard,.hrCard,.crmCard,.pmPanel,.pmCard,.chartPanel){padding:var(--coco-panel-padding)}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(h2,h3){font-weight:600;letter-spacing:-.02em;line-height:1.4}
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcPanel,.card,.gsCard,.gaCard,.gfCard,.gqCard,.hrCard,.pmCard)>:is(h2,h3){font-size:16px}
@@ -28,7 +28,7 @@
  body[data-app=coco-erp] :is(.arcContent section:not(#mainmenu),dialog) :is(.arcField,label){font-weight:500}
  body[data-app=coco-erp] :is(input[type=checkbox],input[type=radio]){accent-color:var(--arc-accent-600)}
  body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-700);outline-offset:3px}
- body[data-app=coco-erp] dialog{border-color:transparent;border-radius:var(--arc-r-xl);box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface);color:var(--coco-ink)}
+ body[data-app=coco-erp] dialog{border:1px solid var(--arc-line);border-radius:var(--arc-r-xl);box-shadow:var(--coco-dialog-shadow);background:var(--coco-dialog-surface);color:var(--coco-ink)}
  body[data-app=coco-erp] dialog::backdrop{background:var(--coco-scrim);-webkit-backdrop-filter:none;backdrop-filter:none}
  body[data-app=coco-erp] .cocoFollowupBubble{padding:14px;line-height:1.6;background:var(--coco-inset);border-color:var(--coco-line);box-shadow:none}
  body[data-app=coco-erp] .cocoFollowupEvent.is-own .cocoFollowupBubble{background:var(--arc-accent-50);border-color:var(--arc-info-line)}
@@ -38,7 +38,7 @@
  body[data-app=coco-erp] #gamaCloudLogin #gamaCloudLoginBtn{background:var(--coco-action-top) var(--coco-action-fill);color:var(--coco-on-action);border-color:var(--coco-action);border-radius:var(--arc-r-sm);box-shadow:var(--coco-action-shadow)}
  body[data-app=coco-erp] #gamaCloudLogin :is(input,button){min-height:44px;font-size:1rem;border-radius:var(--arc-r-sm);box-shadow:none}
  .arcAvatar:has(img){overflow:hidden}.arcAvatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
- body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:116px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body[data-app=coco-erp] .arcContent :is(.arcKpi,.hrKpi,.ivKpi,.pmKpi,.crmKpi,.gaKpis>.gaCard,.gfKpis>.gfCard,.gp14Kpis>div){display:grid;grid-template-columns:34px minmax(0,1fr);align-content:start;align-items:center;gap:12px;min-width:0;min-height:116px;padding:var(--coco-panel-padding);margin:0;background:var(--coco-surface-fill);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon)>svg{width:28px;height:28px}
  body[data-app=coco-erp] :is(i.cocoMetricIcon,.gamaF2KpiIcon){display:inline-grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite[aria-pressed=true] .cocoIconPrimary{fill:var(--gama-blue,#157F98)}
@@ -55,7 +55,7 @@
  body.cocoWorkbench :is(.arcContent,dialog) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){border-radius:var(--arc-r-sm);border-color:var(--arc-line-strong);box-shadow:none;background-color:var(--coco-surface)}
  body.cocoWorkbench :is(.arcContent,dialog) :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench :is(.gamaTableSearch,.ai-input,.whComposer):focus-within{outline:2px solid var(--arc-accent-600);outline-offset:3px}
- body.cocoWorkbench :is(.arcContent,dialog) :is(.arcPanel,.card,.gp14Card,.pmPanel,.gkPanel,.ai-panel,.chartPanel,.coCard){background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
+ body.cocoWorkbench :is(.arcContent,dialog) :is(.arcPanel,.card,.gp14Card,.pmPanel,.gkPanel,.ai-panel,.chartPanel,.coCard){background:var(--coco-surface-fill);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow)}
  body.cocoWorkbench .arcContent :is(.gqListCard,.cocoProductCatalog,#ctTable,.ctTable,.cocoBusiness>.arcTableWrap){border:0;border-radius:0;box-shadow:none;padding:0}
  body.cocoWorkbench .arcContent section#quotes .gqListCard{padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaStdHeader{border-bottom:0;padding-bottom:0}
@@ -73,17 +73,17 @@
  body.cocoWorkbench .arcContent .gamaTableViews>button[aria-pressed=true]{background:var(--arc-accent-50);color:var(--arc-accent-600);border-color:var(--arc-accent-600)}
  body.cocoWorkbench .arcContent .gamaColumnHeading{font-size:13px;font-weight:500;color:var(--coco-muted)}
  body.cocoWorkbench .arcContent .gamaSortScope{font-size:11px;font-weight:400}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]){border-collapse:collapse;background:white;border:0}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(th,td){border:0!important;border-bottom:1px solid var(--coco-row-line)!important;padding:4px 16px;vertical-align:middle}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--coco-inset);font-size:12px;font-weight:500;color:var(--coco-muted);height:var(--coco-table-heading)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]){border-collapse:separate!important;border-spacing:0 8px;background:transparent;border:0}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td){border:0;border-top:1px solid var(--arc-line);border-bottom:1px solid var(--arc-line);padding:12px 16px;vertical-align:middle}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--arc-surface);font-size:12px;font-weight:500;color:var(--coco-muted);height:var(--coco-table-heading)}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) td{font-size:13px;height:var(--coco-table-row);background:var(--coco-surface)}
  body.cocoWorkbench .arcContent #audit table:not([data-gama-view=cards]) :is(th,td){padding-inline:10px}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) :is(td.arcNumeric,th.arcNumeric,td.gaNum,th.gaNum){text-align:right;font-variant-numeric:tabular-nums}
- body.cocoWorkbench .arcContent :is(.arcStatusBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.hrBadge,.pmBadge,.tmsBadge){border:0;border-radius:6px;font-size:12px;padding:4px 9px;font-weight:500}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:hover>td{background:var(--arc-accent-50)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(td.arcNumeric,th.arcNumeric,td.gaNum,th.gaNum){text-align:right;font-variant-numeric:tabular-nums}
+ body.cocoWorkbench .arcContent :is(.arcStatusBadge,.gqBadge,.gsBadge,.gaBadge,.gfBadge,.grBadge,.hrBadge,.pmBadge,.tmsBadge){border:0;border-radius:6px;font-size:12px;padding:5px 9px;font-weight:500}
  body.cocoWorkbench .arcContent :is(.gamaPager,.gqListPager,.arcPager){font-size:12px;color:var(--coco-muted)}
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background:var(--coco-surface-fill);border:0!important;box-shadow:var(--coco-surface-shadow)!important;border-radius:var(--arc-r-lg)}
- body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]:hover{background:var(--coco-surface);box-shadow:var(--arc-sh-2)!important}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]{background:var(--coco-surface-fill);border:1px solid var(--arc-line)!important;box-shadow:var(--coco-surface-shadow)!important;border-radius:var(--arc-r-lg)}
+ body.cocoWorkbench #mainmenu .gamaF2Card[data-arc-fam]:hover{background:var(--arc-accent-50);border-color:var(--arc-accent-600)!important;box-shadow:none!important}
  body.cocoWorkbench #mainmenu .gamaF2Title{font-weight:500;line-height:1.35}
  body.cocoWorkbench #mainmenu .gamaF2Icon{background:transparent;border:0;box-shadow:none}
  body.cocoWorkbench #mainmenu .cocoModuleFavorite{width:44px;height:44px;min-height:44px;padding:12px;top:0;right:0;align-items:center;justify-content:center}
@@ -128,7 +128,7 @@
  body[data-app=coco-erp] ::selection{background:#CCE5EC;color:var(--arc-navy-900)}
  body[data-app=coco-erp] :is(input,textarea,[contenteditable=true]){caret-color:var(--arc-accent-600)}
  body[data-app=coco-erp] a{text-underline-offset:.2em}
- body[data-app=coco-erp] .cocoSurface{background:var(--coco-surface-fill);border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);padding:var(--coco-panel-padding)}
+ body[data-app=coco-erp] .cocoSurface{background:var(--coco-surface-fill);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);padding:var(--coco-panel-padding)}
  body[data-app=coco-erp] .cocoSurface--inset{background:var(--coco-inset);box-shadow:none;border-radius:var(--arc-r-md)}
  body[data-app=coco-erp] .cocoSurface--raised{box-shadow:var(--arc-sh-2)}
  body.cocoWorkbench :is(.arcBurger,.arcIconBtn,.cocoModuleBack){border-radius:var(--arc-r-sm)}
@@ -144,10 +144,10 @@
  body[data-app=coco-erp] :is(.arcButton,.tmsBtn,.ai-primary)[aria-busy=true]{cursor:progress;transform:none}
  body.cocoWorkbench :is(.arcContent,dialog) :is(input,select,textarea){transition:border-color var(--coco-motion-feedback),background-color var(--coco-motion-feedback)}
  body.cocoWorkbench :is(.arcContent,dialog) :is(input,select,textarea)[aria-invalid=true]{border-color:var(--arc-danger);background:var(--arc-danger-bg)}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) thead tr:first-child th:first-child{border-top-left-radius:var(--arc-r-lg)}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) thead tr:first-child th:last-child{border-top-right-radius:var(--arc-r-lg)}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) tbody tr:last-child td:first-child{border-bottom-left-radius:var(--arc-r-lg)}
- body.cocoWorkbench .arcContent table:not([data-gama-view=cards]) tbody tr:last-child td:last-child{border-bottom-right-radius:var(--arc-r-lg)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) thead tr:first-child th:first-child{border-top-left-radius:var(--arc-r-lg)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) thead tr:first-child th:last-child{border-top-right-radius:var(--arc-r-lg)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:last-child td:first-child{border-bottom-left-radius:var(--arc-r-lg)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:last-child td:last-child{border-bottom-right-radius:var(--arc-r-lg)}
  /* Nested table/panel content is one surface, never a stack of shadows. */
  body.cocoWorkbench .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.gaCard,.gp14Card,.gkPanel,.sdLibrary,.cocoSurface) :is(.arcTableWrap,.gamaTableBox){box-shadow:none}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaTableBox .gamaTableBox{box-shadow:none}
@@ -220,8 +220,26 @@
  body[data-app=coco-erp] :is(.cocoSurface,.arcPanel,.card,.gamaF2Card,.arcKpi,.gaCard,.adMetric,.crmTarjeta,.pmTask){outline:1px solid CanvasText;box-shadow:none}
 }
 @media (prefers-contrast:more){
- body[data-app=coco-erp] {--coco-line:#73818E;--coco-row-line:#73818E;--coco-column-line:#73818E;--coco-muted:#364454;--coco-surface-shadow:none}
+ body[data-app=coco-erp] {--coco-line:#8E8A9C;--coco-row-line:#8E8A9C;--coco-column-line:#8E8A9C;--coco-muted:#474351;--coco-surface-shadow:none}
  body[data-app=coco-erp] :is(button,a,input,select,textarea,summary):focus-visible {outline-width:3px}
 }
 
 @media screen and (max-width:860px){body.cocoWorkbench .arcContent{padding-bottom:calc(96px + var(--arc-safe-b))}html{scroll-padding-top:72px;scroll-padding-bottom:100px}body.cocoWorkbench .arcContent :is(button,input,select,textarea,a,[tabindex]){scroll-margin-top:80px;scroll-margin-bottom:100px}}
+
+/* Reference world, November 2026: quiet white working surfaces, violet navigation.
+   Keep the production shell's 1180px drawer and all native module controls. */
+@media screen{
+ body[data-app=coco-erp]{caret-color:var(--arc-accent-600);accent-color:var(--arc-accent-600)}
+ body[data-app=coco-erp] ::selection{background:var(--arc-accent-100);color:var(--arc-text)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td):first-child{border-left:1px solid var(--arc-line);border-radius:7px 0 0 7px}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td):last-child{border-right:1px solid var(--arc-line);border-radius:0 7px 7px 0}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:nth-child(even)>td{background:var(--arc-surface)}
+ body.cocoWorkbench #dashboard .adBarInvoice{fill:var(--arc-viz-1);background:var(--arc-viz-1)}
+ body.cocoWorkbench #dashboard .adBarCash{fill:var(--arc-viz-2);background:var(--arc-viz-2)}
+}
+@media screen and (min-width:1280px){body.cocoWorkbench .arcTopRight .arcProfileText{display:flex;font-size:12px}body.cocoWorkbench .arcChevron{display:block;font-size:18px}}
+@media screen and (max-width:760px){
+ body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
+ body.cocoWorkbench .arcTopRight{gap:0}
+ body.cocoWorkbench .cocoModuleContext{font-size:20px}
+}

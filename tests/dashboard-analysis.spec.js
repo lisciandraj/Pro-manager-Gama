@@ -87,3 +87,20 @@ test('slow optional panels leave the primary Dashboard usable and preserve the p
  await page.locator('#ad-refresh').click();await expect(page.locator('[data-ad-metric=net] strong')).not.toHaveText('—');await expect(page.locator('#ad-content')).not.toHaveAttribute('aria-busy','true');
  await period(page,'2020-01-01','2020-01-31');await expect(page.locator('[data-ad-metric=net]')).toContainText('12');await expect(page.locator('.adMeta')).toContainText('01/01/2020');await page.locator('.adDetails>summary').click();await expect(page.locator('.adDetails [role=status]').first()).toContainText('Chargement');
 });
+
+test('treasury amounts open the corresponding supplier invoice filters',async({page})=>{
+ await boot(page);await expect(page.locator('.adFinance')).toBeVisible();await page.evaluate(()=>{window.__supplierView=null;window.GamaAccounting={open:o=>{window.__supplierView=o}}});await page.locator('[data-ad-focus=payables]').click();expect(await page.evaluate(()=>__supplierView)).toEqual({section:'payables',status:'open'});await page.locator('[data-ad-focus=payables_overdue]').click();expect(await page.evaluate(()=>__supplierView)).toEqual({section:'payables',status:'overdue'});
+});
+
+test('unavailable indicators are disabled while real zero remains actionable',async({page})=>{
+ await boot(page);await page.evaluate(()=>{__DASH.partial=['payments']});await page.click('#ad-refresh');await expect(page.locator('[data-ad-metric=net]')).toBeDisabled();await expect(page.locator('[data-ad-metric=net] strong')).toHaveText('—');await expect(page.locator('[data-ad-metric=to_ship]')).toBeEnabled();
+ await page.evaluate(()=>{__DASH.partial=[];const original=GamaCloud.db;GamaCloud.db=async()=>{const c=await original();return {...c,rpc:async(fn,args)=>{const r=await c.rpc(fn,args);if(fn.startsWith('gama_company_dashboard')&&r.data?.sections?.payments)r.data.sections.payments.current.net=0;return r}}}});await page.click('#ad-refresh');await expect(page.locator('[data-ad-metric=net]')).toBeEnabled();await expect(page.locator('[data-ad-metric=net] strong')).toContainText('0');
+});
+
+test('every secondary statistic offers an exact drilldown or explains its scope and calculation',async({page})=>{
+ await boot(page);await page.evaluate(()=>{window.__statisticRequests=[];const base=GamaCloud.db;GamaCloud.db=async()=>{const c=await base();return {...c,rpc:(fn,args)=>{if(fn==='gama_dashboard_details'){__statisticRequests.push(args);return Promise.resolve({data:{rows:[],total:24000,count:0}})}return c.rpc(fn,args)}}}});
+ await page.locator('[data-ad-source=payments] [data-ad-stat="current.net"]').click();await expect(page.locator('[data-dashboard-detail][open]')).toBeVisible();expect(await page.evaluate(()=>__statisticRequests.at(-1).p_metric)).toBe('net');await page.locator('[data-dashboard-detail][open] [data-arc-dialog-close]').click();
+ await page.locator('[data-ad-source=projects] [data-ad-stat=active]').click();const detail=page.locator('[data-dashboard-detail][open]');await expect(detail).toContainText('Projets à l’état actif');await expect(detail).toContainText('19/09/2026');expect(await page.evaluate(()=>__statisticRequests.length)).toBe(1);await detail.locator('[data-arc-dialog-close]').click();
+ await page.evaluate(()=>{window.__documentFilter=null;window.GamaDocuments={open:o=>{window.__documentFilter=o}}});await page.locator('[data-ad-source=documents] [data-ad-stat=expired]').click();expect(await page.evaluate(()=>__documentFilter)).toEqual({filter:'expired'});
+ await expect(page.locator('[data-ad-source=crm] [data-ad-stat=won]')).toBeDisabled();
+});

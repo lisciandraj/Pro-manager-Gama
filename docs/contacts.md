@@ -20,7 +20,7 @@ CRM prospects have province and postal code; conversion carries the complete add
 
 ## Adresses d’agence dans les devis et le TMS
 
-Le devis propose les adresses actives de livraison ou de commande du client sélectionné, depuis **Contacts → Historique → Adresses secondaires**. Une adresse de facturation, archivée ou liée à un autre client n'est pas proposée. Le choix remplit le champ de destination ; le commercial peut encore saisir une adresse convenue manuellement. Un changement de client réinitialise ce choix et ignore une ancienne réponse arrivée tardivement. Une erreur de lecture affiche une actualisation sans effacer le texte saisi.
+Le devis propose les adresses actives de livraison ou de commande du client sélectionné, depuis **Contacts → Adresses de livraison**. Une adresse de facturation, archivée ou liée à un autre client n'est pas proposée. Le choix remplit le champ de destination ; le commercial peut encore saisir une adresse convenue manuellement. Un changement de client réinitialise ce choix et ignore une ancienne réponse arrivée tardivement. Une erreur de lecture affiche une actualisation sans effacer le texte saisi.
 
 La destination est enregistrée dans l'instantané du devis, puis reprise par le pedido confirmé et les livraisons TMS. Modifier ensuite la fiche d'agence ne modifie pas un document déjà accepté. Le portail B2B propose ces mêmes adresses et conserve l'adresse choisie dans la demande d'origine. Les coordonnées GPS d'un autre lieu ne sont pas réutilisées pour une nouvelle destination.
 
@@ -38,3 +38,25 @@ Les coordonnées d’un client ou d’un site de livraison sont reprises pour la
 La recherche externe est **désactivée par défaut** (`private.contact_geocode_settings.enabled=false`) et exige l’autorisation de transmettre les composantes de l’adresse à Photon. Les données envoyées sont uniquement rue/numéro, ville, province, code postal et code pays ; aucun nom, téléphone, e-mail, identifiant fiscal ou document. Le service est [Photon](https://github.com/komoot/photon), données © OpenStreetMap contributors, avec un plafond initial de 200 requêtes/jour, une seule requête simultanée, un délai minimal de deux secondes et trois tentatives espacées en cas d’indisponibilité. Ses [conditions d’utilisation](https://photon.komoot.io/) permettent un usage raisonnable sans garantie de disponibilité. Aucun compte ou clé payante n’est créé.
 
 Un résultat est enregistré automatiquement uniquement si la géométrie est un point valide et si la rue, le numéro, la ville ou le code postal et le pays correspondent. Les centres de rues/villes, résultats ambigus et adresses absentes restent à vérifier. Les tableaux, fonctions et réponses de la file ne sont pas exposés aux clients. `cron` traite les réponses sans ouvrir l’ERP ; l’arrêt du service empêche aussi l’application d’une réponse encore en attente. Les tests `contact-address-geocoding-db` utilisent des réponses simulées dans une base isolée et couvrent exactitude, ambiguïté, cache, changements d’adresse, corrections manuelles, TMS, permissions, plafonds et reprises.
+
+## Création sans doublons et historique transversal
+
+Pendant la création, Contacts signale les fiches autorisées du même type dont
+l’identifiant, le courriel, le nom exact normalisé ou le téléphone concorde. Le
+bouton **Utiliser la fiche existante** ouvre son éditeur au lieu de créer une
+seconde fiche. Un nom identique reste une suggestion : les homonymes légitimes
+ne sont pas bloqués. Les contrôles serveur d’identification restent en place.
+La recherche utilise les données déjà chargées pour l’éditeur, sans lecture
+supplémentaire ni stockage local des coordonnées ; elle n’effectue aucune fusion.
+
+Dans le dossier d’un client ou fournisseur, **Historique client ou fournisseur**
+réunit les documents commerciaux accessibles, les activités CRM et les fichiers
+liés, triés du plus récent au plus ancien. Les activités et fichiers sont limités
+aux 100 derniers de chaque source. Les RPC, RLS et droits d’origine filtrent les
+lectures ; le regroupement n’accorde aucun droit financier ou documentaire.
+Chaque ligne ouvre son document ou les activités du même dossier. Les onglets
+spécialisés et les états de compte existants restent disponibles.
+
+Validation : `tests/simplified-sales-contacts.spec.js` couvre les suggestions,
+leur retrait, la réutilisation, l’ordre chronologique et la fermeture à la
+fin de session.

@@ -26,7 +26,7 @@ async function boot(page,{denied=false}={}) {
 }
 async function openHub(page){await page.locator('[data-ct-dossier="clients:c1"]').click();const h=page.locator('[data-contact-hub]');await expect(h).toBeVisible();return h;}
 test('contact dossier uses visible keyboard tabs and records a saved delivery site',async({page})=>{
- await boot(page);const hub=await openHub(page);await expect(hub.locator('[role=tab]')).toHaveCount(8);
+ await boot(page);const hub=await openHub(page);await expect(hub.locator('[role=tab]')).toHaveCount(9);
  await hub.locator('[data-arc-tab=summary]').focus();await page.keyboard.press('ArrowRight');
  await expect(hub.locator('[data-arc-tab=relations]')).toHaveAttribute('aria-selected','true');
  await hub.locator('[data-ch-action=address]').click();const form=page.locator('[data-contact-hub-child]');

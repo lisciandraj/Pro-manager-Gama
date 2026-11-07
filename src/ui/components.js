@@ -72,7 +72,7 @@ export function kpi({label,value,help='',className='',icon='chart'}={}) {return 
 export function form(fields,{id='arc-form-'+(++sequence),values={},submitLabel=t('Guardar')}={}) {
   return `<form id="${esc(id)}" class="arcForm"><div class="arcFormGrid">${fields.map(f=>field({...f,value:values[f.key] ?? ''})).join('')}</div><p class="arcFormError" role="alert"></p>${button({type:'submit',variant:'primary',label:submitLabel})}</form>`;
 }
-export function bindForm(el,onSubmit,{error=errorMessage,onSuccess}={}) {
+export function bindForm(el,onSubmit,{error=errorMessage,onSuccess,submitShortcut=true}={}) {
   if(el.__arcForm)return el.__arcForm;
   mountFieldValidation(el);
   let pending=false;
@@ -86,8 +86,21 @@ export function bindForm(el,onSubmit,{error=errorMessage,onSuccess}={}) {
     catch(e){if(message){message.textContent=error(e);message.tabIndex=-1;message.focus();}else throw e;}
     finally{pending=false;el.removeAttribute('aria-busy');controls.forEach((c,i)=>c.disabled=previous[i]);}
   };
+  // An intentional chord, never plain Enter: scanners and multi-line notes keep
+  // their normal input behavior. requestSubmit retains native field validation.
+  const shortcut=event=>{
+    if(event.defaultPrevented||event.isComposing||event.repeat||event.key!=='Enter'||event.altKey||event.shiftKey||!(event.ctrlKey||event.metaKey))return;
+    const save=el.querySelector('button[type=submit],input[type=submit]');
+    if(!save||save.disabled||!save.getClientRects().length)return;
+    event.preventDefault();if(!pending)el.requestSubmit(save);
+  };
+  if(submitShortcut){
+    const save=el.querySelector('button[type=submit],input[type=submit]');
+    if(save){save.setAttribute('aria-keyshortcuts','Control+Enter Meta+Enter');if(!save.title)save.title=(save.textContent||save.value||'').trim()+' ('+(/Mac|iPhone|iPad/.test(navigator.platform)?'⌘':'Ctrl')+'+Enter)';}
+    el.addEventListener('keydown',shortcut);
+  }
   el.addEventListener('submit',submit);
-  const api={get pending(){return pending;},dispose(){el.removeEventListener('submit',submit);delete el.__arcForm;}};
+  const api={get pending(){return pending;},dispose(){el.removeEventListener('submit',submit);el.removeEventListener('keydown',shortcut);delete el.__arcForm;}};
   el.__arcForm=api;return api;
 }
 export function guard(action) {
@@ -98,7 +111,7 @@ export function guard(action) {
     return pending;
   };
 }
-export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorMessage,className='',ids={},dismissOnly=['Cerrar','Fermer','Close','Volver','Retour','Back'].includes(String(saveLabel).trim())}) {
+export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorMessage,className='',ids={},submitShortcut=true,dismissOnly=['Cerrar','Fermer','Close','Volver','Retour','Back'].includes(String(saveLabel).trim())}) {
   const el=document.createElement('dialog'),lastFocus=document.activeElement;
   const titleId='arc-dialog-title-'+(++sequence);
   el.className='arcDialog '+className;el.setAttribute('aria-labelledby',titleId);
@@ -112,13 +125,13 @@ export function dialog({title,body='',saveLabel=t('Guardar'),onSave,error=errorM
   el.addEventListener('close',remove,{once:true});
   // Read-only windows have a single Back action; Enter must not submit filters.
   if(dismissOnly)el.querySelector('form').addEventListener('submit',e=>e.preventDefault());
-  else formApi=bindForm(el.querySelector('form'),()=>onSave(el),{error,onSuccess:()=>{el.close();}});
+  else formApi=bindForm(el.querySelector('form'),()=>onSave(el),{error,submitShortcut,onSuccess:()=>{el.close();}});
   el.showModal();mount(el);return el;
 }
 export function confirm({title=t('Confirmar'),message,confirmLabel=t('Confirmar'),variant='danger'}={}) {
   return new Promise(resolve=>{
     let accepted=false;
-    const el=dialog({title,body:'<p>'+esc(message)+'</p>',saveLabel:confirmLabel,dismissOnly:false,onSave:()=>{accepted=true;}});
+    const el=dialog({title,body:'<p>'+esc(message)+'</p>',saveLabel:confirmLabel,dismissOnly:false,submitShortcut:false,onSave:()=>{accepted=true;}});
     const save=el.querySelector('[type=submit]');save.classList.remove('primary');save.classList.add(variant);
     el.addEventListener('close',()=>resolve(accepted),{once:true});
   });
@@ -187,31 +200,60 @@ export function pager({page=0,pageSize=20,total=0}={}) {
   const pages=Math.max(1,Math.ceil(total/pageSize));
   return `<div class="arcPager gamaPager">${button({label:t('‹ Anterior'),className:'gamaPagerBtn',disabled:page<=0,attrs:'data-arc-page="-1" data-page-prev'})}<span class="gamaPagerInfo" aria-live="polite">${total?page*pageSize+1:0}–${Math.min(total,(page+1)*pageSize)} ${esc(t('de'))} ${total} · ${page+1} / ${pages}</span>${button({label:t('Siguiente ›'),className:'gamaPagerBtn',disabled:page>=pages-1,attrs:'data-arc-page="1" data-page-next'})}</div>`;
 }
-export function dataTable(host,{columns,source,searchInput,searchControl=searchInput,actions={},empty,className='',initial={},primaryColumns=[]}) {
+// Opt-in work-list context. Search terms and record references stay in memory,
+// never in localStorage, and disappear on logout/account change.
+const listContexts=new Map();let listContextEpoch=0;
+const listOwner=()=>{try{const user=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return String(user.userId||user.id||user.email||user.username||user.name||'guest')+':'+String(user.role||'');}catch{return 'guest';}};
+let listContextOwner=listOwner();
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;const owner=listOwner();if(event.detail?.event!=='SIGNED_OUT'&&owner===listContextOwner)return;listContextOwner=owner;listContextEpoch++;listContexts.clear();});
+export function dataTable(host,{columns,source,searchInput,searchControl=searchInput,actions={},empty,className='',initial={},primaryColumns=[],contextKey=''}) {
   let disposed=false,generation=0,timer;
+  const contextEpoch=listContextEpoch,remember=!!contextKey&&!host.closest('dialog');
+  const context=remember?(listContexts.get(contextKey)||{}):null;
   const saved=window.GamaTable?.sourceSort(host);
-  const state={page:0,pageSize:20,search:'',...initial,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
+  const state={page:0,pageSize:20,search:'',...initial,...context?.state,...(saved&&columns.some(c=>c.sort===saved.col)?{sort:saved.col,ascending:saved.dir!=='desc'}:{})};
+  if(context){if(listContexts.size>=30&&!listContexts.has(contextKey))listContexts.delete(listContexts.keys().next().value);listContexts.set(contextKey,context);if(searchControl)searchControl.value=state.search;}
+  const rememberState=()=>{if(context&&contextEpoch===listContextEpoch)context.state={page:state.page,search:state.search,sort:state.sort,ascending:state.ascending};};
+  const current=()=>!disposed&&contextEpoch===listContextEpoch;
+  function restorePosition(token){
+    if(!context?.position)return;
+    const position=context.position;delete context.position;
+    requestAnimationFrame(()=>{
+      if(!current()||token!==generation||!host.isConnected||!host.getClientRects().length||document.querySelector('dialog[open]'))return;
+      const viewport=host.querySelector('.gamaTableViewport');if(viewport)viewport.scrollLeft=position.left;
+      if(document.activeElement===document.body||host.contains(document.activeElement)){
+        const next=position.attribute&&[...host.querySelectorAll('button')].find(button=>button.getAttribute(position.attribute)===position.value);
+        (next||searchInput||host.querySelector('button'))?.focus({preventScroll:true});
+      }
+      window.scrollTo({top:position.top,left:position.x,behavior:'instant'});
+    });
+  }
   const sortBy=async(col,dir)=>{
     const active=document.activeElement,header=active?.closest('th'),column=header?.cellIndex;
     window.GamaTable?.sourceSort(host,col?{col,dir}:null);await refresh({page:0,sort:col||initial.sort,ascending:col?dir!=='desc':initial.ascending!==false});
     if(column!=null&&document.activeElement===document.body){const next=host.querySelector('thead tr')?.cells[column];(next?.querySelector('button')||next)?.focus({preventScroll:true});}
   };
   async function refresh(patch={}) {
-    Object.assign(state,patch);const token=++generation;host.setAttribute('aria-busy','true');
+    if(!current())return;
+    if(context&&Object.keys(patch).length)delete context.position;
+    Object.assign(state,patch);rememberState();const token=++generation;host.setAttribute('aria-busy','true');
     if(!host.firstElementChild)host.innerHTML='<p role="status">'+esc(t('Cargando…'))+'</p>';
     try{
-      const result=await source({...state});if(disposed||token!==generation||!host.isConnected)return;
+      const result=await source({...state});if(!current()||token!==generation||!host.isConnected)return;
       if(result.total>0&&state.page*state.pageSize>=result.total){return refresh({page:Math.max(0,Math.ceil(result.total/state.pageSize)-1)});}
       host.innerHTML=table({columns,items:result.items,empty,className,primaryColumns})+pager(result);
       window.GamaTable?.bind(host.querySelector('table'),{get:()=>state.sort?{col:state.sort,dir:state.ascending===false?'desc':'asc'}:null,set:sortBy,column:(_,i)=>columns[i].sort??null,search:{input:searchControl,get:()=>state.search,set:scheduleSearch}});mount(host);
-    }catch(e){if(!disposed&&token===generation){host.innerHTML='<p role="alert">'+esc(errorMessage(e))+'</p>'+button({label:t('Reintentar'),attrs:'data-arc-retry'});}}
+      restorePosition(token);
+    }catch(e){if(current()&&token===generation){host.innerHTML='<p role="alert">'+esc(errorMessage(e))+'</p>'+button({label:t('Reintentar'),attrs:'data-arc-retry'});}}
     finally{if(token===generation)host.removeAttribute('aria-busy');}
   }
-  function click(e){const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-arc-page'))refresh({page:Math.max(0,state.page+Number(b.dataset.arcPage))});else if(b.hasAttribute('data-arc-sort'))sortBy(b.dataset.arcSort,state.sort===b.dataset.arcSort&&state.ascending!==false?'desc':'asc');else if(b.hasAttribute('data-arc-retry'))refresh();else for(const [attribute,callback] of Object.entries(actions)){if(b.hasAttribute(attribute)){callback(b.getAttribute(attribute),b);break;}}}
-  function scheduleSearch(value){clearTimeout(timer);++generation;state.search=value;timer=setTimeout(()=>refresh({page:0,search:value}),200);}
+  function click(e){const b=e.target.closest('button');if(!b||!current())return;if(b.hasAttribute('data-arc-page'))refresh({page:Math.max(0,state.page+Number(b.dataset.arcPage))});else if(b.hasAttribute('data-arc-sort'))sortBy(b.dataset.arcSort,state.sort===b.dataset.arcSort&&state.ascending!==false?'desc':'asc');else if(b.hasAttribute('data-arc-retry'))refresh();else for(const [attribute,callback] of Object.entries(actions)){if(b.hasAttribute(attribute)){if(context){rememberState();context.position={attribute,value:b.getAttribute(attribute),top:window.scrollY,x:window.scrollX,left:host.querySelector('.gamaTableViewport')?.scrollLeft||0};}callback(b.getAttribute(attribute),b);break;}}}
+  function scheduleSearch(value){clearTimeout(timer);++generation;state.search=value;state.page=0;rememberState();if(context)delete context.position;timer=setTimeout(()=>refresh({page:0,search:value}),200);}
   const search=()=>scheduleSearch(searchInput.value);
+  const leave=event=>{if(context&&current()&&event.detail?.id===host.closest('section[id]')?.id&&!context.position)context.position={top:window.scrollY,x:window.scrollX,left:host.querySelector('.gamaTableViewport')?.scrollLeft||0};};
+  if(context)window.addEventListener('arc:route-leave',leave);
   host.addEventListener('click',click);searchInput?.addEventListener('input',search);refresh();
-  return {refresh,state,dispose(){disposed=true;++generation;clearTimeout(timer);host.removeEventListener('click',click);searchInput?.removeEventListener('input',search);}};
+  return {refresh,state,dispose(){disposed=true;++generation;clearTimeout(timer);host.removeEventListener('click',click);searchInput?.removeEventListener('input',search);window.removeEventListener('arc:route-leave',leave);}};
 }
 export function documentLines(lines,{currency,quantity='quantity',price='unit_price',tax='tax_rate'}={}) {
   const amounts=lines.reduce((a,l)=>{const sub=Number(l[quantity]||0)*Number(l[price]||0);a.subtotal+=sub;a.tax+=sub*Number(l[tax]||0)/100;return a;},{subtotal:0,tax:0});

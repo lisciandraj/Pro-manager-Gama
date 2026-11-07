@@ -227,8 +227,28 @@ function paintFields(){
  const kind=$('ctType').value,box=$('ctFields');
  box.innerHTML=fieldsHtml(kind);U.mount(box);
  for(const id of ['ctf-customer','ctf-lead','ctf-addressMode'])if($(id))$(id).addEventListener('change',parentAddress);parentAddress();
+ box.oninput=showDuplicates;box.onchange=showDuplicates;showDuplicates();
  $('ctKindHint').innerHTML=tr(kindOf(kind).hint);
  $('ctNoLeads').hidden=!(kind==='prospects'&&!leadOptions(draft.lead).length);
+}
+// Suggestions use only the authorized records already loaded for this editor.
+// Similar names remain a warning: two companies may legitimately share a name.
+function showDuplicates(){
+ const host=$('ctDuplicates');if(!host)return;if(editing){host.replaceChildren();host.hidden=true;return;}
+ readDraft();const kind=$('ctType').value,exact=v=>norm(v).trim().replace(/\s+/g,' '),phone=v=>String(v||'').replace(/\D/g,'');
+ const identity=exact(draft.ident),email=exact(draft.email),name=exact(draft.name||draft.fullName),tel=phone(draft.phone);
+ const candidates=(rows||[]).filter(r=>r.kind===kind).map(r=>{const reasons=[];
+  if(identity&&exact(['clients','suppliers'].includes(kind)?r.ref:r.record.identification)===identity)reasons.push('Identificación');
+  if(email&&exact(r.email)===email)reasons.push('Correo');
+  if(name.length>=3&&exact(r.name)===name)reasons.push('Nombre');
+  if(tel.length>=7&&phone(r.phone)===tel)reasons.push('Teléfono');
+  return {r,reasons};
+ }).filter(x=>x.reasons.length).sort((a,b)=>b.reasons.length-a.reasons.length).slice(0,5);
+ const signature=JSON.stringify([kind,candidates.map(({r,reasons})=>[r.key,reasons])]);
+ // Blur/change can fire between pointerdown and click. Keep identical buttons mounted.
+ if(host.dataset.matches===signature)return;host.dataset.matches=signature;host.replaceChildren();host.hidden=!candidates.length;if(!candidates.length)return;
+ host.innerHTML=`<p>${tr('Hay fichas similares. Revísalas antes de crear otra.')}</p>`+candidates.map(({r,reasons})=>`<p><strong>${esc(r.name)}</strong> · ${esc(reasons.map(T).join(', '))}${r.active===false?' · '+esc(T('Archivado')):''} <button type="button" class="arcButton secondary" data-ct-reuse="${esc(r.key)}">${tr('Usar ficha existente')}</button></p>`).join('');
+ host.querySelectorAll('[data-ct-reuse]').forEach(b=>b.onclick=()=>{const match=candidates.find(x=>x.r.key===b.dataset.ctReuse)?.r;if(match)openRecord(match.kind,match.id)});
 }
 function openForm(kind,record=null){
  const list=kinds();if(!list.length)return;
@@ -240,7 +260,7 @@ function openForm(kind,record=null){
   +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Tipo de contacto',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
   +`<p class="gsHint" id="ctKindHint"></p><p class="gsHint" id="ctNoLeads" hidden>${tr('Todavía no hay prospectos: créalos primero en el CRM → Prospectos.')}</p>`
   +`<p class="gsHint">${tr('Los datos comunes se sincronizan entre los roles de la misma identidad. Las condiciones y notas permanecen separadas.')}</p>`
-  +`<div id="ctFields"></div>`
+  +`<div id="ctFields"></div><div id="ctDuplicates" class="arcPanel" role="status" aria-live="polite" hidden></div>`
   +`<p id="ctMsg" role="alert" class="arcFormError"></p><div class="arcToolbar">${U.button({id:'ctSave',type:'submit',variant:'primary',label:T('Guardar contacto')})}${U.button({id:'ctCancel',label:T('Cancelar')})}</div></form>`
   +(record&&kind==='clients'?'<div id="pmCustomerProjects"></div>':''));
  // El tipo es la primera pregunta; al cambiarlo se conserva lo ya escrito que sirva.
@@ -307,12 +327,12 @@ function render(){
  window.GamaUI.bindBack(s);
  $('ctKindFilter').onchange=e=>{kindFilter=e.target.value;grid?.refresh({page:0})};$('ctQualityFilter').onchange=e=>{qualityFilter=e.target.value;grid?.refresh({page:0})};
  $('ctAging').onclick=async()=>{try{await window.ArcLoadScript('gama-collections.js');await window.GamaCollections.aging()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}};$('ctNew').onclick=async()=>{const token=epoch,req=++editorSeq;await load();if(token===epoch&&req===editorSeq&&active())openForm(kinds()[0]?.id)};
- grid=U.dataTable($('ctTable'),{columns:columns(),primaryColumns:['name','kind','phone','email','city','active'],source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
+ grid=U.dataTable($('ctTable'),{contextKey:'contacts',columns:columns(),primaryColumns:['name','kind','phone','email','city','active'],source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
   'data-ct-edit':async key=>{const r=find(key);if(r){await load();await openRecord(r.kind,r.id)}},
   'data-ct-open':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-addresses':async key=>{const r=find(key);if(!r||r.kind!=='clients')return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open('clients',r.id,{tab:'relations'})}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
-  'data-ct-history':key=>{const r=find(key);if(r)window.ArchitectPartners?.open(r.kind==='clients'?'customer':'supplier',r.id)},
+  'data-ct-history':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id,{tab:'history'})}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-cloud':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('gama-store-admin.js');await window.GamaStoreAdmin.customerAccounts(r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-archive':key=>archive(key,false),'data-ct-restore':key=>archive(key,true),'data-ct-purge':purge}});
  window.GamaSuppliers?.migrate?.();

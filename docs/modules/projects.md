@@ -69,3 +69,14 @@ Le moteur jsPDF 2.5.2 est fourni localement et chargé au premier export PDF. Le
 - `src/features/projects/projects-i18n.js` : libellés partagés.
 
 La façade `GamaProjects` conserve les points d’entrée existants. Les clés d’idempotence des formulaires restent stables lors d’une nouvelle tentative. Les événements de changement de compte ou de retrait d’accès invalident les réponses en attente ; le simple renouvellement d’un jeton conserve les formulaires ouverts. Les requêtes d’alertes simultanées partagent un seul appel, puis une actualisation interroge à nouveau le serveur.
+
+
+## Saisie du temps depuis une tâche
+
+Dans le tableau des tâches, le Kanban et la fiche de tâche, **Saisir du temps** ouvre uniquement les heures à ajouter au cumul existant et un aperçu du nouveau total. Le projet et la tâche sont déjà sélectionnés. Après enregistrement, l’utilisateur retrouve la liste ou sa fiche ; les estimations, la checklist et les autres données de la tâche restent inchangées.
+
+Cette saisie suit les droits existants de modification de la tâche et la version lue. Une modification concurrente refuse l’ajout plutôt que remplacer le nouveau cumul ; une erreur conserve la valeur saisie. Les clés de requête existantes empêchent une reprise identique de compter deux fois. Les brouillons restent en mémoire et sont fermés au changement de compte.
+
+Le cumul d’effort de la tâche n’est pas un journal de coûts : il ne crée aucune écriture, aucun coût approuvé et aucun élément de paie. **Heures du projet** conserve son parcours distinct de revue et d’approbation financière, réservé aux responsables autorisés.
+
+Les points fabrication/atelier du plan de simplification sont exclus de cette livraison : aucun moteur de nomenclatures, ordre de fabrication ou poste d’atelier n’est ajouté au module Projets.

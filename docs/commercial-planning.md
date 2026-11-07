@@ -43,3 +43,39 @@ La confirmation explicite de la revue crée un brouillon fournisseur unique, jam
 Appliquer dans l’ordre les migrations `commercial_profitability_and_cash_scenarios`, `recurring_customer_orders`, `scheduled_collection_sequences` et `supplier_document_ocr_review`, puis `collection_sequence_stage_revalidation`, et déployer `coco-supplier-ocr` avec JWT activé. Publier les actifs ERP et le portail Cloudflare issus du build. Les tables d’extension se trouvent dans `private`, avec RLS et sans accès direct pour les utilisateurs. Les façades authentifiées contrôlent les droits et MFA à chaque appel. Les réglages de planification sont audités, les clés et fichiers bruts exclus du journal.
 
 Validation : `tests/commercial-growth-db.test.cjs`, `tests/supplier-ocr-edge.test.mjs`, parcours complémentaires de `tests/accounting.spec.js` et `tests/b2b-portal.spec.js`, puis `npm run update`. Les fixtures d’envoi ne contactent aucun fournisseur ; les fixtures OCR ne facturent aucune extraction réelle. Aucun essai de ces suites ne crée de facture, commande ou message en production.
+
+## Préparation consolidée par client — simplification des flux
+
+Dans **Relances programmées → Regrouper par client**, une liste paginée réunit les
+factures par identifiant client, même lorsque plusieurs clients portent le même
+nom. **Vérifier** affiche les factures, le solde et le montant admissible, ainsi
+que les exclusions : litige, promesse encore valable, suspension, absence de
+consentement, email à compléter, client inactif ou échéance non échue/manquante.
+Pour une facture à échéances multiples, seules les échéances déjà échues entrent
+dans le montant à relancer. Les soldes proviennent du moteur comptable existant,
+avec paiements, avoirs et retenues déjà déduits.
+
+**Préparer un message** relit ces règles et les soldes sur le serveur avant de
+proposer un seul texte par client. Les références des factures admissibles et le
+total apparaissent dans ce texte, modifiable puis copiable. Les factures exclues
+restent visibles dans la revue et ne sont pas ajoutées au texte. Une revue de
+plus de 1 000 factures ne permet pas de préparer un texte incomplet. Cette action
+ne crée pas de message dans la boîte d’envoi et n’envoie rien ; les séquences
+automatiques existantes et leurs validations restent distinctes. Les droits
+création du module Paiements et la MFA sont requis côté serveur. Aucun état
+financier n’est conservé dans les préférences navigateur.
+
+La migration additive `20261107170411_consolidated_collection_preview.sql` doit
+être appliquée avant d’utiliser cette nouvelle vue. Elle n’effectue aucune
+mutation métier et n’active ni règle, ni fournisseur, ni préférence client.
+L’interface reste repliable vers les parcours historiques si elle n’est pas
+encore déployée. Le test DB commercial couvre les noms identiques, échéances
+partielles, paiements, consentement révoqué, litiges/promesses/suspensions, refus
+d’accès et absence d’écriture de message.
+
+L’OCR préremplit également le délai de paiement depuis les dates d’émission et
+d’échéance extraites lorsqu’elles sont cohérentes (0 à 3 650 jours). Les
+identifiants fiscaux sont comparés sans espaces ni ponctuation. Une modification
+d’un champ après acceptation décoche la revue ; elle doit être confirmée à
+nouveau. Dans le rapprochement bancaire, Entrée dans la recherche lance seulement
+la recherche et ne confirme pas le paiement sélectionné.

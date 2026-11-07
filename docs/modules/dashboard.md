@@ -25,3 +25,22 @@ Les cinq commandes récentes montrent leur date de livraison TMS connue et leur 
 ## Chargement progressif
 
 `gama_company_dashboard_sections` reprend les mêmes calculs, dates, droits et devises que l’API complète. Le premier appel demande uniquement les sections des cartes principales de la vue choisie. Les commandes récentes, le compteur SRI et les indicateurs de direction arrivent indépendamment. Les autres sections et priorités attendent l’ouverture de « Tous les indicateurs et priorités », avec reprise par panneau en cas d’échec. Un panneau en attente ne devient pas un zéro. Les réponses tardives sont ignorées après changement de route, compte ou période. L’API historique `gama_company_dashboard` reste complète et compatible.
+
+## Liens directs vers les dettes fournisseurs
+
+Les montants **À payer aux fournisseurs** et **Échu** du panneau Trésorerie ouvrent
+respectivement les factures fournisseurs ouvertes et échues, en conservant les
+contrôles comptables existants. Le point d’entrée Comptabilité accepte uniquement
+les valeurs de filtre connues ; une valeur inconnue revient au filtre ouvert.
+Les indicateurs principaux dont le montant est indisponible affichent « — » et
+sont désactivés. Un zéro réel reste consultable. Ces liens ne chargent aucune
+donnée supplémentaire avant leur activation.
+
+Les statistiques secondaires des fiches d’activité sont également activables :
+les métriques possédant un détail serveur réutilisent ce détail et la période du
+résultat affiché ; les créances échues, réclamations et documents réutilisent les
+filtres métier existants. Les autres statistiques ouvrent leur valeur, la source,
+la date ou période de référence et la méthode de calcul, puis proposent l’accès
+au module source. Cet accès n’est pas présenté comme une liste filtrée. Une
+statistique indisponible reste désactivée. Cette revue n’ajoute aucun calcul
+financier ni lecture métier au chargement.

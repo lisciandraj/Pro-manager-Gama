@@ -1,5 +1,5 @@
 (function(){
-const old=GamaCloud.db;const tables=['service_tickets','service_messages','service_events','business_documents','business_document_files','document_categories','customers','suppliers','sales_orders'];
+const old=GamaCloud.db;const tables=['service_tickets','service_messages','service_events','business_documents','business_document_files','document_categories','customers','suppliers','sales_orders','sales_order_lines'];
 window.__SD={uploads:{},fail:false};
 __DB.document_categories||=[{id:'general',name:'General'},{id:'contracts',name:'Contrats'},{id:'sav',name:'SAV'},{id:'fleet',name:'Fleet'}];
 GamaCloud.db=async()=>{const c=await old();return {...c,auth:{getSession:()=>GamaCloud.getSession()},storage:{from:()=>({upload:async(path,file)=>{__SD.uploads[path]=await file.text();return {data:{path}}},remove:async paths=>{paths.forEach(p=>delete __SD.uploads[p]);return {data:{}}},download:async path=>({data:new Blob([__SD.uploads[path]||'pdf'],{type:'application/pdf'})})})},from(table){

@@ -54,7 +54,14 @@ test('server access boundaries: restricted B2B favorites, project revocation and
   });
 
   await t.test('application export is action-checked and explicitly excludes security material and future resources',async()=>{
-   await system();await q("insert into private.offline_proof_keys(actor_id,key_material) values($1,$2)",[admin,'1'.repeat(64)]);
+   await system();const survey=uuid(),invitation=uuid(),bearer=uuid();
+   await q("insert into private.surveys(id,title,state,invitation_only,questions,created_by) values($1,'Export redaction fixture','open',true,$2::jsonb,$3)",[survey,JSON.stringify([{id:'q',type:'text',title:'Feedback',required:true}]),admin]);
+   await q('insert into private.survey_invitations(id,survey_id,token,customer_id,label,created_by) values($1,$2,$3,$4,$5,$6)',[invitation,survey,bearer,customer,'Export fixture invitation',admin]);
+   const serverSecret=await one('select token from private.website_public_connection where id');
+   await as(null,{role:'anon'});await q("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':serverSecret})]);
+   const response=await one("select public.gama_survey('submit',$1::jsonb)",[JSON.stringify({token:bearer,request_key:uuid(),consent:true,visitor:'198.51.100.73',answers:{q:'Approved synthetic answer'}})]);
+   await system();assert.equal(await one("select payload->>'token' from private.survey_responses where id=$1",[response.id]),bearer,'real public submit stores a secondary capability copy');
+   await q("insert into private.offline_proof_keys(actor_id,key_material) values($1,$2)",[admin,'1'.repeat(64)]);
    await q("insert into public.erp_action_permissions(role,module,allow_export) values('administrador','backup',false) on conflict(role,module) do update set allow_export=false");
    await as(admin,{aal:'aal2'});assert.equal(await one("select private.erp_action_allowed('backup','export')"),false);
    await assert.rejects(one('select public.gama_recovery_export()'),/EXPORT_NOT_ALLOWED|ROLE_NOT_ALLOWED|ACTION_NOT_ALLOWED/);
@@ -70,6 +77,9 @@ test('server access boundaries: restricted B2B favorites, project revocation and
    assert.equal(data.tables['public.products'].find(p=>p.id===allowed).security_export_future_secret,undefined);
    assert.ok(data.coverage.excluded_columns['public.products'].includes('security_export_future_secret'));
    assert.ok(!JSON.stringify(data).includes('1'.repeat(64)));assert.ok(!JSON.stringify(data).includes('future-column-private'));
+   assert.ok(!JSON.stringify(data).includes(bearer),'neither token column nor its payload copy is exported');
+   const exportedResponse=data.tables['private.survey_responses'].find(r=>r.id===response.id);assert.equal(exportedResponse.payload.token,undefined);assert.equal(exportedResponse.payload.answers.q,'Approved synthetic answer');
+   assert.deepEqual(data.coverage.redacted_json_fields['private.survey_responses.payload'],['token']);
    assert.ok(data.identities.some(u=>u.id===admin));assert.equal(data.identities.find(u=>u.id===admin).encrypted_password,undefined);
    await as(manager);await assert.rejects(one('select public.gama_recovery_export()'),/ROLE_NOT_ALLOWED/);
    await as(null,{role:'anon'});await assert.rejects(one('select public.gama_recovery_export()'),/permission denied/);

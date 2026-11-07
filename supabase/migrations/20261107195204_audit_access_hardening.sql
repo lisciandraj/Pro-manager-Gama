@@ -419,10 +419,19 @@ language sql immutable set search_path='' as $policy$
 $policy$;
 revoke all on function private.recovery_business_export_columns() from public,anon,authenticated,service_role;
 
+-- The survey API preserves its bearer token in the idempotency payload. Keep
+-- the response data, but never export that secondary copy of the capability.
+create function private.recovery_business_export_redactions() returns jsonb
+language sql immutable set search_path='' as $$
+ select '{"private.survey_responses.payload":["token"]}'::jsonb
+$$;
+revoke all on function private.recovery_business_export_redactions() from public,anon,authenticated,service_role;
+
 create or replace function private.gama_recovery_export() returns jsonb
 language plpgsql stable security definer set search_path='' as $$
 declare t record;rows jsonb;names text;allowed jsonb:=private.recovery_business_export_columns();
  tables jsonb:='{}';counts jsonb:='{}';meta jsonb:='{}';excluded_tables jsonb;excluded_columns jsonb;
+ redactions jsonb:=private.recovery_business_export_redactions();
 begin
  if auth.uid() is null or not private.erp_module_allowed('backup',array['administrador']) then raise exception 'ROLE_NOT_ALLOWED';end if;
  if not private.erp_action_allowed('backup','export') then raise exception 'EXPORT_NOT_ALLOWED';end if;
@@ -431,7 +440,8 @@ begin
   where c.relkind='r' and n.nspname in('public','private')
    and allowed ? (n.nspname||'.'||c.relname) order by n.nspname,c.relname
  loop
-  select string_agg(format('%I',column_name),',' order by ordinal_position),
+  select string_agg(case when t.qualified='private.survey_responses' and column_name='payload'
+   then format('(%I - %L) as %I',column_name,'token',column_name) else format('%I',column_name) end,',' order by ordinal_position),
    jsonb_agg(jsonb_build_object('name',column_name,'generated',is_generated,'identity',is_identity) order by ordinal_position)
    into names,rows from information_schema.columns
    where table_schema=t.schema_name and table_name=t.table_name
@@ -453,9 +463,9 @@ begin
  ) omitted;
  return jsonb_build_object('format','architect-application-export','version',1,'created_at',now(),'created_by',auth.uid(),
   'scope','business_data_and_files',
-  'coverage',jsonb_build_object('mode','business-allowlist','policy_version','2026-11-07','policy_hash',md5(allowed::text),
+  'coverage',jsonb_build_object('mode','business-allowlist','policy_version','2026-11-07','policy_hash',md5(jsonb_build_object('columns',allowed,'redactions',redactions)::text),
    'full_backup',false,'tables',(select jsonb_agg(k order by k) from jsonb_object_keys(tables) as keys(k)),
-   'excluded_tables',excluded_tables,'excluded_columns',excluded_columns,
+   'excluded_tables',excluded_tables,'excluded_columns',excluded_columns,'redacted_json_fields',redactions,
    'storage_buckets',jsonb_build_array('business-documents','hr-documents','pm-documents','sri-documents','tms-attempt-proofs')),
   'excludes',jsonb_build_array('authentication_secrets','infrastructure_configuration','physical_database_backup',
    'service_and_oauth_credentials','offline_encryption_keys','runtime_authorization_and_queues','existing_public_access_tokens','raw_audit_row_copies'),

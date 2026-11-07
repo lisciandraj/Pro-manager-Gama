@@ -26,6 +26,8 @@ test('the actual Pages deploy waits for every security gate and does not probe p
  assert.ok(!workflow.slice(0,workflow.indexOf('\n  deploy:')).includes('check-agent-live.mjs'));
  assert.ok(deploy.includes('check-agent-live.mjs'));
  const scanner=fs.readFileSync(path.join(root,'.github/workflows/secret-scan.yml'),'utf8');assert.match(scanner,/fetch-depth: 0/);assert.match(scanner,/--redact.*--log-opts=--all/);assert.match(scanner,/sha256sum --check --status/);assert.ok(!scanner.includes('pull_request_target'));
+ const release=fs.readFileSync(path.join(root,'.github/workflows/validate-release.yml'),'utf8');
+ assert.ok(release.includes('group: architect-release-${{ github.workflow }}-${{ github.ref }}'),'standalone and called workflows must not cancel each other');
 });
 test('ERP HTTP CSP retains trusted script hashes and forbids framing while preserving camera/GPS and the existing frame restrictions',()=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'coco-http-'));
@@ -48,6 +50,10 @@ test('release provenance hashes exact public artifacts and private source defini
   const manifest=writeReleaseManifest({root:directory,output,kind:'erp',source:{commit,dirty:false}});
   assert.equal(verifyManifest(output,manifest),true);assert.equal(manifest.source_commit,commit);assert.equal(manifest.components.migrations.length,1);assert.equal(manifest.components.edge_functions[0].name,'example');
   assert.ok(!JSON.stringify(manifest).includes('NEVER_INCLUDE_THIS'));assert.ok(!JSON.stringify(manifest).includes('non-public fixture source'));
+  fs.mkdirSync(path.join(directory,'supabase/functions/_shared'));
+  fs.writeFileSync(path.join(directory,'supabase/functions/_shared/security.mjs'),'export const checked=true;');
+  const changed=writeReleaseManifest({root:directory,output,kind:'erp',source:{commit,dirty:false}});
+  assert.notEqual(changed.components.edge_functions[0].source_sha256,manifest.components.edge_functions[0].source_sha256,'shared security helpers must affect Edge provenance');
   fs.writeFileSync(path.join(output,'index.html'),'changed');assert.throws(()=>verifyManifest(output,manifest),/HASH_MISMATCH/);
   const invalid={...manifest,artifacts:[{file:'../outside',sha256:'a'.repeat(64)}]};assert.throws(()=>verifyManifest(output,invalid),/PATH_INVALID/);
   fs.writeFileSync(path.join(directory,'outside'),'fixture');fs.symlinkSync(path.join(directory,'outside'),path.join(output,'link'));

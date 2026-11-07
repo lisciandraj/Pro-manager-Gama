@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: architect-release-${{ github.ref }}
+  group: architect-release-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   stock-concurrency:

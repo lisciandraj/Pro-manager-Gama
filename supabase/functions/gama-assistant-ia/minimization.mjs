@@ -2,6 +2,10 @@
    It narrows provider disclosure; it never substitutes for database RLS. */
 const personal=new Set(['identification','customer_identification','tax_id','issuer_ruc','ruc','address','delivery_address','city','province','phone','email','contact_name','notes','decision_reason','reason','comment','properties']);
 const payroll=new Set(['salary','gross','net','employer_cost','bank_account','account_number','contract_type']);
+// Amounts, references and JSON calculations in these sources are payroll data
+// even when their column names do not identify a salary.
+const payrollSources=new Set(['hr_ec_benefit_payments','hr_ec_benefits','hr_ec_employee_terms','hr_ec_parameters','hr_ec_utilities']);
+const isPayrollSource=table=>/^hr_.*payroll/.test(table)||payrollSources.has(table);
 export function questionScope(question){
  const q=String(question).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  return {
@@ -16,7 +20,7 @@ export function questionScope(question){
 }
 export function minimizeCatalog(catalog,scope){
  const inventoryModules=new Set(['products','warehouses','stock','gamaPurchasesV14','suppliers']);
- return catalog.filter(t=>t.table!=='profiles'&&(t.module!=='hr'||scope.hr)&&(!(scope.stock&&!scope.finance&&!scope.hr)||inventoryModules.has(t.module))&&(!(scope.hr&&!scope.finance&&!scope.stock)||t.module==='hr')).map(t=>({...t,columns:t.columns.filter(c=>!(!scope.contacts&&personal.has(c))&&!(!scope.payroll&&payroll.has(c)))}));
+ return catalog.filter(t=>t.table!=='profiles'&&(t.module!=='hr'||scope.hr)&&(scope.payroll||!isPayrollSource(t.table))&&(!(scope.stock&&!scope.finance&&!scope.hr)||inventoryModules.has(t.module))&&(!(scope.hr&&!scope.finance&&!scope.stock)||t.module==='hr')).map(t=>({...t,columns:t.columns.filter(c=>!(!scope.contacts&&personal.has(c))&&!(!scope.payroll&&payroll.has(c)))}));
 }
 export function minimizeOverview(overview,scope){
  const data={...overview};

@@ -40,8 +40,12 @@ function revision(root){
 function componentInventory(root){
  const migrations=filesUnder(path.join(root,'supabase/migrations'),{include:file=>file.endsWith('.sql')});
  const edge=path.join(root,'supabase/functions');
+ const shared=filesUnder(path.join(edge,'_shared'),{include:file=>/\.(?:ts|mjs|js|json|jsonc)$/.test(file)});
  const functions=fs.existsSync(edge)?fs.readdirSync(edge,{withFileTypes:true}).filter(e=>e.isDirectory()&&!e.name.startsWith('_')&&!e.name.startsWith('.')).sort((a,b)=>a.name.localeCompare(b.name)).map(e=>{
-  const files=filesUnder(path.join(edge,e.name),{include:file=>/\.(?:ts|mjs|js|json|jsonc)$/.test(file)});
+  // Shared security helpers are part of the deployed function's provenance.
+  // Conservatively include the full shared bundle rather than overlooking a
+  // transitive import when a helper changes without its entrypoint changing.
+  const files=[...filesUnder(path.join(edge,e.name),{include:file=>/\.(?:ts|mjs|js|json|jsonc)$/.test(file)}),...shared].sort();
   return {name:e.name,source_sha256:sha256(files.map(file=>relative(root,file)+'\0'+sha256(fs.readFileSync(file))).join('\n'))};
  }):[];
  const python=filesUnder(path.join(root,'services/sri'),{include:file=>/\.(?:py|xsd)$/.test(file)||/requirements\.(?:txt|lock)$/.test(file)});

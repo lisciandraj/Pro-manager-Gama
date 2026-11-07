@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{webcrypto}=require('node:crypto');
 const {verify,hash}=require('../scripts/restore-application-export.cjs');
 const phrase='Synthetic recovery phrase 2026';
-const snapshot=()=>({format:'architect-application-export',version:1,scope:'business_data_and_files',created_at:'2026-11-07T12:00:00Z',tables:{'public.products':[{id:'fixture',name:'Sensitive synthetic customer product'}]},counts:{'public.products':1},columns:{'public.products':[{name:'id'},{name:'name'}]},coverage:{mode:'business-allowlist',full_backup:false,tables:['public.products'],excluded_tables:['private.offline_proof_keys'],excluded_columns:{}},identities:[],storage_objects:[],storage_buckets:[],files:[]});
+const snapshot=()=>({format:'architect-application-export',version:1,scope:'business_data_and_files',created_at:'2026-11-07T12:00:00Z',tables:{'public.products':[{id:'fixture',name:'Sensitive synthetic customer product'}]},counts:{'public.products':1},columns:{'public.products':[{name:'id'},{name:'name'}]},coverage:{mode:'business-allowlist',full_backup:false,tables:['public.products'],excluded_tables:['private.offline_proof_keys'],excluded_columns:{},redacted_json_fields:{'private.survey_responses.payload':['token']}},identities:[],storage_objects:[],storage_buckets:[],files:[]});
 function harness({rpc}={}){
  const nodes=Object.fromEntries(['backup','recoveryPassphrase','recoveryPassphraseRepeat','recoveryFile','recoveryExport','recoveryExcel','recoveryVerify','recoveryStatus'].map(id=>[id,{id,value:'',dataset:{},files:[],textContent:'',replaceChildren(){this.textContent=''}}]));
  const downloads=[],events={},blobs=new Map();let calls=0;

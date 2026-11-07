@@ -15,6 +15,7 @@ import socket
 import stat
 import subprocess
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from coco_operations import NoRedirect, atomic_json, read_regular, verify_bundle
@@ -75,20 +76,40 @@ def restore_database(path, identity, database_url):
 
 def restore_storage(bundle, manifest, identity, origin, service_key, opener=None):
     opener = opener or urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
-    def call(path, payload, content_type='application/json'):
-        request = urllib.request.Request(origin + path, data=payload, method='POST', headers={
-            'apikey': service_key, 'Authorization': 'Bearer ' + service_key, 'Content-Type': content_type})
+    def call(path, payload=None, content_type='application/json', method='POST', extra_headers=None):
+        request = urllib.request.Request(origin + path, data=payload, method=method, headers={
+            'apikey': service_key, 'Authorization': 'Bearer ' + service_key, 'Content-Type': content_type,
+            **(extra_headers or {})})
         with opener.open(request, timeout=60) as response:
             if not 200 <= response.status < 300: raise RuntimeError('STORAGE_RESTORE_FAILED')
+            result = response.read(65537)
+            if len(result) > 65536: raise RuntimeError('STORAGE_RESPONSE_TOO_LARGE')
+            return result
     for bucket in manifest['buckets']:
-        # Rehearsal files are always private; do not expose restored documents.
-        call('/storage/v1/bucket', json.dumps({'id': bucket['id'], 'name': bucket.get('name', bucket['id']), 'public': False}).encode())
+        bucket_path = '/storage/v1/bucket/' + urllib.parse.quote(bucket['id'], safe='')
+        # A full pg_dump already restores storage.buckets and storage.objects.
+        # Reuse that metadata instead of failing with Duplicate/409. Only 404
+        # permits creation; authentication and other failures remain fatal.
+        try:
+            existing = json.loads(call(bucket_path, method='GET'))
+        except urllib.error.HTTPError as error:
+            if error.code != 404: raise
+            call('/storage/v1/bucket', json.dumps({'id': bucket['id'], 'name': bucket.get('name', bucket['id']), 'public': False}).encode())
+        else:
+            if existing.get('id') != bucket['id']:
+                raise RuntimeError('STORAGE_BUCKET_ID_MISMATCH')
+            # Rehearsal files are always private, including a restored public
+            # source bucket. Other bucket settings are left unchanged.
+            call(bucket_path, json.dumps({'public': False}).encode(), method='PUT')
     count = 0
     for item in manifest['files']:
         if not item.get('bucket'): continue
         content = decrypt_bytes(bundle/item['file'], identity, 100 * 1024 * 1024)
         path = '/storage/v1/object/' + urllib.parse.quote(item['bucket'], safe='') + '/' + urllib.parse.quote(item['name'], safe='/')
-        call(path, content, 'application/octet-stream'); count += 1
+        # The ciphertext-bound manifest selects the exact object. Replacing
+        # metadata left by pg_restore (or by an interrupted rehearsal) is safe
+        # only inside the loopback/offline target guarded by main().
+        call(path, content, 'application/octet-stream', extra_headers={'x-upsert': 'true'}); count += 1
     return count
 
 

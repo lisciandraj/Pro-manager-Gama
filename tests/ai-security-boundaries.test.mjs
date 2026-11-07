@@ -45,6 +45,29 @@ test('HR scope does not silently grant salary disclosure and SQL query filters o
  assert.throws(()=>scopedQuery({table:'hr_employee_private',operation:'count',filters:[{column:'salary',operator:'gt',value:0}]},absence),/COLUMN_NOT_ALLOWED/);
  assert.ok(minimizeCatalog(catalog,questionScope('Nómina y salarios'))[0].columns.includes('salary'));
 });
+test('absence questions exclude complete payroll sources from the real HR schema while payroll questions retain them',()=>{
+ // Current public HR table/column names, including Ecuador payroll sources.
+ const schema={
+  hr_absences:['id','employee_id','kind','start_date','end_date','days','status','created_at','start_fraction','end_fraction','decision_reason','reviewed_by','reviewed_at'],
+  hr_payroll:['id','employee_id','period','source_ref','gross','net','employer_cost','cost_center','status','created_at','erp_reference','ec_calculation'],
+  hr_payroll_payments:['id','payroll_id','paid_on','amount','reference','status','reason','created_at','financial_account_id'],
+  hr_ec_benefit_payments:['id','benefit_id','request_key','amount','paid_on','financial_account_id','reference','entry_id','created_by','created_at'],
+  hr_ec_benefits:['id','employee_id','kind','from_date','to_date','amount','source_id','entry_id','created_by','created_at'],
+  hr_ec_employee_terms:['id','employee_id','effective_from','decimo13_mode','decimo14_mode','reserve_mode','region','other_fulltime','sectoral_minimum','work_ratio','bank_name','bank_number','bank_kind','beneficiary_id','evidence','created_by','created_at'],
+  hr_ec_parameters:['id','year','parameters','evidence','confirmed_by','confirmed_at','created_at'],
+  hr_ec_payroll_signatures:['payroll_id','employee_id','signed_by','signed_at','snapshot_hash','signature_png'],
+  hr_ec_utilities:['id','year','request_key','net_profit','calculation','evidence','created_by','created_at','entry_id']
+ };
+ const catalog=Object.entries(schema).map(([table,columns])=>({table,module:'hr',columns}));
+ const absences=minimizeCatalog(catalog,questionScope('Analiza las ausencias del personal'));
+ assert.deepEqual(absences.map(t=>t.table),['hr_absences']);
+ for(const table of Object.keys(schema).filter(t=>t!=='hr_absences'))assert.throws(()=>scopedQuery({table,operation:'count'},absences),/TABLE_NOT_ALLOWED/);
+ assert.throws(()=>scopedQuery({table:'hr_payroll_payments',operation:'rows',columns:['amount','reference']},absences),/TABLE_NOT_ALLOWED/);
+ const salaries=minimizeCatalog(catalog,questionScope('Analiza la nómina, salarios y pagos'));
+ assert.deepEqual(salaries.map(t=>t.table),Object.keys(schema));
+ assert.deepEqual(scopedQuery({table:'hr_payroll_payments',operation:'rows',columns:['amount','reference']},salaries).columns,['amount','reference']);
+ assert.ok(salaries.find(t=>t.table==='hr_payroll').columns.includes('ec_calculation'));
+});
 test('global budget failure is closed and every attempted provider call finalizes once without content',async()=>{
  const calls=[],root='https://db.invalid';
  const withBudget=createProviderBudget({root,service:'server-fixture',fetcher:async(url,options)=>{

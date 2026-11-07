@@ -20,6 +20,12 @@ function verify(envelope,{passphrase}={}){
  if(data.scope==='business_data_and_files'){
   const c=data.coverage;if(c?.mode!=='business-allowlist'||c.full_backup!==false||!Array.isArray(c.tables)||new Set(c.tables).size!==c.tables.length||JSON.stringify([...c.tables].sort())!==JSON.stringify(Object.keys(data.tables).sort())||!Array.isArray(c.excluded_tables)||!c.excluded_columns)throw Error('INVALID_EXPORT_COVERAGE');
   for(const name of c.excluded_tables)if(Object.hasOwn(data.tables,name))throw Error('EXCLUDED_TABLE_PRESENT: '+name);
+  if(!c.redacted_json_fields||typeof c.redacted_json_fields!=='object'||Array.isArray(c.redacted_json_fields))throw Error('INVALID_EXPORT_COVERAGE');
+  for(const [path,fields] of Object.entries(c.redacted_json_fields)){
+   const parts=path.split('.');if(parts.length!==3||!Array.isArray(fields))throw Error('INVALID_EXPORT_COVERAGE');
+   for(const row of data.tables[parts.slice(0,2).join('.')]||[])for(const field of fields)if(row[parts[2]]&&Object.hasOwn(row[parts[2]],field))throw Error('EXPORT_REDACTED_FIELD_PRESENT: '+path);
+  }
+
  }else if(data.scope!=='application_data_and_files')throw Error('INVALID_EXPORT_SCOPE');
  if(!Array.isArray(data.files)||!Array.isArray(data.storage_objects)||data.files.length!==data.storage_objects.length)throw Error('FILES_MISSING');
  const paths=new Set();for(const file of data.files){const path=file.bucket+'/'+file.path;if(paths.has(path)||!data.storage_objects.some(o=>o.bucket===file.bucket&&o.path===file.path))throw Error('FILE_MANIFEST_MISMATCH');paths.add(path);const content=bytes(file.base64);if(content.length!==file.bytes||hash(content)!==file.sha256)throw Error('FILE_HASH_MISMATCH');}
@@ -30,7 +36,7 @@ async function drill(envelope,options={}){const started=Date.now(),data=verify(e
  const meta=(await db.query("select table_schema,table_name,column_name,is_generated from information_schema.columns where table_schema in ('public','private') and table_name in (select table_name from information_schema.tables where table_type='BASE TABLE' and table_schema in ('public','private')) order by table_schema,table_name,ordinal_position")).rows;
  const schemaTables=new Map();for(const c of meta){const key=c.table_schema+'.'+c.table_name;if(!schemaTables.has(key))schemaTables.set(key,[]);if(c.is_generated==='NEVER')schemaTables.get(key).push(c.column_name);}
  const expected=Object.keys(allowed).filter(name=>schemaTables.has(name)).sort();
- const currentPolicyHash=(await db.query('select md5(private.recovery_business_export_columns()::text) h')).rows[0].h;
+ const currentPolicyHash=(await db.query("select md5(jsonb_build_object('columns',private.recovery_business_export_columns(),'redactions',private.recovery_business_export_redactions())::text) h")).rows[0].h;
  if(data.coverage.policy_hash!==currentPolicyHash||JSON.stringify(Object.keys(data.tables).sort())!==JSON.stringify(expected))throw Error('EXPORT_POLICY_CHANGED');
  const tables=new Map();for(const name of Object.keys(data.tables)){
   if(!schemaTables.has(name)||!Object.hasOwn(allowed,name))throw Error('EXPORT_RESOURCE_NOT_ALLOWED: '+name);
@@ -53,6 +59,8 @@ async function drill(envelope,options={}){const started=Date.now(),data=verify(e
  // Only serial/identity columns in the restored scope are rebuilt.
  const sequences=(await db.query("select table_schema,table_name,column_name,pg_get_serial_sequence(format('%I.%I',table_schema,table_name),column_name) seq from information_schema.columns where table_schema in ('public','private') and (is_identity='YES' or column_default like 'nextval(%')")).rows;
  for(const s of sequences)if(s.seq&&tables.has(s.table_schema+'.'+s.table_name)){const max=(await db.query(`select max(${ident(s.column_name)})::bigint n from ${ident(s.table_schema)}.${ident(s.table_name)}`)).rows[0].n;await db.query('select setval($1::regclass,$2::bigint,$3)',[s.seq,Math.max(1,Number(max||0)),max!=null]);}
+ // Optional trusted fixture inspection runs only against this disposable local DB.
+ if(typeof options.onRestored==='function')await options.onRestored(db);
  await db.exec('commit');return {success:true,tables:tables.size,rows,relations:fks.length,files:data.files.length,milliseconds:Date.now()-started,scope:'Isolated scoped business data, checksums and relations. Excluded credentials/runtime state, managed Auth and Storage services are not recovered.'};
  }finally{await db.close()}}
 module.exports={verify,drill,hash,decryptEnvelope};

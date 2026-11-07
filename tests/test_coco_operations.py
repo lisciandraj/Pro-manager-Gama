@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
@@ -153,6 +154,47 @@ class OpsTests(unittest.TestCase):
             self.assertEqual(drill.main(['--bundle',str(p),'--output',str(report)]),0)
             run.assert_not_called()
         self.assertFalse(json.loads(report.read_text())['restore_executed'])
+
+    def test_restore_reuses_dump_restored_bucket_and_upserts_exact_objects(self):
+        calls=[]
+        class Response(io.BytesIO):
+            status=200
+        def respond(request, timeout):
+            calls.append(request)
+            if request.method=='GET': return Response(b'{"id":"private-docs","public":true}')
+            if request.method=='PUT':
+                self.assertEqual(json.loads(request.data),{'public':False})
+                return Response(b'{}')
+            # Existing object metadata would reject a plain POST. The fixture
+            # permits only the explicit replacement used after a full dump.
+            if request.get_header('X-upsert')!='true':
+                raise urllib.error.HTTPError(request.full_url,409,'Duplicate',{},None)
+            self.assertEqual(request.data,b'dummy-decrypted-document')
+            return Response(b'{}')
+        opener=mock.Mock();opener.open.side_effect=respond
+        manifest={'buckets':[{'id':'private-docs','public':True}],
+                  'files':[{'bucket':'private-docs','name':'fixture.pdf','file':'object-000000.age'}]}
+        with mock.patch.object(drill,'decrypt_bytes',return_value=b'dummy-decrypted-document'):
+            self.assertEqual(drill.restore_storage(self.root,manifest,self.root/'identity','http://127.0.0.1:54321','dummy',opener),1)
+        self.assertEqual([r.method for r in calls],['GET','PUT','POST'])
+        self.assertTrue(all(r.full_url.startswith('http://127.0.0.1:54321/') for r in calls))
+
+    def test_restore_creates_only_missing_bucket_and_never_swallows_access_failure(self):
+        calls=[]
+        class Response(io.BytesIO):
+            status=200
+        def missing(request, timeout):
+            calls.append(request)
+            if request.method=='GET': raise urllib.error.HTTPError(request.full_url,404,'Missing',{},None)
+            self.assertEqual(json.loads(request.data),{'id':'private-docs','name':'private-docs','public':False})
+            return Response(b'{}')
+        opener=mock.Mock();opener.open.side_effect=missing
+        manifest={'buckets':[{'id':'private-docs'}],'files':[]}
+        self.assertEqual(drill.restore_storage(self.root,manifest,self.root/'identity','http://127.0.0.1:54321','dummy',opener),0)
+        self.assertEqual([r.method for r in calls],['GET','POST'])
+        opener.open.side_effect=urllib.error.HTTPError('http://127.0.0.1:54321',403,'Forbidden',{},None)
+        with self.assertRaises(urllib.error.HTTPError):
+            drill.restore_storage(self.root,manifest,self.root/'identity','http://127.0.0.1:54321','dummy',opener)
 
     def test_monitor_does_not_claim_success_when_required_alert_is_unconfigured(self):
         p=self.root/'signals.json';p.write_text(json.dumps({'version':1,'observed_at':ops.now().isoformat(),'counts':{'sensitive_export':1}}))

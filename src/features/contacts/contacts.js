@@ -19,6 +19,15 @@ const CATEGORIAS=[['A','A · Mayorista (por defecto)'],['B','B · Venta al detal
 /* Los campos de cada tipo, en su orden. Lo que tienen en común (nombre,
    teléfono, correo, ciudad…) se conserva al cambiar de tipo antes de guardar. */
 const FIELDS={
+ nature:{label:'Particular o empresa',type:'select',options:[['person','Particular'],['company','Empresa']]},
+ title:{label:'Título de cortesía',maxLength:80},
+ mobile:{label:'Móvil',type:'tel',maxLength:80},
+ street2:{label:'Complemento de dirección',maxLength:500},
+ companyRegistry:{label:'Registro de la empresa',maxLength:120},
+ reference:{label:'Referencia interna',maxLength:120},
+ imageUrl:{label:'Foto / logotipo (URL)',type:'url',maxLength:2000,help:'Enlace HTTPS a una imagen.'},
+ tags:{label:'Etiquetas separadas por comas',maxLength:3000},
+ salesperson:{label:'Comercial responsable',type:'select'},
  name:{label:'Nombre / razón social',required:true,maxLength:300},
  identKind:{label:'Tipo de identificación fiscal',type:'select',options:[['auto','Automático (RUC o cédula)'],['cedula','Cédula'],['ruc_natural','RUC persona natural'],['ruc_company','RUC sociedad'],['ruc_public','RUC entidad pública'],['ruc_foreign','RUC extranjero sin cédula'],['foreign_document','Documento extranjero'],['consumer','Consumidor final']]},
  ident:{label:'Identificación (RUC, cédula o pasaporte)',maxLength:100},
@@ -49,17 +58,18 @@ const FIELDS={
  notes:{label:'Observaciones',type:'textarea',maxLength:4000}
 };
 // One common field vocabulary; role-specific conditions and personal names stay distinct.
-const COORDINATES=['phone','phone2','email','address','city','province','postalCode','country','lat','lng'];
-const SHARED_PROFILE=['website','industry','language'];
+const COORDINATES=['phone','mobile','phone2','email','address','street2','city','province','postalCode','country','lat','lng'];
+const SHARED_PROFILE=['website','industry','language','reference','tags','imageUrl','salesperson'];
 const LAYOUT={
- clients:['name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'identKind',...COORDINATES,...SHARED_PROFILE,'category','terms','notes'],
- suppliers:['name','ident','identKind','contactName',...COORDINATES,...SHARED_PROFILE,'notes'],
- people:['customer','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes'],
- prospects:['lead','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes']
+ clients:['nature','title','name',['ident',{label:'Identificación (RUC, cédula o pasaporte)',required:true}],'identKind','companyRegistry',...COORDINATES,...SHARED_PROFILE,'category','terms','notes'],
+ suppliers:['nature','title','name','ident','identKind','companyRegistry','contactName',...COORDINATES,...SHARED_PROFILE,'notes'],
+ people:['customer','nature','title','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes'],
+ prospects:['lead','nature','title','fullName','ident','identKind','jobTitle','role','addressMode',...COORDINATES,...SHARED_PROFILE,'linkedin','primary','notes']
 };
 const ARCHIVE='contacts',PAGE=20;
 let directoryUnavailable=false,pageRows=[];
 let kindFilter='',qualityFilter='',rows=null,leads=[],grid=null,editing=null,draft={},pendingOpen=null,epoch=0,editorSeq=0,who;
+let salespeople=[],salespeopleReady=false;
 // Clientes y proveedores son del módulo Contactos; los contactos de prospectos, del CRM.
 const can=id=>!!window.gamaAccessAllowed?.(['prospects','people'].includes(id)?'crm':'contacts');
 const kinds=()=>KINDS.filter(k=>can(k.id));
@@ -180,7 +190,10 @@ async function purge(key){
 
 /* ---- el formulario ---- */
 function fromRecord(kind,x){
- const common={ident:x.taxId??x.identification,identKind:x.identificationKind||x.identification_kind||'auto',phone:x.phone,phone2:x.phone2,email:x.email,
+ const p=x._contactProfile||{};
+ const common={nature:p.nature||'',title:p.title,mobile:p.mobile,street2:p.street2,
+  companyRegistry:p.company_registry,reference:p.ref,imageUrl:p.image_url,tags:(p.tags||[]).join(', '),salesperson:p.salesperson_id,
+  ident:x.taxId??x.identification,identKind:x.identificationKind||x.identification_kind||'auto',phone:x.phone,phone2:x.phone2,email:x.email,
   address:x.address,city:x.city,province:x.province,postalCode:x.postalCode??x.postal_code,country:x.country,lat:x.lat??'',lng:x.lng??'',
   website:x.website,industry:x.industry,language:x.language,notes:x.notes};
  if(kind==='clients')return {...common,name:x.name,category:x.category||'A',terms:x.paymentTermsDays??''};
@@ -195,20 +208,40 @@ async function openRecord(kind,id){
   if(token!==epoch||request!==editorSeq||!active())return;
   if(!data?.record||!Number.isInteger(data.version))throw Error('CONTACT_INVALID_RESPONSE');
   const record=kind==='clients'?window.ArcEntities.customerFromRow(data.record):kind==='suppliers'?window.ArcEntities.supplierFromRow(data.record):data.record;
-  openForm(kind,{...record,_contactVersion:data.version,_conflicts:data.profile?.alignment_conflicts||{},_inheritedAddress:data.inherited_address});say('');
+  openForm(kind,{...record,_contactProfile:data.profile||{},_contactVersion:data.version,_conflicts:data.profile?.alignment_conflicts||{},_inheritedAddress:data.inherited_address});say('');
  }catch(e){if(token===epoch&&request===editorSeq)say(window.ArcErrors?.message(e)||e.message)}
 }
 const leadOptions=current=>leads.filter(l=>l.active!==false||l.id===current).map(l=>({value:l.id,label:leadName(l)})).sort((a,b)=>a.label.localeCompare(b.label));
+function salespersonOptions(){
+ const options=salespeople.map(p=>({value:p.id,label:p.full_name||T('Comercial responsable')}));
+ if(draft.salesperson&&!options.some(p=>p.value===draft.salesperson))options.push({value:draft.salesperson,label:T('Comercial asignado (no disponible)')});
+ return options;
+}
+async function loadSalespeople(request){
+ if(!window.gamaAccessAllowed?.('crm'))return;
+ const el=$('ctf-salesperson');if(!el)return;
+ el.disabled=!salespeopleReady;
+ try{
+  if(!salespeopleReady){const result=await window.GamaCloud.list('crm_team',{select:'id,full_name',order:'full_name'});if(result.error)throw result.error;
+   if(request!==editorSeq||!$('ctEditor')?.isConnected||!active())return;
+   salespeople=result.data||[];salespeopleReady=true;
+  }
+  const select=$('ctf-salesperson');if(!select)return;
+  select.innerHTML='<option value="">—</option>'+salespersonOptions().map(p=>`<option value="${esc(p.value)}">${esc(p.label)}</option>`).join('');
+  select.value=draft.salesperson||'';select.disabled=false;
+ }catch(_){if(request===editorSeq&&$('ctf-salesperson'))$('ctf-salesperson').disabled=true}
+}
+function formLayout(kind){return LAYOUT[kind].filter(entry=>entry!=='salesperson'||!!window.gamaAccessAllowed?.('crm'))}
 function fieldsHtml(kind){
- const rendered=LAYOUT[kind].map(entry=>{
+ const layout=formLayout(kind),rendered=layout.map(entry=>{
   const [key,over]=Array.isArray(entry)?entry:[entry,{}];
   const f={...FIELDS[key],...over};
-  const options=key==='customer'?(rows||[]).filter(r=>r.kind==='clients'&&(r.active||r.id===draft.customer)).map(r=>({value:r.id,label:r.name})):key==='lead'?leadOptions(draft.lead):(f.options||[]).map(([value,label])=>({value,label:T(label)}));
+  const options=key==='salesperson'?salespersonOptions():key==='customer'?(rows||[]).filter(r=>r.kind==='clients'&&(r.active||r.id===draft.customer)).map(r=>({value:r.id,label:r.name})):key==='lead'?leadOptions(draft.lead):(f.options||[]).map(([value,label])=>({value,label:T(label)}));
   return U.field({id:'ctf-'+key,key,label:f.label,type:f.type||'text',value:draft[key]??(f.type==='checkbox'?false:''),required:!!f.required&&!(editing&&((key==='ident'&&!editing.record.taxId)||(key==='terms'&&editing.record.paymentTermsDays==null))),
    maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
  });
- const keys=LAYOUT[kind].map(e=>Array.isArray(e)?e[0]:e);
- const groups=[['Identidad',['name','ident','identKind','customer','lead','fullName']],['Datos de contacto',['contactName','phone','phone2','email','website']],['Dirección',['addressMode','address','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','industry','language']],['Observaciones',['notes']]];
+ const keys=layout.map(e=>Array.isArray(e)?e[0]:e);
+ const groups=[['Identidad',['customer','lead','nature','title','name','fullName','ident','identKind','companyRegistry','reference','imageUrl']],['Datos de contacto',['contactName','phone','mobile','phone2','email','website']],['Dirección',['addressMode','address','street2','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','salesperson','industry','language','tags']],['Observaciones',['notes']]];
  const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
  const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
  const gpsHint={es:'Para localizar la dirección, indica la calle, el número y la ciudad. Las coordenadas guardadas se utilizan en la planificación TMS. Geocodificación: Photon / © OpenStreetMap contributors.',fr:'Pour localiser l’adresse, renseignez la rue, le numéro et la ville. Les coordonnées enregistrées sont utilisées pour la planification TMS. Géocodage : Photon / © OpenStreetMap contributors.',en:'To locate the address, enter the street, number and city. Saved coordinates are used for TMS planning. Geocoding: Photon / © OpenStreetMap contributors.'}[window.GamaI18n?.language||'es'];
@@ -217,8 +250,11 @@ function fieldsHtml(kind){
 function parentAddress(){
  const kind=$('ctType').value,person=['people','prospects'].includes(kind),inherit=person&&($('ctf-addressMode')?.value||'parent')==='parent';
  const parent=kind==='people'?(rows||[]).find(r=>r.kind==='clients'&&r.id===$('ctf-customer')?.value)?.record:leads.find(l=>l.id===$('ctf-lead')?.value);
- const box=$('ctParentAddress');if(box){box.hidden=!inherit;box.textContent=inherit?T('Dirección de la empresa')+': '+(window.ArcEntities.formatAddress(parent||editing?.record?._inheritedAddress||{})||'—'):''}
- for(const key of ['address','city','province','postalCode','country','lat','lng']){const el=$('ctf-'+key);if(el){el.disabled=inherit;const wrapper=el.closest('.arcField');if(wrapper)wrapper.hidden=inherit}}
+ const inherited=editing?.record?._inheritedAddress;
+ const currentParent=kind==='people'?$('ctf-customer')?.value:$('ctf-lead')?.value;
+ const preview=inherited?.id===currentParent?inherited:parent||{};
+ const box=$('ctParentAddress');if(box){box.hidden=!inherit;box.textContent=inherit?T('Dirección de la empresa')+': '+([preview.address,preview.street2,preview.city,preview.province,preview.postalCode??preview.postal_code,preview.country].filter(Boolean).join(', ')||'—'):''}
+ for(const key of ['address','street2','city','province','postalCode','country','lat','lng']){const el=$('ctf-'+key);if(el){el.disabled=inherit;const wrapper=el.closest('.arcField');if(wrapper)wrapper.hidden=inherit}}
 }
 function readDraft(){
  $('ctFields')?.querySelectorAll('[name]').forEach(el=>{draft[el.name]=el.type==='checkbox'?el.checked:el.value});
@@ -229,12 +265,13 @@ function paintFields(){
  for(const id of ['ctf-customer','ctf-lead','ctf-addressMode'])if($(id))$(id).addEventListener('change',parentAddress);parentAddress();
  $('ctKindHint').innerHTML=tr(kindOf(kind).hint);
  $('ctNoLeads').hidden=!(kind==='prospects'&&!leadOptions(draft.lead).length);
+ loadSalespeople(editorSeq);
 }
 function openForm(kind,record=null){
  const list=kinds();if(!list.length)return;
  if(!list.some(k=>k.id===kind))kind=list[0].id;
  const box=$('ctEditor');if(!box)return;
- editing=record?{kind,id:record.id,record}:null;draft=record?fromRecord(kind,record):{category:'A',addressMode:'parent'};
+ editorSeq++;editing=record?{kind,id:record.id,record}:null;draft=record?fromRecord(kind,record):{category:'A',addressMode:'parent',nature:['people','prospects'].includes(kind)?'person':'company'};
  box.hidden=false;box.dataset.kind=kind;
  U.render(box,`<form id="ctForm" class="arcPanel arcForm ctForm"><div class="ctFormHead"><h3>${tr(record?'Editar contacto':'Nuevo contacto')}</h3><button type="button" class="arcButton secondary" id="ctClose">${tr('Cerrar')}</button></div>`
   +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Tipo de contacto',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
@@ -269,6 +306,19 @@ async function save(){
   identification_kind:d.identKind||'auto',notes:clean(d.notes)};
  data[kind==='suppliers'?'tax_id':'identification']=clean(d.ident);
  const own=!['people','prospects'].includes(kind)||d.addressMode==='own';
+ const odoo={nature:d.nature||null,title:clean(d.title),mobile:clean(d.mobile),ref:clean(d.reference),image_url:clean(d.imageUrl),
+  tags:String(d.tags||'').split(',').map(s=>s.trim()).filter(Boolean)};
+ if(own)odoo.street2=clean(d.street2);
+ if(['clients','suppliers'].includes(kind))odoo.company_registry=clean(d.companyRegistry);
+ if($('ctf-salesperson')&&!$('ctf-salesperson').disabled&&clean(d.salesperson)!==(editing?.record?._contactProfile?.salesperson_id||null))odoo.salesperson_id=clean(d.salesperson);
+ // Do not reinterpret existing tags (which may contain commas), or normalize
+ // optional profile values, during an unrelated contact edit.
+ if(editing){const original=editing.record._contactProfile||{};
+  for(const key of Object.keys(odoo)){
+   if(key==='tags'?String(d.tags||'')===(original.tags||[]).join(', '):odoo[key]===clean(original[key]))delete odoo[key];
+  }
+ }
+ if(Object.keys(odoo).length)data.odoo=odoo;
  if(own){for(const [key,column] of [['address','address'],['city','city'],['province','province'],['postalCode','postal_code'],['country','country']])data[column]=clean(d[key]);
   writeGps(data,d,editing?.record);
  }
@@ -336,7 +386,7 @@ function edit(kind,id){pendingOpen={kind,id};if(active()){flush();return true}re
 window.GamaArchive.register(ARCHIVE,()=>grid?.refresh({page:0}));
 window.addEventListener('gama:data-change',e=>{if(['customers','suppliers','crm_contacts','crm_leads'].includes(e.detail?.table))refresh()});
 window.addEventListener('gama:language-change',()=>{if(active())render()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;pageRows=[];directoryUnavailable=false;who=undefined;closeForm()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;pageRows=[];directoryUnavailable=false;who=undefined;salespeople=[];salespeopleReady=false;closeForm()});
 window.ArcRouter.onEnter('contacts',()=>{
  // Los contactos del CRM no llegan en tiempo real: al entrar se leen de nuevo.
  for(const t of ['crm_contacts','crm_leads'])window.ArcData.invalidate(t);

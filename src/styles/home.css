@@ -2,6 +2,13 @@
 #mainmenu{padding:0}
 #mainmenu .gamaF2Head{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 12px}
 #mainmenu .gamaF2HeadActions{flex:none}
+#mainmenu .cocoEnvironmentSwitch{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;margin-right:auto;min-width:0;max-width:100%}
+#mainmenu .cocoEnvironmentLinks{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+#mainmenu .cocoEnvironmentLink{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;border-radius:8px;color:var(--arc-text-muted);font-size:14px;font-weight:500;line-height:1.4;text-decoration:none;overflow-wrap:anywhere}
+#mainmenu .cocoEnvironmentLink:hover{color:var(--arc-accent-600);background:var(--arc-surface-2)}
+#mainmenu .cocoEnvironmentLink[aria-current=page]{color:var(--arc-accent-600);background:var(--arc-surface-2);font-weight:600}
+#mainmenu .cocoEnvironmentLink:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
+#mainmenu .cocoEnvironmentVersion{color:var(--arc-text-muted);font-size:12px;line-height:1.5;overflow-wrap:anywhere}
 #mainmenu .gamaF2Head h1{margin:0;font-size:40px;line-height:1.12;letter-spacing:-.035em;color:var(--arc-text);font-weight:800}
 #mainmenu .gamaF2Head p{margin:4px 0 0;color:var(--arc-text-muted);font-size:16px;line-height:1.5}
 .arcSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
